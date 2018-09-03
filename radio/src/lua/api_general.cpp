@@ -1787,6 +1787,192 @@ static int luaSerialRead(lua_State * L)
   return 1;
 }
 
+/*luadoc
+@function fileSystem(operation, path [, to_path | get_file_info])
+
+Performs various file system operations.
+
+@param operation (string) (required) The action to perform. Valid operations are:
+     * `stat` - Checks if file/directory exists and optionally returns additional extended information about it. Returns (0) if exists.
+     * `mkd`  - Create a directory.
+     * `ls`   - Return a directory listing.
+     * `ren`  - Rename or move a file or directory.
+     * `cpy`  - Copy a file.
+     * `del`  - Delete a file or directory. (Directory has to be empty.)
+
+@param path (string) (required) Full path to file/directory on which to perform the operation.
+
+@param to_path (string) Required for `ren` and `cpy` operations. Full path of destination file/directory.
+
+@param get_file_info (boolean) Optional use with `stat` operation. Default is `false`.
+  If `true` then function will return extended file information (this is a slightly slower operation (~300 CPU cycles) than just checking for existence).
+
+@retval number Operation result code. Zero (0) means success, any other result means an error occurred. See below for full list.
+
+@retval table For successful `stat` if `get_file_info` is `true`, returns a file information table with these elements:
+     * `size`  (number) File size in bytes (zero if directory)
+     * `date`  (number) Modification date (see below for encoding)
+     * `time`  (number) Modification time (see below for encoding)
+     * `attr`  (number) File/directory attribute flags (see full list below)
+     * `name`  (string) Name of the file/directory (without the path)
+     * `isDir` (boolean) `True` if entry is a directory, `false` if a file.
+     * `mdt`   (table) Individual modification date and time fields in a table. See getDateTime() for format.
+
+@retval array For successful `ls` result, returns an array of file information tables (see above for table structure).
+  **Note** that `ls` may return an error result _and_ a (partial) directory listing. This may happen if an error is encountered
+  while trying to check a particular entry (eg. a corrupt file). The array result will be `nil` if the directory couldn't be
+  read at all (see examples).
+
+@notice
+**Full result code list** _(source: `FatFS::FRESULT` enum)_
+```
+   (0) Success
+   (1) A hard error occurred in the low level disk I/O layer
+   (2) Assertion failed
+   (3) The physical drive cannot work
+   (4) Could not find the file
+   (5) Could not find the path
+   (6) The path name format is invalid
+   (7) Access denied due to prohibited access or directory full
+   (8) Access denied due to prohibited access
+   (9) The file/directory object is invalid
+  (10) The physical drive is write protected
+  (11) The logical drive number is invalid
+  (12) The volume has no work area
+  (13) There is no valid FAT volume
+  (14) The f_mkfs() aborted due to any problem
+  (15) Could not get a grant to access the volume within defined period
+  (16) The operation is rejected according to the file sharing policy
+  (17) LFN working buffer could not be allocated
+  (18) Number of open files > _FS_LOCK
+  (19) Given parameter is invalid
+```
+
+@notice
+**Modification date and time**  _(source: `FatFS::FILINFO.fdate/ftime` docs)_
+```
+  Date:
+    bit15:9   Year origin from 1980 (0..127)
+    bit8:5    Month (1..12)
+    bit4:0    Day (1..31)
+  Time:
+    bit15:11  Hour (0..23)
+    bit10:5   Minute (0..59)
+    bit4:0    Second / 2 (0..29)
+```
+
+@notice
+**File attribute bits** _(source: `FatFS::FILINFO.fattrib` AM\_* macros)_
+```
+  0x01  Read-only  (AM_RDO)
+  0x02  Hidden     (AM_HID)
+  0x04  System     (AM_SYS)
+  0x10  Directory  (AM_DIR)
+  0x20  Archive    (AM_ARC)
+```
+
+@status current Introduced in 2.2.3
+*/
+
+static void luaPushFileInfo(lua_State * L, const FILINFO & fi)
+{
+  lua_createtable(L, 0, 5);
+  lua_pushtableinteger(L, "size", fi.fsize);
+  lua_pushtableinteger(L, "date", fi.fdate);
+  lua_pushtableinteger(L, "time", fi.ftime);
+  lua_pushtableinteger(L, "attr", fi.fattrib);
+  lua_pushtablestring (L, "name", fi.fname);
+  lua_pushtableboolean(L, "isDir", (fi.fattrib & AM_DIR));
+  lua_pushstring(L, "mdt");
+  luaPushDateTime(L, (fi.fdate >> 9) + 1980, (fi.fdate >> 5) & 0xF,
+                  fi.fdate & 0x1F, fi.ftime >> 11, (fi.ftime >> 5) & 0x3F,
+                  (fi.ftime & 0x1F) * 2);
+  lua_settable(L, -3);
+}
+
+static int luaFileOp(lua_State * L)
+{
+  const char *mode = luaL_optstring(L, 1, NULL);
+  const char *fname = luaL_optstring(L, 2, NULL);
+  const char *fname2 = NULL;
+  FRESULT fr = FR_INVALID_PARAMETER;
+
+  if (!mode || !fname) {
+    lua_pushinteger(L, fr);
+    return 1;
+  }
+
+  switch (mode[0]) {
+    case 's':  // stat
+      if (lua_toboolean(L, 3)) {
+        // get full file info
+        FILINFO fi;
+        fr = f_stat(fname, &fi);
+        if (fr == FR_OK) {
+          lua_pushinteger(L, fr);
+          luaPushFileInfo(L, fi);
+          return 2;
+        }
+      }
+      else {
+        // just check if exists
+        fr = f_stat(fname, NULL);
+      }
+      break;
+
+    case 'm':  // mkd
+      fr = f_mkdir(fname);
+      break;
+
+    case 'd':  // del
+      fr = f_unlink(fname);
+      break;
+
+    case 'r':  // ren
+      if ((fname2 = luaL_optstring(L, 3, NULL)))
+        fr = f_rename(fname, fname2);
+      break;
+
+    case 'c':  // cpy
+      if ((fname2 = luaL_optstring(L, 3, NULL)))
+        fr = (sdCopyFile(fname, fname2) ? FR_DISK_ERR : FR_OK);  // TODO: get actual result
+      break;
+
+    case 'l':  // ls
+    {
+      FILINFO fi;
+      DIR dir;
+      fr = f_opendir(&dir, fname);
+      if (fr != FR_OK)
+        break;
+      lua_newtable(L);
+      int i = 1;
+      for (;;) {
+        fr = f_readdir(&dir, &fi);
+        // break on error or end of list
+        // (FatFS return FR_OK on end of list, so in theory we could continue on error instead, but this
+        //  needs to be tested somehow to make sure things don't "blow up," so take the safer route for now)
+        if (fr != FR_OK || fi.fname[0] == 0)
+          break;
+        lua_pushinteger(L, i++);
+        luaPushFileInfo(L, fi);
+        lua_settable(L, -3);
+      }
+      f_closedir(&dir);
+      lua_pushinteger(L, fr);
+      lua_insert(L, -2);  // move result before table
+      return 2;
+    }  // ls
+
+    default:
+      break;
+  }  // switch (mode[0])
+
+  lua_pushinteger(L, fr);
+  return 1;
+}
+
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -1821,6 +2007,7 @@ const luaL_Reg opentxLib[] = {
   { "getUsage", luaGetUsage },
   { "getAvailableMemory", luaGetAvailableMemory },
   { "resetGlobalTimer", luaResetGlobalTimer },
+  { "fileSystem", luaFileOp },
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   { "GREY", luaGrey },
 #endif
