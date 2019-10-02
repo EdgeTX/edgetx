@@ -22,8 +22,6 @@
 
 #include <inttypes.h>
 
-typedef uint16_t pixel_t;
-
 typedef int coord_t;
 
 struct point_t
