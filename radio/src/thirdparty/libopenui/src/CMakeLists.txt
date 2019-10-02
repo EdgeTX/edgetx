@@ -1,0 +1,31 @@
+set(LIBOPENUI_SRC
+  libopenui_globals.cpp
+  libopenui_file.cpp
+  bitmapbuffer.cpp
+  window.cpp
+  form.cpp
+  button.cpp
+  static.cpp
+  checkbox.cpp
+  slider.cpp
+  mainwindow.cpp
+  menu.cpp
+  menutoolbar.cpp
+  choice.cpp
+  filechoice.cpp
+  numberedit.cpp
+  textedit.cpp
+  coloredit.cpp
+  progress.cpp
+  page.cpp
+  dialog.cpp
+  tabsgroup.cpp
+  )
+
+if(HARDWARE_TOUCH)
+  set(LIBOPENUI_SRC
+    ${LIBOPENUI_SRC}
+    keyboard_text.cpp
+    keyboard_number.cpp
+    )
+endif()
