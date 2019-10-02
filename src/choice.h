@@ -20,7 +20,6 @@
 #ifndef _CHOICE_H_
 #define _CHOICE_H_
 
-#include <string>
 #include "form.h"
 
 class Choice : public FormField {
