@@ -18,6 +18,7 @@
  */
 
 #include "coloredit.h"
+#include "libopenui_globals.h"
 #include "numberedit.h"
 #include "bitfield.h"
 

@@ -107,9 +107,9 @@ void Menu::addLine(const std::string & text, std::function<void()> onPress)
   updatePosition();
 }
 
-void Menu::addLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
+void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
 {
-  menuWindow.addLine(drawLine, std::move(onPress));
+  menuWindow.addCustomLine(drawLine, std::move(onPress));
   updatePosition();
 }
 

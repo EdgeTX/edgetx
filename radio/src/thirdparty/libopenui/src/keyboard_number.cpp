@@ -20,6 +20,7 @@
 #include "keyboard_number.h"
 #include "button.h"
 #include "basenumberedit.h"
+#include "libopenui_globals.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 90;
 

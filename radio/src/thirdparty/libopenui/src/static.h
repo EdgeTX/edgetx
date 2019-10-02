@@ -20,7 +20,6 @@
 #ifndef _STATIC_H_
 #define _STATIC_H_
 
-#include <string>
 #include "window.h"
 #include "button.h" // TODO just for BUTTON_BACKGROUND
 

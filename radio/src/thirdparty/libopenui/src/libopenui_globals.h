@@ -27,4 +27,9 @@ extern uint16_t lcdColorTable[LCD_COLOR_COUNT];
 extern const uint16_t * const fontspecsTable[FONT_TABLE_SIZE];
 extern const uint8_t * fontsTable[FONT_TABLE_SIZE];
 
+inline void lcdSetColor(uint16_t color)
+{
+  lcdColorTable[CUSTOM_COLOR_INDEX] = color;
+}
+
 #endif // _LIBOPEUI_GLOBALS_H_

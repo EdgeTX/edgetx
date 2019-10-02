@@ -23,7 +23,6 @@
 #include <vector>
 #include <functional>
 #include <utility>
-#include <string>
 #include "mainwindow.h"
 
 class Menu;
@@ -78,7 +77,7 @@ class MenuWindow: public Window {
       invalidate();
     }
 
-    void addLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
+    void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
     {
       lines.emplace_back(drawLine, onPress);
       invalidate();
@@ -162,7 +161,7 @@ class Menu : public Window {
 
     void addLine(const std::string & text, std::function<void()> onPress);
 
-    void addLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress);
+    void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress);
 
     void removeLines();
 
