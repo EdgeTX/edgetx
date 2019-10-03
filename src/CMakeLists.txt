@@ -5,6 +5,7 @@ set(LIBOPENUI_SRC
   window.cpp
   form.cpp
   button.cpp
+  fab_icon_button.cpp
   static.cpp
   checkbox.cpp
   slider.cpp

@@ -160,21 +160,4 @@ class IconButton: public Button {
     uint8_t icon;
 };
 
-class FabIconButton: public Button {
-  public:
-    FabIconButton(Window * parent, coord_t x, coord_t y, uint8_t icon, std::function<uint8_t(void)> pressHandler, uint8_t flags=0);
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() override
-    {
-      return "FabIconButton(" + std::to_string(icon) + ")";
-    }
-#endif
-
-    void paint(BitmapBuffer * dc) override;
-
-  protected:
-    uint8_t icon;
-};
-
 #endif
