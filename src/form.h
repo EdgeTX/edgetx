@@ -46,22 +46,27 @@ class FormField: public Window {
     inline static void clearCurrentField()
     {
       setCurrentField(nullptr);
-    };
+    }
 
     inline static FormField * getCurrentField()
     {
       return current;
-    };
+    }
 
     inline FormField * getPreviousField()
     {
       return previous;
-    };
+    }
 
     inline FormField * getNextField()
     {
       return next;
-    };
+    }
+
+    inline bool isEditMode() const
+    {
+      return editMode;
+    }
 
     inline static void link(FormField * previous, FormField * next)
     {

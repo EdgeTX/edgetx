@@ -23,6 +23,7 @@
 #include "bitmapbuffer.h"
 
 class PageHeader;
+class ChoiceBase;
 
 enum IconState {
   STATE_DEFAULT,
@@ -34,6 +35,7 @@ class Theme {
     virtual void drawMessageBox(const char * title, const char * text, const char * action, LcdFlags flags) const = 0;
     virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, int value) const = 0;
     virtual void drawCheckBox(BitmapBuffer * dc, bool value, bool focus) const = 0;
+    virtual void drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char * str) const = 0;
     virtual void drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, const rect_t & rect, bool edit, bool focus) const = 0;
     virtual void drawPageHeader(BitmapBuffer * dc, const PageHeader * page) const = 0;
     virtual const BitmapBuffer * getIcon(uint8_t index, IconState state) const = 0;

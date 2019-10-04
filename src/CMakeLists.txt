@@ -20,6 +20,7 @@ set(LIBOPENUI_SRC
   progress.cpp
   page.cpp
   dialog.cpp
+  message_dialog.cpp
   tabsgroup.cpp
   )
 
