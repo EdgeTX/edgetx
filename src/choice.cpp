@@ -37,22 +37,6 @@ void Choice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
   theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : TEXT_AT_INDEX(values, getValue() - vmin).c_str());
-//
-//
-//  LcdFlags textColor;
-//  if (editMode)
-//    textColor = FOCUS_COLOR;
-//  else if (hasFocus())
-//    textColor = FOCUS_BGCOLOR;
-//  else
-//    textColor = 0;
-//
-//  if (textHandler)
-//    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, , textColor);
-//  else
-//    dc->drawTextAtIndex(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, values, getValue() - vmin, flags | textColor);
-//
-//  dc->drawBitmapPattern(rect.w - 14, (rect.h - 5) / 2, LBM_DROPDOWN, textColor);
 }
 
 #if defined(HARDWARE_KEYS)
