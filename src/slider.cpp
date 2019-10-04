@@ -38,10 +38,12 @@ void Slider::onKeyEvent(event_t event)
   if (editMode) {
     if (event == EVT_ROTARY_RIGHT) {
       setValue(getValue() + rotencSpeed);
+      onKeyPress();
       return;
     }
     else if (event == EVT_ROTARY_LEFT) {
       setValue(getValue() - rotencSpeed);
+      onKeyPress();
       return;
     }
   }
@@ -54,6 +56,7 @@ void Slider::onKeyEvent(event_t event)
 bool Slider::onTouchStart(coord_t x, coord_t y)
 {
   if (!hasFocus()) {
+    onKeyPress();
     setFocus();
   }
   sliding = (value(x) == getValue());
@@ -64,6 +67,7 @@ bool Slider::onTouchEnd(coord_t x, coord_t y)
 {
   setValue(value(x));
   invalidate();
+  onKeyPress();
   return true;
 }
 
@@ -74,6 +78,7 @@ bool Slider::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
     if (getValue() != newValue) {
       setValue(newValue);
       invalidate();
+      onKeyPress();
     }
   }
   return true;

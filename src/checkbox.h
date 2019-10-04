@@ -50,7 +50,6 @@ class CheckBox : public FormField {
 #endif
 
   protected:
-    const char * label;
     std::function<uint8_t()> getValue;
     std::function<void(uint8_t)> setValue;
 };
