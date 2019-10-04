@@ -23,7 +23,7 @@
 void StaticText::paint(BitmapBuffer * dc)
 {
   if (flags & BUTTON_BACKGROUND)
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, CURVE_AXIS_COLOR);
+    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
   if (flags & CENTERED)
     dc->drawText(rect.w / 2, (rect.h - getFontHeight(flags)) / 2, text.c_str(), CENTERED | flags);
   else

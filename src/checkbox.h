@@ -27,8 +27,8 @@ class CheckBox : public FormField {
     CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue,
              LcdFlags flags = 0) :
       FormField(parent, rect),
-      getValue(getValue),
-      setValue(setValue)
+      _getValue(getValue),
+      _setValue(setValue)
     {
     }
 
@@ -49,9 +49,14 @@ class CheckBox : public FormField {
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
+    uint8_t getValue() const
+    {
+      return _getValue();
+    }
+
   protected:
-    std::function<uint8_t()> getValue;
-    std::function<void(uint8_t)> setValue;
+    std::function<uint8_t()> _getValue;
+    std::function<void(uint8_t)> _setValue;
 };
 
 #endif // _CHECKBOX_H_

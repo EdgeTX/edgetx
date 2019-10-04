@@ -84,7 +84,7 @@ void MenuWindow::paint(BitmapBuffer * dc)
       dc->drawText(10, i * lineHeight + (lineHeight - 20) / 2, text[0] == '\0' ? "---" : text, flags);
     }
     if (i > 0) {
-      dc->drawSolidHorizontalLine(0, i * lineHeight - 1, width, CURVE_AXIS_COLOR);
+      dc->drawSolidHorizontalLine(0, i * lineHeight - 1, width, DISABLE_COLOR);
     }
   }
 }

@@ -69,35 +69,35 @@ void TextButton::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
 
-  LcdFlags textColor = TEXT_COLOR;
+  LcdFlags textColor = DEFAULT_COLOR;
 
   if (checked()) {
     if (hasFocus()) {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, TEXT_INVERTED_BGCOLOR);
-      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, TEXT_INVERTED_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, FOCUS_BGCOLOR);
     }
     else {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, CURVE_AXIS_COLOR);
-      dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, TEXT_INVERTED_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
+      dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FOCUS_BGCOLOR);
     }
-    textColor = TEXT_INVERTED_COLOR;
+    textColor = FOCUS_COLOR;
   }
   else {
     if (flags & BUTTON_BACKGROUND) {
       if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, TEXT_INVERTED_BGCOLOR);
-        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, CURVE_AXIS_COLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, DISABLE_COLOR);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, CURVE_AXIS_COLOR);
+        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
       }
     }
     else {
       if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, TEXT_INVERTED_BGCOLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
       }
       else {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, CURVE_AXIS_COLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
       }
     }
   }

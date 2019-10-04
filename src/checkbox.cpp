@@ -22,7 +22,7 @@
 
 void CheckBox::paint(BitmapBuffer * dc)
 {
-  theme->drawCheckBox(dc, getValue(), hasFocus());
+  theme->drawCheckBox(dc, this);
 }
 
 #if defined(HARDWARE_KEYS)
@@ -32,7 +32,7 @@ void CheckBox::onKeyEvent(event_t event)
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     onKeyPress();
-    setValue(!getValue());
+    _setValue(!getValue());
     invalidate({0, 0, 20, 20});
   }
   else {
@@ -45,7 +45,7 @@ void CheckBox::onKeyEvent(event_t event)
 bool CheckBox::onTouchEnd(coord_t x, coord_t y)
 {
   onKeyPress();
-  setValue(!getValue());
+  _setValue(!getValue());
   setFocus();
   invalidate({0, 0, 20, 20});
   return true;

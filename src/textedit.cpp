@@ -29,24 +29,24 @@ void TextEdit::paint(BitmapBuffer * dc)
   FormField::paint(dc);
 
   if (editMode) {
-    dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, TEXT_INVERTED_COLOR);
+    dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, FOCUS_COLOR);
     coord_t left = (cursorPos == 0 ? 0 : getTextWidth(value, cursorPos));
     char s[] = { value[cursorPos], '\0' };
-    dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1, FIELD_PADDING_TOP + 1, getTextWidth(s, 1) + 1, height() - 2, TEXT_INVERTED_COLOR);
-    dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s, TEXT_COLOR);
+    dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1, FIELD_PADDING_TOP + 1, getTextWidth(s, 1) + 1, height() - 2, FOCUS_COLOR);
+    dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s, DEFAULT_COLOR);
   }
   else {
     const char * displayedValue = value;
     LcdFlags textColor;
     if (strlen(value) == 0) {
       displayedValue = "---";
-      textColor = hasFocus() ? TEXT_INVERTED_BGCOLOR : CURVE_AXIS_COLOR;
+      textColor = hasFocus() ? FOCUS_BGCOLOR : DISABLE_COLOR;
     }
     else if (hasFocus()) {
-      textColor = TEXT_INVERTED_BGCOLOR;
+      textColor = FOCUS_BGCOLOR;
     }
     else {
-      textColor = TEXT_COLOR;
+      textColor = DEFAULT_COLOR;
     }
     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, displayedValue, length, textColor);
   }
@@ -55,7 +55,7 @@ void TextEdit::paint(BitmapBuffer * dc)
   auto keyboard = TextKeyboard::instance();
   if (hasFocus() && keyboard->getField() == this) {
     coord_t cursorPos = keyboard->getCursorPos();
-    dc->drawSolidFilledRect(cursorPos + 2, FIELD_PADDING_TOP, 2, 21, 0); // TEXT_INVERTED_BGCOLOR);
+    dc->drawSolidFilledRect(cursorPos + 2, FIELD_PADDING_TOP, 2, 21, 0); // FOCUS_BGCOLOR);
   }
 #endif
 }

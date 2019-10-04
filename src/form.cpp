@@ -99,22 +99,22 @@ void FormGroup::onKeyEvent(event_t event)
 void FormField::paint(BitmapBuffer * dc)
 {
   if (editMode) {
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, TEXT_INVERTED_BGCOLOR);
+    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FOCUS_BGCOLOR);
   }
   else if (hasFocus()) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, TEXT_INVERTED_BGCOLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
   }
   else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, CURVE_AXIS_COLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
   }
 }
 
 void FormGroup::paint(BitmapBuffer * dc)
 {
   if (!editMode && hasFocus()) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, TEXT_INVERTED_BGCOLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
   }
   else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, CURVE_AXIS_COLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
   }
 }

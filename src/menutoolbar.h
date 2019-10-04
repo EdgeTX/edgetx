@@ -85,7 +85,7 @@ class MenuToolbar: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->clear(CURVE_AXIS_COLOR);
+      dc->clear(DISABLE_COLOR);
     }
 
 #if defined(HARDWARE_KEYS)

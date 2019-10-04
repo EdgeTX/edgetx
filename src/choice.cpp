@@ -41,9 +41,9 @@ void Choice::paint(BitmapBuffer * dc)
 //
 //  LcdFlags textColor;
 //  if (editMode)
-//    textColor = TEXT_INVERTED_COLOR;
+//    textColor = FOCUS_COLOR;
 //  else if (hasFocus())
-//    textColor = TEXT_INVERTED_BGCOLOR;
+//    textColor = FOCUS_BGCOLOR;
 //  else
 //    textColor = 0;
 //
