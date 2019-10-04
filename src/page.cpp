@@ -22,7 +22,7 @@
 #include "keyboard_number.h"
 #include "keyboard_text.h"
 #include "keyboard_curve.h"
-#include "opentx.h" // TODO for constants
+#include "theme.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
   Window(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
