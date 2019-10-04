@@ -47,6 +47,36 @@ const char * getFileExtension(const char * filename, uint8_t size, uint8_t extMa
   return nullptr;
 }
 
+/**
+  Check if given extension exists in a list of extensions.
+  @param extension The extension to search for, including leading period.
+  @param pattern One or more file extensions concatenated together, including the periods.
+    The list is searched backwards and the first match, if any, is returned.
+    eg: ".gif.jpg.jpeg.png"
+  @param match Optional container to hold the matched file extension (wide enough to hold LEN_FILE_EXTENSION_MAX + 1).
+  @retval true if a extension was found in the lost, false otherwise.
+*/
+bool isExtensionMatching(const char * extension, const char * pattern, char * match)
+{
+  const char *ext;
+  uint8_t extlen, fnlen;
+  int plen;
+
+  ext = getFileExtension(pattern, 0, 0, &fnlen, &extlen);
+  plen = (int)fnlen;
+  while (plen > 0 && ext) {
+    if (!strncasecmp(extension, ext, extlen)) {
+      if (match != nullptr) strncat(&(match[0]='\0'), ext, extlen);
+      return true;
+    }
+    plen -= extlen;
+    if (plen > 0) {
+      ext = getFileExtension(pattern, plen, 0, nullptr, &extlen);
+    }
+  }
+  return false;
+}
+
 // returns true if current working dir is at the root level
 bool isCwdAtRoot()
 {

@@ -122,13 +122,16 @@ enum FontSizeIndex
 #define COLOR(index)                   LcdFlags((index) << 16)
 #define COLOR_IDX(att)                 uint8_t((att) >> 16)
 
-//#define DEFAULT_COLOR                     COLOR(DEFAULT_COLOR_INDEX)
-//#define DEFAULT_BGCOLOR                   COLOR(DEFAULT_BGCOLOR_INDEX)
-//#define FOCUS_COLOR            COLOR(FOCUS_COLOR_INDEX)
-//#define FOCUS_BGCOLOR          COLOR(FOCUS_BGCOLOR_INDEX)
+#define DEFAULT_COLOR                  COLOR(DEFAULT_COLOR_INDEX)
+#define DEFAULT_BGCOLOR                COLOR(DEFAULT_BGCOLOR_INDEX)
+#define FOCUS_COLOR                    COLOR(FOCUS_COLOR_INDEX)
+#define FOCUS_BGCOLOR                  COLOR(FOCUS_BGCOLOR_INDEX)
+#define DISABLE_COLOR                  COLOR(DISABLE_COLOR_INDEX)
+#define CHECKBOX_COLOR                 COLOR(CHECKBOX_COLOR_INDEX)
+#define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
+
 //#define TEXT_STATUSBAR_COLOR           COLOR(TEXT_STATUSBAR_COLOR_INDEX)
 //#define LINE_COLOR                     COLOR(LINE_COLOR_INDEX)
-#define SCROLLBOX_COLOR                COLOR(SCROLLBOX_COLOR_INDEX)
 //#define HEADER_SEPARATOR_COLOR         COLOR(HEADER_SEPARATOR_COLOR_INDEX)
 //#define MENU_TITLE_BGCOLOR             COLOR(MENU_TITLE_BGCOLOR_INDEX)
 //#define MENU_TITLE_COLOR               COLOR(MENU_TITLE_COLOR_INDEX)
@@ -137,7 +140,6 @@ enum FontSizeIndex
 //#define ALARM_COLOR                    COLOR(ALARM_COLOR_INDEX)
 //#define WARNING_COLOR                  COLOR(WARNING_COLOR_INDEX)
 //#define TEXT_DISABLE_COLOR             COLOR(TEXT_DISABLE_COLOR_INDEX)
-//#define DISABLE_COLOR               COLOR(DISABLE_COLOR_INDEX)
 //#define CURVE_COLOR                    COLOR(CURVE_COLOR_INDEX)
 //#define CURVE_CURSOR_COLOR             COLOR(CURVE_CURSOR_COLOR_INDEX)
 //#define TITLE_BGCOLOR                  COLOR(TITLE_BGCOLOR_INDEX)
@@ -152,6 +154,5 @@ enum FontSizeIndex
 //#define BARGRAPH1_COLOR                COLOR(BARGRAPH1_COLOR_INDEX)
 //#define BARGRAPH2_COLOR                COLOR(BARGRAPH2_COLOR_INDEX)
 //#define BARGRAPH_BGCOLOR               COLOR(BARGRAPH_BGCOLOR_INDEX)
-//#define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
 
 #endif

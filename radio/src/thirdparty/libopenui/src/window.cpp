@@ -390,6 +390,6 @@ void Window::drawVerticalScrollbar(BitmapBuffer * dc)
         yofs = innerHeight - y - yhgt;
       }
     }
-    dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, SCROLLBOX_COLOR);
+    dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, CHECKBOX_COLOR);
   }
 }
