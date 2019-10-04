@@ -20,10 +20,10 @@
 #ifndef _FILECHOICE_H_
 #define _FILECHOICE_H_
 
-#include "form.h"
+#include "choice.h"
 #include <string>
 
-class FileChoice: public FormField {
+class FileChoice: public ChoiceBase {
   public:
     FileChoice(Window * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue);
 
@@ -51,7 +51,7 @@ class FileChoice: public FormField {
     std::function<std::string()> getValue;
     std::function<void(std::string)> setValue;
 
-    void openMenu();
+    bool openMenu();
 };
 
 #endif // _FILECHOICE_H_

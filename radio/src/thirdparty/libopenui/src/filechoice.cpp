@@ -20,10 +20,8 @@
 #include "filechoice.h"
 #include "libopenui_file.h"
 #include "menu.h"
-
-const uint8_t LBM_FOLDER[] = {
-#include "mask_folder.lbm"
-};
+#include "theme.h"
+#include "message_dialog.h"
 
 // comparison, not case sensitive.
 bool compare_nocase(const std::string &first, const std::string &second)
@@ -32,7 +30,7 @@ bool compare_nocase(const std::string &first, const std::string &second)
 }
 
 FileChoice::FileChoice(Window * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue):
-  FormField(parent, rect),
+  ChoiceBase(parent, rect, CHOICE_TYPE_FOLDER),
   folder(std::move(folder)),
   extension(extension),
   maxlen(maxlen),
@@ -44,24 +42,10 @@ FileChoice::FileChoice(Window * parent, const rect_t & rect, std::string folder,
 void FileChoice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
-
-  const char * displayedValue = getValue().c_str();
-
-  LcdFlags textColor;
-  if (editMode)
-    textColor = TEXT_INVERTED_COLOR;
-  else if (hasFocus())
-    textColor = TEXT_INVERTED_BGCOLOR;
-  else if (displayedValue[0] == '\0')
-    textColor = CURVE_AXIS_COLOR;
-  else
-    textColor = TEXT_COLOR;
-
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, displayedValue[0] == '\0' ? "---" : displayedValue, textColor);
-  dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_FOLDER, textColor);
+  theme->drawChoice(dc, this, getValue().c_str());
 }
 
-void FileChoice::openMenu()
+bool FileChoice::openMenu()
 {
   FILINFO fno;
   DIR dir;
@@ -124,12 +108,14 @@ void FileChoice::openMenu()
           editMode = false;
           setFocus();
       });
-    }
-    else {
-      TRACE("NO FILES !!!!!");
-      // TODO popup "NO FILES"
+
+      return true;
     }
   }
+
+  new MessageDialog("Files", "No files on SD");
+
+  return false;
 }
 
 #if defined(HARDWARE_KEYS)
@@ -138,9 +124,10 @@ void FileChoice::onKeyEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
-    invalidate();
-    openMenu();
+    if (openMenu()) {
+      editMode = true;
+      invalidate();
+    }
   }
   else {
     FormField::onKeyEvent(event);

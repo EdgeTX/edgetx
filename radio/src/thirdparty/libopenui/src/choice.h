@@ -22,7 +22,29 @@
 
 #include "form.h"
 
-class Choice : public FormField {
+enum ChoiceType {
+  CHOICE_TYPE_DROPOWN,
+  CHOICE_TYPE_FOLDER,
+};
+
+class ChoiceBase : public FormField {
+  public:
+    ChoiceBase(Window * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN):
+    FormField(parent, rect),
+    type(type)
+    {
+    }
+
+    inline ChoiceType getType() const
+    {
+      return type;
+    }
+
+  protected:
+    ChoiceType type;
+};
+
+class Choice : public ChoiceBase {
   public:
     Choice(Window * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, LcdFlags flags = 0);
 
@@ -59,14 +81,14 @@ class Choice : public FormField {
     }
 
   protected:
-    const char * values;
-    int16_t vmin;
-    int16_t vmax;
+    const char * values = nullptr;
+    int16_t vmin = 0;
+    int16_t vmax = 0;
     std::function<int16_t()> getValue;
     std::function<void(int16_t)> setValue;
     std::function<bool(int)> isValueAvailable;
     std::function<std::string(int32_t)> textHandler;
-    LcdFlags flags;
+    LcdFlags flags = 0;
     void openMenu();
 };
 

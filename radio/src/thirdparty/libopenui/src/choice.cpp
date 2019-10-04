@@ -19,14 +19,11 @@
 
 #include "choice.h"
 #include "menu.h"
+#include "theme.h"
 
-const uint8_t LBM_DROPDOWN[] = {
-#include "mask_dropdown.lbm"
-};
-
-Choice::Choice(Window * parent, const rect_t &rect, const char * values, int16_t vmin, int16_t vmax,
+Choice::Choice(Window * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
                std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, LcdFlags flags) :
-  FormField(parent, rect),
+  ChoiceBase(parent, rect),
   values(values),
   vmin(vmin),
   vmax(vmax),
@@ -39,21 +36,23 @@ Choice::Choice(Window * parent, const rect_t &rect, const char * values, int16_t
 void Choice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
-
-  LcdFlags textColor;
-  if (editMode)
-    textColor = TEXT_INVERTED_COLOR;
-  else if (hasFocus())
-    textColor = TEXT_INVERTED_BGCOLOR;
-  else
-    textColor = 0;
-
-  if (textHandler)
-    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, textHandler(getValue()).c_str(), textColor);
-  else
-    dc->drawTextAtIndex(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, values, getValue() - vmin, flags | textColor);
-
-  dc->drawBitmapPattern(rect.w - 14, (rect.h - 5) / 2, LBM_DROPDOWN, textColor);
+  theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : TEXT_AT_INDEX(values, getValue() - vmin).c_str());
+//
+//
+//  LcdFlags textColor;
+//  if (editMode)
+//    textColor = TEXT_INVERTED_COLOR;
+//  else if (hasFocus())
+//    textColor = TEXT_INVERTED_BGCOLOR;
+//  else
+//    textColor = 0;
+//
+//  if (textHandler)
+//    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, , textColor);
+//  else
+//    dc->drawTextAtIndex(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, values, getValue() - vmin, flags | textColor);
+//
+//  dc->drawBitmapPattern(rect.w - 14, (rect.h - 5) / 2, LBM_DROPDOWN, textColor);
 }
 
 #if defined(HARDWARE_KEYS)
