@@ -21,6 +21,7 @@
 #define _THEME_H_
 
 #include "bitmapbuffer.h"
+#include "checkbox.h"
 
 class PageHeader;
 class ChoiceBase;
@@ -34,7 +35,11 @@ class Theme {
   public:
     virtual void drawMessageBox(const char * title, const char * text, const char * action, LcdFlags flags) const = 0;
     virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, int value) const = 0;
-    virtual void drawCheckBox(BitmapBuffer * dc, bool value, bool focus) const = 0;
+    virtual void drawCheckBox(BitmapBuffer * dc, CheckBox * checkBox) const
+    {
+      return drawCheckBox(dc, checkBox->getValue(), 0, 0, checkBox->hasFocus());
+    }
+    virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus = false) const = 0;
     virtual void drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char * str) const = 0;
     virtual void drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, const rect_t & rect, bool edit, bool focus) const = 0;
     virtual void drawPageHeader(BitmapBuffer * dc, const PageHeader * page) const = 0;

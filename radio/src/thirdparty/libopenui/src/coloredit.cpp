@@ -42,7 +42,7 @@ class ColorBox: public Window {
     void paint(BitmapBuffer * dc) override
     {
       lcdSetColor(color);
-      dc->drawSolidFilledRect(0, 0, width(), height(), TEXT_COLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), DEFAULT_COLOR);
       dc->drawSolidFilledRect(1, 1, width() - 2, height() - 2, CUSTOM_COLOR);
     }
 

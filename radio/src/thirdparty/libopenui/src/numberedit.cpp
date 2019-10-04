@@ -34,13 +34,13 @@ void NumberEdit::paint(BitmapBuffer * dc)
 
   LcdFlags textColor;
   if (editMode)
-    textColor = TEXT_INVERTED_COLOR;
+    textColor = FOCUS_COLOR;
   else if (hasFocus())
-    textColor = TEXT_INVERTED_BGCOLOR;
+    textColor = FOCUS_BGCOLOR;
   else if (enabled)
-    textColor = TEXT_COLOR;
+    textColor = DEFAULT_COLOR;
   else
-    textColor = CURVE_AXIS_COLOR;
+    textColor = DISABLE_COLOR;
 
   int32_t value = getValue();
   if (displayFunction)
