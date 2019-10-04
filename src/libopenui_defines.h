@@ -123,7 +123,7 @@ enum FontSizeIndex
 #define COLOR_IDX(att)                 uint8_t((att) >> 16)
 
 //#define DEFAULT_COLOR                     COLOR(DEFAULT_COLOR_INDEX)
-//#define TEXT_BGCOLOR                   COLOR(TEXT_BGCOLOR_INDEX)
+//#define DEFAULT_BGCOLOR                   COLOR(DEFAULT_BGCOLOR_INDEX)
 //#define FOCUS_COLOR            COLOR(FOCUS_COLOR_INDEX)
 //#define FOCUS_BGCOLOR          COLOR(FOCUS_BGCOLOR_INDEX)
 //#define TEXT_STATUSBAR_COLOR           COLOR(TEXT_STATUSBAR_COLOR_INDEX)

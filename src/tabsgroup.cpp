@@ -177,7 +177,7 @@ void TabsGroup::onKeyEvent(event_t event)
 
 void TabsGroup::paint(BitmapBuffer * dc)
 {
-  dc->clear(TEXT_BGCOLOR);
+  dc->clear(DEFAULT_BGCOLOR);
 }
 
 #if defined(HARDWARE_TOUCH)

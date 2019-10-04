@@ -71,7 +71,7 @@ void Page::deleteLater()
 
 void Page::paint(BitmapBuffer * dc)
 {
-  dc->clear(TEXT_BGCOLOR);
+  dc->clear(DEFAULT_BGCOLOR);
 }
 
 #if defined(HARDWARE_KEYS)
