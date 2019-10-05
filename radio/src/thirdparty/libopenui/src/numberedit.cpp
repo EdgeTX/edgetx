@@ -32,17 +32,18 @@ void NumberEdit::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
 
+  auto value = getValue();
+
   LcdFlags textColor;
   if (editMode)
     textColor = FOCUS_COLOR;
   else if (hasFocus())
     textColor = FOCUS_BGCOLOR;
-  else if (enabled)
+  else if (enabled && (value != 0 || zeroText.empty()))
     textColor = DEFAULT_COLOR;
   else
     textColor = DISABLE_COLOR;
 
-  int32_t value = getValue();
   if (displayFunction)
     displayFunction(dc, textColor, value);
   else if (value == 0 && !zeroText.empty())

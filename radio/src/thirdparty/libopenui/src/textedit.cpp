@@ -44,6 +44,9 @@ void TextEdit::paint(BitmapBuffer * dc)
     const char * displayedValue = value;
     LcdFlags textColor;
     if (hasFocus()) {
+      if (strlen(value) == 0) {
+        displayedValue = "---";
+      }
       textColor = FOCUS_BGCOLOR;
     }
     else {
