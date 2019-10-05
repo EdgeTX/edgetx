@@ -27,7 +27,7 @@ MessageDialog::MessageDialog(const char * title, const char * message):
 }
 
 #if defined(HARDWARE_KEYS)
-void MessageDialog::onKeyEvent(event_t event)
+void MessageDialog::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 

@@ -51,39 +51,72 @@ void NumberEdit::paint(BitmapBuffer * dc)
     dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | flags, 0, prefix.c_str(), suffix.c_str());
 }
 
-#if defined(HARDWARE_KEYS)
-void NumberEdit::onKeyEvent(event_t event)
+void NumberEdit::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (editMode) {
-    if (event == EVT_ROTARY_RIGHT) {
-      int value = getValue();
-      do {
-        value += rotencSpeed * step;
-      } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
-      if (value <= vmax)
-        setValue(value);
-      else
-        onKeyError();
-      return;
-    }
-    else if (event == EVT_ROTARY_LEFT) {
-      int value = getValue();
-      do {
-        value -= rotencSpeed * step;
-      } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
-      if (value >= vmin)
-        setValue(value);
-      else
-        onKeyError();
-      return;
+    switch (event) {
+#if defined(HARDWARE_KEYS)
+      case EVT_ROTARY_RIGHT: {
+        int value = getValue();
+        do {
+          value += rotencSpeed * step;
+        } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
+        if (value <= vmax)
+          setValue(value);
+        else
+          onKeyError();
+        return;
+      }
+
+      case EVT_ROTARY_LEFT: {
+        int value = getValue();
+        do {
+          value -= rotencSpeed * step;
+        } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
+        if (value >= vmin)
+          setValue(value);
+        else
+          onKeyError();
+        return;
+      }
+#endif
+
+#if defined(HARDWARE_TOUCH)
+      case EVT_VIRTUAL_KEY_PLUS:
+        setValue(getValue() + getStep());
+        break;
+
+      case EVT_VIRTUAL_KEY_MINUS:
+        setValue(getValue() - getStep());
+        break;
+
+      case EVT_VIRTUAL_KEY_FORWARD:
+        setValue(getValue() + 10 * getStep());
+        break;
+
+      case EVT_VIRTUAL_KEY_BACKWARD:
+        setValue(getValue() - 10 * getStep());
+        break;
+
+      case EVT_VIRTUAL_KEY_DEFAULT:
+        setValue(getDefault());
+        break;
+
+      case EVT_VIRTUAL_KEY_MAX:
+        setValue(getMax());
+        break;
+
+      case EVT_VIRTUAL_KEY_MIN:
+        setValue(getMin());
+        break;
+#endif
     }
   }
 
-  FormField::onKeyEvent(event);
+  FormField::onEvent(event);
 }
-#endif
 
 #if defined(HARDWARE_TOUCH)
 bool NumberEdit::onTouchEnd(coord_t, coord_t)
@@ -96,10 +129,7 @@ bool NumberEdit::onTouchEnd(coord_t, coord_t)
     setFocus();
   }
 
-  NumberKeyboard * keyboard = NumberKeyboard::instance();
-  if (keyboard->getField() != this) {
-    keyboard->setField(this);
-  }
+  NumberKeyboard::show(this);
 
   return true;
 }
@@ -108,8 +138,7 @@ bool NumberEdit::onTouchEnd(coord_t, coord_t)
 void NumberEdit::onFocusLost()
 {
 #if defined(HARDWARE_TOUCH)
-  NumberKeyboard::instance()->disable(true);
+  Keyboard::hide();
 #endif
-
   FormField::onFocusLost();
 }

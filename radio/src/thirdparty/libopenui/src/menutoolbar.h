@@ -89,7 +89,7 @@ class MenuToolbar: public Window {
     }
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override
+    void onEvent(event_t event) override
     {
       if (event == EVT_KEY_BREAK(KEY_PGDN)) {
         if (current == children.end()) {

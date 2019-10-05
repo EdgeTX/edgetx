@@ -18,6 +18,7 @@
  */
 
 #include "mainwindow.h"
+#include "keyboard_base.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
@@ -27,6 +28,7 @@ MainWindow mainWindow;
 
 #if defined(HARDWARE_TOUCH)
 STRUCT_TOUCH touchState;
+Keyboard * Keyboard::activeKeyboard = nullptr;
 #endif
 
 void MainWindow::emptyTrash()

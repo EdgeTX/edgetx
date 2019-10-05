@@ -21,11 +21,8 @@
 #define _KEYBOARD_NUMBER_H_
 
 #include "keyboard_base.h"
-#include "basenumberedit.h"
 
-class NumberKeyboard : public Keyboard<BaseNumberEdit> {
-  friend class BaseNumberEdit;
-
+class NumberKeyboard : public Keyboard {
   public:
     NumberKeyboard();
 
@@ -38,11 +35,11 @@ class NumberKeyboard : public Keyboard<BaseNumberEdit> {
     }
 #endif
 
-    static NumberKeyboard * instance()
+    static void show(FormField * field)
     {
       if (!_instance)
         _instance = new NumberKeyboard();
-      return _instance;
+      _instance->setField(field);
     }
 
     void paint(BitmapBuffer * dc) override;

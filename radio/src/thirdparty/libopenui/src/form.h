@@ -68,6 +68,11 @@ class FormField: public Window {
       return editMode;
     }
 
+    inline void setEditMode(bool newEditMode)
+    {
+      editMode = newEditMode;
+    }
+
     inline static void link(FormField * previous, FormField * next)
     {
       previous->setNextField(next);
@@ -77,7 +82,7 @@ class FormField: public Window {
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
   protected:
@@ -140,7 +145,7 @@ class FormGroup: public FormField {
     FormField * first = nullptr;
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
     void paint(BitmapBuffer * dc) override;
@@ -188,7 +193,7 @@ class FormWindow: public Window {
   protected:
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
     void paint(BitmapBuffer * dc) override

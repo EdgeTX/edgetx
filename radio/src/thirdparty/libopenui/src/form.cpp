@@ -39,7 +39,7 @@ FormField::FormField(Window *parent, const rect_t &rect, uint8_t flags) :
 }
 
 #if defined(HARDWARE_KEYS)
-void FormWindow::onKeyEvent(event_t event)
+void FormWindow::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -47,11 +47,11 @@ void FormWindow::onKeyEvent(event_t event)
     first->setFocus();
   }
   else {
-    Window::onKeyEvent(event);
+    Window::onEvent(event);
   }
 }
 
-void FormField::onKeyEvent(event_t event)
+void FormField::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", FormField::getWindowDebugString().c_str(), event);
 
@@ -74,11 +74,11 @@ void FormField::onKeyEvent(event_t event)
     invalidate();
   }
   else {
-    Window::onKeyEvent(event);
+    Window::onEvent(event);
   }
 }
 
-void FormGroup::onKeyEvent(event_t event)
+void FormGroup::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -91,7 +91,7 @@ void FormGroup::onKeyEvent(event_t event)
     setFocus();
   }
   else {
-    FormField::onKeyEvent(event);
+    FormField::onEvent(event);
   }
 }
 #endif

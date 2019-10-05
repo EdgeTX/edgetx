@@ -19,70 +19,55 @@
 
 #include "keyboard_number.h"
 #include "button.h"
-#include "basenumberedit.h"
 #include "libopenui_globals.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 90;
 
 NumberKeyboard * NumberKeyboard::_instance = nullptr;
 
-NumberKeyboard::NumberKeyboard():
-  Keyboard<BaseNumberEdit>(KEYBOARD_HEIGHT)
+NumberKeyboard::NumberKeyboard() :
+  Keyboard(KEYBOARD_HEIGHT)
 {
-  new TextButton(this, { LCD_W/2 - 115, 10, 50, 30 }, "<<",
+  new TextButton(this, {LCD_W / 2 - 115, 10, 50, 30}, "<<",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getValue() - 10 * field->getStep());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_BACKWARD);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 - 55, 10, 50, 30 }, "-",
+  new TextButton(this, {LCD_W / 2 - 55, 10, 50, 30}, "-",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getValue() - field->getStep());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_MINUS);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 + 5, 10, 50, 30 }, "+",
+  new TextButton(this, {LCD_W / 2 + 5, 10, 50, 30}, "+",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getValue() + field->getStep());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_PLUS);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 + 65, 10, 50, 30 }, ">>",
+  new TextButton(this, {LCD_W / 2 + 65, 10, 50, 30}, ">>",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getValue() + 10 * field->getStep());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_FORWARD);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 - 115, 50, 50, 30 }, "MIN",
+  new TextButton(this, {LCD_W / 2 - 115, 50, 50, 30}, "MIN",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getMin());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_MIN);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 + 65, 50, 50, 30 }, "MAX",
+  new TextButton(this, {LCD_W / 2 + 65, 50, 50, 30}, "MAX",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getMax());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_MAX);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 
-  new TextButton(this, { LCD_W/2 - 55, 50, 110, 30 }, "DEFAULT",
+  new TextButton(this, {LCD_W / 2 - 55, 50, 110, 30}, "DEFAULT",
                  [=]() -> uint8_t {
-                   if (field) {
-                     field->setValue(field->getDefault());
-                   }
-                   return 0;
+                     putEvent(EVT_VIRTUAL_KEY_DEFAULT);
+                     return 0;
                  }, BUTTON_BACKGROUND | BUTTON_NOFOCUS);
 }
 

@@ -256,9 +256,7 @@ class Window {
       invalidate();
     };
 
-#if defined(HARDWARE_KEYS)
-    virtual void onKeyEvent(event_t event);
-#endif
+    virtual void onEvent(event_t event);
 
 #if defined(HARDWARE_TOUCH)
     virtual bool onTouchStart(coord_t x, coord_t y);
