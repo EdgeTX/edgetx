@@ -74,7 +74,7 @@ void TextEdit::onEvent(event_t event)
         invalidate();
       }
     }
-    else {
+    else if (cursorPos < length) {
       memmove(value + cursorPos + 1, value + cursorPos, length - cursorPos - 1);
       value[cursorPos++] = c;
       invalidate();
