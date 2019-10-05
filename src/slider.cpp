@@ -31,7 +31,7 @@ int Slider::value(coord_t x) const
 }
 
 #if defined(HARDWARE_KEYS)
-void Slider::onKeyEvent(event_t event)
+void Slider::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -48,7 +48,7 @@ void Slider::onKeyEvent(event_t event)
     }
   }
 
-  FormField::onKeyEvent(event);
+  FormField::onEvent(event);
 }
 #endif
 

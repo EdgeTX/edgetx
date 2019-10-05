@@ -26,7 +26,7 @@ void CheckBox::paint(BitmapBuffer * dc)
 }
 
 #if defined(HARDWARE_KEYS)
-void CheckBox::onKeyEvent(event_t event)
+void CheckBox::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -36,7 +36,7 @@ void CheckBox::onKeyEvent(event_t event)
     invalidate({0, 0, 20, 20});
   }
   else {
-    FormField::onKeyEvent(event);
+    FormField::onEvent(event);
   }
 }
 #endif

@@ -32,7 +32,7 @@ void Button::onPress()
 }
 
 #if defined(HARDWARE_KEYS)
-void Button::onKeyEvent(event_t event)
+void Button::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -40,7 +40,7 @@ void Button::onKeyEvent(event_t event)
     onPress();
   }
   else {
-    FormField::onKeyEvent(event);
+    FormField::onEvent(event);
   }
 }
 #endif

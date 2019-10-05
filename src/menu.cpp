@@ -35,7 +35,7 @@ void MenuWindow::select(int index)
 }
 
 #if defined(HARDWARE_KEYS)
-void MenuWindow::onKeyEvent(event_t event)
+void MenuWindow::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -46,16 +46,16 @@ void MenuWindow::onKeyEvent(event_t event)
     select(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1);
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    Window::onKeyEvent(event); // the window above will be closed on event
+    Window::onEvent(event); // the window above will be closed on event
     lines[selectedIndex].onPress();
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     if (onCancel)
       onCancel();
-    Window::onKeyEvent(event);
+    Window::onEvent(event);
   }
   else {
-    Window::onKeyEvent(event);
+    Window::onEvent(event);
   }
 }
 #endif
@@ -120,10 +120,10 @@ void Menu::removeLines()
 }
 
 #if defined(HARDWARE_KEYS)
-void Menu::onKeyEvent(event_t event)
+void Menu::onEvent(event_t event)
 {
   if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN))) {
-    toolbar->onKeyEvent(event);
+    toolbar->onEvent(event);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
     deleteLater();

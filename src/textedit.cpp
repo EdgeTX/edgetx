@@ -19,6 +19,7 @@
 
 #include "textedit.h"
 #include "font.h"
+#include "libopenui_globals.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_text.h"
@@ -31,40 +32,57 @@ void TextEdit::paint(BitmapBuffer * dc)
   if (editMode) {
     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, FOCUS_COLOR);
     coord_t left = (cursorPos == 0 ? 0 : getTextWidth(value, cursorPos));
+#if defined(HARDWARE_TOUCH)
+    dc->drawSolidFilledRect(left + 2, FIELD_PADDING_TOP + 1, 2, 20, FOCUS_COLOR);
+#else
     char s[] = { value[cursorPos], '\0' };
     dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1, FIELD_PADDING_TOP + 1, getTextWidth(s, 1) + 1, height() - 2, FOCUS_COLOR);
     dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s, DEFAULT_COLOR);
+#endif
   }
   else {
     const char * displayedValue = value;
     LcdFlags textColor;
-    if (strlen(value) == 0) {
-      displayedValue = "---";
-      textColor = hasFocus() ? FOCUS_BGCOLOR : DISABLE_COLOR;
-    }
-    else if (hasFocus()) {
+    if (hasFocus()) {
       textColor = FOCUS_BGCOLOR;
     }
     else {
-      textColor = DEFAULT_COLOR;
+      if (strlen(value) == 0) {
+        displayedValue = "---";
+        textColor = DISABLE_COLOR;
+      }
+      else {
+        textColor = DEFAULT_COLOR;
+      }
     }
     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, displayedValue, length, textColor);
   }
-
-#if defined(HARDWARE_TOUCH)
-  auto keyboard = TextKeyboard::instance();
-  if (hasFocus() && keyboard->getField() == this) {
-    coord_t cursorPos = keyboard->getCursorPos();
-    dc->drawSolidFilledRect(cursorPos + 2, FIELD_PADDING_TOP, 2, 21, 0); // FOCUS_BGCOLOR);
-  }
-#endif
 }
 
-#if defined(HARDWARE_KEYS)
-void TextEdit::onKeyEvent(event_t event)
+void TextEdit::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
+#if defined(HARDWARE_TOUCH)
+  if (IS_VIRTUAL_KEY_EVENT(event)) {
+    uint8_t c = event & 0xFF;
+    if (c == (uint8_t)KEYBOARD_BACKSPACE[0]) {
+      if (cursorPos > 0) {
+        memmove(value + cursorPos - 1, value + cursorPos, length - cursorPos);
+        value[length - 1] = '\0';
+        --cursorPos;
+        invalidate();
+      }
+    }
+    else {
+      memmove(value + cursorPos + 1, value + cursorPos, length - cursorPos - 1);
+      value[cursorPos++] = c;
+      invalidate();
+    }
+  }
+#endif
+
+#if defined(HARDWARE_KEYS)
   if (editMode) {
     int c = value[cursorPos];
     int v = c;
@@ -102,19 +120,19 @@ void TextEdit::onKeyEvent(event_t event)
           invalidate();
         }
         else {
-          FormField::onKeyEvent(event);
+          FormField::onEvent(event);
         }
         break;
 
       case EVT_KEY_BREAK(KEY_EXIT):
         cursorPos = 0;
-        FormField::onKeyEvent(event);
+        FormField::onEvent(event);
         break;
 
       case EVT_KEY_LONG(KEY_ENTER):
         if (v == 0) {
           killEvents(event);
-          FormField::onKeyEvent(EVT_KEY_BREAK(KEY_ENTER));
+          FormField::onEvent(EVT_KEY_BREAK(KEY_ENTER));
           break;
         }
         // no break
@@ -138,10 +156,10 @@ void TextEdit::onKeyEvent(event_t event)
     }
   }
   else {
-    FormField::onKeyEvent(event);
+    FormField::onEvent(event);
   }
-}
 #endif
+}
 
 #if defined(HARDWARE_TOUCH)
 bool TextEdit::onTouchEnd(coord_t x, coord_t y)
@@ -150,19 +168,29 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
     setFocus();
   }
 
-  auto keyboard = TextKeyboard::instance();
-  if (keyboard->getField() != this) {
-    keyboard->setField(this);
+  TextKeyboard::show(this);
+
+  coord_t rest = x;
+  for (cursorPos = 0; cursorPos < length; cursorPos++) {
+    char c = value[cursorPos];
+    if (c == '\0')
+      break;
+    uint8_t w = getCharWidth(c, fontspecsTable[0]);
+    if (rest < w)
+      break;
+    rest -= w;
   }
 
-  keyboard->setCursorPos(x);
-
+  invalidate();
   return true;
 }
 
 void TextEdit::onFocusLost()
 {
-  TextKeyboard::instance()->disable(true);
+#if defined(HARDWARE_TOUCH)
+  TextKeyboard::hide();
+#endif
   // TODO storageDirty(...);
+  FormField::onFocusLost();
 }
 #endif

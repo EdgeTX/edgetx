@@ -21,11 +21,16 @@
 #define _KEYBOARD_TEXT_H_
 
 #include "keyboard_base.h"
-#include "textedit.h"
 
-class TextKeyboard : public Keyboard<TextEdit> {
-  friend class TextEdit;
+#define KEYBOARD_SPACE         "\t"
+#define KEYBOARD_ENTER         "\n"
+#define KEYBOARD_BACKSPACE     "\200"
+#define KEYBOARD_SET_UPPERCASE "\201"
+#define KEYBOARD_SET_LOWERCASE "\202"
+#define KEYBOARD_SET_LETTERS   "\203"
+#define KEYBOARD_SET_NUMBERS   "\204"
 
+class TextKeyboard : public Keyboard {
   public:
     TextKeyboard();
 
@@ -38,18 +43,12 @@ class TextKeyboard : public Keyboard<TextEdit> {
     }
 #endif
 
-    static TextKeyboard * instance() {
+    static void show(FormField * field)
+    {
       if (!_instance)
         _instance = new TextKeyboard();
-      return _instance;
+      _instance->setField(field);
     }
-
-    coord_t getCursorPos() const
-    {
-      return cursorPos;
-    }
-
-    void setCursorPos(coord_t x);
 
     void paint(BitmapBuffer * dc) override;
 
@@ -59,8 +58,6 @@ class TextKeyboard : public Keyboard<TextEdit> {
 
   protected:
     static TextKeyboard * _instance;
-    coord_t cursorPos = 0;
-    uint8_t cursorIndex = 0;
     const char * const * layout;
 };
 

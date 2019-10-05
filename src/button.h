@@ -92,7 +92,7 @@ class Button : public FormField {
     }
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event);
+    void onEvent(event_t event);
 #endif
 
 #if defined(HARDWARE_TOUCH)

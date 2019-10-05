@@ -58,14 +58,6 @@ const uint8_t * const LBM_SPECIAL_KEYS[] = {
   LBM_KEY_NUMBERS,
 };
 
-#define KEYBOARD_SPACE         "\t"
-#define KEYBOARD_ENTER         "\n"
-#define KEYBOARD_BACKSPACE     "\200"
-#define KEYBOARD_SET_UPPERCASE "\201"
-#define KEYBOARD_SET_LOWERCASE "\202"
-#define KEYBOARD_SET_LETTERS   "\203"
-#define KEYBOARD_SET_NUMBERS   "\204"
-
 const char * const KEYBOARD_LOWERCASE[] = {
   "qwertyuiop",
   " asdfghjkl",
@@ -95,7 +87,7 @@ const char * const * const KEYBOARD_LAYOUTS[] = {
 };
 
 TextKeyboard::TextKeyboard():
-  Keyboard<TextEdit>(KEYBOARD_HEIGHT),
+  Keyboard(KEYBOARD_HEIGHT),
   layout(KEYBOARD_LOWERCASE)
 {
 }
@@ -103,27 +95,6 @@ TextKeyboard::TextKeyboard():
 TextKeyboard::~TextKeyboard()
 {
   _instance = nullptr;
-}
-
-void TextKeyboard::setCursorPos(coord_t x)
-{
-  if (!field)
-    return;
-
-  uint8_t size = field->getMaxLength();
-  char * data = field->getData();
-  coord_t rest = x;
-  for (cursorIndex = 0; cursorIndex < size; cursorIndex++) {
-    if (data[cursorIndex] == '\0')
-      break;
-    char c = data[cursorIndex];
-    uint8_t w = getCharWidth(c, fontspecsTable[0]);
-    if (rest < w)
-      break;
-    rest -= w;
-  }
-  cursorPos = x - rest;
-  field->invalidate();
 }
 
 void TextKeyboard::paint(BitmapBuffer * dc)
@@ -165,15 +136,7 @@ void TextKeyboard::paint(BitmapBuffer * dc)
 
 bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
 {
-  if (!field)
-    return false;
-
   onKeyPress();
-
-  uint8_t size = field->getMaxLength();
-  char * data = field->getData();
-
-  char c = 0;
 
   uint8_t row = max<coord_t>(0, y - 5) / 40;
   const char * key = layout[row];
@@ -183,15 +146,15 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
     }
     else if (*key == KEYBOARD_SPACE[0]) {
       if (x <= 135) {
-        c = ' ';
-        break;
+        putEvent(EVT_VIRTUAL_KEY(' '));
+        return true;
       }
       x -= 135;
     }
     else if (*key == KEYBOARD_ENTER[0]) {
       if (x <= 80) {
         // enter
-        disable(true);
+        hide();
         return true;
       }
       x -= 80;
@@ -201,13 +164,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
         uint8_t specialKey = *key;
         if (specialKey == 128) {
           // backspace
-          if (cursorIndex > 0) {
-            char c = data[cursorIndex - 1];
-            memmove(data + cursorIndex - 1, data + cursorIndex, size - cursorIndex);
-            data[size - 1] = '\0';
-            cursorPos -= getCharWidth(c, fontspecsTable[0]);
-            --cursorIndex;
-          }
+          putEvent(EVT_VIRTUAL_KEY(KEYBOARD_BACKSPACE[0]));
         }
         else {
           layout = KEYBOARD_LAYOUTS[specialKey - 129];
@@ -219,20 +176,13 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
     }
     else {
       if (x <= 30) {
-        c = *key;
-        break;
+        putEvent(EVT_VIRTUAL_KEY(*key));
+        return true;
       }
       x -= 30;
     }
     key++;
   }
 
-  if (c && size - cursorIndex > 1) {
-    memmove(data + cursorIndex + 1, data + cursorIndex, size - cursorIndex - 1);
-    data[cursorIndex++] = c;
-    cursorPos += getCharWidth(c, fontspecsTable[0]);
-  }
-
-  field->invalidate();
   return true;
 }

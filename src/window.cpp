@@ -261,30 +261,26 @@ void Window::checkEvents()
     child->checkEvents();
   }
 
-#if defined(HARDWARE_KEYS)
   if (this == focusWindow) {
     event_t event = getEvent(false);
     if (event) {
       TRACE_WINDOWS("Event 0x%x received ...", event);
-      this->onKeyEvent(event);
+      this->onEvent(event);
     }
   }
-#endif
 
   if (windowFlags & REFRESH_ALWAYS) {
     invalidate();
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void Window::onKeyEvent(event_t event)
+void Window::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", Window::getWindowDebugString().c_str(), event);
   if (parent) {
-    parent->onKeyEvent(event);
+    parent->onEvent(event);
   }
 }
-#endif
 
 #if defined(HARDWARE_TOUCH)
 bool Window::onTouchStart(coord_t x, coord_t y)

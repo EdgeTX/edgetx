@@ -170,7 +170,7 @@ class TabsGroup: public Window {
     void checkEvents() override;
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
     void paint(BitmapBuffer * dc) override;

@@ -21,12 +21,8 @@
 #define _KEYBOARD_BASE_H_
 
 #include "mainwindow.h"
-#include "libopenui_types.h"
+#include "form.h"
 
-class Page;
-class TabsGroup;
-
-template <class T>
 class Keyboard: public Window {
   public:
     explicit Keyboard(coord_t height):
@@ -34,34 +30,50 @@ class Keyboard: public Window {
     {
     }
 
-    void setField(T * newField)
+    static void hide()
     {
-      field = newField;
-      attach(&mainWindow);
-      Window * w = getPageBody();
-      w->setHeight(LCD_H - height() - w->top());
-      w->scrollTo(newField);
-      invalidate();
+      if (activeKeyboard) {
+        activeKeyboard->clearField();
+        activeKeyboard = nullptr;
+      }
     }
 
-    void disable(bool resizePage)
+  protected:
+    static Keyboard * activeKeyboard;
+    FormField * field = nullptr;
+    Window * fieldContainer = nullptr;
+
+    void setField(FormField * newField)
+    {
+      if (activeKeyboard) {
+        if (activeKeyboard == this)
+          return;
+        activeKeyboard->clearField();
+      }
+      activeKeyboard = this;
+      attach(&mainWindow);
+      fieldContainer = getFieldContainer(newField);
+      fieldContainer->setHeight(LCD_H - height() - fieldContainer->top());
+      fieldContainer->scrollTo(newField);
+      invalidate();
+      newField->setEditMode(true);
+      field = newField;
+    }
+
+    void clearField()
     {
       detach();
+      if (fieldContainer) {
+        fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
+        fieldContainer = nullptr;
+      }
       if (field) {
-        Window * w = getPageBody();
-        w->setHeight(LCD_H - 0 - w->top());
+        field->setEditMode(false);
         field = nullptr;
       }
     }
 
-    T * getField() const
-    {
-      return field;
-    }
-
-  protected:
-    T * field = nullptr;
-    Window * getPageBody()
+    Window * getFieldContainer(FormField * field)
     {
       Window * parent = field;
       while (true) {

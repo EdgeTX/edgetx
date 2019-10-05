@@ -67,9 +67,7 @@ class NumberEdit : public BaseNumberEdit {
       displayFunction = std::move(function);
     }
 
-#if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
-#endif
+    void onEvent(event_t event) override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;

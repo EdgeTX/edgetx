@@ -49,7 +49,7 @@ class Slider : public FormField {
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_KEYS)
-    void onKeyEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
 #if defined(HARDWARE_TOUCH)

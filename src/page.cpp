@@ -19,9 +19,7 @@
 
 #include "page.h"
 #include "mainwindow.h"
-#include "keyboard_number.h"
-#include "keyboard_text.h"
-#include "keyboard_curve.h"
+#include "keyboard_base.h"
 #include "theme.h"
 #include "opentx.h"
 
@@ -55,9 +53,7 @@ Page::Page(unsigned icon):
 Page::~Page()
 {
 #if defined(HARDWARE_TOUCH)
-  TextKeyboard::instance()->disable(false);
-  NumberKeyboard::instance()->disable(false);
-  CurveKeyboard::instance()->disable(false);
+  Keyboard::hide();
 #endif
 }
 
@@ -76,7 +72,7 @@ void Page::paint(BitmapBuffer * dc)
 }
 
 #if defined(HARDWARE_KEYS)
-void Page::onKeyEvent(event_t event)
+void Page::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -93,9 +89,7 @@ bool Page::onTouchEnd(coord_t x, coord_t y)
   if (Window::onTouchEnd(x, y))
     return true;
 
-  TextKeyboard::instance()->disable(true);
-  NumberKeyboard::instance()->disable(true);
-  CurveKeyboard::instance()->disable(true);
+  Keyboard::hide();
   return true;
 }
 #endif

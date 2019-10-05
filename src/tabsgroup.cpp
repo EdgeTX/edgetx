@@ -19,15 +19,13 @@
 
 #include "tabsgroup.h"
 #include "mainwindow.h"
+#include "view_main.h"
 
 #if defined(HARDWARE_TOUCH)
-#include "keyboard_number.h"
-#include "keyboard_text.h"
-#include "keyboard_curve.h"
+#include "keyboard_base.h"
 #endif
 
 #include "opentx.h" // TODO for constants...
-#include "view_main.h"
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
   Window(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
@@ -84,9 +82,7 @@ TabsGroup::TabsGroup(uint8_t icon):
 TabsGroup::~TabsGroup()
 {
 #if defined(HARDWARE_TOUCH)
-  TextKeyboard::instance()->disable(false);
-  NumberKeyboard::instance()->disable(false);
-  CurveKeyboard::instance()->disable(false);
+  Keyboard::hide();
 #endif
 
   for (auto tab: tabs) {
@@ -131,9 +127,7 @@ void TabsGroup::setVisibleTab(PageTab * tab)
     FormField::clearCurrentField();
     body.clear();
 #if defined(HARDWARE_TOUCH)
-    TextKeyboard::instance()->disable(false);
-    NumberKeyboard::instance()->disable(false);
-    CurveKeyboard::instance()->disable(false);
+    Keyboard::hide();
 #endif
     currentTab = tab;
     tab->build(&body);
@@ -151,7 +145,7 @@ void TabsGroup::checkEvents()
 }
 
 #if defined(HARDWARE_KEYS)
-void TabsGroup::onKeyEvent(event_t event)
+void TabsGroup::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -170,7 +164,7 @@ void TabsGroup::onKeyEvent(event_t event)
     deleteLater();
   }
   else if (parent) {
-    parent->onKeyEvent(event);
+    parent->onEvent(event);
   }
 }
 #endif
@@ -186,9 +180,7 @@ bool TabsGroup::onTouchEnd(coord_t x, coord_t y)
   if (Window::onTouchEnd(x, y))
     return true;
 
-  TextKeyboard::instance()->disable(true);
-  NumberKeyboard::instance()->disable(true);
-  CurveKeyboard::instance()->disable(true);
+  Keyboard::hide();
   return true;
 }
 #endif
