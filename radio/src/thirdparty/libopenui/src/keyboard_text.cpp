@@ -58,25 +58,33 @@ const uint8_t * const LBM_SPECIAL_KEYS[] = {
   LBM_KEY_NUMBERS,
 };
 
+#define KEYBOARD_SPACE         "\t"
+#define KEYBOARD_ENTER         "\n"
+#define KEYBOARD_BACKSPACE     "\200"
+#define KEYBOARD_SET_UPPERCASE "\201"
+#define KEYBOARD_SET_LOWERCASE "\202"
+#define KEYBOARD_SET_LETTERS   "\203"
+#define KEYBOARD_SET_NUMBERS   "\204"
+
 const char * const KEYBOARD_LOWERCASE[] = {
   "qwertyuiop",
   " asdfghjkl",
-  "\201zxcvbnm\200",
-  "\204\t\n"
+  KEYBOARD_SET_UPPERCASE "zxcvbnm" KEYBOARD_BACKSPACE,
+  KEYBOARD_SET_NUMBERS KEYBOARD_SPACE KEYBOARD_ENTER
 };
 
 const char * const KEYBOARD_UPPERCASE[] = {
   "QWERTYUIOP",
   " ASDFGHJKL",
-  "\202ZXCVBNM\200",
-  "\204\t\n"
+  KEYBOARD_SET_LOWERCASE "ZXCVBNM" KEYBOARD_BACKSPACE,
+  KEYBOARD_SET_NUMBERS KEYBOARD_SPACE KEYBOARD_ENTER
 };
 
 const char * const KEYBOARD_NUMBERS[] = {
   "1234567890",
   "_-",
-  "                 \200",
-  "\203\t\n"
+  "                 " KEYBOARD_BACKSPACE,
+  KEYBOARD_SET_LETTERS KEYBOARD_SPACE KEYBOARD_ENTER
 };
 
 const char * const * const KEYBOARD_LAYOUTS[] = {
@@ -127,16 +135,16 @@ void TextKeyboard::paint(BitmapBuffer * dc)
     coord_t y = 15 + i * 40;
     coord_t x = 15;
     const char * c = layout[i];
-    while(*c) {
+    while (*c) {
       if (*c == ' ') {
         x += 15;
       }
-      else if (*c == '\t') {
+      else if (*c == KEYBOARD_SPACE[0]) {
         // spacebar
         dc->drawBitmapPattern(x, y, LBM_KEY_SPACEBAR, DEFAULT_COLOR);
         x += 135;
       }
-      else if (*c == '\n') {
+      else if (*c == KEYBOARD_ENTER[0]) {
         // enter
         dc->drawSolidFilledRect(x, y-2, 80, 25, TEXT_DISABLE_COLOR);
         dc->drawText(x+40, y, "ENTER", CENTERED);
@@ -160,6 +168,8 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
   if (!field)
     return false;
 
+  onKeyPress();
+
   uint8_t size = field->getMaxLength();
   char * data = field->getData();
 
@@ -167,18 +177,18 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
 
   uint8_t row = max<coord_t>(0, y - 5) / 40;
   const char * key = layout[row];
-  while(*key) {
+  while (*key) {
     if (*key == ' ') {
       x -= 15;
     }
-    else if (*key == '\t') {
+    else if (*key == KEYBOARD_SPACE[0]) {
       if (x <= 135) {
         c = ' ';
         break;
       }
       x -= 135;
     }
-    else if (*key == '\n') {
+    else if (*key == KEYBOARD_ENTER[0]) {
       if (x <= 80) {
         // enter
         disable(true);

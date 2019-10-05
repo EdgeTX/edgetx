@@ -23,6 +23,7 @@
 #include "keyboard_text.h"
 #include "keyboard_curve.h"
 #include "theme.h"
+#include "opentx.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
   Window(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
