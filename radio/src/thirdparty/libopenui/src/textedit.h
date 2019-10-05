@@ -65,6 +65,20 @@ class TextEdit : public FormField {
     uint8_t length;
     uint8_t cursorPos = 0;
 
+    static uint8_t getNextChar(uint8_t c)
+    {
+      if (c == ' ' || c == 0)
+        return 'A';
+      else if (c == 'Z')
+        return 'a';
+      else if (c == 'z')
+        return '0';
+      else if (c == '>')
+        return ' ';
+      else
+        return c + 1;
+    }
+
     static uint8_t getPreviousChar(uint8_t c)
     {
       if (c == 'A')
@@ -77,20 +91,6 @@ class TextEdit : public FormField {
         return '>';
       else
         return c - 1;
-    }
-
-    static uint8_t getNextChar(uint8_t c)
-    {
-      if (c == ' ')
-        return 'A';
-      else if (c == 'Z')
-        return 'a';
-      else if (c == 'z')
-        return '0';
-      else if (c == '>')
-        return ' ';
-      else
-        return c + 1;
     }
 
 };
