@@ -262,7 +262,7 @@ void Window::checkEvents()
   }
 
   if (this == focusWindow) {
-    event_t event = getEvent(false);
+    event_t event = getWindowEvent();
     if (event) {
       TRACE_WINDOWS("Event 0x%x received ...", event);
       this->onEvent(event);
