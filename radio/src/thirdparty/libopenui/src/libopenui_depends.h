@@ -28,5 +28,7 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void onKeyPress();
 void onKeyError();
+void killEvents(event_t event);
+event_t getWindowEvent();
 
 #endif // _LIBOPEUI_DEPENDS_H_
