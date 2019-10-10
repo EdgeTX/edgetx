@@ -72,10 +72,10 @@ bool MenuWindow::onTouchEnd(coord_t x, coord_t y)
 void MenuWindow::paint(BitmapBuffer * dc)
 {
   int width = (innerHeight > height() ? 195 : 200);
-  dc->clear(HEADER_BGCOLOR);
+  dc->clear(MENU_BGCOLOR);
   for (unsigned i = 0; i < lines.size(); i++) {
     auto & line = lines[i];
-    LcdFlags flags = (selectedIndex == (int) i ? WARNING_COLOR : MENU_TITLE_COLOR);
+    LcdFlags flags = (selectedIndex == (int) i ? HIGHLIGHT_COLOR : MENU_COLOR);
     if (line.drawLine) {
       line.drawLine(dc, 0, i * lineHeight /*+ (lineHeight - 20) / 2*/, flags);
     }

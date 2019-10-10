@@ -5,7 +5,6 @@ set(LIBOPENUI_SRC
   window.cpp
   form.cpp
   button.cpp
-  fab_icon_button.cpp
   static.cpp
   checkbox.cpp
   slider.cpp
@@ -18,10 +17,8 @@ set(LIBOPENUI_SRC
   textedit.cpp
   coloredit.cpp
   progress.cpp
-  page.cpp
   dialog.cpp
   message_dialog.cpp
-  tabsgroup.cpp
   )
 
 if(HARDWARE_TOUCH)

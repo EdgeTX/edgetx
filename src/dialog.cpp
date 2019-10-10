@@ -34,8 +34,8 @@ Dialog::Dialog(std::string title, const rect_t rect):
 void Dialog::paint(BitmapBuffer * dc)
 {
   dc->drawRect(0, 0, width() - 1, height() - 1, 1, SOLID, DEFAULT_COLOR);
-  dc->drawSolidFilledRect(1, 1, width() - 3, PAGE_LINE_HEIGHT, TITLE_BGCOLOR);
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, title.c_str(), MENU_TITLE_COLOR);
+  dc->drawSolidFilledRect(1, 1, width() - 3, PAGE_LINE_HEIGHT, FOCUS_BGCOLOR);
+  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, title.c_str(), FOCUS_COLOR);
   dc->drawSolidFilledRect(1, PAGE_LINE_HEIGHT + 1, width() - 3, height() - PAGE_LINE_HEIGHT - 3, DEFAULT_BGCOLOR);
 }
 
