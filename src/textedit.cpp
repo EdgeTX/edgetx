@@ -171,7 +171,9 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
     setFocus();
   }
 
+#if defined(SOFTWARE_KEYBOARD)
   TextKeyboard::show(this);
+#endif
 
   coord_t rest = x;
   for (cursorPos = 0; cursorPos < length; cursorPos++) {
@@ -187,12 +189,13 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
   invalidate();
   return true;
 }
+#endif
 
+#if defined(SOFTWARE_KEYBOARD)
 void TextEdit::onFocusLost()
 {
-#if defined(HARDWARE_TOUCH)
   TextKeyboard::hide();
-#endif
+
   // TODO storageDirty(...);
   FormField::onFocusLost();
 }

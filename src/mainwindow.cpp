@@ -27,7 +27,7 @@
 MainWindow mainWindow;
 
 #if defined(HARDWARE_TOUCH)
-STRUCT_TOUCH touchState;
+TouchState touchState;
 Keyboard * Keyboard::activeKeyboard = nullptr;
 #endif
 
@@ -42,20 +42,20 @@ void MainWindow::emptyTrash()
 void MainWindow::checkEvents(bool trash)
 {
 #if defined(HARDWARE_TOUCH)
-  if (touchState.Event == TE_DOWN) {
-    onTouchStart(touchState.X + scrollPositionX, touchState.Y + scrollPositionY);
+  if (touchState.event == TE_DOWN) {
+    onTouchStart(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
     // touchState.Event = TE_NONE;
   }
-  else if (touchState.Event == TE_UP) {
-    touchState.Event = TE_NONE;
+  else if (touchState.event == TE_UP) {
+    touchState.event = TE_NONE;
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
   }
-  else if (touchState.Event == TE_SLIDE) {
-    coord_t x = touchState.X - touchState.lastX;
-    coord_t y = touchState.Y - touchState.lastY;
-    onTouchSlide(touchState.X, touchState.Y, touchState.startX, touchState.startY, x, y);
-    touchState.lastX = touchState.X;
-    touchState.lastY = touchState.Y;
+  else if (touchState.event == TE_SLIDE) {
+    coord_t x = touchState.x - touchState.lastX;
+    coord_t y = touchState.y - touchState.lastY;
+    onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, x, y);
+    touchState.lastX = touchState.x;
+    touchState.lastY = touchState.y;
   }
 #endif
 

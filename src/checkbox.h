@@ -39,6 +39,16 @@ class CheckBox : public FormField {
     }
 #endif
 
+    const char * getLabel() const
+    {
+      return label.c_str();
+    }
+
+    void setLabel(std::string newLabel)
+    {
+      label = std::move(newLabel);
+    }
+
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_KEYS)
@@ -55,6 +65,7 @@ class CheckBox : public FormField {
     }
 
   protected:
+    std::string label;
     std::function<uint8_t()> _getValue;
     std::function<void(uint8_t)> _setValue;
 };
