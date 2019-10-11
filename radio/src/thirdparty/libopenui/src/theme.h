@@ -37,7 +37,10 @@ class Theme {
     virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, int value) const = 0;
     virtual void drawCheckBox(BitmapBuffer * dc, CheckBox * checkBox) const
     {
-      return drawCheckBox(dc, checkBox->getValue(), 0, 0, checkBox->hasFocus());
+      drawCheckBox(dc, checkBox->getValue(), 0, FIELD_PADDING_TOP, checkBox->hasFocus());
+      const char * label = checkBox->getLabel();
+      if (label)
+        dc->drawText(22, FIELD_PADDING_TOP, label);
     }
     virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus = false) const = 0;
     virtual void drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char * str) const = 0;

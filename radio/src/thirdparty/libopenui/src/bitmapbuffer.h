@@ -363,15 +363,15 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     coord_t drawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlags flags=0);
 
-    void drawText(coord_t x, coord_t y, const char * s, LcdFlags flags = 0)
+    coord_t drawText(coord_t x, coord_t y, const char * s, LcdFlags flags = 0)
     {
-      drawSizedText(x, y, s, 255, flags);
+      return drawSizedText(x, y, s, 255, flags);
     }
 
-    void drawTextAtIndex(coord_t x, coord_t y, const char * s, uint8_t idx, LcdFlags flags = 0)
+    coord_t drawTextAtIndex(coord_t x, coord_t y, const char * s, uint8_t idx, LcdFlags flags = 0)
     {
       char length = *s++;
-      drawSizedText(x, y, s+length*idx, length, flags);
+      return drawSizedText(x, y, s+length*idx, length, flags);
     }
 
     void drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
