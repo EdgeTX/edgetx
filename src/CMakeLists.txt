@@ -1,3 +1,15 @@
+if(HARDWARE_KEYS)
+  add_definitions(-DHARDWARE_KEYS)
+endif()
+
+if(HARWARE_TOUCH)
+  add_definitions(-DHARDWARE_TOUCH)
+endif()
+
+if(SOFTWARE_KEYBOARD)
+  add_definitions(-DSOFTWARE_KEYBOARD)
+endif()
+
 set(LIBOPENUI_SRC
   libopenui_globals.cpp
   libopenui_file.cpp
@@ -21,7 +33,7 @@ set(LIBOPENUI_SRC
   message_dialog.cpp
   )
 
-if(HARDWARE_TOUCH)
+if(SOFTWARE_KEYBOARD)
   set(LIBOPENUI_SRC
     ${LIBOPENUI_SRC}
     keyboard_text.cpp

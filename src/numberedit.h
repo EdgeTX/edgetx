@@ -69,7 +69,7 @@ class NumberEdit : public BaseNumberEdit {
 
     void onEvent(event_t event) override;
 
-#if defined(HARDWARE_TOUCH)
+#if defined(SOFTWARE_KEYBOARD)
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
