@@ -53,12 +53,12 @@ class FormField: public Window {
       return current;
     }
 
-    inline FormField * getPreviousField()
+    virtual FormField * getPreviousField()
     {
       return previous;
     }
 
-    inline FormField * getNextField()
+    virtual FormField * getNextField()
     {
       return next;
     }

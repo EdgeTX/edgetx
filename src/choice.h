@@ -89,7 +89,8 @@ class Choice : public ChoiceBase {
     std::function<bool(int)> isValueAvailable;
     std::function<std::string(int32_t)> textHandler;
     LcdFlags flags = 0;
-    void openMenu();
+
+    virtual void openMenu();
 };
 
 #endif // _CHOICE_H_

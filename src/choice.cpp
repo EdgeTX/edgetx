@@ -36,7 +36,6 @@ Choice::Choice(Window * parent, const rect_t & rect, const char * values, int16_
 void Choice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
-
   theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : TEXT_AT_INDEX(values, getValue() - vmin).c_str());
 }
 

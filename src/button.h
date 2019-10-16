@@ -111,7 +111,7 @@ class Button : public FormField {
 
 class TextButton : public Button {
   public:
-    TextButton(Window * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler=nullptr, uint8_t flags=BUTTON_BACKGROUND):
+    TextButton(Window * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, uint8_t flags = BUTTON_BACKGROUND):
       Button(parent, rect, pressHandler, flags),
       text(std::move(text))
     {
