@@ -50,7 +50,7 @@ bool Button::onTouchEnd(coord_t x, coord_t y)
 {
   if (enabled()) {
     onPress();
-    if (!(flags & BUTTON_NOFOCUS)) {
+    if (!(windowFlags & BUTTON_NOFOCUS)) {
       setFocus();
     }
   }

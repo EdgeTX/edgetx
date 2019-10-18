@@ -30,6 +30,7 @@ FormField::FormField(Window *parent, const rect_t & rect, WindowFlags windowFlag
   }
 }
 
+#if defined(HARDWARE_KEYS)
 void FormField::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", FormField::getWindowDebugString().c_str(), event);
@@ -56,6 +57,7 @@ void FormField::onEvent(event_t event)
     Window::onEvent(event);
   }
 }
+#endif
 
 void FormField::paint(BitmapBuffer * dc)
 {
