@@ -25,10 +25,9 @@
 
 class StaticText : public Window {
   public:
-    StaticText(Window * parent, const rect_t & rect, std::string text = "", LcdFlags flags = 0) :
-      Window(parent, rect),
-      text(std::move(text)),
-      flags(flags)
+    StaticText(Window * parent, const rect_t & rect, std::string text = "", WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
+      Window(parent, rect, windowFlags, textFlags),
+      text(std::move(text))
     {
     }
 
@@ -38,12 +37,6 @@ class StaticText : public Window {
       return "StaticText \"" + text + "\"";
     }
 #endif
-
-    void setFlags(LcdFlags flags)
-    {
-      this->flags = flags;
-      invalidate();
-    }
 
     void paint(BitmapBuffer * dc) override;
 
@@ -55,13 +48,12 @@ class StaticText : public Window {
 
   protected:
     std::string text;
-    LcdFlags flags;
 };
 
 class Subtitle: public StaticText {
   public:
     Subtitle(Window * parent, const rect_t & rect, const char * text):
-      StaticText(parent, rect, text, BOLD)
+      StaticText(parent, rect, text, 0, BOLD)
     {
     }
 

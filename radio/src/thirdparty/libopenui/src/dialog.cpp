@@ -19,15 +19,13 @@
 
 #include "dialog.h"
 #include "mainwindow.h"
-#include "form.h"
 
 Dialog::Dialog(std::string title, const rect_t rect):
-  Window(&mainWindow, rect, OPAQUE),
+  FormGroup(&mainWindow, rect, OPAQUE),
   title(std::move(title)),
   previousFocus(focusWindow)
 {
   bringToTop();
-  FormField::clearCurrentField();
   setFocus();
 }
 

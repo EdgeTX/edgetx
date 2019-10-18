@@ -22,16 +22,17 @@
 Window * Window::focusWindow = nullptr;
 std::list<Window *> Window::trash;
 
-Window::Window(Window * parent, const rect_t & rect, uint8_t flags):
+Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags):
   parent(parent),
   rect(rect),
   innerWidth(rect.w),
   innerHeight(rect.h),
-  windowFlags(flags)
+  windowFlags(windowFlags),
+  textFlags(textFlags)
 {
   if (parent) {
     parent->addChild(this);
-    if (!(flags & TRANSPARENT)) {
+    if (!(windowFlags & TRANSPARENT)) {
       invalidate();
     }
   }
@@ -108,7 +109,7 @@ void Window::clearFocus()
   }
 }
 
-void Window::setFocus()
+void Window::setFocus(uint8_t flag)
 {
   TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
 

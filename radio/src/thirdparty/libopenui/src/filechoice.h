@@ -25,7 +25,7 @@
 
 class FileChoice: public ChoiceBase {
   public:
-    FileChoice(Window * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue);
+    FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override

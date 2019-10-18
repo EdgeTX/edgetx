@@ -23,20 +23,17 @@
 #include "form.h"
 #include <string>
 
-enum ButtonFlags {
-  BUTTON_BACKGROUND = 1,
-  BUTTON_CHECKED = 2,
-  BUTTON_NOFOCUS = 4,
-  BUTTON_CHECKED_ON_FOCUS = 8,
-  BUTTON_DISABLED = 16,
-};
+constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1;
+constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2;
+constexpr WindowFlags BUTTON_NOFOCUS = FORM_FLAGS_LAST << 3;
+constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 4;
+constexpr WindowFlags BUTTON_DISABLED = FORM_FLAGS_LAST << 5;
 
 class Button : public FormField {
   public:
-    Button(Window * parent, const rect_t & rect, std::function<uint8_t(void)> pressHandler=nullptr, uint8_t flags=0):
-      FormField(parent, rect),
-      pressHandler(pressHandler),
-      flags(flags)
+    Button(FormGroup * parent, const rect_t & rect, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = 0):
+      FormField(parent, rect, windowFlags),
+      pressHandler(pressHandler)
     {
     }
 
@@ -49,8 +46,8 @@ class Button : public FormField {
 
     void enable(bool enabled=true)
     {
-      if (!enabled != bool(flags & BUTTON_DISABLED)) {
-        flags ^= BUTTON_DISABLED;
+      if (!enabled != bool(windowFlags & BUTTON_DISABLED)) {
+        windowFlags ^= BUTTON_DISABLED;
         invalidate();
       }
     }
@@ -62,23 +59,23 @@ class Button : public FormField {
 
     void check(bool checked=true)
     {
-      if (checked != bool(flags & BUTTON_CHECKED)) {
-        flags ^= BUTTON_CHECKED;
+      if (checked != bool(windowFlags & BUTTON_CHECKED)) {
+        windowFlags ^= BUTTON_CHECKED;
         invalidate();
       }
     }
 
     bool enabled()
     {
-      return !(flags & BUTTON_DISABLED);
+      return !(windowFlags & BUTTON_DISABLED);
     }
 
     bool checked()
     {
-      if (flags & BUTTON_CHECKED_ON_FOCUS)
+      if (windowFlags & BUTTON_CHECKED_ON_FOCUS)
         return hasFocus();
       else
-        return flags & BUTTON_CHECKED;
+        return windowFlags & BUTTON_CHECKED;
     }
 
     void setPressHandler(std::function<uint8_t(void)> handler)
@@ -104,18 +101,16 @@ class Button : public FormField {
   protected:
     std::function<uint8_t(void)> pressHandler;
     std::function<void(void)> checkHandler;
-    uint8_t flags;
 
     void onPress();
 };
 
 class TextButton : public Button {
   public:
-    TextButton(Window * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, uint8_t flags = BUTTON_BACKGROUND):
-      Button(parent, rect, pressHandler, flags),
+    TextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND):
+      Button(parent, rect, pressHandler, windowFlags | OPAQUE),
       text(std::move(text))
     {
-      windowFlags = OPAQUE;
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -141,7 +136,7 @@ class TextButton : public Button {
 
 class IconButton: public Button {
   public:
-    IconButton(Window * parent, const rect_t & rect, uint8_t icon, std::function<uint8_t(void)> pressHandler, uint8_t flags = 0):
+    IconButton(FormGroup * parent, const rect_t & rect, uint8_t icon, std::function<uint8_t(void)> pressHandler, WindowFlags flags = 0):
       Button(parent, rect, pressHandler, flags),
       icon(icon)
     {

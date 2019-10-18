@@ -21,33 +21,12 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-FormField * FormField::current = nullptr;
-
-FormField::FormField(Window *parent, const rect_t &rect, uint8_t flags) :
-  Window(parent, rect, flags)
+FormField::FormField(Window *parent, const rect_t & rect, WindowFlags windowFlags) :
+  Window(parent, rect, windowFlags)
 {
-  if (current) {
-    setPreviousField(current);
-    current->setNextField(this);
-  }
-
-  FormWindow * form = dynamic_cast<FormWindow *>(parent);
-  if (form && !form->getFirstField())
-    form->setFirstField(this);
-
-  current = this;
-}
-
-#if defined(HARDWARE_KEYS)
-void FormWindow::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT) && first && getFocus() != first) {
-    first->setFocus();
-  }
-  else {
-    Window::onEvent(event);
+  FormGroup * form = dynamic_cast<FormGroup *>(parent);
+  if (form) {
+    form->addField(this);
   }
 }
 
@@ -57,12 +36,12 @@ void FormField::onEvent(event_t event)
 
   if (event == EVT_ROTARY_RIGHT/*EVT_KEY_BREAK(KEY_DOWN)*/) {
     if (next) {
-      next->setFocus();
+      next->setFocus(SET_FOCUS_FORWARD);
     }
   }
   else if (event == EVT_ROTARY_LEFT/*EVT_KEY_BREAK(KEY_UP)*/) {
     if (previous) {
-      previous->setFocus();
+      previous->setFocus(SET_FOCUS_BACKWARD);
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -78,24 +57,6 @@ void FormField::onEvent(event_t event)
   }
 }
 
-void FormGroup::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
-    first->setFocus();
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && editMode) {
-    editMode = false;
-    setFocus();
-  }
-  else {
-    FormField::onEvent(event);
-  }
-}
-#endif
-
 void FormField::paint(BitmapBuffer * dc)
 {
   if (editMode) {
@@ -109,12 +70,96 @@ void FormField::paint(BitmapBuffer * dc)
   }
 }
 
-void FormGroup::paint(BitmapBuffer * dc)
+void FormGroup::addField(FormField * field)
 {
-  if (!editMode && hasFocus()) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+  if (field->getWindowFlags() & FORM_DETACHED)
+    return;
+
+  if (!first) {
+    first = field;
+    if (windowFlags & FORM_FORWARD_FOCUS)
+      link(previous, field);
   }
-  else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
+  if (last)
+    link(last, field);
+  last = field;
+  if (!(windowFlags & FORM_FORWARD_FOCUS))
+    link(field, first);
+  else
+    field->setNextField(this);
+  if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS))
+    field->setFocus();
+}
+
+void FormGroup::setFocus(uint8_t flag)
+{
+  if (windowFlags & FORM_FORWARD_FOCUS) {
+    switch (flag) {
+      case SET_FOCUS_FIRST:
+        first->setFocus(SET_FOCUS_FIRST);
+        break;
+      case SET_FOCUS_BACKWARD:
+        if (focusWindow == first)
+          previous->setFocus(SET_FOCUS_BACKWARD);
+        else
+          last->setFocus(SET_FOCUS_BACKWARD);
+        break;
+      default:
+        if (focusWindow == previous)
+          first->setFocus();
+        else
+          next->setFocus();
+        break;
+    }
+  }
+  else {
+    FormField::setFocus();
   }
 }
+
+#if defined(HARDWARE_KEYS)
+void FormGroup::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    editMode = true;
+    first->setFocus();
+  }
+  else if (event == EVT_KEY_BREAK(KEY_EXIT) && editMode) {
+    editMode = false;
+    setFocus(SET_FOCUS_DEFAULT);
+  }
+  else {
+    FormField::onEvent(event);
+  }
+}
+#endif
+
+void FormGroup::paint(BitmapBuffer * dc)
+{
+  if (!(windowFlags & FORM_FORWARD_FOCUS)) {
+    if (!editMode && hasFocus()) {
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+    }
+    else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
+    }
+  }
+}
+
+#if defined(HARDWARE_KEYS)
+void FormWindow::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT) && first) {
+    Window * currentFocus = getFocus();
+    first->setFocus(SET_FOCUS_FIRST);
+    if (getFocus() != currentFocus)
+      return;
+  }
+
+  Window::onEvent(event);
+}
+#endif
