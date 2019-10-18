@@ -23,10 +23,10 @@
 #include "mainwindow.h"
 #include "form.h"
 
-class Keyboard: public Window {
+class Keyboard: public FormWindow {
   public:
     explicit Keyboard(coord_t height):
-      Window(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
+      FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
     {
     }
 
