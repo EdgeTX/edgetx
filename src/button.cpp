@@ -25,8 +25,8 @@
 void Button::onPress()
 {
   bool check = (pressHandler && pressHandler());
-  if (check != bool(flags & BUTTON_CHECKED)) {
-    flags ^= BUTTON_CHECKED;
+  if (check != bool(windowFlags & BUTTON_CHECKED)) {
+    windowFlags ^= BUTTON_CHECKED;
     invalidate();
   }
 }
@@ -83,7 +83,7 @@ void TextButton::paint(BitmapBuffer * dc)
     textColor = FOCUS_COLOR;
   }
   else {
-    if (flags & BUTTON_BACKGROUND) {
+    if (windowFlags & BUTTON_BACKGROUND) {
       if (hasFocus()) {
         dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, DISABLE_COLOR);
@@ -102,7 +102,7 @@ void TextButton::paint(BitmapBuffer * dc)
     }
   }
 
-  dc->drawText(rect.w / 2, (rect.h - getFontHeight(flags)) / 2, text.c_str(), CENTERED | textColor);
+  dc->drawText(rect.w / 2, (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textColor);
 }
 
 void IconButton::paint(BitmapBuffer * dc)

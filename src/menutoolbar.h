@@ -27,7 +27,7 @@ int getFirstAvailable(int min, int max, std::function<bool(int)>isValueAvailable
 
 class MenuToolbarButton: public Button {
   public:
-    MenuToolbarButton(Window * window, const rect_t & rect, char picto):
+    MenuToolbarButton(FormGroup * window, const rect_t & rect, char picto):
 #if defined(HARDWARE_TOUCH)
       Button(window, rect, nullptr, BUTTON_CHECKED_ON_FOCUS),
 #else
@@ -66,16 +66,15 @@ class MenuToolbarButton: public Button {
 };
 
 template <class T>
-class MenuToolbar: public Window {
+class MenuToolbar: public FormGroup {
   friend T;
 
   public:
     MenuToolbar(T * choice, Menu * menu):
-      Window(menu, MENUS_TOOLBAR_RECT, NO_SCROLLBAR),
+      FormGroup(menu, MENUS_TOOLBAR_RECT, NO_SCROLLBAR),
       choice(choice),
       menu(menu)
     {
-      FormField::clearCurrentField();
     }
 
     ~MenuToolbar() override

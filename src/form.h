@@ -22,11 +22,13 @@
 
 #include "window.h"
 
-class FormField: public Window {
-  friend class FormWindow;
+constexpr WindowFlags FORM_FORWARD_FOCUS = WINDOW_FLAGS_LAST << 1;
+constexpr WindowFlags FORM_DETACHED = WINDOW_FLAGS_LAST << 2;
+constexpr WindowFlags FORM_FLAGS_LAST = FORM_DETACHED;
 
+class FormField: public Window {
   public:
-    FormField(Window * parent, const rect_t & rect, uint8_t flags=0);
+    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0);
 
     inline void setNextField(FormField *field)
     {
@@ -38,27 +40,12 @@ class FormField: public Window {
       previous = field;
     }
 
-    inline static void setCurrentField(FormField * field)
-    {
-      current = field;
-    }
-
-    inline static void clearCurrentField()
-    {
-      setCurrentField(nullptr);
-    }
-
-    inline static FormField * getCurrentField()
-    {
-      return current;
-    }
-
-    virtual FormField * getPreviousField()
+    inline FormField * getPreviousField()
     {
       return previous;
     }
 
-    virtual FormField * getNextField()
+    inline FormField * getNextField()
     {
       return next;
     }
@@ -86,7 +73,6 @@ class FormField: public Window {
 #endif
 
   protected:
-    static FormField * current;
     FormField * next = nullptr;
     FormField * previous = nullptr;
     bool editMode = false;
@@ -94,13 +80,12 @@ class FormField: public Window {
 
 class FormGroup: public FormField {
   public:
-    FormGroup(Window * parent, const rect_t & rect, uint8_t flags=0) :
-      FormField(parent, rect, flags)
+    FormGroup(Window * parent, const rect_t & rect, WindowFlags windowflags = 0) :
+      FormField(parent, rect, windowflags)
     {
-      FormField::current = nullptr;
     }
 
-    ~FormGroup()
+    ~FormGroup() override
     {
       deleteChildren();
     }
@@ -116,33 +101,26 @@ class FormGroup: public FormField {
     {
       Window::clear();
       first = nullptr;
-      FormField::current = nullptr;
+      last = nullptr;
     }
 
-    inline void setFirstField(FormField * field)
-    {
-      first = field;
-    }
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT) override;
 
-    inline void setLastField(FormField * field = nullptr)
-    {
-      // by default the current field is the last one
-      if (!field)
-        field = getCurrentField();
+    void addField(FormField * field);
 
-      FormField::link(field, first);
-
-      // now the current field is the group, it will be linked to the next one
-      FormField::setCurrentField(this);
-    }
-
-    FormField * getFirstField()
+    inline FormField * getFirstField()
     {
       return first;
     }
 
+    inline FormField * getLastField()
+    {
+      return last;
+    }
+
   protected:
     FormField * first = nullptr;
+    FormField * last = nullptr;
 
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
@@ -151,12 +129,11 @@ class FormGroup: public FormField {
     void paint(BitmapBuffer * dc) override;
 };
 
-class FormWindow: public Window {
+class FormWindow: public FormGroup {
   public:
-    FormWindow(Window * parent, const rect_t & rect) :
-      Window(parent, rect)
+    FormWindow(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0) :
+      FormGroup(parent, rect, windowFlags)
     {
-      FormField::current = nullptr;
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -166,42 +143,14 @@ class FormWindow: public Window {
     }
 #endif
 
-    void clear()
-    {
-      first = nullptr;
-      Window::clear();
-    }
-
-    FormField * getFirstField()
-    {
-      return first;
-    }
-
-    inline void setFirstField(FormField * field)
-    {
-      first = field;
-      field->setFocus();
-    }
-
-    inline void setLastField(FormField * field = nullptr)
-    {
-      if (!field)
-        field = FormField::getCurrentField();
-      FormField::link(field, first);
-    }
-
   protected:
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
     void paint(BitmapBuffer * dc) override
     {
     }
 
-  protected:
-    FormField * first = nullptr;
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
 };
 
 #endif

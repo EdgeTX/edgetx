@@ -20,9 +20,9 @@
 #ifndef _DIALOG_H_
 #define _DIALOG_H_
 
-#include "window.h"
+#include "form.h"
 
-class Dialog: public Window {
+class Dialog: public FormGroup {
   public:
     Dialog(std::string title, const rect_t rect);
 

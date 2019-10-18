@@ -444,12 +444,12 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       c = uint8_t(*s) + ((c & 0x01) << 8) - 1;
       if (c >= 0x101)
         c -= 1;
-      c += 187;
-      uint8_t width = drawChar(x-1, y, font, fontspecs, c, flags);
+      c += CJK_FIRST_LETTER_INDEX;
+      uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
       INCREMENT_POS(width);
     }
-    else if (c >= 0x20) {
-      uint8_t width = drawChar(x-1, y, font, fontspecs, getMappedChar(c), flags);
+    else if (c > 0x20) {
+      uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
       INCREMENT_POS(width);
     }
     else if (c == '\n') {

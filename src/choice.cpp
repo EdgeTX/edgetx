@@ -21,15 +21,14 @@
 #include "menu.h"
 #include "theme.h"
 
-Choice::Choice(Window * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, LcdFlags flags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
+               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue) :
   ChoiceBase(parent, rect),
   values(values),
   vmin(vmin),
   vmax(vmax),
   getValue(std::move(getValue)),
-  setValue(std::move(setValue)),
-  flags(flags)
+  setValue(std::move(setValue))
 {
 }
 

@@ -31,23 +31,33 @@
 #include "libopenui_helpers.h"
 #include "libopenui_config.h"
 
+typedef uint32_t WindowFlags;
+
 // OPAQUE/TRANSPARENT defined in WinGDI
 #ifndef OPAQUE
  #define OPAQUE               1
  #define TRANSPARENT          2
 #endif
 
-constexpr uint8_t NO_SCROLLBAR =          4;
-constexpr uint8_t FORWARD_SCROLL =        8;
-constexpr uint8_t REFRESH_ALWAYS =        16;
-constexpr uint8_t BORDER_FOCUS_ONLY =     32;
-constexpr uint8_t PAINT_CHILDREN_FIRST =  64;
+constexpr WindowFlags NO_SCROLLBAR =          4;
+constexpr WindowFlags FORWARD_SCROLL =        8;
+constexpr WindowFlags REFRESH_ALWAYS =        16;
+constexpr WindowFlags BORDER_FOCUS_ONLY =     32;
+constexpr WindowFlags PAINT_CHILDREN_FIRST =  64;
+constexpr WindowFlags WINDOW_FLAGS_LAST =  PAINT_CHILDREN_FIRST;
+
+enum SetFocusFlag {
+  SET_FOCUS_DEFAULT,
+  SET_FOCUS_FORWARD,
+  SET_FOCUS_BACKWARD,
+  SET_FOCUS_FIRST
+};
 
 class Window {
   friend class GridLayout;
 
   public:
-    Window(Window * parent, const rect_t & rect, uint8_t flags=0);
+    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
     virtual ~Window();
 
@@ -86,14 +96,19 @@ class Window {
       return parent;
     }
 
-    uint8_t getWindowFlags() const
+    WindowFlags getWindowFlags() const
     {
       return windowFlags;
     }
 
-    void setWindowFlags(uint8_t flags)
+    void setWindowFlags(WindowFlags flags)
     {
       windowFlags = flags;
+    }
+
+    void setTextFlags(LcdFlags flags)
+    {
+      textFlags = flags;
     }
 
     void setCloseHandler(std::function<void()> handler)
@@ -126,7 +141,7 @@ class Window {
 
     static void clearFocus();
 
-    void setFocus();
+    virtual void setFocus(uint8_t flag = SET_FOCUS_DEFAULT);
 
     void setRect(rect_t rect)
     {
@@ -292,7 +307,8 @@ class Window {
     coord_t innerHeight;
     coord_t scrollPositionX = 0;
     coord_t scrollPositionY = 0;
-    uint8_t windowFlags;
+    WindowFlags windowFlags;
+    LcdFlags textFlags;
 
     static Window * focusWindow;
     static std::list<Window *> trash;
