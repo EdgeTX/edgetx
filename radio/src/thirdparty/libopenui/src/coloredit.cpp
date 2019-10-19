@@ -78,8 +78,3 @@ ColorEdit::ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint
                    });
   }
 }
-
-ColorEdit::~ColorEdit()
-{
-  deleteChildren();
-}

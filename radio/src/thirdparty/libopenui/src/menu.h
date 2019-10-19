@@ -57,7 +57,7 @@ class MenuWindow: public Window {
   };
 
   public:
-    MenuWindow(Menu * parent);
+    explicit MenuWindow(Menu * parent);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
@@ -126,7 +126,7 @@ class Menu : public Window {
 
     ~Menu() override
     {
-      delete toolbar;
+      menuWindow.detach();
     }
 
     void setCancelHandler(std::function<void()> handler)

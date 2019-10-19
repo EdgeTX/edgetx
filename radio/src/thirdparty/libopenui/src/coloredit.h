@@ -32,8 +32,6 @@ class ColorEdit : public FormGroup {
       return "ColorEdit";
     }
 #endif
-
-    ~ColorEdit() override;
 };
 
 #endif // _COLOREDIT_H_

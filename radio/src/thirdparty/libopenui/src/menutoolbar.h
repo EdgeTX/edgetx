@@ -77,11 +77,6 @@ class MenuToolbar: public FormGroup {
     {
     }
 
-    ~MenuToolbar() override
-    {
-      deleteChildren();
-    }
-
     void paint(BitmapBuffer * dc) override
     {
       dc->clear(DISABLE_COLOR);
