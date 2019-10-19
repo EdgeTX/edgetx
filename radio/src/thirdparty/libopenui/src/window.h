@@ -299,6 +299,8 @@ class Window {
 
     virtual void checkEvents();
 
+    void detach();
+
   protected:
     Window * parent;
     std::list<Window *> children;
@@ -317,8 +319,6 @@ class Window {
     std::function<void()> focusHandler;
 
     void  attach(Window * window);
-
-    void detach();
 
     void addChild(Window * window)
     {
