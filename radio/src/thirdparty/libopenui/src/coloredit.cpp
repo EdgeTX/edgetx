@@ -56,8 +56,8 @@ class ColorBox: public Window {
     LcdFlags color;
 };
 
-ColorEdit::ColorEdit(Window * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue):
-  Window(parent, rect, FORWARD_SCROLL)
+ColorEdit::ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue):
+  FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
 {
   auto width = rect.w / 4 - 5;
 
@@ -77,7 +77,6 @@ ColorEdit::ColorEdit(Window * parent, const rect_t & rect, std::function<uint16_
                      box->setColor(value);
                    });
   }
-
 }
 
 ColorEdit::~ColorEdit()

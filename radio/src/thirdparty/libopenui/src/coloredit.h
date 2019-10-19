@@ -20,11 +20,11 @@
 #ifndef _COLOREDIT_H_
 #define _COLOREDIT_H_
 
-#include "window.h"
+#include "form.h"
 
-class ColorEdit : public Window {
+class ColorEdit : public FormGroup {
   public:
-    ColorEdit(Window * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue = nullptr);
+    ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue = nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
