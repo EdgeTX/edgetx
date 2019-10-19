@@ -46,7 +46,7 @@ Window::~Window()
     focusWindow = nullptr;
   }
 
-  //  TODO deleteChildren(); (remove from FormGroup)
+  deleteChildren();
 }
 
 void Window::attach(Window * window)

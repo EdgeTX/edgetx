@@ -85,11 +85,6 @@ class FormGroup: public FormField {
     {
     }
 
-    ~FormGroup() override
-    {
-      deleteChildren(); // TODO move it to ~Window()
-    }
-
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
     {
