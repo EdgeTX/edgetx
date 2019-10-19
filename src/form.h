@@ -87,7 +87,7 @@ class FormGroup: public FormField {
 
     ~FormGroup() override
     {
-      deleteChildren();
+      deleteChildren(); // TODO move it to ~Window()
     }
 
 #if defined(DEBUG_WINDOWS)
