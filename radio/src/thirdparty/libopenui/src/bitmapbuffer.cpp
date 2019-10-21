@@ -582,7 +582,7 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 //  }
 //}
 
-BitmapBuffer * BitmapBuffer::load(const char * filename)
+BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename)
 {
   const char * ext = getFileExtension(filename);
   if (ext && !strcmp(ext, ".bmp"))
@@ -593,7 +593,7 @@ BitmapBuffer * BitmapBuffer::load(const char * filename)
 
 BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
 {
-  BitmapBuffer * bitmap = BitmapBuffer::load(filename);
+  BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(filename);
   if (bitmap) {
     pixel_t * p = bitmap->getPixelPtr(0, 0);
     for (int i = bitmap->getWidth() * bitmap->getHeight(); i > 0; i--) {

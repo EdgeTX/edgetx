@@ -69,7 +69,7 @@ class StaticBitmap: public Window {
   public:
     StaticBitmap(Window * parent, const rect_t & rect, const char * filename):
       Window(parent, rect),
-      bitmap(BitmapBuffer::load(filename))
+      bitmap(BitmapBuffer::loadBitmap(filename))
     {
     }
 
