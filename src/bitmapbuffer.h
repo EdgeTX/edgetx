@@ -351,7 +351,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     void drawBitmapPatternPie(coord_t x0, coord_t y0, const uint8_t * img, LcdFlags flags, int startAngle, int endAngle);
 
-    static BitmapBuffer * load(const char * filename);
+    static BitmapBuffer * loadBitmap(const char * filename);
 
     static BitmapBuffer * loadMask(const char * filename);
 
