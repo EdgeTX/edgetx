@@ -24,9 +24,11 @@
 FormField::FormField(Window *parent, const rect_t & rect, WindowFlags windowFlags) :
   Window(parent, rect, windowFlags)
 {
-  FormGroup * form = dynamic_cast<FormGroup *>(parent);
-  if (form) {
-    form->addField(this);
+  if (!(windowFlags & FORM_NO_FOCUS)) {
+    FormGroup * form = dynamic_cast<FormGroup *>(parent);
+    if (form) {
+      form->addField(this);
+    }
   }
 }
 
