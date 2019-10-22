@@ -232,6 +232,11 @@ class Window {
       }
     }
 
+    coord_t getScrollPositionX() const
+    {
+      return scrollPositionX;
+    }
+
     coord_t getScrollPositionY() const
     {
       return scrollPositionY;
