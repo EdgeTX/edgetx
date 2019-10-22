@@ -46,8 +46,8 @@
 
 #define FONT_MASK                       0x0F00
 #define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8)
+#define FONT(xx)                        (FONT_ ## xx ## _INDEX << 8)
 
-#define TIMEBLINK                      0x1000
 #define TIMEHOUR                       0x2000
 #define EXPANDED                       0x2000
 #define VERTICAL                       0x4000
