@@ -326,18 +326,24 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
     width = xmax - x;
   }
 
+  if (x < 0) {
+    width += x;
+    offset -= x;
+    x = 0;
+  }
+
   if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin) {
     return;
   }
 
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
 
-  for (coord_t row=0; row<height; row++) {
+  for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
-    pixel_t * p = getPixelPtr(x, y+row);
+    pixel_t * p = getPixelPtr(x, y + row);
     const pixel_t * q = mask->getPixelPtr(offset, row);
-    for (coord_t col=0; col<width; col++) {
+    for (coord_t col = 0; col < width; col++) {
       drawAlphaPixel(p, *((uint8_t *)q), color);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
       MOVE_TO_NEXT_RIGHT_PIXEL(q);
