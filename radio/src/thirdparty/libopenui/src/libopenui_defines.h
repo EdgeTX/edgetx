@@ -44,42 +44,8 @@
 /* telemetry flags */
 #define NO_UNIT                        0x40
 
-enum FontSizeIndex
-{
-  STDSIZE_INDEX,
-  TINSIZE_INDEX,
-  SMLSIZE_INDEX,
-  MIDSIZE_INDEX,
-  DBLSIZE_INDEX,
-  XXLSIZE_INDEX,
-  SPARE6_INDEX,
-  SPARE7_INDEX,
-  STDSIZE_BOLD_INDEX,
-  SPARE9_INDEX,
-  SPAREa_INDEX,
-  SPAREb_INDEX,
-  SPAREc_INDEX,
-  SPAREd_INDEX,
-  SPAREe_INDEX,
-  SPAREf_INDEX,
-};
-
-#define STDSIZE                        (STDSIZE_INDEX << 8)
-#define TINSIZE                        (TINSIZE_INDEX << 8)
-#define SMLSIZE                        (SMLSIZE_INDEX << 8)
-#define MIDSIZE                        (MIDSIZE_INDEX << 8)
-#define DBLSIZE                        (DBLSIZE_INDEX << 8)
-#define XXLSIZE                        (XXLSIZE_INDEX << 8)
-#define BOLD                           (STDSIZE_BOLD_INDEX << 8)
-#define FONTSIZE_MASK                  0x0f00
-
-#if !defined(BOOT)
-#define FONTSIZE(flags)                ((flags) & FONTSIZE_MASK)
-#define FONTINDEX(flags)               (FONTSIZE(flags) >> 8)
-#else
-#define FONTSIZE(flags)                STDSIZE
-#define FONTINDEX(flags)               STDSIZE_INDEX
-#endif
+#define FONT_MASK                       0x0F00
+#define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8)
 
 #define TIMEBLINK                      0x1000
 #define TIMEHOUR                       0x2000
