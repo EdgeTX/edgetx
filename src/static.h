@@ -53,7 +53,7 @@ class StaticText : public Window {
 class Subtitle: public StaticText {
   public:
     Subtitle(Window * parent, const rect_t & rect, const char * text):
-      StaticText(parent, rect, text, 0, BOLD)
+      StaticText(parent, rect, text, 0, FONT(BOLD))
     {
     }
 

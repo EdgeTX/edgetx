@@ -413,7 +413,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
     return x;
   }
 
-  uint32_t fontindex = FONTINDEX(flags);
+  uint32_t fontindex = FONT_INDEX(flags);
   const unsigned char * font = fontsTable[fontindex];
   const uint16_t * fontspecs = fontspecsTable[fontindex];
 
