@@ -33,17 +33,14 @@
 
 typedef uint32_t WindowFlags;
 
-// OPAQUE/TRANSPARENT defined in WinGDI
-#ifndef OPAQUE
- #define OPAQUE               1
- #define TRANSPARENT          2
-#endif
-
-constexpr WindowFlags NO_SCROLLBAR =          4;
-constexpr WindowFlags FORWARD_SCROLL =        8;
-constexpr WindowFlags REFRESH_ALWAYS =        16;
-constexpr WindowFlags BORDER_FOCUS_ONLY =     32;
-constexpr WindowFlags PAINT_CHILDREN_FIRST =  64;
+constexpr WindowFlags OPAQUE =                1 << 0;
+constexpr WindowFlags TRANSPARENT =           1 << 1;
+constexpr WindowFlags NO_SCROLLBAR =          1 << 2;
+constexpr WindowFlags NO_FOCUS =              1 << 3;
+constexpr WindowFlags FORWARD_SCROLL =        1 << 4;
+constexpr WindowFlags REFRESH_ALWAYS =        1 << 5;
+constexpr WindowFlags BORDER_FOCUS_ONLY =     1 << 6;
+constexpr WindowFlags PAINT_CHILDREN_FIRST =  1 << 7;
 constexpr WindowFlags WINDOW_FLAGS_LAST =  PAINT_CHILDREN_FIRST;
 
 enum SetFocusFlag {
