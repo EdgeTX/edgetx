@@ -97,22 +97,35 @@ void FormGroup::addField(FormField * field)
 
 void FormGroup::setFocus(uint8_t flag)
 {
+  TRACE_WINDOWS("FormGroup::setFocus(%d)", flag);
+
   if (windowFlags & FORM_FORWARD_FOCUS) {
     switch (flag) {
       case SET_FOCUS_FIRST:
-        first->setFocus(SET_FOCUS_FIRST);
+        if (first)
+          first->setFocus(SET_FOCUS_FIRST);
         break;
       case SET_FOCUS_BACKWARD:
-        if (focusWindow == first)
-          previous->setFocus(SET_FOCUS_BACKWARD);
-        else
-          last->setFocus(SET_FOCUS_BACKWARD);
+        if (focusWindow == first) {
+          if (previous == this)
+            last->setFocus(SET_FOCUS_BACKWARD);
+          else if (previous)
+            previous->setFocus(SET_FOCUS_BACKWARD);
+        }
+        else {
+          if (last)
+            last->setFocus(SET_FOCUS_BACKWARD);
+        }
         break;
       default:
-        if (focusWindow == previous)
-          first->setFocus();
-        else
-          next->setFocus();
+        if (focusWindow == previous) {
+          if (first)
+            first->setFocus();
+        }
+        else {
+          if (next)
+            next->setFocus();
+        }
         break;
     }
   }
