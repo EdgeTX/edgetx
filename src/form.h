@@ -22,9 +22,8 @@
 
 #include "window.h"
 
-constexpr WindowFlags FORM_NO_FOCUS = WINDOW_FLAGS_LAST << 1;
-constexpr WindowFlags FORM_FORWARD_FOCUS = WINDOW_FLAGS_LAST << 2;
-constexpr WindowFlags FORM_DETACHED = WINDOW_FLAGS_LAST << 3;
+constexpr WindowFlags FORM_FORWARD_FOCUS = WINDOW_FLAGS_LAST << 1;
+constexpr WindowFlags FORM_DETACHED = WINDOW_FLAGS_LAST << 2;
 constexpr WindowFlags FORM_FLAGS_LAST = FORM_DETACHED;
 
 class FormField: public Window {

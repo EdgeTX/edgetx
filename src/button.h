@@ -25,9 +25,8 @@
 
 constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1;
 constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2;
-constexpr WindowFlags BUTTON_NOFOCUS = FORM_FLAGS_LAST << 3;
-constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 4;
-constexpr WindowFlags BUTTON_DISABLED = FORM_FLAGS_LAST << 5;
+constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3;
+constexpr WindowFlags BUTTON_DISABLED = FORM_FLAGS_LAST << 4;
 
 class Button : public FormField {
   public:
@@ -44,7 +43,7 @@ class Button : public FormField {
     }
 #endif
 
-    void enable(bool enabled=true)
+    void enable(bool enabled = true)
     {
       if (!enabled != bool(windowFlags & BUTTON_DISABLED)) {
         windowFlags ^= BUTTON_DISABLED;
@@ -57,7 +56,7 @@ class Button : public FormField {
       enable(false);
     }
 
-    void check(bool checked=true)
+    void check(bool checked = true)
     {
       if (checked != bool(windowFlags & BUTTON_CHECKED)) {
         windowFlags ^= BUTTON_CHECKED;
