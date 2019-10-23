@@ -217,7 +217,14 @@ void processTelemetryFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-#if defined(ACCESS_LIB) && !defined(SIMU)
+#if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
+
+extern "C" {
+  #include "AccessDenied/access_denied.h"
+};
+
+volatile int16_t authenticateFrames = 0;
+
 void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
 {
   uint8_t cryptoType = frame[3];
@@ -231,12 +238,14 @@ void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
     return;
   }
 
-  if (INTERNAL_MODULE == module && accessCRL(cryptoType, frame+4, messageDigest)) {
+  if (INTERNAL_MODULE == module && access_denied(cryptoType, frame+4, messageDigest)) {
     moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
     Pxx2Pulses & pxx2 = intmodulePulsesData.pxx2;
     pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);
     intmoduleSendBuffer(pxx2.getData(), pxx2.getSize());
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the end of the mixing process
+    authenticateFrames++;
+    serialPrint("[authFrame %d]\r\n", authenticateFrames);
   }
 
   if (!globalData.upgradeModulePopup) {
@@ -249,6 +258,7 @@ void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
     }
   }
 }
+
 #else
 #define processAuthenticationFrame(module, frame)
 #endif

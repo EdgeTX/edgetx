@@ -1328,9 +1328,3 @@ inline bool isAsteriskDisplayed()
 }
 
 #include "module.h"
-
-#if defined(ACCESS_LIB)
-// TODO should be inside module.h
-#include "thirdparty/libACCESS/libAccess.h"
-#endif
-
