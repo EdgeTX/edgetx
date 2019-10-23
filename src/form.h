@@ -104,16 +104,6 @@ class FormGroup: public FormField {
 
     void addField(FormField * field);
 
-    inline FormField * getFirstField()
-    {
-      return first;
-    }
-
-    inline FormField * getLastField()
-    {
-      return last;
-    }
-
   protected:
     FormField * first = nullptr;
     FormField * last = nullptr;

@@ -18,6 +18,7 @@
  */
 
 #include "window.h"
+#include "touch.h"
 
 Window * Window::focusWindow = nullptr;
 std::list<Window *> Window::trash;
@@ -154,13 +155,18 @@ void Window::setScrollPositionY(coord_t value)
 
 void Window::scrollTo(Window * child)
 {
+  coord_t offsetX = 0;
   coord_t offsetY = 0;
+
   Window * parent = child->getParent();
   while (parent && parent != this) {
+    offsetX += parent->left();
     offsetY += parent->top();
     parent = parent->getParent();
   }
 
+  coord_t left = offsetX + child->left();
+  coord_t right = offsetX + child->right();
   coord_t top = offsetY + child->top();
   coord_t bottom = offsetY + child->bottom();
 
@@ -169,6 +175,13 @@ void Window::scrollTo(Window * child)
   }
   else if (bottom > scrollPositionY + height() - 5) {
     setScrollPositionY(bottom - height() + 5);
+  }
+
+  if (left < scrollPositionX) {
+    setScrollPositionX(pageWidth ? left - (left % pageWidth) : left - 5);
+  }
+  else if (right > scrollPositionX + width() - 5) {
+    setScrollPositionX(pageWidth ? left - (left % pageWidth) : right - width() + 5);
   }
 }
 
@@ -275,6 +288,22 @@ void Window::checkEvents()
   if (windowFlags & REFRESH_ALWAYS) {
     invalidate();
   }
+
+#if defined(HARDWARE_TOUCH)
+  if (pageWidth && touchState.event != TE_SLIDE) {
+    coord_t relativeScrollPosition = scrollPositionX % pageWidth;
+    if (relativeScrollPosition) {
+      if (relativeScrollPosition > pageWidth / 2) {
+        setScrollPositionX(getScrollPositionX() - relativeScrollPosition + pageWidth);
+        invalidate();
+      }
+      else {
+        setScrollPositionX(getScrollPositionX() - relativeScrollPosition);
+        invalidate();
+      }
+    }
+  }
+#endif
 }
 
 void Window::onEvent(event_t event)

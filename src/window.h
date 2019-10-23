@@ -164,11 +164,6 @@ class Window {
       invalidate();
     }
 
-    coord_t getHeight()
-    {
-      return rect.h;
-    }
-
     void setLeft(coord_t x)
     {
       rect.x = x;
@@ -222,6 +217,19 @@ class Window {
       if (width() >= w) {
         scrollPositionX = 0;
       }
+    }
+
+    void setPageWidth(coord_t w)
+    {
+      pageWidth = w;
+    }
+
+    uint8_t getPageIndex()
+    {
+      if (pageWidth)
+        return (getScrollPositionX() + (pageWidth / 2)) / pageWidth;
+      else
+        return 0;
     }
 
     void setInnerHeight(coord_t h)
@@ -312,6 +320,7 @@ class Window {
     rect_t rect;
     coord_t innerWidth;
     coord_t innerHeight;
+    coord_t pageWidth = 0;
     coord_t scrollPositionX = 0;
     coord_t scrollPositionY = 0;
     WindowFlags windowFlags;
