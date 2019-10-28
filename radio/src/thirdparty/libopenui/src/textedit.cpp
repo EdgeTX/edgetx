@@ -62,6 +62,16 @@ void TextEdit::paint(BitmapBuffer * dc)
   }
 }
 
+void TextEdit::trim()
+{
+  for (int i = length - 1; i >= 0; i--) {
+    if (value[i] == ' ' || value[i] == '\0')
+      value[i] = '\0';
+    else
+      break;
+  }
+}
+
 void TextEdit::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
@@ -111,7 +121,7 @@ void TextEdit::onEvent(event_t event)
         break;
 
       case EVT_KEY_BREAK(KEY_RIGHT):
-        if (cursorPos < length - 1) {
+        if (cursorPos < length - 1 && value[cursorPos + 1] != '\0') {
           cursorPos++;
           invalidate();
         }
@@ -120,15 +130,19 @@ void TextEdit::onEvent(event_t event)
       case EVT_KEY_BREAK(KEY_ENTER):
         if (cursorPos < length - 1) {
           cursorPos++;
+          if (value[cursorPos] == '\0')
+            value[cursorPos] = ' ';
           invalidate();
         }
         else {
+          trim();
           FormField::onEvent(event);
         }
         break;
 
       case EVT_KEY_BREAK(KEY_EXIT):
         cursorPos = 0;
+        trim();
         FormField::onEvent(event);
         break;
 
@@ -191,12 +205,15 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
 }
 #endif
 
-#if defined(SOFTWARE_KEYBOARD)
 void TextEdit::onFocusLost()
 {
+#if defined(SOFTWARE_KEYBOARD)
   TextKeyboard::hide();
+#endif
+
+  trim();
+  cursorPos = 0;
 
   // TODO storageDirty(...);
   FormField::onFocusLost();
 }
-#endif

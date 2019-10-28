@@ -58,8 +58,8 @@ class BitmapBufferBase
   public:
     BitmapBufferBase(uint8_t format, uint16_t width, uint16_t height, T * data):
       format(format),
-      width(width),
-      height(height),
+      _width(width),
+      _height(height),
       xmax(width),
       ymax(height),
       data(data),
@@ -69,21 +69,21 @@ class BitmapBufferBase
 
     BitmapBufferBase(uint8_t format, T * data):
       format(format),
-      width(*((uint16_t*)data)),
-      height(*(((uint16_t*)data) + 1)),
-      xmax(width),
-      ymax(height),
+      _width(*((uint16_t*)data)),
+      _height(*(((uint16_t*)data) + 1)),
+      xmax(_width),
+      ymax(_height),
       data(data + 2),
-      data_end(data + 2 + (width * height))
+      data_end(data + 2 + (_width * _height))
     {
     }
 
     inline void clearClippingRect()
     {
       xmin = 0;
-      xmax = width;
+      xmax = _width;
       ymin = 0;
-      ymax = height;
+      ymax = _height;
     }
 
     inline void setClippingRect(coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax)
@@ -123,14 +123,14 @@ class BitmapBufferBase
       return format;
     }
 
-    inline uint16_t getWidth() const
+    inline uint16_t width() const
     {
-      return width;
+      return _width;
     }
 
-    inline uint16_t getHeight() const
+    inline uint16_t height() const
     {
-      return height;
+      return _height;
     }
 
     inline T * getData() const
@@ -140,7 +140,7 @@ class BitmapBufferBase
 
     uint32_t getDataSize() const
     {
-      return width * height * sizeof(T);
+      return _width * _height * sizeof(T);
     }
 
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
@@ -149,13 +149,13 @@ class BitmapBufferBase
       x = width - x - 1;
       y = height - y - 1;
 #endif
-      return &data[y*width + x];
+      return &data[y * _width + x];
     }
 
   protected:
     uint8_t format;
-    coord_t width;
-    coord_t height;
+    coord_t _width;
+    coord_t _height;
     coord_t xmin = 0;
     coord_t xmax;
     coord_t ymin = 0;
@@ -175,9 +175,9 @@ class RLEBitmap:
     RLEBitmap(uint8_t format, const uint8_t* rle_data) :
       BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
     {
-      width = *((uint16_t *)rle_data);
-      height = *(((uint16_t *)rle_data)+1);
-      uint32_t pixels = width * height;
+      _width = *((uint16_t *)rle_data);
+      _height = *(((uint16_t *)rle_data)+1);
+      uint32_t pixels = _width * _height;
       data = (uint16_t*)malloc(pixels * sizeof(uint16_t));
       decode((uint8_t *)data, pixels * sizeof(uint16_t), rle_data+4);
       data_end = data + pixels;
@@ -265,7 +265,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     inline void clear(LcdFlags flags=0)
     {
-      drawSolidFilledRect(0, 0, width - offsetX, height - offsetY, flags);
+      drawSolidFilledRect(0, 0, _width - offsetX, _height - offsetY, flags);
     }
 
     inline void drawPixel(pixel_t * p, pixel_t value)
@@ -287,7 +287,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       x = width - x - 1;
       y = height - y - 1;
 #endif
-      return &data[y*width + x];
+      return &data[y * _width + x];
     }
 
     inline pixel_t * getPixelPtr(coord_t x, coord_t y)
@@ -296,7 +296,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       x = width - x - 1;
       y = height - y - 1;
 #endif
-      return &data[y*width + x];
+      return &data[y * _width + x];
     }
 
     inline void drawPixel(coord_t x, coord_t y, pixel_t value)
@@ -387,8 +387,8 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       if (!data || !bmp)
         return;
 
-      coord_t srcw = bmp->getWidth();
-      coord_t srch = bmp->getHeight();
+      coord_t srcw = bmp->width();
+      coord_t srch = bmp->height();
 
       if (w == 0)
         w = srcw;
@@ -432,20 +432,20 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
           h = height - y;
         }*/
         if (bmp->getFormat() == BMP_ARGB4444) {
-          DMACopyAlphaBitmap(data, width, height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
+          DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
         }
         else {
-          DMACopyBitmap(data, width, height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
+          DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
         }
       }
       else {
         int scaledw = w * scale;
         int scaledh = h * scale;
 
-        if (x + scaledw > width)
-          scaledw = width - x;
-        if (y + scaledh > height)
-          scaledh = height - y;
+        if (x + scaledw > _width)
+          scaledw = _width - x;
+        if (y + scaledh > _height)
+          scaledh = _height - y;
 
         for (int i = 0; i < scaledh; i++) {
           pixel_t * p = getPixelPtr(x, y + i);
@@ -469,12 +469,12 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
     template<class T>
     void drawScaledBitmap(const T * bitmap, coord_t x, coord_t y, coord_t w, coord_t h)
     {
-      float vscale = float(h) / bitmap->getHeight();
-      float hscale = float(w) / bitmap->getWidth();
+      float vscale = float(h) / bitmap->height();
+      float hscale = float(w) / bitmap->width();
       float scale = vscale < hscale ? vscale : hscale;
 
-      int xshift = (w - (bitmap->getWidth() * scale)) / 2;
-      int yshift = (h - (bitmap->getHeight() * scale)) / 2;
+      int xshift = (w - (bitmap->width() * scale)) / 2;
+      int yshift = (h - (bitmap->height() * scale)) / 2;
       drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
     }
 
