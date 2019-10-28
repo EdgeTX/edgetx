@@ -23,7 +23,7 @@
 MessageDialog::MessageDialog(const char * title, const char * message):
   Dialog(title, {50, 73, LCD_W - 100, LCD_H - 146})
 {
-  new StaticText(this, {0, coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), PAGE_LINE_HEIGHT}, message, CENTERED);
+  new StaticText(this, {0, coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), PAGE_LINE_HEIGHT}, message, 0, CENTERED);
 }
 
 #if defined(HARDWARE_KEYS)
