@@ -135,14 +135,13 @@ void TextEdit::onEvent(event_t event)
           invalidate();
         }
         else {
-          trim();
+          changeEnd();
           FormField::onEvent(event);
         }
         break;
 
       case EVT_KEY_BREAK(KEY_EXIT):
-        cursorPos = 0;
-        trim();
+        changeEnd();
         FormField::onEvent(event);
         break;
 
@@ -211,8 +210,7 @@ void TextEdit::onFocusLost()
   TextKeyboard::hide();
 #endif
 
-  trim();
-  cursorPos = 0;
+  changeEnd();
 
   // TODO storageDirty(...);
   FormField::onFocusLost();
