@@ -26,12 +26,13 @@ class TextEdit : public FormField {
   friend class TextKeyboard;
 
   public:
-    TextEdit(Window * parent, const rect_t &rect, char * value, uint8_t length, LcdFlags flags = 0) :
+    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags flags = 0) :
       FormField(parent, rect),
       value(value),
       length(length)
     {
     }
+
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
@@ -39,6 +40,11 @@ class TextEdit : public FormField {
       return "TextEdit";
     }
 #endif
+
+    void setChangeHandler(std::function<void()> handler)
+    {
+      changeHandler = handler;
+    }
 
     uint8_t getMaxLength()
     {
@@ -64,8 +70,17 @@ class TextEdit : public FormField {
     char * value;
     uint8_t length;
     uint8_t cursorPos = 0;
+    std::function<void()> changeHandler = nullptr;
 
     void trim();
+
+    void changeEnd()
+    {
+      cursorPos = 0;
+      trim();
+      if (changeHandler)
+        changeHandler();
+    }
 
     static uint8_t getNextChar(uint8_t c)
     {
