@@ -53,7 +53,7 @@ class MainWindow: public Window {
     void run(bool trash=true);
 
   protected:
-    void emptyTrash();
+    static void emptyTrash();
     rect_t invalidatedRect;
     const char * shutdown = nullptr;
 };
