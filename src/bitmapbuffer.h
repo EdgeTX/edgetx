@@ -411,12 +411,14 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
         y = ymin;
       }
 
-      if (x + w > xmax) {
-        w = xmax - x;
-      }
+      if (scale == 0) {
+        if (x + w > xmax) {
+          w = xmax - x;
+        }
 
-      if (y + h > ymax) {
-        h = ymax - y;
+        if (y + h > ymax) {
+          h = ymax - y;
+        }
       }
 
       if (w <= 0 || h <= 0)
