@@ -68,7 +68,7 @@ bool FileChoice::openMenu()
         continue; // skip system files
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
-      fnLen -= extLen;
+      // fnLen -= extLen;
 
       if (!fnLen || fnLen > maxlen)
         continue; // wrong size
