@@ -45,11 +45,11 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
 {
   APPLY_OFFSET();
 
-  if (y >= height || y >= ymax || y < ymin)
+  if (y >= _height || y >= ymax || y < ymin)
     return;
 
-  if (x+w > width) {
-    w = width - x;
+  if (x + w > _width) {
+    w = _width - x;
   }
 
   pixel_t * p = getPixelPtr(x, y);
@@ -89,7 +89,7 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   }
 
   if (y < ymin) {
-    h += y-ymin;
+    h += y - ymin;
     y = ymin;
   }
 
@@ -163,7 +163,7 @@ void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t 
   if (!data || h<=0 || w<=0)
     return;
 
-  DMAFillRect(data, width, height, x, y, w, h, lcdColorTable[COLOR_IDX(flags)]);
+  DMAFillRect(data, _width, _height, x, y, w, h, lcdColorTable[COLOR_IDX(flags)]);
 }
 
 void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags att)
@@ -315,8 +315,8 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
 
   APPLY_OFFSET();
 
-  coord_t w = mask->getWidth();
-  coord_t height = mask->getHeight();
+  coord_t w = mask->width();
+  coord_t height = mask->height();
 
   if (!width || width > w) {
     width = w;
@@ -602,7 +602,7 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(filename);
   if (bitmap) {
     pixel_t * p = bitmap->getPixelPtr(0, 0);
-    for (int i = bitmap->getWidth() * bitmap->getHeight(); i > 0; i--) {
+    for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
       *((uint8_t *)p) = OPACITY_MAX - ((*p) >> 12);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
     }
@@ -615,7 +615,7 @@ BitmapBuffer * BitmapBuffer::loadMaskOnBackground(const char * filename, LcdFlag
   BitmapBuffer * result = nullptr;
   BitmapBuffer * mask = BitmapBuffer::loadMask(filename);
   if (mask) {
-    result = new BitmapBuffer(BMP_RGB565, mask->getWidth(), mask->getHeight());
+    result = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
     if (result) {
       result->clear(background);
       result->drawMask(0, 0, mask, foreground);

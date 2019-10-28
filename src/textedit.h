@@ -58,14 +58,14 @@ class TextEdit : public FormField {
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-#if defined(SOFTWARE_KEYBOARD)
     void onFocusLost() override;
-#endif
 
   protected:
     char * value;
     uint8_t length;
     uint8_t cursorPos = 0;
+
+    void trim();
 
     static uint8_t getNextChar(uint8_t c)
     {

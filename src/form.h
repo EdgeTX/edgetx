@@ -60,6 +60,12 @@ class FormField: public Window {
       editMode = newEditMode;
     }
 
+    void onFocusLost() override
+    {
+      editMode = false;
+      Window::onFocusLost();
+    }
+
     inline static void link(FormField * previous, FormField * next)
     {
       previous->setNextField(next);
