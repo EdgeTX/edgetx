@@ -29,7 +29,7 @@ void MenuWindow::select(int index)
 {
   selectedIndex = index;
   if (innerHeight > height()) {
-    setScrollPositionY(lineHeight * index - 3 * lineHeight);
+    setScrollPositionY(MENUS_LINE_HEIGHT * index - 3 * MENUS_LINE_HEIGHT);
   }
   invalidate();
 }
@@ -63,7 +63,7 @@ void MenuWindow::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool MenuWindow::onTouchEnd(coord_t x, coord_t y)
 {
-  int index = y / lineHeight;
+  int index = y / MENUS_LINE_HEIGHT;
   lines[index].onPress();
   return false; // = close the menu (inverted so that click outside the menu closes it)
 }
@@ -73,18 +73,18 @@ void MenuWindow::paint(BitmapBuffer * dc)
 {
   int width = (innerHeight > height() ? 195 : 200);
   dc->clear(MENU_BGCOLOR);
-  for (unsigned i = 0; i < lines.size(); i++) {
+  for (auto i = 0; i < lines.size(); i++) {
     auto & line = lines[i];
     LcdFlags flags = (selectedIndex == (int) i ? HIGHLIGHT_COLOR : MENU_COLOR);
     if (line.drawLine) {
-      line.drawLine(dc, 0, i * lineHeight /*+ (lineHeight - 20) / 2*/, flags);
+      line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT /*+ (lineHeight - 20) / 2*/, flags);
     }
     else {
-      const char *text = line.text.data();
-      dc->drawText(10, i * lineHeight + (lineHeight - 20) / 2, text[0] == '\0' ? "---" : text, flags);
+      const char * text = line.text.data();
+      dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, text[0] == '\0' ? "---" : text, flags);
     }
     if (i > 0) {
-      dc->drawSolidHorizontalLine(0, i * lineHeight - 1, width, DISABLE_COLOR);
+      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT - 1, width, DISABLE_COLOR);
     }
   }
 }
@@ -93,12 +93,12 @@ void Menu::updatePosition()
 {
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
-    int count = min<int>(MenuWindow::maxLines, menuWindow.lines.size());
-    coord_t h = count * MenuWindow::lineHeight - 1;
+    int count = min<int>(MENUS_MAX_LINES, menuWindow.lines.size());
+    coord_t h = count * MENUS_LINE_HEIGHT - 1;
     menuWindow.setTop((LCD_H - h) / 2 + 20);
     menuWindow.setHeight(h);
   }
-  menuWindow.setInnerHeight(menuWindow.lines.size() * MenuWindow::lineHeight - 1);
+  menuWindow.setInnerHeight(menuWindow.lines.size() * MENUS_LINE_HEIGHT - 1);
 }
 
 void Menu::addLine(const std::string & text, std::function<void()> onPress)

@@ -109,8 +109,6 @@ class MenuWindow: public Window {
     int selectedIndex = 0;
 #endif
     std::function<void()> onCancel;
-    static constexpr uint8_t maxLines = 7; // TODO NV14 was 8
-    static constexpr uint8_t lineHeight = 30; // TODO NV14 was 40
 };
 
 class Menu : public Window {
@@ -186,7 +184,7 @@ class Menu : public Window {
 #endif
 
   protected:
-    Window * previousFocus;
+    Window * previousFocus = nullptr;
     MenuWindow menuWindow;
     Window * toolbar = nullptr;
     void updatePosition();
