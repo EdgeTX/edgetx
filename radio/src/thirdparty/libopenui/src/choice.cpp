@@ -44,8 +44,6 @@ void Choice::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
-    invalidate();
     openMenu();
   }
   else {
@@ -88,6 +86,9 @@ void Choice::openMenu()
       editMode = false;
       setFocus();
   });
+
+  setEditMode(true);
+  invalidate();
 }
 
 #if defined(HARDWARE_TOUCH)
@@ -95,8 +96,6 @@ bool Choice::onTouchEnd(coord_t, coord_t)
 {
   onKeyPress();
   openMenu();
-  setEditMode(true);
-  setFocus();
   return true;
 }
 #endif
