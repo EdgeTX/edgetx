@@ -22,6 +22,11 @@
 
 #include <string>
 
+#if defined(min)
+  #undef min
+  #undef max
+#endif
+
 template<class T>
 inline T min(T a, T b)
 {
@@ -51,7 +56,7 @@ inline int divRoundClosest(const int n, const int d)
 inline std::string TEXT_AT_INDEX(const char * val, uint8_t idx)
 {
   const char * start = val + 1 + idx * val[0];
-  return std::string(start, min<uint8_t>(val[0], strlen(start)));
+  return std::string(start, min<uint8_t>(val[0], (uint8_t)strlen(start)));
 }
 
 #endif
