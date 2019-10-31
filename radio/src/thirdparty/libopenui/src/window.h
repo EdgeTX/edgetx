@@ -33,6 +33,11 @@
 
 typedef uint32_t WindowFlags;
 
+#if !defined(_GNUC_)
+  #undef OPAQUE
+  #undef TRANSPARENT
+#endif
+
 constexpr WindowFlags OPAQUE =                1 << 0;
 constexpr WindowFlags TRANSPARENT =           1 << 1;
 constexpr WindowFlags NO_SCROLLBAR =          1 << 2;

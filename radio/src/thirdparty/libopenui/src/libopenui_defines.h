@@ -75,9 +75,12 @@
 #define GET_BLUE(color) \
   (((color) & 0x001F) << 3)
 
-// remove windows default definitions
-#undef OPAQUE
-#undef RGB
+#ifndef __GNUC__
+  #include <windows.h>
+  // remove windows default definitions
+  #undef OPAQUE
+  #undef RGB
+#endif
 
 #define OPACITY_MAX                    0x0F
 #define OPACITY(x)                     ((x)<<24)
