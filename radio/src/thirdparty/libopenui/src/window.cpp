@@ -171,10 +171,10 @@ void Window::scrollTo(Window * child)
   coord_t bottom = offsetY + child->bottom();
 
   if (top < scrollPositionY) {
-    setScrollPositionY(top - 5);
+    setScrollPositionY(pageHeight ? top - (top % pageHeight) : top - 5);
   }
   else if (bottom > scrollPositionY + height() - 5) {
-    setScrollPositionY(bottom - height() + 5);
+    setScrollPositionY(pageHeight ? top - (top % pageHeight) : bottom - height() + 5);
   }
 
   if (left < scrollPositionX) {
@@ -290,16 +290,17 @@ void Window::checkEvents()
   }
 
 #if defined(HARDWARE_TOUCH)
-  if (pageWidth && touchState.event != TE_SLIDE) {
-    coord_t relativeScrollPosition = scrollPositionX % pageWidth;
-    if (relativeScrollPosition) {
-      if (relativeScrollPosition > pageWidth / 2) {
-        setScrollPositionX(getScrollPositionX() - relativeScrollPosition + pageWidth);
-        invalidate();
+  if (touchState.event != TE_SLIDE) {
+    if (pageWidth) {
+      coord_t relativeScrollPosition = scrollPositionX % pageWidth;
+      if (relativeScrollPosition) {
+        setScrollPositionX(getScrollPositionX() - relativeScrollPosition + (relativeScrollPosition > pageWidth / 2 ? pageWidth : 0));
       }
-      else {
-        setScrollPositionX(getScrollPositionX() - relativeScrollPosition);
-        invalidate();
+    }
+    if (pageHeight) {
+      coord_t relativeScrollPosition = scrollPositionY % pageHeight;
+      if (relativeScrollPosition) {
+        setScrollPositionY(getScrollPositionY() - relativeScrollPosition + (relativeScrollPosition > pageHeight / 2 ? pageHeight : 0));
       }
     }
   }

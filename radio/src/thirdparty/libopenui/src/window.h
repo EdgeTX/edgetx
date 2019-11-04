@@ -226,10 +226,17 @@ class Window {
       pageWidth = w;
     }
 
+    void setPageHeight(coord_t h)
+    {
+      pageHeight = h;
+    }
+
     uint8_t getPageIndex()
     {
       if (pageWidth)
         return (getScrollPositionX() + (pageWidth / 2)) / pageWidth;
+      else if (pageHeight)
+        return (getScrollPositionX() + (pageHeight / 2)) / pageHeight;
       else
         return 0;
     }
@@ -323,6 +330,7 @@ class Window {
     coord_t innerWidth;
     coord_t innerHeight;
     coord_t pageWidth = 0;
+    coord_t pageHeight = 0;
     coord_t scrollPositionX = 0;
     coord_t scrollPositionY = 0;
     WindowFlags windowFlags;
