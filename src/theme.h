@@ -23,7 +23,8 @@
 #include "bitmapbuffer.h"
 #include "checkbox.h"
 
-class PageHeader;
+class Menu;
+class MenuWindow;
 class ChoiceBase;
 
 enum IconState {
@@ -50,5 +51,7 @@ class Theme {
 };
 
 extern Theme * theme;
+
+MenuWindow * createMenuWindow(Menu * menu);
 
 #endif // _THEME_H_
