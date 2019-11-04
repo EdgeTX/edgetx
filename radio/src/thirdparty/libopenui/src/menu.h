@@ -140,25 +140,13 @@ class MenuWindow: public Window {
     std::string title;
 };
 
-class Menu : public Window {
+class Menu: public Window {
   public:
-    Menu() :
-      Window(&mainWindow, {0, 0, LCD_W, LCD_H}, TRANSPARENT),
-#if !defined(HARDWARE_TOUCH)
-      previousFocus(focusWindow),
-#endif
-      menuWindow(this)
-    {
-    }
-
-    ~Menu() override
-    {
-      menuWindow.detach();
-    }
-
+    Menu();
+    
     void setCancelHandler(std::function<void()> handler)
     {
-      menuWindow.body.setCancelHandler(handler);
+      menuWindow->body.setCancelHandler(handler);
     }
 
     void deleteLater()
@@ -181,9 +169,9 @@ class Menu : public Window {
     void setToolbar(Window * window)
     {
       toolbar = window;
-      menuWindow.setLeft(toolbar->right());
-      menuWindow.setTop(toolbar->top());
-      menuWindow.setHeight(toolbar->height());
+      menuWindow->setLeft(toolbar->right());
+      menuWindow->setTop(toolbar->top());
+      menuWindow->setHeight(toolbar->height());
     }
 
     void setTitle(const std::string text);
@@ -196,7 +184,7 @@ class Menu : public Window {
 
     inline void select(int index)
     {
-      menuWindow.body.select(index);
+      menuWindow->body.select(index);
     }
 
 #if defined(HARDWARE_KEYS)
@@ -216,7 +204,7 @@ class Menu : public Window {
 
   protected:
     Window * previousFocus = nullptr;
-    MenuWindow menuWindow;
+    MenuWindow * menuWindow;
     Window * toolbar = nullptr;
     void updatePosition();
 };
