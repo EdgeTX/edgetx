@@ -108,6 +108,17 @@ class BitmapBufferBase
       this->offsetY = offsetY;
     }
 
+    inline void clearOffset()
+    {
+      setOffset(0, 0);
+    }
+
+    inline void reset()
+    {
+      clearOffset();
+      clearClippingRect();
+    }
+
     coord_t getOffsetX() const
     {
       return offsetX;
@@ -146,8 +157,8 @@ class BitmapBufferBase
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
     {
 #if defined(PCBX10) && !defined(SIMU)
-      x = width - x - 1;
-      y = height - y - 1;
+      x = _width - x - 1;
+      y = _height - y - 1;
 #endif
       return &data[y * _width + x];
     }
@@ -284,8 +295,8 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
     {
 #if defined(PCBX10) && !defined(SIMU)
-      x = width - x - 1;
-      y = height - y - 1;
+      x = _width - x - 1;
+      y = _height - y - 1;
 #endif
       return &data[y * _width + x];
     }
@@ -293,8 +304,8 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
     inline pixel_t * getPixelPtr(coord_t x, coord_t y)
     {
 #if defined(PCBX10) && !defined(SIMU)
-      x = width - x - 1;
-      y = height - y - 1;
+      x = _width - x - 1;
+      y = _height - y - 1;
 #endif
       return &data[y * _width + x];
     }

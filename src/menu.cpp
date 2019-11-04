@@ -18,14 +18,16 @@
  */
 
 #include "menu.h"
+#include "font.h"
 
 MenuWindow::MenuWindow(Menu * parent):
-  Window(parent, {LCD_W / 2 - 100, LCD_H / 2, 200, 0}, OPAQUE)
+  Window(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}, OPAQUE),
+  body(this, {0, 0, width(), height()}, OPAQUE)
 {
-  setFocus();
+  body.setFocus();
 }
 
-void MenuWindow::select(int index)
+void MenuBody::select(int index)
 {
   selectedIndex = index;
   if (innerHeight > height()) {
@@ -35,7 +37,7 @@ void MenuWindow::select(int index)
 }
 
 #if defined(HARDWARE_KEYS)
-void MenuWindow::onEvent(event_t event)
+void MenuBody::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
@@ -61,7 +63,7 @@ void MenuWindow::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
-bool MenuWindow::onTouchEnd(coord_t x, coord_t y)
+bool MenuBody::onTouchEnd(coord_t x, coord_t y)
 {
   int index = y / MENUS_LINE_HEIGHT;
   lines[index].onPress();
@@ -69,13 +71,18 @@ bool MenuWindow::onTouchEnd(coord_t x, coord_t y)
 }
 #endif
 
-void MenuWindow::paint(BitmapBuffer * dc)
+void MenuBody::paint(BitmapBuffer * dc)
 {
-  int width = (innerHeight > height() ? 195 : 200);
   dc->clear(MENU_BGCOLOR);
-  for (auto i = 0; i < lines.size(); i++) {
+
+  for (auto i = 0; i < (int)lines.size(); i++) {
     auto & line = lines[i];
-    LcdFlags flags = (selectedIndex == (int) i ? HIGHLIGHT_COLOR : MENU_COLOR);
+    LcdFlags flags = MENU_COLOR;
+    if (selectedIndex == i) {
+      flags = MENU_HIGHLIGHT_COLOR;
+      if (MENU_HIGHLIGHT_BGCOLOR != MENU_BGCOLOR)
+        dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(), MENUS_LINE_HEIGHT, MENU_HIGHLIGHT_BGCOLOR);
+    }
     if (line.drawLine) {
       line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT /*+ (lineHeight - 20) / 2*/, flags);
     }
@@ -84,8 +91,26 @@ void MenuWindow::paint(BitmapBuffer * dc)
       dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, text[0] == '\0' ? "---" : text, flags);
     }
     if (i > 0) {
-      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT - 1, width, DISABLE_COLOR);
+      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
     }
+  }
+}
+
+void MenuWindow::paint(BitmapBuffer * dc)
+{
+  // the background
+  dc->clear(MENU_BGCOLOR);
+
+  // the title
+  if (!title.empty()) {
+    dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(FONT(BOLD))) / 2, title.c_str(), CENTERED | FONT(BOLD));
+    dc->drawSolidHorizontalLine(0, MENUS_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
+  }
+
+  // the cancel button
+  if (MENUS_FOOTER_HEIGHT > 0) {
+    dc->drawText(MENUS_WIDTH / 2, height() - MENUS_FOOTER_HEIGHT + (MENUS_FOOTER_HEIGHT - getFontHeight(FONT(BOLD))) / 2, "Cancel", CENTERED);
+    dc->drawSolidHorizontalLine(0, height() - MENUS_FOOTER_HEIGHT, MENUS_WIDTH, MENU_LINE_COLOR);
   }
 }
 
@@ -93,29 +118,37 @@ void Menu::updatePosition()
 {
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
-    int count = min<int>(MENUS_MAX_LINES, menuWindow.lines.size());
-    coord_t h = count * MENUS_LINE_HEIGHT - 1;
-    menuWindow.setTop((LCD_H - h) / 2 + 20);
-    menuWindow.setHeight(h);
+    auto headerHeight = menuWindow.title.empty() ? 0 : MENUS_HEADER_HEIGHT;
+    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, menuWindow.body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
+    menuWindow.setTop((LCD_H - headerHeight - bodyHeight - MENUS_FOOTER_HEIGHT) / 2 + MENUS_OFFSET_TOP);
+    menuWindow.setHeight(headerHeight + bodyHeight + MENUS_FOOTER_HEIGHT);
+    menuWindow.body.setTop(headerHeight);
+    menuWindow.body.setHeight(bodyHeight);
   }
-  menuWindow.setInnerHeight(menuWindow.lines.size() * MENUS_LINE_HEIGHT - 1);
+  menuWindow.body.setInnerHeight(menuWindow.body.lines.size() * MENUS_LINE_HEIGHT - 1);
+}
+
+void Menu::setTitle(const std::string text)
+{
+  menuWindow.setTitle(text);
+  updatePosition();
 }
 
 void Menu::addLine(const std::string & text, std::function<void()> onPress)
 {
-  menuWindow.addLine(text, std::move(onPress));
+  menuWindow.body.addLine(text, std::move(onPress));
   updatePosition();
 }
 
 void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
 {
-  menuWindow.addCustomLine(drawLine, std::move(onPress));
+  menuWindow.body.addCustomLine(drawLine, std::move(onPress));
   updatePosition();
 }
 
 void Menu::removeLines()
 {
-  menuWindow.removeLines();
+  menuWindow.body.removeLines();
   updatePosition();
 }
 
