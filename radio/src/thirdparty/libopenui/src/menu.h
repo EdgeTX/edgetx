@@ -26,12 +26,14 @@
 #include "mainwindow.h"
 
 class Menu;
+class MenuWindow;
 
-class MenuWindow: public Window {
+class MenuBody: public Window {
+  friend class MenuWindow;
   friend class Menu;
 
   class MenuLine {
-    friend class MenuWindow;
+      friend class MenuBody;
 
     public:
       MenuLine(std::string text, std::function<void()> onPress):
@@ -57,19 +59,21 @@ class MenuWindow: public Window {
   };
 
   public:
-    explicit MenuWindow(Menu * parent);
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    MenuBody(Window * parent, const rect_t & rect, WindowFlags flags):
+      Window(parent, rect, flags)
     {
-      return "MenuWindow";
+      setPageHeight(MENUS_LINE_HEIGHT);
     }
+
+    void select(int index);
+
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
 #endif
 
-    void setCancelHandler(std::function<void()> handler)
-    {
-      onCancel = handler;
-    }
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y) override;
+#endif
 
     void addLine(const std::string & text, std::function<void()> onPress)
     {
@@ -89,17 +93,12 @@ class MenuWindow: public Window {
       invalidate();
     }
 
-    void select(int index);
+    void setCancelHandler(std::function<void()> handler)
+    {
+      onCancel = handler;
+    }
 
     void paint(BitmapBuffer * dc) override;
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
 
   protected:
     std::vector<MenuLine> lines;
@@ -109,6 +108,36 @@ class MenuWindow: public Window {
     int selectedIndex = 0;
 #endif
     std::function<void()> onCancel;
+};
+
+class MenuWindow: public Window {
+  friend class Menu;
+
+  public:
+    explicit MenuWindow(Menu * parent);
+
+    ~MenuWindow() override
+    {
+      body.detach();
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "MenuWindow";
+    }
+#endif
+
+    void setTitle(const std::string text)
+    {
+      title = std::move(text);
+    }
+
+    void paint(BitmapBuffer * dc) override;
+
+  protected:
+    MenuBody body;
+    std::string title;
 };
 
 class Menu : public Window {
@@ -129,7 +158,7 @@ class Menu : public Window {
 
     void setCancelHandler(std::function<void()> handler)
     {
-      menuWindow.setCancelHandler(handler);
+      menuWindow.body.setCancelHandler(handler);
     }
 
     void deleteLater()
@@ -157,15 +186,17 @@ class Menu : public Window {
       menuWindow.setHeight(toolbar->height());
     }
 
+    void setTitle(const std::string text);
+
     void addLine(const std::string & text, std::function<void()> onPress);
 
     void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress);
 
     void removeLines();
 
-    void select(int index)
+    inline void select(int index)
     {
-      menuWindow.select(index);
+      menuWindow.body.select(index);
     }
 
 #if defined(HARDWARE_KEYS)

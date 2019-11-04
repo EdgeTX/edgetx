@@ -80,10 +80,16 @@ class Choice : public ChoiceBase {
       textHandler = std::move(handler);
     }
 
+    void setMenuTitle(const std::string value)
+    {
+      menuTitle = std::move(value);
+    }
+
   protected:
     const char * values = nullptr;
     int16_t vmin = 0;
     int16_t vmax = 0;
+    std::string menuTitle;
     std::function<int16_t()> getValue;
     std::function<void(int16_t)> setValue;
     std::function<bool(int)> isValueAvailable;
