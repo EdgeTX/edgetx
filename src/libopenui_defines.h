@@ -75,7 +75,7 @@
 #define GET_BLUE(color) \
   (((color) & 0x001F) << 3)
 
-#ifndef __GNUC__
+#if defined(__MINGW32__) || !defined(__GNUC__)
   #include <windows.h>
   // remove windows default definitions
   #undef OPAQUE
