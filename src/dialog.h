@@ -24,7 +24,7 @@
 
 class Dialog: public FormGroup {
   public:
-    Dialog(std::string title, const rect_t rect);
+    Dialog(std::string title, const rect_t & rect);
 
     void paint(BitmapBuffer * dc) override;
 

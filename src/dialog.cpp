@@ -20,7 +20,7 @@
 #include "dialog.h"
 #include "mainwindow.h"
 
-Dialog::Dialog(std::string title, const rect_t rect):
+Dialog::Dialog(std::string title, const rect_t & rect):
   FormGroup(&mainWindow, rect, OPAQUE),
   title(std::move(title)),
   previousFocus(focusWindow)
