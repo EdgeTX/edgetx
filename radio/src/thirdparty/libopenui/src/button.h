@@ -88,7 +88,7 @@ class Button : public FormField {
     }
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event);
+    void onEvent(event_t event) override;
 #endif
 
 #if defined(HARDWARE_TOUCH)
