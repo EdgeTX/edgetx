@@ -67,6 +67,11 @@ class Subtitle: public StaticText {
 
 class StaticBitmap: public Window {
   public:
+    StaticBitmap(Window * parent, const rect_t & rect):
+      Window(parent, rect)
+    {
+    }
+
     StaticBitmap(Window * parent, const rect_t & rect, const char * filename):
       Window(parent, rect),
       bitmap(BitmapBuffer::loadBitmap(filename))
@@ -79,6 +84,12 @@ class StaticBitmap: public Window {
     {
     }
 
+    void setBitmap(const char * filename)
+    {
+      bitmap = BitmapBuffer::loadBitmap(filename);
+      invalidate();
+    }
+
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
     {
@@ -88,11 +99,13 @@ class StaticBitmap: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->drawBitmap(0, 0, bitmap);
+      if (bitmap) {
+        dc->drawBitmap((width() - bitmap->width()) / 2, (height() - bitmap->height()) / 2, bitmap);
+      }
     }
 
   protected:
-    const BitmapBuffer * bitmap;
+    const BitmapBuffer * bitmap = nullptr;
 };
 
 #endif

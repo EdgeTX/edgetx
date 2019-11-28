@@ -405,20 +405,12 @@ void Window::invalidate(const rect_t & rect)
 void Window::drawVerticalScrollbar(BitmapBuffer * dc)
 {
   if (innerHeight > rect.h) {
-    coord_t x = rect.w - 3;
-    coord_t y = scrollPositionY + 3;
-    coord_t h = rect.h - 6;
-    // lcd->drawSolidFilledRect(x, y, 1, h, LINE_COLOR);
-    coord_t yofs = (h*scrollPositionY + innerHeight/2) / innerHeight;
-    coord_t yhgt = (h*rect.h + innerHeight/2) / innerHeight;
-    if (yhgt + yofs > h)
-      yhgt = h - yofs;
-    if (yhgt < 15) {
+    coord_t yofs = divRoundClosest(rect.h * scrollPositionY, innerHeight);
+    coord_t yhgt = divRoundClosest(rect.h * rect.h, innerHeight);
+    if (yhgt < 15)
       yhgt = 15;
-      if (y + yofs + yhgt > innerHeight) {
-        yofs = innerHeight - y - yhgt;
-      }
-    }
-    dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, SCROLLBAR_COLOR);
+    if (yhgt + yofs > rect.h)
+      yhgt = rect.h - yofs;
+    dc->drawSolidFilledRect(rect.w - SCROLLBAR_WIDTH, scrollPositionY + yofs, SCROLLBAR_WIDTH, yhgt, SCROLLBAR_COLOR);
   }
 }

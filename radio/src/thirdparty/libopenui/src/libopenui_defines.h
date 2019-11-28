@@ -83,7 +83,7 @@
 #endif
 
 #define OPACITY_MAX                    0x0F
-#define OPACITY(x)                     ((x)<<24)
+#define OPACITY(value)                 ((value) << 24)
 
 #define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
 #define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
@@ -101,9 +101,12 @@
 #define SCROLLBAR_COLOR                COLOR(SCROLLBAR_COLOR_INDEX)
 #define MENU_COLOR                     COLOR(MENU_COLOR_INDEX)
 #define MENU_BGCOLOR                   COLOR(MENU_BGCOLOR_INDEX)
+#define MENU_TITLE_BGCOLOR             COLOR(MENU_TITLE_BGCOLOR_INDEX)
 #define MENU_LINE_COLOR                COLOR(MENU_LINE_COLOR_INDEX)
 #define MENU_HIGHLIGHT_COLOR           COLOR(MENU_HIGHLIGHT_COLOR_INDEX)
 #define MENU_HIGHLIGHT_BGCOLOR         COLOR(MENU_HIGHLIGHT_BGCOLOR_INDEX)
+#define TABLE_BGCOLOR                  COLOR(TABLE_BGCOLOR_INDEX)
+#define TABLE_HEADER_BGCOLOR           COLOR(TABLE_HEADER_BGCOLOR_INDEX)
 #define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
 
 #endif
