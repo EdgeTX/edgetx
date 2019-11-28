@@ -22,12 +22,9 @@
 
 #include "window.h"
 #include <vector>
-
-constexpr coord_t TABLE_LINE_HEIGHT = 50;
-constexpr coord_t TABLE_HEADER_HEIGHT = 48;
+#include "libopenui_config.h"
 
 class Table: public Window {
-
     class Line {
       public:
         std::list<std::string> values;
