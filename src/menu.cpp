@@ -107,12 +107,6 @@ void MenuWindow::paint(BitmapBuffer * dc)
     dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(FONT(BOLD))) / 2, title.c_str(), CENTERED | FONT(BOLD));
     dc->drawSolidHorizontalLine(0, MENUS_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
   }
-
-  // the cancel button
-  if (MENUS_FOOTER_HEIGHT > 0) {
-    dc->drawText(MENUS_WIDTH / 2, height() - MENUS_FOOTER_HEIGHT + (MENUS_FOOTER_HEIGHT - getFontHeight(FONT(BOLD))) / 2, "Cancel", CENTERED);
-    dc->drawSolidHorizontalLine(0, height() - MENUS_FOOTER_HEIGHT, MENUS_WIDTH, MENU_LINE_COLOR);
-  }
 }
 
 Menu::Menu():
@@ -130,8 +124,8 @@ void Menu::updatePosition()
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = menuWindow->title.empty() ? 0 : MENUS_HEADER_HEIGHT;
     auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, menuWindow->body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
-    menuWindow->setTop((LCD_H - headerHeight - bodyHeight - MENUS_FOOTER_HEIGHT) / 2 + MENUS_OFFSET_TOP);
-    menuWindow->setHeight(headerHeight + bodyHeight + MENUS_FOOTER_HEIGHT);
+    menuWindow->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
+    menuWindow->setHeight(headerHeight + bodyHeight);
     menuWindow->body.setTop(headerHeight);
     menuWindow->body.setHeight(bodyHeight);
   }
