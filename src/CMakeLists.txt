@@ -29,6 +29,7 @@ set(LIBOPENUI_SRC
   textedit.cpp
   coloredit.cpp
   progress.cpp
+  table.cpp
   dialog.cpp
   message_dialog.cpp
   )

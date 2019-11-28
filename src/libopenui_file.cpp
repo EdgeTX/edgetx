@@ -107,4 +107,3 @@ FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
   firstTime = false;
   return res;
 }
-
