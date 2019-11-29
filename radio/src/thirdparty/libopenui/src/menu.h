@@ -59,8 +59,8 @@ class MenuBody: public Window {
   };
 
   public:
-    MenuBody(Window * parent, const rect_t & rect, WindowFlags flags):
-      Window(parent, rect, flags)
+    MenuBody(Window * parent, const rect_t & rect):
+      Window(parent, rect)
     {
       setPageHeight(MENUS_LINE_HEIGHT);
     }
@@ -186,6 +186,8 @@ class Menu: public Window {
     {
       menuWindow->body.select(index);
     }
+
+    void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;

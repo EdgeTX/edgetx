@@ -23,7 +23,7 @@
 
 MenuWindow::MenuWindow(Menu * parent):
   Window(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}, OPAQUE),
-  body(this, {0, 0, width(), height()}, OPAQUE)
+  body(this, {0, 0, width(), height()})
 {
   body.setFocus();
 }
@@ -74,8 +74,6 @@ bool MenuBody::onTouchEnd(coord_t x, coord_t y)
 
 void MenuBody::paint(BitmapBuffer * dc)
 {
-  dc->clear(MENU_BGCOLOR);
-
   for (auto i = 0; i < (int)lines.size(); i++) {
     auto & line = lines[i];
     LcdFlags flags = MENU_COLOR;
@@ -104,13 +102,13 @@ void MenuWindow::paint(BitmapBuffer * dc)
 
   // the title
   if (!title.empty()) {
-    dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(FONT(BOLD))) / 2, title.c_str(), CENTERED | FONT(BOLD));
+    dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
     dc->drawSolidHorizontalLine(0, MENUS_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
   }
 }
 
 Menu::Menu():
-  Window(&mainWindow, {0, 0, LCD_W, LCD_H}, TRANSPARENT),
+  Window(&mainWindow, {0, 0, LCD_W, LCD_H}),
 #if !defined(HARDWARE_TOUCH)
   previousFocus(focusWindow),
 #endif
@@ -154,6 +152,11 @@ void Menu::removeLines()
 {
   menuWindow->body.removeLines();
   updatePosition();
+}
+
+void Menu::paint(BitmapBuffer * dc)
+{
+  dc->drawFilledRect(0, 0, width(), height(), SOLID, OVERLAY_COLOR | OPACITY(5));
 }
 
 #if defined(HARDWARE_KEYS)
