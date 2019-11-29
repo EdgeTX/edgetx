@@ -108,10 +108,7 @@ void MenuWindow::paint(BitmapBuffer * dc)
 }
 
 Menu::Menu():
-  Window(&mainWindow, {0, 0, LCD_W, LCD_H}),
-#if !defined(HARDWARE_TOUCH)
-  previousFocus(focusWindow),
-#endif
+  ModalWindow(),
   menuWindow(createMenuWindow(this))
 {
 }
@@ -154,11 +151,6 @@ void Menu::removeLines()
   updatePosition();
 }
 
-void Menu::paint(BitmapBuffer * dc)
-{
-  dc->drawFilledRect(0, 0, width(), height(), SOLID, OVERLAY_COLOR | OPACITY(5));
-}
-
 #if defined(HARDWARE_KEYS)
 void Menu::onEvent(event_t event)
 {
@@ -168,21 +160,5 @@ void Menu::onEvent(event_t event)
   else if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
     deleteLater();
   }
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool Menu::onTouchEnd(coord_t x, coord_t y)
-{
-  if (!Window::onTouchEnd(x, y)) {
-    deleteLater();
-  }
-  return true;
-}
-
-bool Menu::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
-  return true;
 }
 #endif
