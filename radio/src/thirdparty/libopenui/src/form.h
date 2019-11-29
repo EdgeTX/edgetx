@@ -24,7 +24,9 @@
 
 constexpr WindowFlags FORM_FORWARD_FOCUS = WINDOW_FLAGS_LAST << 1;
 constexpr WindowFlags FORM_DETACHED = WINDOW_FLAGS_LAST << 2;
-constexpr WindowFlags FORM_FLAGS_LAST = FORM_DETACHED;
+constexpr WindowFlags FORM_BORDER_FOCUS_ONLY = WINDOW_FLAGS_LAST << 3;
+constexpr WindowFlags FORM_NO_BORDER = WINDOW_FLAGS_LAST << 4;
+constexpr WindowFlags FORM_FLAGS_LAST = FORM_NO_BORDER;
 
 class FormField: public Window {
   public:

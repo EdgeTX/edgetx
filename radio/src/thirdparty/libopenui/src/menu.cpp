@@ -21,13 +21,6 @@
 #include "font.h"
 #include "theme.h"
 
-MenuWindow::MenuWindow(Menu * parent):
-  Window(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}, OPAQUE),
-  body(this, {0, 0, width(), height()})
-{
-  body.setFocus();
-}
-
 void MenuBody::select(int index)
 {
   selectedIndex = index;
@@ -95,7 +88,14 @@ void MenuBody::paint(BitmapBuffer * dc)
   }
 }
 
-void MenuWindow::paint(BitmapBuffer * dc)
+MenuWindowContent::MenuWindowContent(Menu * parent):
+  ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
+  body(this, {0, 0, width(), height()})
+{
+  body.setFocus();
+}
+
+void MenuWindowContent::paint(BitmapBuffer * dc)
 {
   // the background
   dc->clear(MENU_BGCOLOR);
@@ -109,7 +109,7 @@ void MenuWindow::paint(BitmapBuffer * dc)
 
 Menu::Menu():
   ModalWindow(),
-  menuWindow(createMenuWindow(this))
+  content(createMenuWindow(this))
 {
 }
 
@@ -117,37 +117,37 @@ void Menu::updatePosition()
 {
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
-    auto headerHeight = menuWindow->title.empty() ? 0 : MENUS_HEADER_HEIGHT;
-    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, menuWindow->body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
-    menuWindow->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
-    menuWindow->setHeight(headerHeight + bodyHeight);
-    menuWindow->body.setTop(headerHeight);
-    menuWindow->body.setHeight(bodyHeight);
+    auto headerHeight = content->title.empty() ? 0 : MENUS_HEADER_HEIGHT;
+    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
+    content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
+    content->setHeight(headerHeight + bodyHeight);
+    content->body.setTop(headerHeight);
+    content->body.setHeight(bodyHeight);
   }
-  menuWindow->body.setInnerHeight(menuWindow->body.lines.size() * MENUS_LINE_HEIGHT - 1);
+  content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT - 1);
 }
 
 void Menu::setTitle(const std::string text)
 {
-  menuWindow->setTitle(text);
+  content->setTitle(text);
   updatePosition();
 }
 
 void Menu::addLine(const std::string & text, std::function<void()> onPress)
 {
-  menuWindow->body.addLine(text, std::move(onPress));
+  content->body.addLine(text, std::move(onPress));
   updatePosition();
 }
 
 void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
 {
-  menuWindow->body.addCustomLine(drawLine, std::move(onPress));
+  content->body.addCustomLine(drawLine, std::move(onPress));
   updatePosition();
 }
 
 void Menu::removeLines()
 {
-  menuWindow->body.removeLines();
+  content->body.removeLines();
   updatePosition();
 }
 

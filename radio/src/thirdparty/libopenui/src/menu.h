@@ -26,10 +26,10 @@
 #include "modal_window.h"
 
 class Menu;
-class MenuWindow;
+class MenuWindowContent;
 
 class MenuBody: public Window {
-  friend class MenuWindow;
+  friend class MenuWindowContent;
   friend class Menu;
 
   class MenuLine {
@@ -110,13 +110,13 @@ class MenuBody: public Window {
     std::function<void()> onCancel;
 };
 
-class MenuWindow: public Window {
+class MenuWindowContent: public ModalWindowContent {
   friend class Menu;
 
   public:
-    explicit MenuWindow(Menu * parent);
+    explicit MenuWindowContent(Menu * parent);
 
-    ~MenuWindow() override
+    ~MenuWindowContent() override
     {
       body.detach();
     }
@@ -124,20 +124,14 @@ class MenuWindow: public Window {
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
     {
-      return "MenuWindow";
+      return "MenuWindow::";
     }
 #endif
-
-    void setTitle(const std::string text)
-    {
-      title = std::move(text);
-    }
 
     void paint(BitmapBuffer * dc) override;
 
   protected:
     MenuBody body;
-    std::string title;
 };
 
 class Menu: public ModalWindow {
@@ -146,7 +140,7 @@ class Menu: public ModalWindow {
     
     void setCancelHandler(std::function<void()> handler)
     {
-      menuWindow->body.setCancelHandler(handler);
+      content->body.setCancelHandler(handler);
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -159,9 +153,9 @@ class Menu: public ModalWindow {
     void setToolbar(Window * window)
     {
       toolbar = window;
-      menuWindow->setLeft(toolbar->right());
-      menuWindow->setTop(toolbar->top());
-      menuWindow->setHeight(toolbar->height());
+      content->setLeft(toolbar->right());
+      content->setTop(toolbar->top());
+      content->setHeight(toolbar->height());
     }
 
     void setTitle(const std::string text);
@@ -174,7 +168,7 @@ class Menu: public ModalWindow {
 
     inline void select(int index)
     {
-      menuWindow->body.select(index);
+      content->body.select(index);
     }
 
 #if defined(HARDWARE_KEYS)
@@ -182,7 +176,7 @@ class Menu: public ModalWindow {
 #endif
 
   protected:
-    MenuWindow * menuWindow;
+    MenuWindowContent * content;
     Window * toolbar = nullptr;
     void updatePosition();
 };

@@ -69,7 +69,7 @@ void FormField::paint(BitmapBuffer * dc)
   else if (hasFocus()) {
     dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
   }
-  else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
+  else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
     dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
   }
 }
@@ -155,11 +155,11 @@ void FormGroup::onEvent(event_t event)
 
 void FormGroup::paint(BitmapBuffer * dc)
 {
-  if (!(windowFlags & FORM_FORWARD_FOCUS)) {
+  if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
     if (!editMode && hasFocus()) {
       dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
     }
-    else if (!(windowFlags & BORDER_FOCUS_ONLY)) {
+    else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
       dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
     }
   }
