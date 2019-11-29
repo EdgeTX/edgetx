@@ -21,12 +21,18 @@
 #include "mainwindow.h"
 #include "theme.h"
 
+DialogWindowContent::DialogWindowContent(Dialog * parent, const rect_t & rect):
+  ModalWindowContent(parent, rect),
+  form(this, {0, POPUP_HEADER_HEIGHT, rect.w, coord_t(rect.h - POPUP_HEADER_HEIGHT)}, FORM_NO_BORDER)
+{
+  form.setFocus();
+}
+
+
 Dialog::Dialog(std::string title, const rect_t & rect):
   ModalWindow(),
-  content(createDialogWindow(this, rect)),
-  form(content, {0, POPUP_HEADER_HEIGHT, rect.w, coord_t(rect.h - POPUP_HEADER_HEIGHT)}, FORM_NO_BORDER)
+  content(createDialogWindow(this, rect))
 {
   bringToTop();
   content->setTitle(title);
-  form.setFocus();
 }

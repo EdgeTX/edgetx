@@ -23,14 +23,33 @@
 #include "modal_window.h"
 #include "form.h"
 
-class Dialog: public ModalWindow {
-  public:
-    Dialog(std::string title, const rect_t & rect);
+class Dialog;
 
-    ~Dialog() override
+class DialogWindowContent: public ModalWindowContent {
+  friend class Dialog;
+
+  public:
+    DialogWindowContent(Dialog * parent, const rect_t & rect);
+
+    ~DialogWindowContent() override
     {
       form.detach();
     }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "DialogWindowContent";
+    }
+#endif
+
+  public:
+    FormGroup form;
+};
+
+class Dialog: public ModalWindow {
+  public:
+    Dialog(std::string title, const rect_t & rect);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
@@ -40,8 +59,7 @@ class Dialog: public ModalWindow {
 #endif
 
   protected:
-    ModalWindowContent * content;
-    FormGroup form;
+    DialogWindowContent * content;
 };
 
 #endif // _DIALOG_H_

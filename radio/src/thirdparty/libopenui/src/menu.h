@@ -124,7 +124,7 @@ class MenuWindowContent: public ModalWindowContent {
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
     {
-      return "MenuWindow::";
+      return "MenuWindowContent";
     }
 #endif
 

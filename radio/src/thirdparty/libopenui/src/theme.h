@@ -26,7 +26,7 @@
 class Menu;
 class MenuWindowContent;
 class Dialog;
-class ModalWindowContent;
+class DialogWindowContent;
 class ChoiceBase;
 
 enum IconState {
@@ -55,6 +55,6 @@ class Theme {
 extern Theme * theme;
 
 MenuWindowContent * createMenuWindow(Menu * menu);
-ModalWindowContent * createDialogWindow(Dialog * dialog, const rect_t & rect);
+DialogWindowContent * createDialogWindow(Dialog * dialog, const rect_t & rect);
 
 #endif // _THEME_H_
