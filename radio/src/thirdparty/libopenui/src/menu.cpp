@@ -76,7 +76,7 @@ void MenuBody::paint(BitmapBuffer * dc)
 {
   for (auto i = 0; i < (int)lines.size(); i++) {
     auto & line = lines[i];
-    LcdFlags flags = MENU_COLOR;
+    LcdFlags flags = MENU_COLOR | MENU_FONT;
     if (selectedIndex == i) {
       flags = MENU_HIGHLIGHT_COLOR;
       if (MENU_HIGHLIGHT_BGCOLOR != MENU_BGCOLOR)
