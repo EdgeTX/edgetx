@@ -32,6 +32,7 @@ set(LIBOPENUI_SRC
   table.cpp
   modal_window.cpp
   dialog.cpp
+  confirm_dialog.cpp
   message_dialog.cpp
   )
 
