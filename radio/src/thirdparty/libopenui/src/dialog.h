@@ -30,11 +30,17 @@ class Dialog: public ModalWindow {
     ~Dialog() override
     {
       form.detach();
-      content.detach();
     }
 
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "Dialog";
+    }
+#endif
+
   protected:
-    ModalWindowContent content;
+    ModalWindowContent * content;
     FormGroup form;
 };
 

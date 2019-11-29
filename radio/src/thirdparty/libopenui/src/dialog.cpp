@@ -19,13 +19,14 @@
 
 #include "dialog.h"
 #include "mainwindow.h"
+#include "theme.h"
 
 Dialog::Dialog(std::string title, const rect_t & rect):
   ModalWindow(),
-  content(this, rect),
-  form(&content, {0, 0, rect.w, rect.h}, FORM_NO_BORDER)
+  content(createDialogWindow(this, rect)),
+  form(content, {0, POPUP_HEADER_HEIGHT, rect.w, coord_t(rect.h - POPUP_HEADER_HEIGHT)}, FORM_NO_BORDER)
 {
   bringToTop();
-  content.setTitle(title);
+  content->setTitle(title);
   form.setFocus();
 }

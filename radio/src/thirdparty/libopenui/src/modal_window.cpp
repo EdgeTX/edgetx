@@ -37,9 +37,9 @@ void ModalWindow::paint(BitmapBuffer * dc)
 
 void ModalWindowContent::paint(BitmapBuffer * dc)
 {
-  dc->drawSolidFilledRect(0, 0, width(), PAGE_LINE_HEIGHT, FOCUS_BGCOLOR);
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, title.c_str(), FOCUS_COLOR);
-  dc->drawSolidFilledRect(0, PAGE_LINE_HEIGHT, width(), height() - PAGE_LINE_HEIGHT, DEFAULT_BGCOLOR);
+  dc->drawSolidFilledRect(0, 0, width(), POPUP_HEADER_HEIGHT, FOCUS_BGCOLOR);
+  dc->drawText(FIELD_PADDING_LEFT, (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, title.c_str(), FOCUS_COLOR);
+  dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, width(), height() - POPUP_HEADER_HEIGHT, DEFAULT_BGCOLOR);
 
 /*
   // the background
@@ -47,7 +47,7 @@ void ModalWindowContent::paint(BitmapBuffer * dc)
 
   // the title
   if (!title.empty()) {
-    dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
-    dc->drawSolidHorizontalLine(0, MENUS_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
+    dc->drawText(MENUS_WIDTH / 2, (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
+    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
   }*/
 }
