@@ -102,8 +102,8 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
 
   // the title
   if (!title.empty()) {
-    dc->drawText(MENUS_WIDTH / 2, (MENUS_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
-    dc->drawSolidHorizontalLine(0, MENUS_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
+    dc->drawText(MENUS_WIDTH / 2, (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
+    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
   }
 }
 
@@ -117,7 +117,7 @@ void Menu::updatePosition()
 {
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
-    auto headerHeight = content->title.empty() ? 0 : MENUS_HEADER_HEIGHT;
+    auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
     auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
     content->setHeight(headerHeight + bodyHeight);

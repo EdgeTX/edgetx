@@ -181,4 +181,4 @@ class Menu: public ModalWindow {
     void updatePosition();
 };
 
-#endif
+#endif // _MENU_H_
