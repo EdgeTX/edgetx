@@ -21,27 +21,11 @@
 #include "mainwindow.h"
 
 Dialog::Dialog(std::string title, const rect_t & rect):
-  FormGroup(&mainWindow, rect, OPAQUE),
-  title(std::move(title)),
-  previousFocus(focusWindow)
+  ModalWindow(),
+  content(this, rect),
+  form(&content, {0, 0, rect.w, rect.h}, FORM_NO_BORDER)
 {
   bringToTop();
-  setFocus();
-}
-
-void Dialog::paint(BitmapBuffer * dc)
-{
-  dc->drawRect(0, 0, width() - 1, height() - 1, 1, SOLID, DEFAULT_COLOR);
-  dc->drawSolidFilledRect(1, 1, width() - 3, PAGE_LINE_HEIGHT, FOCUS_BGCOLOR);
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, title.c_str(), FOCUS_COLOR);
-  dc->drawSolidFilledRect(1, PAGE_LINE_HEIGHT + 1, width() - 3, height() - PAGE_LINE_HEIGHT - 3, DEFAULT_BGCOLOR);
-}
-
-void Dialog::deleteLater()
-{
-  if (previousFocus) {
-    previousFocus->setFocus();
-  }
-
-  Window::deleteLater();
+  content.setTitle(title);
+  form.setFocus();
 }

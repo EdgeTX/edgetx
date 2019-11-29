@@ -20,21 +20,12 @@
 #ifndef _MODAL_WINDOW_H_
 #define _MODAL_WINDOW_H_
 
-#include <vector>
-#include <functional>
-#include <utility>
-#include "mainwindow.h"
+#include "window.h"
 
 class ModalWindow: public Window
 {
   public:
-    ModalWindow():
-      Window(&mainWindow, {0, 0, LCD_W, LCD_H})
-#if !defined(HARDWARE_TOUCH)
-      , previousFocus(focusWindow)
-#endif
-    {
-    }
+    ModalWindow();
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
@@ -53,10 +44,7 @@ class ModalWindow: public Window
       Window::deleteLater();
     }
 
-    void paint(BitmapBuffer * dc) override
-    {
-      dc->drawFilledRect(0, 0, width(), height(), SOLID, OVERLAY_COLOR | OPACITY(5));
-    }
+    void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchStart(coord_t x, coord_t y) override
@@ -80,7 +68,34 @@ class ModalWindow: public Window
 #endif
 
   protected:
+#if !defined(HARDWARE_TOUCH)
     Window * previousFocus = nullptr;
+#endif
+};
+
+class ModalWindowContent: public Window {
+  public:
+    explicit ModalWindowContent(ModalWindow * parent, const rect_t & rect):
+      Window(parent, rect, OPAQUE)
+    {
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "ModalWindowContent";
+    }
+#endif
+
+    void setTitle(std::string text)
+    {
+      title = std::move(text);
+    }
+
+    void paint(BitmapBuffer * dc) override;
+
+  protected:
+    std::string title;
 };
 
 #endif // _MODAL_WINDOW_H_

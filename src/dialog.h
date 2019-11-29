@@ -20,19 +20,22 @@
 #ifndef _DIALOG_H_
 #define _DIALOG_H_
 
+#include "modal_window.h"
 #include "form.h"
 
-class Dialog: public FormGroup {
+class Dialog: public ModalWindow {
   public:
     Dialog(std::string title, const rect_t & rect);
 
-    void paint(BitmapBuffer * dc) override;
-
-    void deleteLater();
+    ~Dialog() override
+    {
+      form.detach();
+      content.detach();
+    }
 
   protected:
-    std::string title;
-    Window * previousFocus;
+    ModalWindowContent content;
+    FormGroup form;
 };
 
-#endif // _CONFIRMATION_H_
+#endif // _DIALOG_H_

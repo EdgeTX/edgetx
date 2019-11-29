@@ -24,7 +24,7 @@
 #include "checkbox.h"
 
 class Menu;
-class MenuWindow;
+class MenuWindowContent;
 class ChoiceBase;
 
 enum IconState {
@@ -52,6 +52,6 @@ class Theme {
 
 extern Theme * theme;
 
-MenuWindow * createMenuWindow(Menu * menu);
+MenuWindowContent * createMenuWindow(Menu * menu);
 
 #endif // _THEME_H_
