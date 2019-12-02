@@ -23,6 +23,9 @@
 #include "theme.h"
 #include "message_dialog.h"
 
+extern const char STR_SDCARD[];
+extern const char STR_NO_FILES_ON_SD[];
+
 // comparison, not case sensitive.
 bool compare_nocase(const std::string &first, const std::string &second)
 {
@@ -113,7 +116,7 @@ bool FileChoice::openMenu()
     }
   }
 
-  new MessageDialog("Files", "No files on SD");
+  new MessageDialog(STR_SDCARD, STR_NO_FILES_ON_SD);
 
   return false;
 }
