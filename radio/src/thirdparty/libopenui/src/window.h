@@ -156,6 +156,12 @@ class Window {
       invalidate();
     }
 
+    void setWindowCentered()
+    {
+      rect.x = (parent->width() - width()) / 2;
+      rect.y = (parent->height() - height()) / 2;
+    }
+
     void setHeight(coord_t value)
     {
       rect.h = value;
