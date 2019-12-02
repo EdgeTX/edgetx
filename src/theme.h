@@ -22,6 +22,7 @@
 
 #include "bitmapbuffer.h"
 #include "checkbox.h"
+#include "button.h"
 
 class Menu;
 class MenuWindowContent;
@@ -50,6 +51,11 @@ class Theme {
     virtual void drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, const rect_t & rect, bool edit, bool focus) const = 0;
     virtual const BitmapBuffer * getIcon(uint8_t index, IconState state) const = 0;
     virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
+
+    virtual TextButton * createTextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND) const
+    {
+      return new TextButton(parent, rect, text, pressHandler, windowFlags);
+    }
 };
 
 extern Theme * theme;
