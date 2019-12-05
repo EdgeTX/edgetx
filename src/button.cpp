@@ -102,7 +102,8 @@ void TextButton::paint(BitmapBuffer * dc)
     }
   }
 
-  dc->drawText(rect.w / 2, (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textColor);
+  TRACE("ICI %d %d", rect.h, getFontHeight(textFlags));
+  dc->drawText(rect.w / 2, (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textFlags | textColor);
 }
 
 void IconButton::paint(BitmapBuffer * dc)
