@@ -49,10 +49,10 @@ void Button::onEvent(event_t event)
 bool Button::onTouchEnd(coord_t x, coord_t y)
 {
   if (enabled()) {
-    onPress();
     if (!(windowFlags & NO_FOCUS)) {
       setFocus();
     }
+    onPress();
   }
   return true;
 }
@@ -102,7 +102,6 @@ void TextButton::paint(BitmapBuffer * dc)
     }
   }
 
-  TRACE("ICI %d %d", rect.h, getFontHeight(textFlags));
   dc->drawText(rect.w / 2, (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textFlags | textColor);
 }
 
