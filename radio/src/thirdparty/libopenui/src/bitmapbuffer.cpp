@@ -452,11 +452,11 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
         c -= 1;
       c += CJK_FIRST_LETTER_INDEX;
       uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
-      INCREMENT_POS(width);
+      INCREMENT_POS(width + 1);
     }
     else if (c > 0x20) {
       uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
-      INCREMENT_POS(width);
+      INCREMENT_POS(width + 1);
     }
     else if (c == '\n') {
       pos = orig_pos;
