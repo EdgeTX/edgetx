@@ -37,7 +37,7 @@ void Table::Body::paint(BitmapBuffer * dc)
   coord_t y = 0;
   coord_t x;
   int index = 0;
-  for (auto &line: lines) {
+  for (auto & line: lines) {
     dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, index == selection ? FOCUS_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
     for (auto &value: line.values) {
