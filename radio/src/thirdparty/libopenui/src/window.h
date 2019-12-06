@@ -236,12 +236,22 @@ class Window {
       pageHeight = h;
     }
 
+    uint8_t getPageCount()
+    {
+      if (pageWidth)
+        return innerWidth / pageWidth;
+      else if (pageHeight)
+        return innerHeight / pageHeight;
+      else
+        return 1;
+    }
+
     uint8_t getPageIndex()
     {
       if (pageWidth)
         return (getScrollPositionX() + (pageWidth / 2)) / pageWidth;
       else if (pageHeight)
-        return (getScrollPositionX() + (pageHeight / 2)) / pageHeight;
+        return (getScrollPositionY() + (pageHeight / 2)) / pageHeight;
       else
         return 0;
     }
