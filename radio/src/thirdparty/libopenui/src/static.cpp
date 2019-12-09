@@ -23,9 +23,9 @@
 void StaticText::paint(BitmapBuffer * dc)
 {
   if (windowFlags & BUTTON_BACKGROUND)
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
+    dc->drawSolidFilledRect(0, 0 + FIELD_PADDING_TOP, rect.w, rect.h, DISABLE_COLOR);
   if (textFlags & CENTERED)
     dc->drawText(rect.w / 2, (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), textFlags);
   else
-    dc->drawText(0, 0, text.c_str(), textFlags);
+    dc->drawText(0, 0 + FIELD_PADDING_TOP, text.c_str(), textFlags);
 }
