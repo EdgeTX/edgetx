@@ -115,7 +115,8 @@ class ImageEncoder:
         for y in range(height):
             for x in range(width):
                 value = self.get_pixel(image, x, y)
-                value = 0x0f - (value >> 4)
+                value = 0x0F - round(value / 16)
+                value = max(0x00, min(0x0F, value))
                 self.encode_byte(value)
             self.f.write("\n")
         self.encode_end()
