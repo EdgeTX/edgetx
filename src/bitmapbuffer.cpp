@@ -442,9 +442,6 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
     if (!c) {
       break;
     }
-    else if (c == 0x20) {
-      INCREMENT_POS(4);
-    }
     else if (c >= 0xFE) {
       s++;
       c = uint8_t(*s) + ((c & 0x01) << 8) - 1;
@@ -454,7 +451,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
       INCREMENT_POS(width + 1);
     }
-    else if (c > 0x20) {
+    else if (c >= 0x20) {
       uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
       INCREMENT_POS(width + 1);
     }
