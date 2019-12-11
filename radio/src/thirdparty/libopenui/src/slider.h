@@ -22,7 +22,7 @@
 
 #include "form.h"
 
-class Slider : public FormField {
+class Slider: public FormField {
   public:
     Slider(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue):
       FormField(parent, rect),

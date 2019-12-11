@@ -357,7 +357,7 @@ class Window {
     std::function<void()> closeHandler;
     std::function<void()> focusHandler;
 
-    void  attach(Window * window);
+    void attach(Window * window);
 
     void addChild(Window * window)
     {
