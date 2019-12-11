@@ -474,7 +474,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
 coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
 {
   char str[48+1]; // max=16 for the prefix, 16 chars for the number, 16 chars for the suffix
-  char *s = str+32;
+  char *s = str + 32;
   *s = '\0';
   int idx = 0;
   int mode = MODE(flags);
@@ -487,13 +487,13 @@ coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags fla
     *--s = '0' + (val % 10);
     ++idx;
     val /= 10;
-    if (mode!=0 && idx==mode) {
+    if (mode != 0 && idx == mode) {
       mode = 0;
       *--s = '.';
-      if (val==0)
+      if (val == 0)
         *--s = '0';
     }
-  } while (val!=0 || mode>0 || (mode==MODE(LEADING0) && idx<len));
+  } while (val != 0 || mode > 0 || (mode == MODE(LEADING0) && idx < len));
   if (neg) *--s = '-';
 
   // TODO needs check on all string lengths ...

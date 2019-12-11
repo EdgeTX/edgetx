@@ -23,7 +23,7 @@
 #include "window.h"
 #include "button.h" // TODO just for BUTTON_BACKGROUND
 
-class StaticText : public Window {
+class StaticText: public Window {
   public:
     StaticText(Window * parent, const rect_t & rect, std::string text = "", WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
       Window(parent, rect, windowFlags, textFlags),
@@ -106,6 +106,61 @@ class StaticBitmap: public Window {
 
   protected:
     const BitmapBuffer * bitmap = nullptr;
+};
+
+class DynamicText: public StaticText
+{
+  public:
+    DynamicText(Window * parent, const rect_t & rect, std::function<std::string()> textHandler):
+      StaticText(parent, rect),
+      textHandler(std::move(textHandler))
+    {
+    }
+
+    void checkEvents() override
+    {
+      std::string newText = textHandler();
+      if (newText != text) {
+        text = newText;
+        invalidate();
+      }
+    }
+
+  protected:
+    std::function<std::string()> textHandler;
+};
+
+template <class T>
+class DynamicNumber: public Window
+{
+  public:
+    DynamicNumber(Window * parent, const rect_t & rect, std::function<T()> numberHandler, LcdFlags textFlags = 0, const char * prefix = nullptr, const char * suffix = nullptr):
+      Window(parent, rect, 0, textFlags),
+      numberHandler(std::move(numberHandler)),
+      prefix(prefix),
+      suffix(suffix)
+    {
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      dc->drawNumber(0, FIELD_PADDING_TOP, value, textFlags, 0, prefix, suffix);
+    }
+
+    void checkEvents() override
+    {
+      T newValue = numberHandler();
+      if (value != newValue) {
+        value = newValue;
+        invalidate();
+      }
+    }
+
+  protected:
+    T value = 0;
+    std::function<T()> numberHandler;
+    const char * prefix;
+    const char * suffix;
 };
 
 #endif
