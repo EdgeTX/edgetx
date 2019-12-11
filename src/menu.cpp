@@ -61,7 +61,8 @@ bool MenuBody::onTouchEnd(coord_t x, coord_t y)
 {
   int index = y / MENUS_LINE_HEIGHT;
   lines[index].onPress();
-  return false; // = close the menu (inverted so that click outside the menu closes it)
+  getParent()->getParent()->deleteLater();
+  return true;
 }
 #endif
 
