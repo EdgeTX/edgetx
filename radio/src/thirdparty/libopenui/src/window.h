@@ -297,7 +297,7 @@ class Window {
 
     void fullPaint(BitmapBuffer * dc);
 
-    bool pointInRect(coord_t x, coord_t y, rect_t & rect)
+    static bool pointInRect(coord_t x, coord_t y, rect_t & rect)
     {
       return (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h);
     }
