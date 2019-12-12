@@ -82,14 +82,14 @@
   #undef RGB
 #endif
 
-#define OPACITY_MAX                    0x0F
-#define OPACITY(value)                 ((value) << 24)
+#define OPACITY_MAX                    0x0Fu
+#define OPACITY(value)                 ((value) << 24u)
 
 #define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
 #define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
 
-#define COLOR(index)                   LcdFlags((index) << 16)
-#define COLOR_IDX(att)                 uint8_t((att) >> 16)
+#define COLOR(index)                   LcdFlags((index) << 16u)
+#define COLOR_IDX(att)                 uint8_t((att) >> 16u)
 
 #define DEFAULT_COLOR                  COLOR(DEFAULT_COLOR_INDEX)
 #define DEFAULT_BGCOLOR                COLOR(DEFAULT_BGCOLOR_INDEX)
