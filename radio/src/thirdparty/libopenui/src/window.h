@@ -97,6 +97,11 @@ class Window {
       return parent;
     }
 
+    Window * getFullScreenWindow()
+    {
+      return (width() == LCD_W && height() == LCD_H) ? this : parent->getFullScreenWindow();
+    }
+
     WindowFlags getWindowFlags() const
     {
       return windowFlags;
@@ -287,36 +292,14 @@ class Window {
       return parent && parent->isChildVisible(this);
     }
 
-    virtual void paint(BitmapBuffer * dc)
-    {
-    }
-
     void drawVerticalScrollbar(BitmapBuffer * dc);
-
-    void paintChildren(BitmapBuffer * dc);
-
-    void fullPaint(BitmapBuffer * dc);
 
     static bool pointInRect(coord_t x, coord_t y, rect_t & rect)
     {
       return (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h);
     }
 
-    virtual void onFocusLost()
-    {
-      TRACE_WINDOWS("%s onFocusLost()", getWindowDebugString().c_str());
-      invalidate();
-    };
-
     virtual void onEvent(event_t event);
-
-#if defined(HARDWARE_TOUCH)
-    virtual bool onTouchStart(coord_t x, coord_t y);
-
-    virtual bool onTouchEnd(coord_t x, coord_t y);
-
-    virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY);
-#endif
 
     void adjustInnerHeight();
 
@@ -371,6 +354,28 @@ class Window {
     }
 
     virtual void invalidate(const rect_t & rect);
+
+    void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
+
+    void fullPaint(BitmapBuffer * dc);
+
+    virtual void paint(BitmapBuffer * dc)
+    {
+    }
+
+    virtual void onFocusLost()
+    {
+      TRACE_WINDOWS("%s onFocusLost()", getWindowDebugString().c_str());
+      invalidate();
+    }
+
+#if defined(HARDWARE_TOUCH)
+    virtual bool onTouchStart(coord_t x, coord_t y);
+
+    virtual bool onTouchEnd(coord_t x, coord_t y);
+
+    virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY);
+#endif
 };
 
 #endif // _WINDOW_H_

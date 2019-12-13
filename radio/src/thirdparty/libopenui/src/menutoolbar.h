@@ -138,7 +138,7 @@ class MenuToolbar: public FormGroup {
     std::list<Window *>::iterator current = children.end();
     T * choice;
     Menu * menu;
-    coord_t y = 0; // TODO NV14 was 5;
+    coord_t y = 0;
 
     void addButton(char picto, int16_t filtermin, int16_t filtermax)
     {
@@ -164,7 +164,7 @@ class MenuToolbar: public FormGroup {
         return 1;
       });
 
-      y += 30;
+      y += MENUS_TOOLBAR_BUTTON_WIDTH;
 
       setInnerHeight(y);
     }

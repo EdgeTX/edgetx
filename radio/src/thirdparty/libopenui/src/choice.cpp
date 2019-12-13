@@ -54,7 +54,7 @@ void Choice::onEvent(event_t event)
 
 void Choice::openMenu()
 {
-  auto menu = new Menu();
+  auto menu = new Menu(this);
   if (!menuTitle.empty())
     menu->setTitle(menuTitle);
 

@@ -87,7 +87,7 @@ bool FileChoice::openMenu()
 
       files.push_front("");
 
-      auto menu = new Menu();
+      auto menu = new Menu(this);
       int count = 0;
       int current = -1;
       std::string value = getValue();
@@ -116,7 +116,7 @@ bool FileChoice::openMenu()
     }
   }
 
-  new MessageDialog(STR_SDCARD, STR_NO_FILES_ON_SD);
+  new MessageDialog(this, STR_SDCARD, STR_NO_FILES_ON_SD);
 
   return false;
 }

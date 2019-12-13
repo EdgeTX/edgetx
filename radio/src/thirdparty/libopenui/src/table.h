@@ -121,7 +121,7 @@ class Table: public Window {
       body.invalidate();
     }
 
-    void setHeader(const char * values[])
+    void setHeader(const char * const values[])
     {
       Line line;
       for (uint8_t i = 0; i < count; i++) {
@@ -130,7 +130,7 @@ class Table: public Window {
       header.setLine(line);
     }
 
-    void addLine(const char * values[], std::function<void()> onPress = nullptr)
+    void addLine(const char * const values[], std::function<void()> onPress = nullptr)
     {
       Line line;
       for (uint8_t i = 0; i < count; i++) {

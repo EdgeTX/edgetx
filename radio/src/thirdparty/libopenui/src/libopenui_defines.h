@@ -38,9 +38,6 @@
 #define PREC2                          0x30
 #define MODE(flags)                    ((((int8_t)(flags) & 0x30) - 0x10) >> 4)
 
-/* rect, square flags */
-#define ROUND                          0x04
-
 /* telemetry flags */
 #define NO_UNIT                        0x40
 

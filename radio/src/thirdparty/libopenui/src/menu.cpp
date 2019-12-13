@@ -108,8 +108,8 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
   }
 }
 
-Menu::Menu():
-  ModalWindow(),
+Menu::Menu(Window * parent):
+  ModalWindow(parent),
   content(createMenuWindow(this))
 {
 }
@@ -128,9 +128,9 @@ void Menu::updatePosition()
   content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT - 1);
 }
 
-void Menu::setTitle(const std::string text)
+void Menu::setTitle(std::string text)
 {
-  content->setTitle(text);
+  content->setTitle(std::move(text));
   updatePosition();
 }
 

@@ -19,11 +19,10 @@
 
 
 #include "modal_window.h"
-#include "mainwindow.h"
 #include "font.h"
 
-ModalWindow::ModalWindow():
-  Window(&mainWindow, {0, 0, LCD_W, LCD_H})
+ModalWindow::ModalWindow(Window * parent):
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H})
 #if !defined(HARDWARE_TOUCH)
   , previousFocus(focusWindow)
 #endif
@@ -40,14 +39,4 @@ void ModalWindowContent::paint(BitmapBuffer * dc)
   dc->drawSolidFilledRect(0, 0, width(), POPUP_HEADER_HEIGHT, FOCUS_BGCOLOR);
   dc->drawText(FIELD_PADDING_LEFT, (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, title.c_str(), FOCUS_COLOR);
   dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, width(), height() - POPUP_HEADER_HEIGHT, DEFAULT_BGCOLOR);
-
-/*
-  // the background
-  dc->clear(MENU_BGCOLOR);
-
-  // the title
-  if (!title.empty()) {
-    dc->drawText(MENUS_WIDTH / 2, (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
-    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
-  }*/
 }

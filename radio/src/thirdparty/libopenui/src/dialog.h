@@ -49,14 +49,7 @@ class DialogWindowContent: public ModalWindowContent {
 
 class Dialog: public ModalWindow {
   public:
-    Dialog(std::string title, const rect_t & rect);
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() override
-    {
-      return "Dialog";
-    }
-#endif
+    Dialog(Window * parent, std::string title, const rect_t & rect);
 
   protected:
     DialogWindowContent * content;
