@@ -25,7 +25,7 @@
 class ModalWindow: public Window
 {
   public:
-    ModalWindow();
+    explicit ModalWindow(Window * parent);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override

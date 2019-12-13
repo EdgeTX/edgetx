@@ -29,8 +29,8 @@ DialogWindowContent::DialogWindowContent(Dialog * parent, const rect_t & rect):
 }
 
 
-Dialog::Dialog(std::string title, const rect_t & rect):
-  ModalWindow(),
+Dialog::Dialog(Window * parent, std::string title, const rect_t & rect):
+  ModalWindow(parent),
   content(createDialogWindow(this, rect))
 {
   bringToTop();

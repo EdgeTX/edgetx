@@ -187,26 +187,41 @@ void Window::scrollTo(Window * child)
 
 void Window::fullPaint(BitmapBuffer * dc)
 {
-  TRACE_WINDOWS("%s", getWindowDebugString().c_str());
+  bool paintNeeded = true;
+
+  auto firstChild = children.end();
+  while (firstChild != children.begin()) {
+    auto child = *(--firstChild);
+    if ((child->windowFlags & OPAQUE) && isChildFullSize(child)) {
+      paintNeeded = false;
+      break;
+    }
+  }
 
   if (windowFlags & PAINT_CHILDREN_FIRST) {
     coord_t xmin, xmax, ymin, ymax;
     coord_t x = dc->getOffsetX();
     coord_t y = dc->getOffsetY();
     dc->getClippingRect(xmin, xmax, ymin, ymax);
-    paintChildren(dc);
+    paintChildren(dc, firstChild);
     dc->setOffset(x, y);
     dc->setClippingRect(xmin, xmax, ymin, ymax);
   }
 
-  paint(dc);
+  if (paintNeeded) {
+    TRACE_WINDOWS("%s", getWindowDebugString().c_str());
+    paint(dc);
+  }
+  else {
+    TRACE_WINDOWS("%s (skipped)", getWindowDebugString().c_str());
+  }
 
   if (!(windowFlags & NO_SCROLLBAR)) {
     drawVerticalScrollbar(dc);
   }
 
   if (!(windowFlags & PAINT_CHILDREN_FIRST)) {
-    paintChildren(dc);
+    paintChildren(dc, firstChild);
   }
 }
 
@@ -229,21 +244,12 @@ bool Window::isChildVisible(Window * window)
   return false;
 }
 
-void Window::paintChildren(BitmapBuffer * dc)
+void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
 {
   coord_t x = dc->getOffsetX();
   coord_t y = dc->getOffsetY();
   coord_t xmin, xmax, ymin, ymax;
   dc->getClippingRect(xmin, xmax, ymin, ymax);
-
-  auto it = children.end();
-
-  while(it != children.begin()) {
-    auto child = *(--it);
-    if ((child->windowFlags & OPAQUE) && isChildFullSize(child)) {
-      break;
-    }
-  }
 
   for (; it != children.end(); it++) {
     auto child = *it;

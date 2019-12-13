@@ -136,19 +136,12 @@ class MenuWindowContent: public ModalWindowContent {
 
 class Menu: public ModalWindow {
   public:
-    Menu();
+    explicit Menu(Window * parent);
     
     void setCancelHandler(std::function<void()> handler)
     {
       content->body.setCancelHandler(handler);
     }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() override
-    {
-      return "Menu";
-    }
-#endif
 
     void setToolbar(Window * window)
     {
@@ -158,7 +151,7 @@ class Menu: public ModalWindow {
       content->setHeight(toolbar->height());
     }
 
-    void setTitle(const std::string text);
+    void setTitle(std::string text);
 
     void addLine(const std::string & text, std::function<void()> onPress);
 

@@ -17,7 +17,6 @@
  * Lesser General Public License for more details.
  */
 
-#include <math.h>
 #include "bitmapbuffer.h"
 #include "libopenui_depends.h"
 #include "libopenui_globals.h"
@@ -190,13 +189,11 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
   if (x + w > xmax)
     w = xmax - x;
 
-  for (coord_t i=y; i<y+h; i++) {
-    if ((att & ROUND) && (i==y || i==y+h-1))
-      drawHorizontalLine(x+1, i, w-2, pat, att);
-    else
-      drawHorizontalLine(x, i, w, pat, att);
+  for (coord_t i = y; i < y + h; i++) {
+    drawHorizontalLine(x, i, w, pat, att);
   }
 }
+
 //
 //void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags att)
 //{
@@ -309,9 +306,8 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
 
 void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offset, coord_t width)
 {
-  if (mask == nullptr) {
+  if (!mask)
     return;
-  }
 
   APPLY_OFFSET();
 
@@ -326,15 +322,14 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
     width = xmax - x;
   }
 
-  if (x < 0) {
-    width += x;
-    offset -= x;
-    x = 0;
+  if (x < xmin) {
+    width += x - xmin;
+    offset -= x + xmin;
+    x = xmin;
   }
 
-  if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin) {
+  if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
     return;
-  }
 
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
 
