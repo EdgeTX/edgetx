@@ -336,7 +336,7 @@ bool Window::onTouchStart(coord_t x, coord_t y)
   return false;
 }
 
-bool Window::onTouchEnd(coord_t x, coord_t y)
+bool Window::forwardTouchEnd(coord_t x, coord_t y)
 {
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
@@ -347,7 +347,12 @@ bool Window::onTouchEnd(coord_t x, coord_t y)
     }
   }
 
-  return windowFlags & OPAQUE;
+  return false;
+}
+
+bool Window::onTouchEnd(coord_t x, coord_t y)
+{
+  return forwardTouchEnd(x, y) ? true : (windowFlags & OPAQUE);
 }
 
 bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
