@@ -106,7 +106,8 @@ void FormGroup::setFocus(uint8_t flag)
           first->setFocus(SET_FOCUS_FIRST);
         break;
       case SET_FOCUS_BACKWARD:
-        if (focusWindow == first) {
+        // TODO this test should be recursive
+        if (focusWindow == first || focusWindow->getParent() == first) {
           if (previous == this)
             last->setFocus(SET_FOCUS_BACKWARD);
           else if (previous)
@@ -117,6 +118,19 @@ void FormGroup::setFocus(uint8_t flag)
             last->setFocus(SET_FOCUS_BACKWARD);
         }
         break;
+      case SET_FOCUS_FORWARD:
+        // TODO this test should be recursive
+        if (focusWindow == last || focusWindow->getParent() == last) {
+          if (next == this)
+            first->setFocus(SET_FOCUS_FORWARD);
+          else if (next)
+            next->setFocus(SET_FOCUS_FORWARD);
+        }
+        else {
+          if (first)
+            first->setFocus(SET_FOCUS_FORWARD);
+        }
+        break;
       default:
         if (focusWindow == previous) {
           if (first)
@@ -124,7 +138,7 @@ void FormGroup::setFocus(uint8_t flag)
         }
         else {
           if (next)
-            next->setFocus();
+            next->setFocus(SET_FOCUS_FORWARD);
         }
         break;
     }
@@ -140,11 +154,9 @@ void FormGroup::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
     first->setFocus();
   }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && editMode) {
-    editMode = false;
+  else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus()) {
     setFocus(SET_FOCUS_DEFAULT);
   }
   else {
