@@ -72,12 +72,14 @@ class Table: public Window {
         void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_TOUCH)
-        bool onTouchEnd(coord_t x, coord_t y)
+        bool onTouchEnd(coord_t x, coord_t y) override
         {
           unsigned index = y / TABLE_LINE_HEIGHT;
-          auto onPress = lines[index].onPress;
-          if (onPress)
-            onPress();
+          if (index < lines.size()) {
+            auto onPress = lines[index].onPress;
+            if (onPress)
+              onPress();
+          }
           return true;
         }
 #endif
@@ -112,6 +114,12 @@ class Table: public Window {
       return body.selection;
     }
 
+    void clearSelection()
+    {
+      body.selection = -1;
+      body.invalidate();
+    }
+
     void setSelection(int index, bool scroll = false)
     {
       body.selection = index;
@@ -143,6 +151,7 @@ class Table: public Window {
     void clear()
     {
       body.clear();
+      clearSelection();
     }
 
   protected:
