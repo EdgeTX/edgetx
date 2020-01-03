@@ -92,8 +92,8 @@ class Table: public Window {
   public:
     Table(Window * parent, const rect_t & rect, uint8_t columnsCount):
       Window(parent, rect),
-      header(this, {0, 0, width(), TABLE_HEADER_HEIGHT}),
-      body(this, {0, TABLE_HEADER_HEIGHT, width(), height() - TABLE_HEADER_HEIGHT})
+      header(this, {0, 0, width(), 0}),
+      body(this, {0, 0, width(), height()})
     {
       setColumnsCount(columnsCount);
     }
@@ -131,6 +131,9 @@ class Table: public Window {
 
     void setHeader(const char * const values[])
     {
+      header.setHeight(TABLE_HEADER_HEIGHT);
+      body.setTop(TABLE_HEADER_HEIGHT);
+      body.setHeight(height() - TABLE_HEADER_HEIGHT);
       Line line;
       for (uint8_t i = 0; i < count; i++) {
         line.values.push_back(values[i]);
