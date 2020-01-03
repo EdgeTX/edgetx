@@ -463,7 +463,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
 
   RESTORE_OFFSET();
 
-  return pos - offsetX;
+  return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
 }
 
 coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
