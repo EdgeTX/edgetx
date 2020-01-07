@@ -21,6 +21,7 @@
 #define _LIBOPEUI_HELPERS_H_
 
 #include <string>
+#include <cstring>
 
 #if defined(min)
   #undef min
