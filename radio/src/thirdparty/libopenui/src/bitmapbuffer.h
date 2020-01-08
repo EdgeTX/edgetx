@@ -354,7 +354,9 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     void invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags = 0);
 
-    void drawCircle(int x0, int y0, int radius);
+    void drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0);
+
+    void drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0);
 
     void drawPie(int x0, int y0, int radius, int startAngle, int endAngle);
 
