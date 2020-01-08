@@ -211,32 +211,57 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
 //  }
 //}
 //
-//void BitmapBuffer::drawCircle(int x0, int y0, int radius)
-//{
-//  int x = radius;
-//  int y = 0;
-//  int decisionOver2 = 1 - x;
-//
-//  while (y <= x) {
-//    drawPixel(x+x0, y+y0, WHITE);
-//    drawPixel(y+x0, x+y0, WHITE);
-//    drawPixel(-x+x0, y+y0, WHITE);
-//    drawPixel(-y+x0, x+y0, WHITE);
-//    drawPixel(-x+x0, -y+y0, WHITE);
-//    drawPixel(-y+x0, -x+y0, WHITE);
-//    drawPixel(x+x0, -y+y0, WHITE);
-//    drawPixel(y+x0, -x+y0, WHITE);
-//    y++;
-//    if (decisionOver2 <= 0) {
-//      decisionOver2 += 2*y + 1;
-//    }
-//    else {
-//      x--;
-//      decisionOver2 += 2 * (y-x) + 1;
-//    }
-//  }
-//}
-//
+
+void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags)
+{
+  int x1 = radius;
+  int y1 = 0;
+  int decisionOver2 = 1 - x1;
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+
+  APPLY_OFFSET();
+
+  while (y1 <= x1) {
+    drawPixel(x1 + x, y1 + y, color);
+    drawPixel(y1 + x, x1 + y, color);
+    drawPixel(-x1 + x, y1 + y, color);
+    drawPixel(-y1 + x, x1 + y, color);
+    drawPixel(-x1 + x, -y1 + y, color);
+    drawPixel(-y1 + x, -x1 + y, color);
+    drawPixel(x1 + x, -y1 + y, color);
+    drawPixel(y1 + x, -x1 + y, color);
+    y1++;
+    if (decisionOver2 <= 0) {
+      decisionOver2 += 2 * y1 + 1;
+    }
+    else {
+      x1--;
+      decisionOver2 += 2 * (y1 - x1) + 1;
+    }
+  }
+}
+
+void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags)
+{
+  coord_t imax = ((coord_t)((coord_t)radius * 707)) / 1000 + 1;
+  coord_t sqmax = (coord_t)radius * (coord_t)radius + (coord_t)radius / 2;
+  coord_t x1 = radius;
+  drawSolidHorizontalLine(x - radius, y, radius * 2, flags);
+  for (coord_t i = 1; i <= imax; i++) {
+    if ((i * i + x1 * x1) > sqmax) {
+      // Draw lines from outside
+      if (x1 > imax) {
+        drawSolidHorizontalLine(x - i + 1, y + x1, (i - 1) * 2, flags);
+        drawSolidHorizontalLine(x - i + 1, y - x1, (i - 1) * 2, flags);
+      }
+      x1--;
+    }
+    // Draw lines from inside (center)
+    drawSolidHorizontalLine(x - x1, y + i, x1 * 2, flags);
+    drawSolidHorizontalLine(x - x1, y - i, x1 * 2, flags);
+  }
+}
+
 //bool evalSlopes(int * slopes, int startAngle, int endAngle)
 //{
 //  if (startAngle >= 360 || endAngle <= 0)
