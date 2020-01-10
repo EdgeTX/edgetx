@@ -24,12 +24,12 @@
 
 class GridLayout {
   public:
-    GridLayout(coord_t width):
+    explicit GridLayout(coord_t width):
       width(width)
     {
     }
 
-    GridLayout(Window * window):
+    explicit GridLayout(Window * window):
       width(window->width())
     {
     }
@@ -69,7 +69,7 @@ class GridLayout {
 
 class FormGridLayout: public GridLayout {
   public:
-    FormGridLayout(coord_t width = LCD_W):
+    explicit FormGridLayout(coord_t width = LCD_W):
       GridLayout(width)
     {
     }
