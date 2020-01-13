@@ -17,6 +17,7 @@
  * Lesser General Public License for more details.
  */
 
+#include <math.h>
 #include "bitmapbuffer.h"
 #include "libopenui_depends.h"
 #include "libopenui_globals.h"
@@ -262,72 +263,79 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFla
   }
 }
 
-//bool evalSlopes(int * slopes, int startAngle, int endAngle)
-//{
-//  if (startAngle >= 360 || endAngle <= 0)
-//    return false;
-//
-//  if (startAngle == 0) {
-//    slopes[1] = 100000;
-//    slopes[2] = -100000;
-//  }
-//  else {
-//    float angle1 = float(startAngle) * (M_PI / 180.0f);
-//    if (startAngle >= 180) {
-//      slopes[1] = -100000;
-//      slopes[2] = cosf(angle1) * 100 / sinf(angle1);
-//    }
-//    else {
-//      slopes[1] = cosf(angle1) * 100 / sinf(angle1);
-//      slopes[2] = -100000;
-//    }
-//  }
-//
-//  if (endAngle == 360) {
-//    slopes[0] = -100000;
-//    slopes[3] = 100000;
-//  }
-//  else {
-//    float angle2 = float(endAngle)  * (M_PI / 180.0f);
-//    if (endAngle >= 180) {
-//      slopes[0] = -100000;
-//      slopes[3] = -cosf(angle2) * 100 / sinf(angle2);
-//    }
-//    else {
-//      slopes[0] = cosf(angle2) * 100 / sinf(angle2);
-//      slopes[3] = -100000;
-//    }
-//  }
-//
-//  return true;
-//}
-//
-//void BitmapBuffer::drawPie(int x0, int y0, int radius, int startAngle, int endAngle)
-//{
-//  int slopes[4];
-//  if (!evalSlopes(slopes, startAngle, endAngle))
-//    return;
-//
-//  for (int y=0; y<=radius; y++) {
-//    for (int x=0; x<=radius; x++) {
-//      if (x*x+y*y <= radius*radius) {
-//        int slope = (x==0 ? (y<0 ? -99000 : 99000) : y*100/x);
-//        if (slope >= slopes[0] && slope < slopes[1]) {
-//          drawPixel(x0+x, y0-y, WHITE);
-//        }
-//        if (-slope >= slopes[0] && -slope < slopes[1]) {
-//          drawPixel(x0+x, y0+y, WHITE);
-//        }
-//        if (slope >= slopes[2] && slope < slopes[3]) {
-//          drawPixel(x0-x, y0-y, WHITE);
-//        }
-//        if (-slope >= slopes[2] && -slope < slopes[3]) {
-//          drawPixel(x0-x, y0+y, WHITE);
-//        }
-//      }
-//    }
-//  }
-//}
+bool evalSlopes(int * slopes, int startAngle, int endAngle)
+{
+  if (startAngle >= 360 || endAngle <= 0)
+    return false;
+
+  if (startAngle == 0) {
+    slopes[1] = 100000;
+    slopes[2] = -100000;
+  }
+  else {
+    float angle1 = float(startAngle) * (M_PI / 180.0f);
+    if (startAngle >= 180) {
+      slopes[1] = -100000;
+      slopes[2] = cosf(angle1) * 100 / sinf(angle1);
+    }
+    else {
+      slopes[1] = cosf(angle1) * 100 / sinf(angle1);
+      slopes[2] = -100000;
+    }
+  }
+
+  if (endAngle == 360) {
+    slopes[0] = -100000;
+    slopes[3] = 100000;
+  }
+  else {
+    float angle2 = float(endAngle)  * (M_PI / 180.0f);
+    if (endAngle >= 180) {
+      slopes[0] = -100000;
+      slopes[3] = -cosf(angle2) * 100 / sinf(angle2);
+    }
+    else {
+      slopes[0] = cosf(angle2) * 100 / sinf(angle2);
+      slopes[3] = -100000;
+    }
+  }
+
+  return true;
+}
+
+void BitmapBuffer::drawPie(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
+{
+  int slopes[4];
+  if (!evalSlopes(slopes, startAngle, endAngle))
+    return;
+
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  APPLY_OFFSET();
+
+  coord_t internalDist = internalRadius * internalRadius;
+  coord_t externalDist = externalRadius * externalRadius;
+
+  for (int y1 = 0; y1 <= externalRadius; y1++) {
+    for (int x1 = 0; x1 <= externalRadius; x1++) {
+      auto dist = x1 * x1 + y1 * y1;
+      if (dist >= internalDist && dist <= externalDist) {
+        int slope = (x1 == 0 ? (y1 < 0 ? -99000 : 99000) : y1 * 100 / x1);
+        if (slope >= slopes[0] && slope < slopes[1]) {
+          drawPixel(x + x1, y - y1, color);
+        }
+        if (-slope >= slopes[0] && -slope < slopes[1]) {
+          drawPixel(x + x1, y + y1, color);
+        }
+        if (slope >= slopes[2] && slope < slopes[3]) {
+          drawPixel(x - x1, y - y1, color);
+        }
+        if (-slope >= slopes[2] && -slope < slopes[3]) {
+          drawPixel(x - x1, y + y1, color);
+        }
+      }
+    }
+  }
+}
 
 void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offset, coord_t width)
 {
