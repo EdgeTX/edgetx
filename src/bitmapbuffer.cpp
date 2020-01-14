@@ -265,9 +265,6 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFla
 
 bool evalSlopes(int * slopes, int startAngle, int endAngle)
 {
-  if (startAngle >= 360 || endAngle <= 0)
-    return false;
-
   if (startAngle == 0) {
     slopes[1] = 100000;
     slopes[2] = -100000;
@@ -277,6 +274,10 @@ bool evalSlopes(int * slopes, int startAngle, int endAngle)
     if (startAngle >= 180) {
       slopes[1] = -100000;
       slopes[2] = cosf(angle1) * 100 / sinf(angle1);
+    }
+    else if (startAngle < 0 && endAngle > 0) {
+      slopes[1] = 100000;
+      slopes[2] = - cosf(angle1) * 100 / sinf(angle1);
     }
     else {
       slopes[1] = cosf(angle1) * 100 / sinf(angle1);
@@ -294,6 +295,10 @@ bool evalSlopes(int * slopes, int startAngle, int endAngle)
       slopes[0] = -100000;
       slopes[3] = -cosf(angle2) * 100 / sinf(angle2);
     }
+    else if (startAngle < 0) {
+      slopes[0] = cosf(angle2) * 100 / sinf(angle2);
+      slopes[3] = 100000;
+    }
     else {
       slopes[0] = cosf(angle2) * 100 / sinf(angle2);
       slopes[3] = -100000;
@@ -309,6 +314,8 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
   if (!evalSlopes(slopes, startAngle, endAngle))
     return;
 
+  // TRACE("slopes = %d %d %d %d", slopes[0], slopes[1], slopes[2], slopes[3]);
+
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
   APPLY_OFFSET();
 
@@ -319,7 +326,7 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
     for (int x1 = 0; x1 <= externalRadius; x1++) {
       auto dist = x1 * x1 + y1 * y1;
       if (dist >= internalDist && dist <= externalDist) {
-        int slope = (x1 == 0 ? (y1 < 0 ? -99000 : 99000) : y1 * 100 / x1);
+        int slope = (x1 == 0 ? 99000 : y1 * 100 / x1);
         if (slope >= slopes[0] && slope < slopes[1]) {
           drawPixel(x + x1, y - y1, color);
         }
