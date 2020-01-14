@@ -263,58 +263,89 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFla
   }
 }
 
-bool evalSlopes(int * slopes, int startAngle, int endAngle)
-{
-  if (startAngle == 0) {
-    slopes[1] = 100000;
-    slopes[2] = -100000;
-  }
-  else {
-    float angle1 = float(startAngle) * (M_PI / 180.0f);
-    if (startAngle >= 180) {
-      slopes[1] = -100000;
-      slopes[2] = cosf(angle1) * 100 / sinf(angle1);
-    }
-    else if (startAngle < 0 && endAngle > 0) {
-      slopes[1] = 100000;
-      slopes[2] = - cosf(angle1) * 100 / sinf(angle1);
-    }
-    else {
-      slopes[1] = cosf(angle1) * 100 / sinf(angle1);
-      slopes[2] = -100000;
-    }
-  }
+class Slope {
+  public:
+    explicit Slope(int angle) {
+      if (angle < 0)
+        angle += 360;
+      if (angle >= 360)
+        angle %= 360;
+      float radians = float(angle) * (M_PI / 180.0f);
+      if (angle == 0) {
+        left = false;
+        value = 100000;
+      }
+      else if (angle > 180) {
+        left = true;
+        value = -(cosf(radians) * 100 / sinf(radians));
+      }
+      else {
+        left = false;
+        value = (cosf(radians) * 100 / sinf(radians));
+      }
 
-  if (endAngle == 360) {
-    slopes[0] = -100000;
-    slopes[3] = 100000;
-  }
-  else {
-    float angle2 = float(endAngle)  * (M_PI / 180.0f);
-    if (endAngle >= 180) {
-      slopes[0] = -100000;
-      slopes[3] = -cosf(angle2) * 100 / sinf(angle2);
+      // TRACE("angle=%d left=%d slope=%d", angle, left, value);
     }
-    else if (startAngle < 0) {
-      slopes[0] = cosf(angle2) * 100 / sinf(angle2);
-      slopes[3] = 100000;
-    }
-    else {
-      slopes[0] = cosf(angle2) * 100 / sinf(angle2);
-      slopes[3] = -100000;
-    }
-  }
 
-  return true;
-}
+    Slope(bool left, int value):
+      left(left),
+      value(value)
+    {
+    }
+
+    bool isBetween(const Slope & start, const Slope & end) const
+    {
+      if (left) {
+        if (start.left) {
+          if (end.left)
+            return end.value > start.value ? (value <= end.value && value >= start.value) : (value <= end.value || value >= start.value);
+          else
+            return value >= start.value;
+        }
+        else {
+          if (end.left)
+            return value <= end.value;
+          else
+            return end.value > start.value;
+        }
+      }
+      else {
+        if (start.left) {
+          if (end.left)
+            return start.value > end.value;
+          else
+            return value >= end.value;
+        }
+        else {
+          if (end.left)
+            return value <= start.value;
+          else
+            return end.value < start.value ? (value >= end.value && value <= start.value) : (value <= start.value || value >= end.value);
+        }
+      }
+    }
+
+    Slope & invertVertical()
+    {
+      value = -value;
+      return *this;
+    }
+
+    Slope & invertHorizontal()
+    {
+      left = !left;
+      return *this;
+    }
+
+  protected:
+    bool left;
+    int value;
+};
 
 void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
 {
-  int slopes[4];
-  if (!evalSlopes(slopes, startAngle, endAngle))
-    return;
-
-  // TRACE("slopes = %d %d %d %d", slopes[0], slopes[1], slopes[2], slopes[3]);
+  Slope startSlope(startAngle);
+  Slope endSlope(endAngle);
 
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
   APPLY_OFFSET();
@@ -326,19 +357,15 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
     for (int x1 = 0; x1 <= externalRadius; x1++) {
       auto dist = x1 * x1 + y1 * y1;
       if (dist >= internalDist && dist <= externalDist) {
-        int slope = (x1 == 0 ? 99000 : y1 * 100 / x1);
-        if (slope >= slopes[0] && slope < slopes[1]) {
+        Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);
+        if (slope.isBetween(startSlope, endSlope))
           drawPixel(x + x1, y - y1, color);
-        }
-        if (-slope >= slopes[0] && -slope < slopes[1]) {
+        if (slope.invertVertical().isBetween(startSlope, endSlope))
           drawPixel(x + x1, y + y1, color);
-        }
-        if (slope >= slopes[2] && slope < slopes[3]) {
-          drawPixel(x - x1, y - y1, color);
-        }
-        if (-slope >= slopes[2] && -slope < slopes[3]) {
+        if (slope.invertHorizontal().isBetween(startSlope, endSlope))
           drawPixel(x - x1, y + y1, color);
-        }
+        if (slope.invertVertical().isBetween(startSlope, endSlope))
+          drawPixel(x - x1, y - y1, color);
       }
     }
   }
