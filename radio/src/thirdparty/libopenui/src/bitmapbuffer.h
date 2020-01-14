@@ -358,7 +358,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     void drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0);
 
-    void drawPie(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags = 0);
+    void drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags = 0);
 
     void drawBitmapPie(int x0, int y0, const uint16_t * img, int startAngle, int endAngle);
 

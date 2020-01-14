@@ -303,7 +303,7 @@ bool evalSlopes(int * slopes, int startAngle, int endAngle)
   return true;
 }
 
-void BitmapBuffer::drawPie(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
+void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
 {
   int slopes[4];
   if (!evalSlopes(slopes, startAngle, endAngle))
