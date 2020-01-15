@@ -36,7 +36,7 @@ constexpr uint8_t STASHED = 0x33;
 #define APPLY_OFFSET() x += offsetX; y += offsetY
 #define RESTORE_OFFSET()  this->offsetX = offsetX, this->offsetY = offsetY
 
-#if defined(PCBX10) && !defined(SIMU)
+#if defined(LCD_VERTICAL_INVERT)
   #define MOVE_PIXEL_RIGHT(p, count)   p -= count
 #else
   #define MOVE_PIXEL_RIGHT(p, count)   p += count
@@ -156,7 +156,7 @@ class BitmapBufferBase
 
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
     {
-#if defined(PCBX10) && !defined(SIMU)
+#if defined(LCD_VERTICAL_INVERT)
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
@@ -294,7 +294,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
     {
-#if defined(PCBX10) && !defined(SIMU)
+#if defined(LCD_VERTICAL_INVERT)
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
@@ -303,7 +303,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 
     inline pixel_t * getPixelPtr(coord_t x, coord_t y)
     {
-#if defined(PCBX10) && !defined(SIMU)
+#if defined(LCD_VERTICAL_INVERT)
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
