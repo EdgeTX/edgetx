@@ -21,11 +21,12 @@
 #define _WINDOW_H_
 
 #include <stdlib.h>
-#include <list>
+#include <stdio.h>
 #include <string.h>
+#include <list>
+#include <string>
 #include <utility>
 #include <functional>
-#include <string>
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
 #include "libopenui_helpers.h"
