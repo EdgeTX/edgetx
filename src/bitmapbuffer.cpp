@@ -717,7 +717,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   uint32_t fsize  = *((uint32_t *)&buf[2]);
   uint32_t hsize  = *((uint32_t *)&buf[10]); /* header size */
 
-  uint32_t len = limit((uint32_t)4, (uint32_t)(hsize-14), (uint32_t)32);
+  uint32_t len = limit<uint32_t>(4, hsize - 14, 32);
   result = f_read(&imgFile, buf, len, &read);
   if (result != FR_OK || read != len) {
     f_close(&imgFile);
@@ -800,7 +800,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 
   switch (depth) {
     case 32:
-      for (int i=h-1; i>=0; i--) {
+      for (int i = h-1; i >= 0; i--) {
         pixel_t * dst = bmp->getPixelPtr(0, i);
         for (unsigned int j=0; j<w; j++) {
           uint32_t pixel;
@@ -904,7 +904,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #include "thirdparty/Stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
-int stbc_read(void *user, char *data, int size)
+int stbc_read(void *user, char * data, int size)
 {
   FIL * fp = (FIL *)user;
   UINT br = 0;

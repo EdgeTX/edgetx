@@ -21,7 +21,6 @@
 #define _BUTTON_H_
 
 #include "form.h"
-#include <string>
 
 constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1;
 constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2;

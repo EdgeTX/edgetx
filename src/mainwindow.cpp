@@ -81,7 +81,7 @@ bool MainWindow::refresh()
   if (invalidatedRect.w) {
     if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
       TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);
-      BitmapBuffer * previous = lcd;
+      const BitmapBuffer * previous = lcd;
       lcdNextLayer();
       lcdCopy(lcd->getData(), previous->getData());
     }
