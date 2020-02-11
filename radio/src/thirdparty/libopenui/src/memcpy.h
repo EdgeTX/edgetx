@@ -27,7 +27,7 @@
 inline void safeMemcpy(void * dest, const void * src, unsigned int size)
 {
   if (((uint32_t)dest & 0x03) || ((uint32_t)src & 0x03)) {
-    for (int i = 0; i < size; i++) {
+    for (unsigned i = 0; i < size; i++) {
       ((uint8_t *)dest)[i] = ((uint8_t *)src)[i];
     }
   }
