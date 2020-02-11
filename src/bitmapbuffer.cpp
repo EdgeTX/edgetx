@@ -901,6 +901,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 }
 #endif // #if defined(TRACE_STB_MALLOC)
 
+#include "memcpy.h"
 #include "thirdparty/Stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
@@ -954,7 +955,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
 
   // convert to RGB565 or ARGB4444 format
   BitmapBuffer * bmp = new BitmapBuffer(n == 4 ? BMP_ARGB4444 : BMP_RGB565, w, h);
-  if (bmp == NULL) {
+  if (bmp == nullptr) {
     TRACE("load_stb() malloc failed");
     stbi_image_free(img);
     return nullptr;
