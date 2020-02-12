@@ -901,7 +901,6 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 }
 #endif // #if defined(TRACE_STB_MALLOC)
 
-#include "memcpy.h"
 #include "thirdparty/Stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read

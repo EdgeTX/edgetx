@@ -249,7 +249,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       , leakReported(false)
 #endif
     {
-      data = (uint16_t *)malloc(width*height*sizeof(uint16_t));
+      data = (uint16_t *)malloc(width * height * sizeof(uint16_t));
       data_end = data + (width * height);
     }
 
