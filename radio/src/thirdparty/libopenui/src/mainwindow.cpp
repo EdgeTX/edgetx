@@ -42,20 +42,21 @@ void MainWindow::emptyTrash()
 void MainWindow::checkEvents()
 {
 #if defined(HARDWARE_TOUCH)
+  if (touchPanelEventOccured()) {
+    touchPanelRead();
+  }
+
   if (touchState.event == TE_DOWN) {
     onTouchStart(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
-    // touchState.Event = TE_NONE;
   }
   else if (touchState.event == TE_UP) {
-    touchState.event = TE_NONE;
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
+    touchState.event = TE_NONE;
   }
-  else if (touchState.event == TE_SLIDE) {
-    coord_t x = touchState.x - touchState.lastX;
-    coord_t y = touchState.y - touchState.lastY;
-    onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, x, y);
-    touchState.lastX = touchState.x;
-    touchState.lastY = touchState.y;
+  else if (touchState.event == TE_SLIDE && (touchState.deltaX || touchState.deltaY)) {
+    onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, touchState.deltaY);
+    touchState.deltaX = 0;
+    touchState.deltaY = 0;
   }
 #endif
 
