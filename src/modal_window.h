@@ -36,11 +36,9 @@ class ModalWindow: public Window
 
     void deleteLater()
     {
-#if !defined(HARDWARE_TOUCH)
       if (previousFocus) {
         previousFocus->setFocus();
       }
-#endif
       Window::deleteLater();
     }
 
@@ -68,9 +66,7 @@ class ModalWindow: public Window
 #endif
 
   protected:
-#if !defined(HARDWARE_TOUCH)
     Window * previousFocus = nullptr;
-#endif
 };
 
 class ModalWindowContent: public Window {

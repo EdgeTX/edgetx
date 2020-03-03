@@ -22,10 +22,8 @@
 #include "font.h"
 
 ModalWindow::ModalWindow(Window * parent):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H})
-#if !defined(HARDWARE_TOUCH)
-  , previousFocus(focusWindow)
-#endif
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
+  previousFocus(focusWindow)
 {
 }
 

@@ -286,7 +286,6 @@ void Window::checkEvents()
   if (this == focusWindow) {
     event_t event = getWindowEvent();
     if (event) {
-      TRACE_WINDOWS("Event 0x%x received ...", event);
       this->onEvent(event);
     }
   }
@@ -315,7 +314,7 @@ void Window::checkEvents()
 
 void Window::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", Window::getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", Window::getWindowDebugString("Window").c_str(), event);
   if (parent) {
     parent->onEvent(event);
   }

@@ -87,9 +87,9 @@ class Window {
       return result;
     }
 
-    std::string getWindowDebugString()
+    std::string getWindowDebugString(const char * name = nullptr)
     {
-      return getIndentString() + getName() + " " + getRectString();
+      return getIndentString() + getName() + (name ? std::string("/") + name : "") + " " + getRectString();
     }
 #endif
 
