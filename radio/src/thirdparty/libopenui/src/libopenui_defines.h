@@ -23,31 +23,31 @@
 #include "libopenui_types.h"
 
 /* lcd common flags */
-#define BLINK                          0x01
+#define BLINK                          0x01u
 
 /* drawText flags */
-#define INVERS                         0x02
-#define LEFT                           0x00 /* align left */
-#define CENTERED                       0x04 /* align center */
-#define RIGHT                          0x08 /* align right */
-#define SHADOWED                       0x80 /* black copy at +1 +1 */
+#define INVERS                         0x02u
+#define LEFT                           0x00u /* align left */
+#define CENTERED                       0x04u /* align center */
+#define RIGHT                          0x08u /* align right */
+#define SHADOWED                       0x80u /* black copy at +1 +1 */
 
 /* drawNumber flags */
-#define LEADING0                       0x10
-#define PREC1                          0x20
-#define PREC2                          0x30
+#define LEADING0                       0x10u
+#define PREC1                          0x20u
+#define PREC2                          0x30u
 #define MODE(flags)                    ((((int8_t)(flags) & 0x30) - 0x10) >> 4)
 
 /* telemetry flags */
-#define NO_UNIT                        0x40
+#define NO_UNIT                        0x40u
 
-#define FONT_MASK                       0x0F00
-#define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8)
-#define FONT(xx)                        (FONT_ ## xx ## _INDEX << 8)
+#define FONT_MASK                       0x0F00u
+#define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8u)
+#define FONT(xx)                        (FONT_ ## xx ## _INDEX << 8u)
 
-#define TIMEHOUR                       0x2000
-#define EXPANDED                       0x2000
-#define VERTICAL                       0x4000
+#define TIMEHOUR                       0x2000u
+#define EXPANDED                       0x2000u
+#define VERTICAL                       0x4000u
 
 #define ARGB_SPLIT(color, a, r, g, b) \
   uint16_t a = ((color) & 0xF000) >> 12; \
