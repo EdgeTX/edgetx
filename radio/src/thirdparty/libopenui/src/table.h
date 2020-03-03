@@ -27,14 +27,20 @@
 class Table: public Window {
     class Line {
       public:
-        std::list<std::string> values;
+        explicit Line(uint8_t columnsCount):
+          values(columnsCount)
+        {
+        }
+        std::vector<std::string> values;
         std::function<void()> onPress;
     };
 
     class Header: public Window {
       public:
-        Header(Window * parent, const rect_t & rect):
-          Window(parent, rect, OPAQUE)
+        Header(Table * parent, const rect_t & rect, uint8_t columnsCount):
+          Window(parent, rect, OPAQUE),
+          header(columnsCount),
+          columnsWidth(parent->columnsWidth)
         {
         }
 
@@ -47,14 +53,16 @@ class Table: public Window {
 
       protected:
         Line header;
+        std::vector<coord_t> & columnsWidth;
     };
 
     class Body: public Window {
       friend class Table;
 
       public:
-        Body(Window * parent, const rect_t & rect):
-          Window(parent, rect, OPAQUE)
+        Body(Table * parent, const rect_t & rect):
+          Window(parent, rect, OPAQUE),
+          columnsWidth(parent->columnsWidth)
         {
         }
 
@@ -85,6 +93,7 @@ class Table: public Window {
 #endif
 
       protected:
+        std::vector<coord_t> & columnsWidth;
         std::vector<Line> lines;
         int selection = -1;
     };
@@ -92,10 +101,11 @@ class Table: public Window {
   public:
     Table(Window * parent, const rect_t & rect, uint8_t columnsCount):
       Window(parent, rect),
-      header(this, {0, 0, width(), 0}),
-      body(this, {0, 0, width(), height()})
+      header(this, {0, 0, width(), 0}, columnsCount),
+      body(this, {0, 0, width(), height()}),
+      columnsCount(columnsCount),
+      columnsWidth(columnsCount, width() / columnsCount)
     {
-      setColumnsCount(columnsCount);
     }
 
     ~Table() override
@@ -104,9 +114,11 @@ class Table: public Window {
       body.detach();
     }
 
-    void setColumnsCount(uint8_t value)
+    void setColumnsWidth(const coord_t width[])
     {
-      count = value;
+      for (uint8_t i = 0; i < columnsCount; i++) {
+        columnsWidth[i] = width[i];
+      }
     }
 
     int getSelection() const
@@ -134,18 +146,18 @@ class Table: public Window {
       header.setHeight(TABLE_HEADER_HEIGHT);
       body.setTop(TABLE_HEADER_HEIGHT);
       body.setHeight(height() - TABLE_HEADER_HEIGHT);
-      Line line;
-      for (uint8_t i = 0; i < count; i++) {
-        line.values.push_back(values[i]);
+      Line line(columnsCount);
+      for (uint8_t i = 0; i < columnsCount; i++) {
+        line.values[i] = values[i];
       }
       header.setLine(line);
     }
 
     void addLine(const char * const values[], std::function<void()> onPress = nullptr)
     {
-      Line line;
-      for (uint8_t i = 0; i < count; i++) {
-        line.values.push_back(values[i]);
+      Line line(columnsCount);
+      for (uint8_t i = 0; i < columnsCount; i++) {
+        line.values[i] = values[i];
       }
       line.onPress = onPress;
       body.addLine(line);
@@ -158,7 +170,8 @@ class Table: public Window {
     }
 
   protected:
-    uint8_t count = 1;
+    uint8_t columnsCount;
+    std::vector<coord_t> columnsWidth;
     Header header;
     Body body;
 };
