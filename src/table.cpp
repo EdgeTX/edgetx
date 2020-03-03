@@ -25,9 +25,9 @@ void Table::Header::paint(BitmapBuffer * dc)
   coord_t x = 10;
   if (!header.values.empty()) {
     dc->clear(TABLE_HEADER_BGCOLOR);
-    for (auto &value: header.values) {
-      dc->drawText(x, (TABLE_LINE_HEIGHT - getFontHeight(TABLE_HEADER_FONT)) / 2, value.c_str(), TABLE_HEADER_FONT);
-      x += 200;
+    for (int i = 0; i < header.values.size(); i++) {
+      dc->drawText(x, (TABLE_LINE_HEIGHT - getFontHeight(TABLE_HEADER_FONT)) / 2, header.values[i].c_str(), TABLE_HEADER_FONT);
+      x += columnsWidth[i];
     }
   }
 }
@@ -40,9 +40,9 @@ void Table::Body::paint(BitmapBuffer * dc)
   for (auto & line: lines) {
     dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, index == selection ? FOCUS_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
-    for (auto &value: line.values) {
-      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, value.c_str(), TABLE_BODY_FONT | (index == selection ? FOCUS_COLOR : DEFAULT_COLOR));
-      x += 200;
+    for (int i = 0; i < line.values.size(); i++) {
+      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), TABLE_BODY_FONT | (index == selection ? FOCUS_COLOR : DEFAULT_COLOR));
+      x += columnsWidth[i];
     }
     y += TABLE_LINE_HEIGHT;
     index += 1;
