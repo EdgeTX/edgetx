@@ -101,10 +101,10 @@ class Table: public Window {
   public:
     Table(Window * parent, const rect_t & rect, uint8_t columnsCount):
       Window(parent, rect),
-      header(this, {0, 0, width(), 0}, columnsCount),
-      body(this, {0, 0, width(), height()}),
       columnsCount(columnsCount),
-      columnsWidth(columnsCount, width() / columnsCount)
+      columnsWidth(columnsCount, width() / columnsCount),
+      header(this, {0, 0, width(), 0}, columnsCount),
+      body(this, {0, 0, width(), height()})
     {
     }
 
