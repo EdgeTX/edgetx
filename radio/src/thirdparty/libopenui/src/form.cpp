@@ -35,7 +35,7 @@ FormField::FormField(Window *parent, const rect_t & rect, WindowFlags windowFlag
 #if defined(HARDWARE_KEYS)
 void FormField::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", FormField::getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", FormField::getWindowDebugString("FormField").c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT/*EVT_KEY_BREAK(KEY_DOWN)*/) {
     if (next) {
@@ -151,13 +151,19 @@ void FormGroup::setFocus(uint8_t flag)
 #if defined(HARDWARE_KEYS)
 void FormGroup::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormGroup").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     first->setFocus();
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus()) {
     setFocus(SET_FOCUS_DEFAULT);
+  }
+  else if (event == EVT_ROTARY_RIGHT && !next) {
+    first->setFocus();
+  }
+  else if (event == EVT_ROTARY_LEFT && !previous) {
+    last->setFocus();
   }
   else {
     FormField::onEvent(event);
@@ -180,7 +186,7 @@ void FormGroup::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_KEYS)
 void FormWindow::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormWindow").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_EXIT) && first) {
     Window * currentFocus = getFocus();
