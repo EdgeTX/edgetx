@@ -144,6 +144,8 @@ class Window {
       return focusWindow;
     }
 
+    void scrollTo(const rect_t & rect);
+
     void scrollTo(Window * child);
 
     static void clearFocus();

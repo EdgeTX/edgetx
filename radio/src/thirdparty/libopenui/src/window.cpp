@@ -165,23 +165,29 @@ void Window::scrollTo(Window * child)
     parent = parent->getParent();
   }
 
-  coord_t left = offsetX + child->left();
-  coord_t right = offsetX + child->right();
-  coord_t top = offsetY + child->top();
-  coord_t bottom = offsetY + child->bottom();
+  const rect_t rect = {
+  offsetX + child->left(),
+  offsetY + child->top(),
+    child->width(),
+    child->height()
+  };
+  scrollTo(rect);
+}
 
-  if (top < scrollPositionY) {
-    setScrollPositionY(pageHeight ? top - (top % pageHeight) : top - 5);
+void Window::scrollTo(const rect_t & rect)
+{
+  if (rect.top() < scrollPositionY) {
+    setScrollPositionY(pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.top() - 5);
   }
-  else if (bottom > scrollPositionY + height() - 5) {
-    setScrollPositionY(pageHeight ? top - (top % pageHeight) : bottom - height() + 5);
+  else if (rect.bottom() > scrollPositionY + height() - 5) {
+    setScrollPositionY(pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.bottom() - height() + 5);
   }
 
-  if (left < scrollPositionX) {
-    setScrollPositionX(pageWidth ? left - (left % pageWidth) : left - 5);
+  if (rect.left() < scrollPositionX) {
+    setScrollPositionX(pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.left() - 5);
   }
-  else if (right > scrollPositionX + width() - 5) {
-    setScrollPositionX(pageWidth ? left - (left % pageWidth) : right - width() + 5);
+  else if (rect.right() > scrollPositionX + width() - 5) {
+    setScrollPositionX(pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.right() - width() + 5);
   }
 }
 
