@@ -28,12 +28,12 @@ void CheckBox::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_KEYS)
 void CheckBox::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("CheckBox").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     onKeyPress();
     _setValue(!getValue());
-    invalidate({0, 0, 20, 20});
+    invalidate();
   }
   else {
     FormField::onEvent(event);
@@ -47,7 +47,7 @@ bool CheckBox::onTouchEnd(coord_t x, coord_t y)
   onKeyPress();
   _setValue(!getValue());
   setFocus();
-  invalidate({0, 0, 20, 20});
+  invalidate();
   return true;
 }
 #endif
