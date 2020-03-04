@@ -209,11 +209,11 @@ void Window::fullPaint(BitmapBuffer * dc)
   }
 
   if (paintNeeded) {
-    TRACE_WINDOWS("%s", getWindowDebugString().c_str());
+    TRACE_WINDOWS_INDENT("%s", getWindowDebugString().c_str());
     paint(dc);
   }
   else {
-    TRACE_WINDOWS("%s (skipped)", getWindowDebugString().c_str());
+    TRACE_WINDOWS_INDENT("%s (skipped)", getWindowDebugString().c_str());
   }
 
   if (!(windowFlags & NO_SCROLLBAR)) {
