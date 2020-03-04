@@ -42,8 +42,13 @@ void MenuBody::onEvent(event_t event)
     select(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1);
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    Window::onEvent(event); // the window above will be closed on event
-    lines[selectedIndex].onPress();
+    if (selectedIndex < 0) {
+      select(0);
+    }
+    else {
+      Window::onEvent(event); // the window above will be closed on event
+      lines[selectedIndex].onPress();
+    }
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     if (onCancel)
