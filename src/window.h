@@ -89,7 +89,7 @@ class Window {
 
     std::string getWindowDebugString(const char * name = nullptr, bool indent = true)
     {
-      return getName() + (name ? std::string("[") + name + "]" : "") + " " + getRectString();
+      return getName() + (name ? std::string(" [") + name + "] " : " ") + getRectString();
     }
 #endif
 
