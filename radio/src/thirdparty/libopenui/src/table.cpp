@@ -48,3 +48,50 @@ void Table::Body::paint(BitmapBuffer * dc)
     index += 1;
   }
 }
+
+#if defined(HARDWARE_TOUCH)
+bool Table::Body::onTouchEnd(coord_t x, coord_t y)
+{
+  unsigned index = y / TABLE_LINE_HEIGHT;
+  if (index < lines.size()) {
+    auto onPress = lines[index].onPress;
+    if (onPress)
+      onPress();
+  }
+  return true;
+}
+#endif
+
+#if defined(HARDWARE_KEYS)
+void Table::Body::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    if (selection >= 0) {
+      auto onPress = lines[selection].onPress;
+      if (onPress)
+        onPress();
+    }
+  }
+  if (event == EVT_ROTARY_RIGHT) {
+    int newSelection = (selection + 1) % lines.size();
+    select(newSelection, true);
+    auto onSelect = lines[selection].onSelect;
+    if (onSelect) {
+      onSelect();
+    }
+  }
+  else if (event == EVT_ROTARY_LEFT) {
+    int newSelection = selection == 0 ? lines.size() - 1 : selection - 1;
+    select(newSelection, true);
+    auto onSelect = lines[selection].onSelect;
+    if (onSelect) {
+      onSelect();
+    }
+  }
+  else {
+    Window::onEvent(event);
+  }
+}
+#endif
