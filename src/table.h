@@ -33,6 +33,7 @@ class Table: public Window {
         }
         std::vector<std::string> values;
         std::function<void()> onPress;
+        std::function<void()> onSelect;
     };
 
     class Header: public Window {
@@ -43,6 +44,13 @@ class Table: public Window {
           columnsWidth(parent->columnsWidth)
         {
         }
+
+#if defined(DEBUG_WINDOWS)
+        std::string getName() override
+        {
+          return "Table::Header";
+        }
+#endif
 
         void setLine(const Line & line)
         {
@@ -66,6 +74,13 @@ class Table: public Window {
         {
         }
 
+#if defined(DEBUG_WINDOWS)
+        std::string getName() override
+        {
+          return "Table::Body";
+        }
+#endif
+
         void addLine(const Line & line)
         {
           lines.push_back(line);
@@ -77,19 +92,29 @@ class Table: public Window {
           lines.clear();
         }
 
+        void select(int index, bool scroll)
+        {
+          selection = index;
+          if (scroll) {
+            const rect_t rect = {
+              0,
+              index * TABLE_LINE_HEIGHT,
+              width(),
+              TABLE_LINE_HEIGHT
+            };
+            scrollTo(rect);
+          }
+          invalidate();
+        }
+
         void paint(BitmapBuffer * dc) override;
 
+#if defined(HARDWARE_KEYS)
+        void onEvent(event_t event) override;
+#endif
+
 #if defined(HARDWARE_TOUCH)
-        bool onTouchEnd(coord_t x, coord_t y) override
-        {
-          unsigned index = y / TABLE_LINE_HEIGHT;
-          if (index < lines.size()) {
-            auto onPress = lines[index].onPress;
-            if (onPress)
-              onPress();
-          }
-          return true;
-        }
+        bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
       protected:
@@ -107,6 +132,13 @@ class Table: public Window {
       body(this, {0, 0, width(), height()})
     {
     }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "Table";
+    }
+#endif
 
     ~Table() override
     {
@@ -132,13 +164,14 @@ class Table: public Window {
       body.invalidate();
     }
 
-    void setSelection(int index, bool scroll = false)
+    void setFocus(uint8_t flag) override
     {
-      body.selection = index;
-      if (scroll) {
-        body.setScrollPositionY(index * TABLE_LINE_HEIGHT);
-      }
-      body.invalidate();
+      body.setFocus(flag);
+    }
+
+    void select(int index, bool scroll = true)
+    {
+      body.select(index, scroll);
     }
 
     void setHeader(const char * const values[])
@@ -153,13 +186,14 @@ class Table: public Window {
       header.setLine(line);
     }
 
-    void addLine(const char * const values[], std::function<void()> onPress = nullptr)
+    void addLine(const char * const values[], std::function<void()> onPress = nullptr, std::function<void()> onSelect = nullptr)
     {
       Line line(columnsCount);
       for (uint8_t i = 0; i < columnsCount; i++) {
         line.values[i] = values[i];
       }
       line.onPress = onPress;
+      line.onSelect = onSelect;
       body.addLine(line);
     }
 
