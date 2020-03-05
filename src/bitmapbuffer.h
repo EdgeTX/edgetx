@@ -241,7 +241,6 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
 #endif
 
   public:
-
     BitmapBuffer(uint8_t format, uint16_t width, uint16_t height):
       BitmapBufferBase<uint16_t>(format, width, height, nullptr),
       dataAllocated(true)
@@ -390,7 +389,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
     coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
     template<class T>
-    void drawBitmap(coord_t x, coord_t y, const T * bmp, coord_t srcx=0, coord_t srcy=0, coord_t w=0, coord_t h=0, float scale=0)
+    void drawBitmap(coord_t x, coord_t y, const T * bmp, coord_t srcx = 0, coord_t srcy = 0, coord_t w = 0, coord_t h = 0, float scale = 0)
     {
       if (!data || !bmp)
         return;
