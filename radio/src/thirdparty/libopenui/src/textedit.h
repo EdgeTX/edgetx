@@ -26,7 +26,7 @@ class TextEdit : public FormField {
   friend class TextKeyboard;
 
   public:
-    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags flags = 0) :
+    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags /*flags*/ = 0) :
       FormField(parent, rect),
       value(value),
       length(length)

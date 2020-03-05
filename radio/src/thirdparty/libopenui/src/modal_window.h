@@ -45,7 +45,7 @@ class ModalWindow: public Window
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t x, coord_t y) override
+    bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override
     {
       return true;
     }

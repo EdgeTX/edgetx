@@ -137,7 +137,7 @@ class FormWindow: public FormGroup {
 #endif
 
   protected:
-    void paint(BitmapBuffer * dc) override
+    void paint(BitmapBuffer *) override
     {
     }
 
