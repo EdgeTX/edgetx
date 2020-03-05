@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import argparse
 from PIL import Image
 
@@ -121,7 +120,7 @@ class ImageEncoder:
             self.f.write("\n")
         self.encode_end()
 
-    def encode_16bits(self, image):
+    def encode_5_6_5(self, image):
         width, height = image.size
         self.write_size(width, height)
         for y in range(height):
@@ -132,7 +131,7 @@ class ImageEncoder:
                 self.encode_byte(val >> 8)
         self.encode_end()
 
-    def encode_16bits_alpha(self, image):
+    def encode_4_4_4_4(self, image):
         width, height = image.size
         self.write_size(width, height)
         for y in range(height):
@@ -181,9 +180,9 @@ def main():
     elif args.format == "8bits":
         encoder.encode_8bits(image)
     elif args.format == "4/4/4/4":
-        encoder.encode_16bits_alpha(image)
+        encoder.encode_4_4_4_4(image)
     elif args.format == "5/6/5":
-        encoder.encode_16bits(image)
+        encoder.encode_5_6_5(image)
 
 
 if __name__ == "__main__":
