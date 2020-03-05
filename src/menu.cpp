@@ -62,7 +62,7 @@ void MenuBody::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
-bool MenuBody::onTouchEnd(coord_t x, coord_t y)
+bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 {
   int index = y / MENUS_LINE_HEIGHT;
   lines[index].onPress();

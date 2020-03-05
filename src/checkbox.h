@@ -25,7 +25,7 @@
 class CheckBox : public FormField {
   public:
     CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue,
-             LcdFlags flags = 0) :
+             LcdFlags /*flags*/ = 0) :
       FormField(parent, rect),
       _getValue(getValue),
       _setValue(setValue)

@@ -87,7 +87,7 @@ class Window {
       return result;
     }
 
-    std::string getWindowDebugString(const char * name = nullptr, bool indent = true)
+    std::string getWindowDebugString(const char * name = nullptr)
     {
       return getName() + (name ? std::string(" [") + name + "] " : " ") + getRectString();
     }
@@ -362,7 +362,7 @@ class Window {
 
     void fullPaint(BitmapBuffer * dc);
 
-    virtual void paint(BitmapBuffer * dc)
+    virtual void paint(BitmapBuffer *)
     {
     }
 
