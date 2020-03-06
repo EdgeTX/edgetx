@@ -297,11 +297,6 @@ class Window {
 
     void drawVerticalScrollbar(BitmapBuffer * dc);
 
-    static bool pointInRect(coord_t x, coord_t y, rect_t & rect)
-    {
-      return (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h);
-    }
-
     virtual void onEvent(event_t event);
 
     void adjustInnerHeight();

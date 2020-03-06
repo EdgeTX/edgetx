@@ -331,7 +331,7 @@ bool Window::onTouchStart(coord_t x, coord_t y)
 {
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
-    if (pointInRect(x, y, child->rect)) {
+    if (child->rect.contains(x, y)) {
       if (child->onTouchStart(x - child->rect.x + child->scrollPositionX, y - child->rect.y + child->scrollPositionY)) {
         return true;
       }
@@ -345,7 +345,7 @@ bool Window::forwardTouchEnd(coord_t x, coord_t y)
 {
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
-    if (pointInRect(x, y, child->rect)) {
+    if (child->rect.contains(x, y)) {
       if (child->onTouchEnd(x - child->rect.x + child->scrollPositionX, y - child->rect.y + child->scrollPositionY)) {
         return true;
       }
@@ -364,7 +364,7 @@ bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
 {
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
-    if (pointInRect(startX, startY, child->rect)) {
+    if (child->rect.contains(startX, startY)) {
       if (child->onTouchSlide(x - child->rect.x, y - child->rect.y, startX - child->rect.x, startY - child->rect.y, slideX, slideY)) {
         return true;
       }
