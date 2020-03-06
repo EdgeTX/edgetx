@@ -28,6 +28,11 @@ struct point_t
 {
   coord_t x;
   coord_t y;
+
+  bool operator != (const point_t & b) const
+  {
+    return x != b.x || y != b.y;
+  }
 };
 
 struct rect_t
@@ -52,6 +57,11 @@ struct rect_t
   constexpr coord_t bottom() const
   {
     return y + h;
+  }
+
+  bool contains(coord_t x, coord_t y) const
+  {
+    return (x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h);
   }
 };
 
