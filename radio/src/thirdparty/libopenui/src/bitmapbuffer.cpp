@@ -344,6 +344,10 @@ class Slope {
 
 void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
 {
+  if (endAngle == startAngle) {
+    endAngle += 1;
+  }
+
   Slope startSlope(startAngle);
   Slope endSlope(endAngle);
 
