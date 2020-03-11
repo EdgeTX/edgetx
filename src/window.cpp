@@ -32,7 +32,7 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
   textFlags(textFlags)
 {
   if (parent) {
-    parent->addChild(this);
+    parent->addChild(this, windowFlags & PUSH_FRONT);
     if (!(windowFlags & TRANSPARENT)) {
       invalidate();
     }

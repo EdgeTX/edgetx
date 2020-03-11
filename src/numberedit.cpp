@@ -23,8 +23,8 @@
 #include "keyboard_number.h"
 #endif
 
-NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue, LcdFlags flags):
-  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), flags)
+NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue, WindowFlags windowFlags, LcdFlags textFlags):
+  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags, textFlags)
 {
 }
 
@@ -47,9 +47,9 @@ void NumberEdit::paint(BitmapBuffer * dc)
   if (displayFunction)
     displayFunction(dc, textColor, value);
   else if (value == 0 && !zeroText.empty())
-    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | flags);
+    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
   else
-    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | flags, 0, prefix.c_str(), suffix.c_str());
+    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
 }
 
 void NumberEdit::onEvent(event_t event)
