@@ -53,10 +53,15 @@ void MainWindow::checkEvents()
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
     touchState.event = TE_NONE;
   }
-  else if (touchState.event == TE_SLIDE && (touchState.deltaX || touchState.deltaY)) {
-    onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, touchState.deltaY);
-    touchState.deltaX = 0;
-    touchState.deltaY = 0;
+  else if (touchState.event == TE_SLIDE) {
+    if (touchState.deltaX) {
+      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, 0);
+      touchState.deltaX = 0;
+    }
+    else if (touchState.deltaY) {
+      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, 0, touchState.deltaY);
+      touchState.deltaY = 0;
+    }
   }
 #endif
 

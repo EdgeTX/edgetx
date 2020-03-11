@@ -509,6 +509,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       break;
     }
     else if (c >= 0xFE) {
+      // CJK char
       s++;
       c = uint8_t(*s) + ((c & 0x01) << 8) - 1;
       if (c >= 0x101)
