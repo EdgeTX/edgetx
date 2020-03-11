@@ -25,13 +25,12 @@
 class BaseNumberEdit : public FormField {
   public:
     BaseNumberEdit(Window * parent, const rect_t &rect, int32_t vmin, int32_t vmax,
-                   std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, LcdFlags flags = 0):
-      FormField(parent, rect),
+                   std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
+      FormField(parent, rect, windowFlags, textFlags),
       vmin(vmin),
       vmax(vmax),
       _getValue(std::move(getValue)),
-      _setValue(std::move(setValue)),
-      flags(flags)
+      _setValue(std::move(setValue))
     {
     }
 
@@ -98,7 +97,6 @@ class BaseNumberEdit : public FormField {
     int32_t step = 1;
     std::function<int32_t()> _getValue;
     std::function<void(int32_t)> _setValue;
-    LcdFlags flags;
 };
 
 #endif // _BASENUMBEREDIT_H_

@@ -21,13 +21,13 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-FormField::FormField(Window *parent, const rect_t & rect, WindowFlags windowFlags) :
-  Window(parent, rect, windowFlags)
+FormField::FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags) :
+  Window(parent, rect, windowFlags, textFlags)
 {
   if (!(windowFlags & NO_FOCUS)) {
     FormGroup * form = dynamic_cast<FormGroup *>(parent);
     if (form) {
-      form->addField(this);
+      form->addField(this, windowFlags & PUSH_FRONT);
     }
   }
 }
@@ -74,25 +74,35 @@ void FormField::paint(BitmapBuffer * dc)
   }
 }
 
-void FormGroup::addField(FormField * field)
+void FormGroup::addField(FormField * field, bool front)
 {
   if (field->getWindowFlags() & FORM_DETACHED)
     return;
 
   if (!first) {
     first = field;
-    if (windowFlags & FORM_FORWARD_FOCUS)
-      link(previous, field);
+    last = field;
   }
-  if (last)
-    link(last, field);
-  last = field;
-  if (!(windowFlags & FORM_FORWARD_FOCUS))
-    link(field, first);
-  else
-    field->setNextField(this);
-  if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS))
+  if (front) {
+    if (first)
+      link(field, first);
+    first = field;
+  }
+  else {
+    if (last)
+      link(last, field);
+    last = field;
+  }
+  if (windowFlags & FORM_FORWARD_FOCUS) {
+    last->setNextField(this);
+    link(previous, first);
+  }
+  else {
+    link(last, first);
+  }
+  if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
     field->setFocus();
+  }
 }
 
 void FormGroup::setFocus(uint8_t flag)

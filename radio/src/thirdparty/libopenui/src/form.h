@@ -30,7 +30,7 @@ constexpr WindowFlags FORM_FLAGS_LAST = FORM_NO_BORDER;
 
 class FormField: public Window {
   public:
-    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0);
+    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
     inline void setNextField(FormField *field)
     {
@@ -109,7 +109,7 @@ class FormGroup: public FormField {
 
     void setFocus(uint8_t flag = SET_FOCUS_DEFAULT) override;
 
-    void addField(FormField * field);
+    void addField(FormField * field, bool front = false);
 
   protected:
     FormField * first = nullptr;

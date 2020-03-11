@@ -39,14 +39,15 @@ typedef uint32_t WindowFlags;
   #undef TRANSPARENT
 #endif
 
-constexpr WindowFlags OPAQUE =                1u << 0;
-constexpr WindowFlags TRANSPARENT =           1u << 1;
-constexpr WindowFlags NO_SCROLLBAR =          1u << 2;
-constexpr WindowFlags NO_FOCUS =              1u << 3;
-constexpr WindowFlags FORWARD_SCROLL =        1u << 4;
-constexpr WindowFlags REFRESH_ALWAYS =        1u << 5;
-constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6;
-constexpr WindowFlags WINDOW_FLAGS_LAST =  PAINT_CHILDREN_FIRST;
+constexpr WindowFlags OPAQUE =                1u << 0u;
+constexpr WindowFlags TRANSPARENT =           1u << 1u;
+constexpr WindowFlags NO_SCROLLBAR =          1u << 2u;
+constexpr WindowFlags NO_FOCUS =              1u << 3u;
+constexpr WindowFlags FORWARD_SCROLL =        1u << 4u;
+constexpr WindowFlags REFRESH_ALWAYS =        1u << 5u;
+constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6u;
+constexpr WindowFlags PUSH_FRONT =  1u << 7u;
+constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 
 enum SetFocusFlag {
   SET_FOCUS_DEFAULT,
@@ -340,9 +341,12 @@ class Window {
 
     void attach(Window * window);
 
-    void addChild(Window * window)
+    void addChild(Window * window, bool front = false)
     {
-      children.push_back(window);
+      if (front)
+        children.push_front(window);
+      else
+        children.push_back(window);
     }
 
     void removeChild(Window * window)

@@ -26,7 +26,7 @@
 class NumberEdit : public BaseNumberEdit {
   public:
     NumberEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax,
-               std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, LcdFlags flags = 0);
+               std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
