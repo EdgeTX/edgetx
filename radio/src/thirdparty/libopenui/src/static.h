@@ -86,8 +86,13 @@ class StaticBitmap: public Window {
 
     void setBitmap(const char * filename)
     {
+      setBitmap(BitmapBuffer::loadBitmap(filename));
+    }
+
+    void setBitmap(const BitmapBuffer * newBitmap)
+    {
       delete bitmap;
-      bitmap = BitmapBuffer::loadBitmap(filename);
+      bitmap = newBitmap;
       invalidate();
     }
 

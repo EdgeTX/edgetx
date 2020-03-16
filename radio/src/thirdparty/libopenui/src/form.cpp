@@ -130,7 +130,7 @@ void FormGroup::setFocus(uint8_t flag)
         break;
       case SET_FOCUS_FORWARD:
         // TODO this test should be recursive
-        if (focusWindow == last || focusWindow->getParent() == last) {
+        if (focusWindow == last || focusWindow->getParent() == last || focusWindow->getParent()->getParent() == last) {
           if (next == this)
             first->setFocus(SET_FOCUS_FORWARD);
           else if (next)
