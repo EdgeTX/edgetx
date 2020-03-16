@@ -407,12 +407,12 @@ coord_t Window::adjustHeight()
 void Window::moveWindowsTop(coord_t y, coord_t delta)
 {
   for (auto child: children) {
-    if (child->rect.y > y) {
+    if (child->rect.y >= y) {
       child->rect.y += delta;
       invalidate();
     }
   }
-  innerHeight += delta;
+  setInnerHeight(innerHeight + delta);
 }
 
 void Window::invalidate(const rect_t & rect)
