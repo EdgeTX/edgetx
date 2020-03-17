@@ -54,6 +54,7 @@ inline int divRoundClosest(const int n, const int d)
     return ((n < 0) ^ (d < 0)) ? ((n - d/2)/d) : ((n + d/2)/d);
 }
 
+// TODO duplicated code
 inline std::string TEXT_AT_INDEX(const char * val, uint8_t idx)
 {
   const char * start = val + 1 + idx * val[0];
