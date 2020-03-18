@@ -21,6 +21,7 @@
 #include "touch.h"
 
 Window * Window::focusWindow = nullptr;
+Window * Window::slidingWindow = nullptr;
 std::list<Window *> Window::trash;
 
 Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags):
@@ -191,24 +192,42 @@ void Window::scrollTo(const rect_t & rect)
   }
 }
 
+bool Window::hasOpaqueRect(const rect_t & rect)
+{
+  if (!this->rect.contains(rect))
+    return false;
+
+  if (windowFlags & OPAQUE) {
+    return true;
+  }
+
+  for (auto child: children) {
+    if (child->hasOpaqueRect(rect))
+      return true;
+  }
+
+  return false;
+}
+
 void Window::fullPaint(BitmapBuffer * dc)
 {
   bool paintNeeded = true;
 
+  coord_t xmin, xmax, ymin, ymax;
+  dc->getClippingRect(xmin, xmax, ymin, ymax);
+
   auto firstChild = children.end();
   while (firstChild != children.begin()) {
     auto child = *(--firstChild);
-    if ((child->windowFlags & OPAQUE) && isChildFullSize(child)) {
+    if (child->hasOpaqueRect({xmin, ymin, xmax - xmin, ymax - ymin})) {
       paintNeeded = false;
       break;
     }
   }
 
   if (windowFlags & PAINT_CHILDREN_FIRST) {
-    coord_t xmin, xmax, ymin, ymax;
     coord_t x = dc->getOffsetX();
     coord_t y = dc->getOffsetY();
-    dc->getClippingRect(xmin, xmax, ymin, ymax);
     paintChildren(dc, firstChild);
     dc->setOffset(x, y);
     dc->setClippingRect(xmin, xmax, ymin, ymax);
@@ -374,13 +393,19 @@ bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
     }
   }
 
+  if (slidingWindow && slidingWindow != this) {
+    return false;
+  }
+
   if (slideY && innerHeight > rect.h) {
     setScrollPositionY(scrollPositionY - slideY);
+    slidingWindow = this;
     return true;
   }
 
   if (slideX && innerWidth > rect.w) {
     setScrollPositionX(scrollPositionX - slideX);
+    slidingWindow = this;
     return true;
   }
 
