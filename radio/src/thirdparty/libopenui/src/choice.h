@@ -29,8 +29,8 @@ enum ChoiceType {
 
 class ChoiceBase : public FormField {
   public:
-    ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN):
-      FormField(parent, rect),
+    ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0):
+      FormField(parent, rect, windowFlags),
       type(type)
     {
     }
@@ -46,7 +46,7 @@ class ChoiceBase : public FormField {
 
 class Choice : public ChoiceBase {
   public:
-    Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr);
+    Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
