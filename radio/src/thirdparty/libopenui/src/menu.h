@@ -60,10 +60,17 @@ class MenuBody: public Window {
 
   public:
     MenuBody(Window * parent, const rect_t & rect):
-      Window(parent, rect)
+      Window(parent, rect, OPAQUE)
     {
       setPageHeight(MENUS_LINE_HEIGHT);
     }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "MenuBody";
+    }
+#endif
 
     void select(int index);
 
