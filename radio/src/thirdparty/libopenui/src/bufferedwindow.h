@@ -22,34 +22,73 @@
 
 #include "window.h"
 
-class BufferedWindow: public Window
+template <class T>
+class BufferedWindow: public T
 {
   public:
-    BufferedWindow(Window * parent, const rect_t & rect):
-      Window(parent, rect, OPAQUE)
-    {
-    }
+    using T::T;
 
     ~BufferedWindow() override
     {
       delete bitmap;
     }
 
-    void paint(BitmapBuffer * dc) override
+    void forcePaint()
     {
-      if (!bitmap) {
-        paintInit(dc);
-        bitmap = new BitmapBuffer(BMP_RGB565, width(), height());
-        bitmap->drawBitmap(0, 0, dc, dc->getOffsetX(), dc->getOffsetY());
-      }
-      else {
-        dc->drawBitmap(0, 0, bitmap);
-      }
+      paintUpdateNeeded = true;
+      T::invalidate();
     }
 
   protected:
     BitmapBuffer * bitmap = nullptr;
-    virtual void paintInit(BitmapBuffer * dc) = 0;
+    bool paintUpdateNeeded = false;
+    virtual void paintUpdate(BitmapBuffer * dc) = 0;
+};
+
+template <class T>
+class OpaqueBufferedWindow: public BufferedWindow<T>
+{
+  public:
+    using BufferedWindow<T>::BufferedWindow;
+
+    void paint(BitmapBuffer * dc) override
+    {
+      if (!this->bitmap) {
+        this->bitmap = new BitmapBuffer(BMP_RGB565, T::width(), T::height());
+        this->paintUpdateNeeded = true;
+      }
+
+      if (this->paintUpdateNeeded) {
+        this->paintUpdate(this->bitmap);
+        this->paintUpdateNeeded = false;
+      }
+
+      dc->drawBitmap(0, 0, this->bitmap);
+    }
+};
+
+template <class T>
+class TransparentBufferedWindow: public BufferedWindow<T>
+{
+  public:
+    using BufferedWindow<T>::BufferedWindow;
+
+    void paint(BitmapBuffer * dc) override
+    {
+      if (!BufferedWindow<T>::bitmap) {
+        this->bitmap = new BitmapBuffer(BMP_RGB565, T::width(), T::height());
+        this->paintUpdateNeeded = true;
+      }
+
+      if (this->paintUpdateNeeded) {
+        this->paintUpdate(dc);
+        this->bitmap->drawBitmap(0, 0, dc, dc->getOffsetX(), dc->getOffsetY());
+        this->paintUpdateNeeded = false;
+      }
+      else {
+        dc->drawBitmap(0, 0, this->bitmap);
+      }
+    }
 };
 
 #endif // _BUFFERED_WINDOW_H_
