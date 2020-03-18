@@ -22,8 +22,8 @@
 #include "theme.h"
 
 Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue) :
-  ChoiceBase(parent, rect),
+               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   values(values),
   vmin(vmin),
   vmax(vmax),
