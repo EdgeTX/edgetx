@@ -63,6 +63,11 @@ struct rect_t
   {
     return (x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h);
   }
+
+  bool contains(const rect_t & other) const
+  {
+    return left() <= other.left() && right() >= other.right() && top() <= other.top() && bottom() >= other.bottom();
+  }
 };
 
 typedef uint32_t LcdFlags;
