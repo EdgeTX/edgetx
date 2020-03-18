@@ -48,20 +48,22 @@ void MainWindow::checkEvents()
 
   if (touchState.event == TE_DOWN) {
     onTouchStart(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
+    slidingWindow = nullptr;
   }
   else if (touchState.event == TE_UP) {
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
     touchState.event = TE_NONE;
+    slidingWindow = nullptr;
   }
   else if (touchState.event == TE_SLIDE) {
-    if (touchState.deltaX) {
-      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, 0);
+    if (touchState.deltaX || touchState.deltaY) {
+      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, touchState.deltaY);
       touchState.deltaX = 0;
-    }
-    else if (touchState.deltaY) {
-      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, 0, touchState.deltaY);
       touchState.deltaY = 0;
     }
+  }
+  else {
+    slidingWindow = nullptr;
   }
 #endif
 
@@ -108,6 +110,8 @@ bool MainWindow::refresh()
 
 void MainWindow::run(bool trash)
 {
+  auto start = ticksNow();
+
   checkEvents();
 
   if (trash) {
@@ -116,5 +120,10 @@ void MainWindow::run(bool trash)
   
   if (refresh()) {
     lcdRefresh();
+  }
+
+  auto delta = ticksNow() - start;
+  if (delta > 10 * SYSTEM_TICKS_1MS) {
+    TRACE_WINDOWS("MainWindow::run took %dms", (ticksNow() - start) / SYSTEM_TICKS_1MS);
   }
 }

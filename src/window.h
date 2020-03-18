@@ -334,6 +334,7 @@ class Window {
     LcdFlags textFlags;
 
     static Window * focusWindow;
+    static Window * slidingWindow;
     static std::list<Window *> trash;
 
     std::function<void()> closeHandler;
@@ -380,6 +381,8 @@ class Window {
 #endif
 
     bool forwardTouchEnd(coord_t x, coord_t y);
+
+    bool hasOpaqueRect(const rect_t & rect);
 };
 
 #endif // _WINDOW_H_
