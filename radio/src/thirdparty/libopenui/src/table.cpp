@@ -38,10 +38,10 @@ void Table::Body::paint(BitmapBuffer * dc)
   coord_t x;
   int index = 0;
   for (auto & line: lines) {
-    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, index == selection ? FOCUS_BGCOLOR : TABLE_BGCOLOR);
+    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, index == selection ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
     for (unsigned i = 0; i < line.values.size(); i++) {
-      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), TABLE_BODY_FONT | (index == selection ? FOCUS_COLOR : DEFAULT_COLOR));
+      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), TABLE_BODY_FONT | (index == selection ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
       x += columnsWidth[i];
     }
     y += TABLE_LINE_HEIGHT;
