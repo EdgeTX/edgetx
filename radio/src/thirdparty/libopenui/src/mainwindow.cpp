@@ -53,17 +53,26 @@ void MainWindow::checkEvents()
   else if (touchState.event == TE_UP) {
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
     touchState.event = TE_NONE;
-    slidingWindow = nullptr;
   }
   else if (touchState.event == TE_SLIDE) {
     if (touchState.deltaX || touchState.deltaY) {
       onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, touchState.deltaY);
+      touchState.lastDeltaX = touchState.deltaX;
+      touchState.lastDeltaY = touchState.deltaY;
       touchState.deltaX = 0;
       touchState.deltaY = 0;
     }
   }
-  else {
-    slidingWindow = nullptr;
+  else if (touchState.event == TE_SLIDE_END && slidingWindow) {
+    if (abs(touchState.lastDeltaX) >= 5 || abs(touchState.lastDeltaY) >= 5) {
+      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
+      touchState.lastDeltaX = (touchState.lastDeltaX * 3) >> 2;
+      touchState.lastDeltaY = (touchState.lastDeltaY * 3) >> 2;
+    }
+    else {
+      touchState.lastDeltaX = 0;
+      touchState.lastDeltaY = 0;
+    }
   }
 #endif
 
