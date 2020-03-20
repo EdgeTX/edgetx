@@ -82,8 +82,13 @@ class TransparentBufferedWindow: public BufferedWindow<T>
 
       if (this->paintUpdateNeeded) {
         this->paintUpdate(dc);
-        this->bitmap->drawBitmap(0, 0, dc, dc->getOffsetX(), dc->getOffsetY());
-        this->paintUpdateNeeded = false;
+        // we can only store the bitmap if fully drawn
+        coord_t xmin, xmax, ymin, ymax;
+        dc->getClippingRect(xmin, xmax, ymin, ymax);
+        if (xmax - xmin >= this->width() && ymax - ymin >= this->height()) {
+          this->bitmap->drawBitmap(0, 0, dc, dc->getOffsetX(), dc->getOffsetY());
+          this->paintUpdateNeeded = false;
+        }
       }
       else {
         dc->drawBitmap(0, 0, this->bitmap);
