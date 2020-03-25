@@ -269,7 +269,12 @@ class Window {
     {
       innerHeight = h;
       if (height() >= h) {
-        scrollPositionY = 0;
+        setScrollPositionY(0);
+      }
+      else {
+        coord_t maxScrollPosition = h - height();
+        if (scrollPositionY > maxScrollPosition)
+          setScrollPositionY(maxScrollPosition);
       }
     }
 
