@@ -26,7 +26,7 @@ class ExpansionPanel;
 
 class ExpansionPanelHeader: virtual public FormGroup {
   public:
-    ExpansionPanelHeader(ExpansionPanel * parent);
+    explicit ExpansionPanelHeader(ExpansionPanel * parent);
 
     void onEvent(event_t event) override;
 
@@ -92,7 +92,7 @@ bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
 
 void ExpansionPanelHeader::onEvent(event_t event)
 {
-  ExpansionPanel * panel = static_cast<ExpansionPanel *>(parent);
+  auto panel = static_cast<ExpansionPanel *>(parent);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     panel->toggle();
