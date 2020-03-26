@@ -96,4 +96,24 @@ class TransparentBufferedWindow: public BufferedWindow<T>
     }
 };
 
+class TransparentBitmapBackground: public TransparentBufferedWindow<Window>
+{
+  public:
+    TransparentBitmapBackground(Window * parent, const rect_t & rect, const BitmapBuffer * bitmap):
+      TransparentBufferedWindow<Window>(parent, rect, OPAQUE),
+      background(bitmap)
+    {
+    }
+
+  protected:
+    const BitmapBuffer * background;
+
+    void paintUpdate(BitmapBuffer * dc) override
+    {
+      if (background) {
+        dc->drawBitmap((width() - background->width()) / 2, (height() - background->height()) / 2, background);
+      }
+    }
+};
+
 #endif // _BUFFERED_WINDOW_H_
