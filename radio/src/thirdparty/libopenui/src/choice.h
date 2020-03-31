@@ -20,6 +20,7 @@
 #ifndef _CHOICE_H_
 #define _CHOICE_H_
 
+#include <vector>
 #include "form.h"
 
 enum ChoiceType {
@@ -46,7 +47,13 @@ class ChoiceBase : public FormField {
 
 class Choice : public ChoiceBase {
   public:
+    Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, const char * values[], int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
     Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
+
+    void addItem(const char * item);
+
+    void addItems(const char * items[], uint8_t count);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
@@ -86,7 +93,7 @@ class Choice : public ChoiceBase {
     }
 
   protected:
-    const char * values = nullptr;
+    std::vector<std::string> values;
     int16_t vmin = 0;
     int16_t vmax = 0;
     std::string menuTitle;
