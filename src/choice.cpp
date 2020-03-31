@@ -21,10 +21,9 @@
 #include "menu.h"
 #include "theme.h"
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax,
+  std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-  values(values),
   vmin(vmin),
   vmax(vmax),
   getValue(std::move(getValue)),
@@ -32,10 +31,56 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int
 {
 }
 
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values[], int16_t vmin, int16_t vmax,
+               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+  vmin(vmin),
+  vmax(vmax),
+  getValue(std::move(getValue)),
+  setValue(std::move(setValue))
+{
+  const char ** value = &values[0];
+  for (int i = vmin; i <= vmax; i++) {
+    this->values.emplace_back(*value++);
+  }
+}
+
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
+               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+  vmin(vmin),
+  vmax(vmax),
+  getValue(std::move(getValue)),
+  setValue(std::move(setValue))
+{
+  if (values) {
+    uint8_t len = values[0];
+    const char * value = &values[1];
+    for (int i = vmin; i <= vmax; i++) {
+      this->values.emplace_back(std::string(value, min<uint8_t>(len, strlen(value))));
+      value += len;
+    }
+  }
+}
+
+void Choice::addItem(const char * item)
+{
+  values.emplace_back(item);
+  vmax += 1;
+}
+
+void Choice::addItems(const char * items[], uint8_t count)
+{
+  values.reserve(values.size() + count);
+  for (uint8_t i = 0; i < count; i++)
+    values.emplace_back(items[i]);
+  vmax += count;
+}
+
 void Choice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
-  theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : TEXT_AT_INDEX(values, getValue() - vmin).c_str());
+  theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : values[getValue() - vmin].c_str());
 }
 
 #if defined(HARDWARE_KEYS)
@@ -67,12 +112,12 @@ void Choice::openMenu()
       continue;
     if (textHandler) {
       menu->addLine(textHandler(i), [=]() {
-          setValue(i);
+        setValue(i);
       });
     }
     else {
-      menu->addLine(TEXT_AT_INDEX(values, i - vmin), [=]() {
-          setValue(i);
+      menu->addLine(values[i - vmin], [=]() {
+        setValue(i);
       });
     }
     if (value == i) {
@@ -86,8 +131,8 @@ void Choice::openMenu()
   }
 
   menu->setCloseHandler([=]() {
-      editMode = false;
-      setFocus();
+    editMode = false;
+    setFocus();
   });
 
   setEditMode(true);
