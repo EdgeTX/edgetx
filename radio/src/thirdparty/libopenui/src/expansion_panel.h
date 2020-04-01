@@ -30,7 +30,9 @@ class ExpansionPanelHeader: virtual public FormGroup {
 
     void onEvent(event_t event) override;
 
+#if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t, coord_t) override;
+#endif
 };
 
 

@@ -24,13 +24,6 @@ ExpansionPanelHeader::ExpansionPanelHeader(ExpansionPanel * parent):
 {
 }
 
-bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
-{
-  static_cast<ExpansionPanel *>(parent)->toggle();
-  setFocus();
-  return true;
-}
-
 void ExpansionPanelHeader::onEvent(event_t event)
 {
   auto panel = static_cast<ExpansionPanel *>(parent);
@@ -45,3 +38,12 @@ void ExpansionPanelHeader::onEvent(event_t event)
     FormGroup::onEvent(event);
   }
 }
+
+#if defined(HARDWARE_TOUCH)
+bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
+{
+  static_cast<ExpansionPanel *>(parent)->toggle();
+  setFocus();
+  return true;
+}
+#endif
