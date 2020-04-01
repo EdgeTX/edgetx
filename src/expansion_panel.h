@@ -78,31 +78,4 @@ class ExpansionPanel: public FormGroup {
     bool isOpen = false;
 };
 
-ExpansionPanelHeader::ExpansionPanelHeader(ExpansionPanel * parent):
-  FormGroup(parent, {0, 0, parent->width(), parent->height()}, FORWARD_SCROLL)
-{
-}
-
-bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
-{
-  static_cast<ExpansionPanel *>(parent)->toggle();
-  setFocus();
-  return true;
-}
-
-void ExpansionPanelHeader::onEvent(event_t event)
-{
-  auto panel = static_cast<ExpansionPanel *>(parent);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    panel->toggle();
-  }
-  else if (event == EVT_ROTARY_RIGHT && !panel->isOpen) {
-    panel->getNextField()->setFocus(SET_FOCUS_FORWARD);
-  }
-  else {
-    FormGroup::onEvent(event);
-  }
-}
-
 #endif // _EXPANSION_PANEL_H_
