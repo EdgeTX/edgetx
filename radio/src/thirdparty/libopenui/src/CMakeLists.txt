@@ -32,6 +32,7 @@ set(LIBOPENUI_SRC
   table.cpp
   modal_window.cpp
   dialog.cpp
+  expansion_panel.cpp
   )
 
 if(SOFTWARE_KEYBOARD)
