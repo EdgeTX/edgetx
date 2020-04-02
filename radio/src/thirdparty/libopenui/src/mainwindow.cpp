@@ -82,10 +82,10 @@ void MainWindow::checkEvents()
 void MainWindow::invalidate(const rect_t & rect)
 {
   if (invalidatedRect.w) {
-    coord_t left = min(invalidatedRect.left(), rect.left());
-    coord_t right = max(invalidatedRect.right(), rect.right());
-    coord_t top = min(invalidatedRect.top(), rect.top());
-    coord_t bottom = max(invalidatedRect.bottom(), rect.bottom());
+    auto left = limit<coord_t>(0, rect.left(), invalidatedRect.left());
+    auto right = limit<coord_t>(invalidatedRect.right(), rect.right(), LCD_W);
+    auto top = limit<coord_t>(0, rect.top(), invalidatedRect.top());
+    auto bottom = limit<coord_t>(rect.bottom(), invalidatedRect.bottom(), LCD_H);
     invalidatedRect = {left, top, right - left, bottom - top};
   }
   else {
