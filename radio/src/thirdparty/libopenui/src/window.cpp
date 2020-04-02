@@ -51,12 +51,12 @@ Window::~Window()
   deleteChildren();
 }
 
-void Window::attach(Window * window)
+void Window::attach(Window * newParent)
 {
   if (parent)
     detach();
-  parent = window;
-  parent->addChild(this);
+  parent = newParent;
+  newParent->addChild(this);
 }
 
 void Window::detach()

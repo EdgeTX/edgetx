@@ -323,6 +323,8 @@ class Window {
 
     virtual void checkEvents();
 
+    void attach(Window * window);
+
     void detach();
 
   protected:
@@ -344,8 +346,6 @@ class Window {
 
     std::function<void()> closeHandler;
     std::function<void()> focusHandler;
-
-    void attach(Window * window);
 
     void addChild(Window * window, bool front = false)
     {
