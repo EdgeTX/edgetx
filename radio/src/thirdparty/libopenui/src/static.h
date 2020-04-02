@@ -67,20 +67,23 @@ class Subtitle: public StaticText {
 
 class StaticBitmap: public Window {
   public:
-    StaticBitmap(Window * parent, const rect_t & rect):
-      Window(parent, rect)
+    StaticBitmap(Window * parent, const rect_t & rect, bool scale = false):
+      Window(parent, rect),
+      scale(scale)
     {
     }
 
-    StaticBitmap(Window * parent, const rect_t & rect, const char * filename):
+    StaticBitmap(Window * parent, const rect_t & rect, const char * filename, bool scale = false):
       Window(parent, rect),
-      bitmap(BitmapBuffer::loadBitmap(filename))
+      bitmap(BitmapBuffer::loadBitmap(filename)),
+      scale(scale)
     {
     }
 
-    StaticBitmap(Window * parent, const rect_t & rect, const BitmapBuffer * bitmap):
+    StaticBitmap(Window * parent, const rect_t & rect, const BitmapBuffer * bitmap, bool scale = false):
       Window(parent, rect),
-      bitmap(bitmap)
+      bitmap(bitmap),
+      scale(scale)
     {
     }
 
@@ -106,12 +109,16 @@ class StaticBitmap: public Window {
     void paint(BitmapBuffer * dc) override
     {
       if (bitmap) {
-        dc->drawBitmap((width() - bitmap->width()) / 2, (height() - bitmap->height()) / 2, bitmap);
+        if (scale)
+          dc->drawScaledBitmap(bitmap, 0, 0, width(), height());
+        else
+          dc->drawBitmap((width() - bitmap->width()) / 2, (height() - bitmap->height()) / 2, bitmap);
       }
     }
 
   protected:
     const BitmapBuffer * bitmap = nullptr;
+    bool scale = false;
 };
 
 class DynamicText: public StaticText
