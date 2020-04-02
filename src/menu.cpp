@@ -77,7 +77,7 @@ void MenuBody::paint(BitmapBuffer * dc)
     auto & line = lines[i];
     LcdFlags flags = MENU_COLOR | MENU_FONT;
     if (selectedIndex == i) {
-      flags = MENU_HIGHLIGHT_COLOR;
+      flags = MENU_HIGHLIGHT_COLOR | MENU_FONT;
       if (MENU_HIGHLIGHT_BGCOLOR != MENU_BGCOLOR)
         dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(), MENUS_LINE_HEIGHT, MENU_HIGHLIGHT_BGCOLOR);
     }
