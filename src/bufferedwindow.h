@@ -33,7 +33,7 @@ class BufferedWindow: public T
       delete bitmap;
     }
 
-    void forcePaint()
+    void invalidate(const rect_t & rect) override
     {
       paintUpdateNeeded = true;
       T::invalidate();
