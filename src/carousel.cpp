@@ -25,16 +25,27 @@ void CarouselWindow::update()
   first = max(0, first);
   coord_t lastPosition = 0;
 
-  detachItems();
-
-  for (uint8_t index = first; lastPosition < width() && index < items.size(); index++) {
-    auto & item = items[index];
-    auto window = (index == selection ? item.front : item.back);
+  int index = 0;
+  for (auto & item: items) {
+    Window * window;
+    if (index == selection) {
+      item.back->detach();
+      window = item.front;
+    }
+    else {
+      item.front->detach();
+      window = item.back;
+    }
     window->attach(this);
     window->setLeft(lastPosition);
     window->setTop((height() - window->height()) / 2);
+    if (index == first)
+      setScrollPositionX(lastPosition);
     lastPosition += window->width() + CAROUSEL_SPACING;
+    index += 1;
   }
+
+  setInnerWidth(lastPosition);
 }
 
 void Carousel::onEvent(event_t event)
@@ -42,7 +53,7 @@ void Carousel::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT) {
-    if (body->selection < body->items.size() - 1)
+    if (body->selection < (int)body->items.size() - 1)
       select(body->selection + 1);
   }
   else if (event == EVT_ROTARY_LEFT) {

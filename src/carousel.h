@@ -49,12 +49,10 @@ class CarouselWindow: public Window {
 
     ~CarouselWindow() override
     {
-      detachItems();
-      // TODO memory leak here
-//      for (auto & item: items) {
-//        item.front->deleteLater();
-//        item.back->deleteLater();
-//      }
+      for (auto & item: items) {
+        item.front->deleteLater();
+        item.back->deleteLater();
+      }
     }
 
     void addItem(CarouselItem item)
@@ -75,19 +73,9 @@ class CarouselWindow: public Window {
       update();
     }
 
-    int selection = 0;
-
   protected:
     std::vector<CarouselItem> items;
-
-    void detachItems()
-    {
-      for (auto & item: items) {
-        item.front->detach();
-        item.back->detach();
-      }
-    }
-
+    int selection = 0;
     void update();
 };
 

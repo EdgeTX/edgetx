@@ -389,7 +389,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
     coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
     template<class T>
-    void drawBitmap(coord_t x, coord_t y, const T * bmp, coord_t srcx = 0, coord_t srcy = 0, coord_t w = 0, coord_t h = 0, float scale = 0)
+    void drawBitmap(coord_t x, coord_t y, const T * bmp, coord_t srcx = 0, coord_t srcy = 0, coord_t srcw = 0, coord_t srch = 0, float scale = 0)
     {
       if (!data || !bmp)
         return;
@@ -399,42 +399,58 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       if (x >= xmax || y >= ymax)
         return;
 
-      coord_t srcw = bmp->width();
-      coord_t srch = bmp->height();
+      coord_t bmpw = bmp->width();
+      coord_t bmph = bmp->height();
 
-      if (w == 0)
-        w = srcw;
-      if (h == 0)
-        h = srch;
-      if (srcx + w > srcw)
-        w = srcw - srcx;
-      if (srcy + h > srch)
-        h = srch - srcy;
-
-      if (x < xmin) {
-        w += x - xmin;
-        srcx -= x - xmin;
-        x = xmin;
-      }
-
-      if (y < ymin) {
-        h += y - ymin;
-        srcy -= y - ymin;
-        y = ymin;
-      }
+      if (srcw == 0)
+        srcw = bmpw;
+      if (srch == 0)
+        srch = bmph;
+      if (srcx + srcw > bmpw)
+        srcw = bmpw - srcx;
+      if (srcy + srch > bmph)
+        srch = bmph - srcy;
 
       if (scale == 0) {
-        if (x + w > xmax) {
-          w = xmax - x;
+        if (x < xmin) {
+          srcw += x - xmin;
+          srcx -= x - xmin;
+          x = xmin;
         }
-
-        if (y + h > ymax) {
-          h = ymax - y;
+        if (y < ymin) {
+          srch += y - ymin;
+          srcy -= y - ymin;
+          y = ymin;
+        }
+        if (x + srcw > xmax) {
+          srcw = xmax - x;
+        }
+        if (y + srch > ymax) {
+          srch = ymax - y;
+        }
+      }
+      else {
+        if (x < xmin) {
+          srcw += (x - xmin) / scale;
+          srcx -= (x - xmin) / scale;
+          x = xmin;
+        }
+        if (y < ymin) {
+          srch += (y - ymin) / scale;
+          srcy -= (y - ymin) / scale;
+          y = ymin;
+        }
+        if (x + srcw * scale > xmax) {
+          srcw = (xmax - x) / scale;
+        }
+        if (y + srch * scale > ymax) {
+          srch = (ymax - y) / scale;
         }
       }
 
-      if (w <= 0 || h <= 0)
+      if (srcw <= 0 || srch <= 0) {
         return;
+      }
 
       // TRACE("x=%d xmin=%d xmax=%d w=%d", x, xmin, xmax, w);
 
@@ -446,15 +462,15 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
           h = height - y;
         }*/
         if (bmp->getFormat() == BMP_ARGB4444) {
-          DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
+          DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph, srcx, srcy, srcw, srch);
         }
         else {
-          DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), srcw, srch, srcx, srcy, w, h);
+          DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph, srcx, srcy, srcw, srch);
         }
       }
       else {
-        int scaledw = w * scale;
-        int scaledh = h * scale;
+        int scaledw = srcw * scale;
+        int scaledh = srch * scale;
 
         if (x + scaledw > _width)
           scaledw = _width - x;
