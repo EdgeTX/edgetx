@@ -36,7 +36,7 @@ class BufferedWindow: public T
     void invalidate(const rect_t & rect) override
     {
       paintUpdateNeeded = true;
-      T::invalidate();
+      T::invalidate(rect);
     }
 
   protected:
