@@ -25,10 +25,7 @@ void CarouselWindow::update()
   first = max(0, first);
   coord_t lastPosition = 0;
 
-  for (auto & item: items) {
-    item.front->detach();
-    item.back->detach();
-  }
+  detachItems();
 
   for (uint8_t index = first; lastPosition < width() && index < items.size(); index++) {
     auto & item = items[index];

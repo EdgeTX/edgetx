@@ -47,6 +47,16 @@ class CarouselWindow: public Window {
     {
     }
 
+    ~CarouselWindow() override
+    {
+      detachItems();
+      // TODO memory leak here
+//      for (auto & item: items) {
+//        item.front->deleteLater();
+//        item.back->deleteLater();
+//      }
+    }
+
     void addItem(CarouselItem item)
     {
       items.emplace_back(item);
@@ -69,6 +79,14 @@ class CarouselWindow: public Window {
 
   protected:
     std::vector<CarouselItem> items;
+
+    void detachItems()
+    {
+      for (auto & item: items) {
+        item.front->detach();
+        item.back->detach();
+      }
+    }
 
     void update();
 };
@@ -104,6 +122,10 @@ class Carousel: public Window {
       nextButton->enable(index < (int)body->items.size() - 1);
     }
 
+    int getSelection()
+    {
+      return body->selection;
+    }
 
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
