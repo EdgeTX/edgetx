@@ -236,6 +236,9 @@ void Window::fullPaint(BitmapBuffer * dc)
   if (paintNeeded) {
     TRACE_WINDOWS_INDENT("%s", getWindowDebugString().c_str());
     paint(dc);
+#if defined(WINDOWS_INSPECT_BORDER_COLOR)
+    if dc->drawSolidRect(0, 0, width(), height(), 1, WINDOWS_INSPECT_BORDER_COLOR);
+#endif
   }
   else {
     TRACE_WINDOWS_INDENT("%s (skipped)", getWindowDebugString().c_str());

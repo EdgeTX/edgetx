@@ -452,15 +452,7 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
         return;
       }
 
-      // TRACE("x=%d xmin=%d xmax=%d w=%d", x, xmin, xmax, w);
-
       if (scale == 0) {
-        /*if (x + w > width) {
-          w = width - x;
-        }
-        if (y + h > height) {
-          h = height - y;
-        }*/
         if (bmp->getFormat() == BMP_ARGB4444) {
           DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph, srcx, srcy, srcw, srch);
         }
