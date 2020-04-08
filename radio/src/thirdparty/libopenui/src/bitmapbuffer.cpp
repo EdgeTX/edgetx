@@ -268,14 +268,18 @@ class Slope {
     explicit Slope(int angle) {
       if (angle < 0)
         angle += 360;
-      if (angle >= 360)
+      if (angle > 360)
         angle %= 360;
       float radians = float(angle) * (M_PI / 180.0f);
       if (angle == 0) {
         left = false;
         value = 100000;
       }
-      else if (angle > 180) {
+      else if (angle == 360) {
+        left = true;
+        value = 100000;
+      }
+      else if (angle >= 180) {
         left = true;
         value = -(cosf(radians) * 100 / sinf(radians));
       }
