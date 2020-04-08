@@ -283,8 +283,6 @@ class Slope {
         left = false;
         value = (cosf(radians) * 100 / sinf(radians));
       }
-
-      // TRACE("angle=%d left=%d slope=%d", angle, left, value);
     }
 
     Slope(bool left, int value):
@@ -395,7 +393,7 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
 
   if (x < xmin) {
     width += x - xmin;
-    offset -= x + xmin;
+    offset -= x - xmin;
     x = xmin;
   }
 

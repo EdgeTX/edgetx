@@ -105,6 +105,13 @@ class TransparentBitmapBackground: public TransparentBufferedWindow<Window>
     {
     }
 
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "TransparentBitmapBackground";
+    }
+#endif
+
   protected:
     const BitmapBuffer * background;
 
