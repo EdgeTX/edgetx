@@ -232,7 +232,7 @@ class RLEBitmap:
     }
 };
 
-class BitmapBuffer: public BitmapBufferBase<uint16_t>
+class BitmapBuffer: public BitmapBufferBase<pixel_t>
 {
   private:
     bool dataAllocated;
@@ -499,6 +499,10 @@ class BitmapBuffer: public BitmapBufferBase<uint16_t>
       int yshift = (h - (bitmap->height() * scale)) / 2;
       drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
     }
+
+    BitmapBuffer * horizontalFlip() const;
+
+    BitmapBuffer * verticalFlip() const;
 
   protected:
     static BitmapBuffer * load_bmp(const char * filename);

@@ -676,6 +676,32 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
   return bitmap;
 }
 
+BitmapBuffer * BitmapBuffer::horizontalFlip() const
+{
+  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
+  pixel_t * srcData = data;
+  pixel_t * destData = result->data;
+  for (uint8_t y = 0; y < height(); y++) {
+    for (uint8_t x = 0; x < width(); x++) {
+      destData[x] = srcData[width() - 1 - x];
+    }
+    srcData += width();
+    destData += width();
+  }
+  return result;
+}
+
+BitmapBuffer * BitmapBuffer::verticalFlip() const
+{
+  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
+  for (uint8_t y = 0; y < height(); y++) {
+    for (uint8_t x = 0; x < width(); x++) {
+      result->data[y * width() + x] = data[(height() - 1 - y) * width() + x];
+    }
+  }
+  return result;
+}
+
 BitmapBuffer * BitmapBuffer::loadMaskOnBackground(const char * filename, LcdFlags foreground, LcdFlags background)
 {
   BitmapBuffer * result = nullptr;
