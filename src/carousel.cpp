@@ -29,12 +29,12 @@ void CarouselWindow::update()
   for (auto & item: items) {
     Window * window;
     if (index == selection) {
-      item.back->detach();
-      window = item.front;
+      item->back->detach();
+      window = item->front;
     }
     else {
-      item.front->detach();
-      window = item.back;
+      item->front->detach();
+      window = item->back;
     }
     window->attach(this);
     window->setLeft(lastPosition);

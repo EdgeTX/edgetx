@@ -43,7 +43,7 @@
 
 #define FONT_MASK                       0x0F00u
 #define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8u)
-#define FONT(xx)                        (FONT_ ## xx ## _INDEX << 8u)
+#define FONT(xx)                        (unsigned(FONT_ ## xx ## _INDEX) << 8u)
 
 #define TIMEHOUR                       0x2000u
 #define EXPANDED                       0x2000u
@@ -92,7 +92,7 @@
 #define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
 #define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
 
-#define COLOR(index)                   LcdFlags((index) << 16u)
+#define COLOR(index)                   LcdFlags(unsigned(index) << 16u)
 #define COLOR_IDX(att)                 uint8_t((att) >> 16u)
 
 #define DEFAULT_COLOR                  COLOR(DEFAULT_COLOR_INDEX)

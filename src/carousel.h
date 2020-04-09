@@ -50,19 +50,24 @@ class CarouselWindow: public Window {
     ~CarouselWindow() override
     {
       for (auto & item: items) {
-        item.front->deleteLater();
-        item.back->deleteLater();
+        item->front->deleteLater();
+        item->back->deleteLater();
       }
     }
 
-    void addItem(CarouselItem item)
+    void addItem(CarouselItem * item)
     {
-      items.emplace_back(item);
+      items.push_back(item);
       update();
     }
 
     void clear()
     {
+      for (auto & item: items) {
+        item->front->deleteLater();
+        item->back->deleteLater();
+        delete item;
+      }
       items.clear();
       Window::clear();
     }
@@ -74,7 +79,7 @@ class CarouselWindow: public Window {
     }
 
   protected:
-    std::vector<CarouselItem> items;
+    std::vector<CarouselItem *> items;
     int selection = 0;
     void update();
 };
@@ -93,9 +98,9 @@ class Carousel: public Window {
     }
 #endif
 
-    void addItem(CarouselItem item)
+    void addItem(CarouselItem * item)
     {
-      body->addItem(std::move(item));
+      body->addItem(item);
     }
 
     void clear()
