@@ -491,13 +491,15 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     template<class T>
     void drawScaledBitmap(const T * bitmap, coord_t x, coord_t y, coord_t w, coord_t h)
     {
-      float vscale = float(h) / bitmap->height();
-      float hscale = float(w) / bitmap->width();
-      float scale = vscale < hscale ? vscale : hscale;
+      if (bitmap) {
+        float vscale = float(h) / bitmap->height();
+        float hscale = float(w) / bitmap->width();
+        float scale = vscale < hscale ? vscale : hscale;
 
-      int xshift = (w - (bitmap->width() * scale)) / 2;
-      int yshift = (h - (bitmap->height() * scale)) / 2;
-      drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
+        int xshift = (w - (bitmap->width() * scale)) / 2;
+        int yshift = (h - (bitmap->height() * scale)) / 2;
+        drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
+      }
     }
 
     BitmapBuffer * horizontalFlip() const;

@@ -33,6 +33,8 @@ class CarouselItem {
     {
     }
 
+    virtual ~CarouselItem() = default;
+
   public:
     Window * front;
     Window * back;
@@ -49,10 +51,7 @@ class CarouselWindow: public Window {
 
     ~CarouselWindow() override
     {
-      for (auto & item: items) {
-        item->front->deleteLater();
-        item->back->deleteLater();
-      }
+      clear();
     }
 
     void addItem(CarouselItem * item)
