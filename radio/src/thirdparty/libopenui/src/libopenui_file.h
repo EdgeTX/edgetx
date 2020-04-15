@@ -21,6 +21,7 @@
 #define _LIBOPEUI_FILE_H_
 
 #include <string>
+#include <string.h>
 #include <inttypes.h>
 #include "ff.h"
 
