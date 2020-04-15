@@ -26,12 +26,6 @@
 extern const char STR_SDCARD[];
 extern const char STR_NO_FILES_ON_SD[];
 
-// comparison, not case sensitive.
-bool compare_nocase(const std::string &first, const std::string &second)
-{
-  return strcasecmp(first.c_str(), second.c_str()) < 0;
-}
-
 FileChoice::FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue):
   ChoiceBase(parent, rect, CHOICE_TYPE_FOLDER),
   folder(std::move(folder)),
