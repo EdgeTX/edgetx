@@ -172,6 +172,7 @@ void TextEdit::onEvent(event_t event)
     }
   }
   else {
+    cursorPos = 0;
     FormField::onEvent(event);
   }
 #endif
