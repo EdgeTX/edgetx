@@ -48,7 +48,7 @@ class ExpansionPanel: public FormGroup {
 
   public:
     ExpansionPanel(Window * parent, const rect_t & rect):
-      FormGroup(parent, rect, FORM_NO_BORDER | FORM_FORWARD_FOCUS)
+      FormGroup(parent, rect, FORM_NO_BORDER | FORM_FORWARD_FOCUS | FORWARD_SCROLL)
     {
     }
 
