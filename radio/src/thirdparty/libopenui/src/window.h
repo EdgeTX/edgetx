@@ -273,8 +273,12 @@ class Window {
       }
       else {
         coord_t maxScrollPosition = h - height();
-        if (scrollPositionY > maxScrollPosition)
+        if (scrollPositionY > maxScrollPosition) {
           setScrollPositionY(maxScrollPosition);
+        }
+        else {
+          invalidate();
+        }
       }
     }
 

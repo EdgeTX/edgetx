@@ -111,6 +111,11 @@ class FormGroup: public FormField {
 
     void addField(FormField * field, bool front = false);
 
+    void setLastField(FormField * field)
+    {
+      last = field;
+    }
+
   protected:
     FormField * first = nullptr;
     FormField * last = nullptr;
