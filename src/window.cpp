@@ -422,6 +422,7 @@ void Window::adjustInnerHeight()
   for (auto child: children) {
     innerHeight = max(innerHeight, child->rect.y + child->rect.h);
   }
+  invalidate();
 }
 
 coord_t Window::adjustHeight()

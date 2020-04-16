@@ -99,6 +99,11 @@ class Window {
       return parent;
     }
 
+    bool isChild(Window * window) const
+    {
+      return window == this || (getParent() && getParent()->isChild(window));
+    }
+
     Window * getFullScreenWindow()
     {
       return (width() == LCD_W && height() == LCD_H) ? this : parent->getFullScreenWindow();
@@ -174,7 +179,9 @@ class Window {
     void setHeight(coord_t value)
     {
       rect.h = value;
-      if (innerHeight <= value) {
+      if (windowFlags & FORWARD_SCROLL)
+        innerHeight = value;
+      else if (innerHeight <= value) {
         setScrollPositionY(0);
       }
       invalidate();
@@ -268,7 +275,11 @@ class Window {
     void setInnerHeight(coord_t h)
     {
       innerHeight = h;
-      if (height() >= h) {
+      if (windowFlags & FORWARD_SCROLL) {
+        rect.h = innerHeight;
+        parent->adjustInnerHeight();
+      }
+      else if (height() >= h) {
         setScrollPositionY(0);
       }
       else {
