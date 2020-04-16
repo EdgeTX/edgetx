@@ -67,7 +67,13 @@ class ExpansionPanel: public FormGroup {
     void open(bool state = true)
     {
       isOpen = state;
-      coord_t newHeight = (state ? header->height() + body->height() : header->height());
+      updateHeight();
+    }
+
+    void updateHeight()
+    {
+      body->adjustInnerHeight();
+      coord_t newHeight = (isOpen ? header->height() + body->height() : header->height());
       parent->moveWindowsTop(bottom(), newHeight - height());
       setHeight(newHeight);
     }

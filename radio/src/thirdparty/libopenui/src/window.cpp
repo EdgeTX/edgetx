@@ -418,11 +418,11 @@ bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
 
 void Window::adjustInnerHeight()
 {
-  innerHeight = 0;
+  coord_t bottomMax = 0;
   for (auto child: children) {
-    innerHeight = max(innerHeight, child->rect.y + child->rect.h);
+    bottomMax = max(bottomMax, child->rect.y + child->rect.h);
   }
-  invalidate();
+  setInnerHeight(bottomMax);
 }
 
 coord_t Window::adjustHeight()
