@@ -276,10 +276,8 @@ class Window {
         if (scrollPositionY > maxScrollPosition) {
           setScrollPositionY(maxScrollPosition);
         }
-        else {
-          invalidate();
-        }
       }
+      invalidate();
     }
 
     coord_t getScrollPositionX() const
