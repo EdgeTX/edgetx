@@ -28,6 +28,13 @@ class ExpansionPanelHeader: virtual public FormGroup {
   public:
     explicit ExpansionPanelHeader(ExpansionPanel * parent);
 
+#if defined(DEBUG_WINDOWS)
+    std::string getName() override
+    {
+      return "ExpansionPanelHeader";
+    }
+#endif
+
     void onEvent(event_t event) override;
 
 #if defined(HARDWARE_TOUCH)
@@ -48,7 +55,7 @@ class ExpansionPanel: public FormGroup {
 #if defined(DEBUG_WINDOWS)
     std::string getName() override
     {
-      return "ExpansionPanel()";
+      return "ExpansionPanel";
     }
 #endif
 
