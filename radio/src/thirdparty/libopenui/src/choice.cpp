@@ -39,9 +39,11 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values[], i
   getValue(std::move(getValue)),
   setValue(std::move(setValue))
 {
-  const char ** value = &values[0];
-  for (int i = vmin; i <= vmax; i++) {
-    this->values.emplace_back(*value++);
+  if (values) {
+    const char ** value = &values[0];
+    for (int i = vmin; i <= vmax; i++) {
+      this->values.emplace_back(*value++);
+    }
   }
 }
 
