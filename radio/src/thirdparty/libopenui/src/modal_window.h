@@ -88,6 +88,11 @@ class ModalWindowContent: public Window {
       title = std::move(text);
     }
 
+    const std::string & getTitle()
+    {
+      return title;
+    }
+
     void paint(BitmapBuffer * dc) override;
 
   protected:
