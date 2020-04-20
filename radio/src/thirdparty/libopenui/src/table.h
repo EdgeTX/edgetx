@@ -46,7 +46,7 @@ class Table: public Window {
         }
 
 #if defined(DEBUG_WINDOWS)
-        std::string getName() override
+        std::string getName() const override
         {
           return "Table::Header";
         }
@@ -75,7 +75,7 @@ class Table: public Window {
         }
 
 #if defined(DEBUG_WINDOWS)
-        std::string getName() override
+        std::string getName() const override
         {
           return "Table::Body";
         }
@@ -134,7 +134,7 @@ class Table: public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Table";
     }

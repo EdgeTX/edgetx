@@ -32,7 +32,7 @@ class StaticText: public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "StaticText \"" + text + "\"";
     }
@@ -58,7 +58,7 @@ class Subtitle: public StaticText {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Subtitle \"" + text + "\"";
     }
@@ -100,7 +100,7 @@ class StaticBitmap: public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "StaticBitmap";
     }

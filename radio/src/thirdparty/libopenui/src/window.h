@@ -39,6 +39,8 @@ typedef uint32_t WindowFlags;
   #undef TRANSPARENT
 #endif
 
+constexpr int INFINITE_HEIGHT = INT32_MAX;
+
 constexpr WindowFlags OPAQUE =                1u << 0u;
 constexpr WindowFlags TRANSPARENT =           1u << 1u;
 constexpr WindowFlags NO_SCROLLBAR =          1u << 2u;
@@ -65,19 +67,19 @@ class Window {
     virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
-    virtual std::string getName()
+    virtual std::string getName() const
     {
       return "Window";
     }
 
-    std::string getRectString()
+    std::string getRectString() const
     {
       char result[32];
       sprintf(result, "[%d, %d, %d, %d]", left(), top(), width(), height());
       return result;
     }
 
-    std::string getIndentString()
+    std::string getIndentString() const
     {
       std::string result;
       auto tmp = parent;
@@ -88,7 +90,7 @@ class Window {
       return result;
     }
 
-    std::string getWindowDebugString(const char * name = nullptr)
+    std::string getWindowDebugString(const char * name = nullptr) const
     {
       return getName() + (name ? std::string(" [") + name + "] " : " ") + getRectString();
     }
@@ -252,7 +254,7 @@ class Window {
       pageHeight = h;
     }
 
-    uint8_t getPageCount()
+    uint8_t getPageCount() const
     {
       if (pageWidth)
         return innerWidth / pageWidth;
@@ -262,7 +264,7 @@ class Window {
         return 1;
     }
 
-    uint8_t getPageIndex()
+    uint8_t getPageIndex() const
     {
       if (pageWidth)
         return (getScrollPositionX() + (pageWidth / 2)) / pageWidth;
@@ -305,11 +307,11 @@ class Window {
 
     void setScrollPositionY(coord_t value);
 
-    bool isChildVisible(Window * window);
+    bool isChildVisible(const Window * window) const;
 
-    bool isChildFullSize(Window * window);
+    bool isChildFullSize(const Window * window) const;
 
-    bool isVisible()
+    bool isVisible() const
     {
       return parent && parent->isChildVisible(this);
     }
@@ -400,7 +402,7 @@ class Window {
 
     bool forwardTouchEnd(coord_t x, coord_t y);
 
-    bool hasOpaqueRect(const rect_t & rect);
+    bool hasOpaqueRect(const rect_t & rect) const;
 };
 
 #endif // _WINDOW_H_

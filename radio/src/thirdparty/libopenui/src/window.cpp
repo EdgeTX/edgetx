@@ -138,7 +138,7 @@ void Window::setFocus(uint8_t flag)
 
 void Window::setScrollPositionX(coord_t value)
 {
-  coord_t newScrollPosition = max<coord_t>(0, min<coord_t>(innerWidth - width(), value));
+  auto newScrollPosition = max<coord_t>(0, min<coord_t>(innerWidth - width(), value));
   if (newScrollPosition != scrollPositionX) {
     scrollPositionX = newScrollPosition;
     invalidate();
@@ -147,7 +147,12 @@ void Window::setScrollPositionX(coord_t value)
 
 void Window::setScrollPositionY(coord_t value)
 {
-  coord_t newScrollPosition = max<coord_t>(0, min<coord_t>(innerHeight - height(), value));
+  auto newScrollPosition = min<coord_t>(innerHeight - height(), value);
+
+  if (newScrollPosition < 0 && innerHeight != INFINITE_HEIGHT) {
+    newScrollPosition = 0;
+  }
+
   if (newScrollPosition != scrollPositionY) {
     scrollPositionY = newScrollPosition;
     invalidate();
@@ -192,7 +197,7 @@ void Window::scrollTo(const rect_t & rect)
   }
 }
 
-bool Window::hasOpaqueRect(const rect_t & rect)
+bool Window::hasOpaqueRect(const rect_t & rect) const
 {
   if (!this->rect.contains(rect))
     return false;
@@ -253,12 +258,12 @@ void Window::fullPaint(BitmapBuffer * dc)
   }
 }
 
-bool Window::isChildFullSize(Window * child)
+bool Window::isChildFullSize(const Window * child) const
 {
   return child->top() == 0 && child->height() == height() && child->left() == 0 && child->width() == width();
 }
 
-bool Window::isChildVisible(Window * window)
+bool Window::isChildVisible(const Window * window) const
 {
   for (auto rit = children.rbegin(); rit != children.rend(); rit++) {
     auto child = *rit;
@@ -333,7 +338,10 @@ void Window::checkEvents()
     if (pageHeight) {
       coord_t relativeScrollPosition = scrollPositionY % pageHeight;
       if (relativeScrollPosition) {
-        setScrollPositionY(getScrollPositionY() - relativeScrollPosition + (relativeScrollPosition > pageHeight / 2 ? pageHeight : 0));
+        if (relativeScrollPosition > 0)
+          setScrollPositionY(getScrollPositionY() - relativeScrollPosition + (relativeScrollPosition > pageHeight / 2 ? pageHeight : 0));
+        else
+          setScrollPositionY(getScrollPositionY() - relativeScrollPosition - (relativeScrollPosition > -pageHeight / 2 ? 0 : pageHeight));
       }
     }
   }

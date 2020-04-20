@@ -29,7 +29,7 @@ class ExpansionPanelHeader: virtual public FormGroup {
     explicit ExpansionPanelHeader(ExpansionPanel * parent);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "ExpansionPanelHeader";
     }
@@ -53,7 +53,7 @@ class ExpansionPanel: public FormGroup {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "ExpansionPanel";
     }

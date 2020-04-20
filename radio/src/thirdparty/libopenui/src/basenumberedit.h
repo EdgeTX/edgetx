@@ -85,7 +85,7 @@ class BaseNumberEdit : public FormField {
       _setValue = handler;
     }
 
-    int32_t getValue()
+    int32_t getValue() const
     {
       return _getValue();
     }

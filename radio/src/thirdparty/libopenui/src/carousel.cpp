@@ -48,6 +48,7 @@ void CarouselWindow::update()
   setInnerWidth(lastPosition);
 }
 
+#if defined(HARDWARE_KEYS)
 void Carousel::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
@@ -64,3 +65,4 @@ void Carousel::onEvent(event_t event)
     Window::onEvent(event);
   }
 }
+#endif

@@ -29,7 +29,7 @@ class NumberKeyboard : public Keyboard {
     ~NumberKeyboard() override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "NumberKeyboard";
     }
