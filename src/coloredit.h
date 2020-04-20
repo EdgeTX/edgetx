@@ -27,7 +27,7 @@ class ColorEdit : public FormGroup {
     ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "ColorEdit";
     }

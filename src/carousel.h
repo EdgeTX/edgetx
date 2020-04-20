@@ -91,7 +91,7 @@ class Carousel: public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Carousel";
     }
@@ -114,7 +114,7 @@ class Carousel: public Window {
       nextButton->enable(index < (int)body->items.size() - 1);
     }
 
-    int getSelection()
+    int getSelection() const
     {
       return body->selection;
     }

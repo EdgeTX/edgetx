@@ -35,7 +35,7 @@ class TextEdit : public FormField {
 
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "TextEdit";
     }
@@ -46,12 +46,12 @@ class TextEdit : public FormField {
       changeHandler = handler;
     }
 
-    uint8_t getMaxLength()
+    uint8_t getMaxLength() const
     {
       return length;
     }
 
-    char * getData()
+    char * getData() const
     {
       return value;
     }

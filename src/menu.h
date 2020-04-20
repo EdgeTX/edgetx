@@ -66,7 +66,7 @@ class MenuBody: public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "MenuBody";
     }
@@ -74,12 +74,12 @@ class MenuBody: public Window {
 
     void select(int index);
 
-    int selection()
+    int selection() const
     {
       return selectedIndex;
     }
 
-    int count()
+    int count() const
     {
       return lines.size();
     }
@@ -112,7 +112,7 @@ class MenuBody: public Window {
 
     void setCancelHandler(std::function<void()> handler)
     {
-      onCancel = handler;
+      onCancel = std::move(handler);
     }
 
     void paint(BitmapBuffer * dc) override;
@@ -139,7 +139,7 @@ class MenuWindowContent: public ModalWindowContent {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "MenuWindowContent";
     }

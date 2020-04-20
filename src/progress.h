@@ -30,7 +30,7 @@ class Progress : public Window {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Progress";
     }
@@ -45,7 +45,7 @@ class Progress : public Window {
     void paint(BitmapBuffer * dc) override;
 
   protected:
-    int value;
+    int value = 0;
 };
 
 #endif

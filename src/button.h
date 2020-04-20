@@ -31,12 +31,12 @@ class Button: public FormField {
   public:
     Button(FormGroup * parent, const rect_t & rect, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = 0):
       FormField(parent, rect, windowFlags),
-      pressHandler(pressHandler)
+      pressHandler(std::move(pressHandler))
     {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Button";
     }
@@ -112,7 +112,7 @@ class TextButton: public Button {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "TextButton \"" + text + "\"";
     }
@@ -141,7 +141,7 @@ class IconButton: public Button {
     }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "IconButton(" + std::to_string(icon) + ")";
     }

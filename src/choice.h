@@ -57,7 +57,7 @@ class Choice : public ChoiceBase {
     void addItems(const char * items[], uint8_t count);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() override
+    std::string getName() const override
     {
       return "Choice";
     }
