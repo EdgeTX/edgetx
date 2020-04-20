@@ -74,6 +74,16 @@ class MenuBody: public Window {
 
     void select(int index);
 
+    int selection()
+    {
+      return selectedIndex;
+    }
+
+    int count()
+    {
+      return lines.size();
+    }
+
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
