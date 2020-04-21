@@ -93,6 +93,18 @@ class Choice : public ChoiceBase {
       menuTitle = std::move(value);
     }
 
+    void setMin(int16_t value)
+    {
+      vmin = value;
+      invalidate();
+    }
+
+    void setMax(int16_t value)
+    {
+      vmax = value;
+      invalidate();
+    }
+
   protected:
     std::vector<std::string> values;
     int16_t vmin = 0;
