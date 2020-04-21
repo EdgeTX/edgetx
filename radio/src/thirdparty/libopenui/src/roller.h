@@ -46,6 +46,14 @@ class Roller: public Choice {
       lastScrollPositionY = scrollPositionY;
     }
 
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "Roller";
+    }
+#endif
+
     void paint(BitmapBuffer * dc) override
     {
       int32_t value = getValue();
@@ -85,20 +93,26 @@ class Roller: public Choice {
     {
       Window::checkEvents();
 
+      if (lastEditMode != editMode) {
+        setScrollPositionY(ROLLER_LINE_HEIGHT * (this->getValue() - vmin - 1));
+        lastScrollPositionY = scrollPositionY;
+        lastEditMode = editMode;
+      }
+
 #if defined(HARDWARE_TOUCH)
       if (touchState.event != TE_SLIDE) {
         if (scrollPositionY != lastScrollPositionY) {
-          updateScrollPosition();
+          updateValueFromScrollPosition();
         }
       }
 #endif
     }
 
-
   protected:
     coord_t lastScrollPositionY = 0;
+    bool lastEditMode = false;
 
-    void updateScrollPosition()
+    void updateValueFromScrollPosition()
     {
       lastScrollPositionY = scrollPositionY;
 
