@@ -33,7 +33,7 @@ constexpr uint8_t DOTTED  = 0x55;
 constexpr uint8_t STASHED = 0x33;
 
 #define MOVE_OFFSET() coord_t offsetX = this->offsetX; x += offsetX; this->offsetX = 0; coord_t offsetY = this->offsetY; y += offsetY; this->offsetY = 0
-#define APPLY_OFFSET() x += offsetX; y += offsetY
+#define APPLY_OFFSET() x += this->offsetX; y += this->offsetY
 #define RESTORE_OFFSET()  this->offsetX = offsetX, this->offsetY = offsetY
 
 #if defined(LCD_VERTICAL_INVERT)
@@ -369,7 +369,9 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     static BitmapBuffer * loadMaskOnBackground(const char * filename, LcdFlags foreground, LcdFlags background);
 
-    void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offset=0, coord_t width=0);
+    void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offsetX = 0, coord_t width = 0);
+
+    void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, const BitmapBuffer * srcBitmap, coord_t offsetX = 0, coord_t offsetY = 0, coord_t width = 0, coord_t height = 0);
 
     void drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, LcdFlags flags, coord_t offset=0, coord_t width=0);
 
@@ -505,6 +507,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     BitmapBuffer * horizontalFlip() const;
 
     BitmapBuffer * verticalFlip() const;
+
+    BitmapBuffer * invertMask() const;
 
   protected:
     static BitmapBuffer * load_bmp(const char * filename);

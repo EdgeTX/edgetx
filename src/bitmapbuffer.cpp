@@ -377,7 +377,7 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
   }
 }
 
-void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offset, coord_t width)
+void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offsetX, coord_t width)
 {
   if (!mask)
     return;
@@ -397,7 +397,7 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
 
   if (x < xmin) {
     width += x - xmin;
-    offset -= x - xmin;
+    offsetX -= x - xmin;
     x = xmin;
   }
 
@@ -410,9 +410,53 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
     if (y + row < ymin || y + row >= ymax)
       continue;
     pixel_t * p = getPixelPtr(x, y + row);
-    const pixel_t * q = mask->getPixelPtr(offset, row);
+    const pixel_t * q = mask->getPixelPtr(offsetX, row);
     for (coord_t col = 0; col < width; col++) {
       drawAlphaPixel(p, *((uint8_t *)q), color);
+      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+      MOVE_TO_NEXT_RIGHT_PIXEL(q);
+    }
+  }
+}
+
+void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, const BitmapBuffer * srcBitmap, coord_t offsetX, coord_t offsetY, coord_t width, coord_t height)
+{
+  if (!mask || !srcBitmap)
+    return;
+
+  APPLY_OFFSET();
+
+  coord_t maskWidth = mask->width();
+  coord_t maskHeight = mask->height();
+
+  if (!width || width > maskWidth) {
+    width = maskWidth;
+  }
+
+  if (!height || height > maskHeight) {
+    height = maskHeight;
+  }
+
+  if (x + width > xmax) {
+    width = xmax - x;
+  }
+
+  if (x < xmin) {
+    width += x - xmin;
+    offsetX -= x - xmin;
+    x = xmin;
+  }
+
+  if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
+    return;
+
+  for (coord_t row = 0; row < height; row++) {
+    if (y + row < ymin || y + row >= ymax)
+      continue;
+    pixel_t * p = getPixelPtr(x, y + row);
+    const pixel_t * q = mask->getPixelPtr(offsetX, offsetY + row);
+    for (coord_t col = 0; col < width; col++) {
+      drawAlphaPixel(p, *((uint8_t *)q), *srcBitmap->getPixelPtr(row, col));
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
       MOVE_TO_NEXT_RIGHT_PIXEL(q);
     }
@@ -674,6 +718,21 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
     }
   }
   return bitmap;
+}
+
+BitmapBuffer * BitmapBuffer::invertMask() const
+{
+  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
+  pixel_t * srcData = data;
+  pixel_t * destData = result->data;
+  for (auto y = 0; y < height(); y++) {
+    for (auto x = 0; x < width(); x++) {
+      destData[x] = OPACITY_MAX - (uint8_t)srcData[x];
+    }
+    srcData += width();
+    destData += width();
+  }
+  return result;
 }
 
 BitmapBuffer * BitmapBuffer::horizontalFlip() const
