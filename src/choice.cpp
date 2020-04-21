@@ -128,8 +128,13 @@ void Choice::openMenu()
         setValue(i);
       });
     }
-    else {
+    else if (unsigned(i - vmin) < values.size()) {
       menu->addLine(values[i - vmin], [=]() {
+        setValue(i);
+      });
+    }
+    else {
+      menu->addLine(std::to_string(i), [=]() {
         setValue(i);
       });
     }
