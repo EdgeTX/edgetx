@@ -37,7 +37,7 @@ class ModalWindow: public Window
     void deleteLater()
     {
       if (previousFocus) {
-        previousFocus->setFocus();
+        previousFocus->setFocus(SET_FOCUS_DEFAULT);
       }
       Window::deleteLater();
     }

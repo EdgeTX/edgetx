@@ -75,7 +75,7 @@ bool FileChoice::openMenu()
       files.emplace_back(fno.fname, fnLen);
     }
 
-    if (files.size() > 0) {
+    if (!files.empty()) {
       // sort files
       files.sort(compare_nocase);
 
@@ -102,8 +102,8 @@ bool FileChoice::openMenu()
       }
 
       menu->setCloseHandler([=]() {
-          editMode = false;
-          setFocus();
+        editMode = false;
+        setFocus(SET_FOCUS_DEFAULT);
       });
 
       return true;
@@ -136,7 +136,7 @@ void FileChoice::onEvent(event_t event)
 bool FileChoice::onTouchEnd(coord_t, coord_t)
 {
   openMenu();
-  setFocus();
+  setFocus(SET_FOCUS_DEFAULT);
   setEditMode(true);
   return true;
 }

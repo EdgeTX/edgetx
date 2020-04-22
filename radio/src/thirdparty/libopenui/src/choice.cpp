@@ -150,7 +150,7 @@ void Choice::openMenu()
 
   menu->setCloseHandler([=]() {
     editMode = false;
-    setFocus();
+    setFocus(SET_FOCUS_DEFAULT);
   });
 
   setEditMode(true);

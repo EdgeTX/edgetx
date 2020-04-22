@@ -158,11 +158,11 @@ class Window {
 
     static void clearFocus();
 
-    virtual void setFocus(uint8_t flag = SET_FOCUS_DEFAULT);
+    virtual void setFocus(uint8_t flag);
 
-    void setRect(rect_t rect)
+    void setRect(rect_t value)
     {
-      this->rect = rect;
+      rect = value;
       invalidate();
     }
 

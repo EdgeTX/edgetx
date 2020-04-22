@@ -46,7 +46,7 @@ bool CheckBox::onTouchEnd(coord_t x, coord_t y)
 {
   onKeyPress();
   _setValue(!getValue());
-  setFocus();
+  setFocus(SET_FOCUS_DEFAULT);
   invalidate();
   return true;
 }

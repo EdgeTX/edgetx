@@ -62,6 +62,24 @@ class FormField: public Window {
       editMode = newEditMode;
     }
 
+    void enable(bool enabled)
+    {
+      this->enabled = enabled;
+      invalidate();
+    }
+
+    bool isEnabled() const
+    {
+      return enabled;
+    }
+
+    void disable()
+    {
+      enable(false);
+    }
+
+    void setFocus(uint8_t flag) override;
+
     void onFocusLost() override
     {
       editMode = false;
@@ -84,6 +102,7 @@ class FormField: public Window {
     FormField * next = nullptr;
     FormField * previous = nullptr;
     bool editMode = false;
+    bool enabled = true;
 };
 
 class FormGroup: public FormField {
@@ -107,7 +126,7 @@ class FormGroup: public FormField {
       last = nullptr;
     }
 
-    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT) override;
+    void setFocus(uint8_t flag) override;
 
     void addField(FormField * field, bool front = false);
 

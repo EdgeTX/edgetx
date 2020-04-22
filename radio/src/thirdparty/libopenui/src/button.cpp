@@ -48,9 +48,9 @@ void Button::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool Button::onTouchEnd(coord_t x, coord_t y)
 {
-  if (enabled()) {
+  if (enabled) {
     if (!(windowFlags & NO_FOCUS)) {
-      setFocus();
+      setFocus(SET_FOCUS_DEFAULT);
     }
     onPress();
   }
@@ -69,7 +69,7 @@ void TextButton::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
 
-  LcdFlags textColor = DEFAULT_COLOR;
+  auto textColor = DEFAULT_COLOR;
 
   if (checked()) {
     if (hasFocus()) {

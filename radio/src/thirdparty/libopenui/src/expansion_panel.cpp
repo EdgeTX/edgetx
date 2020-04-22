@@ -43,7 +43,7 @@ void ExpansionPanelHeader::onEvent(event_t event)
 bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
 {
   static_cast<ExpansionPanel *>(parent)->toggle();
-  setFocus();
+  setFocus(SET_FOCUS_DEFAULT);
   return true;
 }
 #endif

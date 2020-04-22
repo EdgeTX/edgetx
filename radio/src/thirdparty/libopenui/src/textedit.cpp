@@ -182,7 +182,7 @@ void TextEdit::onEvent(event_t event)
 bool TextEdit::onTouchEnd(coord_t x, coord_t y)
 {
   if (!hasFocus()) {
-    setFocus();
+    setFocus(SET_FOCUS_DEFAULT);
   }
 
 #if defined(SOFTWARE_KEYBOARD)
