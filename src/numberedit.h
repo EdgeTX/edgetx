@@ -37,11 +37,6 @@ class NumberEdit : public BaseNumberEdit {
 
     void paint(BitmapBuffer * dc) override;
 
-    void enable(bool enabled)
-    {
-      this->enabled = enabled;
-    }
-
     void setAvailableHandler(std::function<bool(int)> handler)
     {
       isValueAvailable = std::move(handler);
@@ -80,7 +75,6 @@ class NumberEdit : public BaseNumberEdit {
     std::string prefix;
     std::string suffix;
     std::string zeroText;
-    bool enabled = true;
     std::function<bool(int)> isValueAvailable;
 };
 

@@ -36,10 +36,10 @@ void MenuBody::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT) {
-    select((selectedIndex + 1) % lines.size());
+    select(int((selectedIndex + 1) % lines.size()));
   }
   else if (event == EVT_ROTARY_LEFT) {
-    select(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1);
+    select(int(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1));
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (selectedIndex < 0) {
@@ -99,7 +99,7 @@ MenuWindowContent::MenuWindowContent(Menu * parent):
   ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
   body(this, {0, 0, width(), height()})
 {
-  body.setFocus();
+  body.setFocus(SET_FOCUS_DEFAULT);
 }
 
 void MenuWindowContent::paint(BitmapBuffer * dc)
@@ -148,7 +148,7 @@ void Menu::addLine(const std::string & text, std::function<void()> onPress)
 
 void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
 {
-  content->body.addCustomLine(drawLine, std::move(onPress));
+  content->body.addCustomLine(std::move(drawLine), std::move(onPress));
   updatePosition();
 }
 

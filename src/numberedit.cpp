@@ -127,7 +127,7 @@ bool NumberEdit::onTouchEnd(coord_t, coord_t)
   }
 
   if (!hasFocus()) {
-    setFocus();
+    setFocus(SET_FOCUS_DEFAULT);
   }
 
   NumberKeyboard::show(this);

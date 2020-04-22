@@ -47,7 +47,7 @@ class MenuToolbarButton: public Button {
         clearFocus();
       }
       else {
-        setFocus();
+        setFocus(SET_FOCUS_DEFAULT);
       }
       onPress();
       return true;

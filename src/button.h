@@ -22,10 +22,9 @@
 
 #include "form.h"
 
-constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1;
-constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2;
-constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3;
-constexpr WindowFlags BUTTON_DISABLED = FORM_FLAGS_LAST << 4;
+constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1u;
+constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2u;
+constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
 
 class Button: public FormField {
   public:
@@ -42,19 +41,6 @@ class Button: public FormField {
     }
 #endif
 
-    void enable(bool enabled = true)
-    {
-      if (!enabled != bool(windowFlags & BUTTON_DISABLED)) {
-        windowFlags ^= BUTTON_DISABLED;
-        invalidate();
-      }
-    }
-
-    void disable()
-    {
-      enable(false);
-    }
-
     void check(bool checked = true)
     {
       if (checked != bool(windowFlags & BUTTON_CHECKED)) {
@@ -63,12 +49,7 @@ class Button: public FormField {
       }
     }
 
-    bool enabled()
-    {
-      return !(windowFlags & BUTTON_DISABLED);
-    }
-
-    bool checked()
+    bool checked() const
     {
       if (windowFlags & BUTTON_CHECKED_ON_FOCUS)
         return hasFocus();
@@ -106,7 +87,7 @@ class Button: public FormField {
 class TextButton: public Button {
   public:
     TextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND):
-      Button(parent, rect, pressHandler, windowFlags | OPAQUE),
+      Button(parent, rect, std::move(pressHandler), windowFlags | OPAQUE),
       text(std::move(text))
     {
     }
@@ -135,7 +116,7 @@ class TextButton: public Button {
 class IconButton: public Button {
   public:
     IconButton(FormGroup * parent, const rect_t & rect, uint8_t icon, std::function<uint8_t(void)> pressHandler, WindowFlags flags = 0):
-      Button(parent, rect, pressHandler, flags),
+      Button(parent, rect, std::move(pressHandler), flags),
       icon(icon)
     {
     }

@@ -25,7 +25,7 @@ FormField::FormField(Window * parent, const rect_t & rect, WindowFlags windowFla
   Window(parent, rect, windowFlags, textFlags)
 {
   if (!(windowFlags & NO_FOCUS)) {
-    FormGroup * form = dynamic_cast<FormGroup *>(parent);
+    auto * form = dynamic_cast<FormGroup *>(parent);
     if (form) {
       form->addField(this, windowFlags & PUSH_FRONT);
     }
@@ -60,6 +60,23 @@ void FormField::onEvent(event_t event)
   }
 }
 #endif
+
+void FormField::setFocus(uint8_t flag)
+{
+  if (!enabled) {
+    if (flag == SET_FOCUS_BACKWARD) {
+      if (previous)
+        previous->setFocus(flag);
+    }
+    else {
+      if (next)
+        next->setFocus(flag);
+    }
+  }
+  else {
+    Window::setFocus(flag);
+  }
+}
 
 void FormField::paint(BitmapBuffer * dc)
 {
@@ -101,7 +118,7 @@ void FormGroup::addField(FormField * field, bool front)
     link(last, first);
   }
   if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
-    field->setFocus();
+    field->setFocus(SET_FOCUS_DEFAULT);
   }
 }
 
@@ -131,21 +148,23 @@ void FormGroup::setFocus(uint8_t flag)
 
       case SET_FOCUS_FORWARD:
         if (focusWindow->isChild(last)) {
-          if (next == this)
+          if (next == this) {
             first->setFocus(SET_FOCUS_FORWARD);
+          }
           else if (next)
             next->setFocus(SET_FOCUS_FORWARD);
         }
         else {
-          if (first)
+          if (first) {
             first->setFocus(SET_FOCUS_FORWARD);
+          }
         }
         break;
 
       default:
         if (focusWindow == previous) {
           if (first)
-            first->setFocus();
+            first->setFocus(SET_FOCUS_DEFAULT);
         }
         else {
           if (next)
@@ -155,7 +174,7 @@ void FormGroup::setFocus(uint8_t flag)
     }
   }
   else {
-    FormField::setFocus();
+    FormField::setFocus(SET_FOCUS_DEFAULT);
   }
 }
 
@@ -209,6 +228,6 @@ void FormWindow::onEvent(event_t event)
       return;
   }
 
-  Window::onEvent(event);
+  FormGroup::onEvent(event);
 }
 #endif

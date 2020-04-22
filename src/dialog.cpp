@@ -25,7 +25,7 @@ DialogWindowContent::DialogWindowContent(Dialog * parent, const rect_t & rect):
   ModalWindowContent(parent, rect),
   form(this, {0, POPUP_HEADER_HEIGHT, rect.w, coord_t(rect.h - POPUP_HEADER_HEIGHT)}, FORM_NO_BORDER)
 {
-  form.setFocus();
+  form.setFocus(SET_FOCUS_DEFAULT);
 }
 
 
@@ -34,5 +34,5 @@ Dialog::Dialog(Window * parent, std::string title, const rect_t & rect):
   content(createDialogWindow(this, rect))
 {
   bringToTop();
-  content->setTitle(title);
+  content->setTitle(std::move(title));
 }
