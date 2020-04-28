@@ -131,7 +131,7 @@ class Window {
       closeHandler = std::move(handler);
     }
 
-    void setFocusHandler(std::function<void()> handler)
+    void setFocusHandler(std::function<void(bool)> handler)
     {
       focusHandler = std::move(handler);
     }
@@ -360,7 +360,7 @@ class Window {
     static std::list<Window *> trash;
 
     std::function<void()> closeHandler;
-    std::function<void()> focusHandler;
+    std::function<void(bool)> focusHandler;
 
     void addChild(Window * window, bool front = false)
     {
@@ -389,6 +389,9 @@ class Window {
     virtual void onFocusLost()
     {
       TRACE_WINDOWS("%s onFocusLost()", getWindowDebugString().c_str());
+      if (focusHandler) {
+        focusHandler(false);
+      }
       invalidate();
     }
 

@@ -121,7 +121,7 @@ void Window::setFocus(uint8_t flag)
     clearFocus();
     focusWindow = this;
     if (focusHandler) {
-      focusHandler();
+      focusHandler(true);
     }
   }
 
