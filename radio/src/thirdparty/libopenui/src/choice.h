@@ -49,7 +49,7 @@ class Choice : public ChoiceBase {
   public:
     Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
     Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, const char * values[], int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
     Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
 
     void addItem(const char * item);

@@ -31,7 +31,7 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vm
 {
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values[], int16_t vmin, int16_t vmax,
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int16_t vmin, int16_t vmax,
                std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   vmin(vmin),
@@ -40,7 +40,7 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values[], i
   setValue(std::move(setValue))
 {
   if (values) {
-    const char ** value = &values[0];
+    auto value = &values[0];
     for (int i = vmin; i <= vmax; i++) {
       this->values.emplace_back(*value++);
     }
