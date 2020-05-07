@@ -39,12 +39,7 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const value
   getValue(std::move(getValue)),
   setValue(std::move(setValue))
 {
-  if (values) {
-    auto value = &values[0];
-    for (int i = vmin; i <= vmax; i++) {
-      this->values.emplace_back(*value++);
-    }
-  }
+  setValues(values);
 }
 
 Choice::Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int16_t vmin, int16_t vmax,
@@ -76,18 +71,34 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int
   }
 }
 
-void Choice::addItem(const char * item)
+void Choice::addValue(const char * value)
 {
-  values.emplace_back(item);
+  values.emplace_back(value);
   vmax += 1;
 }
 
-void Choice::addItems(const char * items[], uint8_t count)
+void Choice::addValues(const char * const values[], uint8_t count)
 {
-  values.reserve(values.size() + count);
+  this->values.reserve(this->values.size() + count);
   for (uint8_t i = 0; i < count; i++)
-    values.emplace_back(items[i]);
+    this->values.emplace_back(values[i]);
   vmax += count;
+}
+
+void Choice::setValues(std::vector<std::string> values)
+{
+  this->values = std::move(values);
+}
+
+void Choice::setValues(const char * const values[])
+{
+  this->values.clear();
+  if (values) {
+    auto value = &values[0];
+    for (int i = vmin; i <= vmax; i++) {
+      this->values.emplace_back(*value++);
+    }
+  }
 }
 
 void Choice::paint(BitmapBuffer * dc)
