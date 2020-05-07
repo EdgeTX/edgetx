@@ -31,7 +31,7 @@ constexpr WindowFlags ROLLER_SEPARATION_LINES = (FORM_FLAGS_LAST << 1u);
 
 class Roller: public Choice {
   public:
-    Roller(FormGroup * parent, const rect_t & rect, const char * label, const char ** values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
+    Roller(FormGroup * parent, const rect_t & rect, const char * label, const char * const * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
       Choice(parent, rect, values, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
     {
       if (label) {
