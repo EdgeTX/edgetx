@@ -52,9 +52,13 @@ class Choice : public ChoiceBase {
     Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
     Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
 
-    void addItem(const char * item);
+    void addValue(const char * value);
 
-    void addItems(const char * items[], uint8_t count);
+    void addValues(const char * const values[], uint8_t count);
+
+    void setValues(std::vector<std::string> values);
+
+    void setValues(const char * const values[]);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
