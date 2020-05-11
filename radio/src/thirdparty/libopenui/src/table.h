@@ -21,6 +21,7 @@
 #define _TABLE_H_
 
 #include "window.h"
+#include <utility>
 #include <vector>
 #include "libopenui_config.h"
 
@@ -192,8 +193,8 @@ class Table: public Window {
       for (uint8_t i = 0; i < columnsCount; i++) {
         line.values[i] = values[i];
       }
-      line.onPress = onPress;
-      line.onSelect = onSelect;
+      line.onPress = std::move(onPress);
+      line.onSelect = std::move(onSelect);
       body.addLine(line);
     }
 
