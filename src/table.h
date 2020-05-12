@@ -204,6 +204,11 @@ class Table: public Window {
       clearSelection();
     }
 
+    int size()
+    {
+      return body.lines.size();
+    }
+
   protected:
     uint8_t columnsCount;
     std::vector<coord_t> columnsWidth;
