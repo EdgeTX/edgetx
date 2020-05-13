@@ -20,7 +20,6 @@
 #ifndef _ROLLER_H_
 #define _ROLLER_H_
 
-#include <utility>
 #include <touch.h>
 #include <choice.h>
 #include <font.h>
