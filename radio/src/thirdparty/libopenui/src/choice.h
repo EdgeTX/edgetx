@@ -87,6 +87,42 @@ class Choice : public ChoiceBase {
       isValueAvailable = std::move(handler);
     }
 
+    unsigned getIndexFromValue(int value)
+    {
+      if (!isValueAvailable) {
+        return value - vmin;
+      }
+
+      unsigned index = 0;
+      for (int i = vmin; i < value; i++) {
+        if (isValueAvailable(i)) {
+          index++;
+        }
+      }
+      return index;
+    }
+
+    int getValueFromIndex(unsigned index)
+    {
+      if (!isValueAvailable) {
+        return vmin + index;
+      }
+
+      int value = vmin;
+      while (index > 0) {
+        while (value < vmax && !isValueAvailable(value)) {
+          value++;
+        }
+        index--;
+      }
+      return value;
+    }
+
+    int getValuesCount()
+    {
+      return getIndexFromValue(vmax + 1);
+    }
+
     void setTextHandler(std::function<std::string(int32_t)> handler)
     {
       textHandler = std::move(handler);
