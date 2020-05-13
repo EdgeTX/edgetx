@@ -34,6 +34,17 @@ class Roller: public Choice {
     Roller(FormGroup * parent, const rect_t & rect, const char * label, const char * const * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
       Choice(parent, rect, values, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
     {
+      init(label);
+    }
+
+    Roller(FormGroup * parent, const rect_t & rect, const char * label, std::vector<std::string> values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
+      Choice(parent, rect, std::move(values), vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
+    {
+      init(label);
+    }
+
+    void init(const char * label)
+    {
       if (label) {
         // the label is another window, could be changed, but is it needed?
         new StaticText(parent, {rect.x, rect.y - ROLLER_LINE_HEIGHT, rect.w, ROLLER_LINE_HEIGHT}, label, 0, CENTERED);
@@ -45,7 +56,6 @@ class Roller: public Choice {
       setScrollPositionY(ROLLER_LINE_HEIGHT * (this->getValue() - vmin - 1));
       lastScrollPositionY = scrollPositionY;
     }
-
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
