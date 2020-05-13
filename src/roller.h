@@ -53,8 +53,7 @@ class Roller: public Choice {
       setHeight(ROLLER_LINE_HEIGHT * 3 - 1);
       setPageHeight(ROLLER_LINE_HEIGHT);
       setInnerHeight(INFINITE_HEIGHT);
-      setScrollPositionY(ROLLER_LINE_HEIGHT * (this->getValue() - vmin - 1));
-      lastScrollPositionY = scrollPositionY;
+      updateScrollPositionFromValue();
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -73,9 +72,9 @@ class Roller: public Choice {
       coord_t yMax = scrollPositionY + 3 * ROLLER_LINE_HEIGHT;
 
       while (y < yMax) {
-        auto displayedValue = vmin + index % (vmax - vmin + 1);
+        auto displayedValue = getValueFromIndex(index % getValuesCount());
         if (displayedValue < vmin)
-          displayedValue += vmax - vmin + 1;
+          displayedValue += getValuesCount();
 
         auto fgColor = DISABLE_COLOR;
 
@@ -104,8 +103,7 @@ class Roller: public Choice {
       Window::checkEvents();
 
       if (lastEditMode != editMode) {
-        setScrollPositionY(ROLLER_LINE_HEIGHT * (this->getValue() - vmin - 1));
-        lastScrollPositionY = scrollPositionY;
+        updateScrollPositionFromValue();
         lastEditMode = editMode;
       }
 
@@ -122,13 +120,20 @@ class Roller: public Choice {
     coord_t lastScrollPositionY = 0;
     bool lastEditMode = false;
 
+    void updateScrollPositionFromValue()
+    {
+      setScrollPositionY(ROLLER_LINE_HEIGHT * (getIndexFromValue(this->getValue()) - 1));
+      lastScrollPositionY = scrollPositionY;
+    }
+
     void updateValueFromScrollPosition()
     {
       lastScrollPositionY = scrollPositionY;
 
-      auto newValue = vmin + ((scrollPositionY / ROLLER_LINE_HEIGHT) + 1) % (vmax - vmin + 1);
-      if (newValue < vmin)
-        newValue += vmax - vmin + 1;
+      auto newValue = getValueFromIndex(((scrollPositionY / ROLLER_LINE_HEIGHT) + 1) % getValuesCount());
+      if (newValue < vmin) {
+        newValue += getValuesCount();
+      }
 
       setValue(newValue);
       invalidate();
