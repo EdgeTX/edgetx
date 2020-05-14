@@ -113,12 +113,13 @@ class Choice : public ChoiceBase {
         while (value < vmax && !isValueAvailable(value)) {
           value++;
         }
+        value++;
         index--;
       }
       return value;
     }
 
-    int getValuesCount()
+    unsigned getValuesCount()
     {
       return getIndexFromValue(vmax + 1);
     }
@@ -128,7 +129,7 @@ class Choice : public ChoiceBase {
       textHandler = std::move(handler);
     }
 
-    void setMenuTitle(const std::string value)
+    void setMenuTitle(std::string value)
     {
       menuTitle = std::move(value);
     }
