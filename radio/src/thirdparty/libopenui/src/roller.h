@@ -66,15 +66,14 @@ class Roller: public Choice {
     void paint(BitmapBuffer * dc) override
     {
       int32_t value = getValue();
+      auto valuesCount = getValuesCount();
 
       int index = (scrollPositionY - ROLLER_LINE_HEIGHT + 1)  / ROLLER_LINE_HEIGHT;
       coord_t y = index * ROLLER_LINE_HEIGHT;
       coord_t yMax = scrollPositionY + 3 * ROLLER_LINE_HEIGHT;
 
       while (y < yMax) {
-        auto displayedValue = getValueFromIndex(index % getValuesCount());
-        if (displayedValue < vmin)
-          displayedValue += getValuesCount();
+        auto displayedValue = getValueFromIndex((index + valuesCount) % valuesCount);
 
         auto fgColor = DISABLE_COLOR;
 
@@ -130,10 +129,8 @@ class Roller: public Choice {
     {
       lastScrollPositionY = scrollPositionY;
 
-      auto newValue = getValueFromIndex(((scrollPositionY / ROLLER_LINE_HEIGHT) + 1) % getValuesCount());
-      if (newValue < vmin) {
-        newValue += getValuesCount();
-      }
+      auto valuesCount = getValuesCount();
+      auto newValue = getValueFromIndex((((scrollPositionY / ROLLER_LINE_HEIGHT) + 1) + valuesCount) % valuesCount);
 
       setValue(newValue);
       invalidate();
