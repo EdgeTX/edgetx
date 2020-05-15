@@ -124,6 +124,9 @@ class FormGroup: public FormField {
       Window::clear();
       first = nullptr;
       last = nullptr;
+      if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
+        previous->setNextField(this);
+      }
     }
 
     void setFocus(uint8_t flag) override;
