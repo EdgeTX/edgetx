@@ -24,10 +24,12 @@
 #include <choice.h>
 #include <font.h>
 #include <static.h>
+#include <limits.h>
 #include "libopenui_globals.h"
 #include "libopenui_config.h"
 
 constexpr WindowFlags ROLLER_SEPARATION_LINES = (FORM_FLAGS_LAST << 1u);
+constexpr coord_t SCROLL_POSITION_INVALIDATED = INT_MIN;
 
 class Roller: public Choice {
   public:
@@ -106,6 +108,10 @@ class Roller: public Choice {
         lastEditMode = editMode;
       }
 
+      if (lastScrollPositionY == SCROLL_POSITION_INVALIDATED) {
+        updateScrollPositionFromValue();
+      }
+
 #if defined(HARDWARE_TOUCH)
       if (touchState.event != TE_SLIDE) {
         if (scrollPositionY != lastScrollPositionY) {
@@ -115,9 +121,35 @@ class Roller: public Choice {
 #endif
     }
 
+    // virtual not needed until now
+    void setMin(int16_t value)
+    {
+      Choice::setMin(value);
+      invalidateScrollPosition();
+    }
+
+    // virtual not needed until now
+    void setMax(int16_t value)
+    {
+      Choice::setMax(value);
+      invalidateScrollPosition();
+    }
+
+    // virtual not needed until now
+    void setAvailableHandler(std::function<bool(int)> handler)
+    {
+      Choice::setAvailableHandler(std::move(handler));
+      invalidateScrollPosition();
+    }
+
   protected:
-    coord_t lastScrollPositionY = 0;
+    coord_t lastScrollPositionY = SCROLL_POSITION_INVALIDATED;
     bool lastEditMode = false;
+
+    void invalidateScrollPosition()
+    {
+      lastScrollPositionY = SCROLL_POSITION_INVALIDATED;
+    }
 
     void updateScrollPositionFromValue()
     {
