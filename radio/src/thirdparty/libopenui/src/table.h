@@ -35,6 +35,7 @@ class Table: public Window {
         std::vector<std::string> values;
         std::function<void()> onPress;
         std::function<void()> onSelect;
+        LcdFlags flags = TABLE_BODY_FONT;
     };
 
     class Header: public Window {
@@ -86,6 +87,11 @@ class Table: public Window {
         {
           lines.push_back(line);
           setInnerHeight(lines.size() * TABLE_LINE_HEIGHT - 2);
+        }
+
+        void setLineFlags(uint8_t index, LcdFlags flags)
+        {
+          lines[index].flags = flags;
         }
 
         void clear()
@@ -175,6 +181,11 @@ class Table: public Window {
       body.select(index, scroll);
     }
 
+    void setLineFlags(uint8_t index, LcdFlags flags)
+    {
+      body.setLineFlags(index, flags);
+    }
+
     void setHeader(const char * const values[])
     {
       header.setHeight(TABLE_HEADER_HEIGHT);
@@ -204,7 +215,7 @@ class Table: public Window {
       clearSelection();
     }
 
-    int size()
+    uint8_t size()
     {
       return body.lines.size();
     }
