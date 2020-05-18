@@ -91,7 +91,10 @@ class Table: public Window {
 
         void setLineFlags(uint8_t index, LcdFlags flags)
         {
-          lines[index].flags = flags;
+          if (lines[index].flags != flags) {
+            lines[index].flags = flags;
+            invalidate({0, index * TABLE_LINE_HEIGHT, width(), TABLE_LINE_HEIGHT});
+          }
         }
 
         void clear()
