@@ -110,11 +110,11 @@ class Choice : public ChoiceBase {
 
       int value = vmin;
       while (index > 0) {
+        index--;
+        value++;
         while (value < vmax && !isValueAvailable(value)) {
           value++;
         }
-        value++;
-        index--;
       }
       return value;
     }
