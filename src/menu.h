@@ -176,7 +176,12 @@ class Menu: public ModalWindow {
 
     void removeLines();
 
-    inline void select(int index)
+    unsigned count() const
+    {
+      return content->body.count();
+    }
+
+    void select(int index)
     {
       content->body.select(index);
     }
