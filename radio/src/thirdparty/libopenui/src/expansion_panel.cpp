@@ -19,6 +19,13 @@
 
 #include "expansion_panel.h"
 
+void ExpansionPanel::updateHeight()
+{
+  coord_t newHeight = (isOpen ? header->height() + body->height() : header->height());
+  parent->moveWindowsTop(bottom(), newHeight - height());
+  setHeight(newHeight);
+}
+
 ExpansionPanelHeader::ExpansionPanelHeader(ExpansionPanel * parent):
   FormGroup(parent, {0, 0, parent->width(), parent->height()}, FORWARD_SCROLL)
 {
