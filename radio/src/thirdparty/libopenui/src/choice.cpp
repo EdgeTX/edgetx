@@ -171,8 +171,10 @@ void Choice::openMenu()
 #if defined(HARDWARE_TOUCH)
 bool Choice::onTouchEnd(coord_t, coord_t)
 {
-  onKeyPress();
-  openMenu();
+  if (enabled) {
+    onKeyPress();
+    openMenu();
+  }
   return true;
 }
 #endif
