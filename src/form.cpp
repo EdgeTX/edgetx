@@ -159,7 +159,7 @@ void FormGroup::setFocus(uint8_t flag)
         break;
 
       case SET_FOCUS_FORWARD:
-        if (focusWindow->isChild(last)) {
+        if (focusWindow->isChild(this)) {
           if (next == this) {
             first->setFocus(SET_FOCUS_FORWARD);
           }
