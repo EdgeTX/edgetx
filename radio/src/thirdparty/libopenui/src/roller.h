@@ -83,8 +83,9 @@ class Roller: public Choice {
           fgColor = FOCUS_COLOR | FONT(STD);
         }
 
-        if ((unsigned)displayedValue < values.size()) {
-          dc->drawText(width() / 2, y, values[displayedValue].c_str(), fgColor | CENTERED);
+        unsigned valueIndex = displayedValue - vmin;
+        if (valueIndex < values.size()) {
+          dc->drawText(width() / 2, y, values[valueIndex].c_str(), fgColor | CENTERED);
         }
         else {
           dc->drawNumber(width() / 2, y, displayedValue, fgColor | CENTERED);
