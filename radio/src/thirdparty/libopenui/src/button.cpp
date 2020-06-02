@@ -102,8 +102,6 @@ void TextButton::paint(BitmapBuffer * dc)
     }
   }
 
-  TRACE("ICI text=%s rect.h=%d fontHeight=%d", text.c_str(), rect.h, getFontHeight(textFlags));
-
   dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textFlags | textColor);
 }
 
