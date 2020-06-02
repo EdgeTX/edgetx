@@ -102,14 +102,14 @@ class Choice : public ChoiceBase {
       return index;
     }
 
-    int getValueFromIndex(unsigned index)
+    int getValueFromIndex(int index)
     {
       if (!isValueAvailable) {
         return vmin + index;
       }
 
-      int value = vmin;
-      while (index > 0) {
+      int value = vmin - 1;
+      while (index >= 0) {
         index--;
         value++;
         while (value < vmax && !isValueAvailable(value)) {
