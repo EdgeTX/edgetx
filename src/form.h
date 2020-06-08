@@ -62,7 +62,7 @@ class FormField: public Window {
       editMode = newEditMode;
     }
 
-    void enable(bool enabled)
+    void enable(bool enabled = true)
     {
       this->enabled = enabled;
       invalidate();
