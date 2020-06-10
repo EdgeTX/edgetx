@@ -73,12 +73,13 @@ class Roller: public Choice {
       int index = (scrollPositionY - ROLLER_LINE_HEIGHT + 1)  / ROLLER_LINE_HEIGHT;
       coord_t y = index * ROLLER_LINE_HEIGHT;
       coord_t yMax = scrollPositionY + 3 * ROLLER_LINE_HEIGHT;
+      while (index < 0)
+        index += valuesCount;
 
       while (y < yMax) {
-        auto displayedValue = getValueFromIndex((index + valuesCount) % valuesCount);
+        auto displayedValue = getValueFromIndex(index % valuesCount);
 
         auto fgColor = DISABLE_COLOR;
-
         if (value == displayedValue) {
           fgColor = FOCUS_COLOR | FONT(STD);
         }
