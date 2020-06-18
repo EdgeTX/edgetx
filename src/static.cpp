@@ -22,12 +22,19 @@
 
 void StaticText::paint(BitmapBuffer * dc)
 {
-  if (windowFlags & BUTTON_BACKGROUND)
+  if (windowFlags & BUTTON_BACKGROUND) {
     dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
+  }
+
+  coord_t x;
   if (textFlags & CENTERED)
-    dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), textFlags);
+    x = rect.w / 2;
   else if (textFlags & RIGHT)
-    dc->drawText(rect.w, FIELD_PADDING_TOP, text.c_str(), textFlags);
+    x = rect.w;
   else
-    dc->drawText(0, 0 + FIELD_PADDING_TOP, text.c_str(), textFlags);
+    x = 0;
+
+  coord_t y = (textFlags & VCENTERED) ? (rect.h - getFontHeight(textFlags)) / 2 : FIELD_PADDING_TOP;
+
+  dc->drawText(x, y, text.c_str(), textFlags);
 }
