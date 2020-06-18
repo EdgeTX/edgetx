@@ -26,8 +26,8 @@
 #define BLINK                          0x01u
 
 /* drawText flags */
-#define INVERS                         0x02u
 #define LEFT                           0x00u /* align left */
+#define VCENTERED                      0x02u /* align center vertically */
 #define CENTERED                       0x04u /* align center */
 #define RIGHT                          0x08u /* align right */
 #define SHADOWED                       0x80u /* black copy at +1 +1 */
