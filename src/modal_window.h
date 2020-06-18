@@ -52,7 +52,7 @@ class ModalWindow: public Window
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
-      if (!Window::onTouchEnd(x, y)) {
+      if (!Window::onTouchEnd(x, y) && closeAllowed) {
         deleteLater();
       }
       return true;
@@ -65,8 +65,14 @@ class ModalWindow: public Window
     }
 #endif
 
+    void setCloseAllowed(bool value = true)
+    {
+      closeAllowed = value;
+    }
+
   protected:
     Window * previousFocus = nullptr;
+    bool closeAllowed = true;
 };
 
 class ModalWindowContent: public Window {
