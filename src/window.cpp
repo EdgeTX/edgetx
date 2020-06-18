@@ -435,8 +435,8 @@ void Window::adjustInnerHeight()
 
 coord_t Window::adjustHeight()
 {
-  adjustInnerHeight();
   coord_t old = rect.h;
+  adjustInnerHeight();
   rect.h = innerHeight;
   return rect.h - old;
 }
