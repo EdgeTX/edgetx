@@ -24,6 +24,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "ff.h"
+#include "libopenui_defines.h"
 
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
 
