@@ -36,18 +36,22 @@ void MenuBody::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT) {
-    select(int((selectedIndex + 1) % lines.size()));
+    if (lines.size() > 0)
+      select(int((selectedIndex + 1) % lines.size()));
   }
   else if (event == EVT_ROTARY_LEFT) {
-    select(int(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1));
+    if (lines.size() > 0)
+      select(int(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1));
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (selectedIndex < 0) {
-      select(0);
-    }
-    else {
-      Window::onEvent(event); // the window above will be closed on event
-      lines[selectedIndex].onPress();
+    if (lines.size() > 0) {
+      if (selectedIndex < 0) {
+        select(0);
+      }
+      else {
+        Window::onEvent(event); // the window above will be closed on event
+        lines[selectedIndex].onPress();
+      }
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
