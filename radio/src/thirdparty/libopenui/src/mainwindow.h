@@ -32,6 +32,11 @@ class MainWindow: public Window {
     {
     }
 
+    ~MainWindow() override
+    {
+      children.clear();
+    }
+
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
