@@ -65,7 +65,7 @@ void MenuBody::onEvent(event_t event)
 bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 {
   int index = y / MENUS_LINE_HEIGHT;
-  if (index < lines.size()) {
+  if (index < (int)lines.size()) {
     lines[index].onPress();
   }
   getParent()->getParent()->deleteLater();
