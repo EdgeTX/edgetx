@@ -354,6 +354,7 @@ class Window {
     coord_t scrollPositionY = 0;
     WindowFlags windowFlags;
     LcdFlags textFlags;
+    bool deleted = false;
 
     static Window * focusWindow;
     static Window * slidingWindow;
