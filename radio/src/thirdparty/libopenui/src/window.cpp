@@ -321,7 +321,7 @@ void Window::checkEvents()
     child->checkEvents();
   }
 
-  if (this == focusWindow) {
+  if (this == Window::focusWindow) {
     event_t event = getWindowEvent();
     if (event) {
       this->onEvent(event);
