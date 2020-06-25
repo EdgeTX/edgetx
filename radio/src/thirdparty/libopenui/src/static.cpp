@@ -36,5 +36,20 @@ void StaticText::paint(BitmapBuffer * dc)
 
   coord_t y = (textFlags & VCENTERED) ? (rect.h - getFontHeight(textFlags)) / 2 : FIELD_PADDING_TOP;
 
-  dc->drawText(x, y, text.c_str(), textFlags);
+  auto start = text.c_str();
+  auto nextline = strchr(start, '\n');
+  if (nextline) {
+    auto current = start;
+    do {
+      dc->drawText(x, y, text.substr(current - start, nextline - current).c_str(), textFlags);
+      current = nextline + 1;
+      nextline = strchr(current, '\n');
+      y += getFontHeight(textFlags) + 2;
+    } while (nextline);
+    dc->drawText(x, y, current, textFlags);
+  }
+  else {
+    dc->drawText(x, y, start, textFlags);
+  }
+
 }
