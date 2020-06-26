@@ -36,7 +36,7 @@ class ModalWindow: public Window
 
     void deleteLater()
     {
-      if (deleted)
+      if (_deleted)
         return;
 
       if (previousFocus) {

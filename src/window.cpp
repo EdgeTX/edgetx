@@ -69,7 +69,7 @@ void Window::detach()
 
 void Window::deleteLater(bool detach)
 {
-  if (deleted)
+  if (_deleted)
     return;
 
   TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
@@ -89,7 +89,7 @@ void Window::deleteLater(bool detach)
 
   trash.push_back(this);
 
-  deleted = true;
+  _deleted = true;
 }
 
 void Window::clear()
