@@ -342,6 +342,11 @@ class Window {
 
     void detach();
 
+    bool deleted()
+    {
+      return _deleted;
+    }
+
   protected:
     Window * parent;
     std::list<Window *> children;
@@ -354,7 +359,7 @@ class Window {
     coord_t scrollPositionY = 0;
     WindowFlags windowFlags;
     LcdFlags textFlags;
-    bool deleted = false;
+    bool _deleted = false;
 
     static Window * focusWindow;
     static Window * slidingWindow;
