@@ -33,11 +33,17 @@ class CarouselItem {
     {
     }
 
+    void setSelectHandler(std::function<void()> handler)
+    {
+      selectHandler = std::move(handler);
+    }
+
     virtual ~CarouselItem() = default;
 
   public:
     Window * front;
     Window * back;
+    std::function<void()> selectHandler;
 };
 
 class CarouselWindow: public Window {
@@ -74,6 +80,10 @@ class CarouselWindow: public Window {
     void select(int index, bool scroll = true)
     {
       selection = index;
+      auto item = items[selection];
+      if (item->selectHandler) {
+        item->selectHandler();
+      }
       update();
     }
 
