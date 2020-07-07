@@ -160,6 +160,11 @@ class Menu: public ModalWindow {
       content->body.setCancelHandler(handler);
     }
 
+    void setWaitHandler(std::function<void()> handler)
+    {
+      waitHandler = std::move(handler);
+    }
+
     void setToolbar(Window * window)
     {
       toolbar = window;
@@ -190,9 +195,18 @@ class Menu: public ModalWindow {
     void onEvent(event_t event) override;
 #endif
 
+    void checkEvents() override
+    {
+      ModalWindow::checkEvents();
+      if (waitHandler) {
+        waitHandler();
+      }
+    }
+
   protected:
     MenuWindowContent * content;
     Window * toolbar = nullptr;
+    std::function<void()> waitHandler;
     void updatePosition();
 };
 
