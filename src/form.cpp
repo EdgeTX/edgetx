@@ -206,7 +206,11 @@ void FormGroup::onEvent(event_t event)
       first->setFocus(SET_FOCUS_FIRST);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus() && !(windowFlags & FORM_FORWARD_FOCUS)) {
+#if defined(HARDWARE_TOUCH)
     setFocus(SET_FOCUS_DEFAULT);
+#else
+    FormField::onEvent(event);
+#endif
   }
   else if (event == EVT_ROTARY_RIGHT && !next) {
     if (first)
