@@ -48,11 +48,11 @@ void FormField::onEvent(event_t event)
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = !editMode;
+    setEditMode(!editMode);
     invalidate();
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && editMode) {
-    editMode = false;
+    setEditMode(false);
     invalidate();
   }
   else {
