@@ -57,7 +57,7 @@ class FormField: public Window {
       return editMode;
     }
 
-    inline void setEditMode(bool newEditMode)
+    virtual void setEditMode(bool newEditMode)
     {
       editMode = newEditMode;
     }
@@ -82,7 +82,7 @@ class FormField: public Window {
 
     void onFocusLost() override
     {
-      editMode = false;
+      setEditMode(false);
       Window::onFocusLost();
     }
 

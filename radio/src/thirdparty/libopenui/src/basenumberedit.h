@@ -82,7 +82,7 @@ class BaseNumberEdit : public FormField {
 
     void setSetValueHandler(std::function<void(int32_t)> handler)
     {
-      _setValue = handler;
+      _setValue = std::move(handler);
     }
 
     int32_t getValue() const
