@@ -21,9 +21,12 @@
 
 void CarouselWindow::update()
 {
-  auto first = min<int>(selection - 2, items.size() - 5);
+  auto first = min<int>(selection - 2, items.size() - count);
   first = max(0, first);
   coord_t lastPosition = 0;
+  coord_t spacing = 10;
+  if (count > 1)
+    spacing = (width() - items[0]->back->width() * (count - 1) - items[0]->front->width()) / (count - 1);
 
   int index = 0;
   for (auto & item: items) {
@@ -41,7 +44,7 @@ void CarouselWindow::update()
     window->setTop((height() - window->height()) / 2);
     if (index == first)
       setScrollPositionX(lastPosition);
-    lastPosition += window->width() + CAROUSEL_SPACING;
+    lastPosition += window->width() + spacing;
     index += 1;
   }
 
