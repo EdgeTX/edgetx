@@ -23,8 +23,6 @@
 #include <vector>
 #include "button.h"
 
-constexpr coord_t CAROUSEL_SPACING = 20;
-
 class CarouselItem {
   public:
     CarouselItem(Window * front, Window * back):
@@ -50,8 +48,9 @@ class CarouselWindow: public Window {
   friend class Carousel;
 
   public:
-    CarouselWindow(Window * parent, const rect_t & rect):
-      Window(parent, rect, NO_SCROLLBAR)
+    CarouselWindow(Window * parent, const rect_t & rect, uint8_t count):
+      Window(parent, rect, NO_SCROLLBAR),
+      count(count)
     {
     }
 
@@ -90,6 +89,7 @@ class CarouselWindow: public Window {
   protected:
     std::vector<CarouselItem *> items;
     int selection = 0;
+    uint8_t count;
     void update();
 };
 
