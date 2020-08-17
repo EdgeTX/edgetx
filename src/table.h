@@ -70,8 +70,8 @@ class Table: public Window {
       friend class Table;
 
       public:
-        Body(Table * parent, const rect_t & rect):
-          Window(parent, rect, OPAQUE),
+        Body(Table * parent, const rect_t & rect, WindowFlags windowFlags):
+          Window(parent, rect, windowFlags),
           columnsWidth(parent->columnsWidth)
         {
         }
@@ -134,12 +134,12 @@ class Table: public Window {
     };
 
   public:
-    Table(Window * parent, const rect_t & rect, uint8_t columnsCount):
+    Table(Window * parent, const rect_t & rect, uint8_t columnsCount, WindowFlags windowFlags = OPAQUE):
       Window(parent, rect),
       columnsCount(columnsCount),
       columnsWidth(columnsCount, width() / columnsCount),
       header(this, {0, 0, width(), 0}, columnsCount),
-      body(this, {0, 0, width(), height()})
+      body(this, {0, 0, width(), height()}, windowFlags)
     {
     }
 
