@@ -120,6 +120,9 @@ void Window::clearFocus()
 
 void Window::setFocus(uint8_t flag)
 {
+  if (deleted())
+    return;
+
   TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
 
   if (focusWindow != this) {
