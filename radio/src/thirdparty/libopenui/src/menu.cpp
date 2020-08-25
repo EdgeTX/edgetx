@@ -36,21 +36,25 @@ void MenuBody::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT) {
-    if (lines.size() > 0)
+    if (!lines.empty())
       select(int((selectedIndex + 1) % lines.size()));
   }
   else if (event == EVT_ROTARY_LEFT) {
-    if (lines.size() > 0)
+    if (!lines.empty())
       select(int(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1));
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (lines.size() > 0) {
+    if (!lines.empty()) {
       if (selectedIndex < 0) {
         select(0);
       }
       else {
         Window::onEvent(event); // the window above will be closed on event
         lines[selectedIndex].onPress();
+        Menu * menu = getParentMenu();
+        if (menu->multiple) {
+          menu->invalidate();
+        }
       }
     }
   }
@@ -68,11 +72,23 @@ void MenuBody::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 {
+  Menu * menu = getParentMenu();
   int index = y / MENUS_LINE_HEIGHT;
   if (index < (int)lines.size()) {
-    lines[index].onPress();
+    if (menu->multiple) {
+      if (selectedIndex == index)
+        lines[index].onPress();
+      else
+        select(index);
+      menu->invalidate();
+    }
+    else {
+      lines[index].onPress();
+    }
   }
-  getParent()->getParent()->deleteLater();
+  if (!menu->multiple) {
+    menu->deleteLater();
+  }
   return true;
 }
 #endif
@@ -95,6 +111,12 @@ void MenuBody::paint(BitmapBuffer * dc)
       const char * text = line.text.data();
       dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, text[0] == '\0' ? "---" : text, flags);
     }
+
+    Menu * menu = getParentMenu();
+    if (menu->multiple && line.isChecked && line.isChecked()) {
+      theme->drawCheckBox(dc, 1, width() - 35, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, 0);
+    }
+
     if (i > 0) {
       dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
     }
@@ -120,9 +142,10 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
   }
 }
 
-Menu::Menu(Window * parent):
+Menu::Menu(Window * parent, bool multiple):
   ModalWindow(parent),
-  content(createMenuWindow(this))
+  content(createMenuWindow(this)),
+  multiple(multiple)
 {
 }
 
@@ -146,15 +169,15 @@ void Menu::setTitle(std::string text)
   updatePosition();
 }
 
-void Menu::addLine(const std::string & text, std::function<void()> onPress)
+void Menu::addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
 {
-  content->body.addLine(text, std::move(onPress));
+  content->body.addLine(text, std::move(onPress), std::move(isChecked));
   updatePosition();
 }
 
-void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress)
+void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
 {
-  content->body.addCustomLine(std::move(drawLine), std::move(onPress));
+  content->body.addCustomLine(std::move(drawLine), std::move(onPress), std::move(isChecked));
   updatePosition();
 }
 
@@ -170,7 +193,10 @@ void Menu::onEvent(event_t event)
   if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN))) {
     toolbar->onEvent(event);
   }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+  else if (event == EVT_KEY_BREAK(KEY_ENTER) && !multiple) {
     deleteLater();
   }
 }
