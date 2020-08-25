@@ -39,9 +39,10 @@ class ModalWindow: public Window
       if (_deleted)
         return;
 
-      if (previousFocus) {
+      if (previousFocus && (!focusWindow || focusWindow->isChild(this))) {
         previousFocus->setFocus(SET_FOCUS_DEFAULT);
       }
+      
       Window::deleteLater();
     }
 
@@ -71,6 +72,11 @@ class ModalWindow: public Window
     void setCloseAllowed(bool value = true)
     {
       closeAllowed = value;
+    }
+
+    void forgetPreviousFocus()
+    {
+      previousFocus = nullptr;
     }
 
   protected:
