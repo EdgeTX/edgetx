@@ -188,6 +188,10 @@ void FormGroup::setFocus(uint8_t flag)
         else if (next) {
           next->setFocus(SET_FOCUS_FORWARD);
         }
+        else {
+          clearFocus();
+          focusWindow = this;
+        }
         break;
     }
   }
