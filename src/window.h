@@ -274,6 +274,11 @@ class Window {
         return 0;
     }
 
+    coord_t getInnerHeight() const
+    {
+      return innerHeight;
+    }
+
     void setInnerHeight(coord_t h)
     {
       innerHeight = h;
