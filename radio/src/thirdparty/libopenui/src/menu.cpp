@@ -49,12 +49,12 @@ void MenuBody::onEvent(event_t event)
         select(0);
       }
       else {
-        Window::onEvent(event); // the window above will be closed on event
         lines[selectedIndex].onPress();
         Menu * menu = getParentMenu();
-        if (menu->multiple) {
+        if (menu->multiple)
           menu->invalidate();
-        }
+        else
+          menu->deleteLater();
       }
     }
   }
