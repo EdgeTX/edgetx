@@ -75,6 +75,9 @@ void Table::Body::onEvent(event_t event)
     }
   }
   if (event == EVT_ROTARY_RIGHT) {
+    if (lines.empty())
+      return;
+
     int newSelection = (selection + 1) % lines.size();
     select(newSelection, true);
     auto onSelect = lines[selection].onSelect;
@@ -83,7 +86,10 @@ void Table::Body::onEvent(event_t event)
     }
   }
   else if (event == EVT_ROTARY_LEFT) {
-    int newSelection = selection == 0 ? lines.size() - 1 : selection - 1;
+    if (lines.empty())
+      return;
+
+    int newSelection = selection <= 0 ? lines.size() - 1 : selection - 1;
     select(newSelection, true);
     auto onSelect = lines[selection].onSelect;
     if (onSelect) {
