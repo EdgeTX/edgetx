@@ -41,7 +41,7 @@ void MenuBody::onEvent(event_t event)
   }
   else if (event == EVT_ROTARY_LEFT) {
     if (!lines.empty())
-      select(int(selectedIndex == 0 ? lines.size() - 1 : selectedIndex - 1));
+      select(int(selectedIndex <= 0 ? lines.size() - 1 : selectedIndex - 1));
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (!lines.empty()) {
