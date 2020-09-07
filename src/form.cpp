@@ -222,7 +222,7 @@ void FormGroup::onEvent(event_t event)
   }
   else if (event == EVT_ROTARY_LEFT && !previous) {
     if (last)
-      last->setFocus(SET_FOCUS_FIRST);
+      last->setFocus(SET_FOCUS_BACKWARD);
   }
   else {
     FormField::onEvent(event);
