@@ -20,12 +20,12 @@
 #ifndef _TABLE_H_
 #define _TABLE_H_
 
-#include "window.h"
+#include "form.h"
 #include <utility>
 #include <vector>
 #include "libopenui_config.h"
 
-class Table: public Window {
+class Table: public FormField {
     class Line {
       public:
         explicit Line(uint8_t columnsCount):
@@ -135,7 +135,7 @@ class Table: public Window {
 
   public:
     Table(Window * parent, const rect_t & rect, uint8_t columnsCount, WindowFlags windowFlags = OPAQUE):
-      Window(parent, rect),
+      FormField(parent, rect),
       columnsCount(columnsCount),
       columnsWidth(columnsCount, width() / columnsCount),
       header(this, {0, 0, width(), 0}, columnsCount),
@@ -218,7 +218,7 @@ class Table: public Window {
       clearSelection();
     }
 
-    uint8_t size()
+    uint8_t size() const
     {
       return body.lines.size();
     }
