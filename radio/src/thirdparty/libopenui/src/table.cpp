@@ -38,10 +38,11 @@ void Table::Body::paint(BitmapBuffer * dc)
   coord_t x;
   int index = 0;
   for (auto & line: lines) {
-    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, index == selection ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
+    bool highlight = hasFocus() && index == selection;
+    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
     for (unsigned i = 0; i < line.values.size(); i++) {
-      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), line.flags | (index == selection ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
+      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), line.flags | (highlight ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
       x += columnsWidth[i];
     }
     y += TABLE_LINE_HEIGHT;
@@ -54,6 +55,7 @@ bool Table::Body::onTouchEnd(coord_t x, coord_t y)
 {
   unsigned index = y / TABLE_LINE_HEIGHT;
   if (index < lines.size()) {
+    setFocus(SET_FOCUS_DEFAULT);
     auto onPress = lines[index].onPress;
     if (onPress)
       onPress();
