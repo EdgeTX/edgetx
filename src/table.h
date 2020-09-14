@@ -176,6 +176,10 @@ class Table: public FormField {
 
     void setFocus(uint8_t flag) override
     {
+      if (body.selection < 0) {
+        body.selection = 0;
+        body.invalidate();
+      }
       body.setFocus(flag);
     }
 
