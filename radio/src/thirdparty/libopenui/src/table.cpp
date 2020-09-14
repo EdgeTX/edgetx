@@ -38,7 +38,7 @@ void Table::Body::paint(BitmapBuffer * dc)
   coord_t x;
   int index = 0;
   for (auto & line: lines) {
-    bool highlight = hasFocus() && index == selection;
+    bool highlight = (index == selection);
     dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
     for (unsigned i = 0; i < line.values.size(); i++) {
@@ -97,6 +97,10 @@ void Table::Body::onEvent(event_t event)
     if (onSelect) {
       onSelect();
     }
+  }
+  else if (event == EVT_KEY_BREAK(KEY_EXIT) && selection >= 0) {
+    select(-1, true);
+    Window::onEvent(event);
   }
   else {
     Window::onEvent(event);
