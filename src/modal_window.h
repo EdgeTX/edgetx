@@ -79,6 +79,14 @@ class ModalWindow: public Window
       previousFocus = nullptr;
     }
 
+    void revertPreviousFocus()
+    {
+      if (previousFocus) {
+        previousFocus->setFocus(SET_FOCUS_DEFAULT);
+        previousFocus = nullptr;
+      }
+    }
+
   protected:
     Window * previousFocus = nullptr;
     bool closeAllowed = true;
