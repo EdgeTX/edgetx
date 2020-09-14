@@ -83,11 +83,13 @@ void FormField::paint(BitmapBuffer * dc)
   if (editMode) {
     dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FOCUS_BGCOLOR);
   }
-  else if (hasFocus()) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
-  }
-  else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
+  else if (!(windowFlags & FORM_NO_BORDER)) {
+    if (hasFocus()) {
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+    }
+    else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
+    }
   }
 }
 
