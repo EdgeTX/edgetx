@@ -134,8 +134,8 @@ class Table: public FormField {
     };
 
   public:
-    Table(Window * parent, const rect_t & rect, uint8_t columnsCount, WindowFlags windowFlags = OPAQUE):
-      FormField(parent, rect),
+    Table(Window * parent, const rect_t & rect, uint8_t columnsCount, WindowFlags windowFlags = OPAQUE | FORM_NO_BORDER):
+      FormField(parent, rect, windowFlags),
       columnsCount(columnsCount),
       columnsWidth(columnsCount, width() / columnsCount),
       header(this, {0, 0, width(), 0}, columnsCount),
