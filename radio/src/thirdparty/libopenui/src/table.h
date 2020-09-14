@@ -115,6 +115,12 @@ class Table: public FormField {
             scrollTo(rect);
           }
           invalidate();
+          if (index >= 0) {
+            auto onSelect = lines[index].onSelect;
+            if (onSelect) {
+              onSelect();
+            }
+          }
         }
 
         void paint(BitmapBuffer * dc) override;
@@ -177,8 +183,7 @@ class Table: public FormField {
     void setFocus(uint8_t flag) override
     {
       if (body.selection < 0) {
-        body.selection = 0;
-        body.invalidate();
+        select(0);
       }
       body.setFocus(flag);
     }
