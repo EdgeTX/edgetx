@@ -816,9 +816,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
     return nullptr;
   }
 
-  uint32_t ihsize = *((uint32_t *)&buf[0]); /* more header size */
+  uint32_t ihsize = *((uint32_t *)&buf[0]); /* extra header size */
 
-  /* invalid header size */
+  /* invalid extra header size */
   if (ihsize + 14 > hsize) {
     f_close(&imgFile);
     return nullptr;
@@ -836,7 +836,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 
   uint32_t w, h;
 
-  switch (ihsize){
+  switch (ihsize) {
     case  40: // windib
     case  56: // windib v3
     case  64: // OS/2 v2
@@ -866,11 +866,11 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   buf = &bmpBuf[0];
 
   if (depth == 4) {
-    if (f_lseek(&imgFile, hsize-64) != FR_OK || f_read(&imgFile, buf, 64, &read) != FR_OK || read != 64) {
+    if (f_lseek(&imgFile, hsize - 64) != FR_OK || f_read(&imgFile, buf, 64, &read) != FR_OK || read != 64) {
       f_close(&imgFile);
       return nullptr;
     }
-    for (uint8_t i=0; i<16; i++) {
+    for (uint8_t i = 0; i < 16; i++) {
       palette[i] = buf[4*i];
     }
   }
@@ -891,10 +891,25 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   bool hasAlpha = false;
 
   switch (depth) {
-    case 32:
-      for (int i = h-1; i >= 0; i--) {
+    case 16:
+      for (int i = h - 1; i >= 0; i--) {
         pixel_t * dst = bmp->getPixelPtr(0, i);
-        for (unsigned int j=0; j<w; j++) {
+        for (unsigned int j = 0; j < w; j++) {
+          result = f_read(&imgFile, (uint8_t *)dst, 2, &read);
+          if (result != FR_OK || read != 2) {
+            f_close(&imgFile);
+            delete bmp;
+            return nullptr;
+          }
+          MOVE_TO_NEXT_RIGHT_PIXEL(dst);
+        }
+      }
+      break;
+
+    case 32:
+      for (int i = h - 1; i >= 0; i--) {
+        pixel_t * dst = bmp->getPixelPtr(0, i);
+        for (unsigned int j = 0; j < w; j++) {
           uint32_t pixel;
           result = f_read(&imgFile, (uint8_t *)&pixel, 4, &read);
           if (result != FR_OK || read != 4) {
