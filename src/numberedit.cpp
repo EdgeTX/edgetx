@@ -64,10 +64,13 @@ void NumberEdit::onEvent(event_t event)
         do {
           value += rotencSpeed * step;
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
-        if (value <= vmax)
+        if (value <= vmax) {
           setValue(value);
-        else
+          onKeyPress();
+        }
+        else {
           onKeyError();
+        }
         return;
       }
 
@@ -76,10 +79,13 @@ void NumberEdit::onEvent(event_t event)
         do {
           value -= rotencSpeed * step;
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
-        if (value >= vmin)
+        if (value >= vmin) {
           setValue(value);
-        else
+          onKeyPress();
+        }
+        else {
           onKeyError();
+        }
         return;
       }
 #endif
