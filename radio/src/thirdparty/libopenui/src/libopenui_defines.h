@@ -22,8 +22,10 @@
 
 #include "libopenui_types.h"
 
-/* lcd common flags */
-#define BLINK                          0x01u
+/* obsolete flags */
+#define BLINK                          0
+#define EXPANDED                       0
+#define TIMEHOUR                       0
 
 /* drawText flags */
 #define LEFT                           0x00u /* align left */
@@ -31,6 +33,10 @@
 #define CENTERED                       0x04u /* align center */
 #define RIGHT                          0x08u /* align right */
 #define SHADOWED                       0x80u /* black copy at +1 +1 */
+// unused 0x1000u
+#define SPACING_NUMBERS_CONST          0x2000u
+#define VERTICAL                       0x4000u
+// unused 0x8000u
 
 /* drawNumber flags */
 #define LEADING0                       0x10u
@@ -41,13 +47,9 @@
 /* telemetry flags */
 #define NO_UNIT                        0x40u
 
-#define FONT_MASK                       0x0F00u
-#define FONT_INDEX(flags)               (((flags) & FONT_MASK) >> 8u)
-#define FONT(xx)                        (unsigned(FONT_ ## xx ## _INDEX) << 8u)
-
-#define TIMEHOUR                       0x2000u
-#define EXPANDED                       0x2000u
-#define VERTICAL                       0x4000u
+#define FONT_MASK                      0x0F00u
+#define FONT_INDEX(flags)              (((flags) & FONT_MASK) >> 8u)
+#define FONT(xx)                       (unsigned(FONT_ ## xx ## _INDEX) << 8u)
 
 #define ARGB_SPLIT(color, a, r, g, b) \
   uint16_t a = ((color) & 0xF000) >> 12; \
