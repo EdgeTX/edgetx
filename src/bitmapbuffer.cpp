@@ -557,7 +557,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
     else if (c >= 0xFE) {
       // CJK char
       s++;
-      c = uint8_t(*s) + ((c & 0x01) << 8) - 1;
+      c = uint8_t(*s) + ((c & 0x01u) << 8u) - 1;
       if (c >= 0x101)
         c -= 1;
       c += CJK_FIRST_LETTER_INDEX;
@@ -566,7 +566,10 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
     }
     else if (c >= 0x20) {
       uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
-      INCREMENT_POS(width + CHAR_SPACING);
+      if ((flags & SPACING_NUMBERS_CONST) && c >= '0' && c <= '9')
+        INCREMENT_POS(getCharWidth('9', fontspecs) + CHAR_SPACING);
+      else
+        INCREMENT_POS(width + CHAR_SPACING);
     }
     else if (c == '\n') {
       pos = orig_pos;
