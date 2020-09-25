@@ -226,26 +226,28 @@ bool Window::hasOpaqueRect(const rect_t & testRect) const
 void Window::fullPaint(BitmapBuffer * dc)
 {
   bool paintNeeded = true;
+  std::list<Window *>::iterator firstChild;
 
   coord_t xmin, xmax, ymin, ymax;
   dc->getClippingRect(xmin, xmax, ymin, ymax);
   coord_t x = dc->getOffsetX();
   coord_t y = dc->getOffsetY();
 
-  auto firstChild = children.end();
-  rect_t relativeRect = {xmin - x, ymin - y, xmax - xmin, ymax - ymin};
-  while (firstChild != children.begin()) {
-    auto child = *(--firstChild);
-    if (child->hasOpaqueRect(relativeRect)) {
-      paintNeeded = false;
-      break;
-    }
-  }
-
   if (windowFlags & PAINT_CHILDREN_FIRST) {
-    paintChildren(dc, firstChild);
+    paintChildren(dc, children.begin());
     dc->setOffset(x, y);
     dc->setClippingRect(xmin, xmax, ymin, ymax);
+  }
+  else {
+    firstChild = children.end();
+    rect_t relativeRect = {xmin - x, ymin - y, xmax - xmin, ymax - ymin};
+    while (firstChild != children.begin()) {
+      auto child = *(--firstChild);
+      if (child->hasOpaqueRect(relativeRect)) {
+        paintNeeded = false;
+        break;
+      }
+    }
   }
 
   if (paintNeeded) {
