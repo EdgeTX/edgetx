@@ -105,11 +105,11 @@ void MenuBody::paint(BitmapBuffer * dc)
       }
     }
     if (line.drawLine) {
-      line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT /*+ (lineHeight - 20) / 2*/, flags);
+      line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT, flags);
     }
     else {
       const char * text = line.text.data();
-      dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, text[0] == '\0' ? "---" : text, flags);
+      dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2, text[0] == '\0' ? "---" : text, flags);
     }
 
     Menu * menu = getParentMenu();

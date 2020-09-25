@@ -20,9 +20,9 @@
 #ifndef _TABLE_H_
 #define _TABLE_H_
 
-#include "form.h"
 #include <utility>
 #include <vector>
+#include "form.h"
 #include "libopenui_config.h"
 
 class Table: public FormField {
@@ -87,6 +87,9 @@ class Table: public FormField {
         {
           lines.push_back(line);
           setInnerHeight(lines.size() * TABLE_LINE_HEIGHT - 2);
+          if (hasFocus() && selection < 0) {
+            select(0, true);
+          }
         }
 
         void setLineFlags(uint8_t index, LcdFlags flags)
@@ -147,6 +150,9 @@ class Table: public FormField {
       header(this, {0, 0, width(), 0}, columnsCount),
       body(this, {0, 0, width(), height()}, windowFlags)
     {
+      if (hasFocus()) {
+        setFocus(SET_FOCUS_DEFAULT);
+      }
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -182,7 +188,7 @@ class Table: public FormField {
 
     void setFocus(uint8_t flag) override
     {
-      if (body.selection < 0) {
+      if (body.selection < 0 && !body.lines.empty()) {
         select(0);
       }
       body.setFocus(flag);
