@@ -122,6 +122,9 @@ void FormGroup::addField(FormField * field, bool front)
   if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
     field->setFocus(SET_FOCUS_DEFAULT);
   }
+  else if (focusWindow == this && (windowFlags & FORM_FORWARD_FOCUS)) {
+    field->setFocus(SET_FOCUS_DEFAULT);
+  }
 }
 
 void FormGroup::setFocus(uint8_t flag)
@@ -212,11 +215,7 @@ void FormGroup::onEvent(event_t event)
       first->setFocus(SET_FOCUS_FIRST);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus() && !(windowFlags & FORM_FORWARD_FOCUS)) {
-#if defined(HARDWARE_TOUCH)
-    setFocus(SET_FOCUS_DEFAULT);
-#else
-    FormField::onEvent(event);
-#endif
+    setFocus(SET_FOCUS_DEFAULT); // opentx - model - timers settings
   }
   else if (event == EVT_ROTARY_RIGHT && !next) {
     if (first)
@@ -249,7 +248,7 @@ void FormWindow::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormWindow").c_str(), event);
 
-  if (event == EVT_KEY_BREAK(KEY_EXIT) && first) {
+  if (event == EVT_KEY_BREAK(KEY_EXIT) && (windowFlags & FORM_FORWARD_FOCUS) && first) {
     Window * currentFocus = getFocus();
     first->setFocus(SET_FOCUS_FIRST);
     if (getFocus() != currentFocus)
