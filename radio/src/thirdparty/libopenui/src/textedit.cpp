@@ -85,12 +85,14 @@ void TextEdit::onEvent(event_t event)
         value[length - 1] = '\0';
         --cursorPos;
         invalidate();
+        changed = true;
       }
     }
     else if (cursorPos < length) {
       memmove(value + cursorPos + 1, value + cursorPos, length - cursorPos - 1);
       value[cursorPos++] = c;
       invalidate();
+      changed = true;
     }
   }
 #endif
@@ -130,8 +132,10 @@ void TextEdit::onEvent(event_t event)
       case EVT_KEY_BREAK(KEY_ENTER):
         if (cursorPos < length - 1) {
           cursorPos++;
-          if (value[cursorPos] == '\0')
+          if (value[cursorPos] == '\0') {
             value[cursorPos] = ' ';
+            changed = true;
+          }
           invalidate();
         }
         else {
@@ -171,7 +175,7 @@ void TextEdit::onEvent(event_t event)
       // TRACE("value[%d] = %d", cursorPos, v);
       value[cursorPos] = v;
       invalidate();
-      // TODO storageDirty(...);
+      changed = true;
     }
   }
   else {
@@ -216,6 +220,5 @@ void TextEdit::onFocusLost()
 
   changeEnd();
 
-  // TODO storageDirty(...);
   FormField::onFocusLost();
 }

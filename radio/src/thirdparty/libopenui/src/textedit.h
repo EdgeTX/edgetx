@@ -67,6 +67,7 @@ class TextEdit : public FormField {
 
   protected:
     char * value;
+    bool changed = false;
     uint8_t length;
     uint8_t cursorPos = 0;
     std::function<void()> changeHandler = nullptr;
@@ -76,9 +77,12 @@ class TextEdit : public FormField {
     void changeEnd()
     {
       cursorPos = 0;
-      trim();
-      if (changeHandler)
-        changeHandler();
+      if (changed) {
+        changed = false;
+        trim();
+        if (changeHandler)
+          changeHandler();
+      }
     }
 
     static uint8_t getNextChar(uint8_t c)

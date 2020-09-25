@@ -205,17 +205,18 @@ void Window::scrollTo(const rect_t & rect)
   }
 }
 
-bool Window::hasOpaqueRect(const rect_t & rect) const
+bool Window::hasOpaqueRect(const rect_t & testRect) const
 {
-  if (!this->rect.contains(rect))
+  if (!rect.contains(testRect))
     return false;
 
   if (windowFlags & OPAQUE) {
     return true;
   }
 
+  rect_t relativeRect = {testRect.x - rect.x, testRect.y - rect.y, testRect.w, testRect.h};
   for (auto child: children) {
-    if (child->hasOpaqueRect(rect))
+    if (child->hasOpaqueRect(relativeRect))
       return true;
   }
 
@@ -228,19 +229,20 @@ void Window::fullPaint(BitmapBuffer * dc)
 
   coord_t xmin, xmax, ymin, ymax;
   dc->getClippingRect(xmin, xmax, ymin, ymax);
+  coord_t x = dc->getOffsetX();
+  coord_t y = dc->getOffsetY();
 
   auto firstChild = children.end();
+  rect_t relativeRect = {xmin - x, ymin - y, xmax - xmin, ymax - ymin};
   while (firstChild != children.begin()) {
     auto child = *(--firstChild);
-    if (child->hasOpaqueRect({xmin, ymin, xmax - xmin, ymax - ymin})) {
+    if (child->hasOpaqueRect(relativeRect)) {
       paintNeeded = false;
       break;
     }
   }
 
   if (windowFlags & PAINT_CHILDREN_FIRST) {
-    coord_t x = dc->getOffsetX();
-    coord_t y = dc->getOffsetY();
     paintChildren(dc, firstChild);
     dc->setOffset(x, y);
     dc->setClippingRect(xmin, xmax, ymin, ymax);

@@ -416,7 +416,7 @@ class Window {
 
     bool forwardTouchEnd(coord_t x, coord_t y);
 
-    bool hasOpaqueRect(const rect_t & rect) const;
+    bool hasOpaqueRect(const rect_t & testRect) const;
 };
 
 #endif // _WINDOW_H_
