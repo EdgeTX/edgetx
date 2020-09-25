@@ -95,6 +95,8 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 
 void MenuBody::paint(BitmapBuffer * dc)
 {
+  dc->clear(MENU_BGCOLOR);
+
   for (unsigned i = 0; i < lines.size(); i++) {
     auto & line = lines[i];
     LcdFlags flags = MENU_COLOR | MENU_FONT;
