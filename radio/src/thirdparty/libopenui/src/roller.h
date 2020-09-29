@@ -31,7 +31,8 @@
 constexpr WindowFlags ROLLER_SEPARATION_LINES = (FORM_FLAGS_LAST << 1u);
 constexpr coord_t SCROLL_POSITION_INVALIDATED = INT_MIN;
 
-class Roller: public Choice {
+class Roller: public Choice
+{
   public:
     Roller(FormGroup * parent, const rect_t & rect, const char * label, const char * const * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
       Choice(parent, rect, values, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
@@ -144,14 +145,14 @@ class Roller: public Choice {
       invalidateScrollPosition();
     }
 
-  protected:
-    coord_t lastScrollPositionY = SCROLL_POSITION_INVALIDATED;
-    bool lastEditMode = false;
-
     void invalidateScrollPosition()
     {
       lastScrollPositionY = SCROLL_POSITION_INVALIDATED;
     }
+
+  protected:
+    coord_t lastScrollPositionY = SCROLL_POSITION_INVALIDATED;
+    bool lastEditMode = false;
 
     void updateScrollPositionFromValue()
     {

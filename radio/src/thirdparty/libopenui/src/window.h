@@ -347,7 +347,7 @@ class Window {
 
     void detach();
 
-    bool deleted()
+    bool deleted() const
     {
       return _deleted;
     }
