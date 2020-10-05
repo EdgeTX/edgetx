@@ -24,25 +24,88 @@
 #include <vector>
 #include "form.h"
 #include "libopenui_config.h"
+#include "font.h"
 
 class Table: public FormField {
+  public:
+    class Cell {
+      public:
+        virtual ~Cell() = default;
+
+        virtual void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) = 0;
+
+        virtual bool needsInvalidate() = 0;
+    };
+
+    class StringCell : public Cell {
+      public:
+        StringCell() = default;
+
+        explicit StringCell(std::string value):
+          value(std::move(value))
+        {
+        }
+
+        void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
+        {
+          dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, value.c_str(), flags);
+        }
+
+        bool needsInvalidate() override
+        {
+          return false;
+        }
+
+      protected:
+        std::string value;
+    };
+
+    class DynamicStringCell : public Cell {
+      public:
+        explicit DynamicStringCell(std::function<std::string()> getText):
+          getText(std::move(getText))
+        {
+        }
+
+        void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
+        {
+          auto text = getText();
+          dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, text.c_str(), SPACING_NUMBERS_CONST | flags);
+        }
+
+        bool needsInvalidate() override
+        {
+          return true; // TODO optimize this
+        }
+
+      protected:
+        std::function<std::string()> getText;
+    };
+
     class Line {
       public:
         explicit Line(uint8_t columnsCount):
-          values(columnsCount)
+          cells(columnsCount, nullptr)
         {
         }
-        std::vector<std::string> values;
+
+        ~Line()
+        {
+          for (auto cell: cells) {
+            delete cell;
+          }
+        }
+        std::vector<Cell *> cells;
         std::function<void()> onPress;
         std::function<void()> onSelect;
         LcdFlags flags = TABLE_BODY_FONT;
     };
 
-    class Header: public Window {
+    class Header: public Window, public Line {
       public:
         Header(Table * parent, const rect_t & rect, uint8_t columnsCount):
           Window(parent, rect, OPAQUE),
-          header(columnsCount),
+          Line(columnsCount),
           columnsWidth(parent->columnsWidth)
         {
         }
@@ -54,15 +117,9 @@ class Table: public FormField {
         }
 #endif
 
-        void setLine(const Line & line)
-        {
-          header = line;
-        }
-
         void paint(BitmapBuffer * dc) override;
 
       protected:
-        Line header;
         std::vector<coord_t> & columnsWidth;
     };
 
@@ -76,6 +133,11 @@ class Table: public FormField {
         {
         }
 
+        ~Body() override
+        {
+          clear();
+        }
+
 #if defined(DEBUG_WINDOWS)
         std::string getName() const override
         {
@@ -83,7 +145,7 @@ class Table: public FormField {
         }
 #endif
 
-        void addLine(const Line & line)
+        void addLine(Line * line)
         {
           lines.push_back(line);
           setInnerHeight(lines.size() * TABLE_LINE_HEIGHT - 2);
@@ -94,14 +156,17 @@ class Table: public FormField {
 
         void setLineFlags(uint8_t index, LcdFlags flags)
         {
-          if (lines[index].flags != flags) {
-            lines[index].flags = flags;
+          if (lines[index]->flags != flags) {
+            lines[index]->flags = flags;
             invalidate({0, index * TABLE_LINE_HEIGHT, width(), TABLE_LINE_HEIGHT});
           }
         }
 
         void clear()
         {
+          for (auto line: lines) {
+            delete line;
+          }
           lines.clear();
         }
 
@@ -119,7 +184,7 @@ class Table: public FormField {
           }
           invalidate();
           if (index >= 0) {
-            auto onSelect = lines[index].onSelect;
+            auto onSelect = lines[index]->onSelect;
             if (onSelect) {
               onSelect();
             }
@@ -136,9 +201,11 @@ class Table: public FormField {
         bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
+        void checkEvents() override;
+
       protected:
         std::vector<coord_t> & columnsWidth;
-        std::vector<Line> lines;
+        std::vector<Line *> lines;
         int selection = -1;
     };
 
@@ -209,28 +276,31 @@ class Table: public FormField {
       header.setHeight(TABLE_HEADER_HEIGHT);
       body.setTop(TABLE_HEADER_HEIGHT);
       body.setHeight(height() - TABLE_HEADER_HEIGHT);
-      Line line(columnsCount);
       for (uint8_t i = 0; i < columnsCount; i++) {
-        line.values[i] = values[i];
+        header.cells[i] = new StringCell(values[i]);
       }
-      header.setLine(line);
+    }
+
+    void addLine(Line * line, std::function<void()> onPress = nullptr, std::function<void()> onSelect = nullptr)
+    {
+      line->onPress = std::move(onPress);
+      line->onSelect = std::move(onSelect);
+      body.addLine(line);
     }
 
     void addLine(const char * const values[], std::function<void()> onPress = nullptr, std::function<void()> onSelect = nullptr)
     {
-      Line line(columnsCount);
+      Line * line = new Line(columnsCount);
       for (uint8_t i = 0; i < columnsCount; i++) {
-        line.values[i] = values[i];
+        line->cells[i] = new StringCell(values[i]);
       }
-      line.onPress = std::move(onPress);
-      line.onSelect = std::move(onSelect);
-      body.addLine(line);
+      addLine(line, std::move(onPress), std::move(onSelect));
     }
 
     void clear()
     {
-      body.clear();
       clearSelection();
+      body.clear();
     }
 
     uint8_t size() const

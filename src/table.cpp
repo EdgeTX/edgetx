@@ -23,11 +23,33 @@
 void Table::Header::paint(BitmapBuffer * dc)
 {
   coord_t x = 10;
-  if (!header.values.empty()) {
+  if (!cells.empty()) {
     dc->clear(TABLE_HEADER_BGCOLOR);
-    for (unsigned i = 0; i < header.values.size(); i++) {
-      dc->drawText(x, (TABLE_LINE_HEIGHT - getFontHeight(TABLE_HEADER_FONT)) / 2, header.values[i].c_str(), TABLE_HEADER_FONT);
+    for (unsigned i = 0; i < cells.size(); i++) {
+      auto cell = cells[i];
+      if (cell) {
+        cell->paint(dc, x, 0, TABLE_HEADER_FONT);
+      }
       x += columnsWidth[i];
+    }
+  }
+}
+
+void Table::Body::checkEvents()
+{
+  Window::checkEvents();
+
+  coord_t y = 0;
+  coord_t x;
+  for (auto line: lines) {
+    x = 10;
+    for (unsigned i = 0; i < line->cells.size(); i++) {
+      auto cell = line->cells[i];
+      auto width = columnsWidth[i];
+      if (cell && cell->needsInvalidate()) {
+        invalidate({x, y, width, TABLE_LINE_HEIGHT - 2});
+      }
+      x += width;
     }
   }
 }
@@ -37,12 +59,16 @@ void Table::Body::paint(BitmapBuffer * dc)
   coord_t y = 0;
   coord_t x;
   int index = 0;
-  for (auto & line: lines) {
+  dc->clear(DEFAULT_BGCOLOR);
+  for (auto line: lines) {
     bool highlight = (index == selection);
     dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
     x = 10;
-    for (unsigned i = 0; i < line.values.size(); i++) {
-      dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, line.values[i].c_str(), line.flags | (highlight ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
+    for (unsigned i = 0; i < line->cells.size(); i++) {
+      auto cell = line->cells[i];
+      if (cell) {
+        cell->paint(dc, x, y, line->flags | (highlight ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
+      }
       x += columnsWidth[i];
     }
     y += TABLE_LINE_HEIGHT;
@@ -56,7 +82,7 @@ bool Table::Body::onTouchEnd(coord_t x, coord_t y)
   unsigned index = y / TABLE_LINE_HEIGHT;
   if (index < lines.size()) {
     setFocus(SET_FOCUS_DEFAULT);
-    auto onPress = lines[index].onPress;
+    auto onPress = lines[index]->onPress;
     if (onPress)
       onPress();
   }
@@ -71,7 +97,7 @@ void Table::Body::onEvent(event_t event)
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (selection >= 0) {
-      auto onPress = lines[selection].onPress;
+      auto onPress = lines[selection]->onPress;
       if (onPress)
         onPress();
     }
