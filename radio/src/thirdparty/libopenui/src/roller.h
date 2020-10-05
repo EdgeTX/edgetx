@@ -70,6 +70,9 @@ class Roller: public Choice
     {
       int32_t value = getValue();
       auto valuesCount = getValuesCount();
+      if (valuesCount == 0) {
+        return;
+      }
 
       int index = (scrollPositionY - ROLLER_LINE_HEIGHT + 1)  / ROLLER_LINE_HEIGHT;
       coord_t y = index * ROLLER_LINE_HEIGHT;
