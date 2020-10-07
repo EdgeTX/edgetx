@@ -48,7 +48,8 @@ class Table: public FormField {
 
         void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
         {
-          dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, value.c_str(), flags);
+
+          dc->drawText(x, y - 2 + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_HEADER_FONT)) / 2 + 3, value.c_str(), flags);
         }
 
         bool needsInvalidate() override
@@ -70,7 +71,7 @@ class Table: public FormField {
         void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
         {
           auto text = getText();
-          dc->drawText(x, y + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, text.c_str(), SPACING_NUMBERS_CONST | flags);
+          dc->drawText(x, y - 2 + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_BODY_FONT)) / 2 + 3, text.c_str(), SPACING_NUMBERS_CONST | flags);
         }
 
         bool needsInvalidate() override
