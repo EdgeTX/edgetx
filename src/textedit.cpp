@@ -188,6 +188,10 @@ void TextEdit::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool TextEdit::onTouchEnd(coord_t x, coord_t y)
 {
+  if (!isEnabled()) {
+    return true;
+  }
+
   if (!hasFocus()) {
     setFocus(SET_FOCUS_DEFAULT);
   }

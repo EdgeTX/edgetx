@@ -103,7 +103,7 @@ class Window {
 
     bool isChild(Window * window) const
     {
-      return window == this || (getParent() && getParent()->isChild(window));
+      return window == this || (parent && parent->isChild(window));
     }
 
     Window * getFullScreenWindow()
