@@ -48,7 +48,6 @@ class Table: public FormField {
 
         void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
         {
-
           dc->drawText(x, y - 2 + (TABLE_LINE_HEIGHT - getFontHeight(TABLE_HEADER_FONT)) / 2 + 3, value.c_str(), flags);
         }
 
@@ -81,6 +80,27 @@ class Table: public FormField {
 
       protected:
         std::function<std::string()> getText;
+    };
+
+    class CustomCell : public Cell {
+      public:
+        explicit CustomCell(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> paintFunction):
+          paintFunction(std::move(paintFunction))
+        {
+        }
+
+        void paint(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) override
+        {
+          paintFunction(dc, x, y, flags);
+        }
+
+        bool needsInvalidate() override
+        {
+          return true;
+        }
+
+      protected:
+        std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> paintFunction;
     };
 
     class Line {
@@ -236,10 +256,22 @@ class Table: public FormField {
       body.detach();
     }
 
-    void setColumnsWidth(const coord_t width[])
+    void setColumnsWidth(const coord_t values[])
     {
+      int8_t restColumn = -1;
+      coord_t restWidth = width();
       for (uint8_t i = 0; i < columnsCount; i++) {
-        columnsWidth[i] = width[i];
+        auto columnWidth = values[i];
+        columnsWidth[i] = columnWidth;
+        if (columnWidth == 0) {
+          restColumn = i;
+        }
+        else {
+          restWidth -= columnWidth;
+        }
+      }
+      if (restColumn) {
+        columnsWidth[restColumn] = restWidth;
       }
     }
 
