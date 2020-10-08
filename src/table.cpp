@@ -40,9 +40,8 @@ void Table::Body::checkEvents()
   Window::checkEvents();
 
   coord_t y = 0;
-  coord_t x;
   for (auto line: lines) {
-    x = 10;
+    coord_t x = 10;
     for (unsigned i = 0; i < line->cells.size(); i++) {
       auto cell = line->cells[i];
       auto width = columnsWidth[i];
@@ -51,19 +50,19 @@ void Table::Body::checkEvents()
       }
       x += width;
     }
+    y += TABLE_LINE_HEIGHT;
   }
 }
 
 void Table::Body::paint(BitmapBuffer * dc)
 {
   coord_t y = 0;
-  coord_t x;
   int index = 0;
   dc->clear(DEFAULT_BGCOLOR);
   for (auto line: lines) {
     bool highlight = (index == selection);
     dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
-    x = 10;
+    coord_t x = 10;
     for (unsigned i = 0; i < line->cells.size(); i++) {
       auto cell = line->cells[i];
       if (cell) {
