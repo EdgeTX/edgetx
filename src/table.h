@@ -126,8 +126,7 @@ class Table: public FormField {
       public:
         Header(Table * parent, const rect_t & rect, uint8_t columnsCount):
           Window(parent, rect, OPAQUE),
-          Line(columnsCount),
-          columnsWidth(parent->columnsWidth)
+          Line(columnsCount)
         {
         }
 
@@ -139,9 +138,6 @@ class Table: public FormField {
 #endif
 
         void paint(BitmapBuffer * dc) override;
-
-      protected:
-        std::vector<coord_t> & columnsWidth;
     };
 
     class Body: public Window {
@@ -149,8 +145,7 @@ class Table: public FormField {
 
       public:
         Body(Table * parent, const rect_t & rect, WindowFlags windowFlags):
-          Window(parent, rect, windowFlags),
-          columnsWidth(parent->columnsWidth)
+          Window(parent, rect, windowFlags)
         {
         }
 
@@ -225,7 +220,6 @@ class Table: public FormField {
         void checkEvents() override;
 
       protected:
-        std::vector<coord_t> & columnsWidth;
         std::vector<Line *> lines;
         int selection = -1;
     };
@@ -270,7 +264,7 @@ class Table: public FormField {
           restWidth -= columnWidth;
         }
       }
-      if (restColumn) {
+      if (restColumn >= 0) {
         columnsWidth[restColumn] = restWidth;
       }
     }

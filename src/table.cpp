@@ -30,7 +30,7 @@ void Table::Header::paint(BitmapBuffer * dc)
       if (cell) {
         cell->paint(dc, x, 0, TABLE_HEADER_FONT);
       }
-      x += columnsWidth[i];
+      x += static_cast<Table *>(parent)->columnsWidth[i];
     }
   }
 }
@@ -44,7 +44,7 @@ void Table::Body::checkEvents()
     coord_t x = 10;
     for (unsigned i = 0; i < line->cells.size(); i++) {
       auto cell = line->cells[i];
-      auto width = columnsWidth[i];
+      auto width = static_cast<Table *>(parent)->columnsWidth[i];
       if (cell && cell->needsInvalidate()) {
         invalidate({x, y, width, TABLE_LINE_HEIGHT - 2});
       }
@@ -68,7 +68,7 @@ void Table::Body::paint(BitmapBuffer * dc)
       if (cell) {
         cell->paint(dc, x, y, line->flags | (highlight ? MENU_HIGHLIGHT_COLOR : DEFAULT_COLOR));
       }
-      x += columnsWidth[i];
+      x += static_cast<Table *>(parent)->columnsWidth[i];
     }
     y += TABLE_LINE_HEIGHT;
     index += 1;
