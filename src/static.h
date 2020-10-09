@@ -29,6 +29,9 @@ class StaticText: public Window {
       Window(parent, rect, windowFlags, textFlags),
       text(std::move(text))
     {
+      if (windowFlags & BUTTON_BACKGROUND) {
+        setBackgroundColor(DISABLE_COLOR);
+      }
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -46,8 +49,14 @@ class StaticText: public Window {
       invalidate();
     }
 
+    void setBackgroundColor(LcdFlags color)
+    {
+      bgColor = color;
+    }
+
   protected:
     std::string text;
+    LcdFlags bgColor = 0;
 };
 
 class Subtitle: public StaticText {
@@ -124,14 +133,15 @@ class StaticBitmap: public Window {
 class DynamicText: public StaticText
 {
   public:
-    DynamicText(Window * parent, const rect_t & rect, std::function<std::string()> textHandler):
-      StaticText(parent, rect),
+    DynamicText(Window * parent, const rect_t & rect, std::function<std::string()> textHandler, LcdFlags textFlags = 0):
+      StaticText(parent, rect, "", 0, textFlags),
       textHandler(std::move(textHandler))
     {
     }
 
     void checkEvents() override
     {
+      StaticText::checkEvents();
       std::string newText = textHandler();
       if (newText != text) {
         text = newText;

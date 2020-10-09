@@ -22,8 +22,8 @@
 
 void StaticText::paint(BitmapBuffer * dc)
 {
-  if (windowFlags & BUTTON_BACKGROUND) {
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
+  if (bgColor) {
+    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
   }
 
   coord_t x;
