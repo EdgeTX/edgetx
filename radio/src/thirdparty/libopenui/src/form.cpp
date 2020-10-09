@@ -63,18 +63,22 @@ void FormField::onEvent(event_t event)
 
 void FormField::setFocus(uint8_t flag)
 {
-  if (!enabled) {
-    if (flag == SET_FOCUS_BACKWARD) {
-      if (previous)
-        previous->setFocus(flag);
-    }
-    else {
-      if (next)
-        next->setFocus(flag);
-    }
+  if (enabled) {
+    Window::setFocus(flag);
   }
   else {
-    Window::setFocus(flag);
+    clearFocus();
+    focusWindow = this;
+    if (flag == SET_FOCUS_BACKWARD) {
+      if (previous) {
+        previous->setFocus(flag);
+      }
+    }
+    else {
+      if (next) {
+        next->setFocus(flag);
+      }
+    }
   }
 }
 
@@ -133,15 +137,6 @@ void FormGroup::setFocus(uint8_t flag)
 
   if (windowFlags & FORM_FORWARD_FOCUS) {
     switch (flag) {
-      case SET_FOCUS_FIRST:
-        if (first) {
-          first->setFocus(SET_FOCUS_FIRST);
-        }
-        else if (next) {
-          next->setFocus(SET_FOCUS_FIRST);
-        }
-        break;
-
       case SET_FOCUS_BACKWARD:
         if (focusWindow->isChild(first)) {
           if (previous == this) {
@@ -163,8 +158,12 @@ void FormGroup::setFocus(uint8_t flag)
         }
         break;
 
+      case SET_FOCUS_FIRST:
+        clearFocus();
+        // no break;
+
       case SET_FOCUS_FORWARD:
-        if (focusWindow->isChild(this)) {
+        if (focusWindow && focusWindow->isChild(this)) {
           if (next == this) {
             first->setFocus(SET_FOCUS_FORWARD);
           }
