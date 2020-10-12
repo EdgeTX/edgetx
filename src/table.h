@@ -283,7 +283,7 @@ class Table: public FormField {
     void setFocus(uint8_t flag) override
     {
       if (body.selection < 0 && !body.lines.empty()) {
-        select(0);
+        select(flag == SET_FOCUS_BACKWARD ? body.lines.size() - 1 : 0);
       }
       body.setFocus(flag);
     }

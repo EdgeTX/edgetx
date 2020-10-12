@@ -102,12 +102,46 @@ void Table::Body::onEvent(event_t event)
     }
   }
   if (event == EVT_ROTARY_RIGHT) {
-    if (!lines.empty())
-      select((selection + 1) % lines.size(), true);
+    auto table = static_cast<Table *>(parent);
+    if (table->windowFlags & FORWARD_SCROLL) {
+      auto index = selection + 1;
+      if (index < int(lines.size())) {
+        select(index, true);
+      }
+      else {
+        auto next = table->getNextField();
+        if (next) {
+          select(-1, false);
+          next->setFocus(SET_FOCUS_FORWARD);
+        }
+      }
+    }
+    else {
+      if (!lines.empty()) {
+        select((selection + 1) % lines.size(), true);
+      }
+    }
   }
   else if (event == EVT_ROTARY_LEFT) {
-    if (!lines.empty())
-      select(selection <= 0 ? lines.size() - 1 : selection - 1, true);
+    auto table = static_cast<Table *>(parent);
+    if (table->windowFlags & FORWARD_SCROLL) {
+      auto index = selection - 1;
+      if (index >= 0) {
+        select(index, true);
+      }
+      else {
+        auto previous = table->getPreviousField();
+        if (previous) {
+          select(-1, false);
+          previous->setFocus(SET_FOCUS_BACKWARD);
+        }
+      }
+    }
+    else {
+      if (!lines.empty()) {
+        select(selection <= 0 ? lines.size() - 1 : selection - 1, true);
+      }
+    }
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && selection >= 0) {
     select(-1, true);
