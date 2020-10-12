@@ -39,7 +39,14 @@ void ExpansionPanelHeader::onEvent(event_t event)
     panel->toggle();
   }
   else if (event == EVT_ROTARY_RIGHT && !panel->isOpen) {
-    panel->getNextField()->setFocus(SET_FOCUS_FORWARD);
+    auto next = panel->getNextField();
+    if (next)
+      next->setFocus(SET_FOCUS_FORWARD);
+  }
+  else if (event == EVT_ROTARY_LEFT) {
+    auto previous = panel->getPreviousField();
+    if (previous)
+      previous->setFocus(SET_FOCUS_BACKWARD);
   }
   else {
     FormGroup::onEvent(event);

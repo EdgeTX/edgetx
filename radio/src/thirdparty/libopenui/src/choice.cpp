@@ -175,6 +175,9 @@ void Choice::openMenu()
 bool Choice::onTouchEnd(coord_t, coord_t)
 {
   if (enabled) {
+    if (!hasFocus()) {
+      setFocus(SET_FOCUS_DEFAULT);
+    }
     onKeyPress();
     openMenu();
   }
