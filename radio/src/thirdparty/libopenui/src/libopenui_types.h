@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_TYPES_H_
-#define _LIBOPEUI_TYPES_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -73,4 +72,3 @@ struct rect_t
 typedef uint32_t LcdFlags;
 typedef uint16_t event_t;
 
-#endif // _LIBOPEUI_TYPES_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_GLOBALS_H_
-#define _LIBOPEUI_GLOBALS_H_
+#pragma once
 
 #include <inttypes.h>
 #include "libopenui_config.h"
@@ -32,4 +31,3 @@ inline void lcdSetColor(uint16_t color)
   lcdColorTable[CUSTOM_COLOR_INDEX] = color;
 }
 
-#endif // _LIBOPEUI_GLOBALS_H_

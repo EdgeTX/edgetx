@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _CHECKBOX_H_
-#define _CHECKBOX_H_
+#pragma once
 
 #include "form.h"
 
@@ -69,4 +68,3 @@ class CheckBox : public FormField {
     std::function<void(uint8_t)> _setValue;
 };
 
-#endif // _CHECKBOX_H_

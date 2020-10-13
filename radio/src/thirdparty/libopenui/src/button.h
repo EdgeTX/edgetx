@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _BUTTON_H_
-#define _BUTTON_H_
+#pragma once
 
 #include "form.h"
 
@@ -134,4 +133,3 @@ class IconButton: public Button {
     uint8_t icon;
 };
 
-#endif

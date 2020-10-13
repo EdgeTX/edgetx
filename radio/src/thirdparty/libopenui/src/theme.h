@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _THEME_H_
-#define _THEME_H_
+#pragma once
 
 #include "bitmapbuffer.h"
 #include "checkbox.h"
@@ -63,4 +62,3 @@ extern Theme * theme;
 MenuWindowContent * createMenuWindow(Menu * menu);
 DialogWindowContent * createDialogWindow(Dialog * dialog, const rect_t & rect);
 
-#endif // _THEME_H_

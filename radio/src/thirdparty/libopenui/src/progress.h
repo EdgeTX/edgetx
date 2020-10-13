@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _PROGRESS_H_
-#define _PROGRESS_H_
+#pragma once
 
 #include "window.h"
 
@@ -48,4 +47,3 @@ class Progress : public Window {
     int value = 0;
 };
 
-#endif

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _SLIDER_H_
-#define _SLIDER_H_
+#pragma once
 
 #include "form.h"
 
@@ -69,4 +68,3 @@ class Slider: public FormField {
     std::function<void(int32_t)> _setValue;
 };
 
-#endif

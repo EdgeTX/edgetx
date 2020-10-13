@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _DIALOG_H_
-#define _DIALOG_H_
+#pragma once
 
 #include "modal_window.h"
 #include "form.h"
@@ -55,4 +54,3 @@ class Dialog: public ModalWindow {
     DialogWindowContent * content;
 };
 
-#endif // _DIALOG_H_

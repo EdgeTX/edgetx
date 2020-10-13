@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _MENU_H_
-#define _MENU_H_
+#pragma once
 
 #include <vector>
 #include <functional>
@@ -223,4 +222,3 @@ Menu * MenuBody::getParentMenu()
   return static_cast<Menu *>(getParent()->getParent());
 }
 
-#endif // _MENU_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _MODAL_WINDOW_H_
-#define _MODAL_WINDOW_H_
+#pragma once
 
 #include "window.h"
 
@@ -122,4 +121,3 @@ class ModalWindowContent: public Window {
     std::string title;
 };
 
-#endif // _MODAL_WINDOW_H_

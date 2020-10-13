@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _MAINWINDOW_H_
-#define _MAINWINDOW_H_
+#pragma once
 
 #include <utility>
 #include "window.h"
@@ -65,4 +64,3 @@ class MainWindow: public Window {
 
 extern MainWindow mainWindow;
 
-#endif // _MAINWINDOW_H_

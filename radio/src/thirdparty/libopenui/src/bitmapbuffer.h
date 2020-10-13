@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _BITMAP_BUFFER_H_
-#define _BITMAP_BUFFER_H_
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -519,4 +518,3 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
 extern BitmapBuffer * lcd;
 
-#endif // _BITMAP_BUFFER_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _BUFFERED_WINDOW_H_
-#define _BUFFERED_WINDOW_H_
+#pragma once
 
 #include "window.h"
 
@@ -123,4 +122,3 @@ class TransparentBitmapBackground: public TransparentBufferedWindow<Window>
     }
 };
 
-#endif // _BUFFERED_WINDOW_H_

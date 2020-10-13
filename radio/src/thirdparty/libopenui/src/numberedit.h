@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _NUMBEREDIT_H_
-#define _NUMBEREDIT_H_
+#pragma once
 
 #include "basenumberedit.h"
 #include <string>
@@ -78,4 +77,3 @@ class NumberEdit : public BaseNumberEdit {
     std::function<bool(int)> isValueAvailable;
 };
 
-#endif // _NUMBEREDIT_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _KEYBOARD_TEXT_H_
-#define _KEYBOARD_TEXT_H_
+#pragma once
 
 #include "keyboard_base.h"
 
@@ -61,4 +60,3 @@ class TextKeyboard : public Keyboard {
     const char * const * layout;
 };
 
-#endif // _KEYBOARD_TEXT_H_

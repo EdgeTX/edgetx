@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _FONT_H_
-#define _FONT_H_
+#pragma once
 
 #include "libopenui_types.h"
 
@@ -27,4 +26,3 @@ uint8_t getFontHeight(LcdFlags flags);
 int getCharWidth(uint8_t c, const uint16_t * spec);
 int getTextWidth(const char * s, int len = 0, LcdFlags flags = 0);
 
-#endif // _FONT_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _KEYBOARD_BASE_H_
-#define _KEYBOARD_BASE_H_
+#pragma once
 
 #include "mainwindow.h"
 #include "form.h"
@@ -86,4 +85,3 @@ class Keyboard: public FormWindow {
     }
 };
 
-#endif // _KEYBOARD_BASE_H_

@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _MENUTOOLBAR_H_
-#define _MENUTOOLBAR_H_
+#pragma once
 
 #include "button.h"
 #include "menu.h"
@@ -170,5 +169,4 @@ class MenuToolbar: public FormGroup {
     }
 };
 
-#endif // _MENUTOOLBAR_H_
 

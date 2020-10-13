@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _CAROUSEL_H_
-#define _CAROUSEL_H_
+#pragma once
 
 #include <vector>
 #include "button.h"
@@ -139,4 +138,3 @@ class Carousel: public Window {
     CarouselWindow * body = nullptr;
 };
 
-#endif // _CAROUSEL_H_

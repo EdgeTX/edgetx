@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _BITFIELD_H
-#define _BITFIELD_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -82,4 +81,3 @@ inline T bfSingleBitGet(T y, uint8_t i)
   return bfBitGet(y, bfBit<T>(i));
 }
 
-#endif //BITFIELD_H

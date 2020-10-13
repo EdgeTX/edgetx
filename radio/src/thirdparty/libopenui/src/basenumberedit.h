@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _BASENUMBEREDIT_H_
-#define _BASENUMBEREDIT_H_
+#pragma once
 
 #include "form.h"
 
@@ -99,4 +98,3 @@ class BaseNumberEdit : public FormField {
     std::function<void(int32_t)> _setValue;
 };
 
-#endif // _BASENUMBEREDIT_H_

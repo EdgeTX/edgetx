@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _KEYBOARD_NUMBER_H_
-#define _KEYBOARD_NUMBER_H_
+#pragma once
 
 #include "keyboard_base.h"
 
@@ -48,4 +47,3 @@ class NumberKeyboard : public Keyboard {
     static NumberKeyboard * _instance;
 };
 
-#endif // _KEYBOARD_NUMBER_H_
