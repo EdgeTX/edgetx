@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _EXPANSION_PANEL_H_
-#define _EXPANSION_PANEL_H_
+#pragma once
 
 #include "form.h"
 
@@ -87,4 +86,3 @@ class ExpansionPanel: public FormGroup {
     bool isOpen = false;
 };
 
-#endif // _EXPANSION_PANEL_H_

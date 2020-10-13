@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _TABLE_H_
-#define _TABLE_H_
+#pragma once
 
 #include <utility>
 #include <vector>
@@ -342,4 +341,3 @@ class Table: public FormField {
     Body body;
 };
 
-#endif // _TABLE_H_

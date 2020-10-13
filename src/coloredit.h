@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _COLOREDIT_H_
-#define _COLOREDIT_H_
+#pragma once
 
 #include "form.h"
 
@@ -34,4 +33,3 @@ class ColorEdit : public FormGroup {
 #endif
 };
 
-#endif // _COLOREDIT_H_

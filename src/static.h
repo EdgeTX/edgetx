@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _STATIC_H_
-#define _STATIC_H_
+#pragma once
 
 #include "window.h"
 #include "button.h" // TODO just for BUTTON_BACKGROUND
@@ -186,4 +185,3 @@ class DynamicNumber: public Window
     const char * suffix;
 };
 
-#endif

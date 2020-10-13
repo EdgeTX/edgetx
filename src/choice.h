@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _CHOICE_H_
-#define _CHOICE_H_
+#pragma once
 
 #include <vector>
 #include "form.h"
@@ -159,4 +158,3 @@ class Choice : public ChoiceBase {
     virtual void openMenu();
 };
 
-#endif // _CHOICE_H_

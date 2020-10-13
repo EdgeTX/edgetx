@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _TEXTEDIT_H_
-#define _TEXTEDIT_H_
+#pragma once
 
 #include "form.h"
 
@@ -115,4 +114,3 @@ class TextEdit : public FormField {
 
 };
 
-#endif // _TEXTEDIT_H_

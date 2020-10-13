@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _FILECHOICE_H_
-#define _FILECHOICE_H_
+#pragma once
 
 #include "choice.h"
 #include <string>
@@ -54,4 +53,3 @@ class FileChoice: public ChoiceBase {
     bool openMenu();
 };
 
-#endif // _FILECHOICE_H_

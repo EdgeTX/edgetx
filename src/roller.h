@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _ROLLER_H_
-#define _ROLLER_H_
+#pragma once
 
 #include <touch.h>
 #include <choice.h>
@@ -175,4 +174,3 @@ class Roller: public Choice
     }
 };
 
-#endif // _ROLLER_H_

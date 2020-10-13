@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_HELPERS_H_
-#define _LIBOPEUI_HELPERS_H_
+#pragma once
 
 #include <string>
 #include <cstring>
@@ -61,4 +60,3 @@ inline std::string TEXT_AT_INDEX(const char * val, uint8_t idx)
   return std::string(start, min<uint8_t>(val[0], (uint8_t)strlen(start)));
 }
 
-#endif

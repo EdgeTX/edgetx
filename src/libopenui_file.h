@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_FILE_H_
-#define _LIBOPEUI_FILE_H_
+#pragma once
 
 #include <string>
 #include <string.h>
@@ -38,4 +37,3 @@ inline bool compare_nocase(const std::string &first, const std::string &second)
   return strcasecmp(first.c_str(), second.c_str()) < 0;
 }
 
-#endif

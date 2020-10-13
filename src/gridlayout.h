@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _GRIDLAYOUT_H_
-#define _GRIDLAYOUT_H_
+#pragma once
 
 #include "window.h"
 
@@ -120,4 +119,3 @@ class FormGridLayout: public GridLayout {
     coord_t lineMarginRight = PAGE_PADDING;
 };
 
-#endif

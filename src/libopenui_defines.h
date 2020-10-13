@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_DEFINES_H_
-#define _LIBOPEUI_DEFINES_H_
+#pragma once
 
 #include "libopenui_types.h"
 
@@ -116,4 +115,3 @@
 #define TABLE_HEADER_BGCOLOR           COLOR(TABLE_HEADER_BGCOLOR_INDEX)
 #define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
 
-#endif

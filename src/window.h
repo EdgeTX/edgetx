@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#pragma once
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -419,4 +418,3 @@ class Window {
     bool hasOpaqueRect(const rect_t & testRect) const;
 };
 
-#endif // _WINDOW_H_

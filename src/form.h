@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _FORM_H_
-#define _FORM_H_
+#pragma once
 
 #include "window.h"
 
@@ -173,4 +172,3 @@ class FormWindow: public FormGroup {
 #endif
 };
 
-#endif

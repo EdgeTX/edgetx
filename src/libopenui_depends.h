@@ -17,8 +17,7 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _LIBOPEUI_DEPENDS_H_
-#define _LIBOPEUI_DEPENDS_H_
+#pragma once
 
 #include <inttypes.h>
 #include "libopenui_config.h"
@@ -31,4 +30,3 @@ void onKeyError();
 void killEvents(event_t event);
 event_t getWindowEvent();
 
-#endif // _LIBOPEUI_DEPENDS_H_
