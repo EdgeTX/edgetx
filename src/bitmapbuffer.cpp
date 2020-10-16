@@ -195,23 +195,23 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
   }
 }
 
-//
-//void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags att)
-//{
-//  pixel_t color = lcdColorTable[COLOR_IDX(att)];
-//  RGB_SPLIT(color, red, green, blue);
-//
-//  for (int i=y; i<y+h; i++) {
-//    pixel_t * p = getPixelPtr(x, i);
-//    for (int j=0; j<w; j++) {
-//      // TODO ASSERT_IN_DISPLAY(p);
-//      RGB_SPLIT(*p, bgRed, bgGreen, bgBlue);
-//      drawPixel(p, RGB_JOIN(0x1F + red - bgRed, 0x3F + green - bgGreen, 0x1F + blue - bgBlue));
-//      MOVE_TO_NEXT_RIGHT_PIXEL(p);
-//    }
-//  }
-//}
-//
+void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags att)
+{
+  APPLY_OFFSET();
+
+  pixel_t color = lcdColorTable[COLOR_IDX(att)];
+  RGB_SPLIT(color, red, green, blue);
+
+  for (int i = y; i < y + h; i++) {
+    pixel_t * p = getPixelPtr(x, i);
+    for (int j = 0; j < w; j++) {
+      // TODO ASSERT_IN_DISPLAY(p);
+      RGB_SPLIT(*p, bgRed, bgGreen, bgBlue);
+      drawPixel(p, RGB_JOIN(0x1F + red - bgRed, 0x3F + green - bgGreen, 0x1F + blue - bgBlue));
+      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+    }
+  }
+}
 
 void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags)
 {
@@ -343,6 +343,44 @@ class Slope {
     bool left;
     int value;
 };
+
+void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y, const uint8_t * img, LcdFlags flags, int startAngle, int endAngle)
+{
+  if (endAngle == startAngle) {
+    endAngle += 1;
+  }
+
+  Slope startSlope(startAngle);
+  Slope endSlope(endAngle);
+
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  APPLY_OFFSET();
+
+  coord_t width = *((uint16_t *)img);
+  coord_t height = *(((uint16_t *)img) + 1);
+  const uint8_t * q = img + 4;
+
+  int w2 = width / 2;
+  int h2 = height / 2;
+
+  for (int y1 = h2 - 1; y1 >= 0; y1--) {
+    for (int x1 = w2 - 1; x1 >= 0; x1--) {
+      Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);
+      if (slope.isBetween(startSlope, endSlope)) {
+        drawAlphaPixel(x + w2 + x1, y + h2 - y1, q[(h2 - y1) * width + w2 + x1], color);
+      }
+      if (slope.invertVertical().isBetween(startSlope, endSlope)) {
+        drawAlphaPixel(x + w2 + x1, y + h2 + y1, q[(h2 + y1) * width + w2 + x1], color);
+      }
+      if (slope.invertHorizontal().isBetween(startSlope, endSlope)) {
+        drawAlphaPixel(x + w2 - x1, y + h2 + y1, q[(h2 + y1) * width + w2 - x1], color);
+      }
+      if (slope.invertVertical().isBetween(startSlope, endSlope)) {
+        drawAlphaPixel(x + w2 - x1, y + h2 - y1, q[(h2 - y1) * width + w2 - x1], color);
+      }
+    }
+  }
+}
 
 void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags)
 {
@@ -667,39 +705,6 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 //  }
 //}
 //
-//void BitmapBuffer::drawBitmapPatternPie(coord_t x0, coord_t y0, const uint8_t * img, LcdFlags flags, int startAngle, int endAngle)
-//{
-//  coord_t width = *((uint16_t *)img);
-//  coord_t height = *(((uint16_t *)img)+1);
-//  const uint8_t * q = img+4;
-//
-//  int slopes[4];
-//  if (!evalSlopes(slopes, startAngle, endAngle))
-//    return;
-//
-//  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
-//
-//  int w2 = width/2;
-//  int h2 = height/2;
-//
-//  for (int y=h2-1; y>=0; y--) {
-//    for (int x=w2-1; x>=0; x--) {
-//      int slope = (x==0 ? (y<0 ? -99000 : 99000) : y*100/x);
-//      if (slope >= slopes[0] && slope < slopes[1]) {
-//        drawAlphaPixel(x0+w2+x, y0+h2-y, q[(h2-y)*width + w2+x], color);
-//      }
-//      if (-slope >= slopes[0] && -slope < slopes[1]) {
-//        drawAlphaPixel(x0+w2+x, y0+h2+y, q[(h2+y)*width + w2+x], color);
-//      }
-//      if (slope >= slopes[2] && slope < slopes[3]) {
-//        drawAlphaPixel(x0+w2-x, y0+h2-y, q[(h2-y)*width + w2-x], color);
-//      }
-//      if (-slope >= slopes[2] && -slope < slopes[3]) {
-//        drawAlphaPixel(x0+w2-x, y0+h2+y, q[(h2+y)*width + w2-x], color);
-//      }
-//    }
-//  }
-//}
 
 BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename)
 {
