@@ -126,7 +126,7 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   }
 }
 
-void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, LcdFlags att)
+void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, LcdFlags flags)
 {
   // Offsets
   x1 += offsetX;
@@ -134,7 +134,7 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
   x2 += offsetX;
   y2 += offsetY;
 
-  pixel_t color = lcdColorTable[COLOR_IDX(att)];
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
 
   int dx = x2 - x1;      /* the horizontal distance of the line */
   int dy = y2 - y1;      /* the vertical distance of the line */
