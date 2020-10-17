@@ -126,6 +126,57 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   }
 }
 
+void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, LcdFlags flags)
+{
+  // Offsets
+  x1 += offsetX;
+  y1 += offsetY;
+  x2 += offsetX;
+  y2 += offsetY;
+
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+
+  int dx = x2 - x1;      /* the horizontal distance of the line */
+  int dy = y2 - y1;      /* the vertical distance of the line */
+  int dxabs = abs(dx);
+  int dyabs = abs(dy);
+  int sdx = sgn(dx);
+  int sdy = sgn(dy);
+  int x = dyabs >> 1;
+  int y = dxabs >> 1;
+  int px = x1;
+  int py = y1;
+
+  if (dxabs >= dyabs) {
+    /* the line is more horizontal than vertical */
+    for (int i = 0; i <= dxabs; i++) {
+      if ((1 << (px % 8)) & pat) {
+        drawPixel(px, py, color);
+      }
+      y += dyabs;
+      if (y >= dxabs) {
+        y -= dxabs;
+        py += sdy;
+      }
+      px += sdx;
+    }
+  }
+  else {
+    /* the line is more vertical than horizontal */
+    for (int i = 0; i <= dyabs; i++) {
+      if ((1 << (py % 8)) & pat) {
+        drawPixel(px, py, color);
+      }
+      x += dxabs;
+      if (x >= dyabs) {
+        x -= dyabs;
+        px += sdx;
+      }
+      py += sdy;
+    }
+  }
+}
+
 void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags att)
 {
   for (int i=0; i<thickness; i++) {
