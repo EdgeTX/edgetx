@@ -678,8 +678,6 @@ coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags fla
   return drawText(x, y, s, flags);
 }
 
-
-
 void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, LcdFlags att)
 {
   dc->drawSolidFilledRect(x, y, thickness, h, att);
