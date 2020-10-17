@@ -41,7 +41,7 @@ void BitmapBuffer::drawAlphaPixel(pixel_t * p, uint8_t opacity, uint16_t color)
   }
 }
 
-void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags att)
+void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags)
 {
   APPLY_OFFSET();
 
@@ -53,8 +53,8 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
   }
 
   pixel_t * p = getPixelPtr(x, y);
-  pixel_t color = lcdColorTable[COLOR_IDX(att)];
-  uint8_t opacity = 0x0F - (att >> 24);
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  uint8_t opacity = 0x0F - (flags >> 24);
 
   if (pat == SOLID) {
     while (w--) {
@@ -76,7 +76,7 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
   }
 }
 
-void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat, LcdFlags att)
+void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat, LcdFlags flags)
 {
   APPLY_OFFSET();
 
@@ -100,8 +100,8 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   if (h <= 0)
     return;
 
-  pixel_t color = lcdColorTable[COLOR_IDX(att)];
-  uint8_t opacity = 0x0F - (att >> 24);
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  uint8_t opacity = 0x0F - (flags >> 24);
 
   if (pat == SOLID) {
     while (h--) {
@@ -177,13 +177,13 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
   }
 }
 
-void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags att)
+void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags flags)
 {
   for (int i=0; i<thickness; i++) {
-    drawVerticalLine(x+i, y, h, pat, att);
-    drawVerticalLine(x+w-1-i, y, h, pat, att);
-    drawHorizontalLine(x, y+h-1-i, w, pat, att);
-    drawHorizontalLine(x, y+i, w, pat, att);
+    drawVerticalLine(x+i, y, h, pat, flags);
+    drawVerticalLine(x+w-1-i, y, h, pat, flags);
+    drawHorizontalLine(x, y+h-1-i, w, pat, flags);
+    drawHorizontalLine(x, y+i, w, pat, flags);
   }
 }
 
@@ -217,7 +217,7 @@ void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t 
   DMAFillRect(data, _width, _height, x, y, w, h, lcdColorTable[COLOR_IDX(flags)]);
 }
 
-void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags att)
+void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags flags)
 {
   APPLY_OFFSET();
 
@@ -242,15 +242,15 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
     w = xmax - x;
 
   for (coord_t i = y; i < y + h; i++) {
-    drawHorizontalLine(x, i, w, pat, att);
+    drawHorizontalLine(x, i, w, pat, flags);
   }
 }
 
-void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags att)
+void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags)
 {
   APPLY_OFFSET();
 
-  pixel_t color = lcdColorTable[COLOR_IDX(att)];
+  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
   RGB_SPLIT(color, red, green, blue);
 
   for (int i = y; i < y + h; i++) {
@@ -716,12 +716,12 @@ coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags fla
   return drawText(x, y, s, flags);
 }
 
-void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, LcdFlags att)
+void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, LcdFlags flags)
 {
-  dc->drawSolidFilledRect(x, y, thickness, h, att);
-  dc->drawSolidFilledRect(x+w-thickness, y, thickness, h, att);
-  dc->drawSolidFilledRect(x, y, w, thickness, att);
-  dc->drawSolidFilledRect(x, y+h-thickness, w, thickness, att);
+  dc->drawSolidFilledRect(x, y, thickness, h, flags);
+  dc->drawSolidFilledRect(x+w-thickness, y, thickness, h, flags);
+  dc->drawSolidFilledRect(x, y, w, thickness, flags);
+  dc->drawSolidFilledRect(x, y+h-thickness, w, thickness, flags);
 }
 
 //void BitmapBuffer::drawBitmapPie(int x0, int y0, const uint16_t * img, int startAngle, int endAngle)
