@@ -23,7 +23,6 @@
 #include <string.h>
 #include <inttypes.h>
 #include "ff.h"
-// #include "libopenui_defines.h"
 
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
 
@@ -32,8 +31,7 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
 FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime);
 
 // comparison, not case sensitive.
-inline bool compare_nocase(const std::string &first, const std::string &second)
+inline bool compare_nocase(const std::string & first, const std::string & second)
 {
   return strcasecmp(first.c_str(), second.c_str()) < 0;
 }
-

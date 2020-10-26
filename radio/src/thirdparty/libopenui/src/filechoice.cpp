@@ -23,8 +23,13 @@
 #include "theme.h"
 #include "message_dialog.h"
 
-extern const char STR_SDCARD[];
-extern const char STR_NO_FILES_ON_SD[];
+#if !defined(STR_SDCARD)
+  #define STR_SDCARD "SD"
+#endif
+
+#if !defined(STR_NO_FILES_ON_SD)
+  #define STR_NO_FILES_ON_SD "No files on SD Card!"
+#endif
 
 FileChoice::FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue):
   ChoiceBase(parent, rect, CHOICE_TYPE_FOLDER),
