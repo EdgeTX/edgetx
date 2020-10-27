@@ -32,7 +32,7 @@ void TextEdit::paint(BitmapBuffer * dc)
   if (editMode) {
     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, FOCUS_COLOR);
     coord_t left = (cursorPos == 0 ? 0 : getTextWidth(value, cursorPos));
-#if defined(HARDWARE_TOUCH)
+#if defined(SOFTWARE_KEYBOARD)
     dc->drawSolidFilledRect(left + 2, 2, 2, height() - 4, FOCUS_COLOR);
 #else
     char s[] = { value[cursorPos], '\0' };
