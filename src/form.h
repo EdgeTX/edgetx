@@ -59,6 +59,7 @@ class FormField: public Window {
     virtual void setEditMode(bool newEditMode)
     {
       editMode = newEditMode;
+      invalidate();
     }
 
     void enable(bool value = true)

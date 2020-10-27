@@ -106,11 +106,10 @@ class TextEdit : public FormField {
         return 'Z';
       else if (c == '0')
         return 'z';
-      else if (c == ' ')
+      else if (c == ' ' || c == 0)
         return '>';
       else
         return c - 1;
     }
-
 };
 

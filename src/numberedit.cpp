@@ -125,18 +125,23 @@ void NumberEdit::onEvent(event_t event)
   FormField::onEvent(event);
 }
 
-#if defined(SOFTWARE_KEYBOARD)
+#if defined(HARDWARE_TOUCH)
 bool NumberEdit::onTouchEnd(coord_t, coord_t)
 {
   if (!enabled) {
     return true;
   }
 
-  if (!hasFocus()) {
+  if (hasFocus()) {
+    setEditMode(true);
+  }
+  else {
     setFocus(SET_FOCUS_DEFAULT);
   }
 
+#if defined(SOFTWARE_KEYBOARD)
   NumberKeyboard::show(this);
+#endif
 
   return true;
 }
