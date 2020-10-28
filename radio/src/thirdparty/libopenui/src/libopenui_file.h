@@ -19,9 +19,10 @@
 
 #pragma once
 
+#include "libopenui_defines.h" // for strcasecmp / VC++
 #include <string>
-#include <string.h>
-#include <inttypes.h>
+#include <cstring>
+#include <cinttypes>
 #include "ff.h"
 
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
