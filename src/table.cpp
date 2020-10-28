@@ -103,7 +103,7 @@ void Table::Body::onEvent(event_t event)
   }
   if (event == EVT_ROTARY_RIGHT) {
     auto table = static_cast<Table *>(parent);
-    if (table->windowFlags & FORWARD_SCROLL) {
+    if (table->getWindowFlags() & FORWARD_SCROLL) {
       auto index = selection + 1;
       if (index < int(lines.size())) {
         select(index, true);
