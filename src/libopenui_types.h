@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <inttypes.h>
+#include <cinttypes>
 
 typedef int coord_t;
 
