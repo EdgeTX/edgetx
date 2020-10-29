@@ -42,7 +42,7 @@ inline T max(T a, T b)
 template<class T>
 inline T limit(T vmin, T x, T vmax)
 {
-  return min(max(vmin, x), vmax);
+  return ::min(::max(vmin, x), vmax);
 }
 
 inline int divRoundClosest(const int n, const int d)
