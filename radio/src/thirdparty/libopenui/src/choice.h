@@ -76,7 +76,7 @@ class Choice : public ChoiceBase {
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    void setSetValueHandler(std::function<void(int16_t)> handler)
+    void setSetValueHandler(std::function<void(int)> handler)
     {
       setValue = std::move(handler);
     }

@@ -21,7 +21,8 @@
 
 #include "form.h"
 
-class BaseNumberEdit : public FormField {
+class BaseNumberEdit : public FormField
+{
   public:
     BaseNumberEdit(Window * parent, const rect_t &rect, int32_t vmin, int32_t vmax,
                    std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
@@ -79,7 +80,7 @@ class BaseNumberEdit : public FormField {
       invalidate();
     }
 
-    void setSetValueHandler(std::function<void(int32_t)> handler)
+    void setSetValueHandler(std::function<void(int)> handler)
     {
       _setValue = std::move(handler);
     }
