@@ -25,7 +25,8 @@
 #include "libopenui_config.h"
 #include "font.h"
 
-class Table: public FormField {
+class Table: public FormField
+{
   public:
     class Cell {
       public:

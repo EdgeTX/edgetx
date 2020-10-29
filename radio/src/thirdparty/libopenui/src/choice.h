@@ -27,7 +27,8 @@ enum ChoiceType {
   CHOICE_TYPE_FOLDER,
 };
 
-class ChoiceBase : public FormField {
+class ChoiceBase : public FormField
+{
   public:
     ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0):
       FormField(parent, rect, windowFlags),
@@ -46,10 +47,10 @@ class ChoiceBase : public FormField {
 
 class Choice : public ChoiceBase {
   public:
-    Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
+    Choice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
 
     void addValue(const char * value);
 
@@ -133,13 +134,13 @@ class Choice : public ChoiceBase {
       menuTitle = std::move(value);
     }
 
-    void setMin(int16_t value)
+    void setMin(int value)
     {
       vmin = value;
       invalidate();
     }
 
-    void setMax(int16_t value)
+    void setMax(int value)
     {
       vmax = value;
       invalidate();
@@ -147,13 +148,13 @@ class Choice : public ChoiceBase {
 
   protected:
     std::vector<std::string> values;
-    int16_t vmin = 0;
-    int16_t vmax = 0;
+    int vmin = 0;
+    int vmax = 0;
     std::string menuTitle;
-    std::function<int16_t()> getValue;
-    std::function<void(int16_t)> setValue;
+    std::function<int()> getValue;
+    std::function<void(int)> setValue;
     std::function<bool(int)> isValueAvailable;
-    std::function<std::string(int32_t)> textHandler;
+    std::function<std::string(int)> textHandler;
 
     virtual void openMenu();
 };

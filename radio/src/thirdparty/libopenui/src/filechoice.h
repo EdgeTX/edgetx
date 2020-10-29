@@ -22,7 +22,8 @@
 #include "choice.h"
 #include <string>
 
-class FileChoice: public ChoiceBase {
+class FileChoice: public ChoiceBase
+{
   public:
     FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue);
 

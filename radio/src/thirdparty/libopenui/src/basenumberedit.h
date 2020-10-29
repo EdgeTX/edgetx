@@ -24,8 +24,8 @@
 class BaseNumberEdit : public FormField
 {
   public:
-    BaseNumberEdit(Window * parent, const rect_t &rect, int32_t vmin, int32_t vmax,
-                   std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
+    BaseNumberEdit(Window * parent, const rect_t &rect, int vmin, int vmax,
+                   std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
       FormField(parent, rect, windowFlags, textFlags),
       vmin(vmin),
       vmax(vmax),
@@ -34,17 +34,17 @@ class BaseNumberEdit : public FormField
     {
     }
 
-    void setMin(int32_t value)
+    void setMin(int value)
     {
       vmin = value;
     }
 
-    void setMax(int32_t value)
+    void setMax(int value)
     {
       vmax = value;
     }
 
-    void setDefault(int32_t value)
+    void setDefault(int value)
     {
       vdefault = value;
     }
@@ -64,7 +64,7 @@ class BaseNumberEdit : public FormField
       return vdefault;
     }
 
-    void setStep(int32_t value)
+    void setStep(int value)
     {
       step = value;
     }
@@ -74,7 +74,7 @@ class BaseNumberEdit : public FormField
       return step;
     }
 
-    void setValue(int32_t value)
+    void setValue(int value)
     {
       _setValue(limit(vmin, value, vmax));
       invalidate();
@@ -91,11 +91,11 @@ class BaseNumberEdit : public FormField
     }
 
   protected:
-    int32_t vdefault = 0;
-    int32_t vmin;
-    int32_t vmax;
-    int32_t step = 1;
-    std::function<int32_t()> _getValue;
-    std::function<void(int32_t)> _setValue;
+    int vdefault = 0;
+    int vmin;
+    int vmax;
+    int step = 1;
+    std::function<int()> _getValue;
+    std::function<void(int)> _setValue;
 };
 
