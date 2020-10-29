@@ -124,7 +124,7 @@ class Choice : public ChoiceBase {
       return getIndexFromValue(vmax + 1);
     }
 
-    void setTextHandler(std::function<std::string(int32_t)> handler)
+    void setTextHandler(std::function<std::string(int)> handler)
     {
       textHandler = std::move(handler);
     }
