@@ -22,10 +22,10 @@
 #include "basenumberedit.h"
 #include <string>
 
-class NumberEdit : public BaseNumberEdit {
+class NumberEdit : public BaseNumberEdit
+{
   public:
-    NumberEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax,
-               std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+    NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -56,7 +56,7 @@ class NumberEdit : public BaseNumberEdit {
       zeroText = std::move(value);
     }
 
-    void setDisplayHandler(std::function<void(BitmapBuffer *, LcdFlags, int32_t)> function)
+    void setDisplayHandler(std::function<void(BitmapBuffer *, LcdFlags, int)> function)
     {
       displayFunction = std::move(function);
     }
@@ -70,7 +70,7 @@ class NumberEdit : public BaseNumberEdit {
     void onFocusLost() override;
 
   protected:
-    std::function<void(BitmapBuffer *, LcdFlags, int32_t)> displayFunction;
+    std::function<void(BitmapBuffer *, LcdFlags, int)> displayFunction;
     std::string prefix;
     std::string suffix;
     std::string zeroText;

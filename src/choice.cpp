@@ -21,8 +21,8 @@
 #include "menu.h"
 #include "theme.h"
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax,
-  std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax,
+  std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   vmin(vmin),
   vmax(vmax),
@@ -31,8 +31,8 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vm
 {
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int vmin, int vmax,
+               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   vmin(vmin),
   vmax(vmax),
@@ -42,8 +42,8 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const value
   setValues(values);
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int vmin, int vmax,
+               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   values(std::move(values)),
   vmin(vmin),
@@ -53,8 +53,8 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string>
 {
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int16_t vmin, int16_t vmax,
-               std::function<int16_t()> getValue, std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
+Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax,
+               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   vmin(vmin),
   vmax(vmax),

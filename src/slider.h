@@ -23,7 +23,7 @@
 
 class Slider: public FormField {
   public:
-    Slider(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue):
+    Slider(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int()> getValue, std::function<void(int)> setValue):
       FormField(parent, rect),
       vmin(vmin),
       vmax(vmax),
@@ -39,7 +39,7 @@ class Slider: public FormField {
     }
 #endif
 
-    void setValue(int32_t value)
+    void setValue(int value)
     {
       _setValue(limit(vmin, value, vmax));
       invalidate();
@@ -64,7 +64,7 @@ class Slider: public FormField {
     int32_t vmin;
     int32_t vmax;
     bool sliding = false;
-    std::function<int32_t()> getValue;
-    std::function<void(int32_t)> _setValue;
+    std::function<int()> getValue;
+    std::function<void(int)> _setValue;
 };
 

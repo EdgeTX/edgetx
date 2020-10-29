@@ -33,13 +33,13 @@ constexpr coord_t SCROLL_POSITION_INVALIDATED = INT_MIN;
 class Roller: public Choice
 {
   public:
-    Roller(FormGroup * parent, const rect_t & rect, const char * label, const char * const * values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
+    Roller(FormGroup * parent, const rect_t & rect, const char * label, const char * const * values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
       Choice(parent, rect, values, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
     {
       init(label);
     }
 
-    Roller(FormGroup * parent, const rect_t & rect, const char * label, std::vector<std::string> values, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
+    Roller(FormGroup * parent, const rect_t & rect, const char * label, std::vector<std::string> values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = ROLLER_SEPARATION_LINES):
       Choice(parent, rect, std::move(values), vmin, vmax, std::move(getValue), std::move(setValue), windowFlags | NO_SCROLLBAR)
     {
       init(label);
@@ -127,14 +127,14 @@ class Roller: public Choice
     }
 
     // virtual not needed until now
-    void setMin(int16_t value)
+    void setMin(int value)
     {
       Choice::setMin(value);
       invalidateScrollPosition();
     }
 
     // virtual not needed until now
-    void setMax(int16_t value)
+    void setMax(int value)
     {
       Choice::setMax(value);
       invalidateScrollPosition();
