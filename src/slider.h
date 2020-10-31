@@ -61,8 +61,8 @@ class Slider: public FormField {
 
   protected:
     int value(coord_t x) const;
-    int32_t vmin;
-    int32_t vmax;
+    int vmin;
+    int vmax;
     bool sliding = false;
     std::function<int()> getValue;
     std::function<void(int)> _setValue;
