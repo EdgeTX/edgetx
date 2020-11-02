@@ -83,6 +83,7 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
       menu->invalidate();
     }
     else {
+      menu->revertPreviousFocus();
       lines[index].onPress();
     }
   }
