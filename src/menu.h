@@ -27,7 +27,8 @@
 class Menu;
 class MenuWindowContent;
 
-class MenuBody : public Window {
+class MenuBody : public Window
+{
   friend class MenuWindowContent;
   friend class Menu;
 
@@ -42,7 +43,7 @@ class MenuBody : public Window {
       {
       }
 
-      MenuLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked):
+      MenuLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked):
         drawLine(std::move(drawLine)),
         onPress(std::move(onPress)),
         isChecked(std::move(isChecked))
@@ -96,13 +97,13 @@ class MenuBody : public Window {
 
     void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
     {
-      lines.emplace_back(text, onPress, isChecked);
+      lines.emplace_back(text, std::move(onPress), std::move(isChecked));
       invalidate();
     }
 
-    void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
+    void addCustomLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
     {
-      lines.emplace_back(drawLine, onPress, isChecked);
+      lines.emplace_back(std::move(drawLine), std::move(onPress), std::move(isChecked));
       invalidate();
     }
 
@@ -131,7 +132,8 @@ class MenuBody : public Window {
     inline Menu * getParentMenu();
 };
 
-class MenuWindowContent: public ModalWindowContent {
+class MenuWindowContent: public ModalWindowContent
+{
   friend class Menu;
 
   public:
@@ -155,7 +157,8 @@ class MenuWindowContent: public ModalWindowContent {
     MenuBody body;
 };
 
-class Menu: public ModalWindow {
+class Menu: public ModalWindow
+{
   friend class MenuBody;
 
   public:
