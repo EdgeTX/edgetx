@@ -49,12 +49,16 @@ void MenuBody::onEvent(event_t event)
         select(0);
       }
       else {
-        lines[selectedIndex].onPress();
         Menu * menu = getParentMenu();
-        if (menu->multiple)
+        if (menu->multiple) {
+          lines[selectedIndex].onPress();
           menu->invalidate();
-        else
+        }
+        else {
+          menu->revertPreviousFocus();
+          lines[selectedIndex].onPress();
           menu->deleteLater();
+        }
       }
     }
   }
