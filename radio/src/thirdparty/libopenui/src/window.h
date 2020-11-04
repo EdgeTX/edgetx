@@ -50,14 +50,16 @@ constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6u;
 constexpr WindowFlags PUSH_FRONT =  1u << 7u;
 constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 
-enum SetFocusFlag {
+enum SetFocusFlag
+{
   SET_FOCUS_DEFAULT,
   SET_FOCUS_FORWARD,
   SET_FOCUS_BACKWARD,
   SET_FOCUS_FIRST
 };
 
-class Window {
+class Window
+{
   friend class GridLayout;
 
   public:
@@ -135,7 +137,7 @@ class Window {
       focusHandler = std::move(handler);
     }
 
-    void deleteLater(bool detach=true);
+    virtual void deleteLater(bool detach=true);
 
     void clear();
 
