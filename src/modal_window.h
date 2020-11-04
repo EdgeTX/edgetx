@@ -33,7 +33,7 @@ class ModalWindow: public Window
     }
 #endif
 
-    void deleteLater()
+    void deleteLater(bool detach=true) override
     {
       if (_deleted)
         return;
@@ -42,7 +42,7 @@ class ModalWindow: public Window
         previousFocus->setFocus(SET_FOCUS_DEFAULT);
       }
       
-      Window::deleteLater();
+      Window::deleteLater(detach);
     }
 
     void paint(BitmapBuffer * dc) override;
@@ -87,11 +87,12 @@ class ModalWindow: public Window
     }
 
   protected:
-    Window * previousFocus = nullptr;
+    Window * previousFocus;
     bool closeAllowed = true;
 };
 
-class ModalWindowContent: public Window {
+class ModalWindowContent: public Window
+{
   public:
     explicit ModalWindowContent(ModalWindow * parent, const rect_t & rect):
       Window(parent, rect, OPAQUE)
