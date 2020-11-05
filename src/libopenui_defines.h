@@ -20,6 +20,7 @@
 #pragma once
 
 #include "libopenui_types.h"
+#include "libopenui_compat.h"
 
 /* obsolete flags */
 #define BLINK                          0
@@ -72,20 +73,6 @@
 
 #define GET_BLUE(color) \
   (((color) & 0x001F) << 3)
-
-#if defined(__MINGW32__) || !defined(__GNUC__)
-  #include <windows.h>
-  #include <tchar.h>
-  #define sleep(x) Sleep(x)
-  #define strcasecmp  _stricmp
-  #define strncasecmp _strnicmp
-  #define chdir  _chdir
-  #define getcwd _getcwd
-  // remove windows default definitions
-  #undef OPAQUE
-  #undef RGB
-  #undef EXTERN_C
-#endif
 
 #define OPACITY_MAX                    0x0Fu
 #define OPACITY(value)                 ((value) << 24u)
