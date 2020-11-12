@@ -44,12 +44,22 @@ void NumberEdit::paint(BitmapBuffer * dc)
   else
     textColor = DISABLE_COLOR;
 
-  if (displayFunction)
+  if (displayFunction) {
     displayFunction(dc, textColor, value);
-  else if (value == 0 && !zeroText.empty())
+  }
+  else if (value == 0 && !zeroText.empty()) {
     dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
-  else
-    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
+    if (textFlags & RIGHT)
+      dc->drawText(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
+    else
+      dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
+  }
+  else {
+    if (textFlags & RIGHT)
+      dc->drawNumber(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
+    else
+      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
+  }
 }
 
 void NumberEdit::onEvent(event_t event)
