@@ -237,6 +237,11 @@ class Window
       return rect;
     }
 
+    coord_t getInnerWidth() const
+    {
+      return innerWidth;
+    }
+
     void setInnerWidth(coord_t w)
     {
       innerWidth = w;
