@@ -179,11 +179,11 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
 
 void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags flags)
 {
-  for (int i=0; i<thickness; i++) {
-    drawVerticalLine(x+i, y, h, pat, flags);
-    drawVerticalLine(x+w-1-i, y, h, pat, flags);
-    drawHorizontalLine(x, y+h-1-i, w, pat, flags);
-    drawHorizontalLine(x, y+i, w, pat, flags);
+  for (unsigned i = 0; i < thickness; i++) {
+    drawVerticalLine(x + i, y, h, pat, flags);
+    drawVerticalLine(x + w - 1 - i, y, h, pat, flags);
+    drawHorizontalLine(x, y + h - 1 - i, w, pat, flags);
+    drawHorizontalLine(x, y + i, w, pat, flags);
   }
 }
 
