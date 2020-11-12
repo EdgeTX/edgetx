@@ -329,6 +329,8 @@ class Window
 
     void drawVerticalScrollbar(BitmapBuffer * dc);
 
+    void drawHorizontalScrollbar(BitmapBuffer * dc);
+
     virtual void onEvent(event_t event);
 
     void adjustInnerHeight();
