@@ -52,6 +52,11 @@ class MainWindow: public Window {
 
     void invalidate(const rect_t & rect) override;
 
+    bool needsRefresh() const
+    {
+      return invalidatedRect.w > 0;
+    }
+
     bool refresh();
 
     void run(bool trash=true);
