@@ -55,7 +55,6 @@ void MenuBody::onEvent(event_t event)
           menu->invalidate();
         }
         else {
-          menu->revertPreviousFocus();
           lines[selectedIndex].onPress();
           menu->deleteLater();
         }
@@ -87,7 +86,6 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
       menu->invalidate();
     }
     else {
-      menu->revertPreviousFocus();
       lines[index].onPress();
     }
   }
