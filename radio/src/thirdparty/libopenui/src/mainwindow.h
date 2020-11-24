@@ -20,15 +20,17 @@
 #pragma once
 
 #include <utility>
-#include "window.h"
+#include "layer.h"
 #include "bitmapbuffer.h"
 
-class MainWindow: public Window {
+class MainWindow: public Window
+{
   public:
     MainWindow():
       Window(nullptr, {0, 0, LCD_W, LCD_H}),
       invalidatedRect(rect)
     {
+      Layer::push(this);
     }
 
     ~MainWindow() override

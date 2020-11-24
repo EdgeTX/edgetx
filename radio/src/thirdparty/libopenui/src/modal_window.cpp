@@ -20,11 +20,22 @@
 
 #include "modal_window.h"
 #include "font.h"
+#include "layer.h"
 
 ModalWindow::ModalWindow(Window * parent):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
-  previousFocus(focusWindow)
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H})
 {
+  Layer::push(this);
+}
+
+void ModalWindow::deleteLater(bool detach)
+{
+  if (_deleted)
+    return;
+
+  Layer::pop(this);
+
+  Window::deleteLater(detach);
 }
 
 void ModalWindow::paint(BitmapBuffer * dc)

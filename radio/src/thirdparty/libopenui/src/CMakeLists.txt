@@ -15,6 +15,7 @@ set(LIBOPENUI_SRC
   libopenui_file.cpp
   bitmapbuffer.cpp
   window.cpp
+  layer.cpp
   form.cpp
   button.cpp
   static.cpp
