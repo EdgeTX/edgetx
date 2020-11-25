@@ -28,14 +28,14 @@ ModalWindow::ModalWindow(Window * parent):
   Layer::push(this);
 }
 
-void ModalWindow::deleteLater(bool detach)
+void ModalWindow::deleteLater(bool detach, bool trash)
 {
   if (_deleted)
     return;
 
   Layer::pop(this);
 
-  Window::deleteLater(detach);
+  Window::deleteLater(detach, trash);
 }
 
 void ModalWindow::paint(BitmapBuffer * dc)

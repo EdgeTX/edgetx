@@ -24,15 +24,17 @@
 
 class Dialog;
 
-class DialogWindowContent: public ModalWindowContent {
+class DialogWindowContent: public ModalWindowContent
+{
   friend class Dialog;
 
   public:
     DialogWindowContent(Dialog * parent, const rect_t & rect);
 
-    ~DialogWindowContent() override
+    void deleteLater(bool detach = true, bool trash = true) override
     {
-      form.detach();
+      form.deleteLater(true, false);
+      ModalWindowContent::deleteLater(detach, trash);
     }
 
 #if defined(DEBUG_WINDOWS)

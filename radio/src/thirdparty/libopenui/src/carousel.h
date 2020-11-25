@@ -22,7 +22,8 @@
 #include <vector>
 #include "button.h"
 
-class CarouselItem {
+class CarouselItem
+{
   public:
     CarouselItem(Window * front, Window * back):
       front(front),
@@ -43,7 +44,8 @@ class CarouselItem {
     std::function<void()> selectHandler;
 };
 
-class CarouselWindow: public Window {
+class CarouselWindow: public Window
+{
   friend class Carousel;
 
   public:
@@ -53,9 +55,13 @@ class CarouselWindow: public Window {
     {
     }
 
-    ~CarouselWindow() override
+    void deleteLater(bool detach = true, bool trash = true) override
     {
+      if (_deleted)
+        return;
+
       clear();
+      Window::deleteLater(detach, trash);
     }
 
     void addItem(CarouselItem * item)
@@ -66,13 +72,15 @@ class CarouselWindow: public Window {
 
     void clear()
     {
+      // children will be deleted later (front and back)
+      children.clear();
+
       for (auto & item: items) {
         item->front->deleteLater();
         item->back->deleteLater();
         delete item;
       }
       items.clear();
-      Window::clear();
     }
 
     void select(int index, bool scroll = true)
@@ -92,7 +100,8 @@ class CarouselWindow: public Window {
     void update();
 };
 
-class Carousel: public Window {
+class Carousel: public Window
+{
   public:
     Carousel(Window * parent, const rect_t & rect):
       Window(parent, rect, NO_SCROLLBAR)

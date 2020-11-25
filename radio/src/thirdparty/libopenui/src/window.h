@@ -137,7 +137,7 @@ class Window
       focusHandler = std::move(handler);
     }
 
-    virtual void deleteLater(bool detach=true);
+    virtual void deleteLater(bool detach = true, bool trash = true);
 
     void clear();
 

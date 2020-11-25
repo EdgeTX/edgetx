@@ -39,6 +39,9 @@ void Table::Body::checkEvents()
 {
   Window::checkEvents();
 
+  if (_deleted)
+    return;
+
   coord_t y = 0;
   for (auto line: lines) {
     coord_t x = 10;
