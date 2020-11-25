@@ -163,6 +163,13 @@ class Menu: public ModalWindow
 
   public:
     explicit Menu(Window * parent, bool multiple = false);
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "Menu";
+    }
+#endif
     
     void setCancelHandler(std::function<void()> handler)
     {
