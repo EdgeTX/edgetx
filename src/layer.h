@@ -41,6 +41,10 @@ class Layer
         parentLayer.focus = Window::getFocus();
       }
       stack.emplace_back(Layer(window));
+      TRACE_WINDOWS("New layer added for %s (%d layers)", window->getWindowDebugString().c_str(), stack.size());
+      for (auto layer: stack) {
+        TRACE_WINDOWS(" - %s (focus=%s)", layer.main->getWindowDebugString().c_str(), layer.focus ? layer.focus->getWindowDebugString().c_str() : "---");
+      }
     }
 
     static void pop(Window * window)
@@ -60,6 +64,11 @@ class Layer
             break;
           }
         }
+      }
+
+      TRACE_WINDOWS("Layer removed for %s (%d layers)", window->getWindowDebugString().c_str(), stack.size());
+      for (auto layer: stack) {
+        TRACE_WINDOWS(" - %s (focus=%s)", layer.main->getWindowDebugString().c_str(), layer.focus ? layer.focus->getWindowDebugString().c_str() : "---");
       }
     }
 };
