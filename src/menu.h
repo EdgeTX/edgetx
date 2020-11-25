@@ -139,9 +139,10 @@ class MenuWindowContent: public ModalWindowContent
   public:
     explicit MenuWindowContent(Menu * parent);
 
-    ~MenuWindowContent() override
+    void deleteLater(bool detach = true, bool trash = true) override
     {
-      body.detach();
+      body.deleteLater(true, false);
+      ModalWindowContent::deleteLater(detach, trash);
     }
 
 #if defined(DEBUG_WINDOWS)

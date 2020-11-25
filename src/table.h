@@ -140,7 +140,8 @@ class Table: public FormField
         void paint(BitmapBuffer * dc) override;
     };
 
-    class Body: public Window {
+    class Body: public Window
+    {
       friend class Table;
 
       public:
@@ -244,10 +245,15 @@ class Table: public FormField
     }
 #endif
 
-    ~Table() override
+    void deleteLater(bool detach = true, bool trash = true) override
     {
-      header.detach();
-      body.detach();
+      if (_deleted)
+        return;
+
+      header.deleteLater(true, false);
+      body.deleteLater(true, false);
+
+      FormField::deleteLater(detach, trash);
     }
 
     void setColumnsWidth(const coord_t values[])

@@ -67,12 +67,14 @@ void Window::detach()
   }
 }
 
-void Window::deleteLater(bool detach)
+void Window::deleteLater(bool detach, bool trash)
 {
   if (_deleted)
     return;
 
   TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
+
+  _deleted = true;
 
   if (static_cast<Window *>(focusWindow) == static_cast<Window *>(this)) {
     focusWindow = nullptr;
@@ -83,13 +85,15 @@ void Window::deleteLater(bool detach)
   else
     parent = nullptr;
 
+  deleteChildren();
+
   if (closeHandler) {
     closeHandler();
   }
 
-  trash.push_back(this);
-
-  _deleted = true;
+  if (trash) {
+    Window::trash.push_back(this);
+  }
 }
 
 void Window::clear()
@@ -325,7 +329,9 @@ void Window::checkEvents()
 {
   auto copy = children;
   for (auto child: copy) {
-    child->checkEvents();
+    if (!child->deleted()) {
+      child->checkEvents();
+    }
   }
 
   if (this == Window::focusWindow) {
