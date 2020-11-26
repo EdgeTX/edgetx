@@ -27,7 +27,8 @@ constexpr WindowFlags FORM_BORDER_FOCUS_ONLY = WINDOW_FLAGS_LAST << 3;
 constexpr WindowFlags FORM_NO_BORDER = WINDOW_FLAGS_LAST << 4;
 constexpr WindowFlags FORM_FLAGS_LAST = FORM_NO_BORDER;
 
-class FormField: public Window {
+class FormField: public Window
+{
   public:
     FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
@@ -105,7 +106,8 @@ class FormField: public Window {
     bool enabled = true;
 };
 
-class FormGroup: public FormField {
+class FormGroup: public FormField
+{
   public:
     FormGroup(Window * parent, const rect_t & rect, WindowFlags windowflags = 0) :
       FormField(parent, rect, windowflags)
@@ -138,6 +140,38 @@ class FormGroup: public FormField {
       last = field;
     }
 
+    FormField * getFirstField() const
+    {
+      return first;
+    }
+
+    FormField * getLastField() const
+    {
+      return last;
+    }
+
+    void setFocusOnFirstVisibleField(uint8_t flag) const
+    {
+      auto field = getFirstField();
+      while (field && !field->isInsideParentScrollingArea()) {
+        field = field->getNextField();
+      }
+      if (field) {
+        field->setFocus(flag);
+      }
+    }
+
+    void setFocusOnLastVisibleField(uint8_t flag) const
+    {
+      auto field = getLastField();
+      while (field && !field->isInsideParentScrollingArea()) {
+        field = field->getPreviousField();
+      }
+      if (field) {
+        field->setFocus(flag);
+      }
+    }
+
   protected:
     FormField * first = nullptr;
     FormField * last = nullptr;
@@ -149,7 +183,8 @@ class FormGroup: public FormField {
     void paint(BitmapBuffer * dc) override;
 };
 
-class FormWindow: public FormGroup {
+class FormWindow: public FormGroup
+{
   public:
     FormWindow(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0) :
       FormGroup(parent, rect, windowFlags)
@@ -172,4 +207,3 @@ class FormWindow: public FormGroup {
     void onEvent(event_t event) override;
 #endif
 };
-

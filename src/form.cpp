@@ -210,19 +210,16 @@ void FormGroup::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormGroup").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (first)
-      first->setFocus(SET_FOCUS_FIRST);
+    setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus() && !(windowFlags & FORM_FORWARD_FOCUS)) {
     setFocus(SET_FOCUS_DEFAULT); // opentx - model - timers settings
   }
   else if (event == EVT_ROTARY_RIGHT && !next) {
-    if (first)
-      first->setFocus(SET_FOCUS_FIRST);
+    setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
   }
   else if (event == EVT_ROTARY_LEFT && !previous) {
-    if (last)
-      last->setFocus(SET_FOCUS_BACKWARD);
+    setFocusOnLastVisibleField(SET_FOCUS_BACKWARD);
   }
   else {
     FormField::onEvent(event);
