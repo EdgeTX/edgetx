@@ -327,6 +327,11 @@ class Window
       return parent && parent->isChildVisible(this);
     }
 
+    bool isInsideParentScrollingArea() const
+    {
+      return parent && right() >= parent->getScrollPositionX() && left() <= parent->getScrollPositionX() + parent->width();
+    }
+
     void drawVerticalScrollbar(BitmapBuffer * dc);
 
     void drawHorizontalScrollbar(BitmapBuffer * dc);
