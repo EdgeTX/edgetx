@@ -55,8 +55,8 @@ void MenuBody::onEvent(event_t event)
           menu->invalidate();
         }
         else {
-          lines[selectedIndex].onPress();
           menu->deleteLater();
+          lines[selectedIndex].onPress();
         }
       }
     }
@@ -86,11 +86,9 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
       menu->invalidate();
     }
     else {
+      menu->deleteLater();
       lines[index].onPress();
     }
-  }
-  if (!menu->multiple) {
-    menu->deleteLater();
   }
   return true;
 }
