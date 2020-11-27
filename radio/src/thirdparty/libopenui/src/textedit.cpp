@@ -104,13 +104,13 @@ void TextEdit::onEvent(event_t event)
 
     switch (event) {
       case EVT_ROTARY_RIGHT:
-        for (int i = 0; i < rotencSpeed; i++) {
+        for (int i = 0; i < ROTARY_ENCODER_SPEED(); i++) {
           v = getNextChar(v);
         }
         break;
 
       case EVT_ROTARY_LEFT:
-        for (int i = 0; i < rotencSpeed; i++) {
+        for (int i = 0; i < ROTARY_ENCODER_SPEED(); i++) {
           v = getPreviousChar(v);
         }
         break;

@@ -37,12 +37,12 @@ void Slider::onEvent(event_t event)
 
   if (editMode) {
     if (event == EVT_ROTARY_RIGHT) {
-      setValue(getValue() + rotencSpeed);
+      setValue(getValue() + ROTARY_ENCODER_SPEED());
       onKeyPress();
       return;
     }
     else if (event == EVT_ROTARY_LEFT) {
-      setValue(getValue() - rotencSpeed);
+      setValue(getValue() - ROTARY_ENCODER_SPEED());
       onKeyPress();
       return;
     }

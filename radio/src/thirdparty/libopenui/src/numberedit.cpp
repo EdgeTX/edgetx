@@ -72,7 +72,7 @@ void NumberEdit::onEvent(event_t event)
       case EVT_ROTARY_RIGHT: {
         int value = getValue();
         do {
-          value += rotencSpeed * step;
+          value += ROTARY_ENCODER_SPEED() * step;
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
         if (value <= vmax) {
           setValue(value);
@@ -87,7 +87,7 @@ void NumberEdit::onEvent(event_t event)
       case EVT_ROTARY_LEFT: {
         int value = getValue();
         do {
-          value -= rotencSpeed * step;
+          value -= ROTARY_ENCODER_SPEED() * step;
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
         if (value >= vmin) {
           setValue(value);
