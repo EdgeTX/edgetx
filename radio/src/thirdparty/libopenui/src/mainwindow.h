@@ -31,11 +31,17 @@ class MainWindow: public Window
       invalidatedRect(rect)
     {
       Layer::push(this);
+      _instance = this;
     }
 
     ~MainWindow() override
     {
       children.clear();
+    }
+
+    static MainWindow * instance()
+    {
+      return _instance;
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -64,10 +70,8 @@ class MainWindow: public Window
     void run(bool trash=true);
 
   protected:
+    static MainWindow * _instance;
     static void emptyTrash();
     rect_t invalidatedRect;
     const char * shutdown = nullptr;
 };
-
-extern MainWindow mainWindow;
-
