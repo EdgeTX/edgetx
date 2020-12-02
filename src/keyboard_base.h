@@ -22,7 +22,8 @@
 #include "mainwindow.h"
 #include "form.h"
 
-class Keyboard: public FormWindow {
+class Keyboard: public FormWindow
+{
   public:
     explicit Keyboard(coord_t height):
       FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
@@ -50,7 +51,7 @@ class Keyboard: public FormWindow {
         activeKeyboard->clearField();
       }
       activeKeyboard = this;
-      attach(&mainWindow);
+      attach(MainWindow::instance());
       fieldContainer = getFieldContainer(newField);
       fieldContainer->setHeight(LCD_H - height() - fieldContainer->top());
       fieldContainer->scrollTo(newField);

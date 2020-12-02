@@ -24,7 +24,7 @@
 #include "touch.h"
 #endif
 
-MainWindow mainWindow;
+MainWindow * MainWindow::_instance = nullptr;
 
 #if defined(HARDWARE_TOUCH)
 TouchState touchState;
