@@ -23,7 +23,8 @@
 
 class ExpansionPanel;
 
-class ExpansionPanelHeader: virtual public FormGroup {
+class ExpansionPanelHeader: virtual public FormGroup
+{
   public:
     explicit ExpansionPanelHeader(ExpansionPanel * parent);
 
@@ -42,7 +43,8 @@ class ExpansionPanelHeader: virtual public FormGroup {
 };
 
 
-class ExpansionPanel: public FormGroup {
+class ExpansionPanel: public FormGroup
+{
   friend class ExpansionPanelHeader;
 
   public:
@@ -82,7 +84,7 @@ class ExpansionPanel: public FormGroup {
     FormGroup * body = nullptr;
 
   protected:
-    Window * header = nullptr;
+    ExpansionPanelHeader * header = nullptr;
     bool isOpen = false;
 };
 
