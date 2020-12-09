@@ -26,6 +26,14 @@ void ExpansionPanel::updateHeight()
   setHeight(newHeight);
 }
 
+void ExpansionPanel::setFocus(uint8_t flag)
+{
+  if (!enabled || isOpen)
+    FormGroup::setFocus(flag);
+  else
+    header->setFocus(flag);
+}
+
 ExpansionPanelHeader::ExpansionPanelHeader(ExpansionPanel * parent):
   FormGroup(parent, {0, 0, parent->width(), parent->height()}, FORWARD_SCROLL)
 {
@@ -57,8 +65,10 @@ void ExpansionPanelHeader::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool ExpansionPanelHeader::onTouchEnd(coord_t, coord_t)
 {
-  static_cast<ExpansionPanel *>(parent)->toggle();
-  setFocus(SET_FOCUS_DEFAULT);
+  if (enabled) {
+    static_cast<ExpansionPanel *>(parent)->toggle();
+    setFocus(SET_FOCUS_DEFAULT);
+  }
   return true;
 }
 #endif
