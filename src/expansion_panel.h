@@ -73,13 +73,7 @@ class ExpansionPanel: public FormGroup
 
     void updateHeight();
 
-    void setFocus(uint8_t flag) override
-    {
-      if (isOpen)
-        FormGroup::setFocus(flag);
-      else
-        header->setFocus(flag);
-    }
+    void setFocus(uint8_t flag) override;
 
     FormGroup * body = nullptr;
 
