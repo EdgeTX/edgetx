@@ -200,7 +200,7 @@ void FormGroup::setFocus(uint8_t flag)
     }
   }
   else {
-    FormField::setFocus(SET_FOCUS_DEFAULT);
+    FormField::setFocus(flag);
   }
 }
 
