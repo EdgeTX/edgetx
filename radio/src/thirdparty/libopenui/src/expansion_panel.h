@@ -42,7 +42,6 @@ class ExpansionPanelHeader: virtual public FormGroup
 #endif
 };
 
-
 class ExpansionPanel: public FormGroup
 {
   friend class ExpansionPanelHeader;
@@ -71,6 +70,18 @@ class ExpansionPanel: public FormGroup
       updateHeight();
     }
 
+    void enable(bool value = true)
+    {
+      FormGroup::enable(value);
+      header->enable(value);
+    }
+
+    void disable()
+    {
+      open(false);
+      enable(false);
+    }
+
     void updateHeight();
 
     void setFocus(uint8_t flag) override;
@@ -81,4 +92,3 @@ class ExpansionPanel: public FormGroup
     ExpansionPanelHeader * header = nullptr;
     bool isOpen = false;
 };
-
