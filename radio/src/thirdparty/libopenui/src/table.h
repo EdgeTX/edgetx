@@ -191,13 +191,19 @@ class Table: public FormField
         {
           selection = index;
           if (scroll) {
+            coord_t y = index * TABLE_LINE_HEIGHT;
+            Window * window = this;
+            while (window->getWindowFlags() & FORWARD_SCROLL) {
+              y += window->top();
+              window = window->getParent();
+            }
             const rect_t rect = {
               0,
-              index * TABLE_LINE_HEIGHT,
+              y,
               width(),
               TABLE_LINE_HEIGHT
             };
-            scrollTo(rect);
+            window->scrollTo(rect);
           }
           invalidate();
           if (index >= 0) {
@@ -288,10 +294,10 @@ class Table: public FormField
 
     void setFocus(uint8_t flag) override
     {
+      body.setFocus(flag);
       if (body.selection < 0 && !body.lines.empty()) {
         select(flag == SET_FOCUS_BACKWARD ? body.lines.size() - 1 : 0);
       }
-      body.setFocus(flag);
     }
 
     void select(int index, bool scroll = true)
