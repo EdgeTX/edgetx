@@ -130,21 +130,20 @@ void Window::setFocus(uint8_t flag)
   TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
 
   if (focusWindow != this) {
+    // scroll before calling focusHandler so that the window can adjust the scroll position if needed
+    Window * parent = this->parent;
+    while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
+      parent = parent->parent;
+    }
+    if (parent) {
+      parent->scrollTo(this);
+      invalidate();
+    }
     clearFocus();
     focusWindow = this;
     if (focusHandler) {
       focusHandler(true);
     }
-  }
-
-  Window * parent = this->parent;
-  while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
-    parent = parent->parent;
-  }
-
-  if (parent) {
-    parent->scrollTo(this);
-    invalidate();
   }
 }
 
@@ -176,20 +175,21 @@ void Window::scrollTo(Window * child)
   coord_t offsetX = 0;
   coord_t offsetY = 0;
 
-  Window * parent = child->getParent();
-  while (parent && parent != this) {
-    offsetX += parent->left();
-    offsetY += parent->top();
-    parent = parent->getParent();
+  Window * parentWindow = child->getParent();
+  while (parentWindow && parentWindow != this) {
+    offsetX += parentWindow->left();
+    offsetY += parentWindow->top();
+    parentWindow = parentWindow->getParent();
   }
 
-  const rect_t rect = {
-  offsetX + child->left(),
-  offsetY + child->top(),
-    child->width(),
-    child->height()
+  const rect_t scrollRect = {
+    offsetX + child->left(),
+    offsetY + child->top(),
+    min(child->width(), width()),
+    min(child->height(), height())
   };
-  scrollTo(rect);
+
+  scrollTo(scrollRect);
 }
 
 void Window::scrollTo(const rect_t & rect)
