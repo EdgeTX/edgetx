@@ -87,7 +87,7 @@ class Choice : public ChoiceBase {
       isValueAvailable = std::move(handler);
     }
 
-    unsigned getIndexFromValue(int value)
+    unsigned getIndexFromValue(int value) const
     {
       if (!isValueAvailable) {
         return value - vmin;
@@ -102,7 +102,7 @@ class Choice : public ChoiceBase {
       return index;
     }
 
-    int getValueFromIndex(int index)
+    int getValueFromIndex(int index) const
     {
       if (!isValueAvailable) {
         return vmin + index;
@@ -119,7 +119,7 @@ class Choice : public ChoiceBase {
       return value;
     }
 
-    unsigned getValuesCount()
+    unsigned getValuesCount() const
     {
       return getIndexFromValue(vmax + 1);
     }
@@ -158,4 +158,3 @@ class Choice : public ChoiceBase {
 
     virtual void openMenu();
 };
-
