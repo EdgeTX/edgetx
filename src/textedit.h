@@ -41,7 +41,7 @@ class TextEdit : public FormField {
 
     void setChangeHandler(std::function<void()> handler)
     {
-      changeHandler = handler;
+      changeHandler = std::move(handler);
     }
 
     uint8_t getMaxLength() const
@@ -79,8 +79,9 @@ class TextEdit : public FormField {
       if (changed) {
         changed = false;
         trim();
-        if (changeHandler)
+        if (changeHandler) {
           changeHandler();
+        }
       }
     }
 
