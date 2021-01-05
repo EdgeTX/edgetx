@@ -22,7 +22,8 @@
 #include "window.h"
 #include "button.h" // TODO just for BUTTON_BACKGROUND
 
-class StaticText: public Window {
+class StaticText: public Window
+{
   public:
     StaticText(Window * parent, const rect_t & rect, std::string text = "", WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
       Window(parent, rect, windowFlags, textFlags),
@@ -73,7 +74,8 @@ class Subtitle: public StaticText {
 #endif
 };
 
-class StaticBitmap: public Window {
+class StaticBitmap: public Window
+{
   public:
     StaticBitmap(Window * parent, const rect_t & rect, bool scale = false):
       Window(parent, rect),
@@ -95,9 +97,22 @@ class StaticBitmap: public Window {
     {
     }
 
+    StaticBitmap(Window * parent, const rect_t & rect, const BitmapBuffer * mask, LcdFlags color, bool scale = false):
+      Window(parent, rect),
+      bitmap(mask),
+      color(color),
+      scale(scale)
+    {
+    }
+
     void setBitmap(const char * filename)
     {
       setBitmap(BitmapBuffer::loadBitmap(filename));
+    }
+
+    void setMaskColor(LcdFlags value)
+    {
+      color = value;
     }
 
     void setBitmap(const BitmapBuffer * newBitmap)
@@ -117,7 +132,9 @@ class StaticBitmap: public Window {
     void paint(BitmapBuffer * dc) override
     {
       if (bitmap) {
-        if (scale)
+        if (color != 0xFFFFFFFF)
+          dc->drawMask(0, 0, bitmap, color);
+        else if (scale)
           dc->drawScaledBitmap(bitmap, 0, 0, width(), height());
         else
           dc->drawBitmap((width() - bitmap->width()) / 2, (height() - bitmap->height()) / 2, bitmap);
@@ -126,6 +143,7 @@ class StaticBitmap: public Window {
 
   protected:
     const BitmapBuffer * bitmap = nullptr;
+    LcdFlags color = 0xFFFFFFFF;
     bool scale = false;
 };
 
@@ -184,4 +202,3 @@ class DynamicNumber: public Window
     const char * prefix;
     const char * suffix;
 };
-
