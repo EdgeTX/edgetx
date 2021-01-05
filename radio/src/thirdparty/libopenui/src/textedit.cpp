@@ -20,9 +20,26 @@
 #include "textedit.h"
 #include "font.h"
 #include "libopenui_globals.h"
+#include "libopenui_config.h"
+
+#if !defined(STR_EDIT)
+#define STR_EDIT "Edit"
+#endif
+
+#if !defined(STR_CLEAR)
+#define STR_CLEAR "Clear"
+#endif
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_text.h"
+#endif
+
+#if defined(HARDWARE_KEYS)
+#include "menu.h"
+#endif
+
+#if defined(CLIPBOARD)
+#include "clipboard.h"
 #endif
 
 void TextEdit::paint(BitmapBuffer * dc)
@@ -150,12 +167,27 @@ void TextEdit::onEvent(event_t event)
         break;
 
       case EVT_KEY_LONG(KEY_ENTER):
-        if (v == 0) {
-          killEvents(event);
-          FormField::onEvent(EVT_KEY_BREAK(KEY_ENTER));
-          break;
+      {
+        killEvents(event);
+        auto menu = new Menu(this);
+        menu->setTitle(STR_EDIT);
+#if defined(CLIPBOARD)
+        menu->addLine(STR_COPY, [=] {
+          clipboard.write((uint8_t *)value, length, Clipboard::CONTENT_TEXT);
+        });
+        if (clipboard.contentType == Clipboard::CONTENT_TEXT) {
+          menu->addLine(STR_PASTE, [=] {
+            clipboard.read((uint8_t *)value, length);
+            changeEnd(true);
+          });
         }
-        // no break
+#endif
+        menu->addLine(STR_CLEAR, [=] {
+          memset(value, 0, length);
+          changeEnd(true);
+        });
+        break;
+      }
 
       case EVT_KEY_LONG(KEY_LEFT):
       case EVT_KEY_LONG(KEY_RIGHT):
@@ -223,6 +255,5 @@ void TextEdit::onFocusLost()
 #endif
 
   changeEnd();
-
   FormField::onFocusLost();
 }

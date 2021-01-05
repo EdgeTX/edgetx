@@ -73,10 +73,10 @@ class TextEdit : public FormField {
 
     void trim();
 
-    void changeEnd()
+    void changeEnd(bool forceChanged = false)
     {
       cursorPos = 0;
-      if (changed) {
+      if (changed || forceChanged) {
         changed = false;
         trim();
         if (changeHandler) {
