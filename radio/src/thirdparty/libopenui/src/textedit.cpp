@@ -189,14 +189,13 @@ void TextEdit::onEvent(event_t event)
         break;
       }
 
+      case EVT_KEY_BREAK(KEY_UP):
+        v = toggleCase(v);
+        break;
+
       case EVT_KEY_LONG(KEY_LEFT):
       case EVT_KEY_LONG(KEY_RIGHT):
-        if (v >= 'A' && v <= 'Z') {
-          v += 32; // tolower
-        }
-        else if (v >= 'a' && v <= 'z') {
-          v -= 32; // toupper
-        }
+        v = toggleCase(v);
         if (event == EVT_KEY_LONG(KEY_LEFT)) {
           killEvents(KEY_LEFT);
         }

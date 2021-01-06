@@ -112,5 +112,15 @@ class TextEdit : public FormField {
       else
         return c - 1;
     }
+
+    static uint8_t toggleCase(uint8_t c)
+    {
+      if (c >= 'A' && c <= 'Z')
+        return c + 32; // tolower
+      else if (c >= 'a' && c <= 'z')
+        return c - 32; // toupper
+      else
+        return c;
+    }
 };
 
