@@ -64,7 +64,7 @@ class ExpansionPanel: public FormGroup
       open(!isOpen);
     }
 
-    void open(bool state = true)
+    virtual void open(bool state = true)
     {
       isOpen = state;
       updateHeight();
@@ -82,7 +82,7 @@ class ExpansionPanel: public FormGroup
       enable(false);
     }
 
-    void updateHeight();
+    void updateHeight(bool move = true);
 
     void setFocus(uint8_t flag) override;
 

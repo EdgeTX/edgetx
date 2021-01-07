@@ -19,10 +19,12 @@
 
 #include "expansion_panel.h"
 
-void ExpansionPanel::updateHeight()
+void ExpansionPanel::updateHeight(bool move)
 {
   coord_t newHeight = (isOpen ? header->height() + body->height() : header->height());
-  parent->moveWindowsTop(bottom(), newHeight - height());
+  if (move) {
+    parent->moveWindowsTop(bottom(), newHeight - height());
+  }
   setHeight(newHeight);
 }
 
