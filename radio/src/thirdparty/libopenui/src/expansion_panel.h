@@ -72,9 +72,7 @@ class ExpansionPanel: public FormGroup
 
     void setCloseAllowed(bool value = true)
     {
-      if (value) {
-        header->disable();
-      }
+      header->enable(value);
     }
 
     void enable(bool value = true)
