@@ -33,7 +33,7 @@ class ModalWindow: public Window
     }
 #endif
 
-    void deleteLater(bool detach = true, bool trash = true) override;
+    void deleteLater(bool detach = true, bool trash = true) override; // NOLINT(google-default-arguments)
 
     void paint(BitmapBuffer * dc) override;
 

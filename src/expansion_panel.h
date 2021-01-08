@@ -70,6 +70,13 @@ class ExpansionPanel: public FormGroup
       updateHeight();
     }
 
+    void setCloseAllowed(bool value = true)
+    {
+      if (value) {
+        header->disable();
+      }
+    }
+
     void enable(bool value = true)
     {
       FormGroup::enable(value);
