@@ -81,7 +81,8 @@
 #define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
 
 #define COLOR(index)                   LcdFlags(unsigned(index) << 16u)
-#define COLOR_IDX(att)                 uint8_t((att) >> 16u)
+#define COLOR_IDX(flags)               uint8_t((flags) >> 16u)
+#define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
 
 #define DEFAULT_COLOR                  COLOR(DEFAULT_COLOR_INDEX)
 #define DEFAULT_BGCOLOR                COLOR(DEFAULT_BGCOLOR_INDEX)
