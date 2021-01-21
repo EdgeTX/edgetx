@@ -122,6 +122,11 @@ class Window
       windowFlags = flags;
     }
 
+    LcdFlags getTextFlags() const
+    {
+      return textFlags;
+    }
+
     void setTextFlags(LcdFlags flags)
     {
       textFlags = flags;
