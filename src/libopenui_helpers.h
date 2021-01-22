@@ -45,7 +45,7 @@ inline T limit(T vmin, T x, T vmax)
   return ::min(::max(vmin, x), vmax);
 }
 
-inline int divRoundClosest(const int n, const int d)
+inline int divRoundClosest(int n, int d)
 {
   if (d == 0)
     return 0;
@@ -53,10 +53,18 @@ inline int divRoundClosest(const int n, const int d)
     return ((n < 0) ^ (d < 0)) ? ((n - d/2)/d) : ((n + d/2)/d);
 }
 
+inline int multDivRoundClosest(int v, int n, int d)
+{
+  if (n == d)
+    return v;
+  else
+    return divRoundClosest(v * n, d);
+}
+
 template<class T>
 inline T sgn(T a)
 {
-    return a > 0 ? 1 : (a < 0 ? -1 : 0);
+  return a > 0 ? 1 : (a < 0 ? -1 : 0);
 }
 
 // TODO duplicated code

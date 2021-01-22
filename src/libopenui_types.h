@@ -69,6 +69,7 @@ struct rect_t
   }
 };
 
+static const rect_t nullRect = {0, 0, 0, 0};
+
 typedef uint32_t LcdFlags;
 typedef uint16_t event_t;
-
