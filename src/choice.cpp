@@ -113,6 +113,7 @@ void Choice::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    onKeyPress();
     openMenu();
   }
   else {
