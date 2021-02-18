@@ -39,19 +39,23 @@ void FormField::onEvent(event_t event)
 
   if (event == EVT_ROTARY_RIGHT/*EVT_KEY_BREAK(KEY_DOWN)*/) {
     if (next) {
+      onKeyPress();
       next->setFocus(SET_FOCUS_FORWARD);
     }
   }
   else if (event == EVT_ROTARY_LEFT/*EVT_KEY_BREAK(KEY_UP)*/) {
     if (previous) {
+      onKeyPress();
       previous->setFocus(SET_FOCUS_BACKWARD);
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    onKeyPress();
     setEditMode(!editMode);
     invalidate();
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && editMode) {
+    onKeyPress();
     setEditMode(false);
     invalidate();
   }
@@ -210,15 +214,19 @@ void FormGroup::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormGroup").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    onKeyPress();
     setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus() && !(windowFlags & FORM_FORWARD_FOCUS)) {
+    onKeyPress();
     setFocus(SET_FOCUS_DEFAULT); // opentx - model - timers settings
   }
   else if (event == EVT_ROTARY_RIGHT && !next) {
+    onKeyPress();
     setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
   }
   else if (event == EVT_ROTARY_LEFT && !previous) {
+    onKeyPress();
     setFocusOnLastVisibleField(SET_FOCUS_BACKWARD);
   }
   else {
@@ -245,10 +253,12 @@ void FormWindow::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormWindow").c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_EXIT) && (windowFlags & FORM_FORWARD_FOCUS) && first) {
+    onKeyPress();
     Window * currentFocus = getFocus();
     first->setFocus(SET_FOCUS_FIRST);
-    if (getFocus() != currentFocus)
+    if (getFocus() != currentFocus) {
       return;
+    }
   }
 
   FormGroup::onEvent(event);

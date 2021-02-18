@@ -36,15 +36,20 @@ void MenuBody::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_ROTARY_RIGHT) {
-    if (!lines.empty())
+    if (!lines.empty()) {
       select(int((selectedIndex + 1) % lines.size()));
+      onKeyPress();
+    }
   }
   else if (event == EVT_ROTARY_LEFT) {
-    if (!lines.empty())
+    if (!lines.empty()) {
       select(int(selectedIndex <= 0 ? lines.size() - 1 : selectedIndex - 1));
+      onKeyPress();
+    }
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (!lines.empty()) {
+      onKeyPress();
       if (selectedIndex < 0) {
         select(0);
       }
@@ -62,8 +67,10 @@ void MenuBody::onEvent(event_t event)
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    if (onCancel)
+    onKeyPress();
+    if (onCancel) {
       onCancel();
+    }
     Window::onEvent(event);
   }
   else {
@@ -78,6 +85,7 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
   Menu * menu = getParentMenu();
   int index = y / MENUS_LINE_HEIGHT;
   if (index < (int)lines.size()) {
+    onKeyPress();
     if (menu->multiple) {
       if (selectedIndex == index)
         lines[index].onPress();
