@@ -38,6 +38,7 @@ void Button::onEvent(event_t event)
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (enabled) {
+      onKeyPress();
       onPress();
     }
   }
@@ -51,6 +52,7 @@ void Button::onEvent(event_t event)
 bool Button::onTouchEnd(coord_t x, coord_t y)
 {
   if (enabled) {
+    onKeyPress();
     if (!(windowFlags & NO_FOCUS)) {
       setFocus(SET_FOCUS_DEFAULT);
     }
