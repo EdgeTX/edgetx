@@ -83,6 +83,7 @@ bool Table::Body::onTouchEnd(coord_t x, coord_t y)
 {
   unsigned index = y / TABLE_LINE_HEIGHT;
   if (index < lines.size()) {
+    onKeyPress();
     setFocus(SET_FOCUS_DEFAULT);
     auto onPress = lines[index]->onPress;
     if (onPress)
@@ -99,12 +100,14 @@ void Table::Body::onEvent(event_t event)
 
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     if (selection >= 0) {
+      onKeyPress();
       auto onPress = lines[selection]->onPress;
       if (onPress)
         onPress();
     }
   }
   if (event == EVT_ROTARY_RIGHT) {
+    onKeyPress();
     auto table = static_cast<Table *>(parent);
     if (table->getWindowFlags() & FORWARD_SCROLL) {
       auto index = selection + 1;
@@ -126,6 +129,7 @@ void Table::Body::onEvent(event_t event)
     }
   }
   else if (event == EVT_ROTARY_LEFT) {
+    onKeyPress();
     auto table = static_cast<Table *>(parent);
     if (table->getWindowFlags() & FORWARD_SCROLL) {
       auto index = selection - 1;
