@@ -46,6 +46,7 @@ class ModalWindow: public Window
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       if (!Window::onTouchEnd(x, y) && closeAllowed) {
+        onKeyPress();
         deleteLater();
       }
       return true;
