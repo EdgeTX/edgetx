@@ -196,7 +196,7 @@ void FormGroup::setFocus(uint8_t flag)
         else if (next) {
           next->setFocus(SET_FOCUS_FORWARD);
         }
-        else if (!(windowFlags & NO_FOCUS)) {
+        else {
           clearFocus();
           focusWindow = this;
         }
