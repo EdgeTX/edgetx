@@ -68,7 +68,7 @@ class Roller: public Choice
     void paint(BitmapBuffer * dc) override
     {
       int32_t value = getValue();
-      auto valuesCount = getValuesCount();
+      auto valuesCount = (int)getValuesCount();
       if (valuesCount == 0) {
         return;
       }
@@ -76,11 +76,10 @@ class Roller: public Choice
       int index = (scrollPositionY - ROLLER_LINE_HEIGHT + 1)  / ROLLER_LINE_HEIGHT;
       coord_t y = index * ROLLER_LINE_HEIGHT;
       coord_t yMax = scrollPositionY + 3 * ROLLER_LINE_HEIGHT;
-      while (index < 0)
-        index += valuesCount;
+      index = mod(index, valuesCount);
 
       while (y < yMax) {
-        auto displayedValue = getValueFromIndex(index % valuesCount);
+        auto displayedValue = getValueFromIndex(index);
 
         auto fgColor = DISABLE_COLOR;
         if (value == displayedValue) {
@@ -99,7 +98,9 @@ class Roller: public Choice
           dc->drawSolidHorizontalLine(0, y - 10, width(), DISABLE_COLOR);
         }
 
-        index += 1;
+        if (++index == valuesCount)
+          index = 0;
+
         y += ROLLER_LINE_HEIGHT;
       }
     }
@@ -167,10 +168,9 @@ class Roller: public Choice
       lastScrollPositionY = scrollPositionY;
 
       auto valuesCount = getValuesCount();
-      auto newValue = getValueFromIndex((((scrollPositionY / ROLLER_LINE_HEIGHT) + 1) + valuesCount) % valuesCount);
+      auto newValue = getValueFromIndex(mod((scrollPositionY / ROLLER_LINE_HEIGHT) + 1, valuesCount));
 
       setValue(newValue);
       invalidate();
     }
 };
-

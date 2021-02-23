@@ -61,6 +61,11 @@ inline int multDivRoundClosest(int v, int n, int d)
     return divRoundClosest(v * n, d);
 }
 
+inline int mod(int k, int n)
+{
+  return ((k %= n) < 0) ? k + n : k;
+}
+
 template<class T>
 inline T sgn(T a)
 {
