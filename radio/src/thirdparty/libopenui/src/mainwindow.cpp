@@ -64,14 +64,20 @@ void MainWindow::checkEvents()
     }
   }
   else if (touchState.event == TE_SLIDE_END && slidingWindow) {
-    if (abs(touchState.lastDeltaX) >= 5 || abs(touchState.lastDeltaY) >= 5) {
-      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
-      touchState.lastDeltaX = (touchState.lastDeltaX * 3) >> 2;
-      touchState.lastDeltaY = (touchState.lastDeltaY * 3) >> 2;
-    }
-    else {
+    if (touchState.lastDeltaX > SLIDE_SPEED_REDUCTION)
+      touchState.lastDeltaX -= SLIDE_SPEED_REDUCTION;
+    else if (touchState.lastDeltaX < -SLIDE_SPEED_REDUCTION)
+      touchState.lastDeltaX += SLIDE_SPEED_REDUCTION;
+    else
       touchState.lastDeltaX = 0;
+    if (touchState.lastDeltaY > SLIDE_SPEED_REDUCTION)
+      touchState.lastDeltaY -= SLIDE_SPEED_REDUCTION;
+    else if (touchState.lastDeltaY < -SLIDE_SPEED_REDUCTION)
+      touchState.lastDeltaY += SLIDE_SPEED_REDUCTION;
+    else
       touchState.lastDeltaY = 0;
+    if (touchState.lastDeltaX || touchState.lastDeltaY) {
+      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
     }
   }
 #endif
