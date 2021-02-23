@@ -346,7 +346,7 @@ void Window::checkEvents()
   }
 
 #if defined(HARDWARE_TOUCH)
-  if (touchState.event != TE_SLIDE) {
+  if (touchState.event != TE_SLIDE && touchState.lastDeltaX == 0 && touchState.lastDeltaY == 0) {
     if (pageWidth) {
       coord_t relativeScrollPosition = scrollPositionX % pageWidth;
       if (relativeScrollPosition) {
