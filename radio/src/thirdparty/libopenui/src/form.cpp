@@ -121,13 +121,21 @@ void FormGroup::addField(FormField * field, bool front)
       first = field;
   }
 
-  if (windowFlags & FORM_FORWARD_FOCUS) {
-    last->setNextField(this);
-    if (previous)
+  if (WRAP_FORM_FIELDS_WITHIN_PAGE) {
+    if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
+      last->setNextField(this);
       link(previous, first);
+    }
+    else {
+      link(last, first);
+    }
   }
-  else if (WRAP_FORM_FIELDS_WITHIN_PAGE) {
-    link(last, first);
+  else {
+    if (windowFlags & FORM_FORWARD_FOCUS) {
+      last->setNextField(this);
+      if (previous)
+        link(previous, first);
+    }
   }
 
   if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
