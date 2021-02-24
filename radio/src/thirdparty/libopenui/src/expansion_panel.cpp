@@ -28,12 +28,12 @@ void ExpansionPanel::updateHeight(bool move)
   setHeight(newHeight);
 }
 
-void ExpansionPanel::setFocus(uint8_t flag)
+void ExpansionPanel::setFocus(uint8_t flag, Window * from)
 {
   if (!enabled || isOpen)
-    FormGroup::setFocus(flag);
+    FormGroup::setFocus(flag, from);
   else
-    header->setFocus(flag);
+    header->setFocus(flag, from);
 }
 
 ExpansionPanelHeader::ExpansionPanelHeader(ExpansionPanel * parent):
@@ -51,12 +51,12 @@ void ExpansionPanelHeader::onEvent(event_t event)
   else if (event == EVT_ROTARY_RIGHT && !panel->isOpen) {
     auto next = panel->getNextField();
     if (next)
-      next->setFocus(SET_FOCUS_FORWARD);
+      next->setFocus(SET_FOCUS_FORWARD, this);
   }
   else if (event == EVT_ROTARY_LEFT) {
     auto previous = panel->getPreviousField();
     if (previous) {
-      previous->setFocus(SET_FOCUS_BACKWARD);
+      previous->setFocus(SET_FOCUS_BACKWARD, this);
     }
   }
   else {

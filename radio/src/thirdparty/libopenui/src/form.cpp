@@ -40,13 +40,13 @@ void FormField::onEvent(event_t event)
   if (event == EVT_ROTARY_RIGHT/*EVT_KEY_BREAK(KEY_DOWN)*/) {
     if (next) {
       onKeyPress();
-      next->setFocus(SET_FOCUS_FORWARD);
+      next->setFocus(SET_FOCUS_FORWARD, this);
     }
   }
   else if (event == EVT_ROTARY_LEFT/*EVT_KEY_BREAK(KEY_UP)*/) {
     if (previous) {
       onKeyPress();
-      previous->setFocus(SET_FOCUS_BACKWARD);
+      previous->setFocus(SET_FOCUS_BACKWARD, this);
     }
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -65,22 +65,20 @@ void FormField::onEvent(event_t event)
 }
 #endif
 
-void FormField::setFocus(uint8_t flag)
+void FormField::setFocus(uint8_t flag, Window * from)
 {
   if (enabled) {
-    Window::setFocus(flag);
+    Window::setFocus(flag, from);
   }
   else {
-    clearFocus();
-    focusWindow = this;
     if (flag == SET_FOCUS_BACKWARD) {
       if (previous) {
-        previous->setFocus(flag);
+        previous->setFocus(flag, this);
       }
     }
     else {
       if (next) {
-        next->setFocus(flag);
+        next->setFocus(flag, this);
       }
     }
   }
@@ -146,29 +144,27 @@ void FormGroup::addField(FormField * field, bool front)
   }
 }
 
-void FormGroup::setFocus(uint8_t flag)
+void FormGroup::setFocus(uint8_t flag, Window * from)
 {
   TRACE_WINDOWS("%s setFocus(%d)", getWindowDebugString("FormGroup").c_str(), flag);
 
   if (windowFlags & FORM_FORWARD_FOCUS) {
     switch (flag) {
       case SET_FOCUS_BACKWARD:
-        if (focusWindow->isChild(first)) {
+        if (from && from->isChild(first)) {
           if (previous == this) {
-            last->setFocus(SET_FOCUS_BACKWARD);
+            last->setFocus(SET_FOCUS_BACKWARD, this);
           }
           else if (previous) {
-            previous->setFocus(SET_FOCUS_BACKWARD);
+            previous->setFocus(SET_FOCUS_BACKWARD, this);
           }
         }
         else {
           if (last) {
-            last->setFocus(SET_FOCUS_BACKWARD);
+            last->setFocus(SET_FOCUS_BACKWARD, this);
           }
           else if (previous) {
-            clearFocus();
-            focusWindow = this;
-            previous->setFocus(SET_FOCUS_BACKWARD);
+            previous->setFocus(SET_FOCUS_BACKWARD, this);
           }
         }
         break;
@@ -178,30 +174,32 @@ void FormGroup::setFocus(uint8_t flag)
         // no break;
 
       case SET_FOCUS_FORWARD:
-        if (focusWindow && focusWindow->isChild(this)) {
+        if (from && from->isChild(this)) {
           if (next == this) {
-            first->setFocus(SET_FOCUS_FORWARD);
+            first->setFocus(SET_FOCUS_FORWARD, this);
           }
           else if (next) {
-            next->setFocus(SET_FOCUS_FORWARD);
+            next->setFocus(SET_FOCUS_FORWARD, this);
           }
         }
         else {
           if (first) {
-            first->setFocus(SET_FOCUS_FORWARD);
+            first->setFocus(SET_FOCUS_FORWARD, this);
           }
           else if (next) {
-            clearFocus();
-            focusWindow = this;
-            next->setFocus(SET_FOCUS_FORWARD);
+            next->setFocus(SET_FOCUS_FORWARD, this);
           }
         }
         break;
 
       default:
-        if (focusWindow == previous) {
+        if (from == previous) {
           if (first) {
             first->setFocus(SET_FOCUS_DEFAULT);
+          }
+          else {
+            clearFocus();
+            focusWindow = this;
           }
         }
         else if (next) {
@@ -215,7 +213,7 @@ void FormGroup::setFocus(uint8_t flag)
     }
   }
   else if (!(windowFlags & NO_FOCUS)) {
-    FormField::setFocus(flag);
+    FormField::setFocus(flag, from);
   }
 }
 

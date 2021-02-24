@@ -19,14 +19,15 @@
 
 #pragma once
 
+#include <utility>
 #include "form.h"
 
 class CheckBox : public FormField {
   public:
     CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue, WindowFlags flags = 0) :
       FormField(parent, rect, flags),
-      _getValue(getValue),
-      _setValue(setValue)
+      _getValue(std::move(getValue)),
+      _setValue(std::move(setValue))
     {
     }
 
@@ -62,9 +63,13 @@ class CheckBox : public FormField {
       return _getValue();
     }
 
+    void setSetValueHandler(std::function<void(uint8_t)> handler)
+    {
+      _setValue = std::move(handler);
+    }
+
   protected:
     std::string label;
     std::function<uint8_t()> _getValue;
     std::function<void(uint8_t)> _setValue;
 };
-
