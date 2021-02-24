@@ -106,27 +106,30 @@ void FormGroup::addField(FormField * field, bool front)
   if (field->getWindowFlags() & FORM_DETACHED)
     return;
 
-  if (!first) {
-    first = field;
-    last = field;
-  }
   if (front) {
     if (first)
       link(field, first);
     first = field;
+    if (!last)
+      last = field;
   }
   else {
     if (last)
       link(last, field);
     last = field;
+    if (!first)
+      first = field;
   }
-  if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
+
+  if (windowFlags & FORM_FORWARD_FOCUS) {
     last->setNextField(this);
-    link(previous, first);
+    if (previous)
+      link(previous, first);
   }
   else if (WRAP_FORM_FIELDS_WITHIN_PAGE) {
     link(last, first);
   }
+
   if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
     field->setFocus(SET_FOCUS_DEFAULT);
   }
