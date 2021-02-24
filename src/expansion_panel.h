@@ -89,7 +89,7 @@ class ExpansionPanel: public FormGroup
 
     void updateHeight(bool move = true);
 
-    void setFocus(uint8_t flag) override;
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
 
     FormGroup * body = nullptr;
 

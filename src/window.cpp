@@ -122,7 +122,7 @@ void Window::clearFocus()
   }
 }
 
-void Window::setFocus(uint8_t flag)
+void Window::setFocus(uint8_t flag, Window * from)
 {
   if (deleted())
     return;
@@ -139,6 +139,7 @@ void Window::setFocus(uint8_t flag)
       parent->scrollTo(this);
       invalidate();
     }
+
     clearFocus();
     focusWindow = this;
     if (focusHandler) {

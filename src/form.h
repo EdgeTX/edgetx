@@ -79,7 +79,7 @@ class FormField: public Window
       enable(false);
     }
 
-    void setFocus(uint8_t flag) override;
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
 
     void onFocusLost() override
     {
@@ -131,7 +131,7 @@ class FormGroup: public FormField
       }
     }
 
-    void setFocus(uint8_t flag) override;
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
 
     virtual void addField(FormField * field, bool front = false); // NOLINT(google-default-arguments)
 
@@ -155,7 +155,7 @@ class FormGroup: public FormField
       return last;
     }
 
-    void setFocusOnFirstVisibleField(uint8_t flag) const
+    void setFocusOnFirstVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
     {
       auto field = getFirstField();
       while (field && !field->isInsideParentScrollingArea()) {
@@ -166,7 +166,7 @@ class FormGroup: public FormField
       }
     }
 
-    void setFocusOnLastVisibleField(uint8_t flag) const
+    void setFocusOnLastVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
     {
       auto field = getLastField();
       while (field && !field->isInsideParentScrollingArea()) {

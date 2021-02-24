@@ -239,9 +239,6 @@ class Table: public FormField
       header(this, {0, 0, width(), 0}, columnsCount),
       body(this, {0, 0, width(), height()}, windowFlags)
     {
-      if (hasFocus()) {
-        setFocus(SET_FOCUS_DEFAULT);
-      }
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -292,11 +289,25 @@ class Table: public FormField
       body.invalidate();
     }
 
-    void setFocus(uint8_t flag) override
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override
     {
-      body.setFocus(flag);
-      if (body.selection < 0 && !body.lines.empty()) {
-        select(flag == SET_FOCUS_BACKWARD ? body.lines.size() - 1 : 0);
+      if (body.lines.empty()) {
+        if (flag == SET_FOCUS_BACKWARD) {
+          if (previous) {
+            previous->setFocus(flag, this);
+          }
+        }
+        else {
+          if (next) {
+            next->setFocus(flag, this);
+          }
+        }
+      }
+      else {
+        body.setFocus(flag, from);
+        if (body.selection < 0) {
+          select(flag == SET_FOCUS_BACKWARD ? body.lines.size() - 1 : 0);
+        }
       }
     }
 

@@ -117,8 +117,10 @@ void Table::Body::onEvent(event_t event)
       else {
         auto next = table->getNextField();
         if (next) {
-          select(-1, false);
-          next->setFocus(SET_FOCUS_FORWARD);
+          next->setFocus(SET_FOCUS_FORWARD, this);
+          if (!hasFocus()) {
+            select(-1, false);
+          }
         }
       }
     }

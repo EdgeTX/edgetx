@@ -164,7 +164,7 @@ class Window
 
     static void clearFocus();
 
-    virtual void setFocus(uint8_t flag);
+    virtual void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr);
 
     void setRect(rect_t value)
     {
