@@ -87,8 +87,8 @@ class Button: public FormField
 class TextButton: public Button
 {
   public:
-    TextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND, LcdFlags textFlags = 0):
-      Button(parent, rect, std::move(pressHandler), windowFlags | OPAQUE, textFlags),
+    TextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE, LcdFlags textFlags = 0):
+      Button(parent, rect, std::move(pressHandler), windowFlags, textFlags),
       text(std::move(text))
     {
     }
