@@ -51,7 +51,7 @@ class Theme {
     virtual const BitmapBuffer * getIcon(uint8_t index, IconState state) const = 0;
     virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
 
-    virtual TextButton * createTextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND) const
+    virtual TextButton * createTextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = OPAQUE | BUTTON_BACKGROUND) const
     {
       return new TextButton(parent, rect, text, pressHandler, windowFlags);
     }
