@@ -21,7 +21,8 @@
 
 #include "window.h"
 
-class Progress : public Window {
+class Progress: public Window
+{
   public:
     Progress(Window * parent, const rect_t & rect):
       Window(parent, rect)
@@ -35,10 +36,12 @@ class Progress : public Window {
     }
 #endif
 
-    void setValue(int value)
+    void setValue(int newValue)
     {
-      this->value = value;
-      invalidate();
+      if (newValue != value) {
+        value = newValue;
+        invalidate();
+      }
     }
 
     void paint(BitmapBuffer * dc) override;
@@ -46,4 +49,3 @@ class Progress : public Window {
   protected:
     int value = 0;
 };
-
