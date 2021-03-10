@@ -24,7 +24,7 @@
 class ModalWindow: public Window
 {
   public:
-    explicit ModalWindow(Window * parent);
+    explicit ModalWindow(Window * parent, bool closeWhenClickOutside = false);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -45,7 +45,7 @@ class ModalWindow: public Window
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
-      if (!Window::onTouchEnd(x, y) && closeAllowed) {
+      if (!Window::onTouchEnd(x, y) && closeWhenClickOutside) {
         onKeyPress();
         deleteLater();
       }
@@ -59,13 +59,13 @@ class ModalWindow: public Window
     }
 #endif
 
-    void setCloseAllowed(bool value = true)
+    void setCloseWhenClickOutside(bool value = true)
     {
-      closeAllowed = value;
+      closeWhenClickOutside = value;
     }
 
   protected:
-    bool closeAllowed = true;
+    bool closeWhenClickOutside;
 };
 
 class ModalWindowContent: public Window

@@ -45,7 +45,7 @@ class ChoiceBase : public FormField
     ChoiceType type;
 };
 
-class Choice : public ChoiceBase {
+class Choice: public ChoiceBase {
   public:
     Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
     Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);

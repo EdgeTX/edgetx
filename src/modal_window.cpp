@@ -22,8 +22,9 @@
 #include "font.h"
 #include "layer.h"
 
-ModalWindow::ModalWindow(Window * parent):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H})
+ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
+  closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);
 }

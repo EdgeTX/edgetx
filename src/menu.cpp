@@ -154,7 +154,7 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
 }
 
 Menu::Menu(Window * parent, bool multiple):
-  ModalWindow(parent),
+  ModalWindow(parent, true),
   content(createMenuWindow(this)),
   multiple(multiple)
 {

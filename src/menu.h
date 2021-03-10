@@ -27,13 +27,13 @@
 class Menu;
 class MenuWindowContent;
 
-class MenuBody : public Window
+class MenuBody: public Window
 {
   friend class MenuWindowContent;
   friend class Menu;
 
   class MenuLine {
-      friend class MenuBody;
+    friend class MenuBody;
 
     public:
       MenuLine(std::string text, std::function<void()> onPress, std::function<bool()> isChecked):
