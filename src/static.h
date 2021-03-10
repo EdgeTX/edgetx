@@ -45,8 +45,10 @@ class StaticText: public Window
 
     void setText(std::string value)
     {
-      text = std::move(value);
-      invalidate();
+      if (text != value) {
+        text = std::move(value);
+        invalidate();
+      }
     }
 
     void setBackgroundColor(LcdFlags color)
@@ -59,7 +61,8 @@ class StaticText: public Window
     LcdFlags bgColor = 0;
 };
 
-class Subtitle: public StaticText {
+class Subtitle: public StaticText
+{
   public:
     Subtitle(Window * parent, const rect_t & rect, const char * text):
       StaticText(parent, rect, text, 0, FONT(BOLD))
