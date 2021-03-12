@@ -30,43 +30,43 @@ NumberKeyboard::NumberKeyboard() :
 {
   new TextButton(this, {LCD_W / 2 - 115, 10, 50, 30}, "<<",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_BACKWARD);
+                     pushEvent(EVT_VIRTUAL_KEY_BACKWARD);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 - 55, 10, 50, 30}, "-",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_MINUS);
+                     pushEvent(EVT_VIRTUAL_KEY_MINUS);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 + 5, 10, 50, 30}, "+",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_PLUS);
+                     pushEvent(EVT_VIRTUAL_KEY_PLUS);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 + 65, 10, 50, 30}, ">>",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_FORWARD);
+                     pushEvent(EVT_VIRTUAL_KEY_FORWARD);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 - 115, 50, 50, 30}, "MIN",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_MIN);
+                     pushEvent(EVT_VIRTUAL_KEY_MIN);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 + 65, 50, 50, 30}, "MAX",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_MAX);
+                     pushEvent(EVT_VIRTUAL_KEY_MAX);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   new TextButton(this, {LCD_W / 2 - 55, 50, 110, 30}, "DEFAULT",
                  [=]() -> uint8_t {
-                     putEvent(EVT_VIRTUAL_KEY_DEFAULT);
+                     pushEvent(EVT_VIRTUAL_KEY_DEFAULT);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 }

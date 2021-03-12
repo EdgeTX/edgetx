@@ -146,7 +146,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
     }
     else if (*key == KEYBOARD_SPACE[0]) {
       if (x <= 135) {
-        putEvent(EVT_VIRTUAL_KEY(' '));
+        pushEvent(EVT_VIRTUAL_KEY(' '));
         return true;
       }
       x -= 135;
@@ -164,7 +164,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
         uint8_t specialKey = *key;
         if (specialKey == 128) {
           // backspace
-          putEvent(EVT_VIRTUAL_KEY(KEYBOARD_BACKSPACE[0]));
+          pushEvent(EVT_VIRTUAL_KEY(KEYBOARD_BACKSPACE[0]));
         }
         else {
           layout = KEYBOARD_LAYOUTS[specialKey - 129];
@@ -176,7 +176,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
     }
     else {
       if (x <= 30) {
-        putEvent(EVT_VIRTUAL_KEY(*key));
+        pushEvent(EVT_VIRTUAL_KEY(*key));
         return true;
       }
       x -= 30;
