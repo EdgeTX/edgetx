@@ -79,3 +79,14 @@ inline std::string TEXT_AT_INDEX(const char * val, uint8_t idx)
   return std::string(start, min<uint8_t>(val[0], (uint8_t)strlen(start)));
 }
 
+inline const char * findNextLine(const char * stack)
+{
+  while (true) {
+    const char * pos = strchr(stack, '\n');
+    if (!pos)
+      return nullptr;
+    if (pos == stack || *((uint8_t *)(pos - 1)) < 0xFE)
+      return pos;
+    stack = pos + 1;
+  }
+}

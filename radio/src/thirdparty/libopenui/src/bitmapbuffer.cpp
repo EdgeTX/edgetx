@@ -639,6 +639,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
 
   while (len--) {
     unsigned int c = uint8_t(*s);
+    // TRACE("c = %d %o 0x%X '%c'", c, c, c, c);
 
     if (!c) {
       break;
@@ -647,6 +648,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       // CJK char
       s++;
       c = uint8_t(*s) + ((c & 0x01u) << 8u) - 1;
+      // TRACE("CJK = %d", c);
       if (c >= 0x101)
         c -= 1;
       c += CJK_FIRST_LETTER_INDEX;
