@@ -148,6 +148,10 @@ void TextEdit::onEvent(event_t event)
 
       case EVT_KEY_BREAK(KEY_ENTER):
         if (cursorPos < length - 1) {
+          if (value[cursorPos] == '\0') {
+            value[cursorPos] = ' ';
+            changed = true;
+          }
           cursorPos++;
           if (value[cursorPos] == '\0') {
             value[cursorPos] = ' ';
