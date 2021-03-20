@@ -294,6 +294,18 @@ bool Window::isChildVisible(const Window * window) const
   return false;
 }
 
+void Window::setInsideParentScrollingArea()
+{
+  Window * parent = getParent();
+  while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
+    parent = parent->parent;
+  }
+  if (parent) {
+    parent->scrollTo(this);
+    invalidate();
+  }
+}
+
 void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
 {
   coord_t x = dc->getOffsetX();
