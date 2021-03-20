@@ -337,6 +337,8 @@ class Window
       return parent && right() >= parent->getScrollPositionX() && left() <= parent->getScrollPositionX() + parent->width();
     }
 
+    void setInsideParentScrollingArea();
+
     void drawVerticalScrollbar(BitmapBuffer * dc);
 
     void drawHorizontalScrollbar(BitmapBuffer * dc);
