@@ -29,10 +29,7 @@ inline T bfBit(uint8_t n)
   return T(1) << n;
 }
 
-#define BFBIT_SET(y, mask)        ( y |=  (mask) )
-#define BFBIT_CLEAR(y, mask)      ( y &= ~(mask) )
 #define BFBIT_FLIP(y, mask)       ( y ^=  (mask) )
-#define BF_SINGLE_BIT_SET(y, i)    BFBIT_SET(y, bfBit(i))
 
 //! Create a bitmask of length 'len'.
 template <typename T>
