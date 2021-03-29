@@ -21,7 +21,7 @@
 
 #include "form.h"
 
-class BaseNumberEdit : public FormField
+class BaseNumberEdit: public FormField
 {
   public:
     BaseNumberEdit(Window * parent, const rect_t &rect, int vmin, int vmax,
@@ -76,8 +76,21 @@ class BaseNumberEdit : public FormField
 
     void setValue(int value)
     {
-      _setValue(limit(vmin, value, vmax));
+      currentValue = limit(vmin, value, vmax);
+      if (instantChange) {
+        _setValue(currentValue);
+      }
       invalidate();
+    }
+
+    void enableInstantChange(bool value)
+    {
+      instantChange = value;
+    }
+
+    void disableInstantChange()
+    {
+      enableInstantChange(false);
     }
 
     void setSetValueHandler(std::function<void(int)> handler)
@@ -87,7 +100,21 @@ class BaseNumberEdit : public FormField
 
     int32_t getValue() const
     {
-      return _getValue();
+      return (editMode && !instantChange) ? currentValue : _getValue();
+    }
+
+    void setEditMode(bool newEditMode) override
+    {
+      auto previousEditMode = editMode;
+      FormField::setEditMode(newEditMode);
+      if (!instantChange) {
+        if (!previousEditMode && newEditMode) {
+          currentValue = _getValue();
+        }
+        else if (previousEditMode && !newEditMode) {
+          _setValue(currentValue);
+        }
+      }
     }
 
   protected:
@@ -95,7 +122,8 @@ class BaseNumberEdit : public FormField
     int vmin;
     int vmax;
     int step = 1;
+    int currentValue;
+    bool instantChange = true;
     std::function<int()> _getValue;
     std::function<void(int)> _setValue;
 };
-
