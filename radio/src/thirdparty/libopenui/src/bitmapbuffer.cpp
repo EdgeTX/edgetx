@@ -45,13 +45,20 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
 {
   APPLY_OFFSET();
 
+  // line is off-screen
   if (y >= _height || y >= ymax || y < ymin)
     return;
 
+  // clip width
   if (x + w > _width) {
     w = _width - x;
   }
 
+  drawHorizontalLineAbs(x, y, w, pat, flags);
+}
+
+void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags)
+{
   pixel_t * p = getPixelPtr(x, y);
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
   uint8_t opacity = 0x0F - (flags >> 24);
@@ -221,28 +228,36 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
 {
   APPLY_OFFSET();
 
+  // start is off-screen
   if (x >= xmax || y >= ymax)
     return;
 
+  // make height positive
   if (h < 0) {
     y += h;
     h = -h;
   }
+
+  // clip y
   if (y < ymin) {
     h += y-ymin;
     y = ymin;
   }
+
+  if (y + h > ymax)
+    h = ymax - y;
+
+  // clip x
   if (x < xmin) {
     w += x - xmin;
     x = xmin;
   }
-  if (y + h > ymax)
-    h = ymax - y;
+
   if (x + w > xmax)
     w = xmax - x;
 
   for (coord_t i = y; i < y + h; i++) {
-    drawHorizontalLine(x, i, w, pat, flags);
+    drawHorizontalLineAbs(x, i, w, pat, flags);
   }
 }
 
