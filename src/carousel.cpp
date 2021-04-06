@@ -25,7 +25,7 @@ void CarouselWindow::update()
   first = max(0, first);
   coord_t lastPosition = 0;
   coord_t spacing = 10;
-  if (items.size() > 0 && count > 0)
+  if (!items.empty() && count > 0)
     spacing = (width() - items[0]->back->width() * (count - 1) - items[0]->front->width()) / (count - 1);
 
   int index = 0;
