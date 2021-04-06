@@ -48,6 +48,13 @@ class MainWindow: public Window
       return _instance;
     }
 
+#if defined(TESTS)
+    static void create()
+    {
+      _instance = new MainWindow();
+    }
+#endif
+
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
