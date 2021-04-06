@@ -44,10 +44,12 @@ void CheckBox::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool CheckBox::onTouchEnd(coord_t x, coord_t y)
 {
-  onKeyPress();
-  _setValue(!getValue());
-  setFocus(SET_FOCUS_DEFAULT);
-  invalidate();
+  if (enabled) {
+    onKeyPress();
+    _setValue(!getValue());
+    setFocus(SET_FOCUS_DEFAULT);
+    invalidate();
+  }
   return true;
 }
 #endif
