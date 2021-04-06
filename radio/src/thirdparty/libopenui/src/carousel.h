@@ -55,7 +55,7 @@ class CarouselWindow: public Window
     {
     }
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    void deleteLater(bool detach = true, bool trash = true) override // NOLINT(google-default-arguments)
     {
       if (_deleted)
         return;
@@ -86,9 +86,11 @@ class CarouselWindow: public Window
     void select(int index, bool scroll = true)
     {
       selection = index;
-      auto item = items[selection];
-      if (item->selectHandler) {
-        item->selectHandler();
+      if (selection >= 0) {
+        auto item = items[selection];
+        if (item->selectHandler) {
+          item->selectHandler();
+        }
       }
       update();
     }
@@ -96,7 +98,7 @@ class CarouselWindow: public Window
   protected:
     std::vector<CarouselItem *> items;
     int selection = 0;
-    uint8_t count;
+    unsigned count;
     void update();
 };
 
