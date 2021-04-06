@@ -36,11 +36,9 @@ void Button::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("Button").c_str(), event);
 
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (enabled) {
-      onKeyPress();
-      onPress();
-    }
+  if (enabled && event == EVT_KEY_BREAK(KEY_ENTER)) {
+    onKeyPress();
+    onPress();
   }
   else {
     FormField::onEvent(event);
