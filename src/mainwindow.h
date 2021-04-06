@@ -25,6 +25,7 @@
 
 class MainWindow: public Window
 {
+  protected:
     // singleton
     MainWindow():
       Window(nullptr, {0, 0, LCD_W, LCD_H}),
@@ -34,7 +35,6 @@ class MainWindow: public Window
     }
 
   public:
-
     ~MainWindow() override
     {
       children.clear();
