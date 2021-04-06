@@ -25,14 +25,15 @@
 
 class MainWindow: public Window
 {
-  public:
+    // singleton
     MainWindow():
       Window(nullptr, {0, 0, LCD_W, LCD_H}),
       invalidatedRect(rect)
     {
       Layer::push(this);
-      _instance = this;
     }
+
+  public:
 
     ~MainWindow() override
     {
@@ -41,6 +42,9 @@ class MainWindow: public Window
 
     static MainWindow * instance()
     {
+      if (!_instance)
+        _instance = new MainWindow();
+
       return _instance;
     }
 
