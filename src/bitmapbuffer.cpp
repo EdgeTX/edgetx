@@ -54,7 +54,7 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
 
 void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags)
 {
-  pixel_t * p = getPixelPtr(x, y);
+  pixel_t * p = getPixelPtrAbs(x, y);
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
   uint8_t opacity = 0x0F - (flags >> 24);
 
@@ -203,7 +203,7 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFla
   RGB_SPLIT(color, red, green, blue);
 
   for (int i = y; i < y + h; i++) {
-    pixel_t * p = getPixelPtr(x, i);
+    pixel_t * p = getPixelPtrAbs(x, i);
     for (int j = 0; j < w; j++) {
       // TODO ASSERT_IN_DISPLAY(p);
       RGB_SPLIT(*p, bgRed, bgGreen, bgBlue);
@@ -446,8 +446,8 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
-    pixel_t * p = getPixelPtr(x, y + row);
-    const pixel_t * q = mask->getPixelPtr(offsetX, row);
+    pixel_t * p = getPixelPtrAbs(x, y + row);
+    const pixel_t * q = mask->getPixelPtrAbs(offsetX, row);
     for (coord_t col = 0; col < width; col++) {
       drawAlphaPixel(p, *((uint8_t *)q), color);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
@@ -490,10 +490,10 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
-    pixel_t * p = getPixelPtr(x, y + row);
-    const pixel_t * q = mask->getPixelPtr(offsetX, offsetY + row);
+    pixel_t * p = getPixelPtrAbs(x, y + row);
+    const pixel_t * q = mask->getPixelPtrAbs(offsetX, offsetY + row);
     for (coord_t col = 0; col < width; col++) {
-      drawAlphaPixel(p, *((uint8_t *)q), *srcBitmap->getPixelPtr(row, col));
+      drawAlphaPixel(p, *((uint8_t *)q), *srcBitmap->getPixelPtrAbs(row, col));
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
       MOVE_TO_NEXT_RIGHT_PIXEL(q);
     }
@@ -536,7 +536,7 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, 
         ypixel = y + row;
       }
       if (xpixel >= xmin && xpixel < xmax) {
-        pixel_t * p = getPixelPtr(xpixel, ypixel);
+        pixel_t * p = getPixelPtrAbs(xpixel, ypixel);
         if (p)
           drawAlphaPixel(p, *q, color);
       }
@@ -720,7 +720,7 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
 {
   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(filename);
   if (bitmap) {
-    pixel_t * p = bitmap->getPixelPtr(0, 0);
+    pixel_t * p = bitmap->getPixelPtrAbs(0, 0);
     for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
       *((uint8_t *)p) = OPACITY_MAX - ((*p) >> 12);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
@@ -902,7 +902,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   switch (depth) {
     case 16:
       for (int i = h - 1; i >= 0; i--) {
-        pixel_t * dst = bmp->getPixelPtr(0, i);
+        pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
           result = f_read(&imgFile, (uint8_t *)dst, 2, &read);
           if (result != FR_OK || read != 2) {
@@ -917,7 +917,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 
     case 32:
       for (int i = h - 1; i >= 0; i--) {
-        pixel_t * dst = bmp->getPixelPtr(0, i);
+        pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
           uint32_t pixel;
           result = f_read(&imgFile, (uint8_t *)&pixel, 4, &read);
@@ -936,7 +936,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
             else {
               hasAlpha = true;
               bmp->setFormat(BMP_ARGB4444);
-              for (pixel_t * p = bmp->getPixelPtr(j, i); p != bmp->getPixelPtr(0, h); MOVE_TO_NEXT_RIGHT_PIXEL(p)) {
+              for (pixel_t * p = bmp->getPixelPtrAbs(j, i); p != bmp->getPixelPtrAbs(0, h); MOVE_TO_NEXT_RIGHT_PIXEL(p)) {
                 pixel_t tmp = *p;
                 *p = ((tmp >> 1) & 0x0f) + (((tmp >> 7) & 0x0f) << 4) + (((tmp >> 12) & 0x0f) << 8);
               }
@@ -960,7 +960,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
           delete bmp;
           return nullptr;
         }
-        pixel_t * dst = bmp->getPixelPtr(0, i);
+        pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (uint32_t j=0; j<w; j++) {
           uint8_t index = (buf[j/2] >> ((j & 1) ? 0 : 4)) & 0x0F;
           uint8_t val = palette[index];
@@ -1079,7 +1079,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
 #if 0
   DMABitmapConvert(bmp->data, img, w, h, n == 4 ? DMA2D_ARGB4444 : DMA2D_RGB565);
 #else
-  pixel_t * dest = bmp->getPixelPtr(0, 0);
+  pixel_t * dest = bmp->getPixelPtrAbs(0, 0);
   const uint8_t * p = img;
   if (n == 4) {
     for (int row = 0; row < h; ++row) {

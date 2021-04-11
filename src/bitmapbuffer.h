@@ -153,7 +153,7 @@ class BitmapBufferBase
       return _width * _height * sizeof(T);
     }
 
-    inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
+    inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
     {
 #if defined(LCD_VERTICAL_INVERT)
       x = _width - x - 1;
@@ -278,35 +278,15 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       drawSolidFilledRect(0, 0, _width - offsetX, _height - offsetY, flags);
     }
 
-    inline void drawPixel(pixel_t * p, pixel_t value)
-    {
-      if (data && (data <= p || p < data_end)) {
-        *p = value;
-      }
-#if defined(DEBUG)
-      else if (!leakReported) {
-        leakReported = true;
-        TRACE("BitmapBuffer(%p).drawPixel(): buffer overrun, data: %p, written at: %p", this, data, p);
-      }
-#endif
-    }
-
     inline const pixel_t * getPixelPtr(coord_t x, coord_t y) const
     {
-#if defined(LCD_VERTICAL_INVERT)
-      x = _width - x - 1;
-      y = _height - y - 1;
-#endif
-      return &data[y * _width + x];
-    }
+      APPLY_OFFSET();
 
-    inline pixel_t * getPixelPtr(coord_t x, coord_t y)
-    {
-#if defined(LCD_VERTICAL_INVERT)
-      x = _width - x - 1;
-      y = _height - y - 1;
-#endif
-      return &data[y * _width + x];
+      coord_t w = 1, h = 1;
+      if (!applyClippingRect(x, y, w, h))
+        return nullptr;
+
+      return getPixelPtrAbs(x, y);
     }
 
     inline void drawPixel(coord_t x, coord_t y, pixel_t value)
@@ -484,8 +464,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
           scaledh = _height - y;
 
         for (int i = 0; i < scaledh; i++) {
-          pixel_t * p = getPixelPtr(x, y + i);
-          const pixel_t * qstart = bmp->getPixelPtr(srcx, srcy + int(i / scale));
+          pixel_t * p = getPixelPtrAbs(x, y + i);
+          const pixel_t * qstart = bmp->getPixelPtrAbs(srcx, srcy + int(i / scale));
           for (int j = 0; j < scaledw; j++) {
             const pixel_t * q = qstart;
             MOVE_PIXEL_RIGHT(q, int(j / scale));
@@ -526,7 +506,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     static BitmapBuffer * load_bmp(const char * filename);
     static BitmapBuffer * load_stb(const char * filename);
 
-    inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h)
+    inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h) const
     {
       if (h < 0) {
         y += h;
@@ -562,15 +542,47 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     uint8_t drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags);
 
+    inline void drawPixel(pixel_t * p, pixel_t value)
+    {
+      if (data && (data <= p || p < data_end)) {
+        *p = value;
+      }
+#if defined(DEBUG)
+      else if (!leakReported) {
+        leakReported = true;
+        TRACE("BitmapBuffer(%p).drawPixel(): buffer overrun, data: %p, written at: %p", this, data, p);
+      }
+#endif
+    }
+
+    inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
+    {
+#if defined(LCD_VERTICAL_INVERT)
+      x = _width - x - 1;
+      y = _height - y - 1;
+#endif
+      return &data[y * _width + x];
+    }
+
+    inline pixel_t * getPixelPtrAbs(coord_t x, coord_t y)
+    {
+#if defined(LCD_VERTICAL_INVERT)
+      x = _width - x - 1;
+      y = _height - y - 1;
+#endif
+      return &data[y * _width + x];
+    }
+
+
     inline void drawPixelAbs(coord_t x, coord_t y, pixel_t value)
     {
-      pixel_t * p = getPixelPtr(x, y);
+      pixel_t * p = getPixelPtrAbs(x, y);
       drawPixel(p, value);
     }
 
     inline void drawAlphaPixelAbs(coord_t x, coord_t y, uint8_t opacity, uint16_t color)
     {
-      pixel_t * p = getPixelPtr(x, y);
+      pixel_t * p = getPixelPtrAbs(x, y);
       drawAlphaPixel(p, opacity, color);
     }
 
