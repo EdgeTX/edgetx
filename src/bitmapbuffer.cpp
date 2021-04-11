@@ -91,7 +91,7 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
 
   if (pat == SOLID) {
     while (h--) {
-      drawAlphaPixel(x, y, opacity, color);
+      drawAlphaPixelAbs(x, y, opacity, color);
       y++;
     }
   }
@@ -101,7 +101,7 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
     }
     while (h--) {
       if (pat & 1) {
-        drawAlphaPixel(x, y, opacity, color);
+        drawAlphaPixelAbs(x, y, opacity, color);
         pat = (pat >> 1) | 0x80;
       }
       else {
@@ -137,7 +137,7 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
     /* the line is more horizontal than vertical */
     for (int i = 0; i <= dxabs; i++) {
       if ((1 << (px % 8)) & pat) {
-        drawPixel(px, py, color);
+        drawPixelAbs(px, py, color);
       }
       y += dyabs;
       if (y >= dxabs) {
@@ -151,7 +151,7 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
     /* the line is more vertical than horizontal */
     for (int i = 0; i <= dyabs; i++) {
       if ((1 << (py % 8)) & pat) {
-        drawPixel(px, py, color);
+        drawPixelAbs(px, py, color);
       }
       x += dxabs;
       if (x >= dyabs) {
@@ -220,8 +220,6 @@ void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags fla
   int decisionOver2 = 1 - x1;
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
 
-  APPLY_OFFSET();
-
   while (y1 <= x1) {
     drawPixel(x1 + x, y1 + y, color);
     drawPixel(y1 + x, x1 + y, color);
@@ -263,9 +261,11 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFla
   }
 }
 
-class Slope {
+class Slope
+{
   public:
-    explicit Slope(int angle) {
+    explicit Slope(int angle)
+    {
       if (angle < 0)
         angle += 360;
       if (angle > 360)
@@ -354,7 +354,6 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y, const uint8_t * im
   Slope endSlope(endAngle);
 
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
-  APPLY_OFFSET();
 
   coord_t width = *((uint16_t *)img);
   coord_t height = *(((uint16_t *)img) + 1);
@@ -403,13 +402,13 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
       if (dist >= internalDist && dist <= externalDist) {
         Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);
         if (slope.isBetween(startSlope, endSlope))
-          drawPixel(x + x1, y - y1, color);
+          drawPixelAbs(x + x1, y - y1, color);
         if (slope.invertVertical().isBetween(startSlope, endSlope))
-          drawPixel(x + x1, y + y1, color);
+          drawPixelAbs(x + x1, y + y1, color);
         if (slope.invertHorizontal().isBetween(startSlope, endSlope))
-          drawPixel(x - x1, y + y1, color);
+          drawPixelAbs(x - x1, y + y1, color);
         if (slope.invertVertical().isBetween(startSlope, endSlope))
-          drawPixel(x - x1, y - y1, color);
+          drawPixelAbs(x - x1, y - y1, color);
       }
     }
   }

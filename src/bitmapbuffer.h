@@ -311,16 +311,26 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     inline void drawPixel(coord_t x, coord_t y, pixel_t value)
     {
-      pixel_t * p = getPixelPtr(x, y);
-      drawPixel(p, value);
+      APPLY_OFFSET();
+
+      coord_t w = 1, h = 1;
+      if (!applyClippingRect(x, y, w, h))
+        return;
+
+      drawPixelAbs(x, y, value);
     }
 
     void drawAlphaPixel(pixel_t * p, uint8_t opacity, uint16_t color);
 
-    inline void drawAlphaPixel(coord_t x, coord_t y, uint8_t opacity, uint16_t color)
+    inline void drawAlphaPixel(coord_t x, coord_t y, uint8_t opacity, pixel_t value)
     {
-      pixel_t * p = getPixelPtr(x, y);
-      drawAlphaPixel(p, opacity, color);
+      APPLY_OFFSET();
+
+      coord_t w = 1, h = 1;
+      if (!applyClippingRect(x, y, w, h))
+        return;
+
+      drawAlphaPixelAbs(x, y, opacity, value);
     }
 
     void drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat = SOLID, LcdFlags flags = 0);
@@ -551,6 +561,19 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     }
 
     uint8_t drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags);
+
+    inline void drawPixelAbs(coord_t x, coord_t y, pixel_t value)
+    {
+      pixel_t * p = getPixelPtr(x, y);
+      drawPixel(p, value);
+    }
+
+    inline void drawAlphaPixelAbs(coord_t x, coord_t y, uint8_t opacity, uint16_t color)
+    {
+      pixel_t * p = getPixelPtr(x, y);
+      drawAlphaPixel(p, opacity, color);
+    }
+
     void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags);
 };
 
