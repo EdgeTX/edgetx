@@ -515,6 +515,41 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
   protected:
     static BitmapBuffer * load_bmp(const char * filename);
     static BitmapBuffer * load_stb(const char * filename);
+
+    inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h)
+    {
+      if (h < 0) {
+        y += h;
+        h = -h;
+      }
+
+      if (w < 0) {
+        x += w;
+        w = -w;
+      }
+
+      if (x >= xmax || y >= ymax)
+        return false;
+
+      if (y < ymin) {
+        h += y - ymin;
+        y = ymin;
+      }
+
+      if (x < xmin) {
+        w += x - xmin;
+        x = xmin;
+      }
+
+      if (y + h > ymax)
+        h = ymax - y;
+
+      if (x + w > xmax)
+        w = xmax - x;
+
+      return data && h > 0 && w > 0;
+    }
+
     uint8_t drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags);
     void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags);
 };
