@@ -45,14 +45,9 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
 {
   APPLY_OFFSET();
 
-  // line is off-screen
-  if (y >= _height || y >= ymax || y < ymin)
+  coord_t h = 1;
+  if (!applyClippingRect(x, y, w, h))
     return;
-
-  // clip width
-  if (x + w > _width) {
-    w = _width - x;
-  }
 
   drawHorizontalLineAbs(x, y, w, pat, flags);
 }
@@ -87,24 +82,8 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
 {
   APPLY_OFFSET();
 
-  if (x < xmin || x >= xmax)
-    return;
-
-  if (h < 0) {
-    y += h;
-    h = -h;
-  }
-
-  if (y < ymin) {
-    h += y - ymin;
-    y = ymin;
-  }
-
-  if (y + h > ymax) {
-    h = ymax - y;
-  }
-
-  if (h <= 0)
+  coord_t w = 1;
+  if (!applyClippingRect(x, y, w, h))
     return;
 
   pixel_t color = lcdColorTable[COLOR_IDX(flags)];
@@ -198,27 +177,7 @@ void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t 
 {
   APPLY_OFFSET();
 
-  if (x >= xmax || y >= ymax)
-    return;
-
-  if (h < 0) {
-    y += h;
-    h = -h;
-  }
-  if (y < ymin) {
-    h += y-ymin;
-    y = ymin;
-  }
-  if (x < xmin) {
-    w += x - xmin;
-    x = xmin;
-  }
-  if (y + h > ymax)
-    h = ymax - y;
-  if (x + w > xmax)
-    w = xmax - x;
-
-  if (!data || h<=0 || w<=0)
+  if (!applyClippingRect(x, y, w, h))
     return;
 
   DMAFillRect(data, _width, _height, x, y, w, h, lcdColorTable[COLOR_IDX(flags)]);
@@ -228,33 +187,8 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
 {
   APPLY_OFFSET();
 
-  // start is off-screen
-  if (x >= xmax || y >= ymax)
+  if (!applyClippingRect(x, y, w, h))
     return;
-
-  // make height positive
-  if (h < 0) {
-    y += h;
-    h = -h;
-  }
-
-  // clip y
-  if (y < ymin) {
-    h += y-ymin;
-    y = ymin;
-  }
-
-  if (y + h > ymax)
-    h = ymax - y;
-
-  // clip x
-  if (x < xmin) {
-    w += x - xmin;
-    x = xmin;
-  }
-
-  if (x + w > xmax)
-    w = xmax - x;
 
   for (coord_t i = y; i < y + h; i++) {
     drawHorizontalLineAbs(x, i, w, pat, flags);
