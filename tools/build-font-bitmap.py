@@ -107,7 +107,7 @@ class FontBitmap:
                     self.extra_bitmap = None
                 continue
             elif is_cjk_char(c):
-                w = self.draw_char(image, width, c, -3)
+                w = self.draw_char(image, width, c, 3)
             else:
                 w = self.draw_char(image, width, c)
 
@@ -118,7 +118,7 @@ class FontBitmap:
 
         _, top, _, bottom = self.get_real_size(image)
 
-        top = 1
+        top = bottom - self.font_size - 2
         # bottom = self.font_size
         image = image.crop((0, top, width - 1, bottom))
         coords.insert(0, bottom - top + 1)
