@@ -5,18 +5,17 @@ import argparse
 import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
-from charset import get_chars, special_chars, extra_chars, standard_chars
+from charset import get_chars, special_chars, extra_chars, standard_chars, is_cjk_char
 
 
 class FontBitmap:
-    def __init__(self, language, font_size, font_name, cjk_font_name, foreground, background):
+    def __init__(self, language, font_size, font_name, foreground, background):
         self.language = language
         self.chars = get_chars(language)
         self.font_size = font_size
         self.foreground = foreground
         self.background = background
         self.font = self.load_font(font_name)
-        self.cjk_font = self.load_font(cjk_font_name)
         self.extra_bitmap = self.load_extra_bitmap()
 
     def load_extra_bitmap(self):
@@ -77,7 +76,8 @@ class FontBitmap:
             bottom -= 1
         return left, top, right, bottom
 
-    def draw_char(self, image, x, c, font, offset_y=0):
+    def draw_char(self, image, x, c, offset_y=0):
+        font=self.font
         size = font.font.getsize(c)
         width = size[0][0]
         offset_x = size[1][0]
@@ -106,10 +106,10 @@ class FontBitmap:
                         width += coord
                     self.extra_bitmap = None
                 continue
-            elif c in special_chars[self.language]:
-                w = self.draw_char(image, width, c, self.cjk_font, -3)
+            elif is_cjk_char(c):
+                w = self.draw_char(image, width, c, -3)
             else:
-                w = self.draw_char(image, width, c, self.font)
+                w = self.draw_char(image, width, c)
 
             coords.append(width)
             width += w
@@ -139,10 +139,9 @@ def main():
     parser.add_argument('--subset', help="Subset")
     parser.add_argument('--size', type=int, help="Font size")
     parser.add_argument('--font', help="Font name")
-    parser.add_argument('--cjk-font', help="CJK font name")
     args = parser.parse_args()
 
-    font = FontBitmap(args.subset, args.size, args.font, args.cjk_font, (0, 0, 0), (255, 255, 255))
+    font = FontBitmap(args.subset, args.size, args.font, (0, 0, 0), (255, 255, 255))
     font.generate(args.output)
 
 

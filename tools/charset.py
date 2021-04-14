@@ -9,6 +9,8 @@ standard_chars = """ !"#$%&'()*+,-./0123456789:;<=>?°ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 extra_chars = "".join([chr(0x10000+i) for i in range(21)])
 
+def is_cjk_char(c):
+    return 0x4E00 <= ord(c) <= 0x9FFF
 
 def cjk_chars(lang):
     charset = set()
@@ -16,7 +18,7 @@ def cjk_chars(lang):
     with open(os.path.join(tools_path, "../radio/src/translations/%s.h.txt" % lang), encoding='utf-8') as f:
         data = f.read()
         for c in data:
-            if 0x4E00 <= ord(c) <= 0x9FFF:
+            if is_cjk_char(c):
                 charset.add(c)
                 # print(ord(c))
     result = list(charset)
