@@ -319,9 +319,9 @@ class Window
       return scrollPositionY;
     }
 
-    void setScrollPositionX(coord_t value);
+    virtual void setScrollPositionX(coord_t value);
 
-    void setScrollPositionY(coord_t value);
+    virtual void setScrollPositionY(coord_t value);
 
     bool isChildVisible(const Window * window) const;
 
