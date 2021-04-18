@@ -135,16 +135,22 @@ class WidgetFactory
       return options;
     }
 
-    void initPersistentData(Widget::PersistentData * persistentData) const
+    void initPersistentData(Widget::PersistentData * persistentData, bool setDefault) const
     {
-      memset(persistentData, 0, sizeof(Widget::PersistentData));
+      if (setDefault) {
+        memset(persistentData, 0, sizeof(Widget::PersistentData));
+      }
       if (options) {
         int i = 0;
         for (const ZoneOption * option = options; option->name; option++, i++) {
           TRACE("WidgetFactory::initPersistentData() setting option '%s'", option->name);
           // TODO compiler bug? The CPU freezes ... persistentData->options[i++] = option->deflt;
-          memcpy(&persistentData->options[i].value, &option->deflt, sizeof(ZoneOptionValue));
-          persistentData->options[i].type = zoneValueEnumFromType(option->type);
+          auto optVal = &persistentData->options[i];
+          if (setDefault) {
+            // reset to default value
+            memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
+          }
+          optVal->type = zoneValueEnumFromType(option->type);
         }
       }
     }

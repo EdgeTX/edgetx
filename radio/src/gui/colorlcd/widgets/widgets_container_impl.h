@@ -157,10 +157,7 @@ class BaseWidgetFactory: public WidgetFactory
 
     Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const override
     {
-      if (init) {
-        initPersistentData(persistentData);
-      }
-
+      initPersistentData(persistentData, init);
       return new T(this, parent, rect, persistentData);
     }
 };

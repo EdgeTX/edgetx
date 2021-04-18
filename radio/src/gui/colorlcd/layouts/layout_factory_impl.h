@@ -133,7 +133,7 @@ class BaseLayoutFactory: public LayoutFactory
 
     Layout * create(Layout::PersistentData * persistentData) const override
     {
-      initPersistentData(persistentData);
+      initPersistentData(persistentData, true);
       Layout * layout = new T(this, persistentData);
       if (layout) {
         layout->create();
@@ -143,6 +143,7 @@ class BaseLayoutFactory: public LayoutFactory
 
     Layout * load(Layout::PersistentData * persistentData) const override
     {
+      initPersistentData(persistentData, false);
       Layout * layout = new T(this, persistentData);
       if (layout) {
         layout->load();
@@ -150,16 +151,21 @@ class BaseLayoutFactory: public LayoutFactory
       return layout;
     }
 
-    void initPersistentData(Layout::PersistentData * persistentData) const
+    void initPersistentData(Layout::PersistentData * persistentData, bool setDefault) const
     {
-      memset(persistentData, 0, sizeof(Layout::PersistentData));
+      if (setDefault) {
+        memset(persistentData, 0, sizeof(Layout::PersistentData));
+      }
       if (options) {
         int i = 0;
         for (const ZoneOption * option = options; option->name; option++, i++) {
           TRACE("LayoutFactory::initPersistentData() setting option '%s'", option->name);
           // TODO compiler bug? The CPU freezes ... persistentData->options[i++] = option->deflt;
-          memcpy(&persistentData->options[i].value, &option->deflt, sizeof(ZoneOptionValue));
-          persistentData->options[i].type = zoneValueEnumFromType(option->type);
+          auto optVal = &persistentData->options[i];
+          if (setDefault) {
+            memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
+          }
+          optVal->type = zoneValueEnumFromType(option->type);
         }
       }
     }
