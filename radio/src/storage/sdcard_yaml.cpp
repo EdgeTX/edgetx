@@ -137,6 +137,13 @@ const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, u
     // YAML reader
     TRACE("YAML model reader");
 
+    if (size < sizeof(g_model)) {
+        // TODO: Partial load for ModelButton::load()
+        //  -> maybe we should have a summary in modelslist.yml? 
+        memset(buffer, 0, size);
+        return nullptr;
+    }
+    
     char path[256];
     getModelPath(path, filename);
 
