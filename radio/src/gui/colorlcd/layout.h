@@ -32,7 +32,14 @@ constexpr uint32_t LAYOUT_REFRESH = 1000 / 2; // 2 Hz
 
 class BitmapBuffer;
 
+#if !defined(YAML_GENERATOR)
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES,MAX_LAYOUT_OPTIONS> LayoutPersistentData;
+#else
+struct LayoutPersistentData {
+  ZonePersistentData   zones[MAX_LAYOUT_ZONES];
+  ZoneOptionValueTyped options[MAX_LAYOUT_OPTIONS];
+};
+#endif
 
 class LayoutFactory
 {

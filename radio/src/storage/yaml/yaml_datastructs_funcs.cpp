@@ -129,7 +129,7 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1:
     case MODULE_TYPE_R9M_LITE_PXX1:
-    case MODULE_TYPE_R9M_LITE_PRO_PXX1:
+    //case MODULE_TYPE_R9M_LITE_PRO_PXX1:
         return 3;
     case MODULE_TYPE_SBUS:
         return 4;

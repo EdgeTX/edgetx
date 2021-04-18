@@ -62,7 +62,14 @@ struct WidgetsContainerPersistentData {
   ZoneOptionValueTyped options[O];
 };
 
+#if !defined(YAML_GENERATOR)
 typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarPersistentData;
+#else
+struct TopBarPersistentData {
+  ZonePersistentData   zones[MAX_TOPBAR_ZONES];
+  ZoneOptionValueTyped options[MAX_TOPBAR_OPTIONS];
+};
+#endif
 
 class WidgetsContainer: public FormGroup
 {
