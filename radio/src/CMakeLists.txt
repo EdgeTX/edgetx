@@ -44,6 +44,7 @@ option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
+option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
 option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
@@ -375,6 +376,10 @@ endif()
 
 if(DEBUG_WINDOWS)
   add_definitions(-DDEBUG_WINDOWS)
+endif()
+
+if(DEBUG_YAML)
+  add_definitions(-DDEBUG_YAML)
 endif()
 
 if(FRSKY_STICKS)
