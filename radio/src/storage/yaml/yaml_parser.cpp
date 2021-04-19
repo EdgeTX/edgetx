@@ -59,7 +59,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
         if(s_len < MAX_STR)                     \
             s[s_len++] = c;                     \
         else {                                  \
-            TRACE("STRING_OVERFLOW");           \
+            TRACE_YAML("STRING_OVERFLOW");      \
             return STRING_OVERFLOW;             \
         }                                       \
     }
@@ -88,7 +88,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 // go up as many levels as necessary
                 do {
                     if (!toParent()) {
-                        TRACE("STOP (no parent)!\n");
+                        TRACE_YAML("STOP (no parent)!\n");
                         return DONE_PARSING;
                     }
                 } while (indent < getLastIndent());
@@ -102,7 +102,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             // go down one level
             else if (indent > getLastIndent()) {
                 if (!toChild()) {
-                    TRACE("STOP (stack full)!\n");
+                    TRACE_YAML("STOP (stack full)!\n");
                     return DONE_PARSING; // ERROR
                 }
             }
@@ -121,7 +121,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             if (*c == ' ') {// assumes nothing else comes after spaces start
                 node_found = calls->find_node(ctx, scratch_buf, scratch_len);
                 if (!node_found) {
-                    TRACE("YAML_PARSER: Could not find node '%.*s' (1)\n",
+                    TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (1)\n",
                           scratch_len, scratch_buf);
                 }
                 state = ps_AttrSP;
@@ -135,7 +135,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 if (state == ps_Attr) {
                     node_found = calls->find_node(ctx, scratch_buf, scratch_len);
                     if (!node_found) {
-                        TRACE("YAML_PARSER: Could not find node '%.*s' (2)\n",
+                        TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (2)\n",
                               scratch_len, scratch_buf);
                     }
                 }
@@ -146,7 +146,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 if (state == ps_Attr) {
                     node_found = calls->find_node(ctx, scratch_buf, scratch_len);
                     if (!node_found) {
-                        TRACE("YAML_PARSER: Could not find node '%.*s' (3)\n",
+                        TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (3)\n",
                               scratch_len, scratch_buf);
                     }
                 }
@@ -189,12 +189,12 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
             //TODO: more escapes needed???
-            TRACE("unknown escape char '%c'",*c);
+            TRACE_YAML("unknown escape char '%c'",*c);
             return DONE_PARSING;
 
         case ps_ValEsc2:
             if(scratch_len >= MAX_STR) {
-                TRACE("STRING_OVERFLOW");
+                TRACE_YAML("STRING_OVERFLOW");
                 return STRING_OVERFLOW;
             }
             else if (*c >= '0' && *c <= '9') {
@@ -207,7 +207,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc3;
                 break;
             }
-            TRACE("wrong hex digit '%c'",*c);
+            TRACE_YAML("wrong hex digit '%c'",*c);
             return DONE_PARSING;
 
         case ps_ValEsc3:
@@ -221,7 +221,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValQuo;
                 break;
             }
-            TRACE("wrong hex digit '%c'",*c);
+            TRACE_YAML("wrong hex digit '%c'",*c);
             return DONE_PARSING;
             
         case ps_Val:

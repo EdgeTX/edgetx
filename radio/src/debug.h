@@ -92,6 +92,12 @@ uint8_t aux2SerialTracesEnabled();
   #define TRACE_LUA_INTERNALS_WITH_LINEINFO(L, f_, ...)
 #endif
 
+#if defined(DEBUG_YAML)
+#define TRACE_YAML(f_, ...) TRACE(f_, ##__VA_ARGS__)
+#else
+#define TRACE_YAML(f_, ...)
+#endif
+
 #if defined(DEBUG) && !defined(SIMU)
 #define TIME_MEASURE_START(id) uint16_t t0 ## id = getTmr2MHz()
 #define TIME_MEASURE_STOP(id)  TRACE("Measure(" # id ") = %.1fus", float((uint16_t)(getTmr2MHz() - t0 ## id))/2)
