@@ -747,7 +747,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("swashR", 64, struct_SwashRingData, NULL),
   YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED( "thrTraceSrc", 8 ),
-  YAML_UNSIGNED( "switchWarningState", 32 ),
+  YAML_UNSIGNED_CUST( "switchWarningState", 32, r_swtchWarn, w_swtchWarn ),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED( "rssiSource", 8 ),
