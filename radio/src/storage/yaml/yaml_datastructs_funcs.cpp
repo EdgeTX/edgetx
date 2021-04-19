@@ -359,3 +359,24 @@ static bool fmd_is_active(uint8_t* data, uint32_t bitoffs)
 
     return is_active;
 }
+
+static uint32_t r_swtchWarn(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    //TODO: read from string like 'AdBuC-'
+    // -> reads:
+    //    - Switch A: must be DOWN
+    //    - Switch B: must be UP
+    //    - Switch C: must be MIDDLE
+    //
+    // -> switches not in the list shall not be checked
+    //
+    // -> refer to getSwitchWarningString() (strhelpers.cpp)
+    return 0;
+}
+
+static bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    //TODO:
+    // -> refer to getSwitchWarningString() (strhelpers.cpp)
+    return true;
+}
