@@ -440,7 +440,7 @@ PACK(struct ModuleData {
       int8_t optionValue;
       uint8_t receiverTelemetryOff:1;
       uint8_t receiverHigherChannels:1;
-      uint8_t spare:6;
+      uint8_t spare:6 SKIP;
     } multi);
     NOBACKUP(struct {
       uint8_t power:2;                  // 0=10 mW, 1=100 mW, 2=500 mW, 3=1W
@@ -647,7 +647,7 @@ PACK(struct ModelData {
 
   NOBACKUP(RssiAlarmData rssiAlarms);
 
-  uint8_t spare1:3;
+  uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2;
 
@@ -737,7 +737,7 @@ PACK(struct TrainerData {
 });
 
 #if defined(COLORLCD)
-  #define SPLASH_MODE uint8_t splashSpares:3
+  #define SPLASH_MODE uint8_t splashSpares:3 SKIP
 #else
   #define SPLASH_MODE int8_t splashMode:3
 #endif
