@@ -88,6 +88,12 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     memcpy(mi->current_attr, buf, len);
     mi->current_attr[len] = '\0';
 
+    list<ModelsCategory *>& cats = mi->root->getCategories();
+    if (mi->level == modelslist_iter::Category) {
+        ModelsCategory* cat = new ModelsCategory(buf,len);
+        cats.push_back(cat);
+    }
+
     return true;
 }
 
@@ -96,10 +102,6 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
     modelslist_iter* mi = (modelslist_iter*)ctx;
     list<ModelsCategory *>& cats = mi->root->getCategories();
     switch(mi->level) {
-    case modelslist_iter::Category: {
-        ModelsCategory* cat = new ModelsCategory(buf,len);
-        cats.push_back(cat);
-    } break;
 
     case modelslist_iter::Model:
         if (!strcmp(mi->current_attr,"filename")) {

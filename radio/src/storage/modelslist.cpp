@@ -337,9 +337,10 @@ void ModelsCategory::save(FIL * file)
   f_puts("]", file);
   f_putc('\n', file);
 #else
-  f_puts("- name: ", file);
+  f_puts("- ", file);
   f_puts(name, file);
   f_putc('\n', file);
+  //f_puts("  models:\n", file);
 #endif
   for (list<ModelCell *>::iterator it = begin(); it != end(); ++it) {
     (*it)->save(file);
