@@ -546,7 +546,7 @@ typedef uint8_t swarnenable_t;
 
 #if defined(COLORLCD)
   #define SWITCHES_WARNING_DATA \
-    NOBACKUP(swarnstate_t  switchWarningState);
+    NOBACKUP(swarnstate_t  switchWarningState CUST(r_swtchWarn,w_swtchWarn));
 #else
   #define SWITCHES_WARNING_DATA \
     swarnstate_t  switchWarningState; \

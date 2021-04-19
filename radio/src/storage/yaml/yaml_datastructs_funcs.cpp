@@ -362,7 +362,8 @@ static bool fmd_is_active(uint8_t* data, uint32_t bitoffs)
 
 static uint32_t r_swtchWarn(const YamlNode* node, const char* val, uint8_t val_len)
 {
-    //TODO: read from string like 'AdBuC-'
+    // Read from string like 'AdBuC-':
+    //
     // -> reads:
     //    - Switch A: must be DOWN
     //    - Switch B: must be UP
@@ -370,13 +371,76 @@ static uint32_t r_swtchWarn(const YamlNode* node, const char* val, uint8_t val_l
     //
     // -> switches not in the list shall not be checked
     //
-    // -> refer to getSwitchWarningString() (strhelpers.cpp)
-    return 0;
+    swarnstate_t swtchWarn = 0;
+    while(val_len--) {
+
+        signed swtch = *(val++) - 'A';
+        if (swtch >= NUM_SWITCHES)
+            break;
+
+        unsigned state = 0;
+        switch (*(val++)) {
+        case 'u':
+            state = 1;
+            break;
+        case '-':
+            state = 2;
+            break;
+        case 'd':
+            state = 3;
+            break;
+        default:
+            // no check
+            break;
+        }
+
+        // 3 bits per switch
+        swtchWarn |= (state << (3*swtch));
+    }
+    
+    return swtchWarn;
 }
 
 static bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-    //TODO:
-    // -> refer to getSwitchWarningString() (strhelpers.cpp)
+    for (int i = 0; i < NUM_SWITCHES; i++) {
+        if (SWITCH_EXISTS(i)) {
+
+            // decode check state
+            // -> 3 bits per switch
+            auto state = (val >> (3*i)) & 0x07;
+
+            // state == 0 -> no check
+            // state == 1 -> UP
+            // state == 2 -> MIDDLE
+            // state == 3 -> DOWN
+            char swtchWarn[2] = {(char)('A' + i), 0};
+
+            switch (state) {
+            case 0:
+                break;
+            case 1:
+                swtchWarn[1] = 'u';
+                break;
+            case 2:
+                swtchWarn[1] = '-';
+                break;
+            case 3:
+                swtchWarn[1] = 'd';
+                break;
+            default:
+                // this should never happen
+                swtchWarn[1] = 'x';
+                break;
+            }
+
+            if (swtchWarn[1] != 0) {
+                if (!wf(opaque, swtchWarn, 2)) {
+                    return false;
+                }
+            }
+        }
+    }
+
     return true;
 }
