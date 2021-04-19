@@ -304,7 +304,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "adjustRTC", 1 ),
   YAML_UNSIGNED( "inactivityTimer", 8 ),
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
-  YAML_UNSIGNED( "splashSpares", 3 ),
+  YAML_PADDING( 3 ),
   YAML_SIGNED( "hapticMode", 2 ),
   YAML_SIGNED( "switchesDelay", 8 ),
   YAML_UNSIGNED( "lightAutoOff", 8 ),
@@ -534,7 +534,7 @@ static const struct YamlNode struct_anonymous_6[] = {
   YAML_SIGNED( "optionValue", 8 ),
   YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
   YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_UNSIGNED( "spare", 6 ),
+  YAML_PADDING( 6 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_7[] = {
@@ -752,7 +752,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED( "rssiSource", 8 ),
   YAML_STRUCT("rssiAlarms", 16, struct_RssiAlarmData, NULL),
-  YAML_UNSIGNED( "spare1", 3 ),
+  YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
   YAML_UNSIGNED( "potsWarnMode", 2 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
