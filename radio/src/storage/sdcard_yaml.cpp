@@ -168,7 +168,8 @@ const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, u
         }
     }
     //#endif
-    
+
+    *version = 255; // max version number
     return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree);
 }
 
