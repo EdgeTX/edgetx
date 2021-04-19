@@ -147,6 +147,11 @@ class ModelButton: public Button {
       }
       else {
         char timerName[LEN_TIMER_STRING];
+        if (modelCell->modelName[0] == '\0'
+            && partialModel.header.name[0] != '\0') {
+          strncpy(modelCell->modelName, partialModel.header.name, LEN_MODEL_NAME);
+          modelCell->modelName[LEN_MODEL_NAME] = '\0';
+        }
         buffer->drawSizedText(5, 2, modelCell->modelName, LEN_MODEL_NAME, FONT(XS) | DEFAULT_COLOR);
         getTimerString(timerName, 0);
         for (auto & timer : partialModel.timers) {
