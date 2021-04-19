@@ -768,8 +768,13 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRING("modelRegistrationID", 8),
   YAML_END
 };
+static const struct YamlNode struct_PartialModel[] = {
+  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
+  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_END
+};
 
-#define MAX_RADIODATA_MODELDATA_STR_LEN 24
+#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 24
 
 static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
 
@@ -782,5 +787,11 @@ static const struct YamlNode __ModelData_root_node = YAML_ROOT( struct_ModelData
 const YamlNode* get_modeldata_nodes()
 {
    return &__ModelData_root_node;
+}
+static const struct YamlNode __PartialModel_root_node = YAML_ROOT( struct_PartialModel );
+
+const YamlNode* get_partialmodel_nodes()
+{
+   return &__PartialModel_root_node;
 }
 

@@ -117,10 +117,7 @@ class ModelButton: public Button {
     {
       uint8_t version;
 
-      PACK(struct {
-        ModelHeader header;
-        TimerData timers[MAX_TIMERS];
-      }) partialModel;
+      PartialModel partialModel;
       const char * error = nullptr;
 
       if (strncmp(modelCell->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME) == 0) {

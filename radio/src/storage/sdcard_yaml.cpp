@@ -137,18 +137,23 @@ const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, u
     // YAML reader
     TRACE("YAML model reader");
 
-    if (size < sizeof(g_model)) {
-        // TODO: Partial load for ModelButton::load()
-        //  -> maybe we should have a summary in modelslist.yml? 
-        memset(buffer, 0, size);
-        return nullptr;
+    const YamlNode* data_nodes = nullptr;
+    if (size == sizeof(g_model)) {
+        data_nodes = get_modeldata_nodes();
+    }
+    else if (size == sizeof(PartialModel)) {
+        data_nodes = get_partialmodel_nodes();
+    }
+    else {
+        TRACE("cannot find YAML data nodes for object size (size=%d)", size);
+        return "YAML size error";
     }
     
     char path[256];
     getModelPath(path, filename);
 
     YamlTreeWalker tree;
-    tree.reset(get_modeldata_nodes(), buffer);
+    tree.reset(data_nodes, buffer);
 
     // wipe memory before reading YAML
     memset(buffer,0,size);
