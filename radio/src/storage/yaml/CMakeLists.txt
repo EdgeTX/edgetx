@@ -17,7 +17,7 @@ endif()
 set(YAML_GEN          ${RADIO_DIRECTORY}/util/generate_yaml.py)
 set(YAML_GEN_TEMPLATE ${RADIO_DIRECTORY}/util/yaml_parser.tmpl)
 
-SET(YAML_NODES        "\"RadioData,ModelData\"")
+SET(YAML_NODES        "\"RadioData,ModelData,PartialModel\"")
 set(YAML_GEN_ARGS     myeeprom.h ${YAML_GEN_TEMPLATE} ${YAML_NODES} -DYAML_GENERATOR)
 
 get_property(flags DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY COMPILE_DEFINITIONS)
