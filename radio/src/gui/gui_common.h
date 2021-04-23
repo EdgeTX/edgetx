@@ -39,7 +39,7 @@
   #define CASE_EVT_ROTARY_RIGHT
 #endif
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D) || defined(NAVIGATION_HORUS)
+#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
 inline uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax)
 {
   if (horTab) {

@@ -1794,6 +1794,8 @@ const luaR_value_entry opentxConstants[] = {
   { "MIDSIZE", FONT(L) },
   { "SMLSIZE", FONT(XS) },
   { "TINSIZE", FONT(XXS) },
+  { "BLINK", 0 },  // obsolete
+  { "INVERS", 0 }, // obsolete
 #else
   { "XXLSIZE", XXLSIZE },
   { "DBLSIZE", DBLSIZE },
@@ -1935,7 +1937,7 @@ const luaR_value_entry opentxConstants[] = {
   { "EVT_VIRTUAL_ENTER", EVT_KEY_BREAK(KEY_ENTER) },
   { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
   { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
-#elif defined(NAVIGATION_HORUS)
+#elif defined(COLORLCD)
 #if defined(KEYS_GPIO_REG_PGUP)
   { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_PGUP) },
   { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PGDN) },
@@ -1960,25 +1962,25 @@ const luaR_value_entry opentxConstants[] = {
   KEY_EVENTS(MENU, KEY_MENU),
 #endif
 
-#if defined(KEYS_GPIO_REG_RIGHT) && defined(NAVIGATION_HORUS)
+#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD)
   KEY_EVENTS(TELEM, KEY_TELEM),
 #elif defined(KEYS_GPIO_REG_RIGHT)
   KEY_EVENTS(RIGHT, KEY_RIGHT),
 #endif
 
-#if defined(KEYS_GPIO_REG_UP) && defined(NAVIGATION_HORUS)
+#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD)
   KEY_EVENTS(MODEL, KEY_MODEL),
 #elif defined(KEYS_GPIO_REG_UP)
   KEY_EVENTS(UP, KEY_UP),
 #endif
 
-#if defined(KEYS_GPIO_REG_LEFT) && defined(NAVIGATION_HORUS)
+#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD)
   KEY_EVENTS(SYS, KEY_RADIO),
 #elif defined(KEYS_GPIO_REG_LEFT)
   KEY_EVENTS(LEFT, KEY_LEFT),
 #endif
 
-#if defined(KEYS_GPIO_REG_DOWN) && defined(NAVIGATION_HORUS)
+#if defined(KEYS_GPIO_REG_DOWN) && defined(COLORLCD)
   { "EVT_RTN_FIRST", EVT_KEY_BREAK(KEY_EXIT) },
 #else
   KEY_EVENTS(DOWN, KEY_DOWN),
