@@ -41,7 +41,7 @@ void ModalWindow::deleteLater(bool detach, bool trash)
 
 void ModalWindow::paint(BitmapBuffer * dc)
 {
-  dc->drawFilledRect(0, 0, width(), height(), SOLID, OVERLAY_COLOR | OPACITY(5));
+  dc->drawFilledRect(0, 0, width(), height(), SOLID, OVERLAY_COLOR, OPACITY(5));
 }
 
 void ModalWindowContent::paint(BitmapBuffer * dc)
