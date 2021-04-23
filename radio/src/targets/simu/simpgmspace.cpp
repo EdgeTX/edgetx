@@ -531,7 +531,7 @@ int lcdRestoreBackupBuffer()
 
 uint16_t* lcdGetBackupBuffer()
 {
-  return simuLcdBackupBuf;
+  return (uint16_t*)simuLcdBackupBuf;
 }
 
 uint32_t pwrCheck()
