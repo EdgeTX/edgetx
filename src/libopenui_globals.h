@@ -22,12 +22,6 @@
 #include <inttypes.h>
 #include "libopenui_config.h"
 
-extern uint16_t lcdColorTable[LCD_COLOR_COUNT];
 extern const uint16_t * const fontspecsTable[FONTS_COUNT];
 extern const uint8_t * fontsTable[FONTS_COUNT];
-
-inline void lcdSetColor(uint16_t color)
-{
-  lcdColorTable[CUSTOM_COLOR_INDEX] = color;
-}
 

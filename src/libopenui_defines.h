@@ -83,5 +83,4 @@
 #define COLOR2FLAGS(color)             LcdFlags(unsigned(color) << 16u)
 #define COLOR_VAL(flags)               ((flags) >> 16u)
 #define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
-#define COLOR(index)                   (lcdColorTable[ unsigned(index) & 0xFF ] << 16u)
 
