@@ -24,17 +24,20 @@
 #include "lua_api.h"
 #include "libopenui.h"
 
-// TODO: obsolete definition
-#define INVERS 0
+#include "api_colorlcd.h"
 
 BitmapBuffer* luaLcdBuffer = nullptr;
+
 
 /*luadoc
 @function lcd.refresh()
 
 Refresh the LCD screen
 
-@status current Obsoleted in 2.4.0
+From 2.4.0 on color LCDs, this is done automatically when the screen
+needs to be refreshed (on events and depending on refresh period).
+
+@status current Only used on non-color LCDs.
 */
 static int luaLcdRefresh(lua_State *L)
 {
@@ -107,7 +110,7 @@ static int luaLcdDrawPoint(lua_State *L)
   LcdFlags att = luaL_optunsigned(L, 3, 0);
 
   // here another definition should be used
-  luaLcdBuffer->drawPixel(x, y, COLOR(att));
+  luaLcdBuffer->drawPixel(x, y, COLOR_VAL(att));
 
   return 0;
 }
@@ -145,22 +148,24 @@ static int luaLcdDrawLine(lua_State *L)
   if (x1 > LCD_W || y1 > LCD_H || x2 > LCD_W || y2 > LCD_H)
     return 0;
 
+  uint16_t color_idx = COLOR_VAL(flags) & 0xFF;
+  flags = COLOR(color_idx);
+
   if (pat == SOLID) {
     if (x1 == x2) {
-      luaLcdBuffer->drawSolidVerticalLine(x1, y1<y2 ? y1 : y2,
-                                          y1<y2 ? (y2-y1)+1 : (y1-y2)+1,
-                                          COLOR2FLAGS(COLOR(flags)));
+      luaLcdBuffer->drawSolidVerticalLine(
+          x1, y1 < y2 ? y1 : y2, y1 < y2 ? (y2 - y1) + 1 : (y1 - y2) + 1,
+          flags);
       return 0;
-    }
-    else if (y1 == y2) {
-      luaLcdBuffer->drawSolidHorizontalLine(x1<x2 ? x1 : x2,
-                                            y1, x1<x2 ? (x2-x1)+1 : (x1-x2)+1,
-                                            COLOR2FLAGS(COLOR(flags)));
+    } else if (y1 == y2) {
+      luaLcdBuffer->drawSolidHorizontalLine(
+          x1 < x2 ? x1 : x2, y1, x1 < x2 ? (x2 - x1) + 1 : (x1 - x2) + 1,
+          flags);
       return 0;
     }
   }
 
-  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, COLOR2FLAGS(COLOR(flags)));
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, flags);
 
   return 0;
 }
@@ -198,10 +203,28 @@ static int luaLcdDrawText(lua_State *L)
   const char * s = luaL_checkstring(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
-  if ((att&SHADOWED) && !(att&INVERS)) {
+  bool invers = att & INVERS;
+  bool blink = att & INVERS;
+  bool shadowed = att & SHADOWED;
+
+  // from here on, we need only the color
+  att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
+  
+  if (shadowed && !invers) {
+    // force black
     luaLcdBuffer->drawText(x+1, y+1, s, att & 0xFFFF);
   }
-  luaLcdBuffer->drawText(x, y, s, (att & 0xFFFF) | (COLOR2FLAGS(COLOR(att))));
+
+  if (invers) {
+    int height = getFontHeight(att & 0xFFFF);
+    luaLcdBuffer->drawSolidFilledRect(x - INVERT_BOX_MARGIN,
+                                      y - INVERT_BOX_MARGIN,
+                                      end_pos - x + 2 * INVERT_BOX_MARGIN,
+                                      height + 2 * INVERT_BOX_MARGIN,
+                                      );
+  }
+
+  coord_t end_pos = luaLcdBuffer->drawText(x, y, s, att);
 
   return 0;
 }
@@ -269,12 +292,16 @@ static int luaLcdDrawNumber(lua_State *L)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int val = luaL_checkinteger(L, 3);
-  unsigned int att = luaL_optunsigned(L, 4, 0);
 
-  if ((att&SHADOWED) && !(att&INVERS)) {
+  unsigned int att = luaL_optunsigned(L, 4, 0);
+  att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
+
+  if (att & INVERS)
+  
+  if ((att & SHADOWED) && !(att & INVERS)) {
     luaLcdBuffer->drawNumber(x, y, val, att & 0xFFFF);
   }
-  luaLcdBuffer->drawNumber(x, y, val, (att & 0xFFFF) | COLOR2FLAGS(COLOR(att)));
+  luaLcdBuffer->drawNumber(x, y, val, att);
 
   return 0;
 }
@@ -552,8 +579,7 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 */
 static int luaLcdDrawRectangle(lua_State *L)
 {
-  if (!luaLcdAllowed || !luaLcdBuffer)
-    return 0;
+  if (!luaLcdAllowed || !luaLcdBuffer) return 0;
 
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
@@ -561,10 +587,12 @@ static int luaLcdDrawRectangle(lua_State *L)
   int h = luaL_checkinteger(L, 4);
 
   unsigned int flags = luaL_optunsigned(L, 5, 0);
+
+  uint8_t opacity = (flags >> 24) & 0x0F;
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
   unsigned int t = luaL_optunsigned(L, 6, 1);
-  luaLcdBuffer->drawRect(x, y, w, h, t, SOLID,
-                         COLOR2FLAGS(COLOR(flags)) | (flags & 0xFFFF),
-                         flags >> 24);
+  luaLcdBuffer->drawRect(x, y, w, h, t, SOLID, flags, opacity);
 
   return 0;
 }
@@ -595,9 +623,11 @@ static int luaLcdDrawFilledRectangle(lua_State *L)
   int h = luaL_checkinteger(L, 4);
 
   unsigned int flags = luaL_optunsigned(L, 5, 0);
-  luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID,
-                               COLOR2FLAGS(COLOR(flags)) | (flags & 0xFFFF),
-                               flags >> 24);
+
+  uint8_t opacity = (flags >> 24) & 0x0F;
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+  
+  luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID, flags, opacity);
 
   return 0;
 }
@@ -698,13 +728,12 @@ Set a color for specific area
 */
 static int luaLcdSetColor(lua_State *L)
 {
-#if 0
   if (!luaLcdAllowed)
     return 0;
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   unsigned int color = luaL_checkunsigned(L, 2);
   lcdColorTable[index] = color;
-#endif
+
   return 0;
 }
 
