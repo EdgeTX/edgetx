@@ -141,25 +141,27 @@ TEST(Lcd_colorlcd, transparency)
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.clear(DEFAULT_BGCOLOR);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR|OPACITY(4));
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR|OPACITY(12));
+  // , OPACITY(4)
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
+  // , OPACITY(12)
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
 
-  dc.drawFilledRect(10, 30, 30, 30, SOLID, TITLE_BGCOLOR|OPACITY(8));
-  dc.drawFilledRect(50, 30, 30, 30, DOTTED, DEFAULT_COLOR|OPACITY(10));
+  dc.drawFilledRect(10, 30, 30, 30, SOLID, TITLE_BGCOLOR, OPACITY(8));
+  dc.drawFilledRect(50, 30, 30, 30, DOTTED, DEFAULT_COLOR, OPACITY(10));
 
-  dc.drawRect(90, 30, 30, 30, 1, SOLID, TITLE_BGCOLOR|OPACITY(8));
-  dc.drawRect(130, 30, 30, 30, 2, SOLID, TITLE_BGCOLOR|OPACITY(8));
-  dc.drawRect(170, 30, 30, 30, 5, SOLID, TITLE_BGCOLOR|OPACITY(8));
+  dc.drawRect(90, 30, 30, 30, 1, SOLID, TITLE_BGCOLOR, OPACITY(8));
+  dc.drawRect(130, 30, 30, 30, 2, SOLID, TITLE_BGCOLOR, OPACITY(8));
+  dc.drawRect(170, 30, 30, 30, 5, SOLID, TITLE_BGCOLOR, OPACITY(8));
 
-  dc.drawVerticalLine(10, 70, 100, SOLID, TITLE_BGCOLOR|OPACITY(2));
-  dc.drawVerticalLine(15, 70,  90, SOLID, TITLE_BGCOLOR|OPACITY(6));
-  dc.drawVerticalLine(20, 70,  80, SOLID, TITLE_BGCOLOR|OPACITY(10));
-  dc.drawVerticalLine(25, 70,  70, SOLID, TITLE_BGCOLOR|OPACITY(OPACITY_MAX));
+  dc.drawVerticalLine(10, 70, 100, SOLID, TITLE_BGCOLOR, OPACITY(2));
+  dc.drawVerticalLine(15, 70,  90, SOLID, TITLE_BGCOLOR, OPACITY(6));
+  dc.drawVerticalLine(20, 70,  80, SOLID, TITLE_BGCOLOR, OPACITY(10));
+  dc.drawVerticalLine(25, 70,  70, SOLID, TITLE_BGCOLOR, OPACITY(OPACITY_MAX));
 
-  dc.drawHorizontalLine(30, 70, 100, SOLID, DEFAULT_COLOR|OPACITY(2));
-  dc.drawHorizontalLine(30, 75,  90, SOLID, DEFAULT_COLOR|OPACITY(6));
-  dc.drawHorizontalLine(30, 80,  80, SOLID, DEFAULT_COLOR|OPACITY(10));
-  dc.drawHorizontalLine(30, 85,  70, SOLID, DEFAULT_COLOR|OPACITY(OPACITY_MAX));
+  dc.drawHorizontalLine(30, 70, 100, SOLID, DEFAULT_COLOR, OPACITY(2));
+  dc.drawHorizontalLine(30, 75,  90, SOLID, DEFAULT_COLOR, OPACITY(6));
+  dc.drawHorizontalLine(30, 80,  80, SOLID, DEFAULT_COLOR, OPACITY(10));
+  dc.drawHorizontalLine(30, 85,  70, SOLID, DEFAULT_COLOR, OPACITY(OPACITY_MAX));
 
 
   for(int n=0; n<10; n++) {
@@ -167,7 +169,7 @@ TEST(Lcd_colorlcd, transparency)
     int y = 80 + n * 10;
     int color = COLOR(n/2 + 5);
     int size = 100;
-    dc.drawFilledRect(x, y, size, size, SOLID, color|OPACITY(8));
+    dc.drawFilledRect(x, y, size, size, SOLID, color, OPACITY(8));
 
   }
 

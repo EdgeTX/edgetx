@@ -75,6 +75,7 @@ static int luaLcdResetBacklightTimeout(lua_State * L)
 {
   if (!luaLcdAllowed)
     return 0;
+
   resetBacklightTimeout();
   return 0;
 }
@@ -104,7 +105,9 @@ static int luaLcdDrawPoint(lua_State *L)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   LcdFlags att = luaL_optunsigned(L, 3, 0);
-  luaLcdBuffer->drawPixel(x, y, lcdColorTable[COLOR_IDX(att)]);
+
+  // here another definition should be used
+  luaLcdBuffer->drawPixel(x, y, COLOR(att));
 
   return 0;
 }
@@ -144,16 +147,20 @@ static int luaLcdDrawLine(lua_State *L)
 
   if (pat == SOLID) {
     if (x1 == x2) {
-      luaLcdBuffer->drawSolidVerticalLine(x1, y1<y2 ? y1 : y2,  y1<y2 ? (y2-y1)+1 : (y1-y2)+1, flags);
+      luaLcdBuffer->drawSolidVerticalLine(x1, y1<y2 ? y1 : y2,
+                                          y1<y2 ? (y2-y1)+1 : (y1-y2)+1,
+                                          COLOR2FLAGS(COLOR(flags)));
       return 0;
     }
     else if (y1 == y2) {
-      luaLcdBuffer->drawSolidHorizontalLine(x1<x2 ? x1 : x2, y1, x1<x2 ? (x2-x1)+1 : (x1-x2)+1, flags);
+      luaLcdBuffer->drawSolidHorizontalLine(x1<x2 ? x1 : x2,
+                                            y1, x1<x2 ? (x2-x1)+1 : (x1-x2)+1,
+                                            COLOR2FLAGS(COLOR(flags)));
       return 0;
     }
   }
 
-  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, flags);
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, COLOR2FLAGS(COLOR(flags)));
 
   return 0;
 }
@@ -192,9 +199,9 @@ static int luaLcdDrawText(lua_State *L)
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
   if ((att&SHADOWED) && !(att&INVERS)) {
-    luaLcdBuffer->drawText(x+1, y+1, s, att&0xFFFF);
+    luaLcdBuffer->drawText(x+1, y+1, s, att & 0xFFFF);
   }
-  luaLcdBuffer->drawText(x, y, s, att);
+  luaLcdBuffer->drawText(x, y, s, (att & 0xFFFF) | (COLOR2FLAGS(COLOR(att))));
 
   return 0;
 }
@@ -265,9 +272,9 @@ static int luaLcdDrawNumber(lua_State *L)
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
   if ((att&SHADOWED) && !(att&INVERS)) {
-    luaLcdBuffer->drawNumber(x, y, val, att&0xFFFF);
+    luaLcdBuffer->drawNumber(x, y, val, att & 0xFFFF);
   }
-  luaLcdBuffer->drawNumber(x, y, val, att);
+  luaLcdBuffer->drawNumber(x, y, val, (att & 0xFFFF) | COLOR2FLAGS(COLOR(att)));
 
   return 0;
 }
@@ -555,7 +562,9 @@ static int luaLcdDrawRectangle(lua_State *L)
 
   unsigned int flags = luaL_optunsigned(L, 5, 0);
   unsigned int t = luaL_optunsigned(L, 6, 1);
-  luaLcdBuffer->drawRect(x, y, w, h, t, 0xff, flags);
+  luaLcdBuffer->drawRect(x, y, w, h, t, SOLID,
+                         COLOR2FLAGS(COLOR(flags)) | (flags & 0xFFFF),
+                         flags >> 24);
 
   return 0;
 }
@@ -586,7 +595,9 @@ static int luaLcdDrawFilledRectangle(lua_State *L)
   int h = luaL_checkinteger(L, 4);
 
   unsigned int flags = luaL_optunsigned(L, 5, 0);
-  luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID, flags);
+  luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID,
+                               COLOR2FLAGS(COLOR(flags)) | (flags & 0xFFFF),
+                               flags >> 24);
 
   return 0;
 }
