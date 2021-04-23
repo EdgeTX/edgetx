@@ -20,4 +20,5 @@
 
 #include "colors.h"
 
+uint16_t lcdColorTable[LCD_COLOR_COUNT];
 

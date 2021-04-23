@@ -11,6 +11,7 @@ file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gu
 
 set(GUI_SRC
   ${GUI_SRC}
+  colors.cpp
   lcd.cpp
   splash.cpp
   fonts.cpp

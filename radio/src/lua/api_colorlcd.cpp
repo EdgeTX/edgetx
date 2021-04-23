@@ -203,7 +203,7 @@ static int luaLcdDrawText(lua_State *L)
   const char * s = luaL_checkstring(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
-  bool invers = att & INVERS;
+  bool invers = (att & INVERS) && !();
   bool blink = att & INVERS;
   bool shadowed = att & SHADOWED;
 
@@ -217,14 +217,15 @@ static int luaLcdDrawText(lua_State *L)
 
   if (invers) {
     int height = getFontHeight(att & 0xFFFF);
-    luaLcdBuffer->drawSolidFilledRect(x - INVERT_BOX_MARGIN,
-                                      y - INVERT_BOX_MARGIN,
-                                      end_pos - x + 2 * INVERT_BOX_MARGIN,
-                                      height + 2 * INVERT_BOX_MARGIN,
-                                      );
+    int width = getTextWidth(s, 255, att);
+    luaLcdBuffer->drawSolidFilledRect(
+        x - INVERT_BOX_MARGIN, y - INVERT_BOX_MARGIN,
+        width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
+        FOCUS_BGCOLOR);
+    att = (att & 0xFFFF) | FOCUS_COLOR;
   }
 
-  coord_t end_pos = luaLcdBuffer->drawText(x, y, s, att);
+  luaLcdBuffer->drawText(x, y, s, att);
 
   return 0;
 }
