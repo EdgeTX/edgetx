@@ -36,7 +36,7 @@ class ModelBitmapWidget: public Widget
       // big space to draw
       if (rect.h >= 96 && rect.w >= 120) {
 
-        dc->drawFilledRect(0, 0, rect.w, rect.h, SOLID, MAINVIEW_PANES_COLOR | OPACITY(5));
+        dc->drawFilledRect(0, 0, rect.w, rect.h, SOLID, MAINVIEW_PANES_COLOR, OPACITY(5));
       
         auto iconMask = theme->getIconMask(ICON_MODEL);
         if (iconMask) {

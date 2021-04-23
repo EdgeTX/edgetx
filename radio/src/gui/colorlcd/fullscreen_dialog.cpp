@@ -50,7 +50,7 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
 {
   OpenTxTheme::instance()->drawBackground(dc);
 
-  dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID, FOCUS_COLOR | OPACITY(8));
+  dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID, FOCUS_COLOR, OPACITY(8));
 
   if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK)
     dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP, OpenTxTheme::instance()->asterisk);
