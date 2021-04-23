@@ -22,7 +22,7 @@
 #include "view_main.h"
 #include "lua/lua_api.h"
 
-constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 1; // 1Hz
+constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 5; // 5Hz
 
 uint16_t* lcdGetBackupBuffer();
 

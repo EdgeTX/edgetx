@@ -203,9 +203,9 @@ static int luaLcdDrawText(lua_State *L)
   const char * s = luaL_checkstring(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
-  bool invers = (att & INVERS) && !();
-  bool blink = att & INVERS;
   bool shadowed = att & SHADOWED;
+  bool invers = (att & INVERS);
+  if (att & BLINK) invers = invers && !(BLINK_ON_PHASE);
 
   // from here on, we need only the color
   att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
