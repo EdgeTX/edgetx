@@ -26,19 +26,6 @@ constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 5; // 5Hz
 
 uint16_t* lcdGetBackupBuffer();
 
-// #if !defined(SIMU)
-
-// // LUA script draw into the backup buffer
-// extern uint8_t * LCD_BACKUP_FRAME_BUFFER;
-// #define LUA_LCD_BUFFER ((uint16_t *)LCD_BACKUP_FRAME_BUFFER)
-
-// #else
-
-// extern pixel_t* simuLcdBuf;
-// #define LUA_LCD_BUFFER ((uint16_t *)simuLcdBuf)
-
-// #endif
-
 StandaloneLuaWindow::StandaloneLuaWindow(Window* parent) :
     Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, OPAQUE),
     lcdBuffer(BMP_RGB565, LCD_W, LCD_H, lcdGetBackupBuffer())

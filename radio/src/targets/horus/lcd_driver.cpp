@@ -579,6 +579,11 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
+uint16_t* lcdGetBackupBuffer()
+{
+  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
+}
+
 void lcdRefresh()
 {
   if (currentLayer == LCD_FIRST_LAYER) {
