@@ -284,9 +284,8 @@ void periodicTick()
 #if defined(GUI) && defined(COLORLCD)
 void guiMain(event_t evt)
 {
-  bool refreshNeeded = false;
 
-#if defined(LUA) && !defined(LIBOPENUI)
+#if defined(LUA)
   uint32_t t0 = get_tmr10ms();
   static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
@@ -295,123 +294,35 @@ void guiMain(event_t evt)
     maxLuaInterval = interval;
   }
 
-  // run Lua scripts that don't use LCD (to use CPU time while LCD DMA is running)
-  DEBUG_TIMER_START(debugTimerLuaBg);
-  luaTask(0, RUN_MIX_SCRIPT | RUN_FUNC_SCRIPT | RUN_TELEM_BG_SCRIPT, false);
-  DEBUG_TIMER_STOP(debugTimerLuaBg);
-  // wait for LCD DMA to finish before continuing, because code from this point
-  // is allowed to change the contents of LCD buffer
-  //
-  // WARNING: make sure no code above this line does any change to the LCD display buffer!
-  //
-  DEBUG_TIMER_START(debugTimerLcdRefreshWait);
-  lcdRefreshWait();
-  DEBUG_TIMER_STOP(debugTimerLcdRefreshWait);
+  DEBUG_TIMER_START(debugTimerLua);
 
-  // draw LCD from menus or from Lua script
-  // run Lua scripts that use LCD
+  // Run Lua scripts first that don't use LCD
+  luaTask(  0, RUN_MIX_SCRIPT | RUN_FUNC_SCRIPT, false);
 
-  DEBUG_TIMER_START(debugTimerLuaFg);
-  refreshNeeded = luaTask(evt, RUN_STNDAL_SCRIPT, true);
-  if (!refreshNeeded) {
-    refreshNeeded = luaTask(evt, RUN_TELEM_FG_SCRIPT, true);
-  }
-  DEBUG_TIMER_STOP(debugTimerLuaFg);
+  // This is run from StandaloneLuaWindow::checkEvents()
+  // luaTask(evt, RUN_STNDAL_SCRIPT, true);
+
+  // TODO: Telemetry scripts are run from Window::checkEvents()
+  // luaTask(  0, RUN_TELEM_BG_SCRIPT, false/* NO LCD */);
+  // luaTask(evt, RUN_TELEM_FG_SCRIPT, true/* LCD YES */);
+  DEBUG_TIMER_STOP(debugTimerLua);
 
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {
     maxLuaDuration = t0;
   }
-#elif !defined(LIBOPENUI)
-  lcdRefreshWait();   // WARNING: make sure no code above this line does any change to the LCD display buffer!
 #endif
 
-  bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
-
-#if defined(LIBOPENUI)
   MainWindow::instance()->run();
-#else
-  if (!refreshNeeded) {
-    DEBUG_TIMER_START(debugTimerMenus);
-    while (true) {
-      // normal GUI from menus
-      const char * warn = warningText;
-      uint8_t menu = popupMenuItemsCount;
-      static bool popupDisplayed = false;
-      if (warn || menu) {
-        if (popupDisplayed == false) {
-          menuHandlers[menuLevel](EVT_REFRESH);
-          lcdDrawBlackOverlay();
-          TIME_MEASURE_START(storebackup);
-          lcdStoreBackupBuffer();
-          TIME_MEASURE_STOP(storebackup);
-        }
-        if (popupDisplayed == false || evt || screenshotRequested) {
-          popupDisplayed = lcdRestoreBackupBuffer();
-          if (warn) {
-            DISPLAY_WARNING(evt);
-          }
-          if (menu) {
-            const char * result = runPopupMenu(evt);
-            if (result) {
-              TRACE("popupMenuHandler(%s)", result);
-              auto handler = popupMenuHandler;
-              if (result != STR_UPDATE_LIST)
-                CLEAR_POPUP();
-              handler(result);
-              if (menuEvent == 0) {
-                evt = EVT_REFRESH;
-                continue;
-              }
-            }
-          }
-          refreshNeeded = true;
-        }
-      }
-      else {
-        if (popupDisplayed) {
-          if (evt == 0) {
-            evt = EVT_REFRESH;
-          }
-          popupDisplayed = false;
-        }
-        DEBUG_TIMER_START(debugTimerMenuHandlers);
-        refreshNeeded = menuHandlers[menuLevel](evt);
-        DEBUG_TIMER_STOP(debugTimerMenuHandlers);
-      }
 
-      if (menuEvent == EVT_ENTRY) {
-        menuVerticalPosition = 0;
-        menuHorizontalPosition = 0;
-        evt = menuEvent;
-        menuEvent = 0;
-      }
-      else if (menuEvent == EVT_ENTRY_UP) {
-        menuVerticalPosition = menuVerticalPositions[menuLevel];
-        menuHorizontalPosition = 0;
-        evt = menuEvent;
-        menuEvent = 0;
-      }
-      else {
-        break;
-      }
-    }
-    DEBUG_TIMER_STOP(debugTimerMenus);
-  }
-
+  bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
   if (screenshotRequested) {
     writeScreenshot();
     mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
   }
-
-  if (refreshNeeded) {
-    DEBUG_TIMER_START(debugTimerLcdRefresh);
-    lcdRefresh();
-    DEBUG_TIMER_STOP(debugTimerLcdRefresh);
-  }
-#endif
 }
 #elif defined(GUI)
+
 void handleGui(event_t event) {
   // if Lua standalone, run it and don't clear the screen (Lua will do it)
   // else if Lua telemetry view, run it and don't clear the screen

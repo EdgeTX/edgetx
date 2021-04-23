@@ -22,21 +22,25 @@
 #include <cstdio>
 #include "opentx.h"
 #include "lua_api.h"
+#include "libopenui.h"
+
+// TODO: obsolete definition
+#define INVERS 0
+
+BitmapBuffer* luaLcdBuffer = nullptr;
 
 /*luadoc
 @function lcd.refresh()
 
 Refresh the LCD screen
 
-@status current Introduced in 2.2.0
-
-@notice This function only works in stand-alone and telemetry scripts.
+@status current Obsoleted in 2.4.0
 */
 static int luaLcdRefresh(lua_State *L)
 {
-#if 0
-  if (luaLcdAllowed) lcdRefresh();
-#endif
+  // This one does not seem to be used by any script
+  // (at least none of the opentx LUA scripts)
+  // we cannot possibly force a re-draw here
   return 0;
 }
 
@@ -53,16 +57,10 @@ Clear the LCD screen
 */
 static int luaLcdClear(lua_State * L)
 {
-#if 0
-  if (luaLcdAllowed) {
-#if defined(COLORLCD)
-    LcdFlags color = luaL_optunsigned(L, 1, TEXT_BGCOLOR);
-    lcd->clear(color);
-#else
-    lcdClear();
-#endif
+  if (luaLcdAllowed && luaLcdBuffer) {
+    LcdFlags color = luaL_optunsigned(L, 1, DEFAULT_BGCOLOR);
+    luaLcdBuffer->clear(color);
   }
-#endif
   return 0;
 }
 
@@ -100,14 +98,14 @@ bottom line is 63. Drawing on an existing black pixel produces white pixel (TODO
 */
 static int luaLcdDrawPoint(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   LcdFlags att = luaL_optunsigned(L, 3, 0);
-  lcdDrawPoint(x, y, att);
-#endif
+  luaLcdBuffer->drawPixel(x, y, lcdColorTable[COLOR_IDX(att)]);
+
   return 0;
 }
 
@@ -131,9 +129,9 @@ whole line will not be drawn (starting from OpenTX 2.1.5)
 */
 static int luaLcdDrawLine(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   coord_t x1 = luaL_checkunsigned(L, 1);
   coord_t y1 = luaL_checkunsigned(L, 2);
   coord_t x2 = luaL_checkunsigned(L, 3);
@@ -146,17 +144,17 @@ static int luaLcdDrawLine(lua_State *L)
 
   if (pat == SOLID) {
     if (x1 == x2) {
-      lcdDrawSolidVerticalLine(x1, y1<y2 ? y1 : y2,  y1<y2 ? (y2-y1)+1 : (y1-y2)+1, flags);
+      luaLcdBuffer->drawSolidVerticalLine(x1, y1<y2 ? y1 : y2,  y1<y2 ? (y2-y1)+1 : (y1-y2)+1, flags);
       return 0;
     }
     else if (y1 == y2) {
-      lcdDrawSolidHorizontalLine(x1<x2 ? x1 : x2, y1, x1<x2 ? (x2-x1)+1 : (x1-x2)+1, flags);
+      luaLcdBuffer->drawSolidHorizontalLine(x1<x2 ? x1 : x2, y1, x1<x2 ? (x2-x1)+1 : (x1-x2)+1, flags);
       return 0;
     }
   }
 
-  lcdDrawLine(x1, y1, x2, y2, pat, flags);
-#endif
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, flags);
+
   return 0;
 }
 
@@ -185,18 +183,19 @@ See the [Appendix](../appendix/fonts.md) for available characters in each font s
 */
 static int luaLcdDrawText(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   const char * s = luaL_checkstring(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  #if defined(COLORLCD)
-  if ((att&SHADOWED) && !(att&INVERS)) lcdDrawText(x+1, y+1, s, att&0xFFFF);
-  #endif
-  lcdDrawText(x, y, s, att);
-#endif
+
+  if ((att&SHADOWED) && !(att&INVERS)) {
+    luaLcdBuffer->drawText(x+1, y+1, s, att&0xFFFF);
+  }
+  luaLcdBuffer->drawText(x, y, s, att);
+
   return 0;
 }
 
@@ -219,20 +218,21 @@ Display a value formatted as time at (x,y)
 */
 static int luaLcdDrawTimer(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
+#if 0 // TODO
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int seconds = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-#if defined(COLORLCD)
-  if (att&SHADOWED) drawTimer(x+1, y+1, seconds, (att&0xFFFF)|LEFT);
-  drawTimer(x, y, seconds, att|LEFT);
-#else
-  drawTimer(x, y, seconds, att|LEFT, att);
+
+  if (att & SHADOWED) {
+    luaLcdBuffer->drawTimer(x+1, y+1, seconds, (att & 0xFFFF) | LEFT);
+  }
+  luaLcdBuffer->drawTimer(x, y, seconds, att | LEFT);
 #endif
-#endif
+
   return 0;
 }
 
@@ -256,18 +256,19 @@ Display a number at (x,y)
 */
 static int luaLcdDrawNumber(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int val = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  #if defined(COLORLCD)
-  if ((att&SHADOWED) && !(att&INVERS)) lcdDrawNumber(x, y, val, att&0xFFFF);
-  #endif
-  lcdDrawNumber(x, y, val, att);
-#endif
+
+  if ((att&SHADOWED) && !(att&INVERS)) {
+    luaLcdBuffer->drawNumber(x, y, val, att&0xFFFF);
+  }
+  luaLcdBuffer->drawNumber(x, y, val, att);
+
   return 0;
 }
 
@@ -390,7 +391,6 @@ Bitmap loading can fail if:
 */
 static int luaOpenBitmap(lua_State * L)
 {
-#if 0
   const char * filename = luaL_checkstring(L, 1);
 
   BitmapBuffer ** b = (BitmapBuffer **)lua_newuserdata(L, sizeof(BitmapBuffer *));
@@ -401,10 +401,10 @@ static int luaOpenBitmap(lua_State * L)
     *b = 0;
   }
   else {
-    *b = BitmapBuffer::load(filename);
+    *b = BitmapBuffer::loadBitmap(filename);
     if (*b == NULL && G(L)->gcrunning) {
       luaC_fullgc(L, 1);  /* try to free some memory... */
-      *b = BitmapBuffer::load(filename);  /* try again */
+      *b = BitmapBuffer::loadBitmap(filename);  /* try again */
     }
   }
 
@@ -416,7 +416,7 @@ static int luaOpenBitmap(lua_State * L)
 
   luaL_getmetatable(L, LUA_BITMAPHANDLE);
   lua_setmetatable(L, -2);
-#endif
+
   return 1;
 }
 
@@ -443,17 +443,15 @@ Return width, height of a bitmap object
 */
 static int luaGetBitmapSize(lua_State * L)
 {
-#if 0
   const BitmapBuffer * b = checkBitmap(L, 1);
   if (b) {
-    lua_pushinteger(L, b->getWidth());
-    lua_pushinteger(L, b->getHeight());
+    lua_pushinteger(L, b->width());
+    lua_pushinteger(L, b->height());
   }
   else {
     lua_pushinteger(L, 0);
     lua_pushinteger(L, 0);
   }
-#endif
   return 2;
 }
 
@@ -508,9 +506,9 @@ Omitting scale draws image in 1:1 scale and is faster than specifying 100 for sc
 */
 static int luaLcdDrawBitmap(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   const BitmapBuffer * b = checkBitmap(L, 1);
 
   if (b) {
@@ -518,13 +516,13 @@ static int luaLcdDrawBitmap(lua_State *L)
     unsigned int y = luaL_checkunsigned(L, 3);
     unsigned int scale = luaL_optunsigned(L, 4, 0);
     if (scale) {
-      lcd->drawBitmap(x, y, b, 0, 0, 0, 0, scale/100.0f);
+      luaLcdBuffer->drawBitmap(x, y, b, 0, 0, 0, 0, scale/100.0f);
     }
     else {
-      lcd->drawBitmap(x, y, b);
+      luaLcdBuffer->drawBitmap(x, y, b);
     }
   }
-#endif
+
   return 0;
 }
 
@@ -547,21 +545,18 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 */
 static int luaLcdDrawRectangle(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
+
   unsigned int flags = luaL_optunsigned(L, 5, 0);
-#if defined(PCBHORUS)
   unsigned int t = luaL_optunsigned(L, 6, 1);
-  lcdDrawRect(x, y, w, h, t, 0xff, flags);
-#else
-  lcdDrawRect(x, y, w, h, 0xff, flags);
-#endif
-#endif
+  luaLcdBuffer->drawRect(x, y, w, h, t, 0xff, flags);
+
   return 0;
 }
 
@@ -582,16 +577,17 @@ Draw a solid rectangle from top left corner (x,y) of specified width and height
 */
 static int luaLcdDrawFilledRectangle(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
+
   unsigned int flags = luaL_optunsigned(L, 5, 0);
-  lcdDrawFilledRect(x, y, w, h, SOLID, flags);
-#endif
+  luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID, flags);
+
   return 0;
 }
 
@@ -744,10 +740,12 @@ static int luaRGB(lua_State *L)
 {
   if (!luaLcdAllowed)
     return 0;
+
   int r = luaL_checkinteger(L, 1);
   int g = luaL_checkinteger(L, 2);
   int b = luaL_checkinteger(L, 3);
   lua_pushinteger(L, RGB(r, g, b));
+
   return 1;
 }
 

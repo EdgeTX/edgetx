@@ -24,6 +24,7 @@
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
+#include "standalone_lua.h"
 
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
@@ -247,6 +248,8 @@ void RadioSdManagerPage::build(FormWindow * window)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(getFullPath(name));
+                //TODO: check 'luaState'
+                new StandaloneLuaWindow(window);
               });
             }
 #endif

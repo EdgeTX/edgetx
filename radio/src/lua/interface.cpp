@@ -882,8 +882,7 @@ void luaDoOneRunStandalone(event_t evt)
           return;
         }
         else if (luaDisplayStatistics) {
-#if defined(COLORLCD)
-#else
+#if !defined(COLORLCD)
           lcdDrawSolidHorizontalLine(0, 7*FH-1, lcdLastRightPos+6, ERASE);
           lcdDrawText(0, 7*FH, "GV Use: ");
           lcdDrawNumber(lcdLastRightPos, 7*FH, luaGetMemUsed(lsScripts), LEFT);
@@ -1025,12 +1024,22 @@ bool luaDoOneRunPermanentScript(event_t evt, int i, uint32_t scriptType)
   return true;
 }
 
+
+// This loop-pass should run in checkEvents().
+// However, libopenui has 2 main separated routines:
+// - checkEvents(): runs the event loop and can effect an async redraw (if visible)
+// - paint(): (if visible) the redraw itself
+//
 bool luaTask(event_t evt, uint8_t scriptType, bool allowLcdUsage)
 {
   if (luaState == INTERPRETER_PANIC) return false;
   luaLcdAllowed = allowLcdUsage;
   bool scriptWasRun = false;
 
+  // TRACE("luaTask(0x%x,0x%x,%s)",
+  //       evt, scriptType,
+  //       allowLcdUsage ? "true" : "false");
+  
   // we run either standalone script or permanent scripts
   if (luaState & INTERPRETER_RUNNING_STANDALONE_SCRIPT) {
     // run standalone script

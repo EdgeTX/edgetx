@@ -529,6 +529,11 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
+uint16_t* lcdGetBackupBuffer()
+{
+  return simuLcdBackupBuf;
+}
+
 uint32_t pwrCheck()
 {
   // TODO: ability to simulate shutdown warning for a "soft" simulator restart

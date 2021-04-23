@@ -60,6 +60,7 @@ set(GUI_SRC
   menu_screen.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
+  standalone_lua.cpp
   )
 
 macro(add_gui_src src)
