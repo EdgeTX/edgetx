@@ -113,6 +113,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
+    ../../../../../gui/colorlcd/colors.cpp
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/src/libopenui_globals.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c

@@ -984,7 +984,8 @@ bool luaDoOneRunPermanentScript(event_t evt, int i, uint32_t scriptType)
     else {
       return false;
     }
-#else
+#else // !PCBTARANIS
+    // COLORLCD
     return false;
 #endif
   }

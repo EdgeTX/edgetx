@@ -30,9 +30,6 @@ StandaloneLuaWindow::StandaloneLuaWindow(Window* parent) :
     Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, OPAQUE),
     lcdBuffer(BMP_RGB565, LCD_W, LCD_H, lcdGetBackupBuffer())
 {
-  TRACE("backup frame buffer = %p", lcdGetBackupBuffer());
-  TRACE("lcdBuffer.getData() = %p", lcdBuffer.getData());
-  assert(lcdBuffer.getData());
   Layer::push(this);
   setFocus();
 }
