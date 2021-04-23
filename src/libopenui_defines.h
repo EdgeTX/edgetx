@@ -75,31 +75,13 @@
   (((color) & 0x001F) << 3)
 
 #define OPACITY_MAX                    0x0Fu
-#define OPACITY(value)                 ((value) << 24u)
+#define OPACITY(value)                 ((value) & OPACITY_MAX)
 
 #define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
 #define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
 
-#define COLOR(index)                   LcdFlags(unsigned(index) << 16u)
-#define COLOR_IDX(flags)               uint8_t((flags) >> 16u)
+#define COLOR2FLAGS(color)             LcdFlags(unsigned(color) << 16u)
+#define COLOR_VAL(flags)               ((flags) >> 16u)
 #define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
-
-#define DEFAULT_COLOR                  COLOR(DEFAULT_COLOR_INDEX)
-#define DEFAULT_BGCOLOR                COLOR(DEFAULT_BGCOLOR_INDEX)
-#define FOCUS_COLOR                    COLOR(FOCUS_COLOR_INDEX)
-#define FOCUS_BGCOLOR                  COLOR(FOCUS_BGCOLOR_INDEX)
-#define DISABLE_COLOR                  COLOR(DISABLE_COLOR_INDEX)
-#define HIGHLIGHT_COLOR                COLOR(HIGHLIGHT_COLOR_INDEX)
-#define CHECKBOX_COLOR                 COLOR(CHECKBOX_COLOR_INDEX)
-#define SCROLLBAR_COLOR                COLOR(SCROLLBAR_COLOR_INDEX)
-#define MENU_COLOR                     COLOR(MENU_COLOR_INDEX)
-#define MENU_BGCOLOR                   COLOR(MENU_BGCOLOR_INDEX)
-#define MENU_TITLE_BGCOLOR             COLOR(MENU_TITLE_BGCOLOR_INDEX)
-#define MENU_LINE_COLOR                COLOR(MENU_LINE_COLOR_INDEX)
-#define MENU_HIGHLIGHT_COLOR           COLOR(MENU_HIGHLIGHT_COLOR_INDEX)
-#define MENU_HIGHLIGHT_BGCOLOR         COLOR(MENU_HIGHLIGHT_BGCOLOR_INDEX)
-#define OVERLAY_COLOR                  COLOR(OVERLAY_COLOR_INDEX)
-#define TABLE_BGCOLOR                  COLOR(TABLE_BGCOLOR_INDEX)
-#define TABLE_HEADER_BGCOLOR           COLOR(TABLE_HEADER_BGCOLOR_INDEX)
-#define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
+#define COLOR(index)                   (lcdColorTable[ unsigned(index) & 0xFF ] << 16u)
 

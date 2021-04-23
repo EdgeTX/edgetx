@@ -314,9 +314,9 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       drawAlphaPixelAbs(x, y, opacity, value);
     }
 
-    void drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat = SOLID, LcdFlags flags = 0);
+    void drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat = SOLID, LcdFlags flags = 0, uint8_t opacity = OPACITY_MAX);
 
-    void drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat = SOLID, LcdFlags flags = 0);
+    void drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat = SOLID, LcdFlags flags = 0, uint8_t opacity = OPACITY_MAX);
 
     void drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, LcdFlags att);
 
@@ -330,7 +330,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       drawSolidFilledRect(x, y, 1, h, flags);
     }
 
-    void drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness = 1, uint8_t pat = SOLID, LcdFlags flags = 0);
+    void drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness = 1, uint8_t pat = SOLID, LcdFlags flags = 0, uint8_t opacity = OPACITY_MAX);
 
     inline void drawSolidRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness = 1, LcdFlags flags = 0)
     {
@@ -342,7 +342,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     void drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags = 0);
 
-    void drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat = SOLID, LcdFlags flags = 0);
+    void drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat = SOLID, LcdFlags flags = 0, uint8_t opacity = OPACITY_MAX);
 
     void invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags = 0);
 
@@ -587,7 +587,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       drawAlphaPixel(p, opacity, color);
     }
 
-    void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags);
+    void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags, uint8_t opacity);
 };
 
 extern BitmapBuffer * lcd;

@@ -41,7 +41,7 @@ void BitmapBuffer::drawAlphaPixel(pixel_t * p, uint8_t opacity, uint16_t color)
   }
 }
 
-void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags)
+void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   APPLY_OFFSET();
 
@@ -49,14 +49,19 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t p
   if (!applyClippingRect(x, y, w, h))
     return;
 
-  drawHorizontalLineAbs(x, y, w, pat, flags);
+  drawHorizontalLineAbs(x, y, w, pat, flags, opacity);
 }
 
-void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags)
+void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   pixel_t * p = getPixelPtrAbs(x, y);
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
-  uint8_t opacity = 0x0F - (flags >> 24);
+  pixel_t color = COLOR_VAL(flags);
+
+  // Opacity needs to be inverted:
+  //   0 : Opaque
+  //  15 : Translucid
+  //
+  opacity = 0x0F - opacity;
 
   if (pat == SOLID) {
     while (w--) {
@@ -78,7 +83,7 @@ void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_
   }
 }
 
-void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat, LcdFlags flags)
+void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   APPLY_OFFSET();
 
@@ -86,9 +91,13 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   if (!applyClippingRect(x, y, w, h))
     return;
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
-  uint8_t opacity = 0x0F - (flags >> 24);
+  // Opacity needs to be inverted:
+  //   0 : Opaque
+  //  15 : Translucid
+  //
+  opacity = 0x0F - opacity;
 
+  pixel_t color = COLOR_VAL(flags);
   if (pat == SOLID) {
     while (h--) {
       drawAlphaPixelAbs(x, y, opacity, color);
@@ -120,7 +129,8 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
   x2 += offsetX;
   y2 += offsetY;
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  // No 'opacity' here, only 'color'
+  pixel_t color = COLOR_VAL(flags);
 
   int dx = x2 - x1;      /* the horizontal distance of the line */
   int dy = y2 - y1;      /* the vertical distance of the line */
@@ -163,13 +173,13 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint
   }
 }
 
-void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags flags)
+void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t thickness, uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   for (unsigned i = 0; i < thickness; i++) {
-    drawVerticalLine(x + i, y, h, pat, flags);
-    drawVerticalLine(x + w - 1 - i, y, h, pat, flags);
-    drawHorizontalLine(x, y + h - 1 - i, w, pat, flags);
-    drawHorizontalLine(x, y + i, w, pat, flags);
+    drawVerticalLine(x + i, y, h, pat, flags, opacity);
+    drawVerticalLine(x + w - 1 - i, y, h, pat, flags, opacity);
+    drawHorizontalLine(x, y + h - 1 - i, w, pat, flags, opacity);
+    drawHorizontalLine(x, y + i, w, pat, flags, opacity);
   }
 }
 
@@ -180,10 +190,11 @@ void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t 
   if (!applyClippingRect(x, y, w, h))
     return;
 
-  DMAFillRect(data, _width, _height, x, y, w, h, lcdColorTable[COLOR_IDX(flags)]);
+  // No 'opacity' here, only 'color'
+  DMAFillRect(data, _width, _height, x, y, w, h, COLOR_VAL(flags));
 }
 
-void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags flags)
+void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   APPLY_OFFSET();
 
@@ -191,7 +202,7 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
     return;
 
   for (coord_t i = y; i < y + h; i++) {
-    drawHorizontalLineAbs(x, i, w, pat, flags);
+    drawHorizontalLineAbs(x, i, w, pat, flags, opacity);
   }
 }
 
@@ -199,7 +210,8 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFla
 {
   APPLY_OFFSET();
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  // No 'opacity' here, only 'color'
+  pixel_t color = COLOR_VAL(flags);
   RGB_SPLIT(color, red, green, blue);
 
   for (int i = y; i < y + h; i++) {
@@ -218,7 +230,7 @@ void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags fla
   int x1 = radius;
   int y1 = 0;
   int decisionOver2 = 1 - x1;
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  pixel_t color = COLOR_VAL(flags);
 
   while (y1 <= x1) {
     drawPixel(x1 + x, y1 + y, color);
@@ -353,7 +365,7 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y, const uint8_t * im
   Slope startSlope(startAngle);
   Slope endSlope(endAngle);
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  pixel_t color = COLOR_VAL(flags);
 
   coord_t width = *((uint16_t *)img);
   coord_t height = *(((uint16_t *)img) + 1);
@@ -390,7 +402,7 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
   Slope startSlope(startAngle);
   Slope endSlope(endAngle);
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  pixel_t color = COLOR_VAL(flags);
   APPLY_OFFSET();
 
   coord_t internalDist = internalRadius * internalRadius;
@@ -441,7 +453,7 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
   if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
     return;
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  pixel_t color = COLOR_VAL(flags);
 
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
@@ -519,7 +531,7 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, 
     return;
   }
 
-  pixel_t color = lcdColorTable[COLOR_IDX(flags)];
+  pixel_t color = COLOR_VAL(flags);
 
   for (coord_t row=0; row<height; row++) {
     if (y + row < ymin || y + row >= ymax)
