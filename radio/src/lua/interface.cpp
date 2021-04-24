@@ -46,6 +46,7 @@ extern "C" {
 lua_State *lsScripts = nullptr;
 uint8_t luaState = 0;
 uint8_t luaScriptsCount = 0;
+bool    luaLcdAllowed = false;
 ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 ScriptInternalData standaloneScript;

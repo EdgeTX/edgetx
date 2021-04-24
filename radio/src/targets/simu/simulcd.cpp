@@ -21,15 +21,7 @@
 #include "lcd.h"
 #include "simulcd.h"
 
-// #if defined(SIMU)
-// extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
-// #else
-// #define displayBuf                     lcd->getData()
-// #endif
-
-// #define DISPLAY_END                    (displayBuf + DISPLAY_BUFFER_SIZE)
-// #define ASSERT_IN_DISPLAY(p)           assert((p) >= displayBuf && (p) < DISPLAY_END)
-
+#if defined(COLORLCD)
 
 BitmapBuffer _lcd(BMP_RGB565, LCD_W, LCD_H, displayBuf);
 BitmapBuffer * lcd = &_lcd;
@@ -106,3 +98,4 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
     }
   }
 }
+#endif

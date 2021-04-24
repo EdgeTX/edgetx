@@ -26,7 +26,6 @@
 
 #include "api_colorlcd.h"
 
-bool          luaLcdAllowed = false;
 BitmapBuffer* luaLcdBuffer  = nullptr;
 
 /*luadoc

@@ -22,9 +22,12 @@
 #define _LCD_H_
 
 #include <inttypes.h>
+#include "board.h"
+
 
 typedef uint32_t LcdFlags;
 typedef uint8_t pixel_t;
+typedef int coord_t;
 
 #define BOX_WIDTH                      23
 #define CENTER

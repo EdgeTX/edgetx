@@ -126,6 +126,7 @@ struct ScriptInputsOutputs {
 #define INTERPRETER_PANIC                     255
 extern uint8_t luaState;
 extern uint8_t luaScriptsCount;
+extern bool    luaLcdAllowed;
 extern ScriptInternalData standaloneScript;
 extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
