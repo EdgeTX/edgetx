@@ -21,8 +21,14 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
+#include <inttypes.h>
+
+#include "opentx_types.h"
+#include "board.h"
+
 typedef uint32_t LcdFlags;
 typedef uint8_t pixel_t;
+typedef int coord_t;
 
 #define BOX_WIDTH                      31
 #define CENTER                         "\015"

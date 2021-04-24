@@ -21,6 +21,7 @@
 #ifndef _SIMULCD_H_
 #define _SIMULCD_H_
 
+#include "opentx_types.h"
 #include "lcd.h"
 
 extern int g_snapshot_idx;
