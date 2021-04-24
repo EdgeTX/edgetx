@@ -38,15 +38,6 @@
 #define DISPLAY_PIXELS_COUNT           (LCD_W * LCD_H)
 #define DISPLAY_BUFFER_SIZE            (DISPLAY_PIXELS_COUNT)
 
-#if defined(SIMU)
-extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
-#else
-#define displayBuf                     lcd->getData()
-#endif
-
-#define DISPLAY_END                    (displayBuf + DISPLAY_BUFFER_SIZE)
-#define ASSERT_IN_DISPLAY(p)           assert((p) >= displayBuf && (p) < DISPLAY_END)
-
 extern coord_t lcdNextPos;
 void lcdNextLayer();
 
@@ -54,12 +45,6 @@ inline void lcdClear()
 {
   lcd->clear();
 }
-
-#if defined(LCD_VERTICAL_INVERT)
-  #define PIXEL_PTR(x, y) &displayBuf[(LCD_H*LCD_W-1) - (y)*LCD_W - (x)]
-#else
-  #define PIXEL_PTR(x, y) &displayBuf[(y)*LCD_W + (x)]
-#endif
 
 void lcdDrawBlackOverlay();
 

@@ -21,6 +21,8 @@
 #define SIMPGMSPC_USE_QT    0
 
 #include "opentx.h"
+#include "simulcd.h"
+
 #include <errno.h>
 #include <stdarg.h>
 #include <string>

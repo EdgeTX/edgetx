@@ -382,9 +382,6 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
   y = desth - (y + h);
 #endif
 
-  if (dest == displayBuf && !coordsWithinScreen(x, y, w, h))
-    return;
-
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -416,9 +413,6 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
   srcy = srch - (srcy + h);
 #endif
 
-  if (dest == displayBuf && !coordsWithinScreen(x, y, w, h))
-    return;
-  
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -459,9 +453,6 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   srcy = srch - (srcy + h);
 #endif
 
-  if (dest == displayBuf && !coordsWithinScreen(x, y, w, h))
-    return;
-  
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
