@@ -31,6 +31,8 @@
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
 #define LUA_WARNING_INFO_LEN               64
 
+constexpr int LUA_WIDGET_REFRESH = 1000 / 10; // 10 Hz
+
 lua_State * lsWidgets = NULL;
 
 extern int custom_lua_atpanic(lua_State *L);
@@ -177,6 +179,13 @@ class LuaWidget: public Widget
       free(errorMessage);
     }
 
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "LuaWidget";
+    }
+#endif
+  
     // Window interface
     void paint(BitmapBuffer * dc) override;
   
@@ -191,7 +200,9 @@ class LuaWidget: public Widget
   protected:
     int    luaWidgetDataRef;
     char * errorMessage;
+    uint32_t lastRefresh = 0;
 
+    void checkEvents() override;
     void setErrorMessage(const char * funcName);
 };
 
@@ -252,6 +263,21 @@ class LuaWidgetFactory: public WidgetFactory
     int refreshFunction;
     int backgroundFunction;
 };
+
+void LuaWidget::checkEvents()
+{
+  Widget::checkEvents();
+
+  uint32_t now = RTOS_GET_MS();
+  if (now - lastRefresh >= LUA_WIDGET_REFRESH) {
+    lastRefresh = now;
+    invalidate();
+
+#if defined(DEBUG_WINDOWS)
+    TRACE_WINDOWS("# refresh: %s", getWindowDebugString().c_str());
+#endif
+  }
+}
 
 void LuaWidget::paint(BitmapBuffer * dc)
 {

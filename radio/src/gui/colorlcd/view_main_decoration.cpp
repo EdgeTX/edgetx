@@ -66,6 +66,13 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
     sliders[SLIDERS_EXT2]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
   }
 #endif
+
+  if (visible) {
+    visibilityMask |= VM_SLIDERS;
+  }
+  else {
+    visibilityMask &= ~VM_SLIDERS;
+  }
 }
 
 void ViewMainDecoration::setTrimsVisible(bool visible)
@@ -75,11 +82,25 @@ void ViewMainDecoration::setTrimsVisible(bool visible)
 
   trims[TRIMS_LV]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
   trims[TRIMS_RV]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
+
+  if (visible) {
+    visibilityMask |= VM_TRIMS;
+  }
+  else {
+    visibilityMask &= ~VM_TRIMS;
+  }
 }
 
 void ViewMainDecoration::setFlightModeVisible(bool visible)
 {
   flightMode->setHeight(visible ? FM_LABEL_HEIGHT : 0);
+
+  if (visible) {
+    visibilityMask |= VM_FM;
+  }
+  else {
+    visibilityMask &= ~VM_FM;
+  }
 }
 
 void ViewMainDecoration::adjustDecoration()
@@ -191,13 +212,14 @@ void ViewMainDecoration::adjustDecoration()
 
 rect_t ViewMainDecoration::getMainZone() const
 {
+  coord_t border = (getVisibilityMask() == VM_NONE ?
+                    0 : MAIN_ZONE_BORDER);
   rect_t zone = {
-    trims[TRIMS_LV]->right() + MAIN_ZONE_BORDER,
-    /*topbar->bottom() +*/ MAIN_ZONE_BORDER,
+    trims[TRIMS_LV]->right() + border, border,
     0, 0 // let's compute them!
   };
 
-  zone.w = trims[TRIMS_RV]->left() - MAIN_ZONE_BORDER - zone.x;
+  zone.w = trims[TRIMS_RV]->left() - border - zone.x;
 
   // min(trims[TRIMS_LH]->top(), flightMode->top())
   if (trims[TRIMS_LH]->top() < flightMode->top())
@@ -205,7 +227,7 @@ rect_t ViewMainDecoration::getMainZone() const
   else
     zone.h = flightMode->top();
 
-  zone.h -= MAIN_ZONE_BORDER + zone.y;
+  zone.h -= border + zone.y;
 
   return zone;
 }

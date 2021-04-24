@@ -101,7 +101,7 @@ class Layout: public LayoutBase
     ViewMainDecoration* decoration = nullptr;
 
     // Decoration settings bitmask to detect updates
-    uint8_t  decorationSettings = 0;
+    uint8_t  decorationSettings = 255;
 
     // Last time we refreshed the window
     uint32_t lastRefresh = 0;

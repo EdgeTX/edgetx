@@ -47,6 +47,19 @@ class ViewMainDecoration: public Window
     // (without decoration)
     rect_t getMainZone() const;
 
+    enum VisibilityMask {
+      VM_NONE =          0,
+      VM_TRIMS =    1 << 0,
+      VM_SLIDERS =  1 << 1,
+      VM_FM =       1 << 2,
+      VM_ALL = VM_TRIMS | VM_SLIDERS | VM_FM,
+    };
+
+    unsigned getVisibilityMask() const
+    {
+      return visibilityMask;
+    }
+  
   protected:
 
 #if defined(DEBUG_WINDOWS)
@@ -78,6 +91,7 @@ class ViewMainDecoration: public Window
     Window* sliders[SLIDERS_MAX];
     Window* trims[TRIMS_MAX];
     Window* flightMode;
+    unsigned visibilityMask = VM_NONE;
 
     void createSliders();
     void createTrims();

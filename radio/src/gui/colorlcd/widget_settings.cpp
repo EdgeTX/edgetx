@@ -128,7 +128,6 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
         break;
 
       case ZoneOption::Color:
-        for (uint8_t part = 0; part < 3; part++)
         new ColorEdit(form, grid.getFieldSlot(),
                       [=]() -> int {        // getValue
                         return (int) widget->getOptionValue(optIdx)->unsignedValue;

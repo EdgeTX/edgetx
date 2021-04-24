@@ -1888,8 +1888,10 @@ const luaR_value_entry opentxConstants[] = {
   { "TITLE_BGCOLOR", COLOR2FLAGS(TITLE_BGCOLOR_INDEX) },
 
   // Synonyms of the above colors
+  { "TEXT_COLOR", COLOR2FLAGS(DEFAULT_COLOR_INDEX) },
   { "TEXT_BGCOLOR", COLOR2FLAGS(DEFAULT_BGCOLOR_INDEX) },
-    
+  { "WARNING_COLOR", COLOR2FLAGS(HIGHLIGHT_COLOR_INDEX) },
+  
   { "WHITE", (double)WHITE },
   { "GREY", (double)GREY },
   { "DARKGREY", (double)DARKGREY },
