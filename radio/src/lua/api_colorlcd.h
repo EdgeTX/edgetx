@@ -33,4 +33,5 @@
 
 constexpr coord_t INVERT_BOX_MARGIN = 2;
 
-extern BitmapBuffer* luaLcdBuffer;
+extern bool           luaLcdAllowed;
+extern BitmapBuffer * luaLcdBuffer;

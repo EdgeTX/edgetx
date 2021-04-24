@@ -55,12 +55,6 @@ extern uint32_t luaExtraMemoryUsage;
 
 void luaInit();
 void luaInitThemesAndWidgets();
-//TODO FIXME
-#if 1
-#define LUA_INIT_THEMES_AND_WIDGETS()
-#else
-#define LUA_INIT_THEMES_AND_WIDGETS()  luaInitThemesAndWidgets()
-#endif
 
 #define lua_registernumber(L, n, i)    (lua_pushnumber(L, (i)), lua_setglobal(L, (n)))
 #define lua_registerint(L, n, i)       (lua_pushinteger(L, (i)), lua_setglobal(L, (n)))

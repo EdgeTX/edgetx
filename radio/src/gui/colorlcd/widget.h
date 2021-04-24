@@ -48,10 +48,6 @@ class Widget : public Window
 
     ~Widget() override = default;
 
-    virtual void update()
-    {
-    }
-
     inline const WidgetFactory * getFactory() const
     {
         return factory;
@@ -81,7 +77,13 @@ class Widget : public Window
     {
       return persistentData;
     }
-    
+
+    // Called when the widget options have changed
+    virtual void update()
+    {
+    }
+
+    // Called at regular time interval, even if the widget cannot be seen
     virtual void background()
     {
     }

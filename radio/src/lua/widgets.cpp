@@ -23,6 +23,9 @@
 #include "opentx.h"
 #include "bin_allocator.h"
 #include "lua_api.h"
+#include "widget.h"
+#include "libopenui_file.h"
+#include "api_colorlcd.h"
 
 #define WIDGET_SCRIPTS_MAX_INSTRUCTIONS    (10000/100)
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
@@ -30,7 +33,6 @@
 
 lua_State * lsWidgets = NULL;
 
-#if 0
 extern int custom_lua_atpanic(lua_State *L);
 
 #define LUA_WIDGET_FILENAME                "/main.lua"
@@ -159,122 +161,35 @@ ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
   return options;
 }
 
-class LuaTheme: public Theme
-{
-  friend void luaLoadThemeCallback();
-
-  public:
-    LuaTheme(const char * name, ZoneOption * options):
-      Theme(name, options),
-      loadFunction(0),
-      drawBackgroundFunction(0),
-      drawTopbarBackgroundFunction(0),
-      drawAlertBoxFunction(0)
-    {
-    }
-
-    virtual void load() const
-    {
-      luaLcdAllowed = true;
-      exec(loadFunction);
-    }
-
-    virtual void drawBackground() const
-    {
-      exec(drawBackgroundFunction);
-    }
-
-    void drawTopbarBackground(uint8_t icon) const override
-    {
-      exec(drawTopbarBackgroundFunction);
-    }
-
-#if 0
-    virtual void drawAlertBox(const char * title, const char * text, const char * action) const
-    {
-      exec(drawAlertBoxFunction);
-    }
-#endif
-
-  protected:
-    int loadFunction;
-    int drawBackgroundFunction;
-    int drawTopbarBackgroundFunction;
-    int drawAlertBoxFunction;
-};
-
-void luaLoadThemeCallback()
-{
-  TRACE("luaLoadThemeCallback()");
-  const char * name=NULL;
-  int themeOptions=0, loadFunction=0, drawBackgroundFunction=0, drawTopbarBackgroundFunction=0;
-
-  luaL_checktype(lsWidgets, -1, LUA_TTABLE);
-
-  for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
-    const char * key = lua_tostring(lsWidgets, -2);
-    if (!strcmp(key, "name")) {
-      name = luaL_checkstring(lsWidgets, -1);
-    }
-    else if (!strcmp(key, "options")) {
-      themeOptions = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      lua_pushnil(lsWidgets);
-    }
-    else if (!strcmp(key, "load")) {
-      loadFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      lua_pushnil(lsWidgets);
-    }
-    else if (!strcmp(key, "drawBackground")) {
-      drawBackgroundFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      lua_pushnil(lsWidgets);
-    }
-    else if (!strcmp(key, "drawTopbarBackground")) {
-      drawTopbarBackgroundFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      lua_pushnil(lsWidgets);
-    }
-  }
-
-  if (name) {
-    ZoneOption * options = NULL;
-    if (themeOptions) {
-      options = createOptionsArray(themeOptions, MAX_THEME_OPTIONS);
-      if (!options)
-        return;
-    }
-    LuaTheme * theme = new LuaTheme(name, options);
-    theme->loadFunction = loadFunction;
-    theme->drawBackgroundFunction = drawBackgroundFunction;
-    theme->drawTopbarBackgroundFunction = drawTopbarBackgroundFunction;   // NOSONAR
-    TRACE("Loaded Lua theme %s", name);
-  }
-}
-
 class LuaWidget: public Widget
 {
   public:
-    LuaWidget(const WidgetFactory * factory, const Zone & zone, Widget::PersistentData * persistentData, int widgetData):
-      Widget(factory, zone, persistentData),
-      widgetData(widgetData),
+    LuaWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData, int luaWidgetDataRef):
+      Widget(factory, parent, rect, persistentData),
+      luaWidgetDataRef(luaWidgetDataRef),
       errorMessage(nullptr)
     {
     }
 
     ~LuaWidget() override
     {
-      luaL_unref(lsWidgets, LUA_REGISTRYINDEX, widgetData);
+      luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
       free(errorMessage);
     }
 
+    // Window interface
+    void paint(BitmapBuffer * dc) override;
+  
+    // Widget interface
+    const char * getErrorMessage() const override;
     void update() override;
-
-    void refresh() override;
-
     void background() override;
 
-    const char * getErrorMessage() const override;
+    // Calls LUA widget 'refresh' method
+    void refresh(BitmapBuffer* dc);
 
   protected:
-    int widgetData;
+    int    luaWidgetDataRef;
     char * errorMessage;
 
     void setErrorMessage(const char * funcName);
@@ -302,7 +217,7 @@ class LuaWidgetFactory: public WidgetFactory
     {
     }
 
-    Widget * create(const Zone & zone, Widget::PersistentData * persistentData, bool init=true) const override
+    Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
     {
       if (lsWidgets == 0) return 0;
       if (init) {
@@ -313,10 +228,10 @@ class LuaWidgetFactory: public WidgetFactory
       lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunction);
 
       lua_newtable(lsWidgets);
-      l_pushtableint("x", zone.x);
-      l_pushtableint("y", zone.y);
-      l_pushtableint("w", zone.w);
-      l_pushtableint("h", zone.h);
+      l_pushtableint("x", 0);
+      l_pushtableint("y", 0);
+      l_pushtableint("w", rect.w);
+      l_pushtableint("h", rect.h);
 
       lua_newtable(lsWidgets);
       int i = 0;
@@ -328,8 +243,7 @@ class LuaWidgetFactory: public WidgetFactory
         TRACE("Error in widget %s create() function: %s", getName(), lua_tostring(lsWidgets, -1));
       }
       int widgetData = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      Widget * widget = new LuaWidget(this, zone, persistentData, widgetData);
-      return widget;
+      return new LuaWidget(this, parent, rect, persistentData, widgetData);
     }
 
   protected:
@@ -339,6 +253,11 @@ class LuaWidgetFactory: public WidgetFactory
     int backgroundFunction;
 };
 
+void LuaWidget::paint(BitmapBuffer * dc)
+{
+  refresh(dc);
+}
+
 void LuaWidget::update()
 {
   if (lsWidgets == 0 || errorMessage) return;
@@ -346,7 +265,7 @@ void LuaWidget::update()
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->updateFunction);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, widgetData);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
 
   lua_newtable(lsWidgets);
   int i = 0;
@@ -375,23 +294,30 @@ const char * LuaWidget::getErrorMessage() const
   return errorMessage;
 }
 
-void LuaWidget::refresh()
+void LuaWidget::refresh(BitmapBuffer* dc)
 {
   if (lsWidgets == 0) return;
 
   if (errorMessage) {
     lcdSetColor(RED);
-    lcdDrawText(zone.x, zone.y, "Disabled", SMLSIZE|CUSTOM_COLOR);
+    dc->drawText(0, 0, "Disabled", FONT(XS) | CUSTOM_COLOR);
     return;
   }
 
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->refreshFunction);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, widgetData);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+
+  // Enable drawing into the current LCD buffer
+  luaLcdBuffer = dc;
+  luaLcdAllowed = true;
   if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
+  // Remove LCD
+  luaLcdAllowed = false;
+  luaLcdBuffer = nullptr;
 }
 
 void LuaWidget::background()
@@ -402,7 +328,7 @@ void LuaWidget::background()
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   if (factory->backgroundFunction) {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->backgroundFunction);
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, widgetData);
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
       setErrorMessage("background()");
     }
@@ -556,9 +482,8 @@ void luaInitThemesAndWidgets()
     }
     UNPROTECT_LUA();
     TRACE("lsWidgets %p", lsWidgets);
-    luaLoadFiles(THEMES_PATH, luaLoadThemeCallback);
+    //luaLoadFiles(THEMES_PATH, luaLoadThemeCallback);
     luaLoadFiles(WIDGETS_PATH, luaLoadWidgetCallback);
     luaDoGc(lsWidgets, true);
   }
 }
-#endif
