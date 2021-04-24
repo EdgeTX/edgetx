@@ -144,6 +144,10 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
     optPtr++;
     grid.nextLine();
   }
+
+  setCloseHandler([widget]() {
+      widget->update();
+  });
 }
 
 

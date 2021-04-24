@@ -182,7 +182,7 @@ class SetupWidgetsPage: public FormWindow
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
-      return "SetupWidgetPage(idx=" + std::to_string(customScreenIdx) + ")";
+      return "SetupWidgetsPage(idx=" + std::to_string(customScreenIdx) + ")";
     }
 #endif
 
@@ -342,7 +342,7 @@ ScreenSetupPage::ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned
 
 
 
-static void updateLayoutOptions(FormGroup* optionsWindow, unsigned customScreenIndex) // TODO
+static void updateLayoutOptions(FormGroup* optionsWindow, unsigned customScreenIndex)
 {
   FormGridLayout grid;
   optionsWindow->clear();
