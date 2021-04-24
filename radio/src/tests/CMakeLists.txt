@@ -52,7 +52,16 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
   endif()
 
-  add_executable(gtests-radio EXCLUDE_FROM_ALL ${GTEST_SRC} ${TEST_SRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/location.h ${RADIO_SRC} ../targets/simu/simpgmspace.cpp ../targets/simu/simueeprom.cpp ../targets/simu/simufatfs.cpp)
+  add_executable(gtests-radio EXCLUDE_FROM_ALL
+    ${GTEST_SRC}
+    ${TEST_SRC_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/location.h
+    ${RADIO_SRC}
+    ../targets/simu/simpgmspace.cpp
+    ../targets/simu/simueeprom.cpp
+    ../targets/simu/simufatfs.cpp
+    ../targets/simu/simulcd.cpp
+    )
   add_dependencies(gtests-radio ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES} gtests-radio-lib)
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
     add_dependencies(gtests-radio ${HORUS_MODEL_FILES})
