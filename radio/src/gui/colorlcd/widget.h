@@ -22,7 +22,7 @@
 
 #include <list>
 #include <string.h>
-#include "form.h"
+#include "button.h"
 #include "widgets_container.h"
 #include "debug.h"
 
@@ -33,18 +33,14 @@
 
 class WidgetFactory;
 
-class Widget : public Window
+class Widget : public Button
 {
   public:
 
     typedef WidgetPersistentData PersistentData;
 
-    Widget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData):
-      Window(parent, rect),
-      factory(factory),
-      persistentData(persistentData)
-    {
-    }
+    Widget(const WidgetFactory *factory, FormGroup *parent, const rect_t &rect,
+           WidgetPersistentData *persistentData);
 
     ~Widget() override = default;
 
@@ -78,16 +74,6 @@ class Widget : public Window
       return persistentData;
     }
 
-    // Called when the widget options have changed
-    virtual void update()
-    {
-    }
-
-    // Called at regular time interval, even if the widget cannot be seen
-    virtual void background()
-    {
-    }
-
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
@@ -95,9 +81,30 @@ class Widget : public Window
     }
 #endif
 
+    // Window interface
+    void checkEvents() override;
+    void onEvent(event_t event) override;
+    void paint(BitmapBuffer * dc) override;
+
+    // Widget interface
+
+    // Set/unset fullscreen mode
+    void setFullscreen(bool fullscreen);
+
+    // Called when the widget options have changed
+    virtual void update();
+
+    // Called when the widget should redraw
+    virtual void refresh(BitmapBuffer* dc) = 0;
+
+    // Called at regular time interval, even if the widget cannot be seen
+    virtual void background() {}
+
   protected:
     const WidgetFactory * factory;
     PersistentData * persistentData;
+    uint32_t focusGainedTimestamp = 0;
+    bool fullscreen = false;
 };
 
 void registerWidget(const WidgetFactory * factory);

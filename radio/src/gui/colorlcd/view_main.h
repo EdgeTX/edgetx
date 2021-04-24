@@ -71,6 +71,10 @@ class ViewMain: public Window
 
     Topbar* getTopbar();
   
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
+  
   protected:
     static ViewMain * _instance;
 
@@ -94,9 +98,6 @@ class ViewMain: public Window
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
     void paint(BitmapBuffer * dc) override;
 
     void openMenu();

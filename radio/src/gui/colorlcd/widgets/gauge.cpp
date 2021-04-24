@@ -29,7 +29,7 @@ class GaugeWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       mixsrc_t index = persistentData->options[0].value.unsignedValue;
       int32_t min = persistentData->options[1].value.signedValue;
@@ -56,10 +56,6 @@ class GaugeWidget: public Widget
       dc->drawSolidFilledRect(0, 16, width(), 16, FOCUS_COLOR);
       dc->drawNumber(0+width()/2, 17, percent, FONT(XS) | CUSTOM_COLOR | CENTERED, 0, nullptr, "%");
       dc->invertRect(w, 16, width() - w, 16, CUSTOM_COLOR);
-
-      if (hasFocus()) {
-        dc->clear(HIGHLIGHT_COLOR);
-      }
     }
 
     void checkEvents() override
@@ -70,11 +66,6 @@ class GaugeWidget: public Widget
       if (lastValue != newValue) {
         lastValue = newValue;
         invalidate();
-      }
-
-      if (!hasFocus() && g_tmr10ms < 100) {
-        TRACE("ICI");
-        setFocus(SET_FOCUS_FIRST);
       }
     }
 

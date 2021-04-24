@@ -51,6 +51,7 @@ void lcdDrawBlackOverlay();
 #if defined(BOOT)
   #define BLINK_ON_PHASE               (0)
 #else
+  #define FAST_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<5))
   #define BLINK_ON_PHASE               (g_blinkTmr10ms & (1<<6))
   #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
 #endif

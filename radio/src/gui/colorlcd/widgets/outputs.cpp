@@ -37,7 +37,7 @@ class OutputsWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       if (width() > 300 && height() > 20)
         twoColumns(dc);

@@ -31,7 +31,7 @@ class ModelBitmapWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       // big space to draw
       if (rect.h >= 96 && rect.w >= 120) {

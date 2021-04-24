@@ -31,7 +31,7 @@ class ValueWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       // get source from options[0]
       mixsrc_t field = persistentData->options[0].value.unsignedValue;
@@ -88,7 +88,6 @@ class ValueWidget: public Widget
         drawSource(dc, NUMBERS_PADDING, 2, field, CUSTOM_COLOR);
         drawSource(dc, NUMBERS_PADDING + 1, 3, field, BLACK);
         drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | CUSTOM_COLOR);
-        return;
       }
 
       if (field >= MIXSRC_FIRST_TELEM) {
@@ -105,6 +104,8 @@ class ValueWidget: public Widget
 
       drawSource(dc, xLabel, yLabel, field, attrLabel | CUSTOM_COLOR);
       drawSourceValue(dc, xValue, yValue, field, attrValue | CUSTOM_COLOR);
+
+      Widget::paint(dc);
     }
 
     void checkEvents() override

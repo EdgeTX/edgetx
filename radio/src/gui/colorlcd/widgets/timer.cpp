@@ -29,7 +29,7 @@ class TimerWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       uint32_t index = persistentData->options[0].value.unsignedValue;
       TimerData & timerData = g_model.timers[index];

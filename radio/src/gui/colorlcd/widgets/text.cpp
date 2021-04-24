@@ -31,7 +31,7 @@ class TextWidget: public Widget
     {
     }
 
-    void paint(BitmapBuffer * dc) override
+    void refresh(BitmapBuffer * dc) override
     {
       // get font color from options[1]
       lcdSetColor(persistentData->options[1].value.unsignedValue);

@@ -186,16 +186,13 @@ class LuaWidget: public Widget
     }
 #endif
   
-    // Window interface
-    void paint(BitmapBuffer * dc) override;
-  
     // Widget interface
     const char * getErrorMessage() const override;
     void update() override;
     void background() override;
 
     // Calls LUA widget 'refresh' method
-    void refresh(BitmapBuffer* dc);
+    void refresh(BitmapBuffer* dc) override;
 
   protected:
     int    luaWidgetDataRef;
@@ -279,13 +276,10 @@ void LuaWidget::checkEvents()
   }
 }
 
-void LuaWidget::paint(BitmapBuffer * dc)
-{
-  refresh(dc);
-}
-
 void LuaWidget::update()
 {
+  Widget::update();
+  
   if (lsWidgets == 0 || errorMessage) return;
 
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
