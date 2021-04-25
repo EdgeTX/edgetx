@@ -26,6 +26,7 @@
 #include "lcd.h"
 
 constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
+constexpr uint32_t FULLSCREEN_HINT_DELAY = 5*1000; //  5 seconds
 
 static void openWidgetMenu(Widget * parent)
 {
@@ -44,7 +45,7 @@ Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
 {
   setFocusHandler([&](bool focus) {
       if (focus) { // gained focus
-        focusGainedTimestamp = RTOS_GET_MS();
+        focusGainedTS = RTOS_GET_MS();
       }
     });
 }
@@ -54,7 +55,7 @@ void Widget::checkEvents()
   Button::checkEvents();
 
   // Give the focus back to ViewMain after WIDGET_FOCUS_TIMEOUT milliseconds
-  if (hasFocus() && (RTOS_GET_MS() - focusGainedTimestamp >= WIDGET_FOCUS_TIMEOUT)) {
+  if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
     ViewMain::instance()->setFocus();
   }
 }
@@ -72,11 +73,16 @@ void Widget::paint(BitmapBuffer * dc)
   if (hasFocus() && !fullscreen) {
 
     // Blink from haft-time before expiring (5s)
-    if ((RTOS_GET_MS() - focusGainedTimestamp >= WIDGET_FOCUS_TIMEOUT / 2)
+    if ((RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT / 2)
         && !FAST_BLINK_ON_PHASE) {
       return;
     }
     dc->drawRect(0, 0, width(), height(), 2, STASHED, CHECKBOX_COLOR);
+  }
+
+  if (fullscreen && (RTOS_GET_MS() - fsStartedTS < FULLSCREEN_HINT_DELAY)) {
+    dc->drawText(width() / 2, height() / 2, "Press [RTN] long to exit",
+                 FONT(XL) | CENTERED | VCENTERED | LINE_COLOR);
   }
 }
 
@@ -86,20 +92,15 @@ void Widget::onEvent(event_t event)
   TRACE("### event = 0x%x ###", event);
   if (!fullscreen) {
     switch(event) {
-      // [Enter LONG] -> pop-up widget menu
-      case EVT_KEY_LONG(KEY_ENTER):
+      // [ENTER] -> pop-up widget menu
+      case EVT_KEY_BREAK(KEY_ENTER):
         killEvents(event);
         openWidgetMenu(this);
         return;
-      // [RTN / EXIT] -> exit focus mode (if not fullscreen)
+      // [EXIT] -> exit focus mode (if not fullscreen)
       case EVT_KEY_BREAK(KEY_EXIT):
         killEvents(event);
         ViewMain::instance()->setFocus();
-        return;
-      // Forward [ENTER] to ViewMain (main menu)
-      case EVT_KEY_BREAK(KEY_ENTER):
-        killEvents(event);
-        ViewMain::instance()->onEvent(event);
         return;
     }
     // Forward the rest to the parent class
@@ -144,6 +145,7 @@ void Widget::setFullscreen(bool fullscreen)
     setWindowFlags(getWindowFlags() | OPAQUE);
     setRect(parent->getRect());
     this->fullscreen = true;
+    fsStartedTS = RTOS_GET_MS();
     bringToTop();
   }
 }
