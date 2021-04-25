@@ -188,8 +188,6 @@ class SetupWidgetsPage: public FormWindow
 
     void deleteLater(bool detach = true, bool trash = true) override
     {
-      Layer::pop(this);
-
 #if defined(HARDWARE_TOUCH)
       Keyboard::hide();
 #endif
@@ -204,6 +202,7 @@ class SetupWidgetsPage: public FormWindow
 
       // restore screen setting tab on top
       menu->bringToTop();
+      Layer::pop(this);
     }
 
 #if defined(HARDWARE_TOUCH)
