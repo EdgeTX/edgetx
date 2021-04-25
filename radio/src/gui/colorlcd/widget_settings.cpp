@@ -44,8 +44,7 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
 
   uint8_t optIdx = 0;
   auto optPtr = widget->getOptions();
-
-  while (optPtr->name != nullptr) {
+  while (optPtr && optPtr->name != nullptr) {
 
     auto option = *optPtr;
     new StaticText(form, grid.getLabelSlot(), option.name);
