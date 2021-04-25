@@ -34,10 +34,6 @@ SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
 
   // 2 Lines extra for the text + half border
   setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
-
-  // if (height() < (width() / 2) * 3) {
-  //   setHeight((width() / 2) * 3);
-  // }
 }
 
 void SelectFabButton::paint(BitmapBuffer* dc)
@@ -45,13 +41,12 @@ void SelectFabButton::paint(BitmapBuffer* dc)
   FabButton::paint(dc);
   auto pos = title.find('\n');
 
-  auto y_pos = FAB_BUTTON_SIZE;// + (height() - FAB_BUTTON_SIZE) / 5;
+  auto y_pos = FAB_BUTTON_SIZE;
   dc->drawSizedText(width() / 2, y_pos,
                     title.c_str(), pos,
                     FOCUS_COLOR | CENTERED | VCENTERED);
 
   if (pos != std::string::npos) {
-    // y_pos += (height() - FAB_BUTTON_SIZE) / 3;
     y_pos += PAGE_LINE_HEIGHT;
     dc->drawSizedText(width() / 2, y_pos, title.substr(pos+1).c_str(),
                       255, FOCUS_COLOR | CENTERED | VCENTERED);

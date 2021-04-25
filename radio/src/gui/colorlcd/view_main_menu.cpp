@@ -30,16 +30,13 @@
 #include "view_statistics.h"
 #include "select_fab_carousel.h"
 
-// TODO:
-// -> make SelectFabCarousel()
-// -> contains only the scrolling area
-// -> ViewMainMenu takes fullscreen
-// -> SelectFabCarousel() has ViewMainMenu() as parent
-
 ViewMainMenu::ViewMainMenu(Window* parent) :
     Window(parent->getFullScreenWindow(), {})
 {
+  // Save focus
   Layer::push(this);
+
+  // Take over the screen
   setWidth(parent->width());
   setHeight(parent->height());
 
