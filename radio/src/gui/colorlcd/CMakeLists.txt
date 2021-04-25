@@ -21,6 +21,7 @@ set(GUI_SRC
   tabsgroup.cpp
   page.cpp
   fab_button.cpp
+  select_fab_button.cpp
   topbar.cpp
   layout.cpp
   widget.cpp

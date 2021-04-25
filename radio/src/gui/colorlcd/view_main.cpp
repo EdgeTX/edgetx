@@ -34,7 +34,7 @@
 ViewMain * ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain():
-  Window(MainWindow::instance(), MainWindow::instance()->getRect()),
+  Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR),
   topbar(dynamic_cast<TopbarImpl*>(TopbarFactory::create(this)))
 {
   setPageWidth(getParent()->width());

@@ -204,6 +204,7 @@ void ViewMainDecoration::adjustDecoration()
 
   pos = trims[TRIMS_RH]->left() - pos;
   flightMode->setWidth(pos);
+  flightMode->setInnerWidth(pos);
 
   pos = sliders[SLIDERS_POT1]->top();
   pos -= flightMode->height();
