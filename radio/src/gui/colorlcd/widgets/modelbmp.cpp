@@ -33,6 +33,10 @@ class ModelBitmapWidget: public Widget
 
     void refresh(BitmapBuffer * dc) override
     {
+      if (buffer && ((buffer->width() != width()) || (buffer->height() != height()))) {
+        loadBitmap();
+      }
+
       // big space to draw
       if (rect.h >= 96 && rect.w >= 120) {
 
@@ -47,13 +51,13 @@ class ModelBitmapWidget: public Widget
         dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, MAINVIEW_GRAPHICS_COLOR);
 
         if (buffer) {
-          dc->drawScaledBitmap(buffer.get(), 0, 38, rect.w, rect.h - 38);
+          dc->drawBitmap(0, 38, buffer.get());
         }
       }
       // smaller space to draw
       else if (buffer) {
-        dc->drawScaledBitmap(buffer.get(), 0, 0, rect.w, rect.h);
-      }
+        dc->drawBitmap(0, 38, buffer.get());
+      }      
     }
 
     void checkEvents() override
@@ -79,11 +83,18 @@ class ModelBitmapWidget: public Widget
       std::string filename = std::string(g_model.header.bitmap);
       std::string fullpath = std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
 
-      buffer.reset(BitmapBuffer::loadBitmap(fullpath.c_str()));
-      if (!buffer) {
+      std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
+      if (!bitmap) {
         TRACE("could not load bitmap '%s'", filename.c_str());
         return;
       }
+
+      if (!buffer || (buffer->width() != width()) || (buffer->height() != height())) {
+        buffer.reset(new BitmapBuffer(BMP_RGB565, width(), height()));
+      }
+
+      buffer->clear(DEFAULT_BGCOLOR);
+      buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height() - 38);
     }
 };
 
