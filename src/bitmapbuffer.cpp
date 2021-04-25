@@ -201,8 +201,28 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
   if (!applyClippingRect(x, y, w, h))
     return;
 
-  for (coord_t i = y; i < y + h; i++) {
-    drawHorizontalLineAbs(x, i, w, pat, flags, opacity);
+  // Use DMA instead...
+  if (SOLID != pat) {
+    for (coord_t i = y; i < y + h; i++) {
+      drawHorizontalLineAbs(x, i, w, pat, flags, opacity);
+    }
+  }
+  else {
+    // SOLID
+
+    // Use the DMA2D to blend a scratch buffer filled with overlay color
+    BitmapBuffer scratch(BMP_ARGB4444, LCD_W, LCD_H, lcdGetScratchBuffer());
+    RGB_SPLIT(COLOR_VAL(flags), r, g, b);
+
+    LcdFlags flags =
+      uint32_t(ARGB((OPACITY_MAX - opacity) << 4, r << 3, g << 2, b << 3))
+      << 16;
+
+    // Fill the buffer
+    scratch.drawSolidFilledRect(0, 0, w, h, flags);
+
+    // And blend
+    drawBitmapAbs(x, y, &scratch, 0, 0, w, h);
   }
 }
 

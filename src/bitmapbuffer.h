@@ -394,6 +394,70 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       if (x >= xmax || y >= ymax)
         return;
 
+      drawBitmapAbs<T>(x, y, bmp, srcx, srcy, srcw, srch, scale);
+    }
+
+    template<class T>
+    void drawScaledBitmap(const T * bitmap, coord_t x, coord_t y, coord_t w, coord_t h)
+    {
+      if (bitmap) {
+        float vscale = float(h) / bitmap->height();
+        float hscale = float(w) / bitmap->width();
+        float scale = vscale < hscale ? vscale : hscale;
+
+        int xshift = (w - (bitmap->width() * scale)) / 2;
+        int yshift = (h - (bitmap->height() * scale)) / 2;
+        drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
+      }
+    }
+
+    BitmapBuffer * horizontalFlip() const;
+
+    BitmapBuffer * verticalFlip() const;
+
+    BitmapBuffer * invertMask() const;
+
+  protected:
+    static BitmapBuffer * load_bmp(const char * filename);
+    static BitmapBuffer * load_stb(const char * filename);
+
+    inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h) const
+    {
+      if (h < 0) {
+        y += h;
+        h = -h;
+      }
+
+      if (w < 0) {
+        x += w;
+        w = -w;
+      }
+
+      if (x >= xmax || y >= ymax)
+        return false;
+
+      if (y < ymin) {
+        h += y - ymin;
+        y = ymin;
+      }
+
+      if (x < xmin) {
+        w += x - xmin;
+        x = xmin;
+      }
+
+      if (y + h > ymax)
+        h = ymax - y;
+
+      if (x + w > xmax)
+        w = xmax - x;
+
+      return data && h > 0 && w > 0;
+    }
+
+    template<class T>
+    void drawBitmapAbs(coord_t x, coord_t y, const T * bmp, coord_t srcx = 0, coord_t srcy = 0, coord_t srcw = 0, coord_t srch = 0, float scale = 0)
+    {
       coord_t bmpw = bmp->width();
       coord_t bmph = bmp->height();
 
@@ -481,64 +545,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
           }
         }
       }
-    }
-
-    template<class T>
-    void drawScaledBitmap(const T * bitmap, coord_t x, coord_t y, coord_t w, coord_t h)
-    {
-      if (bitmap) {
-        float vscale = float(h) / bitmap->height();
-        float hscale = float(w) / bitmap->width();
-        float scale = vscale < hscale ? vscale : hscale;
-
-        int xshift = (w - (bitmap->width() * scale)) / 2;
-        int yshift = (h - (bitmap->height() * scale)) / 2;
-        drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
-      }
-    }
-
-    BitmapBuffer * horizontalFlip() const;
-
-    BitmapBuffer * verticalFlip() const;
-
-    BitmapBuffer * invertMask() const;
-
-  protected:
-    static BitmapBuffer * load_bmp(const char * filename);
-    static BitmapBuffer * load_stb(const char * filename);
-
-    inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h) const
-    {
-      if (h < 0) {
-        y += h;
-        h = -h;
-      }
-
-      if (w < 0) {
-        x += w;
-        w = -w;
-      }
-
-      if (x >= xmax || y >= ymax)
-        return false;
-
-      if (y < ymin) {
-        h += y - ymin;
-        y = ymin;
-      }
-
-      if (x < xmin) {
-        w += x - xmin;
-        x = xmin;
-      }
-
-      if (y + h > ymax)
-        h = ymax - y;
-
-      if (x + w > xmax)
-        w = xmax - x;
-
-      return data && h > 0 && w > 0;
     }
 
     uint8_t drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags);
