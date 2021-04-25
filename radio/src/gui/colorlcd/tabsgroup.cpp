@@ -69,6 +69,9 @@ void TabsCarousel::paint(BitmapBuffer * dc)
 bool TabsCarousel::onTouchEnd(coord_t x, coord_t y)
 {
   unsigned index = (x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
+  if (index >= menu->tabs.size()) {
+    return false;
+  }
   menu->setCurrentTab(index);
   setCurrentIndex(index);
   return true;

@@ -84,6 +84,7 @@ class Widget : public Button
     // Window interface
     void checkEvents() override;
     void onEvent(event_t event) override;
+    bool onTouchEnd(coord_t x, coord_t y) override;
     void paint(BitmapBuffer * dc) override;
 
     // Widget interface

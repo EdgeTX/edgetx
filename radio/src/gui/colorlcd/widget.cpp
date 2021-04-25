@@ -48,6 +48,11 @@ Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
         focusGainedTS = RTOS_GET_MS();
       }
     });
+
+  setPressHandler([&]() -> uint8_t {
+      openWidgetMenu(this);
+      return 0;
+    });
 }
 
 void Widget::checkEvents()
@@ -58,6 +63,20 @@ void Widget::checkEvents()
   if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
     ViewMain::instance()->setFocus();
   }
+}
+
+bool Widget::onTouchEnd(coord_t x, coord_t y)
+{
+  TRACE_WINDOWS("Widget received touch end (%d) x=%d;y=%d",
+                hasFocus(), x, y);
+
+  if (hasFocus()) {
+    onPress();
+    return true;
+  }
+
+  setFocus();
+  return true;
 }
 
 void Widget::paint(BitmapBuffer * dc)
@@ -91,17 +110,11 @@ void Widget::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   TRACE("### event = 0x%x ###", event);
   if (!fullscreen) {
-    switch(event) {
-      // [ENTER] -> pop-up widget menu
-      case EVT_KEY_BREAK(KEY_ENTER):
-        killEvents(event);
-        openWidgetMenu(this);
-        return;
+    if (event == EVT_KEY_BREAK(KEY_EXIT)) {
       // [EXIT] -> exit focus mode (if not fullscreen)
-      case EVT_KEY_BREAK(KEY_EXIT):
-        killEvents(event);
-        ViewMain::instance()->setFocus();
-        return;
+      killEvents(event);
+      ViewMain::instance()->setFocus();
+      return;
     }
     // Forward the rest to the parent class
     Button::onEvent(event);
