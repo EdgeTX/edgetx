@@ -28,17 +28,23 @@
 #include "menu_screen.h"
 #include "view_channels.h"
 #include "view_statistics.h"
-#include "select_fab_button.h"
+#include "select_fab_carousel.h"
+
+// TODO:
+// -> make SelectFabCarousel()
+// -> contains only the scrolling area
+// -> ViewMainMenu takes fullscreen
+// -> SelectFabCarousel() has ViewMainMenu() as parent
 
 ViewMainMenu::ViewMainMenu(Window* parent) :
-    FormGroup(parent->getFullScreenWindow(),
-              {},
-              OPAQUE | FORM_FORWARD_FOCUS | NO_SCROLLBAR)
+    Window(parent->getFullScreenWindow(), {})
 {
   Layer::push(this);
+  setWidth(parent->width());
+  setHeight(parent->height());
 
-  coord_t y_pos = SELECT_BUTTON_BORDER;
-  coord_t x_pos = SELECT_BUTTON_BORDER / 2;
+  auto carousel = new SelectFabCarousel(this);
+  carousel->setMaxButtons(4);
 
   // Disabled Title
   //
@@ -47,57 +53,37 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   //                "Tasks", 0, FOCUS_COLOR | FONT(XL) | CENTERED);
   // pos += title->height() + PAGE_LINE_SPACING;
 
-  auto button = new SelectFabButton(this, x_pos, y_pos, ICON_RADIO_TOOLS, "Model\nSettings",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_RADIO_TOOLS, "Model\nSettings", [=]() -> uint8_t {
     deleteLater();
     new ModelMenu();
     return 0;
   });
 
-  x_pos += button->width() + SELECT_BUTTON_BORDER / 2;
-  setPageWidth(x_pos);
-  setWidth(pageWidth * 4);
-
-  x_pos += SELECT_BUTTON_BORDER / 2;
-  
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_MODEL, "Select\nModel",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL, "Select\nModel", [=]() -> uint8_t {
     deleteLater();
     new ModelSelectMenu();
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_RADIO, "Radio\nSettings",
-                     [=]() -> uint8_t {
+  carousel->addButton(ICON_RADIO, "Radio\nSettings", [=]() -> uint8_t {
     deleteLater();
     new RadioMenu();
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_THEME, "Screens\nSetup",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_THEME, "Screens\nSetup", [=]() -> uint8_t {
     deleteLater();
     new ScreenMenu();
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_MONITOR, "Channel\nMonitor",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_MONITOR, "Channel\nMonitor", [=]() -> uint8_t {
     deleteLater();
     new ChannelsViewMenu();
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_MODEL_TELEMETRY, "Reset\nTelemetry",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL_TELEMETRY, "Reset\nTelemetry", [=]() -> uint8_t {
     deleteLater();
     Menu* resetMenu = new Menu(parent);
     resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
@@ -108,42 +94,33 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_STATS, "Statistics",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_STATS, "Statistics", [=]() -> uint8_t {
     deleteLater();
     new StatisticsViewPageGroup();
     return 0;
   });
 
-  x_pos += pageWidth;
-
-  button = new SelectFabButton(this, x_pos, y_pos, ICON_OPENTX, "About\nOpenTx",
-                      [=]() -> uint8_t {
+  carousel->addButton(ICON_OPENTX, "About\nOpenTx", [=]() -> uint8_t {
     deleteLater();
     //TODO: new AboutUs();
     return 0;
   });
 
-  x_pos += pageWidth;
-  setInnerWidth(x_pos + SELECT_BUTTON_BORDER / 2);
+  carousel->setWindowCentered();
+  carouselRect = carousel->getRect();
 
-  y_pos += button->height() + SELECT_BUTTON_BORDER;
-  setHeight(y_pos);
-  setInnerHeight(y_pos);
-
-  setWindowCentered();
-
-  setFocus();
+  carousel->setCloseHandler([=]() { deleteLater(); });
+  carousel->setFocus();
 }
 
 void ViewMainMenu::paint(BitmapBuffer* dc)
 {
-  dc->drawFilledRect(0, 0, getInnerWidth(), height(), SOLID, OVERLAY_COLOR, OPACITY(5));
+  dc->drawFilledRect(carouselRect.x, carouselRect.y, carouselRect.w,
+                     carouselRect.h, SOLID, OVERLAY_COLOR, OPACITY(5));
 }
+
 void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
-  FormGroup::deleteLater(detach, trash);
+  Window::deleteLater(detach, trash);
 }

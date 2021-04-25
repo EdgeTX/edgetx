@@ -22,6 +22,7 @@ set(GUI_SRC
   page.cpp
   fab_button.cpp
   select_fab_button.cpp
+  select_fab_carousel.cpp
   topbar.cpp
   layout.cpp
   widget.cpp

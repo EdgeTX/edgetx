@@ -30,10 +30,10 @@ SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
     title(title)
 {
   // Add some space on either side on the button
-  setWidth(width() + SELECT_BUTTON_BORDER);
+  setWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
 
   // 2 Lines extra for the text + half border
-  setHeight(height() + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
+  setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
 
   // if (height() < (width() / 2) * 3) {
   //   setHeight((width() / 2) * 3);
