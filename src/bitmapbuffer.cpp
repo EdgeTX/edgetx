@@ -25,7 +25,217 @@
 #include "libopenui_file.h"
 #include "font.h"
 
-void BitmapBuffer::drawAlphaPixel(pixel_t * p, uint8_t opacity, uint16_t color)
+RLEBitmap::RLEBitmap(uint8_t format, const uint8_t* rle_data) :
+  BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
+{
+  _width = *((uint16_t *)rle_data);
+  _height = *(((uint16_t *)rle_data)+1);
+  uint32_t pixels = _width * _height;
+  data = (uint16_t*)malloc(align32(pixels * sizeof(uint16_t)));
+  decode((uint8_t *)data, pixels * sizeof(uint16_t), rle_data+4);
+  data_end = data + pixels;
+}
+
+RLEBitmap::~RLEBitmap()
+{
+  free(data);
+}
+
+int RLEBitmap::decode(uint8_t *dest, unsigned int destSize, const uint8_t *src)
+{
+  uint8_t prevByte = 0;
+  bool prevByteValid = false;
+
+  const uint8_t *destEnd = dest + destSize;
+  uint8_t *d = dest;
+
+  while (d < destEnd) {
+    uint8_t byte = *src++;
+    *d++ = byte;
+
+    if (prevByteValid && byte == prevByte) {
+      uint8_t count = *src++;
+
+      if (d + count > destEnd) {
+        TRACE("rle_decode_8bit: destination overflow!\n");
+        return -1;
+      }
+
+      memset(d, byte, count);
+      d += count;
+      prevByteValid = false;
+    } else {
+      prevByte = byte;
+      prevByteValid = true;
+    }
+  }
+
+  return d - dest;
+}
+
+BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
+    BitmapBufferBase<uint16_t>(format, width, height, nullptr),
+    dataAllocated(true)
+#if defined(DEBUG)
+    , leakReported(false)
+#endif
+{
+  data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
+  data_end = data + (width * height);
+}
+
+BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
+                           uint16_t *data) :
+    BitmapBufferBase<uint16_t>(format, width, height, data),
+    dataAllocated(false)
+#if defined(DEBUG)
+    , leakReported(false)
+#endif
+{
+}
+
+BitmapBuffer::~BitmapBuffer()
+{
+  if (dataAllocated) {
+    free(data);
+  }
+}
+
+template <class T>
+void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const T *bmp, coord_t srcx,
+                              coord_t srcy, coord_t srcw, coord_t srch,
+                              float scale)
+{
+  if (!data || !bmp) return;
+  APPLY_OFFSET();
+  if (x >= xmax || y >= ymax) return;
+  drawBitmapAbs<T>(x, y, bmp, srcx, srcy, srcw, srch, scale);
+}
+
+template void BitmapBuffer::drawBitmap(
+    coord_t, coord_t, BitmapBufferBase<unsigned short const> const *, coord_t,
+    coord_t, coord_t, coord_t, float);
+
+template void BitmapBuffer::drawBitmap(coord_t, coord_t, const BitmapBuffer *,
+                                       coord_t, coord_t, coord_t, coord_t,
+                                       float);
+
+template void BitmapBuffer::drawBitmap(coord_t, coord_t, const RLEBitmap *,
+                                       coord_t, coord_t, coord_t, coord_t,
+                                       float);
+
+template <class T>
+void BitmapBuffer::drawScaledBitmap(const T *bitmap, coord_t x, coord_t y,
+                                    coord_t w, coord_t h)
+{
+  if (bitmap) {
+    float vscale = float(h) / bitmap->height();
+    float hscale = float(w) / bitmap->width();
+    float scale = vscale < hscale ? vscale : hscale;
+
+    int xshift = (w - (bitmap->width() * scale)) / 2;
+    int yshift = (h - (bitmap->height() * scale)) / 2;
+    drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
+  }
+}
+
+template void BitmapBuffer::drawScaledBitmap(const BitmapBuffer *, coord_t,
+                                             coord_t, coord_t, coord_t);
+
+template <class T>
+void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
+                                 coord_t srcx, coord_t srcy,
+                                 coord_t srcw, coord_t srch,
+                                 float scale)
+{
+  coord_t bmpw = bmp->width();
+  coord_t bmph = bmp->height();
+
+  if (srcw == 0) srcw = bmpw;
+  if (srch == 0) srch = bmph;
+  if (srcx + srcw > bmpw) srcw = bmpw - srcx;
+  if (srcy + srch > bmph) srch = bmph - srcy;
+
+  if (scale == 0) {
+    if (x < xmin) {
+      srcw += x - xmin;
+      srcx -= x - xmin;
+      x = xmin;
+    }
+    if (y < ymin) {
+      srch += y - ymin;
+      srcy -= y - ymin;
+      y = ymin;
+    }
+    if (x + srcw > xmax) {
+      srcw = xmax - x;
+    }
+    if (y + srch > ymax) {
+      srch = ymax - y;
+    }
+  } else {
+    if (x < xmin) {
+      srcw += (x - xmin) / scale;
+      srcx -= (x - xmin) / scale;
+      x = xmin;
+    }
+    if (y < ymin) {
+      srch += (y - ymin) / scale;
+      srcy -= (y - ymin) / scale;
+      y = ymin;
+    }
+    if (x + srcw * scale > xmax) {
+      srcw = (xmax - x) / scale;
+    }
+    if (y + srch * scale > ymax) {
+      srch = (ymax - y) / scale;
+    }
+  }
+
+  if (srcw <= 0 || srch <= 0) {
+    return;
+  }
+
+  if (scale == 0) {
+    if (bmp->getFormat() == BMP_ARGB4444) {
+      DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw,
+                         bmph, srcx, srcy, srcw, srch);
+    } else {
+      DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph,
+                    srcx, srcy, srcw, srch);
+    }
+  } else {
+    int scaledw = srcw * scale;
+    int scaledh = srch * scale;
+
+    if (x + scaledw > _width) scaledw = _width - x;
+    if (y + scaledh > _height) scaledh = _height - y;
+
+    for (int i = 0; i < scaledh; i++) {
+      pixel_t *p = getPixelPtrAbs(x, y + i);
+      const pixel_t *qstart = bmp->getPixelPtrAbs(srcx, srcy + int(i / scale));
+      for (int j = 0; j < scaledw; j++) {
+        const pixel_t *q = qstart;
+        MOVE_PIXEL_RIGHT(q, int(j / scale));
+        if (bmp->getFormat() == BMP_ARGB4444) {
+          ARGB_SPLIT(*q, a, r, g, b);
+          drawAlphaPixel(p, a, RGB_JOIN(r << 1, g << 2, b << 1));
+        } else {
+          drawPixel(p, *q);
+        }
+        MOVE_TO_NEXT_RIGHT_PIXEL(p);
+      }
+    }
+  }
+}
+
+template
+void BitmapBuffer::drawBitmapAbs(coord_t, coord_t, const BitmapBuffer *,
+                                 coord_t srcx, coord_t srcy,
+                                 coord_t srcw, coord_t srch,
+                                 float scale);
+
+void BitmapBuffer::drawAlphaPixel(pixel_t *p, uint8_t opacity, uint16_t color)
 {
   if (opacity == OPACITY_MAX) {
     drawPixel(p, color);
