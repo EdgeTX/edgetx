@@ -104,8 +104,6 @@ class ValueWidget: public Widget
 
       drawSource(dc, xLabel, yLabel, field, attrLabel | CUSTOM_COLOR);
       drawSourceValue(dc, xValue, yValue, field, attrValue | CUSTOM_COLOR);
-
-      Widget::paint(dc);
     }
 
     void checkEvents() override
