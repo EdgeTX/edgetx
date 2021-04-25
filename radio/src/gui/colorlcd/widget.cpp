@@ -65,6 +65,7 @@ void Widget::checkEvents()
   }
 }
 
+#if defined(HARDWARE_TOUCH)
 bool Widget::onTouchEnd(coord_t x, coord_t y)
 {
   TRACE_WINDOWS("Widget received touch end (%d) x=%d;y=%d",
@@ -78,6 +79,7 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
   setFocus();
   return true;
 }
+#endif
 
 void Widget::paint(BitmapBuffer * dc)
 {
