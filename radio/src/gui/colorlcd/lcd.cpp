@@ -21,10 +21,6 @@
 #include "lcd.h"
 #include "opentx.h"
 
-#if defined(SIMU)
-pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
-#endif
-
 uint8_t getMappedChar(uint8_t c)
 {
   uint8_t result;

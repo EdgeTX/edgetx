@@ -23,6 +23,7 @@
 
 #if defined(COLORLCD)
 
+pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
 BitmapBuffer _lcd(BMP_RGB565, LCD_W, LCD_H, displayBuf);
 BitmapBuffer * lcd = &_lcd;
 
