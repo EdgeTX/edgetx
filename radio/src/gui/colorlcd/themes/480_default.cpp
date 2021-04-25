@@ -39,37 +39,45 @@ class Theme480: public OpenTxTheme
     void loadColors() const
     {
       TRACE("Load Theme480 theme colors");
-      lcdColorTable[DEFAULT_COLOR_INDEX] = BLACK;
-      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = WHITE;
-      lcdColorTable[FOCUS_COLOR_INDEX] = WHITE;
-      lcdColorTable[FOCUS_BGCOLOR_INDEX] = RED;
-      lcdColorTable[TEXT_STATUSBAR_COLOR_INDEX] = WHITE;
-      lcdColorTable[LINE_COLOR_INDEX] = GREY;
-      lcdColorTable[CHECKBOX_COLOR_INDEX] = RED;
-      lcdColorTable[SCROLLBAR_COLOR_INDEX] = RED;
-      lcdColorTable[MENU_BGCOLOR_INDEX] = DARKGREY;
-      lcdColorTable[MENU_COLOR_INDEX] = WHITE;
-      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = RGB(GET_RED(RED)>>1, GET_GREEN(RED)>>1, GET_BLUE(RED)>>1);
-      lcdColorTable[HEADER_COLOR_INDEX] = DARKGREY;
       lcdColorTable[ALARM_COLOR_INDEX] = RED;
-      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = YELLOW;
-      lcdColorTable[TEXT_DISABLE_COLOR_INDEX] = GREY;
-      lcdColorTable[DISABLE_COLOR_INDEX] = LIGHTGREY;
-      lcdColorTable[CURVE_COLOR_INDEX] = RED;
-      lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = RED;
-      lcdColorTable[TITLE_BGCOLOR_INDEX] = RED;
-      lcdColorTable[TRIM_BGCOLOR_INDEX] = RED;
-      lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
-      lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
-      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
-      lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;
-      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = RED;
-      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = RED;
-      lcdColorTable[OVERLAY_COLOR_INDEX] = BLACK;
       lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
       lcdColorTable[BARGRAPH_BGCOLOR_INDEX] = RGB(222, 222, 222);
       lcdColorTable[BATTERY_CHARGE_COLOR_INDEX] = GREEN;
+      lcdColorTable[CHECKBOX_COLOR_INDEX] = RED;
+      lcdColorTable[CURVE_COLOR_INDEX] = RED;
+      lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = RED;
+      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = WHITE;
+      lcdColorTable[DEFAULT_COLOR_INDEX] = BLACK;
+      lcdColorTable[DISABLE_COLOR_INDEX] = LIGHTGREY;
+      lcdColorTable[FOCUS_BGCOLOR_INDEX] = RED;
+      lcdColorTable[FOCUS_COLOR_INDEX] = WHITE;
+      lcdColorTable[HEADER_COLOR_INDEX] = DARKRED;
+      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = RED;
+      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = RED;
+      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = YELLOW;
+      lcdColorTable[LINE_COLOR_INDEX] = GREY;
+      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
+      lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
+
+      // this is what the status bar uses...
+      //lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;
+
+      // Menu font color
+      lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;//DARKGREY;
+      lcdColorTable[MENU_COLOR_INDEX] = WHITE;
+      // Selected item in menu
+      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = BLACK;
+      lcdColorTable[MENU_HIGHLIGHT_COLOR_INDEX] = WHITE;
+
+      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = RGB(GET_RED(RED)>>1, GET_GREEN(RED)>>1, GET_BLUE(RED)>>1);
+      lcdColorTable[OVERLAY_COLOR_INDEX] = BLACK;
+      lcdColorTable[SCROLLBAR_COLOR_INDEX] = RED;
+      lcdColorTable[TEXT_DISABLE_COLOR_INDEX] = GREY;
+      lcdColorTable[TEXT_STATUSBAR_COLOR_INDEX] = WHITE;
+      lcdColorTable[TITLE_BGCOLOR_INDEX] = RED;
+      lcdColorTable[TRIM_BGCOLOR_INDEX] = RED;
+      lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
     }
 
     void loadMenuIcon(uint8_t index, const char * filename, uint32_t color=MENU_COLOR) const
@@ -168,7 +176,7 @@ class Theme480: public OpenTxTheme
       }
 
       delete topleftBitmap;
-      topleftBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("topleft.png"), TITLE_BGCOLOR, MENU_BGCOLOR);
+      topleftBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("topleft.png"), TITLE_BGCOLOR, HEADER_COLOR);
 
       delete background;
       delete shadow;
@@ -335,10 +343,10 @@ class Theme480: public OpenTxTheme
       if (topleftBitmap) {
         dc->drawBitmap(0, 0, topleftBitmap);
         uint16_t width = topleftBitmap->width();
-        dc->drawSolidFilledRect(width, 0, LCD_W - width, MENU_HEADER_HEIGHT, MENU_BGCOLOR);
+        dc->drawSolidFilledRect(width, 0, LCD_W - width, MENU_HEADER_HEIGHT, HEADER_COLOR);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, MENU_BGCOLOR);
+        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, HEADER_COLOR);
       }
 
       if (icon == ICON_OPENTX)

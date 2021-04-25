@@ -74,7 +74,7 @@ coord_t TopbarImpl::getVisibleHeight(float visible) const // 0.0 -> 1.0
 
 void TopbarImpl::paint(BitmapBuffer * dc)
 {
-  dc->drawSolidFilledRect(0, 0, width(), height(), MENU_BGCOLOR);
+  dc->drawSolidFilledRect(0, 0, width(), height(), HEADER_COLOR);
   OpenTxTheme::instance()->drawTopLeftBitmap(dc);
 
   struct gtm t;
