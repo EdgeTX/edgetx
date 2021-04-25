@@ -46,6 +46,7 @@
 uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t currentLayer = LCD_FIRST_LAYER;
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
@@ -453,6 +454,7 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   srcy = srch - (srcy + h);
 #endif
 
+  TRACE("------");
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -573,6 +575,11 @@ int lcdRestoreBackupBuffer()
 uint16_t* lcdGetBackupBuffer()
 {
   return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
+}
+
+uint16_t* lcdGetScratchBuffer()
+{
+  return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
 void lcdRefresh()

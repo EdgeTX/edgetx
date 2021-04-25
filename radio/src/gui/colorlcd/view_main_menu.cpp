@@ -110,12 +110,14 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   carousel->setFocus();
 }
 
+uint16_t* lcdGetBackupBuffer();
+
 void ViewMainMenu::paint(BitmapBuffer* dc)
 {
-  rect_t r = carouselRect;
-  r.x -= 8; r.y -= 8;
-  r.w += 16; r.h += 16;
-  dc->drawFilledRect(r.x, r.y, r.w, r.h, SOLID, OVERLAY_COLOR, OPACITY(5));
+  rect_t zone = carouselRect;
+  zone.x -= 8; zone.y -= 8;
+  zone.w += 16; zone.h += 16;
+  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, OVERLAY_COLOR, OPACITY(5));
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)

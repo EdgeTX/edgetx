@@ -24,8 +24,15 @@
 #if defined(COLORLCD)
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
+pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
+
 BitmapBuffer _lcd(BMP_RGB565, LCD_W, LCD_H, displayBuf);
 BitmapBuffer * lcd = &_lcd;
+
+uint16_t * lcdGetScratchBuffer()
+{
+  return static_cast<uint16_t *>(scratchBuf);
+}
 
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
