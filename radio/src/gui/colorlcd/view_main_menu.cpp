@@ -115,8 +115,10 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
 
 void ViewMainMenu::paint(BitmapBuffer* dc)
 {
-  dc->drawFilledRect(carouselRect.x, carouselRect.y, carouselRect.w,
-                     carouselRect.h, SOLID, OVERLAY_COLOR, OPACITY(5));
+  rect_t r = carouselRect;
+  r.x -= 8; r.y -= 8;
+  r.w += 16; r.h += 16;
+  dc->drawFilledRect(r.x, r.y, r.w, r.h, SOLID, OVERLAY_COLOR, OPACITY(5));
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
