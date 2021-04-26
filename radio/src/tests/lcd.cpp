@@ -57,7 +57,11 @@ void doPaint(QPainter & p)
 #endif
       for (int x=0; x<LCD_W; x++, idx++) {
 #if LCD_W < 212
+  #if defined (LCD_VERTICAL_INVERT)
+        if (simuLcdBuf[DISPLAY_BUFFER_SIZE - idx - 1] & mask) {
+  #else
         if (simuLcdBuf[idx] & mask) {
+  #endif
           p.drawPoint(x, y);
         }
 #else
