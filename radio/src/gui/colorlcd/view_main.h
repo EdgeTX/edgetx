@@ -96,6 +96,7 @@ class ViewMain: public Window
     unsigned int  startSlidePage = 0;
 
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
+    bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
     void paint(BitmapBuffer * dc) override;

@@ -239,6 +239,18 @@ bool ViewMain::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY
 
   return Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
 }
+
+bool ViewMain::onTouchEnd(coord_t x, coord_t y)
+{
+  if (Window::onTouchEnd(x,y)) return true;
+  if (!hasFocus()) {
+    setFocus();
+  }
+  else {
+    openMenu();
+  }
+  return true;
+}
 #endif
 
 #if defined(HARDWARE_KEYS)
