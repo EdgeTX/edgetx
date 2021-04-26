@@ -91,6 +91,13 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
 // 'dest' has RGB565
 void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t fg_color)
 {
+#if defined(LCD_VERTICAL_INVERT)
+  x = destw - (x + w);
+  y = desth - (y + h);
+  srcx = srcw - (srcx + w);
+  srcy = srch - (srcy + h);
+#endif
+
   RGB_SPLIT(fg_color, red, green, blue);
   
   for (coord_t line=0; line<h; line++) {
