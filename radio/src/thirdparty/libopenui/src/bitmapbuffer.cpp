@@ -762,30 +762,43 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, 
 {
   APPLY_OFFSET();
 
-  coord_t w = *((uint16_t *)bmp); // 'w' -> width of the font file
-  coord_t height = *(((uint16_t *)bmp)+1); // height of the font file
+  coord_t bmpw = *((uint16_t *)bmp); // 'w' -> width of the font file
+  coord_t bmph = *(((uint16_t *)bmp)+1); // height of the font file
 
   // skip header
   bmp += 4;
 
-  // 'width' -> font character we want
-  if (!width || width > w) {
-    width = w;
+  coord_t srcx = offset;
+  coord_t srcy = 0;
+
+  coord_t srcw = (width != 0 ? width : bmpw);
+  coord_t srch = bmph;
+  if (srcx + srcw > bmpw) srcw = bmpw - srcx;
+  if (srcy + srch > bmph) srch = bmph - srcy;
+
+  if (x < xmin) {
+    srcw += x - xmin;
+    srcx -= x - xmin;
+    x = xmin;
+  }
+  if (y < ymin) {
+    srch += y - ymin;
+    srcy -= y - ymin;
+    y = ymin;
+  }
+  if (x + srcw > xmax) {
+    srcw = xmax - x;
+  }
+  if (y + srch > ymax) {
+    srch = ymax - y;
   }
 
-  if (x + width > xmax) {
-    width = xmax - x;
-  }
-
-  if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin) {
+  if (srcw <= 0 || srch <= 0) {
     return;
   }
 
-  // TODO:
-  //  - add some defs to libopenui_depends.h
-  //
-  DMACopyAlphaMask(data, _width, _height, x, y, bmp, w, height,
-                   offset, 0, width, height, COLOR_VAL(flags));
+  DMACopyAlphaMask(data, _width, _height, x, y, bmp, bmpw, bmph,
+                   srcx, srcy, srcw, srch, COLOR_VAL(flags));
 }
 
 uint8_t BitmapBuffer::drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags)
