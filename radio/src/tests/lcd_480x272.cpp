@@ -78,9 +78,6 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
     return false;
   }
   
-  //auto testPtr = testPict->getData();
-  //auto dcPtr   = dc->getData();
-
   for (int y=0; y<LCD_H; y++) {
     for (int x=0; x<LCD_W; x++) {
       if (*testPict->getPixelPtr(x,y) != *dc->getPixelPtr(x,y)) {
