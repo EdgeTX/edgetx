@@ -32,13 +32,15 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void convert_RGB565_to_RGB888(uint8_t * dst, const uint16_t * src, unsigned pixels)
+void convert_RGB565_to_RGB888(uint8_t * dst, const BitmapBuffer * src, coord_t w, coord_t h)
 {
-  while(pixels--) {
-    RGB_SPLIT(*src, r, g, b); src++;
-    *(dst++) = (uint8_t)(r << 3);
-    *(dst++) = (uint8_t)(g << 2);
-    *(dst++) = (uint8_t)(b << 3);
+  for(int y = 0; y < src->height(); y++) {
+    for (int x = 0; x < src->width(); x++) {
+      RGB_SPLIT(*src->getPixelPtr(x,y), r, g, b);
+      *(dst++) = (uint8_t)(r << 3);
+      *(dst++) = (uint8_t)(g << 2);
+      *(dst++) = (uint8_t)(b << 3);
+    }
   }
 }
 
@@ -52,7 +54,7 @@ void dumpImage(const std::string& filename, const BitmapBuffer* dc)
   auto pixels = dc->width() * dc->height();
   auto stride = dc->width() * 3;
   uint8_t * img = (uint8_t *)malloc(pixels * 3);
-  convert_RGB565_to_RGB888(img, dc->getPixelPtr(0,0), pixels);
+  convert_RGB565_to_RGB888(img, dc, dc->width(), dc->height());
   stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img, stride);
   free(img);
 }
@@ -76,13 +78,15 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
     return false;
   }
   
-  auto testPtr = testPict->getPixelPtr(0,0);
-  auto dcPtr   = dc->getPixelPtr(0,0);
+  //auto testPtr = testPict->getData();
+  //auto dcPtr   = dc->getData();
 
-  for (int i=0; i<LCD_W*LCD_H; i++) {
-    if (testPtr[i] != dcPtr[i]) {
-      dumpImage(filename, dc);
-      return false;
+  for (int y=0; y<LCD_H; y++) {
+    for (int x=0; x<LCD_W; x++) {
+      if (*testPict->getPixelPtr(x,y) != *dc->getPixelPtr(x,y)) {
+        dumpImage(filename, dc);
+        return false;
+      }
     }
   }
 
