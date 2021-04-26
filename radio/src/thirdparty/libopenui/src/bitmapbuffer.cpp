@@ -420,19 +420,16 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
   else {
     // SOLID
 
-
     // TODO: can this be done in one step? (see drawBitmapPattern())
     
     // Use the DMA2D to blend a scratch buffer filled with overlay color
     BitmapBuffer scratch(BMP_ARGB4444, LCD_W, LCD_H, lcdGetScratchBuffer());
-    RGB_SPLIT(COLOR_VAL(flags), r, g, b);
 
-    LcdFlags flags =
-      uint32_t(ARGB((OPACITY_MAX - opacity) << 4, r << 3, g << 2, b << 3))
-      << 16;
+    RGB_SPLIT(COLOR_VAL(flags), r, g, b);
+    pixel_t color_argb = ARGB((OPACITY_MAX - opacity) << 4, r << 3, g << 2, b << 3);
 
     // Fill the buffer
-    scratch.drawSolidFilledRect(0, 0, w, h, flags);
+    scratch.drawSolidFilledRect(0, 0, w, h, color_argb << 16);
 
     // And blend
     drawBitmapAbs(x, y, &scratch, 0, 0, w, h);
@@ -760,7 +757,6 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
 //  drawAlphaPixel(bmp[x][y], pixel(x,y), color)
 //
 //
-void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color);
 //
 void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, LcdFlags flags, coord_t offset, coord_t width)
 {
