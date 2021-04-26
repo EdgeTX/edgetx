@@ -420,6 +420,9 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, ui
   else {
     // SOLID
 
+
+    // TODO: can this be done in one step? (see drawBitmapPattern())
+    
     // Use the DMA2D to blend a scratch buffer filled with overlay color
     BitmapBuffer scratch(BMP_ARGB4444, LCD_W, LCD_H, lcdGetScratchBuffer());
     RGB_SPLIT(COLOR_VAL(flags), r, g, b);
@@ -729,6 +732,16 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
   if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
     return;
 
+
+  // TODO:
+  //
+  // Try with DMA2D:
+  // - [ Fill  ] copy scrBitmap into scratch buffer
+  // - ( +- [ Convert ] convert mask into ARGB4444 )
+  // - [ Blend ] draw mask as alpha(ARGB4444) into scratch buffer
+  // - [ Blend ] blend into current buffer
+  //
+  
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
@@ -742,13 +755,24 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
   }
 }
 
+// Apply a mask ('bmp') + color ('flags') on top of current pixels:
+//
+//  drawAlphaPixel(bmp[x][y], pixel(x,y), color)
+//
+//
+void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color);
+//
 void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, LcdFlags flags, coord_t offset, coord_t width)
 {
   APPLY_OFFSET();
 
-  coord_t w = *((uint16_t *)bmp);
-  coord_t height = *(((uint16_t *)bmp)+1);
+  coord_t w = *((uint16_t *)bmp); // 'w' -> width of the font file
+  coord_t height = *(((uint16_t *)bmp)+1); // height of the font file
 
+  // skip header
+  bmp += 4;
+
+  // 'width' -> font character we want
   if (!width || width > w) {
     width = w;
   }
@@ -761,30 +785,11 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, 
     return;
   }
 
-  pixel_t color = COLOR_VAL(flags);
-
-  for (coord_t row=0; row<height; row++) {
-    if (y + row < ymin || y + row >= ymax)
-      continue;
-    const uint8_t * q = bmp + 4 + row*w + offset;
-    for (coord_t col=0; col<width; col++) {
-      coord_t xpixel, ypixel;
-      if (flags & VERTICAL) {
-        xpixel = x + row;
-        ypixel = y - col;
-      }
-      else {
-        xpixel = x + col;
-        ypixel = y + row;
-      }
-      if (xpixel >= xmin && xpixel < xmax) {
-        pixel_t * p = getPixelPtrAbs(xpixel, ypixel);
-        if (p)
-          drawAlphaPixel(p, *q, color);
-      }
-      q++;
-    }
-  }
+  // TODO:
+  //  - add some defs to libopenui_depends.h
+  //
+  DMACopyAlphaMask(data, _width, _height, x, y, bmp, w, height,
+                   offset, 0, width, height, COLOR_VAL(flags));
 }
 
 uint8_t BitmapBuffer::drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags)
