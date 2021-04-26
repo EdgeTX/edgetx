@@ -501,8 +501,8 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
 #if defined(LCD_VERTICAL_INVERT)
   x = destw - (x + w);
   y = desth - (y + h);
-  // srcx = srcw - (srcx + w);
-  // srcy = srch - (srcy + h);
+  srcx = srcw - (srcx + w);
+  srcy = srch - (srcy + h);
 #endif
 
   TRACE("++++++");
@@ -510,7 +510,6 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
   DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M_BLEND;
-  //DMA2D_InitStruct.DMA2D_CMode = DMA2D_ARGB4444;
   DMA2D_InitStruct.DMA2D_CMode = CM_RGB565;
   DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest + y*destw + x);
   DMA2D_InitStruct.DMA2D_OutputBlue = 0;
@@ -539,7 +538,6 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   DMA2D_BG_StructInit(&DMA2D_BG_InitStruct);
   DMA2D_BG_InitStruct.DMA2D_BGMA = CONVERT_PTR_UINT(dest + y*destw + x);
   DMA2D_BG_InitStruct.DMA2D_BGO = destw - w;
-  //  DMA2D_BG_InitStruct.DMA2D_BGCM = CM_ARGB4444;
   DMA2D_BG_InitStruct.DMA2D_BGCM = CM_RGB565;
   DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
   DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_VALUE = 0;

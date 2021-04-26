@@ -9,6 +9,7 @@ elseif(PCB STREQUAL X12S)
 else()
   set(BITMAP_TARGET_PREFIX x10)
   set(BITMAP_ARGS ${BITMAP_ARGS} --reverse)
+  set(MASK_ARGS ${MASK_ARGS} --reverse)
 endif()
 
 set(BITMAP_RLE_ARGS ${BITMAP_ARGS} --rle)

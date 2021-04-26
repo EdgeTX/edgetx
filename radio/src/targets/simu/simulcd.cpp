@@ -62,6 +62,8 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
   }
 }
 
+// 'src' has ARGB4444
+// 'dest' has RGB565
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
 {
 #if defined(LCD_VERTICAL_INVERT)
@@ -80,6 +82,29 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
       uint8_t green = ((((*q >> 4) & 0x0f) << 2) * alpha + ((*p >> 5) & 0x3f) * (0x0f-alpha)) / 0x0f;
       uint8_t blue = ((((*q >> 0) & 0x0f) << 1) * alpha + ((*p >> 0) & 0x1f) * (0x0f-alpha)) / 0x0f;
       *p = (red << 11) + (green << 5) + (blue << 0);
+      p++; q++;
+    }
+  }
+}
+
+// 'src' has A8/L8?
+// 'dest' has RGB565
+void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t fg_color)
+{
+  RGB_SPLIT(fg_color, red, green, blue);
+  
+  for (coord_t line=0; line<h; line++) {
+    uint16_t * p = dest + (y+line)*destw + x;
+    const uint8_t * q = src + (srcy+line)*srcw + srcx;
+    for (coord_t col=0; col<w; col++) {
+
+      uint16_t opacity = *q >> 4;// convert to 4 bits (stored in 8bit for DMA)
+      uint8_t bgWeight = OPACITY_MAX - opacity;
+      RGB_SPLIT(*p, bgRed, bgGreen, bgBlue);
+      uint16_t r = (bgRed * bgWeight + red * opacity) / OPACITY_MAX;
+      uint16_t g = (bgGreen * bgWeight + green * opacity) / OPACITY_MAX;
+      uint16_t b = (bgBlue * bgWeight + blue * opacity) / OPACITY_MAX;
+      *p = RGB_JOIN(r, g, b);
       p++; q++;
     }
   }
