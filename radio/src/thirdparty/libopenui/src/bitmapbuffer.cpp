@@ -683,6 +683,9 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
   if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
     return;
 
+  // TODO: This should be doable the same way as with
+  //       drawBitmapPattern() (just with ARGB as input).
+  //
   pixel_t color = COLOR_VAL(flags);
 
   for (coord_t row = 0; row < height; row++) {
@@ -730,15 +733,9 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
     return;
 
 
-  // TODO:
+  // TODO: This should be doable the same way as with
+  //       drawBitmapPattern() (just with ARGB as input).
   //
-  // Try with DMA2D:
-  // - [ Fill  ] copy scrBitmap into scratch buffer
-  // - ( +- [ Convert ] convert mask into ARGB4444 )
-  // - [ Blend ] draw mask as alpha(ARGB4444) into scratch buffer
-  // - [ Blend ] blend into current buffer
-  //
-  
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
