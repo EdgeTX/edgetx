@@ -28,7 +28,8 @@
 class Table: public FormField
 {
   public:
-    class Cell {
+    class Cell
+    {
       public:
         virtual ~Cell() = default;
 
@@ -37,7 +38,8 @@ class Table: public FormField
         virtual bool needsInvalidate() = 0;
     };
 
-    class StringCell : public Cell {
+    class StringCell : public Cell
+    {
       public:
         StringCell() = default;
 
@@ -60,7 +62,8 @@ class Table: public FormField
         std::string value;
     };
 
-    class DynamicStringCell : public Cell {
+    class DynamicStringCell : public Cell
+    {
       public:
         explicit DynamicStringCell(std::function<std::string()> getText):
           getText(std::move(getText))
@@ -82,9 +85,10 @@ class Table: public FormField
         std::function<std::string()> getText;
     };
 
-    class CustomCell : public Cell {
+    class CustomCell : public Cell
+    {
       public:
-        explicit CustomCell(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> paintFunction):
+        explicit CustomCell(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> paintFunction):
           paintFunction(std::move(paintFunction))
         {
         }
@@ -103,7 +107,8 @@ class Table: public FormField
         std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> paintFunction;
     };
 
-    class Line {
+    class Line
+    {
       public:
         explicit Line(uint8_t columnsCount):
           cells(columnsCount, nullptr)
@@ -122,7 +127,8 @@ class Table: public FormField
         LcdFlags flags = TABLE_BODY_FONT;
     };
 
-    class Header: public Window, public Line {
+    class Header: public Window, public Line
+    {
       public:
         Header(Table * parent, const rect_t & rect, uint8_t columnsCount):
           Window(parent, rect, OPAQUE),
@@ -165,7 +171,7 @@ class Table: public FormField
         void addLine(Line * line)
         {
           lines.push_back(line);
-          setInnerHeight(lines.size() * TABLE_LINE_HEIGHT - 2);
+          setInnerHeight((int)lines.size() * TABLE_LINE_HEIGHT - 2);
           if (hasFocus() && selection < 0) {
             select(0, true);
           }
@@ -248,7 +254,7 @@ class Table: public FormField
     }
 #endif
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    void deleteLater(bool detach = true, bool trash = true) override // NOLINT(google-default-arguments)
     {
       if (_deleted)
         return;
@@ -261,7 +267,7 @@ class Table: public FormField
 
     void setColumnsWidth(const coord_t values[])
     {
-      int8_t restColumn = -1;
+      int restColumn = -1;
       coord_t restWidth = width();
       for (uint8_t i = 0; i < columnsCount; i++) {
         auto columnWidth = values[i];
@@ -289,7 +295,7 @@ class Table: public FormField
       body.invalidate();
     }
 
-    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override // NOLINT(google-default-arguments)
     {
       if (body.lines.empty()) {
         if (flag == SET_FOCUS_BACKWARD) {
@@ -306,7 +312,7 @@ class Table: public FormField
       else {
         body.setFocus(flag, from);
         if (body.selection < 0) {
-          select(flag == SET_FOCUS_BACKWARD ? body.lines.size() - 1 : 0);
+          select(flag == SET_FOCUS_BACKWARD ? (int)body.lines.size() - 1 : 0);
         }
       }
     }
