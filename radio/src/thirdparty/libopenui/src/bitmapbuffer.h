@@ -25,6 +25,7 @@
 #include "libopenui_types.h"
 #include "libopenui_defines.h"
 #include "libopenui_depends.h"
+#include "libopenui_helpers.h"
 #include "debug.h"
 
 constexpr uint8_t SOLID = 0xFF;
@@ -188,7 +189,7 @@ class RLEBitmap:
       _width = *((uint16_t *)rle_data);
       _height = *(((uint16_t *)rle_data)+1);
       uint32_t pixels = _width * _height;
-      data = (uint16_t*)malloc(pixels * sizeof(uint16_t));
+      data = (uint16_t*)malloc(align32(pixels * sizeof(uint16_t)));
       decode((uint8_t *)data, pixels * sizeof(uint16_t), rle_data+4);
       data_end = data + pixels;
     }
@@ -248,7 +249,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       , leakReported(false)
 #endif
     {
-      data = (uint16_t *)malloc(width * height * sizeof(uint16_t));
+      data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
       data_end = data + (width * height);
     }
 

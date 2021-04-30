@@ -66,6 +66,12 @@ inline int mod(int k, int n)
   return ((k %= n) < 0) ? k + n : k;
 }
 
+inline unsigned align32(unsigned n)
+{
+  unsigned rest = (n & 3u);
+  return rest ? n + 4u - rest : n;
+}
+
 template<class T>
 inline T sgn(T a)
 {
