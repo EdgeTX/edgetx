@@ -1017,7 +1017,10 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 }
 #endif // #if defined(TRACE_STB_MALLOC)
 
-#include "thirdparty/Stb/stb_image.h"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#undef __I
+#include "thirdparty/stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 int stbc_read(void *user, char * data, int size)
