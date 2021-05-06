@@ -1,4 +1,4 @@
-name: OpenTX Commit Tests
+name: Commit Tests
 on:
   push:
     branches: [ 2.4 ]
@@ -11,8 +11,6 @@ jobs:
     strategy:
       matrix:
         target:
-          - COMPANION
-          - ARM9X
           - X9LITE
           - X7
           - XLITE
