@@ -1020,6 +1020,14 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #undef __I
+#define STBI_NO_HDR
+#define STBI_NO_PIC
+#define STBI_NO_GIF
+#define STBI_NO_PNM
+#define STBI_NO_PSD
+#define STBI_NO_TGA
+#define STBI_NO_BMP
+#define STB_IMAGE_IMPLEMENTATION
 #include "thirdparty/stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
