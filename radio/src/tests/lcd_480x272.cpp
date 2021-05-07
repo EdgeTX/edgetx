@@ -252,4 +252,20 @@ TEST(Lcd_colorlcd, bitmap)
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "bitmap"));
 }
+
+TEST(Lcd_colorlcd, masks)
+{
+  BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.clear(DEFAULT_BGCOLOR);
+
+  BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
+  for (int i=0; i<LCD_W; i += mask->width()) {
+    for (int j=0; j<LCD_H; j += mask->height()) {
+      dc.drawMask(i, j, mask, BLACK);
+    }
+  }
+
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
+}
+
 #endif
