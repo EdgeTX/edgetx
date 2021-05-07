@@ -1,0 +1,8 @@
+---
+Language:        Cpp
+BasedOnStyle:  Google
+BreakBeforeBraces: Linux
+BreakConstructorInitializers: AfterColon
+AccessModifierOffset: 0
+...
+
