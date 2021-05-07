@@ -974,9 +974,22 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(filename);
   if (bitmap) {
     pixel_t * p = bitmap->getPixelPtrAbs(0, 0);
-    for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
-      *((uint8_t *)p) = OPACITY_MAX - ((*p) >> 12);
-      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+    if (bitmap->getFormat() == BMP_ARGB4444) {
+      for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
+        // invert red and use as alpha
+        ARGB_SPLIT(*p, a, r, g, b);
+        *((uint8_t *)p) = OPACITY_MAX - (r + g + b) / 3;
+        MOVE_TO_NEXT_RIGHT_PIXEL(p);
+      }
+    } else { // BMP_RGB565
+      for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
+        // invert msb 4 bits red and use as alpha
+        *((uint8_t *)p) =
+            OPACITY_MAX -
+            ((GET_RED(*p) >> 1) + (GET_GREEN(*p) >> 2) + (GET_BLUE(*p) >> 1)) /
+                3;
+        MOVE_TO_NEXT_RIGHT_PIXEL(p);
+      }
     }
   }
   return bitmap;
@@ -1341,7 +1354,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
     return nullptr;
   }
 
-#if 0
+#if 0 // use Stb's "stbi__vertically_flip_on_load" instead of this?
   DMABitmapConvert(bmp->data, img, w, h, n == 4 ? DMA2D_ARGB4444 : DMA2D_RGB565);
 #else
   pixel_t * dest = bmp->getPixelPtrAbs(0, 0);
@@ -1355,7 +1368,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
       }
     }
   }
-  else {
+  else { // assume 3 bytes, packed in groups of 4, I guess
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {
         *dest = RGB(p[0], p[1], p[2]);
