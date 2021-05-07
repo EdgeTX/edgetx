@@ -856,7 +856,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
       INCREMENT_POS(width + CHAR_SPACING);
     }
-    else if (c >= 0x20) {
+    else if ((c >= 0x20) && (c < CJK_FIRST_LETTER_INDEX + 0x20)) {
       uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
       if ((flags & SPACING_NUMBERS_CONST) && c >= '0' && c <= '9')
         INCREMENT_POS(getCharWidth('9', fontspecs) + CHAR_SPACING);
