@@ -13,9 +13,17 @@ jobs:
         target:
           - X9LITE
           - X7
+          - T12
+          - TX12
+          - T8
+          - TLITE
           - XLITE
-          - X9
-          - COLORLCD
+          - X9D+
+          - X9D+2019
+          - X10
+          - T16
+          - TX16S
+          - X12S
     container:
       image: ghcr.io/raphaelcoeffic/opentx-commit-tests
       volumes:

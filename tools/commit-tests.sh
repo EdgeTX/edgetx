@@ -112,16 +112,7 @@ if [[ " X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X7ACCESS X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
-  # OpenTX on X7 ACCESS
-  rm -rf ./*
-  cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=ACCESS -DHELI=YES -DGVARS=YES -DTRANSLATIONS=ES "${SRCDIR}"
-  make -j"${CORES}" ${FIRMARE_TARGET}
-  make -j"${CORES}" libsimulator
-  make -j"${CORES}" tests-radio
-fi
-
-if [[ " X7ACCESS X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X7ACCESS ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X7 ACCESS
   rm -rf ./*
   cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=ACCESS -DHELI=YES -DGVARS=YES -DTRANSLATIONS=FR "${SRCDIR}"
@@ -130,7 +121,7 @@ if [[ " X7ACCESS X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " T12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " T12 ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on T12
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=T12 -DHELI=YES -DGVARS=YES -DTRANSLATIONS=IT "${SRCDIR}"
@@ -139,16 +130,7 @@ if [[ " T12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " TX12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
-  # OpenTX on TX12
-  rm -rf ./*
-  cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=TX12 -DHELI=YES -DGVARS=YES -DTRANSLATIONS=PT "${SRCDIR}"
-  make -j"${CORES}" ${FIRMARE_TARGET}
-  make -j"${CORES}" libsimulator
-  make -j"${CORES}" tests-radio
-fi
-
-if [[ " TX12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " TX12 ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on TX12
   rm -rf ./*
   cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=TX12 -DHELI=YES -DGVARS=YES "${SRCDIR}"
@@ -157,7 +139,7 @@ if [[ " TX12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " T8 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " T8 ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on T8
   rm -rf ./*
   cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=T8 -DHELI=YES -DGVARS=YES "${SRCDIR}"
@@ -166,19 +148,10 @@ if [[ " T8 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " TLITE X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " TLITE ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on TLITE
   rm -rf ./*
   cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=TLITE -DHELI=YES -DGVARS=YES "${SRCDIR}"
-  make -j"${CORES}" ${FIRMARE_TARGET}
-  make -j"${CORES}" libsimulator
-  make -j"${CORES}" tests-radio
-fi
-
-if [[ " TX12 X7 ALL " =~ \ ${FLAVOR}\  ]] ; then
-  # OpenTX on TX12
-  rm -rf ./*
-  cmake "${COMMON_OPTIONS}" -DPCB=X7 -DPCBREV=TX12 -DHELI=YES -DGVARS=YES "${SRCDIR}"
   make -j"${CORES}" ${FIRMARE_TARGET}
   make -j"${CORES}" libsimulator
   make -j"${CORES}" tests-radio
@@ -193,7 +166,7 @@ if [[ " XLITE ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " XLITES XLITE ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " XLITES ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X-Lites
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=XLITES -DHELI=YES -DGVARS=YES -DTRANSLATIONS=SE "${SRCDIR}"
@@ -202,7 +175,7 @@ if [[ " XLITES XLITE ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9D X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9D ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X9D
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9D -DHELI=YES -DLUA=YES -DGVARS=YES -DTRANSLATIONS=PL "${SRCDIR}"
@@ -211,7 +184,7 @@ if [[ " X9D X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9D+ X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9D+ ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X9D+
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9D+ -DHELI=YES -DLUA=YES -DGVARS=YES -DTRANSLATIONS=HU "${SRCDIR}"
@@ -220,7 +193,7 @@ if [[ " X9D+ X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9D+2019 X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9D+2019 ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X9D+ 2019
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9D+ -DPCBREV=2019 -DHELI=YES -DLUA=YES -DGVARS=YES -DTRANSLATIONS=NL "${SRCDIR}"
@@ -229,7 +202,7 @@ if [[ " X9D+2019 X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9E X9 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9E ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on Taranis X9E
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9E -DHELI=YES -DLUA=YES -DGVARS=YES -DPPM_UNIT=PERCENT_PREC1 "${SRCDIR}"
