@@ -64,10 +64,10 @@ rm -rf ./* || true
 BUILD_OPTIONS=${COMMON_OPTIONS}
 
 GIT_SHA_SHORT=`git rev-parse --short HEAD`
-GIT_TAG=`git describe --tags`
+#GIT_TAG=`git describe --tags`
 
 target_name=`echo "$FLAVOR" | tr '[:upper:]' '[:lower:]'`
-fw_name="${target_name}-${GIT_TAG}-${GIT_SHA_SHORT}.bin"
+fw_name="${target_name}-${GIT_SHA_SHORT}.bin"
 
 echo "Building ${fw_name}"
 
