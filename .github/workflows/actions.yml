@@ -41,3 +41,16 @@ jobs:
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
+      -
+        name: Build ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+        run: |
+          echo "Running firmware build"
+          ./tools/build-gh.sh
+      -
+        name: Package firmware ${{ matrix.target }}
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: firmware
+          path: ${{ github.workspace }}/*.bin
