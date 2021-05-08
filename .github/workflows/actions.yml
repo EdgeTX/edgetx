@@ -25,7 +25,7 @@ jobs:
           - TX16S
           - X12S
     container:
-      image: ghcr.io/raphaelcoeffic/opentx-commit-tests
+      image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
         - ${{ github.workspace }}:/src
     steps:
