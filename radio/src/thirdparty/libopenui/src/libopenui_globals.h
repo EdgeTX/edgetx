@@ -22,6 +22,7 @@
 #include <inttypes.h>
 #include "libopenui_config.h"
 
+extern const uint16_t fontCharactersTable[FONTS_COUNT];
 extern const uint16_t * const fontspecsTable[FONTS_COUNT];
 extern const uint8_t * fontsTable[FONTS_COUNT];
 
