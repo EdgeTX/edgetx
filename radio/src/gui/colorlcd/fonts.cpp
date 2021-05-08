@@ -122,8 +122,20 @@ const unsigned char font_xxl[] = {
 const uint16_t * const fontspecsTable[FONTS_COUNT] = { font_std_en_specs };
 const uint8_t * fontsTable[FONTS_COUNT] = { font_std_en };
 #else
-const uint16_t * const fontspecsTable[FONTS_COUNT] = { font_std_specs, font_bold_specs, font_xxs_specs, font_xs_specs, font_l_specs, font_xl_specs, font_xxl_specs };
-const uint8_t * fontsTable[FONTS_COUNT] = { font_std, font_bold, font_xxs, font_xs, font_l, font_xl, font_xxl };
+
+// -2 for: overall length and last boundary
+const uint16_t fontCharactersTable[FONTS_COUNT] = {
+    sizeof(font_std_specs)/2-2, sizeof(font_bold_specs)/2-2, sizeof(font_xxs_specs)/2-2,
+    sizeof(font_xs_specs)/2-2,  sizeof(font_l_specs)/2-2,    sizeof(font_xl_specs)/2-2,
+    sizeof(font_xxl_specs)/2-2
+};
+const uint16_t *const fontspecsTable[FONTS_COUNT] = {
+    font_std_specs, font_bold_specs, font_xxs_specs, font_xs_specs,
+    font_l_specs,   font_xl_specs,   font_xxl_specs
+};
+const uint8_t *fontsTable[FONTS_COUNT] = {
+    font_std, font_bold, font_xxs, font_xs, font_l, font_xl, font_xxl
+};
 #endif
 
 uint8_t * decompressFont(const uint8_t * font)

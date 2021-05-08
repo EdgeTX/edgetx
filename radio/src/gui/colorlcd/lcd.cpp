@@ -66,8 +66,11 @@ int getTextWidth(const char * s, int len, LcdFlags flags)
       c += CJK_FIRST_LETTER_INDEX;
       result += getFontPatternWidth(specs, c) + 1;
     }
-    else if ((c >= 0x20) && (c < CJK_FIRST_LETTER_INDEX + 0x20)) { // debug
+    else if ((c >= 0x20) && (c < fontCharactersTable[FONT_INDEX(flags)] + 0x20)) { // debug
       result += getCharWidth(c, specs);
+    }
+    else {
+      TRACE("char out-of bound: 0x%X", c);
     }
 
     ++s;
