@@ -184,7 +184,7 @@ if [[ " X9D ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9D+ ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9DP ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X9D+
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9D+ -DHELI=YES -DLUA=YES -DGVARS=YES -DTRANSLATIONS=HU "${SRCDIR}"
@@ -193,7 +193,7 @@ if [[ " X9D+ ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
-if [[ " X9D+2019 ALL " =~ \ ${FLAVOR}\  ]] ; then
+if [[ " X9DP2019 ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on X9D+ 2019
    rm -rf ./* || true
   cmake "${COMMON_OPTIONS}" -DPCB=X9D+ -DPCBREV=2019 -DHELI=YES -DLUA=YES -DGVARS=YES -DTRANSLATIONS=NL "${SRCDIR}"
