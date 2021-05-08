@@ -37,13 +37,13 @@ jobs:
       # -
       #   name: Fetch tags
       #   run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      # -
-      #   name: Test ${{ matrix.target }}
-      #   env:
-      #     FLAVOR: ${{ matrix.target }}
-      #   run: |
-      #     echo "Running commit tests"
-      #     ./tools/commit-tests.sh
+      -
+        name: Test ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+        run: |
+          echo "Running commit tests"
+          ./tools/commit-tests.sh
       -
         name: Build ${{ matrix.target }}
         env:
@@ -55,5 +55,5 @@ jobs:
         name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: firmware
+          name: edgetx-firmware
           path: ${{ github.workspace }}/*.bin
