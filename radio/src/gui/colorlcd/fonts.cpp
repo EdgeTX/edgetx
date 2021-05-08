@@ -119,6 +119,8 @@ const unsigned char font_xxl[] = {
 };
 
 #if defined(BOOT)
+// -2 for: overall length and last boundary
+const uint16_t fontCharactersTable[FONTS_COUNT] = { sizeof(font_std_en_specs)/2-2 };
 const uint16_t * const fontspecsTable[FONTS_COUNT] = { font_std_en_specs };
 const uint8_t * fontsTable[FONTS_COUNT] = { font_std_en };
 #else
