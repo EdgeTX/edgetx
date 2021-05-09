@@ -71,6 +71,11 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
   TRACE_WINDOWS("Widget received touch end (%d) x=%d;y=%d",
                 hasFocus(), x, y);
 
+  if (fullscreen) {
+    // forward to widget (lua for instance)
+    return true;
+  }
+  
   if (hasFocus()) {
     onPress();
     return true;
