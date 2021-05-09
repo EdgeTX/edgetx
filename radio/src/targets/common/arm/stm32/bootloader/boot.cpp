@@ -315,11 +315,11 @@ int main()
         bootloaderDrawScreen(state, vpos);
 
         if (event == EVT_KEY_FIRST(KEY_DOWN)) {
-          vpos = (vpos + 1) % MAIN_MENU_LEN;
+          if (vpos < MAIN_MENU_LEN - 1) { vpos++; }
           continue;
         }
         else if (event == EVT_KEY_FIRST(KEY_UP)) {
-          vpos = (vpos + MAIN_MENU_LEN - 1) % MAIN_MENU_LEN;
+          if (vpos > 0) { vpos--; }
           continue;
         }
         else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
