@@ -29,6 +29,8 @@ const unsigned char font_xxs[] = {
 };
 
 #if LCD_H > 272
+
+#if defined(BOOT)
 const uint16_t font_std_en_specs[] = {
 #include "font_17en.specs"
 };
@@ -36,6 +38,7 @@ const uint16_t font_std_en_specs[] = {
 const unsigned char font_std_en[] = {
 #include "font_17en.lbm"
 };
+#endif
 
 const uint16_t font_xs_specs[] = {
 #include "font_15.specs"
@@ -60,7 +63,10 @@ const uint16_t font_bold_specs[] = {
 const unsigned char font_bold[] = {
 #include "font_bold17.lbm"
 };
-#else
+
+#else // LCD_H <= 272
+
+#if defined(BOOT)
 const uint16_t font_std_en_specs[] = {
 #include "font_16en.specs"
 };
@@ -68,6 +74,7 @@ const uint16_t font_std_en_specs[] = {
 const unsigned char font_std_en[] = {
 #include "font_16en.lbm"
 };
+#endif
 
 const uint16_t font_xs_specs[] = {
 #include "font_13.specs"
@@ -92,6 +99,7 @@ const uint16_t font_bold_specs[] = {
 const unsigned char font_bold[] = {
 #include "font_bold16.lbm"
 };
+
 #endif // LCD_H > 272
 
 const uint16_t font_l_specs[] = {
