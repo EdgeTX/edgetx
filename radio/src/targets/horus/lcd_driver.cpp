@@ -366,13 +366,13 @@ void lcdInit()
   LTDC_Cmd(ENABLE);
 
   /* Set Background layer */
+  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   LCD_SetLayer(LCD_FIRST_LAYER);
-  // lcdClear();
   LCD_SetTransparency(0);
 
   /* Set Foreground layer */
+  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
   LCD_SetLayer(LCD_SECOND_LAYER);
-  lcd->clear();
   LCD_SetTransparency(255);
 }
 

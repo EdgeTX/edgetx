@@ -1085,7 +1085,6 @@ void ModelSetupPage::build(FormWindow * window)
   new CheckBox(window, grid.getFieldSlot(2, 0), GET_SET_DEFAULT(g_model.extendedTrims));
   new TextButton(window, grid.getFieldSlot(2, 1), STR_RESET_BTN,
                  []() -> uint8_t {
-                   START_NO_HIGHLIGHT();
                    for (auto &flightModeData : g_model.flightModeData) {
                      memclear(&flightModeData, TRIMS_ARRAY_SIZE);
                    }

@@ -31,9 +31,6 @@ extern int menuVerticalOffset;
 extern uint8_t menuCalibrationState;
 
 // Temporary no highlight
-extern uint8_t noHighlightCounter;
-#define NO_HIGHLIGHT()        (noHighlightCounter > 0)
-#define START_NO_HIGHLIGHT()  do { noHighlightCounter = 25; } while(0)
 
 typedef bool (*MenuHandlerFunc)(event_t event);
 

@@ -126,9 +126,7 @@ void per10ms()
 #if defined(GUI)
   if (lightOffCounter) lightOffCounter--;
   if (flashCounter) flashCounter--;
-#if defined(LIBOPENUI)
-  #warning "TODO remove noHighlightCounter on LIBOPENUI"
-#else
+#if !defined(LIBOPENUI)
   if (noHighlightCounter) noHighlightCounter--;
 #endif
 #endif
@@ -1797,7 +1795,9 @@ void opentxInit()
 #if defined(SDCARD)
   // SDCARD related stuff, only done if not unexpectedShutdown
   if (!globalData.unexpectedShutdown) {
-    sdInit();
+
+    if (!sdMounted())
+      sdInit();
 
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
