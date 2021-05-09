@@ -598,6 +598,12 @@ if(NOT MSVC)
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 
+    add_custom_target(flash-bl
+      COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D bootloader.bin
+      DEPENDS bootloader
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
     add_custom_target(flash-jtag
       COMMAND st-flash --reset write firmware.bin 0x8000000
       DEPENDS firmware

@@ -2,8 +2,6 @@
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
 
-#define SELECTED_COLOR (INVERS | DEFAULT_COLOR)
-
 const uint8_t __bmp_plug_usb_rle[] {
 #include "bmp_plug_usb.lbm"
 };
