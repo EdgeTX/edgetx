@@ -228,9 +228,7 @@ class LuaWidgetFactory: public WidgetFactory
     Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
     {
       if (lsWidgets == 0) return 0;
-      if (init) {
-        initPersistentData(persistentData);
-      }
+      initPersistentData(persistentData, init);
 
       luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
       lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunction);
