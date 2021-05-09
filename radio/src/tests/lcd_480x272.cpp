@@ -268,4 +268,26 @@ TEST(Lcd_colorlcd, masks)
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
 }
 
+constexpr coord_t LBM_USB_PLUGGED_W = 211;
+constexpr coord_t LBM_USB_PLUGGED_H = 110;
+
+const uint8_t LBM_USB_PLUGGED[] = {
+#include "mask_usb_symbol.lbm"
+};
+
+TEST(Lcd_colorlcd, darkmode)
+{
+  BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.clear(COLOR2FLAGS(BLACK));
+
+  dc.drawText(20, 28, "The quick brown fox jumps over the lazy dog", COLOR2FLAGS(WHITE));
+  dc.drawSolidFilledRect(28, 56, 422, 2, COLOR2FLAGS(RED));
+  dc.drawBitmapPattern(LCD_W/2 - LBM_USB_PLUGGED_W/2,
+                       LCD_H/2 - LBM_USB_PLUGGED_H/2,
+                       LBM_USB_PLUGGED,
+                       COLOR2FLAGS(BLUE));
+
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode"));
+}
+
 #endif
