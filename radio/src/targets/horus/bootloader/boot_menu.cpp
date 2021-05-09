@@ -38,14 +38,15 @@ const uint8_t LBM_OK[] = {
 #include "icon_ok.lbm"
 };
 
+#define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
+#define BL_RED        COLOR2FLAGS(RED)
+#define BL_BACKGROUND COLOR2FLAGS(BLACK)
+#define BL_FOREGROUND COLOR2FLAGS(WHITE)
+#define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
+
+
 void bootloaderInitScreen()
 {
-  lcdColorTable[DEFAULT_COLOR_INDEX]      = BLACK;
-  lcdColorTable[DEFAULT_BGCOLOR_INDEX]    = WHITE;
-  lcdColorTable[LINE_COLOR_INDEX]      = RED;
-  lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
-  lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(73, 219, 62); // green
- 
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 
   // TODO: load/decompress bitmaps
@@ -55,13 +56,13 @@ void bootloaderInitScreen()
 
 static void bootloaderDrawTitle(unsigned int x, const char* text)
 {
-  lcd->drawText(x, 28, text);
-  lcd->drawSolidFilledRect(28, 56, 422, 2, DEFAULT_COLOR);
+  lcd->drawText(x, 28, text, BL_FOREGROUND);
+  lcd->drawSolidFilledRect(28, 56, 422, 2, BL_FOREGROUND);
 }
 
 static void bootloaderDrawFooter()
 {
-  lcd->drawSolidFilledRect(28, 234, 422, 2, DEFAULT_COLOR);
+  lcd->drawSolidFilledRect(28, 234, 422, 2, BL_FOREGROUND);
 }
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
@@ -75,38 +76,38 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     if (st == ST_START) {
         bootloaderDrawTitle(88, BOOTLOADER_TITLE);
 
-        lcd->drawBitmapPattern(90, 72, LBM_FLASH, DEFAULT_COLOR);
-      lcd->drawText(124,  75, "Write Firmware");
+        lcd->drawBitmapPattern(90, 72, LBM_FLASH, BL_FOREGROUND);
+        lcd->drawText(124,  75, "Write Firmware", BL_FOREGROUND);
 
-      lcd->drawBitmapPattern(90, 107, LBM_EXIT, DEFAULT_COLOR);
-      lcd->drawText(124, 110, "Exit");
+      lcd->drawBitmapPattern(90, 107, LBM_EXIT, BL_FOREGROUND);
+      lcd->drawText(124, 110, "Exit", BL_FOREGROUND);
 
-      lcd->drawSolidRect(119, (opt == 0) ? 72 : 107, 270, 26, 2, LINE_COLOR);
+      lcd->drawSolidRect(119, (opt == 0) ? 72 : 107, 270, 26, 2, BL_SELECTED);
 
       lcd->drawBitmap(60, 166, &BMP_PLUG_USB);
-      lcd->drawText(195, 175, "Or plug in a USB cable");
-      lcd->drawText(195, 200, "for mass storage");
+      lcd->drawText(195, 175, "Or plug in a USB cable", BL_FOREGROUND);
+      lcd->drawText(195, 200, "for mass storage", BL_FOREGROUND);
 
       bootloaderDrawFooter();
-      lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED);
+      lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
     else if (st == ST_USB) {
 
         lcd->drawBitmap(136, 98, &BMP_USB_PLUGGED);
-        lcd->drawText(195, 128, "USB Connected");
+        lcd->drawText(195, 128, "USB Connected", BL_FOREGROUND);
     }
     else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
              st == ST_FLASHING || st == ST_FLASH_DONE) {
 
         bootloaderDrawTitle(126, "SD>FIRMWARE");
-        lcd->drawBitmapPattern(87, 16, LBM_SD, DEFAULT_COLOR);
+        lcd->drawBitmapPattern(87, 16, LBM_SD, BL_FOREGROUND);
 
         if (st == ST_FLASHING || st == ST_FLASH_DONE) {
 
-            LcdFlags color = BARGRAPH1_COLOR; // red
+            LcdFlags color = BL_RED;
 
             if (st == ST_FLASH_DONE) {
-                color = BARGRAPH2_COLOR/* green */;
+                color = BL_GREEN;
                 opt   = 100; // Completed > 100%
             }
 
@@ -116,33 +117,33 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         else if (st == ST_DIR_CHECK) {
 
             if (opt == FR_NO_PATH) {
-                lcd->drawText(90, 168, "Directory is missing");
+                lcd->drawText(90, 168, "Directory is missing", BL_FOREGROUND);
             }
             else {
-                lcd->drawText(90, 168, "Directory is empty");
+                lcd->drawText(90, 168, "Directory is empty", BL_FOREGROUND);
             }
 
-            lcd->drawBitmapPattern(356, 158, LBM_ERROR, BARGRAPH1_COLOR);
+            lcd->drawBitmapPattern(356, 158, LBM_ERROR, BL_RED);
         }
         else if (st == ST_FLASH_CHECK) {
 
             bootloaderDrawFilename(str, 0, true);
 
             if (opt == FC_ERROR) {
-                lcd->drawText(94, 168, STR_INVALID_FIRMWARE);
-                lcd->drawBitmapPattern(356, 158, LBM_ERROR, BARGRAPH1_COLOR);
+                lcd->drawText(94, 168, STR_INVALID_FIRMWARE, BL_FOREGROUND);
+                lcd->drawBitmapPattern(356, 158, LBM_ERROR, BL_RED);
             }
             else if (opt == FC_OK) {
                 VersionTag tag;
                 extractFirmwareVersion(&tag);
 
-                lcd->drawText(168, 158, "Version:", RIGHT);
-                lcd->drawText(174, 158, tag.version);
+                lcd->drawText(168, 158, "Version:", RIGHT | BL_FOREGROUND);
+                lcd->drawText(174, 158, tag.version, BL_FOREGROUND);
                 
-                lcd->drawText(168, 178, "Radio:", RIGHT);
-                lcd->drawText(174, 178, tag.flavour);
+                lcd->drawText(168, 178, "Radio:", RIGHT | BL_FOREGROUND);
+                lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
                 
-                lcd->drawBitmapPattern(356, 158, LBM_OK, BARGRAPH2_COLOR);
+                lcd->drawBitmapPattern(356, 158, LBM_OK, BL_GREEN);
             }
         }
         
@@ -150,35 +151,39 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         if ( st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
 
-            lcd->drawBitmapPattern(28, 242, LBM_FLASH, DEFAULT_COLOR);
+            lcd->drawBitmapPattern(28, 242, LBM_FLASH, BL_FOREGROUND);
 
             if (st == ST_FILE_LIST) {
-                lcd->drawText(56, 244, "[ENT] to select file");
+                lcd->drawText(56, 244, "[ENT] to select file", BL_FOREGROUND);
             }
             else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-                lcd->drawText(56, 244, "Hold [ENT] long to flash");
+                lcd->drawText(56, 244, "Hold [ENT] long to flash", BL_FOREGROUND);
             }
             else if (st == ST_FLASHING) {
-                lcd->drawText(56, 244, "Writing Firmware ...");
+                lcd->drawText(56, 244, "Writing Firmware ...", BL_FOREGROUND);
             }
             else if (st == ST_FLASH_DONE) {
-                lcd->drawText(56, 244, "Writing Completed");
+                lcd->drawText(56, 244, "Writing Completed", BL_FOREGROUND);
             }
         }
 
         if (st != ST_FLASHING) {
-            lcd->drawBitmapPattern(305, 242, LBM_EXIT, DEFAULT_COLOR);
-            lcd->drawText(335, 244, "[RTN] to exit");
+            lcd->drawBitmapPattern(305, 242, LBM_EXIT, BL_FOREGROUND);
+            lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
         }        
     }
+
+    // wait for next frame
+    // while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
+    // while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) != 0);
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 {
-    lcd->drawBitmapPattern(94, 76 + (line * 25), LBM_FILE, DEFAULT_COLOR);
-    lcd->drawText(124, 75 + (line * 25), str);
+    lcd->drawBitmapPattern(94, 76 + (line * 25), LBM_FILE, BL_FOREGROUND);
+    lcd->drawText(124, 75 + (line * 25), str, BL_FOREGROUND);
 
     if (selected) {
-        lcd->drawSolidRect(119, 72 + (line * 25), 278, 26, 2, LINE_COLOR);
+        lcd->drawSolidRect(119, 72 + (line * 25), 278, 26, 2, BL_SELECTED);
     }
 }
