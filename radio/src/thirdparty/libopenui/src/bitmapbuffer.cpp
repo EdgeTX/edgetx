@@ -839,7 +839,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
   const coord_t orig_pos = pos;
 
   while (len--) {
-    unsigned int c = uint8_t(*s);
+    unsigned c = uint8_t(*s);
     // TRACE("c = %d %o 0x%X '%c'", c, c, c, c);
 
     if (!c) {
@@ -856,7 +856,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
       INCREMENT_POS(width + CHAR_SPACING);
     }
-    else if ((c >= 0x20) && (c < fontCharactersTable[FONT_INDEX(flags)] + 0x20)) {
+    else if ((c >= 0x20u) && (c < fontCharactersTable[FONT_INDEX(flags)] + 0x20u)) {
       uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
       if ((flags & SPACING_NUMBERS_CONST) && c >= '0' && c <= '9')
         INCREMENT_POS(getCharWidth('9', fontspecs) + CHAR_SPACING);
@@ -977,7 +977,8 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
     if (bitmap->getFormat() == BMP_ARGB4444) {
       for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
         // invert red and use as alpha
-        ARGB_SPLIT(*p, a, r, g, b);
+        ARGB_SPLIT(*p, a __attribute__((unused)), r, g, b);
+        
         *((uint8_t *)p) = OPACITY_MAX - (r + g + b) / 3;
         MOVE_TO_NEXT_RIGHT_PIXEL(p);
       }
