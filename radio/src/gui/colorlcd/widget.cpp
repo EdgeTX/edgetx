@@ -84,6 +84,15 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
   setFocus();
   return true;
 }
+
+bool Widget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
+                          coord_t slideX, coord_t slideY)
+{
+  TRACE_WINDOWS("Widget touch slide");
+  if (fullscreen) { return true; }
+  return false;
+}
+
 #endif
 
 void Widget::paint(BitmapBuffer * dc)
