@@ -287,7 +287,7 @@ TEST(Lcd_colorlcd, darkmode)
                        LBM_USB_PLUGGED,
                        COLOR2FLAGS(BLUE));
 
-  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode"));
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
 }
 
 #endif
