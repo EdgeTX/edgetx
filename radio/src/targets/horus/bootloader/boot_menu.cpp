@@ -67,11 +67,12 @@ static void bootloaderDrawFooter()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-#if defined(COLORLCD)
-  lcdNextLayer();
-#endif
+    // shows current layer on LCD
+    lcdRefresh();
 
-    lcd->clear(DEFAULT_BGCOLOR);
+    // swap back & front buffers
+    lcdNextLayer();
+    lcd->clear(BL_BACKGROUND);
     
     if (st == ST_START) {
         bootloaderDrawTitle(88, BOOTLOADER_TITLE);
