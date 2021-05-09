@@ -92,7 +92,7 @@ const uint16_t font_bold_specs[] = {
 const unsigned char font_bold[] = {
 #include "font_bold16.lbm"
 };
-#endif
+#endif // LCD_H > 272
 
 const uint16_t font_l_specs[] = {
 #include "font_24.specs"
@@ -149,7 +149,7 @@ uint8_t * decompressFont(const uint8_t * font)
   uint8_t * dec_buf = (uint8_t *)malloc(font_size + 4);
 
   // copy width / height
-  memcpy(dec_buf, font,4);
+  memcpy(dec_buf, font, 4);
 
   RLEBitmap::decode(dec_buf+4, font_size, font+4);
   return dec_buf;
