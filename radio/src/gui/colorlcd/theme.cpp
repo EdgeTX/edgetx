@@ -37,6 +37,13 @@ const uint8_t LBM_DROPDOWN[] = {
 #include "mask_dropdown.lbm"
 };
 
+constexpr coord_t LBM_USB_PLUGGED_W = 211;
+constexpr coord_t LBM_USB_PLUGGED_H = 110;
+
+const uint8_t LBM_USB_PLUGGED[] = {
+#include "mask_usb_symbol.lbm"
+};
+
 std::list<OpenTxTheme *> & getRegisteredThemes()
 {
   static std::list<OpenTxTheme *> themes;
@@ -203,6 +210,16 @@ void OpenTxTheme::drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, c
     dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, FOCUS_BGCOLOR);
   }
 }
+
+void OpenTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
+{
+  // draw USB icon
+  dc->clear(DEFAULT_BGCOLOR);
+  dc->drawBitmapPattern((LCD_W - LBM_USB_PLUGGED_W) / 2,
+                        (LCD_H - LBM_USB_PLUGGED_H) / 2,
+                        LBM_USB_PLUGGED, DEFAULT_COLOR);
+}
+
 
 OpenTxTheme * getTheme(const char * name)
 {

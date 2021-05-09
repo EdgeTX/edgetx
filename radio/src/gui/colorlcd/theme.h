@@ -100,6 +100,9 @@ class OpenTxTheme: public Theme
 
     virtual void drawTopLeftBitmap(BitmapBuffer * dc) const = 0;
 
+    virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
+
+  
   protected:
     const char * name;
     const ZoneOption * options;

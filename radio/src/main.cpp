@@ -474,7 +474,11 @@ void perMain()
 #if defined(STM32)
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(LIBOPENUI)
-    #warning "TODO USB plugged view"
+    // draw some image showing USB
+    lcdNextLayer();
+    lcd->reset();
+    OpenTxTheme::instance()->drawUsbPluggedScreen(lcd);
+    lcdRefresh();
 #else
     // disable access to menus
     lcdClear();
