@@ -85,7 +85,7 @@ const char * getFirmwareVersion(const char * buffer)
   }
 
   for (int i = 0; i < 1024; i++) {
-    if (memcmp(buffer + i, "opentx-", 7) == 0) {
+    if (memcmp(buffer + i, "edgetx-", 7) == 0) {
       return buffer + i;
     }
   }
