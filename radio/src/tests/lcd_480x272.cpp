@@ -261,7 +261,7 @@ TEST(Lcd_colorlcd, masks)
   BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
   for (int i=0; i<LCD_W; i += mask->width()) {
     for (int j=0; j<LCD_H; j += mask->height()) {
-      dc.drawMask(i, j, mask, BLACK);
+      dc.drawMask(i, j, mask, COLOR2FLAGS(BLACK));
     }
   }
 
