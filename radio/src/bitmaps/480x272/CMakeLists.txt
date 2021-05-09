@@ -26,7 +26,7 @@ add_bitmaps_target(${BITMAP_TARGET_PREFIX}_layouts_masks "${RADIO_SRC_DIR}/gui/c
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_themes_bitmaps "${RADIO_SRC_DIR}/gui/colorlcd/themes/*.png" "5/6/5" "${BITMAPS_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_fonts ${RADIO_SRC_DIR}/fonts/truetype/*.png 8bits "${MASK_RLE_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_volume_masks ${RADIO_SRC_DIR}/bitmaps/480x272/volume/*.png 8bits "${MASK_ARGS}")
-add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_bitmaps ${RADIO_SRC_DIR}/bitmaps/480x272/bootloader/bmp_*.png "5/6/5" "${BITMAP_RLE_ARGS}")
+add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_bitmaps ${RADIO_SRC_DIR}/bitmaps/480x272/bootloader/bmp_*.png "4/4/4/4" "${BITMAP_RLE_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_icons ${RADIO_SRC_DIR}/bitmaps/480x272/bootloader/icon_*.png 8bits "${MASK_ARGS}")
 
 add_dependencies(${BITMAP_TARGET_PREFIX}_bitmaps ${BITMAP_TARGET_PREFIX}_calibration_bitmaps ${BITMAP_TARGET_PREFIX}_button_bitmaps ${BITMAP_TARGET_PREFIX}_alpha_bitmaps

@@ -7,12 +7,12 @@
 const uint8_t __bmp_plug_usb_rle[] {
 #include "bmp_plug_usb.lbm"
 };
-RLEBitmap BMP_PLUG_USB(BMP_RGB565, __bmp_plug_usb_rle);
+RLEBitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb_rle);
 
 const uint8_t __bmp_usb_plugged_rle[] {
 #include "bmp_usb_plugged.lbm"
 };
-RLEBitmap BMP_USB_PLUGGED(BMP_RGB565, __bmp_usb_plugged_rle);
+RLEBitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged_rle);
 
 const uint8_t LBM_FLASH[] = {
 #include "icon_flash.lbm"
