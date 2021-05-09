@@ -26,7 +26,7 @@
 #if LCD_W < 212
   #define BOOTLOADER_TITLE               " Bootloader - " VERSION
 #else
-  #define BOOTLOADER_TITLE               " OpenTX Bootloader - " VERSION
+  #define BOOTLOADER_TITLE               " EdgeTX Bootloader - " VERSION
 #endif
 
 #define DISPLAY_CHAR_WIDTH             (LCD_COLS+4)
