@@ -12,6 +12,11 @@ const uint8_t __bmp_usb_plugged_rle[] {
 };
 RLEBitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged_rle);
 
+const uint8_t __bmp_background_rle[] {
+#include "bmp_background.lbm"
+};
+RLEBitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background_rle);
+
 const uint8_t LBM_FLASH[] = {
 #include "icon_flash.lbm"
 };
@@ -63,6 +68,31 @@ static void bootloaderDrawFooter()
   lcd->drawSolidFilledRect(28, 234, 422, 2, BL_FOREGROUND);
 }
 
+static void bootloaderDrawBackground()
+{
+  // we have plenty of memory, let's cache that background
+  static BitmapBuffer* _background = nullptr;
+
+  if (!_background) {
+    _background = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
+    
+    for (int i=0; i<LCD_W; i += BMP_BACKGROUND.width()) {
+      for (int j=0; j<LCD_H; j += BMP_BACKGROUND.height()) {
+        _background->drawBitmap(i, j, &BMP_BACKGROUND);
+      }
+    }
+    _background->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID,
+                                COLOR2FLAGS(BLACK), OPACITY(4));
+  }
+
+  if (_background) {
+    lcd->drawBitmap(0, 0, _background);
+  }
+  else {
+    lcd->clear(BL_BACKGROUND);
+  }
+}
+
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
     // shows current layer on LCD
@@ -70,7 +100,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
     // swap back & front buffers
     lcdNextLayer();
-    lcd->clear(BL_BACKGROUND);
+
+    bootloaderDrawBackground();
     
     if (st == ST_START) {
         bootloaderDrawTitle(88, BOOTLOADER_TITLE);
