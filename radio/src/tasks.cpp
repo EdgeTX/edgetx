@@ -140,11 +140,19 @@ TASK_FUNCTION(mixerTask)
   mixerSchedulerStart();
 #endif
 
+  // clear the flag before first loop
+  mixerSchedulerClearTrigger();
+
   while (true) {
-    for (int timeout = 0; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
-      bool interruptedByTimeout = mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD);
+    int timeout = 0;
+    for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
+
+      // run periodicals before waiting for the trigger
+      // to keep the delay short
       execMixerFrequentActions();
-      if (!interruptedByTimeout) {
+
+      // mixer flag triggered?
+      if (!mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD)) {
         break;
       }
     }
@@ -155,6 +163,9 @@ TASK_FUNCTION(mixerTask)
 #endif
 
 #if !defined(PCBSKY9X)
+    // clear the flag ASAP to avoid missing a tick
+    mixerSchedulerClearTrigger();
+
     // re-enable trigger
     mixerSchedulerEnableTrigger();
 #endif
