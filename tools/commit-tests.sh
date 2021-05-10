@@ -263,12 +263,3 @@ if [[ " COMPANION ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" companion24 simulator24
   make -j"${CORES}" tests-companion
 fi
-
-if [[ " YAML ALL " =~ \ ${FLAVOR}\  ]] ; then
-  # OpenTX on TX16S boards
-  rm -rf ./* || true
-  cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=TX16S -DHELI=YES -DLUA=YES -DGVARS=YES -DYAML_STORAGE=ON "${SRCDIR}"
-  make -j"${CORES}" yaml_data
-  make -j"${CORES}" ${FIRMARE_TARGET}
-  make -j"${CORES}" tests-radio
-fi
