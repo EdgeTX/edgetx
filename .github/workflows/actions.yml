@@ -1,0 +1,59 @@
+name: Commit Tests
+on:
+  push:
+    branches: [ 2.3 ]
+  pull_request:
+    branches: [ 2.3 ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - X9LITE
+          - X7
+          - T12
+          - TX12
+          - T8
+          - TLITE
+          - XLITE
+          - X9DP
+          - X9DP2019
+          - X10
+          - T16
+          - TX16S
+          - X12S
+    container:
+      image: ghcr.io/edgetx/edgetx-commit-tests:2.3
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      -
+        name: Check out the repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      # -
+      #   name: Fetch tags
+      #   run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      -
+        name: Test ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+        run: |
+          echo "Running commit tests"
+          ./tools/commit-tests.sh
+      -
+        name: Build ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+        run: |
+          echo "Running firmware build"
+          ./tools/build-gh.sh
+      -
+        name: Package firmware ${{ matrix.target }}
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: edgetx-firmware
+          path: ${{ github.workspace }}/*.bin
