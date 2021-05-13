@@ -1,0 +1,18 @@
+{
+    "targets": [
+        ["TX16s", "tx16s-"],
+        ["QX7", "x7-"],
+        ["X9D Plus", "x9dp-"],
+        ["X9D Plus 2019", "x9dp2019-"],
+        ["T-Lite", "tlite-"],
+        ["X-Lite", "xlite-"],
+        ["X9 Lite", "x9lite-"],
+        ["T16", "t16-"],
+        ["TX12", "tx12-"],
+        ["Horus X12s", "x12s-"],
+        ["Horus X10", "x10-"],
+        ["T12", "t12-"],
+        ["T8", "t8-"]
+    ],
+    "changelog": "- Major initial bug fixes"
+}
