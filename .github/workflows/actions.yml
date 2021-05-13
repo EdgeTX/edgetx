@@ -57,3 +57,13 @@ jobs:
         with:
           name: edgetx-firmware
           path: ${{ github.workspace }}/*.bin
+  post_run:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [test]
+    steps: 
+    - name: Package metadata ${{ matrix.target }}
+      uses: 'actions/upload-artifact@v2'
+      with:
+        name: edgetx-firmware
+        path: fw.json
