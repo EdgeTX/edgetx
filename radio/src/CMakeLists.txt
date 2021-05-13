@@ -63,11 +63,13 @@ set(FIRMWARE_C_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware targ
 set(FIRMWARE_CXX_FLAGS "" CACHE STRING "Additional flags for firmware target c++ compiler (note: all CMAKE_CXX_FLAGS[_*] are ignored for firmware/bootloader).")
 set(FIRMWARE_CXX_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c++ compiler (note: CMAKE_CXX_FLAGS_DEBUG is ignored for firmware/bootloader).")
 
-set(FIRMWARE_C_COMPILER "arm-none-eabi-gcc" CACHE STRING "Specific C compiler for firmware target.")
-set(FIRMWARE_CXX_COMPILER "arm-none-eabi-g++" CACHE STRING "Specific C++ compiler for firmware target.")
-set(FIRMWARE_ASM_COMPILER "arm-none-eabi-as" CACHE STRING "Specific assembler for firmware target.")
-set(FIRMWARE_OBJCOPY "arm-none-eabi-objcopy" CACHE STRING "Specific objcopy for firmware target.")
-set(FIRMWARE_SIZE "arm-none-eabi-size" CACHE STRING "Specific size for firmware target.")
+set(GCC_ARM_PATH "" CACHE STRING "Alternative GCC ARM path")
+
+set(FIRMWARE_C_COMPILER "${GCC_ARM_PATH}arm-none-eabi-gcc" CACHE STRING "Specific C compiler for firmware target.")
+set(FIRMWARE_CXX_COMPILER "${GCC_ARM_PATH}arm-none-eabi-g++" CACHE STRING "Specific C++ compiler for firmware target.")
+set(FIRMWARE_ASM_COMPILER "${GCC_ARM_PATH}arm-none-eabi-as" CACHE STRING "Specific assembler for firmware target.")
+set(FIRMWARE_OBJCOPY "${GCC_ARM_PATH}arm-none-eabi-objcopy" CACHE STRING "Specific objcopy for firmware target.")
+set(FIRMWARE_SIZE "${GCC_ARM_PATH}arm-none-eabi-size" CACHE STRING "Specific size for firmware target.")
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
