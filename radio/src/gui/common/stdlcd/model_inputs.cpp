@@ -185,7 +185,7 @@ void displayExpoLine(coord_t y, ExpoData * ed)
     displayFlightModes(EXPO_LINE_FM_POS, y, ed->flightModes);
 
   if (ed->name[0]) {
-    lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), ZCHAR);
+    lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), 0);
   }
   
 #if LCD_DEPTH > 1
@@ -217,7 +217,7 @@ void displayExpoLine(coord_t y, ExpoData * ed)
   drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, 0);
   
   if (ed->name[0])
-    lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, ZCHAR);
+    lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, 0);
   else if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
     displayExpoInfos(y, ed);
   else

@@ -154,7 +154,30 @@ char getPreviousChar(char c, uint8_t position)
   return c - 1;
 }
 
-void editName(coord_t x, coord_t y, char * name, uint8_t size, event_t event, uint8_t active, LcdFlags attr)
+static bool isNameCharset(int v)
+{
+  char c = (char)v;
+
+  if (c == ' ')
+    return true;
+
+  if (c == '-')
+    return true;
+
+  if (c >= '0' && c <= '9')
+    return true;
+
+  if (c >= 'A' && c <= 'Z')
+    return true;
+
+  if (c >= 'a' && c <= 'z')
+    return true;
+
+  return false;
+}
+
+void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
+              uint8_t active, LcdFlags attr, uint8_t old_editMode)
 {
   uint8_t mode = 0;
   if (active) {
@@ -171,16 +194,10 @@ void editName(coord_t x, coord_t y, char * name, uint8_t size, event_t event, ui
     uint8_t cur = editNameCursorPos;
     if (s_editMode > 0) {
       int8_t c = name[cur];
-      int8_t v = c;
+      int8_t v = c ? c : ' ';
 
       if (IS_NEXT_EVENT(event) || IS_PREVIOUS_EVENT(event)) {
-        if (attr == ZCHAR) {
-          v = checkIncDec(event, abs(v), 0, ZCHAR_MAX, 0);
-          if (c <= 0) v = -v;
-        }
-        else {
-          v = checkIncDec(event, abs(v), ' ', 'z', 0);
-        }
+        v = checkIncDec(event, abs(v), ' ', 'z', 0, isNameCharset);
       }
 
       switch (event) {
@@ -250,6 +267,25 @@ void editName(coord_t x, coord_t y, char * name, uint8_t size, event_t event, ui
     }
     editNameCursorPos = cur;
     lcdNextPos = backupNextPos;
+
+    if ((old_editMode > 0) && (s_editMode == 0)) {
+      bool modified = false;
+      for (uint8_t i = size - 1; i > 0; --i) {
+        // wipe empty spaces
+        if (name[i] == ' ') {
+          name[i] = '\0';
+          modified = true;
+
+        } else if (name[i] != '\0') {
+          // and stop at the first non empty character
+          break;
+        }
+      }
+
+      if (modified) {
+        storageDirty(isModelMenuDisplayed() ? EE_MODEL : EE_GENERAL);
+      }
+    }
   }
 }
 
@@ -268,11 +304,12 @@ void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
   lcdDrawText(x, y, s, flags);
 }
 
-void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event, LcdFlags flags)
+void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event, LcdFlags flags, uint8_t old_editMode)
 {
   lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, idx+1, 0);
   if (g_eeGeneral.anaNames[idx][0] || (flags && s_editMode > 0))
-    editName(x, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, event, flags);
+    editName(x, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, event, (flags != 0),
+             flags, old_editMode);
   else
     lcdDrawMMM(x, y, flags);
 }

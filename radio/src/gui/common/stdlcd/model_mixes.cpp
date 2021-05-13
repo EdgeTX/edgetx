@@ -166,7 +166,7 @@ void onMixesMenu(const char * result)
 void displayHeaderChannelName(uint8_t ch)
 {
   if (g_model.limitData[ch].name[0] != '\0') {
-    lcdDrawSizedText(MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 1, 1, g_model.limitData[ch].name, ZLEN(g_model.limitData[ch].name), ZCHAR|SMLSIZE|RIGHT);
+    lcdDrawSizedText(MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 1, 1, g_model.limitData[ch].name, ZLEN(g_model.limitData[ch].name), SMLSIZE|RIGHT);
   }
 }
 
@@ -182,7 +182,7 @@ void displayMixInfos(coord_t y, MixData * md)
 void displayMixLine(coord_t y, MixData * md)
 {
   if (md->name[0])
-    lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), ZCHAR);
+    lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
   if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
     displayMixInfos(y, md);
   else
@@ -208,7 +208,7 @@ void displayHeaderChannelName(uint8_t ch)
 {
   uint8_t len = zlen(g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name));
   if (len) {
-    lcdDrawSizedText(80, 1, g_model.limitData[ch].name, len, ZCHAR|SMLSIZE);
+    lcdDrawSizedText(80, 1, g_model.limitData[ch].name, len, SMLSIZE);
   }
 }
 
@@ -231,7 +231,7 @@ void displayMixInfos(coord_t y, MixData * md)
 void displayMixLine(coord_t y, MixData * md, bool active)
 {
   if(active && md->name[0]) {
-    lcdDrawSizedText(FW*sizeof(TR_MIXES)+FW/2, 0, md->name, sizeof(md->name), ZCHAR);
+    lcdDrawSizedText(FW*sizeof(TR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
     if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
     else
@@ -239,7 +239,7 @@ void displayMixLine(coord_t y, MixData * md, bool active)
   }
   else {
     if (md->name[0])
-      lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), ZCHAR);
+      lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
     else if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
     else

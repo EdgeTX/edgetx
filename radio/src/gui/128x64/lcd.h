@@ -54,7 +54,6 @@ typedef int coord_t;
 #define FIXEDWIDTH                     0x10
 /* no 0x80 here because of "GV"1 which is aligned LEFT */
 /* no 0x10 here because of "MODEL"01 which uses LEADING0 */
-#define ZCHAR                          0x80u
 
 /* lcdDrawNumber additional flags */
 #define LEADING0                       0x10

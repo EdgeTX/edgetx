@@ -427,8 +427,11 @@ void menuModelSetup(event_t event)
 
     switch (k) {
       case ITEM_MODEL_SETUP_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_MODELNAME, g_model.header.name, sizeof(g_model.header.name), event, attr);
-        memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name, sizeof(g_model.header.name));
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_MODELNAME,
+                       g_model.header.name, sizeof(g_model.header.name), event,
+                       attr, old_editMode);
+        memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name,
+               sizeof(g_model.header.name));
         break;
 
       case ITEM_MODEL_SETUP_BITMAP:
@@ -453,7 +456,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER1_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME, g_model.timers[0].name, LEN_TIMER_NAME, event, attr);
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+                       g_model.timers[0].name, LEN_TIMER_NAME, event, attr,
+                       old_editMode);
         break;
 
       case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
@@ -474,7 +479,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME, g_model.timers[1].name, LEN_TIMER_NAME, event, attr);
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+                       g_model.timers[1].name, LEN_TIMER_NAME, event, attr,
+                       old_editMode);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP:
@@ -496,7 +503,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME, g_model.timers[2].name, LEN_TIMER_NAME, event, attr);
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+                       g_model.timers[2].name, LEN_TIMER_NAME, event, attr,
+                       old_editMode);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:

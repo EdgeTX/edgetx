@@ -50,6 +50,8 @@ bool isTrimModeAvailable(int mode)
 
 void menuModelFlightModesAll(event_t event)
 {
+  uint8_t old_editMode = s_editMode;
+  
   MENU(STR_MENUFLIGHTMODES, menuTabModel, MENU_MODEL_FLIGHT_MODES, MAX_FLIGHT_MODES+1, { NAVIGATION_LINE_BY_LINE|(ITEM_FLIGHT_MODES_LAST-1), NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, 0 });
 
   int8_t sub = menuVerticalPosition;
@@ -101,7 +103,7 @@ void menuModelFlightModesAll(event_t event)
       uint8_t active = (attr && s_editMode>0) ;
       switch (j) {
         case ITEM_FLIGHT_MODES_NAME:
-          editName(4*FW-1, y, p->name, sizeof(p->name), event, attr);
+          editName(4*FW-1, y, p->name, sizeof(p->name), event, active, attr, old_editMode);
           break;
 
         case ITEM_FLIGHT_MODES_SWITCH:

@@ -41,6 +41,8 @@ void drawCurve(coord_t offset)
 
 void menuModelCurvesAll(event_t event)
 {
+  uint8_t old_editMode = s_editMode;
+
 #if defined(GVARS_IN_CURVES_SCREEN)
   SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+MAX_GVARS);
 #else
@@ -83,7 +85,7 @@ void menuModelCurvesAll(event_t event)
     {
       drawStringWithIndex(0, y, STR_CV, k+1, attr);
       CurveHeader & crv = g_model.curves[k];
-      editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0);
+      editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
 #if LCD_W >= 212
       lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
       lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);

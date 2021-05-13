@@ -66,7 +66,7 @@ void onModelSelectMenu(const char * result)
 #endif
   else if (result == STR_DELETE_MODEL) {
     POPUP_CONFIRMATION(STR_DELETEMODEL, onDeleteModelConfirm);
-    SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), ZCHAR);
+    SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
   }
 #if defined(SDCARD)
   else if (result != STR_EXIT) {
@@ -109,7 +109,7 @@ void menuModelSelect(event_t event)
       killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && eeModelExists(sub)) {
         POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
-        SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), ZCHAR);
+        SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
       }
       else {
         s_copyMode = 0;

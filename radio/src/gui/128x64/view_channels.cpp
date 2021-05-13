@@ -88,7 +88,7 @@ void menuChannelsViewCommon(event_t event)
     if (lenLabel > 0) {
       if (lenLabel > 4)
         reusableBuffer.viewChannels.longNames = true;
-      lcdDrawSizedText(CHANNEL_NAME_OFFSET, y, g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name), ZCHAR | SMLSIZE);
+      lcdDrawSizedText(CHANNEL_NAME_OFFSET, y, g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name), SMLSIZE);
     }
     else {
       putsChn(CHANNEL_NAME_OFFSET, y, ch + 1, SMLSIZE);

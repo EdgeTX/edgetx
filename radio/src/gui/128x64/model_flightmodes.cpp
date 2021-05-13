@@ -141,7 +141,7 @@ void menuModelFlightModeOne(event_t event)
         if (attr && posHorz > 0 && s_currIdx==0) posHorz++;
 
         drawStringWithIndex(INDENT_WIDTH, y, STR_GV, idx+1, posHorz==0 ? attr : 0);
-        lcdDrawSizedText(4*FW, y,g_model.gvars[idx].name, LEN_GVAR_NAME, ZCHAR);
+        lcdDrawSizedText(4*FW, y,g_model.gvars[idx].name, LEN_GVAR_NAME, 0);
         if (attr && editMode>0 && posHorz==0) {
           s_currIdxSubMenu = sub - ITEM_MODEL_FLIGHT_MODE_GV1;
           editMode = 0;
@@ -213,9 +213,9 @@ void menuModelFlightModesAll(event_t event)
     FlightModeData * p = flightModeAddress(i);
     drawFlightMode(0, y, i+1, att|(getFlightMode()==i ? BOLD : 0));
 #if defined(PCBTARANIS)
-    lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), ZCHAR);
+    lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), 0);
 #else
-    lcdDrawSizedText(4*FW+NAME_OFS, y, p->name, sizeof(p->name), ZCHAR);
+    lcdDrawSizedText(4*FW+NAME_OFS, y, p->name, sizeof(p->name), 0);
 #endif
     if (i == 0) {
       for (uint8_t t=0; t<NUM_STICKS; t++) {

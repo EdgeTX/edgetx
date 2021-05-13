@@ -143,7 +143,7 @@ void menuModelTelemetry(event_t event)
       int index = k - ITEM_TELEMETRY_SENSOR_FIRST;
       lcdDrawNumber(INDENT_WIDTH, y, index+1, LEFT|attr);
       lcdDrawChar(lcdLastRightPos, y, ':', attr);
-      lcdDrawSizedText(3*FW, y, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN, ZCHAR);
+      lcdDrawSizedText(3*FW, y, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN, 0);
       if (telemetryItems[index].isFresh()) {
         lcdDrawChar(TELEM_COL3, y, '*');
       }

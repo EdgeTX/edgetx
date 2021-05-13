@@ -54,6 +54,8 @@ void menuModelCustomScriptOne(event_t event)
   drawStringWithIndex(PSIZE(TR_MENUCUSTOMSCRIPTS)*FW+FW, 0, "LUA", s_currIdx+1, 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
+  uint8_t old_editMode = s_editMode;
+
   SUBMENU(STR_MENUCUSTOMSCRIPTS, 3+scriptInputsOutputs[s_currIdx].inputsCount, { 0, 0, LABEL(inputs), 0/*repeated*/ });
 
   int8_t sub = menuVerticalPosition;
@@ -81,12 +83,12 @@ void menuModelCustomScriptOne(event_t event)
     }
     else if (i == ITEM_MODEL_CUSTOMSCRIPT_NAME) {
       lcdDrawTextAlignedLeft(y, TR_NAME);
-      editName(SCRIPT_ONE_2ND_COLUMN_POS, y, sd.name, sizeof(sd.name), event, attr);
-    }
-    else if (i == ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL) {
+      editName(SCRIPT_ONE_2ND_COLUMN_POS, y, sd.name, sizeof(sd.name), event,
+               (attr != 0), attr, old_editMode);
+    } else if (i == ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL) {
       lcdDrawTextAlignedLeft(y, STR_INPUTS);
-    }
-    else if (i <= ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL+scriptInputsOutputs[s_currIdx].inputsCount) {
+    } else if (i <= ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL +
+                        scriptInputsOutputs[s_currIdx].inputsCount) {
       int inputIdx = i-ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL-1;
       lcdDrawSizedText(INDENT_WIDTH, y, scriptInputsOutputs[s_currIdx].inputs[inputIdx].name, 10, 0);
       if (scriptInputsOutputs[s_currIdx].inputs[inputIdx].type == INPUT_TYPE_VALUE) {
