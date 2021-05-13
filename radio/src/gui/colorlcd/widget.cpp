@@ -72,7 +72,7 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
                 hasFocus(), x, y);
 
   if (fullscreen) {
-    // forward to widget (lua for instance)
+    //TODO: forward to widget (lua for instance)
     return true;
   }
   

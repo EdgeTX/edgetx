@@ -193,3 +193,9 @@ void TopbarImpl::checkEvents()
     invalidate();
   }
 }
+
+bool TopbarImpl::onTouchEnd(coord_t x, coord_t y)
+{
+  // disable touch interaction with topbar widgets
+  return false;
+}
