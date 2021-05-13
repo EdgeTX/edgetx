@@ -6,6 +6,18 @@ on:
     branches: [ 2.4 ]
 
 jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Check out the repo
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Package metadata ${{ matrix.target }}
+      uses: 'actions/upload-artifact@v2'
+      with:
+        name: edgetx-firmware
+        path: fw.json
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -57,13 +69,3 @@ jobs:
         with:
           name: edgetx-firmware
           path: ${{ github.workspace }}/*.bin
-  post_run:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: [test]
-    steps: 
-    - name: Package metadata ${{ matrix.target }}
-      uses: 'actions/upload-artifact@v2'
-      with:
-        name: edgetx-firmware
-        path: fw.json
