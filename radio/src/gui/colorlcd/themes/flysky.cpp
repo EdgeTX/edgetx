@@ -215,9 +215,6 @@ class FlyskyTheme: public OpenTxTheme
       delete calibTrackpBackground;
       calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
 
-      delete calibRadioPict;
-      calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("NV14.bmp"));
-
       // Model Selection screen
       delete modelselIconBitmap;
       modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);

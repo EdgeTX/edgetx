@@ -69,16 +69,9 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
 {
   menuCalibrationState = CALIB_START;
 
-  if (calibRadioPict) {
-    // Background radio image
-#if LCD_W > LCD_H
-    new StaticBitmap(window, {LCD_W / 2 - calibRadioPict->width() / 2, 5, calibRadioPict->height(), calibRadioPict->width()}, calibRadioPict);
-#else
-    new StaticBitmap(window, {LCD_W / 2 - calibRadioPict->width() / 2, LCD_H / 2 - calibRadioPict->height() / 2, calibRadioPict->height(), calibRadioPict->width()}, calibRadioPict);
-#endif
-  }
-
   // The two sticks
+
+  //TODO: dynamic placing
   new StickCalibrationWindow(window, {40, 20, 90, 90}, STICK1, STICK2);
   new StickCalibrationWindow(window, {LCD_W - 130, 20, 90, 90}, STICK4, STICK3);
 

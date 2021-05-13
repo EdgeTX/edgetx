@@ -195,17 +195,6 @@ class Theme480: public OpenTxTheme
       delete calibTrackpBackground;
       calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
 
-      delete calibRadioPict;
-#if defined(PCBX10)
-      if(STICKS_PWM_ENABLED()) {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10S.bmp"));
-      }
-      else {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10.bmp"));
-      }
-#else
-      calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("horus.bmp"));
-#endif
 
       // Model Selection screen
       delete modelselIconBitmap;
