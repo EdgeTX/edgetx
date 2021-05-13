@@ -323,6 +323,8 @@ void onFactoryResetConfirm(const char * result)
 
 void menuRadioHardware(event_t event)
 {
+  uint8_t old_editMode = s_editMode;
+  
   MENU(STR_HARDWARE, menuTabGeneral, MENU_RADIO_HARDWARE, HEADER_LINE + ITEM_RADIO_HARDWARE_MAX, {
     HEADER_LINE_COLUMNS
     0 /* calibration button */,
@@ -391,7 +393,9 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_STICK2:
       case ITEM_RADIO_HARDWARE_STICK3:
       case ITEM_RADIO_HARDWARE_STICK4:
-        editStickHardwareSettings(HW_SETTINGS_COLUMN1, y, k - ITEM_RADIO_HARDWARE_STICK1, event, attr);
+        editStickHardwareSettings(HW_SETTINGS_COLUMN1, y,
+                                  k - ITEM_RADIO_HARDWARE_STICK1, event,
+                                  attr, old_editMode);
         break;
 
 #if (NUM_POTS + NUM_SLIDERS) > 0
@@ -415,7 +419,9 @@ void menuRadioHardware(event_t event)
         uint8_t mask = (0x03 << shift);
         lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, NUM_STICKS+idx+1, menuHorizontalPosition < 0 ? attr : 0);
         if (g_eeGeneral.anaNames[NUM_STICKS+idx][0] || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
-          editName(HW_SETTINGS_COLUMN1, y, g_eeGeneral.anaNames[NUM_STICKS+idx], LEN_ANA_NAME, event, attr && menuHorizontalPosition == 0);
+          editName(HW_SETTINGS_COLUMN1, y,
+                   g_eeGeneral.anaNames[NUM_STICKS + idx], LEN_ANA_NAME, event,
+                   attr && menuHorizontalPosition == 0, 0, old_editMode);
         else
           lcdDrawMMM(HW_SETTINGS_COLUMN1, y, menuHorizontalPosition==0 ? attr : 0);
         uint8_t potType = (g_eeGeneral.potsConfig & mask) >> shift;
@@ -436,7 +442,10 @@ void menuRadioHardware(event_t event)
         int idx = k - ITEM_RADIO_HARDWARE_SLIDER1;
         lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, NUM_STICKS+NUM_POTS+idx+1, menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_eeGeneral.anaNames[NUM_STICKS+NUM_POTS+idx]) || (attr && menuHorizontalPosition == 0 && s_editMode > 0))
-          editName(HW_SETTINGS_COLUMN1, y, g_eeGeneral.anaNames[NUM_STICKS+NUM_POTS+idx], LEN_ANA_NAME, event, attr && menuHorizontalPosition == 0);
+          editName(HW_SETTINGS_COLUMN1, y,
+                   g_eeGeneral.anaNames[NUM_STICKS + NUM_POTS + idx],
+                   LEN_ANA_NAME, event, attr && menuHorizontalPosition == 0,
+                   0, old_editMode);
         else
           lcdDrawMMM(HW_SETTINGS_COLUMN1, y, menuHorizontalPosition == 0 ? attr : 0);
         uint8_t mask = (0x01 << idx);
@@ -490,7 +499,9 @@ void menuRadioHardware(event_t event)
         int config = SWITCH_CONFIG(index);
         lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, MIXSRC_FIRST_SWITCH - MIXSRC_Rud + index + 1, menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_eeGeneral.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
-          editName(HW_SETTINGS_COLUMN1, y, g_eeGeneral.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0);
+          editName(HW_SETTINGS_COLUMN1, y, g_eeGeneral.switchNames[index],
+                   LEN_SWITCH_NAME, event,
+                   menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
           lcdDrawMMM(HW_SETTINGS_COLUMN1, y, menuHorizontalPosition == 0 ? attr : 0);
         config = editChoice(HW_SETTINGS_COLUMN2, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_TYPE_MAX(index), menuHorizontalPosition == 1 ? attr : 0, event);
@@ -589,7 +600,8 @@ void menuRadioHardware(event_t event)
 
       case ITEM_RADIO_HARDWARE_BLUETOOTH_NAME:
         lcdDrawText(INDENT_WIDTH, y, STR_NAME);
-        editName(HW_SETTINGS_COLUMN2, y, g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME, event, attr);
+        editName(HW_SETTINGS_COLUMN2, y, g_eeGeneral.bluetoothName,
+                 LEN_BLUETOOTH_NAME, event, (attr != 0), attr, old_editMode);
         break;
 #endif
 

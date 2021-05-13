@@ -739,7 +739,7 @@ void menuMainView(event_t event)
   if (view_base != VIEW_CHAN_MONITOR) {
     // Flight Mode Name
     uint8_t mode = mixerCurrentFlightMode;
-    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name), ZCHAR | PHASE_FLAGS);
+    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name), PHASE_FLAGS);
 
     // Model Name
     drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -767,7 +767,7 @@ void menuMainView(event_t event)
     gvarDisplayTimer--;
     warningText = STR_GLOBAL_VAR;
     drawMessageBox(warningText);
-    lcdDrawSizedText(16, 5 * FH, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, ZCHAR);
+    lcdDrawSizedText(16, 5 * FH, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, 0);
     lcdDrawText(16 + 6 * FW, 5 * FH, "[", BOLD);
     drawGVarValue(lcdLastRightPos, 5 * FH, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)),
                   LEFT | BOLD);

@@ -62,6 +62,8 @@ void menuModelSensor(event_t event)
   drawSensorCustomValue(25*FW, 0, s_currIdx, getValue(MIXSRC_FIRST_TELEM+3*s_currIdx));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
+  uint8_t old_editMode = s_editMode;
+
   SUBMENU(STR_MENUSENSOR, SENSOR_FIELD_MAX, { 
     0,  //Name
     0,  // Type
@@ -96,7 +98,8 @@ void menuModelSensor(event_t event)
 
     switch (k) {
       case SENSOR_FIELD_NAME:
-        editSingleName(SENSOR_2ND_COLUMN, y, STR_NAME, sensor->label, TELEM_LABEL_LEN, event, attr);
+        editSingleName(SENSOR_2ND_COLUMN, y, STR_NAME, sensor->label,
+                       TELEM_LABEL_LEN, event, attr, old_editMode);
         break;
       case SENSOR_FIELD_TYPE:
         sensor->type = editChoice(SENSOR_2ND_COLUMN, y, NO_INDENT(STR_TYPE), STR_VSENSORTYPES, sensor->type, 0, 1, attr, event);

@@ -267,7 +267,7 @@ void menuModelLimits(event_t event)
       putsChn(0, y, k+1, (sub==k) ? INVERS : 0);
     }
     else {
-      lcdDrawSizedText(0, y, ld->name, sizeof(ld->name), ((sub==k) ? INVERS : 0) | ZCHAR | LEFT);
+      lcdDrawSizedText(0, y, ld->name, sizeof(ld->name), ((sub==k) ? INVERS : 0) | LEFT);
     }
 
     for (uint8_t j=0; j<ITEM_OUTPUTS_COUNT; j++) {

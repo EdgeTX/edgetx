@@ -352,8 +352,10 @@ inline uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx) {
   return MULTIMODULE_OPTIONS_ROW(moduleIdx);
 }
 
-void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event, LcdFlags flags);
-const char * getMultiOptionTitle(uint8_t moduleIdx);
+void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
+                               LcdFlags flags, uint8_t old_editMode);
+
+const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 const char * writeScreenshot();
 

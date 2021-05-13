@@ -94,6 +94,8 @@ void menuModelMixOne(event_t event)
   putsChn(PSIZE(TR_MIXES)*FW+FW, 0, md2->destCh+1,0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
+  uint8_t old_editMode = s_editMode;
+
   SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0, 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
@@ -105,7 +107,8 @@ void menuModelMixOne(event_t event)
     LcdFlags attr = (sub==i ? INVERS | (editMode>0 ? BLINK : 0) : 0);
     switch (i) {
       case MIX_FIELD_NAME:
-        editSingleName(MIXES_2ND_COLUMN, y, STR_MIXNAME, md2->name, sizeof(md2->name), event, attr);
+        editSingleName(MIXES_2ND_COLUMN, y, STR_MIXNAME, md2->name,
+                       sizeof(md2->name), event, attr, old_editMode);
         break;
 
       case MIX_FIELD_SOURCE:

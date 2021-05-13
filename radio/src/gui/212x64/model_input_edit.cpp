@@ -58,6 +58,8 @@ void menuModelExpoOne(event_t event)
   drawSource(PSIZE(TR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
+  uint8_t old_editMode = s_editMode;
+  
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, CURVE_ROWS, CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0 /*, ...*/});
 
   SET_SCROLLBAR_X(EXPO_ONE_2ND_COLUMN+10*FW);
@@ -77,11 +79,14 @@ void menuModelExpoOne(event_t event)
 
     switch (i) {
       case EXPO_FIELD_INPUT_NAME:
-        editSingleName(EXPO_ONE_2ND_COLUMN, y, STR_INPUTNAME, g_model.inputNames[ed->chn], LEN_INPUT_NAME, event, attr);
+        editSingleName(EXPO_ONE_2ND_COLUMN, y, STR_INPUTNAME,
+                       g_model.inputNames[ed->chn], LEN_INPUT_NAME, event, attr,
+                       old_editMode);
         break;
 
       case EXPO_FIELD_LINE_NAME:
-        editSingleName(EXPO_ONE_2ND_COLUMN, y, STR_EXPONAME, ed->name, LEN_EXPOMIX_NAME, event, attr);
+        editSingleName(EXPO_ONE_2ND_COLUMN, y, STR_EXPONAME, ed->name,
+                       LEN_EXPOMIX_NAME, event, attr, old_editMode);
         break;
 
       case EXPO_FIELD_SOURCE:
