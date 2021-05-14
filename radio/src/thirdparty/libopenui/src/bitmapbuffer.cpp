@@ -996,6 +996,20 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
   return bitmap;
 }
 
+BitmapBuffer * BitmapBuffer::load8bitMask(const uint8_t * lbm)
+{
+  BitmapBuffer * bitmap = new BitmapBuffer(BMP_RGB565,lbm[0],lbm[1]);
+  if (bitmap) {
+    pixel_t * p = bitmap->getPixelPtrAbs(0, 0);
+    const uint8_t * src = lbm + 2;
+    for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
+      *((uint8_t *)p) = (*(src++) >> 4);
+      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+    }
+  }
+  return bitmap;
+}
+
 BitmapBuffer * BitmapBuffer::invertMask() const
 {
   BitmapBuffer * result = new BitmapBuffer(format, width(), height());
@@ -1041,6 +1055,21 @@ BitmapBuffer * BitmapBuffer::loadMaskOnBackground(const char * filename, LcdFlag
 {
   BitmapBuffer * result = nullptr;
   BitmapBuffer * mask = BitmapBuffer::loadMask(filename);
+  if (mask) {
+    result = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
+    if (result) {
+      result->clear(background);
+      result->drawMask(0, 0, mask, foreground);
+    }
+    delete mask;
+  }
+  return result;
+}
+
+BitmapBuffer * BitmapBuffer::load8bitMaskOnBackground(const uint8_t * lbm, LcdFlags foreground, LcdFlags background)
+{
+  BitmapBuffer * result = nullptr;
+  BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
   if (mask) {
     result = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
     if (result) {
