@@ -969,6 +969,11 @@ BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename)
     return load_stb(filename);
 }
 
+BitmapBuffer * BitmapBuffer::loadRamBitmap(const uint8_t * buffer, int len)
+{
+  return load_stb_buffer(buffer, len);
+}
+
 BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
 {
   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(filename);
@@ -1376,11 +1381,31 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
     return nullptr;
   }
 
+  BitmapBuffer * bmp = convert_stb_bitmap(img, w, h, n);
+  stbi_image_free(img);
+  return bmp;
+}
+
+BitmapBuffer * BitmapBuffer::load_stb_buffer(const uint8_t * buffer, int len)
+{
+  int w, h, n;
+  unsigned char * img = stbi_load_from_memory(buffer, len, &w, &h, &n, 4);
+  if (!img) {
+    TRACE("load_stb_buffer(%p,%d) failed: %s", buffer, len, stbi_failure_reason());
+    return nullptr;
+  }
+
+  BitmapBuffer * bmp = convert_stb_bitmap(img, w, h, n);
+  stbi_image_free(img);
+  return bmp;
+}
+
+BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int n)
+{
   // convert to RGB565 or ARGB4444 format
   BitmapBuffer * bmp = new BitmapBuffer(n == 4 ? BMP_ARGB4444 : BMP_RGB565, w, h);
   if (bmp == nullptr) {
-    TRACE("load_stb(%s) malloc failed", filename);
-    stbi_image_free(img);
+    TRACE("convert_stn_bitmap: malloc failed");
     return nullptr;
   }
 
@@ -1409,6 +1434,5 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
   }
 #endif
 
-  stbi_image_free(img);
   return bmp;
 }
