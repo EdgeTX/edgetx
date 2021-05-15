@@ -291,6 +291,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     void drawBitmapPatternPie(coord_t x0, coord_t y0, const uint8_t * img, LcdFlags flags, int startAngle, int endAngle);
 
     static BitmapBuffer * loadBitmap(const char * filename);
+    static BitmapBuffer * loadRamBitmap(const uint8_t * buffer, int len);
 
     static BitmapBuffer * loadMask(const char * filename);
     static BitmapBuffer * load8bitMask(const uint8_t * lbm);
@@ -334,6 +335,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
   protected:
     static BitmapBuffer * load_bmp(const char * filename);
     static BitmapBuffer * load_stb(const char * filename);
+    static BitmapBuffer * load_stb_buffer(const uint8_t * buffer, int len);
+    static BitmapBuffer * convert_stb_bitmap(uint8_t * img, int w, int h, int n);
 
     inline bool applyClippingRect(coord_t & x, coord_t & y, coord_t & w, coord_t & h) const
     {
