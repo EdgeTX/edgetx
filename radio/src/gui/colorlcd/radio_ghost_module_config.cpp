@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "radio_ghost_module_config.h"
 #include "libopenui.h"
 

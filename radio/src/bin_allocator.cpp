@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "bin_allocator.h"
 
 

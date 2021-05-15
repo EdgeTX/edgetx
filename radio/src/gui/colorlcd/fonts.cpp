@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const uint16_t font_xxs_specs[] = {
 #include "font_9.specs"

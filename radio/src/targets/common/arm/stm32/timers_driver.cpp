@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 // Start TIMER at 2000000Hz
 void init2MhzTimer()

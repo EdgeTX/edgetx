@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if LCD_W >= 212
   #define TRAINER_CALIB_COLUMN_WIDTH (6 * FW)

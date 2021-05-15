@@ -19,7 +19,7 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "common/stdlcd/fonts.h"
 
 #if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers.h"
 
 int8_t  virtualInputsTrims[MAX_INPUTS];

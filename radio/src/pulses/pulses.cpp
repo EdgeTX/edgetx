@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_pxx2.h"
 #include "pulses/pxx2.h"
 #include "mixer_scheduler.h"

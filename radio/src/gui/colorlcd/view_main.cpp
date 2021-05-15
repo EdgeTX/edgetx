@@ -29,7 +29,7 @@
 //#include "menu.h"
 #include "view_main_menu.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 ViewMain * ViewMain::_instance = nullptr;
 

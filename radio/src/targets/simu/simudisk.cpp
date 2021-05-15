@@ -19,7 +19,7 @@
  */
 
 #if defined(SIMU_DISKIO)
-#include "opentx.h"
+#include "edgetx.h"
 #include "ff.h"
 #include "diskio.h"
 #include <time.h>

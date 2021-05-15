@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "targets/horus/board.h"
 
 #if defined(AUX_SERIAL)

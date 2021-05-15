@@ -36,7 +36,7 @@
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include <ctype.h>
 
 gpsdata_t gpsData;

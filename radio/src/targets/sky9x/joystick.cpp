@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern "C" {
 #include "usb/device/hid-joystick/HIDDJoystickDriver.h"

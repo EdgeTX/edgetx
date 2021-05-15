@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const CrossfireSensor crossfireSensors[] = {
   {LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DB,                0},

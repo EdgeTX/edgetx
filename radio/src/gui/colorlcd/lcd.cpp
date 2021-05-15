@@ -19,7 +19,7 @@
  */
 
 #include "lcd.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t getMappedChar(uint8_t c)
 {

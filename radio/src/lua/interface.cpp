@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <algorithm>
-#include "opentx.h"
+#include "edgetx.h"
 #include "bin_allocator.h"
 #include "lua_api.h"
 #include "sdcard.h"

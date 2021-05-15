@@ -19,7 +19,7 @@
  */
 
 #include "radio_spectrum_analyser.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)

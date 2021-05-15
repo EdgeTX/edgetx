@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 {

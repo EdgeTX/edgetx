@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "i2c_driver.h"
 
 #define DS3231_I2C_CHIPID 0x68

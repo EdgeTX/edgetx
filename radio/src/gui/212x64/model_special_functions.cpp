@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MODEL_SPECIAL_FUNC_1ST_COLUMN          (4*FW+2)
 #define MODEL_SPECIAL_FUNC_2ND_COLUMN          (8*FW+2)

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "view_channels.h"
 #include "channel_bar.h"

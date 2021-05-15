@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "pulses/multi.h"
 
 uint8_t   storageDirtyMsk;

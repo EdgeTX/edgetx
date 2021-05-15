@@ -25,7 +25,7 @@
 /* are platform dependent.                                               */
 /*-----------------------------------------------------------------------*/
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "diskio.h"
 
 #define CARD_TYPE_bmHC           (1 << 0)   /**< Bit for High-Capacity(Density) */

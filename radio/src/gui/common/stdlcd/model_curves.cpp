@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(GVARS_IN_CURVES_SCREEN)
   #warning "define still not added to CMakeLists.txt"

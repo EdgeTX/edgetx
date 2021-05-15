@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include <opentx.h>
+#include <edgetx.h>
 
 #if defined(PCBSKY9X)
 #define HW_SETTINGS_COLUMN (2+(15*FW))

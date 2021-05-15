@@ -21,7 +21,7 @@
 #ifndef _COMMON_MENUS_H_
 #define _COMMON_MENUS_H_
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 typedef int8_t horzpos_t;
 typedef uint16_t vertpos_t;

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const unsigned char ASTERISK_BITMAP[]  = {
 #include "asterisk.lbm"

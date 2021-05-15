@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers.h"
 #include "model_init.h"
 

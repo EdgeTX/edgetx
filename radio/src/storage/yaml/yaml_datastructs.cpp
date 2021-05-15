@@ -1,5 +1,5 @@
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "yaml_node.h"
 
 #include "yaml_datastructs_funcs.cpp"

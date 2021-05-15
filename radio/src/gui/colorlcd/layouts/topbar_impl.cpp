@@ -19,7 +19,7 @@
  */
 
 #include "topbar_impl.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 const char * const STR_MONTHS[] = TR_MONTHS;
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 2; // 2 Hz

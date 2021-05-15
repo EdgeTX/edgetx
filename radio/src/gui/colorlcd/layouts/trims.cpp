@@ -19,7 +19,7 @@
  */
 
 #include "trims.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 void MainViewTrim::checkEvents()
 {

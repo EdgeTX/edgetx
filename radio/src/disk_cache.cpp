@@ -19,7 +19,7 @@
  */
 
 #include <string.h>
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(SIMU) && !defined(SIMU_DISKIO)
   #define __disk_read(...)    (RES_OK)

@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include "model_select.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage/modelslist.h"
 #include "libopenui.h"
 

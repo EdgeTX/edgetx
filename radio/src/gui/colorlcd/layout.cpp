@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "view_main.h"
 
 WidgetsContainer * customScreens[MAX_CUSTOM_SCREENS] = {};

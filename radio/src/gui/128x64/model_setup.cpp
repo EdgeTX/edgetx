@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 // TODO find why we need this (for REGISTER at least)
 #if defined(PCBXLITE)

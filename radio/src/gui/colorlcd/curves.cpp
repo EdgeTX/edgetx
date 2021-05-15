@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "font.h"
 
 coord_t getCurveYCoord(FnFuncP fn, int x, int width)

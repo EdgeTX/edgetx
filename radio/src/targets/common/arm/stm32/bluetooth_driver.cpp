@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if !defined(BOOT)
 Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;

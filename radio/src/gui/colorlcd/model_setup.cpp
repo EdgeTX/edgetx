@@ -19,7 +19,7 @@
  */
 
 #include "model_setup.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "storage/modelslist.h"
 

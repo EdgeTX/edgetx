@@ -20,7 +20,7 @@
 
 #define SIMPGMSPC_USE_QT    0
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "simulcd.h"
 
 #include <errno.h>

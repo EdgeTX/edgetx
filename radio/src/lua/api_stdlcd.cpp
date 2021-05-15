@@ -20,7 +20,7 @@
 
 #include <cctype>
 #include <cstdio>
-#include "opentx.h"
+#include "edgetx.h"
 #include "lua_api.h"
 
 /*luadoc

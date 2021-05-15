@@ -6,7 +6,7 @@
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
- * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html  "opentx_
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -22,9 +22,9 @@
 
 #include <stdlib.h>
 #include "definitions.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "debounce.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "touch.h"
 
 #if defined(SIMU)

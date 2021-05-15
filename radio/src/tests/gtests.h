@@ -26,7 +26,7 @@
 #include <gtest/gtest.h>
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 #include "model_init.h"
 
 #define CHANNEL_MAX (1024*256)

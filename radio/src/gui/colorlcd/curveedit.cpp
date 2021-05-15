@@ -20,7 +20,7 @@
 
 #include "curveedit.h"
 #include "keyboard_curve.h"
-#include "opentx.h" // TODO for applyCustomCurve
+#include "edgetx.h" // TODO for applyCustomCurve
 #include "libopenui.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)

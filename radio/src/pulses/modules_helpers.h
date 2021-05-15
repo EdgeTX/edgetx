@@ -23,7 +23,7 @@
 
 #include "libopenui/src/bitfield.h"
 #include "definitions.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "telemetry/telemetry.h"
 #include "storage/storage.h"
 #include "globals.h"

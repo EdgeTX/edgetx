@@ -1,4 +1,4 @@
-#include "opentx.h"
+#include "edgetx.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
 #define SELECTED_COLOR (INVERS | DEFAULT_COLOR)

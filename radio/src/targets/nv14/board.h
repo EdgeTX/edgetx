@@ -22,7 +22,7 @@
 #define _BOARD_H_
 
 #include "../definitions.h"
-#include "../opentx_constants.h"
+#include "../edgetx_constants.h"
 #include "hal.h"
 #include "board_common.h"
 

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define RECEIVER_OPTIONS_2ND_COLUMN 80
 

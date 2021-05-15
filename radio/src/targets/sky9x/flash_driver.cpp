@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint32_t (*IAP_Function)(uint32_t, uint32_t);
 

@@ -20,7 +20,7 @@
 
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 
 FullScreenDialog::FullScreenDialog(uint8_t type, std::string title, std::string message, std::string action, const std::function<void(void)> & confirmHandler):

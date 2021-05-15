@@ -19,7 +19,7 @@
  */
 
 #include <algorithm>
-#include "opentx.h"
+#include "edgetx.h"
 
 extern uint8_t g_moduleIdx;
 

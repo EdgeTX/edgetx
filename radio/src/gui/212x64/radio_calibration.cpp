@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define XPOT_DELTA    10
 #define XPOT_DELAY    10 /* cycles */

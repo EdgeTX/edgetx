@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 /*
  *  TXID + RXID are already skipped in MULTI module to save memory+transmission time, format from Multi is:

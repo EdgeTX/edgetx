@@ -19,7 +19,7 @@
  */
 
 #include <stdint.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "diskio.h"
 
 #if defined(LIBOPENUI)

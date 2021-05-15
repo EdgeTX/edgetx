@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 volatile uint8_t Spi_complete = 1;
 uint8_t Spi_tx_buf[24];

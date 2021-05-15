@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "menu_model.h"
 #include "model_setup.h"
 #include "model_heli.h"

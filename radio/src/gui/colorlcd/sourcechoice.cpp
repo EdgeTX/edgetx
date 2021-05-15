@@ -26,7 +26,7 @@
 #include "lcd.h"
 #include "strhelpers.h"
 #include "draw_functions.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice> {
   public:

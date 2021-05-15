@@ -19,7 +19,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "opentx.h"
+#include "edgetx.h"
 #include "FatFs/diskio.h"
 #include "stamp.h"
 

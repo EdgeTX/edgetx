@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(SIMU_USE_SDCARD)  // rest of file is excluded otherwise
 

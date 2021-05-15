@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "menu_screen.h"
 #include "screen_setup.h"
 #include "view_main.h"

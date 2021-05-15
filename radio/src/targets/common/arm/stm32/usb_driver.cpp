@@ -27,7 +27,7 @@ extern "C" {
 }
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "debug.h"
 
 static bool usbDriverStarted = false;

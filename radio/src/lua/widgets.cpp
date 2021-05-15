@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "bin_allocator.h"
 #include "lua_api.h"
 #include "widget.h"

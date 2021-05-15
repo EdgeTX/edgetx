@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define EXPO_ONE_2ND_COLUMN (7*FW+3*FW+2)
 

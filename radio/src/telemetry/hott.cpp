@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 /* Telemetry 
 packet[0]    = TX RSSI value

@@ -23,7 +23,7 @@
  *
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum GermanPrompts {
   DE_PROMPT_NUMBERS_BASE = 0,

@@ -23,7 +23,7 @@
 
 #include <inttypes.h>
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "board.h"
 
 typedef uint32_t LcdFlags;

@@ -23,7 +23,7 @@
 
 #include <inttypes.h>
 #include "board.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "libopenui/src/libopenui_types.h"
 
 constexpr event_t EVT_REFRESH =        0x1000;

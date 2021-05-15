@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
 

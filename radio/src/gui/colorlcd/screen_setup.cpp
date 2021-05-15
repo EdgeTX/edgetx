@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include "screen_setup.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "view_main.h"
 #include "widget_settings.h"
 #include "topbar.h"

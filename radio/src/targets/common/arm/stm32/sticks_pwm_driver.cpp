@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 volatile uint32_t pwm_interrupt_count;
 volatile uint16_t timer_capture_values[NUM_PWMSTICKS];

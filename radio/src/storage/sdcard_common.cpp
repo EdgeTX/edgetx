@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage.h"
 #include "sdcard_common.h"
 #include "modelslist.h"

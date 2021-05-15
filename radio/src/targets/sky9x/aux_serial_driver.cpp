@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include <stdarg.h>
 
 /** Usart Hw interface used by the console (UART0). */

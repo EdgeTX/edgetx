@@ -35,7 +35,7 @@
  *
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum SlovakPrompts {
   SK_PROMPT_NUMBERS_BASE = 0,

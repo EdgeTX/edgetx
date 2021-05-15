@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "sbus.h"
 
 #define SBUS_FRAME_GAP_DELAY   1000 // 500uS

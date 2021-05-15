@@ -19,7 +19,7 @@
  */
 
 #include "model_mixes.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "bitfield.h"
 #include "model_inputs.h"

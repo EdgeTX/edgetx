@@ -19,7 +19,7 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "gui/common/stdlcd/fonts.h"
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;

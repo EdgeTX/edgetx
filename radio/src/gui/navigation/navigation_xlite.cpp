@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 vertpos_t menuVerticalOffset;
 int8_t s_editMode;

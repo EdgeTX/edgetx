@@ -19,7 +19,7 @@
  */
 
 #include "sliders.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
 {

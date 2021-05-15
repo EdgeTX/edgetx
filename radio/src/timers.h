@@ -21,7 +21,7 @@
 #ifndef _TIMERS_H_
 #define _TIMERS_H_
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #define TMR_OFF      0
 #define TMR_RUNNING  1

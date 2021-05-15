@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 
 constexpr coord_t ROW_HEIGHT = 42;

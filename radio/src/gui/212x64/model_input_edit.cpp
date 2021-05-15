@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define EXPO_ONE_2ND_COLUMN (LCD_W-8*FW-90)
 

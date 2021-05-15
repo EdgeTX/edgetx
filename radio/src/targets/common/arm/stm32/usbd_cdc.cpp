@@ -22,7 +22,7 @@
 #pragma     data_alignment = 4
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern "C" {
 

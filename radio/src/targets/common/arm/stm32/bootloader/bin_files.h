@@ -21,7 +21,7 @@
 #ifndef _bin_files_h_
 #define _bin_files_h_
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum MemoryType {
   MEM_FLASH,

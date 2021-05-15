@@ -19,7 +19,7 @@
  */
 
 #include "model_inputs.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "gvar_numberedit.h"
 #include "libopenui.h"
 

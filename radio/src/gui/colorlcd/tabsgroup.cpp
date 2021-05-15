@@ -25,7 +25,7 @@
 #include "keyboard_base.h"
 #endif
 
-#include "opentx.h" // TODO for constants...
+#include "edgetx.h" // TODO for constants...
 
 #include <algorithm>
 

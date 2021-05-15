@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
 #if defined(RADIO_TOOLS)

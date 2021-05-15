@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum MenuModelDisplayItems {
   ITEM_DISPLAY_TOP_BAR_LABEL,

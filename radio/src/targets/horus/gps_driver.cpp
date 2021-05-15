@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if GPS_USART_BAUDRATE > 9600
   Fifo<uint8_t, 256> gpsRxFifo;

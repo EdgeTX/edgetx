@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(TRAINER_MODULE_SBUS_USART)
 DMAFifo<32> trainerSbusFifo __DMA (TRAINER_MODULE_SBUS_DMA_STREAM);

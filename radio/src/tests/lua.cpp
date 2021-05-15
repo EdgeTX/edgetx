@@ -24,7 +24,7 @@
 #if defined(LUA)
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 
 
 ::testing::AssertionResult __luaExecStr(const char * str)

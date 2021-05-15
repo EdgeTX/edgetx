@@ -22,7 +22,7 @@
 #include "radio_calibration.h"
 #include "radio_diagkeys.h"
 #include "radio_diaganas.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)

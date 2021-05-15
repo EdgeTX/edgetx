@@ -1,4 +1,4 @@
-#include "opentx.h"
+#include "edgetx.h"
 #include "boot.h"
 #include "bin_files.h"
 

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "frsky_firmware_update.h"
 
 #if defined(LIBOPENUI)

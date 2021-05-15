@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {

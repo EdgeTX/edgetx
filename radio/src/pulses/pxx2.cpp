@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "pulses/pxx2.h"
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"

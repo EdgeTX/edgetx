@@ -19,7 +19,7 @@
  */
 
 #include "radio_version.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "options.h"
 #include "libopenui.h"
 

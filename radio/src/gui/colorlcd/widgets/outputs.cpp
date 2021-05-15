@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "widgets_container_impl.h"
 
 #define RECT_BORDER                    1

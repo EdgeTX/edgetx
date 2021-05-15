@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 int8_t volumeRequired ;
 uint8_t coprocReadDataPending ;

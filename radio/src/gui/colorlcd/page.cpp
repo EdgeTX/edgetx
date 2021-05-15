@@ -20,7 +20,7 @@
 #include "page.h"
 #include "mainwindow.h"
 #include "keyboard_base.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),

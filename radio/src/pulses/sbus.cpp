@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 
 #define BITLEN_SBUS          (10*2) // 100000 Baud => 10uS per bit

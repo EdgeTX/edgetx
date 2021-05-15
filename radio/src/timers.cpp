@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers.h"
 
 volatile tmr10ms_t g_tmr10ms;

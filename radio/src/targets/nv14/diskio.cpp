@@ -26,7 +26,7 @@
 
 #include "diskio.h"
 #include <string.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "targets/common/arm/stm32/sdio_sd.h"
 
 // TODO share this with Horus (and perhaps other STM32)

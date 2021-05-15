@@ -25,7 +25,7 @@
 #include "draw_functions.h"
 #include "strhelpers.h"
 #include "dataconstants.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
 {

@@ -15,7 +15,7 @@
  */
 
 #include "opentxsimulator.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "simulcd.h"
 
 #include <QDebug>

@@ -21,7 +21,7 @@
  *
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum RusPrompts {
   RU_PROMPT_NUMBERS_BASE = 0,

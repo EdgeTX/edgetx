@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
 {

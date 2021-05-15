@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "radio_calibration.h"
 #include "sliders.h"
 #include "view_main_decoration.h"

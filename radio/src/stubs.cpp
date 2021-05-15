@@ -1,4 +1,4 @@
-#include "opentx.h"
+#include "edgetx.h"
 
 const char *warningText = NULL;
 const char *warningInfoText;

@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "confirm_dialog.h"
 #include "static.h"
 #include "gridlayout.h"

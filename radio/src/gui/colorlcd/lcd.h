@@ -22,7 +22,7 @@
 #define _LCD_H_
 
 #include "bitmapbuffer.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "libopenui_globals.h"
 
 #if LCD_W >= 480

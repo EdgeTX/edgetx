@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define DSM2_SEND_BIND                     (1 << 7)
 #define DSM2_SEND_RANGECHECK               (1 << 5)

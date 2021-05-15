@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include "board_lowlevel.h"
 #include "audio_driver.h"
-#include "../opentx_constants.h"
+#include "../edgetx_constants.h"
 
 #define CPU_FREQ                       36000000
 

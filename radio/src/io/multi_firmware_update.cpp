@@ -20,7 +20,7 @@
 
 #if !defined(DISABLE_MULTI_UPDATE)
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "multi_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"

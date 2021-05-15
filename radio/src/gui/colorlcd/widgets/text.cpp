@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "widgets_container_impl.h"
 
 #define TEXT_WIDGET_DEFAULT_LABEL  'M', 'y', ' ', 'L', 'a', 'b', 'e', 'l' // "My Label"

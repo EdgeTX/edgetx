@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(HAPTIC_PWM)
 // TODO test Haptic on X7 (I added PWM support)

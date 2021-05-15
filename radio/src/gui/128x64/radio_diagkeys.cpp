@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void displayKeyState(uint8_t x, uint8_t y, uint8_t key)
 {

@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "ff.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "dataconstants.h"
 
 /*

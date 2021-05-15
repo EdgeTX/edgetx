@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tabsgroup.h"
 
 constexpr coord_t CSW_1ST_COLUMN = 50;

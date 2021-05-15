@@ -25,7 +25,7 @@
 #include "ff.h"
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
