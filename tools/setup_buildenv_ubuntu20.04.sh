@@ -42,7 +42,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step 4: Installing Python packages ==="
-sudo python3 -m pip install filelock pillow clang future lxml
+sudo python3 -m pip install filelock pillow==7.2.0 clang future lxml
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
