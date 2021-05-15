@@ -64,7 +64,6 @@ set(GUI_SRC
   menu_screen.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
-  standalone_lua.cpp
   )
 
 macro(add_gui_src src)
@@ -73,6 +72,10 @@ macro(add_gui_src src)
     ${src}
     )
 endmacro(add_gui_src)
+
+if(LUA)
+  add_gui_src(standalone_lua.cpp)
+endif()
 
 if(HELI)
   add_gui_src(model_heli.cpp)
