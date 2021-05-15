@@ -97,18 +97,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
   if (totalDuration == 0)
     return;
 
-  static const BitmapBuffer* shutdown = nullptr;
-  if (!shutdown) {
-    shutdown = BitmapBuffer::loadBitmap(
-        OpenTxTheme::instance()->getFilePath("shutdown.bmp"));
-  }
+  static const BitmapBuffer * shutdown = OpenTxTheme::instance()->shutdown;
 
   lcd->reset();
-
   if (shutdown) {
     OpenTxTheme::instance()->drawBackground(lcd);
-    lcd->drawBitmap((LCD_W - shutdown->width()) / 2,
-                    (LCD_H - shutdown->height()) / 2, shutdown);
+    lcd->drawMask((LCD_W - shutdown->width()) / 2,
+                  (LCD_H - shutdown->height()) / 2, shutdown, DEFAULT_COLOR);
+
     int quarter = duration / (totalDuration / 5);
     if (quarter >= 1)
       lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,

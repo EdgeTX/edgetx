@@ -114,6 +114,7 @@ class OpenTxTheme: public Theme
     static const BitmapBuffer * asterisk;
     static const BitmapBuffer * question;
     static const BitmapBuffer * busy;
+    static const BitmapBuffer * shutdown;
 };
 
 OpenTxTheme * getTheme(const char * name);

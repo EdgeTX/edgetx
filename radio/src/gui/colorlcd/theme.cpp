@@ -28,6 +28,7 @@ extern OpenTxTheme * defaultTheme;
 const BitmapBuffer * OpenTxTheme::asterisk = nullptr;
 const BitmapBuffer * OpenTxTheme::question = nullptr;
 const BitmapBuffer * OpenTxTheme::busy = nullptr;
+const BitmapBuffer * OpenTxTheme::shutdown = nullptr;
 
 const uint8_t LBM_FOLDER[] = {
 #include "mask_folder.lbm"
@@ -42,6 +43,22 @@ constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
 const uint8_t LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
+};
+
+const uint8_t asterisk_bitmap[] = {
+#include "mask_asterisk.lbm"
+};
+
+const uint8_t question_bitmap[] = {
+#include "mask_question.lbm"
+};
+
+const uint8_t busy_bitmap[] = {
+#include "mask_busy.lbm"
+};
+
+const uint8_t shutdown_bitmap[] = {
+#include "mask_shutdown.lbm"
 };
 
 std::list<OpenTxTheme *> & getRegisteredThemes()
@@ -72,11 +89,13 @@ void OpenTxTheme::init() const
 void OpenTxTheme::load() const
 {
   if (!asterisk)
-    asterisk = BitmapBuffer::loadBitmap(getFilePath("asterisk.bmp"));
+    asterisk = BitmapBuffer::load8bitMask(asterisk_bitmap);
   if (!question)
-    question = BitmapBuffer::loadBitmap(getFilePath("question.bmp"));
+    question = BitmapBuffer::load8bitMask(question_bitmap);
   if (!busy)
-    busy = BitmapBuffer::loadBitmap(getFilePath("busy.bmp"));
+    busy = BitmapBuffer::load8bitMask(busy_bitmap);
+  if (!shutdown)
+    shutdown = BitmapBuffer::load8bitMask(shutdown_bitmap);
 }
 
 ZoneOptionValue * OpenTxTheme::getOptionValue(unsigned int index) const

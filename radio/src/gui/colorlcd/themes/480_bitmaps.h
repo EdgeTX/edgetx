@@ -226,3 +226,19 @@ const uint8_t stick_background[] = {
 const uint8_t trackp_background[] = {
 #include "alpha_trackp_background.lbm"
 };
+const uint8_t mask_sdfree[] = {
+#include "mask_sdfree.lbm"
+};
+const uint8_t mask_modelqty[] = {
+#include "mask_modelqty.lbm"
+};
+const uint8_t mask_modelname[] = {
+#include "mask_modelname.lbm"
+};
+const uint8_t mask_moveback[] = {
+#include "mask_moveback.lbm"
+};
+const uint8_t mask_moveico[] = {
+#include "mask_moveico.lbm"
+};
+

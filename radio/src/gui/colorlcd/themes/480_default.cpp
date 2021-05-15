@@ -213,29 +213,33 @@ class Theme480: public OpenTxTheme
           trackp_background, sizeof(trackp_background));
 
       // Model Selection screen
-      delete modelselIconBitmap;
-      modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
-      if (modelselIconBitmap) {
-        BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
-        modelselIconBitmap->drawBitmap(20, 8, bitmap);
-        delete bitmap;
-      }
+
+      // Unused:
+      //
+      // delete modelselIconBitmap;
+      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
+      // if (modelselIconBitmap) {
+      //   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
+      //   modelselIconBitmap->drawBitmap(20, 8, bitmap);
+      //   delete bitmap;
+      // }
 
       delete modelselSdFreeBitmap;
-      modelselSdFreeBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_sdfree.png"));
+      modelselSdFreeBitmap = BitmapBuffer::load8bitMask(mask_sdfree);
 
       delete modelselModelQtyBitmap;
-      modelselModelQtyBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelqty.png"));
+      modelselModelQtyBitmap = BitmapBuffer::load8bitMask(mask_modelqty);
 
       delete modelselModelNameBitmap;
-      modelselModelNameBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelname.png"));
+      modelselModelNameBitmap = BitmapBuffer::load8bitMask(mask_modelname);
 
       delete modelselModelMoveBackground;
-      modelselModelMoveBackground = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveback.png"));
+      modelselModelMoveBackground = BitmapBuffer::load8bitMask(mask_moveback);
 
       delete modelselModelMoveIcon;
-      modelselModelMoveIcon = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveico.png"));
+      modelselModelMoveIcon = BitmapBuffer::load8bitMask(mask_moveico);
 
+      //TODO: should be loaded from LUA, not here!!!
       delete modelselWizardBackground;
       modelselWizardBackground = BitmapBuffer::loadBitmap(getFilePath("wizard/background.png"));
 
