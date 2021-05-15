@@ -80,6 +80,16 @@ if (PCB STREQUAL X10)
     option(INTERNAL_MODULE_MULTI "Support for MULTI internal module" OFF)
     option(BLUETOOTH "Support for bluetooth module" OFF)
     add_definitions(-DMANUFACTURER_JUMPER)
+# //OW
+#    if (TELEMETRY_MAVLINK)
+#      option(INTERNAL_GPS "Support for internal ublox GPS" OFF)
+#      set(AUX_SERIAL ON)
+#      if (NOT BLUETOOTH AND NOT INTERNAL_GPS)
+#        set(AUX2_SERIAL ON)
+#      endif()
+#      set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+#    endif()  
+# //OWEND    
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
     set(LUA_EXPORT lua_export_t16)
@@ -106,6 +116,16 @@ if (PCB STREQUAL X10)
     option(INTERNAL_MODULE_MULTI "Support for MULTI internal module" ON)
     option(BLUETOOTH "Support for bluetooth module" OFF)
     add_definitions(-DMANUFACTURER_JUMPER)
+# //OW
+    if (TELEMETRY_MAVLINK)
+      option(INTERNAL_GPS "Support for internal ublox GPS" OFF)
+      set(AUX_SERIAL ON)
+      if (NOT BLUETOOTH AND NOT INTERNAL_GPS)
+        set(AUX2_SERIAL ON)
+      endif()
+      set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    endif()  
+# //OWEND    
   else()
     set(FLAVOUR x10)
     option(INTERNAL_MODULE_PXX1 "Support for PXX1 internal module" ON)
@@ -260,6 +280,27 @@ if (SBUS_TRAINER)
     sbus.cpp
     )
 endif()
+
+# //OW
+if (TELEMETRY_MAVLINK)
+  add_definitions(-DTELEMETRY_MAVLINK)
+  if (USB_SERIAL AND NOT DEBUG AND NOT CLI)
+    add_definitions(-DTELEMETRY_MAVLINK_USB_SERIAL)
+  endif()
+  set(SRC ${SRC} 
+    mavlink_telem.cpp
+    mavlink_telem_interface.cpp
+#    mavlink_telem_mavapi.cpp
+#    mavlink_telem_autopilot.cpp 
+#    mavlink_telem_camera.cpp
+#    mavlink_telem_gimbal.cpp 
+#    mavlink_telem_qshot.cpp
+    )
+  if(NOT LUA STREQUAL NO)
+    set(SRC ${SRC} lua/api_mavlink.cpp lua/api_mavsdk.cpp)
+  endif()
+endif()
+# //OWEND
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}

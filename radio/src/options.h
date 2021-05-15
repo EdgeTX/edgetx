@@ -101,6 +101,12 @@ static const char * const options[] = {
 #if defined(BIND_KEY)
   "bindkey",
 #endif
+//OW
+#if defined(TELEMETRY_MAVLINK)
+  "mavlink",
+#endif
+  "olliw-" OWVERSIONSTR, //FIXME: JUST FOR NOW, WILL HAVE TO BE REMOVED
+//OWEND
   nullptr //sentinel
 };
 

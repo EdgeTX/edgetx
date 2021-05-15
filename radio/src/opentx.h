@@ -27,6 +27,21 @@
 #include "opentx_helpers.h"
 #include "touch.h"
 
+//OW
+#define OWVERSIONSTR  "v27"
+//OWEND
+
+/*
+
+
+one needs to run mavgenerate_dialect.py to generate the mavlink c code files
+modified files in radio/src/
+
+
+added files in radio/src/
+*/
+
+
 #if defined(SIMU)
 #include "targets/simu/simpgmspace.h"
 #endif
@@ -998,6 +1013,12 @@ constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
 #if defined(BLUETOOTH)
 #include "bluetooth.h"
 #endif
+
+//OW
+#if defined(TELEMETRY_MAVLINK)
+#include "mavlink_telem.h"
+#endif
+//OWEND
 
 constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 

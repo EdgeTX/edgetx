@@ -49,6 +49,16 @@ extern RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 extern RTOS_MUTEX_HANDLE mixerMutex;
 
+//OW
+#if defined(TELEMETRY_MAVLINK)
+#define MAVLINK_STACK_SIZE       400 //consumes 4x
+#define MAVLINK_TASK_PRIO        8
+
+extern RTOS_TASK_HANDLE mavlinkTaskId;
+extern RTOS_DEFINE_STACK(mavlinkStack, MAVLINK_STACK_SIZE);
+#endif
+//OWEND
+
 void stackPaint();
 void tasksStart();
 
