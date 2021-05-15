@@ -165,6 +165,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 add_executable(bootloader ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
 
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
+  add_dependencies(bootloader truetype_fonts)
+endif()
+
 add_custom_command(
   TARGET bootloader POST_BUILD
   COMMAND arm-none-eabi-objcopy -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
