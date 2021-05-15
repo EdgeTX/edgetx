@@ -31,7 +31,7 @@ add_bitmaps_target(${BITMAP_TARGET_PREFIX}_fonts ${RADIO_SRC_DIR}/fonts/truetype
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_volume_masks ${RADIO_SRC_DIR}/bitmaps/480x272/volume/*.png 8bits "${MASK_ARGS}")
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_themes_masks "${RADIO_SRC_DIR}/bitmaps/480x272/default_theme/mask_*.png" 8bits "${BITMAPS_ARGS}")
-add_bitmaps_target(${BITMAP_TARGET_PREFIX}_themes_alpha "${RADIO_SRC_DIR}/bitmaps/480x272/default_theme/alpha_*.png" "4/4/4/4" "${BITMAPS_ARGS}")
+add_png_target(${BITMAP_TARGET_PREFIX}_themes_alpha "${RADIO_SRC_DIR}/bitmaps/480x272/default_theme/alpha_*.png")
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_bitmaps ${RADIO_SRC_DIR}/bitmaps/480x272/bootloader/bmp_*.png "4/4/4/4" "${BITMAP_RLE_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_icons ${RADIO_SRC_DIR}/bitmaps/480x272/bootloader/icon_*.png 8bits "${MASK_ARGS}")

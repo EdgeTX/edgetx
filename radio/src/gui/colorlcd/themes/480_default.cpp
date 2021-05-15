@@ -201,14 +201,16 @@ class Theme480: public OpenTxTheme
     {
       // Calibration screen
       delete calibStick;
-      calibStick = BitmapBuffer::loadBitmap(getFilePath("stick_pointer.png"));
+      calibStick =
+          BitmapBuffer::loadRamBitmap(stick_pointer, sizeof(stick_pointer));
 
       delete calibStickBackground;
-      calibStickBackground = BitmapBuffer::loadBitmap(getFilePath("stick_background.png"));
+      calibStickBackground = BitmapBuffer::loadRamBitmap(
+          stick_background, sizeof(stick_background));
 
       delete calibTrackpBackground;
-      calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
-
+      calibTrackpBackground = BitmapBuffer::loadRamBitmap(
+          trackp_background, sizeof(trackp_background));
 
       // Model Selection screen
       delete modelselIconBitmap;

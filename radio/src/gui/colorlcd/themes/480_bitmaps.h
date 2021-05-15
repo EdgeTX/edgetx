@@ -217,3 +217,12 @@ const uint8_t mask_theme_view7[] = {
 const uint8_t mask_theme_view8[] = {
 #include "mask_theme_view8.lbm"
 };
+const uint8_t stick_pointer[] = {
+#include "alpha_stick_pointer.lbm"
+};
+const uint8_t stick_background[] = {
+#include "alpha_stick_background.lbm"
+};
+const uint8_t trackp_background[] = {
+#include "alpha_trackp_background.lbm"
+};
