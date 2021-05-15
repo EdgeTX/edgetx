@@ -35,6 +35,10 @@ class MavlinkTelem
     void wakeup();
     void tick10ms();
 
+    // MAVSDK GENERAL
+
+    bool telemetryVoiceEnabled(void);
+
 
   // PROTECTED FIELDS and METHODS
   protected:

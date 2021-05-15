@@ -53,3 +53,16 @@ void mavlinkStart()
   RTOS_CREATE_TASK(mavlinkTaskId, mavlinkTask, "mavlink", mavlinkStack, MAVLINK_STACK_SIZE, MAVLINK_TASK_PRIO);
 }
 
+
+
+
+
+
+
+
+
+
+bool MavlinkTelem::telemetryVoiceEnabled(void)
+{
+  return false;
+}
