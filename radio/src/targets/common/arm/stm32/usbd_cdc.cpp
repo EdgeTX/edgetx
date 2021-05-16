@@ -231,7 +231,7 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
   }
 #endif
 //OW
-#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+#if defined(TELEMETRY_MAVLINK) && defined(USB_SERIAL)
   for (uint32_t i = 0; i < Len; i++) {
     mavlinkTelemUsbRxFifo.push(Buf[i]);
   }

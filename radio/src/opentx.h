@@ -18,6 +18,8 @@
  * GNU General Public License for more details.
  */
 
+//OW
+
 #pragma once
 
 #include <stdlib.h>
@@ -26,63 +28,6 @@
 #include "debounce.h"
 #include "opentx_helpers.h"
 #include "touch.h"
-
-
-/*
-one needs to run fmav_generate_c_library.py and fmav_generate_lua_lib.py
-to generate the mavlink c code files
-modified files in radio/src/:
-
-    dataconstants.h:  1x
-    datastructs.h:    3x
-    keys.cpp:         2x // not yet done
-    keys.h:           1x // not yet done
-    main.cpp:         2x
-    opentx.cpp:       1x
-    opentx.h:         2x
-    options.h:        1x
-    tasks.cpp:        2x
-    tasks.h:          1x
-
-    gui/colorlcd/layout/topbar_impl.cpp: 2x
-    gui/colorlcd/bitmap.cpp:         1x
-    gui/colorlcd/bitmap.h:           1x
-    gui/colorlcd/model_setup.cpp:    1x
-    gui/colorlcd/radio_hardware.cpp: 6x
-    gui/gui_common.cpp:              2x
-    gui/colorlcd/lcd.cpp:            1x // not yet done
-    gui/colorlcd/lcd.h:              1x // not yet done
-    lua/api_general.cpp:             3x // not yet done
-    lua/api_lcd.cpp:                 2x // not yet done
-    targets/common/arm/stm32/aux_serial_driver.cpp:  8x
-    targets/common/arm/stm32/usb_driver.cpp:         1x
-    targets/common/arm/stm32/usb_driver.h:           1x
-    targets/common/arm/stm32/usbd_cdc.cpp:           1x
-    targets/common/arm/stm32/usbd_dec.cpp:           4x
-    targets/horus/board.cpp:                         1x
-    targets/horus/hal.h:                             1x
-    targets/horus/telemetry_driver.cpp:              9x
-    targets/horus/CMakeList.txt:                     3x
-    telemetry/telemetry.cpp:         3x
-    telemetry/telemetry.h:           1x
-    thirdparty/Lua/src/lauxlib.h:    1x
-    thirdparty/Lua/src/linit.c:      1x
-    thirdparty/Lua/src/lrotable.h:   1x
-
-added files in radio/src/
-    mavlink_telem_autopilot.cpp
-    mavlink_telem_camera.cpp
-    mavlink_telem_gimbal.cpp
-    mavlink_telem_interface.cpp
-    mavlink_telem_mavapi.cpp
-    mavlink_telem_qshot.cpp
-    mavlink_telem.cpp
-    mavlink_telem.h
-    lua/api_mavlink.cpp
-    lua/api_mavsdk.cpp
-    thirdparty/Mavlink/
-*/
-
 
 #if defined(SIMU)
 #include "targets/simu/simpgmspace.h"
