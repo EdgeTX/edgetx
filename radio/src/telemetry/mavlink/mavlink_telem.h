@@ -2,6 +2,8 @@
  * (c) www.olliw.eu, OlliW, OlliW42
  */
 
+#define MAVLINKTELEMVERSIONSTR  "v27" //OW
+
 #define MAVLINK_RAM_SECTION  __attribute__((section (".ram")))
 
 // -- CoOS RTOS mavlink task handlers --
