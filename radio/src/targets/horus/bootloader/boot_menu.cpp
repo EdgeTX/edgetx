@@ -141,7 +141,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                 opt   = 100; // Completed > 100%
             }
 
-            lcd->drawRect(70, 120, 340, 31, 2);
+            lcd->drawRect(70, 120, 340, 31, 2, SOLID, BL_SELECTED);
             lcd->drawSolidFilledRect(74, 124, (332 * opt) / 100, 23, color);
         }
         else if (st == ST_DIR_CHECK) {
