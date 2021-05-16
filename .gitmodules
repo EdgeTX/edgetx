@@ -6,3 +6,9 @@
 	path = radio/src/thirdparty/libACCESS
 	url = https://github.com/FrSkyRC/libACCESS.git
 	branch = master
+[submodule "radio/src/thirdparty/Mavlink/fastmavlink"]
+	path = radio/src/thirdparty/Mavlink/fastmavlink
+	url = https://github.com/olliw42/fastmavlink.git
+[submodule "radio/src/thirdparty/Mavlink/mavlink"]
+	path = radio/src/thirdparty/Mavlink/mavlink
+	url = https://github.com/mavlink/mavlink.git
