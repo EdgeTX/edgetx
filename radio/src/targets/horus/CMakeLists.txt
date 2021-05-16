@@ -285,7 +285,7 @@ endif()
 if (TELEMETRY_MAVLINK)
   add_definitions(-DTELEMETRY_MAVLINK)
   if (USB_SERIAL AND NOT DEBUG AND NOT CLI)
-#    add_definitions(-DTELEMETRY_MAVLINK_USB_SERIAL)
+    add_definitions(-DTELEMETRY_MAVLINK_USB_SERIAL)
   endif()
   set(SRC ${SRC} 
     mavlink_telem.cpp
