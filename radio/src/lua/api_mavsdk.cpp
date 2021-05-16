@@ -398,7 +398,7 @@ static int luaMavsdkMavTelemIsEnabled(lua_State *L)
 
 static int luaMavsdkMavTelemVersion(lua_State *L)
 {
-  lua_pushstring(L, OWVERSIONSTR);
+  lua_pushstring(L, MAVLINKTELEMVERSIONSTR);
   return 1;
 }
 

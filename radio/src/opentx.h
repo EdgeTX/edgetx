@@ -27,9 +27,6 @@
 #include "opentx_helpers.h"
 #include "touch.h"
 
-//OW
-#define OWVERSIONSTR  "v27"
-//OWEND
 
 /*
 one needs to run fmav_generate_c_library.py and fmav_generate_lua_lib.py
