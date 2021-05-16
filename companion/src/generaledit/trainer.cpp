@@ -19,103 +19,106 @@
  */
 
 #include "trainer.h"
-#include "ui_trainer.h"
+#include "compounditemmodels.h"
+#include "autocombobox.h"
+#include "autolineedit.h"
+#include "autospinbox.h"
+#include "autodoublespinbox.h"
 
-TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
-  GeneralPanel(parent, generalSettings, firmware),
-  ui(new Ui::Trainer)
+#include <QFrame>
+#include <QLabel>
+#include <QStringList>
+
+TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels):
+  GeneralPanel(parent, generalSettings, firmware)
 {
-  ui->setupUi(this);
+  int modeid = editorItemModels->registerItemModel(TrainerMix::modeItemModel());
+  int srcid = editorItemModels->registerItemModel(TrainerMix::srcItemModel());
 
+  Board::Type board = getCurrentBoard();
+  const int stickcnt = Boards::getCapability(board, Board::Sticks);
 
-  ui->trnMode_1->setCurrentIndex(generalSettings.trainer.mix[0].mode);
-  ui->trnChn_1->setCurrentIndex(generalSettings.trainer.mix[0].src);
-  ui->trnWeight_1->setValue(generalSettings.trainer.mix[0].weight);
-  ui->trnMode_2->setCurrentIndex(generalSettings.trainer.mix[1].mode);
-  ui->trnChn_2->setCurrentIndex(generalSettings.trainer.mix[1].src);
-  ui->trnWeight_2->setValue(generalSettings.trainer.mix[1].weight);
-  ui->trnMode_3->setCurrentIndex(generalSettings.trainer.mix[2].mode);
-  ui->trnChn_3->setCurrentIndex(generalSettings.trainer.mix[2].src);
-  ui->trnWeight_3->setValue(generalSettings.trainer.mix[2].weight);
-  ui->trnMode_4->setCurrentIndex(generalSettings.trainer.mix[3].mode);
-  ui->trnChn_4->setCurrentIndex(generalSettings.trainer.mix[3].src);
-  ui->trnWeight_4->setValue(generalSettings.trainer.mix[3].weight);
+  const FieldRange weightrng = TrainerMix::getWeightRange();
 
+  grid = new QGridLayout(this);
+
+  int col = 0;
+  int row = 0;
+
+  if (stickcnt) {
+    addLabel(tr("Mode"), row, 1);
+    addLabel(tr("Weight"), row, 2);
+    addLabel(tr("Source"), row++, 3);
+
+    for (int i = 0; i < 4; i++, row++) {  //  TODO constant
+      col = 0;
+      addLabel(Boards::getAnalogInputName(board, i), row, col++);
+
+      AutoComboBox *mode = new AutoComboBox(this);
+      mode->setModel(editorItemModels->getItemModel(modeid));
+      mode->setField(generalSettings.trainer.mix[i].mode, this);
+      grid->addWidget(mode, row, col++);
+
+      AutoSpinBox *weight = new AutoSpinBox(this);
+      weight->setRange(weightrng.min, weightrng.max);
+      weight->setField(generalSettings.trainer.mix[i].weight, this);
+      grid->addWidget(weight, row, col++);
+
+      AutoComboBox *src = new AutoComboBox(this);
+      src->setModel(editorItemModels->getItemModel(srcid));
+      src->setField(generalSettings.trainer.mix[i].src, this);
+      grid->addWidget(src, row, col++);
+    }
+
+    addLine(row++, 0, grid->columnCount());
+  }
+
+  col = 0;
+  addLabel(tr("Multiplier"), row, col++);
+
+  const FieldRange ppmmrng = GeneralSettings::getPPM_MultiplierRange();
+
+  AutoDoubleSpinBox *multi = new AutoDoubleSpinBox(this);
+  multi->setDecimals(ppmmrng.decimals);
+  multi->setOffset(ppmmrng.offset);
+  multi->setSingleStep(ppmmrng.step);
+  multi->setRange(ppmmrng.min, ppmmrng.max);
+  multi->setField(generalSettings.PPM_Multiplier, this);
+  grid->addWidget(multi, row++, col);
+
+  col = 0;
+
+  addLabel(tr("Calibration"), row, col++);
+
+  for (int i = 0; i < stickcnt; i++, col++) {
+    AutoLineEdit *calib = new AutoLineEdit(this);
+    calib->setText(QString("%1").arg(generalSettings.trainer.calib[i]));
+    calib->setReadOnly(true);
+    grid->addWidget(calib, row, col);
+  }
+
+  addHSpring(grid, grid->columnCount(), 0);
+  addVSpring(grid, 0, grid->rowCount());
+  disableMouseScrolling();
 }
 
 TrainerPanel::~TrainerPanel()
 {
-  delete ui;
 }
 
-void TrainerPanel::on_trnMode_1_currentIndexChanged(int index)
+void TrainerPanel::addLabel(QString text, int row, int col)
 {
-  generalSettings.trainer.mix[0].mode = index;
-  emit modified();
+  QLabel *label = new QLabel(this);
+  label->setText(text);
+  grid->addWidget(label, row, col);
 }
 
-void TrainerPanel::on_trnChn_1_currentIndexChanged(int index)
+void TrainerPanel::addLine(int row, int col, int colspan)
 {
-  generalSettings.trainer.mix[0].src = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnWeight_1_editingFinished()
-{
-  generalSettings.trainer.mix[0].weight = ui->trnWeight_1->value();
-  emit modified();
-}
-
-void TrainerPanel::on_trnMode_2_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[1].mode = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnChn_2_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[1].src = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnWeight_2_editingFinished()
-{
-  generalSettings.trainer.mix[1].weight = ui->trnWeight_2->value();
-  emit modified();
-}
-
-void TrainerPanel::on_trnMode_3_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[2].mode = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnChn_3_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[2].src = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnWeight_3_editingFinished()
-{
-  generalSettings.trainer.mix[2].weight = ui->trnWeight_3->value();
-  emit modified();
-}
-
-void TrainerPanel::on_trnMode_4_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[3].mode = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnChn_4_currentIndexChanged(int index)
-{
-  generalSettings.trainer.mix[3].src = index;
-  emit modified();
-}
-
-void TrainerPanel::on_trnWeight_4_editingFinished()
-{
-  generalSettings.trainer.mix[3].weight = ui->trnWeight_4->value();
-  emit modified();
+  QFrame *line = new QFrame(this);
+  line->setFrameShape(QFrame::HLine);
+  line->setFrameShadow(QFrame::Sunken);
+  line->setLineWidth(1);
+  line->setMidLineWidth(0);
+  grid->addWidget(line, row, col, 1, colspan);
 }

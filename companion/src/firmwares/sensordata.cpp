@@ -75,9 +75,9 @@ QString SensorData::cellIndexToString() const
   return cellIndexToString(index);
 }
 
-QString SensorData::unitToString() const
+QString SensorData::unitToString(bool hideRaw) const
 {
-  return unitToString(unit);
+  return unitToString(unit, hideRaw);
 }
 
 QString SensorData::precToString() const
@@ -342,11 +342,11 @@ QString SensorData::sourceToString(const ModelData * model, const int index, con
 }
 
 //  static
-QString SensorData::unitToString(const int value)
+QString SensorData::unitToString(const int value, bool hideRaw)
 {
   switch (value) {
     case UNIT_RAW:
-      return tr("Raw (-)");
+      return hideRaw ? QString() : tr("Raw (-)");
     case UNIT_VOLTS:
       return tr("V");
     case UNIT_AMPS:
@@ -496,7 +496,7 @@ AbstractStaticItemModel * SensorData::unitItemModel()
   mdl->setName("sensordata.unit");
 
   for (int i = 0; i <= UNIT_MAX; i++) {
-    QString str = unitToString(i);
+    QString str = unitToString(i, false);
     if (str != CPN_STR_UNKNOWN_ITEM)
       mdl->appendToItemList(str, i);
   }

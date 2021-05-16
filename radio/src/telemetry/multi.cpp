@@ -42,7 +42,8 @@ enum MultiPacketTypes : uint8_t
   FlyskyIBusTelemetryAC,
   MultiRxChannels,
   HottTelemetry,
-  MLinkTelemetry
+  MLinkTelemetry,
+  ConfigTelemetry
 };
 
 enum MultiBufferState : uint8_t
@@ -291,6 +292,31 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
 }
 #endif
 
+#if defined(LUA)
+
+static void processConfigPacket(const uint8_t * packet, uint8_t len)
+{
+  // Multi_Buffer[0..3]=="Conf" -> Lua script is running
+  // Multi_Buffer[4]==0x01 -> TX to Module data ready to be sent
+  // Multi_Buffer[4]==0xFF -> Clear buffer data
+  // Multi_Buffer[5..11]=7 bytes of TX to Module data
+  // Multi_Buffer[12] -> Current page
+  // Multi_Buffer[13..172]=8*20=160 bytes of Module to TX data
+  if (Multi_Buffer && memcmp(Multi_Buffer, "Conf", 4) == 0) {
+    // HoTT Lua script is running
+    if (Multi_Buffer[4] == 0xFF) {
+      // Init
+      memset(&Multi_Buffer[4], 0x00, 1 + 7 + 1 + 160);           // Clear the buffer
+    }
+    if ((packet[0] >> 4) != Multi_Buffer[12]) {// page change
+      memset(&Multi_Buffer[13], 0x00, 160);                      // Clear the buffer
+      Multi_Buffer[12] = (packet[0] >> 4);                       //Save the page number
+    }
+    memcpy(&Multi_Buffer[13 + (packet[0] & 0x0F) * 20], &packet[1], 20); // Store the received page in the buffer
+  }
+}
+#endif
+
 static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 {
   uint8_t type = packet[0];
@@ -363,8 +389,17 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
       if (len > 6)
         processMLinkPacket(data);
       else
-        TRACE("[MP] Received M-Link telemetry len %d < 6", len);
+        TRACE("[MP] Received M-Link telemetry len %d <= 6", len);
       break;
+
+#if defined(LUA)
+    case ConfigTelemetry:
+      if (len >= 21)
+        processConfigPacket(data, len);
+      else
+        TRACE("[MP] Received Config telemetry len %d < 20", len);
+      break;
+#endif
 
     case FrSkyHubTelemetry:
       if (len >= 4)

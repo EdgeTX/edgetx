@@ -4,7 +4,12 @@
 set -e
 set -x
 
-JOBS=3
+if [ "$(uname)" = "Darwin" ]; then
+  num_cpus=$(sysctl -n hw.ncpu)
+  : "${JOBS:=$num_cpus}"
+else
+  JOBS=3
+fi
 
 while [ $# -gt 0 ]
 do
@@ -32,6 +37,13 @@ fi
 
 if [ "$3" != "" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
+else
+  wget https://downloads.open-tx.org/2.3/nightlies/companion/companion-linux.stamp
+  version=$(cut -d'N' -f 3 < companion-linux.stamp)
+  version=$(echo $version | tr -cd '[[:digit:]]')
+  version=$((version+1))
+  nightly=N"$version"
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$nightly"
 fi
 
 rm -rf build
@@ -71,6 +83,14 @@ make -j${JOBS} libsimulator
 rm CMakeCache.txt
 
 cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt
 

@@ -4,7 +4,12 @@
 set -e
 set -x
 
-JOBS=2
+if [ "$(uname)" = "Darwin" ]; then
+  num_cpus=$(sysctl -n hw.ncpu)
+  : "${JOBS:=$num_cpus}"
+else
+  JOBS=3
+fi
 
 while [ $# -gt 0 ]
 do
@@ -71,6 +76,14 @@ make -j${JOBS} libsimulator
 rm CMakeCache.txt
 
 cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt
 

@@ -46,26 +46,27 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   }
 
   ui->profile_CB->clear();
-  for (int i=0; i<MAX_PROFILES; ++i) {
+  for (int i = 0; i < MAX_PROFILES; ++i) {
     QString name=g.profile[i].name();
     if (!name.isEmpty()) {
       ui->profile_CB->addItem(name, i);
-      if (i==g.id()) {
-        ui->profile_CB->setCurrentIndex(ui->profile_CB->count()-1);
+      if (i == g.id()) {
+        ui->profile_CB->setCurrentIndex(ui->profile_CB->count() - 1);
       }
     }
   }
 
-  sharedItemModels = new CompoundItemModelFactory(&generalSettings, nullptr);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
+  editorItemModels = new CompoundItemModelFactory(&generalSettings, nullptr);
+  // tabs created below expect these item models to be pre-registered
+  editorItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
+  editorItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
+  editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
+  editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
 
   addTab(new GeneralSetupPanel(this, generalSettings, firmware), tr("Setup"));
-  addTab(new CustomFunctionsPanel(this, nullptr, generalSettings, firmware, sharedItemModels), tr("Global Functions"));
-  addTab(new TrainerPanel(this, generalSettings, firmware), tr("Trainer"));
-  addTab(new HardwarePanel(this, generalSettings, firmware), tr("Hardware"));
+  addTab(new CustomFunctionsPanel(this, nullptr, generalSettings, firmware, editorItemModels), tr("Global Functions"));
+  addTab(new TrainerPanel(this, generalSettings, firmware, editorItemModels), tr("Trainer"));
+  addTab(new HardwarePanel(this, generalSettings, firmware, editorItemModels), tr("Hardware"));
   addTab(new CalibrationPanel(this, generalSettings, firmware), tr("Calibration"));
 
   ui->tabWidget->setCurrentIndex( g.generalEditTab() );
@@ -74,7 +75,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
 GeneralEdit::~GeneralEdit()
 {
   delete ui;
-  delete sharedItemModels;
+  delete editorItemModels;  // cleans up item models registered by the tabs
 }
 
 void GeneralEdit::closeEvent(QCloseEvent *event)
@@ -90,7 +91,7 @@ void GeneralEdit::addTab(GenericPanel *panel, QString text)
   VerticalScrollArea * area = new VerticalScrollArea(widget, panel);
   baseLayout->addWidget(area);
   ui->tabWidget->addTab(widget, text);
-  connect(panel, SIGNAL(modified()), this, SLOT(onTabModified()));
+  connect(panel, &GenericPanel::modified, this, &GeneralEdit::onTabModified);
 }
 
 void GeneralEdit::onTabModified()

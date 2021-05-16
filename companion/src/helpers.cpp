@@ -620,6 +620,17 @@ void TableLayout::setColumnWidth(int col, int width)
 #if defined(TABLE_LAYOUT)
   tableWidget->setColumnWidth(col, width);
 #else
+  gridWidget->setColumnMinimumWidth(col, width);
+#endif
+}
+
+void TableLayout::setColumnWidth(int col, QString str)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  QFontMetrics *f = new QFontMetrics(QFont());
+  QSize sz = f->size(Qt::TextSingleLine, str);
+  setColumnWidth(col, sz.width());
 #endif
 }
 
@@ -628,12 +639,19 @@ void TableLayout::pushRowsUp(int row)
 #if defined(TABLE_LAYOUT)
 #else
   // Push the rows up
-  QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding );
+  QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
   gridWidget->addItem(spacer, row, 0);
 #endif
-  // Push rows upward
-  // addDoubleSpring(gridLayout, 5, num_fsw+1);
+}
 
+void TableLayout::pushColumnsLeft(int col)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  // Push the columns to the left
+  QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+  gridWidget->addItem(spacer, 0, col);
+#endif
 }
 
 QString Helpers::getChecklistsPath()

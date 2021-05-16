@@ -547,7 +547,7 @@ bool setupPulsesInternalModule(uint8_t protocol)
       else {
 #if defined(INTMODULE_HEARTBEAT)
         mixerSchedulerResetTimer();
-        mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD + 1000 /* backup */);
+        mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD + 2000 /* backup */);
 #else
         mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
 #endif
@@ -641,10 +641,11 @@ void setCustomFailsafe(uint8_t moduleIndex)
         g_model.failsafeChannels[ch] = channelOutputs[ch];
       }
     }
+    storageDirty(EE_MODEL);
   }
 }
 
-int32_t getChannelValue(uint8_t channel) {
+int32_t getChannelValue(uint8_t channel)
+{
   return channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
 }
-

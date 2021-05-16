@@ -33,20 +33,20 @@
 
 float curveLinear(float x, float coeff, float yMin, float yMid, float yMax)
 {
-  float a = (yMax-yMin) / 200.0;
-  return yMin + a * (x+100.0);
+  float a = (yMax - yMin) / 200.0;
+  return yMin + a * (x + 100.0);
 }
 
 float c9xexpou(float point, float coeff)
 {
-  float x = point*1024.0/100.0;
-  float k = coeff*256.0/100.0;
-  return ((k*x*x*x/(1024*1024) + x*(256-k) + 128) / 256) / 1024.0 * 100;
+  float x = point * 1024.0 / 100.0;
+  float k = coeff * 256.0 / 100.0;
+  return ((k * x * x * x / (1024 * 1024) + x * (256 - k) + 128) / 256) / 1024.0 * 100;
 }
 
 float curveExpo(float x, float coeff, float yMin, float yMid, float yMax)
 {
-  float a = (yMax-yMin) / 100.0;
+  float a = (yMax - yMin) / 100.0;
 
   x += 100.0;
   x /= 2.0;
@@ -57,14 +57,14 @@ float curveExpo(float x, float coeff, float yMin, float yMid, float yMax)
   else {
     coeff = -coeff;
     x = 100 - x;
-    return round((100.0 - c9xexpou(x, coeff))*a + yMin);
+    return round((100.0 - c9xexpou(x, coeff)) * a + yMin);
   }
 }
 
 float curveSymmetricalY(float x, float coeff, float yMin, float yMid, float yMax)
 {
   bool invert;
-  if (x<0) {
+  if (x < 0) {
     x = -x;
     invert = 1;
   }
@@ -74,12 +74,12 @@ float curveSymmetricalY(float x, float coeff, float yMin, float yMid, float yMax
 
   float y;
   if (coeff >= 0) {
-    y = round(c9xexpou(x, coeff) * (yMax/100.0));
+    y = round(c9xexpou(x, coeff) * (yMax / 100.0));
   }
   else {
     coeff = -coeff;
     x = 100.0 - x;
-    y = round((100.0-c9xexpou(x, coeff)) * (yMax/100.0));
+    y = round((100.0 - c9xexpou(x, coeff)) * (yMax / 100.0));
   }
 
   if (invert) {
@@ -91,9 +91,9 @@ float curveSymmetricalY(float x, float coeff, float yMin, float yMid, float yMax
 
 float curveSymmetricalX(float x, float coeff, float yMin, float yMid, float yMax)
 {
-  float a = (yMax-yMid) / 100.0;
+  float a = (yMax - yMid) / 100.0;
 
-  if (x<0)
+  if (x < 0)
     x = -x;
 
   float y;
@@ -102,8 +102,8 @@ float curveSymmetricalX(float x, float coeff, float yMin, float yMid, float yMax
   }
   else {
     coeff = -coeff;
-    x = 100-x;
-    y = round((100.0-c9xexpou(x, coeff)) * a + yMid);
+    x = 100 - x;
+    y = round((100.0 - c9xexpou(x, coeff)) * a + yMid);
   }
 
   return y;
@@ -148,17 +148,14 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     // The edit curve button
     QPushButton * edit = new QPushButton(this);
     edit->setProperty("index", i);
-    QPalette palette;
-    palette.setBrush(QPalette::Active, QPalette::Button, QBrush(colors[i]));
-    palette.setBrush(QPalette::Active, QPalette::ButtonText, QBrush(Qt::white));
-#ifdef __APPLE__
-    edit->setStyleSheet(QString("color: %1;").arg(colors[i].name()));
-#elif defined WIN32 || !defined __GNUC__
-    edit->setStyleSheet(QString("background-color: %1; color: white;").arg(colors[i].name()));
-#else
+
+#ifdef __GNUC__
+    //  creates more compact and likely consistent buttons across OS flavors
     edit->setStyleSheet(QString("background-color: %1; color: white; padding: 2px 3px; border-style: outset; border-width: 1px; border-radius: 2px; border-color: inherit;").arg(colors[i].name()));
+#else
+    edit->setStyleSheet(QString("background-color: %1; color: white;").arg(colors[i].name()));
 #endif
-    edit->setPalette(palette);
+
     edit->setText(tr("Curve %1").arg(i + 1));
     edit->setContextMenuPolicy(Qt::CustomContextMenu);
     edit->setToolTip(tr("Popup menu available"));
@@ -173,7 +170,6 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     // The curve plot checkbox
     QCheckBox * plot = new QCheckBox(this);
     plot->setProperty("index", i);
-    plot->setPalette(palette);
     connect(plot, SIGNAL(toggled(bool)), this, SLOT(plotCurve(bool)));
     if (i < limit) {
       ui->curvesLayout->addWidget(plot, i, 2, 1, 1);
@@ -332,9 +328,15 @@ void CurvesPanel::updateCurve()
       int numpoints = model->curves[k].count;
       for (int i = 0; i < numpoints - 1; i++) {
         if (model->curves[k].type == CurveData::CURVE_TYPE_CUSTOM)
-          scene->addLine(centerX + (qreal)model->curves[k].points[i].x*width/200, centerY - (qreal)model->curves[k].points[i].y*height/200,centerX + (qreal)model->curves[k].points[i+1].x*width/200,centerY - (qreal)model->curves[k].points[i+1].y*height/200, pen);
+          scene->addLine(centerX + (qreal)model->curves[k].points[i].x * width / 200,
+                         centerY - (qreal)model->curves[k].points[i].y * height / 200,
+                         centerX + (qreal)model->curves[k].points[i + 1].x * width / 200,
+                         centerY - (qreal)model->curves[k].points[i + 1].y * height / 200, pen);
         else
-          scene->addLine(GFX_MARGIN + i*width/(numpoints-1), centerY - (qreal)model->curves[k].points[i].y*height/200,GFX_MARGIN + (i+1)*width/(numpoints-1),centerY - (qreal)model->curves[k].points[i+1].y*height/200, pen);
+          scene->addLine(GFX_MARGIN + i * width / (numpoints - 1),
+                         centerY - (qreal)model->curves[k].points[i].y * height / 200,
+                         GFX_MARGIN + (i + 1) * width / (numpoints - 1),
+                         centerY - (qreal)model->curves[k].points[i + 1].y * height / 200, pen);
       }
     }
   }
@@ -356,11 +358,13 @@ void CurvesPanel::updateCurve()
       else {
         nodex->setFixedX(true);
       }
-      nodex->setPos(centerX + (qreal)model->curves[currentCurve].points[i].x * width / 200, centerY - (qreal)model->curves[currentCurve].points[i].y * height / 200);
+      nodex->setPos(centerX + (qreal)model->curves[currentCurve].points[i].x * width / 200,
+                    centerY - (qreal)model->curves[currentCurve].points[i].y * height / 200);
     }
     else {
       nodex->setFixedX(true);
-      nodex->setPos(GFX_MARGIN + i * width / (numpoints - 1), centerY - (qreal)model->curves[currentCurve].points[i].y * height / 200);
+      nodex->setPos(GFX_MARGIN + i * width / (numpoints - 1),
+                    centerY - (qreal)model->curves[currentCurve].points[i].y * height / 200);
     }
     connect(nodex, SIGNAL(moved(int, int)), this, SLOT(onNodeMoved(int, int)));
     connect(nodex, SIGNAL(focus()), this, SLOT(onNodeFocus()));
@@ -592,7 +596,8 @@ void CurvesPanel::on_curveApply_clicked()
     }
 
     if (apply) {
-      model->curves[currentCurve].points[i].y = templates[index].function(x, ui->curveCoeff->value(), ui->yMin->value(), ui->yMid->value(), ui->yMax->value());
+      model->curves[currentCurve].points[i].y = templates[index].function(x, ui->curveCoeff->value(), ui->yMin->value(), ui->yMid->value(),
+                                                                          ui->yMax->value());
     }
   }
 

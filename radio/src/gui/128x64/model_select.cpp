@@ -244,7 +244,7 @@ void menuModelSelect(event_t event)
 #endif
 #endif
 
-#if defined(ROTARY_ENCODER) && defined(NAVIGATION_X7)
+#if defined(ROTARY_ENCODER_NAVIGATION) && defined(NAVIGATION_X7)
     case EVT_ROTARY_LEFT:
     case EVT_ROTARY_RIGHT:
 #endif
