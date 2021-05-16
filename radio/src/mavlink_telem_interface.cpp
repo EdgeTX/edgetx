@@ -62,21 +62,16 @@ MAVLINK_RAM_SECTION Fifo<uint8_t, 2*512> mavlinkTelemExternalRxFifo;
 
 void extmoduleOn(void)
 {
-/*
   if(g_eeGeneral.mavlinkExternal != 1) GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN);
-*/
 }
 
 void extmoduleOff(void)
 {
-/*
   if(g_eeGeneral.mavlinkExternal != 1) GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN);
-*/
 }
 
 void extmoduleMavlinkTelemStop(void)
 {
-/*
   USART_ITConfig(TELEMETRY_USART, USART_IT_RXNE, DISABLE);
   USART_ITConfig(TELEMETRY_USART, USART_IT_TXE, DISABLE);
   NVIC_DisableIRQ(TELEMETRY_USART_IRQn);
@@ -90,12 +85,10 @@ void extmoduleMavlinkTelemStop(void)
   DMA_DeInit(TELEMETRY_DMA_Stream_TX);
 
   GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN); //EXTERNAL_MODULE_OFF();
-*/
 }
 
 void extmoduleMavlinkTelemStart(void)
 {
-/*
   GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN); //EXTERNAL_MODULE_ON();
 
   // we don't want or need all this
@@ -152,7 +145,6 @@ void extmoduleMavlinkTelemStart(void)
   USART_ITConfig(TELEMETRY_USART, USART_IT_TXE, DISABLE);
   NVIC_SetPriority(TELEMETRY_USART_IRQn, 6);
   NVIC_EnableIRQ(TELEMETRY_USART_IRQn);
-*/
 }
 
 void mavlinkTelemExternal_init(bool flag)
@@ -178,7 +170,6 @@ void mavlinkTelemExternal_init(bool flag)
 // 3+16 bytes @ 400000 bps = 0.475 ms, 16 bytes @ 400000 bps = 0.4 ms, => 0.875 ms
 void mavlinkTelemExternal_wakeup(void)
 {
-/*
   // we do it at the beginning, so it gives few cycles before TX is enabled
   TELEMETRY_DIR_GPIO->BSRRL = TELEMETRY_DIR_GPIO_PIN; // enable output
   TELEMETRY_USART->CR1 &= ~USART_CR1_RE; // turn off receiver
@@ -199,7 +190,6 @@ void mavlinkTelemExternal_wakeup(void)
   }
 
   USART_ITConfig(TELEMETRY_USART, USART_IT_TXE, ENABLE); // enable TX interrupt, starts sending
-*/
 }
 
 uint32_t mavlinkTelemExternalAvailable(void)
@@ -261,7 +251,7 @@ MAVLINK_RAM_SECTION Fifo<uint8_t, 2*512> mavlinkTelemAux2SerialRxFifo;
 MAVLINK_RAM_SECTION Fifo<uint8_t, 2*512> mavlinkTelemUsbRxFifo;
 #endif
 
-#if 0 //defined(AUX_SERIAL)
+#if defined(AUX_SERIAL)
 
 uint32_t mavlinkTelem1Available(void)
 {
@@ -311,7 +301,7 @@ bool mavlinkTelem1HasSpace(uint16_t count){ return false; }
 bool mavlinkTelem1PutBuf(const uint8_t* buf, const uint16_t count){ return false; }
 #endif
 
-#if 0 //defined(AUX2_SERIAL)
+#if defined(AUX2_SERIAL)
 
 uint32_t mavlinkTelem2Available(void)
 {
