@@ -118,7 +118,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
       if (inverted)
         telemetryPortInvertedInit(57600);
       else
-        telemetryPortInit(57600, TELEMETRY_SERIAL_DEFAULT);
+        telemetryPortInit(57600, TELEMETRY_SERIAL_WITHOUT_DMA);
     }
 
     bool getByte(uint8_t & byte) const override
@@ -164,7 +164,7 @@ class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) const override
     {
-      telemetryPortInit(57600, TELEMETRY_SERIAL_DEFAULT);
+      telemetryPortInit(57600, TELEMETRY_SERIAL_WITHOUT_DMA);
     }
 
     bool getByte(uint8_t & byte) const override

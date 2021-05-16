@@ -22,36 +22,32 @@
 
 #include "autowidget.h"
 
-#include <QDoubleSpinBox>
+#include <QSlider>
 
-#if __GNUC__
-  #include <math.h>
-#endif
-
-class AutoDoubleSpinBox : public QDoubleSpinBox, public AutoWidget
+class AutoSlider : public QSlider, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    explicit AutoDoubleSpinBox(QWidget * parent = nullptr);
-    virtual ~AutoDoubleSpinBox();
+    explicit AutoSlider(QWidget * parent = nullptr);
+    explicit AutoSlider(Qt::Orientation orientation, QWidget * parent = nullptr);
+    virtual ~AutoSlider();
 
     virtual void updateValue() override;
 
-    void setField(int & field, GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
-    void setDecimals(int prec);
-    void setOffset(int offset);
+    void setField(int & field, int min, int max, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, int min, int max, GenericPanel * panel = nullptr);
+    void setTick(int interval, QSlider::TickPosition position);
 
   signals:
-    void currentDataChanged(double value);
+    void currentDataChanged(int value);
 
   protected slots:
-    void onValueChanged(double value);
+    void onValueChanged(int value);
 
   private:
-    int *m_field;
-    int m_offset;
+    int *m_field = nullptr;
 
-    int multiplier();
+    void init();
+    void setFieldInit(int min, int max, GenericPanel * panel);
 };

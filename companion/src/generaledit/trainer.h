@@ -18,42 +18,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRAINER_H_
-#define _TRAINER_H_
+#pragma once
 
 #include "generaledit.h"
 #include "eeprominterface.h"
 
-namespace Ui {
-  class Trainer;
-}
+class CompoundItemModelFactory;
 
 class TrainerPanel : public GeneralPanel
 {
     Q_OBJECT
 
   public:
-    TrainerPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
+    TrainerPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels);
     virtual ~TrainerPanel();
 
-  private slots:
-    void on_trnMode_1_currentIndexChanged(int index);
-    void on_trnChn_1_currentIndexChanged(int index);
-    void on_trnWeight_1_editingFinished();
-    void on_trnMode_2_currentIndexChanged(int index);
-    void on_trnChn_2_currentIndexChanged(int index);
-    void on_trnWeight_2_editingFinished();
-    void on_trnMode_3_currentIndexChanged(int index);
-    void on_trnChn_3_currentIndexChanged(int index);
-    void on_trnWeight_3_editingFinished();
-    void on_trnMode_4_currentIndexChanged(int index);
-    void on_trnChn_4_currentIndexChanged(int index);
-    void on_trnWeight_4_editingFinished();
-
   private:
-    Ui::Trainer *ui;
-
-    void setValues();
+    QGridLayout * grid;
+    void addLabel(QString text, int row, int col);
+    void addLine(int row, int col, int colspan);
 };
-
-#endif // _TRAINER_H_

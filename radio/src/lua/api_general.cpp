@@ -1533,6 +1533,19 @@ static int luaGetUsage(lua_State * L)
 }
 
 /*luadoc
+@function getAvailableMemory()
+
+Get available memory remaining in the Heap for Lua.
+
+@retval usage (number) a value returned in b
+*/
+static int luaGetAvailableMemory(lua_State * L)
+{
+  lua_pushunsigned(L, availableMemory());
+  return 1;
+}
+
+/*luadoc
 @function resetGlobalTimer([type])
 
  Resets the radio global timer to 0.
@@ -1759,6 +1772,7 @@ const luaL_Reg opentxLib[] = {
   { "chdir", luaChdir },
   { "loadScript", luaLoadScript },
   { "getUsage", luaGetUsage },
+  { "getAvailableMemory", luaGetAvailableMemory },
   { "resetGlobalTimer", luaResetGlobalTimer },
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   { "GREY", luaGrey },

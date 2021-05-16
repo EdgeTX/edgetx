@@ -18,17 +18,44 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "autowidget.h"
+#include "genericpanel.h"
 
-#include "generaledit.h"
-
-class CalibrationPanel : public GeneralPanel
+AutoWidget::AutoWidget():
+  m_panel(nullptr),
+  m_lock(false)
 {
-    Q_OBJECT
+}
 
-  public:
-    CalibrationPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
-    virtual ~CalibrationPanel() {};
+AutoWidget::~AutoWidget()
+{
+}
 
-  private:
-};
+bool AutoWidget::lock()
+{
+  return panelLock() | m_lock;
+}
+
+void AutoWidget::setLock(bool lock)
+{
+  m_lock = lock;
+}
+
+void AutoWidget::setPanel(GenericPanel * panel)
+{
+  m_panel = panel;
+}
+
+void AutoWidget::dataChanged()
+{
+  if (m_panel)
+    emit m_panel->modified();
+}
+
+bool AutoWidget::panelLock()
+{
+  if (m_panel)
+    return m_panel->lock;
+  else
+    return false;
+}

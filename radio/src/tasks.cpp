@@ -136,6 +136,7 @@ TASK_FUNCTION(mixerTask)
   s_pulses_paused = true;
 
   mixerSchedulerInit();
+
 #if !defined(PCBSKY9X)
   mixerSchedulerStart();
 #endif

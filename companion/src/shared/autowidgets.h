@@ -20,15 +20,13 @@
 
 #pragma once
 
-#include "generaledit.h"
-
-class CalibrationPanel : public GeneralPanel
-{
-    Q_OBJECT
-
-  public:
-    CalibrationPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
-    virtual ~CalibrationPanel() {};
-
-  private:
-};
+#include "autobitsetcheckbox.h"
+#include "autocheckbox.h"
+#include "autocombobox.h"
+#include "autodoublespinbox.h"
+#include "autohexspinbox.h"
+#include "autolineedit.h"
+#include "autoprecisioncombobox.h"
+#include "autoslider.h"
+#include "autospinbox.h"
+#include "autotimeedit.h"

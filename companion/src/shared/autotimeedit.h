@@ -20,80 +20,30 @@
 
 #pragma once
 
-#include <QTimeEdit>
-#include "genericpanel.h"
+#include "autowidget.h"
 
-class AutoTimeEdit: public QTimeEdit
+#include <QTimeEdit>
+
+class AutoTimeEdit : public QTimeEdit, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    explicit AutoTimeEdit(QWidget * parent = nullptr):
-      QTimeEdit(parent),
-      field(nullptr),
-      panel(nullptr),
-      lock(false)
-    {
-      connect(this, SIGNAL(timeChanged(QTime)), this, SLOT(onTimeChanged(QTime)));
-    }
+    explicit AutoTimeEdit(QWidget * parent = nullptr);
+    virtual ~AutoTimeEdit();
 
-    void setField(unsigned int & field, GenericPanel * panel = nullptr)
-    {
-      this->field = &field;
-      this->panel = panel;
-      updateValue();
-    }
+    virtual void updateValue() override;
 
-    void setMinimumTime(const QTime time)
-    {
-      QTimeEdit::setMinimumTime(time);
-    }
-
-    void setMaximumTime(const QTime time)
-    {
-      QTimeEdit::setMaximumTime(time);
-    }
-
-    void setEnabled(bool enabled)
-    {
-      QTimeEdit::setEnabled(enabled);
-    }
-
-    void updateValue()
-    {
-      if (field) {
-        lock = true;
-        int hour = *field / 3600;
-        int min = (*field - (hour * 3600)) / 60;
-        int sec = (*field - (hour * 3600)) % 60;
-        setTime(QTime(hour, min, sec));
-        lock = false;
-      }
-    }
+    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setTimeRange(const QTime min, const QTime max);
 
   signals:
-    void currentDataChanged(unsigned int value);
+    void currentDataChanged(unsigned int val);
 
   protected slots:
-    void onTimeChanged(QTime time)
-    {
-      if (panel && panel->lock)
-        return;
-      if (!field || lock)
-        return;
+    void onTimeChanged(QTime time);
 
-      unsigned int val = time.hour() * 3600 + time.minute() * 60 + time.second();
-      if (*field != val) {
-        *field = val;
-        emit currentDataChanged(val);
-        if (panel)
-          emit panel->modified();
-      }
-    }
-
-  protected:
-    unsigned int *field = nullptr;
-    GenericPanel *panel = nullptr;
-    bool lock = false;
+  private:
+    unsigned int *m_field;
 };
 

@@ -18,52 +18,33 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HARDWARE_H_
-#define _HARDWARE_H_
+#pragma once
 
 #include "generaledit.h"
 
-namespace Ui {
-  class Hardware;
-}
-
-class QLabel;
-class AutoLineEdit;
-class AutoComboBox;
+class CompoundItemModelFactory;
+class FilteredItemModelFactory;
+class QGridLayout;
 
 class HardwarePanel : public GeneralPanel
 {
     Q_OBJECT
 
   public:
-    HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware);
+    HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels);
     virtual ~HardwarePanel();
 
-  private slots:
-    void on_PPM1_editingFinished();
-    void on_PPM2_editingFinished();
-    void on_PPM3_editingFinished();
-    void on_PPM4_editingFinished();
-    void on_PPM_MultiplierDSB_editingFinished();
-
-    void on_txCurrentCalibration_editingFinished();
-    void on_txVoltageCalibration_editingFinished();
-    void on_filterEnable_stateChanged();
-    void on_rtcCheckDisable_stateChanged();
-    void on_sportPower_stateChanged();
-
-    void on_serialPortMode_currentIndexChanged(int index);
-
-  protected:
-    void setupPotType(int index, QLabel * label, AutoLineEdit * name, AutoComboBox * type);
-    void setupSliderType(int index, QLabel * label, AutoLineEdit * name, AutoComboBox * type);
-    void setupSwitchType(int index, QLabel * label, AutoLineEdit * name, AutoComboBox * type, bool threePos = true);
-
   private:
-    Ui::Hardware *ui;
+    Board::Type board;
+    CompoundItemModelFactory *editorItemModels;
+    FilteredItemModelFactory *tabFilteredModels;
+    QGridLayout *grid;
 
-    void setValues();
-    bool isSwitch3Pos(int idx);
+    void addStick(int index, int & row);
+    void addPot(int index, int & row);
+    void addSlider(int index, int & row);
+    void addSwitch(int index, int & row);
+    void addLabel(QString text, int row, int col);
+    void addLine(int & row);
+    void addParams(int & row, QWidget * widget1, QWidget * widget2 = nullptr);
 };
-
-#endif // _HARDWARE_H_

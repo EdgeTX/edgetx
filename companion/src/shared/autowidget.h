@@ -20,15 +20,28 @@
 
 #pragma once
 
-#include "generaledit.h"
+class GenericPanel;
 
-class CalibrationPanel : public GeneralPanel
+// Note: cannot be a Qt object otherwise it will create a compiler ambiguity in the inheriting class
+class AutoWidget
 {
-    Q_OBJECT
+  friend class GenericPanel;
 
   public:
-    CalibrationPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
-    virtual ~CalibrationPanel() {};
+    explicit AutoWidget();
+    ~AutoWidget();
+
+  protected:
+    virtual void updateValue() = 0;
+
+    bool lock();
+    void setLock(bool lock);
+    void setPanel(GenericPanel * panel);
+
+    void dataChanged();
+    bool panelLock();
 
   private:
+    GenericPanel *m_panel;
+    bool m_lock;
 };

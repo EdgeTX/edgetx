@@ -2760,7 +2760,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
     if (version >= 218) {
       internalField.Append(new UnsignedField<4>(this, generalData.auxSerialMode));
       if (IS_FAMILY_HORUS_OR_T16(board) && version >= 219) {
-        internalField.Append(new SpareBitsField<4>(this));
+        internalField.Append(new UnsignedField<4>(this, generalData.aux2SerialMode));
       }
       else {
         for (uint8_t i=0; i<SLIDERS_CONFIG_SIZE(board,version); i++) {

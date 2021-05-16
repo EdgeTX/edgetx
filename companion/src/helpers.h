@@ -191,7 +191,9 @@ public:
 
   void resizeColumnsToContents();
   void setColumnWidth(int col, int width);
+  void setColumnWidth(int col, QString str);
   void pushRowsUp(int row);
+  void pushColumnsLeft(int col);
 
 private:
 #if defined(TABLE_LAYOUT)
