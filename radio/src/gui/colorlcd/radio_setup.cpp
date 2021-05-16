@@ -376,6 +376,7 @@ void RadioSetupPage::build(FormWindow * window)
     grid.nextLine();
 #endif
   
+#if defined(INTERNAL_GPS)
   // GPS
   {
     new Subtitle(window, grid.getLabelSlot(), STR_GPS);
@@ -383,7 +384,7 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Timezone
     new StaticText(window, grid.getLabelSlot(true), STR_TIMEZONE);
-    new NumberEdit(window, grid.getFieldSlot(2, 0), -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
+    new NumberEdit(window, grid.getFieldSlot(), -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
     grid.nextLine();
 
     // Adjust RTC (from telemetry)
@@ -396,6 +397,7 @@ void RadioSetupPage::build(FormWindow * window)
     new Choice(window, grid.getFieldSlot(), STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
     grid.nextLine();
   }
+#endif
 
 #if defined(PXX2)
   // Owner ID
