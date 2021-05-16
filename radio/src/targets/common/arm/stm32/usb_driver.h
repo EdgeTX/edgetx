@@ -31,9 +31,9 @@ enum usbMode {
   USB_SERIAL_MODE,
 #if defined(USB_SERIAL)
 //OW
-  #if defined(TELEMETRY_MAVLINK)
+#if defined(TELEMETRY_MAVLINK)
   USB_MAVLINK_MODE,
-  #endif
+#endif
 //OWEND
   USB_MAX_MODE=USB_SERIAL_MODE
 #else

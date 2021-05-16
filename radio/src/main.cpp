@@ -37,6 +37,7 @@ const char STR_USB_MAVLINK[] = "USB Mavlink (VCP)";
 //OWEND
 
 #if defined(LIBOPENUI)
+
 void openUsbMenu()
 {
   static Menu * menu = nullptr;
@@ -53,13 +54,22 @@ void openUsbMenu()
   menu->addLine(STR_USB_MASS_STORAGE, [] {
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
+//OW
+#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+  menu->addLine(STR_USB_MAVLINK, [] {
+    setSelectedUsbMode(USB_MAVLINK_MODE);
+  });
+#endif
+//OWEND
 #if defined(DEBUG)
   menu->addLine(STR_USB_SERIAL, [] {
     setSelectedUsbMode(USB_SERIAL_MODE);
   });
 #endif
 }
+
 #elif defined(STM32)
+
 void onUSBConnectMenu(const char *result)
 {
   if (result == STR_USB_MASS_STORAGE) {
