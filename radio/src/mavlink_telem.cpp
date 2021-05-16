@@ -653,15 +653,6 @@ void MavlinkTelem::_reset(void)
 
 void MavlinkTelem::_init(void)
 {
-  // for the moment, for as long as gui settings are not there
-  // let's set them manually:
-
-  g_model.mavlinkRssi = 0;
-  g_model.mavlinkMimicSensors = 0;
-  g_model.mavlinkRssiScale = 0;
-  g_model.mavlinkRcOverride = 0;
-
-
   fmav_router_init();
   fmav_router_set_link_properties_all(
       FASTMAVLINK_ROUTER_LINK_PROPERTY_FLAG_ALWAYS_SEND_HEARTBEAT |
