@@ -285,16 +285,16 @@ endif()
 if (TELEMETRY_MAVLINK)
   add_definitions(-DTELEMETRY_MAVLINK)
   if (USB_SERIAL AND NOT DEBUG AND NOT CLI)
-    add_definitions(-DTELEMETRY_MAVLINK_USB_SERIAL)
+#    add_definitions(-DTELEMETRY_MAVLINK_USB_SERIAL)
   endif()
   set(SRC ${SRC} 
     mavlink_telem.cpp
     mavlink_telem_interface.cpp
-#    mavlink_telem_mavapi.cpp
-#    mavlink_telem_autopilot.cpp 
-#    mavlink_telem_camera.cpp
-#    mavlink_telem_gimbal.cpp 
-#    mavlink_telem_qshot.cpp
+    mavlink_telem_mavapi.cpp
+    mavlink_telem_autopilot.cpp 
+    mavlink_telem_camera.cpp
+    mavlink_telem_gimbal.cpp 
+    mavlink_telem_qshot.cpp
     )
   if(NOT LUA STREQUAL NO)
     set(SRC ${SRC} lua/api_mavlink.cpp lua/api_mavsdk.cpp)
