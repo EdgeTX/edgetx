@@ -1838,7 +1838,7 @@ void opentxInit()
   storageReadCurrentModel();
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && defined(LUA)
   if (!globalData.unexpectedShutdown) {
     // ??? lua widget state must be prepared before the call to storageReadAll()
     luaInitThemesAndWidgets();
