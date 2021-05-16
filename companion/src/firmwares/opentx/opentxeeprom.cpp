@@ -2158,15 +2158,16 @@ class ModuleUnionField: public UnionField<unsigned int> {
         module(module)
       {
         internalField.Append(new UnsignedField<3>(this, module.access.receivers));
-        internalField.Append(new SpareBitsField<5>(this));
+        internalField.Append(new SpareBitsField<4>(this));
+        internalField.Append(new UnsignedField<1>(this, module.access.racingMode));
 
-        for (int i=0; i<PXX2_MAX_RECEIVERS_PER_MODULE; i++)
+        for (int i = 0; i < PXX2_MAX_RECEIVERS_PER_MODULE; i++)
           internalField.Append(new CharField<8>(this, receiverName[i]));
 
         memset(receiverName, 0, sizeof(receiverName));
       }
 
-      bool select(const unsigned int& attr) const override
+      bool select(const unsigned int & attr) const override
       {
         return attr >= PULSES_ACCESS_ISRM && attr <= PULSES_ACCESS_R9M_LITE_PRO;
       }
@@ -2759,7 +2760,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
     if (version >= 218) {
       internalField.Append(new UnsignedField<4>(this, generalData.auxSerialMode));
       if (IS_FAMILY_HORUS_OR_T16(board) && version >= 219) {
-        internalField.Append(new SpareBitsField<4>(this));
+        internalField.Append(new UnsignedField<4>(this, generalData.aux2SerialMode));
       }
       else {
         for (uint8_t i=0; i<SLIDERS_CONFIG_SIZE(board,version); i++) {

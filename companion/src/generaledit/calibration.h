@@ -18,19 +18,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CALIBRATION_H_
-#define _CALIBRATION_H_
+#pragma once
 
-#include <QTableWidget>
 #include "generaledit.h"
-
-namespace Ui {
-  class Calibration;
-}
-
-class QLabel;
-class AutoLineEdit;
-class AutoComboBox;
 
 class CalibrationPanel : public GeneralPanel
 {
@@ -40,14 +30,5 @@ class CalibrationPanel : public GeneralPanel
     CalibrationPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~CalibrationPanel() {};
 
-  private slots:
-    void onCellChanged(int value);
-
   private:
-    QTableWidget * tableWidget;
-
-    int getCalibrationValue(int row, int column);
-    void setCalibrationValue(int row, int column, int value);
 };
-
-#endif // _CALIBRATION_H_

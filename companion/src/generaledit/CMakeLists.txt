@@ -3,16 +3,18 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(generaledit_NAMES
   generaledit
   generalsetup
-  trainer
-  hardware
 )
 
 set(generaledit_SRCS
   calibration.cpp
+  hardware.cpp
+  trainer.cpp
 )
 
 set(generaledit_HDRS
   calibration.h
+  hardware.h
+  trainer.h
 )
 
 set(generaledit_UIS

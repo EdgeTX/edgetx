@@ -456,7 +456,8 @@ PACK(struct ModuleData {
       int8_t refreshRate;  // definition as framelength for ppm (* 5 + 225 = time in 1/10 ms)
     } sbus);
     NOBACKUP(struct {
-      uint8_t receivers; // 5 bits spare
+      uint8_t receivers:7; // 4 bits spare
+      uint8_t racingMode:1;
       char receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME];
     } pxx2);
 #if defined(AFHDS2)
@@ -489,13 +490,20 @@ PACK(struct ModuleData {
   } NAME(mod) FUNC(select_mod_type);
 
   // Helper functions to set both of the rfProto protocol at the same time
-  NOBACKUP(inline uint8_t getMultiProtocol() {
+  NOBACKUP(inline uint8_t getMultiProtocol() const
+  {
     return ((uint8_t) (rfProtocol & 0x0F)) + (multi.rfProtocolExtra << 4);
   })
 
-  NOBACKUP(inline void setMultiProtocol(uint8_t proto) {
+  NOBACKUP(inline void setMultiProtocol(uint8_t proto)
+  {
     rfProtocol = (uint8_t) (proto & 0x0F);
     multi.rfProtocolExtra = (proto & 0x70) >> 4;
+  })
+
+  NOBACKUP(inline uint8_t getChannelsCount() const
+  {
+    return channelsCount + 8;
   })
 });
 

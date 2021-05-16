@@ -20,62 +20,30 @@
 
 #pragma once
 
-#include <QCheckBox>
-#include "genericpanel.h"
+#include "autowidget.h"
 
-class AutoCheckBox: public QCheckBox
+#include <QCheckBox>
+
+class AutoCheckBox : public QCheckBox, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    explicit AutoCheckBox(QWidget * parent = nullptr):
-      QCheckBox(parent),
-      field(nullptr),
-      panel(nullptr),
-      lock(false)
-    {
-      connect(this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
-    }
+    explicit AutoCheckBox(QWidget * parent = nullptr);
+    virtual ~AutoCheckBox();
 
-    void setField(bool & field, GenericPanel * panel = nullptr)
-    {
-      this->field = &field;
-      this->panel = panel;
-      updateValue();
-    }
+    virtual void updateValue() override;
 
-    void setEnabled(bool enabled)
-    {
-      QCheckBox::setEnabled(enabled);
-    }
-
-    void updateValue()
-    {
-      if (field) {
-        lock = true;
-        setChecked(*field);
-        lock = false;
-      }
-    }
+    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
+    void setInvert(bool invert);
 
   signals:
     void currentDataChanged(bool value);
 
   protected slots:
-    void onToggled(bool checked)
-    {
-      if (panel && panel->lock)
-        return;
-      if (field && !lock) {
-        *field = checked;
-        emit currentDataChanged(checked);
-        if (panel)
-          emit panel->modified();
-      }
-    }
+    void onToggled(bool checked);
 
-  protected:
-    bool *field = nullptr;
-    GenericPanel *panel = nullptr;
-    bool lock = false;
+  private:
+    bool *m_field;
+    bool m_invert;
 };

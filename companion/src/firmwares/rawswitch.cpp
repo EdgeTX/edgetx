@@ -191,7 +191,10 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
     QStringList fromSwitchList(getSwitchList(cstate.fromBoard));
     QStringList toSwitchList(getSwitchList(cstate.toBoard));
     // set to -1 if no match found
-    newIdx = toSwitchList.indexOf(fromSwitchList.at(swtch.quot));
+    if (swtch.quot < fromSwitchList.count())
+      newIdx = toSwitchList.indexOf(fromSwitchList.at(swtch.quot));
+    else
+      newIdx = -1;
     // perform forced mapping
     if (newIdx < 0) {
       if (IS_TARANIS_X7(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {

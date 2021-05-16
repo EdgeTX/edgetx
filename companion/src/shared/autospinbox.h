@@ -18,30 +18,33 @@
  * GNU General Public License for more details.
  */
 
-#include "hexspinbox.h"
+#pragma once
 
-HexSpinBox::HexSpinBox(QWidget *parent):
-  QSpinBox(parent)
+#include "autowidget.h"
+
+#include <QSpinBox>
+
+class AutoSpinBox : public QSpinBox, public AutoWidget
 {
-  validator = new QRegExpValidator(QRegExp("[0-9A-Fa-f]{1,8}"), this);
-}
+  Q_OBJECT
 
-QValidator::State HexSpinBox::validate(QString &text, int &pos) const
-{
-  return validator->validate(text, pos);
-}
+  public:
+    explicit AutoSpinBox(QWidget * parent = nullptr);
+    virtual ~AutoSpinBox();
 
-int HexSpinBox::valueFromText(const QString &text) const
-{
-  return text.toInt(0, 16);
-}
+    virtual void updateValue() override;
 
-QString HexSpinBox::textFromValue(int value) const
-{
-  QString text;
-  text.sprintf("%04X", value);
-  return text;
-}
+    void setField(int & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, GenericPanel * panel = nullptr);
 
+  signals:
+    void currentDataChanged(int value);
 
+  protected slots:
+    void onValueChanged(int value);
 
+  private:
+    int *m_field;
+
+    void setFieldInit(GenericPanel * panel);
+};

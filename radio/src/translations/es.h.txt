@@ -234,10 +234,11 @@
   #define TR_SF_SAFETY        "---\0      "
 #endif
 
-#define TR_SF_SCREENSHOT      "Captura"
+#define TR_SF_SCREENSHOT      "Captura\0  "
+#define TR_SF_RACING_MODE     "RacingMode"
 #define TR_SF_RESERVE         "[reserv.]\0"
 
-#define TR_VFSWFUNC            TR_SF_SAFETY "Entrenador""Inst. Trim""Reset\0    ""Ajuste \0  " TR_ADJUST_GVAR "Volumen\0  " "Failsafe\0 " "CheckRango" "Enl.módulo" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "Luz Fondo\0" TR_SF_SCREENSHOT TR_SF_TEST
+#define TR_VFSWFUNC            TR_SF_SAFETY "Entrenador""Inst. Trim""Reset\0    ""Ajuste \0  " TR_ADJUST_GVAR "Volumen\0  " "Failsafe\0 " "CheckRango" "Enl.módulo" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "Luz Fondo\0" TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_TEST
 
 #define LEN_VFSWRESET          TR("\004", "\012")
 #define TR_FSW_RESET_TELEM     TR("Telm", "Telemetría")
@@ -1266,6 +1267,7 @@
 #define TR_JITTER_FILTER       "Filtro ADC"
 #define TR_RTC_CHECK           TR("Check RTC", "Check RTC voltaje")
 #define TR_AUTH_FAILURE        "Fallo " LCDW_128_480_LINEBREAK  "autentificación"
+#define TR_RACING_MODE         "Racing mode"
 
 #define ZSTR_VFR               "VFR"
 #define ZSTR_RSSI              "RSSI"

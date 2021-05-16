@@ -19,326 +19,268 @@
  */
 
 #include "hardware.h"
-#include "ui_hardware.h"
+#include "compounditemmodels.h"
+#include "filtereditemmodels.h"
+#include "autolineedit.h"
+#include "autocombobox.h"
+#include "autocheckbox.h"
+#include "autospinbox.h"
+#include "autodoublespinbox.h"
 
-void HardwarePanel::setupSwitchType(int index, QLabel * label, AutoLineEdit * name, AutoComboBox * type, bool threePos)
-{
-  Board::Type board = getCurrentBoard();
-  if (IS_STM32(board) && index < getBoardCapability(board, Board::Switches)) {
-    type->addItem(tr("None"), Board::SWITCH_NOT_AVAILABLE);
-    type->addItem(tr("2 Positions Toggle"), Board::SWITCH_TOGGLE);
-    type->addItem(tr("2 Positions"), Board::SWITCH_2POS);
-    if (threePos) {
-      type->addItem(tr("3 Positions"), Board::SWITCH_3POS);
-    }
-    name->setField(generalSettings.switchName[index], 3, this);
-    type->setField(generalSettings.switchConfig[index], this);
-    if (IS_TARANIS_X7(board)) {
-      if (index == 4) {
-        label->setText("SF");
-      }
-      else if (index == 5) {
-        label->setText("SH");
-      }
-      if (index == 6) {
-        label->setText("SI");
-      }
-      else if (index == 7) {
-        label->setText("SJ");
-      }
-    }
-    else if (IS_RADIOMASTER_TX12(board)) {
-      if (index == 6) {
-        label->setText("SI");
-      }
-      else if (index == 7) {
-        label->setText("SJ");
-      }
-    }
-    else if (IS_FAMILY_T12(board)) {
-      if (index == 4) {
-        label->setText("SG");
-      }
-      else if (index == 5) {
-        label->setText("SH");
-      }
-    }
-  }
-  else {
-    label->hide();
-    name->hide();
-    type->hide();
-  }
-}
+#include <QLabel>
+#include <QGridLayout>
+#include <QFrame>
 
-void HardwarePanel::setupPotType(int index, QLabel * label, AutoLineEdit * name, AutoComboBox * type)
-{
-  Board::Type board = firmware->getBoard();
+constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
+constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
 
-  if (IS_STM32(board) && index < getBoardCapability(board, Board::Pots)) {
-    label->setText(RawSource(SOURCE_TYPE_STICK, CPN_MAX_STICKS+index).toString());
-    type->addItem(tr("None"), Board::POT_NONE);
-    type->addItem(tr("Pot with detent"), Board::POT_WITH_DETENT);
-    type->addItem(tr("Multipos switch"), Board::POT_MULTIPOS_SWITCH);
-    type->addItem(tr("Pot without detent"), Board::POT_WITHOUT_DETENT);
-    name->setField(generalSettings.potName[index], 3, this);
-    type->setField(generalSettings.potConfig[index], this);
-  }
-  else {
-    label->hide();
-    name->hide();
-    type->hide();
-  }
-}
-
-void HardwarePanel::setupSliderType(int index, QLabel *label, AutoLineEdit *name, AutoComboBox *type)
-{
-  Board::Type board = firmware->getBoard();
-
-  if (IS_STM32(board) && index < getBoardCapability(board, Board::Sliders)) {
-    label->setText(RawSource(SOURCE_TYPE_STICK, CPN_MAX_STICKS+getBoardCapability(board, Board::Pots)+index).toString());
-    type->addItem(tr("None"), Board::SLIDER_NONE);
-    type->addItem(tr("Slider with detent"), Board::SLIDER_WITH_DETENT);
-    name->setField(generalSettings.sliderName[index], 3, this);
-    type->setField(generalSettings.sliderConfig[index], this);
-  }
-  else {
-    label->hide();
-    name->hide();
-    type->hide();
-  }
-}
-
-bool HardwarePanel::isSwitch3Pos(int idx)
-{
-  Board::Type board = firmware->getBoard();
-  Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, idx);
-
-  switchInfo.config = Board::SwitchType(generalSettings.switchConfig[idx]);
-  return switchInfo.config == Board::SWITCH_3POS;
-};
-
-HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
+HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
-  ui(new Ui::Hardware)
+  board(firmware->getBoard()),
+  editorItemModels(sharedItemModels)
 {
-  ui->setupUi(this);
+  editorItemModels->registerItemModel(Boards::potTypeItemModel());
+  editorItemModels->registerItemModel(Boards::sliderTypeItemModel());
+  int id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
 
-  Board::Type board = firmware->getBoard();
+  tabFilteredModels = new FilteredItemModelFactory();
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
 
-  if (IS_STM32(board)) {
-    ui->rudName->setField(generalSettings.stickName[0], 3, this);
-    ui->eleName->setField(generalSettings.stickName[1], 3, this);
-    ui->thrName->setField(generalSettings.stickName[2], 3, this);
-    ui->ailName->setField(generalSettings.stickName[3], 3, this);
+  int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
+  int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
+  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::auxSerialModeItemModel());
+  int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::telemetryBaudrateItemModel());
+
+  grid = new QGridLayout(this);
+  int count;
+  int row = 0;
+
+  count = Boards::getCapability(board, Board::Sticks);
+  if (count) {
+    for (int i = 0; i < count; i++) {
+      addStick(i, row);
+    }
   }
-  else {
-    ui->rudLabel->hide();
-    ui->rudName->hide();
-    ui->eleLabel->hide();
-    ui->eleName->hide();
-    ui->thrLabel->hide();
-    ui->thrName->hide();
-    ui->ailLabel->hide();
-    ui->ailName->hide();
-    ui->potsTypeSeparator_1->hide();
-    ui->potsTypeSeparator_2->hide();
+
+  count = Boards::getCapability(board, Board::Pots);
+  if (count) {
+    for (int i = 0; i < count; i++) {
+      addPot(i, row);
+    }
   }
-  
+
+  count = Boards::getCapability(board, Board::Sliders);
+  if (count) {
+    for (int i = 0; i < count; i++) {
+      addSlider(i, row);
+    }
+    addLine(row);
+  }
+
+  count = Boards::getCapability(board, Board::Switches);
+  if (count) {
+    for (int i = 0; i < count; i++) {
+      addSwitch(i, row);
+    }
+    addLine(row);
+  }
+
+  addLabel(tr("Battery Offset"), row, 0);
+  AutoDoubleSpinBox *txVoltageCalibration = new AutoDoubleSpinBox(this);
+  FieldRange txVCRng = GeneralSettings::getTxVoltageCalibrationRange();
+  txVoltageCalibration->setDecimals(txVCRng.decimals);
+  txVoltageCalibration->setSingleStep(txVCRng.step);
+  txVoltageCalibration->setSuffix(txVCRng.unit);
+  txVoltageCalibration->setField(generalSettings.txVoltageCalibration);
+  addParams(row, txVoltageCalibration);
+
+  if (Boards::getCapability(board, Board::HasRTC)) {
+    addLabel(tr("RTC Battery Check"), row, 0);
+    AutoCheckBox *rtcCheckDisable = new AutoCheckBox(this);
+    rtcCheckDisable->setField(generalSettings.rtcCheckDisable, this, true);
+    addParams(row, rtcCheckDisable);
+  }
+
+  if (firmware->getCapability(HasBluetooth)) {
+    addLabel(tr("Bluetooth"), row, 0);
+
+    QGridLayout *btlayout = new QGridLayout();
+
+    AutoComboBox *bluetoothMode = new AutoComboBox(this);
+    bluetoothMode->setModel(editorItemModels->getItemModel(btmodelid));
+    bluetoothMode->setField(generalSettings.bluetoothMode, this);
+    btlayout->addWidget(bluetoothMode, 0, 0);
+
+    QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    btlayout->addItem(spacer, 0, 1);
+
+    QLabel *btnamelabel = new QLabel(this);
+    btnamelabel->setText(tr("Device Name:"));
+    btlayout->addWidget(btnamelabel, 0, 2);
+
+    AutoLineEdit *bluetoothName = new AutoLineEdit(this);
+    bluetoothName->setField(generalSettings.bluetoothName, BLUETOOTH_NAME_LEN, this);
+    btlayout->addWidget(bluetoothName, 0, 3);
+
+    grid->addLayout(btlayout, row, 1);
+    row++;
+  }
+
+  if (firmware->getCapability(HasAntennaChoice)) {
+    addLabel(tr("Antenna"), row, 0);
+    AutoComboBox *antennaMode = new AutoComboBox(this);
+    antennaMode->setModel(editorItemModels->getItemModel(antmodelid));
+    antennaMode->setField(generalSettings.antennaMode, this);
+    addParams(row, antennaMode);
+  }
+
+  if (firmware->getCapability(HasAuxSerialMode)) {
+    QString lbl = "Serial Port";
+    if (IS_RADIOMASTER_TX16S(board))
+      lbl.append(" (TTL)");
+    addLabel(tr("%1").arg(lbl), row, 0);
+    AutoComboBox *serialPortMode = new AutoComboBox(this);
+    serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPortMode->setField(generalSettings.auxSerialMode);
+    addParams(row, serialPortMode);
+  }
+
+  if (firmware->getCapability(HasAux2SerialMode)) {
+    QString lbl = "Serial Port 2";
+    if (IS_RADIOMASTER_TX16S(board))
+      lbl.append(" (TTL)");
+    addLabel(tr("%1").arg(lbl), row, 0);
+    AutoComboBox *serialPort2Mode = new AutoComboBox(this);
+    serialPort2Mode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPort2Mode->setField(generalSettings.aux2SerialMode);
+    addParams(row, serialPort2Mode);
+  }
+
+  if (firmware->getCapability(HasADCJitterFilter)) {
+    addLabel(tr("ADC Filter"), row, 0);
+    AutoCheckBox *filterEnable = new AutoCheckBox(this);
+    filterEnable->setField(generalSettings.jitterFilter, this, true);
+    addParams(row, filterEnable);
+  }
+
   if (firmware->getCapability(HasSportConnector)) {
-    ui->sportPower->setChecked(generalSettings.sportPower);
-  }
-  else {
-    ui->sportPower->hide();
-    ui->sportPowerLabel->hide();
-  }
-
-  setupPotType(0, ui->pot1Label, ui->pot1Name, ui->pot1Type);
-  setupPotType(1, ui->pot2Label, ui->pot2Name, ui->pot2Type);
-  setupPotType(2, ui->pot3Label, ui->pot3Name, ui->pot3Type);
-  setupPotType(3, ui->pot4Label, ui->pot4Name, ui->pot4Type);
-  setupPotType(4, ui->pot5Label, ui->pot5Name, ui->pot5Type);
-
-  setupSliderType(0, ui->lsLabel, ui->lsName, ui->lsType);
-  setupSliderType(1, ui->rsLabel, ui->rsName, ui->rsType);
-  setupSliderType(2, ui->ls2Label, ui->ls2Name, ui->ls2Type);
-  setupSliderType(3, ui->rs2Label, ui->rs2Name, ui->rs2Type);
-
-  setupSwitchType(0, ui->saLabel, ui->saName, ui->saType, isSwitch3Pos(0));
-  setupSwitchType(1, ui->sbLabel, ui->sbName, ui->sbType, isSwitch3Pos(1));
-  setupSwitchType(2, ui->scLabel, ui->scName, ui->scType, isSwitch3Pos(2));
-  setupSwitchType(3, ui->sdLabel, ui->sdName, ui->sdType, isSwitch3Pos(3));
-  setupSwitchType(4, ui->seLabel, ui->seName, ui->seType, isSwitch3Pos(4));
-  setupSwitchType(5, ui->sfLabel, ui->sfName, ui->sfType, isSwitch3Pos(5));
-  setupSwitchType(6, ui->sgLabel, ui->sgName, ui->sgType, isSwitch3Pos(6));
-  setupSwitchType(7, ui->shLabel, ui->shName, ui->shType, isSwitch3Pos(7));
-  setupSwitchType(8, ui->siLabel, ui->siName, ui->siType, isSwitch3Pos(8));
-  setupSwitchType(9, ui->sjLabel, ui->sjName, ui->sjType, isSwitch3Pos(9));
-  setupSwitchType(10, ui->skLabel, ui->skName, ui->skType); // Here starts X9E, only 3 switches
-  setupSwitchType(11, ui->slLabel, ui->slName, ui->slType);
-  setupSwitchType(12, ui->smLabel, ui->smName, ui->smType);
-  setupSwitchType(13, ui->snLabel, ui->snName, ui->snType);
-  setupSwitchType(14, ui->soLabel, ui->soName, ui->soType);
-  setupSwitchType(15, ui->spLabel, ui->spName, ui->spType);
-  setupSwitchType(16, ui->sqLabel, ui->sqName, ui->sqType);
-  setupSwitchType(17, ui->srLabel, ui->srName, ui->srType);
-
-  if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board)) {
-    ui->serialPortMode->setCurrentIndex(generalSettings.auxSerialMode);
-  }
-  else {
-    ui->serialPortMode->setCurrentIndex(0);
-    ui->serialPortMode->hide();
-    ui->serialPortLabel->hide();
+    addLabel(tr("S.Port Power"), row, 0);
+    AutoCheckBox *sportPower = new AutoCheckBox(this);
+    sportPower->setField(generalSettings.sportPower, this);
+    addParams(row, sportPower);
   }
 
-  if (!IS_SKY9X(board)) {
-    ui->txCurrentCalibration->hide();
-    ui->txCurrentCalibrationLabel->hide();
+  if (firmware->getCapability(HasTelemetryBaudrate)) {
+    addLabel(tr("Maximum Baud"), row, 0);
+    AutoComboBox *maxBaudRate = new AutoComboBox(this);
+    maxBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
+    maxBaudRate->setField(generalSettings.telemetryBaudrate, this);
+    addParams(row, maxBaudRate);
   }
 
-  if (IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FAMILY_HORUS_OR_T16(board)) {
-    ui->bluetoothMode->addItem(tr("OFF"), 0);
-    if (IS_TARANIS_X9E(board)) {
-      ui->bluetoothMode->addItem(tr("Enabled"), 1);
-    }
-    else {
-      ui->bluetoothMode->addItem(tr("Telemetry"), 1);
-      ui->bluetoothMode->addItem(tr("Trainer"), 2);
-    }
-    ui->bluetoothMode->setField(generalSettings.bluetoothMode, this);
-    ui->bluetoothName->setField(generalSettings.bluetoothName, 10, this);
-  }
-  else {
-    ui->bluetoothLabel->hide();
-    ui->bluetoothWidget->hide();
+  if (firmware->getCapability(HastxCurrentCalibration)) {
+    addLabel(tr("Current Offset"), row, 0);
+    AutoSpinBox *txCurrentCalibration = new AutoSpinBox(this);
+    FieldRange txCCRng = GeneralSettings::getTxCurrentCalibration();
+    txCurrentCalibration->setSuffix(txVCRng.unit);
+    txCurrentCalibration->setField(generalSettings.txCurrentCalibration);
+    addParams(row, txCurrentCalibration);
   }
 
-  if ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) {
-    ui->antennaMode->addItem(tr("Internal"), -2);
-    ui->antennaMode->addItem(tr("Ask"), -1);
-    ui->antennaMode->addItem(tr("Per model"), 0);
-    ui->antennaMode->addItem(IS_HORUS_X12S(board) ? tr("Internal + External") : tr("External"), 1);
-    ui->antennaMode->setField(generalSettings.antennaMode, this);
-  }
-  else {
-    ui->antennaLabel->hide();
-    ui->antennaMode->hide();
-  }
-
-  if (IS_HORUS_OR_TARANIS(board)) {
-    ui->filterEnable->setChecked(!generalSettings.jitterFilter);
-  }
-  else {
-    ui->filterEnable->hide();
-    ui->filterLabel->hide();
-  }
-
-  if (IS_STM32(board)) {
-    ui->rtcCheckDisable->setChecked(!generalSettings.rtcCheckDisable);
-  }
-  else {
-    ui->rtcCheckDisable->hide();
-    ui->rtcCheckLabel->hide();
-  }
-
+  addVSpring(grid, 0, grid->rowCount());
+  addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
-
-  setValues();
 }
 
 HardwarePanel::~HardwarePanel()
 {
-  delete ui;
+  delete tabFilteredModels;
 }
 
-void HardwarePanel::on_filterEnable_stateChanged()
+void HardwarePanel::addStick(int index, int & row)
 {
-  generalSettings.jitterFilter = !ui->filterEnable->isChecked();
+  int col = 0;
+  addLabel(Boards::getAnalogInputName(board, index), row, col++);
+
+  AutoLineEdit *name = new AutoLineEdit(this);
+  name->setField(generalSettings.stickName[index], HARDWARE_NAME_LEN, this);
+
+  addParams(row, name);
 }
 
-void HardwarePanel::on_sportPower_stateChanged()
+void HardwarePanel::addPot(int index, int & row)
 {
-  generalSettings.sportPower = ui->sportPower->isChecked();
+  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) + index), row, 0);
+
+  AutoLineEdit *name = new AutoLineEdit(this);
+  name->setField(generalSettings.potName[index], HARDWARE_NAME_LEN, this);
+
+  AutoComboBox *type = new AutoComboBox(this);
+  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_POT_TYPE));
+  type->setField(generalSettings.potConfig[index], this);
+
+  addParams(row, name, type);
 }
 
-void HardwarePanel::on_rtcCheckDisable_stateChanged()
+void HardwarePanel::addSlider(int index, int & row)
 {
-  generalSettings.rtcCheckDisable = !ui->rtcCheckDisable->isChecked();
+  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) +
+                                             Boards::getCapability(board, Board::Pots) + index), row, 0);
+
+  AutoLineEdit *name = new AutoLineEdit(this);
+  name->setField(generalSettings.sliderName[index], HARDWARE_NAME_LEN, this);
+
+  AutoComboBox *type = new AutoComboBox(this);
+  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_SLIDER_TYPE));
+  type->setField(generalSettings.sliderConfig[index], this);
+
+  addParams(row, name, type);
 }
 
-void HardwarePanel::on_PPM_MultiplierDSB_editingFinished()
+void HardwarePanel::addSwitch(int index, int & row)
 {
-  int val = (int)(ui->PPM_MultiplierDSB->value()*10)-10;
-  if (generalSettings.PPM_Multiplier != val) {
-    generalSettings.PPM_Multiplier = val;
-    emit modified();
-  }
+  addLabel(Boards::getSwitchInfo(board, index).name, row, 0);
+
+  AutoLineEdit *name = new AutoLineEdit(this);
+  name->setField(generalSettings.switchName[index], HARDWARE_NAME_LEN, this);
+
+  AutoComboBox *type = new AutoComboBox(this);
+  Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
+  type->setModel(switchInfo.config < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
+                                                          tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+  type->setField(generalSettings.switchConfig[index], this);
+
+  addParams(row, name, type);
 }
 
-void HardwarePanel::on_PPM1_editingFinished()
+void HardwarePanel::addLabel(QString text, int row, int col)
 {
-  if (generalSettings.trainer.calib[0] != ui->PPM1->value()) {
-    generalSettings.trainer.calib[0] = ui->PPM1->value();
-    emit modified();
-  }
+  QLabel *label = new QLabel(this);
+  label->setText(text);
+  grid->addWidget(label, row, col);
 }
 
-void HardwarePanel::on_PPM2_editingFinished()
+void HardwarePanel::addLine(int & row)
 {
-  if (generalSettings.trainer.calib[1] != ui->PPM2->value()) {
-    generalSettings.trainer.calib[1] = ui->PPM2->value();
-    emit modified();
-  }
+  QFrame *line = new QFrame(this);
+  line->setFrameShape(QFrame::HLine);
+  line->setFrameShadow(QFrame::Sunken);
+  line->setLineWidth(1);
+  line->setMidLineWidth(0);
+  grid->addWidget(line, row, 0, 1, grid->columnCount());
+  row++;
 }
 
-void HardwarePanel::on_PPM3_editingFinished()
+void HardwarePanel::addParams(int & row, QWidget * widget1, QWidget * widget2)
 {
-  if (generalSettings.trainer.calib[2] != ui->PPM3->value()) {
-    generalSettings.trainer.calib[2] = ui->PPM3->value();
-    emit modified();
-  }
-}
-
-void HardwarePanel::on_PPM4_editingFinished()
-{
-  if (generalSettings.trainer.calib[3] != ui->PPM4->value()) {
-    generalSettings.trainer.calib[3] = ui->PPM4->value();
-    emit modified();
-  }
-}
-
-
-void HardwarePanel::on_txCurrentCalibration_editingFinished()
-{
-  if (generalSettings.txCurrentCalibration != ui->txCurrentCalibration->value()) {
-    generalSettings.txCurrentCalibration = ui->txCurrentCalibration->value();
-    emit modified();
-  }
-}
-
-void HardwarePanel::setValues()
-{
-  ui->txVoltageCalibration->setValue((double)generalSettings.txVoltageCalibration/10);
-  ui->txCurrentCalibration->setValue((double)generalSettings.txCurrentCalibration);
-
-  ui->PPM1->setValue(generalSettings.trainer.calib[0]);
-  ui->PPM2->setValue(generalSettings.trainer.calib[1]);
-  ui->PPM3->setValue(generalSettings.trainer.calib[2]);
-  ui->PPM4->setValue(generalSettings.trainer.calib[3]);
-  ui->PPM_MultiplierDSB->setValue((qreal)(generalSettings.PPM_Multiplier+10)/10);
-}
-
-void HardwarePanel::on_txVoltageCalibration_editingFinished()
-{
-  if (generalSettings.txVoltageCalibration != ui->txVoltageCalibration->value()*10) {
-    generalSettings.txVoltageCalibration = ui->txVoltageCalibration->value()*10;
-    emit modified();
-  }
-}
-
-void HardwarePanel::on_serialPortMode_currentIndexChanged(int index)
-{
-  generalSettings.auxSerialMode = index;
-  emit modified();
+  QGridLayout *subgrid = new QGridLayout();
+  subgrid->addWidget(widget1, 0, 0);
+  if (widget2)
+    subgrid->addWidget(widget2, 0, 1);
+  else
+    addHSpring(subgrid, 1, 0);
+  addHSpring(subgrid, 2, 0);
+  grid->addLayout(subgrid, row, 1);
+  row++;
 }

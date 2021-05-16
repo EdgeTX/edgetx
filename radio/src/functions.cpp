@@ -379,9 +379,17 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
           case FUNC_SCREENSHOT:
             if (!(functionsContext.activeSwitches & switch_mask)) {
-              mainRequestFlags |= (1 << REQUEST_SCREENSHOT);
+              mainRequestFlags |= (1u << REQUEST_SCREENSHOT);
             }
             break;
+
+#if defined(PXX2)
+          case FUNC_RACING_MODE:
+            if (isRacingModeEnabled()) {
+              newActiveFunctions |= (1u << FUNCTION_RACING_MODE);
+            }
+            break;
+#endif
 
 #if defined(DEBUG)
           case FUNC_TEST:

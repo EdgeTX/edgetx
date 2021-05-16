@@ -115,6 +115,25 @@ void sendSynchronousPulses(uint8_t runMask)
 #endif
 }
 
+constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
+constexpr uint8_t MIXER_MAX_PERIOD = 30 /*ms*/;
+
+void execMixerFrequentActions()
+{
+#if defined(SBUS_TRAINER)
+  // SBUS trainer
+  processSbusInput();
+#endif
+
+#if defined(GYRO)
+  gyro.wakeup();
+#endif
+
+#if defined(BLUETOOTH)
+  bluetooth.wakeup();
+#endif
+}
+
 uint32_t nextMixerTime[NUM_MODULES];
 
 TASK_FUNCTION(mixerTask)
@@ -122,26 +141,27 @@ TASK_FUNCTION(mixerTask)
   s_pulses_paused = true;
 
   mixerSchedulerInit();
+
 #if !defined(PCBSKY9X)
   mixerSchedulerStart();
 #endif
 
+  // clear the flag before first loop
+  mixerSchedulerClearTrigger();
+
   while (true) {
-#if defined(SBUS_TRAINER)
-    // SBUS trainer
-    processSbusInput();
-#endif
+    int timeout = 0;
+    for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
 
-#if defined(GYRO)
-    gyro.wakeup();
-#endif
+      // run periodicals before waiting for the trigger
+      // to keep the delay short
+      execMixerFrequentActions();
 
-#if defined(BLUETOOTH)
-    bluetooth.wakeup();
-#endif
-
-    // run mixer at least every 30ms
-    bool timeout = mixerSchedulerWaitForTrigger(30);
+      // mixer flag triggered?
+      if (!mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD)) {
+        break;
+      }
+    }
 
 #if defined(DEBUG_MIXER_SCHEDULER)
     GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
@@ -149,6 +169,9 @@ TASK_FUNCTION(mixerTask)
 #endif
 
 #if !defined(PCBSKY9X)
+    // clear the flag ASAP to avoid missing a tick
+    mixerSchedulerClearTrigger();
+
     // re-enable trigger
     mixerSchedulerEnableTrigger();
 #endif
@@ -210,10 +233,6 @@ TASK_FUNCTION(mixerTask)
       // TODO:
       // - check the cause of timeouts when switching
       //    between protocols with multi-proto RF
-#if defined(DEBUG)
-      if (timeout)
-        serialPrint("mix sched timeout!");
-#endif
     }
   }
 }

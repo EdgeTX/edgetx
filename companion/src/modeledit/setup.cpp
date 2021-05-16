@@ -182,6 +182,7 @@ void TimerPanel::onCountdownBeepChanged(int index)
 #define MASK_ACCESS         (1<<13)
 #define MASK_RX_FREQ        (1<<14)
 #define MASK_RF_POWER       (1<<15)
+#define MASK_RF_RACING_MODE (1<<16)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -371,9 +372,9 @@ void ModulePanel::setupFailsafes()
 
 void ModulePanel::update()
 {
-  const PulsesProtocol protocol = (PulsesProtocol)module.protocol;
-  const Board::Type board = firmware->getBoard();
-  const Multiprotocols::MultiProtocolDefinition & pdef = multiProtocols.getProtocol(module.multi.rfProtocol);
+  const auto protocol = (PulsesProtocol)module.protocol;
+  const auto board = firmware->getBoard();
+  const auto & pdef = multiProtocols.getProtocol(module.multi.rfProtocol);
   unsigned int mask = 0;
   unsigned int max_rx_num = 63;
 
@@ -406,6 +407,8 @@ void ModulePanel::update()
           mask |= MASK_RX_NUMBER | MASK_ACCESS;
         if (moduleIdx == 0 && HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == 0 /* per model */)
           mask |= MASK_ANTENNA;
+        if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
+          mask |= MASK_RF_RACING_MODE;
         break;
       case PULSES_LP45:
       case PULSES_DSM2:
@@ -446,8 +449,6 @@ void ModulePanel::update()
         module.channelsCount = 18;
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
         mask |= MASK_SUBTYPES | MASK_RX_FREQ | MASK_RF_POWER;
-        break;
-      case PULSES_OFF:
         break;
       default:
         break;
@@ -510,6 +511,14 @@ void ModulePanel::update()
   else {
     ui->antennaLabel->hide();
     ui->antennaMode->hide();
+  }
+
+  if (mask & MASK_RF_RACING_MODE) {
+    ui->racingMode->show();
+    ui->racingMode->setChecked(module.access.racingMode);
+  }
+  else {
+    ui->racingMode->hide();
   }
 
   // R9M options
@@ -801,6 +810,11 @@ void ModulePanel::on_disableTelem_stateChanged(int state)
 void ModulePanel::on_disableChMap_stateChanged(int state)
 {
   module.multi.disableMapping = (state == Qt::Checked);
+}
+
+void ModulePanel::on_racingMode_stateChanged(int state)
+{
+  module.access.racingMode = (state == Qt::Checked);
 }
 
 void ModulePanel::on_autoBind_stateChanged(int state)

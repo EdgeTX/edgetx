@@ -18,93 +18,45 @@
  * GNU General Public License for more details.
  */
 
-#include <QVBoxLayout>
-#include <QHeaderView>
-#include <QSpinBox>
 #include "calibration.h"
-
+#include "autospinbox.h"
+#include "helpers.h"
 
 CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
   GeneralPanel(parent, generalSettings, firmware)
 {
+  int rows = Boards::getCapability(getCurrentBoard(), Board::MaxAnalogs);
 
-  tableWidget = new QTableWidget();
-  QVBoxLayout * layout = new QVBoxLayout();
-  layout->addWidget(tableWidget);
-  layout->setContentsMargins(0, 0, 0, 0);
-  this->setLayout(layout);
-
-  tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  tableWidget->setColumnCount(3);
-  tableWidget->setShowGrid(false);
-  tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-  tableWidget->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
-  tableWidget->setStyleSheet("QTableWidget {background-color: transparent;}");
   QStringList headerLabels;
-  headerLabels << tr("Negative span") << tr("Mid value") << tr("Positive span");
-  tableWidget->setHorizontalHeaderLabels(headerLabels);
+  headerLabels << "" << tr("Negative span") << tr("Mid value") << tr("Positive span");
 
-  int rows = getBoardCapability(getCurrentBoard(), Board::MaxAnalogs);
-  tableWidget->setRowCount(rows);
+  TableLayout * tableLayout = new TableLayout(this, rows, headerLabels);
 
-  for(int i = 0; i < rows; ++i) {
+  for (int i = 0; i < rows; i++) {
+    int col = 0;
+    QLabel * label = new QLabel(this);
+    label->setText(firmware->getAnalogInputName(i));
+    tableLayout->addWidget(i, col++, label);
 
-    QTableWidgetItem *newItem = new QTableWidgetItem(firmware->getAnalogInputName(i));
-    newItem->setTextAlignment(Qt::AlignLeft);
-    tableWidget->setVerticalHeaderItem(i, newItem);
+    QLineEdit * leNeg = new QLineEdit(this);
+    leNeg->setText(QString("%1").arg(generalSettings.calibSpanNeg[i]));
+    leNeg->setReadOnly(true);
+    tableLayout->addWidget(i, col++, leNeg);
 
-    for(int j = 0; j < 3; ++j) {
-      QSpinBox * newItem = new QSpinBox();
-      newItem->setMinimum(-9999);
-      newItem->setMaximum(9999);
-      newItem->setSingleStep(1);
-      newItem->setValue(getCalibrationValue(i, j));
-      newItem->setProperty("row", i);
-      newItem->setProperty("column", j);
-      tableWidget->setCellWidget(i, j, newItem);
-      connect(newItem, SIGNAL(valueChanged(int)), this, SLOT(onCellChanged(int)));
-    }
+    QLineEdit * leMid = new QLineEdit(this);
+    leMid->setText(QString("%1").arg(generalSettings.calibMid[i]));
+    leMid->setReadOnly(true);
+    tableLayout->addWidget(i, col++, leMid);
+
+    QLineEdit * lePos = new QLineEdit(this);
+    lePos->setText(QString("%1").arg(generalSettings.calibSpanPos[i]));
+    lePos->setReadOnly(true);
+    tableLayout->addWidget(i, col++, lePos);
   }
+
   disableMouseScrolling();
-}
-
-void CalibrationPanel::onCellChanged(int value)
-{
-  QSpinBox * sb = qobject_cast<QSpinBox*>(sender());
-  int row = sb->property("row").toInt();
-  int column = sb->property("column").toInt();
-
-  if (value != getCalibrationValue(row, column)) {
-    setCalibrationValue(row,column, value);
-    qDebug() << "CalibrationPanel::onCellChanged" << row << column << "to" << value;
-    emit modified();
-  }
-}
-
-int CalibrationPanel::getCalibrationValue(int row, int column)
-{
-  switch(column) {
-    case 0:
-      return generalSettings.calibSpanNeg[row];
-    case 1:
-      return generalSettings.calibMid[row];
-    case 2:
-      return generalSettings.calibSpanPos[row];
-  }
-  return 0;
-}
-
-void CalibrationPanel::setCalibrationValue(int row, int column, int value)
-{
-  switch(column) {
-    case 0:
-      generalSettings.calibSpanNeg[row] = value;
-      break;
-    case 1:
-      generalSettings.calibMid[row] = value;
-      break;
-    case 2:
-      generalSettings.calibSpanPos[row] = value;
-      break;
-  }
+  tableLayout->resizeColumnsToContents();
+  tableLayout->setColumnWidth(0, QString(15, ' '));
+  tableLayout->pushColumnsLeft(headerLabels.count());
+  tableLayout->pushRowsUp(rows + 1);
 }
