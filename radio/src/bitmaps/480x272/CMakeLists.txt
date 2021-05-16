@@ -40,5 +40,5 @@ add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_icons ${RADIO_SRC_DIR}/bit
 
 add_dependencies(${BITMAP_TARGET_PREFIX}_bitmaps ${BITMAP_TARGET_PREFIX}_calibration_bitmaps ${BITMAP_TARGET_PREFIX}_button_bitmaps ${BITMAP_TARGET_PREFIX}_alpha_bitmaps
                  ${BITMAP_TARGET_PREFIX}_alpha_calibration_bitmaps ${BITMAP_TARGET_PREFIX}_masks ${BITMAP_TARGET_PREFIX}_slider_masks ${BITMAP_TARGET_PREFIX}_layouts_masks
-                 ${BITMAP_TARGET_PREFIX}_themes_bitmaps ${BITMAP_TARGET_PREFIX}_fonts ${BITMAP_TARGET_PREFIX}_volume_masks ${BITMAP_TARGET_PREFIX}_bootloader_bitmaps
-                 ${BITMAP_TARGET_PREFIX}_bootloader_icons ${BITMAP_TARGET_PREFIX}_themes_masks ${BITMAP_TARGET_PREFIX}_themes_alpha)
+                 ${BITMAP_TARGET_PREFIX}_fonts ${BITMAP_TARGET_PREFIX}_themes_masks ${BITMAP_TARGET_PREFIX}_themes_alpha
+                 ${BITMAP_TARGET_PREFIX}_volume_masks ${BITMAP_TARGET_PREFIX}_bootloader_bitmaps ${BITMAP_TARGET_PREFIX}_bootloader_icons )
