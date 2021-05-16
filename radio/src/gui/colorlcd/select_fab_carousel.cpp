@@ -40,7 +40,7 @@ void SelectFabCarousel::addButton(uint8_t icon, const char* title,
   coord_t x_pos = pageWidth * buttons;// + SELECT_BUTTON_BORDER / 2;
   buttons++;
 
-  auto button = new SelectFabButton(this, x_pos, y_pos, icon, title, pressHandler);
+  /*auto button =*/ new SelectFabButton(this, x_pos, y_pos, icon, title, pressHandler);
   setInnerWidth(pageWidth * buttons);
 
   // y_pos += button->width() + SELECT_BUTTON_BORDER;
