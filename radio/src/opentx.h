@@ -18,6 +18,8 @@
  * GNU General Public License for more details.
  */
 
+//OW
+
 #pragma once
 
 #include <stdlib.h>
@@ -999,6 +1001,12 @@ constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
 #if defined(BLUETOOTH)
 #include "bluetooth.h"
 #endif
+
+//OW
+#if defined(TELEMETRY_MAVLINK)
+#include "telemetry/mavlink/mavlink_telem.h"
+#endif
+//OWEND
 
 constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 

@@ -41,6 +41,11 @@ void stackPaint()
 #if defined(CLI)
   cliStack.paint();
 #endif
+//OW
+#if defined(TELEMETRY_MAVLINK)
+  mavlinkStack.paint();
+#endif
+//OWEND
 }
 
 volatile uint16_t timeForcePowerOffPressed = 0;
@@ -327,5 +332,12 @@ void tasksStart()
 #if !defined(SIMU)
   RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
 #endif
+
+//OW
+#if defined(TELEMETRY_MAVLINK)
+  mavlinkStart();
+#endif
+//OWEND
+
   RTOS_START();
 }
