@@ -296,8 +296,25 @@ if (TELEMETRY_MAVLINK)
     telemetry/mavlink/mavlink_telem_gimbal.cpp 
     telemetry/mavlink/mavlink_telem_qshot.cpp
     )
-  if(NOT LUA STREQUAL NO)
+  if (NOT LUA STREQUAL NO)
     set(SRC ${SRC} lua/api_mavlink.cpp lua/api_mavsdk.cpp)
+  endif()
+  # generate required header files from fastmavlink submodule
+  execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} fmav_generate_c_library.py 
+    WORKING_DIRECTORY ${RADIO_DIRECTORY}/src/${THIRDPARTY_DIR}/Mavlink
+    RESULT_VARIABLE FMAV_GENERATE_CLIB_RESULT
+    )
+  if (NOT FMAV_GENERATE_CLIB_RESULT EQUAL "0")
+    message(FATAL_ERROR "fmav_generate_c_library.py could not be run: ${FMAV_GENERATE_CLIB_RESULT}")
+  endif()
+  execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} fmav_generate_lua_lib.py 
+    WORKING_DIRECTORY ${RADIO_DIRECTORY}/src/${THIRDPARTY_DIR}/Mavlink
+    RESULT_VARIABLE FMAV_GENERATE_LUALIB_RESULT
+    )
+  if (NOT FMAV_GENERATE_LUALIB_RESULT EQUAL "0")
+    message(FATAL_ERROR "fmav_generate_lua_lib.py could not be run: ${FMAV_GENERATE_LUALIB_RESULT}")
   endif()
 endif()
 # //OWEND
