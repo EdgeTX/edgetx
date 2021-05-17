@@ -156,7 +156,7 @@ void RadioHardwarePage::build(FormWindow * window)
 #else
   grid.setLabelWidth(130);
 #endif
-  grid.spacer(6);
+  grid.spacer(PAGE_PADDING);
 
   // Calibration
   new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, FONT(BOLD));
