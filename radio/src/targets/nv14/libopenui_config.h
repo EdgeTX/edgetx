@@ -86,7 +86,7 @@ constexpr uint32_t ALERT_BUTTON_TOP =              300;
 constexpr uint32_t PAGE_TITLE_TOP =                4;
 constexpr uint32_t PAGE_TITLE_LEFT =               70;
 
-enum LcdColorIndex
+/*enum LcdColorIndex
 {
   DEFAULT_COLOR_INDEX,
   DEFAULT_BGCOLOR_INDEX,
@@ -130,7 +130,7 @@ enum LcdColorIndex
 
   TABLE_HEADER_BGCOLOR_INDEX,
   TABLE_BGCOLOR_INDEX,
-};
+};*/
 
 enum FontIndex
 {

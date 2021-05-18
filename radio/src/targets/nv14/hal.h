@@ -160,12 +160,13 @@
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
-#define PWR_GPIO                        GPIOI
-#define PWR_SWITCH_GPIO_REG             PWR_GPIO->IDR
-#define PWR_SWITCH_GPIO_PIN             GPIO_Pin_11 // PI.11
+#define PWR_ON_GPIO                     GPIOI
 #define PWR_ON_GPIO_PIN                 GPIO_Pin_14 // PI.14
-#define PWR_ON_GPIO_MODER               GPIO_MODER_MODER1
-#define PWR_ON_GPIO_MODER_OUT           GPIO_MODER_MODER1_0
+#define PWR_SWITCH_GPIO                 GPIOI
+#define PWR_SWITCH_GPIO_PIN             GPIO_Pin_11 // PI.11
+//#define PWR_SWITCH_GPIO_REG             PWR_GPIO->IDR
+//#define PWR_ON_GPIO_MODER               GPIO_MODER_MODER1
+//#define PWR_ON_GPIO_MODER_OUT           GPIO_MODER_MODER1_0
 
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
@@ -271,6 +272,8 @@
 #define BACKLIGHT_TIMER                 TIM2
 #define BACKLIGHT_GPIO_AF               GPIO_AF_TIM2
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+
+#define KEYS_BACKLIGHT_RCC_AHB1Periph        0
 
 //used in BOOTLOADER
 #define SERIAL_RCC_AHB1Periph           0
@@ -399,6 +402,7 @@
 #define EXTMODULE_PULSES
 #define EXTMODULE_PWR_GPIO              GPIOD
 #define EXTMODULE_PWR_GPIO_PIN          GPIO_Pin_11
+#define EXTERNAL_MODULE_PWR_OFF()       GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTMODULE_PWR_FIX_GPIO          GPIOA
 #define EXTMODULE_PWR_FIX_GPIO_PIN      GPIO_Pin_2      // PA.02
 #define EXTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)

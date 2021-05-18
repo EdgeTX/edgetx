@@ -76,11 +76,11 @@ enum AfhdsSpecialChars
 
 struct Data
 {
+  uint32_t pulsesSize;
 #if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
   uint8_t pulses[AFHDS_MAX_PULSES];
   uint8_t * ptr;
 #else
-  uint32_t pulsesSize;
   uint16_t pulses[AFHDS_MAX_PULSES_TRANSITIONS];
   uint32_t total;
 #endif

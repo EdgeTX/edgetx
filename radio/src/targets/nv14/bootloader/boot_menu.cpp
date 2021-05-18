@@ -80,7 +80,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         bootloaderDrawFooter();
         lcd->drawText(center, LCD_H - DOUBLE_PADDING, "Current Firmware:", CENTERED | DEFAULT_COLOR);
-        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getOtherVersion(nullptr), CENTERED | DEFAULT_COLOR);
+// TODO: need to check what is this line about, cannot build so comment first.
+//        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getOtherVersion(nullptr), CENTERED | DEFAULT_COLOR);
     }
     else if (st == ST_USB) {
         //lcd->drawBitmap(136, 98, &BMP_USB_PLUGGED);

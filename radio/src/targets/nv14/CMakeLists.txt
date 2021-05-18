@@ -44,10 +44,10 @@ set(TARGET_SRC
   audio_spi_driver.cpp
   )
 
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  x12s_adc_driver.cpp
-  )
+#set(FIRMWARE_TARGET_SRC
+#  ${FIRMWARE_TARGET_SRC}
+#  x12s_adc_driver.cpp
+#  )
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
@@ -149,12 +149,52 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
   )
 
+MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
+  if (WIN32)
+    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
+  else()
+    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
+  endif()
+
+  # Build an array of string from the GCC output
+  string(REPLACE "\n" ";" _gcc_output "${_gcc_output}")
+
+  set(_capture_include FALSE)
+  set(_include_path "")
+
+  # Go through the lines and capture between '"#include <...> search starts here:"' and 'End of search list.'
+  foreach(_line ${_gcc_output})
+    if(${_line} STREQUAL "End of search list.")
+      set(_capture_include FALSE)
+    endif()
+
+    if(_capture_include)
+      # Remove the leading and trailing empty characters
+      string(REPLACE "\r" "" _line ${_line})
+      string(SUBSTRING "${_line}" 1 -1 _line)
+      set(_include_path "${_include_path}" "-I${_line}")
+    endif()
+
+    if(${_line} STREQUAL "#include <...> search starts here:")
+      set(_capture_include TRUE)
+    endif()
+  endforeach()
+  set(${gcc_include_path} ${_include_path})
+ENDMACRO()
+
 if(PYTHONINTERP_FOUND)
-  add_custom_target(datacopy
+  GET_GCC_INCLUDE_PATH(arm_gcc_include_path)
+
+  add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs.h -DPCBFLYSKY -DPCBNV14 -DCPUARM -DCOLORLCD -DBACKUP > storage/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs.h -DPCBFLYSKY -DPCBNV14 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${arm_gcc_include_path} -Wno-pragma-once-outside-header > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
-  )
+    )
+
+  add_custom_target(datacopy
+    DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    )
 endif()
 
 set(LUA_EXPORT lua_export_nv14)
