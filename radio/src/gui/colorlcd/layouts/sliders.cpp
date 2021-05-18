@@ -35,7 +35,7 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
   }
 
   // The square
-  x = width() - TRIM_SQUARE_SIZE - divRoundClosest((width() - TRIM_SQUARE_SIZE) * (-value + RESX), 2 * RESX);
+  x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
   drawTrimSquare(dc, x, 0, TRIM_BGCOLOR);
 }
 
