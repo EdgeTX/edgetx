@@ -580,6 +580,7 @@ bool setupPulsesInternalModule(uint8_t protocol)
 void stopPulsesInternalModule()
 {
   if (moduleState[INTERNAL_MODULE].protocol != PROTOCOL_CHANNELS_UNINITIALIZED) {
+    mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
     intmoduleStop();
     moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
   }
@@ -607,6 +608,7 @@ bool setupPulsesInternalModule()
 void stopPulsesExternalModule()
 {
   if (moduleState[EXTERNAL_MODULE].protocol != PROTOCOL_CHANNELS_UNINITIALIZED) {
+    mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
     extmoduleStop();
     moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
   }
