@@ -32,7 +32,7 @@ TopbarImpl::TopbarImpl(Window * parent) :
 
 unsigned int TopbarImpl::getZonesCount() const
 {
-#if defined(TELEMETRY_MAVLINK) && defined(INTERNAL_GPS)
+#if defined(INTERNAL_GPS)
   return MAX_TOPBAR_ZONES-1;
 #endif
   return MAX_TOPBAR_ZONES;
@@ -91,7 +91,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   getTimerString(str, getValue(MIXSRC_TX_TIME));
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | MENU_COLOR);
 
-#if defined(TELEMETRY_MAVLINK) && defined(INTERNAL_GPS)
+#if defined(INTERNAL_GPS)
   if (gpsData.fix) {
     char s[10];
     sprintf(s, "%d", gpsData.numSat);
