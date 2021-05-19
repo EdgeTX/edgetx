@@ -162,11 +162,11 @@ void RadioHardwarePage::build(FormWindow * window)
 {
   FormGridLayout grid;
 #if LCD_W > LCD_H
-  grid.setLabelWidth(130);
+  grid.setLabelWidth(180);
 #else
-  grid.setLabelWidth(100);
+  grid.setLabelWidth(130);
 #endif
-  grid.spacer(6);
+  grid.spacer(PAGE_PADDING);
 
   // Calibration
   new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, FONT(BOLD));
@@ -243,15 +243,10 @@ void RadioHardwarePage::build(FormWindow * window)
                });
     grid.nextLine();
   }
-#if LCD_W > LCD_H
-  grid.setLabelWidth(180);
-#else
-  grid.setLabelWidth(130);
-#endif
 
   // Bat calibration
   new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB);
-  auto batCal = new NumberEdit(window, grid.getFieldSlot(), -127, 127, GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
+  auto batCal = new NumberEdit(window, grid.getFieldSlot(1,0), -127, 127, GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
   batCal->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
       dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
   });
@@ -260,14 +255,14 @@ void RadioHardwarePage::build(FormWindow * window)
 
   // RTC Batt display
   new StaticText(window, grid.getLabelSlot(), STR_RTC_BATT);
-  new DynamicNumber<uint16_t>(window, grid.getFieldSlot(), [] {
+  new DynamicNumber<uint16_t>(window, grid.getFieldSlot(1,0), [] {
       return getRTCBatteryVoltage();
   }, PREC2, nullptr, "V");
   grid.nextLine();
 
   // RTC Batt check enable
   new StaticText(window, grid.getLabelSlot(), STR_RTC_CHECK);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
   grid.nextLine();
 
 #if defined(CROSSFIRE) && SPORT_MAX_BAUDRATE < 400000
@@ -337,7 +332,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.jitterFilter));
+  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.jitterFilter));
   grid.nextLine();
 
   // Debugs
