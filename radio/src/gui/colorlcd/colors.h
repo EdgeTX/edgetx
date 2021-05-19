@@ -101,7 +101,7 @@ inline void lcdSetColor(uint16_t color)
   lcdColorTable[CUSTOM_COLOR_INDEX] = color;
 }
 
-#define COLOR(index) (lcdColorTable[ unsigned(index) & 0xFF ] << 16u)
+#define COLOR(index) ((uint32_t)lcdColorTable[ unsigned(index) & 0xFF ] << 16u)
 
 #define ALARM_COLOR                    COLOR(ALARM_COLOR_INDEX)
 #define BARGRAPH1_COLOR                COLOR(BARGRAPH1_COLOR_INDEX)
