@@ -821,7 +821,6 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch);
   NOBACKUP(int8_t   varioRange);
   NOBACKUP(int8_t   varioRepeat);
-  NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS];
 
   EXTRA_GENERAL_FIELDS
@@ -831,6 +830,8 @@ PACK(struct RadioData {
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   GYRO_FIELDS
+
+  NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 });
 
 #undef SWITCHES_WARNING_DATA
