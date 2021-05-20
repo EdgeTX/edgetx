@@ -595,11 +595,16 @@ void MavlinkTelem::_resetRadio35(void)
 
 void MavlinkTelem::_reset(void)
 {
+#if defined(CLI) || defined(DEBUG)
+#define UART_MODE_NONE_OR_DEBUG UART_MODE_DEBUG
+#else
+#define UART_MODE_NONE_OR_DEBUG UART_MODE_NONE
+#endif
 #if !defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK) g_eeGeneral.auxSerialMode = UART_MODE_NONE;
+  if (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK) g_eeGeneral.auxSerialMode = UART_MODE_NONE_OR_DEBUG;
 #endif
 #if !defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK) g_eeGeneral.aux2SerialMode = UART_MODE_NONE;
+  if (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK) g_eeGeneral.aux2SerialMode = UART_MODE_NONE_OR_DEBUG;
 #endif
   if (g_eeGeneral.mavlinkExternal > 1) g_eeGeneral.mavlinkExternal = 0;
 
