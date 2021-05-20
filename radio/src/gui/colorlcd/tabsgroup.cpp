@@ -170,6 +170,7 @@ void TabsGroup::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
   if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+    killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex() + 1;
     setCurrentTab(current >= tabs.size() ? 0 : current);
   }
