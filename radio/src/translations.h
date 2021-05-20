@@ -647,6 +647,8 @@ extern const char STR_FORMATTING[];
 extern const char STR_TEMP_CALIB[];
 extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
+extern const char STR_SAMPLE_MODE[];
+extern const char STR_SAMPLE_MODES[];
 extern const char STR_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
 extern const char STR_SD_TYPE[];

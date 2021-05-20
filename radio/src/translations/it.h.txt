@@ -826,6 +826,10 @@
 #define TR_TEMP_CALIB          "Temp. Calib."
 #define TR_TIME                "Ora"
 #define TR_MAXBAUDRATE         "Max Bauds"
+#define TR_SAMPLE_MODE         "Sample Mode"
+
+#define LEN_SAMPLE_MODES                "\006"
+#define TR_SAMPLE_MODES        "Normal""OneBit"
 
 #define TR_BLUETOOTH            "Bluetooth"
 #define TR_BLUETOOTH_DISC       "Cerca"
