@@ -387,8 +387,7 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
 void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
   FormGridLayout grid;
-  grid.spacer(8);
-  grid.setLabelWidth(170);
+  grid.spacer(PAGE_PADDING);
 
   this->window = window;
 
@@ -470,7 +469,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   }
 
   // Autodiscover button
-  auto discover = new TextButton(window, grid.getFieldSlot(2, 0), STR_DISCOVER_SENSORS);
+  auto discover = new TextButton(window, grid.getFieldSlot(2, 0), (allowNewSensors) ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS);
   discover->setPressHandler([=]() {
     allowNewSensors = !allowNewSensors;
     if (allowNewSensors) {
@@ -509,14 +508,15 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     grid.nextLine();
   }
 
+  // restore aligned layout
+  grid.setLabelWidth(PAGE_LABEL_WIDTH);
+
   // Ignore instance button
-  grid.setLabelWidth(170);
   new StaticText(window, grid.getLabelSlot(true), STR_IGNORE_INSTANCE);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.ignoreSensorIds));
   grid.nextLine();
 
   // Vario
-  grid.setLabelWidth(100);
   new Subtitle(window, grid.getLineSlot(), STR_VARIO);
   grid.nextLine();
   new StaticText(window, grid.getLabelSlot(true), STR_SOURCE);
