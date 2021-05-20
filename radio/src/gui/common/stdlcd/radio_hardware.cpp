@@ -339,6 +339,7 @@ void restartExternalModule()
   resumePulses();
   resumeMixerCalculations();
 }
+
 void menuRadioHardware(event_t event)
 {
   MENU(STR_HARDWARE, menuTabGeneral, MENU_RADIO_HARDWARE, HEADER_LINE + ITEM_RADIO_HARDWARE_MAX, {
