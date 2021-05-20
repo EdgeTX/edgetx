@@ -257,12 +257,12 @@ bool ViewMain::onTouchEnd(coord_t x, coord_t y)
 void ViewMain::onEvent(event_t event)
 {
   switch (event) {
-    case EVT_KEY_BREAK(KEY_MODEL):
+    case EVT_KEY_LONG(KEY_MODEL):
       killEvents(event);
       new ModelMenu();
       break;
 
-    case EVT_KEY_BREAK(KEY_RADIO):
+    case EVT_KEY_LONG(KEY_RADIO):
       killEvents(event);
       new RadioMenu();
       break;
@@ -272,7 +272,7 @@ void ViewMain::onEvent(event_t event)
       new ScreenMenu();
       break;
 
-    case EVT_KEY_BREAK(KEY_ENTER):
+    case EVT_KEY_LONG(KEY_ENTER):
       killEvents(event);
       openMenu();
       break;
@@ -284,7 +284,7 @@ void ViewMain::onEvent(event_t event)
 
 //TODO: these need to go away!
 // -> board code should map the keys as required
-#if defined(KEYS_GPIO_REG_UP)
+#if defined(KEYS_GPIO_REG_PGUP)
     case EVT_KEY_BREAK(KEY_PGUP):
 #else
     case EVT_KEY_LONG(KEY_PGDN):
