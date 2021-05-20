@@ -278,6 +278,9 @@ void ViewMain::onEvent(event_t event)
       break;
 
     case EVT_KEY_BREAK(KEY_PGDN):
+#if defined(KEYS_GPIO_REG_PGUP)
+    case EVT_KEY_LONG(KEY_PGDN):
+#endif
       killEvents(event);
       nextMainView();
       break;
@@ -286,6 +289,7 @@ void ViewMain::onEvent(event_t event)
 // -> board code should map the keys as required
 #if defined(KEYS_GPIO_REG_PGUP)
     case EVT_KEY_BREAK(KEY_PGUP):
+    case EVT_KEY_LONG(KEY_PGUP):
 #else
     case EVT_KEY_LONG(KEY_PGDN):
 #endif
