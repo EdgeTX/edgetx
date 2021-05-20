@@ -909,6 +909,13 @@ enum BluetoothModes {
 #endif
 };
 
+enum UartSampleModes {
+  UART_SAMPLE_MODE_NORMAL = 0,
+  UART_SAMPLE_MODE_ONEBIT,
+
+  UART_SAMPLE_MODE_MAX = UART_SAMPLE_MODE_ONEBIT
+};
+
 // PXX2 constants
 #define PXX2_LEN_REGISTRATION_ID            8
 #define PXX2_LEN_RX_NAME                    8

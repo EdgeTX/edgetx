@@ -168,6 +168,8 @@ enum {
   ITEM_RADIO_HARDWARE_SERIAL_BAUDRATE,
 #endif
 
+  ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE,
+
 #if defined(BLUETOOTH)
   ITEM_RADIO_HARDWARE_BLUETOOTH_MODE,
   ITEM_RADIO_HARDWARE_BLUETOOTH_PAIRING_CODE,
@@ -290,6 +292,8 @@ enum {
   #define MAX_BAUD_ROWS
 #endif
 
+#define SERIAL_SAMPLE_MODE_ROWS          0,
+
 #if defined(AUX_SERIAL)
   #define AUX_SERIAL_ROWS 0,
 #else
@@ -321,6 +325,20 @@ void onFactoryResetConfirm(const char * result)
 }
 #endif
 
+void restartExternalModule()
+{
+  if (!IS_EXTERNAL_MODULE_ON()) {
+    return;
+  }
+  pauseMixerCalculations();
+  pausePulses();
+  EXTERNAL_MODULE_OFF();
+  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
+  telemetryProtocol = 255; // force telemetry port + module reinitialization
+  EXTERNAL_MODULE_ON();
+  resumePulses();
+  resumeMixerCalculations();
+}
 void menuRadioHardware(event_t event)
 {
   MENU(STR_HARDWARE, menuTabGeneral, MENU_RADIO_HARDWARE, HEADER_LINE + ITEM_RADIO_HARDWARE_MAX, {
@@ -337,6 +355,7 @@ void menuRadioHardware(event_t event)
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
     MAX_BAUD_ROWS
+    SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
     EXTERNAL_ANTENNA_ROW
     AUX_SERIAL_ROWS
@@ -549,19 +568,19 @@ void menuRadioHardware(event_t event)
         lcdDrawNumber(HW_SETTINGS_COLUMN2, y, CROSSFIRE_BAUDRATES[g_eeGeneral.telemetryBaudrate], attr|LEFT);
         if (attr) {
           g_eeGeneral.telemetryBaudrate = DIM(CROSSFIRE_BAUDRATES) - 1 - checkIncDecModel(event, DIM(CROSSFIRE_BAUDRATES) - 1 - g_eeGeneral.telemetryBaudrate, 0, DIM(CROSSFIRE_BAUDRATES) - 1);
-          if (checkIncDec_Ret && IS_EXTERNAL_MODULE_ON()) {
-            pauseMixerCalculations();
-            pausePulses();
-            EXTERNAL_MODULE_OFF();
-            RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-            telemetryProtocol = 255; // force telemetry port + module reinitialization
-            EXTERNAL_MODULE_ON();
-            resumePulses();
-            resumeMixerCalculations();
+          if (checkIncDec_Ret) {
+              restartExternalModule();
           }
         }
         break;
 #endif
+
+      case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
+        g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
+        if (attr && checkIncDec_Ret) {
+          restartExternalModule();
+        }
+        break;
 
 #if defined(BLUETOOTH)
       case ITEM_RADIO_HARDWARE_BLUETOOTH_MODE:
