@@ -21,10 +21,10 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include "../definitions.h"
-#include "../opentx_constants.h"
-#include "hal.h"
+#include "definitions.h"
+#include "opentx_constants.h"
 #include "board_common.h"
+#include "hal.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -146,6 +146,7 @@ enum EnumKeys
   KEY_PGUP,
   KEY_PGDN,
   KEY_UP,
+  KEY_MODEL = KEY_UP, // TODO: just fixed for compile error, not sure what need to be changed anyway
   KEY_DOWN,
   KEY_RIGHT,
   KEY_LEFT,
@@ -332,6 +333,8 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
+  CALIBRATED_SLIDER_REAR_LEFT,
+  CALIBRATED_SLIDER_REAR_RIGHT,
   CALIBRATED_SWA,
   CALIBRATED_SWB,
   CALIBRATED_SWC,
@@ -374,6 +377,11 @@ void pwrSoftReboot();
 void pwrOff();
 void pwrResetHandler();
 bool pwrPressed();
+#if defined(PWR_EXTRA_SWITCH_GPIO)
+  bool pwrForcePressed();
+#else
+  #define pwrForcePressed() false
+#endif
 uint32_t pwrPressedDuration();;
 #if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
   #define UNEXPECTED_SHUTDOWN()         (false)
@@ -492,23 +500,34 @@ void hapticDone();
 void hapticOff();
 void hapticOn(uint32_t pwmPercent);
 
-// Second serial port driver
-#define AUX_SERIAL
-#define DEBUG_BAUDRATE                  115200
+// Aux serial port driver
+#if defined(RADIO_TX16S)
+  #define DEBUG_BAUDRATE                  400000
+  #define LUA_DEFAULT_BAUDRATE            115200
+#else
+  #define DEBUG_BAUDRATE                  115200
+  #define LUA_DEFAULT_BAUDRATE            115200
+#endif
+#if defined(AUX_SERIAL_GPIO)
 extern uint8_t auxSerialMode;
+#if defined __cplusplus
+void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
+#endif
 void auxSerialInit(unsigned int mode, unsigned int protocol);
 void auxSerialPutc(char c);
 #define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
 void auxSerialSbusInit();
 void auxSerialStop();
+void auxSerialPowerOn();
+void auxSerialPowerOff();
 #if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()            auxSerialPowerOn()
-#define AUX_SERIAL__POWER_OFF()          auxSerialPowerOff()
+#define AUX_SERIAL_POWER_ON()             auxSerialPowerOn()
+#define AUX_SERIAL_POWER_OFF()            auxSerialPowerOff()
 #else
 #define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL__POWER_OFF()
+#define AUX_SERIAL_POWER_OFF()
 #endif
-#define USART_FLAG_ERRORS               (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
+#endif
 
 extern uint8_t currentTrainerMode;
 void checkTrainerSettings();

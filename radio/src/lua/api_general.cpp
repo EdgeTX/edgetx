@@ -63,6 +63,8 @@
   #include "lua/lua_exports_x9d+2019.inc"
 #elif defined(PCBTARANIS)
   #include "lua/lua_exports_x9d.inc"
+#elif defined(PCBNV14)
+  #include "lua/lua_exports_nv14.inc"
 #endif
 
 #if defined(SIMU)
