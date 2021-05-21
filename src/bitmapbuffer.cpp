@@ -1436,3 +1436,15 @@ BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int
 
   return bmp;
 }
+
+uint8_t * BitmapBuffer::loadFont(const uint8_t * lbm, int len, int& w, int& h)
+{
+  int n;
+  unsigned char * font = stbi_load_from_memory(lbm, len, &w, &h, &n, 1);
+  if (!font) {
+    TRACE("load_stb_buffer(%p,%d) failed: %s", font, len, stbi_failure_reason());
+    return nullptr;
+  }
+
+  return font;
+}
