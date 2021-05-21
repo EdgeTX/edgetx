@@ -123,6 +123,7 @@ class FontBitmap:
         image = image.crop((0, top, width - 1, bottom))
         coords.insert(0, bottom - top + 1)
 
+        image = image.convert("L")
         image.save(filename + ".png")
         if generate_coords_file:
             with open(filename + ".specs", "w") as f:

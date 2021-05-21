@@ -131,8 +131,8 @@ const unsigned char font_xxl[] = {
 const uint16_t fontCharactersTable[FONTS_COUNT] = { sizeof(font_std_en_specs)/2-2 };
 const uint16_t * const fontspecsTable[FONTS_COUNT] = { font_std_en_specs };
 const uint8_t * fontsTable[FONTS_COUNT] = { font_std_en };
+const int fontsSizeTable[FONTS_COUNT] = { sizeof(font_std_en) };
 #else
-
 // -2 for: overall length and last boundary
 const uint16_t fontCharactersTable[FONTS_COUNT] = {
     sizeof(font_std_specs)/2-2, sizeof(font_bold_specs)/2-2, sizeof(font_xxs_specs)/2-2,
@@ -146,21 +146,42 @@ const uint16_t *const fontspecsTable[FONTS_COUNT] = {
 const uint8_t *fontsTable[FONTS_COUNT] = {
     font_std, font_bold, font_xxs, font_xs, font_l, font_xl, font_xxl
 };
+const int fontsSizeTable[FONTS_COUNT] = {
+    sizeof(font_std), sizeof(font_bold), sizeof(font_xxs),
+    sizeof(font_xs),  sizeof(font_l),    sizeof(font_xl),
+    sizeof(font_xxl)
+};
 #endif
 
-uint8_t * decompressFont(const uint8_t * font)
+uint8_t * decompressFont(const uint8_t * font, unsigned len)
 {
-  uint16_t width = *((uint16_t *)font);
-  uint16_t height = *(((uint16_t *)font)+1);
+  int width  = 0;
+  int height = 0;
+
+  uint8_t* raw_font = BitmapBuffer::loadFont(font, len, width, height);
+  if (!raw_font) {
+    return nullptr;
+  }
 
   size_t font_size = width * height;
-  uint8_t * dec_buf = (uint8_t *)malloc(font_size + 4);
+  uint8_t * buf = (uint8_t *)malloc(font_size + 4);
 
-  // copy width / height
-  memcpy(dec_buf, font, 4);
+  ((uint16_t*)buf)[0] = (uint16_t)width;
+  ((uint16_t*)buf)[1] = (uint16_t)height;
 
-  RLEBitmap::decode(dec_buf+4, font_size, font+4);
-  return dec_buf;
+#if defined(LCD_VERTICAL_INVERT)
+  uint8_t* src = raw_font + font_size - 1;
+  for(uint8_t* dst = buf + 4; src >= raw_font; --src, ++dst) {
+    *dst = 0xFF - *src;
+  }    
+#else
+  uint8_t* src = raw_font;
+  for(uint8_t* dst = buf + 4; src != raw_font + font_size; ++src, ++dst) {
+    *dst = 0xFF - *src;
+  }    
+#endif
+  
+  return buf;
 }
 
 void loadFonts()
@@ -170,10 +191,10 @@ void loadFonts()
     return;
 
 #if defined(BOOT)
-  fontsTable[0] = decompressFont(fontsTable[0]);
+  fontsTable[0] = decompressFont(fontsTable[0], fontsSizeTable[0]);
 #else
   for (int i = 0; i < FONTS_COUNT; i++) {
-    fontsTable[i] = decompressFont(fontsTable[i]);
+    fontsTable[i] = decompressFont(fontsTable[i], fontsSizeTable[i]);
   }
 #endif
 
