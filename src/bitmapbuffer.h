@@ -430,5 +430,9 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     bool liangBarskyClipper(coord_t& x1, coord_t& y1, coord_t& x2, coord_t& y2);
 };
 
+// Back buffer to draw
 extern BitmapBuffer * lcd;
+
+// Buffer currently on display
+extern BitmapBuffer * lcdFront;
 

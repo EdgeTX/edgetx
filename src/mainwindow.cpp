@@ -104,13 +104,10 @@ bool MainWindow::refresh()
   if (invalidatedRect.w) {
     if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
       TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);
-      const BitmapBuffer * previous = lcd;
-      lcdNextLayer();
-      lcdCopy(lcd->getData(), previous->getData());
+      lcdCopy(lcd->getData(), lcdFront->getData());
     }
     else {
       TRACE_WINDOWS("Refresh full screen");
-      lcdNextLayer();
     }
     lcd->setOffset(0, 0);
     lcd->setClippingRect(invalidatedRect.left(), invalidatedRect.right(), invalidatedRect.top(), invalidatedRect.bottom());
