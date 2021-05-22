@@ -426,6 +426,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     }
 
     void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags, uint8_t opacity);
+
+    bool liangBarskyClipper(coord_t& x1, coord_t& y1, coord_t& x2, coord_t& y2);
 };
 
 extern BitmapBuffer * lcd;
