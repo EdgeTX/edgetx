@@ -440,6 +440,9 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFla
 {
   APPLY_OFFSET();
 
+  if (!applyClippingRect(x, y, w, h))
+    return;
+
   // No 'opacity' here, only 'color'
   pixel_t color = COLOR_VAL(flags);
   RGB_SPLIT(color, red, green, blue);
