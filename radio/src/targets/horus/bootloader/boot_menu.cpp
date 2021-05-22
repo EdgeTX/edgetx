@@ -95,12 +95,6 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-    // shows current layer on LCD
-    lcdRefresh();
-
-    // swap back & front buffers
-    lcdNextLayer();
-
     bootloaderDrawBackground();
     
     if (st == ST_START) {

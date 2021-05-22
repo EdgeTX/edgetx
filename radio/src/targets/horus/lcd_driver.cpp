@@ -51,7 +51,9 @@ uint8_t currentLayer = LCD_FIRST_LAYER;
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
-BitmapBuffer * lcd = &lcdBuffer1;
+
+BitmapBuffer * lcdFront = &lcdBuffer1;
+BitmapBuffer * lcd = &lcdBuffer2;
 
 inline void LCD_NRST_LOW()
 {
@@ -61,11 +63,6 @@ inline void LCD_NRST_LOW()
 inline void LCD_NRST_HIGH()
 {
   LCD_GPIO_NRST->BSRRL = LCD_GPIO_PIN_NRST;
-}
-
-inline bool coordsWithinScreen(coord_t x, coord_t y, coord_t w, coord_t h)
-{
-  return x >= 0 && y >= 0 && x + w <= LCD_W && y + h <= LCD_H;
 }
 
 static void LCD_AF_GPIOConfig()
@@ -262,8 +259,10 @@ void LCD_LayerInit()
 
   /* Pixel Format configuration*/
   LTDC_Layer_InitStruct.LTDC_PixelFormat = LTDC_Pixelformat_RGB565;
+
   /* Alpha constant (255 totally opaque) */
   LTDC_Layer_InitStruct.LTDC_ConstantAlpha = 255;
+
   /* Default Color configuration (configure A,R,G,B component values) */
   LTDC_Layer_InitStruct.LTDC_DefaultColorBlue = 0;
   LTDC_Layer_InitStruct.LTDC_DefaultColorGreen = 0;
@@ -294,26 +293,15 @@ void LCD_LayerInit()
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
 
-  /* Configure Layer 2 */
-  LTDC_Layer_InitStruct.LTDC_BlendingFactor_1 = LTDC_BlendingFactor1_PAxCA;
-  LTDC_Layer_InitStruct.LTDC_BlendingFactor_2 = LTDC_BlendingFactor2_PAxCA;
-
-  /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)LCD_SECOND_FRAME_BUFFER;
-
-  /* Initialize LTDC layer 2 */
-  LTDC_LayerInit(LTDC_Layer2, &LTDC_Layer_InitStruct);
-
   /* LTDC configuration reload */
   LTDC_ReloadConfig(LTDC_IMReload);
 
+  // Enable layer and reload
   LTDC_LayerCmd(LTDC_Layer1, ENABLE);
-  LTDC_LayerCmd(LTDC_Layer2, ENABLE);
-
   LTDC_ReloadConfig(LTDC_IMReload);
 
   /* dithering activation */
-  LTDC_DitherCmd(ENABLE);
+  LTDC_DitherCmd(ENABLE); // ????
 }
 
 void LCD_Init(void)
@@ -331,49 +319,28 @@ void LCD_Init(void)
 void LCD_SetLayer(uint32_t layer)
 {
   if (layer == LCD_FIRST_LAYER) {
-    lcd = &lcdBuffer1;
+    lcdFront = &lcdBuffer1;
+    lcd = &lcdBuffer2;
   }
   else {
-    lcd = &lcdBuffer2;
+    lcdFront = &lcdBuffer2;
+    lcd = &lcdBuffer1;
   }
   currentLayer = layer;
 }
 
-/**
-  * @brief  Configure the transparency.
-  * @param  transparency: specifies the transparency,
-  *         This parameter must range from 0x00 to 0xFF.
-  * @retval None
-  */
-void LCD_SetTransparency(uint8_t transparency)
-{
-  if (currentLayer == LCD_FIRST_LAYER) {
-    LTDC_LayerAlpha(LTDC_Layer1, transparency);
-  }
-  else {
-    LTDC_LayerAlpha(LTDC_Layer2, transparency);
-  }
-  LTDC_ReloadConfig(LTDC_IMReload);
-}
-
 void lcdInit()
 {
-  /* Initialize the LCD */
+  // Clear buffers first
+  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
+  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+
+  // Initialize the LCD
   LCD_Init();
   LCD_LayerInit();
 
-  /* Enable LCD display */
+  // Enable LCD display
   LTDC_Cmd(ENABLE);
-
-  /* Set Background layer */
-  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
-  LCD_SetLayer(LCD_FIRST_LAYER);
-  LCD_SetTransparency(0);
-
-  /* Set Foreground layer */
-  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
-  LCD_SetLayer(LCD_SECOND_LAYER);
-  LCD_SetTransparency(255);
 }
 
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
@@ -637,25 +604,26 @@ uint16_t* lcdGetScratchBuffer()
   return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
-void lcdRefresh()
+static void lcdSwitchLayers()
 {
   if (currentLayer == LCD_FIRST_LAYER) {
-    LTDC_LayerAlpha(LTDC_Layer1, 255);
-    LTDC_LayerAlpha(LTDC_Layer2, 0);
-  }
-  else {
-    LTDC_LayerAlpha(LTDC_Layer1, 0);
-    LTDC_LayerAlpha(LTDC_Layer2, 255);
-  }
-  LTDC_ReloadConfig(LTDC_IMReload);
-}
-
-void lcdNextLayer()
-{
-  if (currentLayer == LCD_FIRST_LAYER) {
+    LTDC_Layer1->CFBAR = (uint32_t)LCD_SECOND_FRAME_BUFFER;
     LCD_SetLayer(LCD_SECOND_LAYER);
   }
   else {
+    LTDC_Layer1->CFBAR = (uint32_t)LCD_FIRST_FRAME_BUFFER;
     LCD_SetLayer(LCD_FIRST_LAYER);
   }
+
+  // reload shadow registers on vertical blank
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
+}
+
+void lcdRefresh()
+{
+  lcdSwitchLayers();
 }

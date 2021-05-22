@@ -28,6 +28,12 @@ pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
 
 BitmapBuffer _lcd(BMP_RGB565, LCD_W, LCD_H, displayBuf);
 BitmapBuffer * lcd = &_lcd;
+BitmapBuffer * lcdFront = &_lcd;
+
+void lcdInit() {}
+void lcdCopy(void *dest, void *src) {}
+void lcdNextLayer() {}
+void toplcdOff() {}
 
 uint16_t * lcdGetScratchBuffer()
 {

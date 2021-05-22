@@ -89,24 +89,6 @@ Adc Adc0;
 
 FATFS g_FATFS_Obj;
 
-void lcdInit()
-{
-}
-
-void lcdCopy(void * dest, void * src)
-{
-
-}
-
-void lcdNextLayer()
-{
-
-}
-
-void toplcdOff()
-{
-}
-
 uint64_t simuTimerMicros(void)
 {
 #if SIMPGMSPC_USE_QT

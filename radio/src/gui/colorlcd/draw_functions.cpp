@@ -76,7 +76,6 @@ void drawValueOrGVar(BitmapBuffer * dc, coord_t x, coord_t y, gvar_t value, gvar
 
 void drawSleepBitmap()
 {
-  lcdNextLayer();
   lcd->reset();
   lcd->clear();
 
@@ -97,7 +96,6 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
 
   static const BitmapBuffer * shutdown = BitmapBuffer::loadBitmap(OpenTxTheme::instance()->getFilePath("shutdown.bmp"));
 
-  lcdNextLayer();
   lcd->reset();
 
   if (shutdown) {
