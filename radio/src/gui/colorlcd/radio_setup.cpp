@@ -18,13 +18,6 @@
  * GNU General Public License for more details.
  */
 
-#if defined(PWR_BUTTON_PRESS)
-// should eventually go into translations
-#define LEN_PWR_OFF_DELAYS    "\002"
-#define TR_PWR_OFF_DELAYS     "0s""1s""2s""3s"
-const char STR_PWR_OFF_DELAYS[] = LEN_PWR_OFF_DELAYS TR_PWR_OFF_DELAYS;
-#endif
-
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "radio_setup.h"

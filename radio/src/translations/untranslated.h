@@ -178,6 +178,9 @@
 #define LEN_SBUS_INVERSION_VALUES      "\014"
 #define TR_SBUS_INVERSION_VALUES       "normal\0     ""not inverted"
 
+#define LEN_PWR_OFF_DELAYS             "\002"
+#define TR_PWR_OFF_DELAYS              "0s""1s""2s""4s"
+
 #define TR_SENSOR_RSSI                      "RSSI"
 #define TR_SENSOR_R9PW                      "R9PW"
 #define TR_SENSOR_RAS                       "SWR"
