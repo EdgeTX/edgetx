@@ -142,7 +142,7 @@ void Key::pauseEvents()
 void Key::killEvents()
 {
   // TRACE("key %d killed", key());
-  m_state = KSTATE_KILLED;
+  if (m_state) m_state = KSTATE_KILLED;
 }
 
 
