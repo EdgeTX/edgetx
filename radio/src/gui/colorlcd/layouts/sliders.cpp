@@ -58,16 +58,17 @@ void MainView6POS::paint(BitmapBuffer * dc)
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)
 {
-    // The ticks
-    int delta = (height() - TRIM_SQUARE_SIZE) / SLIDER_TICKS_COUNT;
-    coord_t y = TRIM_SQUARE_SIZE / 2;
-    for (uint8_t i = 0; i <= SLIDER_TICKS_COUNT; i++) {
-      if (i == 0 || i == SLIDER_TICKS_COUNT / 2 || i == SLIDER_TICKS_COUNT)
-        dc->drawSolidHorizontalLine(2, y, 13, DEFAULT_COLOR);
-      else
-        dc->drawSolidHorizontalLine(4, y, 9, DEFAULT_COLOR);
-      y += delta;
-    }
+  // The ticks
+  int delta = 4;
+  int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / delta;
+  coord_t y = TRIM_SQUARE_SIZE / 2;
+  for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+    if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount)
+       dc->drawSolidHorizontalLine(2, y, 13, DEFAULT_COLOR);
+    else
+      dc->drawSolidHorizontalLine(4, y, 9, DEFAULT_COLOR);
+    y += delta;
+  }
 
   // The square
   y = divRoundClosest((height() - TRIM_SQUARE_SIZE) * (-value + RESX), 2 * RESX);
