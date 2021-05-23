@@ -145,7 +145,7 @@ void FullScreenDialog::runForever()
     checkBacklight();
     WDG_RESET();
 
-    RTOS_WAIT_MS(20);
+    RTOS_WAIT_MS(1);
     MainWindow::instance()->run(false);
   }
 

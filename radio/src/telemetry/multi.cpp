@@ -234,8 +234,11 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   }
   if (getMultiModuleStatus(module).requiresFailsafeCheck) {
     getMultiModuleStatus(module).requiresFailsafeCheck = false;
-    if (getMultiModuleStatus(module).supportsFailsafe() &&  g_model.moduleData[module].failsafeMode == FAILSAFE_NOT_SET)
+
+    if (getMultiModuleStatus(module).supportsFailsafe() &&
+        g_model.moduleData[module].failsafeMode == FAILSAFE_NOT_SET) {
       ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
+    }
   }
 
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
