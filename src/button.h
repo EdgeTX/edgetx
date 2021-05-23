@@ -28,9 +28,11 @@ constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
 class Button: public FormField
 {
   public:
-    Button(FormGroup * parent, const rect_t & rect, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
-      FormField(parent, rect, windowFlags, textFlags),
-      pressHandler(std::move(pressHandler))
+    Button(FormGroup* parent, const rect_t& rect,
+           std::function<uint8_t(void)> pressHandler = nullptr,
+           WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
+        FormField(parent, rect, windowFlags, textFlags),
+        pressHandler(std::move(pressHandler))
     {
     }
 

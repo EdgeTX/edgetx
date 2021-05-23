@@ -36,7 +36,8 @@ void Button::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("Button").c_str(), event);
 
-  if (enabled && event == EVT_KEY_BREAK(KEY_ENTER)) {
+  if (enabled && event == EVT_KEY_FIRST(KEY_ENTER)) {
+    killEvents(event);
     onKeyPress();
     onPress();
   }
