@@ -222,15 +222,15 @@ void LCD_Init_LTDC()
   // init ltdc
   LTDC_Init(&LTDC_InitStruct);
 
-#if 0
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+  LTDC_ITConfig(LTDC_IER_RRIE, ENABLE);
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = LTDC_IRQ_PRIO;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pr     e-emption priority. */;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init( &NVIC_InitStructure );
 
+#if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
   NVIC_InitStructure.NVIC_IRQChannel = DMA2D_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = DMA_SCREEN_IRQ_PRIO;
@@ -299,9 +299,6 @@ void LCD_LayerInit()
   // Enable layer and reload
   LTDC_LayerCmd(LTDC_Layer1, ENABLE);
   LTDC_ReloadConfig(LTDC_IMReload);
-
-  /* dithering activation */
-  LTDC_DitherCmd(ENABLE); // ????
 }
 
 void LCD_Init(void)
@@ -313,6 +310,10 @@ void LCD_Init(void)
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
 
+  // Enable LTDC IRQ in NVIC
+  NVIC_EnableIRQ(LTDC_IRQn);
+  NVIC_SetPriority(LTDC_IRQn, 7);
+  
   LCD_Init_LTDC();
 }
 
@@ -604,6 +605,15 @@ uint16_t* lcdGetScratchBuffer()
   return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
+static volatile uint8_t _frameBufferAddressReloaded = 0;
+
+extern "C" void LTDC_IRQHandler(void)
+{
+  // clear interrupt flag
+  LTDC->ICR = LTDC_ICR_CRRIF;
+  _frameBufferAddressReloaded = 1;
+}
+
 static void lcdSwitchLayers()
 {
   if (currentLayer == LCD_FIRST_LAYER) {
@@ -616,12 +626,12 @@ static void lcdSwitchLayers()
   }
 
   // reload shadow registers on vertical blank
+  _frameBufferAddressReloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
 
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
-  while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
-  while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 1);
+  while(_frameBufferAddressReloaded == 0);
 }
 
 void lcdRefresh()
