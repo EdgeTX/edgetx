@@ -150,7 +150,6 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawBitmapPattern(356, 158, LBM_ERROR, BL_RED);
         }
         else if (st == ST_FLASH_CHECK) {
-
             bootloaderDrawFilename(str, 0, true);
 
             if (opt == FC_ERROR) {
@@ -159,7 +158,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             }
             else if (opt == FC_OK) {
                 VersionTag tag;
+                memset(&tag, 0, sizeof(tag));
                 extractFirmwareVersion(&tag);
+
+                lcd->drawText(168, 138, "Fork:", RIGHT | BL_FOREGROUND);
+                lcd->drawSizedText(174, 138, tag.fork, 6, BL_FOREGROUND);
 
                 lcd->drawText(168, 158, "Version:", RIGHT | BL_FOREGROUND);
                 lcd->drawText(174, 158, tag.version, BL_FOREGROUND);

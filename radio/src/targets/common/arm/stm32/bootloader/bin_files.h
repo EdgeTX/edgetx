@@ -72,6 +72,7 @@ struct VersionTag
 {
     char        flavour[8];
     const char* version;
+    const char* fork;
 };
 
 // Can be called right after openBinFile() to extract the version information
