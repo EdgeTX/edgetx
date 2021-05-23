@@ -621,6 +621,7 @@ static void lcdSwitchLayers()
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
   while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
+  while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 1);
 }
 
 void lcdRefresh()
