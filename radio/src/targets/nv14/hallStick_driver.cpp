@@ -512,7 +512,7 @@ void hallStick_GetTxDataFromUSB( void )
                 break;
 
             case TRANSFER_DIR_RFMODULE:
-                onFlySkyUsbDownloadStart(TRANSFER_DIR_RFMODULE);
+/*                onFlySkyUsbDownloadStart(TRANSFER_DIR_RFMODULE);
 
                 if ( 0xAE == HallProtocolTx.hallID.ID && HallProtocolTx.length == 0 )
                 {
@@ -529,7 +529,8 @@ void hallStick_GetTxDataFromUSB( void )
                 //if ( isFlySkyUsbDownload() )
                 {
                     intmoduleSendBuffer( pt, HallProtocolTx.length + 3 + 2 );
-                }
+                }*/
+                // TODO: disable first for compile success
                 break;
             }
         }
@@ -586,13 +587,14 @@ void hall_stick_loop(void)
                     hallStickSendState = HALLSTICK_SEND_STATE_IDLE;
                 }
             case TRANSFER_DIR_HALLSTICK:
-                HallProtocolCount++;
+/*                HallProtocolCount++;
                 uint8_t *pt = (uint8_t*)&HallProtocol;
                 //HallProtocol.head = HALL_PROTOLO_HEAD;
                 //TRACE("HALL: %02X %02X %02X ...%04X", pt[0], pt[1], pt[2], HallProtocol.checkSum);
                 pt[HallProtocol.length + 3] = HallProtocol.checkSum & 0xFF;
                 pt[HallProtocol.length + 4] = HallProtocol.checkSum >> 8;
-                usbDownloadTransmit( pt, HallProtocol.length + 5 );
+                usbDownloadTransmit( pt, HallProtocol.length + 5 );*/
+                // TODO: disabled first for compile success
                 break;
             }
         }

@@ -120,7 +120,7 @@ set(FIRMWARE_TARGET_SRC
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
-  pwr_driver.cpp
+  ../common/arm/stm32/pwr_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
   ../common/arm/stm32/sdio_sd.c
