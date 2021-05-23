@@ -22,28 +22,10 @@
 #include "simulcd.h"
 #include <utility>
 
-#if defined(COLORLCD)
-
-pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
-pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
-
-pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
 pixel_t simuLcdBuf[DISPLAY_BUFFER_SIZE];
 pixel_t simuLcdBackupBuf[DISPLAY_BUFFER_SIZE];
 
-BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
-BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
-
-BitmapBuffer * lcd = &_lcd1;
-BitmapBuffer * lcdFront = &_lcd2;
-
 bool simuLcdRefresh = true;
-
-void lcdInit()
-{
-  _lcd1.clear();
-  _lcd2.clear();
-}
 
 void toplcdOff() {}
 
@@ -51,14 +33,24 @@ void toplcdOff() {}
 void lcdOff() {}
 #endif
 
+void lcdCopy(void *dest, void *src)
+{
+  memcpy(dest, src, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+}
+
+uint16_t *lcdGetBackupBuffer() { return (uint16_t *)simuLcdBackupBuf; }
+
+#if !defined(COLORLCD)
+
+void lcdInit() {}
+
 void lcdRefresh()
 {
   // Mark screen dirty for async refresh
   simuLcdRefresh = true;
 
-  pixel_t* lcdData = lcd->getData();
 #if defined(LCD_VERTICAL_INVERT)
-  auto src = lcdData + DISPLAY_BUFFER_SIZE - 1;
+  auto src = displayBuf + DISPLAY_BUFFER_SIZE - 1;
   auto dst = simuLcdBuf;
   auto end = dst + DISPLAY_BUFFER_SIZE;
 
@@ -66,17 +58,21 @@ void lcdRefresh()
     *(dst++) = *(src--);
   }
 #else
-  memcpy(simuLcdBuf, lcdData, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+  memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
 #endif
-
-  // Swap back & front buffers
-  std::swap(lcd, lcdFront);
 }
 
-void lcdCopy(void *dest, void *src)
-{
-  memcpy(dest, src, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-}
+#else
+
+pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
+pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
+pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
+
+BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
+BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
+
+BitmapBuffer * lcd = &_lcd1;
+BitmapBuffer * lcdFront = &_lcd2;
 
 uint16_t *lcdGetScratchBuffer() { return static_cast<uint16_t *>(scratchBuf); }
 
@@ -93,7 +89,34 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
-uint16_t *lcdGetBackupBuffer() { return (uint16_t *)simuLcdBackupBuf; }
+void lcdRefresh()
+{
+  // Mark screen dirty for async refresh
+  simuLcdRefresh = true;
+
+  pixel_t* lcdData = lcd->getData();
+  
+#if defined(LCD_VERTICAL_INVERT)
+  auto src = lcdData + DISPLAY_BUFFER_SIZE - 1;
+  auto dst = simuLcdBuf;
+  auto end = dst + DISPLAY_BUFFER_SIZE;
+
+  while (dst != end) {
+    *(dst++) = *(src--);
+  }
+#else
+  memcpy(simuLcdBuf, lcdData, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+#endif
+
+  // Swap back & front buffers
+  std::swap(lcd, lcdFront);
+}
+
+void lcdInit()
+{
+  _lcd1.clear();
+  _lcd2.clear();
+}
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                  uint16_t y, uint16_t w, uint16_t h, uint16_t color)
@@ -216,5 +239,4 @@ void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
     }
   }
 }
-
 #endif
