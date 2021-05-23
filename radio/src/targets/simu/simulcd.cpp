@@ -20,6 +20,7 @@
 
 #include "lcd.h"
 #include "simulcd.h"
+#include <string.h>
 #include <utility>
 
 pixel_t simuLcdBuf[DISPLAY_BUFFER_SIZE];
