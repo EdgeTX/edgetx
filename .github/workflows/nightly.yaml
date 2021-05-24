@@ -6,7 +6,7 @@ env:
 name: Build and deploy nightly release
 on:
   push:
-    branches: [ deploy-nightly ]
+    branches: [ 2.4 ]
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
