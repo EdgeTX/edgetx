@@ -111,7 +111,7 @@ void sendSynchronousPulses(uint8_t runMask)
 }
 
 constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
-constexpr uint8_t MIXER_MAX_PERIOD = 30 /*ms*/;
+constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
 void execMixerFrequentActions()
 {
