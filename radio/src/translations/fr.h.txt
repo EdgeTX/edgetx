@@ -560,6 +560,7 @@
 #define TR_RSSI_SHUTDOWN_ALARM           TR("RSSI extinct.", "Vérif RSSI à l'extinction")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
 #define TR_MODEL_STILL_POWERED         TR("Modèle allumé", "Modèle encore allumé")
+#define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Eteindre ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Presser [Enter] pour confirmer"
 #define TR_THROTTLE_LABEL              "Gaz"

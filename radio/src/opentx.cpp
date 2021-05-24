@@ -2053,7 +2053,8 @@ uint32_t pwrCheck()
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
 #else
-        while ((TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
+        while (usbPlugged() ||
+               (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
 #endif
         {
 
@@ -2091,8 +2092,16 @@ uint32_t pwrCheck()
           }
 #else  // COLORLCD
 
-          // TODO: abort dialog condition (here, RSSI lost)
-          if (confirmationDialog(STR_MODEL_SHUTDOWN, STR_MODEL_STILL_POWERED, false)) {
+          const char* message = nullptr;
+          if (usbPlugged()) {
+            message = STR_USB_STILL_CONNECTED;
+          }
+          else {
+            message = STR_MODEL_STILL_POWERED;
+          }
+
+          // TODO: abort dialog condition (here, RSSI lost / USB connected)
+          if (confirmationDialog(STR_MODEL_SHUTDOWN, message, false)) {
             pwr_check_state = PWR_CHECK_OFF;
             return e_power_off;
           } else {
