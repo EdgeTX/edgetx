@@ -773,6 +773,7 @@ void displayLuaError(const char * title)
   }
 }
 
+#if !defined(COLORLCD)
 void displayAcknowledgeLuaError(event_t event)
 {
   warningResult = false;
@@ -781,6 +782,7 @@ void displayAcknowledgeLuaError(event_t event)
     warningText = nullptr;
   }
 }
+#endif
 
 void luaError(lua_State * L, uint8_t error, bool acknowledge)
 {
@@ -819,9 +821,11 @@ void luaError(lua_State * L, uint8_t error, bool acknowledge)
   }
 
   if (acknowledge) {
+#if !defined(COLORLCD)      
     warningText = errorTitle;
     warningType = WARNING_TYPE_INFO;
     popupFunc = displayAcknowledgeLuaError;
+#endif
   }
   else {
     displayLuaError(errorTitle);

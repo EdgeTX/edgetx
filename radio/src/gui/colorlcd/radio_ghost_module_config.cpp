@@ -128,7 +128,6 @@ void RadioGhostModuleConfig::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_EXIT):
-      menuVerticalOffset = 0;
       memclear(&reusableBuffer.ghostMenu, sizeof(reusableBuffer.ghostMenu));
       reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
       reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;

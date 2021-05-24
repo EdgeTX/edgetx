@@ -95,15 +95,9 @@ endif()
 
 if(LUA STREQUAL YES)
   set(SRC ${SRC} lua/widgets.cpp)
-  # TODO set(GUI_SRC ${GUI_SRC} model_custom_scripts.cpp)
 endif()
 
-set(SRC
-  ${SRC}
-  stubs.cpp
-  storage/modelslist.cpp
-  )
-
+set(SRC ${SRC} storage/modelslist.cpp)
 
 option(WINDOWS_INSPECT_BORDERS "Draw bounding boxes around windows" OFF)
 if(WINDOWS_INSPECT_BORDERS)

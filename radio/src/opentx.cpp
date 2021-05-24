@@ -780,6 +780,9 @@ void checkAll()
   checkMultiLowPower();
 #endif
 
+#if defined(COLORLCD)
+  #warning "KEYSTUCK Message Not Yet Implemented"
+#else
   if (!waitKeysReleased()) {
     showMessageBox(STR_KEYSTUCK);
     tmr10ms_t tgtime = get_tmr10ms() + 500;
@@ -788,6 +791,7 @@ void checkAll()
       WDG_RESET();
     }
   }
+#endif
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
   checkExternalAntenna();
@@ -2067,6 +2071,8 @@ uint32_t pwrCheck()
           event_t evt = getEvent(false);
           DISPLAY_WARNING(evt);
           LED_ERROR_BEGIN();
+
+          WDG_RESET();
           lcdRefresh();
 
           if (warningResult) {
