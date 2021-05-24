@@ -90,6 +90,23 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   return true;
 }
 
+TEST(Lcd_colorlcd, lines)
+{
+  BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.clear(DEFAULT_BGCOLOR);
+  dc.setClippingRect(50, 400, 50, 230);
+
+  for (int x = 10; x <= 100; x += 10) {
+    dc.drawLine(x, x, x + 200, x + 50, 0xF0, DEFAULT_COLOR);
+  }
+
+  for (int x = 200; x >= 100; x -= 10) {
+    dc.drawLine(x, x, x - 50, x + 100, 0xF0, DEFAULT_COLOR);
+  }
+
+  dc.clearClippingRect();
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "lines"));
+}
 
 TEST(Lcd_colorlcd, vline)
 {

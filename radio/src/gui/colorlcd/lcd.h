@@ -39,7 +39,6 @@
 #define DISPLAY_BUFFER_SIZE            (DISPLAY_PIXELS_COUNT)
 
 extern coord_t lcdNextPos;
-void lcdNextLayer();
 
 inline void lcdClear()
 {

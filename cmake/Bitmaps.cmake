@@ -40,7 +40,7 @@ macro(add_truetype_font_target name size subset effect args)
   add_custom_command(
     OUTPUT ${target}.png ${target}.specs ${target}.lbm
     COMMAND ${PYTHON_EXECUTABLE} ${TOOLS_DIR}/build-font-bitmap.py --subset ${subset} --size ${size} --font ${font} --output ${target}
-    COMMAND ${PYTHON_EXECUTABLE} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py --format 8bits --rle --size-format 2 ${args} ${target}.png ${target}.lbm
+    COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${target}.png ${target}.lbm
     DEPENDS ${TOOLS_DIR}/build-font-bitmap.py ${TOOLS_DIR}/charset.py ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py ${RADIO_SRC_DIR}/translations/cn.h.txt ${RADIO_SRC_DIR}/fonts/extra_${size}px.png
   )
   add_custom_target(truetype_font_${name} DEPENDS ${target}.png ${target}.specs)

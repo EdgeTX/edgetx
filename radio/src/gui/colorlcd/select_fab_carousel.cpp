@@ -21,7 +21,7 @@
 #include "select_fab_carousel.h"
 
 SelectFabCarousel::SelectFabCarousel(Window* parent):
-    FormGroup(parent, {}, OPAQUE | FORM_FORWARD_FOCUS | NO_SCROLLBAR)
+    FormGroup(parent, {}, FORM_FORWARD_FOCUS | NO_SCROLLBAR)
 {
     setPageWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
     setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);

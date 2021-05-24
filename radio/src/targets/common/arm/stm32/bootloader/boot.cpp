@@ -447,7 +447,6 @@ int main()
           state = ST_FLASHING;
         }
       }
-
       else if (state == ST_FLASHING) {
         // commit to flashing
         if (!unlocked && (memoryType == MEM_FLASH)) {
