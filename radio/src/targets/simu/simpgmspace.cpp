@@ -186,7 +186,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
     return;
 
   stopPulses();
+#if !defined(COLORLCD)
   menuLevel = 0;
+#endif
 
   simu_start_mode = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
   simu_shutdown = false;
