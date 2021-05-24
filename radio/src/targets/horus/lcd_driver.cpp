@@ -422,7 +422,6 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   srcy = srch - (srcy + h);
 #endif
 
-  TRACE("------");
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -473,7 +472,6 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   srcy = srch - (srcy + h);
 #endif
 
-  TRACE("++++++");
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
