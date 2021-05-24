@@ -68,9 +68,13 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   mixerSchedules[moduleIdx].period = periodUs;
 }
 
-bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
+void mixerSchedulerClearTrigger()
 {
   RTOS_CLEAR_FLAG(mixerFlag);
+}
+
+bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
+{
   return RTOS_WAIT_FLAG(mixerFlag, timeoutMs);
 }
 

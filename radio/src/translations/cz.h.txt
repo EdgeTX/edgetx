@@ -234,9 +234,10 @@
 #endif
 
 #define TR_SF_SCREENSHOT               "Snímek LCD\0"
+#define TR_SF_RACING_MODE              "RacingMode\0"
 #define TR_SF_RESERVE                  "[rezerva]\0 "
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY "Trenér \0   ""Insta-Trim\0""Reset\0     ""Změna \0    " TR_ADJUST_GVAR "Hlasitost\0 " "SetFailsafe" "RangeCheck\0" "ModuleBind\0" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "Podsvětlení" TR_SF_SCREENSHOT TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY "Trenér \0   ""Insta-Trim\0""Reset\0     ""Změna \0    " TR_ADJUST_GVAR "Hlasitost\0 " "SetFailsafe" "RangeCheck\0" "ModuleBind\0" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "Podsvětlení" TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_TEST
 
 #define LEN_VFSWRESET                  TR("\004", "\012")
 
@@ -535,6 +536,7 @@
 #define TR_ALARMWARNING                TR3("Vypnutý zvuk", "Upozornit na vypnutý zvuk", "Upozornit na vyp. zvuk")
 #define TR_RSSI_SHUTDOWN_ALARM           TR("Rssi při vyp.", "Hlídat Rssi při vypnutí")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
+#define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Vypnout ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni enter pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
@@ -1258,6 +1260,7 @@
 #define TR_JITTER_FILTER               "ADC Filtr"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
+#define TR_RACING_MODE                 "Racing mode"
 
 #define ZSTR_VFR                       "VFR"
 #define ZSTR_RSSI                      "RSSI"

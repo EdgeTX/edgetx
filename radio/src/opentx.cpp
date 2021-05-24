@@ -780,6 +780,9 @@ void checkAll()
   checkMultiLowPower();
 #endif
 
+#if defined(COLORLCD)
+  #warning "KEYSTUCK Message Not Yet Implemented"
+#else
   if (!waitKeysReleased()) {
     showMessageBox(STR_KEYSTUCK);
     tmr10ms_t tgtime = get_tmr10ms() + 500;
@@ -788,6 +791,7 @@ void checkAll()
       WDG_RESET();
     }
   }
+#endif
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
   checkExternalAntenna();
@@ -1844,7 +1848,7 @@ void opentxInit()
   if (globalData.unexpectedShutdown) {
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
-//    rambackupRestore();
+    rambackupRestore();
   }
   else {
     storageReadAll();
@@ -2049,14 +2053,18 @@ uint32_t pwrCheck()
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
 #else
-        while ((TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
+        while ((usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+               (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
 #endif
         {
 
 #if !defined(COLORLCD)
+
           lcdRefreshWait();
           lcdClear();
+
           POPUP_CONFIRMATION(STR_MODEL_SHUTDOWN, nullptr);
+
 #if defined(SHUTDOWN_CONFIRMATION)
           if (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) {
             SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
@@ -2064,9 +2072,12 @@ uint32_t pwrCheck()
 #else
           SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
 #endif
+
           event_t evt = getEvent(false);
           DISPLAY_WARNING(evt);
           LED_ERROR_BEGIN();
+
+          WDG_RESET();
           lcdRefresh();
 
           if (warningResult) {
@@ -2079,8 +2090,30 @@ uint32_t pwrCheck()
             LED_ERROR_END();
             return e_power_on;
           }
-#endif
+#else  // COLORLCD
+
+          const char* message = nullptr;
+          if (usbPlugged()) {
+            message = STR_USB_STILL_CONNECTED;
+          }
+          else {
+            message = STR_MODEL_STILL_POWERED;
+          }
+
+          // TODO: abort dialog condition (here, RSSI lost / USB connected)
+          if (confirmationDialog(STR_MODEL_SHUTDOWN, message, false)) {
+            pwr_check_state = PWR_CHECK_OFF;
+            return e_power_off;
+          } else {
+            // shutdown has been cancelled
+            pwr_check_state = PWR_CHECK_PAUSED;
+            LED_ERROR_END();
+            return e_power_on;
+          }
+          
+#endif // COLORLCD
         }
+
         haptic.play(15, 3, PLAY_NOW);
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;

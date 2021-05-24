@@ -210,6 +210,7 @@ const char * getBasename(const char * path)
   return path;
 }
 
+#if !defined(LIBOPENUI)
 bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
 {
   static uint16_t lastpopupMenuOffset = 0;
@@ -427,6 +428,7 @@ void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COL
     lines_count = current_line;
   }
 }
+#endif // !LIBOPENUI
 
 #if defined(SDCARD)
 const char * sdCopyFile(const char * srcPath, const char * destPath)

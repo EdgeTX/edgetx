@@ -32,6 +32,9 @@ TopbarImpl::TopbarImpl(Window * parent) :
 
 unsigned int TopbarImpl::getZonesCount() const
 {
+#if defined(INTERNAL_GPS)
+  return MAX_TOPBAR_ZONES-1;
+#endif
   return MAX_TOPBAR_ZONES;
 }
 
@@ -88,13 +91,27 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   getTimerString(str, getValue(MIXSRC_TX_TIME));
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | MENU_COLOR);
 
+#if defined(INTERNAL_GPS)
+  if (gpsData.fix) {
+    char s[10];
+    sprintf(s, "%d", gpsData.numSat);
+    dc->drawText(LCD_W-148, 4, s, FONT(XS) | CENTERED | MENU_COLOR);
+  }
+  dc->drawBitmapPattern(LCD_W-158, 22, LBM_TOPMENU_GPS, (gpsData.fix) ? MENU_COLOR : MENU_TITLE_DISABLE_COLOR);
+#endif
+
   // USB icon
   if (usbPlugged()) {
-    dc->drawBitmapPattern(LCD_W - 98, 8, LBM_TOPMENU_USB, MENU_COLOR);
-  }
 
+    LcdFlags flags = MENU_COLOR;
+    if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
+      flags = MENU_TITLE_DISABLE_COLOR;
+    }
+
+    dc->drawBitmapPattern(LCD_W - 98, 8, LBM_TOPMENU_USB, flags);
+  }
   // Logs
-  if (isFunctionActive(FUNCTION_LOGS) && !usbPlugged() && BLINK_ON_PHASE) {
+  else if (isFunctionActive(FUNCTION_LOGS) && BLINK_ON_PHASE) {
     dc->drawBitmapPattern(LCD_W - 98, 6, LBM_DOT, MENU_COLOR);
   }
 

@@ -35,7 +35,7 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
   }
 
   // The square
-  x = width() - TRIM_SQUARE_SIZE - divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
+  x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
   drawTrimSquare(dc, x, 0, TRIM_BGCOLOR);
 }
 
@@ -58,19 +58,19 @@ void MainView6POS::paint(BitmapBuffer * dc)
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)
 {
-  uint8_t slidersTick = height() / 5;
   // The ticks
-  int delta = (height() - TRIM_SQUARE_SIZE) / slidersTick;
+  int delta = 4;
+  int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / delta;
   coord_t y = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= slidersTick; i++) {
-    if (i == 0 || i == slidersTick / 2 || i == slidersTick)
-      dc->drawSolidHorizontalLine(2, y, 13, DEFAULT_COLOR);
+  for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+    if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount)
+       dc->drawSolidHorizontalLine(2, y, 13, DEFAULT_COLOR);
     else
       dc->drawSolidHorizontalLine(4, y, 9, DEFAULT_COLOR);
     y += delta;
   }
 
   // The square
-  y = height() - TRIM_SQUARE_SIZE - divRoundClosest((height() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
+  y = divRoundClosest((height() - TRIM_SQUARE_SIZE) * (-value + RESX), 2 * RESX);
   drawTrimSquare(dc, 0, y, TRIM_BGCOLOR);
 }

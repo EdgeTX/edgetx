@@ -163,7 +163,9 @@ int main(int argc, char **argv)
 #if defined(EEPROM_SIZE)
   eeprom = (uint8_t *)malloc(EEPROM_SIZE);
 #endif
+#if !defined(COLORLCD)
   menuLevel = 0;
+#endif
   InitGoogleTest(&argc, argv);
 
   // use --verbose option to revert to gtest's default output format

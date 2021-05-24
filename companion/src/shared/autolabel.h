@@ -20,22 +20,25 @@
 
 #pragma once
 
-#include <QSpinBox>
+#include "autowidget.h"
 
-class QRegExpValidator;
+#include <QLabel>
 
-class HexSpinBox : public QSpinBox
+class AutoLabel: public QLabel, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    HexSpinBox(QWidget *parent = 0);
+    explicit AutoLabel(QWidget * parent = nullptr);
+    virtual ~AutoLabel();
 
-  protected:
-    QValidator::State validate(QString &text, int &pos) const;
-    int valueFromText(const QString &text) const;
-    QString textFromValue(int value) const;
+    virtual void updateValue() override;
+
+    void setField(char * field, GenericPanel * panel = nullptr);
+    void setField(QString & field, GenericPanel * panel = nullptr);
+    void setWidth(int numChars);
 
   private:
-    QRegExpValidator *validator;
+    char *m_charField;
+    QString *m_strField;
 };

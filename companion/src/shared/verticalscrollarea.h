@@ -26,6 +26,8 @@ class GenericPanel;
 
 class VerticalScrollArea : public QScrollArea
 {
+  Q_OBJECT
+
   public:
     VerticalScrollArea(QWidget * parent, GenericPanel * panel);
 

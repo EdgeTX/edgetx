@@ -663,8 +663,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return HAS_LARGE_LCD(board) ? 4 : 3;
     case TrainerInputs:
       return 16;
-    case RtcTime:
-      return 1;
     case LuaScripts:
       return IS_HORUS_OR_TARANIS(board) && id.contains("lua") ? 7 : 0;
     case LuaInputsPerScript:
@@ -725,6 +723,19 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 60;
       else
         return 40;
+    case HasAuxSerialMode:
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
+    case HasAux2SerialMode:
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
+    case HasBluetooth:
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board)) ? true : false;
+    case HasAntennaChoice:
+      return ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) ? true : false;
+    case HasADCJitterFilter:
+      return IS_HORUS_OR_TARANIS(board) ? true : false;
+    case HasTelemetryBaudrate:
+      return IS_HORUS_OR_TARANIS(board) ? true : false;
+
     default:
       return 0;
   }

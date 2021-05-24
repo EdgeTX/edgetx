@@ -86,7 +86,7 @@ FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
 OpenTxSim::OpenTxSim(FXApp* a):
   FXMainWindow(a, "OpenTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
 {
-  memset(displayBuf, 0, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+  lcdInit();
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
 #if defined(SIMU_AUDIO)
@@ -500,8 +500,17 @@ void OpenTxSim::setPixel(int x, int y, FXColor color)
 
 void OpenTxSim::refreshDisplay()
 {
-  if (simuLcdRefresh) {
+  static bool lightEnabled = (bool)isBacklightEnabled();
+
+  if ((bool(isBacklightEnabled()) != lightEnabled) || simuLcdRefresh) {
+
     simuLcdRefresh = false;
+
+    if (bool(isBacklightEnabled()) != lightEnabled) {
+      lightEnabled = (bool)isBacklightEnabled();
+      TRACE("backlight %s", lightEnabled ? "ON" : "OFF");
+    }
+    
     FXColor offColor = isBacklightEnabled() ? BL_COLOR : FXRGB(200, 200, 200);
 #if LCD_DEPTH == 1
     FXColor onColor = FXRGB(0, 0, 0);

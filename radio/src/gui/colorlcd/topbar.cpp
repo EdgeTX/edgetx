@@ -83,3 +83,20 @@ void SetupTopBarWidgetsPage::onEvent(event_t event)
 }
 #endif
 
+#if defined(HARDWARE_TOUCH)
+bool SetupTopBarWidgetsPage::onTouchSlide(coord_t x, coord_t y,
+                                          coord_t startX, coord_t startY,
+                                          coord_t slideX, coord_t slideY)
+{
+  Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
+  return true;
+}
+
+bool SetupTopBarWidgetsPage::onTouchEnd(coord_t x, coord_t y)
+{
+  if (FormWindow::onTouchEnd(x, y))
+    return true;
+
+  return true;
+}
+#endif

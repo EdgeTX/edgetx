@@ -89,24 +89,6 @@ Adc Adc0;
 
 FATFS g_FATFS_Obj;
 
-void lcdInit()
-{
-}
-
-void lcdCopy(void * dest, void * src)
-{
-
-}
-
-void lcdNextLayer()
-{
-
-}
-
-void toplcdOff()
-{
-}
-
 uint64_t simuTimerMicros(void)
 {
 #if SIMPGMSPC_USE_QT
@@ -204,7 +186,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
     return;
 
   stopPulses();
+#if !defined(COLORLCD)
   menuLevel = 0;
+#endif
 
   simu_start_mode = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
   simu_shutdown = false;
@@ -428,39 +412,11 @@ void stopAudioThread()
 }
 #endif // #if defined(SIMU_AUDIO)
 
-bool simuLcdRefresh = true;
-pixel_t simuLcdBuf[DISPLAY_BUFFER_SIZE];
-
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
 {
 }
 #endif
-
-#if defined(PCBTARANIS)
-void lcdOff()
-{
-}
-#endif
-
-void lcdRefresh()
-{
-  static bool lightEnabled = (bool)isBacklightEnabled();
-
-  if (bool(isBacklightEnabled()) != lightEnabled || memcmp(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t))) {
-#if defined(LCD_VERTICAL_INVERT)
-    auto src = (pixel_t*)displayBuf + DISPLAY_BUFFER_SIZE - 1;
-    auto dst = simuLcdBuf;
-    auto end = dst + DISPLAY_BUFFER_SIZE;
-
-    while (dst != end) { *(dst++) = *(src--); }
-#else
-    memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-#endif
-    lightEnabled = (bool)isBacklightEnabled();
-    simuLcdRefresh = true;
-  }
-}
 
 void telemetryPortInit(uint8_t baudrate)
 {
@@ -525,23 +481,6 @@ void check_telemetry_exti()
 
 void boardInit()
 {
-}
-
-pixel_t simuLcdBackupBuf[DISPLAY_BUFFER_SIZE];
-void lcdStoreBackupBuffer()
-{
-  memcpy(simuLcdBackupBuf, displayBuf, sizeof(simuLcdBackupBuf));
-}
-
-int lcdRestoreBackupBuffer()
-{
-  memcpy(displayBuf, simuLcdBackupBuf, sizeof(displayBuf));
-  return 1;
-}
-
-uint16_t* lcdGetBackupBuffer()
-{
-  return (uint16_t*)simuLcdBackupBuf;
 }
 
 uint32_t pwrCheck()

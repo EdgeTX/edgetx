@@ -26,6 +26,7 @@
 
 extern int g_snapshot_idx;
 extern bool simuLcdRefresh;
+
 extern pixel_t simuLcdBuf[DISPLAY_BUFFER_SIZE];
 extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
 

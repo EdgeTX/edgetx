@@ -20,6 +20,7 @@
 
 #include "boards.h"
 #include "macros.h"
+#include "compounditemmodels.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -374,7 +375,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case MultiposPotsPositions:
       return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
 
-    case Switches:
+    case Board::Switches:
       if (IS_TARANIS_X9E(board))
         return 18;
       else if (board == Board::BOARD_TARANIS_X9LITE)
@@ -410,11 +411,11 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else if (IS_HORUS_X12S(board))
         return 8;
       else
-        return getCapability(board, Switches);
+        return getCapability(board, Board::Switches);
 
     case SwitchPositions:
       if (IS_HORUS_OR_TARANIS(board))
-        return getCapability(board, Switches) * 3;
+        return getCapability(board, Board::Switches) * 3;
       else
         return 9;
 
@@ -425,10 +426,14 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 4;
 
     case NumTrimSwitches:
-      return getCapability(board, NumTrims) * 2;
-  }
+      return getCapability(board, Board::NumTrims) * 2;
 
-  return 0;
+    case HasRTC:
+      return IS_STM32(board) ? true : false;
+
+    default:
+      return 0;
+  }
 }
 
 QString Boards::getAxisName(int index)
@@ -444,7 +449,7 @@ QString Boards::getAxisName(int index)
   if (index < (int)DIM(axes))
     return axes[index];
   else
-    return tr("Unknown");
+    return CPN_STR_UNKNOWN_ITEM;
 }
 
 QString Boards::getAnalogInputName(Board::Type board, int index)
@@ -595,6 +600,96 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
     default:
-      return tr("Unknown");
+      return CPN_STR_UNKNOWN_ITEM;
   }
+}
+
+//  static
+QString Boards::potTypeToString(int value)
+{
+  switch(value) {
+    case POT_NONE:
+      return tr("None");
+    case POT_WITH_DETENT:
+      return tr("Pot with detent");
+    case POT_MULTIPOS_SWITCH:
+      return tr("Multi pos switch");
+    case POT_WITHOUT_DETENT:
+      return tr("Pot without detent");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+
+//  static
+QString Boards::sliderTypeToString(int value)
+{
+  switch(value) {
+    case SLIDER_NONE:
+      return tr("None");
+    case SLIDER_WITH_DETENT:
+      return tr("Slider with detent");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+QString Boards::switchTypeToString(int value)
+{
+  switch(value) {
+    case SWITCH_NOT_AVAILABLE:
+      return tr("None");
+    case SWITCH_TOGGLE:
+      return tr("2 Positions Toggle");
+    case SWITCH_2POS:
+      return tr("2 Positions");
+    case SWITCH_3POS:
+      return tr("3 Positions");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * Boards::potTypeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_BOARDS_POT_TYPE);
+
+  for (int i = 0; i < POT_TYPE_COUNT; i++) {
+    mdl->appendToItemList(potTypeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * Boards::sliderTypeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_BOARDS_SLIDER_TYPE);
+
+  for (int i = 0; i < SLIDER_TYPE_COUNT; i++) {
+    mdl->appendToItemList(sliderTypeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * Boards::switchTypeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_BOARDS_SWITCH_TYPE);
+
+  for (int i = 0; i < SWITCH_TYPE_COUNT; i++) {
+    mdl->appendToItemList(switchTypeToString(i), i, true, 0, (i < SWITCH_3POS ? SwitchTypeFlag2Pos : SwitchTypeFlag3Pos));
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }

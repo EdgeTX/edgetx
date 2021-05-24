@@ -20,58 +20,42 @@
 
 #pragma once
 
-#include "hexspinbox.h"
-#include "genericpanel.h"
+#include "autowidget.h"
 
-class AutoHexSpinBox: public HexSpinBox
+#include <QSpinBox>
+#include <QString>
+
+class QRegExpValidator;
+
+class AutoHexSpinBox : public QSpinBox, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    explicit AutoHexSpinBox(QWidget * parent = nullptr):
-      HexSpinBox(parent),
-      field(nullptr),
-      panel(nullptr),
-      lock(false)
-    {
-      connect(this, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
-    }
+    constexpr static unsigned int AUTOHEXSPINBOX_MAX_VALUE {65535};
 
-    void setField(unsigned int & field, GenericPanel * panel = nullptr)
-    {
-      this->field = &field;
-      this->panel = panel;
-      updateValue();
-    }
+    explicit AutoHexSpinBox(QWidget * parent = nullptr);
+    virtual ~AutoHexSpinBox();
 
-    void updateValue()
-    {
-      if (field) {
-        lock = true;
-        setValue(*field);
-        lock = false;
-      }
-    }
+    virtual void updateValue();
+
+    void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setRange(unsigned int min = 0, unsigned int max = AUTOHEXSPINBOX_MAX_VALUE);
+
+  protected:
+    QValidator::State validate(QString &text, int &pos) const;
+    int valueFromText(const QString &text) const;
+    QString textFromValue(int value) const;
 
   signals:
     void currentDataChanged(int value);
 
   protected slots:
-    void onValueChanged(int value)
-    {
-      if (panel && panel->lock)
-        return;
-      if (field && !lock) {
-        *field = value;
-        emit currentDataChanged(value);
-        if (panel) {
-          emit panel->modified();
-        }
-      }
-    }
+    void onValueChanged(int value);
 
-  protected:
-    unsigned int * field = nullptr;
-    GenericPanel * panel = nullptr;
-    bool lock = false;
+  private:
+    unsigned int *m_field;
+    QRegExpValidator *m_validator;
+    unsigned int m_length;
 };

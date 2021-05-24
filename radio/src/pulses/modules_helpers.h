@@ -706,7 +706,7 @@ inline void getMultiOptionValues(int8_t multi_proto, int8_t & min, int8_t & max)
       min = 0;
       max = 70;
       break;
-    case MODULE_SUBTYPE_MULTI_XN297DP:
+    case MODULE_SUBTYPE_MULTI_XN297DUMP:
       min = -1;
       max = 84;
       break;

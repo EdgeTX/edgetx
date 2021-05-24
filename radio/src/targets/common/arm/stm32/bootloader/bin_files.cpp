@@ -121,15 +121,19 @@ void extractFirmwareVersion(VersionTag* tag)
     if (!vers || (vers[0] == 'n' && vers[1] == 'o')) { // "no version found"
       memcpy(tag->flavour, "unknown", sizeof("unknown"));
       tag->version = "unknown";
+      return;
     }
 
-    // skip "opentx-"
-    vers += sizeof("opentx-") - 1;
+    tag->fork = vers;
+    
+    // skip 'edgetx-' / 'opentx-'
+    vers += sizeof("edgetx-") - 1;
 
     char* fl = tag->flavour;
     while(*vers != '-')
         *(fl++) = *(vers++);
 
+    // skip '-'
     tag->version = ++vers;
 }
 

@@ -34,7 +34,9 @@ enum DialogType {
 class FullScreenDialog : public FormGroup
 {
   public:
-    FullScreenDialog(uint8_t type, std::string title, std::string message = "", std::string action = "", const std::function<void(void)> & confirmHandler = nullptr);
+    FullScreenDialog(uint8_t type, std::string title, std::string message = "",
+                     std::string action = "",
+                     const std::function<void(void)>& confirmHandler = nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -69,6 +71,7 @@ class FullScreenDialog : public FormGroup
     }
 
     void runForever();
+    void runForeverNoPwrCheck();
 
   protected:
     uint8_t type;

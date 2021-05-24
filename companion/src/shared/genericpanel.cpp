@@ -19,6 +19,7 @@
  */
 
 #include "genericpanel.h"
+#include "autowidget.h"
 
 #include <TimerEdit>
 #include <QComboBox>
@@ -126,4 +127,14 @@ void GenericPanel::disableMouseScrolling()
 
   foreach(QWidget * te, findChildren<TimerEdit*>())
     setFocusFilter(te);
+}
+
+void GenericPanel::updateAutoWidgets()
+{
+  foreach(QWidget *wdgt, findChildren<QWidget *>()) {
+    AutoWidget *autowdgt = dynamic_cast<AutoWidget *>(wdgt);
+    if (autowdgt) {
+      autowdgt->updateValue();
+    }
+  }
 }

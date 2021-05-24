@@ -199,9 +199,10 @@
 #endif
 
 #define TR_SF_SCREENSHOT                "截屏\0           "
+#define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_RESERVE                   "[保留]\0         "
 
-#define TR_VFSWFUNC                     TR_SF_SAFETY "教練\0           " "搖桿值存儲到微調" "重啟\0           " "設置\0           " TR_ADJUST_GVAR "音量\0           " "設置失控保護\0   " "測距模式\0       " "模塊對頻\0       "  TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "背光\0           " TR_SF_SCREENSHOT TR_SF_TEST
+#define TR_VFSWFUNC                     TR_SF_SAFETY "教練\0           " "搖桿值存儲到微調" "重啟\0           " "設置\0           " TR_ADJUST_GVAR "音量\0           " "設置失控保護\0   " "測距模式\0       " "模塊對頻\0       "  TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "背光\0           " TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_TEST
 
 #define LEN_VFSWRESET                   TR("\004", "\010")
 
@@ -450,6 +451,7 @@
 #define TR_ALARMWARNING                 "靜音"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("Rssi Shutdown", "關機時檢查RSSI")
 #define TR_MODEL_STILL_POWERED          "模型未斷電"
+#define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN               "關機 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "按ENTER鍵確認"
 #define TR_THROTTLE_LABEL               "油門"
@@ -1163,6 +1165,7 @@
 #define TR_JITTER_FILTER               "類比輸入濾波"
 #define TR_RTC_CHECK                   TR("Check RTC", "檢查時間驅動電池電壓")
 #define TR_AUTH_FAILURE                "驗證失敗"
+#define TR_RACING_MODE                 "Racing mode"
 
 #define ZSTR_VFR                       "VFR"
 #define ZSTR_RSSI                      "RSSI"

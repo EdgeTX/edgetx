@@ -400,7 +400,7 @@ ModuleSyncStatus::ModuleSyncStatus()
   memset(this, 0, sizeof(ModuleSyncStatus));
 }
 
-void ModuleSyncStatus::update(uint16_t newRefreshRate, uint16_t newInputLag)
+void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
 {
   if (!newRefreshRate)
     return;
@@ -451,13 +451,12 @@ void ModuleSyncStatus::getRefreshString(char * statusText)
   char * tmp = statusText;
 #if defined(DEBUG)
   *tmp++ = 'L';
-  tmp = strAppendUnsigned(tmp, inputLag, 5);
-  tmp = strAppend(tmp, "us R ");
-  tmp = strAppendUnsigned(tmp, (uint32_t) (refreshRate / 1000), 5);
-  tmp = strAppend(tmp, "us");
+  tmp = strAppendSigned(tmp, inputLag, 5);
+  tmp = strAppend(tmp, "R");
+  tmp = strAppendUnsigned(tmp, refreshRate, 5);
 #else
-  tmp = strAppend(tmp, "Sync at ");
-  tmp = strAppendUnsigned(tmp, (uint32_t) (refreshRate / 1000000));
-  tmp = strAppend(tmp, " ms");
+  tmp = strAppend(tmp, "Sync ");
+  tmp = strAppendUnsigned(tmp, refreshRate);
 #endif
+  tmp = strAppend(tmp, "us");
 }

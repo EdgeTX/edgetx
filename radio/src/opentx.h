@@ -460,29 +460,41 @@ uint16_t evalChkSum();
 void alert(const char * title, const char * msg, uint8_t sound);
 
 #if !defined(GUI)
+
   #define RAISE_ALERT(...)
   #define ALERT(...)
-#elif defined(COLORLCD)
-  void raiseAlert(const char * title, const char * msg, const char * info, uint8_t sound);
-  inline void RAISE_ALERT(const char * title, const char * msg, const char * info, uint8_t sound)
-  {
-    raiseAlert(title, msg, info, sound);
-  }
-  inline void ALERT(const char * title, const char * msg, uint8_t sound)
-  {
-    raiseAlert(title, msg, "", sound);
-  }
-#else
-  inline void RAISE_ALERT(const char * title, const char * msg, const char * info, uint8_t sound)
-  {
-    showAlertBox(title, msg, info, sound);
-  }
 
-  inline void ALERT(const char * title, const char * msg, uint8_t sound)
-  {
-    alert(title, msg, sound);
-  }
-#endif
+#elif defined(COLORLCD)
+
+bool confirmationDialog(const char *title, const char *msg, bool checkPwr = true);
+
+void raiseAlert(const char *title, const char *msg, const char *info,
+                uint8_t sound);
+
+inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
+                        uint8_t sound)
+{
+  raiseAlert(title, msg, info, sound);
+}
+inline void ALERT(const char *title, const char *msg, uint8_t sound)
+{
+  raiseAlert(title, msg, "", sound);
+}
+
+#else // !COLORLCD && GUI
+
+inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
+                        uint8_t sound)
+{
+  showAlertBox(title, msg, info, sound);
+}
+
+inline void ALERT(const char *title, const char *msg, uint8_t sound)
+{
+  alert(title, msg, sound);
+}
+
+#endif // !COLORLCD && GUI
 
 enum PerOutMode {
   e_perout_mode_normal = 0,
@@ -833,6 +845,7 @@ enum FunctionsActive {
   FUNCTION_BACKGND_MUSIC,
   FUNCTION_BACKGND_MUSIC_PAUSE,
   FUNCTION_BACKLIGHT,
+  FUNCTION_RACING_MODE,
 };
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
@@ -1007,10 +1020,10 @@ union ReusableBuffer
 #if defined(EEPROM_RLC) && LCD_W < 212
     uint16_t eepromfree;
 #endif
-#if defined(SDCARD)
+#if defined(SDCARD) && !defined(COLORLCD)
     char menu_bss[POPUP_MENU_MAX_LINES][MENU_LINE_LENGTH];
     char mainname[45]; // because reused for SD backup / restore, max backup filename 44 chars: "/MODELS/MODEL0134353-2014-06-19-04-51-27.bin"
-#else
+#elif !defined(COLORLCD)
     char mainname[LEN_MODEL_NAME];
 #endif
   } modelsel;

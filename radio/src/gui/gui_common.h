@@ -191,6 +191,34 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   }
 }
 
+#if defined(PXX2)
+inline bool isRacingModeAllowed()
+{
+  return isModulePXX2(INTERNAL_MODULE) && g_model.moduleData[INTERNAL_MODULE].getChannelsCount() == 8;
+}
+
+inline bool isRacingModeEnabled()
+{
+  return isRacingModeAllowed() && g_model.moduleData[INTERNAL_MODULE].pxx2.racingMode;
+}
+
+inline uint8_t IF_ALLOW_RACING_MODE(int moduleIdx)
+{
+  if (!IS_MODULE_ENABLED(moduleIdx)) {
+    return HIDDEN_ROW;
+  }
+  else if (isRacingModeAllowed()) {
+    return 0;
+  }
+  return HIDDEN_ROW;
+}
+#else
+inline uint8_t IF_ALLOW_RACING_MODE(int)
+{
+  return HIDDEN_ROW;
+}
+#endif
+
 #if defined(MULTIMODULE)
 inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
 {

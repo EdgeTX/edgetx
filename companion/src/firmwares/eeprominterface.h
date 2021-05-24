@@ -134,7 +134,6 @@ enum Capability {
   VirtualInputs,
   InputsLength,
   TrainerInputs,
-  RtcTime,
   SportTelemetry,
   LuaScripts,
   LuaInputsPerScript,
@@ -153,7 +152,13 @@ enum Capability {
   HasSwitchableJack,
   HasSportConnector,
   PwrButtonPress,
-  Sensors
+  Sensors,
+  HasAuxSerialMode,
+  HasAux2SerialMode,
+  HasBluetooth,
+  HasAntennaChoice,
+  HasADCJitterFilter,
+  HasTelemetryBaudrate
 };
 
 class EEPROMInterface

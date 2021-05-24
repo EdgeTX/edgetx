@@ -55,7 +55,6 @@ public:
           parent->deleteLater();
           return;
       }
-      Window::onEvent(event);
     }
 #endif
 
