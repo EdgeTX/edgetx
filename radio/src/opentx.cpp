@@ -1848,7 +1848,7 @@ void opentxInit()
   if (globalData.unexpectedShutdown) {
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
-//    rambackupRestore();
+    rambackupRestore();
   }
   else {
     storageReadAll();
