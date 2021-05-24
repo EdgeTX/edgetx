@@ -140,9 +140,9 @@ void FileChoice::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool FileChoice::onTouchEnd(coord_t, coord_t)
 {
-  openMenu();
   setFocus(SET_FOCUS_DEFAULT);
   setEditMode(true);
+  openMenu();
   return true;
 }
 #endif
