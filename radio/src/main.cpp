@@ -52,20 +52,27 @@ void openUsbMenu()
 
   _usbMenu->setCloseHandler([]() {
     _usbMenu = nullptr;
+  });
+
+  _usbMenu->setCancelHandler([]() {
     if (usbPlugged() && (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
+      TRACE("disable USB");
       _usbDisabled = true;
     }
   });
 
   _usbMenu->setTitle("USB");
   _usbMenu->addLine(STR_USB_JOYSTICK, [] {
+    TRACE("USB set joystick");
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   });
   _usbMenu->addLine(STR_USB_MASS_STORAGE, [] {
+    TRACE("USB mass storage");
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
 #if defined(DEBUG)
   _usbMenu->addLine(STR_USB_SERIAL, [] {
+    TRACE("USB serial");
     setSelectedUsbMode(USB_SERIAL_MODE);
   });
 #endif
@@ -85,7 +92,7 @@ void onUSBConnectMenu(const char *result)
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
   else if (result == STR_EXIT) {
-    _disableUsb = true;
+    _usbDisabled = true;
   }
 }
 
@@ -133,21 +140,29 @@ void handleUsbConnection()
         setSelectedUsbMode(g_eeGeneral.USBMode);
       }
     }
-    else {
+
+    // Mode might have been selected in previous block
+    // so re-evaluate the condition
+    if (getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         opentxClose(false);
         usbPluggedIn();
       }
+
       usbStart();
+      TRACE("USB started");
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
+    TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
       pushEvent(EVT_ENTRY);
     }
+    TRACE("reset selected USB mode");
     setSelectedUsbMode(USB_UNSELECTED_MODE);
   }
 #endif // defined(STM32) && !defined(SIMU)
