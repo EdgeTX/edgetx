@@ -117,7 +117,40 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
     }
   }
 
+  WDG_RESET();
   lcdRefresh();
+}
+
+void drawFatalErrorScreen(const char * message)
+{
+  lcd->clear();
+  lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|ALARM_COLOR);
+
+  WDG_RESET();
+  lcdRefresh();
+}
+
+void runFatalErrorScreen(const char * message)
+{
+  while (true) {
+    backlightEnable(100);
+    drawFatalErrorScreen(message);
+
+    uint8_t refresh = false;
+    while (true) {
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        boardOff();
+        return;  // only happens in SIMU, required for proper shutdown
+      }
+      else if (pwr_check == e_power_press) {
+        refresh = true;
+      }
+      else if (pwr_check == e_power_on && refresh) {
+        break;
+      }
+    }
+  }
 }
 
 void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curve, LcdFlags flags)

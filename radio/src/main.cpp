@@ -84,7 +84,7 @@ void handleUsbConnection()
 #if defined(STM32) && !defined(SIMU)
   if (!usbStarted() && usbPlugged()) {
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
-      if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE && popupMenuItemsCount == 0) {
+      if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE) {
         openUsbMenu();
       }
       else {
