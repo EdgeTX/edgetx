@@ -451,6 +451,7 @@
 #define TR_ALARMWARNING                "静音"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("Rssi Shutdown", "关机时检查RSSI")
 #define TR_MODEL_STILL_POWERED         "模型未断电"
+#define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "关机 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER键确认"
 #define TR_THROTTLE_LABEL              "油门"

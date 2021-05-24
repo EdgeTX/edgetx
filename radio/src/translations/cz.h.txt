@@ -536,6 +536,7 @@
 #define TR_ALARMWARNING                TR3("Vypnutý zvuk", "Upozornit na vypnutý zvuk", "Upozornit na vyp. zvuk")
 #define TR_RSSI_SHUTDOWN_ALARM           TR("Rssi při vyp.", "Hlídat Rssi při vypnutí")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
+#define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Vypnout ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni enter pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
