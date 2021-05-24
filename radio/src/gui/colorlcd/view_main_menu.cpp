@@ -98,7 +98,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  carousel->addButton(ICON_OPENTX, "About\nOpenTx", [=]() -> uint8_t {
+  carousel->addButton(ICON_OPENTX, "About\nEdgeTX", [=]() -> uint8_t {
     deleteLater();
     //TODO: new AboutUs();
     return 0;

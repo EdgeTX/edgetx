@@ -30,30 +30,56 @@ uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
 uint8_t mainRequestFlags = 0;
 
+static bool _usbDisabled = false;
+
 #if defined(LIBOPENUI)
+static Menu* _usbMenu = nullptr;
+
+void closeUsbMenu()
+{
+  if (_usbMenu && !usbPlugged()) {
+
+    // USB has been unplugged meanwhile
+    _usbMenu->deleteLater();
+  }
+}
+
 void openUsbMenu()
 {
-  static Menu * menu = nullptr;
-  if (menu)
-    return;
-  menu = new Menu(MainWindow::instance());
-  menu->setCloseHandler([]() {
-    menu = nullptr;
+  if (_usbMenu || _usbDisabled) return;
+  
+  _usbMenu = new Menu(MainWindow::instance());
+
+  _usbMenu->setCloseHandler([]() {
+    _usbMenu = nullptr;
   });
-  menu->setTitle("USB");
-  menu->addLine(STR_USB_JOYSTICK, [] {
+
+  _usbMenu->setCancelHandler([]() {
+    if (usbPlugged() && (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
+      TRACE("disable USB");
+      _usbDisabled = true;
+    }
+  });
+
+  _usbMenu->setTitle("USB");
+  _usbMenu->addLine(STR_USB_JOYSTICK, [] {
+    TRACE("USB set joystick");
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   });
-  menu->addLine(STR_USB_MASS_STORAGE, [] {
+  _usbMenu->addLine(STR_USB_MASS_STORAGE, [] {
+    TRACE("USB mass storage");
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
 #if defined(DEBUG)
-  menu->addLine(STR_USB_SERIAL, [] {
+  _usbMenu->addLine(STR_USB_SERIAL, [] {
+    TRACE("USB serial");
     setSelectedUsbMode(USB_SERIAL_MODE);
   });
 #endif
 }
+
 #elif defined(STM32)
+
 void onUSBConnectMenu(const char *result)
 {
   if (result == STR_USB_MASS_STORAGE) {
@@ -64,6 +90,9 @@ void onUSBConnectMenu(const char *result)
   }
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
+  }
+  else if (result == STR_EXIT) {
+    _usbDisabled = true;
   }
 }
 
@@ -77,35 +106,63 @@ void openUsbMenu()
   POPUP_MENU_TITLE(STR_SELECT_MODE);
   POPUP_MENU_START(onUSBConnectMenu);
 }
+
+void closeUsbMenu()
+{
+}
+
 #endif
 
 void handleUsbConnection()
 {
 #if defined(STM32) && !defined(SIMU)
-  if (!usbStarted() && usbPlugged()) {
+
+  static bool _pluggedUsb = false;
+
+  if (_pluggedUsb && !usbPlugged()) {
+    TRACE("USB unplugged");
+    closeUsbMenu();
+    _pluggedUsb = false;
+  }
+  else if (!_pluggedUsb && usbPlugged()) {
+    TRACE("USB plugged");
+    _pluggedUsb = true;
+    _usbDisabled = false;
+  }
+  
+  if (!_usbDisabled && !usbStarted() && usbPlugged()) {
+
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
-      if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE && popupMenuItemsCount == 0) {
+      if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE) {
         openUsbMenu();
       }
       else {
         setSelectedUsbMode(g_eeGeneral.USBMode);
       }
     }
-    else {
+
+    // Mode might have been selected in previous block
+    // so re-evaluate the condition
+    if (getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         opentxClose(false);
         usbPluggedIn();
       }
+
       usbStart();
+      TRACE("USB started");
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
+    TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
       pushEvent(EVT_ENTRY);
     }
+    TRACE("reset selected USB mode");
     setSelectedUsbMode(USB_UNSELECTED_MODE);
   }
 #endif // defined(STM32) && !defined(SIMU)
@@ -423,7 +480,7 @@ void perMain()
 
   checkSpeakerVolume();
 
-  if (!usbPlugged()) {
+  if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkEeprom();
     logsWrite();
   }
@@ -458,14 +515,17 @@ void perMain()
 #endif
 
 #if defined(STM32)
-  if (!usbPlugged() && SD_CARD_PRESENT() && !sdMounted()) {
+  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
+      && SD_CARD_PRESENT() && !sdMounted()) {
     sdMount();
   }
 #endif
 
 #if !defined(EEPROM)
   // In case the SD card is removed during the session
-  if (!usbPlugged() && !SD_CARD_PRESENT() && !globalData.unexpectedShutdown) {
+  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
+      && !SD_CARD_PRESENT() && !globalData.unexpectedShutdown) {
+
     drawFatalErrorScreen(STR_NO_SDCARD);
     return;
   }

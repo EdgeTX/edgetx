@@ -88,36 +88,93 @@ void drawSleepBitmap()
   lcdRefresh();
 }
 
+//
+// TODO: move shutdown animation to Theme
+//
 #define SHUTDOWN_CIRCLE_DIAMETER       150
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char * message)
 {
   if (totalDuration == 0)
     return;
 
-  static const BitmapBuffer * shutdown = BitmapBuffer::loadBitmap(OpenTxTheme::instance()->getFilePath("shutdown.bmp"));
+  static const BitmapBuffer* shutdown = nullptr;
+  if (!shutdown) {
+    shutdown = BitmapBuffer::loadBitmap(
+        OpenTxTheme::instance()->getFilePath("shutdown.bmp"));
+  }
 
   lcd->reset();
 
   if (shutdown) {
     OpenTxTheme::instance()->drawBackground(lcd);
-    lcd->drawBitmap((LCD_W - shutdown->width()) / 2, (LCD_H - shutdown->height()) / 2, shutdown);
+    lcd->drawBitmap((LCD_W - shutdown->width()) / 2,
+                    (LCD_H - shutdown->height()) / 2, shutdown);
     int quarter = duration / (totalDuration / 5);
-    if (quarter >= 1) lcd->drawBitmapPattern(LCD_W/2,                            (LCD_H-SHUTDOWN_CIRCLE_DIAMETER)/2, LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, 0, SHUTDOWN_CIRCLE_DIAMETER/2);
-    if (quarter >= 2) lcd->drawBitmapPattern(LCD_W/2,                            LCD_H/2,                            LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, SHUTDOWN_CIRCLE_DIAMETER/2, SHUTDOWN_CIRCLE_DIAMETER/2);
-    if (quarter >= 3) lcd->drawBitmapPattern((LCD_W-SHUTDOWN_CIRCLE_DIAMETER)/2, LCD_H/2,                            LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, SHUTDOWN_CIRCLE_DIAMETER, SHUTDOWN_CIRCLE_DIAMETER/2);
-    if (quarter >= 4) lcd->drawBitmapPattern((LCD_W-SHUTDOWN_CIRCLE_DIAMETER)/2, (LCD_H-SHUTDOWN_CIRCLE_DIAMETER)/2, LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, SHUTDOWN_CIRCLE_DIAMETER*3/2, SHUTDOWN_CIRCLE_DIAMETER/2);
-  }
-  else {
+    if (quarter >= 1)
+      lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
+                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, 0,
+                             SHUTDOWN_CIRCLE_DIAMETER / 2);
+    if (quarter >= 2)
+      lcd->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE,
+                             DEFAULT_COLOR, SHUTDOWN_CIRCLE_DIAMETER / 2,
+                             SHUTDOWN_CIRCLE_DIAMETER / 2);
+    if (quarter >= 3)
+      lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
+                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR,
+                             SHUTDOWN_CIRCLE_DIAMETER,
+                             SHUTDOWN_CIRCLE_DIAMETER / 2);
+    if (quarter >= 4)
+      lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
+                             (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
+                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR,
+                             SHUTDOWN_CIRCLE_DIAMETER * 3 / 2,
+                             SHUTDOWN_CIRCLE_DIAMETER / 2);
+  } else {
     lcd->clear();
     int quarter = duration / (totalDuration / 5);
     for (int i = 1; i <= 4; i++) {
       if (quarter >= i) {
-        lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20, 20, DEFAULT_BGCOLOR);
+        lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
+                                 20, DEFAULT_BGCOLOR);
       }
     }
   }
 
+  WDG_RESET();
   lcdRefresh();
+}
+
+void drawFatalErrorScreen(const char * message)
+{
+  lcd->reset();
+  lcd->clear(COLOR2FLAGS(BLACK));
+  lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+
+  WDG_RESET();
+  lcdRefresh();
+}
+
+void runFatalErrorScreen(const char * message)
+{
+  while (true) {
+    backlightEnable(100);
+    drawFatalErrorScreen(message);
+
+    uint8_t refresh = false;
+    while (true) {
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        boardOff();
+        return;  // only happens in SIMU, required for proper shutdown
+      }
+      else if (pwr_check == e_power_press) {
+        refresh = true;
+      }
+      else if (pwr_check == e_power_on && refresh) {
+        break;
+      }
+    }
+  }
 }
 
 void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curve, LcdFlags flags)

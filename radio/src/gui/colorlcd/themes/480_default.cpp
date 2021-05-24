@@ -31,14 +31,14 @@ class Theme480: public OpenTxTheme
 {
   public:
     Theme480():
-      OpenTxTheme("480_default", OPTIONS_THEME_DEFAULT)
+      OpenTxTheme("EdgeTX", OPTIONS_THEME_DEFAULT)
     {
       loadColors();
     }
 
     void loadColors() const
     {
-      TRACE("Load Theme480 theme colors");
+      TRACE("Load EdgeTX theme colors");
       lcdColorTable[ALARM_COLOR_INDEX] = RED;
       lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
@@ -109,7 +109,7 @@ class Theme480: public OpenTxTheme
 #if defined(LOG_TELEMETRY) || !defined(WATCHDOG)
       loadMenuIcon(ICON_OPENTX, "mask_opentx_testmode.png", DEFAULT_COLOR);
 #else
-      loadMenuIcon(ICON_OPENTX, "mask_opentx.png");
+      loadMenuIcon(ICON_OPENTX, "mask_edgetx.png");
 #endif
 #if defined(HARDWARE_TOUCH)
       loadMenuIcon(ICON_NEXT, "mask_next.png");

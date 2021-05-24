@@ -1229,6 +1229,7 @@ Run function (key pressed)
 
 @status current Introduced in 2.2.0
 */
+#if 0
 static int luaPopupWarning(lua_State * L)
 {
   event_t event = luaL_checkinteger(L, 2);
@@ -1244,6 +1245,7 @@ static int luaPopupWarning(lua_State * L)
   }
   return 1;
 }
+#endif
 
 /*luadoc
 @function popupConfirmation(title, event) deprecated, please replace by
@@ -1264,6 +1266,7 @@ Run function (key pressed)
 
 @status current Introduced in 2.2.0, changed to (title, message, event) in 2.3.8
 */
+#if 0
 static int luaPopupConfirmation(lua_State * L)
 {
   warningType = WARNING_TYPE_CONFIRM;
@@ -1290,6 +1293,7 @@ static int luaPopupConfirmation(lua_State * L)
   }
   return 1;
 }
+#endif
 
 /*luadoc
 @function defaultStick(channel)
@@ -1770,8 +1774,8 @@ const luaL_Reg opentxLib[] = {
   { "playTone", luaPlayTone },
   { "playHaptic", luaPlayHaptic },
   // { "popupInput", luaPopupInput },
-  { "popupWarning", luaPopupWarning },
-  { "popupConfirmation", luaPopupConfirmation },
+  // { "popupWarning", luaPopupWarning },
+  // { "popupConfirmation", luaPopupConfirmation },
   { "defaultStick", luaDefaultStick },
   { "defaultChannel", luaDefaultChannel },
   { "getRSSI", luaGetRSSI },
