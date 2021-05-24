@@ -2053,7 +2053,7 @@ uint32_t pwrCheck()
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
 #else
-        while (usbPlugged() ||
+        while ((usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
                (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
 #endif
         {

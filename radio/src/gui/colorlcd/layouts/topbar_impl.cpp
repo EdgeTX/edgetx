@@ -90,11 +90,16 @@ void TopbarImpl::paint(BitmapBuffer * dc)
 
   // USB icon
   if (usbPlugged()) {
-    dc->drawBitmapPattern(LCD_W - 98, 8, LBM_TOPMENU_USB, MENU_COLOR);
-  }
 
+    LcdFlags flags = MENU_COLOR;
+    if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
+      flags = MENU_TITLE_DISABLE_COLOR;
+    }
+
+    dc->drawBitmapPattern(LCD_W - 98, 8, LBM_TOPMENU_USB, flags);
+  }
   // Logs
-  if (isFunctionActive(FUNCTION_LOGS) && !usbPlugged() && BLINK_ON_PHASE) {
+  else if (isFunctionActive(FUNCTION_LOGS) && BLINK_ON_PHASE) {
     dc->drawBitmapPattern(LCD_W - 98, 6, LBM_DOT, MENU_COLOR);
   }
 
