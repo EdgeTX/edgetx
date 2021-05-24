@@ -2058,9 +2058,12 @@ uint32_t pwrCheck()
         {
 
 #if !defined(COLORLCD)
+
           lcdRefreshWait();
           lcdClear();
+
           POPUP_CONFIRMATION(STR_MODEL_SHUTDOWN, nullptr);
+
 #if defined(SHUTDOWN_CONFIRMATION)
           if (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) {
             SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
@@ -2068,6 +2071,7 @@ uint32_t pwrCheck()
 #else
           SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
 #endif
+
           event_t evt = getEvent(false);
           DISPLAY_WARNING(evt);
           LED_ERROR_BEGIN();
@@ -2085,8 +2089,22 @@ uint32_t pwrCheck()
             LED_ERROR_END();
             return e_power_on;
           }
-#endif
+#else  // COLORLCD
+
+          // TODO: abort dialog condition (here, RSSI lost)
+          if (confirmationDialog(STR_MODEL_SHUTDOWN, STR_MODEL_STILL_POWERED, false)) {
+            pwr_check_state = PWR_CHECK_OFF;
+            return e_power_off;
+          } else {
+            // shutdown has been cancelled
+            pwr_check_state = PWR_CHECK_PAUSED;
+            LED_ERROR_END();
+            return e_power_on;
+          }
+          
+#endif // COLORLCD
         }
+
         haptic.play(15, 3, PLAY_NOW);
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;

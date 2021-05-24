@@ -23,23 +23,23 @@
 #include "opentx.h"
 #include "libopenui.h"
 
-FullScreenDialog::FullScreenDialog(uint8_t type, std::string title, std::string message, std::string action, const std::function<void(void)> & confirmHandler):
-  FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
-  type(type),
-  title(std::move(title)),
-  message(std::move(message)),
-  action(std::move(action)),
-  confirmHandler(confirmHandler)
+FullScreenDialog::FullScreenDialog(
+    uint8_t type, std::string title, std::string message, std::string action,
+    const std::function<void(void)>& confirmHandler) :
+    FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
+    type(type),
+    title(std::move(title)),
+    message(std::move(message)),
+    action(std::move(action)),
+    confirmHandler(confirmHandler)
 {
   Layer::push(this);
 
 #if defined(HARDWARE_TOUCH)
-  new FabButton(this, LCD_W - 50, LCD_H - 50, ICON_NEXT,
-                    [=]() -> uint8_t {
-                      if (confirmHandler)
-                        confirmHandler();
-                      return 0;
-                    });
+  new FabButton(this, LCD_W - 50, LCD_H - 50, ICON_NEXT, [=]() -> uint8_t {
+    if (confirmHandler) confirmHandler();
+    return 0;
+  });
 #endif
 
   bringToTop();
@@ -50,34 +50,58 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
 {
   OpenTxTheme::instance()->drawBackground(dc);
 
-  dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID, FOCUS_COLOR, OPACITY(8));
+  dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
+                     FOCUS_COLOR, OPACITY(8));
 
-  if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK)
-    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP, OpenTxTheme::instance()->asterisk);
-  else if (type == WARNING_TYPE_INFO)
-    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP, OpenTxTheme::instance()->busy);
-  else // confirmation
-    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP, OpenTxTheme::instance()->question);
+  if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK) {
+    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
+                   OpenTxTheme::instance()->asterisk);
+  }
+  else if (type == WARNING_TYPE_INFO) {
+    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
+                   OpenTxTheme::instance()->busy);
+  }
+  else { // confirmation
+    dc->drawBitmap(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
+                   OpenTxTheme::instance()->question);
+  }
 
   if (type == WARNING_TYPE_ALERT) {
-#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, STR_WARNING, ALARM_COLOR|FONT(XL));
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT, title.c_str(), ALARM_COLOR|FONT(XL));
+#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || \
+    defined(TRANSLATIONS_CZ)
+    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, STR_WARNING,
+                 ALARM_COLOR | FONT(XL));
+    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
+                 title.c_str(), ALARM_COLOR | FONT(XL));
 #else
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(), ALARM_COLOR|FONT(XL));
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT, STR_WARNING, ALARM_COLOR|FONT(XL));
+    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
+                 ALARM_COLOR | FONT(XL));
+    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
+                 STR_WARNING, ALARM_COLOR | FONT(XL));
 #endif
-  }
-  else if (!title.empty()) {
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(), ALARM_COLOR|FONT(XL));
+  } else if (!title.empty()) {
+    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
+                 ALARM_COLOR | FONT(XL));
   }
 
   if (!message.empty()) {
-    dc->drawText(ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, message.c_str(), FONT(BOLD));
+    dc->drawText(ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, message.c_str(),
+                 FONT(BOLD));
   }
 
   if (!action.empty()) {
-   dc->drawText(LCD_W / 2, ALERT_ACTION_TOP, action.c_str(), CENTERED | FONT(BOLD));
+    dc->drawText(LCD_W / 2, ALERT_ACTION_TOP, action.c_str(),
+                 CENTERED | FONT(BOLD));
+  } else if (type == WARNING_TYPE_CONFIRM) {
+
+    LcdFlags flags = FONT(BOLD);
+    int w = getTextWidth(STR_OK, flags);
+    
+    dc->drawText(ALERT_MESSAGE_LEFT, ALERT_ACTION_TOP,
+                 STR_OK, flags);
+    
+    dc->drawText(ALERT_MESSAGE_LEFT + w + 20, ALERT_ACTION_TOP,
+                 STR_EXIT, flags);
   }
 }
 
@@ -152,9 +176,41 @@ void FullScreenDialog::runForever()
   deleteLater();
 }
 
+void FullScreenDialog::runForeverNoPwrCheck()
+{
+  running = true;
+
+  while (running) {
+    checkBacklight();
+    WDG_RESET();
+
+    RTOS_WAIT_MS(1);
+    MainWindow::instance()->run(false);
+  }
+
+  deleteLater();
+}
+
 void raiseAlert(const char * title, const char * msg, const char * action, uint8_t sound)
 {
   AUDIO_ERROR_MESSAGE(sound);
-  auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, title ? title : "", msg ? msg : "", action ? action : "");
+  auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, title ? title : "",
+                                     msg ? msg : "", action ? action : "");
   dialog->runForever();
+}
+
+// POPUP_CONFIRMATION
+bool confirmationDialog(const char* title, const char* msg, bool checkPwr)
+{
+  bool confirmed = false;
+  auto dialog = new FullScreenDialog(WARNING_TYPE_CONFIRM, title ? title : "",
+                                     msg ? msg : "", "",
+                                     [&confirmed]() { confirmed = true; });
+  if (checkPwr) {
+    dialog->runForever();
+  } else {
+    dialog->runForeverNoPwrCheck();
+  }
+
+  return confirmed;
 }
