@@ -83,13 +83,10 @@ jobs:
         run: tar -cvzf edgetx-firmware-nightly.tgz ./edgetx-firmware-nightly
 
       - name: Deploy release
-        uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          upload_url: "${{ env.nightly_upload_url }}"
-          release_id: "${{ env.nightly_release_id }}"
-          asset_path: edgetx-firmware-nightly.tgz
-          asset_name: "edgetx-firmware-nightly-$$.tgz"
-          asset_content_type: application/gzip
-          max_releases: 15
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "nightly"
+          prerelease: true
+          files: |
+            edgetx-firmware-nightly.tgz
