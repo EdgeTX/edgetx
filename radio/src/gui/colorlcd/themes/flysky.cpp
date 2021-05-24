@@ -131,7 +131,7 @@ class FlyskyTheme: public OpenTxTheme
 #if defined(LOG_TELEMETRY) || defined(WATCHDOG_DISABLED)
       loadMenuIcon(ICON_OPENTX, "mask_opentx_testmode.png", DEFAULT_COLOR);
 #else
-      loadMenuIcon(ICON_OPENTX, "mask_opentx.png");
+      loadMenuIcon(ICON_OPENTX, "mask_edgetx.png");
 #endif
 #if defined(HARDWARE_TOUCH)
       loadMenuIcon(ICON_NEXT, "mask_next.png");
