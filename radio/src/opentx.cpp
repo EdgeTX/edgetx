@@ -1521,6 +1521,13 @@ void opentxClose(uint8_t shutdown)
 
   RTOS_WAIT_MS(100);
 
+#if defined(COLORLCD)
+  MainWindow::instance()->deleteChildren();
+
+  //TODO: In fact we want only to empty the trash (private method)
+  MainWindow::instance()->run();
+#endif
+
 #if defined(SDCARD)
   sdDone();
 #endif
@@ -1531,16 +1538,17 @@ void opentxResume()
 {
   TRACE("opentxResume");
 
-#if !defined(LIBOPENUI)
-  menuHandlers[0] = menuMainView;
-#endif
-
   sdMount();
   storageReadAll();
 
 #if defined(COLORLCD)
-  #warning "TODO call loadTheme (not sure, it has been removed in some earlier commit)"
+  //TODO: needs to go into storageReadAll()
+  TRACE("reloading theme");
   loadTheme();
+
+  // Force redraw
+  ViewMain::instance()->invalidate();
+  TRACE("theme reloaded & ViewMain invalidated");
 #endif
 
   // removed to avoid the double warnings (throttle, switch, etc.)

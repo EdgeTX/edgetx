@@ -22,11 +22,7 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
-//#include "model_select.h"
-//#include "view_channels.h"
-//#include "view_statistics.h"
 #include "topbar_impl.h"
-//#include "menu.h"
 #include "view_main_menu.h"
 
 #include "opentx.h"
@@ -48,6 +44,7 @@ ViewMain::ViewMain():
 
 ViewMain::~ViewMain()
 {
+  _instance = nullptr;
 }
 
 void ViewMain::setTopbarVisible(float visible)
