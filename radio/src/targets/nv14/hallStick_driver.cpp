@@ -493,7 +493,7 @@ void hallStick_GetTxDataFromUSB( void )
                 break;
 
             case TRANSFER_DIR_HALLSTICK:
-                onFlySkyUsbDownloadStart(TRANSFER_DIR_HALLSTICK);
+//                onFlySkyUsbDownloadStart(TRANSFER_DIR_HALLSTICK);
 
                 if ( 0xA2 == HallProtocolTx.hallID.ID )
                 {
@@ -536,10 +536,10 @@ void hallStick_GetTxDataFromUSB( void )
         }
     }
 
-    if ( !usbPlugged() )
+/*    if ( !usbPlugged() )
     {
         onFlySkyUsbDownloadStart(0);
-    }
+    }*/
 }
 
 

@@ -1270,11 +1270,10 @@ void LCD_LayerInit() {
   LTDC_DitherCmd(ENABLE);
 }
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
-    (uint16_t *) LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
-    (uint16_t *) LCD_SECOND_FRAME_BUFFER);
-BitmapBuffer * lcd = &lcdBuffer1;
+BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *) LCD_FIRST_FRAME_BUFFER);
+BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *) LCD_SECOND_FRAME_BUFFER);
+BitmapBuffer * lcdFront = &lcdBuffer1;
+BitmapBuffer * lcd = &lcdBuffer2;
 
 void LCD_SetLayer(uint32_t layer) {
   if (layer == LCD_FIRST_LAYER) {

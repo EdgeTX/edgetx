@@ -42,6 +42,7 @@ add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
 set(TARGET_SRC
   ${TARGET_SRC}
   audio_spi_driver.cpp
+  ../common/arm/stm32/mixer_scheduler_driver.cpp
   )
 
 #set(FIRMWARE_TARGET_SRC
@@ -51,6 +52,7 @@ set(TARGET_SRC
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
+  adc_driver.cpp
   battery_driver.cpp
   hallStick_driver.cpp
   )
@@ -120,7 +122,7 @@ set(FIRMWARE_TARGET_SRC
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
-  ../common/arm/stm32/pwr_driver.cpp
+  pwr_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
   ../common/arm/stm32/sdio_sd.c

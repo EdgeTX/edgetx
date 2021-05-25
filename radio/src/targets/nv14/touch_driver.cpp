@@ -473,7 +473,7 @@ void handleTouch()
       touchState.startY = touchState.y;
       touchState.event = TE_DOWN;
       if (g_eeGeneral.backlightMode & e_backlight_mode_keys)
-        backlightEnable(BACKLIGHT_LEVEL_MAX)          
+        backlightEnable(BACKLIGHT_LEVEL_MAX);          
  //       backlightOn(); // TODO is that the best place ?
     }
     else if (touchState.event == TE_DOWN) {
