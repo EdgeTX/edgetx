@@ -1,8 +1,4 @@
 ---
-env:
-  nightly_upload_url: 'https://uploads.github.com/repos/EdgeTX/edgetx/releases/43479380/assets{?name,label}'
-  nightly_release_id: 43479380
-
 name: Build and deploy nightly release
 on:
   push:
