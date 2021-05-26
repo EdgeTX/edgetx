@@ -200,19 +200,24 @@ void RadioHardwarePage::build(FormWindow * window)
   new Subtitle(window, grid.getLineSlot(), STR_SLIDERS);
   grid.nextLine();
   for (int i = 0; i < NUM_SLIDERS; i++) {
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + NUM_POTS + 1)));
-    new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
-    new Choice(window, grid.getFieldSlot(2,1), STR_SLIDERTYPES, SLIDER_NONE, SLIDER_WITH_DETENT,
-               [=]() -> int {
-                   uint8_t mask = (0x01 << i);
-                   return (g_eeGeneral.slidersConfig & mask) >> i;
-               },
-               [=](int newValue) {
-                   uint8_t mask = (0x01 << i);
-                   g_eeGeneral.slidersConfig &= ~mask;
-                   g_eeGeneral.slidersConfig |= (newValue << i);
-                   SET_DIRTY();
-               });
+    const int idx = i + NUM_STICKS + NUM_POTS;
+    new StaticText(window, grid.getLabelSlot(true),
+                   TEXT_AT_INDEX(STR_VSRCRAW, idx + 1));
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0),
+                      g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+    new Choice(
+        window, grid.getFieldSlot(2, 1), STR_SLIDERTYPES, SLIDER_NONE,
+        SLIDER_WITH_DETENT,
+        [=]() -> int {
+          uint8_t mask = (0x01 << i);
+          return (g_eeGeneral.slidersConfig & mask) >> i;
+        },
+        [=](int newValue) {
+          uint8_t mask = (0x01 << i);
+          g_eeGeneral.slidersConfig &= ~mask;
+          g_eeGeneral.slidersConfig |= (newValue << i);
+          SET_DIRTY();
+        });
     grid.nextLine();
   }
 
