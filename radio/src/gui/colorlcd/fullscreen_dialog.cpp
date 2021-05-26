@@ -162,7 +162,8 @@ void FullScreenDialog::runForever()
 #endif
     }
     else if (check == e_power_press) {
-      RTOS_WAIT_MS(20);
+      WDG_RESET();
+      RTOS_WAIT_MS(1);
       continue;
     }
 
@@ -193,6 +194,7 @@ void FullScreenDialog::runForeverNoPwrCheck()
 
 void raiseAlert(const char * title, const char * msg, const char * action, uint8_t sound)
 {
+  TRACE("raiseAlert('%s')", msg);
   AUDIO_ERROR_MESSAGE(sound);
   auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, title ? title : "",
                                      msg ? msg : "", action ? action : "");
