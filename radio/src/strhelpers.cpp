@@ -442,10 +442,15 @@ char * getSourceString(char * dest, mixsrc_t idx)
       //TODO: add correct symbol
       if(idx <= MIXSRC_LAST_STICK) {
         dest[0] = CHAR_STICK;
+#if NUM_SLIDERS > 0
       } else if (idx < MIXSRC_FIRST_SLIDER) {
         dest[0] = CHAR_POT;
       } else {
         dest[0] = CHAR_SLIDER;
+#else
+      } else {
+        dest[0] = CHAR_POT;
+#endif
       }
 
       idx -= MIXSRC_Rud;
