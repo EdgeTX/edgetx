@@ -232,15 +232,12 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
       status.protocolName[0] = 0;
     }
   }
-  if (getMultiModuleStatus(module).requiresFailsafeCheck) {
-    getMultiModuleStatus(module).requiresFailsafeCheck = false;
 
-    if (getMultiModuleStatus(module).supportsFailsafe() &&
-        g_model.moduleData[module].failsafeMode == FAILSAFE_NOT_SET) {
-      ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
-    }
+  if (!getMultiModuleStatus(module).failsafeChecked) {
+    getMultiModuleStatus(module).requiresFailsafeCheck = true;
+    getMultiModuleStatus(module).failsafeChecked = true;
   }
-
+  
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
     setMultiBindStatus(module, MULTI_BIND_FINISHED);
 }
@@ -695,3 +692,16 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
   }
 }
 
+void checkFailsafeMulti()
+{
+  for (int i=0; i<NUM_MODULES; i++) {
+    if (isModuleMultimodule(i) &&
+        getMultiModuleStatus(i).requiresFailsafeCheck) {
+      getMultiModuleStatus(i).requiresFailsafeCheck = false;
+      if (getMultiModuleStatus(i).supportsFailsafe() &&
+          g_model.moduleData[i].failsafeMode == FAILSAFE_NOT_SET) {
+        ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
+      }
+    }
+  }
+}

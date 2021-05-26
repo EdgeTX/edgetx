@@ -548,6 +548,10 @@ void perMain()
   }
 #endif
 
+#if defined(MULTIMODULE)
+  checkFailsafeMulti();
+#endif
+  
 #if defined(KEYS_GPIO_REG_BIND) && defined(BIND_KEY)
   bindButtonHandler(evt);
 #endif
