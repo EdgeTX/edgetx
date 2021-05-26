@@ -55,6 +55,11 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
 volatile rotenc_t rotencValue = 0;
 #endif
 
+#if defined(DEBUG)
+volatile tmr10ms_t g_tmr10ms;
+uint32_t debugCounter1ms = 0;
+#endif
+
 uint32_t firmwareSize;
 uint32_t firmwareAddress = FIRMWARE_ADDRESS;
 uint32_t firmwareWritten = 0;
@@ -73,6 +78,10 @@ void interrupt10ms()
 {
   tenms |= 1u; // 10 mS has passed
 
+#if defined(DEBUG)
+  g_tmr10ms++;
+#endif
+  
   uint8_t index = 0;
   uint8_t in = readKeys();
   for (uint8_t i = 1; i != uint8_t(1u << TRM_BASE); i <<= 1) {
