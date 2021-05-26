@@ -1,8 +1,8 @@
 ---
 name: Build and deploy nightly release
 on:
-#  push:
-#    branches: [ 2.4 ]
+  # push:
+  #   branches: [ nightly_filenames ]
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
@@ -51,6 +51,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
@@ -75,8 +76,11 @@ jobs:
           name: edgetx-firmware-nightly
           path: edgetx-firmware-nightly
 
+      - name: Compose release filename
+        run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.tgz" >> $GITHUB_ENV
+
       - name: Package files
-        run: tar -cvzf edgetx-firmware-nightly.tgz ./edgetx-firmware-nightly
+        run: tar -cvzf ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -85,4 +89,4 @@ jobs:
           automatic_release_tag: "nightly"
           prerelease: true
           files: |
-            edgetx-firmware-nightly.tgz
+            ${{ env.release_filename }}

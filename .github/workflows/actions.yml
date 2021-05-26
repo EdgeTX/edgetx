@@ -1,71 +1,81 @@
-name: Commit Tests
+---
+name: Run tests and package firmware
 on:
   push:
-    branches: [ 2.4 ]
+    branches:
+    - '2.4'
   pull_request:
-    branches: [ 2.4 ]
+    branches:
+    - '2.4'
 
 jobs:
   metadata:
+    name: Store metadata
     runs-on: ubuntu-latest
     steps: 
     - name: Check out the repo
       uses: actions/checkout@v2
-      with:
-        submodules: recursive
-    - name: Package metadata ${{ matrix.target }}
+    - name: Package common files
       uses: 'actions/upload-artifact@v2'
       with:
-        name: edgetx-firmware
-        path: fw.json
+        name: edgetx-firmware-nightly
+        path: |
+          fw.json
+          LICENSE
+          README.md
+
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
-          - X9LITE
-          - X7
           - T12
-          - TX12
+          - T16
           - T8
           - TLITE
-          - XLITE
+          - TX12
+          - TX16S
+          - X10
+          - X12S
+          - X7
           - X9DP
           - X9DP2019
-          - X10
-          - T16
-          - TX16S
-          - X12S
+          - X9LITE
+          - XLITE
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
         - ${{ github.workspace }}:/src
     steps:
-      -
-        name: Check out the repo
+      - name: Check out the repo
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      # -
-      #   name: Fetch tags
+
+      # - name: Fetch tags
       #   run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      -
-        name: Test ${{ matrix.target }}
+
+      - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
-      -
-        name: Build ${{ matrix.target }}
+
+      - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running firmware build"
           ./tools/build-gh.sh
-      -
-        name: Package firmware ${{ matrix.target }}
+
+      - name: Compose release filename
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF}" >> $GITHUB_ENV
+
+      - name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: edgetx-firmware
-          path: ${{ github.workspace }}/*.bin
+          name: "$${ env.artifact_name }}"
+          path: "${{ github.workspace }}/*.bin"
+          retention-days: 15
+          if-no-files-found: error
