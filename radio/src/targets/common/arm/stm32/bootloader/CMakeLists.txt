@@ -123,12 +123,12 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../syscalls.c
     )
 
-if(USB_CHARGER)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../../../../../targets/${TARGET_DIR}/usb_charger_driver.cpp
-    ../../../../../targets/${TARGET_DIR}/led_driver.cpp
-    )
+  if(USB_CHARGER)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/usb_charger_driver.cpp
+      ../../../../../targets/${TARGET_DIR}/led_driver.cpp
+      )
   endif()
 
   if(DEBUG)
@@ -148,7 +148,6 @@ else()
   remove_definitions(-DDEBUG)
 endif()
 
-remove_definitions(-DDEBUG)
 remove_definitions(-DDISK_CACHE)
 remove_definitions(-DLUA)
 remove_definitions(-DCLI)
