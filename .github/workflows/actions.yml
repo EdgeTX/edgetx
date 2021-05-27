@@ -14,7 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
     - name: Check out the repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2 
+    - name: Compose release filename
+      run: echo "artifact_name=edgetx-firmware-${GITHUB_REF}" >> $GITHUB_ENV
     - name: Package common files
       uses: 'actions/upload-artifact@v2'
       with:
