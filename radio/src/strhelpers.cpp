@@ -436,12 +436,29 @@ char * getSourceString(char * dest, mixsrc_t idx)
   }
 #endif
   else if (idx <= MIXSRC_LAST_POT) {
-    idx -= MIXSRC_Rud;
-    if (g_eeGeneral.anaNames[idx][0]) {
-      zchar2str(dest, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
-      dest[LEN_ANA_NAME] = '\0';
+
+    if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
+
+      //TODO: add correct symbol
+      if(idx <= MIXSRC_LAST_STICK) {
+        dest[0] = CHAR_STICK;
+#if NUM_SLIDERS > 0
+      } else if (idx < MIXSRC_FIRST_SLIDER) {
+        dest[0] = CHAR_POT;
+      } else {
+        dest[0] = CHAR_SLIDER;
+#else
+      } else {
+        dest[0] = CHAR_POT;
+#endif
+      }
+
+      idx -= MIXSRC_Rud;
+      memcpy(dest+1, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+      dest[LEN_ANA_NAME+1] = '\0';
     }
     else {
+      idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
     }
   }
