@@ -22,7 +22,7 @@ jobs:
     - name: Package common files
       uses: 'actions/upload-artifact@v2'
       with:
-        name: "${{ steps.extract_branch.outputs.branch }}"
+        name: "edgex-firmware-${{ steps.extract_branch.outputs.branch }}"
         path: |
           fw.json
           LICENSE
@@ -81,7 +81,7 @@ jobs:
       - name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: "${{ steps.extract_branch.outputs.branch }}"
+          name: "edgex-firmware-${{ steps.extract_branch.outputs.branch }}"
           path: "${{ github.workspace }}/*.bin"
           retention-days: 15
           if-no-files-found: error
