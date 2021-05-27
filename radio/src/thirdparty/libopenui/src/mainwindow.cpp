@@ -51,8 +51,8 @@ void MainWindow::checkEvents()
     slidingWindow = nullptr;
   }
   else if (touchState.event == TE_UP) {
-    onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
     touchState.event = TE_NONE;
+    onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
   }
   else if (touchState.event == TE_SLIDE) {
     if (touchState.deltaX || touchState.deltaY) {
