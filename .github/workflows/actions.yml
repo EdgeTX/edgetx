@@ -15,12 +15,14 @@ jobs:
     steps: 
     - name: Check out the repo
       uses: actions/checkout@v2 
-    - name: Compose release filename
-      run: echo "artifact_name=edgetx-firmware-${GITHUB_REF}" >> $GITHUB_ENV
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
     - name: Package common files
       uses: 'actions/upload-artifact@v2'
       with:
-        name: "${{ env.artifact_name }}"
+        name: "${{ steps.extract_branch.outputs.branch }}"
         path: |
           fw.json
           LICENSE
@@ -71,13 +73,15 @@ jobs:
           echo "Running firmware build"
           ./tools/build-gh.sh
 
-      - name: Compose release filename
-        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF}" >> $GITHUB_ENV
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
 
       - name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: "${{ env.artifact_name }}"
+          name: "${{ steps.extract_branch.outputs.branch }}"
           path: "${{ github.workspace }}/*.bin"
           retention-days: 15
           if-no-files-found: error
