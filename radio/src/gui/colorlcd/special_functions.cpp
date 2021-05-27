@@ -450,8 +450,18 @@ void SpecialFunctionsPage::build(FormWindow * window, int8_t focusIndex)
     if (cfn->swtch == 0) {
       auto button = new TextButton(window, grid.getLabelSlot(), s);
       button->setPressHandler([=]() {
+        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
+          Menu *menu = new Menu(window);
+          menu->addLine(STR_EDIT, [=]() { editSpecialFunction(window, i); });
+          menu->addLine(STR_PASTE, [=]() {
+            *cfn = clipboard.data.cfn;
+            SET_DIRTY();
+            rebuild(window, i);
+          });
+        } else {
           editSpecialFunction(window, i);
-          return 0;
+        }
+        return 0;
       });
       grid.spacer(button->height() + 5);
     }
