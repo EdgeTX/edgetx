@@ -13,10 +13,12 @@ jobs:
     steps: 
     - name: Check out the repo
       uses: actions/checkout@v2
+    - name: Compose release filename
+      run: echo "artifact_name=edgetx-firmware-nightly-${GITHUB_REF}" >> $GITHUB_ENV
     - name: Package common files
       uses: 'actions/upload-artifact@v2'
       with:
-        name: edgetx-firmware-nightly
+        name: "${{ env.artifact_name }}"
         path: |
           fw.json
           LICENSE
@@ -56,11 +58,14 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
         run: ./tools/build-gh.sh
+        
+      - name: Compose release filename
+        run: echo "artifact_name=edgetx-firmware-nightly-${GITHUB_REF}" >> $GITHUB_ENV
 
       - name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: edgetx-firmware-nightly
+          name: "${{ env.artifact_name }}"
           path: "${{ github.workspace }}/*.bin"
           retention-days: 15
           if-no-files-found: error
@@ -70,10 +75,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Compose release filename
+        run: echo "artifact_name=edgetx-firmware-nightly-${GITHUB_REF}" >> $GITHUB_ENV
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: edgetx-firmware-nightly
+          name: "${{ env.artifact_name }}"
           path: edgetx-firmware-nightly
 
       - name: Compose release filename
