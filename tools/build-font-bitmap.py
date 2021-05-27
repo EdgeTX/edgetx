@@ -81,7 +81,6 @@ class FontBitmap:
 
                     # append width for extra_bitmap symbols
                     for coord in [14, 14, 12, 12, 13, 13, 13, 13, 13] + [15] * 12:
-                        print("coords.append(%d)" % width)
                         coords.append(width)
                         width += coord
 
