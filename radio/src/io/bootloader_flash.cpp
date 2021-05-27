@@ -58,6 +58,11 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     unlockFlash();
   }
 
+  UINT flash_size = file.obj.objsize;
+  if (flash_size > BOOTLOADER_SIZE) {
+    flash_size = BOOTLOADER_SIZE;
+  }
+  
   for (int i = 0; i < BOOTLOADER_SIZE; i += 1024) {
 
     watchdogSuspend(1000/*10s*/);
@@ -79,7 +84,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
       flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
     }
-    progressHandler("Bootloader", STR_WRITING, i, file.obj.objsize);
+    progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
     // Reached end-of-file
     if (f_eof(&file)) break;
