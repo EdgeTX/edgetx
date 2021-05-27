@@ -17,11 +17,13 @@ class FontBitmap:
         self.background = background
         self.font = self.load_font(font_name)
         self.extra_bitmap = self.load_extra_bitmap()
+        #self.extra_bitmap = None
 
     def load_extra_bitmap(self):
         try:
             tools_path = os.path.dirname(os.path.realpath(__file__))
-            path = os.path.join(tools_path, "../radio/src/fonts", "extra_%dpx.png" % self.font_size)
+            filename = "extra_%dpx.png" % self.font_size
+            path = os.path.join(tools_path, "../radio/src/fonts", filename)
             extra_image = Image.open(path)
             return extra_image.convert('RGB')
         except IOError:
@@ -36,99 +38,81 @@ class FontBitmap:
                 return ImageFont.truetype(path, self.font_size)
         print("Font file %s not found" % font_name)
 
-    @staticmethod
-    def is_row_needed(px, y, width):
-        for x in range(width):
-            if px[x, y] != (255, 255, 255):
-                return True
-        return False
+    def get_text_dimensions(self, text_string):
+        # https://stackoverflow.com/a/46220683/9263761
+        _, descent = self.font.getmetrics()
+        text_width = self.font.getmask(text_string).getbbox()[2]
+        text_height = self.font.getmask(text_string).getbbox()[3] + descent
 
-    @staticmethod
-    def is_column_needed(px, x, height, debug=False):
-        for y in range(height):
-            if debug:
-                print(x, y, px[x, y])
-            if px[x, y] != (255, 255, 255):
-                return True
-        return False
+        return (text_width, text_height)
 
-    def get_real_size(self, image, debug=False):
-        px = image.load()
-        left = 0
-        while left < image.width:
-            if self.is_column_needed(px, left, image.height, debug):
-                break
-            left += 1
-        right = image.width - 1
-        while right > left:
-            if self.is_column_needed(px, right, image.height, debug):
-                break
-            right -= 1
-        top = 0
-        while top < image.height:
-            if self.is_row_needed(px, top, image.width):
-                break
-            top += 1
-        bottom = image.height - 1
-        while bottom > top:
-            if self.is_row_needed(px, bottom, image.width):
-                break
-            bottom -= 1
-        return left, top, right, bottom
+    def draw_char(self, draw, x, c):
 
-    def draw_char(self, image, x, c, offset_y=0):
-        font=self.font
-        size = font.font.getsize(c)
-        width = size[0][0]
-        offset_x = size[1][0]
-        char_image = Image.new("RGB", (width + 10, image.height), self.background)
-        draw = ImageDraw.Draw(char_image)
-        draw.text((-offset_x, offset_y), c, fill=self.foreground, font=font)
-        if image:
-            image.paste(char_image.crop((0, 0, width, image.height)), (x, 0))
+        # default width for space
+        width = 4
+        if c != ' ':
+            width = self.font.getmask(c).getbbox()[2]
+            _, (offset_x, offset_y) = self.font.font.getsize(c)
+            draw.text((x - offset_x, 0), c, fill=self.foreground, font=self.font)
+
         return width
 
     def generate(self, filename, generate_coords_file=True):
         coords = []
-        image = Image.new("RGB", (len(self.chars) * self.font_size + 200, self.font_size + 20), self.background)
+
+        (_,baseline), (offset_x, offset_y) = self.font.font.getsize(self.chars)
+        (text_width, text_height) = self.get_text_dimensions(self.chars)
+
+        img_width = text_width + self.extra_bitmap.width
+        image = Image.new("RGB", (img_width, text_height), self.background)
+        draw = ImageDraw.Draw(image)
 
         width = 0
         for c in self.chars:
-            if c == " ":
-                w = 4
-            elif c in extra_chars:
+            if c in extra_chars:
                 if self.extra_bitmap:
+
+                    # append same width for non-existing characters
                     for i in range(128 - 32 - len(standard_chars)):
                         coords.append(width)
-                    image.paste(self.extra_bitmap.copy(), (width, 0))
+
+                    # copy extra_bitmap at once
+                    image.paste(self.extra_bitmap, (width, offset_y))
+
+                    # append width for extra_bitmap symbols
                     for coord in [14, 14, 12, 12, 13, 13, 13, 13, 13] + [15] * 12:
+                        print("coords.append(%d)" % width)
                         coords.append(width)
                         width += coord
+
+                    # once inserted, now remove it
                     self.extra_bitmap = None
+
+                # skip
                 continue
-            elif is_cjk_char(c):
-                w = self.draw_char(image, width, c, 3)
-            else:
-                w = self.draw_char(image, width, c)
+
+            # normal characters + CJK
+            w = self.draw_char(draw, width, c)
 
             coords.append(width)
             width += w
 
+        # append the last computed width
         coords.append(width)
 
-        _, top, _, bottom = self.get_real_size(image)
+        # trim image to correct size
+        image = image.crop((0, offset_y, width, baseline + offset_y))
 
-        top = bottom - self.font_size - 2
-        # bottom = self.font_size
-        image = image.crop((0, top, width - 1, bottom))
-        coords.insert(0, bottom - top + 1)
+        # insert the size of the image
+        coords.insert(0, image.height)
 
+        # convert to 8-bit and save
         image = image.convert("L")
         image.save(filename + ".png")
+
         if generate_coords_file:
             with open(filename + ".specs", "w") as f:
                 f.write(",".join(str(tmp) for tmp in coords))
-
 
 def main():
     if sys.version_info < (3, 0, 0):
