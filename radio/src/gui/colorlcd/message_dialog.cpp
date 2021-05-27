@@ -34,6 +34,7 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
                                width(), PAGE_LINE_HEIGHT},
                               info, 0, CENTERED);
   setCloseWhenClickOutside(true);
+  setFocus();
 }
 
 #if defined(HARDWARE_KEYS)
