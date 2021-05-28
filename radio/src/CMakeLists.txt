@@ -45,7 +45,7 @@ option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
-option(NANO "Use nano newlib and binalloc" OFF)
+option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
 option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
@@ -538,7 +538,7 @@ if(NOT MSVC)
     endif()
 
     # Use newlib nano, which saves a few kilobytes.
-    if(NANO)
+    if(NOT NANO STREQUAL NO)
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
       if(NOT LUA STREQUAL NO)
         # Lua needs %g and %f
