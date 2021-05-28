@@ -83,8 +83,8 @@ public:
 typedef BinAllocator<39,300> BinAllocator_slots1;
 typedef BinAllocator<79,100> BinAllocator_slots2;
 #else
-typedef BinAllocator<39,200> BinAllocator_slots1;
-typedef BinAllocator<91,64> BinAllocator_slots2;
+typedef BinAllocator<27,200> BinAllocator_slots1;
+typedef BinAllocator<91,50> BinAllocator_slots2;
 #endif
 
 #if defined(USE_BIN_ALLOCATOR)
