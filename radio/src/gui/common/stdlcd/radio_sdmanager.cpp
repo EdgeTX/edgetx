@@ -18,6 +18,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
