@@ -24,8 +24,8 @@
 #include "bin_allocator.h"
 
 
-BinAllocator_slots1 slots1;
-BinAllocator_slots2 slots2;
+BinAllocator_slots1 slots1 __SDRAM;
+BinAllocator_slots2 slots2 __SDRAM;
 
 #if defined(DEBUG)
 int SimulateMallocFailure = 0;    //set this to simulate allocation failure
