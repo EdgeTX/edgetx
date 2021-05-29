@@ -25,7 +25,7 @@ _heap_end = 0xD0800000;  /* end of 8192K SDRAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
-_Main_Stack_Size = 1024; /* required amount of stack for interrupt stack (Main stack) */
+_Main_Stack_Size = 8192; /* required amount of stack for interrupt stack (Main stack) */
 
 /* Main stack end */
 _main_stack_start = _estack - _Main_Stack_Size;
@@ -117,7 +117,7 @@ SECTIONS
     *(.data*)          /* .data* sections */
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >CCM
+  } >RAM
 
   /* Uninitialized data section */
   . = ALIGN(4);
@@ -131,14 +131,14 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-  } >CCM
+  } >RAM
 
   /* Non-zeroed data section */
   . = ALIGN(4);
   .noinit (NOLOAD) :
   {
     *(.noinit)
-  } >CCM
+  } >RAM
 
   /* collect all uninitialized .ccm sections */
   .ram (NOLOAD) :
