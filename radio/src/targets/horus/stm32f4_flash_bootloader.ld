@@ -24,7 +24,7 @@ _estack = 0x10010000;    /* end of 64K CCM */
 _heap_end = 0xD0800000;  /* end of 8192K SDRAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0;      /* required amount of heap  */
+_Min_Heap_Size = 4096K;      /* required amount of heap  */
 _Main_Stack_Size = 8192; /* required amount of stack for interrupt stack (Main stack) */
 
 /* Main stack end */
@@ -105,21 +105,11 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
 
-  .ccm_ram (NOLOAD) :
-  {
-    . = ALIGN(4);
-    _sccm_ram = .;
-    *(.ccm)
-    . = ALIGN(4);
-    . = . + _Main_Stack_Size;
-    _eccm_ram = .;
-  } >CCM
-
   /* used by the startup to initialize data */
   _sidata = .;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : AT ( _sidata )
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -127,12 +117,12 @@ SECTIONS
     *(.data*)          /* .data* sections */
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM
+  } >RAM AT> FLASH
 
   /* Uninitialized data section */
-  . = ALIGN(4);
   .bss :
   {
+    . = ALIGN(4);
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
     /* __bss_start__ = _sbss; */
@@ -158,13 +148,15 @@ SECTIONS
     *(.ram)
   } >RAM
 
-  /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
+  .ccm (NOLOAD) :
   {
     . = ALIGN(4);
-    . = . + _Min_Heap_Size;
+    _sccm = .;
+    *(.ccm)
     . = ALIGN(4);
-  } >RAM
+    . = . + _Main_Stack_Size;
+    _eccm = .;
+  } >CCM
 
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */
@@ -182,8 +174,10 @@ SECTIONS
     *(.sdram*)
     *(.sdram_rodata)
     *(.sdram_rodata*)
-    . = ALIGN(4);
     _eram = .;
+    . = ALIGN(4);
+    . = . + _Min_Heap_Size;
+    . = ALIGN(4);
   } >SDRAM
 
   PROVIDE ( end = _eram );
