@@ -34,7 +34,7 @@ jobs:
           - X9LITE
           - XLITE
     container:
-      image: ghcr.io/edgetx/edgetx-commit-tests
+      image: ghcr.io/edgetx/edgetx-commit-tests:2.4-gcc10
       volumes:
         - ${{ github.workspace }}:/src
     steps:
