@@ -32,6 +32,12 @@ uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
+//OW
+#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+const char STR_USB_MAVLINK[] = "USB Mavlink (VCP)";
+#endif
+//OWEND
+
 #if defined(LIBOPENUI)
 static Menu* _usbMenu = nullptr;
 
@@ -70,6 +76,13 @@ void openUsbMenu()
     TRACE("USB mass storage");
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
+//OW
+#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+  _usbMenu->addLine(STR_USB_MAVLINK, [] {
+    setSelectedUsbMode(USB_MAVLINK_MODE);
+  });
+#endif
+//OWEND
 #if defined(DEBUG)
   _usbMenu->addLine(STR_USB_SERIAL, [] {
     TRACE("USB serial");
@@ -88,6 +101,13 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
+//OW
+#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+  else if (result == STR_USB_MAVLINK) {
+    setSelectedUsbMode(USB_MAVLINK_MODE);
+  }
+#endif
+//OWEND
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
@@ -100,6 +120,11 @@ void openUsbMenu()
 {
   POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
   POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
+//OW
+#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+  POPUP_MENU_ADD_ITEM(USB_MAVLINK_MODE);
+#endif
+//OWEND
 #if defined(DEBUG)
   POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
 #endif
