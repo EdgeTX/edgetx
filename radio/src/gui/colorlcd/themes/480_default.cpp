@@ -138,6 +138,8 @@ class Theme480: public OpenTxTheme
       loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, "mask_model_special_functions.png");
       loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, "mask_model_lua_scripts.png");
       loadMenuIcon(ICON_MODEL_TELEMETRY, "mask_model_telemetry.png");
+      loadMenuIcon(ICON_MODELSELECT, "modelsel/mask_modelqty.png"); //TODO: someone needs to create and add suitable graphics, name mask_menu_modelselect.png
+      loadMenuIcon(ICON_MODELSELECT_CATEGORY, "modelsel/mask_modelqty.png"); //TODO: someone needs to create and add suitable graphics, name mask_modelselect_category.png
       loadMenuIcon(ICON_STATS, "mask_menu_stats.png");
       loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, "mask_stats_throttle_graph.png");
       loadMenuIcon(ICON_STATS_TIMERS, "mask_stats_timers.png");
