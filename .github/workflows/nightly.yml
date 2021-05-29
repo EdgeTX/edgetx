@@ -1,36 +1,26 @@
 ---
 name: Build and deploy nightly release
 on:
-  # push:
-  #   branches: [ nightly_filenames ]
+  push:
+    branches:
+    - 'nightly_filenames'
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
-jobs:
-  metadata:
-    name: Store metadata
-    runs-on: ubuntu-latest
-    steps: 
-    - name: Check out the repo
-      uses: actions/checkout@v2
-    - name: Package common files
-      uses: 'actions/upload-artifact@v2'
-      with:
-        name: edgetx-firmware-nightly
-        path: |
-          fw.json
-          LICENSE
-          README.md
+concurrency: 
+  group: 'nightly'
+  cancel-in-progress: true
 
+jobs:
   build:
     name: Build firmware
     runs-on: ubuntu-latest
-    needs: metadata
     strategy:
       matrix:
         target:
           - T12
           - T16
+          - T18
           - T8
           - TLITE
           - TX12
@@ -61,7 +51,10 @@ jobs:
         uses: 'actions/upload-artifact@v2'
         with:
           name: edgetx-firmware-nightly
-          path: "${{ github.workspace }}/*.bin"
+          path: |
+            fw.json
+            LICENSE
+            *.bin
           retention-days: 15
           if-no-files-found: error
 
@@ -77,16 +70,18 @@ jobs:
           path: edgetx-firmware-nightly
 
       - name: Compose release filename
-        run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.tgz" >> $GITHUB_ENV
+        run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
 
-      - name: Package files
-        run: tar -cvzf ${{ env.release_filename }} ./edgetx-firmware-nightly
+      - name: Zip release file
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "nightly"
+          automatic_release_tag: 'nightly'
           prerelease: true
           files: |
-            ${{ env.release_filename }}
+            *.zip

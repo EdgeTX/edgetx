@@ -544,9 +544,15 @@ if(NOT MSVC)
         # Lua needs %g and %f
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
       endif()
-      # Nano's malloc does work well with lua, use our own
-      add_definitions(-DUSE_BIN_ALLOCATOR)
-      set(SRC ${SRC} bin_allocator.cpp)
+      if(SDRAM)
+        # Target with SDRAM do not need a custom allocator for now
+        # as the custom allocator has alignement issues
+        message("Target has SDRAM, do not use BIN_ALLOCATOR")
+      else()
+        # Nano's malloc does work well with lua, use our own
+        add_definitions(-DUSE_BIN_ALLOCATOR)
+        set(SRC ${SRC} bin_allocator.cpp)
+      endif()
     endif()
 
     if(OPENRC_BOOTLOADER)

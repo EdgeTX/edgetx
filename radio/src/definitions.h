@@ -61,6 +61,12 @@
   #define __DMA               __ALIGNED(4)
 #endif
 
+#if defined(CCMRAM) && !defined(SIMU)
+  #define __CCMRAM  __attribute__((section(".ccm"), aligned(4)))
+#else
+  #define __CCMRAM
+#endif
+
 #if defined(SDRAM) && !defined(SIMU)
   #define __SDRAM   __attribute__((section(".sdram"), aligned(4)))
   #define __NOINIT  __attribute__((section(".noinit")))

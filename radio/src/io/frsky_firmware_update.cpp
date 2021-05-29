@@ -18,6 +18,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
 #include "opentx.h"
 #include "frsky_firmware_update.h"
 
@@ -513,8 +514,7 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
 
   if (result) {
     POPUP_WARNING(STR_FIRMWARE_UPDATE_ERROR, result);
-  }
-  else {
+  } else {
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
