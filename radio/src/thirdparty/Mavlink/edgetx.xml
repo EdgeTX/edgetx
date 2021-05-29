@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<mavlink>
+  <include>mavlink/external/dialects/storm32.xml</include>
+  <include>mavlink/message_definitions/v1.0/ardupilotmega.xml</include>
+  <dialect>0</dialect>
+  <messages>
+  </messages>
+</mavlink>
