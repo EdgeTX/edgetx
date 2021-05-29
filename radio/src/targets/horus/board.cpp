@@ -264,6 +264,26 @@ void boardOff()
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
   pwrOff();
+  
+  // We reach here only in forced power situations, such as hw-debugging with external power  
+  // Enter STM32 stop mode / deep-sleep
+  // Code snippet from ST Nucleo PWR_EnterStopMode example
+#define PDMode             0x00000000U
+#if defined(PWR_CR_MRUDS) && defined(PWR_CR_LPUDS) && defined(PWR_CR_FPDS)
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_FPDS | PWR_CR_LPUDS | PWR_CR_MRUDS), PDMode);
+#elif defined(PWR_CR_MRLVDS) && defined(PWR_CR_LPLVDS) && defined(PWR_CR_FPDS)
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_FPDS | PWR_CR_LPLVDS | PWR_CR_MRLVDS), PDMode);
+#else
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS| PWR_CR_LPDS), PDMode);
+#endif /* PWR_CR_MRUDS && PWR_CR_LPUDS && PWR_CR_FPDS */
+
+/* Set SLEEPDEEP bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+  
+  // To avoid HardFault at return address, end in an endless loop
+  while (1) {
+
+  }
 }
 
 #if defined (RADIO_TX16S)
