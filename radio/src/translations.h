@@ -1113,4 +1113,18 @@ extern const char STR_RACING_MODE[];
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT
 
+//OW
+#if defined(TELEMETRY_MAVLINK)
+extern const char STR_MAVLINK[];
+extern const char STR_MAVLINK_RSSI[];
+extern const char STR_MAVLINK_RSSI_SCALE[];
+extern const char STR_MAVLINK_SENSOR_MIMICRY[];
+extern const char STR_MAVLINK_RC_OVERRIDE[];
+extern const char STR_MAVLINK_AUX_SERIAL_MODES[];
+extern const char STR_MAVLINK_AUX_BAUDRATES[];
+extern const char STR_MAVLINK_EXTERNAL[];
+extern const char STR_USB_MAVLINK[];
+#endif
+//OWEND
+
 #endif // _TRANSLATIONS_H_

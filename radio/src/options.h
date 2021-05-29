@@ -104,6 +104,9 @@ static const char * const options[] = {
 #if defined(BIND_KEY)
   "bindkey",
 #endif
+#if defined(TELEMETRY_MAVLINK)
+  "mavlink",
+#endif
   nullptr //sentinel
 };
 

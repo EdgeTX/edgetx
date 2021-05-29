@@ -79,6 +79,9 @@ void usbStart()
 #endif
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
+//OW
+    case USB_MAVLINK_MODE:
+//OWEND
       // initialize USB as CDC device (virtual serial port)
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
       break;

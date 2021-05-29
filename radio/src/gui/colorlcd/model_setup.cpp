@@ -1218,6 +1218,32 @@ void ModelSetupPage::build(FormWindow * window)
     grid.addWindow(new TrainerModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
   }
 
+//OW
+#if defined(TELEMETRY_MAVLINK)
+  // Mavlink
+  {
+    new Subtitle(window, grid.getLineSlot(), STR_MAVLINK);
+    grid.nextLine();
+
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RSSI);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkRssi));
+    grid.nextLine();
+
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RSSI_SCALE);
+    new NumberEdit(window, grid.getFieldSlot(2,0), 0, 255, GET_SET_DEFAULT(g_model.mavlinkRssiScale));
+    grid.nextLine();
+
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_SENSOR_MIMICRY);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkMimicSensors));
+    grid.nextLine();
+
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RC_OVERRIDE);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkRcOverride));
+    grid.nextLine();
+  }
+#endif
+//OWEND
+
   window->setInnerHeight(grid.getWindowHeight());
 }
 
