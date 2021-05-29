@@ -363,17 +363,19 @@ void RadioSetupPage::build(FormWindow * window)
   }
 
 #if defined(PWR_BUTTON_PRESS)
+  // Pwr Off Delay
+  {
     new StaticText(window, grid.getLabelSlot(), STR_PWR_OFF_DELAY);
-    edit = new NumberEdit(window, grid.getFieldSlot(), 0, 3,
-                               [=]() -> int32_t {
-                                 return 2 - g_eeGeneral.pwrOffSpeed;
-                               },
-                               [=](int32_t newValue) {
-                                 g_eeGeneral.pwrOffSpeed = 2 - newValue;
-                                 SET_DIRTY();
-                               });
-    edit->setSuffix("s");
+    new Choice(window, grid.getFieldSlot(), STR_PWR_OFF_DELAYS, 0, 3,
+               [=]() -> int32_t {
+               return 2 - g_eeGeneral.pwrOffSpeed;
+               },
+               [=](int32_t newValue) {
+                   g_eeGeneral.pwrOffSpeed = 2 - newValue;
+                   SET_DIRTY();
+               });
     grid.nextLine();
+  }
 #endif
   
 #if defined(INTERNAL_GPS)

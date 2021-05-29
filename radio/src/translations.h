@@ -330,6 +330,7 @@ extern const char STR_SPLASHSCREEN[];
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
+extern const char STR_PWR_OFF_DELAYS[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
 extern const char STR_SWITCHWARNING[];
