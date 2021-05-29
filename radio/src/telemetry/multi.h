@@ -104,6 +104,7 @@ struct MultiModuleStatus {
 
   uint8_t flags;
   uint8_t requiresFailsafeCheck;
+  uint8_t failsafeChecked;
   tmr10ms_t lastUpdate;
 
   uint8_t protocolPrev = 0;
@@ -136,5 +137,7 @@ enum MultiBindStatus : uint8_t {
 
 uint8_t getMultiBindStatus(uint8_t module);
 void setMultiBindStatus(uint8_t module, uint8_t bindStatus);
+
+void checkFailsafeMulti();
 
 #endif //OPENTX_MULTI_H

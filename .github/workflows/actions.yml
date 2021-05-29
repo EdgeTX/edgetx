@@ -1,71 +1,71 @@
-name: Commit Tests
+---
+name: Run tests and package firmware
 on:
   push:
-    branches: [ 2.4 ]
+    branches:
+    - '2.4'
+    - 'nightly_filenames'
   pull_request:
-    branches: [ 2.4 ]
+    branches:
+    - '2.4'
 
 jobs:
-  metadata:
-    runs-on: ubuntu-latest
-    steps: 
-    - name: Check out the repo
-      uses: actions/checkout@v2
-      with:
-        submodules: recursive
-    - name: Package metadata ${{ matrix.target }}
-      uses: 'actions/upload-artifact@v2'
-      with:
-        name: edgetx-firmware
-        path: fw.json
   test:
+    name: Run tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
-          - X9LITE
-          - X7
           - T12
-          - TX12
+          - T16
+          - T18
           - T8
           - TLITE
-          - XLITE
+          - TX12
+          - TX16S
+          - X10
+          - X12S
+          - X7
           - X9DP
           - X9DP2019
-          - X10
-          - T16
-          - TX16S
-          - X12S
+          - X9LITE
+          - XLITE
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
         - ${{ github.workspace }}:/src
     steps:
-      -
-        name: Check out the repo
+      - name: Check out the repo
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      # -
-      #   name: Fetch tags
-      #   run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      -
-        name: Test ${{ matrix.target }}
+          # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
+
+      - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
-      -
-        name: Build ${{ matrix.target }}
+
+      - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running firmware build"
           ./tools/build-gh.sh
-      -
-        name: Package firmware ${{ matrix.target }}
+
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Package firmware ${{ matrix.target }}
         uses: 'actions/upload-artifact@v2'
         with:
-          name: edgetx-firmware
-          path: ${{ github.workspace }}/*.bin
+          name: "${{ env.artifact_name }}"
+          path: |
+            fw.json
+            LICENSE
+            *.bin
+          retention-days: 15
+          if-no-files-found: error

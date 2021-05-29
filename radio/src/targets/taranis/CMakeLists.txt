@@ -9,6 +9,7 @@ option(AUTOUPDATE "Auto update internal chips from SD" OFF)
 option(BIND_KEY "Enable bind button" OFF)
 
 set(EXTERNAL_MODULE YES)
+option(NANO "Use nano newlib and binalloc" ON)
 
 add_definitions(-DPCBFRSKY)
 

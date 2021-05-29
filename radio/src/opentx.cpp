@@ -665,7 +665,7 @@ void checkSDVersion()
     char error[sizeof(TR_WRONG_SDCARDVERSION)+ sizeof(version)];
 
     strAppend(strAppend(error, STR_WRONG_SDCARDVERSION, sizeof(TR_WRONG_SDCARDVERSION)), REQUIRED_SDCARD_VERSION, sizeof(REQUIRED_SDCARD_VERSION));
-    FRESULT result = f_open(&versionFile, "/opentx.sdcard.version", FA_OPEN_EXISTING | FA_READ);
+    FRESULT result = f_open(&versionFile, "/edgetx.sdcard.version", FA_OPEN_EXISTING | FA_READ);
     if (result == FR_OK) {
       if (f_read(&versionFile, &version, sizeof(version), &read) != FR_OK ||
           read != sizeof(version) ||
@@ -710,15 +710,9 @@ static void checkRTCBattery()
 #endif
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
-void checkFailsafe()
+static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
-#if defined(MULTIMODULE)
-    if (isModuleMultimodule(i)) {
-      getMultiModuleStatus(i).requiresFailsafeCheck = true;
-    }
-    else
-#endif
     if (isModuleFailsafeAvailable(i)) {
       ModuleData & moduleData = g_model.moduleData[i];
       if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
@@ -1521,6 +1515,13 @@ void opentxClose(uint8_t shutdown)
 
   RTOS_WAIT_MS(100);
 
+#if defined(COLORLCD)
+  MainWindow::instance()->deleteChildren();
+
+  //TODO: In fact we want only to empty the trash (private method)
+  MainWindow::instance()->run();
+#endif
+
 #if defined(SDCARD)
   sdDone();
 #endif
@@ -1531,16 +1532,17 @@ void opentxResume()
 {
   TRACE("opentxResume");
 
-#if !defined(LIBOPENUI)
-  menuHandlers[0] = menuMainView;
-#endif
-
   sdMount();
   storageReadAll();
 
 #if defined(COLORLCD)
-  #warning "TODO call loadTheme (not sure, it has been removed in some earlier commit)"
+  //TODO: needs to go into storageReadAll()
+  TRACE("reloading theme");
   loadTheme();
+
+  // Force redraw
+  ViewMain::instance()->invalidate();
+  TRACE("theme reloaded & ViewMain invalidated");
 #endif
 
   // removed to avoid the double warnings (throttle, switch, etc.)

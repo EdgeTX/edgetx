@@ -413,14 +413,15 @@ void ScreenSetupPage::build(FormWindow * window)
     if (!layout) return nullptr;
     return layout->getFactory();
   };
-  LayoutChoice::LayoutFactorySetter setLayout = [idx, optionsWindow](const LayoutFactory *factory) {
-    // delete any options potentially accessing
-    // the old custom screen
-    optionsWindow->clear();
-    createCustomScreen(factory, idx);
-    updateLayoutOptions(optionsWindow, idx);
-  };
-  
+  LayoutChoice::LayoutFactorySetter setLayout =
+      [=](const LayoutFactory* factory) {
+        // delete any options potentially accessing
+        // the old custom screen
+        window->clear();
+        createCustomScreen(factory, idx);
+        build(window);
+      };
+
   auto layoutChoice = new LayoutChoice(window, layoutSlot, getFactory, setLayout);
   grid.nextLine(layoutChoice->height());
 
@@ -477,4 +478,6 @@ void ScreenSetupPage::build(FormWindow * window)
     // fix focus order due to early insertion
     FormField::link(button, layoutChoice);
   }
+
+  window->adjustInnerHeight();
 }

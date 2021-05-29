@@ -152,7 +152,7 @@ static void LCD_NRSTConfig(void)
 static void lcdReset(void)
 {
 #if defined(RADIO_T18)     // T18 screen has issues if NRST is ever brought low
-  NRST_HIGH();
+  LCD_NRST_HIGH();
 #else
   LCD_NRST_HIGH();
   delay_ms(1);

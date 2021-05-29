@@ -1,40 +1,26 @@
 ---
-env:
-  nightly_upload_url: 'https://uploads.github.com/repos/EdgeTX/edgetx/releases/43479380/assets{?name,label}'
-  nightly_release_id: 43479380
-
 name: Build and deploy nightly release
 on:
   push:
-    branches: [ 2.4 ]
+    branches:
+    - 'nightly_filenames'
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
-jobs:
-  metadata:
-    name: Store metadata
-    runs-on: ubuntu-latest
-    steps: 
-    - name: Check out the repo
-      uses: actions/checkout@v2
-    - name: Package common files
-      uses: 'actions/upload-artifact@v2'
-      with:
-        name: edgetx-firmware-nightly
-        path: |
-          fw.json
-          LICENSE
-          README.md
+concurrency: 
+  group: 'nightly'
+  cancel-in-progress: true
 
+jobs:
   build:
     name: Build firmware
     runs-on: ubuntu-latest
-    needs: metadata
     strategy:
       matrix:
         target:
           - T12
           - T16
+          - T18
           - T8
           - TLITE
           - TX12
@@ -55,6 +41,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
@@ -64,7 +51,10 @@ jobs:
         uses: 'actions/upload-artifact@v2'
         with:
           name: edgetx-firmware-nightly
-          path: "${{ github.workspace }}/*.bin"
+          path: |
+            fw.json
+            LICENSE
+            *.bin
           retention-days: 15
           if-no-files-found: error
 
@@ -79,17 +69,19 @@ jobs:
           name: edgetx-firmware-nightly
           path: edgetx-firmware-nightly
 
-      - name: Package files
-        run: tar -cvzf edgetx-firmware-nightly.tgz ./edgetx-firmware-nightly
+      - name: Compose release filename
+        run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
+
+      - name: Zip release file
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy release
-        uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          upload_url: "${{ env.nightly_upload_url }}"
-          release_id: "${{ env.nightly_release_id }}"
-          asset_path: edgetx-firmware-nightly.tgz
-          asset_name: "edgetx-firmware-nightly-$$.tgz"
-          asset_content_type: application/gzip
-          max_releases: 15
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: 'nightly'
+          prerelease: true
+          files: |
+            *.zip

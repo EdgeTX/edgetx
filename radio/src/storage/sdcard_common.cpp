@@ -39,9 +39,16 @@ void storageEraseAll(bool warn)
 {
   TRACE("storageEraseAll");
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   // the theme has not been loaded before
   static_cast<OpenTxTheme*>(theme)->load();
+#endif
+
+  // Init backlight mode before entering alert screens
+  requiredBacklightBright = BACKLIGHT_FORCED_ON;
+
+#if defined(PCBHORUS)
+  g_eeGeneral.blOffBright = 20;
 #endif
 
   if (warn) {

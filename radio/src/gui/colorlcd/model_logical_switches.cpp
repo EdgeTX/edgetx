@@ -352,10 +352,21 @@ void ModelLogicalSwitchesPage::build(FormWindow * window, int8_t focusIndex)
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData * ls = lswAddress(i);
+
     if (ls->func == LS_FUNC_NONE) {
       auto button = new TextButton(window, grid.getLabelSlot(), getSwitchPositionName(SWSRC_SW1+i));
       button->setPressHandler([=]() {
-        editLogicalSwitch(window, i);
+        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
+          Menu* menu = new Menu(window);
+          menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
+          menu->addLine(STR_PASTE, [=]() {
+            *ls = clipboard.data.csw;
+            storageDirty(EE_MODEL);
+            rebuild(window, i);
+          });
+        } else {
+          editLogicalSwitch(window, i);
+        }
         return 0;
       });
       grid.spacer(button->height() + 5);
@@ -366,7 +377,6 @@ void ModelLogicalSwitchesPage::build(FormWindow * window, int8_t focusIndex)
       auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);
       button->setPressHandler([=]() {
           Menu * menu = new Menu(window);
-          LogicalSwitchData * ls = lswAddress(i);
           menu->addLine(STR_EDIT, [=]() {
               editLogicalSwitch(window, i);
           });

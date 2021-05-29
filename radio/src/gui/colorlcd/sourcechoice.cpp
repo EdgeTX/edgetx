@@ -28,7 +28,8 @@
 #include "draw_functions.h"
 #include "opentx.h"
 
-class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice> {
+class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice>
+{
   public:
     SourceChoiceMenuToolbar(SourceChoice * choice, Menu * menu):
       MenuToolbar<SourceChoice>(choice, menu)
@@ -84,13 +85,9 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
   menu->removeLines();
 
   for (int i = vmin; i <= vmax; ++i) {
-    if (filter && !filter(i))
-      continue;
-    if (isValueAvailable && !isValueAvailable(i))
-      continue;
-    menu->addLine(getSourceString(i), [=]() {
-      setValue(i);
-    });
+    if (filter && !filter(i)) continue;
+    if (isValueAvailable && !isValueAvailable(i)) continue;
+    menu->addLine(getSourceString(i), [=]() { setValue(i); });
     if (value == i) {
       current = count;
     }

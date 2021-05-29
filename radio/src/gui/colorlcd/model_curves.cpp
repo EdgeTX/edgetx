@@ -271,8 +271,29 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
   grid.setLabelWidth(66);
 
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
+
     CurveHeader &curve = g_model.curves[index];
     int8_t * points = curveAddress(index);
+
+    std::function<void(void)> presetCurveFct = [=]() {
+      Menu *menu = new Menu(window);
+      for (int angle = -45; angle <= 45; angle += 15) {
+        char label[16];
+        strAppend(strAppendSigned(label, angle), "@");
+        menu->addLine(label, [=]() {
+          int dx = 2000 / (5 + curve.points - 1);
+          for (uint8_t i = 0; i < 5 + curve.points; i++) {
+            int x = -1000 + i * dx;
+            points[i] = divRoundClosest(angle * x, 450);
+          }
+          if (curve.type == CURVE_TYPE_CUSTOM) {
+            resetCustomCurveX(points, 5 + curve.points);
+          }
+          storageDirty(EE_MODEL);
+          rebuild(window, index);
+        });
+      }
+    };
 
     if (isCurveUsed(index)) {
       // Curve label
@@ -285,25 +306,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
           menu->addLine(STR_EDIT, [=]() {
               editCurve(window, index);
           });
-          menu->addLine(STR_CURVE_PRESET, [=]() {
-              Menu * menu = new Menu(window);
-              for (int angle = -45; angle <= 45; angle += 15) {
-                char label[16];
-                strAppend(strAppendSigned(label, angle), "@");
-                menu->addLine(label, [=]() {
-                    int dx = 2000 / (5 + curve.points - 1);
-                    for (uint8_t i = 0; i < 5 + curve.points; i++) {
-                      int x = -1000 + i * dx;
-                      points[i] = divRoundClosest(angle * x, 450);
-                    }
-                    if (curve.type == CURVE_TYPE_CUSTOM) {
-                      resetCustomCurveX(points, 5 + curve.points);
-                    }
-                    storageDirty(EE_MODEL);
-                    rebuild(window, index);
-                });
-              }
-          });
+          menu->addLine(STR_CURVE_PRESET, presetCurveFct);
           menu->addLine(STR_MIRROR, [=]() {
               curveMirror(index);
               storageDirty(EE_MODEL);
@@ -324,10 +327,20 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       grid.spacer(button->height() + 5);
     }
     else {
-      auto button = new TextButton(window, grid.getLabelSlot(), getCurveString(1 + index));
+      auto button = new TextButton(window, grid.getLabelSlot(),
+                                   getCurveString(1 + index));
       button->setPressHandler([=]() {
-          editCurve(window, index);
-          return 0;
+        Menu *menu = new Menu(window);
+        menu->addLine(STR_EDIT, [=]() {
+            int dx = 2000 / (5 + curve.points - 1);
+            for (uint8_t i = 0; i < 5 + curve.points; i++) {
+              int x = -1000 + i * dx;
+              points[i] = x / 10;
+            }
+            editCurve(window, index);
+        });
+        menu->addLine(STR_CURVE_PRESET, presetCurveFct);
+        return 0;
       });
       grid.spacer(button->height() + 5);
     }

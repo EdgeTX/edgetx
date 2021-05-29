@@ -535,9 +535,6 @@
 #if defined(PCBX10) && !defined(RADIO_T18)
   #define LCD_VERTICAL_INVERT
 #endif
-#if defined(PCBX10)
-  #define LCD_VERTICAL_INVERT
-#endif
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 
