@@ -32,16 +32,6 @@
 #else
 #define SWITCH_TYPE_MAX(sw)            (SWITCH_3POS)
 #endif
-//OW
-#if defined(TELEMETRY_MAVLINK)
-#if !defined(CLI) && ! defined(DEBUG)
-  #define MAVLINK_AUX_SERIAL_MODES     "\015""OFF\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trainer\0""LUA\0         ""Mavlink\0     "
-//  #define MAVLINK_AUX_SERIAL_MODES   LEN_AUX_SERIAL_MODES TR_AUX_SERIAL_MODES
-#endif
-  #define MAVLINK_AUX_BAUDRATES        "\006""57600\0""115200""38400\0""19200\0"
-  #define MAVLINK_EXTERNAL             "\007""OFF\0   ""Mavlink"
-#endif
-//OWEND
 
 class SwitchDynamicLabel: public StaticText {
   public:
@@ -290,8 +280,8 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE);
 //OW
 #if defined(TELEMETRY_MAVLINK) && !defined(CLI) && !defined(DEBUG)
-  auto aux = new Choice(window, grid.getFieldSlot(2,0), MAVLINK_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.auxSerialMode));
-  new Choice(window, grid.getFieldSlot(2,1), MAVLINK_AUX_BAUDRATES, 0, 3, GET_SET_DEFAULT(g_eeGeneral.mavlinkBaudrate));
+  auto aux = new Choice(window, grid.getFieldSlot(2,0), STR_MAVLINK_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.auxSerialMode));
+  new Choice(window, grid.getFieldSlot(2,1), STR_MAVLINK_AUX_BAUDRATES, 0, 3, GET_SET_DEFAULT(g_eeGeneral.mavlinkBaudrate));
 #else
 //OWEND
   auto aux = new Choice(window, grid.getFieldSlot(1,0), STR_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.auxSerialMode));
@@ -308,8 +298,8 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_AUX2_SERIAL_MODE);
 //OW
 #if defined(TELEMETRY_MAVLINK) && !defined(CLI) && !defined(DEBUG)
-  auto aux2 = new Choice(window, grid.getFieldSlot(2,0), MAVLINK_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.aux2SerialMode));
-  new Choice(window, grid.getFieldSlot(2,1), MAVLINK_AUX_BAUDRATES, 0, 3, GET_SET_DEFAULT(g_eeGeneral.mavlinkBaudrate2));
+  auto aux2 = new Choice(window, grid.getFieldSlot(2,0), STR_MAVLINK_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.aux2SerialMode));
+  new Choice(window, grid.getFieldSlot(2,1), STR_MAVLINK_AUX_BAUDRATES, 0, 3, GET_SET_DEFAULT(g_eeGeneral.mavlinkBaudrate2));
 #else
 //OWEND
   auto aux2 = new Choice(window, grid.getFieldSlot(1,0), STR_AUX_SERIAL_MODES, 0, UART_MODE_MAX, GET_SET_DEFAULT(g_eeGeneral.aux2SerialMode));
@@ -329,7 +319,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
 //OW
 #if defined(TELEMETRY_MAVLINK)
-  new StaticText(window, grid.getLabelSlot(), "Mavlink external");
+  new StaticText(window, grid.getLabelSlot(), STR_MAVLINK_EXTERNAL);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.mavlinkExternal));
   grid.nextLine();
 #endif

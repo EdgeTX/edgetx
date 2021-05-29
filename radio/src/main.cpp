@@ -32,12 +32,6 @@ uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
-//OW
-#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
-const char STR_USB_MAVLINK[] = "USB Mavlink (VCP)";
-#endif
-//OWEND
-
 #if defined(LIBOPENUI)
 static Menu* _usbMenu = nullptr;
 

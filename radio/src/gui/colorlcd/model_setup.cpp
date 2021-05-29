@@ -1226,25 +1226,22 @@ void ModelSetupPage::build(FormWindow * window)
 #if defined(TELEMETRY_MAVLINK)
   // Mavlink
   {
-    new Subtitle(window, grid.getLineSlot(), "Mavlink");
+    new Subtitle(window, grid.getLineSlot(), STR_MAVLINK);
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), "Rssi");
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RSSI);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkRssi));
     grid.nextLine();
-    new StaticText(window, grid.getLabelSlot(true), "Rssi Scale");
+
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RSSI_SCALE);
     new NumberEdit(window, grid.getFieldSlot(2,0), 0, 255, GET_SET_DEFAULT(g_model.mavlinkRssiScale));
-/* should I like this better?
-    new CheckBox(window, grid.getFieldSlot(2,0), GET_SET_DEFAULT(g_model.mavlinkRssi));
-    new NumberEdit(window, grid.getFieldSlot(2,1), 0, 255, GET_SET_DEFAULT(g_model.mavlinkRssiScale));
-*/
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), "Sensor Mimicry");
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_SENSOR_MIMICRY);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkMimicSensors));
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), "RC Override");
+    new StaticText(window, grid.getLabelSlot(true), STR_MAVLINK_RC_OVERRIDE);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.mavlinkRcOverride));
     grid.nextLine();
   }
