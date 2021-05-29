@@ -105,6 +105,16 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
 
+  .ccm_ram (NOLOAD) :
+  {
+    . = ALIGN(4);
+    _sccm_ram = .;
+    *(.ccm)
+    . = ALIGN(4);
+    . = . + _Main_Stack_Size;
+    _eccm_ram = .;
+  } >CCM
+
   /* used by the startup to initialize data */
   _sidata = .;
 
@@ -140,7 +150,7 @@ SECTIONS
     *(.noinit)
   } >RAM
 
-  /* collect all uninitialized .ccm sections */
+  /* collect all uninitialized .ram sections */
   .ram (NOLOAD) :
   {
     . = ALIGN(4);
@@ -153,7 +163,6 @@ SECTIONS
   {
     . = ALIGN(4);
     . = . + _Min_Heap_Size;
-    . = . + _Main_Stack_Size;
     . = ALIGN(4);
   } >RAM
 
