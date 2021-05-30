@@ -297,8 +297,6 @@ static int luaLcdDrawNumber(lua_State *L)
   unsigned int att = luaL_optunsigned(L, 4, 0);
   att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
 
-  if (att & INVERS)
-  
   if ((att & SHADOWED) && !(att & INVERS)) {
     luaLcdBuffer->drawNumber(x, y, val, att & 0xFFFF);
   }
