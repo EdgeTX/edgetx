@@ -121,7 +121,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               f_chdir("/SCRIPTS/TOOLS/");
               luaExec(path_str.c_str());
               // TODO: check 'luaState'
-              new StandaloneLuaWindow(window);
+              StandaloneLuaWindow::instance()->attach(window);
               return 0;
             },
             0);

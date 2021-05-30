@@ -748,8 +748,11 @@ void displayLuaError(const char * title)
 {
 #if !defined(COLORLCD)
   drawMessageBox(title);
+#endif
+
   if (lua_warning_info[0]) {
     char *split = strstr(lua_warning_info, ": ");
+#if !defined(COLORLCD)
     if (split) {
 #if LCD_W == 128
       if (strlen(split + 2) <= 20) {
@@ -776,10 +779,12 @@ void displayLuaError(const char * title)
       // TODO lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
       // lua_warning_info, 40, SMLSIZE);
     }
-  }
 #else
-  POPUP_WARNING(title, lua_warning_info);
+    // Split line...
+    //if (split) { *(split+1) = '\n'; }
+    POPUP_WARNING(title, lua_warning_info);
 #endif
+  }
 }
 
 #if !defined(COLORLCD)

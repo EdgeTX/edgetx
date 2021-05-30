@@ -29,6 +29,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   #include "api_colorlcd.h"
+  #include "standalone_lua.h"
 #endif
 
 #if defined(PCBX12S)
@@ -1159,6 +1160,7 @@ static int luaGetGlobalTimer(lua_State * L)
   return 1;
 }
 
+#if defined(ENABLE_LUA_POPUP_INPUT)
 /*luadoc
 @function popupInput(title, event, input, min, max)
 
@@ -1185,8 +1187,6 @@ Run function (key pressed)
 
 @status current Introduced in 2.0.0
 */
-
-/* TODO : fix, broken by popups rewrite
 static int luaPopupInput(lua_State * L)
 {
   event_t event = luaL_checkinteger(L, 2);
@@ -1195,7 +1195,9 @@ static int luaPopupInput(lua_State * L)
   warningInputValueMax = luaL_checkinteger(L, 5);
   warningText = luaL_checkstring(L, 1);
   warningType = WARNING_TYPE_INPUT;
+
   runPopupWarning(event);
+
   if (warningResult) {
     warningResult = 0;
     lua_pushstring(L, "OK");
@@ -1209,7 +1211,7 @@ static int luaPopupInput(lua_State * L)
   warningText = NULL;
   return 1;
 }
-*/
+#endif
 
 /*luadoc
 @function popupWarning(title, event)
@@ -1227,13 +1229,27 @@ Run function (key pressed)
 
 @status current Introduced in 2.2.0
 */
-#if 0
 static int luaPopupWarning(lua_State * L)
 {
+#if defined(COLORLCD)
+  const char* warningText = nullptr;
+  uint8_t     warningType = 0;
+  bool        warningResult = false;
+#endif
+
   event_t event = luaL_checkinteger(L, 2);
   warningText = luaL_checkstring(L, 1);
   warningType = WARNING_TYPE_ASTERISK;
+
+#if defined(COLORLCD)
+  if (StandaloneLuaWindow::instance()->displayPopup(event, warningType, warningText,
+                                                    nullptr, warningResult)) {
+    warningText = nullptr;
+  }
+#else
   runPopupWarning(event);
+#endif
+
   if (!warningText) {
     lua_pushstring(L, "CANCEL");
   }
@@ -1243,7 +1259,6 @@ static int luaPopupWarning(lua_State * L)
   }
   return 1;
 }
-#endif
 
 /*luadoc
 @function popupConfirmation(title, event) deprecated, please replace by
@@ -1264,9 +1279,16 @@ Run function (key pressed)
 
 @status current Introduced in 2.2.0, changed to (title, message, event) in 2.3.8
 */
-#if 0
 static int luaPopupConfirmation(lua_State * L)
 {
+#if defined(COLORLCD)
+  // necessary to run the LUA pop-ups
+  uint8_t     warningType     = 0;
+  bool        warningResult   = false;
+  const char* warningText     = nullptr;
+  const char* warningInfoText = nullptr;
+#endif
+
   warningType = WARNING_TYPE_CONFIRM;
   event_t event;
 
@@ -1281,17 +1303,25 @@ static int luaPopupConfirmation(lua_State * L)
     event = luaL_optinteger(L, 3, 0);
   }
 
+#if defined(COLORLCD)
+  if (StandaloneLuaWindow::instance()->displayPopup(event, warningType, warningText,
+                                                    warningInfoText, warningResult)) {
+    warningText = nullptr;
+  }
+#else
   runPopupWarning(event);
+#endif
+
   if (!warningText) {
     lua_pushstring(L, warningResult ? "OK" : "CANCEL");
   }
   else {
-    warningText = NULL;
+    warningText = nullptr;
     lua_pushnil(L);
   }
+  
   return 1;
 }
-#endif
 
 /*luadoc
 @function defaultStick(channel)
@@ -1771,9 +1801,11 @@ const luaL_Reg opentxLib[] = {
   { "playDuration", luaPlayDuration },
   { "playTone", luaPlayTone },
   { "playHaptic", luaPlayHaptic },
-  // { "popupInput", luaPopupInput },
-  // { "popupWarning", luaPopupWarning },
-  // { "popupConfirmation", luaPopupConfirmation },
+#if defined(ENABLE_LUA_POPUP_INPUT)
+  { "popupInput", luaPopupInput },
+#endif
+  { "popupWarning", luaPopupWarning },
+  { "popupConfirmation", luaPopupConfirmation },
   { "defaultStick", luaDefaultStick },
   { "defaultChannel", luaDefaultChannel },
   { "getRSSI", luaGetRSSI },

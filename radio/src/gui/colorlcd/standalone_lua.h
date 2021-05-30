@@ -22,26 +22,46 @@
 
 #include "libopenui.h"
 
+struct LuaPopup
+{
+  rect_t rect;
+  LuaPopup(rect_t r) : rect(r) {}
+  void paint(BitmapBuffer* dc, uint8_t type, const char* text, const char* info);
+};
+
 class StandaloneLuaWindow : public Window
 {
-  public:
-    explicit StandaloneLuaWindow(Window* parent);
+  static StandaloneLuaWindow* _instance;
 
-    void deleteLater(bool detach=true, bool trash=true) override;
-    void paint(BitmapBuffer* dc) override;
-    void checkEvents() override;
+  explicit StandaloneLuaWindow();
+
+public:
+  static StandaloneLuaWindow* instance();
+
+  void attach(Window* newParent);
+  void deleteLater(bool detach = true, bool trash = true) override;
+  void paint(BitmapBuffer* dc) override;
+  void checkEvents() override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override { return "StandaloneLuaWindow"; }
+  std::string getName() const override { return "StandaloneLuaWindow"; }
 #endif
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t evt) override;
+  void onEvent(event_t evt) override;
 #endif
 
-  protected:
-    BitmapBuffer lcdBuffer;
-    uint32_t lastRefresh = 0;
+  bool displayPopup(event_t event, uint8_t type, const char* text,
+                    const char* info, bool& result);
 
-    void runLua(event_t evt);
+protected:
+  // GFX
+  BitmapBuffer lcdBuffer;
+  uint32_t lastRefresh = 0;
+
+  // pop-ups
+  LuaPopup popup;
+
+  // run LUA code
+  void runLua(event_t evt);
 };

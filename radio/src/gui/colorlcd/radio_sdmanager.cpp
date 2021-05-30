@@ -259,7 +259,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(getFullPath(name));
                 //TODO: check 'luaState'
-                new StandaloneLuaWindow(window);
+                StandaloneLuaWindow::instance()->attach(window);
               });
             }
 #endif
