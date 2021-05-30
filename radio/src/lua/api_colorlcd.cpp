@@ -323,9 +323,9 @@ See getValue()
 */
 static int luaLcdDrawChannel(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int channel = -1;
@@ -342,8 +342,8 @@ static int luaLcdDrawChannel(lua_State *L)
   }
   unsigned int att = luaL_optunsigned(L, 4, 0);
   getvalue_t value = getValue(channel);
-  drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, att);
-#endif
+  drawSensorCustomValue(luaLcdBuffer, x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, att);
+
   return 0;
 }
 
@@ -363,15 +363,15 @@ displays negated switch
 */
 static int luaLcdDrawSwitch(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  drawSwitch(x, y, s, att);
-#endif
+  drawSwitch(luaLcdBuffer, x, y, s, att);
+
   return 0;
 }
 
@@ -390,15 +390,15 @@ Displays the name of the corresponding input as defined by the source at (x,y)
 */
 static int luaLcdDrawSource(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  drawSource(x, y, s, att);
-#endif
+  drawSource(luaLcdBuffer, x, y, s, att);
+
   return 0;
 }
 
@@ -424,22 +424,23 @@ Bitmap loading can fail if:
 
 @status current Introduced in 2.2.0
 */
-static int luaOpenBitmap(lua_State * L)
+static int luaOpenBitmap(lua_State *L)
 {
-  const char * filename = luaL_checkstring(L, 1);
+  const char *filename = luaL_checkstring(L, 1);
 
-  BitmapBuffer ** b = (BitmapBuffer **)lua_newuserdata(L, sizeof(BitmapBuffer *));
+  BitmapBuffer **b =
+      (BitmapBuffer **)lua_newuserdata(L, sizeof(BitmapBuffer *));
 
   if (luaExtraMemoryUsage > LUA_MEM_EXTRA_MAX) {
     // already allocated more than max allowed, fail
-    TRACE("luaOpenBitmap: Error, using too much memory %u/%u", luaExtraMemoryUsage, LUA_MEM_EXTRA_MAX);
+    TRACE("luaOpenBitmap: Error, using too much memory %u/%u",
+          luaExtraMemoryUsage, LUA_MEM_EXTRA_MAX);
     *b = 0;
-  }
-  else {
+  } else {
     *b = BitmapBuffer::loadBitmap(filename);
     if (*b == NULL && G(L)->gcrunning) {
-      luaC_fullgc(L, 1);  /* try to free some memory... */
-      *b = BitmapBuffer::loadBitmap(filename);  /* try again */
+      luaC_fullgc(L, 1);                       /* try to free some memory... */
+      *b = BitmapBuffer::loadBitmap(filename); /* try again */
     }
   }
 
@@ -655,9 +656,9 @@ Draw a simple gauge that is filled based upon fill value
 */
 static int luaLcdDrawGauge(lua_State *L)
 {
-#if 0
-  if (!luaLcdAllowed)
+  if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
+
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int w = luaL_checkinteger(L, 3);
@@ -665,14 +666,11 @@ static int luaLcdDrawGauge(lua_State *L)
   int num = luaL_checkinteger(L, 5);
   int den = luaL_checkinteger(L, 6);
   unsigned int flags = luaL_optunsigned(L, 7, 0);
-#if defined(PCBHORUS)
-  lcdDrawRect(x, y, w, h, 1, 0xff, flags);
-#else
-  lcdDrawRect(x, y, w, h, 0xff, flags);
-#endif
+
+  luaLcdBuffer->drawRect(x, y, w, h, 1, 0xff, flags);
   uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
-  lcdDrawSolidFilledRect(x+1, y+1, len, h-2, flags);
-#endif
+  luaLcdBuffer->drawSolidFilledRect(x+1, y+1, len, h-2, flags);
+
   return 0;
 }
 
@@ -731,8 +729,10 @@ static int luaLcdSetColor(lua_State *L)
 {
   if (!luaLcdAllowed)
     return 0;
+
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   unsigned int color = luaL_checkunsigned(L, 2);
+
   lcdColorTable[index] = color;
 
   return 0;
@@ -750,13 +750,12 @@ Get the color for specific area : see lcd.setColor for area list
 
 static int luaLcdGetColor(lua_State *L)
 {
-#if 0
   if (!luaLcdAllowed)
     return 0;
 
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   lua_pushunsigned(L, lcdColorTable[index]);
-#endif
+
   return 1;
 }
 
@@ -805,18 +804,9 @@ const luaL_Reg lcdLib[] = {
   { "drawSwitch", luaLcdDrawSwitch },
   { "drawSource", luaLcdDrawSource },
   { "drawGauge", luaLcdDrawGauge },
-#if defined(COLORLCD)
   { "drawBitmap", luaLcdDrawBitmap },
   { "setColor", luaLcdSetColor },
   { "getColor", luaLcdGetColor },
   { "RGB", luaRGB },
-#else
-  { "getLastPos", luaLcdGetLastPos },
-  { "getLastRightPos", luaLcdGetLastPos },
-  { "getLastLeftPos", luaLcdGetLeftPos },
-  { "drawPixmap", luaLcdDrawPixmap },
-  { "drawScreenTitle", luaLcdDrawScreenTitle },
-  { "drawCombobox", luaLcdDrawCombobox },
-#endif
   { NULL, NULL }  /* sentinel */
 };
