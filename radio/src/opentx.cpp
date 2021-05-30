@@ -225,6 +225,8 @@ void per10ms()
 
   outputTelemetryBuffer.per10ms();
 
+  checkEventLockTmo();
+
   heartbeat |= HEART_TIMER_10MS;
 }
 

@@ -1751,7 +1751,37 @@ static int luaSerialRead(lua_State * L)
   return 1;
 }
 
+static int luaGetEvent(lua_State * L)
+{
+  event_t event = s_evt;
+  // only allow locked keys & ROT events to get through
+  if (eventIsLocked(event) || (event == EVT_ROTARY_LEFT) || (event == EVT_ROTARY_RIGHT)) {
+    s_evt = 0; // clear event
+  }
+  else {
+    event = 0; // do not pass on
+  }
+  lua_pushinteger(L, event);
+  return 1;
+}
+
+static int luaLockKeys(lua_State * L)
+{
+  uint16_t mask = luaL_checkunsigned(L, 1);
+  lockKeys(mask);
+  return 0;
+}
+
+static int luaUnlockKeys(lua_State * L)
+{
+  unlockKeys();
+  return 0;
+}
+
 const luaL_Reg opentxLib[] = {
+  { "getEvent", luaGetEvent },
+  { "lockKeys", luaLockKeys },
+  { "unlockKeys", luaUnlockKeys },
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
 #if defined(RTCLOCK)
@@ -2028,6 +2058,14 @@ const luaR_value_entry opentxConstants[] = {
 
 #if defined(KEYS_GPIO_REG_DOWN) && defined(COLORLCD)
   { "EVT_RTN_FIRST", EVT_KEY_BREAK(KEY_EXIT) },
+  { "EVT_RTN_BREAK", EVT_KEY_BREAK(KEY_EXIT) },
+  { "EVT_RTN_LONG", EVT_KEY_LONG(KEY_EXIT) },
+  { "EVT_RTN_REPT", EVT_KEY_REPT(KEY_EXIT) },
+  { "KEY_ENTER", (1<<KEY_ENTER) },
+  { "KEY_MODEL", (1<<KEY_MODEL) },
+  { "KEY_TELEM", (1<<KEY_TELEM) },
+  { "KEY_SYS", (1<<KEY_RADIO) },
+  { "KEY_RTN", (1<<KEY_EXIT) },
 #else
   KEY_EVENTS(DOWN, KEY_DOWN),
 #endif

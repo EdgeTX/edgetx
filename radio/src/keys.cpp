@@ -45,13 +45,12 @@ Key keys[NUM_KEYS];
 event_t getEvent(bool trim)
 {
   event_t event = s_evt;
+  if (eventIsLocked(event)) return 0;
   if (trim == IS_TRIM_EVENT(event)) {
     s_evt = 0;
     return event;
   }
-  else {
-    return 0;
-  }
+  return 0;
 }
 
 void Key::input(bool val)
@@ -199,4 +198,35 @@ bool waitKeysReleased()
   memclear(keys, sizeof(keys));
   pushEvent(0);
   return true;
+}
+
+uint16_t s_evt_lock_mask = 0;
+tmr10ms_t s_evt_lock_tlast = 0;
+#define EVENT_LOCKMASK_ALLOWED   ((1<<KEY_ENTER)|(1<<KEY_MODEL)|(1<<KEY_EXIT)|(1<<KEY_TELEM)|(1<<KEY_RADIO))
+
+bool eventIsLocked(event_t event)
+{
+  //for testing s_evt_lockmask = (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6);
+  uint16_t key = EVT_KEY_MASK(event);
+  if (key >= TRM_BASE) return false;
+  if (s_evt_lock_mask & (1<<key)) return true;
+  return false;
+}
+
+void lockKeys(uint16_t mask)
+{
+  s_evt_lock_mask = (mask & EVENT_LOCKMASK_ALLOWED);
+  s_evt_lock_tlast = get_tmr10ms();
+}
+
+void unlockKeys(void)
+{
+  s_evt_lock_mask = 0;
+}
+
+void checkEventLockTmo(void)
+{
+  if (!s_evt_lock_mask) return;
+  tmr10ms_t now = get_tmr10ms();
+  if ((now - s_evt_lock_tlast) > 50) s_evt_lock_mask = 0;  //500 ms
 }

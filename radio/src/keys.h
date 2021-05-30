@@ -190,4 +190,9 @@ bool keyDown();
 extern uint8_t rotencSpeed;
 #endif
 
+void lockKeys(uint16_t mask);
+void unlockKeys(void);
+void checkEventLockTmo(void); //per10ms()
+bool eventIsLocked(event_t evt);
+
 #endif // _KEYS_H_
