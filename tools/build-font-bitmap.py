@@ -7,6 +7,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 from charset import get_chars, special_chars, extra_chars, standard_chars, is_cjk_char
 
+EXTRA_BITMAP_MAX_WIDTH = 297
 
 class FontBitmap:
     def __init__(self, language, font_size, font_name, foreground, background):
@@ -17,7 +18,9 @@ class FontBitmap:
         self.background = background
         self.font = self.load_font(font_name)
         self.extra_bitmap = self.load_extra_bitmap()
-        #self.extra_bitmap = None
+        self.extra_bitmap_width = EXTRA_BITMAP_MAX_WIDTH
+        if self.extra_bitmap is not None:
+            self.extra_bitmap_width = self.extra_bitmap.width
 
     def load_extra_bitmap(self):
         try:
@@ -63,7 +66,7 @@ class FontBitmap:
         (_,baseline), (offset_x, offset_y) = self.font.font.getsize(self.chars)
         (text_width, text_height) = self.get_text_dimensions(self.chars)
 
-        img_width = text_width + self.extra_bitmap.width
+        img_width = text_width + self.extra_bitmap_width
         image = Image.new("RGB", (img_width, text_height), self.background)
         draw = ImageDraw.Draw(image)
 
