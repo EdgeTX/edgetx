@@ -908,6 +908,7 @@ uint8_t BitmapBuffer::drawChar(coord_t x, coord_t y, const uint8_t * font, const
 
 coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlags flags)
 {
+  if (!s) return (flags & VERTICAL) ? y : x;
   MOVE_OFFSET();
 
   int height = getFontHeight(flags);

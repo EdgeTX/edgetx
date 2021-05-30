@@ -311,6 +311,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     coord_t drawText(coord_t x, coord_t y, const char * s, LcdFlags flags = 0)
     {
+      if (!s) return (flags & VERTICAL) ? y : x;
       return drawSizedText(x, y, s, 255, flags);
     }
 
