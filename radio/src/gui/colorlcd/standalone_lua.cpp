@@ -22,9 +22,9 @@
 #include "view_main.h"
 #include "lua/lua_api.h"
 
-constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 5; // 5Hz
 using std::string;
 
+constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 50; // 5Hz
 
 void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text, const char* info)
 {
