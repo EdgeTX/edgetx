@@ -59,30 +59,30 @@ enum
 };
 
 const GhostSensor ghostSensors[] = {
-  {GHOST_ID_RX_RSSI,         ZSTR_RSSI,             UNIT_DB,                0},
-  {GHOST_ID_RX_LQ,           ZSTR_RX_QUALITY,       UNIT_PERCENT,           0},
-  {GHOST_ID_RX_SNR,          ZSTR_RX_SNR,           UNIT_DB,                0},
+  {GHOST_ID_RX_RSSI,         STR_RSSI,             UNIT_DB,                0},
+  {GHOST_ID_RX_LQ,           STR_RX_QUALITY,       UNIT_PERCENT,           0},
+  {GHOST_ID_RX_SNR,          STR_RX_SNR,           UNIT_DB,                0},
 
-  {GHOST_ID_FRAME_RATE,      ZSTR_FRAME_RATE,       UNIT_RAW,               0},
-  {GHOST_ID_TX_POWER,        ZSTR_TX_POWER,         UNIT_MILLIWATTS,        0},
-  {GHOST_ID_RF_MODE,         ZSTR_RF_MODE,          UNIT_TEXT,              0},
-  {GHOST_ID_TOTAL_LATENCY,   ZSTR_TOTAL_LATENCY,    UNIT_RAW,               0},
+  {GHOST_ID_FRAME_RATE,      STR_FRAME_RATE,       UNIT_RAW,               0},
+  {GHOST_ID_TX_POWER,        STR_TX_POWER,         UNIT_MILLIWATTS,        0},
+  {GHOST_ID_RF_MODE,         STR_RF_MODE,          UNIT_TEXT,              0},
+  {GHOST_ID_TOTAL_LATENCY,   STR_TOTAL_LATENCY,    UNIT_RAW,               0},
 
-  {GHOST_ID_VTX_FREQ,        ZSTR_VTX_FREQ,         UNIT_RAW,               0},
-  {GHOST_ID_VTX_POWER,       ZSTR_VTX_PWR,          UNIT_RAW,               0},
-  {GHOST_ID_VTX_CHAN,        ZSTR_VTX_CHAN,         UNIT_RAW,               0},
-  {GHOST_ID_VTX_BAND,        ZSTR_VTX_BAND,         UNIT_TEXT,              0},
+  {GHOST_ID_VTX_FREQ,        STR_VTX_FREQ,         UNIT_RAW,               0},
+  {GHOST_ID_VTX_POWER,       STR_VTX_PWR,          UNIT_RAW,               0},
+  {GHOST_ID_VTX_CHAN,        STR_VTX_CHAN,         UNIT_RAW,               0},
+  {GHOST_ID_VTX_BAND,        STR_VTX_BAND,         UNIT_TEXT,              0},
 
-  {GHOST_ID_PACK_VOLTS,      ZSTR_BATT,             UNIT_VOLTS,             2},
-  {GHOST_ID_PACK_AMPS,       ZSTR_CURR,             UNIT_AMPS,              2},
-  {GHOST_ID_PACK_MAH,        ZSTR_CAPACITY,         UNIT_MAH,               0},
+  {GHOST_ID_PACK_VOLTS,      STR_BATT,             UNIT_VOLTS,             2},
+  {GHOST_ID_PACK_AMPS,       STR_CURR,             UNIT_AMPS,              2},
+  {GHOST_ID_PACK_MAH,        STR_CAPACITY,         UNIT_MAH,               0},
 
-  {GHOST_ID_GPS_LAT,         ZSTR_GPS,              UNIT_GPS_LATITUDE,      0},
-  {GHOST_ID_GPS_LONG,        ZSTR_GPS,              UNIT_GPS_LONGITUDE,     0},
-  {GHOST_ID_GPS_GSPD,        ZSTR_GSPD,             UNIT_KMH,               1},
-  {GHOST_ID_GPS_HDG,         ZSTR_HDG,              UNIT_DEGREE,            3},
-  {GHOST_ID_GPS_ALT,         ZSTR_ALT,              UNIT_METERS,            0},
-  {GHOST_ID_GPS_SATS,        ZSTR_SATELLITES,       UNIT_RAW,               0},
+  {GHOST_ID_GPS_LAT,         STR_GPS,              UNIT_GPS_LATITUDE,      0},
+  {GHOST_ID_GPS_LONG,        STR_GPS,              UNIT_GPS_LONGITUDE,     0},
+  {GHOST_ID_GPS_GSPD,        STR_GSPD,             UNIT_KMH,               1},
+  {GHOST_ID_GPS_HDG,         STR_HDG,              UNIT_DEGREE,            3},
+  {GHOST_ID_GPS_ALT,         STR_ALT,              UNIT_METERS,            0},
+  {GHOST_ID_GPS_SATS,        STR_SATELLITES,       UNIT_RAW,               0},
 
   {0x00,                     NULL,                  UNIT_RAW,               0},
 };
@@ -101,12 +101,15 @@ void processGhostTelemetryValue(uint8_t index, int32_t value)
   if (!TELEMETRY_STREAMING())
     return;
 
-  const GhostSensor * sensor = getGhostSensor(index);
-  uint16_t id = sensor->id;
-  if (id == GHOST_ID_GPS_LONG) {
-    id = GHOST_ID_GPS_LAT; 
+  const GhostSensor *sensor = getGhostSensor(index);
+  if (sensor) {
+    uint16_t id = sensor->id;
+    if (id == GHOST_ID_GPS_LONG) {
+      id = GHOST_ID_GPS_LAT;
+    }
+    setTelemetryValue(PROTOCOL_TELEMETRY_GHOST, id, 0, 0, value, sensor->unit,
+                      sensor->precision);
   }
-  setTelemetryValue(PROTOCOL_TELEMETRY_GHOST, id, 0, 0, value, sensor->unit, sensor->precision);
 }
 
 void processGhostTelemetryValueString(const GhostSensor * sensor, const char * str)

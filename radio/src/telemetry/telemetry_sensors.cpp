@@ -510,11 +510,17 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
   bool sensorFound = false;
 
   for (int index = 0; index < MAX_TELEMETRY_SENSORS; index++) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    if (telemetrySensor.type == TELEM_TYPE_CUSTOM && telemetrySensor.id == id && telemetrySensor.subId == subId && (telemetrySensor.isSameInstance(protocol, instance) || g_model.ignoreSensorIds)) {
+    TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+
+    if (telemetrySensor.type == TELEM_TYPE_CUSTOM && telemetrySensor.id == id &&
+        telemetrySensor.subId == subId &&
+        (telemetrySensor.isSameInstance(protocol, instance) ||
+         g_model.ignoreSensorIds)) {
+
       telemetryItems[index].setValue(telemetrySensor, value, unit, prec);
       sensorFound = true;
-      // we continue search here, because sensors can share the same id and instance
+      // we continue search here, because sensors can share the same id and
+      // instance
     }
   }
 
@@ -614,11 +620,11 @@ void TelemetrySensor::init(const char * label, uint8_t unit, uint8_t prec)
 
 void TelemetrySensor::init(uint16_t id)
 {
-  char label[4];
-  label[0] = hex2zchar((id & 0xf000) >> 12);
-  label[1] = hex2zchar((id & 0x0f00) >> 8);
-  label[2] = hex2zchar((id & 0x00f0) >> 4);
-  label[3] = hex2zchar((id & 0x000f) >> 0);
+  char label[TELEM_LABEL_LEN]; // 4
+  label[0] = hex2char((id & 0x0f00) >> 8);
+  label[1] = hex2char((id & 0x00f0) >> 4);
+  label[2] = hex2char((id & 0x000f) >> 0);
+  label[3] = '\0';
   init(label);
 }
 

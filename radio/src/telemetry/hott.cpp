@@ -108,30 +108,30 @@ const HottSensor hottSensors[] = {
   //HOTT_TELEM_RX
   {HOTT_ID_RX_VOLTAGE,   STR_SENSOR_BATT,               UNIT_VOLTS,             1},  // RX_Batt Voltage
   {HOTT_ID_TEMP1,        STR_SENSOR_TEMP1,              UNIT_CELSIUS,           0},  // Temperature sensor 1
-  {HOTT_ID_TEMP2,        ZSTR_TEMP2,              UNIT_CELSIUS,           0},  // Temperature sensor 2
-  {HOTT_ID_VARIO,        ZSTR_VSPD,               UNIT_METERS_PER_SECOND, 2},  // Vario sensor
-  {HOTT_ID_ALT,          ZSTR_ALT,                UNIT_METERS,            0},  // Alt sensor
-  {HOTT_ID_HDG,          ZSTR_HDG,                UNIT_DEGREE,            0},  // Heading sensor
-  {HOTT_ID_GSPD,         ZSTR_GSPD,               UNIT_KMH,               0},  // Ground speed sensor
-  {HOTT_ID_GPS_LAT_LONG, ZSTR_GPS,                UNIT_GPS,               0},  // GPS position
-  {HOTT_ID_GPS_COUNT,    ZSTR_SATELLITES,         UNIT_RAW,               0},  // GPS sat count
-  {HOTT_ID_VOLT1,        ZSTR_A1,                 UNIT_VOLTS,             1},  // Voltage sensor 1
-  {HOTT_ID_VOLT2,        ZSTR_A2,                 UNIT_VOLTS,             1},  // Voltage sensor 2
-  {HOTT_ID_VOLT3,        ZSTR_A3,                 UNIT_VOLTS,             1},  // Voltage sensor 3
-  {HOTT_ID_AMP1,         ZSTR_CURR,               UNIT_AMPS,              1},  // Amp sensor 1
-  {HOTT_ID_AMP2,         ZSTR_CURR,               UNIT_AMPS,              1},  // Amp sensor 2
-  {HOTT_ID_RPM1,         ZSTR_RPM,                UNIT_RPMS,              0},  // RPM1
-  {HOTT_ID_RPM2,         ZSTR_RPM2,               UNIT_RPMS,              0},  // RPM2
-  {HOTT_ID_ESC_VIN,      ZSTR_ESC_VIN,            UNIT_VOLTS,             1},  // ESC VIN
-  {HOTT_ID_BCAPA,        ZSTR_SMART_BAT_CAPACITY, UNIT_MAH,               0},  // Batt Capa
-  {HOTT_ID_ESC_CUR,      ZSTR_ESC_CUR,            UNIT_AMPS,              1},  // ESC Amp
-  {HOTT_ID_ESC_TBEC,     ZSTR_ESC_TBEC,           UNIT_CELSIUS,           0},  // ESC BEC Temp
-  {HOTT_ID_ESC_BCUR,     ZSTR_ESC_BCUR,           UNIT_AMPS,              1},  // ESC BEC Amp
-  {HOTT_ID_ESC_VBEC,     ZSTR_ESC_VBEC,           UNIT_VOLTS,             1},  // ESC BEC Volt
-  {HOTT_ID_CELS,         ZSTR_CELLS,              UNIT_CELLS,             2},  // Batt cells
-  {HOTT_ID_CELS_H,       ZSTR_CELLS,              UNIT_CELLS,             2},  // Batt H cells
-  {HOTT_ID_AIR_SPEED,    ZSTR_ASPD,               UNIT_KMH,               0},  // Air speed
-  {HOTT_ID_FUEL,         ZSTR_FUEL,               UNIT_PERCENT,           0},  // Fuel
+  {HOTT_ID_TEMP2,        STR_TEMP2,              UNIT_CELSIUS,           0},  // Temperature sensor 2
+  {HOTT_ID_VARIO,        STR_VSPD,               UNIT_METERS_PER_SECOND, 2},  // Vario sensor
+  {HOTT_ID_ALT,          STR_ALT,                UNIT_METERS,            0},  // Alt sensor
+  {HOTT_ID_HDG,          STR_HDG,                UNIT_DEGREE,            0},  // Heading sensor
+  {HOTT_ID_GSPD,         STR_GSPD,               UNIT_KMH,               0},  // Ground speed sensor
+  {HOTT_ID_GPS_LAT_LONG, STR_GPS,                UNIT_GPS,               0},  // GPS position
+  {HOTT_ID_GPS_COUNT,    STR_SATELLITES,         UNIT_RAW,               0},  // GPS sat count
+  {HOTT_ID_VOLT1,        STR_A1,                 UNIT_VOLTS,             1},  // Voltage sensor 1
+  {HOTT_ID_VOLT2,        STR_A2,                 UNIT_VOLTS,             1},  // Voltage sensor 2
+  {HOTT_ID_VOLT3,        STR_A3,                 UNIT_VOLTS,             1},  // Voltage sensor 3
+  {HOTT_ID_AMP1,         STR_CURR,               UNIT_AMPS,              1},  // Amp sensor 1
+  {HOTT_ID_AMP2,         STR_CURR,               UNIT_AMPS,              1},  // Amp sensor 2
+  {HOTT_ID_RPM1,         STR_RPM,                UNIT_RPMS,              0},  // RPM1
+  {HOTT_ID_RPM2,         STR_RPM2,               UNIT_RPMS,              0},  // RPM2
+  {HOTT_ID_ESC_VIN,      STR_ESC_VIN,            UNIT_VOLTS,             1},  // ESC VIN
+  {HOTT_ID_BCAPA,        STR_SMART_BAT_CAPACITY, UNIT_MAH,               0},  // Batt Capa
+  {HOTT_ID_ESC_CUR,      STR_ESC_CUR,            UNIT_AMPS,              1},  // ESC Amp
+  {HOTT_ID_ESC_TBEC,     STR_ESC_TBEC,           UNIT_CELSIUS,           0},  // ESC BEC Temp
+  {HOTT_ID_ESC_BCUR,     STR_ESC_BCUR,           UNIT_AMPS,              1},  // ESC BEC Amp
+  {HOTT_ID_ESC_VBEC,     STR_ESC_VBEC,           UNIT_VOLTS,             1},  // ESC BEC Volt
+  {HOTT_ID_CELS,         STR_CELLS,              UNIT_CELLS,             2},  // Batt cells
+  {HOTT_ID_CELS_H,       STR_CELLS,              UNIT_CELLS,             2},  // Batt H cells
+  {HOTT_ID_AIR_SPEED,    STR_ASPD,               UNIT_KMH,               0},  // Air speed
+  {HOTT_ID_FUEL,         STR_FUEL,               UNIT_PERCENT,           0},  // Fuel
 
   {HOTT_TX_RSSI_ID,      STR_SENSOR_TX_RSSI,            UNIT_DB,                0},  // Pseudo id outside 1 byte range of Hott sensors
   {HOTT_TX_LQI_ID,       STR_SENSOR_TX_QUALITY,         UNIT_RAW,               0},  // Pseudo id outside 1 byte range of Hott sensors

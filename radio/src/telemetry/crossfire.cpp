@@ -34,7 +34,7 @@ const CrossfireSensor crossfireSensors[] = {
   {BATTERY_ID,     0, STR_SENSOR_BATT,          UNIT_VOLTS,             1},
   {BATTERY_ID,     1, STR_SENSOR_CURR,          UNIT_AMPS,              1},
   {BATTERY_ID,     2, STR_SENSOR_CAPACITY,      UNIT_MAH,               0},
-  {BATTERY_ID,     3, ZSTR_BATT_PERCENT,  UNIT_PERCENT,           0},
+  {BATTERY_ID,     3, STR_BATT_PERCENT,         UNIT_PERCENT,           0},
   {GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LATITUDE,      0},
   {GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LONGITUDE,     0},
   {GPS_ID,         2, STR_SENSOR_GSPD,          UNIT_KMH,               1},

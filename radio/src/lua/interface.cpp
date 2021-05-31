@@ -841,7 +841,7 @@ void luaError(lua_State * L, uint8_t error, bool acknowledge)
     warningType = WARNING_TYPE_INFO;
     popupFunc = displayAcknowledgeLuaError;
 #else
-    POPUP_WARNING(errorTitle, lua_warning_info);
+    displayLuaError(errorTitle);
 #endif
   }
   else {
