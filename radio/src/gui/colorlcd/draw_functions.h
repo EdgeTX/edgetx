@@ -86,4 +86,9 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
 void drawMainPots();
 void drawTrims(uint8_t flightMode);
 
+//could all or partially eventually go into libopenui
+void drawFilledTriangle(BitmapBuffer * dc, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t x2, coord_t y2, LcdFlags flags);
+void drawLineWithClipping(BitmapBuffer * dc, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax, uint8_t pat, LcdFlags flags);
+void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax, LcdFlags flags);
+
 #endif // _DRAW_FUNCTIONS_H_

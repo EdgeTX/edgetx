@@ -487,3 +487,190 @@ void drawHexNumber(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t val, LcdFla
     x = dc->drawSizedText(x, y, &c, 1, flags);
   }
 }
+
+//could all or partially eventually go into libopenui
+
+//THANKS to Adafruit and its GFX library !
+//https://learn.adafruit.com/adafruit-gfx-graphics-library
+void drawFilledTriangle(BitmapBuffer * dc, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t x2, coord_t y2, LcdFlags flags)
+{
+  coord_t a, b;
+
+  if (y0 > y1) { SWAP(y0, y1); SWAP(x0, x1); }
+  if (y1 > y2) { SWAP(y2, y1); SWAP(x2, x1); }
+  if (y0 > y1) { SWAP(y0, y1); SWAP(x0, x1); }
+
+  if (y0 == y2) { // Handle awkward all-on-same-line case as its own thing
+    a = b = x0;
+    if (x1 < a)
+      a = x1;
+    else if (x1 > b)
+      b = x1;
+    if (x2 < a)
+      a = x2;
+    else if (x2 > b)
+      b = x2;
+    dc->drawSolidHorizontalLine(a, y0, b - a + 1, flags);
+    return;
+  }
+
+  coord_t dx01 = x1 - x0, dy01 = y1 - y0, dx02 = x2 - x0, dy02 = y2 - y0, dx12 = x2 - x1, dy12 = y2 - y1;
+  coord_t sa = 0, sb = 0;
+  coord_t last = (y1 == y2) ? y1 : y1 - 1;
+  coord_t y;
+
+  for (y = y0; y <= last; y++) {
+    a = x0 + sa / dy01;
+    b = x0 + sb / dy02;
+    sa += dx01;
+    sb += dx02;
+    if (a > b) SWAP(a, b);
+    dc->drawSolidHorizontalLine(a, y, b - a + 1, flags);
+  }
+
+  sa = dx12 * (y - y1);
+  sb = dx02 * (y - y0);
+
+  for (; y <= y2; y++) {
+    a = x1 + sa / dy12;
+    b = x0 + sb / dy02;
+    sa += dx12;
+    sb += dx02;
+    if (a > b) SWAP(a, b);
+    dc->drawSolidHorizontalLine(a, y, b - a + 1, flags);
+  }
+}
+
+
+// Cohen-Sutherland, see wikipedia
+// Compute the bit code for a point (x, y) using the clip rectangle
+// bounded diagonally by (xmin, ymin), and (xmax, ymax)
+uint8_t ComputeOutCode(float x, float y, float xmin, float xmax, float ymin, float ymax)
+{
+  uint8_t code = 0;
+  if (x < xmin)
+    code |= 1;
+  else if (x > xmax)
+    code |= 2;
+  if (y < ymin)
+    code |= 8;
+  else if (y > ymax)
+    code |= 4;
+  return code;
+}
+
+// clipping algorithm clips a line from P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
+// diagonal from (xmin, ymin) to (xmax, ymax).
+void CohenSutherlandLineClipAndDraw(BitmapBuffer * dc, float x0, float y0, float x1, float y1, float xmin, float xmax, float ymin, float ymax, uint8_t pat, LcdFlags flags)
+{
+  uint8_t outcode0 = ComputeOutCode(x0, y0, xmin, xmax, ymin, ymax);
+  uint8_t outcode1 = ComputeOutCode(x1, y1, xmin, xmax, ymin, ymax);
+  bool accept = false;
+
+  while (true) {
+    if (!(outcode0 | outcode1)) {
+      accept = true;
+      break;
+    }
+    else if (outcode0 & outcode1) {
+      break;
+    }
+    else {
+      float x = 0.0f, y = 0.0f;
+      uint8_t outcode = (outcode1 > outcode0) ? outcode1 : outcode0;
+      if (outcode & 4) {
+        x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
+        y = ymax;
+      }
+      else if (outcode & 8) {
+        x = x0 + (x1 - x0) * (ymin - y0) / (y1 - y0);
+        y = ymin;
+      }
+      else if (outcode & 2) {
+        y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
+        x = xmax;
+      }
+      else if (outcode & 1) {
+        y = y0 + (y1 - y0) * (xmin - x0) / (x1 - x0);
+        x = xmin;
+      }
+      if (outcode == outcode0) {
+        x0 = x;
+        y0 = y;
+        outcode0 = ComputeOutCode(x0, y0, xmin, xmax, ymin, ymax);
+      }
+      else {
+        x1 = x;
+        y1 = y;
+        outcode1 = ComputeOutCode(x1, y1, xmin, xmax, ymin, ymax);
+      }
+    }
+  }
+  if (accept) {
+    dc->drawLine(coord_t(x0+0.5f), coord_t(y0+0.5f), coord_t(x1+0.5f), coord_t(y1+0.5f), pat, flags);
+  }
+}
+
+void drawLineWithClipping(BitmapBuffer * dc, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax, uint8_t pat, LcdFlags flags)
+{
+  CohenSutherlandLineClipAndDraw(dc, x0, y0, x1, y1, xmin, xmax, ymin, ymax, pat, flags);
+}
+
+void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax, LcdFlags flags)
+{
+  constexpr float GRADTORAD = 0.017453293f;
+
+  float dx = sinf(GRADTORAD*roll) * pitch;
+  float dy = cosf(GRADTORAD*roll) * pitch * 1.85f;
+  float angle = tanf(-GRADTORAD*roll);
+  float ox = 0.5f * (xmin + xmax) + dx;
+  float oy = 0.5f * (ymin + ymax) + dy;
+  coord_t ywidth = (ymax - ymin);
+
+  if (roll == 0.0f) { // prevent divide by zero
+    dc->drawSolidFilledRect(
+        xmin, max(ymin, ymin + (ywidth/2 + (coord_t)dy)),
+        xmax - xmin, min(ywidth, ywidth/2 - (coord_t)dy + (dy != 0.0f ? 1 : 0)), flags);
+  }
+  else if (fabs(roll) >= 180.0f) {
+    dc->drawSolidFilledRect(xmin, ymin, xmax - xmin, min(ywidth, ywidth/2 + (coord_t)fabsf(dy)), flags);
+  }
+  else {
+    bool inverted = (fabsf(roll) > 90.0f);
+    bool fillNeeded = false;
+    coord_t ybot = (inverted) ? 0 : LCD_H;
+
+    if (roll > 0.0f) {
+      for (coord_t s = 0; s < ywidth; s++) {
+        coord_t yy = ymin + s;
+        coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
+        if (xx >= xmin && xx <= xmax) {
+          dc->drawSolidHorizontalLine(xx, yy, xmax - xx + 1, flags);
+        }
+        else if (xx < xmin) {
+          ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);
+          fillNeeded = true;
+        }
+      }
+    }
+    else {
+      for (coord_t s = 0; s < ywidth; s++) {
+        coord_t yy = ymin + s;
+        coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
+        if (xx >= xmin && xx <= xmax) {
+          dc->drawSolidHorizontalLine(xmin, yy, xx - xmin, flags);
+        }
+        else if (xx > xmax) {
+          ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);
+          fillNeeded = true;
+        }
+      }
+    }
+
+    if (fillNeeded) {
+      coord_t ytop = (inverted) ? ymin : ybot;
+      coord_t height = (inverted) ? ybot - ymin : ymax - ybot;
+      dc->drawSolidFilledRect(xmin, ytop, xmax - xmin, height, flags);
+    }
+  }
+}

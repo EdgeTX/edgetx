@@ -787,6 +787,185 @@ static int luaRGB(lua_State *L)
   return 1;
 }
 
+static int luaLcdDrawCircle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  LcdFlags flags = luaL_checkunsigned(L, 4);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawCircle(x, y, r, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawFilledCircle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  LcdFlags flags = luaL_checkunsigned(L, 4);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawFilledCircle(x, y, r, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawTriangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t x3 = luaL_checkunsigned(L, 5);
+  coord_t y3 = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, SOLID, flags);
+  luaLcdBuffer->drawLine(x2, y2, x3, y3, SOLID, flags);
+  luaLcdBuffer->drawLine(x3, y3, x1, y1, SOLID, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawFilledTriangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t x3 = luaL_checkunsigned(L, 5);
+  coord_t y3 = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  drawFilledTriangle(luaLcdBuffer, x1, y1, x2, y2, x3, y3, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawArc(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  int start = luaL_checkunsigned(L, 4);
+  int end = luaL_checkunsigned(L, 5);
+  LcdFlags flags = luaL_checkunsigned(L, 6);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  if (r > 0)
+    luaLcdBuffer->drawAnnulusSector(x, y, r - 1, r, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawPie(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  int start = luaL_checkunsigned(L, 4);
+  int end = luaL_checkunsigned(L, 5);
+  LcdFlags flags = luaL_checkunsigned(L, 6);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  if (r > 0)
+    luaLcdBuffer->drawAnnulusSector(x, y, 0, r, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawAnnulus(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r1 = luaL_checkunsigned(L, 3);
+  coord_t r2 = luaL_checkunsigned(L, 4);
+  int start = luaL_checkunsigned(L, 5);
+  int end = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawAnnulusSector(x, y, r1, r2, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawLineWithClipping(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t xmin = luaL_checkunsigned(L, 5);
+  coord_t xmax = luaL_checkunsigned(L, 6);
+  coord_t ymin = luaL_checkunsigned(L, 7);
+  coord_t ymax = luaL_checkunsigned(L, 8);
+  uint8_t pat = luaL_checkunsigned(L, 9);
+  LcdFlags flags = luaL_checkunsigned(L, 10);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  drawLineWithClipping(luaLcdBuffer, x1, y1, x2, y2, xmin, xmax, ymin, ymax, pat, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawHudRectangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  float pitch = luaL_checknumber(L, 1);
+  float roll = luaL_checknumber(L, 2);
+  coord_t xmin = luaL_checkunsigned(L, 3);
+  coord_t xmax = luaL_checkunsigned(L, 4);
+  coord_t ymin = luaL_checkunsigned(L, 5);
+  coord_t ymax = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  drawHudRectangle(luaLcdBuffer, pitch, roll, xmin, xmax, ymin, ymax, flags);
+
+  return 0;
+}
+
 const luaL_Reg lcdLib[] = {
   { "refresh", luaLcdRefresh },
   { "clear", luaLcdClear },
@@ -806,5 +985,14 @@ const luaL_Reg lcdLib[] = {
   { "setColor", luaLcdSetColor },
   { "getColor", luaLcdGetColor },
   { "RGB", luaRGB },
+  { "drawCircle", luaLcdDrawCircle },
+  { "drawFilledCircle", luaLcdDrawFilledCircle },
+  { "drawTriangle", luaLcdDrawTriangle },
+  { "drawFilledTriangle", luaLcdDrawFilledTriangle },
+  { "drawArc", luaLcdDrawArc },
+  { "drawPie", luaLcdDrawPie },
+  { "drawAnnulus", luaLcdDrawAnnulus },
+  { "drawLineWithClipping", luaLcdDrawLineWithClipping },
+  { "drawHudRectangle", luaLcdDrawHudRectangle },
   { NULL, NULL }  /* sentinel */
 };
