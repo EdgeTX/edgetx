@@ -23,6 +23,14 @@
 
 #include "opentx_types.h"
 
+char hex2zchar(uint8_t hex);
+char hex2char(uint8_t hex);
+char zchar2char(int8_t idx);
+char char2lower(char c);
+int8_t char2zchar(char c);
+void str2zchar(char *dest, const char *src, int size);
+int zchar2str(char *dest, const char *src, int size);
+
 char * strAppend(char * dest, const char * source, int len = 0);
 char * strAppendUnsigned(char * dest, uint32_t value, uint8_t digits = 0, uint8_t radix = 10);
 char * strAppendSigned(char * dest, int32_t value, uint8_t digits = 0, uint8_t radix = 10);

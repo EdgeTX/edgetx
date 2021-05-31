@@ -1558,7 +1558,7 @@ static int luaModelGetSensor(lua_State *L)
     TelemetrySensor & sensor = g_model.telemetrySensors[idx];
     lua_newtable(L);
     lua_pushtableinteger(L, "type", sensor.type);
-    lua_pushtablezstring(L, "name", sensor.label);
+    lua_pushtablestring(L, "name", sensor.label);
     lua_pushtableinteger(L, "unit", sensor.unit);
     lua_pushtableinteger(L, "prec", sensor.prec);
     if (sensor.type == TELEM_TYPE_CUSTOM) {

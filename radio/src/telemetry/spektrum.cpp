@@ -167,15 +167,15 @@ const SpektrumSensor spektrumSensors[] = {
   {0x1b,             4,  int16,     STR_SENSOR_YAW,               UNIT_DEGREE,                 1},
 
   // {0x20, esc},  Smart ESC telemetry
-  {I2C_ESC,          0,  uint16,    ZSTR_ESC_RPM,           UNIT_RPMS,                   0},
-  {I2C_ESC,          2,  uint16,    ZSTR_ESC_VIN,           UNIT_VOLTS,                  2},
-  {I2C_ESC,          4,  uint16,    ZSTR_ESC_TFET,          UNIT_CELSIUS,                1},
-  {I2C_ESC,          6,  uint16,    ZSTR_ESC_CUR,           UNIT_MAH,                    1},
-  {I2C_ESC,          8,  uint16,    ZSTR_ESC_TBEC,          UNIT_CELSIUS,                1},
-  {I2C_ESC,          10, uint8,     ZSTR_ESC_BCUR,          UNIT_AMPS,                   1},
-  {I2C_ESC,          11, uint8,     ZSTR_ESC_VBEC,          UNIT_VOLTS,                  2},
-  {I2C_ESC,          12, uint8,     ZSTR_ESC_THR,           UNIT_PERCENT,                1},
-  {I2C_ESC,          13, uint8,     ZSTR_ESC_POUT,          UNIT_PERCENT,                1},
+  {I2C_ESC,          0,  uint16,    STR_ESC_RPM,           UNIT_RPMS,                   0},
+  {I2C_ESC,          2,  uint16,    STR_ESC_VIN,           UNIT_VOLTS,                  2},
+  {I2C_ESC,          4,  uint16,    STR_ESC_TFET,          UNIT_CELSIUS,                1},
+  {I2C_ESC,          6,  uint16,    STR_ESC_CUR,           UNIT_MAH,                    1},
+  {I2C_ESC,          8,  uint16,    STR_ESC_TBEC,          UNIT_CELSIUS,                1},
+  {I2C_ESC,          10, uint8,     STR_ESC_BCUR,          UNIT_AMPS,                   1},
+  {I2C_ESC,          11, uint8,     STR_ESC_VBEC,          UNIT_VOLTS,                  2},
+  {I2C_ESC,          12, uint8,     STR_ESC_THR,           UNIT_PERCENT,                1},
+  {I2C_ESC,          13, uint8,     STR_ESC_POUT,          UNIT_PERCENT,                1},
 
   // Dual Cell monitor (0x34)
   {0x34,             0,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,                   1},
@@ -203,45 +203,45 @@ const SpektrumSensor spektrumSensors[] = {
   {0x40,             2,  int16,     STR_SENSOR_VSPD,              UNIT_METERS_PER_SECOND,      1},
 
   // Smartbat
-  //{I2C_SMART_BAT_REALTIME,        1,  int8,      ZSTR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0},  // disabled because sensor is a duplicate of cells sensors ones
-  {I2C_SMART_BAT_REALTIME,        2,  uint32le,  ZSTR_SMART_BAT_BCUR,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        6,  uint16le,  ZSTR_SMART_BAT_BCAP,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        8,  uint16le,  ZSTR_SMART_BAT_MIN_CEL, UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_REALTIME,        10,  uint16le, ZSTR_SMART_BAT_MAX_CEL, UNIT_VOLTS,               2},
+  //{I2C_SMART_BAT_REALTIME,        1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0},  // disabled because sensor is a duplicate of cells sensors ones
+  {I2C_SMART_BAT_REALTIME,        2,  uint32le,  STR_SMART_BAT_BCUR,    UNIT_MAH,                 0},
+  {I2C_SMART_BAT_REALTIME,        6,  uint16le,  STR_SMART_BAT_BCAP,    UNIT_MAH,                 0},
+  {I2C_SMART_BAT_REALTIME,        8,  uint16le,  STR_SMART_BAT_MIN_CEL, UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_REALTIME,        10,  uint16le, STR_SMART_BAT_MAX_CEL, UNIT_VOLTS,               2},
   //{I2C_SMART_BAT_REALTIME,          12,  uint16le,  "RFU[2]", UNIT_RAW,                 0},   // disabled to save sensors slots
 
-  {I2C_SMART_BAT_CELLS_1_6,       1,  int8,      ZSTR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_1_6,       2,  uint16le,  ZSTR_CL01,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       4,  uint16le,  ZSTR_CL02,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       6,  uint16le,  ZSTR_CL03,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       8,  uint16le,  ZSTR_CL04,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       10,  uint16le,  ZSTR_CL05,            UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       12, uint16le,  ZSTR_CL06,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_1_6,       2,  uint16le,  STR_CL01,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       4,  uint16le,  STR_CL02,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       6,  uint16le,  STR_CL03,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       8,  uint16le,  STR_CL04,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       10,  uint16le,  STR_CL05,            UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       12, uint16le,  STR_CL06,             UNIT_VOLTS,               2},
 
-  {I2C_SMART_BAT_CELLS_7_12,      1,  int8,      ZSTR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_7_12,      2,  uint16le,  ZSTR_CL07,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      4,  uint16le,  ZSTR_CL08,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      6,  uint16le,  ZSTR_CL09,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      8,  uint16le,  ZSTR_CL10,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      10,  uint16le,  ZSTR_CL11,            UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      12, uint16le,  ZSTR_CL12,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_7_12,      2,  uint16le,  STR_CL07,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      4,  uint16le,  STR_CL08,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      6,  uint16le,  STR_CL09,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      8,  uint16le,  STR_CL10,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      10,  uint16le,  STR_CL11,            UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      12, uint16le,  STR_CL12,             UNIT_VOLTS,               2},
 
-  {I2C_SMART_BAT_CELLS_13_18,     1,  int8,      ZSTR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_13_18,     2,  uint16le,  ZSTR_CL13,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     4,  uint16le,  ZSTR_CL14,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     6,  uint16le,  ZSTR_CL15,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     8,  uint16le,  ZSTR_CL16,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     10, uint16le,  ZSTR_CL17,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     12, uint16le,  ZSTR_CL18,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_13_18,     2,  uint16le,  STR_CL13,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     4,  uint16le,  STR_CL14,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     6,  uint16le,  STR_CL15,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     8,  uint16le,  STR_CL16,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     10, uint16le,  STR_CL17,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     12, uint16le,  STR_CL18,             UNIT_VOLTS,               2},
 
   //{I2C_SMART_BAT_ID,              1,  uint8,  "chemistery",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_ID,              2,  uint8,  "number of cells",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_ID,              3,  uint8,  "manufacturer code",  UNIT_RAW, 0},   // disabled to save sensors slots
-  {I2C_SMART_BAT_ID,              4,  uint16le,  ZSTR_SMART_BAT_CYCLES,  UNIT_RAW,                 0},
+  {I2C_SMART_BAT_ID,              4,  uint16le,  STR_SMART_BAT_CYCLES,  UNIT_RAW,                 0},
   //{I2C_SMART_BAT_ID,              6,  uint8,  "uniqueID[8]",  UNIT_RAW, 0},   // disabled to save sensors slots
 
   //{I2C_SMART_BAT_LIMITS,          1,  uint8,  "rfu",  UNIT_RAW, 0},   // disabled to save sensors slots
-  {I2C_SMART_BAT_LIMITS,          2,  uint16le,  ZSTR_SMART_BAT_CAPACITY,UNIT_MAH,                 0},
+  {I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SMART_BAT_CAPACITY,UNIT_MAH,                 0},
   //{I2C_SMART_BAT_LIMITS,          4,  uint16le,  "dischargeCurrentRating",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_LIMITS,          6,  uint16le,  "overDischarge_mV",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_LIMITS,          8,  uint16le,  "zeroCapacity_mV",  UNIT_RAW, 0},   // disabled to save sensors slots
