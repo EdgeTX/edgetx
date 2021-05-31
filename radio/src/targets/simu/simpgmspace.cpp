@@ -706,7 +706,7 @@ void lockFlash()
 
 void flashWrite(uint32_t *address, const uint32_t *buffer)
 {
-  simuSleep(100);
+  simuSleep(10);
 }
 
 uint32_t isBootloaderStart(const uint8_t * block)

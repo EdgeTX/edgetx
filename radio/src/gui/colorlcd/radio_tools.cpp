@@ -25,10 +25,9 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "lua/lua_api.h"
+#include "standalone_lua.h"
 
 extern uint8_t g_moduleIdx;
-
-#define TOOL_NAME_MAXLEN  16
 
 RadioToolsPage::RadioToolsPage():
   PageTab(STR_MENUTOOLS, ICON_RADIO_TOOLS)
@@ -103,10 +102,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
       strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {
-        char toolName[TOOL_NAME_MAXLEN + 1];
+        char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char * label;
         char * ext = (char *)getFileExtension(path);
-        if (readToolName(path, toolName)) {
+        if (readToolName(toolName, path)) {
           label = toolName;
         }
         else {
@@ -114,11 +113,18 @@ void RadioToolsPage::rebuild(FormWindow * window)
           label = getBasename(path);
         }
         new StaticText(window, grid.getLabelSlot(), "lua", BUTTON_BACKGROUND, CENTERED);
-        new TextButton(window, grid.getFieldSlot(1), label, [=]() -> uint8_t {
-          f_chdir("/SCRIPTS/TOOLS/");
-          //luaExec(path);
-          return 0;
-        }, 0);
+
+        std::string path_str(path);
+        new TextButton(
+            window, grid.getFieldSlot(1), label,
+            [window, path_str]() -> uint8_t {
+              f_chdir("/SCRIPTS/TOOLS/");
+              luaExec(path_str.c_str());
+              // TODO: check 'luaState'
+              StandaloneLuaWindow::instance()->attach(window);
+              return 0;
+            },
+            0);
         grid.nextLine();
       }
     }

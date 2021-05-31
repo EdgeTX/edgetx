@@ -296,7 +296,8 @@ template<int SIZE>
     return (RTOS_GET_TIME() * RTOS_MS_PER_TICK);
   }
 
-  #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name // stack must be aligned to 8 bytes otherwise printf for %f does not work!
+  // stack must be aligned to 8 bytes otherwise printf for %f does not work!
+  #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM
 
   #define TASK_FUNCTION(task)           void task(void * pdata)
   #define TASK_RETURN()                 return

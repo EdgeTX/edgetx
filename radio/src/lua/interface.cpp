@@ -749,27 +749,41 @@ void displayLuaError(const char * title)
 #if !defined(COLORLCD)
   drawMessageBox(title);
 #endif
+
   if (lua_warning_info[0]) {
-    char * split = strstr(lua_warning_info, ": ");
+    char *split = strstr(lua_warning_info, ": ");
+#if !defined(COLORLCD)
     if (split) {
 #if LCD_W == 128
       if (strlen(split + 2) <= 20) {
-        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3, lua_warning_info, split - lua_warning_info, SMLSIZE);
-        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2, strlen(split + 2), SMLSIZE);
-      }
-      else {
-        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH, lua_warning_info, split - lua_warning_info, SMLSIZE);
-        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH, split + 2, 20, SMLSIZE);
-        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 3 * FH, split + 22, strlen(split + 22), SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+                         lua_warning_info, split - lua_warning_info, SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2,
+                         strlen(split + 2), SMLSIZE);
+      } else {
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH, lua_warning_info,
+                         split - lua_warning_info, SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH, split + 2, 20,
+                         SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 3 * FH, split + 22,
+                         strlen(split + 22), SMLSIZE);
       }
 #elif LCD_W == 64
-      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3, lua_warning_info, split - lua_warning_info, SMLSIZE);
-      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2, lua_warning_info + LUA_WARNING_INFO_LEN - split, SMLSIZE);
+      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+                       lua_warning_info, split - lua_warning_info, SMLSIZE);
+      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2,
+                       lua_warning_info + LUA_WARNING_INFO_LEN - split,
+                       SMLSIZE);
 #endif
+    } else {
+      // TODO lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+      // lua_warning_info, 40, SMLSIZE);
     }
-    else {
-      // TODO lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3, lua_warning_info, 40, SMLSIZE);
-    }
+#else
+    // Split line...
+    //if (split) { *(split+1) = '\n'; }
+    POPUP_WARNING(title, lua_warning_info);
+#endif
   }
 }
 
@@ -825,6 +839,8 @@ void luaError(lua_State * L, uint8_t error, bool acknowledge)
     warningText = errorTitle;
     warningType = WARNING_TYPE_INFO;
     popupFunc = displayAcknowledgeLuaError;
+#else
+    POPUP_WARNING(errorTitle, lua_warning_info);
 #endif
   }
   else {
@@ -1191,7 +1207,7 @@ bool readToolName(char * toolName, const char * filename)
     return false;
 
   strncpy(toolName, start, len);
-  memclear(toolName + len, RADIO_TOOL_NAME_MAXLEN + 1 - len);
+  toolName[len] = '\0';
 
   return true;
 }

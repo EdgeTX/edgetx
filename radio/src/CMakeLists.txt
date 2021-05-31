@@ -45,6 +45,7 @@ option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
+option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
 option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
@@ -102,8 +103,6 @@ elseif(PCB STREQUAL SKY9X OR PCB STREQUAL 9XRPRO OR PCB STREQUAL AR9X)
 else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
-
-option(NANO "Use nano newlib and binalloc" OFF)
 
 add_subdirectory(translations)
 add_subdirectory(bitmaps)
@@ -539,15 +538,21 @@ if(NOT MSVC)
     endif()
 
     # Use newlib nano, which saves a few kilobytes.
-    if(NANO)
+    if(NOT NANO STREQUAL NO)
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
       if(NOT LUA STREQUAL NO)
         # Lua needs %g and %f
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
       endif()
-      # Nano's malloc does work well with lua, use our own
-      add_definitions(-DUSE_BIN_ALLOCATOR)
-      set(SRC ${SRC} bin_allocator.cpp)
+      if(SDRAM)
+        # Target with SDRAM do not need a custom allocator for now
+        # as the custom allocator has alignement issues
+        message("Target has SDRAM, do not use BIN_ALLOCATOR")
+      else()
+        # Nano's malloc does work well with lua, use our own
+        add_definitions(-DUSE_BIN_ALLOCATOR)
+        set(SRC ${SRC} bin_allocator.cpp)
+      endif()
     endif()
 
     if(OPENRC_BOOTLOADER)

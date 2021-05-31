@@ -118,6 +118,9 @@ case $FLAVOR in
     T16)
         BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16"
         ;;
+    T18)
+        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
+        ;;
     TX16S)
         BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
         ;;

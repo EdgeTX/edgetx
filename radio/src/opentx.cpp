@@ -1478,9 +1478,6 @@ void opentxClose(uint8_t shutdown)
     // TODO needed? telemetryEnd();
 #if defined(LUA)
     luaClose(&lsScripts);
-#if defined(COLORLCD)
-    luaClose(&lsWidgets);
-#endif
 #endif
 #if defined(HAPTIC)
     hapticOff();
@@ -1520,6 +1517,7 @@ void opentxClose(uint8_t shutdown)
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
+  luaClose(&lsWidgets);
 #endif
 
 #if defined(SDCARD)

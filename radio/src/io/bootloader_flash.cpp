@@ -58,9 +58,22 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     unlockFlash();
   }
 
+  UINT flash_size = file.obj.objsize;
+  if (flash_size > BOOTLOADER_SIZE) {
+    flash_size = BOOTLOADER_SIZE;
+  }
+  
   for (int i = 0; i < BOOTLOADER_SIZE; i += 1024) {
+
     watchdogSuspend(1000/*10s*/);
-    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK || count != sizeof(buffer)) {
+    memset(buffer, 0xFF, sizeof(buffer));
+
+    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
+      POPUP_WARNING(STR_SDCARD_ERROR);
+      break;
+    }
+    if (count != sizeof(buffer)
+        && !f_eof(&file)) {
       POPUP_WARNING(STR_SDCARD_ERROR);
       break;
     }
@@ -68,11 +81,13 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
       POPUP_WARNING(STR_INCOMPATIBLE);
       break;
     }
-    for (int j = 0; j < 1024; j += FLASH_PAGESIZE) {
+    for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
       flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
     }
+    progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
-    progressHandler("Bootloader", STR_WRITING, i, BOOTLOADER_SIZE);
+    // Reached end-of-file
+    if (f_eof(&file)) break;
 
 #if defined(SIMU)
     // add an artificial delay and check for simu quit

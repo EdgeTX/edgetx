@@ -229,6 +229,15 @@ if [[ " T16 COLORLCD ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
+if [[ " T18 COLORLCD ALL " =~ \ ${FLAVOR}\  ]] ; then
+  # OpenTX on T16 boards
+   rm -rf ./* || true
+  cmake "${COMMON_OPTIONS}" -DPCB=X10 -DPCBREV=T18 -DHELI=YES -DLUA=YES -DGVARS=YES -DAFHDS3=NO "${SRCDIR}"
+  make -j"${CORES}" ${FIRMARE_TARGET}
+  make -j"${CORES}" libsimulator
+  make -j"${CORES}" tests-radio
+fi
+
 if [[ " TX16S COLORLCD ALL " =~ \ ${FLAVOR}\  ]] ; then
   # OpenTX on TX16S boards
    rm -rf ./* || true

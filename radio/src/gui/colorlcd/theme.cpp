@@ -112,14 +112,13 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
   dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, DEFAULT_BGCOLOR);
 }
 
-void OpenTxTheme::drawMessageBox(const char * title, const char * text, const char * action, uint32_t type) const
-{
-
-}
+//void OpenTxTheme::drawMessageBox(const char *title, const char *text,
+//                                 const char *action, uint32_t type) const
 //{
 //  //if (flags & MESSAGEBOX_TYPE_ALERT) {
 //    drawBackground();
-//    lcdDrawFilledRect(0, POPUP_Y, LCD_W, POPUP_H, SOLID, FOCUS_COLOR | OPACITY(8));
+//    lcdDrawFilledRect(0, POPUP_Y, LCD_W, POPUP_H, SOLID, FOCUS_COLOR |
+//    OPACITY(8));
 //  //}
 //
 //  if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK)
@@ -130,12 +129,15 @@ void OpenTxTheme::drawMessageBox(const char * title, const char * text, const ch
 //    lcd->drawBitmap(POPUP_X-80, POPUP_Y+12, question);
 //
 //  if (type == WARNING_TYPE_ALERT) {
-//#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, STR_WARNING, ALARM_COLOR|FONT(XL));
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28, title, ALARM_COLOR|FONT(XL));
+//#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) ||
+//defined(TRANSLATIONS_CZ)
+//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, STR_WARNING,
+//    ALARM_COLOR|FONT(XL)); lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28,
+//    title, ALARM_COLOR|FONT(XL));
 //#else
 //    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, ALARM_COLOR|FONT(XL));
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28, STR_WARNING, ALARM_COLOR|FONT(XL));
+//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28, STR_WARNING,
+//    ALARM_COLOR|FONT(XL));
 //#endif
 //  }
 //  else if (title) {

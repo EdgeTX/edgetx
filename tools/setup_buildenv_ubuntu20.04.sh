@@ -49,29 +49,29 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step 5: Fetching GNU Arm Embedded Toolchains ==="
-# EdgeTX uses GNU Arm Embedded Toolchain in version 6-2017-q2
-wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+# EdgeTX uses GNU Arm Embedded Toolchain in version 10-2020-q4
+wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step 6: Unpacking GNU Arm Embedded Toolchains ==="
-tar xjf gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+tar xjf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step 7: Removing the downloaded archives ==="
-rm gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+rm gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step 8: Moving GNU Arm Embedded Toolchains to /opt ==="
-sudo mv gcc-arm-none-eabi-6-2017-q2-update /opt/gcc-arm-none-eabi
+sudo mv gcc-arm-none-eabi-10-2020-q4-major /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
