@@ -782,6 +782,7 @@ void displayLuaError(const char * title)
 #else
     // Split line...
     //if (split) { *(split+1) = '\n'; }
+    (void)split; // mark as unused
     POPUP_WARNING(title, lua_warning_info);
 #endif
   }
