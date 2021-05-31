@@ -33,7 +33,6 @@ else()
   set(LINKER_SCRIPT targets/horus/stm32f4_flash.ld)
 endif()
 
-option(YAML_STORAGE "Enable YAML storage" NO)
 if(YAML_STORAGE)
   set(STORAGE_FORMAT YAML)
 endif()
