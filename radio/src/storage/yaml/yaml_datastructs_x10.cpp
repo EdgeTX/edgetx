@@ -29,6 +29,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_LOGS, "LOGS"  },
   {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
+  {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  FUNC_MAX, "MAX"  },
   {  0, NULL  }
 };
@@ -558,7 +559,8 @@ static const struct YamlNode struct_string_64[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_9[] = {
-  YAML_UNSIGNED( "receivers", 8 ),
+  YAML_UNSIGNED( "receivers", 7 ),
+  YAML_UNSIGNED( "racingMode", 1 ),
   YAML_ARRAY("receiverName", 64, 3, struct_string_64, NULL),
   YAML_END
 };
