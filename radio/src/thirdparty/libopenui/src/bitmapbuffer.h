@@ -280,6 +280,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     void invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags = 0);
 
+    void drawFilledTriangle(coord_t x1, coord_t y1, coord_t x2, coord_t y2, coord_t x3, coord_t y3, LcdFlags flags = 0, uint8_t opacity = 0);
+
     void drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0);
 
     void drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0);
@@ -412,7 +414,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 #endif
       return &data[y * _width + x];
     }
-
 
     inline void drawPixelAbs(coord_t x, coord_t y, pixel_t value)
     {
