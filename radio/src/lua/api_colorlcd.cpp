@@ -789,6 +789,258 @@ static int luaRGB(lua_State *L)
   return 1;
 }
 
+static int luaLcdDrawCircle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  LcdFlags flags = luaL_checkunsigned(L, 4);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawCircle(x, y, r, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawFilledCircle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  LcdFlags flags = luaL_checkunsigned(L, 4);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawFilledCircle(x, y, r, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawTriangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t x3 = luaL_checkunsigned(L, 5);
+  coord_t y3 = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, SOLID, flags);
+  luaLcdBuffer->drawLine(x2, y2, x3, y3, SOLID, flags);
+  luaLcdBuffer->drawLine(x3, y3, x1, y1, SOLID, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawFilledTriangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t x3 = luaL_checkunsigned(L, 5);
+  coord_t y3 = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawFilledTriangle(x1, y1, x2, y2, x3, y3, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawArc(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  int start = luaL_checkunsigned(L, 4);
+  int end = luaL_checkunsigned(L, 5);
+  LcdFlags flags = luaL_checkunsigned(L, 6);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  if (r > 0)
+    luaLcdBuffer->drawAnnulusSector(x, y, r - 1, r, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawPie(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r = luaL_checkunsigned(L, 3);
+  int start = luaL_checkunsigned(L, 4);
+  int end = luaL_checkunsigned(L, 5);
+  LcdFlags flags = luaL_checkunsigned(L, 6);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  if (r > 0)
+    luaLcdBuffer->drawAnnulusSector(x, y, 0, r, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawAnnulus(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x = luaL_checkunsigned(L, 1);
+  coord_t y = luaL_checkunsigned(L, 2);
+  coord_t r1 = luaL_checkunsigned(L, 3);
+  coord_t r2 = luaL_checkunsigned(L, 4);
+  int start = luaL_checkunsigned(L, 5);
+  int end = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  luaLcdBuffer->drawAnnulusSector(x, y, r1, r2, start, end, flags);
+
+  return 0;
+}
+
+static int luaLcdDrawLineWithClipping(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  coord_t x1 = luaL_checkunsigned(L, 1);
+  coord_t y1 = luaL_checkunsigned(L, 2);
+  coord_t x2 = luaL_checkunsigned(L, 3);
+  coord_t y2 = luaL_checkunsigned(L, 4);
+  coord_t xmin = luaL_checkunsigned(L, 5);
+  coord_t xmax = luaL_checkunsigned(L, 6);
+  coord_t ymin = luaL_checkunsigned(L, 7);
+  coord_t ymax = luaL_checkunsigned(L, 8);
+  uint8_t pat = luaL_checkunsigned(L, 9);
+  LcdFlags flags = luaL_checkunsigned(L, 10);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  // backup clipping rect
+  coord_t dc_xmin; coord_t dc_xmax; coord_t dc_ymin; coord_t dc_ymax;
+  luaLcdBuffer->getClippingRect(dc_xmin, dc_xmax, dc_ymin, dc_ymax);
+
+  // resticts given clipping rect by drawing clipping rect
+  if (dc_xmin > xmin) xmin = dc_xmin;
+  if (dc_xmax < xmax) xmax = dc_xmax;
+  if (dc_ymin > ymin) ymin = dc_ymin;
+  if (dc_ymax < ymax) ymax = dc_ymax;
+  
+  luaLcdBuffer->setClippingRect(xmin, xmax, ymin, ymax);
+  luaLcdBuffer->drawLine(x1, y1, x2, y2, pat, flags);
+
+  // restore original clipping rect
+  luaLcdBuffer->setClippingRect(dc_xmin, dc_xmax, dc_ymin, dc_ymax);
+  
+  return 0;
+}
+
+static void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax, LcdFlags flags)
+{
+  constexpr float GRADTORAD = 0.017453293f;
+
+  float dx = sinf(GRADTORAD*roll) * pitch;
+  float dy = cosf(GRADTORAD*roll) * pitch * 1.85f;
+  float angle = tanf(-GRADTORAD*roll);
+  float ox = 0.5f * (xmin + xmax) + dx;
+  float oy = 0.5f * (ymin + ymax) + dy;
+  coord_t ywidth = (ymax - ymin);
+
+  if (roll == 0.0f) { // prevent divide by zero
+    dc->drawSolidFilledRect(
+        xmin, max(ymin, ymin + (ywidth/2 + (coord_t)dy)),
+        xmax - xmin, min(ywidth, ywidth/2 - (coord_t)dy + (dy != 0.0f ? 1 : 0)), flags);
+  }
+  else if (fabs(roll) >= 180.0f) {
+    dc->drawSolidFilledRect(xmin, ymin, xmax - xmin, min(ywidth, ywidth/2 + (coord_t)fabsf(dy)), flags);
+  }
+  else {
+    bool inverted = (fabsf(roll) > 90.0f);
+    bool fillNeeded = false;
+    coord_t ybot = (inverted) ? 0 : LCD_H;
+
+    if (roll > 0.0f) {
+      for (coord_t s = 0; s < ywidth; s++) {
+        coord_t yy = ymin + s;
+        coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
+        if (xx >= xmin && xx <= xmax) {
+          dc->drawSolidHorizontalLine(xx, yy, xmax - xx + 1, flags);
+        }
+        else if (xx < xmin) {
+          ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);
+          fillNeeded = true;
+        }
+      }
+    }
+    else {
+      for (coord_t s = 0; s < ywidth; s++) {
+        coord_t yy = ymin + s;
+        coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
+        if (xx >= xmin && xx <= xmax) {
+          dc->drawSolidHorizontalLine(xmin, yy, xx - xmin, flags);
+        }
+        else if (xx > xmax) {
+          ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);
+          fillNeeded = true;
+        }
+      }
+    }
+
+    if (fillNeeded) {
+      coord_t ytop = (inverted) ? ymin : ybot;
+      coord_t height = (inverted) ? ybot - ymin : ymax - ybot;
+      dc->drawSolidFilledRect(xmin, ytop, xmax - xmin, height, flags);
+    }
+  }
+}
+
+static int luaLcdDrawHudRectangle(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  float pitch = luaL_checknumber(L, 1);
+  float roll = luaL_checknumber(L, 2);
+  coord_t xmin = luaL_checkunsigned(L, 3);
+  coord_t xmax = luaL_checkunsigned(L, 4);
+  coord_t ymin = luaL_checkunsigned(L, 5);
+  coord_t ymax = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_checkunsigned(L, 7);
+
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
+  drawHudRectangle(luaLcdBuffer, pitch, roll, xmin, xmax, ymin, ymax, flags);
+
+  return 0;
+}
+
 const luaL_Reg lcdLib[] = {
   { "refresh", luaLcdRefresh },
   { "clear", luaLcdClear },
@@ -808,5 +1060,14 @@ const luaL_Reg lcdLib[] = {
   { "setColor", luaLcdSetColor },
   { "getColor", luaLcdGetColor },
   { "RGB", luaRGB },
+  { "drawCircle", luaLcdDrawCircle },
+  { "drawFilledCircle", luaLcdDrawFilledCircle },
+  { "drawTriangle", luaLcdDrawTriangle },
+  { "drawFilledTriangle", luaLcdDrawFilledTriangle },
+  { "drawArc", luaLcdDrawArc },
+  { "drawPie", luaLcdDrawPie },
+  { "drawAnnulus", luaLcdDrawAnnulus },
+  { "drawLineWithClipping", luaLcdDrawLineWithClipping },
+  { "drawHudRectangle", luaLcdDrawHudRectangle },
   { NULL, NULL }  /* sentinel */
 };
