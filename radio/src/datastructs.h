@@ -780,6 +780,7 @@ PACK(struct TrainerData {
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr); \
     char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME]; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME]; \
+    char currModelFilename[LEN_MODEL_FILENAME+1]; \
     BLUETOOTH_FIELDS
 #else
   #define EXTRA_GENERAL_FIELDS

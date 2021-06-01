@@ -532,8 +532,11 @@ void perMain()
   if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
       && !SD_CARD_PRESENT() && !globalData.unexpectedShutdown) {
 
+    // TODO: implement for b/w
+#if defined(COLORLCD)
     drawFatalErrorScreen(STR_NO_SDCARD);
     return;
+#endif
   }
 #endif
 
