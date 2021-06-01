@@ -412,6 +412,8 @@ void menuModelSetup(event_t event)
     HEADER_LINE_COLUMNS
     0,
     TIMER_ROWS,
+    TIMER_ROWS,
+    TIMER_ROWS,
     0, // Extended limits
     1, // Extended trims
     0, // Show trims
