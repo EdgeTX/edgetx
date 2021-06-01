@@ -401,11 +401,16 @@ inline bool SPLASH_NEEDED()
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
 constexpr uint8_t HEART_TIMER_PULSES = 0x02; // when multiple modules this is the first one
+
+constexpr uint8_t HEART_WDT_CHECK = HEART_TIMER_10MS
 #if defined(HARDWARE_INTERNAL_MODULE)
-constexpr uint8_t HEART_WDT_CHECK = HEART_TIMER_10MS + (HEART_TIMER_PULSES << INTERNAL_MODULE) + (HEART_TIMER_PULSES << EXTERNAL_MODULE);
-#else
-constexpr uint8_t HEART_WDT_CHECK = HEART_TIMER_10MS + (HEART_TIMER_PULSES << EXTERNAL_MODULE);
+                                    + (HEART_TIMER_PULSES << INTERNAL_MODULE)
 #endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+                                    + (HEART_TIMER_PULSES << EXTERNAL_MODULE)
+#endif
+    ;  // end of HEART_WDT_CHECK
+
 extern uint8_t heartbeat;
 
 #if !defined(BOOT)
