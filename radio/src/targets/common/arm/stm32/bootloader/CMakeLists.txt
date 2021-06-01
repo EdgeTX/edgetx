@@ -170,7 +170,7 @@ endif()
 
 add_custom_command(
   TARGET bootloader POST_BUILD
-  COMMAND arm-none-eabi-objcopy -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
+  COMMAND ${FIRMWARE_OBJCOPY} -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
 )
 
 if(PYTHONINTERP_FOUND)
