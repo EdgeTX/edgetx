@@ -253,16 +253,10 @@ enum UartModes {
   UART_MODE_MAX = UART_MODE_COUNT-1
 };
 
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define LEN_SWITCH_NAME              3
-  #define LEN_ANA_NAME                 3
-  #define LEN_MODEL_FILENAME           16
-  #define LEN_BLUETOOTH_NAME           10
-#else
-  #define LEN_SWITCH_NAME              3
-  #define LEN_ANA_NAME                 3
-  #define LEN_BLUETOOTH_NAME           10
-#endif
+#define LEN_SWITCH_NAME    3
+#define LEN_ANA_NAME       3
+#define LEN_MODEL_FILENAME 16
+#define LEN_BLUETOOTH_NAME 10
 
 enum TelemetryProtocol
 {
@@ -626,7 +620,7 @@ enum MixSources {
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
   MIXSRC_POT3,                          LUA_EXPORT("s3", "Potentiometer 3")
   MIXSRC_POT4,                          LUA_EXPORT("s4", "Potentiometer 4 (X9E only)")
-  MIXSRC_FIRST_SLIDER,
+  MIXSRC_FIRST_SLIDER SKIP,
   MIXSRC_SLIDER1 = MIXSRC_FIRST_SLIDER, LUA_EXPORT("ls", "Left slider")
   MIXSRC_SLIDER2,                       LUA_EXPORT("rs", "Right slider")
   MIXSRC_SLIDER3,                       LUA_EXPORT("lcs", "Left center slider (X9E only)")
@@ -635,9 +629,11 @@ enum MixSources {
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT2,
   MIXSRC_LAST_POT SKIP = MIXSRC_POT2,
 #elif defined(PCBX9LITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT1,
   MIXSRC_LAST_POT SKIP = MIXSRC_POT1,
 #elif defined(PCBTARANIS)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")

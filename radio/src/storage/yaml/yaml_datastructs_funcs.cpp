@@ -126,6 +126,7 @@ static bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     return wf(opaque, s, strlen(s));
 }
 
+#if defined(COLORLCD)
 static uint8_t select_zov(uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
@@ -133,6 +134,7 @@ static uint8_t select_zov(uint8_t* data, uint32_t bitoffs)
     ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
     return *p_zovt;
 }
+#endif
 
 static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
 {
@@ -144,13 +146,13 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_PPM:
     case MODULE_TYPE_DSM2:
     case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_GHOST:
         return 1;
     case MODULE_TYPE_MULTIMODULE:
         return 2;
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1:
     case MODULE_TYPE_R9M_LITE_PXX1:
-    //case MODULE_TYPE_R9M_LITE_PRO_PXX1:
         return 3;
     case MODULE_TYPE_SBUS:
         return 4;
@@ -160,6 +162,8 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
     case MODULE_TYPE_XJT_LITE_PXX2:
         return 5;
+    case MODULE_TYPE_AFHDS3:
+        return 7;
     }
     return 0;
 }

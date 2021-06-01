@@ -1977,7 +1977,10 @@ int main()
 
 #if !defined(EEPROM)
   if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
+    // TODO: b/w SD card fatal screen
+#if defined(COLORLCD)
     runFatalErrorScreen(STR_NO_SDCARD);
+#endif
   }
 #endif
 
