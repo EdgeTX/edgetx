@@ -121,6 +121,8 @@ void menuRadioSetup(event_t event)
   }
 #endif
 
+  uint8_t old_editMode = s_editMode;
+  
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX, {
     2, // date
     2, // time
@@ -440,7 +442,10 @@ void menuRadioSetup(event_t event)
 
 #if defined(PXX2)
       case ITEM_RADIO_SETUP_OWNER_ID:
-        editSingleName(RADIO_SETUP_2ND_COLUMN, y, STR_OWNER_ID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID, event, attr);
+        editSingleName(RADIO_SETUP_2ND_COLUMN, y, STR_OWNER_ID,
+                       g_eeGeneral.ownerRegistrationID,
+                       PXX2_LEN_REGISTRATION_ID, event, attr,
+                       old_editMode);
         break;
 #endif
 
