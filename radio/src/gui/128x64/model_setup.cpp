@@ -485,8 +485,11 @@ void menuModelSetup(event_t event)
 
     switch (k) {
       case ITEM_MODEL_SETUP_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_MODELNAME, g_model.header.name, sizeof(g_model.header.name), event, attr);
-        memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name, sizeof(g_model.header.name));
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_MODELNAME,
+                       g_model.header.name, sizeof(g_model.header.name), event,
+                       attr, old_editMode);
+        memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name,
+               sizeof(g_model.header.name));
         break;
 
       case ITEM_MODEL_SETUP_TIMER1:
@@ -543,7 +546,8 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_TIMER3_NAME:
       {
         TimerData * timer = &g_model.timers[k>=ITEM_MODEL_SETUP_TIMER3 ? 2 : (k>=ITEM_MODEL_SETUP_TIMER2 ? 1 : 0)];
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME, timer->name, sizeof(timer->name), event, attr);
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME, timer->name,
+                       sizeof(timer->name), event, attr, old_editMode);
         break;
       }
 

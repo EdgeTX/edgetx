@@ -103,6 +103,8 @@ void menuModelMixOne(event_t event)
 #endif
   MixData * md2 = mixAddress(s_currIdx) ;
   putsChn(PSIZE(TR_MIXES)*FW+FW, 0, md2->destCh+1,0);
+
+  uint8_t old_editMode = s_editMode;
   
   SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0, 0 /*, ...*/});
   
@@ -122,7 +124,9 @@ void menuModelMixOne(event_t event)
     LcdFlags attr = (sub==i ? (editMode>0 ? BLINK|INVERS : INVERS) : 0);
     switch(i) {
       case MIX_FIELD_NAME:
-        editSingleName(MIXES_2ND_COLUMN, y, STR_MIXNAME, md2->name, sizeof(md2->name), event, attr);
+        editSingleName(MIXES_2ND_COLUMN, y, STR_MIXNAME, md2->name,
+                       sizeof(md2->name), event, (attr != 0),
+                       old_editMode);
         break;
 
       case MIX_FIELD_SOURCE:

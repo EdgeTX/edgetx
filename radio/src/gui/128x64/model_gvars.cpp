@@ -70,6 +70,8 @@ void menuModelGVarOne(event_t event)
   drawGVarValue(32*FW, 0, s_currIdxSubMenu, getGVarValue(s_currIdxSubMenu, getFlightMode()));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID);
 
+  uint8_t old_editMode = s_editMode;
+  
   SIMPLE_SUBMENU(STR_GVARS, GVAR_FIELD_LAST);
 
   for (int i=0; i<NUM_BODY_LINES; i++) {
@@ -79,7 +81,8 @@ void menuModelGVarOne(event_t event)
 
     switch (k) {
       case GVAR_FIELD_NAME:
-        editSingleName(GVAR_2ND_COLUMN, y, STR_NAME, gvar->name, LEN_GVAR_NAME, event, attr);
+        editSingleName(GVAR_2ND_COLUMN, y, STR_NAME, gvar->name, LEN_GVAR_NAME,
+                       event, attr, old_editMode);
         break;
 
       case GVAR_FIELD_UNIT:

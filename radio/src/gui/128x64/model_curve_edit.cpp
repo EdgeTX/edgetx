@@ -93,13 +93,16 @@ void menuModelCurveOne(event_t event)
   int8_t * points = curveAddress(s_currIdxSubMenu);
 
   drawStringWithIndex(PSIZE(TR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
+
+  uint8_t old_editMode = s_editMode;
   
   SIMPLE_SUBMENU(STR_MENUCURVES, 4 + 5+crv.points + (crv.type==CURVE_TYPE_CUSTOM ? 5+crv.points-2 : 0));
 
   // Curve name
   lcdDrawTextAlignedLeft(FH + 1, STR_NAME);
-  editName(INDENT_WIDTH, 2 * FH + 1, crv.name, sizeof(crv.name), event, menuVerticalPosition == 0);
-  
+  editName(INDENT_WIDTH, 2 * FH + 1, crv.name, sizeof(crv.name), event,
+           menuVerticalPosition == 0, 0, old_editMode);
+
   // Curve type
   lcdDrawTextAlignedLeft(3 * FH + 1, NO_INDENT(STR_TYPE));
   LcdFlags attr = (menuVerticalPosition == 1 ? (s_editMode > 0 ? INVERS | BLINK : INVERS) : 0);
