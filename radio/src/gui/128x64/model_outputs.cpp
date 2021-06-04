@@ -105,6 +105,8 @@ void menuModelLimitsOne(event_t event)
   lcdDrawNumber(19*FW, 0, PPM_CH_CENTER(s_currIdx)+channelOutputs[s_currIdx]/2, RIGHT);
   lcdDrawText(19*FW, 0, STR_US);
 
+  uint8_t old_editMode = s_editMode;
+
   SUBMENU_NOTITLE(ITEM_OUTPUTONE_MAXROW, { 0, 0, 0, 0, 0, 0 , 0  /*, 0...*/ });
 
   int8_t sub = menuVerticalPosition;
@@ -118,7 +120,8 @@ void menuModelLimitsOne(event_t event)
 
     switch (i) {
       case ITEM_OUTPUTONE_CH_NAME:
-        editSingleName(LIMITS_ONE_2ND_COLUMN, y, STR_NAME, ld->name, sizeof(ld->name), event, attr);
+        editSingleName(LIMITS_ONE_2ND_COLUMN, y, STR_NAME, ld->name,
+                       sizeof(ld->name), event, attr, old_editMode);
         break;
 
       case ITEM_OUTPUTONE_OFFSET:

@@ -47,6 +47,8 @@ void menuModelSensor(event_t event)
 {
   TelemetrySensor * sensor = & g_model.telemetrySensors[s_currIdx];
 
+  uint8_t old_editMode = s_editMode;
+  
   SUBMENU(STR_MENUSENSOR, SENSOR_FIELD_MAX, {
     0, // Name
     0, // Type
@@ -85,7 +87,8 @@ void menuModelSensor(event_t event)
 
     switch (k) {
       case SENSOR_FIELD_NAME:
-        editSingleName(SENSOR_2ND_COLUMN, y, STR_NAME, sensor->label, TELEM_LABEL_LEN, event, attr);
+        editSingleName(SENSOR_2ND_COLUMN, y, STR_NAME, sensor->label,
+                       TELEM_LABEL_LEN, event, attr, old_editMode);
         break;
 
       case SENSOR_FIELD_TYPE:

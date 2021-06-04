@@ -63,6 +63,8 @@ void menuModelFlightModeOne(event_t event)
   FlightModeData * fm = flightModeAddress(s_currIdx);
   drawFlightMode(13*FW, 0, s_currIdx+1, (getFlightMode()==s_currIdx ? BOLD : 0));
 
+  uint8_t old_editMode = s_editMode;
+
 #if defined(GVARS) && !defined(GVARS_IN_CURVES_SCREEN)
   #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS)
   static const uint8_t mstate_tab_fm1[]  = {0, 3, 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
@@ -98,7 +100,8 @@ void menuModelFlightModeOne(event_t event)
 #endif
     switch (i) {
       case ITEM_MODEL_FLIGHT_MODE_NAME:
-        editSingleName(MIXES_2ND_COLUMN, y, STR_PHASENAME, fm->name, sizeof(fm->name), event, attr);
+        editSingleName(MIXES_2ND_COLUMN, y, STR_PHASENAME, fm->name,
+                       sizeof(fm->name), event, attr, old_editMode);
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_SWITCH:
