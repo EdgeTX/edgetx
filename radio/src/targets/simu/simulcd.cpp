@@ -50,17 +50,7 @@ void lcdRefresh()
   // Mark screen dirty for async refresh
   simuLcdRefresh = true;
 
-#if defined(LCD_VERTICAL_INVERT)
-  auto src = displayBuf + DISPLAY_BUFFER_SIZE - 1;
-  auto dst = simuLcdBuf;
-  auto end = dst + DISPLAY_BUFFER_SIZE;
-
-  while (dst != end) {
-    *(dst++) = *(src--);
-  }
-#else
   memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-#endif
 }
 
 #else
