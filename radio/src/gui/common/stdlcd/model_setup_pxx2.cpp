@@ -201,7 +201,9 @@ void runPopupRegister(event_t event)
 
     // registration password
     lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 4, STR_REG_ID);
-    editName(WARNING_LINE_X + 8*FW, WARNING_LINE_Y - 4, g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID, event, menuVerticalPosition == ITEM_REGISTER_PASSWORD);
+    editName(WARNING_LINE_X + 8 * FW, WARNING_LINE_Y - 4,
+             g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID, event,
+             menuVerticalPosition == ITEM_REGISTER_PASSWORD, 0, backupEditMode);
 
     // loop index (will be removed in future)
     lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 4 + FH, "UID");
@@ -217,9 +219,23 @@ void runPopupRegister(event_t event)
     }
     else {
       lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 4 + 2 * FH, STR_RX_NAME);
-      editName(WARNING_LINE_X + 8*FW, WARNING_LINE_Y - 4 + 2 * FH, reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME, event, menuVerticalPosition == ITEM_REGISTER_RECEIVER_NAME);
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, TR_ENTER, menuVerticalPosition == ITEM_REGISTER_BUTTONS && menuHorizontalPosition == 0 ? INVERS : 0);
-      lcdDrawText(WARNING_LINE_X + 8*FW, WARNING_LINE_Y - 2 + 3 * FH, TR_EXIT, menuVerticalPosition == ITEM_REGISTER_BUTTONS && menuHorizontalPosition == 1 ? INVERS : 0);
+
+      editName(WARNING_LINE_X + 8 * FW, WARNING_LINE_Y - 4 + 2 * FH,
+               reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME,
+               event, menuVerticalPosition == ITEM_REGISTER_RECEIVER_NAME, 0,
+               backupEditMode);
+
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, TR_ENTER,
+                  menuVerticalPosition == ITEM_REGISTER_BUTTONS &&
+                          menuHorizontalPosition == 0
+                      ? INVERS
+                      : 0);
+
+      lcdDrawText(WARNING_LINE_X + 8 * FW, WARNING_LINE_Y - 2 + 3 * FH, TR_EXIT,
+                  menuVerticalPosition == ITEM_REGISTER_BUTTONS &&
+                          menuHorizontalPosition == 1
+                      ? INVERS
+                      : 0);
     }
 
     reusableBuffer.moduleSetup.pxx2.registerPopupVerticalPosition = menuVerticalPosition;
