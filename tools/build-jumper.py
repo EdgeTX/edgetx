@@ -31,12 +31,26 @@ boards = {
         "INTERNAL_MODULE_MULTI": "YES",
         "DEFAULT_MODE": "2",
     },
+    "T16_FS": {
+        "PCB": "X10",
+        "PCBREV": "T16",
+        "INTERNAL_MODULE_MULTI": "YES",
+        "DEFAULT_MODE": "2",
+        "FLYSKY_HALL_STICKS": "YES",
+    },    
     "T18": {
         "PCB": "X10",
         "PCBREV": "T18",
         "INTERNAL_MODULE_MULTI": "YES",
         "DEFAULT_MODE": "2",
     }
+    "T18_FS": {
+        "PCB": "X10",
+        "PCBREV": "T18",
+        "INTERNAL_MODULE_MULTI": "YES",
+        "DEFAULT_MODE": "2",
+        "FLYSKY_HALL_STICKS": "YES",
+    },    
 }
 
 translations = [
