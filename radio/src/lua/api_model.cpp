@@ -39,9 +39,9 @@ Get current Model information
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
-  lua_pushtablezstring(L, "name", g_model.header.name);
+  lua_pushtablestring(L, "name", g_model.header.name);
 #if LCD_DEPTH > 1
-  lua_pushtablenzstring(L, "bitmap", g_model.header.bitmap);
+  lua_pushtablestring(L, "bitmap", g_model.header.bitmap);
 #endif
   return 1;
 }
@@ -258,7 +258,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableinteger(L, "countdownBeep", timer.countdownBeep);
     lua_pushtableboolean(L, "minuteBeep", timer.minuteBeep);
     lua_pushtableinteger(L, "persistent", timer.persistent);
-    lua_pushtablezstring(L, "name", timer.name);
+    lua_pushtablestring(L, "name", timer.name);
   }
   else {
     lua_pushnil(L);
@@ -424,7 +424,7 @@ static int luaModelGetFlightMode(lua_State * L)
   if (idx < MAX_FLIGHT_MODES) {
     FlightModeData * fm = flightModeAddress(idx);
     lua_newtable(L);
-    lua_pushtablezstring(L, "name", fm->name);
+    lua_pushtablestring(L, "name", fm->name);
     lua_pushtableinteger(L, "switch", fm->swtch);
     lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
@@ -546,8 +546,8 @@ static int luaModelGetInput(lua_State *L)
   if (idx < count) {
     ExpoData * expo = expoAddress(first+idx);
     lua_newtable(L);
-    lua_pushtablezstring(L, "name", expo->name);
-    lua_pushtablezstring(L, "inputName", g_model.inputNames[chn]);
+    lua_pushtablestring(L, "name", expo->name);
+    lua_pushtablestring(L, "inputName", g_model.inputNames[chn]);
     lua_pushtableinteger(L, "source", expo->srcRaw);
     lua_pushtableinteger(L, "weight", expo->weight);
     lua_pushtableinteger(L, "offset", expo->offset);
@@ -773,7 +773,7 @@ static int luaModelGetMix(lua_State *L)
   if (idx < count) {
     MixData * mix = mixAddress(first+idx);
     lua_newtable(L);
-    lua_pushtablezstring(L, "name", mix->name);
+    lua_pushtablestring(L, "name", mix->name);
     lua_pushtableinteger(L, "source", mix->srcRaw);
     lua_pushtableinteger(L, "weight", mix->weight);
     lua_pushtableinteger(L, "offset", mix->offset);
@@ -1043,7 +1043,7 @@ static int luaModelGetCurve(lua_State *L)
   if (idx < MAX_CURVES) {
     CurveHeader & CurveHeader = g_model.curves[idx];
     lua_newtable(L);
-    lua_pushtablezstring(L, "name", CurveHeader.name);
+    lua_pushtablestring(L, "name", CurveHeader.name);
     lua_pushtableinteger(L, "type", CurveHeader.type);
     lua_pushtableboolean(L, "smooth", CurveHeader.smooth);
     lua_pushtableinteger(L, "points", CurveHeader.points + 5);
@@ -1301,7 +1301,7 @@ static int luaModelGetCustomFunction(lua_State *L)
     lua_pushtableinteger(L, "switch", CFN_SWITCH(cfn));
     lua_pushtableinteger(L, "func", CFN_FUNC(cfn));
     if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK || CFN_FUNC(cfn) == FUNC_BACKGND_MUSIC || CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) {
-      lua_pushtablenzstring(L, "name", cfn->play.name);
+      lua_pushtablestring(L, "name", cfn->play.name);
     }
     else {
       lua_pushtableinteger(L, "value", cfn->all.val);
@@ -1398,7 +1398,7 @@ static int luaModelGetOutput(lua_State *L)
   if (idx < MAX_OUTPUT_CHANNELS) {
     LimitData * limit = limitAddress(idx);
     lua_newtable(L);
-    lua_pushtablezstring(L, "name", limit->name);
+    lua_pushtablestring(L, "name", limit->name);
     lua_pushtableinteger(L, "min", limit->min-1000);
     lua_pushtableinteger(L, "max", limit->max+1000);
     lua_pushtableinteger(L, "offset", limit->offset);
