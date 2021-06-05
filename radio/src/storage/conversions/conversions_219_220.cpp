@@ -48,6 +48,20 @@
 //    NOBACKUP(char name[LEN_TIMER_NAME]);
 //  });
 //
+//  enum TimerModes {
+// -  TMRMODE_NONE,// ->OFF
+// -  TMRMODE_ABS, // ->ON
+// +  TMRMODE_OFF,
+// +  TMRMODE_ON,
+// +  TMRMODE_START, // 2 -> +1
+//    TMRMODE_THR,
+//    TMRMODE_THR_REL,
+// -  TMRMODE_THR_TRG, // ->START
+// -  TMRMODE_COUNT
+// +  TMRMODE_THR_START,
+// +  TMRMODE_COUNT,
+// +  TMRMODE_MAX = TMRMODE_COUNT - 1
+//  };
 //
 // COLORLCD:
 // =========
@@ -94,6 +108,24 @@ void convertModelData_219_to_220(ModelData &model)
     //TODO: convert to new timers v220
     TimerData& timer = newModel.timers[i];
     convertToStr(timer.name, LEN_TIMER_NAME_219);
+
+    TimerData_v219& timer_219 = *(TimerData_v219*)(&oldModel.timers[i]);
+
+    // Convert mode
+
+    if (timer_219.mode >= TMRMODE_START) {
+      timer_219.mode += 1;
+    }
+    if (timer_219.mode < TMRMODE_COUNT) {
+      timer.mode = timer_219.mode;
+    }
+    else {
+      timer.mode = TMRMODE_START;
+      timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
+    }
+
+    timer.start = timer_219.start;
+    
   }
 
   // MixData::name
@@ -117,6 +149,12 @@ void convertModelData_219_to_220(ModelData &model)
   }
 
   // CustomFunctionData::play.name
+  // for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS_219; ++i) {
+  //   CustomFunctionData* cfn = &(model.customFn[i]);
+  //   if (cfn->func == FUNC_PLAY_TRACK || cfn->func == FUNC_BACKGND_MUSIC) {
+  //     convertToStr(cfn->play.name, LEN_FUNCTION_NAME_219);
+  //   }
+  // }
 
   // GVarData::name ?
   for (uint8_t i=0; i<MAX_GVARS_219; ++i) {

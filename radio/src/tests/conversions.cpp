@@ -54,7 +54,8 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
   EXPECT_STREQ("Test", g_model.header.name); // ZSTREQ
-  EXPECT_EQ(TMRMODE_COUNT - 1 + SWSRC_SA0, g_model.timers[0].mode); // new!
+  EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
+  EXPECT_EQ(SWSRC_SA0, g_model.timers[0].swtch); // new!
   EXPECT_EQ(80, g_model.mixData[0].weight);
   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
   EXPECT_EQ(80, g_model.expoData[0].weight);
