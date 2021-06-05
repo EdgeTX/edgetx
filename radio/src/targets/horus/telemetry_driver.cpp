@@ -28,10 +28,8 @@ DMAFifo<TELEMETRY_FIFO_SIZE> telemetryDMAFifo __DMA (TELEMETRY_DMA_Stream_RX);
 uint8_t telemetryFifoMode;
 #endif
 
-//OW
 extern Fifo<uint8_t, 32> mavlinkTelemExternalTxFifo_frame;
 extern Fifo<uint8_t, 2*512> mavlinkTelemExternalRxFifo;
-//OWEND
 
 static void telemetryInitDirPin()
 {
@@ -47,11 +45,9 @@ static void telemetryInitDirPin()
 
 void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   if (baudrate == 0) {
     USART_DeInit(TELEMETRY_USART);
     return;
@@ -154,11 +150,9 @@ static uint16_t probeTimeFromStartBit;
 
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   if (baudrate == 0) {
     NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
     NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
@@ -256,11 +250,9 @@ void telemetryPortInvertedRxBit()
 
 void telemetryPortSetDirectionOutput()
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
 #if defined(GHOST) && SPORT_MAX_BAUDRATE < 400000
   if (isModuleGhost(EXTERNAL_MODULE)) {
     TELEMETRY_USART->BRR = BRR_400K;
@@ -277,11 +269,9 @@ void sportWaitTransmissionComplete()
 
 void telemetryPortSetDirectionInput()
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   sportWaitTransmissionComplete();
 #if defined(GHOST) && SPORT_MAX_BAUDRATE < 400000
   if (isModuleGhost(EXTERNAL_MODULE) && g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
@@ -294,11 +284,9 @@ void telemetryPortSetDirectionInput()
 
 void sportSendByte(uint8_t byte)
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   telemetryPortSetDirectionOutput();
 
   while (!(TELEMETRY_USART->SR & USART_SR_TXE));
@@ -307,11 +295,9 @@ void sportSendByte(uint8_t byte)
 
 void sportSendByteLoop(uint8_t byte)
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   telemetryPortSetDirectionOutput();
 
   outputTelemetryBuffer.data[0] = byte;
@@ -340,11 +326,9 @@ void sportSendByteLoop(uint8_t byte)
 
 void sportSendBuffer(const uint8_t * buffer, uint32_t count)
 {
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) return;
 #endif
-//OWEND
   telemetryPortSetDirectionOutput();
 
   DMA_InitTypeDef DMA_InitStructure;
@@ -391,7 +375,6 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_TELEM_USART);
 
-//OW
 #if defined(TELEMETRY_MAVLINK)
   if (g_eeGeneral.mavlinkExternal == 1) {
 
@@ -426,7 +409,6 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
     return;
   }
 #endif
-//OWEND
 
   uint32_t status = TELEMETRY_USART->SR;
 

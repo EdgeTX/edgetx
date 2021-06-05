@@ -479,7 +479,6 @@
   #define AUX2_SERIAL_RCC_APB2Periph           0
 #endif
 
-//OW
 #if (defined(RADIO_T16) || defined(RADIO_T18)) && defined(AUX_SERIAL)
   #undef AUX_SERIAL_RCC_AHB1Periph
   #undef AUX_SERIAL_RCC_APB1Periph
@@ -520,7 +519,6 @@
   #define GPS_PWR_GPIO                         GPIOB
   #define GPS_PWR_GPIO_PIN                     GPIO_Pin_0  // PB.00
 #endif
-//OWEND
 
 // Telemetry
 #define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA1)

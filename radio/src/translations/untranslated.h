@@ -318,7 +318,6 @@
 #define CHAR_TELEMETRY STR_CHAR_TELEMETRY[0]
 #define CHAR_LUA       STR_CHAR_LUA[0]
 
-//OW
 #define TR_MAVLINK                     "Mavlink"
 #define TR_MAVLINK_RSSI                "Rssi"
 #define TR_MAVLINK_RSSI_SCALE          "Rssi Scale"
@@ -330,4 +329,3 @@
 #define TR_MAVLINK_AUX_BAUDRATES       "57600\0""115200""38400\0""19200\0"
 #define TR_MAVLINK_EXTERNAL            "Mavlink external"
 #define TR_USB_MAVLINK                 "USB Mavlink (VCP)"
-//OWEND

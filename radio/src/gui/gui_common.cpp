@@ -386,13 +386,11 @@ bool isAuxModeAvailable(int mode)
 #if defined(AUX2_SERIAL)
   if (mode == UART_MODE_SBUS_TRAINER)
     return g_eeGeneral.aux2SerialMode != UART_MODE_SBUS_TRAINER;
-//OW
 #if defined(TELEMETRY_MAVLINK)
   else
   if (mode == UART_MODE_MAVLINK)
     return true;
 #endif
-//OWEND
 #if defined(RADIO_TX16S)
   else
     return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER);
@@ -406,13 +404,11 @@ bool isAux2ModeAvailable(int mode)
 #if defined(AUX_SERIAL)
   if (mode == UART_MODE_SBUS_TRAINER)
     return g_eeGeneral.auxSerialMode != UART_MODE_SBUS_TRAINER;
-//OW
 #if defined(TELEMETRY_MAVLINK)
   else
   if (mode == UART_MODE_MAVLINK)
     return true;
 #endif
-//OWEND
 #if defined(RADIO_TX16S)
   else
     return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER);

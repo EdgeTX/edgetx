@@ -651,7 +651,6 @@ PACK(struct ModelData {
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
-//OW
 #if defined(TELEMETRY_MAVLINK)
   uint16_t _mavlinkEnabled:1; // currently not used
   uint16_t mavlinkRssi:1;
@@ -663,7 +662,6 @@ PACK(struct ModelData {
   uint8_t  _mavlinkDummy2; // currently not used
   // needs to adapt CHKSIZE below //if not all are use compiled optiomizes to lowest size, which may raise error
 #endif
-//OWEND
 
   bool isTrainerTraineeEnable() const
   {
@@ -859,7 +857,6 @@ PACK(struct RadioData {
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 
-//OW
 #if defined(TELEMETRY_MAVLINK)
   uint16_t mavlinkBaudrate:3;
   uint16_t mavlinkBaudrate2:3;
@@ -867,7 +864,6 @@ PACK(struct RadioData {
   uint16_t _mavlinkDummy:8; // currently not used
   // needs to adapt CHKSIZE below
 #endif
-//OWEND
 });
 
 #undef SWITCHES_WARNING_DATA
@@ -989,9 +985,6 @@ static inline void check_struct()
   CHKSIZE(RadioData, 899);
   CHKSIZE(ModelData, 6604);
 #elif defined(PCBHORUS)
-//OW
-//  CHKSIZE(RadioData, 901);
-//  CHKSIZE(ModelData, 11020);
 #if defined(TELEMETRY_MAVLINK)
   CHKSIZE(RadioData, 902+2);
   CHKSIZE(ModelData, 11020+4);
@@ -999,7 +992,6 @@ static inline void check_struct()
   CHKSIZE(RadioData, 902);
   CHKSIZE(ModelData, 11020);
 #endif
-//OWEND
 #endif
 
 #undef CHKSIZE
