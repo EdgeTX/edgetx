@@ -73,17 +73,6 @@
   #define MAX_INPUTS                   32
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        40
-#elif defined(PCBSKY9X)
-  #define MAX_MODELS                   60
-  #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_FLIGHT_MODES             9
-  #define MAX_MIXERS                   64
-  #define MAX_EXPOS                    32
-  #define MAX_LOGICAL_SWITCHES         64
-  #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
-  #define MAX_INPUTS                   32
-  #define MAX_TRAINER_CHANNELS         16
-  #define MAX_TELEMETRY_SENSORS        40
 #else
   #warning "Unknown board!"
 #endif
@@ -137,7 +126,7 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
-#if defined(PCBFRSKY) || defined(PCBSKY9X) || defined(PCBNV14)
+#if defined(PCBFRSKY) || defined(PCBNV14)
   #define NUM_MODULES                  2
 #else
   #define NUM_MODULES                  1
@@ -205,12 +194,6 @@ enum TrainerMode {
   TRAINER_MODE_SLAVE_BLUETOOTH,
   TRAINER_MODE_MULTI,
 };
-#elif defined(PCBSKY9X)
-enum ModuleIndex {
-    EXTERNAL_MODULE,
-    EXTRA_MODULE,
-    SPORT_MODULE
-  };
 #endif
 
 #define TRAINER_MODE_MIN()               TRAINER_MODE_MASTER_TRAINER_JACK
@@ -515,21 +498,7 @@ enum SwitchSources {
   SWSRC_SR2,
 #endif
 
-#if defined(PCBSKY9X)
-  SWSRC_ID0 = SWSRC_FIRST_SWITCH,
-  SWSRC_ID1,
-  SWSRC_ID2,
-  SWSRC_THR,
-  SWSRC_RUD,
-  SWSRC_ELE,
-  SWSRC_AIL,
-  SWSRC_GEA,
-  SWSRC_TRN,
-  SWSRC_TRAINER SKIP = SWSRC_TRN,
-  SWSRC_LAST_SWITCH SKIP = SWSRC_TRN,
-#else
   SWSRC_LAST_SWITCH SKIP = SWSRC_FIRST_SWITCH + STORAGE_NUM_SWITCHES_POSITIONS - 1,
-#endif
 
 #if NUM_XPOTS > 0
   SWSRC_FIRST_MULTIPOS_SWITCH SKIP,
@@ -756,15 +725,6 @@ enum MixSources {
   MIXSRC_SP,                        LUA_EXPORT("sp", "Switch P")
   MIXSRC_SQ,                        LUA_EXPORT("sq", "Switch Q")
   MIXSRC_SR,                        LUA_EXPORT("sr", "Switch R")
-#endif
-#if defined(PCBSKY9X)
-  MIXSRC_3POS = MIXSRC_FIRST_SWITCH,
-  MIXSRC_THR,
-  MIXSRC_RUD,
-  MIXSRC_ELE,
-  MIXSRC_AIL,
-  MIXSRC_GEA,
-  MIXSRC_TRN,
 #endif
   MIXSRC_FIRST_LOGICAL_SWITCH SKIP,
   MIXSRC_SW1 = MIXSRC_FIRST_LOGICAL_SWITCH, LUA_EXPORT_MULTIPLE("ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES)
