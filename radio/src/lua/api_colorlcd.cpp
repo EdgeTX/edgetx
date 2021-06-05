@@ -665,6 +665,8 @@ static int luaLcdDrawGauge(lua_State *L)
   int den = luaL_checkinteger(L, 6);
   unsigned int flags = luaL_optunsigned(L, 7, 0);
 
+  flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
+
   luaLcdBuffer->drawRect(x, y, w, h, 1, 0xff, flags);
   uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
   luaLcdBuffer->drawSolidFilledRect(x+1, y+1, len, h-2, flags);
