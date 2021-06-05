@@ -117,12 +117,6 @@ void convertModelData_219_to_220(ModelData &model)
   }
 
   // CustomFunctionData::play.name
-  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS_219; ++i) {
-    CustomFunctionData* cfn = &(model.customFn[i]);
-    if (cfn->func == FUNC_PLAY_TRACK || cfn->func == FUNC_BACKGND_MUSIC) {
-      convertToStr(cfn->play.name, LEN_FUNCTION_NAME_219);
-    }
-  }
 
   // GVarData::name ?
   for (uint8_t i=0; i<MAX_GVARS_219; ++i) {
