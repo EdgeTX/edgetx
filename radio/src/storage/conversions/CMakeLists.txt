@@ -1,37 +1,10 @@
-if(PCB STREQUAL X9D OR PCB STREQUAL X9D+ OR PCB STREQUAL SKY9X OR PCB STREQUAL AR9X)
-  set(STORAGE_CONVERSIONS 216)
-endif()
-
-if(PCB STREQUAL SKY9X OR PCB STREQUAL AR9X OR PCB STREQUAL 9XRPRO)
-  set(STORAGE_CONVERSIONS 216)
-endif()
-
-if(PCB STREQUAL X7 OR PCB STREQUAL XLITE OR PCB STREQUAL X9E)
-  set(STORAGE_CONVERSIONS 218)
-endif()
-
-if(PCB STREQUAL X12S OR PCB STREQUAL X10)
-  set(STORAGE_CONVERSIONS 218)
-endif()
+set(STORAGE_CONVERSIONS 219)
 
 if(STORAGE_CONVERSIONS)
   add_definitions(-DSTORAGE_CONVERSIONS=${STORAGE_CONVERSIONS})
   set(SRC
     ${SRC}
     storage/conversions/conversions.cpp
+    storage/conversions/conversions_219_220.cpp
     )
-endif()
-
-if(STORAGE_CONVERSIONS LESS 218)
-  set(SRC
-    ${SRC}
-    storage/conversions/conversions_216_218.cpp
-    )
-endif()
-
-if(STORAGE_CONVERSIONS LESS 219)
-  set(SRC
-    ${SRC}
-    storage/conversions/conversions_218_219.cpp
-  )
 endif()

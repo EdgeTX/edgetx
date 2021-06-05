@@ -24,8 +24,8 @@
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
 
-#define EEPROM_VER             219
-#define FIRST_CONV_EEPROM_VER  216
+#define EEPROM_VER             220
+#define FIRST_CONV_EEPROM_VER  219
 
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
 #define GET_TRAINER_PPM_POLARITY()               g_model.trainerData.pulsePol
