@@ -61,7 +61,7 @@ static int luaLcdClear(lua_State * L)
 {
   if (luaLcdAllowed && luaLcdBuffer) {
     LcdFlags color = luaL_optunsigned(L, 1, DEFAULT_BGCOLOR);
-    luaLcdBuffer->clear(color);
+    luaLcdBuffer->clear(COLOR(COLOR_VAL(color)));
   }
   return 0;
 }
