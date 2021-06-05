@@ -38,12 +38,14 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_BITMAP,
   ITEM_MODEL_SETUP_TIMER1,
   ITEM_MODEL_SETUP_TIMER1_NAME,
+  ITEM_MODEL_SETUP_TIMER1_START,
   ITEM_MODEL_SETUP_TIMER1_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP,
 #if TIMERS > 1
   ITEM_MODEL_SETUP_TIMER2,
   ITEM_MODEL_SETUP_TIMER2_NAME,
+  ITEM_MODEL_SETUP_TIMER2_START,
   ITEM_MODEL_SETUP_TIMER2_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER2_COUNTDOWN_BEEP,
@@ -51,6 +53,7 @@ enum MenuModelSetupItems {
 #if TIMERS > 2
   ITEM_MODEL_SETUP_TIMER3,
   ITEM_MODEL_SETUP_TIMER3_NAME,
+  ITEM_MODEL_SETUP_TIMER3_START,
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
@@ -167,46 +170,64 @@ void onModelSetupBitmapMenu(const char * result)
   }
 }
 
-#warning "TODO Timer mode needs more work"
 void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 {
-  TimerData & timer = g_model.timers[timerIdx];
-  drawStringWithIndex(0*FW, y, STR_TIMER, timerIdx+1);
-  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer.mode, menuHorizontalPosition==0 ? attr : 0);
-  drawTimer(MODEL_SETUP_3RD_COLUMN, y, timer.start, menuHorizontalPosition==1 ? attr|TIMEHOUR : TIMEHOUR, menuHorizontalPosition==2 ? attr|TIMEHOUR : TIMEHOUR);
+  TimerData &timer = g_model.timers[timerIdx];
+  drawStringWithIndex(0 * FW, y, STR_TIMER, timerIdx + 1);
+
+  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer.mode,
+                     menuHorizontalPosition == 0 ? attr : 0);
+
+  drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
+             menuHorizontalPosition == 1 ? attr : 0);
+
+  // drawTimer(MODEL_SETUP_3RD_COLUMN, y, timer.start,
+  //           menuHorizontalPosition == 1 ? attr | TIMEHOUR : TIMEHOUR,
+  //           menuHorizontalPosition == 2 ? attr | TIMEHOUR : TIMEHOUR);
+
   if (attr && menuHorizontalPosition < 0) {
-    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN-1, y-1, 13*FW-3, FH+1);
+    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
   }
-  if (attr && s_editMode>0) {
-    div_t qr = div(timer.start, 60);
+
+  if (attr && s_editMode > 0) {
     switch (menuHorizontalPosition) {
       case 0:
-      {
-        swsrc_t timerMode = timer.mode;
-        // TODO later CHECK_INCDEC_MODELVAR_CHECK(event, timerMode, -TMRMODE_COUNT-SWSRC_LAST+1, TMRMODE_COUNT+SWSRC_LAST-1, isSwitchAvailableInTimers);
-        if (timerMode < 0) timerMode += TMRMODE_COUNT-1;
-        timer.mode = timerMode;
-#if defined(AUTOSWITCH)
-        if (s_editMode>0) {
-          swsrc_t val = timer.mode - (TMRMODE_COUNT-1);
-          swsrc_t switchVal = checkIncDecMovedSwitch(val);
-          if (val != switchVal) {
-            timer.mode = switchVal + (TMRMODE_COUNT-1);
-            storageDirty(EE_MODEL);
-          }
-        }
-#endif
+        CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
         break;
-      }
       case 1:
-        qr.quot = checkIncDec(event, qr.quot, 0, 1439, EE_MODEL | NO_INCDEC_MARKS); // 23h59
-        timer.start = qr.rem + qr.quot*60;
+        CHECK_INCDEC_MODELSWITCH(event, timer.swtch, SWSRC_FIRST_IN_MIXES,
+                                 SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
         break;
-      case 2:
-        qr.rem -= checkIncDecModel(event, qr.rem+2, 1, 62)-2;
-        timer.start -= qr.rem ;
-        if ((int16_t)timer.start < 0) timer.start=0;
-        if ((int32_t)timer.start > 86399) timer.start=86399; // 23h59:59
+    }
+  }
+}
+
+void editTimerStart(int timerIdx, coord_t y, LcdFlags attr, event_t event)
+{
+  lcdDrawText(INDENT_WIDTH, y, STR_START);
+
+  TimerData* timer = &(g_model.timers[timerIdx]);
+
+  drawTimer(MODEL_SETUP_2ND_COLUMN, y, timer->start,
+            menuHorizontalPosition == 0 ? attr : 0,
+            menuHorizontalPosition == 1 ? attr : 0);
+
+  if (attr && menuHorizontalPosition < 0) {
+    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 4 * FW, FH + 1);
+  }
+
+  if (attr && s_editMode > 0) {
+    div_t qr = div(timer->start, 60);
+    switch (menuHorizontalPosition) {
+      case 0:
+        CHECK_INCDEC_MODELVAR_ZERO(event, qr.quot, 539);  // 8:59
+        timer->start = qr.rem + qr.quot * 60;
+        break;
+      case 1:
+        qr.rem -= checkIncDecModel(event, qr.rem + 2, 1, 62) - 2;
+        timer->start -= qr.rem;
+        if ((int16_t)timer->start < 0) timer->start = 0;
+        if ((int16_t)timer->start > 5999) timer->start = 32399;  // 8:59:59
         break;
     }
   }
@@ -254,7 +275,8 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #define TRAINER_ROWS                      LABEL(Trainer), 0, TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
 #endif
 
-#define TIMER_ROWS(x)                     2|NAVIGATION_LINE_BY_LINE, 0, 0, 0, g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t) 1 : (uint8_t)0
+#define TIMER_ROWS \
+  1 | NAVIGATION_LINE_BY_LINE, 0, 1 | NAVIGATION_LINE_BY_LINE, 0, 0, 0
 
 inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 {
@@ -265,11 +287,11 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 }
 
 #if TIMERS == 1
-  #define TIMERS_ROWS                     TIMER_ROWS(0)
+  #define TIMERS_ROWS                     TIMER_ROWS
 #elif TIMERS == 2
-  #define TIMERS_ROWS                     TIMER_ROWS(0), TIMER_ROWS(1)
+  #define TIMERS_ROWS                     TIMER_ROWS, TIMER_ROWS
 #elif TIMERS == 3
-  #define TIMERS_ROWS                     TIMER_ROWS(0), TIMER_ROWS(1), TIMER_ROWS(2)
+  #define TIMERS_ROWS                     TIMER_ROWS, TIMER_ROWS, TIMER_ROWS
 #endif
 #if defined(PCBX9E)
   #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > 8 ? TITLE_ROW : HIDDEN_ROW), uint8_t(getSwitchWarningsCount() > 16 ? TITLE_ROW : HIDDEN_ROW)
@@ -461,6 +483,10 @@ void menuModelSetup(event_t event)
                        old_editMode);
         break;
 
+      case ITEM_MODEL_SETUP_TIMER1_START:
+        editTimerStart(0, y, attr, event);
+        break;
+
       case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
         g_model.timers[0].minuteBeep = editCheckBox(g_model.timers[0].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_MINUTEBEEP, attr, event);
         break;
@@ -482,6 +508,10 @@ void menuModelSetup(event_t event)
         editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
                        g_model.timers[1].name, LEN_TIMER_NAME, event, attr,
                        old_editMode);
+        break;
+
+      case ITEM_MODEL_SETUP_TIMER2_START:
+        editTimerStart(1, y, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP:
@@ -506,6 +536,10 @@ void menuModelSetup(event_t event)
         editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
                        g_model.timers[2].name, LEN_TIMER_NAME, event, attr,
                        old_editMode);
+        break;
+
+      case ITEM_MODEL_SETUP_TIMER3_START:
+        editTimerStart(2, y, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:

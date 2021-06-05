@@ -496,11 +496,19 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_TIMER2:
       case ITEM_MODEL_SETUP_TIMER3:
       {
-        unsigned int timerIdx = (k>=ITEM_MODEL_SETUP_TIMER3 ? 2 : (k>=ITEM_MODEL_SETUP_TIMER2 ? 1 : 0));
-        TimerData * timer = &g_model.timers[timerIdx];
-        drawStringWithIndex(0*FW, y, STR_TIMER, timerIdx+1);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer->mode, menuHorizontalPosition==0 ? attr : 0);
-        drawSwitch(MODEL_SETUP_2ND_COLUMN+5*FW, y, timer->swtch, menuHorizontalPosition==1 ? attr : 0);
+        unsigned int timerIdx = (k >= ITEM_MODEL_SETUP_TIMER3
+                                     ? 2
+                                     : (k >= ITEM_MODEL_SETUP_TIMER2 ? 1 : 0));
+
+        TimerData *timer = &g_model.timers[timerIdx];
+        drawStringWithIndex(0 * FW, y, STR_TIMER, timerIdx + 1);
+
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES,
+                           timer->mode, menuHorizontalPosition == 0 ? attr : 0);
+
+        drawSwitch(MODEL_SETUP_2ND_COLUMN + 5 * FW, y, timer->swtch,
+                   menuHorizontalPosition == 1 ? attr : 0);
+
         if (attr && s_editMode > 0) {
           switch (menuHorizontalPosition) {
             case 0:
@@ -519,8 +527,16 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_TIMER3_START:
       {
         lcdDrawText(INDENT_WIDTH, y, STR_START);
-        TimerData *timer = &g_model.timers[k >= ITEM_MODEL_SETUP_TIMER3 ? 2 : (k >= ITEM_MODEL_SETUP_TIMER2 ? 1 : 0)];
-        drawTimer(MODEL_SETUP_2ND_COLUMN, y, timer->start, menuHorizontalPosition == 0 ? attr : 0, menuHorizontalPosition == 1 ? attr : 0);
+
+        TimerData *timer =
+            &g_model.timers[k >= ITEM_MODEL_SETUP_TIMER3
+                                ? 2
+                                : (k >= ITEM_MODEL_SETUP_TIMER2 ? 1 : 0)];
+
+        drawTimer(MODEL_SETUP_2ND_COLUMN, y, timer->start,
+                  menuHorizontalPosition == 0 ? attr : 0,
+                  menuHorizontalPosition == 1 ? attr : 0);
+
         if (attr && s_editMode > 0) {
           div_t qr = div(timer->start, 60);
           switch (menuHorizontalPosition) {
