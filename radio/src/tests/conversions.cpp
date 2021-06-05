@@ -31,106 +31,14 @@ void loadEEPROMFile(const char * filename)
 #endif
 
 #if defined(PCBX9DP)
-#warning "TODO Make those tests on conversions work!"
-//TEST(Conversions, ConversionX9DPFrom22)
-//{
-//  loadEEPROMFile(TESTS_PATH "/eeprom_22_x9d+.bin");
-//
-//  eepromOpen();
-//  eeLoadGeneralSettingsData();
-//  convertRadioData_218_to_219(g_eeGeneral);
-//  eeConvertModel(0, 218);
-//  eeLoadModel(0);
-//
-//  EXPECT_EQ(-30, g_eeGeneral.vBatMin);
-//  EXPECT_EQ(8, g_eeGeneral.speakerVolume);
-//  EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
-//  EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
-//
-//  EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
-//  EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
-//  EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
-//
-//  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
-//  EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
-//
-//  EXPECT_ZSTREQ("Test", g_model.header.name);
-//  EXPECT_EQ(TMRMODE_COUNT - 1 + SWSRC_SA0, g_model.timers[0].mode);
-//  EXPECT_EQ(80, g_model.mixData[0].weight);
-//  EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
-//  EXPECT_EQ(80, g_model.expoData[0].weight);
-//  EXPECT_EQ(CURVE_REF_CUSTOM, g_model.expoData[0].curve.type);
-//  EXPECT_EQ(1, g_model.expoData[0].curve.value);
-//  EXPECT_EQ(CURVE_REF_EXPO, g_model.expoData[1].curve.type);
-//  EXPECT_EQ(20, g_model.expoData[1].curve.value);
-//  EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
-//  EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-//  EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
-//  EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
-//  EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);
-//  EXPECT_ZSTREQ("Thr", g_model.inputNames[0]);
-//  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
-//  EXPECT_EQ(10, g_model.telemetrySensors[0].id);
-//  EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
-//  EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.logicalSw[0].v1);
-//}
-//
-//TEST(Conversions, ConversionX9DPFrom23)
-//{
-//  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+.bin");
-//
-//  eepromOpen();
-//  eeLoadGeneralSettingsData();
-//  eeLoadModel(0);
-//
-//  EXPECT_EQ(-30, g_eeGeneral.vBatMin);
-//  EXPECT_EQ(8, g_eeGeneral.speakerVolume);
-//  EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
-//  EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
-//
-//  EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
-//  EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
-//  EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
-//
-//  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
-//  EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
-//
-//  EXPECT_ZSTREQ("Test", g_model.header.name);
-//  EXPECT_EQ(TMRMODE_COUNT - 1 + SWSRC_SA0, g_model.timers[0].mode);
-//  EXPECT_EQ(80, g_model.mixData[0].weight);
-//  EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
-//  EXPECT_EQ(80, g_model.expoData[0].weight);
-//  EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-//  EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
-//  EXPECT_ZSTREQ("Test", g_model.flightModeData[0].name);
-//
-//#if defined(INTERNAL_MODULE_PXX2)
-//  EXPECT_EQ(MODULE_TYPE_ISRM_PXX2, g_model.moduleData[INTERNAL_MODULE].type);
-//  EXPECT_EQ(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, g_model.moduleData[INTERNAL_MODULE].subType);
-//#else
-//  EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
-//#endif
-//
-//  EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
-//  EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);
-//
-//  EXPECT_ZSTREQ("Rud", g_model.inputNames[0]);
-//  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
-//  EXPECT_EQ(10, g_model.telemetrySensors[0].id);
-//  EXPECT_EQ(10, g_model.telemetrySensors[0].frskyInstance.physID);
-//  EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.logicalSw[0].v1);
-//}
-#endif
-
-#if defined(PCBXLITE) && !defined(PCBXLITES)
-TEST(Conversions, ConversionXLiteFrom22)
+TEST(Conversions, ConversionX9DPFrom23)
 {
-  loadEEPROMFile(TESTS_PATH "/eeprom_22_xlite.bin");
+  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+.bin");
 
   eepromOpen();
   eeLoadGeneralSettingsData();
-  convertRadioData_218_to_219(g_eeGeneral);
-  eeConvertModel(0, 218);
+  convertRadioData_219_to_220(g_eeGeneral);
+  eeConvertModel(0, 219);
   eeLoadModel(0);
 
   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
@@ -142,86 +50,136 @@ TEST(Conversions, ConversionXLiteFrom22)
   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
   EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
 
-  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
+  EXPECT_STREQ("Tes", g_eeGeneral.switchNames[0]); // ZSTREQ
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
-  EXPECT_ZSTREQ("Test", g_model.header.name);
-  EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
-  EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
+  EXPECT_STREQ("Test", g_model.header.name); // ZSTREQ
+  EXPECT_EQ(TMRMODE_COUNT - 1 + SWSRC_SA0, g_model.timers[0].mode); // new!
   EXPECT_EQ(80, g_model.mixData[0].weight);
-  EXPECT_EQ(80, g_model.expoData[0].weight);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.mixData[4].srcRaw);
-  EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_model.mixData[4].swtch);
-  EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
-  EXPECT_ZSTREQ("Thr", g_model.inputNames[0]);
-
-  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
-  EXPECT_EQ(10, g_model.telemetrySensors[0].id);
-  EXPECT_EQ(8, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
-
-  EXPECT_EQ(LS_FUNC_VPOS, g_model.logicalSw[0].func);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.logicalSw[0].v1);
-  EXPECT_EQ(0, g_model.logicalSw[0].v2);
-
-  EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
-  EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
-}
-#endif
-
-#if defined(PCBX7)
-TEST(Conversions, ConversionX7From22)
-{
-  loadEEPROMFile(TESTS_PATH "/eeprom_22_x7.bin");
-
-  eepromOpen();
-  eeLoadGeneralSettingsData();
-  convertRadioData_218_to_219(g_eeGeneral);
-  eeConvertModel(0, 218);
-  eeLoadModel(0);
-
-  EXPECT_EQ(-30, g_eeGeneral.vBatMin);
-  EXPECT_EQ(8, g_eeGeneral.speakerVolume);
-  EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
-  EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
-  
-  EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
-  EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
-  EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
-
-  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
-  EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
-  
-  EXPECT_ZSTREQ("Test", g_model.header.name);
-  EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
-  EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
-  EXPECT_EQ(80, g_model.mixData[0].weight);
   EXPECT_EQ(80, g_model.expoData[0].weight);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.mixData[4].srcRaw);
-  EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_model.mixData[4].swtch);
-  EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
-  EXPECT_ZSTREQ("Thr", g_model.inputNames[0]);
-
-  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
-  EXPECT_EQ(10, g_model.telemetrySensors[0].id);
-  EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
-  EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
-
   EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-  EXPECT_ZSTREQ("FMtest", g_model.flightModeData[1].name);
-  EXPECT_EQ(45, g_model.flightModeData[1].swtch);
-  EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
+  EXPECT_STREQ("Tes", g_model.gvars[0].name); // ZSTREQ
+  EXPECT_STREQ("Test", g_model.flightModeData[0].name); // ZSTREQ
 
-  EXPECT_EQ(LS_FUNC_VPOS, g_model.logicalSw[0].func);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.logicalSw[0].v1);
-  EXPECT_EQ(0, g_model.logicalSw[0].v2);
+#if defined(INTERNAL_MODULE_PXX2)
+  EXPECT_EQ(MODULE_TYPE_ISRM_PXX2, g_model.moduleData[INTERNAL_MODULE].type);
+  EXPECT_EQ(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, g_model.moduleData[INTERNAL_MODULE].subType);
+#else
+  EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
+#endif
 
-  EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
-  EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
-  EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
+  EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
+  EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);
+
+  EXPECT_STREQ("Rud", g_model.inputNames[0]); // ZSTREQ
+  EXPECT_STREQ("Tes", g_model.telemetrySensors[0].label); // ZSTREQ
+  EXPECT_EQ(10, g_model.telemetrySensors[0].id);
+  EXPECT_EQ(10, g_model.telemetrySensors[0].frskyInstance.physID);
+  EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.logicalSw[0].v1);
 }
 #endif
+
+// #if defined(PCBXLITE) && !defined(PCBXLITES)
+// TEST(Conversions, ConversionXLiteFrom22)
+// {
+//   loadEEPROMFile(TESTS_PATH "/eeprom_22_xlite.bin");
+
+//   eepromOpen();
+//   eeLoadGeneralSettingsData();
+//   convertRadioData_218_to_219(g_eeGeneral);
+//   eeConvertModel(0, 218);
+//   eeLoadModel(0);
+
+//   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
+//   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
+//   EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
+//   EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
+
+//   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
+//   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
+//   EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
+
+//   EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
+//   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
+
+//   EXPECT_ZSTREQ("Test", g_model.header.name);
+//   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
+//   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
+//   EXPECT_EQ(80, g_model.mixData[0].weight);
+//   EXPECT_EQ(80, g_model.expoData[0].weight);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.mixData[4].srcRaw);
+//   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_model.mixData[4].swtch);
+//   EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
+//   EXPECT_ZSTREQ("Thr", g_model.inputNames[0]);
+
+//   EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
+//   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
+//   EXPECT_EQ(8, g_model.telemetrySensors[0].frskyInstance.physID);
+//   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
+
+//   EXPECT_EQ(LS_FUNC_VPOS, g_model.logicalSw[0].func);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.logicalSw[0].v1);
+//   EXPECT_EQ(0, g_model.logicalSw[0].v2);
+
+//   EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
+//   EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
+// }
+// #endif
+
+// #if defined(PCBX7)
+// TEST(Conversions, ConversionX7From22)
+// {
+//   loadEEPROMFile(TESTS_PATH "/eeprom_22_x7.bin");
+
+//   eepromOpen();
+//   eeLoadGeneralSettingsData();
+//   convertRadioData_218_to_219(g_eeGeneral);
+//   eeConvertModel(0, 218);
+//   eeLoadModel(0);
+
+//   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
+//   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
+//   EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
+//   EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
+  
+//   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
+//   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
+//   EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
+
+//   EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
+//   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
+  
+//   EXPECT_ZSTREQ("Test", g_model.header.name);
+//   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
+//   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
+//   EXPECT_EQ(80, g_model.mixData[0].weight);
+//   EXPECT_EQ(80, g_model.expoData[0].weight);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.mixData[4].srcRaw);
+//   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_model.mixData[4].swtch);
+//   EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
+//   EXPECT_ZSTREQ("Thr", g_model.inputNames[0]);
+
+//   EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
+//   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
+//   EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
+//   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
+
+//   EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
+//   EXPECT_ZSTREQ("FMtest", g_model.flightModeData[1].name);
+//   EXPECT_EQ(45, g_model.flightModeData[1].swtch);
+//   EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
+
+//   EXPECT_EQ(LS_FUNC_VPOS, g_model.logicalSw[0].func);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.logicalSw[0].v1);
+//   EXPECT_EQ(0, g_model.logicalSw[0].v2);
+
+//   EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
+//   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
+//   EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
+// }
+// #endif
 
 #if 0 //TODO defined(PCBX10) && !defined(RADIO_FAMILY_T16)
 TEST(Conversions, ConversionX10From22)

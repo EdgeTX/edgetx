@@ -25,24 +25,9 @@ void convertRadioData(int version)
 {
   TRACE("convertRadioData(%d)", version);
 
-#if STORAGE_CONVERSIONS < 217
-  if (version == 216) {
-    version = 217;
-    convertRadioData_216_to_217(g_eeGeneral);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 218
-  if (version == 217) {
-    version = 218;
-    convertRadioData_217_to_218(g_eeGeneral);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 219
-  if (version == 218) {
-    version = 219;
-    convertRadioData_218_to_219(g_eeGeneral);
+#if STORAGE_CONVERSIONS < 220
+  if (version == 219) {
+    convertRadioData_219_to_220(g_eeGeneral);
   }
 #endif
 }
@@ -51,24 +36,10 @@ void convertModelData(int version)
 {
   TRACE("convertModelData(%d)", version);
 
-#if STORAGE_CONVERSIONS < 217
-  if (version == 216) {
-    version = 217;
-    convertModelData_216_to_217(g_model);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 218
-  if (version == 217) {
-    version = 218;
-    convertModelData_217_to_218(g_model);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 219
-  if (version == 218) {
+#if STORAGE_CONVERSIONS < 220
+  if (version == 219) {
     version = 219;
-    convertModelData_218_to_219(g_model);
+    convertModelData_219_to_220(g_model);
   }
 #endif
 }
@@ -90,14 +61,8 @@ bool eeConvert()
   const char *msg = NULL;
 
   switch (g_eeGeneral.version) {
-    case 216:
-      msg = "EEprom Data v216";
-      break;
-    case 217:
-      msg = "EEprom Data v217";
-      break;
-    case 218:
-      msg = "EEprom Data v218";
+    case 219:
+      msg = "EEprom Data v219";
       break;
     default:
       return false;
@@ -106,9 +71,6 @@ bool eeConvert()
   int conversionVersionStart = g_eeGeneral.version;
 
   // Information to the user and wait for key press
-#if defined(PCBSKY9X)
-  g_eeGeneral.optrexDisplay = 0;
-#endif
   g_eeGeneral.backlightMode = e_backlight_mode_on;
   g_eeGeneral.backlightBright = 0;
   g_eeGeneral.contrast = 25;
@@ -121,24 +83,10 @@ bool eeConvert()
   eeLoadGeneralSettingsData();
   int version = conversionVersionStart;
 
-#if STORAGE_CONVERSIONS < 217
-  if (version == 216) {
-    version = 217;
-    convertRadioData_216_to_217(g_eeGeneral);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 218
-  if (version == 217) {
-    version = 218;
-    convertRadioData_217_to_218(g_eeGeneral);
-  }
-#endif
-
-#if STORAGE_CONVERSIONS < 219
-  if (version == 218) {
-    version = 219;
-    convertRadioData_218_to_219(g_eeGeneral);
+#if STORAGE_CONVERSIONS < 220
+  if (version == 219) {
+    version = 220;
+    convertRadioData_219_to_220(g_eeGeneral);
   }
 #endif
 

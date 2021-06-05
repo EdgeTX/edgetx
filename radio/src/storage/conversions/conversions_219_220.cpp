@@ -68,6 +68,18 @@
 
 typedef TimerData TimerData_v220;
 
+static void convertToStr(char* str, size_t len)
+{
+  for (int c = 0; c < len; c++) {
+    str[c] = zchar2char(str[c]);
+  }
+  // Trim string
+  while(len > 0 && str[len-1]) {
+    if (str[len - 1] != ' ' && str[len - 1] != '\0') break;
+    str[--len] = '\0';
+  }
+}
+
 void convertModelData_219_to_220(ModelData &model)
 {
   ModelData* oldModelAllocated = (ModelData*)malloc(sizeof(ModelData));
@@ -76,10 +88,76 @@ void convertModelData_219_to_220(ModelData &model)
   memcpy(&oldModel, &model, sizeof(ModelData));
   ModelData& newModel = (ModelData&)model;
 
+  convertToStr(model.header.name, LEN_MODEL_NAME_219);
+
   for (uint8_t i=0; i<MAX_TIMERS_219; i++) {
     //TODO: convert to new timers v220
-    //TimerData & timer = newModel.timers[i];
+    TimerData& timer = newModel.timers[i];
+    convertToStr(timer.name, LEN_TIMER_NAME_219);
   }
+
+  // MixData::name
+  for (uint8_t i=0; i<MAX_MIXERS_219; ++i) {
+    convertToStr(model.mixData[i].name, LEN_EXPOMIX_NAME_219);
+  }
+
+  // LimitData::name
+  for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS_219; ++i) {
+    convertToStr(model.limitData[i].name, LEN_CHANNEL_NAME_219);
+  }
+
+  // ExpoData::name
+  for (uint8_t i=0; i<MAX_EXPOS_219; ++i) {
+    convertToStr(model.expoData[i].name, LEN_EXPOMIX_NAME_219);
+  }
+
+  // CurveHeader.name
+  for (uint8_t i=0; i<MAX_CURVES_219; ++i) {
+    convertToStr(model.expoData[i].name, LEN_CURVE_NAME_219);
+  }
+
+  // CustomFunctionData::play.name
+  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS_219; ++i) {
+    CustomFunctionData* cfn = &(model.customFn[i]);
+    if (cfn->func == FUNC_PLAY_TRACK || cfn->func == FUNC_BACKGND_MUSIC) {
+      convertToStr(cfn->play.name, LEN_FUNCTION_NAME_219);
+    }
+  }
+
+  // GVarData::name ?
+  for (uint8_t i=0; i<MAX_GVARS_219; ++i) {
+    convertToStr(model.gvars[i].name, LEN_GVAR_NAME_219);
+  }
+
+  // ScriptData::name ?
+  // ScriptData::file ?
+  for (uint8_t i=0; i<MAX_SCRIPTS_219; ++i) {
+    convertToStr(model.scriptsData[i].file, LEN_SCRIPT_FILENAME);
+    convertToStr(model.scriptsData[i].name, LEN_SCRIPT_NAME);
+  }
+  
+  // Input names
+  for (uint8_t i=0; i<MAX_INPUTS_219; ++i) {
+    convertToStr(model.inputNames[i], LEN_INPUT_NAME_219);
+  }
+
+  // Telemetry names
+  for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS_219; ++i) {
+    convertToStr(model.telemetrySensors[i].label, TELEM_LABEL_LEN_219);
+  }
+
+  // FlightModeData name
+  for (uint8_t i=0; i<MAX_FLIGHT_MODES_219; ++i) {
+    convertToStr(model.flightModeData[i].name, LEN_FLIGHT_MODE_NAME_219);
+  }
+
+  //
+  // TODO: convert all names from zchar to "normal" chars
+  //
+
+  // g_model.header.bitmap ???? really ????
+  // TelemetryScriptData::file ?
+  // ModuleData::pxx2.receiverName
 
 #if defined(PCBHORUS)
   // Clear CustomScreenData + TopBarPersistentData
@@ -89,9 +167,6 @@ void convertModelData_219_to_220(ModelData &model)
          sizeof(newModel.topbarData));
   //TODO: set defaults as with new model
 #endif
-
-  //TODO: convert all names from zchar to "normal" chars
-  
   free(oldModelAllocated);
 }
 
@@ -117,20 +192,19 @@ void convertRadioData_219_to_220(RadioData & settings)
   defaultTheme->init();
 #endif
 
-  //
-  // TODO: convert all names from zchar to "normal" chars
-  //
-  // g_model.telemetrySensors[i].label
-  // g_model.header.name
-  // g_model.header.bitmap // ???? really ????
-  // timer.name
-  // fm->name
-  // expo->name
-  // g_model.inputNames[chn]
-  // mix->name
-  // CurveHeader.name
-  // cfn->play.name
-  // limit->name
+  for (int i = 0; i < NUM_SWITCHES_219; ++i) {
+    char* sw_name = &(settings.switchNames[i][0]);
+    convertToStr(sw_name, LEN_SWITCH_NAME_219);
+  }
+
+  for (int i = 0; i < NUM_STICKS_219 + NUM_POTS_219 + NUM_SLIDERS_219; ++i) {
+    char* sw_name = &(settings.anaNames[i][0]);
+    convertToStr(sw_name, LEN_ANA_NAME_219);
+  }
+
+#if defined(PCBHORUS) || defined(PCBNV14)
+  convertToStr(settings.bluetoothName, LEN_BLUETOOTH_NAME_219);
+#endif
 
   free(oldSettingsAllocated);
 }

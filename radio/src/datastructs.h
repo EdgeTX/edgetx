@@ -729,7 +729,7 @@ PACK(struct TrainerData {
     NOBACKUP(uint8_t spare5:1 SKIP); \
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
-#elif defined(PCBTARANIS) || defined(PCBNV14)
+#elif defined(PCBTARANIS) //|| defined(PCBNV14)
   #if defined(STORAGE_BLUETOOTH)
     #define BLUETOOTH_FIELDS \
       uint8_t spare5 SKIP; \
@@ -747,18 +747,6 @@ PACK(struct TrainerData {
     char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME]; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME]; \
     BLUETOOTH_FIELDS
-#elif defined(PCBSKY9X)
-  #define EXTRA_GENERAL_FIELDS \
-    int8_t   txCurrentCalibration; \
-    int8_t   spare5 SKIP; \
-    uint8_t  mAhWarn; \
-    uint16_t mAhUsed; \
-    int8_t   temperatureCalib; \
-    uint8_t  optrexDisplay; \
-    uint8_t  sticksGain; \
-    uint8_t  rotarySteps; \
-    char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME]; \
-    char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME];
 #else
   #define EXTRA_GENERAL_FIELDS
 #endif
@@ -932,18 +920,6 @@ static inline void check_struct()
   CHKTYPE(TopBarPersistentData, 300);
 #elif defined(PCBNV14)
   // TODO
-#elif defined(PCBSKY9X)
-  CHKSIZE(MixData, 20);
-  CHKSIZE(ExpoData, 17);
-  CHKSIZE(LimitData, 11);
-  CHKSIZE(CustomFunctionData, 9);
-  CHKSIZE(FlightModeData, 36);
-  CHKSIZE(TimerData, 11);
-  CHKSIZE(SwashRingData, 8);
-  CHKSIZE(FrSkyBarData, 5);
-  CHKSIZE(FrSkyLineData, 2);
-  CHKSIZE(ModelHeader, 12);
-  CHKTYPE(CurveHeader, 4);
 #else
   // Common for all variants
   CHKSIZE(LimitData, 5);
@@ -986,9 +962,6 @@ static inline void check_struct()
 #elif defined(PCBX9D) || defined(PCBX9DP)
   CHKSIZE(RadioData, 898);
   CHKSIZE(ModelData, 6604);
-#elif defined(PCBSKY9X)
-  CHKSIZE(RadioData, 735);
-  CHKSIZE(ModelData, 5301);
 #elif defined(PCBHORUS)
   CHKSIZE(RadioData, 901);
   CHKSIZE(ModelData, 11020);

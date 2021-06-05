@@ -44,6 +44,25 @@
 #endif
 
 #if defined(PCBHORUS)
+  #define NUM_POTS_219                      5
+  #define NUM_SLIDERS_219                   4
+#elif defined(PCBX9LITE)
+  #define NUM_POTS_219                      1
+  #define NUM_SLIDERS_219                   0
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(PCBXLITE) || defined(PCBX7)
+  #define NUM_POTS_219                      2
+  #define NUM_SLIDERS_219                   0
+#elif defined(PCBX9E)
+  #define NUM_POTS_219                      4
+  #define NUM_SLIDERS_219                   4
+#else
+  #define NUM_POTS_219                      3
+  #define NUM_SLIDERS_219                   2
+#endif
+
+#define NUM_STICKS_219                      4
+
+#if defined(PCBHORUS)
   #define LEN_SWITCH_NAME_219               3
   #define LEN_ANA_NAME_219                  3
   #define LEN_MODEL_FILENAME_219           16
@@ -55,6 +74,7 @@
 #endif
 
 #define LEN_GVAR_NAME_219                   3
+#define TELEM_LABEL_LEN_219                 4
 
 #if defined(PCBHORUS)
   #define LEN_MODEL_NAME_219               15
