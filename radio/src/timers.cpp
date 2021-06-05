@@ -74,6 +74,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
   for (uint8_t i=0; i<TIMERS; i++) {
     tmrmode_t timerMode = g_model.timers[i].mode;
     tmrstart_t timerStart = g_model.timers[i].start;
+    uint16_t    timerSwtch = g_model.timers[i].swtch;
     TimerState * timerState = &timersStates[i];
 
     if (timerMode) {
@@ -122,7 +123,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
         }
         else {
           if (timerMode > 0) timerMode -= (TMRMODE_COUNT-1);
-          if (getSwitch(timerMode)) {
+          if (getSwitch(timerSwtch)) {
             newTimerVal++;
           }
         }
