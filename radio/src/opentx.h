@@ -37,6 +37,12 @@
 #include "usbd_conf.h"
 #endif
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#else
+  #include "libopenui/src/libopenui_file.h"
+#endif
+
 #if defined(SIMU)
   #define SWITCH_SIMU(a, b)  (a)
 #else
@@ -1081,6 +1087,8 @@ union ReusableBuffer
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+    char changedName[SD_SCREEN_FILE_LENGTH+1];
+    char ext[LEN_FILE_EXTENSION_MAX+1];
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
   } sdManager;

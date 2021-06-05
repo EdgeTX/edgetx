@@ -26,9 +26,69 @@
 #include "io/bootloader_flash.h"
 #include "standalone_lua.h"
 
+class FileNameEditWindow : public Page {
+  public:
+    FileNameEditWindow(const std::string iName) :
+      Page(ICON_RADIO_SD_MANAGER),
+      name(std::move(iName))
+    {
+      buildBody(&body);
+      buildHeader(&header);
+    };
+
+  protected:
+    const std::string name;
+
+    void buildHeader(Window * window)
+    {
+      new StaticText(window, {70, 4, 180, 30}, STR_RENAME_FILE, MENU_BGCOLOR);
+    }
+
+   void buildBody(Window * window)
+    {
+      GridLayout grid(window);
+      grid.spacer(8);
+      uint8_t nameLength;
+      uint8_t extLength;
+      char* ext = (char *)getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
+      
+      reusableBuffer.sdManager.ext[0] = 0;
+      if(ext)
+        strncpy(reusableBuffer.sdManager.ext, ext, extLength);
+  
+      nameLength -= extLength;
+	    if (nameLength > SD_SCREEN_FILE_LENGTH) nameLength = SD_SCREEN_FILE_LENGTH;
+
+	    strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
+	    reusableBuffer.sdManager.originalName[nameLength] = 0;
+
+	    auto newFileName = new TextEdit(window, grid.getSlot(), reusableBuffer.sdManager.originalName, SD_SCREEN_FILE_LENGTH, LcdFlags(0));
+      {
+        char* newValue = newFileName->getData();
+        size_t totalSize = strlen(newValue);//sizeof(reusableBuffer.sdManager.changedName);
+        strncpy(reusableBuffer.sdManager.changedName, newValue, totalSize);
+        reusableBuffer.sdManager.changedName[totalSize] = 0;
+        if (extLength) {
+          strncpy(reusableBuffer.sdManager.changedName + totalSize, reusableBuffer.sdManager.ext, extLength);//totalSisze-strlen(newValue));  
+        } 
+        reusableBuffer.sdManager.changedName[totalSize + extLength] = 0;
+			  f_rename((const TCHAR*)name.c_str(), reusableBuffer.sdManager.changedName);
+		  }	  
+	}
+};
+
+
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
+}
+
+void RadioSdManagerPage::rebuild(FormWindow * window)
+{
+  coord_t scrollPosition = window->getScrollPositionY();
+  window->clear();
+  build(window);
+  window->setScrollPositionY(scrollPosition);
 }
 
 // TODO elsewhere
@@ -38,7 +98,7 @@ extern bool compare_nocase(const std::string &first, const std::string &second);
 char * getFullPath(const std::string &filename)
 {
   static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
-  f_getcwd(full_path, FF_MAX_LFN);
+  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
   strcat(full_path, "/");
   strcat(full_path, filename.c_str());
   return full_path;
@@ -271,15 +331,25 @@ void RadioSdManagerPage::build(FormWindow * window)
                 strncpy(clipboard.data.sd.filename, name.c_str(), CLIPBOARD_PATH_LEN - 1);
             });
             if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
-              menu->addLine(STR_PASTE, [=]() {
-                  // TODO
+                menu->addLine(STR_PASTE, [=]() {
+                TCHAR lfn[FF_MAX_LFN+1];
+			          f_getcwd(lfn, FF_MAX_LFN);
+              
+			          if (strcmp(clipboard.data.sd.directory, lfn)) {  // prevent copying to the same directory
+				          POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, clipboard.data.sd.filename, lfn));
+				          clipboard.type = CLIPBOARD_TYPE_NONE;
+			          }
+			          rebuild(window);
               });
             }
             menu->addLine(STR_RENAME_FILE, [=]() {
-                // TODO
+              auto few = new FileNameEditWindow(name);
+			        few->setCloseHandler([=]() {
+                rebuild(window);
+              });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
-                f_unlink(getFullPath(name));
+                f_unlink((const TCHAR*)getFullPath(name));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
