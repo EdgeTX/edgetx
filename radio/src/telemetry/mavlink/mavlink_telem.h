@@ -2,7 +2,7 @@
  * (c) www.olliw.eu, OlliW, OlliW42
  */
 
-#define MAVLINKTELEMVERSIONSTR  "v27" //OW
+#define MAVLINKTELEMVERSIONSTR  "v27"
 
 #define MAVLINK_RAM_SECTION  __attribute__((section (".ram")))
 
