@@ -141,7 +141,8 @@ void ViewMain::updateTopbarVisibility()
   int leftScroll = getScrollPositionX() % pageWidth;
   if (leftScroll == 0) {
     setTopbarVisible(hasTopbar(g_model.view));
-    customScreens[g_model.view]->adjustLayout();
+    if (customScreens[g_model.view])
+      customScreens[g_model.view]->adjustLayout();
   }
   else {
     int  leftIdx     = getScrollPositionX() / pageWidth;
