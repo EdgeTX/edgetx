@@ -77,18 +77,6 @@ void SwitchChoice::fillMenu(Menu * menu, std::function<bool(int16_t)> filter)
   if (current >= 0) {
     menu->select(current);
   }
-}
-
-void SwitchChoice::openMenu()
-{
-  auto menu = new Menu(this);
-  fillMenu(menu);
-
-  menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
-  menu->setCloseHandler([=]() {
-      editMode = false;
-      setFocus(SET_FOCUS_DEFAULT);
-  });
 
 #if defined(AUTOSWITCH)
   menu->setWaitHandler([=]() {
@@ -110,6 +98,18 @@ void SwitchChoice::openMenu()
     }
   });
 #endif
+}
+
+void SwitchChoice::openMenu()
+{
+  auto menu = new Menu(this);
+  fillMenu(menu);
+
+  menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
+  menu->setCloseHandler([=]() {
+      editMode = false;
+      setFocus(SET_FOCUS_DEFAULT);
+  });
 }
 
 #if defined(HARDWARE_KEYS)

@@ -79,7 +79,6 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
   int current = 0;
 
   menu->removeLines();
-
   for (int i = vmin; i <= vmax; ++i) {
     if (filter && !filter(i)) continue;
     if (isValueAvailable && !isValueAvailable(i)) continue;
@@ -96,7 +95,7 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
-      int8_t val = getMovedSource(0);
+      int16_t val = getMovedSource(0);
       if (val) {
         if (filter && filter(val)) {
           return;
@@ -105,7 +104,17 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
           setValue(val);
         }
         this->fillMenu(menu);
-        menu->setFocusBody();
+      }
+      else {
+        swsrc_t swtch = getMovedSwitch();
+        if (swtch) {
+          div_t info = switchInfo(swtch);
+          val = info.quot + MIXSRC_FIRST_SWITCH;
+          if (val && (!filter || !filter(val))) {
+            if (setValue) setValue(val);
+            this->fillMenu(menu);
+          }
+        }
       }
     });
 #endif
