@@ -22,35 +22,36 @@
 #include "choice.h"
 #include <string>
 
-class FileChoice: public ChoiceBase
+class FileChoice : public ChoiceBase
 {
-  public:
-    FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue);
+public:
+  FileChoice(FormGroup* parent, const rect_t& rect, std::string folder,
+             const char* extension, int maxlen,
+             std::function<std::string()> getValue,
+             std::function<void(std::string)> setValue,
+             bool stripExtension=false);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "FileChoice";
-    }
+  std::string getName() const override { return "FileChoice"; }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
+  void paint(BitmapBuffer* dc) override;
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-  protected:
-    std::string folder;
-    const char * extension;
-    int maxlen;
-    std::function<std::string()> getValue;
-    std::function<void(std::string)> setValue;
+protected:
+  std::string folder;
+  const char* extension;
+  int maxlen;
+  std::function<std::string()> getValue;
+  std::function<void(std::string)> setValue;
+  bool stripExtension;
 
-    bool openMenu();
+  bool openMenu();
 };
-
