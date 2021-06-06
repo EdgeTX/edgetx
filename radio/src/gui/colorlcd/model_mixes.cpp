@@ -233,7 +233,7 @@ class MixLineButton : public CommonInputOrMixButton {
     {
       const MixData & mix = g_model.mixData[index];
       if (mix.swtch || mix.curve.value != 0 || mix.flightModes) {
-        setHeight(height() + PAGE_LINE_HEIGHT);
+        setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
       }
     }
 
@@ -251,13 +251,13 @@ class MixLineButton : public CommonInputOrMixButton {
       drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw);
 
       if (line.name[0]) {
-        dc->drawMask(146, 2 + FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
+        dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
         dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name));
       }
 
       // second line ...
       if (line.swtch) {
-        dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, mixerSetupSwitchIcon, DEFAULT_COLOR);
+        dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupSwitchIcon, DEFAULT_COLOR);
         drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch);
       }
 

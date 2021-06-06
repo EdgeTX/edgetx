@@ -114,7 +114,7 @@ class OutputLineButton : public Button {
       output(output)
     {
       if (output->revert || output->curve || output->name[0]) {
-        setHeight(height() + PAGE_LINE_HEIGHT);
+        setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
       }
     }
 
@@ -125,7 +125,7 @@ class OutputLineButton : public Button {
       dc->drawNumber(68, FIELD_PADDING_TOP, output->max + 1000, PREC1);
       dc->drawNumber(132, FIELD_PADDING_TOP, output->offset, PREC1);
       dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter, RIGHT);
-      dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\206");
+      dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210");
 
       // second line
       if (output->revert) {
@@ -136,7 +136,7 @@ class OutputLineButton : public Button {
         dc->drawText(88, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, getCurveString(output->curve));
       }
       if (output->name[0]) {
-        dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
+        dc->drawMask(146, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
         dc->drawSizedText(166, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, output->name, sizeof(output->name));
       }
 

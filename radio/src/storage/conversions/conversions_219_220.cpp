@@ -84,7 +84,7 @@ typedef TimerData TimerData_v220;
 
 static void convertToStr(char* str, size_t len)
 {
-  for (int c = 0; c < len; c++) {
+  for (size_t c = 0; c < len; c++) {
     str[c] = zchar2char(str[c]);
   }
   // Trim string
@@ -197,7 +197,7 @@ void convertModelData_219_to_220(ModelData &model)
   memset(newModel.screenData, 0,
          sizeof(newModel.screenData) +
          sizeof(newModel.topbarData));
-  //TODO: set defaults as with new model
+  loadDefaultLayout();
 #endif
   free(oldModelAllocated);
 }
