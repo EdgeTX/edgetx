@@ -26,49 +26,50 @@
 class Menu;
 bool isSwitchAvailableInMixes(int swtch);
 
-class SwitchChoice : public FormField {
-  template <class T> friend class MenuToolbar;
+class SwitchChoice : public FormField
+{
+  template <class T>
+  friend class MenuToolbar;
 
-  public:
-    SwitchChoice(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue):
+ public:
+  SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
+               std::function<int16_t()> getValue,
+               std::function<void(int16_t)> setValue) :
       FormField(parent, rect),
       vmin(vmin),
       vmax(vmax),
       getValue(std::move(getValue)),
       setValue(std::move(setValue))
-    {
-    }
+  {
+  }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "SwitchChoice";
-    }
+  std::string getName() const override { return "SwitchChoice"; }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
+  void paint(BitmapBuffer* dc) override;
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override ;
+  bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    void setAvailableHandler(std::function<bool(int)> handler)
-    {
-      isValueAvailable = std::move(handler);
-    }
+  void setAvailableHandler(std::function<bool(int)> handler)
+  {
+    isValueAvailable = std::move(handler);
+  }
 
-  protected:
-    int16_t vmin;
-    int16_t vmax;
-    std::function<int16_t()> getValue;
-    std::function<void(int16_t)> setValue;
-    std::function<bool(int)> isValueAvailable = isSwitchAvailableInMixes;
-    void fillMenu(Menu * menu, std::function<bool(int16_t)> condition=nullptr);
-    void openMenu();
+ protected:
+  int16_t vmin;
+  int16_t vmax;
+  std::function<int16_t()> getValue;
+  std::function<void(int16_t)> setValue;
+  std::function<bool(int)> isValueAvailable = isSwitchAvailableInMixes;
+  void fillMenu(Menu* menu, std::function<bool(int16_t)> condition = nullptr);
+  void openMenu();
 };
 
 #endif // _SWITCHCHOICE_H_
