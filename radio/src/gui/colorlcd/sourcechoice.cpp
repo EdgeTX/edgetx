@@ -105,6 +105,7 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
           setValue(val);
         }
         this->fillMenu(menu);
+        menu->setFocusBody();
       }
     });
 #endif
@@ -140,9 +141,9 @@ void SourceChoice::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool SourceChoice::onTouchEnd(coord_t, coord_t)
 {
-  openMenu();
   setFocus(SET_FOCUS_DEFAULT);
   setEditMode(true);
+  openMenu();
   return true;
 }
 #endif
