@@ -1514,6 +1514,9 @@ void opentxClose(uint8_t shutdown)
 
 #if defined(COLORLCD)
   MainWindow::instance()->deleteChildren();
+  // this is necessary as the custom screens are not deleted
+  // by using deleteCustomScreens(), but here through it's parent window
+  memset(customScreens, 0, sizeof(customScreens));
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
