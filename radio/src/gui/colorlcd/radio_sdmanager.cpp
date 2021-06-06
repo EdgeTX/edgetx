@@ -36,6 +36,12 @@ class FileNameEditWindow : public Page {
       buildHeader(&header);
     };
 
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "FileNameEditWindow";
+    }
+#endif
   protected:
     const std::string name;
 

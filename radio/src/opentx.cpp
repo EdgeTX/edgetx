@@ -32,6 +32,8 @@
 #include "audio_driver.h"
 #endif
 
+extern uint16_t get_flysky_hall_adc_value(uint8_t ch);
+
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
@@ -1102,7 +1104,7 @@ void getADC()
 
 #if defined(FLYSKY_HALL_STICKS)
     if (x < 4)
-      v = get_hall_adc_value(x) >> (1 - ANALOG_SCALE);
+      v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
     else
       v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 #else
@@ -1514,6 +1516,9 @@ void opentxClose(uint8_t shutdown)
 
 #if defined(COLORLCD)
   MainWindow::instance()->deleteChildren();
+  // this is necessary as the custom screens are not deleted
+  // by using deleteCustomScreens(), but here through it's parent window
+  memset(customScreens, 0, sizeof(customScreens));
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
