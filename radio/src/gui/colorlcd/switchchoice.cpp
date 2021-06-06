@@ -65,13 +65,9 @@ void SwitchChoice::fillMenu(Menu * menu, std::function<bool(int16_t)> filter)
   menu->removeLines();
 
   for (int i = vmin; i <= vmax; ++i) {
-    if (filter && !filter(i))
-      continue;
-    if (isValueAvailable && !isValueAvailable(i))
-      continue;
-    menu->addLine(getSwitchPositionName(i), [=]() {
-      setValue(i);
-    });
+    if (filter && !filter(i)) continue;
+    if (isValueAvailable && !isValueAvailable(i)) continue;
+    menu->addLine(getSwitchPositionName(i), [=]() { setValue(i); });
     if (value == i) {
       current = count;
     }
@@ -93,6 +89,27 @@ void SwitchChoice::openMenu()
       editMode = false;
       setFocus(SET_FOCUS_DEFAULT);
   });
+
+#if defined(AUTOSWITCH)
+  menu->setWaitHandler([=]() {
+    swsrc_t val = 0;
+    swsrc_t swtch = getMovedSwitch();
+    if (swtch) {
+      div_t info = switchInfo(swtch);
+      if (IS_CONFIG_TOGGLE(info.quot)) {
+        if (info.rem != 0) {
+          val = (val == swtch ? swtch - 2 : swtch);
+        }
+      } else {
+        val = swtch;
+      }
+      if (val && (!isValueAvailable || isValueAvailable(val))) {
+        if (setValue) setValue(val);
+        this->fillMenu(menu);
+      }
+    }
+  });
+#endif
 }
 
 #if defined(HARDWARE_KEYS)

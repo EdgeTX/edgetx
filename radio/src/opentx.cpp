@@ -383,7 +383,7 @@ bool isInputRecursive(int index)
 #if defined(AUTOSOURCE)
 constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
 
-int8_t getMovedSource(GET_MOVED_SOURCE_PARAMS)
+int8_t getMovedSource(uint8_t min)
 {
   int8_t result = 0;
   static tmr10ms_t s_move_last_time = 0;

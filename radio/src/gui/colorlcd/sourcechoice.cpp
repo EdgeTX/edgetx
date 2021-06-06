@@ -93,6 +93,21 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
   if (current >= 0) {
     menu->select(current);
   }
+
+#if defined(AUTOSOURCE)
+  menu->setWaitHandler([=]() {
+      int8_t val = getMovedSource(0);
+      if (val) {
+        if (filter && filter(val)) {
+          return;
+        }
+        if (setValue) {
+          setValue(val);
+        }
+        this->fillMenu(menu);
+      }
+    });
+#endif
 }
 
 void SourceChoice::openMenu()

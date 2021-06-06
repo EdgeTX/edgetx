@@ -549,8 +549,7 @@ void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
 extern swarnstate_t switches_states;
 swsrc_t getMovedSwitch();
 
-#define GET_MOVED_SOURCE_PARAMS uint8_t min
-int8_t getMovedSource(GET_MOVED_SOURCE_PARAMS);
+int8_t getMovedSource(uint8_t min);
 #define GET_MOVED_SOURCE(min, max) getMovedSource(min)
 
 #if defined(FLIGHT_MODES)
