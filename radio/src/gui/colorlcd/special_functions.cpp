@@ -272,7 +272,7 @@ class SpecialFunctionButton : public Button {
       uint8_t func = CFN_FUNC(cfn);
       if (!cfn->isEmpty() &&
           (HAS_ENABLE_PARAM(func) || HAS_REPEAT_PARAM(func) || (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT))) {
-        setHeight(height() + 20);
+        setHeight(line2 + PAGE_LINE_HEIGHT);
       }
     }
 
