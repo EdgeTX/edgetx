@@ -78,7 +78,10 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
     TimerState * timerState = &timersStates[i];
 
     if (timerMode) {
-      if ((timerState->state == TMR_OFF) && (timerMode != TMRMODE_THR_START)) {
+      if ((timerState->state == TMR_OFF)
+          && (timerMode != TMRMODE_THR_START)
+          && (timerMode != TMRMODE_START)) {
+       
         timerState->state = TMR_RUNNING;
         timerState->cnt = 0;
         timerState->sum = 0;
@@ -93,44 +96,52 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
         if (timerState->val == TIMER_MAX) break;
         if (timerState->val == TIMER_MIN) break;
 
-        timerState->val_10ms -= 100 ;
+        timerState->val_10ms -= 100;
         tmrval_t newTimerVal = timerState->val;
         if (timerStart) newTimerVal = timerStart - newTimerVal;
 
-        if (timerMode == TMRMODE_ON) {
-          newTimerVal++;
-        }
-        else if (timerMode == TMRMODE_THR) {
-          if (throttle) newTimerVal++;
-        }
-        else if (timerMode == TMRMODE_THR_REL) {
-          if ((timerState->sum/timerState->cnt) >= 128) {  // throttle was normalized to 0 to 128 value (throttle/64*2 (because - range is added as well)
-            newTimerVal++;  // add second used of throttle
-            timerState->sum -= 128*timerState->cnt;
-          }
-          timerState->cnt = 0;
-        }
-        else if (timerMode == TMRMODE_THR_START) {
-          // we can't rely on (throttle || newTimerVal > 0) as a detection if timer should be running
-          // because having persistent timer brakes this rule
-          if ((throttle > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
+        if (timerMode == TMRMODE_START) {
+          // Start timer based on switch
+          if (getSwitch(timerSwtch) && timerState->state == TMR_OFF) {
             timerState->state = TMR_RUNNING;  // start timer running
             timerState->cnt = 0;
             timerState->sum = 0;
-            // TRACE("Timer[%d] THr triggered", i);
           }
-          if (timerState->state != TMR_OFF) newTimerVal++;
-        }
-        else {
-          if (timerMode > 0) timerMode -= (TMRMODE_COUNT-1);
-          if (getSwitch(timerSwtch)) {
+          if (timerState->state != TMR_OFF) {
             newTimerVal++;
+          } 
+        } else if (getSwitch(timerSwtch)) {
+
+          // Modes conditional on switch at any time
+          if (timerMode == TMRMODE_ON) {
+            newTimerVal++;
+          } else if (timerMode == TMRMODE_THR) {
+            if (throttle) newTimerVal++;
+          } else if (timerMode == TMRMODE_THR_REL) {
+            // throttle was normalized to 0 to 128 value
+            // (throttle/64*2 (because - range is added as well)
+            if ((timerState->sum / timerState->cnt) >= 128) {  
+              newTimerVal++;  // add second used of throttle
+              timerState->sum -= 128 * timerState->cnt;
+            }
+            timerState->cnt = 0;
+          } else if (timerMode == TMRMODE_THR_START) {
+            // we can't rely on (throttle || newTimerVal > 0) as a detection if
+            // timer should be running because having persistent timer brakes
+            // this rule
+            if ((throttle > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
+              timerState->state = TMR_RUNNING;  // start timer running
+              timerState->cnt = 0;
+              timerState->sum = 0;
+              // TRACE("Timer[%d] THr triggered", i);
+            }
+            if (timerState->state != TMR_OFF) newTimerVal++;
           }
         }
 
         switch (timerState->state) {
           case TMR_RUNNING:
-            if (timerStart && newTimerVal>=(tmrval_t)timerStart) {
+            if (timerStart && newTimerVal >= (tmrval_t)timerStart) {
               AUDIO_TIMER_ELAPSED(i);
               timerState->state = TMR_NEGATIVE;
               // TRACE("Timer[%d] negative", i);
@@ -144,7 +155,8 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
             break;
         }
 
-        if (timerStart) newTimerVal = timerStart - newTimerVal; // if counting backwards - display backwards
+        // if counting backwards - display backwards
+        if (timerStart) newTimerVal = timerStart - newTimerVal;
 
         if (newTimerVal != timerState->val) {
           timerState->val = newTimerVal;
