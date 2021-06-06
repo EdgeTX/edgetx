@@ -84,7 +84,7 @@ typedef TimerData TimerData_v220;
 
 static void convertToStr(char* str, size_t len)
 {
-  for (int c = 0; c < len; c++) {
+  for (size_t c = 0; c < len; c++) {
     str[c] = zchar2char(str[c]);
   }
   // Trim string
