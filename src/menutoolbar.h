@@ -156,9 +156,11 @@ class MenuToolbar: public FormGroup {
           choice->fillMenu(menu, [=](int16_t index) {
             return index >= filtermin && index <= filtermax;
           });
+          menu->setFocusBody();
         }
         else {
           choice->fillMenu(menu);
+          menu->setFocusBody();
         }
         return 1;
       });

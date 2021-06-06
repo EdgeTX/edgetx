@@ -181,6 +181,11 @@ class Menu: public ModalWindow
       waitHandler = std::move(handler);
     }
 
+    void setFocusBody(uint8_t flag = SET_FOCUS_DEFAULT)
+    {
+      content->body.setFocus(flag);
+    }
+
     void setToolbar(Window * window)
     {
       toolbar = window;
