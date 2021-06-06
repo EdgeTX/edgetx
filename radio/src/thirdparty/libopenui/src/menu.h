@@ -122,11 +122,7 @@ class MenuBody: public Window
 
   protected:
     std::vector<MenuLine> lines;
-#if defined(HARDWARE_TOUCH)
-    int selectedIndex = -1;
-#else
     int selectedIndex = 0;
-#endif
     std::function<void()> onCancel;
 
     inline Menu * getParentMenu();
