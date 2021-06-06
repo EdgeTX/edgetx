@@ -197,7 +197,7 @@ void convertModelData_219_to_220(ModelData &model)
   memset(newModel.screenData, 0,
          sizeof(newModel.screenData) +
          sizeof(newModel.topbarData));
-  //TODO: set defaults as with new model
+  loadDefaultLayout();
 #endif
   free(oldModelAllocated);
 }
