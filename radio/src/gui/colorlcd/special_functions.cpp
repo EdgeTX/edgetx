@@ -149,7 +149,7 @@ class SpecialFunctionEditPage : public Page {
                          [=](std::string newValue) {
                            strncpy(cfn->play.name, newValue.c_str(), sizeof(cfn->play.name));
                            SET_DIRTY();
-                         });
+                         }, true); // strip extension
           grid.nextLine();
           break;
 
