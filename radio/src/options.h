@@ -98,6 +98,9 @@ static const char * const options[] = {
 #if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
   "externalaccessmod",
 #endif
+#if defined(FLYSKY_HALL_STICKS)
+  "flyskyhallsticks",
+#endif
 #if defined(BIND_KEY)
   "bindkey",
 #endif

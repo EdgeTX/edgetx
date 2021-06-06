@@ -244,6 +244,7 @@ options_jumper_t16 = {
     "internalmulti": ("INTERNAL_MODULE_MULTI", "YES", "NO"),
     "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
+    "flyskyhallsticks": ("FLYSKY_HALL_STICKS", "NO", "YES"),    
 }
 
 options_jumper_t18 = {
@@ -257,6 +258,7 @@ options_jumper_t18 = {
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
     "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
+    "flyskyhallsticks": ("FLYSKY_HALL_STICKS", "NO", "YES"),    
 }
 
 options_radiomaster_tx12 = {
@@ -294,4 +296,5 @@ options_radiomaster_tx16s = {
     "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "internalgps": ("INTERNAL_GPS", "YES", "NO"),
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
+    "flyskyhallsticks": ("FLYSKY_HALL_STICKS", "NO", "YES"),    
 }

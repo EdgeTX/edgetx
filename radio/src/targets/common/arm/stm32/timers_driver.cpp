@@ -20,6 +20,8 @@
 
 #include "opentx.h"
 
+extern void flysky_hall_stick_loop( void );
+
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
 {
@@ -60,6 +62,10 @@ void interrupt5ms()
   DEBUG_TIMER_START(debugTimerHaptic);
   HAPTIC_HEARTBEAT();
   DEBUG_TIMER_STOP(debugTimerHaptic);
+#endif
+
+#if defined(FLYSKY_HALL_STICKS)
+  flysky_hall_stick_loop();  // TODO: need to put in 1ms timer loop for best performance
 #endif
 
   if (pre_scale == 2) {

@@ -14,10 +14,22 @@ boards = {
         "PCBREV": "TX16S",
         "DEFAULT_MODE": "1",
     },
+    "TX16S_1_FS": {
+        "PCB": "X10",
+        "PCBREV": "TX16S",
+        "DEFAULT_MODE": "1",
+        "FLYSKY_HALL_STICKS": "YES",
+    },
     "TX16S_2": {
         "PCB": "X10",
         "PCBREV": "TX16S",
         "DEFAULT_MODE": "2",
+    },
+    "TX16S_2_FS": {
+        "PCB": "X10",
+        "PCBREV": "TX16S",
+        "DEFAULT_MODE": "2",
+        "FLYSKY_HALL_STICKS": "YES",
     },
     "TX12_1": {
         "PCB": "X7",

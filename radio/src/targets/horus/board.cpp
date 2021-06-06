@@ -29,6 +29,8 @@ extern "C" {
 }
 #endif
 
+extern void flysky_hall_stick_init( void );
+
 HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
@@ -108,6 +110,9 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          KEYS_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
+#if defined(FLYSKY_HALL_STICKS)                         
+                         FLYSKY_HALL_RCC_AHB1Periph |                         
+#endif
                          AUX_SERIAL_RCC_AHB1Periph |
                          AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
@@ -129,6 +134,9 @@ void boardInit()
                          ADC_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
+#if defined(FLYSKY_HALL_STICKS)                         
+                         FLYSKY_HALL_RCC_APB1Periph |                         
+#endif
                          AUX_SERIAL_RCC_APB1Periph |
                          AUX2_SERIAL_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
@@ -192,6 +200,10 @@ void boardInit()
   adcInit();
   lcdInit();
   backlightInit();
+
+#if defined(FLYSKY_HALL_STICKS)
+  flysky_hall_stick_init();
+#endif
 
   init2MhzTimer();
   init5msTimer();
