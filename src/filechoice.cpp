@@ -31,13 +31,18 @@
   #define STR_NO_FILES_ON_SD "No files on SD Card!"
 #endif
 
-FileChoice::FileChoice(FormGroup * parent, const rect_t & rect, std::string folder, const char * extension, int maxlen, std::function<std::string()> getValue, std::function<void(std::string)> setValue):
-  ChoiceBase(parent, rect, CHOICE_TYPE_FOLDER),
-  folder(std::move(folder)),
-  extension(extension),
-  maxlen(maxlen),
-  getValue(std::move(getValue)),
-  setValue(std::move(setValue))
+FileChoice::FileChoice(FormGroup *parent, const rect_t &rect,
+                       std::string folder, const char *extension, int maxlen,
+                       std::function<std::string()> getValue,
+                       std::function<void(std::string)> setValue,
+                       bool stripExtension) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_FOLDER),
+    folder(std::move(folder)),
+    extension(extension),
+    maxlen(maxlen),
+    getValue(std::move(getValue)),
+    setValue(std::move(setValue)),
+    stripExtension(stripExtension)
 {
 }
 
@@ -52,30 +57,28 @@ bool FileChoice::openMenu()
   FILINFO fno;
   DIR dir;
   std::list<std::string> files;
-  const char * fnExt;
+  const char *fnExt;
   uint8_t fnLen, extLen;
 
-  FRESULT res = f_opendir(&dir, folder.c_str()); // Open the directory
+  FRESULT res = f_opendir(&dir, folder.c_str());  // Open the directory
   if (res == FR_OK) {
     bool firstTime = true;
     for (;;) {
       res = sdReadDir(&dir, &fno, firstTime);
       if (res != FR_OK || fno.fname[0] == 0)
-        break; // break on error or end of dir
-      if (fno.fattrib & AM_DIR)
-        continue; // skip subfolders
-      if (fno.fattrib & AM_HID)
-        continue; // skip hidden files
-      if (fno.fattrib & AM_SYS)
-        continue; // skip system files
+        break;                             // break on error or end of dir
+      if (fno.fattrib & AM_DIR) continue;  // skip subfolders
+      if (fno.fattrib & AM_HID) continue;  // skip hidden files
+      if (fno.fattrib & AM_SYS) continue;  // skip system files
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
-      // fnLen -= extLen;
 
-      if (!fnLen || fnLen > maxlen)
-        continue; // wrong size
       if (extension && !isExtensionMatching(fnExt, extension))
-        continue; // wrong extension
+        continue;  // wrong extension
+
+      if (stripExtension) fnLen -= extLen;
+
+      if (!fnLen || fnLen > maxlen) continue;  // wrong size
 
       files.emplace_back(fno.fname, fnLen);
     }
@@ -83,18 +86,16 @@ bool FileChoice::openMenu()
     if (!files.empty()) {
       // sort files
       files.sort(compare_nocase);
-
       files.push_front("");
 
       auto menu = new Menu(this);
       int count = 0;
       int current = -1;
       std::string value = getValue();
-      for (const auto &file: files) {
-        menu->addLine(file, [=]() {
-            setValue(file);
-        });
-        // TRACE("%s %d %s %d", value.c_str(), value.size(), file.c_str(), file.size());
+      for (const auto &file : files) {
+        menu->addLine(file, [=]() { setValue(file); });
+        // TRACE("%s %d %s %d", value.c_str(), value.size(), file.c_str(),
+        // file.size());
         if (value.compare(file) == 0) {
           // TRACE("OK");
           current = count;
