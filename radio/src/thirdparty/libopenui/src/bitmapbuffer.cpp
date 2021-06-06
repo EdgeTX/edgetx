@@ -755,16 +755,16 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y, const uint8_t * im
     for (int x1 = w2 - 1; x1 >= 0; x1--) {
       Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);
       if (slope.isBetween(startSlope, endSlope)) {
-        drawAlphaPixel(x + w2 + x1, y + h2 - y1, q[(h2 - y1) * width + w2 + x1], color);
+        drawAlphaPixel(x + w2 + x1, y + h2 - y1, q[(h2 - y1) * width + w2 + x1]>>4, color);
       }
       if (slope.invertVertical().isBetween(startSlope, endSlope)) {
-        drawAlphaPixel(x + w2 + x1, y + h2 + y1, q[(h2 + y1) * width + w2 + x1], color);
+        drawAlphaPixel(x + w2 + x1, y + h2 + y1, q[(h2 + y1) * width + w2 + x1]>>4, color);
       }
       if (slope.invertHorizontal().isBetween(startSlope, endSlope)) {
-        drawAlphaPixel(x + w2 - x1, y + h2 + y1, q[(h2 + y1) * width + w2 - x1], color);
+        drawAlphaPixel(x + w2 - x1, y + h2 + y1, q[(h2 + y1) * width + w2 - x1]>>4, color);
       }
       if (slope.invertVertical().isBetween(startSlope, endSlope)) {
-        drawAlphaPixel(x + w2 - x1, y + h2 - y1, q[(h2 - y1) * width + w2 - x1], color);
+        drawAlphaPixel(x + w2 - x1, y + h2 - y1, q[(h2 - y1) * width + w2 - x1]>>4, color);
       }
     }
   }
