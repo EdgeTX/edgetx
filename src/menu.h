@@ -122,11 +122,7 @@ class MenuBody: public Window
 
   protected:
     std::vector<MenuLine> lines;
-#if defined(HARDWARE_TOUCH)
-    int selectedIndex = -1;
-#else
     int selectedIndex = 0;
-#endif
     std::function<void()> onCancel;
 
     inline Menu * getParentMenu();
@@ -183,6 +179,11 @@ class Menu: public ModalWindow
     void setWaitHandler(std::function<void()> handler)
     {
       waitHandler = std::move(handler);
+    }
+
+    void setFocusBody(uint8_t flag = SET_FOCUS_DEFAULT)
+    {
+      content->body.setFocus(flag);
     }
 
     void setToolbar(Window * window)
