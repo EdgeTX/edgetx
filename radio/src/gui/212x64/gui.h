@@ -64,7 +64,6 @@ extern uint8_t noHighlightCounter;
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr);
 void drawSlider(coord_t x, coord_t y, uint8_t value, uint8_t max, uint8_t attr);
 void drawSplash();
-void drawSecondSplash();
 void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr);
 void drawVerticalScrollbar(coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible);
 void drawGauge(coord_t x, coord_t y, coord_t w, coord_t h, int32_t val, int32_t max);
