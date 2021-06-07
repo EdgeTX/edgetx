@@ -72,6 +72,9 @@ void SourceChoice::paint(BitmapBuffer * dc)
   drawSource(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
 }
 
+// defined in gui/gui_common.cpp
+uint8_t switchToMix(uint8_t source);
+  
 void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & filter)
 {
   auto value = getValue();
@@ -95,7 +98,7 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
-      int16_t val = getMovedSource(0);
+      int16_t val = getMovedSource(vmin);
       if (val) {
         if (filter && filter(val)) {
           return;
@@ -105,17 +108,19 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
         }
         this->fillMenu(menu);
       }
+#if defined(AUTOSWITCH)
       else {
-        swsrc_t swtch = getMovedSwitch();
-        if (swtch) {
-          div_t info = switchInfo(swtch);
-          val = info.quot + MIXSRC_FIRST_SWITCH;
-          if (val && (!filter || !filter(val))) {
+        swsrc_t swtch = abs(getMovedSwitch());
+        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+          val = switchToMix(swtch);
+          if (val && (val >= vmin) && (val <= vmax)
+              && (!filter || !filter(val))) {
             if (setValue) setValue(val);
             this->fillMenu(menu);
           }
         }
       }
+#endif
     });
 #endif
 }
