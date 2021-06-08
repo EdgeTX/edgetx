@@ -309,12 +309,6 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.nextLine();
 #endif
 
-#if defined(TELEMETRY_MAVLINK)
-  new StaticText(window, grid.getLabelSlot(), STR_MAVLINK_EXTERNAL);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.mavlinkExternal));
-  grid.nextLine();
-#endif
-
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER);
   new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.jitterFilter));

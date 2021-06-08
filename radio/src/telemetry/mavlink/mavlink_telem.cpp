@@ -442,17 +442,17 @@ void MavlinkTelem::wakeup()
 #else
   bool usb_enabled = false;
 #endif
-  bool external_enabled = (g_eeGeneral.mavlinkExternal == 1) && !s_pulses_paused;
 
-  if ((_aux1_enabled != aux1_enabled) || (_aux2_enabled != aux2_enabled) ||
-      (_aux1_baudrate != g_eeGeneral.mavlinkBaudrate) || (_aux2_baudrate != g_eeGeneral.mavlinkBaudrate2) ||
-      (_external_enabled != external_enabled)) {
+  // check for config updates
+  if ((_aux1_enabled != aux1_enabled) ||
+      (_aux2_enabled != aux2_enabled) ||
+      (_aux1_baudrate != g_eeGeneral.mavlinkBaudrate) ||
+      (_aux2_baudrate != g_eeGeneral.mavlinkBaudrate2)) {
+
     _aux1_enabled = aux1_enabled;
     _aux2_enabled = aux2_enabled;
     _aux1_baudrate = g_eeGeneral.mavlinkBaudrate;
     _aux2_baudrate = g_eeGeneral.mavlinkBaudrate2;
-    _external_enabled = external_enabled;
-    mavlinkTelemExternal_init(external_enabled);
     map_serials();
     _reset();
   }
@@ -461,8 +461,6 @@ void MavlinkTelem::wakeup()
     _usb_enabled = usb_enabled;
     fmav_router_clearout_link(3);
   }
-
-  if (external_enabled) mavlinkTelemExternal_wakeup();
 
   // skip out if not one of the serial1, serial2 is enabled
   if (!serial1_enabled && !serial1_enabled) return;
@@ -626,7 +624,6 @@ void MavlinkTelem::_reset(void)
 #if !defined(AUX2_SERIAL)
   if (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK) g_eeGeneral.aux2SerialMode = UART_MODE_NONE_OR_DEBUG;
 #endif
-  if (g_eeGeneral.mavlinkExternal > 1) g_eeGeneral.mavlinkExternal = 0;
 
   _my_sysid = MAVLINK_TELEM_MY_SYSID;
   _my_compid = MAVLINK_TELEM_MY_COMPID;

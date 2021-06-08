@@ -51,14 +51,6 @@ extern Fifo<uint8_t, 2*512> mavlinkTelemAux2SerialRxFifo;
 extern Fifo<uint8_t, 2*512> mavlinkTelemUsbRxFifo;
 #endif
 
-//TODO: since we want to allow only 2 channels max, this is memory waste,
-//i.e., we should just have 2 instead of three Fifos.
-extern Fifo<uint8_t, 32> mavlinkTelemExternalTxFifo_frame;
-extern Fifo<uint8_t, 2*512> mavlinkTelemExternalRxFifo;
-
-void mavlinkTelemExternal_init(bool flag);
-void mavlinkTelemExternal_wakeup(void);
-
 uint32_t mavlinkTelem1Available(void);
 uint8_t mavlinkTelem1Getc(uint8_t *c);
 bool mavlinkTelem1HasSpace(uint16_t count);
@@ -896,16 +888,13 @@ class MavlinkTelem
     bool _aux2_enabled = false;
     uint32_t _aux2_baudrate = UINT32_MAX; // to enforce change
     bool _usb_enabled = false;
-    bool _external_enabled = false;
 
     void map_serials(void);
 
   public:
-    // map of aux1, aux2, external onto serial1, serial2
+    // map of aux1, aux2 onto serial1, serial2
     bool serial1_enabled = false;
     bool serial2_enabled = false;
-    bool serial1_isexternal = false;
-    bool serial2_isexternal = false;
 };
 
 extern MavlinkTelem mavlinkTelem;

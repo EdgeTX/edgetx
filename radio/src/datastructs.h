@@ -856,10 +856,10 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 
 #if defined(TELEMETRY_MAVLINK)
-  uint16_t mavlinkBaudrate:3;
-  uint16_t mavlinkBaudrate2:3;
-  uint16_t mavlinkExternal:2;
-  uint16_t _mavlinkDummy:8; // currently not used
+  // TODO: use specific structure
+  uint8_t mavlinkBaudrate:3;
+  uint8_t mavlinkBaudrate2:3;
+  uint8_t mavlinkSpare:2;
   // needs to adapt CHKSIZE below
 #endif
 });
@@ -984,7 +984,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6604);
 #elif defined(PCBHORUS)
 #if defined(TELEMETRY_MAVLINK)
-  CHKSIZE(RadioData, 902+2);
+  CHKSIZE(RadioData, 902+1);
   CHKSIZE(ModelData, 11020+2);
 #else
   CHKSIZE(RadioData, 902);
