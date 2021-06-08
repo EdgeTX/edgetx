@@ -22,6 +22,7 @@
  */
 
 #include "opentx.h"
+#include "telemetry/mavlink/mavlink_telem.h"
 
 MAVLINK_RAM_SECTION MavlinkTelem mavlinkTelem;
 

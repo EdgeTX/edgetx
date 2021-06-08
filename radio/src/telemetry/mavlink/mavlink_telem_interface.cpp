@@ -22,6 +22,7 @@
  */
 
 #include "opentx.h"
+#include "telemetry/mavlink/mavlink_telem.h"
 
 // -- CoOS RTOS mavlink task handlers --
 

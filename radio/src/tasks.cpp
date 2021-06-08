@@ -21,6 +21,10 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+#if defined(TELEMETRY_MAVLINK)
+#include "telemetry/mavlink/mavlink_telem.h"
+#endif
+
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 

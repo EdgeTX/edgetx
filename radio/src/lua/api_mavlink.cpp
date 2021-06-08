@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include "opentx.h"
 #include "lua_api.h"
+#include "telemetry/mavlink/mavlink_telem.h"
 #include "thirdparty/Mavlink/edgetx_lua_lib_constants.h"
 #include "thirdparty/Mavlink/edgetx_lua_lib_messages.h"
 

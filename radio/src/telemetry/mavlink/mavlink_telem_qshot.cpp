@@ -22,6 +22,7 @@
  */
 
 #include "opentx.h"
+#include "telemetry/mavlink/mavlink_telem.h"
 
 // -- Generate MAVLink messages --
 // these should never be called directly, should only be called by the task handler
