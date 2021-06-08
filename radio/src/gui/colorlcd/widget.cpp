@@ -75,6 +75,10 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
     //TODO: forward to widget (lua for instance)
     return true;
   }
+
+  if (Window::onTouchEnd(x, y)) {
+    return true;
+  }
   
   if (hasFocus()) {
     onPress();
