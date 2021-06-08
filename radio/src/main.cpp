@@ -70,12 +70,7 @@ void openUsbMenu()
     TRACE("USB mass storage");
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
-#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
-  _usbMenu->addLine(STR_USB_MAVLINK, [] {
-    setSelectedUsbMode(USB_MAVLINK_MODE);
-  });
-#endif
-#if defined(DEBUG)
+#if defined(USB_SERIAL)
   _usbMenu->addLine(STR_USB_SERIAL, [] {
     TRACE("USB serial");
     setSelectedUsbMode(USB_SERIAL_MODE);
@@ -93,11 +88,6 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
-#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
-  else if (result == STR_USB_MAVLINK) {
-    setSelectedUsbMode(USB_MAVLINK_MODE);
-  }
-#endif
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
@@ -111,9 +101,6 @@ void openUsbMenu()
   if (popupMenuHandler != onUSBConnectMenu) {
     POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
     POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
-#if defined(TELEMETRY_MAVLINK_USB_SERIAL)
-    POPUP_MENU_ADD_ITEM(USB_MAVLINK_MODE);
-#endif
 #if defined(DEBUG)
     POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
 #endif

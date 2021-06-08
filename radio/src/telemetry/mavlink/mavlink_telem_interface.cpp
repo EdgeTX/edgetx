@@ -372,11 +372,13 @@ bool mavlinkTelem2PutBuf(const uint8_t* buf, const uint16_t count){ return false
 
 // -- USB handlers --
 
+//TODO: is it really necessary to have this extra define?
 #if defined(TELEMETRY_MAVLINK_USB_SERIAL)
 
 uint32_t mavlinkTelem3Available(void)
 {
-  if (getSelectedUsbMode() != USB_MAVLINK_MODE) return 0;
+  // TODO: check if MAVLink has been assigned to USB serial
+  if (getSelectedUsbMode() != USB_SERIAL_MODE) return 0;
   return mavlinkTelemUsbRxFifo.size();
 }
 
@@ -388,13 +390,15 @@ uint8_t mavlinkTelem3Getc(uint8_t* c)
 
 bool mavlinkTelem3HasSpace(uint16_t count)
 {
-  if (getSelectedUsbMode() != USB_MAVLINK_MODE) return false;
+  // TODO: check if MAVLink has been assigned to USB serial
+  if (getSelectedUsbMode() != USB_SERIAL_MODE) return false;
   return true; //??
 }
 
 bool mavlinkTelem3PutBuf(const uint8_t* buf, const uint16_t count)
 {
-  if (getSelectedUsbMode() != USB_MAVLINK_MODE || !buf) {
+  // TODO: check if MAVLink has been assigned to USB serial
+  if (getSelectedUsbMode() != USB_SERIAL_MODE || !buf) {
     return false;
   }
   for (uint16_t i = 0; i < count; i++) {

@@ -437,7 +437,7 @@ void MavlinkTelem::wakeup()
   bool aux1_enabled = (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK);
   bool aux2_enabled = (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK);
 #if defined(TELEMETRY_MAVLINK_USB_SERIAL)
-  bool usb_enabled = (getSelectedUsbMode() == USB_MAVLINK_MODE);
+  bool usb_enabled = (getSelectedUsbMode() == USB_SERIAL_MODE);
 #else
   bool usb_enabled = false;
 #endif
