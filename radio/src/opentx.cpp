@@ -28,6 +28,10 @@
   #include "view_main.h"
 #endif
 
+#if defined(TELEMETRY_MAVLINK)
+#include "telemetry/mavlink/mavlink_telem.h"
+#endif
+
 #if defined(PCBSKY9X)
 #include "audio_driver.h"
 #endif

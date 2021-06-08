@@ -24,6 +24,10 @@
 
 #include "opentx.h"
 
+#if defined(TELEMETRY_MAVLINK)
+#include "telemetry/mavlink/mavlink_telem.h"
+#endif
+
 extern "C" {
 
 /* Includes ------------------------------------------------------------------*/

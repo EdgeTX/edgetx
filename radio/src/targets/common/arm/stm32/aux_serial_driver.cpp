@@ -20,6 +20,7 @@
 
 #include "opentx.h"
 #include "targets/horus/board.h"
+#include "telemetry/mavlink/mavlink_telem.h"
 
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
