@@ -652,14 +652,12 @@ PACK(struct ModelData {
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
 #if defined(TELEMETRY_MAVLINK)
-  uint16_t _mavlinkEnabled:1; // currently not used
-  uint16_t mavlinkRssi:1;
-  uint16_t _mavlinkDummy:2; // currently not used
-  uint16_t mavlinkMimicSensors:3; // currently just off/on, but allow e.g. FrSky, CF, FrSky passthrough.
-  uint16_t mavlinkRcOverride:1;
-  uint16_t _mavlinkGpsIcon:1; // currently not used
-  uint8_t  mavlinkRssiScale;
-  uint8_t  _mavlinkDummy2; // currently not used
+  // TODO: use a specific structure
+  uint8_t mavlinkRssi:1;
+  uint8_t mavlinkMimicSensors:3; // currently just off/on, but allow e.g. FrSky, CF, FrSky passthrough.
+  uint8_t mavlinkRcOverride:1;
+  uint8_t mavlinkSpare:2;
+  uint8_t mavlinkRssiScale;
   // needs to adapt CHKSIZE below //if not all are use compiled optiomizes to lowest size, which may raise error
 #endif
 
@@ -987,7 +985,7 @@ static inline void check_struct()
 #elif defined(PCBHORUS)
 #if defined(TELEMETRY_MAVLINK)
   CHKSIZE(RadioData, 902+2);
-  CHKSIZE(ModelData, 11020+4);
+  CHKSIZE(ModelData, 11020+2);
 #else
   CHKSIZE(RadioData, 902);
   CHKSIZE(ModelData, 11020);
