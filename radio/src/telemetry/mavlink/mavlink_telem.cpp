@@ -438,6 +438,7 @@ void MavlinkTelem::wakeup()
   bool aux1_enabled = (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK);
   bool aux2_enabled = (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK);
 #if defined(TELEMETRY_MAVLINK_USB_SERIAL)
+  //TODO: check which function the USB serial has been assigned to
   bool usb_enabled = (getSelectedUsbMode() == USB_SERIAL_MODE);
 #else
   bool usb_enabled = false;
@@ -619,10 +620,12 @@ void MavlinkTelem::_reset(void)
 #define UART_MODE_NONE_OR_DEBUG UART_MODE_NONE
 #endif
 #if !defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK) g_eeGeneral.auxSerialMode = UART_MODE_NONE_OR_DEBUG;
+  if (g_eeGeneral.auxSerialMode == UART_MODE_MAVLINK)
+    g_eeGeneral.auxSerialMode = UART_MODE_NONE_OR_DEBUG;
 #endif
 #if !defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK) g_eeGeneral.aux2SerialMode = UART_MODE_NONE_OR_DEBUG;
+  if (g_eeGeneral.aux2SerialMode == UART_MODE_MAVLINK)
+    g_eeGeneral.aux2SerialMode = UART_MODE_NONE_OR_DEBUG;
 #endif
 
   _my_sysid = MAVLINK_TELEM_MY_SYSID;
