@@ -947,9 +947,9 @@
 #define TR_RESET_TELEMETRY             "Reset Telemetrie"
 #define TR_STATISTICS                  "Statistik Timer Gas"
 #define TR_ABOUT_US                    "Die Programmierer"
-#define TR_USB_JOYSTICK                "USB Joystick (HID)"
-#define TR_USB_MASS_STORAGE            "USB Speicher (SD)"
-#define TR_USB_SERIAL                  "USB Seriell (Debug)"
+#define TR_USB_JOYSTICK                "USB Joystick"
+#define TR_USB_MASS_STORAGE            "USB Speicher"
+#define TR_USB_SERIAL                  "USB Seriell"
 #define TR_SETUP_SCREENS               "Setup Hautbildschirme"
 #define TR_MONITOR_SCREENS             "Monitore Mischer Kanal Logik"
 #define TR_AND_SWITCH                  "UND Schalt" //UND mit weiterem Schaltern

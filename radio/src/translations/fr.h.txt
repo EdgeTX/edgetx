@@ -968,9 +968,9 @@
 #define TR_RESET_TELEMETRY             TR("Réinit. Télém.", "Réinit. Télémétrie")
 #define TR_STATISTICS                  "Statistiques"
 #define TR_ABOUT_US                    "A propos"
-#define TR_USB_JOYSTICK                "USB Joystick (HID)"
-#define TR_USB_MASS_STORAGE            "Stockage USB (SD)"
-#define TR_USB_SERIAL                  "Port série (Debug)"
+#define TR_USB_JOYSTICK                "USB Joystick"
+#define TR_USB_MASS_STORAGE            "Stockage USB"
+#define TR_USB_SERIAL                  "Port série"
 #define TR_SETUP_SCREENS               "Configuration écrans"
 #define TR_MONITOR_SCREENS             "Moniteurs"
 #define TR_AND_SWITCH                  "ET suppl."
