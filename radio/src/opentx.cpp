@@ -1091,6 +1091,10 @@ void getADC()
   }
 #endif
 
+  DEBUG_TIMER_START(debugTimerAdcRead);
+  adcRead();
+  DEBUG_TIMER_STOP(debugTimerAdcRead);
+
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint16_t v;
 
