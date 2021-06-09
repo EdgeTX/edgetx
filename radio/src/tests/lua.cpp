@@ -47,12 +47,12 @@ TEST(Lua, testSetModelInfo)
   luaExecStr("info.name = 'modelA'");
   luaExecStr("model.setInfo(info)");
   // luaExecStr("print('model name: '..info.name..' id: '..info.id)");
-  EXPECT_ZSTREQ("modelA", g_model.header.name);
+  EXPECT_STRNEQ("modelA", g_model.header.name);
 
   luaExecStr("info.name = 'Model 1'");
   luaExecStr("model.setInfo(info)");
   // luaExecStr("print('model name: '..info.name..' id: '..info.id)");
-  EXPECT_ZSTREQ("Model 1", g_model.header.name);
+  EXPECT_STRNEQ("Model 1", g_model.header.name);
 }
 
 TEST(Lua, testPanicProtection)
