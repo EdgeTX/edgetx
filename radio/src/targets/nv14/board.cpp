@@ -29,6 +29,9 @@ extern "C" {
 }
 #endif
 
+extern void flysky_hall_stick_init( void );
+extern void flysky_hall_stick_loop( void );
+
 HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
@@ -84,7 +87,7 @@ void interrupt1ms()
   if (pre_scale == 10) {
     pre_scale = 0;
 #if !defined(SIMU)
-    if (boardState == BOARD_STARTED) hall_stick_loop();
+    if (boardState == BOARD_STARTED) flysky_hall_stick_loop();
 #endif
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
@@ -144,7 +147,7 @@ void delay_self(int count)
 #define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
                                TRAINER_RCC_APB1Periph |\
                                INTMODULE_RCC_APB1Periph |\
-                               HALL_RCC_APB1Periph |\
+                               FLYSKY_HALL_RCC_APB1Periph |\
                                EXTMODULE_RCC_APB1Periph |\
                                INTMODULE_RCC_APB1Periph |\
                                AUX_SERIAL_RCC_APB1Periph \
@@ -229,7 +232,7 @@ void boardInit()
   backlightInit();
   lcdInit();
 #if defined(FLYSKY_HALL_STICKS)
-  hall_stick_init(FLYSKY_HALL_BAUDRATE);
+  flysky_hall_stick_init();
 #endif
   usbInit();
   hapticInit();

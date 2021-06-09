@@ -68,7 +68,7 @@
   #define FIRST_ANALOG_ADC             0
   #define NUM_MAIN_ANALOGS_ADC         10
   #define NUM_MAIN_ANALOGS_ADC_EXT     (NUM_MAIN_ANALOGS - 10)
-#elif defined(PCBNV14) && defined(HALL_STICKS)
+#elif defined(PCBNV14) && defined(FLYSKY_HALL_STICKS)
   #define FIRST_ANALOG_ADC             4
   #define NUM_MAIN_ANALOGS_ADC         9
 #else
@@ -147,7 +147,7 @@ void adcInit()
   ADC_MAIN->SQR2 = (ADC_CHANNEL_SWE<<0) + (ADC_CHANNEL_SWF<<5) + (ADC_CHANNEL_LIBATT<<10) + (ADC_CHANNEL_DRYBATT<<15); // conversions 7 and more
   ADC_MAIN->SQR3 = (ADC_CHANNEL_POT1<<0) + (ADC_CHANNEL_POT2<<5) + (ADC_CHANNEL_SWA<<10) + (ADC_CHANNEL_SWB<<15) + (ADC_CHANNEL_SWC<<20) + (ADC_CHANNEL_SWD<<25); // conversions 1 to 6
 #elif defined(PCBNV14)
-  #if !defined(HALL_STICKS)
+  #if !defined(FLYSKY_HALL_STICKS)
   ADC_MAIN->SQR1 |= (ADC_CHANNEL_BATT <<0 );
   ADC_MAIN->SQR2 = (ADC_CHANNEL_SWA << 0) + (ADC_CHANNEL_SWC << 5) + (ADC_CHANNEL_SWE << 10) + (ADC_CHANNEL_SWF << 15) + (ADC_CHANNEL_SWG << 20) + (ADC_CHANNEL_SWH << 25); // conversions 7 and more
   ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH<<0) + (ADC_CHANNEL_STICK_LV<<5) + (ADC_CHANNEL_STICK_RV<<10) + (ADC_CHANNEL_STICK_RH<<15) + (ADC_CHANNEL_POT1<<20) + (ADC_CHANNEL_POT2<<25); // conversions 1 to 6

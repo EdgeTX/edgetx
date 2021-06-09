@@ -473,7 +473,8 @@ void handleTouch()
       touchState.startY = touchState.y;
       touchState.event = TE_DOWN;
       if (g_eeGeneral.backlightMode & e_backlight_mode_keys)
-        backlightOn(); // TODO is that the best place ?
+        backlightEnable(BACKLIGHT_LEVEL_MAX);          
+ //       backlightOn(); // TODO is that the best place ?
     }
     else if (touchState.event == TE_DOWN) {
       if (dx >= SLIDE_RANGE || dx <= -SLIDE_RANGE || dy >= SLIDE_RANGE || dy <= -SLIDE_RANGE) {

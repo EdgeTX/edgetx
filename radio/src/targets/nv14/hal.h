@@ -99,7 +99,7 @@
 // ADC
 #define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
 #define ADC_RCC_APB2Periph              (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
-#if !defined(HALL_STICKS)
+#if !defined(FLYSKY_HALL_STICKS)
 #define ADC_GPIO_PIN_STICK_LH           GPIO_Pin_2      // PA.02
 #define ADC_GPIO_PIN_STICK_LV           GPIO_Pin_3      // PA.03
 #define ADC_GPIO_PIN_STICK_RH           GPIO_Pin_4      // PA.04
@@ -127,7 +127,7 @@
 #define ADC_GPIOC_PINS                  (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_5)
 #define ADC_GPIOF_PINS                  (GPIO_Pin_8 | GPIO_Pin_10)
 
-#if !defined(HALL_STICKS)
+#if !defined(FLYSKY_HALL_STICKS)
 #define ADC_CHANNEL_STICK_LH            ADC_Channel_2   // ADC123_IN2 -> ADC1_IN2
 #define ADC_CHANNEL_STICK_LV            ADC_Channel_3   // ADC123_IN3 -> ADC1_IN3
 #define ADC_CHANNEL_STICK_RH            ADC_Channel_4   // ADC12_IN4  -> ADC1_IN4
@@ -160,7 +160,8 @@
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
-#define PWR_GPIO                        GPIOI
+#define PWR_ON_GPIO                     GPIOI
+#define PWR_SWITCH_GPIO                 GPIOI
 #define PWR_SWITCH_GPIO_REG             PWR_GPIO->IDR
 #define PWR_SWITCH_GPIO_PIN             GPIO_Pin_11 // PI.11
 #define PWR_ON_GPIO_PIN                 GPIO_Pin_14 // PI.14
@@ -205,6 +206,11 @@
 //used in BOOTLOADER
 #define SERIAL_RCC_AHB1Periph 0
 #define SERIAL_RCC_APB1Periph 0
+#define AUX2_SERIAL_RCC_AHB1Periph 0
+#define AUX2_SERIAL_RCC_APB1Periph 0
+#define AUX2_SERIAL_RCC_APB2Periph 0
+#define KEYS_BACKLIGHT_RCC_AHB1Periph 0
+
 // Telemetry
 #define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_DMA1)
 #define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
@@ -357,6 +363,37 @@
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
 
+// Flysky Hall Stick
+#if defined(FLYSKY_HALL_STICKS)
+  #if defined (RADIO_TX16S)
+    #define FLYSKY_HALL_STICKS_REVERSE
+  #endif
+
+  #define FLYSKY_HALL_SERIAL_USART                 UART4
+  #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
+  #define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
+  #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_0  // PA.00
+  #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_1  // PA.01
+  #define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource0
+  #define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource1
+  #define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_UART4
+
+  #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
+  #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
+
+  #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
+  #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
+  #define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
+  #define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
+  #define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
+  #define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
+  #define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
+
+  #define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
+  #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+
+#endif
+
 // Internal Module
 #define HARDWARE_INTERNAL_MODULE
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
@@ -399,6 +436,7 @@
 #define EXTMODULE_PULSES
 #define EXTMODULE_PWR_GPIO              GPIOD
 #define EXTMODULE_PWR_GPIO_PIN          GPIO_Pin_11
+#define EXTERNAL_MODULE_PWR_OFF()       GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTMODULE_PWR_FIX_GPIO          GPIOA
 #define EXTMODULE_PWR_FIX_GPIO_PIN      GPIO_Pin_2      // PA.02
 #define EXTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
@@ -518,5 +556,12 @@
 // 2MHz Timer
 #define TIMER_2MHz_RCC_APB1Periph       RCC_APB1Periph_TIM7
 #define TIMER_2MHz_TIMER                TIM7
+
+// Mixer scheduler timer
+#define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM13
+#define MIXER_SCHEDULER_TIMER                TIM13
+#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_UP_TIM13_IRQHandler
 
 #endif // _HAL_H_

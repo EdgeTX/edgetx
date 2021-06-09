@@ -79,8 +79,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(center, 200, "for mass storage", CENTERED | DEFAULT_COLOR);
 
         bootloaderDrawFooter();
-        lcd->drawText(center, LCD_H - DOUBLE_PADDING, "Current Firmware:", CENTERED | DEFAULT_COLOR);
-        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getOtherVersion(nullptr), CENTERED | DEFAULT_COLOR);
+        lcd->drawText(center, LCD_H - DOUBLE_PADDING, "Current Firmware:", CENTERED | DEFAULT_COLOR);        
+        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(nullptr), CENTERED | DEFAULT_COLOR);
     }
     else if (st == ST_USB) {
         //lcd->drawBitmap(136, 98, &BMP_USB_PLUGGED);

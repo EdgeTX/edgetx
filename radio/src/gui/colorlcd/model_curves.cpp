@@ -168,7 +168,9 @@ class CurveEditWindow : public Page
                        curve.type = newValue;
                      }
                      SET_DIRTY();
-                     curveEdit->update();
+                     curveEdit->updatePreview();
+                     curveDataEdit->clear();
+                     curveDataEdit->update();
                    }
                  });
 
@@ -190,7 +192,9 @@ class CurveEditWindow : public Page
                                      }
                                      curve.points = newValue;
                                      SET_DIRTY();
-                                     curveEdit->update();
+                                     curveEdit->updatePreview();
+                                     curveDataEdit->clear();
+                                     curveDataEdit->update();
                                    }
                                  });
       edit->setSuffix(STR_PTS);
@@ -202,7 +206,7 @@ class CurveEditWindow : public Page
                    [=](int32_t newValue) {
                      g_model.curves[index].smooth = newValue;
                      SET_DIRTY();
-                     curveEdit->update();
+                     curveEdit->updatePreview();
                    });
       grid.nextLine();
     }

@@ -23,6 +23,7 @@
 uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t currentLayer = LCD_FIRST_LAYER;
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -1273,7 +1274,8 @@ BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
     (uint16_t *) LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
     (uint16_t *) LCD_SECOND_FRAME_BUFFER);
-BitmapBuffer * lcd = &lcdBuffer1;
+BitmapBuffer * lcdFront = &lcdBuffer1;
+BitmapBuffer * lcd = &lcdBuffer2;
 
 void LCD_SetLayer(uint32_t layer) {
   if (layer == LCD_FIRST_LAYER) {
@@ -1455,6 +1457,54 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
+// same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
+void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
+{
+  TRACE("++++++");
+  DMA2D_DeInit();
+
+  DMA2D_InitTypeDef DMA2D_InitStruct;
+  DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M_BLEND;
+  DMA2D_InitStruct.DMA2D_CMode = CM_RGB565;
+  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest + y*destw + x);
+  DMA2D_InitStruct.DMA2D_OutputBlue = 0;
+  DMA2D_InitStruct.DMA2D_OutputGreen = 0;
+  DMA2D_InitStruct.DMA2D_OutputRed = 0;
+  DMA2D_InitStruct.DMA2D_OutputAlpha = 0;
+  DMA2D_InitStruct.DMA2D_OutputOffset = destw - w;
+  DMA2D_InitStruct.DMA2D_NumberOfLine = h;
+  DMA2D_InitStruct.DMA2D_PixelPerLine = w;
+  DMA2D_Init(&DMA2D_InitStruct);
+
+  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
+  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
+  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src + srcy*srcw + srcx);
+  DMA2D_FG_InitStruct.DMA2D_FGO = srcw - w;
+  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_A8; // 8 bit inputs every time
+  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
+  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
+  DMA2D_FG_InitStruct.DMA2D_FGC_RED   = GET_RED(bg_color);   // 8 bit red
+  DMA2D_FG_InitStruct.DMA2D_FGC_GREEN = GET_GREEN(bg_color); // 8 bit green
+  DMA2D_FG_InitStruct.DMA2D_FGC_BLUE  = GET_BLUE(bg_color);  // 8 bit blue
+  
+  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
+
+  DMA2D_BG_InitTypeDef DMA2D_BG_InitStruct;
+  DMA2D_BG_StructInit(&DMA2D_BG_InitStruct);
+  DMA2D_BG_InitStruct.DMA2D_BGMA = CONVERT_PTR_UINT(dest + y*destw + x);
+  DMA2D_BG_InitStruct.DMA2D_BGO = destw - w;
+  DMA2D_BG_InitStruct.DMA2D_BGCM = CM_RGB565;
+  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
+  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_VALUE = 0;
+  DMA2D_BGConfig(&DMA2D_BG_InitStruct);
+
+  /* Start Transfer */
+  DMA2D_StartTransfer();
+
+  /* Wait for CTC Flag activation */
+  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
+}
+
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
 {
   DMA2D_DeInit();
@@ -1530,6 +1580,16 @@ int lcdRestoreBackupBuffer()
 {
   lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
   return 1;
+}
+
+uint16_t* lcdGetBackupBuffer()
+{
+  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
+}
+
+uint16_t* lcdGetScratchBuffer()
+{
+  return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
 void lcdRefresh()

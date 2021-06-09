@@ -32,13 +32,13 @@ void pwrInit()
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_GPIO, &GPIO_InitStructure);
+  GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
 
   // TODO move this elsewhere!
   // Init Module PWR
-  //GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN);
-  //GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_GPIO_PIN;
-  //GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
+  //GPIO_ResetBits(INTMODULE_PWR_ON_GPIO, INTMODULE_PWR_ON_GPIO_PIN);
+  //GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_ON_GPIO_PIN;
+  //GPIO_Init(INTMODULE_PWR_ON_GPIO, &GPIO_InitStructure);
 
   //Bluetooth
   GPIO_SetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN);
@@ -48,7 +48,7 @@ void pwrInit()
   // Init PWR SWITCH PIN
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_Pin = PWR_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_GPIO, &GPIO_InitStructure);
+  GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
   
   // Init SD-DETECT PIN
   GPIO_ResetBits(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN);
@@ -56,16 +56,16 @@ void pwrInit()
   GPIO_Init(SD_PRESENT_GPIO, &GPIO_InitStructure);
 
   //turn power off
-  GPIO_ResetBits(PWR_GPIO, PWR_ON_GPIO_PIN);
+  GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
   //turn Bluetooth off
-  GPIO_ResetBits(PWR_GPIO, BLUETOOTH_ON_GPIO_PIN);
+  GPIO_ResetBits(PWR_ON_GPIO, BLUETOOTH_ON_GPIO_PIN);
 
   boardState = BOARD_POWER_OFF;
 }
 
 void pwrOn()
 {
-  GPIO_SetBits(PWR_GPIO, PWR_ON_GPIO_PIN);
+  GPIO_SetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
   boardState = BOARD_POWER_ON;
 }
 
@@ -78,12 +78,12 @@ void pwrOff()
   // Shutdown the Haptic
   hapticDone();
   boardState = BOARD_POWER_OFF;
-  GPIO_ResetBits(PWR_GPIO, PWR_ON_GPIO_PIN);
+  GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
 }
 
 bool pwrPressed()
 {
-  return GPIO_ReadInputDataBit(PWR_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
+  return GPIO_ReadInputDataBit(PWR_ON_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
 }
 
 void pwrResetHandler()

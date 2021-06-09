@@ -133,6 +133,9 @@ case $FLAVOR in
     TX16S_FS)
         BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DFLYSKY_HALL_STICKS=ON"
         ;;
+    NV14)
+        BUILD_OPTIONS+="-DPCB=NV14"
+        ;;
 esac
 
 cmake ${BUILD_OPTIONS} "${SRCDIR}"

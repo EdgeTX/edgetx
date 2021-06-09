@@ -34,7 +34,7 @@
 #endif
 
 #include "touch_driver.h"
-#include "hallStick_driver.h"
+//#include "hallStick_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
 
@@ -128,7 +128,8 @@ void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, 
 void intmoduleSendBuffer(const uint8_t * data, uint8_t size);
 void intmoduleSendNextFrame();
 
-void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
+//void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
+void extmoduleSerialStart();
 void extmoduleSendNextFrame();
 void extmoduleSendInvertedByte(uint8_t byte);
 
@@ -146,6 +147,7 @@ enum EnumKeys
   KEY_PGUP,
   KEY_PGDN,
   KEY_UP,
+  KEY_MODEL = KEY_UP, // TODO: just fixed for compile error, seems this is quite different from horus definition.
   KEY_DOWN,
   KEY_RIGHT,
   KEY_LEFT,
@@ -332,6 +334,8 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
+  CALIBRATED_SLIDER_REAR_LEFT,
+  CALIBRATED_SLIDER_REAR_RIGHT,  
   CALIBRATED_SWA,
   CALIBRATED_SWB,
   CALIBRATED_SWC,
@@ -374,6 +378,11 @@ void pwrSoftReboot();
 void pwrOff();
 void pwrResetHandler();
 bool pwrPressed();
+#if defined(PWR_EXTRA_SWITCH_GPIO)
+  bool pwrForcePressed();
+#else
+  #define pwrForcePressed() false
+#endif
 uint32_t pwrPressedDuration();;
 #if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
   #define UNEXPECTED_SHUTDOWN()         (false)
@@ -493,9 +502,13 @@ void hapticOff();
 void hapticOn(uint32_t pwmPercent);
 
 // Second serial port driver
-#define AUX_SERIAL
+//#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
+#define LUA_DEFAULT_BAUDRATE            115200
 extern uint8_t auxSerialMode;
+#if defined __cplusplus
+void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
+#endif
 void auxSerialInit(unsigned int mode, unsigned int protocol);
 void auxSerialPutc(char c);
 #define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
