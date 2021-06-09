@@ -39,9 +39,9 @@ Get current Model information
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
-  lua_pushtablestring(L, "name", g_model.header.name);
+  lua_pushtablenstring(L, "name", g_model.header.name);
 #if LCD_DEPTH > 1
-  lua_pushtablestring(L, "bitmap", g_model.header.bitmap);
+  lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
   return 1;
 }
@@ -66,7 +66,7 @@ static int luaModelSetInfo(lua_State *L)
     const char * key = luaL_checkstring(L, -2);
     if (!strcmp(key, "name")) {
       const char * name = luaL_checkstring(L, -1);
-      str2zchar(g_model.header.name, name, sizeof(g_model.header.name));
+      strncpy(g_model.header.name, name, sizeof(g_model.header.name));
 #if defined(EEPROM)
       memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name, sizeof(g_model.header.name));
 #endif
@@ -258,7 +258,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableinteger(L, "countdownBeep", timer.countdownBeep);
     lua_pushtableboolean(L, "minuteBeep", timer.minuteBeep);
     lua_pushtableinteger(L, "persistent", timer.persistent);
-    lua_pushtablestring(L, "name", timer.name);
+    lua_pushtablenstring(L, "name", timer.name);
   }
   else {
     lua_pushnil(L);
@@ -310,7 +310,7 @@ static int luaModelSetTimer(lua_State *L)
       }
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        str2zchar(timer.name, name, sizeof(timer.name));
+        strncpy(timer.name, name, sizeof(timer.name));
       }
     }
     storageDirty(EE_MODEL);
@@ -424,7 +424,7 @@ static int luaModelGetFlightMode(lua_State * L)
   if (idx < MAX_FLIGHT_MODES) {
     FlightModeData * fm = flightModeAddress(idx);
     lua_newtable(L);
-    lua_pushtablestring(L, "name", fm->name);
+    lua_pushtablenstring(L, "name", fm->name);
     lua_pushtableinteger(L, "switch", fm->swtch);
     lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
@@ -477,7 +477,7 @@ static int luaModelSetFlightMode(lua_State * L)
     const char * key = luaL_checkstring(L, -2);
     if (!strcmp(key, "name")) {
       const char * name = luaL_checkstring(L, -1);
-      str2zchar(fm->name, name, sizeof(fm->name));
+      strncpy(fm->name, name, sizeof(fm->name));
     }
     else if (!strcmp(key, "switch")) {
       fm->swtch = luaL_checkinteger(L, -1);
@@ -546,8 +546,8 @@ static int luaModelGetInput(lua_State *L)
   if (idx < count) {
     ExpoData * expo = expoAddress(first+idx);
     lua_newtable(L);
-    lua_pushtablestring(L, "name", expo->name);
-    lua_pushtablestring(L, "inputName", g_model.inputNames[chn]);
+    lua_pushtablenstring(L, "name", expo->name);
+    lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
     lua_pushtableinteger(L, "source", expo->srcRaw);
     lua_pushtableinteger(L, "weight", expo->weight);
     lua_pushtableinteger(L, "offset", expo->offset);
@@ -599,11 +599,11 @@ static int luaModelInsertInput(lua_State *L)
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        str2zchar(expo->name, name, sizeof(expo->name));
+        strncpy(expo->name, name, sizeof(expo->name));
       }
       else if (!strcmp(key, "inputName")) {
         const char * name = luaL_checkstring(L, -1);
-        str2zchar(g_model.inputNames[chn], name, LEN_INPUT_NAME);
+        strncpy(g_model.inputNames[chn], name, LEN_INPUT_NAME);
       }
       else if (!strcmp(key, "source")) {
         expo->srcRaw = luaL_checkinteger(L, -1);
@@ -773,7 +773,7 @@ static int luaModelGetMix(lua_State *L)
   if (idx < count) {
     MixData * mix = mixAddress(first+idx);
     lua_newtable(L);
-    lua_pushtablestring(L, "name", mix->name);
+    lua_pushtablenstring(L, "name", mix->name);
     lua_pushtableinteger(L, "source", mix->srcRaw);
     lua_pushtableinteger(L, "weight", mix->weight);
     lua_pushtableinteger(L, "offset", mix->offset);
@@ -827,7 +827,7 @@ static int luaModelInsertMix(lua_State *L)
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        str2zchar(mix->name, name, sizeof(mix->name));
+        strncpy(mix->name, name, sizeof(mix->name));
       }
       else if (!strcmp(key, "source")) {
         mix->srcRaw = luaL_checkinteger(L, -1);
@@ -1043,7 +1043,7 @@ static int luaModelGetCurve(lua_State *L)
   if (idx < MAX_CURVES) {
     CurveHeader & CurveHeader = g_model.curves[idx];
     lua_newtable(L);
-    lua_pushtablestring(L, "name", CurveHeader.name);
+    lua_pushtablenstring(L, "name", CurveHeader.name);
     lua_pushtableinteger(L, "type", CurveHeader.type);
     lua_pushtableboolean(L, "smooth", CurveHeader.smooth);
     lua_pushtableinteger(L, "points", CurveHeader.points + 5);
@@ -1144,7 +1144,7 @@ static int luaModelSetCurve(lua_State *L)
     const char *key = luaL_checkstring(L, -2);
     if (!strcmp(key, "name")) {
       const char *name = luaL_checkstring(L, -1);
-      str2zchar(newCurveHeader.name, name, sizeof(newCurveHeader.name));
+      strncpy(newCurveHeader.name, name, sizeof(newCurveHeader.name));
     }
     else if (!strcmp(key, "type")) {
       newCurveHeader.type = luaL_checkinteger(L, -1);
@@ -1301,7 +1301,7 @@ static int luaModelGetCustomFunction(lua_State *L)
     lua_pushtableinteger(L, "switch", CFN_SWITCH(cfn));
     lua_pushtableinteger(L, "func", CFN_FUNC(cfn));
     if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK || CFN_FUNC(cfn) == FUNC_BACKGND_MUSIC || CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) {
-      lua_pushtablestring(L, "name", cfn->play.name);
+      lua_pushtablenstring(L, "name", cfn->play.name);
     }
     else {
       lua_pushtableinteger(L, "value", cfn->all.val);
@@ -1398,7 +1398,7 @@ static int luaModelGetOutput(lua_State *L)
   if (idx < MAX_OUTPUT_CHANNELS) {
     LimitData * limit = limitAddress(idx);
     lua_newtable(L);
-    lua_pushtablestring(L, "name", limit->name);
+    lua_pushtablenstring(L, "name", limit->name);
     lua_pushtableinteger(L, "min", limit->min-1000);
     lua_pushtableinteger(L, "max", limit->max+1000);
     lua_pushtableinteger(L, "offset", limit->offset);
@@ -1440,7 +1440,7 @@ static int luaModelSetOutput(lua_State *L)
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        str2zchar(limit->name, name, sizeof(limit->name));
+        strncpy(limit->name, name, sizeof(limit->name));
       }
       else if (!strcmp(key, "min")) {
         limit->min = luaL_checkinteger(L, -1)+1000;
@@ -1558,7 +1558,7 @@ static int luaModelGetSensor(lua_State *L)
     TelemetrySensor & sensor = g_model.telemetrySensors[idx];
     lua_newtable(L);
     lua_pushtableinteger(L, "type", sensor.type);
-    lua_pushtablestring(L, "name", sensor.label);
+    lua_pushtablenstring(L, "name", sensor.label);
     lua_pushtableinteger(L, "unit", sensor.unit);
     lua_pushtableinteger(L, "prec", sensor.prec);
     if (sensor.type == TELEM_TYPE_CUSTOM) {

@@ -62,7 +62,20 @@ void luaInitThemesAndWidgets();
 #define lua_pushtableboolean(L, k, v)  (lua_pushstring(L, (k)), lua_pushboolean(L, (v)), lua_settable(L, -3))
 #define lua_pushtableinteger(L, k, v)  (lua_pushstring(L, (k)), lua_pushinteger(L, (v)), lua_settable(L, -3))
 #define lua_pushtablenumber(L, k, v)   (lua_pushstring(L, (k)), lua_pushnumber(L, (v)), lua_settable(L, -3))
+
+// size based string (possibly no null-termination)
+#define __lua_strncpy(s)        \
+  char tmp[sizeof(s) + 1];      \
+  strncpy(tmp, (s), sizeof(s)); \
+  tmp[sizeof(s)] = '\0';
+
+// size based string (possibly no null-termination)
+#define lua_pushnstring(L, s)          { __lua_strncpy(s); lua_pushstring(L, tmp); }
+#define lua_pushtablenstring(L, k, v)  { __lua_strncpy(s); lua_pushstring(L, (k)); lua_pushstring(L, tmp); lua_settable(L, -3); }
+
+// null-terminated string
 #define lua_pushtablestring(L, k, v)   (lua_pushstring(L, (k)), lua_pushstring(L, (v)), lua_settable(L, -3))
+
 #define lua_registerlib(L, name, tab)  (luaL_newmetatable(L, name), luaL_setfuncs(L, tab, 0), lua_setglobal(L, name))
 
 #define RUN_MIX_SCRIPT        (1 << 0)
