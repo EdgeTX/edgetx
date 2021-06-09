@@ -81,6 +81,24 @@ TEST(Conversions, ConversionX9DPFrom23)
 
   EXPECT_STRNEQ("abc.wav", g_model.customFn[1].play.name);
 }
+
+TEST(Conversions, ConversionX9DPFrom23_2)
+{
+  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+2.bin");
+
+  eepromOpen();
+  eeLoadGeneralSettingsData();
+  convertRadioData_219_to_220(g_eeGeneral);
+  eeConvertModel(6, 219);
+  eeLoadModel(6);
+
+  EXPECT_EQ(710, g_eeGeneral.calib[0].spanNeg);
+  EXPECT_EQ(944, g_eeGeneral.calib[0].mid);
+  EXPECT_EQ(770, g_eeGeneral.calib[0].spanPos);
+
+  EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
+  EXPECT_EQ(-SWSRC_SA0, g_model.timers[0].swtch); // new!  
+}
 #endif
 
 // #if defined(PCBXLITE) && !defined(PCBXLITES)

@@ -116,12 +116,16 @@ void convertModelData_219_to_220(ModelData &model)
     if (timer_219.mode >= TMRMODE_START) {
       timer_219.mode += 1;
     }
-    if (timer_219.mode < TMRMODE_COUNT) {
+    if (timer_219.mode < TMRMODE_COUNT
+        && timer_219.mode >=0) {
       timer.mode = timer_219.mode;
     }
     else {
       timer.mode = TMRMODE_START;
-      timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
+      if (timer_219.mode > 0)
+        timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
+      else
+        timer.swtch = timer_219.mode;
     }
 
     timer.start = timer_219.start;
