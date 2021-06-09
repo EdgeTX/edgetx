@@ -448,10 +448,15 @@ void deleteMix(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
+#if defined(LUA)
+// This is necessary as the LUA API uses th old interface
+// where insertMix() has only one param. The channel is
+// passed through s_currCh
 void insertMix(uint8_t idx)
 {
-  insertMix(idx, s_currCh + 1);
+  insertMix(idx, s_currCh - 1);
 }
+#endif
 
 void copyMix(uint8_t source, uint8_t dest, int8_t ch)
 {
