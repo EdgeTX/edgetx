@@ -225,20 +225,18 @@ void FormGroup::onEvent(event_t event)
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     onKeyPress();
     setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && !hasFocus() && !(windowFlags & FORM_FORWARD_FOCUS)) {
+  } else if (event == EVT_KEY_FIRST(KEY_EXIT) && !hasFocus() &&
+             !(windowFlags & FORM_FORWARD_FOCUS)) {
+    killEvents(event);
     onKeyPress();
-    setFocus(SET_FOCUS_DEFAULT); // opentx - model - timers settings
-  }
-  else if (event == EVT_ROTARY_RIGHT && !next) {
+    setFocus(SET_FOCUS_DEFAULT);  // opentx - model - timers settings
+  } else if (event == EVT_ROTARY_RIGHT && !next) {
     onKeyPress();
     setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
-  }
-  else if (event == EVT_ROTARY_LEFT && !previous) {
+  } else if (event == EVT_ROTARY_LEFT && !previous) {
     onKeyPress();
     setFocusOnLastVisibleField(SET_FOCUS_BACKWARD);
-  }
-  else {
+  } else {
     FormField::onEvent(event);
   }
 }
