@@ -28,12 +28,12 @@
 #include "widgets/widgets_container_impl.h"
 #include "layout.h"
 
-#define LAYOUT_COMMON_OPTIONS \
-  { STR_TOP_BAR, ZoneOption::Bool },         \
-  { STR_FLIGHT_MODE, ZoneOption::Bool },     \
-  { STR_SLIDERS, ZoneOption::Bool },         \
-  { STR_TRIMS, ZoneOption::Bool },           \
-  { STR_MIRROR, ZoneOption::Bool }
+#define LAYOUT_COMMON_OPTIONS                                       \
+  {STR_TOP_BAR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
+  {STR_FLIGHT_MODE, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},     \
+  {STR_SLIDERS, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
+  {STR_TRIMS, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},           \
+  {STR_MIRROR, ZoneOption::Bool, OPTION_VALUE_BOOL(false)}
 
 #define LAYOUT_OPTIONS_END \
   { nullptr, ZoneOption::Bool }
