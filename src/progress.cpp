@@ -22,5 +22,5 @@
 
 void Progress::paint(BitmapBuffer * dc)
 {
-  theme->drawProgressBar(dc, 0, 0, width(), height(), value);
+    theme->drawProgressBar(dc, 0, 0, width(), height(), value, 100);
 }
