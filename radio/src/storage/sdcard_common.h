@@ -35,6 +35,7 @@
 
 // opens radio.bin or model file
 const char * openFile(const char * fullpath, FIL * file, uint16_t * size, uint8_t * version);
+const char * writeFile(const char * fullpath, const uint8_t * data, uint16_t size);
 
 void getModelPath(char * path, const char * filename);
 

@@ -94,6 +94,11 @@ static void convertToStr(char* str, size_t len)
   }
 }
 
+#if defined(COLORLCD)
+extern const LayoutFactory * defaultLayout;
+extern OpenTxTheme * defaultTheme;
+#endif
+
 void convertModelData_219_to_220(ModelData &model)
 {
   ModelData* oldModelAllocated = (ModelData*)malloc(sizeof(ModelData));
@@ -101,7 +106,6 @@ void convertModelData_219_to_220(ModelData &model)
 
   memcpy(&oldModel, &model, sizeof(ModelData));
   ModelData& newModel = (ModelData&)model;
-
   convertToStr(model.header.name, LEN_MODEL_NAME_219);
 
   for (uint8_t i=0; i<MAX_TIMERS_219; i++) {
@@ -191,20 +195,20 @@ void convertModelData_219_to_220(ModelData &model)
   // TelemetryScriptData::file ?
   // ModuleData::pxx2.receiverName
 
-#if defined(PCBHORUS)
+#if defined(COLORLCD)
   // Clear CustomScreenData + TopBarPersistentData
   // as they cannot be converted (missing option types)
   memset(newModel.screenData, 0,
          sizeof(newModel.screenData) +
          sizeof(newModel.topbarData));
-  loadDefaultLayout();
+
+  if (defaultLayout) {
+    strcpy(newModel.screenData[0].LayoutId, defaultLayout->getId());
+    defaultLayout->initPersistentData(&newModel.screenData[0].layoutData);
+  }
 #endif
   free(oldModelAllocated);
 }
-
-#if defined(PCBHORUS)
-extern OpenTxTheme * defaultTheme;
-#endif
 
 void convertRadioData_219_to_220(RadioData & settings)
 {
@@ -217,7 +221,7 @@ void convertRadioData_219_to_220(RadioData & settings)
   RadioData& oldSettings = *oldSettingsAllocated;
   memcpy(&oldSettings, &settings, sizeof(RadioData));
 
-#if defined(PCBHORUS)
+#if defined(COLORLCD)
   // Clear CustomScreenData + TopBarPersistentData
   // as they cannot be converted (missing option types)
   strcpy(g_eeGeneral.themeName, defaultTheme->getName());

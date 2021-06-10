@@ -44,6 +44,7 @@ class LayoutFactory
     virtual const ZoneOption * getOptions() const = 0;
     virtual WidgetsContainer * create(LayoutPersistentData * persistentData) const = 0;
     virtual WidgetsContainer * load(LayoutPersistentData * persistentData) const = 0;
+    virtual void initPersistentData(LayoutPersistentData * persistentData) const = 0;
 
   protected:
     const char * id;

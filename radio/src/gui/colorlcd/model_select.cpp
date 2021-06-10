@@ -128,15 +128,13 @@ class ModelButton: public Button {
       }
       else {
         error = readModel(modelCell->modelFilename, (uint8_t *)&partialModel.header, sizeof(partialModel), &version);
-        // LEN_BITMAP_NAME has now 4 bytes more
-        if (version <= 218) {
-          memmove(partialModel.timers, &(partialModel.header.bitmap[10]), sizeof(TimerData)*MAX_TIMERS);
-          memclear(&(partialModel.header.bitmap[10]), 4);
+        if (!error) {
+          if (modelCell->modelName[0] == '\0'
+              && partialModel.header.name[0] != '\0') {
+            modelCell->setModelName(partialModel.header.name);
+          }
         }
       }
-
-//      if (modelCell->modelName[0] == '\0' && !error)
-//        setModelName(partialModel.header.name); // resets buffer!!!
 
       buffer = new BitmapBuffer(BMP_RGB565, MODELCELL_WIDTH, MODELCELL_HEIGHT);
       if (buffer == nullptr) {

@@ -150,7 +150,7 @@ class BaseLayoutFactory: public LayoutFactory
       return layout;
     }
 
-    void initPersistentData(Layout::PersistentData * persistentData) const
+    void initPersistentData(Layout::PersistentData * persistentData) const override
     {
       memset(persistentData, 0, sizeof(Layout::PersistentData));
       if (options) {
