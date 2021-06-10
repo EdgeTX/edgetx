@@ -40,44 +40,6 @@ enum ModelDeleteMode {
 };
 
 uint8_t selectMode, deleteMode;
-//ModelsList modelslist;
-
-//ModelsCategory * currentCategory;
-//int currentCategoryIndex;
-//ModelCell * currentModel;
-
-/*
-void drawCategory(BitmapBuffer * dc, coord_t y, const char * name, bool selected)
-{
-  if (selected) {
-    lcdDrawSolidFilledRect(1, y-INVERT_VERT_MARGIN, CATEGORIES_WIDTH-10, INVERT_LINE_HEIGHT+2, FOCUS_BGCOLOR);
-    lcdDrawText(6, y, name, DEFAULT_COLOR | INVERS);
-  }
-  else {
-    lcdDrawText(6, y, name, DEFAULT_COLOR);
-  }
-}
-
-void drawModel(coord_t x, coord_t y, ModelCell * model, bool current, bool selected)
-{
-  lcd->drawBitmap(x+1, y+1, model->getBuffer());
-  if (current) {
-    lcd->drawBitmapPattern(x+66, y+43, LBM_ACTIVE_MODEL, TITLE_BGCOLOR);
-  }
-  if (selected) {
-    lcdDrawSolidRect(x, y, MODELCELL_WIDTH+2, MODELCELL_HEIGHT+2, 1, TITLE_BGCOLOR);
-    drawShadow(x, y, MODELCELL_WIDTH+2, MODELCELL_HEIGHT+2);
-    if (selectMode == MODE_MOVE_MODEL) {
-      lcd->drawMask(x+MODELCELL_WIDTH+2-modelselModelMoveBackground->width(), y, modelselModelMoveBackground, TITLE_BGCOLOR);
-      lcd->drawMask(x+MODELCELL_WIDTH+2-modelselModelMoveBackground->width()+12, y+5, modelselModelMoveIcon, TEXT_BGCOLOR);
-    }
-  }
-}
-*/
-
-//uint16_t categoriesVerticalOffset = 0;
-//uint16_t categoriesVerticalPosition = 0;
-#define MODEL_INDEX()       (menuVerticalPosition*2+menuHorizontalPosition)
 
 #if 0
 void setCurrentModel(unsigned int index)
@@ -235,7 +197,7 @@ class ModelSelectFooter: public Window {
     ModelCell * currentModel = nullptr;
 };
 
-#if defined(PCBX10)
+#if LCD_W > LCD_H
 constexpr coord_t MODEL_SELECT_CELL_WIDTH = (LCD_W - 3 * PAGE_PADDING) / 2;
 #else
 constexpr coord_t MODEL_SELECT_CELL_WIDTH = LCD_W - 2 * PAGE_PADDING;
@@ -259,6 +221,7 @@ class ModelCategoryPageBody: public FormWindow {
       int index = 0;
       coord_t y = PAGE_PADDING;
       coord_t x = PAGE_PADDING;
+      coord_t h = PAGE_PADDING;
       for (auto & model: * category) {
         auto button = new ModelButton(this, {x, y, MODEL_SELECT_CELL_WIDTH, MODEL_SELECT_CELL_HEIGHT}, model, nullptr);
 
@@ -319,21 +282,24 @@ class ModelCategoryPageBody: public FormWindow {
           footer->setCurrentModel(model);
         }
 
-        index++;
-#if LCD_W >= 480
-        if (x == PAGE_PADDING) {
+#if LCD_W > LCD_H
+        if (index % 2 == 0) {
           x = PAGE_PADDING + MODEL_SELECT_CELL_WIDTH + PAGE_PADDING;
+          h += MODEL_SELECT_CELL_HEIGHT + PAGE_PADDING;
         }
         else {
           x = PAGE_PADDING;
           y += MODEL_SELECT_CELL_HEIGHT + PAGE_PADDING;
         }
 #else
+        h += MODEL_SELECT_CELL_HEIGHT + PAGE_PADDING;
         y += MODEL_SELECT_CELL_HEIGHT + PAGE_PADDING;
 #endif
+
+        index++;
       }
 
-      setInnerHeight(y);
+      setInnerHeight(h);
 
       if (category->empty()) {
         setFocus();
