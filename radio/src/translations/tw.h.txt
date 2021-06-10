@@ -690,6 +690,8 @@
 #define TR_EEPROMWARN                   "EEPROM"
 #define TR_STORAGE_WARNING              "存儲"
 #define TR_EEPROM_CONVERTING            "轉換數據"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE           "油門"
 #define TR_ALARMSWARN                   "警告"
 #define TR_SWITCHWARN                   TR("開關", "開關位置")

@@ -804,6 +804,8 @@
 #define TR_EEPROMWARN          "EEPROM"
 #define TR_STORAGE_WARNING     "STORAGE"
 #define TR_EEPROM_CONVERTING   "Conversione EEPROM"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE        "MOTORE"
 #define TR_ALARMSWARN          "ALLARMI"
 #define TR_SWITCHWARN          "CONTROLLI"

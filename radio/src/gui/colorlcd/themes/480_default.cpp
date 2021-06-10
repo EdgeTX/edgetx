@@ -402,11 +402,12 @@ class Theme480: public OpenTxTheme
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|FOCUS_COLOR|CENTERED);
     }
 
-    void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, int value) const override
+    void drawProgressBar(BitmapBuffer *dc, coord_t x, coord_t y, coord_t w,
+                         coord_t h, int value, int total) const override
     {
       dc->drawSolidRect(x, y, w, h, 1, DEFAULT_COLOR);
       if (value > 0) {
-        int width = (w * value) / 100;
+        int width = (w * value) / total;
         dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, CHECKBOX_COLOR);
       }
     }

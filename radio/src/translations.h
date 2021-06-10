@@ -600,6 +600,8 @@ extern const char STR_CAT_NOT_EMPTY[];
 extern const char STR_WARNING[];
 extern const char STR_STORAGE_WARNING[];
 extern const char STR_EEPROM_CONVERTING[];
+extern const char STR_SDCARD_CONVERSION_REQUIRE[];
+extern const char STR_CONVERTING[];
 extern const char STR_THROTTLE_UPPERCASE[];
 extern const char STR_ALARMSWARN[];
 extern const char STR_SWITCHWARN[];
