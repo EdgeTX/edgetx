@@ -21,11 +21,10 @@
 #include "opentx.h"
 #include "conversions.h"
 
-#if defined(SDCARD)
+#if defined(COLORLCD)
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
 
-#if defined(COLORLCD)
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
   OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
@@ -45,23 +44,17 @@ static void drawProgressScreen(const char* filename, int progress, int total)
   WDG_RESET();
   lcdRefresh();
 }
-#endif
 
 void convertRadioData(int version)
 {
   TRACE("convertRadioData(%d)", version);
 
-#if defined(COLORLCD)
   // the theme has not been loaded before
   static_cast<OpenTxTheme*>(theme)->load();
-#endif
 
   // Init backlight mode before entering alert screens
   requiredBacklightBright = BACKLIGHT_FORCED_ON;
-
-#if defined(PCBHORUS)
   g_eeGeneral.blOffBright = 20;
-#endif
 
   RAISE_ALERT(STR_STORAGE_WARNING, STR_SDCARD_CONVERSION_REQUIRE, NULL,
               AU_NONE);
@@ -69,10 +62,7 @@ void convertRadioData(int version)
   unsigned converted = 0;
   auto to_convert = modelslist.getModelsCount() + 1;
 
-#if defined(COLORLCD)
   drawProgressScreen(RADIO_FILENAME, converted, to_convert);
-#endif
-
   TRACE("converting '%s' (%d/%d)", RADIO_FILENAME, converted, to_convert);
 
 #if STORAGE_CONVERSIONS < 220
@@ -94,9 +84,7 @@ void convertRadioData(int version)
       const char* filename = model_ptr->modelFilename;
 
       TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
-#if defined(COLORLCD)
       drawProgressScreen(filename, converted, to_convert);
-#endif
 
       error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
       if (!error) {
