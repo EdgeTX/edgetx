@@ -863,6 +863,11 @@
 #define TR_TEMP_CALIB                  "Calib. temp"
 #define TR_TIME                        "Heure"
 #define TR_MAXBAUDRATE                 "Max bauds"
+#define TR_SAMPLE_MODE                 "Sample Mode"
+
+#define LEN_SAMPLE_MODES                "\006"
+#define TR_SAMPLE_MODES                "Normal""OneBit"
+
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Découvrir"
 #define TR_BLUETOOTH_INIT              "Init"
