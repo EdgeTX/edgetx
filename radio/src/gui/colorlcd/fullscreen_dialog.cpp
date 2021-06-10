@@ -55,13 +55,13 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
 
   if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->asterisk, ALARM_COLOR);
+                 OpenTxTheme::instance()->error, ALARM_COLOR);
   } else if (type == WARNING_TYPE_INFO) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
                  OpenTxTheme::instance()->busy, ALARM_COLOR);
   } else { // confirmation
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->question, ALARM_COLOR);
+                 OpenTxTheme::instance()->error, ALARM_COLOR);
   }
 
   if (type == WARNING_TYPE_ALERT) {

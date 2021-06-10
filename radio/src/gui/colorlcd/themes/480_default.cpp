@@ -334,8 +334,7 @@ class Theme480: public OpenTxTheme
         dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), backgroundBitmap);
       }
       else {
-        lcdSetColor(g_eeGeneral.themeData.options[0].value.unsignedValue);
-        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, CUSTOM_COLOR);
+        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, DEFAULT_BGCOLOR);
       }
     }
 

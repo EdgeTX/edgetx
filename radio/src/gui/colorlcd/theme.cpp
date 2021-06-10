@@ -25,8 +25,7 @@
 //#include "modal_window.h"
 
 extern OpenTxTheme * defaultTheme;
-const BitmapBuffer * OpenTxTheme::asterisk = nullptr;
-const BitmapBuffer * OpenTxTheme::question = nullptr;
+const BitmapBuffer * OpenTxTheme::error = nullptr;
 const BitmapBuffer * OpenTxTheme::busy = nullptr;
 const BitmapBuffer * OpenTxTheme::shutdown = nullptr;
 
@@ -45,12 +44,9 @@ const uint8_t LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
 };
 
-const uint8_t asterisk_bitmap[] = {
-#include "mask_asterisk.lbm"
-};
 
-const uint8_t question_bitmap[] = {
-#include "mask_question.lbm"
+const uint8_t error_bitmap[] = {
+#include "mask_error.lbm"
 };
 
 const uint8_t busy_bitmap[] = {
@@ -88,10 +84,8 @@ void OpenTxTheme::init() const
 
 void OpenTxTheme::load() const
 {
-  if (!asterisk)
-    asterisk = BitmapBuffer::load8bitMask(asterisk_bitmap);
-  if (!question)
-    question = BitmapBuffer::load8bitMask(question_bitmap);
+  if (!error)
+    error = BitmapBuffer::load8bitMask(error_bitmap);
   if (!busy)
     busy = BitmapBuffer::load8bitMask(busy_bitmap);
   if (!shutdown)
