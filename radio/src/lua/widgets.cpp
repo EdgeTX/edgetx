@@ -225,6 +225,11 @@ class LuaWidgetFactory: public WidgetFactory
     {
     }
 
+    ~LuaWidgetFactory()
+    {
+      unregisterWidget(this);
+    }
+
     Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
     {
       if (lsWidgets == 0) return 0;
