@@ -323,6 +323,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       return drawSizedText(x, y, s+length*idx, length, flags);
     }
 
+    static void formatNumberAsString(char *buffer, const uint8_t buffer_size, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
+
     coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
     template<class T>
