@@ -209,14 +209,13 @@ class SetupWidgetsPage: public FormWindow
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
                       coord_t slideX, coord_t slideY) override
     {
-      // prevent screen sliding when setting up widgets
+      FormWindow::onTouchSlide(x, y, startX, startY, slideX, slideY);
       return true;
     }
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
-      if (FormWindow::onTouchEnd(x, y)) return true;
-
+      FormWindow::onTouchEnd(x, y);
       return true;
     }
 #endif
