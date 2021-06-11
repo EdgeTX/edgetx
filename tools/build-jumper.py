@@ -43,7 +43,7 @@ boards = {
         "PCBREV": "T18",
         "INTERNAL_MODULE_MULTI": "YES",
         "DEFAULT_MODE": "2",
-    }
+    },
     "T18_FS": {
         "PCB": "X10",
         "PCBREV": "T18",
