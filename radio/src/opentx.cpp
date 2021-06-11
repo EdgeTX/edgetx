@@ -1518,6 +1518,8 @@ void opentxClose(uint8_t shutdown)
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
+
+  luaUnregisterWidgets();
   luaClose(&lsWidgets);
 #endif
 

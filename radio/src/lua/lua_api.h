@@ -187,6 +187,9 @@ void registerBitmapClass(lua_State * L);
 void luaSetInstructionsLimit(lua_State* L, int count);
 int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * mode);
 
+// Unregister LUA widget factories
+void luaUnregisterWidgets();
+
 #if LCD_W > 350
   #define RADIO_TOOL_NAME_MAXLEN  40
 #else

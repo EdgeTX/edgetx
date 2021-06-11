@@ -126,6 +126,8 @@ class WidgetFactory
       registerWidget(this);
     }
 
+    virtual ~WidgetFactory() {}
+
     inline const char * getName() const
     {
         return name;

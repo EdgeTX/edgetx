@@ -512,3 +512,13 @@ void luaInitThemesAndWidgets()
     luaDoGc(lsWidgets, true);
   }
 }
+
+void luaUnregisterWidgets()
+{
+  std::list<const WidgetFactory *> regWidgets(getRegisteredWidgets());
+  for (auto w : regWidgets) {
+    if (dynamic_cast<const LuaWidgetFactory*>(w)) {
+      delete w;
+    }
+  }
+}
