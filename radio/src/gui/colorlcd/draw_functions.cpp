@@ -74,25 +74,27 @@ void drawValueOrGVar(BitmapBuffer * dc, coord_t x, coord_t y, gvar_t value, gvar
   }
 }
 
+constexpr LcdFlags splash_background_color =
+  COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
+
 void drawSleepBitmap()
 {
   lcd->reset();
   lcd->clear();
 
-  const BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(OpenTxTheme::instance()->getFilePath("sleep.bmp"));
+  const BitmapBuffer* bitmap = OpenTxTheme::instance()->shutdown;
   if (bitmap) {
-    lcd->drawBitmap((LCD_W-bitmap->width())/2, (LCD_H-bitmap->height())/2, bitmap);
-    delete bitmap;
+    lcd->drawMask((LCD_W-bitmap->width())/2, (LCD_H-bitmap->height())/2,
+                  bitmap, splash_background_color);
   }
 
   lcdRefresh();
 }
 
-//
-// TODO: move shutdown animation to Theme
-//
 #define SHUTDOWN_CIRCLE_DIAMETER       150
-void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char * message)
+
+void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
+                           const char* message)
 {
   if (totalDuration == 0)
     return;
@@ -100,38 +102,40 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
   static const BitmapBuffer * shutdown = OpenTxTheme::instance()->shutdown;
 
   lcd->reset();
+  lcd->clear(splash_background_color);
+  
   if (shutdown) {
-    OpenTxTheme::instance()->drawBackground(lcd);
     lcd->drawMask((LCD_W - shutdown->width()) / 2,
-                  (LCD_H - shutdown->height()) / 2, shutdown, DEFAULT_COLOR);
+                  (LCD_H - shutdown->height()) / 2, shutdown,
+                  COLOR2FLAGS(WHITE));
 
     int quarter = duration / (totalDuration / 5);
     if (quarter >= 1)
       lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR, 0,
+                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE), 0,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 2)
       lcd->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE,
-                             DEFAULT_COLOR, SHUTDOWN_CIRCLE_DIAMETER / 2,
+                             COLOR2FLAGS(WHITE), SHUTDOWN_CIRCLE_DIAMETER / 2,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 3)
       lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
-                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR,
+                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE),
                              SHUTDOWN_CIRCLE_DIAMETER,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 4)
       lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
                              (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, DEFAULT_COLOR,
+                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE),
                              SHUTDOWN_CIRCLE_DIAMETER * 3 / 2,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
   } else {
-    lcd->clear();
+    //lcd->clear();
     int quarter = duration / (totalDuration / 5);
     for (int i = 1; i <= 4; i++) {
       if (quarter >= i) {
         lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
-                                 20, DEFAULT_BGCOLOR);
+                                 20, COLOR2FLAGS(WHITE));
       }
     }
   }
