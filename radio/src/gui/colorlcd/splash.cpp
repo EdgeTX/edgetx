@@ -23,11 +23,14 @@
 #if defined(SPLASH)
 
 const uint8_t __bmp_splash[] {
-#include "splash.lbm"
+#include "big_logo.lbm"
 };
 
 void drawSplash()
 {
+  constexpr LcdFlags splash_background_color =
+    COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
+
   static bool loadSplashImg = true;
   static BitmapBuffer * splashImg = nullptr;
 
@@ -43,7 +46,7 @@ void drawSplash()
     }
   }
 
-  lcd->clear();
+  lcd->clear(splash_background_color);
 
   if (splashImg) {
     lcd->drawBitmap((LCD_W - splashImg->width())/2,
