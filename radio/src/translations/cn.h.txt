@@ -690,6 +690,8 @@
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "存储"
 #define TR_EEPROM_CONVERTING           "转换数据"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE          "油门"
 #define TR_ALARMSWARN                  "警告"
 #define TR_SWITCHWARN                  TR("开关", "开关位置")
@@ -748,6 +750,9 @@
 #define TR_TEMP_CALIB                  "温度校准"
 #define TR_TIME                        "时间"
 #define TR_MAXBAUDRATE                 "最大带宽"
+#define TR_SAMPLE_MODE                 "Sample Mode"
+#define LEN_SAMPLE_MODES                "\006"
+#define TR_SAMPLE_MODES                "Normal""OneBit"
 #define TR_BLUETOOTH                   "蓝牙"
 #define TR_BLUETOOTH_DISC              "发现"
 #define TR_BLUETOOTH_INIT              "初始化"

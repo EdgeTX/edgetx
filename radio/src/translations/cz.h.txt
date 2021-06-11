@@ -777,6 +777,8 @@
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ÚLOŽIŠTĚ"
 #define TR_EEPROM_CONVERTING           "Aktualizuji EEPROM"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE                "PLYNU"
 #define TR_ALARMSWARN                  "ALARMU"
 #define TR_SWITCHWARN                  "POZICE"
@@ -835,6 +837,10 @@
 #define TR_TEMP_CALIB                  " +=\006Teplota"
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
+#define TR_SAMPLE_MODE                 "Sample Mode"
+
+#define LEN_SAMPLE_MODES                "\006"
+#define TR_SAMPLE_MODES                "Normal""OneBit"
 
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Hledat"

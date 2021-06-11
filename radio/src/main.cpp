@@ -98,13 +98,15 @@ void onUSBConnectMenu(const char *result)
 
 void openUsbMenu()
 {
-  POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
-  POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
+  if (popupMenuHandler != onUSBConnectMenu) {
+    POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
+    POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
 #if defined(DEBUG)
-  POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
+    POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
 #endif
-  POPUP_MENU_TITLE(STR_SELECT_MODE);
-  POPUP_MENU_START(onUSBConnectMenu);
+    POPUP_MENU_TITLE(STR_SELECT_MODE);
+    POPUP_MENU_START(onUSBConnectMenu);
+  }
 }
 
 void closeUsbMenu()

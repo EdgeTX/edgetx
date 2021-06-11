@@ -65,8 +65,6 @@ class ModelCell
     void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
 
     bool  fetchRfData();
-  //  void  loadBitmap();
-  //  void  resetBuffer();
 };
 
 class ModelsCategory: public std::list<ModelCell *>
