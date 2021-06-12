@@ -74,7 +74,7 @@ extern const uint8_t LBM_SWIPE_CIRCLE[];
 extern const uint8_t LBM_SWIPE_LEFT[];
 extern const uint8_t LBM_SWIPE_RIGHT[];
 
-extern BitmapBuffer * modelselIconBitmap;
+//extern BitmapBuffer * modelselIconBitmap;
 extern BitmapBuffer * modelselSdFreeBitmap;
 extern BitmapBuffer * modelselModelQtyBitmap;
 extern BitmapBuffer * modelselModelNameBitmap;
@@ -86,7 +86,6 @@ extern BitmapBuffer * modelselWizardBackground;
 extern BitmapBuffer * calibStick;
 extern BitmapBuffer * calibStickBackground;
 extern BitmapBuffer * calibTrackpBackground;
-extern BitmapBuffer * calibRadioPict;
 
 // Channels monitor bitmaps
 extern BitmapBuffer * chanMonLockedBitmap;

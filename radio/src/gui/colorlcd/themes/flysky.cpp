@@ -215,17 +215,14 @@ class FlyskyTheme: public OpenTxTheme
       delete calibTrackpBackground;
       calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
 
-      delete calibRadioPict;
-      calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("NV14.bmp"));
-
       // Model Selection screen
-      delete modelselIconBitmap;
-      modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
-      if (modelselIconBitmap) {
-        BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
-        modelselIconBitmap->drawBitmap(20, 8, bitmap);
-        delete bitmap;
-      }
+      // delete modelselIconBitmap;
+      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
+      // if (modelselIconBitmap) {
+      //   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
+      //   modelselIconBitmap->drawBitmap(20, 8, bitmap);
+      //   delete bitmap;
+      // }
 
       delete modelselSdFreeBitmap;
       modelselSdFreeBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_sdfree.png"));

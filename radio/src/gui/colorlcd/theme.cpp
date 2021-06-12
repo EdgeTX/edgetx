@@ -25,9 +25,9 @@
 //#include "modal_window.h"
 
 extern OpenTxTheme * defaultTheme;
-const BitmapBuffer * OpenTxTheme::asterisk = nullptr;
-const BitmapBuffer * OpenTxTheme::question = nullptr;
+const BitmapBuffer * OpenTxTheme::error = nullptr;
 const BitmapBuffer * OpenTxTheme::busy = nullptr;
+const BitmapBuffer * OpenTxTheme::shutdown = nullptr;
 
 const uint8_t LBM_FOLDER[] = {
 #include "mask_folder.lbm"
@@ -42,6 +42,19 @@ constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
 const uint8_t LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
+};
+
+
+const uint8_t error_bitmap[] = {
+#include "mask_error.lbm"
+};
+
+const uint8_t busy_bitmap[] = {
+#include "mask_busy.lbm"
+};
+
+const uint8_t shutdown_bitmap[] = {
+#include "mask_shutdown.lbm"
 };
 
 std::list<OpenTxTheme *> & getRegisteredThemes()
@@ -71,12 +84,12 @@ void OpenTxTheme::init() const
 
 void OpenTxTheme::load() const
 {
-  if (!asterisk)
-    asterisk = BitmapBuffer::loadBitmap(getFilePath("asterisk.bmp"));
-  if (!question)
-    question = BitmapBuffer::loadBitmap(getFilePath("question.bmp"));
+  if (!error)
+    error = BitmapBuffer::load8bitMask(error_bitmap);
   if (!busy)
-    busy = BitmapBuffer::loadBitmap(getFilePath("busy.bmp"));
+    busy = BitmapBuffer::load8bitMask(busy_bitmap);
+  if (!shutdown)
+    shutdown = BitmapBuffer::load8bitMask(shutdown_bitmap);
 }
 
 ZoneOptionValue * OpenTxTheme::getOptionValue(unsigned int index) const

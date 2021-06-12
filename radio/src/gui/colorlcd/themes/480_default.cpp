@@ -20,6 +20,7 @@
 
 #include "opentx.h"
 #include "tabsgroup.h"
+#include "480_bitmaps.h"
 
 const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(WHITE) },
@@ -80,10 +81,9 @@ class Theme480: public OpenTxTheme
       lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
     }
 
-    void loadMenuIcon(uint8_t index, const char * filename, uint32_t color=MENU_COLOR) const
+    void loadMenuIcon(uint8_t index, const uint8_t * lbm, uint32_t color=MENU_COLOR) const
     {
-      TRACE("loadMenuIcon %s", getFilePath(filename));
-      BitmapBuffer * mask = BitmapBuffer::loadMask(getFilePath(filename));
+      BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
       if (mask) {
         delete iconMask[index];
         iconMask[index] = mask;
@@ -107,76 +107,90 @@ class Theme480: public OpenTxTheme
     void loadIcons() const
     {
 #if defined(LOG_TELEMETRY) || !defined(WATCHDOG)
-      loadMenuIcon(ICON_OPENTX, "mask_opentx_testmode.png", DEFAULT_COLOR);
+      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode, DEFAULT_COLOR);
 #else
-      loadMenuIcon(ICON_OPENTX, "mask_edgetx.png");
+      loadMenuIcon(ICON_OPENTX, mask_edgetx);
 #endif
-#if defined(HARDWARE_TOUCH)
-      loadMenuIcon(ICON_NEXT, "mask_next.png");
-      loadMenuIcon(ICON_BACK, "mask_back.png");
+#if defined(HARDWARE_TOUCH) //TODO: get rid of, and use a real hitbox instead...
+      loadMenuIcon(ICON_NEXT, mask_next);
+      loadMenuIcon(ICON_BACK, mask_back);
 #endif
-      loadMenuIcon(ICON_RADIO, "mask_menu_radio.png");
-      loadMenuIcon(ICON_RADIO_SETUP, "mask_radio_setup.png");
-      loadMenuIcon(ICON_RADIO_SD_MANAGER, "mask_radio_sd_browser.png");
-      loadMenuIcon(ICON_RADIO_TOOLS, "mask_radio_tools.png");
-      loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, "/mask_radio_spectrum_analyser.png");
-      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, "mask_radio_global_functions.png");
-      loadMenuIcon(ICON_RADIO_TRAINER, "mask_radio_trainer.png");
-      loadMenuIcon(ICON_RADIO_HARDWARE, "mask_radio_hardware.png");
-      loadMenuIcon(ICON_RADIO_CALIBRATION, "mask_radio_calibration.png");
-      loadMenuIcon(ICON_RADIO_VERSION, "mask_radio_version.png");
-      loadMenuIcon(ICON_MODEL, "mask_menu_model.png");
-      loadMenuIcon(ICON_MODEL_SETUP, "mask_model_setup.png");
-      loadMenuIcon(ICON_MODEL_HELI, "mask_model_heli.png");
-      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, "mask_model_flight_modes.png");
-      loadMenuIcon(ICON_MODEL_INPUTS, "mask_model_inputs.png");
-      loadMenuIcon(ICON_MODEL_MIXER, "mask_model_mixer.png");
-      loadMenuIcon(ICON_MODEL_OUTPUTS, "mask_model_outputs.png");
-      loadMenuIcon(ICON_MODEL_CURVES, "mask_model_curves.png");
-      loadMenuIcon(ICON_MODEL_GVARS, "mask_model_gvars.png");
-      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, "mask_model_logical_switches.png");
-      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, "mask_model_special_functions.png");
-      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, "mask_model_lua_scripts.png");
-      loadMenuIcon(ICON_MODEL_TELEMETRY, "mask_model_telemetry.png");
-      loadMenuIcon(ICON_STATS, "mask_menu_stats.png");
-      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, "mask_stats_throttle_graph.png");
-      loadMenuIcon(ICON_STATS_TIMERS, "mask_stats_timers.png");
-      loadMenuIcon(ICON_STATS_ANALOGS, "mask_stats_analogs.png");
-      loadMenuIcon(ICON_STATS_DEBUG, "mask_stats_debug.png");
-      loadMenuIcon(ICON_THEME, "mask_menu_theme.png");
-      loadMenuIcon(ICON_THEME_SETUP, "mask_theme_setup.png");
-      loadMenuIcon(ICON_THEME_VIEW1, "mask_theme_view1.png");
-      loadMenuIcon(ICON_THEME_VIEW2, "mask_theme_view2.png");
-      loadMenuIcon(ICON_THEME_VIEW3, "mask_theme_view3.png");
-      loadMenuIcon(ICON_THEME_VIEW4, "mask_theme_view4.png");
-      loadMenuIcon(ICON_THEME_VIEW5, "mask_theme_view5.png");
-      loadMenuIcon(ICON_THEME_ADD_VIEW, "mask_theme_add_view.png");
-      loadMenuIcon(ICON_MONITOR, "mask_monitor.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS1, "mask_monitor_channels1.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS2, "mask_monitor_channels2.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS3, "mask_monitor_channels3.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS4, "mask_monitor_channels4.png");
-      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, "mask_monitor_logsw.png");
+      loadMenuIcon(ICON_RADIO, mask_menu_radio);
+      loadMenuIcon(ICON_RADIO_SETUP, mask_radio_setup);
+      loadMenuIcon(ICON_RADIO_SD_MANAGER, mask_radio_sd_browser);
+      loadMenuIcon(ICON_RADIO_TOOLS, mask_radio_tools);
+      //loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, mask_radio_spectrum_analyser);
+      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions);
+      loadMenuIcon(ICON_RADIO_TRAINER, mask_radio_trainer);
+      loadMenuIcon(ICON_RADIO_HARDWARE, mask_radio_hardware);
+      loadMenuIcon(ICON_RADIO_CALIBRATION, mask_radio_calibration);
+      loadMenuIcon(ICON_RADIO_VERSION, mask_radio_version);
+      loadMenuIcon(ICON_MODEL, mask_menu_model);
+      loadMenuIcon(ICON_MODEL_SETUP, mask_model_setup);
+      loadMenuIcon(ICON_MODEL_HELI, mask_model_heli);
+      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes);
+      loadMenuIcon(ICON_MODEL_INPUTS, mask_model_inputs);
+      loadMenuIcon(ICON_MODEL_MIXER, mask_model_mixer);
+      loadMenuIcon(ICON_MODEL_OUTPUTS, mask_model_outputs);
+      loadMenuIcon(ICON_MODEL_CURVES, mask_model_curves);
+      loadMenuIcon(ICON_MODEL_GVARS, mask_model_gvars);
+      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, mask_model_logical_switches);
+      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions);
+      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts);
+      loadMenuIcon(ICON_MODEL_TELEMETRY, mask_model_telemetry);
+      loadMenuIcon(ICON_STATS, mask_menu_stats);
+      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph);
+      loadMenuIcon(ICON_STATS_TIMERS, mask_stats_timers);
+      loadMenuIcon(ICON_STATS_ANALOGS, mask_stats_analogs);
+      loadMenuIcon(ICON_STATS_DEBUG, mask_stats_debug);
+      loadMenuIcon(ICON_THEME, mask_menu_theme);
+      loadMenuIcon(ICON_THEME_SETUP, mask_theme_setup);
+      loadMenuIcon(ICON_THEME_VIEW1, mask_theme_view1);
+      loadMenuIcon(ICON_THEME_VIEW2, mask_theme_view2);
+      loadMenuIcon(ICON_THEME_VIEW3, mask_theme_view3);
+      loadMenuIcon(ICON_THEME_VIEW4, mask_theme_view4);
+      loadMenuIcon(ICON_THEME_VIEW5, mask_theme_view5);
+      loadMenuIcon(ICON_THEME_ADD_VIEW, mask_theme_add_view);
+      loadMenuIcon(ICON_MONITOR, mask_monitor);
+      loadMenuIcon(ICON_MONITOR_CHANNELS1, mask_monitor_channels1);
+      loadMenuIcon(ICON_MONITOR_CHANNELS2, mask_monitor_channels2);
+      loadMenuIcon(ICON_MONITOR_CHANNELS3, mask_monitor_channels3);
+      loadMenuIcon(ICON_MONITOR_CHANNELS4, mask_monitor_channels4);
+      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw);
 
-      BitmapBuffer * background = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_bg.png"));
-      BitmapBuffer * shadow = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_shadow.png"));
-      BitmapBuffer * dot = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_dot.png"));
+      BitmapBuffer * background = BitmapBuffer::load8bitMask(mask_currentmenu_bg);
+      BitmapBuffer * shadow = BitmapBuffer::load8bitMask(mask_currentmenu_shadow);
+      BitmapBuffer * dot = BitmapBuffer::load8bitMask(mask_currentmenu_dot);
 
       if (!currentMenuBackground) {
         currentMenuBackground = new BitmapBuffer(BMP_RGB565, 36, 53);
       }
 
       if (currentMenuBackground) {
-        currentMenuBackground->drawSolidFilledRect(0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT, MENU_BGCOLOR);
-        currentMenuBackground->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, currentMenuBackground->width(), MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR);
-        currentMenuBackground->drawSolidFilledRect(0, MENU_TITLE_TOP, currentMenuBackground->width(), currentMenuBackground->height() - MENU_TITLE_TOP, TITLE_BGCOLOR);
-        currentMenuBackground->drawMask(0, 0, background, HEADER_CURRENT_BGCOLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
+            MENU_BGCOLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
+            MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, MENU_TITLE_TOP, currentMenuBackground->width(),
+            currentMenuBackground->height() - MENU_TITLE_TOP, TITLE_BGCOLOR);
+
+        currentMenuBackground->drawMask(0, 0, background,
+                                        HEADER_CURRENT_BGCOLOR);
+
         currentMenuBackground->drawMask(0, 0, shadow, TRIM_SHADOW_COLOR);
+
         currentMenuBackground->drawMask(10, 39, dot, MENU_COLOR);
       }
 
       delete topleftBitmap;
-      topleftBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("topleft.png"), TITLE_BGCOLOR, HEADER_COLOR);
+      topleftBitmap = BitmapBuffer::load8bitMaskOnBackground(
+          mask_topleft, TITLE_BGCOLOR, HEADER_COLOR);
 
       delete background;
       delete shadow;
@@ -187,50 +201,45 @@ class Theme480: public OpenTxTheme
     {
       // Calibration screen
       delete calibStick;
-      calibStick = BitmapBuffer::loadBitmap(getFilePath("stick_pointer.png"));
+      calibStick =
+          BitmapBuffer::loadRamBitmap(stick_pointer, sizeof(stick_pointer));
 
       delete calibStickBackground;
-      calibStickBackground = BitmapBuffer::loadBitmap(getFilePath("stick_background.png"));
+      calibStickBackground = BitmapBuffer::loadRamBitmap(
+          stick_background, sizeof(stick_background));
 
       delete calibTrackpBackground;
-      calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
-
-      delete calibRadioPict;
-#if defined(PCBX10)
-      if(STICKS_PWM_ENABLED()) {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10S.bmp"));
-      }
-      else {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10.bmp"));
-      }
-#else
-      calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("horus.bmp"));
-#endif
+      calibTrackpBackground = BitmapBuffer::loadRamBitmap(
+          trackp_background, sizeof(trackp_background));
 
       // Model Selection screen
-      delete modelselIconBitmap;
-      modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
-      if (modelselIconBitmap) {
-        BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
-        modelselIconBitmap->drawBitmap(20, 8, bitmap);
-        delete bitmap;
-      }
+
+      // Unused:
+      //
+      // delete modelselIconBitmap;
+      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
+      // if (modelselIconBitmap) {
+      //   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
+      //   modelselIconBitmap->drawBitmap(20, 8, bitmap);
+      //   delete bitmap;
+      // }
 
       delete modelselSdFreeBitmap;
-      modelselSdFreeBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_sdfree.png"));
+      modelselSdFreeBitmap = BitmapBuffer::load8bitMask(mask_sdfree);
 
       delete modelselModelQtyBitmap;
-      modelselModelQtyBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelqty.png"));
+      modelselModelQtyBitmap = BitmapBuffer::load8bitMask(mask_modelqty);
 
       delete modelselModelNameBitmap;
-      modelselModelNameBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelname.png"));
+      modelselModelNameBitmap = BitmapBuffer::load8bitMask(mask_modelname);
 
       delete modelselModelMoveBackground;
-      modelselModelMoveBackground = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveback.png"));
+      modelselModelMoveBackground = BitmapBuffer::load8bitMask(mask_moveback);
 
       delete modelselModelMoveIcon;
-      modelselModelMoveIcon = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveico.png"));
+      modelselModelMoveIcon = BitmapBuffer::load8bitMask(mask_moveico);
 
+      //TODO: should be loaded from LUA, not here!!!
       delete modelselWizardBackground;
       modelselWizardBackground = BitmapBuffer::loadBitmap(getFilePath("wizard/background.png"));
 
@@ -325,8 +334,7 @@ class Theme480: public OpenTxTheme
         dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), backgroundBitmap);
       }
       else {
-        lcdSetColor(g_eeGeneral.themeData.options[0].value.unsignedValue);
-        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, CUSTOM_COLOR);
+        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, DEFAULT_BGCOLOR);
       }
     }
 
