@@ -85,9 +85,11 @@ class OpenTxTheme: public Theme
 
     virtual void drawBackground(BitmapBuffer * dc) const;
 
-    virtual void drawMenuBackground(BitmapBuffer * dc, uint8_t icon, const char *title) const = 0;
+    virtual void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
+                                          const char *title) const = 0;
 
-    virtual void drawMenuHeader(BitmapBuffer * dc, std::vector<PageTab *> & tabs, uint8_t currentIndex) const = 0;
+    virtual void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
+                                uint8_t currentIndex) const = 0;
 
     // virtual void drawMessageBox(const char * title, const char * text, const
     //                             char * action, uint32_t flags) const override;

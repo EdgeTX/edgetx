@@ -85,25 +85,26 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   char str[10];
 
   sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
-  dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, MENU_COLOR);
-  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS) | CENTERED| MENU_COLOR);
+  //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, MENU_COLOR);
+  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS) | CENTERED| FOCUS_COLOR);
 
   getTimerString(str, getValue(MIXSRC_TX_TIME));
-  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | MENU_COLOR);
+  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | FOCUS_COLOR);
 
 #if defined(INTERNAL_GPS)
   if (gpsData.fix) {
     char s[10];
     sprintf(s, "%d", gpsData.numSat);
-    dc->drawText(LCD_W-148, 4, s, FONT(XS) | CENTERED | MENU_COLOR);
+    dc->drawText(LCD_W-148, 4, s, FONT(XS) | CENTERED | FOCUS_COLOR);
   }
-  dc->drawBitmapPattern(LCD_W-158, 22, LBM_TOPMENU_GPS, (gpsData.fix) ? MENU_COLOR : MENU_TITLE_DISABLE_COLOR);
+  dc->drawBitmapPattern(LCD_W - 158, 22, LBM_TOPMENU_GPS,
+                        (gpsData.fix) ? FOCUS_COLOR : MENU_TITLE_DISABLE_COLOR);
 #endif
 
   // USB icon
   if (usbPlugged()) {
 
-    LcdFlags flags = MENU_COLOR;
+    LcdFlags flags = FOCUS_COLOR;
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
       flags = MENU_TITLE_DISABLE_COLOR;
     }
@@ -112,7 +113,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   }
   // Logs
   else if (isFunctionActive(FUNCTION_LOGS) && BLINK_ON_PHASE) {
-    dc->drawBitmapPattern(LCD_W - 98, 6, LBM_DOT, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 98, 6, LBM_DOT, FOCUS_COLOR);
   }
 
   // RSSI
@@ -120,42 +121,45 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
   for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
     uint8_t height = rssiBarsHeight[i];
-    dc->drawSolidFilledRect(LCD_W - 90 + i * 6, 38 - height, 4, height, TELEMETRY_RSSI() >= rssiBarsValue[i] ? MENU_COLOR : MENU_TITLE_DISABLE_COLOR);
+    dc->drawSolidFilledRect(LCD_W - 90 + i * 6, 38 - height, 4, height,
+                            TELEMETRY_RSSI() >= rssiBarsValue[i]
+                                ? FOCUS_COLOR
+                                : MENU_TITLE_DISABLE_COLOR);
   }
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   if (isModuleXJT(INTERNAL_MODULE) && isExternalAntennaEnabled()) {
-    dc->drawBitmapPattern(LCD_W-94, 4, LBM_TOPMENU_ANTENNA, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W-94, 4, LBM_TOPMENU_ANTENNA, FOCUS_COLOR);
   }
 #endif
 
   /* Audio volume */
   dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_SCALE, MENU_TITLE_DISABLE_COLOR);
   if (requiredSpeakerVolume == 0 || g_eeGeneral.beepMode == e_mode_quiet)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_0, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_0, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 7)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_1, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_1, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 13)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_2, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_2, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 19)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_3, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_3, FOCUS_COLOR);
   else
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_4, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_4, FOCUS_COLOR);
 
   /* Tx battery */
   uint8_t bars = GET_TXBATT_BARS(5);
 #if defined(USB_CHARGER)
   if (usbChargerLed()) {
-    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT_CHARGING, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT_CHARGING, FOCUS_COLOR);
   }
   else {
-    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, MENU_COLOR);
+    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
   }
 #else
-  dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, MENU_COLOR);
+  dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
 #endif
   for (unsigned int i = 0; i < 5; i++) {
-    dc->drawSolidFilledRect(LCD_W - 128 + 4 * i, 30, 2, 8, i >= bars ? MENU_TITLE_DISABLE_COLOR : MENU_COLOR);
+    dc->drawSolidFilledRect(LCD_W - 128 + 4 * i, 30, 2, 8, i >= bars ? MENU_TITLE_DISABLE_COLOR : FOCUS_COLOR);
   }
 
 #if 0

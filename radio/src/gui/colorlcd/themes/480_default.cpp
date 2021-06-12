@@ -28,6 +28,16 @@ const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { nullptr, ZoneOption::Bool }
 };
 
+constexpr uint16_t __TEXT_COLOR             = RGB(0x0C, 0x3F, 0x66);
+constexpr uint16_t __BACKGROUND_COLOR       = RGB(0x12, 0x5E, 0x99);
+constexpr uint16_t __FOCUS_COLOR            = RGB(0x14, 0xA1, 0xE5);
+constexpr uint16_t __DATAFIELD_FRAME_COLOR  = RGB(0xB6, 0xE0, 0xF2);
+constexpr uint16_t __TAB_BACKGROUND_COLOR   = RGB(0xE4, 0xEE, 0xF2);
+constexpr uint16_t __PARAM_BACKGROUND_COLOR = WHITE;
+
+constexpr uint16_t __EDIT_MARKER_COLOR      = RGB(0x00, 0x99, 0x09);
+constexpr uint16_t __ACTIVE_MARKER_COLOR    = RGB(0xFF, 0x99, 0x00);
+
 class Theme480: public OpenTxTheme
 {
   public:
@@ -45,43 +55,45 @@ class Theme480: public OpenTxTheme
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
       lcdColorTable[BARGRAPH_BGCOLOR_INDEX] = RGB(222, 222, 222);
       lcdColorTable[BATTERY_CHARGE_COLOR_INDEX] = GREEN;
-      lcdColorTable[CHECKBOX_COLOR_INDEX] = RED;
+      lcdColorTable[CHECKBOX_COLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[CURVE_COLOR_INDEX] = RED;
       lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = RED;
-      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = WHITE;
-      lcdColorTable[DEFAULT_COLOR_INDEX] = BLACK;
+      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = __TAB_BACKGROUND_COLOR;
+      lcdColorTable[DEFAULT_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[DISABLE_COLOR_INDEX] = LIGHTGREY;
-      lcdColorTable[FOCUS_BGCOLOR_INDEX] = RED;
+      lcdColorTable[EDIT_MARKER_COLOR_INDEX] = __EDIT_MARKER_COLOR;
+      lcdColorTable[FIELD_BGCOLOR_INDEX] = WHITE;
+      lcdColorTable[FIELD_FRAME_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
+      lcdColorTable[FOCUS_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[FOCUS_COLOR_INDEX] = WHITE;
-      lcdColorTable[HEADER_COLOR_INDEX] = DARKRED;
-      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = RED;
-      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = RED;
+      lcdColorTable[HEADER_COLOR_INDEX] = __BACKGROUND_COLOR;
+      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = __FOCUS_COLOR;
+      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
       lcdColorTable[HIGHLIGHT_COLOR_INDEX] = YELLOW;
       lcdColorTable[LINE_COLOR_INDEX] = GREY;
       lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
       lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
 
-      // this is what the status bar uses...
-      //lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;
+      lcdColorTable[MENU_BGCOLOR_INDEX] = WHITE;
+      lcdColorTable[MENU_COLOR_INDEX] = __BACKGROUND_COLOR; // Menu font color
 
-      // Menu font color
-      lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;//DARKGREY;
-      lcdColorTable[MENU_COLOR_INDEX] = WHITE;
       // Selected item in menu
-      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = BLACK;
+      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[MENU_HIGHLIGHT_COLOR_INDEX] = WHITE;
+      lcdColorTable[MENU_LINE_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
 
-      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = RGB(GET_RED(RED)>>1, GET_GREEN(RED)>>1, GET_BLUE(RED)>>1);
+      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[OVERLAY_COLOR_INDEX] = BLACK;
-      lcdColorTable[SCROLLBAR_COLOR_INDEX] = RED;
+      lcdColorTable[SCROLLBAR_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[TEXT_DISABLE_COLOR_INDEX] = GREY;
       lcdColorTable[TEXT_STATUSBAR_COLOR_INDEX] = WHITE;
-      lcdColorTable[TITLE_BGCOLOR_INDEX] = RED;
-      lcdColorTable[TRIM_BGCOLOR_INDEX] = RED;
+      lcdColorTable[TITLE_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
+
+      lcdColorTable[TRIM_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
     }
 
-    void loadMenuIcon(uint8_t index, const uint8_t * lbm, uint32_t color=MENU_COLOR) const
+    void loadMenuIcon(uint8_t index, const uint8_t * lbm) const
     {
       BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
       if (mask) {
@@ -91,15 +103,15 @@ class Theme480: public OpenTxTheme
         delete menuIconNormal[index];
         menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconNormal[index]) {
-          menuIconNormal[index]->clear(MENU_BGCOLOR);
-          menuIconNormal[index]->drawMask(0, 0, mask, color);
+          menuIconNormal[index]->clear(HEADER_ICON_BGCOLOR);
+          menuIconNormal[index]->drawMask(0, 0, mask, FOCUS_COLOR);
         }
 
         delete menuIconSelected[index];
         menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconSelected[index]) {
           menuIconSelected[index]->clear(HEADER_CURRENT_BGCOLOR);
-          menuIconSelected[index]->drawMask(0, 0, mask, color);
+          menuIconSelected[index]->drawMask(0, 0, mask, FOCUS_COLOR);
         }
       }
     }
@@ -107,7 +119,7 @@ class Theme480: public OpenTxTheme
     void loadIcons() const
     {
 #if defined(LOG_TELEMETRY) || !defined(WATCHDOG)
-      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode, DEFAULT_COLOR);
+      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode);
 #else
       loadMenuIcon(ICON_OPENTX, mask_edgetx);
 #endif
@@ -185,12 +197,12 @@ class Theme480: public OpenTxTheme
 
         currentMenuBackground->drawMask(0, 0, shadow, TRIM_SHADOW_COLOR);
 
-        currentMenuBackground->drawMask(10, 39, dot, MENU_COLOR);
+        currentMenuBackground->drawMask(10, 39, dot, FOCUS_COLOR);
       }
 
       delete topleftBitmap;
       topleftBitmap = BitmapBuffer::load8bitMaskOnBackground(
-          mask_topleft, TITLE_BGCOLOR, HEADER_COLOR);
+          mask_topleft, HEADER_CURRENT_BGCOLOR, HEADER_COLOR);
 
       delete background;
       delete shadow;
@@ -347,7 +359,8 @@ class Theme480: public OpenTxTheme
       }
     }
 
-    void drawMenuBackground(BitmapBuffer * dc, uint8_t icon, const char * title) const override
+    void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
+                                  const char *title) const override
     {
       if (topleftBitmap) {
         dc->drawBitmap(0, 0, topleftBitmap);
@@ -363,8 +376,12 @@ class Theme480: public OpenTxTheme
       else
         dc->drawBitmap(5, 7, menuIconSelected[icon]);
 
-      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W, MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR); // the white separation line
-      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT, TITLE_BGCOLOR); // the title line background
+      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
+                              MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
+                              DEFAULT_BGCOLOR);  // the white separation line
+
+      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
+                              TITLE_BGCOLOR);  // the title line background
       if (title) {
         dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, MENU_COLOR);
       }
@@ -382,20 +399,24 @@ class Theme480: public OpenTxTheme
       return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
     }
 
-    void drawMenuHeader(BitmapBuffer * dc, std::vector<PageTab *> & tabs, uint8_t currentIndex) const override
+    void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
+                        uint8_t currentIndex) const override
     {
       for (unsigned index = 0; index < tabs.size(); index++) {
         if (index != currentIndex) {
-          dc->drawBitmap(index*MENU_HEADER_BUTTON_WIDTH + 2, 7, menuIconNormal[tabs[index]->getIcon()]);
+          dc->drawBitmap(index * MENU_HEADER_BUTTON_WIDTH + 2, 7,
+                         menuIconNormal[tabs[index]->getIcon()]);
         }
       }
-      dc->drawBitmap(currentIndex*MENU_HEADER_BUTTON_WIDTH, 0, currentMenuBackground);
-      dc->drawBitmap(currentIndex*MENU_HEADER_BUTTON_WIDTH + 2, 7, menuIconSelected[tabs[currentIndex]->getIcon()]);
+      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH, 0,
+                     currentMenuBackground);
+      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH + 2, 7,
+                     menuIconSelected[tabs[currentIndex]->getIcon()]);
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const
     {
-      dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, FOCUS_COLOR);
+      //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, FOCUS_COLOR);
 
       struct gtm t;
       gettime(&t);

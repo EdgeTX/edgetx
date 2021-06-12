@@ -37,8 +37,9 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
 
 void PageHeader::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawMenuBackground(dc, getIcon(), "");
-  dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT, MENU_HEADER_HEIGHT, MENU_BGCOLOR);
+  OpenTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), "");
+  dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
+                          MENU_HEADER_HEIGHT, HEADER_COLOR);
 }
 
 Page::Page(unsigned icon):
