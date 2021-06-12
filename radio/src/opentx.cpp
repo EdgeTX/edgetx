@@ -1518,7 +1518,10 @@ void opentxClose(uint8_t shutdown)
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
+
+  luaUnregisterWidgets();
   luaClose(&lsWidgets);
+  lsWidgets = 0;
 #endif
 
 #if defined(SDCARD)
@@ -1532,6 +1535,11 @@ void opentxResume()
   TRACE("opentxResume");
 
   sdMount();
+#if defined(COLORLCD)
+  // reload widgets
+  luaInitThemesAndWidgets();
+#endif
+
   storageReadAll();
 
 #if defined(COLORLCD)

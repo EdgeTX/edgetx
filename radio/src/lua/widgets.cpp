@@ -225,6 +225,11 @@ class LuaWidgetFactory: public WidgetFactory
     {
     }
 
+    ~LuaWidgetFactory()
+    {
+      unregisterWidget(this);
+    }
+
     Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
     {
       if (lsWidgets == 0) return 0;
@@ -505,5 +510,15 @@ void luaInitThemesAndWidgets()
     //luaLoadFiles(THEMES_PATH, luaLoadThemeCallback);
     luaLoadFiles(WIDGETS_PATH, luaLoadWidgetCallback);
     luaDoGc(lsWidgets, true);
+  }
+}
+
+void luaUnregisterWidgets()
+{
+  std::list<const WidgetFactory *> regWidgets(getRegisteredWidgets());
+  for (auto w : regWidgets) {
+    if (dynamic_cast<const LuaWidgetFactory*>(w)) {
+      delete w;
+    }
   }
 }

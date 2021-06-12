@@ -196,6 +196,12 @@ void registerWidget(const WidgetFactory * factory)
   getRegisteredWidgets().push_back(factory);
 }
 
+void unregisterWidget(const WidgetFactory * factory)
+{
+  TRACE("unregister widget %s", factory->getName());
+  getRegisteredWidgets().remove(factory);
+}
+
 const WidgetFactory * getWidgetFactory(const char * name)
 {
   auto it = getRegisteredWidgets().cbegin();
