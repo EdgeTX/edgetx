@@ -77,22 +77,20 @@ void TextButton::paint(BitmapBuffer * dc)
   if (checked()) {
     if (hasFocus()) {
       dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
-      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, FOCUS_BGCOLOR);
-    }
-    else {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
-      dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FOCUS_BGCOLOR);
+      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, EDIT_MARKER_COLOR);
+    } else {
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, EDIT_MARKER_COLOR);
     }
     textColor = FOCUS_COLOR;
   }
   else {
     if (windowFlags & BUTTON_BACKGROUND) {
       if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
-        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, DISABLE_COLOR);
+        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FOCUS_BGCOLOR);
+        textColor = FOCUS_COLOR;
       }
       else {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, DISABLE_COLOR);
+        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_FRAME_COLOR);
       }
     }
     else {
@@ -105,7 +103,8 @@ void TextButton::paint(BitmapBuffer * dc)
     }
   }
 
-  dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2, text.c_str(), CENTERED | textFlags | textColor);
+  dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2,
+               text.c_str(), CENTERED | textFlags | textColor);
 }
 
 void IconButton::paint(BitmapBuffer * dc)

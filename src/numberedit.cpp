@@ -38,27 +38,30 @@ void NumberEdit::paint(BitmapBuffer * dc)
   if (editMode)
     textColor = FOCUS_COLOR;
   else if (hasFocus())
-    textColor = FOCUS_BGCOLOR;
-  else if (enabled && (value != 0 || zeroText.empty()))
-    textColor = DEFAULT_COLOR;
+    textColor = FOCUS_COLOR;
+  // else if (enabled && (value != 0 || zeroText.empty()))
+  //   textColor = DEFAULT_COLOR;
   else
-    textColor = DISABLE_COLOR;
+    textColor = DEFAULT_COLOR;
 
   if (displayFunction) {
     displayFunction(dc, textColor, value);
-  }
-  else if (value == 0 && !zeroText.empty()) {
-    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
+  } else if (value == 0 && !zeroText.empty()) {
+    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(),
+                 textColor | textFlags);
     if (textFlags & RIGHT)
-      dc->drawText(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
+      dc->drawText(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+                   zeroText.c_str(), textColor | textFlags);
     else
-      dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(), textColor | textFlags);
-  }
-  else {
+      dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(),
+                   textColor | textFlags);
+  } else {
     if (textFlags & RIGHT)
-      dc->drawNumber(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
+      dc->drawNumber(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value,
+                     textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
     else
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
+      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value,
+                     textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
   }
 }
 

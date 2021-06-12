@@ -107,36 +107,43 @@ void MenuBody::paint(BitmapBuffer * dc)
   dc->clear(MENU_BGCOLOR);
 
   for (unsigned i = 0; i < lines.size(); i++) {
-    auto & line = lines[i];
+    auto& line = lines[i];
     LcdFlags flags = MENU_COLOR | MENU_FONT;
     if (selectedIndex == (int)i) {
       flags = MENU_HIGHLIGHT_COLOR | MENU_FONT;
       if (MENU_HIGHLIGHT_BGCOLOR != MENU_BGCOLOR) {
-        dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(), MENUS_LINE_HEIGHT, MENU_HIGHLIGHT_BGCOLOR);
+        dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(),
+                                MENUS_LINE_HEIGHT, MENU_HIGHLIGHT_BGCOLOR);
       }
     }
     if (line.drawLine) {
       line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT, flags);
-    }
-    else {
-      const char * text = line.text.data();
-      dc->drawText(10, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2, text[0] == '\0' ? "---" : text, flags);
+    } else {
+      const char* text = line.text.data();
+      dc->drawText(10,
+                   i * MENUS_LINE_HEIGHT +
+                       (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2,
+                   text[0] == '\0' ? "---" : text, flags);
     }
 
-    Menu * menu = getParentMenu();
+    Menu* menu = getParentMenu();
     if (menu->multiple && line.isChecked) {
-      theme->drawCheckBox(dc, line.isChecked(), width() - 35, i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2, 0);
+      theme->drawCheckBox(dc, line.isChecked(), width() - 35,
+                          i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2,
+                          0);
     }
 
     if (i > 0) {
-      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
+      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT, MENUS_WIDTH,
+                                  MENU_LINE_COLOR);
     }
   }
 }
 
-MenuWindowContent::MenuWindowContent(Menu * parent):
-  ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2, (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
-  body(this, {0, 0, width(), height()})
+MenuWindowContent::MenuWindowContent(Menu* parent) :
+    ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2,
+                                (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
+    body(this, {1, 1, width() - 2, height() - 2})
 {
   body.setFocus(SET_FOCUS_DEFAULT);
 }
@@ -148,9 +155,14 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
 
   // the title
   if (!title.empty()) {
-    dc->drawText(MENUS_WIDTH / 2, (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2, title.c_str(), CENTERED | MENU_HEADER_FONT);
-    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH, MENU_LINE_COLOR);
+    dc->drawText(MENUS_WIDTH / 2,
+                 (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2,
+                 title.c_str(), CENTERED | MENU_HEADER_FONT);
+    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH,
+                                MENU_LINE_COLOR);
   }
+
+  dc->drawSolidRect(0, 0, MENUS_WIDTH, height(), 1, MENU_LINE_COLOR);
 }
 
 Menu::Menu(Window * parent, bool multiple):
@@ -165,10 +177,12 @@ void Menu::updatePosition()
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
-    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1, MENUS_MAX_HEIGHT);
+    auto bodyHeight = limit<coord_t>(
+        MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1,
+        MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
-    content->setHeight(headerHeight + bodyHeight);
-    content->body.setTop(headerHeight);
+    content->setHeight(headerHeight + bodyHeight + 2);
+    content->body.setTop(headerHeight + 1);
     content->body.setHeight(bodyHeight);
   }
   content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT - 1);

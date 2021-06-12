@@ -89,31 +89,34 @@ class Button: public FormField
 class TextButton: public Button
 {
   public:
-    TextButton(FormGroup * parent, const rect_t & rect, std::string text, std::function<uint8_t(void)> pressHandler = nullptr, WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE, LcdFlags textFlags = 0):
-      Button(parent, rect, std::move(pressHandler), windowFlags, textFlags),
-      text(std::move(text))
-    {
-    }
+   TextButton(FormGroup* parent, const rect_t& rect, std::string text,
+              std::function<uint8_t(void)> pressHandler = nullptr,
+              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
+              LcdFlags textFlags = 0) :
+       Button(parent, rect, std::move(pressHandler), windowFlags, textFlags),
+       text(std::move(text))
+   {
+   }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "TextButton \"" + text + "\"";
-    }
+   std::string getName() const override
+   {
+     return "TextButton \"" + text + "\"";
+   }
 #endif
 
-    void setText(std::string value)
-    {
-      if (value != text) {
-        text = std::move(value);
-        invalidate();
-      }
-    }
+   void setText(std::string value)
+   {
+     if (value != text) {
+       text = std::move(value);
+       invalidate();
+     }
+   }
 
-    void paint(BitmapBuffer * dc) override;
+   void paint(BitmapBuffer* dc) override;
 
   protected:
-    std::string text;
+   std::string text;
 };
 
 class IconButton: public Button

@@ -47,24 +47,27 @@ void TextEdit::paint(BitmapBuffer * dc)
   FormField::paint(dc);
 
   if (editMode) {
-    dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, FOCUS_COLOR);
+    dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length,
+                      FOCUS_COLOR);
     coord_t left = (cursorPos == 0 ? 0 : getTextWidth(value, cursorPos));
 #if defined(SOFTWARE_KEYBOARD)
     dc->drawSolidFilledRect(left + 2, 2, 2, height() - 4, FOCUS_COLOR);
 #else
-    char s[] = { value[cursorPos], '\0' };
-    dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1, FIELD_PADDING_TOP - 1, getTextWidth(s, 1) + 1, height() - 2, FOCUS_COLOR);
-    dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s, DEFAULT_COLOR);
+    char s[] = {value[cursorPos], '\0'};
+    dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1,
+                            FIELD_PADDING_TOP - 1, getTextWidth(s, 1) + 1,
+                            height() - 2, FOCUS_COLOR);
+    dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s,
+                 DEFAULT_COLOR);
 #endif
-  }
-  else {
+  } else {
     const char * displayedValue = value;
-    LcdFlags textColor;
+    LcdFlags textColor = FOCUS_COLOR;
     if (hasFocus()) {
       if (strlen(value) == 0) {
         displayedValue = "---";
       }
-      textColor = FOCUS_BGCOLOR;
+      textColor = FOCUS_COLOR;
     }
     else {
       if (strlen(value) == 0) {

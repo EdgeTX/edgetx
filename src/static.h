@@ -30,7 +30,7 @@ class StaticText: public Window
       text(std::move(text))
     {
       if (windowFlags & BUTTON_BACKGROUND) {
-        setBackgroundColor(DISABLE_COLOR);
+        setBackgroundColor(FIELD_FRAME_COLOR);
       }
     }
 
