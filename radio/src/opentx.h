@@ -1087,8 +1087,6 @@ union ReusableBuffer
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
-    char changedName[SD_SCREEN_FILE_LENGTH+1];
-    char ext[LEN_FILE_EXTENSION_MAX+1];
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
   } sdManager;

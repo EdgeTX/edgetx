@@ -25,6 +25,7 @@
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
 #include "standalone_lua.h"
+#include "sdcard.h"
 
 class FileNameEditWindow : public Page
 {
@@ -53,37 +54,39 @@ class FileNameEditWindow : public Page
     grid.spacer(8);
     uint8_t nameLength;
     uint8_t extLength;
-    char *ext =
-        (char *)getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
+    char extension[LEN_FILE_EXTENSION_MAX + 1];
+    memset(extension, 0, sizeof(extension));
+    const char *ext =
+        getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
 
-    reusableBuffer.sdManager.ext[0] = 0;
-    if (ext) strncpy(reusableBuffer.sdManager.ext, ext, extLength);
+    if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
+    if (ext) strncpy(extension, ext, extLength);
 
+    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
     nameLength -= extLength;
-    if (nameLength > SD_SCREEN_FILE_LENGTH) nameLength = SD_SCREEN_FILE_LENGTH;
+    if (nameLength > maxNameLength) nameLength = maxNameLength;
+    memset(reusableBuffer.sdManager.originalName, 0, SD_SCREEN_FILE_LENGTH);
 
     strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
-    reusableBuffer.sdManager.originalName[nameLength] = 0;
+    reusableBuffer.sdManager.originalName[nameLength] = '\0';
 
-    auto newFileName = new TextEdit(window, grid.getSlot(),
-                                    reusableBuffer.sdManager.originalName,
-                                    SD_SCREEN_FILE_LENGTH, LcdFlags(0));
-    {
-      char *newValue = newFileName->getData();
-      size_t totalSize =
-          strlen(newValue);  // sizeof(reusableBuffer.sdManager.changedName);
-      strncpy(reusableBuffer.sdManager.changedName, newValue, totalSize);
-      reusableBuffer.sdManager.changedName[totalSize] = 0;
+    auto newFileName = new TextEdit(
+        window, grid.getSlot(), reusableBuffer.sdManager.originalName,
+        SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
+    newFileName->setChangeHandler([=]() {
+      char *newValue = reusableBuffer.sdManager.originalName;
+      size_t totalSize = strlen(newValue);
+      char changedName[SD_SCREEN_FILE_LENGTH + 1];
+      memset(changedName, 0, sizeof(changedName));
+      strncpy(changedName, newValue, totalSize);
+      changedName[totalSize] = '\0';
       if (extLength) {
-        strncpy(reusableBuffer.sdManager.changedName + totalSize,
-                reusableBuffer.sdManager.ext,
-                extLength);  // totalSisze-strlen(newValue));
+        strncpy(changedName + totalSize, extension, extLength);
       }
-      reusableBuffer.sdManager.changedName[totalSize + extLength] = 0;
-      f_rename((const TCHAR *)name.c_str(),
-               reusableBuffer.sdManager.changedName);
-    }
-  }
+      changedName[totalSize + extLength] = '\0';
+      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+    });
+  };
 };
 
 RadioSdManagerPage::RadioSdManagerPage() :
@@ -334,27 +337,32 @@ void RadioSdManagerPage::build(FormWindow * window)
           }
           if (!READ_ONLY()) {
             menu->addLine(STR_COPY_FILE, [=]() {
-                clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-                f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-                strncpy(clipboard.data.sd.filename, name.c_str(), CLIPBOARD_PATH_LEN - 1);
+              clipboard.type = CLIPBOARD_TYPE_SD_FILE;
+              f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+              strncpy(clipboard.data.sd.filename, name.c_str(),
+                      CLIPBOARD_PATH_LEN - 1);
             });
             if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
-                menu->addLine(STR_PASTE, [=]() {
-                TCHAR lfn[FF_MAX_LFN+1];
-			          f_getcwd(lfn, FF_MAX_LFN);
-              
-			          if (strcmp(clipboard.data.sd.directory, lfn)) {  // prevent copying to the same directory
-				          POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, clipboard.data.sd.filename, lfn));
-				          clipboard.type = CLIPBOARD_TYPE_NONE;
-			          }
-			          rebuild(window);
+              menu->addLine(STR_PASTE, [=]() {
+                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
+                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                // prevent copying to the same directory
+                if (strcmp(clipboard.data.sd.directory, lfn)) {
+                  sdCopyFile(clipboard.data.sd.filename,
+                             clipboard.data.sd.directory,
+                             clipboard.data.sd.filename, lfn);
+                  clipboard.type = CLIPBOARD_TYPE_NONE;
+                }
+                rebuild(window);
               });
             }
             menu->addLine(STR_RENAME_FILE, [=]() {
               auto few = new FileNameEditWindow(name);
-			        few->setCloseHandler([=]() {
+              few->setCloseHandler([=]() {
+                //window->clear();
                 rebuild(window);
               });
+              // rebuild(window); });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
                 f_unlink((const TCHAR*)getFullPath(name));
