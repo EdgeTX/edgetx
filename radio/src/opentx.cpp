@@ -1521,6 +1521,7 @@ void opentxClose(uint8_t shutdown)
 
   luaUnregisterWidgets();
   luaClose(&lsWidgets);
+  lsWidgets = 0;
 #endif
 
 #if defined(SDCARD)
@@ -1534,6 +1535,11 @@ void opentxResume()
   TRACE("opentxResume");
 
   sdMount();
+#if defined(COLORLCD)
+  // reload widgets
+  luaInitThemesAndWidgets();
+#endif
+
   storageReadAll();
 
 #if defined(COLORLCD)
