@@ -58,18 +58,30 @@ class MixerChannelBar : public ChannelBar
       chanVal = limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
 
       //  Draw Background
-      dc->drawSolidFilledRect(0, 0, width(), height(), BARGRAPH_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), FIELD_BGCOLOR);
 
       // Draw mixer bar
       if (chanVal > 0) {
-        dc->drawSolidFilledRect(0 + width() / 2, 0, divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2), height(), BARGRAPH2_COLOR);
-        dc->drawNumber(width() / 2 - 10, 0, displayVal, FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
-      }
-      else if (chanVal < 0) {
+
+        dc->drawSolidFilledRect(
+            0 + width() / 2, 0,
+            divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
+            height(), FOCUS_BGCOLOR);
+
+        dc->drawNumber(width() / 2 - 10, 0, displayVal,
+                       FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
+
+      } else if (chanVal < 0) {
+
         const unsigned endpoint = width() / 2;
-        const unsigned size = divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
-        dc->drawSolidFilledRect(endpoint - size, 0, size, height(), BARGRAPH2_COLOR);
-        dc->drawNumber(10 + width() / 2, 0, displayVal, FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
+        const unsigned size =
+            divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
+
+        dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
+                                FOCUS_BGCOLOR);
+
+        dc->drawNumber(10 + width() / 2, 0, displayVal,
+                       FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
       }
 
       // Draw middle bar
@@ -100,36 +112,47 @@ class OutputChannelBar : public ChannelBar
       int chanVal = calcRESXto100(channelOutputs[channel]);
       int displayVal = chanVal;
 
-      chanVal = limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
+      chanVal = limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal,
+                           VIEW_CHANNELS_LIMIT_PCT);
 
       //  Draw Background
-      dc->drawSolidFilledRect(0, 0, width(), height(), BARGRAPH_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), FIELD_BGCOLOR);
 
       // Draw output bar
       if (chanVal > 0) {
-        dc->drawSolidFilledRect(width() / 2, 0, divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2), height(), BARGRAPH1_COLOR);
-        dc->drawNumber(width() / 2 - 10, 0, displayVal, FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
-      }
-      else if (chanVal < 0) {
+
+        dc->drawSolidFilledRect(
+            width() / 2, 0,
+            divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
+            height(), HIGHLIGHT_COLOR);
+
+        dc->drawNumber(width() / 2 - 10, 0, displayVal,
+                       FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
+
+      } else if (chanVal < 0) {
         unsigned endpoint = width() / 2;
-        unsigned size = divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
-        dc->drawSolidFilledRect(endpoint - size, 0, size, height(), BARGRAPH1_COLOR);
-        dc->drawNumber(width() / 2 + 10, 0, displayVal, FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
+        unsigned size =
+            divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
+
+        dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
+                                HIGHLIGHT_COLOR);
+
+        dc->drawNumber(width() / 2 + 10, 0, displayVal,
+                       FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
       }
 
       // Draw middle bar
       dc->drawSolidVerticalLine(width() / 2, 0, height(), DEFAULT_COLOR);
 
       // Draw output limits bars
-      LimitData * ld = limitAddress(channel);
+      LimitData* ld = limitAddress(channel);
       if (ld && ld->revert) {
-        drawOutputBarLimits(dc, posOnBar(-100 - ld->max / 10), posOnBar(100 - ld->min / 10));
-        //lcd->drawBitmap(x - X_OFFSET + 7, y + 25, chanMonInvertedBitmap);
+        drawOutputBarLimits(dc, posOnBar(-100 - ld->max / 10),
+                            posOnBar(100 - ld->min / 10));
+      } else if (ld) {
+        drawOutputBarLimits(dc, posOnBar(-100 + ld->min / 10),
+                            posOnBar(100 + ld->max / 10));
       }
-      else if (ld) {
-        drawOutputBarLimits(dc, posOnBar(-100 + ld->min / 10), posOnBar(100 + ld->max / 10));
-      }
-
     }
 
     inline unsigned posOnBar(int value_to100)

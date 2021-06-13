@@ -302,19 +302,23 @@ void CommonInputOrMixButton::checkEvents()
   Button::checkEvents();
 }
 
-void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType value)
+void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
+                                             FlightModesType value,
+                                             LcdFlags textColor)
 {
-  dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupFlightmodeIcon, DEFAULT_COLOR);
+  dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+               mixerSetupFlightmodeIcon, textColor);
   coord_t x = 166;
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     char s[] = " ";
     s[0] = '0' + i;
     if (value & (1 << i)) {
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | TEXT_DISABLE_COLOR);
-    }
-    else {
-      dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3, CHECKBOX_COLOR);
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS));
+      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s,
+                   FONT(XS) | TEXT_DISABLE_COLOR);
+    } else {
+      dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3,
+                              FOCUS_BGCOLOR);
+      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | textColor);
     }
     x += 8;
   }
@@ -322,10 +326,11 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType v
 
 void CommonInputOrMixButton::paint(BitmapBuffer * dc)
 {
-  if (active)
-    dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, HIGHLIGHT_COLOR);
+  dc->drawSolidFilledRect(0, 0, width(), height(),
+                          hasFocus() ? FOCUS_BGCOLOR : FIELD_BGCOLOR);
   paintBody(dc);
-  dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
+  if (!hasFocus())
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FIELD_FRAME_COLOR);
 }
 
 class InputLineButton : public CommonInputOrMixButton {
@@ -348,28 +353,38 @@ class InputLineButton : public CommonInputOrMixButton {
     {
       const ExpoData & line = g_model.expoData[index];
 
+      LcdFlags textColor = DEFAULT_COLOR;
+      if (hasFocus())
+        textColor = FOCUS_COLOR;
+      
       // first line ...
-      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight, -100, 100);
-      drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw);
+      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
+                      -100, 100, textColor);
+      drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw, textColor);
 
       if (line.name[0]) {
-        dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
-        dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name));
+        dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, textColor);
+        dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name),
+                          textColor);
       }
 
       // second line ...
       if (line.swtch) {
-        dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupSwitchIcon, DEFAULT_COLOR);
-        drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch);
+        dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                     mixerSetupSwitchIcon, textColor);
+        drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch,
+                   textColor);
       }
 
       if (line.curve.value != 0 ) {
-        dc->drawMask(60, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupCurveIcon, DEFAULT_COLOR);
-        drawCurveRef(dc, 80, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.curve);
+        dc->drawMask(60, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                     mixerSetupCurveIcon, textColor);
+        drawCurveRef(dc, 80, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.curve,
+                     textColor);
       }
 
       if (line.flightModes) {
-        drawFlightModes(dc, line.flightModes);
+        drawFlightModes(dc, line.flightModes, textColor);
       }
     }
 };
@@ -406,7 +421,11 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
   ExpoData * line = g_model.expoData;
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
     if (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
-      new StaticText(window, grid.getLabelSlot(), getSourceString(MIXSRC_FIRST_INPUT + input), BUTTON_BACKGROUND, CENTERED);
+      auto txt = new StaticText(window, grid.getLabelSlot(),
+                                getSourceString(MIXSRC_FIRST_INPUT + input),
+                                0, CENTERED);
+      txt->setBackgroundColor(FIELD_BGCOLOR);
+
       while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         Button * button = new InputLineButton(window, grid.getFieldSlot(), inputIndex);
         if (focusIndex == inputIndex)

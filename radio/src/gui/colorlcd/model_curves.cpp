@@ -42,10 +42,16 @@ class CurveEditWindow : public Page
 
     void buildHeader(Window * window)
     {
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENUCURVE, 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_MENUCURVE, 0, MENU_COLOR);
       char s[16];
       strAppendStringWithIndex(s, STR_CV, index + 1);
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, s, 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                     s, 0, MENU_COLOR);
     }
 
 #if LCD_W > LCD_H
@@ -226,8 +232,14 @@ class CurveButton : public Button {
 
     void paint(BitmapBuffer * dc) override
     {
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
+
       // bounding rect
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
+      if (hasFocus()) {
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      } else {
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+      }
 
       // curve characteristics
       if (isCurveUsed(index)) {
@@ -297,7 +309,10 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
 
     if (isCurveUsed(index)) {
       // Curve label
-      new StaticText(window, grid.getLabelSlot(), getCurveString(1 + index), BUTTON_BACKGROUND, CENTERED);
+      auto text =
+          new StaticText(window, grid.getLabelSlot(), getCurveString(1 + index),
+                         BUTTON_BACKGROUND, CENTERED);
+      text->setBackgroundColor(FOCUS_COLOR);
 
       // Curve drawing
       Button * button = new CurveButton(window, grid.getFieldSlot(), index);
@@ -325,10 +340,10 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       }
 
       grid.spacer(button->height() + 5);
-    }
-    else {
+    } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
                                    getCurveString(1 + index));
+
       button->setPressHandler([=]() {
         Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {

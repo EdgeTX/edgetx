@@ -57,8 +57,8 @@ class ChannelsViewFooter: public Window {
       // Draw legend bar
       coord_t x = 10;
       dc->drawSolidFilledRect(0, 0, width(), height(), TITLE_BGCOLOR);
-      x = drawChannelsMonitorLegend(dc, MENUS_MARGIN_LEFT, STR_MONITOR_OUTPUT_DESC, BARGRAPH1_COLOR);
-      drawChannelsMonitorLegend(dc, x, STR_MONITOR_MIXER_DESC, BARGRAPH2_COLOR);
+      x = drawChannelsMonitorLegend(dc, MENUS_MARGIN_LEFT, STR_MONITOR_OUTPUT_DESC, HIGHLIGHT_COLOR);
+      drawChannelsMonitorLegend(dc, x, STR_MONITOR_MIXER_DESC, FOCUS_BGCOLOR);
     }
 };
 

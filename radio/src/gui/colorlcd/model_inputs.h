@@ -56,7 +56,7 @@ class CommonInputOrMixButton : public Button {
 
     void checkEvents() override;
 
-    void drawFlightModes(BitmapBuffer *dc, FlightModesType value);
+    void drawFlightModes(BitmapBuffer *dc, FlightModesType value, LcdFlags textColor);
 
     void paint(BitmapBuffer * dc) override;
 

@@ -36,7 +36,7 @@ constexpr uint16_t __TAB_BACKGROUND_COLOR   = RGB(0xE4, 0xEE, 0xF2);
 constexpr uint16_t __PARAM_BACKGROUND_COLOR = WHITE;
 
 constexpr uint16_t __EDIT_MARKER_COLOR      = RGB(0x00, 0x99, 0x09);
-constexpr uint16_t __ACTIVE_MARKER_COLOR    = RGB(0xFF, 0x99, 0x00);
+constexpr uint16_t __ACTIVE_MARKER_COLOR    = RGB(0xFF, 0xDE, 0x00);
 
 class Theme480: public OpenTxTheme
 {
@@ -69,7 +69,7 @@ class Theme480: public OpenTxTheme
       lcdColorTable[HEADER_COLOR_INDEX] = __BACKGROUND_COLOR;
       lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
-      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = YELLOW;
+      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = __ACTIVE_MARKER_COLOR;
       lcdColorTable[LINE_COLOR_INDEX] = GREY;
       lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
       lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
@@ -383,7 +383,7 @@ class Theme480: public OpenTxTheme
       dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
                               TITLE_BGCOLOR);  // the title line background
       if (title) {
-        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, MENU_COLOR);
+        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, FOCUS_COLOR);
       }
 
       drawMenuDatetime(dc);
