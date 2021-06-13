@@ -224,6 +224,8 @@ class Menu: public ModalWindow
       }
     }
 
+    void paint(BitmapBuffer * dc) override;
+
   protected:
     MenuWindowContent * content;
     bool multiple;

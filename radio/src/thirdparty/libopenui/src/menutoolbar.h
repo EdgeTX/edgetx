@@ -78,7 +78,7 @@ class MenuToolbar: public FormGroup {
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->clear(DISABLE_COLOR);
+      dc->clear(DEFAULT_BGCOLOR);
     }
 
 #if defined(HARDWARE_KEYS)
