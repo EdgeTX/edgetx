@@ -129,11 +129,6 @@ class OutputLineButton : public Button {
       LcdFlags textColor = DEFAULT_COLOR;
       LcdFlags bgColor   = FIELD_BGCOLOR;
 
-      if (hasFocus()) {
-        textColor = FOCUS_COLOR;
-        bgColor   = FOCUS_BGCOLOR;
-      }
-      
       dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
       
       // first line
@@ -165,8 +160,10 @@ class OutputLineButton : public Button {
       }
 
       // bounding rect
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2,
-                        hasFocus() ? FOCUS_BGCOLOR : FIELD_FRAME_COLOR);
+      if (hasFocus())
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      else
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
     }
 
   protected:
@@ -197,9 +194,8 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
 
     // Channel label
     auto txt = new StaticText(window, grid.getLabelSlot(),
-                              getSourceString(MIXSRC_CH1 + ch), 0,
-                              CENTERED);
-    txt->setBackgroundColor(FIELD_BGCOLOR);
+                              getSourceString(MIXSRC_CH1 + ch),
+                              BUTTON_BACKGROUND, CENTERED);
 
     // Channel settings
     Button * button = new OutputLineButton(window, grid.getFieldSlot(), output);
@@ -231,11 +227,25 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
       });
       return 0;
     });
+    button->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
 
     if (focusChannel == ch) {
       button->setFocus(SET_FOCUS_DEFAULT);
+      txt->setBackgroundColor(FOCUS_BGCOLOR);
+      txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      txt->invalidate();
     }
 
+    txt->setHeight(button->height());
     grid.spacer(button->height() + 5);
   }
 

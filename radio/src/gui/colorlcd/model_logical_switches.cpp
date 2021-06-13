@@ -241,95 +241,97 @@ static constexpr coord_t col1 = 20;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1;
 
-class LogicalSwitchButton : public Button {
-  public:
-    LogicalSwitchButton(FormGroup * parent, const rect_t & rect, int lsIndex):
-      Button(parent, rect),
-      lsIndex(lsIndex),
-      active(isActive())
-    {
-      LogicalSwitchData * ls = lswAddress(lsIndex);
-      if (ls->andsw != SWSRC_NONE || ls->duration != 0 || ls->delay != 0)
-        setHeight(height() + 20);
-      if (lswFamily(ls->func) == LS_FAMILY_EDGE)
-        setHeight(height() + 20);
+class LogicalSwitchButton : public Button
+{
+ public:
+  LogicalSwitchButton(FormGroup* parent, const rect_t& rect, int lsIndex) :
+      Button(parent, rect), lsIndex(lsIndex), active(isActive())
+  {
+    LogicalSwitchData* ls = lswAddress(lsIndex);
+    if (ls->andsw != SWSRC_NONE || ls->duration != 0 || ls->delay != 0)
+      setHeight(height() + 20);
+    if (lswFamily(ls->func) == LS_FAMILY_EDGE) setHeight(height() + 20);
+  }
+
+  bool isActive() const
+  {
+    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + lsIndex);
+  }
+
+  void checkEvents() override
+  {
+    if (active != isActive()) {
+      invalidate();
+      active = !active;
     }
 
-    bool isActive() const
-    {
-      return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + lsIndex);
+    Button::checkEvents();
+  }
+
+  void paintLogicalSwitchLine(BitmapBuffer* dc)
+  {
+    LogicalSwitchData* ls = lswAddress(lsIndex);
+    uint8_t lsFamily = lswFamily(ls->func);
+
+    // CSW func
+    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func);
+
+    // CSW params
+    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
+      drawSwitch(dc, col2, line1, ls->v1);
+      drawSwitch(dc, col3, line1, ls->v2);
+    } else if (lsFamily == LS_FAMILY_EDGE) {
+      drawSwitch(dc, col1, line2, ls->v1);
+      putsEdgeDelayParam(dc, col2, line2, ls);
+    } else if (lsFamily == LS_FAMILY_COMP) {
+      drawSource(dc, col2, line1, ls->v1, 0);
+      drawSource(dc, col3, line1, ls->v2, 0);
+    } else if (lsFamily == LS_FAMILY_TIMER) {
+      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), LEFT | PREC1);
+      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), LEFT | PREC1);
+    } else {
+      drawSource(dc, col2, line1, ls->v1, 0);
+      drawSourceCustomValue(
+          dc, col3, line1, ls->v1,
+          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0);
     }
 
-    void checkEvents() override
-    {
-      if (active != isActive()) {
-        invalidate();
-        active = !active;
-      }
+    // AND switch
+    drawSwitch(dc, col1, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
+               ls->andsw, 0);
 
-      Button::checkEvents();
+    // CSW duration
+    if (ls->duration > 0) {
+      dc->drawNumber(col2, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
+                     ls->duration, PREC1 | LEFT);
     }
 
-    void paintLogicalSwitchLine(BitmapBuffer * dc)
-    {
-      LogicalSwitchData * ls = lswAddress(lsIndex);
-      uint8_t lsFamily = lswFamily(ls->func);
-
-      // CSW func
-      dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func);
-
-      // CSW params
-      if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
-        drawSwitch(dc, col2, line1, ls->v1);
-        drawSwitch(dc, col3, line1, ls->v2);
-      }
-      else if (lsFamily == LS_FAMILY_EDGE) {
-        drawSwitch(dc, col1, line2, ls->v1);
-        putsEdgeDelayParam(dc, col2, line2, ls);
-      }
-      else if (lsFamily == LS_FAMILY_COMP) {
-        drawSource(dc, col2, line1, ls->v1, 0);
-        drawSource(dc, col3, line1, ls->v2, 0);
-      }
-      else if (lsFamily == LS_FAMILY_TIMER) {
-        dc->drawNumber(col2, line1, lswTimerValue(ls->v1), LEFT|PREC1);
-        dc->drawNumber(col3, line1, lswTimerValue(ls->v2), LEFT|PREC1);
-      }
-      else {
-        drawSource(dc, col2, line1, ls->v1, 0);
-        drawSourceCustomValue(dc, col3, line1, ls->v1, (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0);
-      }
-
-      // AND switch
-      drawSwitch(dc, col1, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->andsw, 0);
-
-      // CSW duration
-      if (ls->duration > 0) {
-        dc->drawNumber(col2, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->duration, PREC1 | LEFT);
-      }
-
-      // CSW delay
-      if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-        dc->drawNumber(col3, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->delay, PREC1 | LEFT);
-      }
+    // CSW delay
+    if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
+      dc->drawNumber(col3, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
+                     ls->delay, PREC1 | LEFT);
     }
+  }
 
-    void paint(BitmapBuffer * dc) override
-    {
-      if (active)
-        dc->drawSolidFilledRect(2, 2, rect.w-4, rect.h-4, HIGHLIGHT_COLOR);
-      else
-        dc->drawSolidFilledRect(2, 2, rect.w-4, rect.h-4, FIELD_BGCOLOR);
+  void paint(BitmapBuffer* dc) override
+  {
+    if (active)
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, HIGHLIGHT_COLOR);
+    else
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
 
-      paintLogicalSwitchLine(dc);
+    paintLogicalSwitchLine(dc);
 
-      // The bounding rect
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
-    }
+    // The bounding rect
+    if (hasFocus())
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+    else
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+  }
 
-  protected:
-    uint8_t lsIndex;
-    bool active;
+ protected:
+  uint8_t lsIndex;
+  bool active;
 };
 
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
@@ -353,17 +355,18 @@ void ModelLogicalSwitchesPage::editLogicalSwitch(FormWindow * window, uint8_t ls
   });
 }
 
-void ModelLogicalSwitchesPage::build(FormWindow * window, int8_t focusIndex)
+void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
-    LogicalSwitchData * ls = lswAddress(i);
+    LogicalSwitchData* ls = lswAddress(i);
 
     if (ls->func == LS_FUNC_NONE) {
-      auto button = new TextButton(window, grid.getLabelSlot(), getSwitchPositionName(SWSRC_SW1+i));
+      auto button = new TextButton(window, grid.getLabelSlot(),
+                                   getSwitchPositionName(SWSRC_SW1 + i));
       button->setPressHandler([=]() {
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
           Menu* menu = new Menu(window);
@@ -379,40 +382,54 @@ void ModelLogicalSwitchesPage::build(FormWindow * window, int8_t focusIndex)
         return 0;
       });
       grid.spacer(button->height() + 5);
-    }
-    else {
-      new StaticText(window, grid.getLabelSlot(), getSwitchPositionName(SWSRC_SW1 + i), BUTTON_BACKGROUND, CENTERED);
+    } else {
+      auto txt = new StaticText(window, grid.getLabelSlot(),
+                                getSwitchPositionName(SWSRC_SW1 + i),
+                                BUTTON_BACKGROUND, CENTERED);
 
       auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);
       button->setPressHandler([=]() {
-          Menu * menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() {
-              editLogicalSwitch(window, i);
+        Menu* menu = new Menu(window);
+        menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
+        if (ls->func)
+          menu->addLine(STR_COPY, [=]() {
+            clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
+            clipboard.data.csw = *ls;
           });
-          if (ls->func)
-            menu->addLine(STR_COPY, [=]() {
-                clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
-                clipboard.data.csw = *ls;
-            });
-          if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
-            menu->addLine(STR_PASTE, [=]() {
-                *ls = clipboard.data.csw;
-                storageDirty(EE_MODEL);
-                rebuild(window, i);
-            });
-          if (ls->func || ls->v1 || ls->v2 || ls->delay || ls->duration || ls->andsw)
-            menu->addLine(STR_CLEAR, [=]() {
-                memset(ls, 0, sizeof(LogicalSwitchData));
-                storageDirty(EE_MODEL);
-                rebuild(window, i);
-            });
-          return 0;
+        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
+          menu->addLine(STR_PASTE, [=]() {
+            *ls = clipboard.data.csw;
+            storageDirty(EE_MODEL);
+            rebuild(window, i);
+          });
+        if (ls->func || ls->v1 || ls->v2 || ls->delay || ls->duration ||
+            ls->andsw)
+          menu->addLine(STR_CLEAR, [=]() {
+            memset(ls, 0, sizeof(LogicalSwitchData));
+            storageDirty(EE_MODEL);
+            rebuild(window, i);
+          });
+        return 0;
+      });
+      button->setFocusHandler([=](bool focus) {
+        if (focus) {
+          txt->setBackgroundColor(FOCUS_BGCOLOR);
+          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        } else {
+          txt->setBackgroundColor(FIELD_FRAME_COLOR);
+          txt->setTextFlags(CENTERED);
+        }
+        txt->invalidate();
       });
 
       if (focusIndex == i) {
         button->setFocus(SET_FOCUS_DEFAULT);
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->invalidate();
       }
 
+      txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     }
   }

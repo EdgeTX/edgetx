@@ -309,10 +309,9 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
 
     if (isCurveUsed(index)) {
       // Curve label
-      auto text =
+      auto txt =
           new StaticText(window, grid.getLabelSlot(), getCurveString(1 + index),
                          BUTTON_BACKGROUND, CENTERED);
-      text->setBackgroundColor(FOCUS_COLOR);
 
       // Curve drawing
       Button * button = new CurveButton(window, grid.getFieldSlot(), index);
@@ -334,11 +333,25 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
           });
           return 0;
       });
+      button->setFocusHandler([=](bool focus) {
+        if (focus) {
+          txt->setBackgroundColor(FOCUS_BGCOLOR);
+          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        } else {
+          txt->setBackgroundColor(FIELD_FRAME_COLOR);
+          txt->setTextFlags(CENTERED);
+        }
+        txt->invalidate();
+      });
 
       if (focusIndex == index) {
         button->setFocus(SET_FOCUS_DEFAULT);
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->invalidate();
       }
 
+      txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),

@@ -64,9 +64,18 @@ void GVarButton::paint(BitmapBuffer * dc)
   currentFlightMode = getFlightMode();
   gvarSum = 0;
 
-  dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getGVarString(gvarIdx), 0);
-  dc->drawSizedText(x, y, gvar->name, LEN_GVAR_NAME, 0);
+  LcdFlags bgColor = FIELD_BGCOLOR;
+  LcdFlags textColor = 0;
+  if (hasFocus()) {
+    bgColor   = FOCUS_BGCOLOR;
+    textColor = FOCUS_COLOR;
+  }
+
+  dc->drawSolidFilledRect(0, 0, nameRectW, rect.h, bgColor);
+  dc->drawSolidFilledRect(nameRectW, 0, rect.w - nameRectW, rect.h, FIELD_BGCOLOR);
+
+  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getGVarString(gvarIdx), textColor);
+  dc->drawSizedText(x, y, gvar->name, LEN_GVAR_NAME, textColor);
 
   // values are right aligned
   x += GVAR_NAME_SIZE;
