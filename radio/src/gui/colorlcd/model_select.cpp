@@ -148,14 +148,14 @@ class ModelButton : public Button
                         DEFAULT_COLOR | CENTERED);
     } else {
       LcdFlags textColor;
-      if (hasFocus()) {
-        dc->drawFilledRect(0, 0, width(), 20, SOLID, FOCUS_BGCOLOR, 5);
-        textColor = FOCUS_COLOR;
-      }
-      else {
-        dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR2FLAGS(WHITE)/*FIELD_BGCOLOR*/, 5);
+      // if (hasFocus()) {
+      //   dc->drawFilledRect(0, 0, width(), 20, SOLID, FOCUS_BGCOLOR, 5);
+      //   textColor = FOCUS_COLOR;
+      // }
+      // else {
+        dc->drawFilledRect(0, 0, width(), 20, SOLID, FIELD_BGCOLOR, 5);
         textColor = DEFAULT_COLOR;
-      }
+      // }
 
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
                         LEN_MODEL_NAME,
