@@ -125,10 +125,6 @@ class ModelButton : public Button
       buffer->drawText(width() / 2, 2, "(Invalid Model)",
                        DEFAULT_COLOR | CENTERED);
     } else {
-      buffer->drawSizedText(width() / 2, 2, modelCell->modelName,
-                            LEN_MODEL_NAME,
-                            DEFAULT_COLOR | CENTERED);
-
       GET_FILENAME(filename, BITMAPS_PATH, partialModel.header.bitmap, "");
       const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
       if (bitmap) {
@@ -150,11 +146,20 @@ class ModelButton : public Button
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
                         LEN_MODEL_NAME,
                         DEFAULT_COLOR | CENTERED);
-    } else if (hasFocus()) {
-      dc->drawFilledRect(0, 0, width(), 20, SOLID, FOCUS_BGCOLOR, 5);
+    } else {
+      LcdFlags textColor;
+      if (hasFocus()) {
+        dc->drawFilledRect(0, 0, width(), 20, SOLID, FOCUS_BGCOLOR, 5);
+        textColor = FOCUS_COLOR;
+      }
+      else {
+        dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR2FLAGS(WHITE)/*FIELD_BGCOLOR*/, 5);
+        textColor = DEFAULT_COLOR;
+      }
+
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
                         LEN_MODEL_NAME,
-                        FOCUS_COLOR | CENTERED);
+                        textColor | CENTERED);
     }
 
     if (!hasFocus()) {

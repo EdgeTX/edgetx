@@ -73,8 +73,15 @@ class LogicalSwitchEditPage: public Page
 
     void buildHeader(Window * window)
     {
-      new StaticText(window, { PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT }, STR_MENULOGICALSWITCHES, 0, MENU_COLOR);
-      headerSwitchName = new StaticText(window, { PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT }, getSwitchPositionName(SWSRC_SW1 + index), 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_MENULOGICALSWITCHES, 0, MENU_COLOR);
+      headerSwitchName = new StaticText(
+          window,
+          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+          getSwitchPositionName(SWSRC_SW1 + index), 0, MENU_COLOR);
     }
 
     void updateLogicalSwitchOneWindow()
@@ -311,6 +318,8 @@ class LogicalSwitchButton : public Button {
     {
       if (active)
         dc->drawSolidFilledRect(2, 2, rect.w-4, rect.h-4, HIGHLIGHT_COLOR);
+      else
+        dc->drawSolidFilledRect(2, 2, rect.w-4, rect.h-4, FIELD_BGCOLOR);
 
       paintLogicalSwitchLine(dc);
 
