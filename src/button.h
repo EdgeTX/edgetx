@@ -113,10 +113,16 @@ class TextButton: public Button
      }
    }
 
+   void setBgColorHandler(std::function<LcdFlags(void)> handler = nullptr)
+   {
+     bgColorHandler = std::move(handler);
+   }
+
    void paint(BitmapBuffer* dc) override;
 
   protected:
    std::string text;
+   std::function<LcdFlags(void)> bgColorHandler = nullptr;
 };
 
 class IconButton: public Button
