@@ -30,11 +30,14 @@ uint8_t menuCalibrationState;
 
 class StickCalibrationWindow: public Window {
   public:
-    StickCalibrationWindow(Window * parent, const rect_t & rect, uint8_t stickX, uint8_t stickY):
-      Window(parent, rect, REFRESH_ALWAYS),
-      stickX(stickX),
-      stickY(stickY)
-    {
+   StickCalibrationWindow(Window *parent, const rect_t &rect, uint8_t stickX,
+                          uint8_t stickY) :
+       Window(parent, rect, REFRESH_ALWAYS), stickX(stickX), stickY(stickY)
+   {
+     setLeft(rect.x - calibStickBackground->width() / 2);
+     setTop(rect.y - calibStickBackground->height() / 2);
+     setWidth(calibStickBackground->width());
+     setHeight(calibStickBackground->height());
     }
 
     void paint(BitmapBuffer * dc) override
@@ -42,7 +45,9 @@ class StickCalibrationWindow: public Window {
       dc->drawBitmap(0, 0, calibStickBackground);
       int16_t x = calibratedAnalogs[CONVERT_MODE(stickX)];
       int16_t y = calibratedAnalogs[CONVERT_MODE(stickY)];
-      dc->drawBitmap(width() / 2 - 9 + (bitmapSize / 2 * x) / RESX, height() / 2 - 9 - (bitmapSize / 2 * y) / RESX, calibStick);
+      dc->drawBitmap(width() / 2 - 9 + (bitmapSize / 2 * x) / RESX,
+                     height() / 2 - 9 - (bitmapSize / 2 * y) / RESX,
+                     calibStick);
     }
 
   protected:
@@ -61,8 +66,15 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial):
 
 void RadioCalibrationPage::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENUCALIBRATION, 0, MENU_COLOR);
-  text = new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENUTOSTART, 0,MENU_COLOR);
+  new StaticText(window,
+                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                  PAGE_LINE_HEIGHT},
+                 STR_MENUCALIBRATION, 0, FOCUS_COLOR);
+
+  text = new StaticText(window,
+                        {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                         LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                        STR_MENUTOSTART, 0, FOCUS_COLOR);
 }
 
 void RadioCalibrationPage::buildBody(FormWindow * window)
@@ -72,8 +84,13 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
   // The two sticks
 
   //TODO: dynamic placing
-  new StickCalibrationWindow(window, {40, 20, 90, 90}, STICK1, STICK2);
-  new StickCalibrationWindow(window, {LCD_W - 130, 20, 90, 90}, STICK4, STICK3);
+  new StickCalibrationWindow(window,
+                             {window->width() / 3, window->height() / 2, 0, 0},
+                             STICK1, STICK2);
+
+  new StickCalibrationWindow(window,
+                             {(2 * window->width()) / 3, window->height() / 2, 0, 0},
+                             STICK4, STICK3);
 
   rect_t r = { 0, 0, window->width(), window->height() };
   auto deco = new ViewMainDecoration(window, r);
