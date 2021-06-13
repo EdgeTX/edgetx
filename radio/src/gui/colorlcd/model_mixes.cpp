@@ -404,15 +404,26 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           });
           return 0;
         });
+
+        StaticBitmap* bitmap = nullptr;
+        if (count++ > 0) {
+          bitmap = new StaticBitmap(
+              window, {35, button->top() + (button->height() - 18) / 2, 25, 17},
+              mixerMultiplexBitmap[mix->mltpx], DEFAULT_COLOR);
+        }
+
         button->setFocusHandler([=](bool focus) {
           if (focus) {
             txt->setBackgroundColor(FOCUS_BGCOLOR);
             txt->setTextFlags(FOCUS_COLOR | CENTERED);
+            if (bitmap) bitmap->setMaskColor(FOCUS_COLOR);
           } else {
             txt->setBackgroundColor(FIELD_FRAME_COLOR);
             txt->setTextFlags(CENTERED);
+            if (bitmap) bitmap->setMaskColor(DEFAULT_COLOR);
           }
           txt->invalidate();
+          if (bitmap) bitmap->invalidate();
         });
 
         if (focusMixIndex == mixIndex) {
@@ -420,13 +431,12 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           txt->setBackgroundColor(FOCUS_BGCOLOR);
           txt->setTextFlags(FOCUS_COLOR | CENTERED);
           txt->invalidate();
+          if (bitmap) {
+            bitmap->setMaskColor(FOCUS_COLOR);
+            bitmap->invalidate();
+          }
         }
 
-        if (count++ > 0) {
-          new StaticBitmap(
-              window, {35, button->top() + (button->height() - 18) / 2, 25, 17},
-              mixerMultiplexBitmap[mix->mltpx]);
-        }
 
         grid.spacer(button->height() - 1);
         ++mixIndex;

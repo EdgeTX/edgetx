@@ -257,41 +257,41 @@ class Theme480: public OpenTxTheme
 
       // Channels monitor screen
       delete chanMonLockedBitmap;
-      chanMonLockedBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_monitor_lockch.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      chanMonLockedBitmap = BitmapBuffer::load8bitMask(mask_monitor_lockch);
 
       delete chanMonInvertedBitmap;
-      chanMonInvertedBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_monitor_inver.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      chanMonInvertedBitmap = BitmapBuffer::load8bitMask(mask_monitor_inver);
 
       // Mixer setup screen
       delete mixerSetupMixerBitmap;
-      mixerSetupMixerBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_mixer.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupMixerBitmap = BitmapBuffer::load8bitMask(mask_sbar_mixer);
 
       delete mixerSetupToBitmap;
-      mixerSetupToBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_to.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupToBitmap = BitmapBuffer::load8bitMask(mask_sbar_to);
 
       delete mixerSetupOutputBitmap;
-      mixerSetupOutputBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_output.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupOutputBitmap = BitmapBuffer::load8bitMask(mask_sbar_output);
 
       delete mixerSetupAddBitmap;
-      mixerSetupAddBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_add.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupAddBitmap = BitmapBuffer::load8bitMask(mask_mplex_add);
 
       delete mixerSetupMultiBitmap;
-      mixerSetupMultiBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_multi.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupMultiBitmap = BitmapBuffer::load8bitMask(mask_mplex_multi);
 
       delete mixerSetupReplaceBitmap;
-      mixerSetupReplaceBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_replace.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupReplaceBitmap = BitmapBuffer::load8bitMask(mask_mplex_replace);
 
       delete mixerSetupLabelIcon;
-      mixerSetupLabelIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_label.png"));
+      mixerSetupLabelIcon = BitmapBuffer::load8bitMask(mask_textline_label);
 
       delete mixerSetupCurveIcon;
-      mixerSetupCurveIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_curve.png"));
+      mixerSetupCurveIcon = BitmapBuffer::load8bitMask(mask_textline_curve);
 
       delete mixerSetupSwitchIcon;
-      mixerSetupSwitchIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_switch.png"));
+      mixerSetupSwitchIcon = BitmapBuffer::load8bitMask(mask_textline_switch);
 
       delete mixerSetupFlightmodeIcon;
-      mixerSetupFlightmodeIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_fm.png"));
+      mixerSetupFlightmodeIcon = BitmapBuffer::load8bitMask(mask_textline_fm);
 
 //      delete mixerSetupSlowIcon;
 //      mixerSetupSlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_slow.png"));

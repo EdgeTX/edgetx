@@ -216,13 +216,13 @@ class ComboChannelBar : public ChannelBar
       // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED)
-        dc->drawBitmap(0, 1, chanMonLockedBitmap);
+        dc->drawMask(0, 1, chanMonLockedBitmap, DEFAULT_COLOR);
 #endif
 
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        lcd->drawBitmap(0, 20, chanMonInvertedBitmap);
+        lcd->drawMask(0, 20, chanMonInvertedBitmap, DEFAULT_COLOR);
       }
     }
 
