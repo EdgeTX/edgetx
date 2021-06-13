@@ -45,13 +45,13 @@ class CurveEditWindow : public Page
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_MENUCURVE, 0, MENU_COLOR);
+                     STR_MENUCURVE, 0, FOCUS_COLOR);
       char s[16];
       strAppendStringWithIndex(s, STR_CV, index + 1);
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     s, 0, MENU_COLOR);
+                     s, 0, FOCUS_COLOR);
     }
 
 #if LCD_W > LCD_H

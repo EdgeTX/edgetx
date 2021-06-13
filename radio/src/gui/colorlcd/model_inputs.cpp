@@ -137,8 +137,15 @@ class InputEditWindow: public Page
 
     void buildHeader(Window * window)
     {
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENUINPUTS, 0, MENU_COLOR);
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, getSourceString(MIXSRC_FIRST_INPUT + input), 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_MENUINPUTS, 0,FOCUS_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                     getSourceString(MIXSRC_FIRST_INPUT + input), 0,
+                     FOCUS_COLOR);
     }
 
     // TODO share this code with MIXER

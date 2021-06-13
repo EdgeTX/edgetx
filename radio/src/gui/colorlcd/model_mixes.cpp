@@ -73,11 +73,11 @@ class MixEditWindow : public Page
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                     PAGE_LINE_HEIGHT},
-                   STR_MIXES, 0, MENU_COLOR);
+                   STR_MIXES, 0, FOCUS_COLOR);
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                   getSourceString(MIXSRC_CH1 + channel), 0, MENU_COLOR);
+                   getSourceString(MIXSRC_CH1 + channel), 0, FOCUS_COLOR);
   }
 
   void buildBody(FormWindow *window)

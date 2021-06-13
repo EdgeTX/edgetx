@@ -76,12 +76,12 @@ class LogicalSwitchEditPage: public Page
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_MENULOGICALSWITCHES, 0, MENU_COLOR);
+                     STR_MENULOGICALSWITCHES, 0, FOCUS_COLOR);
       headerSwitchName = new StaticText(
           window,
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
            LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-          getSwitchPositionName(SWSRC_SW1 + index), 0, MENU_COLOR);
+          getSwitchPositionName(SWSRC_SW1 + index), 0, FOCUS_COLOR);
     }
 
     void updateLogicalSwitchOneWindow()

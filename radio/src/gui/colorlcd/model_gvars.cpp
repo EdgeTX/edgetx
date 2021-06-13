@@ -145,16 +145,16 @@ void GVarRenderer::paint(BitmapBuffer * dc)
   FlightModeData * fmData = &g_model.flightModeData[lastFlightMode];
   lastGVar = fmData->gvars[index];
   coord_t x = drawStringWithIndex(dc, 0, FIELD_PADDING_TOP, STR_GV, index + 1,
-                                  DEFAULT_COLOR, nullptr, "=");
+                                  FOCUS_COLOR, nullptr, "=");
   if (lastGVar > GVAR_MAX) {
     uint8_t fm = lastGVar - GVAR_MAX - 1;
     if (fm >= lastFlightMode)
       fm++;
     char label[16];
     getFlightModeString(label, fm + 1);
-    dc->drawSizedText(x, FIELD_PADDING_TOP, label, strlen(label), DEFAULT_COLOR);
+    dc->drawSizedText(x, FIELD_PADDING_TOP, label, strlen(label), FOCUS_COLOR);
   } else {
-    drawGVarValue(dc, x, FIELD_PADDING_TOP, index, lastGVar, DEFAULT_COLOR);
+    drawGVarValue(dc, x, FIELD_PADDING_TOP, index, lastGVar, FOCUS_COLOR);
   }
 }
 
@@ -183,7 +183,7 @@ void GVarEditWindow::buildHeader(Window * window)
   new StaticText(window,
                  {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                   PAGE_LINE_HEIGHT},
-                 STR_GLOBAL_VAR, 0, DEFAULT_COLOR);
+                 STR_GLOBAL_VAR, 0, FOCUS_COLOR);
   gVarInHeader =
       new GVarRenderer(window,
                        {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
