@@ -143,7 +143,7 @@ void MenuBody::paint(BitmapBuffer * dc)
 MenuWindowContent::MenuWindowContent(Menu* parent) :
     ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2,
                                 (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
-    body(this, {1, 1, width() - 2, height() - 2})
+    body(this, {0, 0, width(), height()})
 {
   body.setFocus(SET_FOCUS_DEFAULT);
 }
@@ -161,8 +161,6 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
     dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH,
                                 MENU_LINE_COLOR);
   }
-
-  dc->drawSolidRect(0, 0, MENUS_WIDTH, height(), 1, MENU_LINE_COLOR);
 }
 
 Menu::Menu(Window * parent, bool multiple):
@@ -181,11 +179,11 @@ void Menu::updatePosition()
         MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1,
         MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
-    content->setHeight(headerHeight + bodyHeight + 2);
-    content->body.setTop(headerHeight + 1);
+    content->setHeight(headerHeight + bodyHeight);
+    content->body.setTop(headerHeight);
     content->body.setHeight(bodyHeight);
   }
-  content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT - 1);
+  content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT);
 }
 
 void Menu::setTitle(std::string text)
@@ -226,3 +224,13 @@ void Menu::onEvent(event_t event)
   }
 }
 #endif
+
+void Menu::paint(BitmapBuffer * dc)
+{
+  rect_t r(content->getRect());
+  if (toolbar) {
+    r.x = toolbar->left();
+    r.w += toolbar->width();
+  }
+  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, MENU_LINE_COLOR);
+}
