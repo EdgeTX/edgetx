@@ -29,8 +29,8 @@
 #include "sdcard_raw.h"
 #endif
 
-#define MODELCELL_WIDTH                172
-#define MODELCELL_HEIGHT               59
+// #define MODELCELL_WIDTH                172
+// #define MODELCELL_HEIGHT               59
 
 // modelXXXXXXX.bin F,FF F,3F,FF\r\n
 #define LEN_MODELS_IDX_LINE (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n")-1)

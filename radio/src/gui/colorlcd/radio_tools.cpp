@@ -115,7 +115,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
         new StaticText(window, grid.getLabelSlot(), "lua", BUTTON_BACKGROUND, CENTERED);
 
         std::string path_str(path);
-        new TextButton(
+        auto b = new TextButton(
             window, grid.getFieldSlot(1), label,
             [window, path_str]() -> uint8_t {
               f_chdir("/SCRIPTS/TOOLS/");
@@ -124,7 +124,8 @@ void RadioToolsPage::rebuild(FormWindow * window)
               StandaloneLuaWindow::instance()->attach(window);
               return 0;
             },
-            0);
+            OPAQUE);
+        b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
         grid.nextLine();
       }
     }

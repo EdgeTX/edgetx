@@ -51,7 +51,7 @@ class PageHeader: public FormGroup
   protected:
     uint8_t icon;
 #if defined(HARDWARE_TOUCH)
-    IconButton back;
+    Button back;
 #endif
 };
 
