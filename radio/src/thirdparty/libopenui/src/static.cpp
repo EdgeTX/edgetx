@@ -34,21 +34,23 @@ void StaticText::paint(BitmapBuffer * dc)
   else
     x = 0;
 
-  coord_t y = (textFlags & VCENTERED) ? (rect.h - getFontHeight(textFlags)) / 2 : FIELD_PADDING_TOP;
+  coord_t y = (textFlags & VCENTERED) ? (rect.h - getFontHeight(textFlags)) / 2
+                                      : FIELD_PADDING_TOP;
 
   auto start = text.c_str();
   auto nextline = findNextLine(start);
   if (nextline) {
     auto current = start;
     do {
-      dc->drawText(x, y, text.substr(current - start, nextline - current).c_str(), textFlags);
+      dc->drawText(x, y,
+                   text.substr(current - start, nextline - current).c_str(),
+                   textFlags);
       current = nextline + 1;
       nextline = findNextLine(current);
       y += getFontHeight(textFlags) + 2;
     } while (nextline);
     dc->drawText(x, y, current, textFlags);
-  }
-  else {
+  } else {
     dc->drawText(x, y, start, textFlags);
   }
 }
