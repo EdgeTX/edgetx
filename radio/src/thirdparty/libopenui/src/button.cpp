@@ -70,36 +70,37 @@ void Button::checkEvents()
 
 void TextButton::paint(BitmapBuffer * dc)
 {
-  FormField::paint(dc);
-
   auto textColor = DEFAULT_COLOR;
+  auto bgColor   = FIELD_FRAME_COLOR;
+
+  if (bgColorHandler) {
+    bgColor = bgColorHandler();
+  } else if (checked()) {
+    bgColor = EDIT_MARKER_COLOR;
+  } else if (hasFocus()) {
+    bgColor = FOCUS_BGCOLOR;
+  }
 
   if (checked()) {
     if (hasFocus()) {
       dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
-      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, EDIT_MARKER_COLOR);
+      dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, bgColor);
     } else {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, EDIT_MARKER_COLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
     }
     textColor = FOCUS_COLOR;
   }
   else {
+    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
     if (windowFlags & BUTTON_BACKGROUND) {
       if (hasFocus()) {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FOCUS_BGCOLOR);
         textColor = FOCUS_COLOR;
       }
-      else {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_FRAME_COLOR);
-      }
+    } else if (hasFocus()) {
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
     }
     else {
-      if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
-      }
-      else {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, DISABLE_COLOR);
-      }
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
     }
   }
 
