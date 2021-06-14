@@ -243,8 +243,12 @@ static int luaLcdDrawText(lua_State *L)
   if (invers) {
     int height = getFontHeight(att & 0xFFFF);
     int width = getTextWidth(s, 255, att);
+    int ix = x - INVERT_BOX_MARGIN;
+    if (att & RIGHT) {
+      ix = x - width - INVERT_BOX_MARGIN;
+    }
     luaLcdBuffer->drawSolidFilledRect(
-        x - INVERT_BOX_MARGIN, y - INVERT_BOX_MARGIN,
+        ix, y - INVERT_BOX_MARGIN,
         width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
         FOCUS_BGCOLOR);
     att = (att & 0xFFFF) | FOCUS_COLOR;
@@ -338,8 +342,12 @@ static int luaLcdDrawNumber(lua_State *L)
   if (invers) {
     int height = getFontHeight(att & 0xFFFF);
     int width = getTextWidth(s, 255, att);
+    int ix = x - INVERT_BOX_MARGIN;
+    if (att & RIGHT) {
+      ix = x - width - INVERT_BOX_MARGIN;
+    }
     luaLcdBuffer->drawSolidFilledRect(
-        x - INVERT_BOX_MARGIN, y - INVERT_BOX_MARGIN,
+        ix, y - INVERT_BOX_MARGIN,
         width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
         FOCUS_BGCOLOR);
     att = (att & 0xFFFF) | FOCUS_COLOR;
