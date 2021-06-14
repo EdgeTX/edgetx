@@ -106,9 +106,9 @@ constexpr uint32_t PAGE_TITLE_LEFT =               50;
 
 constexpr uint32_t INPUT_EDIT_LABELS_WIDTH = 120;
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 158;
-constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = LCD_H - MENU_HEADER_HEIGHT;
-constexpr coord_t INPUT_EDIT_CURVE_LEFT = LCD_W - 158;
-constexpr coord_t INPUT_EDIT_CURVE_TOP = MENU_HEADER_HEIGHT;
+constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
+constexpr coord_t INPUT_EDIT_CURVE_LEFT = PAGE_PADDING;
+constexpr coord_t INPUT_EDIT_CURVE_TOP = MENU_HEADER_HEIGHT + PAGE_PADDING;
 constexpr coord_t MENUS_LINE_HEIGHT = 30;
 constexpr coord_t MENUS_WIDTH = 200;
 constexpr coord_t MENUS_OFFSET_TOP = 20;

@@ -124,4 +124,6 @@ void loadTheme();
 
 std::list<OpenTxTheme *> & getRegisteredThemes();
 
+extern const uint8_t LBM_DROPDOWN[];
+
 #endif // _COLORLCD_THEME_H_

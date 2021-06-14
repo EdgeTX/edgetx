@@ -55,6 +55,8 @@ void SwitchChoice::paint(BitmapBuffer * dc)
     textColor = DEFAULT_COLOR;
 
   drawSwitch(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
+  dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_DROPDOWN,
+                        textColor);
 }
 
 void SwitchChoice::fillMenu(Menu * menu, std::function<bool(int16_t)> filter)

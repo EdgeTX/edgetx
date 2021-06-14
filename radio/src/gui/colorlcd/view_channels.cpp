@@ -46,9 +46,9 @@ class ChannelsViewFooter: public Window {
     // Draw single legend
     coord_t drawChannelsMonitorLegend(BitmapBuffer * dc, coord_t x, const char * s, int color)
     {
-      dc->drawSolidFilledRect(x, 2, LEG_COLORBOX + 2, LEG_COLORBOX + 2, BARGRAPH_BGCOLOR);
-      dc->drawSolidFilledRect(x + 1, 3, LEG_COLORBOX, LEG_COLORBOX, color);
-      dc->drawText(x + 20, 2, s, TEXT_STATUSBAR_COLOR);
+      dc->drawSolidFilledRect(x, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2, BARGRAPH_BGCOLOR);
+      dc->drawSolidFilledRect(x + 1, 5, LEG_COLORBOX, LEG_COLORBOX, color);
+      dc->drawText(x + 20, 4, s, TEXT_STATUSBAR_COLOR);
       return x + 25 + getTextWidth(s);
     }
 

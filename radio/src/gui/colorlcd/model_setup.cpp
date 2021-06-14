@@ -34,7 +34,11 @@ std::string switchWarninglabel(swsrc_t index)
     CHAR_DOWN
   };
 
-  return TEXT_AT_INDEX(STR_VSRCRAW, (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) + std::string(&switchPositions[g_model.switchWarningState >> (3*index) & 0x07], 1);
+  return TEXT_AT_INDEX(STR_VSRCRAW,
+                       (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
+         std::string(
+             &switchPositions[g_model.switchWarningState >> (3 * index) & 0x07],
+             1);
 }
 
 class ChannelFailsafeBargraph: public Window {

@@ -331,6 +331,21 @@ void ModelMixesPage::editMix(FormWindow * window, uint8_t channel, uint8_t mixIn
   });
 }
 
+class MixLineTitle : public StaticText
+{
+ public:
+  using StaticText::StaticText;
+
+  void setTextFlags(LcdFlags flags)
+  {
+    textFlags = flags;
+    for (auto child : children) {
+      auto bitmap = dynamic_cast<StaticBitmap*>(child);
+      if (bitmap) bitmap->setMaskColor(flags & 0xFFFF0000);
+    }
+  }
+};
+
 void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 {
   FormGridLayout grid;
@@ -349,9 +364,9 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
     if (mixIndex < MAX_MIXERS && mix->srcRaw > 0 && mix->destCh == ch) {
 
       coord_t h = grid.getWindowHeight();
-      auto txt = new StaticText(window, grid.getLabelSlot(),
-                                getSourceString(MIXSRC_CH1 + ch),
-                                BUTTON_BACKGROUND, CENTERED);
+      auto txt = new MixLineTitle(window, grid.getLabelSlot(),
+                                  getSourceString(MIXSRC_CH1 + ch),
+                                  BUTTON_BACKGROUND, CENTERED);
 
       uint8_t count = 0;
       while (mixIndex < MAX_MIXERS && mix->srcRaw > 0 && mix->destCh == ch) {
@@ -408,7 +423,10 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
         StaticBitmap* bitmap = nullptr;
         if (count++ > 0) {
           bitmap = new StaticBitmap(
-              window, {35, button->top() + (button->height() - 18) / 2, 25, 17},
+              txt,
+              {35 - txt->left(),
+               button->top() - txt->top() + (button->height() - 18) / 2, 25,
+               17},
               mixerMultiplexBitmap[mix->mltpx], DEFAULT_COLOR);
         }
 
@@ -416,14 +434,12 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           if (focus) {
             txt->setBackgroundColor(FOCUS_BGCOLOR);
             txt->setTextFlags(FOCUS_COLOR | CENTERED);
-            if (bitmap) bitmap->setMaskColor(FOCUS_COLOR);
           } else {
             txt->setBackgroundColor(FIELD_FRAME_COLOR);
             txt->setTextFlags(CENTERED);
-            if (bitmap) bitmap->setMaskColor(DEFAULT_COLOR);
           }
           txt->invalidate();
-          if (bitmap) bitmap->invalidate();
+          if (focus) button->bringToTop();
         });
 
         if (focusMixIndex == mixIndex) {
@@ -431,10 +447,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           txt->setBackgroundColor(FOCUS_BGCOLOR);
           txt->setTextFlags(FOCUS_COLOR | CENTERED);
           txt->invalidate();
-          if (bitmap) {
-            bitmap->setMaskColor(FOCUS_COLOR);
-            bitmap->invalidate();
-          }
         }
 
 

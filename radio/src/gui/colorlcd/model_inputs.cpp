@@ -91,101 +91,104 @@ void deleteExpo(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
-class InputEditWindow: public Page
+class InputEditWindow : public Page
 {
-  public:
-    InputEditWindow(int8_t input, uint8_t index):
+ public:
+  InputEditWindow(int8_t input, uint8_t index) :
       Page(ICON_MODEL_INPUTS),
       input(input),
       index(index),
-      preview(this, {INPUT_EDIT_CURVE_LEFT, INPUT_EDIT_CURVE_TOP, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
-              [=](int x) -> int {
-                ExpoData * line = expoAddress(index);
-                int16_t anas[MAX_INPUTS] = {0};
-                applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
-                return anas[line->chn];
-              },
-              [=]() -> int {
-                return getValue(expoAddress(index)->srcRaw);
-              })
-    {
+      preview(
+          this,
+          {INPUT_EDIT_CURVE_LEFT, INPUT_EDIT_CURVE_TOP, INPUT_EDIT_CURVE_WIDTH,
+           INPUT_EDIT_CURVE_HEIGHT},
+          [=](int x) -> int {
+            ExpoData *line = expoAddress(index);
+            int16_t anas[MAX_INPUTS] = {0};
+            applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw,
+                       x);
+            return anas[line->chn];
+          },
+          [=]() -> int { return getValue(expoAddress(index)->srcRaw); })
+  {
 #if LCD_W > LCD_H
-      body.setWidth(LCD_W - 170);
+    body.setWidth(LCD_W - preview.width() - PAGE_PADDING);
+    body.setLeft(preview.width() + PAGE_PADDING);
 #else
-      body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W, LCD_H - INPUT_EDIT_CURVE_TOP - INPUT_EDIT_CURVE_HEIGHT});
+    body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
+                  LCD_H - INPUT_EDIT_CURVE_TOP - INPUT_EDIT_CURVE_HEIGHT});
 #endif
-      buildBody(&body);
-      buildHeader(&header);
-    }
+    buildBody(&body);
+    buildHeader(&header);
+  }
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (_deleted) return;
 
-      preview.deleteLater(true, false);
+    preview.deleteLater(true, false);
 
-      Page::deleteLater(detach, trash);
-    }
+    Page::deleteLater(detach, trash);
+  }
 
-  protected:
-    uint8_t input;
-    uint8_t index;
-    Curve preview;
-    Choice * trimChoice = nullptr;
-    FormGroup * curveParamField = nullptr;
+ protected:
+  uint8_t input;
+  uint8_t index;
+  Curve preview;
+  Choice *trimChoice = nullptr;
+  FormGroup *curveParamField = nullptr;
 
-    void buildHeader(Window * window)
-    {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_MENUINPUTS, 0,FOCUS_COLOR);
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     getSourceString(MIXSRC_FIRST_INPUT + input), 0,
-                     FOCUS_COLOR);
-    }
+  void buildHeader(Window *window)
+  {
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                    PAGE_LINE_HEIGHT},
+                   STR_MENUINPUTS, 0, FOCUS_COLOR);
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                    LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                   getSourceString(MIXSRC_FIRST_INPUT + input), 0, FOCUS_COLOR);
+  }
 
-    // TODO share this code with MIXER
-    void updateCurveParamField(ExpoData * line)
-    {
-      curveParamField->clear();
+  // TODO share this code with MIXER
+  void updateCurveParamField(ExpoData *line)
+  {
+    curveParamField->clear();
 
-      const rect_t rect = {0, 0, curveParamField->width(), curveParamField->height()};
+    const rect_t rect = {0, 0, curveParamField->width(),
+                         curveParamField->height()};
 
-      switch (line->curve.type) {
-        case CURVE_REF_DIFF:
-        case CURVE_REF_EXPO:
-        {
-          GVarNumberEdit * edit = new GVarNumberEdit(curveParamField, rect, -100, 100, GET_SET_DEFAULT(line->curve.value));
-          edit->setSuffix("%");
-          break;
-        }
+    switch (line->curve.type) {
+      case CURVE_REF_DIFF:
+      case CURVE_REF_EXPO: {
+        GVarNumberEdit *edit =
+            new GVarNumberEdit(curveParamField, rect, -100, 100,
+                               GET_SET_DEFAULT(line->curve.value));
+        edit->setSuffix("%");
+        break;
+      }
 
-        case CURVE_REF_FUNC:
-          new Choice(curveParamField, rect, STR_VCURVEFUNC, 0, CURVE_BASE - 1, GET_SET_DEFAULT(line->curve.value));
-          break;
+      case CURVE_REF_FUNC:
+        new Choice(curveParamField, rect, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
+                   GET_SET_DEFAULT(line->curve.value));
+        break;
 
-        case CURVE_REF_CUSTOM:
-        {
-          auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES, GET_SET_DEFAULT(line->curve.value));
-          choice->setTextHandler([](int value) {
-              return getCurveString(value);
-          });
-          break;
-        }
+      case CURVE_REF_CUSTOM: {
+        auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
+                                 GET_SET_DEFAULT(line->curve.value));
+        choice->setTextHandler([](int value) { return getCurveString(value); });
+        break;
       }
     }
+  }
 
-    void buildBody(FormWindow * window)
-    {
-      FormGridLayout grid;
-      grid.setLabelWidth(INPUT_EDIT_LABELS_WIDTH);
-      grid.spacer(PAGE_PADDING);
+  void buildBody(FormWindow *window)
+  {
+    FormGridLayout grid;
+    grid.setLabelWidth(INPUT_EDIT_LABELS_WIDTH);
+    grid.spacer(PAGE_PADDING);
 
-      ExpoData * line = expoAddress(index) ;
+    ExpoData *line = expoAddress(index);
 
 #if LCD_W > LCD_H
       grid.setMarginRight(180);
@@ -495,6 +498,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
             txt->setTextFlags(CENTERED);
           }
           txt->invalidate();
+          if (focus) button->bringToTop();
         });
 
         if (focusIndex == inputIndex) {

@@ -71,6 +71,8 @@ void SourceChoice::paint(BitmapBuffer * dc)
     textColor = 0;
 
   drawSource(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
+  dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_DROPDOWN,
+                        textColor);
 }
 
 // defined in gui/gui_common.cpp
