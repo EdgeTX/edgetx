@@ -182,7 +182,7 @@ class Theme480: public OpenTxTheme
 
         currentMenuBackground->drawSolidFilledRect(
             0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
-            MENU_BGCOLOR);
+            HEADER_COLOR);
 
         currentMenuBackground->drawSolidFilledRect(
             0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
