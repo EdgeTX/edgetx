@@ -84,7 +84,7 @@ class Page: public Window
 
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override
     {
-      Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
+      Window::onTouchSlide(x, y, startX, startY, 0/*slideX*/, slideY);
       return true;
     }
 #endif
