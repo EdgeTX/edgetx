@@ -826,7 +826,7 @@
 #define TR_COPROC_TEMP         "MB Temp. \016>"
 #define TR_CAPAWARNING         INDENT "Capacity Low"
 #define TR_TEMPWARNING         INDENT "Overheat"
-#define TR_TTL_WARNING                 "Warning: use only TLL or 5v"
+#define TR_TTL_WARNING         "Warning: use 3.3V logic levels"
 #define TR_FUNC                "Func"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
