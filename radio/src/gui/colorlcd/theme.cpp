@@ -166,23 +166,18 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 //  }
 //}
 
-void OpenTxTheme::drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const
+void OpenTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
+                               coord_t y, bool focus) const
 {
+  dc->drawSolidFilledRect(x, y, 16, 16, FIELD_BGCOLOR);
   if (focus) {
-    dc->drawSolidFilledRect(x + 0, y + 2, 16, 16, FOCUS_BGCOLOR);
-    if (checked) {
-      dc->drawSolidFilledRect(x + 2, y + 4, 12, 12, DEFAULT_BGCOLOR);
-      dc->drawSolidFilledRect(x + 3, y + 5, 10, 10, CHECKBOX_COLOR);
-    }
-    else {
-      dc->drawSolidFilledRect(x + 2, y + 4, 12, 12, DEFAULT_BGCOLOR);
-    }
+    dc->drawSolidRect(x, y, 16, 16, 2, FOCUS_BGCOLOR);
   }
   else {
-    dc->drawSolidRect(x + 0, y + 2, 16, 16, 1, DISABLE_COLOR);
-    if (checked) {
-      dc->drawSolidFilledRect(x + 2, y + 4, 12, 12, CHECKBOX_COLOR);
-    }
+    dc->drawSolidRect(x, y, 16, 16, 1, FIELD_FRAME_COLOR);
+  }
+  if (checked) {
+    dc->drawSolidFilledRect(x + 3, y + 3, 10, 10, CHECKBOX_COLOR);
   }
 }
 
@@ -192,37 +187,43 @@ void OpenTxTheme::drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char 
   if (choice->isEditMode())
     textColor = FOCUS_COLOR;
   else if (choice->hasFocus())
-    textColor = FOCUS_BGCOLOR;
-  else if (!str || str[0] == '\0')
-    textColor = DISABLE_COLOR;
+    textColor = FOCUS_COLOR;
+  // else if (!str || str[0] == '\0')
+  //   textColor = FOCUS_COLOR;
   else
     textColor = DEFAULT_COLOR;
 
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, str[0] == '\0' ? "---" : str, textColor);
-  dc->drawBitmapPattern(choice->getRect().w - 20, (choice->getRect().h - 11) / 2, choice->getType() == CHOICE_TYPE_FOLDER ? LBM_FOLDER : LBM_DROPDOWN, textColor);
+  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+               str[0] == '\0' ? "---" : str, textColor);
+
+  dc->drawBitmapPattern(
+      choice->getRect().w - 20, (choice->getRect().h - 11) / 2,
+      choice->getType() == CHOICE_TYPE_FOLDER ? LBM_FOLDER : LBM_DROPDOWN,
+      textColor);
 }
 
-void OpenTxTheme::drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, const rect_t & rect, bool edit, bool focus) const
+void OpenTxTheme::drawSlider(BitmapBuffer *dc, int vmin, int vmax, int value,
+                             const rect_t &rect, bool edit, bool focus) const
 {
   int val = limit(vmin, value, vmax);
   int w = divRoundClosest((rect.w - 16) * (val - vmin), vmax - vmin);
 
-  if (edit) {
-    dc->drawBitmapPattern(0, 11, LBM_SLIDER_BAR_LEFT, FOCUS_BGCOLOR);
-    dc->drawSolidFilledRect(4, 11, rect.w - 8, 4, FOCUS_BGCOLOR);
-    dc->drawBitmapPattern(rect.w - 4, 11, LBM_SLIDER_BAR_RIGHT, FOCUS_BGCOLOR);
-  }
-  else {
-    dc->drawBitmapPattern(0, 11, LBM_SLIDER_BAR_LEFT, LINE_COLOR);
-    dc->drawSolidFilledRect(4, 11, rect.w - 8, 4, LINE_COLOR);
-    dc->drawBitmapPattern(rect.w - 4, 11, LBM_SLIDER_BAR_RIGHT, LINE_COLOR);
+  LcdFlags color = DEFAULT_COLOR;
+  if (focus) {
+    color = FOCUS_BGCOLOR;
   }
 
-  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_OUT, DEFAULT_COLOR);
-  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_MID, DEFAULT_BGCOLOR);
-  // if ((options & INVERS) && (!(options & BLINK) || !BLINK_ON_PHASE))
-  if (focus) {
-    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, FOCUS_BGCOLOR);
+  dc->drawBitmapPattern(0, 11, LBM_SLIDER_BAR_LEFT, color);
+  dc->drawSolidFilledRect(4, 11, rect.w - 8, 4, color);
+  dc->drawBitmapPattern(rect.w - 4, 11, LBM_SLIDER_BAR_RIGHT, color);
+
+  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_OUT, color);
+  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_MID, FIELD_BGCOLOR);
+
+  if (edit) {
+    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, EDIT_MARKER_COLOR);
+  } else {
+    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, FIELD_BGCOLOR);
   }
 }
 

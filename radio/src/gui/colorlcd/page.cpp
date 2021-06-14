@@ -26,19 +26,20 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
   icon(icon)
 #if defined(HARDWARE_TOUCH)
-  , back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH }, ICON_BACK,
+  , back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH },
        [=]() -> uint8_t {
          parent->deleteLater();
          return 0;
-       }, NO_FOCUS)
+       }, NO_FOCUS | FORM_NO_BORDER)
 #endif
 {
 }
 
 void PageHeader::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawMenuBackground(dc, getIcon(), "");
-  dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT, MENU_HEADER_HEIGHT, MENU_BGCOLOR);
+  OpenTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), "");
+  dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
+                          MENU_HEADER_HEIGHT, HEADER_COLOR);
 }
 
 Page::Page(unsigned icon):

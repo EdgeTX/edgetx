@@ -235,14 +235,15 @@ void RadioSdManagerPage::build(FormWindow * window)
     // sort directories and files
     directories.sort(compare_nocase);
     files.sort(compare_nocase);
-
+    
     for (auto name: directories) {
-      new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto b = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           f_chdir(name.data());
           window->clear();
           build(window);
           return 0;
-      }, 0);
+      }, OPAQUE);
+      b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
       grid.nextLine();
     }
 

@@ -27,27 +27,30 @@
 class LogicalSwitchDisplayButton : public TextButton
 {
   public:
-    LogicalSwitchDisplayButton(FormGroup * parent, const rect_t & rect, std::string text, unsigned index):
-      TextButton(parent, rect, std::move(text)),
-      index(index)
-    {
-    }
+   LogicalSwitchDisplayButton(FormGroup* parent, const rect_t& rect,
+                              std::string text, unsigned index) :
+       TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
+   {
+     setBgColorHandler([=]() -> LcdFlags {
+       if (getSwitch(SWSRC_SW1 + index)) return HIGHLIGHT_COLOR;
+       return FIELD_BGCOLOR;
+     });
+   }
 
-    void checkEvents() override
-    {
-      bool newvalue = getSwitch(SWSRC_SW1 + index);
-      if (value != newvalue) {
-        if (newvalue) {
-          setTextFlags(FONT(BOLD) | HIGHLIGHT_COLOR);
-        }
-        else {
-          setTextFlags(FONT(STD) | DEFAULT_COLOR);
-        }
-        value = newvalue;
-        invalidate();
-      }
-      Button::checkEvents();
-    }
+   void checkEvents() override
+   {
+     bool newvalue = getSwitch(SWSRC_SW1 + index);
+     if (value != newvalue) {
+       if (newvalue) {
+         setTextFlags(FONT(BOLD) | DEFAULT_COLOR);
+       } else {
+         setTextFlags(FONT(STD) | DEFAULT_COLOR);
+       }
+       value = newvalue;
+       invalidate();
+     }
+     Button::checkEvents();
+   }
 
   protected:
     unsigned index = 0;
@@ -61,21 +64,28 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(8);
 
+  // Footer
+  footer = new LogicalSwitchDisplayFooter(
+      window, {0, window->height() - LSW_VIEW_FOOTER_HEIGHT, window->width(),
+               LSW_VIEW_FOOTER_HEIGHT});
+
   // LSW table
-  std::string lsString ("LS64");
+  std::string lsString("LS64");
   lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(160, 160, 160);
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
+
     strAppendSigned(&lsString[1], i + 1, 2);
-    auto button = new LogicalSwitchDisplayButton(window, grid.getFieldSlot(8, i % 8), lsString, i);
-    button->setPressHandler([=]() {
-      footer->setIndex(i);
-      footer->invalidate();
+
+    auto button = new LogicalSwitchDisplayButton(
+        window, grid.getFieldSlot(8, i % 8), lsString, i);
+
+    button->setFocusHandler([=](bool focus) {
+      if (focus) {
+        footer->setIndex(i);
+        footer->invalidate();
+      }
       return 0;
     });
-    if ((i + 1) % 8 == 0)
-      grid.nextLine();
+    if ((i + 1) % 8 == 0) grid.nextLine();
   }
-
-  // Footer
-  footer = new LogicalSwitchDisplayFooter(window, {0,window->height() - LSW_VIEW_FOOTER_HEIGHT, window->width(), LSW_VIEW_FOOTER_HEIGHT});
 }

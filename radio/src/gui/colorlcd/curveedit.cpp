@@ -42,48 +42,73 @@ void CurveDataEdit::update()
   grid.setMarginRight(parent->width() - rect.w + 5);
 
   coord_t boxWidth = rect.w / 5;
-  coord_t boxHeight = (rect.h - 6) / 3;
+  coord_t boxHeight = PAGE_LINE_HEIGHT;
 
   CurveHeader & curve = g_model.curves[index];
   uint8_t curvePointsCount = 5 + curve.points;
 
   // Point number
   for (uint8_t i = 0; i < curvePointsCount; i++) {
-    new StaticText(this, {i * boxWidth, 10, boxWidth, boxHeight}, std::to_string(i + 1), 0, RIGHT | TEXT_DISABLE_COLOR);
+    auto txt = new StaticText(
+        this,
+        {i * boxWidth + PAGE_PADDING, 10, boxWidth - PAGE_PADDING, boxHeight},
+        std::to_string(i + 1) + " ", 0, RIGHT | DEFAULT_COLOR);
+    txt->setBackgroundColor(FIELD_FRAME_COLOR);
   }
-  grid.spacer(rect.h / 3);
+  grid.spacer(boxHeight + 10 + PAGE_PADDING);
 
   // x value
   if (curve.type == CURVE_TYPE_CUSTOM) {
     // Adjustable points for custom curves
     for (uint8_t i = 0; i < curvePointsCount; i++) {
-      int8_t * points = curveAddress(index);
-      auto pointEdit = new NumberEdit(this, {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth), 10 + boxHeight, coord_t(boxWidth - PAGE_LINE_SPACING), boxHeight - 12},
-                                      i <= 1 ? -100 : points[curvePointsCount + i - 2],
-                                      i >= curvePointsCount - 2 ? 100 : points[curvePointsCount + i],
-                                      GET_VALUE(i == 0 ? -100 : i == curvePointsCount - 1 ? 100 : points[curvePointsCount + i - 1]),
-                                      [=](int32_t newValue) {
-                                         points[curvePointsCount + i - 1] = newValue;
-                                         SET_DIRTY();
-                                         curveEdit->updatePreview();
-                                      }, 0, RIGHT);
+      int8_t* points = curveAddress(index);
+      auto pointEdit = new NumberEdit(
+          this,
+          {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth),
+           grid.getWindowHeight(), coord_t(boxWidth - PAGE_LINE_SPACING),
+           boxHeight},
+          i <= 1 ? -100 : points[curvePointsCount + i - 2],
+          i >= curvePointsCount - 2 ? 100 : points[curvePointsCount + i],
+          GET_VALUE(i == 0 ? -100
+                    : i == curvePointsCount - 1
+                        ? 100
+                        : points[curvePointsCount + i - 1]),
+          [=](int32_t newValue) {
+            points[curvePointsCount + i - 1] = newValue;
+            SET_DIRTY();
+            curveEdit->updatePreview();
+          },
+          0, RIGHT);
 
       if (i == 0 || i == curvePointsCount - 1) {
         pointEdit->disable();
       }
     }
-  }
-  else {
+  } else {
     for (uint8_t i = 0; i < curvePointsCount; i++) {
-      new StaticText(this, {i * boxWidth, 10 + boxHeight, boxWidth, boxHeight}, std::to_string(-100 + 200 * i / (5 + curve.points - 1)), 0, RIGHT | TEXT_DISABLE_COLOR);
+      new StaticText(this, {i * boxWidth, grid.getWindowHeight(), boxWidth, boxHeight},
+                     std::to_string(-100 + 200 * i / (5 + curve.points - 1)), 0,
+                     RIGHT | DEFAULT_COLOR);
     }
   }
+  grid.spacer(boxHeight + PAGE_PADDING);
 
   // y value
   for (uint8_t i = 0; i < curvePointsCount; i++) {
-    int8_t * points = curveAddress(index);
-    new NumberEdit(this, {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth), 10 + 2 * boxHeight, coord_t(boxWidth - PAGE_LINE_SPACING), boxHeight - 12}, -100,  100,
-                   GET_VALUE(points[i]), [=](int32_t newValue) { points[i] = newValue; SET_DIRTY(); curveEdit->updatePreview(); }, 0, RIGHT);
+    int8_t* points = curveAddress(index);
+    new NumberEdit(
+        this,
+        {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth),
+         grid.getWindowHeight(),
+         coord_t(boxWidth - PAGE_LINE_SPACING),
+         boxHeight},
+        -100, 100, GET_VALUE(points[i]),
+        [=](int32_t newValue) {
+          points[i] = newValue;
+          SET_DIRTY();
+          curveEdit->updatePreview();
+        },
+        0, RIGHT);
   }
 
   setInnerWidth(curvePointsCount * boxWidth);
@@ -92,8 +117,8 @@ void CurveDataEdit::update()
 void CurveDataEdit::paint(BitmapBuffer * dc)
 {
   dc->clear(DEFAULT_BGCOLOR);
-  dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
-  dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
+  // dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
+  // dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
   drawHorizontalScrollbar(dc);
 }
 
@@ -125,35 +150,35 @@ void CurveEdit::updatePreview()
   invalidate();
 }
 
-#if defined(HARDWARE_TOUCH)
-bool CurveEdit::onTouchEnd(coord_t x, coord_t y)
-{
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
+// #if defined(HARDWARE_TOUCH)
+// bool CurveEdit::onTouchEnd(coord_t x, coord_t y)
+// {
+//   if (!hasFocus()) {
+//     setFocus(SET_FOCUS_DEFAULT);
+//   }
 
-  CurveKeyboard::show(this, isCustomCurve());
+//   CurveKeyboard::show(this, isCustomCurve());
 
-  CurveHeader & curve = g_model.curves[index];
-  for (int i=0; i<5 + curve.points; i++) {
-    if (i != current) {
-      point_t point = getPoint(index, i);
-      if (abs(preview.getPointX(point.x) - x) <= 10 && abs(preview.getPointY(point.y) - y) <= 10) {
-        current = i;
-        updatePreview();
-        break;
-      }
-    }
-  }
+//   CurveHeader & curve = g_model.curves[index];
+//   for (int i=0; i<5 + curve.points; i++) {
+//     if (i != current) {
+//       point_t point = getPoint(index, i);
+//       if (abs(preview.getPointX(point.x) - x) <= 10 && abs(preview.getPointY(point.y) - y) <= 10) {
+//         current = i;
+//         updatePreview();
+//         break;
+//       }
+//     }
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-void CurveEdit::onFocusLost()
-{
-  CurveKeyboard::hide();
-}
-#endif
+// void CurveEdit::onFocusLost()
+// {
+//   CurveKeyboard::hide();
+// }
+// #endif
 
 void CurveEdit::next()
 {

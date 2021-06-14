@@ -34,7 +34,11 @@ std::string switchWarninglabel(swsrc_t index)
     CHAR_DOWN
   };
 
-  return TEXT_AT_INDEX(STR_VSRCRAW, (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) + std::string(&switchPositions[g_model.switchWarningState >> (3*index) & 0x07], 1);
+  return TEXT_AT_INDEX(STR_VSRCRAW,
+                       (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
+         std::string(
+             &switchPositions[g_model.switchWarningState >> (3 * index) & 0x07],
+             1);
 }
 
 class ChannelFailsafeBargraph: public Window {
@@ -80,7 +84,7 @@ class ChannelFailsafeBargraph: public Window {
 class FailSafeBody : public FormGroup {
   public:
     FailSafeBody(FormGroup * parent, const rect_t & rect, uint8_t moduleIdx) :
-      FormGroup(parent, rect),
+      FormGroup(parent, rect, FORM_FORWARD_FOCUS),
       moduleIdx(moduleIdx)
     {
       build();
@@ -106,16 +110,17 @@ class FailSafeBody : public FormGroup {
         new StaticText(this, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch));
 
         // Channel numeric value
-        new NumberEdit(this, grid.getFieldSlot(3, 0), -lim, lim,
-                       GET_DEFAULT(calcRESXto1000(g_model.failsafeChannels[ch])),
+        new NumberEdit(this, grid.getFieldSlot(8, 0), -lim, lim,
+                       GET_DEFAULT(g_model.failsafeChannels[ch]),
                        SET_VALUE(g_model.failsafeChannels[ch], newValue),
-                       0, PREC1);
+                       0, PREC1 | RIGHT);
 
         // Channel bargraph
-        new ChannelFailsafeBargraph(this, {150, grid.getWindowHeight(), 150, PAGE_LINE_HEIGHT}, moduleIdx, ch);
+        new ChannelFailsafeBargraph(this, {180, grid.getWindowHeight(), 150, PAGE_LINE_HEIGHT}, moduleIdx, ch);
         grid.nextLine();
       }
 
+      grid.spacer();
       auto out2fail = new TextButton(this, grid.getLineSlot(), STR_CHANNELS2FAILSAFE);
       out2fail->setPressHandler([=]() {
         setCustomFailsafe(moduleIdx);
@@ -124,23 +129,11 @@ class FailSafeBody : public FormGroup {
       });
 
       grid.nextLine();
-      setInnerHeight(grid.getWindowHeight());
+      setInnerHeight(grid.getWindowHeight() + PAGE_PADDING);
     }
 
   protected:
     uint8_t moduleIdx;
-};
-
-class FailSafeFooter : public Window {
-  public:
-    FailSafeFooter(Window * parent, const rect_t & rect) :
-      Window(parent, rect)
-    {
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
-    }
 };
 
 class FailSafePage : public Page {
@@ -149,8 +142,11 @@ class FailSafePage : public Page {
       Page(ICON_STATS_ANALOGS),
       moduleIdx(moduleIdx)
     {
-      new FailSafeBody(&body, {0, 0, LCD_W, height() - footerHeight}, moduleIdx);
-      new FailSafeFooter(&body, {0, height() - footerHeight, LCD_W, footerHeight});
+      new FailSafeBody(&body, {0, 0, LCD_W, body.height()}, moduleIdx);
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_FAILSAFESET, 0, FOCUS_COLOR);
     }
 
   protected:

@@ -155,7 +155,7 @@ class TabsGroupHeader: public FormGroup {
 
   protected:
 #if defined(HARDWARE_TOUCH)
-    IconButton back;
+    Button back;
 #endif
     uint8_t icon;
     TabsCarousel carousel;

@@ -32,12 +32,12 @@
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
 #if defined(HARDWARE_TOUCH)
-  back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH }, ICON_BACK,
+  back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH },
        [=]() -> uint8_t {
          parent->deleteLater();
          ViewMain::instance()->setFocus((SET_FOCUS_DEFAULT));
          return 1;
-       }, NO_FOCUS),
+       }, NO_FOCUS | FORM_NO_BORDER),
 #endif
   icon(icon),
   carousel(this, parent)
@@ -46,12 +46,15 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
 
 void TabsGroupHeader::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawMenuBackground(dc, icon, title);
+  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title);
 }
 
-TabsCarousel::TabsCarousel(Window * parent, TabsGroup * menu):
-  Window(parent, { MENU_HEADER_BUTTONS_LEFT, 0, LCD_W - MENU_HEADER_BUTTONS_LEFT, MENU_HEADER_HEIGHT + 10 }, TRANSPARENT),
-  menu(menu)
+TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
+    Window(parent,
+           {MENU_HEADER_BUTTONS_LEFT, 0, LCD_W - MENU_HEADER_BUTTONS_LEFT,
+            MENU_HEADER_HEIGHT + 10},
+           TRANSPARENT),
+    menu(menu)
 {
 }
 
@@ -62,7 +65,7 @@ void TabsCarousel::updateInnerWidth()
 
 void TabsCarousel::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawMenuHeader(dc, menu->tabs, currentIndex);
+  OpenTxTheme::instance()->drawPageHeader(dc, menu->tabs, currentIndex);
 }
 
 #if defined(HARDWARE_TOUCH)

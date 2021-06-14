@@ -27,21 +27,20 @@
 
 void Curve::drawBackground(BitmapBuffer * dc)
 {
-  lcdSetColor(RGB(0xE0, 0xE0, 0xE0));
-  dc->clear(CUSTOM_COLOR);
+  dc->clear(FIELD_BGCOLOR);
 
   // Axis
-  dc->drawSolidHorizontalLine(0, height()/2, width(), DISABLE_COLOR);
-  dc->drawSolidVerticalLine(width()/2, 0, height(), DISABLE_COLOR);
+  dc->drawSolidHorizontalLine(0, height()/2, width(), FIELD_FRAME_COLOR);
+  dc->drawSolidVerticalLine(width()/2, 0, height(), FIELD_FRAME_COLOR);
 
   // Extra lines
-  dc->drawVerticalLine(width()/4, 0, height(), STASHED, DISABLE_COLOR);
-  dc->drawVerticalLine(width()*3/4, 0, height(), STASHED, DISABLE_COLOR);
-  dc->drawHorizontalLine(0, height()/4, width(), STASHED, DISABLE_COLOR);
-  dc->drawHorizontalLine(0, height()*3/4, width(), STASHED, DISABLE_COLOR);
+  dc->drawVerticalLine(width()/4, 0, height(), STASHED, FIELD_FRAME_COLOR);
+  dc->drawVerticalLine(width()*3/4, 0, height(), STASHED, FIELD_FRAME_COLOR);
+  dc->drawHorizontalLine(0, height()/4, width(), STASHED, FIELD_FRAME_COLOR);
+  dc->drawHorizontalLine(0, height()*3/4, width(), STASHED, FIELD_FRAME_COLOR);
 
   // Outside border
-  // dc->drawSolidRect(0, 0, width(), height(), 1, DEFAULT_COLOR);
+  dc->drawSolidRect(0, 0, width(), height(), 1, FIELD_FRAME_COLOR);
 }
 
 coord_t Curve::getPointX(int x) const
@@ -89,17 +88,17 @@ void Curve::drawPosition(BitmapBuffer * dc)
   coord_t y = getPointY(valueY);
 
   // the 2 lines
-  dc->drawSolidHorizontalLine(0, y, width(), CURVE_CURSOR_COLOR);
-  dc->drawSolidVerticalLine(x, 0, height(), CURVE_CURSOR_COLOR);
+  dc->drawSolidHorizontalLine(0, y, width(), HIGHLIGHT_COLOR);
+  dc->drawSolidVerticalLine(x, 0, height(), HIGHLIGHT_COLOR);
 
   // the point (white inside)
-  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT, CURVE_CURSOR_COLOR);
-  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, DEFAULT_BGCOLOR);
+  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT, HIGHLIGHT_COLOR);
+  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, FOCUS_COLOR);
 
   char coords[16];
   strAppendSigned(strAppend(strAppendSigned(coords, calcRESXto100(valueX)), ","), calcRESXto100(valueY));
-  dc->drawSolidFilledRect(10, 11, 1 + getTextWidth(coords, 0, FONT(XS)), 17, CURVE_CURSOR_COLOR);
-  dc->drawText(11, 10, coords, FONT(XS)|DEFAULT_BGCOLOR);
+  dc->drawSolidFilledRect(10, 11, 1 + getTextWidth(coords, 0, FONT(XS)), 17, HIGHLIGHT_COLOR);
+  dc->drawText(11, 10, coords, FONT(XS) | FOCUS_COLOR);
 }
 
 void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)

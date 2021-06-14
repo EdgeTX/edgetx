@@ -91,94 +91,104 @@ void deleteExpo(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
-class InputEditWindow: public Page
+class InputEditWindow : public Page
 {
-  public:
-    InputEditWindow(int8_t input, uint8_t index):
+ public:
+  InputEditWindow(int8_t input, uint8_t index) :
       Page(ICON_MODEL_INPUTS),
       input(input),
       index(index),
-      preview(this, {INPUT_EDIT_CURVE_LEFT, INPUT_EDIT_CURVE_TOP, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
-              [=](int x) -> int {
-                ExpoData * line = expoAddress(index);
-                int16_t anas[MAX_INPUTS] = {0};
-                applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
-                return anas[line->chn];
-              },
-              [=]() -> int {
-                return getValue(expoAddress(index)->srcRaw);
-              })
-    {
+      preview(
+          this,
+          {INPUT_EDIT_CURVE_LEFT, INPUT_EDIT_CURVE_TOP, INPUT_EDIT_CURVE_WIDTH,
+           INPUT_EDIT_CURVE_HEIGHT},
+          [=](int x) -> int {
+            ExpoData *line = expoAddress(index);
+            int16_t anas[MAX_INPUTS] = {0};
+            applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw,
+                       x);
+            return anas[line->chn];
+          },
+          [=]() -> int { return getValue(expoAddress(index)->srcRaw); })
+  {
 #if LCD_W > LCD_H
-      body.setWidth(LCD_W - 170);
+    body.setWidth(LCD_W - preview.width() - PAGE_PADDING);
+    body.setLeft(preview.width() + PAGE_PADDING);
 #else
-      body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W, LCD_H - INPUT_EDIT_CURVE_TOP - INPUT_EDIT_CURVE_HEIGHT});
+    body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
+                  LCD_H - INPUT_EDIT_CURVE_TOP - INPUT_EDIT_CURVE_HEIGHT});
 #endif
-      buildBody(&body);
-      buildHeader(&header);
-    }
+    buildBody(&body);
+    buildHeader(&header);
+  }
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (_deleted) return;
 
-      preview.deleteLater(true, false);
+    preview.deleteLater(true, false);
 
-      Page::deleteLater(detach, trash);
-    }
+    Page::deleteLater(detach, trash);
+  }
 
-  protected:
-    uint8_t input;
-    uint8_t index;
-    Curve preview;
-    Choice * trimChoice = nullptr;
-    FormGroup * curveParamField = nullptr;
+ protected:
+  uint8_t input;
+  uint8_t index;
+  Curve preview;
+  Choice *trimChoice = nullptr;
+  FormGroup *curveParamField = nullptr;
 
-    void buildHeader(Window * window)
-    {
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENUINPUTS, 0, MENU_COLOR);
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, getSourceString(MIXSRC_FIRST_INPUT + input), 0, MENU_COLOR);
-    }
+  void buildHeader(Window *window)
+  {
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                    PAGE_LINE_HEIGHT},
+                   STR_MENUINPUTS, 0, FOCUS_COLOR);
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                    LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                   getSourceString(MIXSRC_FIRST_INPUT + input), 0, FOCUS_COLOR);
+  }
 
-    // TODO share this code with MIXER
-    void updateCurveParamField(ExpoData * line)
-    {
-      curveParamField->clear();
+  // TODO share this code with MIXER
+  void updateCurveParamField(ExpoData *line)
+  {
+    curveParamField->clear();
 
-      const rect_t rect = {0, 0, curveParamField->width(), curveParamField->height()};
+    const rect_t rect = {0, 0, curveParamField->width(),
+                         curveParamField->height()};
 
-      switch (line->curve.type) {
-        case CURVE_REF_DIFF:
-        case CURVE_REF_EXPO:
-        {
-          GVarNumberEdit * edit = new GVarNumberEdit(curveParamField, rect, -100, 100, GET_SET_DEFAULT(line->curve.value));
-          edit->setSuffix("%");
-          break;
-        }
+    switch (line->curve.type) {
+      case CURVE_REF_DIFF:
+      case CURVE_REF_EXPO: {
+        GVarNumberEdit *edit =
+            new GVarNumberEdit(curveParamField, rect, -100, 100,
+                               GET_SET_DEFAULT(line->curve.value));
+        edit->setSuffix("%");
+        break;
+      }
 
-        case CURVE_REF_FUNC:
-          new Choice(curveParamField, rect, STR_VCURVEFUNC, 0, CURVE_BASE - 1, GET_SET_DEFAULT(line->curve.value));
-          break;
+      case CURVE_REF_FUNC:
+        new Choice(curveParamField, rect, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
+                   GET_SET_DEFAULT(line->curve.value));
+        break;
 
-        case CURVE_REF_CUSTOM:
-        {
-          auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES, GET_SET_DEFAULT(line->curve.value));
-          choice->setTextHandler([](int value) {
-              return getCurveString(value);
-          });
-          break;
-        }
+      case CURVE_REF_CUSTOM: {
+        auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
+                                 GET_SET_DEFAULT(line->curve.value));
+        choice->setTextHandler([](int value) { return getCurveString(value); });
+        break;
       }
     }
+  }
 
-    void buildBody(FormWindow * window)
-    {
-      FormGridLayout grid;
-      grid.setLabelWidth(INPUT_EDIT_LABELS_WIDTH);
-      grid.spacer(PAGE_PADDING);
+  void buildBody(FormWindow *window)
+  {
+    FormGridLayout grid;
+    grid.setLabelWidth(INPUT_EDIT_LABELS_WIDTH);
+    grid.spacer(PAGE_PADDING);
 
-      ExpoData * line = expoAddress(index) ;
+    ExpoData *line = expoAddress(index);
 
 #if LCD_W > LCD_H
       grid.setMarginRight(180);
@@ -302,19 +312,23 @@ void CommonInputOrMixButton::checkEvents()
   Button::checkEvents();
 }
 
-void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType value)
+void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
+                                             FlightModesType value,
+                                             LcdFlags textColor)
 {
-  dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupFlightmodeIcon, DEFAULT_COLOR);
+  dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+               mixerSetupFlightmodeIcon, textColor);
   coord_t x = 166;
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     char s[] = " ";
     s[0] = '0' + i;
     if (value & (1 << i)) {
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | TEXT_DISABLE_COLOR);
-    }
-    else {
-      dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3, CHECKBOX_COLOR);
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS));
+      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s,
+                   FONT(XS) | TEXT_DISABLE_COLOR);
+    } else {
+      dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3,
+                              FOCUS_BGCOLOR);
+      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | textColor);
     }
     x += 8;
   }
@@ -322,56 +336,68 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType v
 
 void CommonInputOrMixButton::paint(BitmapBuffer * dc)
 {
-  if (active)
-    dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, HIGHLIGHT_COLOR);
+  dc->drawSolidFilledRect(0, 0, width(), height(),
+                          /*hasFocus() ? FOCUS_BGCOLOR :*/ FIELD_BGCOLOR);
   paintBody(dc);
-  dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
+
+  if (!hasFocus())
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+  else
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
 }
 
-class InputLineButton : public CommonInputOrMixButton {
-  public:
-    InputLineButton(FormGroup * parent, const rect_t & rect, uint8_t index):
+class InputLineButton : public CommonInputOrMixButton
+{
+ public:
+  InputLineButton(FormGroup *parent, const rect_t &rect, uint8_t index) :
       CommonInputOrMixButton(parent, rect, index)
-    {
-      const ExpoData & line = g_model.expoData[index];
-      if (line.swtch || line.curve.value != 0 || line.flightModes) {
-        setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
-      }
+  {
+    const ExpoData &line = g_model.expoData[index];
+    if (line.swtch || line.curve.value != 0 || line.flightModes) {
+      setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
+    }
+  }
+
+  bool isActive() const override { return isExpoActive(index); }
+
+  void paintBody(BitmapBuffer *dc) override
+  {
+    const ExpoData &line = g_model.expoData[index];
+
+    LcdFlags textColor = DEFAULT_COLOR;
+    // if (hasFocus())
+    //   textColor = FOCUS_COLOR;
+
+    // first line ...
+    drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
+                    -100, 100, textColor);
+    drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw, textColor);
+
+    if (line.name[0]) {
+      dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, textColor);
+      dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name),
+                        textColor);
     }
 
-    bool isActive() const override
-    {
-      return isExpoActive(index);
+    // second line ...
+    if (line.swtch) {
+      dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                   mixerSetupSwitchIcon, textColor);
+      drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch,
+                 textColor);
     }
 
-    void paintBody(BitmapBuffer * dc) override
-    {
-      const ExpoData & line = g_model.expoData[index];
-
-      // first line ...
-      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight, -100, 100);
-      drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw);
-
-      if (line.name[0]) {
-        dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
-        dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name));
-      }
-
-      // second line ...
-      if (line.swtch) {
-        dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupSwitchIcon, DEFAULT_COLOR);
-        drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch);
-      }
-
-      if (line.curve.value != 0 ) {
-        dc->drawMask(60, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupCurveIcon, DEFAULT_COLOR);
-        drawCurveRef(dc, 80, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.curve);
-      }
-
-      if (line.flightModes) {
-        drawFlightModes(dc, line.flightModes);
-      }
+    if (line.curve.value != 0) {
+      dc->drawMask(60, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                   mixerSetupCurveIcon, textColor);
+      drawCurveRef(dc, 80, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.curve,
+                   textColor);
     }
+
+    if (line.flightModes) {
+      drawFlightModes(dc, line.flightModes, textColor);
+    }
+  }
 };
 
 ModelInputsPage::ModelInputsPage():
@@ -396,27 +422,29 @@ void ModelInputsPage::editInput(FormWindow * window, uint8_t input, uint8_t inde
   });
 }
 
-void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
+void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
   int inputIndex = 0;
-  ExpoData * line = g_model.expoData;
+  ExpoData *line = g_model.expoData;
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
     if (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
-      new StaticText(window, grid.getLabelSlot(), getSourceString(MIXSRC_FIRST_INPUT + input), BUTTON_BACKGROUND, CENTERED);
+      coord_t h = grid.getWindowHeight();
+      auto txt = new StaticText(window, grid.getLabelSlot(),
+                                getSourceString(MIXSRC_FIRST_INPUT + input),
+                                BUTTON_BACKGROUND, CENTERED);
+
       while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
-        Button * button = new InputLineButton(window, grid.getFieldSlot(), inputIndex);
-        if (focusIndex == inputIndex)
-          button->setFocus(SET_FOCUS_DEFAULT);
+        Button *button =
+            new InputLineButton(window, grid.getFieldSlot(), inputIndex);
         button->setPressHandler([=]() -> uint8_t {
           button->bringToTop();
-          Menu * menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() {
-            editInput(window, input, inputIndex);
-          });
+          Menu *menu = new Menu(window);
+          menu->addLine(STR_EDIT,
+                        [=]() { editInput(window, input, inputIndex); });
           if (!reachExposLimit()) {
             menu->addLine(STR_INSERT_BEFORE, [=]() {
               insertExpo(inputIndex, input);
@@ -434,7 +462,8 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
               menu->addLine(STR_PASTE_BEFORE, [=]() {
                 copyExpo(s_copySrcIdx, inputIndex, PASTE_BEFORE);
                 if (s_copyMode == MOVE_MODE) {
-                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx+1 : s_copySrcIdx);
+                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx + 1
+                                                         : s_copySrcIdx);
                   s_copyMode = 0;
                 }
                 rebuild(window, inputIndex);
@@ -442,10 +471,11 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
               menu->addLine(STR_PASTE_AFTER, [=]() {
                 copyExpo(s_copySrcIdx, inputIndex, PASTE_AFTER);
                 if (s_copyMode == MOVE_MODE) {
-                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx+1 : s_copySrcIdx);
+                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx + 1
+                                                         : s_copySrcIdx);
                   s_copyMode = 0;
                 }
-                rebuild(window, inputIndex+1);
+                rebuild(window, inputIndex + 1);
               });
             }
           }
@@ -459,22 +489,40 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
           });
           return 0;
         });
+        button->setFocusHandler([=](bool focus) {
+          if (focus) {
+            txt->setBackgroundColor(FOCUS_BGCOLOR);
+            txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          } else {
+            txt->setBackgroundColor(FIELD_FRAME_COLOR);
+            txt->setTextFlags(CENTERED);
+          }
+          txt->invalidate();
+          if (focus) button->bringToTop();
+        });
 
-        grid.spacer(button->height() - 2);
-
+        if (focusIndex == inputIndex) {
+          button->setFocus(SET_FOCUS_DEFAULT);
+          txt->setBackgroundColor(FOCUS_BGCOLOR);
+          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->invalidate();
+        }
+        grid.spacer(button->height() - 1);
         ++inputIndex;
         ++line;
       }
 
+      h = grid.getWindowHeight() - h + 1;
+      txt->setHeight(h);
+
       grid.spacer(7);
-    }
-    else {
-      auto button = new TextButton(window, grid.getLabelSlot(), getSourceString(MIXSRC_FIRST_INPUT + input));
-      if (focusIndex == inputIndex)
-        button->setFocus(SET_FOCUS_DEFAULT);
+    } else {
+      auto button = new TextButton(window, grid.getLabelSlot(),
+                                   getSourceString(MIXSRC_FIRST_INPUT + input));
+      if (focusIndex == inputIndex) button->setFocus(SET_FOCUS_DEFAULT);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
-        Menu * menu = new Menu(window);
+        Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {
           insertExpo(inputIndex, input);
           editInput(window, input, inputIndex);
@@ -484,8 +532,9 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
           if (s_copyMode != 0) {
             menu->addLine(STR_PASTE, [=]() {
               copyExpo(s_copySrcIdx, inputIndex, input);
-              if(s_copyMode == MOVE_MODE) {
-                deleteExpo((s_copySrcIdx >= inputIndex) ? s_copySrcIdx+1 : s_copySrcIdx);
+              if (s_copyMode == MOVE_MODE) {
+                deleteExpo((s_copySrcIdx >= inputIndex) ? s_copySrcIdx + 1
+                                                        : s_copySrcIdx);
                 s_copyMode = 0;
               }
               rebuild(window, -1);
@@ -500,7 +549,7 @@ void ModelInputsPage::build(FormWindow * window, int8_t focusIndex)
     }
   }
 
-  Window * focus = Window::getFocus();
+  Window *focus = Window::getFocus();
   if (focus) {
     focus->bringToTop();
   }

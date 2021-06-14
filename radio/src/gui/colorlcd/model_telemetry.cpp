@@ -61,6 +61,12 @@ class SensorButton : public Button {
 
     void checkEvents() override
     {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
       TelemetryItem & telemetryItem = telemetryItems[index];
       if (telemetryItem.isFresh()) {
         invalidate();
@@ -73,9 +79,10 @@ class SensorButton : public Button {
     {
       TelemetryItem &telemetryItem = telemetryItems[index];
 
-      if (telemetryItem.isFresh()) {
+      if (telemetryItem.isFresh())
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, HIGHLIGHT_COLOR);
-      }
+      else
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FIELD_BGCOLOR);
 
       dc->drawNumber(2, 1, number, LEFT, 0, nullptr, ":");
 
@@ -86,7 +93,7 @@ class SensorButton : public Button {
         drawSensorCustomValue(dc, SENSOR_COL2, line1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
       }
       else {
-        dc->drawText(SENSOR_COL2, line1, "---", CURVE_COLOR);
+        dc->drawText(SENSOR_COL2, line1, "---", DEFAULT_COLOR);
       }
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
@@ -96,12 +103,17 @@ class SensorButton : public Button {
       else if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
         dc->drawNumber(SENSOR_COL3, line1, sensor->instance, LEFT);
       }
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
+
+      if (hasFocus())
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      else
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
     }
 
   protected:
     uint8_t index;
     uint8_t number;
+    uint32_t lastRefresh = 0;
 };
 
 class SensorEditWindow : public Page {

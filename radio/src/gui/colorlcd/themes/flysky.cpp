@@ -348,25 +348,30 @@ class FlyskyTheme: public OpenTxTheme
       }
     }
 
-    void drawMenuBackground(BitmapBuffer * dc, uint8_t icon, const char * title) const override
+    void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
+                                  const char *title) const override
     {
-//      if (topleftBitmap) {
-//        dc->drawBitmap(0, 0, topleftBitmap);
-//        uint16_t width = topleftBitmap->width();
-//        dc->drawSolidFilledRect(width, 0, LCD_W-width, MENU_HEADER_HEIGHT, HEADER_BGCOLOR);
-//      }
-//      else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, HEADER_BGCOLOR);
-//      }
-//
-//      if (icon == ICON_OPENTX)
-//        dc->drawBitmap(4, 10, menuIconSelected[ICON_OPENTX]);
-//      else
-//        dc->drawBitmap(5, 7, menuIconSelected[icon]);
-//
-      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W, MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR); // the white separation line
-      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT, TITLE_BGCOLOR); // the title line background
-//
+      //      if (topleftBitmap) {
+      //        dc->drawBitmap(0, 0, topleftBitmap);
+      //        uint16_t width = topleftBitmap->width();
+      //        dc->drawSolidFilledRect(width, 0, LCD_W-width,
+      //        MENU_HEADER_HEIGHT, HEADER_BGCOLOR);
+      //      }
+      //      else {
+      dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, HEADER_BGCOLOR);
+      //      }
+      //
+      //      if (icon == ICON_OPENTX)
+      //        dc->drawBitmap(4, 10, menuIconSelected[ICON_OPENTX]);
+      //      else
+      //        dc->drawBitmap(5, 7, menuIconSelected[icon]);
+      //
+      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
+                              MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
+                              DEFAULT_BGCOLOR);  // the white separation line
+      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
+                              TITLE_BGCOLOR);  // the title line background
+                                               //
       if (title) {
         dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 2, title, MENU_COLOR);
       }
@@ -382,19 +387,25 @@ class FlyskyTheme: public OpenTxTheme
       return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
     }
 
-    void drawMenuHeader(BitmapBuffer * dc, std::vector<PageTab *> & tabs, uint8_t currentIndex) const override
+    void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
+                        uint8_t currentIndex) const override
     {
       uint8_t padding_left = 4;
 
-      dc->drawSolidFilledRect(0, 0, 4, MENU_HEADER_BUTTON_WIDTH, HEADER_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, 4, MENU_HEADER_BUTTON_WIDTH,
+                              HEADER_BGCOLOR);
       for (unsigned i = 0; i < tabs.size(); i++) {
-        dc->drawBitmap(padding_left + i*MENU_HEADER_BUTTON_WIDTH, 0, theme->getIcon(tabs[i]->getIcon(), currentIndex == i ? STATE_PRESSED : STATE_DEFAULT));
+        dc->drawBitmap(
+            padding_left + i * MENU_HEADER_BUTTON_WIDTH, 0,
+            theme->getIcon(tabs[i]->getIcon(),
+                           currentIndex == i ? STATE_PRESSED : STATE_DEFAULT));
       }
-//      coord_t x = padding_left + MENU_HEADER_BUTTON_WIDTH * tabs.size();
-//      coord_t w = width() - x;
-//      if (w > 0) {
-//        dc->drawSolidFilledRect(x, 0, w, MENU_HEADER_BUTTON_WIDTH, HEADER_BGCOLOR);
-//      }
+      //      coord_t x = padding_left + MENU_HEADER_BUTTON_WIDTH * tabs.size();
+      //      coord_t w = width() - x;
+      //      if (w > 0) {
+      //        dc->drawSolidFilledRect(x, 0, w, MENU_HEADER_BUTTON_WIDTH,
+      //        HEADER_BGCOLOR);
+      //      }
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const

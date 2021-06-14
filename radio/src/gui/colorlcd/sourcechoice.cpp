@@ -64,12 +64,15 @@ void SourceChoice::paint(BitmapBuffer * dc)
   if (editMode)
     textColor = FOCUS_COLOR;
   else if (hasFocus())
-    textColor = FOCUS_BGCOLOR;
-  else if (value == 0)
-    textColor = DISABLE_COLOR;
+    textColor = FOCUS_COLOR;
+  // else if (value == 0)
+  //   textColor = DISABLE_COLOR;
   else
     textColor = 0;
+
   drawSource(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
+  dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_DROPDOWN,
+                        textColor);
 }
 
 // defined in gui/gui_common.cpp
