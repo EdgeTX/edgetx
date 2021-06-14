@@ -104,7 +104,9 @@ void Choice::setValues(const char * const values[])
 void Choice::paint(BitmapBuffer * dc)
 {
   FormField::paint(dc);
-  theme->drawChoice(dc, this, textHandler ? textHandler(getValue()).c_str() : values[getValue() - vmin].c_str());
+  theme->drawChoice(dc, this,
+                    textHandler ? textHandler(getValue()).c_str()
+                                : values[getValue() - vmin].c_str());
 }
 
 #if defined(HARDWARE_KEYS)

@@ -76,7 +76,7 @@ void TextButton::paint(BitmapBuffer * dc)
   if (bgColorHandler) {
     bgColor = bgColorHandler();
   } else if (checked()) {
-    bgColor = EDIT_MARKER_COLOR;
+    bgColor = HIGHLIGHT_COLOR;
   } else if (hasFocus()) {
     bgColor = FOCUS_BGCOLOR;
   }
@@ -88,7 +88,6 @@ void TextButton::paint(BitmapBuffer * dc)
     } else {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
     }
-    textColor = FOCUS_COLOR;
   }
   else {
     dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);

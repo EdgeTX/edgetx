@@ -227,6 +227,8 @@ void Menu::onEvent(event_t event)
 
 void Menu::paint(BitmapBuffer * dc)
 {
+  ModalWindow::paint(dc);
+
   rect_t r(content->getRect());
   if (toolbar) {
     r.x = toolbar->left();
