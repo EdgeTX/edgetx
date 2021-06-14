@@ -334,7 +334,8 @@ class Theme480: public OpenTxTheme
         dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), backgroundBitmap);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, DEFAULT_BGCOLOR);
+        dc->drawSolidFilledRect(0 - dc->getOffsetX(), 0 - dc->getOffsetY(),
+                                LCD_W, LCD_H, DEFAULT_BGCOLOR);
       }
     }
 
