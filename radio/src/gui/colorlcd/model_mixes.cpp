@@ -420,9 +420,8 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           return 0;
         });
 
-        StaticBitmap* bitmap = nullptr;
         if (count++ > 0) {
-          bitmap = new StaticBitmap(
+          new StaticBitmap(
               txt,
               {35 - txt->left(),
                button->top() - txt->top() + (button->height() - 18) / 2, 25,
