@@ -805,7 +805,7 @@
 #define TR_COPROC_TEMP                 "Tepl. MB \016>"
 #define TR_CAPAWARNING                 INDENT "Nízká kapacita"
 #define TR_TEMPWARNING                 INDENT "Přehřátí"
-#define TR_TTL_WARNING                 "Warning: use only TLL or 5v"
+#define TR_TTL_WARNING                 "Warning: use 3.3V logic levels"
 #define TR_FUNC                        "Fce."
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"

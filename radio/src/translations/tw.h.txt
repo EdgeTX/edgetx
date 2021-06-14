@@ -718,7 +718,7 @@
 #define TR_COPROC_TEMP                  "主板溫度"
 #define TR_CAPAWARNING INDENT           "電流過低"
 #define TR_TEMPWARNING INDENT           "過熱"
-#define TR_TTL_WARNING                  "注意: 端口僅能使用TTL電平或5V"
+#define TR_TTL_WARNING                  "注意：使用逻辑电平3.3V"
 #define TR_FUNC                         "功能"
 #define TR_V1                           "V1"
 #define TR_V2                           "V2"
