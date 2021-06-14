@@ -89,6 +89,11 @@ class ModelButton : public Button
     load();
   }
 
+  ~ModelButton()
+  {
+    if (buffer) { delete buffer; }
+  }
+  
   void load()
   {
     uint8_t version;
@@ -115,6 +120,7 @@ class ModelButton : public Button
       }
     }
 
+    delete buffer;
     buffer = new BitmapBuffer(BMP_RGB565, width(), height());
     if (buffer == nullptr) {
       return;
@@ -140,7 +146,10 @@ class ModelButton : public Button
   void paint(BitmapBuffer *dc) override
   {
     FormField::paint(dc);
-    dc->drawBitmap(0, 0, buffer);
+
+    if (buffer)
+      dc->drawBitmap(0, 0, buffer);
+
     if (modelCell == modelslist.getCurrentModel()) {
       dc->drawSolidFilledRect(0, 0, width(), 20, HIGHLIGHT_COLOR);
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
