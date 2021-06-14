@@ -53,10 +53,9 @@ Window::~Window()
 
 void Window::attach(Window * newParent)
 {
-  if (parent)
-    detach();
+  if (parent) detach();
   parent = newParent;
-  newParent->addChild(this);
+  if (newParent) newParent->addChild(this);
 }
 
 void Window::detach()
