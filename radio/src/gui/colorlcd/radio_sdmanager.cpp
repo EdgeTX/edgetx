@@ -92,6 +92,10 @@ class FileNameEditWindow : public Page
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
+  setOnSetVisibleHandler([]() {
+    TRACE("f_chdir(ROOT_PATH)");
+    f_chdir(ROOT_PATH);
+  });
 }
 
 void RadioSdManagerPage::rebuild(FormWindow * window)
@@ -113,6 +117,13 @@ char * getFullPath(const std::string &filename)
   strcat(full_path, "/");
   strcat(full_path, filename.c_str());
   return full_path;
+}
+
+char * getCurrentPath()
+{
+  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
+  f_getcwd((TCHAR*)path, FF_MAX_LFN);
+  return path;
 }
 
 class FilePreview : public Window
@@ -209,6 +220,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   std::list<std::string> files;
   std::list<std::string> directories;
 
+  std::string currentPath(getCurrentPath());
   auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
   FRESULT res = f_opendir(&dir, "."); // Open the directory
@@ -238,7 +250,8 @@ void RadioSdManagerPage::build(FormWindow * window)
     
     for (auto name: directories) {
       auto b = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
-          f_chdir(name.data());
+          std::string fullpath = currentPath + "/" + name;
+          f_chdir(fullpath.c_str());
           window->clear();
           build(window);
           return 0;
@@ -250,6 +263,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     for (auto name: files) {
       auto button = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
+          f_chdir(currentPath.c_str());
           const char *ext = getFileExtension(name.data());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
@@ -286,14 +300,14 @@ void RadioSdManagerPage::build(FormWindow * window)
                   dialog->flash(getFullPath(name));
               });
             }
-            else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-              // TODO
-            }
-            else if (!strcasecmp(ext, TEXT_EXT)) {
-              menu->addLine(STR_VIEW_TEXT, [=]() {
-                  // TODO
-              });
-            }
+            // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+            //   // TODO
+            // }
+            // else if (!strcasecmp(ext, TEXT_EXT)) {
+            //   menu->addLine(STR_VIEW_TEXT, [=]() {
+            //       // TODO
+            //   });
+            // }
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
               if (isBootloader(name.data())) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [=]() {
@@ -328,8 +342,9 @@ void RadioSdManagerPage::build(FormWindow * window)
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
+              std::string fullpath = currentPath + "/" + name;
               menu->addLine(STR_EXECUTE_FILE, [=]() {
-                luaExec(getFullPath(name));
+                luaExec(fullpath.c_str());
                 //TODO: check 'luaState'
                 StandaloneLuaWindow::instance()->attach(window);
               });
@@ -374,7 +389,8 @@ void RadioSdManagerPage::build(FormWindow * window)
             });
           }
           return 0;
-      }, 0);
+      }, OPAQUE);
+      button->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));

@@ -119,10 +119,14 @@ void RadioToolsPage::rebuild(FormWindow * window)
         auto b = new TextButton(
             window, grid.getFieldSlot(1), label,
             [window, path_str]() -> uint8_t {
-              f_chdir("/SCRIPTS/TOOLS/");
-              luaExec(path_str.c_str());
-              // TODO: check 'luaState'
+
+              char toolPath[FF_MAX_LFN + 1];
+              strncpy(toolPath, path_str.c_str(), sizeof(toolPath)-1);
+              *((char *)getBasename(toolPath)-1) = '\0';
+              f_chdir(toolPath);
+
               StandaloneLuaWindow::instance()->attach(window);
+              luaExec(path_str.c_str());
               return 0;
             },
             OPAQUE);
