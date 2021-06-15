@@ -149,9 +149,6 @@ void storageReadAll()
   // it's being reloaded after USB connection
   modelslist.clear();
 
-  // and reload the list
-  modelslist.load();
-
   if (loadRadioSettings() != nullptr) {
     storageEraseAll(true);
   }
@@ -162,6 +159,9 @@ void storageReadAll()
       currentLanguagePack = languagePacks[i];
     }
   }
+
+  // and reload the list
+  modelslist.load();
 
   // Current model filename is empty...
   // Let's fix it!
