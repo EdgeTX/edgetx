@@ -1576,6 +1576,7 @@ void menuModelSetup(event_t event)
         if (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx)) {
           const char * title = getMultiOptionTitle(moduleIdx);
 
+          if (!title) break;
           lcdDrawText(INDENT_WIDTH, y, title);
           if (title == STR_MULTI_RFTUNE) {
             lcdDrawText(MODEL_SETUP_2ND_COLUMN + 23, y, "RSSI(", LEFT);
