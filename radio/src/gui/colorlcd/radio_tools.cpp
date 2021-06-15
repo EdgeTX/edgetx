@@ -259,6 +259,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
   }
 #endif
 #if defined(PXX2)
+#if 0 // disabled Power Meter: not yet implemented
   if (isPXX2ModuleOptionAvailable(
           reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
               .information.modelID,
@@ -286,8 +287,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     grid.nextLine();
   }
 #endif
+#endif
 
 #if defined(GHOST)
+#if 0
   if (isModuleGhost(EXTERNAL_MODULE)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "ghost",
                               BUTTON_BACKGROUND, CENTERED);
@@ -311,6 +314,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
     });
     grid.nextLine();
   }
+#endif
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());
