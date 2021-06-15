@@ -100,6 +100,9 @@ case $FLAVOR in
     XLITES)
         BUILD_OPTIONS+="-DPCB=XLITES"
         ;;
+    X9D)
+        BUILD_OPTIONS+="-DPCB=X9D"
+        ;;
     X9DP)
         BUILD_OPTIONS+="-DPCB=X9D+"
         ;;
