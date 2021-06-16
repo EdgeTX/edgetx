@@ -919,7 +919,8 @@ static int luaGetFlightMode(lua_State * L)
   }
   lua_pushnumber(L, mode);
   char name[sizeof(g_model.flightModeData[0].name)+1];
-  zchar2str(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
+  strncpy(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
+  name[sizeof(g_model.flightModeData[0].name)] = '\0';
   lua_pushstring(L, name);
   return 2;
 }

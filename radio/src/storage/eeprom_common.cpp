@@ -169,7 +169,7 @@ void checkModelIdUnique(uint8_t index, uint8_t module)
               name = strAppendUnsigned(name+strlen(name), i + 1, 2);
             }
             else {
-              name += zchar2str(name, modelHeaders[i].name, LEN_MODEL_NAME);
+              name = strAppend(name, modelHeaders[i].name, LEN_MODEL_NAME);
             }
           }
           else {
