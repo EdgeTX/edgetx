@@ -277,7 +277,9 @@ class ModelCategoryPageBody : public FormWindow
 #endif
     }
 
-    y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
+    if (index % MODEL_CELLS_PER_LINE != 0) {
+      y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
+    }
     setInnerHeight(y);
 
     if (category->empty()) {

@@ -146,9 +146,10 @@ void TabsGroup::setVisibleTab(PageTab * tab)
     Keyboard::hide();
 #endif
     currentTab = tab;
+    if (tab->onSetVisible) tab->onSetVisible();
     tab->build(&body);
-    if (!focusWindow)
-      setFocus(SET_FOCUS_DEFAULT);
+    if (!focusWindow) setFocus(SET_FOCUS_DEFAULT);
+
     header.setTitle(tab->title.c_str());
     invalidate();
   }

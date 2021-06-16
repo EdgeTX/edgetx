@@ -707,15 +707,27 @@
 #endif
 
 // I2C Bus
-#define I2C_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
-#define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C1
-#define I2C                             I2C1
-#define I2C_GPIO                        GPIOB
-#define I2C_SCL_GPIO_PIN                GPIO_Pin_8  // PB.08
-#define I2C_SDA_GPIO_PIN                GPIO_Pin_9  // PB.09
-#define I2C_GPIO_AF                     GPIO_AF_I2C1
-#define I2C_SCL_GPIO_PinSource          GPIO_PinSource8
-#define I2C_SDA_GPIO_PinSource          GPIO_PinSource9
+#if defined(RADIO_T18)
+  #define I2C_RCC_AHB1Periph              RCC_AHB1Periph_GPIOH
+  #define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C3
+  #define I2C                             I2C3
+  #define I2C_GPIO                        GPIOH
+  #define I2C_SCL_GPIO_PIN                GPIO_Pin_7  // PH.07
+  #define I2C_SDA_GPIO_PIN                GPIO_Pin_8  // PH.08
+  #define I2C_GPIO_AF                     GPIO_AF_I2C3
+  #define I2C_SCL_GPIO_PinSource          GPIO_PinSource7
+  #define I2C_SDA_GPIO_PinSource          GPIO_PinSource8
+#else
+  #define I2C_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
+  #define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C1
+  #define I2C                             I2C1
+  #define I2C_GPIO                        GPIOB
+  #define I2C_SCL_GPIO_PIN                GPIO_Pin_8  // PB.08
+  #define I2C_SDA_GPIO_PIN                GPIO_Pin_9  // PB.09
+  #define I2C_GPIO_AF                     GPIO_AF_I2C1
+  #define I2C_SCL_GPIO_PinSource          GPIO_PinSource8
+  #define I2C_SDA_GPIO_PinSource          GPIO_PinSource9
+#endif
 #define I2C_SPEED                       400000
 
 // Haptic

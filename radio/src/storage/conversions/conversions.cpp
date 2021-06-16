@@ -75,7 +75,10 @@ void convertRadioData(int version)
 #if defined(SIMU)
   RTOS_WAIT_MS(200);
 #endif
-  
+
+  // Load models list before converting
+  modelslist.load();
+
   const char* error = nullptr;
   for (auto category_ptr : modelslist.getCategories()) {
     for (auto model_ptr : *category_ptr) {

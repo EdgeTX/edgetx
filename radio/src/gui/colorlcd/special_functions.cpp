@@ -76,7 +76,7 @@ class SpecialFunctionEditPage : public Page
         window,
         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
          LCD_W - PAGE_TITLE_LEFT, 20},
-        (functions == g_model.customFn ? "SF" : "GF") + std::to_string(index),
+        (functions == g_model.customFn ? "SF" : "GF") + std::to_string(index+1),
         0, FOCUS_COLOR);
   }
 
@@ -526,7 +526,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
 
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData *cfn = &functions[i];
-    strAppendUnsigned(&s[2], i);
+    strAppendUnsigned(&s[2], i+1);
 
     if (cfn->swtch == 0) {
       auto button = new TextButton(window, grid.getLabelSlot(), s);

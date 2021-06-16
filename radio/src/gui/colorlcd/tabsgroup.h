@@ -50,17 +50,9 @@ class PageTab {
     {
     }
 
-    void destroy()
+    void setOnSetVisibleHandler(std::function<void()> handler)
     {
-      if (onPageDestroyed) {
-        onPageDestroyed();
-      }
-      delete this;
-    }
-
-    void setOnPageDestroyedHandler(std::function<void()> handler)
-    {
-      onPageDestroyed = std::move(handler);
+      onSetVisible = std::move(handler);
     }
 
     void setTitle(std::string value)
@@ -81,7 +73,7 @@ class PageTab {
   protected:
     std::string title;
     unsigned icon = 0;
-    std::function<void()> onPageDestroyed;
+    std::function<void()> onSetVisible;
 };
 
 class TabsCarousel: public Window {

@@ -783,9 +783,6 @@ Set a color for specific area
 */
 static int luaLcdSetColor(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   unsigned int color = luaL_checkunsigned(L, 2);
 
@@ -806,9 +803,6 @@ Get the color for specific area : see lcd.setColor for area list
 
 static int luaLcdGetColor(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   lua_pushunsigned(L, lcdColorTable[index]);
 
@@ -834,9 +828,6 @@ Returns a 5/6/5 rgb color code, that can be used with lcd.setColor
 */
 static int luaRGB(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   int r = luaL_checkinteger(L, 1);
   int g = luaL_checkinteger(L, 2);
   int b = luaL_checkinteger(L, 3);

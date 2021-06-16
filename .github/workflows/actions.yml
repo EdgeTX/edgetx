@@ -29,6 +29,7 @@ jobs:
           - X10
           - X12S
           - X7
+          - X9D
           - X9DP
           - X9DP2019
           - X9LITE
