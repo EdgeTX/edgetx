@@ -312,9 +312,8 @@ char * getSwitchWarningString(char * dest, swsrc_t idx)
 char * getSwitchName(char * dest, swsrc_t idx)
 {
   div_t swinfo = switchInfo(idx);
-  if (ZEXIST(g_eeGeneral.switchNames[swinfo.quot])) {
-    dest += zchar2str(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
-    // TODO tous zchar2str
+  if (g_eeGeneral.switchNames[swinfo.quot][0] != '\0') {
+    dest = strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
   }
   else {
     *dest++ = 'S';
@@ -404,7 +403,8 @@ char * getSwitchPositionName(char * dest, swsrc_t idx)
   }
 #endif
   else {
-    zchar2str(s, g_model.telemetrySensors[idx-SWSRC_FIRST_SENSOR].label, TELEM_LABEL_LEN);
+    strncpy(s, g_model.telemetrySensors[idx-SWSRC_FIRST_SENSOR].label, TELEM_LABEL_LEN);
+    s[TELEM_LABEL_LEN] = '\0';
   }
 
   return dest;
@@ -419,7 +419,7 @@ char * getSourceString(char * dest, mixsrc_t idx)
     idx -= MIXSRC_FIRST_INPUT;
     *dest = CHAR_INPUT;
     if (strlen(g_model.inputNames[idx])) {
-      memset(dest + 1, 0, LEN_INPUT_NAME);
+      memset(dest + 1, 0, LEN_INPUT_NAME+1);
       strncpy(dest + 1, g_model.inputNames[idx], LEN_INPUT_NAME);
     }
     else {
@@ -473,8 +473,8 @@ char * getSourceString(char * dest, mixsrc_t idx)
   }
   else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
-    if (ZEXIST(g_eeGeneral.switchNames[idx])) {
-      zchar2str(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
+    if (g_eeGeneral.switchNames[idx][0] != '\0') {
+      strncpy(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
       dest[LEN_SWITCH_NAME] = '\0';
     }
     else {
@@ -497,8 +497,8 @@ char * getSourceString(char * dest, mixsrc_t idx)
     getStringAtIndex(dest, STR_VSRCRAW, idx-MIXSRC_Rud+1-MAX_LOGICAL_SWITCHES-MAX_TRAINER_CHANNELS-MAX_OUTPUT_CHANNELS-MAX_GVARS);
   }
   else if (idx <= MIXSRC_LAST_TIMER) {
-    if(ZEXIST(g_model.timers[idx-MIXSRC_FIRST_TIMER].name)) {
-      zchar2str(dest,g_model.timers[idx-MIXSRC_FIRST_TIMER].name, LEN_TIMER_NAME);
+    if(g_model.timers[idx-MIXSRC_FIRST_TIMER].name[0] != '\0') {
+      strncpy(dest,g_model.timers[idx-MIXSRC_FIRST_TIMER].name, LEN_TIMER_NAME);
       dest[LEN_TIMER_NAME] = '\0';
     }
     else {
