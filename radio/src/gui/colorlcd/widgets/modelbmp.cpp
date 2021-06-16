@@ -37,7 +37,9 @@ class ModelBitmapWidget: public Widget
       if (buffer &&
           ((buffer->width() != width()) || (buffer->height() != height()) ||
            (deps_hash != getHash()))) {
+
         loadBitmap();
+        deps_hash = getHash();
       }
 
       // big space to draw
@@ -84,18 +86,19 @@ class ModelBitmapWidget: public Widget
       std::string filename = std::string(g_model.header.bitmap);
       std::string fullpath = std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
 
-      std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
-      if (!bitmap) {
-        TRACE("could not load bitmap '%s'", filename.c_str());
-        return;
-      }
-
       if (!buffer || (buffer->width() != width()) || (buffer->height() != height())) {
         buffer.reset(new BitmapBuffer(BMP_RGB565, width(), height()));
       }
 
       buffer->clear(DEFAULT_BGCOLOR);
-      buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+      if (!filename.empty()) {
+        std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
+        if (!bitmap) {
+          TRACE("could not load bitmap '%s'", filename.c_str());
+          return;
+        }
+        buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+      }
     }
 };
 
