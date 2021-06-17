@@ -168,7 +168,7 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DELAY, GET_SET_DEFAULT(cs->v2));
+        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
         v2Edit->setDisplayHandler([=](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
           drawSourceCustomValue(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, cs->v1, (cs->v1 <= MIXSRC_LAST_CH ? calc100toRESX(value) : value), flags);
         });
