@@ -176,7 +176,7 @@ void Menu::updatePosition()
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
     auto bodyHeight = limit<coord_t>(
-        MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT - 1,
+        MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT,
         MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
     content->setHeight(headerHeight + bodyHeight);
