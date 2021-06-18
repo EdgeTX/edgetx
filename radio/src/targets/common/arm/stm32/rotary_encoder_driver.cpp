@@ -76,6 +76,30 @@ void rotaryEncoderCheck()
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
   if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
+#if defined(ENHROLLER)
+		if ((pins ^ (state & 0x03)) == 0x03)
+		{
+			if (pins == 3)
+			{
+				rotencValue += 2;
+			}
+			else
+			{
+				rotencValue -= 2;
+			}
+		}
+		else
+		{
+			if ((state & 0x01) ^ ((pins & 0x02) >> 1))
+			{
+				rotencValue -= 1;
+			}
+			else
+			{
+				rotencValue += 1;
+			}
+		}
+#else
     if ((pins & 0x01) ^ ((pins & 0x02) >> 1)) {
       if ((state & 0x03) == 3)
         ++rotencValue;
@@ -86,9 +110,10 @@ void rotaryEncoderCheck()
     {
       if ((state & 0x03) == 3)
          --rotencValue;
-      else if ((state & 0x03) == 0)
+      else
          ++rotencValue;
     }
+#endif    
     state &= ~0x03 ;
     state |= pins ;
 #else
