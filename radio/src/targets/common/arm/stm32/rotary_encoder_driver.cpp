@@ -72,50 +72,34 @@ void rotaryEncoderInit()
 void rotaryEncoderCheck()
 {
 #if (defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)) || defined(RADIO_TX12)
-  static uint8_t  state = 0;
+  static uint8_t state = 0;
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
   if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(ENHROLLER)
-		if ((pins ^ (state & 0x03)) == 0x03)
+	if ((pins ^ (state & 0x03)) == 0x03)
+	{
+		if (pins == 3)
 		{
-			if (pins == 3)
-			{
-				rotencValue += 2;
-			}
-			else
-			{
-				rotencValue -= 2;
-			}
+			rotencValue += 2;
 		}
 		else
 		{
-			if ((state & 0x01) ^ ((pins & 0x02) >> 1))
-			{
-				rotencValue -= 1;
-			}
-			else
-			{
-				rotencValue += 1;
-			}
+			rotencValue -= 2;
 		}
-#else
-    if ((pins & 0x01) ^ ((pins & 0x02) >> 1)) {
-      if ((state & 0x03) == 3)
-        ++rotencValue;
-      else
-        --rotencValue;
-    }
-    else
-    {
-      if ((state & 0x03) == 3)
-         --rotencValue;
-      else
-         ++rotencValue;
-    }
-#endif    
-    state &= ~0x03 ;
-    state |= pins ;
+	}
+	else
+	{
+		if ((state & 0x01) ^ ((pins & 0x02) >> 1))
+		{
+			rotencValue -= 1;
+		}
+		else
+		{
+			rotencValue += 1;
+		}
+	}
+    state &= ~0x03;
+    state |= pins;
 #else
   uint8_t newPosition = ROTARY_ENCODER_POSITION();
   if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
