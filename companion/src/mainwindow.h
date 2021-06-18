@@ -111,7 +111,6 @@ class MainWindow : public QMainWindow
     void readBackup();
     void burnConfig();
     void burnList();
-    void contributors();
     void sdsync();
     void changelog();
     void customizeSplash();
@@ -200,7 +199,6 @@ class MainWindow : public QMainWindow
     QAction *appPrefsAct;
     QAction *fwPrefsAct;
     QAction *checkForUpdatesAct;
-    QAction *contributorsAct;
     QAction *sdsyncAct;
     QAction *changelogAct;
     QAction *compareAct;
