@@ -223,7 +223,6 @@ set(companion_SRCS
   burnconfigdialog.cpp
   multimodelprinter.cpp
   comparedialog.cpp
-  creditsdialog.cpp
   releasenotesdialog.cpp
   releasenotesfirmwaredialog.cpp
   customizesplashdialog.cpp
@@ -257,7 +256,6 @@ set(companion_MOC_HDRS
   comparedialog.h
   printdialog.h
   logsdialog.h
-  creditsdialog.h
   releasenotesdialog.h
   releasenotesfirmwaredialog.h
   customizesplashdialog.h

@@ -79,7 +79,7 @@ class SensorButton : public Button {
     {
       TelemetryItem &telemetryItem = telemetryItems[index];
 
-      if (telemetryItem.isFresh())
+      if (telemetryItem.isAvailable())
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, HIGHLIGHT_COLOR);
       else
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FIELD_BGCOLOR);

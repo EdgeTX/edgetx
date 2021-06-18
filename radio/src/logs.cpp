@@ -143,7 +143,7 @@ void writeHeader()
       TelemetrySensor & sensor = g_model.telemetrySensors[i];
       if (sensor.logs) {
         memset(label, 0, sizeof(label));
-        zchar2str(label, sensor.label, TELEM_LABEL_LEN);
+        strncpy(label, sensor.label, TELEM_LABEL_LEN);
         uint8_t unit = sensor.unit;
         if (unit == UNIT_CELLS ) unit = UNIT_VOLTS;
         if (UNIT_RAW < unit && unit < UNIT_FIRST_VIRTUAL) {

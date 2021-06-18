@@ -300,8 +300,8 @@ void ViewMainDecoration::createTrims()
     VERTICAL_SLIDERS_HEIGHT
   }; 
 
-  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, 1);
-  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, 2);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, 2);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, 1);
 }
 
 void ViewMainDecoration::createFlightMode()

@@ -89,7 +89,8 @@ void Layout::adjustLayout()
     (hasTopbar() ? 1 << 0 : 0) |
     (hasSliders() ? 1 << 1 : 0) |
     (hasTrims() ? 1 << 2 : 0) |
-    (hasFlightMode() ? 1 << 3 : 0);
+    (hasFlightMode() ? 1 << 3 : 0) |
+    (isMirrored() ? 1 << 4 : 0);
 
   if (checkSettings == decorationSettings) {
     // everything ok, exit!

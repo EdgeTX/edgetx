@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
-## Bash script to setup EdgeTX v2.4 development environment on Ubuntu 20.04.
+## Bash script to setup EdgeTX v2.4 development environment on Ubuntu 20.04 running on bare-metal or in a virtual machine.
+## Does NOT work with WSL/WSL2 under Windows 10!
 ## Let it run as normal user and when asked, give sudo credentials
 
 PAUSEAFTEREACHLINE="false"

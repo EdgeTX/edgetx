@@ -109,7 +109,7 @@ class SpecialFunctionEditPage : public Page
                        STR_VALUE);
         auto choice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
-                       NUM_STICKS + 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+                       NUM_STICKS + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
             return std::string(STR_STICKS);

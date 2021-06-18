@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help the OpenTX team to improve OpenTX
+about: Create a report to help the EdgeTX team to improve EdgeTX
 
 ---
 *Before submitting,  search the open issue if there is already a report of the bug*
@@ -14,10 +14,6 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -26,6 +22,6 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **General information**
- - OpenTX version (e.g. 2.1.23 or N123)
- - Hardware (e.g. Frsky X9D+ or 9X Pro)
- - OpenTX Companion (e.g. 2.1.23 on Ubuntu 16.04)
+ - EdgeTX version (e.g. 2.4.0 or nightly and #commit number)
+ - Hardware (e.g. Frsky X9D+ or RM TX12S)
+ 

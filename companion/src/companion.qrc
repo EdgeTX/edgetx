@@ -2,7 +2,6 @@
   <qresource prefix="/">
     <file>images/customize.png</file>
     <file alias="icon.png">images/icon.png</file>
-    <file>../../CREDITS.txt</file>
     <file>../releasenotes.txt</file>
     <file>images/screenshot.png</file>
     <file>images/splash.png</file>
