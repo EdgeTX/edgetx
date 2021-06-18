@@ -90,6 +90,11 @@ class ValueWidget: public Widget
         drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | CUSTOM_COLOR);
       }
 
+      if (field == MIXSRC_TX_TIME) {
+        drawTimer(dc, xValue, yValue, getValue(MIXSRC_TX_TIME),
+                  attrValue | FONT(XL) | CUSTOM_COLOR);
+      }
+      
       if (field >= MIXSRC_FIRST_TELEM) {
         TelemetryItem & telemetryItem = telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3]; // TODO macro to convert a source to a telemetry index
         if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
