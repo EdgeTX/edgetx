@@ -59,6 +59,9 @@ void convertRadioData(int version)
   RAISE_ALERT(STR_STORAGE_WARNING, STR_SDCARD_CONVERSION_REQUIRE, NULL,
               AU_NONE);
 
+  // Load models list before converting
+  modelslist.load();
+
   unsigned converted = 0;
   auto to_convert = modelslist.getModelsCount() + 1;
 
@@ -75,9 +78,6 @@ void convertRadioData(int version)
 #if defined(SIMU)
   RTOS_WAIT_MS(200);
 #endif
-
-  // Load models list before converting
-  modelslist.load();
 
   const char* error = nullptr;
   for (auto category_ptr : modelslist.getCategories()) {

@@ -108,15 +108,30 @@ class ModelButton : public Button
     if (strncmp(modelCell->modelFilename, g_eeGeneral.currModelFilename,
                 LEN_MODEL_FILENAME) == 0) {
       memcpy(&partialModel.header, &g_model.header, sizeof(partialModel));
+      version = EEPROM_VER;
     } else {
       error =
           readModel(modelCell->modelFilename, (uint8_t *)&partialModel.header,
                     sizeof(partialModel), &version);
-      if (!error) {
-        if (modelCell->modelName[0] == '\0' &&
-            partialModel.header.name[0] != '\0') {
-          modelCell->setModelName(partialModel.header.name);
+    }
+
+    if (!error) {
+      if (modelCell->modelName[0] == '\0' &&
+          partialModel.header.name[0] != '\0') {
+        
+        if (version == 219) {
+          size_t len = sizeof(partialModel.header.name);
+          char* str = partialModel.header.name;
+          for (int i=0; i < len; i++) {
+            str[i] = zchar2char(str[i]);
+          }
+          // Trim string
+          while(len > 0 && str[len-1]) {
+            if (str[len - 1] != ' ' && str[len - 1] != '\0') break;
+            str[--len] = '\0';
+          }
         }
+        modelCell->setModelName(partialModel.header.name);
       }
     }
 
