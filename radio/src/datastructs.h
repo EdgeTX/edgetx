@@ -651,6 +651,16 @@ PACK(struct ModelData {
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
+#if defined(TELEMETRY_MAVLINK)
+  // TODO: use a specific structure
+  uint8_t mavlinkRssi:1;
+  uint8_t mavlinkMimicSensors:3; // currently just off/on, but allow e.g. FrSky, CF, FrSky passthrough.
+  uint8_t mavlinkRcOverride:1;
+  uint8_t mavlinkSpare:2;
+  uint8_t mavlinkRssiScale;
+  // needs to adapt CHKSIZE below //if not all are use compiled optiomizes to lowest size, which may raise error
+#endif
+
   bool isTrainerTraineeEnable() const
   {
 #if defined(PCBNV14)
@@ -844,6 +854,14 @@ PACK(struct RadioData {
   GYRO_FIELDS
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+
+#if defined(TELEMETRY_MAVLINK)
+  // TODO: use specific structure
+  uint8_t mavlinkBaudrate:3;
+  uint8_t mavlinkBaudrate2:3;
+  uint8_t mavlinkSpare:2;
+  // needs to adapt CHKSIZE below
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA
@@ -965,8 +983,13 @@ static inline void check_struct()
   CHKSIZE(RadioData, 899);
   CHKSIZE(ModelData, 6604);
 #elif defined(PCBHORUS)
+#if defined(TELEMETRY_MAVLINK)
+  CHKSIZE(RadioData, 902+1);
+  CHKSIZE(ModelData, 11020+2);
+#else
   CHKSIZE(RadioData, 902);
   CHKSIZE(ModelData, 11020);
+#endif
 #endif
 
 #undef CHKSIZE

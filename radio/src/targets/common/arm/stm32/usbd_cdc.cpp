@@ -24,6 +24,10 @@
 
 #include "opentx.h"
 
+#if defined(TELEMETRY_MAVLINK)
+#include "telemetry/mavlink/mavlink_telem.h"
+#endif
+
 extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
@@ -230,7 +234,11 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
     }
   }
 #endif
-
+#if defined(TELEMETRY_MAVLINK) && defined(USB_SERIAL)
+  for (uint32_t i = 0; i < Len; i++) {
+    mavlinkTelemUsbRxFifo.push(Buf[i]);
+  }
+#endif
   return USBD_OK;
 }
 

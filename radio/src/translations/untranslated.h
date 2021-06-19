@@ -317,3 +317,15 @@
 #define CHAR_CHANNEL   STR_CHAR_CHANNEL[0]
 #define CHAR_TELEMETRY STR_CHAR_TELEMETRY[0]
 #define CHAR_LUA       STR_CHAR_LUA[0]
+
+#define TR_MAVLINK                     "Mavlink"
+#define TR_MAVLINK_RSSI                "Rssi"
+#define TR_MAVLINK_RSSI_SCALE          "Rssi Scale"
+#define TR_MAVLINK_SENSOR_MIMICRY      "Sensor Mimicry"
+#define TR_MAVLINK_RC_OVERRIDE         "RC Override"
+#define LEN_MAVLINK_AUX_SERIAL_MODES   "\015"
+#define TR_MAVLINK_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trainer\0""LUA\0         ""Mavlink\0     "
+#define LEN_MAVLINK_AUX_BAUDRATES      "\006"
+#define TR_MAVLINK_AUX_BAUDRATES       "57600\0""115200""38400\0""19200\0"
+#define TR_MAVLINK_EXTERNAL            "Mavlink external"
+#define TR_USB_MAVLINK                 "USB Mavlink (VCP)"

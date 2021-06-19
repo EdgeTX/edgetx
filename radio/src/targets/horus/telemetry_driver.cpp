@@ -350,8 +350,8 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 extern "C" void TELEMETRY_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_TELEM_USART);
-  uint32_t status = TELEMETRY_USART->SR;
 
+  uint32_t status = TELEMETRY_USART->SR;
   if ((status & USART_SR_TC) && (TELEMETRY_USART->CR1 & USART_CR1_TCIE)) {
     TELEMETRY_USART->CR1 &= ~USART_CR1_TCIE;
     telemetryPortSetDirectionInput();
