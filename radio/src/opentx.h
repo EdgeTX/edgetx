@@ -580,10 +580,6 @@ bool setTrimValue(uint8_t phase, uint8_t idx, int trim);
 
 #if defined(PCBSKY9X)
   #define ROTARY_ENCODER_GRANULARITY (2 << g_eeGeneral.rotarySteps)
-#elif defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)
-  #define ROTARY_ENCODER_GRANULARITY (2)
-#elif defined(RADIO_TX12)
-  #define ROTARY_ENCODER_GRANULARITY (1)
 #else
   #define ROTARY_ENCODER_GRANULARITY (2)
 #endif
