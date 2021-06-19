@@ -86,16 +86,18 @@ class Layout2x4: public Layout
 void Layout2x4::paint(BitmapBuffer* dc)
 {
   rect_t fullScreen = Layout::getMainZone();
-  fullScreen.w /=2;
+  fullScreen.w /= 2;
   if (getOptionValue(OPTION_PANEL1_BACKGROUND)->boolValue) {
     lcdSetColor(getOptionValue(OPTION_PANEL1_COLOR)->unsignedValue);
-    dc->drawSolidFilledRect(fullScreen.x, fullScreen.y, fullScreen.w, fullScreen.h, CUSTOM_COLOR);
+    dc->drawSolidFilledRect(fullScreen.x, fullScreen.y, fullScreen.w,
+                            fullScreen.h, CUSTOM_COLOR);
   }
 
   if (getOptionValue(OPTION_PANEL2_BACKGROUND)->boolValue) {
     fullScreen.x += fullScreen.w;
     lcdSetColor(getOptionValue(OPTION_PANEL2_COLOR)->unsignedValue);
-    dc->drawSolidFilledRect(fullScreen.x, fullScreen.y, fullScreen.w, fullScreen.h, CUSTOM_COLOR);
+    dc->drawSolidFilledRect(fullScreen.x, fullScreen.y, fullScreen.w,
+                            fullScreen.h, CUSTOM_COLOR);
   }
   Layout::paint(dc);
 }
