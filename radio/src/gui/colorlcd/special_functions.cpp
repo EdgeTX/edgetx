@@ -250,6 +250,19 @@ class SpecialFunctionEditPage : public Page
             });
         break;
       }
+
+      case FUNC_ADJUST_GVAR: {
+        //TODO: GVAR choice: CFN_GVAR_INDEX(cfn)
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
+                       STR_VALUE);
+        auto choice =
+            new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+                       MAX_GVARS - 1, GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
+        choice->setTextHandler([](int32_t value) {
+          return std::string(STR_GV) + std::to_string(value);
+        });
+        grid.nextLine();
+      }
     }
 
     if (HAS_ENABLE_PARAM(func)) {
