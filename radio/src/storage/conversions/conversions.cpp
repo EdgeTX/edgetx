@@ -71,6 +71,8 @@ void convertRadioData(int version)
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     convertRadioData_219_to_220(g_eeGeneral);
+    storageDirty(EE_GENERAL);
+    storageCheck(true);
   }
 #endif
   converted++;
