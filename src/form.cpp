@@ -103,6 +103,27 @@ void FormField::paint(BitmapBuffer * dc)
   }
 }
 
+void FormGroup::removeField(FormField * field)
+{
+  FormField* prev = field->getPreviousField();
+  FormField* next = field->getNextField();
+
+  if (prev) { prev->setNextField(next); }
+  if (next) { next->setPreviousField(prev); }
+
+  if (first == field) {
+    if (prev && (prev != field)) first = prev;
+    else if (next && (next != field)) first = next;
+    else first = nullptr;
+  }
+
+  if (last == field) {
+    if (next && (next != field)) last = next;
+    else if (prev && (prev != field)) last = prev;
+    else last = nullptr;
+  }
+}
+
 void FormGroup::addField(FormField * field, bool front)
 {
   if (field->getWindowFlags() & FORM_DETACHED)
