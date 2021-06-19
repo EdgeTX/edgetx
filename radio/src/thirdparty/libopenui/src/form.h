@@ -133,7 +133,9 @@ class FormGroup: public FormField
 
     void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
 
-    virtual void addField(FormField * field, bool front = false); // NOLINT(google-default-arguments)
+    virtual void addField(FormField * field, bool front = false);
+
+    virtual void removeField(FormField * field);
 
     void setFirstField(FormField * field)
     {
