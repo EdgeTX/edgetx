@@ -85,6 +85,7 @@ class Layout2x4: public Layout
 
 void Layout2x4::paint(BitmapBuffer* dc)
 {
+  Layout::paint(dc);
   rect_t fullScreen = Layout::getMainZone();
   fullScreen.w /= 2;
   if (getOptionValue(OPTION_PANEL1_BACKGROUND)->boolValue) {
@@ -99,7 +100,6 @@ void Layout2x4::paint(BitmapBuffer* dc)
     dc->drawSolidFilledRect(fullScreen.x, fullScreen.y, fullScreen.w,
                             fullScreen.h, CUSTOM_COLOR);
   }
-  Layout::paint(dc);
 }
 
 BaseLayoutFactory<Layout2x4> layout2x4("Layout2x4", "2 x 4", LBM_LAYOUT_2x4, OPTIONS_LAYOUT_2x4);
