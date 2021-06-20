@@ -705,7 +705,7 @@ PACK(struct TrainerData {
 #if defined(COLORLCD)
   #define SPLASH_MODE uint8_t splashSpares:3
 #else
-  #define SPLASH_MODE uint8_t splashMode:1; uint8_t splashSpare:2
+  #define SPLASH_MODE int8_t splashMode:3
 #endif
 
 #if defined(PCBXLITES)
