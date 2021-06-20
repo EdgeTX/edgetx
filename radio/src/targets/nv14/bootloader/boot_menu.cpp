@@ -56,9 +56,6 @@ static void bootloaderDrawFooter()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-#if defined(COLORLCD)
-    lcdNextLayer();
-#endif
     // clear screen
     lcd->drawSolidFilledRect(0, 0, LCD_W-1, LCD_H-1, DEFAULT_BGCOLOR);
     int center = LCD_W/2;
@@ -162,6 +159,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, "[L TRIM] to exit");
         }        
     }
+#if defined(COLORLCD)
+    lcdRefresh();
+#endif
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)

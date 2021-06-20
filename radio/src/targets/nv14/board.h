@@ -390,6 +390,9 @@ uint32_t pwrPressedDuration();;
   #define UNEXPECTED_SHUTDOWN()        (powerupReason == DIRTY_SHUTDOWN)
 #endif
 
+#define AUX_SERIAL_POWER_ON()
+#define AUX_SERIAL_POWER_OFF()
+
 // LCD driver
 #define LCD_W                           320
 #define LCD_H                           480

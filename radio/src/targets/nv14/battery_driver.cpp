@@ -182,7 +182,6 @@ void handle_battery_charge(uint32_t last_press_time)
         lcdOn();
       }
       updateTime = get_tmr10ms();     
-      lcdNextLayer();
       lcd->clear();
       drawChargingInfo(chargeState);
       lcdRefresh();
