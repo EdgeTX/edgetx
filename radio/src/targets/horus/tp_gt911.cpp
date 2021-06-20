@@ -686,6 +686,24 @@ bool touchPanelInit(void)
   }
 }
 
+static const char* event2str(uint8_t ev)
+{
+  switch(ev){
+  case TE_NONE:
+    return "NONE";
+  case TE_UP:
+    return "UP";
+  case TE_DOWN:
+    return "DOWN";
+  case TE_SLIDE_END:
+    return "SLIDE_END";
+  case TE_SLIDE:
+    return "SLIDE";
+  default:
+    return "UNKNOWN";
+  }
+}
+
 void touchPanelRead()
 {
   uint8_t state = 0;
@@ -695,7 +713,7 @@ void touchPanelRead()
 
   touchEventOccured = false;
   I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1);
-
+  TRACE("touch state = 0x%x", state);
   if ((state & 0x80u) == 0x00) {
     // not ready
     return;
@@ -705,7 +723,7 @@ void touchPanelRead()
 
   if (pointsCount > 0 && pointsCount < GT911_MAX_TP) {
     I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data, pointsCount * sizeof(TouchPoint));
-    if (touchData.pointsCount == 0) {
+    if (touchState.event == TE_NONE || touchState.event == TE_UP || touchState.event == TE_SLIDE_END) {
       touchState.event = TE_DOWN;
       touchState.startX = touchState.x = touchData.points[0].x;
       touchState.startY = touchState.y = touchData.points[0].y;
@@ -719,20 +737,21 @@ void touchPanelRead()
         touchState.y = touchData.points[0].y;
       }
     }
-    touchData.pointsCount = pointsCount;
   }
   else {
-    if (touchData.pointsCount > 0) {
-      touchData.pointsCount = 0;
-      if (touchState.event == TE_SLIDE)
-        touchState.event = TE_SLIDE_END;
-      else
-        touchState.event = TE_UP;
+    if (touchState.event == TE_SLIDE) {
+      touchState.event = TE_SLIDE_END;
+    } else if (touchState.event == TE_DOWN) {
+      touchState.event = TE_UP;
+    } else if (touchState.event != TE_SLIDE_END){
+      touchState.event = TE_NONE;
     }
   }
 
   uint8_t zero = 0;
   I2C_GT911_WriteRegister(GT911_READ_XY_REG, &zero, 1);
+
+  TRACE("touch event = %s", event2str(touchState.event));
 }
 
 extern "C" void TOUCH_INT_EXTI_IRQHandler1(void)
