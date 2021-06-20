@@ -252,15 +252,88 @@ class SpecialFunctionEditPage : public Page
       }
 
       case FUNC_ADJUST_GVAR: {
-        //TODO: GVAR choice: CFN_GVAR_INDEX(cfn)
+
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
-        auto choice =
+                       STR_GLOBALVAR);
+        auto gvarchoice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                        MAX_GVARS - 1, GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
-        choice->setTextHandler([](int32_t value) {
-          return std::string(STR_GV) + std::to_string(value);
+        gvarchoice->setTextHandler([](int32_t value) {
+          return std::string(STR_GV) + std::to_string(value + 1);
         });
+        grid.nextLine();
+
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
+                       STR_MODE);
+        auto modechoice =
+          new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
+                     FUNC_ADJUST_GVAR_CONSTANT, FUNC_ADJUST_GVAR_INCDEC,
+                     GET_DEFAULT(CFN_GVAR_MODE(cfn)), nullptr);
+        grid.nextLine();
+
+        modechoice->setTextHandler([](int32_t value) {
+          switch (value) {
+            case FUNC_ADJUST_GVAR_CONSTANT:
+              return std::string(STR_CONSTANT);
+            case FUNC_ADJUST_GVAR_SOURCE:
+              return std::string(STR_MIXSOURCE);
+            case FUNC_ADJUST_GVAR_GVAR:
+              return std::string(STR_GLOBALVAR);
+            case FUNC_ADJUST_GVAR_INCDEC:
+              return std::string(STR_INCDEC);
+          }
+          return std::string("---");
+        });
+
+        modechoice->setSetValueHandler([=](int32_t newValue) {
+            CFN_GVAR_MODE(cfn) = newValue;
+            CFN_PARAM(cfn) = 0;
+            SET_DIRTY();
+            updateSpecialFunctionOneWindow();
+          });
+
+        switch (CFN_GVAR_MODE(cfn)) {
+          case FUNC_ADJUST_GVAR_CONSTANT: {
+            //TODO: label
+            int16_t val_min, val_max;
+            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
+                           val_max);
+            new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(),
+                           val_min, val_max, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            break;
+          }
+          case FUNC_ADJUST_GVAR_SOURCE:
+            //TODO: label
+            new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(),
+                             0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            break;
+          case FUNC_ADJUST_GVAR_GVAR: {
+            auto gvarchoice =
+                new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+                           MAX_GVARS - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            gvarchoice->setTextHandler([](int32_t value) {
+              return std::string(STR_GV) + std::to_string(value + 1);
+            });
+            gvarchoice->setAvailableHandler([=](int value) {
+                return CFN_GVAR_INDEX(cfn) != value;
+            });
+            break;
+          }
+          case FUNC_ADJUST_GVAR_INCDEC: {
+            int16_t val_min, val_max;
+            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
+            getGVarIncDecRange(val_min, val_max);
+            auto numedit = new NumberEdit(specialFunctionOneWindow,
+                                          grid.getFieldSlot(), val_min, val_max,
+                                          GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            numedit->setDisplayHandler(
+                [](BitmapBuffer *dc, LcdFlags flags, int value) {
+                  dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, abs(value),
+                                 flags, 0, value >= 0 ? "+= " : "-= ", nullptr);
+                });
+            break;
+          }
+        }
         grid.nextLine();
       }
     }
@@ -403,12 +476,18 @@ class SpecialFunctionButton : public Button
         dc->drawNumber(col2, line2, CFN_PARAM(cfn));
         break;
 
-      case FUNC_TRAINER:
-        drawSource(
-            dc, col1, line2,
-            CFN_CH_INDEX(cfn) == 0 ? 0 : MIXSRC_Rud + CFN_CH_INDEX(cfn) - 1);
+      case FUNC_TRAINER: {
+        std::string text;
+        int16_t value = CFN_CH_INDEX(cfn);
+        if (value == 0)
+          text = std::string(STR_STICKS);
+        else if (value == NUM_STICKS + 1)
+          text = std::string(STR_CHANS);
+        else
+          text = TEXT_AT_INDEX(STR_VSRCRAW, value);
+        dc->drawText(col1, line2, text.c_str(), 0);
         break;
-
+      }
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
           dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn));
@@ -463,6 +542,26 @@ class SpecialFunctionButton : public Button
         dc->drawNumber(col3, line1, CFN_PARAM(cfn), PREC1,
                        sizeof(CFN_PARAM(cfn)), nullptr, "s");
         break;
+
+      case FUNC_ADJUST_GVAR:
+        switch(CFN_GVAR_MODE(cfn)) {
+        case FUNC_ADJUST_GVAR_CONSTANT:
+          dc->drawNumber(col1, line2, CFN_PARAM(cfn), 0);
+          break;
+        case FUNC_ADJUST_GVAR_SOURCE:
+          drawSource(dc, col1, line2, CFN_PARAM(cfn), 0);
+          break;
+        case FUNC_ADJUST_GVAR_GVAR:
+          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, 0);
+          break;
+        case FUNC_ADJUST_GVAR_INCDEC: {
+          int16_t value = CFN_PARAM(cfn);
+          std::string text(value >= 0 ? "+= " : "-= ");
+          text += std::to_string(abs(value));
+          dc->drawText(col1, line2, text.c_str());
+          break;
+        }
+        }
     }
     if (HAS_ENABLE_PARAM(func)) {
       theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col3, line2);
