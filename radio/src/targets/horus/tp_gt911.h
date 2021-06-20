@@ -69,7 +69,6 @@ PACK(typedef struct {
 }) TouchPoint;
 
 PACK(struct TouchData {
-  uint8_t pointsCount;
   union
   {
     TouchPoint points[GT911_MAX_TP];
