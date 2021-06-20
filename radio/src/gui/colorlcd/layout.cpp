@@ -123,8 +123,6 @@ void loadCustomScreens()
   }
 
   auto topbar = viewMain->getTopbar();
-
-  // TODO: how to reload this guy?
   topbar->load();
   
   viewMain->setCurrentMainView(0);

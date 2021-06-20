@@ -48,7 +48,9 @@ ModelCell::~ModelCell()
 void ModelCell::setModelName(char * name)
 {
   strncpy(modelName, name, LEN_MODEL_NAME);
-  if (modelName[0] == 0) {
+  modelName[LEN_MODEL_NAME] = '\0';
+
+  if (modelName[0] == '\0') {
     char * tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
     tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);

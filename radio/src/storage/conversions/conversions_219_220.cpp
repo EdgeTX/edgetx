@@ -109,7 +109,7 @@ void convertModelData_219_to_220(ModelData &model)
   convertToStr(model.header.name, LEN_MODEL_NAME_219);
 
   for (uint8_t i=0; i<MAX_TIMERS_219; i++) {
-    //TODO: convert to new timers v220
+    // convert to new timers v220
     TimerData& timer = newModel.timers[i];
     convertToStr(timer.name, LEN_TIMER_NAME_219);
 
@@ -153,7 +153,7 @@ void convertModelData_219_to_220(ModelData &model)
 
   // CurveHeader.name
   for (uint8_t i=0; i<MAX_CURVES_219; ++i) {
-    convertToStr(model.expoData[i].name, LEN_CURVE_NAME_219);
+    convertToStr(model.curves[i].name, LEN_CURVE_NAME_219);
   }
 
   // CustomFunctionData::play.name

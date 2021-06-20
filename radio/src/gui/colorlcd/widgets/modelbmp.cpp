@@ -97,7 +97,12 @@ class ModelBitmapWidget: public Widget
           TRACE("could not load bitmap '%s'", filename.c_str());
           return;
         }
-        buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+
+        if (rect.h >= 96 && rect.w >= 120) {
+          buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+        } else {
+          buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height());
+        }
       }
     }
 };

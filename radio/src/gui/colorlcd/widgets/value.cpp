@@ -26,10 +26,11 @@ const coord_t NUMBERS_PADDING = 4;
 class ValueWidget: public Widget
 {
   public:
-    ValueWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
-      Widget(factory, parent, rect, persistentData)
-    {
-    }
+   ValueWidget(const WidgetFactory* factory, FormGroup* parent,
+               const rect_t& rect, Widget::PersistentData* persistentData) :
+       Widget(factory, parent, rect, persistentData)
+   {
+   }
 
     void refresh(BitmapBuffer * dc) override
     {
@@ -37,7 +38,7 @@ class ValueWidget: public Widget
       mixsrc_t field = persistentData->options[0].value.unsignedValue;
 
       // get color from options[1]
-      lcdSetColor(persistentData->options[1].value.unsignedValue);
+      LcdFlags color = COLOR2FLAGS(persistentData->options[1].value.unsignedValue);
 
       coord_t xValue, yValue, xLabel, yLabel;
       LcdFlags attrValue, attrLabel = 0;
@@ -55,7 +56,7 @@ class ValueWidget: public Widget
         yValue = -2;
         xLabel = NUMBERS_PADDING;
         yLabel = +2;
-        attrValue = RIGHT | NO_UNIT | FONT(XL);
+        attrValue = RIGHT | NO_UNIT | FONT(L);
       }
       else {
         xValue = NUMBERS_PADDING;
@@ -64,7 +65,7 @@ class ValueWidget: public Widget
         yLabel = 2;
         if (field >= MIXSRC_FIRST_TELEM) {
           if (isGPSSensor(1 + (field - MIXSRC_FIRST_TELEM) / 3)) {
-            attrValue = LEFT | FONT(L) | EXPANDED;
+            attrValue = LEFT | FONT(L) | PREC1;
           }
           else {
             attrValue = LEFT | FONT(XL);
@@ -72,7 +73,7 @@ class ValueWidget: public Widget
         }
 #if defined(INTERNAL_GPS)
         else if (field == MIXSRC_TX_GPS) {
-          attrValue = LEFT | FONT(L) | EXPANDED;
+          attrValue = LEFT | FONT(L) | PREC1;
         }
 #endif
         else {
@@ -83,27 +84,32 @@ class ValueWidget: public Widget
       if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
         TimerState & timerState = timersStates[field - MIXSRC_FIRST_TIMER];
         if (timerState.val < 0) {
-          lcdSetColor(lcdColorTable[ALARM_COLOR_INDEX]);
+          color = ALARM_COLOR;
         }
-        drawSource(dc, NUMBERS_PADDING, 2, field, CUSTOM_COLOR);
-        drawSource(dc, NUMBERS_PADDING + 1, 3, field, BLACK);
-        drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | CUSTOM_COLOR);
+        drawSource(dc, NUMBERS_PADDING, 2, field, color);
+        drawSource(dc, NUMBERS_PADDING + 1, 3, field, COLOR2FLAGS(BLACK));
+        drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | color);
       }
 
+      if (field == MIXSRC_TX_TIME) {
+        drawTimer(dc, xValue, yValue, getValue(MIXSRC_TX_TIME),
+                  attrValue | FONT(XL) | color);
+      }
+      
       if (field >= MIXSRC_FIRST_TELEM) {
-        TelemetryItem & telemetryItem = telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3]; // TODO macro to convert a source to a telemetry index
+        TelemetryItem & telemetryItem = telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
         if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
-          lcdSetColor(lcdColorTable[TEXT_DISABLE_COLOR_INDEX]);
+          color = TEXT_DISABLE_COLOR;
         }
       }
 
       if (persistentData->options[2].value.boolValue) {
-        drawSource(dc,xLabel + 1, yLabel + 1, field, attrLabel | BLACK);
-        drawSourceValue(dc, xValue + 1, yValue + 1, field, attrValue | BLACK);
+        drawSource(dc,xLabel + 1, yLabel + 1, field, attrLabel | COLOR2FLAGS(BLACK));
+        drawSourceValue(dc, xValue + 1, yValue + 1, field, attrValue | COLOR2FLAGS(BLACK));
       }
 
-      drawSource(dc, xLabel, yLabel, field, attrLabel | CUSTOM_COLOR);
-      drawSourceValue(dc, xValue, yValue, field, attrValue | CUSTOM_COLOR);
+      drawSource(dc, xLabel, yLabel, field, attrLabel | color);
+      drawSourceValue(dc, xValue, yValue, field, attrValue | color);
     }
 
     void checkEvents() override
