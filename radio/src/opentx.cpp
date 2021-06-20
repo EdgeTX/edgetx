@@ -537,6 +537,11 @@ void checkBacklight()
         resetBacklightTimeout();
       }
     }
+    #if defined(HARDWARE_TOUCH)
+    if (touchPanelEventOccured() && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+      resetBacklightTimeout();
+    }
+    #endif
 
     if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
       currentBacklightBright = g_eeGeneral.backlightBright;
@@ -550,7 +555,6 @@ void checkBacklight()
       if (flashCounter) {
         backlightOn = !backlightOn;
       }
-
       if (backlightOn) {
         currentBacklightBright = requiredBacklightBright;
         BACKLIGHT_ENABLE();
@@ -2083,7 +2087,7 @@ uint32_t pwrCheck()
           LED_ERROR_BEGIN();
 
           WDG_RESET();
-          lcdRefresh();
+            ();
 
           if (warningResult) {
             pwr_check_state = PWR_CHECK_OFF;
