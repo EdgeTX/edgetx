@@ -13,6 +13,9 @@ on:
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'
+  create:
+    tags:
+      - v*
 
 jobs:
   test:
