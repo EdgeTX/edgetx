@@ -317,7 +317,7 @@ coord_t drawGPSCoord(BitmapBuffer * dc, coord_t x, coord_t y, int32_t value, con
   }
   *tmp++ = direction[value>=0 ? 0 : 1];
   *tmp = '\0';
-  dc->drawText(x, y, s, flags);
+  x += dc->drawText(x, y, s, flags);
   return x;
 }
 
