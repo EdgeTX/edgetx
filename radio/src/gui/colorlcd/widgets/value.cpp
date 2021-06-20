@@ -43,7 +43,6 @@ class ValueWidget: public Widget
       coord_t xValue, yValue, xLabel, yLabel;
       LcdFlags attrValue, attrLabel = 0;
 
-      bool twolines = false;
       if (width() < 120 && height() < 50) {
         xValue = 0;
         yValue = 14;
@@ -57,7 +56,7 @@ class ValueWidget: public Widget
         yValue = -2;
         xLabel = NUMBERS_PADDING;
         yLabel = +2;
-        attrValue = RIGHT | NO_UNIT | FONT(XL);
+        attrValue = RIGHT | NO_UNIT | FONT(L);
       }
       else {
         xValue = NUMBERS_PADDING;
@@ -66,8 +65,7 @@ class ValueWidget: public Widget
         yLabel = 2;
         if (field >= MIXSRC_FIRST_TELEM) {
           if (isGPSSensor(1 + (field - MIXSRC_FIRST_TELEM) / 3)) {
-            attrValue = LEFT | FONT(L);// | EXPANDED; // TODO
-            twolines = true;
+            attrValue = LEFT | FONT(L) | PREC1;
           }
           else {
             attrValue = LEFT | FONT(XL);
@@ -75,8 +73,7 @@ class ValueWidget: public Widget
         }
 #if defined(INTERNAL_GPS)
         else if (field == MIXSRC_TX_GPS) {
-          attrValue = LEFT | FONT(L);// | EXPANDED; // TODO
-          twolines = true;
+          attrValue = LEFT | FONT(L) | PREC1;
         }
 #endif
         else {
@@ -87,10 +84,10 @@ class ValueWidget: public Widget
       if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
         TimerState & timerState = timersStates[field - MIXSRC_FIRST_TIMER];
         if (timerState.val < 0) {
-          lcdSetColor(lcdColorTable[ALARM_COLOR_INDEX]);
+          color = ALARM_COLOR;
         }
-        drawSource(dc, NUMBERS_PADDING, 2, field, CUSTOM_COLOR);
-        drawSource(dc, NUMBERS_PADDING + 1, 3, field, BLACK);
+        drawSource(dc, NUMBERS_PADDING, 2, field, color);
+        drawSource(dc, NUMBERS_PADDING + 1, 3, field, COLOR2FLAGS(BLACK));
         drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | color);
       }
 
