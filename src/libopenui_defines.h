@@ -24,7 +24,6 @@
 
 /* obsolete flags */
 #define BLINK                          0
-#define EXPANDED                       0
 #define TIMEHOUR                       0
 
 /* drawText flags */
