@@ -1081,12 +1081,13 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-  uint8_t key = EVT_KEY_MASK(luaL_checkinteger(L, 1));
+  event_t key = EVT_KEY_MASK(luaL_checkinteger(L, 1));
   // prevent killing maskable keys (only in telemetry scripts)
-  // TODO add which tpye of script is running before p_call()
+  // TODO add which type of script is running before lua_resume()
   if (IS_MASKABLE(key)) {
     killEvents(key);
-  }
+    luaEmptyEventBuffer();
+   }
   return 0;
 }
 

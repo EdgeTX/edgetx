@@ -40,6 +40,57 @@ extern int custom_lua_atpanic(lua_State *L);
 #define LUA_WIDGET_FILENAME                "/main.lua"
 #define LUA_FULLPATH_MAXLEN                (LEN_FILE_PATH_MAX + LEN_SCRIPT_FILENAME + LEN_FILE_EXTENSION_MAX)  // max length (example: /SCRIPTS/THEMES/mytheme.lua)
 
+static void luaHook(lua_State * L, lua_Debug *ar)
+{
+  if (ar->event == LUA_HOOKCOUNT) {
+    instructionsPercent++;
+#if defined(DEBUG)
+  // Disable Lua script instructions limit in DEBUG mode,
+  // just report max value reached
+  static uint16_t max = 0;
+  if (instructionsPercent > 100) {
+    if (max + 10 < instructionsPercent) {
+      max = instructionsPercent;
+      TRACE("LUA instructionsPercent %u%%", (uint32_t)max);
+    }
+  }
+  else if (instructionsPercent < 10) {
+    max = 0;
+  }
+#else
+    if (instructionsPercent > 100) {
+      // From now on, as soon as a line is executed, error
+      // keep erroring until you're script reaches the top
+      lua_sethook(L, luaHook, LUA_MASKLINE, 0);
+      luaL_error(L, "CPU limit");
+    }
+#endif
+  }
+#if defined(LUA_ALLOCATOR_TRACER)
+  else if (ar->event == LUA_HOOKLINE) {
+    lua_getinfo(L, "nSl", ar);
+    LuaMemTracer * tracer = GET_TRACER(L);
+    if (tracer->alloc || tracer->free) {
+      TRACE("LT: [+%u,-%u] %s:%d", tracer->alloc, tracer->free, tracer->script, tracer->lineno);
+    }
+    tracer->script = ar->source;
+    tracer->lineno = ar->currentline;
+    tracer->alloc = 0;
+    tracer->free = 0;
+  }
+#endif // #if defined(LUA_ALLOCATOR_TRACER)
+}
+
+void luaSetInstructionsLimit(lua_State * L, int count)
+{
+  instructionsPercent = 0;
+#if defined(LUA_ALLOCATOR_TRACER)
+  lua_sethook(L, luaHook, LUA_MASKCOUNT|LUA_MASKLINE, count);
+#else
+  lua_sethook(L, luaHook, LUA_MASKCOUNT, count);
+#endif
+}
+
 void exec(int function, int nresults=0)
 {
   if (lsWidgets == 0) return;
@@ -344,12 +395,16 @@ void LuaWidget::refresh(BitmapBuffer* dc)
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
+
+  // This little hack is needed to not interfere with the LCD usage of preempted scripts
+  bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
+
   if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
   // Remove LCD
-  luaLcdAllowed = false;
+  luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
 
   // mark as refreshed
