@@ -468,13 +468,10 @@ void handleTouch()
     touchState.x = touchX;
     touchState.y = touchY;
 
-    if (touchState.event == TE_NONE || touchState.event == TE_UP) {
+    if (touchState.event == TE_NONE || touchState.event == TE_UP || touchState.event == TE_SLIDE_END) {
       touchState.startX = touchState.x;
       touchState.startY = touchState.y;
       touchState.event = TE_DOWN;
-      if (g_eeGeneral.backlightMode & e_backlight_mode_keys)
-        backlightEnable(BACKLIGHT_LEVEL_MAX);          
- //       backlightOn(); // TODO is that the best place ?
     }
     else if (touchState.event == TE_DOWN) {
       if (dx >= SLIDE_RANGE || dx <= -SLIDE_RANGE || dy >= SLIDE_RANGE || dy <= -SLIDE_RANGE) {
