@@ -92,14 +92,15 @@ class WidgetsContainerImpl: public WidgetsContainer
     {
       unsigned int count = getZonesCount();
       for (unsigned int i = 0; i < count; i++) {
-
         // remove old widget
         if (widgets[i]) {
           removeField(widgets[i]);
           widgets[i]->deleteLater();
           widgets[i] = nullptr;
         }
+      }
 
+      for (unsigned int i = 0; i < count; i++) {
         // and load new one if required
         if (persistentData->zones[i].widgetName[0]) {
           char name[WIDGET_NAME_LEN + 1];
