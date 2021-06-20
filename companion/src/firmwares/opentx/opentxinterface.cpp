@@ -280,7 +280,7 @@ unsigned long OpenTxEepromInterface::load(RadioData &radioData, const uint8_t * 
 
 uint8_t OpenTxEepromInterface::getLastDataVersion(Board::Type board)
 {
-  return 219;
+  return 220;
 }
 
 void OpenTxEepromInterface::showErrors(const QString & title, const QStringList & errors)
