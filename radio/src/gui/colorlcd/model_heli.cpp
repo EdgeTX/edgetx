@@ -56,7 +56,7 @@ void ModelHeliPage::build(FormWindow * window)
 
   // Aileron source
   new StaticText(window, grid.getLabelSlot(), STR_AILERON);
-  new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.swashR.aileronWeight));
+  new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.swashR.aileronSource));
   grid.nextLine();
 
   // Aileron weight
