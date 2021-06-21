@@ -678,7 +678,6 @@ inline void resetMultiProtocolsOptions(uint8_t moduleIdx)
   else {
     g_model.moduleData[moduleIdx].multi.autoBindMode = 0;
   }
-  g_model.moduleData[moduleIdx].subType = 0;
   g_model.moduleData[moduleIdx].multi.optionValue = 0;
   g_model.moduleData[moduleIdx].multi.disableTelemetry = 0;
   g_model.moduleData[moduleIdx].multi.disableMapping = 0;

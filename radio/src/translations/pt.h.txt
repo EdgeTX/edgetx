@@ -802,6 +802,8 @@
 #define TR_EEPROMWARN          "EEPROM"
 #define TR_STORAGE_WARNING     "STORAGE"
 #define TR_EEPROM_CONVERTING   "EEPROM Converting"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE        "ACELERAD"
 #define TR_ALARMSWARN          "ALARMES"
 #define TR_SWITCHWARN          "CHAVES"
@@ -828,7 +830,7 @@
 #define TR_COPROC_TEMP         "MB Temp. \016>"
 #define TR_CAPAWARNING         INDENT "Aviso Capacidade"
 #define TR_TEMPWARNING         INDENT "Temperat. ALTA"
-#define TR_TTL_WARNING                 "Warning: use only TLL or 5v"
+#define TR_TTL_WARNING         "Warning: use 3.3V logic levels"
 #define TR_FUNC                "Funcao"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
@@ -860,6 +862,10 @@
 #define TR_TEMP_CALIB          "Temp. Calib"
 #define TR_TIME                "Time"
 #define TR_MAXBAUDRATE         "Max bauds"
+#define TR_SAMPLE_MODE         "Sample Mode"
+
+#define LEN_SAMPLE_MODES                "\006"
+#define TR_SAMPLE_MODES        "Normal""OneBit"
 
 #define TR_BLUETOOTH            "Bluetooth"
 #define TR_BLUETOOTH_DISC       "Discover"

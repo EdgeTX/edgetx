@@ -75,7 +75,7 @@ void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t p
   GPIO_ResetBits(AUX_SERIAL_RX_INVERT_GPIO, AUX_SERIAL_RX_INVERT_GPIO_PIN);
 #endif
 
-#if defined(SERIAL_DMA_Stream_RX)
+#if defined(AUX_SERIAL_DMA_Stream_RX)
   if (dma) {
     DMA_InitTypeDef DMA_InitStructure;
     auxSerialRxFifo.clear();

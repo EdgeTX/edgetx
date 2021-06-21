@@ -364,22 +364,20 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
 
   // search in telemetry
   field.desc[0] = '\0';
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
       const char* sensorName = g_model.telemetrySensors[i].label;
-      if (!strncmp(sensorName, name, len)) {
+      if ((len <= TELEM_LABEL_LEN) && !strncmp(sensorName, name, len)) {
         if (name[len] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3*i;
+          field.id = MIXSRC_FIRST_TELEM + 3 * i;
           field.desc[0] = '\0';
           return true;
-        }
-        else if (name[len] == '-' && name[len+1] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3*i + 1;
+        } else if (name[len] == '-' && name[len + 1] == '\0') {
+          field.id = MIXSRC_FIRST_TELEM + 3 * i + 1;
           field.desc[0] = '\0';
           return true;
-        }
-        else if (name[len] == '+' && name[len+1] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3*i + 2;
+        } else if (name[len] == '+' && name[len + 1] == '\0') {
+          field.id = MIXSRC_FIRST_TELEM + 3 * i + 2;
           field.desc[0] = '\0';
           return true;
         }
@@ -923,7 +921,8 @@ static int luaGetFlightMode(lua_State * L)
   }
   lua_pushnumber(L, mode);
   char name[sizeof(g_model.flightModeData[0].name)+1];
-  zchar2str(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
+  strncpy(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
+  name[sizeof(g_model.flightModeData[0].name)] = '\0';
   lua_pushstring(L, name);
   return 2;
 }
@@ -1379,28 +1378,25 @@ static int luaSetTelemetryValue(lua_State * L)
   uint32_t unit = luaL_optunsigned(L, 5, 0);
   uint32_t prec = luaL_optunsigned(L, 6, 0);
 
-  char zname[4];
+  char name_buf[TELEM_LABEL_LEN]; // 4
   const char* name = luaL_optstring(L, 7, NULL);
-  if (name != NULL && strlen(name) > 0) {
-    str2zchar(zname, name, 4);
-  }
-  else {
-    zname[0] = hex2zchar((id & 0xf000) >> 12);
-    zname[1] = hex2zchar((id & 0x0f00) >> 8);
-    zname[2] = hex2zchar((id & 0x00f0) >> 4);
-    zname[3] = hex2zchar((id & 0x000f) >> 0);
+  if (name == NULL || strlen(name) > 0) {
+    name_buf[0] = hex2char((id & 0xf000) >> 12);
+    name_buf[1] = hex2char((id & 0x0f00) >> 8);
+    name_buf[2] = hex2char((id & 0x00f0) >> 4);
+    name_buf[3] = hex2char((id & 0x000f) >> 0);
   }
   if (id | subId | instance) {
-    int index = setTelemetryValue(PROTOCOL_TELEMETRY_LUA, id, subId, instance, value, unit, prec);
+    int index = setTelemetryValue(PROTOCOL_TELEMETRY_LUA, id, subId, instance,
+                                  value, unit, prec);
     if (index >= 0) {
       TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
       telemetrySensor.id = id;
       telemetrySensor.subId = subId;
       telemetrySensor.instance = instance;
-      telemetrySensor.init(zname, unit, prec);
+      telemetrySensor.init(name ? name: name_buf, unit, prec);
       lua_pushboolean(L, true);
-    }
-    else {
+    } else {
       lua_pushboolean(L, false);
     }
     return 1;

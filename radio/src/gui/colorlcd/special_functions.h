@@ -31,11 +31,7 @@ class SpecialFunctionsPage: public PageTab {
 
     void build(FormWindow * window) override
     {
-#if defined(HARDWARE_TOUCH)
-      build(window, -1);
-#else
       build(window, 0);
-#endif
     }
 
   protected:

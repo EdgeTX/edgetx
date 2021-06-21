@@ -58,6 +58,9 @@ class FlightModeGroup: public FormGroup
       if (index == getFlightMode()) {
         dc->drawSolidFilledRect(0, 0, width(), height(), HIGHLIGHT_COLOR);
       }
+      else {
+        dc->drawSolidFilledRect(0, 0, width(), height(), FIELD_BGCOLOR);
+      }
       FormGroup::paint(dc);
     }
 

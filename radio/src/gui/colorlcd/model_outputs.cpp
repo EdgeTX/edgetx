@@ -39,8 +39,14 @@ class OutputEditWindow : public Page {
 
     void buildHeader(Window * window)
     {
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENULIMITS, 0, MENU_COLOR);
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, getSourceString(MIXSRC_CH1 + channel), 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_MENULIMITS, 0, FOCUS_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                     getSourceString(MIXSRC_CH1 + channel), 0, FOCUS_COLOR);
     }
 
     void buildBody(FormWindow * window)
@@ -120,28 +126,44 @@ class OutputLineButton : public Button {
 
     void paint(BitmapBuffer * dc) override
     {
+      LcdFlags textColor = DEFAULT_COLOR;
+      LcdFlags bgColor   = FIELD_BGCOLOR;
+
+      dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
+      
       // first line
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000, PREC1);
-      dc->drawNumber(68, FIELD_PADDING_TOP, output->max + 1000, PREC1);
-      dc->drawNumber(132, FIELD_PADDING_TOP, output->offset, PREC1);
-      dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter, RIGHT);
-      dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210");
+      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000,
+                     PREC1 | textColor);
+      dc->drawNumber(68, FIELD_PADDING_TOP, output->max + 1000, PREC1 | textColor);
+      dc->drawNumber(132, FIELD_PADDING_TOP, output->offset, PREC1 | textColor);
+      dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter,
+                     RIGHT | textColor);
+      dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
+                   textColor);
 
       // second line
       if (output->revert) {
-        dc->drawTextAtIndex(4, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, STR_MMMINV, output->revert);
+        dc->drawTextAtIndex(4, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, STR_MMMINV,
+                            output->revert, textColor);
       }
       if (output->curve) {
-        dc->drawMask(68, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupCurveIcon, DEFAULT_COLOR);
-        dc->drawText(88, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, getCurveString(output->curve));
+        dc->drawMask(68, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                     mixerSetupCurveIcon, textColor);
+        dc->drawText(88, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                     getCurveString(output->curve), textColor);
       }
       if (output->name[0]) {
-        dc->drawMask(146, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, mixerSetupLabelIcon, DEFAULT_COLOR);
-        dc->drawSizedText(166, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, output->name, sizeof(output->name));
+        dc->drawMask(146, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                     mixerSetupLabelIcon, textColor);
+        dc->drawSizedText(166, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                          output->name, sizeof(output->name), textColor);
       }
 
       // bounding rect
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, hasFocus() ? CHECKBOX_COLOR : DISABLE_COLOR);
+      if (hasFocus())
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      else
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
     }
 
   protected:
@@ -171,7 +193,9 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
     LimitData * output = limitAddress(ch);
 
     // Channel label
-    new StaticText(window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch), BUTTON_BACKGROUND, CENTERED);
+    auto txt = new StaticText(window, grid.getLabelSlot(),
+                              getSourceString(MIXSRC_CH1 + ch),
+                              BUTTON_BACKGROUND, CENTERED);
 
     // Channel settings
     Button * button = new OutputLineButton(window, grid.getFieldSlot(), output);
@@ -203,11 +227,25 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
       });
       return 0;
     });
+    button->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
 
     if (focusChannel == ch) {
       button->setFocus(SET_FOCUS_DEFAULT);
+      txt->setBackgroundColor(FOCUS_BGCOLOR);
+      txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      txt->invalidate();
     }
 
+    txt->setHeight(button->height());
     grid.spacer(button->height() + 5);
   }
 

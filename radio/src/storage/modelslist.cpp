@@ -28,17 +28,14 @@ using std::list;
 
 ModelsList modelslist;
 
-ModelCell::ModelCell(const char * name):
-  valid_rfData(false)
+ModelCell::ModelCell(const char* name) : valid_rfData(false)
 {
   strncpy(modelFilename, name, sizeof(modelFilename));
 }
 
-ModelCell::ModelCell(const char * name, uint8_t len)
-  : valid_rfData(false)
+ModelCell::ModelCell(const char* name, uint8_t len) : valid_rfData(false)
 {
-  if (len > sizeof(modelFilename)-1)
-    len = sizeof(modelFilename)-1;
+  if (len > sizeof(modelFilename) - 1) len = sizeof(modelFilename) - 1;
 
   memcpy(modelFilename, name, len);
   modelFilename[len] = '\0';
@@ -51,11 +48,13 @@ ModelCell::~ModelCell()
 void ModelCell::setModelName(char * name)
 {
   strncpy(modelName, name, LEN_MODEL_NAME);
-  if (modelName[0] == 0) {
+  modelName[LEN_MODEL_NAME] = '\0';
+
+  if (modelName[0] == '\0') {
     char * tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
     tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);
-    if (tmp)
+    if (tmp != nullptr)
       *tmp = 0;
   }
 }
@@ -72,11 +71,10 @@ void ModelCell::setModelName(char* name, uint8_t len)
     char * tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
     tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);
-    if (tmp != NULL)
+    if (tmp != nullptr)
       *tmp = 0;
   }
 
-  //resetBuffer();
 }
 
 void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
@@ -84,93 +82,6 @@ void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
   modelId[moduleIdx] = id;
 }
 
-// void ModelCell::resetBuffer()
-// {
-//   if (buffer) {
-//     delete buffer;
-//     buffer = NULL;
-//   }
-// }
-
-// const BitmapBuffer * ModelCell::getBuffer()
-// {
-//   if (!buffer) {
-//     loadBitmap();
-//   }
-//   return buffer;
-// }
-
-// void ModelCell::loadBitmap()
-// {
-//   uint8_t version;
-
-//   PACK(struct {
-//          ModelHeader header;
-//          TimerData timers[MAX_TIMERS];
-//        }) partialmodel;
-
-//   const char * error = NULL;
-//   BitmapBuffer * tmp_buffer;
-
-//   if (strncmp(modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME) == 0) {
-//     memcpy(&partialmodel.header, &g_model.header, sizeof(partialmodel));
-//   }
-//   else {
-// #if !defined (SDCARD_YAML)
-//     error = readModel(modelFilename, (uint8_t *)&partialmodel.header, sizeof(partialmodel), &version);
-//     // LEN_BITMAP_NAME has now 4 bytes more
-//     if (version <= 218) {
-//       memmove(partialmodel.timers, &(partialmodel.header.bitmap[10]), sizeof(TimerData)*MAX_TIMERS);
-//       memclear(&(partialmodel.header.bitmap[10]), 4);
-//     }
-// #else
-//     memset(&partialmodel.header,0,sizeof(partialmodel));
-// #endif
-//   }
-
-//   if ((modelName[0] == 0) && ! error)
-//     setModelName(partialmodel.header.name); // resets buffer!!!
-
-//   tmp_buffer = new BitmapBuffer(BMP_RGB565, MODELCELL_WIDTH, MODELCELL_HEIGHT);
-//   if (tmp_buffer == NULL) {
-//     return;
-//   }
-//   tmp_buffer->clear(TEXT_BGCOLOR);
-
-//   if (error) {
-//     tmp_buffer->drawText(5, 2, "(Invalid Model)", TEXT_COLOR);
-//     tmp_buffer->drawBitmapPattern(5, 23, LBM_LIBRARY_SLOT, TEXT_COLOR);
-//   }
-//   else {
-//     char timer[LEN_TIMER_STRING];
-//     tmp_buffer->drawSizedText(5, 2, modelName, /*LEN_MODEL_NAME*/strlen(modelName),
-//                           SMLSIZE|TEXT_COLOR);
-
-//     getTimerString(timer, 0);
-//     for (uint8_t i = 0; i < MAX_TIMERS; i++) {
-//       if (partialmodel.timers[i].mode != 0 && partialmodel.timers[i].persistent) {
-//         getTimerString(timer, partialmodel.timers[i].value, 1);
-//         break;
-//       }
-//     }
-//     tmp_buffer->drawText(101, 40, timer, TEXT_COLOR);
-//     for (int i=0; i<4; i++) {
-//       tmp_buffer->drawBitmapPattern(104+i*11, 25, LBM_SCORE0, TITLE_BGCOLOR);
-//     }
-//     GET_FILENAME(filename, BITMAPS_PATH, partialmodel.header.bitmap, "");
-//     const BitmapBuffer * bitmap = BitmapBuffer::load(filename);
-//     if (bitmap) {
-//       tmp_buffer->drawScaledBitmap(bitmap, 5, 24, 56, 32);
-//       delete bitmap;
-//     }
-//     else {
-//       tmp_buffer->drawBitmapPattern(5, 23, LBM_LIBRARY_SLOT, TEXT_COLOR);
-//     }
-//   }
-//   tmp_buffer->drawSolidHorizontalLine(5, 19, 143, LINE_COLOR);
-
-//   buffer = tmp_buffer;
-// }
 
 void ModelCell::save(FIL* file)
 {

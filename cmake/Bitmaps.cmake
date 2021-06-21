@@ -14,6 +14,22 @@ macro(add_bitmaps_target targetname filter format args)
   add_custom_target(${targetname} DEPENDS ${bitmaps_files})
 endmacro()
 
+macro(add_png_target targetname filter)
+  set(bitmaps_files)
+  file(GLOB bitmaps ${filter})
+  foreach(bitmap ${bitmaps})
+    get_filename_component(target ${bitmap} NAME_WE)
+    set(target ${target}.lbm)
+    add_custom_command(
+      OUTPUT ${target}
+      COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${bitmap} ${target}
+      DEPENDS ${bitmap} ${UTILS_DIR}/bin2lbm.py
+    )
+    list(APPEND bitmaps_files ${target})
+  endforeach()
+  add_custom_target(${targetname} DEPENDS ${bitmaps_files})
+endmacro()
+
 macro(add_fonts_target targetname filter)
   set(fonts_files)
   file(GLOB fonts ${filter})

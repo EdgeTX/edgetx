@@ -33,5 +33,8 @@
 
 constexpr coord_t INVERT_BOX_MARGIN = 2;
 
+constexpr int8_t text_horizontal_offset[7] {-2,-1,-2,-2,-2,-2,-2};
+constexpr int8_t text_vertical_offset[7] {2,2,0,2,3,3,7};
+
 extern bool           luaLcdAllowed;
 extern BitmapBuffer * luaLcdBuffer;

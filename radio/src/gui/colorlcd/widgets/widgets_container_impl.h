@@ -43,10 +43,12 @@ class WidgetsContainerImpl: public WidgetsContainer
       // remove old one if existing
       removeWidget(index);
 
-      Widget * widget = nullptr;
+      Widget* widget = nullptr;
       if (factory) {
-        strncpy(persistentData->zones[index].widgetName, factory->getName(), sizeof(ZonePersistentData::widgetName));
-        widget = factory->create(this, getZone(index), &persistentData->zones[index].widgetData);
+        strncpy(persistentData->zones[index].widgetName, factory->getName(),
+                sizeof(ZonePersistentData::widgetName));
+        widget = factory->create(this, getZone(index),
+                                 &persistentData->zones[index].widgetData);
       }
       widgets[index] = widget;
 
@@ -61,12 +63,16 @@ class WidgetsContainerImpl: public WidgetsContainer
       if (index >= N)
         return;
 
-      if (widgets[index])
+      if (widgets[index]) {
+        removeField(widgets[index]);
         widgets[index]->deleteLater();
+      }
 
       widgets[index] = nullptr;
-      memset(persistentData->zones[index].widgetName, 0, sizeof(ZonePersistentData::widgetName));
-      memset(&persistentData->zones[index].widgetData, 0, sizeof(Widget::PersistentData));
+      memset(persistentData->zones[index].widgetName, 0,
+             sizeof(ZonePersistentData::widgetName));
+      memset(&persistentData->zones[index].widgetData, 0,
+             sizeof(Widget::PersistentData));
     }
 
     Widget * getWidget(unsigned int index) override
@@ -86,13 +92,15 @@ class WidgetsContainerImpl: public WidgetsContainer
     {
       unsigned int count = getZonesCount();
       for (unsigned int i = 0; i < count; i++) {
-
         // remove old widget
         if (widgets[i]) {
+          removeField(widgets[i]);
           widgets[i]->deleteLater();
           widgets[i] = nullptr;
         }
+      }
 
+      for (unsigned int i = 0; i < count; i++) {
         // and load new one if required
         if (persistentData->zones[i].widgetName[0]) {
           char name[WIDGET_NAME_LEN + 1];

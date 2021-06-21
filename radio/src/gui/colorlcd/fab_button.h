@@ -31,7 +31,7 @@ class FabButton: public Button {
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
-      return "FabButton(" + std::to_string(icon) + ")";
+      return "FabButton";
     }
 #endif
 

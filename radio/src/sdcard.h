@@ -29,8 +29,8 @@
 
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
-#define MODELS_PATH         ROOT_PATH "MODELS24"      // no trailing slash = important //TODO Temporary while working on both 2.3 and 2.4
-#define RADIO_PATH          ROOT_PATH "RADIO24"       // no trailing slash = important
+#define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
+#define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define LOGS_PATH           ROOT_PATH "LOGS"
 #define SCREENSHOTS_PATH    ROOT_PATH "SCREENSHOTS"
 #define SOUNDS_PATH         ROOT_PATH "SOUNDS/en"
@@ -54,8 +54,9 @@
 #define LEN_FILE_PATH_MAX   (sizeof(SCRIPTS_TELEM_PATH)+1)  // longest + "/"
 
 #if defined(COLORLCD)
+#define RADIO_FILENAME      "radio.bin"
 const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
-const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.bin";
+const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;
 #if defined(SDCARD_YAML)
 const char RADIO_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "models.yml";
 const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";

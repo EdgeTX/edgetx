@@ -784,6 +784,8 @@
 #define TR_EEPROMWARN          "EEPROM"
 #define TR_STORAGE_WARNING     "ALMAC."
 #define TR_EEPROM_CONVERTING   "Convirtiendo EEPROM"
+#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
+#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE        TR("ACELERAD.", "ACELERADOR")
 #define TR_ALARMSWARN          "ALARMAS"
 #define TR_SWITCHWARN          TR("INTERRUP.", "INTERRUPTOR")
@@ -810,7 +812,7 @@
 #define TR_COPROC_TEMP         "MB Temp. \016>"
 #define TR_CAPAWARNING         INDENT "Capacidad baja"
 #define TR_TEMPWARNING         INDENT "Sobrecalent"
-#define TR_TTL_WARNING                 "Warning: use only TLL or 5v"
+#define TR_TTL_WARNING         "Warning: use 3.3V logic levels"
 #define TR_FUNC                "Función"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"

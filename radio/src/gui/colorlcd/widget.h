@@ -114,6 +114,7 @@ class Widget : public Button
 };
 
 void registerWidget(const WidgetFactory * factory);
+void unregisterWidget(const WidgetFactory * factory);
 
 class WidgetFactory
 {
@@ -124,6 +125,8 @@ class WidgetFactory
     {
       registerWidget(this);
     }
+
+    virtual ~WidgetFactory() {}
 
     inline const char * getName() const
     {

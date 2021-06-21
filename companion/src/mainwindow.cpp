@@ -29,7 +29,6 @@
 #include "downloaddialog.h"
 #include "printdialog.h"
 #include "version.h"
-#include "creditsdialog.h"
 #include "releasenotesdialog.h"
 #include "releasenotesfirmwaredialog.h"
 #include "customizesplashdialog.h"
@@ -868,13 +867,6 @@ void MainWindow::fwPrefs()
   dialog->deleteLater();
 }
 
-void MainWindow::contributors()
-{
-  CreditsDialog * dialog = new CreditsDialog(this);
-  dialog->exec();
-  dialog->deleteLater();
-}
-
 void MainWindow::sdsync()
 {
   // remember user-selectable options for duration of session  TODO: save to settings
@@ -1230,8 +1222,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
-  trAct(contributorsAct,    tr("Contributors..."),                     tr("A tribute to those who have contributed to OpenTX and Companion"));
-
+  
   trAct(createProfileAct,   tr("Add Radio Profile"),               tr("Create a new Radio Settings Profile"));
   trAct(copyProfileAct,     tr("Copy Current Radio Profile"),      tr("Duplicate current Radio Settings Profile"));
   trAct(deleteProfileAct,   tr("Delete Current Radio Profile..."), tr("Delete the current Radio Settings Profile"));
@@ -1306,8 +1297,7 @@ void MainWindow::createActions()
   aboutAct =           addAct("information.png",    SLOT(about()));
   openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
   changelogAct =       addAct("changelog.png",      SLOT(changelog()));
-  contributorsAct =    addAct("contributors.png",   SLOT(contributors()));
-
+  
   // these two get assigned menus in createMenus()
   recentFilesAct =     addAct("recentdocument.png");
   profilesMenuAct =    addAct("profiles.png");
@@ -1315,7 +1305,6 @@ void MainWindow::createActions()
   exitAct->setMenuRole(QAction::QuitRole);
   aboutAct->setMenuRole(QAction::AboutRole);
   appPrefsAct->setMenuRole(QAction::PreferencesRole);
-  contributorsAct->setMenuRole(QAction::ApplicationSpecificRole);
   openDocURLAct->setMenuRole(QAction::ApplicationSpecificRole);
   checkForUpdatesAct->setMenuRole(QAction::ApplicationSpecificRole);
   changelogAct->setMenuRole(QAction::ApplicationSpecificRole);
@@ -1402,8 +1391,7 @@ void MainWindow::createMenus()
   helpMenu->addSeparator();
   helpMenu->addAction(changelogAct);
   helpMenu->addSeparator();
-  helpMenu->addAction(contributorsAct);
-
+  
   recentFilesMenu = new QMenu(this);
   recentFilesMenu->setToolTipsVisible(true);
   for ( int i = 0; i < g.historySize(); ++i) {

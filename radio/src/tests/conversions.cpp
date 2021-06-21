@@ -50,18 +50,18 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
   EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
 
-  EXPECT_STREQ("Tes", g_eeGeneral.switchNames[0]); // ZSTREQ
+  EXPECT_STRNEQ("Tes", g_eeGeneral.switchNames[0]); // ZSTREQ
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
-  EXPECT_STREQ("Test", g_model.header.name); // ZSTREQ
+  EXPECT_STRNEQ("Test", g_model.header.name); // ZSTREQ
   EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
   EXPECT_EQ(SWSRC_SA0, g_model.timers[0].swtch); // new!
   EXPECT_EQ(80, g_model.mixData[0].weight);
   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
   EXPECT_EQ(80, g_model.expoData[0].weight);
   EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-  EXPECT_STREQ("Tes", g_model.gvars[0].name); // ZSTREQ
-  EXPECT_STREQ("Test", g_model.flightModeData[0].name); // ZSTREQ
+  EXPECT_STRNEQ("Tes", g_model.gvars[0].name); // ZSTREQ
+  EXPECT_STRNEQ("Test", g_model.flightModeData[0].name); // ZSTREQ
 
 #if defined(INTERNAL_MODULE_PXX2)
   EXPECT_EQ(MODULE_TYPE_ISRM_PXX2, g_model.moduleData[INTERNAL_MODULE].type);
@@ -73,13 +73,31 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);
 
-  EXPECT_STREQ("Rud", g_model.inputNames[0]); // ZSTREQ
-  EXPECT_STREQ("Tes", g_model.telemetrySensors[0].label); // ZSTREQ
+  EXPECT_STRNEQ("Rud", g_model.inputNames[0]); // ZSTREQ
+  EXPECT_STRNEQ("Tes", g_model.telemetrySensors[0].label); // ZSTREQ
   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
   EXPECT_EQ(10, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.logicalSw[0].v1);
 
-  EXPECT_STREQ("abc.wav", g_model.customFn[1].play.name);
+  EXPECT_STRNEQ("abc.wav", g_model.customFn[1].play.name);
+}
+
+TEST(Conversions, ConversionX9DPFrom23_2)
+{
+  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+2.bin");
+
+  eepromOpen();
+  eeLoadGeneralSettingsData();
+  convertRadioData_219_to_220(g_eeGeneral);
+  eeConvertModel(6, 219);
+  eeLoadModel(6);
+
+  EXPECT_EQ(710, g_eeGeneral.calib[0].spanNeg);
+  EXPECT_EQ(944, g_eeGeneral.calib[0].mid);
+  EXPECT_EQ(770, g_eeGeneral.calib[0].spanPos);
+
+  EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
+  EXPECT_EQ(-SWSRC_SA0, g_model.timers[0].swtch); // new!  
 }
 #endif
 

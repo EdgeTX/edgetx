@@ -27,6 +27,28 @@
 #include "api_colorlcd.h"
 
 BitmapBuffer* luaLcdBuffer  = nullptr;
+ 
+static int8_t getTextHorizontalOffset(LcdFlags flags)
+{
+  // no need to adjust if not right aligned
+  if (!(flags & RIGHT)) {
+      return 0;
+  }
+  const uint8_t font_index = FONT_INDEX(flags);
+  if (font_index >= sizeof(text_horizontal_offset)) {
+    return 0;
+  }
+  return text_horizontal_offset[font_index];
+}
+
+static int8_t getTextVerticalOffset(LcdFlags flags)
+{
+  const uint8_t font_index = FONT_INDEX(flags);
+  if (font_index >= sizeof(text_vertical_offset)) {
+    return 0;
+  }
+  return text_vertical_offset[font_index];
+}
 
 /*luadoc
 @function lcd.refresh()
@@ -60,7 +82,7 @@ Clear the LCD screen
 static int luaLcdClear(lua_State * L)
 {
   if (luaLcdAllowed && luaLcdBuffer) {
-    LcdFlags color = luaL_optunsigned(L, 1, DEFAULT_BGCOLOR);
+    LcdFlags color = luaL_optunsigned(L, 1, DEFAULT_BGCOLOR_INDEX << 16u);
     luaLcdBuffer->clear(COLOR(COLOR_VAL(color)));
   }
   return 0;
@@ -202,6 +224,10 @@ static int luaLcdDrawText(lua_State *L)
   const char * s = luaL_checkstring(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
 
+  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
+  x += getTextHorizontalOffset(att);
+  y += getTextVerticalOffset(att);
+
   bool shadowed = att & SHADOWED;
   bool invers = (att & INVERS);
   if (att & BLINK) invers = invers && !(BLINK_ON_PHASE);
@@ -217,8 +243,12 @@ static int luaLcdDrawText(lua_State *L)
   if (invers) {
     int height = getFontHeight(att & 0xFFFF);
     int width = getTextWidth(s, 255, att);
+    int ix = x - INVERT_BOX_MARGIN;
+    if (att & RIGHT) {
+      ix = x - width - INVERT_BOX_MARGIN;
+    }
     luaLcdBuffer->drawSolidFilledRect(
-        x - INVERT_BOX_MARGIN, y - INVERT_BOX_MARGIN,
+        ix, y - INVERT_BOX_MARGIN,
         width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
         FOCUS_BGCOLOR);
     att = (att & 0xFFFF) | FOCUS_COLOR;
@@ -255,6 +285,10 @@ static int luaLcdDrawTimer(lua_State *L)
   int y = luaL_checkinteger(L, 2);
   int seconds = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
+
+  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
+  x += getTextHorizontalOffset(att);
+  y += getTextVerticalOffset(att);
 
   bool shadowed = att & SHADOWED;
   att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
@@ -295,7 +329,29 @@ static int luaLcdDrawNumber(lua_State *L)
   int val = luaL_checkinteger(L, 3);
 
   unsigned int att = luaL_optunsigned(L, 4, 0);
+  bool invers = (att & INVERS);
   att = (att & 0xFFFF) | COLOR(COLOR_VAL(att));
+
+  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
+  x += getTextHorizontalOffset(att);
+  y += getTextVerticalOffset(att);
+
+  char s[49];
+  BitmapBuffer::formatNumberAsString(s, 49, val, att & 0xFFFF);
+
+  if (invers) {
+    int height = getFontHeight(att & 0xFFFF);
+    int width = getTextWidth(s, 255, att);
+    int ix = x - INVERT_BOX_MARGIN;
+    if (att & RIGHT) {
+      ix = x - width - INVERT_BOX_MARGIN;
+    }
+    luaLcdBuffer->drawSolidFilledRect(
+        ix, y - INVERT_BOX_MARGIN,
+        width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
+        FOCUS_BGCOLOR);
+    att = (att & 0xFFFF) | FOCUS_COLOR;
+  }
 
   if ((att & SHADOWED) && !(att & INVERS)) {
     luaLcdBuffer->drawNumber(x, y, val, att & 0xFFFF);
@@ -664,9 +720,9 @@ static int luaLcdDrawGauge(lua_State *L)
   int num = luaL_checkinteger(L, 5);
   int den = luaL_checkinteger(L, 6);
   unsigned int flags = luaL_optunsigned(L, 7, 0);
-
+  
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
-
+  
   luaLcdBuffer->drawRect(x, y, w, h, 1, 0xff, flags);
   uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
   luaLcdBuffer->drawSolidFilledRect(x+1, y+1, len, h-2, flags);
@@ -727,9 +783,6 @@ Set a color for specific area
 */
 static int luaLcdSetColor(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   unsigned int color = luaL_checkunsigned(L, 2);
 
@@ -750,9 +803,6 @@ Get the color for specific area : see lcd.setColor for area list
 
 static int luaLcdGetColor(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   unsigned int index = luaL_checkunsigned(L, 1) >> 16;
   lua_pushunsigned(L, lcdColorTable[index]);
 
@@ -778,9 +828,6 @@ Returns a 5/6/5 rgb color code, that can be used with lcd.setColor
 */
 static int luaRGB(lua_State *L)
 {
-  if (!luaLcdAllowed)
-    return 0;
-
   int r = luaL_checkinteger(L, 1);
   int g = luaL_checkinteger(L, 2);
   int b = luaL_checkinteger(L, 3);

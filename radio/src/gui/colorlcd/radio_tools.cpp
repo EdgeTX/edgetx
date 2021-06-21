@@ -112,19 +112,35 @@ void RadioToolsPage::rebuild(FormWindow * window)
           *ext = '\0';
           label = getBasename(path);
         }
-        new StaticText(window, grid.getLabelSlot(), "lua", BUTTON_BACKGROUND, CENTERED);
+        auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
+                                  BUTTON_BACKGROUND, CENTERED);
 
         std::string path_str(path);
-        new TextButton(
+        auto b = new TextButton(
             window, grid.getFieldSlot(1), label,
             [window, path_str]() -> uint8_t {
-              f_chdir("/SCRIPTS/TOOLS/");
-              luaExec(path_str.c_str());
-              // TODO: check 'luaState'
+
+              char toolPath[FF_MAX_LFN + 1];
+              strncpy(toolPath, path_str.c_str(), sizeof(toolPath)-1);
+              *((char *)getBasename(toolPath)-1) = '\0';
+              f_chdir(toolPath);
+
               StandaloneLuaWindow::instance()->attach(window);
+              luaExec(path_str.c_str());
               return 0;
             },
-            0);
+            OPAQUE);
+        b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+        b->setFocusHandler([=](bool focus) {
+          if (focus) {
+            txt->setBackgroundColor(FOCUS_BGCOLOR);
+            txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          } else {
+            txt->setBackgroundColor(FIELD_FRAME_COLOR);
+            txt->setTextFlags(CENTERED);
+          }
+          txt->invalidate();
+        });
         grid.nextLine();
       }
     }
@@ -133,63 +149,172 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
 #if defined(INTERNAL_MODULE_PXX2)
   // PXX2 modules tools
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND, CENTERED);
-    new TextButton(window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT, [=]() -> uint8_t {
-        new RadioSpectrumAnalyser(INTERNAL_MODULE);
-        return 0;
-    }, 0);
+  if (isPXX2ModuleOptionAvailable(
+          reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
+              .information.modelID,
+          MODULE_OPTION_SPECTRUM_ANALYSER)) {
+    auto txt = new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
+                              CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
+        [=]() -> uint8_t {
+          new RadioSpectrumAnalyser(INTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
     grid.nextLine();
   }
 
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER)) {
-    new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND, CENTERED);
-    new TextButton(window, grid.getFieldSlot(1), STR_POWER_METER_INT, [=]() -> uint8_t {
-//        new RadioPowerMeter(INTERNAL_MODULE);
-        return 0;
-    }, 0);
+  if (isPXX2ModuleOptionAvailable(
+          reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
+              .information.modelID,
+          MODULE_OPTION_POWER_METER)) {
+    auto txt = new StaticText(window, grid.getLabelSlot(), "access",
+                              BUTTON_BACKGROUND, CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), STR_POWER_METER_INT,
+        [=]() -> uint8_t {
+          //        new RadioPowerMeter(INTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
     grid.nextLine();
   }
 #endif
 #if defined(INTERNAL_MODULE_MULTI)
-  new StaticText(window, grid.getLabelSlot(), "multi", BUTTON_BACKGROUND, CENTERED);
-  new TextButton(window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT, [=]() -> uint8_t {
-      new RadioSpectrumAnalyser(INTERNAL_MODULE);
-      return 0;
-  }, 0);
-  grid.nextLine();
+  {
+    auto txt = new StaticText(window, grid.getLabelSlot(), "multi",
+                              BUTTON_BACKGROUND, CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
+        [=]() -> uint8_t {
+          new RadioSpectrumAnalyser(INTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
+    grid.nextLine();
+  }
 #endif
 #if defined(PXX2)|| defined(MULTIMODULE)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER) || isModuleMultimodule(EXTERNAL_MODULE)) {
-    new StaticText(window, grid.getLabelSlot(), isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access", BUTTON_BACKGROUND, CENTERED);
-    new TextButton(window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT, [=]() -> uint8_t {
-        new RadioSpectrumAnalyser(EXTERNAL_MODULE);
-        return 0;
-    }, 0);
+  if (isPXX2ModuleOptionAvailable(
+          reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
+              .information.modelID,
+          MODULE_OPTION_SPECTRUM_ANALYSER) ||
+      isModuleMultimodule(EXTERNAL_MODULE)) {
+    auto txt = new StaticText(window, grid.getLabelSlot(),
+                              isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
+                              BUTTON_BACKGROUND, CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT,
+        [=]() -> uint8_t {
+          new RadioSpectrumAnalyser(EXTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
     grid.nextLine();
   }
 #endif
 #if defined(PXX2)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER)) {
-    new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND, CENTERED);
-    new TextButton(window, grid.getFieldSlot(1), STR_POWER_METER_EXT, [=]() -> uint8_t {
-//        new RadioPowerMeter(EXTERNAL_MODULE);
-      return 0;
-    }, 0);
-
+#if 0 // disabled Power Meter: not yet implemented
+  if (isPXX2ModuleOptionAvailable(
+          reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
+              .information.modelID,
+          MODULE_OPTION_POWER_METER)) {
+    auto txt = new StaticText(window, grid.getLabelSlot(), "access",
+                              BUTTON_BACKGROUND, CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), STR_POWER_METER_EXT,
+        [=]() -> uint8_t {
+          //        new RadioPowerMeter(EXTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
     grid.nextLine();
   }
 #endif
+#endif
 
 #if defined(GHOST)
+#if 0
   if (isModuleGhost(EXTERNAL_MODULE)) {
-    new StaticText(window, grid.getLabelSlot(), "ghost", BUTTON_BACKGROUND, CENTERED);
-    new TextButton(window, grid.getFieldSlot(1), "Ghost module config", [=]() -> uint8_t {
-        new RadioGhostModuleConfig(EXTERNAL_MODULE);
-        return 0;
-    }, 0);
+    auto txt = new StaticText(window, grid.getLabelSlot(), "ghost",
+                              BUTTON_BACKGROUND, CENTERED);
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), "Ghost module config",
+        [=]() -> uint8_t {
+          new RadioGhostModuleConfig(EXTERNAL_MODULE);
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(FOCUS_BGCOLOR);
+        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+      } else {
+        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setTextFlags(CENTERED);
+      }
+      txt->invalidate();
+    });
     grid.nextLine();
   }
+#endif
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());

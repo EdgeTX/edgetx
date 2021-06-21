@@ -75,6 +75,10 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
     //TODO: forward to widget (lua for instance)
     return true;
   }
+
+  if (Window::onTouchEnd(x, y)) {
+    return true;
+  }
   
   if (hasFocus()) {
     onPress();
@@ -190,6 +194,12 @@ void registerWidget(const WidgetFactory * factory)
 {
   TRACE("register widget %s", factory->getName());
   getRegisteredWidgets().push_back(factory);
+}
+
+void unregisterWidget(const WidgetFactory * factory)
+{
+  TRACE("unregister widget %s", factory->getName());
+  getRegisteredWidgets().remove(factory);
 }
 
 const WidgetFactory * getWidgetFactory(const char * name)

@@ -705,7 +705,7 @@ PACK(struct TrainerData {
 #if defined(COLORLCD)
   #define SPLASH_MODE uint8_t splashSpares:3
 #else
-  #define SPLASH_MODE uint8_t splashMode:1; uint8_t splashSpare:2
+  #define SPLASH_MODE int8_t splashMode:3
 #endif
 
 #if defined(PCBXLITES)
@@ -842,6 +842,8 @@ PACK(struct RadioData {
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   GYRO_FIELDS
+
+  NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 });
 
 #undef SWITCHES_WARNING_DATA
@@ -948,22 +950,22 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 860);
+  CHKSIZE(RadioData, 861);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBXLITE)
-  CHKSIZE(RadioData, 858);
+  CHKSIZE(RadioData, 859);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBX7)
-  CHKSIZE(RadioData, 864);
+  CHKSIZE(RadioData, 865);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 960);
+  CHKSIZE(RadioData, 961);
   CHKSIZE(ModelData, 6614);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 898);
+  CHKSIZE(RadioData, 899);
   CHKSIZE(ModelData, 6604);
 #elif defined(PCBHORUS)
-  CHKSIZE(RadioData, 901);
+  CHKSIZE(RadioData, 902);
   CHKSIZE(ModelData, 11020);
 #endif
 

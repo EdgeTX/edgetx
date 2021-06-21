@@ -22,35 +22,38 @@
 
 #if defined(SPLASH)
 
-const uint8_t __bmp_splash[] __ALIGNED(4) {
-#include "bmp_splash.lbm"
+const uint8_t __bmp_splash[] {
+#include "big_logo.lbm"
 };
-Bitmap BMP_SPLASH(BMP_RGB565, (const uint16_t *)__bmp_splash);
 
 void drawSplash()
 {
-  static bool loadImgFromSD = true;
+  constexpr LcdFlags splash_background_color =
+    COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
+
+  static bool loadSplashImg = true;
   static BitmapBuffer * splashImg = nullptr;
 
-  if (loadImgFromSD && splashImg == nullptr) {
+  // try splash from SD card first
+  if (loadSplashImg && splashImg == nullptr) {
     if (!sdMounted()) sdInit();
     splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE);
-    loadImgFromSD = false;
+    loadSplashImg = false;
+
+    // otherwise load from FLASH
+    if (splashImg == nullptr) {
+      splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
+    }
   }
 
-  lcd->clear();
+  lcd->clear(splash_background_color);
 
   if (splashImg) {
     lcd->drawBitmap((LCD_W - splashImg->width())/2,
                     (LCD_H - splashImg->height())/2,
                     splashImg);
   }
-  else {
-    lcd->drawBitmap((LCD_W - BMP_SPLASH.width())/2,
-                    (LCD_H - BMP_SPLASH.height())/2,
-                    &BMP_SPLASH);
-  }
-  
+
   lcdRefresh();
 }
 #endif

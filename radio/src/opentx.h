@@ -37,6 +37,12 @@
 #include "usbd_conf.h"
 #endif
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#else
+  #include "libopenui/src/libopenui_file.h"
+#endif
+
 #if defined(SIMU)
   #define SWITCH_SIMU(a, b)  (a)
 #else

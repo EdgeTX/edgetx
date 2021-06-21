@@ -29,48 +29,46 @@ class ModelBitmapWidget: public Widget
     ModelBitmapWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
       Widget(factory, parent, rect, persistentData)
     {
+      loadBitmap();
     }
 
     void refresh(BitmapBuffer * dc) override
     {
-      if (buffer && ((buffer->width() != width()) || (buffer->height() != height()))) {
+      if (buffer &&
+          ((buffer->width() != width()) || (buffer->height() != height()) ||
+           (deps_hash != getHash()))) {
+
         loadBitmap();
+        deps_hash = getHash();
       }
 
       // big space to draw
       if (rect.h >= 96 && rect.w >= 120) {
 
-        dc->drawFilledRect(0, 0, rect.w, rect.h, SOLID, MAINVIEW_PANES_COLOR, OPACITY(5));
-      
+        if (buffer) {
+          dc->drawBitmap(0, 0, buffer.get());
+        }
+
         auto iconMask = theme->getIconMask(ICON_MODEL);
         if (iconMask) {
-          dc->drawMask(6, 4, iconMask, MAINVIEW_GRAPHICS_COLOR);
+          dc->drawMask(6, 4, iconMask, HEADER_COLOR);
         }
 
-        dc->drawSizedText(45, 10, g_model.header.name, LEN_MODEL_NAME, FONT(XS));
-        dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, MAINVIEW_GRAPHICS_COLOR);
-
-        if (buffer) {
-          dc->drawBitmap(0, 38, buffer.get());
-        }
+        dc->drawSizedText(45, 10, g_model.header.name, LEN_MODEL_NAME,
+                          FONT(XS) | DEFAULT_COLOR);
+        dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, HEADER_COLOR);
       }
       // smaller space to draw
       else if (buffer) {
-        dc->drawBitmap(0, 38, buffer.get());
-      }      
+        dc->drawBitmap(0, 0, buffer.get());
+      }
     }
 
     void checkEvents() override
     {
       Widget::checkEvents();
-      
-      uint32_t new_hash = hash(g_model.header.bitmap, sizeof(g_model.header.bitmap));
-      new_hash ^= hash(g_model.header.name, sizeof(g_model.header.name));
-      new_hash ^= hash(g_eeGeneral.themeName, sizeof(g_eeGeneral.themeName));
-
-      if (new_hash != deps_hash) {
-        deps_hash = new_hash;
-        loadBitmap();
+      if (getHash() != deps_hash) {
+        invalidate();
       }
     }
 
@@ -78,23 +76,34 @@ class ModelBitmapWidget: public Widget
     std::unique_ptr<BitmapBuffer> buffer;
     uint32_t deps_hash = 0;
 
+    uint32_t getHash()
+    {
+      return hash(g_model.header.bitmap, sizeof(g_model.header.bitmap));
+    }
+  
     void loadBitmap()
     {
       std::string filename = std::string(g_model.header.bitmap);
       std::string fullpath = std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
-
-      std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
-      if (!bitmap) {
-        TRACE("could not load bitmap '%s'", filename.c_str());
-        return;
-      }
 
       if (!buffer || (buffer->width() != width()) || (buffer->height() != height())) {
         buffer.reset(new BitmapBuffer(BMP_RGB565, width(), height()));
       }
 
       buffer->clear(DEFAULT_BGCOLOR);
-      buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height() - 38);
+      if (!filename.empty()) {
+        std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
+        if (!bitmap) {
+          TRACE("could not load bitmap '%s'", filename.c_str());
+          return;
+        }
+
+        if (rect.h >= 96 && rect.w >= 120) {
+          buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+        } else {
+          buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height());
+        }
+      }
     }
 };
 

@@ -20,12 +20,23 @@
 
 #include "opentx.h"
 #include "tabsgroup.h"
+#include "480_bitmaps.h"
 
 const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(WHITE) },
   { STR_MAIN_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(RED) },
   { nullptr, ZoneOption::Bool }
 };
+
+constexpr uint16_t __TEXT_COLOR             = RGB(0x0C, 0x3F, 0x66);
+constexpr uint16_t __BACKGROUND_COLOR       = RGB(0x12, 0x5E, 0x99);
+constexpr uint16_t __FOCUS_COLOR            = RGB(0x14, 0xA1, 0xE5);
+constexpr uint16_t __DATAFIELD_FRAME_COLOR  = RGB(0xB6, 0xE0, 0xF2);
+constexpr uint16_t __TAB_BACKGROUND_COLOR   = RGB(0xE4, 0xEE, 0xF2);
+constexpr uint16_t __PARAM_BACKGROUND_COLOR = WHITE;
+
+constexpr uint16_t __EDIT_MARKER_COLOR      = RGB(0x00, 0x99, 0x09);
+constexpr uint16_t __ACTIVE_MARKER_COLOR    = RGB(0xFF, 0xDE, 0x00);
 
 class Theme480: public OpenTxTheme
 {
@@ -44,46 +55,47 @@ class Theme480: public OpenTxTheme
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
       lcdColorTable[BARGRAPH_BGCOLOR_INDEX] = RGB(222, 222, 222);
       lcdColorTable[BATTERY_CHARGE_COLOR_INDEX] = GREEN;
-      lcdColorTable[CHECKBOX_COLOR_INDEX] = RED;
+      lcdColorTable[CHECKBOX_COLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[CURVE_COLOR_INDEX] = RED;
       lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = RED;
-      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = WHITE;
-      lcdColorTable[DEFAULT_COLOR_INDEX] = BLACK;
+      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = __TAB_BACKGROUND_COLOR;
+      lcdColorTable[DEFAULT_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[DISABLE_COLOR_INDEX] = LIGHTGREY;
-      lcdColorTable[FOCUS_BGCOLOR_INDEX] = RED;
+      lcdColorTable[EDIT_MARKER_COLOR_INDEX] = __EDIT_MARKER_COLOR;
+      lcdColorTable[FIELD_BGCOLOR_INDEX] = WHITE;
+      lcdColorTable[FIELD_FRAME_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
+      lcdColorTable[FOCUS_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[FOCUS_COLOR_INDEX] = WHITE;
-      lcdColorTable[HEADER_COLOR_INDEX] = DARKRED;
-      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = RED;
-      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = RED;
-      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = YELLOW;
+      lcdColorTable[HEADER_COLOR_INDEX] = __BACKGROUND_COLOR;
+      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = __FOCUS_COLOR;
+      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
+      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = __ACTIVE_MARKER_COLOR;
       lcdColorTable[LINE_COLOR_INDEX] = GREY;
       lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
       lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
 
-      // this is what the status bar uses...
-      //lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;
+      lcdColorTable[MENU_BGCOLOR_INDEX] = WHITE;
+      lcdColorTable[MENU_COLOR_INDEX] = __BACKGROUND_COLOR; // Menu font color
 
-      // Menu font color
-      lcdColorTable[MENU_BGCOLOR_INDEX] = DARKRED;//DARKGREY;
-      lcdColorTable[MENU_COLOR_INDEX] = WHITE;
       // Selected item in menu
-      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = BLACK;
+      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[MENU_HIGHLIGHT_COLOR_INDEX] = WHITE;
+      lcdColorTable[MENU_LINE_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
 
-      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = RGB(GET_RED(RED)>>1, GET_GREEN(RED)>>1, GET_BLUE(RED)>>1);
+      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[OVERLAY_COLOR_INDEX] = BLACK;
-      lcdColorTable[SCROLLBAR_COLOR_INDEX] = RED;
+      lcdColorTable[SCROLLBAR_COLOR_INDEX] = __TEXT_COLOR;
       lcdColorTable[TEXT_DISABLE_COLOR_INDEX] = GREY;
       lcdColorTable[TEXT_STATUSBAR_COLOR_INDEX] = WHITE;
-      lcdColorTable[TITLE_BGCOLOR_INDEX] = RED;
-      lcdColorTable[TRIM_BGCOLOR_INDEX] = RED;
+      lcdColorTable[TITLE_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
+
+      lcdColorTable[TRIM_BGCOLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
     }
 
-    void loadMenuIcon(uint8_t index, const char * filename, uint32_t color=MENU_COLOR) const
+    void loadMenuIcon(uint8_t index, const uint8_t * lbm) const
     {
-      TRACE("loadMenuIcon %s", getFilePath(filename));
-      BitmapBuffer * mask = BitmapBuffer::loadMask(getFilePath(filename));
+      BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
       if (mask) {
         delete iconMask[index];
         iconMask[index] = mask;
@@ -91,15 +103,15 @@ class Theme480: public OpenTxTheme
         delete menuIconNormal[index];
         menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconNormal[index]) {
-          menuIconNormal[index]->clear(MENU_BGCOLOR);
-          menuIconNormal[index]->drawMask(0, 0, mask, color);
+          menuIconNormal[index]->clear(HEADER_ICON_BGCOLOR);
+          menuIconNormal[index]->drawMask(0, 0, mask, FOCUS_COLOR);
         }
 
         delete menuIconSelected[index];
         menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconSelected[index]) {
           menuIconSelected[index]->clear(HEADER_CURRENT_BGCOLOR);
-          menuIconSelected[index]->drawMask(0, 0, mask, color);
+          menuIconSelected[index]->drawMask(0, 0, mask, FOCUS_COLOR);
         }
       }
     }
@@ -107,76 +119,90 @@ class Theme480: public OpenTxTheme
     void loadIcons() const
     {
 #if defined(LOG_TELEMETRY) || !defined(WATCHDOG)
-      loadMenuIcon(ICON_OPENTX, "mask_opentx_testmode.png", DEFAULT_COLOR);
+      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode);
 #else
-      loadMenuIcon(ICON_OPENTX, "mask_edgetx.png");
+      loadMenuIcon(ICON_OPENTX, mask_edgetx);
 #endif
-#if defined(HARDWARE_TOUCH)
-      loadMenuIcon(ICON_NEXT, "mask_next.png");
-      loadMenuIcon(ICON_BACK, "mask_back.png");
+#if defined(HARDWARE_TOUCH) //TODO: get rid of, and use a real hitbox instead...
+      loadMenuIcon(ICON_NEXT, mask_next);
+      loadMenuIcon(ICON_BACK, mask_back);
 #endif
-      loadMenuIcon(ICON_RADIO, "mask_menu_radio.png");
-      loadMenuIcon(ICON_RADIO_SETUP, "mask_radio_setup.png");
-      loadMenuIcon(ICON_RADIO_SD_MANAGER, "mask_radio_sd_browser.png");
-      loadMenuIcon(ICON_RADIO_TOOLS, "mask_radio_tools.png");
-      loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, "/mask_radio_spectrum_analyser.png");
-      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, "mask_radio_global_functions.png");
-      loadMenuIcon(ICON_RADIO_TRAINER, "mask_radio_trainer.png");
-      loadMenuIcon(ICON_RADIO_HARDWARE, "mask_radio_hardware.png");
-      loadMenuIcon(ICON_RADIO_CALIBRATION, "mask_radio_calibration.png");
-      loadMenuIcon(ICON_RADIO_VERSION, "mask_radio_version.png");
-      loadMenuIcon(ICON_MODEL, "mask_menu_model.png");
-      loadMenuIcon(ICON_MODEL_SETUP, "mask_model_setup.png");
-      loadMenuIcon(ICON_MODEL_HELI, "mask_model_heli.png");
-      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, "mask_model_flight_modes.png");
-      loadMenuIcon(ICON_MODEL_INPUTS, "mask_model_inputs.png");
-      loadMenuIcon(ICON_MODEL_MIXER, "mask_model_mixer.png");
-      loadMenuIcon(ICON_MODEL_OUTPUTS, "mask_model_outputs.png");
-      loadMenuIcon(ICON_MODEL_CURVES, "mask_model_curves.png");
-      loadMenuIcon(ICON_MODEL_GVARS, "mask_model_gvars.png");
-      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, "mask_model_logical_switches.png");
-      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, "mask_model_special_functions.png");
-      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, "mask_model_lua_scripts.png");
-      loadMenuIcon(ICON_MODEL_TELEMETRY, "mask_model_telemetry.png");
-      loadMenuIcon(ICON_STATS, "mask_menu_stats.png");
-      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, "mask_stats_throttle_graph.png");
-      loadMenuIcon(ICON_STATS_TIMERS, "mask_stats_timers.png");
-      loadMenuIcon(ICON_STATS_ANALOGS, "mask_stats_analogs.png");
-      loadMenuIcon(ICON_STATS_DEBUG, "mask_stats_debug.png");
-      loadMenuIcon(ICON_THEME, "mask_menu_theme.png");
-      loadMenuIcon(ICON_THEME_SETUP, "mask_theme_setup.png");
-      loadMenuIcon(ICON_THEME_VIEW1, "mask_theme_view1.png");
-      loadMenuIcon(ICON_THEME_VIEW2, "mask_theme_view2.png");
-      loadMenuIcon(ICON_THEME_VIEW3, "mask_theme_view3.png");
-      loadMenuIcon(ICON_THEME_VIEW4, "mask_theme_view4.png");
-      loadMenuIcon(ICON_THEME_VIEW5, "mask_theme_view5.png");
-      loadMenuIcon(ICON_THEME_ADD_VIEW, "mask_theme_add_view.png");
-      loadMenuIcon(ICON_MONITOR, "mask_monitor.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS1, "mask_monitor_channels1.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS2, "mask_monitor_channels2.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS3, "mask_monitor_channels3.png");
-      loadMenuIcon(ICON_MONITOR_CHANNELS4, "mask_monitor_channels4.png");
-      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, "mask_monitor_logsw.png");
+      loadMenuIcon(ICON_RADIO, mask_menu_radio);
+      loadMenuIcon(ICON_RADIO_SETUP, mask_radio_setup);
+      loadMenuIcon(ICON_RADIO_SD_MANAGER, mask_radio_sd_browser);
+      loadMenuIcon(ICON_RADIO_TOOLS, mask_radio_tools);
+      //loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, mask_radio_spectrum_analyser);
+      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions);
+      loadMenuIcon(ICON_RADIO_TRAINER, mask_radio_trainer);
+      loadMenuIcon(ICON_RADIO_HARDWARE, mask_radio_hardware);
+      loadMenuIcon(ICON_RADIO_CALIBRATION, mask_radio_calibration);
+      loadMenuIcon(ICON_RADIO_VERSION, mask_radio_version);
+      loadMenuIcon(ICON_MODEL, mask_menu_model);
+      loadMenuIcon(ICON_MODEL_SETUP, mask_model_setup);
+      loadMenuIcon(ICON_MODEL_HELI, mask_model_heli);
+      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes);
+      loadMenuIcon(ICON_MODEL_INPUTS, mask_model_inputs);
+      loadMenuIcon(ICON_MODEL_MIXER, mask_model_mixer);
+      loadMenuIcon(ICON_MODEL_OUTPUTS, mask_model_outputs);
+      loadMenuIcon(ICON_MODEL_CURVES, mask_model_curves);
+      loadMenuIcon(ICON_MODEL_GVARS, mask_model_gvars);
+      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, mask_model_logical_switches);
+      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions);
+      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts);
+      loadMenuIcon(ICON_MODEL_TELEMETRY, mask_model_telemetry);
+      loadMenuIcon(ICON_STATS, mask_menu_stats);
+      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph);
+      loadMenuIcon(ICON_STATS_TIMERS, mask_stats_timers);
+      loadMenuIcon(ICON_STATS_ANALOGS, mask_stats_analogs);
+      loadMenuIcon(ICON_STATS_DEBUG, mask_stats_debug);
+      loadMenuIcon(ICON_THEME, mask_menu_theme);
+      loadMenuIcon(ICON_THEME_SETUP, mask_theme_setup);
+      loadMenuIcon(ICON_THEME_VIEW1, mask_theme_view1);
+      loadMenuIcon(ICON_THEME_VIEW2, mask_theme_view2);
+      loadMenuIcon(ICON_THEME_VIEW3, mask_theme_view3);
+      loadMenuIcon(ICON_THEME_VIEW4, mask_theme_view4);
+      loadMenuIcon(ICON_THEME_VIEW5, mask_theme_view5);
+      loadMenuIcon(ICON_THEME_ADD_VIEW, mask_theme_add_view);
+      loadMenuIcon(ICON_MONITOR, mask_monitor);
+      loadMenuIcon(ICON_MONITOR_CHANNELS1, mask_monitor_channels1);
+      loadMenuIcon(ICON_MONITOR_CHANNELS2, mask_monitor_channels2);
+      loadMenuIcon(ICON_MONITOR_CHANNELS3, mask_monitor_channels3);
+      loadMenuIcon(ICON_MONITOR_CHANNELS4, mask_monitor_channels4);
+      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw);
 
-      BitmapBuffer * background = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_bg.png"));
-      BitmapBuffer * shadow = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_shadow.png"));
-      BitmapBuffer * dot = BitmapBuffer::loadMask(getFilePath("mask_currentmenu_dot.png"));
+      BitmapBuffer * background = BitmapBuffer::load8bitMask(mask_currentmenu_bg);
+      BitmapBuffer * shadow = BitmapBuffer::load8bitMask(mask_currentmenu_shadow);
+      BitmapBuffer * dot = BitmapBuffer::load8bitMask(mask_currentmenu_dot);
 
       if (!currentMenuBackground) {
         currentMenuBackground = new BitmapBuffer(BMP_RGB565, 36, 53);
       }
 
       if (currentMenuBackground) {
-        currentMenuBackground->drawSolidFilledRect(0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT, MENU_BGCOLOR);
-        currentMenuBackground->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, currentMenuBackground->width(), MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR);
-        currentMenuBackground->drawSolidFilledRect(0, MENU_TITLE_TOP, currentMenuBackground->width(), currentMenuBackground->height() - MENU_TITLE_TOP, TITLE_BGCOLOR);
-        currentMenuBackground->drawMask(0, 0, background, HEADER_CURRENT_BGCOLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
+            HEADER_COLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
+            MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR);
+
+        currentMenuBackground->drawSolidFilledRect(
+            0, MENU_TITLE_TOP, currentMenuBackground->width(),
+            currentMenuBackground->height() - MENU_TITLE_TOP, TITLE_BGCOLOR);
+
+        currentMenuBackground->drawMask(0, 0, background,
+                                        HEADER_CURRENT_BGCOLOR);
+
         currentMenuBackground->drawMask(0, 0, shadow, TRIM_SHADOW_COLOR);
-        currentMenuBackground->drawMask(10, 39, dot, MENU_COLOR);
+
+        currentMenuBackground->drawMask(10, 39, dot, FOCUS_COLOR);
       }
 
       delete topleftBitmap;
-      topleftBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("topleft.png"), TITLE_BGCOLOR, HEADER_COLOR);
+      topleftBitmap = BitmapBuffer::load8bitMaskOnBackground(
+          mask_topleft, HEADER_CURRENT_BGCOLOR, HEADER_COLOR);
 
       delete background;
       delete shadow;
@@ -187,90 +213,85 @@ class Theme480: public OpenTxTheme
     {
       // Calibration screen
       delete calibStick;
-      calibStick = BitmapBuffer::loadBitmap(getFilePath("stick_pointer.png"));
+      calibStick =
+          BitmapBuffer::loadRamBitmap(stick_pointer, sizeof(stick_pointer));
 
       delete calibStickBackground;
-      calibStickBackground = BitmapBuffer::loadBitmap(getFilePath("stick_background.png"));
+      calibStickBackground = BitmapBuffer::loadRamBitmap(
+          stick_background, sizeof(stick_background));
 
       delete calibTrackpBackground;
-      calibTrackpBackground = BitmapBuffer::loadBitmap(getFilePath("trackp_background.png"));
-
-      delete calibRadioPict;
-#if defined(PCBX10)
-      if(STICKS_PWM_ENABLED()) {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10S.bmp"));
-      }
-      else {
-        calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("X10.bmp"));
-      }
-#else
-      calibRadioPict = BitmapBuffer::loadBitmap(getFilePath("horus.bmp"));
-#endif
+      calibTrackpBackground = BitmapBuffer::loadRamBitmap(
+          trackp_background, sizeof(trackp_background));
 
       // Model Selection screen
-      delete modelselIconBitmap;
-      modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
-      if (modelselIconBitmap) {
-        BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
-        modelselIconBitmap->drawBitmap(20, 8, bitmap);
-        delete bitmap;
-      }
+
+      // Unused:
+      //
+      // delete modelselIconBitmap;
+      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
+      // if (modelselIconBitmap) {
+      //   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
+      //   modelselIconBitmap->drawBitmap(20, 8, bitmap);
+      //   delete bitmap;
+      // }
 
       delete modelselSdFreeBitmap;
-      modelselSdFreeBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_sdfree.png"));
+      modelselSdFreeBitmap = BitmapBuffer::load8bitMask(mask_sdfree);
 
       delete modelselModelQtyBitmap;
-      modelselModelQtyBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelqty.png"));
+      modelselModelQtyBitmap = BitmapBuffer::load8bitMask(mask_modelqty);
 
       delete modelselModelNameBitmap;
-      modelselModelNameBitmap = BitmapBuffer::loadMask(getFilePath("modelsel/mask_modelname.png"));
+      modelselModelNameBitmap = BitmapBuffer::load8bitMask(mask_modelname);
 
       delete modelselModelMoveBackground;
-      modelselModelMoveBackground = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveback.png"));
+      modelselModelMoveBackground = BitmapBuffer::load8bitMask(mask_moveback);
 
       delete modelselModelMoveIcon;
-      modelselModelMoveIcon = BitmapBuffer::loadMask(getFilePath("modelsel/mask_moveico.png"));
+      modelselModelMoveIcon = BitmapBuffer::load8bitMask(mask_moveico);
 
+      //TODO: should be loaded from LUA, not here!!!
       delete modelselWizardBackground;
       modelselWizardBackground = BitmapBuffer::loadBitmap(getFilePath("wizard/background.png"));
 
       // Channels monitor screen
       delete chanMonLockedBitmap;
-      chanMonLockedBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_monitor_lockch.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      chanMonLockedBitmap = BitmapBuffer::load8bitMask(mask_monitor_lockch);
 
       delete chanMonInvertedBitmap;
-      chanMonInvertedBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_monitor_inver.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      chanMonInvertedBitmap = BitmapBuffer::load8bitMask(mask_monitor_inver);
 
       // Mixer setup screen
       delete mixerSetupMixerBitmap;
-      mixerSetupMixerBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_mixer.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupMixerBitmap = BitmapBuffer::load8bitMask(mask_sbar_mixer);
 
       delete mixerSetupToBitmap;
-      mixerSetupToBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_to.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupToBitmap = BitmapBuffer::load8bitMask(mask_sbar_to);
 
       delete mixerSetupOutputBitmap;
-      mixerSetupOutputBitmap = BitmapBuffer::loadMaskOnBackground("mask_sbar_output.png", MENU_COLOR, MENU_BGCOLOR);
+      mixerSetupOutputBitmap = BitmapBuffer::load8bitMask(mask_sbar_output);
 
       delete mixerSetupAddBitmap;
-      mixerSetupAddBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_add.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupAddBitmap = BitmapBuffer::load8bitMask(mask_mplex_add);
 
       delete mixerSetupMultiBitmap;
-      mixerSetupMultiBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_multi.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupMultiBitmap = BitmapBuffer::load8bitMask(mask_mplex_multi);
 
       delete mixerSetupReplaceBitmap;
-      mixerSetupReplaceBitmap = BitmapBuffer::loadMaskOnBackground(getFilePath("mask_mplex_replace.png"), DEFAULT_COLOR, DEFAULT_BGCOLOR);
+      mixerSetupReplaceBitmap = BitmapBuffer::load8bitMask(mask_mplex_replace);
 
       delete mixerSetupLabelIcon;
-      mixerSetupLabelIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_label.png"));
+      mixerSetupLabelIcon = BitmapBuffer::load8bitMask(mask_textline_label);
 
       delete mixerSetupCurveIcon;
-      mixerSetupCurveIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_curve.png"));
+      mixerSetupCurveIcon = BitmapBuffer::load8bitMask(mask_textline_curve);
 
       delete mixerSetupSwitchIcon;
-      mixerSetupSwitchIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_switch.png"));
+      mixerSetupSwitchIcon = BitmapBuffer::load8bitMask(mask_textline_switch);
 
       delete mixerSetupFlightmodeIcon;
-      mixerSetupFlightmodeIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_fm.png"));
+      mixerSetupFlightmodeIcon = BitmapBuffer::load8bitMask(mask_textline_fm);
 
 //      delete mixerSetupSlowIcon;
 //      mixerSetupSlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_slow.png"));
@@ -325,8 +346,8 @@ class Theme480: public OpenTxTheme
         dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), backgroundBitmap);
       }
       else {
-        lcdSetColor(g_eeGeneral.themeData.options[0].value.unsignedValue);
-        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, CUSTOM_COLOR);
+        dc->drawSolidFilledRect(0 - dc->getOffsetX(), 0 - dc->getOffsetY(),
+                                LCD_W, LCD_H, DEFAULT_BGCOLOR);
       }
     }
 
@@ -338,7 +359,8 @@ class Theme480: public OpenTxTheme
       }
     }
 
-    void drawMenuBackground(BitmapBuffer * dc, uint8_t icon, const char * title) const override
+    void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
+                                  const char *title) const override
     {
       if (topleftBitmap) {
         dc->drawBitmap(0, 0, topleftBitmap);
@@ -354,10 +376,14 @@ class Theme480: public OpenTxTheme
       else
         dc->drawBitmap(5, 7, menuIconSelected[icon]);
 
-      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W, MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR); // the white separation line
-      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT, TITLE_BGCOLOR); // the title line background
+      dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
+                              MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
+                              DEFAULT_BGCOLOR);  // the white separation line
+
+      dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
+                              TITLE_BGCOLOR);  // the title line background
       if (title) {
-        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, MENU_COLOR);
+        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, FOCUS_COLOR);
       }
 
       drawMenuDatetime(dc);
@@ -373,20 +399,24 @@ class Theme480: public OpenTxTheme
       return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
     }
 
-    void drawMenuHeader(BitmapBuffer * dc, std::vector<PageTab *> & tabs, uint8_t currentIndex) const override
+    void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
+                        uint8_t currentIndex) const override
     {
       for (unsigned index = 0; index < tabs.size(); index++) {
         if (index != currentIndex) {
-          dc->drawBitmap(index*MENU_HEADER_BUTTON_WIDTH + 2, 7, menuIconNormal[tabs[index]->getIcon()]);
+          dc->drawBitmap(index * MENU_HEADER_BUTTON_WIDTH + 2, 7,
+                         menuIconNormal[tabs[index]->getIcon()]);
         }
       }
-      dc->drawBitmap(currentIndex*MENU_HEADER_BUTTON_WIDTH, 0, currentMenuBackground);
-      dc->drawBitmap(currentIndex*MENU_HEADER_BUTTON_WIDTH + 2, 7, menuIconSelected[tabs[currentIndex]->getIcon()]);
+      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH, 0,
+                     currentMenuBackground);
+      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH + 2, 7,
+                     menuIconSelected[tabs[currentIndex]->getIcon()]);
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const
     {
-      dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, FOCUS_COLOR);
+      //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, FOCUS_COLOR);
 
       struct gtm t;
       gettime(&t);
@@ -402,11 +432,12 @@ class Theme480: public OpenTxTheme
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|FOCUS_COLOR|CENTERED);
     }
 
-    void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h, int value) const override
+    void drawProgressBar(BitmapBuffer *dc, coord_t x, coord_t y, coord_t w,
+                         coord_t h, int value, int total) const override
     {
       dc->drawSolidRect(x, y, w, h, 1, DEFAULT_COLOR);
       if (value > 0) {
-        int width = (w * value) / 100;
+        int width = (w * value) / total;
         dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, CHECKBOX_COLOR);
       }
     }

@@ -527,7 +527,7 @@ void OpenTxSim::refreshDisplay()
             setPixel(x, y, FXRGB(255, 255, 255));
           }
           else {
-            FXColor color = FXRGB(255*((z&0xF800)>>11)/0x1f, 255*((z&0x07E0)>>5)/0x3F, 255*(z&0x001F)/0x01F);
+            FXColor color = FXRGB(((z & 0xF800) >> 8) + ((z & 0xE000) >> 13), ((z & 0x07E0) >> 3) + ((z & 0x0600) >> 9), (((z & 0x001F) << 3) & 0x00F8) + ((z & 0x001C) >> 2));
             setPixel(x, y, color);
           }
     	}

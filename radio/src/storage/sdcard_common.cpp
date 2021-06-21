@@ -145,6 +145,10 @@ void storageReadAll()
 {
   TRACE("storageReadAll");
 
+  // Wipe models list in case
+  // it's being reloaded after USB connection
+  modelslist.clear();
+
   if (loadRadioSettings() != nullptr) {
     storageEraseAll(true);
   }
@@ -155,6 +159,9 @@ void storageReadAll()
       currentLanguagePack = languagePacks[i];
     }
   }
+
+  // and reload the list
+  modelslist.load();
 
   // Current model filename is empty...
   // Let's fix it!
@@ -172,12 +179,5 @@ void storageReadAll()
   if (loadModel(g_eeGeneral.currModelFilename, false) != nullptr) {
     TRACE("No current model or SD card error");
   }
-
-  // Wipe models list in case
-  // it's being reloaded after USB connection
-  modelslist.clear();
-
-  // and reload the list
-  modelslist.load();
 }
 

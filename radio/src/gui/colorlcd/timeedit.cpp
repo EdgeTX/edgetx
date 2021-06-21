@@ -36,11 +36,13 @@ void TimeEdit::paint(BitmapBuffer * dc)
   if (editMode)
     textColor = FOCUS_COLOR;
   else if (hasFocus())
-    textColor = FOCUS_BGCOLOR;
+    textColor = FOCUS_COLOR;
   else
     textColor = DEFAULT_COLOR;
 
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getTimerString(getValue(), (textFlags & TIMEHOUR) != 0), textColor);
+  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+               getTimerString(getValue(), (textFlags & TIMEHOUR) != 0),
+               textColor);
 }
 
 #if defined(HARDWARE_KEYS)

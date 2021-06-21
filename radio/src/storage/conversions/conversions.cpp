@@ -21,16 +21,100 @@
 #include "opentx.h"
 #include "conversions.h"
 
+#if defined(COLORLCD)
+#include "storage/modelslist.h"
+#include "storage/sdcard_common.h"
+
+static void drawProgressScreen(const char* filename, int progress, int total)
+{
+  OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
+
+  lcd->reset();
+  l_theme->drawBackground(lcd);
+  lcd->drawText(LCD_W/2, LCD_H/2 - 30, STR_CONVERTING, FONT(XL) | CENTERED | ALARM_COLOR);
+  lcd->drawText(LCD_W/2, LCD_H/2, filename, FONT(STD) | CENTERED | DEFAULT_COLOR);
+
+  l_theme->drawProgressBar(lcd,
+                           LCD_W / 4,
+                           LCD_H / 2 + 40,
+                           LCD_W / 2,
+                           20,
+                           progress, total);
+
+  WDG_RESET();
+  lcdRefresh();
+}
+
 void convertRadioData(int version)
 {
   TRACE("convertRadioData(%d)", version);
 
+  // the theme has not been loaded before
+  static_cast<OpenTxTheme*>(theme)->load();
+
+  // Init backlight mode before entering alert screens
+  requiredBacklightBright = BACKLIGHT_FORCED_ON;
+  g_eeGeneral.blOffBright = 20;
+
+  RAISE_ALERT(STR_STORAGE_WARNING, STR_SDCARD_CONVERSION_REQUIRE, NULL,
+              AU_NONE);
+
+  // Load models list before converting
+  modelslist.load();
+
+  unsigned converted = 0;
+  auto to_convert = modelslist.getModelsCount() + 1;
+
+  drawProgressScreen(RADIO_FILENAME, converted, to_convert);
+  TRACE("converting '%s' (%d/%d)", RADIO_FILENAME, converted, to_convert);
+
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     convertRadioData_219_to_220(g_eeGeneral);
+    storageDirty(EE_GENERAL);
+    storageCheck(true);
   }
 #endif
+  converted++;
+
+#if defined(SIMU)
+  RTOS_WAIT_MS(200);
+#endif
+
+  const char* error = nullptr;
+  for (auto category_ptr : modelslist.getCategories()) {
+    for (auto model_ptr : *category_ptr) {
+
+      uint8_t model_version;
+      const char* filename = model_ptr->modelFilename;
+
+      TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
+      drawProgressScreen(filename, converted, to_convert);
+
+      error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
+      if (!error) {
+
+        convertModelData(model_version);
+
+        char path[256];
+        getModelPath(path, filename);
+        error = writeFile(path, (uint8_t *)&g_model, sizeof(g_model));
+        //TODO: what should be done with this error?
+      }
+
+      converted++;
+
+#if defined(SIMU)
+  RTOS_WAIT_MS(200);
+#endif
+    }
+  }
+
+  // reload models list
+  modelslist.clear();
+  modelslist.load();
 }
+#endif
 
 void convertModelData(int version)
 {

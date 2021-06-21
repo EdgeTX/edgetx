@@ -6,11 +6,16 @@ on:
     - '2.4'
     paths-ignore:
     - '**.md'
+    - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     branches:
     - '2.4'
     paths-ignore:
     - '**.md'
+    - '.github/ISSUE_TEMPLATE/**'
+  create:
+    tags:
+      - v*
 
 jobs:
   test:
@@ -29,6 +34,7 @@ jobs:
           - X10
           - X12S
           - X7
+          - X9D
           - X9DP
           - X9DP2019
           - X9LITE

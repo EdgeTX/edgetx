@@ -634,14 +634,6 @@ void doSplash()
       }
 #endif
 
-#if defined(FRSKY_RELEASE) && !defined(COLORLCD)
-      static uint8_t secondSplash = false;
-      if (!secondSplash && get_tmr10ms() >= tgtime-200) {
-        secondSplash = true;
-        drawSecondSplash();
-      }
-#endif
-
 #if defined(PCBSKY9X)
       if (curTime < get_tmr10ms()) {
         curTime += 10;
@@ -1103,6 +1095,10 @@ void getADC()
   }
 #endif
 
+  DEBUG_TIMER_START(debugTimerAdcRead);
+  adcRead();
+  DEBUG_TIMER_STOP(debugTimerAdcRead);
+
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint16_t v;
 
@@ -1526,7 +1522,10 @@ void opentxClose(uint8_t shutdown)
 
   //TODO: In fact we want only to empty the trash (private method)
   MainWindow::instance()->run();
+
+  luaUnregisterWidgets();
   luaClose(&lsWidgets);
+  lsWidgets = 0;
 #endif
 
 #if defined(SDCARD)
@@ -1540,6 +1539,11 @@ void opentxResume()
   TRACE("opentxResume");
 
   sdMount();
+#if defined(COLORLCD)
+  // reload widgets
+  luaInitThemesAndWidgets();
+#endif
+
   storageReadAll();
 
 #if defined(COLORLCD)
@@ -2074,15 +2078,15 @@ uint32_t pwrCheck()
 
           POPUP_CONFIRMATION(STR_MODEL_SHUTDOWN, nullptr);
 
-#if defined(SHUTDOWN_CONFIRMATION)
-          if (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) {
-            SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
+          const char* msg = STR_MODEL_STILL_POWERED;
+          uint8_t msg_len = sizeof(TR_MODEL_STILL_POWERED);
+          if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+            msg = STR_USB_STILL_CONNECTED;
+            msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-#else
-          SET_WARNING_INFO(STR_MODEL_STILL_POWERED, sizeof(TR_MODEL_STILL_POWERED), 0);
-#endif
-
+          
           event_t evt = getEvent(false);
+          SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
           LED_ERROR_BEGIN();
 
