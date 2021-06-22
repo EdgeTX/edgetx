@@ -115,6 +115,7 @@ static void luaHook(lua_State * L, lua_Debug *ar)
       lua_yield(lsScripts, 0);
     }
   }
+  
 #if defined(LUA_ALLOCATOR_TRACER)
   else if (ar->event == LUA_HOOKLINE) {
     lua_getinfo(L, "nSl", ar);
@@ -134,16 +135,6 @@ void luaEmptyEventBuffer()
 {
   events[0] = 0;
   events[1] = 0;
-}
-
-void luaSetInstructionsLimit(lua_State * L, int count)
-{
-  instructionsPercent = 0;
-#if defined(LUA_ALLOCATOR_TRACER)
-  lua_sethook(L, luaHook, LUA_MASKCOUNT|LUA_MASKLINE, count);
-#else
-  lua_sethook(L, luaHook, LUA_MASKCOUNT, count);
-#endif
 }
 
 int luaGetInputs(lua_State * L2, ScriptInputsOutputs & sid)
@@ -370,7 +361,7 @@ static void luaDumpState(lua_State * L, const char * filename, const FILINFO * f
       TRACE("luaDumpState(%s): Saved bytecode to file.", filename);
     }
   } else
-    TRACE_ERROR("luaDumpState(%s): Error: Could not open output file.", filename);
+    TRACE_ERROR("luaDumpState(%s): Error: Could not open output file\n", filename);
 }
 #endif  // LUA_COMPILER
 
@@ -685,18 +676,46 @@ void displayLuaError(const char * title)
 #if !defined(COLORLCD)
   drawMessageBox(title);
 #endif
+
   if (lua_warning_info[0]) {
-    char * split = strstr(lua_warning_info, ": ");
+    char *split = strstr(lua_warning_info, ": ");
+#if !defined(COLORLCD)
     if (split) {
-      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y+FH+3, lua_warning_info, split-lua_warning_info, SMLSIZE);
-      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, split+2, lua_warning_info+LUA_WARNING_INFO_LEN-split, SMLSIZE);
+#if LCD_W == 128
+      if (strlen(split + 2) <= 20) {
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+                         lua_warning_info, split - lua_warning_info, SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2,
+                         strlen(split + 2), SMLSIZE);
+      } else {
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH, lua_warning_info,
+                         split - lua_warning_info, SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH, split + 2, 20,
+                         SMLSIZE);
+        lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 3 * FH, split + 22,
+                         strlen(split + 22), SMLSIZE);
+      }
+#else
+      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+                       lua_warning_info, split - lua_warning_info, SMLSIZE);
+      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + 2 * FH + 2, split + 2,
+                       lua_warning_info + LUA_WARNING_INFO_LEN - split,
+                       SMLSIZE);
+#endif
+    } else {
+      // TODO lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + FH + 3,
+      // lua_warning_info, 40, SMLSIZE);
     }
-    else {
-      lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y+FH+3, lua_warning_info, 40, SMLSIZE);
-    }
+#else
+    // Split line...
+    //if (split) { *(split+1) = '\n'; }
+    (void)split; // mark as unused
+    POPUP_WARNING(title, lua_warning_info);
+#endif
   }
 }
 
+#if !defined(COLORLCD)
 void displayAcknowledgeLuaError(event_t event)
 {
   warningResult = false;
@@ -705,6 +724,8 @@ void displayAcknowledgeLuaError(event_t event)
     warningText = nullptr;
   }
 }
+#endif
+
 void luaError(lua_State * L, uint8_t error, bool acknowledge)
 {
   const char * errorTitle;
@@ -720,22 +741,32 @@ void luaError(lua_State * L, uint8_t error, bool acknowledge)
       errorTitle = STR_SCRIPT_ERROR;
       break;
   }
+
   const char * msg = lua_tostring(L, -1);
   if (msg) {
 #if defined(SIMU)
     if (!strncmp(msg, ".", 2)) msg += 1;
 #endif
+#if LCD_W == 128
+      msg = strrchr(msg, '/') + 1;
+#else
     if (!strncmp(msg, "/SCRIPTS/", 9)) msg += 9;
+#endif
     strncpy(lua_warning_info, msg, LUA_WARNING_INFO_LEN);
     lua_warning_info[LUA_WARNING_INFO_LEN] = '\0';
   }
   else {
     lua_warning_info[0] = '\0';
   }
+
   if (acknowledge) {
+#if !defined(COLORLCD)      
     warningText = errorTitle;
     warningType = WARNING_TYPE_INFO;
     popupFunc = displayAcknowledgeLuaError;
+#else
+    displayLuaError(errorTitle);
+#endif
   }
   else {
     displayLuaError(errorTitle);
@@ -881,7 +912,10 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
         if (initFunction != LUA_NOREF)
           TRACE_ERROR("luaLoadScripts(%s): init function: %s\n", getScriptName(idx), lua_tostring(lsScripts, -1));
-        else
+          luaL_unref(lsScripts, LUA_REGISTRYINDEX, initFunction);
+          lua_settop(lsScripts, 0);
+          initFunction = LUA_NOREF;
+        } else
           TRACE_ERROR("luaLoadScripts(%s): %s\n", getScriptName(idx), lua_tostring(lsScripts, -1));
 
         if (ref == SCRIPT_STANDALONE) {
@@ -889,11 +923,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           return;
         }
-
-        if (initFunction != LUA_NOREF) {
-          luaL_unref(lsScripts, LUA_REGISTRYINDEX, initFunction);
-          initFunction = LUA_NOREF;
-        }
+        
         // Replace the dead coroutine with a new one
         lua_pop(L, 1);  // Pop the dead coroutine off the main stack
         lsScripts = lua_newthread(L);  // Push the new coroutine
