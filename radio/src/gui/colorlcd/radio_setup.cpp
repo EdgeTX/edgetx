@@ -356,6 +356,13 @@ void RadioSetupPage::build(FormWindow * window)
     new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_SET_DEFAULT(g_eeGeneral.blOffBright));
     grid.nextLine();
 
+#if defined(KEYS_BACKLIGHT_GPIO)
+    // Keys backlight
+    new StaticText(window, grid.getLabelSlot(true), STR_KEYS_BACKLIGHT);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+    grid.nextLine();
+#endif
+
     // Flash beep
     new StaticText(window, grid.getLabelSlot(true), STR_ALARM);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
