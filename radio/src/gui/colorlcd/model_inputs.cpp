@@ -403,6 +403,10 @@ class InputLineButton : public CommonInputOrMixButton
 ModelInputsPage::ModelInputsPage():
   PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
 {
+  setOnSetVisibleHandler([]() {
+    // reset clipboard
+    s_copyMode = 0;
+  });
 }
 
 void ModelInputsPage::rebuild(FormWindow * window, int8_t focusIndex)

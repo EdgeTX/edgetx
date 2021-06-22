@@ -312,6 +312,10 @@ void insertMix(uint8_t idx, uint8_t channel)
 ModelMixesPage::ModelMixesPage() :
   PageTab(STR_MIXES, ICON_MODEL_MIXER)
 {
+  setOnSetVisibleHandler([]() {
+    // reset clipboard
+    s_copyMode = 0;
+  });
 }
 
 void ModelMixesPage::rebuild(FormWindow * window, int8_t focusMixIndex)
