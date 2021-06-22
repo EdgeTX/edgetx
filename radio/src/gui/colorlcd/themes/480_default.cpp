@@ -460,7 +460,7 @@ BitmapBuffer * Theme480::currentMenuBackground = nullptr;
 
 Theme480 Theme480;
 
-#if LCD_W == 480
+#if LCD_W == 480  || LCD_H == 480
 OpenTxTheme * defaultTheme = &Theme480;
 Theme * theme = &Theme480;
 #endif
