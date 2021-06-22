@@ -159,11 +159,7 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
 void auxSerialPutc(char c)
 {
 #if !defined(SIMU)
-  int n = 0;
-  while (auxSerialTxFifo.isFull()) {
-    delay_ms(1);
-    if (++n > 100) return;
-  }
+  if (auxSerialTxFifo.isFull()) return;
   auxSerialTxFifo.push(c);
   USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, ENABLE);
 #endif
@@ -357,11 +353,7 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
 void aux2SerialPutc(char c)
 {
 #if !defined(SIMU)
-  int n = 0;
-  while (aux2SerialTxFifo.isFull()) {
-    delay_ms(1);
-    if (++n > 100) return;
-  }
+  if (aux2SerialTxFifo.isFull()) return;
   aux2SerialTxFifo.push(c);
   USART_ITConfig(AUX2_SERIAL_USART, USART_IT_TXE, ENABLE);
 #endif
