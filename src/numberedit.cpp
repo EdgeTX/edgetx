@@ -103,6 +103,9 @@ void NumberEdit::onEvent(event_t event)
       }
 #endif
 
+      case EVT_KEY_FIRST(KEY_EXIT):
+        return;
+
 #if defined(HARDWARE_TOUCH)
       case EVT_VIRTUAL_KEY_PLUS:
         setValue(getValue() + getStep());

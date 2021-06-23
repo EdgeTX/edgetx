@@ -45,7 +45,8 @@ void Slider::onEvent(event_t event)
       setValue(getValue() - ROTARY_ENCODER_SPEED());
       onKeyPress();
       return;
-    }
+    } else if (event == EVT_KEY_FIRST(KEY_EXIT))
+      return;
   }
 
   FormField::onEvent(event);
