@@ -384,10 +384,23 @@ class SpecialFunctionEditPage : public Page
     });
     grid.nextLine();
 
+    // Patch function in case not available
+    if (!isAssignableFunctionAvailable(CFN_FUNC(cfn), functions)) {
+      auto func = 0;
+      while(!isAssignableFunctionAvailable(func, functions)
+            && (func < FUNC_MAX - 1)) {
+        func++;
+      }
+      if (func < FUNC_MAX - 1) {
+        CFN_FUNC(cfn) = func;
+      }
+    }
+    
     // Function
     new StaticText(window, grid.getLabelSlot(), STR_FUNC);
     auto functionChoice =
-        new Choice(window, grid.getFieldSlot(), STR_VFSWFUNC, 0, FUNC_MAX - 1,
+        new Choice(window, grid.getFieldSlot(), STR_VFSWFUNC,
+                   0, FUNC_MAX - 1,
                    GET_DEFAULT(CFN_FUNC(cfn)));
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
