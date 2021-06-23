@@ -1148,63 +1148,6 @@
 // About screen
 #define TR_ABOUTUS             "Om Oss"
 
-#define TR_ABOUT_OPENTX_1      "OpenTX är icke-kommersiell,"
-#define TR_ABOUT_OPENTX_2      "öppen programvara utan"
-#define TR_ABOUT_OPENTX_3      "garantier som uvecklas helt"
-#define TR_ABOUT_OPENTX_4      "ideellt. Stöd i form av"
-#define TR_ABOUT_OPENTX_5      "donationer välkomnas!"
-
-#define TR_ABOUT_BERTRAND_1    "Bertrand Songis"
-#define TR_ABOUT_BERTRAND_2    "Chefsutvecklare av OpenTX"
-#define TR_ABOUT_BERTRAND_3    "Hjälputvecklare av Companion"
-
-#define TR_ABOUT_MIKE_1        "Mike Blandford"
-#define TR_ABOUT_MIKE_2        "Kod och drivrutins-guru"
-#define TR_ABOUT_MIKE_3        "Stor inspirationskälla"
-#define TR_ABOUT_MIKE_4        ""
-
-#define TR_ABOUT_ROMOLO_1      "Romolo Manfredini"
-#define TR_ABOUT_ROMOLO_2      "Chefsutvecklare av Companion"
-#define TR_ABOUT_ROMOLO_3      ""
-
-#define TR_ABOUT_ANDRE_1       "Andre Bernet"
-#define TR_ABOUT_ANDRE_2       "Funktionalitet, Användbarhet,"
-#define TR_ABOUT_ANDRE_3       "Felsökning, Dokumentation"
-
-#define TR_ABOUT_ROB_1         "Rob Thomson"
-#define TR_ABOUT_ROB_2         "Webmaster för openRCforums"
-
-#define TR_ABOUT_KJELL_1       "Kjell Kernen"
-#define TR_ABOUT_KJELL_2       "Utvecklare av www.open-tx.org"
-#define TR_ABOUT_KJELL_3       "Utvecklare av OpenTX Recorder"
-#define TR_ABOUT_KJELL_4       "Hjälputvecklare av Companion"
-
-#define TR_ABOUT_MARTIN_1      "Martin Hotar"
-#define TR_ABOUT_MARTIN_2      "Grafikdesigner"
-
-#if defined(MANUFACTURER_FRSKY)
-  #define TR_ABOUT_HARDWARE_1  "FrSky"
-  #define TR_ABOUT_HARDWARE_2  "Hårdvarudesign/producent"
-  #define TR_ABOUT_HARDWARE_3  ""
-#elif defined(MANUFACTURER_RADIOMASTER)
-  #define TR_ABOUT_HARDWARE_1  "Radiomaster"
-  #define TR_ABOUT_HARDWARE_2  "Hårdvarudesign/producent"
-  #define TR_ABOUT_HARDWARE_3  ""
-#elif defined(MANUFACTURER_JUMPER)
-  #define TR_ABOUT_HARDWARE_1  "JumperRC"
-  #define TR_ABOUT_HARDWARE_2  "Hårdvarudesign/producent"
-  #define TR_ABOUT_HARDWARE_3  ""
-#else
-  #define TR_ABOUT_HARDWARE_1  "Brent Nelson"
-  #define TR_ABOUT_HARDWARE_2  "Sky9x design/producent"
-  #define TR_ABOUT_HARDWARE_3  ""
-#endif
-
-#define TR_ABOUT_PARENTS_1     "Ursprungsprojekt"
-#define TR_ABOUT_PARENTS_2     "ersky9x (Mike Blandford)"
-#define TR_ABOUT_PARENTS_3     "ER9X (Erez Raviv)"
-#define TR_ABOUT_PARENTS_4     "TH9X (Thomas Husterer)"
-
 #define TR_CHR_SHORT           's'
 #define TR_CHR_LONG            'l'
 #define TR_CHR_TOGGLE          't'

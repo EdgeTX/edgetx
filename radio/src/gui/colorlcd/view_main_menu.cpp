@@ -26,6 +26,7 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
+#include "view_about.h"
 #include "view_channels.h"
 #include "view_statistics.h"
 #include "select_fab_carousel.h"
@@ -101,7 +102,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
 
   carousel->addButton(ICON_OPENTX, "About\nEdgeTX", [=]() -> uint8_t {
     deleteLater();
-    //TODO: new AboutUs();
+    new AboutUs();
     return 0;
   });
 
