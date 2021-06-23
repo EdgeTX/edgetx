@@ -156,17 +156,22 @@ void StandaloneLuaWindow::runLua(event_t evt)
   luaLcdBuffer = &lcdBuffer;
 
   TRACE("evt = 0x%x", evt);
+
+  bool hasRun = luaTask(evt, true);
   
-  bool hasRun = luaTask(evt, RUN_STNDAL_SCRIPT, true);
+  if (luaState == INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
+    // Script does not run anymore...
+    TRACE("LUA standalone script exited: deleting window!");
+    deleteLater();
+  }
+  
   if (hasRun) {
 #if defined(DEBUG_WINDOWS)
     TRACE("# StandaloneLuaWindow::invalidate()");
 #endif
     invalidate();
   } else {
-    // Script does not run anymore...
-    TRACE("LUA standalone script exited: deleting window!");
-    deleteLater();
+    // The script was preempted, and the LCD should not be updated yet
   }
 
   // Kill global LUA LCD buffer

@@ -912,15 +912,12 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
         if (initFunction != LUA_NOREF)
           TRACE_ERROR("luaLoadScripts(%s): init function: %s\n", getScriptName(idx), lua_tostring(lsScripts, -1));
-          luaL_unref(lsScripts, LUA_REGISTRYINDEX, initFunction);
-          lua_settop(lsScripts, 0);
-          initFunction = LUA_NOREF;
-        } else
+        else
           TRACE_ERROR("luaLoadScripts(%s): %s\n", getScriptName(idx), lua_tostring(lsScripts, -1));
 
         if (ref == SCRIPT_STANDALONE) {
-          luaError(lsScripts, sid.state);
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
+          luaError(lsScripts, sid.state, true);
           return;
         }
         
