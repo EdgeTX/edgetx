@@ -286,22 +286,22 @@ void ViewMainDecoration::createTrims()
     HORIZONTAL_SLIDERS_WIDTH, 0
   };
   
-  trims[TRIMS_LH] = new MainViewHorizontalTrim(this, r, 0);
+  trims[TRIMS_LH] = new MainViewHorizontalTrim(this, r, TRIMS_LH);
 
   r = rect_t {
     right() - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, 0,
     HORIZONTAL_SLIDERS_WIDTH, 0
   };
 
-  trims[TRIMS_RH] = new MainViewHorizontalTrim(this, r, 3);
+  trims[TRIMS_RH] = new MainViewHorizontalTrim(this, r, TRIMS_RH);
 
   r = rect_t {
     0, 0, 0,
     VERTICAL_SLIDERS_HEIGHT
   }; 
 
-  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, 2);
-  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, 1);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, TRIMS_LV);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode()
