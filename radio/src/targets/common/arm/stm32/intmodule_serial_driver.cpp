@@ -140,6 +140,9 @@ void intmoduleSendBuffer(const uint8_t * data, uint8_t size)
     return;
 
 #if defined(INTMODULE_DMA_STREAM)
+  if (!DMA_GetITStatus(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC))
+    return;;
+
   DMA_InitTypeDef DMA_InitStructure;
   DMA_DeInit(INTMODULE_DMA_STREAM);
   DMA_InitStructure.DMA_Channel = INTMODULE_DMA_CHANNEL;
