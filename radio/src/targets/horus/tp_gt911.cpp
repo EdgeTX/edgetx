@@ -686,6 +686,7 @@ bool touchPanelInit(void)
   }
 }
 
+#if defined(SIMU) || defined(SEMIHOSTING) || defined(DEBUG)
 static const char* event2str(uint8_t ev)
 {
   switch(ev){
@@ -703,6 +704,7 @@ static const char* event2str(uint8_t ev)
     return "UNKNOWN";
   }
 }
+#endif
 
 void touchPanelRead()
 {
