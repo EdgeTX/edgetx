@@ -302,7 +302,7 @@ void RadioSetupPage::build(FormWindow * window)
     // Battery warning
     new StaticText(window, grid.getLabelSlot(true), STR_BATTERYWARNING);
     edit = new NumberEdit(window, grid.getFieldSlot(), 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
-    edit->setSuffix("v");
+    edit->setSuffix("V");
     grid.nextLine();
 
     // Inactivity alarm
