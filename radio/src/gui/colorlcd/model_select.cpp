@@ -120,7 +120,7 @@ class ModelButton : public Button
           partialModel.header.name[0] != '\0') {
         
         if (version == 219) {
-          size_t len = sizeof(partialModel.header.name);
+          int len = (int)sizeof(partialModel.header.name);
           char* str = partialModel.header.name;
           for (int i=0; i < len; i++) {
             str[i] = zchar2char(str[i]);
