@@ -89,6 +89,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
     resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
     resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
+    resetMenu->setLeft(parent->getScrollPositionX());
     return 0;
   });
 
