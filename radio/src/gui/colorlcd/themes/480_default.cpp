@@ -71,7 +71,7 @@ class Theme480: public OpenTxTheme
       lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
       lcdColorTable[HIGHLIGHT_COLOR_INDEX] = __ACTIVE_MARKER_COLOR;
       lcdColorTable[LINE_COLOR_INDEX] = GREY;
-      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
+      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = __BACKGROUND_COLOR;
       lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
 
       lcdColorTable[MENU_BGCOLOR_INDEX] = WHITE;
