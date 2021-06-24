@@ -60,7 +60,7 @@ class SpecialFunctionEditPage : public Page
     if (active != isActive()) {
       invalidate();
       headerSF->setTextFlags(isActive() ? FONT(BOLD) | HIGHLIGHT_COLOR
-                                        : MENU_COLOR);
+                                        : FOCUS_COLOR);
       active = !active;
     }
   }
