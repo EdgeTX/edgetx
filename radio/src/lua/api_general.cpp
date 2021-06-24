@@ -72,6 +72,8 @@
   #define RADIO_VERSION FLAVOUR
 #endif
 
+#define VERSION_OSNAME "EdgeTX"
+
 #define FIND_FIELD_DESC  0x01
 
 #define KEY_EVENTS(xxx, yyy)  \
@@ -91,22 +93,15 @@ Return OpenTX version
 
 @retval string OpenTX version (ie "2.1.5")
 
-@retval multiple (available since 2.1.7) returns 5 values:
+@retval multiple values (available since 2.1.7):
  * (string) OpenTX version (ie "2.1.5")
  * (string) radio type: `x12s`, `x10`, `x9e`, `x9d+`, `x9d` or `x7`.
 If running in simulator the "-simu" is added
  * (number) major version (ie 2 if version 2.1.5)
  * (number) minor version (ie 1 if version 2.1.5)
  * (number) revision number (ie 5 if version 2.1.5)
-
-@retval multiple (available since 2.1.7) returns 6 values:
- * (string) OpenTX version (ie "2.1.5")
- * (string) radio type: `x12s`, `x10`, `x9e`, `x9d+`, `x9d` or `x7`.
-If running in simulator the "-simu" is added
- * (number) major version (ie 2 if version 2.1.5)
- * (number) minor version (ie 1 if version 2.1.5)
- * (number) revision number (ie 5 if version 2.1.5)
- * (string) OS name ( i.e. EdgeTX or nil if OpenTX)
+Since EdgeTX 2.4.0, sixth value added
+ * (string) OS name (i.e. EdgeTX or nil if OpenTX)
 
 @status current Introduced in 2.0.0, expanded in 2.1.7, radio type strings changed in 2.2.0, os name added in EdgeTX 2.4.0
 
@@ -130,11 +125,12 @@ return {  run=run }
 ```
 Output of the above script in simulator:
 ```
-version: 2.1.7
-radio: taranis-simu
+version: 2.4.0
+radio: tx16s-simu
 maj: 2
-minor: 1
-rev: 7
+minor: 4
+rev: 0
+osname: EdgeTX
 ```
 */
 static int luaGetVersion(lua_State * L)
@@ -144,7 +140,7 @@ static int luaGetVersion(lua_State * L)
   lua_pushnumber(L, VERSION_MAJOR);
   lua_pushnumber(L, VERSION_MINOR);
   lua_pushnumber(L, VERSION_REVISION);
-  lua_pushstring(L, "EdgeTX");
+  lua_pushstring(L, VERSION_OSNAME);
   return 6;
 }
 
