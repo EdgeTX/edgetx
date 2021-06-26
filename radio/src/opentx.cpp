@@ -719,17 +719,6 @@ static void checkFailsafe()
 #else
 #define checkFailsafe()
 #endif
-void checkRSSIAlarmsDisabled()
-{
-  if (g_model.rssiAlarms.disabled) {
-#if !defined(HARDWARE_INTERNAL_MODULE)
-    if (!isModuleMultimoduleDSM2(EXTERNAL_MODULE))
-#else
-    if (!isModuleMultimoduleDSM2(INTERNAL_MODULE) && !isModuleMultimoduleDSM2(EXTERNAL_MODULE))
-#endif
-      ALERT(STR_RSSIALARM_WARN, STR_NO_RSSIALARM, AU_ERROR);
-  }
-}
 
 #if defined(GUI)
 void checkAll()
@@ -745,7 +734,6 @@ void checkAll()
 
   checkSwitches();
   checkFailsafe();
-  checkRSSIAlarmsDisabled();
 
 #if defined(SDCARD) && !defined(RADIOMASTER_RTF_RELEASE)
   checkSDVersion();
