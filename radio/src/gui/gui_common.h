@@ -123,7 +123,7 @@ bool isSwitch2POSWarningStateAvailable(int state);
 #endif
 
 #if defined(LIBOPENUI)
-#define IS_INSTANT_TRIM_ALLOWED()     false
+#define IS_INSTANT_TRIM_ALLOWED()     true
 #elif defined(GUI)
 #define IS_INSTANT_TRIM_ALLOWED()      (IS_MAIN_VIEW_DISPLAYED() || IS_TELEMETRY_VIEW_DISPLAYED() || IS_OTHER_VIEW_DISPLAYED())
 #else
