@@ -368,6 +368,8 @@ class InputLineButton : public CommonInputOrMixButton
     // if (hasFocus())
     //   textColor = FOCUS_COLOR;
 
+    dc->drawSolidFilledRect(0, 0, width(), height(),
+                            isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
     // first line ...
     drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
                     -100, 100, textColor);
@@ -397,6 +399,7 @@ class InputLineButton : public CommonInputOrMixButton
     if (line.flightModes) {
       drawFlightModes(dc, line.flightModes, textColor);
     }
+    
   }
 };
 
