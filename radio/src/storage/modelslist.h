@@ -80,6 +80,8 @@ public:
   void removeModel(ModelCell * model);
   void moveModel(ModelCell * model, int8_t step);
 
+  int getModelIndex(const ModelCell* model);
+
   void save(FIL * file);
 };
 
@@ -118,6 +120,7 @@ public:
   {
     return currentCategory;
   }
+  int getCurrentCategoryIdx() const;
 
   void setCurrentModel(ModelCell * cell);
 
