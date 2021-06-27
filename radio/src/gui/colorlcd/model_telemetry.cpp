@@ -84,6 +84,9 @@ class SensorButton : public Button {
       else
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FIELD_BGCOLOR);
 
+      if (telemetryItem.isFresh())
+        dc->drawFilledCircle(24, (2 + rect.h - 4)/2, 4, DEFAULT_COLOR);
+
       dc->drawNumber(2, 1, number, LEFT, 0, nullptr, ":");
 
       dc->drawSizedText(SENSOR_COL1, line1, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
@@ -122,17 +125,21 @@ class SensorEditWindow : public Page {
       Page(ICON_MODEL_TELEMETRY),
       index(index)
     {
-      buildBody(&body);
       buildHeader(&header);
+      buildBody(&body);
     }
 
   protected:
     uint8_t index;
-    FormWindow * sensorParametersWindow = nullptr;
+    FormGroup * sensorParametersWindow = nullptr;
 
     void buildHeader(Window * window)
     {
-      new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_SENSOR + std::to_string(index + 1), 0, MENU_COLOR);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     STR_SENSOR + std::to_string(index + 1), 0,
+                     MENU_HIGHLIGHT_COLOR);
       // dynamic display of sensor value ?
       //new StaticText(window, {70, 28, 100, 20}, "SF" + std::to_string(index), 0, MENU_COLOR);
     }
@@ -321,9 +328,7 @@ class SensorEditWindow : public Page {
         SET_DIRTY();
       });
 
-      coord_t delta = sensorParametersWindow->adjustHeight();
-      Window * parent = sensorParametersWindow->getParent();
-      parent->moveWindowsTop(sensorParametersWindow->top(), delta);
+      sensorParametersWindow->adjustHeight();
     }
 
     void buildBody(FormWindow * window)
@@ -355,7 +360,9 @@ class SensorEditWindow : public Page {
                  });
       grid.nextLine();
 
-      sensorParametersWindow = new FormWindow(window, {0, grid.getWindowHeight(), LCD_W, 0});
+      sensorParametersWindow = new FormGroup(window, {0, grid.getWindowHeight(), LCD_W, 0},
+                                             FORM_FORWARD_FOCUS | FORM_NO_BORDER
+                                             | FORWARD_SCROLL);
       updateSensorParametersWindow();
       grid.addWindow(sensorParametersWindow);
 

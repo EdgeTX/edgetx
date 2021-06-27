@@ -198,6 +198,7 @@ class LuaWidget: public Widget
     int    luaWidgetDataRef;
     char * errorMessage;
     uint32_t lastRefresh = 0;
+    bool     refreshed = false;
 
     void checkEvents() override;
     void setErrorMessage(const char * funcName);
@@ -270,9 +271,16 @@ void LuaWidget::checkEvents()
 {
   Widget::checkEvents();
 
+  // paint has not been called
+  if (!refreshed) {
+    background();
+    refreshed = true;
+  }
+  
   uint32_t now = RTOS_GET_MS();
   if (now - lastRefresh >= LUA_WIDGET_REFRESH) {
     lastRefresh = now;
+    refreshed = false;
     invalidate();
 
 #if defined(DEBUG_WINDOWS)
@@ -343,12 +351,16 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // Remove LCD
   luaLcdAllowed = false;
   luaLcdBuffer = nullptr;
+
+  // mark as refreshed
+  refreshed = true;
 }
 
 void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
+  TRACE("LuaWidget::background()");
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   if (factory->backgroundFunction) {

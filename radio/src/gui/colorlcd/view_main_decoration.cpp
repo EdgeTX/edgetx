@@ -53,7 +53,7 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
   //
   sliders[SLIDERS_REAR_LEFT]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
 
-#if defined(HARDWARE_EXT1)
+#if defined(HARDWARE_EXT1) || defined(PCBX12S)
   if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
     sliders[SLIDERS_EXT1]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
   }
@@ -61,7 +61,7 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
 
   sliders[SLIDERS_REAR_RIGHT]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
     
-#if defined(HARDWARE_EXT2)
+#if defined(HARDWARE_EXT2) || defined(PCBX12S)
   if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
     sliders[SLIDERS_EXT2]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
   }
@@ -140,7 +140,7 @@ void ViewMainDecoration::adjustDecoration()
   sliders[SLIDERS_REAR_LEFT]->setLeft(pos);
   sliders[SLIDERS_REAR_LEFT]->setTop(vertTop);
 
-#if defined(HARDWARE_EXT1)
+#if defined(HARDWARE_EXT1) || defined(PCBX12S)
   sliders[SLIDERS_EXT1]->setLeft(pos);
   if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
     auto rl = sliders[SLIDERS_REAR_LEFT];
@@ -167,7 +167,7 @@ void ViewMainDecoration::adjustDecoration()
   sliders[SLIDERS_REAR_RIGHT]->setLeft(pos);
   sliders[SLIDERS_REAR_RIGHT]->setTop(vertTop);
 
-#if defined(HARDWARE_EXT2)
+#if defined(HARDWARE_EXT2) || defined(PCBX12S)
   sliders[SLIDERS_EXT2]->setLeft(pos);
   if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
     auto rr = sliders[SLIDERS_REAR_RIGHT];
@@ -268,11 +268,11 @@ void ViewMainDecoration::createSliders()
   sliders[SLIDERS_REAR_LEFT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_LEFT);
   sliders[SLIDERS_REAR_RIGHT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_RIGHT);
 
-#if defined(HARDWARE_EXT1)
+#if defined(HARDWARE_EXT1) || defined(PCBX12S)
   sliders[SLIDERS_EXT1] = new MainViewVerticalSlider(this, r, CALIBRATED_POT_EXT1);
 #endif
 
-#if defined(HARDWARE_EXT2)
+#if defined(HARDWARE_EXT2) || defined(PCBX12S)
   sliders[SLIDERS_EXT2] = new MainViewVerticalSlider(this, r, CALIBRATED_POT_EXT2);
 #endif
 }
@@ -286,22 +286,22 @@ void ViewMainDecoration::createTrims()
     HORIZONTAL_SLIDERS_WIDTH, 0
   };
   
-  trims[TRIMS_LH] = new MainViewHorizontalTrim(this, r, 0);
+  trims[TRIMS_LH] = new MainViewHorizontalTrim(this, r, TRIMS_LH);
 
   r = rect_t {
     right() - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, 0,
     HORIZONTAL_SLIDERS_WIDTH, 0
   };
 
-  trims[TRIMS_RH] = new MainViewHorizontalTrim(this, r, 3);
+  trims[TRIMS_RH] = new MainViewHorizontalTrim(this, r, TRIMS_RH);
 
   r = rect_t {
     0, 0, 0,
     VERTICAL_SLIDERS_HEIGHT
   }; 
 
-  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, 2);
-  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, 1);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, TRIMS_LV);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode()

@@ -29,7 +29,8 @@
 
 #define PXX2_LOWSPEED_BAUDRATE             230400
 #define PXX2_HIGHSPEED_BAUDRATE            450000
-#define PXX2_PERIOD                        4000/*us*/
+#define PXX2_NO_HEARTBEAT_PERIOD           4000/*us*/
+#define PXX2_MAX_HEARTBEAT_PERIOD          (7000 + 1000)/*us 7ms frame rate + 1ms heartbeat backup*/
 #define PXX2_TOOLS_PERIOD                  1000/*us*/
 #define PXX2_FRAME_MAXLENGTH               64
 

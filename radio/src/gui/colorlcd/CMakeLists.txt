@@ -55,6 +55,7 @@ set(GUI_SRC
   radio_diagkeys.cpp
   radio_diaganas.cpp
   radio_calibration.cpp
+  view_about.cpp
   view_main.cpp
   view_main_menu.cpp
   view_main_decoration.cpp

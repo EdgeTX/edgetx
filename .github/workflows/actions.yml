@@ -13,6 +13,9 @@ on:
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'
+  create:
+    tags:
+      - v*
 
 jobs:
   test:
@@ -35,7 +38,9 @@ jobs:
           - X9DP
           - X9DP2019
           - X9LITE
+          - X9LITES
           - XLITE
+          - XLITES
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:

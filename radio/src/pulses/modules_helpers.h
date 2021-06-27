@@ -386,6 +386,8 @@ inline int8_t defaultModuleChannels_M8(uint8_t idx)
     return 4;  // 12 channels
   else if (isModulePXX2(idx))
     return 8; // 16 channels
+  else if (isModuleGhost(idx))
+    return 4; // 12 channels
   else
     return maxModuleChannels_M8(idx);
 }

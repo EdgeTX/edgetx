@@ -1,10 +1,53 @@
-# EdgeTX
+<p align="center">
+<a href="url"><img src="https://github.com/EdgeTX/edgetx.github.io/blob/master/images/edgetx-v2.png" align="center" height="150" width="150" ></a>
+
+# Welcome to EdgeTX!
+**The cutting edge open-source firmware for your R/C radio!**
+
+
+### About EdgeTX
+EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and cutting-edge features are developed and field-tested by the enthusiasts of our hobby. EdgeTX is a community project – ideas from the community, developed by the community, and enjoyed by the community! The community will always have a say in what EdgeTX is and what EdgeTX will be in the future. Without community feedback and involvement EdgeTX cannot exist.
+
+### Navigation Links
+
+> [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
+
+> [Installation Guide](https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide)
+
+> [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
+
+> [FAQ](https://github.com/EdgeTX/edgetx.github.io/wiki/Frequently-Asked-Questions)
+
+> [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
+
+> [Development WIKI](https://github.com/EdgeTX/edgetx/wiki)
+
+> [Flasher Info Page](https://github.com/EdgeTX/flasher) 
+
+> [Flasher Downloads](https://github.com/EdgeTX/flasher/releases)
+
+> [SD Card Info Page](https://github.com/EdgeTX/edgetx-sdcard)
+
+> [SD Card Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
+
+> [Sound Packs Info Page](https://github.com/EdgeTX/edgetx-sdcard-sounds)
+
+> [Sound Packs Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
+
+> [EdgeTX Build Environment Docker Images](https://github.com/EdgeTX/build-edgetx)
+
+### Community
+[Discord](https://discord.gg/wF9wUKnZ6H)   
+
+[![Discord](https://img.shields.io/discord/839849772864503828.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/wF9wUKnZ6H)
+
+[Facebook](https://www.facebook.com/groups/edgetx)
+
+[Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
+
+
+## Acknowledgements
+Some icon assets provided by [ICONS8](https://icons8.com).
+
 
 [![Commit Tests](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml/badge.svg)](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml)
-
-EdgeTX is the cutting edge version of OpenTX. Innovative ideas and cutting-edge features are developed and field-tested here, with an emphasis on new developments rather than maintenance and legacy.
-
-Stay tuned for more!
-
-## Acknowedgements
-Some icon assets provided by [ICONS8](https://icons8.com).

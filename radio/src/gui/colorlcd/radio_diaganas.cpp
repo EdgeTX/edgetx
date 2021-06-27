@@ -67,7 +67,7 @@ class RadioAnalogsDiagsWindow: public Window {
 
 void RadioAnalogsDiagsPage::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_ANALOGS, 0, MENU_COLOR);
+  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_ANALOGS, 0, MENU_HIGHLIGHT_COLOR);
 }
 
 void RadioAnalogsDiagsPage::buildBody(Window * window)

@@ -33,8 +33,8 @@ class FileNameEditWindow : public Page
   FileNameEditWindow(const std::string iName) :
       Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
   {
-    buildBody(&body);
     buildHeader(&header);
+    buildBody(&body);
   };
 
 #if defined(DEBUG_WINDOWS)
@@ -45,7 +45,7 @@ class FileNameEditWindow : public Page
 
   void buildHeader(Window *window)
   {
-    new StaticText(window, {70, 4, 180, 30}, STR_RENAME_FILE, MENU_BGCOLOR);
+    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, MENU_HIGHLIGHT_COLOR);
   }
 
   void buildBody(Window *window)

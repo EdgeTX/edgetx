@@ -178,9 +178,6 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
           case FUNC_INSTANT_TRIM:
             newActiveFunctions |= (1u << FUNCTION_INSTANT_TRIM);
             if (!isFunctionActive(FUNCTION_INSTANT_TRIM)) {
-#if defined(COLORLCD)
-  #warning IS_INSTANT_TRIM_ALLOWED() is always false
-#endif
               if (IS_INSTANT_TRIM_ALLOWED()) {
                 instantTrim();
               }
