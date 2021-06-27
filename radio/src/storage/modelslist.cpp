@@ -240,6 +240,19 @@ void ModelsCategory::moveModel(ModelCell * model, int8_t step)
   erase(current);
 }
 
+int ModelsCategory::getModelIndex(const ModelCell* model)
+{
+  int idx = 0;
+  for (auto m : *this) {
+    if (model == m)
+      return idx;
+
+    ++idx;
+  }
+
+  return -1;
+}
+
 void ModelsCategory::save(FIL * file)
 {
 #if !defined(SDCARD_YAML)
@@ -387,6 +400,22 @@ void ModelsList::save()
 void ModelsList::setCurrentCategory(ModelsCategory * cat)
 {
   currentCategory = cat;
+}
+
+int ModelsList::getCurrentCategoryIdx() const
+{
+  if (!currentCategory)
+    return -1;
+  
+  int idx = 0;
+  for (auto cat : categories) {
+    if (currentCategory == cat)
+      return idx;
+
+    ++idx;
+  }
+
+  return -1;
 }
 
 void ModelsList::setCurrentModel(ModelCell * cell)
