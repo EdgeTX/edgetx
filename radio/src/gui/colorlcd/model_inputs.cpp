@@ -337,7 +337,7 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
 void CommonInputOrMixButton::paint(BitmapBuffer * dc)
 {
   dc->drawSolidFilledRect(0, 0, width(), height(),
-                          /*hasFocus() ? FOCUS_BGCOLOR :*/ FIELD_BGCOLOR);
+                          isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
   paintBody(dc);
 
   if (!hasFocus())
@@ -368,8 +368,6 @@ class InputLineButton : public CommonInputOrMixButton
     // if (hasFocus())
     //   textColor = FOCUS_COLOR;
 
-    dc->drawSolidFilledRect(0, 0, width(), height(),
-                            isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
     // first line ...
     drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
                     -100, 100, textColor);

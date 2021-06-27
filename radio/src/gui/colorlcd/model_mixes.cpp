@@ -257,8 +257,6 @@ class MixLineButton : public CommonInputOrMixButton
 
     LcdFlags textColor = DEFAULT_COLOR;
 
-    dc->drawSolidFilledRect(0, 0, width(), height(),
-                            isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
     // first line ...
     drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
                     MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, textColor);
