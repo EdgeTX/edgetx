@@ -275,8 +275,10 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #define TRAINER_ROWS                      LABEL(Trainer), 0, TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
 #endif
 
-#define TIMER_ROWS \
-  1 | NAVIGATION_LINE_BY_LINE, 0, 1 | NAVIGATION_LINE_BY_LINE, 0, 0, 0
+#define TIMER_ROWS(x)                                                  \
+  1 | NAVIGATION_LINE_BY_LINE, 0, 1 | NAVIGATION_LINE_BY_LINE, 0, 0,   \
+      g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
+                                                          : (uint8_t)0
 
 inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 {
@@ -287,11 +289,11 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 }
 
 #if TIMERS == 1
-  #define TIMERS_ROWS                     TIMER_ROWS
+#define TIMERS_ROWS                       TIMER_ROWS(0)
 #elif TIMERS == 2
-  #define TIMERS_ROWS                     TIMER_ROWS, TIMER_ROWS
+#define TIMERS_ROWS                       TIMER_ROWS(0), TIMER_ROWS(1)
 #elif TIMERS == 3
-  #define TIMERS_ROWS                     TIMER_ROWS, TIMER_ROWS, TIMER_ROWS
+#define TIMERS_ROWS                       TIMER_ROWS(0), TIMER_ROWS(1), TIMER_ROWS(2)
 #endif
 #if defined(PCBX9E)
   #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > 8 ? TITLE_ROW : HIDDEN_ROW), uint8_t(getSwitchWarningsCount() > 16 ? TITLE_ROW : HIDDEN_ROW)
