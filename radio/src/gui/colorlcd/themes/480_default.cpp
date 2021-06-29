@@ -51,7 +51,7 @@ class Theme480: public OpenTxTheme
     {
       TRACE("Load EdgeTX theme colors");
       lcdColorTable[ALARM_COLOR_INDEX] = RED;
-      lcdColorTable[BARGRAPH1_COLOR_INDEX] = __BACKGROUND_COLOR;
+      lcdColorTable[BARGRAPH1_COLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
       lcdColorTable[BARGRAPH_BGCOLOR_INDEX] = RGB(222, 222, 222);
       lcdColorTable[BATTERY_CHARGE_COLOR_INDEX] = GREEN;
@@ -71,7 +71,7 @@ class Theme480: public OpenTxTheme
       lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
       lcdColorTable[HIGHLIGHT_COLOR_INDEX] = __ACTIVE_MARKER_COLOR;
       lcdColorTable[LINE_COLOR_INDEX] = GREY;
-      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = __BACKGROUND_COLOR;
+      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = __FOCUS_COLOR;
       lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
 
       lcdColorTable[MENU_BGCOLOR_INDEX] = WHITE;
