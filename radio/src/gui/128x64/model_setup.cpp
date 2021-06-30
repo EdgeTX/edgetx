@@ -240,7 +240,10 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
 }
 
 #define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
-#define TIMER_ROWS                     1, 0, 1, 0, 0, 0
+#define TIMER_ROWS(x)                                                  \
+  1, 0, 1, 0, 0,                                                       \
+      g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
+                                                          : (uint8_t)0
 
 #if defined(PCBSKY9X)
   #define EXTRA_MODULE_ROWS             LABEL(ExtraModule), 1, 2,
@@ -411,9 +414,9 @@ void menuModelSetup(event_t event)
   MENU_TAB({
     HEADER_LINE_COLUMNS
     0,
-    TIMER_ROWS,
-    TIMER_ROWS,
-    TIMER_ROWS,
+    TIMER_ROWS(0),
+    TIMER_ROWS(1),
+    TIMER_ROWS(2),
     0, // Extended limits
     1, // Extended trims
     0, // Show trims

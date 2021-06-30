@@ -698,11 +698,9 @@ void checkMultiLowPower()
 #if defined(STM32)
 static void checkRTCBattery()
 {
-  if (isVBatBridgeEnabled()) {
-    if (getRTCBatteryVoltage() < 200) {
-      ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
-    }
-    disableVBatBridge();
+  GET_ADC_IF_MIXER_NOT_RUNNING();
+  if (getRTCBatteryVoltage() < 200) {
+    ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
   }
 }
 #endif
@@ -723,17 +721,6 @@ static void checkFailsafe()
 #else
 #define checkFailsafe()
 #endif
-void checkRSSIAlarmsDisabled()
-{
-  if (g_model.rssiAlarms.disabled) {
-#if !defined(HARDWARE_INTERNAL_MODULE)
-    if (!isModuleMultimoduleDSM2(EXTERNAL_MODULE))
-#else
-    if (!isModuleMultimoduleDSM2(INTERNAL_MODULE) && !isModuleMultimoduleDSM2(EXTERNAL_MODULE))
-#endif
-      ALERT(STR_RSSIALARM_WARN, STR_NO_RSSIALARM, AU_ERROR);
-  }
-}
 
 #if defined(GUI)
 void checkAll()
@@ -749,15 +736,17 @@ void checkAll()
 
   checkSwitches();
   checkFailsafe();
-  checkRSSIAlarmsDisabled();
 
 #if defined(SDCARD) && !defined(RADIOMASTER_RTF_RELEASE)
   checkSDVersion();
 #endif
 
 #if defined(STM32)
-  if (!g_eeGeneral.disableRtcWarning)
+  if (isVBatBridgeEnabled() && !g_eeGeneral.disableRtcWarning) {
+    // only done once at board start
     checkRTCBattery();
+  }
+  disableVBatBridge();
 #endif
 
 #if defined(COLORLCD)

@@ -324,15 +324,15 @@ coord_t drawGPSCoord(BitmapBuffer * dc, coord_t x, coord_t y, int32_t value, con
 void drawGPSPosition(BitmapBuffer * dc, coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags)
 {
   if (flags & PREC1) {
-    drawGPSCoord(dc, x, y, latitude, "NS", flags, false);
-    drawGPSCoord(dc, x, y + FH, longitude, "EW", flags, false);
+    drawGPSCoord(dc, x, y, latitude, "NS", flags, true);
+    drawGPSCoord(dc, x, y + FH, longitude, "EW", flags, true);
   } else {
     if (flags & RIGHT) {
-      x = drawGPSCoord(dc, x, y, longitude, "EW", flags, false);
-      drawGPSCoord(dc, x - 5, y, latitude, "NS", flags, false);
+      x = drawGPSCoord(dc, x, y, longitude, "EW", flags, true);
+      drawGPSCoord(dc, x - 5, y, latitude, "NS", flags, true);
     } else {
-      x = drawGPSCoord(dc, x, y, latitude, "NS", flags, false);
-      drawGPSCoord(dc, x + 5, y, longitude, "EW", flags, false);
+      x = drawGPSCoord(dc, x, y, latitude, "NS", flags, true);
+      drawGPSCoord(dc, x + 5, y, longitude, "EW", flags, true);
     }
   }
 }

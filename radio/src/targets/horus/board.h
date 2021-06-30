@@ -379,6 +379,11 @@ enum Analogs {
   NUM_ANALOGS
 };
 
+#if defined(PCBX12S)
+#define EXT1 SLIDER_FRONT_LEFT
+#define EXT2 SLIDER_FRONT_RIGHT
+#endif
+
 #define SLIDER1 SLIDER_FRONT_LEFT
 #define SLIDER2 SLIDER_FRONT_RIGHT
 
@@ -411,7 +416,9 @@ enum CalibratedAnalogs {
   CALIBRATED_POT3,
 #if defined(PCBX12S)
   CALIBRATED_SLIDER_FRONT_LEFT,
+  CALIBRATED_POT_EXT1 = CALIBRATED_SLIDER_FRONT_LEFT,
   CALIBRATED_SLIDER_FRONT_RIGHT,
+  CALIBRATED_POT_EXT2 = CALIBRATED_SLIDER_FRONT_RIGHT,
   CALIBRATED_SLIDER_REAR_LEFT,
   CALIBRATED_SLIDER_REAR_RIGHT,
 #else
@@ -641,7 +648,7 @@ void sportUpdatePowerInit();
   #define DEBUG_BAUDRATE                  115200
   #define LUA_DEFAULT_BAUDRATE            115200
 #endif
-#if defined(AUX_SERIAL_GPIO)
+#if defined(AUX_SERIAL)
 extern uint8_t auxSerialMode;
 #if defined __cplusplus
 void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);

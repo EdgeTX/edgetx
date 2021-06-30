@@ -1121,63 +1121,6 @@
 // Taranis About screen
 #define TR_ABOUTUS                     TR("  O nás   ", "O nás")
 
-#define TR_ABOUT_OPENTX_1              TR3("OpenTX je nekomerční,", "OpenTX\001je\001open-source,", "OpenTX je open-source,")
-#define TR_ABOUT_OPENTX_2              TR3("opensource bez záruky.", "nekomerční a bez\001záruky.", "nekomerční a bez záruky.")
-#define TR_ABOUT_OPENTX_3              TR3("Vytvořen ve volném čase.", "Byl\001vytvořen\001nadšenými\001modeláři", "Byl vytvořen nadšenými modeláři")
-#define TR_ABOUT_OPENTX_4              TR3("Podpora vývoje pomocí", "Podpora\001vývoje\001pomocí", "Podpora vývoje pomocí")
-#define TR_ABOUT_OPENTX_5              TR3("finančního daru je vítána!", "drobného\001daru\001je\001vítána!", "drobného daru je vítána!")
-
-#define TR_ABOUT_BERTRAND_1            "Bertrand Songis"
-#define TR_ABOUT_BERTRAND_2            "Hlavní vývojář OpenTX"
-#define TR_ABOUT_BERTRAND_3            "Spoluautor Companion"
-
-#define TR_ABOUT_MIKE_1                "Mike Blandford"
-#define TR_ABOUT_MIKE_2                "Specialista na kód,"
-#define TR_ABOUT_MIKE_3                " a ovladače hardwaru."
-#define TR_ABOUT_MIKE_4                ""
-
-#define TR_ABOUT_ROMOLO_1              "Romolo Manfredini"
-#define TR_ABOUT_ROMOLO_2              "Hlavní vývojář"
-#define TR_ABOUT_ROMOLO_3              "Companion"
-
-#define TR_ABOUT_ANDRE_1               "Andre Bernet"
-#define TR_ABOUT_ANDRE_2               "Funkčnost, použitelnost,"
-#define TR_ABOUT_ANDRE_3               "ladění a dokumentace"
-
-#define TR_ABOUT_ROB_1                 "Rob Thomson"
-#define TR_ABOUT_ROB_2                 "openrcforums webmaster"
-
-#define TR_ABOUT_KJELL_1               "Kjell Kernen"
-#define TR_ABOUT_KJELL_2               "autor www.open-tx.org"
-#define TR_ABOUT_KJELL_3               "autor OpenTX Recorder"
-#define TR_ABOUT_KJELL_4               "Spoluautor Companion"
-
-#define TR_ABOUT_MARTIN_1              "Martin Hotař"
-#define TR_ABOUT_MARTIN_2              "Design, Čeština"
-
-#if defined(MANUFACTURER_FRSKY)
-  #define TR_ABOUT_HARDWARE_1          "FrSky"
-  #define TR_ABOUT_HARDWARE_2          "Vývoj a výroba Hardware"
-  #define TR_ABOUT_HARDWARE_3          "Přispěvatel firmware"
-#elif defined(MANUFACTURER_RADIOMASTER)
-  #define TR_ABOUT_HARDWARE_1          "Radiomaster"
-  #define TR_ABOUT_HARDWARE_2          "Vývoj a výroba Hardware"
-  #define TR_ABOUT_HARDWARE_3          "Přispěvatel firmware"
-#elif defined(MANUFACTURER_JUMPER)
-  #define TR_ABOUT_HARDWARE_1          "JumperRC"
-  #define TR_ABOUT_HARDWARE_2          "Vývoj a výroba Hardware"
-  #define TR_ABOUT_HARDWARE_3          "Přispěvatel firmware"
-#else
-  #define TR_ABOUT_HARDWARE_1          "Brent Nelson"
-  #define TR_ABOUT_HARDWARE_2          "Sky9x designer/výrobce"
-  #define TR_ABOUT_HARDWARE_3          ""
-#endif
-
-#define TR_ABOUT_PARENTS_1             "Mateřské projekty"
-#define TR_ABOUT_PARENTS_2             "ersky9x (Mike Blandford)"
-#define TR_ABOUT_PARENTS_3             "ER9X (Erez Raviv)"
-#define TR_ABOUT_PARENTS_4             "TH9X (Thomas Husterer)"
-
 #define TR_CHR_SHORT  's'
 #define TR_CHR_LONG   'l'
 #define TR_CHR_TOGGLE 't'

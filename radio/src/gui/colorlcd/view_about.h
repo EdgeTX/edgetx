@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x 
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,28 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "libopenui.h"
 
-#define ABOUT_INDENT 6
-
-const char ABOUT_VERSION_1[] = "EdgeTX Endeavour (2.4.0)";
-const char ABOUT_VERSION_2[] = "Copyright (C) 2021 EdgeTX";
-const char ABOUT_VERSION_3[] = "https://edge-tx.org";
-
-void menuAboutView(event_t event)
+class AboutUs : public MessageDialog
 {
-  switch(event)
-  {
-    case EVT_KEY_FIRST(KEY_ENTER):
-    case EVT_KEY_FIRST(KEY_EXIT):
-      chainMenu(menuMainView);
-      break;
-  }
+  BitmapBuffer* qrcode = nullptr;
 
-  lcdDrawText(2, 2, STR_ABOUTUS, BOLD);
-  lcdDrawSolidHorizontalLine(0, 11, 130, GREY_DEFAULT);
-
-  lcdDrawText(ABOUT_INDENT, 22, ABOUT_VERSION_1);
-  lcdDrawText(ABOUT_INDENT, 32, ABOUT_VERSION_2, SMLSIZE);
-  lcdDrawText(ABOUT_INDENT, 42, ABOUT_VERSION_3);
-}
+ public:
+  AboutUs();
+  ~AboutUs();
+};

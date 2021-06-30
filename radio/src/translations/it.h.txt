@@ -1149,63 +1149,6 @@
 // About screen
 #define TR_ABOUTUS             TR(" INFO ", "INFO SU")
 
-#define TR_ABOUT_OPENTX_1      TR("OpenTX\001e'\001open\001source,\001non", "OpenTX e' open source, non-")
-#define TR_ABOUT_OPENTX_2      TR("commercial,\001wo\001warranties.", "commerciale, fornito senza")
-#define TR_ABOUT_OPENTX_3      TR("It\001was\001developed\001for\001free.", "garanzie. E' stato sviluppato")
-#define TR_ABOUT_OPENTX_4      TR("Support through donations", "gratuitamente. Il supporto")
-#define TR_ABOUT_OPENTX_5      TR("is welcome!", "mediante donazioni e' gradito!")
-
-#define TR_ABOUT_BERTRAND_1    "Bertrand Songis"
-#define TR_ABOUT_BERTRAND_2    "Autore principale OpenTX"
-#define TR_ABOUT_BERTRAND_3    "Co-autore Companion"
-
-#define TR_ABOUT_MIKE_1        "Mike Blandford"
-#define TR_ABOUT_MIKE_2        "Guru codice e driver"
-#define TR_ABOUT_MIKE_3        "esperto a basso livello"
-#define TR_ABOUT_MIKE_4        "Ispiratore"
-
-#define TR_ABOUT_ROMOLO_1      "Romolo Manfredini"
-#define TR_ABOUT_ROMOLO_2      "Autore Companion"
-#define TR_ABOUT_ROMOLO_3      ""
-
-#define TR_ABOUT_ANDRE_1       "Andre Bernet"
-#define TR_ABOUT_ANDRE_2       "Funzionalità, usabilità,"
-#define TR_ABOUT_ANDRE_3       "debugging, documentazione"
-
-#define TR_ABOUT_ROB_1         "Rob Thomson"
-#define TR_ABOUT_ROB_2         "Webmaster openrcforums"
-
-#define TR_ABOUT_KJELL_1       "Kjell Kernen"
-#define TR_ABOUT_KJELL_2       "www.open-tx.org main author"
-#define TR_ABOUT_KJELL_3       "OpenTX Recorder author"
-#define TR_ABOUT_KJELL_4       "Companion contributor"
-
-#define TR_ABOUT_MARTIN_1      "Martin Hotar"
-#define TR_ABOUT_MARTIN_2      "Graphic Designer"
-
-#if defined(MANUFACTURER_FRSKY)
-  #define TR_ABOUT_HARDWARE_1  "FrSky"
-  #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
-  #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
-#elif defined(MANUFACTURER_RADIOMASTER)
-  #define TR_ABOUT_HARDWARE_1  "Radiomaster"
-  #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
-  #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
-#elif defined(MANUFACTURER_JUMPER)
-  #define TR_ABOUT_HARDWARE_1  "JumperRC"
-  #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
-  #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
-#else
-  #define TR_ABOUT_HARDWARE_1  "Brent Nelson"
-  #define TR_ABOUT_HARDWARE_2  "Designer/Produttore SKY9X"
-  #define TR_ABOUT_HARDWARE_3  ""
-#endif
-
-#define TR_ABOUT_PARENTS_1     "Progetti correlati"
-#define TR_ABOUT_PARENTS_2     "ersky9x (Mike Blandford)"
-#define TR_ABOUT_PARENTS_3     "ER9X (Erez Raviv)"
-#define TR_ABOUT_PARENTS_4     "TH9X (Thomas Husterer)"
-
 #define TR_CHR_SHORT  's'
 #define TR_CHR_LONG   'l'
 #define TR_CHR_TOGGLE 't'

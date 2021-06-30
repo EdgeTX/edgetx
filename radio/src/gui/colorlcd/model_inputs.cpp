@@ -337,7 +337,7 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
 void CommonInputOrMixButton::paint(BitmapBuffer * dc)
 {
   dc->drawSolidFilledRect(0, 0, width(), height(),
-                          /*hasFocus() ? FOCUS_BGCOLOR :*/ FIELD_BGCOLOR);
+                          isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
   paintBody(dc);
 
   if (!hasFocus())
@@ -397,12 +397,17 @@ class InputLineButton : public CommonInputOrMixButton
     if (line.flightModes) {
       drawFlightModes(dc, line.flightModes, textColor);
     }
+    
   }
 };
 
 ModelInputsPage::ModelInputsPage():
   PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
 {
+  setOnSetVisibleHandler([]() {
+    // reset clipboard
+    s_copyMode = 0;
+  });
 }
 
 void ModelInputsPage::rebuild(FormWindow * window, int8_t focusIndex)

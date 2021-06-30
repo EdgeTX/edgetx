@@ -24,7 +24,8 @@
 void MainViewTrim::checkEvents()
 {
   Window::checkEvents();
-  int8_t newValue = getTrimValue(mixerCurrentFlightMode, idx);
+  int8_t stickIndex = CONVERT_MODE(idx);
+  int8_t newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
   if (value != newValue) {
     value = newValue;
     invalidate();

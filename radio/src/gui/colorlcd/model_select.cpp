@@ -120,7 +120,7 @@ class ModelButton : public Button
           partialModel.header.name[0] != '\0') {
         
         if (version == 219) {
-          size_t len = sizeof(partialModel.header.name);
+          int len = (int)sizeof(partialModel.header.name);
           char* str = partialModel.header.name;
           for (int i=0; i < len; i++) {
             str[i] = zchar2char(str[i]);
@@ -210,14 +210,21 @@ class ModelCategoryPageBody : public FormWindow
     update();
   }
 
-  void update(int selected = 0)
+  void update(int selected = -1)
   {
     clear();
+
+    if (selected < 0) {
+      auto model = modelslist.getCurrentModel();
+      selected = category->getModelIndex(model);
+      if (selected < 0) selected = 0;
+    }
 
     int index = 0;
     coord_t y = MODEL_CELL_PADDING;
     coord_t x = MODEL_CELL_PADDING;
 
+    ModelButton* selectButton = nullptr;
     for (auto &model : *category) {
       auto button = new ModelButton(
           this, {x, y, MODEL_SELECT_CELL_WIDTH, MODEL_SELECT_CELL_HEIGHT},
@@ -237,7 +244,7 @@ class ModelCategoryPageBody : public FormWindow
               storageCheck(true);
 
               modelslist.setCurrentModel(model);
-              update();  // modelslist.getModelIndex(modelCell));
+              update();
             });
           }
           menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
@@ -264,7 +271,7 @@ class ModelCategoryPageBody : public FormWindow
                       .c_str(),
                   [=] {
                     modelslist.removeModel(category, model);
-                    update(index > 0 ? index - 1 : 0);
+                    update(index < category->size() - 1 ? index : index - 1);
                   });
             });
           }
@@ -275,7 +282,7 @@ class ModelCategoryPageBody : public FormWindow
       });
 
       if (selected == index) {
-        button->setFocus(SET_FOCUS_DEFAULT);
+        selectButton = button;
       }
 
       index++;
@@ -299,6 +306,8 @@ class ModelCategoryPageBody : public FormWindow
 
     if (category->empty()) {
       setFocus();
+    } else if (selectButton) {
+      selectButton->setFocus();
     }
   }
 
@@ -367,5 +376,10 @@ ModelSelectMenu::ModelSelectMenu():
   TRACE("TabsGroup: %p", this);
   for (auto category: modelslist.getCategories()) {
     addTab(new ModelCategoryPage(category));
+  }
+
+  int idx = modelslist.getCurrentCategoryIdx();
+  if (idx >= 0) {
+    setCurrentTab(idx);
   }
 }
