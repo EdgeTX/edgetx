@@ -134,7 +134,7 @@ void delay_self(int count)
                                AUDIO_RCC_AHB1Periph |\
                                HAPTIC_RCC_AHB1Periph |\
                                INTMODULE_RCC_AHB1Periph |\
-                               INTMODULE_RCC_AHB1Periph|\
+                               FLYSKY_HALL_RCC_AHB1Periph |\
                                EXTMODULE_RCC_AHB1Periph\
                               )
 #define RCC_AHB3PeriphMinimum (SDRAM_RCC_AHB3Periph)

@@ -18,19 +18,34 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LIBOPENUI_CONFIG_H_
-#define _LIBOPENUI_CONFIG_H_
+#pragma once
 
 #include "debug.h"
 #include "libopenui_defines.h"
+
 #include "colors.h"
 #include "board.h"
 #include "keys.h"
 
+enum FontIndex
+{
+  FONT_STD_INDEX,
+#if !defined(BOLD)
+  FONT_BOLD_INDEX,
+  FONT_XXS_INDEX,
+  FONT_XS_INDEX,
+  FONT_L_INDEX,
+  FONT_XL_INDEX,
+  FONT_XXL_INDEX,
+#endif
+  
+  FONTS_COUNT
+};
+
 typedef uint16_t pixel_t;
 
 constexpr bool WRAP_FORM_FIELDS_WITHIN_PAGE = true;
-constexpr uint32_t SLIDE_SPEED_REDUCTION = 5;
+constexpr short SLIDE_SPEED_REDUCTION = 5;
 
 constexpr uint32_t MENU_HEADER_BUTTON_WIDTH =      60;
 constexpr uint32_t MENU_HEADER_BUTTONS_LEFT =      MENU_HEADER_BUTTON_WIDTH;
@@ -132,19 +147,6 @@ constexpr uint32_t PAGE_TITLE_LEFT =               70;
   TABLE_BGCOLOR_INDEX,
 };*/
 
-enum FontIndex
-{
-  FONT_STD_INDEX,
-#if !defined(BOLD)
-  FONT_BOLD_INDEX,
-  FONT_XXS_INDEX,
-  FONT_XS_INDEX,
-  FONT_L_INDEX,
-  FONT_XL_INDEX,
-  FONT_XXL_INDEX,
-#endif
-  FONTS_COUNT
-};
 
 constexpr uint32_t INPUT_EDIT_LABELS_WIDTH = 80;
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = LCD_W;
@@ -175,4 +177,4 @@ constexpr LcdFlags TABLE_BODY_FONT = FONT(STD);
 constexpr int CJK_FIRST_LETTER_INDEX = 128 - 32 + 21;
 constexpr coord_t CHAR_SPACING = 0;
 
-#endif // _LIBOPENUI_CONFIG_H_
+#define ROTARY_ENCODER_SPEED() rotencSpeed
