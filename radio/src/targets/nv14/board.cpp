@@ -83,12 +83,11 @@ void interrupt1ms()
     DEBUG_TIMER_STOP(debugTimerHaptic);
   }
 #endif
-
-  if (pre_scale == 10) {
-    pre_scale = 0;
 #if !defined(SIMU)
     if (boardState == BOARD_STARTED) flysky_hall_stick_loop();
 #endif
+  if (pre_scale == 10) {
+    pre_scale = 0;
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
     per10ms();
