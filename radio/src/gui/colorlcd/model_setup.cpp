@@ -681,9 +681,9 @@ class ModuleWindow : public FormGroup {
             if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE)
             {
               new DynamicText(this, grid.getFieldSlot(2, 1), [=] {
-                  char buf[16];
-                  sprintf(buf, "RSSI (%i)", TELEMETRY_RSSI());
-                  return std::string(buf);
+                  char msg[64] = "";
+                  sprintf(msg, "RSSI (%i)", TELEMETRY_RSSI());
+                  return std::string(msg);
               });
             }
           }
