@@ -21,18 +21,23 @@
 #include "static.h"
 
 MessageDialog::MessageDialog(Window* parent, const char* title,
-                             const char* message, const char* info) :
+                             const char* message, const char* info,
+                             const int lineHeight,
+                             const WindowFlags windowFlags,
+                             const LcdFlags textFlags) :
     Dialog(parent, title, {50, 73, LCD_W - 100, LCD_H - 146})
 {
+  setWindowFlags(windowFlags);
+
   messageWidget = new StaticText(
       this,
       {0, coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), PAGE_LINE_HEIGHT},
       message, 0, CENTERED);
 
-  infoWidget = new StaticText(this,
-                              {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2,
-                               width(), PAGE_LINE_HEIGHT},
-                              info, 0, CENTERED);
+  infoWidget = new StaticText(
+      this,
+      {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), lineHeight},
+      info, 0, textFlags);
   setCloseWhenClickOutside(true);
   setFocus();
 }
