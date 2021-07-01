@@ -711,40 +711,56 @@ void touchPanelRead()
   if (!touchEventOccured)
     return;
 
-  touchEventOccured = false;
-  I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1);
+  touchEventOccured = 0;
+
+  uint32_t startReadStatus = RTOS_GET_MS();
+  do {
+    if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
+      TRACE("GT911 I2C read error");
+      return;
+    }
+
+    if (state & 0x80u) {
+      // ready
+      break;
+    }
+    RTOS_WAIT_MS(1);
+  } while(RTOS_GET_MS() - startReadStatus < GT911_TIMEOUT);
+
   TRACE("touch state = 0x%x", state);
-  if ((state & 0x80u) == 0x00) {
-    // not ready
-    return;
-  }
+  if (state & 0x80u) {
+    uint8_t pointsCount = (state & 0x0Fu);
 
-  uint8_t pointsCount = (state & 0x0Fu);
-
-  if (pointsCount > 0 && pointsCount < GT911_MAX_TP) {
-    I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data, pointsCount * sizeof(TouchPoint));
-    if (touchState.event == TE_NONE || touchState.event == TE_UP || touchState.event == TE_SLIDE_END) {
-      touchState.event = TE_DOWN;
-      touchState.startX = touchState.x = touchData.points[0].x;
-      touchState.startY = touchState.y = touchData.points[0].y;
-    }
-    else {
-      touchState.deltaX = touchData.points[0].x - touchState.x;
-      touchState.deltaY = touchData.points[0].y - touchState.y;
-      if (touchState.event == TE_SLIDE || abs(touchState.deltaX) >= SLIDE_RANGE || abs(touchState.deltaY) >= SLIDE_RANGE) {
-        touchState.event = TE_SLIDE;
-        touchState.x = touchData.points[0].x;
-        touchState.y = touchData.points[0].y;
+    if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
+      if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
+                                  pointsCount * sizeof(TouchPoint))) {
+        TRACE("GT911 I2C read error");
+        return;
       }
-    }
-  }
-  else {
-    if (touchState.event == TE_SLIDE) {
-      touchState.event = TE_SLIDE_END;
-    } else if (touchState.event == TE_DOWN) {
-      touchState.event = TE_UP;
-    } else if (touchState.event != TE_SLIDE_END){
-      touchState.event = TE_NONE;
+      if (touchState.event == TE_NONE || touchState.event == TE_UP ||
+          touchState.event == TE_SLIDE_END) {
+        touchState.event = TE_DOWN;
+        touchState.startX = touchState.x = touchData.points[0].x;
+        touchState.startY = touchState.y = touchData.points[0].y;
+      } else {
+        touchState.deltaX = touchData.points[0].x - touchState.x;
+        touchState.deltaY = touchData.points[0].y - touchState.y;
+        if (touchState.event == TE_SLIDE ||
+            abs(touchState.deltaX) >= SLIDE_RANGE ||
+            abs(touchState.deltaY) >= SLIDE_RANGE) {
+          touchState.event = TE_SLIDE;
+          touchState.x = touchData.points[0].x;
+          touchState.y = touchData.points[0].y;
+        }
+      }
+    } else {
+      if (touchState.event == TE_SLIDE) {
+        touchState.event = TE_SLIDE_END;
+      } else if (touchState.event == TE_DOWN) {
+        touchState.event = TE_UP;
+      } else if (touchState.event != TE_SLIDE_END) {
+        touchState.event = TE_NONE;
+      }
     }
   }
 
