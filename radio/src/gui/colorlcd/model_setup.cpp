@@ -41,6 +41,27 @@ std::string switchWarninglabel(swsrc_t index)
              1);
 }
 
+class RssiDialog : public MessageDialog
+{
+ public:
+  RssiDialog(Window* parent, const char* title, const char* message,
+             const char* info = "", const int lineHeight = PAGE_LINE_HEIGHT,
+             const WindowFlags windowFlags = 0,
+             const LcdFlags textFlags = CENTERED) :
+      MessageDialog(parent, title, message, info, lineHeight, windowFlags,
+                    textFlags)
+  {
+  }
+
+  virtual void checkEvents()
+  {
+    char buf[10];
+    sprintf(buf, "%d", (int)TELEMETRY_RSSI());
+    setInfoText(buf);
+    MessageDialog::checkEvents();
+  }
+};
+
 class ChannelFailsafeBargraph: public Window {
   public:
     ChannelFailsafeBargraph(Window * parent, const rect_t & rect, uint8_t moduleIdx, uint8_t channel):
@@ -840,6 +861,13 @@ class ModuleWindow : public FormGroup {
               }
               else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+                auto rssiDialog = new RssiDialog(
+                    this, "Range Test", "RSSI:", "", 50, REFRESH_ALWAYS,
+                    DEFAULT_COLOR | CENTERED | FONT(BOLD) | FONT(XL));
+                rssiDialog->setCloseHandler([this]() {
+                  rangeButton->check(false);
+                  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+                });
                 return 1;
               }
           });
