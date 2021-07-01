@@ -676,6 +676,16 @@ class ModuleWindow : public FormGroup {
           }
           else {
             new NumberEdit(this, grid.getFieldSlot(2,0), -128, 127, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+
+            //Show RSSI next to RF Freq Fine Tune
+            if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE)
+            {
+              new DynamicText(this, grid.getFieldSlot(2, 1), [=] {
+              char buf[10];
+              sprintf(buf, "RSSI(%i)", TELEMETRY_RSSI());
+              return std::string(buf);
+            });
+            }
           }
         }
 
