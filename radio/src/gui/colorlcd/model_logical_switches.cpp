@@ -162,6 +162,13 @@ class LogicalSwitchEditPage: public Page
                            cs->v1 = newValue;
                            SET_DIRTY();
                            v2Edit->invalidate();
+                           if (v2Edit != nullptr)
+                           {
+                             int16_t v2_min = 0, v2_max = 0;
+                             getMixSrcRange(cs->v1, v2_min, v2_max);
+                             v2Edit->setMin(v2_min);
+                             v2Edit->setMax(v2_max);
+                           }
                          });
         grid.nextLine();
 
