@@ -680,11 +680,8 @@ class ModuleWindow : public FormGroup {
             //Show RSSI next to RF Freq Fine Tune
             if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE)
             {
-              new DynamicText(this, grid.getFieldSlot(2, 1), [=] {
-                  char msg[64] = "";
-                  sprintf(msg, "RSSI (%i)", TELEMETRY_RSSI());
-                  return std::string(msg);
-              });
+              new DynamicNumber<int>(this, grid.getFieldSlot(2, 1), [] {
+                  return (int)TELEMETRY_RSSI();}, 0, "RSSI: ", " db");
             }
           }
         }
