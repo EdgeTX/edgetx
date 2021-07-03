@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FT5X06_H_
-#define _FT5X06_H_
+#pragma once
 
 #define HAS_TOUCH_PANEL()     touchGT911Flag == true
 
@@ -28,6 +27,8 @@ extern bool touchPanelInit();
 
 void touchPanelRead();
 bool touchPanelEventOccured();
+
+#define GT911_TIMEOUT 20 // 20ms
 
 #define GT911_MAX_TP            5
 #define GT911_CFG_NUMER         0x6C
@@ -81,5 +82,3 @@ PACK(struct TouchData {
 
 #define TPINT_LOW()   do { TOUCH_INT_GPIO->BSRRH = TOUCH_INT_GPIO_PIN; } while(0)
 #define TPINT_HIGH()  do { TOUCH_INT_GPIO->BSRRL = TOUCH_INT_GPIO_PIN; } while(0)
-
-#endif // _FT5X06_H_

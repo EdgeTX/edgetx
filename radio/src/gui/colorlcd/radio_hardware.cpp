@@ -286,7 +286,7 @@ void RadioHardwarePage::build(FormWindow * window)
                    auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
                    SET_DIRTY();
                  });
-  aux->setAvailableHandler([=](int value) { return isAuxModeAvailable; });
+  aux->setAvailableHandler(isAuxModeAvailable);
   grid.nextLine();
 #endif
 
@@ -300,7 +300,7 @@ void RadioHardwarePage::build(FormWindow * window)
                    aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
                    SET_DIRTY();
                  });
-  aux2->setAvailableHandler([=](int value) { return isAux2ModeAvailable; });
+  aux2->setAvailableHandler(isAux2ModeAvailable);
   grid.nextLine();
 #endif
 
