@@ -284,12 +284,12 @@ class InputEditWindow : public Page
 
       // Flight modes
       new StaticText(window, grid.getLabelSlot(), STR_FLMODE);
-      for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+      for (uint32_t i=0; i<MAX_FLIGHT_MODES; i++) {
         char fm[2] = { char('0' + i), '\0'};
         if (i > 0 && (i % 4) == 0)
           grid.nextLine();
         new TextButton(window, grid.getFieldSlot(4, i % 4), fm,
-                       [=]() -> uint8_t {
+                       [=]() -> uint32_t {
                            BFBIT_FLIP(line->flightModes, bfBit<uint32_t>(i));
                            SET_DIRTY();
                            return !(bfSingleBitGet(line->flightModes, i));
