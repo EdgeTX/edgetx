@@ -165,10 +165,6 @@ class LogicalSwitchEditPage: public Page
                            {
                              int16_t v2_min = 0, v2_max = 0;
                              getMixSrcRange(cs->v1, v2_min, v2_max);
-                             if ((cs->v2 < v2_min) || (cs->v2 > v2_max))
-                             {
-                               v2Edit->setValue(0);
-                             }
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
                              v2Edit->invalidate();
