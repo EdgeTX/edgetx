@@ -128,6 +128,8 @@ void adcInit()
   ADC_DMA_Stream->NDTR = 2;
   ADC_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
 
+  ADC->CCR = ADC_CCR_VBATE; // Enable RTC coin cell sampling bridge
+  
   ADC1->CR1 = ADC_CR1_SCAN;
   ADC1->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
   ADC1->SQR1 = (1 - 1) << 20;
