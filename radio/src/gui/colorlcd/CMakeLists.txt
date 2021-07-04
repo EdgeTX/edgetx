@@ -62,6 +62,7 @@ set(GUI_SRC
   view_channels.cpp
   view_logical_switches.cpp
   view_statistics.cpp
+  view_text.cpp
   menu_screen.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp

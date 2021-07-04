@@ -21,10 +21,38 @@
 #include "static.h"
 
 MessageDialog::MessageDialog(Window* parent, const char* title,
-                             const char* message, const char* info,
-                             const int lineHeight,
-                             const WindowFlags windowFlags,
-                             const LcdFlags textFlags) :
+                             const char* message, const char* info) :
+    Dialog(parent, title, {50, 73, LCD_W - 100, LCD_H - 146})
+{
+  messageWidget = new StaticText(
+      this,
+      {0, coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), PAGE_LINE_HEIGHT},
+      message, 0, CENTERED);
+
+  infoWidget = new StaticText(this,
+                              {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2,
+                               width(), PAGE_LINE_HEIGHT},
+                              info, 0, CENTERED);
+  setCloseWhenClickOutside(true);
+  setFocus();
+}
+
+#if defined(HARDWARE_KEYS)
+void MessageDialog::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+    deleteLater();
+  }
+}
+#endif
+
+DynamicMessageDialog::DynamicMessageDialog(
+    Window* parent, const char* title, std::function<std::string()> textHandler,
+    const char* message, const int lineHeight,
+    const LcdFlags textFlags) :
     Dialog(parent, title, {50, 73, LCD_W - 100, LCD_H - 146})
 {
   setWindowFlags(windowFlags);
@@ -34,18 +62,19 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
       {0, coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), PAGE_LINE_HEIGHT},
       message, 0, CENTERED);
 
-  infoWidget = new StaticText(
+  infoWidget = new DynamicText(
       this,
       {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), lineHeight},
-      info, 0, textFlags);
+      textHandler, textFlags);
   setCloseWhenClickOutside(true);
   setFocus();
 }
 
 #if defined(HARDWARE_KEYS)
-void MessageDialog::onEvent(event_t event)
+void DynamicMessageDialog::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
 
   if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
     deleteLater();
