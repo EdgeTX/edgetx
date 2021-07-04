@@ -697,6 +697,13 @@ class ModuleWindow : public FormGroup {
           }
           else {
             new NumberEdit(this, grid.getFieldSlot(2,0), -128, 127, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+
+            //Show RSSI next to RF Freq Fine Tune
+            if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE)
+            {
+              new DynamicNumber<int>(this, grid.getFieldSlot(2, 1), [] {
+                  return (int)TELEMETRY_RSSI();}, 0, "RSSI: ", " db");
+            }
           }
         }
 
