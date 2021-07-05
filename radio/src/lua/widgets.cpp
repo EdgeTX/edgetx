@@ -190,6 +190,7 @@ class LuaWidget: public Widget
     const char * getErrorMessage() const override;
     void update() override;
     void background() override;
+    void onEvent(event_t event) override;
 
     // Calls LUA widget 'refresh' method
     void refresh(BitmapBuffer* dc) override;
@@ -199,6 +200,7 @@ class LuaWidget: public Widget
     char * errorMessage;
     uint32_t lastRefresh = 0;
     bool     refreshed = false;
+    event_t event = 0;
 
     void checkEvents() override;
     void setErrorMessage(const char * funcName);
@@ -344,7 +346,8 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   
   // Pass key event to fullscreen Lua widget
   if (fullscreen) {
-    event_t event = getWindowEvent();
+    event_t event = this->event;
+    this->event = 0;
     lua_pushinteger(lsWidgets, event);
   } else
     lua_pushnil(lsWidgets);
@@ -377,6 +380,18 @@ void LuaWidget::background()
       setErrorMessage("background()");
     }
   }
+}
+
+void LuaWidget::onEvent(event_t event)
+{
+#if defined(HARDWARE_KEYS)
+  if (fullscreen && EVT_KEY_LONG(KEY_EXIT) != event)
+    this->event = event;
+  else
+    this->event = 0;
+  
+  Widget::onEvent(event);
+#endif
 }
 
 void luaLoadWidgetCallback()
