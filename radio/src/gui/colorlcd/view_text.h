@@ -30,15 +30,19 @@ constexpr uint16_t TEXT_FILE_MAXSIZE = 2048;
 class ViewTextWindow : public Page
 {
  public:
-  ViewTextWindow(const std::string iPath, const std::string iName) :
-      Page(ICON_RADIO_SD_MANAGER),
+  ViewTextWindow(const std::string iPath, const std::string iName, unsigned int icon = ICON_RADIO_SD_MANAGER) :
+      Page(icon),
       path(std::move(iPath)),
-      name(std::move(iName))
+      name(std::move(iName)),
+      icon(icon)
   {
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
     textVerticalOffset = 0;
     //   slidingWindow = this;
+    //body.setWindowFlags(FORWARD_SCROLL);
+    header.setWindowFlags(NO_SCROLLBAR);
+    
 
     buildHeader(&header);
     buildBody(&body);
@@ -53,7 +57,7 @@ class ViewTextWindow : public Page
 
 #if defined(HARDWARE_TOUCH)
   bool sdReadTextLine(const char *filename, char lines[],
-                      const uint8_t lineLength = LCD_COLS);
+                      const uint8_t lineLength = LCD_COLS);                   
 #endif
 
 #if defined(DEBUG_WINDOWS)
@@ -65,9 +69,10 @@ class ViewTextWindow : public Page
   std::string name;
   std::string fullPath;
   std::string extension;
+  unsigned int icon;
+
   bool lastLine;
   uint16_t readCount;
-
   int textVerticalOffset;
 
   void extractNameSansExt(void);

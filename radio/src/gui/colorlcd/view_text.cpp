@@ -128,6 +128,7 @@ void ViewTextWindow::sdReadTextFile(const char *filename,
                         (lines_count == 0 || current_line - textVerticalOffset <
                                                  int(TEXT_VIEWER_LINES));
          i++) {
+      lines[current_line - textVerticalOffset][line_length++] = ' ';   
       if (c == '\n') {
         ++current_line;
         line_length = 0;
@@ -182,10 +183,10 @@ void ViewTextWindow::buildBody(Window *window)
   int i;
   const int numLines = (LCD_H - PAGE_TITLE_TOP) / PAGE_LINE_HEIGHT - 1;
   const int dispLines = min(numLines, (int)NUM_BODY_LINES);
-
+  // assume average characte is 8 pixels wide, round the string length to tens
+  const int maxLineLength = int(floor(window->width() / 10 / 8)) * 10 - 1;
   window->setFocus();
-  window->setWindowFlags(FORWARD_SCROLL);
-
+  
   for (i = 0; i < dispLines; i++) {
     memclear(&reusableBuffer.viewText.lines[i],
              sizeof(reusableBuffer.viewText.lines[i]));
@@ -207,7 +208,7 @@ void ViewTextWindow::buildBody(Window *window)
   for (i = 0; i < TEXT_FILE_MAXSIZE && !lastLine; i++) {
     lastLine =
         sdReadTextLine(reusableBuffer.viewText.filename,
-                       reusableBuffer.viewText.lines[0], window->width() - 1);
+                       reusableBuffer.viewText.lines[0], maxLineLength - 1);
 
     new StaticText(window, grid.getSlot(), reusableBuffer.viewText.lines[0]);
     grid.nextLine();
@@ -231,6 +232,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
   int current_line = 0;
 
   memclear(line, maxLineLength);
+  line[line_length++] = ' ';
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
@@ -305,7 +307,7 @@ void readModelNotes()
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR*)buf);
-  new ViewTextWindow(std::string(buf), modelNotesName);
+  new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
 
   LED_ERROR_END();
 }
