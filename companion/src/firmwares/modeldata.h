@@ -91,8 +91,8 @@ class CustomScreenData {
     CustomScreenOptionData options[];
 };
 #else
-typedef char CustomScreenData[610+1];
-typedef char TopbarData[216+1];
+typedef char CustomScreenData[850+1];
+typedef char TopbarData[300+1];
 #endif
 
 enum TrainerMode {

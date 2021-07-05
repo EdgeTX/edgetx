@@ -50,6 +50,7 @@ class TimerPanel : public ModelPanel
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onCountdownBeepChanged(int index);
+    void onModeChanged(int index);
 
   signals:
     void nameChanged();

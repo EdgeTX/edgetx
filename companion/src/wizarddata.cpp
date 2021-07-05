@@ -133,8 +133,7 @@ WizMix::operator ModelData()
   if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
     strncpy(model.timers[timerIndex].name, "Flt", sizeof(model.timers[timerIndex].name)-1);
-    model.timers[timerIndex].mode.type = SWITCH_TYPE_TIMER_MODE;
-    model.timers[timerIndex].mode.index = TMRMODE_THR_TRG;
+    model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
     timerIndex++;
   }
 
@@ -142,8 +141,7 @@ WizMix::operator ModelData()
   if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
     strncpy(model.timers[timerIndex].name, "Thr", sizeof(model.timers[timerIndex].name)-1);
-    model.timers[timerIndex].mode.type = SWITCH_TYPE_TIMER_MODE;
-    model.timers[timerIndex].mode.index = TMRMODE_THR;
+    model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
     timerIndex++;
   }
 

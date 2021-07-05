@@ -57,8 +57,12 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
 
-  ui->mode->setModel(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
+  ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
+  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onModeChanged(int)));
+
+  ui->swtch->setModel(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
+  ui->swtch->setField(timer.swtch, this);
 
   ui->countdownBeep->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNBEEP));
   ui->countdownBeep->setField(timer.countdownBeep, this);
@@ -102,10 +106,16 @@ void TimerPanel::update()
 
   ui->name->updateValue();
   ui->mode->updateValue();
+  ui->swtch->updateValue();
   ui->value->updateValue();
   ui->countdownBeep->updateValue();
   ui->minuteBeep->updateValue();
   ui->countdownStart->updateValue();
+
+  if (timer.mode != TimerData::TIMERMODE_START)
+    ui->swtch->setEnabled(false);
+  else
+    ui->swtch->setEnabled(true);
 
   if (timer.countdownBeep == TimerData::COUNTDOWNBEEP_SILENT) {
     ui->countdownStartLabel->setEnabled(false);
@@ -158,6 +168,12 @@ void TimerPanel::onNameChanged()
 void TimerPanel::onCountdownBeepChanged(int index)
 {
   timer.countdownBeepChanged();
+  update();
+}
+
+void TimerPanel::onModeChanged(int index)
+{
+  timer.modeChanged();
   update();
 }
 
@@ -998,7 +1014,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelFilteredModels = new FilteredItemModelFactory();
 
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                               RawSwitch::TimersContext),
+                                                               RawSwitch::AllSwitchContexts),
                                          FIM_TIMERSWITCH);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
 
@@ -1010,6 +1026,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownBeepItemModel());
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
+  panelItemModels->registerItemModel(TimerData::modeItemModel());
 
   Board::Type board = firmware->getBoard();
 

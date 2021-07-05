@@ -31,6 +31,7 @@ class AbstractStaticItemModel;
 constexpr char AIM_TIMER_COUNTDOWNBEEP[]  {"timerdata.countdownBeep"};
 constexpr char AIM_TIMER_COUNTDOWNSTART[] {"timerdata.countdownStart"};
 constexpr char AIM_TIMER_PERSISTENT[]     {"timerdata.persistent"};
+constexpr char AIM_TIMER_MODE[]           {"timerdata.mode"};
 
 constexpr int TIMER_NAME_LEN {8};
 
@@ -62,16 +63,27 @@ class TimerData {
       PERSISTENT_COUNT
     };
 
+    enum TimerMode {
+      TIMERMODE_OFF,
+      TIMERMODE_ON,
+      TIMERMODE_START,
+      TIMERMODE_THR,
+      TIMERMODE_THR_REL,
+      TIMERMODE_THR_START,
+      TIMERMODE_COUNT,
+      TIMERMODE_MAX = TIMERMODE_COUNT - 1
+    };
+
     TimerData() { clear(); }
 
-    RawSwitch    mode;
+    RawSwitch    swtch;
+    unsigned int mode;
     char         name[TIMER_NAME_LEN + 1];
     bool         minuteBeep;
     unsigned int countdownBeep;
     unsigned int val;
     unsigned int persistent;
     int          countdownStart;
-    unsigned int direction;
     int          pvalue;
 
     void convert(RadioDataConversionState & cstate);
@@ -84,15 +96,19 @@ class TimerData {
     QString persistentToString(const bool verbose = true) const;
     QString pvalueToString() const;
     QString valToString() const;
+    QString modeToString() const;
     void countdownBeepChanged();
+    void modeChanged();
 
     static QString countdownBeepToString(const int value);
     static QString countdownStartToString(const int value);
     static QString persistentToString(const int value, const bool verbose = true);
     static QString pvalueToString(const int value);
     static QString valToString(const int value);
+    static QString modeToString(const int value);
     static AbstractStaticItemModel * countdownBeepItemModel();
     static AbstractStaticItemModel * countdownStartItemModel();
     static AbstractStaticItemModel * persistentItemModel();
+    static AbstractStaticItemModel * modeItemModel();
 
 };

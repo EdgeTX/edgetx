@@ -50,13 +50,13 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     tr("TrmV Down"), tr("TrmV Up")
   };
 
-  static const QString rotaryEncoders[] = {
-    tr("REa"), tr("REb")
-  };
-
   static const QString timerModes[] = {
     tr("OFF"), tr("ON"),
     tr("THs"), tr("TH%"), tr("THt")
+  };
+
+  static const QString rotaryEncoders[] = {
+    tr("REa"), tr("REb")
   };
 
   static const QStringList directionIndicators = QStringList()
