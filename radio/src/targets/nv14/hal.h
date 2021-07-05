@@ -365,10 +365,6 @@
 
 // Flysky Hall Stick
 #if defined(FLYSKY_HALL_STICKS)
-  #if defined (RADIO_TX16S)
-    #define FLYSKY_HALL_STICKS_REVERSE
-  #endif
-
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
   #define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
@@ -391,7 +387,6 @@
 
   #define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
   #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
-
 #endif
 
 // Internal Module

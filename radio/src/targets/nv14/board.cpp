@@ -30,7 +30,6 @@ extern "C" {
 #endif
 
 extern void flysky_hall_stick_init( void );
-extern void flysky_hall_stick_loop( void );
 
 HardwareOptions hardwareOptions;
 
@@ -43,68 +42,6 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xAAAA;      // reload
   IWDG->KR = 0xCCCC;      // start
 }
-
-// Start TIMER7 at 2000000Hz
-void init2MhzTimer()
-{
-  TIMER_2MHz_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 2000000 - 1; // 0.5 uS, 2 MHz
-  TIMER_2MHz_TIMER->ARR = 65535;
-  TIMER_2MHz_TIMER->CR2 = 0;
-  TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
-}
-
-// Starts TIMER at 1000Hz
-void init1msTimer()
-{
-  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
-  INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
-  INTERRUPT_xMS_TIMER->CCER = 0;
-  INTERRUPT_xMS_TIMER->CCMR1 = 0;
-  INTERRUPT_xMS_TIMER->EGR = 0;
-  INTERRUPT_xMS_TIMER->CR1 = 5;
-  INTERRUPT_xMS_TIMER->DIER |= 1;
-  NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
-  NVIC_SetPriority(INTERRUPT_xMS_IRQn, 7);
-}
-void interrupt1ms()
-{
-  static uint8_t pre_scale;       // Used to get 10 Hz counter
-
-  ++pre_scale;
-  
-#if defined(DEBUG) && !defined(SIMU)
-  debugCounter1ms++;
-#endif
-
-#if defined(HAPTIC) && !defined(BOOT)
-  if (pre_scale == 5 || pre_scale == 10) {
-    DEBUG_TIMER_START(debugTimerHaptic);
-    HAPTIC_HEARTBEAT();
-    DEBUG_TIMER_STOP(debugTimerHaptic);
-  }
-#endif
-#if !defined(SIMU)
-    if (boardState == BOARD_STARTED) flysky_hall_stick_loop();
-#endif
-  if (pre_scale == 10) {
-    pre_scale = 0;
-    DEBUG_TIMER_START(debugTimerPer10ms);
-    DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
-    per10ms();
-    DEBUG_TIMER_STOP(debugTimerPer10ms);
-  }
-
-  DEBUG_TIMER_START(debugTimerRotEnc);
-  DEBUG_TIMER_STOP(debugTimerRotEnc);
-}
-#if !defined(BOOT)
-extern "C" void INTERRUPT_xMS_IRQHandler()
-{
-  INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt1ms();
-  DEBUG_INTERRUPT(INT_1MS);
-}
-#endif
 
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
@@ -187,8 +124,11 @@ void boardInit()
   pwrInit();
   extModuleInit();
   battery_charge_init();
+#if defined(FLYSKY_HALL_STICKS)
+  flysky_hall_stick_init();
+#endif
   init2MhzTimer();
-  init1msTimer();
+  init5msTimer();
   TouchInit();
 
   uint32_t press_start = 0;
@@ -230,9 +170,6 @@ void boardInit()
   adcInit();
   backlightInit();
   lcdInit();
-#if defined(FLYSKY_HALL_STICKS)
-  flysky_hall_stick_init();
-#endif
   usbInit();
   hapticInit();
   boardState = BOARD_STARTED;
