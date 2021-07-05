@@ -230,9 +230,9 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x5A,                // 0x8053 Screen touch level
     0x3C,                // 0x8054 Screen touch leave
     0x03,                // 0x8055 Low power control
-    0x05,                // 0x8056 Refresh rate
-    0x00,                // 0x8057 X threshold
-    0x00,                // 0x8058 Y threshold
+    0x0F,                // 0x8056 Refresh rate
+    0x01,                // 0x8057 X threshold
+    0x01,                // 0x8058 Y threshold
     0x00,                // 0x8059 Reserved
     0x00,                // 0x805A Reserved
     0x11,                // 0x805B Space (top, bottom)
@@ -405,6 +405,9 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 uint8_t touchGT911Flag = 0;
 uint8_t touchEventOccured = 0;
+uint16_t touchGT911fwver = 0;
+uint16_t touchGT911hiccups = 0;
+
 struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
@@ -625,6 +628,7 @@ uint8_t I2C_GT911_SendConfig(uint8_t mode)
 void touchPanelDeInit(void)
 {
   TOUCH_AF_ExtiStop();
+  touchGT911Flag = 0;
 }
 
 bool touchPanelInit(void)
@@ -675,6 +679,11 @@ bool touchPanelInit(void)
       delay_ms(10);
       tmp[0] = 0X00;
       I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1);  //end reset
+
+      I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2);
+      touchGT911fwver = (tmp[1] << 8) + tmp[0];
+      TRACE("GT911 FW version: %u", touchGT911fwver);
+
       touchGT911Flag = true;
 
       TOUCH_AF_ExtiConfig();
@@ -716,7 +725,10 @@ void touchPanelRead()
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
-      TRACE("GT911 I2C read error");
+      touchGT911hiccups++;
+      TRACE("GT911 I2C read XY error");
+      touchPanelDeInit();
+      touchPanelInit();
       return;
     }
 
@@ -734,7 +746,10 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
-        TRACE("GT911 I2C read error");
+        touchGT911hiccups++;
+        TRACE("GT911 I2C data read error");
+        touchPanelDeInit();
+        touchPanelInit();
         return;
       }
       if (touchState.event == TE_NONE || touchState.event == TE_UP ||
