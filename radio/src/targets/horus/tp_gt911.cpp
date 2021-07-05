@@ -625,6 +625,7 @@ uint8_t I2C_GT911_SendConfig(uint8_t mode)
 void touchPanelDeInit(void)
 {
   TOUCH_AF_ExtiStop();
+  touchGT911Flag = 0;
 }
 
 bool touchPanelInit(void)
