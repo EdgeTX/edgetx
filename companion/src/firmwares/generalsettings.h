@@ -237,12 +237,13 @@ class GeneralSettings {
     unsigned int sliderConfig[CPN_MAX_SLIDERS];
 
     char themeName[THEME_NAME_LEN + 1];
-    typedef uint8_t ThemeOptionData[8 + 1];
+    typedef char ThemeOptionData[12 + 1];
     ThemeOptionData themeOptionValue[5];
 
     char registrationId[REGISTRATION_ID_LEN + 1];
     int gyroMax;
     int gyroOffset;
+    int uartSampleMode;
 
     int pwrOnSpeed;
     int pwrOffSpeed;

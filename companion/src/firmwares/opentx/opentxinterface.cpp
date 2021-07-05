@@ -280,7 +280,7 @@ unsigned long OpenTxEepromInterface::load(RadioData &radioData, const uint8_t * 
 
 uint8_t OpenTxEepromInterface::getLastDataVersion(Board::Type board)
 {
-  return 219;
+  return 220;
 }
 
 void OpenTxEepromInterface::showErrors(const QString & title, const QStringList & errors)
@@ -927,6 +927,23 @@ EepromLoadErrors OpenTxEepromInterface::checkVersion(unsigned int version)
       return OLD_VERSION;
 
     case 219:
+      // 60 (Horus / X9) / 40 (others) telemetry sensors instead of 32
+      // ALL: ReceiverData array added
+      // ALL: registrationId added
+      // ALL: failsafeChannels moved from ModuleData to ModelData
+      // ALL: ModuleData / TrainerModuleData modified
+      // PCBX9 : 6 chars for expos / mixes names instead of 8
+      // on X7: 2 additional switches
+      // on X9D / X9D+: 1 additional switch
+      // on xlite : 2 more storage switches
+      // on X10: 2 additional pots => 12 multipos switches
+      return OLD_VERSION;
+
+    case 220:
+      // Refer radio/src/storage/conversions/conversions_219_220.cpp
+      // ALL: TimerData split mode into separate mode and switch and change modes
+      // ALL: convert more fields from zchar to normal string
+      // COLORLCD: change CustomScreenData and TopBarPersistentData
       break;
 
     default:

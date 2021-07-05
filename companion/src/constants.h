@@ -47,7 +47,7 @@
 #define CPN_MAX_GYRO_ANALOGS           2
 #define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)
 
-#define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "OpenTX Companion")
+#define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
 #define CPN_STR_TTL_WARNING            QCoreApplication::translate("Companion", "Warning")
 #define CPN_STR_TTL_ERROR              QCoreApplication::translate("Companion", "Error")

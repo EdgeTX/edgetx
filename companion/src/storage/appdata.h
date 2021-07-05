@@ -45,11 +45,11 @@
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
 
-#define COMPANY                     QStringLiteral("OpenTX")
-#define COMPANY_DOMAIN              QStringLiteral("open-tx.org")
+#define COMPANY                     QStringLiteral("EdgeTX")
+#define COMPANY_DOMAIN              QStringLiteral("edge-tx.org")
 #define PRODUCT                     QStringLiteral("Companion " QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR))
-#define APP_COMPANION               QStringLiteral("OpenTX Companion")
-#define APP_SIMULATOR               QStringLiteral("OpenTX Simulator")
+#define APP_COMPANION               QStringLiteral("EdgeTX Companion")
+#define APP_SIMULATOR               QStringLiteral("EdgeTX Simulator")
 
 //! Default location for OpenTX-related user documents (settigns, logs, etc)
 #define CPN_DOCUMENTS_LOCATION      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) % "/" % COMPANY
@@ -58,7 +58,7 @@
 #define CPN_SETTINGS_INI_FILE       QString(PRODUCT % " " % QCoreApplication::translate("Companion", "settings") % " %1.ini")
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
-#define CPN_URL_DOWNLOAD           "https://downloads.open-tx.org/"
+#define CPN_URL_DOWNLOAD           "https://downloads.edge-tx.org/"
 #define CPN_URL_DOWNLOAD_CUR_VERS  CPN_URL_DOWNLOAD QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR) "/"
 #define CPN_URL_DOWNLOAD_CUR_REL   CPN_URL_DOWNLOAD_CUR_VERS "release/"
 #define CPN_URL_DOWNLOAD_CUR_RC    CPN_URL_DOWNLOAD_CUR_VERS "rc/"

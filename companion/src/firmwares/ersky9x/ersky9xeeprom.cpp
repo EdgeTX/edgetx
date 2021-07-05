@@ -90,9 +90,9 @@ t_Ersky9xGeneral::t_Ersky9xGeneral()
 Ersky9xGeneral::operator GeneralSettings ()
 {
   GeneralSettings result;
-  
+
   result.version = myVers;
-  
+
   for (int i=0; i<CPN_MAX_STICKSnPOTS; i++) {
     result.calibMid[i] = calibMid[i];
     result.calibSpanNeg[i] = calibSpanNeg[i];
@@ -280,7 +280,7 @@ t_Ersky9xMixData_v11::operator MixData ()
   }
   else if (srcRaw > 45) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_GVAR, srcRaw-46);
-  }  
+  }
   else if (srcRaw <= 12) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_CYC, srcRaw-10);
   }
@@ -504,7 +504,7 @@ t_Ersky9xModelData_v10::operator ModelData ()
   c9x.used = true;
   getEEPROMString(c9x.name, name, sizeof(name));
   for (int i=0; i<2; i++) {
-    c9x.timers[i].mode = getErSky9xTimerMode(timer[i].tmrModeA);
+    c9x.timers[i].mode = timer[i].tmrModeA < 4 ? timer[i].tmrModeA : 0;
     c9x.timers[i].val = timer[i].tmrVal;
   }
   switch(protocol) {
@@ -619,7 +619,7 @@ t_Ersky9xModelData_v11::operator ModelData ()
   c9x.used = true;
   getEEPROMString(c9x.name, name, sizeof(name));
   for (int i=0; i<2; i++) {
-    c9x.timers[i].mode = getErSky9xTimerMode(timer[i].tmrModeA);
+    c9x.timers[i].mode = timer[i].tmrModeA < 4 ? timer[i].tmrModeA : 0;
     c9x.timers[i].val = timer[i].tmrVal;
   }
   switch(protocol) {

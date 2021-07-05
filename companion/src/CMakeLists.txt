@@ -19,7 +19,7 @@ endif()
 # This the name that the user will see in the generated DMG and what the application
 # will be called under /Applications. We include the version string to make installing
 # different versions for different eeproms easier, i.e. without manually renaming
-set(COMPANION_OSX_APP_BUNDLE_NAME "OpenTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
+set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
 
 # On OS X we copy dfu-util to the application bundle. This the path from which we copy
 # the binary (default homebrew path)
@@ -494,7 +494,7 @@ if(WIN32)
 endif()
 
 set(CPACK_PACKAGE_NAME "companion${C9X_NAME_SUFFIX}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the OpenTX open source firmware")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the EdgeTX open source firmware")
 string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
 
 # The file stripping is deliberately disabled, with the stripped file we get
@@ -515,8 +515,8 @@ IF(APPLE)
   # Use a non standard Info.plist that adds Retina support flags
   set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/companion/targets/mac/MacOSXBundleInfo.plist.in)
   set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/companion/targets/mac/MacOSXBundleInfo.plist.in)
-  
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.opentx.companion")
+
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
   INSTALL(TARGETS ${COMPANION_NAME}
       BUNDLE DESTINATION . COMPONENT Runtime
@@ -596,7 +596,7 @@ elseif(APPLE)
 # set(CPACK_GENERATOR "TGZ")  # for quick testing
   set(CPACK_BINARY_DRAGNDROP ON)
   set(CPACK_DMG_BACKGROUND_IMAGE ${COMPANION_SRC_DIRECTORY}/images/splash_dmg.png)
-  set(CPACK_DMG_VOLUME_NAME "OpenTX Companion")
+  set(CPACK_DMG_VOLUME_NAME "EdgeTX Companion")
   set(CPACK_DMG_DS_STORE ${PROJECT_SOURCE_DIR}/companion/targets/mac/DS_Store)
   set(CPACK_PACKAGE_FILE_NAME "opentx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 else(DPKG_PROGRAM)
