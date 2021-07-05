@@ -94,7 +94,7 @@ void ViewTextWindow::onEvent(event_t event)
       break;
 
     default:
-      Page::onE vent(event);
+      Page::onEvent(event);
       break;
   }
 }
