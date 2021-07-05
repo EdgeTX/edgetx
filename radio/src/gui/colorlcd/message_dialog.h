@@ -23,28 +23,27 @@
 #include "dialog.h"
 #include "static.h"
 
-class MessageDialog: public Dialog {
-  public:
-    MessageDialog(Window * parent, const char * title, const char * message, const char * info = "");
+class MessageDialog : public Dialog
+{
+ public:
+  MessageDialog(Window* parent, const char* title, const char* message,
+                const char* info = "", const int lineHeight = PAGE_LINE_HEIGHT,
+                const WindowFlags windowFlags = 0,
+                const LcdFlags textFlags = CENTERED);
+  // Attn.: FONT(XXL) is not supported by MessageDialog
 
-    void setInfoText(std::string text)
-    {
-      infoWidget->setText(std::move(text));
-    }
+  void setInfoText(std::string text) { infoWidget->setText(std::move(text)); }
 
-  protected:
-    StaticText * messageWidget;
-    StaticText * infoWidget;
-
+ protected:
+  StaticText* messageWidget;
+  StaticText* infoWidget;
+  LcdFlags textFlags;
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "MessageDialog";
-    }
+  std::string getName() const override { return "MessageDialog"; }
 #endif
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 };
 
