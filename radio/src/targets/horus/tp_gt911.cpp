@@ -716,6 +716,7 @@ void touchPanelRead()
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
+      ledRed();        
       TRACE("GT911 I2C read XY error");
       touchPanelDeInit();
       touchPanelInit();
@@ -736,6 +737,7 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
+        ledRed();        
         TRACE("GT911 I2C data read error");
         touchPanelDeInit();
         touchPanelInit();
