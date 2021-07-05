@@ -230,7 +230,7 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x5A,                // 0x8053 Screen touch level
     0x3C,                // 0x8054 Screen touch leave
     0x03,                // 0x8055 Low power control
-    0x05,                // 0x8056 Refresh rate
+    0x0F,                // 0x8056 Refresh rate
     0x00,                // 0x8057 X threshold
     0x00,                // 0x8058 Y threshold
     0x00,                // 0x8059 Reserved
