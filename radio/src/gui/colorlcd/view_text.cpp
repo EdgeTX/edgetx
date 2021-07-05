@@ -204,17 +204,16 @@ void ViewTextWindow::buildBody(Window *window)
 #if defined(HARDWARE_TOUCH)
   readCount = 0;
   lastLine = false;
-  for (i = 0; i < TEXT_FILE_MAXSIZE; i++) {
+  for (i = 0; i < TEXT_FILE_MAXSIZE && !lastLine; i++) {
     lastLine =
         sdReadTextLine(reusableBuffer.viewText.filename,
                        reusableBuffer.viewText.lines[0], window->width() - 1);
-    if (lastLine) break;
 
     new StaticText(window, grid.getSlot(), reusableBuffer.viewText.lines[0]);
     grid.nextLine();
   }
-
 #endif
+
   window->setInnerHeight(grid.getWindowHeight());
 }
 
@@ -304,7 +303,9 @@ void readModelNotes()
 
   std::string modelNotesName(g_model.header.name);
   modelNotesName.append(TEXT_EXT);
-  new ViewTextWindow(MODELS_PATH, modelNotesName);
+  const char buf[] = {MODELS_PATH};
+  f_chdir((TCHAR*)buf);
+  new ViewTextWindow(std::string(buf), modelNotesName);
 
   LED_ERROR_END();
 }

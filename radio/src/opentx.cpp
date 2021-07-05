@@ -746,16 +746,9 @@ void checkAll()
   disableVBatBridge();
 #endif
 
-#if defined(COLORLCD)
-//#warning "Model notes missing"
   if (g_model.displayChecklist && modelHasNotes()) {
     readModelNotes();
   }
-#else
-  if (g_model.displayChecklist && modelHasNotes()) {
-    readModelNotes();
-  }
-#endif
 
 #if defined(MULTIMODULE)
   checkMultiLowPower();
