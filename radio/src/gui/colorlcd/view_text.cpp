@@ -25,12 +25,20 @@
 #include "opentx.h"
 #include "sdcard.h"
 
-#define EVT_KEY_NEXT_LINE \
-  EVT_ROTARY_RIGHT | EVT_KEY_BREAK(KEY_PGDN) | EVT_KEY_BREAK(KEY_DOWN)
-#define EVT_KEY_PREVIOUS_LINE \
-  EVT_ROTARY_LEFT | EVT_KEY_BREAK(KEY_PGUP) | EVT_KEY_BREAK(KEY_UP)
-#define EVT_START \
-  EVT_ENTRY | EVT_KEY_BREAK(KEY_ENTER) | EVT_KEY_BREAK(KEY_TELEM)
+#define CASE_EVT_KEY_NEXT_LINE \
+  case EVT_ROTARY_RIGHT: \
+  case EVT_KEY_BREAK(KEY_PGDN): \
+  case EVT_KEY_BREAK(KEY_DOWN)
+
+#define CASE_EVT_KEY_PREVIOUS_LINE \
+  case EVT_ROTARY_LEFT: \
+  case EVT_KEY_BREAK(KEY_PGUP): \
+  case EVT_KEY_BREAK(KEY_UP)
+
+#define CASE_EVT_START \
+  case EVT_ENTRY: \
+  case EVT_KEY_BREAK(KEY_ENTER): \
+  case EVT_KEY_BREAK(KEY_TELEM)
 
 void ViewTextWindow::extractNameSansExt()
 {
@@ -63,7 +71,7 @@ void ViewTextWindow::onEvent(event_t event)
       reusableBuffer.viewText.linesCount = 1;
    */
   switch (event) {
-    case EVT_START:
+    CASE_EVT_START:
       textVerticalOffset = 0;
       reusableBuffer.viewText.linesCount = 0;
       sdReadTextFile(reusableBuffer.viewText.filename,
@@ -71,8 +79,7 @@ void ViewTextWindow::onEvent(event_t event)
                      reusableBuffer.viewText.linesCount);
       break;
 
-    case EVT_KEY_NEXT_LINE:
-
+    CASE_EVT_KEY_NEXT_LINE:
       if (textVerticalOffset == 0)
         break;
       else
@@ -82,7 +89,7 @@ void ViewTextWindow::onEvent(event_t event)
                      reusableBuffer.viewText.linesCount);
       break;
 
-    case EVT_KEY_PREVIOUS_LINE:
+    CASE_EVT_KEY_PREVIOUS_LINE:
       if (textVerticalOffset + (int)numLines - 1 >=
           (int)reusableBuffer.viewText.linesCount)
         break;
