@@ -30,7 +30,7 @@ bool touchPanelEventOccured();
 
 #define GT911_TIMEOUT 20 // 20ms
 
-#define GT911_MAX_TP            1
+#define GT911_MAX_TP            5
 #define GT911_CFG_NUMER         0x6C
 
 //I2C
