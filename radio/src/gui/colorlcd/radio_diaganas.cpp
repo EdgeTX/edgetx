@@ -49,8 +49,12 @@ class RadioAnalogsDiagsWindow: public Window {
       }
 
 #if defined(HARDWARE_TOUCH)
-      constexpr coord_t y = MENU_CONTENT_TOP + 6 * FH;
+      constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
+      constexpr coord_t x1 = MENUS_MARGIN_LEFT;
+      dc->drawText(x1, y1, "Touch GT911 FW ver: ");
+      dc->drawNumber(x1 + 150, y1, touchGT911fwver, LEADING0 | LEFT, 4);
 
+      constexpr coord_t y = MENU_CONTENT_TOP + 6 * FH;
       if (touchState.event != TE_NONE && touchState.event != TE_SLIDE_END) {
         coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
         x = dc->drawNumber(x + 5, y, touchState.x);

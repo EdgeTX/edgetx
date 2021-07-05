@@ -23,6 +23,7 @@
 #define HAS_TOUCH_PANEL()     touchGT911Flag == true
 
 extern uint8_t touchGT911Flag;
+extern uint16_t touchGT911fwver;
 extern bool touchPanelInit();
 
 void touchPanelRead();

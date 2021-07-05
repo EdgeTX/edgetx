@@ -405,6 +405,7 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 uint8_t touchGT911Flag = 0;
 uint8_t touchEventOccured = 0;
+uint16_t touchGT911fwver = 0;
 struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
@@ -675,6 +676,11 @@ bool touchPanelInit(void)
       delay_ms(10);
       tmp[0] = 0X00;
       I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1);  //end reset
+
+      I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2);
+      touchGT911fwver = (tmp[1] << 8) + tmp[0];
+      TRACE("GT911 FW version: %u", touchGT911fwver);
+
       touchGT911Flag = true;
 
       TOUCH_AF_ExtiConfig();
