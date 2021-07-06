@@ -231,8 +231,8 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x3C,                // 0x8054 Screen touch leave
     0x03,                // 0x8055 Low power control
     0x0F,                // 0x8056 Refresh rate
-    0x0A,                // 0x8057 X threshold
-    0x0A,                // 0x8058 Y threshold
+    0x01,                // 0x8057 X threshold
+    0x01,                // 0x8058 Y threshold
     0x00,                // 0x8059 Reserved
     0x00,                // 0x805A Reserved
     0x11,                // 0x805B Space (top, bottom)
@@ -406,6 +406,7 @@ const uint8_t TOUCH_GT911_Cfg[] =
 uint8_t touchGT911Flag = 0;
 uint8_t touchEventOccured = 0;
 uint16_t touchGT911fwver = 0;
+uint16_t touchGT911hiccups = 0;
 struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
@@ -723,7 +724,7 @@ void touchPanelRead()
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
-      ledRed();        
+      touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       touchPanelDeInit();
       touchPanelInit();
@@ -744,7 +745,7 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
-        ledRed();        
+        touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         touchPanelDeInit();
         touchPanelInit();
