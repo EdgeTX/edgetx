@@ -183,8 +183,9 @@ void ViewTextWindow::buildBody(Window *window)
   int i;
   const int numLines = (LCD_H - PAGE_TITLE_TOP) / PAGE_LINE_HEIGHT - 1;
   const int dispLines = min(numLines, (int)NUM_BODY_LINES);
-  // assume average characte is 8 pixels wide, round the string length to tens
-  const int maxLineLength = int(floor(window->width() / 10 / 8)) * 10 - 1;
+  // assume average characte is 10 pixels wide, round the string length to tens. 
+  // Font is not fixed width, so this is for the worst case...
+  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10;
   window->setFocus();
   
   for (i = 0; i < dispLines; i++) {
@@ -232,7 +233,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
   int current_line = 0;
 
   memclear(line, maxLineLength);
-  line[line_length++] = ' ';
+  line[line_length++] = 0x20;
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
@@ -283,6 +284,8 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
         }
         escape = 0;
         line[line_length++] = c;
+      } else if(line_length == maxLineLength) {
+          readCount--;
       }
     }
     if (c != '\n') {
