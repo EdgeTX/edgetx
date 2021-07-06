@@ -185,7 +185,8 @@ void ViewTextWindow::buildBody(Window *window)
   const int dispLines = min(numLines, (int)NUM_BODY_LINES);
   // assume average characte is 10 pixels wide, round the string length to tens. 
   // Font is not fixed width, so this is for the worst case...
-  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10;
+  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10 -2;
+  //const int maxLineLength = min(120, int(LCD_COLS * TEXT_VIEWER_LINES - 10));
   window->setFocus();
   
   for (i = 0; i < dispLines; i++) {
@@ -205,15 +206,17 @@ void ViewTextWindow::buildBody(Window *window)
 #endif
 #if defined(HARDWARE_TOUCH)
   readCount = 0;
+  longestLine = 0;
   lastLine = false;
   for (i = 0; i < TEXT_FILE_MAXSIZE && !lastLine; i++) {
     lastLine =
         sdReadTextLine(reusableBuffer.viewText.filename,
-                       reusableBuffer.viewText.lines[0], maxLineLength - 1);
+                       reusableBuffer.viewText.lines[0], maxLineLength);
 
     new StaticText(window, grid.getSlot(), reusableBuffer.viewText.lines[0]);
     grid.nextLine();
   }
+  window->setInnerWidth( (longestLine + 4) * 10);
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());
@@ -246,7 +249,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
 
     for (uint8_t i = 0; i < maxLineLength && readCount < (int)TEXT_FILE_MAXSIZE;
          ++i) {
-      if (f_read(&file, &c, 1, &sz) != FR_OK || !sz) {
+      if ( (f_read(&file, &c, 1, &sz) != FR_OK || !sz) && line_length < maxLineLength) {
         f_close(&file);
         return true;
       }
@@ -258,7 +261,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
         escape = 0;
         f_close(&file);
         return false;
-      } else if (c != '\r' && line_length < maxLineLength) {
+      } else if (c != '\r' ) {
         if (c == '\\' && escape == 0) {
           escape = 1;
           continue;
@@ -284,8 +287,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
         }
         escape = 0;
         line[line_length++] = c;
-      } else if(line_length == maxLineLength) {
-          readCount--;
+        if(longestLine < line_length) longestLine = line_length;
       }
     }
     if (c != '\n') {

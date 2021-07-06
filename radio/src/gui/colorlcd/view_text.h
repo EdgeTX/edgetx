@@ -74,6 +74,7 @@ class ViewTextWindow : public Page
   bool lastLine;
   uint16_t readCount;
   int textVerticalOffset;
+  int longestLine;
 
   void extractNameSansExt(void);
   void buildBody(Window *window);
