@@ -24,11 +24,6 @@
 
 constexpr coord_t ANA_OFFSET = 150;
 
-#if defined(HARDWARE_TOUCH)
-extern uint16_t touchGT911fwver;
-extern uint16_t touchGT911hiccups;
-#endif
-
 class RadioAnalogsDiagsWindow: public Window {
   public:
     RadioAnalogsDiagsWindow(Window * parent, const rect_t & rect):
@@ -64,13 +59,14 @@ class RadioAnalogsDiagsWindow: public Window {
         dc->drawLine(touchState.x - 10, touchState.y - 8 - parent->top(), touchState.x + 10, touchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(touchState.x - 10, touchState.y + 8 - parent->top(), touchState.x + 10, touchState.y - 8- parent->top(), SOLID, 0);
       }
-
+#if defined(RADIO_TX16S)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
       constexpr coord_t x1 = MENUS_MARGIN_LEFT;
       dc->drawText(x1, y1, "Touch GT911 FW ver:");
       dc->drawNumber(x1 + 150, y1, touchGT911fwver, LEFT, 4);
       dc->drawText(x1 + 200, y1, "Hiccups:");
       dc->drawNumber(x1 + 260, y1, touchGT911hiccups, LEFT, 5);
+#endif
 #endif
     };
 
