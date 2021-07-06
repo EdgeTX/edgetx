@@ -405,8 +405,6 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 uint8_t touchGT911Flag = 0;
 uint8_t touchEventOccured = 0;
-uint16_t touchGT911fwver = 0;
-uint16_t touchGT911hiccups = 0;
 struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
