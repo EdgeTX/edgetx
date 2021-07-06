@@ -22,10 +22,6 @@
 #include "radio_diaganas.h"
 #include "libopenui.h"
 
-#if defined(HARDWARE_TOUCH)
-#include "tp_gt911.h"
-#endif
-
 constexpr coord_t ANA_OFFSET = 150;
 
 class RadioAnalogsDiagsWindow: public Window {

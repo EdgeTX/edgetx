@@ -46,5 +46,7 @@ struct TouchState
 constexpr uint8_t SLIDE_RANGE = 6;
 
 extern TouchState touchState;
+extern uint16_t touchGT911fwver;
+extern uint16_t touchGT911hiccups;
 
 #endif // _TOUCH_H_
