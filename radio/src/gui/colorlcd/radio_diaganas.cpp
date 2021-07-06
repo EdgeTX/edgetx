@@ -24,6 +24,11 @@
 
 constexpr coord_t ANA_OFFSET = 150;
 
+#if defined(HARDWARE_TOUCH)
+extern uint16_t touchGT911fwver;
+extern uint16_t touchGT911hiccups;
+#endif
+
 class RadioAnalogsDiagsWindow: public Window {
   public:
     RadioAnalogsDiagsWindow(Window * parent, const rect_t & rect):
