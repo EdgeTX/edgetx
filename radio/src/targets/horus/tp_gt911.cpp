@@ -670,7 +670,7 @@ bool touchPanelInit(void)
       I2C_GT911_ReadRegister(GT_CFGS_REG, tmp, 1);
 
       TRACE("Chip config Ver:%x\r\n", tmp[0]);
-      if (tmp[0] < GT911_CFG_NUMER)  //Config ver
+      if (tmp[0] <= GT911_CFG_NUMER)  //Config ver
       {
         TRACE("Sending new config %d", GT911_CFG_NUMER);
         I2C_GT911_SendConfig(1);
@@ -725,9 +725,9 @@ void touchPanelRead()
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
+      touchPanelDeInit();
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
-      touchPanelDeInit();
       touchPanelInit();
       return;
     }
@@ -746,9 +746,9 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
+        touchPanelDeInit();
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
-        touchPanelDeInit();
         touchPanelInit();
         return;
       }
