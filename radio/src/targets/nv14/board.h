@@ -399,20 +399,19 @@ uint32_t pwrPressedDuration();;
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 void lcdInit();
-void lcdNextLayer();
 void lcdRefresh();
 void lcdCopy(void * dest, void * src);
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format);
+void lcdStoreBackupBuffer();
+int lcdRestoreBackupBuffer();
 void lcdSetContrast();
 void lcdOff();
 void lcdOn();
 #define lcdSetRefVolt(...)
 #define lcdRefreshWait(...)
-void lcdStoreBackupBuffer();
-int lcdRestoreBackupBuffer();
 
 // Backlight driver
 void backlightInit();
