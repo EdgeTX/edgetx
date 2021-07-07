@@ -69,7 +69,7 @@ void boardOff();
 
 // Timers driver
 void init2MhzTimer();
-void init5msTimer();
+void init1msTimer();
 
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)

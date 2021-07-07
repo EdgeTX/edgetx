@@ -31,10 +31,10 @@ void init2MhzTimer()
   TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
 }
 
-// Start TIMER at 200Hz
-void init5msTimer()
+// Start TIMER at 1000Hz
+void init1msTimer()
 {
-  INTERRUPT_xMS_TIMER->ARR = 4999; // 5mS in uS
+  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
   INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
   INTERRUPT_xMS_TIMER->CCER = 0;
   INTERRUPT_xMS_TIMER->CCMR1 = 0;
@@ -45,30 +45,37 @@ void init5msTimer()
   NVIC_SetPriority(INTERRUPT_xMS_IRQn, 7);
 }
 
-void stop5msTimer()
+void stop1msTimer()
 {
   INTERRUPT_xMS_TIMER->CR1 = 0; // stop timer
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
 }
 
 // TODO use the same than board_sky9x.cpp
-void interrupt5ms()
+void interrupt1ms()
 {
   static uint8_t pre_scale; // Used to get 10 Hz counter
 
   ++pre_scale;
 
-#if defined(HAPTIC)
-  DEBUG_TIMER_START(debugTimerHaptic);
-  HAPTIC_HEARTBEAT();
-  DEBUG_TIMER_STOP(debugTimerHaptic);
-#endif
-
+  // 1 ms loop
 #if defined(FLYSKY_HALL_STICKS)
   flysky_hall_stick_loop();  // TODO: need to put in 1ms timer loop for best performance
 #endif
 
-  if (pre_scale == 2) {
+  // 5ms loop
+  if (pre_scale == 5 || pre_scale == 10)
+  {
+#if defined(HAPTIC)
+    DEBUG_TIMER_START(debugTimerHaptic);
+    HAPTIC_HEARTBEAT();
+    DEBUG_TIMER_STOP(debugTimerHaptic);
+#endif
+  }
+  
+  // 10ms loop
+  if (pre_scale == 10)
+	{
     pre_scale = 0;
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
@@ -80,6 +87,6 @@ void interrupt5ms()
 extern "C" void INTERRUPT_xMS_IRQHandler()
 {
   INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt5ms();
+  interrupt1ms();
   DEBUG_INTERRUPT(INT_1MS);
 }

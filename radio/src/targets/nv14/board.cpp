@@ -128,7 +128,7 @@ void boardInit()
   flysky_hall_stick_init();
 #endif
   init2MhzTimer();
-  init5msTimer();
+  init1msTimer();
   TouchInit();
 
   uint32_t press_start = 0;
