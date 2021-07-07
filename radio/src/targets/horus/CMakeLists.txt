@@ -183,6 +183,7 @@ endif()
 
 if(FLYSKY_HALL_STICKS)
   add_definitions(-DFLYSKY_HALL_STICKS)
+  add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
   set(AUX_SERIAL OFF)
   set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
 endif()
