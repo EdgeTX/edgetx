@@ -19,12 +19,21 @@
  */
 
 #include "opentx.h"
-#define LTDC_DOUBLELAYER
+
+#define LCD_FIRST_LAYER                0
+#define LCD_SECOND_LAYER               1
+
 uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-bool secondFrame = false;
+uint8_t currentLayer = LCD_FIRST_LAYER;
+
+BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
+BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+
+BitmapBuffer * lcdFront = &lcdBuffer1;
+BitmapBuffer * lcd = &lcdBuffer2;
 
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
@@ -1287,14 +1296,21 @@ void LCD_LayerInit() {
   LTDC_DitherCmd(ENABLE);
 }
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
-    (uint16_t *) LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
-    (uint16_t *) LCD_SECOND_FRAME_BUFFER);
-BitmapBuffer * lcdFront = &lcdBuffer1;
-BitmapBuffer * lcd = &lcdBuffer2;
-
 extern void loadFonts();
+
+void LCD_SetLayer(uint32_t layer)
+{
+  if (layer == LCD_FIRST_LAYER) {
+    lcdFront = &lcdBuffer1;
+    lcd = &lcdBuffer2;
+  }
+  else {
+    lcdFront = &lcdBuffer2;
+    lcd = &lcdBuffer1;
+  }
+  currentLayer = layer;
+}
+
 void lcdInit(void) {
   // Clear buffers first
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
@@ -1367,6 +1383,10 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
   /* Start Transfer */
   DMA2D_StartTransfer();
 
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
+  
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -1399,6 +1419,10 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
 
   /* Start Transfer */
   DMA2D_StartTransfer();
+
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -1441,6 +1465,10 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
 
   /* Start Transfer */
   DMA2D_StartTransfer();
+
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -1489,6 +1517,10 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   /* Start Transfer */
   DMA2D_StartTransfer();
 
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
+ 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -1521,6 +1553,10 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 
   /* Start Transfer */
   DMA2D_StartTransfer();
+
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -1555,6 +1591,10 @@ void lcdCopy(void * dest, void * src)
   /* Start Transfer */
   DMA2D_StartTransfer();
 
+  /* Check configuration error */
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return; // Exit if configuration or transfer error
+  
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -1580,27 +1620,36 @@ uint16_t* lcdGetScratchBuffer()
   return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
-static volatile uint8_t refreshRequested = 0;
+//static volatile uint8_t refreshRequested = 0;
+static volatile uint8_t _frameBufferAddressReloaded = 0;
 
 extern "C" void LTDC_IRQHandler(void)
 {
   LTDC_ClearFlag(LTDC_ICR_CLIF);
-  if (refreshRequested) {
-#if defined(LTDC_DOUBLELAYER)
-    LTDC_LayerAlpha(LTDC_Layer1, (lcd == &lcdBuffer2) ? 255 : 0);
-    LTDC_LayerAlpha(LTDC_Layer2, (lcd == &lcdBuffer1) ? 255 : 0);
-#else
-    LTDC_Layer1->CFBAR = (uint32_t)((lcd == &lcdBuffer2) ? &lcdBuffer1 : &lcdBuffer2)->getData();
-#endif
-    LTDC_ReloadConfig(LTDC_IMReload);
-    refreshRequested = false;
+  _frameBufferAddressReloaded = 1;
+}
+
+static void lcdSwitchLayers()
+{
+  if (currentLayer == LCD_FIRST_LAYER) {
+    LTDC_Layer1->CFBAR = (uint32_t)LCD_SECOND_FRAME_BUFFER;
+    LCD_SetLayer(LCD_SECOND_LAYER);
   }
+  else {
+    LTDC_Layer1->CFBAR = (uint32_t)LCD_FIRST_FRAME_BUFFER;
+    LCD_SetLayer(LCD_FIRST_LAYER);
+  }
+
+  // reload shadow registers on vertical blank
+  _frameBufferAddressReloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while(_frameBufferAddressReloaded == 0);
 }
 
 void lcdRefresh()
 {
-  while(refreshRequested) {} //block if last frame was not painted yet
-  lcd = (lcd == &lcdBuffer2) ? &lcdBuffer1 : &lcdBuffer2;
-  refreshRequested = true;
+  lcdSwitchLayers();
 }
-
