@@ -412,7 +412,7 @@ struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
 {
-  SYSCFG_EXTILineConfig(TOUCH_INT_EXTI_PortSource, TOUCH_INT_EXTI_PinSource1);
+  NVIC_DisableIRQ(TOUCH_INT_EXTI_IRQn1);
 
   EXTI_InitTypeDef EXTI_InitStructure;
   EXTI_StructInit(&EXTI_InitStructure);
@@ -421,14 +421,6 @@ static void TOUCH_AF_ExtiStop(void)
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
   EXTI_InitStructure.EXTI_LineCmd = DISABLE;
   EXTI_Init(&EXTI_InitStructure);
-
-
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = TOUCH_INT_EXTI_IRQn1;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
-  NVIC_Init(&NVIC_InitStructure);
 }
 
 static void TOUCH_AF_ExtiConfig(void)
