@@ -575,6 +575,11 @@ bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
   I2C_SendData(I2C, (uint8_t)(reg & 0x00FF));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return false;
+    
+  // see GP911 data sheet, chapter 6.1.c, page 12, diagram for reading data
+  I2C_GenerateSTOP(I2C, ENABLE);
+  if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
+    return false;    
 
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
