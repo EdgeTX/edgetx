@@ -107,9 +107,8 @@ static void bootloaderDrawBackground()
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
     // clear screen
-//    bootloaderDrawBackground();
+    bootloaderDrawBackground();
 
-    lcd->drawSolidFilledRect(0, 0, LCD_W-1, LCD_H-1, BL_BACKGROUND);
     int center = LCD_W/2;
     if (st == ST_START) {
 
@@ -123,17 +122,17 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, LCD_W - 79 - 28, 26, 2, BL_SELECTED);
         
-//        lcd->drawBitmap(0, 166, &BMP_PLUG_USB);
-        lcd->drawText(center, 175, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
-        lcd->drawText(center, 200, "for mass storage", CENTERED | BL_FOREGROUND);
+        lcd->drawBitmap(center - 55, 165, &BMP_PLUG_USB);
+        lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
+        lcd->drawText(center, 275, "for mass storage", CENTERED | BL_FOREGROUND);
 
         bootloaderDrawFooter();
         lcd->drawText(center, LCD_H - DOUBLE_PADDING, "Current Firmware:", CENTERED | BL_FOREGROUND);        
         lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
     }
     else if (st == ST_USB) {
-//        lcd->drawBitmap(0, 98, &BMP_USB_PLUGGED);
-        lcd->drawText(center, 128, "USB Connected", CENTERED | BL_FOREGROUND);
+        lcd->drawBitmap(center - 26, 98, &BMP_USB_PLUGGED);
+        lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
     }
     else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
              st == ST_FLASHING || st == ST_FLASH_DONE) {
@@ -174,7 +173,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             }
             else if (opt == FC_OK) {
                 VersionTag tag;
+                memset(&tag, 0, sizeof(tag));
                 extractFirmwareVersion(&tag);
+
+                lcd->drawText(LCD_W/4 + DEFAULT_PADDING, MESSAGE_TOP - DEFAULT_PADDING, "Fork:", RIGHT | BL_FOREGROUND);
+                lcd->drawSizedText(LCD_W/4 + 6 + DEFAULT_PADDING, MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6, BL_FOREGROUND);
 
                 lcd->drawText(LCD_W/4 + DEFAULT_PADDING, MESSAGE_TOP, "Version:", RIGHT | BL_FOREGROUND);
                 lcd->drawText(LCD_W/4 + 6 + DEFAULT_PADDING, MESSAGE_TOP, tag.version, BL_FOREGROUND);
