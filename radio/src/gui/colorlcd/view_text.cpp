@@ -99,10 +99,16 @@ void ViewTextWindow::checkEvents()
 {
   if (&body == Window::focusWindow) 
   {  
+    
+    const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
     coord_t currentPos = body.getScrollPositionY();
-    const coord_t deltaY = PAGE_LINE_HEIGHT;
+    coord_t deltaY = step;
     event_t event = getWindowEvent();    
     
+    if(event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
+        deltaY = ROTARY_ENCODER_SPEED() * step;
+    }
+
     switch (event) {
     CASE_EVT_KEY_NEXT_LINE:
       currentPos += deltaY;
