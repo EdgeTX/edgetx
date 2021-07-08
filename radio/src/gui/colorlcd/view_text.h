@@ -48,17 +48,10 @@ class ViewTextWindow : public Page
     buildBody(&body);
   };
 
-#if defined(HARDWARE_KEYS) && !defined(HARDWARE_TOUCH)
-  void sdReadTextFile(const char *filename,
-                      char lines[TEXT_VIEWER_LINES][LCD_COLS + 1],
-                      int &lines_count);
-  void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
   bool sdReadTextLine(const char *filename, char lines[],
-                      const uint8_t lineLength = LCD_COLS);                   
-#endif
+                      const uint8_t lineLength = LCD_COLS); 
+                                        
+  virtual void checkEvents();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };

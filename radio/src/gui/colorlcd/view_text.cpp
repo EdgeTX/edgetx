@@ -59,122 +59,6 @@ void ViewTextWindow::extractNameSansExt()
   name = (std::string(reusableBuffer.viewText.filename)).substr(0, nameLength);
 }
 
-#if defined(HARDWARE_KEYS) && !defined(HARDWARE_TOUCH)
-void ViewTextWindow::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-  const uint8_t numLines = NUM_BODY_LINES;
-  /*
-    sprintf(reusableBuffer.viewText.lines[0], "Received event %d", event);
-    if(!reusableBuffer.viewText.linesCount)
-      reusableBuffer.viewText.linesCount = 1;
-   */
-  switch (event) {
-    CASE_EVT_START:
-      textVerticalOffset = 0;
-      reusableBuffer.viewText.linesCount = 0;
-      sdReadTextFile(reusableBuffer.viewText.filename,
-                     reusableBuffer.viewText.lines,
-                     reusableBuffer.viewText.linesCount);
-      break;
-
-    CASE_EVT_KEY_NEXT_LINE:
-      if (textVerticalOffset == 0)
-        break;
-      else
-        textVerticalOffset--;
-      sdReadTextFile(reusableBuffer.viewText.filename,
-                     reusableBuffer.viewText.lines,
-                     reusableBuffer.viewText.linesCount);
-      break;
-
-    CASE_EVT_KEY_PREVIOUS_LINE:
-      if (textVerticalOffset + (int)numLines - 1 >=
-          (int)reusableBuffer.viewText.linesCount)
-        break;
-      else
-        ++textVerticalOffset;
-      sdReadTextFile(reusableBuffer.viewText.filename,
-                     reusableBuffer.viewText.lines,
-                     reusableBuffer.viewText.linesCount);
-      break;
-
-    default:
-      Page::onEvent(event);
-      break;
-  }
-}
-
-void ViewTextWindow::sdReadTextFile(const char *filename,
-                                    char lines[TEXT_VIEWER_LINES][LCD_COLS + 1],
-                                    int &lines_count)
-{
-  FIL file;
-  int result;
-  char c;
-  unsigned int sz;
-  int line_length = 0;
-  uint8_t escape = 0;
-  char escape_chars[4] = {0};
-  int current_line = 0;
-
-  memclear(lines, TEXT_VIEWER_LINES * (LCD_COLS + 1));
-
-  result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    for (uint8_t i = 0; i < TEXT_FILE_MAXSIZE &&
-                        f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
-                        (lines_count == 0 || current_line - textVerticalOffset <
-                                                 int(TEXT_VIEWER_LINES));
-         i++) {
-      lines[current_line - textVerticalOffset][line_length++] = ' ';   
-      if (c == '\n') {
-        ++current_line;
-        line_length = 0;
-        escape = 0;
-      } else if (c != '\r' && current_line >= textVerticalOffset &&
-                 current_line - textVerticalOffset < int(TEXT_VIEWER_LINES) &&
-                 line_length < LCD_COLS) {
-        if (c == '\\' && escape == 0) {
-          escape = 1;
-          continue;
-        } else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
-          escape_chars[escape - 1] = c;
-          if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-            c = CHAR_UP;
-          } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-            c = CHAR_DOWN;
-          } else if (escape == 3) {
-            int val = atoi(escape_chars);
-            if (val >= 200 && val < 225) {
-              c = '\200' + val - 200;
-            }
-          } else {
-            escape++;
-            continue;
-          }
-        } else if (c == '~') {
-          c = 'z' + 1;
-        } else if (c == '\t') {
-          c = 0x1D;  // tab
-        }
-        escape = 0;
-        lines[current_line - textVerticalOffset][line_length++] = c;
-      }
-    }
-    if (c != '\n') {
-      current_line += 1;
-    }
-    f_close(&file);
-  }
-
-  if (lines_count == 0) {
-    lines_count = current_line;
-  }
-}
-
-#endif
 
 void ViewTextWindow::buildBody(Window *window)
 {
@@ -194,17 +78,6 @@ void ViewTextWindow::buildBody(Window *window)
              sizeof(reusableBuffer.viewText.lines[i]));
   }
 
-#if !defined(HARDWARE_TOUCH) && defined(HARDWARE_KEYS)
-  onEvent(EVT_KEY_BREAK(KEY_ENTER));
-
-  for (i = 0; i < dispLines; i++) {
-    new DynamicText(window, grid.getSlot(), [=]() {
-      return std::string(reusableBuffer.viewText.lines[i]);
-    });
-    grid.nextLine(PAGE_LINE_HEIGHT);
-  }
-#endif
-#if defined(HARDWARE_TOUCH)
   readCount = 0;
   longestLine = 0;
   lastLine = false;
@@ -216,13 +89,44 @@ void ViewTextWindow::buildBody(Window *window)
     new StaticText(window, grid.getSlot(), reusableBuffer.viewText.lines[0]);
     grid.nextLine();
   }
+
   window->setInnerWidth( (longestLine + 4) * 10);
-#endif
 
   window->setInnerHeight(grid.getWindowHeight());
 }
 
-#if defined(HARDWARE_TOUCH)
+
+void ViewTextWindow::checkEvents()
+{
+    event_t event = getWindowEvent();
+    coord_t currentPos = body.getScrollPositionY();
+    const coord_t deltaY = PAGE_LINE_HEIGHT;
+
+    switch (event) {
+    CASE_EVT_KEY_NEXT_LINE:
+      if ( 0)
+        break;
+      else {
+        textVerticalOffset--;
+        currentPos += deltaY;
+      }
+      break;
+
+    CASE_EVT_KEY_PREVIOUS_LINE:
+      if (0)
+        break;
+      else {
+        ++textVerticalOffset;
+        currentPos -= deltaY; 
+      }
+      break;
+    }
+
+    body.setScrollPositionY(currentPos);
+    Page::onEvent(event);
+}
+
+
 bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
                                     const uint8_t maxLineLength)
 {
@@ -300,7 +204,7 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
 
   return false;
 }
-#endif
+
 #include "../../storage/eeprom_common.h"
 #include "datastructs.h"
 
