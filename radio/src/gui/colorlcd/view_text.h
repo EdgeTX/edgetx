@@ -38,8 +38,7 @@ class ViewTextWindow : public Page
   {
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
-    textVerticalOffset = 0;
-    //   slidingWindow = this;
+
     //body.setWindowFlags(FORWARD_SCROLL);
     header.setWindowFlags(NO_SCROLLBAR);
     
@@ -66,7 +65,6 @@ class ViewTextWindow : public Page
 
   bool lastLine;
   uint16_t readCount;
-  int textVerticalOffset;
   int longestLine;
 
   void extractNameSansExt(void);

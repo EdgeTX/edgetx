@@ -27,8 +27,8 @@
 
 #define CASE_EVT_KEY_NEXT_LINE \
   case EVT_ROTARY_RIGHT: \
-  case EVT_KEY_BREAK(KEY_PGDN): \
-  case EVT_KEY_BREAK(KEY_DOWN)
+  case EVT_KEY_BREAK(KEY_PGDN)
+//  case EVT_KEY_BREAK(KEY_DOWN)
 
 #define CASE_EVT_KEY_PREVIOUS_LINE \
   case EVT_ROTARY_LEFT: \
@@ -95,37 +95,31 @@ void ViewTextWindow::buildBody(Window *window)
   window->setInnerHeight(grid.getWindowHeight());
 }
 
-
 void ViewTextWindow::checkEvents()
 {
-    event_t event = getWindowEvent();
+  if (&body == Window::focusWindow) 
+  {  
     coord_t currentPos = body.getScrollPositionY();
     const coord_t deltaY = PAGE_LINE_HEIGHT;
-
+    event_t event = getWindowEvent();    
+    
     switch (event) {
     CASE_EVT_KEY_NEXT_LINE:
-      if ( 0)
-        break;
-      else {
-        textVerticalOffset--;
-        currentPos += deltaY;
-      }
+      currentPos += deltaY;
       break;
 
     CASE_EVT_KEY_PREVIOUS_LINE:
-      if (0)
-        break;
-      else {
-        ++textVerticalOffset;
-        currentPos -= deltaY; 
-      }
+      currentPos -= deltaY;
       break;
+
+    default:
+      Page::onEvent(event);
+      return;        
     }
-
     body.setScrollPositionY(currentPos);
-    Page::onEvent(event);
+  }
+  Page::checkEvents();
 }
-
 
 bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
                                     const uint8_t maxLineLength)
