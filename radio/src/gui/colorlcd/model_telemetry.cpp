@@ -552,13 +552,34 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   });
   grid.nextLine();
   new StaticText(window, grid.getLabelSlot(true), STR_RANGE);
-  new NumberEdit(window, grid.getFieldSlot(2, 0), -7, 7, GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
-  new NumberEdit(window, grid.getFieldSlot(2, 1), -7, 7, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
+
+  auto vMin = new NumberEdit(window, grid.getFieldSlot(2, 0), -17, 17,
+                             GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
+  vMin->setAvailableHandler(
+      [](int val) { return val < g_model.varioData.max + 10; });
+
+  auto vMax = new NumberEdit(window, grid.getFieldSlot(2, 1), -17, 17,
+                             GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
+  vMax->setAvailableHandler(
+      [](int val) { return g_model.varioData.min - 10 < val; });
+
   grid.nextLine();
   new StaticText(window, grid.getLabelSlot(true), STR_CENTER);
-  new NumberEdit(window, grid.getFieldSlot(3, 0), -7, 7, GET_SET_WITH_OFFSET(g_model.varioData.min, -5), 0, PREC1);
-  new NumberEdit(window, grid.getFieldSlot(3, 1), -7, 7, GET_SET_WITH_OFFSET(g_model.varioData.max, 5), 0, PREC1);
-  new Choice(window, grid.getFieldSlot(3, 2), STR_VVARIOCENTER, 0, 1, GET_SET_DEFAULT(g_model.varioData.centerSilent));
+
+  auto cMin = new NumberEdit(
+      window, grid.getFieldSlot(3, 0), -15, 15,
+      GET_SET_WITH_OFFSET(g_model.varioData.centerMin, -5), 0, PREC1);
+  cMin->setAvailableHandler(
+      [](int val) { return val < g_model.varioData.centerMax + 5; });
+
+  auto cMax = new NumberEdit(
+      window, grid.getFieldSlot(3, 1), -15, 15,
+      GET_SET_WITH_OFFSET(g_model.varioData.centerMax, 5), 0, PREC1);
+  cMax->setAvailableHandler(
+      [](int val) { return g_model.varioData.centerMin - 5 < val; });
+
+  new Choice(window, grid.getFieldSlot(3, 2), STR_VVARIOCENTER, 0, 1,
+             GET_SET_DEFAULT(g_model.varioData.centerSilent));
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
