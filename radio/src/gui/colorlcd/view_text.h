@@ -24,6 +24,7 @@
 #include "static.h"
 #include "lcd.h"
 #include "menus.h"
+#include "ff.h"
 
 constexpr uint16_t TEXT_FILE_MAXSIZE = 2048;
 
@@ -47,7 +48,7 @@ class ViewTextWindow : public Page
     buildBody(&body);
   };
 
-  bool sdReadTextLine(const char *filename, char lines[],
+  bool sdReadTextLine(FIL* file, char lines[],
                       const uint8_t lineLength = LCD_COLS); 
                                         
   virtual void checkEvents();

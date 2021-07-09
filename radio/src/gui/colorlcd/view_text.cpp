@@ -50,63 +50,55 @@ void ViewTextWindow::extractNameSansExt()
   extension = std::string(ext);
   if (nameLength > TEXT_FILENAME_MAXLEN) nameLength = TEXT_FILENAME_MAXLEN;
 
-  memset(reusableBuffer.viewText.filename, 0, TEXT_FILENAME_MAXLEN);
-
-  strncpy(reusableBuffer.viewText.filename, name.c_str(), nameLength);
-  reusableBuffer.viewText.filename[nameLength] = '\0';
-
   nameLength -= extLength;
-  name = (std::string(reusableBuffer.viewText.filename)).substr(0, nameLength);
+  name.substr(nameLength);
 }
-
 
 void ViewTextWindow::buildBody(Window *window)
 {
   GridLayout grid(window);
   grid.spacer();
   int i;
-  const int numLines = (LCD_H - PAGE_TITLE_TOP) / PAGE_LINE_HEIGHT - 1;
-  const int dispLines = min(numLines, (int)NUM_BODY_LINES);
-  // assume average characte is 10 pixels wide, round the string length to tens. 
-  // Font is not fixed width, so this is for the worst case...
-  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10 -2;
-  //const int maxLineLength = min(120, int(LCD_COLS * TEXT_VIEWER_LINES - 10));
-  window->setFocus();
-  
-  for (i = 0; i < dispLines; i++) {
-    memclear(&reusableBuffer.viewText.lines[i],
-             sizeof(reusableBuffer.viewText.lines[i]));
-  }
 
+  // assume average characte is 10 pixels wide, round the string length to tens.
+  // Font is not fixed width, so this is for the worst case...
+  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10 - 2;
+  window->setFocus();
+
+  FIL file;
+  if (FR_OK !=
+      f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ)) {
+    return;
+  }
   readCount = 0;
   longestLine = 0;
   lastLine = false;
   for (i = 0; i < TEXT_FILE_MAXSIZE && !lastLine; i++) {
     lastLine =
-        sdReadTextLine(reusableBuffer.viewText.filename,
-                       reusableBuffer.viewText.lines[0], maxLineLength);
+        sdReadTextLine(&file, reusableBuffer.viewText.lines[0], maxLineLength);
 
     new StaticText(window, grid.getSlot(), reusableBuffer.viewText.lines[0]);
     grid.nextLine();
   }
 
-  window->setInnerWidth( (longestLine + 4) * 10);
+  f_close(&file);
 
+  window->setInnerWidth((longestLine + 4) * 10);
   window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ViewTextWindow::checkEvents()
 {
-  if (&body == Window::focusWindow) 
-  {  
-    
+  if (&body == Window::focusWindow) {
     const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
     coord_t currentPos = body.getScrollPositionY();
-    coord_t deltaY = step;
-    event_t event = getWindowEvent();    
-    
-    if(event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
-        deltaY = ROTARY_ENCODER_SPEED() * step;
+    coord_t deltaY;
+    event_t event = getWindowEvent();
+
+    if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
+      deltaY = ROTARY_ENCODER_SPEED() * step;
+    } else {
+      deltaY = step;
     }
 
     switch (event) {
@@ -118,20 +110,18 @@ void ViewTextWindow::checkEvents()
       currentPos -= deltaY;
       break;
 
-    default:
-      Page::onEvent(event);
-      return;        
+      default:
+        Page::onEvent(event);
+        return;
     }
     body.setScrollPositionY(currentPos);
   }
   Page::checkEvents();
 }
 
-bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
+bool ViewTextWindow::sdReadTextLine(FIL *file, char line[],
                                     const uint8_t maxLineLength)
 {
-  FIL file;
-  int result;
   char c;
   unsigned int sz;
   uint8_t line_length = 0;
@@ -139,67 +129,53 @@ bool ViewTextWindow::sdReadTextLine(const char *filename, char line[],
   char escape_chars[4] = {0};
   int current_line = 0;
 
-  memclear(line, maxLineLength);
+  memclear(line, maxLineLength + 1);
   line[line_length++] = 0x20;
 
-  result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    return true;
-  } else {
-    result = f_lseek(&file, readCount);
-    if (result != FR_OK) {
+  for (uint8_t i = 0; i < maxLineLength && readCount < (int)TEXT_FILE_MAXSIZE;
+       ++i) {
+    if ((f_read(file, &c, 1, &sz) != FR_OK || !sz) &&
+        line_length < maxLineLength) {
       return true;
     }
+    readCount++;
 
-    for (uint8_t i = 0; i < maxLineLength && readCount < (int)TEXT_FILE_MAXSIZE;
-         ++i) {
-      if ( (f_read(&file, &c, 1, &sz) != FR_OK || !sz) && line_length < maxLineLength) {
-        f_close(&file);
-        return true;
-      }
-      readCount++;
-
-      if (c == '\n') {
-        ++current_line;
-        // line_length = 0;
-        escape = 0;
-        f_close(&file);
-        return false;
-      } else if (c != '\r' ) {
-        if (c == '\\' && escape == 0) {
-          escape = 1;
-          continue;
-        } else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
-          escape_chars[escape - 1] = c;
-          if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-            c = CHAR_UP;
-          } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-            c = CHAR_DOWN;
-          } else if (escape == 3) {
-            int val = atoi(escape_chars);
-            if (val >= 200 && val < 225) {
-              c = '\200' + val - 200;
-            }
-          } else {
-            escape++;
-            continue;
-          }
-        } else if (c == '~') {
-          c = 'z' + 1;
-        } else if (c == '\t') {
-          c = 0x1D;  // tab
-        }
-        escape = 0;
-        line[line_length++] = c;
-        if(longestLine < line_length) longestLine = line_length;
-      }
-    }
-    if (c != '\n') {
-      current_line += 1;
-      f_close(&file);
+    if (c == '\n') {
+      ++current_line;
+      escape = 0;
       return false;
+    } else if (c != '\r') {
+      if (c == '\\' && escape == 0) {
+        escape = 1;
+        continue;
+      } else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
+        escape_chars[escape - 1] = c;
+        if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
+          c = CHAR_UP;
+        } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
+          c = CHAR_DOWN;
+        } else if (escape == 3) {
+          int val = atoi(escape_chars);
+          if (val >= 200 && val < 225) {
+            c = '\200' + val - 200;
+          }
+        } else {
+          escape++;
+          continue;
+        }
+      } else if (c == '~') {
+        c = 'z' + 1;
+      } else if (c == '\t') {
+        c = 0x1D;  // tab
+      }
+      escape = 0;
+      line[line_length++] = c;
+      if (longestLine < line_length) longestLine = line_length;
     }
-    f_close(&file);
+  }
+  if (c != '\n') {
+    current_line += 1;
+    return false;
   }
 
   return false;
