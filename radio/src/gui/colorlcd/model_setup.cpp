@@ -644,6 +644,7 @@ class ModuleWindow : public FormGroup {
       }
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
+        Choice * mmSubProtocol = nullptr;
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL);
 
@@ -653,6 +654,8 @@ class ModuleWindow : public FormGroup {
                               GET_DEFAULT(multiRfProto),
                               [=](int32_t newValue) {
                                 g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
+                                g_model.moduleData[moduleIdx].subType = 0;
+                                if (mmSubProtocol != nullptr) mmSubProtocol->invalidate();     
                                 resetMultiProtocolsOptions(moduleIdx);
                                 SET_DIRTY();
                                 update();
@@ -662,7 +665,7 @@ class ModuleWindow : public FormGroup {
         // Subtype (D16, DSMX,...)
         const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
         if (pdef->maxSubtype > 0)
-          new Choice(this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0, pdef->maxSubtype,GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
+          mmSubProtocol = new Choice(this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0, pdef->maxSubtype,GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
         grid.nextLine();
 
         // Multimodule status
