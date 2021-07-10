@@ -244,6 +244,7 @@ class ModelCategoryPageBody : public FormWindow
               storageCheck(true);
 
               modelslist.setCurrentModel(model);
+              modelslist.setCurrentCategory(category);
               update();
             });
           }
