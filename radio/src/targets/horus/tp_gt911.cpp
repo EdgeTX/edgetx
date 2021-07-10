@@ -230,9 +230,9 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x5A,                // 0x8053 Screen touch level
     0x3C,                // 0x8054 Screen touch leave
     0x03,                // 0x8055 Low power control
-    0x05,                // 0x8056 Refresh rate
-    0x00,                // 0x8057 X threshold
-    0x00,                // 0x8058 Y threshold
+    0x0F,                // 0x8056 Refresh rate
+    0x0A,                // 0x8057 X threshold
+    0x0A,                // 0x8058 Y threshold
     0x00,                // 0x8059 Reserved
     0x00,                // 0x805A Reserved
     0x11,                // 0x805B Space (top, bottom)
@@ -403,8 +403,8 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 #endif
 
-uint8_t touchGT911Flag = 0;
-uint8_t touchEventOccured = 0;
+bool touchGT911Flag = false;
+volatile bool touchEventOccured = false;
 struct TouchData touchData;
 
 static void TOUCH_AF_ExtiStop(void)
@@ -415,7 +415,7 @@ static void TOUCH_AF_ExtiStop(void)
   EXTI_StructInit(&EXTI_InitStructure);
   EXTI_InitStructure.EXTI_Line = TOUCH_INT_EXTI_LINE1;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = DISABLE;
   EXTI_Init(&EXTI_InitStructure);
 
@@ -436,7 +436,7 @@ static void TOUCH_AF_ExtiConfig(void)
   EXTI_StructInit(&EXTI_InitStructure);
   EXTI_InitStructure.EXTI_Line = TOUCH_INT_EXTI_LINE1;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
 
@@ -581,6 +581,11 @@ bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return false;
 
+  // see GP911 data sheet, chapter 6.1.c, page 12, diagram for reading data
+  I2C_GenerateSTOP(I2C, ENABLE);
+  if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
+    return false;
+
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return false;
@@ -607,7 +612,7 @@ bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
   return true;
 }
 
-uint8_t I2C_GT911_SendConfig(uint8_t mode)
+void I2C_GT911_SendConfig(uint8_t mode)
 {
   uint8_t buf[2];
   uint8_t i = 0;
@@ -619,12 +624,12 @@ uint8_t I2C_GT911_SendConfig(uint8_t mode)
   buf[0] = (~buf[0]) + 1;
   I2C_GT911_WriteRegister(GT_CFGS_REG, (uint8_t *) TOUCH_GT911_Cfg, sizeof(TOUCH_GT911_Cfg));//
   I2C_GT911_WriteRegister(GT_CHECK_REG, buf, 2);//write checksum
-  return 0;
 }
 
 void touchPanelDeInit(void)
 {
   TOUCH_AF_ExtiStop();
+  touchGT911Flag = false;
 }
 
 bool touchPanelInit(void)
@@ -666,7 +671,7 @@ bool touchPanelInit(void)
       I2C_GT911_ReadRegister(GT_CFGS_REG, tmp, 1);
 
       TRACE("Chip config Ver:%x\r\n", tmp[0]);
-      if (tmp[0] < GT911_CFG_NUMER)  //Config ver
+      if (tmp[0] <= GT911_CFG_NUMER)  //Config ver
       {
         TRACE("Sending new config %d", GT911_CFG_NUMER);
         I2C_GT911_SendConfig(1);
@@ -713,12 +718,15 @@ void touchPanelRead()
   if (!touchEventOccured)
     return;
 
-  touchEventOccured = 0;
+  touchEventOccured = false;
 
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
-      TRACE("GT911 I2C read error");
+      ledRed();
+      TRACE("GT911 I2C read XY error");
+      touchPanelDeInit();
+      touchPanelInit();
       return;
     }
 
@@ -736,7 +744,10 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
-        TRACE("GT911 I2C read error");
+        ledRed();
+        TRACE("GT911 I2C data read error");
+        touchPanelDeInit();
+        touchPanelInit();
         return;
       }
       if (touchState.event == TE_NONE || touchState.event == TE_UP ||
@@ -779,7 +790,7 @@ extern "C" void TOUCH_INT_EXTI_IRQHandler1(void)
       // on touch turn the light on
       resetBacklightTimeout();
     }
-    touchEventOccured = 1;
+    touchEventOccured = true;
     EXTI_ClearITPendingBit(TOUCH_INT_EXTI_LINE1);
   }
 }
