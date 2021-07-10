@@ -272,7 +272,7 @@ class ModelCategoryPageBody : public FormWindow
                       .c_str(),
                   [=] {
                     modelslist.removeModel(category, model);
-                    update(index < category->size() - 1 ? index : index - 1);
+                    update((unsigned)index < category->size() - 1 ? index : index - 1);
                   });
             });
           }
