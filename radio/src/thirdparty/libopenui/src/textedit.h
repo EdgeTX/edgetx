@@ -21,15 +21,18 @@
 
 #include "form.h"
 
+const char extra_chars_default[] = ":;<=>";
+
 class TextEdit : public FormField {
   friend class TextKeyboard;
 
   public:
-    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0) :
+    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * _extra_chars = nullptr) :
       FormField(parent, rect, windowFlags),
       value(value),
       length(length)
     {
+      extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -68,6 +71,7 @@ class TextEdit : public FormField {
     char * value;
     bool changed = false;
     uint8_t length;
+    const char * extra_chars;
     uint8_t cursorPos = 0;
     std::function<void()> changeHandler = nullptr;
 
@@ -85,32 +89,50 @@ class TextEdit : public FormField {
       }
     }
 
-    static uint8_t getNextChar(uint8_t c)
+    uint8_t getNextChar(uint8_t c)
     {
-      if (c == ' ' || c == 0)
+      if (c == ' ' || c == '\0')
         return 'A';
+      else if (c >= 'A' && c < 'Z')
+        return c + 1;
       else if (c == 'Z')
         return 'a';
+      else if (c >= 'a' && c < 'z')
+        return c + 1;
       else if (c == 'z')
         return '0';
-      else if (c == '>')
-        return ' ';
-      else
+      else if (c >= '0' && c < '9')
         return c + 1;
+      else if (c == '9')
+        return extra_chars[0];
+      else {
+        for (uint8_t n = 0; n < strlen(extra_chars) - 1; n++)
+          if (c == extra_chars[n]) return extra_chars[n + 1];
+        return ' ';
+      }
     }
 
-    static uint8_t getPreviousChar(uint8_t c)
+    uint8_t getPreviousChar(uint8_t c)
     {
-      if (c == 'A')
+      if (c == ' ' || c == '\0')
+        return extra_chars[strlen(extra_chars) - 1];
+      else if (c == 'A')
         return ' ';
+      else if (c > 'A' && c <= 'Z')
+        return c - 1;
       else if (c == 'a')
         return 'Z';
+      else if (c > 'a' && c <= 'z')
+        return c - 1;
       else if (c == '0')
         return 'z';
-      else if (c == ' ' || c == 0)
-        return '>';
-      else
+      else if (c > '0' && c <= '9')
         return c - 1;
+      else {
+        for (uint8_t n = 1; n < strlen(extra_chars); n++)
+          if (c == extra_chars[n]) return extra_chars[n - 1];
+        return '9';
+      }
     }
 
     static uint8_t toggleCase(uint8_t c)
