@@ -245,7 +245,6 @@ class ModelCategoryPageBody : public FormWindow
 
               modelslist.setCurrentModel(model);
               modelslist.setCurrentCategory(category);
-              update();
               checkAll();
               this->onEvent(EVT_KEY_FIRST(KEY_EXIT));
             });
