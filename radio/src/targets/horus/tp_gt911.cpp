@@ -512,6 +512,15 @@ void I2C_Init()
   GPIO_Init(I2C_GPIO, &GPIO_InitStructure);
 }
 
+bool I2C_WaitFlag(uint32_t flag)
+{
+  uint32_t timeout = I2C_TIMEOUT_MAX;
+  while (!I2C_GetFlagStatus(I2C, flag)) {
+    if ((timeout--) == 0) return false;
+  }
+  return true;
+}
+
 bool I2C_WaitEvent(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
@@ -632,6 +641,10 @@ bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
     return false;
   }
 
+  // Enable Acknowledgement, clear POS flag
+  I2C_AcknowledgeConfig(I2C, ENABLE);
+  I2C_NACKPositionConfig(I2C, I2C_NACKPosition_Current);
+
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
   {
@@ -646,24 +659,91 @@ bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
     return false;
   }
 
-  if (len > 1) {
-    I2C_AcknowledgeConfig(I2C, ENABLE);
-  }
+  if (len == 1) {
+    // Clear Ack bit
+    I2C_AcknowledgeConfig(I2C, DISABLE);
 
-  while (len) {
-    if (len == 1) {
-      I2C_AcknowledgeConfig(I2C, DISABLE); // Send NACK on last byte
-    }
-    if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
-    {
-      TRACE("I2C READ ERROR: could not read data with %u bytes remaining", len );
+    // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
+    __disable_irq();
+    (void) I2C->SR2;                           
+    I2C_GenerateSTOP(I2C,ENABLE);      
+    __enable_irq();
+
+    // Receive data  EV7
+    if(!I2C_WaitFlag(I2C_FLAG_RXNE)) {
+      TRACE("I2C READ ERROR: timeout waiting for RxNE");
+      I2C_Init();
       return false;
     }
+
     *buf++ = I2C_ReceiveData(I2C);
-    len--;
+  }
+  else if (len == 2) {
+
+    // Set POS flag
+    I2C_NACKPositionConfig(I2C, I2C_NACKPosition_Next);
+
+    // EV6_1 -- must be atomic and in this order
+    __disable_irq();
+    (void) I2C->SR2;                          // Clear ADDR flag
+    I2C_AcknowledgeConfig(I2C, DISABLE);      // Clear Ack bit
+    __enable_irq();
+
+    // EV7_3  -- Wait for BTF, program stop, read data twice
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    __disable_irq();
+    I2C_GenerateSTOP(I2C,ENABLE);
+    *buf++ = I2C->DR;
+    __enable_irq();
+
+    *buf++ = I2C->DR;
+  }
+  else {
+
+    (void) I2C->SR2;                         // Clear ADDR flag
+    while (len-- != 3) {
+      // EV7 -- cannot guarantee 1 transfer completion time, wait for BTF 
+      //        instead of RXNE
+      if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+        TRACE("I2C READ ERROR: timeout waiting for BTF");
+        I2C_Init();
+        return false;
+      }
+
+      *buf++ = I2C_ReceiveData(I2C);
+    }
+
+    // Data N-2 in DR, data N-1 in shift register,
+    // SCL stretched low until data N-2 is read
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    I2C_AcknowledgeConfig(I2C, DISABLE);      // clear ack bit
+    *buf++ = I2C_ReceiveData(I2C);            // receive byte N-2
+
+    // Wait for BTF, program stop, read data twice
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    __disable_irq();
+    I2C_GenerateSTOP(I2C,ENABLE);
+    *buf++ = I2C->DR;
+    __enable_irq();
+
+    *buf++ = I2C->DR;
   }
 
-  I2C_GenerateSTOP(I2C, ENABLE);
   return true;
 }
 
@@ -743,7 +823,7 @@ bool touchPanelInit(void)
       }
       if (!I2C_GT911_ReadRegister(GT_CFGS_REG, tmp, 1))
       {
-          TRACE("GT911 ERROR: configration register read failed");
+          TRACE("GT911 ERROR: configuration register read failed");
       }
 
       TRACE("Chip config Ver:%x", tmp[0]);
