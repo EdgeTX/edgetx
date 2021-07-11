@@ -888,10 +888,10 @@ void touchPanelRead()
 {
   uint8_t state = 0;
 
-  if (!touchEventOccured)
-    return;
+  // if (!touchEventOccured)
+  //   return;
 
-  touchEventOccured = false;
+  // touchEventOccured = false;
 
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
