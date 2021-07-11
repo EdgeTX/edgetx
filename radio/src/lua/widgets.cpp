@@ -32,8 +32,8 @@
 #define LUA_WARNING_INFO_LEN               64
 
 #if defined(HARDWARE_TOUCH)
-#define EVT_TOUCH_TAP_TIME    25
-#define EVT_TOUCH_SWIPE_LOCK   10
+#define EVT_TOUCH_TAP_TIME     25
+#define EVT_TOUCH_SWIPE_LOCK    4
 #define EVT_TOUCH_SWIPE_SPEED  35
 #endif
 
@@ -406,13 +406,16 @@ void LuaWidget::refresh(BitmapBuffer* dc)
       l_pushtableint("slideX", slideX);
       l_pushtableint("slideY", slideY);
 
-      if (slideY > -EVT_TOUCH_SWIPE_LOCK && slideY < EVT_TOUCH_SWIPE_LOCK) {
+      coord_t absX = (slideX < 0) ? -slideX : slideX;
+      coord_t absY = (slideY < 0) ? -slideY : slideY;
+  
+      if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
         if (slideX > EVT_TOUCH_SWIPE_SPEED)
           l_pushtablebool("swipeRight", true);
         else if (slideX < -EVT_TOUCH_SWIPE_SPEED)
           l_pushtablebool("swipeLeft", true);
       }
-      else if (slideX > -EVT_TOUCH_SWIPE_LOCK && slideX < EVT_TOUCH_SWIPE_LOCK) {
+      else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
         if (slideY > EVT_TOUCH_SWIPE_SPEED)
           l_pushtablebool("swipeDown", true);
         else if (slideY < -EVT_TOUCH_SWIPE_SPEED)
