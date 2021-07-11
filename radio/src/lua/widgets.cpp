@@ -472,13 +472,14 @@ bool LuaWidget::onTouchStart(coord_t x, coord_t y)
 {
   TRACE_WINDOWS("LuaWidget received touch start (%d) x=%d;y=%d", hasFocus(), x, y);
 
+  // Only one EVT_TOUCH_FIRST at a time, and also start timer for possible TAP
   if (fullscreen) {
-    event = EVT_TOUCH_FIRST;
-    touchX = x;
-    touchY = y;
-    
-    if (lastTouchDown == 0)
+    if (lastTouchDown == 0) {
+      event = EVT_TOUCH_FIRST;
+      touchX = x;
+      touchY = y;
       lastTouchDown = get_tmr10ms();
+    }
     
     return true;
   }
