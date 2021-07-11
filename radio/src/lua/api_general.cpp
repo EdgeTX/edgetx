@@ -2097,6 +2097,13 @@ const luaR_value_entry opentxConstants[] = {
   { "EVT_ROT_RIGHT", EVT_ROTARY_RIGHT },
 #endif
 
+#if defined(HARDWARE_TOUCH)
+  { "EVT_TOUCH_FIRST", EVT_TOUCH_FIRST },
+  { "EVT_TOUCH_BREAK", EVT_TOUCH_BREAK },
+  { "EVT_TOUCH_SLIDE", EVT_TOUCH_SLIDE },
+  { "EVT_TOUCH_TAP", EVT_TOUCH_TAP },
+#endif
+
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   { "FILL_WHITE", FILL_WHITE },
   { "GREY_DEFAULT", GREY_DEFAULT },
