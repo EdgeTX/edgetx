@@ -26,7 +26,9 @@
 #include "menus.h"
 #include "ff.h"
 
-constexpr uint16_t TEXT_FILE_MAXSIZE = 2048;
+#define READ_FILE_BY_LINE 0
+
+constexpr uint16_t TEXT_FILE_MAXSIZE = 20480;
 
 class ViewTextWindow : public Page
 {
@@ -39,18 +41,35 @@ class ViewTextWindow : public Page
   {
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
+    lines = nullptr;
 
     //body.setWindowFlags(FORWARD_SCROLL);
     header.setWindowFlags(NO_SCROLLBAR);
     
-
     buildHeader(&header);
     buildBody(&body);
   };
-
+#if READ_FILE_BY_LINE
   bool sdReadTextLine(FIL* file, char lines[],
                       const uint8_t lineLength = LCD_COLS); 
-                                        
+#else
+  void sdReadTextFileBlock(const char * filename, int& lines_count);
+  virtual void onEvent(event_t event);   
+ #if defined(HARDWARE_TOUCH)
+    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
+#endif 
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if(lines != nullptr) {
+      for(int i = 0; i < maxScreenLines; i++)
+      {
+        delete[] lines[i];
+      }
+      delete[] lines;
+    }
+    Page::deleteLater(detach, trash);
+  }          
+#endif                           
   virtual void checkEvents();
 
 #if defined(DEBUG_WINDOWS)
@@ -67,6 +86,17 @@ class ViewTextWindow : public Page
   bool lastLine;
   uint16_t readCount;
   int longestLine;
+
+#if !READ_FILE_BY_LINE
+char** lines = nullptr;
+//char lines[15][80];
+int maxScreenLines;
+int maxLineLength;
+int textVerticalOffset;
+int readLinesCount;
+int current_line;
+bool textBottom;
+#endif
 
   void extractNameSansExt(void);
   void buildBody(Window *window);
