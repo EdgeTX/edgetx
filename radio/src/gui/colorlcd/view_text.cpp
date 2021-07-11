@@ -195,6 +195,7 @@ void ViewTextWindow::buildBody(Window *window)
   maxScreenLines = window->height() / (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
   window->setFocus();
   readLinesCount = 0;
+  lastLoadedLine = 0;
   
   lines = new char*[maxScreenLines];
   for(i = 0 ; i < maxScreenLines; i++)
@@ -315,7 +316,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
   int line_length = 1;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
-  current_line = 0;
+  int current_line = 0;
   textBottom = false;
 
   for(int i = 0; i < maxScreenLines; i++) {
@@ -378,13 +379,32 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
     f_close(&file);
   }
 
+  if(lastLoadedLine < textVerticalOffset)
+    lastLoadedLine = textVerticalOffset;
+
   if (lines_count == 0) {
     lines_count = current_line;
   }
 }
 
+void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
+{
+  int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+  int maxPos = lastLoadedLine * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+
+  if(readPos < header.getRect().h)  readPos = header.getRect().h;
+  if(maxPos < body.getRect().h)     maxPos = body.getRect().h;
+
+  coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos);
+  coord_t yhgt = divRoundClosest(body.getRect().h * body.getRect().h, maxPos);
+  if (yhgt < 15) yhgt = 15;
+  if (yhgt + yofs > maxPos) yhgt = maxPos - yofs;
+  dc->drawSolidFilledRect(body.getRect().w - SCROLLBAR_WIDTH, yofs,
+                          SCROLLBAR_WIDTH, yhgt, SCROLLBAR_COLOR);
+}
+
 #endif
-#include "../../storage/eeprom_common.h"
+
 #include "datastructs.h"
 
 void readModelNotes()

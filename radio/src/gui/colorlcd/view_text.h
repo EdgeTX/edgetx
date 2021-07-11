@@ -49,6 +49,7 @@ class ViewTextWindow : public Page
     buildHeader(&header);
     buildBody(&body);
   };
+
 #if READ_FILE_BY_LINE
   bool sdReadTextLine(FIL* file, char lines[],
                       const uint8_t lineLength = LCD_COLS); 
@@ -58,7 +59,9 @@ class ViewTextWindow : public Page
  #if defined(HARDWARE_TOUCH)
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void drawVerticalScrollbar(BitmapBuffer * dc);
+
+  ~ViewTextWindow()
   {
     if(lines != nullptr) {
       for(int i = 0; i < maxScreenLines; i++)
@@ -67,8 +70,13 @@ class ViewTextWindow : public Page
       }
       delete[] lines;
     }
-    Page::deleteLater(detach, trash);
-  }          
+  }  
+
+  void paint(BitmapBuffer* dc)
+  {
+    Page::paint(dc);
+    drawVerticalScrollbar(dc);
+  }        
 #endif                           
   virtual void checkEvents();
 
@@ -94,7 +102,7 @@ int maxScreenLines;
 int maxLineLength;
 int textVerticalOffset;
 int readLinesCount;
-int current_line;
+int lastLoadedLine;
 bool textBottom;
 #endif
 
