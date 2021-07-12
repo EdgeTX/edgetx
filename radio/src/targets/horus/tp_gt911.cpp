@@ -39,9 +39,9 @@ const uint8_t TOUCH_GT911_Cfg[] = {
     0x50,          // 0x8053 Screen touch level
     0x3C,          // 0x8054 Screen touch leave
     0x03,          // 0x8055 Low power control
-    0x05,          // 0x8056 Refresh rate
-    0x00,          // 0x8057 X threshold
-    0x00,          // 0x8058 Y threshold
+    0x0F,          // 0x8056 Refresh rate
+    0x01,          // 0x8057 X threshold
+    0x01,          // 0x8058 Y threshold
     0x00,          // 0x8059 Reserved
     0x00,          // 0x805A Reserved
     0x00,          // 0x805B Space (top, bottom)
@@ -230,9 +230,9 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x5A,                // 0x8053 Screen touch level
     0x3C,                // 0x8054 Screen touch leave
     0x03,                // 0x8055 Low power control
-    0x05,                // 0x8056 Refresh rate
-    0x00,                // 0x8057 X threshold
-    0x00,                // 0x8058 Y threshold
+    0x0F,                // 0x8056 Refresh rate
+    0x01,                // 0x8057 X threshold
+    0x01,                // 0x8058 Y threshold
     0x00,                // 0x8059 Reserved
     0x00,                // 0x805A Reserved
     0x11,                // 0x805B Space (top, bottom)
@@ -403,9 +403,11 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 #endif
 
-uint8_t touchGT911Flag = 0;
-uint8_t touchEventOccured = 0;
+bool touchGT911Flag = false;
+volatile static bool touchEventOccured = false;
 struct TouchData touchData;
+uint16_t touchGT911fwver = 0;
+uint16_t touchGT911hiccups = 0;
 
 static void TOUCH_AF_ExtiStop(void)
 {
@@ -415,7 +417,7 @@ static void TOUCH_AF_ExtiStop(void)
   EXTI_StructInit(&EXTI_InitStructure);
   EXTI_InitStructure.EXTI_Line = TOUCH_INT_EXTI_LINE1;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = DISABLE;
   EXTI_Init(&EXTI_InitStructure);
 
@@ -436,7 +438,7 @@ static void TOUCH_AF_ExtiConfig(void)
   EXTI_StructInit(&EXTI_InitStructure);
   EXTI_InitStructure.EXTI_Line = TOUCH_INT_EXTI_LINE1;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
 
@@ -484,6 +486,8 @@ void TOUCH_AF_INT_Change(void)
 
 void I2C_Init()
 {
+  TRACE("I2C Init");
+
   I2C_DeInit(I2C);
 
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -508,6 +512,15 @@ void I2C_Init()
   GPIO_Init(I2C_GPIO, &GPIO_InitStructure);
 }
 
+bool I2C_WaitFlag(uint32_t flag)
+{
+  uint32_t timeout = I2C_TIMEOUT_MAX;
+  while (!I2C_GetFlagStatus(I2C, flag)) {
+    if ((timeout--) == 0) return false;
+  }
+  return true;
+}
+
 bool I2C_WaitEvent(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
@@ -529,33 +542,55 @@ bool I2C_WaitEventCleared(uint32_t event)
 uint8_t I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 {
   if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
+  {
+    TRACE("I2C WRITE ERROR: busy timeout");
     return false;
+  }
 
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
+  {
+    TRACE("I2C WRITE ERROR: could not issue start");
     return false;
+  }
 
   I2C_Send7bitAddress(I2C, GT_CMD_WR, I2C_Direction_Transmitter);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+  {
+    TRACE("I2C WRITE ERROR: could not send device address");
     return false;
+  }
 
   I2C_SendData(I2C, (uint8_t)((reg & 0xFF00) >> 8));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
+  {
+    TRACE("I2C WRITE ERROR: could not send register high address");
     return false;
+  }
+
   I2C_SendData(I2C, (uint8_t)(reg & 0x00FF));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
+  {
+    TRACE("I2C WRITE ERROR: could not send register low address");
     return false;
+  }
 
   /* While there is data to be written */
   while (len--) {
     I2C_SendData(I2C, *buf);
     if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
+    {
+      TRACE("I2C WRITE ERROR: could not send data with %u bytes remaining", len+1 );
       return false;
+    }
     buf++;
   }
 
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+  {
+    TRACE("I2C WRITE ERROR: waiting for BTF failed.");
     return false;
+  }
 
   I2C_GenerateSTOP(I2C, ENABLE);
   return true;
@@ -564,67 +599,184 @@ uint8_t I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 bool I2C_GT911_ReadRegister(u16 reg, uint8_t * buf, uint8_t len)
 {
   if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
+  {
+    TRACE("I2C READ ERROR: busy timeout");
     return false;
+  }
 
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
+  {
+    TRACE("I2C READ ERROR: could not issue first step start");
     return false;
+  }
 
   I2C_Send7bitAddress(I2C, GT_CMD_WR, I2C_Direction_Transmitter);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+  {
+    TRACE("I2C READ ERROR: could not send first step device address");
     return false;
+  }
 
   I2C_SendData(I2C, (uint8_t)((reg & 0xFF00) >> 8));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
+  {
+    TRACE("I2C READ ERROR: could not send register high address");
     return false;
+  }
+
   I2C_SendData(I2C, (uint8_t)(reg & 0x00FF));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+  {
+    TRACE("I2C READ ERROR: could not send register low address");
     return false;
+  }
+
+  // According to GP911 data sheet, repeated start is not listed, so we do full stop.
+  // See chapter 6.1.c, page 12, diagram for reading data
+  I2C_GenerateSTOP(I2C, ENABLE);
+  if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
+  {
+    TRACE("I2C READ ERROR: timeout waiting for first stop");
+    return false;
+  }
+
+  // Enable Acknowledgement, clear POS flag
+  I2C_AcknowledgeConfig(I2C, ENABLE);
+  I2C_NACKPositionConfig(I2C, I2C_NACKPosition_Current);
 
   I2C_GenerateSTART(I2C, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
+  {
+    TRACE("I2C READ ERROR: could not issue second step start");
     return false;
+  }
 
   I2C_Send7bitAddress(I2C, GT_CMD_RD, I2C_Direction_Receiver);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
+  {
+    TRACE("I2C READ ERROR: could not send second step device address");
     return false;
-
-  if (len > 1) {
-    I2C_AcknowledgeConfig(I2C, ENABLE);
   }
 
-  while (len) {
-    if (len == 1) {
-      I2C_AcknowledgeConfig(I2C, DISABLE);
-    }
-    if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
+  if (len == 1) {
+    // Clear Ack bit
+    I2C_AcknowledgeConfig(I2C, DISABLE);
+
+    // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
+    __disable_irq();
+    (void) I2C->SR2;                           
+    I2C_GenerateSTOP(I2C,ENABLE);      
+    __enable_irq();
+
+    // Receive data  EV7
+    if(!I2C_WaitFlag(I2C_FLAG_RXNE)) {
+      TRACE("I2C READ ERROR: timeout waiting for RxNE");
+      I2C_Init();
       return false;
+    }
+
     *buf++ = I2C_ReceiveData(I2C);
-    len--;
+  }
+  else if (len == 2) {
+
+    // Set POS flag
+    I2C_NACKPositionConfig(I2C, I2C_NACKPosition_Next);
+
+    // EV6_1 -- must be atomic and in this order
+    __disable_irq();
+    (void) I2C->SR2;                          // Clear ADDR flag
+    I2C_AcknowledgeConfig(I2C, DISABLE);      // Clear Ack bit
+    __enable_irq();
+
+    // EV7_3  -- Wait for BTF, program stop, read data twice
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    __disable_irq();
+    I2C_GenerateSTOP(I2C,ENABLE);
+    *buf++ = I2C->DR;
+    __enable_irq();
+
+    *buf++ = I2C->DR;
+  }
+  else {
+
+    (void) I2C->SR2;                         // Clear ADDR flag
+    while (len-- != 3) {
+      // EV7 -- cannot guarantee 1 transfer completion time, wait for BTF 
+      //        instead of RXNE
+      if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+        TRACE("I2C READ ERROR: timeout waiting for BTF");
+        I2C_Init();
+        return false;
+      }
+
+      *buf++ = I2C_ReceiveData(I2C);
+    }
+
+    // Data N-2 in DR, data N-1 in shift register,
+    // SCL stretched low until data N-2 is read
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    I2C_AcknowledgeConfig(I2C, DISABLE);      // clear ack bit
+    *buf++ = I2C_ReceiveData(I2C);            // receive byte N-2
+
+    // Wait for BTF, program stop, read data twice
+    if (!I2C_WaitFlag(I2C_FLAG_BTF)) {
+      TRACE("I2C READ ERROR: timeout waiting for BTF");
+      I2C_Init();
+      return false;
+    }
+
+    __disable_irq();
+    I2C_GenerateSTOP(I2C,ENABLE);
+    *buf++ = I2C->DR;
+    __enable_irq();
+
+    *buf++ = I2C->DR;
   }
 
-  I2C_GenerateSTOP(I2C, ENABLE);
   return true;
 }
 
-uint8_t I2C_GT911_SendConfig(uint8_t mode)
+bool I2C_GT911_SendConfig(void)
 {
   uint8_t buf[2];
   uint8_t i = 0;
   buf[0] = 0;
-  buf[1] = mode;
+  buf[1] = 1;
+  bool bResult = true;
+
   for (i = 0; i < sizeof(TOUCH_GT911_Cfg); i++)
     buf[0] += TOUCH_GT911_Cfg[i];//check sum
 
   buf[0] = (~buf[0]) + 1;
-  I2C_GT911_WriteRegister(GT_CFGS_REG, (uint8_t *) TOUCH_GT911_Cfg, sizeof(TOUCH_GT911_Cfg));//
-  I2C_GT911_WriteRegister(GT_CHECK_REG, buf, 2);//write checksum
-  return 0;
+  if (!I2C_GT911_WriteRegister(GT_CFGS_REG, (uint8_t *) TOUCH_GT911_Cfg, sizeof(TOUCH_GT911_Cfg)))
+  {
+    TRACE("GT911 ERROR: write config failed");
+    bResult = false;
+  }
+
+  if (!I2C_GT911_WriteRegister(GT_CHECK_REG, buf, 2)) //write checksum
+  {
+    TRACE("GT911 ERROR: write config checksum failed");
+    bResult = false;
+  }
+  return bResult;
 }
 
 void touchPanelDeInit(void)
 {
   TOUCH_AF_ExtiStop();
+  touchGT911Flag = false;
 }
 
 bool touchPanelInit(void)
@@ -656,28 +808,54 @@ bool touchPanelInit(void)
     delay_ms(50);
 
     TRACE("Reading Touch registry");
-    I2C_GT911_ReadRegister(GT_PID_REG, tmp, 4);
+    if (!I2C_GT911_ReadRegister(GT_PID_REG, tmp, 4))
+    {
+      TRACE("GT911 ERROR: Product ID read failed");
+    }
 
     if (strcmp((char *) tmp, "911") == 0) //ID==9147
     {
       TRACE("GT911 chip detected");
       tmp[0] = 0X02;
-      I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1);
-      I2C_GT911_ReadRegister(GT_CFGS_REG, tmp, 1);
+      if (!I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1))
+      {
+        TRACE("GT911 ERROR: write to control register failed");
+      }
+      if (!I2C_GT911_ReadRegister(GT_CFGS_REG, tmp, 1))
+      {
+          TRACE("GT911 ERROR: configuration register read failed");
+      }
 
-      TRACE("Chip config Ver:%x\r\n", tmp[0]);
-      if (tmp[0] < GT911_CFG_NUMER)  //Config ver
+      TRACE("Chip config Ver:%x", tmp[0]);
+      if (tmp[0] <= GT911_CFG_NUMER)  //Config ver
       {
         TRACE("Sending new config %d", GT911_CFG_NUMER);
-        I2C_GT911_SendConfig(1);
+        if (!I2C_GT911_SendConfig())
+        {
+          TRACE("GT911 ERROR: sending configration failed");
+        }
+      }
+
+      if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2))
+      {
+        TRACE("GT911 ERROR: reading firmware version failed");
+      }
+      else
+      {
+          touchGT911fwver = (tmp[1] << 8) + tmp[0];
+          TRACE("GT911 FW version: %u", touchGT911fwver);
       }
 
       delay_ms(10);
       tmp[0] = 0X00;
-      I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1);  //end reset
+      if (!I2C_GT911_WriteRegister(GT_CTRL_REG, tmp, 1))  //end reset
+      {
+        TRACE("GT911 ERROR: write to control register failed");
+      }
       touchGT911Flag = true;
 
       TOUCH_AF_ExtiConfig();
+
 
       return true;
     }
@@ -710,15 +888,19 @@ void touchPanelRead()
 {
   uint8_t state = 0;
 
-  if (!touchEventOccured)
-    return;
+  // if (!touchEventOccured)
+  //   return;
 
-  touchEventOccured = 0;
+  // touchEventOccured = false;
 
   uint32_t startReadStatus = RTOS_GET_MS();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
-      TRACE("GT911 I2C read error");
+      //ledRed();
+      touchGT911hiccups++;
+      TRACE("GT911 I2C read XY error");
+      touchPanelDeInit();
+      touchPanelInit();
       return;
     }
 
@@ -736,7 +918,11 @@ void touchPanelRead()
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
-        TRACE("GT911 I2C read error");
+        //ledRed();
+        touchGT911hiccups++;
+        TRACE("GT911 I2C data read error");
+        touchPanelDeInit();
+        touchPanelInit();
         return;
       }
       if (touchState.event == TE_NONE || touchState.event == TE_UP ||
@@ -767,7 +953,10 @@ void touchPanelRead()
   }
 
   uint8_t zero = 0;
-  I2C_GT911_WriteRegister(GT911_READ_XY_REG, &zero, 1);
+  if (!I2C_GT911_WriteRegister(GT911_READ_XY_REG, &zero, 1))
+  {
+    TRACE("GT911 ERROR: clearing XY register failed");
+  }
 
   TRACE("touch event = %s", event2str(touchState.event));
 }
@@ -779,7 +968,7 @@ extern "C" void TOUCH_INT_EXTI_IRQHandler1(void)
       // on touch turn the light on
       resetBacklightTimeout();
     }
-    touchEventOccured = 1;
+    touchEventOccured = true;
     EXTI_ClearITPendingBit(TOUCH_INT_EXTI_LINE1);
   }
 }

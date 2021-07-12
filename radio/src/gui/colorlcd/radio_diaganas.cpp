@@ -49,7 +49,7 @@ class RadioAnalogsDiagsWindow: public Window {
       }
 
 #if defined(HARDWARE_TOUCH)
-      constexpr coord_t y = MENU_CONTENT_TOP + 6 * FH;
+      constexpr coord_t y = MENU_CONTENT_TOP + 5 * FH;
 
       if (touchState.event != TE_NONE && touchState.event != TE_SLIDE_END) {
         coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
@@ -59,6 +59,14 @@ class RadioAnalogsDiagsWindow: public Window {
         dc->drawLine(touchState.x - 10, touchState.y - 8 - parent->top(), touchState.x + 10, touchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(touchState.x - 10, touchState.y + 8 - parent->top(), touchState.x + 10, touchState.y - 8- parent->top(), SOLID, 0);
       }
+#if !defined(SIMU)
+      constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
+      constexpr coord_t x1 = MENUS_MARGIN_LEFT;
+      dc->drawText(x1, y1, "Touch GT911 FW ver:");
+      dc->drawNumber(x1 + 150, y1, touchGT911fwver, LEFT, 4);
+      dc->drawText(x1 + 200, y1, "Hiccups:");
+      dc->drawNumber(x1 + 260, y1, touchGT911hiccups, LEFT, 5);
+#endif
 #endif
     };
 
