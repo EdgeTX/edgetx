@@ -24,7 +24,7 @@
 
 extern bool touchGT911Flag;
 extern uint16_t touchGT911fwver;
-extern uint16_t touchGT911hiccups;
+extern uint32_t touchGT911hiccups;
 extern bool touchPanelInit();
 
 void touchPanelRead();

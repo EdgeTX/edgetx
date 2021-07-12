@@ -61,11 +61,11 @@ class RadioAnalogsDiagsWindow: public Window {
       }
 #if !defined(SIMU)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
-      constexpr coord_t x1 = MENUS_MARGIN_LEFT;
-      dc->drawText(x1, y1, "Touch GT911 FW ver:");
-      dc->drawNumber(x1 + 150, y1, touchGT911fwver, LEFT, 4);
-      dc->drawText(x1 + 200, y1, "Hiccups:");
-      dc->drawNumber(x1 + 260, y1, touchGT911hiccups, LEFT, 5);
+      coord_t x1 = MENUS_MARGIN_LEFT;
+      x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;
+      x1 = dc->drawNumber(x1, y1, touchGT911fwver, LEFT, 4) + 16;
+      x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
+      dc->drawNumber(x1, y1, touchGT911hiccups, LEFT, 5);
 #endif
 #endif
     };

@@ -407,7 +407,7 @@ bool touchGT911Flag = false;
 volatile static bool touchEventOccured = false;
 struct TouchData touchData;
 uint16_t touchGT911fwver = 0;
-uint16_t touchGT911hiccups = 0;
+uint32_t touchGT911hiccups = 0;
 
 static void TOUCH_AF_ExtiStop(void)
 {
