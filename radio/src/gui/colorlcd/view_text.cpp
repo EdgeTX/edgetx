@@ -205,9 +205,24 @@ void ViewTextWindow::buildBody(Window *window)
   } 
  
   longestLine = 0;
-  textVerticalOffset = 0;
 
-  onEvent(EVT_ENTRY);
+  loadFirstScreen();
+  
+  if(isInSetup == true)
+  {
+    textVerticalOffset = 0;
+    textBottom = false;
+    while(!textBottom)
+    {
+      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+      textVerticalOffset += 10;
+    }
+    maxPos = maxLines * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+  }
+
+  isInSetup = false;
+  textVerticalOffset = 0;
+  loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
     new DynamicText(window, grid.getSlot(), [=]() {
@@ -231,7 +246,8 @@ bool ViewTextWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX,
     textVerticalOffset += lineStep;
     if (textVerticalOffset < 0) textVerticalOffset = 0;
 
-    if (textBottom && lineStep > 0) textVerticalOffset -= lineStep;
+  //  if (textBottom && lineStep > 0) textVerticalOffset -= lineStep;
+    if(textVerticalOffset > maxLines) textVerticalOffset = maxLines;  
     sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   }
   return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
@@ -274,6 +290,7 @@ void ViewTextWindow::checkEvents()
         break;
       else {
         textVerticalOffset += lineStep;
+        if(textVerticalOffset > maxLines) textVerticalOffset = maxLines;
       }
       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
       break;
@@ -297,14 +314,11 @@ void ViewTextWindow::checkEvents()
   Page::checkEvents();
 }
 
-void ViewTextWindow::onEvent(event_t event)
+void ViewTextWindow::loadFirstScreen()
 {
-  if(event == EVT_ENTRY) {
-          textVerticalOffset = 0;
-      readLinesCount = 0;
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-  }
-  Page::onEvent(event);
+  textVerticalOffset = 0;
+  readLinesCount = 0;
+  sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
 }
 
 void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
@@ -373,9 +387,11 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
       ++current_line;
     }
 
-    if(f_eof(&file))
-     textBottom = true;
-    
+    if (f_eof(&file)) {
+      textBottom = true;
+      if (isInSetup) maxLines = current_line;
+    }
+
     f_close(&file);
   }
 
@@ -390,7 +406,6 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
 {
   int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-  int maxPos = lastLoadedLine * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
 
   if(readPos < header.getRect().h)  readPos = header.getRect().h;
   if(maxPos < body.getRect().h)     maxPos = body.getRect().h;

@@ -42,7 +42,10 @@ class ViewTextWindow : public Page
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
     lines = nullptr;
-
+    lastLoadedLine = 0;
+    maxPos = 0;
+    maxLines = 0;
+    isInSetup = true;
     //body.setWindowFlags(FORWARD_SCROLL);
     header.setWindowFlags(NO_SCROLLBAR);
     
@@ -54,8 +57,8 @@ class ViewTextWindow : public Page
   bool sdReadTextLine(FIL* file, char lines[],
                       const uint8_t lineLength = LCD_COLS); 
 #else
-  void sdReadTextFileBlock(const char * filename, int& lines_count);
-  virtual void onEvent(event_t event);   
+  void sdReadTextFileBlock(const char * filename, int& lines_count); 
+  void loadFirstScreen(void);
  #if defined(HARDWARE_TOUCH)
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif 
@@ -103,7 +106,10 @@ int maxLineLength;
 int textVerticalOffset;
 int readLinesCount;
 int lastLoadedLine;
+int maxPos;
+int maxLines;
 bool textBottom;
+bool isInSetup;
 #endif
 
   void extractNameSansExt(void);
