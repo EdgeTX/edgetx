@@ -354,7 +354,7 @@ class ModelCategoryPage : public PageTab
 {
  public:
   explicit ModelCategoryPage(ModelsCategory *category) :
-      PageTab(category->name, ICON_MODEL), category(category)
+      PageTab(category->name, ICON_MODEL_SELECT_CATEGORY), category(category)
   {
   }
 
@@ -370,7 +370,7 @@ class ModelCategoryPage : public PageTab
 };
 
 ModelSelectMenu::ModelSelectMenu():
-  TabsGroup(ICON_MODEL)
+  TabsGroup(ICON_MODEL_SELECT)
 {
   modelslist.load();
 

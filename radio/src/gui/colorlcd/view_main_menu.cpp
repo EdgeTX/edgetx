@@ -52,7 +52,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   //                "Tasks", 0, FOCUS_COLOR | FONT(XL) | CENTERED);
   // pos += title->height() + PAGE_LINE_SPACING;
 
-  carousel->addButton(ICON_MODEL, "Select\nModel", [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL_SELECT, "Select\nModel", [=]() -> uint8_t {
     deleteLater();
     new ModelSelectMenu();
     return 0;
@@ -64,7 +64,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  carousel->addButton(ICON_RADIO_TOOLS, "Model\nSettings", [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL, "Model\nSettings", [=]() -> uint8_t {
     deleteLater();
     new ModelMenu();
     return 0;
