@@ -1026,6 +1026,8 @@ void onBindMenu(const char * result)
 
 const char * STR_TIMER_MODES[] = {"OFF", "ON", "Start", "Throttle", "Throttle %", "Throttle Start"};
 
+const char MODEL_NAME_EXTRA_CHARS[] = "_-.,:;<=>";
+
 void ModelSetupPage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -1034,7 +1036,7 @@ void ModelSetupPage::build(FormWindow * window)
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
   auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name),
-          0, "_-.,:;<=>");
+          0, MODEL_NAME_EXTRA_CHARS);
   text->setChangeHandler([=] {
       modelslist.load();
       auto model = modelslist.getCurrentModel();
