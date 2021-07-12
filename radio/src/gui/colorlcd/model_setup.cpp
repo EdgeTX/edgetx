@@ -1033,7 +1033,8 @@ void ModelSetupPage::build(FormWindow * window)
 
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
-  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name));
+  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name),
+          0, "_-.,:;<=>");
   text->setChangeHandler([=] {
       modelslist.load();
       auto model = modelslist.getCurrentModel();
