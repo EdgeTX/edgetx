@@ -32,9 +32,10 @@
 #define LUA_WARNING_INFO_LEN               64
 
 #if defined(HARDWARE_TOUCH)
-#define EVT_TOUCH_TAP_TIME     25
-#define EVT_TOUCH_SWIPE_LOCK    4
-#define EVT_TOUCH_SWIPE_SPEED  35
+#define EVT_TOUCH_TAP_TIME      25
+#define EVT_TOUCH_SWIPE_LOCK     4
+#define EVT_TOUCH_SWIPE_SPEED   35
+#define EVT_TOUCH_SWIPE_TIMEOUT 50
 #endif
 
 constexpr int LUA_WIDGET_REFRESH = 1000 / 10; // 10 Hz
@@ -226,6 +227,7 @@ class LuaWidget: public Widget
     static coord_t slideX;
     static coord_t slideY;
     static tmr10ms_t lastTouchDown;
+    static tmr10ms_t swipeTimeOut;
 #endif
     void checkEvents() override;
     void setErrorMessage(const char * funcName);
@@ -241,6 +243,7 @@ coord_t LuaWidget::startY = 0;
 coord_t LuaWidget::slideX = 0;
 coord_t LuaWidget::slideY = 0;
 tmr10ms_t LuaWidget::lastTouchDown = 0;
+tmr10ms_t LuaWidget::swipeTimeOut = 0;
 #endif
 
 void l_pushtableint(const char * key, int value)
@@ -409,17 +412,25 @@ void LuaWidget::refresh(BitmapBuffer* dc)
       coord_t absX = (slideX < 0) ? -slideX : slideX;
       coord_t absY = (slideY < 0) ? -slideY : slideY;
   
-      if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
-        if (slideX > EVT_TOUCH_SWIPE_SPEED)
-          l_pushtablebool("swipeRight", true);
-        else if (slideX < -EVT_TOUCH_SWIPE_SPEED)
-          l_pushtablebool("swipeLeft", true);
-      }
-      else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
-        if (slideY > EVT_TOUCH_SWIPE_SPEED)
-          l_pushtablebool("swipeDown", true);
-        else if (slideY < -EVT_TOUCH_SWIPE_SPEED)
-          l_pushtablebool("swipeUp", true);
+      if (get_tmr10ms() > swipeTimeOut) {
+        if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
+          if (slideX > EVT_TOUCH_SWIPE_SPEED) {
+            l_pushtablebool("swipeRight", true);
+            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+          } else if (slideX < -EVT_TOUCH_SWIPE_SPEED) {
+            l_pushtablebool("swipeLeft", true);
+            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+          }
+        }
+        else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
+          if (slideY > EVT_TOUCH_SWIPE_SPEED) {
+            l_pushtablebool("swipeDown", true);
+            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+          } else if (slideY < -EVT_TOUCH_SWIPE_SPEED) {
+            l_pushtablebool("swipeUp", true);
+            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+          }
+        }
       }
     }
   } else
