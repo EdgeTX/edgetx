@@ -409,28 +409,27 @@ void LuaWidget::refresh(BitmapBuffer* dc)
       l_pushtableint("slideX", slideX);
       l_pushtableint("slideY", slideY);
 
-      coord_t absX = (slideX < 0) ? -slideX : slideX;
-      coord_t absY = (slideY < 0) ? -slideY : slideY;
-  
+      // Do we have a swipe? Only one at a time!
       if (get_tmr10ms() > swipeTimeOut) {
+        coord_t absX = (slideX < 0) ? -slideX : slideX;
+        coord_t absY = (slideY < 0) ? -slideY : slideY;
+        bool swiped = false;
+  
         if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
-          if (slideX > EVT_TOUCH_SWIPE_SPEED) {
+          if ((swiped = (slideX > EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeRight", true);
-            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
-          } else if (slideX < -EVT_TOUCH_SWIPE_SPEED) {
+          else if ((swiped = (slideX < -EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeLeft", true);
-            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
-          }
         }
         else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
-          if (slideY > EVT_TOUCH_SWIPE_SPEED) {
+          if ((swiped = (slideY > EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeDown", true);
-            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
-          } else if (slideY < -EVT_TOUCH_SWIPE_SPEED) {
+          else if ((swiped = (slideY < -EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeUp", true);
-            swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
-          }
         }
+        
+        if (swiped)
+          swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
       }
     }
   } else
