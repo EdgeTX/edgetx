@@ -205,12 +205,10 @@ void ViewTextWindow::buildBody(Window *window)
   } 
  
   longestLine = 0;
-
   loadFirstScreen();
   
   if(isInSetup == true)
   {
-    textVerticalOffset = 0;
     textBottom = false;
     while(!textBottom)
     {
@@ -222,7 +220,6 @@ void ViewTextWindow::buildBody(Window *window)
   }
 
   isInSetup = false;
-  textVerticalOffset = 0;
   loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
