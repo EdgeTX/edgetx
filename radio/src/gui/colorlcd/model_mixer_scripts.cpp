@@ -166,6 +166,9 @@ class ScriptEditWindow : public Page {
     }
 };
 
+constexpr char SCRIPT_STATUS_ERROR[] = "(error)";
+constexpr char SCRIPT_STATUS_KILLED[] = "(killed)";
+
 class ScriptLineButton : public Button
 {
  public:
@@ -184,9 +187,31 @@ class ScriptLineButton : public Button
     dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
 
     if (runtimeData) {
-      dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-                        scriptData.file, LEN_SCRIPT_FILENAME,
-                        textColor);
+      coord_t x = 2*FIELD_PADDING_LEFT;
+      coord_t y = FIELD_PADDING_TOP;
+
+      x = dc->drawSizedText(x, y, scriptData.name, sizeof(scriptData.name), textColor);
+      x += 4*FIELD_PADDING_LEFT;
+
+      dc->drawSizedText(x, y, scriptData.file, sizeof(scriptData.file), textColor);
+
+      x = width() - 2*FIELD_PADDING_LEFT;
+      y = FIELD_PADDING_TOP;
+      textColor |= RIGHT;
+      
+      switch (runtimeData->state) {
+        case SCRIPT_SYNTAX_ERROR:
+          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR,
+                            sizeof(SCRIPT_STATUS_ERROR), textColor);
+          break;
+        case SCRIPT_KILLED:
+          dc->drawSizedText(x, y, SCRIPT_STATUS_KILLED,
+                            sizeof(SCRIPT_STATUS_KILLED), textColor);
+          break;
+        default:
+          dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
+          break;
+      }
     }
 
     // bounding rect
