@@ -80,7 +80,12 @@ bool FileChoice::openMenu()
 
       if (!fnLen || fnLen > maxlen) continue;  // wrong size
 
-      files.emplace_back(fno.fname, fnLen);
+      // eject duplicates
+      std::string newFile(fno.fname, fnLen);
+      if (std::find(files.begin(), files.end(), newFile) != files.end())
+        continue;
+
+      files.emplace_back(newFile);
     }
 
     if (!files.empty()) {
