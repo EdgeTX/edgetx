@@ -80,7 +80,7 @@ class ScriptEditWindow : public Page {
       // Filename
       new StaticText(window, grid.getLabelSlot(), STR_SCRIPT);
       auto fc = new FileChoice(
-          window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPT_EXT,
+          window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
           [=]() { return std::string(sd->file, LEN_SCRIPT_FILENAME); },
           [=](std::string newValue) {
