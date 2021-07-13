@@ -23,6 +23,8 @@
 #include "theme.h"
 #include "message_dialog.h"
 
+#include <algorithm>
+
 #if !defined(STR_SDCARD)
   #define STR_SDCARD "SD"
 #endif
