@@ -75,13 +75,13 @@ class ViewTextWindow : public Page
     }
   }  
 
-  void paint(BitmapBuffer* dc)
+  void paint(BitmapBuffer* dc) override
   {
     Page::paint(dc);
     drawVerticalScrollbar(dc);
   }        
 #endif                           
-  virtual void checkEvents();
+  void checkEvents() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };
