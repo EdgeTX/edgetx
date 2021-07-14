@@ -285,6 +285,12 @@ void enablePulsesExternalModule(uint8_t protocol)
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
 #endif
+      for (int i = 0; i < NUM_MODULES; i++) {
+        if (isModuleMultimodule(i)) {
+          getMultiModuleStatus(i).failsafeChecked = false;
+          getMultiModuleStatus(i).flags = 0;
+        }
+      }
       break;
 #endif
 
@@ -491,6 +497,12 @@ static void enablePulsesInternalModule(uint8_t protocol)
       intmodulePulsesData.multi.initFrame();
       intmoduleSerialStart(MULTIMODULE_BAUDRATE, true, USART_Parity_Even, USART_StopBits_2, USART_WordLength_9b);
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+      for (int i = 0; i < NUM_MODULES; i++) {
+        if (isModuleMultimodule(i)) {
+          getMultiModuleStatus(i).failsafeChecked = false;
+          getMultiModuleStatus(i).flags = 0;
+        }
+      }
       break;
 #endif
 
