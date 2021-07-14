@@ -1139,7 +1139,29 @@ void ModelSetupPage::build(FormWindow * window)
 
     // Throttle source
     new StaticText(window, grid.getLabelSlot(true), STR_TTRACE);
-    new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.thrTraceSrc));
+    auto sc = new SourceChoice(
+        window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH,
+        [=]() {
+          int16_t src = g_model.thrTraceSrc;
+          if (src == 0) return (int16_t)MIXSRC_Thr;
+          if (--src < NUM_POTS + NUM_SLIDERS) return (int16_t)(src + MIXSRC_FIRST_POT);
+          return (int16_t)(src - (NUM_POTS + NUM_SLIDERS) + MIXSRC_FIRST_CH);
+        },
+        [=](int16_t src) {
+          if (src == MIXSRC_Thr)
+            g_model.thrTraceSrc = 0;
+          else if (src <= MIXSRC_LAST_POT)
+            g_model.thrTraceSrc = src - MIXSRC_FIRST_POT + 1;
+          else if (src <= MIXSRC_LAST_CH)
+            g_model.thrTraceSrc = src - MIXSRC_FIRST_CH + NUM_POTS + NUM_SLIDERS + 1;
+          SET_DIRTY();
+        });
+    sc->setAvailableHandler([=](int16_t src) {
+      return isSourceAvailable(src) &&
+             ((src == MIXSRC_Thr) ||
+              ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
+              ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
+    });
     grid.nextLine();
 
     // Throttle trim
