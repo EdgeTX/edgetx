@@ -1021,15 +1021,16 @@ void ModelSetupPage::build(FormWindow * window)
 
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
-  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name),
-          0, MODEL_NAME_EXTRA_CHARS);
+  auto text =
+      new ModelTextEdit(window, grid.getFieldSlot(), g_model.header.name,
+                        sizeof(g_model.header.name), 0, MODEL_NAME_EXTRA_CHARS);
   text->setChangeHandler([=] {
-      modelslist.load();
-      auto model = modelslist.getCurrentModel();
-      if (model) {
-        model->setModelName(g_model.header.name);
-      }
-      SET_DIRTY();
+    modelslist.load();
+    auto model = modelslist.getCurrentModel();
+    if (model) {
+      model->setModelName(g_model.header.name);
+    }
+    SET_DIRTY();
   });
   grid.nextLine();
 
