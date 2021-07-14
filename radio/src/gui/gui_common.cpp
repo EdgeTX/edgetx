@@ -442,12 +442,15 @@ bool isSwitch2POSWarningStateAvailable(int state)
 //  return isSwitchAvailable(swtch, TimersContext);
 //}
 
-bool isThrottleSourceAvailable(int source)
+bool isThrottleSourceAvailable(int src)
 {
-  if (source >= THROTTLE_SOURCE_FIRST_POT && source < THROTTLE_SOURCE_FIRST_POT+NUM_POTS+NUM_SLIDERS && !IS_POT_SLIDER_AVAILABLE(POT1+source-THROTTLE_SOURCE_FIRST_POT))
-    return false;
-  else
-    return true;
+#if !defined(LIBOPENUI)
+  src = throttleSource2Source(src);
+#endif
+  return isSourceAvailable(src) &&
+    ((src == MIXSRC_Thr) ||
+     ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
+     ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
 
 bool isLogicalSwitchFunctionAvailable(int function)
