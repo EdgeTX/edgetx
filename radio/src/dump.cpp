@@ -26,31 +26,31 @@
 #define dumpPrintf(...) serialPrintf(__VA_ARGS__)
 #endif
 
+#if defined(DEBUG) || defined(CLI)
 uint8_t dumpPosition;
 
-void dumpStart(unsigned int size)
+static void dumpStart(unsigned int size)
 {
   dumpPrintf("DUMP %d bytes ...\n\r", size);
   dumpPosition = 0;
 }
 
-void dumpBody(const void *data, unsigned int size)
+static void dumpBody(const void *data, unsigned int size)
 {
   for (unsigned int i=0; i<size; i++) {
     dumpPrintf("%.2X ", ((uint8_t *)data)[i]);
     dumpPosition++;
-    if ((dumpPosition & (32-1)) == 0) {
+    if ((dumpPosition & 31) == 0) {
       dumpPrintf(CRLF);
     }
   }
 }
 
-void dumpEnd()
+static void dumpEnd()
 {
   dumpPrintf(CRLF);
 }
 
-#if defined(DEBUG) || defined(CLI)
 void dump(const void * data, unsigned int size)
 {
   dumpStart(size);

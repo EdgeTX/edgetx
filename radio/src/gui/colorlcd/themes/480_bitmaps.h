@@ -61,6 +61,12 @@ const uint8_t mask_model_special_functions[] = {
 const uint8_t mask_model_telemetry[] = {
 #include "mask_model_telemetry.lbm"
 };
+const uint8_t mask_menu_model_select[] = {
+#include "mask_menu_model_select.lbm" //TODO: someone may want to make proper icon
+};
+const uint8_t mask_model_select_category[] = {
+#include "mask_model_select_category.lbm" //TODO: someone should make proper icon
+};
 const uint8_t mask_monitor[] = {
 #include "mask_monitor.lbm"
 };
