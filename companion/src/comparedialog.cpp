@@ -155,7 +155,7 @@ void CompareDialog::removeModelBtnClicked()
 void CompareDialog::on_printButton_clicked()
 {
   QPrinter printer;
-  printer.setPageMargins(10.0, 10.0, 10.0, 10.0, printer.Millimeter);
+  printer.setPageMargins({10.0, 10.0, 10.0, 10.0}, QPageLayout::Millimeter);
   QPrintDialog * dialog = new QPrintDialog(&printer, this);
   dialog->setWindowTitle(tr("Print Document"));
   if (dialog->exec() != QDialog::Accepted)
@@ -167,9 +167,9 @@ void CompareDialog::on_printFileButton_clicked()
 {
   QPrinter printer;
   QString filename = QFileDialog::getSaveFileName(this, tr("Select PDF output file"), QString(), "Pdf File(*.pdf)");
-  printer.setPageMargins(10.0, 10.0, 10.0, 10.0, printer.Millimeter);
+  printer.setPageMargins({10.0, 10.0, 10.0, 10.0}, QPageLayout::Millimeter);
   printer.setOutputFormat(QPrinter::PdfFormat);
-  printer.setOrientation(QPrinter::Landscape);
+  printer.setPageOrientation(QPageLayout::Landscape);
   printer.setColorMode(QPrinter::Color);
   if (!filename.isEmpty()) {
     if (QFileInfo(filename).suffix().isEmpty())

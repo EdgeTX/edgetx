@@ -145,7 +145,7 @@ void SimulatedUIWidget::captureScreenshot()
       path = "./";
     QDir dir(path);
     if (dir.exists() && dir.isReadable()) {
-      QStringList fwid = getCurrentFirmware()->getId().split("-", QString::SkipEmptyParts);
+      QStringList fwid = getCurrentFirmware()->getId().split("-", Qt::KeepEmptyParts);
       QString flavor = fwid.at(qMin(1, fwid.size()));
       QString fnpfx = tr("screenshot", "Simulator LCD screenshot file name prefix");
       fileName = "%1/%2_%3_%4.png";

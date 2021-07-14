@@ -63,7 +63,7 @@ bool CategorizedStorageFormat::load(RadioData & radioData)
     }
 
     // determine if we have a model number
-    QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    QStringList parts = line.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
     if (parts.size() == 2) {
       // parse model number
       int modelNumber = parts[0].toInt();
@@ -145,7 +145,7 @@ bool CategorizedStorageFormat::write(const RadioData & radioData)
     if (!getCurrentFirmware()->getCapability(HasModelCategories)) {
       // Use format with model number and file name. This is needed because
       // radios without category support can have unused model slots
-      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename));
+      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename).toUtf8());
     } else {
       sortedModels[model.category].push_back(QString("%1\n").arg(model.filename));
     }
@@ -153,10 +153,10 @@ bool CategorizedStorageFormat::write(const RadioData & radioData)
 
   if (getCurrentFirmware()->getCapability(HasModelCategories)) {
     for (size_t c=0; c<numCategories; c++) {
-      modelsList.append(QString().sprintf("[%s]\n", radioData.categories[c].name));
+      modelsList.append(QString().asprintf("[%s]\n", radioData.categories[c].name).toUtf8());
       numModels = sortedModels[c].size();
       for (size_t m=0; m<numModels; m++) {
-        modelsList.append(sortedModels[c][m]);
+        modelsList.append(sortedModels[c][m].toUtf8());
       }
     }
   }

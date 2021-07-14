@@ -88,7 +88,7 @@ QString FirmwareInterface::seekString(const QString & string)
 {
   QString result = "";
 
-  int start = flash.indexOf(string);
+  int start = flash.indexOf(string.toUtf8());
   if (start > 0) {
     start += string.length();
     int end = -1;

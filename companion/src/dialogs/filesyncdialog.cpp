@@ -104,7 +104,7 @@ static QWidget * folderSelectorWidget(QLineEdit * le, QWidget * parent)
   l->addWidget(btn);
 
   QObject::connect(btn, &QToolButton::clicked, [=]() {
-    QString dir = QFileDialog::getExistingDirectory(parent, fsw->property("fileDialogTitle").toString(), le->text(), 0);
+    QString dir = QFileDialog::getExistingDirectory(parent, fsw->property("fileDialogTitle").toString(), le->text(), {});
     if (!dir.isEmpty()) {
       le->setText(QDir::toNativeSeparators(dir));
       le->setFocus();

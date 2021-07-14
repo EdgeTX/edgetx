@@ -325,7 +325,7 @@ void MainWindow::closeUpdatesWaitDialog()
 
 QString MainWindow::seekCodeString(const QByteArray & qba, const QString & label) const
 {
-  int posLabel = qba.indexOf(label);
+  int posLabel = qba.indexOf(label.toUtf8());
   if (posLabel < 0)
     return QString();
   int start = qba.indexOf("\"", posLabel + label.length());
