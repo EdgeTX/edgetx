@@ -1139,7 +1139,17 @@ void ModelSetupPage::build(FormWindow * window)
 
     // Throttle source
     new StaticText(window, grid.getLabelSlot(true), STR_TTRACE);
-    new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.thrTraceSrc));
+    auto sc = new SourceChoice(
+        window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH,
+        [=]() { return throttleSource2Source(g_model.thrTraceSrc); },
+        [=](int16_t src) {
+          int16_t val = source2ThrottleSource(src);
+          if (val >= 0) {
+            g_model.thrTraceSrc = val;
+            SET_DIRTY();
+          }
+        });
+    sc->setAvailableHandler(isThrottleSourceAvailable);
     grid.nextLine();
 
     // Throttle trim
