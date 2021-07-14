@@ -120,6 +120,11 @@ void SwitchChoice::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
+  if (event == EVT_KEY_LONG(KEY_ENTER)) {
+    int16_t value = getValue();
+    setValue(-value);
+  }
+
   if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     editMode = true;
     invalidate();
@@ -132,9 +137,16 @@ void SwitchChoice::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
-bool SwitchChoice::onTouchEnd(coord_t, coord_t)
+bool SwitchChoice::onTouchEnd(coord_t x, coord_t y)
 {
   setFocus(SET_FOCUS_DEFAULT);
+  Window::onTouchEnd(x, y);
+
+  if (isLongPress()) {
+    int16_t val = getValue();
+    setValue(-val);
+  }
+
   setEditMode(true);
   openMenu();
   return true;
