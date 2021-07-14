@@ -26,6 +26,7 @@
 #include "io/bootloader_flash.h"
 #include "standalone_lua.h"
 #include "sdcard.h"
+#include "view_text.h"
 
 class FileNameEditWindow : public Page
 {
@@ -232,15 +233,15 @@ void RadioSdManagerPage::build(FormWindow * window)
 
       if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
-      if (strlen(fno.fname) > SD_SCREEN_FILE_LENGTH)
+      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
         continue;
       if (fno.fname[0] == '.' && fno.fname[1] != '.')
         continue; // Ignore hidden files under UNIX, but not ..
 
       if (fno.fattrib & AM_DIR) {
-        directories.push_back(fno.fname);
+        directories.push_back((char*)fno.fname);
       } else {
-        files.push_back(fno.fname);
+        files.push_back((char*)fno.fname);
       }
     }
 
@@ -251,7 +252,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     for (auto name: directories) {
       auto b = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
-          f_chdir(fullpath.c_str());
+          f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
           build(window);
           return 0;
@@ -303,11 +304,18 @@ void RadioSdManagerPage::build(FormWindow * window)
             // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
             //   // TODO
             // }
-            // else if (!strcasecmp(ext, TEXT_EXT)) {
-            //   menu->addLine(STR_VIEW_TEXT, [=]() {
-            //       // TODO
-            //   });
-            // }
+            else if (!strcasecmp(ext, TEXT_EXT)) {
+              menu->addLine(STR_VIEW_TEXT, [=]() {
+                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
+                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+   
+                auto textView = new ViewTextWindow(lfn, name);
+                textView->setCloseHandler([=]() {
+                  //window->clear();
+                  rebuild(window);
+                });
+              });
+            }
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
               if (isBootloader(name.data())) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [=]() {
@@ -378,7 +386,6 @@ void RadioSdManagerPage::build(FormWindow * window)
                 //window->clear();
                 rebuild(window);
               });
-              // rebuild(window); });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
                 f_unlink((const TCHAR*)getFullPath(name));

@@ -41,26 +41,6 @@ std::string switchWarninglabel(swsrc_t index)
              1);
 }
 
-class RssiDialog : public MessageDialog
-{
- public:
-  RssiDialog(Window* parent, const char* title, const char* message,
-             const char* info = "", const int lineHeight = PAGE_LINE_HEIGHT,
-             const WindowFlags windowFlags = 0,
-             const LcdFlags textFlags = CENTERED) :
-      MessageDialog(parent, title, message, info, lineHeight, windowFlags,
-                    textFlags)
-  {
-  }
-
-  virtual void checkEvents()
-  {
-    char buf[10];
-    sprintf(buf, "%d", (int)TELEMETRY_RSSI());
-    setInfoText(buf);
-    MessageDialog::checkEvents();
-  }
-};
 
 class ChannelFailsafeBargraph: public Window {
   public:
@@ -644,6 +624,7 @@ class ModuleWindow : public FormGroup {
       }
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
+        Choice * mmSubProtocol = nullptr;
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL);
 
@@ -653,6 +634,8 @@ class ModuleWindow : public FormGroup {
                               GET_DEFAULT(multiRfProto),
                               [=](int32_t newValue) {
                                 g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
+                                g_model.moduleData[moduleIdx].subType = 0;
+                                if (mmSubProtocol != nullptr) mmSubProtocol->invalidate();     
                                 resetMultiProtocolsOptions(moduleIdx);
                                 SET_DIRTY();
                                 update();
@@ -662,7 +645,7 @@ class ModuleWindow : public FormGroup {
         // Subtype (D16, DSMX,...)
         const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
         if (pdef->maxSubtype > 0)
-          new Choice(this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0, pdef->maxSubtype,GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
+          mmSubProtocol = new Choice(this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0, pdef->maxSubtype,GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
         grid.nextLine();
 
         // Multimodule status
@@ -868,8 +851,14 @@ class ModuleWindow : public FormGroup {
               }
               else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
-                auto rssiDialog = new RssiDialog(
-                    this, "Range Test", "RSSI:", "", 50, REFRESH_ALWAYS,
+                auto rssiDialog = new DynamicMessageDialog(
+                    this, "Range Test",
+                    [=]() {
+                      char buf[16];
+                      sprintf(buf, "%d db", (int)TELEMETRY_RSSI());
+                      return std::string(buf);
+                    },
+                    "RSSI:", 50,
                     DEFAULT_COLOR | CENTERED | FONT(BOLD) | FONT(XL));
                 rssiDialog->setCloseHandler([this]() {
                   rangeButton->check(false);
@@ -1023,6 +1012,8 @@ void onBindMenu(const char * result)
 
 const char * STR_TIMER_MODES[] = {"OFF", "ON", "Start", "Throttle", "Throttle %", "Throttle Start"};
 
+const char MODEL_NAME_EXTRA_CHARS[] = "_-.,:;<=>";
+
 void ModelSetupPage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -1030,7 +1021,8 @@ void ModelSetupPage::build(FormWindow * window)
 
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
-  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name));
+  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name),
+          0, MODEL_NAME_EXTRA_CHARS);
   text->setChangeHandler([=] {
       modelslist.load();
       auto model = modelslist.getCurrentModel();

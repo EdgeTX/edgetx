@@ -21,7 +21,7 @@
 #include "opentx.h"
 #include "touch_driver.h"
 
-static bool touchEventOccured;
+volatile static bool touchEventOccured;
 
 #define FT6x06_MAX_INSTANCE  1
 

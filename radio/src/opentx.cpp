@@ -26,6 +26,7 @@
   // #include "shutdown_animation.h"
   #include "radio_calibration.h"
   #include "view_main.h"
+  #include "view_text.h"
 #endif
 
 #if defined(PCBSKY9X)
@@ -749,13 +750,9 @@ void checkAll()
   disableVBatBridge();
 #endif
 
-#if defined(COLORLCD)
-#warning "Model notes missing"
-#else
   if (g_model.displayChecklist && modelHasNotes()) {
     readModelNotes();
   }
-#endif
 
 #if defined(MULTIMODULE)
   checkMultiLowPower();

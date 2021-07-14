@@ -150,6 +150,8 @@ class Theme480: public OpenTxTheme
       loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions);
       loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts);
       loadMenuIcon(ICON_MODEL_TELEMETRY, mask_model_telemetry);
+      loadMenuIcon(ICON_MODEL_SELECT, mask_menu_model_select);
+      loadMenuIcon(ICON_MODEL_SELECT_CATEGORY, mask_model_select_category);
       loadMenuIcon(ICON_STATS, mask_menu_stats);
       loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph);
       loadMenuIcon(ICON_STATS_TIMERS, mask_stats_timers);

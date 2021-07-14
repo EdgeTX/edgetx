@@ -244,6 +244,7 @@ class ModelCategoryPageBody : public FormWindow
               storageCheck(true);
 
               modelslist.setCurrentModel(model);
+              modelslist.setCurrentCategory(category);
               update();
             });
           }
@@ -271,7 +272,7 @@ class ModelCategoryPageBody : public FormWindow
                       .c_str(),
                   [=] {
                     modelslist.removeModel(category, model);
-                    update(index < category->size() - 1 ? index : index - 1);
+                    update(index < (int)category->size() - 1 ? index : index - 1);
                   });
             });
           }
@@ -353,7 +354,7 @@ class ModelCategoryPage : public PageTab
 {
  public:
   explicit ModelCategoryPage(ModelsCategory *category) :
-      PageTab(category->name, ICON_MODEL), category(category)
+      PageTab(category->name, ICON_MODEL_SELECT_CATEGORY), category(category)
   {
   }
 
@@ -369,7 +370,7 @@ class ModelCategoryPage : public PageTab
 };
 
 ModelSelectMenu::ModelSelectMenu():
-  TabsGroup(ICON_MODEL)
+  TabsGroup(ICON_MODEL_SELECT)
 {
   modelslist.load();
 
