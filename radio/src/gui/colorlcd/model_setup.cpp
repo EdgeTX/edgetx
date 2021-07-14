@@ -41,26 +41,6 @@ std::string switchWarninglabel(swsrc_t index)
              1);
 }
 
-class RssiDialog : public MessageDialog
-{
- public:
-  RssiDialog(Window* parent, const char* title, const char* message,
-             const char* info = "", const int lineHeight = PAGE_LINE_HEIGHT,
-             const WindowFlags windowFlags = 0,
-             const LcdFlags textFlags = CENTERED) :
-      MessageDialog(parent, title, message, info, lineHeight, windowFlags,
-                    textFlags)
-  {
-  }
-
-  virtual void checkEvents()
-  {
-    char buf[10];
-    sprintf(buf, "%d", (int)TELEMETRY_RSSI());
-    setInfoText(buf);
-    MessageDialog::checkEvents();
-  }
-};
 
 class ChannelFailsafeBargraph: public Window {
   public:
@@ -871,8 +851,14 @@ class ModuleWindow : public FormGroup {
               }
               else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
-                auto rssiDialog = new RssiDialog(
-                    this, "Range Test", "RSSI:", "", 50, REFRESH_ALWAYS,
+                auto rssiDialog = new DynamicMessageDialog(
+                    this, "Range Test",
+                    [=]() {
+                      char buf[16];
+                      sprintf(buf, "%d db", (int)TELEMETRY_RSSI());
+                      return std::string(buf);
+                    },
+                    "RSSI:", 50,
                     DEFAULT_COLOR | CENTERED | FONT(BOLD) | FONT(XL));
                 rssiDialog->setCloseHandler([this]() {
                   rangeButton->check(false);
