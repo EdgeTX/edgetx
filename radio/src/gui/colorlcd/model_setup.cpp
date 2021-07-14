@@ -1160,7 +1160,10 @@ void ModelSetupPage::build(FormWindow * window)
 
     // Throttle trim source
     new StaticText(window, grid.getLabelSlot(true), STR_TTRIM_SW);
-    new SourceChoice(window, grid.getFieldSlot(), 0, NUM_TRIMS - 1, GET_SET_DEFAULT( g_model.thrTrimSw));
+    new SourceChoice(
+        window, grid.getFieldSlot(), MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
+        [=]() { return g_model.getThrottleStickTrimSource(); },
+        [=](int16_t src) { g_model.setThrottleStickTrimSource(src); });
     grid.nextLine();
   }
 
