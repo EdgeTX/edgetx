@@ -59,7 +59,7 @@ class RadioAnalogsDiagsWindow: public Window {
         dc->drawLine(touchState.x - 10, touchState.y - 8 - parent->top(), touchState.x + 10, touchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(touchState.x - 10, touchState.y + 8 - parent->top(), touchState.x + 10, touchState.y - 8- parent->top(), SOLID, 0);
       }
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(PCBNV14)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
       coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;
