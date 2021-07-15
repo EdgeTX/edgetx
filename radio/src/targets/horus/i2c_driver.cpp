@@ -28,8 +28,7 @@ uint32_t GetTickCountMS(void)
 {
     static uint32_t tickcount = 0;
     tickcount++;
-    return (tickcount >> 10);
-    //return (ticksNow()/CYCLES_IN_MS);
+    return (tickcount >> 11);   // division with 2048, roughly to get milliseconds
 }
 
 /* I2C MSP Initialization
@@ -396,7 +395,7 @@ static HAL_StatusTypeDef I2C_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uin
     /* Check for the Timeout */
     if (Timeout != HAL_MAX_DELAY)
     {
-      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U)) // Original HAL_GetTick()
+      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U))
       {
         hi2c->PreviousState     = I2C_STATE_NONE;
         hi2c->State             = HAL_I2C_STATE_READY;
@@ -447,7 +446,7 @@ static HAL_StatusTypeDef I2C_WaitOnMasterAddressFlagUntilTimeout(I2C_HandleTypeD
     /* Check for the Timeout */
     if (Timeout != HAL_MAX_DELAY)
     {
-      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U)) // Original HAL_GetTick()
+      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U))
       {
         hi2c->PreviousState       = I2C_STATE_NONE;
         hi2c->State               = HAL_I2C_STATE_READY;
@@ -577,7 +576,7 @@ static HAL_StatusTypeDef I2C_WaitOnTXEFlagUntilTimeout(I2C_HandleTypeDef *hi2c, 
     /* Check for the Timeout */
     if (Timeout != HAL_MAX_DELAY)
     {
-      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U)) // Original: HAL_GetTick()
+      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U))
       {
         hi2c->PreviousState       = I2C_STATE_NONE;
         hi2c->State               = HAL_I2C_STATE_READY;
@@ -614,7 +613,7 @@ static HAL_StatusTypeDef I2C_WaitOnBTFFlagUntilTimeout(I2C_HandleTypeDef *hi2c, 
     /* Check for the Timeout */
     if (Timeout != HAL_MAX_DELAY)
     {
-      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U)) // Original HAL_GetTick()
+      if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U))
       {
         hi2c->PreviousState       = I2C_STATE_NONE;
         hi2c->State               = HAL_I2C_STATE_READY;
@@ -644,7 +643,7 @@ static HAL_StatusTypeDef I2C_WaitOnBTFFlagUntilTimeout(I2C_HandleTypeDef *hi2c, 
 HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
     /* Init tickstart for timeout management*/
-     uint32_t tickstart = GetTickCountMS(); // Original: HAL_GetTick();
+     uint32_t tickstart = GetTickCountMS();
 
      if (hi2c->State == HAL_I2C_STATE_READY)
      {
@@ -878,7 +877,7 @@ static HAL_StatusTypeDef I2C_WaitOnRXNEFlagUntilTimeout(I2C_HandleTypeDef *hi2c,
     }
 
     /* Check for the Timeout */
-    if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U)) // Original HAL_GetTick()
+    if (((GetTickCountMS() - Tickstart) > Timeout) || (Timeout == 0U))
     {
       hi2c->PreviousState       = I2C_STATE_NONE;
       hi2c->State               = HAL_I2C_STATE_READY;
@@ -907,7 +906,7 @@ static HAL_StatusTypeDef I2C_WaitOnRXNEFlagUntilTimeout(I2C_HandleTypeDef *hi2c,
 HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
       /* Init tickstart for timeout management*/
-      uint32_t tickstart = GetTickCountMS(); // Original HAL_GetTick();
+      uint32_t tickstart = GetTickCountMS();
 
       if (hi2c->State == HAL_I2C_STATE_READY)
       {

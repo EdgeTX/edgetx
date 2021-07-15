@@ -234,8 +234,10 @@
 #define __HAL_I2C_CLEAR_ADDRFLAG(__HANDLE__)    \
   do{                                           \
     __IO uint32_t tmpreg = 0x00U;               \
+     __disable_irq();                           \
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     tmpreg = (__HANDLE__)->Instance->SR2;       \
+     __enable_irq();                            \
     UNUSED(tmpreg);                             \
   } while(0)
 
@@ -307,7 +309,6 @@ typedef enum
   HAL_I2C_STATE_ABORT             = 0x60U,   /*!< Abort user request ongoing                */
   HAL_I2C_STATE_TIMEOUT           = 0xA0U,   /*!< Timeout state                             */
   HAL_I2C_STATE_ERROR             = 0xE0U    /*!< Error                                     */
-
 } HAL_I2C_StateTypeDef;
 
 /* HAL Mode structure definition
@@ -332,7 +333,6 @@ typedef enum
   HAL_I2C_MODE_MASTER             = 0x10U,   /*!< I2C communication is in Master Mode       */
   HAL_I2C_MODE_SLAVE              = 0x20U,   /*!< I2C communication is in Slave Mode        */
   HAL_I2C_MODE_MEM                = 0x40U    /*!< I2C communication is in Memory Mode       */
-
 } HAL_I2C_ModeTypeDef;
 
 // I2C configuration structure definition

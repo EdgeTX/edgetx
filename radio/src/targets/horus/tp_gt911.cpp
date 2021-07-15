@@ -530,7 +530,7 @@ bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
         }
     }
 
-    if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uAddrAndBuf, len + 2, 10000) != HAL_OK)
+    if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uAddrAndBuf, len + 2, 100) != HAL_OK)
     {
         TRACE("I2C ERROR: WriteRegister failed");
         return false;
@@ -544,13 +544,13 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
     uRegAddr[0] = (uint8_t)((reg & 0xFF00) >> 8);
     uRegAddr[1] = (uint8_t)(reg & 0x00FF);
 
-    if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uRegAddr, 2, 10000) != HAL_OK)
+    if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uRegAddr, 2, 10) != HAL_OK)
     {
         TRACE("I2C ERROR: ReadRedister write reg address failed");
         return false;
     }
 
-    if (HAL_I2C_Master_Receive(&hi2c1, GT911_I2C_ADDR << 1, buf, len, 10000) != HAL_OK)
+    if (HAL_I2C_Master_Receive(&hi2c1, GT911_I2C_ADDR << 1, buf, len, 100) != HAL_OK)
     {
         TRACE("I2C ERROR: ReadRedister read reg address failed");
         return false;
