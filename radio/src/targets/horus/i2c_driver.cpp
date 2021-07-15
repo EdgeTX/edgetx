@@ -41,17 +41,14 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
     if (I2C_GPIO == GPIOA)
         __HAL_RCC_GPIOA_CLK_ENABLE();
+    else if (I2C_GPIO == GPIOB)
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+    else if (I2C_GPIO == GPIOC)
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+    else if (I2C_GPIO == GPIOH)
+        __HAL_RCC_GPIOH_CLK_ENABLE();
     else
-        if (I2C_GPIO == GPIOB)
-            __HAL_RCC_GPIOB_CLK_ENABLE();
-        else
-            if (I2C_GPIO == GPIOC)
-                __HAL_RCC_GPIOC_CLK_ENABLE();
-            else
-                if (I2C_GPIO == GPIOH)
-                    __HAL_RCC_GPIOH_CLK_ENABLE();
-                else
-                    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
+        TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
 
     GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_GPIO_PinSource, I2C_GPIO_AF);
     GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_GPIO_PinSource, I2C_GPIO_AF);
@@ -66,14 +63,12 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     /* Peripheral clock enable */
     if (I2C == I2C1)
         __HAL_RCC_I2C1_CLK_ENABLE();
+    else if (I2C == I2C2)
+        __HAL_RCC_I2C2_CLK_ENABLE();
+    else if (I2C == I2C3)
+        __HAL_RCC_I2C3_CLK_ENABLE();
     else
-        if (I2C == I2C2)
-            __HAL_RCC_I2C2_CLK_ENABLE();
-        else
-            if (I2C == I2C3)
-                __HAL_RCC_I2C3_CLK_ENABLE();
-            else
-                TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
+        TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
 }
 
 /* De-initializes the GPIOx peripheral registers to their default reset values.
