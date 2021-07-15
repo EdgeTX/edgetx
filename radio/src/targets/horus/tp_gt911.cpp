@@ -487,7 +487,7 @@ void TOUCH_AF_INT_Change(void)
   GPIO_Init(TOUCH_INT_GPIO, &GPIO_InitStructure);
 }
 
-void I2C_Init_Radio()
+void I2C_Init_Radio(void)
 {
   TRACE("I2C Init");
 
@@ -533,7 +533,6 @@ bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
     if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uAddrAndBuf, len + 2, 10000) != HAL_OK)
     {
         TRACE("I2C ERROR: WriteRegister failed");
-        asm("bkpt 255");
         return false;
     }
     return true;
@@ -548,14 +547,12 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
     if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uRegAddr, 2, 10000) != HAL_OK)
     {
         TRACE("I2C ERROR: ReadRedister write reg address failed");
-        asm("bkpt 255");
         return false;
     }
 
     if (HAL_I2C_Master_Receive(&hi2c1, GT911_I2C_ADDR << 1, buf, len, 10000) != HAL_OK)
     {
         TRACE("I2C ERROR: ReadRedister read reg address failed");
-        asm("bkpt 255");
         return false;
     }
     return true;
@@ -678,6 +675,23 @@ bool touchPanelInit(void)
   }
 }
 
+bool I2C_ReInit(void)
+{
+    TRACE("I2C ReInit");
+    touchPanelDeInit();
+    if (HAL_I2C_DeInit(&hi2c1) != HAL_OK)
+        TRACE("I2C ReInit - I2C DeInit failed");
+
+    // If DeInit fails, try to re-init anyway
+    if (!touchPanelInit())
+    {
+        TRACE("I2C ReInit - touchPanelInit failed");
+        return false;
+    }
+    return true;
+}
+
+
 #if defined(SIMU) || defined(SEMIHOSTING) || defined(DEBUG)
 static const char* event2str(uint8_t ev)
 {
@@ -713,8 +727,8 @@ void touchPanelRead()
       //ledRed();
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
-      touchPanelDeInit();
-      touchPanelInit();
+      if (!I2C_ReInit())
+          TRACE("I2C ReInit failed");
       return;
     }
 
@@ -735,8 +749,8 @@ void touchPanelRead()
         //ledRed();
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
-        touchPanelDeInit();
-        touchPanelInit();
+        if (!I2C_ReInit())
+            TRACE("I2C ReInit failed");
         return;
       }
       if (touchState.event == TE_NONE || touchState.event == TE_UP ||

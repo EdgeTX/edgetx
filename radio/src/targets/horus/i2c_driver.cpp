@@ -77,12 +77,102 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
                 TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
 }
 
+/* De-initializes the GPIOx peripheral registers to their default reset values.
+ * @param  GPIOx where x can be (A..K) to select the GPIO peripheral for STM32F429X device or
+ *                      x can be (A..I) to select the GPIO peripheral for STM32F40XX and STM32F427X devices.
+ * @param  GPIO_Pin specifies the port bit to be written.
+ *          This parameter can be one of GPIO_PIN_x where x can be (0..15).
+ * @retval None
+ */
+void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
+{
+  uint32_t position;
+  uint32_t ioposition = 0x00U;
+  uint32_t iocurrent = 0x00U;
+  uint32_t tmp = 0x00U;
+
+  /* Check the parameters */
+  assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));
+
+  /* Configure the port pins */
+  for(position = 0U; position < GPIO_NUMBER; position++)
+  {
+    /* Get the IO position */
+    ioposition = 0x01U << position;
+    /* Get the current IO position */
+    iocurrent = (GPIO_Pin) & ioposition;
+
+    if(iocurrent == ioposition)
+    {
+      /*------------------------- EXTI Mode Configuration --------------------*/
+      tmp = SYSCFG->EXTICR[position >> 2U];
+      tmp &= (0x0FU << (4U * (position & 0x03U)));
+      if(tmp == ((uint32_t)(GPIO_GET_INDEX(GPIOx)) << (4U * (position & 0x03U))))
+      {
+        /* Clear EXTI line configuration */
+        EXTI->IMR &= ~((uint32_t)iocurrent);
+        EXTI->EMR &= ~((uint32_t)iocurrent);
+
+        /* Clear Rising Falling edge configuration */
+        EXTI->RTSR &= ~((uint32_t)iocurrent);
+        EXTI->FTSR &= ~((uint32_t)iocurrent);
+
+        /* Configure the External Interrupt or event for the current IO */
+        tmp = 0x0FU << (4U * (position & 0x03U));
+        SYSCFG->EXTICR[position >> 2U] &= ~tmp;
+      }
+
+      /*------------------------- GPIO Mode Configuration --------------------*/
+      /* Configure IO Direction in Input Floating Mode */
+      GPIOx->MODER &= ~(GPIO_MODER_MODER0 << (position * 2U));
+
+      /* Configure the default Alternate Function in current IO */
+      GPIOx->AFR[position >> 3U] &= ~(0xFU << ((uint32_t)(position & 0x07U) * 4U)) ;
+
+      /* Deactivate the Pull-up and Pull-down resistor for the current IO */
+      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << (position * 2U));
+
+      /* Configure the default value IO Output Type */
+      GPIOx->OTYPER  &= ~(GPIO_OTYPER_OT_0 << position) ;
+
+      /* Configure the default value for IO Speed */
+      GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << (position * 2U));
+    }
+  }
+}
+
+/* I2C MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hi2c: I2C handle pointer
+ * @retval None
+ */
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+{
+  if(hi2c->Instance==I2C1)
+  {
+    __HAL_RCC_I2C1_CLK_DISABLE();
+  } else
+  {
+      if(hi2c->Instance==I2C2)
+      {
+        __HAL_RCC_I2C2_CLK_DISABLE();
+        if(hi2c->Instance==I2C3)
+        {
+          __HAL_RCC_I2C3_CLK_DISABLE();
+        } else
+            TRACE("I2C ERROR: HAL_I2C_MspDeInit() I2C misconfiguration");
+      }
+  }
+  HAL_GPIO_DeInit(I2C_GPIO, I2C_SCL_GPIO_PinSource);
+  HAL_GPIO_DeInit(I2C_GPIO, I2C_SDA_GPIO_PinSource);
+}
+
 /* Initializes the I2C according to the specified parameters
-  * in the HAL_I2C_InitTypeDef and initialize the associated handle.
-  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
-  *              the configuration information for the specified I2C.
-  * @retval HAL status
-  */
+ * in the HAL_I2C_InitTypeDef and initialize the associated handle.
+ * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+ *              the configuration information for the specified I2C.
+ * @retval HAL status
+ */
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c)
 {
   uint32_t freqrange;
@@ -172,6 +262,41 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c)
   return HAL_OK;
 }
 
+/* DeInitialize the I2C peripheral.
+ * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+ *         the configuration information for the specified I2C.
+ * @retval HAL status
+ */
+HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
+{
+  /* Check the I2C handle allocation */
+  if (hi2c == NULL)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Check the parameters */
+  assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
+
+  hi2c->State = HAL_I2C_STATE_BUSY;
+
+  /* Disable the I2C Peripheral Clock */
+  __HAL_I2C_DISABLE(hi2c);
+
+  /* DeInit the low level hardware: GPIO, CLOCK, NVIC */
+  HAL_I2C_MspDeInit(hi2c);
+
+  hi2c->ErrorCode     = HAL_I2C_ERROR_NONE;
+  hi2c->State         = HAL_I2C_STATE_RESET;
+  hi2c->PreviousState = I2C_STATE_NONE;
+  hi2c->Mode          = HAL_I2C_MODE_NONE;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hi2c);
+
+  return HAL_OK;
+}
+
 /* Configures I2C Analog noise filter.
  * @param  hi2c pointer to a I2C_HandleTypeDef structure that contains
  *              the configuration information for the specified I2Cx peripheral.
@@ -254,11 +379,6 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   }
 }
 
-FlagStatus __HAL_I2C_GET_FLAG(I2C_HandleTypeDef *hi2c, uint32_t Flag)
-{
-    return I2C_GetFlagStatus(hi2c->Instance, Flag);
-}
-
 /* This function handles I2C Communication Timeout.
  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
  *         the configuration information for I2C module
@@ -303,9 +423,9 @@ static HAL_StatusTypeDef I2C_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uin
  */
 static HAL_StatusTypeDef I2C_WaitOnMasterAddressFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Flag, uint32_t Timeout, uint32_t Tickstart)
 {
-  while (__HAL_I2C_GET_FLAG(hi2c, Flag) == RESET)
+  while (I2C_GetFlagStatus(hi2c->Instance, Flag) == RESET)
   {
-    if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_AF) == SET)
+    if (I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_AF) == SET)
     {
       /* Generate Stop */
       SET_BIT(hi2c->Instance->CR1, I2C_CR1_STOP);
@@ -419,7 +539,7 @@ static HAL_StatusTypeDef I2C_MasterRequestWrite(I2C_HandleTypeDef *hi2c, uint16_
  */
 static HAL_StatusTypeDef I2C_IsAcknowledgeFailed(I2C_HandleTypeDef *hi2c)
 {
-  if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_AF) == SET)
+  if ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_AF) == SET)
   {
     /* Clear NACKF Flag */
     __HAL_I2C_CLEAR_FLAG(hi2c, I2C_FLAG_AF);
@@ -446,7 +566,7 @@ static HAL_StatusTypeDef I2C_IsAcknowledgeFailed(I2C_HandleTypeDef *hi2c)
  */
 static HAL_StatusTypeDef I2C_WaitOnTXEFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout, uint32_t Tickstart)
 {
-  while (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_TXE) == RESET)
+  while ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_TXE) == RESET)
   {
     /* Check if a NACK is detected */
     if (I2C_IsAcknowledgeFailed(hi2c) != HAL_OK)
@@ -483,7 +603,7 @@ static HAL_StatusTypeDef I2C_WaitOnTXEFlagUntilTimeout(I2C_HandleTypeDef *hi2c, 
  */
 static HAL_StatusTypeDef I2C_WaitOnBTFFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout, uint32_t Tickstart)
 {
-  while (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == RESET)
+  while ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_BTF) == RESET)
   {
     /* Check if a NACK is detected */
     if (I2C_IsAcknowledgeFailed(hi2c) != HAL_OK)
@@ -589,7 +709,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevA
          hi2c->XferCount--;
          hi2c->XferSize--;
 
-         if ((__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET) && (hi2c->XferSize != 0U))
+         if (( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_BTF) == SET) && (hi2c->XferSize != 0U))
          {
            /* Write data to DR */
            hi2c->Instance->DR = *hi2c->pBuffPtr;
@@ -738,10 +858,10 @@ static HAL_StatusTypeDef I2C_MasterRequestRead(I2C_HandleTypeDef *hi2c, uint16_t
 static HAL_StatusTypeDef I2C_WaitOnRXNEFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Timeout, uint32_t Tickstart)
 {
 
-  while (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_RXNE) == RESET)
+  while ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_RXNE) == RESET)
   {
     /* Check if a STOPF is detected */
-    if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_STOPF) == SET)
+    if ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_STOPF) == SET)
     {
       /* Clear STOP Flag */
       __HAL_I2C_CLEAR_FLAG(hi2c, I2C_FLAG_STOPF);
@@ -990,7 +1110,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAd
             hi2c->XferSize--;
             hi2c->XferCount--;
 
-            if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET)
+            if ( I2C_GetFlagStatus(hi2c->Instance, I2C_FLAG_BTF) == SET)
             {
               /* Read data from DR */
               *hi2c->pBuffPtr = (uint8_t)hi2c->Instance->DR;

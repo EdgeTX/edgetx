@@ -28,6 +28,19 @@
 
 #define     __IO    volatile             /*!< Defines 'read / write' permissions */
 
+#define GPIO_NUMBER        16U
+
+#define GPIO_GET_INDEX(__GPIOx__)    (uint8_t)(((__GPIOx__) == (GPIOA))? 0U :\
+                                               ((__GPIOx__) == (GPIOB))? 1U :\
+                                               ((__GPIOx__) == (GPIOC))? 2U :\
+                                               ((__GPIOx__) == (GPIOD))? 3U :\
+                                               ((__GPIOx__) == (GPIOE))? 4U :\
+                                               ((__GPIOx__) == (GPIOF))? 5U :\
+                                               ((__GPIOx__) == (GPIOG))? 6U :\
+                                               ((__GPIOx__) == (GPIOH))? 7U :\
+                                               ((__GPIOx__) == (GPIOI))? 8U :\
+                                               ((__GPIOx__) == (GPIOJ))? 9U : 10U)
+
 #define HAL_MAX_DELAY      0xFFFFFFFFU
 
 /* AHB1 Peripheral Clock Enable Disable
@@ -226,30 +239,6 @@
     UNUSED(tmpreg);                             \
   } while(0)
 
-/* Checks whether the specified I2C flag is set or not.
- * @param  __HANDLE__ specifies the I2C Handle.
- * @param  __FLAG__ specifies the flag to check.
- *         This parameter can be one of the following values:
- *            @arg I2C_FLAG_OVR: Overrun/Underrun flag
- *            @arg I2C_FLAG_AF: Acknowledge failure flag
- *            @arg I2C_FLAG_ARLO: Arbitration lost flag
- *            @arg I2C_FLAG_BERR: Bus error flag
- *            @arg I2C_FLAG_TXE: Data register empty flag
- *            @arg I2C_FLAG_RXNE: Data register not empty flag
- *            @arg I2C_FLAG_STOPF: Stop detection flag
- *            @arg I2C_FLAG_ADD10: 10-bit header sent flag
- *            @arg I2C_FLAG_BTF: Byte transfer finished flag
- *            @arg I2C_FLAG_ADDR: Address sent flag
- *                                Address matched flag
- *            @arg I2C_FLAG_SB: Start bit flag
- *            @arg I2C_FLAG_DUALF: Dual flag
- *            @arg I2C_FLAG_GENCALL: General call header flag
- *            @arg I2C_FLAG_TRA: Transmitter/Receiver flag
- *            @arg I2C_FLAG_BUSY: Bus busy flag
- *            @arg I2C_FLAG_MSL: Master/Slave flag
- * @retval The new state of __FLAG__ (TRUE or FALSE).
- */
-
 /* Clears the I2C pending flags which are cleared by writing 0 in a specific bit.
  * @param  __HANDLE__ specifies the I2C Handle.
  * @param  __FLAG__ specifies the flag to clear.
@@ -391,6 +380,7 @@ typedef struct
 } I2C_HandleTypeDef;
 
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c);
+HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c);
 HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
 HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout);
