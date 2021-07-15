@@ -43,6 +43,10 @@ void MainViewHorizontalTrim::paint(BitmapBuffer * dc)
     trimMin = TRIM_MIN;
     trimMax = TRIM_MAX;
   }
+
+  int16_t dispVal = value;
+  if (dispVal < trimMin) dispVal = trimMin;
+  if (dispVal > trimMax) dispVal = trimMax;
   
   // Trim line
   dc->drawSolidFilledRect(
@@ -50,7 +54,7 @@ void MainViewHorizontalTrim::paint(BitmapBuffer * dc)
       width() - TRIM_SQUARE_SIZE + 1, TRIM_LINE_WIDTH, DEFAULT_COLOR);
 
   // Trim square
-  coord_t x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value - trimMin),
+  coord_t x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (dispVal - trimMin),
                               trimMax - trimMin);
   drawTrimSquare(dc, x, 0,
                  (value < TRIM_MIN || value > TRIM_MAX)
