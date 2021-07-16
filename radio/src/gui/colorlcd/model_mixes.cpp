@@ -89,7 +89,7 @@ class MixEditWindow : public Page
 
     // Mix name
     new StaticText(window, grid.getLabelSlot(), STR_MIXNAME);
-    new RadioTextEdit(window, grid.getFieldSlot(), mix->name,
+    new ModelTextEdit(window, grid.getFieldSlot(), mix->name,
                       sizeof(mix->name));
     grid.nextLine();
 
