@@ -145,20 +145,31 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
   if(hi2c->Instance==I2C1)
   {
     __HAL_RCC_I2C1_CLK_DISABLE();
-  } else
+  }
+  else
   {
       if(hi2c->Instance==I2C2)
       {
-        __HAL_RCC_I2C2_CLK_DISABLE();
-        if(hi2c->Instance==I2C3)
-        {
-          __HAL_RCC_I2C3_CLK_DISABLE();
-        } else
-            TRACE("I2C ERROR: HAL_I2C_MspDeInit() I2C misconfiguration");
+          __HAL_RCC_I2C2_CLK_DISABLE();
+            if(hi2c->Instance==I2C3)
+                __HAL_RCC_I2C3_CLK_DISABLE();
+            else
+                TRACE("I2C ERROR: HAL_I2C_MspDeInit() I2C misconfiguration");
       }
   }
-  HAL_GPIO_DeInit(I2C_GPIO, I2C_SCL_GPIO_PinSource);
-  HAL_GPIO_DeInit(I2C_GPIO, I2C_SDA_GPIO_PinSource);
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* Configure the default Alternate Function in current IO */
+  GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_GPIO_PinSource, 0);
+  GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_GPIO_PinSource, 0);
+
+  GPIO_InitStructure.GPIO_Pin = I2C_SCL_GPIO_PIN | I2C_SDA_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;   /* Configure a low value for IO Speed */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN; /* Configure IO Direction in Input Floating Mode */
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD; /* Leave the configuration to Open Drain */
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL; /* Deactivate the Pull-up and Pull-down resistor for the current IO */
+  GPIO_Init(I2C_GPIO, &GPIO_InitStructure);
 }
 
 /* Initializes the I2C according to the specified parameters

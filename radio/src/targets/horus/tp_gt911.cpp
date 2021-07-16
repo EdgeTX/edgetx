@@ -546,13 +546,13 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 
     if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uRegAddr, 2, 10) != HAL_OK)
     {
-        TRACE("I2C ERROR: ReadRedister write reg address failed");
+        TRACE("I2C ERROR: ReadRegister write reg address failed");
         return false;
     }
 
     if (HAL_I2C_Master_Receive(&hi2c1, GT911_I2C_ADDR << 1, buf, len, 100) != HAL_OK)
     {
-        TRACE("I2C ERROR: ReadRedister read reg address failed");
+        TRACE("I2C ERROR: ReadRegister read reg address failed");
         return false;
     }
     return true;
