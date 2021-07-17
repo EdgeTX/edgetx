@@ -27,6 +27,9 @@
 // TODO common code, not in target
 enum LcdColorIndex
 {
+  // this one first for when colour is not set
+  DEFAULT_COLOR_INDEX,
+
   ALARM_COLOR_INDEX,
   BARGRAPH1_COLOR_INDEX,
   BARGRAPH2_COLOR_INDEX,
@@ -38,7 +41,6 @@ enum LcdColorIndex
   CURVE_CURSOR_COLOR_INDEX,
   CUSTOM_COLOR_INDEX,
   DEFAULT_BGCOLOR_INDEX,
-  DEFAULT_COLOR_INDEX,
   DISABLE_COLOR_INDEX,
   EDIT_MARKER_COLOR_INDEX,
   FIELD_BGCOLOR_INDEX,
