@@ -60,7 +60,7 @@ class OutputEditWindow : public Page {
 
       // Name
       new StaticText(window, grid.getLabelSlot(), STR_NAME);
-      new RadioTextEdit(window, grid.getFieldSlot(), output->name, sizeof(output->name));
+      new ModelTextEdit(window, grid.getFieldSlot(), output->name, sizeof(output->name));
       grid.nextLine();
 
       // Offset
@@ -130,7 +130,7 @@ class OutputLineButton : public Button {
       LcdFlags bgColor   = FIELD_BGCOLOR;
 
       dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
-      
+
       // first line
       dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000,
                      PREC1 | textColor);
