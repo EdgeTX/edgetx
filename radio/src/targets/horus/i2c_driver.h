@@ -234,10 +234,8 @@
 #define __HAL_I2C_CLEAR_ADDRFLAG(__HANDLE__)    \
   do{                                           \
     __IO uint32_t tmpreg = 0x00U;               \
-     __disable_irq();                           \
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     tmpreg = (__HANDLE__)->Instance->SR2;       \
-     __enable_irq();                            \
     UNUSED(tmpreg);                             \
   } while(0)
 
