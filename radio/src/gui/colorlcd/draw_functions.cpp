@@ -445,7 +445,6 @@ void drawSourceCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, source_t sou
     // TODO if (value < 0) flags |= BLINK|INVERS;
     if (source == MIXSRC_TX_TIME) flags |= TIMEHOUR;
     drawTimer(dc, x, y, value, flags);
-    //dc->drawNumber(x, y, lswTimerValue(value), flags | PREC1);
   }
   else if (source == MIXSRC_TX_VOLTAGE) {
     dc->drawNumber(x, y, value, flags|PREC1);
