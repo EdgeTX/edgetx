@@ -638,7 +638,7 @@ bool touchPanelInit(void)
       }
 
       TRACE("Chip config Ver:%x", tmp[0]);
-      if (tmp[0] <= GT911_CFG_NUMER)  //Config ver
+      if (tmp[0] < GT911_CFG_NUMER)  //Config ver
       {
         TRACE("Sending new config %d", GT911_CFG_NUMER);
         if (!I2C_GT911_SendConfig())
