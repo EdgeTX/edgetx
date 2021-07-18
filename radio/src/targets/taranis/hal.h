@@ -1968,7 +1968,7 @@
   #define I2C_SDA_GPIO_PinSource        GPIO_PinSource7
   #define I2C_ADDRESS_VOLUME            0x5C
 #endif
-#define I2C_SPEED                       400000
+#define I2C_CLK_RATE                    400000
 #define I2C_ADDRESS_EEPROM              0xA2
 #define I2C_FLASH_PAGESIZE              64
 
