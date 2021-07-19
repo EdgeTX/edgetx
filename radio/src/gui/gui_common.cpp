@@ -1100,6 +1100,13 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol)
 #endif
 
 #if defined(MULTIMODULE)
+const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
+{
+  const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+  const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
+  return pdef->optionsstr;
+}
+
 const char * getMultiOptionTitle(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
@@ -1110,10 +1117,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     }
     return mm_options_strings::options[status.optionDisp];
   }
-  else {
-    const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
-    const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-    return pdef->optionsstr;
-  }
+
+  return getMultiOptionTitleStatic(moduleIdx);
 }
 #endif

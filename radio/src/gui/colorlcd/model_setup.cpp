@@ -687,7 +687,7 @@ class ModuleWindow : public FormGroup {
         const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
         if (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx)) {
           // Multi optional feature row
-          const char *title = getMultiOptionTitle(moduleIdx);
+          const char *title = getMultiOptionTitleStatic(moduleIdx);
           if (title != nullptr) {
             grid.nextLine();
             new StaticText(this, grid.getLabelSlot(true), title);
