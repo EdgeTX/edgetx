@@ -688,57 +688,68 @@ class ModuleWindow : public FormGroup {
         if (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx)) {
           // Multi optional feature row
           const char *title = getMultiOptionTitle(moduleIdx);
-          grid.nextLine();
-          new StaticText(this, grid.getLabelSlot(true), title);
+          if (title != nullptr) {
+            grid.nextLine();
+            new StaticText(this, grid.getLabelSlot(true), title);
 
-          //int optionValue = g_model.moduleData[moduleIdx].multi.optionValue;
-          int8_t min, max;
-          getMultiOptionValues(multi_proto, min, max);
+            // int optionValue =
+            // g_model.moduleData[moduleIdx].multi.optionValue;
+            int8_t min, max;
+            getMultiOptionValues(multi_proto, min, max);
 
-          
-          if (title == STR_MULTI_RFPOWER) {
-            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_POWER, 0, 15,
-                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
-          } else if (title == STR_MULTI_TELEMETRY) {
-            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_TELEMETRY_MODE, min, max,
-                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
-          } else if (title == STR_MULTI_WBUS) {
-            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_WBUS_MODE, 0, 1,
-                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
-          } else if (multi_proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
-            auto edit = new NumberEdit(
-                this, grid.getFieldSlot(2, 0), 50, 400,
-                GET_DEFAULT(
-                    50 + 5 * g_model.moduleData[moduleIdx].multi.optionValue),
-                SET_VALUE(g_model.moduleData[moduleIdx].multi.optionValue,
-                          (newValue - 50) / 5));
-            edit->setStep(5);
-          } else if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
-            new CheckBox(
-                this, grid.getFieldSlot(2, 0),
-                [=]() {
-                  return g_model.moduleData[moduleIdx].multi.optionValue & 0x01;
-                },
-                [=](int16_t newValue) {
-                  g_model.moduleData[moduleIdx].multi.optionValue =
-                      (g_model.moduleData[moduleIdx].multi.optionValue & 0xFE) +
-                      newValue;
-                });
-          } else {
-            if (min == 0 && max == 1) {
-              new CheckBox(this, grid.getFieldSlot(2, 0),
-                           GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+            if (title == STR_MULTI_RFPOWER) {
+              new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_POWER, 0, 15,
+                         GET_SET_DEFAULT(
+                             g_model.moduleData[moduleIdx].multi.optionValue));
+            } else if (title == STR_MULTI_TELEMETRY) {
+              new Choice(this, grid.getFieldSlot(2, 0),
+                         STR_MULTI_TELEMETRY_MODE, min, max,
+                         GET_SET_DEFAULT(
+                             g_model.moduleData[moduleIdx].multi.optionValue));
+            } else if (title == STR_MULTI_WBUS) {
+              new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_WBUS_MODE, 0,
+                         1,
+                         GET_SET_DEFAULT(
+                             g_model.moduleData[moduleIdx].multi.optionValue));
+            } else if (multi_proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
+              auto edit = new NumberEdit(
+                  this, grid.getFieldSlot(2, 0), 50, 400,
+                  GET_DEFAULT(
+                      50 + 5 * g_model.moduleData[moduleIdx].multi.optionValue),
+                  SET_VALUE(g_model.moduleData[moduleIdx].multi.optionValue,
+                            (newValue - 50) / 5));
+              edit->setStep(5);
+            } else if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
+              new CheckBox(
+                  this, grid.getFieldSlot(2, 0),
+                  [=]() {
+                    return g_model.moduleData[moduleIdx].multi.optionValue &
+                           0x01;
+                  },
+                  [=](int16_t newValue) {
+                    g_model.moduleData[moduleIdx].multi.optionValue =
+                        (g_model.moduleData[moduleIdx].multi.optionValue &
+                         0xFE) +
+                        newValue;
+                  });
             } else {
-              new NumberEdit(
-                  this, grid.getFieldSlot(2, 0), -128, 127,
-                  GET_SET_DEFAULT(
-                      g_model.moduleData[moduleIdx].multi.optionValue));
+              if (min == 0 && max == 1) {
+                new CheckBox(
+                    this, grid.getFieldSlot(2, 0),
+                    GET_SET_DEFAULT(
+                        g_model.moduleData[moduleIdx].multi.optionValue));
+              } else {
+                new NumberEdit(
+                    this, grid.getFieldSlot(2, 0), -128, 127,
+                    GET_SET_DEFAULT(
+                        g_model.moduleData[moduleIdx].multi.optionValue));
 
-              // Show RSSI next to RF Freq Fine Tune
-              if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE) {
-                new DynamicNumber<int>(
-                    this, grid.getFieldSlot(2, 1),
-                    [] { return (int)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
+                // Show RSSI next to RF Freq Fine Tune
+                if (title == STR_MULTI_RFTUNE) {
+                  new DynamicNumber<int>(
+                      this, grid.getFieldSlot(2, 1),
+                      [] { return (int)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
+                }
               }
             }
           }
