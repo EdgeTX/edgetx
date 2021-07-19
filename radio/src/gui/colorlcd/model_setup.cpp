@@ -630,22 +630,42 @@ class ModuleWindow : public FormGroup {
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
-        rfChoice = new Choice(this, grid.getFieldSlot(g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0), STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST,
-                              GET_DEFAULT(multiRfProto),
-                              [=](int32_t newValue) {
-                                g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
-                                g_model.moduleData[moduleIdx].subType = 0;
-                                if (mmSubProtocol != nullptr) mmSubProtocol->invalidate();     
-                                resetMultiProtocolsOptions(moduleIdx);
-                                SET_DIRTY();
-                                update();
-                                rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                              });
+        rfChoice = new Choice(
+            this,
+            grid.getFieldSlot(
+                g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0),
+            STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST,
+            MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
+            [=](int32_t newValue) {
+              g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
+              g_model.moduleData[moduleIdx].subType = 0;
+              if (mmSubProtocol != nullptr) mmSubProtocol->invalidate(); // always null ???
+              resetMultiProtocolsOptions(moduleIdx);
+              SET_DIRTY();
+              update();
+              rfChoice->setFocus(SET_FOCUS_DEFAULT);// really valid ???
+            });
 
-        // Subtype (D16, DSMX,...)
-        const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
-        if (pdef->maxSubtype > 0)
-          mmSubProtocol = new Choice(this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0, pdef->maxSubtype,GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
+        if (MULTIMODULE_HAS_SUBTYPE(moduleIdx)) {
+          // Subtype (D16, DSMX,...)
+          const mm_protocol_definition *pdef = getMultiProtocolDefinition(
+              g_model.moduleData[moduleIdx].getMultiProtocol());
+          if (pdef->maxSubtype > 0) {
+            mmSubProtocol = new Choice(
+                this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0,
+                pdef->maxSubtype,
+                [=]() { return g_model.moduleData[moduleIdx].subType; },
+                [=](int16_t newValue) {
+                  g_model.moduleData[moduleIdx].subType = newValue;
+                  resetMultiProtocolsOptions(moduleIdx);
+                  SET_DIRTY();
+                  // update(); ??? how to set focus properly ???
+                  update();
+                  //mmSubProtocol->setFocus(SET_FOCUS_DEFAULT);
+                });
+
+          }
+        }
         grid.nextLine();
 
         // Multimodule status
@@ -664,46 +684,111 @@ class ModuleWindow : public FormGroup {
           new StaticText(this, grid.getFieldSlot(), statusText);
         }*/
 
-        // Multi optional feature row
         const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
-        if (pdef->optionsstr) {
+        if (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx)) {
+          // Multi optional feature row
+          const char *title = getMultiOptionTitle(moduleIdx);
           grid.nextLine();
-          new StaticText(this, grid.getLabelSlot(true), pdef->optionsstr);
-          if (multi_proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
-            auto edit = new NumberEdit(this, grid.getFieldSlot(2,0), 50, 400,
-                           GET_DEFAULT(50 + 5 * g_model.moduleData[moduleIdx].multi.optionValue),
-                           SET_VALUE(g_model.moduleData[moduleIdx].multi.optionValue, (newValue- 50) / 5));
-            edit->setStep(5);
-          }
-          else if (multi_proto == MODULE_SUBTYPE_MULTI_OLRS) {
-            new NumberEdit(this, grid.getFieldSlot(2,0), -1, 7, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
-          }
-          else {
-            new NumberEdit(this, grid.getFieldSlot(2,0), -128, 127, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+          new StaticText(this, grid.getLabelSlot(true), title);
 
-            //Show RSSI next to RF Freq Fine Tune
-            if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE)
-            {
-              new DynamicNumber<int>(this, grid.getFieldSlot(2, 1), [] {
-                  return (int)TELEMETRY_RSSI();}, 0, "RSSI: ", " db");
+          //int optionValue = g_model.moduleData[moduleIdx].multi.optionValue;
+          int8_t min, max;
+          getMultiOptionValues(multi_proto, min, max);
+
+          
+          if (title == STR_MULTI_RFPOWER) {
+            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_POWER, 0, 15,
+                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+          } else if (title == STR_MULTI_TELEMETRY) {
+            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_TELEMETRY_MODE, min, max,
+                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+          } else if (title == STR_MULTI_WBUS) {
+            new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_WBUS_MODE, 0, 1,
+                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+          } else if (multi_proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
+            auto edit = new NumberEdit(
+                this, grid.getFieldSlot(2, 0), 50, 400,
+                GET_DEFAULT(
+                    50 + 5 * g_model.moduleData[moduleIdx].multi.optionValue),
+                SET_VALUE(g_model.moduleData[moduleIdx].multi.optionValue,
+                          (newValue - 50) / 5));
+            edit->setStep(5);
+          } else if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
+            new CheckBox(
+                this, grid.getFieldSlot(2, 0),
+                [=]() {
+                  return g_model.moduleData[moduleIdx].multi.optionValue & 0x01;
+                },
+                [=](int16_t newValue) {
+                  g_model.moduleData[moduleIdx].multi.optionValue =
+                      (g_model.moduleData[moduleIdx].multi.optionValue & 0xFE) +
+                      newValue;
+                });
+          } else {
+            if (min == 0 && max == 1) {
+              new CheckBox(this, grid.getFieldSlot(2, 0),
+                           GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.optionValue));
+            } else {
+              new NumberEdit(
+                  this, grid.getFieldSlot(2, 0), -128, 127,
+                  GET_SET_DEFAULT(
+                      g_model.moduleData[moduleIdx].multi.optionValue));
+
+              // Show RSSI next to RF Freq Fine Tune
+              if (getMultiOptionTitle(moduleIdx) == STR_MULTI_RFTUNE) {
+                new DynamicNumber<int>(
+                    this, grid.getFieldSlot(2, 1),
+                    [] { return (int)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
+              }
             }
           }
         }
-
-        // Bind on power up
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true),g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2 ? STR_MULTI_DSM_AUTODTECT : STR_MULTI_AUTOBIND);
-        new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.autoBindMode));
+
+        if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
+
+          const char* servoRates[] = { "22ms", "11ms" };
+          
+          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ);
+          new Choice(
+              this, grid.getFieldSlot(), servoRates, 0, 1,
+              [=]() {
+                return (g_model.moduleData[moduleIdx].multi.optionValue & 0x02) >> 1;
+              },
+              [=](int16_t newValue) {
+                g_model.moduleData[moduleIdx].multi.optionValue =
+                    (g_model.moduleData[moduleIdx].multi.optionValue & 0xFD) +
+                    (newValue << 1);
+              });
+        } else {
+          // Bind on power up
+          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_AUTOBIND);
+          new CheckBox(this, grid.getFieldSlot(),
+                       GET_SET_DEFAULT(
+                           g_model.moduleData[moduleIdx].multi.autoBindMode));
+        }
 
         // Low power mode
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER);
-        new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
+        new CheckBox(
+            this, grid.getFieldSlot(),
+            GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
 
         // Disable telemetry
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_TELEM);
-        new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableMapping));
+        new CheckBox(this, grid.getFieldSlot(),
+                     GET_SET_DEFAULT(
+                         g_model.moduleData[moduleIdx].multi.disableTelemetry));
+
+        if (MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx) != HIDDEN_ROW) {
+          // Disable channel mapping
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP);
+          new CheckBox(this, grid.getFieldSlot(),
+                       GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableMapping));
+        }
       }
 #endif
 #if defined(AFHDS3)
