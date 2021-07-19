@@ -793,7 +793,7 @@ class ModuleWindow : public FormGroup {
                      GET_SET_DEFAULT(
                          g_model.moduleData[moduleIdx].multi.disableTelemetry));
 
-        if (MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx) != HIDDEN_ROW) {
+        if (MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx) != HIDDEN_ROW) {
           // Disable channel mapping
           grid.nextLine();
           new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP);
