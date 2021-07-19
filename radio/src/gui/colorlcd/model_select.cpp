@@ -245,7 +245,8 @@ class ModelCategoryPageBody : public FormWindow
 
               modelslist.setCurrentModel(model);
               modelslist.setCurrentCategory(category);
-              update();
+              this->onEvent(EVT_KEY_FIRST(KEY_EXIT));
+              checkAll();
             });
           }
           menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
