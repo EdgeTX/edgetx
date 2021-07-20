@@ -1,7 +1,7 @@
 project(OpenTX)
 
 set(VERSION_MAJOR "2")
-set(VERSION_MINOR "4")
+set(VERSION_MINOR "5")
 set(VERSION_REVISION "0")
 set(VERSION_SUFFIX $ENV{OPENTX_VERSION_SUFFIX})
 set(VERSION_FAMILY ${VERSION_MAJOR}.${VERSION_MINOR})
@@ -47,7 +47,7 @@ today(DATE)
 now(TIME)
 git_id(GIT_STR)
 
-message(STATUS "OpenTX ${VERSION} @ ${GIT_STR}")
+message(STATUS "EdgeTX ${VERSION} @ ${GIT_STR}")
 
 # options shared by all targets
 
