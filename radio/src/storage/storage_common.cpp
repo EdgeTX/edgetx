@@ -58,6 +58,7 @@ void preModelLoad()
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
   stopPulsesExternalModule();
+  RTOS_WAIT_MS(200);
 #endif
 
   stopTrainer();
