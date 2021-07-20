@@ -56,20 +56,19 @@ void copyExpo(uint8_t source, uint8_t dest, int8_t input)
   pauseMixerCalculations();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
-  ExpoData * expo = expoAddress(dest);
-
-  if(input == PASTE_AFTER) {
-    memmove(expo+2, expo+1, (MAX_EXPOS-(source+1))*sizeof(ExpoData));
-    memcpy(expo+1, &sourceExpo, sizeof(ExpoData));
-    (expo+1)->chn = (expo)->chn;
-  }
-  else if(input == PASTE_BEFORE) {
-    memmove(expo+1, expo, (MAX_EXPOS-(source+1))*sizeof(ExpoData));
+  ExpoData *expo = expoAddress(dest);
+  size_t trailingExpos = MAX_EXPOS - (dest + 1);
+  if (input == PASTE_AFTER) {
+    trailingExpos--;
+    memmove(expo + 2, expo + 1, trailingExpos * sizeof(ExpoData));
+    memcpy(expo + 1, &sourceExpo, sizeof(ExpoData));
+    (expo + 1)->chn = (expo)->chn;
+  } else if (input == PASTE_BEFORE) {
+    memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
     memcpy(expo, &sourceExpo, sizeof(ExpoData));
-    expo->chn = (expo+1)->chn;
-  }
-  else {
-    memmove(expo+1, expo, (MAX_EXPOS-(source+1))*sizeof(ExpoData));
+    expo->chn = (expo + 1)->chn;
+  } else {
+    memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
     memcpy(expo, &sourceExpo, sizeof(ExpoData));
     expo->chn = input;
   }
