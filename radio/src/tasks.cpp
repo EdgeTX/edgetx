@@ -127,6 +127,10 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
+
+  DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+  telemetryWakeup();
+  DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
 }
 
 uint32_t nextMixerTime[NUM_MODULES];
@@ -211,10 +215,6 @@ TASK_FUNCTION(mixerTask)
 #if defined(PCBSKY9X) && !defined(SIMU)
       usbJoystickUpdate();
 #endif
-
-      DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-      telemetryWakeup();
-      DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
 
       if (heartbeat == HEART_WDT_CHECK) {
         WDG_RESET();
