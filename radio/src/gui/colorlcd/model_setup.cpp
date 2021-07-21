@@ -912,14 +912,15 @@ class ModuleWindow : public FormGroup {
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 return 0;
-              }
+              } else {
 #if defined(MULTIMODULE)
-              else {
-                setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+                if (isModuleMultimodule(moduleIdx)) {
+                  setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+                }
+#endif
                 moduleState[moduleIdx].mode = MODULE_MODE_BIND;
                 return 1;
               }
-#endif
               return 0;
           });
           bindButton->setCheckHandler([=]() {
@@ -927,7 +928,7 @@ class ModuleWindow : public FormGroup {
                 bindButton->check(false);
               }
 #if defined(MULTIMODULE)
-              if (getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
+              if (isModuleMultimodule(moduleIdx) && getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
                 setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 bindButton->check(false);
@@ -1029,7 +1030,7 @@ class ModuleWindow : public FormGroup {
       }
 
       // Receivers
-      if (isModulePXX2(moduleIdx)) {
+      if (isModuleRFAccess(moduleIdx)) {
         for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE; receiverIdx++) {
           char label[] = TR_RECEIVER " X";
           label[sizeof(label) - 2] = '1' + receiverIdx;
