@@ -21,6 +21,11 @@
 #include "opentx.h"
 #include "widgets_container_impl.h"
 
+#ifdef TIMEHOUR
+#undef TIMEHOUR
+#define TIMEHOUR 0x2000
+#endif
+
 class TimerWidget: public Widget
 {
   public:

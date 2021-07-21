@@ -32,6 +32,11 @@ class ValueWidget: public Widget
    {
    }
 
+#ifdef TIMEHOUR
+#undef TIMEHOUR
+#define TIMEHOUR 0x2000
+#endif
+
     void refresh(BitmapBuffer * dc) override
     {
       // get source from options[0]
@@ -86,14 +91,19 @@ class ValueWidget: public Widget
         if (timerState.val < 0) {
           color = ALARM_COLOR;
         }
-        drawSource(dc, NUMBERS_PADDING, 2, field, color);
-        drawSource(dc, NUMBERS_PADDING + 1, 3, field, COLOR2FLAGS(BLACK));
-        drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | color);
+        if (persistentData->options[2].value.boolValue) {
+          drawSource(dc, xLabel + 1, yLabel + 1, field, COLOR2FLAGS(BLACK));
+          drawTimer(dc, xValue + 1, yValue + 1, abs(timerState.val),
+                    attrValue | FONT(STD) | COLOR2FLAGS(BLACK));
+        }
+        drawSource(dc, xLabel, yLabel, field, color);
+        drawTimer(dc, xValue, yValue, abs(timerState.val),
+                    attrValue | FONT(STD) | color);        
       }
 
       if (field == MIXSRC_TX_TIME) {
         drawTimer(dc, xValue, yValue, getValue(MIXSRC_TX_TIME),
-                  attrValue | FONT(XL) | color);
+                  attrValue | FONT(STD) | color | TIMEHOUR);
       }
       
       if (field >= MIXSRC_FIRST_TELEM) {
