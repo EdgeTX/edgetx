@@ -32,6 +32,11 @@ class ValueWidget: public Widget
    {
    }
 
+#ifdef TIMEHOUR
+#undef TIMEHOUR
+#define TIMEHOUR 0x2000
+#endif
+
     void refresh(BitmapBuffer * dc) override
     {
       // get source from options[0]
