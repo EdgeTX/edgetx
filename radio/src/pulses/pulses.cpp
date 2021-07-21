@@ -311,7 +311,7 @@ void enablePulsesExternalModule(uint8_t protocol)
 #if defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
       extmodulePulsesData.afhds3.init(EXTERNAL_MODULE);
-      extmoduleSerialStart(/*AFHDS3_BAUDRATE, AFHDS3_COMMAND_TIMEOUT * 2000, false*/);
+      extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
       break;
 #endif
