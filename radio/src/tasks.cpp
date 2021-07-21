@@ -133,7 +133,6 @@ void execMixerFrequentActions()
   DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
 }
 
-uint32_t nextMixerTime[NUM_MODULES];
 
 TASK_FUNCTION(mixerTask)
 {
@@ -232,24 +231,6 @@ TASK_FUNCTION(mixerTask)
   }
 }
 
-void scheduleNextMixerCalculation(uint8_t module, uint32_t period_ms)
-{
-  // Schedule next mixer calculation time,
-
-  if (isModuleSynchronous(module)) {
-    nextMixerTime[module] += period_ms / RTOS_MS_PER_TICK;
-    if (nextMixerTime[module] < RTOS_GET_TIME()) {
-      // we are late ... let's add some small delay
-      nextMixerTime[module] = (uint32_t) RTOS_GET_TIME() + (period_ms / RTOS_MS_PER_TICK);
-    }
-  }
-  else {
-    // for now assume mixer calculation takes 2 ms.
-    nextMixerTime[module] = (uint32_t) RTOS_GET_TIME() + (period_ms / RTOS_MS_PER_TICK);
-  }
-
-  DEBUG_TIMER_STOP(debugTimerMixerCalcToUsage);
-}
 
 #define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
 
