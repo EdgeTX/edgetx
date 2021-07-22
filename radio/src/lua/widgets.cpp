@@ -341,15 +341,22 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->refreshFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  
+  // Pass key event to fullscreen Lua widget
+  if (fullscreen) {
+    event_t event = getWindowEvent();
+    lua_pushinteger(lsWidgets, event);
+  } else
+    lua_pushnil(lsWidgets);
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
   luaLcdAllowed = true;
-  if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
+
+  if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
   // Remove LCD
-  luaLcdAllowed = false;
   luaLcdBuffer = nullptr;
 
   // mark as refreshed
