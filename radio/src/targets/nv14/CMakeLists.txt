@@ -4,6 +4,8 @@ option(FLYSKY_HALL_STICKS "sticks for FlySky hall sticks" ON)
 option(FLYSKY_HALL_STICKS_REVERSE "Reverse sticks for FlySky hall sticks" OFF)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(AFHDS2 "Support for AFHDS2" ON)
+option(PXX1 "PXX1 protocol support" ON)
+option(PXX2 "PXX2 protocol support" OFF)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
@@ -14,8 +16,8 @@ set(STORAGE_FORMAT BIN)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
-set(HARDWARE_EXTERNAL_MODULE YES)
-set(AUX_SERIAL ON)
+#set(HARDWARE_EXTERNAL_MODULE YES)
+#set(AUX_SERIAL ON)
 # set(NAVIGATION_TYPE touch)
 set(TARGET_DIR nv14)
 add_definitions(-DHARDWARE_TRAINER_JACK)
@@ -38,7 +40,8 @@ set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 set(FLAVOUR nv14)
-add_definitions(-DPCBNV14 -DPCBFLYSKY -DINTERNAL_MODULE_BAUDRATE=${PCB_RF_BAUD})
+#add_definitions(-DPCBNV14 -DPCBFLYSKY -DINTERNAL_MODULE_BAUDRATE=${PCB_RF_BAUD})
+add_definitions(-DPCBNV14 -DPCBFLYSKY -DINTERNAL_MODULE_SERIAL -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
 add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
 
 set(TARGET_SRC
@@ -79,8 +82,9 @@ add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
 add_definitions(-DFLYSKY_HALL_STICKS)
+add_definitions(-DAFHDS2) 
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
-add_definitions(-DAUX_SERIAL)
+#add_definitions(-DAUX_SERIAL)
 #add_definitions(-DFLYSKY_AUTO_POWER_DOWN)
 
 if(STICKS_DEAD_ZONE)
@@ -105,7 +109,7 @@ if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
 endif()
 
-set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
+#set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
 
 set(SRC
   ${SRC}
@@ -116,7 +120,9 @@ set(GVAR_SCREEN model_gvars.cpp)
 
 set(TARGET_SRC
   ${TARGET_SRC}
-  extmodule_driver.cpp
+#  extmodule_driver.cpp
+  extmodule_helper.cpp
+  ../horus/extmodule_driver.cpp
   trainer_driver.cpp
   ../common/arm/stm32/intmodule_serial_driver.cpp
   )
