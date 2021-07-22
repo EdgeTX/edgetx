@@ -94,10 +94,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
 #warning "TODO telemetryPortInvertedInit";
 }
 
-void extmoduleSendInvertedByte(uint8_t byte)
+/*void extmoduleSendInvertedByte(uint8_t byte)
 {
 #warning "TODO extmoduleSendInvertedByte";
-}
+}*/
 
 void telemetryPortSetDirectionOutput()
 {
