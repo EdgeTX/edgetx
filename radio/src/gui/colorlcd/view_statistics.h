@@ -32,19 +32,19 @@ class DebugInfoNumber : public Window
   public:
     DebugInfoNumber(Window * parent, const rect_t & rect, std::function<T()> numberHandler, LcdFlags textFlags = 0, const char * prefix = nullptr, const char * suffix = nullptr):
     Window(parent, rect, 0, textFlags),
-    numberHandler(std::move(numberHandler)),
     prefix(prefix),
     suffix(suffix)
     {
-      coord_t prefixSize = getTextWidth(prefix, 0, HEADER_COLOR | FONT(XS));
-      new StaticText(this, {0, 0,  prefixSize, rect.h}, prefix, 0, HEADER_COLOR | FONT(XS));
-      new DynamicNumber<uint32_t>(this, {prefixSize, 0, rect.w - prefixSize, rect.h}, [] {
-          return menusStack.available();
-      });
+      coord_t prefixSize = 0;
+      if (prefix != nullptr) {
+        prefixSize = getTextWidth(prefix, 0, HEADER_COLOR | FONT(XS));
+        new StaticText(this, {0, 0,  prefixSize, rect.h}, prefix, 0, HEADER_COLOR | FONT(XS));
+      }
+      new DynamicNumber<uint32_t>(this, {prefixSize, 0, rect.w - prefixSize, rect.h},
+                                  numberHandler);
     }
 
   protected:
-    std::function<T()> numberHandler;
     const char * prefix;
     const char * suffix;
 };
