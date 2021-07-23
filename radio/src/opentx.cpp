@@ -2077,7 +2077,7 @@ uint32_t pwrCheck()
           LED_ERROR_BEGIN();
 
           WDG_RESET();
-            ();
+          lcdRefresh();
 
           if (warningResult) {
             pwr_check_state = PWR_CHECK_OFF;
