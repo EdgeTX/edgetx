@@ -47,7 +47,7 @@ add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
 set(TARGET_SRC
   ${TARGET_SRC}
   audio_spi_driver.cpp
-  adc_driver.cpp
+  ../common/arm/stm32/adc_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   )
