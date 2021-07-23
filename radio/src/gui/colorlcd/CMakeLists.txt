@@ -77,6 +77,7 @@ endmacro(add_gui_src)
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
+  add_gui_src(model_mixer_scripts.cpp)
 endif()
 
 if(HELI)

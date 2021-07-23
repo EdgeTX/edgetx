@@ -1007,21 +1007,26 @@ void checkTrims()
     else
 #endif
     {
-      if (before>TRIM_MIN && after<=TRIM_MIN) {
+      int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
+      int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
+      if (before > tMin && after <= tMin) {
         beepTrim = true;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
-      else if (before<TRIM_MAX && after>=TRIM_MAX) {
+      else if (before < tMax && after >= tMax) {
         beepTrim = true;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
 
-      if ((before<after && after>TRIM_MAX) || (before>after && after<TRIM_MIN)) {
-        if (!g_model.extendedTrims) after = before;
+      // Allow only move into the right direction if over the limits
+      if ((before < after && after > tMax) || // increasing over tMax
+          (before > after && after < tMin)) { // decreasing under tMin
+        after = before;
       }
 
+      // Clip at hard limits
       if (after < TRIM_EXTENDED_MIN) {
         after = TRIM_EXTENDED_MIN;
       }
@@ -1590,7 +1595,8 @@ void instantTrim()
         }
       }
       if (addTrim && abs(delta) >= INSTANT_TRIM_MARGIN) {
-        int16_t trim = limit<int16_t>(TRIM_EXTENDED_MIN, (delta + trims[stick]) / 2, TRIM_EXTENDED_MAX);
+        int16_t trim = limit<int16_t>(
+            TRIM_EXTENDED_MIN, (delta + trims[stick]) / 2, TRIM_EXTENDED_MAX);
         setTrimValue(trimFlightMode, stick, trim);
       }
     }

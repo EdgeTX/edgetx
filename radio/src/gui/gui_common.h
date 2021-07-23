@@ -220,6 +220,21 @@ inline uint8_t IF_ALLOW_RACING_MODE(int)
 #endif
 
 #if defined(MULTIMODULE)
+inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
+{
+  if (!isModuleMultimodule(moduleIdx))
+    return HIDDEN_ROW;
+
+  uint8_t protocol = g_model.moduleData[moduleIdx].getMultiProtocol();
+  if (protocol < MODULE_SUBTYPE_MULTI_LAST) {
+    const mm_protocol_definition * pdef = getMultiProtocolDefinition(protocol);
+    if (pdef->disable_ch_mapping)
+      return 0;
+  }
+
+  return HIDDEN_ROW;
+}
+
 inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx))
@@ -230,14 +245,7 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
     return status.supportsDisableMapping() == true ? 0 : HIDDEN_ROW;
   }
 
-  uint8_t protocol = g_model.moduleData[moduleIdx].getMultiProtocol();
-  if (protocol < MODULE_SUBTYPE_MULTI_LAST) {
-    const mm_protocol_definition * pdef = getMultiProtocolDefinition(protocol);
-    if (pdef->disable_ch_mapping)
-      return 0;
-  }
-
-  return HIDDEN_ROW;
+  return MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
 }
 
 inline bool isMultiProtocolSelectable(int protocol)
@@ -355,6 +363,7 @@ inline uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx) {
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode);
 
+const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
 const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 const char * writeScreenshot();

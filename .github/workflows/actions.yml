@@ -4,12 +4,14 @@ on:
   push:
     branches:
     - '2.4'
+    - 'main'
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     branches:
     - '2.4'
+    - 'main'
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'

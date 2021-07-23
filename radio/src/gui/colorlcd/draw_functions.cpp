@@ -416,6 +416,12 @@ void drawSensorCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t sens
   }
 }
 
+// libopemui defines TIMOUR as zero
+#if !TIMHOUR
+#undef TIMEHOUR
+#define TIMEHOUR 0x2000
+#endif
+
 void drawTimer(BitmapBuffer * dc, coord_t x, coord_t y, int32_t tme, LcdFlags flags)
 {
   char str[LEN_TIMER_STRING];
@@ -437,7 +443,8 @@ void drawSourceCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, source_t sou
   }
   else if (source >= MIXSRC_FIRST_TIMER || source == MIXSRC_TX_TIME) {
     // TODO if (value < 0) flags |= BLINK|INVERS;
-    // TODO drawTimer(dc, x, y, value, flags);
+    if (source == MIXSRC_TX_TIME) flags |= TIMEHOUR;
+    drawTimer(dc, x, y, value, flags);
   }
   else if (source == MIXSRC_TX_VOLTAGE) {
     dc->drawNumber(x, y, value, flags|PREC1);

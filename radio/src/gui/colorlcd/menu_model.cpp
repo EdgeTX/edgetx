@@ -29,6 +29,7 @@
 #include "model_gvars.h"
 #include "model_curves.h"
 #include "model_logical_switches.h"
+#include "model_mixer_scripts.h"
 #include "special_functions.h"
 #include "model_telemetry.h"
 
@@ -47,5 +48,8 @@ ModelMenu::ModelMenu():
   addTab(new ModelGVarsPage());
   addTab(new ModelLogicalSwitchesPage());
   addTab(new SpecialFunctionsPage(g_model.customFn));
+#if defined(LUA)
+  addTab(new ModelMixerScriptsPage());
+#endif
   addTab(new ModelTelemetryPage());
 }

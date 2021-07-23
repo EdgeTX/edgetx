@@ -25,7 +25,7 @@ void MainViewTrim::checkEvents()
 {
   Window::checkEvents();
   int8_t stickIndex = CONVERT_MODE(idx);
-  int8_t newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
+  int newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
   if (value != newValue) {
     value = newValue;
     invalidate();
@@ -43,6 +43,10 @@ void MainViewHorizontalTrim::paint(BitmapBuffer * dc)
     trimMin = TRIM_MIN;
     trimMax = TRIM_MAX;
   }
+
+  int16_t dispVal = value;
+  if (dispVal < trimMin) dispVal = trimMin;
+  if (dispVal > trimMax) dispVal = trimMax;
   
   // Trim line
   dc->drawSolidFilledRect(
@@ -50,7 +54,7 @@ void MainViewHorizontalTrim::paint(BitmapBuffer * dc)
       width() - TRIM_SQUARE_SIZE + 1, TRIM_LINE_WIDTH, DEFAULT_COLOR);
 
   // Trim square
-  coord_t x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value - trimMin),
+  coord_t x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (dispVal - trimMin),
                               trimMax - trimMin);
   drawTrimSquare(dc, x, 0,
                  (value < TRIM_MIN || value > TRIM_MAX)
@@ -85,15 +89,20 @@ void MainViewVerticalTrim::paint(BitmapBuffer * dc)
     trimMax = TRIM_MAX;
   }
 
+  int16_t dispVal = value;
+  if (dispVal < trimMin) dispVal = trimMin;
+  if (dispVal > trimMax) dispVal = trimMax;
+
   // Trim line
   dc->drawSolidFilledRect((width() - TRIM_LINE_WIDTH) / 2, TRIM_SQUARE_SIZE / 2,
                           TRIM_LINE_WIDTH, height() - TRIM_SQUARE_SIZE + 1,
                           DEFAULT_COLOR);
 
   // Trim square
-  coord_t y = height() - TRIM_SQUARE_SIZE -
-              divRoundClosest((height() - TRIM_SQUARE_SIZE) * (value - trimMin),
-                              trimMax - trimMin);
+  coord_t y =
+      height() - TRIM_SQUARE_SIZE -
+      divRoundClosest((height() - TRIM_SQUARE_SIZE) * (dispVal - trimMin),
+                      trimMax - trimMin);
   drawTrimSquare(dc, 0, y,
                  (value < TRIM_MIN || value > TRIM_MAX)
                      ? HIGHLIGHT_COLOR /* TODO add a color */
