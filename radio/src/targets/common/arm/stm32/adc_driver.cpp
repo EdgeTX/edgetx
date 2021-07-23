@@ -19,6 +19,7 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
 #if defined(SIMU)
   // not needed
@@ -72,7 +73,7 @@ uint16_t adcValues[NUM_ANALOGS] __DMA;
 uint16_t rtcBatteryVoltage;
 #endif
 
-void adcInit()
+static void adc_init_pins()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
@@ -98,82 +99,184 @@ void adcInit()
 #if defined(ADC_GPIOF_PINS)
   GPIO_InitStructure.GPIO_Pin = ADC_GPIOF_PINS;
   GPIO_Init(GPIOF, &GPIO_InitStructure);
-#endif
+#endif  
+}
 
-  ADC_MAIN->CR1 = ADC_CR1_SCAN;
-  ADC_MAIN->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC_MAIN->SQR1 = (NUM_ANALOGS_ADC - 1) << 20; // bits 23:20 = number of conversions
+static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
+{
+  ADC_InitTypeDef ADC_InitStructure;
+  ADC_StructInit(&ADC_InitStructure);
 
+  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_NbrOfConversion = nconv;
+  
+  ADC_Init(ADCx, &ADC_InitStructure);
+
+  // enable ADC_MAIN
+  ADC_Cmd(ADCx, ENABLE);                            // ADC_CR2_ADON
+  // enable DMA for ADC
+  ADC_DMACmd(ADCx, ENABLE);                         // ADC_CR2_DMA
+  ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE); // ADC_CR2_DDS
+}
+
+etx_hal_adc_channel ADC_MAIN_channels[] = {
+    {ADC_CHANNEL_STICK_LH, ADC_SAMPTIME},
+    {ADC_CHANNEL_STICK_LV, ADC_SAMPTIME},
+    {ADC_CHANNEL_STICK_RV, ADC_SAMPTIME},
+    {ADC_CHANNEL_STICK_RH, ADC_SAMPTIME},
 #if defined(PCBX10)
-  if (STICKS_PWM_ENABLED()) {
-    ADC_MAIN->SQR2 = (ADC_CHANNEL_SLIDER2 << 0) + (ADC_CHANNEL_BATT << 5);
-    ADC_MAIN->SQR3 = (ADC_CHANNEL_POT1 << 0) + (ADC_CHANNEL_POT2 << 5) + (ADC_CHANNEL_POT3 << 10) + (ADC_CHANNEL_EXT1 << 15) + (ADC_CHANNEL_EXT2 << 20) + (ADC_CHANNEL_SLIDER1 << 25);
-  }
-  else {
-    ADC_MAIN->SQR2 = (ADC_CHANNEL_POT3 << 0) + (ADC_CHANNEL_EXT1 << 5) + (ADC_CHANNEL_EXT2 << 10) + (ADC_CHANNEL_SLIDER1 << 15) + (ADC_CHANNEL_SLIDER2 << 20) + (ADC_CHANNEL_BATT << 25);
-    ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_POT2 << 25);
-  }
-#elif defined(PCBX9E)
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_POT4 << 0) + (ADC_CHANNEL_SLIDER3 << 5) + (ADC_CHANNEL_SLIDER4 << 10) + (ADC_CHANNEL_BATT << 15) + (ADC_Channel_Vbat << 20);
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT2 << 20) + (ADC_CHANNEL_POT3 << 25);
-#elif defined(PCBXLITE)
-  if (STICKS_PWM_ENABLED()) {
-    ADC_MAIN->SQR2 = 0;
-    ADC_MAIN->SQR3 = (ADC_CHANNEL_POT1 << 0) + (ADC_CHANNEL_POT2 << 5) + (ADC_CHANNEL_BATT << 10) + (ADC_Channel_Vbat << 15);
-  }
-  else {
-    ADC_MAIN->SQR2 = (ADC_CHANNEL_BATT << 0) + (ADC_Channel_Vbat << 5);
-    ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_POT2 << 25);
-  }
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_BATT << 0) + (ADC_Channel_Vbat << 5);
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15);
-#elif defined(PCBX7)
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_BATT << 0) + (ADC_Channel_Vbat << 5);
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_POT2 << 25);
+    { ADC_CHANNEL_POT1,    ADC_SAMPTIME },
+    { ADC_CHANNEL_POT2,    ADC_SAMPTIME },
+    { ADC_CHANNEL_POT3,    ADC_SAMPTIME },
+    { ADC_CHANNEL_EXT1,    ADC_SAMPTIME },
+    { ADC_CHANNEL_EXT2,    ADC_SAMPTIME },
+    { ADC_CHANNEL_SLIDER1, ADC_SAMPTIME },
+    { ADC_CHANNEL_SLIDER2, ADC_SAMPTIME },
+    { ADC_CHANNEL_BATT,    ADC_SAMPTIME }
+#else
+#if defined(RADIO_T8) || defined(RADIO_TLITE)
+    // fake channels to fill unsused POT1/POT2
+    {0, 0},
+    {0, 0},
+#elif defined(PCBX7) || defined(PCBXLITE)
+    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
+    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
+    {ADC_Channel_Vbat, ADC_SAMPTIME}
 #elif defined(PCBX9LITE)
-  ADC_MAIN->SQR2 = (ADC_Channel_Vbat << 0);
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_BATT << 25);
+    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
+    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
+    {ADC_Channel_Vbat, ADC_SAMPTIME},
+#elif defined(PCBX9E)
+    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT3, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT4, ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER3, ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER4, ADC_SAMPTIME},
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_POT3 << 0) + (ADC_CHANNEL_SLIDER1 << 5) + (ADC_CHANNEL_SLIDER2 << 10) + (ADC_CHANNEL_BATT << 15) + (ADC_Channel_Vbat << 20);
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_POT2 << 25);
+    {ADC_CHANNEL_POT1,    ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,    ADC_SAMPTIME},
+    {ADC_CHANNEL_POT3,    ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER1, ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER2, ADC_SAMPTIME},
 #endif
-
-  ADC_MAIN->SMPR1 = ADC_MAIN_SMPR1;
-  ADC_MAIN->SMPR2 = ADC_MAIN_SMPR2;
-
-  ADC->CCR = ADC_CCR_VBATE; // Enable vbat sensor
-
-  ADC_DMA_Stream->CR = DMA_SxCR_PL | ADC_DMA_SxCR_CHSEL | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
-  ADC_DMA_Stream->PAR = CONVERT_PTR_UINT(&ADC_MAIN->DR);
-  ADC_DMA_Stream->M0AR = CONVERT_PTR_UINT(&adcValues[FIRST_ANALOG_ADC]);
-  ADC_DMA_Stream->NDTR = NUM_ANALOGS_ADC;
-  ADC_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
-
-#if defined(PCBX10)
-  ADC1->CR1 = ADC_CR1_SCAN;
-  ADC1->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC1->SQR1 = (1 - 1) << 20;
-  ADC1->SQR2 = 0;
-  ADC1->SQR3 = (ADC_Channel_Vbat << 0);
-  ADC1->SMPR1 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-  ADC1->SMPR2 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
+    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
+    {ADC_Channel_Vbat, ADC_SAMPTIME}
 #endif
+};
 
+static const etx_hal_adc_channel* ADC_MAIN_get_channels()
+{
+#if NUM_PWMSTICKS > 0
+  if (STICKS_PWM_ENABLED())
+    return ADC_MAIN_channels + 4;
+#endif
+  return ADC_MAIN_channels;
+}
+
+static uint8_t ADC_MAIN_get_nconv()
+{
+  return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
+}
+
+#if defined(ADC_EXT)
 #if defined(PCBX9E)
-  ADC_EXT->CR1 = ADC_CR1_SCAN;
-  ADC_EXT->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC_EXT->SQR1 = (NUM_ANALOGS_ADC_EXT - 1) << 20;
-  ADC_EXT->SQR2 = 0;
-  ADC_EXT->SQR3 = (ADC_CHANNEL_POT1 << 0) + (ADC_CHANNEL_SLIDER1 << 5) + (ADC_CHANNEL_SLIDER2 << 10); // conversions 1 to 3
-  ADC_EXT->SMPR1 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-  ADC_EXT->SMPR2 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
 
-  ADC_EXT_DMA_Stream->CR = DMA_SxCR_PL | DMA_SxCR_CHSEL_1 | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
-  ADC_EXT_DMA_Stream->PAR = CONVERT_PTR_UINT(&ADC_EXT->DR);
-  ADC_EXT_DMA_Stream->M0AR = CONVERT_PTR_UINT(adcValues + NUM_ANALOGS_ADC);
-  ADC_EXT_DMA_Stream->NDTR = NUM_ANALOGS_ADC_EXT;
-  ADC_EXT_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
+static const etx_hal_adc_channel ADC_EXT_channels[] = {
+    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER1, ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER2, ADC_SAMPTIME}
+};
+
+static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
+
+#elif defined(PCBX10)
+
+static const etx_hal_adc_channel ADC_EXT_channels[] = {
+  { ADC_Channel_Vbat, 1, ADC_SAMPTIME }
+};
+
+static uint8_t ADC_EXT_get_nconv() { return 1; }
+
+#endif
+#endif
+
+etx_hal_adc ADC_hal_def[] = {
+  { ADC_MAIN, ADC_MAIN_get_nconv, ADC_MAIN_get_channels },
+#if defined(ADC_EXT)
+  { ADC_EXT,  ADC_EXT_get_nconv, ADC_EXT_get_channels },
+#endif
+  { nullptr,  nullptr, nullptr },
+};
+
+
+static void adc_init_channels(const etx_hal_adc* adc_def)
+{
+  while (adc_def->adc) {
+    uint8_t nconv = 0;
+    if (adc_def->get_nconv) nconv = adc_def->get_nconv();
+
+    const etx_hal_adc_channel* chan = nullptr;
+    if ((nconv > 0) && adc_def->get_channels)
+      chan = adc_def->get_channels();
+
+    if (chan) {
+      uint8_t rank = 1;
+      while (nconv > 0) {
+        ADC_RegularChannelConfig(adc_def->adc, chan->adc_channel, rank,
+                                 chan->sample_time);
+        nconv--; rank++;
+        chan++;
+      }
+    }
+    adc_def++;
+  }
+}
+
+static void adc_init_dma_channel(ADC_TypeDef* ADCx, DMA_Stream_TypeDef * dma_stream,
+                                 uint16_t* dest, uint8_t nconv)
+{
+  // setup DMA request
+  dma_stream->CR = DMA_SxCR_PL | ADC_DMA_SxCR_CHSEL | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
+  dma_stream->PAR = CONVERT_PTR_UINT(&ADCx->DR);
+  dma_stream->M0AR = CONVERT_PTR_UINT(dest);
+  dma_stream->NDTR = nconv;
+  dma_stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
+}
+
+
+void adcInit()
+{
+  adc_init_pins();
+
+  // Init common to all ADCs
+  ADC_CommonInitTypeDef ADC_CommonInitStruct;
+  ADC_CommonStructInit(&ADC_CommonInitStruct);
+  ADC_CommonInitStruct.ADC_Mode = ADC_Mode_Independent;
+  ADC_CommonInitStruct.ADC_Prescaler = ADC_Prescaler_Div2;
+  ADC_CommonInit(&ADC_CommonInitStruct);
+
+  
+  adc_setup_scan_mode(ADC_MAIN, NUM_ANALOGS_ADC);
+#if defined(PCBX10) // X10 uses ADC3 for "normal" things
+  adc_setup_scan_mode(ADC_EXT, 1);
+#endif
+#if defined(PCBX9E)
+  adc_setup_scan_mode(ADC_EXT, NUM_ANALOGS_ADC_EXT);
+#endif
+
+  // configure each channel
+  adc_init_channels(ADC_hal_def);
+
+  // Enable vbat sensor
+  ADC_VBATCmd(ENABLE);
+
+  adc_init_dma_channel(ADC_MAIN, ADC_DMA_Stream, &adcValues[FIRST_ANALOG_ADC], NUM_ANALOGS_ADC);
+#if defined(PCBX9E)
+  adc_init_dma_channel(ADC_EXT, ADC_EXT_DMA_Stream, adcValues + NUM_ANALOGS_ADC, NUM_ANALOGS_ADC_EXT);
 #endif
 
 #if NUM_PWMSTICKS > 0
@@ -183,48 +286,86 @@ void adcInit()
 #endif
 }
 
+#define DMA_Stream0_IT_MASK     (uint32_t)(DMA_LISR_FEIF0 | DMA_LISR_DMEIF0 | \
+                                           DMA_LISR_TEIF0 | DMA_LISR_HTIF0 | \
+                                           DMA_LISR_TCIF0)
+  
+#define DMA_Stream4_IT_MASK     (uint32_t)(DMA_HISR_FEIF4 | DMA_HISR_DMEIF4 | \
+                                           DMA_HISR_TEIF4 | DMA_HISR_HTIF4 | \
+                                           DMA_HISR_TCIF4)
+
+static void adc_dma_clear_flags(DMA_Stream_TypeDef * dma_stream)
+{
+  // no other choice, sorry for that...
+  if (dma_stream == DMA2_Stream4) {
+    /* Reset interrupt pending bits for DMA2 Stream4 */
+    DMA2->HIFCR = DMA_Stream4_IT_MASK;
+
+  } else if (dma_stream == DMA2_Stream0) {
+    /* Reset interrupt pending bits for DMA2 Stream0 */
+    DMA2->LIFCR = DMA_Stream0_IT_MASK;
+  }
+}
+
+static void adc_start_dma_conversion(ADC_TypeDef* ADCx,
+                                     DMA_Stream_TypeDef * dma_stream)
+{
+  dma_stream->CR &= ~DMA_SxCR_EN; // Disable DMA
+  ADCx->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
+  adc_dma_clear_flags(dma_stream);
+
+  dma_stream->CR |= DMA_SxCR_EN; // Enable DMA
+  ADCx->CR2 |= (uint32_t)ADC_CR2_SWSTART;  
+}
+
+static void adc_disable_dma(DMA_Stream_TypeDef * dma_stream)
+{
+  dma_stream->CR &= ~DMA_SxCR_EN; // Disable DMA stream
+}
+
+static void adc_start_single_conversion(ADC_TypeDef* ADCx)
+{
+  ADCx->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
+  ADCx->CR2 |= (uint32_t)ADC_CR2_SWSTART;  
+}
+
 void adcSingleRead()
 {
-  ADC_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-  ADC_MAIN->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC_SET_DMA_FLAGS();
-  ADC_DMA_Stream->CR |= DMA_SxCR_EN; // Enable DMA
-  ADC_MAIN->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+  adc_start_dma_conversion(ADC_MAIN, ADC_DMA_Stream);
 
-#if defined(PCBX10)
-  ADC1->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+#if defined(ADC_EXT)
+#if defined(ADC_EXT_DMA_Stream)
+  adc_start_dma_conversion(ADC_EXT, ADC_EXT_DMA_Stream);
+#else
+  // start a single conversion on ADC1 (VBat only)
+  adc_start_single_conversion(ADC_EXT);
+#endif
 #endif
 
-#if defined(PCBX9E)
-  ADC_EXT_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-  ADC_EXT->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC_EXT_SET_DMA_FLAGS();
-  ADC_EXT_DMA_Stream->CR |= DMA_SxCR_EN; // Enable DMA
-  ADC_EXT->CR2 |= (uint32_t)ADC_CR2_SWSTART;
-#endif
-
-#if defined(PCBX9E)
+  //TODO: replace with IRQ trigger (both)
+#if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
+  // Wait for all ADCs to complete
   for (unsigned int i=0; i<10000; i++) {
     if (ADC_TRANSFER_COMPLETE() && ADC_EXT_TRANSFER_COMPLETE()) {
       break;
     }
   }
-  ADC_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-  ADC_EXT_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
+  adc_disable_dma(ADC_DMA_Stream);
+  adc_disable_dma(ADC_EXT_DMA_Stream);
 #else
+  // Wait only for the main ADC, and hope others are done as well
   for (unsigned int i = 0; i < 10000; i++) {
     if (ADC_TRANSFER_COMPLETE()) {
       break;
     }
   }
-  ADC_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-#endif
+  adc_disable_dma(ADC_DMA_Stream);
 
-#if defined(PCBX10)
+#if defined(ADC_EXT)
   if (isVBatBridgeEnabled()) {
-    rtcBatteryVoltage = ADC1->DR;
+    rtcBatteryVoltage = ADC_EXT->DR;
   }
+#endif
 #endif
 }
 

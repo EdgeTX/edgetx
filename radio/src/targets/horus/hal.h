@@ -318,6 +318,7 @@
   #define ADC_CHANNEL_EXT1              ADC_Channel_6   // ADC3_IN6
   #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
   #define ADC_MAIN                      ADC3
+  #define ADC_EXT                       ADC1
   #define ADC_SAMPTIME                  3
   #define ADC_DMA                       DMA2
   #define ADC_DMA_SxCR_CHSEL            DMA_SxCR_CHSEL_1

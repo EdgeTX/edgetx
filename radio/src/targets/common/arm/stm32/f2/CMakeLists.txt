@@ -24,6 +24,7 @@ set(STM32LIB_SRC
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rtc.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_pwr.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_usart.c
+  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_adc.c
   )
 
 #
