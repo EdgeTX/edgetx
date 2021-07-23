@@ -149,22 +149,24 @@
 #define ADC_SUB                         ADC3
 #define ADC_SAMPTIME                    2
 #define ADC_DMA                         DMA2
-#define ADC_DMA_SxCR_CHSEL              DMA_SxCR_CHSEL_1
+#define ADC_DMA_SxCR_CHSEL              0 //DMA_SxCR_CHSEL_1
 #define ADC_DMA_Stream                  DMA2_Stream4
 #define ADC_SET_DMA_FLAGS()             ADC_DMA->HIFCR = (DMA_HIFCR_CTCIF4 | DMA_HIFCR_CHTIF4 | DMA_HIFCR_CTEIF4 | DMA_HIFCR_CDMEIF4 | DMA_HIFCR_CFEIF4)
 #define ADC_TRANSFER_COMPLETE()         (ADC_DMA->HISR & DMA_HISR_TCIF4)
-//#define ADC_MAIN_DMA_SxCR_CHSEL         0 // DMA_SxCR_CHSEL_1
+
+// NV14 customized drivers uses this
+#define ADC_MAIN_DMA_SxCR_CHSEL         0 // DMA_SxCR_CHSEL_1
+#define ADC_MAIN_DMA_Stream             DMA2_Stream4
+#define ADC_MAIN_SET_DMA_FLAGS()        ADC_DMA->HIFCR = (DMA_HIFCR_CTCIF4 | DMA_HIFCR_CHTIF4 | DMA_HIFCR_CTEIF4 | DMA_HIFCR_CDMEIF4 | DMA_HIFCR_CFEIF4)
+#define ADC_MAIN_TRANSFER_COMPLETE()    (ADC_DMA->HISR & DMA_HISR_TCIF4)
+
 #define ADC_SUB_DMA_SxCR_CHSEL          DMA_Channel_2
-//#define ADC_MAIN_DMA_Stream             DMA2_Stream4
 #define ADC_SUB_DMA_Stream              DMA2_Stream0
-//#define ADC_MAIN_SET_DMA_FLAGS()        ADC_DMA->HIFCR = (DMA_HIFCR_CTCIF4 | DMA_HIFCR_CHTIF4 | DMA_HIFCR_CTEIF4 | DMA_HIFCR_CDMEIF4 | DMA_HIFCR_CFEIF4)
 #define ADC_SUB_SET_DMA_FLAGS()         ADC_DMA->LIFCR = (DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0 | DMA_LIFCR_CFEIF0)
-//#define ADC_MAIN_TRANSFER_COMPLETE()    (ADC_DMA->HISR & DMA_HISR_TCIF4)
 #define ADC_SUB_TRANSFER_COMPLETE()     (ADC_DMA->LISR & DMA_LISR_TCIF0)
 
 #define ADC_MAIN_SMPR1                  (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
 #define ADC_MAIN_SMPR2                  (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
