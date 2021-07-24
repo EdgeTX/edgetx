@@ -157,9 +157,6 @@ void menuModelCustomScripts(event_t event)
         case SCRIPT_SYNTAX_ERROR:
           lcdDrawText(30*FW+2, y, "(error)");
           break;
-        case SCRIPT_KILLED:
-          lcdDrawText(29*FW+2, y, "(killed)");
-          break;
         default:
           lcdDrawNumber(34*FW, y, luaGetCpuUsed(scriptIndex), RIGHT);
           lcdDrawChar(34*FW, y, '%');
