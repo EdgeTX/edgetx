@@ -1861,6 +1861,7 @@ const luaR_value_entry opentxConstants[] = {
 #endif
 #if defined(COLORLCD)
   { "BOLD", FONT(BOLD) },
+  { "VCENTER", VCENTERED },
 #else
   { "BOLD", BOLD },
 #endif

@@ -511,7 +511,7 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  TRACE("LuaWidget::background()");
+  // TRACE("LuaWidget::background()");
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   if (factory->backgroundFunction) {
