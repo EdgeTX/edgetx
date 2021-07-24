@@ -48,7 +48,7 @@ void CurveDataEdit::update()
   uint8_t curvePointsCount = 5 + curve.points;
 
   // Point number
-  for (uint8_t i = 0; i < curvePointsCount; i++) {
+  for (int i = 0; i < curvePointsCount; i++) {
     auto txt = new StaticText(
         this,
         {i * boxWidth + PAGE_PADDING, 10, boxWidth - PAGE_PADDING, boxHeight},
@@ -60,7 +60,7 @@ void CurveDataEdit::update()
   // x value
   if (curve.type == CURVE_TYPE_CUSTOM) {
     // Adjustable points for custom curves
-    for (uint8_t i = 0; i < curvePointsCount; i++) {
+    for (int i = 0; i < curvePointsCount; i++) {
       int8_t* points = curveAddress(index);
       auto pointEdit = new NumberEdit(
           this,

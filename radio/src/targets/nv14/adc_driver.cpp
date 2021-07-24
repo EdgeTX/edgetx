@@ -297,13 +297,13 @@ void adcRead()
 #endif
 }
 
+#if !defined(SIMU)
 uint16_t getRTCBatteryVoltage()
 {
   #warning "TODO RTC voltage"
   return 330;
 }
 
-#if !defined(SIMU)
 uint16_t getAnalogValue(uint8_t index)
 {
   if (IS_POT(index) && !IS_POT_SLIDER_AVAILABLE(index)) {

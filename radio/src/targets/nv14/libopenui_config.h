@@ -60,7 +60,7 @@ constexpr uint32_t MENU_FOOTER_TOP =               LCD_H - MENU_FOOTER_HEIGHT;
 constexpr uint32_t MENU_BODY_HEIGHT =              MENU_FOOTER_TOP - MENU_BODY_TOP;
 constexpr uint32_t MENUS_MARGIN_LEFT =             6;
 
-constexpr uint32_t PAGE_PADDING =                  8;
+constexpr coord_t  PAGE_PADDING =                  8;
 constexpr uint32_t PAGE_LINE_HEIGHT =              26;
 constexpr uint32_t PAGE_LINE_SPACING =             6;
 constexpr uint32_t PAGE_INDENT_WIDTH =             10;
