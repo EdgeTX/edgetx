@@ -470,7 +470,8 @@ set(TARGET_SRC
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
-  ../common/arm/stm32/adc_driver.cpp
+  ../common/arm/stm32/stm32_hal_adc.cpp
+  ../../hal/adc_driver.cpp
   ../common/arm/stm32/heartbeat_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   )

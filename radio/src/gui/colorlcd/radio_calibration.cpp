@@ -22,6 +22,7 @@
 #include "radio_calibration.h"
 #include "sliders.h"
 #include "view_main_decoration.h"
+#include "hal/adc_driver.h"
 
 #define XPOT_DELTA                     10
 #define XPOT_DELAY                     5 /* cycles */

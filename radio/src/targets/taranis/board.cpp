@@ -20,6 +20,9 @@
 
 #include "opentx.h"
 
+#include "hal/adc_driver.h"
+#include "stm32_hal_adc.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -159,7 +162,7 @@ void boardInit()
   }
 #endif
 
-  adcInit();
+  adcInit(&stm32_hal_adc_driver);
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();

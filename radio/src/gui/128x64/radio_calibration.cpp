@@ -19,6 +19,7 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
 #define XPOT_DELTA 10
 #define XPOT_DELAY 10 /* cycles */

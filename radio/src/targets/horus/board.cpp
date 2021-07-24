@@ -20,6 +20,9 @@
 
 #include "opentx.h"
 
+#include "hal/adc_driver.h"
+#include "../common/arm/stm32/stm32_hal_adc.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -197,7 +200,7 @@ void boardInit()
   }
 #endif
 
-  adcInit();
+  adcInit(&stm32_hal_adc_driver);
   lcdInit();
   backlightInit();
 

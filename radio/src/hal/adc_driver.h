@@ -21,17 +21,33 @@
 
 #pragma once
 
-struct etx_hal_adc_channel {
-  const uint8_t adc_channel;
-  const uint8_t rank;
-  const uint8_t sample_time;
+#include <stdint.h>
+
+#if NUM_PWMSTICKS > 0
+  #define FIRST_ANALOG_ADC             (STICKS_PWM_ENABLED() ? NUM_PWMSTICKS : 0)
+  #define NUM_ANALOGS_ADC              (STICKS_PWM_ENABLED() ? (NUM_ANALOGS - NUM_PWMSTICKS) : NUM_ANALOGS)
+#elif defined(PCBX9E)
+  #define FIRST_ANALOG_ADC             0
+  #define NUM_ANALOGS_ADC              11
+  #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
+#else
+  #define FIRST_ANALOG_ADC             0
+  #define NUM_ANALOGS_ADC              NUM_ANALOGS
+#endif
+
+#if defined(PCBX10)
+extern uint16_t rtcBatteryVoltage;
+#endif
+
+struct etx_hal_adc_driver_t {
+  void (*init)();
+  void (*start_conversion)();
+  void (*wait_completion)();  
 };
 
-typedef const etx_hal_adc_channel* (*etx_hal_adc_get_channels)();
-typedef uint8_t (*etx_hal_adc_get_nconv)();
+void adcInit(const etx_hal_adc_driver_t* driver);
+//void adcDeInit();
 
-struct etx_hal_adc {
-  ADC_TypeDef* adc;
-  const etx_hal_adc_get_nconv    get_nconv;
-  const etx_hal_adc_get_channels get_channels;
-};
+void     adcRead();
+uint16_t getRTCBatteryVoltage();
+uint16_t getAnalogValue(uint8_t index);
