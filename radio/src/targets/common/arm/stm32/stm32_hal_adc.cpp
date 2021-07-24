@@ -93,12 +93,8 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
 #elif defined(PCBX7) || defined(PCBXLITE)
     {ADC_CHANNEL_POT1, ADC_SAMPTIME},
     {ADC_CHANNEL_POT2, ADC_SAMPTIME},
-    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
-    {ADC_Channel_Vbat, ADC_SAMPTIME}
 #elif defined(PCBX9LITE)
     {ADC_CHANNEL_POT1, ADC_SAMPTIME},
-    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
-    {ADC_Channel_Vbat, ADC_SAMPTIME},
 #elif defined(PCBX9E)
     {ADC_CHANNEL_POT2, ADC_SAMPTIME},
     {ADC_CHANNEL_POT3, ADC_SAMPTIME},
