@@ -23,6 +23,8 @@
 
 #if !defined(SIMU)
 
+#include "FreeRTOSConfig.h"
+
 // Start scheduler with default period
 void mixerSchedulerStart()
 {
@@ -36,7 +38,9 @@ void mixerSchedulerStart()
   MIXER_SCHEDULER_TIMER->EGR   = TIM_EGR_UG;   // reset timer
 
   NVIC_EnableIRQ(MIXER_SCHEDULER_TIMER_IRQn);
-  NVIC_SetPriority(MIXER_SCHEDULER_TIMER_IRQn, 8);
+  NVIC_SetPriority(MIXER_SCHEDULER_TIMER_IRQn,
+                   // TODO: replace with a define...
+                   configMAX_SYSCALL_INTERRUPT_PRIORITY);
 
   MIXER_SCHEDULER_TIMER->SR   &= TIM_SR_UIF;   // clear interrupt flag
   MIXER_SCHEDULER_TIMER->DIER |= TIM_DIER_UIE; // enable interrupt
