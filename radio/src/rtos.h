@@ -123,7 +123,7 @@ extern "C++" {
   };
   #define RTOS_DEFINE_STACK(name, size) FakeTaskStack<size> name
 
-  #define TASK_FUNCTION(task)           void * task(void * pdata)
+  #define TASK_FUNCTION(task)           void task(void *)
 
   inline void RTOS_CREATE_TASK(pthread_t &taskId, void * task(void *), const char * name)
   {
@@ -164,26 +164,42 @@ template<int SIZE>
 #ifdef __cplusplus
   extern "C" {
 #endif
-    #include <CoOS.h>
+    #include <FreeRTOS.h>
+    #include <task.h>
+    #include <semphr.h>
 #ifdef __cplusplus
   }
 #endif
 
-  #define RTOS_MS_PER_TICK              (1000 / CFG_SYSTICK_FREQ)  // RTOS timer tick length in ms (currently 1 for STM32, 2 for others)
+  #define RTOS_MS_PER_TICK portTICK_PERIOD_MS
 
-  typedef OS_TID RTOS_TASK_HANDLE;
-  typedef OS_MutexID RTOS_MUTEX_HANDLE;
-  typedef OS_FlagID RTOS_FLAG_HANDLE;
-  typedef OS_EventID RTOS_EVENT_HANDLE;
+  // TODO:
+  typedef struct {
+    TaskHandle_t rtos_handle;
+    StaticTask_t task_struct;
+  } RTOS_TASK_HANDLE;
+
+  typedef struct {
+    SemaphoreHandle_t rtos_handle;
+    StaticSemaphore_t mutex_struct;
+  } RTOS_MUTEX_HANDLE;
+  
+  // typedef TaskHandle_t       RTOS_TASK_HANDLE;
+  // typedef SemaphoreHandle_t  RTOS_MUTEX_HANDLE;
+
+  typedef RTOS_MUTEX_HANDLE RTOS_FLAG_HANDLE;
+  
+  //typedef OS_FlagID  RTOS_FLAG_HANDLE;
+  //typedef OS_EventID RTOS_EVENT_HANDLE;
 
   static inline void RTOS_INIT()
   {
-    CoInitOS();
+    //CoInitOS();
   }
 
   static inline void RTOS_START()
   {
-    CoStartOS();
+    vTaskStartScheduler();
   }
 
   static inline void RTOS_WAIT_MS(uint32_t x)
@@ -192,31 +208,45 @@ template<int SIZE>
       return;
     if ((x = x / RTOS_MS_PER_TICK) < 1)
       x = 1;
-    CoTickDelay(x);
+
+    vTaskDelay(x);
   }
 
   static inline void RTOS_WAIT_TICKS(uint32_t x)
   {
-    CoTickDelay(x);
+    vTaskDelay(x);
   }
 
-  #define RTOS_CREATE_TASK(taskId, task, name, stackStruct, stackSize, priority)   \
-                                        taskId = CoCreateTask(task, NULL, priority, &stackStruct.stack[stackSize-1], stackSize)
+  static inline void _RTOS_CREATE_TASK(RTOS_TASK_HANDLE *h,
+                                       TaskFunction_t pxTaskCode,
+                                       const char *name,
+                                       StackType_t *const puxStackBuffer,
+                                       const uint32_t ulStackDepth,
+                                       UBaseType_t uxPriority)
+  {
+    h->rtos_handle = xTaskCreateStatic(
+        pxTaskCode, name, ulStackDepth, 0, uxPriority,
+        puxStackBuffer, &h->task_struct);
+  }
+
+  #define RTOS_CREATE_TASK(h,task,name,stackStruct,stackSize,prio) \
+    _RTOS_CREATE_TASK(&h,task,name,stackStruct.stack,stackSize,prio)
+  
 
 #ifdef __cplusplus
-  static inline void RTOS_CREATE_MUTEX(OS_MutexID &mutex)
+  static inline void RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE& h)
   {
-    mutex = CoCreateMutex();
+    h.rtos_handle = xSemaphoreCreateBinaryStatic(&h.mutex_struct);
   }
 
-  static inline void RTOS_LOCK_MUTEX(OS_MutexID &mutex)
+  static inline void RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE& h)
   {
-    CoEnterMutexSection(mutex);
+    xSemaphoreTake(h.rtos_handle, portMAX_DELAY);
   }
 
-  static inline void RTOS_UNLOCK_MUTEX(OS_MutexID &mutex)
+  static inline void RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE& h)
   {
-    CoLeaveMutexSection(mutex);
+    xSemaphoreGive(h.rtos_handle);
   }
 #endif  // __cplusplus
 
@@ -242,21 +272,29 @@ template<int SIZE>
     return getStackAvailable(&_main_stack_start, stackSize());
   }
 
-  #define RTOS_CREATE_FLAG(flag)        flag = CoCreateFlag(false, false)
-  #define RTOS_SET_FLAG(flag)           (void)CoSetFlag(flag)
-  #define RTOS_CLEAR_FLAG(flag)         (void)CoClearFlag(flag)
-  #define RTOS_WAIT_FLAG(flag,timeout)  (CoWaitForSingleFlag(flag,timeout) == E_TIMEOUT)
-
-  static inline void RTOS_ISR_SET_FLAG(RTOS_FLAG_HANDLE flag)
-  {
-    CoEnterISR();
-    CoSchedLock();
-    isr_SetFlag(flag);
-    CoSchedUnlock();
-    CoExitISR();
-  }
+  //#define RTOS_CREATE_FLAG(flag)        flag = CoCreateFlag(false, false)
+  //#define RTOS_SET_FLAG(flag)           (void)CoSetFlag(flag)
+  //#define RTOS_CLEAR_FLAG(flag)         (void)CoClearFlag(flag)
 
 #ifdef __cplusplus
+  // returns true if timeout
+  static inline bool RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE& flag, uint32_t timeout)
+  {
+    return xSemaphoreTake(flag.rtos_handle, timeout * RTOS_MS_PER_TICK)
+      == pdFALSE;
+  }
+
+  static inline void RTOS_ISR_SET_FLAG(RTOS_FLAG_HANDLE& flag)
+  {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    // Give semaphore back from ISR to trigger a task waiting for it
+    xSemaphoreGiveFromISR( flag.rtos_handle, &xHigherPriorityTaskWoken );
+
+    // If xHigherPriorityTaskWoken was set to true we should yield
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  }
+
   template<int SIZE>
   class TaskStack
   {
@@ -282,13 +320,13 @@ template<int SIZE>
         return getStackAvailable(stack, SIZE);
       }
 
-      OS_STK stack[SIZE];
+      StackType_t stack[SIZE];
   };
 #endif // __cplusplus
 
-  static inline uint32_t RTOS_GET_TIME(void)
+  static inline TickType_t RTOS_GET_TIME(void)
   {
-    return (uint32_t)CoGetOSTime();
+    return xTaskGetTickCount();
   }
 
   static inline uint32_t RTOS_GET_MS(void)
@@ -299,7 +337,7 @@ template<int SIZE>
   // stack must be aligned to 8 bytes otherwise printf for %f does not work!
   #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM
 
-  #define TASK_FUNCTION(task)           void task(void * pdata)
+  #define TASK_FUNCTION(task)           void task(void *)
   #define TASK_RETURN()                 return
 
 #else // no RTOS

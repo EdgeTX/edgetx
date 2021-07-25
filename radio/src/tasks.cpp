@@ -22,12 +22,15 @@
 #include "mixer_scheduler.h"
 
 RTOS_TASK_HANDLE menusTaskId;
+StaticTask_t menusTaskStruct;
 RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
 RTOS_TASK_HANDLE mixerTaskId;
+StaticTask_t mixerTaskStruct;
 RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
+StaticTask_t audioTaskStruct;
 RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;
@@ -145,7 +148,7 @@ TASK_FUNCTION(mixerTask)
 #endif
 
   // clear the flag before first loop
-  mixerSchedulerClearTrigger();
+  //mixerSchedulerClearTrigger();
 
   while (true) {
     int timeout = 0;
@@ -168,7 +171,7 @@ TASK_FUNCTION(mixerTask)
 
 #if !defined(PCBSKY9X)
     // clear the flag ASAP to avoid missing a tick
-    mixerSchedulerClearTrigger();
+    //mixerSchedulerClearTrigger();
 
     // re-enable trigger
     mixerSchedulerEnableTrigger();
@@ -302,11 +305,15 @@ void tasksStart()
   cliStart();
 #endif
 
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack, MIXER_STACK_SIZE, MIXER_TASK_PRIO);
-  RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack, MENUS_STACK_SIZE, MENUS_TASK_PRIO);
+  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
+                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
+                   MENUS_STACK_SIZE, MENUS_TASK_PRIO);
 
 #if !defined(SIMU)
-  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
+  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack,
+                   AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
 #endif
+
   RTOS_START();
 }
