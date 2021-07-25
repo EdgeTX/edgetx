@@ -247,11 +247,7 @@ set(FIRMWARE_SRC
   ${RTOS_DIR}/tasks.c
   ${RTOS_DIR}/event_groups.c
   ${RTOS_DIR}/timers.c
-  # needs to be move to the F4 specific directory
-  ${RTOS_DIR}/portable/GCC/ARM_CM4F/port.c
-  rtos.c
-  )
-include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
+  rtos.c)
 
 set(PULSES_SRC
   ${PULSES_SRC}
