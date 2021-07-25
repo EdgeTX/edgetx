@@ -571,7 +571,7 @@ if(NOT MSVC)
       set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
     endif()
 
-    add_definitions(-DRTOS_COOS)
+    add_definitions(-DFREE_RTOS)
 
     add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
     link_libraries(firmware -lstdc++)

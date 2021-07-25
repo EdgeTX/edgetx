@@ -22,15 +22,12 @@
 #include "mixer_scheduler.h"
 
 RTOS_TASK_HANDLE menusTaskId;
-StaticTask_t menusTaskStruct;
 RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
 RTOS_TASK_HANDLE mixerTaskId;
-StaticTask_t mixerTaskStruct;
 RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
-StaticTask_t audioTaskStruct;
 RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;

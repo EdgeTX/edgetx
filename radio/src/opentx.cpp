@@ -1917,10 +1917,13 @@ int main()
   initialise_monitor_handles();
 #endif
 
+#if defined(STM32)
+
+#if !defined(SIMU)
   /* Ensure all priority bits are assigned as preemption priority bits. */
   NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
+#endif
 
-#if defined(STM32)
   TRACE("reusableBuffer: modelSel=%d, moduleSetup=%d, calib=%d, sdManager=%d, hardwareAndSettings=%d, spectrumAnalyser=%d, usb=%d",
         sizeof(reusableBuffer.modelsel),
         sizeof(reusableBuffer.moduleSetup),

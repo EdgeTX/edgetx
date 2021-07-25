@@ -119,9 +119,9 @@ extern "C++" {
   };
   #define RTOS_DEFINE_STACK(name, size) FakeTaskStack<size> name
 
-  #define TASK_FUNCTION(task)           void task(void *)
+  #define TASK_FUNCTION(task)           void* task(void *)
 
-  inline void RTOS_CREATE_TASK(pthread_t &taskId, void * task(void *), const char * name)
+  inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name)
   {
     pthread_create(&taskId, nullptr, task, nullptr);
 #ifdef __linux__
@@ -130,7 +130,7 @@ extern "C++" {
   }
 
 template<int SIZE>
-  inline void RTOS_CREATE_TASK(pthread_t &taskId, void * task(void *), const char * name, FakeTaskStack<SIZE> &, unsigned size = 0, unsigned priority = 0)
+inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name, FakeTaskStack<SIZE> &, unsigned size = 0, unsigned priority = 0)
   {
     UNUSED(size);
     UNUSED(priority);
@@ -156,7 +156,7 @@ template<int SIZE>
     return (uint32_t)(simuTimerMicros() / 1000);
   }
 
-#elif defined(RTOS_COOS)
+#elif defined(FREE_RTOS)
 #ifdef __cplusplus
   extern "C" {
 #endif
@@ -324,7 +324,7 @@ template<int SIZE>
   #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM
 
   #define TASK_FUNCTION(task)           void task(void *)
-  #define TASK_RETURN()                 return
+  #define TASK_RETURN()                 vTaskDelete(nullptr)
 
 #else // no RTOS
   static inline void RTOS_START()

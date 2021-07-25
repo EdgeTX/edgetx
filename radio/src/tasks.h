@@ -33,10 +33,17 @@
 #define AUDIO_STACK_SIZE       400
 #define CLI_STACK_SIZE         1000  // only consumed with CLI build option
 
+#if defined(FREE_RTOS)
 #define MIXER_TASK_PRIO        (tskIDLE_PRIORITY + 4)
 #define AUDIO_TASK_PRIO        (tskIDLE_PRIORITY + 2)
 #define MENUS_TASK_PRIO        (tskIDLE_PRIORITY + 1)
 #define CLI_TASK_PRIO          (tskIDLE_PRIORITY + 1)
+#else
+#define MIXER_TASK_PRIO        (4)
+#define AUDIO_TASK_PRIO        (2)
+#define MENUS_TASK_PRIO        (1)
+#define CLI_TASK_PRIO          (1)
+#endif
 
 extern RTOS_TASK_HANDLE menusTaskId;
 extern RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
