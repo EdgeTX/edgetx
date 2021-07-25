@@ -125,9 +125,9 @@ void Widget::paint(BitmapBuffer * dc)
   }
 }
 
+#if defined(HARDWARE_KEYS)
 void Widget::onEvent(event_t event)
 {
-#if defined(HARDWARE_KEYS)
   TRACE("### event = 0x%x ###", event);
   if (!fullscreen) {
     if (event == EVT_KEY_BREAK(KEY_EXIT)) {
@@ -145,8 +145,8 @@ void Widget::onEvent(event_t event)
     killEvents(event);
     setFullscreen(false);
   }
-#endif
 }
+#endif
 
 void Widget::update()
 {

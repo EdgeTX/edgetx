@@ -47,7 +47,10 @@ static int8_t getTextVerticalOffset(LcdFlags flags)
   if (font_index >= sizeof(text_vertical_offset)) {
     return 0;
   }
-  return text_vertical_offset[font_index];
+  int vcenter = 0;
+  if (flags & VCENTERED)
+    vcenter = 0.5 * getFontHeight(flags & 0xFFFF);
+  return text_vertical_offset[font_index] - vcenter;
 }
 
 /*luadoc

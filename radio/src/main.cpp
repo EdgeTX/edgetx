@@ -356,7 +356,7 @@ void guiMain(event_t evt)
   DEBUG_TIMER_START(debugTimerLua);
 
   // Run Lua scripts first that don't use LCD
-  luaTask(  0, RUN_MIX_SCRIPT | RUN_FUNC_SCRIPT, false);
+  luaTask(  0, false);
 
   // This is run from StandaloneLuaWindow::checkEvents()
   // luaTask(evt, RUN_STNDAL_SCRIPT, true);
@@ -382,29 +382,28 @@ void guiMain(event_t evt)
 }
 #elif defined(GUI)
 
-void handleGui(event_t event) {
-  // if Lua standalone, run it and don't clear the screen (Lua will do it)
-  // else if Lua telemetry view, run it and don't clear the screen
-  // else clear scren and show normal menus
+bool handleGui(event_t event) {
+  bool refreshNeeded;
 #if defined(LUA)
-  if (luaTask(event, RUN_STNDAL_SCRIPT, true)) {
-    // standalone script is active
+  refreshNeeded = luaTask(event, true);
+  if (menuHandlers[menuLevel] == menuViewTelemetry && TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+      menuHandlers[menuLevel](event);
   }
-  else if (luaTask(event, RUN_TELEM_FG_SCRIPT, true)) {
-    // the telemetry screen is active
-    menuHandlers[menuLevel](event);
-  }
-  else
+  else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
 #endif
+// No foreground Lua script is running - clear the screen show normal menu
   {
     lcdClear();
     menuHandlers[menuLevel](event);
     drawStatusLine();
+    refreshNeeded = true;
   }
+  return refreshNeeded;
 }
 
 void guiMain(event_t evt)
 {
+  bool refreshNeeded = menuEvent || warningText || (popupMenuItemsCount > 0);
 #if defined(LUA)
   // TODO better lua stopwatch
   uint32_t t0 = get_tmr10ms();
@@ -416,7 +415,7 @@ void guiMain(event_t evt)
   }
 
   // run Lua scripts that don't use LCD (to use CPU time while LCD DMA is running)
-  luaTask(0, RUN_MIX_SCRIPT | RUN_FUNC_SCRIPT | RUN_TELEM_BG_SCRIPT, false);
+  luaTask(0, false);
 
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {
@@ -440,10 +439,10 @@ void guiMain(event_t evt)
   }
 
   if (isEventCaughtByPopup()) {
-    handleGui(0);
+    refreshNeeded |= handleGui(0);
   }
   else {
-    handleGui(evt);
+    refreshNeeded |= handleGui(evt);
     evt = 0;
   }
 
@@ -463,8 +462,8 @@ void guiMain(event_t evt)
     }
   }
 
-  lcdRefresh();
-
+  if (refreshNeeded) lcdRefresh();
+  
   if (mainRequestFlags & (1u << REQUEST_SCREENSHOT)) {
     writeScreenshot();
     mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);

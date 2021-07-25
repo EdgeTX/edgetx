@@ -167,7 +167,6 @@ class ScriptEditWindow : public Page {
 };
 
 constexpr char SCRIPT_STATUS_ERROR[] = "(error)";
-constexpr char SCRIPT_STATUS_KILLED[] = "(killed)";
 
 class ScriptLineButton : public Button
 {
@@ -203,10 +202,6 @@ class ScriptLineButton : public Button
         case SCRIPT_SYNTAX_ERROR:
           dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR,
                             sizeof(SCRIPT_STATUS_ERROR), textColor);
-          break;
-        case SCRIPT_KILLED:
-          dc->drawSizedText(x, y, SCRIPT_STATUS_KILLED,
-                            sizeof(SCRIPT_STATUS_KILLED), textColor);
           break;
         default:
           dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
