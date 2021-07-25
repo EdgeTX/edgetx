@@ -243,6 +243,13 @@ bool perMainEnabled = true;
 
 TASK_FUNCTION(menusTask)
 {
+#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  if (!UNEXPECTED_SHUTDOWN()) {
+    drawSplash();
+    TRACE("drawSplash() completed");
+  }
+#endif
+
   opentxInit();
 
 #if defined(PWR_BUTTON_PRESS)
@@ -296,8 +303,6 @@ TASK_FUNCTION(menusTask)
 
 void tasksStart()
 {
-  RTOS_INIT();
-
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 

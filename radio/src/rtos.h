@@ -45,10 +45,6 @@ extern "C++" {
   extern uint64_t simuTimerMicros(void);
   extern uint8_t simuSleep(uint32_t ms);
 
-  static inline void RTOS_INIT()
-  {
-  }
-
   static inline void RTOS_START()
   {
   }
@@ -184,19 +180,8 @@ template<int SIZE>
     StaticSemaphore_t mutex_struct;
   } RTOS_MUTEX_HANDLE;
   
-  // typedef TaskHandle_t       RTOS_TASK_HANDLE;
-  // typedef SemaphoreHandle_t  RTOS_MUTEX_HANDLE;
-
   typedef RTOS_MUTEX_HANDLE RTOS_FLAG_HANDLE;
   
-  //typedef OS_FlagID  RTOS_FLAG_HANDLE;
-  //typedef OS_EventID RTOS_EVENT_HANDLE;
-
-  static inline void RTOS_INIT()
-  {
-    //CoInitOS();
-  }
-
   static inline void RTOS_START()
   {
     vTaskStartScheduler();
