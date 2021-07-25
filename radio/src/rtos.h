@@ -222,6 +222,7 @@ template<int SIZE>
   static inline void RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE& h)
   {
     h.rtos_handle = xSemaphoreCreateBinaryStatic(&h.mutex_struct);
+    xSemaphoreGive(h.rtos_handle);
   }
 
   static inline void RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE& h)
