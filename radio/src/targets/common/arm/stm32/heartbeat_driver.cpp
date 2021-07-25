@@ -52,7 +52,7 @@ void init_intmodule_heartbeat()
   NVIC_SetPriority(INTMODULE_HEARTBEAT_EXTI_IRQn,
                    // Highest priority interrupt
                    // TODO: replace with a define...
-                   configMAX_SYSCALL_INTERRUPT_PRIORITY);
+                   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 
   NVIC_EnableIRQ(INTMODULE_HEARTBEAT_EXTI_IRQn);
   heartbeatCapture.valid = true;
