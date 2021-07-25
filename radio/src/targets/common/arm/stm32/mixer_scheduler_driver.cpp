@@ -39,7 +39,6 @@ void mixerSchedulerStart()
 
   NVIC_EnableIRQ(MIXER_SCHEDULER_TIMER_IRQn);
   NVIC_SetPriority(MIXER_SCHEDULER_TIMER_IRQn,
-                   // TODO: replace with a define...
                    configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 
   MIXER_SCHEDULER_TIMER->SR   &= TIM_SR_UIF;   // clear interrupt flag

@@ -75,26 +75,6 @@ extern "C++" {
       pthread_mutex_unlock(&mutex);
   }
 
-  static inline void RTOS_CREATE_FLAG(RTOS_FLAG_HANDLE flag)
-  {
-  }
-
-  static inline void RTOS_SET_FLAG(RTOS_FLAG_HANDLE flag)
-  {
-  }
-
-  static inline void RTOS_CLEAR_FLAG(RTOS_FLAG_HANDLE flag)
-  {
-  }
-
-  static inline bool RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE flag, uint32_t timeout)
-  {
-    simuSleep(timeout);
-    return false;
-  }
-
-  #define RTOS_ISR_SET_FLAG RTOS_SET_FLAG
-
   template<int SIZE>
   class FakeTaskStack
   {
@@ -169,7 +149,6 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define RTOS_MS_PER_TICK portTICK_PERIOD_MS
 
-  // TODO:
   typedef struct {
     TaskHandle_t rtos_handle;
     StaticTask_t task_struct;
@@ -217,25 +196,29 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   #define RTOS_CREATE_TASK(h,task,name,stackStruct,stackSize,prio) \
     _RTOS_CREATE_TASK(&h,task,name,stackStruct.stack,stackSize,prio)
   
-
-#ifdef __cplusplus
-  static inline void RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE& h)
+  static inline void _RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE* h)
   {
-    h.rtos_handle = xSemaphoreCreateBinaryStatic(&h.mutex_struct);
-    xSemaphoreGive(h.rtos_handle);
+    h->rtos_handle = xSemaphoreCreateBinaryStatic(&h->mutex_struct);
+    xSemaphoreGive(h->rtos_handle);
   }
 
-  static inline void RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE& h)
+  #define RTOS_CREATE_MUTEX(handle) _RTOS_CREATE_MUTEX(&handle)
+
+  static inline void _RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
   {
-    xSemaphoreTake(h.rtos_handle, portMAX_DELAY);
+    xSemaphoreTake(h->rtos_handle, portMAX_DELAY);
   }
 
-  static inline void RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE& h)
-  {
-    xSemaphoreGive(h.rtos_handle);
-  }
-#endif  // __cplusplus
+  #define RTOS_LOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle)
 
+  static inline void _RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
+  {
+    xSemaphoreGive(h->rtos_handle);
+  }
+
+  #define RTOS_UNLOCK_MUTEX(handle) _RTOS_UNLOCK_MUTEX(&handle)
+
+  //TODO: replace with FreeRTOS functions
   static inline uint32_t getStackAvailable(void * address, uint32_t size)
   {
     uint32_t * array = (uint32_t *)address;
@@ -262,25 +245,29 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   //#define RTOS_SET_FLAG(flag)           (void)CoSetFlag(flag)
   //#define RTOS_CLEAR_FLAG(flag)         (void)CoClearFlag(flag)
 
-#ifdef __cplusplus
   // returns true if timeout
-  static inline bool RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE& flag, uint32_t timeout)
+  static inline bool _RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE* flag, uint32_t timeout)
   {
-    return xSemaphoreTake(flag.rtos_handle, timeout * RTOS_MS_PER_TICK)
+    return xSemaphoreTake(flag->rtos_handle, timeout * RTOS_MS_PER_TICK)
       == pdFALSE;
   }
 
-  static inline void RTOS_ISR_SET_FLAG(RTOS_FLAG_HANDLE& flag)
+  #define RTOS_WAIT_FLAG(flag,timeout) _RTOS_WAIT_FLAG(&flag,timeout)
+
+  static inline void _RTOS_ISR_SET_FLAG(RTOS_FLAG_HANDLE* flag)
   {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Give semaphore back from ISR to trigger a task waiting for it
-    xSemaphoreGiveFromISR( flag.rtos_handle, &xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR( flag->rtos_handle, &xHigherPriorityTaskWoken );
 
     // If xHigherPriorityTaskWoken was set to true we should yield
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
   }
 
+  #define RTOS_ISR_SET_FLAG(flag) _RTOS_ISR_SET_FLAG(&flag)
+
+#ifdef __cplusplus
   template<int SIZE>
   class TaskStack
   {

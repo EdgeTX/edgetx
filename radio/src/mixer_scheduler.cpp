@@ -24,7 +24,6 @@
 #if !defined(SIMU)
 
 // Global trigger flag
-RTOS_FLAG_HANDLE mixerFlag;
 
 // Mixer schedule
 struct MixerSchedule {
@@ -52,7 +51,6 @@ uint16_t getMixerSchedulerPeriod()
 
 void mixerSchedulerInit()
 {
-  RTOS_CREATE_MUTEX(mixerFlag);
   memset(mixerSchedules, 0, sizeof(mixerSchedules));
 }
 
@@ -68,15 +66,48 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   mixerSchedules[moduleIdx].period = periodUs;
 }
 
-
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
-  return RTOS_WAIT_FLAG(mixerFlag, timeoutMs);
+  uint32_t ulNotificationValue;
+  const TickType_t xMaxBlockTime = pdMS_TO_TICKS( timeoutMs );
+
+  /* Wait to be notified that the transmission is complete.  Note
+     the first parameter is pdTRUE, which has the effect of clearing
+     the task's notification value back to 0, making the notification
+     value act like a binary (rather than a counting) semaphore.  */
+  ulNotificationValue = ulTaskNotifyTakeIndexed( 1 /* task notification index */,
+                                                 pdTRUE,
+                                                 xMaxBlockTime );
+
+  if( ulNotificationValue == 1 ) {
+    /* The transmission ended as expected. */
+    return false;
+
+  } else {
+    /* The call to ulTaskNotifyTake() timed out. */
+    return true;
+  }
 }
 
 void mixerSchedulerISRTrigger()
 {
-  RTOS_ISR_SET_FLAG(mixerFlag);
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+  /* At this point xTaskToNotify should not be NULL as
+     a transmission was in progress. */
+  configASSERT( mixerTaskId.rtos_handle != NULL );
+
+  /* Notify the task that the transmission is complete. */
+  vTaskNotifyGiveIndexedFromISR( mixerTaskId.rtos_handle,
+                                 1 /* task notification index */,
+                                 &xHigherPriorityTaskWoken );
+
+  /* If xHigherPriorityTaskWoken is now set to pdTRUE then a
+     context switch should be performed to ensure the interrupt
+     returns directly to the highest priority task.  The macro used
+     for this purpose is dependent on the port in use and may be
+     called portEND_SWITCHING_ISR(). */
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 #endif

@@ -35,6 +35,8 @@
 #define configUSE_TRACE_FACILITY        0 // 1 rco: save some memory? 
 #define configUSE_16_BIT_TICKS          0
 #define configIDLE_SHOULD_YIELD         1
+// Use notifications
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES    2
 #define configUSE_MUTEXES               0
 #define configQUEUE_REGISTRY_SIZE       0
 #define configCHECK_FOR_STACK_OVERFLOW  0
