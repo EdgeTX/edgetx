@@ -32,7 +32,7 @@
 #define configMINIMAL_STACK_SIZE        ( ( unsigned short ) 130 )
 //#define configTOTAL_HEAP_SIZE           ( ( size_t ) ( 75 * 1024 ) )
 #define configMAX_TASK_NAME_LEN         ( 10 )
-#define configUSE_TRACE_FACILITY        1
+#define configUSE_TRACE_FACILITY        0 // 1 rco: save some memory? 
 #define configUSE_16_BIT_TICKS          0
 #define configIDLE_SHOULD_YIELD         1
 #define configUSE_MUTEXES               0
@@ -41,7 +41,7 @@
 #define configUSE_RECURSIVE_MUTEXES     0
 #define configUSE_MALLOC_FAILED_HOOK    0
 #define configUSE_APPLICATION_TASK_TAG  0
-#define configUSE_COUNTING_SEMAPHORES   1
+#define configUSE_COUNTING_SEMAPHORES   0 // 1 rco: save some memory?
 #define configGENERATE_RUN_TIME_STATS   0
 
 #define configSUPPORT_DYNAMIC_ALLOCATION 0
