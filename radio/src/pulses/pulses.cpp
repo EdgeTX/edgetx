@@ -511,8 +511,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
-/*      extmodulePulsesData.afhds2.init(INTERNAL_MODULE);*/
-      extmoduleSerialStart();
+/*      extmodulePulsesData.afhds2.init(INTERNAL_MODULE);
+      extmoduleSerialStart();*/
       mixerSchedulerSetPeriod(INTERNAL_MODULE, 2 * 1000 /* us */);
       break;
 #endif
