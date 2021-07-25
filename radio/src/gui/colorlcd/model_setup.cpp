@@ -1050,7 +1050,7 @@ class ModuleWindow : public FormGroup {
         new Choice(this, grid.getFieldSlot(2, 1), STR_SBUS_INVERSION_VALUES, 0, 1, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].sbus.noninverted));
 #if defined(RADIO_TX16S)
         grid.nextLine();
-        new StaticText(this, grid.getFieldSlot(1, 0), STR_WARN_BATTVOLTAGE, 0, ALARM_COLOR);
+        new StaticText(this, grid.getFieldSlot(1, 0), STR_WARN_5VOLTS);
 #endif
         grid.nextLine();
       }
