@@ -999,12 +999,7 @@ void sdInit(void)
 void sdInit(void)
 {
   TRACE("sdInit");
-
-  ioMutex = CoCreateMutex();
-  if (ioMutex >= CFG_MAX_MUTEX) {
-    //sd error
-    return;
-  }
+  RTOS_CREATE_MUTEX(ioMutex);
   sdMount();
 }
 

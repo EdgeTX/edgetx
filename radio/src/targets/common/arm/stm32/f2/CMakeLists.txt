@@ -35,7 +35,7 @@ include_directories(${RTOS_DIR}/portable/GCC/ARM_CM3)
 # System and FreeRTOS port files
 #
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-  ../../common/arm/stm32/f2/system_stm32f2xx.c
-  ../../${THIRDPARTY_DIR}/${RTOS_DIR}/portable/GCC/ARM_CM3/port.c
+  ../common/arm/stm32/f2/system_stm32f2xx.c
+  ../../${RTOS_DIR}/portable/GCC/ARM_CM3/port.c
   )
 
