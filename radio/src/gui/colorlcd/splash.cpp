@@ -23,7 +23,7 @@
 #if defined(SPLASH)
 
 const uint8_t __bmp_splash[] {
-#include "big_logo.lbm"
+#include "splash.lbm"
 };
 
 void drawSplash()
