@@ -21,7 +21,7 @@
 
 #include "opentx.h"
 
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
 struct {
   int8_t preStickIdx = -1;
   int8_t curStickIdx = -1;
@@ -108,19 +108,20 @@ void doMainScreenGraphics()
 #endif
 }
 
-#if defined(HARDWARE_NO_TRIMS)
-void doMainScreenGraphics(uint8_t views, uint32_t ptr)
+#if defined(RADIO_CALIBRATION_HALL)
+void doMainScreenGraphics(uint8_t viewMask, int16_t * sticksOverride)
 {
   int16_t * calibStickValPtr = nullptr;
   int16_t calibStickVert = 0;
 
-  if (ptr)
-    calibStickValPtr = (int16_t *)(ptr);
+  if (sticksOverride)
+    calibStickValPtr = sticksOverride;
   else
     calibStickValPtr = calibratedAnalogs;
+
   calibStickVert = calibStickValPtr[CONVERT_MODE(1)];
 
-  if (views & MAINSCREEN_GRAPHICS_STICKS) {
+  if (viewMask & MAINSCREEN_GRAPHICS_STICKS) {
     if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
       calibStickVert = -calibStickVert;
     drawStick(LBOX_CENTERX, calibStickValPtr[CONVERT_MODE(0)], calibStickVert);
@@ -131,7 +132,7 @@ void doMainScreenGraphics(uint8_t views, uint32_t ptr)
     drawStick(RBOX_CENTERX, calibStickValPtr[CONVERT_MODE(3)], calibStickVert);
   }
 
-  if (views & MAINSCREEN_GRAPHICS_POTS) {
+  if (viewMask & MAINSCREEN_GRAPHICS_POTS) {
     drawPotsBars();
   }
 }
@@ -167,7 +168,7 @@ void displayTrims(uint8_t phase)
     }
 
     if (vert[i]) {
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
       ym = 61;
       if (trimSelection.curStickIdx == i) {
         lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2);
@@ -209,7 +210,7 @@ void displayTrims(uint8_t phase)
       }
     }
     else {
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
       ym = 92;
       if (trimSelection.curStickIdx == i) {
         lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym,   TRIM_LEN * 2);
@@ -431,21 +432,16 @@ void menuMainView(event_t event)
       */
     case EVT_KEY_NEXT_PAGE:
     case EVT_KEY_PREVIOUS_PAGE:
-#if defined(HARDWARE_NO_TRIMS)
-      if (g_trimEditMode == EDIT_TRIM_DISABLED) {
-        if (view_base == VIEW_INPUTS)
-          g_eeGeneral.view ^= ALTERNATE_VIEW;
-        else
-          g_eeGeneral.view = (g_eeGeneral.view + (4 * ALTERNATE_VIEW) + ((event == EVT_KEY_PREVIOUS_PAGE) ? -ALTERNATE_VIEW : ALTERNATE_VIEW)) % (4 * ALTERNATE_VIEW);
+#if !defined(HARDWARE_TRIMS)
+      if (g_trimEditMode != EDIT_TRIM_DISABLED) {
+        break;
       }
-      break;
-#else
+#endif
       if (view_base == VIEW_INPUTS)
         g_eeGeneral.view ^= ALTERNATE_VIEW;
       else
         g_eeGeneral.view = (g_eeGeneral.view + (4 * ALTERNATE_VIEW) + ((event == EVT_KEY_PREVIOUS_PAGE) ? -ALTERNATE_VIEW : ALTERNATE_VIEW)) % (4 * ALTERNATE_VIEW);
       break;
-#endif
 
     case EVT_KEY_CONTEXT_MENU:
       killEvents(event);
@@ -478,7 +474,7 @@ void menuMainView(event_t event)
       killEvents(event);
       break;
 
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
       case EVT_KEY_FIRST(KEY_ENTER):
         if (!trimSelection.preEnterValid) {
           trimSelection.preEnterValid = true;
@@ -538,14 +534,13 @@ void menuMainView(event_t event)
       killEvents(event);
       break;
 
-
     case EVT_KEY_FIRST(KEY_EXIT):
 #if defined(GVARS)
       if (gvarDisplayTimer > 0) {
         gvarDisplayTimer = 0;
       }
 #endif
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
       if (g_trimEditMode != EDIT_TRIM_DISABLED) {
         g_trimEditMode = EDIT_TRIM_DISABLED;
         AUDIO_MAIN_MENU();
@@ -555,7 +550,7 @@ void menuMainView(event_t event)
 #endif
       break;
   }
-#if defined(HARDWARE_NO_TRIMS)
+#if !defined(HARDWARE_TRIMS)
   if (trimSelection.preEnterValid && (get_tmr10ms() - trimSelection.preEnterTime) > 50) {
     trimSelection.preEnterValid = false;
   }
@@ -578,7 +573,7 @@ void menuMainView(event_t event)
 
         if (view_base == VIEW_OUTPUTS_VALUES) {
           x0 = (i % 4 * 9 + 3) * FW / 2;
-#if LCD_H >= 96
+#if LCD_H > 64
           y0 = i / 4 * FH * 2 + 50;
 #else
           y0 = i / 4 * FH + 40;
@@ -594,7 +589,7 @@ void menuMainView(event_t event)
         else {
           constexpr coord_t WBAR2 = (50 / 2);
           x0 = i < 4 ? LCD_W / 4 + 2 : LCD_W * 3 / 4 - 2;
-#if LCD_H >= 96
+#if LCD_H > 64
           y0 = 45 + (i % 4) * 10;
 #else
           y0 = 38 + (i % 4) * 5;
@@ -663,7 +658,11 @@ void menuMainView(event_t event)
         uint8_t switches = min(NUM_SWITCHES- NUM_FUNCTIONS_SWITCHES, 6);
         for (int i = 0; i < switches; ++i) {
           if (SWITCH_EXISTS(i)) {
+#if LCD_H > 64
+            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 20;
+#else
             uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;
+#endif
             if (i >= switches / 2) {
               x = 16 * FW + 1;
               y -= (switches / 2) * FH;

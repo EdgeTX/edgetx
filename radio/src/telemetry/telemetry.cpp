@@ -479,6 +479,10 @@ void logTelemetryWriteByte(uint8_t data)
 }
 #endif
 
+#if defined(RADIO_FAMILY_TBS)
+uint8_t outputTelemetryBufferTrigger = 0;
+#endif
+
 OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 
 #if defined(LUA)

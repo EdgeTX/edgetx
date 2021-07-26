@@ -1,7 +1,14 @@
 add_definitions(-DGRAPHICS)
 
+if(LCD_DEPTH EQUAL 4)
+  set(LCD_SRC lcd_4bits.cpp)
+else()
+  set(LCD_SRC lcd_1bit.cpp)
+endif()
+
 set(GUI_SRC
   ${GUI_SRC}
+  ../common/stdlcd/${LCD_SRC}
   ../common/stdlcd/menus.cpp
   ../common/stdlcd/draw_functions.cpp
   ../common/stdlcd/fonts.cpp

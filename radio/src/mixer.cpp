@@ -346,8 +346,6 @@ getvalue_t getValue(mixsrc_t i)
     return calc1000toRESX((int16_t)8 * getTrimValue(mixerCurrentFlightMode, i-MIXSRC_FIRST_TRIM));
   }
 
-  // TODO : find a better define
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
 #if defined(FUNCTION_SWITCHES)
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_REGULAR_SWITCH) {
     mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
@@ -372,16 +370,6 @@ getvalue_t getValue(mixsrc_t i)
     }
   }
 #endif
-#else
-  else if (i == MIXSRC_3POS) {
-    return (getSwitch(SW_ID0+1) ? -1024 : (getSwitch(SW_ID1+1) ? 0 : 1024));
-  }
-  // don't use switchState directly to give getSwitch possibility to hack values if needed for switch warning
-  else if (i < MIXSRC_SW1) {
-    return getSwitch(SWSRC_THR+i-MIXSRC_THR) ? 1024 : -1024;
-  }
-#endif
-
   else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
   }

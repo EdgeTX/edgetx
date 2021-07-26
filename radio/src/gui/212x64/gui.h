@@ -42,6 +42,7 @@
 #define LOAD_MODEL_BITMAP()            loadModelBitmap(g_model.header.bitmap, modelBitmap)
 
 #define CURVE_SIDE_WIDTH               (LCD_H/2)
+#define CURVE_SIDE_HEIGHT              LCD_H
 #define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-2)
 #define CURVE_CENTER_Y                 (LCD_H/2)
 

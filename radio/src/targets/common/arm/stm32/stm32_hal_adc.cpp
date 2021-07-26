@@ -83,10 +83,26 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 }
 
 stm32_hal_adc_channel ADC_MAIN_channels[] = {
+#if defined(ADC_CHANNEL_STICK_LH)
     {ADC_CHANNEL_STICK_LH, ADC_SAMPTIME},
+#else
+    {0, 0},
+#endif
+#if defined(ADC_CHANNEL_STICK_LV)
     {ADC_CHANNEL_STICK_LV, ADC_SAMPTIME},
+#else
+    {0, 0},
+#endif
+#if defined(ADC_CHANNEL_STICK_RV)
     {ADC_CHANNEL_STICK_RV, ADC_SAMPTIME},
+#else
+    {0, 0},
+#endif
+#if defined(ADC_CHANNEL_STICK_RH)
     {ADC_CHANNEL_STICK_RH, ADC_SAMPTIME},
+#else
+    {0, 0},
+#endif
 #if defined(PCBX10)
     { ADC_CHANNEL_POT1,    ADC_SAMPTIME },
     { ADC_CHANNEL_POT2,    ADC_SAMPTIME },
@@ -103,6 +119,8 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     // fake channels to fill unsused POT1/POT2
     {0, 0},
     {0, 0},
+#elif defined(RADIO_TANGO)
+    // no channels required here, only the last 2
 #elif defined(PCBX7) || defined(PCBXLITE)
     {ADC_CHANNEL_POT1, ADC_SAMPTIME},
     {ADC_CHANNEL_POT2, ADC_SAMPTIME},
@@ -460,3 +478,11 @@ const etx_hal_adc_driver_t stm32_hal_adc_driver = {
   stm32_hal_adc_start_read,
   stm32_hal_adc_wait_completion
 };
+
+// #elif defined(RADIO_TANGO)
+//   ADC_MAIN->SQR2 = 0;
+//   ADC_MAIN->SQR3 = (ADC_CHANNEL_BATT<<0) + (ADC_Channel_Vbat<<5);
+// #elif defined(RADIO_MAMBO)
+//   ADC_MAIN->SQR2 = (ADC_CHANNEL_SWITCH_D << 0) + (ADC_CHANNEL_BATT << 5) + (ADC_Channel_Vbat << 10);
+//   ADC_MAIN->SQR3 = (ADC_CHANNEL_POT1 << 0) + (ADC_CHANNEL_POT2 << 5) + (ADC_CHANNEL_TRIM << 10) + (ADC_CHANNEL_SWITCH_A << 15)
+//                  + (ADC_CHANNEL_SWITCH_B << 20) + (ADC_CHANNEL_SWITCH_C << 25);

@@ -59,6 +59,17 @@ void setDefaultMixes()
     mix->weight = 100;
     mix->srcRaw = i+1;
   }
+#if defined(RADIO_FAMILY_TBS)
+  for (int i = 0; i < NUM_SWITCHES; i++) {
+    MixData * mix = mixAddress(i+4);
+    mix->destCh = i+4;
+    mix->weight = 100;
+    if (i >= NUM_SWITCHES)
+      mix->srcRaw = MIXSRC_FIRST_POT+i-NUM_SWITCHES;  // for the POTs
+    else
+      mix->srcRaw = MIXSRC_SA+i;                      // for the SWITCHes
+  }
+#endif
   storageDirty(EE_MODEL);
 }
 
@@ -129,6 +140,10 @@ void applyDefaultTemplate()
   for (int i = 0; i < NUM_SWITCHES; i++) {
     g_model.switchWarningState |= (1 << (3*i));
   }
+#endif
+
+#if NUM_POTS == 0
+  g_model.potsWarnMode = POTS_WARN_OFF;
 #endif
 
   // TODO: what about switch warnings in non-color LCD radios?

@@ -595,6 +595,17 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TELEMETRY_BACK()   audioEvent(AU_TELEMETRY_BACK)
 #define AUDIO_TRAINER_LOST()     audioEvent(AU_TRAINER_LOST)
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
+#if !defined(HARDWARE_TRIMS)
+#define AUDIO_AILERON_TRIM()     AUDIO_BUZZER(audioEvent(AU_AILERON_TRIM), beep(2))
+#define AUDIO_ELEVATOR_TRIM()    AUDIO_BUZZER(audioEvent(AU_ELEVATOR_TRIM), beep(2))
+#define AUDIO_THROTTLE_TRIM()    AUDIO_BUZZER(audioEvent(AU_THROTTLE_TRIM), beep(2))
+#define AUDIO_RUDDER_TRIM()      AUDIO_BUZZER(audioEvent(AU_RUDDER_TRIME), beep(2))
+#define AUDIO_MAIN_MENU()        AUDIO_BUZZER(audioEvent(AU_MAIN_MENU), beep(2))
+#endif
+#if defined(RADIO_FAMILY_TBS)
+#define AUDIO_CATEGORY_ENABLE()  AUDIO_BUZZER(audioEvent(AU_CATEGORY_ENABLED), beep(2))
+#define AUDIO_CATEGORY_DISABLE() AUDIO_BUZZER(audioEvent(AU_CATEGORY_DISABLED), beep(2))
+#endif
 
 enum AutomaticPromptsCategories {
   SYSTEM_AUDIO_CATEGORY,

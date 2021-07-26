@@ -33,6 +33,55 @@
 #include "../../../timers.h"
 #include "../../../pulses/multi.h"
 
+bool w_board(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n, yaml_writer_func wf, void* opaque);
+bool w_vbat_min(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
+#if defined(COLORLCD)
+uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs);
+bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+#else
+bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+#endif
+
+uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs);
+uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs);
+uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs);
+uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs);
+uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs);
+
+extern const struct YamlIdStr enum_SwitchConfig[];
+
+bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+
+extern const struct YamlIdStr enum_BeeperMode[];
+
+bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_trainerMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_tele_sensor(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+bool w_flightModes(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
+extern const char* _func_reset_param_lookup[];
+extern const char* _func_failsafe_lookup[];
+
+extern const char* _func_sound_lookup[];
+extern const uint8_t _func_sound_lookup_size;
+
+extern const char* _adjust_gvar_mode_lookup[];
+extern const uint8_t _adjust_gvar_mode_lookup_size;
+
+bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
 namespace yaml_conv_220 {
 
 #include "yaml_datastructs_funcs.cpp"
@@ -50,8 +99,6 @@ namespace yaml_conv_220 {
   #include "yaml_datastructs_tlite.cpp"
  #elif defined(RADIO_TX12)
   #include "yaml_datastructs_tx12.cpp"
- #elif defined(RADIO_ZORRO)
-  #include "yaml_datastructs_zorro.cpp"
  #elif defined(RADIO_T8)
   #include "yaml_datastructs_t8.cpp"
  #else

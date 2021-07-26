@@ -42,7 +42,11 @@ extern tmr10ms_t storageDirtyTime10ms;
 #include "storage/rtc_backup.h"
 extern uint8_t   rambackupDirtyMsk;
 extern tmr10ms_t rambackupDirtyTime10ms;
+#if defined(RADIO_FAMILY_TBS)
+#define TIME_TO_BACKUP_RAM()            ((rambackupDirtyMsk && (tmr10ms_t)(get_tmr10ms() - rambackupDirtyTime10ms) >= (tmr10ms_t)100) && (getSelectedUsbMode() != USB_MASS_STORAGE_MODE))
+#else
 #define TIME_TO_BACKUP_RAM()            (rambackupDirtyMsk && (tmr10ms_t)(get_tmr10ms() - rambackupDirtyTime10ms) >= (tmr10ms_t)100)
+#endif
 #endif
 
 //

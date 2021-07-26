@@ -878,6 +878,7 @@
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT          "Flash pwr mngt unit"
 #define TR_CURRENT_VERSION             TR("Current vers. ", "Current version: ")
+#define TR_HW_REV                      "HW Rev"
 #define TR_FLASH_INTERNAL_MODULE "Flash interne XJT-Module"
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
 #define TR_FLASH_EXTERNAL_MODULE       "Flash external module"
@@ -1275,9 +1276,14 @@
 #define STR_RX_SNR            "RSNR"
 #define STR_RX_NOISE          "RNse"
 #define STR_RF_MODE           "RFMD"
-#define STR_TX_POWER          "TPWR"
+#define STR_TX_POWER          "TPW2"
 #define STR_TX_RSSI           "TRSS"
 #define STR_TX_QUALITY        "TQly"
+#define STR_RX_RSSI_PERC      "RRSP"
+#define STR_RX_RF_POWER       "RPWR"
+#define STR_TX_RSSI_PERC      "TRSP"
+#define STR_TX_RF_POWER       "TPWR"
+#define STR_TX_FPS            "TFPS"
 #define STR_TX_SNR            "TSNR"
 #define STR_TX_NOISE          "TNse"
 #define STR_PITCH             "Ptch"

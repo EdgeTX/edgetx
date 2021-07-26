@@ -58,6 +58,14 @@
   #include "lua/lua_exports_zorro.inc"
 #elif defined(RADIO_T8)
   #include "lua/lua_exports_t8.inc"
+#elif defined(RADIO_TANGO)
+  #include "lua/lua_exports_tango.inc"
+  #include "io/crsf/crossfire.h"
+  #include "io/crsf/crsf.h"
+#elif defined(RADIO_MAMBO)
+  #include "lua/lua_exports_mambo.inc"
+  #include "io/crsf/crossfire.h"
+  #include "io/crsf/crsf.h"
 #elif defined(PCBX9LITES)
   #include "lua/lua_exports_x9lites.inc"
 #elif defined(PCBX9LITE)
@@ -803,11 +811,34 @@ static int luaCrossfireTelemetryPush(lua_State * L)
     }
     outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length));
     outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
+
+#if defined(RADIO_FAMILY_TBS)
+    // TODO: this belongs into the module interface, not here!!!
+    if (internal) {
+      libCrsfRouting(DEVICE_INTERNAL, outputTelemetryBuffer.data);
+      outputTelemetryBuffer.reset();
+      outputTelemetryBufferTrigger = 0x00;
+    }
+#endif
     lua_pushboolean(L, true);
   }
   else {
     lua_pushboolean(L, false);
   }
+  return 1;
+}
+#endif
+
+#if defined(RADIO_FAMILY_TBS)
+static uint8_t devId = 0;
+int luaSetDevId(lua_State* L){
+  devId = lua_tointeger(L, -1);
+  lua_pop(L, 1);
+  return 1;
+}
+
+int luaGetDevId(lua_State* L){
+  lua_pushnumber(L, devId);
   return 1;
 }
 #endif
@@ -2293,6 +2324,10 @@ const luaL_Reg opentxLib[] = {
   { "crossfireTelemetryPop", luaCrossfireTelemetryPop },
   { "crossfireTelemetryPush", luaCrossfireTelemetryPush },
 #endif
+#if defined(RADIO_FAMILY_TBS)
+  { "SetDevId", luaSetDevId },
+  { "GetDevId", luaGetDevId },
+#endif
 #if defined(MULTIMODULE)
   { "multiBuffer", luaMultiBuffer },
 #endif
@@ -2357,12 +2392,14 @@ const luaR_value_entry opentxConstants[] = {
   { "MIXSRC_SB", MIXSRC_SB },
   { "MIXSRC_SC", MIXSRC_SC },
   { "MIXSRC_SD", MIXSRC_SD },
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
+#if defined(HARDWARE_SWITCH_E)
   { "MIXSRC_SE", MIXSRC_SE },
-  { "MIXSRC_SG", MIXSRC_SG },
 #endif
 #if defined(HARDWARE_SWITCH_F)
   { "MIXSRC_SF", MIXSRC_SF },
+#endif
+#if defined(HARDWARE_SWITCH_G)
+  { "MIXSRC_SG", MIXSRC_SG },
 #endif
 #if defined(HARDWARE_SWITCH_H)
   { "MIXSRC_SH", MIXSRC_SH },

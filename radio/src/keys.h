@@ -204,4 +204,9 @@ bool keyDown();
 extern uint8_t rotencSpeed;
 #endif
 
+#if !defined(HARDWARE_TRIMS)
+extern uint8_t g_trimEditMode;
+extern uint8_t g_trimState;
+#endif
+
 #endif // _KEYS_H_

@@ -47,15 +47,54 @@ void drawMessageBoxBackground(coord_t top, coord_t height)
   lcdDrawRect(MESSAGEBOX_X, top, MESSAGEBOX_W, height, SOLID, FORCE);
 }
 
+#if LCD_H > 64
+  #define MSG_BOX_HEIGHT    60
+  #define WARNING_LINE_NUM  4
+#else
+  #define MSG_BOX_HEIGHT    40
+  #define WARNING_LINE_NUM  2
+#endif
 void drawMessageBox(const char * title)
 {
+  char title_buf[WARNING_LINE_LEN + 1];
+  uint8_t title_len = 0;
+  uint8_t title_index = 0;
+  uint8_t line_index = 0;
+  uint8_t space_cnt = 0;
+
   // background + border
-  drawMessageBoxBackground(MESSAGEBOX_Y, 48);
+  drawMessageBoxBackground(MESSAGEBOX_Y, MSG_BOX_HEIGHT);
 
-  // title
-  lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y, title, WARNING_LINE_LEN);
+  title_len = strlen(title);
 
-  // could be a place for a warningInfoText
+  if (title_len > WARNING_LINE_NUM * WARNING_LINE_LEN) {
+    title_len = WARNING_LINE_NUM * WARNING_LINE_LEN;
+  }
+
+  while (title_len >= WARNING_LINE_LEN) {
+    space_cnt = 0;
+    memset(title_buf, 0, WARNING_LINE_LEN + 1);
+    memcpy(title_buf, title + title_index, WARNING_LINE_LEN);
+    title_index += WARNING_LINE_LEN;
+    title_len -= WARNING_LINE_LEN;
+
+    while (*(title_buf + space_cnt) == 0x20) {
+      space_cnt++;
+    }
+    lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + line_index + line_index * FH, title_buf + space_cnt, WARNING_LINE_LEN);
+    line_index++;
+  }
+
+  if (title_len) {
+    space_cnt = 0;
+    memset(title_buf, 0, WARNING_LINE_LEN + 1);
+    memcpy(title_buf, title + title_index, title_len);
+
+    while (*(title_buf + space_cnt) == 0x20) {
+      space_cnt++;
+    }
+    lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y + line_index + line_index * FH, title_buf + space_cnt, WARNING_LINE_LEN);
+  }
 }
 
 void showMessageBox(const char * title)
@@ -161,7 +200,6 @@ const char * runPopupMenu(event_t event)
       popupMenuTitle = nullptr;
       break;
   }
-
   return result;
 }
 
@@ -179,6 +217,19 @@ void runPopupWarning(event_t event)
     case WARNING_TYPE_WAIT:
       return;
 
+#if defined(RADIO_TANGO)
+    case WARNING_TYPE_INFO:
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+5*FH, STR_OK);
+      break;
+
+    case WARNING_TYPE_ASTERISK:
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+5*FH, STR_EXIT);
+      break;
+
+    default:
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+5*FH, STR_POPUPS_ENTER_EXIT);
+      break;
+#else
     case WARNING_TYPE_INFO:
       lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, STR_OK);
       break;
@@ -190,6 +241,7 @@ void runPopupWarning(event_t event)
     default:
       lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, STR_POPUPS_ENTER_EXIT);
       break;
+#endif
   }
 
 

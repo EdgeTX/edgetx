@@ -868,6 +868,7 @@
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash modulu BT", "Flash modulu Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Flash řízení spotř.", "Flash jednotky řízení spotřeby")
 #define TR_CURRENT_VERSION             TR("Současná ver. ", "Současná verze: ")
+#define TR_HW_REV                      "HW Rev"
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash vnitřního modulu")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externího zařízení")
@@ -1243,6 +1244,7 @@
 #define STR_CELLS                     "Cels"
 #define STR_GPSALT                    "GAlt"
 #define STR_GPSDATETIME               "Date"
+#define STR_GPS                       "GPS"
 #define STR_BATT1_VOLTAGE             "RB1V"
 #define STR_BATT2_VOLTAGE             "RB2V"
 #define STR_BATT1_CURRENT             "RB1A"
@@ -1258,15 +1260,22 @@
 #define STR_RX_QUALITY                "RQly"
 #define STR_RX_SNR                    "RSNR"
 #define STR_RX_NOISE                  "RNse"
+#define STR_ANTENNA                   "ANT"
 #define STR_RF_MODE                   "RFMD"
-#define STR_TX_POWER                  "TPWR"
+#define STR_TX_POWER                  "TPW2"
 #define STR_TX_RSSI                   "TRSS"
 #define STR_TX_QUALITY                "TQly"
+#define STR_RX_RSSI_PERC              "RRSP"
+#define STR_RX_RF_POWER               "RPWR"
+#define STR_TX_RSSI_PERC              "TRSP"
+#define STR_TX_RF_POWER               "TPWR"
+#define STR_TX_FPS                    "TFPS"
 #define STR_TX_SNR                    "TSNR"
 #define STR_TX_NOISE                  "TNse"
 #define STR_PITCH                     "Ptch"
 #define STR_ROLL                      "Roll"
 #define STR_YAW                       "Yaw"
+#define STR_FLIGHT_MODE               "FM"
 #define STR_THROTTLE                  "Thr"
 #define STR_QOS_A                     "FdeA"
 #define STR_QOS_B                     "FdeB"
@@ -1274,6 +1283,7 @@
 #define STR_QOS_R                     "FdeR"
 #define STR_QOS_F                     "FLss"
 #define STR_QOS_H                     "Hold"
+#define STR_BIND                      "BIND"
 #define STR_LAP_NUMBER                "Lap "
 #define STR_GATE_NUMBER               "Gate"
 #define STR_LAP_TIME                  "LapT"

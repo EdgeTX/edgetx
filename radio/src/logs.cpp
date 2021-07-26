@@ -32,15 +32,10 @@ uint8_t logDelay;
 
 void writeHeader();
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  int getSwitchState(uint8_t swtch) {
-    int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
-    return (value == 0) ? 0 : (value < 0) ? -1 : +1;
-  }
-#else
-  #define GET_2POS_STATE(sw) (switchState(SW_ ## sw) ? -1 : 1)
-  #define GET_3POS_STATE(sw) (switchState(SW_ ## sw ## 0) ? -1 : (switchState(SW_ ## sw ## 2) ? 1 : 0))
-#endif
+int getSwitchState(uint8_t swtch) {
+  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
+  return (value == 0) ? 0 : (value < 0) ? -1 : +1;
+}
 
 void logsInit()
 {
@@ -278,23 +273,12 @@ void logsWrite()
         f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
       }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
       for (uint8_t i=0; i<NUM_SWITCHES; i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
       }
       f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
-#else
-      f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
-          GET_2POS_STATE(THR),
-          GET_2POS_STATE(RUD),
-          GET_2POS_STATE(ELE),
-          GET_3POS_STATE(ID),
-          GET_2POS_STATE(AIL),
-          GET_2POS_STATE(GEA),
-          GET_2POS_STATE(TRN));
-#endif
 
       div_t qr = div(g_vbat100mV, 10);
       int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));

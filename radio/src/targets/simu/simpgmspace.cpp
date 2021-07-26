@@ -47,6 +47,10 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
+#if !defined(HARDWARE_TRIMS)
+uint8_t  g_trimState = 0;
+#endif
+
 #if defined(STM32)
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
 TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
@@ -588,6 +592,9 @@ uint32_t readTrims()
 #if defined(PCBXLITE)
   if (IS_SHIFT_PRESSED())
     result = ((result & 0x03) << 6) | ((result & 0x0c) << 2);
+#elif !defined(HARDWARE_TRIMS)
+  result = g_trimState;
+  g_trimState = 0;
 #endif
 
   return result;

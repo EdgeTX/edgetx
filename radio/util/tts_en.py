@@ -74,6 +74,13 @@ for s, f in [("trim center", "midtrim"),
              ("servo overload", "servoko"),
              ("power overload", "rxko"),
              ("receiver still connected", "modelpwr"),
+             ("aileron trim", "aileron_trim"),
+             ("elevator trim", "elevator_trim"),
+             ("throttle trim", "throttle_trim"),
+             ("rudder trim", "rudder_trim"),
+             ("main page", "main_page"),
+             ("category enabled", "category_enabled"),
+             ("category disabled", "category_disabled"),
              ]:
     systemSounds.append((s, filename(f)))
 for i, (s, f) in enumerate([("armed", "armed"),

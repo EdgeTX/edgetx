@@ -426,7 +426,7 @@ int getRawSwitchIdx(char sw)
   if (sw < 'A' || sw > 'Z')
     return -1;
 
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_FAMILY_TBS)
   if (sw >= 'H')
     return sw - 'H' + 5;
 #if defined(RADIO_T12)

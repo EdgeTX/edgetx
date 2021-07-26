@@ -172,6 +172,37 @@ void dumpTraceBuffer()
     " notd",  // INT_OTG_FS_RX_NOT_DEVICE,
 #endif // #if defined(DEBUG_USB_INTERRUPTS)
   };
+#elif defined(RADIO_FAMILY_TBS)
+  const char * const interruptNames[INT_LAST] = {
+    "Tick ",   // INT_TICK,
+    "1ms  ",   // INT_1MS,
+    "Audio",   // INT_AUDIO,
+    "Lcd  ",   // INT_LCD,
+    "Ser2 ",   // INT_SER2,
+    "Sdio ",   // INT_SDIO,
+    "SdDma",   // INT_SDIO_DMA,
+    "Exti ",   // INT_EXTI15_10,
+    "Tim13",   // INT_TIM13,
+    "Usb  ",   // INT_OTG_FS,
+    "WifiDma", // INT_WIFI_DMA,
+#if defined(DEBUG_USB_INTERRUPTS)
+    " spur",  // INT_OTG_FS_SPURIOUS,
+    "  out",  // INT_OTG_FS_OUT_EP,
+    "   in",  // INT_OTG_FS_IN_EP,
+    " miss",  // INT_OTG_FS_MODEMISMATCH,
+    " wake",  // INT_OTG_FS_WAKEUP,
+    " susp",  // INT_OTG_FS_SUSPEND,
+    "  sof",  // INT_OTG_FS_SOF,
+    " rxst",  // INT_OTG_FS_RX_STAT,
+    "  rst",  // INT_OTG_FS_RESET,
+    " enum",  // INT_OTG_FS_ENUM,
+    " inci",  // INT_OTG_FS_INCOMPLETE_IN,
+    " inco",  // INT_OTG_FS_INCOMPLETE_OUT,
+    " sess",  // INT_OTG_FS_SESSION,
+    "  otg",  // INT_OTG_FS_OTG,
+    " notd",  // INT_OTG_FS_RX_NOT_DEVICE,
+#endif // #if defined(DEBUG_USB_INTERRUPTS)
+  };
 #endif
 
 struct InterruptCounters interruptCounters;

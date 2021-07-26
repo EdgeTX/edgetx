@@ -57,8 +57,7 @@ CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
 #define LS_LAST_VALUE(fm, idx) lswFm[fm].lsw[idx].lastValue
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(RADIO_FAMILY_TBS)
 tmr10ms_t switchesMidposStart[16];
 #else
 tmr10ms_t switchesMidposStart[6]; // TODO constant
@@ -147,7 +146,7 @@ void evalFunctionSwitches()
       fsLedOff(i);
   }
 }
-#endif
+#endif // defined(FUNCTION_SWITCHES)
 
 div_t switchInfo(int switchPosition)
 {
@@ -208,6 +207,21 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
+#if defined(RADIO_TANGO)
+  CHECK_2POS(SW_SA);
+  CHECK_3POS(1, SW_SB);
+  CHECK_3POS(2, SW_SC);
+  CHECK_2POS(SW_SD);
+  CHECK_2POS(SW_SE);
+  CHECK_2POS(SW_SF);
+#elif defined(RADIO_MAMBO)
+  CHECK_3POS(0, SW_SA);
+  CHECK_3POS(1, SW_SB);
+  CHECK_3POS(2, SW_SC);
+  CHECK_3POS(3, SW_SD);
+  CHECK_2POS(SW_SE);
+  CHECK_2POS(SW_SF);
+#else
 #if defined(RADIO_TX12) || defined(RADIO_ZORRO)
   CHECK_2POS(SW_SA);
   CHECK_3POS(0, SW_SB);
@@ -308,9 +322,10 @@ void getSwitchesPosition(bool startup)
   CHECK_3POS(14, SW_SQ);
   CHECK_3POS(15, SW_SR);
 #endif
+#endif
 
   switchesPos = newPos;
-
+#if NUM_XPOTS > 0
   for (int i=0; i<NUM_XPOTS; i++) {
     if (IS_POT_MULTIPOS(POT1+i)) {
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT1+i];
@@ -335,6 +350,7 @@ void getSwitchesPosition(bool startup)
       }
     }
   }
+#endif
 }
 
 getvalue_t getValueForLogicalSwitch(mixsrc_t i)
@@ -352,9 +368,6 @@ getvalue_t getValueForLogicalSwitch(mixsrc_t i)
   }
   return result;
 }
-#else
-  #define getValueForLogicalSwitch(i) getValue(i)
-#endif
 
 PACK(typedef struct {
   uint8_t state;
@@ -669,6 +682,7 @@ swsrc_t getMovedSwitch()
   }
 #endif
 
+#if NUM_XPOTS > 0
   // Multipos
   for (int i = 0; i < NUM_XPOTS; i++) {
     if (IS_POT_MULTIPOS(POT1 + i)) {
@@ -682,6 +696,7 @@ swsrc_t getMovedSwitch()
       }
     }
   }
+#endif
 
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 10)
     result = 0;

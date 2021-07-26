@@ -31,6 +31,12 @@
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              11
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
+#elif defined(RADIO_TANGO)
+  #define FIRST_ANALOG_ADC             TX_VOLTAGE ///
+  #define NUM_ANALOGS_ADC              (NUM_ANALOGS - FIRST_ANALOG_ADC)
+#elif defined(RADIO_MAMBO)
+  #define FIRST_ANALOG_ADC             POT1 ///
+  #define NUM_ANALOGS_ADC              (NUM_ANALOGS - FIRST_ANALOG_ADC)
 #else
   #define FIRST_ANALOG_ADC_FS          4
   #define NUM_ANALOGS_ADC_FS           10

@@ -90,10 +90,10 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_SWITCHES_WARNING1,
-#if defined(PCBTARANIS)
+#if NUM_SWITCHES > 5
   ITEM_MODEL_SETUP_SWITCHES_WARNING2,
-  ITEM_MODEL_SETUP_POTS_WARNING,
 #endif
+  ITEM_MODEL_SETUP_POTS_WARNING,
   ITEM_MODEL_SETUP_BEEP_CENTER,
   ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS,
 
@@ -218,7 +218,7 @@ enum MenuModelSetupItems {
 #endif
 
 #define MAX_SWITCH_PER_LINE             (getSwitchWarningsCount() > 5 ? 4 : 5)
-#if defined(PCBXLITE)
+#if NUM_SWITCHES > 5
   #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount()), uint8_t(getSwitchWarningsCount() > 4 ? TITLE_ROW : HIDDEN_ROW) // X-Lite needs an additional column for full line selection (<])
 #else
   #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW)
@@ -228,6 +228,10 @@ inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
   if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx))
     return 1;
+#if defined(RADIO_TANGO)
+  else if (IS_PCBREV_01())
+    return HIDDEN_ROW;
+#endif
   else
     return 0;
 }
@@ -243,7 +247,12 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
+#if NUM_POTS > 0
+  #define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
+#else
+  #define POT_WARN_ROWS                  HIDDEN_ROW
+#endif
+
 #define TIMER_ROWS(x)                                                  \
   1, 0, 1, 0, 0,                                                       \
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
@@ -729,6 +738,7 @@ void menuModelSetup(event_t event)
         g_model.disableThrottleWarning = !editCheckBox(!g_model.disableThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLE_WARNING, attr, event);
         break;
 
+#if NUM_SWITCHES > 5
       case ITEM_MODEL_SETUP_SWITCHES_WARNING2:
         if (i==0) {
           if (CURSOR_MOVED_LEFT(event))
@@ -737,6 +747,7 @@ void menuModelSetup(event_t event)
             menuVerticalOffset++;
         }
         break;
+#endif
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
@@ -830,6 +841,7 @@ void menuModelSetup(event_t event)
         break;
       }
 
+#if NUM_POTS > 0
       case ITEM_MODEL_SETUP_POTS_WARNING:
         lcdDrawTextAlignedLeft(y, STR_POTWARNING);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, "\004""OFF\0""Man\0""Auto", g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
@@ -876,6 +888,7 @@ void menuModelSetup(event_t event)
           }
         }
         break;
+#endif
 
       case ITEM_MODEL_SETUP_BEEP_CENTER:
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
@@ -1409,8 +1422,18 @@ void menuModelSetup(event_t event)
               if (s_editMode > 0) {
                 CHECK_INCDEC_MODELVAR_ZERO(event, g_model.header.modelId[moduleIdx], getMaxRxNum(moduleIdx));
                 if (checkIncDec_Ret) {
-                  if (isModuleCrossfire(moduleIdx))
+                  if (isModuleCrossfire(moduleIdx)) {
+
+// TODO:
+// #if defined(RADIO_TANGO) || defined(RADIO_MAMBO)
+//                     if (moduleIdx == INTERNAL_MODULE)
+//                       bkregSetStatusFlag(CRSF_SET_MODEL_ID_PENDING);
+//                     else
+//                       moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+// #else
                     moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+// #endif
+                  }
                   modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {

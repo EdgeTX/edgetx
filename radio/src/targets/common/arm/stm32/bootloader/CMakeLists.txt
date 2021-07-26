@@ -51,9 +51,16 @@ else()
     )
 endif()
 
+if (GUI_DIR STREQUAL colorlcd)
+  set(LCD_SRC ../../../../../gui/${GUI_DIR}/lcd.cpp)
+elseif(LCD_DEPTH EQUAL 4)
+  set(LCD_SRC ../../../../../gui/common/stdlcd/lcd_4bits.cpp)
+else()
+  set(LCD_SRC ../../../../../gui/common/stdlcd/lcd_1bit.cpp)
+endif()
+
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
-  ../../../../../gui/${GUI_DIR}/lcd.cpp
   ../../../../../keys.cpp
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
@@ -86,6 +93,7 @@ set(BOOTLOADER_SRC
   init.c
   boot.cpp
   bin_files.cpp
+  ${LCD_SRC}
   )
 
 if(ROTARY_ENCODER)

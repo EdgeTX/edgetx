@@ -251,6 +251,12 @@ void displayMixLine(coord_t y, MixData * md, bool active)
 
 void menuModelMixAll(event_t event)
 {
+#if defined(KEY_MENU)
+  if (event == EVT_KEY_LONG(KEY_MENU)) {
+    pushMenu(menuChannelsView);
+    killEvents(event);
+  }
+#endif
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
   if (s_editMode > 0) {

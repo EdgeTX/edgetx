@@ -44,7 +44,9 @@ static const struct YamlNode {{ struct.name }}[] = {
     {% elif elmt.type == 'union' %}
   YAML_UNION("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}_elmts, {{ elmt.func}}),
     {% elif elmt.type == 'array' %}
+      {% if elmt.length > 0 %}
   YAML_ARRAY("{{ max_len(elmt.name) }}", {{elmt.bits // elmt.length}}, {{elmt.length}}, {{elmt.var_type}}, {{ elmt.func }}),
+      {% endif %}
     {% elif elmt.raw %}
   {{ elmt.raw }},
     {% else %}

@@ -46,7 +46,7 @@ static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
   lua_pushtablenstring(L, "name", g_model.header.name);
-#if LCD_DEPTH > 1
+#if LCD_DEPTH > 1 && !defined(MODEL_HAVE_NO_BITMAP)
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
 
@@ -87,7 +87,7 @@ static int luaModelSetInfo(lua_State *L)
       memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name, sizeof(g_model.header.name));
 #endif
     }
-#if LCD_DEPTH > 1
+#if LCD_DEPTH > 1 && !defined(MODEL_HAVE_NO_BITMAP)
     else if (!strcmp(key, "bitmap")) {
       const char * name = luaL_checkstring(L, -1);
       strncpy(g_model.header.bitmap, name, sizeof(g_model.header.bitmap));

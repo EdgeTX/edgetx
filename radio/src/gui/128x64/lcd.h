@@ -42,7 +42,13 @@ typedef int coord_t;
 #define LCD_LINES                      (LCD_H/FH)
 #define LCD_COLS                       (LCD_W/FW)
 
+#if LCD_DEPTH == 4
+#define COLOUR_MASK(x)                 ((x) & 0x0F0000)
+#define FILL_WHITE                     0x10
+#define BITMAP_BUFFER_SIZE(w, h)       (2 + (w) * (((h)+7)/8)*4)
+#else
 #define BITMAP_BUFFER_SIZE(w, h)       (2 + (w) * (((h)+7)/8))
+#endif
 
 /* lcdDrawText flags */
 #define BLINK                          0x01
@@ -62,8 +68,8 @@ typedef int coord_t;
 #define PREC2                          0x30
 #define MODE(flags)                    ((((int8_t)(flags) & 0x30) - 0x10) >> 4)
 
-#define IS_LEFT_ALIGNED(att)           !((att) & RIGHT)
-#define IS_RIGHT_ALIGNED(att)          (!IS_LEFT_ALIGNED(att))
+#define IS_RIGHT_ALIGNED(att)          ((att) & RIGHT)
+#define IS_LEFT_ALIGNED(att)           (!((att) & (RIGHT | CENTERED)))
 
 /* line, rect, square flags */
 #define FORCE                          0x02
@@ -87,7 +93,11 @@ typedef int coord_t;
 #define TIMEHOUR                     0x2000
 #define STREXPANDED                  0x4000
 
-#define DISPLAY_BUFFER_SIZE            (LCD_W*((LCD_H+7)/8))
+#if LCD_DEPTH == 4
+  #define DISPLAY_BUFFER_SIZE            (LCD_W*LCD_H*4/8)
+#else
+  #define DISPLAY_BUFFER_SIZE            (LCD_W*((LCD_H+7)/8))
+#endif
 
 extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
 extern coord_t lcdLastRightPos;
@@ -118,7 +128,6 @@ void lcdDrawHexChar(coord_t x, coord_t y, uint8_t val, LcdFlags flags=0);
 
 void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode, uint8_t len);
 void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
-void lcdDraw8bitsNumber(coord_t x, coord_t y, int8_t val);
 
 void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 #if !defined(BOOT) // TODO not here ...
@@ -191,9 +200,14 @@ inline pixel_t getPixel(uint8_t x, uint8_t y)
     return 0;
   }
 
+#if LCD_DEPTH == 4
+  pixel_t * p = &displayBuf[(y * LCD_W >> 1) + (x >> 1)];
+  return (x & 1) ? (*p >> 4) : (*p & 0x0F);
+#else
   pixel_t pixel = displayBuf[(y / 8) * LCD_W + x];
   pixel_t mask = 1 << (y & 7);
   return ((pixel & mask) ? 0xf : 0);
+#endif
 }
 
 uint8_t getTextWidth(const char * s, uint8_t len=0, LcdFlags flags=0);

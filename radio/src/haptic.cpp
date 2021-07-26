@@ -92,6 +92,19 @@ void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
   }
 }
 
+#if defined(RADIO_FAMILY_TBS)
+void hapticQueue::stop()
+{
+  buzzTimeLeft = 0;
+  buzzPause = 0;
+
+  t_queueRidx = 0;
+  t_queueWidx = 0;
+
+  hapticTick = 0;
+}
+#endif
+
 void hapticQueue::event(uint8_t e)
 {
   if (g_eeGeneral.hapticMode >= e_mode_nokeys || (g_eeGeneral.hapticMode >= e_mode_alarms && e <= AU_ERROR)) {

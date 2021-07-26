@@ -193,7 +193,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active || AUTOSWITCH_ENTER_LONG()) CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
-            func = CFN_FUNC(cfn) = func+1;
+            func = CFN_FUNC(cfn) = func + 1;
           }
           break;
 

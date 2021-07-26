@@ -68,6 +68,7 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
   
   USART_InitTypeDef USART_InitStructure;
+  USART_OverSampling8Cmd(TELEMETRY_USART, ENABLE);
   USART_InitStructure.USART_BaudRate = baudrate;
   if (mode & TELEMETRY_SERIAL_8E2) {
     USART_InitStructure.USART_WordLength = USART_WordLength_9b;
@@ -326,7 +327,6 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
   }
 }
 
-#define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 extern "C" void TELEMETRY_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_TELEM_USART);

@@ -163,7 +163,7 @@ void drawFunction(FnFuncP fn, uint8_t offset)
   coord_t prev_yv = (coord_t) - 1;
 
   for (int xv = -CURVE_SIDE_WIDTH; xv <= CURVE_SIDE_WIDTH; xv++) {
-    coord_t yv = (LCD_H - 1) - (((uint16_t)RESX + fn(xv * (RESX/CURVE_SIDE_WIDTH))) / 2 * (LCD_H - 1) / RESX);
+    coord_t yv = (CURVE_SIDE_HEIGHT - 1) - (((uint16_t)RESX + fn(xv * (RESX/CURVE_SIDE_WIDTH))) / 2 * (CURVE_SIDE_HEIGHT - 1) / RESX) + (LCD_H - CURVE_SIDE_HEIGHT) / 2;
     if (prev_yv != (coord_t) - 1) {
       if (abs((int8_t)yv-prev_yv) <= 1) {
         lcdDrawPoint(CURVE_CENTER_X + xv - offset - 1, prev_yv, FORCE);
@@ -194,7 +194,7 @@ void drawCursor(FnFuncP fn, uint8_t offset)
   lcdDrawNumber(CURVE_CENTER_X - FWNUM - offset, 1*FH, calcRESXto1000(y512), RIGHT | PREC1);
 
   x512 = CURVE_CENTER_X + x512/(RESX / CURVE_SIDE_WIDTH);
-  y512 = (LCD_H - 1) - ((y512 + RESX) / 2) * (LCD_H - 1) / RESX;
+  y512 = (CURVE_SIDE_HEIGHT - 1) - ((y512 + RESX) / 2) * (CURVE_SIDE_HEIGHT - 1) / RESX  + (LCD_H - CURVE_SIDE_HEIGHT) / 2;
   
   lcdDrawSolidVerticalLine(x512 - offset, y512-3, 3 * 2 + 1);
   lcdDrawSolidHorizontalLine(x512 - 3 - offset, y512, 3 * 2 + 1);

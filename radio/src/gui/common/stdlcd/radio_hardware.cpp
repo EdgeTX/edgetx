@@ -22,7 +22,6 @@
 #include <opentx.h>
 #include "hal/adc_driver.h"
 
-#if defined(PCBTARANIS)
 enum {
   ITEM_RADIO_HARDWARE_LABEL_STICKS,
   ITEM_RADIO_HARDWARE_STICK1,
@@ -123,18 +122,26 @@ enum {
   ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE,
 #endif
 
+#if !defined(RADIO_FAMILY_TBS)
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
 #if defined(SPORT_UPDATE_PWR_GPIO)
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
 #endif
   ITEM_RADIO_HARDWARE_DEBUG,
+#endif
 #if defined(EEPROM)
   ITEM_RADIO_BACKUP_EEPROM,
   ITEM_RADIO_FACTORY_RESET,
 #endif
   ITEM_RADIO_HARDWARE_MAX
 };
+
+#if defined(RADIO_MAMBO)
+  #define POTS_CALIBRATION        0 /* calibration button */,
+#else
+  #define POTS_CALIBRATION        LABEL(Pots),
+#endif
 
 #if (NUM_POTS + NUM_SLIDERS) == 0
   #define POTS_ROWS
@@ -203,7 +210,7 @@ enum {
   #define SWITCH_TYPE_MAX(sw)            (sw == MIXSRC_SD-MIXSRC_FIRST_SWITCH ? SWITCH_2POS : SWITCH_3POS)
 #elif defined(PCBXLITES)
   #define SWITCH_TYPE_MAX(sw)            (sw >= MIXSRC_SE-MIXSRC_FIRST_SWITCH ? SWITCH_2POS : SWITCH_3POS)
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(RADIO_FAMILY_TBS)
   #define SWITCH_TYPE_MAX(sw)            (SWITCH_3POS)
 #elif defined(PCBX9E)
   #define SWITCH_TYPE_MAX(sw)            ((MIXSRC_SF - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SH - MIXSRC_FIRST_SWITCH == sw) ? SWITCH_2POS : SWITCH_3POS)
@@ -244,7 +251,19 @@ enum {
 
 #define SERIAL_SAMPLE_MODE_ROWS          0,
 
-#if defined(AUX_SERIAL)
+#if !defined(RADIO_FAMILY_TBS)
+  #define ADC_FILTER_ROW                 0,
+#else
+  #define ADC_FILTER_ROW
+#endif
+
+#if !defined(RADIO_FAMILY_TBS)
+  #define HARDWARE_RAS_ROW               READONLY_ROW,
+#else
+  #define HARDWARE_RAS_ROW
+#endif
+
+#if defined(AUX_SERIAL) && !defined(RADIO_FAMILY_TBS)
   #define AUX_SERIAL_ROWS 0,
 #else
   #define AUX_SERIAL_ROWS
@@ -262,6 +281,12 @@ enum {
   #define SPORT_POWER_ROWS 0,
 #else
   #define SPORT_POWER_ROWS
+#endif
+
+#if !defined(RADIO_FAMILY_TBS)
+  #define HARDWARE_DEBUG_ROW             1,
+#else
+  #define HARDWARE_DEBUG_ROW
 #endif
 
 #if defined(EEPROM)
@@ -372,6 +397,12 @@ void menuRadioHardware(event_t event)
 #if (NUM_POTS + NUM_SLIDERS) > 0
       case ITEM_RADIO_HARDWARE_LABEL_POTS:
         lcdDrawTextAlignedLeft(y, STR_POTS);
+#if defined(RADIO_MAMBO)
+        lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(TR_CALIBRATION), attr);
+        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+          pushMenu(menuPotsCalibration);
+        }
+#endif
         break;
 
       case ITEM_RADIO_HARDWARE_POT1:
@@ -408,7 +439,7 @@ void menuRadioHardware(event_t event)
 #if NUM_SLIDERS > 2
       case ITEM_RADIO_HARDWARE_SLIDER3:
       case ITEM_RADIO_HARDWARE_SLIDER4:
-#endif
+#endif // NUM_SLIDERS > 2
       {
         int idx = k - ITEM_RADIO_HARDWARE_SLIDER1;
         lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, NUM_STICKS+NUM_POTS+idx+1, menuHorizontalPosition < 0 ? attr : 0);
@@ -426,8 +457,8 @@ void menuRadioHardware(event_t event)
         g_eeGeneral.slidersConfig |= (potType << idx);
         break;
       }
-#endif
-#endif
+#endif // NUM_SLIDERS > 0
+#endif // (NUM_POTS + NUM_SLIDERS) > 0
 
       case ITEM_RADIO_HARDWARE_LABEL_SWITCHES:
         lcdDrawTextAlignedLeft(y, STR_SWITCHES);
@@ -610,6 +641,7 @@ void menuRadioHardware(event_t event)
         break;
 #endif
 
+#if !defined(RADIO_FAMILY_TBS)
 #if defined(AUX_SERIAL)
       case ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE:
         g_eeGeneral.auxSerialMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_AUX_SERIAL_MODE, STR_AUX_SERIAL_MODES, g_eeGeneral.auxSerialMode, 0, UART_MODE_MAX, attr, event);
@@ -661,6 +693,7 @@ void menuRadioHardware(event_t event)
             pushMenu(menuRadioDiagKeys);
         }
         break;
+#endif
 
 #if defined(EEPROM)
       case ITEM_RADIO_BACKUP_EEPROM:
@@ -688,4 +721,4 @@ void menuRadioHardware(event_t event)
     }
   }
 }
-#endif // PCBSKY9X
+

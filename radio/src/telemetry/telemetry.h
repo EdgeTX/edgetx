@@ -290,6 +290,15 @@ class OutputTelemetryBuffer {
 
 extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 
+#if defined(RADIO_FAMILY_TBS)
+extern uint8_t outputTelemetryBufferTrigger;
+inline void telemetryOutputSetTrigger(uint8_t byte)
+{
+  outputTelemetryBufferTrigger = byte;
+}
+#endif
+
+
 #if defined(LUA)
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
@@ -306,7 +315,7 @@ struct ModuleSyncStatus
 
   tmr10ms_t lastUpdate;  // in 10ms
   int16_t   currentLag;  // in us
-  
+
   inline bool isValid() {
     // 2 seconds
     return (get_tmr10ms() - lastUpdate < 200);

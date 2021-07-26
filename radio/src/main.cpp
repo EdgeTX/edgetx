@@ -90,6 +90,14 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
+#if defined(RADIO_FAMILY_TBS)
+  else if (result == STR_USB_AGENT) {
+    setSelectedUsbMode(USB_AGENT_MODE);
+  }
+  else if (result == STR_USB_CHARGE) {
+    setSelectedUsbMode(USB_CHARGING_MODE);
+  }
+#endif
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
@@ -109,6 +117,81 @@ void openUsbMenu()
     POPUP_MENU_TITLE(STR_SELECT_MODE);
     POPUP_MENU_START(onUSBConnectMenu);
   }
+
+//
+//TODO: integrate TBS changes to USB menu
+//
+// #if defined(RADIO_FAMILY_TBS)
+//   static bool additional_popup_trigger = true;
+// #endif
+//   if (!usbStarted()) {
+//     if (usbPlugged()) {
+// #if defined(RADIO_FAMILY_TBS)
+//       if (getSelectedUsbMode() == USB_UNSELECTED_MODE || additional_popup_trigger) {
+//         additional_popup_trigger = false;
+// #else
+//         if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
+// #endif
+//         if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE && popupMenuItemsCount == 0) {
+//           POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
+// #if defined(RADIO_FAMILY_TBS)
+//           POPUP_MENU_ADD_ITEM(STR_USB_AGENT);
+//           POPUP_MENU_ADD_ITEM(STR_USB_CHARGE);
+// #endif
+//           POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
+// #if defined(DEBUG)
+//           POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
+// #endif
+//           POPUP_MENU_TITLE(STR_SELECT_MODE);
+//           POPUP_MENU_START(onUSBConnectMenu);
+//         }
+//         else {
+//           setSelectedUsbMode(g_eeGeneral.USBMode);
+//         }
+//       }
+//
+//       if (getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+//         if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
+//           opentxClose(false);
+//           usbPluggedIn();
+// #if defined(INTERNAL_MODULE_CRSF)
+//           crossfireTasksStop();
+//           ledOff();
+// #endif
+//         }
+//         else if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+// #if defined(INTERNAL_MODULE_CRSF)
+//           if (g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE)
+//             crossfireTurnOffRf(true);
+// #endif
+//         }
+//         usbStart();
+//       }
+//     }
+//     else if (popupMenuHandler == onUSBConnectMenu) {
+//       CLEAR_POPUP();
+//     }
+//   }
+//   else {
+//     if (!usbPlugged()) {
+//       usbStop();
+//       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
+// #if defined(RADIO_FAMILY_TBS)
+//         boardSetSkipWarning();
+//         NVIC_SystemReset();
+// #else
+//         opentxResume();
+//         putEvent(EVT_ENTRY);
+// #endif
+//       }
+// #if defined(INTERNAL_MODULE_CRSF)
+//       else if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+//         if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_NONE)
+//           crossfireTurnOnRf();
+//       }
+// #endif
+//       setSelectedUsbMode(USB_UNSELECTED_MODE);
+//     }
 }
 
 void closeUsbMenu()
@@ -286,6 +369,71 @@ void checkBatteryAlarms()
     AUDIO_TX_BATTERY_LOW();
     // TRACE("checkBatteryAlarms(): battery low");
   }
+#if defined(BATT_CRITICAL_SHUTDOWN)
+  #define DOWNCOUNT_PERIOD                60    // 60s
+  #define DOWNCOUNT_VOICE_THRESHOLD_1ST   55    // 55s
+  #define DOWNCOUNT_VOICE_THRESHOLD_2ND   10    // 10s
+  #define DOWNCOUNT_VOICE_SEPARATION      5     // 5s
+  #define WARNING_PERIOD                  120   // 120s
+  static uint32_t last_warning_time = 0;
+  static uint8_t counter = 0, last_counter = 0;
+  static char warning[sizeof(TR_SHUTDOWNINXXS)];
+  char counter_str[3];
+  bool forceShutdown = false;
+  if (IS_TXBATT_CRITICAL()) {
+    if (!last_warning_time || (get_tmr10ms() - last_warning_time) / 100 >= WARNING_PERIOD) {
+      last_warning_time = get_tmr10ms();
+      counter = DOWNCOUNT_PERIOD;
+    }
+    
+    while (counter){
+      if ((get_tmr10ms() - last_warning_time) / 100 < DOWNCOUNT_PERIOD) {
+        counter = DOWNCOUNT_PERIOD - (get_tmr10ms() - last_warning_time) / 100;
+      }
+      else {
+        counter = 0;
+        forceShutdown = true;
+      }
+
+      if (last_counter != counter) {
+        last_counter = counter;
+        if ((counter <= DOWNCOUNT_VOICE_THRESHOLD_1ST && counter % DOWNCOUNT_VOICE_SEPARATION == 0) || (counter <= DOWNCOUNT_VOICE_THRESHOLD_2ND)){
+          playNumber( counter, 0, 0, 0 );
+          AUDIO_KEY_ERROR();
+        }
+      }
+
+      strcpy(warning, STR_SHUTDOWNINXXS);
+      sprintf(counter_str, "%2d", counter);
+      memcpy(&warning[sizeof(TR_SHUTDOWNINXXS)-5], counter_str, 2);
+      lcdRefreshWait();
+      lcdClear();
+      POPUP_CONFIRMATION(STR_CRITICALBATTERYLEVEL, nullptr);
+      SET_WARNING_INFO(warning, sizeof(TR_SHUTDOWNINXXS), 0);
+      event_t evt = getEvent(false);
+      DISPLAY_WARNING(evt);
+      lcdRefresh();
+
+      if (warningResult) {
+        warningResult = 0;
+        forceShutdown = true;
+        counter = 0;
+      }
+      else if (!warningText) {
+        forceShutdown = false;
+        counter = 0;
+      }
+    }
+
+    if (forceShutdown) {
+      TRACE("checkBatteryAlarms(): shutdown due to critical battery level");
+      boardOff();
+    }
+    else {
+      CLEAR_POPUP();
+    }
+  }
+#endif
 #if defined(PCBSKY9X)
   else if (g_eeGeneral.mAhWarn && (g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration)/8192/36) / 500 >= g_eeGeneral.mAhWarn) { // TODO move calculation into board file
     AUDIO_TX_MAH_HIGH();
@@ -497,7 +645,9 @@ void perMain()
   handleJackConnection();
 #endif
 
+#if defined(TRAINER_GPIO)
   checkTrainerSettings();
+#endif
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
