@@ -117,7 +117,7 @@ void sportSendByte(uint8_t byte)
   USART_SendData(TELEMETRY_USART, byte);
 }
 
-void sportSendBuffer(uint8_t * buffer, uint32_t count)
+void sportSendBuffer(const uint8_t * buffer, uint32_t count)
 {
   telemetryPortSetDirectionOutput();
 

@@ -482,7 +482,7 @@ int32_t getVolume();
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionOutput();
 void telemetryPortSetDirectionInput();
-void sportSendBuffer(uint8_t * buffer, uint32_t count);
+void sportSendBuffer(const uint8_t * buffer, uint32_t count);
 bool telemetryGetByte(uint8_t * byte);
 void telemetryClearFifo();
 void sportSendByte(uint8_t byte);
