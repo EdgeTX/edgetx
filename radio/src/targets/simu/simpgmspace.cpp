@@ -471,7 +471,7 @@ void sportSendByte(uint8_t byte)
 {
 }
 
-void sportSendBuffer(uint8_t * buffer, uint32_t count)
+void sportSendBuffer(const uint8_t * buffer, uint32_t count)
 {
 }
 
