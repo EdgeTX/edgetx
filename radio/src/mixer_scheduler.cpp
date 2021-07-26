@@ -75,9 +75,7 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
      the first parameter is pdTRUE, which has the effect of clearing
      the task's notification value back to 0, making the notification
      value act like a binary (rather than a counting) semaphore.  */
-  ulNotificationValue = ulTaskNotifyTakeIndexed( 1 /* task notification index */,
-                                                 pdTRUE,
-                                                 xMaxBlockTime );
+  ulNotificationValue = ulTaskNotifyTake( pdTRUE, xMaxBlockTime );
 
   if( ulNotificationValue == 1 ) {
     /* The transmission ended as expected. */
@@ -98,9 +96,8 @@ void mixerSchedulerISRTrigger()
   configASSERT( mixerTaskId.rtos_handle != NULL );
 
   /* Notify the task that the transmission is complete. */
-  vTaskNotifyGiveIndexedFromISR( mixerTaskId.rtos_handle,
-                                 1 /* task notification index */,
-                                 &xHigherPriorityTaskWoken );
+  vTaskNotifyGiveFromISR( mixerTaskId.rtos_handle,
+                          &xHigherPriorityTaskWoken );
 
   /* If xHigherPriorityTaskWoken is now set to pdTRUE then a
      context switch should be performed to ensure the interrupt
