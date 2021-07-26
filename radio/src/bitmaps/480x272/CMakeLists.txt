@@ -20,7 +20,7 @@ set(BITMAP_RLE_ARGS ${BITMAP_ARGS} --rle)
 set(MASK_RLE_ARGS ${MASK_ARGS} --rle)
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/bmp_*.png" "5/6/5" "${BITMAP_ARGS}")
-add_png_target(${BITMAP_TARGET_PREFIX}_splash "${RADIO_SRC_DIR}/bitmaps/480x272/big_logo.png")
+add_png_target(${BITMAP_TARGET_PREFIX}_splash "${RADIO_SRC_DIR}/bitmaps/480x272/splash.png")
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_calibration_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/calibration/bmp_*.png" "5/6/5" "${BITMAP_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_button_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/button/alpha_*.png" "4/4/4/4" "${BITMAP_ARGS}")

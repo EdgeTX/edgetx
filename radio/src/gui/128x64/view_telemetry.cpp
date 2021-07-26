@@ -177,7 +177,6 @@ bool displayTelemetryScreen()
         return false;  // requested lua telemetry screen not available
       case SCRIPT_SYNTAX_ERROR:
       case SCRIPT_PANIC:
-      case SCRIPT_KILLED:
         luaError(lsScripts, state, false);
         return true;
     }
