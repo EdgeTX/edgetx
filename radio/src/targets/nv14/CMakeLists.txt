@@ -28,7 +28,7 @@ else()
   set(LINKER_SCRIPT targets/nv14/stm32f4_flash.ld)
 endif()
 
-set(RAMBACKUP YES)
+set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
