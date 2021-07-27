@@ -52,17 +52,6 @@
   const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1};
 #elif defined(PCBXLITE)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
-#elif defined(PCBNV14)
-  const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
-                                              0 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/, 0 /*SWB*/,
-                                              0 /*SWC*/,  -1 /*SWD*/, 0 /*SWE*/, -1 /*SWF*/,
-                                              0 /*SWH*/, 0 /*SWG*/,
-                                              0 /*TX_VOLTAGE*/ };
-  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                              4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 13 /*SWB*/,
-                                              7 /*SWC*/,  14 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                              11/*SWH*/,  10/*SWG*/,
-                                              12 /*TX_VOLTAGE*/ };
 #endif
 
 #if NUM_PWMSTICKS > 0
@@ -72,10 +61,6 @@
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              11
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
-#elif defined(PCBNV14) && defined(FLYSKY_HALL_STICKS)
-  #define FIRST_ANALOG_ADC             4
-  #define NUM_ANALOGS_ADC              9
-  #define NUM_ANALOGS_ADC_SUB          2
 #else
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
@@ -119,12 +104,6 @@ void adcInit()
   ADC_MAIN->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
   ADC_MAIN->SQR1 = (NUM_ANALOGS_ADC - 1) << 20; // bits 23:20 = number of conversions
 
-#if NUM_ANALOGS_ADC_SUB > 0
-  ADC_SUB->CR1 = ADC_CR1_SCAN;
-  ADC_SUB->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC_SUB->SQR1 = (NUM_ANALOGS_ADC_SUB - 1) << 20; // bits 23:20 = number of conversions
-#endif
-	
 #if defined(PCBX10)
   if (STICKS_PWM_ENABLED()) {
     ADC_MAIN->SQR2 = (ADC_CHANNEL_SLIDER2 << 0) + (ADC_CHANNEL_BATT << 5);
@@ -158,27 +137,12 @@ void adcInit()
 #elif defined(PCBX9D) || defined(PCBX9DP)
   ADC_MAIN->SQR2 = (ADC_CHANNEL_POT3 << 0) + (ADC_CHANNEL_SLIDER1 << 5) + (ADC_CHANNEL_SLIDER2 << 10) + (ADC_CHANNEL_BATT << 15) + (ADC_Channel_Vbat << 20);
   ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH << 0) + (ADC_CHANNEL_STICK_LV << 5) + (ADC_CHANNEL_STICK_RV << 10) + (ADC_CHANNEL_STICK_RH << 15) + (ADC_CHANNEL_POT1 << 20) + (ADC_CHANNEL_POT2 << 25);
-#elif defined(PCBNV14)
-  #if !defined(FLYSKY_HALL_STICKS)
-  ADC_MAIN->SQR1 |= (ADC_CHANNEL_BATT <<0 );
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_SWA << 0) + (ADC_CHANNEL_SWC << 5) + (ADC_CHANNEL_SWE << 10) + (ADC_CHANNEL_SWF << 15) + (ADC_CHANNEL_SWG << 20) + (ADC_CHANNEL_SWH << 25); // conversions 7 and more
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH<<0) + (ADC_CHANNEL_STICK_LV<<5) + (ADC_CHANNEL_STICK_RV<<10) + (ADC_CHANNEL_STICK_RH<<15) + (ADC_CHANNEL_POT1<<20) + (ADC_CHANNEL_POT2<<25); // conversions 1 to 6
-  ADC_SUB->SQR3 = (ADC_CHANNEL_SWB<<0) + (ADC_CHANNEL_SWD<<5); // conversions 1 to 2
-  #else
-  ADC_MAIN->SQR2 = (ADC_CHANNEL_SWG << 0) + (ADC_CHANNEL_SWH << 5) + (ADC_CHANNEL_BATT << 10); // conversions 7 and more
-  ADC_MAIN->SQR3 = (ADC_CHANNEL_POT1<<0) + (ADC_CHANNEL_POT2<<5) + (ADC_CHANNEL_SWA<<10) + (ADC_CHANNEL_SWC<<15) + (ADC_CHANNEL_SWE<<20) + (ADC_CHANNEL_SWF<<25); // conversions 1 to 6
-  ADC_SUB->SQR3 = (ADC_CHANNEL_SWB<<0) + (ADC_CHANNEL_SWD<<5); // conversions 1 to 2
-  #endif
 #endif
 
   ADC_MAIN->SMPR1 = ADC_MAIN_SMPR1;
   ADC_MAIN->SMPR2 = ADC_MAIN_SMPR2;
 
-#if defined(PCBNV14)
-  ADC->CCR = 0;
-#else
   ADC->CCR = ADC_CCR_VBATE; // Enable vbat sensor
-#endif
 
   ADC_DMA_Stream->CR = DMA_SxCR_PL | ADC_DMA_SxCR_CHSEL | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
   ADC_DMA_Stream->PAR = CONVERT_PTR_UINT(&ADC_MAIN->DR);
@@ -186,19 +150,6 @@ void adcInit()
   ADC_DMA_Stream->NDTR = NUM_ANALOGS_ADC;
   ADC_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
 
-#if NUM_ANALOGS_ADC_SUB > 0
-  ADC_SUB->SMPR1 = ADC_SAMPTIME + (ADC_SAMPTIME<<3) + (ADC_SAMPTIME<<6) + (ADC_SAMPTIME<<9) + (ADC_SAMPTIME<<12) + (ADC_SAMPTIME<<15) + (ADC_SAMPTIME<<18) + (ADC_SAMPTIME<<21) + (ADC_SAMPTIME<<24);
-  ADC_SUB->SMPR2 = ADC_SAMPTIME + (ADC_SAMPTIME<<3) + (ADC_SAMPTIME<<6) + (ADC_SAMPTIME<<9) + (ADC_SAMPTIME<<12) + (ADC_SAMPTIME<<15) + (ADC_SAMPTIME<<18) + (ADC_SAMPTIME<<21) + (ADC_SAMPTIME<<24) + (ADC_SAMPTIME<<27);
-
-  ADC->CCR = 0;
-
-  ADC_SUB_DMA_Stream->CR = DMA_SxCR_PL | ADC_SUB_DMA_SxCR_CHSEL | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
-  ADC_SUB_DMA_Stream->PAR = CONVERT_PTR_UINT(&ADC_SUB->DR);
-  ADC_SUB_DMA_Stream->M0AR = CONVERT_PTR_UINT(&adcValues[SUB_ANALOG_POS]);
-  ADC_SUB_DMA_Stream->NDTR = NUM_ANALOGS_ADC_SUB;
-  ADC_SUB_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
-#endif
-	
 #if defined(PCBX10)
   ADC1->CR1 = ADC_CR1_SCAN;
   ADC1->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
@@ -240,14 +191,6 @@ void adcSingleRead()
   ADC_DMA_Stream->CR |= DMA_SxCR_EN; // Enable DMA
   ADC_MAIN->CR2 |= (uint32_t)ADC_CR2_SWSTART;
 
-#if NUM_ANALOGS_ADC_SUB > 0
-  ADC_SUB_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-  ADC_SUB->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC_SUB_SET_DMA_FLAGS();
-  ADC_SUB_DMA_Stream->CR |= DMA_SxCR_EN; // Enable DMA
-  ADC_SUB->CR2 |= (uint32_t) ADC_CR2_SWSTART;
-#endif
-	
 #if defined(PCBX10)
   ADC1->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
   ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
@@ -271,23 +214,11 @@ void adcSingleRead()
   ADC_EXT_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
 #else
   for (unsigned int i = 0; i < 10000; i++) {
-#if defined(PCBNV14)
-    if (ADC_TRANSFER_COMPLETE() && ADC_SUB_TRANSFER_COMPLETE())
-    {
+    if (ADC_TRANSFER_COMPLETE()) {
       break;
     }
-#else
-    if (ADC_TRANSFER_COMPLETE())
-		{
-      break;
-    }
-#endif
   }
   ADC_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-#if defined(PCBNV14)
-  ADC_SUB_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-#endif
-	
 #endif
 
 #if defined(PCBX10)
@@ -325,17 +256,17 @@ void adcRead()
 #endif
 }
 
+#if defined(PCBX10)
 uint16_t getRTCBatteryVoltage()
 {
-#if defined(PCBX10)
   return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBNV14)
-  #warning "TODO RTC voltage"
-  return 330;
-#else
-  return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-#endif
 }
+#else
+uint16_t getRTCBatteryVoltage()
+{
+  return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
+}
+#endif
 
 #if !defined(SIMU)
 uint16_t getAnalogValue(uint8_t index)
@@ -346,7 +277,7 @@ uint16_t getAnalogValue(uint8_t index)
     // which produces ghost readings on these inputs.
     return 0;
   }
-#if defined(PCBX9E) || defined(PCBNV14)
+#if defined(PCBX9E)
   index = adcMapping[index];
 #endif
   if (adcDirection[index] < 0)
