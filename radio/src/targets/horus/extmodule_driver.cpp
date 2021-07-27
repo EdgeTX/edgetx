@@ -167,8 +167,11 @@ void extmoduleSerialStart()
   EXTMODULE_TIMER->EGR = 1; // Restart
   EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_0;
 #else
-//  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | (inverted ? 0 : TIM_CCER_CC1P);
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC1P;  // Inverted should be false here?
+#if defined(PCBNV14)
+  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC1P;  // inverted breaks NV14 build, inverted should be false here?
+#else
+  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | (inverted ? 0 : TIM_CCER_CC1P);
+#endif
   EXTMODULE_TIMER->BDTR = TIM_BDTR_MOE; // Enable outputs
   EXTMODULE_TIMER->CCR1 = 0;
   EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_0; // Force O/P high
