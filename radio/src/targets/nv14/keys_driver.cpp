@@ -24,9 +24,9 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
   bool getKeys = true;
-#if defined(LUA)
+/*#if defined(LUA)
   getKeys = (luaState & INTERPRETER_RUNNING_STANDALONE_SCRIPT);
-#endif
+#endif*/  //TODO: not sure why has LUA condition here, this construct is not in horus target
   if (getKeys) {
     if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
        result |= 1 << KEY_PGDN;
@@ -57,11 +57,11 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
   bool getTrim = true;
-#if defined(LUA)
+/*#if defined(LUA)
   if(luaState & INTERPRETER_RUNNING_STANDALONE_SCRIPT) {
     getTrim = false;
   }
-#endif
+#endif*/  //TODO: not sure why has LUA condition here, this construct is not in horus target
   if(!getTrim) return result;
   if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
     result |= 1 << (TRM_LH_DWN - TRM_BASE);

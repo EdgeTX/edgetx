@@ -62,7 +62,7 @@ void boardOff();
 
 // Timers driver
 void init2MhzTimer();
-void init5msTimer();
+void init1msTimer();
 
 // PCBREV driver
 enum {

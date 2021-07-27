@@ -628,6 +628,13 @@ bool isInternalModuleAvailable(int moduleType)
     return true;
 #endif
   }
+
+#if (defined(AFHDS3) || defined(AFHDS2A)) && (defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3))
+  if (moduleType == MODULE_TYPE_AFHDS3) {
+    return true;
+  }
+#endif
+
   return false;
 }
 #else

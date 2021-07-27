@@ -273,6 +273,7 @@ union InternalModulePulsesData {
 #if defined(INTERNAL_MODULE_PPM)
   PpmPulsesData<pulse_duration_t> ppm;
 #endif
+
 } __ALIGNED(4);
 
 union ExternalModulePulsesData {
@@ -389,6 +390,7 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_SBUS,
   PROTOCOL_CHANNELS_PXX2_LOWSPEED,
   PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
+  PROTOCOL_CHANNELS_AFHDS2A,
   PROTOCOL_CHANNELS_AFHDS3,
   PROTOCOL_CHANNELS_GHOST
 };

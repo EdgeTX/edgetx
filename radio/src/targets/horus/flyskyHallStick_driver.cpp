@@ -534,7 +534,6 @@ void flysky_hall_stick_loop(void)
 
         if (log)
         {
-            TRACE_NOCRLF("Hall(%0d):", FLYSKY_FLYSKY_HALL_BAUDRATE);
             for (int idx = 0; idx < HallProtocol.length + 5; idx++)
             {
                 TRACE_NOCRLF(" %02X", *((uint8_t*)&HallProtocol + idx));

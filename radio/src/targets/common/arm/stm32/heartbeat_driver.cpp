@@ -26,6 +26,7 @@ volatile HeartbeatCapture heartbeatCapture;
 
 void init_intmodule_heartbeat()
 {
+  TRACE("init_intmodule_heartbeat");
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
@@ -34,7 +35,8 @@ void init_intmodule_heartbeat()
   GPIO_InitStructure.GPIO_Pin = INTMODULE_HEARTBEAT_GPIO_PIN;
   GPIO_Init(INTMODULE_HEARTBEAT_GPIO, &GPIO_InitStructure);
 
-  SYSCFG_EXTILineConfig(INTMODULE_HEARTBEAT_EXTI_PortSource, INTMODULE_HEARTBEAT_EXTI_PinSource);
+  SYSCFG_EXTILineConfig(INTMODULE_HEARTBEAT_EXTI_PortSource,
+                        INTMODULE_HEARTBEAT_EXTI_PinSource);
 
   EXTI_InitTypeDef EXTI_InitStructure;
   EXTI_StructInit(&EXTI_InitStructure);
@@ -51,6 +53,7 @@ void init_intmodule_heartbeat()
 
 void stop_intmodule_heartbeat()
 {
+  TRACE("stop_intmodule_heartbeat");
   heartbeatCapture.valid = false;
 
 #if !defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
@@ -69,9 +72,7 @@ void stop_intmodule_heartbeat()
 void check_intmodule_heartbeat()
 {
   if (EXTI_GetITStatus(INTMODULE_HEARTBEAT_EXTI_LINE) != RESET) {
-#if defined(INTMODULE_USART)
-    nextMixerTime[INTERNAL_MODULE] = RTOS_GET_MS();
-#else
+#if !defined(INTMODULE_USART)
     heartbeatCapture.timestamp = getTmr2MHz();
 #endif
 #if defined(DEBUG_LATENCY)

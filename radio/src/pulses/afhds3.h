@@ -93,13 +93,18 @@ struct Data
 
   void reset()
   {
+#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
+#else
     pulsesSize = 0;
+#endif
   }
 
 #if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
   void sendByte(uint8_t b)
   {
+#if !defined(SIMU)
     *ptr++ = b;
+#endif
   }
 
   const uint8_t* getData()

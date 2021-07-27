@@ -1091,6 +1091,10 @@ int cliDebugVars(const char ** argv)
   serialPrint("ioMutexReq=%d", ioMutexReq);
   serialPrint("ioMutexRel=%d", ioMutexRel);
   serialPrint("sdReadRetries=%d", sdReadRetries);
+#if defined(ACCESS_DENIED)
+  extern volatile int32_t authenticateFrames;
+  serialPrint("authenticateFrames=%d", authenticateFrames);
+#endif
 #elif defined(PCBTARANIS)
   serialPrint("telemetryErrors=%d", telemetryErrors);
 #endif
@@ -1189,6 +1193,57 @@ int cliBlueTooth(const char ** argv)
 }
 #endif
 
+#if defined(ACCESS_DENIED)
+
+extern "C" {
+#include "AccessDenied/access_denied.h"
+}
+
+static uint8_t cryptInput[16];
+static uint8_t cryptOutput[16];
+
+static void testAccessDenied(uint32_t runs)
+{
+  while(runs--)
+    access_denied(0, cryptInput, cryptOutput);
+}
+
+int cliCrypt(const char ** argv)
+{
+  if (argv[1][0] == '\0')
+    return -1;
+
+  strncpy((char*)cryptInput, argv[1], sizeof(cryptInput));
+  serialPrint("Input:");
+  dumpBody(cryptInput, sizeof(cryptInput));
+  dumpEnd();
+
+  watchdogSuspend(2000/* 20s */);
+  if (pulsesStarted()) {
+    pausePulses();
+  }
+  pauseMixerCalculations();
+  perMainEnabled = false;
+
+  uint32_t startMs = RTOS_GET_MS();
+  testAccessDenied(100000);
+  serialPrintf("access_denied: %f us/run\r\n", (RTOS_GET_MS() - startMs)*1000.0f / 100000.0f);
+
+  serialPrint("Decrypted (SW):");
+  dumpBody(cryptOutput, sizeof(cryptOutput));
+  dumpEnd();
+
+  perMainEnabled = true;
+  if (pulsesStarted()) {
+    resumePulses();
+  }
+  resumeMixerCalculations();
+  watchdogSuspend(0);
+
+  return 0;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1217,6 +1272,9 @@ const CliCommand cliCommands[] = {
 #endif
 #if defined(BLUETOOTH)
   { "bt", cliBlueTooth, "<baudrate>|<command>" },
+#endif
+#if defined(ACCESS_DENIED)
+  { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
 };

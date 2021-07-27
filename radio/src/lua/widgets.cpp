@@ -31,6 +31,13 @@
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
 #define LUA_WARNING_INFO_LEN               64
 
+#if defined(HARDWARE_TOUCH)
+#define EVT_TOUCH_TAP_TIME      25
+#define EVT_TOUCH_SWIPE_LOCK     4
+#define EVT_TOUCH_SWIPE_SPEED   35
+#define EVT_TOUCH_SWIPE_TIMEOUT 50
+#endif
+
 constexpr int LUA_WIDGET_REFRESH = 1000 / 10; // 10 Hz
 
 lua_State * lsWidgets = NULL;
@@ -39,6 +46,57 @@ extern int custom_lua_atpanic(lua_State *L);
 
 #define LUA_WIDGET_FILENAME                "/main.lua"
 #define LUA_FULLPATH_MAXLEN                (LEN_FILE_PATH_MAX + LEN_SCRIPT_FILENAME + LEN_FILE_EXTENSION_MAX)  // max length (example: /SCRIPTS/THEMES/mytheme.lua)
+
+static void luaHook(lua_State * L, lua_Debug *ar)
+{
+  if (ar->event == LUA_HOOKCOUNT) {
+    instructionsPercent++;
+#if defined(DEBUG)
+  // Disable Lua script instructions limit in DEBUG mode,
+  // just report max value reached
+  static uint16_t max = 0;
+  if (instructionsPercent > 100) {
+    if (max + 10 < instructionsPercent) {
+      max = instructionsPercent;
+      TRACE("LUA instructionsPercent %u%%", (uint32_t)max);
+    }
+  }
+  else if (instructionsPercent < 10) {
+    max = 0;
+  }
+#else
+    if (instructionsPercent > 100) {
+      // From now on, as soon as a line is executed, error
+      // keep erroring until you're script reaches the top
+      lua_sethook(L, luaHook, LUA_MASKLINE, 0);
+      luaL_error(L, "CPU limit");
+    }
+#endif
+  }
+#if defined(LUA_ALLOCATOR_TRACER)
+  else if (ar->event == LUA_HOOKLINE) {
+    lua_getinfo(L, "nSl", ar);
+    LuaMemTracer * tracer = GET_TRACER(L);
+    if (tracer->alloc || tracer->free) {
+      TRACE("LT: [+%u,-%u] %s:%d", tracer->alloc, tracer->free, tracer->script, tracer->lineno);
+    }
+    tracer->script = ar->source;
+    tracer->lineno = ar->currentline;
+    tracer->alloc = 0;
+    tracer->free = 0;
+  }
+#endif // #if defined(LUA_ALLOCATOR_TRACER)
+}
+
+void luaSetInstructionsLimit(lua_State * L, int count)
+{
+  instructionsPercent = 0;
+#if defined(LUA_ALLOCATOR_TRACER)
+  lua_sethook(L, luaHook, LUA_MASKCOUNT|LUA_MASKLINE, count);
+#else
+  lua_sethook(L, luaHook, LUA_MASKCOUNT, count);
+#endif
+}
 
 void exec(int function, int nresults=0)
 {
@@ -190,6 +248,16 @@ class LuaWidget: public Widget
     const char * getErrorMessage() const override;
     void update() override;
     void background() override;
+    
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
+    
+#if defined(HARDWARE_TOUCH)
+    bool onTouchStart(coord_t x, coord_t y) override;
+    bool onTouchEnd(coord_t x, coord_t y) override;
+    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
+#endif
 
     // Calls LUA widget 'refresh' method
     void refresh(BitmapBuffer* dc) override;
@@ -199,15 +267,47 @@ class LuaWidget: public Widget
     char * errorMessage;
     uint32_t lastRefresh = 0;
     bool     refreshed = false;
+    
+    static event_t event;
 
+#if defined(HARDWARE_TOUCH)
+    static coord_t touchX;
+    static coord_t touchY;
+    static coord_t startX;
+    static coord_t startY;
+    static coord_t slideX;
+    static coord_t slideY;
+    static tmr10ms_t lastTouchDown;
+    static tmr10ms_t swipeTimeOut;
+#endif
     void checkEvents() override;
     void setErrorMessage(const char * funcName);
 };
+
+event_t LuaWidget::event = 0;
+
+#if defined(HARDWARE_TOUCH)
+coord_t LuaWidget::touchX = 0;
+coord_t LuaWidget::touchY = 0;
+coord_t LuaWidget::startX = 0;
+coord_t LuaWidget::startY = 0;
+coord_t LuaWidget::slideX = 0;
+coord_t LuaWidget::slideY = 0;
+tmr10ms_t LuaWidget::lastTouchDown = 0;
+tmr10ms_t LuaWidget::swipeTimeOut = 0;
+#endif
 
 void l_pushtableint(const char * key, int value)
 {
   lua_pushstring(lsWidgets, key);
   lua_pushinteger(lsWidgets, value);
+  lua_settable(lsWidgets, -3);
+}
+
+void l_pushtablebool(const char * key, bool value)
+{
+  lua_pushstring(lsWidgets, key);
+  lua_pushboolean(lsWidgets, value);
   lua_settable(lsWidgets, -3);
 }
 
@@ -341,15 +441,68 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->refreshFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  
+  // Pass key event to fullscreen Lua widget
+  if (fullscreen)
+    lua_pushinteger(lsWidgets, event);
+  else
+    lua_pushnil(lsWidgets);
+
+#if defined(HARDWARE_TOUCH)
+  if (fullscreen && IS_TOUCH_EVENT(event)) {
+    lua_newtable(lsWidgets);
+    l_pushtableint("x", touchX);
+    l_pushtableint("y", touchY);
+    
+    if (LuaWidget::event == EVT_TOUCH_SLIDE) {
+      l_pushtableint("startX", startX);
+      l_pushtableint("startY", startY);
+      l_pushtableint("slideX", slideX);
+      l_pushtableint("slideY", slideY);
+
+      // Do we have a swipe? Only one at a time!
+      if (get_tmr10ms() > swipeTimeOut) {
+        coord_t absX = (slideX < 0) ? -slideX : slideX;
+        coord_t absY = (slideY < 0) ? -slideY : slideY;
+        bool swiped = false;
+  
+        if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
+          if ((swiped = (slideX > EVT_TOUCH_SWIPE_SPEED)))
+            l_pushtablebool("swipeRight", true);
+          else if ((swiped = (slideX < -EVT_TOUCH_SWIPE_SPEED)))
+            l_pushtablebool("swipeLeft", true);
+        }
+        else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
+          if ((swiped = (slideY > EVT_TOUCH_SWIPE_SPEED)))
+            l_pushtablebool("swipeDown", true);
+          else if ((swiped = (slideY < -EVT_TOUCH_SWIPE_SPEED)))
+            l_pushtablebool("swipeUp", true);
+        }
+        
+        if (swiped)
+          swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+      }
+      slideX = 0;
+      slideY = 0;
+    }
+  } else
+#endif
+    lua_pushnil(lsWidgets);
+  
+  event = 0;
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
+
+  // This little hack is needed to not interfere with the LCD usage of preempted scripts
+  bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
-  if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
+
+  if (lua_pcall(lsWidgets, 3, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
   // Remove LCD
-  luaLcdAllowed = false;
+  luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
 
   // mark as refreshed
@@ -360,7 +513,7 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  TRACE("LuaWidget::background()");
+  // TRACE("LuaWidget::background()");
   luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   if (factory->backgroundFunction) {
@@ -371,6 +524,78 @@ void LuaWidget::background()
     }
   }
 }
+
+#if defined(HARDWARE_KEYS)
+void LuaWidget::onEvent(event_t event)
+{
+  if (fullscreen && EVT_KEY_LONG(KEY_EXIT) != event)
+    LuaWidget::event = event;
+  else
+    LuaWidget::event = 0;
+  
+  Widget::onEvent(event);
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+bool LuaWidget::onTouchStart(coord_t x, coord_t y)
+{
+  TRACE_WINDOWS("LuaWidget received touch start (%d) x=%d;y=%d", hasFocus(), x, y);
+
+  // Only one EVT_TOUCH_FIRST at a time, and also start timer for possible TAP
+  if (fullscreen) {
+    if (lastTouchDown == 0) {
+      event = EVT_TOUCH_FIRST;
+      touchX = x;
+      touchY = y;
+      lastTouchDown = get_tmr10ms();
+    }
+    
+    return true;
+  }
+
+  return Widget::onTouchStart(x, y);
+}
+
+bool LuaWidget::onTouchEnd(coord_t x, coord_t y)
+{
+  TRACE_WINDOWS("LuaWidget received touch end (%d) x=%d;y=%d", hasFocus(), x, y);
+
+  if (fullscreen) {
+    if (get_tmr10ms() - lastTouchDown <= EVT_TOUCH_TAP_TIME)
+      event = EVT_TOUCH_TAP;
+    else
+      event = EVT_TOUCH_BREAK;
+      
+    touchX = x;
+    touchY = y;
+    lastTouchDown = 0;
+    
+    return true;
+  }
+
+  return Widget::onTouchEnd(x, y);
+}
+
+bool LuaWidget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
+{
+  TRACE_WINDOWS("LuaWidget touch slide");
+  if (fullscreen) {
+    event = EVT_TOUCH_SLIDE;
+    touchX = x;
+    touchY = y;
+    LuaWidget::startX = startX;
+    LuaWidget::startY = startY;
+    LuaWidget::slideX += slideX;
+    LuaWidget::slideY += slideY;
+    lastTouchDown = 0;
+    
+    return true;
+  }
+  
+  return Widget::onTouchSlide(x, y, startX, startY, slideX, slideY);
+}
+#endif
 
 void luaLoadWidgetCallback()
 {

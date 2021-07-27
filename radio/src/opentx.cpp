@@ -538,6 +538,11 @@ void checkBacklight()
         resetBacklightTimeout();
       }
     }
+#if defined(HARDWARE_TOUCH) && defined(PCBNV14)
+    if (touchPanelEventOccured() && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+      resetBacklightTimeout();
+    }
+#endif
 
     if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
       currentBacklightBright = g_eeGeneral.backlightBright;
@@ -551,7 +556,6 @@ void checkBacklight()
       if (flashCounter) {
         backlightOn = !backlightOn;
       }
-
       if (backlightOn) {
         currentBacklightBright = requiredBacklightBright;
         BACKLIGHT_ENABLE();
@@ -650,32 +654,6 @@ void doSplash()
 #define doSplash()
 #endif
 
-#if defined(SDCARD)
-void checkSDVersion()
-{
-  if (sdMounted()) {
-    FIL versionFile;
-    UINT read = 0;
-    char version[sizeof(REQUIRED_SDCARD_VERSION)-1];
-    char error[sizeof(TR_WRONG_SDCARDVERSION)+ sizeof(version)];
-
-    strAppend(strAppend(error, STR_WRONG_SDCARDVERSION, sizeof(TR_WRONG_SDCARDVERSION)), REQUIRED_SDCARD_VERSION, sizeof(REQUIRED_SDCARD_VERSION));
-    FRESULT result = f_open(&versionFile, "/edgetx.sdcard.version", FA_OPEN_EXISTING | FA_READ);
-    if (result == FR_OK) {
-      if (f_read(&versionFile, &version, sizeof(version), &read) != FR_OK ||
-          read != sizeof(version) ||
-          strncmp(version, REQUIRED_SDCARD_VERSION, sizeof(version)) != 0) {
-        TRACE("SD card version mismatch:  %.*s, %s", sizeof(REQUIRED_SDCARD_VERSION)-1, version, REQUIRED_SDCARD_VERSION);
-        ALERT(STR_SD_CARD, error, AU_ERROR);
-      }
-      f_close(&versionFile);
-    }
-    else {
-      ALERT(STR_SD_CARD, error, AU_ERROR);
-    }
-  }
-}
-#endif
 
 #if defined(MULTIMODULE)
 void checkMultiLowPower()
@@ -734,9 +712,6 @@ void checkAll()
   checkSwitches();
   checkFailsafe();
 
-#if defined(SDCARD) && !defined(RADIOMASTER_RTF_RELEASE)
-  checkSDVersion();
-#endif
 
 #if defined(STM32)
   if (isVBatBridgeEnabled() && !g_eeGeneral.disableRtcWarning) {

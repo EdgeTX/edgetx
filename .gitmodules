@@ -2,7 +2,6 @@
 	path = radio/src/thirdparty/libopenui
 	url = https://github.com/EdgeTX/libopenui.git
 	branch = master
-[submodule "libACCESS"]
-	path = radio/src/thirdparty/libACCESS
-	url = https://github.com/FrSkyRC/libACCESS.git
-	branch = master
+[submodule "radio/src/thirdparty/AccessDenied"]
+	path = radio/src/thirdparty/AccessDenied
+	url = https://github.com/raphaelcoeffic/AccessDenied.git

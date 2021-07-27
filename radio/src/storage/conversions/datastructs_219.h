@@ -27,7 +27,7 @@
   #define NUM_SWITCHES_219                 10
 #elif defined(PCBXLITE) ||defined(PCBXLITES)
   #define NUM_SWITCHES_219                  6
-#elif  defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8)
+#elif  defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(PCBNV14)
   #define NUM_SWITCHES_219                  8
 #elif defined(PCBX7) || defined(PCBX7ACCESS)
   #define NUM_SWITCHES_219                  8
@@ -49,7 +49,7 @@
 #elif defined(PCBX9LITE)
   #define NUM_POTS_219                      1
   #define NUM_SLIDERS_219                   0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(PCBXLITE) || defined(PCBX7)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(PCBXLITE) || defined(PCBX7) || defined(PCBNV14)
   #define NUM_POTS_219                      2
   #define NUM_SLIDERS_219                   0
 #elif defined(PCBX9E)
@@ -113,7 +113,7 @@
   #define MAX_CURVE_POINTS_219            512
 #endif
 
-#if defined(PCBHORUS)
+#if defined(PCBHORUS) || defined(PCBNV14)
   #define MAX_MODELS_219                   60
   #define MAX_OUTPUT_CHANNELS_219          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES_219              9

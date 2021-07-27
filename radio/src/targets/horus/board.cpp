@@ -206,7 +206,7 @@ void boardInit()
 #endif
 
   init2MhzTimer();
-  init5msTimer();
+  init1msTimer();
   usbInit();
   hapticInit();
 

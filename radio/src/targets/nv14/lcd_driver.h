@@ -32,9 +32,6 @@
 #define HFP  ( 140 - HBP )
 #define VFP  ( 22 - VBP )
 
-#define LCD_FIRST_LAYER     ( 0 )
-#define LCD_SECOND_LAYER    ( 1 )
-
 
 #define PORT_LCD_CS         ( GPIOE )
 #define LCD_CS_PIN          ( GPIO_Pin_4 )

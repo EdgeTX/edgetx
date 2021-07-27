@@ -9,48 +9,10 @@ import tempfile
 
 
 boards = {
-    "TLITE": {
-        "PCB": "X7",
-        "PCBREV": "TLITE",
-        "DEFAULT_MODE": "2",
+    "NV14": {
+        "PCB": "NV14",
+        "DEFAULT_MODE": "1",
     },
-    "T12": {
-        "PCB": "X7",
-        "PCBREV": "T12",
-        "DEFAULT_MODE": "2",
-    },
-    "T12PRO": {
-        "PCB": "X7",
-        "PCBREV": "T12",
-        "INTERNAL_MODULE_MULTI": "YES",
-        "DEFAULT_MODE": "2",
-    },
-    "T16": {
-        "PCB": "X10",
-        "PCBREV": "T16",
-        "INTERNAL_MODULE_MULTI": "YES",
-        "DEFAULT_MODE": "2",
-    },
-    "T16_FS": {
-        "PCB": "X10",
-        "PCBREV": "T16",
-        "INTERNAL_MODULE_MULTI": "YES",
-        "DEFAULT_MODE": "2",
-        "FLYSKY_HALL_STICKS": "YES",
-    },    
-    "T18": {
-        "PCB": "X10",
-        "PCBREV": "T18",
-        "INTERNAL_MODULE_MULTI": "YES",
-        "DEFAULT_MODE": "2",
-    },
-    "T18_FS": {
-        "PCB": "X10",
-        "PCBREV": "T18",
-        "INTERNAL_MODULE_MULTI": "YES",
-        "DEFAULT_MODE": "2",
-        "FLYSKY_HALL_STICKS": "YES",
-    },    
 }
 
 translations = [
@@ -69,7 +31,7 @@ def build(board, translation, srcdir):
         os.mkdir("output")
     path = tempfile.mkdtemp()
     os.chdir(path)
-    command = "cmake %s -DTRANSLATIONS=%s -DJUMPER_RELEASE=YES %s" % (cmake_options, translation, srcdir)
+    command = "cmake %s -DTRANSLATIONS=%s %s" % (cmake_options, translation, srcdir)
     print(command)
     os.system(command)
     os.system("make firmware -j16")
@@ -93,7 +55,7 @@ def dir_path(string):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Build JumperRC firmware")
+    parser = argparse.ArgumentParser(description="Build Flysky firmware")
     parser.add_argument("-b", "--boards", action="append", help="Destination boards", required=True)
     parser.add_argument("-t", "--translations", action="append", help="Translations", required=True)
     parser.add_argument("srcdir", type=dir_path)

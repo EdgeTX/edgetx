@@ -32,7 +32,7 @@ constexpr event_t EVT_ENTRY_UP =       0x1002;
 constexpr event_t EVT_ROTARY_LEFT =    0x1003;
 constexpr event_t EVT_ROTARY_RIGHT =   0x1004;
 
-#if defined(PCBHORUS)
+#if defined(PCBHORUS) || defined (PCBNV14)
 constexpr event_t _MSK_KEY_BREAK =     0x0200;
 constexpr event_t _MSK_KEY_REPT =      0x0400;
 constexpr event_t _MSK_KEY_FIRST =     0x0600;
@@ -71,6 +71,18 @@ constexpr event_t EVT_VIRTUAL_KEY_PREVIOUS = EVT_VIRTUAL_KEY('P');
 constexpr bool IS_VIRTUAL_KEY_EVENT(event_t event)
 {
   return (event & 0xF000) == _MSK_VIRTUAL_KEY;
+}
+
+// Touch events for Lua widgets - assuming _MSK_KEY_* for PCBHORUS
+constexpr event_t EVT_TOUCH = EVT_VIRTUAL_KEY('t');
+constexpr event_t EVT_TOUCH_FIRST = EVT_TOUCH | _MSK_KEY_FIRST;
+constexpr event_t EVT_TOUCH_BREAK = EVT_TOUCH | _MSK_KEY_BREAK;
+constexpr event_t EVT_TOUCH_SLIDE = EVT_TOUCH | _MSK_KEY_LONG;
+constexpr event_t EVT_TOUCH_TAP   = EVT_TOUCH | _MSK_KEY_REPT;
+
+constexpr bool IS_TOUCH_EVENT(event_t event)
+{
+  return (event & ~_MSK_KEY_FLAGS) == EVT_TOUCH;
 }
 #endif
 

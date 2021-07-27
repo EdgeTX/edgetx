@@ -319,9 +319,22 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
   return g_model.moduleData[moduleIdx].type == MODULE_TYPE_SBUS;
 }
 
+inline bool isModuleFlySky(uint8_t idx)
+{
+  return
+    (g_model.moduleData[idx].type == MODULE_TYPE_AFHDS3);
+}
+
+inline bool isModuleAFHDS2A(uint8_t idx)
+{
+  return isModuleFlySky(idx)
+    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS2A);
+}
+
 inline bool isModuleAFHDS3(uint8_t idx)
 {
-  return g_model.moduleData[idx].type == MODULE_TYPE_AFHDS3;
+  return isModuleFlySky(idx)
+    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS3);
 }
 
 // order is the same as in enum Protocols in myeeprom.h (none, ppm, pxx, pxx2, dsm, crossfire, multi, r9m, r9m2, sbus)
