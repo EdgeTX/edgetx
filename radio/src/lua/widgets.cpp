@@ -482,6 +482,8 @@ void LuaWidget::refresh(BitmapBuffer* dc)
         if (swiped)
           swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
       }
+      slideX = 0;
+      slideY = 0;
     }
   } else
 #endif
@@ -584,8 +586,8 @@ bool LuaWidget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t start
     touchY = y;
     LuaWidget::startX = startX;
     LuaWidget::startY = startY;
-    LuaWidget::slideX = slideX;
-    LuaWidget::slideY = slideY;
+    LuaWidget::slideX += slideX;
+    LuaWidget::slideY += slideY;
     lastTouchDown = 0;
     
     return true;
