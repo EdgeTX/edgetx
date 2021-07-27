@@ -21,7 +21,6 @@
 #include "pwr.h"
 #include "board.h"
 
-uint32_t powerupReason __NOINIT;   // Stores power up reason beyond initialization for emergency mode activation
 uint32_t boardState __NOINIT;
 
 void pwrInit()
@@ -89,10 +88,6 @@ bool pwrPressed()
 void pwrResetHandler()
 {
   if (boardState != BOARD_POWER_OFF) {
-    powerupReason = boardState != BOARD_REBOOT && WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() ? DIRTY_SHUTDOWN : ~DIRTY_SHUTDOWN;
     RCC->CSR |= RCC_CSR_RMVF; //clear all flags
-  }
-  else {
-    powerupReason = ~DIRTY_SHUTDOWN;
   }
 }
