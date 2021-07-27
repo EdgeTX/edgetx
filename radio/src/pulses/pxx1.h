@@ -24,6 +24,7 @@
 #include "pxx.h"
 #include "crc.h"
 
+#if defined(INTMODULE_HEARTBEAT_GPIO)
 struct HeartbeatCapture {
 #if !defined(INTMODULE_USART)
   uint32_t timestamp;
@@ -35,6 +36,7 @@ struct HeartbeatCapture {
 };
 
 extern volatile HeartbeatCapture heartbeatCapture;
+#endif
 
 class Pxx1CrcMixin {
   protected:

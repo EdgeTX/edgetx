@@ -70,6 +70,7 @@ set(FIRMWARE_CXX_COMPILER "${GCC_ARM_PATH}arm-none-eabi-g++" CACHE STRING "Speci
 set(FIRMWARE_ASM_COMPILER "${GCC_ARM_PATH}arm-none-eabi-as" CACHE STRING "Specific assembler for firmware target.")
 set(FIRMWARE_OBJCOPY "${GCC_ARM_PATH}arm-none-eabi-objcopy" CACHE STRING "Specific objcopy for firmware target.")
 set(FIRMWARE_SIZE "${GCC_ARM_PATH}arm-none-eabi-size" CACHE STRING "Specific size for firmware target.")
+set(FIRMWARE_RANLIB "${GCC_ARM_PATH}arm-none-eabi-ranlib" CACHE STRING "Specific ranlib for firmware target.")
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
@@ -499,8 +500,8 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
 # customize linker command
 set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET>")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET>")
+set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
+set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
 
 use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
 
@@ -514,6 +515,7 @@ if(NOT MSVC)
     set(CMAKE_C_COMPILER ${FIRMWARE_C_COMPILER})
     set(CMAKE_CXX_COMPILER ${FIRMWARE_CXX_COMPILER})
     set(CMAKE_ASM_COMPILER ${FIRMWARE_ASM_COMPILER})
+    set(CMAKE_RANLIB ${FIRMWARE_RANLIB})
 
     set(CMAKE_SYSTEM_NAME Generic)
     set(CMAKE_SYSTEM_VERSION 1)
@@ -527,10 +529,6 @@ if(NOT MSVC)
 
     # these are in addition to CMAKE_CXX_FLAGS
     set(CMAKE_EXE_LINKER_FLAGS "-lm -T${RADIO_SRC_DIR}/${LINKER_SCRIPT} -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections")
-
-    if(ACCESS_LIB)
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--whole-archive ${RADIO_SRC_DIR}/${THIRDPARTY_DIR}/libACCESS/libAccess.a -Wl,--no-whole-archive")
-    endif()
 
     if(SEMIHOSTING)
       add_definitions(-DSEMIHOSTING)
@@ -576,6 +574,12 @@ if(NOT MSVC)
     link_libraries(firmware -lstdc++)
     add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
     set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+    if(ACCESS_DENIED)
+      add_subdirectory(thirdparty/AccessDenied)
+      include_directories(thirdparty/AccessDenied)
+      target_link_libraries(firmware AccessDenied)
+    endif()
 
     add_custom_command(
       TARGET firmware POST_BUILD
