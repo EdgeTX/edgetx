@@ -256,6 +256,14 @@ if [[ " X12S COLORLCD ALL " =~ \ ${FLAVOR}\  ]] ; then
   make -j"${CORES}" tests-radio
 fi
 
+if [[ " NV14 COLORLCD ALL " =~ \ ${FLAVOR}\  ]] ; then
+  rm -rf ./* || true
+  cmake "${COMMON_OPTIONS}" -DPCB=NV14 "${SRCDIR}"
+  make -j"${CORES}" ${FIRMARE_TARGET}
+  make -j"${CORES}" libsimulator
+  #TODO: make -j"${CORES}" tests-radio
+fi
+
 if [[ " COMPANION ALL " =~ \ ${FLAVOR}\  ]] ; then
   # Companion
    rm -rf ./* || true
