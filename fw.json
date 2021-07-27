@@ -16,7 +16,8 @@
         ["Horus X12s", "x12s-"],
         ["Horus X10", "x10-"],
         ["T12", "t12-"],
-        ["T8", "t8-"]
+        ["T8", "t8-"],
+        ["NV14", "nv14-"]
     ],
     "changelog": "- Major initial bug fixes"
 }
