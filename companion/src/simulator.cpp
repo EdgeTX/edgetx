@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
   // Validate startup options
 
   QString resultMsg;
-  if (profileId < 0 || simOptions.firmwareId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
+  if (profileId < 0 || simOptions.firmwareId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty()) && simOptions.sdPath.isEmpty()) {
     resultMsg = QApplication::translate("SimulatorMain", "ERROR: Couldn't start simulator, missing radio/profile/data file/folder.\n  Profile ID: [%1]; Radio ID: [%2];\nData File: [%3]");
     showMessage(resultMsg.arg(profileId).arg(simOptions.firmwareId, simOptions.dataFile), QMessageBox::Critical);
     return finish(1);
