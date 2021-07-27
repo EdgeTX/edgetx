@@ -94,10 +94,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
 #warning "TODO telemetryPortInvertedInit";
 }
 
-void extmoduleSendInvertedByte(uint8_t byte)
+/*void extmoduleSendInvertedByte(uint8_t byte)
 {
 #warning "TODO extmoduleSendInvertedByte";
-}
+}*/
 
 void telemetryPortSetDirectionOutput()
 {
@@ -117,7 +117,7 @@ void sportSendByte(uint8_t byte)
   USART_SendData(TELEMETRY_USART, byte);
 }
 
-void sportSendBuffer(uint8_t * buffer, uint32_t count)
+void sportSendBuffer(const uint8_t * buffer, uint32_t count)
 {
   telemetryPortSetDirectionOutput();
 
@@ -197,7 +197,7 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
 }
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-uint8_t telemetryGetByte(uint8_t * byte)
+bool telemetryGetByte(uint8_t * byte)
 {
 #if defined(PCBX12S)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)

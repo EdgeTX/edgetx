@@ -96,12 +96,15 @@ void ViewTextWindow::checkEvents()
     coord_t deltaY;
     event_t event = getWindowEvent();
 
+#if defined(ROTARY_ENCODER_NAVIGATION)		
     if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
       deltaY = ROTARY_ENCODER_SPEED() * step;
     } else {
       deltaY = step;
     }
-
+#else
+      deltaY = step;
+#endif
     switch (event) {
     CASE_EVT_KEY_NEXT_LINE:
       currentPos += deltaY;
@@ -259,12 +262,16 @@ void ViewTextWindow::checkEvents()
     coord_t deltaY;
     event_t event = getWindowEvent();
 
+#if defined(ROTARY_ENCODER_NAVIGATION)		
     if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
       deltaY = ROTARY_ENCODER_SPEED() * step;
     } else {
       deltaY = step;
     }
-
+#else
+      deltaY = step;
+#endif
+			
     int lineStep = deltaY / step;
     if(lineStep > (maxScreenLines >> 1)) lineStep = maxScreenLines >> 1;
 /*

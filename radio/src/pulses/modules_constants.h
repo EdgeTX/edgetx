@@ -38,6 +38,7 @@ enum ModuleType {
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
   MODULE_TYPE_AFHDS3, //no more protocols possible because of 4 bits value
+  //MODULE_TYPE_AFHDS2A,
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
 };
@@ -220,6 +221,11 @@ enum ModuleSubtypeDSM2 {
   DSM2_PROTO_LP45,
   DSM2_PROTO_DSM2,
   DSM2_PROTO_DSMX,
+};
+
+enum ModuleSubtypeFlysky {
+  FLYSKY_SUBTYPE_AFHDS3=0,
+  FLYSKY_SUBTYPE_AFHDS2A
 };
 
 enum FailsafeModes {

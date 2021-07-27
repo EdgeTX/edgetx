@@ -276,7 +276,8 @@ uint8_t audioHardReset(void)
   XDCS_HIGH();
   CS_HIGH();
   RST_HIGH();
-  while (READ_DREQ() == 0 && retry < 200) {
+  while (READ_DREQ() == 0 && retry < 200)
+  {
     retry++;
     delay_us(50);
   }

@@ -187,9 +187,13 @@ uint8_t getRequiredProtocol(uint8_t module)
       break;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(AFHDS2)
     case MODULE_TYPE_AFHDS3:
-      protocol = PROTOCOL_CHANNELS_AFHDS3;
+      if (isModuleAFHDS3(module)) {
+        protocol = PROTOCOL_CHANNELS_AFHDS3;
+      } else if (isModuleAFHDS2A(module)) {
+        protocol = PROTOCOL_CHANNELS_AFHDS2A;
+      }
       break;
 #endif
 
@@ -471,6 +475,14 @@ static void enablePulsesInternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_PPM:
       intmodulePpmStart();
       mixerSchedulerSetPeriod(INTERNAL_MODULE, PPM_PERIOD(INTERNAL_MODULE));
+      break;
+#endif
+
+#if defined(AFHDS2)
+    case PROTOCOL_CHANNELS_AFHDS2A:
+/*      extmodulePulsesData.afhds2.init(INTERNAL_MODULE);
+      extmoduleSerialStart();*/
+      mixerSchedulerSetPeriod(INTERNAL_MODULE, 2 * 1000 /* us */);
       break;
 #endif
 

@@ -454,9 +454,9 @@ BitmapBuffer * FlyskyTheme::menuIconNormal[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * FlyskyTheme::menuIconSelected[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * FlyskyTheme::currentMenuBackground = nullptr;
 
-FlyskyTheme flyskyTheme;
+/*FlyskyTheme flyskyTheme;
 
 #if defined(PCBFLYSKY)
 OpenTxTheme * defaultTheme = &flyskyTheme;
 Theme * theme = &flyskyTheme;
-#endif
+#endif*/

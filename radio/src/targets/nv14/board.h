@@ -21,10 +21,10 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include "../definitions.h"
-#include "../opentx_constants.h"
-#include "hal.h"
+#include "definitions.h"
+#include "opentx_constants.h"
 #include "board_common.h"
+#include "hal.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -34,7 +34,7 @@
 #endif
 
 #include "touch_driver.h"
-#include "hallStick_driver.h"
+//#include "hallStick_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
 
@@ -69,7 +69,7 @@ void boardOff();
 
 // Timers driver
 void init2MhzTimer();
-void init5msTimer();
+void init1msTimer();
 
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
@@ -128,7 +128,8 @@ void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, 
 void intmoduleSendBuffer(const uint8_t * data, uint8_t size);
 void intmoduleSendNextFrame();
 
-void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
+//void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
+void extmoduleSerialStart();
 void extmoduleSendNextFrame();
 void extmoduleSendInvertedByte(uint8_t byte);
 
@@ -146,6 +147,7 @@ enum EnumKeys
   KEY_PGUP,
   KEY_PGDN,
   KEY_UP,
+  KEY_MODEL = KEY_UP, // TODO: just fixed for compile error, seems this is quite different from horus definition.
   KEY_DOWN,
   KEY_RIGHT,
   KEY_LEFT,
@@ -236,13 +238,6 @@ enum EnumSwitchesPositions
 };
 
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
-enum EnumPowerupState
-{
-  BOARD_POWER_OFF = 0xCAFEDEAD,
-  BOARD_POWER_ON = 0xDEADBEEF,
-  BOARD_STARTED = 0xBAADF00D,
-  BOARD_REBOOT = 0xC00010FF,
-};
 
 void monitorInit();
 void keysInit();
@@ -258,15 +253,6 @@ uint32_t readTrims();
 #define DBLKEYS_PRESSED_UP_DWN(in)      (false)
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
-
-// WDT driver
-extern uint32_t powerupReason;
-extern uint32_t boardState;
-
-#define SHUTDOWN_REQUEST                0xDEADBEEF
-#define NO_SHUTDOWN_REQUEST             ~SHUTDOWN_REQUEST
-#define DIRTY_SHUTDOWN                  0xCAFEDEAD
-#define NORMAL_POWER_OFF                ~DIRTY_SHUTDOWN
 
 #define WDG_DURATION                              500 /*ms*/
 void watchdogInit(unsigned int duration);
@@ -332,6 +318,8 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
+  CALIBRATED_SLIDER_REAR_LEFT,
+  CALIBRATED_SLIDER_REAR_RIGHT,  
   CALIBRATED_SWA,
   CALIBRATED_SWB,
   CALIBRATED_SWC,
@@ -357,6 +345,45 @@ uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 #define BATTERY_MIN                   35 // 3.5V
 #define BATTERY_MAX                   42 // 4.2V
 
+enum EnumPowerupState
+{
+  BOARD_POWER_OFF = 0xCAFEDEAD,
+  BOARD_POWER_ON = 0xDEADBEEF,
+  BOARD_STARTED = 0xBAADF00D,
+  BOARD_REBOOT = 0xC00010FF,
+};
+
+extern uint32_t boardState;
+
+#if defined(__cplusplus)
+enum PowerReason {
+  SHUTDOWN_REQUEST = 0xDEADBEEF,
+  SOFTRESET_REQUEST = 0xCAFEDEAD,
+};
+
+constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
+
+inline bool UNEXPECTED_SHUTDOWN()
+{
+#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+  return false;
+#else
+  if (WAS_RESET_BY_WATCHDOG())
+    return true;
+  else if (WAS_RESET_BY_SOFTWARE())
+    return RTC->BKP0R != SOFTRESET_REQUEST;
+  else
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
+#endif
+}
+
+inline void SET_POWER_REASON(uint32_t value)
+{
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
+}
+#endif
+
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif
@@ -374,12 +401,15 @@ void pwrSoftReboot();
 void pwrOff();
 void pwrResetHandler();
 bool pwrPressed();
-uint32_t pwrPressedDuration();;
-#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
-  #define UNEXPECTED_SHUTDOWN()         (false)
+#if defined(PWR_EXTRA_SWITCH_GPIO)
+  bool pwrForcePressed();
 #else
-  #define UNEXPECTED_SHUTDOWN()        (powerupReason == DIRTY_SHUTDOWN)
+  #define pwrForcePressed() false
 #endif
+uint32_t pwrPressedDuration();;
+  
+#define AUX_SERIAL_POWER_ON()
+#define AUX_SERIAL_POWER_OFF()
 
 // LCD driver
 #define LCD_W                           320
@@ -387,20 +417,19 @@ uint32_t pwrPressedDuration();;
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 void lcdInit();
-void lcdNextLayer();
 void lcdRefresh();
 void lcdCopy(void * dest, void * src);
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format);
+void lcdStoreBackupBuffer();
+int lcdRestoreBackupBuffer();
 void lcdSetContrast();
 void lcdOff();
 void lcdOn();
 #define lcdSetRefVolt(...)
 #define lcdRefreshWait(...)
-void lcdStoreBackupBuffer();
-int lcdRestoreBackupBuffer();
 
 // Backlight driver
 void backlightInit();
@@ -471,8 +500,8 @@ int32_t getVolume();
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionOutput();
 void telemetryPortSetDirectionInput();
-void sportSendBuffer(uint8_t * buffer, uint32_t count);
-uint8_t telemetryGetByte(uint8_t * byte);
+void sportSendBuffer(const uint8_t * buffer, uint32_t count);
+bool telemetryGetByte(uint8_t * byte);
 void telemetryClearFifo();
 void sportSendByte(uint8_t byte);
 extern uint32_t telemetryErrors;
@@ -493,9 +522,13 @@ void hapticOff();
 void hapticOn(uint32_t pwmPercent);
 
 // Second serial port driver
-#define AUX_SERIAL
+//#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
+#define LUA_DEFAULT_BAUDRATE            115200
 extern uint8_t auxSerialMode;
+#if defined __cplusplus
+void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
+#endif
 void auxSerialInit(unsigned int mode, unsigned int protocol);
 void auxSerialPutc(char c);
 #define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)

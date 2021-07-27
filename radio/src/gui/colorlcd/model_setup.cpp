@@ -622,6 +622,16 @@ class ModuleWindow : public FormGroup {
                                   rfChoice->setFocus(SET_FOCUS_DEFAULT);
                               });
       }
+      else if (isModuleFlySky(moduleIdx)) {
+        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_FLYSKY_PROTOCOLS, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
+                              GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
+                              [=](int32_t newValue) {
+                                  g_model.moduleData[moduleIdx].subType = newValue;
+                                  SET_DIRTY();
+                                  update();
+                                  rfChoice->setFocus(SET_FOCUS_DEFAULT);
+                              });
+      }
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
         Choice * mmSubProtocol = nullptr;
