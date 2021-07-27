@@ -35,8 +35,6 @@ def build(board, translation, srcdir):
     print(command)
     os.system(command)
     os.system("make firmware -j16")
-    os.system("make simu -j16")
-    os.system("make tests-radio -j16")
     os.chdir(cwd)
     index = 0
     while 1:
