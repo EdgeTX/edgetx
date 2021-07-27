@@ -30,11 +30,12 @@
 #define WIDGET_SCRIPTS_MAX_INSTRUCTIONS    (10000/100)
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
 #define LUA_WARNING_INFO_LEN               64
+#define EVENT_BUFFER_SIZE                   2
 
 #if defined(HARDWARE_TOUCH)
 #define EVT_TOUCH_TAP_TIME      25
 #define EVT_TOUCH_SWIPE_LOCK     4
-#define EVT_TOUCH_SWIPE_SPEED   35
+#define EVT_TOUCH_SWIPE_SPEED   60
 #define EVT_TOUCH_SWIPE_TIMEOUT 50
 #endif
 
@@ -221,6 +222,18 @@ ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
   return options;
 }
 
+struct eventData {
+  event_t event;
+#if defined(HARDWARE_TOUCH)
+  coord_t touchX;
+  coord_t touchY;
+  coord_t startX;
+  coord_t startY;
+  coord_t slideX;
+  coord_t slideY;
+#endif  
+};
+
 class LuaWidget: public Widget
 {
   public:
@@ -267,35 +280,26 @@ class LuaWidget: public Widget
     char * errorMessage;
     uint32_t lastRefresh = 0;
     bool     refreshed = false;
-    
-    static event_t event;
 
+    static eventData events[EVENT_BUFFER_SIZE];
 #if defined(HARDWARE_TOUCH)
-    static coord_t touchX;
-    static coord_t touchY;
-    static coord_t startX;
-    static coord_t startY;
-    static coord_t slideX;
-    static coord_t slideY;
     static tmr10ms_t lastTouchDown;
     static tmr10ms_t swipeTimeOut;
-#endif
+#endif  
+
     void checkEvents() override;
     void setErrorMessage(const char * funcName);
+  
+  private:
+    eventData* findOpenEventSlot(event_t event = 0);
 };
 
-event_t LuaWidget::event = 0;
+eventData LuaWidget::events[EVENT_BUFFER_SIZE] = { 0 };
 
 #if defined(HARDWARE_TOUCH)
-coord_t LuaWidget::touchX = 0;
-coord_t LuaWidget::touchY = 0;
-coord_t LuaWidget::startX = 0;
-coord_t LuaWidget::startY = 0;
-coord_t LuaWidget::slideX = 0;
-coord_t LuaWidget::slideY = 0;
-tmr10ms_t LuaWidget::lastTouchDown = 0;
-tmr10ms_t LuaWidget::swipeTimeOut = 0;
-#endif
+  tmr10ms_t LuaWidget::lastTouchDown = 0;
+  tmr10ms_t LuaWidget::swipeTimeOut = 0;
+#endif  
 
 void l_pushtableint(const char * key, int value)
 {
@@ -366,6 +370,17 @@ class LuaWidgetFactory: public WidgetFactory
     int refreshFunction;
     int backgroundFunction;
 };
+
+// Look for a slot in the event buffer that is either unused (zero) or matches event
+eventData* LuaWidget::findOpenEventSlot(event_t event)
+{
+  for (int i = 0; i < EVENT_BUFFER_SIZE; i++) {
+    if (events[i].event == event || events[i].event == 0)
+      return &events[i];
+  }
+
+  return NULL;
+}
 
 void LuaWidget::checkEvents()
 {
@@ -443,53 +458,55 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
   
   // Pass key event to fullscreen Lua widget
+  eventData* es = &events[0];
   if (fullscreen)
-    lua_pushinteger(lsWidgets, event);
+    lua_pushinteger(lsWidgets, es->event);
   else
     lua_pushnil(lsWidgets);
 
 #if defined(HARDWARE_TOUCH)
-  if (fullscreen && IS_TOUCH_EVENT(event)) {
+  if (fullscreen && IS_TOUCH_EVENT(es->event)) {
     lua_newtable(lsWidgets);
-    l_pushtableint("x", touchX);
-    l_pushtableint("y", touchY);
+    l_pushtableint("x", es->touchX);
+    l_pushtableint("y", es->touchY);
     
-    if (LuaWidget::event == EVT_TOUCH_SLIDE) {
-      l_pushtableint("startX", startX);
-      l_pushtableint("startY", startY);
-      l_pushtableint("slideX", slideX);
-      l_pushtableint("slideY", slideY);
+    if (es->event == EVT_TOUCH_SLIDE) {
+      l_pushtableint("startX", es->startX);
+      l_pushtableint("startY", es->startY);
+      l_pushtableint("slideX", es->slideX);
+      l_pushtableint("slideY", es->slideY);
 
       // Do we have a swipe? Only one at a time!
       if (get_tmr10ms() > swipeTimeOut) {
-        coord_t absX = (slideX < 0) ? -slideX : slideX;
-        coord_t absY = (slideY < 0) ? -slideY : slideY;
+        coord_t absX = (es->slideX < 0) ? -(es->slideX) : es->slideX;
+        coord_t absY = (es->slideY < 0) ? -(es->slideY) : es->slideY;
         bool swiped = false;
   
         if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
-          if ((swiped = (slideX > EVT_TOUCH_SWIPE_SPEED)))
+          if ((swiped = (es->slideX > EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeRight", true);
-          else if ((swiped = (slideX < -EVT_TOUCH_SWIPE_SPEED)))
+          else if ((swiped = (es->slideX < -EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeLeft", true);
         }
         else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
-          if ((swiped = (slideY > EVT_TOUCH_SWIPE_SPEED)))
+          if ((swiped = (es->slideY > EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeDown", true);
-          else if ((swiped = (slideY < -EVT_TOUCH_SWIPE_SPEED)))
+          else if ((swiped = (es->slideY < -EVT_TOUCH_SWIPE_SPEED)))
             l_pushtablebool("swipeUp", true);
         }
         
         if (swiped)
           swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
       }
-      slideX = 0;
-      slideY = 0;
     }
   } else
 #endif
     lua_pushnil(lsWidgets);
   
-  event = 0;
+  // Move the event buffer forward
+  for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
+    events[i - 1] = events[i];
+  memset(&events[EVENT_BUFFER_SIZE - 1], 0, sizeof(eventData));
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
@@ -528,11 +545,17 @@ void LuaWidget::background()
 #if defined(HARDWARE_KEYS)
 void LuaWidget::onEvent(event_t event)
 {
-  if (fullscreen && EVT_KEY_LONG(KEY_EXIT) != event)
-    LuaWidget::event = event;
-  else
-    LuaWidget::event = 0;
-  
+  if (fullscreen) {
+    if (EVT_KEY_LONG(KEY_EXIT) == event) {
+      // Clear event buffer on full screen exit
+      memset(&events, 0, EVENT_BUFFER_SIZE * sizeof(eventData));
+    } else {
+      eventData* es = findOpenEventSlot();
+
+      if (es)
+        es->event = event;
+    }
+  }
   Widget::onEvent(event);
 }
 #endif
@@ -545,12 +568,17 @@ bool LuaWidget::onTouchStart(coord_t x, coord_t y)
   // Only one EVT_TOUCH_FIRST at a time, and also start timer for possible TAP
   if (fullscreen) {
     if (lastTouchDown == 0) {
-      event = EVT_TOUCH_FIRST;
-      touchX = x;
-      touchY = y;
+      eventData* es = findOpenEventSlot();
+
+      if (es) {
+        es->event = EVT_TOUCH_FIRST;
+        es->touchX = x;
+        es->touchY = y;
+      }
+      
       lastTouchDown = get_tmr10ms();
     }
-    
+
     return true;
   }
 
@@ -562,15 +590,18 @@ bool LuaWidget::onTouchEnd(coord_t x, coord_t y)
   TRACE_WINDOWS("LuaWidget received touch end (%d) x=%d;y=%d", hasFocus(), x, y);
 
   if (fullscreen) {
-    if (get_tmr10ms() - lastTouchDown <= EVT_TOUCH_TAP_TIME)
-      event = EVT_TOUCH_TAP;
-    else
-      event = EVT_TOUCH_BREAK;
-      
-    touchX = x;
-    touchY = y;
+    eventData* es = findOpenEventSlot();
+
+    if (es) {
+      if (get_tmr10ms() - lastTouchDown <= EVT_TOUCH_TAP_TIME)
+        es->event = EVT_TOUCH_TAP;
+      else
+        es->event = EVT_TOUCH_BREAK;
+      es->touchX = x;
+      es->touchY = y;
+    }
+
     lastTouchDown = 0;
-    
     return true;
   }
 
@@ -581,15 +612,20 @@ bool LuaWidget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t start
 {
   TRACE_WINDOWS("LuaWidget touch slide");
   if (fullscreen) {
-    event = EVT_TOUCH_SLIDE;
-    touchX = x;
-    touchY = y;
-    LuaWidget::startX = startX;
-    LuaWidget::startY = startY;
-    LuaWidget::slideX += slideX;
-    LuaWidget::slideY += slideY;
-    lastTouchDown = 0;
+    // If we already have a SLIDE going, then accumulate slide values instead of allocating an empty slot
+    eventData* es = findOpenEventSlot(EVT_TOUCH_SLIDE);
+
+    if (es) {
+      es->event = EVT_TOUCH_SLIDE;
+      es->touchX = x;
+      es->touchY = y;
+      es->startX = startX;
+      es->startY = startY;
+      es->slideX += slideX;
+      es->slideY += slideY;
+    }
     
+    lastTouchDown = 0;    
     return true;
   }
   
