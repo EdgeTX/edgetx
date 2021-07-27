@@ -238,13 +238,6 @@ enum EnumSwitchesPositions
 };
 
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
-enum EnumPowerupState
-{
-  BOARD_POWER_OFF = 0xCAFEDEAD,
-  BOARD_POWER_ON = 0xDEADBEEF,
-  BOARD_STARTED = 0xBAADF00D,
-  BOARD_REBOOT = 0xC00010FF,
-};
 
 void monitorInit();
 void keysInit();
@@ -260,15 +253,6 @@ uint32_t readTrims();
 #define DBLKEYS_PRESSED_UP_DWN(in)      (false)
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
-
-// WDT driver
-extern uint32_t powerupReason;
-extern uint32_t boardState;
-
-/*#define SHUTDOWN_REQUEST                0xDEADBEEF
-#define NO_SHUTDOWN_REQUEST             ~SHUTDOWN_REQUEST
-#define DIRTY_SHUTDOWN                  0xCAFEDEAD
-#define NORMAL_POWER_OFF                ~DIRTY_SHUTDOWN*/
 
 #define WDG_DURATION                              500 /*ms*/
 void watchdogInit(unsigned int duration);
@@ -361,6 +345,16 @@ uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 #define BATTERY_MIN                   35 // 3.5V
 #define BATTERY_MAX                   42 // 4.2V
 
+enum EnumPowerupState
+{
+  BOARD_POWER_OFF = 0xCAFEDEAD,
+  BOARD_POWER_ON = 0xDEADBEEF,
+  BOARD_STARTED = 0xBAADF00D,
+  BOARD_REBOOT = 0xC00010FF,
+};
+
+extern uint32_t boardState;
+
 #if defined(__cplusplus)
 enum PowerReason {
   SHUTDOWN_REQUEST = 0xDEADBEEF,
@@ -413,12 +407,7 @@ bool pwrPressed();
   #define pwrForcePressed() false
 #endif
 uint32_t pwrPressedDuration();;
-/*#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
-  #define UNEXPECTED_SHUTDOWN()         (false)
-#else
-  #define UNEXPECTED_SHUTDOWN()        (powerupReason == DIRTY_SHUTDOWN)
-#endif*/
-
+  
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
 
