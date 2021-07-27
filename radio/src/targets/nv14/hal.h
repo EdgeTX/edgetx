@@ -499,8 +499,6 @@
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
 #define EXTMODULE_TIMER_DMA_FLAG_TC        DMA_IT_TCIF1
 
-//#define EXTMODULE_USART                    USART6
-
 #define EXTMODULE_TX_INVERT_GPIO           GPIOE
 #define EXTMODULE_TX_INVERT_GPIO_PIN       GPIO_Pin_3  // PE.03
 #define EXTMODULE_RX_INVERT_GPIO           GPIOI
