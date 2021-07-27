@@ -445,18 +445,19 @@
 #define EXTERNAL_MODULE_PWR_OFF()       GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTMODULE_PWR_FIX_GPIO          GPIOA
 #define EXTMODULE_PWR_FIX_GPIO_PIN      GPIO_Pin_2      // PA.02
-#define EXTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
-#define EXTMODULE_RCC_APB1Periph        0
+#define EXTMODULE_RCC_AHB1Periph                                        \
+  (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | \
+   RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
+#define EXTMODULE_RCC_APB1Periph 0
 #define EXTMODULE_RCC_APB2Periph        (RCC_APB2Periph_TIM8 | RCC_APB2Periph_USART6)
 #define EXTMODULE_TX_GPIO               GPIOC
 #define EXTMODULE_TX_GPIO_PIN           GPIO_Pin_6 // PC.06
 #define EXTMODULE_TX_GPIO_PinSource     GPIO_PinSource6
-#define EXTMODULE_TX_GPIO_AF            GPIO_AF_TIM8
+#define EXTMODULE_TX_GPIO_AF            GPIO_AF_TIM8 // TIM8_CH1
 #define EXTMODULE_TX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_RX_GPIO               GPIOC
 #define EXTMODULE_RX_GPIO_PIN           GPIO_Pin_7 // PC.07
 #define EXTMODULE_RX_GPIO_PinSource     GPIO_PinSource7
-#define EXTMODULE_USART                 USART6
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_IRQn            TIM8_CC_IRQn
@@ -465,6 +466,7 @@
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      GPIO_AF_TIM8
 //USART
+#define EXTMODULE_USART                    USART6
 #define EXTMODULE_USART_GPIO               GPIOC
 #define EXTMODULE_USART_GPIO_AF            GPIO_AF_USART6
 

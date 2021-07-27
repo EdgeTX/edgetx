@@ -125,7 +125,6 @@ set(GVAR_SCREEN model_gvars.cpp)
 
 set(TARGET_SRC
   ${TARGET_SRC}
-#  extmodule_driver.cpp
   extmodule_helper.cpp
   ../horus/extmodule_driver.cpp
   trainer_driver.cpp

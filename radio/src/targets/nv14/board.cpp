@@ -86,7 +86,8 @@ void delay_self(int count)
                                FLYSKY_HALL_RCC_APB1Periph |\
                                EXTMODULE_RCC_APB1Periph |\
                                INTMODULE_RCC_APB1Periph |\
-                               AUX_SERIAL_RCC_APB1Periph \
+                               AUX_SERIAL_RCC_APB1Periph |\
+                               MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
                               )
 #define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
 
@@ -113,8 +114,11 @@ void boardInit()
   __enable_irq();
 #endif
 
-#if defined(DEBUG)
-   auxSerialInit(0, 0); // default serial mode (None if DEBUG not defined)
+#if defined(DEBUG) && defined(AUX_SERIAL)
+  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
+#endif
+#if defined(DEBUG) && defined(AUX2_SERIAL)
+  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
 #endif
 
   TRACE("\nNV14 board started :)");
