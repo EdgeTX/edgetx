@@ -116,11 +116,12 @@ void ViewMainDecoration::adjustDecoration()
     sl->setTop(pos);
     if (IS_POT_MULTIPOS(POT2)) {
       sl->setWidth(MULTIPOS_W);
+	    sl->setLeft((width() - sl->width()) / 2);  // This is the position of middle multipos pot
     }
     else { // if !IS_POT(POT2) -> sliders[SLIDERS_POT2] == nullptr
       sl->setWidth(HORIZONTAL_SLIDERS_WIDTH);
+			sl->setLeft(width() - sl->width() - HMARGIN);  // Normal pot position, align to right
     }
-    sl->setLeft((width() - sl->width()) / 2);
   }
 
 #if defined(HARDWARE_POT3)
