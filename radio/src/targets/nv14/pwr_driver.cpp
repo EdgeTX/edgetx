@@ -89,10 +89,10 @@ bool pwrPressed()
 void pwrResetHandler()
 {
   if (boardState != BOARD_POWER_OFF) {
-    powerupReason = boardState != BOARD_REBOOT && WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() ? DIRTY_SHUTDOWN : ~DIRTY_SHUTDOWN;
+    powerupReason = boardState != BOARD_REBOOT && WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() ? SOFTRESET_REQUEST : SHUTDOWN_REQUEST;
     RCC->CSR |= RCC_CSR_RMVF; //clear all flags
   }
   else {
-    powerupReason = ~DIRTY_SHUTDOWN;
+    powerupReason = SHUTDOWN_REQUEST;
   }
 }

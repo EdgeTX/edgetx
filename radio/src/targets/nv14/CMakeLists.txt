@@ -68,7 +68,7 @@ set(FIRMWARE_TARGET_SRC
 set(BITMAPS_TARGET nv14_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
-set(LUA_EXPORT lua_export_x10)
+set(LUA_EXPORT lua_export_nv14)
 set(TOUCH_DRIVER touch_driver.cpp)
 set(HARDWARE_TOUCH YES)
 
@@ -76,6 +76,8 @@ set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET} truetype_fonts)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
+
+set(FIRMWARE_DEPENDENCIES datacopy)
 
 add_definitions(-DSTM32F429_439xx -DSDRAM -DCOLORLCD -DLIBOPENUI -DHARDWARE_TOUCH -DSOFTWARE_KEYBOARD)
 add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
@@ -212,4 +214,3 @@ if(PYTHONINTERP_FOUND)
     )
 endif()
 
-set(LUA_EXPORT lua_export_nv14)

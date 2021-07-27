@@ -21,10 +21,10 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include "../definitions.h"
-#include "../opentx_constants.h"
-#include "hal.h"
+#include "definitions.h"
+#include "opentx_constants.h"
 #include "board_common.h"
+#include "hal.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -265,10 +265,10 @@ uint32_t readTrims();
 extern uint32_t powerupReason;
 extern uint32_t boardState;
 
-#define SHUTDOWN_REQUEST                0xDEADBEEF
+/*#define SHUTDOWN_REQUEST                0xDEADBEEF
 #define NO_SHUTDOWN_REQUEST             ~SHUTDOWN_REQUEST
 #define DIRTY_SHUTDOWN                  0xCAFEDEAD
-#define NORMAL_POWER_OFF                ~DIRTY_SHUTDOWN
+#define NORMAL_POWER_OFF                ~DIRTY_SHUTDOWN*/
 
 #define WDG_DURATION                              500 /*ms*/
 void watchdogInit(unsigned int duration);
@@ -361,6 +361,35 @@ uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 #define BATTERY_MIN                   35 // 3.5V
 #define BATTERY_MAX                   42 // 4.2V
 
+#if defined(__cplusplus)
+enum PowerReason {
+  SHUTDOWN_REQUEST = 0xDEADBEEF,
+  SOFTRESET_REQUEST = 0xCAFEDEAD,
+};
+
+constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
+
+inline bool UNEXPECTED_SHUTDOWN()
+{
+#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+  return false;
+#else
+  if (WAS_RESET_BY_WATCHDOG())
+    return true;
+  else if (WAS_RESET_BY_SOFTWARE())
+    return RTC->BKP0R != SOFTRESET_REQUEST;
+  else
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
+#endif
+}
+
+inline void SET_POWER_REASON(uint32_t value)
+{
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
+}
+#endif
+
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif
@@ -384,11 +413,11 @@ bool pwrPressed();
   #define pwrForcePressed() false
 #endif
 uint32_t pwrPressedDuration();;
-#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+/*#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
   #define UNEXPECTED_SHUTDOWN()         (false)
 #else
   #define UNEXPECTED_SHUTDOWN()        (powerupReason == DIRTY_SHUTDOWN)
-#endif
+#endif*/
 
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
