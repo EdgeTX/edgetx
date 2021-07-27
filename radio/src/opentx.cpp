@@ -538,11 +538,11 @@ void checkBacklight()
         resetBacklightTimeout();
       }
     }
-    #if defined(HARDWARE_TOUCH)
+#if defined(HARDWARE_TOUCH) && defined(PCBNV14)
     if (touchPanelEventOccured() && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
       resetBacklightTimeout();
     }
-    #endif
+#endif
 
     if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
       currentBacklightBright = g_eeGeneral.backlightBright;
