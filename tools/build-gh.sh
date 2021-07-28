@@ -4,13 +4,20 @@
 set -e
 set -x
 
-# Allow variable core usage, default uses all cpu cores, to set 8 cores for example : commit-tests.sh -j8
-num_cpus=$(nproc)
+# Allow variable core usage
+# default uses all cpu cores
+#
+if [ -f /usr/bin/nproc ]; then
+    num_cpus=$(nproc)
+elif [ -f /usr/sbin/sysctl ]; then
+    num_cpus=$(sysctl -n hw.logicalcpu)
+else
+    num_cpus=2
+fi
 : "${CORES:=$num_cpus}"
-# Default build treats warnings as errors, set -Wno-error to override, e.g.: commit-tests.sh -Wno-error
-#: "${WERROR:=1}"
-# A board name to build for, or ALL
-: "${FLAVOR:=ALL}"
+
+# If no build target, exit
+#: "${FLAVOR:=ALL}"
 
 for i in "$@"
 do
@@ -34,115 +41,114 @@ case $i in
 esac
 done
 
-if [ "$(uname)" = "Darwin" ]; then
-    SCRIPT=$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$0")
-else
-    SCRIPT=$(readlink -f "$0")
-fi
-
+# Add GCC_ARM to PATH
 if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${SRCDIR:=$(dirname "$SCRIPT")/..}
+: ${SRCDIR:=$(dirname $(pwd)/"$0")/..}
 
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=Debug -DTRACE_SIMPGMSPACE=NO -DVERBOSE_CMAKELISTS=YES -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}
-if (( $WERROR )); then COMMON_OPTIONS+=" -DWARNINGS_AS_ERRORS=YES -DMULTIMODULE=YES"; fi
-
+: ${BUILD_TYPE:=Release}
+: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -DDISABLE_COMPANION=YES -Wno-dev "}
 : ${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}
 
 COMMON_OPTIONS+=${EXTRA_OPTIONS}
 
 : ${FIRMARE_TARGET:="firmware-size"}
 
-mkdir build || true
-cd build
+# wipe build directory clean
+rm -rf build && mkdir -p build && cd build
 
-# wipe clean in case of serial builds in the same dir
-rm -rf ./* || true
-
-BUILD_OPTIONS=${COMMON_OPTIONS}
-
-GIT_SHA_SHORT=`git rev-parse --short HEAD`
+GIT_SHA_SHORT=$(git rev-parse --short HEAD)
 #GIT_TAG=`git describe --tags`
 
-target_name=`echo "$FLAVOR" | tr '[:upper:]' '[:lower:]'`
-fw_name="${target_name}-${GIT_SHA_SHORT}.bin"
+target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
-echo "Building ${fw_name}"
+for target_name in $target_names
+do
+    fw_name="${target_name}-${GIT_SHA_SHORT}.bin"
+    BUILD_OPTIONS=${COMMON_OPTIONS}
 
-case $FLAVOR in
+    echo "Building ${fw_name}"
+    case $target_name in
 
-    X9LITE)
-        BUILD_OPTIONS+="-DPCB=X9LITE"
-        ;;
-    X9LITES)
-        BUILD_OPTIONS+="-DPCB=X9LITES"
-        ;;
-    X7)
-        BUILD_OPTIONS+="-DPCB=X7"
-        ;;
-    T12)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-        ;;
-    TX12)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
-        ;;
-    T8)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-        ;;
-    TLITE)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
-        ;;
-    XLITE)
-        BUILD_OPTIONS+="-DPCB=XLITE"
-        ;;
-    XLITES)
-        BUILD_OPTIONS+="-DPCB=XLITES"
-        ;;
-    X9D)
-        BUILD_OPTIONS+="-DPCB=X9D"
-        ;;
-    X9DP)
-        BUILD_OPTIONS+="-DPCB=X9D+"
-        ;;
-    X9DP2019)
-        BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
-        ;;
-    X9E)
-        BUILD_OPTIONS+="-DPCB=X9E"
-        ;;
-    X10)
-        BUILD_OPTIONS+="-DPCB=X10"
-        ;;
-    X12S)
-        BUILD_OPTIONS+="-DPCB=X12S"
-        ;;
-    T16)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
-        ;;
-    T16_FS)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON -DFLYSKY_HALL_STICKS=ON"
-        ;;
-    T18)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
-        ;;
-    T18_FS)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18 -DFLYSKY_HALL_STICKS=ON"
-        ;;
-    TX16S)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
-        ;;
-    TX16S_FS)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DFLYSKY_HALL_STICKS=ON"
-        ;;
-    NV14)
-        BUILD_OPTIONS+="-DPCB=NV14"
-        ;;
-esac
+        x9lite)
+            BUILD_OPTIONS+="-DPCB=X9LITE"
+            ;;
+        x9lites)
+            BUILD_OPTIONS+="-DPCB=X9LITES"
+            ;;
+        x7)
+            BUILD_OPTIONS+="-DPCB=X7"
+            ;;
+        x7-access)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DAUTOUPDATE=YES -DPXX1=YES"
+            ;;
+        t12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
+            ;;
+        tx12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
+            ;;
+        t8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+            ;;
+        tlite)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
+            ;;
+        xlite)
+            BUILD_OPTIONS+="-DPCB=XLITE"
+            ;;
+        xlites)
+            BUILD_OPTIONS+="-DPCB=XLITES"
+            ;;
+        x9d)
+            BUILD_OPTIONS+="-DPCB=X9D"
+            ;;
+        x9dp)
+            BUILD_OPTIONS+="-DPCB=X9D+"
+            ;;
+        x9dp2019)
+            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
+            ;;
+        x9e)
+            BUILD_OPTIONS+="-DPCB=X9E"
+            ;;
+        x10)
+            BUILD_OPTIONS+="-DPCB=X10"
+            ;;
+        x10-access)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=ACCESS -DPXX1=YES"
+            ;;
+        x12s)
+            BUILD_OPTIONS+="-DPCB=X12S"
+            ;;
+        t16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
+            ;;
+        t16-fs)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON -DFLYSKY_HALL_STICKS=ON"
+            ;;
+        t18)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
+            ;;
+        t18-fs)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18 -DFLYSKY_HALL_STICKS=ON"
+            ;;
+        tx16s)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
+            ;;
+        TX16S_FS)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DFLYSKY_HALL_STICKS=ON"
+            ;;
+        nv14)
+            BUILD_OPTIONS+="-DPCB=NV14"
+            ;;
+    esac
 
-cmake ${BUILD_OPTIONS} "${SRCDIR}"
-make -j"${CORES}" ${FIRMARE_TARGET}
+    cmake ${BUILD_OPTIONS} "${SRCDIR}"
+    make -j"${CORES}" ${FIRMARE_TARGET}
 
-mv firmware.bin "../${fw_name}"
-
+    rm -f CMakeCache.txt
+    mv firmware.bin "../${fw_name}"
+done
