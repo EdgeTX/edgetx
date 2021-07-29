@@ -64,11 +64,17 @@ NumberKeyboard::NumberKeyboard() :
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
-  new TextButton(this, {LCD_W / 2 - 55, 50, 110, 30}, "DEFAULT",
+  new TextButton(this, { LCD_W/2 - 55, 50, 50, 30 }, "DEF",
                  [=]() -> uint8_t {
-                     pushEvent(EVT_VIRTUAL_KEY_DEFAULT);
+                   pushEvent(EVT_VIRTUAL_KEY_DEFAULT);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
+				 
+  new TextButton(this, { LCD_W/2 + 5, 50, 50, 30 }, "+/-",
+                 [=]() -> uint8_t {
+                   pushEvent(EVT_VIRTUAL_KEY_SIGN);
+                     return 0;
+                 }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);     
 }
 
 NumberKeyboard::~NumberKeyboard()
