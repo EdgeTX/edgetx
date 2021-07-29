@@ -134,6 +134,10 @@ void NumberEdit::onEvent(event_t event)
       case EVT_VIRTUAL_KEY_MIN:
         setValue(getMin());
         break;
+
+      case EVT_VIRTUAL_KEY_SIGN:
+        setValue(-getValue());
+        break;
 #endif
     }
   }
