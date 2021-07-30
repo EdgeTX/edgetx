@@ -56,11 +56,11 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   ADC_InitTypeDef ADC_InitStructure;
   ADC_StructInit(&ADC_InitStructure);
 
-  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_ScanConvMode = ENABLE; // Sets ADC_CR1_SCAN
+  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE; // Clears ADC_CR2_CONT
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // Software trigger
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfConversion = nconv;
+  ADC_InitStructure.ADC_NbrOfConversion = nconv; // Channel count
   
   ADC_Init(ADCx, &ADC_InitStructure);
 
@@ -141,7 +141,7 @@ static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
 #elif defined(PCBX10)
 
 static const stm32_hal_adc_channel ADC_EXT_channels[] = {
-  { ADC_Channel_Vbat, 1, ADC_SAMPTIME }
+  { ADC_Channel_Vbat, ADC_SAMPTIME }
 };
 
 static uint8_t ADC_EXT_get_nconv() { return 1; }
@@ -188,7 +188,7 @@ stm32_hal_adc ADC_hal_def[] = {
     },
 #endif
 #endif
-    { nullptr, nullptr, nullptr, nullptr, nullptr },
+    { nullptr, nullptr, nullptr, nullptr, nullptr }, // required to detect end of ADC definitions
 };
 
 static void adc_init_channels(ADC_TypeDef* adc, const stm32_hal_adc_channel* chan,

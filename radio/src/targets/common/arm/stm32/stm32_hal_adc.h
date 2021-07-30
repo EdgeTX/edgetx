@@ -23,7 +23,6 @@
 
 struct stm32_hal_adc_channel {
   const uint8_t adc_channel;
-  const uint8_t rank;
   const uint8_t sample_time;
 };
 
