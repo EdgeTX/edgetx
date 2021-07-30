@@ -40,14 +40,14 @@ extern uint16_t rtcBatteryVoltage;
 #endif
 
 struct etx_hal_adc_driver_t {
-  void (*init)();
-  void (*start_conversion)();
+  bool (*init)();
+  bool (*start_conversion)();
   void (*wait_completion)();  
 };
 
-void adcInit(const etx_hal_adc_driver_t* driver);
+bool adcInit(const etx_hal_adc_driver_t* driver);
 //void adcDeInit();
 
-void     adcRead();
+bool     adcRead();
 uint16_t getRTCBatteryVoltage();
 uint16_t getAnalogValue(uint8_t index);

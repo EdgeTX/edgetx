@@ -162,7 +162,8 @@ void boardInit()
   }
 #endif
 
-  adcInit(&stm32_hal_adc_driver);
+  if (!adcInit(&stm32_hal_adc_driver))
+      TRACE("adcInit failed");
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();

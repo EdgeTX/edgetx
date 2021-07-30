@@ -67,30 +67,49 @@ uint16_t adcValues[NUM_ANALOGS] __DMA;
 uint16_t rtcBatteryVoltage;
 #endif
 
-void adcInit(const etx_hal_adc_driver_t* driver)
+bool adcInit(const etx_hal_adc_driver_t* driver)
 {
   etx_hal_adc_driver = driver;
   if (etx_hal_adc_driver && etx_hal_adc_driver->init)
-    etx_hal_adc_driver->init();
+  {
+    if(!etx_hal_adc_driver->init())
+        return false;
+
+    return true;
+  }
+  return false;
 }
 
-static void adcSingleRead()
+static bool adcSingleRead()
 {
-  if (!etx_hal_adc_driver) return;
+  if (!etx_hal_adc_driver)
+      return false;
 
   if (etx_hal_adc_driver->start_conversion)
-    etx_hal_adc_driver->start_conversion();
+  {
+    if (!etx_hal_adc_driver->start_conversion())
+        return false;
+  }
+  else
+      return false;
 
   if (etx_hal_adc_driver->wait_completion)
+  {
     etx_hal_adc_driver->wait_completion();
+  }
+  else
+      return false;
+
+  return true;
 }
 
-void adcRead()
+bool adcRead()
 {
   uint16_t temp[NUM_ANALOGS] = { 0 };
 
   for (int i=0; i<4; i++) {
-    adcSingleRead();
+    if (!adcSingleRead())
+        return false;
     for (uint8_t x=FIRST_ANALOG_ADC; x<NUM_ANALOGS; x++) {
       uint16_t val = adcValues[x];
 #if defined(JITTER_MEASURE)
@@ -111,6 +130,7 @@ void adcRead()
     sticksPwmRead(adcValues);
   }
 #endif
+  return true;
 }
 
 #if defined(PCBX10)

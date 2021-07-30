@@ -200,7 +200,9 @@ void boardInit()
   }
 #endif
 
-  adcInit(&stm32_hal_adc_driver);
+  if (!adcInit(&stm32_hal_adc_driver))
+      TRACE("adcInit failed");
+
   lcdInit();
   backlightInit();
 
