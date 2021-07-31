@@ -1918,6 +1918,12 @@ int main()
 #endif
 
 #if defined(STM32)
+
+#if !defined(SIMU)
+  /* Ensure all priority bits are assigned as preemption priority bits. */
+  NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
+#endif
+
   TRACE("reusableBuffer: modelSel=%d, moduleSetup=%d, calib=%d, sdManager=%d, hardwareAndSettings=%d, spectrumAnalyser=%d, usb=%d",
         sizeof(reusableBuffer.modelsel),
         sizeof(reusableBuffer.moduleSetup),
@@ -1945,12 +1951,6 @@ int main()
 
 #if !defined(SIMU)
   stackPaint();
-#endif
-
-#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
-  if (!UNEXPECTED_SHUTDOWN()) {
-    drawSplash();
-  }
 #endif
 
 #if defined(PCBHORUS)

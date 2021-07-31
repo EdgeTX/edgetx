@@ -44,7 +44,6 @@ void mixerSchedulerResetTimer();
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs);
 
 // Clear the flag before waiting
-void mixerSchedulerClearTrigger();
 
 // Wait for the scheduler timer to trigger
 // returns true if timeout, false otherwise

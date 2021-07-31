@@ -35,7 +35,7 @@
 /* Lock / unlock functions                                               */
 /*-----------------------------------------------------------------------*/
 #if !defined(BOOT)
-static OS_MutexID ioMutex;
+static RTOS_MUTEX_HANDLE ioMutex;
 uint32_t ioMutexReq = 0, ioMutexRel = 0;
 int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
 {
@@ -327,12 +327,7 @@ void sdInit(void)
 void sdInit()
 {
   TRACE("sdInit");
-  
-  ioMutex = CoCreateMutex();
-  if (ioMutex >= CFG_MAX_MUTEX) {
-    // sd error
-    return;
-  }
+  RTOS_CREATE_MUTEX(ioMutex);
   sdMount();
 }
 
