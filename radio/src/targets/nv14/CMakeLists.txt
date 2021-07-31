@@ -48,8 +48,6 @@ add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 set(TARGET_SRC
   ${TARGET_SRC}
   audio_spi_driver.cpp
-  ../../hal/adc_driver.cpp
-  ../common/arm/stm32/stm32_hal_adc.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   )
@@ -58,6 +56,8 @@ set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   battery_driver.cpp
   ../horus/flyskyHallStick_driver.cpp
+  ../common/arm/stm32/stm32_hal_adc.cpp
+  ../../hal/adc_driver.cpp
   )
 
 set(BITMAPS_TARGET nv14_bitmaps)

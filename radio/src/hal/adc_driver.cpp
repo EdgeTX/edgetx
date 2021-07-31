@@ -151,6 +151,7 @@ bool adcRead()
   return true;
 }
 
+#if !defined(SIMU)
 uint16_t getRTCBatteryVoltage()
 {
 #if defined(HAS_TX_RTC_VOLTAGE)
@@ -166,7 +167,6 @@ uint16_t getRTCBatteryVoltage()
 #endif
 }
 
-#if !defined(SIMU)
 uint16_t getAnalogValue(uint8_t index)
 {
   if (IS_POT(index) && !IS_POT_SLIDER_AVAILABLE(index)) {
