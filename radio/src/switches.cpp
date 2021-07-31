@@ -518,7 +518,7 @@ swsrc_t getMovedSwitch()
   static tmr10ms_t s_move_last_time = 0;
   swsrc_t result = 0;
 
-#if defined(PCBFRSKY)
+#if defined(PCBFRSKY) || defined(PCBNV14)
   // Switches
   for (int i = 0; i < NUM_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {

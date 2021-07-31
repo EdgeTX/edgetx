@@ -30,6 +30,7 @@
 #include "view_channels.h"
 #include "view_statistics.h"
 #include "select_fab_carousel.h"
+#include "view_text.h"
 
 ViewMainMenu::ViewMainMenu(Window* parent) :
     Window(parent->getFullScreenWindow(), {})
@@ -57,6 +58,14 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     new ModelSelectMenu();
     return 0;
   });
+
+  if (modelHasNotes()) {
+    carousel->addButton(ICON_MODEL_NOTES, "Model\nNotes", [=]() -> uint8_t {
+      deleteLater();
+      readModelNotes();
+      return 0;
+    });
+  }
 
   carousel->addButton(ICON_MONITOR, "Channel\nMonitor", [=]() -> uint8_t {
     deleteLater();

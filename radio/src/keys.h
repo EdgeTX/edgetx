@@ -67,6 +67,7 @@ constexpr event_t EVT_VIRTUAL_KEY_LEFT = EVT_VIRTUAL_KEY('L');
 constexpr event_t EVT_VIRTUAL_KEY_RIGHT = EVT_VIRTUAL_KEY('R');
 constexpr event_t EVT_VIRTUAL_KEY_NEXT = EVT_VIRTUAL_KEY('N');
 constexpr event_t EVT_VIRTUAL_KEY_PREVIOUS = EVT_VIRTUAL_KEY('P');
+constexpr event_t EVT_VIRTUAL_KEY_SIGN = EVT_VIRTUAL_KEY(177);
 
 constexpr bool IS_VIRTUAL_KEY_EVENT(event_t event)
 {
