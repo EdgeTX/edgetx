@@ -19,9 +19,8 @@
  */
 
 #include "opentx.h"
+#include "x12s_adc_driver.h"
 
-uint16_t adcValues[NUM_ANALOGS] __DMA;
-uint16_t rtcBatteryVoltage;
 
 #define ADC_CS_HIGH()                  (ADC_SPI_GPIO->BSRRL = ADC_SPI_PIN_CS)
 #define ADC_CS_LOW()                   (ADC_SPI_GPIO->BSRRH = ADC_SPI_PIN_CS)
@@ -137,11 +136,8 @@ static bool x12s_adc_init()
   ADC1->SQR3 = (ADC_Channel_Vbat << 0);
   ADC1->SMPR1 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
   ADC1->SMPR2 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-}
 
-uint16_t getRTCBatteryVoltage()
-{
-  return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
+  return true;
 }
 
 const uint16_t adcCommands[MOUSE1+2] =
@@ -229,7 +225,7 @@ bool adcOnChipReadFinished()
 
 // Re-declare adcRead()
 // (takes precedence over hal/adc_driver.cpp)
-void adcRead()
+bool adcRead()
 {
   uint16_t temp[NUM_ANALOGS-MOUSE1] = { 0 };
   uint8_t noInternalReads = 0;
@@ -268,19 +264,9 @@ void adcRead()
   if (isVBatBridgeEnabled()) {
     rtcBatteryVoltage = ADC1->DR;
   }
-}
 
-#if !defined(SIMU)
-const int8_t ana_direction[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
-
-uint16_t getAnalogValue(uint8_t index)
-{
-  if (ana_direction[index] < 0)
-    return 4095 - adcValues[index];
-  else
-    return adcValues[index];
+  return true;
 }
-#endif // #if !defined(SIMU)
 
 //TODO: implement these based on stm32_hal_adc.cpp
 //static bool x12s_adc_init();

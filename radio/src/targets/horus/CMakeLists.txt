@@ -138,6 +138,7 @@ elseif (PCB STREQUAL X12S)
     )
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
+    ../../hal/adc_driver.cpp
     x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)

@@ -41,7 +41,7 @@
 #endif
 
 // TODO: get rid of this special case
-#if defined(PCBX10)
+#if defined(PCBX10) || defined(PCBX12S)
 extern uint16_t rtcBatteryVoltage;
 #endif
 
@@ -54,8 +54,6 @@ struct etx_hal_adc_driver_t {
 bool adcInit(const etx_hal_adc_driver_t* driver);
 // void adcDeInit();
 
-// Declare adcRead() weak so it can be re-declared
-bool adcRead() __attribute__((weak));
-
+bool     adcRead();
 uint16_t getRTCBatteryVoltage();
 uint16_t getAnalogValue(uint8_t index);

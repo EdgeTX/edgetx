@@ -76,13 +76,15 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
                                              0 /*SWB*/, 0 /*SWD*/};
 
+#elif defined(PCBX12S)
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
 #else
   #error "ADC driver does not suppport this target"
 #endif
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
 
-#if defined(PCBX10)
+#if defined(PCBX10) || defined(PCBX12S)
 uint16_t rtcBatteryVoltage;
 #endif
 
@@ -117,7 +119,9 @@ static bool adcSingleRead()
   return true;
 }
 
-bool adcRead() __attribute__((weak))
+// Declare adcRead() weak so it can be re-declared
+#pragma weak adcRead
+bool adcRead()
 {
   uint16_t temp[NUM_ANALOGS] = { 0 };
 
@@ -151,7 +155,7 @@ uint16_t getRTCBatteryVoltage()
 {
 #if defined(HAS_TX_RTC_VOLTAGE)
   return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBX10)
+#elif defined(PCBX10) || defined(PCBX12S)
   return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
 #elif defined(PCBNV14)
   #warning "TODO RTC voltage"

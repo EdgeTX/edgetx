@@ -26,7 +26,7 @@
   #include "../common/arm/stm32/stm32_hal_adc.h"
   #define ADC_DRIVER stm32_hal_adc_driver
 #else
-  #include "x12_adc_driver.h"
+  #include "x12s_adc_driver.h"
   #define ADC_DRIVER x12s_adc_driver
 #endif
 
