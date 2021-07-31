@@ -21,8 +21,7 @@
 #ifndef _TIMEEDIT_H_
 #define _TIMEEDIT_H_
 
-#include "basenumberedit.h"
-#include "NumberEdit.h"
+#include "numberedit.h"
 
 class TimeEdit : public NumberEdit {
   public:
