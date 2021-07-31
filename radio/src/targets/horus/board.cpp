@@ -21,7 +21,14 @@
 #include "opentx.h"
 
 #include "hal/adc_driver.h"
-#include "../common/arm/stm32/stm32_hal_adc.h"
+
+#if !defined(PCBX12S)
+  #include "../common/arm/stm32/stm32_hal_adc.h"
+  #define ADC_DRIVER stm32_hal_adc_driver
+#else
+  #include "x12_adc_driver.h"
+  #define ADC_DRIVER x12s_adc_driver
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
@@ -200,7 +207,7 @@ void boardInit()
   }
 #endif
 
-  if (!adcInit(&stm32_hal_adc_driver))
+  if (!adcInit(&ADC_DRIVER))
       TRACE("adcInit failed");
 
   lcdInit();

@@ -52,8 +52,10 @@ struct etx_hal_adc_driver_t {
 };
 
 bool adcInit(const etx_hal_adc_driver_t* driver);
-//void adcDeInit();
+// void adcDeInit();
 
-bool     adcRead();
+// Declare adcRead() weak so it can be re-declared
+bool adcRead() __attribute__((weak));
+
 uint16_t getRTCBatteryVoltage();
 uint16_t getAnalogValue(uint8_t index);

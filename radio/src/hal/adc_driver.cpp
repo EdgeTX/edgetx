@@ -115,7 +115,7 @@ static bool adcSingleRead()
   return true;
 }
 
-bool adcRead()
+bool adcRead() __attribute__((weak))
 {
   uint16_t temp[NUM_ANALOGS] = { 0 };
 

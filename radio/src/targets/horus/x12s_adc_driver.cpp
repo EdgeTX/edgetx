@@ -100,7 +100,7 @@ static void ADS7952_Init()
   ADC_CS_HIGH();
 }
 
-void adcInit()
+static bool x12s_adc_init()
 {
   ADS7952_Init();
 
@@ -227,6 +227,8 @@ bool adcOnChipReadFinished()
   return (ADC_DMA->LISR & DMA_LISR_TCIF0);
 }
 
+// Re-declare adcRead()
+// (takes precedence over hal/adc_driver.cpp)
 void adcRead()
 {
   uint16_t temp[NUM_ANALOGS-MOUSE1] = { 0 };
@@ -279,3 +281,14 @@ uint16_t getAnalogValue(uint8_t index)
     return adcValues[index];
 }
 #endif // #if !defined(SIMU)
+
+//TODO: implement these based on stm32_hal_adc.cpp
+//static bool x12s_adc_init();
+//static bool x12s_adc_start_read();
+//static void x12s_adc_wait_completion();
+
+const etx_hal_adc_driver_t x12s_adc_driver = {
+  x12s_adc_init,
+  nullptr,//x12s_adc_start_read,
+  nullptr,//x12s_adc_wait_completion
+};
