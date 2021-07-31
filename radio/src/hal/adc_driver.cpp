@@ -147,13 +147,16 @@ bool adcRead()
 
 uint16_t getRTCBatteryVoltage()
 {
-#if defined(TX_RTC_VOLTAGE)
+#if defined(HAS_TX_RTC_VOLTAGE)
   return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
 #elif defined(PCBX10)
   return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
 #elif defined(PCBNV14)
   #warning "TODO RTC voltage"
   return 330;
+#else
+  #warning "RTC battery not supported on this target"
+  return 0;
 #endif
 }
 
