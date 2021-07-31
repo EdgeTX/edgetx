@@ -22,8 +22,9 @@
 #define _TIMEEDIT_H_
 
 #include "basenumberedit.h"
+#include "NumberEdit.h"
 
-class TimeEdit : public BaseNumberEdit {
+class TimeEdit : public NumberEdit {
   public:
     TimeEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr);
 
@@ -35,7 +36,7 @@ class TimeEdit : public BaseNumberEdit {
 #endif
 
     void paint(BitmapBuffer * dc) override;
-
+/*
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
@@ -45,6 +46,7 @@ class TimeEdit : public BaseNumberEdit {
 
     void onFocusLost() override;
 #endif
+*/
 };
 
 #endif // _TIMEEDIT_H_

@@ -24,7 +24,7 @@
 #include "strhelpers.h"
 
 TimeEdit::TimeEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue):
-  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue))
+    NumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue))
 {
 }
 
@@ -44,7 +44,7 @@ void TimeEdit::paint(BitmapBuffer * dc)
                getTimerString(getValue(), (textFlags & TIMEHOUR) != 0),
                textColor);
 }
-
+/*
 #if defined(HARDWARE_KEYS)
 // TODO could be moved to BaseNumberEdit
 void TimeEdit::onEvent(event_t event)
@@ -83,17 +83,15 @@ bool TimeEdit::onTouchEnd(coord_t x, coord_t y)
     setFocus(SET_FOCUS_DEFAULT);
   }
 
-//  NumberKeyboard * keyboard = NumberKeyboard::instance();
-//  if (keyboard->getField() != this) {
-//    keyboard->setField(this);
-//  }
-
+  NumberKeyboard::show(this);
+  this->setTimerString(getValue()
   return true;
 }
 
 void TimeEdit::onFocusLost()
 {
   BaseNumberEdit::onFocusLost();
-//  NumberKeyboard::instance()->disable(true);
 }
+
 #endif
+*/
