@@ -29,6 +29,9 @@ class CheckBox : public FormField {
       _getValue(std::move(getValue)),
       _setValue(std::move(setValue))
     {
+      coord_t size = min(rect.w, rect.h);
+      setWidth(size);
+      setHeight(size);
     }
 
 #if defined(DEBUG_WINDOWS)
