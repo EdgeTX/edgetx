@@ -1,0 +1,9 @@
+image: ghcr.io/edgetx/edgetx-dev:2.4
+
+vscode:
+  extensions:
+    - ms-vscode.cpptools
+
+tasks:
+  - name: Prep build folder
+    init: mkdir build && cd build
