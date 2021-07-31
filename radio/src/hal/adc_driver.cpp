@@ -38,11 +38,15 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 #elif defined(PCBX10)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,   1,1,    1, -1};
 #elif defined(PCBX9E)
+  const int8_t adcDirection[NUM_ANALOGS] = {
 #if defined(HORUS_STICKS)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,-1,-1,1, -1,1,1,  -1,-1,-1};
+    1,-1,1,-1,
 #else
-  const int8_t adcDirection[NUM_ANALOGS] = {1,1,-1,-1,  -1,-1,-1,1, -1,1,1,  -1,-1,-1};
-#endif
+    1,1,-1,-1,
+#endif // HORUS_STICKS
+    // other analogs are the same
+    -1,-1,-1,1, -1,1,1,-1, -1,-1 };
+
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
                                             11 /*POT1*/, 4 /*POT2*/, 5 /*POT3*/, 6 /*POT4*/,
                                             12 /*SLIDER1*/, 13 /*SLIDER2*/, 7 /*SLIDER3*/, 8 /*SLIDER4*/,
@@ -59,6 +63,21 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
   const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1};
 #elif defined(PCBXLITE)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
+#elif defined(PCBNV14)
+  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
+                                            4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
+                                            7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
+                                            10/*SWG*/,  11/*SWH*/,
+                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
+
+  const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
+                                            -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,
+                                             0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
+                                             0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
+                                             0 /*SWB*/, 0 /*SWD*/};
+
+#else
+  #error "ADC driver does not suppport this target"
 #endif
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
@@ -85,21 +104,14 @@ static bool adcSingleRead()
   if (!etx_hal_adc_driver)
       return false;
 
-  if (etx_hal_adc_driver->start_conversion)
-  {
-    if (!etx_hal_adc_driver->start_conversion())
-        return false;
-  }
-  else
-      return false;
+  if (!etx_hal_adc_driver->start_conversion ||
+      !etx_hal_adc_driver->start_conversion())
+    return false;
 
-  if (etx_hal_adc_driver->wait_completion)
-  {
-    etx_hal_adc_driver->wait_completion();
-  }
-  else
-      return false;
+  if (!etx_hal_adc_driver->wait_completion)
+    return false;
 
+  etx_hal_adc_driver->wait_completion();
   return true;
 }
 
@@ -133,17 +145,17 @@ bool adcRead()
   return true;
 }
 
-#if defined(PCBX10)
 uint16_t getRTCBatteryVoltage()
 {
-  return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-}
-#else
-uint16_t getRTCBatteryVoltage()
-{
+#if defined(TX_RTC_VOLTAGE)
   return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-}
+#elif defined(PCBX10)
+  return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
+#elif defined(PCBNV14)
+  #warning "TODO RTC voltage"
+  return 330;
 #endif
+}
 
 #if !defined(SIMU)
 uint16_t getAnalogValue(uint8_t index)
@@ -154,7 +166,7 @@ uint16_t getAnalogValue(uint8_t index)
     // which produces ghost readings on these inputs.
     return 0;
   }
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(PCBNV14)
   index = adcMapping[index];
 #endif
   if (adcDirection[index] < 0)

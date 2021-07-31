@@ -110,6 +110,15 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     {ADC_CHANNEL_POT3,    ADC_SAMPTIME},
     {ADC_CHANNEL_SLIDER1, ADC_SAMPTIME},
     {ADC_CHANNEL_SLIDER2, ADC_SAMPTIME},
+#elif defined(PCBNV14)
+    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
+    {ADC_CHANNEL_SWA,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SWC,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SWE,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SWF,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SWG,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SWH,  ADC_SAMPTIME},
 #endif
     {ADC_CHANNEL_BATT, ADC_SAMPTIME},
     {ADC_Channel_Vbat, ADC_SAMPTIME}
@@ -118,11 +127,11 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
 
 static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
 {
-#if NUM_PWMSTICKS > 0
+#if (NUM_PWMSTICKS > 0)
   if (STICKS_PWM_ENABLED())
     return ADC_MAIN_channels + 4;
 #endif
-  return ADC_MAIN_channels;
+  return ADC_MAIN_channels + FIRST_ANALOG_ADC;
 }
 
 static uint8_t ADC_MAIN_get_nconv()
@@ -149,6 +158,15 @@ static const stm32_hal_adc_channel ADC_EXT_channels[] = {
 
 static uint8_t ADC_EXT_get_nconv() { return 1; }
 
+#elif defined(PCBNV14)
+
+static const stm32_hal_adc_channel ADC_EXT_channels[] = {
+    {ADC_CHANNEL_SWB, ADC_SAMPTIME},
+    {ADC_CHANNEL_SWD, ADC_SAMPTIME},
+};
+
+static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
+
 #endif
 
 static const stm32_hal_adc_channel* ADC_EXT_get_channels()
@@ -166,32 +184,29 @@ static uint16_t* ADC_MAIN_get_dma_buffer()
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
-  return adcValues + NUM_ANALOGS_ADC;
+  return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
 }
 #endif
 
 stm32_hal_adc ADC_hal_def[] = {
     {
       ADC_MAIN,
-      ADC_DMA_Stream, ADC_MAIN_get_dma_buffer,
+      ADC_DMA_Stream, ADC_DMA_Channel, ADC_MAIN_get_dma_buffer,
       ADC_MAIN_get_nconv, ADC_MAIN_get_channels
     },
 #if defined(ADC_EXT)
+    {
+      ADC_EXT,
 #if defined(ADC_EXT_DMA_Stream)
-    {
-      ADC_EXT,
-      ADC_EXT_DMA_Stream, ADC_EXT_get_dma_buffer,
-      ADC_EXT_get_nconv, ADC_EXT_get_channels
-    },
+      ADC_EXT_DMA_Stream, ADC_EXT_DMA_Channel, ADC_EXT_get_dma_buffer,
 #else
-    {
-      ADC_EXT,
-      nullptr, nullptr,
+      nullptr, 0, nullptr,
+#endif
       ADC_EXT_get_nconv, ADC_EXT_get_channels
     },
 #endif
-#endif
-    { nullptr, nullptr, nullptr, nullptr, nullptr }, // required to detect end of ADC definitions
+    // required to detect end of ADC definitions
+    { nullptr, nullptr, 0, nullptr, nullptr, nullptr },
 };
 
 static void adc_init_channels(ADC_TypeDef* adc, const stm32_hal_adc_channel* chan,
@@ -207,7 +222,7 @@ static void adc_init_channels(ADC_TypeDef* adc, const stm32_hal_adc_channel* cha
 }
 
 static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_Stream_TypeDef * dma_stream,
-                                uint16_t* dest, uint8_t nconv)
+                                uint32_t dma_channel, uint16_t* dest, uint8_t nconv)
 {
   // Disable DMA before continuing (see ref. manual "Stream configuration procedure")
   if (!adc_disable_dma(dma_stream))
@@ -221,7 +236,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_Stream_TypeDef * dma_strea
   dma_stream->M0AR = CONVERT_PTR_UINT(dest);
   dma_stream->NDTR = nconv;
   // Very high priority, 1 byte transfers, increment memory
-  dma_stream->CR = DMA_SxCR_PL | ADC_DMA_SxCR_CHSEL | DMA_SxCR_MSIZE_0 |
+  dma_stream->CR = DMA_SxCR_PL | dma_channel | DMA_SxCR_MSIZE_0 |
                    DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
   // disable direct mode, half full FIFO
   dma_stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
@@ -255,7 +270,8 @@ static bool stm32_hal_adc_init()
 
         if (adc_def->dma_stream && adc_def->get_dma_buffer) {
           uint16_t* dma_buffer = adc_def->get_dma_buffer();
-          if (!adc_init_dma_stream(adc_def->adc, adc_def->dma_stream, dma_buffer, nconv))
+          if (!adc_init_dma_stream(adc_def->adc, adc_def->dma_stream,
+                                   adc_def->dma_channel, dma_buffer, nconv))
               return false;
         }
       }
@@ -308,21 +324,29 @@ static bool adc_start_dma_conversion(ADC_TypeDef* ADCx,
   // Clear Interrupt flags
   adc_dma_clear_flags(dma_stream);
 
+  // Clear ADC status register
   ADCx->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
 
-  dma_stream->CR |= DMA_SxCR_EN; // Enable DMA
+  // Enable DMA
+  dma_stream->CR |= DMA_SxCR_EN;
+
+  // Trigger ADC start
   ADCx->CR2 |= (uint32_t)ADC_CR2_SWSTART;  
   return true;
 }
 
-static bool adc_disable_dma(DMA_Stream_TypeDef * dma_stream)
+static bool adc_disable_dma(DMA_Stream_TypeDef* dma_stream)
 {
   dma_stream->CR &= ~(uint32_t)DMA_SxCR_EN;
+
+  // wait until DMA EN bit gets cleared by hardware
   uint16_t uiTimeout = 1000;
-  do
-  {
-    if (--uiTimeout == 0) return false;             // Timeout. Failed to disable DMA
-  } while (dma_stream->CR & (uint32_t)DMA_SxCR_EN); // wait until DMA enable bit gets cleared by hardware
+  while (dma_stream->CR & (uint32_t)DMA_SxCR_EN) {
+    if (--uiTimeout == 0) {
+      // Timeout. Failed to disable DMA
+      return false;
+    }
+  }
   return true;
 }
 
@@ -342,7 +366,7 @@ static bool stm32_hal_adc_start_read()
       if (nconv > 0) {
         if (adc_def->dma_stream && adc_def->get_dma_buffer) {
           if (!adc_start_dma_conversion(adc_def->adc, adc_def->dma_stream))
-              return false;
+            return false;
         } else if (nconv == 1) {
           adc_start_single_conversion(adc_def->adc);
         }
@@ -357,13 +381,15 @@ static bool stm32_hal_adc_start_read()
 static void stm32_hal_adc_wait_completion()
 {
   //TODO:
+  // - iterate through ADCs
   // - replace with IRQ trigger (both)
   // - move RTC batt reading somewhere else
   
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
   // Wait for all ADCs to complete
   for (unsigned int i=0; i<10000; i++) {
-    if (ADC_TRANSFER_COMPLETE() && ADC_EXT_TRANSFER_COMPLETE()) {
+    if (DMA_GetFlagStatus(ADC_DMA_Stream, ADC_DMA_TC_Flag) != RESET &&
+        DMA_GetFlagStatus(ADC_EXT_DMA_Stream, ADC_EXT_DMA_TC_Flag) != RESET) {
       break;
     }
   }
@@ -373,7 +399,7 @@ static void stm32_hal_adc_wait_completion()
 #else
   // Wait only for the main ADC, and hope others are done as well
   for (unsigned int i = 0; i < 10000; i++) {
-    if (ADC_TRANSFER_COMPLETE()) {
+    if (DMA_GetFlagStatus(ADC_DMA_Stream, ADC_DMA_TC_Flag) != RESET) {
       break;
     }
   }

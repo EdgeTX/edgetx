@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+// TODO: move this to the targets
 #if NUM_PWMSTICKS > 0
   #define FIRST_ANALOG_ADC             (STICKS_PWM_ENABLED() ? NUM_PWMSTICKS : 0)
   #define NUM_ANALOGS_ADC              (STICKS_PWM_ENABLED() ? (NUM_ANALOGS - NUM_PWMSTICKS) : NUM_ANALOGS)
@@ -30,11 +31,16 @@
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              11
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
+#elif defined(PCBNV14) && defined(FLYSKY_HALL_STICKS)
+  #define FIRST_ANALOG_ADC             4
+  #define NUM_ANALOGS_ADC              10
+  #define NUM_ANALOGS_ADC_EXT          2
 #else
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
 #endif
 
+// TODO: get rid of this special case
 #if defined(PCBX10)
 extern uint16_t rtcBatteryVoltage;
 #endif

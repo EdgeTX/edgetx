@@ -34,6 +34,7 @@ struct stm32_hal_adc {
   ADC_TypeDef* adc;
 
   DMA_Stream_TypeDef*                dma_stream;
+  uint32_t                           dma_channel;
   const stm32_hal_adc_get_dma_buffer get_dma_buffer;
 
   const stm32_hal_adc_get_nconv    get_nconv;
