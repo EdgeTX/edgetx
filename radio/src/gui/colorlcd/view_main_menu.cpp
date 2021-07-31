@@ -60,7 +60,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   });
 
   if (modelHasNotes()) {
-    carousel->addButton(ICON_MODEL, "Model\nNotes", [=]() -> uint8_t {
+    carousel->addButton(ICON_MODEL_NOTES, "Model\nNotes", [=]() -> uint8_t {
       deleteLater();
       readModelNotes();
       return 0;
