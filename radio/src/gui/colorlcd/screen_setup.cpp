@@ -210,12 +210,14 @@ class SetupWidgetsPage: public FormWindow
                       coord_t slideX, coord_t slideY) override
     {
       FormWindow::onTouchSlide(x, y, startX, startY, slideX, slideY);
+      deleteLater();
       return true;
     }
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       FormWindow::onTouchEnd(x, y);
+      deleteLater();
       return true;
     }
 #endif
