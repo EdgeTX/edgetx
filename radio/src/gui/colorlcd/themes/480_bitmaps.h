@@ -16,6 +16,9 @@ const uint8_t mask_currentmenu_shadow[] = {
 const uint8_t mask_menu_model[] = {
 #include "mask_menu_model.lbm"
 };
+const uint8_t mask_menu_notes[] = {
+#include "mask_menu_notes.lbm"
+};
 const uint8_t mask_menu_radio[] = {
 #include "mask_menu_radio.lbm"
 };
