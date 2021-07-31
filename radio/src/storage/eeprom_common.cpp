@@ -22,7 +22,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "opentx.h"
-#include "timers.h"
+#include "../timers.h"
 #include "model_init.h"
 
 void eeLoadModel(uint8_t index)

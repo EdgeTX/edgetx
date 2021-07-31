@@ -21,7 +21,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "opentx.h"
-#include "timers.h"
+#include "../timers.h"
 #include "conversions/conversions.h"
 
 uint8_t   s_write_err = 0;    // error reasons
