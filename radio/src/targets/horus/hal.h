@@ -811,21 +811,8 @@
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_9  // PI.09
 #endif
 #define INIT_INTMODULE_BOOTCMD_PIN() GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-#if (defined(PCBX10) || PCBREV >= 13) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD) //TIM2 used by ext mod
-  #define INTMODULE_RCC_APB1Periph      RCC_APB1Periph_TIM2
-  #define INTMODULE_RCC_APB2Periph      RCC_APB2Periph_USART1
-  #define INTMODULE_TIMER               TIM2
-  #define INTMODULE_TIMER_IRQn          TIM2_IRQn
-  #define INTMODULE_TIMER_IRQHandler    TIM2_IRQHandler
-  #define INTMODULE_TIMER_FREQ          (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#else
-  #define INTMODULE_RCC_APB1Periph      0
-  #define INTMODULE_RCC_APB2Periph      (RCC_APB2Periph_TIM1 | RCC_APB2Periph_USART1)
-  #define INTMODULE_TIMER               TIM1
-  #define INTMODULE_TIMER_IRQn          TIM1_CC_IRQn
-  #define INTMODULE_TIMER_IRQHandler    TIM1_CC_IRQHandler
-  #define INTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
-#endif
+#define INTMODULE_RCC_APB1Periph      0
+#define INTMODULE_RCC_APB2Periph      RCC_APB2Periph_USART1
 
 // External Module
 #define EXTMODULE_PWR_GPIO                 GPIOB

@@ -373,75 +373,59 @@ void Parse_Character(STRUCT_HALL *hallBuffer, unsigned char ch)
   if (parse_ps_state != 0) return;
   parse_ps_state = 1;
 
-  switch( hallBuffer->status )
-  {
-    case GET_START:
-    {
-      if ( FLYSKY_HALL_PROTOLO_HEAD == ch )
-      {
-        hallBuffer->head  = FLYSKY_HALL_PROTOLO_HEAD;
+  switch (hallBuffer->status) {
+    case GET_START: {
+      if (FLYSKY_HALL_PROTOLO_HEAD == ch) {
+        hallBuffer->head = FLYSKY_HALL_PROTOLO_HEAD;
         hallBuffer->status = GET_ID;
         hallBuffer->msg_OK = 0;
       }
       break;
     }
-    case GET_ID:
-    {
+    case GET_ID: {
       hallBuffer->hallID.ID = ch;
       hallBuffer->status = GET_LENGTH;
       break;
     }
-    case GET_LENGTH:
-    {
+    case GET_LENGTH: {
       hallBuffer->length = ch;
       hallBuffer->dataIndex = 0;
       hallBuffer->status = GET_DATA;
-      if( 0 == hallBuffer->length )
-      {
+      if (0 == hallBuffer->length) {
         hallBuffer->status = GET_CHECKSUM;
-        hallBuffer->checkSum=0;
+        hallBuffer->checkSum = 0;
       }
       break;
     }
-    case GET_DATA:
-    {
+    case GET_DATA: {
       hallBuffer->data[hallBuffer->dataIndex++] = ch;
-      if( hallBuffer->dataIndex >= hallBuffer->length)
-      {
+      if (hallBuffer->dataIndex >= hallBuffer->length) {
         hallBuffer->checkSum = 0;
         hallBuffer->dataIndex = 0;
         hallBuffer->status = GET_STATE;
       }
       break;
     }
-    case GET_STATE:
-    {
+    case GET_STATE: {
       hallBuffer->checkSum = 0;
       hallBuffer->dataIndex = 0;
       hallBuffer->status = GET_CHECKSUM;
     }
-    case GET_CHECKSUM:
-    {
+    case GET_CHECKSUM: {
       hallBuffer->checkSum |= ch << ((hallBuffer->dataIndex++) * 8);
-      if( hallBuffer->dataIndex >= 2 )
-      {
+      if (hallBuffer->dataIndex >= 2) {
         hallBuffer->dataIndex = 0;
         hallBuffer->status = CHECKSUM;
-      }
-      else
-      {
+      } else {
         break;
       }
     }
-    case CHECKSUM:
-    {
-      if(hallBuffer->checkSum == calc_crc16( (U8*)&hallBuffer->head, hallBuffer->length + 3 ) )
-      {
+    case CHECKSUM: {
+      if (hallBuffer->checkSum ==
+          calc_crc16((void *)&hallBuffer->head, hallBuffer->length + 3)) {
         hallBuffer->msg_OK = 1;
         goto Label_restart;
-      }
-      else
-      {
+      } else {
         goto Label_error;
       }
     }
@@ -449,12 +433,12 @@ void Parse_Character(STRUCT_HALL *hallBuffer, unsigned char ch)
 
   goto exit;
 
-  Label_error:
-  Label_restart:
-    hallBuffer->status = GET_START;
-  exit:
-    parse_ps_state = 0;
-    return;
+Label_error:
+Label_restart:
+  hallBuffer->status = GET_START;
+exit:
+  parse_ps_state = 0;
+  return;
 }
 
 void convert_hall_to_adc_value( void )

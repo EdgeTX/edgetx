@@ -139,13 +139,7 @@ TASK_FUNCTION(mixerTask)
   s_pulses_paused = true;
 
   mixerSchedulerInit();
-
-#if !defined(PCBSKY9X)
   mixerSchedulerStart();
-#endif
-
-  // clear the flag before first loop
-  mixerSchedulerClearTrigger();
 
   while (true) {
     int timeout = 0;
@@ -166,13 +160,8 @@ TASK_FUNCTION(mixerTask)
     GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
 #endif
 
-#if !defined(PCBSKY9X)
-    // clear the flag ASAP to avoid missing a tick
-    mixerSchedulerClearTrigger();
-
     // re-enable trigger
     mixerSchedulerEnableTrigger();
-#endif
 
 #if defined(SIMU)
     if (pwrCheck() == e_power_off) {
@@ -191,13 +180,7 @@ TASK_FUNCTION(mixerTask)
       RTOS_LOCK_MUTEX(mixerMutex);
 
       doMixerCalculations();
-
-#if defined(PCBSKY9X)
-      sendSynchronousPulses(1 << EXTERNAL_MODULE);
-#else
       sendSynchronousPulses((1 << INTERNAL_MODULE) | (1 << EXTERNAL_MODULE));
-#endif
-
       doMixerPeriodicUpdates();
 
       DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
@@ -211,10 +194,6 @@ TASK_FUNCTION(mixerTask)
       }
 #endif
 
-#if defined(PCBSKY9X) && !defined(SIMU)
-      usbJoystickUpdate();
-#endif
-
       if (heartbeat == HEART_WDT_CHECK) {
         WDG_RESET();
         heartbeat = 0;
@@ -223,10 +202,6 @@ TASK_FUNCTION(mixerTask)
       t0 = getTmr2MHz() - t0;
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
-
-      // TODO:
-      // - check the cause of timeouts when switching
-      //    between protocols with multi-proto RF
     }
   }
 }
@@ -240,6 +215,13 @@ bool perMainEnabled = true;
 
 TASK_FUNCTION(menusTask)
 {
+#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  if (!UNEXPECTED_SHUTDOWN()) {
+    drawSplash();
+    TRACE("drawSplash() completed");
+  }
+#endif
+
   opentxInit();
 
 #if defined(PWR_BUTTON_PRESS)
@@ -293,8 +275,6 @@ TASK_FUNCTION(menusTask)
 
 void tasksStart()
 {
-  RTOS_INIT();
-
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 
@@ -302,11 +282,15 @@ void tasksStart()
   cliStart();
 #endif
 
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack, MIXER_STACK_SIZE, MIXER_TASK_PRIO);
-  RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack, MENUS_STACK_SIZE, MENUS_TASK_PRIO);
+  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
+                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
+                   MENUS_STACK_SIZE, MENUS_TASK_PRIO);
 
 #if !defined(SIMU)
-  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
+  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack,
+                   AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
 #endif
+
   RTOS_START();
 }

@@ -74,7 +74,7 @@ set(FIRMWARE_RANLIB "${GCC_ARM_PATH}arm-none-eabi-ranlib" CACHE STRING "Specific
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
-set(COOS_DIR ${THIRDPARTY_DIR}/CoOS)
+set(RTOS_DIR ${THIRDPARTY_DIR}/FreeRTOS-Kernel-10.4.4)
 set(FATFS_DIR ${THIRDPARTY_DIR}/FatFs)
 set(RADIO_BIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -571,7 +571,7 @@ if(NOT MSVC)
       set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
     endif()
 
-    add_definitions(-DRTOS_COOS)
+    add_definitions(-DFREE_RTOS)
 
     add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
     link_libraries(firmware -lstdc++)
