@@ -158,11 +158,11 @@
 #define ADC_DMA                         DMA2
 #define ADC_DMA_Channel                 DMA_Channel_0
 #define ADC_DMA_Stream                  DMA2_Stream4
-#define ADC_TRANSFER_COMPLETE()         (ADC_DMA->HISR & DMA_HISR_TCIF4)
+#define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
 
 #define ADC_EXT_DMA_Channel             DMA_Channel_2
 #define ADC_EXT_DMA_Stream              DMA2_Stream0
-#define ADC_EXT_TRANSFER_COMPLETE()     (ADC_DMA->LISR & DMA_LISR_TCIF0)
+#define ADC_EXT_DMA_TC_Flag             DMA_FLAG_TCIF0
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
