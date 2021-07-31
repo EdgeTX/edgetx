@@ -89,14 +89,17 @@ uint16_t rtcBatteryVoltage;
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
   etx_hal_adc_driver = driver;
-  if (etx_hal_adc_driver && etx_hal_adc_driver->init)
-  {
-    if(!etx_hal_adc_driver->init())
-        return false;
+  if (!etx_hal_adc_driver)
+    return false;
 
-    return true;
+  // If there is an init function
+  // it should succeed
+  if (etx_hal_adc_driver->init &&
+      !etx_hal_adc_driver->init()) {
+    return false;
   }
-  return false;
+
+  return true;
 }
 
 static bool adcSingleRead()
@@ -104,14 +107,13 @@ static bool adcSingleRead()
   if (!etx_hal_adc_driver)
       return false;
 
-  if (!etx_hal_adc_driver->start_conversion ||
+  if (etx_hal_adc_driver->start_conversion &&
       !etx_hal_adc_driver->start_conversion())
     return false;
 
-  if (!etx_hal_adc_driver->wait_completion)
-    return false;
+  if (etx_hal_adc_driver->wait_completion)
+    etx_hal_adc_driver->wait_completion();
 
-  etx_hal_adc_driver->wait_completion();
   return true;
 }
 
