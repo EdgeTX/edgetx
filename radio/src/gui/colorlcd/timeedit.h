@@ -36,17 +36,6 @@ class TimeEdit : public NumberEdit {
 #endif
 
     void paint(BitmapBuffer * dc) override;
-/*
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-
-    void onFocusLost() override;
-#endif
-*/
 };
 
 #endif // _TIMEEDIT_H_
