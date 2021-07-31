@@ -143,6 +143,7 @@ class Theme480: public OpenTxTheme
       loadMenuIcon(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes);
       loadMenuIcon(ICON_MODEL_INPUTS, mask_model_inputs);
       loadMenuIcon(ICON_MODEL_MIXER, mask_model_mixer);
+      loadMenuIcon(ICON_MODEL_NOTES, mask_menu_notes);
       loadMenuIcon(ICON_MODEL_OUTPUTS, mask_model_outputs);
       loadMenuIcon(ICON_MODEL_CURVES, mask_model_curves);
       loadMenuIcon(ICON_MODEL_GVARS, mask_model_gvars);
