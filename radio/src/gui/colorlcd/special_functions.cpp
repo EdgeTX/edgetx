@@ -308,7 +308,7 @@ class SpecialFunctionEditPage : public Page
                              0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBAL_VAR);
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR);
             auto gvarchoice =
                 new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            MAX_GVARS - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
