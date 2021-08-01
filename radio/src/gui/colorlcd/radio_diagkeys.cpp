@@ -55,13 +55,13 @@ class RadioKeyDiagsWindow : public Window
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(PCBNV14)
       constexpr coord_t KEY_COLUMN = 6;
+#if !defined(PCBNV14)
       constexpr coord_t SWITCHES_COLUMN = LCD_W / 2 - 20;
       constexpr coord_t TRIM_COLUMN = LCD_W - 120;
 #else
-      constexpr coord_t SWITCHES_COLUMN = LCD_W / 6;
-      constexpr coord_t TRIM_COLUMN = LCD_W / 2;
+      constexpr coord_t SWITCHES_COLUMN = LCD_W / 3;
+      constexpr coord_t TRIM_COLUMN = 2 * LCD_W / 3;
 #endif
       constexpr coord_t TRIM_MINUS_COLUMN = TRIM_COLUMN + 60;
       constexpr coord_t TRIM_PLUS_COLUMN = TRIM_MINUS_COLUMN + 20;
@@ -82,6 +82,16 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER);
       dc->drawNumber(70, y, rotencValue, 0);
 #endif
+#else // defined(PCBNV14)
+      // KEYS
+      {
+        coord_t y = 1;
+        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, 0);
+        displayKeyState(dc, 70, y, KEY_ENTER);
+        y += FH;
+        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_EXIT, 0);
+        displayKeyState(dc, 70, y, KEY_EXIT);
+      }      
 #endif
       // SWITCHES
       for (uint8_t i = 0; i < NUM_SWITCHES; i++) {

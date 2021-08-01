@@ -289,7 +289,7 @@
 #define LEN_VSWASHTYPE                 "\004"
 #define TR_VSWASHTYPE                  "---\0""120\0""120X""140\0""90\0"
 
-#if defined(PCBHORUS)
+#if defined(PCBHORUS) || defined(PCBNV14)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "PGUP\0""PGDN\0""ENTER""MDL\0 ""RTN\0 ""TELE\0""SYS\0 "
 #elif defined(RADIO_FAMILY_JUMPER_T12)
@@ -404,7 +404,7 @@
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
   #define TR_ENTER                     "[ENTER]"
-#elif !defined(HARDWARE_KEYS)
+#elif defined(PCBNV14)
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[MENU]"

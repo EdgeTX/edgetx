@@ -54,7 +54,7 @@ void TimeEdit::onEvent(event_t event)
   if (editMode) {
     if (event == EVT_ROTARY_RIGHT) {
       int value = getValue();
-      value += rotencSpeed * step;
+      value += ROTARY_ENCODER_SPEED() * step;
       if (value <= vmax)
         setValue(value);
       else
@@ -63,7 +63,7 @@ void TimeEdit::onEvent(event_t event)
     }
     else if (event == EVT_ROTARY_LEFT) {
       int value = getValue();
-      value -= rotencSpeed * step;
+      value -= ROTARY_ENCODER_SPEED() * step;
       if (value >= vmin)
         setValue(value);
       else
