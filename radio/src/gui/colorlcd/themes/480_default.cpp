@@ -50,6 +50,18 @@ class Theme480: public OpenTxTheme
     void loadColors() const
     {
       TRACE("Load EdgeTX theme colors");
+
+      lcdColorTable[OS_COLOR_PRIMARY1_INDEX] = RGB(0, 0, 0);
+      lcdColorTable[OS_COLOR_PRIMARY2_INDEX] = RGB(255, 255, 255);
+      lcdColorTable[OS_COLOR_PRIMARY3_INDEX] = RGB(12, 63, 102);
+      lcdColorTable[OS_COLOR_SECONDARY1_INDEX] = RGB(18, 94, 153);
+      lcdColorTable[OS_COLOR_SECONDARY2_INDEX] = RGB(182, 224, 242);
+      lcdColorTable[OS_COLOR_SECONDARY3_INDEX] = RGB(228, 238, 242);
+      lcdColorTable[OS_COLOR_FOCUS_INDEX] = RGB(20, 161, 229);
+      lcdColorTable[OS_COLOR_EDIT_INDEX] = RGB(0, 153, 9);
+      lcdColorTable[OS_COLOR_ACTIVE_INDEX] = RGB(255, 222, 0);
+      lcdColorTable[OS_COLOR_WARNING_INDEX] = RGB(224, 0, 0);
+
       lcdColorTable[ALARM_COLOR_INDEX] = RED;
       lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
       lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
