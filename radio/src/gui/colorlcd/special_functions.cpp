@@ -294,7 +294,7 @@ class SpecialFunctionEditPage : public Page
 
         switch (CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT: {
-            //TODO: label
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CONSTANT);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
                            val_max);
@@ -303,11 +303,12 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_SOURCE:
-            //TODO: label
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MIXSOURCE);
             new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(),
                              0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR: {
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBAL_VAR);
             auto gvarchoice =
                 new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            MAX_GVARS - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -320,6 +321,7 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_INCDEC: {
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_INCDEC);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
             getGVarIncDecRange(val_min, val_max);
