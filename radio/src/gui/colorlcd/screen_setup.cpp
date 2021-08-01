@@ -177,6 +177,16 @@ class SetupWidgetsPage: public FormWindow
         auto widget = new SetupWidgetsPageSlot(this, rect, customScreens[customScreenIdx], i);
         if (i == 0) widget->setFocus();
       }
+
+#if defined(HARDWARE_TOUCH)
+      new Button(
+          this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
+          [this]() -> uint8_t {
+            this->deleteLater();
+            return 1;
+          },
+          NO_FOCUS | FORM_NO_BORDER);
+#endif
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -210,16 +220,12 @@ class SetupWidgetsPage: public FormWindow
                       coord_t slideX, coord_t slideY) override
     {                     
       FormWindow::onTouchSlide(x, y, startX, startY, slideX, slideY);
-      if ( x < PAGE_TITLE_LEFT && y < PAGE_TITLE_TOP + 10 + PAGE_LINE_HEIGHT)
-        deleteLater();
       return true;
     }
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       FormWindow::onTouchEnd(x, y);
-      if ( x < PAGE_TITLE_LEFT && y < PAGE_TITLE_TOP + 10 + PAGE_LINE_HEIGHT)
-        deleteLater();
       return true;
     }
 #endif
