@@ -21,9 +21,9 @@
 #ifndef _TIMEEDIT_H_
 #define _TIMEEDIT_H_
 
-#include "basenumberedit.h"
+#include "numberedit.h"
 
-class TimeEdit : public BaseNumberEdit {
+class TimeEdit : public NumberEdit {
   public:
     TimeEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue = nullptr);
 
@@ -36,15 +36,6 @@ class TimeEdit : public BaseNumberEdit {
 
     void paint(BitmapBuffer * dc) override;
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-
-    void onFocusLost() override;
-#endif
 };
 
 #endif // _TIMEEDIT_H_
