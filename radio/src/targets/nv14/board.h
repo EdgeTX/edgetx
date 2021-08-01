@@ -142,18 +142,18 @@ void stop_trainer_capture();
 // Keys driver
 enum EnumKeys
 {
-  KEY_ENTER,
-  KEY_EXIT,
   KEY_PGUP,
   KEY_PGDN,
-  KEY_UP,
-  KEY_MODEL = KEY_UP, // TODO: just fixed for compile error, seems this is quite different from horus definition.
-  KEY_DOWN,
-  KEY_RIGHT,
-  KEY_LEFT,
+  KEY_ENTER,
+  KEY_MODEL,
+  KEY_UP = KEY_MODEL,
+  KEY_EXIT,
+  KEY_DOWN = KEY_EXIT,
   KEY_TELEM,
-  KEY_MENU,
+  KEY_RIGHT = KEY_TELEM,
   KEY_RADIO,
+  KEY_LEFT = KEY_RADIO,
+
   TRM_BASE,
   TRM_LH_DWN = TRM_BASE,
   TRM_LH_UP,
@@ -165,9 +165,8 @@ enum EnumKeys
   TRM_RH_UP,
   TRM_LS_DWN,
   TRM_LS_UP,
-  TRM_LEFT_CLICK,
-  TRM_RIGHT_CLICK,
-  TRM_LAST = TRM_RIGHT_CLICK,
+  TRM_LAST = TRM_LS_UP,
+
   NUM_KEYS
 };
 
