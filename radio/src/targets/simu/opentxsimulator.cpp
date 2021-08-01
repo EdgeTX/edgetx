@@ -274,7 +274,7 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
     key = KEY_DOWN;
   else if (steps < 0)
     key = KEY_UP;
-#elif defined(HARDWARE_KEYS)
+#elif defined(KEYS_GPIO_REG_PLUS) && defined(KEYS_GPIO_REG_MINUS)
   if (steps > 0)
     key = KEY_MINUS;
   else if (steps < 0)
