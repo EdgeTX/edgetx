@@ -208,16 +208,18 @@ class SetupWidgetsPage: public FormWindow
 #if defined(HARDWARE_TOUCH)
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
                       coord_t slideX, coord_t slideY) override
-    {
+    {                     
       FormWindow::onTouchSlide(x, y, startX, startY, slideX, slideY);
-      deleteLater();
+      if ( x < PAGE_TITLE_LEFT && y < PAGE_TITLE_TOP + 10 + PAGE_LINE_HEIGHT)
+        deleteLater();
       return true;
     }
 
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       FormWindow::onTouchEnd(x, y);
-      deleteLater();
+      if ( x < PAGE_TITLE_LEFT && y < PAGE_TITLE_TOP + 10 + PAGE_LINE_HEIGHT)
+        deleteLater();
       return true;
     }
 #endif
