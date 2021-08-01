@@ -337,7 +337,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                      "[ENTER]"
-#elif !defined(HARDWARE_KEYS)
+#elif defined(PCBNV14)
   #define TR_ENTER                      "[NEXT]"
 #else
   #define TR_ENTER                      "[MENU]"
