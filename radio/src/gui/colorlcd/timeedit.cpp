@@ -20,11 +20,11 @@
 
 #include "libopenui_config.h"
 #include "timeedit.h"
-#include "keyboard_number.h"
+
 #include "strhelpers.h"
 
 TimeEdit::TimeEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue):
-  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue))
+  NumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue))
 {
 }
 
@@ -45,55 +45,3 @@ void TimeEdit::paint(BitmapBuffer * dc)
                textColor);
 }
 
-#if defined(HARDWARE_KEYS)
-// TODO could be moved to BaseNumberEdit
-void TimeEdit::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (editMode) {
-    if (event == EVT_ROTARY_RIGHT) {
-      int value = getValue();
-      value += ROTARY_ENCODER_SPEED() * step;
-      if (value <= vmax)
-        setValue(value);
-      else
-        onKeyError();
-      return;
-    }
-    else if (event == EVT_ROTARY_LEFT) {
-      int value = getValue();
-      value -= ROTARY_ENCODER_SPEED() * step;
-      if (value >= vmin)
-        setValue(value);
-      else
-        onKeyError();
-      return;
-    }
-  }
-
-  FormField::onEvent(event);
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool TimeEdit::onTouchEnd(coord_t x, coord_t y)
-{
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
-
-//  NumberKeyboard * keyboard = NumberKeyboard::instance();
-//  if (keyboard->getField() != this) {
-//    keyboard->setField(this);
-//  }
-
-  return true;
-}
-
-void TimeEdit::onFocusLost()
-{
-  BaseNumberEdit::onFocusLost();
-//  NumberKeyboard::instance()->disable(true);
-}
-#endif
