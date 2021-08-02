@@ -213,7 +213,7 @@ void convertModelData_219_to_220(ModelData &model)
 
   if (defaultLayout) {
     strcpy(newModel.screenData[0].LayoutId, defaultLayout->getId());
-    defaultLayout->initPersistentData(&newModel.screenData[0].layoutData);
+    defaultLayout->initPersistentData(&newModel.screenData[0].layoutData, true);
   }
 #endif
   free(oldModelAllocated);
