@@ -63,7 +63,11 @@ class ModelBitmapWidget: public Widget
       // smaller space to draw
       else {
         if (!filename.empty() && buffer) {
-        dc->drawBitmap(0, 0, buffer.get());
+          dc->drawBitmap(0, 0, buffer.get());
+        }
+        else {
+          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME,
+                            FONT(XS) | DEFAULT_COLOR);
         }
       }
     }
