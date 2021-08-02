@@ -328,6 +328,103 @@ void RadioSdManagerPage::build(FormWindow * window)
                     deviceFirmwareUpdate);
                 dialog->flash(getFullPath(name));
               });
+            } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
+              FrSkyFirmwareInformation information;
+              if (readFrSkyFirmwareInformation(getFullPath(name), information) == nullptr) {
+  #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
+                menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
+                  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE);
+                  auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                      deviceFirmwareUpdate);
+                  dialog->flash(getFullPath(name));
+                });
+  #endif
+                if (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE)
+                {
+                  menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
+                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                        deviceFirmwareUpdate);
+                    dialog->flash(getFullPath(name));
+                  });
+                }
+                if (information.productFamily == FIRMWARE_FAMILY_RECEIVER || information.productFamily == FIRMWARE_FAMILY_SENSOR)
+                {
+                  if (HAS_SPORT_UPDATE_CONNECTOR()) {
+                    menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
+                      FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(SPORT_MODULE);
+                      auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                          deviceFirmwareUpdate);
+                      dialog->flash(getFullPath(name));
+                    });
+                  } else {
+                    menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+                      FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
+                      auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                          deviceFirmwareUpdate);
+                      dialog->flash(getFullPath(name));
+                    });
+                  }
+                }
+// TODO: Integrate the remaining options - may just be a matter of finishing/fixing 
+// FrskyDeviceFirmwareUpdate deviceFirmwareUpdate calls for each
+/*
+#if defined(PXX2)
+              if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
+                if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE, information.productId))
+                  menu->addLine(STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
+                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE_OTA);
+                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                        deviceFirmwareUpdate);
+                    dialog->flash(getFullPath(name));
+                  });
+                if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE, information.productId))
+                  menu->addLine(STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
+                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE_OTA);
+                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                        deviceFirmwareUpdate);
+                    dialog->flash(getFullPath(name));
+                  });
+              }
+              if (information.productFamily == FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
+                menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA, [=]() {
+                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
+                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                    deviceFirmwareUpdate);
+                dialog->flash(getFullPath(name));
+                });
+                menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA, [=]() {
+                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA);
+                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                    deviceFirmwareUpdate);
+                dialog->flash(getFullPath(name));
+                });
+              }
+#endif
+#if defined(BLUETOOTH)
+              if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP)
+              {
+                menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
+                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_BLUETOOTH_MODULE);
+                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                    deviceFirmwareUpdate);
+                dialog->flash(getFullPath(name));
+                });
+              }
+#endif
+#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
+              if (information.productFamily == FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT)
+              {
+                menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
+                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_POWER_MANAGEMENT_UNIT);
+                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
+                    deviceFirmwareUpdate);
+                dialog->flash(getFullPath(name));
+                });
+              }
+#endif
+*/
+            }
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
