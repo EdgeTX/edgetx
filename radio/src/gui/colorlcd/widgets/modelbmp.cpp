@@ -36,6 +36,19 @@ class ModelBitmapWidget: public Widget
     void refresh(BitmapBuffer * dc) override
     {
       std::string filename = std::string(g_model.header.bitmap);
+
+      // set font colour from options[0]
+      lcdSetColor(persistentData->options[0].value.unsignedValue);
+
+      // get font size from options[1]
+      LcdFlags fontsize = persistentData->options[1].value.unsignedValue << 8u;
+
+      // fill bg from options[3] if options[2] set
+      if (persistentData->options[2].value.boolValue) {
+        LcdFlags fillColour = COLOR2FLAGS(persistentData->options[3].value.unsignedValue);
+        dc->drawSolidFilledRect(0, 0, width(), height(), fillColour);
+      }
+
       if (buffer &&
           ((buffer->width() != width()) || (buffer->height() != height()) ||
            (deps_hash != getHash()))) {
@@ -51,14 +64,7 @@ class ModelBitmapWidget: public Widget
           dc->drawBitmap(0, 38, buffer.get());
         }
 
-        auto iconMask = theme->getIconMask(ICON_MODEL);
-        if (iconMask) {
-          dc->drawMask(6, 4, iconMask, COLOR_THEME_SECONDARY1);
-        }
-
-        dc->drawSizedText(45, 10, g_model.header.name, LEN_MODEL_NAME,
-                          FONT(XS) | COLOR_THEME_SECONDARY1);
-        dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, COLOR_THEME_SECONDARY1);
+        dc->drawSizedText(5, 5, g_model.header.name, LEN_MODEL_NAME, fontsize | COLOR_THEME_SECONDARY1);
       }
       // smaller space to draw
       else {
@@ -66,8 +72,7 @@ class ModelBitmapWidget: public Widget
           dc->drawBitmap(0, 0, buffer.get());
         }
         else {
-          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME,
-                            FONT(XS) | DEFAULT_COLOR);
+          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME, fontsize | COLOR_THEME_SECONDARY1);
         }
       }
     }
@@ -79,6 +84,8 @@ class ModelBitmapWidget: public Widget
         invalidate();
       }
     }
+
+    static const ZoneOption options[];
 
   protected:
     std::unique_ptr<BitmapBuffer> buffer;
@@ -115,5 +122,11 @@ class ModelBitmapWidget: public Widget
     }
 };
 
-BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", nullptr);
-const WidgetFactory * defaultWidget = &modelBitmapWidget;
+const ZoneOption ModelBitmapWidget::options[] = {
+    {STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_COLOR)},
+    {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(3)},
+    {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
+    {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_BGCOLOR)},
+    {nullptr, ZoneOption::Bool}};
+
+BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options);
