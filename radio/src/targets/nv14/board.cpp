@@ -176,6 +176,11 @@ void boardInit()
   lcdInit();
   usbInit();
   hapticInit();
+
+ #if defined(RTCLOCK) && !defined(COPROCESSOR)
+  rtcInit(); // RTC must be initialized before rambackupRestore() is called
+#endif
+ 
   boardState = BOARD_STARTED;
 #if defined(DEBUG)
   DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
@@ -191,6 +196,14 @@ void boardOff()
     WDG_RESET();
   }
  
+ 
+#if defined(RTC_BACKUP_RAM)
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
+  PWR_BackupRegulatorCmd(DISABLE);
+#endif
+
+  RTC->BKP0R = SHUTDOWN_REQUEST;
+
   SysTick->CTRL = 0; // turn off systick
   pwrOff();
 #if !defined (SIMU)
