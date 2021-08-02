@@ -47,7 +47,7 @@ class ModelBitmapWidget: public Widget
       if (rect.h >= 96 && rect.w >= 120) {
 
         if (buffer) {
-          dc->drawBitmap(0, 0, buffer.get());
+          dc->drawBitmap(0, 38, buffer.get());
         }
 
         auto iconMask = theme->getIconMask(ICON_MODEL);
@@ -100,7 +100,7 @@ class ModelBitmapWidget: public Widget
         }
 
         if (rect.h >= 96 && rect.w >= 120) {
-          buffer->drawScaledBitmap(bitmap.get(), 0, 38, width(), height() - 38);
+          buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height() - 38);
         } else {
           buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height());
         }
