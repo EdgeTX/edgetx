@@ -209,13 +209,15 @@ void TextEdit::onEvent(event_t event)
         break;
 
       case EVT_KEY_BREAK(KEY_PGDN):
-        memmove(&value[cursorPos], &value[cursorPos + 1], length - cursorPos - 1);
-        value[length - 1] = '\0';
-        changed = true;
-        if (cursorPos > 0 && value[cursorPos] == '\0') {
-          cursorPos = cursorPos - 1;
+        if (cursorPos < length) {
+          memmove(&value[cursorPos], &value[cursorPos + 1], length - cursorPos - 1);
+          value[length - 1] = '\0';
+          changed = true;
+          if (cursorPos > 0 && value[cursorPos] == '\0') {
+            cursorPos = cursorPos - 1;
+          }
+          invalidate();
         }
-        invalidate();
         break;
     }
 
