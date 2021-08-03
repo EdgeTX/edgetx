@@ -160,7 +160,9 @@ if(${STORAGE} STREQUAL SDCARD)
     set(SRC ${SRC} storage/sdcard_raw.cpp)
     add_definitions(-DSDCARD_RAW)
   elseif(${STORAGE_FORMAT} STREQUAL YAML)
-    set(SRC ${SRC} storage/sdcard_yaml.cpp)
+    # TODO: how do we check if the conversions
+    #       should be done from SD card or EEPROM?
+    set(SRC ${SRC} storage/sdcard_yaml.cpp storage/sdcard_raw.cpp)
     add_definitions(-DSDCARD_YAML)
     include(storage/yaml/CMakeLists.txt)
     #add_subdirectory(storage/yaml)
