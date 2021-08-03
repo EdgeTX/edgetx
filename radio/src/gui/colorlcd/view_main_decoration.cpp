@@ -48,6 +48,7 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
   sliders[SLIDERS_POT3]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
 #endif
 
+#if NUM_SLIDERS > 0
   //
   // Vertical sliders
   //
@@ -65,6 +66,8 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
   if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
     sliders[SLIDERS_EXT2]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
   }
+#endif
+
 #endif
 
   if (visible) {
@@ -135,13 +138,14 @@ void ViewMainDecoration::adjustDecoration()
 
   // Vertical trims/slider are on top of horizontal sliders with a small margin
   auto vertTop = pos - HMARGIN - VERTICAL_SLIDERS_HEIGHT;
-  
+
+#if NUM_SLIDERS > 0
   // Left side (vertical)
   pos = left();
   sliders[SLIDERS_REAR_LEFT]->setLeft(pos);
   sliders[SLIDERS_REAR_LEFT]->setTop(vertTop);
 
-#if defined(HARDWARE_EXT1) || defined(PCBX12S)
+#if defined(HARDWARE_EXT1) || defined(PCBX12S) // TODO: define HARDWARE_EXT1 for X12S
   sliders[SLIDERS_EXT1]->setLeft(pos);
   if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
     auto rl = sliders[SLIDERS_REAR_LEFT];
@@ -195,7 +199,14 @@ void ViewMainDecoration::adjustDecoration()
   trims[TRIMS_LV]->setTop(vertTop);
   trims[TRIMS_RV]->setLeft(sliders[SLIDERS_REAR_RIGHT]->left() - trims[TRIMS_RV]->width());
   trims[TRIMS_RV]->setTop(vertTop);
-
+#else
+  // No sliders: place the vertical trims on the edge
+  trims[TRIMS_LV]->setLeft(left());
+  trims[TRIMS_LV]->setTop(vertTop);
+  trims[TRIMS_RV]->setLeft(right() - trims[TRIMS_RV]->width());
+  trims[TRIMS_RV]->setTop(vertTop);  
+#endif
+  
   // Place the flight-mode text box
   // -> between horiz trims (if existing)
   // else on top of horiz sliders
@@ -265,6 +276,7 @@ void ViewMainDecoration::createSliders()
   sliders[SLIDERS_POT3] = new MainViewHorizontalSlider(this, r, CALIBRATED_POT3);
 #endif
 
+#if NUM_SLIDERS > 0
   r = rect_t { 0, 0, 0, 0 };
   sliders[SLIDERS_REAR_LEFT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_LEFT);
   sliders[SLIDERS_REAR_RIGHT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_RIGHT);
@@ -276,6 +288,7 @@ void ViewMainDecoration::createSliders()
 #if defined(HARDWARE_EXT2) || defined(PCBX12S)
   sliders[SLIDERS_EXT2] = new MainViewVerticalSlider(this, r, CALIBRATED_POT_EXT2);
 #endif
+#endif // NUM_SLIDERS > 0
 }
 
 void ViewMainDecoration::createTrims()

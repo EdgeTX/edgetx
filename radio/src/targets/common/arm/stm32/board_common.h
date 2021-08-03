@@ -103,12 +103,7 @@ extern "C" {
 #include "../simu/simpgmspace.h"
 #endif
 
-// ADC driver
-void adcInit();
-void adcRead();
-uint16_t getAnalogValue(uint8_t index);
-uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
-uint16_t getRTCBatteryVoltage();
+uint16_t getBatteryVoltage();
 
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of normal drain (~10 nA)

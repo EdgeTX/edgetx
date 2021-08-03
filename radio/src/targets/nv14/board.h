@@ -305,6 +305,7 @@ enum Analogs {
   SUB_ANALOG_POS = SWH,
   SWITCH_END = SWH,
   TX_VOLTAGE,
+  TX_VBAT,
   NUM_ANALOGS
 };
 
@@ -317,8 +318,6 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
-  CALIBRATED_SLIDER_REAR_LEFT,
-  CALIBRATED_SLIDER_REAR_RIGHT,  
   CALIBRATED_SWA,
   CALIBRATED_SWB,
   CALIBRATED_SWC,
@@ -335,10 +334,6 @@ enum CalibratedAnalogs {
 
 extern uint16_t adcValues[NUM_ANALOGS];
 
-void adcInit();
-void adcRead();
-uint16_t getAnalogValue(uint8_t index);
-uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 
 #define BATTERY_WARN                  36 // 3.6V
 #define BATTERY_MIN                   35 // 3.5V

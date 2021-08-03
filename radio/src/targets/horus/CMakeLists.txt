@@ -58,7 +58,8 @@ if (PCB STREQUAL X10)
     )
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/adc_driver.cpp
+    ../common/arm/stm32/stm32_hal_adc.cpp
+    ../../hal/adc_driver.cpp
     )
   set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
@@ -137,6 +138,7 @@ elseif (PCB STREQUAL X12S)
     )
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
+    ../../hal/adc_driver.cpp
     x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)

@@ -318,12 +318,14 @@
   #define ADC_CHANNEL_EXT1              ADC_Channel_6   // ADC3_IN6
   #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
   #define ADC_MAIN                      ADC3
+  #define ADC_EXT                       ADC1
   #define ADC_SAMPTIME                  3
   #define ADC_DMA                       DMA2
-  #define ADC_DMA_SxCR_CHSEL            DMA_SxCR_CHSEL_1
+  #define ADC_DMA_Channel               DMA_Channel_2
   #define ADC_DMA_Stream                DMA2_Stream0
-  #define ADC_SET_DMA_FLAGS()           ADC_DMA->LIFCR = (DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0 | DMA_LIFCR_CFEIF0)
   #define ADC_TRANSFER_COMPLETE()       (ADC_DMA->LISR & DMA_LISR_TCIF0)
+  #define ADC_DMA_TC_Flag               DMA_FLAG_TCIF0
+
   #if defined(RADIO_TX16S)
     #define ADC_VREF_PREC2              330
   #elif defined(RADIO_T16) || defined(RADIO_T18)
@@ -332,9 +334,6 @@
     #define ADC_VREF_PREC2              250
   #endif
 #endif
-
-#define ADC_MAIN_SMPR1                  (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-#define ADC_MAIN_SMPR2                  (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
 
 // Power
 #if defined(RADIO_T18)

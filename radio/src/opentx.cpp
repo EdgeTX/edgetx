@@ -19,7 +19,8 @@
  */
 
 #include "opentx.h"
-#include <io/frsky_firmware_update.h>
+#include "io/frsky_firmware_update.h"
+#include "hal/adc_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -1058,7 +1059,8 @@ void getADC()
 #endif
 
   DEBUG_TIMER_START(debugTimerAdcRead);
-  adcRead();
+  if (!adcRead())
+      TRACE("adcRead failed");
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {

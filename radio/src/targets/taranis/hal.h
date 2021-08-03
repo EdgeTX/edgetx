@@ -875,18 +875,11 @@
 // ADC
 #define ADC_MAIN                        ADC1
 #define ADC_DMA                         DMA2
-#define ADC_DMA_SxCR_CHSEL              0
+#define ADC_DMA_Channel                 DMA_Channel_0
 #define ADC_DMA_Stream                  DMA2_Stream4
-#define ADC_SET_DMA_FLAGS()             ADC_DMA->HIFCR = (DMA_HIFCR_CTCIF4 | DMA_HIFCR_CHTIF4 | DMA_HIFCR_CTEIF4 | DMA_HIFCR_CDMEIF4 | DMA_HIFCR_CFEIF4)
-#define ADC_TRANSFER_COMPLETE()         (ADC_DMA->HISR & DMA_HISR_TCIF4)
+#define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
 #define ADC_SAMPTIME                    2   // sample time = 28 cycles
-#if defined(RADIO_TLITE)
-  #define ADC_MAIN_SMPR1               (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + ((ADC_SAMPTIME + 1) << 24); // TLite needs +1 for proper RTC Bat measurement.
-  #define ADC_MAIN_SMPR2               (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-#else
-  #define ADC_MAIN_SMPR1               (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-  #define ADC_MAIN_SMPR2               (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-#endif
+
 #if defined(PCBX9E)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
@@ -928,8 +921,8 @@
   #define ADC_EXT                       ADC3
   #define ADC_EXT_DMA                   DMA2
   #define ADC_EXT_DMA_Stream            DMA2_Stream0
-  #define ADC_EXT_SET_DMA_FLAGS()       ADC_DMA->LIFCR = (DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0 | DMA_LIFCR_CFEIF0)
-  #define ADC_EXT_TRANSFER_COMPLETE()   (ADC_DMA->LISR & DMA_LISR_TCIF0)
+  #define ADC_EXT_DMA_Channel           DMA_Channel_2
+  #define ADC_EXT_TC_Flag               DMA_FLAG_TCIF0
   #define ADC_EXT_SAMPTIME              3    // sample time = 56 cycles
   #define ADC_VREF_PREC2                300
 #elif defined(PCBX9DP)

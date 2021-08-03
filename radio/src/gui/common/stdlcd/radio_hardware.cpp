@@ -19,6 +19,7 @@
  */
 
 #include <opentx.h>
+#include "hal/adc_driver.h"
 
 #if defined(PCBSKY9X)
 #define HW_SETTINGS_COLUMN (2+(15*FW))

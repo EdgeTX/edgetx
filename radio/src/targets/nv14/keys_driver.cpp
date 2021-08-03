@@ -19,6 +19,7 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
 uint32_t readKeys()
 {

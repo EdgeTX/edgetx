@@ -20,6 +20,10 @@
  
 #include "opentx.h"
 #include "touch.h"
+
+#include "hal/adc_driver.h"
+#include "../common/arm/stm32/stm32_hal_adc.h"
+
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif
@@ -171,7 +175,7 @@ void boardInit()
   // and this section is un-initialized
   memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
-  adcInit();
+  adcInit(&stm32_hal_adc_driver);
   backlightInit();
   lcdInit();
   usbInit();

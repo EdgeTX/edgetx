@@ -553,6 +553,8 @@ enum Analogs {
   NUM_ANALOGS
 };
 
+#define HAS_TX_RTC_VOLTAGE
+
 #if defined(PCBX9LITE)
   #define NUM_POTS                      1
   #define NUM_SLIDERS                   0
