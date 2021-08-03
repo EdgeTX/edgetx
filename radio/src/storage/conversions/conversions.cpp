@@ -22,7 +22,7 @@
 #include "opentx.h"
 #include "conversions.h"
 
-#if defined(COLORLCD) && !defined(SDCARD_YAML)
+#if defined(COLORLCD)
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
 
@@ -99,7 +99,10 @@ void convertRadioData(int version)
 
         char path[256];
         getModelPath(path, filename);
-        error = writeFile(path, (uint8_t *)&g_model, sizeof(g_model));
+
+        //TODO: if YAML is used, output to YAML directly
+        error = writeFileBin(path, (uint8_t *)&g_model, sizeof(g_model));
+
         //TODO: what should be done with this error?
       }
 

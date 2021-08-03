@@ -24,6 +24,6 @@
 
 #include "FatFs/ff.h"
 
-const char * openFile(const char * fullpath, FIL* file, uint16_t* size);
+//const char * openFileBin(const char * fullpath, FIL* file, uint16_t* size);
 
 #endif
