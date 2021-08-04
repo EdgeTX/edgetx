@@ -75,7 +75,7 @@ bool FileChoice::openMenu()
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
 
-      if (extension && !isExtensionMatching(fnExt, extension))
+      if (extension && (!fnExt || !isExtensionMatching(fnExt, extension)))
         continue;  // wrong extension
 
       if (stripExtension) fnLen -= extLen;
