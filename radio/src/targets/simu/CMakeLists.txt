@@ -44,6 +44,13 @@ if(Qt5Widgets_FOUND)
   add_dependencies(${SIMULATOR_TARGET} ${RADIO_DEPENDENCIES})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})  # set in top-level CMakeLists
   target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
+  # Introduced at 2.5 - TODO replace with a code change
+  # When compiled shared simulators using libopenui and Companion have classes named MainWindow
+  # When the simulator is launched from Companion the runtime dynamic linking can result in Companion overiding the simulator
+  # and crashing the simulator under some OSes
+  # The flag forces the runtime linker to always look for references in the simulator first
+  target_link_options(${SIMULATOR_TARGET} PRIVATE "LINKER:-Bsymbolic")
+  #
   add_custom_target(libsimulator DEPENDS ${SIMULATOR_TARGET})
 
   # Prepare the "all-simu-libs" target to build simulator libraries for *every* supported PCB type (PCB_TYPES list)
@@ -99,7 +106,7 @@ if(FOX_FOUND)
   endif()
   add_executable(simu WIN32 ${SIMU_SRC} ${RADIO_SRC_DIR}/simu.cpp)
   add_dependencies(simu ${RADIO_DEPENDENCIES})
-  
+
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
   target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL_LIBRARY})
   target_compile_definitions(simu PUBLIC -DSIMU)
