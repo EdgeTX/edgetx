@@ -971,7 +971,10 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     }
     else
 #endif
+    if (lua_status(lsScripts) == LUA_YIELD)
       return scriptWasRun;
+    else
+      luaLcdAllowed = allowLcdUsage;
   }
  
   do {
