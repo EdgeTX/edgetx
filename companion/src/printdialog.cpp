@@ -22,8 +22,8 @@
 #include "ui_printdialog.h"
 #include "helpers.h"
 #include "styleeditdialog.h"
-#include <QPrinter>
-#include <QPrintDialog>
+#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintDialog>
 
 PrintDialog::PrintDialog(QWidget *parent, Firmware * firmware, GeneralSettings & generalSettings, ModelData & model, const QString & filename) :
   QDialog(parent),

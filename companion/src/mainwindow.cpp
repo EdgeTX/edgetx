@@ -53,10 +53,10 @@
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QMessageBox>
-#include <QNetworkAccessManager>
-#include <QNetworkProxyFactory>
-#include <QNetworkReply>
-#include <QNetworkRequest>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkProxyFactory>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 
 // update check flags
 #define CHECK_COMPANION        1
