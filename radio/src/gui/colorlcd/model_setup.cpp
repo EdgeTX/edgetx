@@ -910,7 +910,18 @@ class ModuleWindow : public FormGroup {
         // Model index
         if (isModuleModelIndexAvailable(moduleIdx)) {
           thirdColumn++;
-          new NumberEdit(this, grid.getFieldSlot(3, 0), 0, getMaxRxNum(moduleIdx), GET_SET_DEFAULT(g_model.header.modelId[moduleIdx]));
+          new NumberEdit(
+              this, grid.getFieldSlot(3, 0), 0, getMaxRxNum(moduleIdx),
+              GET_DEFAULT(g_model.header.modelId[moduleIdx]),
+              [=](int32_t newValue) {
+                if (newValue != g_model.header.modelId[moduleIdx]) {
+                  g_model.header.modelId[moduleIdx] = newValue;
+                  if (isModuleCrossfire(moduleIdx)) {
+                    moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
+                  }
+                  SET_DIRTY();
+                }
+              });
         }
 
         if (isModuleBindRangeAvailable(moduleIdx)) {
