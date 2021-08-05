@@ -254,7 +254,7 @@ QString MainWindow::getCompanionUpdateBaseUrl() const
 
 void MainWindow::checkForUpdates()
 {
-  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions. Update the application settings to disable this message.").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
   return;
 
   if (!(checkForUpdatesState & (CHECK_COMPANION | CHECK_FIRMWARE))) {
@@ -1211,7 +1211,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(logsAct,            tr("View Log File..."),           tr("Open and view log file"));
   trAct(appPrefsAct,        tr("Settings..."),                tr("Edit Settings"));
   trAct(fwPrefsAct,         tr("Download..."),                tr("Download firmware and voice files"));
-  trAct(checkForUpdatesAct, tr("Check for Updates..."),       tr("Check OpenTX and Companion updates"));
+  trAct(checkForUpdatesAct, tr("Check for Updates..."),       tr("Check EdgeTX and Companion updates"));
   trAct(changelogAct,       tr("Release notes..."),           tr("Show release notes"));
   trAct(compareAct,         tr("Compare Models..."),          tr("Compare models"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."), tr("Edit the splash image of your Radio"));
@@ -1314,6 +1314,7 @@ void MainWindow::createActions()
 
   actTabbedWindows->setCheckable(true);
   compareAct->setEnabled(false);
+  fwPrefsAct->setEnabled(false);
 }
 
 void MainWindow::createMenus()
