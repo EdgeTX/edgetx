@@ -71,7 +71,9 @@ endif()
 
 if(WIN32)
   include_directories(SYSTEM ${WIN_INCLUDE_DIRS})
-  target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${WIN_LINK_LIBRARIES})
+  if(Qt5Widgets_FOUND)
+    target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${WIN_LINK_LIBRARIES})
+  endif()
 endif(WIN32)
 
 if(MSVC)
