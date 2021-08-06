@@ -59,7 +59,8 @@
 #define DFU_FILES_FILTER               "DFU " % CPN_STR_FILES % " (*.dfu);;"
 #define EEPE_FILES_FILTER              "EEPE " % CPN_STR_FILES % " (*.eepe);;"
 #define OTX_FILES_FILTER               "OpenTX " % CPN_STR_FILES % " (*.otx);;"
-#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.otx *.eepe *.bin *.hex);;" % OTX_FILES_FILTER % EEPE_FILES_FILTER % BIN_FILES_FILTER % HEX_FILES_FILTER
+#define YML_FILES_FILTER               "YAML " % CPN_STR_FILES % " (*.yml);;"
+#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.otx *.yml *.eepe *.bin *.hex);;" % OTX_FILES_FILTER % YML_FILES_FILTER % EEPE_FILES_FILTER % BIN_FILES_FILTER % HEX_FILES_FILTER
 #define FLASH_FILES_FILTER             "FLASH " % CPN_STR_FILES % " (*.bin *.hex *.dfu);;" % BIN_FILES_FILTER % HEX_FILES_FILTER % DFU_FILES_FILTER
 #define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin *.hex);;" % BIN_FILES_FILTER % HEX_FILES_FILTER
 #define ER9X_EEPROM_FILE_TYPE          "ER9X_EEPROM_FILE"

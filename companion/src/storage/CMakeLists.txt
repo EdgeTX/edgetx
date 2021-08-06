@@ -13,6 +13,7 @@ set(storage_NAMES
   categorized
   sdcard
   otx
+  yaml
 )
 
 set(storage_SRCS

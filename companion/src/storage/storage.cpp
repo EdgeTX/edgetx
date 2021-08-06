@@ -22,6 +22,7 @@
 #include "eepe.h"
 #include "otx.h"
 #include "sdcard.h"
+#include "yaml.h"
 #include "firmwareinterface.h"
 #include "eeprominterface.h"
 #include <QFileInfo>
@@ -41,6 +42,8 @@ StorageType getStorageType(const QString & filename)
     return STORAGE_TYPE_XML;
   else if (suffix == "OTX")
     return STORAGE_TYPE_OTX;
+  else if (suffix == "YML")
+    return STORAGE_TYPE_YML;
   else
     return STORAGE_TYPE_UNKNOWN;
 }
@@ -61,6 +64,7 @@ void registerStorageFactories()
   registerStorageFactory(new DefaultStorageFactory<EepeFormat>("eepe"));
   registerStorageFactory(new DefaultStorageFactory<HexEepromFormat>("hex"));
   registerStorageFactory(new DefaultStorageFactory<OtxFormat>("otx"));
+  registerStorageFactory(new DefaultStorageFactory<YamlFormat>("yml"));
   registerStorageFactory(new SdcardStorageFactory());
 }
 

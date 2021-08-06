@@ -1375,10 +1375,10 @@ bool MdiChild::saveAs(bool isNew)
 #ifdef __APPLE__
   QString filter;
 #else
-  QString filter(OTX_FILES_FILTER);
+  QString filter(OTX_FILES_FILTER % YML_FILES_FILTER);
 #endif
 
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" +fi.fileName(), filter);
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
   if (fileName.isEmpty())
     return false;
   g.eepromDir( QFileInfo(fileName).dir().absolutePath() );
