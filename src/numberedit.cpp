@@ -36,13 +36,13 @@ void NumberEdit::paint(BitmapBuffer * dc)
 
   LcdFlags textColor;
   if (editMode)
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else if (hasFocus())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   // else if (enabled && (value != 0 || zeroText.empty()))
-  //   textColor = DEFAULT_COLOR;
+  //   textColor = COLOR_THEME_SECONDARY1;
   else
-    textColor = DEFAULT_COLOR;
+    textColor = COLOR_THEME_SECONDARY1;
 
   if (displayFunction) {
     displayFunction(dc, textColor, value);

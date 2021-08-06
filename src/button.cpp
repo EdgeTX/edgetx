@@ -70,20 +70,20 @@ void Button::checkEvents()
 
 void TextButton::paint(BitmapBuffer * dc)
 {
-  auto textColor = DEFAULT_COLOR;
-  auto bgColor   = FIELD_FRAME_COLOR;
+  auto textColor = COLOR_THEME_SECONDARY1;
+  auto bgColor   = COLOR_THEME_SECONDARY2;
 
   if (bgColorHandler) {
     bgColor = bgColorHandler();
   } else if (checked()) {
-    bgColor = HIGHLIGHT_COLOR;
+    bgColor = COLOR_THEME_ACTIVE;
   } else if (hasFocus()) {
-    bgColor = FOCUS_BGCOLOR;
+    bgColor = COLOR_THEME_FOCUS;
   }
 
   if (checked()) {
     if (hasFocus()) {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
       dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, bgColor);
     } else {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
@@ -93,13 +93,13 @@ void TextButton::paint(BitmapBuffer * dc)
     dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
     if (windowFlags & BUTTON_BACKGROUND) {
       if (hasFocus()) {
-        textColor = FOCUS_COLOR;
+        textColor = COLOR_THEME_PRIMARY2;
       }
     } else if (hasFocus()) {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
     }
     else {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
     }
   }
 

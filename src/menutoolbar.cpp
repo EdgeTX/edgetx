@@ -27,11 +27,11 @@ void MenuToolbarButton::paint(BitmapBuffer * dc)
         MENUS_TOOLBAR_BUTTON_PADDING, MENUS_TOOLBAR_BUTTON_PADDING,
         MENUS_TOOLBAR_BUTTON_WIDTH - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
         MENUS_TOOLBAR_BUTTON_WIDTH - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
-        FOCUS_BGCOLOR);
+        COLOR_THEME_FOCUS);
     dc->drawSizedText(rect.w / 2, (rect.h - getFontHeight(FONT(STD))) / 2 + 1,
-                      &picto, 1, CENTERED | FOCUS_COLOR);
+                      &picto, 1, CENTERED | COLOR_THEME_PRIMARY2);
   } else {
     dc->drawSizedText(rect.w / 2, (rect.h - getFontHeight(FONT(STD))) / 2 + 1,
-                      &picto, 1, CENTERED | DEFAULT_COLOR);
+                      &picto, 1, CENTERED | COLOR_THEME_SECONDARY1);
   }
 }

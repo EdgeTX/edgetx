@@ -24,7 +24,7 @@ void Table::Header::paint(BitmapBuffer * dc)
 {
   coord_t x = 10;
   if (!cells.empty()) {
-    dc->clear(TABLE_HEADER_BGCOLOR);
+    dc->clear(COLOR_THEME_FOCUS);
     for (unsigned i = 0; i < cells.size(); i++) {
       auto cell = cells[i];
       if (cell) {
@@ -61,15 +61,15 @@ void Table::Body::paint(BitmapBuffer * dc)
 {
   coord_t y = 0;
   int index = 0;
-  dc->clear(DEFAULT_BGCOLOR);
+  dc->clear(COLOR_THEME_SECONDARY3);
   for (auto line: lines) {
     bool highlight = (index == selection);
-    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? MENU_HIGHLIGHT_BGCOLOR : TABLE_BGCOLOR);
+    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY3);
     coord_t x = 10;
     for (unsigned i = 0; i < line->cells.size(); i++) {
       auto cell = line->cells[i];
       if (cell) {
-        cell->paint(dc, x, y, line->flags + (highlight ? MENU_HIGHLIGHT_COLOR - COLOR_MASK(line->flags) : DEFAULT_COLOR));
+        cell->paint(dc, x, y, line->flags + (highlight ? COLOR_THEME_PRIMARY2 - COLOR_MASK(line->flags) : COLOR_THEME_SECONDARY1));
       }
       x += static_cast<Table *>(parent)->columnsWidth[i];
     }
