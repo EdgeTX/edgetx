@@ -55,11 +55,11 @@ print("\nGenerate Windows Icons... ", end="")
 os.chdir(win_icons_dir)
 windows_resolutions = [16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 128, 256]
 for size in windows_resolutions:
-    if os.path.exists(win_icons_dir + os.sep + 'opentx_' + str(size) + '.ico'):
-        os.remove(win_icons_dir + os.sep + 'opentx_' + str(size) + '.ico')
+    if os.path.exists(win_icons_dir + os.sep + 'edgetx_' + str(size) + '.ico'):
+        os.remove(win_icons_dir + os.sep + 'edgetx_' + str(size) + '.ico')
     img = Image.open(start_dir + os.sep + logo_filename).resize((size, size))
     print(str(size) + " ", end="")
-    img.save('opentx_' + str(size) + '.ico')
+    img.save('edgetx_' + str(size) + '.ico')
 
 print("\nWindows All in One...")
 # Since Pillow only supports [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
@@ -69,9 +69,9 @@ icon_sizes = [(16, 16), (24, 24), (32, 32), (48, 48),
               (64, 64), (128, 128), (256, 256)]
 
 img = Image.open(start_dir + os.sep + logo_filename)
-if os.path.exists('opentx.ico'):
-    os.remove('opentx.ico')
-img.save('opentx.ico', sizes=icon_sizes)
+if os.path.exists('edgetx.ico'):
+    os.remove('edgetx.ico')
+img.save('edgetx.ico', sizes=icon_sizes)
 
 os.chdir(start_dir)
 
