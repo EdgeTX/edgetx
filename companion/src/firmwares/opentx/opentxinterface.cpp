@@ -104,6 +104,8 @@ const char * OpenTxEepromInterface::getName()
       return "OpenTX for FrSky X10";
     case BOARD_X10_EXPRESS:
       return "OpenTX for FrSky X10 Express";
+    case BOARD_FLYSKY_NV14:
+      return "OpenTX for FlySky NV14";
     default:
       return "OpenTX for an unknown board";
   }
@@ -1385,24 +1387,29 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* FlySky NV14 board */
+  firmware = new OpenTxFirmware("opentx-nv14", QCoreApplication::translate("Firmware", "FlySky NV14"), BOARD_FLYSKY_NV14);
+  addOpenTxFrskyOptions(firmware);
+  registerOpenTxFirmware(firmware);
+
   /* 9XR-Pro */
   firmware = new OpenTxFirmware("opentx-9xrpro", Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
   addOpenTxArm9xOptions(firmware, false);
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
   /* ar9x board */
   firmware = new OpenTxFirmware("opentx-ar9x", Firmware::tr("9X with AR9X board"), BOARD_AR9X);
-  addOpenTxArm9xOptions(firmware);
+  addOpenTxArm9xOptions(firmware, true);
   //firmware->addOption("rtc", Firmware::tr("Optional RTC added"));
   //firmware->addOption("volume", Firmware::tr("i2c volume control added"));
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
   /* Sky9x board */
   firmware = new OpenTxFirmware("opentx-sky9x", Firmware::tr("9X with Sky9x board"), BOARD_SKY9X);
   addOpenTxArm9xOptions(firmware);
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
-  Firmware::setDefaultVariant(Firmware::getFirmwareForId("opentx-x9d+"));
+  Firmware::setDefaultVariant(Firmware::getFirmwareForId("opentx-tx16s"));
   Firmware::setCurrentVariant(Firmware::getDefaultVariant());
 }
 

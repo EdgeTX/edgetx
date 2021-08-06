@@ -61,6 +61,7 @@ namespace Board {
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_T8,
     BOARD_JUMPER_TLITE,
+    BOARD_FLYSKY_NV14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -326,7 +327,7 @@ inline bool IS_TARANIS_SMALL(Board::Type board)
 
 inline bool IS_TARANIS(Board::Type board)
 {
-  return IS_TARANIS_X9(board) || IS_TARANIS_SMALL(board);
+  return IS_TARANIS_X9(board) || IS_TARANIS_SMALL(board) || IS_FLYSKY_NV14(board);
 }
 
 inline bool IS_HORUS_X10(Board::Type board)
@@ -366,7 +367,7 @@ inline bool IS_ARM(Board::Type board)
 
 inline bool HAS_LARGE_LCD(Board::Type board)
 {
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board);
+  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board) || IS_FLYSKY_NV14(board);
 }
 
 inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
@@ -388,4 +389,9 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
+}
+
+inline bool IS_FLYSKY_NV14(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NV14);
 }
