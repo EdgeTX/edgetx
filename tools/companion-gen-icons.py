@@ -9,7 +9,6 @@
 
 import requests
 import os
-import shutil
 from PIL import Image
 
 logo_filename = "edgetx-logo.png"
