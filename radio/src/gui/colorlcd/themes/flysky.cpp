@@ -40,42 +40,17 @@ class FlyskyTheme: public OpenTxTheme
     {
       TRACE("Load FlySky theme colors");
 
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = BLACK;
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = WHITE;
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = WHITE;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = WHITE;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = GREY;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(0, 71, 157);
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(0, 71, 157);
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = DARKBLUE;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = WHITE;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(GET_RED(RED)>>1, GET_GREEN(RED)>>1, GET_BLUE(RED)>>1);
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = DARKGREY;
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = YELLOW;
-      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = GREY;
-      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = LIGHTGREY;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = LIGHTGREY;
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = BLACK;
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = WHITE;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RED;
-
-      // The menu header (top bar)
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = DARKBLUE;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(0, 71, 157);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(2, 114, 250);
-
-      // The menu title
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(0, 71, 157);
-
-      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = BLACK;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RED;
-      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(167, 167, 167);
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(222, 222, 222);
+      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
+      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
+      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
+      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
+      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
+      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
+      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
+      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
+      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
     }
 
     void loadMenuIcon(uint8_t index, const char * filename, uint32_t color=COLOR_THEME_SECONDARY1) const

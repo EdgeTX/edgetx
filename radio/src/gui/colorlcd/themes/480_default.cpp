@@ -51,6 +51,7 @@ class Theme480: public OpenTxTheme
       lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
       lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
       lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
+      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
     }
 
     void loadMenuIcon(uint8_t index, const uint8_t * lbm) const
