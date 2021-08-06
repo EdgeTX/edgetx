@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>874</width>
+    <width>1047</width>
     <height>33</height>
    </rect>
   </property>
@@ -57,6 +57,9 @@
    </item>
    <item>
     <widget class="AutoComboBox" name="mode"/>
+   </item>
+   <item>
+    <widget class="AutoComboBox" name="swtch"/>
    </item>
    <item>
     <widget class="QLabel" name="countdownBeepLabel">
