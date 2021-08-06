@@ -46,46 +46,46 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
-#if defined(STM32)
-GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
-RCC_TypeDef rcc;
-DMA_Stream_TypeDef dma1_stream1, dma1_stream2, dma1_stream3, dma1_stream4, dma1_stream5, dma1_stream6, dma1_stream7, dma2_stream1, dma2_stream2, dma2_stream5, dma2_stream6, dma2_stream7;
-DMA_TypeDef dma2;
-USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
-SysTick_Type systick;
-ADC_Common_TypeDef adc;
-RTC_TypeDef rtc;
-void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct) { }
-void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct) { }
-void SPI_CalculateCRC(SPI_TypeDef* SPIx, FunctionalState NewState) { }
-void SPI_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState) { }
-FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG) { return RESET; }
-uint16_t SPI_I2S_ReceiveData(SPI_TypeDef* SPIx) { return 0; }
-void SPI_I2S_SendData(SPI_TypeDef* SPIx, uint16_t Data) { }
-void DMA_DeInit(DMA_Stream_TypeDef* DMAy_Streamx) { }
-void DMA_Init(DMA_Stream_TypeDef* DMAy_Streamx, DMA_InitTypeDef* DMA_InitStruct) { }
-void DMA_ITConfig(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT, FunctionalState NewState) { }
-void DMA_StructInit(DMA_InitTypeDef* DMA_InitStruct) { }
-void DMA_Cmd(DMA_Stream_TypeDef* DMAy_Streamx, FunctionalState NewState) { }
-void lcdCopy(void * dest, void * src);
-FlagStatus DMA_GetFlagStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_FLAG) { return RESET; }
-ITStatus DMA_GetITStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { return RESET; }
-void DMA_ClearITPendingBit(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { }
-void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState) { }
-void UART3_Configure(uint32_t baudrate, uint32_t masterClock) { }
-void NVIC_Init(NVIC_InitTypeDef * NVIC_InitStruct) { }
-#else
-Pio Pioa, Piob, Pioc;
-Pmc pmc;
-Ssc ssc;
-Pwm pwm;
-Tc tc1;
-Twi Twio;
-Usart Usart0;
-Dacc dacc;
-Adc Adc0;
-#endif
+// #if defined(STM32)
+// GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
+// TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
+// RCC_TypeDef rcc;
+// DMA_Stream_TypeDef dma1_stream1, dma1_stream2, dma1_stream3, dma1_stream4, dma1_stream5, dma1_stream6, dma1_stream7, dma2_stream1, dma2_stream2, dma2_stream5, dma2_stream6, dma2_stream7;
+// DMA_TypeDef dma2;
+// USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
+// SysTick_Type systick;
+// ADC_Common_TypeDef adc;
+// RTC_TypeDef rtc;
+// void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct) { }
+// void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct) { }
+// void SPI_CalculateCRC(SPI_TypeDef* SPIx, FunctionalState NewState) { }
+// void SPI_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState) { }
+// FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG) { return RESET; }
+// uint16_t SPI_I2S_ReceiveData(SPI_TypeDef* SPIx) { return 0; }
+// void SPI_I2S_SendData(SPI_TypeDef* SPIx, uint16_t Data) { }
+// void DMA_DeInit(DMA_Stream_TypeDef* DMAy_Streamx) { }
+// void DMA_Init(DMA_Stream_TypeDef* DMAy_Streamx, DMA_InitTypeDef* DMA_InitStruct) { }
+// void DMA_ITConfig(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT, FunctionalState NewState) { }
+// void DMA_StructInit(DMA_InitTypeDef* DMA_InitStruct) { }
+// void DMA_Cmd(DMA_Stream_TypeDef* DMAy_Streamx, FunctionalState NewState) { }
+// void lcdCopy(void * dest, void * src);
+// FlagStatus DMA_GetFlagStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_FLAG) { return RESET; }
+// ITStatus DMA_GetITStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { return RESET; }
+// void DMA_ClearITPendingBit(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { }
+// void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState) { }
+// void UART3_Configure(uint32_t baudrate, uint32_t masterClock) { }
+// void NVIC_Init(NVIC_InitTypeDef * NVIC_InitStruct) { }
+// #else
+// Pio Pioa, Piob, Pioc;
+// Pmc pmc;
+// Ssc ssc;
+// Pwm pwm;
+// Tc tc1;
+// Twi Twio;
+// Usart Usart0;
+// Dacc dacc;
+// Adc Adc0;
+// #endif
 
 FATFS g_FATFS_Obj;
 
@@ -140,17 +140,6 @@ uint64_t CoGetOSTime(void)
 
 void simuInit()
 {
-#if defined(STM32)
-  RCC->CSR = 0;
-#endif
-
-  // set power button to "not pressed"
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  GPIO_SetBits(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN);
-#elif defined(PIO_PC17)       // AT91SAM3
-  PIOC->PIO_PDSR &= ~PIO_PC17;
-#endif
-
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
@@ -491,14 +480,7 @@ uint32_t pwrCheck()
 
 bool pwrPressed()
 {
-  // TODO: simulate power button
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
-#elif defined(PIO_PC17)       // AT91SAM3
-  return PIOC->PIO_PDSR & PIO_PC17;
-#else
   return false;
-#endif
 }
 
 void pwrInit()
@@ -608,6 +590,7 @@ void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
 
+#if 0
 // GPIO fake functions
 void GPIO_PinAFConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_PinSource, uint8_t GPIO_AF) { }
 
@@ -695,31 +678,18 @@ void RTC_GetDate(uint32_t RTC_Format, RTC_DateTypeDef * RTC_DateStruct)
   RTC_DateStruct->RTC_Month = timeinfo->tm_mon + 1;
   RTC_DateStruct->RTC_Date = timeinfo->tm_mday;
 }
+#endif
 
-void unlockFlash()
-{
-}
+void unlockFlash() {}
+void lockFlash() {}
 
-void lockFlash()
-{
-}
+void flashWrite(uint32_t *address, const uint32_t *buffer) { simuSleep(10); }
+uint32_t isBootloaderStart(const uint8_t *block) { return 1; }
 
-void flashWrite(uint32_t *address, const uint32_t *buffer)
-{
-  simuSleep(10);
-}
-
-uint32_t isBootloaderStart(const uint8_t * block)
-{
-  return 1;
-}
-#endif // defined(STM32)
+#endif  // defined(STM32)
 
 #if defined(PCBXLITES)
-bool isJackPlugged()
-{
-  return false;
-}
+bool isJackPlugged() { return false; }
 #endif
 
 void serialPrintf(const char * format, ...) { }
@@ -728,17 +698,12 @@ void serialPutc(char c) { }
 
 uint16_t getBatteryVoltage()
 {
-  return (g_eeGeneral.vBatWarn * 10) + 50; // 0.5 volt above alerm (value is PREC1)
+  // 0.5 volt above alerm (value is PREC1)
+  return (g_eeGeneral.vBatWarn * 10) + 50;
 }
 
-uint16_t getRTCBatteryVoltage()
-{
-  return 300;
-}
-
-void boardOff()
-{
-}
+uint16_t getRTCBatteryVoltage() { return 300; }
+void boardOff() {}
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 HardwareOptions hardwareOptions;
@@ -748,138 +713,98 @@ uint32_t Master_frequency = 0;
 uint32_t Current_used = 0;
 uint16_t Current_max = 0;
 
-void setSticksGain(uint8_t)
-{
-}
-
-uint16_t getCurrent()
-{
-  return 10;
-}
-
-void calcConsumption()
-{
-}
+void setSticksGain(uint8_t) {}
+void calcConsumption() {}
+uint16_t getCurrent() { return 10; }
 
 #if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
-void enableHeadphone()
-{
-}
-
-void enableTrainer()
-{
-}
-
-void enableSpeaker()
-{
-}
-
-void disableSpeaker()
-{
-}
+void enableHeadphone() {}
+void enableTrainer() {}
+void enableSpeaker() {}
+void disableSpeaker() {}
 #endif
 
-#if defined(COPROCESSOR)
-CoprocData coprocData;
-
-void coprocReadData(bool)
-{
-}
-#endif
-
-void rtcInit()
-{
-}
-
-void rtcGetTime(struct gtm * t)
-{
-}
-
-void rtcSetTime(const struct gtm * t)
-{
-}
+void rtcInit() {}
+void rtcGetTime(struct gtm *t) {}
+void rtcSetTime(const struct gtm *t) {}
 
 #if defined(USB_SERIAL)
-void usbSerialPutc(uint8_t c)
-{
-}
+void usbSerialPutc(uint8_t c) {}
 #endif
 
 #if defined(AUX_SERIAL)
-#if defined(AUX_SERIAL_DMA_Stream_RX)
-AuxSerialRxFifo auxSerialRxFifo(nullptr);
-#else
-AuxSerialRxFifo auxSerialRxFifo;
-#endif
+
+// #if defined(AUX_SERIAL_DMA_Stream_RX)
+// AuxSerialRxFifo auxSerialRxFifo(nullptr);
+// #else
+// AuxSerialRxFifo auxSerialRxFifo;
+// #endif
+
 uint8_t auxSerialMode;
 
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length,
+                    uint16_t parity, uint16_t stop)
 {
 }
 
-void auxSerialInit(unsigned int mode, unsigned int protocol)
-{
-}
-
-void auxSerialPutc(char c)
-{
-}
-
-void auxSerialSbusInit()
-{
-}
-
-void auxSerialStop()
-{
-}
+void auxSerialInit(unsigned int mode, unsigned int protocol) {}
+void auxSerialPutc(char c) {}
+void auxSerialSbusInit() {}
+void auxSerialStop() {}
 #endif
 
 #if defined(AUX2_SERIAL)
-AuxSerialRxFifo aux2SerialRxFifo(nullptr);
+
+// AuxSerialRxFifo aux2SerialRxFifo(nullptr);
+
 uint8_t aux2SerialMode;
 
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length,
+                     uint16_t parity, uint16_t stop)
 {
 }
 
-void aux2SerialInit(unsigned int mode, unsigned int protocol)
-{
-}
-
-void aux2SerialPutc(char c)
-{
-}
-
-void aux2SerialSbusInit()
-{
-}
-
-void aux2SerialStop()
-{
-}
+void aux2SerialInit(unsigned int mode, unsigned int protocol) {}
+void aux2SerialPutc(char c) {}
+void aux2SerialSbusInit() {}
+void aux2SerialStop() {}
 #endif
 
 #if defined(INTMODULE_HEARTBEAT_GPIO)
 volatile HeartbeatCapture heartbeatCapture;
 
-void init_intmodule_heartbeat()
-{
-}
-
-void stop_intmodule_heartbeat()
-{
-}
-
-void check_intmodule_heartbeat()
-{
-}
+void init_intmodule_heartbeat() {}
+void stop_intmodule_heartbeat() {}
+void check_intmodule_heartbeat() {}
 #endif
 
-bool touchPanelEventOccured()
-{
-  return false;
-}
+bool touchPanelEventOccured() { return false; }
+void touchPanelRead() {}
 
-void touchPanelRead()
-{
-}
+#if defined(INTERNAL_GPS)
+uint8_t gpsGetByte(unsigned char*) { return false; }
+void gpsSendByte(unsigned char) {}
+#endif
+
+bool usbChargerLed() { return false; }
+
+void init_trainer_ppm() {}
+void stop_trainer_ppm() {}
+void init_trainer_capture() {}
+void stop_trainer_capture() {}
+
+void intmoduleSendByte(unsigned char) {}
+
+void extmodulePpmStart() {}
+void extmoduleSerialStart() {}
+void extmoduleSendNextFrame() {}
+void extmodulePxx1PulsesStart() {}
+void extmoduleStop() {}
+void extmoduleSendInvertedByte(unsigned char) {}
+
+void ledOff() {}
+void ledRed() {}
+void ledBlue() {}
+
+void hapticOff() {}
+

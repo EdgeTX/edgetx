@@ -470,7 +470,7 @@ if(NOT MSVC)
   add_subdirectory(tests)
 endif()
 
-set(SRC ${SRC} ${FIRMWARE_SRC})
+#set(SRC ${SRC} ${FIRMWARE_SRC})
 
 ##### firmware target #####
 
@@ -573,11 +573,13 @@ if(NOT MSVC)
 
     add_definitions(-DFREE_RTOS)
 
-    add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
+    add_executable(firmware ${SRC} ${FIRMWARE_SRC} ${FIRMWARE_HEADERS})
     link_libraries(firmware -lstdc++)
     add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
     set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
+    target_include_directories(firmware PRIVATE ${FIRMWARE_INCLUDES})
+    
     if(ACCESS_DENIED)
       add_subdirectory(thirdparty/AccessDenied)
       include_directories(thirdparty/AccessDenied)

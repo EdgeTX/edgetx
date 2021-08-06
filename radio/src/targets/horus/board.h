@@ -38,7 +38,7 @@ PACK(typedef struct {
 
 extern HardwareOptions hardwareOptions;
 
-#if !defined(LUA_EXPORT_GENERATION)
+#if !defined(LUA_EXPORT_GENERATION) && !defined(SIMU)
   #include "stm32f4xx_sdio.h"
   #include "stm32f4xx_dma2d.h"
   #include "stm32f4xx_ltdc.h"
@@ -140,6 +140,8 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
+#if !defined(SIMU)
+
 // Pulses driver
 #define INTERNAL_MODULE_ON()           GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 
@@ -157,6 +159,17 @@ void SDRAM_Init();
 #define EXTERNAL_MODULE_OFF()          GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define IS_INTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #define IS_EXTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+
+#else // SIMU
+
+#define INTERNAL_MODULE_ON()
+#define INTERNAL_MODULE_OFF()
+#define EXTERNAL_MODULE_ON()
+#define EXTERNAL_MODULE_OFF()
+#define IS_INTERNAL_MODULE_ON()        (false)
+#define IS_EXTERNAL_MODULE_ON()        (false)
+
+#endif
 
 #if !defined(PXX2)
   #define IS_PXX2_INTERNAL_ENABLED()            (false)
@@ -489,8 +502,10 @@ inline bool UNEXPECTED_SHUTDOWN()
 
 inline void SET_POWER_REASON(uint32_t value)
 {
+#if !defined(SIMU)
   RTC->BKP0R = value;
   RTC->BKP1R = POWER_REASON_SIGNATURE;
+#endif
 }
 #endif
 
@@ -650,7 +665,7 @@ void sportUpdatePowerInit();
 #endif
 #if defined(AUX_SERIAL)
 extern uint8_t auxSerialMode;
-#if defined __cplusplus
+#if defined __cplusplus && !defined(SIMU)
 void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
 #endif
 void auxSerialInit(unsigned int mode, unsigned int protocol);
@@ -721,6 +736,7 @@ void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
 
+#if ! defined(SIMU)
 #if defined(__cplusplus)
 #include "fifo.h"
 #include "dmafifo.h"
@@ -729,6 +745,7 @@ typedef DMAFifo<32> AuxSerialRxFifo;
 extern AuxSerialRxFifo auxSerialRxFifo;
 extern AuxSerialRxFifo aux2SerialRxFifo;
 extern volatile uint32_t externalModulePort;
+#endif
 #endif
 
 #endif // _BOARD_H_

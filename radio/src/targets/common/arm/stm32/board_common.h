@@ -24,7 +24,7 @@
 #include <inttypes.h>
 #include "cpu_id.h"
 
-#if defined(LUA_EXPORT_GENERATION)
+#if defined(LUA_EXPORT_GENERATION) || defined(SIMU)
 // no includes
 #else
 
@@ -105,6 +105,7 @@ extern "C" {
 
 uint16_t getBatteryVoltage();
 
+#if !defined(SIMU)
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of normal drain (~10 nA)
 static inline void enableVBatBridge()
@@ -158,4 +159,5 @@ void delay_ms(uint32_t count);
   GPIO_Init(GPIO, &GPIO_InitStructure); \
   GPIO_SetBits(GPIO, KEYS_ ## GPIO ## _PINS)
 
+#endif
 #endif

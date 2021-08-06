@@ -11,11 +11,12 @@ set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB-Host-Device_Lib_V2.2.0/Libraries)
 add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 
 include_directories(${RADIO_SRC_DIR}/targets/common/arm/stm32)
-include_directories(${STM32USB_DIR}/STM32_USB_OTG_Driver/inc)
-include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Core/inc)
-include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/inc)
-include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/hid/inc)
-include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/cdc/inc)
+
+list(APPEND FIRMWARE_INCLUDES "${STM32USB_DIR}/STM32_USB_OTG_Driver/inc")
+list(APPEND FIRMWARE_INCLUDES "${STM32USB_DIR}/STM32_USB_Device_Library/Core/inc")
+list(APPEND FIRMWARE_INCLUDES "${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/inc")
+list(APPEND FIRMWARE_INCLUDES "${STM32USB_DIR}/STM32_USB_Device_Library/Class/hid/inc")
+list(APPEND FIRMWARE_INCLUDES "${STM32USB_DIR}/STM32_USB_Device_Library/Class/cdc/inc")
 
 set(STM32USB_SRC
   STM32_USB_OTG_Driver/src/usb_core.c
@@ -87,9 +88,9 @@ foreach(FILE ${STM32USB_SRC})
     )
 endforeach()
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  ../common/arm/stm32/cpu_id.cpp
+set(FIRMWARE_SRC
+  ${FIMRWARE_SRC}
+  targets/common/arm/stm32/cpu_id.cpp
   )
 
 set(SRC

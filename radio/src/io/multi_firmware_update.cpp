@@ -72,7 +72,9 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) const override
     {
+#if !defined(SIMU)
       intmoduleSerialStart(57600, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
+#endif
     }
 
     bool getByte(uint8_t & byte) const override
@@ -112,7 +114,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) const override
     {
-#if !defined(EXTMODULE_USART)
+#if !defined(EXTMODULE_USART) && !defined(SIMU)
       GPIO_InitTypeDef GPIO_InitStructure;
       GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;

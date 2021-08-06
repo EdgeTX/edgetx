@@ -23,7 +23,9 @@
 #include <stdlib.h>
 #include "definitions.h"
 #include "opentx_types.h"
-#include "debounce.h"
+#if !defined(SIMU)
+  #include "debounce.h"
+#endif
 #include "opentx_helpers.h"
 #include "touch.h"
 
@@ -245,7 +247,7 @@
 #define CASE_JACK_DETECT(x)
 #endif
 
-#if defined(DISK_CACHE)
+#if defined(DISK_CACHE) && !defined(SIMU)
   #include "disk_cache.h"
 #endif
 

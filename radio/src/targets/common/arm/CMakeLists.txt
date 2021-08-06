@@ -107,7 +107,7 @@ endif()
 if(HAPTIC)
   add_definitions(-DHAPTIC)
   set(SRC ${SRC} haptic.cpp)
-  set(TARGET_SRC ${TARGET_SRC} haptic_driver.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} targets/${TARGET_DIR}/haptic_driver.cpp)
 endif()
 
 # Protocols supported
@@ -211,7 +211,7 @@ add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
 add_definitions(-DREQUIRED_SDCARD_VERSION="${SDCARD_VERSION}")
 
-include_directories(${RTOS_DIR}/include)
+list(APPEND FIRMWARE_INCLUDES "${RTOS_DIR}/include")
 
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)

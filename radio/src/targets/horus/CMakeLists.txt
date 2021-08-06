@@ -51,8 +51,8 @@ if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
   add_definitions(-DPCBX10)
   add_definitions(-DSOFTWARE_VOLUME)
-  set(TARGET_SRC
-    ${TARGET_SRC}
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
     ../common/arm/stm32/audio_dac_driver.cpp
     ../common/arm/stm32/sticks_pwm_driver.cpp
     )
@@ -214,21 +214,21 @@ if(INTERNAL_MODULE_MULTI)
 endif()
 
 if(DISK_CACHE)
-  set(SRC ${SRC} disk_cache.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} disk_cache.cpp)
   add_definitions(-DDISK_CACHE)
 endif()
 
 if(INTERNAL_GPS)
   set(SRC ${SRC} gps.cpp)
-  set(TARGET_SRC ${TARGET_SRC} gps_driver.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} gps_driver.cpp)
   add_definitions(-DINTERNAL_GPS)
   message("Horus: Internal GPS enabled")
 endif()
 
 set(GVAR_SCREEN model_gvars.cpp)
 
-set(TARGET_SRC
-  ${TARGET_SRC}
+set(FIRMWARE_SRC
+  ${FIMRWARE_SRC}
   led_driver.cpp
   extmodule_driver.cpp
   trainer_driver.cpp
@@ -244,13 +244,13 @@ if(HARDWARE_TOUCH)
 endif()
 
 if(USB_CHARGER)
-  set(TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} usb_charger_driver.cpp)
   add_definitions(-DUSB_CHARGER)
 endif()
 
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
-  set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/bluetooth_driver.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} ../common/arm/stm32/bluetooth_driver.cpp)
   set(SRC ${SRC} bluetooth.cpp)
   add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
 endif()

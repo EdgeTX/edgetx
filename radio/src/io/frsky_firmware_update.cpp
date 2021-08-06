@@ -114,6 +114,7 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
       uint32_t elapsed = 0;
       uint8_t index = 0;
       while (index < count && elapsed < timeout) {
+#if !defined(SIMU)
         if (intmoduleFifo.pop(buffer[index])) {
           ++index;
         }
@@ -122,6 +123,9 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
           if (++elapsed == timeout)
             return false;
         }
+#else // SIMU
+        return false;
+#endif
       }
       break;
     }
@@ -328,10 +332,19 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   if (module == INTERNAL_MODULE && information.productId == FIRMWARE_ID_MODULE_XJT) {
     INTERNAL_MODULE_ON();
     RTOS_WAIT_MS(1);
+
+    // TODO: get rid of direct use of STM32 constants / functions
+#if !defined(SIMU)
     intmoduleSerialStart(38400, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#endif
+
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
+
+#if !defined(SIMU)
     GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#endif
+
     f_close(&file);
     return result;
   }

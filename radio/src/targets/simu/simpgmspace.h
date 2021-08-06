@@ -82,140 +82,140 @@ void sig(int sgn)
 
 #define __REV
 
-#if defined(STM32)
-extern GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-extern TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
-extern USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
-extern RCC_TypeDef rcc;
-extern DMA_Stream_TypeDef dma1_stream0, dma1_stream1, dma1_stream2, dma1_stream3, dma1_stream4, dma1_stream5, dma1_stream6, dma1_stream7, dma2_stream1, dma2_stream2, dma2_stream5, dma2_stream6, dma2_stream7;
-extern DMA_TypeDef dma2;
-extern SysTick_Type systick;
-extern ADC_Common_TypeDef adc;
-extern RTC_TypeDef rtc;
-#undef SysTick
-#define SysTick (&systick)
-#undef GPIOA
-#undef GPIOB
-#undef GPIOC
-#undef GPIOD
-#undef GPIOE
-#undef GPIOF
-#undef GPIOG
-#undef GPIOH
-#undef GPIOI
-#undef GPIOJ
-#define GPIOA (&gpioa)
-#define GPIOB (&gpiob)
-#define GPIOC (&gpioc)
-#define GPIOD (&gpiod)
-#define GPIOE (&gpioe)
-#define GPIOF (&gpiof)
-#define GPIOG (&gpiog)
-#define GPIOH (&gpioh)
-#define GPIOI (&gpioi)
-#define GPIOJ (&gpioj)
-#undef TIM1
-#undef TIM2
-#undef TIM3
-#undef TIM4
-#undef TIM5
-#undef TIM6
-#undef TIM7
-#undef TIM8
-#undef TIM9
-#undef TIM10
-#define TIM1 (&tim1)
-#define TIM2 (&tim2)
-#define TIM3 (&tim3)
-#define TIM4 (&tim4)
-#define TIM5 (&tim4)
-#define TIM6 (&tim4)
-#define TIM7 (&tim4)
-#define TIM8 (&tim8)
-#define TIM9 (&tim9)
-#define TIM10 (&tim10)
-#undef USART0
-#undef USART1
-#undef USART2
-#undef USART3
-#define USART0 (&Usart0)
-#define USART1 (&Usart1)
-#define USART2 (&Usart2)
-#define USART3 (&Usart3)
-#undef RCC
-#define RCC (&rcc)
-#undef DMA1_Stream0
-#undef DMA1_Stream1
-#undef DMA1_Stream2
-#undef DMA1_Stream3
-#undef DMA1_Stream4
-#undef DMA1_Stream5
-#undef DMA1_Stream7
-#undef DMA2_Stream1
-#undef DMA2_Stream2
-#undef DMA2_Stream5
-#undef DMA2_Stream6
-#undef DMA2_Stream7
-#define DMA1_Stream0 (&dma1_stream0)
-#define DMA1_Stream1 (&dma1_stream1)
-#define DMA1_Stream2 (&dma1_stream2)
-#define DMA1_Stream3 (&dma1_stream3)
-#define DMA1_Stream4 (&dma1_stream4)
-#define DMA1_Stream5 (&dma1_stream5)
-#define DMA1_Stream7 (&dma1_stream7)
-#define DMA2_Stream1 (&dma2_stream1)
-#define DMA2_Stream2 (&dma2_stream2)
-#define DMA2_Stream5 (&dma2_stream5)
-#define DMA2_Stream6 (&dma2_stream6)
-#define DMA2_Stream7 (&dma2_stream7)
-#undef DMA2
-#define DMA2 (&dma2)
-#undef ADC
-#define ADC (&adc)
-#undef RTC
-#define RTC (&rtc)
-#elif defined(PCBSKY9X)
-extern Pmc pmc;
-#undef PMC
-#define PMC (&pmc)
-extern Ssc ssc;
-#undef SSC
-#define SSC (&ssc)
-extern Pmc pmc;
-#undef PMC
-#define PMC (&pmc)
-extern Tc tc1;
-#undef TC1
-#define TC1 (&tc1)
-extern Pio Pioa, Piob, Pioc;
-extern Twi Twio;
-extern Dacc dacc;
-extern Usart Usart0;
-extern Adc Adc0;
-#undef ADC
-#define ADC (&Adc0)
-#undef USART0
-#define USART0 (&Usart0)
-#undef USART1
-#define USART1 (&Usart0)
-#undef USART2
-#define USART2 (&Usart0)
-#undef USART3
-#define USART3 (&Usart0)
-#undef PIOA
-#define PIOA (&Pioa)
-#undef PIOB
-#define PIOB (&Piob)
-#undef PIOC
-#define PIOC (&Pioc)
-#undef TWI0
-#define TWI0 (&Twio)
-#undef DACC
-#define DACC (&dacc)
-extern Pwm pwm;
-#undef PWM
-#define PWM (&pwm)
-#endif
+// #if defined(STM32)
+// extern GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
+// extern TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
+// extern USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
+// extern RCC_TypeDef rcc;
+// extern DMA_Stream_TypeDef dma1_stream0, dma1_stream1, dma1_stream2, dma1_stream3, dma1_stream4, dma1_stream5, dma1_stream6, dma1_stream7, dma2_stream1, dma2_stream2, dma2_stream5, dma2_stream6, dma2_stream7;
+// extern DMA_TypeDef dma2;
+// extern SysTick_Type systick;
+// extern ADC_Common_TypeDef adc;
+// extern RTC_TypeDef rtc;
+// #undef SysTick
+// #define SysTick (&systick)
+// #undef GPIOA
+// #undef GPIOB
+// #undef GPIOC
+// #undef GPIOD
+// #undef GPIOE
+// #undef GPIOF
+// #undef GPIOG
+// #undef GPIOH
+// #undef GPIOI
+// #undef GPIOJ
+// #define GPIOA (&gpioa)
+// #define GPIOB (&gpiob)
+// #define GPIOC (&gpioc)
+// #define GPIOD (&gpiod)
+// #define GPIOE (&gpioe)
+// #define GPIOF (&gpiof)
+// #define GPIOG (&gpiog)
+// #define GPIOH (&gpioh)
+// #define GPIOI (&gpioi)
+// #define GPIOJ (&gpioj)
+// #undef TIM1
+// #undef TIM2
+// #undef TIM3
+// #undef TIM4
+// #undef TIM5
+// #undef TIM6
+// #undef TIM7
+// #undef TIM8
+// #undef TIM9
+// #undef TIM10
+// #define TIM1 (&tim1)
+// #define TIM2 (&tim2)
+// #define TIM3 (&tim3)
+// #define TIM4 (&tim4)
+// #define TIM5 (&tim4)
+// #define TIM6 (&tim4)
+// #define TIM7 (&tim4)
+// #define TIM8 (&tim8)
+// #define TIM9 (&tim9)
+// #define TIM10 (&tim10)
+// #undef USART0
+// #undef USART1
+// #undef USART2
+// #undef USART3
+// #define USART0 (&Usart0)
+// #define USART1 (&Usart1)
+// #define USART2 (&Usart2)
+// #define USART3 (&Usart3)
+// #undef RCC
+// #define RCC (&rcc)
+// #undef DMA1_Stream0
+// #undef DMA1_Stream1
+// #undef DMA1_Stream2
+// #undef DMA1_Stream3
+// #undef DMA1_Stream4
+// #undef DMA1_Stream5
+// #undef DMA1_Stream7
+// #undef DMA2_Stream1
+// #undef DMA2_Stream2
+// #undef DMA2_Stream5
+// #undef DMA2_Stream6
+// #undef DMA2_Stream7
+// #define DMA1_Stream0 (&dma1_stream0)
+// #define DMA1_Stream1 (&dma1_stream1)
+// #define DMA1_Stream2 (&dma1_stream2)
+// #define DMA1_Stream3 (&dma1_stream3)
+// #define DMA1_Stream4 (&dma1_stream4)
+// #define DMA1_Stream5 (&dma1_stream5)
+// #define DMA1_Stream7 (&dma1_stream7)
+// #define DMA2_Stream1 (&dma2_stream1)
+// #define DMA2_Stream2 (&dma2_stream2)
+// #define DMA2_Stream5 (&dma2_stream5)
+// #define DMA2_Stream6 (&dma2_stream6)
+// #define DMA2_Stream7 (&dma2_stream7)
+// #undef DMA2
+// #define DMA2 (&dma2)
+// #undef ADC
+// #define ADC (&adc)
+// #undef RTC
+// #define RTC (&rtc)
+// #elif defined(PCBSKY9X)
+// extern Pmc pmc;
+// #undef PMC
+// #define PMC (&pmc)
+// extern Ssc ssc;
+// #undef SSC
+// #define SSC (&ssc)
+// extern Pmc pmc;
+// #undef PMC
+// #define PMC (&pmc)
+// extern Tc tc1;
+// #undef TC1
+// #define TC1 (&tc1)
+// extern Pio Pioa, Piob, Pioc;
+// extern Twi Twio;
+// extern Dacc dacc;
+// extern Usart Usart0;
+// extern Adc Adc0;
+// #undef ADC
+// #define ADC (&Adc0)
+// #undef USART0
+// #define USART0 (&Usart0)
+// #undef USART1
+// #define USART1 (&Usart0)
+// #undef USART2
+// #define USART2 (&Usart0)
+// #undef USART3
+// #define USART3 (&Usart0)
+// #undef PIOA
+// #define PIOA (&Pioa)
+// #undef PIOB
+// #define PIOB (&Piob)
+// #undef PIOC
+// #define PIOC (&Pioc)
+// #undef TWI0
+// #define TWI0 (&Twio)
+// #undef DACC
+// #define DACC (&dacc)
+// extern Pwm pwm;
+// #undef PWM
+// #define PWM (&pwm)
+// #endif
 
 extern uint8_t * eeprom;
 extern void startPdcUsartReceive() ;

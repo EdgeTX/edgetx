@@ -714,7 +714,7 @@ void checkAll()
   checkFailsafe();
 
 
-#if defined(STM32)
+#if defined(STM32) && !defined(SIMU)
   if (isVBatBridgeEnabled() && !g_eeGeneral.disableRtcWarning) {
     // only done once at board start
     checkRTCBattery();

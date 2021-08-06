@@ -209,6 +209,7 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   }
 }
 
+#if 0 // unused
 void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
                       uint16_t h, uint32_t format)
 {
@@ -230,4 +231,6 @@ void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
     }
   }
 }
+#endif
+
 #endif
