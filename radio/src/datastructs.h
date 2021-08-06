@@ -269,13 +269,16 @@ PACK(struct ScriptData {
 /*
  * Frsky Telemetry structure
  */
+#if defined(PCBNV14)
+// if set for FlySky receivers use native RSSI values instead of rescaled ones
+#define FLYSKY_TELEMETRY_BIT uint8_t flysky_telemetry:1
+#else
+#define FLYSKY_TELEMETRY_BIT int8_t  spare:1 SKIP
+#endif
+
 PACK(struct RssiAlarmData {
   int8_t disabled:1;
-#if defined (PCBNV14)
-  uint8_t flysky_telemetry:1; // if set for FlySky receivers use native RSSI values instead of rescaled ones
-#else
-  int8_t  spare:1 SKIP;
-#endif
+  FLYSKY_TELEMETRY_BIT;
   int8_t warning:6;
   int8_t spare2:2 SKIP;
   int8_t critical:6;
