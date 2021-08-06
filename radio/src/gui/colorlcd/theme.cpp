@@ -115,14 +115,14 @@ void OpenTxTheme::drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t fl
     thumb = BitmapBuffer::loadBitmap(getFilePath("thumb.bmp"));
   }
   lcd->drawBitmap(x, y, thumb);
-  if (flags == LINE_COLOR) {
-    dc->drawFilledRect(x, y, THUMB_WIDTH, THUMB_HEIGHT, SOLID, OVERLAY_COLOR);
+  if (flags == COLOR_THEME_PRIMARY3) {
+    dc->drawFilledRect(x, y, THUMB_WIDTH, THUMB_HEIGHT, SOLID, COLOR_THEME_PRIMARY1);
   }
 }
 
 void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 {
-  dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, DEFAULT_BGCOLOR);
+  dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, COLOR_THEME_SECONDARY3);
 }
 
 //void OpenTxTheme::drawMessageBox(const char *title, const char *text,
@@ -130,7 +130,7 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 //{
 //  //if (flags & MESSAGEBOX_TYPE_ALERT) {
 //    drawBackground();
-//    lcdDrawFilledRect(0, POPUP_Y, LCD_W, POPUP_H, SOLID, FOCUS_COLOR |
+//    lcdDrawFilledRect(0, POPUP_Y, LCD_W, POPUP_H, SOLID, COLOR_THEME_PRIMARY2 |
 //    OPACITY(8));
 //  //}
 //
@@ -145,16 +145,16 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 //#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) ||
 //defined(TRANSLATIONS_CZ)
 //    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, STR_WARNING,
-//    ALARM_COLOR|FONT(XL)); lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28,
-//    title, ALARM_COLOR|FONT(XL));
+//    COLOR_THEME_WARNING|FONT(XL)); lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28,
+//    title, COLOR_THEME_WARNING|FONT(XL));
 //#else
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, ALARM_COLOR|FONT(XL));
+//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, COLOR_THEME_WARNING|FONT(XL));
 //    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28, STR_WARNING,
-//    ALARM_COLOR|FONT(XL));
+//    COLOR_THEME_WARNING|FONT(XL));
 //#endif
 //  }
 //  else if (title) {
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, ALARM_COLOR|FONT(XL));
+//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, COLOR_THEME_WARNING|FONT(XL));
 //  }
 //
 //  if (text) {
@@ -169,15 +169,15 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 void OpenTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
                                coord_t y, bool focus) const
 {
-  dc->drawSolidFilledRect(x, y, 16, 16, FIELD_BGCOLOR);
+  dc->drawSolidFilledRect(x, y, 16, 16, COLOR_THEME_PRIMARY2);
   if (focus) {
-    dc->drawSolidRect(x, y, 16, 16, 2, FOCUS_BGCOLOR);
+    dc->drawSolidRect(x, y, 16, 16, 2, COLOR_THEME_FOCUS);
   }
   else {
-    dc->drawSolidRect(x, y, 16, 16, 1, FIELD_FRAME_COLOR);
+    dc->drawSolidRect(x, y, 16, 16, 1, COLOR_THEME_SECONDARY2);
   }
   if (checked) {
-    dc->drawSolidFilledRect(x + 3, y + 3, 10, 10, CHECKBOX_COLOR);
+    dc->drawSolidFilledRect(x + 3, y + 3, 10, 10, COLOR_THEME_FOCUS);
   }
 }
 
@@ -185,13 +185,13 @@ void OpenTxTheme::drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char 
 {
   LcdFlags textColor;
   if (choice->isEditMode())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else if (choice->hasFocus())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   // else if (!str || str[0] == '\0')
-  //   textColor = FOCUS_COLOR;
+  //   textColor = COLOR_THEME_PRIMARY2;
   else
-    textColor = DEFAULT_COLOR;
+    textColor = COLOR_THEME_SECONDARY1;
 
   dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
                str[0] == '\0' ? "---" : str, textColor);
@@ -208,9 +208,9 @@ void OpenTxTheme::drawSlider(BitmapBuffer *dc, int vmin, int vmax, int value,
   int val = limit(vmin, value, vmax);
   int w = divRoundClosest((rect.w - 16) * (val - vmin), vmax - vmin);
 
-  LcdFlags color = DEFAULT_COLOR;
+  LcdFlags color = COLOR_THEME_SECONDARY1;
   if (focus) {
-    color = FOCUS_BGCOLOR;
+    color = COLOR_THEME_FOCUS;
   }
 
   dc->drawBitmapPattern(0, 11, LBM_SLIDER_BAR_LEFT, color);
@@ -218,22 +218,22 @@ void OpenTxTheme::drawSlider(BitmapBuffer *dc, int vmin, int vmax, int value,
   dc->drawBitmapPattern(rect.w - 4, 11, LBM_SLIDER_BAR_RIGHT, color);
 
   dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_OUT, color);
-  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_MID, FIELD_BGCOLOR);
+  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_MID, COLOR_THEME_PRIMARY2);
 
   if (edit) {
-    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, EDIT_MARKER_COLOR);
+    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, COLOR_THEME_EDIT);
   } else {
-    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, FIELD_BGCOLOR);
+    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, COLOR_THEME_PRIMARY2);
   }
 }
 
 void OpenTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
 {
   // draw USB icon
-  dc->clear(DEFAULT_BGCOLOR);
+  dc->clear(COLOR_THEME_SECONDARY3);
   dc->drawBitmapPattern((LCD_W - LBM_USB_PLUGGED_W) / 2,
                         (LCD_H - LBM_USB_PLUGGED_H) / 2,
-                        LBM_USB_PLUGGED, DEFAULT_COLOR);
+                        LBM_USB_PLUGGED, COLOR_THEME_SECONDARY1);
 }
 
 

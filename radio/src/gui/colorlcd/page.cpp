@@ -39,7 +39,7 @@ void PageHeader::paint(BitmapBuffer * dc)
 {
   OpenTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), "");
   dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
-                          MENU_HEADER_HEIGHT, HEADER_COLOR);
+                          MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
 }
 
 Page::Page(unsigned icon):
@@ -67,7 +67,7 @@ void Page::deleteLater(bool detach, bool trash)
 
 void Page::paint(BitmapBuffer * dc)
 {
-  dc->clear(DEFAULT_BGCOLOR);
+  dc->clear(COLOR_THEME_SECONDARY3);
 }
 
 #if defined(HARDWARE_KEYS)

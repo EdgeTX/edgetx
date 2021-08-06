@@ -27,20 +27,20 @@
 
 void Curve::drawBackground(BitmapBuffer * dc)
 {
-  dc->clear(FIELD_BGCOLOR);
+  dc->clear(COLOR_THEME_PRIMARY2);
 
   // Axis
-  dc->drawSolidHorizontalLine(0, height()/2, width(), FIELD_FRAME_COLOR);
-  dc->drawSolidVerticalLine(width()/2, 0, height(), FIELD_FRAME_COLOR);
+  dc->drawSolidHorizontalLine(0, height()/2, width(), COLOR_THEME_SECONDARY2);
+  dc->drawSolidVerticalLine(width()/2, 0, height(), COLOR_THEME_SECONDARY2);
 
   // Extra lines
-  dc->drawVerticalLine(width()/4, 0, height(), STASHED, FIELD_FRAME_COLOR);
-  dc->drawVerticalLine(width()*3/4, 0, height(), STASHED, FIELD_FRAME_COLOR);
-  dc->drawHorizontalLine(0, height()/4, width(), STASHED, FIELD_FRAME_COLOR);
-  dc->drawHorizontalLine(0, height()*3/4, width(), STASHED, FIELD_FRAME_COLOR);
+  dc->drawVerticalLine(width()/4, 0, height(), STASHED, COLOR_THEME_SECONDARY2);
+  dc->drawVerticalLine(width()*3/4, 0, height(), STASHED, COLOR_THEME_SECONDARY2);
+  dc->drawHorizontalLine(0, height()/4, width(), STASHED, COLOR_THEME_SECONDARY2);
+  dc->drawHorizontalLine(0, height()*3/4, width(), STASHED, COLOR_THEME_SECONDARY2);
 
   // Outside border
-  dc->drawSolidRect(0, 0, width(), height(), 1, FIELD_FRAME_COLOR);
+  dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
 }
 
 coord_t Curve::getPointX(int x) const
@@ -66,12 +66,12 @@ void Curve::drawCurve(BitmapBuffer * dc)
     if (prev >= 0) {
       if (prev < y) {
         for (int tmp = prev; tmp <= y; tmp++) {
-          dc->drawBitmapPattern(x - 2, tmp - 2, LBM_POINT, DEFAULT_COLOR);
+          dc->drawBitmapPattern(x - 2, tmp - 2, LBM_POINT, COLOR_THEME_SECONDARY1);
         }
       }
       else {
         for (int tmp = y; tmp <= prev; tmp++) {
-          dc->drawBitmapPattern(x - 2, tmp - 2, LBM_POINT, DEFAULT_COLOR);
+          dc->drawBitmapPattern(x - 2, tmp - 2, LBM_POINT, COLOR_THEME_SECONDARY1);
         }
       }
     }
@@ -88,17 +88,17 @@ void Curve::drawPosition(BitmapBuffer * dc)
   coord_t y = getPointY(valueY);
 
   // the 2 lines
-  dc->drawSolidHorizontalLine(0, y, width(), HIGHLIGHT_COLOR);
-  dc->drawSolidVerticalLine(x, 0, height(), HIGHLIGHT_COLOR);
+  dc->drawSolidHorizontalLine(0, y, width(), COLOR_THEME_ACTIVE);
+  dc->drawSolidVerticalLine(x, 0, height(), COLOR_THEME_ACTIVE);
 
   // the point (white inside)
-  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT, HIGHLIGHT_COLOR);
-  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, FOCUS_COLOR);
+  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT, COLOR_THEME_ACTIVE);
+  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, COLOR_THEME_PRIMARY2);
 
   char coords[16];
   strAppendSigned(strAppend(strAppendSigned(coords, calcRESXto100(valueX)), ","), calcRESXto100(valueY));
-  dc->drawSolidFilledRect(10, 11, 1 + getTextWidth(coords, 0, FONT(XS)), 17, HIGHLIGHT_COLOR);
-  dc->drawText(11, 10, coords, FONT(XS) | FOCUS_COLOR);
+  dc->drawSolidFilledRect(10, 11, 1 + getTextWidth(coords, 0, FONT(XS)), 17, COLOR_THEME_ACTIVE);
+  dc->drawText(11, 10, coords, FONT(XS) | COLOR_THEME_PRIMARY2);
 }
 
 void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
@@ -107,7 +107,7 @@ void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
   coord_t y = getPointY(point.coords.y);
 
   dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT, point.flags);
-  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, DEFAULT_BGCOLOR);
+  dc->drawBitmapPattern(x-4, y-4, LBM_CURVE_POINT_CENTER, COLOR_THEME_SECONDARY3);
 }
 
 void Curve::paint(BitmapBuffer * dc)

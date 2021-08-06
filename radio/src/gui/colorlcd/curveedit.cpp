@@ -52,8 +52,8 @@ void CurveDataEdit::update()
     auto txt = new StaticText(
         this,
         {i * boxWidth + PAGE_PADDING, 10, boxWidth - PAGE_PADDING, boxHeight},
-        std::to_string(i + 1) + " ", 0, RIGHT | DEFAULT_COLOR);
-    txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        std::to_string(i + 1) + " ", 0, RIGHT | COLOR_THEME_SECONDARY1);
+    txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
   }
   grid.spacer(boxHeight + 10 + PAGE_PADDING);
 
@@ -88,7 +88,7 @@ void CurveDataEdit::update()
     for (uint8_t i = 0; i < curvePointsCount; i++) {
       new StaticText(this, {i * boxWidth, grid.getWindowHeight(), boxWidth, boxHeight},
                      std::to_string(-100 + 200 * i / (5 + curve.points - 1)), 0,
-                     RIGHT | DEFAULT_COLOR);
+                     RIGHT | COLOR_THEME_SECONDARY1);
     }
   }
   grid.spacer(boxHeight + PAGE_PADDING);
@@ -116,7 +116,7 @@ void CurveDataEdit::update()
 
 void CurveDataEdit::paint(BitmapBuffer * dc)
 {
-  dc->clear(DEFAULT_BGCOLOR);
+  dc->clear(COLOR_THEME_SECONDARY3);
   // dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
   // dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
   drawHorizontalScrollbar(dc);
@@ -144,7 +144,7 @@ void CurveEdit::updatePreview()
       };
     }
     else {
-      preview.addPoint(getPoint(index, i), DEFAULT_COLOR);
+      preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
     }
   }
   invalidate();

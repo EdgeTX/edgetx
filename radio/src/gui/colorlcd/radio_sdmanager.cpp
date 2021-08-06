@@ -46,7 +46,7 @@ class FileNameEditWindow : public Page
 
   void buildHeader(Window *window)
   {
-    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, MENU_HIGHLIGHT_COLOR);
+    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, COLOR_THEME_PRIMARY2);
   }
 
   void buildBody(Window *window)
@@ -158,7 +158,7 @@ class FilePreview : public Window
     {
       coord_t y = parent->getScrollPositionY() + 2;
       coord_t h = MENU_BODY_HEIGHT - 4;
-      lcd->drawSolidFilledRect(0, y, width(), h, DISABLE_COLOR);
+      lcd->drawSolidFilledRect(0, y, width(), h, COLOR_THEME_DISABLED);
       if (bitmap) {
         coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
         coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
@@ -279,7 +279,7 @@ void RadioSdManagerPage::build(FormWindow * window)
           build(window);
           return 0;
       }, OPAQUE);
-      b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+      b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       grid.nextLine();
     }
 
@@ -419,7 +419,7 @@ void RadioSdManagerPage::build(FormWindow * window)
           }
           return 0;
       }, OPAQUE);
-      button->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+      button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));

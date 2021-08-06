@@ -93,15 +93,15 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
 
   for (int x = 10; x <= 100; x += 10) {
-    dc.drawLine(x, x, x + 200, x + 50, 0xF0, DEFAULT_COLOR);
+    dc.drawLine(x, x, x + 200, x + 50, 0xF0, COLOR_THEME_SECONDARY1);
   }
 
   for (int x = 200; x >= 100; x -= 10) {
-    dc.drawLine(x, x, x - 50, x + 100, 0xF0, DEFAULT_COLOR);
+    dc.drawLine(x, x, x - 50, x + 100, 0xF0, COLOR_THEME_SECONDARY1);
   }
 
   dc.clearClippingRect();
@@ -113,10 +113,10 @@ TEST(Lcd_colorlcd, vline)
   loadFonts();
 
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
   for (int x=0; x<100; x+=2) {
-    dc.drawSolidVerticalLine(x, x/2, 12, DEFAULT_COLOR);
+    dc.drawSolidVerticalLine(x, x/2, 12, COLOR_THEME_SECONDARY1);
   }
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "vline"));
 }
@@ -126,27 +126,27 @@ TEST(Lcd_colorlcd, primitives)
   loadFonts();
 
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", DISABLE_COLOR);
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_DISABLED);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
-  dc.drawFilledRect(10, 30, 30, 30, SOLID, TITLE_BGCOLOR);
-  dc.drawFilledRect(50, 30, 30, 30, DOTTED, DEFAULT_COLOR);
+  dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawFilledRect(50, 30, 30, 30, DOTTED, COLOR_THEME_SECONDARY1);
 
-  dc.drawRect(90, 30, 30, 30, 1, SOLID, TITLE_BGCOLOR);
-  dc.drawRect(130, 30, 30, 30, 2, SOLID, TITLE_BGCOLOR);
-  dc.drawRect(170, 30, 30, 30, 5, SOLID, TITLE_BGCOLOR);
+  dc.drawRect(90, 30, 30, 30, 1, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawRect(130, 30, 30, 30, 2, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawRect(170, 30, 30, 30, 5, SOLID, COLOR_THEME_SECONDARY1);
 
-  dc.drawVerticalLine(10, 70, 100, SOLID, TITLE_BGCOLOR);
-  dc.drawVerticalLine(15, 70,  90, SOLID, TITLE_BGCOLOR);
-  dc.drawVerticalLine(20, 70,  80, SOLID, TITLE_BGCOLOR);
-  dc.drawVerticalLine(25, 70,  70, SOLID, TITLE_BGCOLOR);
+  dc.drawVerticalLine(10, 70, 100, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(15, 70,  90, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(20, 70,  80, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(25, 70,  70, SOLID, COLOR_THEME_SECONDARY1);
 
-  dc.drawHorizontalLine(30, 70, 100, SOLID, DEFAULT_COLOR);
-  dc.drawHorizontalLine(30, 75,  90, SOLID, DEFAULT_COLOR);
-  dc.drawHorizontalLine(30, 80,  80, SOLID, DEFAULT_COLOR);
-  dc.drawHorizontalLine(30, 85,  70, SOLID, DEFAULT_COLOR);
+  dc.drawHorizontalLine(30, 70, 100, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(30, 75,  90, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(30, 80,  80, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(30, 85,  70, SOLID, COLOR_THEME_SECONDARY1);
 
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "primitives_" TRANSLATIONS));
@@ -157,29 +157,29 @@ TEST(Lcd_colorlcd, transparency)
   loadFonts();
 
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
   // , OPACITY(4)
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
   // , OPACITY(12)
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
-  dc.drawFilledRect(10, 30, 30, 30, SOLID, TITLE_BGCOLOR, OPACITY(8));
-  dc.drawFilledRect(50, 30, 30, 30, DOTTED, DEFAULT_COLOR, OPACITY(10));
+  dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
+  dc.drawFilledRect(50, 30, 30, 30, DOTTED, COLOR_THEME_SECONDARY1, OPACITY(10));
 
-  dc.drawRect(90, 30, 30, 30, 1, SOLID, TITLE_BGCOLOR, OPACITY(8));
-  dc.drawRect(130, 30, 30, 30, 2, SOLID, TITLE_BGCOLOR, OPACITY(8));
-  dc.drawRect(170, 30, 30, 30, 5, SOLID, TITLE_BGCOLOR, OPACITY(8));
+  dc.drawRect(90, 30, 30, 30, 1, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
+  dc.drawRect(130, 30, 30, 30, 2, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
+  dc.drawRect(170, 30, 30, 30, 5, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
 
-  dc.drawVerticalLine(10, 70, 100, SOLID, TITLE_BGCOLOR, OPACITY(2));
-  dc.drawVerticalLine(15, 70,  90, SOLID, TITLE_BGCOLOR, OPACITY(6));
-  dc.drawVerticalLine(20, 70,  80, SOLID, TITLE_BGCOLOR, OPACITY(10));
-  dc.drawVerticalLine(25, 70,  70, SOLID, TITLE_BGCOLOR, OPACITY(OPACITY_MAX));
+  dc.drawVerticalLine(10, 70, 100, SOLID, COLOR_THEME_SECONDARY1, OPACITY(2));
+  dc.drawVerticalLine(15, 70,  90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
+  dc.drawVerticalLine(20, 70,  80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
+  dc.drawVerticalLine(25, 70,  70, SOLID, COLOR_THEME_SECONDARY1, OPACITY(OPACITY_MAX));
 
-  dc.drawHorizontalLine(30, 70, 100, SOLID, DEFAULT_COLOR, OPACITY(2));
-  dc.drawHorizontalLine(30, 75,  90, SOLID, DEFAULT_COLOR, OPACITY(6));
-  dc.drawHorizontalLine(30, 80,  80, SOLID, DEFAULT_COLOR, OPACITY(10));
-  dc.drawHorizontalLine(30, 85,  70, SOLID, DEFAULT_COLOR, OPACITY(OPACITY_MAX));
+  dc.drawHorizontalLine(30, 70, 100, SOLID, COLOR_THEME_SECONDARY1, OPACITY(2));
+  dc.drawHorizontalLine(30, 75,  90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
+  dc.drawHorizontalLine(30, 80,  80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
+  dc.drawHorizontalLine(30, 85,  70, SOLID, COLOR_THEME_SECONDARY1, OPACITY(OPACITY_MAX));
 
 
   for(int n=0; n<10; n++) {
@@ -206,22 +206,22 @@ TEST(Lcd_colorlcd, fonts)
   loadFonts();
 
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR|OPACITY(4));
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR|OPACITY(12));
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
 
-  dc.drawText(10, 200, "The quick", DEFAULT_COLOR|VERTICAL);
-  dc.drawText(30, 200, "The quick brown fox", DEFAULT_COLOR|VERTICAL);
+  dc.drawText(10, 200, "The quick", COLOR_THEME_SECONDARY1|VERTICAL);
+  dc.drawText(30, 200, "The quick brown fox", COLOR_THEME_SECONDARY1|VERTICAL);
 
-  dc.drawText(50, 25, "The quick", DEFAULT_COLOR | FONT(XXS));
-  dc.drawText(50, 40, "The quick", DEFAULT_COLOR | FONT(XS));
-  dc.drawText(50, 55, "The quick", DEFAULT_COLOR | FONT(L));
-  dc.drawText(50, 80, "The quick", DEFAULT_COLOR | FONT(XL));
-  dc.drawText(50, 120, "The quick", DEFAULT_COLOR | FONT(XXL));
+  dc.drawText(50, 25, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXS));
+  dc.drawText(50, 40, "The quick", COLOR_THEME_SECONDARY1 | FONT(XS));
+  dc.drawText(50, 55, "The quick", COLOR_THEME_SECONDARY1 | FONT(L));
+  dc.drawText(50, 80, "The quick", COLOR_THEME_SECONDARY1 | FONT(XL));
+  dc.drawText(50, 120, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXL));
 
-  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", TITLE_BGCOLOR|OPACITY(4));
-  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", TITLE_BGCOLOR|OPACITY(12));
+  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
+  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "fonts_" TRANSLATIONS));
 }
@@ -232,24 +232,24 @@ TEST(Lcd_colorlcd, clipping)
   loadFonts();
 
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawSolidVerticalLine(100, 0, LCD_H, DEFAULT_COLOR);
-  dc.drawSolidVerticalLine(400, 0, LCD_H, DEFAULT_COLOR);
+  dc.drawSolidVerticalLine(100, 0, LCD_H, COLOR_THEME_SECONDARY1);
+  dc.drawSolidVerticalLine(400, 0, LCD_H, COLOR_THEME_SECONDARY1);
 
-  dc.drawSolidHorizontalLine(0,  50, LCD_W, DEFAULT_COLOR);
-  dc.drawSolidHorizontalLine(0, 200, LCD_W, DEFAULT_COLOR);
+  dc.drawSolidHorizontalLine(0,  50, LCD_W, COLOR_THEME_SECONDARY1);
+  dc.drawSolidHorizontalLine(0, 200, LCD_W, COLOR_THEME_SECONDARY1);
 
   dc.setClippingRect(100, 400, 50, 200);
 
-  dc.drawSolidHorizontalLine(0, 80, LCD_W, TITLE_BGCOLOR);
-  dc.drawHorizontalLine(     0, 81, LCD_W, SOLID, TITLE_BGCOLOR);
+  dc.drawSolidHorizontalLine(0, 80, LCD_W, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(     0, 81, LCD_W, SOLID, COLOR_THEME_SECONDARY1);
 
-  dc.drawSolidVerticalLine(150,  0, LCD_H, TITLE_BGCOLOR);
-  dc.drawVerticalLine(     151,  0, LCD_H, SOLID, TITLE_BGCOLOR);
+  dc.drawSolidVerticalLine(150,  0, LCD_H, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(     151,  0, LCD_H, SOLID, COLOR_THEME_SECONDARY1);
 
-  dc.drawSolidRect(70, 20, 50, 50, 2, TITLE_BGCOLOR);
-  dc.drawRect(    380, 20, 50, 50, 2, SOLID, TITLE_BGCOLOR);
+  dc.drawSolidRect(70, 20, 50, 50, 2, COLOR_THEME_SECONDARY1);
+  dc.drawRect(    380, 20, 50, 50, 2, SOLID, COLOR_THEME_SECONDARY1);
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "clipping"));
@@ -258,7 +258,7 @@ TEST(Lcd_colorlcd, clipping)
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
   std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap(TESTS_PATH "/opentx.png"));
@@ -273,7 +273,7 @@ TEST(Lcd_colorlcd, bitmap)
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  dc.clear(DEFAULT_BGCOLOR);
+  dc.clear(COLOR_THEME_SECONDARY3);
 
   BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
   for (int i=0; i<LCD_W; i += mask->width()) {

@@ -84,7 +84,7 @@ class ValueWidget: public Widget
       if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
         TimerState & timerState = timersStates[field - MIXSRC_FIRST_TIMER];
         if (timerState.val < 0) {
-          color = ALARM_COLOR;
+          color = COLOR_THEME_WARNING;
         }
         if (persistentData->options[2].value.boolValue) {
           drawSource(dc, xLabel + 1, yLabel + 1, field, attrLabel | COLOR2FLAGS(BLACK));
@@ -111,7 +111,7 @@ class ValueWidget: public Widget
           TelemetryItem& telemetryItem =
               telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
           if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
-            color = TEXT_DISABLE_COLOR;
+            color = COLOR_THEME_DISABLED;
           }
         }
 

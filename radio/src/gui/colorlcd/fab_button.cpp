@@ -53,6 +53,6 @@ void FabButton::paint(BitmapBuffer * dc)
   const BitmapBuffer* mask = theme->getIconMask(icon);
   if (mask) {
     dc->drawMask((width() - mask->width()) / 2,
-                 (FAB_BUTTON_SIZE - mask->height()) / 2, mask, DEFAULT_BGCOLOR);
+                 (FAB_BUTTON_SIZE - mask->height()) / 2, mask, COLOR_THEME_SECONDARY3);
   }
 }

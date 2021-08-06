@@ -46,13 +46,13 @@ void SwitchChoice::paint(BitmapBuffer * dc)
   unsigned value = getValue();
   LcdFlags textColor;
   if (editMode)
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else if (hasFocus())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   // else if (value == 0)
-  //   textColor = DISABLE_COLOR;
+  //   textColor = COLOR_THEME_DISABLED;
   else
-    textColor = DEFAULT_COLOR;
+    textColor = COLOR_THEME_SECONDARY1;
 
   drawSwitch(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
   dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_DROPDOWN,

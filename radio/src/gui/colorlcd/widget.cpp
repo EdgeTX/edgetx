@@ -116,12 +116,12 @@ void Widget::paint(BitmapBuffer * dc)
         && !FAST_BLINK_ON_PHASE) {
       return;
     }
-    dc->drawRect(0, 0, width(), height(), 2, STASHED, CHECKBOX_COLOR);
+    dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
 
   if (fullscreen && (RTOS_GET_MS() - fsStartedTS < FULLSCREEN_HINT_DELAY)) {
     dc->drawText(width() / 2, height() / 2, "Press [RTN] long to exit",
-                 FONT(XL) | CENTERED | VCENTERED | LINE_COLOR);
+                 FONT(XL) | CENTERED | VCENTERED | COLOR_THEME_PRIMARY3);
   }
 }
 

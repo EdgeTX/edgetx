@@ -45,13 +45,13 @@ class CurveEditWindow : public Page
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_MENUCURVE, 0, FOCUS_COLOR);
+                     STR_MENUCURVE, 0, COLOR_THEME_PRIMARY2);
       char s[16];
       strAppendStringWithIndex(s, STR_CV, index + 1);
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     s, 0, FOCUS_COLOR);
+                     s, 0, COLOR_THEME_PRIMARY2);
     }
 
 #if LCD_W > LCD_H
@@ -236,13 +236,13 @@ class CurveButton : public Button {
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
 
       // bounding rect
       if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
       } else {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
       }
 
       // curve characteristics
@@ -339,10 +339,10 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       });
       button->setFocusHandler([=](bool focus) {
         if (focus) {
-          txt->setBackgroundColor(FOCUS_BGCOLOR);
-          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
-          txt->setBackgroundColor(FIELD_FRAME_COLOR);
+          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(CENTERED);
         }
         txt->invalidate();
@@ -350,8 +350,8 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
 
       if (focusIndex == index) {
         button->setFocus(SET_FOCUS_DEFAULT);
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         txt->invalidate();
       }
 

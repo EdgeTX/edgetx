@@ -48,7 +48,7 @@ class LayoutChoice: public FormField
       FormField::paint(dc);
       auto layout = getValue();
       if (layout) {
-        layout->drawThumb(dc, 4, 4, editMode ? FOCUS_COLOR : LINE_COLOR);
+        layout->drawThumb(dc, 4, 4, editMode ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
       }
     }
 
@@ -141,10 +141,10 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup * parent, const rect_t & re
 void SetupWidgetsPageSlot::paint(BitmapBuffer * dc)
 {
   if (hasFocus()) {
-    dc->drawRect(0, 0, width()-1, height()-1, 2, STASHED, CHECKBOX_COLOR);
+    dc->drawRect(0, 0, width()-1, height()-1, 2, STASHED, COLOR_THEME_FOCUS);
   }
   else {
-    dc->drawSolidRect(0, 0, width()-1, height()-1, 2, LINE_COLOR);
+    dc->drawSolidRect(0, 0, width()-1, height()-1, 2, COLOR_THEME_PRIMARY3);
   }
 }
 
@@ -250,7 +250,7 @@ class SetupWidgetsPage: public FormWindow
     // void paint(BitmapBuffer * dc) override
     // {
     //   //ViewMain::instance()->fullPaint(dc);
-    //   //dc->clear(DEFAULT_BGCOLOR);
+    //   //dc->clear(COLOR_THEME_SECONDARY3);
     // }
 };
 

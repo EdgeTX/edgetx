@@ -64,15 +64,15 @@ void GVarButton::paint(BitmapBuffer * dc)
   currentFlightMode = getFlightMode();
   gvarSum = 0;
 
-  LcdFlags bgColor = FIELD_BGCOLOR;
+  LcdFlags bgColor = COLOR_THEME_PRIMARY2;
   LcdFlags textColor = 0;
   if (hasFocus()) {
-    bgColor   = FOCUS_BGCOLOR;
-    textColor = FOCUS_COLOR;
+    bgColor   = COLOR_THEME_FOCUS;
+    textColor = COLOR_THEME_PRIMARY2;
   }
 
   dc->drawSolidFilledRect(0, 0, nameRectW, rect.h, bgColor);
-  dc->drawSolidFilledRect(nameRectW, 0, rect.w - nameRectW, rect.h, FIELD_BGCOLOR);
+  dc->drawSolidFilledRect(nameRectW, 0, rect.w - nameRectW, rect.h, COLOR_THEME_PRIMARY2);
 
   dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getGVarString(gvarIdx), textColor);
   dc->drawSizedText(x, y, gvar->name, LEN_GVAR_NAME, textColor);
@@ -101,7 +101,7 @@ void GVarButton::paint(BitmapBuffer * dc)
 
     if (!bgFilled) {
       dc->drawSolidFilledRect(startX, y, width() - startX, PAGE_LINE_HEIGHT,
-                              FIELD_FRAME_COLOR);
+                              COLOR_THEME_SECONDARY2);
       bgFilled = true;
     }
 
@@ -127,9 +127,9 @@ void GVarButton::paint(BitmapBuffer * dc)
   }
 
   if (hasFocus())
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
   else
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FIELD_FRAME_COLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_SECONDARY2);
 }
 
 void GVarButton::drawFlightMode(BitmapBuffer * dc, coord_t x, coord_t y, int fm, LcdFlags attr)
@@ -145,16 +145,16 @@ void GVarRenderer::paint(BitmapBuffer * dc)
   FlightModeData * fmData = &g_model.flightModeData[lastFlightMode];
   lastGVar = fmData->gvars[index];
   coord_t x = drawStringWithIndex(dc, 0, FIELD_PADDING_TOP, STR_GV, index + 1,
-                                  FOCUS_COLOR, nullptr, "=");
+                                  COLOR_THEME_PRIMARY2, nullptr, "=");
   if (lastGVar > GVAR_MAX) {
     uint8_t fm = lastGVar - GVAR_MAX - 1;
     if (fm >= lastFlightMode)
       fm++;
     char label[16];
     getFlightModeString(label, fm + 1);
-    dc->drawSizedText(x, FIELD_PADDING_TOP, label, strlen(label), FOCUS_COLOR);
+    dc->drawSizedText(x, FIELD_PADDING_TOP, label, strlen(label), COLOR_THEME_PRIMARY2);
   } else {
-    drawGVarValue(dc, x, FIELD_PADDING_TOP, index, lastGVar, FOCUS_COLOR);
+    drawGVarValue(dc, x, FIELD_PADDING_TOP, index, lastGVar, COLOR_THEME_PRIMARY2);
   }
 }
 
@@ -183,7 +183,7 @@ void GVarEditWindow::buildHeader(Window * window)
   new StaticText(window,
                  {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                   PAGE_LINE_HEIGHT},
-                 STR_GLOBAL_VAR, 0, FOCUS_COLOR);
+                 STR_GLOBAL_VAR, 0, COLOR_THEME_PRIMARY2);
   gVarInHeader =
       new GVarRenderer(window,
                        {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,

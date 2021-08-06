@@ -32,8 +32,8 @@ class LogicalSwitchDisplayButton : public TextButton
        TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
    {
      setBgColorHandler([=]() -> LcdFlags {
-       if (getSwitch(SWSRC_SW1 + index)) return HIGHLIGHT_COLOR;
-       return FIELD_BGCOLOR;
+       if (getSwitch(SWSRC_SW1 + index)) return COLOR_THEME_ACTIVE;
+       return COLOR_THEME_PRIMARY2;
      });
    }
 
@@ -42,9 +42,9 @@ class LogicalSwitchDisplayButton : public TextButton
      bool newvalue = getSwitch(SWSRC_SW1 + index);
      if (value != newvalue) {
        if (newvalue) {
-         setTextFlags(FONT(BOLD) | DEFAULT_COLOR);
+         setTextFlags(FONT(BOLD) | COLOR_THEME_SECONDARY1);
        } else {
-         setTextFlags(FONT(STD) | DEFAULT_COLOR);
+         setTextFlags(FONT(STD) | COLOR_THEME_SECONDARY1);
        }
        value = newvalue;
        invalidate();

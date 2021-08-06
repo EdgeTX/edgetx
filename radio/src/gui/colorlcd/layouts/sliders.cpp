@@ -28,15 +28,15 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
   coord_t x = TRIM_SQUARE_SIZE / 2;
   for (uint8_t i = 0; i <= SLIDER_TICKS_COUNT; i++) {
     if (i == 0 || i == SLIDER_TICKS_COUNT / 2 || i == SLIDER_TICKS_COUNT)
-      dc->drawSolidVerticalLine(x, 2, 13, DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(x, 2, 13, COLOR_THEME_SECONDARY1);
     else
-      dc->drawSolidVerticalLine(x, 4, 9, DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
     x += delta;
   }
 
   // The square
   x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
-  drawTrimSquare(dc, x, 0, TRIM_BGCOLOR);
+  drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
 }
 
 void MainView6POS::paint(BitmapBuffer * dc)
@@ -45,15 +45,15 @@ void MainView6POS::paint(BitmapBuffer * dc)
   int delta = (width() - TRIM_SQUARE_SIZE) / (XPOTS_MULTIPOS_COUNT - 1);
   coord_t x = TRIM_SQUARE_SIZE / 2;
   for (uint8_t i = 0; i <= XPOTS_MULTIPOS_COUNT; i++) {
-    dc->drawSolidVerticalLine(x, 4, 9, DEFAULT_COLOR);
+    dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
     x += delta;
   }
 
   // The square
   auto value = 1 + (potsPos[idx] & 0x0f);
   x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
-  drawTrimSquare(dc, x, 0, TRIM_BGCOLOR);
-  dc->drawNumber(x + 1, 0, value, FOCUS_COLOR);
+  drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
+  dc->drawNumber(x + 1, 0, value, COLOR_THEME_PRIMARY2);
 }
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)
@@ -64,13 +64,13 @@ void MainViewVerticalSlider::paint(BitmapBuffer * dc)
   coord_t y = TRIM_SQUARE_SIZE / 2;
   for (uint8_t i = 0; i <= sliderTicksCount; i++) {
     if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount)
-       dc->drawSolidHorizontalLine(2, y, 13, DEFAULT_COLOR);
+       dc->drawSolidHorizontalLine(2, y, 13, COLOR_THEME_SECONDARY1);
     else
-      dc->drawSolidHorizontalLine(4, y, 9, DEFAULT_COLOR);
+      dc->drawSolidHorizontalLine(4, y, 9, COLOR_THEME_SECONDARY1);
     y += delta;
   }
 
   // The square
   y = divRoundClosest((height() - TRIM_SQUARE_SIZE) * (-value + RESX), 2 * RESX);
-  drawTrimSquare(dc, 0, y, TRIM_BGCOLOR);
+  drawTrimSquare(dc, 0, y, COLOR_THEME_FOCUS);
 }

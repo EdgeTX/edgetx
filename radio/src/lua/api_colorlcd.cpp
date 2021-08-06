@@ -85,7 +85,7 @@ Clear the LCD screen
 static int luaLcdClear(lua_State * L)
 {
   if (luaLcdAllowed && luaLcdBuffer) {
-    LcdFlags color = luaL_optunsigned(L, 1, DEFAULT_BGCOLOR_INDEX << 16u);
+    LcdFlags color = luaL_optunsigned(L, 1, COLOR_THEME_SECONDARY3_INDEX << 16u);
     luaLcdBuffer->clear(COLOR(COLOR_VAL(color)));
   }
   return 0;
@@ -256,8 +256,8 @@ static int luaLcdDrawText(lua_State *L)
     luaLcdBuffer->drawSolidFilledRect(
         ix, y - INVERT_BOX_MARGIN,
         width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
-        FOCUS_BGCOLOR);
-    att = (att & 0xFFFF) | FOCUS_COLOR;
+        COLOR_THEME_FOCUS);
+    att = (att & 0xFFFF) | COLOR_THEME_PRIMARY2;
   }
 
   luaLcdBuffer->drawText(x, y, s, att);
@@ -375,8 +375,8 @@ static int luaLcdDrawNumber(lua_State *L)
     luaLcdBuffer->drawSolidFilledRect(
         ix, y - INVERT_BOX_MARGIN,
         width + 2 * INVERT_BOX_MARGIN, height + 2 * INVERT_BOX_MARGIN,
-        FOCUS_BGCOLOR);
-    att = (att & 0xFFFF) | FOCUS_COLOR;
+        COLOR_THEME_FOCUS);
+    att = (att & 0xFFFF) | COLOR_THEME_PRIMARY2;
   }
 
   if ((att & SHADOWED) && !(att & INVERS)) {
@@ -766,30 +766,30 @@ Set a color for specific area
  * `TEXT_BGCOLOR`
  * `TEXT_INVERTED_COLOR`
  * `TEXT_INVERTED_BGCOLOR`
- * `LINE_COLOR`
+ * `COLOR_THEME_PRIMARY3`
  * `SCROLLBOX_COLOR`
- * `MENU_TITLE_BGCOLOR`
+ * `COLOR_THEME_SECONDARY1_THEME_SECONDARY1`
  * `MENU_TITLE_COLOR`
- * `MENU_TITLE_DISABLE_COLOR`
- * `HEADER_COLOR`
- * `ALARM_COLOR`
+ * `COLOR_THEME_PRIMARY3`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_WARNING`
  * `WARNING_COLOR`
- * `TEXT_DISABLE_COLOR`
- * `CURVE_AXIS_COLOR`
- * `CURVE_COLOR`
- * `CURVE_CURSOR_COLOR`
- * `TITLE_BGCOLOR`
- * `TRIM_BGCOLOR`
- * `TRIM_SHADOW_COLOR`
- * `HEADER_BGCOLOR`
- * `HEADER_ICON_BGCOLOR`
- * `HEADER_CURRENT_BGCOLOR`
- * `MAINVIEW_PANES_COLOR`
- * `MAINVIEW_GRAPHICS_COLOR`
- * `OVERLAY_COLOR`
- * `BARGRAPH1_COLOR`
- * `BARGRAPH2_COLOR`
- * `BARGRAPH_BGCOLOR`
+ * `COLOR_THEME_DISABLED`
+ * `COLOR_THEME_SECONDARY2`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_WARNING`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_FOCUS`
+ * `COLOR_THEME_PRIMARY1`
+ * `COLOR_THEME_FOCUS`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_FOCUS`
+ * `COLOR_THEME_PRIMARY2`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_PRIMARY1`
+ * `COLOR_THEME_SECONDARY1`
+ * `COLOR_THEME_SECONDARY2`
+ * `COLOR_THEME_SECONDARY3`
  * `CUSTOM_COLOR`
 
 @param color (number) color in 5/6/5 rgb format. The following prefined colors are available

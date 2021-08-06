@@ -2,7 +2,7 @@
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
 
-#define SELECTED_COLOR (INVERS | DEFAULT_COLOR)
+#define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
 #define DOUBLE_PADDING  56
 #define MESSAGE_TOP     (LCD_H - (2*DOUBLE_PADDING))
@@ -54,11 +54,11 @@ const uint8_t LBM_OK[] = {
 
 void bootloaderInitScreen()
 {
-//  lcdColorTable[DEFAULT_COLOR_INDEX]      = WHITE;
-//  lcdColorTable[DEFAULT_BGCOLOR_INDEX] = BLACK;
-//  lcdColorTable[LINE_COLOR_INDEX]      = RED;
-//  lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
-//  lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(73, 219, 62); // green
+//  lcdColorTable[COLOR_THEME_SECONDARY1_INDEX]      = WHITE;
+//  lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = BLACK;
+//  lcdColorTable[COLOR_THEME_PRIMARY3_INDEX]      = RED;
+//  lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RED;
+//  lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(73, 219, 62); // green
  
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 	

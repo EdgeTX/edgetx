@@ -33,15 +33,15 @@ AboutUs::AboutUs() :
 {
   content->setRect({(LCD_W - ABOUT_WIDTH) / 2, 20, ABOUT_WIDTH, LCD_H - 40});
 
-  messageWidget->setTextFlags(CENTERED | FONT(BOLD) | DEFAULT_COLOR);
+  messageWidget->setTextFlags(CENTERED | FONT(BOLD) | COLOR_THEME_SECONDARY1);
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 
   messageWidget->setText("EdgeTX Endeavour (2.4.0)\n"
                          "Copyright (C) 2021 EdgeTX");
 
-  qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, DEFAULT_COLOR,
-                                                  DEFAULT_BGCOLOR);
+  qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, COLOR_THEME_SECONDARY1,
+                                                  COLOR_THEME_SECONDARY3);
   new StaticBitmap(content,
                    rect_t{ content->width() / 2 - qrcode->width() / 2, 80,
                        qrcode->width(), qrcode->height()},

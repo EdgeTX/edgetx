@@ -306,7 +306,7 @@ void RadioHardwarePage::build(FormWindow * window)
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  new StaticText(window, grid.getFieldSlot(1,0), STR_TTL_WARNING, 0, ALARM_COLOR);
+  new StaticText(window, grid.getFieldSlot(1,0), STR_TTL_WARNING, 0, COLOR_THEME_WARNING);
   grid.nextLine();
 #endif
 

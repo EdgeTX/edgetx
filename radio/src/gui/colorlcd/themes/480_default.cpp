@@ -28,16 +28,6 @@ const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { nullptr, ZoneOption::Bool }
 };
 
-constexpr uint16_t __TEXT_COLOR             = RGB(0x0C, 0x3F, 0x66);
-constexpr uint16_t __BACKGROUND_COLOR       = RGB(0x12, 0x5E, 0x99);
-constexpr uint16_t __FOCUS_COLOR            = RGB(0x14, 0xA1, 0xE5);
-constexpr uint16_t __DATAFIELD_FRAME_COLOR  = RGB(0xB6, 0xE0, 0xF2);
-constexpr uint16_t __TAB_BACKGROUND_COLOR   = RGB(0xE4, 0xEE, 0xF2);
-constexpr uint16_t __PARAM_BACKGROUND_COLOR = WHITE;
-
-constexpr uint16_t __EDIT_MARKER_COLOR      = RGB(0x00, 0x99, 0x09);
-constexpr uint16_t __ACTIVE_MARKER_COLOR    = RGB(0xFF, 0xDE, 0x00);
-
 class Theme480: public OpenTxTheme
 {
   public:
@@ -51,58 +41,16 @@ class Theme480: public OpenTxTheme
     {
       TRACE("Load EdgeTX theme colors");
 
-      lcdColorTable[OS_COLOR_PRIMARY1_INDEX] = RGB(0, 0, 0);
-      lcdColorTable[OS_COLOR_PRIMARY2_INDEX] = RGB(255, 255, 255);
-      lcdColorTable[OS_COLOR_PRIMARY3_INDEX] = RGB(12, 63, 102);
-      lcdColorTable[OS_COLOR_SECONDARY1_INDEX] = RGB(18, 94, 153);
-      lcdColorTable[OS_COLOR_SECONDARY2_INDEX] = RGB(182, 224, 242);
-      lcdColorTable[OS_COLOR_SECONDARY3_INDEX] = RGB(228, 238, 242);
-      lcdColorTable[OS_COLOR_FOCUS_INDEX] = RGB(20, 161, 229);
-      lcdColorTable[OS_COLOR_EDIT_INDEX] = RGB(0, 153, 9);
-      lcdColorTable[OS_COLOR_ACTIVE_INDEX] = RGB(255, 222, 0);
-      lcdColorTable[OS_COLOR_WARNING_INDEX] = RGB(224, 0, 0);
-
-      lcdColorTable[ALARM_COLOR_INDEX] = RED;
-      lcdColorTable[BARGRAPH1_COLOR_INDEX] = RED;
-      lcdColorTable[BARGRAPH2_COLOR_INDEX] = RGB(167, 167, 167);
-      lcdColorTable[BARGRAPH_BGCOLOR_INDEX] = RGB(222, 222, 222);
-      lcdColorTable[BATTERY_CHARGE_COLOR_INDEX] = GREEN;
-      lcdColorTable[CHECKBOX_COLOR_INDEX] = __FOCUS_COLOR;
-      lcdColorTable[CURVE_COLOR_INDEX] = RED;
-      lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = RED;
-      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = __TAB_BACKGROUND_COLOR;
-      lcdColorTable[DEFAULT_COLOR_INDEX] = __TEXT_COLOR;
-      lcdColorTable[DISABLE_COLOR_INDEX] = LIGHTGREY;
-      lcdColorTable[EDIT_MARKER_COLOR_INDEX] = __EDIT_MARKER_COLOR;
-      lcdColorTable[FIELD_BGCOLOR_INDEX] = WHITE;
-      lcdColorTable[FIELD_FRAME_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
-      lcdColorTable[FOCUS_BGCOLOR_INDEX] = __FOCUS_COLOR;
-      lcdColorTable[FOCUS_COLOR_INDEX] = WHITE;
-      lcdColorTable[HEADER_COLOR_INDEX] = __BACKGROUND_COLOR;
-      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = __FOCUS_COLOR;
-      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
-      lcdColorTable[HIGHLIGHT_COLOR_INDEX] = __ACTIVE_MARKER_COLOR;
-      lcdColorTable[LINE_COLOR_INDEX] = GREY;
-      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = RED;
-      lcdColorTable[MAINVIEW_PANES_COLOR_INDEX] = WHITE;
-
-      lcdColorTable[MENU_BGCOLOR_INDEX] = WHITE;
-      lcdColorTable[MENU_COLOR_INDEX] = __BACKGROUND_COLOR; // Menu font color
-
-      // Selected item in menu
-      lcdColorTable[MENU_HIGHLIGHT_BGCOLOR_INDEX] = __FOCUS_COLOR;
-      lcdColorTable[MENU_HIGHLIGHT_COLOR_INDEX] = WHITE;
-      lcdColorTable[MENU_LINE_COLOR_INDEX] = __DATAFIELD_FRAME_COLOR;
-
-      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] = __TEXT_COLOR;
-      lcdColorTable[OVERLAY_COLOR_INDEX] = BLACK;
-      lcdColorTable[SCROLLBAR_COLOR_INDEX] = __TEXT_COLOR;
-      lcdColorTable[TEXT_DISABLE_COLOR_INDEX] = GREY;
-      lcdColorTable[TEXT_STATUSBAR_COLOR_INDEX] = WHITE;
-      lcdColorTable[TITLE_BGCOLOR_INDEX] = __BACKGROUND_COLOR;
-
-      lcdColorTable[TRIM_BGCOLOR_INDEX] = __FOCUS_COLOR;
-      lcdColorTable[TRIM_SHADOW_COLOR_INDEX] = BLACK;
+      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
+      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
+      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
+      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
+      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
+      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
+      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
+      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
     }
 
     void loadMenuIcon(uint8_t index, const uint8_t * lbm) const
@@ -115,15 +63,15 @@ class Theme480: public OpenTxTheme
         delete menuIconNormal[index];
         menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconNormal[index]) {
-          menuIconNormal[index]->clear(HEADER_ICON_BGCOLOR);
-          menuIconNormal[index]->drawMask(0, 0, mask, FOCUS_COLOR);
+          menuIconNormal[index]->clear(COLOR_THEME_SECONDARY1);
+          menuIconNormal[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
         }
 
         delete menuIconSelected[index];
         menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         if (menuIconSelected[index]) {
-          menuIconSelected[index]->clear(HEADER_CURRENT_BGCOLOR);
-          menuIconSelected[index]->drawMask(0, 0, mask, FOCUS_COLOR);
+          menuIconSelected[index]->clear(COLOR_THEME_FOCUS);
+          menuIconSelected[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
         }
       }
     }
@@ -197,27 +145,27 @@ class Theme480: public OpenTxTheme
 
         currentMenuBackground->drawSolidFilledRect(
             0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
-            HEADER_COLOR);
+            COLOR_THEME_SECONDARY1);
 
         currentMenuBackground->drawSolidFilledRect(
             0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
-            MENU_TITLE_TOP - MENU_HEADER_HEIGHT, DEFAULT_BGCOLOR);
+            MENU_TITLE_TOP - MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
 
         currentMenuBackground->drawSolidFilledRect(
             0, MENU_TITLE_TOP, currentMenuBackground->width(),
-            currentMenuBackground->height() - MENU_TITLE_TOP, TITLE_BGCOLOR);
+            currentMenuBackground->height() - MENU_TITLE_TOP, COLOR_THEME_SECONDARY1);
 
         currentMenuBackground->drawMask(0, 0, background,
-                                        HEADER_CURRENT_BGCOLOR);
+                                        COLOR_THEME_FOCUS);
 
-        currentMenuBackground->drawMask(0, 0, shadow, TRIM_SHADOW_COLOR);
+        currentMenuBackground->drawMask(0, 0, shadow, COLOR_THEME_PRIMARY1);
 
-        currentMenuBackground->drawMask(10, 39, dot, FOCUS_COLOR);
+        currentMenuBackground->drawMask(10, 39, dot, COLOR_THEME_PRIMARY2);
       }
 
       delete topleftBitmap;
       topleftBitmap = BitmapBuffer::load8bitMaskOnBackground(
-          mask_topleft, HEADER_CURRENT_BGCOLOR, HEADER_COLOR);
+          mask_topleft, COLOR_THEME_FOCUS, COLOR_THEME_SECONDARY1);
 
       delete background;
       delete shadow;
@@ -244,7 +192,7 @@ class Theme480: public OpenTxTheme
       // Unused:
       //
       // delete modelselIconBitmap;
-      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", TITLE_BGCOLOR, DEFAULT_BGCOLOR);
+      // modelselIconBitmap = BitmapBuffer::loadMaskOnBackground("modelsel/mask_iconback.png", COLOR_THEME_SECONDARY1, COLOR_THEME_SECONDARY3);
       // if (modelselIconBitmap) {
       //   BitmapBuffer * bitmap = BitmapBuffer::loadBitmap(getFilePath("modelsel/icon_default.png"));
       //   modelselIconBitmap->drawBitmap(20, 8, bitmap);
@@ -335,21 +283,21 @@ class Theme480: public OpenTxTheme
       uint32_t color = g_eeGeneral.themeData.options[1].value.unsignedValue;
       uint32_t bg_color = UNEXPECTED_SHUTDOWN() ? WHITE : g_eeGeneral.themeData.options[0].value.unsignedValue;
 
-      lcdColorTable[DEFAULT_BGCOLOR_INDEX] = bg_color;
-      lcdColorTable[FOCUS_BGCOLOR_INDEX] = color;
-      lcdColorTable[CHECKBOX_COLOR_INDEX] = color;
-      lcdColorTable[SCROLLBAR_COLOR_INDEX] = color;
-      lcdColorTable[CURVE_COLOR_INDEX] = color;
-      lcdColorTable[CURVE_CURSOR_COLOR_INDEX] = color;
-      lcdColorTable[TITLE_BGCOLOR_INDEX] = color;
-      lcdColorTable[MENU_TITLE_DISABLE_COLOR_INDEX] =
+      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = bg_color;
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
+      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = color;
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
+      lcdColorTable[COLOR_THEME_WARNING_INDEX] = color;
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
+      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] =
           RGB(GET_RED(color)>>1, GET_GREEN(color)>>1, GET_BLUE(color)>>1);
-      lcdColorTable[TRIM_BGCOLOR_INDEX] = color;
-      lcdColorTable[MAINVIEW_GRAPHICS_COLOR_INDEX] = color;
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
       #define DARKER(x)     ((x * 70) / 100)
-      lcdColorTable[MENU_BGCOLOR_INDEX] = RGB(DARKER(GET_RED(color)), DARKER(GET_GREEN(color)), DARKER(GET_BLUE(color)));
-      lcdColorTable[HEADER_ICON_BGCOLOR_INDEX] = color;
-      lcdColorTable[HEADER_CURRENT_BGCOLOR_INDEX] = color;
+      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(DARKER(GET_RED(color)), DARKER(GET_GREEN(color)), DARKER(GET_BLUE(color)));
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
 #endif
       loadIcons();
       loadThemeBitmaps();
@@ -362,7 +310,7 @@ class Theme480: public OpenTxTheme
       }
       else {
         dc->drawSolidFilledRect(0 - dc->getOffsetX(), 0 - dc->getOffsetY(),
-                                LCD_W, LCD_H, DEFAULT_BGCOLOR);
+                                LCD_W, LCD_H, COLOR_THEME_SECONDARY3);
       }
     }
 
@@ -380,10 +328,10 @@ class Theme480: public OpenTxTheme
       if (topleftBitmap) {
         dc->drawBitmap(0, 0, topleftBitmap);
         uint16_t width = topleftBitmap->width();
-        dc->drawSolidFilledRect(width, 0, LCD_W - width, MENU_HEADER_HEIGHT, HEADER_COLOR);
+        dc->drawSolidFilledRect(width, 0, LCD_W - width, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, HEADER_COLOR);
+        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
       }
 
       if (icon == ICON_OPENTX)
@@ -393,12 +341,12 @@ class Theme480: public OpenTxTheme
 
       dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
                               MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
-                              DEFAULT_BGCOLOR);  // the white separation line
+                              COLOR_THEME_SECONDARY3);  // the white separation line
 
       dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
-                              TITLE_BGCOLOR);  // the title line background
+                              COLOR_THEME_SECONDARY1);  // the title line background
       if (title) {
-        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, FOCUS_COLOR);
+        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, COLOR_THEME_PRIMARY2);
       }
 
       drawMenuDatetime(dc);
@@ -431,7 +379,7 @@ class Theme480: public OpenTxTheme
 
     void drawMenuDatetime(BitmapBuffer * dc) const
     {
-      //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, FOCUS_COLOR);
+      //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, COLOR_THEME_PRIMARY2);
 
       struct gtm t;
       gettime(&t);
@@ -442,18 +390,18 @@ class Theme480: public OpenTxTheme
       const char * const STR_MONTHS[] = TR_MONTHS;
       sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
 #endif
-      dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|FOCUS_COLOR|CENTERED);
+      dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
       getTimerString(str, getValue(MIXSRC_TX_TIME));
-      dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|FOCUS_COLOR|CENTERED);
+      dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 
     void drawProgressBar(BitmapBuffer *dc, coord_t x, coord_t y, coord_t w,
                          coord_t h, int value, int total) const override
     {
-      dc->drawSolidRect(x, y, w, h, 1, DEFAULT_COLOR);
+      dc->drawSolidRect(x, y, w, h, 1, COLOR_THEME_SECONDARY1);
       if (value > 0) {
         int width = (w * value) / total;
-        dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, CHECKBOX_COLOR);
+        dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, COLOR_THEME_FOCUS);
       }
     }
 

@@ -96,7 +96,7 @@ class SpectrumScaleWindow: public Window
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->drawSolidFilledRect(0, 0, width(), height(), CURVE_AXIS_COLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY2);
 
       // Draw tracker
       int offset = reusableBuffer.spectrumAnalyser.track - (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2);
@@ -153,14 +153,14 @@ class SpectrumWindow: public Window
         int x = offset / reusableBuffer.spectrumAnalyser.step;
         if (x >= LCD_W - 1)
           break;
-        dc->drawVerticalLine(x, 0, height(), STASHED, CURVE_AXIS_COLOR);
+        dc->drawVerticalLine(x, 0, height(), STASHED, COLOR_THEME_SECONDARY2);
       }
 
       for (uint8_t power = 20;; power += 20) {
         int y = SCALE_TOP - 1 - limit<int>(0, power << 1, SCALE_TOP);
         if (y <= 0)
           break;
-        dc->drawHorizontalLine(0, y, width(), STASHED, CURVE_AXIS_COLOR);
+        dc->drawHorizontalLine(0, y, width(), STASHED, COLOR_THEME_SECONDARY2);
       }
 
       // Draw spectrum data
@@ -208,7 +208,7 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
 
 void RadioSpectrumAnalyser::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_SPECTRUM_ANALYSER, 0, MENU_COLOR);
+  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_SPECTRUM_ANALYSER, 0, COLOR_THEME_SECONDARY1);
   }
 
 void RadioSpectrumAnalyser::buildBody(FormWindow * window)
