@@ -687,7 +687,7 @@ void auxSerialPowerOff();
 // Aux2 serial port driver
 #if defined(AUX2_SERIAL)
 extern uint8_t aux2SerialMode;
-#if defined __cplusplus
+#if defined __cplusplus && !defined(SIMU)
 void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
 #endif
 void aux2SerialInit(unsigned int mode, unsigned int protocol);
