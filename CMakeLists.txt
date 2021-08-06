@@ -1,4 +1,4 @@
-project(OpenTX)
+project(EdgeTX)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "5")
@@ -10,19 +10,37 @@ set(SDCARD_REVISION "0037")
 set(SDCARD_VERSION  ${VERSION_MAJOR}.${VERSION_MINOR}V${SDCARD_REVISION})
 
 cmake_minimum_required(VERSION 3.13)
+
+# Automatically link Qt executables to qtmain target on Windows
+# https://cmake.org/cmake/help/latest/policy/CMP0020.html
 cmake_policy(SET CMP0020 NEW)
+
+# Allow keyword and plain target_link_libraries() signatures to be mixed
+# https://cmake.org/cmake/help/latest/policy/CMP0023.html
 cmake_policy(SET CMP0023 OLD)
+
+# Use @rpath in a target's install name on MacOS X for locating shared libraries
+# https://cmake.org/cmake/help/latest/policy/CMP0042.html
 if(POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif()
+
+# Ignore COMPILE_DEFINITIONS_<Config> properties (prefer generator expressions)
+# https://cmake.org/cmake/help/latest/policy/CMP0043.html
 if(POLICY CMP0043)
   cmake_policy(SET CMP0043 NEW)
 endif()
+
+# Only interpret if() arguments as variables or keywords when unquoted
+# https://cmake.org/cmake/help/latest/policy/CMP0054.html
 if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
+
+# Custom command byproducts must be explicit - for ninja
+# https://cmake.org/cmake/help/latest/policy/CMP0058.html
 if(POLICY CMP0058)
-  cmake_policy(SET CMP0058 NEW)  # for ninja
+  cmake_policy(SET CMP0058 NEW)
 endif()
 
 set(CMAKE_COLOR_MAKEFILE ON)
