@@ -36,21 +36,21 @@ event_t getWindowEvent();
 // These colors MUST be defined
 //
 
-// #define DEFAULT_COLOR                  
-// #define DEFAULT_BGCOLOR                
-// #define FOCUS_COLOR                    
-// #define FOCUS_BGCOLOR                  
-// #define DISABLE_COLOR                  
-// #define HIGHLIGHT_COLOR                
-// #define CHECKBOX_COLOR                 
-// #define SCROLLBAR_COLOR                
-// #define MENU_COLOR                     
-// #define MENU_BGCOLOR                   
-// #define MENU_TITLE_BGCOLOR             
-// #define MENU_LINE_COLOR                
-// #define MENU_HIGHLIGHT_COLOR           
-// #define MENU_HIGHLIGHT_BGCOLOR         
-// #define OVERLAY_COLOR                  
-// #define TABLE_BGCOLOR                  
-// #define TABLE_HEADER_BGCOLOR           
+// #define COLOR_THEME_SECONDARY1                  
+// #define COLOR_THEME_SECONDARY3                
+// #define COLOR_THEME_PRIMARY2                    
+// #define COLOR_THEME_FOCUS                  
+// #define COLOR_THEME_DISABLED                  
+// #define COLOR_THEME_ACTIVE                
+// #define COLOR_THEME_FOCUS                 
+// #define COLOR_THEME_PRIMARY3                
+// #define COLOR_THEME_SECONDARY1                     
+// #define COLOR_THEME_PRIMARY2                   
+// #define COLOR_THEME_SECONDARY1_THEME_SECONDARY1             
+// #define COLOR_THEME_SECONDARY2                
+// #define COLOR_THEME_PRIMARY2           
+// #define COLOR_THEME_FOCUS         
+// #define COLOR_THEME_PRIMARY1                  
+// #define COLOR_THEME_SECONDARY3                  
+// #define COLOR_THEME_FOCUS           
 // #define CUSTOM_COLOR                   

@@ -104,16 +104,16 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 
 void MenuBody::paint(BitmapBuffer * dc)
 {
-  dc->clear(MENU_BGCOLOR);
+  dc->clear(COLOR_THEME_PRIMARY2);
 
   for (unsigned i = 0; i < lines.size(); i++) {
     auto& line = lines[i];
-    LcdFlags flags = MENU_COLOR | MENU_FONT;
+    LcdFlags flags = COLOR_THEME_SECONDARY1 | MENU_FONT;
     if (selectedIndex == (int)i) {
-      flags = MENU_HIGHLIGHT_COLOR | MENU_FONT;
-      if (MENU_HIGHLIGHT_BGCOLOR != MENU_BGCOLOR) {
+      flags = COLOR_THEME_PRIMARY2 | MENU_FONT;
+      if (COLOR_THEME_FOCUS != COLOR_THEME_PRIMARY2) {
         dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(),
-                                MENUS_LINE_HEIGHT, MENU_HIGHLIGHT_BGCOLOR);
+                                MENUS_LINE_HEIGHT, COLOR_THEME_FOCUS);
       }
     }
     if (line.drawLine) {
@@ -135,7 +135,7 @@ void MenuBody::paint(BitmapBuffer * dc)
 
     if (i > 0) {
       dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT, MENUS_WIDTH,
-                                  MENU_LINE_COLOR);
+                                  COLOR_THEME_SECONDARY2);
     }
   }
 }
@@ -151,7 +151,7 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
 void MenuWindowContent::paint(BitmapBuffer * dc)
 {
   // the background
-  dc->clear(MENU_BGCOLOR);
+  dc->clear(COLOR_THEME_PRIMARY2);
 
   // the title
   if (!title.empty()) {
@@ -159,7 +159,7 @@ void MenuWindowContent::paint(BitmapBuffer * dc)
                  (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2,
                  title.c_str(), CENTERED | MENU_HEADER_FONT);
     dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH,
-                                MENU_LINE_COLOR);
+                                COLOR_THEME_SECONDARY2);
   }
 }
 
@@ -234,5 +234,5 @@ void Menu::paint(BitmapBuffer * dc)
     r.x = toolbar->left();
     r.w += toolbar->width();
   }
-  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, MENU_LINE_COLOR);
+  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, COLOR_THEME_SECONDARY2);
 }

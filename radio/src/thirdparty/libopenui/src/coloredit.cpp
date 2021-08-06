@@ -41,7 +41,7 @@ class ColorBox: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->drawSolidFilledRect(0, 0, width(), height(), DEFAULT_COLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
       dc->drawSolidFilledRect(1, 1, width() - 2, height() - 2, color << 16);
     }
 

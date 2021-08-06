@@ -81,9 +81,9 @@ class Roller: public Choice
       while (y < yMax) {
         auto displayedValue = getValueFromIndex(index);
 
-        auto fgColor = DISABLE_COLOR;
+        auto fgColor = COLOR_THEME_DISABLED;
         if (value == displayedValue) {
-          fgColor = FOCUS_COLOR | FONT(STD);
+          fgColor = COLOR_THEME_PRIMARY2 | FONT(STD);
         }
 
         unsigned valueIndex = displayedValue - vmin;
@@ -95,7 +95,7 @@ class Roller: public Choice
         }
 
         if (windowFlags & ROLLER_SEPARATION_LINES) {
-          dc->drawSolidHorizontalLine(0, y - 10, width(), DISABLE_COLOR);
+          dc->drawSolidHorizontalLine(0, y - 10, width(), COLOR_THEME_DISABLED);
         }
 
         if (++index == valuesCount)
