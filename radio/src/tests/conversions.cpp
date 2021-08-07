@@ -54,7 +54,7 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
   EXPECT_STRNEQ("Test", g_model.header.name); // ZSTREQ
-  EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
+  EXPECT_EQ(TMRMODE_ON, g_model.timers[0].mode); // new!
   EXPECT_EQ(SWSRC_SA0, g_model.timers[0].swtch); // new!
   EXPECT_EQ(80, g_model.mixData[0].weight);
   EXPECT_EQ(-100, g_model.limitData[0].max); // 90.0
@@ -96,8 +96,8 @@ TEST(Conversions, ConversionX9DPFrom23_2)
   EXPECT_EQ(944, g_eeGeneral.calib[0].mid);
   EXPECT_EQ(770, g_eeGeneral.calib[0].spanPos);
 
-  EXPECT_EQ(TMRMODE_START, g_model.timers[0].mode); // new!
-  EXPECT_EQ(-SWSRC_SA0, g_model.timers[0].swtch); // new!  
+  EXPECT_EQ(TMRMODE_ON, g_model.timers[0].mode); // new!
+  EXPECT_EQ(-SWSRC_SA0, g_model.timers[0].swtch); // new!
 }
 #endif
 
@@ -164,14 +164,14 @@ TEST(Conversions, ConversionX9DPFrom23_2)
 //   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
 //   EXPECT_EQ('e', g_eeGeneral.ttsLanguage[0]);
 //   EXPECT_EQ('n', g_eeGeneral.ttsLanguage[1]);
-  
+
 //   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
 //   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
 //   EXPECT_EQ(20, g_eeGeneral.customFn[0].all.val);
 
 //   EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
 //   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
-  
+
 //   EXPECT_ZSTREQ("Test", g_model.header.name);
 //   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
 //   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
