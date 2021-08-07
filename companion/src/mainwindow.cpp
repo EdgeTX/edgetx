@@ -254,9 +254,6 @@ QString MainWindow::getCompanionUpdateBaseUrl() const
 
 void MainWindow::checkForUpdates()
 {
-  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions. Update the application settings to disable this message.").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
-  return;
-
   if (!(checkForUpdatesState & (CHECK_COMPANION | CHECK_FIRMWARE))) {
     if (networkManager) {
       networkManager->deleteLater();
@@ -265,6 +262,9 @@ void MainWindow::checkForUpdates()
     checkForUpdatesState = 0;
     return;
   }
+
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions. Update the application settings to disable this message.").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
+  return;
 
   if (networkManager)
     disconnect(networkManager, 0, this, 0);
