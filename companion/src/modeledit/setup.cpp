@@ -112,10 +112,10 @@ void TimerPanel::update()
   ui->minuteBeep->updateValue();
   ui->countdownStart->updateValue();
 
-  if (timer.mode != TimerData::TIMERMODE_START)
-    ui->swtch->setEnabled(false);
-  else
+  if (timer.mode == TimerData::TIMERMODE_ON || timer.mode == TimerData::TIMERMODE_START)
     ui->swtch->setEnabled(true);
+  else
+    ui->swtch->setEnabled(false);
 
   if (timer.countdownBeep == TimerData::COUNTDOWNBEEP_SILENT) {
     ui->countdownStartLabel->setEnabled(false);
