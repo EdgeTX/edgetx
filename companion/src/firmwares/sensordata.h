@@ -197,7 +197,7 @@ class SensorData {
     void formulaChanged();
     void unitChanged();
 
-    static QString sourceToString(const ModelData * model, const int index, const bool sign = false);
+    static QString sourceToString(const ModelData * model, const int index, const bool positivesign = false);
     static bool isSourceAvailable(const ModelData * model, const int index);
     static QString idToString(const int value);
     static QString typeToString(const int value);
