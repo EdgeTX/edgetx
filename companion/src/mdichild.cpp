@@ -1530,6 +1530,22 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
 
 void MdiChild::writeEeprom()  // write to Tx
 {
+  if (g.confirmWriteModelsAndSettings()) {
+    QMessageBox msgbox;
+    msgbox.setText("You are about to overwrite ALL models on the Radio.");
+    msgbox.setInformativeText("Do you want to continue?");
+    msgbox.setIcon(QMessageBox::Icon::Question);
+    msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+    msgbox.setDefaultButton(QMessageBox::Abort);
+
+    QCheckBox *cb = new QCheckBox("Don't show this message again");
+    msgbox.setCheckBox(cb);
+    connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
+
+    if (msgbox.exec() == QMessageBox::Abort)
+      return;
+  }
+
   Board::Type board = getCurrentBoard();
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     QString radioPath = findMassstoragePath("RADIO", true);
