@@ -14,12 +14,14 @@ from PIL import Image
 logo_filename = "edgetx-logo.png"
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "..")
+images_dir = os.path.abspath(os.path.join(PROJECT_ROOT, "companion", "src", "images"))
 win_icons_dir = os.path.abspath(os.path.join(PROJECT_ROOT, "companion", "src", "images", "winicons"))
 linux_icons_dir = os.path.abspath(os.path.join(PROJECT_ROOT, "companion", "src", "images", "linuxicons"))
 start_dir = os.getcwd()
 
-if not os.path.exists(win_icons_dir) or not os.path.exists(linux_icons_dir):
-    print("Couldn't find Windows and Linux Companion icon directories!")
+if not os.path.exists(images_dir) or not os.path.exists(win_icons_dir) or not os.path.exists(linux_icons_dir):
+    print("Couldn't find a required directory!")
+    print("Images => " + images_dir)
     print("Windows => " + win_icons_dir)
     print("Linux => " + linux_icons_dir)
     quit()
@@ -35,6 +37,13 @@ if not os.path.exists(logo_filename):
         raise SystemExit(e)
 
     open(logo_filename, 'wb').write(r.content)
+
+print("Generate 96x96 icon.png... ")
+os.chdir(images_dir)
+if os.path.exists(images_dir + os.sep + 'icon.png'):
+    os.remove(images_dir + os.sep + 'icon.png')
+img = Image.open(start_dir + os.sep + logo_filename).resize((96,96))
+img.save(images_dir + os.sep + 'icon.png')
 
 print("Generate Linux Icons... ", end="")
 os.chdir(linux_icons_dir)
