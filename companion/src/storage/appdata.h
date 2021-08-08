@@ -593,6 +593,9 @@ class AppData: public CompStoreObj
     PROPERTY(int, simuLastProfId, -1)
     PROPERTY(bool, simuSW,      true)
 
+    // Message box confirmations
+    PROPERTY(bool, confirmWriteModelsAndSettings, true)
+
     bool firstUse;
     QString upgradeFromVersion;
 

@@ -2378,7 +2378,7 @@ class TimerField: public TransformedField {
             timer.mode += 1;
         }
         else {
-          timer.mode = TimerData::TIMERMODE_START;
+          timer.mode = TimerData::TIMERMODE_ON;
           if (_mode_pre220 > 0)
             _mode_pre220 -= 4;
           switchesConversionTable->importValue(_mode_pre220, _sw1);

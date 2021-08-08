@@ -322,10 +322,10 @@ QString SensorData::precToString(const int value)
 }
 
 //  static
-QString SensorData::sourceToString(const ModelData * model, const int index, const bool sign)
+QString SensorData::sourceToString(const ModelData * model, const int index, const bool positivesign)
 {
   if (model) {
-    const QString prfx = sign ? index < 0 ? "-" : "+" : "";
+    const QString prfx = index < 0 ? "-" : positivesign ? "+" : "";
 
     if (abs(index) > 0) {
       const SensorData &sd = model->sensorData[abs(index) - 1];
