@@ -121,12 +121,12 @@ GeneralSettings::GeneralSettings()
 
   if (IS_JUMPER_T16(board))
     strcpy(bluetoothName, "t16");
-  else if (IS_FAMILY_HORUS_OR_T16(board)) {
+  else if (IS_FLYSKY_NV14(board))
+    strcpy(bluetoothName, "nv14");
+  else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
-  }
-  else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board)) {
+  else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
     strcpy(bluetoothName, "taranis");
-  }
 
   for (uint8_t i = 0; i < 4; i++) {
     trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;

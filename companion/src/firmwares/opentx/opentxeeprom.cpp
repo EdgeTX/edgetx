@@ -139,7 +139,7 @@ inline int SWITCHES_CONFIG_SIZE(Board::Type board, int version)
 
 inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 {
-  if (IS_FAMILY_HORUS_OR_T16(board))
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
     return 2;
   else
     return 0;
@@ -160,7 +160,7 @@ inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 #define MAX_TELEMETRY_SENSORS(board, version) (version <= 218 ? 32 : ((IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board)) ? 60 : 40))
 #define NUM_PPM_INPUTS(board, version)        16
 #define ROTENC_COUNT(board, version)          ((IS_STM32(board) && version >= 218) ? 0 : 1)
-#define MAX_AUX_TRIMS(board)                  (IS_FAMILY_HORUS_OR_T16(board) ? 2 : 0)
+#define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ? 2 : 0)
 
 inline int switchIndex(int i, Board::Type board, unsigned int version)
 {

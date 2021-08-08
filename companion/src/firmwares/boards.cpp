@@ -434,13 +434,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return getCapability(board, Board::Switches);
 
     case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board))
+      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
         return getCapability(board, Board::Switches) * 3;
       else
         return 9;
 
     case NumTrims:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
         return 6;
       else
         return 4;
@@ -627,6 +627,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX12";
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
+    case BOARD_FLYSKY_NV14:
+      return "FlySky NV14";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
