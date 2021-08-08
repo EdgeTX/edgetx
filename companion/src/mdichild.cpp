@@ -1532,13 +1532,13 @@ void MdiChild::writeEeprom()  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
-    msgbox.setText("You are about to overwrite ALL models on the Radio.");
-    msgbox.setInformativeText("Do you want to continue?");
+    msgbox.setText(tr("You are about to overwrite ALL models on the Radio."));
+    msgbox.setInformativeText(tr("Do you want to continue?"));
     msgbox.setIcon(QMessageBox::Icon::Question);
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     msgbox.setDefaultButton(QMessageBox::Abort);
 
-    QCheckBox *cb = new QCheckBox("Don't show this message again");
+    QCheckBox *cb = new QCheckBox(tr("Don't show this message again"));
     msgbox.setCheckBox(cb);
     connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
 
