@@ -144,6 +144,7 @@ void FileSyncDialog::setupUi()
 
   ui_syncDir = new AutoComboBox(this);
   setSyncDirList();
+  ui_syncDir->setField(m_syncOptions.direction);
 
   AutoComboBox * copyMode = new AutoComboBox(this);
   copyMode->setToolTip(tr("How to handle overwriting files which already exist in the destination folder."));
@@ -511,5 +512,5 @@ void FileSyncDialog::setSyncDirList()
   ui_syncDir->addItem(tr("%1%2 Both directions, to %3 first").arg(upArw, downArw, m_folderNameA), SyncProcess::SYNC_B2A_A2B);
   ui_syncDir->addItem(tr(" %1  Only from %2 to %3").arg(downArw, m_folderNameA, m_folderNameB), SyncProcess::SYNC_A2B);
   ui_syncDir->addItem(tr(" %1  Only from %2 to %3").arg(upArw, m_folderNameB, m_folderNameA), SyncProcess::SYNC_B2A);
-  ui_syncDir->setField(m_syncOptions.direction);
+  ui_syncDir->updateValue();
 }
