@@ -53,7 +53,7 @@ fi
 
 echo "=== Step 5: Fetching GNU Arm Embedded Toolchains ==="
 # EdgeTX uses GNU Arm Embedded Toolchain in version 10-2020-q4
-wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
@@ -96,7 +96,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step 11: Fetching USB DFU host utility ==="
-wget http://dfu-util.sourceforge.net/releases/dfu-util-0.10.tar.gz
+wget -q --show-progress --progress=bar:force:noscroll http://dfu-util.sourceforge.net/releases/dfu-util-0.10.tar.gz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
