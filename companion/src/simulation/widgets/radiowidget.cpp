@@ -237,6 +237,6 @@ QDebug operator << (QDebug d, const RadioWidget::RadioWidgetState & o)
 {
   QDebugStateSaver saver(d);
   d << "RadioWidget::RadioWidgetState: type=" << o.type << "; index=" << o.index
-    << "; value=" << o.value << "; flags=0x" << hex << o.flags;
+    << "; value=" << o.value << "; flags=0x" << Qt::hex << o.flags;
   return d;
 }

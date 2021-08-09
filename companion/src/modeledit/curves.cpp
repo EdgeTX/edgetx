@@ -179,10 +179,10 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
   }
   QSpacerItem * item = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
 
-  ui->curvesLayout->addItem(item,limit + 1, 1, 1, 1, 0);
+  ui->curvesLayout->addItem(item, limit + 1, 1, 1, 1);
   if (limit != maxCurves) {
     QSpacerItem * item2 = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
-    ui->curvesLayout2->addItem(item2,limit + 1, 1, 1, 1, 0);
+    ui->curvesLayout2->addItem(item2, limit + 1, 1, 1, 1);
   }
 
   for (int i = 0; i < CPN_MAX_POINTS; i++) {

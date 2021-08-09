@@ -113,9 +113,11 @@ void AutoBitsetCheckBox::setInverted(bool invert)
 void AutoBitsetCheckBox::updateValue()
 {
   if (m_field)
+  {
     setLock(true);
     setChecked((m_invert && !m_toggleMask) != bool(*m_field & m_bitmask));
     setLock(false);
+  }
 }
 
 void AutoBitsetCheckBox::onToggled(bool checked)

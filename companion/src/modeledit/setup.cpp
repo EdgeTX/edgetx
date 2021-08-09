@@ -261,7 +261,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   connect(ui->multiSubType, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ModulePanel::onSubTypeChanged);
   connect(ui->multiProtocol, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ModulePanel::onMultiProtocolChanged);
   connect(this, &ModulePanel::channelsRangeChanged, this, &ModulePanel::setupFailsafes);
-  connect(ui->btnGrpValueType, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ModulePanel::onFailsafesDisplayValueTypeChanged);
+  connect(ui->btnGrpValueType, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::idClicked), this, &ModulePanel::onFailsafesDisplayValueTypeChanged);
   connect(ui->rxFreq, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ModulePanel::onRfFreqChanged);
   connect(ui->clearRx1, SIGNAL(clicked()), this, SLOT(onClearAccessRxClicked()));
   connect(ui->clearRx2, SIGNAL(clicked()), this, SLOT(onClearAccessRxClicked()));

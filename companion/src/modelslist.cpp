@@ -697,7 +697,7 @@ void TreeModel::refresh()
     }
     else {
       current = rootItem->appendChild(0, i);
-      current->setData(currentColumn++, QString().sprintf("%02d", i + 1));
+      current->setData(currentColumn++, QString().asprintf("%02d", i + 1));
     }
 
     if (!model.isEmpty() && current) {
@@ -712,7 +712,7 @@ void TreeModel::refresh()
       current->setData(currentColumn++, modelName);
       if (hasEepromSizeData) {
         int size = eepromInterface->getSize(model);
-        current->setData(currentColumn++, QString().sprintf("%5d", size));
+        current->setData(currentColumn++, QString().asprintf("%5d", size));
         size = 16 * ((size + 14) / 15);
         availableEEpromSize -= size;
         if (i == radioData->generalSettings.currModelIndex) {

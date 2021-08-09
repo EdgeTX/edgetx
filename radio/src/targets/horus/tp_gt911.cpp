@@ -557,6 +557,7 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
     }
     return true;
 }
+*/
 
 bool I2C_GT911_SendConfig(void)
 {

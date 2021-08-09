@@ -50,9 +50,9 @@ void showMessage(const QString & message, enum QMessageBox::Icon icon = QMessage
 {
   if (useConsole) {
     if (icon < QMessageBox::Warning)
-      QTextStream(stdout) << message << endl;
+      QTextStream(stdout) << message << Qt::endl;
     else
-      QTextStream(stderr) << message << endl;
+      QTextStream(stderr) << message << Qt::endl;
 
     return;
   }
@@ -69,16 +69,16 @@ const QString sharedHelpText()
   QString ret;
   QTextStream stream(&ret);
   // list all available profiles
-  stream << endl << QApplication::translate("SimulatorMain", "Available profiles:") << endl;
+  stream << Qt::endl << QApplication::translate("SimulatorMain", "Available profiles:") << Qt::endl;
   QMapIterator<int, QString> pi(g.getActiveProfiles());
   while (pi.hasNext()) {
     pi.next();
-    stream << "\t" << QApplication::translate("SimulatorMain", "ID: ") << pi.key() << "; " << QApplication::translate("SimulatorMain", "Name: ") << pi.value() << endl;
+    stream << "\t" << QApplication::translate("SimulatorMain", "ID: ") << pi.key() << "; " << QApplication::translate("SimulatorMain", "Name: ") << pi.value() << Qt::endl;
   }
   // list all available radios
-  stream << endl << QApplication::translate("SimulatorMain", "Available radios:") << endl;
+  stream << Qt::endl << QApplication::translate("SimulatorMain", "Available radios:") << Qt::endl;
   foreach(QString name, SimulatorLoader::getAvailableSimulators()) {
-    stream << "\t" << name << endl;
+    stream << "\t" << name << Qt::endl;
   }
   return ret;
 }

@@ -28,7 +28,7 @@
 Edge::Edge(Node *sourceNode, Node *destNode)
     : arrowSize(10)
 {
-  setAcceptedMouseButtons(0);
+  setAcceptedMouseButtons({});	// but this should already be the default
   source = sourceNode;
   dest = destNode;
   source->addEdge(this);

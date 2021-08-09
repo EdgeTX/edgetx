@@ -14,9 +14,20 @@ do
 	fi
 done
 
+UBUNTU="false"
+
 if 
- [[ `lsb_release -rs` != "20.04" ]]; then
-  echo "ERROR: Not running on Ubuntu 20.04!"
+ [[ `lsb_release -rs` == "20.04" ]]; then
+  UBUNTU="20"
+fi
+
+if 
+ [[ `lsb_release -rs` == "21.04" ]]; then
+  UBUNTU="21"
+fi
+
+if [[ $UBUNTU == "false" ]]; then
+  echo "ERROR: Not running on Ubuntu 20.04 or 21.04!"
   echo "Terminating the script now."
   exit 1
 fi
@@ -29,27 +40,28 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step 2: Installing packages ==="
-sudo apt-get -y install build-essential cmake gcc git lib32ncurses-dev lib32z1 libfox-1.6-dev libsdl1.2-dev qt5-default qtmultimedia5-dev qttools5-dev qttools5-dev-tools qtcreator libqt5svg5-dev software-properties-common wget zip python-pip-whl python-pil libgtest-dev python3-pip python3-tk python3-setuptools clang-7 python-clang-7 libusb-1.0-0-dev stlink-tools openocd npm libncurses5:i386 libpython2.7:i386
+
+if [[ $UBUNTU == "20" ]]; then
+sudo apt-get -y install build-essential cmake gcc git lib32ncurses-dev lib32z1 libfox-1.6-dev libsdl1.2-dev qt5-default qtmultimedia5-dev qttools5-dev qttools5-dev-tools qtcreator libqt5svg5-dev software-properties-common wget zip python-pip-whl python-pil libgtest-dev python3-pip python3-tk python3-setuptools clang-7 python-clang-7 libusb-1.0-0-dev stlink-tools openocd npm libncurses5:i386 libpython2.7:i386 python-is-python3
+fi
+
+if [[ $UBUNTU == "21" ]]; then
+  sudo apt-get -y install build-essential cmake gcc git lib32ncurses-dev lib32z1 libfox-1.6-dev libsdl1.2-dev qtmultimedia5-dev qttools5-dev qttools5-dev-tools qtcreator libqt5svg5-dev software-properties-common wget zip python-pip-whl libgtest-dev python3-pip python3-tk python3-setuptools clang python-clang libusb-1.0-0-dev stlink-tools openocd npm libncurses5:i386 libpython2.7:i386 libclang-11-dev python-is-python3
+fi
+
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 3: Creating symbolic link for Python ==="
-sudo ln -sf /usr/bin/python3 /usr/bin/python
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-  echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
-  read
-fi
-
-echo "=== Step 4: Installing Python packages ==="
-sudo python3 -m pip install filelock pillow==7.2.0 clang future lxml
+echo "=== Step 3: Installing Python packages ==="
+sudo python3 -m pip install filelock pillow clang future lxml
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 5: Fetching GNU Arm Embedded Toolchains ==="
+echo "=== Step 4: Fetching GNU Arm Embedded Toolchains ==="
 # EdgeTX uses GNU Arm Embedded Toolchain in version 10-2020-q4
 wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
@@ -57,28 +69,28 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step 6: Unpacking GNU Arm Embedded Toolchains ==="
+echo "=== Step 5: Unpacking GNU Arm Embedded Toolchains ==="
 tar xjf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 7: Removing the downloaded archives ==="
+echo "=== Step 6: Removing the downloaded archives ==="
 rm gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 8: Moving GNU Arm Embedded Toolchains to /opt ==="
+echo "=== Step 7: Moving GNU Arm Embedded Toolchains to /opt ==="
 sudo mv gcc-arm-none-eabi-10-2020-q4-major /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 9: Adding GNU Arm Embedded Toolchain to PATH of current user ==="
+echo "=== Step 8: Adding GNU Arm Embedded Toolchain to PATH of current user ==="
 echo 'export PATH="/opt/gcc-arm-none-eabi/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
@@ -86,28 +98,28 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step 10: Removing modemmanager (conflicts with DFU) ==="
+echo "=== Step 9: Removing modemmanager (conflicts with DFU) ==="
 sudo apt-get -y remove modemmanager
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 11: Fetching USB DFU host utility ==="
+echo "=== Step 10: Fetching USB DFU host utility ==="
 wget http://dfu-util.sourceforge.net/releases/dfu-util-0.10.tar.gz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 12: Unpacking USB DFU host utility ==="
+echo "=== Step 11: Unpacking USB DFU host utility ==="
 tar xzvf dfu-util-0.10.tar.gz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step 13: Building and Installing USB DFU host utility ==="
+echo "=== Step 12: Building and Installing USB DFU host utility ==="
 cd dfu-util-0.10/
 ./configure 
 make
@@ -118,7 +130,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step 14: Removing the downloaded archive and build folder of USB DFU host utility ==="
+echo "=== Step 13: Removing the downloaded archive and build folder of USB DFU host utility ==="
 rm dfu-util-0.10.tar.gz
 rm -rf dfu-util-0.10
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
