@@ -630,7 +630,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return true;
     case LcdWidth:
       if (IS_FLYSKY_NV14(board))
-        return 272;
+        return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
       else if (IS_TARANIS_SMALL(board))
