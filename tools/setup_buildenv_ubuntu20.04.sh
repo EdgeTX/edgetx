@@ -82,7 +82,6 @@ fi
 
 echo "=== Step 9: Adding GNU Arm Embedded Toolchain to PATH of current user ==="
 echo 'export PATH="/opt/gcc-arm-none-eabi/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
