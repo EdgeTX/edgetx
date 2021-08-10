@@ -16,7 +16,7 @@ do
 	fi
 done
 
-if [[ `lsb_release -rs` != "20.04" ]]; then
+if [[ $(lsb_release -rs) != "20.04" ]]; then
   echo "ERROR: Not running on Ubuntu 20.04!"
   echo "Terminating the script now."
   exit 1
@@ -24,7 +24,7 @@ fi
 
 echo "=== Step 1: Checking if i386 requirement is satisfied ==="
 OUTPUT=x$(dpkg --print-foreign-architectures 2> /dev/null | grep i386) || :
-if [ $OUTPUT != "xi386" ]; then
+if [ "$OUTPUT" != "xi386" ]; then
     echo "Need to install i386 architecture first."
     I386ARCH="no"
     sudo dpkg --add-architecture i386
