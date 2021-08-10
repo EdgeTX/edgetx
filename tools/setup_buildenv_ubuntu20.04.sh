@@ -3,7 +3,6 @@
 set -e
 
 ## Bash script to setup EdgeTX development environment on Ubuntu 20.04 running on bare-metal or in a virtual machine.
-## Not tested with WSL/WSL2 under Windows 10!
 ## Let it run as normal user and when asked, give sudo credentials
 
 PAUSEAFTEREACHLINE="false"
