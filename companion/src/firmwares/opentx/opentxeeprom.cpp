@@ -2384,6 +2384,8 @@ class TimerField: public TransformedField {
           switchesConversionTable->importValue(_mode_pre220, _sw1);
           timer.swtch = RawSwitch(_sw1);
         }
+
+        timer.countdownStart = (timer.countdownStart * -1) - 1;
       }
     }
 

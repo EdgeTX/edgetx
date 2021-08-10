@@ -197,7 +197,7 @@ AbstractStaticItemModel * TimerData::countdownStartItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_TIMER_COUNTDOWNSTART);
 
-  for (int i = COUNTDOWNSTART_LAST; i >= COUNTDOWNSTART_FIRST; i--) {
+  for (int i = COUNTDOWNSTART_FIRST; i <= COUNTDOWNSTART_LAST; i++) {
     mdl->appendToItemList(countdownStartToString(i), i);
   }
 

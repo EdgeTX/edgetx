@@ -950,6 +950,7 @@ EepromLoadErrors OpenTxEepromInterface::checkVersion(unsigned int version)
     case 220:
       // Refer radio/src/storage/conversions/conversions_219_220.cpp
       // ALL: TimerData split mode into separate mode and switch and change modes
+      // ALL: TimerData countdownStart invert value
       // ALL: convert more fields from zchar to normal string
       // COLORLCD: change CustomScreenData and TopBarPersistentData
       break;
