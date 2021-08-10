@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import platform
 import tarfile
+import pathlib
 from PIL import Image
 
 # if False, then sips will be used instead of ImageMagick
@@ -168,6 +169,8 @@ elif platform.system == "Darwin":
 
     # Following was based on MIT licensed work from retifrav
     # https://github.com/retifrav/python-scripts/blob/master/generate-iconset/generate-iconset.py
+
+    ext = pathlib.Path(ABS_LOGO_FILENAME).suffix
 
     class IconParameters():
         width = 0
