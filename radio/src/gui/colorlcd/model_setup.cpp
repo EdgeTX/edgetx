@@ -22,8 +22,90 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "storage/modelslist.h"
+#include "algorithm"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
+
+class RFProtocols
+{
+private:
+    const char * protocols;
+    int maxProtocols;
+    std::vector<std::string> labels;
+    uint8_t getProtoStringLength();
+
+public:
+    RFProtocols(const char * rfProtocols, int max);
+    int findProtocolIndex(int rfProtcolIndex);
+    int lookupProtocolIndex(int selectedIndex);
+    std::vector<std::string> &getLabels();
+};
+
+uint8_t RFProtocols::getProtoStringLength()
+{
+    return protocols[0];
+}
+
+RFProtocols::RFProtocols(const char *protocols, int max)
+{
+    this->protocols = protocols;
+    maxProtocols = max;
+
+    uint8_t len = protocols[0];
+    const char * value = &protocols[1];
+
+    for (int i = 0; i < max; i++)
+    {
+        std::string label = std::string(value, min<uint8_t>(len, strlen(value)));
+        labels.emplace_back(label);
+
+        value += len;
+    }
+    std::sort(labels.begin(), labels.end());
+}
+
+std::vector<std::string> &RFProtocols::getLabels()
+{
+    return labels;
+}
+
+int RFProtocols::lookupProtocolIndex(int selectedIndex)
+{
+    uint8_t len = getProtoStringLength();
+    const char *p = &protocols[1];
+
+    const char *protocolLabel = labels.at(selectedIndex).c_str();
+
+    int protocolIndex = 0;
+    for (; protocolIndex < maxProtocols; protocolIndex++)
+    {
+        if (strncmp(p, protocolLabel, min((int)strlen(protocolLabel), (int)len)) == 0)
+            break;
+
+        p += len;
+    }
+    assert(protocolIndex < maxProtocols);
+
+    return protocolIndex;
+}
+
+int RFProtocols::findProtocolIndex(int rfProtocolIndex)
+{
+    uint8_t len = getProtoStringLength();
+    const char *protocolLabel = &protocols[1] + len * rfProtocolIndex;
+
+    auto result = std::find_if(labels.begin(), labels.end(), [protocolLabel, len](std::string &a) {
+        auto theSame = strncmp(a.c_str(), protocolLabel, max((int)a.length(), (int)len)) == 0;
+        return theSame;
+    });
+    assert(result != labels.end());
+    return result - labels.begin();
+}
+
+// global pointer intialized once on the first call to update()
+RFProtocols *rfProtocols = nullptr;
+
+
 
 std::string switchWarninglabel(swsrc_t index)
 {
@@ -641,6 +723,7 @@ class ModuleWindow : public FormGroup {
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+<<<<<<< HEAD
 				
 				// Grid count for narrow/wide screen
 				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
@@ -648,8 +731,27 @@ class ModuleWindow : public FormGroup {
             this,
             grid.getFieldSlot(count, 0),
             STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST,
+=======
+
+        // initialize rfProtocols if it is not initialized already.  This is a hack
+        // because i dont know how to construct it at the exact right time after the module
+        // is loaded
+        if (rfProtocols == nullptr)
+            rfProtocols = new RFProtocols(STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_LAST);
+
+        multiRfProto = rfProtocols->findProtocolIndex(multiRfProto);
+
+        rfChoice = new Choice(
+            this,
+            grid.getFieldSlot(
+                g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0),
+            rfProtocols->getLabels(), MODULE_SUBTYPE_MULTI_FIRST,
+>>>>>>> Fixed Protocol Sorting in model_setup.cpp
             MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
             [=](int32_t newValue) {
+
+              newValue = rfProtocols->lookupProtocolIndex(newValue);
+
               g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
               g_model.moduleData[moduleIdx].subType = 0;
               if (mmSubProtocol != nullptr) mmSubProtocol->invalidate(); // always null ???
