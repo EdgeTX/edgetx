@@ -26,11 +26,9 @@ echo "=== Step 1: Checking if i386 requirement is satisfied ==="
 OUTPUT=x$(dpkg --print-foreign-architectures 2> /dev/null | grep i386) || :
 if [ "$OUTPUT" != "xi386" ]; then
     echo "Need to install i386 architecture first."
-    I386ARCH="no"
     sudo dpkg --add-architecture i386
 else
-    echo "Match was found, i386 requirement satisfied!"
-    I386ARCH="yes"
+    echo "i386 requirement satisfied!"
 fi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
@@ -140,12 +138,5 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished."
 fi
 
-if [[ $I386ARCH == "no" ]]; then
-## Likely running in WSL2
-  echo "Reloading .bashrc".
-  source ~/.bashrc
-  echo "Finished setting up EdgeTX development environment."
-else
-## Likely running on bare-metal or virtual machine
-  echo "Finished setting up EdgeTX development environment. Please reboot the computer."
-fi
+echo "Finished setting up EdgeTX development environment."
+echo "Please execute: source ~/.bashrc"
