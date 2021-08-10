@@ -745,6 +745,7 @@ extern const LanguagePack ptLanguagePack;
 extern const LanguagePack ruLanguagePack;
 extern const LanguagePack seLanguagePack;
 extern const LanguagePack skLanguagePack;
+extern const LanguagePack cnLanguagePack;
 extern const LanguagePack * const languagePacks[];
 
 #if defined(LANGUAGE_PACKS_DEFINITION)
@@ -763,6 +764,7 @@ const LanguagePack * const languagePacks[] = {
   &ruLanguagePack,
   &seLanguagePack,
   &skLanguagePack,
+  &cnLanguagePack,
   NULL
 };
 #endif
