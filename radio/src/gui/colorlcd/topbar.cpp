@@ -57,6 +57,15 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
     auto widget = new SetupWidgetsPageSlot(this, rect, topbar, i);
     if (i == 0) widget->setFocus();
   }
+#if defined(HARDWARE_TOUCH)
+      new Button(
+          this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
+          [this]() -> uint8_t {
+            this->deleteLater();
+            return 1;
+          },
+          NO_FOCUS | FORM_NO_BORDER);
+#endif
 }
 
 void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)

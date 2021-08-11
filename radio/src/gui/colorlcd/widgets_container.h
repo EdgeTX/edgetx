@@ -29,7 +29,11 @@
 #define WIDGET_NAME_LEN     10
 #define MAX_WIDGET_OPTIONS   5 // Name?
 
+#if LCD_W > LCD_H
 #define MAX_TOPBAR_ZONES     4
+#else
+#define MAX_TOPBAR_ZONES     2
+#endif
 #define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
 
 // Common 'ZoneOptionValue's among all layouts
