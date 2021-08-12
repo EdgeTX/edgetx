@@ -41,6 +41,8 @@ class Theme480: public OpenTxTheme
     {
       TRACE("Load EdgeTX theme colors");
 
+      lcdColorTable[DEFAULT_COLOR_INDEX] = RGB(18, 94, 153);
+
       lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
       lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
       lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);

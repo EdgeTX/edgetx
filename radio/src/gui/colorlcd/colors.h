@@ -27,6 +27,9 @@
 // TODO common code, not in target
 enum LcdColorIndex
 {
+  // this one first for when colour is not set
+  DEFAULT_COLOR_INDEX,
+
   COLOR_THEME_PRIMARY1_INDEX,
   COLOR_THEME_PRIMARY2_INDEX,
   COLOR_THEME_PRIMARY3_INDEX,
@@ -79,7 +82,7 @@ inline void lcdSetColor(uint16_t color)
   lcdColorTable[CUSTOM_COLOR_INDEX] = color;
 }
 
-#define COLOR(index) ((uint32_t)lcdColorTable[ unsigned(index) & 0xFF ] << 16u)
+#define COLOR(index) ((uint32_t)lcdColorTable[unsigned(index) >= LCD_COLOR_COUNT ? CUSTOM_COLOR_INDEX : unsigned(index)] << 16u)
 
 #define COLOR_THEME_PRIMARY1              COLOR(COLOR_THEME_PRIMARY1_INDEX)
 #define COLOR_THEME_PRIMARY2              COLOR(COLOR_THEME_PRIMARY2_INDEX)
@@ -92,7 +95,7 @@ inline void lcdSetColor(uint16_t color)
 #define COLOR_THEME_ACTIVE                COLOR(COLOR_THEME_ACTIVE_INDEX)
 #define COLOR_THEME_WARNING               COLOR(COLOR_THEME_WARNING_INDEX)
 #define COLOR_THEME_DISABLED              COLOR(COLOR_THEME_DISABLED_INDEX)
-#define CUSTOM_COLOR                   COLOR(CUSTOM_COLOR_INDEX)
+#define CUSTOM_COLOR                      COLOR(CUSTOM_COLOR_INDEX)
 
 #if defined(WINDOWS_INSPECT_BORDERS)
   #define WINDOWS_INSPECT_BORDER_COLOR COLOR_THEME_PRIMARY3
