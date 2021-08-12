@@ -167,7 +167,7 @@ static int luaLcdDrawLine(lua_State *L)
   coord_t x2 = luaL_checkunsigned(L, 3);
   coord_t y2 = luaL_checkunsigned(L, 4);
   uint8_t pat = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_optunsigned(L, 3, 0);
+  LcdFlags flags = luaL_optunsigned(L, 6, 0);
   flags = COLOR(COLOR_VAL(flags));
 
   if (x1 > LCD_W || y1 > LCD_H || x2 > LCD_W || y2 > LCD_H)
