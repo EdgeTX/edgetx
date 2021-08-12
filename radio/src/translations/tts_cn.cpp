@@ -38,7 +38,7 @@
 
 #include "opentx.h"
 
-enum EnglishPrompts {
+enum ChinesePrompts {
   CN_PROMPT_NUMBERS_BASE = 0,
   CN_PROMPT_ZERO = CN_PROMPT_NUMBERS_BASE+0,       //02-99
   CN_PROMPT_HUNDRED = CN_PROMPT_NUMBERS_BASE+100,  //100,200 .. 900
