@@ -16,6 +16,7 @@
  * - Rob Thomson
  * - Romolo Manfredini <romolo.manfredini@gmail.com>
  * - Thomas Husterer
+ * - Ziyu Ren
  *
  * EdgeTX is based on code named
  * gruvin9x by Bryan J. Rentoul: http://code.google.com/p/gruvin9x/,
