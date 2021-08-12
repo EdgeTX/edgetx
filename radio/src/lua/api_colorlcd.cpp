@@ -197,7 +197,7 @@ Draw a text beginning at (x,y)
 
 @param text (string) text to display
 
-@param flags (unsigned number) drawing flags. All values can be
+@param flags (optional) drawing flags. All values can be
 combined together using the + character. ie BLINK + DBLSIZE.
 See the [Appendix](../appendix/fonts.md) for available characters in each font set.
  * `0 or not specified` normal font
@@ -266,7 +266,7 @@ Get the width and height of a text string drawn with flags
 
 @param text (string)
 
-@param flags (unsigned number) drawing flags. See lcd.drawText.
+@param flags (optional) drawing flags. See lcd.drawText.
 
 @status current Introduced in 2.5.0
 */
@@ -288,7 +288,7 @@ Display a value formatted as time at (x,y)
 
 @param value (number) time in seconds
 
-@param flags (unsigned number) drawing flags:
+@param flags (optional) drawing flags:
  * `0 or not specified` normal representation (minutes and seconds)
  * `TIMEHOUR` display hours
  * other general LCD flag also apply
@@ -330,7 +330,7 @@ Display a number at (x,y)
 
 @param value (number) value to display
 
-@param flags (unsigned number) drawing flags:
+@param flags (optional) drawing flags:
  * `0 or not specified` display with no decimal (like abs())
  * `PREC1` display with one decimal place (number 386 is displayed as 38.6)
  * `PREC2` display with tow decimal places (number 386 is displayed as 3.86)
@@ -391,7 +391,7 @@ Display a telemetry value at (x,y)
 @param source can be a source identifier (number) or a source name (string).
 See getValue()
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.0.6, changed in 2.1.0 (only telemetry sources are valid)
 */
@@ -431,7 +431,7 @@ Draw a text representation of switch at (x,y)
 @param switch (number) number of switch to display, negative number
 displays negated switch
 
-@param flags (unsigned number) drawing flags, only SMLSIZE, BLINK and INVERS.
+@param flags (optional) drawing flags, only SMLSIZE, BLINK and INVERS.
 
 @status current Introduced in 2.0.0
 */
@@ -458,7 +458,7 @@ Displays the name of the corresponding input as defined by the source at (x,y)
 
 @param source (number) source index
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.0.0
 */
@@ -647,7 +647,7 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 
 @param h (number) height in pixels
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @param t (number) thickness in pixels, defaults to 1 (only on Horus)
 
@@ -684,7 +684,7 @@ Draw a solid rectangle from top left corner (x,y) of specified width and height
 
 @param h (number) height in pixels
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.0.0
 */
@@ -724,7 +724,7 @@ Draw a simple gauge that is filled based upon fill value
 
 @param maxfill (number) total value of fill
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.0.0, changed in 2.2.0
 */
@@ -866,7 +866,7 @@ Draw a circle at (x, y) of specified radius
 
 @param r (number) radius in pixels
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.4.0
 */
@@ -896,7 +896,7 @@ Draw a filled circle at (x, y) of specified radius
 
 @param r (number) radius in pixels
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.4.0
 */
@@ -908,7 +908,7 @@ static int luaLcdDrawFilledCircle(lua_State *L)
   coord_t x = luaL_checkunsigned(L, 1);
   coord_t y = luaL_checkunsigned(L, 2);
   coord_t r = luaL_checkunsigned(L, 3);
-  LcdFlags flags = luaL_checkunsigned(L, 4);
+  LcdFlags flags = luaL_optunsigned(L, 4, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -924,7 +924,7 @@ Draw a triangle
 
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.4.0
 */
@@ -939,7 +939,7 @@ static int luaLcdDrawTriangle(lua_State *L)
   coord_t y2 = luaL_checkunsigned(L, 4);
   coord_t x3 = luaL_checkunsigned(L, 5);
   coord_t y3 = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_checkunsigned(L, 7);
+  LcdFlags flags = luaL_optunsigned(L, 7, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -957,7 +957,7 @@ Draw a filled triangle
 
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
-@param flags (unsigned number) drawing flags
+@param flags (optional) drawing flags
 
 @status current Introduced in 2.4.0
 */
@@ -972,7 +972,7 @@ static int luaLcdDrawFilledTriangle(lua_State *L)
   coord_t y2 = luaL_checkunsigned(L, 4);
   coord_t x3 = luaL_checkunsigned(L, 5);
   coord_t y3 = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_checkunsigned(L, 7);
+  LcdFlags flags = luaL_optunsigned(L, 7, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -981,6 +981,21 @@ static int luaLcdDrawFilledTriangle(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function lcd.drawArc(x, y, r, start, end [, flags])
+
+Draw an arc
+
+@param x,y (positive numbers) coordinates of the center
+
+@param r (positive number) radius
+
+@param start,end (positive numbers) start and end of the arc
+
+@param flags (optional) drawing flags
+
+@status current Introduced in 2.4.0
+*/
 static int luaLcdDrawArc(lua_State *L)
 {
   if (!luaLcdAllowed || !luaLcdBuffer)
@@ -991,7 +1006,7 @@ static int luaLcdDrawArc(lua_State *L)
   coord_t r = luaL_checkunsigned(L, 3);
   int start = luaL_checkunsigned(L, 4);
   int end = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_optunsigned(L, 6, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -1001,6 +1016,21 @@ static int luaLcdDrawArc(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function lcd.drawPie(x, y, r, start, end [, flags])
+
+Draw a pie slice
+
+@param x,y (positive numbers) coordinates of the center
+
+@param r (positive number) radius
+
+@param start,end (positive numbers) start and end of the pie slice
+
+@param flags (optional) drawing flags
+
+@status current Introduced in 2.4.0
+*/
 static int luaLcdDrawPie(lua_State *L)
 {
   if (!luaLcdAllowed || !luaLcdBuffer)
@@ -1011,7 +1041,7 @@ static int luaLcdDrawPie(lua_State *L)
   coord_t r = luaL_checkunsigned(L, 3);
   int start = luaL_checkunsigned(L, 4);
   int end = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_checkunsigned(L, 6);
+  LcdFlags flags = luaL_optunsigned(L, 6, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -1021,6 +1051,21 @@ static int luaLcdDrawPie(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function lcd.drawAnnulus(x, y, r1, r2, start, end [, flags])
+
+Draw an arc
+
+@param x,y (positive numbers) coordinates of the center
+
+@param r1,r2 (positive numbers) radii of the inside and outside of the annulus
+
+@param start,end (positive numbers) start and end of the annulus
+
+@param flags (optional) drawing flags
+
+@status current Introduced in 2.4.0
+*/
 static int luaLcdDrawAnnulus(lua_State *L)
 {
   if (!luaLcdAllowed || !luaLcdBuffer)
@@ -1032,7 +1077,7 @@ static int luaLcdDrawAnnulus(lua_State *L)
   coord_t r2 = luaL_checkunsigned(L, 4);
   int start = luaL_checkunsigned(L, 5);
   int end = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_checkunsigned(L, 7);
+  LcdFlags flags = luaL_optunsigned(L, 7, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -1041,6 +1086,21 @@ static int luaLcdDrawAnnulus(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function lcd.drawLineWithClipping(x1, y1, x2, y2, xmin, xmax, ymin, ymax, pattern [, flags])
+
+Draw a line only inside a rectangle
+
+@param x1,y1,x2,y1 (positive numbers) coordinates of the start and end of the unclipped line
+
+@param xmin,xmax,ymin,ymax (positive numbers) the limits of the rectangle inside which the line is drawn
+
+@param pattern (FORCE, ERASE, DOTTED)
+
+@param flags (optional) drawing flags
+
+@status current Introduced in 2.4.0
+*/
 static int luaLcdDrawLineWithClipping(lua_State *L)
 {
   if (!luaLcdAllowed || !luaLcdBuffer)
@@ -1055,7 +1115,7 @@ static int luaLcdDrawLineWithClipping(lua_State *L)
   coord_t ymin = luaL_checkunsigned(L, 7);
   coord_t ymax = luaL_checkunsigned(L, 8);
   uint8_t pat = luaL_checkunsigned(L, 9);
-  LcdFlags flags = luaL_checkunsigned(L, 10);
+  LcdFlags flags = luaL_optunsigned(L, 10, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
@@ -1063,7 +1123,7 @@ static int luaLcdDrawLineWithClipping(lua_State *L)
   coord_t dc_xmin; coord_t dc_xmax; coord_t dc_ymin; coord_t dc_ymax;
   luaLcdBuffer->getClippingRect(dc_xmin, dc_xmax, dc_ymin, dc_ymax);
 
-  // resticts given clipping rect by drawing clipping rect
+  // restricts given clipping rect by drawing clipping rect
   if (dc_xmin > xmin) xmin = dc_xmin;
   if (dc_xmax < xmax) xmax = dc_xmax;
   if (dc_ymin > ymin) ymin = dc_ymin;
@@ -1137,6 +1197,19 @@ static void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t
   }
 }
 
+/*luadoc
+@function lcd.drawHudRectangle(pitch, roll, xmin, xmax, ymin, ymax [, flags])
+
+Draw a rectangle in perspective
+
+@param pitch,roll (positive numbers) pitch and roll to define the orientation of the rectangle
+
+@param xmin,xmax,ymin,ymax (positive numbers) the limits of the rectangle
+
+@param flags (optional) drawing flags
+
+@status current Introduced in 2.4.0
+*/
 static int luaLcdDrawHudRectangle(lua_State *L)
 {
   if (!luaLcdAllowed || !luaLcdBuffer)
@@ -1148,7 +1221,7 @@ static int luaLcdDrawHudRectangle(lua_State *L)
   coord_t xmax = luaL_checkunsigned(L, 4);
   coord_t ymin = luaL_checkunsigned(L, 5);
   coord_t ymax = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_checkunsigned(L, 7);
+  LcdFlags flags = luaL_optunsigned(L, 7, 0);
 
   flags = (flags & 0xFFFF) | COLOR(COLOR_VAL(flags));
 
