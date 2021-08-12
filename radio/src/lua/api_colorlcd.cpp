@@ -769,16 +769,23 @@ Set a color for specific area
  * `COLOR_THEME_DISABLED`
  * `CUSTOM_COLOR`
 
-@param color (number) color in 5/6/5 rgb format. The following prefined colors are available
- * `WHITE`
- * `GREY`
- * `LIGHTGREY`
- * `DARKGREY`
- * `BLACK`
- * `YELLOW`
- * `BLUE`
- * `RED`
- * `DARKRED`
+@param color (number) color in 5/6/5 rgb format (see lcd.RGB function). The following prefined colors are also available:
+  * `BLACK`
+  * `WHITE`
+  * `LIGHTWHITE`
+  * `YELLOW`
+  * `BLUE`
+  * `DARKBLUE`
+  * `GREY`
+  * `DARKGREY`
+  * `LIGHTGREY`
+  * `RED`
+  * `DARKRED`
+  * `GREEN`
+  * `LIGHTBROWN`
+  * `DARKBROWN`
+  * `BRIGHTGREEN`
+  * `ORANGE`
 
 @notice Only available on Colorlcd radios
 
@@ -789,7 +796,15 @@ static int luaLcdSetColor(lua_State *L)
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
   unsigned int color = luaL_checkunsigned(L, 2);
 
-  if (index < LCD_COLOR_COUNT)
+  // Boundary check - also, do not change literal colors
+  if (index >= COLOR_BLACK_INDEX)
+    return 0;
+  
+  // RGB value or color flag?
+  unsigned int idx = COLOR_VAL(color);
+  if (idx > DEFAULT_COLOR_INDEX && idx < LCD_COLOR_COUNT)
+    lcdColorTable[index] = lcdColorTable[idx];
+  else
     lcdColorTable[index] = color;
 
   return 0;
