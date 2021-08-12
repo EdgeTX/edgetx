@@ -1,22 +1,6 @@
 /*
  * Authors (alphabetical order)
- * - Andre Bernet <bernet.andre@gmail.com>
- * - Andreas Weitl
- * - Bertrand Songis <bsongis@gmail.com>
- * - Bryan J. Rentoul (Gruvin) <gruvin@gmail.com>
- * - Cameron Weeks <th9xer@gmail.com>
- * - Erez Raviv
- * - Gabriel Birkus
- * - Jean-Pierre Parisy
- * - Karl Szmutny
- * - Michael Blandford
- * - Michal Hlavinka
- * - Pat Mackenzie
- * - Philip Moss
- * - Rob Thomson
- * - Romolo Manfredini <romolo.manfredini@gmail.com>
- * - Thomas Husterer
- * - Ziyu Ren
+ * - Ziyu Ren（radiomaster）
  *
  * EdgeTX is Based on code named
  *   opentx - https://github.com/opentx/opentx
