@@ -1,6 +1,6 @@
 /*
  * Authors (alphabetical order)
- * - Ziyu Ren（radiomaster）
+ * - Ziyu Ren (Radiomaster)
  *
  * EdgeTX is Based on code named
  *   opentx - https://github.com/opentx/opentx
