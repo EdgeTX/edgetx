@@ -103,7 +103,7 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
 
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
-  if (version >= 219 && IS_FAMILY_HORUS_OR_T16(board))
+  if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)))
     return 4;
   return Boards::getCapability(board, Board::Sliders);
 }
@@ -139,7 +139,7 @@ inline int SWITCHES_CONFIG_SIZE(Board::Type board, int version)
 
 inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 {
-  if (IS_FAMILY_HORUS_OR_T16(board))
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
     return 2;
   else
     return 0;
@@ -160,7 +160,7 @@ inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 #define MAX_TELEMETRY_SENSORS(board, version) (version <= 218 ? 32 : ((IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board)) ? 60 : 40))
 #define NUM_PPM_INPUTS(board, version)        16
 #define ROTENC_COUNT(board, version)          ((IS_STM32(board) && version >= 218) ? 0 : 1)
-#define MAX_AUX_TRIMS(board)                  (IS_FAMILY_HORUS_OR_T16(board) ? 2 : 0)
+#define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ? 2 : 0)
 
 inline int switchIndex(int i, Board::Type board, unsigned int version)
 {
@@ -2753,7 +2753,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   internalField.Append(new UnsignedField<16>(this, chkSum));
 
-  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+  if (!IS_FAMILY_HORUS_OR_T16(board) || (IS_FLYSKY_NV14(board))) {
     internalField.Append(new UnsignedField<8>(this, generalData.currModelIndex));
     internalField.Append(new UnsignedField<8>(this, generalData.contrast));
   }
@@ -2819,11 +2819,11 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new SignedField<8>(this, generalData.PPM_Multiplier));
   internalField.Append(new SignedField<8>(this, generalData.hapticLength));
 
-  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board))) {
+  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.reNavigation));
   }
 
-  if (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) {
+  if ((!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.stickReverse));
   }
 
@@ -3080,8 +3080,10 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
     internalField.Append(new SignedField<8>(this, generalData.gyroOffset, "Gyro Offset"));
   }
 
-  if (version >= 220)
+  if (version >= 220) {
     internalField.Append(new SignedField<2>(this, generalData.uartSampleMode, "Uart Sample Mode"));
+    //internalField.Append(new SpareBitsField<6>(this));
+  }
 }
 
 void OpenTxGeneralData::beforeExport()

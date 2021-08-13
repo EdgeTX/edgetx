@@ -270,6 +270,11 @@ inline bool IS_FAMILY_T12(Board::Type board)
   return board == Board::BOARD_JUMPER_T12 || board == Board::BOARD_RADIOMASTER_TX12 || board == Board::BOARD_RADIOMASTER_T8 || board == Board::BOARD_JUMPER_TLITE;
 }
 
+inline bool IS_FLYSKY_NV14(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NV14);
+}
+
 inline bool IS_TARANIS_XLITE(Board::Type board)
 {
   return board == Board::BOARD_TARANIS_XLITE || board == Board::BOARD_TARANIS_XLITES;
@@ -327,7 +332,7 @@ inline bool IS_TARANIS_SMALL(Board::Type board)
 
 inline bool IS_TARANIS(Board::Type board)
 {
-  return IS_TARANIS_X9(board) || IS_TARANIS_SMALL(board) || IS_FLYSKY_NV14(board);
+  return IS_TARANIS_X9(board) || IS_TARANIS_SMALL(board);
 }
 
 inline bool IS_HORUS_X10(Board::Type board)
@@ -347,7 +352,7 @@ inline bool IS_FAMILY_HORUS(Board::Type board)
 
 inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
-  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board);
+  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -367,7 +372,7 @@ inline bool IS_ARM(Board::Type board)
 
 inline bool HAS_LARGE_LCD(Board::Type board)
 {
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board) || IS_FLYSKY_NV14(board);
+  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board);
 }
 
 inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
@@ -389,9 +394,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
-}
-
-inline bool IS_FLYSKY_NV14(Board::Type board)
-{
-  return (board == Board::BOARD_FLYSKY_NV14);
 }

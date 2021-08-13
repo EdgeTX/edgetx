@@ -629,7 +629,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasSDLogs:
       return true;
     case LcdWidth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FLYSKY_NV14(board))
+        return 320;
+      else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
       else if (IS_TARANIS_SMALL(board))
         return 128;
@@ -638,7 +640,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 128;
     case LcdHeight:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FLYSKY_NV14(board))
+        return 480;
+      else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
       else
         return 64;
@@ -728,9 +732,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
     case HasAux2SerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board) && !IS_FLYSKY_NV14(board)) ? true : false;
     case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
       return ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) ? true : false;
     case HasADCJitterFilter:
@@ -766,14 +770,16 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board);
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
           case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board);
+            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
             return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
+          case PULSES_AFHDS3:
+            return IS_FLYSKY_NV14(board);
           default:
             return false;
         }
@@ -1390,6 +1396,8 @@ void registerOpenTxFirmwares()
   /* FlySky NV14 board */
   firmware = new OpenTxFirmware("opentx-nv14", QCoreApplication::translate("Firmware", "FlySky NV14"), BOARD_FLYSKY_NV14);
   addOpenTxFrskyOptions(firmware);
+  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
 
   /* 9XR-Pro */

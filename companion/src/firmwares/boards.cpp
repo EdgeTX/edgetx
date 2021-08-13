@@ -267,14 +267,14 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
   }
   else if (IS_FLYSKY_NV14(board)) {
     const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS, "SA"},
-      {SWITCH_3POS, "SB"},
-      {SWITCH_2POS, "SC"},
-      {SWITCH_2POS, "SD"},
-      {SWITCH_2POS, "SE"},
-      {SWITCH_3POS, "SF"},
-      {SWITCH_3POS, "SG"},
-      {SWITCH_2POS, "SH"}
+      {SWITCH_2POS,   "SA"},
+      {SWITCH_3POS,   "SB"},
+      {SWITCH_TOGGLE, "SC"},
+      {SWITCH_2POS,   "SD"},
+      {SWITCH_TOGGLE, "SE"},
+      {SWITCH_3POS,   "SF"},
+      {SWITCH_3POS,   "SG"},
+      {SWITCH_TOGGLE, "SH"}
     };
     if (index < DIM(switches))
       return switches[index];
@@ -347,7 +347,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 1;
       else if (IS_JUMPER_TLITE(board))
         return 0;
-      else if (IS_TARANIS_SMALL(board) || (IS_FLYSKY_NV14(board)))
+      else if (IS_TARANIS_SMALL(board))
         return 2;
       else if (IS_TARANIS_X9E(board))
         return 4;
@@ -355,6 +355,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 5;
       else if (IS_HORUS_X12S(board))
         return 3;
+      else if (IS_FLYSKY_NV14(board))
+        return 2;
       else
         return 3;
 
@@ -440,7 +442,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 9;
 
     case NumTrims:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
         return 6;
       else
         return 4;
@@ -627,6 +629,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX12";
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
+    case BOARD_FLYSKY_NV14:
+      return "FlySky NV14";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
