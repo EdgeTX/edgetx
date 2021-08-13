@@ -103,7 +103,7 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
 
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
-  if (version >= 219 && IS_FAMILY_HORUS_OR_T16(board))
+  if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)))
     return 4;
   return Boards::getCapability(board, Board::Sliders);
 }
@@ -2755,7 +2755,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   internalField.Append(new UnsignedField<16>(this, chkSum));
 
-  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+  if (!IS_FAMILY_HORUS_OR_T16(board) || (IS_FLYSKY_NV14(board))) {
     internalField.Append(new UnsignedField<8>(this, generalData.currModelIndex));
     internalField.Append(new UnsignedField<8>(this, generalData.contrast));
   }
@@ -2821,11 +2821,11 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new SignedField<8>(this, generalData.PPM_Multiplier));
   internalField.Append(new SignedField<8>(this, generalData.hapticLength));
 
-  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board))) {
+  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.reNavigation));
   }
 
-  if (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) {
+  if ((!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.stickReverse));
   }
 
@@ -3082,8 +3082,10 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
     internalField.Append(new SignedField<8>(this, generalData.gyroOffset, "Gyro Offset"));
   }
 
-  if (version >= 220)
+  if (version >= 220) {
     internalField.Append(new SignedField<2>(this, generalData.uartSampleMode, "Uart Sample Mode"));
+    //internalField.Append(new SpareBitsField<6>(this));
+  }
 }
 
 void OpenTxGeneralData::beforeExport()

@@ -233,7 +233,10 @@ GeneralSettings::GeneralSettings()
     }
   }
 
-  strcpy(themeName, "EdgeTX");
+  if (IS_FLYSKY_NV14(board))
+    strcpy(themeName, "FlySky");
+  else
+    strcpy(themeName, "EdgeTX");
   static const uint8_t blob1[] = { 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x03, 0xe1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   memcpy(themeOptionValue[0], blob1, sizeof(blob1));
@@ -250,10 +253,14 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     return;
 
   // TODO: move to Boards, like with switches
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
     potConfig[1] = Board::POT_MULTIPOS_SWITCH;
     potConfig[2] = Board::POT_WITH_DETENT;
+  }
+  else if (IS_FLYSKY_NV14(board)) {
+    potConfig[0] = Board::POT_WITHOUT_DETENT;
+    potConfig[1] = Board::POT_WITHOUT_DETENT;
   }
   else if (IS_TARANIS_XLITE(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;
