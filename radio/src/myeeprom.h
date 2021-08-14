@@ -25,7 +25,11 @@
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
 
-#define EEPROM_VER             220
+#if defined(SDCARD_YAML)
+  #define EEPROM_VER           255
+#else
+  #define EEPROM_VER           220
+#endif
 #define FIRST_CONV_EEPROM_VER  219
 
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol

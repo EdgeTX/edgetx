@@ -25,6 +25,8 @@
 #if defined(COLORLCD)
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
+#include "storage/sdcard_raw.h"
+#include "storage/sdcard_yaml.h"
 
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
@@ -73,9 +75,11 @@ void convertRadioData(int version)
   if (version == 219) {
     convertRadioData_219_to_220(g_eeGeneral);
     storageDirty(EE_GENERAL);
-    storageCheck(true);
   }
 #endif
+  g_eeGeneral.version = EEPROM_VER;
+  storageDirty(EE_GENERAL);
+  storageCheck(true);
   converted++;
 
 #if defined(SIMU)
@@ -87,22 +91,32 @@ void convertRadioData(int version)
     for (auto model_ptr : *category_ptr) {
 
       uint8_t model_version;
-      const char* filename = model_ptr->modelFilename;
+      char* filename = model_ptr->modelFilename;
 
       TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
       drawProgressScreen(filename, converted, to_convert);
 
-      error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
+      error = readModelBin(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
       if (!error) {
 
         convertModelData(model_version);
 
+#if defined(SDCARD_YAML)
+        //TODO: convert filename  & output to YAML directly
+        const char* ext = strrchr(filename, '.');
+        if ((ext != nullptr) && !strncmp(ext, MODELS_EXT, 4)) {
+          memcpy((void*)ext, (void*)YAML_EXT, sizeof(YAML_EXT) - 1);
+        }
+        if (!strncmp(filename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
+          strncpy(g_eeGeneral.currModelFilename, filename, LEN_MODEL_FILENAME+1);
+        }
+        error = writeModelYaml(filename);
+#else
         char path[256];
         getModelPath(path, filename);
 
-        //TODO: if YAML is used, output to YAML directly
         error = writeFileBin(path, (uint8_t *)&g_model, sizeof(g_model));
-
+#endif
         //TODO: what should be done with this error?
       }
 
@@ -114,6 +128,12 @@ void convertRadioData(int version)
     }
   }
 
+#if defined(SDCARD_YAML)
+  modelslist.save();
+  storageDirty(EE_GENERAL);
+  storageCheck(true);
+#endif
+  
   // reload models list
   modelslist.clear();
   modelslist.load();
