@@ -170,7 +170,8 @@ const char * writeGeneralSettingsBin()
   return writeFileBin(RADIO_SETTINGS_PATH, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral));
 }
 
-void storageCreateModelsListBin()
+#if !defined(SDCARD_YAML)
+void storageCreateModelsList()
 {
   FIL file;
 
@@ -180,3 +181,4 @@ void storageCreateModelsListBin()
     f_close(&file);
   }
 }
+#endif

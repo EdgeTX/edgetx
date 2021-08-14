@@ -158,6 +158,7 @@ void storageReadAll()
     if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
       currentLanguagePackIdx = i;
       currentLanguagePack = languagePacks[i];
+      break;
     }
   }
 

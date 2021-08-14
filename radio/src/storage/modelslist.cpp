@@ -136,7 +136,7 @@ bool ModelCell::fetchRfData()
   uint16_t size;
   uint8_t  version;
 
-  const char * err = openFile(buf, &file, &size, &version);
+  const char * err = openFileBin(buf, &file, &size, &version);
   if (err || version != EEPROM_VER) return false;
 
   FSIZE_t start_offset = f_tell(&file);
@@ -299,23 +299,15 @@ void ModelsList::clear()
   init();
 }
 
-bool ModelsList::load()
+bool ModelsList::loadTxt()
 {
   char line[LEN_MODELS_IDX_LINE+1];
   ModelsCategory * category = nullptr;
   ModelCell * model = nullptr;
 
-  if (loaded)
-    return true;
-
-#if !defined(SDCARD_YAML)
   FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
-#else
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-#endif
   if (result == FR_OK) {
 
-#if !defined(SDCARD_YAML)
     // TXT reader
     while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
       int len = strlen(line); // TODO could be returned by readNextLine
@@ -339,7 +331,20 @@ bool ModelsList::load()
         modelsCount += 1;
       }
     }
-#else
+
+    f_close(&file);
+    return true;
+  }
+
+  return false;
+}
+
+#if defined(SDCARD_YAML)
+bool ModelsList::loadYaml()
+{
+  char line[LEN_MODELS_IDX_LINE+1];
+  FRESULT result = f_open(&file, RADIO_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  if (result == FR_OK) {
     // YAML reader
     TRACE("YAML modelslist reader");
 
@@ -357,26 +362,45 @@ bool ModelsList::load()
         break;
     }
 
-    // debug output
-    //modelslist.dump();
-#endif
-
     f_close(&file);
+    return true;
   }
 
+  return false;
+}
+#endif
+
+bool ModelsList::load()
+{
+  if (loaded)
+    return true;
+
+  bool res = false;
+#if !defined(SDCARD_YAML)
+  res = loadTxt();
+#else
+  FILINFO fno;
+  if (f_stat(RADIO_MODELSLIST_YAML_PATH, &fno) != FR_OK) {
+    res = loadTxt();
+  } else {
+    res = loadYaml();
+  }
+#endif
+
   if (!currentModel) {
-    if (model) {
-      currentModel = model;
+    if (categories.empty()) {
+      currentCategory = new ModelsCategory("Models");
+      categories.push_back(currentCategory);
+    } else {
+      currentCategory = *categories.begin();
+      if (!currentCategory->empty()) {
+        currentModel = *currentCategory->begin();
+      }
     }
-    else {
-      category = new ModelsCategory("Models");
-      categories.push_back(category);
-    }
-    currentCategory = category;
   }
 
   loaded = true;
-  return true;
+  return res;
 }
 
 void ModelsList::save()
@@ -386,10 +410,7 @@ void ModelsList::save()
 #else
   FRESULT result = f_open(&file, RADIO_MODELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
 #endif
-
-  if (result != FR_OK) {
-    return;
-  }
+  if (result != FR_OK) return;
 
   for (list<ModelsCategory *>::iterator it = categories.begin();
        it != categories.end(); ++it) {

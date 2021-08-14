@@ -57,7 +57,7 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
-option(YAML_STORAGE "Enable YAML storage" NO)
+option(YAML_STORAGE "Enable YAML storage" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -160,12 +160,9 @@ if(${STORAGE} STREQUAL SDCARD)
     set(SRC ${SRC} storage/sdcard_raw.cpp)
     add_definitions(-DSDCARD_RAW)
   elseif(${STORAGE_FORMAT} STREQUAL YAML)
-    # TODO: how do we check if the conversions
-    #       should be done from SD card or EEPROM?
     set(SRC ${SRC} storage/sdcard_yaml.cpp storage/sdcard_raw.cpp)
     add_definitions(-DSDCARD_YAML)
     include(storage/yaml/CMakeLists.txt)
-    #add_subdirectory(storage/yaml)
   endif()
 elseif(${STORAGE} STREQUAL EEPROM)
   set(SRC ${SRC} storage/eeprom_common.cpp)
