@@ -54,24 +54,7 @@ class Theme480: public OpenTxTheme
       lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
       lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
       lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
-      
-      // Literal colors
-      lcdColorTable[COLOR_BLACK_INDEX] = BLACK;
-      lcdColorTable[COLOR_WHITE_INDEX] = WHITE;
-      lcdColorTable[COLOR_LIGHTWHITE_INDEX] = LIGHTWHITE;
-      lcdColorTable[COLOR_YELLOW_INDEX] = YELLOW;
-      lcdColorTable[COLOR_BLUE_INDEX] = BLUE;
-      lcdColorTable[COLOR_DARKBLUE_INDEX] = DARKBLUE;
-      lcdColorTable[COLOR_GREY_INDEX] = GREY;
-      lcdColorTable[COLOR_DARKGREY_INDEX] = DARKGREY;
-      lcdColorTable[COLOR_LIGHTGREY_INDEX] = LIGHTGREY;
-      lcdColorTable[COLOR_RED_INDEX] = RED;
-      lcdColorTable[COLOR_DARKRED_INDEX] = DARKRED;
-      lcdColorTable[COLOR_GREEN_INDEX] = GREEN;
-      lcdColorTable[COLOR_LIGHTBROWN_INDEX] = LIGHTBROWN;
-      lcdColorTable[COLOR_DARKBROWN_INDEX] = DARKBROWN;
-      lcdColorTable[COLOR_BRIGHTGREEN_INDEX] = BRIGHTGREEN;
-      lcdColorTable[COLOR_ORANGE_INDEX] = ORANGE;
+      lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
     }
 
     void loadMenuIcon(uint8_t index, const uint8_t * lbm) const

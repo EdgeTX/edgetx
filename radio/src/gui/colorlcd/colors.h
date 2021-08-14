@@ -42,24 +42,6 @@ enum LcdColorIndex
   COLOR_THEME_WARNING_INDEX,
   COLOR_THEME_DISABLED_INDEX,
   CUSTOM_COLOR_INDEX,
-
-  // Literal colors
-  COLOR_BLACK_INDEX,
-  COLOR_WHITE_INDEX,
-  COLOR_LIGHTWHITE_INDEX,
-  COLOR_YELLOW_INDEX,
-  COLOR_BLUE_INDEX,
-  COLOR_DARKBLUE_INDEX,
-  COLOR_GREY_INDEX,
-  COLOR_DARKGREY_INDEX,
-  COLOR_LIGHTGREY_INDEX,
-  COLOR_RED_INDEX,
-  COLOR_DARKRED_INDEX,
-  COLOR_GREEN_INDEX,
-  COLOR_LIGHTBROWN_INDEX,
-  COLOR_DARKBROWN_INDEX,
-  COLOR_BRIGHTGREEN_INDEX,
-  COLOR_ORANGE_INDEX,
   
   // this one MUST be last
   LCD_COLOR_COUNT,
@@ -90,6 +72,8 @@ enum LcdColorIndex
 #define BRIGHTGREEN                    RGB(0, 180, 60)
 #define ORANGE                         RGB(229, 100, 30)
 
+#define RGB2FLAGS(r, g, b)             (COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG)
+
 //
 // Indexed colors
 //
@@ -100,7 +84,7 @@ inline void lcdSetColor(uint16_t color)
   lcdColorTable[CUSTOM_COLOR_INDEX] = color;
 }
 
-#define COLOR(index) ((uint32_t)lcdColorTable[unsigned(index) >= LCD_COLOR_COUNT ? CUSTOM_COLOR_INDEX : unsigned(index)] << 16u)
+#define COLOR(index) ((uint32_t)lcdColorTable[unsigned(index & 0xFF) >= LCD_COLOR_COUNT ? DEFAULT_COLOR_INDEX : unsigned(index & 0xFF)] << 16u)
 
 #define COLOR_THEME_PRIMARY1              COLOR(COLOR_THEME_PRIMARY1_INDEX)
 #define COLOR_THEME_PRIMARY2              COLOR(COLOR_THEME_PRIMARY2_INDEX)
