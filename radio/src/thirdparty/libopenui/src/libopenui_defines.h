@@ -28,14 +28,15 @@
 
 /* drawText flags */
 #define LEFT                           0x00u /* align left */
+// 0x01u used by Lua in api_colorlcd.h
 #define VCENTERED                      0x02u /* align center vertically */
 #define CENTERED                       0x04u /* align center */
 #define RIGHT                          0x08u /* align right */
 #define SHADOWED                       0x80u /* black copy at +1 +1 */
-// unused 0x1000u
+// 0x1000u used by Lua in api_colorlcd.h
 #define SPACING_NUMBERS_CONST          0x2000u
 #define VERTICAL                       0x4000u
-// unused 0x8000u
+// 0x8000u used by Lua in api_colorlcd.h
 
 /* drawNumber flags */
 #define LEADING0                       0x10u
