@@ -21,6 +21,11 @@
 
 #include "opentx.h"
 
+#if !defined(EEPROM)
+#include "storage/sdcard_common.h"
+#include "storage/modelslist.h"
+#endif
+
 // TODO find why we need this (for REGISTER at least)
 #if defined(PCBXLITE)
   #define EVT_BUTTON_PRESSED() EVT_KEY_FIRST(KEY_ENTER)
@@ -1414,7 +1419,11 @@ void menuModelSetup(event_t event)
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
                   killEvents(event);
+#if defined(EEPROM)
                   uint8_t newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
+#else
+                  uint8_t newVal = modelslist.findNextUnusedModelId(moduleIdx);
+#endif
                   if (newVal != g_model.header.modelId[moduleIdx]) {
                     modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx] = newVal;
                     storageDirty(EE_MODEL);

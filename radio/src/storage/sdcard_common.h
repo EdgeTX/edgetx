@@ -34,6 +34,10 @@
 #define MODEL_FILENAME_PATTERN   "model.yml"
 #endif
 
+//#if !defined(EEPROM)
+extern ModelHeader modelHeaders[MAX_MODELS];
+//#endif
+
 // opens radio.bin or model file
 const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
                         uint8_t* version);
@@ -53,4 +57,7 @@ const char * writeGeneralSettings();
 
 const char * loadRadioSettings(const char * path);
 const char * loadRadioSettings();
+
+void checkModelIdUnique(uint8_t index, uint8_t module);
+
 #endif // _SDCARD_RAW_H_

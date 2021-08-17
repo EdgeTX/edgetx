@@ -22,7 +22,7 @@
 #include "opentx.h"
 #include "conversions.h"
 
-#if defined(COLORLCD)
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
 #include "storage/sdcard_raw.h"

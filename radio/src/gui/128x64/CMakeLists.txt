@@ -1,3 +1,9 @@
+if(${STORAGE} STREQUAL SDCARD)
+  set(MODEL_SELECT_SRC model_select_sd.cpp)
+else()
+  set(MODEL_SELECT_SRC model_select.cpp)
+endif()
+
 set(GUI_SRC
   ${GUI_SRC}
   lcd.cpp
@@ -5,8 +11,8 @@ set(GUI_SRC
   popups.cpp
   widgets.cpp
   startup_shutdown.cpp
+  ${MODEL_SELECT_SRC}
   menu_model.cpp
-  model_select.cpp
   model_setup.cpp
   model_failsafe.cpp
   model_logical_switches.cpp
