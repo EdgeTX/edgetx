@@ -136,6 +136,26 @@ void SwitchChoice::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
+void SwitchChoice::checkEvents(void)
+{
+  event_t event = getEvent();
+
+  if (duration10ms > 1) {
+    touchDuration10ms = get_tmr10ms() - duration10ms;
+
+    if (isLongPress()) {
+      int16_t val = getValue();
+      setValue(-val);
+      duration10ms = 1;
+    }
+  }
+
+  if (hasFocus())
+    onEvent(event);
+  else
+    pushEvent(event);
+}
+
 bool SwitchChoice::onTouchStart(coord_t x, coord_t y)
 {
   if (!duration10ms) {
@@ -148,12 +168,7 @@ bool SwitchChoice::onTouchEnd(coord_t x, coord_t y)
 {
   setFocus(SET_FOCUS_DEFAULT);
   
-  touchDuration10ms = get_tmr10ms() - duration10ms;
   duration10ms = 0;
-  if (isLongPress()) {
-    int16_t val = getValue();
-    setValue(-val);
-  }
 
   setEditMode(true);
   openMenu();

@@ -60,6 +60,7 @@ class SwitchChoice : public FormField
 #endif
 
 #if defined(HARDWARE_TOUCH)
+  void checkEvents(void) override;
   bool onTouchEnd(coord_t x, coord_t y) override;
   bool onTouchStart(coord_t x, coord_t y) override;
   inline bool isLongPress(tmr10ms_t longPressDuration = LONG_PRESS_10MS)
