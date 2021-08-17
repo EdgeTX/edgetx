@@ -129,4 +129,4 @@ const ZoneOption ModelBitmapWidget::options[] = {
     {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_BGCOLOR>>16)},
     {nullptr, ZoneOption::Bool}};
 
-BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options);
+BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options, "Models");
