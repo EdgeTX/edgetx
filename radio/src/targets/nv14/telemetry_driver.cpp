@@ -28,7 +28,7 @@ DMAFifo<TELEMETRY_FIFO_SIZE> telemetryDMAFifo __DMA (TELEMETRY_DMA_Stream_RX);
 uint8_t telemetryFifoMode;
 #endif
 
-void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
 {
   if (baudrate == 0) {
     USART_DeInit(TELEMETRY_USART);
@@ -65,8 +65,17 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(TELEMETRY_REV_GPIO, &GPIO_InitStructure);
-  TELEMETRY_TX_POL_INV();
-  TELEMETRY_RX_POL_INV();
+	
+	if (noinv == 0)
+	{
+	  TELEMETRY_TX_POL_NORM();
+		TELEMETRY_RX_POL_NORM();
+	}
+	else
+	{
+	  TELEMETRY_TX_POL_INV();
+		TELEMETRY_RX_POL_INV();
+	}
 
   USART_InitStructure.USART_BaudRate = baudrate;
   if (mode & TELEMETRY_SERIAL_8E2) {
@@ -89,9 +98,14 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   NVIC_EnableIRQ(TELEMETRY_USART_IRQn);
 }
 
+void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+{
+	telemetryPortInitCommon(baudrate, mode, 0);
+}
+
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
-#warning "TODO telemetryPortInvertedInit";
+	telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
 }
 
 /*void extmoduleSendInvertedByte(uint8_t byte)
@@ -113,6 +127,8 @@ void telemetryPortSetDirectionInput()
 
 void sportSendByte(uint8_t byte)
 {
+  telemetryPortSetDirectionOutput();
+
   while (!(TELEMETRY_USART->SR & USART_SR_TXE));
   USART_SendData(TELEMETRY_USART, byte);
 }
