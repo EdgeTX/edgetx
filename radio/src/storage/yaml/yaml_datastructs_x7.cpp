@@ -261,8 +261,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "adjustRTC", 1 ),
   YAML_UNSIGNED( "inactivityTimer", 8 ),
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
-  YAML_UNSIGNED( "splashMode", 1 ),
-  YAML_PADDING( 2 ),
+  YAML_SIGNED( "splashMode", 3 ),
   YAML_SIGNED( "hapticMode", 2 ),
   YAML_SIGNED( "switchesDelay", 8 ),
   YAML_UNSIGNED( "lightAutoOff", 8 ),
@@ -310,6 +309,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
+  YAML_SIGNED( "uartSampleMode", 2 ),
+  YAML_STRING("currModelFilename", 17),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
