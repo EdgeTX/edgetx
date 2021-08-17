@@ -45,7 +45,6 @@ class SwitchChoice : public FormField
   {
 #if defined(HARDWARE_TOUCH)
     duration10ms = 0;
-    touchDuration10ms = 0;
 #endif    
   }
 
@@ -63,10 +62,7 @@ class SwitchChoice : public FormField
   void checkEvents(void) override;
   bool onTouchEnd(coord_t x, coord_t y) override;
   bool onTouchStart(coord_t x, coord_t y) override;
-  inline bool isLongPress(tmr10ms_t longPressDuration = LONG_PRESS_10MS)
-  {
-    return (touchDuration10ms > longPressDuration) ? true : false;
-  };
+  inline bool isLongPress(tmr10ms_t longPressDuration = LONG_PRESS_10MS);
 #endif
 
 
@@ -80,7 +76,6 @@ class SwitchChoice : public FormField
   int16_t vmax;
 #if defined(HARDWARE_TOUCH)
     tmr10ms_t duration10ms;
-    tmr10ms_t touchDuration10ms;
 #endif
   std::function<int16_t()> getValue;
   std::function<void(int16_t)> setValue;
