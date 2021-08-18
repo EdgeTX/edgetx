@@ -53,11 +53,15 @@ class Keyboard: public FormWindow
       activeKeyboard = this;
       attach(MainWindow::instance());
       fieldContainer = getFieldContainer(newField);
-      fieldContainer->setHeight(LCD_H - height() - fieldContainer->top());
-      fieldContainer->scrollTo(newField);
-      invalidate();
-      newField->setEditMode(true);
-      field = newField;
+      if (fieldContainer) {
+        fieldContainer->setHeight(LCD_H - height() - fieldContainer->top());
+        fieldContainer->scrollTo(newField);
+        invalidate();
+        newField->setEditMode(true);
+        field = newField;
+      } else {
+        clearField();
+      }
     }
 
     void clearField()
@@ -75,14 +79,7 @@ class Keyboard: public FormWindow
 
     Window * getFieldContainer(FormField * field)
     {
-      Window * parent = field;
-      while (true) {
-        Window * tmp = parent->getParent();
-        if ((tmp->getWindowFlags() & OPAQUE) && tmp->width() == LCD_W && tmp->height() == LCD_H) {
-          return parent;
-        }
-        parent = tmp;
-      }
+      return field->getFullScreenWindow();
     }
 };
 
