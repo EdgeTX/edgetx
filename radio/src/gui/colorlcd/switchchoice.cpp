@@ -123,6 +123,7 @@ void SwitchChoice::onEvent(event_t event)
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
     int16_t val = getValue();
     setValue(-val);
+    invalidate();
   }
   else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     editMode = true;
@@ -153,6 +154,7 @@ void SwitchChoice::checkEvents(void)
   if (isLongPress()) {
     int16_t val = getValue();
     setValue(-val);
+    invalidate();
     duration10ms = 1;
   }
 
