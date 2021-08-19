@@ -211,10 +211,10 @@ class FlashDialog: public FullScreenDialog
     Progress progress;
 };
 
-class sdManagerButton : public TextButton
+class SDmanagerButton : public TextButton
 {
   public:
-    sdManagerButton(FormGroup* parent, const rect_t& rect, std::string text,
+    SDmanagerButton(FormGroup* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
               WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
               LcdFlags textFlags = 0 ) : TextButton(parent, rect, text, pressHandler, windowFlags, textFlags)
@@ -272,7 +272,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     files.sort(compare_nocase);
     
     for (auto name: directories) {
-      auto b = new sdManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto b = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
           f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
@@ -284,7 +284,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     }
 
     for (auto name: files) {
-      auto button = new sdManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
           f_chdir(currentPath.c_str());
           const char *ext = getFileExtension(name.data());
