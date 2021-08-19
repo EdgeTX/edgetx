@@ -367,6 +367,16 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
   else if (isModuleAFHDS3(moduleIdx)) {
     return 10;
   }
+  else if (isModuleDSM2(moduleIdx)) {
+    return 0; // 8 channels
+  }
+  else if (isModuleMultimoduleDSM2(moduleIdx)) {
+    return 4; // 12 channels
+  }
+  //TODO: This should be based on the selected protocol
+  else if(isModuleMultimodule(moduleIdx)) {
+    return 8; // 16 channels
+  }
   else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
