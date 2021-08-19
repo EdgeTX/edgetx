@@ -368,7 +368,7 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     return 10;
   }
   else if (isModuleDSM2(moduleIdx)) {
-    return 0; // 8 channels
+    return -2; // 6 channels
   }
   else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4; // 12 channels
