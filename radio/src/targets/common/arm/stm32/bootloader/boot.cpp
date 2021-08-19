@@ -83,11 +83,10 @@ void interrupt10ms()
 #endif
   
   uint8_t index = 0;
-  uint8_t in = readKeys();
-  for (uint8_t i = 1; i != uint8_t(1u << TRM_BASE); i <<= 1) {
-    uint8_t value = (in & i);
-    keys[index].input(value);
-    ++index;
+  uint32_t in = readKeys();
+
+  for (int i = 0; i < TRM_BASE; i++) {
+    keys[index++].input(in & (1 << i));
   }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
