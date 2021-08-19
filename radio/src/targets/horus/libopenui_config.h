@@ -84,6 +84,9 @@ constexpr uint32_t DATETIME_LINE1 =                7;
 constexpr uint32_t DATETIME_LINE2 =                22;
 constexpr uint32_t DATETIME_MIDDLE =               (LCD_W + DATETIME_SEPARATOR_X + 1) / 2;
 
+constexpr uint32_t RSSI_X =                        LCD_W - 90;
+constexpr uint32_t AUDIO_X =                       LCD_W - 130;
+
 constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
 constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
 constexpr rect_t MENUS_TOOLBAR_RECT =              { 100, 51, 30, 209 };

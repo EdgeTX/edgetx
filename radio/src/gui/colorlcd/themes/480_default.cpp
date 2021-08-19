@@ -424,7 +424,7 @@ class Theme480: public OpenTxTheme
       struct gtm t;
       gettime(&t);
       char str[10];
-#if defined(TRANSLATIONS_CN)
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
       sprintf(str, "%d" TR_MONTH "%d", t.tm_mon + 1, t.tm_mday);
 #else
       const char * const STR_MONTHS[] = TR_MONTHS;
