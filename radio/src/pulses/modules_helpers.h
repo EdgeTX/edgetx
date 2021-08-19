@@ -371,7 +371,7 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     return 0; // 8 channels
   }
   else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return -1; // 7 channels
+    return 4; // 12 channels
   }
   //TODO: This should be based on the selected protocol
   else if(isModuleMultimodule(moduleIdx)) {
