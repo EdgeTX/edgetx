@@ -641,10 +641,12 @@ class ModuleWindow : public FormGroup {
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+				
+				// Grid count for narrow/wide screen
+				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
         rfChoice = new Choice(
             this,
-            grid.getFieldSlot(
-                g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0),
+            grid.getFieldSlot(count, 0),
             STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST,
             MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
             [=](int32_t newValue) {
@@ -659,11 +661,20 @@ class ModuleWindow : public FormGroup {
 
         if (MULTIMODULE_HAS_SUBTYPE(moduleIdx)) {
           // Subtype (D16, DSMX,...)
+					
+					// Grid count for narrow/wide screen
+					count = LCD_W < LCD_H ? 1 : 2;
+					int index = 1;
+					if (count == 1)
+					{
+						grid.nextLine();
+						index = 0;
+					}
           const mm_protocol_definition *pdef = getMultiProtocolDefinition(
               g_model.moduleData[moduleIdx].getMultiProtocol());
           if (pdef->maxSubtype > 0) {
             mmSubProtocol = new Choice(
-                this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0,
+                this, grid.getFieldSlot(count, index), pdef->subTypeString, 0,
                 pdef->maxSubtype,
                 [=]() { return g_model.moduleData[moduleIdx].subType; },
                 [=](int16_t newValue) {

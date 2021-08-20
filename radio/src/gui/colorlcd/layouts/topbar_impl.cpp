@@ -83,13 +83,16 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   struct gtm t;
   gettime(&t);
   char str[10];
-
-  sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW) 
+      sprintf(str, "%d-%d", t.tm_mon + 1, t.tm_mday);
+#else
+      const char * const STR_MONTHS[] = TR_MONTHS;
+      sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
+#endif
   //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, MENU_COLOR);
-  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS) | CENTERED| FOCUS_COLOR);
-
+  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|FOCUS_COLOR|CENTERED);
   getTimerString(str, getValue(MIXSRC_TX_TIME));
-  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | FOCUS_COLOR);
+  dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|FOCUS_COLOR|CENTERED);
 
 #if defined(INTERNAL_GPS)
   if (gpsData.fix) {
@@ -121,7 +124,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
   for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
     uint8_t height = rssiBarsHeight[i];
-    dc->drawSolidFilledRect(LCD_W - 90 + i * 6, 38 - height, 4, height,
+    dc->drawSolidFilledRect(RSSI_X + i * 6, 38 - height, 4, height,
                             TELEMETRY_RSSI() >= rssiBarsValue[i]
                                 ? FOCUS_COLOR
                                 : MENU_TITLE_DISABLE_COLOR);
@@ -134,32 +137,32 @@ void TopbarImpl::paint(BitmapBuffer * dc)
 #endif
 
   /* Audio volume */
-  dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_SCALE, MENU_TITLE_DISABLE_COLOR);
+  dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_SCALE, MENU_TITLE_DISABLE_COLOR);
   if (requiredSpeakerVolume == 0 || g_eeGeneral.beepMode == e_mode_quiet)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_0, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_0, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 7)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_1, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_1, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 13)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_2, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_2, FOCUS_COLOR);
   else if (requiredSpeakerVolume < 19)
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_3, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_3, FOCUS_COLOR);
   else
-    dc->drawBitmapPattern(LCD_W - 130, 4, LBM_TOPMENU_VOLUME_4, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 4, LBM_TOPMENU_VOLUME_4, FOCUS_COLOR);
 
   /* Tx battery */
   uint8_t bars = GET_TXBATT_BARS(5);
 #if defined(USB_CHARGER)
   if (usbChargerLed()) {
-    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT_CHARGING, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 25, LBM_TOPMENU_TXBATT_CHARGING, FOCUS_COLOR);
   }
   else {
-    dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
+    dc->drawBitmapPattern(AUDIO_X, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
   }
 #else
-  dc->drawBitmapPattern(LCD_W - 130, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
+  dc->drawBitmapPattern(AUDIO_X, 25, LBM_TOPMENU_TXBATT, FOCUS_COLOR);
 #endif
   for (unsigned int i = 0; i < 5; i++) {
-    dc->drawSolidFilledRect(LCD_W - 128 + 4 * i, 30, 2, 8, i >= bars ? MENU_TITLE_DISABLE_COLOR : FOCUS_COLOR);
+    dc->drawSolidFilledRect(AUDIO_X - 2 + 4 * i, 30, 2, 8, i >= bars ? MENU_TITLE_DISABLE_COLOR : FOCUS_COLOR);
   }
 
 #if 0
