@@ -86,6 +86,9 @@ constexpr uint32_t DATETIME_MIDDLE =               (LCD_W + DATETIME_SEPARATOR_X
 
 constexpr uint32_t RSSI_X =                        LCD_W - 80;
 constexpr uint32_t AUDIO_X =                       LCD_W - 115;
+constexpr uint32_t USB_X =                         LCD_W - 82;
+constexpr uint32_t LOG_X =                         LCD_W - 82;
+constexpr uint32_t GPS_X =                         LCD_W - 130;
 
 constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
 constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
