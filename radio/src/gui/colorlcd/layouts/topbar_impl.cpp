@@ -98,15 +98,14 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   if (gpsData.fix) {
     char s[10];
     sprintf(s, "%d", gpsData.numSat);
-    dc->drawText(LCD_W-148, 4, s, FONT(XS) | CENTERED | FOCUS_COLOR);
+    dc->drawText(GPS_X, 4, s, FONT(XS) | CENTERED | FOCUS_COLOR);
   }
-  dc->drawBitmapPattern(LCD_W - 158, 22, LBM_TOPMENU_GPS,
+  dc->drawBitmapPattern(GPS_X - 10, 22, LBM_TOPMENU_GPS,
                         (gpsData.fix) ? FOCUS_COLOR : MENU_TITLE_DISABLE_COLOR);
 #endif
 
   // USB icon
   if (usbPlugged()) {
-
     LcdFlags flags = FOCUS_COLOR;
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
       flags = MENU_TITLE_DISABLE_COLOR;
@@ -132,7 +131,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   if (isModuleXJT(INTERNAL_MODULE) && isExternalAntennaEnabled()) {
-    dc->drawBitmapPattern(LCD_W-94, 4, LBM_TOPMENU_ANTENNA, FOCUS_COLOR);
+    dc->drawBitmapPattern(RSSI_X - 4, 4, LBM_TOPMENU_ANTENNA, FOCUS_COLOR);
   }
 #endif
 
