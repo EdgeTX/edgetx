@@ -286,6 +286,14 @@ class MixLineButton : public CommonInputOrMixButton
     if (line.flightModes) {
       drawFlightModes(dc, line.flightModes, textColor);
     }
+
+    uint8_t delayslow = 0;
+    if (line.speedDown || line.speedUp) delayslow = 1;
+    if (line.delayUp || line.delayDown) delayslow += 2;
+    if (delayslow) {
+      BitmapBuffer *delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon, mixerSetupDelaySlowIcon};
+      dc->drawMask(width() - 16, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, delayslowbmp[delayslow - 1], textColor);
+    }
   }
 };
 

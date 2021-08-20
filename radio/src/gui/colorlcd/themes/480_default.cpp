@@ -296,14 +296,14 @@ class Theme480: public OpenTxTheme
       delete mixerSetupFlightmodeIcon;
       mixerSetupFlightmodeIcon = BitmapBuffer::load8bitMask(mask_textline_fm);
 
-//      delete mixerSetupSlowIcon;
-//      mixerSetupSlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_slow.png"));
-//
-//      delete mixerSetupDelayIcon;
-//      mixerSetupDelayIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_delay.png"));
-//
-//      delete mixerSetupDelaySlowIcon;
-//      mixerSetupDelaySlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_delayslow.png"));
+      delete mixerSetupSlowIcon;
+      mixerSetupSlowIcon = BitmapBuffer::load8bitMask(mask_textline_slow);
+
+      delete mixerSetupDelayIcon;
+      mixerSetupDelayIcon = BitmapBuffer::load8bitMask(mask_textline_delay);
+
+      delete mixerSetupDelaySlowIcon;
+      mixerSetupDelaySlowIcon = BitmapBuffer::load8bitMask(mask_textline_delayslow);
     }
 
     void load() const override
