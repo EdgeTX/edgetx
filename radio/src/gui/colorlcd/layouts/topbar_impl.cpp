@@ -112,11 +112,11 @@ void TopbarImpl::paint(BitmapBuffer * dc)
       flags = MENU_TITLE_DISABLE_COLOR;
     }
 
-    dc->drawBitmapPattern(LCD_W - 98, 8, LBM_TOPMENU_USB, flags);
+    dc->drawBitmapPattern(USB_X, 8, LBM_TOPMENU_USB, flags);
   }
   // Logs
   else if (isFunctionActive(FUNCTION_LOGS) && BLINK_ON_PHASE) {
-    dc->drawBitmapPattern(LCD_W - 98, 6, LBM_DOT, FOCUS_COLOR);
+    dc->drawBitmapPattern(LOG_X, 6, LBM_DOT, FOCUS_COLOR);
   }
 
   // RSSI
