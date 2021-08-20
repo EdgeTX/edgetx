@@ -567,6 +567,7 @@ class ModuleWindow : public FormGroup {
         channelStart->setMax(MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1);
       });
       channelEnd->enable(minModuleChannels(moduleIdx) < maxModuleChannels(moduleIdx));
+      if (channelEnd->getValue() > channelEnd->getMax()) channelEnd->setValue(channelEnd->getMax());
     }
 
     void update()
