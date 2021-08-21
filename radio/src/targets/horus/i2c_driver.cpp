@@ -29,39 +29,56 @@
  * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
+void I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-    if (I2C_GPIO == GPIOA)
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-    else if (I2C_GPIO == GPIOB)
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-    else if (I2C_GPIO == GPIOC)
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    else if (I2C_GPIO == GPIOH)
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-    else
-        TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
 
-    GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_GPIO_PinSource, I2C_GPIO_AF);
-    GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_GPIO_PinSource, I2C_GPIO_AF);
+  if (I2C_TP_GPIO == GPIOA)
+      __HAL_RCC_GPIOA_CLK_ENABLE();
+  else if (I2C_TP_GPIO == GPIOB)
+      __HAL_RCC_GPIOB_CLK_ENABLE();
+  else if (I2C_TP_GPIO == GPIOC)
+      __HAL_RCC_GPIOC_CLK_ENABLE();
+  else if (I2C_TP_GPIO == GPIOH)
+      __HAL_RCC_GPIOH_CLK_ENABLE();
+  else
+      TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
 
-    GPIO_InitStruct.GPIO_Pin = I2C_SCL_GPIO_PIN | I2C_SDA_GPIO_PIN;
+  if ((hi2c->Instance==I2C1) || (hi2c->Instance==I2C3)) // TP
+  {
+    GPIO_PinAFConfig(I2C_TP_GPIO, I2C_TP_SCL_GPIO_PinSource, I2C_TP_GPIO_AF);
+    GPIO_PinAFConfig(I2C_TP_GPIO, I2C_TP_SDA_GPIO_PinSource, I2C_TP_GPIO_AF);
+
+    GPIO_InitStruct.GPIO_Pin = I2C_TP_SCL_GPIO_PIN | I2C_TP_SDA_GPIO_PIN;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(I2C_GPIO, &GPIO_InitStruct);
+    GPIO_Init(I2C_TP_GPIO, &GPIO_InitStruct);
+  }
 
-    /* Peripheral clock enable */
-    if (I2C == I2C1)
-        __HAL_RCC_I2C1_CLK_ENABLE();
-    else if (I2C == I2C2)
-        __HAL_RCC_I2C2_CLK_ENABLE();
-    else if (I2C == I2C3)
-        __HAL_RCC_I2C3_CLK_ENABLE();
-    else
-        TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
+  if (hi2c->Instance==I2C2) // IMU
+  {
+    GPIO_PinAFConfig(I2C_IMU_GPIO, I2C_IMU_SCL_GPIO_PinSource, I2C_IMU_GPIO_AF);
+    GPIO_PinAFConfig(I2C_IMU_GPIO, I2C_IMU_SDA_GPIO_PinSource, I2C_IMU_GPIO_AF);
+
+    GPIO_InitStruct.GPIO_Pin = I2C_IMU_SCL_GPIO_PIN | I2C_IMU_SDA_GPIO_PIN;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(I2C_IMU_GPIO, &GPIO_InitStruct);
+  }
+
+  /* Peripheral clock enable */
+  if (I2C_TP == I2C1)
+      __HAL_RCC_I2C1_CLK_ENABLE();
+  else if (I2C_TP == I2C2)
+      __HAL_RCC_I2C2_CLK_ENABLE();
+  else if (I2C_TP == I2C3)
+      __HAL_RCC_I2C3_CLK_ENABLE();
+  else
+      TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
 }
 
 /* De-initializes the GPIOx peripheral registers to their default reset values.
@@ -154,15 +171,15 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
   GPIO_InitTypeDef GPIO_InitStructure;
 
   /* Configure the default Alternate Function in current IO */
-  GPIO_PinAFConfig(I2C_GPIO, I2C_SCL_GPIO_PinSource, 0);
-  GPIO_PinAFConfig(I2C_GPIO, I2C_SDA_GPIO_PinSource, 0);
+  GPIO_PinAFConfig(I2C_TP_GPIO, I2C_TP_SCL_GPIO_PinSource, 0);
+  GPIO_PinAFConfig(I2C_TP_GPIO, I2C_TP_SDA_GPIO_PinSource, 0);
 
-  GPIO_InitStructure.GPIO_Pin = I2C_SCL_GPIO_PIN | I2C_SDA_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = I2C_TP_SCL_GPIO_PIN | I2C_TP_SDA_GPIO_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;   /* Configure a low value for IO Speed */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN; /* Configure IO Direction in Input Floating Mode */
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD; /* Leave the configuration to Open Drain */
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL; /* Deactivate the Pull-up and Pull-down resistor for the current IO */
-  GPIO_Init(I2C_GPIO, &GPIO_InitStructure);
+  GPIO_Init(I2C_TP_GPIO, &GPIO_InitStructure);
 }
 
 /* Initializes the I2C according to the specified parameters
@@ -199,7 +216,7 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c)
     hi2c->Lock = HAL_UNLOCKED;
 
     /* Init the low level hardware : GPIO, CLOCK, NVIC */
-    HAL_I2C_MspInit(hi2c);
+    I2C_MspInit(hi2c);
   }
 
   hi2c->State = HAL_I2C_STATE_BUSY;

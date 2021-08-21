@@ -408,7 +408,7 @@
 #endif
 
 // Serial Port (DEBUG)
-#if (defined(PCBX12S) || (defined(RADIO_TX16S)) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD))
+#if (defined(PCBX12S) || (defined(RADIO_TX16S)) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD)) && !defined(IMU_LSM6DS33)
   #define AUX_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_RCC_APB1Periph           RCC_APB1Periph_USART3
   #define AUX_SERIAL_RCC_APB2Periph           0
@@ -705,29 +705,45 @@
   #define TOUCH_RST_RCC_AHB1Periph        0
 #endif
 
-// I2C Bus
+// I2C Bus for touch
 #if defined(RADIO_T18)
-  #define I2C_RCC_AHB1Periph              RCC_AHB1Periph_GPIOH
-  #define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C3
-  #define I2C                             I2C3
-  #define I2C_GPIO                        GPIOH
-  #define I2C_SCL_GPIO_PIN                GPIO_Pin_7  // PH.07
-  #define I2C_SDA_GPIO_PIN                GPIO_Pin_8  // PH.08
-  #define I2C_GPIO_AF                     GPIO_AF_I2C3
-  #define I2C_SCL_GPIO_PinSource          GPIO_PinSource7
-  #define I2C_SDA_GPIO_PinSource          GPIO_PinSource8
+  #define I2C_TP_RCC_AHB1Periph           RCC_AHB1Periph_GPIOH
+  #define I2C_TP_RCC_APB1Periph           RCC_APB1Periph_I2C3
+  #define I2C_TP                          I2C3
+  #define I2C_TP_GPIO                     GPIOH
+  #define I2C_TP_SCL_GPIO_PIN             GPIO_Pin_7  // PH.07
+  #define I2C_TP_SDA_GPIO_PIN             GPIO_Pin_8  // PH.08
+  #define I2C_TP_GPIO_AF                  GPIO_AF_I2C3
+  #define I2C_TP_SCL_GPIO_PinSource       GPIO_PinSource7
+  #define I2C_TP_SDA_GPIO_PinSource       GPIO_PinSource8
 #else
-  #define I2C_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
-  #define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C1
-  #define I2C                             I2C1
-  #define I2C_GPIO                        GPIOB
-  #define I2C_SCL_GPIO_PIN                GPIO_Pin_8  // PB.08
-  #define I2C_SDA_GPIO_PIN                GPIO_Pin_9  // PB.09
-  #define I2C_GPIO_AF                     GPIO_AF_I2C1
-  #define I2C_SCL_GPIO_PinSource          GPIO_PinSource8
-  #define I2C_SDA_GPIO_PinSource          GPIO_PinSource9
+  #define I2C_TP_RCC_AHB1Periph           RCC_AHB1Periph_GPIOB
+  #define I2C_TP_RCC_APB1Periph           RCC_APB1Periph_I2C1
+  #define I2C_TP                          I2C1
+  #define I2C_TP_GPIO                     GPIOB
+  #define I2C_TP_SCL_GPIO_PIN             GPIO_Pin_8  // PB.08
+  #define I2C_TP_SDA_GPIO_PIN             GPIO_Pin_9  // PB.09
+  #define I2C_TP_GPIO_AF                  GPIO_AF_I2C1
+  #define I2C_TP_SCL_GPIO_PinSource       GPIO_PinSource8
+  #define I2C_TP_SDA_GPIO_PinSource       GPIO_PinSource9
 #endif
-#define I2C_CLK_RATE                      400000
+#define I2C_TP_CLK_RATE                      400000
+
+// I2C Bus for IMU
+#if defined(RADIO_TX16S) && defined(IMU_LSM6DS33)
+  #define I2C_IMU_RCC_AHB1Periph          RCC_AHB1Periph_GPIOB
+  #define I2C_IMU_RCC_APB1Periph          RCC_APB1Periph_I2C2
+  #define I2C_IMU                         I2C2
+  #define I2C_IMU_GPIO                    GPIOB
+  #define I2C_IMU_SCL_GPIO_PIN            GPIO_Pin_10  // PB.10
+  #define I2C_IMU_SDA_GPIO_PIN            GPIO_Pin_11  // PB.11
+  #define I2C_IMU_GPIO_AF                 GPIO_AF_I2C2
+  #define I2C_IMU_SCL_GPIO_PinSource      GPIO_PinSource10
+  #define I2C_IMU_SDA_GPIO_PinSource      GPIO_PinSource11
+  #define I2C_IMU_CLK_RATE                100000
+  #define AUX_IMU_PWR_GPIO                GPIOA
+  #define AUX_IMU_PWR_GPIO_PIN            GPIO_Pin_15  // PA.15
+#endif
 
 // Haptic
 #define HAPTIC_PWM

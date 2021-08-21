@@ -123,7 +123,11 @@ void boardInit()
 #if defined(FLYSKY_HALL_STICKS)                         
                          FLYSKY_HALL_RCC_AHB1Periph |                         
 #endif
+#if defined(IMU_LSM6DS33)
+                         I2C_IMU_RCC_AHB1Periph |
+#else
                          AUX_SERIAL_RCC_AHB1Periph |
+#endif
                          AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
@@ -132,7 +136,7 @@ void boardInit()
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
-                         I2C_RCC_AHB1Periph |
+                         I2C_TP_RCC_AHB1Periph |
                          GPS_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
                          TOUCH_INT_RCC_AHB1Periph |
@@ -147,14 +151,18 @@ void boardInit()
 #if defined(FLYSKY_HALL_STICKS)                         
                          FLYSKY_HALL_RCC_APB1Periph |                         
 #endif
+#if defined(IMU_LSM6DS33)
+                         I2C_IMU_RCC_APB1Periph |
+#else
                          AUX_SERIAL_RCC_APB1Periph |
+#endif
                          AUX2_SERIAL_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          TRAINER_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          INTMODULE_RCC_APB1Periph |
                          EXTMODULE_RCC_APB1Periph |
-                         I2C_RCC_APB1Periph |
+                         I2C_TP_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          GPS_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
@@ -215,6 +223,10 @@ void boardInit()
 
 #if defined(FLYSKY_HALL_STICKS)
   flysky_hall_stick_init();
+#endif
+
+#if defined(IMU_LSM6DS33)
+  imu_lsm6ds33_init();
 #endif
 
   init2MhzTimer();

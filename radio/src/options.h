@@ -101,6 +101,9 @@ static const char * const options[] = {
 #if defined(FLYSKY_HALL_STICKS)
   "flyskyhallsticks",
 #endif
+#if defined(IMU_LSM6DS33)
+  "lsm6ds33",
+#endif
 #if defined(BIND_KEY)
   "bindkey",
 #endif

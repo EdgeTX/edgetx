@@ -206,11 +206,11 @@ int main()
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
                          LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
                          AUX_SERIAL_RCC_AHB1Periph | AUX2_SERIAL_RCC_AHB1Periph |
-                         I2C_RCC_AHB1Periph | KEYS_BACKLIGHT_RCC_AHB1Periph |
+                         I2C_TP_RCC_AHB1Periph | KEYS_BACKLIGHT_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph, ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph | BACKLIGHT_RCC_APB1Periph |
-                         INTERRUPT_xMS_RCC_APB1Periph | I2C_RCC_APB1Periph |
+                         INTERRUPT_xMS_RCC_APB1Periph | I2C_TP_RCC_APB1Periph |
                          AUX_SERIAL_RCC_APB1Periph | AUX2_SERIAL_RCC_APB1Periph |
                          SD_RCC_APB1Periph, ENABLE);
 
