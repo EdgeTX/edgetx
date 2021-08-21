@@ -267,22 +267,22 @@ void setVolume(uint8_t volume)
   if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
     return;
 
-  I2C_GenerateSTART(I2C, ENABLE);
+  I2C_GenerateSTART(I2C_B1, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return;
 
-  I2C_Send7bitAddress(I2C, I2C_ADDRESS_VOLUME, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B1, I2C_ADDRESS_VOLUME, I2C_Direction_Transmitter);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return;
 
-  I2C_SendData(I2C, 0);
+  I2C_SendData(I2C_B1, 0);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
     return;
-  I2C_SendData(I2C, volume);
+  I2C_SendData(I2C_B1, volume);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return;
 
-  I2C_GenerateSTOP(I2C, ENABLE);
+  I2C_GenerateSTOP(I2C_B1, ENABLE);
 }
 
 int32_t getVolume()

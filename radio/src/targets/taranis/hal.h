@@ -1959,7 +1959,7 @@
   #define I2C_B1_WP_GPIO_PIN            GPIO_Pin_9  // PB.09
   #define I2C_B1_SCL_GPIO_PinSource     GPIO_PinSource6
   #define I2C_B1_SDA_GPIO_PinSource     GPIO_PinSource7
-  #define I2C_B1_ADDRESS_VOLUME         0x5C
+  #define I2C_ADDRESS_VOLUME            0x5C
 #endif
 #define I2C_B1_CLK_RATE                 400000
 #define I2C_ADDRESS_EEPROM              0xA2
