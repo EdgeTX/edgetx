@@ -52,7 +52,7 @@ class Layout1x4: public Layout
 			{
 				index = 3;
 			}
-      return {zone.x, zone.y + zone.h / 4 * index, zone.w, zone.h / 4};
+      return {zone.x, zone.y + zone.h / 4 * (int)index, zone.w, zone.h / 4};
 
       return zone;
     }
