@@ -96,7 +96,7 @@ void ViewMain::setCurrentMainView(unsigned view)
 {
   if (view < getMainViewsCount()) {
     setScrollPositionX(view * pageWidth);
-    TRACE("### switched to view #%i", g_model.view);
+    TRACE("### switched to view #%u", g_model.view);
   }
 }
 

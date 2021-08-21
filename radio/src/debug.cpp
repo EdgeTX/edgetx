@@ -26,10 +26,6 @@
 traceCallbackFunc traceCallback = 0;
 #endif
 
-#if !defined(SIMU)
-uint32_t debugCounter1ms = 0;
-#endif
-
 #if defined(SIMU)
 #define PRINTF_BUFFER_SIZE     1024
 void debugPrintf(const char * format, ...)
