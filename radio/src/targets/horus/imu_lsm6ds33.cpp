@@ -34,13 +34,13 @@ bool I2C_LSM6DS33_ReadRegister(uint8_t reg, uint8_t * buf, uint8_t len)
 {
     if (HAL_I2C_Master_Transmit(&hi2c2, LSM6DS33_I2C_ADDR << 1, &reg, 1, 10000) != HAL_OK)
     {
-        TRACE("I2C IMU ERROR: ReadRegister write reg. address failed");
+        TRACE("I2C B2 ERROR: ReadRegister write reg. address failed");
         return false;
     }
 
     if (HAL_I2C_Master_Receive(&hi2c2, LSM6DS33_I2C_ADDR << 1, buf, len, 10000) != HAL_OK)
     {
-        TRACE("I2C IMU ERROR: ReadRegister read register failed");
+        TRACE("I2C B2 ERROR: ReadRegister read register failed");
         return false;
     }
     return true;
@@ -61,7 +61,7 @@ bool I2C_LSM6DS33_WriteRegister(uint8_t reg, uint8_t * buf, uint8_t len)
 
     if (HAL_I2C_Master_Transmit(&hi2c2, LSM6DS33_I2C_ADDR << 1, uAddrAndBuf, len + 1, 10000) != HAL_OK)
     {
-        TRACE("I2C IMU ERROR: WriteRegister failed");
+        TRACE("I2C B2 ERROR: WriteRegister failed");
         return false;
     }
     return true;
@@ -146,8 +146,8 @@ void init_imu_i2c(void)
 {
   TRACE("I2C IMU Init");
 
-  hi2c2.Instance = I2C_IMU;
-  hi2c2.Init.ClockSpeed = I2C_IMU_CLK_RATE;
+  hi2c2.Instance = I2C_B2;
+  hi2c2.Init.ClockSpeed = I2C_B2_CLK_RATE;
   hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -157,17 +157,17 @@ void init_imu_i2c(void)
   hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
   if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
-      TRACE("I2C IMU ERROR: HAL_I2C_Init() failed");
+      TRACE("I2C B2 ERROR: HAL_I2C_Init() failed");
   }
   // Configure Analogue filter
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
-      TRACE("I2C IMU ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
+      TRACE("I2C B2 ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
   }
   // Configure Digital filter
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
   {
-      TRACE("I2C IMU ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
+      TRACE("I2C B2 ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
   }
 }
 
@@ -175,7 +175,7 @@ bool imu_lsm6ds33_init(void)
 {
     uint8_t ui8_reg[2] = {0};
 
-    GPIO_SetBits(AUX_IMU_PWR_GPIO, AUX_IMU_PWR_GPIO_PIN);   // Turn on AUX1 power
+    GPIO_SetBits(AUX_I2C_B2_PWR_GPIO, AUX_I2C_B2_PWR_GPIO_PIN);   // Turn on AUX1 power
 
     init_imu_i2c();
 

@@ -489,10 +489,10 @@ void TOUCH_AF_INT_Change(void)
 
 void I2C_Init_Radio(void)
 {
-  TRACE("I2C TP Init");
+  TRACE("I2C B1 Init");
 
-  hi2c1.Instance = I2C_TP;
-  hi2c1.Init.ClockSpeed = I2C_TP_CLK_RATE;
+  hi2c1.Instance = I2C_B1;
+  hi2c1.Init.ClockSpeed = I2C_B1_CLK_RATE;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -502,17 +502,17 @@ void I2C_Init_Radio(void)
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
   if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
-      TRACE("I2C TP ERROR: HAL_I2C_Init() failed");
+      TRACE("I2C B1 ERROR: HAL_I2C_Init() failed");
   }
   // Configure Analogue filter
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
-      TRACE("I2C TP ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
+      TRACE("I2C B1 ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
   }
   // Configure Digital filter
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
-      TRACE("I2C TP ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
+      TRACE("I2C B1 ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
   }
 }
 
@@ -532,7 +532,7 @@ bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 
     if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uAddrAndBuf, len + 2, 100) != HAL_OK)
     {
-        TRACE("I2C TP ERROR: WriteRegister failed");
+        TRACE("I2C B1 ERROR: WriteRegister failed");
         return false;
     }
     return true;
@@ -546,13 +546,13 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 
     if (HAL_I2C_Master_Transmit(&hi2c1, GT911_I2C_ADDR << 1, uRegAddr, 2, 10) != HAL_OK)
     {
-        TRACE("I2C TP ERROR: ReadRegister write reg address failed");
+        TRACE("I2C B1 ERROR: ReadRegister write reg address failed");
         return false;
     }
 
     if (HAL_I2C_Master_Receive(&hi2c1, GT911_I2C_ADDR << 1, buf, len, 100) != HAL_OK)
     {
-        TRACE("I2C TP ERROR: ReadRegister read reg address failed");
+        TRACE("I2C B1 ERROR: ReadRegister read reg address failed");
         return false;
     }
     return true;
@@ -677,15 +677,15 @@ bool touchPanelInit(void)
 
 bool I2C_ReInit(void)
 {
-    TRACE("I2C TP ReInit");
+    TRACE("I2C B1 ReInit");
     touchPanelDeInit();
     if (HAL_I2C_DeInit(&hi2c1) != HAL_OK)
-        TRACE("I2C TP ReInit - I2C DeInit failed");
+        TRACE("I2C B1 ReInit - I2C DeInit failed");
 
     // If DeInit fails, try to re-init anyway
     if (!touchPanelInit())
     {
-        TRACE("I2C TP ReInit - touchPanelInit failed");
+        TRACE("I2C B1 ReInit - touchPanelInit failed");
         return false;
     }
     return true;
@@ -728,7 +728,7 @@ void touchPanelRead()
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit())
-          TRACE("I2C TP ReInit failed");
+          TRACE("I2C B1 ReInit failed");
       return;
     }
 
@@ -750,7 +750,7 @@ void touchPanelRead()
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit())
-            TRACE("I2C TP ReInit failed");
+            TRACE("I2C B1 ReInit failed");
         return;
       }
       if (touchState.event == TE_NONE || touchState.event == TE_UP ||

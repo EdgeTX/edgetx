@@ -84,7 +84,7 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-                         I2C_RCC_AHB1Periph |
+                         I2C_B1_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -95,7 +95,7 @@ void boardInit()
                          TRAINER_RCC_AHB1Periph |
                          TRAINER_MODULE_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
-                         GYRO_RCC_AHB1Periph |
+                         I2C_B2_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);
 
@@ -107,7 +107,7 @@ void boardInit()
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
-                         I2C_RCC_APB1Periph |
+                         I2C_B1_RCC_APB1Periph |
                          SD_RCC_APB1Periph |
                          TRAINER_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
@@ -116,7 +116,7 @@ void boardInit()
                          TRAINER_MODULE_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BT_RCC_APB1Periph |
-                         GYRO_RCC_APB1Periph,
+                         I2C_B2_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |

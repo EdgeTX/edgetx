@@ -1920,67 +1920,67 @@
 #define LCD_RCC_APB2Periph              0
 
 // I2C Bus: EEPROM and CAT5137 digital pot for volume control
-#define I2C_RCC_APB1Periph              RCC_APB1Periph_I2C1
-#define I2C                             I2C1
-#define I2C_GPIO_AF                     GPIO_AF_I2C1
+#define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C1
+#define I2C_B1                          I2C1
+#define I2C_B1_GPIO_AF                  GPIO_AF_I2C1
 #if defined(PCBXLITE) || defined(PCBX9LITE)
-  #define I2C_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD)
-  #define I2C_SPI_GPIO                  GPIOB
-  #define I2C_SDA_GPIO_PIN              GPIO_Pin_9  // PB.09
-  #define I2C_SCL_GPIO_PIN              GPIO_Pin_8  // PB.08
-  #define I2C_WP_GPIO                   GPIOD
-  #define I2C_WP_GPIO_PIN               GPIO_Pin_7  // PD.07
-  #define I2C_SCL_GPIO_PinSource        GPIO_PinSource8
-  #define I2C_SDA_GPIO_PinSource        GPIO_PinSource9
+  #define I2C_B1_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD)
+  #define I2C_B1_SPI_GPIO               GPIOB
+  #define I2C_B1_SDA_GPIO_PIN           GPIO_Pin_9  // PB.09
+  #define I2C_B1_SCL_GPIO_PIN           GPIO_Pin_8  // PB.08
+  #define I2C_B1_WP_GPIO                GPIOD
+  #define I2C_B1_WP_GPIO_PIN            GPIO_Pin_7  // PD.07
+  #define I2C_B1_SCL_GPIO_PinSource     GPIO_PinSource8
+  #define I2C_B1_SDA_GPIO_PinSource     GPIO_PinSource9
 #elif defined(PCBX7ACCESS)
-  #define I2C_RCC_AHB1Periph            RCC_AHB1Periph_GPIOB
-  #define I2C_SPI_GPIO                  GPIOB
-  #define I2C_SDA_GPIO_PIN              GPIO_Pin_9  // PB.09
-  #define I2C_SCL_GPIO_PIN              GPIO_Pin_8  // PB.08
-  #define I2C_WP_GPIO                   GPIOB
-  #define I2C_WP_GPIO_PIN               GPIO_Pin_5  // PB.05
-  #define I2C_SDA_GPIO_PinSource        GPIO_PinSource9
-  #define I2C_SCL_GPIO_PinSource        GPIO_PinSource8
+  #define I2C_B1_RCC_AHB1Periph         RCC_AHB1Periph_GPIOB
+  #define I2C_B1_SPI_GPIO               GPIOB
+  #define I2C_B1_SDA_GPIO_PIN           GPIO_Pin_9  // PB.09
+  #define I2C_B1_SCL_GPIO_PIN           GPIO_Pin_8  // PB.08
+  #define I2C_B1_WP_GPIO                GPIOB
+  #define I2C_B1_WP_GPIO_PIN            GPIO_Pin_5  // PB.05
+  #define I2C_B1_SDA_GPIO_PinSource     GPIO_PinSource9
+  #define I2C_B1_SCL_GPIO_PinSource     GPIO_PinSource8
 #elif defined(RADIO_X9DP2019)
-  #define I2C_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOF)
-  #define I2C_SPI_GPIO                  GPIOB
-  #define I2C_SDA_GPIO_PIN              GPIO_Pin_9  // PB.09
-  #define I2C_SCL_GPIO_PIN              GPIO_Pin_8  // PB.08
-  #define I2C_WP_GPIO                   GPIOF
-  #define I2C_WP_GPIO_PIN               GPIO_Pin_0  // PF.00
-  #define I2C_SCL_GPIO_PinSource        GPIO_PinSource8
-  #define I2C_SDA_GPIO_PinSource        GPIO_PinSource9
+  #define I2C_B1_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOF)
+  #define I2C_B1_SPI_GPIO               GPIOB
+  #define I2C_B1_SDA_GPIO_PIN           GPIO_Pin_9  // PB.09
+  #define I2C_B1_SCL_GPIO_PIN           GPIO_Pin_8  // PB.08
+  #define I2C_B1_WP_GPIO                GPIOF
+  #define I2C_B1_WP_GPIO_PIN            GPIO_Pin_0  // PF.00
+  #define I2C_B1_SCL_GPIO_PinSource     GPIO_PinSource8
+  #define I2C_B1_SDA_GPIO_PinSource     GPIO_PinSource9
 #else
-  #define I2C_RCC_AHB1Periph            RCC_AHB1Periph_GPIOB
-  #define I2C_SPI_GPIO                  GPIOB
-  #define I2C_SCL_GPIO_PIN              GPIO_Pin_6  // PB.06
-  #define I2C_SDA_GPIO_PIN              GPIO_Pin_7  // PB.07
-  #define I2C_WP_GPIO                   GPIOB
-  #define I2C_WP_GPIO_PIN               GPIO_Pin_9  // PB.09
-  #define I2C_SCL_GPIO_PinSource        GPIO_PinSource6
-  #define I2C_SDA_GPIO_PinSource        GPIO_PinSource7
-  #define I2C_ADDRESS_VOLUME            0x5C
+  #define I2C_B1_RCC_AHB1Periph         RCC_AHB1Periph_GPIOB
+  #define I2C_B1_SPI_GPIO               GPIOB
+  #define I2C_B1_SCL_GPIO_PIN           GPIO_Pin_6  // PB.06
+  #define I2C_B1_SDA_GPIO_PIN           GPIO_Pin_7  // PB.07
+  #define I2C_B1_WP_GPIO                GPIOB
+  #define I2C_B1_WP_GPIO_PIN            GPIO_Pin_9  // PB.09
+  #define I2C_B1_SCL_GPIO_PinSource     GPIO_PinSource6
+  #define I2C_B1_SDA_GPIO_PinSource     GPIO_PinSource7
+  #define I2C_B1_ADDRESS_VOLUME         0x5C
 #endif
-#define I2C_CLK_RATE                    400000
+#define I2C_B1_CLK_RATE                 400000
 #define I2C_ADDRESS_EEPROM              0xA2
 #define I2C_FLASH_PAGESIZE              64
 
 // Second I2C Bus: IMU
 #if defined(PCBXLITES)
-  #define GYRO_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC)
-  #define GYRO_RCC_APB1Periph           RCC_APB1Periph_I2C3
-  #define I2CX                          I2C3
-  #define I2CX_SCL_GPIO                 GPIOA
-  #define I2CX_SCL_GPIO_PIN             GPIO_Pin_8  // PA.08
-  #define I2CX_SDA_GPIO                 GPIOC
-  #define I2CX_SDA_GPIO_PIN             GPIO_Pin_9  // PC.09
-  #define I2CX_GPIO_AF                  GPIO_AF_I2C3
-  #define I2CX_SCL_GPIO_PinSource       GPIO_PinSource8
-  #define I2CX_SDA_GPIO_PinSource       GPIO_PinSource9
-  #define I2CX_SPEED                    400000
+  #define I2C_B2_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC)
+  #define I2C_B2_RCC_APB1Periph         RCC_APB1Periph_I2C3
+  #define I2C_B2                        I2C3
+  #define I2C_B2_SCL_GPIO               GPIOA
+  #define I2C_B2_SCL_GPIO_PIN           GPIO_Pin_8  // PA.08
+  #define I2C_B2_SDA_GPIO               GPIOC
+  #define I2C_B2_SDA_GPIO_PIN           GPIO_Pin_9  // PC.09
+  #define I2C_B2_GPIO_AF                GPIO_AF_I2C3
+  #define I2C_B2_SCL_GPIO_PinSource     GPIO_PinSource8
+  #define I2C_B2_SDA_GPIO_PinSource     GPIO_PinSource9
+  #define I2C_B2_SPEED                  400000
 #else
-  #define GYRO_RCC_AHB1Periph           0
-  #define GYRO_RCC_APB1Periph           0
+  #define I2C_B2_RCC_AHB1Periph         0
+  #define I2C_B2_RCC_APB1Periph         0
 #endif
 
 // SD - SPI2

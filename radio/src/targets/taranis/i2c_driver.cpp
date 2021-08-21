@@ -25,43 +25,43 @@ void eepromWaitEepromStandbyState(void);
 
 void i2cInit()
 {
-  I2C_DeInit(I2C);
+  I2C_DeInit(I2C_B1);
 
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = I2C_WP_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = I2C_B1_WP_GPIO_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(I2C_WP_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(I2C_WP_GPIO, I2C_WP_GPIO_PIN);
+  GPIO_Init(I2C_B1_WP_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(I2C_B1_WP_GPIO, I2C_B1_WP_GPIO_PIN);
 
   I2C_InitTypeDef I2C_InitStructure;
-  I2C_InitStructure.I2C_ClockSpeed = I2C_CLK_RATE;
+  I2C_InitStructure.I2C_ClockSpeed = I2C_B1_CLK_RATE;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   I2C_InitStructure.I2C_OwnAddress1 = 0x00;
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_Init(I2C, &I2C_InitStructure);
-  I2C_Cmd(I2C, ENABLE);
+  I2C_Init(I2C_B1, &I2C_InitStructure);
+  I2C_Cmd(I2C_B1, ENABLE);
 
-  GPIO_PinAFConfig(I2C_SPI_GPIO, I2C_SCL_GPIO_PinSource, I2C_GPIO_AF);
-  GPIO_PinAFConfig(I2C_SPI_GPIO, I2C_SDA_GPIO_PinSource, I2C_GPIO_AF);
+  GPIO_PinAFConfig(I2C_B1_SPI_GPIO, I2C_B1_SCL_GPIO_PinSource, I2C_B1_GPIO_AF);
+  GPIO_PinAFConfig(I2C_B1_SPI_GPIO, I2C_B1_SDA_GPIO_PinSource, I2C_B1_GPIO_AF);
 
-  GPIO_InitStructure.GPIO_Pin = I2C_SCL_GPIO_PIN | I2C_SDA_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = I2C_B1_SCL_GPIO_PIN | I2C_B1_SDA_GPIO_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(I2C_SPI_GPIO, &GPIO_InitStructure);
+  GPIO_Init(I2C_B1_SPI_GPIO, &GPIO_InitStructure);
 }
 
 #define I2C_TIMEOUT_MAX 1000
 bool I2C_WaitEvent(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (!I2C_CheckEvent(I2C, event)) {
+  while (!I2C_CheckEvent(I2C_B1, event)) {
     if ((timeout--) == 0) return false;
   }
   return true;
@@ -70,7 +70,7 @@ bool I2C_WaitEvent(uint32_t event)
 bool I2C_WaitEventCleared(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (I2C_CheckEvent(I2C, event)) {
+  while (I2C_CheckEvent(I2C_B1, event)) {
     if ((timeout--) == 0) return false;
   }
   return true;
@@ -89,44 +89,44 @@ bool I2C_EE_ReadBlock(uint8_t* pBuffer, uint16_t ReadAddr, uint16_t NumByteToRea
   if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
     return false;
 
-  I2C_GenerateSTART(I2C, ENABLE);
+  I2C_GenerateSTART(I2C_B1, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return false;
 
-  I2C_Send7bitAddress(I2C, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B1, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return false;
 
-  I2C_SendData(I2C, (uint8_t)((ReadAddr & 0xFF00) >> 8));
+  I2C_SendData(I2C_B1, (uint8_t)((ReadAddr & 0xFF00) >> 8));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
     return false;
-  I2C_SendData(I2C, (uint8_t)(ReadAddr & 0x00FF));
+  I2C_SendData(I2C_B1, (uint8_t)(ReadAddr & 0x00FF));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return false;
 
-  I2C_GenerateSTART(I2C, ENABLE);
+  I2C_GenerateSTART(I2C_B1, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return false;
 
-  I2C_Send7bitAddress(I2C, I2C_ADDRESS_EEPROM, I2C_Direction_Receiver);
+  I2C_Send7bitAddress(I2C_B1, I2C_ADDRESS_EEPROM, I2C_Direction_Receiver);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
     return false;
 
   if (NumByteToRead > 1) {
-    I2C_AcknowledgeConfig(I2C, ENABLE);
+    I2C_AcknowledgeConfig(I2C_B1, ENABLE);
   }
 
   while (NumByteToRead) {
     if (NumByteToRead == 1) {
-      I2C_AcknowledgeConfig(I2C, DISABLE);
+      I2C_AcknowledgeConfig(I2C_B1, DISABLE);
     }
     if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
       return false;
-    *pBuffer++ = I2C_ReceiveData(I2C);
+    *pBuffer++ = I2C_ReceiveData(I2C_B1);
     NumByteToRead--;
   }
 
-  I2C_GenerateSTOP(I2C, ENABLE);
+  I2C_GenerateSTOP(I2C_B1, ENABLE);
   return true;
 }
 
@@ -184,24 +184,24 @@ bool I2C_EE_PageWrite(uint8_t * pBuffer, uint16_t WriteAddr, uint8_t NumByteToWr
   if (!I2C_WaitEventCleared(I2C_FLAG_BUSY))
     return false;
 
-  I2C_GenerateSTART(I2C, ENABLE);
+  I2C_GenerateSTART(I2C_B1, ENABLE);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return false;
 
-  I2C_Send7bitAddress(I2C, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B1, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return false;
 
-  I2C_SendData(I2C, (uint8_t)((WriteAddr & 0xFF00) >> 8));
+  I2C_SendData(I2C_B1, (uint8_t)((WriteAddr & 0xFF00) >> 8));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
     return false;
-  I2C_SendData(I2C, (uint8_t)(WriteAddr & 0x00FF));
+  I2C_SendData(I2C_B1, (uint8_t)(WriteAddr & 0x00FF));
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
     return false;
 
   /* While there is data to be written */
   while (NumByteToWrite--) {
-    I2C_SendData(I2C, *pBuffer);
+    I2C_SendData(I2C_B1, *pBuffer);
     if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
       return false;
     pBuffer++;
@@ -210,7 +210,7 @@ bool I2C_EE_PageWrite(uint8_t * pBuffer, uint16_t WriteAddr, uint8_t NumByteToWr
   if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return false;
 
-  I2C_GenerateSTOP(I2C, ENABLE);
+  I2C_GenerateSTOP(I2C_B1, ENABLE);
   return true;
 }
 
@@ -229,14 +229,14 @@ void eepromPageWrite(uint8_t* pBuffer, uint16_t WriteAddr, uint8_t NumByteToWrit
 bool I2C_EE_WaitEepromStandbyState(void)
 {
   do {
-    I2C_GenerateSTART(I2C, ENABLE);
+    I2C_GenerateSTART(I2C_B1, ENABLE);
     if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
       return false;
 
-    I2C_Send7bitAddress(I2C, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
+    I2C_Send7bitAddress(I2C_B1, I2C_ADDRESS_EEPROM, I2C_Direction_Transmitter);
   } while (!I2C_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
-  I2C_GenerateSTOP(I2C, ENABLE);
+  I2C_GenerateSTOP(I2C_B1, ENABLE);
   return true;
 }
 
