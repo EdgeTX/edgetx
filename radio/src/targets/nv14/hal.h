@@ -162,7 +162,7 @@
 
 #define ADC_EXT_DMA_Channel             DMA_Channel_2
 #define ADC_EXT_DMA_Stream              DMA2_Stream0
-#define ADC_EXT_DMA_TC_Flag             DMA_FLAG_TCIF0
+#define ADC_EXT_TC_Flag                 DMA_FLAG_TCIF0
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
