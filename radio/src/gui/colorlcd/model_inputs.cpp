@@ -315,15 +315,9 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
                                              FlightModesType value,
                                              LcdFlags textColor)
 {
-  coord_t startX;
-  if (LCD_W > LCD_H)
-    startX = 146;
-  else
-    startX = 136;
-
   dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
                mixerSetupFlightmodeIcon, textColor);
-  coord_t x = startX + 20;//166;
+  coord_t x = 166;
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     char s[] = " ";
     s[0] = '0' + i;
