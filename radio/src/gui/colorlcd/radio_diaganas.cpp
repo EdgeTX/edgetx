@@ -58,8 +58,8 @@ class RadioAnalogsDiagsWindow: public Window {
   #endif
           dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
           dc->drawText(x + 2 * 15 - 2, y, ":");
-          drawHexNumber(dc, x + 3 * 15 - 1, y, hall_raw_values[i]);
-          dc->drawNumber(x + ANA_OFFSET, y, hall_raw_values[i], RIGHT);
+          dc->drawNumber(x + 3 * 15 - 1, y, hall_raw_values[i], LEFT);
+          dc->drawNumber(x + ANA_OFFSET, y, hall_adc_values[i], RIGHT);
         }
 
         for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
@@ -72,7 +72,7 @@ class RadioAnalogsDiagsWindow: public Window {
   #endif
           dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
           dc->drawText(x + 2 * 15 - 2, y, ":");
-          drawHexNumber(dc, x + 3 * 15 - 1, y, anaIn(i));
+          dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
           dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
         }
 #else		
@@ -86,7 +86,7 @@ class RadioAnalogsDiagsWindow: public Window {
 #endif
         dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
         dc->drawText(x + 2 * 15 - 2, y, ":");
-        drawHexNumber(dc, x + 3 * 15 - 1, y, anaIn(i));
+        dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
         dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
       }
 #endif

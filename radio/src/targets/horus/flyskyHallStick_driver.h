@@ -137,3 +137,4 @@ enum TRANSFER_DIR_E {
 };
 
 extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
+extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
