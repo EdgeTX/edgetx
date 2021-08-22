@@ -296,14 +296,14 @@ class Theme480: public OpenTxTheme
       delete mixerSetupFlightmodeIcon;
       mixerSetupFlightmodeIcon = BitmapBuffer::load8bitMask(mask_textline_fm);
 
-//      delete mixerSetupSlowIcon;
-//      mixerSetupSlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_slow.png"));
-//
-//      delete mixerSetupDelayIcon;
-//      mixerSetupDelayIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_delay.png"));
-//
-//      delete mixerSetupDelaySlowIcon;
-//      mixerSetupDelaySlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_delayslow.png"));
+      delete mixerSetupSlowIcon;
+      mixerSetupSlowIcon = BitmapBuffer::load8bitMask(mask_textline_slow);
+
+      delete mixerSetupDelayIcon;
+      mixerSetupDelayIcon = BitmapBuffer::load8bitMask(mask_textline_delay);
+
+      delete mixerSetupDelaySlowIcon;
+      mixerSetupDelaySlowIcon = BitmapBuffer::load8bitMask(mask_textline_delayslow);
     }
 
     void load() const override
@@ -424,8 +424,8 @@ class Theme480: public OpenTxTheme
       struct gtm t;
       gettime(&t);
       char str[10];
-#if defined(TRANSLATIONS_CN)
-      sprintf(str, "%d" TR_MONTH "%d", t.tm_mon + 1, t.tm_mday);
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
+      sprintf(str, "%d-%d", t.tm_mon + 1, t.tm_mday);
 #else
       const char * const STR_MONTHS[] = TR_MONTHS;
       sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);

@@ -57,7 +57,6 @@ volatile rotenc_t rotencValue = 0;
 
 #if defined(DEBUG)
 volatile tmr10ms_t g_tmr10ms;
-uint32_t debugCounter1ms = 0;
 #endif
 
 uint32_t firmwareSize;

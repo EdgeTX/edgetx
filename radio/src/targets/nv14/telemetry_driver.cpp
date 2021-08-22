@@ -65,17 +65,14 @@ void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(TELEMETRY_REV_GPIO, &GPIO_InitStructure);
-	
-	if (noinv == 0)
-	{
-	  TELEMETRY_TX_POL_NORM();
-		TELEMETRY_RX_POL_NORM();
-	}
-	else
-	{
-	  TELEMETRY_TX_POL_INV();
-		TELEMETRY_RX_POL_INV();
-	}
+
+  if (noinv != 0) {
+    TELEMETRY_TX_POL_NORM();
+    TELEMETRY_RX_POL_NORM();
+  } else {
+    TELEMETRY_TX_POL_INV();
+    TELEMETRY_RX_POL_INV();
+  }
 
   USART_InitStructure.USART_BaudRate = baudrate;
   if (mode & TELEMETRY_SERIAL_8E2) {
@@ -100,12 +97,12 @@ void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
 
 void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 {
-	telemetryPortInitCommon(baudrate, mode, 0);
+  telemetryPortInitCommon(baudrate, mode, 0);
 }
 
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
-	telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
+  telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
 }
 
 /*void extmoduleSendInvertedByte(uint8_t byte)
