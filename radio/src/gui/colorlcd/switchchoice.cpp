@@ -120,15 +120,23 @@ void SwitchChoice::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
+  static bool longPress = false;
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
     int16_t val = getValue();
-    setValue(-val);
-    invalidate();
+    if (isValueAvailable && isValueAvailable(-val) ) {
+      setValue(-val);
+      invalidate();
+      longPress = true;
+    }
   }
-  else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
-    invalidate();
-    openMenu();
+  else if (event == EVT_KEY_BREAK(KEY_ENTER)) { 
+    if(!longPress) {
+      editMode = true;
+      invalidate();
+      openMenu();
+    } else {
+      longPress = false;
+    }
   }
   else {
     FormField::onEvent(event);
@@ -153,9 +161,11 @@ void SwitchChoice::checkEvents(void)
 
   if (isLongPress()) {
     int16_t val = getValue();
-    setValue(-val);
-    invalidate();
-    duration10ms = 1;
+    if (isValueAvailable && isValueAvailable(-val) ) {
+      setValue(-val);
+      invalidate();
+      duration10ms = 1;
+    }
   }
 
   if (hasFocus())
@@ -176,10 +186,13 @@ bool SwitchChoice::onTouchEnd(coord_t x, coord_t y)
 {
   setFocus(SET_FOCUS_DEFAULT);
   
-  duration10ms = 0;
+  
+  if(duration10ms != 1) {
+    setEditMode(true);
+    openMenu();
+  }
 
-  setEditMode(true);
-  openMenu();
+  duration10ms = 0;
 
   return true;  // FormField::onTouchEnd(x, y);
 }
