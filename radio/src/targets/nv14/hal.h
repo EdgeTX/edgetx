@@ -180,7 +180,7 @@
 #define BLUETOOTH_ON_GPIO_PIN           GPIO_Pin_8 // PI.8
 
 // S.Port update connector
-#define SPORT_MAX_BAUDRATE              250000 // < 400000
+#define SPORT_MAX_BAUDRATE              400000
 #define SPORT_UPDATE_RCC_AHB1Periph     0
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
