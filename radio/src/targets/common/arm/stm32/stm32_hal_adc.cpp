@@ -389,7 +389,7 @@ static void stm32_hal_adc_wait_completion()
   // Wait for all ADCs to complete
   for (unsigned int i=0; i<10000; i++) {
     if (DMA_GetFlagStatus(ADC_DMA_Stream, ADC_DMA_TC_Flag) != RESET &&
-        DMA_GetFlagStatus(ADC_EXT_DMA_Stream, ADC_EXT_DMA_TC_Flag) != RESET) {
+        DMA_GetFlagStatus(ADC_EXT_DMA_Stream, ADC_EXT_TC_Flag) != RESET) {
       break;
     }
   }
