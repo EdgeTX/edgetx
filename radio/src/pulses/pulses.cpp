@@ -111,7 +111,7 @@ uint8_t getModuleType(uint8_t module)
 
 uint8_t getRequiredProtocol(uint8_t module)
 {
-  uint8_t protocol;
+  uint8_t protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
 
   switch (getModuleType(module)) {
     case MODULE_TYPE_PPM:
