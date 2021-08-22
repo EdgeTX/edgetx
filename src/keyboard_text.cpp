@@ -112,17 +112,17 @@ void TextKeyboard::paint(BitmapBuffer * dc)
       }
       else if (*c == KEYBOARD_SPACE[0]) {
         // spacebar
-        dc->drawBitmapPattern(x, y, LBM_KEY_SPACEBAR, DEFAULT_COLOR);
+        dc->drawBitmapPattern(x, y, LBM_KEY_SPACEBAR, COLOR_THEME_SECONDARY1);
         x += 135;
       }
       else if (*c == KEYBOARD_ENTER[0]) {
         // enter
-        dc->drawSolidFilledRect(x, y-2, 80, 25, TEXT_DISABLE_COLOR);
+        dc->drawSolidFilledRect(x, y-2, 80, 25, COLOR_THEME_DISABLED);
         dc->drawText(x+40, y, "ENTER", CENTERED);
         x += 80;
       }
       else if (int8_t(*c) < 0) {
-        dc->drawBitmapPattern(x, y, LBM_SPECIAL_KEYS[uint8_t(*c - 128)], DEFAULT_COLOR);
+        dc->drawBitmapPattern(x, y, LBM_SPECIAL_KEYS[uint8_t(*c - 128)], COLOR_THEME_SECONDARY1);
         x += 45;
       }
       else {

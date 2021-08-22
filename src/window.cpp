@@ -520,7 +520,7 @@ void Window::drawVerticalScrollbar(BitmapBuffer * dc)
       yhgt = 15;
     if (yhgt + yofs > rect.h)
       yhgt = rect.h - yofs;
-    dc->drawSolidFilledRect(rect.w - SCROLLBAR_WIDTH, scrollPositionY + yofs, SCROLLBAR_WIDTH, yhgt, SCROLLBAR_COLOR);
+    dc->drawSolidFilledRect(rect.w - SCROLLBAR_WIDTH, scrollPositionY + yofs, SCROLLBAR_WIDTH, yhgt, COLOR_THEME_PRIMARY3);
   }
 }
 
@@ -533,6 +533,6 @@ void Window::drawHorizontalScrollbar(BitmapBuffer * dc)
       xwdth = 15;
     if (xwdth + xofs > rect.w)
       xwdth = rect.w - xofs;
-    dc->drawSolidFilledRect(scrollPositionX + xofs, rect.h - SCROLLBAR_WIDTH, xwdth, SCROLLBAR_WIDTH, SCROLLBAR_COLOR);
+    dc->drawSolidFilledRect(scrollPositionX + xofs, rect.h - SCROLLBAR_WIDTH, xwdth, SCROLLBAR_WIDTH, COLOR_THEME_PRIMARY3);
   }
 }
