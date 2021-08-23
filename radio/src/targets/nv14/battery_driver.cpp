@@ -108,29 +108,29 @@ void drawChargingInfo(uint16_t chargeState){
         }
         text = STR_BATTERYCHARGING;
         h = ((BATTERY_H_INNER * progress) / 100);
-        color = BATTERY_CHARGE_COLOR;
+        color = COLOR_THEME_EDIT;
     }
     else if(CHARGE_FINISHED == chargeState)
     {
         text = STR_BATTERYFULL;
         h = BATTERY_H_INNER;
-        color = BATTERY_CHARGE_COLOR;
+        color = COLOR_THEME_EDIT;
     }
     else
     {
         text = STR_BATTERYNONE;
         h = BATTERY_H_INNER;
-        color = TRIM_SHADOW_COLOR;
+        color = COLOR_THEME_PRIMARY1;
     }
 
     BACKLIGHT_ENABLE();
-    lcd->drawSizedText(LCD_W/2, LCD_H-50, text, strlen(text), CENTERED|MAINVIEW_PANES_COLOR);
+    lcd->drawSizedText(LCD_W/2, LCD_H-50, text, strlen(text), CENTERED|COLOR_THEME_PRIMARY2);
 
-    lcd->drawFilledRect((LCD_W - BATTERY_W)/2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, MAINVIEW_PANES_COLOR);
-    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, TRIM_SHADOW_COLOR);
+    lcd->drawFilledRect((LCD_W - BATTERY_W)/2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
+    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
 
     lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER + BATTERY_H_INNER - h , BATTERY_W_INNER, h, SOLID, color);
-    lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, MAINVIEW_PANES_COLOR);
+    lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
 #define CHARGE_INFO_DURATION 500
 //this method should be called by timer interrupt or by GPIO interrupt

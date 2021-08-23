@@ -70,12 +70,12 @@ void RadioCalibrationPage::buildHeader(Window * window)
   new StaticText(window,
                  {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                   PAGE_LINE_HEIGHT},
-                 STR_MENUCALIBRATION, 0, FOCUS_COLOR);
+                 STR_MENUCALIBRATION, 0, COLOR_THEME_PRIMARY2);
 
   text = new StaticText(window,
                         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                          LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                        STR_MENUTOSTART, 0, FOCUS_COLOR);
+                        STR_MENUTOSTART, 0, COLOR_THEME_PRIMARY2);
 }
 
 void RadioCalibrationPage::buildBody(FormWindow * window)

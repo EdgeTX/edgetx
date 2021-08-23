@@ -53,7 +53,7 @@ class TextWidget: public Widget
 
 const ZoneOption TextWidget::options[] = {
   { STR_TEXT, ZoneOption::String, OPTION_VALUE_STRING(TEXT_WIDGET_DEFAULT_LABEL) },
-  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_COLOR>>16) },
+  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1>>16) },
   { STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(0) },
   { STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)  },
   { nullptr, ZoneOption::Bool }

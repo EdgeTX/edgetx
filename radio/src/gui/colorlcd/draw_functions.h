@@ -56,7 +56,7 @@ void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att);
 void drawStatusText(BitmapBuffer * dc, const char * text);
 void drawVerticalScrollbar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible);
 void drawProgressScreen(BitmapBuffer * dc, const char * title, const char * message, int num, int den);
-void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color = TRIM_BGCOLOR);
+void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color = COLOR_THEME_FOCUS);
 void drawHorizontalTrimPosition(BitmapBuffer * dc, coord_t x, coord_t y, int16_t dir);
 void drawVerticalTrimPosition(BitmapBuffer * dc, coord_t x, coord_t y, int16_t dir);
 void drawVerticalSlider(BitmapBuffer * dc, coord_t x, coord_t y, int len, int val, int min, int max, uint8_t steps, uint32_t options);

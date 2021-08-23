@@ -33,25 +33,25 @@ coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char 
 
 void drawStatusText(BitmapBuffer * dc, const char * text)
 {
-  dc->drawText(MENUS_MARGIN_LEFT, MENU_FOOTER_TOP, text, TEXT_STATUSBAR_COLOR);
+  dc->drawText(MENUS_MARGIN_LEFT, MENU_FOOTER_TOP, text, COLOR_THEME_PRIMARY2);
 }
 
 void drawVerticalScrollbar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible)
 {
   if (visible < count) {
-    dc->drawSolidVerticalLine(x, y, h, LINE_COLOR);
+    dc->drawSolidVerticalLine(x, y, h, COLOR_THEME_PRIMARY3);
     coord_t yofs = (h*offset + count/2) / count;
     coord_t yhgt = (h*visible + count/2) / count;
     if (yhgt + yofs > h)
       yhgt = h - yofs;
-    dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, CHECKBOX_COLOR);
+    dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, COLOR_THEME_FOCUS);
   }
 }
 
 void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color)
 {
   dc->drawSolidFilledRect(x, y, 15, 15, color);
-  dc->drawBitmapPattern(x, y, LBM_TRIM_SHADOW, TRIM_SHADOW_COLOR);
+  dc->drawBitmapPattern(x, y, LBM_TRIM_SHADOW, COLOR_THEME_PRIMARY1);
 }
 
 void drawGVarValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags)

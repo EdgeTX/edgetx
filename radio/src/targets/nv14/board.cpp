@@ -195,7 +195,7 @@ void boardInit()
 }
 void boardOff()
 {
-  lcd->drawFilledRect(0, 0, LCD_WIDTH, LCD_HEIGHT, SOLID, HEADER_BGCOLOR);
+  lcd->drawFilledRect(0, 0, LCD_WIDTH, LCD_HEIGHT, SOLID, COLOR_THEME_FOCUS);
   lcdOff();
 
   while (pwrPressed()) {

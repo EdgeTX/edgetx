@@ -140,11 +140,11 @@ class ModelButton : public Button
     if (buffer == nullptr) {
       return;
     }
-    buffer->clear(FIELD_BGCOLOR);
+    buffer->clear(COLOR_THEME_PRIMARY2);
 
     if (error) {
       buffer->drawText(width() / 2, 2, "(Invalid Model)",
-                       DEFAULT_COLOR | CENTERED);
+                       COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       GET_FILENAME(filename, BITMAPS_PATH, partialModel.header.bitmap, "");
       const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
@@ -153,7 +153,7 @@ class ModelButton : public Button
         delete bitmap;
       } else {
         buffer->drawText(width() / 2, 56, "(No Picture)",
-                         FONT(XXS) | DEFAULT_COLOR | CENTERED);
+                         FONT(XXS) | COLOR_THEME_SECONDARY1 | CENTERED);
       }
     }
   }
@@ -166,19 +166,19 @@ class ModelButton : public Button
       dc->drawBitmap(0, 0, buffer);
 
     if (modelCell == modelslist.getCurrentModel()) {
-      dc->drawSolidFilledRect(0, 0, width(), 20, HIGHLIGHT_COLOR);
+      dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
                         LEN_MODEL_NAME,
-                        DEFAULT_COLOR | CENTERED);
+                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       LcdFlags textColor;
       // if (hasFocus()) {
-      //   dc->drawFilledRect(0, 0, width(), 20, SOLID, FOCUS_BGCOLOR, 5);
-      //   textColor = FOCUS_COLOR;
+      //   dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_FOCUS, 5);
+      //   textColor = COLOR_THEME_PRIMARY2;
       // }
       // else {
-        dc->drawFilledRect(0, 0, width(), 20, SOLID, FIELD_BGCOLOR, 5);
-        textColor = DEFAULT_COLOR;
+        dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2, 5);
+        textColor = COLOR_THEME_SECONDARY1;
       // }
 
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
@@ -187,9 +187,9 @@ class ModelButton : public Button
     }
 
     if (!hasFocus()) {
-      dc->drawSolidRect(0, 0, width(), height(), 1, FIELD_FRAME_COLOR);
+      dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
     } else {
-      dc->drawSolidRect(0, 0, width(), height(), 2, FOCUS_BGCOLOR);
+      dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
     }
   }
 

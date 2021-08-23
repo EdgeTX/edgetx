@@ -80,23 +80,23 @@ class SensorButton : public Button {
       TelemetryItem &telemetryItem = telemetryItems[index];
 
       if (telemetryItem.isAvailable())
-        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, HIGHLIGHT_COLOR);
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, COLOR_THEME_ACTIVE);
       else
-        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, FIELD_BGCOLOR);
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, COLOR_THEME_PRIMARY2);
 
       if (telemetryItem.isFresh())
-        dc->drawFilledCircle(24, (2 + rect.h - 4)/2, 4, DEFAULT_COLOR);
+        dc->drawFilledCircle(24, (2 + rect.h - 4)/2, 4, COLOR_THEME_SECONDARY1);
 
       dc->drawNumber(2, 1, number, LEFT, 0, nullptr, ":");
 
       dc->drawSizedText(SENSOR_COL1, line1, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
 
       if (telemetryItem.isAvailable()) {
-        LcdFlags color = telemetryItem.isOld() ? ALARM_COLOR : DEFAULT_COLOR;
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_SECONDARY1;
         drawSensorCustomValue(dc, SENSOR_COL2, line1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
       }
       else {
-        dc->drawText(SENSOR_COL2, line1, "---", DEFAULT_COLOR);
+        dc->drawText(SENSOR_COL2, line1, "---", COLOR_THEME_SECONDARY1);
       }
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
@@ -108,9 +108,9 @@ class SensorButton : public Button {
       }
 
       if (hasFocus())
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
       else
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
     }
 
   protected:
@@ -139,9 +139,9 @@ class SensorEditWindow : public Page {
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
                      STR_SENSOR + std::to_string(index + 1), 0,
-                     MENU_HIGHLIGHT_COLOR);
+                     COLOR_THEME_PRIMARY2);
       // dynamic display of sensor value ?
-      //new StaticText(window, {70, 28, 100, 20}, "SF" + std::to_string(index), 0, MENU_COLOR);
+      //new StaticText(window, {70, 28, 100, 20}, "SF" + std::to_string(index), 0, COLOR_THEME_SECONDARY1);
     }
 
     void updateSensorParametersWindow()
@@ -440,9 +440,9 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   // Sensors columns titles
   uint8_t sensorsCount = getTelemetrySensorsCount();
   if (sensorsCount > 0) {
-    new StaticText(window, {SENSOR_COL2, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | TEXT_DISABLE_COLOR);
+    new StaticText(window, {SENSOR_COL2, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_DISABLED);
     if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
-      new StaticText(window, {SENSOR_COL3, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | TEXT_DISABLE_COLOR);
+      new StaticText(window, {SENSOR_COL3, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | COLOR_THEME_DISABLED);
     }
   }
 

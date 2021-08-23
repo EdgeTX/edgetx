@@ -30,22 +30,22 @@ void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text, const cha
 {
   // popup background
   dc->drawSolidFilledRect(0, 0, rect.w, POPUP_HEADER_HEIGHT,
-                          FOCUS_BGCOLOR);
+                          COLOR_THEME_FOCUS);
 
   const char* title = text;//TODO: based on 'type'
 
   // title bar
   dc->drawText(FIELD_PADDING_LEFT,
                (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2,
-               title, FOCUS_COLOR);
+               title, COLOR_THEME_PRIMARY2);
 
   dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, rect.w,
                           rect.h - POPUP_HEADER_HEIGHT,
-                          DEFAULT_BGCOLOR);
+                          COLOR_THEME_SECONDARY3);
 
   dc->drawText(FIELD_PADDING_LEFT,
                POPUP_HEADER_HEIGHT + PAGE_LINE_HEIGHT,
-               info, DEFAULT_COLOR);
+               info, COLOR_THEME_SECONDARY1);
 }
 
 // singleton instance
@@ -97,7 +97,7 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool /*trash*/)
 
 void StandaloneLuaWindow::paint(BitmapBuffer* dc)
 {
-  dc->drawSolidFilledRect(0, 0, width(), height(), DEFAULT_BGCOLOR);
+  dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY3);
   dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), &lcdBuffer);
 }
 
@@ -127,7 +127,7 @@ bool StandaloneLuaWindow::displayPopup(event_t event, uint8_t type, const char* 
 {
   // transparent background
   lcdBuffer.drawFilledRect(0, 0, LCD_W, LCD_H, SOLID,
-                           OVERLAY_COLOR, OPACITY(5));
+                           COLOR_THEME_PRIMARY1, OPACITY(5));
 
   // center pop-up
   lcdBuffer.setOffset(LCD_W/2 - popup.rect.w/2, LCD_H/2 - popup.rect.h/2);

@@ -73,8 +73,8 @@ class ChannelFailsafeBargraph: public Window {
       x += width() / 2;
       const coord_t xChannel = (channelValue > 0) ? x : x + 1 - lenChannel;
       const coord_t xFailsafe = (failsafeValue > 0) ? x : x + 1 - lenFailsafe;
-      dc->drawSolidFilledRect(xChannel, + 2, lenChannel, (height() / 2) - 3, DEFAULT_COLOR);
-      dc->drawSolidFilledRect(xFailsafe, (height() / 2) + 1, lenFailsafe, (height() / 2) - 3, ALARM_COLOR);
+      dc->drawSolidFilledRect(xChannel, + 2, lenChannel, (height() / 2) - 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidFilledRect(xFailsafe, (height() / 2) + 1, lenFailsafe, (height() / 2) - 3, COLOR_THEME_WARNING);
     }
 
   protected:
@@ -147,7 +147,7 @@ class FailSafePage : public Page {
       new StaticText(&header,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_FAILSAFESET, 0, FOCUS_COLOR);
+                     STR_FAILSAFESET, 0, COLOR_THEME_PRIMARY2);
     }
 
   protected:
@@ -989,7 +989,7 @@ class ModuleWindow : public FormGroup {
                       return std::string(buf);
                     },
                     "RSSI:", 50,
-                    DEFAULT_COLOR | CENTERED | FONT(BOLD) | FONT(XL));
+                    COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
                 rssiDialog->setCloseHandler([this]() {
                   rangeButton->check(false);
                   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;

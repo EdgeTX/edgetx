@@ -31,8 +31,8 @@ static void drawProgressScreen(const char* filename, int progress, int total)
 
   lcd->reset();
   l_theme->drawBackground(lcd);
-  lcd->drawText(LCD_W/2, LCD_H/2 - 30, STR_CONVERTING, FONT(XL) | CENTERED | ALARM_COLOR);
-  lcd->drawText(LCD_W/2, LCD_H/2, filename, FONT(STD) | CENTERED | DEFAULT_COLOR);
+  lcd->drawText(LCD_W/2, LCD_H/2 - 30, STR_CONVERTING, FONT(XL) | CENTERED | COLOR_THEME_WARNING);
+  lcd->drawText(LCD_W/2, LCD_H/2, filename, FONT(STD) | CENTERED | COLOR_THEME_SECONDARY1);
 
   l_theme->drawProgressBar(lcd,
                            LCD_W / 4,

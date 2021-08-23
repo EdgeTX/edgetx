@@ -34,11 +34,11 @@ void TimeEdit::paint(BitmapBuffer * dc)
 
   LcdFlags textColor;
   if (editMode)
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else if (hasFocus())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else
-    textColor = DEFAULT_COLOR;
+    textColor = COLOR_THEME_SECONDARY1;
 
   dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
                getTimerString(getValue(), (textFlags & TIMEHOUR) != 0),

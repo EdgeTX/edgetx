@@ -46,9 +46,9 @@ class ChannelsViewFooter: public Window {
     // Draw single legend
     coord_t drawChannelsMonitorLegend(BitmapBuffer * dc, coord_t x, const char * s, int color)
     {
-      dc->drawSolidFilledRect(x, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2, BARGRAPH_BGCOLOR);
+      dc->drawSolidFilledRect(x, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2, COLOR_THEME_SECONDARY3);
       dc->drawSolidFilledRect(x + 1, 5, LEG_COLORBOX, LEG_COLORBOX, color);
-      dc->drawText(x + 20, 4, s, TEXT_STATUSBAR_COLOR);
+      dc->drawText(x + 20, 4, s, COLOR_THEME_PRIMARY2);
       return x + 25 + getTextWidth(s);
     }
 
@@ -56,9 +56,9 @@ class ChannelsViewFooter: public Window {
     {
       // Draw legend bar
       coord_t x = 10;
-      dc->drawSolidFilledRect(0, 0, width(), height(), TITLE_BGCOLOR);
-      x = drawChannelsMonitorLegend(dc, MENUS_MARGIN_LEFT, STR_MONITOR_OUTPUT_DESC, HIGHLIGHT_COLOR);
-      drawChannelsMonitorLegend(dc, x, STR_MONITOR_MIXER_DESC, FOCUS_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+      x = drawChannelsMonitorLegend(dc, MENUS_MARGIN_LEFT, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_ACTIVE);
+      drawChannelsMonitorLegend(dc, x, STR_MONITOR_MIXER_DESC, COLOR_THEME_FOCUS);
     }
 };
 

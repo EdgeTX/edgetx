@@ -28,8 +28,9 @@
 #undef INVERS
 #undef BLINK
 
-#define INVERS 0x10000000u
-#define BLINK  0x20000000u
+#define INVERS     0x01u
+#define BLINK    0x1000u
+#define RGB_FLAG 0x8000u
 
 constexpr coord_t INVERT_BOX_MARGIN = 2;
 

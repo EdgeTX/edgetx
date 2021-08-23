@@ -130,13 +130,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
               return 0;
             },
             OPAQUE);
-        b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+        b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
         b->setFocusHandler([=](bool focus) {
           if (focus) {
-            txt->setBackgroundColor(FOCUS_BGCOLOR);
-            txt->setTextFlags(FOCUS_COLOR | CENTERED);
+            txt->setBackgroundColor(COLOR_THEME_FOCUS);
+            txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
-            txt->setBackgroundColor(FIELD_FRAME_COLOR);
+            txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
             txt->setTextFlags(CENTERED);
           }
           txt->invalidate();
@@ -162,13 +162,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();
@@ -189,13 +189,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();
@@ -214,13 +214,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();
@@ -244,13 +244,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();
@@ -273,13 +273,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();
@@ -301,13 +301,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           return 0;
         },
         OPAQUE);
-    b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+    b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
     b->setFocusHandler([=](bool focus) {
       if (focus) {
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
-        txt->setBackgroundColor(FIELD_FRAME_COLOR);
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
         txt->setTextFlags(CENTERED);
       }
       txt->invalidate();

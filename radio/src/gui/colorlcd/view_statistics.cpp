@@ -49,10 +49,10 @@ class ThrottleCurveWindow : public Window
     void paint(BitmapBuffer * dc) override
     {
       // Axis
-      dc->drawHorizontalLine(0, height() - 2, width(), SOLID | DEFAULT_COLOR);
-      dc->drawVerticalLine(0, 0, height(), SOLID, DEFAULT_COLOR);
+      dc->drawHorizontalLine(0, height() - 2, width(), SOLID | COLOR_THEME_SECONDARY1);
+      dc->drawVerticalLine(0, 0, height(), SOLID, COLOR_THEME_SECONDARY1);
       for (coord_t i=0; i < width(); i+=6) {
-        dc->drawVerticalLine(i,height() - 4, 3, SOLID | DEFAULT_COLOR);
+        dc->drawVerticalLine(i,height() - 4, 3, SOLID | COLOR_THEME_SECONDARY1);
       }
 
       // Curve
@@ -64,17 +64,17 @@ class ThrottleCurveWindow : public Window
         if (prev_yv != (coord_t)-1) {
           if (prev_yv < yv) {
             for (int y=prev_yv; y<=yv; y++) {
-              dc->drawBitmapPattern(i, y, LBM_POINT, DEFAULT_COLOR);
+              dc->drawBitmapPattern(i, y, LBM_POINT, COLOR_THEME_SECONDARY1);
             }
           }
           else {
             for (int y=yv; y<=prev_yv; y++) {
-              dc->drawBitmapPattern(i, y, LBM_POINT, DEFAULT_COLOR);
+              dc->drawBitmapPattern(i, y, LBM_POINT, COLOR_THEME_SECONDARY1);
             }
           }
         }
         else {
-          dc->drawBitmapPattern(i, yv, LBM_POINT, DEFAULT_COLOR);
+          dc->drawBitmapPattern(i, yv, LBM_POINT, COLOR_THEME_SECONDARY1);
         }
         prev_yv = yv;
       }

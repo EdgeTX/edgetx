@@ -51,35 +51,35 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
   OpenTxTheme::instance()->drawBackground(dc);
 
   dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
-                     FOCUS_COLOR, OPACITY(8));
+                     COLOR_THEME_PRIMARY2, OPACITY(8));
 
   if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->error, ALARM_COLOR);
+                 OpenTxTheme::instance()->error, COLOR_THEME_WARNING);
   } else if (type == WARNING_TYPE_INFO) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->busy, ALARM_COLOR);
+                 OpenTxTheme::instance()->busy, COLOR_THEME_WARNING);
   } else { // confirmation
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->error, ALARM_COLOR);
+                 OpenTxTheme::instance()->error, COLOR_THEME_WARNING);
   }
 
   if (type == WARNING_TYPE_ALERT) {
 #if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || \
     defined(TRANSLATIONS_CZ)
     dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, STR_WARNING,
-                 ALARM_COLOR | FONT(XL));
+                 COLOR_THEME_WARNING | FONT(XL));
     dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
-                 title.c_str(), ALARM_COLOR | FONT(XL));
+                 title.c_str(), COLOR_THEME_WARNING | FONT(XL));
 #else
     dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
-                 ALARM_COLOR | FONT(XL));
+                 COLOR_THEME_WARNING | FONT(XL));
     dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
-                 STR_WARNING, ALARM_COLOR | FONT(XL));
+                 STR_WARNING, COLOR_THEME_WARNING | FONT(XL));
 #endif
   } else if (!title.empty()) {
     dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
-                 ALARM_COLOR | FONT(XL));
+                 COLOR_THEME_WARNING | FONT(XL));
   }
 
   if (!message.empty()) {
