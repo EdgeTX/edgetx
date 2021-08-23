@@ -21,7 +21,7 @@
 #include "topbar_impl.h"
 #include "opentx.h"
 
-const char * const STR_MONTHS[] = TR_MONTHS;
+
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 2; // 2 Hz
 
 TopbarImpl::TopbarImpl(Window * parent) :
@@ -83,11 +83,26 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   struct gtm t;
   gettime(&t);
   char str[10];
-#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW) 
-      sprintf(str, "%d-%d", t.tm_mon + 1, t.tm_mday);
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
+  if ((t.tm_mon+1) < 10 && (t.tm_mday < 10))
+  {
+      sprintf(str, "0%d-0%d", t.tm_mon + 1, t.tm_mday);
+  }
+  else if ((t.tm_mon+1) < 10 && (t.tm_mday >= 10))
+  {
+      sprintf(str, "0%d-%d", t.tm_mon + 1, t.tm_mday);
+  }
+  else if ((t.tm_mon+1) >= 10 && (t.tm_mday < 10))
+  {
+      sprintf(str, "%d-0%d", t.tm_mon + 1, t.tm_mday);
+  }
+  else
+  {
+    sprintf(str, "%d-%d", t.tm_mon + 1, t.tm_mday);
+  }  
 #else
-      const char * const STR_MONTHS[] = TR_MONTHS;
-      sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
+  const char * const STR_MONTHS[] = TR_MONTHS;
+  sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
 #endif
   //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, COLOR_THEME_SECONDARY1);
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
