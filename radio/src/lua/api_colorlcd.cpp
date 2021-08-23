@@ -21,7 +21,6 @@
 #include <cctype>
 #include <cstdio>
 #include "opentx.h"
-#include "lua_api.h"
 #include "libopenui.h"
 
 #include "api_colorlcd.h"
