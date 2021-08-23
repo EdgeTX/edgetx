@@ -108,19 +108,19 @@ bool CheckBox(W * window, rect_t & rect, const char * label, uint8_t & value, Lc
   drawText(window, rect.x, rect.y+4, label);
   coord_t x = rect.x + rect.w - 20;
   if (hasFocus) {
-    window->drawSolidFilledRect(x-1, rect.y+8, 14, 14, FOCUS_BGCOLOR);
-    window->drawSolidFilledRect(x+1, rect.y+10, 10, 10, DEFAULT_BGCOLOR);
+    window->drawSolidFilledRect(x-1, rect.y+8, 14, 14, COLOR_THEME_FOCUS);
+    window->drawSolidFilledRect(x+1, rect.y+10, 10, 10, COLOR_THEME_SECONDARY3);
     if (value) {
-      window->drawSolidFilledRect(x+2, rect.y+11, 8, 8, FOCUS_BGCOLOR);
+      window->drawSolidFilledRect(x+2, rect.y+11, 8, 8, COLOR_THEME_FOCUS);
     }
   }
   else {
     if (value) {
-      window->drawSolidFilledRect(x+2, rect.y+11, 8, 8, CHECKBOX_COLOR);
-      drawSolidRect(window, x, rect.y+9, 12, 12, 1, LINE_COLOR);
+      window->drawSolidFilledRect(x+2, rect.y+11, 8, 8, COLOR_THEME_FOCUS);
+      drawSolidRect(window, x, rect.y+9, 12, 12, 1, COLOR_THEME_PRIMARY3);
     }
     else {
-      drawSolidRect(window, x, rect.y+9, 12, 12, 1, LINE_COLOR);
+      drawSolidRect(window, x, rect.y+9, 12, 12, 1, COLOR_THEME_PRIMARY3);
     }
   }
   if (window->touchPressed(rect.x, rect.y, rect.w, rect.h)) {
@@ -150,10 +150,10 @@ bool Choice(W * window, rect_t & rect, const char * label, const char * values, 
   rect.h = 30;
   bool hasFocus = (flags & HAS_FOCUS) || window->hasFocus(rect.x, rect.y);
   LcdFlags textColor = 0;
-  LcdFlags lineColor = DISABLE_COLOR;
+  LcdFlags lineColor = COLOR_THEME_DISABLED;
   if (hasFocus) {
-    textColor = FOCUS_BGCOLOR;
-    lineColor = FOCUS_BGCOLOR;
+    textColor = COLOR_THEME_FOCUS;
+    lineColor = COLOR_THEME_FOCUS;
   }
   drawTextAtIndex(window, rect.x, rect.y + 9, values, value, textColor);
   drawWidgetLine(window, rect, lineColor);
@@ -175,10 +175,10 @@ bool TextEdit(W * window, rect_t & rect, const char * label, char * value, uint8
   rect.h = 30;
   bool hasFocus = (flags & HAS_FOCUS) || window->hasFocus(rect.x, rect.y);
   LcdFlags textColor = 0;
-  LcdFlags lineColor = DISABLE_COLOR;
+  LcdFlags lineColor = COLOR_THEME_DISABLED;
   if (hasFocus) {
-    textColor = FOCUS_BGCOLOR;
-    lineColor = FOCUS_BGCOLOR;
+    textColor = COLOR_THEME_FOCUS;
+    lineColor = COLOR_THEME_FOCUS;
   }
   if (!hasFocus && zlen(value, length) == 0)
     menuBodyWindow.drawSizedText(rect.x, rect.y + 9, "---", length, textColor);

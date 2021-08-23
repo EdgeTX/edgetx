@@ -66,16 +66,16 @@ class OutputsWidget: public Widget
           dc->drawSolidFilledRect(barLft, barTop, barW , barH, CUSTOM_COLOR);
         }
         if (fillW)
-          dc->drawSolidFilledRect((chanVal > 0 ? barMid : barMid - fillW), barTop, fillW, barH, BARGRAPH1_COLOR);
-        lcd->drawSolidVerticalLine(barMid, barTop, barH, MAINVIEW_GRAPHICS_COLOR);
+          dc->drawSolidFilledRect((chanVal > 0 ? barMid : barMid - fillW), barTop, fillW, barH, COLOR_THEME_SECONDARY1);
+        lcd->drawSolidVerticalLine(barMid, barTop, barH, COLOR_THEME_SECONDARY1);
         dc->drawRect(x, rowTop, w, rowH + 1);
-        dc->drawNumber(x + barW - 10, barTop, chanVal, FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
+        dc->drawNumber(x + barW - 10, barTop, chanVal, FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
         if (g_model.limitData[curChan - 1].name[0] != 0) {
-          dc->drawNumber(barLft + 1, barTop, curChan, FONT(XS) | DEFAULT_COLOR | LEFT | LEADING0, 2);
-          dc->drawSizedText(barLft + 23, barTop, g_model.limitData[curChan - 1].name, sizeof(g_model.limitData[curChan - 1].name), FONT(XS) | DEFAULT_COLOR | LEFT);
+          dc->drawNumber(barLft + 1, barTop, curChan, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT | LEADING0, 2);
+          dc->drawSizedText(barLft + 23, barTop, g_model.limitData[curChan - 1].name, sizeof(g_model.limitData[curChan - 1].name), FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
         }
         else {
-          drawSource(dc, barLft + 1, barTop, MIXSRC_FIRST_CH+curChan-1, FONT(XS) | DEFAULT_COLOR | LEFT);
+          drawSource(dc, barLft + 1, barTop, MIXSRC_FIRST_CH+curChan-1, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
         }
       }
       return lastChan - 1;

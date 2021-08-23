@@ -49,11 +49,11 @@ class GaugeWidget: public Widget
       int percent = divRoundClosest(100 * (value - min), (max - min));
 
       // Gauge label
-      drawSource(dc, 0, 0, index, FONT(XS) | FOCUS_COLOR);
+      drawSource(dc, 0, 0, index, FONT(XS) | COLOR_THEME_PRIMARY2);
 
       // Gauge
       lcdSetColor(color);
-      dc->drawSolidFilledRect(0, 16, width(), 16, FOCUS_COLOR);
+      dc->drawSolidFilledRect(0, 16, width(), 16, COLOR_THEME_PRIMARY2);
       dc->drawNumber(0+width()/2, 17, percent, FONT(XS) | CUSTOM_COLOR | CENTERED, 0, nullptr, "%");
       dc->invertRect(w, 16, width() - w, 16, CUSTOM_COLOR);
     }

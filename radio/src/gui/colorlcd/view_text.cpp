@@ -421,7 +421,7 @@ void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
   if (yhgt < 15) yhgt = 15;
   if (yhgt + yofs > maxPos) yhgt = maxPos - yofs;
   dc->drawSolidFilledRect(body.getRect().w - SCROLLBAR_WIDTH, yofs,
-                          SCROLLBAR_WIDTH, yhgt, SCROLLBAR_COLOR);
+                          SCROLLBAR_WIDTH, yhgt, COLOR_THEME_PRIMARY3);
 }
 
 #endif

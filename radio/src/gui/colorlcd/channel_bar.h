@@ -58,7 +58,7 @@ class MixerChannelBar : public ChannelBar
       chanVal = limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
 
       //  Draw Background
-      dc->drawSolidFilledRect(0, 0, width(), height(), FIELD_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_PRIMARY2);
 
       // Draw mixer bar
       if (chanVal > 0) {
@@ -66,10 +66,10 @@ class MixerChannelBar : public ChannelBar
         dc->drawSolidFilledRect(
             0 + width() / 2, 0,
             divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
-            height(), FOCUS_BGCOLOR);
+            height(), COLOR_THEME_FOCUS);
 
         dc->drawNumber(width() / 2 - 10, 0, displayVal,
-                       FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
+                       FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
 
       } else if (chanVal < 0) {
 
@@ -78,14 +78,14 @@ class MixerChannelBar : public ChannelBar
             divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
 
         dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
-                                FOCUS_BGCOLOR);
+                                COLOR_THEME_FOCUS);
 
         dc->drawNumber(10 + width() / 2, 0, displayVal,
-                       FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
+                       FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
       }
 
       // Draw middle bar
-      dc->drawSolidVerticalLine(width() / 2, 0, height(), DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
     }
     
     void checkEvents() override
@@ -116,7 +116,7 @@ class OutputChannelBar : public ChannelBar
                            VIEW_CHANNELS_LIMIT_PCT);
 
       //  Draw Background
-      dc->drawSolidFilledRect(0, 0, width(), height(), FIELD_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_PRIMARY2);
 
       // Draw output bar
       if (chanVal > 0) {
@@ -124,10 +124,10 @@ class OutputChannelBar : public ChannelBar
         dc->drawSolidFilledRect(
             width() / 2, 0,
             divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
-            height(), HIGHLIGHT_COLOR);
+            height(), COLOR_THEME_ACTIVE);
 
         dc->drawNumber(width() / 2 - 10, 0, displayVal,
-                       FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, "%");
+                       FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
 
       } else if (chanVal < 0) {
         unsigned endpoint = width() / 2;
@@ -135,14 +135,14 @@ class OutputChannelBar : public ChannelBar
             divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
 
         dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
-                                HIGHLIGHT_COLOR);
+                                COLOR_THEME_ACTIVE);
 
         dc->drawNumber(width() / 2 + 10, 0, displayVal,
-                       FONT(XS) | DEFAULT_COLOR, 0, nullptr, "%");
+                       FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
       }
 
       // Draw middle bar
-      dc->drawSolidVerticalLine(width() / 2, 0, height(), DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
 
       // Draw output limits bars
       LimitData* ld = limitAddress(channel);
@@ -162,13 +162,13 @@ class OutputChannelBar : public ChannelBar
 
     void drawOutputBarLimits(BitmapBuffer * dc, coord_t left, coord_t right)
     {
-      dc->drawSolidVerticalLine(left, 0, BAR_HEIGHT, DEFAULT_COLOR);
-      dc->drawSolidHorizontalLine(left, 0, 3, DEFAULT_COLOR);
-      dc->drawSolidHorizontalLine(left, BAR_HEIGHT - 1, 3, DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(left, 0, BAR_HEIGHT, COLOR_THEME_SECONDARY1);
+      dc->drawSolidHorizontalLine(left, 0, 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidHorizontalLine(left, BAR_HEIGHT - 1, 3, COLOR_THEME_SECONDARY1);
 
-      dc->drawSolidVerticalLine(right, 0, BAR_HEIGHT, DEFAULT_COLOR);
-      dc->drawSolidHorizontalLine(right - 3, 0, 3, DEFAULT_COLOR);
-      dc->drawSolidHorizontalLine(right - 3, BAR_HEIGHT - 1, 3, DEFAULT_COLOR);
+      dc->drawSolidVerticalLine(right, 0, BAR_HEIGHT, COLOR_THEME_SECONDARY1);
+      dc->drawSolidHorizontalLine(right - 3, 0, 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidHorizontalLine(right - 3, BAR_HEIGHT - 1, 3, COLOR_THEME_SECONDARY1);
     }
 
     void checkEvents() override
@@ -205,24 +205,24 @@ class ComboChannelBar : public ChannelBar
 
       // Channel number
       strAppendSigned(&chanString[2], channel + 1, 2);
-      dc->drawText(lmargin, 0, chanString, FONT(XS) | DEFAULT_COLOR | LEFT);
+      dc->drawText(lmargin, 0, chanString, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
 
       // Channel name
-      dc->drawSizedText(lmargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | DEFAULT_COLOR | LEFT);
+      dc->drawSizedText(lmargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
 
       // Channel value in µS
-      dc->drawNumber(width(), 0, usValue, FONT(XS) | DEFAULT_COLOR | RIGHT, 0, nullptr, STR_US);
+      dc->drawNumber(width(), 0, usValue, FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, STR_US);
 
       // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED)
-        dc->drawMask(0, 1, chanMonLockedBitmap, DEFAULT_COLOR);
+        dc->drawMask(0, 1, chanMonLockedBitmap, COLOR_THEME_SECONDARY1);
 #endif
 
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        lcd->drawMask(0, 20, chanMonInvertedBitmap, DEFAULT_COLOR);
+        lcd->drawMask(0, 20, chanMonInvertedBitmap, COLOR_THEME_SECONDARY1);
       }
     }
 

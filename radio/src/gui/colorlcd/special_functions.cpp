@@ -59,8 +59,8 @@ class SpecialFunctionEditPage : public Page
     Page::checkEvents();
     if (active != isActive()) {
       invalidate();
-      headerSF->setTextFlags(isActive() ? FONT(BOLD) | HIGHLIGHT_COLOR
-                                        : FOCUS_COLOR);
+      headerSF->setTextFlags(isActive() ? FONT(BOLD) | COLOR_THEME_ACTIVE
+                                        : COLOR_THEME_PRIMARY2);
       active = !active;
     }
   }
@@ -71,13 +71,13 @@ class SpecialFunctionEditPage : public Page
         window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT, 20},
         functions == g_model.customFn ? STR_MENUCUSTOMFUNC
                                       : STR_MENUSPECIALFUNCS,
-        0, FOCUS_COLOR);
+        0, COLOR_THEME_PRIMARY2);
     headerSF = new StaticText(
         window,
         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
          LCD_W - PAGE_TITLE_LEFT, 20},
         (functions == g_model.customFn ? "SF" : "GF") + std::to_string(index+1),
-        0, FOCUS_COLOR);
+        0, COLOR_THEME_PRIMARY2);
   }
 
   void updateSpecialFunctionOneWindow()
@@ -596,17 +596,17 @@ class SpecialFunctionButton : public Button
   void paint(BitmapBuffer *dc) override
   {
     if (active)
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, HIGHLIGHT_COLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
     else
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
 
     paintSpecialFunctionLine(dc);
 
     // The bounding rect
     if (hasFocus())
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
     else
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 
  protected:
@@ -725,10 +725,10 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
       });
       button->setFocusHandler([=](bool focus) {
         if (focus) {
-          txt->setBackgroundColor(FOCUS_BGCOLOR);
-          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
-          txt->setBackgroundColor(FIELD_FRAME_COLOR);
+          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(CENTERED);
         }
         txt->invalidate();
@@ -736,8 +736,8 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
 
       if (focusIndex == i) {
         button->setFocus(SET_FOCUS_DEFAULT);
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         txt->invalidate();
       }
 

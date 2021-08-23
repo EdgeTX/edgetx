@@ -73,8 +73,8 @@ class ChannelFailsafeBargraph: public Window {
       x += width() / 2;
       const coord_t xChannel = (channelValue > 0) ? x : x + 1 - lenChannel;
       const coord_t xFailsafe = (failsafeValue > 0) ? x : x + 1 - lenFailsafe;
-      dc->drawSolidFilledRect(xChannel, + 2, lenChannel, (height() / 2) - 3, DEFAULT_COLOR);
-      dc->drawSolidFilledRect(xFailsafe, (height() / 2) + 1, lenFailsafe, (height() / 2) - 3, ALARM_COLOR);
+      dc->drawSolidFilledRect(xChannel, + 2, lenChannel, (height() / 2) - 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidFilledRect(xFailsafe, (height() / 2) + 1, lenFailsafe, (height() / 2) - 3, COLOR_THEME_WARNING);
     }
 
   protected:
@@ -147,7 +147,7 @@ class FailSafePage : public Page {
       new StaticText(&header,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_FAILSAFESET, 0, FOCUS_COLOR);
+                     STR_FAILSAFESET, 0, COLOR_THEME_PRIMARY2);
     }
 
   protected:
@@ -567,6 +567,7 @@ class ModuleWindow : public FormGroup {
         channelStart->setMax(MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1);
       });
       channelEnd->enable(minModuleChannels(moduleIdx) < maxModuleChannels(moduleIdx));
+      if (channelEnd->getValue() > channelEnd->getMax()) channelEnd->setValue(channelEnd->getMax());
     }
 
     void update()
@@ -640,10 +641,12 @@ class ModuleWindow : public FormGroup {
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+				
+				// Grid count for narrow/wide screen
+				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
         rfChoice = new Choice(
             this,
-            grid.getFieldSlot(
-                g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0),
+            grid.getFieldSlot(count, 0),
             STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST,
             MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
             [=](int32_t newValue) {
@@ -658,11 +661,20 @@ class ModuleWindow : public FormGroup {
 
         if (MULTIMODULE_HAS_SUBTYPE(moduleIdx)) {
           // Subtype (D16, DSMX,...)
+					
+					// Grid count for narrow/wide screen
+					count = LCD_W < LCD_H ? 1 : 2;
+					int index = 1;
+					if (count == 1)
+					{
+						grid.nextLine();
+						index = 0;
+					}
           const mm_protocol_definition *pdef = getMultiProtocolDefinition(
               g_model.moduleData[moduleIdx].getMultiProtocol());
           if (pdef->maxSubtype > 0) {
             mmSubProtocol = new Choice(
-                this, grid.getFieldSlot(2, 1), pdef->subTypeString, 0,
+                this, grid.getFieldSlot(count, index), pdef->subTypeString, 0,
                 pdef->maxSubtype,
                 [=]() { return g_model.moduleData[moduleIdx].subType; },
                 [=](int16_t newValue) {
@@ -977,7 +989,7 @@ class ModuleWindow : public FormGroup {
                       return std::string(buf);
                     },
                     "RSSI:", 50,
-                    DEFAULT_COLOR | CENTERED | FONT(BOLD) | FONT(XL));
+                    COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
                 rssiDialog->setCloseHandler([this]() {
                   rangeButton->check(false);
                   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;

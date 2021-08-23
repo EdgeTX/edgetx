@@ -45,10 +45,10 @@ class LogicalSwitchDisplayFooter : public Window
 
   void paint(BitmapBuffer* dc) override
   {
-    dc->clear(TITLE_BGCOLOR);
+    dc->clear(COLOR_THEME_SECONDARY1);
     LogicalSwitchData* cs = lswAddress(index);
 
-    LcdFlags textColor = FOCUS_COLOR;
+    LcdFlags textColor = COLOR_THEME_PRIMARY2;
     dc->drawTextAtIndex(10, 1, STR_VCSWFUNC, cs->func, textColor);
     // CSW params
     unsigned int cstate = lswFamily(cs->func);

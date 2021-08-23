@@ -119,7 +119,7 @@ bool isInSetup;
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                   name, 0, MENU_HIGHLIGHT_COLOR);
+                   name, 0, COLOR_THEME_PRIMARY2);
   };
 };
 

@@ -67,7 +67,7 @@ class LogicalSwitchEditPage: public Page
       Page::checkEvents();
       if (active != isActive()) {
         invalidate();
-        headerSwitchName->setTextFlags(isActive() ? FONT(BOLD) | HIGHLIGHT_COLOR : FOCUS_COLOR);
+        headerSwitchName->setTextFlags(isActive() ? FONT(BOLD) | COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY2);
         active = !active;
       }
     }
@@ -77,12 +77,12 @@ class LogicalSwitchEditPage: public Page
       new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                       PAGE_LINE_HEIGHT},
-                     STR_MENULOGICALSWITCHES, 0, FOCUS_COLOR);
+                     STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY2);
       headerSwitchName = new StaticText(
           window,
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
            LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-          getSwitchPositionName(SWSRC_SW1 + index), 0, FOCUS_COLOR);
+          getSwitchPositionName(SWSRC_SW1 + index), 0, COLOR_THEME_PRIMARY2);
     }
 
     void updateLogicalSwitchOneWindow()
@@ -145,14 +145,14 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawTimer(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
+          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawTimer(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
+          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -324,17 +324,17 @@ class LogicalSwitchButton : public Button
   void paint(BitmapBuffer* dc) override
   {
     if (active)
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, HIGHLIGHT_COLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
     else
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, FIELD_BGCOLOR);
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
 
     paintLogicalSwitchLine(dc);
 
     // The bounding rect
     if (hasFocus())
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
     else
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 
  protected:
@@ -421,10 +421,10 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
       });
       button->setFocusHandler([=](bool focus) {
         if (focus) {
-          txt->setBackgroundColor(FOCUS_BGCOLOR);
-          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
-          txt->setBackgroundColor(FIELD_FRAME_COLOR);
+          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(CENTERED);
         }
         txt->invalidate();
@@ -432,8 +432,8 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
 
       if (focusIndex == i) {
         button->setFocus(SET_FOCUS_DEFAULT);
-        txt->setBackgroundColor(FOCUS_BGCOLOR);
-        txt->setTextFlags(FOCUS_COLOR | CENTERED);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         txt->invalidate();
       }
 

@@ -46,7 +46,7 @@ class FileNameEditWindow : public Page
 
   void buildHeader(Window *window)
   {
-    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, MENU_HIGHLIGHT_COLOR);
+    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, COLOR_THEME_PRIMARY2);
   }
 
   void buildBody(Window *window)
@@ -158,7 +158,7 @@ class FilePreview : public Window
     {
       coord_t y = parent->getScrollPositionY() + 2;
       coord_t h = MENU_BODY_HEIGHT - 4;
-      lcd->drawSolidFilledRect(0, y, width(), h, DISABLE_COLOR);
+      lcd->drawSolidFilledRect(0, y, width(), h, COLOR_THEME_DISABLED);
       if (bitmap) {
         coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
         coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
@@ -211,6 +211,28 @@ class FlashDialog: public FullScreenDialog
     Progress progress;
 };
 
+class SDmanagerButton : public TextButton
+{
+  public:
+    SDmanagerButton(FormGroup* parent, const rect_t& rect, std::string text,
+              std::function<uint8_t(void)> pressHandler = nullptr,
+              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
+              LcdFlags textFlags = 0 ) : TextButton(parent, rect, text, pressHandler, windowFlags, textFlags)
+              {
+              }; 
+#if defined(HARDWARE_TOUCH)
+  bool onTouchStart(coord_t x, coord_t y) override
+  {
+    if (enabled) {
+      if (!(windowFlags & NO_FOCUS)) {
+        setFocus(SET_FOCUS_DEFAULT);
+      }
+    }
+    return true;
+  }
+#endif              
+};
+
 void RadioSdManagerPage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -250,19 +272,19 @@ void RadioSdManagerPage::build(FormWindow * window)
     files.sort(compare_nocase);
     
     for (auto name: directories) {
-      auto b = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto b = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
           f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
           build(window);
           return 0;
       }, OPAQUE);
-      b->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+      b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       grid.nextLine();
     }
 
     for (auto name: files) {
-      auto button = new TextButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
           f_chdir(currentPath.c_str());
           const char *ext = getFileExtension(name.data());
@@ -397,7 +419,7 @@ void RadioSdManagerPage::build(FormWindow * window)
           }
           return 0;
       }, OPAQUE);
-      button->setBgColorHandler([=]() -> LcdFlags { return FIELD_BGCOLOR; });
+      button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));

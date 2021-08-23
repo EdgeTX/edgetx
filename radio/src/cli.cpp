@@ -354,17 +354,17 @@ typedef void (*timedTestFunc_t)(void);
 
 void testDrawSolidFilledRectangle()
 {
-  lcdDrawFilledRect(0, 0, LCD_W, LCD_H, SOLID, DEFAULT_BGCOLOR);
+  lcdDrawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_SECONDARY3);
 }
 
 void testDrawFilledRectangle()
 {
-  lcdDrawFilledRect(0, 0, LCD_W, LCD_H, DOTTED, DEFAULT_BGCOLOR);
+  lcdDrawFilledRect(0, 0, LCD_W, LCD_H, DOTTED, COLOR_THEME_SECONDARY3);
 }
 
 void testDrawSolidFilledRoundedRectangle()
 {
-  lcdDrawFilledRect(0, 0, LCD_W/2, LCD_H/2, SOLID, ROUND|DEFAULT_BGCOLOR);
+  lcdDrawFilledRect(0, 0, LCD_W/2, LCD_H/2, SOLID, ROUND|COLOR_THEME_SECONDARY3);
 }
 
 void testDrawBlackOverlay()
@@ -394,7 +394,7 @@ void testDrawSolidVerticalLine2()
 
 void testDrawDiagonalLine()
 {
-  lcdDrawLine(0,0, LCD_W, LCD_H, SOLID, DEFAULT_COLOR);
+  lcdDrawLine(0,0, LCD_W, LCD_H, SOLID, COLOR_THEME_SECONDARY1);
 }
 
 void testEmpty()
@@ -403,17 +403,17 @@ void testEmpty()
 
 void testDrawRect()
 {
-  lcdDrawRect(0, 0, LCD_W, LCD_H, 2, SOLID, DEFAULT_COLOR);
+  lcdDrawRect(0, 0, LCD_W, LCD_H, 2, SOLID, COLOR_THEME_SECONDARY1);
 }
 
 void testDrawText()
 {
-  lcdDrawText(0, LCD_H/2, "The quick brown fox jumps over the lazy dog", DEFAULT_COLOR);
+  lcdDrawText(0, LCD_H/2, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 }
 
 void testDrawTextVertical()
 {
-  lcdDrawText(30, LCD_H, "The quick brown fox ", DEFAULT_COLOR|VERTICAL);
+  lcdDrawText(30, LCD_H, "The quick brown fox ", COLOR_THEME_SECONDARY1|VERTICAL);
 }
 
 void testClear()

@@ -43,7 +43,7 @@
 //    uint32_t countdownBeep:2;
 //    uint32_t minuteBeep:1;
 //    uint32_t persistent:2;
-//    int32_t  countdownStart:2;
+//    int32_t  countdownStart:2;  // -2=30s -1=20s 0=10s 1=5s converted to -2=5s -1=10s 0=20s 1=30s
 // -  uint32_t direction:1;
 //    NOBACKUP(char name[LEN_TIMER_NAME]);
 //  });
@@ -125,7 +125,7 @@ void convertModelData_219_to_220(ModelData &model)
       timer.mode = timer_219.mode;
     }
     else {
-      timer.mode = TMRMODE_START;
+      timer.mode = TMRMODE_ON;
       if (timer_219.mode > 0)
         timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
       else
@@ -133,7 +133,12 @@ void convertModelData_219_to_220(ModelData &model)
     }
 
     timer.start = timer_219.start;
-    
+    timer.value = timer_219.value;
+    timer.countdownBeep = timer_219.countdownBeep;
+    timer.minuteBeep = timer_219.minuteBeep;
+    timer.persistent = timer_219.persistent;
+    timer.countdownStart = (timer_219.countdownStart * -1) - 1;
+
   }
 
   // MixData::name
@@ -175,7 +180,7 @@ void convertModelData_219_to_220(ModelData &model)
     convertToStr(model.scriptsData[i].file, LEN_SCRIPT_FILENAME);
     convertToStr(model.scriptsData[i].name, LEN_SCRIPT_NAME);
   }
-  
+
   // Input names
   for (uint8_t i=0; i<MAX_INPUTS_219; ++i) {
     convertToStr(model.inputNames[i], LEN_INPUT_NAME_219);

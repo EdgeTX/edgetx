@@ -124,7 +124,7 @@ class RadioKeyDiagsWindow : public Window
 
 void RadioKeyDiagsPage::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_SWITCHES, 0, MENU_HIGHLIGHT_COLOR);
+  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_SWITCHES, 0, COLOR_THEME_PRIMARY2);
 }
 
 void RadioKeyDiagsPage::buildBody(Window * window)

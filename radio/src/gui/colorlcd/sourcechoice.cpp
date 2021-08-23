@@ -62,11 +62,11 @@ void SourceChoice::paint(BitmapBuffer * dc)
   unsigned value = getValue();
   LcdFlags textColor;
   if (editMode)
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   else if (hasFocus())
-    textColor = FOCUS_COLOR;
+    textColor = COLOR_THEME_PRIMARY2;
   // else if (value == 0)
-  //   textColor = DISABLE_COLOR;
+  //   textColor = COLOR_THEME_DISABLED;
   else
     textColor = 0;
 

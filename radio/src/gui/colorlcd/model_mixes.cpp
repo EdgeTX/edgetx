@@ -73,11 +73,11 @@ class MixEditWindow : public Page
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                     PAGE_LINE_HEIGHT},
-                   STR_MIXES, 0, FOCUS_COLOR);
+                   STR_MIXES, 0, COLOR_THEME_PRIMARY2);
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                   getSourceString(MIXSRC_CH1 + channel), 0, FOCUS_COLOR);
+                   getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
   }
 
   void buildBody(FormWindow *window)
@@ -255,7 +255,7 @@ class MixLineButton : public CommonInputOrMixButton
   {
     const MixData &line = g_model.mixData[index];
 
-    LcdFlags textColor = DEFAULT_COLOR;
+    LcdFlags textColor = COLOR_THEME_SECONDARY1;
 
     // first line ...
     drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
@@ -285,6 +285,15 @@ class MixLineButton : public CommonInputOrMixButton
 
     if (line.flightModes) {
       drawFlightModes(dc, line.flightModes, textColor);
+    }
+
+    // Put this icon on the first line, since we jave more space there
+    uint8_t delayslow = 0;
+    if (line.speedDown || line.speedUp) delayslow = 1;
+    if (line.delayUp || line.delayDown) delayslow += 2;
+    if (delayslow) {
+      BitmapBuffer *delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon, mixerSetupDelaySlowIcon};
+      dc->drawMask(width() - 16, FIELD_PADDING_TOP, delayslowbmp[delayslow - 1], textColor);
     }
   }
 };
@@ -430,15 +439,15 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
               {35 - txt->left(),
                button->top() - txt->top() + (button->height() - 18) / 2, 25,
                17},
-              mixerMultiplexBitmap[mix->mltpx], DEFAULT_COLOR);
+              mixerMultiplexBitmap[mix->mltpx], COLOR_THEME_SECONDARY1);
         }
 
         button->setFocusHandler([=](bool focus) {
           if (focus) {
-            txt->setBackgroundColor(FOCUS_BGCOLOR);
-            txt->setTextFlags(FOCUS_COLOR | CENTERED);
+            txt->setBackgroundColor(COLOR_THEME_FOCUS);
+            txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
-            txt->setBackgroundColor(FIELD_FRAME_COLOR);
+            txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
             txt->setTextFlags(CENTERED);
           }
           txt->invalidate();
@@ -447,8 +456,8 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 
         if (focusMixIndex == mixIndex) {
           button->setFocus(SET_FOCUS_DEFAULT);
-          txt->setBackgroundColor(FOCUS_BGCOLOR);
-          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           txt->invalidate();
         }
 

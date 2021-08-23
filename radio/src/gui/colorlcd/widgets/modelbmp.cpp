@@ -51,12 +51,12 @@ class ModelBitmapWidget: public Widget
 
         auto iconMask = theme->getIconMask(ICON_MODEL);
         if (iconMask) {
-          dc->drawMask(6, 4, iconMask, HEADER_COLOR);
+          dc->drawMask(6, 4, iconMask, COLOR_THEME_SECONDARY1);
         }
 
         dc->drawSizedText(45, 10, g_model.header.name, LEN_MODEL_NAME,
-                          FONT(XS) | DEFAULT_COLOR);
-        dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, HEADER_COLOR);
+                          FONT(XS) | COLOR_THEME_SECONDARY1);
+        dc->drawSolidFilledRect(39, 27, rect.w - 48, 2, COLOR_THEME_SECONDARY1);
       }
       // smaller space to draw
       else if (buffer) {
@@ -90,7 +90,7 @@ class ModelBitmapWidget: public Widget
         buffer.reset(new BitmapBuffer(BMP_RGB565, width(), height()));
       }
 
-      buffer->clear(DEFAULT_BGCOLOR);
+      buffer->clear(COLOR_THEME_SECONDARY3);
       if (!filename.empty()) {
         std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
         if (!bitmap) {

@@ -204,7 +204,7 @@ void TabsGroup::onEvent(event_t event)
 
 void TabsGroup::paint(BitmapBuffer * dc)
 {
-  dc->clear(DEFAULT_BGCOLOR);
+  dc->clear(COLOR_THEME_SECONDARY3);
 }
 
 #if defined(HARDWARE_TOUCH)

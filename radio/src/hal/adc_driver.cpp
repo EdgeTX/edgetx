@@ -67,7 +67,7 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
                                             4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
                                             7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                            10/*SWG*/,  11/*SWH*/,
+                                            11/*SWG*/,  10/*SWH*/,
                                             12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
 
   const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,

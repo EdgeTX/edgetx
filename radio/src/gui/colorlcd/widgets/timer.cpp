@@ -43,51 +43,51 @@ class TimerWidget: public Widget
 
       if (width() >= 180 && height() >= 70) {
         if (timerState.val >= 0 || !(timerState.val % 2)) {
-          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, MAINVIEW_PANES_COLOR);
+          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, COLOR_THEME_PRIMARY2);
         }
         else {
-          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, MENU_BGCOLOR);
+          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, COLOR_THEME_PRIMARY2);
         }
         if (timerData.start && timerState.val >= 0) {
           dc->drawBitmapPatternPie(
-            2, 3, LBM_RSCALE, MAINVIEW_GRAPHICS_COLOR, 0,
+            2, 3, LBM_RSCALE, COLOR_THEME_SECONDARY1, 0,
             timerState.val <= 0 ? 360 : 360 * (timerData.start - timerState.val) / timerData.start);
         }
         else {
-          dc->drawBitmapPattern(3, 4, LBM_TIMER, MAINVIEW_GRAPHICS_COLOR);
+          dc->drawBitmapPattern(3, 4, LBM_TIMER, COLOR_THEME_SECONDARY1);
         }
         if (abs(timerState.val) >= 3600) {
-          drawTimer(dc, 70, 31, abs(timerState.val), DEFAULT_COLOR | FONT(STD) | LEFT | TIMEHOUR);
+          drawTimer(dc, 70, 31, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(STD) | LEFT | TIMEHOUR);
         }
         else {
-          drawTimer(dc,76, 31, abs(timerState.val), DEFAULT_COLOR | FONT(XL) | LEFT);
+          drawTimer(dc,76, 31, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(XL) | LEFT);
         }
         if (ZLEN(timerData.name) > 0) {
-          dc->drawSizedText(78, 20, timerData.name, LEN_TIMER_NAME, FONT(XS) | DEFAULT_COLOR);
+          dc->drawSizedText(78, 20, timerData.name, LEN_TIMER_NAME, FONT(XS) | COLOR_THEME_SECONDARY1);
         }
         else {
-          drawStringWithIndex(dc, 137, 17, "TMR", index + 1, FONT(XS) | DEFAULT_COLOR);
+          drawStringWithIndex(dc, 137, 17, "TMR", index + 1, FONT(XS) | COLOR_THEME_SECONDARY1);
         }
       }
       else {
         if (timerState.val < 0 && timerState.val % 2) {
-          dc->drawSolidFilledRect(0, 0, width(), height(), HEADER_ICON_BGCOLOR);
+          dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
         }
-        drawStringWithIndex(dc, 2, 0, "TMR", index + 1, FONT(XS) | FOCUS_COLOR);
+        drawStringWithIndex(dc, 2, 0, "TMR", index + 1, FONT(XS) | COLOR_THEME_PRIMARY2);
         if (width() > 100 && height() > 40) {
           if (abs(timerState.val) >= 3600) {
-            drawTimer(dc,3, 16, abs(timerState.val), FOCUS_COLOR | LEFT | TIMEHOUR);
+            drawTimer(dc,3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
           }
           else {
-            drawTimer(dc, 3, 16, abs(timerState.val), FOCUS_COLOR | LEFT | FONT(STD));
+            drawTimer(dc, 3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
           }
         }
         else {
           if (abs(timerState.val) >= 3600) {
-            drawTimer(dc,3, 14, abs(timerState.val), FOCUS_COLOR | LEFT | FONT(XS) | TIMEHOUR);
+            drawTimer(dc,3, 14, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);
           }
           else {
-            drawTimer(dc, 3, 14, abs(timerState.val), FOCUS_COLOR | LEFT);
+            drawTimer(dc, 3, 14, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT);
           }
         }
       }

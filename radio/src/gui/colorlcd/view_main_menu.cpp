@@ -50,7 +50,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   //
   // auto title = new StaticText(this,
   //                {0, pos, width(), getFontHeight(FONT(XL))},
-  //                "Tasks", 0, FOCUS_COLOR | FONT(XL) | CENTERED);
+  //                "Tasks", 0, COLOR_THEME_PRIMARY2 | FONT(XL) | CENTERED);
   // pos += title->height() + PAGE_LINE_SPACING;
 
   carousel->addButton(ICON_MODEL_SELECT, "Select\nModel", [=]() -> uint8_t {
@@ -129,7 +129,7 @@ void ViewMainMenu::paint(BitmapBuffer* dc)
   rect_t zone = carouselRect;
   zone.x -= 8; zone.y -= 8;
   zone.w += 16; zone.h += 16;
-  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, OVERLAY_COLOR, OPACITY(5));
+  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, COLOR_THEME_PRIMARY1, OPACITY(5));
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)

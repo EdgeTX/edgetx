@@ -41,25 +41,25 @@ class GhostModuleConfigWindow: public Window
       for (uint8_t line = 0; line < GHST_MENU_LINES; line++) {
         if (reusableBuffer.ghostMenu.line[line].splitLine) {
           if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_LABEL_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0,FONT(L)), getFontHeight(FONT(L)), FONT(L) | FOCUS_BGCOLOR);
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | DEFAULT_BGCOLOR);
+            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0,FONT(L)), getFontHeight(FONT(L)), FONT(L) | COLOR_THEME_FOCUS);
+            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY3);
           }
           else {
             dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L));
           }
 
           if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_VALUE_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth( &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], 0,FONT(L)), getFontHeight(0), FOCUS_BGCOLOR);
-            dc->drawText(xOffset, yOffset + line * lineSpacing,  &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | DEFAULT_BGCOLOR);
+            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth( &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], 0,FONT(L)), getFontHeight(0), COLOR_THEME_FOCUS);
+            dc->drawText(xOffset, yOffset + line * lineSpacing,  &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | COLOR_THEME_SECONDARY3);
           }
           else {
-            dc->drawText(xOffset2, yOffset + line * lineSpacing, &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | DEFAULT_COLOR);
+            dc->drawText(xOffset2, yOffset + line * lineSpacing, &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | COLOR_THEME_SECONDARY1);
           }
         }
         else {
           if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_LABEL_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0, FONT(L)), getFontHeight(FONT(L)), FOCUS_BGCOLOR);
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | DEFAULT_BGCOLOR);
+            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0, FONT(L)), getFontHeight(FONT(L)), COLOR_THEME_FOCUS);
+            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY3);
           }
           else if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_VALUE_EDIT) {
             if (BLINK_ON_PHASE) {
@@ -67,7 +67,7 @@ class GhostModuleConfigWindow: public Window
             }
           }
           else {
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | DEFAULT_COLOR);
+            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY1);
           }
         }
       }
@@ -87,7 +87,7 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
 
 void RadioGhostModuleConfig::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, "GHOST MODULE", 0, MENU_COLOR);
+  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, "GHOST MODULE", 0, COLOR_THEME_SECONDARY1);
 }
 
 void RadioGhostModuleConfig::buildBody(FormWindow * window)

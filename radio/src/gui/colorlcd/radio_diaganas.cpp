@@ -40,8 +40,13 @@ class RadioAnalogsDiagsWindow: public Window {
     void paint(BitmapBuffer * dc) override
     {
       for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-        coord_t y = 1 + (i / 2) * FH;
-        uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#if LCD_W > LCD_H
+					coord_t y = 1 + (i / 2) * FH;
+					uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#else
+					coord_t y = 1 + i * FH;
+					uint8_t x = 10;
+#endif
         dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
         dc->drawText(x + 2 * 15 - 2, y, ":");
         drawHexNumber(dc, x + 3 * 15 - 1, y, anaIn(i));
@@ -75,7 +80,7 @@ class RadioAnalogsDiagsWindow: public Window {
 
 void RadioAnalogsDiagsPage::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_ANALOGS, 0, MENU_HIGHLIGHT_COLOR);
+  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_ANALOGS, 0, COLOR_THEME_PRIMARY2);
 }
 
 void RadioAnalogsDiagsPage::buildBody(Window * window)

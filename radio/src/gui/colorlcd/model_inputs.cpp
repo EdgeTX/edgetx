@@ -142,11 +142,11 @@ class InputEditWindow : public Page
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
                     PAGE_LINE_HEIGHT},
-                   STR_MENUINPUTS, 0, FOCUS_COLOR);
+                   STR_MENUINPUTS, 0, COLOR_THEME_PRIMARY2);
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                   getSourceString(MIXSRC_FIRST_INPUT + input), 0, FOCUS_COLOR);
+                   getSourceString(MIXSRC_FIRST_INPUT + input), 0, COLOR_THEME_PRIMARY2);
   }
 
   // TODO share this code with MIXER
@@ -323,10 +323,10 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
     s[0] = '0' + i;
     if (value & (1 << i)) {
       dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s,
-                   FONT(XS) | TEXT_DISABLE_COLOR);
+                   FONT(XS) | COLOR_THEME_DISABLED);
     } else {
       dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3,
-                              FOCUS_BGCOLOR);
+                              COLOR_THEME_FOCUS);
       dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | textColor);
     }
     x += 8;
@@ -336,13 +336,13 @@ void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
 void CommonInputOrMixButton::paint(BitmapBuffer * dc)
 {
   dc->drawSolidFilledRect(0, 0, width(), height(),
-                          isActive() ? HIGHLIGHT_COLOR : FIELD_BGCOLOR);
+                          isActive() ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY2);
   paintBody(dc);
 
   if (!hasFocus())
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, FIELD_FRAME_COLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   else
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, FOCUS_BGCOLOR);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
 }
 
 class InputLineButton : public CommonInputOrMixButton
@@ -363,9 +363,9 @@ class InputLineButton : public CommonInputOrMixButton
   {
     const ExpoData &line = g_model.expoData[index];
 
-    LcdFlags textColor = DEFAULT_COLOR;
+    LcdFlags textColor = COLOR_THEME_SECONDARY1;
     // if (hasFocus())
-    //   textColor = FOCUS_COLOR;
+    //   textColor = COLOR_THEME_PRIMARY2;
 
     // first line ...
     drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
@@ -495,10 +495,10 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
         });
         button->setFocusHandler([=](bool focus) {
           if (focus) {
-            txt->setBackgroundColor(FOCUS_BGCOLOR);
-            txt->setTextFlags(FOCUS_COLOR | CENTERED);
+            txt->setBackgroundColor(COLOR_THEME_FOCUS);
+            txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
-            txt->setBackgroundColor(FIELD_FRAME_COLOR);
+            txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
             txt->setTextFlags(CENTERED);
           }
           txt->invalidate();
@@ -507,8 +507,8 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
 
         if (focusIndex == inputIndex) {
           button->setFocus(SET_FOCUS_DEFAULT);
-          txt->setBackgroundColor(FOCUS_BGCOLOR);
-          txt->setTextFlags(FOCUS_COLOR | CENTERED);
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           txt->invalidate();
         }
         grid.spacer(button->height() - 1);
