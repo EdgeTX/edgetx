@@ -34,7 +34,11 @@ void ModuleData::convert(RadioDataConversionState & cstate)
   RadioDataConversionState::LogField oldData(protocol, protocolToString(protocol));
 
   if (fw->getBoard() == cstate.toType) {
-    if (!fw->isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {
+    if (cstate.subCompIdx < fw->getCapability(NumFirstUsableModule) || cstate.subCompIdx > fw->getCapability(NumModules) - 1) {
+      if ((PulsesProtocol) protocol != PULSES_OFF)
+        evt = RadioDataConversionState::EVT_INV;
+    }
+    else if (!fw->isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {
       evt = RadioDataConversionState::EVT_INV;
     }
   }
