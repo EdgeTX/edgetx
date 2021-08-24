@@ -48,12 +48,8 @@ class Layout1x2: public Layout
     {
       rect_t zone = getMainZone();
 
-      if (index == 0) {
-        return {zone.x, zone.y, zone.w, zone.h / 2};
-      }
-      else {
-        return {zone.x, zone.y + zone.h / 2, zone.w, zone.h / 2};
-      }
+      zone.h /= 2;
+      zone.y += zone.h * index;
 
       return zone;
     }
