@@ -22,37 +22,49 @@
 #include "layout.h"
 #include "layout_factory_impl.h"
 
-const uint8_t LBM_LAYOUT_1x2[] = {
-#include "mask_layout1x2.lbm"
+const uint8_t LBM_LAYOUT_1P3[] = {
+#include "mask_layout1+3.lbm"
 };
 
-const ZoneOption OPTIONS_LAYOUT_1x2[] =  {
+const ZoneOption OPTIONS_LAYOUT_1P3[] =  {
   LAYOUT_COMMON_OPTIONS,
   LAYOUT_OPTIONS_END
 };
 
-class Layout1x2: public Layout
+class Layout1P3: public Layout
 {
   public:
-    Layout1x2(const LayoutFactory * factory, Layout::PersistentData * persistentData):
+    Layout1P3(const LayoutFactory * factory, Layout::PersistentData * persistentData):
       Layout(factory, persistentData)
     {
     }
 
     unsigned int getZonesCount() const override
     {
-      return 2;
+      return 4;
     }
 
     rect_t getZone(unsigned int index) const override
     {
       rect_t zone = getMainZone();
 
-      zone.h /= 2;
-      zone.y += zone.h * index;
+      zone.w /= 2;
+
+      if (index == 0) {
+        if (isMirrored()) {
+          zone.x += zone.w;
+        }
+      } else {
+        index--;
+        zone.h /= 3;
+        zone.y += zone.h * (int)index;
+        if (!isMirrored()) {
+          zone.x += zone.w;
+        }
+      }
 
       return zone;
     }
 };
 
-BaseLayoutFactory<Layout1x2> Layout1x2("Layout1x2", "1 x 2", LBM_LAYOUT_1x2, OPTIONS_LAYOUT_1x2);
+BaseLayoutFactory<Layout1P3> Layout1P3("Layout1P3", "1 + 3", LBM_LAYOUT_1P3, OPTIONS_LAYOUT_1P3);
