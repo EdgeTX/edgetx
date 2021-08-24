@@ -20,7 +20,7 @@
 
 #include "opentx.h"
 
-void menuModelTemplates(event_t event)
+/*void menuModelTemplates(event_t event)
 {
   SIMPLE_MENU(STR_MENUTEMPLATES, menuTabModel, MENU_MODEL_TEMPLATES, 1+TMPL_COUNT);
 
@@ -46,4 +46,4 @@ void menuModelTemplates(event_t event)
     lcdDrawTextAtIndex(4*FW, y, STR_VTEMPLATES, k, (sub==k ? INVERS  : 0));
     y+=FH;
   }
-}
+}*/
