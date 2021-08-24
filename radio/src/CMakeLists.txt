@@ -349,6 +349,10 @@ if(FLYSKY_HALL_STICKS_REVERSE)
   add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
 endif()
 
+if(IMU_LSM6DS33)
+    add_definitions(-DIMU_LSM6DS33)
+endif()
+
 if(EEPROM_VARIANT_NEEDED)
   add_definitions(-DEEPROM_VARIANT=${EEPROM_VARIANT})
 endif()

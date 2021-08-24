@@ -1,6 +1,7 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(FLYSKY_HALL_STICKS "Enable FlySky Hall Sticks" OFF)
+option(IMU_LSM6DS33 "Enable I2C2 and LSM6DS33 IMU" OFF)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -188,6 +189,12 @@ if(FLYSKY_HALL_STICKS)
   set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
 endif()
 
+if(IMU_LSM6DS33)
+  add_definitions(-DIMU_LSM6DS33)
+  set(AUX_SERIAL OFF)
+  set(IMU_LSM6DS33_DRIVER imu_lsm6ds33.cpp)
+endif()
+
 if(HARDWARE_EXTERNAL_MODULE)
   add_definitions(-DHARDWARE_EXTERNAL_MODULE)
 endif()
@@ -277,6 +284,7 @@ set(FIRMWARE_TARGET_SRC
   ${LCD_DRIVER}
   ${AUX_SERIAL_DRIVER}
   ${FLYSKY_HALL_STICKS_DRIVER}
+  ${IMU_LSM6DS33_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp

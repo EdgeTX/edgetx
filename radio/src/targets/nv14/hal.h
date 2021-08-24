@@ -353,8 +353,8 @@
 #define AUDIO_SPI_MOSI_GPIO_PinSource GPIO_PinSource5
 
 // I2C Bus
-#define I2C_RCC_AHB1Periph              0
-#define I2C_RCC_APB1Periph              0
+#define I2C_B1_RCC_AHB1Periph           0
+#define I2C_B1_RCC_APB1Periph           0
 
 // Haptic: TIM1_CH1
 #define HAPTIC_PWM

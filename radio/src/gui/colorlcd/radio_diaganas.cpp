@@ -22,6 +22,10 @@
 #include "radio_diaganas.h"
 #include "libopenui.h"
 
+#if defined(IMU_LSM6DS33)
+#include "imu_lsm6ds33.h"
+#endif
+
 constexpr coord_t ANA_OFFSET = 150;
 
 class RadioAnalogsDiagsWindow: public Window {
@@ -52,6 +56,20 @@ class RadioAnalogsDiagsWindow: public Window {
         drawHexNumber(dc, x + 3 * 15 - 1, y, anaIn(i));
         dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
       }
+
+#if !defined(SIMU) && defined(IMU_LSM6DS33)
+      coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
+      coord_t ximu = MENUS_MARGIN_LEFT;
+      char imudata[80];
+      sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
+              IMUoutput.fTemperatureDegC,
+              IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
+      dc->drawText(ximu, yimu, imudata);
+      yimu = MENU_CONTENT_TOP + 4 * FH;
+      sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
+                IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
+      dc->drawText(ximu, yimu, imudata);
+#endif
 
 #if defined(HARDWARE_TOUCH)
       constexpr coord_t y = MENU_CONTENT_TOP + 5 * FH;

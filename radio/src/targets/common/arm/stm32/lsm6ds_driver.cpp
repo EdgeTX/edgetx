@@ -193,38 +193,38 @@ static const char configure[][2] = {
 
 static void i2c2Init()
 {
-  I2C_DeInit(I2CX);
+  I2C_DeInit(I2C_B2);
 
   I2C_InitTypeDef I2C_InitStructure;
-  I2C_InitStructure.I2C_ClockSpeed = I2CX_SPEED;
+  I2C_InitStructure.I2C_ClockSpeed = I2C_B2_SPEED;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   I2C_InitStructure.I2C_OwnAddress1 = 0x00;
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_Init(I2CX, &I2C_InitStructure);
-  I2C_Cmd(I2CX, ENABLE);
+  I2C_Init(I2C_B2, &I2C_InitStructure);
+  I2C_Cmd(I2C_B2, ENABLE);
 
-  GPIO_PinAFConfig(I2CX_SCL_GPIO, I2CX_SCL_GPIO_PinSource, I2CX_GPIO_AF);
-  GPIO_PinAFConfig(I2CX_SDA_GPIO, I2CX_SDA_GPIO_PinSource, I2CX_GPIO_AF);
+  GPIO_PinAFConfig(I2C_B2_SCL_GPIO, I2C_B2_SCL_GPIO_PinSource, I2C_B2_GPIO_AF);
+  GPIO_PinAFConfig(I2C_B2_SDA_GPIO, I2C_B2_SDA_GPIO_PinSource, I2C_B2_GPIO_AF);
 
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = I2CX_SCL_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = I2C_B2_SCL_GPIO_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(I2CX_SCL_GPIO, &GPIO_InitStructure);
+  GPIO_Init(I2C_B2_SCL_GPIO, &GPIO_InitStructure);
 
-  GPIO_InitStructure.GPIO_Pin = I2CX_SDA_GPIO_PIN;
-  GPIO_Init(I2CX_SDA_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = I2C_B2_SDA_GPIO_PIN;
+  GPIO_Init(I2C_B2_SDA_GPIO, &GPIO_InitStructure);
 }
 
 #define I2C_TIMEOUT_MAX 10000
 bool I2C2_WaitEvent(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (!I2C_CheckEvent(I2CX, event)) {
+  while (!I2C_CheckEvent(I2C_B2, event)) {
     if ((timeout--) == 0) return false;
   }
   return true;
@@ -233,7 +233,7 @@ bool I2C2_WaitEvent(uint32_t event)
 bool I2C2_WaitEventCleared(uint32_t event)
 {
   uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (I2C_CheckEvent(I2CX, event)) {
+  while (I2C_CheckEvent(I2C_B2, event)) {
     if ((timeout--) == 0) {
       TRACE("I2C Timeout!");
       return false;
@@ -247,23 +247,23 @@ int setGyroRegister(uint8_t address, uint8_t value)
   if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
     return -1;
 
-  I2C_GenerateSTART(I2CX, ENABLE);
+  I2C_GenerateSTART(I2C_B2, ENABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return -1;
 
-  I2C_Send7bitAddress(I2CX, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return -1;
 
-  I2C_SendData(I2CX, address);
+  I2C_SendData(I2C_B2, address);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
     return -1;
 
-  I2C_SendData(I2CX, value);
+  I2C_SendData(I2C_B2, value);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return -1;
 
-  I2C_GenerateSTOP(I2CX, ENABLE);
+  I2C_GenerateSTOP(I2C_B2, ENABLE);
 
   return 0;
 }
@@ -273,31 +273,31 @@ int readGyroRegister(uint8_t address)
   if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
     return -1;
 
-  I2C_GenerateSTART(I2CX, ENABLE);
+  I2C_GenerateSTART(I2C_B2, ENABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return -1;
 
-  I2C_Send7bitAddress(I2CX, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return -1;
 
-  I2C_SendData(I2CX, address);
+  I2C_SendData(I2C_B2, address);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return -1;
 
-  I2C_GenerateSTART(I2CX, ENABLE);
+  I2C_GenerateSTART(I2C_B2, ENABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return -1;
 
-  I2C_Send7bitAddress(I2CX, LSM6DS_ADDRESS, I2C_Direction_Receiver);
+  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Receiver);
 
-  I2C_AcknowledgeConfig(I2CX, DISABLE);
+  I2C_AcknowledgeConfig(I2C_B2, DISABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
     return -1;
 
-  uint8_t value = I2C_ReceiveData(I2CX);
+  uint8_t value = I2C_ReceiveData(I2C_B2);
 
-  I2C_GenerateSTOP(I2CX, ENABLE);
+  I2C_GenerateSTOP(I2C_B2, ENABLE);
 
   return value;
 }
@@ -328,33 +328,33 @@ int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH])
   if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
     return -1;
 
-  I2C_GenerateSTART(I2CX, ENABLE);
+  I2C_GenerateSTART(I2C_B2, ENABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return -1;
 
-  I2C_Send7bitAddress(I2CX, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
     return -1;
 
-  I2C_SendData(I2CX, LSM6DS_GYRO_OUT_X_L_ADDR);
+  I2C_SendData(I2C_B2, LSM6DS_GYRO_OUT_X_L_ADDR);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
     return -1;
 
-  I2C_GenerateSTART(I2CX, ENABLE);
+  I2C_GenerateSTART(I2C_B2, ENABLE);
   if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
     return -1;
 
-  I2C_Send7bitAddress(I2CX, LSM6DS_ADDRESS, I2C_Direction_Receiver);
+  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Receiver);
 
-  I2C_AcknowledgeConfig(I2CX, ENABLE);
+  I2C_AcknowledgeConfig(I2C_B2, ENABLE);
   for (uint8_t i=0; i<GYRO_BUFFER_LENGTH; i++) {
     if (i == GYRO_BUFFER_LENGTH - 1)
-      I2C_AcknowledgeConfig(I2CX, DISABLE);
+      I2C_AcknowledgeConfig(I2C_B2, DISABLE);
     if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
       return -1;
-    buffer[i] = I2C_ReceiveData(I2CX);
+    buffer[i] = I2C_ReceiveData(I2C_B2);
   }
 
-  I2C_GenerateSTOP(I2CX, ENABLE);
+  I2C_GenerateSTOP(I2C_B2, ENABLE);
   return 0;
 }
