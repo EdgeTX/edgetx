@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -65,7 +66,7 @@ static int dir_iter(lua_State* L)
 
 @param directory (string) Working directory
 
-@status current Introduced in ????
+@status current Introduced in 2.5.0
 
 ### Example
 
@@ -127,7 +128,7 @@ int luaDir(lua_State* L)
     time = info.time
   end
 
-@status current Introduced in ????
+@status current Introduced in 2.5.0
 
 */
 int luaFstat(lua_State* L)
