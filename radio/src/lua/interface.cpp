@@ -27,9 +27,9 @@
 #include "bin_allocator.h"
 #include "lua_api.h"
 #include "sdcard.h"
+#include "api_filesystem.h"
 
 #if defined(LIBOPENUI)
-  #include "api_filesystem.h"
   #include "api_colorlcd.h"
   #include "libopenui.h"
 #else
