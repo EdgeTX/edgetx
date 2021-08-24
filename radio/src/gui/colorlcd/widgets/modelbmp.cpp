@@ -123,10 +123,10 @@ class ModelBitmapWidget: public Widget
 };
 
 const ZoneOption ModelBitmapWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_COLOR>>16)},
+    {STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1>>16)},
     {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(FONT_STD_INDEX)},
     {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(DEFAULT_BGCOLOR>>16)},
+    {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3>>16)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options, "Models");
