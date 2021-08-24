@@ -50,4 +50,5 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 [Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
 
 ## Acknowledgements
-Some icon assets provided by [ICONS8](https://icons8.com).
+Some icon assets provided by [ICONS8](https://icons8.com).</br>
+Lua Documentation site powered with the kind support of [GitBook](https://www.gitbook.com).
