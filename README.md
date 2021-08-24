@@ -28,6 +28,8 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 > [Development WIKI](https://github.com/EdgeTX/edgetx/wiki)
 
+> [Lua Documenation Site](https://luadoc.edgetx.org/)
+  
 > [Flasher Info Page](https://github.com/EdgeTX/flasher) 
 
 > [Flasher Downloads](https://github.com/EdgeTX/flasher/releases)
