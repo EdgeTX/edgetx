@@ -103,14 +103,11 @@ void NumberEdit::onEvent(event_t event)
       }
 #endif
 
-      case EVT_KEY_FIRST(KEY_EXIT):
-        return;
-
-      case EVT_KEY_BREAK(KEY_EXIT):
+    case EVT_KEY_FIRST(KEY_EXIT):
 #if defined(SOFTWARE_KEYBOARD)
-        Keyboard::hide();
+      Keyboard::hide();
 #endif
-        break;
+      break;
 
 
 #if defined(HARDWARE_TOUCH)
@@ -174,11 +171,3 @@ bool NumberEdit::onTouchEnd(coord_t, coord_t)
 }
 #endif
 
-void NumberEdit::onFocusLost()
-{
-#if defined(SOFTWARE_KEYBOARD)
-  Keyboard::hide();
-#endif
-
-  FormField::onFocusLost();
-}
