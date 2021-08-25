@@ -185,8 +185,7 @@ bool SwitchChoice::onTouchStart(coord_t x, coord_t y)
 bool SwitchChoice::onTouchEnd(coord_t x, coord_t y)
 {
   setFocus(SET_FOCUS_DEFAULT);
-  
-  
+
   if(duration10ms != 1) {
     setEditMode(true);
     openMenu();
@@ -194,6 +193,6 @@ bool SwitchChoice::onTouchEnd(coord_t x, coord_t y)
 
   duration10ms = 0;
 
-  return true;  // FormField::onTouchEnd(x, y);
+  return true;
 }
 #endif

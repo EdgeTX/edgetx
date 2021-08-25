@@ -65,7 +65,6 @@ class SwitchChoice : public FormField
   inline bool isLongPress(tmr10ms_t longPressDuration = LONG_PRESS_10MS);
 #endif
 
-
   void setAvailableHandler(std::function<bool(int)> handler)
   {
     isValueAvailable = std::move(handler);
