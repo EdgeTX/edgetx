@@ -23,6 +23,8 @@
 
 #include "form.h"
 
+constexpr int LONG_PRESS_10MS = 100;
+
 class Menu;
 bool isSwitchAvailableInMixes(int swtch);
 
@@ -41,6 +43,9 @@ class SwitchChoice : public FormField
       getValue(std::move(getValue)),
       setValue(std::move(setValue))
   {
+#if defined(HARDWARE_TOUCH)
+    duration10ms = 0;
+#endif    
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -54,7 +59,10 @@ class SwitchChoice : public FormField
 #endif
 
 #if defined(HARDWARE_TOUCH)
+  void checkEvents(void) override;
   bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchStart(coord_t x, coord_t y) override;
+  inline bool isLongPress(tmr10ms_t longPressDuration = LONG_PRESS_10MS);
 #endif
 
   void setAvailableHandler(std::function<bool(int)> handler)
@@ -65,6 +73,9 @@ class SwitchChoice : public FormField
  protected:
   int16_t vmin;
   int16_t vmax;
+#if defined(HARDWARE_TOUCH)
+    tmr10ms_t duration10ms;
+#endif
   std::function<int16_t()> getValue;
   std::function<void(int16_t)> setValue;
   std::function<bool(int)> isValueAvailable = isSwitchAvailableInMixes;
