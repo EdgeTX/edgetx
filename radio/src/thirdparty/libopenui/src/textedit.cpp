@@ -170,6 +170,9 @@ void TextEdit::onEvent(event_t event)
 
       case EVT_KEY_BREAK(KEY_EXIT):
         changeEnd();
+#if defined(SOFTWARE_KEYBOARD)
+        Keyboard::hide();
+#endif
         FormField::onEvent(event);
         break;
 
