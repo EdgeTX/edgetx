@@ -110,7 +110,6 @@ void NumberEdit::onEvent(event_t event)
 #if defined(SOFTWARE_KEYBOARD)
         Keyboard::hide();
 #endif
-        FormField::onEvent(event);
         break;
 
 
