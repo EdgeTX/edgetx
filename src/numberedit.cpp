@@ -106,6 +106,15 @@ void NumberEdit::onEvent(event_t event)
       case EVT_KEY_FIRST(KEY_EXIT):
         return;
 
+      case EVT_KEY_BREAK(KEY_EXIT):
+        changeEnd();
+#if defined(SOFTWARE_KEYBOARD)
+        Keyboard::hide();
+#endif
+        FormField::onEvent(event);
+        break;
+
+
 #if defined(HARDWARE_TOUCH)
       case EVT_VIRTUAL_KEY_PLUS:
         setValue(getValue() + getStep());
