@@ -107,7 +107,6 @@ void NumberEdit::onEvent(event_t event)
         return;
 
       case EVT_KEY_BREAK(KEY_EXIT):
-        changeEnd();
 #if defined(SOFTWARE_KEYBOARD)
         Keyboard::hide();
 #endif
