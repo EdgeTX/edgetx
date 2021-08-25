@@ -29,6 +29,13 @@
 #define KEYBOARD_SET_LETTERS   "\203"
 #define KEYBOARD_SET_NUMBERS   "\204"
 
+#define KEYBOARD_OFFSET_Y 15
+#define KEYBOARD_ROW_HEIGHT 40
+#define KEYBOARD_CHAR_WIDTH 30
+#define KEYBOARD_SPACE_WIDTH 135
+#define KEYBOARD_ENTER_WIDTH 80
+#define KEYBOARD_BITMAP_WIDTH 45
+
 class TextKeyboard : public Keyboard {
   public:
     TextKeyboard();
@@ -53,10 +60,22 @@ class TextKeyboard : public Keyboard {
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
+    bool onTouchStart(coord_t x, coord_t y) override;
+    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif
 
   protected:
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
+
     static TextKeyboard * _instance;
     const char * const * layout;
+  private:
+    int calculateMaxWidth();
+    int getCharWidth(const char c);
+
+    char touch_key = -128;
+    bool touched = false;
 };
 
