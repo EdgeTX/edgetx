@@ -170,10 +170,12 @@ void TextEdit::onEvent(event_t event)
 
       case EVT_KEY_BREAK(KEY_EXIT):
         changeEnd();
+        FormField::onEvent(event);
+        
 #if defined(SOFTWARE_KEYBOARD)
         Keyboard::hide();
 #endif
-        FormField::onEvent(event);
+        setFocus(SET_FOCUS_DEFAULT, this);
         break;
 
       case EVT_KEY_LONG(KEY_ENTER):
