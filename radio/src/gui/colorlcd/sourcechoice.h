@@ -31,8 +31,9 @@ class SourceChoice : public FormField {
   template <class T> friend class MenuToolbar;
 
   public:
-    SourceChoice(Window * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, std::function<void(int16_t)> setValue):
-      FormField(parent, rect),
+    SourceChoice(Window * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, 
+                std::function<void(int16_t)> setValue, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
+      FormField(parent, rect, windowFlags, textFlags),
       vmin(vmin),
       vmax(vmax),
       getValue(std::move(getValue)),

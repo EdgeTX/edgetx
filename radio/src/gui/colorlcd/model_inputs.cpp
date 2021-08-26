@@ -194,17 +194,17 @@ class InputEditWindow : public Page
 #endif
 
       // Input Name
-      new StaticText(window, grid.getLabelSlot(), STR_INPUTNAME);
+      new StaticText(window, grid.getLabelSlot(), STR_INPUTNAME, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(window, grid.getFieldSlot(), g_model.inputNames[line->chn], sizeof(g_model.inputNames[line->chn]));
       grid.nextLine();
 
       // Switch
-      new StaticText(window, grid.getLabelSlot(), STR_SWITCH);
+      new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
       new SwitchChoice(window, grid.getFieldSlot(), SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(line->swtch));
       grid.nextLine();
 
       // Side
-      new StaticText(window, grid.getLabelSlot(), STR_SIDE);
+      new StaticText(window, grid.getLabelSlot(), STR_SIDE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), STR_VCURVEFUNC, 1, 3,
                  [=]() -> int16_t {
                    return 4 - line->mode;
@@ -216,12 +216,12 @@ class InputEditWindow : public Page
       grid.nextLine();
 
       // Name
-      new StaticText(window, grid.getLabelSlot(), STR_EXPONAME);
+      new StaticText(window, grid.getLabelSlot(), STR_EXPONAME, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(window, grid.getFieldSlot(), line->name, sizeof(line->name));
       grid.nextLine();
 
       // Source
-      new StaticText(window, grid.getLabelSlot(), STR_SOURCE);
+      new StaticText(window, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
       new SourceChoice(window, grid.getFieldSlot(), INPUTSRC_FIRST, INPUTSRC_LAST,
                        GET_DEFAULT(line->srcRaw),
                        [=] (int32_t newValue) {
@@ -241,24 +241,24 @@ class InputEditWindow : public Page
 
       // Scale
       // TODO only displayed when source is telemetry + unfinished
-      new StaticText(window, grid.getLabelSlot(), STR_SCALE);
+      new StaticText(window, grid.getLabelSlot(), STR_SCALE, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->scale));
       grid.nextLine();
 
       // Weight
-      new StaticText(window, grid.getLabelSlot(), STR_WEIGHT);
+      new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
       auto gvar = new GVarNumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->weight));
       gvar->setSuffix("%");
       grid.nextLine();
 
       // Offset
-      new StaticText(window, grid.getLabelSlot(), STR_OFFSET);
+      new StaticText(window, grid.getLabelSlot(), STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
       gvar = new GVarNumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->offset));
       gvar->setSuffix("%");
       grid.nextLine();
 
       // Trim
-      new StaticText(window, grid.getLabelSlot(), STR_TRIM);
+      new StaticText(window, grid.getLabelSlot(), STR_TRIM, 0, COLOR_THEME_PRIMARY1);
       trimChoice = new Choice(window, grid.getFieldSlot(), STR_VMIXTRIMS, -TRIM_OFF, -TRIM_LAST,
                               GET_VALUE(-line->carryTrim),
                               SET_VALUE(line->carryTrim, -newValue));
@@ -268,7 +268,7 @@ class InputEditWindow : public Page
       grid.nextLine();
 
       // Curve
-      new StaticText(&body, grid.getLabelSlot(), STR_CURVE);
+      new StaticText(&body, grid.getLabelSlot(), STR_CURVE, 0, COLOR_THEME_PRIMARY1);
       new Choice(&body, grid.getFieldSlot(2, 0), "\004DiffExpoFuncCstm", 0, CURVE_REF_CUSTOM,
                  GET_DEFAULT(line->curve.type),
                  [=](int32_t newValue) {
@@ -282,7 +282,7 @@ class InputEditWindow : public Page
       grid.nextLine();
 
       // Flight modes
-      new StaticText(window, grid.getLabelSlot(), STR_FLMODE);
+      new StaticText(window, grid.getLabelSlot(), STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
       for (uint32_t i=0; i<MAX_FLIGHT_MODES; i++) {
         char fm[2] = { char('0' + i), '\0'};
         if (i > 0 && (i % 4) == 0)
@@ -439,7 +439,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
       coord_t h = grid.getWindowHeight();
       auto txt = new StaticText(window, grid.getLabelSlot(),
                                 getSourceString(MIXSRC_FIRST_INPUT + input),
-                                BUTTON_BACKGROUND, CENTERED);
+                                BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
 
       while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         Button *button =
@@ -499,7 +499,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
             txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(CENTERED);
+            txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
           }
           txt->invalidate();
           if (focus) button->bringToTop();

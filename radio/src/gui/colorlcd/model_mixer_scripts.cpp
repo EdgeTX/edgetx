@@ -78,7 +78,7 @@ class ScriptEditWindow : public Page {
       ScriptData* sd = &(g_model.scriptsData[idx]);
 
       // Filename
-      new StaticText(window, grid.getLabelSlot(), STR_SCRIPT);
+      new StaticText(window, grid.getLabelSlot(), STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
       auto fc = new FileChoice(
           window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
@@ -93,7 +93,7 @@ class ScriptEditWindow : public Page {
       grid.nextLine();
 
       // Custom name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME);
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(window, grid.getFieldSlot(), sd->name, sizeof(sd->name));
       grid.nextLine();
 
@@ -111,7 +111,7 @@ class ScriptEditWindow : public Page {
 
         for (int i = 0; i < sio.inputsCount; i++) {
           ScriptInput& si = sio.inputs[i];
-          new StaticText(window, grid.getLabelSlot(true), si.name);
+          new StaticText(window, grid.getLabelSlot(true), si.name, 0, COLOR_THEME_PRIMARY1);
           grid.nextLine();
           if (si.type == INPUT_TYPE_VALUE) {
             new NumberEdit(gInputs, inputsGrid.getSlot(), si.min - si.def,
@@ -253,7 +253,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
     // LUAx label
     auto txt = new StaticText(window, grid.getLabelSlot(),
                               std::string("LUA") + std::to_string(idx + 1),
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     
     Button* button = new ScriptLineButton(window, grid.getFieldSlot(), sd, runtimeData);
 
@@ -279,7 +279,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
       }
       txt->invalidate();
     });

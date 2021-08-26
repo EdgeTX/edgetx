@@ -65,7 +65,7 @@ void GVarButton::paint(BitmapBuffer * dc)
   gvarSum = 0;
 
   LcdFlags bgColor = COLOR_THEME_PRIMARY2;
-  LcdFlags textColor = 0;
+  LcdFlags textColor = COLOR_THEME_PRIMARY1;
   if (hasFocus()) {
     bgColor   = COLOR_THEME_FOCUS;
     textColor = COLOR_THEME_PRIMARY2;
@@ -87,7 +87,7 @@ void GVarButton::paint(BitmapBuffer * dc)
     gvar_t v = fmData->gvars[gvarIdx];
     gvarSum += v;
 
-    LcdFlags attr = RIGHT;
+    LcdFlags attr = COLOR_THEME_PRIMARY1 | RIGHT;
     if (flightMode == currentFlightMode)
       attr |= FONT(BOLD);
 
@@ -261,12 +261,12 @@ void GVarEditWindow::buildBody(FormWindow * window)
   FormGridLayout grid;
   grid.spacer(8);
 
-  new StaticText(window, grid.getLabelSlot(), STR_NAME);
+  new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
   new RadioTextEdit(window, grid.getFieldSlot(), gvar->name, LEN_GVAR_NAME);
 
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(), STR_UNIT);
+  new StaticText(window, grid.getLabelSlot(), STR_UNIT, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), "\001-%", 0, 1, GET_DEFAULT(gvar->unit),
              [=](int16_t newValue) {
                  gvar->unit = newValue;
@@ -277,7 +277,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
 
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(), STR_PRECISION);
+  new StaticText(window, grid.getLabelSlot(), STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_VPREC, 0, 1, GET_DEFAULT(gvar->prec),
              [=](int16_t newValue) {
                  gvar->prec = newValue;
@@ -288,7 +288,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
 
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(), STR_MIN);
+  new StaticText(window, grid.getLabelSlot(), STR_MIN, 0, COLOR_THEME_PRIMARY1);
   min = new NumberEdit(window, grid.getFieldSlot(), GVAR_MIN, GVAR_MAX - gvar->max,
                        [=] { return gvar->min + GVAR_MIN; },
                        [=](int32_t newValue) {
@@ -299,7 +299,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
   );
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(), STR_MAX);
+  new StaticText(window, grid.getLabelSlot(), STR_MAX, 0, COLOR_THEME_PRIMARY1);
   max = new NumberEdit(window, grid.getFieldSlot(), GVAR_MIN + gvar->min, GVAR_MAX,
                        [=] { return GVAR_MAX - gvar->max; },
                        [=](int32_t newValue) {
@@ -321,7 +321,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
     if (userNameLen > 0) {
       strcpy(flightModeName, fmData->name);
     }
-    new StaticText(window, grid.getLabelSlot(), flightModeName);
+    new StaticText(window, grid.getLabelSlot(), flightModeName, 0, COLOR_THEME_PRIMARY1);
     if (flightMode > 0) {
       auto cb = new CheckBox(window, grid.getFieldSlot(2, 0),
                              [=] { return fmData->gvars[index] <= GVAR_MAX; }, [=](uint8_t checked) {
