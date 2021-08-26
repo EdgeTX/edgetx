@@ -501,7 +501,6 @@ void Window::moveWindowsTop(coord_t y, coord_t delta)
       invalidate();
     }
   }
-  setInnerHeight(innerHeight + delta);
 }
 
 void Window::invalidate(const rect_t & rect)
