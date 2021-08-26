@@ -95,6 +95,9 @@ void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
 uint8_t createCrossfireModelIDFrame(uint8_t * frame);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
+  3750000,
+  1870000,
+  921600,
   400000,
   115200,
 };
