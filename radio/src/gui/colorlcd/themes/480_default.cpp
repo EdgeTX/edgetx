@@ -282,27 +282,6 @@ class Theme480: public OpenTxTheme
 
     void update() const override
     {
-      TRACE("TODO THEME::UPDATE()");
-#if 0
-      uint32_t color = g_eeGeneral.themeData.options[1].value.unsignedValue;
-      uint32_t bg_color = UNEXPECTED_SHUTDOWN() ? WHITE : g_eeGeneral.themeData.options[0].value.unsignedValue;
-
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = bg_color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] =
-          RGB(GET_RED(color)>>1, GET_GREEN(color)>>1, GET_BLUE(color)>>1);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      #define DARKER(x)     ((x * 70) / 100)
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(DARKER(GET_RED(color)), DARKER(GET_GREEN(color)), DARKER(GET_BLUE(color)));
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-#endif
       loadIcons();
       loadThemeBitmaps();
     }

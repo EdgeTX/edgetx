@@ -729,9 +729,10 @@ static int luaLcdSetColor(lua_State *L)
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
   LcdFlags flags = luaL_checkunsigned(L, 2);
 
-  if (index < LCD_COLOR_COUNT)
+  if (index < LCD_COLOR_COUNT) {
     lcdColorTable[index] = COLOR_VAL(flagsRGB(flags));
-
+    OpenTxTheme::instance()->update();
+  }
   return 0;
 }
 
