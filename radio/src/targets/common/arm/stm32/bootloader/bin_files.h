@@ -34,7 +34,12 @@ enum MemoryType {
 #define getBinaryPath(mt)  (FIRMWARES_PATH)
 #endif
 
+#if not defined (PCBNV14)
 #define MAX_NAMES_ON_SCREEN   6
+#else
+#define MAX_NAMES_ON_SCREEN   13
+#endif
+
 #define MAX_BIN_FILES         (MAX_NAMES_ON_SCREEN+1)
 
 // Size of the block read when checking / writing BIN files
