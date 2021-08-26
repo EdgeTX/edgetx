@@ -63,8 +63,8 @@ class StaticText: public Window
 
 class Subtitle: public StaticText {
   public:
-    Subtitle(Window * parent, const rect_t & rect, const char * text):
-      StaticText(parent, rect, text, 0, FONT(BOLD))
+    Subtitle(Window * parent, const rect_t & rect, const char * text, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
+      StaticText(parent, rect, text, windowFlags, textFlags | FONT(BOLD))
     {
     }
 
