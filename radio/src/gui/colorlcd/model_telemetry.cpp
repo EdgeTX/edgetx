@@ -180,7 +180,7 @@ class SensorEditWindow : public Page {
         new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ID, 0, COLOR_THEME_PRIMARY1);
         auto hex = new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 0), 0, 0xFFFF, GET_SET_DEFAULT(sensor->id));
         hex->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, 0);
+          drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 1), 0, 0xff, GET_SET_DEFAULT(sensor->instance));
         grid.nextLine();

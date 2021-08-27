@@ -101,12 +101,10 @@ class ScriptEditWindow : public Page {
       ScriptInputsOutputs& sio = scriptInputsOutputs[idx];
 
       if (sio.inputsCount > 0) {
-        new Subtitle(window, grid.getLineSlot(), STR_INPUTS);
+        new Subtitle(window, grid.getLineSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
-        auto gInputs =
-            new FormGroup(window, grid.getFieldSlot(),
-                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
+        auto gInputs = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         GridLayout inputsGrid(gInputs);
 
         for (int i = 0; i < sio.inputsCount; i++) {
@@ -128,7 +126,7 @@ class ScriptEditWindow : public Page {
       }
 
       if (sio.outputsCount > 0) {
-        new Subtitle(window, grid.getLabelSlot(), STR_OUTPUTS);
+        new Subtitle(window, grid.getLabelSlot(), STR_OUTPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
         auto gOutputs =
@@ -140,12 +138,10 @@ class ScriptEditWindow : public Page {
           ScriptOutput* so = &(sio.outputs[i]);
           new DynamicText(gOutputs, outputsGrid.getLabelSlot(), [=]() {
             char s[16];
-            getSourceString(s,
-                            MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+            getSourceString(s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
             return std::string(s, sizeof(s) - 1);
-          });
-          new DynamicNumber<int>(gOutputs, outputsGrid.getFieldSlot(),
-                                 [=]() { return calcRESXto1000(so->value); });
+          }, COLOR_THEME_PRIMARY1);
+          new DynamicNumber<int>(gOutputs, outputsGrid.getFieldSlot(), [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
 
           outputsGrid.nextLine();
         }
@@ -200,8 +196,7 @@ class ScriptLineButton : public Button
       
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
-          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR,
-                            sizeof(SCRIPT_STATUS_ERROR), textColor);
+          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR, sizeof(SCRIPT_STATUS_ERROR), textColor);
           break;
         default:
           dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");

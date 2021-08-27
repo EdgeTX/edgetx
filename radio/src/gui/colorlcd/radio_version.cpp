@@ -91,36 +91,36 @@ class versionDialog: public Dialog
 
       // Module
       if (module == INTERNAL_MODULE)
-        new StaticText(form, grid->getLineSlot(), STR_INTERNAL_MODULE);
+        new StaticText(form, grid->getLineSlot(), STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
       else
-        new StaticText(form, grid->getLineSlot(), STR_EXTERNAL_MODULE);
+        new StaticText(form, grid->getLineSlot(), STR_EXTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
       grid->nextLine();
 
-      new StaticText(form, grid->getLabelSlot(true), STR_MODULE);
+      new StaticText(form, grid->getLabelSlot(true), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
       if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
-        new StaticText(form, grid->getFieldSlot(1, 0), STR_OFF);
+        new StaticText(form, grid->getFieldSlot(1, 0), STR_OFF, 0, COLOR_THEME_PRIMARY1);
       }
 #if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
       else if (isModuleMultimodule(module)) {
         char statusText[64];
-        new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule");
+        new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule", 0, COLOR_THEME_PRIMARY1);
         getMultiModuleStatus(module).getStatusString(statusText);
-        new StaticText(form, grid->getFieldSlot(2, 1), statusText);
+        new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
       }
 #endif
       else if (!isModulePXX2(module)) {
-        new StaticText(form, grid->getFieldSlot(1, 0), STR_NO_INFORMATION);
+        new StaticText(form, grid->getFieldSlot(1, 0), STR_NO_INFORMATION, 0, COLOR_THEME_PRIMARY1);
       }
       else {
         // PXX2 Module
-        new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module].information.modelID));
+        new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module].information.modelID), 0, COLOR_THEME_PRIMARY1);
         if (reusableBuffer.hardwareAndSettings.modules[module].information.modelID) {
-          new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.hwVersion));
-          new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.swVersion));
+          new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.hwVersion), 0, COLOR_THEME_PRIMARY1);
+          new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.swVersion), 0, COLOR_THEME_PRIMARY1);
           static const char * variants[] = {"FCC", "EU", "FLEX"};
           uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module].information.variant - 1;
           if (variant < DIM(variants)) {
-            new StaticText(form, grid->getFieldSlot(4, 3), variants[variant]);
+            new StaticText(form, grid->getFieldSlot(4, 3), variants[variant], 0, COLOR_THEME_PRIMARY1);
           }
         }
         grid->nextLine();
@@ -129,13 +129,13 @@ class versionDialog: public Dialog
         for (uint8_t receiver=0; receiver<PXX2_MAX_RECEIVERS_PER_MODULE; receiver++) {
           if (reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID) {
             // Receiver model
-            new StaticText(form, grid->getLabelSlot(true), STR_RECEIVER);
+            new StaticText(form, grid->getLabelSlot(true), STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
             uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID;
-            new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ReceiverName(modelId));
+            new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ReceiverName(modelId), 0, COLOR_THEME_PRIMARY1);
 
             // Receiver version
-            new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.hwVersion));
-            new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.swVersion));
+            new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.hwVersion), 0, COLOR_THEME_PRIMARY1);
+            new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.swVersion), 0, COLOR_THEME_PRIMARY1);
             grid->nextLine();
           }
         }
@@ -168,7 +168,7 @@ class versionDialog: public Dialog
 class OptionsText: public StaticText {
   public:
     OptionsText(Window * parent, const rect_t &rect) :
-      StaticText(parent, rect)
+      StaticText(parent, rect, "", 0, COLOR_THEME_PRIMARY1)
     {
       coord_t optionWidth = 0;
       for (uint8_t i = 0; options[i]; i++) {
@@ -189,13 +189,13 @@ class OptionsText: public StaticText {
         const char * option = options[i];
         coord_t optionWidth = getTextWidth(option);
         if (x + 5 + optionWidth > width()) {
-          dc->drawText(x, y, ",");
+          dc->drawText(x, y, ",", COLOR_THEME_PRIMARY1);
           x = 0;
           y += FH;
         }
         if (i > 0 && x != 0)
-          x = dc->drawText(x, y, ", ");
-        x = dc->drawText(x, y, option);
+          x = dc->drawText(x, y, ", ", COLOR_THEME_PRIMARY1);
+        x = dc->drawText(x, y, option, COLOR_THEME_PRIMARY1);
       }
     }
 };
@@ -212,34 +212,34 @@ void RadioVersionPage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
 
   // Radio type
-  new StaticText(window, grid.getLineSlot(), fw_stamp);
+  new StaticText(window, grid.getLineSlot(), fw_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 #if LCD_W > LCD_H
-  new StaticText(window, grid.getLineSlot(), vers_stamp);
+  new StaticText(window, grid.getLineSlot(), vers_stamp, 0, COLOR_THEME_PRIMARY1);
 #else
   memcpy(reusableBuffer.version.id, vers_stamp, strcspn(vers_stamp, " "));
-  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id);
+  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   strAppend(reusableBuffer.version.id, strpbrk(vers_stamp, " "));
-  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id);
+  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id, 0, COLOR_THEME_PRIMARY1);
 #endif
   grid.nextLine();
 
   // Firmware date
-  new StaticText(window, grid.getLineSlot(), date_stamp);
+  new StaticText(window, grid.getLineSlot(), date_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Firmware time
-  new StaticText(window, grid.getLineSlot(), time_stamp);
+  new StaticText(window, grid.getLineSlot(), time_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // EEprom version
-  new StaticText(window, grid.getLineSlot(), eeprom_stamp);
+  new StaticText(window, grid.getLineSlot(), eeprom_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Firmware options
-  new StaticText(window, grid.getLabelSlot(), "OPTS:");
+  new StaticText(window, grid.getLabelSlot(), "OPTS:", 0, COLOR_THEME_PRIMARY1);
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
 
