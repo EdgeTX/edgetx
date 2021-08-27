@@ -174,7 +174,7 @@ void TextKeyboard::paint(BitmapBuffer * dc)
 
 bool TextKeyboard::onTouchStart(coord_t x, coord_t y)
 {
-    // remove the centering.  If x < 0 then this is an invalid touch event
+  // remove the centering.  If x < 0 then this is an invalid touch event
   x -= (this->width() - calculateMaxWidth()) / 2;
   if (x < 0) {
     if (touched) {
@@ -274,7 +274,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
       }
     }
     else {
-      if (x <= KEYBOARD_CHAR_WIDTH && *key != ' ') {
+      if (*key != ' ' && (x >= -(KEYBOARD_CHAR_WIDTH / 2) && x <= KEYBOARD_CHAR_WIDTH / 2)) {
         pushEvent(EVT_VIRTUAL_KEY(*key));
         return true;
       }

@@ -1,8 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Source:
- *  https://github.com/opentx/libopenui
+ *  https://github.com/edgetx/libopenui
  *
  * This file is a part of libopenui library.
  *
@@ -34,12 +34,14 @@ class Keyboard: public FormWindow
   protected:
     static Keyboard * activeKeyboard;
     FormField *field = nullptr;
-    Window    *fieldContainer = nullptr;
-    Window    *fields = nullptr;
-    coord_t    oldHeight = 0;
+    Window *fieldContainer = nullptr;
+    FormWindow *fields = nullptr;
+    coord_t oldHeight = 0;
 
     void setField(FormField *newField);
     void clearField();
     Window *getFieldContainer(FormField * field);
+    void attachKeyboard();
+    FormWindow *findFormWindow();
 };
 
