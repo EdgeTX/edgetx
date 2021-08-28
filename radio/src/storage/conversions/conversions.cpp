@@ -30,6 +30,7 @@
 
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
+#if defined(COLORLCD)
   OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
 
   lcd->reset();
@@ -46,18 +47,23 @@ static void drawProgressScreen(const char* filename, int progress, int total)
 
   WDG_RESET();
   lcdRefresh();
+#else
+  // TODO: BW progress screen
+#endif
 }
 
 void convertRadioData(int version)
 {
   TRACE("convertRadioData(%d)", version);
 
+#if defined(COLORLCD)
   // the theme has not been loaded before
   static_cast<OpenTxTheme*>(theme)->load();
 
   // Init backlight mode before entering alert screens
   requiredBacklightBright = BACKLIGHT_FORCED_ON;
   g_eeGeneral.blOffBright = 20;
+#endif
 
   RAISE_ALERT(STR_STORAGE_WARNING, STR_SDCARD_CONVERSION_REQUIRE, NULL,
               AU_NONE);
