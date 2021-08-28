@@ -784,6 +784,8 @@ PACK(struct TrainerData {
     BLUETOOTH_FIELDS
   #if defined(SDCARD_YAML)
     #define CURR_MODEL_FILENAME char currModelFilename[LEN_MODEL_FILENAME+1]
+  #else
+    #define CURR_MODEL_FILENAME
   #endif
 #else
   #define EXTRA_GENERAL_FIELDS
