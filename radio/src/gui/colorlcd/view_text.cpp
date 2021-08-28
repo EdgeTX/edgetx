@@ -428,27 +428,54 @@ void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
 
 #include "datastructs.h"
 
+static void replaceSpaceWithUnderscore(std::string& name)
+{
+  size_t index;
+  do {
+    index = name.find(' ');
+    if(index != std::string::npos)
+      name[index] = '_';
+  } while (index != std::string::npos);
+}
+
+bool openNotes(const char buf[], std::string modelNotesName)
+{
+  if(isFileAvailable(modelNotesName.c_str())) { 
+    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);  
+    return true;
+   } else {
+     return false;
+   }  
+}
 void readModelNotes()
 {
+  bool notesFound = false;
   LED_ERROR_BEGIN();
 
   std::string modelNotesName(g_model.header.name);
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR*)buf);
-  if(isFileAvailable(modelNotesName.c_str()))
-    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
-#if !defined(EEPROM)    
-  else 
-  {
+
+  notesFound = openNotes(buf, modelNotesName);
+  if(!notesFound) {
+    replaceSpaceWithUnderscore(modelNotesName);
+    notesFound = openNotes(buf, modelNotesName);
+  }
+
+#if !defined(EEPROM) 
+  if(!notesFound) {   
     modelNotesName.assign(g_eeGeneral.currModelFilename);
     size_t index = modelNotesName.find(".bin");
     if(index != std::string::npos)
     {
       modelNotesName.erase(index);
       modelNotesName.append(TEXT_EXT);
-      if(isFileAvailable(modelNotesName.c_str()))
-        new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+      notesFound = openNotes(buf, modelNotesName);
+    }
+    if(!notesFound) {
+      replaceSpaceWithUnderscore(modelNotesName);
+      notesFound = openNotes(buf, modelNotesName);
     }
   }
 #endif
