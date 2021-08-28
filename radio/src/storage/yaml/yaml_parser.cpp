@@ -148,7 +148,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_AttrSP;
                 break;
             }
-            if (*c != ':')
+            if ((*c != ':') && (*c != '\r') && (*c != '\n'))
                 CONCAT_STR(scratch_buf, scratch_len, *c);
             // trap
         case ps_AttrSP:
