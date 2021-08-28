@@ -34,7 +34,7 @@ enum MemoryType {
 #define getBinaryPath(mt)  (FIRMWARES_PATH)
 #endif
 
-#if LCD_H > 320
+#if LCD_H == 480
 #define MAX_NAMES_ON_SCREEN   13
 #else
 #define MAX_NAMES_ON_SCREEN   6
