@@ -436,7 +436,22 @@ void readModelNotes()
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR*)buf);
-  new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+  if(isFileAvailable(modelNotesName.c_str()))
+    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+#if !defined(EEPROM)    
+  else 
+  {
+    modelNotesName.assign(g_eeGeneral.currModelFilename);
+    size_t index = modelNotesName.find(".bin");
+    if(index != std::string::npos)
+    {
+      modelNotesName.erase(index);
+      modelNotesName.append(TEXT_EXT);
+      if(isFileAvailable(modelNotesName.c_str()))
+        new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+    }
+  }
+#endif
 
   LED_ERROR_END();
 }
