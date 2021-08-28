@@ -20,6 +20,7 @@
  */
 
 #include "tabsgroup.h"
+#include "dataconstants.h"
 
 class RadioSdManagerPage: public PageTab {
   public:
@@ -28,5 +29,6 @@ class RadioSdManagerPage: public PageTab {
     void build(FormWindow * window) override;
 
   protected:
+    void FrSkyFirmwareUpdate(ModuleIndex module, const std::string name);
     void rebuild(FormWindow * window);
 };

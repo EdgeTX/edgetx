@@ -229,7 +229,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     // sort directories and files
     directories.sort(compare_nocase);
     files.sort(compare_nocase);
-    
+
     for (auto name: directories) {
       new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
@@ -260,10 +260,8 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (information.readMultiFirmwareInformation(name.c_str()) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
                 menu->addLine(STR_FLASH_INTERNAL_MULTI, [=]() {
-                  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(
-                      INTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
-                  auto dialog = new FlashDialog<MultiDeviceFirmwareUpdate>(
-                      deviceFirmwareUpdate);
+                  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
+                  auto dialog = new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
                   dialog->flash(getFullPath(name));
                 });
 #endif
@@ -289,7 +287,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
-   
+
                 auto textView = new ViewTextWindow(lfn, name);
                 textView->setCloseHandler([=]() {
                   //window->clear();
@@ -301,8 +299,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (isBootloader(name.c_str())) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [=]() {
                   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
-                  auto dialog = new FlashDialog<BootloaderFirmwareUpdate>(
-                      bootloaderFirmwareUpdate);
+                  auto dialog = new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
                   dialog->flash(getFullPath(name));
                   TRACE("### finished flashing ###");
                 });
@@ -310,94 +307,61 @@ void RadioSdManagerPage::build(FormWindow * window)
             } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
               if (HAS_SPORT_UPDATE_CONNECTOR()) {
                 menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-                  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(SPORT_MODULE);
-                  auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                      deviceFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(SPORT_MODULE, name);
                 });
               }
               menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                FrSkyFirmwareUpdate(INTERNAL_MODULE, name);
               });
               menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                FrSkyFirmwareUpdate(EXTERNAL_MODULE, name);
               });
             } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
               FrSkyFirmwareInformation information;
               if (readFrSkyFirmwareInformation(getFullPath(name), information) == nullptr) {
   #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
                 menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
-                  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE);
-                  auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                      deviceFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(INTERNAL_MODULE, name);
                 });
   #endif
                 if (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE)
                 {
                   menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
-                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                        deviceFirmwareUpdate);
-                    dialog->flash(getFullPath(name));
-                  });
+                    FrSkyFirmwareUpdate(EXTERNAL_MODULE, name);
+                   });
                 }
                 if (information.productFamily == FIRMWARE_FAMILY_RECEIVER || information.productFamily == FIRMWARE_FAMILY_SENSOR)
                 {
                   if (HAS_SPORT_UPDATE_CONNECTOR()) {
                     menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-                      FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(SPORT_MODULE);
-                      auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                          deviceFirmwareUpdate);
-                      dialog->flash(getFullPath(name));
+                      FrSkyFirmwareUpdate(SPORT_MODULE, name);
                     });
                   } else {
                     menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-                      FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
-                      auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                          deviceFirmwareUpdate);
-                      dialog->flash(getFullPath(name));
+                      FrSkyFirmwareUpdate(EXTERNAL_MODULE, name);
                     });
                   }
                 }
-// TODO: Integrate the remaining options - may just be a matter of finishing/fixing 
+// TODO: Integrate the remaining options - may just be a matter of finishing/fixing
 // FrskyDeviceFirmwareUpdate deviceFirmwareUpdate calls for each
 /*
 #if defined(PXX2)
               if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
                 if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE, information.productId))
                   menu->addLine(STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
-                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE_OTA);
-                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                        deviceFirmwareUpdate);
-                    dialog->flash(getFullPath(name));
+                    FrSkyFirmwareUpdate(INTERNAL_MODULE_OTA, name);
                   });
                 if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE, information.productId))
                   menu->addLine(STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
-                    FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE_OTA);
-                    auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                        deviceFirmwareUpdate);
-                    dialog->flash(getFullPath(name));
+                    FrSkyFirmwareUpdate(EXTERNAL_MODULE_OTA, name);
                   });
               }
               if (information.productFamily == FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
                 menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA, name);
                 });
                 menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA, name);
                 });
               }
 #endif
@@ -405,10 +369,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP)
               {
                 menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_BLUETOOTH_MODULE);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(STR_FLASH_BLUETOOTH_MODULE, name);
                 });
               }
 #endif
@@ -416,10 +377,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (information.productFamily == FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT)
               {
                 menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(STR_FLASH_POWER_MANAGEMENT_UNIT);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(STR_FLASH_POWER_MANAGEMENT_UNIT, name);
                 });
               }
 #endif
@@ -485,6 +443,13 @@ void RadioSdManagerPage::build(FormWindow * window)
 
   window->setInnerHeight(grid.getWindowHeight());
   preview->setHeight(max(window->height(), grid.getWindowHeight()));
+}
+
+void RadioSdManagerPage::FrSkyFirmwareUpdate(ModuleIndex module, const std::string name)
+{
+  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
+  auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
+  dialog->flash(getFullPath(name));
 }
 
 #if 0
