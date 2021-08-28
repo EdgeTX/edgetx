@@ -1186,7 +1186,7 @@ char * strcat_zchar(char *dest, const char *name, uint8_t size, const char space
 #define strcatFlightmodeName(dest, idx) strcat_zchar(dest, g_model.flightModeData[idx].name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, PSIZE(TR_FM), idx+1)
 #if defined(EEPROM)
 #define strcat_modelname(dest, idx) strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, 0, STR_MODEL, PSIZE(TR_MODEL), idx+1)
-#define strcat_currentmodelname(dest) strcat_modelname(dest, g_eeGeneral.currModel)
+#define strcat_currentmodelname(dest, foo) strcat_modelname(dest, g_eeGeneral.currModel)
 #else
 #define strcat_currentmodelname(dest, spaceSym) strcat_zchar(dest, g_model.header.name, LEN_MODEL_NAME, spaceSym)
 #endif
