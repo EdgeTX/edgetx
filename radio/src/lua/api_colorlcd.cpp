@@ -54,7 +54,7 @@ static int8_t getTextVerticalOffset(LcdFlags flags)
 }
 
 // Return flags with RGB color value instead of indexed theme color
-static LcdFlags flagsRGB(LcdFlags flags)
+LcdFlags flagsRGB(LcdFlags flags)
 {
   // RGB or indexed color?
   if (flags & RGB_FLAG)
