@@ -177,10 +177,14 @@ ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
               // TRACE("default signed = %d", option->deflt.signedValue);
             }
             else if (option->type == ZoneOption::Source ||
-                     option->type == ZoneOption::TextSize ||
-                     option->type == ZoneOption::Color) {
+                     option->type == ZoneOption::TextSize) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER); // value is number
               option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
+              // TRACE("default unsigned = %u", option->deflt.unsignedValue);
+            }
+            else if (option->type == ZoneOption::Color) {
+              luaL_checktype(lsWidgets, -1, LUA_TNUMBER); // value is number
+              option->deflt.unsignedValue = COLOR_VAL(flagsRGB(lua_tounsigned(lsWidgets, -1)));
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             }
             else if (option->type == ZoneOption::Bool) {
@@ -418,7 +422,11 @@ void LuaWidget::update()
   lua_newtable(lsWidgets);
   int i = 0;
   for (const ZoneOption * option = getOptions(); option->name; option++, i++) {
-    l_pushtableint(option->name, persistentData->options[i].value.signedValue);
+    int32_t value = persistentData->options[i].value.signedValue;
+    if (option->type == ZoneOption::Color)
+      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
+    else
+      l_pushtableint(option->name, value);
   }
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {

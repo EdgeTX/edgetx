@@ -39,3 +39,5 @@ constexpr int8_t text_vertical_offset[7] {2,2,0,2,3,3,7};
 
 extern bool           luaLcdAllowed;
 extern BitmapBuffer * luaLcdBuffer;
+
+LcdFlags flagsRGB(LcdFlags flags);
