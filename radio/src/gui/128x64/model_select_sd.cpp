@@ -291,7 +291,8 @@ void menuModelSelect(event_t event)
         //   AUDIO_CATEGORY_DISABLE();
       }
       break;
-#if 0
+
+#if defined(KEYS_GPIO_REG_PAGE)
     case EVT_KEY_BREAK(KEY_PAGE):
     {
       if (modelSelect.categorySelectMode) {
