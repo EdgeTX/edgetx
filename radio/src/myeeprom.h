@@ -26,7 +26,7 @@
 #include "libopenui/src/bitfield.h"
 
 #if defined(SDCARD_YAML)
-  #define EEPROM_VER           255
+  #define EEPROM_VER           221
 #else
   #define EEPROM_VER           220
 #endif
