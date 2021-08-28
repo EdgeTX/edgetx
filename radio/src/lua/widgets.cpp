@@ -358,7 +358,11 @@ class LuaWidgetFactory: public WidgetFactory
       lua_newtable(lsWidgets);
       int i = 0;
       for (const ZoneOption * option = options; option->name; option++, i++) {
-        l_pushtableint(option->name, persistentData->options[i].value.signedValue);
+        int32_t value = persistentData->options[i].value.signedValue;
+        if (option->type == ZoneOption::Color)
+          l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
+        else
+          l_pushtableint(option->name, value);
       }
 
       if (lua_pcall(lsWidgets, 2, 1, 0) != 0) {
