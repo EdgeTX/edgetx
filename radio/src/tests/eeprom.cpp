@@ -23,7 +23,8 @@
 
 extern const char * eepromFile;
 
-#if !defined(EEPROM) && defined(SDCARD)
+#if defined(RTC_BACKUP_RAM)
+#include "storage/rtc_backup.h"
 namespace Backup {
 #define BACKUP
 #include "datastructs.h"
@@ -45,7 +46,9 @@ TEST(Storage, BackupAndRestore)
 }
 #endif
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM) && defined(EEPROM_RLC)
+#include "storage/eeprom_rlc.h"
+
 TEST(Eeprom, 100_random_writes)
 {
   eepromFile = NULL; // in memory
