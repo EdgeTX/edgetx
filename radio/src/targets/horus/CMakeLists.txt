@@ -34,7 +34,8 @@ else()
 endif()
 
 if(YAML_STORAGE)
-  set(STORAGE_FORMAT YAML)
+  set(STORAGE_FORMAT  YAML)
+  set(STORAGE_CONVERT SDCARD_RAW)
 endif()
 
 # for size report script
