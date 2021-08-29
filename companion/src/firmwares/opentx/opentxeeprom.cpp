@@ -2401,6 +2401,162 @@ class TimerField: public TransformedField {
     int _sw1;
 };
 
+class ZoneOptionValueUnionField: public UnionField<ZoneOptionValueEnum> {
+
+  class ZOVUnsignedField: public UnionField::UnionMember, public StructField {
+    public:
+      ZOVUnsignedField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+        StructField(this, "ZOV unsigned")
+      {
+        Append(new UnsignedField<32>(this, option.value.unsignedValue));
+      }
+
+      bool select(const ZoneOptionValueEnum & attr) const override {
+        return attr == ZOV_Unsigned;
+      }
+
+      DataField * getField() override
+      {
+        return this;
+      }
+};
+
+  class ZOVSignedField: public UnionField::UnionMember, public StructField {
+    public:
+      ZOVSignedField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+        StructField(this, "ZOV signed")
+      {
+        Append(new SignedField<32>(this, option.value.signedValue));
+      }
+
+      bool select(const ZoneOptionValueEnum & attr) const override {
+        return attr == ZOV_Signed;
+      }
+
+      DataField * getField() override
+      {
+        return this;
+      }
+   };
+
+  class ZOVBoolField: public UnionField::UnionMember, public StructField {
+    public:
+      ZOVBoolField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+        StructField(this, "ZOV bool")
+      {
+        Append(new UnsignedField<32>(this, option.value.boolValue));
+      }
+
+      bool select(const ZoneOptionValueEnum & attr) const override {
+        return attr == ZOV_Bool;
+      }
+
+      DataField * getField() override
+      {
+        return this;
+      }
+   };
+
+  class ZOVStringField: public UnionField::UnionMember, public StructField {
+    public:
+      ZOVStringField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+        StructField(this, "ZOV string")
+      {
+        Append(new CharField<LEN_ZONE_OPTION_STRING>(this, option.value.stringValue));
+      }
+
+      bool select(const ZoneOptionValueEnum & attr) const override {
+        return attr == ZOV_String;
+      }
+
+      DataField * getField() override
+      {
+        return this;
+      }
+   };
+
+  public:
+    ZoneOptionValueUnionField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+      UnionField<ZoneOptionValueEnum>(parent, option.type, "Zone Option Value Union")
+    {
+      Append(new ZOVUnsignedField(parent, option, board, version));
+      Append(new ZOVSignedField(parent, option, board, version));
+      Append(new ZOVBoolField(parent, option, board, version));
+      Append(new ZOVStringField(parent, option, board, version));
+    }
+};
+
+class ZoneOptionValueTypedField: public StructField {
+  public:
+    ZoneOptionValueTypedField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
+      StructField(this, "Zone Option Value Typed")
+    {
+      Append(new BaseSignedField<ZoneOptionValueEnum, 32>(this, option.type, "Zone Option Value Enum"));
+      Append(new ZoneOptionValueUnionField(this, option, board, version));
+    }
+
+};
+
+class WidgetPersistentDataField: public StructField {
+  public:
+    WidgetPersistentDataField(DataField * parent, WidgetPersistentData & persistentData, Board::Type board, unsigned int version):
+      StructField(this, "Widget Persistent")
+    {
+      for (int i = 0; i < MAX_WIDGET_OPTIONS; i++) {
+        Append(new ZoneOptionValueTypedField(this, persistentData.options[i], board, version));
+      }
+    }
+};
+
+class ZonePersistentDataField: public StructField {
+  public:
+    ZonePersistentDataField(DataField * parent, ZonePersistentData & persistentData, Board::Type board, unsigned int version):
+      StructField(this, "Zone Persistent")
+    {
+      Append(new CharField<WIDGET_NAME_LEN>(this, persistentData.widgetName, "Widget name"));
+      Append(new SpareBitsField<16>(this));   //  pad to word boundary
+      Append(new WidgetPersistentDataField(this, persistentData.widgetData, board, version));
+    }
+};
+
+template <class container>
+class WidgetsContainerPersistentField: public StructField {
+  public:
+    WidgetsContainerPersistentField(DataField * parent, container & persistentData, int zonecnt, int optioncnt, Board::Type board, unsigned int version):
+      StructField(this, "Widgets Container Persistent")
+    {
+      for (int i = 0; i < zonecnt; i++) {
+        Append(new ZonePersistentDataField(this, persistentData.zones[i], board, version));
+      }
+
+      for (int i = 0; i < optioncnt; i++) {
+        Append(new ZoneOptionValueTypedField(this, persistentData.options[i], board, version));
+      }
+    }
+};
+
+class CustomScreenField: public StructField {
+  public:
+    CustomScreenField(DataField * parent, RadioLayout::CustomScreenData & customScreen, Board::Type board, unsigned int version):
+      StructField(this, "Custom Screen")
+    {
+      Append(new CharField<10>(this, customScreen.layoutId, "Layout id"));
+      //Append(new SpareBitsField<16>(this));   //  pad to word boundary not required in this case
+      Append(new WidgetsContainerPersistentField<LayoutPersistentData>(this, customScreen.layoutPersistentData, MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS, board, version));
+      //dump();
+    }
+};
+
+class TopBarField: public StructField {
+  public:
+    TopBarField(DataField * parent, TopBarPersistentData & topBar, Board::Type board, unsigned int version):
+      StructField(parent, "Top Bar")
+    {
+      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS, board, version));
+      //dump();
+    }
+};
+
 OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsigned int version, unsigned int variant):
   TransformedField(nullptr, internalField),
   internalField(this, "ModelData"),
@@ -2646,11 +2802,11 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (version >= 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
-      for (int i = 0; i < 5; i++) {
-        internalField.Append(new CharField<850>(this, modelData.customScreenData[i], false, "Custom screen blob"));
+      for (int i = 0; i < CPN_MAX_CUSTOM_SCREENS; i++) {
+        internalField.Append(new CustomScreenField(this, modelData.customScreens.customScreenData[i], board, version));
       }
-      internalField.Append(new CharField<300>(this, modelData.topbarData, false, "Top bar blob"));
-      internalField.Append(new SpareBitsField<8>(this)); // current view
+      internalField.Append(new TopBarField(this, modelData.topBarData, board, version));
+      internalField.Append(new UnsignedField<8>(this, modelData.view));
     }
   }
   else if (version >= 219) {
@@ -2703,19 +2859,9 @@ void OpenTxModelData::afterImport()
     modelData.switchWarningStates = newSwitchWarningStates;
 
     if (version < 220) {  //  re-initialise as no conversion possible
-      for (int i = 0; i < 5; i++) {
-        memset(modelData.customScreenData[i], 0, sizeof(modelData.customScreenData[i]));
-      }
-
-      strcpy(modelData.customScreenData[0], "Layout2P1");
-
-      static const uint8_t blob[] = { 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-      memcpy(modelData.customScreenData[0] + 730, blob, sizeof(blob));
-
-      memset(modelData.topbarData, 0, sizeof(modelData.topbarData));
+      const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
+      RadioLayout::init(layoutId, modelData.customScreens);
+      memset(&modelData.topBarData, 0, sizeof(TopBarPersistentData));
     }
   }
 
@@ -3063,9 +3209,9 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (version >= 220) {   //  data from earlier versions cannot be converted so fields initialised in afterImport
-      internalField.Append(new CharField<8>(this, generalData.themeName, true, "Theme name"));
-      for (int i = 0; i < 5; i++) {
-        internalField.Append(new CharField<12>(this, generalData.themeOptionValue[i], false, "Theme blob"));
+      internalField.Append(new CharField<8>(this, generalData.themeData.themeName, true, "Theme name"));
+      for (int i = 0; i < MAX_THEME_OPTIONS; i++) {
+        internalField.Append(new ZoneOptionValueTypedField(this, generalData.themeData.themePersistentData.options[i], board, version));
       }
     }
   }
@@ -3084,7 +3230,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   if (version >= 220) {
     internalField.Append(new SignedField<2>(this, generalData.uartSampleMode, "Uart Sample Mode"));
-    //internalField.Append(new SpareBitsField<6>(this));
+    //internalField.Append(new SpareBitsField<6>(this));  // may need padding to end of 8 byte boundary
   }
 }
 
@@ -3109,18 +3255,9 @@ void OpenTxGeneralData::afterImport()
 {
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (version < 220) {    //  re-initialise as no conversion possible
-      //  from radio conversions_219_220.cpp
-      //strcpy(generalData.themeName, defaultTheme->getName());
-      //defaultTheme->init();
-      memset(generalData.themeName, 0, sizeof(generalData.themeName));
-      for (int i = 0; i < 5; i++) {
-        memset(generalData.themeOptionValue[i], 0, sizeof(generalData.themeOptionValue[i]));
-      }
-
-      strcpy(generalData.themeName, "EdgeTX");
-      static const uint8_t blob1[] = { 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                       0x00, 0x00, 0x00, 0x00, 0x03, 0xe1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-      memcpy(generalData.themeOptionValue[0], blob1, sizeof(blob1));
+      const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
+      RadioTheme::init(themeName, generalData.themeData);
     }
   }
 }
+

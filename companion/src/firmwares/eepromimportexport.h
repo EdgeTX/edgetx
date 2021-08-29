@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _EEPROMIMPORTEXPORT_H_
-#define _EEPROMIMPORTEXPORT_H_
+#pragma once
 
 #include "customdebug.h"
 #include <QtCore>
@@ -96,9 +95,9 @@ class DataField {
       int result = (offset+bits.count()) % 8;
       for (int i=0; i<level; i++) printf("  ");
       if (bits.count() % 8 == 0)
-        printf("%s (%dbytes) ", getName().toLatin1().constData(), bytes.count());
+        printf("%s (%d bytes) ", getName().toLatin1().constData(), bytes.count());
       else
-        printf("%s (%dbits) ", getName().toLatin1().constData(), bits.count());
+        printf("%s (%d bits) ", getName().toLatin1().constData(), bits.count());
       for (int i=0; i<bytes.count(); i++) {
         unsigned char c = bytes[i];
         if ((i==0 && offset) || (i==bytes.count()-1 && result!=0))
@@ -254,22 +253,26 @@ class BoolField: public DataField {
     bool & field;
 };
 
-template<int N>
-class SignedField: public DataField {
+template<class container, int N>
+class BaseSignedField: public DataField {
   public:
-    SignedField(DataField * parent, int & field):
+    BaseSignedField(DataField * parent, container & field):
       DataField(parent, "Signed"),
-      field(field)
+      field(field),
+      min(std::numeric_limits<container>::min()),
+      max(std::numeric_limits<container>::max())
     {
     }
 
-    SignedField(DataField * parent, int & field, const char *name):
+    BaseSignedField(DataField * parent, container & field, const char * name):
       DataField(parent, name),
-      field(field)
+      field(field),
+      min(std::numeric_limits<container>::min()),
+      max(std::numeric_limits<container>::max())
     {
     }
 
-    SignedField(DataField * parent, int & field, int min, int max, const char *name="Signed"):
+    BaseSignedField(DataField * parent, container & field, int min, int max, const char * name="Signed"):
       DataField(parent, name),
       field(field),
       min(min),
@@ -279,13 +282,13 @@ class SignedField: public DataField {
 
     void ExportBits(QBitArray & output) override
     {
-      int value = field;
+      container value = field;
       if (value > max) value = max;
       if (value < min) value = min;
 
       output.resize(N);
       for (int i=0; i<N; i++) {
-        if (((unsigned int)value) & (1<<i))
+        if (((unsigned int)value) & ((container)(1<<i)))
           output.setBit(i);
       }
     }
@@ -300,11 +303,11 @@ class SignedField: public DataField {
 
       if (input[N-1]) {
         for (unsigned int i=N; i<8*sizeof(int); i++) {
-          value |= (1<<i);
+          value |= ((container)1<<i);
         }
       }
 
-      field = (int)value;
+      field = (container)value;
       qCDebug(eepromImport) << QString("\timported %1<%2>: 0x%3(%4)").arg(name).arg(N).arg(field, 0, 16).arg(field);
     }
 
@@ -314,9 +317,29 @@ class SignedField: public DataField {
     }
 
   protected:
-    int & field;
-    int min = INT_MIN;
-    int max = INT_MAX;
+    container & field;
+    container min;
+    container max;
+};
+
+template <int N>
+class SignedField : public BaseSignedField<int, N>
+{
+  public:
+    SignedField(DataField * parent, int & field):
+      BaseSignedField<int, N>(parent, field)
+    {
+    }
+
+    SignedField(DataField * parent, int & field, const char *name):
+      BaseSignedField<int, N>(parent, field, name)
+    {
+    }
+
+    SignedField(DataField * parent, int & field, int min, int max, const char *name="Signed"):
+      BaseSignedField<int, N>(parent, field, min, max, name)
+    {
+    }
 };
 
 template<int N>
@@ -588,7 +611,7 @@ class UnionField: public DataField {
         virtual bool select(const selectorT& attr) const = 0;
         virtual DataField* getField() = 0;
     };
-  
+
     class TransformedMember: public UnionMember, public TransformedField {
       public:
         TransformedMember(DataField* parent, DataField& field):
@@ -829,5 +852,3 @@ class ConversionField: public TransformedField {
     int (*importFunc)(int) = nullptr;
     const QString error = "";
 };
-
-#endif // _EEPROMIMPORTEXPORT_H_

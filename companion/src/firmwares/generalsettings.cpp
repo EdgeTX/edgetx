@@ -233,13 +233,8 @@ GeneralSettings::GeneralSettings()
     }
   }
 
-  if (IS_FLYSKY_NV14(board))
-    strcpy(themeName, "FlySky");
-  else
-    strcpy(themeName, "EdgeTX");
-  static const uint8_t blob1[] = { 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x03, 0xe1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-  memcpy(themeOptionValue[0], blob1, sizeof(blob1));
+  const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
+  RadioTheme::init(themeName, themeData);
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
