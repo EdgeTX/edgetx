@@ -29,7 +29,17 @@
 #elif defined(PCBX12S)
  #include "yaml_datastructs_x12s.cpp"
 #elif defined(PCBX7)
- #include "yaml_datastructs_x7.cpp"
+ #if defined(RADIO_T12)
+  #include "yaml_datastructs_t12.cpp"
+ #elif defined(RADIO_TLITE)
+  #include "yaml_datastructs_tlite.cpp"
+ #elif defined(RADIO_TX12)
+  #include "yaml_datastructs_tx12.cpp"
+ #elif defined(RADIO_T8)
+  #include "yaml_datastructs_t8.cpp"
+ #else
+  #include "yaml_datastructs_x7.cpp"
+ #endif
 #elif defined(PCBX9LITE)
  #include "yaml_datastructs_x9lite.cpp"
 #elif defined(PCBX9LITES)
