@@ -1,8 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Source:
- *  https://github.com/opentx/libopenui
+ *  https://github.com/edgetx/libopenui
  *
  * This file is a part of libopenui library.
  *
@@ -25,61 +25,23 @@
 class Keyboard: public FormWindow
 {
   public:
-    explicit Keyboard(coord_t height):
-      FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
+    explicit Keyboard(coord_t height) : FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
     {
     }
 
-    static void hide()
-    {
-      if (activeKeyboard) {
-        activeKeyboard->clearField();
-        activeKeyboard = nullptr;
-      }
-    }
+    static void hide();
 
   protected:
     static Keyboard * activeKeyboard;
-    FormField * field = nullptr;
-    Window * fieldContainer = nullptr;
+    FormField *field = nullptr;
+    Window *fieldContainer = nullptr;
+    FormWindow *fields = nullptr;
+    coord_t oldHeight = 0;
 
-    void setField(FormField * newField)
-    {
-      if (activeKeyboard) {
-        if (activeKeyboard == this)
-          return;
-        activeKeyboard->clearField();
-      }
-      activeKeyboard = this;
-      attach(MainWindow::instance());
-      fieldContainer = getFieldContainer(newField);
-      if (fieldContainer) {
-        fieldContainer->setHeight(LCD_H - height() - fieldContainer->top());
-        fieldContainer->scrollTo(newField);
-        invalidate();
-        newField->setEditMode(true);
-        field = newField;
-      } else {
-        clearField();
-      }
-    }
-
-    void clearField()
-    {
-      detach();
-      if (fieldContainer) {
-        fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
-        fieldContainer = nullptr;
-      }
-      if (field) {
-        field->setEditMode(false);
-        field = nullptr;
-      }
-    }
-
-    Window * getFieldContainer(FormField * field)
-    {
-      return field->getFullScreenWindow();
-    }
+    void setField(FormField *newField);
+    void clearField();
+    Window *getFieldContainer(FormField * field);
+    void attachKeyboard();
+    FormWindow *findFormWindow();
 };
 

@@ -42,5 +42,6 @@ if(SOFTWARE_KEYBOARD)
     ${LIBOPENUI_SRC}
     keyboard_text.cpp
     keyboard_number.cpp
+    keyboard_base.cpp
     )
 endif()
