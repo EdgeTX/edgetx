@@ -55,8 +55,9 @@ bool eeModelExists(uint8_t id)
 {
   int index = 0;
 
-  for (ModelsCategory::iterator it = modelSelect.currentCategory->begin(); it != modelSelect.currentCategory->end(); ++it, ++index) {
-    if (id == index){
+  for (ModelsCategory::iterator it = modelSelect.currentCategory->begin();
+       it != modelSelect.currentCategory->end(); ++it, ++index) {
+    if (id == index) {
       return true;
     }
   }

@@ -175,8 +175,10 @@ const char * eeBackupModel(uint8_t i_fileSrc);
 const char * eeRestoreModel(uint8_t i_fileDst, char *model_name);
 #endif
 
+#if !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 // For conversions
 void loadRadioSettings();
+#endif
 
 bool eepromOpen();
 void eeLoadModelName(uint8_t id, char * name);
@@ -205,5 +207,9 @@ inline bool isEepromStart(const void * buffer)
 }
 
 void eepromBackup();
+
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
+bool eeModelExistsRlc(uint8_t id);
+#endif
 
 #endif // _EEPROM_RLC_H_

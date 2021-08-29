@@ -27,7 +27,9 @@
 #include "storage/sdcard_common.h"
 #include "storage/sdcard_raw.h"
 #include "storage/sdcard_yaml.h"
+#endif
 
+#if !defined(EEPROM_RLC)
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
 #if defined(COLORLCD)
@@ -158,15 +160,36 @@ void convertModelData(int version)
 #endif
 }
 
-#if defined(EEPROM)
+#if defined(EEPROM) || defined(EEPROM_RLC)
+#include "storage/eeprom_common.h"
+
 void eeConvertModel(int id, int version)
 {
   eeLoadModelData(id);
   convertModelData(version);
   uint8_t currModel = g_eeGeneral.currModel;
   g_eeGeneral.currModel = id;
+
+#if !defined(EEPROM)
+  char filename[LEN_MODEL_FILENAME+1];
+  memset(filename, 0, sizeof(filename));
+  char* s = strAppend(filename, MODEL_FILENAME_PREFIX);
+  s = strAppendUnsigned(s, id + 1, 2);
+  s = strAppend(s, MODEL_FILENAME_SUFFIX);
+  memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
+
+  if (!modelslist.getCurrentCategory()) {
+    ModelsCategory* cat = modelslist.createCategory("Models", false);
+    modelslist.setCurrentCategory(cat);
+  }
+  ModelCell* model = modelslist.addModel(modelslist.getCurrentCategory(),
+                                         filename, false);
+  model->setModelName(g_model.header.name);
+#endif
+  
   storageDirty(EE_MODEL);
   storageCheck(true);
+
   g_eeGeneral.currModel = currModel;
 }
 
@@ -177,6 +200,9 @@ bool eeConvert()
   switch (g_eeGeneral.version) {
     case 219:
       msg = "EEprom Data v219";
+      break;
+    case 220:
+      msg = "EEprom Data v220";
       break;
     default:
       return false;
@@ -203,12 +229,15 @@ bool eeConvert()
     convertRadioData_219_to_220(g_eeGeneral);
   }
 #endif
-
+  g_eeGeneral.version = EEPROM_VER;
   storageDirty(EE_GENERAL);
   storageCheck(true);
 
-#if defined(COLORLCD)
-#elif LCD_W >= 212
+#if !defined(EEPROM)
+  modelslist.clear();
+#endif
+  
+#if LCD_W >= 212
   lcdDrawRect(60, 6*FH+4, 132, 3);
 #else
   lcdDrawRect(10, 6*FH+4, 102, 3);
@@ -216,17 +245,29 @@ bool eeConvert()
 
   // Models conversion
   for (uint8_t id=0; id<MAX_MODELS; id++) {
-#if defined(COLORLCD)
-#elif LCD_W >= 212
+#if LCD_W >= 212
     lcdDrawSolidHorizontalLine(61, 6*FH+5, 10+id*2, FORCE);
 #else
     lcdDrawSolidHorizontalLine(11, 6*FH+5, 10+(id*3)/2, FORCE);
 #endif
     lcdRefresh();
+
+#if defined(SIMU)
+    RTOS_WAIT_MS(100);
+#endif
+
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
+    if (eeModelExistsRlc(id)) {
+#else
     if (eeModelExists(id)) {
+#endif
       eeConvertModel(id, conversionVersionStart);
     }
   }
+
+#if !defined(EEPROM)
+  modelslist.save();
+#endif
 
   return true;
 }

@@ -26,13 +26,14 @@
 
 #define DEFAULT_CATEGORY "Models"
 
+#define MODEL_FILENAME_PREFIX    "model"
 #if defined(SDCARD_RAW)
-#define DEFAULT_MODEL_FILENAME   "model1.bin"
-#define MODEL_FILENAME_PATTERN   "model.bin"
+#define MODEL_FILENAME_SUFFIX    ".bin"
 #elif defined(SDCARD_YAML)
-#define DEFAULT_MODEL_FILENAME   "model1.yml"
-#define MODEL_FILENAME_PATTERN   "model.yml"
+#define MODEL_FILENAME_SUFFIX    ".yml"
 #endif
+#define DEFAULT_MODEL_FILENAME   MODEL_FILENAME_PREFIX "1" MODEL_FILENAME_SUFFIX
+#define MODEL_FILENAME_PATTERN   MODEL_FILENAME_PREFIX MODEL_FILENAME_SUFFIX
 
 //#if !defined(EEPROM)
 extern ModelHeader modelHeaders[MAX_MODELS];

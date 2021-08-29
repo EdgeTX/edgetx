@@ -30,6 +30,10 @@
 #include "yaml/yaml_parser.h"
 #include "yaml/yaml_datastructs.h"
 
+#if defined(EEPROM_RLC)
+ #include "storage/eeprom_rlc.h"
+#endif
+
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx)
 {
     FIL  file;
@@ -90,7 +94,15 @@ const char * loadRadioSettings()
 {
     FILINFO fno;
     if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
-        return loadRadioSettingsBin();
+#if !defined(EEPROM_RLC)
+      return loadRadioSettingsBin();
+#else
+      // Load from EEPROM
+      if (!eepromOpen() || !eeLoadGeneral(true)) {
+        return "ERROR";
+      }
+      return nullptr;
+#endif
     }
 
     return loadRadioSettingsYaml();
@@ -192,8 +204,9 @@ const char* readModel(const char* filename, uint8_t* buffer, uint32_t size,
     if (!strncmp(ext, YAML_EXT, 4)) {
       return readModelYaml(filename, buffer, size, version);
     }
-
+#if !defined(EEPROM_RLC)
     return readModelBin(filename, buffer, size, version);
+#endif
   }
   return nullptr;
 }
