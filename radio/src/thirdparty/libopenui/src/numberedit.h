@@ -67,8 +67,6 @@ class NumberEdit : public BaseNumberEdit
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    void onFocusLost() override;
-
   protected:
     std::function<void(BitmapBuffer *, LcdFlags, int)> displayFunction;
     std::string prefix;
