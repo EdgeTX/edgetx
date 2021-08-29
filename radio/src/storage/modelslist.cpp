@@ -478,11 +478,11 @@ ModelsCategory * ModelsList::createCategory(const char* name, bool save)
   return result;
 }
 
-ModelCell * ModelsList::addModel(ModelsCategory * category, const char * name)
+ModelCell * ModelsList::addModel(ModelsCategory * category, const char * name, bool save)
 {
   ModelCell * result = category->addModel(name);
   modelsCount++;
-  save();
+  if (save) this->save();
   return result;
 }
 

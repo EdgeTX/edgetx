@@ -630,7 +630,7 @@ int main(int argc, char ** argv)
 
   simuInit();
 
-#if defined(EEPROM)
+#if defined(EEPROM) || defined(EEPROM_RLC)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
   startAudioThread();

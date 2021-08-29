@@ -145,7 +145,7 @@ public:
   ModelsCategory * createCategory(const char * name, bool save=true);
   void removeCategory(ModelsCategory * category);
 
-  ModelCell * addModel(ModelsCategory * category, const char * name);
+  ModelCell * addModel(ModelsCategory * category, const char * name, bool save=true);
   void removeModel(ModelsCategory * category, ModelCell * model);
   void moveModel(ModelsCategory * category, ModelCell * model, int8_t step);
   void moveModel(ModelCell * model, ModelsCategory * previous_category, ModelsCategory * new_category);

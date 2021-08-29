@@ -702,7 +702,7 @@ static void checkFailsafe()
 #if defined(GUI)
 void checkAll()
 {
-#if defined(EEPROM_RLC)
+#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
   checkLowEEPROM();
 #endif
 
@@ -753,7 +753,7 @@ void checkAll()
 #endif // GUI
 
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 void checkLowEEPROM()
 {
   if (g_eeGeneral.disableMemoryWarning) return;
