@@ -1308,7 +1308,7 @@ void ModelSetupPage::build(FormWindow * window)
     grid.nextLine();
 
     // Throttle warning
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING);
+    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING); 
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
     grid.nextLine();
 
@@ -1337,7 +1337,82 @@ void ModelSetupPage::build(FormWindow * window)
       }
     }
     grid.addWindow(group);
+
+    // Pots and sliders warning
+    if (NUM_POTS + NUM_SLIDERS) {
+      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE);
+      new Choice(window, grid.getFieldSlot(), {"OFF", "ON", "AUTO"}, 0, 2,
+                 GET_SET_DEFAULT(g_model.potsWarnMode));
+      grid.nextLine();
+
+      if (NUM_POTS) {
+        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING);
+        auto group =
+            new FormGroup(window, grid.getFieldSlot(),
+                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
+        GridLayout centerGrid(group);
+        for (int i = POT_FIRST, j = 0; i <= POT_LAST; i++) {
+          char s[8];
+          if ((IS_POT(i) || IS_POT_MULTIPOS(i))) {
+            if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
+
+            auto button = new TextButton(
+                group, centerGrid.getSlot(4, j % 4),
+                getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
+                OPAQUE | ((g_model.potsWarnEnabled & (1 << j)) ? BUTTON_CHECKED
+                                                               : 0));
+            button->setPressHandler([button, j] {
+              g_model.potsWarnEnabled ^= (1 << j);
+              if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
+                  (g_model.potsWarnEnabled & (1 << j))) {
+                SAVE_POT_POSITION(j);
+              }
+              button->check(g_model.potsWarnEnabled & (1 << j));
+              SET_DIRTY();
+              return (g_model.potsWarnEnabled & (1 << j));
+            });
+            j++;
+          }
+        }
+        grid.addWindow(group);
+      }
+
+      if (NUM_SLIDERS) {
+        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING);
+        auto group =
+            new FormGroup(window, grid.getFieldSlot(),
+                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
+        GridLayout centerGrid(group);
+        for (int i = SLIDER_FIRST, j = 0; i <= SLIDER_LAST; i++) {
+          char s[8];
+          if ((IS_SLIDER(i))) {
+            if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
+
+            auto *button = new TextButton(
+                group, centerGrid.getSlot(4, j % 4),
+                getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
+                OPAQUE | ((g_model.potsWarnEnabled & (1 << (j + NUM_POTS)))
+                              ? BUTTON_CHECKED
+                              : 0));
+            button->setPressHandler([button, j] {
+              g_model.potsWarnEnabled ^= (1 << (j + NUM_POTS));
+              if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
+                  (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)))) {
+                SAVE_POT_POSITION(j + NUM_POTS);
+              }
+              button->check(g_model.potsWarnEnabled & (1 << (j + NUM_POTS)));
+              SET_DIRTY();
+              return (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)));
+            });
+            j++;
+          }
+        }
+        grid.addWindow(group);
+      }
+    }
   }
+
+  grid.nextLine();
 
   // Center beeps
   {
