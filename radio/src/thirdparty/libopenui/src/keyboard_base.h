@@ -29,7 +29,31 @@ class Keyboard: public FormWindow
     {
     }
 
-    static void hide();
+    void clearField()
+    {
+      detach();
+      if (fields) { 
+        fields->setHeight(oldHeight);
+        fields = nullptr;
+      }
+      if (fieldContainer) {
+        fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
+        fieldContainer = nullptr;
+      }
+      if (field) {
+        field->setEditMode(false);
+        field = nullptr;
+    }  
+  }
+
+    static void hide()
+    {
+      if (activeKeyboard) {
+        activeKeyboard->clearField();
+        activeKeyboard = nullptr;
+      }
+    }
+
 
   protected:
     static Keyboard * activeKeyboard;
@@ -39,7 +63,6 @@ class Keyboard: public FormWindow
     coord_t oldHeight = 0;
 
     void setField(FormField *newField);
-    void clearField();
     Window *getFieldContainer(FormField * field);
     void attachKeyboard();
     FormWindow *findFormWindow();
