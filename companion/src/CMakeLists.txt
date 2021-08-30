@@ -60,17 +60,9 @@ endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
 
-if(NOT MSVC)
-  set(WARNING_FLAGS "${WARNING_FLAGS} -Wall")
-  if(WARNINGS_AS_ERRORS)
-    set(WARNING_FLAGS "${WARNING_FLAGS} -Werror")
-  endif()
-else()
-  # silence lots of warnings regarding "insecure" use of functions (sprintf, strcpy, etc)
-  set(WARNING_FLAGS "${WARNING_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
-  if(WARNINGS_AS_ERRORS)
-    set(WARNING_FLAGS "${WARNING_FLAGS} /WX")
-  endif()
+set(WARNING_FLAGS "${WARNING_FLAGS} -Wall")
+if(WARNINGS_AS_ERRORS)
+  set(WARNING_FLAGS "${WARNING_FLAGS} -Werror")
 endif()
 
 if(WIN32)
@@ -78,16 +70,10 @@ if(WIN32)
   if(NOT WIN_USE_CONSOLE)
     set(WIN_EXECUTABLE_TYPE WIN32)  # GUI (WinMain) app
   endif()
-  if(MSVC)
-    if(NOT CLANG)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /LD /MP")
-    endif()
-    if(NOT WIN_USE_CONSOLE)
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")  # is this even needed?
-    endif()
-  elseif(MINGW)
+  if(MINGW)
     get_filename_component(MINGW_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
-    # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
+    # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+    # & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
   endif()
 else()
@@ -322,18 +308,12 @@ set(simu_SRCS simulator.cpp )
 add_executable(${SIMULATOR_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${simu_SRCS} ${icon_RC})
 target_link_libraries(${SIMULATOR_NAME} PRIVATE ${CPN_COMMON_LIB})
 
-if(NOT MSVC)
-  add_subdirectory(tests)
-endif()
+add_subdirectory(tests)
 
 ############# Install ####################
 
 # Generate list of simulator plugins, used by all platforms
-if(WIN32)
-  file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/Release/*opentx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
-else()
-  file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*opentx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
-endif()
+file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*opentx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # the current flavour is not automatically added if build in the current cmake iteration, so always
 # add its library name to be sure
@@ -394,24 +374,17 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # Linux specific code
   set(OperatingSystem "Linux")
 elseif(WIN32)
-  if(NOT WIN_DO_FULL_INSTALL)
-    # Just copy supporting DLLs to build folder
-    set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    message(STATUS "Partial install to " ${INSTALL_DESTINATION})
-  else()
-    # Full Windows installation with all supporting files
-    set(INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}")
-    message(STATUS "Full install to " ${INSTALL_DESTINATION})
-    # companion & simulator binaries
-    install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
-    install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
-    install(FILES ${simulator_plugins} DESTINATION "${INSTALL_DESTINATION}")
-    # supporting utilities
-    set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
-    foreach(tmpfile ${INSTALL_TEMP_FILES})
-      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
-    endforeach()
-  endif()  # WIN_DO_FULL_INSTALL
+  set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
+  message(STATUS "Install to " ${INSTALL_DESTINATION})
+  # companion & simulator binaries
+  install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
+  install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
+  install(FILES ${simulator_plugins} DESTINATION ${INSTALL_DESTINATION})
+  # supporting utilities
+  set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
+  foreach(tmpfile ${INSTALL_TEMP_FILES})
+    install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
+  endforeach()
 
   # Qt dlls (using windeployqt)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
@@ -419,14 +392,11 @@ elseif(WIN32)
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
   endif()
-  if(MSVC)
-    set(wdqtopts ${wdqtopts} --no-compiler-runtime)  # --compiler-runtime includes vcredist_x86, but we just copy the required DLLs manually
-  endif()
-  set(wdqtopts ${wdqtopts} -dir "\"${INSTALL_DESTINATION}\"" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/${COMPANION_NAME}.exe" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/${SIMULATOR_NAME}.exe")
+  set(wdqtopts ${wdqtopts} -dir "\"${INSTALL_DESTINATION}\"" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPANION_NAME}.exe" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SIMULATOR_NAME}.exe")
+  list(JOIN wdqtopts " " wdqtopts)
 
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-  install(CODE "execute_process(COMMAND \"${QT_BIN_DIR}/windeployqt.exe\" ${wdqtopts})")
 
   # SDL dll
   if(SDL_FOUND AND EXISTS "${SDL_LIBRARY_PATH}/SDL.dll")
@@ -437,34 +407,21 @@ elseif(WIN32)
   endif()
 
   # libeay (SSL) dlls  (used by QtNetwork) -- not strictly required but avoids possible issues with downloads and Qt warnings.
-  file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
-  find_path(EAY_LIB_DIR libeay32.dll HINTS
-    "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
-    "C:/OpenSSL/" "C:/OpenSSL-Win32/"
-    "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
-    "${MINGW_DIR}/../opt/bin"
-    "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
-    PATH_SUFFIXES bin
-    DOC "Path to libeay32.dll and ssleay32.dll (OpenSSL)"
-  )
-  if (EAY_LIB_DIR)
-    install(FILES "${EAY_LIB_DIR}/libeay32.dll" "${EAY_LIB_DIR}/ssleay32.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-  else()
-    message(WARNING "Installer: SSL libs not found, set EAY_LIB_DIR manually.")
-  endif()
-
-  # C++/system dlls, depends on compiler
-  if(MSVC)
-    file(TO_CMAKE_PATH "$ENV{windir}/SysWOW64" WIN_SYSDIR)    # This would be "system32" for a 64-bit build or on x86... but how to tell?
-    if (NOT EXISTS "${WIN_SYSDIR}")
-      file(TO_CMAKE_PATH "$ENV{windir}/system32" WIN_SYSDIR)  # Must be 32-bit Windows.
-    endif()
-    install(FILES "${WIN_SYSDIR}/msvcp140.dll" "${WIN_SYSDIR}/vcruntime140.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-    if(WIN_PTHREAD_DLL)
-      install(FILES "${WIN_PTHREAD_DLL}" DESTINATION ${INSTALL_DESTINATION})
-    endif()
-  endif()
-
+  # file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
+  # find_path(EAY_LIB_DIR libeay32.dll HINTS
+  #   "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
+  #   "C:/OpenSSL/" "C:/OpenSSL-Win32/"
+  #   "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
+  #   "${MINGW_DIR}/../opt/bin"
+  #   "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
+  #   PATH_SUFFIXES bin
+  #   DOC "Path to libeay32.dll and ssleay32.dll (OpenSSL)"
+  # )
+  # if (EAY_LIB_DIR)
+  #   install(FILES "${EAY_LIB_DIR}/libeay32.dll" "${EAY_LIB_DIR}/ssleay32.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+  # else()
+  #   message(WARNING "Installer: SSL libs not found, set EAY_LIB_DIR manually.")
+  # endif()
 endif() # WIN32 install
 
 ############# Packaging ####################
@@ -486,6 +443,7 @@ if(WIN32)
     add_custom_target(installer
       # The 'install' target prepares all the distro files, make sure it has been executed first.
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
+      COMMAND "${QT_BIN_DIR}/windeployqt.exe" "${wdqtopts}"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
       DEPENDS "${NSI_FILE}"
       COMMENT "Building Windows NSIS installer..."

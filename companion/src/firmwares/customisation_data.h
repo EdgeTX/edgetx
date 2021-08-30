@@ -158,9 +158,9 @@ inline void setZoneOptionValue(ZoneOptionValue & zov, char value)          { mem
 inline void setZoneOptionValue(ZoneOptionValue & zov, unsigned int value)  { zov.unsignedValue = value; }
 
 // cannot use QColor so use formula from libopenui_defines.h
-#define RGB(r, g, b)    (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
-#define WHITE           RGB(0xFF, 0xFF, 0xFF)
-#define RED             RGB(229, 32, 30)
+// #define RGB(r, g, b)    (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
+// #define WHITE           RGB(0xFF, 0xFF, 0xFF)
+// #define RED             RGB(229, 32, 30)
 
 class RadioTheme
 {
@@ -180,15 +180,15 @@ class RadioTheme
     {
       memset(&themeData, 0, sizeof(ThemeData));
 
-      memcpy(&themeData.themeName, themeName, THEME_NAME_LEN);
+      // memcpy(&themeData.themeName, themeName, THEME_NAME_LEN);
 
-      PersistentData & persistentData = themeData.themePersistentData;
+      // PersistentData & persistentData = themeData.themePersistentData;
 
-      persistentData.options[0].type = zoneValueEnumFromType(ZoneOption::Type::Color);
-      setZoneOptionValue(persistentData.options[0].value, (unsigned int)WHITE);
+      // persistentData.options[0].type = zoneValueEnumFromType(ZoneOption::Type::Color);
+      // setZoneOptionValue(persistentData.options[0].value, (unsigned int)WHITE);
 
-      persistentData.options[1].type = zoneValueEnumFromType(ZoneOption::Type::Color);
-      setZoneOptionValue(persistentData.options[1].value, (unsigned int)RED);
+      // persistentData.options[1].type = zoneValueEnumFromType(ZoneOption::Type::Color);
+      // setZoneOptionValue(persistentData.options[1].value, (unsigned int)RED);
     }
 };
 
@@ -210,27 +210,27 @@ class RadioLayout
     {
       memset(&customScreens, 0, sizeof(CustomScreens));
 
-      for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-        if (i == 0)
-          memcpy(&customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
+      // for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+      //   if (i == 0)
+      //     memcpy(&customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
 
-        LayoutPersistentData & persistentData = customScreens.customScreenData[i].layoutPersistentData;
+      //   LayoutPersistentData & persistentData = customScreens.customScreenData[i].layoutPersistentData;
 
-        int j = 0;
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+      //   int j = 0;
+      //   persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      //   setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+      //   persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      //   setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+      //   persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      //   setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+      //   persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      //   setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)false);
-      }
+      //   persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      //   setZoneOptionValue(persistentData.options[j++].value, (bool)false);
+      // }
     }
 };

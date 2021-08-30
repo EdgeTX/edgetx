@@ -319,9 +319,9 @@ set(STM32LIB_SRC
 
 MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
   if (WIN32)
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
   else()
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
   endif()
 
   # Build an array of string from the GCC output
@@ -340,7 +340,7 @@ MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
       # Remove the leading and trailing empty characters
       string(REPLACE "\r" "" _line ${_line})
       string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I${_line}")
+      set(_include_path "${_include_path}" "-I\"${_line}\"")
     endif()
 
     if(${_line} STREQUAL "#include <...> search starts here:")
@@ -351,12 +351,12 @@ MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
 ENDMACRO()
 
 if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(arm_gcc_include_path)
+  GET_GCC_INCLUDE_PATH(gcc_include_path)
 
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs.h -DPCBHORUS -DPCBX10 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${arm_gcc_include_path} -Wno-pragma-once-outside-header > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs.h -DPCBHORUS -DPCBX10 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-pragma-once-outside-header > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
 
