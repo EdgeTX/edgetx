@@ -19,16 +19,3 @@
 
 #pragma once
 
-#if defined(__MINGW32__) || !defined(__GNUC__)
-  #include <windows.h>
-  #include <tchar.h>
-  #define sleep(x) Sleep(x)
-  #define strcasecmp  _stricmp
-  #define strncasecmp _strnicmp
-  #define chdir  _chdir
-  #define getcwd _getcwd
-  // remove windows default definitions
-  #undef OPAQUE
-  #undef RGB
-  #undef EXTERN_C
-#endif
