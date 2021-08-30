@@ -37,7 +37,7 @@
 class SwitchDynamicLabel: public StaticText {
   public:
     SwitchDynamicLabel(Window * parent, const rect_t & rect, uint8_t index):
-      StaticText(parent, rect),
+      StaticText(parent, rect, "", 0, COLOR_THEME_PRIMARY1),
       index(index)
     {
       update();
@@ -108,7 +108,7 @@ class BluetoothConfigWindow : public FormGroup
 #endif
       clear();
 
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE);
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       btMode = new Choice(this, grid.getFieldSlot(), STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER, GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int32_t newValue) {
           g_eeGeneral.bluetoothMode = newValue;
           update();
@@ -120,23 +120,23 @@ class BluetoothConfigWindow : public FormGroup
       if (g_eeGeneral.bluetoothMode != BLUETOOTH_OFF) {
         // Pin code (displayed for information only, not editable)
         if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY) {
-          new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_PIN_CODE);
-          new StaticText(this, grid.getFieldSlot(), "000000");
+          new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_PIN_CODE, 0, COLOR_THEME_PRIMARY1);
+          new StaticText(this, grid.getFieldSlot(), "000000", 0, COLOR_THEME_PRIMARY1);
           grid.nextLine();
         }
 
         // Local MAC
-        new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_LOCAL_ADDR);
-        new StaticText(this, grid.getFieldSlot(), bluetooth.localAddr[0] == '\0' ? "---" : bluetooth.localAddr);
+        new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_LOCAL_ADDR, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(this, grid.getFieldSlot(), bluetooth.localAddr[0] == '\0' ? "---" : bluetooth.localAddr, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
         // Remote MAC
-        new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_DIST_ADDR);
-        new StaticText(this, grid.getFieldSlot(), bluetooth.distantAddr[0] == '\0' ? "---" : bluetooth.distantAddr);
+        new StaticText(this, grid.getLabelSlot(true), STR_BLUETOOTH_DIST_ADDR, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(this, grid.getFieldSlot(), bluetooth.distantAddr[0] == '\0' ? "---" : bluetooth.distantAddr, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
         // BT radio name
-        new StaticText(this, grid.getLabelSlot(true), STR_NAME);
+        new StaticText(this, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
         new RadioTextEdit(this, grid.getFieldSlot(), g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME);
         grid.nextLine();
       }
@@ -160,7 +160,7 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
 
   // Calibration
-  new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, FONT(BOLD));
+  new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto calib = new TextButton(window, grid.getFieldSlot(), STR_CALIBRATION);
   calib->setPressHandler([=]() -> uint8_t {
       auto calibrationPage = new RadioCalibrationPage();
@@ -172,19 +172,19 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.nextLine();
 
   // Sticks
-  new Subtitle(window, grid.getLineSlot(), STR_STICKS);
+  new Subtitle(window, grid.getLineSlot(), STR_STICKS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_STICKS; i++) {
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)));
+    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)), 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i], LEN_ANA_NAME);
     grid.nextLine();
   }
 
   // Pots
-  new Subtitle(window, grid.getLineSlot(), STR_POTS);
+  new Subtitle(window, grid.getLineSlot(), STR_POTS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_POTS; i++) {
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + 1)));
+    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + 1)), 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
     new Choice(window, grid.getFieldSlot(2,1), STR_POTTYPES, POT_NONE, POT_WITHOUT_DETENT,
                [=]() -> int {
@@ -198,14 +198,12 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 
   // Sliders
-  new Subtitle(window, grid.getLineSlot(), STR_SLIDERS);
+  new Subtitle(window, grid.getLineSlot(), STR_SLIDERS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_SLIDERS; i++) {
     const int idx = i + NUM_STICKS + NUM_POTS;
-    new StaticText(window, grid.getLabelSlot(true),
-                   TEXT_AT_INDEX(STR_VSRCRAW, idx + 1));
-    new RadioTextEdit(window, grid.getFieldSlot(2, 0),
-                      g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, idx + 1), 0, COLOR_THEME_PRIMARY1);
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0), g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
     new Choice(
         window, grid.getFieldSlot(2, 1), STR_SLIDERTYPES, SLIDER_NONE,
         SLIDER_WITH_DETENT,
@@ -223,7 +221,7 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 
   // Switches
-  new Subtitle(window, grid.getLineSlot(), STR_SWITCHES);
+  new Subtitle(window, grid.getLineSlot(), STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_SWITCHES; i++) {
     new SwitchDynamicLabel(window, grid.getLabelSlot(true), i);
@@ -241,7 +239,7 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 
   // Bat calibration
-  new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB);
+  new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal = new NumberEdit(window, grid.getFieldSlot(1,0), -127, 127, GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
   batCal->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
       dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
@@ -250,20 +248,20 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.nextLine();
 
   // RTC Batt display
-  new StaticText(window, grid.getLabelSlot(), STR_RTC_BATT);
+  new StaticText(window, grid.getLabelSlot(), STR_RTC_BATT, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(window, grid.getFieldSlot(1,0), [] {
       return getRTCBatteryVoltage();
-  }, PREC2, nullptr, "V");
+  }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
   grid.nextLine();
 
   // RTC Batt check enable
-  new StaticText(window, grid.getLabelSlot(), STR_RTC_CHECK);
+  new StaticText(window, grid.getLabelSlot(), STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
   grid.nextLine();
 
 #if defined(CROSSFIRE) && SPORT_MAX_BAUDRATE < 400000
   // Max baud for external modules
-  new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE);
+  new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, 1, GET_SET_DEFAULT(g_eeGeneral.telemetryBaudrate));
   grid.nextLine();
 #endif
@@ -271,14 +269,14 @@ void RadioHardwarePage::build(FormWindow * window)
 #if defined(BLUETOOTH)
   // Bluetooth mode
   {
-    new Subtitle(window, grid.getLineSlot(), STR_BLUETOOTH);
+    new Subtitle(window, grid.getLineSlot(), STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     grid.addWindow(new BluetoothConfigWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
   }
 #endif
 
 #if defined(AUX_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE);
+  new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
   auto aux =
       new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
                  UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.auxSerialMode),
@@ -292,7 +290,7 @@ void RadioHardwarePage::build(FormWindow * window)
 #endif
 
 #if defined(AUX2_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX2_SERIAL_MODE);
+  new StaticText(window, grid.getLabelSlot(), STR_AUX2_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
   auto aux2 =
       new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
                  UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.aux2SerialMode),
@@ -311,12 +309,12 @@ void RadioHardwarePage::build(FormWindow * window)
 #endif
 
   // ADC filter
-  new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER);
+  new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.jitterFilter));
   grid.nextLine();
 
   // Debugs
-  new StaticText(window, grid.getLabelSlot(), STR_DEBUG, 0, FONT(BOLD));
+  new StaticText(window, grid.getLabelSlot(), STR_DEBUG, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto debugAnas = new TextButton(window, grid.getFieldSlot(2, 0), STR_ANALOGS_BTN);
   debugAnas->setPressHandler([=]() -> uint8_t {
       auto debugAnalogsPage = new RadioAnalogsDiagsPage();

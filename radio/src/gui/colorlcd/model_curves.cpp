@@ -71,13 +71,13 @@ class CurveEditWindow : public Page
       grid.spacer(PAGE_PADDING);
 
       // Name
-      new StaticText(window, grid.getFieldSlot(), STR_NAME);
+      new StaticText(window, grid.getFieldSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       grid.nextLine();
       new RadioTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
       grid.nextLine();
 
       // Type
-      new StaticText(window, grid.getFieldSlot(), STR_TYPE);
+      new StaticText(window, grid.getFieldSlot(), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
       grid.nextLine();
       new Choice(window, grid.getFieldSlot(2, 0), STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
                  [=](int32_t newValue) {
@@ -126,7 +126,7 @@ class CurveEditWindow : public Page
       grid.nextLine();
 
       // Smooth
-      new StaticText(window, grid.getFieldSlot(2, 0), STR_SMOOTH);
+      new StaticText(window, grid.getFieldSlot(2, 0), STR_SMOOTH, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(window, grid.getFieldSlot(2, 1), GET_DEFAULT(g_model.curves[index].smooth),
                    [=](int32_t newValue) {
                        g_model.curves[index].smooth = newValue;
@@ -154,12 +154,12 @@ class CurveEditWindow : public Page
       grid.spacer(curveEdit->height() + 15);
 
       // Name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME);
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       new RadioTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
       grid.nextLine();
 
       // Type
-      new StaticText(window, grid.getLabelSlot(), STR_TYPE);
+      new StaticText(window, grid.getLabelSlot(), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(2, 0), STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
                  [=](int32_t newValue) {
                    CurveHeader &curve = g_model.curves[index];
@@ -207,7 +207,7 @@ class CurveEditWindow : public Page
       grid.nextLine();
 
       // Smooth
-      new StaticText(window, grid.getLabelSlot(), STR_SMOOTH);
+      new StaticText(window, grid.getLabelSlot(), STR_SMOOTH, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(window, grid.getFieldSlot(), GET_DEFAULT(g_model.curves[index].smooth),
                    [=](int32_t newValue) {
                      g_model.curves[index].smooth = newValue;
@@ -248,10 +248,10 @@ class CurveButton : public Button {
       // curve characteristics
       if (isCurveUsed(index)) {
         CurveHeader &curve = g_model.curves[index];
-        dc->drawNumber(130, 5, 5 + curve.points, LEFT, 0, nullptr, STR_PTS);
-        dc->drawTextAtIndex(130, 25, STR_CURVE_TYPES, curve.type);
+        dc->drawNumber(130, 5, 5 + curve.points, LEFT | COLOR_THEME_PRIMARY1, 0, nullptr, STR_PTS);
+        dc->drawTextAtIndex(130, 25, STR_CURVE_TYPES, curve.type, COLOR_THEME_PRIMARY1);
         if (curve.smooth)
-          dc->drawText(130, 45, STR_SMOOTH);
+          dc->drawText(130, 45, STR_SMOOTH, COLOR_THEME_PRIMARY1);
       }
     }
 
@@ -315,7 +315,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       // Curve label
       auto txt =
           new StaticText(window, grid.getLabelSlot(), getCurveString(1 + index),
-                         BUTTON_BACKGROUND, CENTERED);
+                         BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       // Curve drawing
       Button * button = new CurveButton(window, grid.getFieldSlot(), index);
@@ -343,7 +343,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(CENTERED);
+          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
         }
         txt->invalidate();
       });
