@@ -18,31 +18,6 @@
  */
 #include "keyboard_base.h"
 
-void Keyboard::hide()
-{
-  if (activeKeyboard) {
-    activeKeyboard->clearField();
-    activeKeyboard = nullptr;
-  }
-}
-
-void Keyboard::clearField()
-{
-  detach();
-  if (fields) {
-    fields->setHeight(oldHeight);
-    fields = nullptr;
-  }
-  if (fieldContainer) {
-    fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
-    fieldContainer = nullptr;
-  }
-  if (field) {
-    field->setEditMode(false);
-    field = nullptr;
-  }
-}
-
 coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
 {
   // now we need to calculate the offset of the field in the fields scroll container
