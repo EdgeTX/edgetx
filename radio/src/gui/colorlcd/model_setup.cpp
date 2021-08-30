@@ -732,6 +732,9 @@ class ModuleWindow : public FormGroup {
 
         multiRfProto = rfProtocols->findProtocolIndex(multiRfProto);
 
+				// Grid count for narrow/wide screen
+				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
+ 
         rfChoice = new Choice(
             this,
             grid.getFieldSlot(count, 0),
