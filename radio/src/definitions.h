@@ -94,10 +94,12 @@
 #endif
 
 #if defined(__cplusplus)
+  #undef  EXTERN_C
   #define EXTERN_C(__Declaration__) extern "C" { __Declaration__ ; }
   #define EXTERN_C_START extern "C" {
   #define EXTERN_C_END }
 #else
+  #undef  EXTERN_C
   #define EXTERN_C(__Declaration__) __Declaration__
   #define EXTERN_C_START
   #define EXTERN_C_END
