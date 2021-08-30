@@ -723,15 +723,6 @@ class ModuleWindow : public FormGroup {
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
-<<<<<<< HEAD
-				
-				// Grid count for narrow/wide screen
-				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
-        rfChoice = new Choice(
-            this,
-            grid.getFieldSlot(count, 0),
-            STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_FIRST,
-=======
 
         // initialize rfProtocols if it is not initialized already.  This is a hack
         // because i dont know how to construct it at the exact right time after the module
@@ -743,10 +734,8 @@ class ModuleWindow : public FormGroup {
 
         rfChoice = new Choice(
             this,
-            grid.getFieldSlot(
-                g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2, 0),
+            grid.getFieldSlot(count, 0),
             rfProtocols->getLabels(), MODULE_SUBTYPE_MULTI_FIRST,
->>>>>>> Fixed Protocol Sorting in model_setup.cpp
             MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
             [=](int32_t newValue) {
 
