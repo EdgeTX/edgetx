@@ -1308,7 +1308,7 @@ void ModelSetupPage::build(FormWindow * window)
     grid.nextLine();
 
     // Throttle warning
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING); 
+    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
     grid.nextLine();
 
