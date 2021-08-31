@@ -75,7 +75,7 @@ class OpenTxTheme: public Theme
 
     void init() const;
 
-    virtual void update() const
+    virtual void update(bool reload = true) const
     {
     }
 
