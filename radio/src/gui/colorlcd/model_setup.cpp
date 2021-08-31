@@ -54,7 +54,7 @@ RFProtocols::RFProtocols(const char *protocols, int max)
     uint8_t len = protocols[0];
     const char * value = &protocols[1];
 
-    for (int i = 0; i < max; i++)
+    for (int i = 0; i <= max; i++)
     {
         std::string label = std::string(value, min<uint8_t>(len, strlen(value)));
         labels.emplace_back(label);
