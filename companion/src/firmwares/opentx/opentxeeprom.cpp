@@ -2552,7 +2552,7 @@ class TopBarField: public StructField {
     TopBarField(DataField * parent, TopBarPersistentData & topBar, Board::Type board, unsigned int version):
       StructField(parent, "Top Bar")
     {
-      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS, board, version));
+      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, IS_FLYSKY_NV14(board) ? 2 : 4, MAX_TOPBAR_OPTIONS, board, version));
       //dump();
     }
 };
