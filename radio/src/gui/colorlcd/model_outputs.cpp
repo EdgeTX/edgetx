@@ -59,17 +59,17 @@ class OutputEditWindow : public Page {
       LimitData * output = limitAddress(channel);
 
       // Name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME);
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(window, grid.getFieldSlot(), output->name, sizeof(output->name));
       grid.nextLine();
 
       // Offset
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM);
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(window, grid.getFieldSlot(), -1000, +1000, GET_SET_DEFAULT(output->offset), 0, PREC1);
       grid.nextLine();
 
       // Min
-      new StaticText(window, grid.getLabelSlot(), TR_MIN);
+      new StaticText(window, grid.getLabelSlot(), TR_MIN, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(window, grid.getFieldSlot(), -limit, 0,
                      GET_VALUE(output->min - 1000),
                      SET_VALUE(output->min, newValue + 1000),
@@ -77,7 +77,7 @@ class OutputEditWindow : public Page {
       grid.nextLine();
 
       // Max
-      new StaticText(window, grid.getLabelSlot(), TR_MAX);
+      new StaticText(window, grid.getLabelSlot(), TR_MAX, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(window, grid.getFieldSlot(), 0, +limit,
                      GET_VALUE(output->max + 1000),
                      SET_VALUE(output->max, newValue - 1000),
@@ -85,12 +85,12 @@ class OutputEditWindow : public Page {
       grid.nextLine();
 
       // Direction
-      new StaticText(window, grid.getLabelSlot(), STR_INVERTED);
+      new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(output->revert));
       grid.nextLine();
 
       // Curve
-      new StaticText(window, grid.getLabelSlot(), TR_CURVE);
+      new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES, +MAX_CURVES, GET_SET_DEFAULT(output->curve));
       edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
         dc->drawText(2, 2, getCurveString(value));
@@ -98,14 +98,14 @@ class OutputEditWindow : public Page {
       grid.nextLine();
 
       // PPM center
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER);
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX, PPM_CENTER + PPM_CENTER_MAX,
                      GET_VALUE(output->ppmCenter + PPM_CENTER),
                      SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
       grid.nextLine();
 
       // Subtrims mode
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE);
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1, GET_SET_DEFAULT(output->symetrical));
       grid.nextLine();
 
@@ -195,7 +195,7 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
     // Channel label
     auto txt = new StaticText(window, grid.getLabelSlot(),
                               getSourceString(MIXSRC_CH1 + ch),
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
 
     // Channel settings
     Button * button = new OutputLineButton(window, grid.getFieldSlot(), output);
@@ -233,7 +233,7 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
       }
       txt->invalidate();
     });

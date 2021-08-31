@@ -108,7 +108,7 @@ class FailSafeBody : public FormGroup {
       for (int ch=0; ch < maxModuleChannels(moduleIdx); ch++) {
         // Channel name
         // TODO if (g_model.limitData[ch].name[0] != '\0') { <= add channel name
-        new StaticText(this, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch));
+        new StaticText(this, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch), 0, COLOR_THEME_PRIMARY1);
 
         // Channel numeric value
         new NumberEdit(this, grid.getFieldSlot(8, 0), -lim, lim,
@@ -167,18 +167,18 @@ class RegisterDialog: public Dialog {
       grid.spacer(PAGE_PADDING);
 
       // Register ID
-      new StaticText(form, grid.getLabelSlot(), STR_REG_ID);
+      new StaticText(form, grid.getLabelSlot(), STR_REG_ID, 0, COLOR_THEME_PRIMARY1);
       auto edit = new RadioTextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID, sizeof(g_model.modelRegistrationID));
       grid.nextLine();
 
       // UID
-      new StaticText(form, grid.getLabelSlot(), "UID");
+      new StaticText(form, grid.getLabelSlot(), "UID", 0, COLOR_THEME_PRIMARY1);
       uid = new NumberEdit(form, grid.getFieldSlot(), 0, 2, GET_SET_DEFAULT(reusableBuffer.moduleSetup.pxx2.registerLoopIndex));
       grid.nextLine();
 
       // RX name
-      new StaticText(form, grid.getLabelSlot(), STR_RX_NAME);
-      waiting = new StaticText(form, grid.getFieldSlot(), STR_WAITING);
+      new StaticText(form, grid.getLabelSlot(), STR_RX_NAME, 0, COLOR_THEME_PRIMARY1);
+      waiting = new StaticText(form, grid.getFieldSlot(), STR_WAITING, 0, COLOR_THEME_PRIMARY1);
       grid.nextLine();
       grid.spacer(6);
 
@@ -251,7 +251,7 @@ class BindWaitDialog: public Dialog {
       moduleIdx(moduleIdx),
       receiverIdx(receiverIdx)
     {
-      new StaticText(&content->form, {0, height() / 2, width(), PAGE_LINE_HEIGHT}, STR_WAITING_FOR_RX, CENTERED);
+      new StaticText(&content->form, {0, height() / 2, width(), PAGE_LINE_HEIGHT}, STR_WAITING_FOR_RX, 0, CENTERED | COLOR_THEME_PRIMARY1);
     }
 
     void checkEvents() override;
@@ -451,7 +451,7 @@ class TrainerModuleWindow  : public FormGroup {
       FormGridLayout grid;
       clear();
 
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE);
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       trainerChoice = new Choice(this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(), GET_DEFAULT(g_model.trainerData.mode), [=](int32_t newValue) {
           g_model.trainerData.mode = newValue;
           SET_DIRTY();
@@ -462,7 +462,7 @@ class TrainerModuleWindow  : public FormGroup {
       grid.nextLine();
 
       if (g_model.isTrainerTraineeEnable()) {
-        new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE);
+        new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
         channelStart = new NumberEdit(this, grid.getFieldSlot(2, 0), 1,
                                       MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
                                       GET_DEFAULT(1 + g_model.trainerData.channelsStart));
@@ -489,7 +489,7 @@ class TrainerModuleWindow  : public FormGroup {
 
       if (g_model.trainerData.mode == TRAINER_MODE_SLAVE) {
         // PPM frame
-        new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME);
+        new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
 
         // PPM frame length
         auto edit = new NumberEdit(this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
@@ -539,7 +539,7 @@ class ModuleWindow : public FormGroup {
 
     void addChannelRange(FormGridLayout &grid)
     {
-      new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE);
+      new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
       auto channelStart = new NumberEdit(this, grid.getFieldSlot(2, 0), 1,
                                          MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1,
                                          GET_DEFAULT(1 + g_model.moduleData[moduleIdx].channelsStart));
@@ -576,7 +576,7 @@ class ModuleWindow : public FormGroup {
       clear();
 
       // Module Type
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE);
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       moduleChoice = new Choice(this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
                                 MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
                                 GET_DEFAULT(g_model.moduleData[moduleIdx].type),
@@ -637,7 +637,7 @@ class ModuleWindow : public FormGroup {
       else if (isModuleMultimodule(moduleIdx)) {
         Choice * mmSubProtocol = nullptr;
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL);
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
 
         // Multi type (CUSTOM, brand A, brand B,...)
         int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
@@ -691,19 +691,19 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
 
         // Multimodule status
-        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS);
+        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
             getModuleStatusString(moduleIdx, msg);
             return std::string(msg);
-        });
+        }, COLOR_THEME_PRIMARY1);
 
         // Multimodule sync
         /*if (multiSyncStatus.isValid()) {
           grid.nextLine();
-          new StaticText(this, grid.getLabelSlot(true), STR_MODULE_SYNC);
+          new StaticText(this, grid.getLabelSlot(true), STR_MODULE_SYNC, 0, COLOR_THEME_PRIMARY1);
           multiSyncStatus.getRefreshString(statusText);
-          new StaticText(this, grid.getFieldSlot(), statusText);
+          new StaticText(this, grid.getFieldSlot(), statusText, 0, COLOR_THEME_PRIMARY1);
         }*/
 
         const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
@@ -712,7 +712,7 @@ class ModuleWindow : public FormGroup {
           const char *title = getMultiOptionTitleStatic(moduleIdx);
           if (title != nullptr) {
             grid.nextLine();
-            new StaticText(this, grid.getLabelSlot(true), title);
+            new StaticText(this, grid.getLabelSlot(true), title, 0, COLOR_THEME_PRIMARY1);
 
             // int optionValue =
             // g_model.moduleData[moduleIdx].multi.optionValue;
@@ -782,7 +782,7 @@ class ModuleWindow : public FormGroup {
 
           const char* servoRates[] = { "22ms", "11ms" };
           
-          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ);
+          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
           new Choice(
               this, grid.getFieldSlot(), servoRates, 0, 1,
               [=]() {
@@ -795,7 +795,7 @@ class ModuleWindow : public FormGroup {
               });
         } else {
           // Bind on power up
-          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_AUTOBIND);
+          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
           new CheckBox(this, grid.getFieldSlot(),
                        GET_SET_DEFAULT(
                            g_model.moduleData[moduleIdx].multi.autoBindMode));
@@ -803,14 +803,14 @@ class ModuleWindow : public FormGroup {
 
         // Low power mode
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(
             this, grid.getFieldSlot(),
             GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
 
         // Disable telemetry
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_TELEM);
+        new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_TELEM, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(this, grid.getFieldSlot(),
                      GET_SET_DEFAULT(
                          g_model.moduleData[moduleIdx].multi.disableTelemetry));
@@ -818,7 +818,7 @@ class ModuleWindow : public FormGroup {
         if (MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx) != HIDDEN_ROW) {
           // Disable channel mapping
           grid.nextLine();
-          new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP);
+          new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP, 0, COLOR_THEME_PRIMARY1);
           new CheckBox(this, grid.getFieldSlot(),
                        GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableMapping));
         }
@@ -831,13 +831,14 @@ class ModuleWindow : public FormGroup {
 
         // TYPE
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_TYPE);
+        new StaticText(this, grid.getLabelSlot(true), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
         new StaticText(this, grid.getFieldSlot(),
-                       g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+                       g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY,
+                       0, COLOR_THEME_PRIMARY1);
 
         // Status
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS);
+        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
             getModuleStatusString(moduleIdx, msg);
@@ -847,7 +848,7 @@ class ModuleWindow : public FormGroup {
 
         // Power source
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE);
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE, 0, COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
             getModuleSyncStatusString(moduleIdx, msg);
@@ -856,7 +857,7 @@ class ModuleWindow : public FormGroup {
 
         // RX Freq
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ);
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ, 0, COLOR_THEME_PRIMARY1);
         auto edit = new NumberEdit(this, grid.getFieldSlot(2,0), MIN_FREQ, MAX_FREQ, GET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.rxFreq()));
         edit->setSetValueHandler([=](int32_t newValue) {
             g_model.moduleData[EXTERNAL_MODULE].afhds3.setRxFreq((uint16_t)newValue);
@@ -865,7 +866,7 @@ class ModuleWindow : public FormGroup {
 
         // Module actual power
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER, 0, COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
             getStringAtIndex(msg, STR_AFHDS3_POWERS, actualAfhdsRunPower(moduleIdx));
@@ -874,7 +875,7 @@ class ModuleWindow : public FormGroup {
 
         // Module power
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
         new Choice(this, grid.getFieldSlot(2, 0), STR_AFHDS3_POWERS, afhds3::RUN_POWER::RUN_POWER_FIRST, afhds3::RUN_POWER::RUN_POWER_LAST,
                     GET_SET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.runPower));
       }
@@ -890,7 +891,7 @@ class ModuleWindow : public FormGroup {
       // PPM modules
       if (isModulePPM(moduleIdx)) {
         // PPM frame
-        new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME);
+        new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
 
         // PPM frame length
         auto edit = new NumberEdit(this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
@@ -917,7 +918,7 @@ class ModuleWindow : public FormGroup {
       // Bind and Range buttons
       if (!isModuleRFAccess(moduleIdx) && (isModuleModelIndexAvailable(moduleIdx)|| isModuleBindRangeAvailable(moduleIdx))) {
         uint8_t thirdColumn = 0;
-        new StaticText(this, grid.getLabelSlot(true), STR_RECEIVER);
+        new StaticText(this, grid.getLabelSlot(true), STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
 
         // Model index
         if (isModuleModelIndexAvailable(moduleIdx)) {
@@ -1005,7 +1006,7 @@ class ModuleWindow : public FormGroup {
       // Failsafe
       if (isModuleFailsafeAvailable(moduleIdx)) {
         hasFailsafe = true;
-        new StaticText(this, grid.getLabelSlot(true), STR_FAILSAFE);
+        new StaticText(this, grid.getLabelSlot(true), STR_FAILSAFE, 0, COLOR_THEME_PRIMARY1);
         failSafeChoice = new Choice(this, grid.getFieldSlot(2, 0), STR_VFAILSAFE, 0, FAILSAFE_LAST,
                                     GET_DEFAULT(g_model.moduleData[moduleIdx].failsafeMode),
                                     [=](int32_t newValue) {
@@ -1026,7 +1027,7 @@ class ModuleWindow : public FormGroup {
 
       // Register and Range buttons
       if (isModuleRFAccess(moduleIdx)) {
-        new StaticText(this, grid.getLabelSlot(true), STR_MODULE);
+        new StaticText(this, grid.getLabelSlot(true), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
         registerButton = new TextButton(this, grid.getFieldSlot(2, 0), STR_REGISTER);
         registerButton->setPressHandler([=]() -> uint8_t {
             new RegisterDialog(this, moduleIdx);
@@ -1050,13 +1051,13 @@ class ModuleWindow : public FormGroup {
 
       // R9M Power
       if (isModuleR9M_FCC(moduleIdx)) {
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
         new Choice(this, grid.getFieldSlot(), STR_R9M_FCC_POWER_VALUES, 0, R9M_FCC_POWER_MAX,
                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].pxx.power));
       }
 
       if (isModuleR9M_LBT(moduleIdx)) {
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
         new Choice(this, grid.getFieldSlot(), STR_R9M_LBT_POWER_VALUES, 0, R9M_LBT_POWER_MAX,
                    GET_DEFAULT(min<uint8_t>(g_model.moduleData[moduleIdx].pxx.power, R9M_LBT_POWER_MAX)),
                    SET_DEFAULT(g_model.moduleData[moduleIdx].pxx.power));
@@ -1067,7 +1068,7 @@ class ModuleWindow : public FormGroup {
         for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE; receiverIdx++) {
           char label[] = TR_RECEIVER " X";
           label[sizeof(label) - 2] = '1' + receiverIdx;
-          new StaticText(this, grid.getLabelSlot(true), label);
+          new StaticText(this, grid.getLabelSlot(true), label, 0, COLOR_THEME_PRIMARY1);
           new ReceiverButton(this, grid.getFieldSlot(2, 0), moduleIdx, receiverIdx);
           grid.nextLine();
         }
@@ -1075,7 +1076,7 @@ class ModuleWindow : public FormGroup {
 
       // SBUS refresh rate
       if (isModuleSBUS(moduleIdx)) {
-        new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE);
+        new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE, 0, COLOR_THEME_PRIMARY1);
         auto edit = new NumberEdit(this, grid.getFieldSlot(2, 0), 60, 400,
                                            GET_DEFAULT((int16_t)g_model.moduleData[moduleIdx].ppm.frameLength*5 + 225),
                                            SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength, (newValue - 225)/5),
@@ -1084,7 +1085,7 @@ class ModuleWindow : public FormGroup {
         new Choice(this, grid.getFieldSlot(2, 1), STR_SBUS_INVERSION_VALUES, 0, 1, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].sbus.noninverted));
 #if defined(RADIO_TX16S)
         grid.nextLine();
-        new StaticText(this, grid.getFieldSlot(1, 0), STR_WARN_5VOLTS);
+        new StaticText(this, grid.getFieldSlot(1, 0), STR_WARN_5VOLTS, 0, COLOR_THEME_PRIMARY1);
 #endif
         grid.nextLine();
       }
@@ -1150,7 +1151,7 @@ void ModelSetupPage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
 
   // Model name
-  new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
+  new StaticText(window, grid.getLabelSlot(), STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   auto text =
       new ModelTextEdit(window, grid.getFieldSlot(), g_model.header.name,
                         sizeof(g_model.header.name), 0, MODEL_NAME_EXTRA_CHARS);
@@ -1165,7 +1166,7 @@ void ModelSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   // Bitmap
-  new StaticText(window, grid.getLabelSlot(), STR_BITMAP);
+  new StaticText(window, grid.getLabelSlot(), STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
   new FileChoice(window, grid.getFieldSlot(), BITMAPS_PATH, BITMAPS_EXT, sizeof(g_model.header.bitmap),
                  [=]() {
                    return std::string(g_model.header.bitmap, sizeof(g_model.header.bitmap));
@@ -1181,46 +1182,46 @@ void ModelSetupPage::build(FormWindow * window)
 
     // Timer label
     strAppendStringWithIndex(reusableBuffer.moduleSetup.msg, STR_TIMER, i + 1);
-    new Subtitle(window, grid.getLineSlot(), reusableBuffer.moduleSetup.msg);
+    new Subtitle(window, grid.getLineSlot(), reusableBuffer.moduleSetup.msg, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
     GridLayout timerGrid(group);
 
     // Timer name
-    new StaticText(window, grid.getLabelSlot(true), STR_NAME);
+    new StaticText(window, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new RadioTextEdit(group, timerGrid.getSlot(), timer->name, LEN_TIMER_NAME);
     timerGrid.nextLine();
 
     // Timer mode
-    new StaticText(window, grid.getLabelSlot(true), STR_MODE);
+    new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new Choice(group, timerGrid.getSlot(2, 0), STR_TIMER_MODES, 0, TMRMODE_MAX, GET_SET_DEFAULT(timer->mode));
     new SwitchChoice(group, timerGrid.getSlot(2, 1), SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(timer->swtch));
     timerGrid.nextLine();
 
     // Timer start value
-    new StaticText(window, grid.getLabelSlot(true), "Start");
+    new StaticText(window, grid.getLabelSlot(true), "Start", 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new TimeEdit(group, timerGrid.getSlot(), 0, TIMER_MAX, GET_SET_DEFAULT(timer->start));
     timerGrid.nextLine();
 
     // Timer minute beep
-    new StaticText(window, grid.getLabelSlot(true), STR_MINUTEBEEP);
+    new StaticText(window, grid.getLabelSlot(true), STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new CheckBox(group, timerGrid.getSlot(), GET_SET_DEFAULT(timer->minuteBeep));
     timerGrid.nextLine();
 
     // Timer countdown
-    new StaticText(window, grid.getLabelSlot(true), STR_BEEPCOUNTDOWN);
+    new StaticText(window, grid.getLabelSlot(true), STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new Choice(group, timerGrid.getSlot(2, 0), STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(timer->countdownBeep));
     new Choice(group, timerGrid.getSlot(2, 1), STR_COUNTDOWNVALUES, 0, 3, GET_SET_WITH_OFFSET(timer->countdownStart, 2));
     timerGrid.nextLine();
 
     // Timer persistent
-    new StaticText(window, grid.getLabelSlot(true), STR_PERSISTENT);
+    new StaticText(window, grid.getLabelSlot(true), STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     new Choice(group, timerGrid.getSlot(), STR_VPERSISTENT, 0, 2, GET_SET_DEFAULT(timer->persistent));
     timerGrid.nextLine();
@@ -1230,12 +1231,12 @@ void ModelSetupPage::build(FormWindow * window)
   }
 
   // Extended limits
-  new StaticText(window, grid.getLabelSlot(), STR_ELIMITS);
+  new StaticText(window, grid.getLabelSlot(), STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.extendedLimits));
   grid.nextLine();
 
   // Extended trims
-  new StaticText(window, grid.getLabelSlot(), STR_ETRIMS);
+  new StaticText(window, grid.getLabelSlot(), STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(2, 0), GET_SET_DEFAULT(g_model.extendedTrims));
   new TextButton(window, grid.getFieldSlot(2, 1), STR_RESET_BTN,
                  []() -> uint8_t {
@@ -1249,27 +1250,27 @@ void ModelSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   // Display trims
-  new StaticText(window, grid.getLabelSlot(), STR_DISPLAY_TRIMS);
+  new StaticText(window, grid.getLabelSlot(), STR_DISPLAY_TRIMS, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), "\006No\0   ChangeYes", 0, 2, GET_SET_DEFAULT(g_model.displayTrims));
   grid.nextLine();
 
   // Trim step
-  new StaticText(window, grid.getLabelSlot(), STR_TRIMINC);
+  new StaticText(window, grid.getLabelSlot(), STR_TRIMINC, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_VTRIMINC, -2, 2, GET_SET_DEFAULT(g_model.trimInc));
   grid.nextLine();
 
   // Throttle parameters
   {
-    new Subtitle(window, grid.getLineSlot(), STR_THROTTLE_LABEL);
+    new Subtitle(window, grid.getLineSlot(), STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Throttle reversed
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLEREVERSE);
+    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLEREVERSE, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.throttleReversed));
     grid.nextLine();
 
     // Throttle source
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRACE);
+    new StaticText(window, grid.getLabelSlot(true), STR_TTRACE, 0, COLOR_THEME_PRIMARY1);
     auto sc = new SourceChoice(
         window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH,
         [=]() { return throttleSource2Source(g_model.thrTraceSrc); },
@@ -1279,41 +1280,41 @@ void ModelSetupPage::build(FormWindow * window)
             g_model.thrTraceSrc = val;
             SET_DIRTY();
           }
-        });
+        }, 0, COLOR_THEME_PRIMARY1);
     sc->setAvailableHandler(isThrottleSourceAvailable);
     grid.nextLine();
 
     // Throttle trim
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM);
+    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.thrTrim));
     grid.nextLine();
 
     // Throttle trim source
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM_SW);
+    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM_SW, 0, COLOR_THEME_PRIMARY1);
     new SourceChoice(
         window, grid.getFieldSlot(), MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
         [=]() { return g_model.getThrottleStickTrimSource(); },
-        [=](int16_t src) { g_model.setThrottleStickTrimSource(src); });
+        [=](int16_t src) { g_model.setThrottleStickTrimSource(src); }, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
   }
 
   // Preflight parameters
   {
-    new Subtitle(window, grid.getLineSlot(), STR_PREFLIGHT);
+    new Subtitle(window, grid.getLineSlot(), STR_PREFLIGHT, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Display checklist
-    new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST);
+    new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.displayChecklist));
     grid.nextLine();
 
     // Throttle warning
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING);
+    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
     grid.nextLine();
 
     // Switches warning
-    new StaticText(window, grid.getLabelSlot(true), STR_SWITCHWARNING);
+    new StaticText(window, grid.getLabelSlot(true), STR_SWITCHWARNING, 0, COLOR_THEME_PRIMARY1);
     auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
     GridLayout switchesGrid(group);
     for (int i = 0, j = 0; i < NUM_SWITCHES; i++) {
@@ -1341,7 +1342,7 @@ void ModelSetupPage::build(FormWindow * window)
 
   // Center beeps
   {
-    new StaticText(window, grid.getLabelSlot(false), STR_BEEPCTR);
+    new StaticText(window, grid.getLabelSlot(false), STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
     auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
     GridLayout centerGrid(group);
     for (int i = 0, j = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
@@ -1364,27 +1365,27 @@ void ModelSetupPage::build(FormWindow * window)
   }
 
   // Global functions
-  new StaticText(window, grid.getLabelSlot(), STR_USE_GLOBAL_FUNCS);
+  new StaticText(window, grid.getLabelSlot(), STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noGlobalFunctions));
   grid.nextLine();
 
   // Internal module
   {
-    new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF);
+    new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     grid.addWindow(new ModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}, INTERNAL_MODULE));
   }
 
   // External module
   {
-    new Subtitle(window, grid.getLineSlot(), TR_EXTERNALRF);
+    new Subtitle(window, grid.getLineSlot(), TR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     grid.addWindow(new ModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}, EXTERNAL_MODULE));
   }
 
   // Trainer
   {
-    new Subtitle(window, grid.getLineSlot(), STR_TRAINER);
+    new Subtitle(window, grid.getLineSlot(), STR_TRAINER, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     grid.addWindow(new TrainerModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
   }

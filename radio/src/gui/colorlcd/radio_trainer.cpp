@@ -43,7 +43,7 @@ void RadioTrainerPage::build(FormWindow * window)
   for (uint8_t i=0; i<NUM_STICKS; i++) {
     uint8_t chan = channelOrder(i+1);
     TrainerMix * td = &g_eeGeneral.trainer.mix[chan-1];
-    new StaticText(window, grid.getLabelSlot(), TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)));
+    new StaticText(window, grid.getLabelSlot(), TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)), 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(3,0), STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
     auto weight = new NumberEdit(window, grid.getFieldSlot(3, 1), -125, 125, GET_SET_DEFAULT(td->studWeight));
     weight->setSuffix("%");
@@ -53,7 +53,7 @@ void RadioTrainerPage::build(FormWindow * window)
   grid.nextLine();
 
   // Trainer multiplier
-  new StaticText(window, grid.getLabelSlot(), STR_MULTIPLIER);
+  new StaticText(window, grid.getLabelSlot(), STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
   auto multiplier = new NumberEdit(window, grid.getFieldSlot(3, 0), -10, 40, GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
   multiplier->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
     dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value+10, flags | PREC1, 0);
@@ -62,7 +62,7 @@ void RadioTrainerPage::build(FormWindow * window)
   grid.nextLine();
 
   // Trainer calibration
-  new StaticText(window, grid.getLabelSlot(), STR_CAL);
+  new StaticText(window, grid.getLabelSlot(), STR_CAL, 0, COLOR_THEME_PRIMARY1);
   for (int i = 0; i < NUM_STICKS; i++) {
 #if defined (PPM_UNIT_PERCENT_PREC1)
     auto calib = new NumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, nullptr, 0, LEFT | PREC1);

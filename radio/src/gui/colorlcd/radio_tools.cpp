@@ -113,7 +113,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
           label = getBasename(path);
         }
         auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
-                                  BUTTON_BACKGROUND, CENTERED);
+                                  BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
         std::string path_str(path);
         auto b = new TextButton(
@@ -137,7 +137,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
             txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(CENTERED);
+            txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
           }
           txt->invalidate();
         });
@@ -181,7 +181,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_INT,
         [=]() -> uint8_t {
@@ -196,7 +196,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
       }
       txt->invalidate();
     });
@@ -206,7 +206,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #if defined(INTERNAL_MODULE_MULTI)
   {
     auto txt = new StaticText(window, grid.getLabelSlot(), "multi",
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -221,7 +221,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
       }
       txt->invalidate();
     });

@@ -88,19 +88,19 @@ class MixEditWindow : public Page
     MixData *mix = mixAddress(mixIndex);
 
     // Mix name
-    new StaticText(window, grid.getLabelSlot(), STR_MIXNAME);
+    new StaticText(window, grid.getLabelSlot(), STR_MIXNAME, 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(window, grid.getFieldSlot(), mix->name,
                       sizeof(mix->name));
     grid.nextLine();
 
     // Source
-    new StaticText(window, grid.getLabelSlot(), STR_SOURCE);
+    new StaticText(window, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
     new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST,
                      GET_SET_DEFAULT(mix->srcRaw));
     grid.nextLine();
 
     // Weight
-    new StaticText(window, grid.getLabelSlot(), STR_WEIGHT);
+    new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
     auto gvar =
         new GVarNumberEdit(window, grid.getFieldSlot(), MIX_WEIGHT_MIN,
                            MIX_WEIGHT_MAX, GET_SET_DEFAULT(mix->weight));
@@ -108,19 +108,19 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Offset
-    new StaticText(window, grid.getLabelSlot(), STR_OFFSET);
+    new StaticText(window, grid.getLabelSlot(), STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
     gvar = new GVarNumberEdit(window, grid.getFieldSlot(), MIX_OFFSET_MIN,
                               MIX_OFFSET_MAX, GET_SET_DEFAULT(mix->offset));
     gvar->setSuffix("%");
     grid.nextLine();
 
     // Trim
-    new StaticText(window, grid.getLabelSlot(), STR_TRIM);
+    new StaticText(window, grid.getLabelSlot(), STR_TRIM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(mix->carryTrim));
     grid.nextLine();
 
     // Curve
-    new StaticText(&body, grid.getLabelSlot(), STR_CURVE);
+    new StaticText(&body, grid.getLabelSlot(), STR_CURVE, 0, COLOR_THEME_PRIMARY1);
     new Choice(&body, grid.getFieldSlot(2, 0), "\004DiffExpoFuncCstm", 0,
                CURVE_REF_CUSTOM, GET_DEFAULT(mix->curve.type),
                [=](int32_t newValue) {
@@ -135,7 +135,7 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Flight modes
-    new StaticText(window, grid.getLabelSlot(), STR_FLMODE);
+    new StaticText(window, grid.getLabelSlot(), STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
     for (uint32_t i = 0; i < MAX_FLIGHT_MODES; i++) {
       char fm[2] = {char('0' + i), '\0'};
       if (i > 0 && (i % 4) == 0) grid.nextLine();
@@ -151,26 +151,26 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Switch
-    new StaticText(window, grid.getLabelSlot(), STR_SWITCH);
+    new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     new SwitchChoice(window, grid.getFieldSlot(), SWSRC_FIRST_IN_MIXES,
                      SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(mix->swtch));
     grid.nextLine();
 
     // Warning
-    new StaticText(window, grid.getLabelSlot(), STR_MIXWARNING);
+    new StaticText(window, grid.getLabelSlot(), STR_MIXWARNING, 0, COLOR_THEME_PRIMARY1);
     auto edit = new NumberEdit(window, grid.getFieldSlot(2, 0), 0, 3,
                                GET_SET_DEFAULT(mix->mixWarn));
     edit->setZeroText(STR_OFF);
     grid.nextLine();
 
     // Multiplex
-    new StaticText(window, grid.getLabelSlot(), STR_MULTPX);
+    new StaticText(window, grid.getLabelSlot(), STR_MULTPX, 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(), STR_VMLTPX, 0, 2,
                GET_SET_DEFAULT(mix->mltpx));
     grid.nextLine();
 
     // Delay up
-    new StaticText(window, grid.getLabelSlot(), STR_DELAYUP);
+    new StaticText(window, grid.getLabelSlot(), STR_DELAYUP, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(2, 0), 0, DELAY_MAX,
                           GET_DEFAULT(mix->delayUp),
                           SET_VALUE(mix->delayUp, newValue), 0, PREC1);
@@ -178,7 +178,7 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Delay down
-    new StaticText(window, grid.getLabelSlot(), STR_DELAYDOWN);
+    new StaticText(window, grid.getLabelSlot(), STR_DELAYDOWN, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(2, 0), 0, DELAY_MAX,
                           GET_DEFAULT(mix->delayDown),
                           SET_VALUE(mix->delayDown, newValue), 0, PREC1);
@@ -186,7 +186,7 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Slow up
-    new StaticText(window, grid.getLabelSlot(), STR_SLOWUP);
+    new StaticText(window, grid.getLabelSlot(), STR_SLOWUP, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(2, 0), 0, DELAY_MAX,
                           GET_DEFAULT(mix->speedUp),
                           SET_VALUE(mix->speedUp, newValue), 0, PREC1);
@@ -194,7 +194,7 @@ class MixEditWindow : public Page
     grid.nextLine();
 
     // Slow down
-    new StaticText(window, grid.getLabelSlot(), STR_SLOWDOWN);
+    new StaticText(window, grid.getLabelSlot(), STR_SLOWDOWN, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(2, 0), 0, DELAY_MAX,
                           GET_DEFAULT(mix->speedDown),
                           SET_VALUE(mix->speedDown, newValue), 0, PREC1);
@@ -287,7 +287,7 @@ class MixLineButton : public CommonInputOrMixButton
       drawFlightModes(dc, line.flightModes, textColor);
     }
 
-    // Put this icon on the first line, since we jave more space there
+    // Put this icon on the first line, since we have more space there
     uint8_t delayslow = 0;
     if (line.speedDown || line.speedUp) delayslow = 1;
     if (line.delayUp || line.delayDown) delayslow += 2;
@@ -379,7 +379,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
       coord_t h = grid.getWindowHeight();
       auto txt = new MixLineTitle(window, grid.getLabelSlot(),
                                   getSourceString(MIXSRC_CH1 + ch),
-                                  BUTTON_BACKGROUND, CENTERED);
+                                  BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       uint8_t count = 0;
       while (mixIndex < MAX_MIXERS && mix->srcRaw > 0 && mix->destCh == ch) {
@@ -448,7 +448,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
             txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(CENTERED);
+            txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
           }
           txt->invalidate();
           if (focus) button->bringToTop();

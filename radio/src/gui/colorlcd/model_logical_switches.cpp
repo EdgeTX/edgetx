@@ -94,18 +94,18 @@ class LogicalSwitchEditPage: public Page
       uint8_t cstate = lswFamily(cs->func);
 
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         grid.nextLine();
       }
       else if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         grid.nextLine();
@@ -133,23 +133,23 @@ class LogicalSwitchEditPage: public Page
         grid.nextLine();
       }
       else if (cstate == LS_FAMILY_COMP) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
         grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
         grid.nextLine();
       }
       else if (cstate == LS_FAMILY_TIMER) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
           dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
           dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
@@ -157,7 +157,7 @@ class LogicalSwitchEditPage: public Page
         grid.nextLine();
       }
       else {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
                          [=](int32_t newValue) {
                            cs->v1 = newValue;
@@ -173,7 +173,7 @@ class LogicalSwitchEditPage: public Page
                          });
         grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
+        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
         v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
@@ -184,21 +184,21 @@ class LogicalSwitchEditPage: public Page
       }
 
       // AND switch
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_AND_SWITCH);
+      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
       auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
       choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
       grid.nextLine();
 
       // Duration
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DURATION);
+      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DURATION, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DURATION, GET_SET_DEFAULT(cs->duration), 0, PREC1);
       edit->setZeroText("---");
       grid.nextLine();
 
       // Delay
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DELAY);
+      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DELAY, 0, COLOR_THEME_PRIMARY1);
       if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getFieldSlot(), STR_NA);
+        new StaticText(logicalSwitchOneWindow, grid.getFieldSlot(), STR_NA, 0, COLOR_THEME_PRIMARY1);
       }
       else {
         auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DELAY, GET_SET_DEFAULT(cs->delay), 0, PREC1);
@@ -215,7 +215,7 @@ class LogicalSwitchEditPage: public Page
       LogicalSwitchData * cs = lswAddress(index);
 
       // LS Func
-      new StaticText(window, grid.getLabelSlot(), STR_FUNC);
+      new StaticText(window, grid.getLabelSlot(), STR_FUNC, 0, COLOR_THEME_PRIMARY1);
       auto functionChoice = new Choice(window, grid.getFieldSlot(), STR_VCSWFUNC, 0, LS_FUNC_MAX, GET_DEFAULT(cs->func));
       functionChoice->setSetValueHandler([=](int32_t newValue) {
           cs->func = newValue;
@@ -253,7 +253,7 @@ class LogicalSwitchButton : public Button
 {
  public:
   LogicalSwitchButton(FormGroup* parent, const rect_t& rect, int lsIndex) :
-      Button(parent, rect), lsIndex(lsIndex), active(isActive())
+      Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1), lsIndex(lsIndex), active(isActive())
   {
     LogicalSwitchData* ls = lswAddress(lsIndex);
     if (ls->andsw != SWSRC_NONE || ls->duration != 0 || ls->delay != 0)
@@ -282,42 +282,38 @@ class LogicalSwitchButton : public Button
     uint8_t lsFamily = lswFamily(ls->func);
 
     // CSW func
-    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func);
+    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_PRIMARY1);
 
     // CSW params
     if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
-      drawSwitch(dc, col2, line1, ls->v1);
-      drawSwitch(dc, col3, line1, ls->v2);
+      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
+      drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_PRIMARY1);
     } else if (lsFamily == LS_FAMILY_EDGE) {
-      drawSwitch(dc, col1, line2, ls->v1);
-      putsEdgeDelayParam(dc, col2, line2, ls);
+      drawSwitch(dc, col1, line2, ls->v1, COLOR_THEME_PRIMARY1);
+      putsEdgeDelayParam(dc, col2, line2, ls, COLOR_THEME_PRIMARY1);
     } else if (lsFamily == LS_FAMILY_COMP) {
-      drawSource(dc, col2, line1, ls->v1, 0);
-      drawSource(dc, col3, line1, ls->v2, 0);
+      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
+      drawSource(dc, col3, line1, ls->v2, COLOR_THEME_PRIMARY1);
     } else if (lsFamily == LS_FAMILY_TIMER) {
-      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), LEFT | PREC1);
-      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), LEFT | PREC1);
+      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), COLOR_THEME_PRIMARY1 | LEFT | PREC1);
+      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), COLOR_THEME_PRIMARY1 | LEFT | PREC1);
     } else {
-      drawSource(dc, col2, line1, ls->v1, 0);
-      drawSourceCustomValue(
-          dc, col3, line1, ls->v1,
-          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0);
+      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
+      drawSourceCustomValue(dc, col3, line1, ls->v1,
+          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), COLOR_THEME_PRIMARY1);
     }
 
     // AND switch
-    drawSwitch(dc, col1, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
-               ls->andsw, 0);
+    drawSwitch(dc, col1, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->andsw, COLOR_THEME_PRIMARY1);
 
     // CSW duration
     if (ls->duration > 0) {
-      dc->drawNumber(col2, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
-                     ls->duration, PREC1 | LEFT);
+      dc->drawNumber(col2, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->duration, COLOR_THEME_PRIMARY1 | PREC1 | LEFT);
     }
 
     // CSW delay
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-      dc->drawNumber(col3, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2,
-                     ls->delay, PREC1 | LEFT);
+      dc->drawNumber(col3, (lsFamily == LS_FAMILY_EDGE) ? line3 : line2, ls->delay, COLOR_THEME_PRIMARY1 | PREC1 | LEFT);
     }
   }
 
@@ -393,7 +389,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
     } else {
       auto txt = new StaticText(window, grid.getLabelSlot(),
                                 getSwitchPositionName(SWSRC_SW1 + i),
-                                BUTTON_BACKGROUND, CENTERED);
+                                BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);
       button->setPressHandler([=]() {
@@ -425,7 +421,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(CENTERED);
+          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
         }
         txt->invalidate();
       });

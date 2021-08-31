@@ -298,6 +298,7 @@ bool isLogicalSwitchAvailable(int index)
 bool isSwitchAvailable(int swtch, SwitchContext context)
 {
   bool negative = false;
+  (void)negative;
 
   if (swtch < 0) {
     if (swtch == -SWSRC_ON || swtch == -SWSRC_ONE) {
@@ -319,9 +320,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
       return false;
     }
     if (!IS_CONFIG_3POS(swinfo.quot)) {
-      if (negative) {
-        return false;
-      }
       if (swinfo.rem == 1) {
         // mid position not available for 2POS switches
         return false;

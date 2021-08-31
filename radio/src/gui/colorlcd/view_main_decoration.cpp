@@ -330,6 +330,6 @@ void ViewMainDecoration::createFlightMode()
     return g_model.flightModeData[mixerCurrentFlightMode].name;
   };
 
-  flightMode = new DynamicText(this, r, getFM, CENTERED);
+  flightMode = new DynamicText(this, r, getFM, CENTERED | COLOR_THEME_SECONDARY1);
 }
 
