@@ -78,7 +78,7 @@ class ScriptEditWindow : public Page {
       ScriptData* sd = &(g_model.scriptsData[idx]);
 
       // Filename
-      new StaticText(window, grid.getLabelSlot(), STR_SCRIPT);
+      new StaticText(window, grid.getLabelSlot(), STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
       auto fc = new FileChoice(
           window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
@@ -93,7 +93,7 @@ class ScriptEditWindow : public Page {
       grid.nextLine();
 
       // Custom name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME);
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(window, grid.getFieldSlot(), sd->name, sizeof(sd->name));
       grid.nextLine();
 
@@ -101,17 +101,15 @@ class ScriptEditWindow : public Page {
       ScriptInputsOutputs& sio = scriptInputsOutputs[idx];
 
       if (sio.inputsCount > 0) {
-        new Subtitle(window, grid.getLineSlot(), STR_INPUTS);
+        new Subtitle(window, grid.getLineSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
-        auto gInputs =
-            new FormGroup(window, grid.getFieldSlot(),
-                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
+        auto gInputs = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         GridLayout inputsGrid(gInputs);
 
         for (int i = 0; i < sio.inputsCount; i++) {
           ScriptInput& si = sio.inputs[i];
-          new StaticText(window, grid.getLabelSlot(true), si.name);
+          new StaticText(window, grid.getLabelSlot(true), si.name, 0, COLOR_THEME_PRIMARY1);
           grid.nextLine();
           if (si.type == INPUT_TYPE_VALUE) {
             new NumberEdit(gInputs, inputsGrid.getSlot(), si.min - si.def,
@@ -128,7 +126,7 @@ class ScriptEditWindow : public Page {
       }
 
       if (sio.outputsCount > 0) {
-        new Subtitle(window, grid.getLabelSlot(), STR_OUTPUTS);
+        new Subtitle(window, grid.getLabelSlot(), STR_OUTPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
         auto gOutputs =
@@ -140,12 +138,10 @@ class ScriptEditWindow : public Page {
           ScriptOutput* so = &(sio.outputs[i]);
           new DynamicText(gOutputs, outputsGrid.getLabelSlot(), [=]() {
             char s[16];
-            getSourceString(s,
-                            MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+            getSourceString(s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
             return std::string(s, sizeof(s) - 1);
-          });
-          new DynamicNumber<int>(gOutputs, outputsGrid.getFieldSlot(),
-                                 [=]() { return calcRESXto1000(so->value); });
+          }, COLOR_THEME_PRIMARY1);
+          new DynamicNumber<int>(gOutputs, outputsGrid.getFieldSlot(), [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
 
           outputsGrid.nextLine();
         }
@@ -200,8 +196,7 @@ class ScriptLineButton : public Button
       
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
-          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR,
-                            sizeof(SCRIPT_STATUS_ERROR), textColor);
+          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR, sizeof(SCRIPT_STATUS_ERROR), textColor);
           break;
         default:
           dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
@@ -253,7 +248,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
     // LUAx label
     auto txt = new StaticText(window, grid.getLabelSlot(),
                               std::string("LUA") + std::to_string(idx + 1),
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     
     Button* button = new ScriptLineButton(window, grid.getFieldSlot(), sd, runtimeData);
 
@@ -279,7 +274,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
       }
       txt->invalidate();
     });

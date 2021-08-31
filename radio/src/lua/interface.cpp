@@ -27,6 +27,7 @@
 #include "bin_allocator.h"
 #include "lua_api.h"
 #include "sdcard.h"
+#include "api_filesystem.h"
 
 #if defined(LIBOPENUI)
   #include "api_colorlcd.h"
@@ -257,6 +258,8 @@ void luaClose(lua_State ** L)
 void luaRegisterLibraries(lua_State * L)
 {
   luaL_openlibs(L);
+  registerDirIter(L);
+
 #if defined(COLORLCD)
   registerBitmapClass(L);
 #endif

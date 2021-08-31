@@ -21,7 +21,6 @@
 #include <cctype>
 #include <cstdio>
 #include "opentx.h"
-#include "lua_api.h"
 #include "libopenui.h"
 
 #include "api_colorlcd.h"
@@ -729,9 +728,10 @@ static int luaLcdSetColor(lua_State *L)
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
   LcdFlags flags = luaL_checkunsigned(L, 2);
 
-  if (index < LCD_COLOR_COUNT)
+  if (index < LCD_COLOR_COUNT) {
     lcdColorTable[index] = COLOR_VAL(flagsRGB(flags));
-
+    OpenTxTheme::instance()->update();
+  }
   return 0;
 }
 
