@@ -49,17 +49,25 @@ void Keyboard::attachKeyboard()
 // this routine finds the window that is a FormWindow.  This is the window
 // that contains all of the editable fields.  This is the window that needs
 // to be scrolled into view.
-FormWindow *Keyboard::findFormWindow()
+FormWindow *Keyboard::findFormWindow(Window *parent)
 {
-  if (fieldContainer) {
-    auto children = fieldContainer->getChildren();
-    auto k = children.begin();
-    while (k != children.end())
+  if (parent) {
+    auto children = parent->getChildren();
+    auto childIterator = children.begin();
+    while (childIterator != children.end())
     {
-      FormWindow *a = dynamic_cast<FormWindow*>(*k);
-      if (a)
-        return a;
-      k++;
+#if defined(DEBUG_WINDOWS)
+      std::string windowName;
+      Window *window = dynamic_cast<Window *>(*childIterator);
+      if (window)
+        windowName = window->getName();
+#endif
+        
+      FormWindow *formWindow = dynamic_cast<FormWindow*>(*childIterator);
+      if (formWindow)
+        return formWindow;
+
+      childIterator++;
     }
   }
 
@@ -72,11 +80,18 @@ void Keyboard::setField(FormField* newField)
 
   fieldContainer = getFieldContainer(newField);
   if (fieldContainer) {
+#if defined(DEBUG_WINDOWS)
+    auto windowName = fieldContainer->getName();
+#endif
     coord_t newHeight = LCD_H - height();
     fieldContainer->setHeight(newHeight);
 
-    fields = findFormWindow();
+    fields = findFormWindow(fieldContainer);
+
     if (fields) {
+#if defined(DEBUG_WINDOWS)
+      windowName = fields->getName();
+#endif      
       // scroll the header of the window out of view to get more space to
       // see the field being edited
       fieldContainer->setScrollPositionY(fields->top());
@@ -85,6 +100,10 @@ void Keyboard::setField(FormField* newField)
 
       coord_t offsetY = calcScrollOffsetForField(newField, fields);
       fields->setScrollPositionY(offsetY);
+    } else {
+      // TODO: what happens if field container is null. 
+      // we will need to interrogate the fieldContainer for its
+      // FormGroup.  That is really how it should work anyway.
     }
 
     invalidate();

@@ -150,6 +150,16 @@ void NumberEdit::onEvent(event_t event)
   FormField::onEvent(event);
 }
 
+void NumberEdit::onFocusLost()
+{
+#if defined(SOFTWARE_KEYBOARD)
+  Keyboard::hide();
+#endif
+
+  FormField::onFocusLost();
+}
+
+
 #if defined(HARDWARE_TOUCH)
 bool NumberEdit::onTouchEnd(coord_t, coord_t)
 {
