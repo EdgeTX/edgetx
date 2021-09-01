@@ -65,6 +65,6 @@ class Keyboard: public FormWindow
     void setField(FormField *newField);
     Window *getFieldContainer(FormField * field);
     void attachKeyboard();
-    FormWindow *findFormWindow();
+    FormWindow *findFormWindow(Window *parent);
 };
 

@@ -62,6 +62,7 @@ class NumberEdit : public BaseNumberEdit
     }
 
     void onEvent(event_t event) override;
+    void onFocusLost() override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
