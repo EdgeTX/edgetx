@@ -726,11 +726,12 @@ Please notice that changing theme colors affects not only other Lua widgets, but
 static int luaLcdSetColor(lua_State *L)
 {
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
-  LcdFlags flags = luaL_checkunsigned(L, 2);
+  uint16_t color = COLOR_VAL(flagsRGB(luaL_checkunsigned(L, 2)));
 
-  if (index < LCD_COLOR_COUNT) {
-    lcdColorTable[index] = COLOR_VAL(flagsRGB(flags));
-    OpenTxTheme::instance()->update();
+  if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
+    lcdColorTable[index] = color;
+    if (index != CUSTOM_COLOR_INDEX)
+      OpenTxTheme::instance()->update(false);
   }
   return 0;
 }
