@@ -103,11 +103,11 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
             // TODO add an helper
             strncpy(s, &STR_VSRCRAW[1 + (NUM_STICKS + 1 + i) * STR_VSRCRAW[0]], STR_VSRCRAW[0]);
             s[int(STR_VSRCRAW[0])] = '\0';
-            dc->drawText(x, y, s, COLOR_THEME_WARNING | FONT(XL));
-            y += 35;
+            dc->drawText(x, y, s, COLOR_THEME_WARNING | FONT(BOLD));
+            y += 15;
           }
           else {
-            dc->drawText(x, y, "...", COLOR_THEME_WARNING | FONT(XL));
+            dc->drawText(x, y, "...", COLOR_THEME_WARNING | FONT(BOLD));
           }
         }
       }
