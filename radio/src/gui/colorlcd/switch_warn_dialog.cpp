@@ -42,7 +42,7 @@ bool SwitchWarnDialog::warningInactive()
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
         continue;
       }
-      if (!(g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
+      if ( (g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
         warn = true;
         bad_pots |= (1 << i);
       }
@@ -96,7 +96,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
         continue;
       }
-      if (!(g_model.potsWarnEnabled & (1 << i))) {
+      if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           if (y < LCD_H) {
             char s[8];
