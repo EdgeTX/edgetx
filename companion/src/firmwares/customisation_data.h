@@ -183,10 +183,19 @@ class RadioLayout
       LayoutPersistentData & persistentData = customScreenData.layoutPersistentData;
 
       int j = 0;
+      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+
+      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+
+      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+
+      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+
+      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)false);
     }
 };
