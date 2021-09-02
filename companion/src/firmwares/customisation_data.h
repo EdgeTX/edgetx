@@ -117,10 +117,10 @@ typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS> Lay
 
 typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarPersistentData;
 
-inline void setZoneOptionValue(ZoneOptionValue & zov, unsigned int value)  { zov.unsignedValue = value; }
-inline void setZoneOptionValue(ZoneOptionValue & zov, int value)           { zov.signedValue = value; }
 inline void setZoneOptionValue(ZoneOptionValue & zov, bool value)          { zov.boolValue = value; }
+inline void setZoneOptionValue(ZoneOptionValue & zov, int value)           { zov.signedValue = value; }
 inline void setZoneOptionValue(ZoneOptionValue & zov, char value)          { memset(&zov.stringValue, value, LEN_ZONE_OPTION_STRING); }
+inline void setZoneOptionValue(ZoneOptionValue & zov, unsigned int value)  { zov.unsignedValue = value; }
 
 // cannot use QColor so use formula from libopenui_defines.h
 #define RGB(r, g, b)    (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
@@ -157,12 +157,6 @@ class RadioTheme
     }
 };
 
-#define CPN_STR_TOP_BAR       tr("Top Bar").toUtf8().data()
-#define CPN_STR_FLIGHT_MODE   tr("Flight mode").toUtf8().data()
-#define CPN_STR_SLIDERS       tr("Sliders").toUtf8().data()
-#define CPN_STR_TRIMS         tr("Trims").toUtf8().data()
-#define CPN_STR_MIRROR        tr("Mirror").toUtf8().data()
-
 class RadioLayout
 {
   Q_DECLARE_TR_FUNCTIONS(RadioLayout)
@@ -177,12 +171,6 @@ class RadioLayout
       CustomScreenData customScreenData[CPN_MAX_CUSTOM_SCREENS];
     };
 
-    static void setCommon(int idx, LayoutPersistentData & persistentData, char * name, ZoneOption::Type type)
-    {
-      memcpy(&persistentData.zones[idx].widgetName, name, WIDGET_NAME_LEN);
-      persistentData.options[idx].type = zoneValueEnumFromType(type);
-    }
-
     static void init(const char * layoutId, CustomScreens & customScreens)
     {
       memset(&customScreens, 0, sizeof(CustomScreens));
@@ -195,19 +183,10 @@ class RadioLayout
       LayoutPersistentData & persistentData = customScreenData.layoutPersistentData;
 
       int j = 0;
-      setCommon(j, persistentData, CPN_STR_TOP_BAR, ZoneOption::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-      setCommon(j, persistentData, CPN_STR_FLIGHT_MODE, ZoneOption::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-      setCommon(j, persistentData, CPN_STR_SLIDERS, ZoneOption::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-      setCommon(j, persistentData, CPN_STR_TRIMS, ZoneOption::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-      setCommon(j, persistentData, CPN_STR_MIRROR, ZoneOption::Bool);
       setZoneOptionValue(persistentData.options[j++].value, (bool)false);
     }
 };
