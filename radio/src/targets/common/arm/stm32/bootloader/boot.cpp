@@ -289,7 +289,7 @@ int main()
     if (tenms) {
       tenms = 0;
 
-      if (state != ST_USB) {
+      if (state != ST_USB && state != ST_FLASHING) {
         if (usbPlugged()) {
           state = ST_USB;
           if (!unlocked) {
