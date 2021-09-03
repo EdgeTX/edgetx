@@ -2491,7 +2491,7 @@ class ZoneOptionValueTypedField: public StructField {
     ZoneOptionValueTypedField(DataField * parent, ZoneOptionValueTyped & option, Board::Type board, unsigned int version):
       StructField(this, "Zone Option Value Typed")
     {
-      Append(new BaseSignedField<ZoneOptionValueEnum, 32>(this, option.type, "Zone Option Value Enum"));
+      Append(new SignedField<32>(this, (int &)option.type, "Zone Option Value Enum"));
       Append(new ZoneOptionValueUnionField(this, option, board, version));
     }
 
