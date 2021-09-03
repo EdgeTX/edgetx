@@ -504,15 +504,15 @@ void drawHexNumber(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t val, LcdFla
   }
 }
 
-void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, char * str, LcdFlags flags)
+void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, const char * str, LcdFlags flags)
 {
   coord_t x = left;
   coord_t y = top;
   coord_t line = getFontHeight(flags & 0xFFFF);
   coord_t space = getTextWidth(" ", 1, flags);
   coord_t word;
-  char * eos = str + strlen(str);
-  char * nxt;
+  const char * eos = str + strlen(str);
+  const char * nxt;
   
   while (str < eos) {
     nxt = strstr(str, " ");
