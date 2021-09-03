@@ -149,6 +149,21 @@ class BluetoothConfigWindow : public FormGroup
 };
 #endif
 
+void restartExternalModule()
+{
+  if (!IS_EXTERNAL_MODULE_ON()) {
+    return;
+  }
+  pauseMixerCalculations();
+  pausePulses();
+  EXTERNAL_MODULE_OFF();
+  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
+  telemetryProtocol = 255; // force telemetry port + module reinitialization
+  EXTERNAL_MODULE_ON();
+  resumePulses();
+  resumeMixerCalculations();
+}
+
 void RadioHardwarePage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -259,10 +274,18 @@ void RadioHardwarePage::build(FormWindow * window)
   new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
   grid.nextLine();
 
-#if defined(CROSSFIRE) && SPORT_MAX_BAUDRATE < 400000
+#if defined(CROSSFIRE)
   // Max baud for external modules
   new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, 1, GET_SET_DEFAULT(g_eeGeneral.telemetryBaudrate));
+  new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, DIM(CROSSFIRE_BAUDRATES) - 1,
+               [=]() -> int {
+                   return DIM(CROSSFIRE_BAUDRATES) - 1 - g_eeGeneral.telemetryBaudrate;
+               },
+               [=](int newValue) {
+                   g_eeGeneral.telemetryBaudrate = DIM(CROSSFIRE_BAUDRATES) - 1 - newValue;
+                   SET_DIRTY();
+                   restartExternalModule();
+               });
   grid.nextLine();
 #endif
 
