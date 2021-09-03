@@ -18,7 +18,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _EEPROMIMPORTEXPORT_H_
+#define _EEPROMIMPORTEXPORT_H_
 
 #include "customdebug.h"
 #include <QtCore>
@@ -95,9 +96,9 @@ class DataField {
       int result = (offset+bits.count()) % 8;
       for (int i=0; i<level; i++) printf("  ");
       if (bits.count() % 8 == 0)
-        printf("%s (%d bytes) ", getName().toLatin1().constData(), bytes.count());
+        printf("%s (%dbytes) ", getName().toLatin1().constData(), bytes.count());
       else
-        printf("%s (%d bits) ", getName().toLatin1().constData(), bits.count());
+        printf("%s (%dbits) ", getName().toLatin1().constData(), bits.count());
       for (int i=0; i<bytes.count(); i++) {
         unsigned char c = bytes[i];
         if ((i==0 && offset) || (i==bytes.count()-1 && result!=0))
@@ -253,26 +254,22 @@ class BoolField: public DataField {
     bool & field;
 };
 
-template<class container, int N>
-class BaseSignedField: public DataField {
+template<int N>
+class SignedField: public DataField {
   public:
-    BaseSignedField(DataField * parent, container & field):
+    SignedField(DataField * parent, int & field):
       DataField(parent, "Signed"),
-      field(field),
-      min(std::numeric_limits<container>::min()),
-      max(std::numeric_limits<container>::max())
+      field(field)
     {
     }
 
-    BaseSignedField(DataField * parent, container & field, const char * name):
+    SignedField(DataField * parent, int & field, const char *name):
       DataField(parent, name),
-      field(field),
-      min(std::numeric_limits<container>::min()),
-      max(std::numeric_limits<container>::max())
+      field(field)
     {
     }
 
-    BaseSignedField(DataField * parent, container & field, int min, int max, const char * name="Signed"):
+    SignedField(DataField * parent, int & field, int min, int max, const char *name="Signed"):
       DataField(parent, name),
       field(field),
       min(min),
@@ -282,13 +279,13 @@ class BaseSignedField: public DataField {
 
     void ExportBits(QBitArray & output) override
     {
-      container value = field;
+      int value = field;
       if (value > max) value = max;
       if (value < min) value = min;
 
       output.resize(N);
       for (int i=0; i<N; i++) {
-        if (((unsigned int)value) & ((container)(1<<i)))
+        if (((unsigned int)value) & (1<<i))
           output.setBit(i);
       }
     }
@@ -303,11 +300,11 @@ class BaseSignedField: public DataField {
 
       if (input[N-1]) {
         for (unsigned int i=N; i<8*sizeof(int); i++) {
-          value |= ((container)1<<i);
+          value |= (1<<i);
         }
       }
 
-      field = (container)value;
+      field = (int)value;
       qCDebug(eepromImport) << QString("\timported %1<%2>: 0x%3(%4)").arg(name).arg(N).arg(field, 0, 16).arg(field);
     }
 
@@ -317,29 +314,9 @@ class BaseSignedField: public DataField {
     }
 
   protected:
-    container & field;
-    container min;
-    container max;
-};
-
-template <int N>
-class SignedField : public BaseSignedField<int, N>
-{
-  public:
-    SignedField(DataField * parent, int & field):
-      BaseSignedField<int, N>(parent, field)
-    {
-    }
-
-    SignedField(DataField * parent, int & field, const char *name):
-      BaseSignedField<int, N>(parent, field, name)
-    {
-    }
-
-    SignedField(DataField * parent, int & field, int min, int max, const char *name="Signed"):
-      BaseSignedField<int, N>(parent, field, min, max, name)
-    {
-    }
+    int & field;
+    int min = INT_MIN;
+    int max = INT_MAX;
 };
 
 template<int N>
@@ -852,3 +829,5 @@ class ConversionField: public TransformedField {
     int (*importFunc)(int) = nullptr;
     const QString error = "";
 };
+
+#endif // _EEPROMIMPORTEXPORT_H_
