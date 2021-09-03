@@ -143,12 +143,15 @@
 #define LEN_VFSWFUNC                   "\020"
 
 #if defined(VARIO)
-  #define TR_VVARIO                    "Vario传感器\0    "
+  #define TR_VVARIO                    "气压计\0   "
 #else
-  #define TR_VVARIO                    "[Vario]\0        "
+  #define TR_VVARIO                    "[气压计]\0 "
 #endif
+
 #if defined(AUDIO)
   #define TR_SOUND                     "播放声音\0       "
+#else
+  #define TR_SOUND                     "蜂鸣\0     "
 #endif
 #if defined(HAPTIC)
   #define TR_HAPTIC                    "振动\0           "
@@ -157,13 +160,13 @@
 #endif
 
 #if defined(VOICE)
-  #define TR_PLAY_TRACK                "播放音频文件\0   "
+  #define TR_PLAY_TRACK                "播放音频\0       "
   #define TR_PLAY_BOTH                 "同时播放\0       "
   #define TR_PLAY_VALUE                "播放数值\0       "
 #else
-  #define TR_PLAY_TRACK                "[Play Trk]\0     "
-  #define TR_PLAY_BOTH                 "[Play Bth]\0     "
-  #define TR_PLAY_VALUE                "[Play Val]\0     "
+  #define TR_PLAY_TRACK                "[播放音频]\0     "
+  #define TR_PLAY_BOTH                 "[同时播放]\0     "
+  #define TR_PLAY_VALUE                "[播放数值]\0     "
 #endif
 
 #define TR_SF_BG_MUSIC                 "播放背景音乐\0   " "暂停背景音乐\0   "
@@ -199,14 +202,14 @@
 #endif
 
 #define TR_SF_SCREENSHOT               "截屏\0           "
-#define TR_SF_RACING_MODE              "RacingMode"
+#define TR_SF_RACING_MODE              "竟速模式\0 "
 #define TR_SF_RESERVE                  "[保留]\0         "
 
 #define TR_VFSWFUNC                    TR_SF_SAFETY "教练\0           " "摇杆值存储到微调" "复位\0           " "设置\0           " TR_ADJUST_GVAR "音量\0           " "设置失控保护\0   " "测距模式\0       " "模块对频\0       "  TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "背光\0           " TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_TEST
 
 #define LEN_VFSWRESET                  TR("\004", "\010")
 
-#define TR_FSW_RESET_TELEM             TR("Telm", "回传参数")
+#define TR_FSW_RESET_TELEM             TR("回传", "回传参数")
 
 #define TR_FSW_RESET_TIMERS            "计时器1\0" "计时器2\0" "计时器3\0"
 
@@ -301,7 +304,7 @@
 #define TR_VTRAINER_MASTER_SBUS_MODULE "教练主机/SBUS模块\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "教练从机/CPPM模块\0"
 #define TR_VTRAINER_MASTER_BATTERY     "教练主机/串口\0    "
-#define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "教练主机/蓝牙\0    " "教练从机/蓝牙\0    ")
+#define TR_VTRAINER_BLUETOOTH          TR("教练主机/蓝牙\0    ""教练从机/蓝牙\0    ", "教练主机/蓝牙\0    " "教练从机/蓝牙\0    ")
 #define TR_VTRAINER_MULTI              "教练主机/多协议\0  "
 
 #define LEN_VFAILSAFE                  "\010"
@@ -349,8 +352,8 @@
 #define TR_POPUPS_ENTER_EXIT         	TR_ENTER "\010" TR_EXIT
 
 #define TR_FREE                        "空闲"
-#define TR_YES                         "Yes"
-#define TR_NO                          "No"
+#define TR_YES                         "是"
+#define TR_NO                          "否"
 #define TR_DELETEMODEL                 "删除" BREAKSPACE "模型"
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
@@ -364,19 +367,19 @@
 #define TR_BITMAP                      "模型图片"
 #define TR_TIMER                       TR("计时器", "计时器 ")
 #define TR_START                       "开始"
-#define TR_ELIMITS                     TR("E.Limits", "扩展通道行程")
-#define TR_ETRIMS                      TR("E.Trims", "扩展微调量")
+#define TR_ELIMITS                     TR("扩展行程", "扩展通道行程")
+#define TR_ETRIMS                      TR("扩展微调", "扩展微调量")
 #define TR_TRIMINC                     "微调步幅"
-#define TR_DISPLAY_TRIMS               TR("Show Trims", "微调显示")
-#define TR_TTRACE                      TR("T-Source", INDENT "输入源")
-#define TR_TTRIM                       TR("T-Trim-Idle", INDENT "油门微调只调整怠速")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "微调选择")
-#define TR_BEEPCTR                     TR("Ctr Beep", "中点蜂鸣")
-#define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "全局功能可介入")
-#define TR_PROTO                       TR(INDENT "Proto", INDENT "协议")
+#define TR_DISPLAY_TRIMS               TR("微调显示", "微调显示")
+#define TR_TTRACE                      TR("输入源", INDENT "输入源")
+#define TR_TTRIM                       TR("微调怠速", INDENT "油门微调只调整怠速")
+#define TR_TTRIM_SW                    TR("微调选择", INDENT "微调选择")
+#define TR_BEEPCTR                     TR("中点蜂鸣", "中点蜂鸣")
+#define TR_USE_GLOBAL_FUNCS            TR("全局功能", "全局功能可介入")
+#define TR_PROTO                       TR(INDENT "协议", INDENT "协议")
 #define TR_PPMFRAME                    INDENT "PPM帧"
-#define TR_REFRESHRATE                 TR(INDENT "Refresh", INDENT "刷新速率")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "注意: 输出电平为电池电压: ")
+#define TR_REFRESHRATE                 TR(INDENT "刷新速率", INDENT "刷新速率")
+#define STR_WARN_BATTVOLTAGE           TR(INDENT "输出为电池电压: ", INDENT "注意: 输出电平为电池电压: ")
 #define TR_WARN_5VOLTS                 "注意: 输出电平是5V"
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "频率"
@@ -388,9 +391,9 @@
 #define TR_CHECKTRIMS                  "\006Check\012trims"
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "斜盘类型"
-#define TR_COLLECTIVE                  TR("Collective", "螺距混控源")
-#define TR_AILERON                     TR("Lateral cyc.", "横滚混控源")
-#define TR_ELEVATOR                    TR("Long. cyc.", "俯仰混控源")
+#define TR_COLLECTIVE                  TR("螺距混控源", "螺距混控源")
+#define TR_AILERON                     TR("横滚混控源", "横滚混控源")
+#define TR_ELEVATOR                    TR("俯仰混控源", "俯仰混控源")
 #define TR_SWASHRING                   "斜盘行程"
 #define TR_ELEDIRECTION                "俯仰方向"
 #define TR_AILDIRECTION                "横滚方向"
@@ -401,7 +404,7 @@
 #define TR_NOFREEMIXER                 "混控数量已满!"
 #define TR_SOURCE                       "输入源"
 #define TR_WEIGHT                      "比例"
-#define TR_EXPO                        TR("Expo", "指数")
+#define TR_EXPO                        TR("指数", "指数")
 #define TR_SIDE                        "单边"
 #define TR_DIFFERENTIAL                "差动"
 #define TR_OFFSET                      "偏移量"
@@ -409,15 +412,15 @@
 #define TR_DREX                        "DRex"
 #define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "曲线"
-#define TR_FLMODE                      TR("Mode", "模式")
+#define TR_FLMODE                      TR("模式", "模式")
 #define TR_MIXWARNING                  "警告"
 #define TR_OFF                         "禁用"
 #define TR_ANTENNA                     "天线"
-#define TR_NO_INFORMATION              TR("No info", "无信息")
+#define TR_NO_INFORMATION              TR("无信息", "无信息")
 #define TR_MULTPX                      "叠加方式"
-#define TR_DELAYDOWN                   TR("Delay dn", "下行延时")
+#define TR_DELAYDOWN                   TR("下行延时", "下行延时")
 #define TR_DELAYUP                     "上行延时"
-#define TR_SLOWDOWN                    TR("Slow dn", "下行慢动作")
+#define TR_SLOWDOWN                    TR("下行慢动作", "下行慢动作")
 #define TR_SLOWUP                      "上行慢动作"
 #define TR_MIXES                       "混控设置"
 #define TR_CV                          "曲线"
@@ -427,7 +430,7 @@
 #define TR_CENTER                      INDENT "中点"
 #define TR_BAR                         "条形"
 #define TR_ALARM                       "报警"
-#define TR_USRDATA                     TR("UsrData", "用户数据")
+#define TR_USRDATA                     TR("用户数据", "用户数据")
 #define TR_BLADES                      "Blades/Poles"
 #define TR_SCREEN                      "屏幕\001"
 #define TR_SOUND_LABEL                 "声音"
@@ -441,7 +444,7 @@
 #define TR_GYRO_MAX                    "最大值"
 #define TR_CONTRAST                    "对比度"
 #define TR_ALARMS_LABEL                "警告"
-#define TR_BATTERY_RANGE               TR("Batt. range", "电压测量范围")
+#define TR_BATTERY_RANGE               TR("电压范围", "电压测量范围")
 #define TR_BATTERYCHARGING             "充电中..."
 #define TR_BATTERYFULL                 "电量已满"
 #define TR_BATTERYNONE                 "空!"
@@ -449,16 +452,16 @@
 #define TR_INACTIVITYALARM             "长时间无操作"
 #define TR_MEMORYWARNING               "内存不足"
 #define TR_ALARMWARNING                "静音"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("Rssi Shutdown", "关机时检查RSSI")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("关机时检查RSSI", "关机时检查RSSI")
 #define TR_MODEL_STILL_POWERED         "模型未断电"
-#define TR_USB_STILL_CONNECTED         "USB still connected"
+#define TR_USB_STILL_CONNECTED         "USB正在连接中"
 #define TR_MODEL_SHUTDOWN              "关机 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER键确认"
 #define TR_THROTTLE_LABEL              "油门"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "油门反向")
+#define TR_THROTTLEREVERSE             TR("油门反向", INDENT "油门反向")
 #define TR_MINUTEBEEP                  TR("分", "分钟播报")
 #define TR_BEEPCOUNTDOWN               INDENT "倒数"
-#define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "关机保持")
+#define TR_PERSISTENT                  TR(INDENT "关机保持", INDENT "关机保持")
 #define TR_BACKLIGHT_LABEL             "背光"
 #define TR_BLDELAY                     INDENT "Duration"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
@@ -469,19 +472,19 @@
 #define TR_SPLASHSCREEN                "开机图片"
 #define TR_PWR_ON_DELAY                "开机延迟"
 #define TR_PWR_OFF_DELAY               "关机延迟"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "油门状态")
-#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "开关位置")
-#define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "旋钮和滑块")
-#define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "滑块位置")
-#define TR_POTWARNING                  TR(INDENT "Pot warn.", INDENT "旋钮位置")
+#define TR_THROTTLE_WARNING            TR(INDENT "油门状态", INDENT "油门状态")
+#define TR_SWITCHWARNING               TR(INDENT "开关位置", INDENT "开关位置")
+#define TR_POTWARNINGSTATE             TR(INDENT "旋钮滑块", INDENT "旋钮和滑块")
+#define TR_SLIDERWARNING               TR(INDENT "滑块位置", INDENT "滑块位置")
+#define TR_POTWARNING                  TR(INDENT "旋钮位置", INDENT "旋钮位置")
 #define TR_TIMEZONE                    "时区"
 #define TR_ADJUST_RTC                  "时钟设置"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Rx channel ord", "默认通道顺序")
+#define TR_RXCHANNELORD                TR("默认通道顺序", "默认通道顺序")
 #define TR_STICKS                      "摇杆"
 #define TR_POTS                        "电位器"
 #define TR_SWITCHES                    "开关"
-#define TR_SWITCHES_DELAY              TR("Play delay", "延时播放(开关经过)")
+#define TR_SWITCHES_DELAY              TR("延时播放", "延时播放(开关经过)")
 #define TR_SLAVE                       CENTER "从机"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "倍率"
@@ -526,7 +529,7 @@
 #define TR_PRESS_ANY_KEY_TO_SKIP       "按任意键跳过"
 #define TR_THROTTLE_NOT_IDLE           "请将油门拉至最低!"
 #define TR_ALARMSDISABLED              "已禁用报警"
-#define TR_PRESSANYKEY                 TR("\010Press any Key", "按任意键")
+#define TR_PRESSANYKEY                 TR("\010按任意键", "按任意键")
 #define TR_BADEEPROMDATA               "存储数据错误"
 #define TR_BAD_RADIO_DATA              "系统数据错误"
 #define TR_EEPROMFORMATTING            "格式化存储"
@@ -537,14 +540,14 @@
 #define TR_MENUTRAINER                 "教练"
 #define TR_MENUSPECIALFUNCS            "全局功能"
 #define TR_MENUVERSION                 "版本"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "开关及按键测试")
-#define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "类比输入测试")
+#define TR_MENU_RADIO_SWITCHES         TR("开关测试", "开关及按键测试")
+#define TR_MENU_RADIO_ANALOGS          TR("类比测试", "类比输入测试")
 #define TR_MENUCALIBRATION             "校准"
 #define TR_TRIMS2OFFSETS               "将当前微调量保存至中点"
 #define TR_CHANNELS2FAILSAFE           "将当前所有通道值保存至接收机失控保护"
 #define TR_CHANNEL2FAILSAFE            "将当前通道值保存至接收机失控保护"
-#define TR_MENUMODELSEL                TR("MODELSEL", "模型选择")
-#define TR_MENU_MODEL_SETUP            TR("SETUP", "模型设置")
+#define TR_MENUMODELSEL                TR("模型选择", "模型选择")
+#define TR_MENU_MODEL_SETUP            TR("模型设置", "模型设置")
 #define TR_MENUFLIGHTMODES             "飞行模式设置"
 #define TR_MENUFLIGHTMODE              "飞行模式"
 #define TR_MENUHELISETUP               "直升机设置"
@@ -568,33 +571,33 @@
 #define TR_MONITOR_SWITCHES            "逻辑开关查看"
 #define TR_MONITOR_OUTPUT_DESC         "输出查看"
 #define TR_MONITOR_MIXER_DESC          "混控查看"
-#define TR_RECEIVER_NUM                TR("RxNum", "接收机编号")
-#define TR_RECEIVER                    "接收机ID"
+#define TR_RECEIVER_NUM                TR("接收编号", "接收机编号")
+#define TR_RECEIVER                    "接收机"
 #define TR_MULTI_CUSTOM                "自定义"
-#define TR_MULTI_RFTUNE                TR("Freq tune", "频率微调")
+#define TR_MULTI_RFTUNE                TR("频率微调", "频率微调")
 #define TR_MULTI_RFPOWER               "发射功率"
-#define TR_MULTI_WBUS                  "Output"
+#define TR_MULTI_WBUS                  "输出"
 #define TR_MULTI_TELEMETRY             "回传"
 #define TR_MULTI_VIDFREQ               TR("Vid. freq.", "Video frequency")
 #define TR_RF_POWER                    "发射功率"
-#define TR_MULTI_FIXEDID               TR("FixedID", "固定ID")
-#define TR_MULTI_OPTION                TR("Option", "选项值")
-#define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ch.", INDENT "通道控制对频")
-#define TR_DISABLE_CH_MAP              TR("No Ch. map", "禁用通道重映射")
-#define TR_DISABLE_TELEM               TR("No Telem", "禁用回传")
-#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Autodetect", INDENT "自动识别格式")
-#define TR_MULTI_LOWPOWER              TR(INDENT "Low power", INDENT "低功率模式")
+#define TR_MULTI_FIXEDID               TR("固定ID", "固定ID")
+#define TR_MULTI_OPTION                TR("选项", "选项值")
+#define TR_MULTI_AUTOBIND              TR(INDENT "对频通道", INDENT "对频通道")
+#define TR_DISABLE_CH_MAP              TR("禁用通道映射", "禁用通道映射")
+#define TR_DISABLE_TELEM               TR("禁用回传", "禁用回传")
+#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "自动识别", INDENT "自动识别格式")
+#define TR_MULTI_LOWPOWER              TR(INDENT "低功率", INDENT "低功率模式")
 #define TR_MULTI_LNA_DISABLE           INDENT "禁用接收放大器"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
-#define TR_MODULE_TELEM_ON             TR("ON", "启用")
-#define TR_DISABLE_INTERNAL            TR("Disable int.", "禁用内置射频")
-#define TR_MODULE_NO_SERIAL_MODE       TR("!serial mode", "未开启串口模式")
-#define TR_MODULE_NO_INPUT             TR("No input", "无串行数据输入")
-#define TR_MODULE_NO_TELEMETRY         TR3("No telemetry", "No MULTI_TELEMETRY", "未收到多协议回传信息")
+#define TR_MODULE_TELEM_ON             TR("启用", "启用")
+#define TR_DISABLE_INTERNAL            TR("禁用内置射频", "禁用内置射频")
+#define TR_MODULE_NO_SERIAL_MODE       TR("未开启串口", "未开启串口模式")
+#define TR_MODULE_NO_INPUT             TR("无输入", "无串行数据输入")
+#define TR_MODULE_NO_TELEMETRY         TR3("无回传信息", "无多协议回传信息", "未收到多协议回传信息")
 #define TR_MODULE_WAITFORBIND          "使用当前协议对频"
-#define TR_MODULE_BINDING              TR("Bind...","对频中")
-#define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Module upgrade required", "多协议模块需要升级")
-#define TR_MODULE_UPGRADE              TR("Upg. advised", "多协议模块需要升级")
+#define TR_MODULE_BINDING              TR("对频中","对频中")
+#define TR_MODULE_UPGRADE_ALERT        TR3("必需升级", "多协议模块必需升级", "多协议模块必需升级")
+#define TR_MODULE_UPGRADE              TR("建议升级", "多协议模块建议升级")
 #define TR_REBIND                      "需要重新对频"
 #define TR_REG_OK                      "注册成功"
 #define TR_BIND_OK                     "对频成功"
@@ -602,13 +605,13 @@
 #define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 关闭回传"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 开启回传"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 关闭回传"
-#define TR_PROTOCOL                    "Protocol"
-#define TR_PROTOCOL_INVALID            TR("Prot. invalid", "无效协议")
-#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "多协议状态")
-#define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "协议同步状态")
-#define TR_MULTI_SERVOFREQ             TR("Servo rate", "伺服更新频率")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                TR("RF Channel", "选择射频频道")
+#define TR_PROTOCOL                    "协议"
+#define TR_PROTOCOL_INVALID            TR("无效协议", "无效协议")
+#define TR_MODULE_STATUS               TR(INDENT "状态", INDENT "多协议状态")
+#define TR_MODULE_SYNC                 TR(INDENT "同步", INDENT "协议同步状态")
+#define TR_MULTI_SERVOFREQ             TR("伺服更新率", "伺服更新频率")
+#define TR_MULTI_MAX_THROW             TR("最大行程", "开启最大行程")
+#define TR_MULTI_RFCHAN                TR("射频频道", "选择射频频道")
 #define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
@@ -659,9 +662,9 @@
 #define TR_CONNECTED                   "已连接"
 #define TR_FLEX_915                    "Flex 915MHz"
 #define TR_FLEX_868                    "Flex 868MHz"
-#define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH 禁用回传")
-#define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH 开启回传")
-#define TR_8CH_WITH_TELEMETRY          TR("8CH with telem.", "8CH 开启回传")
+#define TR_16CH_WITHOUT_TELEMETRY      TR("16CH 禁用回传", "16CH 禁用回传")
+#define TR_16CH_WITH_TELEMETRY         TR("16CH 开启回传", "16CH 开启回传")
+#define TR_8CH_WITH_TELEMETRY          TR("8CH 开启回传", "8CH 开启回传")
 #define TR_EXT_ANTENNA                 "外置天线"
 #define TR_PIN                         "插针"
 #define TR_UPDATE_RX_OPTIONS           "是否升级接收机?"
@@ -707,7 +710,7 @@
 #define TR_PCBREV_ERROR                "错误的主板类型"
 #define TR_NO_FAILSAFE                 "失控保护未设置"
 #define TR_KEYSTUCK                    "检测到有按键卡住"
-#define TR_INVERT_THR                  TR("Invert thr?", "是否反相油门?")
+#define TR_INVERT_THR                  TR("反向油门?", "是否反向油门?")
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "亮度"
@@ -804,14 +807,14 @@
 #define TR_WRITING                     "正在写入..."
 #define TR_CONFIRM_FORMAT              "是否格式化?"
 #define TR_INTERNALRF                  "内置射频"
-#define TR_INTERNAL_MODULE             TR("Int. module", "内置射频")
-#define TR_EXTERNAL_MODULE             TR("Ext. module", "外置射频")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX需要升级"
+#define TR_INTERNAL_MODULE             TR("内置射频", "内置射频")
+#define TR_EXTERNAL_MODULE             TR("外置射频", "外置射频")
+#define TR_OPENTX_UPGRADE_REQUIRED     "EdgeTX需要升级"
 #define TR_TELEMETRY_DISABLED          "禁用回传"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_NO_MODULE_INFORMATION       "无模块信息"
 #define TR_EXTERNALRF                  "外置射频"
-#define TR_FAILSAFE                    TR(INDENT "Failsafe", INDENT "失控保护模式")
+#define TR_FAILSAFE                    TR(INDENT "失控保护", INDENT "失控保护模式")
 #define TR_FAILSAFESET                 "失控保护设置"
 #define TR_REG_ID                      "Reg. ID"
 #define TR_OWNER_ID                    "Owner ID"
@@ -864,7 +867,7 @@
 #define TR_SPEAKER                     INDENT "扬声器"
 #define TR_BUZZER                      INDENT "蜂鸣器"
 #define TR_BYTES                       "bytes"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "对频"))
+#define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_POWERMETER_ATTN_NEEDED      "需要串联衰减器"
 #define TR_PXX2_SELECT_RX              "Select RX"
 #define TR_PXX2_DEFAULT                "<default>"
@@ -877,13 +880,13 @@
 #define TR_SHARE                       "分享"
 #define TR_BIND                        "对频"
 #define TR_REGISTER                    TR("Reg", "注册")
-#define TR_MODULE_RANGE                BUTTON(TR("Rng", "测距"))
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "接收机选项")
-#define TR_DEL_BUTTON                  BUTTON(TR("Del", "删除"))
+#define TR_MODULE_RANGE                BUTTON(TR("测距", "测距"))
+#define TR_RECEIVER_OPTIONS            TR("接收机选项", "接收机选项")
+#define TR_DEL_BUTTON                  BUTTON(TR("删除", "删除"))
 #define TR_RESET_BTN                   BUTTON("复位")
 #define TR_DEBUG                       "调试"
 #define TR_KEYS_BTN                    BUTTON("按键")
-#define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "类比"))
+#define TR_ANALOGS_BTN                 BUTTON(TR("类比", "类比"))
 #define TR_TOUCH_NOTFOUND              "未找到触摸硬件"
 #define TR_TOUCH_EXIT                  "点击屏幕退出"
 #define TR_SET                         BUTTON("设置")
@@ -901,8 +904,8 @@
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "单位"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "添加新传感器..."
-#define TR_CHANNELRANGE                TR(INDENT "Ch. Range", INDENT "通道范围")
-#define TR_RXFREQUENCY                 TR("Rx Freqency", "接收机端口输出频率")
+#define TR_CHANNELRANGE                TR(INDENT "通道范围", INDENT "通道范围")
+#define TR_RXFREQUENCY                 TR("输出频率", "接收机端口输出频率")
 #define TR_ANTENNACONFIRM1             "外置天线"
 #if defined(PCBX12S)
 #define LEN_ANTENNA_MODES              "\010"
@@ -911,9 +914,9 @@
 #define LEN_ANTENNA_MODES              "\010"
 #define TR_ANTENNA_MODES               "内置天线""询问\0   ""基于模型""外置天线"
 #endif
-#define TR_USE_INTERNAL_ANTENNA        TR("Use int. antenna", "请使用内置天线")
-#define TR_USE_EXTERNAL_ANTENNA        TR("Use ext. antenna", "请使用外置天线")
-#define TR_ANTENNACONFIRM2             TR("Check antenna", "请确认天线安装完好!")
+#define TR_USE_INTERNAL_ANTENNA        TR("使用内置天线", "请使用内置天线")
+#define TR_USE_EXTERNAL_ANTENNA        TR("使用外置天线", "请使用外置天线")
+#define TR_ANTENNACONFIRM2             TR("检查天线", "请确认天线安装完好!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1   "请使用FLEX版本"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "请使用FCC版本"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "请使用EU版本"
@@ -921,8 +924,8 @@
 #define TR_LOWALARM                    INDENT "信号弱报警"
 #define TR_CRITICALALARM               INDENT "信号极弱报警"
 #define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "Alarms disabled", "回传报警已禁止")
-#define TR_DISABLE_ALARM               TR(INDENT "Disable alarms", INDENT "禁止回传报警")
+#define TR_NO_RSSIALARM                TR(INDENT "回传报警已禁止", "回传报警已禁止")
+#define TR_DISABLE_ALARM               TR(INDENT "禁止回传报警", INDENT "禁止回传报警")
 #define TR_ENABLE_POPUP                "允许弹窗"
 #define TR_DISABLE_POPUP               "禁止弹窗"
 #define TR_POPUP                       "弹窗提示"
@@ -938,17 +941,17 @@
 #define TR_PT                          "点"
 #define TR_PTS                         "点"
 #define TR_SMOOTH                      "平滑"
-#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "当前摇杆位置保存为中点")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "当前所有通道中点/低位/高位保存为所有输出值")
-#define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "当前微调按钮值保存到中点")
+#define TR_COPY_STICKS_TO_OFS          TR("摇杆位置保存为中点", "当前摇杆位置保存为中点")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("所有通道低高位保存为输出值",  "所有通道中点/低位/高位保存为输出值")
+#define TR_COPY_TRIMS_TO_OFS           TR("微调值保存为中点", "当前微调按钮值保存为中点")
 #define TR_INCDEC                      "增减"
 #define TR_GLOBALVAR                   "全局变量"
 #define TR_MIXSOURCE                   "混控源"
 #define TR_CONSTANT                    "不变化"
-#define TR_PERSISTENT_MAH              TR(INDENT "Str mAh", INDENT "关机保持 mAh")
+#define TR_PERSISTENT_MAH              TR(INDENT "关机保持 mAh", INDENT "关机保持 mAh")
 #define TR_PREFLIGHT                   "初始位置检查"
-#define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "显示列表")
-#define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS 偏移量")
+#define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
+#define TR_FAS_OFFSET                  TR(INDENT "FAS 偏移", INDENT "FAS 偏移量")
 #define TR_AUX_SERIAL_MODE             "串口"
 #define TR_AUX2_SERIAL_MODE            "串口 2"
 #define TR_SCRIPT                      "脚本"
@@ -956,7 +959,7 @@
 #define TR_OUTPUTS                     "输出"
 #define STR_EEBACKUP                   "EEPROM 数据备份"
 #define STR_FACTORYRESET               "恢复出厂设置"
-#define TR_CONFIRMRESET                TR("Erase ALL", "是否清除所有模型和设置数据?")
+#define TR_CONFIRMRESET                TR("清除所有数据", "是否清除所有模型和设置数据?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Lua脚本数量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 电源"
 #define LEN_SPORT_UPDATE_POWER_MODES   "\004"
