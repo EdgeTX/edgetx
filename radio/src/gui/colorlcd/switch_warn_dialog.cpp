@@ -42,7 +42,7 @@ bool SwitchWarnDialog::warningInactive()
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
         continue;
       }
-      if (!(g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
+      if ( (g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
         warn = true;
         bad_pots |= (1 << i);
       }
@@ -80,11 +80,11 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
       unsigned int state = ((g_model.switchWarningState >> (3 * i)) & 0x07);
       if (state && state - 1 != ((switches_states >> (i * 2)) & 0x03)) {
         if (y < LCD_H) {
-          x = drawSwitch(dc, x, y, SWSRC_FIRST_SWITCH + i * 3 + state - 1, FONT(BOLD));
+          x = drawSwitch(dc, x, y, SWSRC_FIRST_SWITCH + i * 3 + state - 1, COLOR_THEME_PRIMARY1 | FONT(BOLD));
           x += 5;
         }
         else {
-          dc->drawText(x, y, "...", FONT(BOLD));
+          dc->drawText(x, y, "...", COLOR_THEME_PRIMARY1 | FONT(BOLD));
           break;
         }
       }
@@ -92,22 +92,24 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
   }
 
   if (g_model.potsWarnMode) {
+    x = ALERT_MESSAGE_LEFT;
+    y += 20;
     for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
         continue;
       }
-      if (!(g_model.potsWarnEnabled & (1 << i))) {
+      if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           if (y < LCD_H) {
             char s[8];
             // TODO add an helper
             strncpy(s, &STR_VSRCRAW[1 + (NUM_STICKS + 1 + i) * STR_VSRCRAW[0]], STR_VSRCRAW[0]);
             s[int(STR_VSRCRAW[0])] = '\0';
-            dc->drawText(x, y, s, COLOR_THEME_WARNING | FONT(XL));
-            y += 35;
+            dc->drawText(x, y, s, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+            x += 40;
           }
           else {
-            dc->drawText(x, y, "...", COLOR_THEME_WARNING | FONT(XL));
+            dc->drawText(x, y, "...", COLOR_THEME_PRIMARY1 | FONT(BOLD));
           }
         }
       }

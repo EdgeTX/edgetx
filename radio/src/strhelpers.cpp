@@ -128,7 +128,7 @@ uint8_t zlen(const char * str, uint8_t size)
   return 0;
 }
 
-char * strcat_zchar(char * dest, const char * name, uint8_t size, const char * defaultName, uint8_t defaultNameSize, uint8_t defaultIdx)
+char * strcat_zchar(char * dest, const char * name, uint8_t size, const char spaceSym, const char * defaultName, uint8_t defaultNameSize, uint8_t defaultIdx)
 {
   int8_t len = 0;
 
@@ -142,7 +142,7 @@ char * strcat_zchar(char * dest, const char * name, uint8_t size, const char * d
       if (!len && dest[i])
         len = i+1;
       if (len) {
-        if (!dest[i])
+        if (dest[i] == spaceSym)
           dest[i] = '_';
       }
       i--;

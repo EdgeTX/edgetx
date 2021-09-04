@@ -72,7 +72,7 @@ void drawGPSPosition(BitmapBuffer * dc, coord_t x, coord_t y, int32_t longitude,
 void drawDate(BitmapBuffer * dc, coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags = 0);
 void drawValueWithUnit(BitmapBuffer * dc, coord_t x, coord_t y, int val, uint8_t unit, LcdFlags flags = 0);
 void drawHexNumber(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t val, LcdFlags flags = 0);
-void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, char * str, LcdFlags flags);
+void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, const char * str, LcdFlags flags);
 inline void drawChn(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFlags flags)
 {
   drawSource(dc, x, y, MIXSRC_CH1 + idx - 1, flags);

@@ -278,7 +278,7 @@ class FlyskyTheme: public OpenTxTheme
       update();
     }
 
-    virtual void update() const override
+    virtual void update(bool reload = true) const override
     {
       TRACE("TODO THEME::UPDATE()");
 

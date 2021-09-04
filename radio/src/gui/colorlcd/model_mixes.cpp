@@ -26,6 +26,7 @@
 #include "model_inputs.h"
 #include "gvar_numberedit.h"
 #include "model_curves.h"
+#include "dataconstants.h"
 
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
@@ -383,7 +384,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
   int mixIndex = 0;
   MixData * mix = g_model.mixData;
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
-    if (mixIndex < MAX_MIXERS && mix->srcRaw > 0 && mix->destCh == ch) {
+    if (mixIndex < MAX_MIXERS && mix->destCh == ch) {
 
       coord_t h = grid.getWindowHeight();
       auto txt = new MixLineTitle(window, grid.getLabelSlot(),
@@ -391,7 +392,9 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
                                   BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       uint8_t count = 0;
-      while (mixIndex < MAX_MIXERS && mix->srcRaw > 0 && mix->destCh == ch) {
+      while (mixIndex < MAX_MIXERS && mix->destCh == ch) {
+        // First mix cannot be empty
+        if(!mixIndex && !mix->srcRaw)  break;
         Button * button = new MixLineButton(window, grid.getFieldSlot(), mixIndex);
         button->setPressHandler([=]() -> uint8_t {
           button->bringToTop();
