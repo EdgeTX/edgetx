@@ -512,6 +512,7 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
   coord_t space = getTextWidth(" ", 1, flags);
   coord_t word;
   const char * nxt = str;
+  flags &= ~(VCENTERED | CENTERED | RIGHT);
   
   while (true) {
     for (bool done = false; !done; nxt++) {
