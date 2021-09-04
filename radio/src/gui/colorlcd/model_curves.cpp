@@ -24,6 +24,19 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+
+// initialize a new curves points to the default for a 5 point
+// curve.
+void initPoints(const CurveHeader &curve, int8_t *points)
+{
+  int dx = 2000 / (5 + curve.points - 1);
+  for (uint8_t i = 0; i < 5 + curve.points; i++) {
+    int x = -1000 + i * dx;
+    points[i] = x / 10;
+  }
+}
+
+
 class CurveEditWindow : public Page
 {
   public:
@@ -264,6 +277,20 @@ ModelCurvesPage::ModelCurvesPage() :
 {
 }
 
+
+// can be called from any other screen to edit a curve.
+// currently called from model_mixes.cpp on longpress.
+void ModelCurvesPage::pushEditCurve(int index)
+{
+  if (! isCurveUsed(index)) {
+    CurveHeader &curve = g_model.curves[index];
+    int8_t * points = curveAddress(index);
+    initPoints(curve, points);
+  }
+  
+  new CurveEditWindow(index);
+}
+
 void ModelCurvesPage::rebuild(FormWindow * window, int8_t focusIndex)
 {
   coord_t scrollPosition = window->getScrollPositionY();
@@ -364,11 +391,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       button->setPressHandler([=]() {
         Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {
-            int dx = 2000 / (5 + curve.points - 1);
-            for (uint8_t i = 0; i < 5 + curve.points; i++) {
-              int x = -1000 + i * dx;
-              points[i] = x / 10;
-            }
+            initPoints(curve, points);
             editCurve(window, index);
         });
         menu->addLine(STR_CURVE_PRESET, presetCurveFct);

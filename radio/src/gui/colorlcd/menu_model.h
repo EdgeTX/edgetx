@@ -25,6 +25,12 @@
 
 class ModelMenu: public TabsGroup {
   public:
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override
+  {
+    return "ModelMenu";
+  }
+#endif  
     ModelMenu();
 };
 
