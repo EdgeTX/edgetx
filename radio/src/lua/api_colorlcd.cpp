@@ -300,7 +300,7 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 
 @param text (string) text to display
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. INVERS and BLINK are not implemented.
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. RIGHT, CENTER and VCENTER are not implemented.
 
 @status current Introduced in 2.5.0
 */
@@ -319,6 +319,31 @@ static int luaLcdDrawTextLines(lua_State *L)
   // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
   x += getTextHorizontalOffset(flags);
   y += getTextVerticalOffset(flags);
+  
+  bool invers = flags & INVERS;
+  if (flags & BLINK)
+    invers = invers && !BLINK_ON_PHASE;
+
+  if (invers) {
+    // Find inverse color or read from optional Lua argument
+    LcdFlags color = flagsRGB(flags);
+    LcdFlags invColor = luaL_optunsigned(L, 7, ~0u); // ~0 is impossible for color flag!
+    if (invColor == ~0u) {
+      RGB_SPLIT(COLOR_VAL(color), r, g, b);
+      invColor = COLOR2FLAGS(RGB_JOIN(31 - r, 63 - g, 31 - b));
+    } else
+      invColor = flagsRGB(invColor);
+    flags = (flags & 0xFFFF) | invColor;
+    
+    // Draw color box
+    luaLcdBuffer->drawSolidFilledRect(x, y, w, h, color);
+  } else {
+    if ((flags & BLINK) && !BLINK_ON_PHASE)
+      return 0;
+    if (flags & SHADOWED)
+      drawTextLines(luaLcdBuffer, x+1, y+1, w, h, s, flags & 0xFFFF); // force black
+    flags = (flags & 0xFFFF) | flagsRGB(flags);
+  }
   
   drawTextLines(luaLcdBuffer, x, y, w, h, s, flags);
   return 0;
