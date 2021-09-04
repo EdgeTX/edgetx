@@ -592,6 +592,9 @@ class TrainerModuleWindow  : public FormGroup {
         new Choice(this, grid.getFieldSlot(3, 2), STR_PPM_POL, 0, 1, GET_SET_DEFAULT(g_model.trainerData.pulsePol ));
         grid.nextLine();
       }
+#if defined(PCBNV14)
+      new StaticText(this, grid.getLabelSlot(true) );
+#endif  
       getParent()->moveWindowsTop(top() + 1, adjustHeight());
     }
 
@@ -1565,9 +1568,6 @@ void ModelSetupPage::build(FormWindow * window)
     grid.addWindow(new TrainerModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
   }
 
-#if defined(PCBNV14)
-  grid.nextLine();
-#endif  
 
   window->setInnerHeight(grid.getWindowHeight());
 }
