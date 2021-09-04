@@ -316,10 +316,6 @@ static int luaLcdDrawTextLines(lua_State *L)
   const char * s = luaL_checkstring(L, 5);
   LcdFlags flags = luaL_optunsigned(L, 6, 0);
   
-  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
-  x += getTextHorizontalOffset(flags);
-  y += getTextVerticalOffset(flags);
-  
   bool invers = flags & INVERS;
   if (flags & BLINK)
     invers = invers && !BLINK_ON_PHASE;
