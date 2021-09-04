@@ -87,23 +87,23 @@ void ModelFlightModesPage::build(FormWindow * window)
 
     char label[16];
     getFlightModeString(label, i+1);
-    new Subtitle(group, grid.getLabelSlot(), label);
+    new Subtitle(group, grid.getLabelSlot(), label, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Flight mode name
-    new StaticText(group, grid.getLabelSlot(true), STR_NAME);
+    new StaticText(group, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(group, grid.getFieldSlot(), g_model.flightModeData[i].name, LEN_FLIGHT_MODE_NAME);
     grid.nextLine();
 
     // Flight mode switch
     if (i > 0) {
-      new StaticText(group, grid.getLabelSlot(true), STR_SWITCH);
+      new StaticText(group, grid.getLabelSlot(true), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
       new SwitchChoice(group, grid.getFieldSlot(), SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(g_model.flightModeData[i].swtch));
       grid.nextLine();
     }
 
     // Flight mode trims
-    new StaticText(group, grid.getLabelSlot(true), STR_TRIMS);
+    new StaticText(group, grid.getLabelSlot(true), STR_TRIMS, 0, COLOR_THEME_PRIMARY1);
 
     const char * STR_VTRIMS_MODES = "\002"
                                     "--"
@@ -134,7 +134,7 @@ void ModelFlightModesPage::build(FormWindow * window)
     grid.nextLine();
 
     // Flight mode fade in / out
-    new StaticText(group, grid.getLabelSlot(true), "Fade in/out");
+    new StaticText(group, grid.getLabelSlot(true), "Fade in/out", 0, COLOR_THEME_PRIMARY1);
     new NumberEdit(group, grid.getFieldSlot(2, 0), 0, DELAY_MAX,
                           GET_DEFAULT(g_model.flightModeData[i].fadeIn),
                           SET_VALUE(g_model.flightModeData[i].fadeIn, newValue),

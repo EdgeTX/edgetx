@@ -648,7 +648,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       MixData * md = mixAddress(i);
 
       if (md->srcRaw == 0)
+#if defined(COLORLCD)
+        continue;
+#else
         break;
+#endif
 
       mixsrc_t stickIndex = md->srcRaw - MIXSRC_Rud;
 

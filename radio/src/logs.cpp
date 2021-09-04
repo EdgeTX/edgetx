@@ -50,7 +50,9 @@ const char * logsOpen()
 {
   // Determine and set log file filename
   FRESULT result;
-  char filename[sizeof(LOGS_PATH) + LEN_MODEL_NAME + 16]; // /LOGS/modelnamexxxxxx_2013-01-01.log
+
+  // /LOGS/modelnamexxxxxx_YYYY-MM-DD-HHMMSS.log
+  char filename[sizeof(LOGS_PATH) + LEN_MODEL_NAME + 18 + 4 + 1];
 
   if (!sdMounted())
     return STR_NO_SDCARD;
@@ -97,7 +99,7 @@ const char * logsOpen()
   char * tmp = &filename[len];
 
 #if defined(RTCLOCK)
-  tmp = strAppendDate(&filename[len]);
+  tmp = strAppendDate(tmp, true);
 #endif
 
   strcpy(tmp, STR_LOGS_EXT);

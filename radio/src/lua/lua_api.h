@@ -23,6 +23,9 @@
 
 #if defined(LUA)
 
+// prevent C++ code to be included from lua.h
+#include "rtos.h"
+
 extern "C" {
   #include <lua.h>
   #include <lauxlib.h>
@@ -30,6 +33,9 @@ extern "C" {
   #include <lrotable.h>
   #include <lgc.h>
 }
+
+#include "dataconstants.h"
+#include "opentx_types.h"
 
 #ifndef LUA_SCRIPT_LOAD_MODE
   // Can force loading of binary (.luac) or plain-text (.lua) versions of scripts specifically, and control
@@ -209,6 +215,8 @@ void luaRegisterLibraries(lua_State * L);
 void registerBitmapClass(lua_State * L);
 void luaSetInstructionsLimit(lua_State* L, int count);
 int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * mode);
+void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
+                            uint32_t hour, uint32_t min, uint32_t sec);
 
 // Unregister LUA widget factories
 void luaUnregisterWidgets();

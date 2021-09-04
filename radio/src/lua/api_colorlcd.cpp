@@ -21,7 +21,6 @@
 #include <cctype>
 #include <cstdio>
 #include "opentx.h"
-#include "lua_api.h"
 #include "libopenui.h"
 
 #include "api_colorlcd.h"
@@ -54,7 +53,7 @@ static int8_t getTextVerticalOffset(LcdFlags flags)
 }
 
 // Return flags with RGB color value instead of indexed theme color
-static LcdFlags flagsRGB(LcdFlags flags)
+LcdFlags flagsRGB(LcdFlags flags)
 {
   // RGB or indexed color?
   if (flags & RGB_FLAG)
@@ -288,6 +287,41 @@ static int luaLcdSizeText(lua_State *L)
   lua_pushinteger(L, getTextWidth(s, 255, flags));
   lua_pushinteger(L, getFontHeight(flags & 0xFFFF) + getTextVerticalOffset(flags & ~VCENTERED));
   return 2;
+}
+
+/*luadoc
+@function lcd.drawTextLines(x, y, w, h, text [, flags])
+
+Draw text inside rectangle (x,y,w,h) with line breaks
+
+@param x,y (positive numbers) starting coordinate
+
+@param w,h (positive numbers) width and height of bounding rectangle
+
+@param text (string) text to display
+
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. INVERS and BLINK are not implemented.
+
+@status current Introduced in 2.5.0
+*/
+static int luaLcdDrawTextLines(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  int x = luaL_checkinteger(L, 1);
+  int y = luaL_checkinteger(L, 2);
+  int w = luaL_checkinteger(L, 3);
+  int h = luaL_checkinteger(L, 4);
+  const char * s = luaL_checkstring(L, 5);
+  LcdFlags flags = luaL_optunsigned(L, 6, 0);
+  
+  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
+  x += getTextHorizontalOffset(flags);
+  y += getTextVerticalOffset(flags);
+  
+  drawTextLines(luaLcdBuffer, x, y, w, h, s, flags);
+  return 0;
 }
 
 /*luadoc
@@ -727,11 +761,13 @@ Please notice that changing theme colors affects not only other Lua widgets, but
 static int luaLcdSetColor(lua_State *L)
 {
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
-  LcdFlags flags = luaL_checkunsigned(L, 2);
+  uint16_t color = COLOR_VAL(flagsRGB(luaL_checkunsigned(L, 2)));
 
-  if (index < LCD_COLOR_COUNT)
-    lcdColorTable[index] = COLOR_VAL(flagsRGB(flags));
-
+  if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
+    lcdColorTable[index] = color;
+    if (index != CUSTOM_COLOR_INDEX)
+      OpenTxTheme::instance()->update(false);
+  }
   return 0;
 }
 
@@ -1158,6 +1194,7 @@ const luaL_Reg lcdLib[] = {
   { "drawRectangle", luaLcdDrawRectangle },
   { "drawFilledRectangle", luaLcdDrawFilledRectangle },
   { "drawText", luaLcdDrawText },
+  { "drawTextLines", luaLcdDrawTextLines },
   { "sizeText", luaLcdSizeText },
   { "drawTimer", luaLcdDrawTimer },
   { "drawNumber", luaLcdDrawNumber },

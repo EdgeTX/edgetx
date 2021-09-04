@@ -42,7 +42,7 @@ class ModelInputsPage: public PageTab {
 class CommonInputOrMixButton : public Button {
   public:
     CommonInputOrMixButton(FormGroup * parent, const rect_t & rect, uint8_t index):
-      Button(parent, rect),
+      Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1),
       index(index)
     {
       setFocusHandler([=](bool active) {

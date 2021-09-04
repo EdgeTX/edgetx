@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "stamp.h"
 #include "lua_api.h"
+#include "api_filesystem.h"
 #include "telemetry/frsky.h"
 #include "telemetry/multi.h"
 
@@ -165,7 +166,7 @@ static int luaGetTime(lua_State * L)
   return 1;
 }
 
-static void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
+void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
                             uint32_t hour, uint32_t min, uint32_t sec)
 {
   uint32_t hour12 = hour;
@@ -1816,6 +1817,8 @@ const luaL_Reg opentxLib[] = {
   { "defaultChannel", luaDefaultChannel },
   { "getRSSI", luaGetRSSI },
   { "killEvents", luaKillEvents },
+  { "dir", luaDir },
+  { "fstat", luaFstat },
   { "chdir", luaChdir },
   { "loadScript", luaLoadScript },
   { "getUsage", luaGetUsage },
@@ -2174,6 +2177,12 @@ const luaR_value_entry opentxConstants[] = {
   {"UNIT_GPS", UNIT_GPS},
   {"UNIT_BITFIELD", UNIT_BITFIELD},
   {"UNIT_TEXT", UNIT_TEXT},
+
+  {"AM_RDO", AM_RDO},
+  {"AM_HID", AM_HID},
+  {"AM_SYS", AM_SYS},
+  {"AM_DIR", AM_DIR},
+  {"AM_ARC", AM_ARC},
 
   { nullptr, 0 }  /* sentinel */
 };

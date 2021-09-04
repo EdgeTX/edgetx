@@ -503,3 +503,28 @@ void drawHexNumber(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t val, LcdFla
     x = dc->drawSizedText(x, y, &c, 1, flags);
   }
 }
+
+void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, const char * str, LcdFlags flags)
+{
+  coord_t x = left;
+  coord_t y = top;
+  coord_t line = getFontHeight(flags & 0xFFFF);
+  coord_t space = getTextWidth(" ", 1, flags);
+  coord_t word;
+  const char * eos = str + strlen(str);
+  const char * nxt;
+  
+  while (str < eos) {
+    nxt = strstr(str, " ");
+    if (!nxt) nxt = eos;
+    word = getTextWidth(str, nxt - str, flags);
+    if (x + word > left + width && x > left) {
+      x = left;
+      y += line;
+    }
+    if (y + line > top + height) break;
+    dc->drawSizedText(x, y, str, nxt - str, flags);
+    str = nxt + 1;
+    x += word + space;
+  }
+}

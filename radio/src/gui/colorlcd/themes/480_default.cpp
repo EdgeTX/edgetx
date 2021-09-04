@@ -57,85 +57,92 @@ class Theme480: public OpenTxTheme
       lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
     }
 
-    void loadMenuIcon(uint8_t index, const uint8_t * lbm) const
+    void loadMenuIcon(uint8_t index, const uint8_t * lbm, bool reload) const
     {
-      BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
-      if (mask) {
-        delete iconMask[index];
-        iconMask[index] = mask;
+      BitmapBuffer * mask;
+      
+      if (reload) {
+        mask = BitmapBuffer::load8bitMask(lbm);
+        if (mask) {
+          delete iconMask[index];
+          iconMask[index] = mask;
 
-        delete menuIconNormal[index];
-        menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-        if (menuIconNormal[index]) {
-          menuIconNormal[index]->clear(COLOR_THEME_SECONDARY1);
-          menuIconNormal[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
-        }
+          delete menuIconNormal[index];
+          menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
 
-        delete menuIconSelected[index];
-        menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-        if (menuIconSelected[index]) {
-          menuIconSelected[index]->clear(COLOR_THEME_FOCUS);
-          menuIconSelected[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
+          delete menuIconSelected[index];
+          menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
         }
+      } else
+        mask = iconMask[index];
+      
+      if (menuIconNormal[index]) {
+        menuIconNormal[index]->clear(COLOR_THEME_SECONDARY1);
+        menuIconNormal[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
+      }
+  
+      if (menuIconSelected[index]) {
+        menuIconSelected[index]->clear(COLOR_THEME_FOCUS);
+        menuIconSelected[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
       }
     }
 
-    void loadIcons() const
+    void loadIcons(bool reload) const
     {
 #if defined(LOG_TELEMETRY) || !defined(WATCHDOG)
-      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode);
+      loadMenuIcon(ICON_OPENTX, mask_opentx_testmode, reload);
 #else
-      loadMenuIcon(ICON_OPENTX, mask_edgetx);
+      loadMenuIcon(ICON_OPENTX, mask_edgetx, reload);
 #endif
 #if defined(HARDWARE_TOUCH) //TODO: get rid of, and use a real hitbox instead...
-      loadMenuIcon(ICON_NEXT, mask_next);
-      loadMenuIcon(ICON_BACK, mask_back);
+      loadMenuIcon(ICON_NEXT, mask_next, reload);
+      loadMenuIcon(ICON_BACK, mask_back, reload);
 #endif
-      loadMenuIcon(ICON_RADIO, mask_menu_radio);
-      loadMenuIcon(ICON_RADIO_SETUP, mask_radio_setup);
-      loadMenuIcon(ICON_RADIO_SD_MANAGER, mask_radio_sd_browser);
-      loadMenuIcon(ICON_RADIO_TOOLS, mask_radio_tools);
-      //loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, mask_radio_spectrum_analyser);
-      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions);
-      loadMenuIcon(ICON_RADIO_TRAINER, mask_radio_trainer);
-      loadMenuIcon(ICON_RADIO_HARDWARE, mask_radio_hardware);
-      loadMenuIcon(ICON_RADIO_CALIBRATION, mask_radio_calibration);
-      loadMenuIcon(ICON_RADIO_VERSION, mask_radio_version);
-      loadMenuIcon(ICON_MODEL, mask_menu_model);
-      loadMenuIcon(ICON_MODEL_SETUP, mask_model_setup);
-      loadMenuIcon(ICON_MODEL_HELI, mask_model_heli);
-      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes);
-      loadMenuIcon(ICON_MODEL_INPUTS, mask_model_inputs);
-      loadMenuIcon(ICON_MODEL_MIXER, mask_model_mixer);
-      loadMenuIcon(ICON_MODEL_NOTES, mask_menu_notes);
-      loadMenuIcon(ICON_MODEL_OUTPUTS, mask_model_outputs);
-      loadMenuIcon(ICON_MODEL_CURVES, mask_model_curves);
-      loadMenuIcon(ICON_MODEL_GVARS, mask_model_gvars);
-      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, mask_model_logical_switches);
-      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions);
-      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts);
-      loadMenuIcon(ICON_MODEL_TELEMETRY, mask_model_telemetry);
-      loadMenuIcon(ICON_MODEL_SELECT, mask_menu_model_select);
-      loadMenuIcon(ICON_MODEL_SELECT_CATEGORY, mask_model_select_category);
-      loadMenuIcon(ICON_STATS, mask_menu_stats);
-      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph);
-      loadMenuIcon(ICON_STATS_TIMERS, mask_stats_timers);
-      loadMenuIcon(ICON_STATS_ANALOGS, mask_stats_analogs);
-      loadMenuIcon(ICON_STATS_DEBUG, mask_stats_debug);
-      loadMenuIcon(ICON_THEME, mask_menu_theme);
-      loadMenuIcon(ICON_THEME_SETUP, mask_theme_setup);
-      loadMenuIcon(ICON_THEME_VIEW1, mask_theme_view1);
-      loadMenuIcon(ICON_THEME_VIEW2, mask_theme_view2);
-      loadMenuIcon(ICON_THEME_VIEW3, mask_theme_view3);
-      loadMenuIcon(ICON_THEME_VIEW4, mask_theme_view4);
-      loadMenuIcon(ICON_THEME_VIEW5, mask_theme_view5);
-      loadMenuIcon(ICON_THEME_ADD_VIEW, mask_theme_add_view);
-      loadMenuIcon(ICON_MONITOR, mask_monitor);
-      loadMenuIcon(ICON_MONITOR_CHANNELS1, mask_monitor_channels1);
-      loadMenuIcon(ICON_MONITOR_CHANNELS2, mask_monitor_channels2);
-      loadMenuIcon(ICON_MONITOR_CHANNELS3, mask_monitor_channels3);
-      loadMenuIcon(ICON_MONITOR_CHANNELS4, mask_monitor_channels4);
-      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw);
+      loadMenuIcon(ICON_RADIO, mask_menu_radio, reload);
+      loadMenuIcon(ICON_RADIO_SETUP, mask_radio_setup, reload);
+      loadMenuIcon(ICON_RADIO_SD_MANAGER, mask_radio_sd_browser, reload);
+      loadMenuIcon(ICON_RADIO_TOOLS, mask_radio_tools, reload);
+      //loadMenuIcon(ICON_RADIO_SPECTRUM_ANALYSER, mask_radio_spectrum_analyser, reload);
+      loadMenuIcon(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions, reload);
+      loadMenuIcon(ICON_RADIO_TRAINER, mask_radio_trainer, reload);
+      loadMenuIcon(ICON_RADIO_HARDWARE, mask_radio_hardware, reload);
+      loadMenuIcon(ICON_RADIO_CALIBRATION, mask_radio_calibration, reload);
+      loadMenuIcon(ICON_RADIO_VERSION, mask_radio_version, reload);
+      loadMenuIcon(ICON_MODEL, mask_menu_model, reload);
+      loadMenuIcon(ICON_MODEL_SETUP, mask_model_setup, reload);
+      loadMenuIcon(ICON_MODEL_HELI, mask_model_heli, reload);
+      loadMenuIcon(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes, reload);
+      loadMenuIcon(ICON_MODEL_INPUTS, mask_model_inputs, reload);
+      loadMenuIcon(ICON_MODEL_MIXER, mask_model_mixer, reload);
+      loadMenuIcon(ICON_MODEL_NOTES, mask_menu_notes, reload);
+      loadMenuIcon(ICON_MODEL_OUTPUTS, mask_model_outputs, reload);
+      loadMenuIcon(ICON_MODEL_CURVES, mask_model_curves, reload);
+      loadMenuIcon(ICON_MODEL_GVARS, mask_model_gvars, reload);
+      loadMenuIcon(ICON_MODEL_LOGICAL_SWITCHES, mask_model_logical_switches, reload);
+      loadMenuIcon(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions, reload);
+      loadMenuIcon(ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts, reload);
+      loadMenuIcon(ICON_MODEL_TELEMETRY, mask_model_telemetry, reload);
+      loadMenuIcon(ICON_MODEL_SELECT, mask_menu_model_select, reload);
+      loadMenuIcon(ICON_MODEL_SELECT_CATEGORY, mask_model_select_category, reload);
+      loadMenuIcon(ICON_STATS, mask_menu_stats, reload);
+      loadMenuIcon(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph, reload);
+      loadMenuIcon(ICON_STATS_TIMERS, mask_stats_timers, reload);
+      loadMenuIcon(ICON_STATS_ANALOGS, mask_stats_analogs, reload);
+      loadMenuIcon(ICON_STATS_DEBUG, mask_stats_debug, reload);
+      loadMenuIcon(ICON_THEME, mask_menu_theme, reload);
+      loadMenuIcon(ICON_THEME_SETUP, mask_theme_setup, reload);
+      loadMenuIcon(ICON_THEME_VIEW1, mask_theme_view1, reload);
+      loadMenuIcon(ICON_THEME_VIEW2, mask_theme_view2, reload);
+      loadMenuIcon(ICON_THEME_VIEW3, mask_theme_view3, reload);
+      loadMenuIcon(ICON_THEME_VIEW4, mask_theme_view4, reload);
+      loadMenuIcon(ICON_THEME_VIEW5, mask_theme_view5, reload);
+      loadMenuIcon(ICON_THEME_ADD_VIEW, mask_theme_add_view, reload);
+      loadMenuIcon(ICON_MONITOR, mask_monitor, reload);
+      loadMenuIcon(ICON_MONITOR_CHANNELS1, mask_monitor_channels1, reload);
+      loadMenuIcon(ICON_MONITOR_CHANNELS2, mask_monitor_channels2, reload);
+      loadMenuIcon(ICON_MONITOR_CHANNELS3, mask_monitor_channels3, reload);
+      loadMenuIcon(ICON_MONITOR_CHANNELS4, mask_monitor_channels4, reload);
+      loadMenuIcon(ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw, reload);
 
       BitmapBuffer * background = BitmapBuffer::load8bitMask(mask_currentmenu_bg);
       BitmapBuffer * shadow = BitmapBuffer::load8bitMask(mask_currentmenu_shadow);
@@ -280,31 +287,11 @@ class Theme480: public OpenTxTheme
       update();
     }
 
-    void update() const override
+    void update(bool reload = true) const override
     {
-      TRACE("TODO THEME::UPDATE()");
-#if 0
-      uint32_t color = g_eeGeneral.themeData.options[1].value.unsignedValue;
-      uint32_t bg_color = UNEXPECTED_SHUTDOWN() ? WHITE : g_eeGeneral.themeData.options[0].value.unsignedValue;
-
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = bg_color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] =
-          RGB(GET_RED(color)>>1, GET_GREEN(color)>>1, GET_BLUE(color)>>1);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      #define DARKER(x)     ((x * 70) / 100)
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(DARKER(GET_RED(color)), DARKER(GET_GREEN(color)), DARKER(GET_BLUE(color)));
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = color;
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = color;
-#endif
-      loadIcons();
-      loadThemeBitmaps();
+      loadIcons(reload);
+      if (reload)
+        loadThemeBitmaps();
     }
 
     void drawBackground(BitmapBuffer * dc) const override

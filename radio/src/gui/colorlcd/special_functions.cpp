@@ -91,22 +91,20 @@ class SpecialFunctionEditPage : public Page
     // Func param
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CH);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CH, 0, COLOR_THEME_PRIMARY1);
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
                        MAX_OUTPUT_CHANNELS,
                        GET_SET_VALUE_WITH_OFFSET(CFN_CH_INDEX(cfn), 1));
         grid.nextLine();
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), -100, 100,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
 
       case FUNC_TRAINER: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         auto choice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                        NUM_STICKS + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
@@ -125,8 +123,7 @@ class SpecialFunctionEditPage : public Page
 
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-          new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                         STR_RESET);
+          new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_RESET, 0, COLOR_THEME_PRIMARY1);
           auto choice = new Choice(
               specialFunctionOneWindow, grid.getFieldSlot(), 0,
               FUNC_RESET_PARAM_FIRST_TELEM + lastUsedTelemetryIndex(),
@@ -146,24 +143,21 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_VOLUME:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VOLUME);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                          MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
 
       case FUNC_BACKLIGHT:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                          MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
 
       case FUNC_PLAY_SOUND:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
                    STR_FUNCSOUNDS, 0,
                    AU_SPECIAL_SOUND_LAST - AU_SPECIAL_SOUND_FIRST - 1,
@@ -174,8 +168,7 @@ class SpecialFunctionEditPage : public Page
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new FileChoice(
             specialFunctionOneWindow, grid.getFieldSlot(),
             func == FUNC_PLAY_SCRIPT
@@ -194,8 +187,7 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_SET_TIMER: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_TIMER);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_TIMER, 0, COLOR_THEME_PRIMARY1);
         auto timerchoice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                        TIMERS - 1, GET_SET_DEFAULT(CFN_TIMER_INDEX(cfn)));
@@ -204,8 +196,7 @@ class SpecialFunctionEditPage : public Page
         });
         grid.nextLine();
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new TimeEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                      9 * 60 * 60 - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
@@ -213,8 +204,7 @@ class SpecialFunctionEditPage : public Page
       }
 
       case FUNC_SET_FAILSAFE:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_MODULE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
         new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
                    "\004Int.Ext.", 0, NUM_MODULES - 1,
                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -222,24 +212,21 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_PLAY_VALUE:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                          MIXSRC_LAST_TELEM, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
 
       case FUNC_HAPTIC:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0, 3,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
 
       case FUNC_LOGS: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_VALUE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         auto edit =
             new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -253,8 +240,7 @@ class SpecialFunctionEditPage : public Page
 
       case FUNC_ADJUST_GVAR: {
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_GLOBALVAR);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
         auto gvarchoice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                        MAX_GVARS - 1, GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
@@ -263,8 +249,7 @@ class SpecialFunctionEditPage : public Page
         });
         grid.nextLine();
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(),
-                       STR_MODE);
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MODE, 0, COLOR_THEME_PRIMARY1);
         auto modechoice =
           new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
                      FUNC_ADJUST_GVAR_CONSTANT, FUNC_ADJUST_GVAR_INCDEC,
@@ -294,7 +279,7 @@ class SpecialFunctionEditPage : public Page
 
         switch (CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CONSTANT);
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CONSTANT, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
                            val_max);
@@ -303,12 +288,12 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_SOURCE:
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MIXSOURCE);
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MIXSOURCE, 0, COLOR_THEME_PRIMARY1);
             new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(),
                              0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR);
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
             auto gvarchoice =
                 new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            MAX_GVARS - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -321,7 +306,7 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_INCDEC: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_INCDEC);
+            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_INCDEC, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
             getGVarIncDecRange(val_min, val_max);
@@ -341,12 +326,12 @@ class SpecialFunctionEditPage : public Page
     }
 
     if (HAS_ENABLE_PARAM(func)) {
-      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_ENABLE);
+      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(specialFunctionOneWindow, grid.getFieldSlot(),
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
       grid.nextLine();
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
-      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_REPEAT);
+      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_REPEAT, 0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
           specialFunctionOneWindow, grid.getFieldSlot(2, 1), -1,
           60 / CFN_PLAY_REPEAT_MUL, GET_SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
@@ -375,7 +360,7 @@ class SpecialFunctionEditPage : public Page
     CustomFunctionData *cfn = &functions[index];
 
     // Switch
-    new StaticText(window, grid.getLabelSlot(), STR_SWITCH);
+    new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(window, grid.getFieldSlot(), SWSRC_FIRST, SWSRC_LAST,
                          GET_SET_DEFAULT(CFN_SWITCH(cfn)));
@@ -399,7 +384,7 @@ class SpecialFunctionEditPage : public Page
     }
     
     // Function
-    new StaticText(window, grid.getLabelSlot(), STR_FUNC);
+    new StaticText(window, grid.getLabelSlot(), STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
         new Choice(window, grid.getFieldSlot(), STR_VFSWFUNC,
                    0, FUNC_MAX - 1,
@@ -477,18 +462,18 @@ class SpecialFunctionButton : public Button
     }
     uint8_t func = CFN_FUNC(cfn);
 
-    drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), 0);
+    drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_PRIMARY1);
     if (cfn->isEmpty()) return;
 
-    dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, 0);
+    dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_PRIMARY1);
     int16_t val_min = 0;
     int16_t val_max = 255;
 
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        drawChn(dc, col1, line2, CFN_CH_INDEX(cfn) + 1, 0);
+        drawChn(dc, col1, line2, CFN_CH_INDEX(cfn) + 1, COLOR_THEME_PRIMARY1);
         getMixSrcRange(MIXSRC_FIRST_CH, val_min, val_max);
-        dc->drawNumber(col2, line2, CFN_PARAM(cfn));
+        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_TRAINER: {
@@ -500,80 +485,77 @@ class SpecialFunctionButton : public Button
           text = std::string(STR_CHANS);
         else
           text = TEXT_AT_INDEX(STR_VSRCRAW, value);
-        dc->drawText(col1, line2, text.c_str(), 0);
+        dc->drawText(col1, line2, text.c_str(), COLOR_THEME_PRIMARY1);
         break;
       }
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-          dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn));
+          dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         } else {
           TelemetrySensor *sensor =
               &g_model.telemetrySensors[CFN_PARAM(cfn) -
                                         FUNC_RESET_PARAM_FIRST_TELEM];
-          dc->drawSizedText(col1, line2, sensor->label, TELEM_LABEL_LEN);
+          dc->drawSizedText(col1, line2, sensor->label, TELEM_LABEL_LEN, COLOR_THEME_PRIMARY1);
         }
         break;
 
       case FUNC_VOLUME:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), 0);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_BACKLIGHT:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), 0);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_PLAY_SOUND:
-        dc->drawTextAtIndex(col1, line2, STR_FUNCSOUNDS, CFN_PARAM(cfn));
+        dc->drawTextAtIndex(col1, line2, STR_FUNCSOUNDS, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
         if (ZEXIST(cfn->play.name))
-          dc->drawSizedText(col1, line2, cfn->play.name, sizeof(cfn->play.name),
-                            0);
+          dc->drawSizedText(col1, line2, cfn->play.name, sizeof(cfn->play.name), COLOR_THEME_PRIMARY1);
         else
-          dc->drawTextAtIndex(col1, line2, STR_VCSWFUNC, 0, 0);
+          dc->drawTextAtIndex(col1, line2, STR_VCSWFUNC, 0, COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_SET_TIMER:
-        drawStringWithIndex(dc, col1, line2, STR_TIMER,
-                            CFN_TIMER_INDEX(cfn) + 1, 0);
+        drawStringWithIndex(dc, col1, line2, STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_SET_FAILSAFE:
-        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), 0);
+        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_PLAY_VALUE:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), 0);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_HAPTIC:
-        dc->drawNumber(col1, line2, CFN_PARAM(cfn), 0);
+        dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
         break;
 
       case FUNC_LOGS:
-        dc->drawNumber(col3, line1, CFN_PARAM(cfn), PREC1,
-                       sizeof(CFN_PARAM(cfn)), nullptr, "s");
+        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1 | PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
         break;
 
       case FUNC_ADJUST_GVAR:
         switch(CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
-          dc->drawNumber(col1, line2, CFN_PARAM(cfn), 0);
+          dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn), 0);
+          drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
           break;
         case FUNC_ADJUST_GVAR_GVAR:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, 0);
+          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_PRIMARY1);
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t value = CFN_PARAM(cfn);
           std::string text(value >= 0 ? "+= " : "-= ");
           text += std::to_string(abs(value));
-          dc->drawText(col1, line2, text.c_str());
+          dc->drawText(col1, line2, text.c_str(), COLOR_THEME_PRIMARY1);
           break;
         }
         }
@@ -582,13 +564,11 @@ class SpecialFunctionButton : public Button
       theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col3, line2);
     } else if (HAS_REPEAT_PARAM(func)) {
       if (CFN_PLAY_REPEAT(cfn) == 0) {
-        dc->drawText(col3, line2, "1x", 0);
+        dc->drawText(col3, line2, "1x", COLOR_THEME_PRIMARY1);
       } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-        dc->drawText(col3, line2, "!1x", 0);
+        dc->drawText(col3, line2, "!1x", COLOR_THEME_PRIMARY1);
       } else {
-        dc->drawNumber(col3 + 12, line2,
-                       CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0 | RIGHT, 0,
-                       nullptr, "s");
+        dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_PRIMARY1 | RIGHT, 0, nullptr, "s");
       }
     }
   }
@@ -673,8 +653,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
       });
       grid.spacer(button->height() + 5);
     } else {
-      auto txt = new StaticText(window, grid.getLabelSlot(), s,
-                                BUTTON_BACKGROUND, CENTERED);
+      auto txt = new StaticText(window, grid.getLabelSlot(), s, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       auto button =
           new SpecialFunctionButton(window, grid.getFieldSlot(), functions, i);
@@ -729,7 +708,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(CENTERED);
+          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
         }
         txt->invalidate();
       });

@@ -153,7 +153,7 @@ class SensorEditWindow : public Page {
 
       if (sensor->type == TELEM_TYPE_CALCULATED) {
         // Formula
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_FORMULA);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_FORMULA, 0, COLOR_THEME_PRIMARY1);
         new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VFORMULAS, 0, TELEM_FORMULA_LAST, GET_DEFAULT(sensor->formula),
                    [=](uint8_t newValue) {
                        sensor->formula = newValue;
@@ -177,10 +177,10 @@ class SensorEditWindow : public Page {
         grid.nextLine();
       }
       else {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ID);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ID, 0, COLOR_THEME_PRIMARY1);
         auto hex = new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 0), 0, 0xFFFF, GET_SET_DEFAULT(sensor->id));
         hex->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, 0);
+          drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 1), 0, 0xff, GET_SET_DEFAULT(sensor->instance));
         grid.nextLine();
@@ -188,7 +188,7 @@ class SensorEditWindow : public Page {
 
       // Unit
       if ((sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_DIST)) || sensor->isConfigurable()) {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_UNIT);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_UNIT, 0, COLOR_THEME_PRIMARY1);
         new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VTELEMUNIT, 0, UNIT_MAX, GET_DEFAULT(sensor->unit),
                    [=](uint8_t newValue) {
                      sensor->unit = newValue;
@@ -204,7 +204,7 @@ class SensorEditWindow : public Page {
 
       // Precision
       if (sensor->isPrecConfigurable() && sensor->unit != UNIT_FAHRENHEIT) {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_PRECISION);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
         new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VPREC, 0, 2, GET_DEFAULT(sensor->prec),
                    [=](uint8_t newValue) {
                      sensor->prec = newValue;
@@ -219,33 +219,33 @@ class SensorEditWindow : public Page {
       if (sensor->unit < UNIT_FIRST_VIRTUAL) {
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLSENSOR);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLSENSOR, 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->cell.source, isCellsSensor);
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_GPSSENSOR);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_GPSSENSOR, 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->dist.gps, isGPSSensor);
           }
           else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CURRENTSENSOR);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CURRENTSENSOR, 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->consumption.source, isSensorAvailable);
           }
           else if (sensor->formula == TELEM_FORMULA_TOTALIZE) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->consumption.source, isSensorAvailable);
           }
           else {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(1));
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[0], isSensorAvailable);
           }
         }
         else {
           if (sensor->unit == UNIT_RPMS) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_BLADES);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_BLADES, 0, COLOR_THEME_PRIMARY1);
             new NumberEdit(sensorParametersWindow, grid.getFieldSlot(), 1, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
           }
           else {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_RATIO);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_RATIO, 0, COLOR_THEME_PRIMARY1);
             auto edit = new NumberEdit(sensorParametersWindow, grid.getFieldSlot(), 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
             edit->setZeroText("-");
           }
@@ -257,24 +257,24 @@ class SensorEditWindow : public Page {
             (sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_CONSUMPTION || sensor->formula == TELEM_FORMULA_TOTALIZE)))) {
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLINDEX);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLINDEX, 0, COLOR_THEME_PRIMARY1);
             new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VCELLINDEX, 0, 8, GET_SET_DEFAULT(sensor->cell.index));
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ALTSENSOR);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->dist.alt, isAltSensor);
           }
           else {
-            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(2));
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
             new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[1], isSensorAvailable);
           }
         }
         else if (sensor->unit == UNIT_RPMS) {
-          new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_MULTIPLIER);
+          new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
           new NumberEdit(sensorParametersWindow, grid.getFieldSlot(), 1, 30000, GET_SET_DEFAULT(sensor->custom.offset));
         }
         else {
-          new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_OFFSET);
+          new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
           new NumberEdit(sensorParametersWindow, grid.getFieldSlot(), -30000, 30000, GET_SET_DEFAULT(sensor->custom.offset),
                          0, (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
         }
@@ -282,36 +282,36 @@ class SensorEditWindow : public Page {
       }
 
       if ((sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY)) {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(3));
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(3), 0, COLOR_THEME_PRIMARY1);
         new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[2], isSensorAvailable);
         grid.nextLine();
 
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(4));
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(4), 0, COLOR_THEME_PRIMARY1);
         new SensorSourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[3], isSensorAvailable);
         grid.nextLine();
       }
 
       // Auto Offset
       if (sensor->unit != UNIT_RPMS && sensor->isConfigurable()) {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_AUTOOFFSET);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_SET_DEFAULT(sensor->autoOffset));
         grid.nextLine();
       }
 
       if (sensor->isConfigurable()) {
         // Only positive
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ONLYPOSITIVE);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_SET_DEFAULT(sensor->onlyPositive));
         grid.nextLine();
 
         // Filter
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_FILTER);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_FILTER, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_SET_DEFAULT(sensor->filter));
         grid.nextLine();
       }
 
       if (sensor->type == TELEM_TYPE_CALCULATED) {
-        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_PERSISTENT);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
           sensor->persistent = newValue;
           if (!sensor->persistent)
@@ -321,7 +321,7 @@ class SensorEditWindow : public Page {
         grid.nextLine();
       }
 
-      new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_LOGS);
+      new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_LOGS, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
         sensor->logs = newValue;
         logsClose();
@@ -340,12 +340,12 @@ class SensorEditWindow : public Page {
       TelemetrySensor * sensor = &g_model.telemetrySensors[index];
 
       // Sensor name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME);
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       new RadioTextEdit(window, grid.getFieldSlot(), sensor->label, sizeof(sensor->label));
       grid.nextLine();
 
       // Type
-      new StaticText(window, grid.getLabelSlot(), STR_TYPE);
+      new StaticText(window, grid.getLabelSlot(), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), STR_VSENSORTYPES, 0, 1, GET_DEFAULT(sensor->type),
                  [=](uint8_t newValue) {
                    sensor->type = newValue;
@@ -411,10 +411,10 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   this->window = window;
 
   // RSSI
-  new Subtitle(window, grid.getLineSlot(), getRssiLabel());
+  new Subtitle(window, grid.getLineSlot(), getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(true), STR_LOWALARM);
+  new StaticText(window, grid.getLabelSlot(true), STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
   auto edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.warning));
   edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
     dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getWarningRssi(), flags);
@@ -422,20 +422,20 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 //  window->setFirstField(edit);
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(true), STR_CRITICALALARM);
+  new StaticText(window, grid.getLabelSlot(true), STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
   edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.critical));
   edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
     dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getCriticalRssi(), flags);
   });
   grid.nextLine();
 
-  new StaticText(window, grid.getLabelSlot(true), STR_DISABLE_ALARM);
+  new StaticText(window, grid.getLabelSlot(true), STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.rssiAlarms.disabled));
   grid.nextLine();
 
   // Sensors
   grid.setLabelWidth(140);
-  new Subtitle(window, grid.getLineSlot(), STR_TELEMETRY_SENSORS);
+  new Subtitle(window, grid.getLineSlot(), STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
 
   // Sensors columns titles
   uint8_t sensorsCount = getTelemetrySensorsCount();
@@ -531,14 +531,14 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   grid.setLabelWidth(PAGE_LABEL_WIDTH);
 
   // Ignore instance button
-  new StaticText(window, grid.getLabelSlot(true), STR_IGNORE_INSTANCE);
+  new StaticText(window, grid.getLabelSlot(true), STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.ignoreSensorIds));
   grid.nextLine();
 
   // Vario
-  new Subtitle(window, grid.getLineSlot(), STR_VARIO);
+  new Subtitle(window, grid.getLineSlot(), STR_VARIO, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-  new StaticText(window, grid.getLabelSlot(true), STR_SOURCE);
+  new StaticText(window, grid.getLabelSlot(true), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
   auto choice = new SourceChoice(window, grid.getFieldSlot(), MIXSRC_NONE, MIXSRC_LAST_TELEM,
                                  GET_DEFAULT(g_model.varioData.source ? MIXSRC_FIRST_TELEM + 3 * (g_model.varioData.source - 1) : MIXSRC_NONE),
                                  SET_VALUE(g_model.varioData.source, newValue == MIXSRC_NONE ? 0 : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1));
@@ -551,7 +551,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     return qr.rem == 0 && isSensorAvailable(qr.quot + 1);
   });
   grid.nextLine();
-  new StaticText(window, grid.getLabelSlot(true), STR_RANGE);
+  new StaticText(window, grid.getLabelSlot(true), STR_RANGE, 0, COLOR_THEME_PRIMARY1);
 
   auto vMin = new NumberEdit(window, grid.getFieldSlot(2, 0), -17, 17,
                              GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
@@ -564,7 +564,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
       [](int val) { return g_model.varioData.min - 10 < val; });
 
   grid.nextLine();
-  new StaticText(window, grid.getLabelSlot(true), STR_CENTER);
+  new StaticText(window, grid.getLabelSlot(true), STR_CENTER, 0, COLOR_THEME_PRIMARY1);
 
   auto cMin = new NumberEdit(
       window, grid.getFieldSlot(3, 0), -15, 15,

@@ -52,7 +52,7 @@ class DateTimeWindow : public FormGroup {
       FormGridLayout grid;
 
       // Date
-      new StaticText(this, grid.getLabelSlot(), STR_DATE);
+      new StaticText(this, grid.getLabelSlot(), STR_DATE, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(this, grid.getFieldSlot(3, 0), 2018, 2100,
                      [=]() -> int32_t {
                        struct gtm t;
@@ -105,7 +105,7 @@ class DateTimeWindow : public FormGroup {
       grid.nextLine();
 
       // Time
-      new StaticText(this, grid.getLabelSlot(), STR_TIME);
+      new StaticText(this, grid.getLabelSlot(), STR_TIME, 0, COLOR_THEME_PRIMARY1);
       auto hour = new NumberEdit(this, grid.getFieldSlot(3, 0), 0, 24,
                                  [=]() -> int32_t {
                                    struct gtm t;
@@ -171,7 +171,7 @@ void RadioSetupPage::build(FormWindow * window)
   grid.addWindow(timeWindow);
 
   // Batt meter range - Range 3.0v to 16v
-  new StaticText(window, grid.getLabelSlot(), STR_BATTERY_RANGE);
+  new StaticText(window, grid.getLabelSlot(), STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
   auto batMinEdit = new NumberEdit(window, grid.getFieldSlot(2, 0), -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
   batMinEdit->setSuffix("V");
   auto batMaxEdit = new NumberEdit(window, grid.getFieldSlot(2, 1), g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
@@ -190,31 +190,31 @@ void RadioSetupPage::build(FormWindow * window)
   });
   grid.nextLine();
 
-  new Subtitle(window, grid.getLabelSlot(), STR_SOUND_LABEL);
+  new Subtitle(window, grid.getLabelSlot(), STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Beeps mode
-  new StaticText(window, grid.getLabelSlot(true), STR_SPEAKER);
+  new StaticText(window, grid.getLabelSlot(true), STR_SPEAKER, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.beepMode));
   grid.nextLine();
 
   // Main volume
-  new StaticText(window, grid.getLabelSlot(true), STR_VOLUME);
+  new StaticText(window, grid.getLabelSlot(true), STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
   new Slider(window, grid.getFieldSlot(), -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
   grid.nextLine();
 
   // Beeps volume
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_VOLUME);
+  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
   new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
   grid.nextLine();
 
   // Beeps length
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_LENGTH);
+  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
   new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
   grid.nextLine();
 
   // Beeps pitch
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_PITCH);
+  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_PITCH, 0, COLOR_THEME_PRIMARY1);
   auto edit = new NumberEdit(window, grid.getFieldSlot(), 0, 300,
                              GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
                              [=](int32_t newValue) {
@@ -227,26 +227,26 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   // Wav volume
-  new StaticText(window, grid.getLabelSlot(true), STR_WAV_VOLUME);
+  new StaticText(window, grid.getLabelSlot(true), STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
   new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
   grid.nextLine();
 
   // Background volume
-  new StaticText(window, grid.getLabelSlot(true), STR_BG_VOLUME);
+  new StaticText(window, grid.getLabelSlot(true), STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
   new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
   grid.nextLine();
 
 #if defined(VARIO)
   {
-    new Subtitle(window, grid.getLabelSlot(), STR_VARIO);
+    new Subtitle(window, grid.getLabelSlot(), STR_VARIO, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Vario volume
-    new StaticText(window, grid.getLabelSlot(true), TR_VOLUME);
+    new StaticText(window, grid.getLabelSlot(true), TR_VOLUME, 0, COLOR_THEME_PRIMARY1);
     new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_ZERO);
+    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(), VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
                           GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
                           SET_VALUE(g_eeGeneral.varioPitch, (newValue - VARIO_FREQUENCY_ZERO) / 10));
@@ -254,7 +254,7 @@ void RadioSetupPage::build(FormWindow * window)
     edit->setSuffix("Hz");
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_MAX);
+    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_MAX, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(), 900, 2500,
                           GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) + VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
                           SET_VALUE(g_eeGeneral.varioRange, (newValue - VARIO_FREQUENCY_ZERO - VARIO_FREQUENCY_RANGE) / 10 - g_eeGeneral.varioPitch ));
@@ -262,7 +262,7 @@ void RadioSetupPage::build(FormWindow * window)
     edit->setSuffix("Hz");
     grid.nextLine();
 
-    new StaticText(window, grid.getLabelSlot(true), STR_REPEAT_AT_ZERO);
+    new StaticText(window, grid.getLabelSlot(true), STR_REPEAT_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(), 200, 1000,
                           GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
                           SET_VALUE(g_eeGeneral.varioRepeat, (newValue - VARIO_REPEAT_ZERO) / 10));
@@ -274,21 +274,21 @@ void RadioSetupPage::build(FormWindow * window)
 
 #if defined(HAPTIC)
   {
-    new Subtitle(window, grid.getLabelSlot(), STR_HAPTIC_LABEL);
+    new Subtitle(window, grid.getLabelSlot(), STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Haptic mode
-    new StaticText(window, grid.getLabelSlot(true), STR_MODE);
+    new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(), STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.hapticMode));
     grid.nextLine();
 
     // Haptic duration
-    new StaticText(window, grid.getLabelSlot(true), STR_LENGTH);
+    new StaticText(window, grid.getLabelSlot(true), STR_LENGTH, 0, COLOR_THEME_PRIMARY1);
     new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
     grid.nextLine();
 
     // Haptic strength
-    new StaticText(window, grid.getLabelSlot(true), STR_STRENGTH);
+    new StaticText(window, grid.getLabelSlot(true), STR_STRENGTH, 0, COLOR_THEME_PRIMARY1);
     new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
     grid.nextLine();
   }
@@ -296,39 +296,39 @@ void RadioSetupPage::build(FormWindow * window)
 
   // Alarms
   {
-    new Subtitle(window, grid.getLabelSlot(), STR_ALARMS_LABEL);
+    new Subtitle(window, grid.getLabelSlot(), STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Battery warning
-    new StaticText(window, grid.getLabelSlot(true), STR_BATTERYWARNING);
+    new StaticText(window, grid.getLabelSlot(true), STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(), 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
     edit->setSuffix("V");
     grid.nextLine();
 
     // Inactivity alarm
-    new StaticText(window, grid.getLabelSlot(true), STR_INACTIVITYALARM);
+    new StaticText(window, grid.getLabelSlot(true), STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
     edit = new NumberEdit(window, grid.getFieldSlot(), 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
     edit->setSuffix("minutes");
     grid.nextLine();
 
     // Alarms warning
-    new StaticText(window, grid.getLabelSlot(true), STR_ALARMWARNING);
+    new StaticText(window, grid.getLabelSlot(true), STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
     grid.nextLine();
 
     // RSSI shutdown alarm
-    new StaticText(window, grid.getLabelSlot(true), STR_RSSI_SHUTDOWN_ALARM);
+    new StaticText(window, grid.getLabelSlot(true), STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
     grid.nextLine();
   }
 
   // Backlight
   {
-    new Subtitle(window, grid.getLabelSlot(), STR_BACKLIGHT_LABEL);
+    new Subtitle(window, grid.getLabelSlot(), STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Backlight mode
-    new StaticText(window, grid.getLabelSlot(true), STR_MODE);
+    new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(2,0), STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on, GET_SET_DEFAULT(g_eeGeneral.backlightMode));
     //grid.nextLine();
 
@@ -341,7 +341,7 @@ void RadioSetupPage::build(FormWindow * window)
     grid.nextLine();
 
     // Backlight ON bright
-    new StaticText(window, grid.getLabelSlot(true), STR_BLONBRIGHTNESS);
+    new StaticText(window, grid.getLabelSlot(true), STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
     new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                [=]() -> int32_t {
                  return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
@@ -352,19 +352,19 @@ void RadioSetupPage::build(FormWindow * window)
     grid.nextLine();
 
     // Backlight OFF bright
-    new StaticText(window, grid.getLabelSlot(true), STR_BLOFFBRIGHTNESS);
+    new StaticText(window, grid.getLabelSlot(true), STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
     new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_SET_DEFAULT(g_eeGeneral.blOffBright));
     grid.nextLine();
 
 #if defined(KEYS_BACKLIGHT_GPIO)
     // Keys backlight
-    new StaticText(window, grid.getLabelSlot(true), STR_KEYS_BACKLIGHT);
+    new StaticText(window, grid.getLabelSlot(true), STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
     grid.nextLine();
 #endif
 
     // Flash beep
-    new StaticText(window, grid.getLabelSlot(true), STR_ALARM);
+    new StaticText(window, grid.getLabelSlot(true), STR_ALARM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
     grid.nextLine();
   }
@@ -372,7 +372,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    new StaticText(window, grid.getLabelSlot(), STR_PWR_OFF_DELAY);
+    new StaticText(window, grid.getLabelSlot(), STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(), STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
                return 2 - g_eeGeneral.pwrOffSpeed;
@@ -388,21 +388,21 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(INTERNAL_GPS)
   // GPS
   {
-    new Subtitle(window, grid.getLabelSlot(), STR_GPS);
+    new Subtitle(window, grid.getLabelSlot(), STR_GPS, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
     // Timezone
-    new StaticText(window, grid.getLabelSlot(true), STR_TIMEZONE);
+    new StaticText(window, grid.getLabelSlot(true), STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
     new NumberEdit(window, grid.getFieldSlot(), -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
     grid.nextLine();
 
     // Adjust RTC (from telemetry)
-    new StaticText(window, grid.getLabelSlot(true), STR_ADJUST_RTC);
+    new StaticText(window, grid.getLabelSlot(true), STR_ADJUST_RTC, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
     grid.nextLine();
 
     // GPS format
-    new StaticText(window, grid.getLabelSlot(true), STR_GPS_COORDS_FORMAT);
+    new StaticText(window, grid.getLabelSlot(true), STR_GPS_COORDS_FORMAT, 0, COLOR_THEME_PRIMARY1);
     new Choice(window, grid.getFieldSlot(), STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
     grid.nextLine();
   }
@@ -410,18 +410,18 @@ void RadioSetupPage::build(FormWindow * window)
 
 #if defined(PXX2)
   // Owner ID
-  new StaticText(window, grid.getLabelSlot(), STR_OWNER_ID);
+  new StaticText(window, grid.getLabelSlot(), STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
   new RadioTextEdit(window, grid.getFieldSlot(), g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
   grid.nextLine();
 #endif
 
   // Country code
-  new StaticText(window, grid.getLabelSlot(), STR_COUNTRY_CODE);
+  new StaticText(window, grid.getLabelSlot(), STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
   grid.nextLine();
 
   // Audio language
-  new StaticText(window, grid.getLabelSlot(), STR_VOICE_LANGUAGE);
+  new StaticText(window, grid.getLabelSlot(), STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
   auto choice = new Choice(window, grid.getFieldSlot(), 0, DIM(languagePacks) - 2, GET_VALUE(currentLanguagePackIdx),
                            [](uint8_t newValue) {
                              currentLanguagePackIdx = newValue;
@@ -434,7 +434,7 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   // Imperial units
-  new StaticText(window, grid.getLabelSlot(), STR_UNITS_SYSTEM);
+  new StaticText(window, grid.getLabelSlot(), STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
   grid.nextLine();
 
@@ -455,18 +455,18 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Switches delay
-  new StaticText(window, grid.getLabelSlot(), STR_SWITCHES_DELAY);
+  new StaticText(window, grid.getLabelSlot(), STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
   edit = new NumberEdit(window, grid.getFieldSlot(2, 0), -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
   grid.nextLine();
 
   // USB mode
-  new StaticText(window, grid.getLabelSlot(), STR_USBMODE);
+  new StaticText(window, grid.getLabelSlot(), STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(), STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
   grid.nextLine();
 
   // RX channel order
-  new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD); // RAET->AETR
+  new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
   choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
     char s[5];
@@ -479,7 +479,7 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   // Stick mode
-  new StaticText(window, grid.getLabelSlot(), STR_MODE);
+  new StaticText(window, grid.getLabelSlot(), STR_MODE, 0, COLOR_THEME_PRIMARY1);
   choice = new Choice(window, grid.getFieldSlot(), 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
                         pausePulses();

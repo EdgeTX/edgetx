@@ -298,6 +298,7 @@ bool isLogicalSwitchAvailable(int index)
 bool isSwitchAvailable(int swtch, SwitchContext context)
 {
   bool negative = false;
+  (void)negative;
 
   if (swtch < 0) {
     if (swtch == -SWSRC_ON || swtch == -SWSRC_ONE) {
@@ -319,9 +320,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
       return false;
     }
     if (!IS_CONFIG_3POS(swinfo.quot)) {
-      if (negative) {
-        return false;
-      }
       if (swinfo.rem == 1) {
         // mid position not available for 2POS switches
         return false;
@@ -832,7 +830,13 @@ bool isTrainerModeAvailable(int mode)
 bool modelHasNotes()
 {
   char filename[sizeof(MODELS_PATH)+1+sizeof(g_model.header.name)+sizeof(TEXT_EXT)] = MODELS_PATH "/";
-  char *buf = strcat_currentmodelname(&filename[sizeof(MODELS_PATH)]);
+  char *buf = strcat_currentmodelname(&filename[sizeof(MODELS_PATH)], 0);
+  strcpy(buf, TEXT_EXT);
+  if (isFileAvailable(filename)) {
+    return true;
+  }
+
+  buf = strcat_currentmodelname(&filename[sizeof(MODELS_PATH)], ' ');
   strcpy(buf, TEXT_EXT);
   if (isFileAvailable(filename)) {
     return true;

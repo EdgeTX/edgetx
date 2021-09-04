@@ -309,6 +309,9 @@ enum Analogs {
   NUM_ANALOGS
 };
 
+#define SLIDER_FIRST  0
+#define SLIDER_LAST  -1
+
 #define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
 
 enum CalibratedAnalogs {

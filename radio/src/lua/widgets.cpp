@@ -177,10 +177,14 @@ ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
               // TRACE("default signed = %d", option->deflt.signedValue);
             }
             else if (option->type == ZoneOption::Source ||
-                     option->type == ZoneOption::TextSize ||
-                     option->type == ZoneOption::Color) {
+                     option->type == ZoneOption::TextSize) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER); // value is number
               option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
+              // TRACE("default unsigned = %u", option->deflt.unsignedValue);
+            }
+            else if (option->type == ZoneOption::Color) {
+              luaL_checktype(lsWidgets, -1, LUA_TNUMBER); // value is number
+              option->deflt.unsignedValue = COLOR_VAL(flagsRGB(lua_tounsigned(lsWidgets, -1)));
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             }
             else if (option->type == ZoneOption::Bool) {
@@ -354,7 +358,11 @@ class LuaWidgetFactory: public WidgetFactory
       lua_newtable(lsWidgets);
       int i = 0;
       for (const ZoneOption * option = options; option->name; option++, i++) {
-        l_pushtableint(option->name, persistentData->options[i].value.signedValue);
+        int32_t value = persistentData->options[i].value.signedValue;
+        if (option->type == ZoneOption::Color)
+          l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
+        else
+          l_pushtableint(option->name, value);
       }
 
       if (lua_pcall(lsWidgets, 2, 1, 0) != 0) {
@@ -418,7 +426,11 @@ void LuaWidget::update()
   lua_newtable(lsWidgets);
   int i = 0;
   for (const ZoneOption * option = getOptions(); option->name; option++, i++) {
-    l_pushtableint(option->name, persistentData->options[i].value.signedValue);
+    int32_t value = persistentData->options[i].value.signedValue;
+    if (option->type == ZoneOption::Color)
+      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
+    else
+      l_pushtableint(option->name, value);
   }
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
@@ -430,10 +442,11 @@ void LuaWidget::setErrorMessage(const char * funcName)
 {
   TRACE("Error in widget %s %s function: %s", factory->getName(), funcName, lua_tostring(lsWidgets, -1));
   TRACE("Widget disabled");
-  size_t needed = snprintf(NULL, 0, "%s: %s", funcName, lua_tostring(lsWidgets, -1)) + 1;
-  errorMessage = (char *)malloc(needed);
+  size_t needed = snprintf(NULL, 0, "ERROR in %s: %s", funcName, lua_tostring(lsWidgets, -1)) + 1;
+  errorMessage = (char *)malloc(needed + 1);
   if (errorMessage) {
-    snprintf(errorMessage, needed, "%s: %s", funcName, lua_tostring(lsWidgets, -1));
+    snprintf(errorMessage, needed, "ERROR in %s: %s", funcName, lua_tostring(lsWidgets, -1));
+    errorMessage[needed] = '\0';
   }
 }
 
@@ -447,8 +460,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   if (lsWidgets == 0) return;
 
   if (errorMessage) {
-    lcdSetColor(RED);
-    dc->drawText(0, 0, "Disabled", FONT(XS) | CUSTOM_COLOR);
+    drawTextLines(dc, 0, 0, fullscreen ? LCD_W : rect.w, fullscreen ? LCD_H : rect.h, errorMessage, FONT(XS) | COLOR_THEME_WARNING);
     return;
   }
 
