@@ -21,6 +21,7 @@
 #include "model_mixes.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "choiceex.h"
 #include "bitfield.h"
 #include "model_inputs.h"
 #include "gvar_numberedit.h"
@@ -30,59 +31,6 @@
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
 #define PASTE_AFTER     -1
-
-class CurvesListChoice : public Choice
-{
-  public:
-    CurvesListChoice(FormGroup * parent, const rect_t &rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
-    void setLongPressHandler(std::function<void(event_t)> handler);
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "CurvesListChoice";
-    }
-#endif
-
-protected:
-    std::function<void(event_t)> longPressHandler = nullptr;
-};
-
-void CurvesListChoice::setLongPressHandler(std::function<void(event_t)> handler)
-{
-  longPressHandler = handler;
-}
-
-CurvesListChoice::CurvesListChoice(FormGroup * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
-  Choice(parent, rect, vmin, vmax, getValue, setValue, windowFlags)
-{
-}
-
-bool CurvesListChoice::onTouchEnd(coord_t x, coord_t y)
-{
-  return Choice::onTouchEnd(x,y);
-}
-
-void CurvesListChoice::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    if (longPressHandler) {
-      killEvents(event);
-      longPressHandler(event);
-      return;
-    }
-  }
-
-  Choice::onEvent(event);
-}
 
 uint8_t getMixesCount()
 {
@@ -282,7 +230,7 @@ class MixEditWindow : public Page
         break;
 
       case CURVE_REF_CUSTOM: {
-        auto choice = new CurvesListChoice(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
+        auto choice = new ChoiceEx(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
                                  GET_SET_DEFAULT(line->curve.value));
         choice->setTextHandler([](int value) { return getCurveString(value); });
         choice->setLongPressHandler([this](event_t event) {

@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include "gvar_numberedit.h"
 #include "libopenui.h"
+#include "choiceex.h"
+#include "model_curves.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -173,9 +175,16 @@ class InputEditWindow : public Page
         break;
 
       case CURVE_REF_CUSTOM: {
-        auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
+        auto choice = new ChoiceEx(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
                                  GET_SET_DEFAULT(line->curve.value));
         choice->setTextHandler([](int value) { return getCurveString(value); });
+        choice->setLongPressHandler([this](event_t event) {
+          ExpoData *line = expoAddress(index);
+
+          // if no curve is specified then dont link to curve page
+          if (line->curve.value != 0)
+            ModelCurvesPage::pushEditCurve(abs(line->curve.value) - 1);
+        });
         break;
       }
     }
