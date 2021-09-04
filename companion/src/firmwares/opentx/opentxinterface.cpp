@@ -741,7 +741,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_HORUS_OR_TARANIS(board) ? true : false;
     case HasTelemetryBaudrate:
       return IS_HORUS_OR_TARANIS(board) ? true : false;
-
+    case TopBarZones:
+      return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
     default:
       return 0;
   }

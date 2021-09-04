@@ -251,7 +251,7 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
 
   EXPECT_STREQ("BT_X10", settings.bluetoothName);
-  EXPECT_STREQ("EdgeTX", settings.themeName);
+  EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
 #if !defined(USE_OTX)
   byteBuffer.clear();
@@ -328,7 +328,7 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
 
   EXPECT_STREQ("BT", settings.bluetoothName);
-  EXPECT_STREQ("EdgeTX", settings.themeName);
+  EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
 #if !defined(USE_OTX)
   byteBuffer.clear();

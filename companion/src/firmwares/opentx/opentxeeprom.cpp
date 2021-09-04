@@ -2494,7 +2494,6 @@ class ZoneOptionValueTypedField: public StructField {
       Append(new SignedField<32>(this, (int &)option.type, "Zone Option Value Enum"));
       Append(new ZoneOptionValueUnionField(this, option, board, version));
     }
-
 };
 
 class WidgetPersistentDataField: public StructField {
@@ -2802,7 +2801,7 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (version >= 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
-      for (int i = 0; i < CPN_MAX_CUSTOM_SCREENS; i++) {
+      for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
         internalField.Append(new CustomScreenField(this, modelData.customScreens.customScreenData[i], board, version));
       }
       internalField.Append(new TopBarField(this, modelData.topBarData, board, version));

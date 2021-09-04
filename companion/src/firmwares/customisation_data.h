@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#include "constants.h"
 
 #include <QtCore>
 
@@ -28,6 +29,7 @@
 
 */
 
+constexpr int MAX_CUSTOM_SCREENS      {5};
 constexpr int THEME_NAME_LEN          {8};
 constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int LEN_ZONE_OPTION_STRING  {8};
@@ -38,6 +40,17 @@ constexpr int MAX_WIDGET_OPTIONS      {5};
 constexpr int MAX_TOPBAR_ZONES        {4};
 constexpr int MAX_TOPBAR_OPTIONS      {1};
 constexpr int LAYOUT_ID_LEN           {10};
+
+// Common 'ZoneOptionValue's among all layouts
+enum {
+  LAYOUT_OPTION_TOPBAR = 0,
+  LAYOUT_OPTION_FM,
+  LAYOUT_OPTION_SLIDERS,
+  LAYOUT_OPTION_TRIMS,
+  LAYOUT_OPTION_MIRRORED,
+
+  LAYOUT_OPTION_LAST_DEFAULT=LAYOUT_OPTION_MIRRORED
+};
 
 struct ZoneOptionValue  // union in radio/src/datastructs.h
 {
@@ -51,8 +64,24 @@ enum ZoneOptionValueEnum {
   ZOV_Unsigned,
   ZOV_Signed,
   ZOV_Bool,
-  ZOV_String
+  ZOV_String,
+  ZOV_LAST = ZOV_String
 };
+
+inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
+  switch (zovenum) {
+    case ZOV_Unsigned:
+      return "unsigned";
+    case ZOV_Signed:
+      return "signed";
+    case ZOV_Bool:
+      return "bool";
+    case ZOV_String:
+      return "string";
+    default:
+      return "unknown";
+  }
+}
 
 struct ZoneOption
 {
@@ -67,6 +96,12 @@ struct ZoneOption
     Switch,
     Color
   };
+
+  const char * name;
+  Type type;
+  ZoneOptionValue deflt;
+  ZoneOptionValue min;
+  ZoneOptionValue max;
 };
 
 struct ZoneOptionValueTyped
@@ -168,34 +203,34 @@ class RadioLayout
     };
 
     struct CustomScreens {
-      CustomScreenData customScreenData[CPN_MAX_CUSTOM_SCREENS];
+      CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
     };
 
     static void init(const char * layoutId, CustomScreens & customScreens)
     {
       memset(&customScreens, 0, sizeof(CustomScreens));
 
-      int i = 0;
-      CustomScreenData & customScreenData = customScreens.customScreenData[i++];
+      for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+        if (i == 0)
+          memcpy(&customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
 
-      memcpy(&customScreenData.layoutId, layoutId, LAYOUT_ID_LEN);
+        LayoutPersistentData & persistentData = customScreens.customScreenData[i].layoutPersistentData;
 
-      LayoutPersistentData & persistentData = customScreenData.layoutPersistentData;
+        int j = 0;
+        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-      int j = 0;
-      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(persistentData.options[j++].value, (bool)true);
+        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
 
-      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-      persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(persistentData.options[j++].value, (bool)false);
+        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(persistentData.options[j++].value, (bool)false);
+      }
     }
 };

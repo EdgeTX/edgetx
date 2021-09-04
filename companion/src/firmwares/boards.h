@@ -141,7 +141,8 @@ namespace Board {
     FactoryInstalledSwitches,
     NumTrims,
     NumTrimSwitches,
-    HasRTC
+    HasRTC,
+    HasColorLcd
   };
 
   struct SwitchInfo

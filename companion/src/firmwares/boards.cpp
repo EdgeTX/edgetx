@@ -453,6 +453,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasRTC:
       return IS_STM32(board) ? true : false;
 
+    case HasColorLcd:
+      return IS_FAMILY_HORUS_OR_T16(board);
+
     default:
       return 0;
   }

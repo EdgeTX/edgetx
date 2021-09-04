@@ -1228,4 +1228,19 @@
     <file>themes/yerico/48/write_eeprom.png</file>
     <file>themes/yerico/48/sdsync.png</file>
   </qresource>
+  <qresource prefix="/layouts/">
+    <file alias="mask_layout1p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+2.png</file>
+    <file alias="mask_layout1p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+3.png</file>
+    <file alias="mask_layout1x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x2.png</file>
+    <file alias="mask_layout1x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x3.png</file>
+    <file alias="mask_layout1x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x4.png</file>
+    <file alias="mask_layout2p1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+1.png</file>
+    <file alias="mask_layout2p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+3.png</file>
+    <file alias="mask_layout2x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x1.png</file>
+    <file alias="mask_layout2x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x2.png</file>
+    <file alias="mask_layout2x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x3.png</file>
+    <file alias="mask_layout2x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x4.png</file>
+    <file alias="mask_layout4p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout4+2.png</file>
+  </qresource>
 </RCC>
