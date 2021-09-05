@@ -520,12 +520,55 @@ class ReceiverButton: public TextButton
     uint8_t receiverIdx;
 };
 
+
 class TrainerModuleWindow  : public FormGroup {
   public:
     TrainerModuleWindow(FormWindow * parent, const rect_t & rect) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
     {
-      update();
+      update();     
+    }
+#if defined(BLUETOOTH)
+    std::function<void()> btDiscSelect = std::bind(&TrainerModuleWindow::BtAddChosen, this);
+
+    void BtAddChosen() {
+        if(btDiscoverMenu) {
+            if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_REQUESTED||
+               bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
+                int index = btDiscoverMenu->selection();
+
+                strncpy(bluetooth.distantAddr, reusableBuffer.moduleSetup.bt.devices[index], LEN_BLUETOOTH_ADDR);
+                bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
+                update();
+            }
+        }
+    }
+
+#endif
+
+
+    void checkEvents() override
+    {
+      FormGroup::checkEvents();
+#if defined(BLUETOOTH)
+      if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_START) {
+        int cnt = min<uint8_t>(reusableBuffer.moduleSetup.bt.devicesCount, MAX_BLUETOOTH_DISTANT_ADDR);
+        if (devicecount < cnt) {
+          for(int i=0; i < cnt-devicecount; i++ ) {
+              if(btDiscoverMenu) {
+                  int index = devicecount + i;
+                  btDiscoverMenu->addLine(reusableBuffer.moduleSetup.bt.devices[index], btDiscSelect );
+              }
+          }
+          devicecount = cnt;
+        } else {
+            if(bluetooth.state != lastbluetoothstate) {
+                update();
+            }
+        }
+        lastbluetoothstate = bluetooth.state;
+      }
+#endif
     }
 
     void update()
@@ -536,6 +579,10 @@ class TrainerModuleWindow  : public FormGroup {
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       trainerChoice = new Choice(this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(), GET_DEFAULT(g_model.trainerData.mode), [=](int32_t newValue) {
           g_model.trainerData.mode = newValue;
+#if defined(BLUETOOTH)
+          bluetooth.state = BLUETOOTH_STATE_OFF;
+          bluetooth.distantAddr[0] = '\0';
+#endif
           SET_DIRTY();
           update();
           trainerChoice->setFocus(SET_FOCUS_DEFAULT);
@@ -544,66 +591,140 @@ class TrainerModuleWindow  : public FormGroup {
       grid.nextLine();
 
       if (g_model.isTrainerTraineeEnable()) {
-        new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
-        channelStart = new NumberEdit(this, grid.getFieldSlot(2, 0), 1,
-                                      MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
-                                      GET_DEFAULT(1 + g_model.trainerData.channelsStart));
-        channelEnd = new NumberEdit(this, grid.getFieldSlot(2, 1),
-                                    g_model.trainerData.channelsStart + 1,
-                                    min<int8_t>(MAX_TRAINER_CHANNELS, g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS_M8),
-                                    GET_DEFAULT(g_model.trainerData.channelsStart + 8 + g_model.trainerData.channelsCount));
-        channelStart->setPrefix(STR_CH);
-        channelEnd->setPrefix(STR_CH);
-        channelStart->setSetValueHandler([=](int32_t newValue) {
-            g_model.trainerData.channelsStart = newValue - 1;
-            SET_DIRTY();
-            channelEnd->setMin(g_model.trainerData.channelsStart + 1);
-            channelEnd->setMax(min<int8_t>(MAX_TRAINER_CHANNELS, g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS_M8));
-            channelEnd->invalidate();
-        });
-        channelEnd->setSetValueHandler([=](int32_t newValue) {
-            g_model.trainerData.channelsCount = newValue - g_model.trainerData.channelsStart - 8;
-            SET_DIRTY();
-            channelStart->setMax(MAX_TRAINER_CHANNELS - 8 + g_model.trainerData.channelsCount + 1);
-        });
-        grid.nextLine();
-      }
+#if defined(BLUETOOTH)
+        if(g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
+            btDistAddress = new StaticText(this, grid.getLabelSlot(true), "---" , 0, COLOR_THEME_PRIMARY1);
+            btMasterButton = new TextButton(this, grid.getFieldSlot(), "");
 
-      if (g_model.trainerData.mode == TRAINER_MODE_SLAVE) {
-        // PPM frame
-        new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
+            if(bluetooth.distantAddr[0]) {
+                btDistAddress->setText(bluetooth.distantAddr);
+                btMasterButton->setText(STR_CLEAR);
+            } else if (bluetooth.state < BLUETOOTH_STATE_IDLE) {
+                btMasterButton->setText(STR_BLUETOOTH_INIT);
+            } else {
+                btMasterButton->setText(STR_DISCOVER);
+            }
 
-        // PPM frame length
-        auto edit = new NumberEdit(this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
-                                   GET_DEFAULT(g_model.trainerData.frameLength * 5 + 225),
-                                   SET_VALUE(g_model.trainerData.frameLength, (newValue - 225) / 5),
-                                   0, PREC1);
-        edit->setStep(5);
-        edit->setSuffix(STR_MS);
+            btMasterButton->setPressHandler([=]() -> uint8_t {
+                if(bluetooth.distantAddr[0]) {
+                    bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
+                    memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
 
-        // PPM frame delay
-        edit = new NumberEdit(this, grid.getFieldSlot(3, 1), 100, 800,
-                              GET_DEFAULT(g_model.trainerData.delay * 50 + 300),
-                              SET_VALUE(g_model.trainerData.delay, (newValue - 300) / 50));
-        edit->setStep(50);
-        edit->setSuffix(STR_US);
+                } else if(bluetooth.state < BLUETOOTH_STATE_IDLE) {
+                    bluetooth.state = BLUETOOTH_STATE_OFF;                    
+                } else {
+                    reusableBuffer.moduleSetup.bt.devicesCount = 0;
+                    devicecount = 0;
+                    bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
 
-        // PPM Polarity
-        new Choice(this, grid.getFieldSlot(3, 2), STR_PPM_POL, 0, 1, GET_SET_DEFAULT(g_model.trainerData.pulsePol ));
-        grid.nextLine();
-      }
+                    if(btDiscoverMenu) {
+                        delete btDiscoverMenu;
+                        btDiscoverMenu = nullptr;
+                    }
+
+                    btDiscoverMenu = new Menu(this);
+                    btDiscoverMenu->setTitle(STR_BT_SELECT_DEVICE);
+                }
+                btMasterButton->check(false);
+                update();
+                return 0;
+            });
+
+        }
+
+        if(g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
+            new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
+            channelStart = new NumberEdit(this, grid.getFieldSlot(2,0), 1,
+                                          MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
+                                          GET_DEFAULT(1 + g_model.trainerData.channelsStart));
+            char chend[6];
+            snprintf(chend, sizeof(chend), "%s%d", STR_CH, g_model.trainerData.channelsStart + 8);
+
+            btChannelEnd = new StaticText(this, grid.getFieldSlot(2, 1), chend , 0 , COLOR_THEME_PRIMARY1);
+            channelStart->setPrefix(STR_CH);
+            channelStart->setSetValueHandler([=](int32_t newValue) {
+                g_model.trainerData.channelsStart = newValue - 1;
+                char chend[6];
+                snprintf(chend, sizeof(chend), "%s%d", STR_CH, g_model.trainerData.channelsStart + 8);
+                SET_DIRTY();
+                btChannelEnd->setText(chend);
+            });
+
+            grid.nextLine();
+        }
+#endif
+        if(g_model.trainerData.mode == TRAINER_MODE_SLAVE) {
+            new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
+            channelStart = new NumberEdit(this, grid.getFieldSlot(2, 0), 1,
+                                          MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
+                                          GET_DEFAULT(1 + g_model.trainerData.channelsStart));
+            channelEnd = new NumberEdit(this, grid.getFieldSlot(2, 1),
+                                        g_model.trainerData.channelsStart + 1,
+                                        min<int8_t>(MAX_TRAINER_CHANNELS, g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS_M8),
+                                        GET_DEFAULT(g_model.trainerData.channelsStart + 8 + g_model.trainerData.channelsCount));
+            channelStart->setPrefix(STR_CH);
+            channelEnd->setPrefix(STR_CH);
+            channelStart->setSetValueHandler([=](int32_t newValue) {
+                g_model.trainerData.channelsStart = newValue - 1;
+                SET_DIRTY();
+                channelEnd->setMin(g_model.trainerData.channelsStart + 1);
+                channelEnd->setMax(min<int8_t>(MAX_TRAINER_CHANNELS, g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS_M8));
+                channelEnd->invalidate();
+            });
+            channelEnd->setSetValueHandler([=](int32_t newValue) {
+                g_model.trainerData.channelsCount = newValue - g_model.trainerData.channelsStart - 8;
+                SET_DIRTY();
+                channelStart->setMax(MAX_TRAINER_CHANNELS - 8 + g_model.trainerData.channelsCount + 1);
+            });
+
+            grid.nextLine();
+
+            // PPM frame
+            new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
+
+            // PPM frame length
+            auto edit = new NumberEdit(this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
+                                       GET_DEFAULT(g_model.trainerData.frameLength * 5 + 225),
+                                       SET_VALUE(g_model.trainerData.frameLength, (newValue - 225) / 5),
+                                       0, PREC1);
+            edit->setStep(5);
+            edit->setSuffix(STR_MS);
+
+            // PPM frame delay
+            edit = new NumberEdit(this, grid.getFieldSlot(3, 1), 100, 800,
+                                  GET_DEFAULT(g_model.trainerData.delay * 50 + 300),
+                                  SET_VALUE(g_model.trainerData.delay, (newValue - 300) / 50));
+            edit->setStep(50);
+            edit->setSuffix(STR_US);
+
+            // PPM Polarity
+            new Choice(this, grid.getFieldSlot(3, 2), STR_PPM_POL, 0, 1, GET_SET_DEFAULT(g_model.trainerData.pulsePol ));
+            grid.nextLine();
+          }
+
 #if defined(PCBNV14)
-      new StaticText(this, grid.getLabelSlot(true) );
-#endif  
-      getParent()->moveWindowsTop(top() + 1, adjustHeight());
+        new StaticText(this, grid.getLabelSlot(true) );
+#endif
+         grid.nextLine();
+         getParent()->moveWindowsTop(top() + 1, adjustHeight());
+      }
     }
 
   protected:
     Choice * trainerChoice = nullptr;
     NumberEdit * channelStart = nullptr;
     NumberEdit * channelEnd = nullptr;
-};
+    StaticText * btChannelEnd = nullptr;
+    StaticText * btDistAddress = nullptr;
+    TextButton * btMasterButton = nullptr;
+    Choice *btAddressChoice = nullptr;
+    Menu *btDiscoverMenu = nullptr;
+private:
+    int devicecount = 0;
+    uint8_t lastbluetoothstate;
 
+
+};
 class ModuleWindow : public FormGroup {
   public:
     ModuleWindow(FormWindow * parent, const rect_t &rect, uint8_t moduleIdx) :
