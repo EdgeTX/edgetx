@@ -130,6 +130,55 @@ void telemetryWakeup()
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)
+
+  #if defined(SIMU)
+  // MULTI test code dynamic protocol list
+  if (isModuleMultimodule(INTERNAL_MODULE)) {
+    MultiModuleStatus& status = getMultiModuleStatus(INTERNAL_MODULE);
+    if (!status.isValid()) {
+      status.flags = 0;
+      status.protocolName[0] = '\0';
+      uint8_t proto = g_model.moduleData[INTERNAL_MODULE].getMultiProtocol();
+      uint8_t subtype = g_model.moduleData[INTERNAL_MODULE].subType;
+      switch (proto) {
+      case MODULE_SUBTYPE_MULTI_FRSKY:
+        strcpy(status.protocolName, "FrSky");
+        status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+        status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYX2 + 3;
+        if (subtype != MM_RF_FRSKY_SUBTYPE_D8 && subtype != MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
+          status.flags |= 0x20; // failsafe supported
+        }
+        break;
+      case MODULE_SUBTYPE_MULTI_FRSKYX2:
+        strcpy(status.protocolName, "FrSkyX2");
+        status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+        status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYL + 3;
+        status.flags |= 0x20; // failsafe supported
+        break;
+      case MODULE_SUBTYPE_MULTI_FRSKYL:
+        strcpy(status.protocolName, "FrSkyL");
+        status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKYX2 + 3;
+        status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYX_RX + 3;
+        break;
+      case MODULE_SUBTYPE_MULTI_FRSKYX_RX:
+        strcpy(status.protocolName, "FrSkyRX");
+        status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKYL + 3;
+        status.protocolNext = proto;
+        break;
+      default: // special case: invalid proto to detect beginning of list
+        TRACE("invalid proto: beginning of list");
+        status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+        status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+        break;
+      }
+      if (status.protocolName[0]) {
+        status.flags |= 0x04; // mark proto as valid
+      }
+      status.lastUpdate = get_tmr10ms();
+    }
+  }
+  #endif
+
   if (intmoduleFifo.pop(data)) {
     LOG_TELEMETRY_WRITE_START();
     do {

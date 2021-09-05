@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,12 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#include "tabsgroup.h"
+#pragma once
+#include "libopenui.h"
 
-class ModelSetupPage: public PageTab {
-  public:
-    ModelSetupPage();
-    ~ModelSetupPage() override;
+class MultiRfProtocols;
 
-    void build(FormWindow * window) override;
+class MultiProtoChoice : public Choice
+{
+  unsigned int moduleIdx;
+
+  MultiRfProtocols* protos = nullptr;
+  Menu* menu = nullptr;
+
+ public:
+  MultiProtoChoice(FormGroup *parent, const rect_t &rect, unsigned int moduleIdx,
+                   std::function<void(int)> setValue);
+
+  void openMenu() override;
+  void addProto(unsigned int proto, const char* protocolName);
+
+  static void removeInstances();
 };
+
