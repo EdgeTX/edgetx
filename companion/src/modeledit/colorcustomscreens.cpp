@@ -366,6 +366,9 @@ ColorCustomScreensPanel::ColorCustomScreensPanel(QWidget * parent, ModelData & m
 
 ColorCustomScreensPanel::~ColorCustomScreensPanel()
 {
+  foreach (GenericPanel * pnl, panels) {
+    delete pnl;
+  }
 }
 
 QString ColorCustomScreensPanel::getTabName(int index)
