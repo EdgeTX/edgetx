@@ -236,7 +236,6 @@ class MixEditWindow : public Page
         choice->setTextHandler([](int value) { return getCurveString(value); });
         choice->setLongPressHandler([this](event_t event) {
           MixData *mix = mixAddress(mixIndex);
-          auto a = parent->getName();
           // if no curve is specified then dont link to curve page
           if (mix->curve.value != 0)
             ModelCurvesPage::pushEditCurve(abs(mix->curve.value) - 1);
