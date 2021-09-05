@@ -19,93 +19,15 @@
  */
 
 #include "model_setup.h"
+#include "multi_rfprotos.h"
+#include "io/multi_protolist.h"
+
 #include "opentx.h"
 #include "libopenui.h"
 #include "storage/modelslist.h"
 #include "algorithm"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
-
-class RFProtocols
-{
-private:
-    const char * protocols;
-    int maxProtocols;
-    std::vector<std::string> labels;
-    uint8_t getProtoStringLength();
-
-public:
-    RFProtocols(const char * rfProtocols, int max);
-    int findProtocolIndex(int rfProtcolIndex);
-    int lookupProtocolIndex(int selectedIndex);
-    std::vector<std::string> &getLabels();
-};
-
-uint8_t RFProtocols::getProtoStringLength()
-{
-    return protocols[0];
-}
-
-RFProtocols::RFProtocols(const char *protocols, int max)
-{
-    this->protocols = protocols;
-    maxProtocols = max;
-
-    uint8_t len = protocols[0];
-    const char * value = &protocols[1];
-
-    for (int i = 0; i <= max; i++)
-    {
-        std::string label = std::string(value, min<uint8_t>(len, strlen(value)));
-        labels.emplace_back(label);
-
-        value += len;
-    }
-    std::sort(labels.begin(), labels.end());
-}
-
-std::vector<std::string> &RFProtocols::getLabels()
-{
-    return labels;
-}
-
-int RFProtocols::lookupProtocolIndex(int selectedIndex)
-{
-    uint8_t len = getProtoStringLength();
-    const char *p = &protocols[1];
-
-    const char *protocolLabel = labels.at(selectedIndex).c_str();
-
-    int protocolIndex = 0;
-    for (; protocolIndex < maxProtocols; protocolIndex++)
-    {
-        if (strncmp(p, protocolLabel, min((int)strlen(protocolLabel), (int)len)) == 0)
-            break;
-
-        p += len;
-    }
-    assert(protocolIndex < maxProtocols);
-
-    return protocolIndex;
-}
-
-int RFProtocols::findProtocolIndex(int rfProtocolIndex)
-{
-    uint8_t len = getProtoStringLength();
-    const char *protocolLabel = &protocols[1] + len * rfProtocolIndex;
-
-    auto result = std::find_if(labels.begin(), labels.end(), [protocolLabel, len](std::string &a) {
-        auto theSame = strncmp(a.c_str(), protocolLabel, max((int)a.length(), (int)len)) == 0;
-        return theSame;
-    });
-    assert(result != labels.end());
-    return result - labels.begin();
-}
-
-// global pointer intialized once on the first call to update()
-RFProtocols *rfProtocols = nullptr;
-
-
 
 std::string switchWarninglabel(swsrc_t index)
 {
@@ -720,70 +642,65 @@ class ModuleWindow : public FormGroup {
       }
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
-        Choice * mmSubProtocol = nullptr;
+        Choice * mmSubProto = nullptr;
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0,
+                       COLOR_THEME_PRIMARY1);
 
-        // Multi type (CUSTOM, brand A, brand B,...)
-        int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+        // Grid count for narrow/wide screen
+        int count =
+            LCD_W < LCD_H
+                ? 1
+                : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
 
-        // initialize rfProtocols if it is not initialized already.  This is a hack
-        // because i dont know how to construct it at the exact right time after the module
-        // is loaded
-        if (rfProtocols == nullptr)
-            rfProtocols = new RFProtocols(STR_MULTI_PROTOCOLS, MODULE_SUBTYPE_MULTI_LAST);
-
-        multiRfProto = rfProtocols->findProtocolIndex(multiRfProto);
-
-				// Grid count for narrow/wide screen
-				int count = LCD_W < LCD_H ? 1 : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
- 
-        rfChoice = new Choice(
-            this,
-            grid.getFieldSlot(count, 0),
-            rfProtocols->getLabels(), MODULE_SUBTYPE_MULTI_FIRST,
-            MODULE_SUBTYPE_MULTI_LAST, GET_DEFAULT(multiRfProto),
+        rfChoice = new MultiProtoChoice(
+            this, grid.getFieldSlot(count, 0), moduleIdx,
             [=](int32_t newValue) {
-
-              newValue = rfProtocols->lookupProtocolIndex(newValue);
 
               g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
               g_model.moduleData[moduleIdx].subType = 0;
-              if (mmSubProtocol != nullptr) mmSubProtocol->invalidate(); // always null ???
               resetMultiProtocolsOptions(moduleIdx);
+
+              MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
+              status.invalidate();
+
+              uint32_t startUpdate = RTOS_GET_MS();
+              while(!status.isValid() && (RTOS_GET_MS() - startUpdate < 250));
+
               SET_DIRTY();
               update();
-              rfChoice->setFocus(SET_FOCUS_DEFAULT);// really valid ???
-            });
 
-        if (MULTIMODULE_HAS_SUBTYPE(moduleIdx)) {
+              if (rfChoice)
+                rfChoice->setFocus(SET_FOCUS_DEFAULT);
+            },
+            [=]() { update(); });
+
+        auto *rfProto =
+            MultiRfProtocols::instance(moduleIdx)->getProto(
+                g_model.moduleData[moduleIdx].getMultiProtocol());
+
+        if (rfProto && !rfProto->subProtos.empty()) {
           // Subtype (D16, DSMX,...)
-					
-					// Grid count for narrow/wide screen
-					count = LCD_W < LCD_H ? 1 : 2;
-					int index = 1;
-					if (count == 1)
-					{
-						grid.nextLine();
-						index = 0;
-					}
-          const mm_protocol_definition *pdef = getMultiProtocolDefinition(
-              g_model.moduleData[moduleIdx].getMultiProtocol());
-          if (pdef->maxSubtype > 0) {
-            mmSubProtocol = new Choice(
-                this, grid.getFieldSlot(count, index), pdef->subTypeString, 0,
-                pdef->maxSubtype,
+
+          // Grid count for narrow/wide screen
+          count = LCD_W < LCD_H ? 1 : 2;
+          int index = 1;
+          if (count == 1) {
+            grid.nextLine();
+            index = 0;
+          }
+
+          mmSubProto = new Choice(
+                this, grid.getFieldSlot(count, index),
+                rfProto->subProtos, 0, rfProto->subProtos.size() - 1,
                 [=]() { return g_model.moduleData[moduleIdx].subType; },
                 [=](int16_t newValue) {
                   g_model.moduleData[moduleIdx].subType = newValue;
                   resetMultiProtocolsOptions(moduleIdx);
                   SET_DIRTY();
-                  // update(); ??? how to set focus properly ???
                   update();
-                  //mmSubProtocol->setFocus(SET_FOCUS_DEFAULT);
+                  if (mmSubProto != nullptr) mmSubProto->setFocus(SET_FOCUS_DEFAULT);
                 });
-
-          }
         }
         grid.nextLine();
 
@@ -795,24 +712,14 @@ class ModuleWindow : public FormGroup {
             return std::string(msg);
         }, COLOR_THEME_PRIMARY1);
 
-        // Multimodule sync
-        /*if (multiSyncStatus.isValid()) {
-          grid.nextLine();
-          new StaticText(this, grid.getLabelSlot(true), STR_MODULE_SYNC, 0, COLOR_THEME_PRIMARY1);
-          multiSyncStatus.getRefreshString(statusText);
-          new StaticText(this, grid.getFieldSlot(), statusText, 0, COLOR_THEME_PRIMARY1);
-        }*/
-
         const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
-        if (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx)) {
+        if (rfProto) {
           // Multi optional feature row
-          const char *title = getMultiOptionTitleStatic(moduleIdx);
+          const char *title = rfProto->getOptionStr();
           if (title != nullptr) {
             grid.nextLine();
             new StaticText(this, grid.getLabelSlot(true), title, 0, COLOR_THEME_PRIMARY1);
 
-            // int optionValue =
-            // g_model.moduleData[moduleIdx].multi.optionValue;
             int8_t min, max;
             getMultiOptionValues(multi_proto, min, max);
 
@@ -912,7 +819,7 @@ class ModuleWindow : public FormGroup {
                      GET_SET_DEFAULT(
                          g_model.moduleData[moduleIdx].multi.disableTelemetry));
 
-        if (MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx) != HIDDEN_ROW) {
+        if (rfProto && rfProto->supportsDisableMapping()) {
           // Disable channel mapping
           grid.nextLine();
           new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP, 0, COLOR_THEME_PRIMARY1);
@@ -1192,7 +1099,9 @@ class ModuleWindow : public FormGroup {
 
     void checkEvents() override
     {
-      if (isModuleFailsafeAvailable(moduleIdx) != hasFailsafe) {
+      if (isModuleFailsafeAvailable(moduleIdx) != hasFailsafe
+          && rfChoice && !rfChoice->isEditMode()) {
+
         hasFailsafe = isModuleFailsafeAvailable(moduleIdx);
         update();
       }

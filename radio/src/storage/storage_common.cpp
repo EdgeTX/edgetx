@@ -19,7 +19,13 @@
  */
 
 #include "opentx.h"
-#include "pulses/multi.h"
+
+#if defined(MULTIMODULE)
+  #include "pulses/multi.h"
+  #if defined(MULTI_PROTOLIST)
+    #include "io/multi_protolist.h"
+  #endif
+#endif
 
 uint8_t   storageDirtyMsk;
 tmr10ms_t storageDirtyTime10ms;
@@ -159,6 +165,9 @@ void postModelLoad(bool alarms)
 #if defined(MULTIMODULE)
   else if (isModuleMultimodule(EXTERNAL_MODULE))
     multiPatchCustom(EXTERNAL_MODULE);
+#if defined(MULTI_PROTOLIST)
+  MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
+#endif
 #endif
 
   AUDIO_FLUSH();

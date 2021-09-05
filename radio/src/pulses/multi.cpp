@@ -21,6 +21,9 @@
 #include "opentx.h"
 #include "multi.h"
 
+#include "io/multi_protolist.h"
+#include "telemetry/multi.h"
+
 // for the  MULTI protocol definition
 // see https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
 // file Multiprotocol/multiprotocol.h
@@ -142,25 +145,30 @@ void setupPulsesMulti(uint8_t moduleIdx)
   };
   uint8_t type=MULTI_NORMAL;
 
-  // Failsafe packets
-  if (counter[moduleIdx] % 1000 == 0 && g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_NOT_SET && g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_RECEIVER) {
-    type|=MULTI_FAILSAFE;
+  // not scanning protos &&  not spectrum analyser
+  if (getModuleMode(moduleIdx) == MODULE_MODE_NORMAL) {
+    // Failsafe packets
+    if (counter[moduleIdx] % 1000 == 0 &&
+        g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_NOT_SET &&
+        g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_RECEIVER) {
+      type |= MULTI_FAILSAFE;
+    }
+
+    counter[moduleIdx]++;
   }
 
   // Invert telemetry if needed
-  if (invert[moduleIdx] & 0x80 && !g_model.moduleData[moduleIdx].multi.disableTelemetry) {
+  if (invert[moduleIdx] & 0x80 &&
+      !g_model.moduleData[moduleIdx].multi.disableTelemetry) {
     if (getMultiModuleStatus(moduleIdx).isValid()) {
-      invert[moduleIdx] &= 0x08;    // Telemetry received, stop searching
-    }
-    else if (counter[moduleIdx] % 100 == 0) {
+      invert[moduleIdx] &= 0x08;  // Telemetry received, stop searching
+    } else if (counter[moduleIdx] % 100 == 0) {
       invert[moduleIdx] ^= 0x08;  // Try inverting telemetry
     }
   }
 
-  counter[moduleIdx]++;
-
   // Send header
-  sendFrameProtocolHeader(moduleIdx, type&MULTI_FAILSAFE);
+  sendFrameProtocolHeader(moduleIdx, type & MULTI_FAILSAFE);
 
   // Send channels
   if (type & MULTI_FAILSAFE)
@@ -169,7 +177,8 @@ void setupPulsesMulti(uint8_t moduleIdx)
     sendChannels(moduleIdx);
 
   // Multi V1.3.X.X -> Send byte 26, Protocol (bits 7 & 6), RX_Num (bits 5 & 4), invert, not used, disable telemetry, disable mapping
-  if (moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER) {
+  if ((moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER) ||
+      (moduleState[moduleIdx].mode == MODULE_MODE_GET_HARDWARE_INFO)) {
     sendMulti(moduleIdx, invert[moduleIdx] & 0x08);
   }
   else {
@@ -353,7 +362,8 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 
   uint8_t protoByte = 0;
 
-  if (moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER) {
+  uint8_t moduleMode = getModuleMode(moduleIdx);
+  if (moduleMode == MODULE_MODE_SPECTRUM_ANALYSER) {
     sendMulti(moduleIdx, (uint8_t) 0x54);  // Header byte
     sendMulti(moduleIdx, (uint8_t) 54);    // Spectrum custom protocol
     sendMulti(moduleIdx, (uint8_t) 0);
@@ -361,9 +371,21 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
     return;
   }
 
-  if (moduleState[moduleIdx].mode == MODULE_MODE_BIND)
+  if (moduleMode == MODULE_MODE_GET_HARDWARE_INFO) {
+    sendMulti(moduleIdx, (uint8_t) 0x55); // Header byte
+    sendMulti(moduleIdx, (uint8_t) 0);    // PROTOLIST custom protocol
+    sendMulti(moduleIdx, (uint8_t) 0);
+
+    // proto array item
+    uint8_t protoIdx = moduleState[moduleIdx].counter;
+    TRACE("scan [%d]", protoIdx);
+    sendMulti(moduleIdx, protoIdx);
+    return;
+  }
+
+  if (moduleMode == MODULE_MODE_BIND)
     protoByte |= MULTI_SEND_BIND;
-  else if (moduleState[moduleIdx].mode ==  MODULE_MODE_RANGECHECK)
+  else if (moduleMode ==  MODULE_MODE_RANGECHECK)
     protoByte |= MULTI_SEND_RANGECHECK;
 
   // rfProtocol
@@ -483,3 +505,4 @@ void sendDSM(uint8_t moduleIdx)
   }
 }
 #endif
+

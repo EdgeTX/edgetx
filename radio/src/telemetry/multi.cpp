@@ -20,8 +20,9 @@
 #include "opentx.h"
 #include "telemetry.h"
 #include "multi.h"
+#include "io/multi_protolist.h"
 
-constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (1 << 8)  | 69;
+constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11
 
 extern uint8_t g_moduleIdx;
@@ -43,7 +44,8 @@ enum MultiPacketTypes : uint8_t
   MultiRxChannels,
   HottTelemetry,
   MLinkTelemetry,
-  ConfigTelemetry
+  ConfigTelemetry,
+  MultiProtoDef
 };
 
 enum MultiBufferState : uint8_t
@@ -144,6 +146,10 @@ uint16_t& getMultiTelemetryLastRxTS(uint8_t module)
 
 #endif // INTERNAL_MODULE_MULTI
 
+bool isMultiModeScanning(uint8_t module)
+{
+  return getModuleMode(module) == MODULE_MODE_GET_HARDWARE_INFO;
+}
 
 static MultiBufferState guessProtocol(uint8_t module)
 {
@@ -207,7 +213,6 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   // At least two status packets without bind flag
   bool wasBinding = status.isBinding();
 
-  status.lastUpdate = get_tmr10ms();
   status.flags = data[0];
   status.major = data[1];
   status.minor = data[2];
@@ -240,6 +245,9 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
     setMultiBindStatus(module, MULTI_BIND_FINISHED);
+
+  // update timestamp last to avoid race conditions
+  status.lastUpdate = get_tmr10ms();
 }
 
 static void processMultiSyncPacket(const uint8_t * data, uint8_t module)
@@ -317,6 +325,28 @@ static void processConfigPacket(const uint8_t * packet, uint8_t len)
 }
 #endif
 
+#if defined(MULTI_PROTOLIST)
+static void processMultiProtoDef(uint8_t module, const uint8_t * packet, uint8_t len)
+{
+  /*
+    data[0]     = protocol number, 0xFF is an invalid list entry
+                  (Option value too large) and nothing sent after
+    data[1..n]  = protocol name null terminated
+    data[n+1]   = flags
+                   flags>>4 Option text number to be displayed
+                            (check multi status for description)
+                   flags&0x01 failsafe supported
+                   flags&0x02 Channel Map Disabled supported
+    data[n+2]   = number of sub protocols
+    data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
+    data[n+4..] = sub protocol names, only sent if nbr_sub != 0
+   */
+
+  MultiRfProtocols::instance(module)->scanReply(packet, len);
+}
+#endif
+
+ 
 static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 {
   uint8_t type = packet[0];
@@ -447,6 +477,13 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
         processMultiRxChannels(data, len);
       else
         TRACE("[MP] Received RX channels len %d < 4", len);
+      break;
+#endif
+
+#if defined(MULTI_PROTOLIST)
+    case MultiProtoDef:
+      if (len >= 1)
+        processMultiProtoDef(module, data, len);
       break;
 #endif
 
@@ -690,6 +727,11 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
       }
       break;
   }
+}
+
+bool isMultiTelemReceiving(uint8_t module)
+{
+  return getMultiTelemetryBufferState(module) != NoProtocolDetected;
 }
 
 void checkFailsafeMulti()

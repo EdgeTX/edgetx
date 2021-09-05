@@ -93,6 +93,10 @@ if(PXX2 OR MULTIMODULE)
   add_gui_src(radio_spectrum_analyser.cpp)
 endif()
 
+if(MULTIMODULE)
+  add_gui_src(multi_rfprotos.cpp)
+endif()
+
 if(GHOST)
   add_gui_src(radio_ghost_module_config.cpp)
 endif()

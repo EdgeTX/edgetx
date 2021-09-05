@@ -952,7 +952,7 @@ const char STR_SUBTYPE_HUBSAN[] =     "\004""H107""H301""H501";
 const char STR_SUBTYPE_FRSKY[] =      "\011""D16\0     ""D8\0      ""D16 8ch\0 ""V8\0      ""LBT(EU)\0 ""LBT 8ch\0 ""D8Cloned\0""D16Cloned";
 const char STR_SUBTYPE_HISKY[] =      "\005""Std\0 ""HK310";
 const char STR_SUBTYPE_V2X2[] =       "\006""Std\0  ""JXD506""MR101\0";
-const char STR_SUBTYPE_DSM[] =        "\004""2 1F""2 2F""X 1F""X 2F";
+const char STR_SUBTYPE_DSM[] =        "\004""2 1F""2 2F""X 1F""X 2F""Auto""R 1F";
 const char STR_SUBTYPE_DEVO[] =       "\004""8ch\0""10ch""12ch""6ch\0""7ch\0";
 const char STR_SUBTYPE_YD717[] =      "\007""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
 const char STR_SUBTYPE_KN[] =         "\006""WLtoys""FeiLun";
@@ -1031,7 +1031,7 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_FRSKY,      7, false, false,  STR_SUBTYPE_FRSKY,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HISKY,      1, false, true,   STR_SUBTYPE_HISKY,     nullptr},
   {MODULE_SUBTYPE_MULTI_V2X2,       2, false, false,  STR_SUBTYPE_V2X2,      nullptr},
-  {MODULE_SUBTYPE_MULTI_DSM2,       3, false, true,   STR_SUBTYPE_DSM,       STR_MULTI_MAX_THROW},
+  {MODULE_SUBTYPE_MULTI_DSM2,       5, false, true,   STR_SUBTYPE_DSM,       STR_MULTI_MAX_THROW},
   {MODULE_SUBTYPE_MULTI_DEVO,       4, false, true,   STR_SUBTYPE_DEVO,      STR_MULTI_FIXEDID},
   {MODULE_SUBTYPE_MULTI_YD717,      4, false, false,  STR_SUBTYPE_YD717,     nullptr},
   {MODULE_SUBTYPE_MULTI_KN,         1, false, false,  STR_SUBTYPE_KN,        nullptr},
