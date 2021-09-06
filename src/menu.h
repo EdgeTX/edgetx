@@ -207,6 +207,11 @@ class Menu: public ModalWindow
       return content->body.count();
     }
 
+    int selection() const
+    {
+      return content->body.selection();
+    }
+
     void select(int index)
     {
       content->body.select(index);
