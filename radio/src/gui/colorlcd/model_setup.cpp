@@ -544,7 +544,6 @@ class TrainerModuleWindow  : public FormGroup {
             }
         }
     }
-
 #endif
 
 
@@ -552,6 +551,8 @@ class TrainerModuleWindow  : public FormGroup {
     {
       FormGroup::checkEvents();
 #if defined(BLUETOOTH)
+      if(btDiscoverMenu == nullptr)
+          return;
       if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_START ||
          bluetooth.state == BLUETOOTH_STATE_DISCOVER_REQUESTED ||
          bluetooth.state == BLUETOOTH_STATE_DISCOVER_SENT ||
@@ -559,25 +560,18 @@ class TrainerModuleWindow  : public FormGroup {
         int cnt = min<uint8_t>(reusableBuffer.moduleSetup.bt.devicesCount, MAX_BLUETOOTH_DISTANT_ADDR);
         if (devicecount < cnt) {
           for(int i=0; i < cnt-devicecount; i++ ) {
-              if(btDiscoverMenu) {
                   int index = devicecount + i;
                   btDiscoverMenu->addLine(reusableBuffer.moduleSetup.bt.devices[index], btDiscSelect );
-              }
           }
           devicecount = cnt;
           if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_END && devicecount == 0) {
-              if(btDiscoverMenu) {
-                  if(btDiscoverMenu->hasFocus()) {
-                      btDiscoverMenu->detach();
-                      btDiscoverMenu->invalidate();
-
-                  }
-              }
+              btDiscoverMenu->detach();
+              btDiscoverMenu->deleteLater();
+              this->setFocus();
           }
-
         }
       } else if(bluetooth.state != lastbluetoothstate) {
-              update();
+        update();
       }
       lastbluetoothstate = bluetooth.state;
 #endif
@@ -611,7 +605,6 @@ class TrainerModuleWindow  : public FormGroup {
 
             btMasterButton = new TextButton(this, grid.getFieldSlot(), "");
 
-
             if(bluetooth.distantAddr[0]) {
                 btDistAddress->setText(bluetooth.distantAddr);
                 btMasterButton->setText(STR_CLEAR);
@@ -633,17 +626,14 @@ class TrainerModuleWindow  : public FormGroup {
                     devicecount = 0;
                     bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
 
-                    if(btDiscoverMenu == nullptr || btDiscoverMenu->deleted())
-                        btDiscoverMenu = new Menu(this->getParent());
+                    //if(btDiscoverMenu == nullptr || btDiscoverMenu->deleted())
+                    btDiscoverMenu = new Menu(this);
                     btDiscoverMenu->setTitle(STR_BT_SELECT_DEVICE);
                     btDiscoverMenu->setCloseWhenClickOutside();
                     btDiscoverMenu->setCloseHandler([=]() {
-                        btDiscoverMenu->checkEvents();
-                        btMasterButton->check(false);
-                        btDiscoverMenu->invalidate();
+                        btDiscoverMenu->checkEvents();                                                
                         btDiscoverMenu->deleteLater();
                     });
-
 
                 }
                 btMasterButton->check(false);
@@ -735,7 +725,6 @@ class TrainerModuleWindow  : public FormGroup {
 #if defined(PCBNV14)
         new StaticText(this, grid.getLabelSlot(true) );
 #endif
-         grid.nextLine();
          getParent()->moveWindowsTop(top() + 1, adjustHeight());
       }
     }
@@ -747,7 +736,6 @@ class TrainerModuleWindow  : public FormGroup {
     StaticText * btChannelEnd = nullptr;
     StaticText * btDistAddress = nullptr;
     TextButton * btMasterButton = nullptr;
-    Choice *btAddressChoice = nullptr;
     Menu *btDiscoverMenu = nullptr;
 private:
     int devicecount = 0;
