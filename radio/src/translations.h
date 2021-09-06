@@ -1114,6 +1114,7 @@ extern const char STR_ABOUT_PARENTS_4[];
 extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];
 extern const char STR_RACING_MODE[];
+extern const char STR_WIDGET_EXIT_FULLSCREEN[];
 
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT

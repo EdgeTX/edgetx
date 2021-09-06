@@ -120,8 +120,8 @@ void Widget::paint(BitmapBuffer * dc)
   }
 
   if (fullscreen && (RTOS_GET_MS() - fsStartedTS < FULLSCREEN_HINT_DELAY)) {
-    dc->drawText(width() / 2, height() / 2, "Press [RTN] long to exit",
-                 FONT(XL) | CENTERED | VCENTERED | COLOR_THEME_PRIMARY3);
+    dc->drawText(width() / 2, height() / 2, STR_WIDGET_EXIT_FULLSCREEN,
+                 FONT(L) | CENTERED | VCENTERED | COLOR_THEME_PRIMARY3);
   }
 }
 

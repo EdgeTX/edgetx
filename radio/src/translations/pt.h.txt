@@ -1234,6 +1234,8 @@
 #define TR_RTC_CHECK           TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE        "Auth-failure"
 #define TR_RACING_MODE         "Racing mode"
+#define TR_WIDGET_EXIT_FULLSCREEN      "Press [RTN] long to exit"
+
 #define STR_VFR               "VFR"
 #define STR_RSSI              "RSSI"
 #define STR_R9PW                      "R9PW"

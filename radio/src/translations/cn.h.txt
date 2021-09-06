@@ -1114,6 +1114,7 @@
 #define TR_RTC_CHECK                   TR("Check RTC", "检查时间驱动电池电压")
 #define TR_AUTH_FAILURE                "验证失败"
 #define TR_RACING_MODE                 "Racing mode"
+#define TR_WIDGET_EXIT_FULLSCREEN      "Press [RTN] long to exit"
 
 #define STR_VFR                       "VFR"
 #define STR_RSSI                      "RSSI"
