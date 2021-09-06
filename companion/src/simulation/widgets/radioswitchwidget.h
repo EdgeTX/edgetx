@@ -121,7 +121,7 @@ class RadioSwitchWidget : public RadioWidget
     {
       if (m_flags != (quint16)lock) {
         setFlags((quint16)lock);
-        setValue((int)lock);
+        resetToggle();
       }
     }
 
