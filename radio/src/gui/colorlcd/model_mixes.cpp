@@ -21,13 +21,15 @@
 #include "model_mixes.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "choiceex.h"
 #include "bitfield.h"
 #include "model_inputs.h"
 #include "gvar_numberedit.h"
+#include "model_curves.h"
 #include "dataconstants.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
 
+#define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
 #define PASTE_AFTER     -1
 
@@ -229,9 +231,15 @@ class MixEditWindow : public Page
         break;
 
       case CURVE_REF_CUSTOM: {
-        auto choice = new Choice(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
+        auto choice = new ChoiceEx(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
                                  GET_SET_DEFAULT(line->curve.value));
         choice->setTextHandler([](int value) { return getCurveString(value); });
+        choice->setLongPressHandler([this](event_t event) {
+          MixData *mix = mixAddress(mixIndex);
+          // if no curve is specified then dont link to curve page
+          if (mix->curve.value != 0)
+            ModelCurvesPage::pushEditCurve(abs(mix->curve.value) - 1);
+        });
         break;
       }
     }

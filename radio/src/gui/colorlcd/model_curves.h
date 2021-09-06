@@ -27,6 +27,7 @@
 class ModelCurvesPage: public PageTab {
   public:
     ModelCurvesPage();
+    static void pushEditCurve(int index);
 
     virtual void build(FormWindow * window) override
     {
