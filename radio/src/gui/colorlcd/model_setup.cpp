@@ -733,13 +733,17 @@ class TrainerModuleWindow  : public FormGroup {
     Choice * trainerChoice = nullptr;
     NumberEdit * channelStart = nullptr;
     NumberEdit * channelEnd = nullptr;
+#if defined(BLUETOOTH)
     StaticText * btChannelEnd = nullptr;
     StaticText * btDistAddress = nullptr;
     TextButton * btMasterButton = nullptr;
     Menu *btDiscoverMenu = nullptr;
+#endif
 private:
+#if defined(BLUETOOTH)
     int devicecount = 0;
     uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
+#endif
 
 
 };
