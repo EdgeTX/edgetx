@@ -21,7 +21,7 @@
 #include "model_outputs.h"
 #include "opentx.h"
 #include "libopenui.h"
-
+#include "gvar_numberedit.h"
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 class OutputEditWindow : public Page {
@@ -65,12 +65,12 @@ class OutputEditWindow : public Page {
 
       // Offset
       new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), -1000, +1000, GET_SET_DEFAULT(output->offset), 0, PREC1);
+      new GVarNumberEdit(window, grid.getFieldSlot(), -limit, +limit, GET_SET_DEFAULT(output->offset), 0, PREC1);
       grid.nextLine();
 
       // Min
       new StaticText(window, grid.getLabelSlot(), TR_MIN, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), -limit, 0,
+      new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
                      GET_VALUE(output->min - 1000),
                      SET_VALUE(output->min, newValue + 1000),
                      0, PREC1);
@@ -78,7 +78,7 @@ class OutputEditWindow : public Page {
 
       // Max
       new StaticText(window, grid.getLabelSlot(), TR_MAX, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), 0, +limit,
+      new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
                      GET_VALUE(output->max + 1000),
                      SET_VALUE(output->max, newValue - 1000),
                      0, PREC1);
@@ -128,14 +128,17 @@ class OutputLineButton : public Button {
     {
       LcdFlags textColor = COLOR_THEME_SECONDARY1;
       LcdFlags bgColor   = COLOR_THEME_PRIMARY2;
+      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
 
       dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
 
       // first line
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000,
-                     PREC1 | textColor);
-      dc->drawNumber(68, FIELD_PADDING_TOP, output->max + 1000, PREC1 | textColor);
-      dc->drawNumber(132, FIELD_PADDING_TOP, output->offset, PREC1 | textColor);
+      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000,
+                      -limit, 0, PREC1 | textColor, nullptr);
+      drawValueOrGVar(dc, 68, FIELD_PADDING_TOP, output->max + 1000,
+                      0, limit, PREC1 | textColor, nullptr);
+      drawValueOrGVar(dc, 132, FIELD_PADDING_TOP, output->offset,
+                      -limit, +limit, PREC1 | textColor, nullptr);
       dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter,
                      RIGHT | textColor);
       dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
