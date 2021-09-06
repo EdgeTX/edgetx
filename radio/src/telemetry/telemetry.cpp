@@ -138,6 +138,7 @@ void telemetryWakeup()
     if (!status.isValid()) {
       status.flags = 0;
       status.protocolName[0] = '\0';
+      status.protocolSubNbr = 0;
       uint8_t proto = g_model.moduleData[INTERNAL_MODULE].getMultiProtocol();
       uint8_t subtype = g_model.moduleData[INTERNAL_MODULE].subType;
       switch (proto) {
@@ -145,23 +146,27 @@ void telemetryWakeup()
         strcpy(status.protocolName, "FrSky");
         status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKY + 1;
         status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYX2 + 3;
+        status.protocolSubNbr = 8;
         if (subtype != MM_RF_FRSKY_SUBTYPE_D8 && subtype != MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
           status.flags |= 0x20; // failsafe supported
         }
         break;
       case MODULE_SUBTYPE_MULTI_FRSKYX2:
         strcpy(status.protocolName, "FrSkyX2");
+        status.protocolSubNbr = 6;
         status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKY + 1;
         status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYL + 3;
         status.flags |= 0x20; // failsafe supported
         break;
       case MODULE_SUBTYPE_MULTI_FRSKYL:
         strcpy(status.protocolName, "FrSkyL");
+        status.protocolSubNbr = 2;
         status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKYX2 + 3;
         status.protocolNext = MODULE_SUBTYPE_MULTI_FRSKYX_RX + 3;
         break;
       case MODULE_SUBTYPE_MULTI_FRSKYX_RX:
         strcpy(status.protocolName, "FrSkyRX");
+        //status.protocolSubNbr = 2;
         status.protocolPrev = MODULE_SUBTYPE_MULTI_FRSKYL + 3;
         status.protocolNext = proto;
         break;

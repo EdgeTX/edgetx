@@ -274,8 +274,9 @@ inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
 inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+  int proto = g_model.moduleData[moduleIdx].getMultiProtocol();
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FRSKY) {
+  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
     return true;
   }
 
@@ -284,11 +285,12 @@ inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
   }
   else
   {
-    if (g_model.moduleData[moduleIdx].getMultiProtocol() > MODULE_SUBTYPE_MULTI_LAST) {
+    if (proto > MODULE_SUBTYPE_MULTI_LAST) {
       return true;
     }
     else {
-      return getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol())->subTypeString != nullptr;
+      auto subProto = getMultiProtocolDefinition(proto);
+      return subProto->subTypeString != nullptr;
     }
   }
 }

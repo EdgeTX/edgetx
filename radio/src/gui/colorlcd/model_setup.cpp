@@ -646,8 +646,6 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0,
                        COLOR_THEME_PRIMARY1);
 
-
-
         // Grid count for narrow/wide screen
         int count =
             LCD_W < LCD_H
@@ -657,14 +655,22 @@ class ModuleWindow : public FormGroup {
         rfChoice = new MultiProtoChoice(
             this, grid.getFieldSlot(count, 0), moduleIdx,
             [=](int32_t newValue) {
+
               g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
               g_model.moduleData[moduleIdx].subType = 0;
-              getMultiModuleStatus(moduleIdx).protocolName[0] = '\0';
-              if (mmSubProtocol != nullptr) mmSubProtocol->invalidate(); // always null ???
               resetMultiProtocolsOptions(moduleIdx);
+
+              MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
+              status.invalidate();
+
+              uint32_t startUpdate = RTOS_GET_MS();
+              while(!status.isValid() && (RTOS_GET_MS() - startUpdate < 250));
+
               SET_DIRTY();
               update();
-              rfChoice->setFocus(SET_FOCUS_DEFAULT);// really valid ???
+
+              if (rfChoice)
+                rfChoice->setFocus(SET_FOCUS_DEFAULT);
             });
 
         if (MULTIMODULE_HAS_SUBTYPE(moduleIdx)) {
@@ -688,9 +694,9 @@ class ModuleWindow : public FormGroup {
                   g_model.moduleData[moduleIdx].subType = newValue;
                   resetMultiProtocolsOptions(moduleIdx);
                   SET_DIRTY();
-                  // update(); ??? how to set focus properly ???
                   update();
-                  //mmSubProtocol->setFocus(SET_FOCUS_DEFAULT);
+                  if (mmSubProtocol != nullptr)
+                    mmSubProtocol->setFocus(SET_FOCUS_DEFAULT);
                 });
 
           }

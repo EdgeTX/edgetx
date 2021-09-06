@@ -207,7 +207,6 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   // At least two status packets without bind flag
   bool wasBinding = status.isBinding();
 
-  status.lastUpdate = get_tmr10ms();
   status.flags = data[0];
   status.major = data[1];
   status.minor = data[2];
@@ -240,6 +239,9 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
     setMultiBindStatus(module, MULTI_BIND_FINISHED);
+
+  // update timestamp last to avoid race conditions
+  status.lastUpdate = get_tmr10ms();
 }
 
 static void processMultiSyncPacket(const uint8_t * data, uint8_t module)

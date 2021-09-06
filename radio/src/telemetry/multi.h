@@ -125,6 +125,13 @@ struct MultiModuleStatus {
   inline bool protocolValid() const { return (bool) (flags & 0x04); }
   inline bool serialMode() const { return (bool) (flags & 0x02); }
   inline bool inputDetected() const { return (bool) (flags & 0x01); }
+
+  inline void invalidate() {
+    lastUpdate = get_tmr10ms() - 500;
+    protocolSubNbr = 0;
+    protocolName[0] = '\0';
+    protocolSubName[0] = '\0';
+  }
 };
 
 MultiModuleStatus& getMultiModuleStatus(uint8_t module);
