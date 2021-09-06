@@ -26,7 +26,7 @@
 #include "lcd.h"
 
 constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
-constexpr uint32_t FULLSCREEN_HINT_DELAY = 5*1000; //  5 seconds
+constexpr uint32_t FULLSCREEN_HINT_DELAY = 3*1000; //  3 seconds
 
 static void openWidgetMenu(Widget * parent)
 {
@@ -120,8 +120,8 @@ void Widget::paint(BitmapBuffer * dc)
   }
 
   if (fullscreen && (RTOS_GET_MS() - fsStartedTS < FULLSCREEN_HINT_DELAY)) {
-    dc->drawText(width() / 2, height() / 2, STR_WIDGET_EXIT_FULLSCREEN,
-                 FONT(L) | CENTERED | VCENTERED | COLOR_THEME_PRIMARY3);
+    dc->drawText(width() / 2, int(height() * 0.8), STR_WIDGET_EXIT_FULLSCREEN,
+                 FONT(L) | CENTERED | VCENTERED | SHADOWED | COLOR_THEME_PRIMARY3);
   }
 }
 
