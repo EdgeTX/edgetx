@@ -58,10 +58,33 @@ bool ChoiceEx::onTouchStart(coord_t x, coord_t y)
   return Choice::onTouchStart(x, y);
 }
 
-bool ChoiceEx::onTouchEnd(coord_t x, coord_t y)
+bool ChoiceEx::isLongPress()
 {
   tmr10ms_t curTimer = get_tmr10ms();
-  if (duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS) {
+  return (duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS);
+}
+
+void ChoiceEx::checkEvents(void)
+{
+  event_t event = getEvent();
+
+  if (isLongPress()) {
+    if (longPressHandler) {
+      longPressHandler(event);
+      duration10ms = 0;
+    }
+  }
+
+  if (hasFocus())
+    onEvent(event);
+  else
+    pushEvent(event);
+}
+
+
+bool ChoiceEx::onTouchEnd(coord_t x, coord_t y)
+{
+  if (isLongPress()) {
     if (longPressHandler) {
       longPressHandler(0);
       duration10ms = 0;

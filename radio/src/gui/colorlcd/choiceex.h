@@ -33,6 +33,8 @@ class ChoiceEx : public Choice
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
     bool onTouchStart(coord_t x, coord_t y) override;
+    void checkEvents(void) override;
+    bool isLongPress();
 #endif
 
 #if defined(DEBUG_WINDOWS)
