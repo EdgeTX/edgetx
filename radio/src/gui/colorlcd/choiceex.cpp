@@ -28,13 +28,12 @@ void ChoiceEx::setLongPressHandler(std::function<void(event_t)> handler)
 ChoiceEx::ChoiceEx(FormGroup * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   Choice(parent, rect, vmin, vmax, getValue, setValue, windowFlags)
 {
+#if defined(HARDWARE_TOUCH)
+  duration10ms = 0;
+#endif
 }
 
-bool ChoiceEx::onTouchEnd(coord_t x, coord_t y)
-{
-  return Choice::onTouchEnd(x,y);
-}
-
+#if defined(HARDWARE_KEYS)
 void ChoiceEx::onEvent(event_t event)
 {
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
@@ -47,4 +46,31 @@ void ChoiceEx::onEvent(event_t event)
 
   Choice::onEvent(event);
 }
+#endif
+
+#if defined(HARDWARE_TOUCH)
+bool ChoiceEx::onTouchStart(coord_t x, coord_t y)
+{
+  if (duration10ms == 0) {
+    duration10ms = get_tmr10ms();
+  }
+
+  return Choice::onTouchStart(x, y);
+}
+
+bool ChoiceEx::onTouchEnd(coord_t x, coord_t y)
+{
+  tmr10ms_t curTimer = get_tmr10ms();
+  if (duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS) {
+    if (longPressHandler) {
+      longPressHandler(0);
+      duration10ms = 0;
+      return false;
+    }
+  }
+
+  duration10ms = 0;
+  return Choice::onTouchEnd(x,y);
+}
+#endif
 
