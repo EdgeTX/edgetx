@@ -48,7 +48,10 @@ class GVarNumberEdit: public FormGroup
     void switchGVarMode()
     {
       int32_t value = getValue();
-      setValue(GV_IS_GV_VALUE(value, vmin, vmax) ? GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode) : GV_GET_GV1_VALUE(vmin, vmax));
+      setValue(GV_IS_GV_VALUE(value, vmin, vmax) ?
+              ( (textFlags & PREC1) ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode) : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode) ) : 
+              GV_GET_GV1_VALUE(vmin, vmax) );
+
       update();
     }
 
