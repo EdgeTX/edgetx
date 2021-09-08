@@ -55,26 +55,50 @@ class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice>
     }
 };
 
-void SourceChoice::paint(BitmapBuffer * dc)
-{
-  FormField::paint(dc);
-
-  unsigned value = getValue();
-  LcdFlags textColor;
-  if (editMode)
-    textColor = COLOR_THEME_PRIMARY2;
-  else if (hasFocus())
-    textColor = COLOR_THEME_PRIMARY2;
-  else
-    textColor = COLOR_THEME_PRIMARY1;
-
-  drawSource(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, textColor);
-  dc->drawBitmapPattern(rect.w - 20, (rect.h - 11) / 2, LBM_DROPDOWN, textColor);
-}
 
 // defined in gui/gui_common.cpp
 uint8_t switchToMix(uint8_t source);
   
+SourceChoice::SourceChoice(FormGroup *parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, 
+                std::function<void(int16_t)> setValue, WindowFlags windowFlags, LcdFlags textFlags) :
+      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue, get_tmr10ms)
+{
+    setBeforeDisplayMenuHandler([=](Menu *menu) {
+      menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));
+#if defined(AUTOSOURCE)
+      menu->setWaitHandler([=]() {
+          int16_t val = getMovedSource(vmin);
+          if (val) {
+            if (setValue) {
+              setValue(val);
+            }
+            this->fillMenu(menu);
+          }
+#if defined(AUTOSWITCH)
+          else {
+            swsrc_t swtch = abs(getMovedSwitch());
+            if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+              val = switchToMix(swtch);
+              if (val && (val >= vmin) && (val <= vmax)) {
+                if (setValue) setValue(val);
+                this->fillMenu(menu);
+              }
+            }
+          }
+#endif
+        });
+#endif
+    });
+
+    setTextHandler([=] (int value) {
+      if (isValueAvailable && !isValueAvailable(value)) 
+        return std::to_string(0);  // we will fix this later
+
+      return std::string(getSourceString(value));
+    });
+}
+
+
 void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & filter)
 {
   auto value = getValue();
@@ -95,69 +119,5 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
   if (current >= 0) {
     menu->select(current);
   }
-
-#if defined(AUTOSOURCE)
-  menu->setWaitHandler([=]() {
-      int16_t val = getMovedSource(vmin);
-      if (val) {
-        if (filter && filter(val)) {
-          return;
-        }
-        if (setValue) {
-          setValue(val);
-        }
-        this->fillMenu(menu);
-      }
-#if defined(AUTOSWITCH)
-      else {
-        swsrc_t swtch = abs(getMovedSwitch());
-        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-          val = switchToMix(swtch);
-          if (val && (val >= vmin) && (val <= vmax)
-              && (!filter || !filter(val))) {
-            if (setValue) setValue(val);
-            this->fillMenu(menu);
-          }
-        }
-      }
-#endif
-    });
-#endif
 }
 
-void SourceChoice::openMenu()
-{
-  auto menu = new Menu(this);
-  fillMenu(menu);
-  menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));
-  menu->setCloseHandler([=]() {
-      editMode = false;
-      setFocus(SET_FOCUS_DEFAULT);
-  });
-}
-
-#if defined(HARDWARE_KEYS)
-void SourceChoice::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    editMode = true;
-    invalidate();
-    openMenu();
-  }
-  else {
-    FormField::onEvent(event);
-  }
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool SourceChoice::onTouchEnd(coord_t, coord_t)
-{
-  setFocus(SET_FOCUS_DEFAULT);
-  setEditMode(true);
-  openMenu();
-  return true;
-}
-#endif

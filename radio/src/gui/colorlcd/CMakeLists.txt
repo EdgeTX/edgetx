@@ -66,7 +66,6 @@ set(GUI_SRC
   menu_screen.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
-  choiceex.cpp
   )
 
 macro(add_gui_src src)
@@ -126,6 +125,7 @@ add_gui_src(curve.cpp)
 add_gui_src(sourcechoice.cpp)
 add_gui_src(switchchoice.cpp)
 add_gui_src(curveedit.cpp)
+
 
 if(HARDWARE_TOUCH)
   add_gui_src(keyboard_curve.cpp)

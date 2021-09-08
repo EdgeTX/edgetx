@@ -1,7 +1,7 @@
 [submodule "libopenui"]
 	path = radio/src/thirdparty/libopenui
-	url = https://github.com/EdgeTX/libopenui.git
-	branch = master
+	url = https://github.com/kevinkoenig/libopenui.git
+	branch = new-choice
 [submodule "radio/src/thirdparty/AccessDenied"]
 	path = radio/src/thirdparty/AccessDenied
 	url = https://github.com/raphaelcoeffic/AccessDenied.git

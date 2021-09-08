@@ -30,7 +30,7 @@ static constexpr coord_t SENSOR_COL3 = LCD_W - 50;
 
 class SensorSourceChoice : public SourceChoice {
   public:
-    SensorSourceChoice(Window * window, const rect_t &rect, uint8_t * source, IsValueAvailable isValueAvailable) :
+    SensorSourceChoice(FormGroup * window, const rect_t &rect, uint8_t * source, IsValueAvailable isValueAvailable) :
       SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
                    GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1) : MIXSRC_NONE),
                    [=](uint8_t newValue) {
