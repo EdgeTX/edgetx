@@ -751,7 +751,7 @@
 #define TR_NO_TOOLS                    "No tools available"
 #define TR_NORMAL                      "Normal"
 #define TR_NOT_INVERTED                "Not inv"
-#define TR_NOT_CONNECTED               "!Connected"
+#define TR_NOT_CONNECTED               TR("!Connected", "Not Connected");
 #define TR_CONNECTED                   "Connected"
 #define TR_FLEX_915                    "Flex 915MHz"
 #define TR_FLEX_868                    "Flex 868MHz"
