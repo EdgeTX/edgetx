@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RAWSWITCH_H
-#define RAWSWITCH_H
+#pragma once
 
 #include "boards.h"
 #include "constants.h"
@@ -102,5 +101,3 @@ class RawSwitch {
     RawSwitchType type;
     int index;
 };
-
-#endif // RAWSWITCH_H

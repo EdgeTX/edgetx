@@ -588,7 +588,7 @@ class UnionField: public DataField {
         virtual bool select(const selectorT& attr) const = 0;
         virtual DataField* getField() = 0;
     };
-  
+
     class TransformedMember: public UnionMember, public TransformedField {
       public:
         TransformedMember(DataField* parent, DataField& field):

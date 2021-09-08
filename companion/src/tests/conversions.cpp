@@ -19,10 +19,11 @@ TEST(Conversions, ConversionX9DPFrom22)
 
   EXPECT_STREQ("Tes", settings.switchName[0]);
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
-  
+
   const ModelData& model = radioData.models[0];
   EXPECT_STREQ("Test", model.name);
-  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model.timers[0].mode);
+  EXPECT_EQ(TimerData::TIMERMODE_ON, model.timers[0].mode);
+  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model.timers[0].swtch);
   EXPECT_EQ(80, model.mixData[0].weight);
   EXPECT_EQ(900, model.limitData[0].max); // -100
   EXPECT_EQ(80, model.expoData[0].weight);
@@ -64,7 +65,8 @@ TEST(Conversions, ConversionX9DPFrom23)
 
   const ModelData & model1 = radioData.models[0];
   EXPECT_STREQ("Test", model1.name);
-  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model1.timers[0].mode);
+  EXPECT_EQ(TimerData::TIMERMODE_ON, model1.timers[0].mode);
+  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model1.timers[0].swtch);
   EXPECT_EQ(80, model1.mixData[0].weight);
   EXPECT_EQ(900, model1.limitData[0].max); // -100
   EXPECT_EQ(80, model1.expoData[0].weight);
@@ -82,7 +84,8 @@ TEST(Conversions, ConversionX9DPFrom23)
 
   const ModelData & model2 = radioData.models[1];
   EXPECT_STREQ("Test", model2.name);
-  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model2.timers[0].mode);
+  EXPECT_EQ(TimerData::TIMERMODE_ON, model2.timers[0].mode);
+  EXPECT_EQ(RawSwitch(SWITCH_TYPE_SWITCH, SWITCH_SA0), model2.timers[0].swtch);
   EXPECT_EQ(80, model2.mixData[0].weight);
   EXPECT_EQ(900, model2.limitData[0].max); // -100
   EXPECT_EQ(80, model2.expoData[0].weight);
@@ -114,7 +117,7 @@ TEST(Conversions, ConversionX7From22)
 
   EXPECT_STREQ("Tes", settings.switchName[0]);
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
-  
+
   const ModelData& model = radioData.models[0];
   EXPECT_STREQ("Test", model.name);
   EXPECT_EQ(PULSES_PXX_R9M, model.moduleData[1].protocol);
@@ -216,7 +219,7 @@ TEST(Conversions, ConversionX10From22)
 
   const GeneralSettings& settings = radio.generalSettings;
   const ModelData& model = radio.models[0];
-#else  
+#else
   ASSERT_EQ(true, loadFile(byteBuffer, RADIO_TESTS_PATH "/model_22_x10/RADIO/radio.bin"));
 
   GeneralSettings settings;
@@ -248,7 +251,7 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
 
   EXPECT_STREQ("BT_X10", settings.bluetoothName);
-  EXPECT_STREQ("Default", settings.themeName);
+  EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
 #if !defined(USE_OTX)
   byteBuffer.clear();
@@ -257,7 +260,7 @@ TEST(Conversions, ConversionX10From22)
   ModelData model;
   ASSERT_NE(nullptr, loadModelFromByteArray(model, byteBuffer));
 #endif
-  
+
   EXPECT_STREQ("Test", model.name);
   EXPECT_EQ(0, model.noGlobalFunctions);
   EXPECT_EQ(0, model.beepANACenter);
@@ -325,7 +328,7 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
 
   EXPECT_STREQ("BT", settings.bluetoothName);
-  EXPECT_STREQ("Default", settings.themeName);
+  EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
 #if !defined(USE_OTX)
   byteBuffer.clear();

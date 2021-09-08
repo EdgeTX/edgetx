@@ -149,13 +149,18 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     QPushButton * edit = new QPushButton(this);
     edit->setProperty("index", i);
 
+    QString style = QString(
+      "QPushButton {"
 #ifdef __GNUC__
     //  creates more compact and likely consistent buttons across OS flavors
-    edit->setStyleSheet(QString("background-color: %1; color: white; padding: 2px 3px; border-style: outset; border-width: 1px; border-radius: 2px; border-color: inherit;").arg(colors[i].name()));
+      "background-color: %1; color: white; padding: 2px 3px; border-style: outset; border-width: 1px; border-radius: 2px; border-color: inherit;"
 #else
-    edit->setStyleSheet(QString("background-color: %1; color: white;").arg(colors[i].name()));
+      "background-color: %1; color: white;"
 #endif
+      "}"
+      "QToolTip { background: white; color: black; }");
 
+    edit->setStyleSheet(style.arg(colors[i].name()));
     edit->setText(tr("Curve %1").arg(i + 1));
     edit->setContextMenuPolicy(Qt::CustomContextMenu);
     edit->setToolTip(tr("Popup menu available"));

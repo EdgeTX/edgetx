@@ -37,6 +37,7 @@ string(REPLACE ".cpp" ".h" firmwares_HDRS "${firmwares_SRCS}")
 list(APPEND firmwares_HDRS
   eepromimportexport.h
   moduledata.h
+  customisation_data.h
   )
 
 set(firmwares_QT

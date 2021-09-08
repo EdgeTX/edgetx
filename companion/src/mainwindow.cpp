@@ -48,6 +48,7 @@
 
 #include "dialogs/filesyncdialog.h"
 #include "profilechooser.h"
+#include "constants.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -64,8 +65,8 @@
 #define INTERACTIVE_DOWNLOAD   4
 #define AUTOMATIC_DOWNLOAD     8
 
-#define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("http://www.open-tx.org/downloads")
-#define DONATE_STR                        QStringLiteral("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QUZ48K4SEXDP2")
+#define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("http://www.edge-tx.org/downloads")
+#define DONATE_STR                        QStringLiteral("https://www.edge-tx.org")
 
 #ifdef Q_OS_MACOS
   #define COMPANION_STAMP                 QStringLiteral("companion-macosx.stamp")
@@ -129,7 +130,7 @@ MainWindow::MainWindow():
   else {
     if (!g.previousVersion().isEmpty())
       g.warningId(g.warningId() | AppMessages::MSG_UPGRADED);
-    
+
     if (g.promptProfile()) {
       chooseProfile();
     }
@@ -263,6 +264,9 @@ void MainWindow::checkForUpdates()
     return;
   }
 
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions. Update the application settings to disable this message.").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
+  return;
+
   if (networkManager)
     disconnect(networkManager, 0, this, 0);
   else
@@ -378,7 +382,7 @@ void MainWindow::checkForCompanionUpdateFinished(QNetworkReply * reply)
       }
     }
 #else
-    QMessageBox::warning(this, tr("New release available"), tr("A new release of Companion is available, please check the <a href='%1'>OpenTX website!</a>").arg(OPENTX_DOWNLOADS_PAGE_URL));
+    QMessageBox::warning(this, tr("New release available"), tr("A new release of Companion is available, please check the <a href='%1'>EdgeTX website!</a>").arg(OPENTX_DOWNLOADS_PAGE_URL));
 #endif
   }
   else {
@@ -521,17 +525,26 @@ void MainWindow::checkForFirmwareUpdateFinished(QNetworkReply * reply)
     int currentVersion = g.fwRev.get(Firmware::getCurrentVariant()->getId());
     QString currentVersionString = index2version(currentVersion);
 
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(CPN_STR_APP_NAME);
-    QSpacerItem * horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    QGridLayout * layout = (QGridLayout*)msgBox.layout();
-    layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
+    QString msgText;
+    if (currentVersion == 0)
+      msgText = tr("Firmware %1 does not seem to have ever been downloaded.\nVersion %2 is available.\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
+                  .arg(Firmware::getCurrentVariant()->getId()).arg(fullVersionString);
+    else if (version > currentVersion)
+      msgText = tr("A new version of %1 firmware is available:\n  - current is %2\n  - newer is %3\n\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
+                  .arg(Firmware::getCurrentVariant()->getId()).arg(currentVersionString).arg(fullVersionString);
+    else if (checkForUpdatesState == INTERACTIVE_DOWNLOAD)
+      QMessageBox::information(this, CPN_STR_APP_NAME, tr("No updates available at this time."));
 
-    if (currentVersion == 0) {
+    if (currentVersion == 0 || version > currentVersion) {
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(CPN_STR_APP_NAME);
+      QSpacerItem * horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+      QGridLayout * layout = (QGridLayout*)msgBox.layout();
+      layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
+
       QString rn = getCurrentFirmware()->getReleaseNotesUrl();
       QAbstractButton *rnButton = nullptr;
-      msgBox.setText(tr("Firmware %1 does not seem to have ever been downloaded.\nVersion %2 is available.\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
-                     .arg(Firmware::getCurrentVariant()->getId()).arg(fullVersionString));
+      msgBox.setText(msgText);
       QAbstractButton *YesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
       msgBox.addButton(tr("No"), QMessageBox::NoRole);
       if (!rn.isEmpty()) {
@@ -541,57 +554,17 @@ void MainWindow::checkForFirmwareUpdateFinished(QNetworkReply * reply)
       msgBox.resize(0, 0);
       msgBox.exec();
       if (msgBox.clickedButton() == rnButton) {
-        ReleaseNotesFirmwareDialog * dialog = new ReleaseNotesFirmwareDialog(this, rn);
-        dialog->exec();
+        QDesktopServices::openUrl(QUrl(rn));
         int ret2 = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Do you want to download version %1 now ?").arg(fullVersionString), QMessageBox::Yes | QMessageBox::No);
         if (ret2 == QMessageBox::Yes)
           download = true;
         else
           ignore = true;
       }
-      else if (msgBox.clickedButton() == YesButton ) {
+      else if (msgBox.clickedButton() == YesButton )
         download = true;
-      }
-      else {
+      else
         ignore = true;
-      }
-    }
-    else if (version > currentVersion) {
-      QString rn = getCurrentFirmware()->getReleaseNotesUrl();
-      QAbstractButton *rnButton = nullptr;
-      msgBox.setText(tr("A new version of %1 firmware is available:\n  - current is %2\n  - newer is %3\n\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
-                     .arg(Firmware::getCurrentVariant()->getId()).arg(currentVersionString).arg(fullVersionString));
-      QAbstractButton *YesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
-      msgBox.addButton(tr("No"), QMessageBox::NoRole);
-      if (!rn.isEmpty()) {
-        rnButton = msgBox.addButton(tr("Release Notes"), QMessageBox::ActionRole);
-      }
-      msgBox.setIcon(QMessageBox::Question);
-      msgBox.resize(0,0);
-      msgBox.exec();
-      if( msgBox.clickedButton() == rnButton ) {
-        ReleaseNotesFirmwareDialog * dialog = new ReleaseNotesFirmwareDialog(this, rn);
-        dialog->exec();
-        int ret2 = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Do you want to download version %1 now ?").arg(fullVersionString),
-              QMessageBox::Yes | QMessageBox::No);
-        if (ret2 == QMessageBox::Yes) {
-          download = true;
-        }
-        else {
-          ignore = true;
-        }
-      }
-      else if (msgBox.clickedButton() == YesButton ) {
-        download = true;
-      }
-      else {
-        ignore = true;
-      }
-    }
-    else {
-      if (checkForUpdatesState == INTERACTIVE_DOWNLOAD) {
-        QMessageBox::information(this, CPN_STR_APP_NAME, tr("No updates available at this time."));
-      }
     }
   }
 
@@ -737,7 +710,7 @@ void MainWindow::newFile()
 
 void MainWindow::openDocURL()
 {
-  QString link = "http://www.open-tx.org/documents.html";
+  QString link = "http://www.edge-tx.org/";
   QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -906,7 +879,7 @@ void MainWindow::sdsync()
 
 void MainWindow::changelog()
 {
-  QString link = "http://www.open-tx.org";
+  QString link = "http://www.edge-tx.org";
   QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -1037,15 +1010,15 @@ void MainWindow::logFile()
 void MainWindow::about()
 {
   QString aboutStr = "<center><img src=\":/images/companion-title.png\"></center><br/>";
-  aboutStr.append(tr("OpenTX Home Page: <a href='%1'>%1</a>").arg("http://www.open-tx.org"));
+  aboutStr.append(tr("EdgeTX Home Page: <a href='%1'>%1</a>").arg("http://www.edge-tx.org"));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("The OpenTX Companion project was originally forked from <a href='%1'>eePe</a>").arg("http://code.google.com/p/eepe"));
+  aboutStr.append(tr("The EdgeTX Companion project was originally forked from <a href='%1'>OpenTX</a>").arg("https://github.com/opentx/opentx"));
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("If you've found this program useful, please support by <a href='%1'>donating</a>").arg(DONATE_STR));
   aboutStr.append("<br/><br/>");
   aboutStr.append(QString("Version %1, %2").arg(VERSION).arg(__DATE__));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright OpenTX Team") + QString("<br/>&copy; 2011-%1<br/>").arg(QString(__DATE__).right(4)));
+  aboutStr.append(tr("Copyright EdgeTX Team") + QString("<br/>&copy; 2011-%1<br/>").arg(QString(__DATE__).right(4)));
   QMessageBox msgBox(this);
   msgBox.setWindowIcon(CompanionIcon("information.png"));
   msgBox.setWindowTitle(tr("About Companion"));
@@ -1126,7 +1099,7 @@ void MainWindow::updateMenus()
 
   updateRecentFileActions();
   updateProfilesActions();
-  setWindowTitle(tr("OpenTX Companion %1 - Radio: %2 - Profile: %3").arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
+  setWindowTitle(tr("EdgeTX Companion %1 - Radio: %2 - Profile: %3").arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
 }
 
 MdiChild * MainWindow::createMdiChild()
@@ -1208,7 +1181,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(logsAct,            tr("View Log File..."),           tr("Open and view log file"));
   trAct(appPrefsAct,        tr("Settings..."),                tr("Edit Settings"));
   trAct(fwPrefsAct,         tr("Download..."),                tr("Download firmware and voice files"));
-  trAct(checkForUpdatesAct, tr("Check for Updates..."),       tr("Check OpenTX and Companion updates"));
+  trAct(checkForUpdatesAct, tr("Check for Updates..."),       tr("Check EdgeTX and Companion updates"));
   trAct(changelogAct,       tr("Release notes..."),           tr("Show release notes"));
   trAct(compareAct,         tr("Compare Models..."),          tr("Compare models"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."), tr("Edit the splash image of your Radio"));
@@ -1216,13 +1189,13 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),    tr("Write firmware to Radio"));
   trAct(sdsyncAct,          tr("Synchronize SD"),             tr("SD card synchronization"));
 
-  trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the OpenTX document page in a web browser"));
+  trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
   trAct(writeEepromAct,     tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
   trAct(readEepromAct,      tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
   trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
-  
+
   trAct(createProfileAct,   tr("Add Radio Profile"),               tr("Create a new Radio Settings Profile"));
   trAct(copyProfileAct,     tr("Copy Current Radio Profile"),      tr("Duplicate current Radio Settings Profile"));
   trAct(deleteProfileAct,   tr("Delete Current Radio Profile..."), tr("Delete the current Radio Settings Profile"));
@@ -1297,7 +1270,7 @@ void MainWindow::createActions()
   aboutAct =           addAct("information.png",    SLOT(about()));
   openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
   changelogAct =       addAct("changelog.png",      SLOT(changelog()));
-  
+
   // these two get assigned menus in createMenus()
   recentFilesAct =     addAct("recentdocument.png");
   profilesMenuAct =    addAct("profiles.png");
@@ -1311,6 +1284,7 @@ void MainWindow::createActions()
 
   actTabbedWindows->setCheckable(true);
   compareAct->setEnabled(false);
+  fwPrefsAct->setEnabled(false);
 }
 
 void MainWindow::createMenus()
@@ -1391,7 +1365,7 @@ void MainWindow::createMenus()
   helpMenu->addSeparator();
   helpMenu->addAction(changelogAct);
   helpMenu->addSeparator();
-  
+
   recentFilesMenu = new QMenu(this);
   recentFilesMenu->setToolTipsVisible(true);
   for ( int i = 0; i < g.historySize(); ++i) {

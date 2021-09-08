@@ -25,6 +25,7 @@
 #include "customfunctiondata.h"
 #include "rawsource.h"
 #include "datahelpers.h"
+#include "customisation_data.h"
 
 #include <QtCore>
 
@@ -94,7 +95,6 @@ constexpr int OWNER_NAME_LEN          {10};
 constexpr int BLUETOOTH_NAME_LEN      {10};
 constexpr int TTS_LANGUAGE_LEN        {2};
 constexpr int HARDWARE_NAME_LEN       {3};
-constexpr int THEME_NAME_LEN          {8};
 constexpr int REGISTRATION_ID_LEN     {8};
 
 class GeneralSettings {
@@ -236,13 +236,12 @@ class GeneralSettings {
     char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
     unsigned int sliderConfig[CPN_MAX_SLIDERS];
 
-    char themeName[THEME_NAME_LEN + 1];
-    typedef uint8_t ThemeOptionData[8 + 1];
-    ThemeOptionData themeOptionValue[5];
+    RadioTheme::ThemeData themeData;
 
     char registrationId[REGISTRATION_ID_LEN + 1];
     int gyroMax;
     int gyroOffset;
+    int uartSampleMode;
 
     int pwrOnSpeed;
     int pwrOffSpeed;

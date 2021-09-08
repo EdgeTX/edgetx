@@ -123,31 +123,28 @@ static QWidget * folderSelectorWidget(QLineEdit * le, QWidget * parent)
 
 void FileSyncDialog::setupUi()
 {
-  const QString srcArw = CPN_STR_SW_INDICATOR_UP % " ";
-  const QString dstArw = CPN_STR_SW_INDICATOR_DN % " ";
+  m_folderNameA = tr("Folder A");
+  m_folderNameB = tr("Folder B");
   int row = 0;
 
   CompanionIcon playIcon("play.png");
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
-  QLabel * lblSrc = new QLabel(tr("Source Folder:"), this);
-  AutoLineEdit * leSrc =  new AutoLineEdit(this, true);
-  leSrc->setField(m_syncOptions.folderA);
-  leSrc->setText(QDir::toNativeSeparators(m_syncOptions.folderA));
-  QWidget * wdgSrc = folderSelectorWidget(leSrc, this);
+  QLabel * lblFolderA = new QLabel(m_folderNameA % ":", this);
+  AutoLineEdit * leFolderA =  new AutoLineEdit(this, true);
+  leFolderA->setField(m_syncOptions.folderA);
+  leFolderA->setText(QDir::toNativeSeparators(m_syncOptions.folderA));
+  QWidget * wdgFolderA = folderSelectorWidget(leFolderA, this);
 
-  QLabel * lblDst = new QLabel(tr("Destination Folder:"), this);
-  AutoLineEdit * leDst =  new AutoLineEdit(this, true);
-  leDst->setField(m_syncOptions.folderB);
-  leDst->setText(QDir::toNativeSeparators(m_syncOptions.folderB));
-  QWidget * wdgDst = folderSelectorWidget(leDst, this);
+  QLabel * lblFolderB = new QLabel(m_folderNameB % ":", this);
+  AutoLineEdit * leFolderB =  new AutoLineEdit(this, true);
+  leFolderB->setField(m_syncOptions.folderB);
+  leFolderB->setText(QDir::toNativeSeparators(m_syncOptions.folderB));
+  QWidget * wdgFolderB = folderSelectorWidget(leFolderB, this);
 
-  AutoComboBox * syncDir = new AutoComboBox(this);
-  syncDir->addItem(tr("%1%2 Both directions, to destination folder first").arg(dstArw, srcArw), SyncProcess::SYNC_A2B_B2A);
-  syncDir->addItem(tr("%1%2 Both directions, to source folder first").arg(srcArw, dstArw), SyncProcess::SYNC_B2A_A2B);
-  syncDir->addItem(tr(" %1  Only from source folder to destination folder").arg(dstArw), SyncProcess::SYNC_A2B);
-  syncDir->addItem(tr(" %1  Only from destination folder to source folder").arg(srcArw), SyncProcess::SYNC_B2A);
-  syncDir->setCurrentIndex(-1);  // we set the default option later
+  ui_syncDir = new AutoComboBox(this);
+  setSyncDirList();
+  ui_syncDir->setField(m_syncOptions.direction);
 
   AutoComboBox * copyMode = new AutoComboBox(this);
   copyMode->setToolTip(tr("How to handle overwriting files which already exist in the destination folder."));
@@ -274,12 +271,12 @@ void FileSyncDialog::setupUi()
   ui_optionsPanel = new QGroupBox(tr("Options"), this);
   QGridLayout * optsLay = new QGridLayout(ui_optionsPanel);
   row = 0;
-  optsLay->addWidget(lblSrc, row, 0);
-  optsLay->addWidget(wdgSrc, row++, 1);
-  optsLay->addWidget(lblDst, row, 0);
-  optsLay->addWidget(wdgDst, row++, 1);
+  optsLay->addWidget(lblFolderA, row, 0);
+  optsLay->addWidget(wdgFolderA, row++, 1);
+  optsLay->addWidget(lblFolderB, row, 0);
+  optsLay->addWidget(wdgFolderB, row++, 1);
   optsLay->addWidget(new QLabel(tr("Sync. Direction:"), this), row, 0);
-  optsLay->addWidget(syncDir, row++, 1);
+  optsLay->addWidget(ui_syncDir, row++, 1);
   optsLay->addWidget(new QLabel(tr("Existing Files:"), this), row, 0);
   optsLay->addWidget(copyMode, row++, 1);
   optsLay->addWidget(new QLabel(tr("Max. File Size:"), this), row, 0);
@@ -299,13 +296,13 @@ void FileSyncDialog::setupUi()
 
   // Connect all signal handlers
 
-  // source path
-  connect(leSrc, &AutoLineEdit::textChanged, this, &FileSyncDialog::validate);
-  // destination path
-  connect(leDst, &AutoLineEdit::textChanged, this, &FileSyncDialog::validate);
+  // folder A path
+  connect(leFolderA, &AutoLineEdit::textChanged, this, &FileSyncDialog::validate);
+  // folder B path
+  connect(leFolderB, &AutoLineEdit::textChanged, this, &FileSyncDialog::validate);
 
   // function to dis/enable the OVERWR_ALWAYS option depending on sync direction
-  connect(syncDir, &AutoComboBox::currentDataChanged, [=](int dir) {
+  connect(ui_syncDir, &AutoComboBox::currentDataChanged, [=](int dir) {
     int idx = copyMode->findData(SyncProcess::OVERWR_ALWAYS);
     int flg = (dir == SyncProcess::SYNC_A2B || dir == SyncProcess::SYNC_B2A) ? 33 : 0;
     if (!flg && idx == copyMode->currentIndex())
@@ -342,7 +339,7 @@ void FileSyncDialog::setupUi()
   });
 
   // we set these after connections are made because we want the signal processors to run
-  syncDir->setField(m_syncOptions.direction);
+  ui_syncDir->setField(m_syncOptions.direction);
   maxSize->setValue(m_syncOptions.maxFileSize / 1024);
 
   // connect Reset action to all fields
@@ -354,14 +351,16 @@ void FileSyncDialog::setupUi()
     connect(this, &FileSyncDialog::optionsWereReset, a, &AutoBitsetCheckBox::updateValue);
   connect(this, &FileSyncDialog::optionsWereReset, [=]() { maxSize->setValue(m_syncOptions.maxFileSize / 1024); });
 
-  // React to name changes for source and destination path labels
+  // React to name changes for folder path labels
   connect(this, &FileSyncDialog::folderNameAChanged, [=](const QString &text) {
-    lblSrc->setText(text % ":");
-    wdgSrc->setProperty("fileDialogTitle", text);
+    lblFolderA->setText(text % ":");
+    wdgFolderA->setProperty("fileDialogTitle", text);
+    setSyncDirList();
   });
   connect(this, &FileSyncDialog::folderNameBChanged, [=](const QString &text) {
-    lblDst->setText(text % ":");
-    wdgDst->setProperty("fileDialogTitle", text);
+    lblFolderB->setText(text % ":");
+    wdgFolderB->setProperty("fileDialogTitle", text);
+    setSyncDirList();
   });
 
   // button actions
@@ -487,11 +486,11 @@ bool FileSyncDialog::validate()
 {
   QString msg;
   if (m_syncOptions.folderA.isEmpty() || !QFileInfo(m_syncOptions.folderA).exists())
-    msg = tr("Source folder not found.");
+    msg = tr("%1 not found.").arg(m_folderNameA);
   else if (m_syncOptions.folderB.isEmpty() || !QFileInfo(m_syncOptions.folderB).exists())
-    msg = tr("Destination folder not found.");
+    msg = tr("%1 not found.").arg(m_folderNameB);
   else if (QFileInfo(m_syncOptions.folderA).canonicalFilePath() == QFileInfo(m_syncOptions.folderB).canonicalFilePath())
-    msg = tr("Source and destination folders are the same.");
+    msg = tr("Folders are the same.");
 
   setStatusText(msg, QtCriticalMsg);
   ui_btnStartStop->setEnabled(msg.isEmpty());
@@ -501,4 +500,17 @@ bool FileSyncDialog::validate()
 void FileSyncDialog::adjustSizeDelayed()
 {
   QTimer::singleShot(0, [=]() { adjustSize(); });
+}
+
+void FileSyncDialog::setSyncDirList()
+{
+  const QString upArw = CPN_STR_SW_INDICATOR_UP % " ";
+  const QString downArw = CPN_STR_SW_INDICATOR_DN % " ";
+
+  ui_syncDir->clear();
+  ui_syncDir->addItem(tr("%1%2 Both directions, to %3 first").arg(downArw, upArw, m_folderNameB), SyncProcess::SYNC_A2B_B2A);
+  ui_syncDir->addItem(tr("%1%2 Both directions, to %3 first").arg(upArw, downArw, m_folderNameA), SyncProcess::SYNC_B2A_A2B);
+  ui_syncDir->addItem(tr(" %1  Only from %2 to %3").arg(downArw, m_folderNameA, m_folderNameB), SyncProcess::SYNC_A2B);
+  ui_syncDir->addItem(tr(" %1  Only from %2 to %3").arg(upArw, m_folderNameB, m_folderNameA), SyncProcess::SYNC_B2A);
+  ui_syncDir->updateValue();
 }

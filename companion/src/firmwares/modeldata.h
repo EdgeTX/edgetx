@@ -34,6 +34,7 @@
 #include "sensordata.h"
 #include "telem_data.h"
 #include "timerdata.h"
+#include "customisation_data.h"
 
 #include <QtCore>
 
@@ -66,34 +67,6 @@ class ScriptData {
     int     inputs[CPN_MAX_SCRIPT_INPUTS];
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ScriptData)); }
 };
-
-/*
- * TODO ...
- */
-#if 0
-class CustomScreenOptionData {
-  public:
-
-};
-
-class CustomScreenZoneData {
-  public:
-    char widgetName[10+1];
-    WidgetOptionData widgetOptions[5];
-};
-
-class CustomScreenData {
-  public:
-    CustomScreenData();
-
-    char layoutName[10+1];
-    CustomScreenZoneData zones[];
-    CustomScreenOptionData options[];
-};
-#else
-typedef char CustomScreenData[610+1];
-typedef char TopbarData[216+1];
-#endif
 
 enum TrainerMode {
   TRAINER_MODE_MASTER_TRAINER_JACK,
@@ -176,7 +149,7 @@ class ModelData {
 
     unsigned int trainerMode;  // TrainerMode
 
-    ModuleData moduleData[CPN_MAX_MODULES+1/*trainer*/];
+    ModuleData moduleData[CPN_MAX_MODULES + 1/*trainer*/];
 
     ScriptData scriptData[CPN_MAX_SCRIPTS];
 
@@ -184,9 +157,9 @@ class ModelData {
 
     unsigned int toplcdTimer;
 
-    CustomScreenData customScreenData[5];
-
-    TopbarData topbarData;
+    RadioLayout::CustomScreens customScreens;
+    TopBarPersistentData topBarData;
+    unsigned int view;
 
     char registrationId[8+1];
 

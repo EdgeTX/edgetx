@@ -104,6 +104,8 @@ const char * OpenTxEepromInterface::getName()
       return "OpenTX for FrSky X10";
     case BOARD_X10_EXPRESS:
       return "OpenTX for FrSky X10 Express";
+    case BOARD_FLYSKY_NV14:
+      return "OpenTX for FlySky NV14";
     default:
       return "OpenTX for an unknown board";
   }
@@ -280,7 +282,7 @@ unsigned long OpenTxEepromInterface::load(RadioData &radioData, const uint8_t * 
 
 uint8_t OpenTxEepromInterface::getLastDataVersion(Board::Type board)
 {
-  return 219;
+  return 220;
 }
 
 void OpenTxEepromInterface::showErrors(const QString & title, const QStringList & errors)
@@ -627,7 +629,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasSDLogs:
       return true;
     case LcdWidth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FLYSKY_NV14(board))
+        return 320;
+      else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
       else if (IS_TARANIS_SMALL(board))
         return 128;
@@ -636,7 +640,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 128;
     case LcdHeight:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FLYSKY_NV14(board))
+        return 480;
+      else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
       else
         return 64;
@@ -726,16 +732,17 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
     case HasAux2SerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board) && !IS_FLYSKY_NV14(board)) ? true : false;
     case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
       return ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) ? true : false;
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board) ? true : false;
     case HasTelemetryBaudrate:
       return IS_HORUS_OR_TARANIS(board) ? true : false;
-
+    case TopBarZones:
+      return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
     default:
       return 0;
   }
@@ -764,14 +771,16 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board);
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
           case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board);
+            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
             return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
+          case PULSES_AFHDS3:
+            return IS_FLYSKY_NV14(board);
           default:
             return false;
         }
@@ -927,6 +936,24 @@ EepromLoadErrors OpenTxEepromInterface::checkVersion(unsigned int version)
       return OLD_VERSION;
 
     case 219:
+      // 60 (Horus / X9) / 40 (others) telemetry sensors instead of 32
+      // ALL: ReceiverData array added
+      // ALL: registrationId added
+      // ALL: failsafeChannels moved from ModuleData to ModelData
+      // ALL: ModuleData / TrainerModuleData modified
+      // PCBX9 : 6 chars for expos / mixes names instead of 8
+      // on X7: 2 additional switches
+      // on X9D / X9D+: 1 additional switch
+      // on xlite : 2 more storage switches
+      // on X10: 2 additional pots => 12 multipos switches
+      return OLD_VERSION;
+
+    case 220:
+      // Refer radio/src/storage/conversions/conversions_219_220.cpp
+      // ALL: TimerData split mode into separate mode and switch and change modes
+      // ALL: TimerData countdownStart invert value
+      // ALL: convert more fields from zchar to normal string
+      // COLORLCD: change CustomScreenData and TopBarPersistentData
       break;
 
     default:
@@ -1112,7 +1139,7 @@ QString OpenTxFirmware::getFirmwareUrl()
 
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
-  return getFirmwareBaseUrl() % QStringLiteral("releasenotes.txt");
+  return QString("%1/downloads").arg(OPENTX_HOME_PAGE_URL);
 }
 
 QString OpenTxFirmware::getStampUrl()
@@ -1368,24 +1395,31 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* FlySky NV14 board */
+  firmware = new OpenTxFirmware("opentx-nv14", QCoreApplication::translate("Firmware", "FlySky NV14"), BOARD_FLYSKY_NV14);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
   /* 9XR-Pro */
   firmware = new OpenTxFirmware("opentx-9xrpro", Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
   addOpenTxArm9xOptions(firmware, false);
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
   /* ar9x board */
   firmware = new OpenTxFirmware("opentx-ar9x", Firmware::tr("9X with AR9X board"), BOARD_AR9X);
-  addOpenTxArm9xOptions(firmware);
+  addOpenTxArm9xOptions(firmware, true);
   //firmware->addOption("rtc", Firmware::tr("Optional RTC added"));
   //firmware->addOption("volume", Firmware::tr("i2c volume control added"));
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
   /* Sky9x board */
   firmware = new OpenTxFirmware("opentx-sky9x", Firmware::tr("9X with Sky9x board"), BOARD_SKY9X);
   addOpenTxArm9xOptions(firmware);
-  registerOpenTxFirmware(firmware);
+  registerOpenTxFirmware(firmware, true);
 
-  Firmware::setDefaultVariant(Firmware::getFirmwareForId("opentx-x9d+"));
+  Firmware::setDefaultVariant(Firmware::getFirmwareForId("opentx-tx16s"));
   Firmware::setCurrentVariant(Firmware::getDefaultVariant());
 }
 

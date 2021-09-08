@@ -26,23 +26,23 @@ void TimerData::convert(RadioDataConversionState & cstate)
 {
   cstate.setComponent(tr("TMR"), 1);
   cstate.setSubComp(tr("Timer %1").arg(cstate.subCompIdx + 1));
-  mode.convert(cstate);
+  swtch.convert(cstate);
 }
 
 void TimerData::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(TimerData));
-  mode = RawSwitch(SWITCH_TYPE_TIMER_MODE, 0);
+  swtch = RawSwitch(SWITCH_TYPE_NONE);
 }
 
 bool TimerData::isEmpty()
 {
-  return (mode == RawSwitch(SWITCH_TYPE_TIMER_MODE, 0) && name[0] == '\0' && minuteBeep == 0 && countdownBeep == COUNTDOWNBEEP_SILENT && val == 0 && persistent == 0 /*&& pvalue == 0*/);
+  return (swtch == RawSwitch(SWITCH_TYPE_NONE, 0) && mode == TIMERMODE_OFF && name[0] == '\0' && minuteBeep == 0 && countdownBeep == COUNTDOWNBEEP_SILENT && val == 0 && persistent == 0 /*&& pvalue == 0*/);
 }
 
 bool TimerData::isModeOff()
 {
-  return mode == RawSwitch(SWITCH_TYPE_TIMER_MODE, 0);
+  return swtch == RawSwitch(SWITCH_TYPE_TIMER_MODE, 0);
 }
 
 QString TimerData::nameToString(int index) const
@@ -78,10 +78,21 @@ QString TimerData::valToString() const
   return valToString(val);
 }
 
+QString TimerData::modeToString() const
+{
+  return modeToString(mode);
+}
+
 void TimerData::countdownBeepChanged()
 {
   if (countdownBeep == COUNTDOWNBEEP_SILENT)
     countdownStart = 0;
+}
+
+void TimerData::modeChanged()
+{
+  if (mode != TIMERMODE_START)
+    swtch = RawSwitch(SWITCH_TYPE_NONE);
 }
 
 //  static
@@ -146,6 +157,27 @@ QString TimerData::valToString(const int value)
 }
 
 //  static
+QString TimerData::modeToString(const int value)
+{
+  switch(value) {
+    case TIMERMODE_OFF:
+      return tr("OFF");
+    case TIMERMODE_ON:
+      return tr("ON");
+    case TIMERMODE_START:
+      return tr("Start");
+    case TIMERMODE_THR:
+      return tr("THs");
+    case TIMERMODE_THR_REL:
+      return tr("TH%");
+    case TIMERMODE_THR_START:
+      return tr("THt");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
 AbstractStaticItemModel * TimerData::countdownBeepItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
@@ -165,7 +197,7 @@ AbstractStaticItemModel * TimerData::countdownStartItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_TIMER_COUNTDOWNSTART);
 
-  for (int i = COUNTDOWNSTART_LAST; i >= COUNTDOWNSTART_FIRST; i--) {
+  for (int i = COUNTDOWNSTART_FIRST; i <= COUNTDOWNSTART_LAST; i++) {
     mdl->appendToItemList(countdownStartToString(i), i);
   }
 
@@ -181,6 +213,20 @@ AbstractStaticItemModel * TimerData::persistentItemModel()
 
   for (int i = 0; i < PERSISTENT_COUNT; i++) {
     mdl->appendToItemList(persistentToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * TimerData::modeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_TIMER_MODE);
+
+  for (int i = 0; i < TIMERMODE_COUNT; i++) {
+    mdl->appendToItemList(modeToString(i), i);
   }
 
   mdl->loadItemList();

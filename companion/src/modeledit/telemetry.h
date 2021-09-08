@@ -30,48 +30,9 @@ class AutoComboBox;
 class TimerEdit;
 
 namespace Ui {
-  class TelemetryCustomScreen;
   class TelemetrySensor;
   class Telemetry;
 }
-
-class TelemetryCustomScreen: public ModelPanel
-{
-    Q_OBJECT
-
-  public:
-    TelemetryCustomScreen(QWidget *parent, ModelData & model, FrSkyScreenData & screen, GeneralSettings & generalSettings, Firmware * firmware,
-                          const bool & parentLock, FilteredItemModelFactory * panelFilteredItemModels);
-    ~TelemetryCustomScreen();
-    void update();
-
-  private slots:
-    void on_screenType_currentIndexChanged(int index);
-    void scriptNameEdited();
-    void customFieldChanged(int index);
-    void barSourceChanged(int index);
-    void barMinChanged(double value);
-    void barMaxChanged(double value);
-    void barTimeChanged();
-    void onItemModelAboutToBeUpdated();
-    void onItemModelUpdateComplete();
-
-  private:
-    void updateBar(int line);
-    Ui::TelemetryCustomScreen * ui;
-    FrSkyScreenData & screen;
-    QComboBox * fieldsCB[4][3];
-    QComboBox * barsCB[4];
-    QDoubleSpinBox * minSB[4];
-    QDoubleSpinBox * maxSB[4];
-    TimerEdit * minTime[4];
-    TimerEdit * maxTime[4];
-    int modelsUpdateCnt;
-    const bool &parentLock;
-
-    inline bool isLocked() { return lock | parentLock; }
-    void connectItemModelEvents(const FilteredItemModel * itemModel);
-};
 
 class TelemetrySensorPanel: public ModelPanel
 {
@@ -165,7 +126,6 @@ class TelemetryPanel : public ModelPanel
 
   private:
     Ui::Telemetry *ui;
-    TelemetryCustomScreen *telemetryCustomScreens[4];
     TelemetrySensorPanel *sensorPanels[CPN_MAX_SENSORS];
     int sensorCapability;
     CompoundItemModelFactory *sharedItemModels;

@@ -121,12 +121,12 @@ GeneralSettings::GeneralSettings()
 
   if (IS_JUMPER_T16(board))
     strcpy(bluetoothName, "t16");
-  else if (IS_FAMILY_HORUS_OR_T16(board)) {
+  else if (IS_FLYSKY_NV14(board))
+    strcpy(bluetoothName, "nv14");
+  else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
-  }
-  else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board)) {
+  else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
     strcpy(bluetoothName, "taranis");
-  }
 
   for (uint8_t i = 0; i < 4; i++) {
     trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;
@@ -233,11 +233,8 @@ GeneralSettings::GeneralSettings()
     }
   }
 
-  strcpy(themeName, "default");
-  ThemeOptionData option1 = { 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0 };
-  memcpy(&themeOptionValue[0], option1, sizeof(ThemeOptionData));
-  ThemeOptionData option2 = { 0x03, 0xe1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0 };
-  memcpy(&themeOptionValue[1], option2, sizeof(ThemeOptionData));
+  const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
+  RadioTheme::init(themeName, themeData);
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -251,10 +248,14 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     return;
 
   // TODO: move to Boards, like with switches
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
     potConfig[1] = Board::POT_MULTIPOS_SWITCH;
     potConfig[2] = Board::POT_WITH_DETENT;
+  }
+  else if (IS_FLYSKY_NV14(board)) {
+    potConfig[0] = Board::POT_WITHOUT_DETENT;
+    potConfig[1] = Board::POT_WITHOUT_DETENT;
   }
   else if (IS_TARANIS_XLITE(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;

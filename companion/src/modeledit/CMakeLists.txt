@@ -25,6 +25,8 @@ set(modeledit_SRCS
   mixerslistwidget.cpp
   # node.cpp  ## node and edge are built in common lib because also used by simulator
   # edge.cpp  ## commenting them here avoids a "duplicate target" warning eg. from ninja
+  colorcustomscreens.cpp
+  telemetry_customscreens.cpp
 )
 
 set(modeledit_HDRS
@@ -36,6 +38,8 @@ set(modeledit_HDRS
   customfunctions.h
   mixerslistwidget.h
   # node.h
+  colorcustomscreens.h
+  telemetry_customscreens.h
 )
 
 set(modeledit_UIS

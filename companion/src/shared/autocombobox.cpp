@@ -29,7 +29,7 @@ AutoComboBox::AutoComboBox(QWidget * parent):
   m_rawSource(nullptr),
   m_rawSwitch(nullptr)
 {
-  connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
+  connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AutoComboBox::onCurrentIndexChanged);
 }
 
 AutoComboBox::~AutoComboBox()

@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>861</width>
-    <height>737</height>
+    <height>742</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0">
    <property name="spacing">
     <number>4</number>
    </property>
@@ -1000,19 +1000,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="customScreens">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="currentIndex">
-      <number>-1</number>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -1059,7 +1046,6 @@
   <tabstop>frskyVoltCB</tabstop>
   <tabstop>frskyCurrentCB</tabstop>
   <tabstop>bladesCount</tabstop>
-  <tabstop>customScreens</tabstop>
  </tabstops>
  <resources/>
  <connections/>

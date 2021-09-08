@@ -176,7 +176,6 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchPositions));
 
   // Ascending switch direction (including zero)
-  addItems(SWITCH_TYPE_TIMER_MODE, 5);
   addItems(SWITCH_TYPE_NONE, 1);
   addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchPositions));
   addItems(SWITCH_TYPE_MULTIPOS_POT,   board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions));
@@ -212,14 +211,6 @@ void RawSwitchItemModel::addItems(const RawSwitchType & type, int count)
     case SWITCH_TYPE_VIRTUAL:
     case SWITCH_TYPE_SENSOR:
       context &= ~RawSwitch::GlobalFunctionsContext;
-      break;
-
-    case SWITCH_TYPE_TIMER_MODE:
-      context = RawSwitch::TimersContext;
-      break;
-
-    case SWITCH_TYPE_NONE:
-      context &= ~RawSwitch::TimersContext;
       break;
 
     case SWITCH_TYPE_ON:

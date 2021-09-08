@@ -61,6 +61,7 @@ namespace Board {
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_T8,
     BOARD_JUMPER_TLITE,
+    BOARD_FLYSKY_NV14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -140,7 +141,8 @@ namespace Board {
     FactoryInstalledSwitches,
     NumTrims,
     NumTrimSwitches,
-    HasRTC
+    HasRTC,
+    HasColorLcd
   };
 
   struct SwitchInfo
@@ -269,6 +271,11 @@ inline bool IS_FAMILY_T12(Board::Type board)
   return board == Board::BOARD_JUMPER_T12 || board == Board::BOARD_RADIOMASTER_TX12 || board == Board::BOARD_RADIOMASTER_T8 || board == Board::BOARD_JUMPER_TLITE;
 }
 
+inline bool IS_FLYSKY_NV14(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NV14);
+}
+
 inline bool IS_TARANIS_XLITE(Board::Type board)
 {
   return board == Board::BOARD_TARANIS_XLITE || board == Board::BOARD_TARANIS_XLITES;
@@ -346,7 +353,7 @@ inline bool IS_FAMILY_HORUS(Board::Type board)
 
 inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
-  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board);
+  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -356,7 +363,7 @@ inline bool IS_HORUS_OR_TARANIS(Board::Type board)
 
 inline bool IS_STM32(Board::Type board)
 {
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board);
+  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board);
 }
 
 inline bool IS_ARM(Board::Type board)
@@ -383,4 +390,9 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
   return (IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board) || board == Board::BOARD_TARANIS_X9DP_2019 || board == Board::BOARD_X10_EXPRESS || IS_TARANIS_X7_ACCESS(board) ||
           (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess")));
+}
+
+inline bool HAS_EEPROM_YAML(Board::Type board)
+{
+  return IS_FAMILY_HORUS_OR_T16(board);
 }
