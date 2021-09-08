@@ -157,9 +157,6 @@ set(RADIO_DEPENDENCIES
   truetype_fonts
   )
 
-set(HARDWARE_TOUCH ON)
-set(SOFTWARE_KEYBOARD ON)
-
 set(FIRMWARE_DEPENDENCIES datacopy)
 
 add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
@@ -250,6 +247,7 @@ set(TARGET_SRC
 if(HARDWARE_TOUCH)
   set(TOUCH_DRIVER tp_gt911.cpp i2c_driver.cpp)
   add_definitions(-DHARDWARE_TOUCH)
+  set(SOFTWARE_KEYBOARD ON)
 endif()
 
 if(USB_CHARGER)
