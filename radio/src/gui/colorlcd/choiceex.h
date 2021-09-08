@@ -32,16 +32,22 @@ class ChoiceEx : public Choice
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
+    bool onTouchStart(coord_t x, coord_t y) override;
+    void checkEvents(void) override;
+    bool isLongPress();
 #endif
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
-      return "CurvesListChoice";
+      return "ChoceEx";
     }
 #endif
 
 protected:
     std::function<void(event_t)> longPressHandler = nullptr;
+#if defined(HARDWARE_TOUCH)
+    tmr10ms_t duration10ms;
+#endif
 };
 
