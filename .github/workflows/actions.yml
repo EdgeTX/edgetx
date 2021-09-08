@@ -8,6 +8,7 @@ on:
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'
+    - 'companion/**'
   pull_request:
     branches:
     - '2.4'
@@ -15,6 +16,7 @@ on:
     paths-ignore:
     - '**.md'
     - '.github/ISSUE_TEMPLATE/**'
+    - 'companion/**'
   create:
     tags:
       - v*
