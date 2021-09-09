@@ -782,8 +782,16 @@ Please notice that changing theme colors affects not only other Lua widgets, but
 static int luaLcdSetColor(lua_State *L)
 {
   unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
-  uint16_t color = COLOR_VAL(flagsRGB(luaL_checkunsigned(L, 2)));
-
+  unsigned int color_arg = luaL_checkunsigned(L, 2);
+  uint16_t color = COLOR_VAL(flagsRGB(color_arg));
+  // make setColor compatible with OpenTX
+  // we check if color_arg is a 16bit value (RGB656 format)
+  // and if so we do not try to convert to RGB888 space
+  // and assume is a legit color index
+  if (color_arg >> 16u == 0) {
+    color = color_arg;
+  }
+  
   if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
     lcdColorTable[index] = color;
     if (index != CUSTOM_COLOR_INDEX)
