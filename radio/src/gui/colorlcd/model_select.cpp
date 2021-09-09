@@ -264,7 +264,20 @@ class ModelCategoryPageBody : public FormWindow
               POPUP_WARNING("Invalid File");
             }
           });
-          // menu->addLine(STR_MOVE_MODEL);
+          if(modelslist.getCategories().size() > 1) {
+            menu->addLine(STR_MOVE_MODEL, [=]() {
+              auto moveToMenu = new Menu(parent);
+              moveToMenu->setTitle("Move To");
+                for (auto newcategory: modelslist.getCategories()) {
+                  if(category != newcategory) {
+                    moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
+                      modelslist.moveModel(model, category, newcategory);
+                      update(index < (int)category->size() - 1 ? index : index - 1);
+                    });
+                  }
+                }
+            });
+          }
           if (model != modelslist.getCurrentModel()) {
             menu->addLine(STR_DELETE_MODEL, [=]() {
               new ConfirmDialog(
