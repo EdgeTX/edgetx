@@ -520,60 +520,83 @@ class ReceiverButton: public TextButton
     uint8_t receiverIdx;
 };
 
+#if defined(BLUETOOTH)
+static Menu* _btDiscoverMenu = nullptr;
+
+void btDiscoverMenuItemChosen()
+{
+  if (_btDiscoverMenu == nullptr) return;
+
+  if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_SENT ||
+        bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
+
+  int index = _btDiscoverMenu->selection();
+  if(index >= 0 && index < reusableBuffer.moduleSetup.bt.devicesCount) {
+    strncpy(bluetooth.distantAddr, reusableBuffer.moduleSetup.bt.devices[index], LEN_BLUETOOTH_ADDR);
+    bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
+    SET_DIRTY();
+  }
+    }
+  _btDiscoverMenu->deleteLater();
+}
+
+void openBTDiscoverMenu()
+{
+  if (_btDiscoverMenu)  return;
+
+  _btDiscoverMenu = new Menu(MainWindow::instance());
+
+  _btDiscoverMenu->setCloseHandler([]() {
+      btDiscoverMenuItemChosen();
+      _btDiscoverMenu = nullptr;
+    });
+
+  _btDiscoverMenu->setCloseWhenClickOutside();
+  _btDiscoverMenu->setTitle(STR_BT_SELECT_DEVICE);
+}
+
+void btDiscoverMenuAddItem(const char *itm)
+{
+  if (_btDiscoverMenu == nullptr) return;
+  _btDiscoverMenu->addLine(itm,std::bind(btDiscoverMenuItemChosen));
+}
+
+void btDisconverMenuSetTitle(const char *str)
+{
+  if (_btDiscoverMenu == nullptr) return;
+  _btDiscoverMenu->setTitle(str);
+}
+
+#endif
 
 class TrainerModuleWindow  : public FormGroup {
   public:
     TrainerModuleWindow(FormWindow * parent, const rect_t & rect) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
     {
-      update();     
+      update();
     }
-#if defined(BLUETOOTH)
-    std::function<void()> btDiscSelect = std::bind(&TrainerModuleWindow::BtAddChosen, this);
-
-    void BtAddChosen() {
-        if(btDiscoverMenu) {
-            if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_REQUESTED||
-               bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
-                int index = btDiscoverMenu->selection();
-
-                strncpy(bluetooth.distantAddr, reusableBuffer.moduleSetup.bt.devices[index], LEN_BLUETOOTH_ADDR);
-                bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
-                SET_DIRTY();
-                update();
-            }
-        }
-    }
-#endif
-
 
     void checkEvents() override
     {
       FormGroup::checkEvents();
 #if defined(BLUETOOTH)
-      if(btDiscoverMenu == nullptr)
-          return;
       if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_START ||
-         bluetooth.state == BLUETOOTH_STATE_DISCOVER_REQUESTED ||
-         bluetooth.state == BLUETOOTH_STATE_DISCOVER_SENT ||
          bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
         int cnt = min<uint8_t>(reusableBuffer.moduleSetup.bt.devicesCount, MAX_BLUETOOTH_DISTANT_ADDR);
         if (devicecount < cnt) {
           for(int i=0; i < cnt-devicecount; i++ ) {
-                  int index = devicecount + i;
-                  btDiscoverMenu->addLine(reusableBuffer.moduleSetup.bt.devices[index], btDiscSelect );
+            int index = devicecount + i;
+            btDiscoverMenuAddItem(reusableBuffer.moduleSetup.bt.devices[index]);
           }
-          devicecount = cnt;
-          if(bluetooth.state == BLUETOOTH_STATE_DISCOVER_END && devicecount == 0) {
-              btDiscoverMenu->detach();
-              btDiscoverMenu->deleteLater();
-              this->setFocus();
-          }
+          devicecount = cnt;          
         }
-      } else if(bluetooth.state != lastbluetoothstate) {
+      }
+      if(bluetooth.state != lastbluetoothstate) {
+        lastbluetoothstate = bluetooth.state;
         update();
       }
-      lastbluetoothstate = bluetooth.state;
+
 #endif
     }
 
@@ -584,10 +607,14 @@ class TrainerModuleWindow  : public FormGroup {
 
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       trainerChoice = new Choice(this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(), GET_DEFAULT(g_model.trainerData.mode), [=](int32_t newValue) {
-          g_model.trainerData.mode = newValue;
-          SET_DIRTY();
-          update();
-          trainerChoice->setFocus(SET_FOCUS_DEFAULT);
+#if defined (BLUETOOTH)
+        memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
+        bluetooth.state = BLUETOOTH_STATE_OFF;
+#endif
+        g_model.trainerData.mode = newValue;
+        SET_DIRTY();
+        update();
+        trainerChoice->setFocus(SET_FOCUS_DEFAULT);
       });
       trainerChoice->setAvailableHandler(isTrainerModeAvailable);
       grid.nextLine();
@@ -597,9 +624,9 @@ class TrainerModuleWindow  : public FormGroup {
         if(g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
             btDistAddress = new StaticText(this, grid.getFieldSlot(true), "---" , 0, COLOR_THEME_PRIMARY1);
             if(bluetooth.state == BLUETOOTH_STATE_CONNECTED)
-                new StaticText(this, grid.getLabelSlot(true), STR_CONNECTED);
+                new StaticText(this, grid.getLabelSlot(true), STR_CONNECTED, 0, COLOR_THEME_PRIMARY1);
             else
-                new StaticText(this, grid.getLabelSlot(true), STR_NOT_CONNECTED);
+                new StaticText(this, grid.getLabelSlot(true), STR_NOT_CONNECTED, 0, COLOR_THEME_PRIMARY1);
 
             grid.nextLine();
 
@@ -618,25 +645,16 @@ class TrainerModuleWindow  : public FormGroup {
                 if(bluetooth.distantAddr[0]) {
                     bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
                     memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
-
                 } else if(bluetooth.state < BLUETOOTH_STATE_IDLE) {
                     bluetooth.state = BLUETOOTH_STATE_OFF;                    
                 } else {
                     reusableBuffer.moduleSetup.bt.devicesCount = 0;
                     devicecount = 0;
                     bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
-
-                    //if(btDiscoverMenu == nullptr || btDiscoverMenu->deleted())
-                    btDiscoverMenu = new Menu(this);
-                    btDiscoverMenu->setTitle(STR_BT_SELECT_DEVICE);
-                    btDiscoverMenu->setCloseWhenClickOutside();
-                    btDiscoverMenu->setCloseHandler([=]() {
-                        btDiscoverMenu->checkEvents();                                                
-                        btDiscoverMenu->deleteLater();
-                    });
-
+                    openBTDiscoverMenu();
                 }
                 btMasterButton->check(false);
+                update();
                 return 0;
             });
 
@@ -645,11 +663,11 @@ class TrainerModuleWindow  : public FormGroup {
 
         } else if(g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
             if(bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-                new StaticText(this, grid.getLabelSlot(true), STR_CONNECTED);
-                new StaticText(this, grid.getFieldSlot(), bluetooth.distantAddr);
+              new StaticText(this, grid.getLabelSlot(true), STR_CONNECTED, 0, COLOR_THEME_PRIMARY1);
+              new StaticText(this, grid.getFieldSlot(), bluetooth.distantAddr, 0, COLOR_THEME_PRIMARY1);
             }
             else
-                new StaticText(this, grid.getLabelSlot(true), STR_NOT_CONNECTED);
+              new StaticText(this, grid.getLabelSlot(true), STR_NOT_CONNECTED, 0, COLOR_THEME_PRIMARY1);
 
             grid.nextLine();
 
@@ -737,10 +755,7 @@ class TrainerModuleWindow  : public FormGroup {
     StaticText * btChannelEnd = nullptr;
     StaticText * btDistAddress = nullptr;
     TextButton * btMasterButton = nullptr;
-    Menu *btDiscoverMenu = nullptr;
-#endif
 private:
-#if defined(BLUETOOTH)
     int devicecount = 0;
     uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
 #endif
