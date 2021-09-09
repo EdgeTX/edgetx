@@ -817,27 +817,37 @@ static int luaLcdGetColor(lua_State *L)
 }
 
 /*luadoc
-@function lcd.RGB(r, g, b)
+@function lcd.RGB(r, g, b | rgb)
 
 Returns a drawing flag with RGB color code
 
-@param r (integer) a number between 0 and 255 that expresses te amount of red in the color
+@param r (integer) a number between 0 and 255 that expresses the amount of red in the color
 
-@param g (integer) a number between 0 and 255 that expresses te amount of green in the color
+@param g (integer) a number between 0 and 255 that expresses the amount of green in the color
 
-@param b (integer) a number between 0 and 255 that expresses te amount of blue in the color
+@param b (integer) a number between 0 and 255 that expresses the amount of blue in the color
+
+@param rgb (integer) a number between 0 and 0xFFFFFF that expresses the RGB value (0xFF000=RED, 0x00FF00=GREEN, 0x0000FF=BLUE)
 
 @retval flag with RGB565 color
 
-@notice Only available on radios with color display
+@notice Only available on radios with color display. Use *either* lcd.RGB(r,g,b) *or* lcd.RGB(rgb)
 
 @status current Introduced in 2.2.0
 */
 static int luaRGB(lua_State *L)
 {
-  int r = luaL_checkinteger(L, 1);
-  int g = luaL_checkinteger(L, 2);
-  int b = luaL_checkinteger(L, 3);
+  int r, g, b;
+  if (lua_gettop(L) == 1) {
+    int color = luaL_checkinteger(L, 1);
+    r = (color >> 16) & 0xFF;
+    g = (color >> 8) & 0xFF;
+    b = color & 0xFF;
+  } else {
+    r = luaL_checkinteger(L, 1);
+    g = luaL_checkinteger(L, 2);
+    b = luaL_checkinteger(L, 3);
+  }
   lua_pushinteger(L, COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG);
   return 1;
 }
