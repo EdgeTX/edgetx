@@ -61,7 +61,7 @@ uint8_t switchToMix(uint8_t source);
   
 SourceChoice::SourceChoice(FormGroup *parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, 
                 std::function<void(int16_t)> setValue, WindowFlags windowFlags, LcdFlags textFlags) :
-      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue, get_tmr10ms)
+      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
 {
     setBeforeDisplayMenuHandler([=](Menu *menu) {
       menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));

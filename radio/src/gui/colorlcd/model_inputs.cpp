@@ -176,7 +176,7 @@ class InputEditWindow : public Page
 
       case CURVE_REF_CUSTOM: {
         auto choice = new ChoiceEx(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
-                                 GET_SET_DEFAULT(line->curve.value), get_tmr10ms);
+                                 GET_SET_DEFAULT(line->curve.value));
         choice->setTextHandler([](int value) { return getCurveString(value); });
         choice->setLongPressHandler([this](event_t event) {
           ExpoData *line = expoAddress(index);

@@ -42,7 +42,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
 SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin, int vmax,
                std::function<int16_t()> getValue,
                std::function<void(int16_t)> setValue) :
-      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue, get_tmr10ms)
+      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
   {
     setBeforeDisplayMenuHandler([=](Menu *menu) {
       menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
