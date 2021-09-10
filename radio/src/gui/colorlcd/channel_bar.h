@@ -145,13 +145,33 @@ class OutputChannelBar : public ChannelBar
       dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
 
       // Draw output limits bars
+      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
       LimitData* ld = limitAddress(channel);
+      int32_t ldMax;
+      int32_t ldMin;
+
+      if (GV_IS_GV_VALUE(ld->min - 1000, -limit, 0)) {
+        ldMin =
+            GET_GVAR_PREC1(ld->min - 1000, -limit, 0, mixerCurrentFlightMode) +
+            1000;
+      } else {
+        ldMin = ld->min;
+      }
+
+      if (GV_IS_GV_VALUE(ld->max + 1000, 0, limit)) {
+        ldMax =
+            GET_GVAR_PREC1(ld->max + 1000, 0, limit, mixerCurrentFlightMode) -
+            1000;
+      } else {
+        ldMax = ld->max;
+      }
+
       if (ld && ld->revert) {
-        drawOutputBarLimits(dc, posOnBar(-100 - ld->max / 10),
-                            posOnBar(100 - ld->min / 10));
+        drawOutputBarLimits(dc, posOnBar(-100 - ldMax / 10),
+                            posOnBar(100 - ldMin / 10));
       } else if (ld) {
-        drawOutputBarLimits(dc, posOnBar(-100 + ld->min / 10),
-                            posOnBar(100 + ld->max / 10));
+        drawOutputBarLimits(dc, posOnBar(-100 + ldMin / 10),
+                            posOnBar(100 + ldMax / 10));
       }
     }
 
