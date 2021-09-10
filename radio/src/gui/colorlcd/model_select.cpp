@@ -264,10 +264,13 @@ class ModelCategoryPageBody : public FormWindow
               POPUP_WARNING("Invalid File");
             }
           });
-          if(modelslist.getCategories().size() > 1) {
-            menu->addLine(STR_MOVE_MODEL, [=]() {
+          if (model != modelslist.getCurrentModel()) {
+            // Move
+            if(modelslist.getCategories().size() > 1) {
+              menu->addLine(STR_MOVE_MODEL, [=]() {
               auto moveToMenu = new Menu(parent);
               moveToMenu->setTitle("Move To");
+              moveToMenu->setTitle(STR_MOVE_MODEL);              
                 for (auto newcategory: modelslist.getCategories()) {
                   if(category != newcategory) {
                     moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
@@ -277,8 +280,8 @@ class ModelCategoryPageBody : public FormWindow
                   }
                 }
             });
-          }
-          if (model != modelslist.getCurrentModel()) {
+              });
+            }
             menu->addLine(STR_DELETE_MODEL, [=]() {
               new ConfirmDialog(
                   parent, STR_DELETE_MODEL,
