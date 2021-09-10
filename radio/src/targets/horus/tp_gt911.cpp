@@ -409,6 +409,10 @@ volatile static bool touchEventOccured = false;
 struct TouchData touchData;
 uint16_t touchGT911fwver = 0;
 uint32_t touchGT911hiccups = 0;
+tmr10ms_t downTime = 0;
+tmr10ms_t tapTime = 0;
+short tapCount = 0;
+#define TAP_TIME 25
 
 I2C_HandleTypeDef hi2c1;
 
@@ -742,6 +746,8 @@ void touchPanelRead()
   TRACE("touch state = 0x%x", state);
   if (state & 0x80u) {
     uint8_t pointsCount = (state & 0x0Fu);
+    tmr10ms_t now = get_tmr10ms();
+    touchState.tapCount = 0;
 
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
@@ -758,6 +764,7 @@ void touchPanelRead()
         touchState.event = TE_DOWN;
         touchState.startX = touchState.x = touchData.points[0].x;
         touchState.startY = touchState.y = touchData.points[0].y;
+        downTime = now;
       } else {
         touchState.deltaX = touchData.points[0].x - touchState.x;
         touchState.deltaY = touchData.points[0].y - touchState.y;
@@ -774,6 +781,14 @@ void touchPanelRead()
         touchState.event = TE_SLIDE_END;
       } else if (touchState.event == TE_DOWN) {
         touchState.event = TE_UP;
+        if (now - downTime <= TAP_TIME) {
+          if (now - tapTime > TAP_TIME)
+            tapCount = 1;
+          else
+            tapCount++;
+          touchState.tapCount = tapCount;
+          tapTime = now;
+        }
       } else if (touchState.event != TE_SLIDE_END) {
         touchState.event = TE_NONE;
       }

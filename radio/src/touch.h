@@ -41,6 +41,7 @@ struct TouchState
   short deltaY;
   short lastDeltaX;
   short lastDeltaY;
+  short tapCount;
 };
 
 constexpr uint8_t SLIDE_RANGE = 6;
