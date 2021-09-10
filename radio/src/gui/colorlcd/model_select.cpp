@@ -269,17 +269,16 @@ class ModelCategoryPageBody : public FormWindow
             if(modelslist.getCategories().size() > 1) {
               menu->addLine(STR_MOVE_MODEL, [=]() {
               auto moveToMenu = new Menu(parent);
-              moveToMenu->setTitle("Move To");
               moveToMenu->setTitle(STR_MOVE_MODEL);              
                 for (auto newcategory: modelslist.getCategories()) {
                   if(category != newcategory) {
                     moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
                       modelslist.moveModel(model, category, newcategory);
                       update(index < (int)category->size() - 1 ? index : index - 1);
+                      modelslist.save();
                     });
                   }
                 }
-            });
               });
             }
             menu->addLine(STR_DELETE_MODEL, [=]() {
@@ -386,151 +385,158 @@ class ModelCategoryPage : public PageTab
   }
 };
 
-class ModelFoldersPageBody : public FormGroup
+//-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+
+class CategoryGroup: public FormGroup
 {
- public:
-  ModelFoldersPageBody(FormWindow *parent, const rect_t &rect) :
-      FormGroup(parent, rect, FORM_FORWARD_FOCUS)
-  {
-    update();
-  }
+  public:
+    CategoryGroup(Window * parent, const rect_t & rect, ModelsCategory *category) :
+      FormGroup(parent, rect),
+      category(category)
+    {
+    }
 
-  void update()
-  {
-    FormGridLayout grid;   
-    
-    int i=1;
-    for (auto category: modelslist.getCategories()) {
-      char buf[20];
-      snprintf(buf,sizeof(buf),"Category %d", i++);
-      new Subtitle(this, grid.getLineSlot(), buf);
-      grid.nextLine();
+    void paint(BitmapBuffer * dc) override
+    {
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_PRIMARY2);
+      FormGroup::paint(dc);
+    }
 
-      new StaticText(this, grid.getLabelSlot(true), "Name");            
-      char newcatname[sizeof(category->name)];
-      strcpy(newcatname, category->name);
-      auto catname = new TextEdit(this, grid.getFieldSlot(), newcatname, sizeof(newcatname));
-      catname->setChangeHandler([=]() {
-          /// ??? Delete Category and Move All I Guess?
-      });
+  protected:
+    ModelsCategory *category;
+};
 
-      grid.nextLine();
+class CategoryEditPage : public PageTab
+{
+  public:
+    explicit CategoryEditPage(ModelSelectMenu *modelselectmenu, bool scrolltobot=false) : 
 
-      new StaticText(this, grid.getLabelSlot(true), "# Of Models");
-      char cnt[8];
-      snprintf(cnt, sizeof(cnt), "%d", category->size());
-      new StaticText(this, grid.getFieldSlot(2), cnt);     
-      
-      if(category->empty()) {
-        new TextButton(this, grid.getFieldSlot(2,1),"Delete", [=]() -> uint8_t {          
-          new ConfirmDialog(parent, STR_DELETE_CATEGORY,
-            std::string(category->name, sizeof(category->name)).c_str(),
-            [=] {
-              modelslist.removeCategory(category);
-              getParent()->getParent()->getParent()->invalidate();
-            });
-          return 0;
-        });
-        } else {
-          new StaticText(this, grid.getFieldSlot(2,1),"Not Empty");
-        }
+      PageTab("Model Categories", ICON_MODEL_SETUP),
+      modelselectmenu(modelselectmenu), 
+      scrolltobot(scrolltobot)
+    {     
+    }
 
-      grid.nextLine();
+  protected:
+    void update()
+    {
+      modelselectmenu->build(true);      
+    }
 
-      new StaticText(this, grid.getLabelSlot(true), "Icon");    
-      char filename[20];
-      new FileChoice(this, grid.getFieldSlot(), THEMES_PATH, PNG_EXT, sizeof(filename), [=]() {
-        return std::string();
-      }, [=](std::string newValue) {
+    void build(FormWindow *window) override
+    {
+      coord_t y = 2;
 
-      });
-      grid.nextLine();
-      }
-      
-    new TextButton(this, grid.getSlot(2,1),"Add Category", [=]() -> uint8_t {
-      return 0;
-    });
-
-    getParent()->moveWindowsTop(top() + 1, adjustHeight());
-
-  }
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override
-  {
-    /*if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      Menu *menu = new Menu(this);
-      menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
-      // TODO: create category?
-    } else {
-      FormWindow::onEvent(event);
-    }*/
-  }
+      for (auto category: modelslist.getCategories()) {
+        auto catgrp = new CategoryGroup(window,{ 2, y, LCD_W - 10, 0 }, category);
+        FormGridLayout grid;
+        grid.setMarginRight(15);
+#if LCD_W > LCD_H
+        grid.setLabelWidth(140);
+#else
+        grid.setLabelWidth(110);
 #endif
+        grid.spacer();
 
-  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
-                Window *from = nullptr) override
-  {
-    /*if (category->empty()) {
-      // use Window::setFocus() to avoid forwarding focus to nowhere
-      // this crashes currently in libopenui
-      Window::setFocus(flag, from);
-    } else {
-      FormWindow::setFocus(flag, from);
-    }*/
-  }
+        // NAME
+        new StaticText(catgrp, grid.getLabelSlot(true), "Name");            
+        auto catname = new TextEdit(catgrp, grid.getFieldSlot(), category->name, sizeof(category->name));
+        catname->setChangeHandler([=]() {
+          modelslist.save();
+          update();          
+        });
+        grid.nextLine();
 
- protected:
-  ConfirmDialog *confirmdialog = nullptr;
-  
-  /*std::function<void(void)> getCreateModelAction()
-  {
-    return [=]() {
-      storageCheck(true);
-      modelslist.setCurrentModel(modelslist.addModel(category, createModel()));
-      update(category->size() - 1);
-    };*/
-  
+        // Details
+        new StaticText(catgrp, grid.getLabelSlot(true), "Contains");
+        char cnt[19];
+        snprintf(cnt, sizeof(cnt), "%d Models", category->size());
+        new StaticText(catgrp, grid.getFieldSlot(2), cnt);     
+        
+        if(category->empty()) {
+          new TextButton(catgrp, grid.getFieldSlot(2,1),"Delete", [=]() -> uint8_t {
+            new ConfirmDialog(catgrp, STR_DELETE_CATEGORY,
+              std::string(category->name, sizeof(category->name)).c_str(),
+              [=] {
+                modelslist.removeCategory(category);    
+                modelslist.save();
+                update();
+              });
+            return 0;
+          });
+          } else {
+          new TextButton(catgrp, grid.getFieldSlot(2,1),"Delete", [=]() -> uint8_t {
+            new MessageDialog(catgrp, "Cannot Delete" , "Category not Empty");
+            return 0;
+          });
+
+          }
+
+        grid.nextLine();
+
+        // Icon Chooser
+        new StaticText(catgrp, grid.getLabelSlot(true), "Icon");    
+        char filename[20];
+        new FileChoice(catgrp, grid.getFieldSlot(2,1), THEMES_PATH, PNG_EXT, sizeof(filename), [=]() {
+          return std::string();
+        }, [=](std::string newValue) {          
+          update();
+        });
+        grid.nextLine();
+        // --- END ICON
+
+        grid.spacer();
+        coord_t height = grid.getWindowHeight();
+        catgrp->setHeight(height);
+        y += height + 2;
+      }
+            
+      new TextButton(window, { 60, y + 5, LCD_W - 120, PAGE_LINE_HEIGHT } ,"Add Category", [=]() -> uint8_t {
+        modelslist.createCategory("New", true);
+        update();
+        return 0;
+      });
+      window->setInnerHeight(y + 40); 
+
+      if(scrolltobot)
+        window->setScrollPositionY(y+40);
+    }  
+  private:
+    ModelSelectMenu *modelselectmenu;
+    bool scrolltobot;
 };
-
-class ModelFoldersPage : public PageTab
-{
- public:
-  explicit ModelFoldersPage() :
-      PageTab("Model Categories", ICON_MODEL_SETUP)
-  {
-
-  }
-
- protected:
-
-  void build(FormWindow *window) override
-  {
-    new ModelFoldersPageBody(   window, {0, 0, LCD_W, window->height()});    
-  }
-};
-
 
 ModelSelectMenu::ModelSelectMenu():
   TabsGroup(ICON_MODEL_SELECT)
-{
+{  
+  build();
+}
+
+void ModelSelectMenu::build(bool scrolltobottom) 
+{  
+  modelslist.clear();
   modelslist.load();
+
+  removeAllTabs();
 
   TRACE("TabsGroup: %p", this);  
   
-  addTab(new ModelFoldersPage());
+  addTab(new CategoryEditPage(this, scrolltobottom));
 
   for (auto category: modelslist.getCategories()) {
     addTab(new ModelCategoryPage(category));
   }
- 
-  int idx = modelslist.getCurrentCategoryIdx();
-  if (idx >= 0) {
-    setCurrentTab(idx);
+
+  if(scrolltobottom) {
+    setCurrentTab(0);
+  } else {
+    int idx = modelslist.getCurrentCategoryIdx();
+    if (idx >= 0) {
+      setCurrentTab(idx+1);
+    }
   }
+  
 }
-
-
-
-
-
