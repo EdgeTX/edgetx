@@ -103,6 +103,10 @@ bool SetupTopBarWidgetsPage::onTouchSlide(coord_t x, coord_t y,
 
 bool SetupTopBarWidgetsPage::onTouchEnd(coord_t x, coord_t y)
 {
+#if defined(SOFTWARE_KEYBOARD)
+  Keyboard::hide();
+#endif
+
   if (FormWindow::onTouchEnd(x, y))
     return true;
 
