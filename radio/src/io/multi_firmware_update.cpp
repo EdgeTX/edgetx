@@ -32,6 +32,10 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
+#if defined(MULTI_PROTOLIST)
+  #include "io/multi_protolist.h"
+#endif
+
 #define UPDATE_MULTI_EXT_BIN ".bin"
 
 class MultiFirmwareUpdateDriver
@@ -648,6 +652,9 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (intPwr) {
+#if defined(MULTI_PROTOLIST)
+    MultiRfProtocols::removeInstance(INTERNAL_MODULE);
+#endif
     INTERNAL_MODULE_ON();
     setupPulsesInternalModule();
   }
@@ -655,6 +662,9 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (extPwr) {
+#if defined(MULTI_PROTOLIST)
+    MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
+#endif
     EXTERNAL_MODULE_ON();
     setupPulsesExternalModule();
   }
