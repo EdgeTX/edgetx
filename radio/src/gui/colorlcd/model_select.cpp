@@ -428,19 +428,14 @@ class CategoryEditPage : public PageTab
 
     void build(FormWindow *window) override
     {
+      FormGridLayout grid;
+      grid.setMarginRight(15);
+      grid.setLabelWidth(0);
+      grid.spacer();
+
       coord_t y = 2;
 
       for (auto category: modelslist.getCategories()) {
-        auto catgrp = new CategoryGroup(window,{ 2, y, LCD_W - 10, 0 }, category);
-        FormGridLayout grid;
-        grid.setMarginRight(15);
-#if LCD_W > LCD_H
-        grid.setLabelWidth(140);
-#else
-        grid.setLabelWidth(110);
-#endif
-        grid.spacer();
-
         // NAME
         auto catname = new TextEdit(window, grid.getFieldSlot(3,0), category->name, sizeof(category->name));
         catname->setChangeHandler([=]() {          
@@ -448,17 +443,15 @@ class CategoryEditPage : public PageTab
             category->name[0] == ' ';
           update();
         });
-        grid.nextLine();
 
         // Details
-        new StaticText(catgrp, grid.getLabelSlot(true), "Contains");
         char cnt[19];
         snprintf(cnt, sizeof(cnt), "%d Models", category->size());
-        new StaticText(catgrp, grid.getFieldSlot(2), cnt);     
+        new StaticText(window, grid.getFieldSlot(3,1), cnt);             
         
         if(category->empty()) {
-          new TextButton(catgrp, grid.getFieldSlot(2,1),"Delete", [=]() -> uint8_t {
-            new ConfirmDialog(catgrp, STR_DELETE_CATEGORY,
+          new TextButton(window, grid.getFieldSlot(3,2),"Delete", [=]() -> uint8_t {
+            new ConfirmDialog(window, STR_DELETE_CATEGORY,
               std::string(category->name, sizeof(category->name)).c_str(),
               [=] {
                 modelslist.removeCategory(category);    
@@ -468,8 +461,8 @@ class CategoryEditPage : public PageTab
             return 0;
           });
           } else {
-          new TextButton(catgrp, grid.getFieldSlot(2,1),"Delete", [=]() -> uint8_t {
-            new MessageDialog(catgrp, "Cannot Delete" , "Category not Empty");
+          new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
+            new MessageDialog(window, "Cannot Delete" , "Category not Empty");
             return 0;
           });
 
@@ -477,29 +470,19 @@ class CategoryEditPage : public PageTab
 
         grid.nextLine();
 
-        // Icon Chooser
-        new StaticText(catgrp, grid.getLabelSlot(true), "Icon");    
-        char filename[20];
-        new FileChoice(catgrp, grid.getFieldSlot(2,1), THEMES_PATH, PNG_EXT, sizeof(filename), [=]() {
-          return std::string();
-        }, [=](std::string newValue) {          
-          update();
-        });
-        grid.nextLine();
-        // --- END ICON
-
         grid.spacer();
         coord_t height = grid.getWindowHeight();
-        catgrp->setHeight(height);
+        //window->setHeight(height);
         y += height + 2;
       }
             
-      new TextButton(window, { 60, y + 5, LCD_W - 120, PAGE_LINE_HEIGHT } ,"Add Category", [=]() -> uint8_t {
-        modelslist.createCategory("New", true);
+      new TextButton(window, grid.getCenteredSlot(LCD_W/2), "Add Category", [=]() -> uint8_t {
+        modelslist.createCategory("New");
         update();
         return 0;
       });
-      window->setInnerHeight(y + 40); 
+
+      window->setInnerHeight(grid.getWindowHeight()); 
 
       if(scrolltobot)
         window->setScrollPositionY(y+40);
