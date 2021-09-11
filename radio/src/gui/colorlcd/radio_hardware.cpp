@@ -89,6 +89,25 @@ RadioHardwarePage::RadioHardwarePage():
 }
 
 #if defined(BLUETOOTH)
+
+class ModeChoice : public Choice
+{
+  public:
+  ModeChoice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, bool *menuOpen=nullptr) :
+  Choice(parent, rect, values, vmin, vmax, getValue, setValue),
+  menuOpen(menuOpen)
+  {
+  }  
+  protected:
+    void openMenu() {
+      if(menuOpen)
+        *menuOpen = true;
+      Choice::openMenu();
+    }
+  private:
+    bool *menuOpen;
+};
+
 class BluetoothConfigWindow : public FormGroup
 {
   public:
@@ -96,6 +115,16 @@ class BluetoothConfigWindow : public FormGroup
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
     {
       update();
+    }
+
+    void checkEvents() override
+    {     
+      if(bluetooth.state != lastbluetoothstate) {
+          lastbluetoothstate = bluetooth.state;
+          if(!modechoiceopen)
+            update();
+      }
+      FormGroup::checkEvents();
     }
 
     void update()
@@ -108,13 +137,16 @@ class BluetoothConfigWindow : public FormGroup
 #endif
       clear();
 
+      
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-      btMode = new Choice(this, grid.getFieldSlot(), STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER, GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int32_t newValue) {
+      modechoiceopen = false;
+      btMode = new ModeChoice(this, grid.getFieldSlot(), STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER, GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int32_t newValue) {
           g_eeGeneral.bluetoothMode = newValue;
           update();
           SET_DIRTY();
           btMode->setFocus(SET_FOCUS_DEFAULT);
-      });
+          modechoiceopen = false;
+      },&modechoiceopen);
       grid.nextLine();
 
       if (g_eeGeneral.bluetoothMode != BLUETOOTH_OFF) {
@@ -146,6 +178,9 @@ class BluetoothConfigWindow : public FormGroup
 
   protected:
     Choice * btMode = nullptr;
+  private:
+    bool modechoiceopen = false;
+    uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
 };
 #endif
 
