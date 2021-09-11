@@ -1070,7 +1070,20 @@ void getADC()
     if (x < 4)
       v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
     else
-      v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+      #if defined(RADIO_TX16S)
+        switch (x)
+        {
+            case 9:
+            case 10:
+                v = getAnalogValue(x-7) >> (1 - ANALOG_SCALE);
+                break;
+            default:
+                v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+                break;
+        }
+       #else
+          v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+       #endif
 #else
     v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 #endif
