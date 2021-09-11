@@ -514,8 +514,7 @@ bool touchPanelEventOccured()
 
 void touchPanelRead()
 {
-  if (!touchEventOccured)
-    return;
+  if (!touchEventOccured) return;
 
   touchEventOccured = false;
 
@@ -524,21 +523,22 @@ void touchPanelRead()
 
   if (ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS)) {
     handleTouch();
-    if (touchState.event == TE_DOWN && downTime == 0)
+    if (touchState.event == TE_DOWN && downTime == 0) {
       downTime = now;
-  }
-  else {
+    }
+  } else {
     if (touchState.event == TE_DOWN) {
       touchState.event = TE_UP;
       if (now - downTime <= TAP_TIME) {
-        if (now - tapTime > TAP_TIME)
+        if (now - tapTime > TAP_TIME) {
           tapCount = 1;
-        else
+        } else {
           tapCount++;
+        }
         touchState.tapCount = tapCount;
         tapTime = now;
       } else {
-        touchState.tapCount = 0; //not a tap
+        touchState.tapCount = 0;  // not a tap
       }
       downTime = 0;
     } else {
