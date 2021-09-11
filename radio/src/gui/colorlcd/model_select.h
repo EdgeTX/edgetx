@@ -26,7 +26,7 @@
 class ModelSelectMenu: public TabsGroup {
   public:
     ModelSelectMenu();
-    void build(bool scrolltobottom=false);
+    void build(int index=-1);
 };
 
 #endif // _MODEL_SELECT_H_

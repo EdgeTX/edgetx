@@ -423,7 +423,7 @@ class CategoryEditPage : public PageTab
   protected:
     void update()
     {
-      modelselectmenu->build(true);      
+      modelselectmenu->build(0);
     }
 
     void build(FormWindow *window) override
@@ -515,7 +515,7 @@ ModelSelectMenu::ModelSelectMenu():
   build();
 }
 
-void ModelSelectMenu::build(bool scrolltobottom) 
+void ModelSelectMenu::build(int index) 
 {  
   modelslist.clear();
   modelslist.load();
@@ -524,19 +524,19 @@ void ModelSelectMenu::build(bool scrolltobottom)
 
   TRACE("TabsGroup: %p", this);  
   
-  addTab(new CategoryEditPage(this, scrolltobottom));
+  addTab(new CategoryEditPage(this));
 
   for (auto category: modelslist.getCategories()) {
     addTab(new ModelCategoryPage(category));
   }
 
-  if(scrolltobottom) {
-    setCurrentTab(0);
-  } else {
+  if(index < 0) {
     int idx = modelslist.getCurrentCategoryIdx();
     if (idx >= 0) {
       setCurrentTab(idx+1);
     }
+  } else {
+    if(index < modelslist.getCategories().size())
+      setCurrentTab(index);
   }
-  
 }
