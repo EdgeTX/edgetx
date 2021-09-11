@@ -33,6 +33,7 @@
 #define EVENT_BUFFER_SIZE                   2
 
 #if defined(HARDWARE_TOUCH)
+#include "touch.h"
 #define EVT_TOUCH_TAP_TIME      25
 #define EVT_TOUCH_SWIPE_LOCK     4
 #define EVT_TOUCH_SWIPE_SPEED   60
@@ -235,6 +236,7 @@ struct eventData {
   coord_t startY;
   coord_t slideX;
   coord_t slideY;
+  short tapCount;
 #endif  
 };
 
@@ -287,7 +289,7 @@ class LuaWidget: public Widget
 
     static eventData events[EVENT_BUFFER_SIZE];
 #if defined(HARDWARE_TOUCH)
-    static tmr10ms_t lastTouchDown;
+    static bool fingerDown;
     static tmr10ms_t swipeTimeOut;
 #endif  
 
@@ -301,7 +303,7 @@ class LuaWidget: public Widget
 eventData LuaWidget::events[EVENT_BUFFER_SIZE] = { 0 };
 
 #if defined(HARDWARE_TOUCH)
-  tmr10ms_t LuaWidget::lastTouchDown = 0;
+  bool LuaWidget::fingerDown = false;
   tmr10ms_t LuaWidget::swipeTimeOut = 0;
 #endif  
 
@@ -481,6 +483,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
     lua_newtable(lsWidgets);
     l_pushtableint("x", es->touchX);
     l_pushtableint("y", es->touchY);
+    l_pushtableint("tapCount", es->tapCount);
     
     if (es->event == EVT_TOUCH_SLIDE) {
       l_pushtableint("startX", es->startX);
@@ -577,9 +580,9 @@ bool LuaWidget::onTouchStart(coord_t x, coord_t y)
 {
   TRACE_WINDOWS("LuaWidget received touch start (%d) x=%d;y=%d", hasFocus(), x, y);
 
-  // Only one EVT_TOUCH_FIRST at a time, and also start timer for possible TAP
+  // Only one EVT_TOUCH_FIRST at a time
   if (fullscreen) {
-    if (lastTouchDown == 0) {
+    if (!fingerDown) {
       eventData* es = findOpenEventSlot();
 
       if (es) {
@@ -588,7 +591,7 @@ bool LuaWidget::onTouchStart(coord_t x, coord_t y)
         es->touchY = y;
       }
       
-      lastTouchDown = get_tmr10ms();
+      fingerDown = true;
     }
 
     return true;
@@ -605,15 +608,16 @@ bool LuaWidget::onTouchEnd(coord_t x, coord_t y)
     eventData* es = findOpenEventSlot();
 
     if (es) {
-      if (get_tmr10ms() - lastTouchDown <= EVT_TOUCH_TAP_TIME)
+      if (touchState.tapCount > 0) {
         es->event = EVT_TOUCH_TAP;
-      else
+        es->tapCount = touchState.tapCount;
+      } else
         es->event = EVT_TOUCH_BREAK;
       es->touchX = x;
       es->touchY = y;
     }
 
-    lastTouchDown = 0;
+    fingerDown = false;
     return true;
   }
 
@@ -637,7 +641,7 @@ bool LuaWidget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t start
       es->slideY += slideY;
     }
     
-    lastTouchDown = 0;    
+    fingerDown = false;    
     return true;
   }
   

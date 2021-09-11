@@ -25,6 +25,10 @@
 #include "view_main.h"
 #include "lcd.h"
 
+#if defined(HARDWARE_TOUCH)
+#include "touch.h"
+#endif
+
 constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
 constexpr uint32_t FULLSCREEN_HINT_DELAY = 5*1000; //  5 seconds
 
@@ -81,11 +85,14 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
   }
   
   if (hasFocus()) {
-    onPress();
-    return true;
+    if (touchState.tapCount == 0)
+      onPress();
+    else if (touchState.tapCount > 1)
+      setFullscreen(true);
   }
-
-  setFocus();
+  else {
+    setFocus();
+  }
   return true;
 }
 
