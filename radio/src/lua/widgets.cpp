@@ -100,20 +100,6 @@ void luaSetInstructionsLimit(lua_State * L, int count)
 #endif
 }
 
-void exec(int function, int nresults=0)
-{
-  if (lsWidgets == 0) return;
-
-  if (function) {
-    luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, function);
-    if (lua_pcall(lsWidgets, 0, nresults, 0) != 0) {
-      TRACE("Error in theme  %s", lua_tostring(lsWidgets, -1));
-      // TODO disable theme - revert back to default theme???
-    }
-  }
-}
-
 ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
 {
   if (reference == 0) {
