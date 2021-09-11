@@ -442,11 +442,11 @@ class CategoryEditPage : public PageTab
         grid.spacer();
 
         // NAME
-        new StaticText(catgrp, grid.getLabelSlot(true), "Name");            
-        auto catname = new TextEdit(catgrp, grid.getFieldSlot(), category->name, sizeof(category->name));
-        catname->setChangeHandler([=]() {
-          modelslist.save();
-          update();          
+        auto catname = new TextEdit(window, grid.getFieldSlot(3,0), category->name, sizeof(category->name));
+        catname->setChangeHandler([=]() {          
+          if(category->name[0] == '\0')
+            category->name[0] == ' ';
+          update();
         });
         grid.nextLine();
 
