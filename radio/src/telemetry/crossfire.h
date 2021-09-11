@@ -95,20 +95,21 @@ void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
 uint8_t createCrossfireModelIDFrame(uint8_t * frame);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
+  3750000,
+  1870000,
+  921600,
   400000,
   115200,
 };
 const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   4,
+  4,
+  4,
+  4,
   16,
 };
-#if SPORT_MAX_BAUDRATE < 400000 || defined(DEBUG)
 #define CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[g_eeGeneral.telemetryBaudrate]
 #define CROSSFIRE_PERIOD      (CROSSFIRE_FRAME_PERIODS[g_eeGeneral.telemetryBaudrate] * 1000)
-#else
-#define CROSSFIRE_BAUDRATE       400000
-#define CROSSFIRE_PERIOD         4000 /* us; 250 Hz */
-#endif
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
 

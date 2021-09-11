@@ -91,8 +91,8 @@
 
 #define TR_VSRCRAW                     "---\0" TR_STICKS_VSRCRAW TR_POTS_VSRCRAW TR_GYR_VSRCRAW "MAX\0" TR_CYC_VSRCRAW TR_TRIMS_VSRCRAW TR_SW_VSRCRAW TR_EXTRA_VSRCRAW
 
-#define LEN_CRSF_BAUDRATE              "\004"
-#define TR_CRSF_BAUDRATE               "115k""400k"
+#define LEN_CRSF_BAUDRATE              "\005"
+#define TR_CRSF_BAUDRATE               "115k\0""400k\0""921k\0""1.87m""3.75m"
 
 #if defined(MODULE_PROTOCOL_FLEX)
 #define TR_MODULE_R9M_LITE             "R9ML\0       "
