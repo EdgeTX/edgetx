@@ -524,7 +524,7 @@ void touchPanelRead()
 
   if (ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS)) {
     handleTouch();
-    if (touchState.event == TE_DOWN)
+    if (touchState.event == TE_DOWN && downTime == 0)
       downTime = now;
   }
   else {
@@ -537,9 +537,11 @@ void touchPanelRead()
           tapCount++;
         touchState.tapCount = tapCount;
         tapTime = now;
+      } else {
+        touchState.tapCount = 0; //not a tap
       }
-    }
-    else {
+      downTime = 0;
+    } else {
       touchState.x = LCD_WIDTH;
       touchState.y = LCD_HEIGHT;
       touchState.event = TE_SLIDE_END;
