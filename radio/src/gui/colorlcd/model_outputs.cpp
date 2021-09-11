@@ -65,7 +65,7 @@ class OutputEditWindow : public Page {
 
       // Offset
       new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0, COLOR_THEME_PRIMARY1);
-      new GVarNumberEdit(window, grid.getFieldSlot(), -limit, +limit, GET_SET_DEFAULT(output->offset), 0, PREC1);
+      new GVarNumberEdit(window, grid.getFieldSlot(), -1000, +1000, GET_SET_DEFAULT(output->offset), 0, PREC1);
       grid.nextLine();
 
       // Min

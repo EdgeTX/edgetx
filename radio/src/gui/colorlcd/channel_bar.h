@@ -22,6 +22,7 @@
 
 #include "opentx.h"
 #include "libopenui.h"
+#include "static.h"
 
 constexpr coord_t ROW_HEIGHT = 42;
 constexpr coord_t BAR_HEIGHT = 13;
@@ -151,17 +152,13 @@ class OutputChannelBar : public ChannelBar
       int32_t ldMin;
 
       if (GV_IS_GV_VALUE(ld->min - 1000, -limit, 0)) {
-        ldMin =
-            GET_GVAR_PREC1(ld->min - 1000, -limit, 0, mixerCurrentFlightMode) +
-            1000;
+        ldMin = limMin;
       } else {
         ldMin = ld->min;
       }
 
       if (GV_IS_GV_VALUE(ld->max + 1000, 0, limit)) {
-        ldMax =
-            GET_GVAR_PREC1(ld->max + 1000, 0, limit, mixerCurrentFlightMode) -
-            1000;
+        ldMax = limMax;
       } else {
         ldMax = ld->max;
       }
@@ -199,10 +196,29 @@ class OutputChannelBar : public ChannelBar
         value = newValue;
         invalidate();
       }
+      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
+      LimitData* lim = limitAddress(channel);
+      
+      if (GV_IS_GV_VALUE(lim->min - 1000, -limit, 0)) {
+        int ldMin =
+            GET_GVAR_PREC1(lim->min - 1000, -limit, 0, mixerCurrentFlightMode) +
+            1000;
+        if (limMin != ldMin) invalidate();
+        limMin = ldMin;
+      }
+      if (GV_IS_GV_VALUE(lim->max + 1000, 0, limit)) {
+        int ldMax =
+            GET_GVAR_PREC1(lim->max + 1000, 0, limit, mixerCurrentFlightMode) -
+            1000;
+        if (limMax != ldMax)  invalidate();
+        limMax = ldMax;                  
+      }
     }
 
   protected:
     int value = 0;
+    int limMax = 0;
+    int limMin = 0;
 };
 
 constexpr coord_t lmargin = 25;
