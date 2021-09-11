@@ -515,10 +515,12 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // This little hack is needed to not interfere with the LCD usage of preempted scripts
   bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
+  runningFS = this;
 
   if (lua_pcall(lsWidgets, 3, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
+  runningFS = nullptr;
   // Remove LCD
   luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
@@ -537,9 +539,11 @@ void LuaWidget::background()
   if (factory->backgroundFunction) {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+    runningFS = this;
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
       setErrorMessage("background()");
     }
+    runningFS = nullptr;
   }
 }
 

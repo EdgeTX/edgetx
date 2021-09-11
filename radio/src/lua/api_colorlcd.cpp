@@ -22,10 +22,11 @@
 #include <cstdio>
 #include "opentx.h"
 #include "libopenui.h"
-
+#include "widget.h"
 #include "api_colorlcd.h"
 
 BitmapBuffer* luaLcdBuffer  = nullptr;
+Widget* runningFS = nullptr;
  
 static int8_t getTextHorizontalOffset(LcdFlags flags)
 {
@@ -1216,6 +1217,25 @@ static int luaLcdDrawHudRectangle(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function lcd.exitFullScreen()
+
+Exit full screen widget mode.
+
+@notice Only available on radios with color display
+
+@status current Introduced in 2.5.0
+*/
+static int luaLcdExitFullScreen(lua_State *L)
+{
+  if (runningFS) {
+    Widget* rfs = runningFS;
+    runningFS = nullptr;
+    rfs->setFullscreen(false);
+  }
+  return 0;
+}
+
 const luaL_Reg lcdLib[] = {
   { "refresh", luaLcdRefresh },
   { "clear", luaLcdClear },
@@ -1246,5 +1266,6 @@ const luaL_Reg lcdLib[] = {
   { "drawAnnulus", luaLcdDrawAnnulus },
   { "drawLineWithClipping", luaLcdDrawLineWithClipping },
   { "drawHudRectangle", luaLcdDrawHudRectangle },
+  { "exitFullScreen", luaLcdExitFullScreen },
   { NULL, NULL }  /* sentinel */
 };
