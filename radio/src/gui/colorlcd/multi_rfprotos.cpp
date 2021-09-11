@@ -31,7 +31,7 @@ constexpr rect_t RFSCAN_DIALOG_RECT = {
 };
 
 // TODO: translation
-const char* RFSCAN_TITLE = "Scanning protocols";
+const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
 
 class RfScanDialog : public Dialog
 {
