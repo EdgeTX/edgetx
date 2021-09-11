@@ -228,6 +228,8 @@ struct eventData {
 
 class LuaWidget: public Widget
 {
+  friend class LuaWidgetFactory;
+  
   public:
     LuaWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData, int luaWidgetDataRef):
       Widget(factory, parent, rect, persistentData),
@@ -353,11 +355,12 @@ class LuaWidgetFactory: public WidgetFactory
           l_pushtableint(option->name, value);
       }
 
-      if (lua_pcall(lsWidgets, 2, 1, 0) != 0) {
-        TRACE("Error in widget %s create() function: %s", getName(), lua_tostring(lsWidgets, -1));
-      }
-      int widgetData = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      return new LuaWidget(this, parent, rect, persistentData, widgetData);
+      bool err = lua_pcall(lsWidgets, 2, 1, 0);
+      int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+      LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData);
+      if (err)
+        lw->setErrorMessage("create()");
+      return lw;
     }
 
   protected:
