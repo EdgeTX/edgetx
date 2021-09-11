@@ -118,13 +118,14 @@ class BluetoothConfigWindow : public FormGroup
     }
 
     void checkEvents() override
-    {     
+    { 
+      FormGroup::checkEvents();
+      if(!rte) return;
       if(bluetooth.state != lastbluetoothstate) {
           lastbluetoothstate = bluetooth.state;
-          if(!modechoiceopen)
+          if(!(modechoiceopen || rte->hasFocus()))     
             update();
       }
-      FormGroup::checkEvents();
     }
 
     void update()
@@ -136,7 +137,6 @@ class BluetoothConfigWindow : public FormGroup
       grid.setLabelWidth(130);
 #endif
       clear();
-
       
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
       modechoiceopen = false;
@@ -169,7 +169,7 @@ class BluetoothConfigWindow : public FormGroup
 
         // BT radio name
         new StaticText(this, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-        new RadioTextEdit(this, grid.getFieldSlot(), g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME);
+        rte = new RadioTextEdit(this, grid.getFieldSlot(), g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME);
         grid.nextLine();
       }
 
@@ -178,6 +178,7 @@ class BluetoothConfigWindow : public FormGroup
 
   protected:
     Choice * btMode = nullptr;
+    RadioTextEdit * rte = nullptr;
   private:
     bool modechoiceopen = false;
     uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
