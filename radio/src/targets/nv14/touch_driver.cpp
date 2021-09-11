@@ -42,6 +42,11 @@ volatile static bool touchEventOccured;
 uint8_t ft6x06[FT6x06_MAX_INSTANCE] = {0};
 static ft6x06_handle_TypeDef ft6x06_handle = {FT6206_I2C_NOT_INITIALIZED, 0, 0};
 
+tmr10ms_t downTime = 0;
+tmr10ms_t tapTime = 0;
+short tapCount = 0;
+#define TAP_TIME 25
+
 void I2C_FreeBus()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -514,12 +519,25 @@ void touchPanelRead()
 
   touchEventOccured = false;
 
+  tmr10ms_t now = get_tmr10ms();
+  touchState.tapCount = 0;
+
   if (ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS)) {
     handleTouch();
+    if (touchState.event == TE_DOWN)
+      downTime = now;
   }
   else {
     if (touchState.event == TE_DOWN) {
       touchState.event = TE_UP;
+      if (now - downTime <= TAP_TIME) {
+        if (now - tapTime > TAP_TIME)
+          tapCount = 1;
+        else
+          tapCount++;
+        touchState.tapCount = tapCount;
+        tapTime = now;
+      }
     }
     else {
       touchState.x = LCD_WIDTH;
