@@ -520,6 +520,24 @@ class ReceiverButton: public TextButton
     uint8_t receiverIdx;
 };
 
+class TrChoice : public Choice
+{
+  public:
+  TrChoice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, bool *menuOpen=nullptr) :
+  Choice(parent, rect, values, vmin, vmax, getValue, setValue),
+  menuOpen(menuOpen)
+  {
+  }  
+  protected:
+    void openMenu() {
+      if(menuOpen)
+        *menuOpen = true;
+      Choice::openMenu();
+    }
+  private:
+    bool *menuOpen;
+};
+
 class TrainerModuleWindow  : public FormGroup {
   public:
     TrainerModuleWindow(FormWindow * parent, const rect_t & rect) :
@@ -545,7 +563,7 @@ class TrainerModuleWindow  : public FormGroup {
         }
       }
       if(bluetooth.state != lastbluetoothstate) {          
-        if(!popupopen)
+        if(!popupopen && !trChoiceOpen)
           update();
         lastbluetoothstate = bluetooth.state;      
       }
@@ -559,7 +577,7 @@ class TrainerModuleWindow  : public FormGroup {
       clear();
 
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);      
-      trainerChoice = new Choice(this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(), GET_DEFAULT(g_model.trainerData.mode), [=](int32_t newValue) {
+      trainerChoice = new TrChoice(this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(), GET_DEFAULT(g_model.trainerData.mode), [=](int32_t newValue) {
 #if defined (BLUETOOTH)
         memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
         bluetooth.state = BLUETOOTH_STATE_OFF;        
@@ -568,8 +586,10 @@ class TrainerModuleWindow  : public FormGroup {
         SET_DIRTY();
         update();
         trainerChoice->setFocus(SET_FOCUS_DEFAULT);
-      });
+        trChoiceOpen = false;
+      }, &trChoiceOpen);
       trainerChoice->setAvailableHandler(isTrainerModeAvailable);
+
       grid.nextLine();
 
       if (g_model.isTrainerTraineeEnable()) {
@@ -582,7 +602,6 @@ class TrainerModuleWindow  : public FormGroup {
                 new StaticText(this, grid.getLabelSlot(true), STR_NOT_CONNECTED, 0, COLOR_THEME_PRIMARY1);
 
             grid.nextLine();
-
             btMasterButton = new TextButton(this, grid.getFieldSlot(), "", [=]() -> uint8_t {
                 if(bluetooth.distantAddr[0]) {
                     bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
@@ -702,9 +721,10 @@ class TrainerModuleWindow  : public FormGroup {
     }
 
   protected:
-    Choice * trainerChoice = nullptr;
+    TrChoice * trainerChoice = nullptr;
     NumberEdit * channelStart = nullptr;
     NumberEdit * channelEnd = nullptr;
+    bool trChoiceOpen = false;
 #if defined(BLUETOOTH)
     StaticText * btChannelEnd = nullptr;
     StaticText * btDistAddress = nullptr;
