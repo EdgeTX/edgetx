@@ -567,6 +567,36 @@
 #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM3_IRQHandler
 */
 
+
+//BLUETOOTH
+#define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
+#define BLUETOOTH_ON_GPIO               GPIOI
+#define BLUETOOTH_ON_GPIO_PIN           GPIO_Pin_8 // PI.8
+
+// Bluetooth
+#define BT_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOH)
+#define BT_RCC_APB1Periph               (RCC_APB1Periph_USART3)
+#define BT_RCC_APB2Periph                0
+
+#define BT_USART                        USART3
+#define BT_GPIO_AF                      GPIO_AF_USART3
+#define BT_USART_IRQn                   USART3_IRQn
+#define BT_GPIO_TXRX                    GPIOB
+#define BT_TX_GPIO_PIN                  GPIO_Pin_10  // PB.10
+#define BT_RX_GPIO_PIN                  GPIO_Pin_11  // PB.11
+#define BT_TX_GPIO_PinSource            GPIO_PinSource10
+#define BT_RX_GPIO_PinSource            GPIO_PinSource11
+#define BT_USART_IRQHandler             USART3_IRQHandler
+             
+#define BT_EN_GPIO                      GPIOI
+#define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.08
+
+#define  BT_CONNECTED_GPIO              GPIOJ
+#define  BT_CONNECTED_GPIO_PIN          GPIO_Pin_1 // PJ.10
+
+#define BT_CMD_MODE_GPIO                GPIOH
+#define BT_CMD_MODE_GPIO_PIN            GPIO_Pin_6 // PH.6
+
 // Xms Interrupt
 #define INTERRUPT_xMS_RCC_APB1Periph    RCC_APB1Periph_TIM14
 #define INTERRUPT_xMS_TIMER             TIM14
