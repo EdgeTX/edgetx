@@ -152,6 +152,13 @@ set(SRC
   io/multi_firmware_update.cpp
   )
 
+if (MULTIMODULE)
+  add_definitions(-DMULTI_PROTOLIST)
+  set(SRC ${SRC}
+    io/multi_protolist.cpp
+    )
+endif()
+
 set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
