@@ -30,7 +30,6 @@
 #endif
 
 constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
-constexpr uint32_t FULLSCREEN_HINT_DELAY = 5*1000; //  5 seconds
 
 static void openWidgetMenu(Widget * parent)
 {
@@ -125,11 +124,6 @@ void Widget::paint(BitmapBuffer * dc)
     }
     dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
-
-  if (fullscreen && (RTOS_GET_MS() - fsStartedTS < FULLSCREEN_HINT_DELAY)) {
-    dc->drawText(width() / 2, height() / 2, "Press [RTN] long to exit",
-                 FONT(XL) | CENTERED | VCENTERED | COLOR_THEME_PRIMARY3);
-  }
 }
 
 #if defined(HARDWARE_KEYS)
@@ -186,7 +180,6 @@ void Widget::setFullscreen(bool fullscreen)
     setRect(parent->getRect());
     setLeft(parent->getScrollPositionX());
     this->fullscreen = true;
-    fsStartedTS = RTOS_GET_MS();
     bringToTop();
   }
 }

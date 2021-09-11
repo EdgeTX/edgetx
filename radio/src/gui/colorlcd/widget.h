@@ -111,7 +111,6 @@ class Widget : public Button
     PersistentData * persistentData;
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
-    uint32_t fsStartedTS = 0;
 };
 
 void registerWidget(const WidgetFactory * factory);
