@@ -23,8 +23,8 @@ env:
   BUILD_TYPE: Release
   CMAKE_GENERATOR: "MSYS Makefiles"
   QT_VERSION: "5.12.9"
-  MINGW_VERSION: "win64_mingw73"
-  MINGW_PATH: "mingw73_64"
+  MINGW_VERSION: "win32_mingw73"
+  MINGW_PATH: "mingw73_32"
 
 jobs:
   build:
@@ -40,26 +40,26 @@ jobs:
     steps:
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: MINGW32
           update: true
-          install: git make mingw-w64-x86_64-toolchain
+          install: git make mingw-w64-i686-toolchain
 
       - name: Install Dependencies
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-cmake \
-                                mingw-w64-x86_64-python-pip \
-                                mingw-w64-x86_64-arm-none-eabi-gcc \
-                                mingw-w64-x86_64-libjpeg-turbo \
-                                mingw-w64-x86_64-zlib \
-                                mingw-w64-x86_64-libtiff \
-                                mingw-w64-x86_64-freetype \
-                                mingw-w64-x86_64-lcms2 \
-                                mingw-w64-x86_64-libwebp \
-                                mingw-w64-x86_64-openjpeg2 \
-                                mingw-w64-x86_64-libimagequant \
-                                mingw-w64-x86_64-libraqm \
-                                mingw-w64-x86_64-SDL \
-                                mingw-w64-x86_64-nsis
+          pacman -S --noconfirm mingw-w64-i686-cmake \
+                                mingw-w64-i686-python-pip \
+                                mingw-w64-i686-arm-none-eabi-gcc \
+                                mingw-w64-i686-libjpeg-turbo \
+                                mingw-w64-i686-zlib \
+                                mingw-w64-i686-libtiff \
+                                mingw-w64-i686-freetype \
+                                mingw-w64-i686-lcms2 \
+                                mingw-w64-i686-libwebp \
+                                mingw-w64-i686-openjpeg2 \
+                                mingw-w64-i686-libimagequant \
+                                mingw-w64-i686-libraqm \
+                                mingw-w64-i686-SDL \
+                                mingw-w64-i686-nsis
           pip install Pillow
           
       - name: Install Qt

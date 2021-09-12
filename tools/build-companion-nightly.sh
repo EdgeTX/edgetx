@@ -34,7 +34,7 @@ COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Rel
 if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
 elif [ "$(uname)" != "Linux" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+    COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=${MINGW_PREFIX}/bin/"
 fi
 
 if [ "$3" != "" ]; then
