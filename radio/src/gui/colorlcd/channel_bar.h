@@ -22,6 +22,7 @@
 
 #include "opentx.h"
 #include "libopenui.h"
+#include "static.h"
 
 constexpr coord_t ROW_HEIGHT = 42;
 constexpr coord_t BAR_HEIGHT = 13;
@@ -29,7 +30,8 @@ constexpr coord_t COLUMN_SIZE = 200;
 constexpr coord_t X_OFFSET = 25;
 constexpr coord_t LEG_COLORBOX = 15;
 
-#define VIEW_CHANNELS_LIMIT_PCT        (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
+#define VIEW_CHANNELS_LIMIT_PCT   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
+#define CHANNELS_LIMIT            (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX)
 
 class ChannelBar : public Window
 {
@@ -145,13 +147,29 @@ class OutputChannelBar : public ChannelBar
       dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
 
       // Draw output limits bars
+      int limit = CHANNELS_LIMIT;
       LimitData* ld = limitAddress(channel);
+      int32_t ldMax;
+      int32_t ldMin;
+
+      if (GV_IS_GV_VALUE(ld->min - LIMIT_STD_MAX, -limit, 0)) {
+        ldMin = limMin;
+      } else {
+        ldMin = ld->min;
+      }
+
+      if (GV_IS_GV_VALUE(ld->max + LIMIT_STD_MAX, 0, limit)) {
+        ldMax = limMax;
+      } else {
+        ldMax = ld->max;
+      }
+
       if (ld && ld->revert) {
-        drawOutputBarLimits(dc, posOnBar(-100 - ld->max / 10),
-                            posOnBar(100 - ld->min / 10));
+        drawOutputBarLimits(dc, posOnBar(-100 - ldMax / 10),
+                            posOnBar(100 - ldMin / 10));
       } else if (ld) {
-        drawOutputBarLimits(dc, posOnBar(-100 + ld->min / 10),
-                            posOnBar(100 + ld->max / 10));
+        drawOutputBarLimits(dc, posOnBar(-100 + ldMin / 10),
+                            posOnBar(100 + ldMax / 10));
       }
     }
 
@@ -179,10 +197,29 @@ class OutputChannelBar : public ChannelBar
         value = newValue;
         invalidate();
       }
+      int limit = CHANNELS_LIMIT;
+      LimitData* lim = limitAddress(channel);
+
+      if (GV_IS_GV_VALUE(lim->min - LIMIT_STD_MAX, -limit, 0)) {
+        int ldMin =
+            GET_GVAR_PREC1(lim->min - LIMIT_STD_MAX, -limit, 0, mixerCurrentFlightMode)
+            + LIMIT_STD_MAX;
+        if (limMin != ldMin) invalidate();
+        limMin = ldMin;
+      }
+      if (GV_IS_GV_VALUE(lim->max + LIMIT_STD_MAX, 0, limit)) {
+        int ldMax =
+            GET_GVAR_PREC1(lim->max + LIMIT_STD_MAX, 0, limit, mixerCurrentFlightMode)
+            - LIMIT_STD_MAX;
+        if (limMax != ldMax) invalidate();
+        limMax = ldMax;
+      }
     }
 
   protected:
     int value = 0;
+    int limMax = 0;
+    int limMin = 0;
 };
 
 constexpr coord_t lmargin = 25;

@@ -33,12 +33,14 @@ typedef NumberEdit GVarNumberEdit;
 class GVarNumberEdit: public FormGroup
 {
   public:
-    GVarNumberEdit(FormGroup * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue) :
+    GVarNumberEdit(FormGroup * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue, WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
       vmin(vmin),
       vmax(vmax),
       getValue(getValue),
-      setValue(setValue)
+      setValue(setValue),
+      windowFlags(windowFlags), 
+      textFlags(textFlags)
     {
       update();
     }
@@ -46,7 +48,10 @@ class GVarNumberEdit: public FormGroup
     void switchGVarMode()
     {
       int32_t value = getValue();
-      setValue(GV_IS_GV_VALUE(value, vmin, vmax) ? GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode) : GV_GET_GV1_VALUE(vmin, vmax));
+      setValue(GV_IS_GV_VALUE(value, vmin, vmax) ?
+              ( (textFlags & PREC1) ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode) : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode) ) : 
+              GV_GET_GV1_VALUE(vmin, vmax) );
+
       update();
     }
 
@@ -76,6 +81,8 @@ class GVarNumberEdit: public FormGroup
     int32_t vmax;
     std::function<int32_t()> getValue;
     std::function<void(int32_t)> setValue;
+    WindowFlags windowFlags;
+    LcdFlags textFlags;
     std::string suffix;
 
     void update()
@@ -103,7 +110,7 @@ class GVarNumberEdit: public FormGroup
         field = result;
       }
       else {
-        auto result = new NumberEdit(this, {0, 0, width() - GVAR_BUTTON_WIDTH, height()}, vmin, vmax, getValue, setValue);
+        auto result = new NumberEdit(this, {0, 0, width() - GVAR_BUTTON_WIDTH, height()}, vmin, vmax, getValue, setValue, windowFlags, textFlags);
         result->setSuffix(suffix);
         field = result;
       }
