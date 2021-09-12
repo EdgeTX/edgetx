@@ -30,7 +30,8 @@ constexpr coord_t COLUMN_SIZE = 200;
 constexpr coord_t X_OFFSET = 25;
 constexpr coord_t LEG_COLORBOX = 15;
 
-#define VIEW_CHANNELS_LIMIT_PCT        (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
+#define VIEW_CHANNELS_LIMIT_PCT   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
+#define CHANNELS_LIMIT            (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 1000)
 
 class ChannelBar : public Window
 {
@@ -146,7 +147,7 @@ class OutputChannelBar : public ChannelBar
       dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
 
       // Draw output limits bars
-      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
+      int limit = CHANNELS_LIMIT;
       LimitData* ld = limitAddress(channel);
       int32_t ldMax;
       int32_t ldMin;
@@ -196,22 +197,22 @@ class OutputChannelBar : public ChannelBar
         value = newValue;
         invalidate();
       }
-      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
+      int limit = CHANNELS_LIMIT;
       LimitData* lim = limitAddress(channel);
-      
+
       if (GV_IS_GV_VALUE(lim->min - 1000, -limit, 0)) {
         int ldMin =
-            GET_GVAR_PREC1(lim->min - 1000, -limit, 0, mixerCurrentFlightMode) +
-            1000;
+            GET_GVAR_PREC1(lim->min - 1000, -limit, 0, mixerCurrentFlightMode)
+            + 1000;
         if (limMin != ldMin) invalidate();
         limMin = ldMin;
       }
       if (GV_IS_GV_VALUE(lim->max + 1000, 0, limit)) {
         int ldMax =
-            GET_GVAR_PREC1(lim->max + 1000, 0, limit, mixerCurrentFlightMode) -
-            1000;
-        if (limMax != ldMax)  invalidate();
-        limMax = ldMax;                  
+            GET_GVAR_PREC1(lim->max + 1000, 0, limit, mixerCurrentFlightMode)
+            - 1000;
+        if (limMax != ldMax) invalidate();
+        limMax = ldMax;
       }
     }
 
