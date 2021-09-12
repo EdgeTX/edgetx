@@ -30,8 +30,8 @@ constexpr coord_t COLUMN_SIZE = 200;
 constexpr coord_t X_OFFSET = 25;
 constexpr coord_t LEG_COLORBOX = 15;
 
-#define VIEW_CHANNELS_LIMIT_PCT   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
-#define CHANNELS_LIMIT            (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 1000)
+#define VIEW_CHANNELS_LIMIT_PCT   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
+#define CHANNELS_LIMIT            (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX)
 
 class ChannelBar : public Window
 {
@@ -152,13 +152,13 @@ class OutputChannelBar : public ChannelBar
       int32_t ldMax;
       int32_t ldMin;
 
-      if (GV_IS_GV_VALUE(ld->min - 1000, -limit, 0)) {
+      if (GV_IS_GV_VALUE(ld->min - LIMIT_STD_MAX, -limit, 0)) {
         ldMin = limMin;
       } else {
         ldMin = ld->min;
       }
 
-      if (GV_IS_GV_VALUE(ld->max + 1000, 0, limit)) {
+      if (GV_IS_GV_VALUE(ld->max + LIMIT_STD_MAX, 0, limit)) {
         ldMax = limMax;
       } else {
         ldMax = ld->max;
@@ -200,17 +200,17 @@ class OutputChannelBar : public ChannelBar
       int limit = CHANNELS_LIMIT;
       LimitData* lim = limitAddress(channel);
 
-      if (GV_IS_GV_VALUE(lim->min - 1000, -limit, 0)) {
+      if (GV_IS_GV_VALUE(lim->min - LIMIT_STD_MAX, -limit, 0)) {
         int ldMin =
-            GET_GVAR_PREC1(lim->min - 1000, -limit, 0, mixerCurrentFlightMode)
-            + 1000;
+            GET_GVAR_PREC1(lim->min - LIMIT_STD_MAX, -limit, 0, mixerCurrentFlightMode)
+            + LIMIT_STD_MAX;
         if (limMin != ldMin) invalidate();
         limMin = ldMin;
       }
-      if (GV_IS_GV_VALUE(lim->max + 1000, 0, limit)) {
+      if (GV_IS_GV_VALUE(lim->max + LIMIT_STD_MAX, 0, limit)) {
         int ldMax =
-            GET_GVAR_PREC1(lim->max + 1000, 0, limit, mixerCurrentFlightMode)
-            - 1000;
+            GET_GVAR_PREC1(lim->max + LIMIT_STD_MAX, 0, limit, mixerCurrentFlightMode)
+            - LIMIT_STD_MAX;
         if (limMax != ldMax) invalidate();
         limMax = ldMax;
       }
