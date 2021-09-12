@@ -46,10 +46,13 @@ if(Qt5Widgets_FOUND)
   target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
 
   # Remove debug symbols on release builds
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
+  if(NOT CLANG)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+      add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
         COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${SIMULATOR_TARGET}>)
+    endif()
   endif()
+      
 
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow
