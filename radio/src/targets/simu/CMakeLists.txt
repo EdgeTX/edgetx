@@ -49,7 +49,9 @@ if(Qt5Widgets_FOUND)
   # When the simulator is launched from Companion the runtime dynamic linking can result in Companion overiding the simulator
   # and crashing the simulator under some OSes
   # The flag forces the runtime linker to always look for references in the simulator first
-  target_link_options(${SIMULATOR_TARGET} PRIVATE "LINKER:-Bsymbolic")
+  if (NOT CLANG)
+    target_link_options(${SIMULATOR_TARGET} PRIVATE "LINKER:-Bsymbolic")
+  endif()
   #
   add_custom_target(libsimulator DEPENDS ${SIMULATOR_TARGET})
 
