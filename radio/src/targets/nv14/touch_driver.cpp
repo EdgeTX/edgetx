@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -41,6 +42,11 @@ volatile static bool touchEventOccured;
 
 uint8_t ft6x06[FT6x06_MAX_INSTANCE] = {0};
 static ft6x06_handle_TypeDef ft6x06_handle = {FT6206_I2C_NOT_INITIALIZED, 0, 0};
+
+tmr10ms_t downTime = 0;
+tmr10ms_t tapTime = 0;
+short tapCount = 0;
+#define TAP_TIME 25
 
 void I2C_FreeBus()
 {
@@ -509,19 +515,34 @@ bool touchPanelEventOccured()
 
 void touchPanelRead()
 {
-  if (!touchEventOccured)
-    return;
+  if (!touchEventOccured) return;
 
   touchEventOccured = false;
 
+  tmr10ms_t now = get_tmr10ms();
+  touchState.tapCount = 0;
+
   if (ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS)) {
     handleTouch();
-  }
-  else {
+    if (touchState.event == TE_DOWN && downTime == 0) {
+      downTime = now;
+    }
+  } else {
     if (touchState.event == TE_DOWN) {
       touchState.event = TE_UP;
-    }
-    else {
+      if (now - downTime <= TAP_TIME) {
+        if (now - tapTime > TAP_TIME) {
+          tapCount = 1;
+        } else {
+          tapCount++;
+        }
+        touchState.tapCount = tapCount;
+        tapTime = now;
+      } else {
+        touchState.tapCount = 0;  // not a tap
+      }
+      downTime = 0;
+    } else {
       touchState.x = LCD_WIDTH;
       touchState.y = LCD_HEIGHT;
       touchState.event = TE_SLIDE_END;
