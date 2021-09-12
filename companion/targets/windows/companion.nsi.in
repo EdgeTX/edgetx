@@ -13,14 +13,14 @@
 ;General
 
   ;Name and file
-  Name "OpenTX Companion @VERSION_FAMILY@"
+  Name "EdgeTX Companion @VERSION_FAMILY@"
   OutFile "companion-windows-@VERSION@.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\OpenTX\Companion @VERSION_FAMILY@"
+  InstallDir "$PROGRAMFILES\EdgeTX\Companion @VERSION_FAMILY@"
 
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\OpenTX\Companion @VERSION_FAMILY@" ""
+  InstallDirRegKey HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@" ""
 
   ;Compressor options
   SetCompressor /FINAL /SOLID lzma
@@ -71,7 +71,7 @@
 
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\OpenTX\Companion @VERSION_FAMILY@"
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\EdgeTX\Companion @VERSION_FAMILY@"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
 
@@ -102,7 +102,7 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "OpenTX Companion @VERSION_FAMILY@" SecDummy
+Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
 
   Delete "$INSTDIR\opentx-*-simulator.dll"
   RMDir /r "$INSTDIR\lang"
@@ -114,22 +114,22 @@ Section "OpenTX Companion @VERSION_FAMILY@" SecDummy
   File /r "@NSIS_DISTRO@\*"
 
   ;Store installation folder
-  WriteRegStr HKCU "Software\OpenTX\Companion @VERSION_FAMILY@" "" $INSTDIR
+  WriteRegStr HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@" "" $INSTDIR
 
   ;Associate with extentions .otx
-  ${registerExtension} "$INSTDIR\companion.exe" ".otx" "OpenTX Settings File"
+  ${registerExtension} "$INSTDIR\companion.exe" ".otx" "EdgeTX Settings File"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   ;Registry information for add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "DisplayName" "OpenTX Companion @VERSION_FAMILY@"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "DisplayVersion" "@VERSION@"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "DisplayIcon" "$\"$INSTDIR\companion.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "Publisher" "OpenTX"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "URLInfoAbout" "https://www.open-tx.org"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayName" "EdgeTX Companion @VERSION_FAMILY@"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayVersion" "@VERSION@"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayIcon" "$\"$INSTDIR\companion.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "Publisher" "EdgeTX"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "URLInfoAbout" "https://www.open-tx.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 
@@ -151,8 +151,8 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecDummy ${LANG_ENGLISH} "Models and settings editor for OpenTX"
-  LangString DESC_SecDummy ${LANG_FRENCH} "Editeur de r�glages et mod�les pour OpenTX"
+  LangString DESC_SecDummy ${LANG_ENGLISH} "Models and settings editor for EdgeTX"
+  LangString DESC_SecDummy ${LANG_FRENCH} "Editeur de r�glages et mod�les pour EdgeTX"
   LangString SML_SubTitle     ${LANG_ENGLISH} "Choose a location for the Start Menu shortcuts"
   LangString SML_SubTitle     ${LANG_FRENCH}  "Choisissez un emplacement pour les raccourcis de l'application"
   LangString SML_MainLabel    ${LANG_ENGLISH} "Create start menu shortcuts for:"
@@ -170,7 +170,7 @@ SectionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-Section "un.OpenTX Companion @VERSION_FAMILY@"
+Section "un.EdgeTX Companion @VERSION_FAMILY@"
 
   SectionIn RO  ; Not deselectable
 
@@ -199,6 +199,7 @@ Section "un.OpenTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\ssleay32.dll"
   ; MinGW libs
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
+  Delete "$INSTDIR\libgcc_s_seh-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
   Delete "$INSTDIR\libwinpthread-1.dll"
 
@@ -219,7 +220,7 @@ Section "un.OpenTX Companion @VERSION_FAMILY@"
   ${unregisterExtension} ".bin" "BIN File"
   ${unregisterExtension} ".hex" "HEX File"
   ${unregisterExtension} ".eepm" "EEPE File"
-  ${unregisterExtension} ".otx" "OpenTX Settings File"
+  ${unregisterExtension} ".otx" "EdgeTX Settings File"
 
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
@@ -235,11 +236,11 @@ Section "un.OpenTX Companion @VERSION_FAMILY@"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall Companion @VERSION_FAMILY@.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTX Companion @VERSION_FAMILY@"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@"
 SectionEnd
 
 Section /o "un.Settings"
-  DeleteRegKey HKCU "Software\OpenTX\Companion @VERSION_FAMILY@"
+  DeleteRegKey HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@"
 SectionEnd
 
 Function LaunchLink
