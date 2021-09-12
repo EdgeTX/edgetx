@@ -100,20 +100,6 @@ void luaSetInstructionsLimit(lua_State * L, int count)
 #endif
 }
 
-void exec(int function, int nresults=0)
-{
-  if (lsWidgets == 0) return;
-
-  if (function) {
-    luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, function);
-    if (lua_pcall(lsWidgets, 0, nresults, 0) != 0) {
-      TRACE("Error in theme  %s", lua_tostring(lsWidgets, -1));
-      // TODO disable theme - revert back to default theme???
-    }
-  }
-}
-
 ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
 {
   if (reference == 0) {
@@ -242,6 +228,8 @@ struct eventData {
 
 class LuaWidget: public Widget
 {
+  friend class LuaWidgetFactory;
+  
   public:
     LuaWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData, int luaWidgetDataRef):
       Widget(factory, parent, rect, persistentData),
@@ -367,11 +355,12 @@ class LuaWidgetFactory: public WidgetFactory
           l_pushtableint(option->name, value);
       }
 
-      if (lua_pcall(lsWidgets, 2, 1, 0) != 0) {
-        TRACE("Error in widget %s create() function: %s", getName(), lua_tostring(lsWidgets, -1));
-      }
-      int widgetData = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      return new LuaWidget(this, parent, rect, persistentData, widgetData);
+      bool err = lua_pcall(lsWidgets, 2, 1, 0);
+      int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+      LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData);
+      if (err)
+        lw->setErrorMessage("create()");
+      return lw;
     }
 
   protected:
@@ -529,10 +518,12 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // This little hack is needed to not interfere with the LCD usage of preempted scripts
   bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
+  runningFS = this;
 
   if (lua_pcall(lsWidgets, 3, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
+  runningFS = nullptr;
   // Remove LCD
   luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
@@ -551,9 +542,11 @@ void LuaWidget::background()
   if (factory->backgroundFunction) {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+    runningFS = this;
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
       setErrorMessage("background()");
     }
+    runningFS = nullptr;
   }
 }
 
