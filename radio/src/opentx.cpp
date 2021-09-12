@@ -1073,8 +1073,8 @@ void getADC()
       #if defined(RADIO_TX16S)
         switch (x)
         {
-            case 9:
-            case 10:
+            case EXT3:
+            case EXT4:
                 v = getAnalogValue(x-7) >> (1 - ANALOG_SCALE);
                 break;
             default:
