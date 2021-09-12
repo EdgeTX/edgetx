@@ -45,84 +45,84 @@ rm -rf build
 mkdir build
 cd build
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9LITE ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9LITE ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9LITES ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9LITES ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ACCESS ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ACCESS ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T12 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T12 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9D ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9D ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9D+ ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9D+ ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9D+ -DPCBREV=2019 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9D+ -DPCBREV=2019 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=XLITE ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=XLITE ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=XLITES ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=XLITES ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X9E ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X9E ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X10 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X10 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=YES ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=YES ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
 cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=TX16S ${SRCDIR}
 make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T18 ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T18 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=EXPRESS ${SRCDIR}
-# make -j${JOBS} libsimulator
-# rm CMakeCache.txt
+cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=EXPRESS ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
 
-# cmake ${COMMON_OPTIONS} -DPCB=X12S ${SRCDIR}
-# make -j${JOBS} libsimulator
+cmake ${COMMON_OPTIONS} -DPCB=X12S ${SRCDIR}
+make -j${JOBS} libsimulator
 
 if [ "$(uname)" = "Darwin" ]; then
     make -j${JOBS} package
@@ -132,4 +132,5 @@ elif [ "$(uname)" = "Linux" ]; then
     cp *.deb ${OUTDIR}
 else
     make installer
+    cp companion/*.exe ${OUTDIR}
 fi
