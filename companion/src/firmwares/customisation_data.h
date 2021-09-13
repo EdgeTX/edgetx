@@ -68,21 +68,6 @@ enum ZoneOptionValueEnum {
   ZOV_LAST = ZOV_String
 };
 
-inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
-  switch (zovenum) {
-    case ZOV_Unsigned:
-      return "unsigned";
-    case ZOV_Signed:
-      return "signed";
-    case ZOV_Bool:
-      return "bool";
-    case ZOV_String:
-      return "string";
-    default:
-      return "unknown";
-  }
-}
-
 struct ZoneOption
 {
   enum Type {
@@ -110,29 +95,6 @@ struct ZoneOptionValueTyped
   ZoneOptionValue     value;
 };
 
-inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
-{
-  switch(type) {
-  case ZoneOption::File:
-  case ZoneOption::String:
-    return ZOV_String;
-
-  case ZoneOption::Integer:
-    return ZOV_Signed;
-
-  case ZoneOption::Bool:
-    return ZOV_Bool;
-
-  case ZoneOption::Color:
-  case ZoneOption::Timer:
-  case ZoneOption::Switch:
-  case ZoneOption::Source:
-  case ZoneOption::TextSize:
-  default:
-    return ZOV_Unsigned;
-  }
-}
-
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
 };
@@ -148,19 +110,11 @@ struct WidgetsContainerPersistentData {
   ZoneOptionValueTyped options[O];
 };
 
-typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS> LayoutPersistentData;
+typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
+    LayoutPersistentData;
 
-typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarPersistentData;
-
-inline void setZoneOptionValue(ZoneOptionValue & zov, bool value)          { zov.boolValue = value; }
-inline void setZoneOptionValue(ZoneOptionValue & zov, int value)           { zov.signedValue = value; }
-inline void setZoneOptionValue(ZoneOptionValue & zov, char value)          { memset(&zov.stringValue, value, LEN_ZONE_OPTION_STRING); }
-inline void setZoneOptionValue(ZoneOptionValue & zov, unsigned int value)  { zov.unsignedValue = value; }
-
-// cannot use QColor so use formula from libopenui_defines.h
-#define RGB(r, g, b)    (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
-#define WHITE           RGB(0xFF, 0xFF, 0xFF)
-#define RED             RGB(229, 32, 30)
+typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS>
+    TopBarPersistentData;
 
 class RadioTheme
 {
@@ -176,20 +130,7 @@ class RadioTheme
       PersistentData themePersistentData;
     };
 
-    static void init(const char * themeName, ThemeData & themeData)
-    {
-      memset(&themeData, 0, sizeof(ThemeData));
-
-      memcpy(&themeData.themeName, themeName, THEME_NAME_LEN);
-
-      PersistentData & persistentData = themeData.themePersistentData;
-
-      persistentData.options[0].type = zoneValueEnumFromType(ZoneOption::Type::Color);
-      setZoneOptionValue(persistentData.options[0].value, (unsigned int)WHITE);
-
-      persistentData.options[1].type = zoneValueEnumFromType(ZoneOption::Type::Color);
-      setZoneOptionValue(persistentData.options[1].value, (unsigned int)RED);
-    }
+    static void init(const char * themeName, ThemeData & themeData);
 };
 
 class RadioLayout
@@ -206,31 +147,5 @@ class RadioLayout
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
     };
 
-    static void init(const char * layoutId, CustomScreens & customScreens)
-    {
-      memset(&customScreens, 0, sizeof(CustomScreens));
-
-      for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-        if (i == 0)
-          memcpy(&customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
-
-        LayoutPersistentData & persistentData = customScreens.customScreenData[i].layoutPersistentData;
-
-        int j = 0;
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)true);
-
-        persistentData.options[j].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(persistentData.options[j++].value, (bool)false);
-      }
-    }
+    static void init(const char * layoutId, CustomScreens & customScreens);
 };

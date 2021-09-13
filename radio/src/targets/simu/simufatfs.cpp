@@ -208,24 +208,24 @@ void splitPath(const std::string & path, std::string & dir, std::string & name)
 
 
 #if !MSVC_BUILD
-bool isFile(const std::string & fullName, unsigned int d_type)
+bool isFile(const std::string & fullName)
 {
-#if defined(WIN32) || defined(__APPLE__) || defined(__FreeBSD__)
-  #define REGULAR_FILE DT_REG
-  #define SYMBOLIC_LINK DT_LNK
-#else
-  #define REGULAR_FILE simu::DT_REG
-  #define SYMBOLIC_LINK simu::DT_LNK
-#endif
+//#if defined(WIN32) || defined(__APPLE__) || defined(__FreeBSD__)
+//  #define REGULAR_FILE DT_REG
+//  #define SYMBOLIC_LINK DT_LNK
+//#else
+//  #define REGULAR_FILE simu::DT_REG
+//  #define SYMBOLIC_LINK simu::DT_LNK
+//#endif
 
-  if (d_type == REGULAR_FILE) return true;
-  if (d_type == SYMBOLIC_LINK) {
+  //if (d_type == REGULAR_FILE) return true;
+  //if (d_type == SYMBOLIC_LINK) {
     struct stat tmp;
     if (stat(fullName.c_str(), &tmp) == 0) {
       // TRACE_SIMPGMSPACE("\tsymlik: %s is %s", fullName.c_str(), (tmp.st_mode & S_IFREG) ? "file" : "other");
       if (tmp.st_mode & S_IFREG) return true;
     }
-  }
+  //}
   return false;
 }
 #endif
@@ -255,7 +255,7 @@ std::vector<std::string> listDirectoryFiles(const std::string & dirName)
     struct simu::dirent * res;
     while ((res = simu::readdir(dir)) != 0) {
       std::string fullName = dirName + "/" + std::string(res->d_name);
-      if (isFile(fullName, res->d_type)) {
+      if (isFile(fullName)) {
         // TRACE_SIMPGMSPACE("listDirectoryFiles(): %s", fullName.c_str());
         result.push_back(fullName);
       }
@@ -452,20 +452,20 @@ FRESULT f_readdir (DIR * rep, FILINFO * fil)
     if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..") ) break;
   }
 
-#if defined(WIN32) || !defined(__GNUC__) || defined(__APPLE__) || defined(__FreeBSD__)
-  fil->fattrib = (ent->d_type == DT_DIR ? AM_DIR : 0);
-#else
-  if (ent->d_type == simu::DT_UNKNOWN || ent->d_type == simu::DT_LNK) {
+//#if defined(WIN32) || !defined(__GNUC__) || defined(__APPLE__) || defined(__FreeBSD__)
+//  fil->fattrib = (ent->d_type == DT_DIR ? AM_DIR : 0);
+//#else
+//  if (ent->d_type == simu::DT_UNKNOWN || ent->d_type == simu::DT_LNK) {
     fil->fattrib = 0;
     struct stat buf;
     if (stat(ent->d_name, &buf) == 0) {
       fil->fattrib = (S_ISDIR(buf.st_mode) ? AM_DIR : 0);
     }
-  }
-  else {
-    fil->fattrib = (ent->d_type == simu::DT_DIR ? AM_DIR : 0);
-  }
-#endif
+  //}
+  //else {
+  //  fil->fattrib = (ent->d_type == simu::DT_DIR ? AM_DIR : 0);
+  //}
+//#endif
 
   memset(fil->fname, 0, FF_MAX_LFN);
   strcpy(fil->fname, ent->d_name);

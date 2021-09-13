@@ -30,37 +30,20 @@ done
 SRCDIR=$1
 OUTDIR=$2
 
-COMMON_OPTIONS="-DALLOW_NIGHTLY_BUILDS=YES -DTEST_BUILD_WARNING=YES -DGVARS=YES -DHELI=YES -DLUA=YES -DMULTIMODULE=YES -DTELEMETRY=FRSKY -DPPM_LIMITS_SYMETRICAL=YES -DVARIO=YES -DAUTOSWITCH=YES -DAUTOSOURCE=YES -DAUDIO=YES -DGPS=YES -DPPM_CENTER_ADJUSTABLE=YES -DFLIGHT_MODES=YES -DOVERRIDE_CHANNEL_FUNCTION=YES -DFRSKY_STICKS=YES"
+COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Release"
 if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_PREFIX_PATH=~/Qt/5.7/clang_64/ -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
+    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
+elif [ "$(uname)" != "Linux" ]; then
+    COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
 fi
 
 if [ "$3" != "" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
-else
-  wget https://downloads.open-tx.org/2.3/nightlies/companion/companion-linux.stamp
-  version=$(cut -d'N' -f 3 < companion-linux.stamp)
-  version=$(echo $version | tr -cd '[[:digit:]]')
-  version=$((version+1))
-  nightly=N"$version"
-  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$nightly"
 fi
 
 rm -rf build
 mkdir build
 cd build
-
-cmake ${COMMON_OPTIONS} -DPCB=AR9X ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=SKY9X ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=9XRPRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
 
 cmake ${COMMON_OPTIONS} -DPCB=X9LITE ${SRCDIR}
 make -j${JOBS} libsimulator
@@ -141,10 +124,13 @@ rm CMakeCache.txt
 cmake ${COMMON_OPTIONS} -DPCB=X12S ${SRCDIR}
 make -j${JOBS} libsimulator
 
-make -j${JOBS} package
-
 if [ "$(uname)" = "Darwin" ]; then
+    make -j${JOBS} package
     cp *.dmg ${OUTDIR}
-else
+elif [ "$(uname)" = "Linux" ]; then
+    make -j${JOBS} package
     cp *.deb ${OUTDIR}
+else
+    make installer
+    cp companion/*.exe ${OUTDIR}
 fi

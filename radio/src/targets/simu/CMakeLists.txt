@@ -44,12 +44,24 @@ if(Qt5Widgets_FOUND)
   add_dependencies(${SIMULATOR_TARGET} ${RADIO_DEPENDENCIES})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})  # set in top-level CMakeLists
   target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
+
+  # Remove debug symbols on release builds
+  if(NOT CLANG)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+      add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
+        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${SIMULATOR_TARGET}>)
+    endif()
+  endif()
+      
+
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow
   # When the simulator is launched from Companion the runtime dynamic linking can result in Companion overiding the simulator
   # and crashing the simulator under some OSes
   # The flag forces the runtime linker to always look for references in the simulator first
-  target_link_options(${SIMULATOR_TARGET} PRIVATE "LINKER:-Bsymbolic")
+  if (NOT CLANG)
+    target_link_options(${SIMULATOR_TARGET} PRIVATE "LINKER:-Bsymbolic")
+  endif()
   #
   add_custom_target(libsimulator DEPENDS ${SIMULATOR_TARGET})
 
