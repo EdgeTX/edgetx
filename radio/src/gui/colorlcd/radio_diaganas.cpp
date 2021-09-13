@@ -47,7 +47,7 @@ class RadioAnalogsDiagsWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if defined (FLYSKY_HALL_STICKS) || defined (FLYSKY_HALL_STICKS_REVERSE)
+#if !defined(SIMU) && (defined (FLYSKY_HALL_STICKS) || defined (FLYSKY_HALL_STICKS_REVERSE))
         for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
   #if LCD_W > LCD_H
            coord_t y = 1 + (i / 2) * FH;
