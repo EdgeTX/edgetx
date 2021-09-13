@@ -162,6 +162,11 @@ void Choice::openMenu()
     menu->select(current);
   }
 
+  if (beforeDisplayMenuHandler) {
+    beforeDisplayMenuHandler(menu);
+  }
+
+
   menu->setCloseHandler([=]() {
     setEditMode(false);
   });

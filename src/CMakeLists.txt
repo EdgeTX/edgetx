@@ -26,6 +26,7 @@ set(LIBOPENUI_SRC
   menu.cpp
   menutoolbar.cpp
   choice.cpp
+  choiceex.cpp
   filechoice.cpp
   numberedit.cpp
   textedit.cpp

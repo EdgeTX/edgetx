@@ -31,6 +31,7 @@ class Keyboard: public FormWindow
 
     void clearField()
     {
+      TRACE("CLEAR FIELD");
       detach();
       if (fields) { 
         fields->setHeight(oldHeight);
@@ -64,7 +65,7 @@ class Keyboard: public FormWindow
 
     void setField(FormField *newField);
     Window *getFieldContainer(FormField * field);
-    void attachKeyboard();
+    bool attachKeyboard();
     FormWindow *findFormWindow(Window *parent);
 };
 

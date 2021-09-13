@@ -22,6 +22,8 @@
 #include <vector>
 #include "form.h"
 
+class Menu;
+
 enum ChoiceType {
   CHOICE_TYPE_DROPOWN,
   CHOICE_TYPE_FOLDER,
@@ -76,6 +78,11 @@ class Choice: public ChoiceBase {
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
+
+    void setBeforeDisplayMenuHandler(std::function<void(Menu*)> handler)
+    {
+      beforeDisplayMenuHandler = std::move(handler);
+    }
 
     void setSetValueHandler(std::function<void(int)> handler)
     {
@@ -155,6 +162,7 @@ class Choice: public ChoiceBase {
     std::function<void(int)> setValue;
     std::function<bool(int)> isValueAvailable;
     std::function<std::string(int)> textHandler;
+    std::function <void(Menu *)> beforeDisplayMenuHandler;
 
     virtual void openMenu();
 };
