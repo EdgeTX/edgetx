@@ -35,14 +35,17 @@ coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
   return offsetY - topWindow->height() / 2;
 }
 
-void Keyboard::attachKeyboard()
+bool Keyboard::attachKeyboard()
 {
+  TRACE("ATTACH KEYBOARD");
   if (activeKeyboard) {
-    if (activeKeyboard == this) return;
+    if (activeKeyboard == this) return false;
     activeKeyboard->clearField();
   }
+
   activeKeyboard = this;
   attach(MainWindow::instance());
+  return true;
 }
 
 
@@ -76,7 +79,10 @@ FormWindow *Keyboard::findFormWindow(Window *parent)
 
 void Keyboard::setField(FormField* newField)
 {
-  attachKeyboard();
+  TRACE("SET FIELD");
+
+  if (!attachKeyboard())
+    return;
 
   fieldContainer = getFieldContainer(newField);
   if (fieldContainer) {
