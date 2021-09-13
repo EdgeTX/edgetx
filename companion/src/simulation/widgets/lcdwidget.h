@@ -29,6 +29,7 @@
 #include <QElapsedTimer>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QMouseEvent>
 
 #include "appdata.h"
 #include "appdebugmessagehandler.h"
@@ -41,6 +42,12 @@ class LcdWidget : public QWidget
 
   public:
 
+    enum TouchEvent {
+      TouchUp=0,
+      TouchDown,
+      TouchSlide
+    };
+  
     LcdWidget(QWidget * parent = 0):
       QWidget(parent),
       lcdBuf(NULL),
@@ -117,6 +124,9 @@ class LcdWidget : public QWidget
       }
     }
 
+  signals:
+    void touchEvent(int type, int x, int y);
+  
   protected:
 
     int lcdWidth;
@@ -213,12 +223,26 @@ class LcdWidget : public QWidget
 
     }
 
-    void paintEvent(QPaintEvent*)
+    void paintEvent(QPaintEvent*) override
     {
       QPainter p(this);
       doPaint(p);
     }
 
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+      emit touchEvent(TouchSlide, event->pos().x(), event->pos().y());
+    }
+
+    void mousePressEvent(QMouseEvent *event) override
+    {
+      emit touchEvent(TouchDown, event->pos().x(), event->pos().y());
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+      emit touchEvent(TouchUp, event->pos().x(), event->pos().y());
+    }
 };
 
 #endif // _LCDWIDGET_H_

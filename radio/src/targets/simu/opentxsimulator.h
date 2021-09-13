@@ -35,6 +35,12 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
 
   public:
 
+    enum TouchEvent {
+      TouchUp=0,
+      TouchDown,
+      TouchSlide
+    };
+
     OpenTxSimulator();
     virtual ~OpenTxSimulator();
 
@@ -64,6 +70,7 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     virtual void setTrainerInput(unsigned int inputNumber, int16_t value);
     virtual void setInputValue(int type, uint8_t index, int16_t value);
     virtual void rotaryEncoderEvent(int steps);
+    virtual void touchEvent(int type, int x, int y);
     virtual void setTrainerTimeout(uint16_t ms);
     virtual void sendTelemetry(const QByteArray data);
     virtual void setLuaStateReloadPermanentScripts();

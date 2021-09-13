@@ -299,6 +299,51 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
 #endif  // defined(ROTARY_ENCODER_NAVIGATION)
 }
 
+void OpenTxSimulator::touchEvent(int type, int x, int y)
+{
+  switch (type) {
+    case TouchDown:
+      TRACE_WINDOWS("[Mouse Press] %d %d", x, y);
+
+#if defined(HARDWARE_TOUCH)
+      touchState.event = TE_DOWN;
+      touchState.startX = touchState.x = x;
+      touchState.startY = touchState.y = y;
+#endif
+      break;
+
+    case TouchUp:
+      TRACE_WINDOWS("[Mouse Release] %d %d", x, y);
+
+#if defined(HARDWARE_TOUCH)
+      if (touchState.event == TE_DOWN) {
+        touchState.event = TE_UP;
+        touchState.x = touchState.startX;
+        touchState.y = touchState.startY;
+      } else {
+        touchState.event = TE_SLIDE_END;
+      }
+#endif
+      break;
+
+    case TouchSlide:
+      TRACE_WINDOWS("[Mouse Move] %d %d", x, y);
+
+#if defined(HARDWARE_TOUCH)
+      touchState.deltaX += x - touchState.x;
+      touchState.deltaY += y - touchState.y;
+      if (touchState.event == TE_SLIDE ||
+          abs(touchState.deltaX) >= SLIDE_RANGE ||
+          abs(touchState.deltaY) >= SLIDE_RANGE) {
+        touchState.event = TE_SLIDE;
+        touchState.x = x;
+        touchState.y = y;
+      }
+#endif
+      break;
+  }
+}
+
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
 {
   ppmInputValidityTimer = ms;
