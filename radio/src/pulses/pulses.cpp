@@ -22,6 +22,7 @@
 #include "io/frsky_pxx2.h"
 #include "pulses/pxx2.h"
 #include "mixer_scheduler.h"
+#include "io/multi_protolist.h"
 
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
@@ -291,6 +292,9 @@ void enablePulsesExternalModule(uint8_t protocol)
 #endif
       getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
+#if defined(MULTI_PROTOLIST)
+      MultiRfProtocols::instance(EXTERNAL_MODULE)->triggerScan();
+#endif
       break;
 #endif
 
@@ -468,6 +472,9 @@ static void enablePulsesInternalModule(uint8_t protocol)
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
       getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+#if defined(MULTI_PROTOLIST)
+      MultiRfProtocols::instance(EXTERNAL_MODULE)->triggerScan();
+#endif
       break;
 #endif
 
