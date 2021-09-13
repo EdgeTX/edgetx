@@ -421,11 +421,22 @@ FRESULT f_chdir (const TCHAR *name)
   return FR_OK;
 }
 
+struct _simu_DIR
+{
+    std::string name;
+    simu::DIR*  dir;
+
+    _simu_DIR(simu::DIR* dir, const TCHAR* name) :
+        name(name), dir(dir)
+    {}
+};
+
 FRESULT f_opendir (DIR * rep, const TCHAR * name)
 {
   std::string path = convertToSimuPath(name);
-  rep->obj.fs = (FATFS *)simu::opendir(path.c_str());
-  if (rep->obj.fs) {
+  simu::DIR* dp = simu::opendir(path.c_str());
+  if (dp) {
+    rep->obj.fs = reinterpret_cast<FATFS*>(new _simu_DIR(dp, name));
     TRACE_SIMPGMSPACE("f_opendir(%s) = OK", path.c_str());
     return FR_OK;
   }
@@ -437,7 +448,10 @@ FRESULT f_closedir (DIR * rep)
 {
   TRACE_SIMPGMSPACE("f_closedir(%p)", rep);
   if (rep->obj.fs) {
-    simu::closedir((simu::DIR *)rep->obj.fs);
+    _simu_DIR* sd = reinterpret_cast<_simu_DIR*>(rep->obj.fs);
+    rep->obj.fs = nullptr;
+    simu::closedir(sd->dir);
+    delete sd;
   }
   return FR_OK;
 }
@@ -445,32 +459,21 @@ FRESULT f_closedir (DIR * rep)
 FRESULT f_readdir (DIR * rep, FILINFO * fil)
 {
   simu::dirent * ent;
-  if (!rep->obj.fs) return FR_NO_FILE;
+  _simu_DIR* sd = reinterpret_cast<_simu_DIR*>(rep->obj.fs);
+
+  if (!sd) return FR_NO_FILE;
+
   for(;;) {
-    ent = simu::readdir((simu::DIR *)rep->obj.fs);
+    ent = simu::readdir(sd->dir);
     if (!ent) return FR_NO_FILE;
     if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..") ) break;
   }
 
-//#if defined(WIN32) || !defined(__GNUC__) || defined(__APPLE__) || defined(__FreeBSD__)
-//  fil->fattrib = (ent->d_type == DT_DIR ? AM_DIR : 0);
-//#else
-//  if (ent->d_type == simu::DT_UNKNOWN || ent->d_type == simu::DT_LNK) {
-    fil->fattrib = 0;
-    struct stat buf;
-    if (stat(ent->d_name, &buf) == 0) {
-      fil->fattrib = (S_ISDIR(buf.st_mode) ? AM_DIR : 0);
-    }
-  //}
-  //else {
-  //  fil->fattrib = (ent->d_type == simu::DT_DIR ? AM_DIR : 0);
-  //}
-//#endif
-
   memset(fil->fname, 0, FF_MAX_LFN);
   strcpy(fil->fname, ent->d_name);
   // TRACE_SIMPGMSPACE("f_readdir(): %s", fil->fname);
-  return FR_OK;
+  std::string fullName = sd->name + std::string("/") + std::string(ent->d_name);
+  return f_stat(fullName.c_str(), fil);
 }
 
 FRESULT f_mkfs (const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
