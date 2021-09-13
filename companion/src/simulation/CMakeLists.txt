@@ -28,6 +28,7 @@ set(simulation_SRCS
   trainersimu.cpp
   widgets/radiowidget.cpp
   widgets/virtualjoystickwidget.cpp
+  widgets/lcdwidget.cpp
 )
 
 set(simulation_UIS

@@ -197,6 +197,7 @@ void SimulatedUIWidget::setLcd(LcdWidget * lcd)
     m_backLight = 0;
 
   m_lcd->setBackgroundColor(m_backlightColors.at(m_backLight));
+  connect(m_lcd, &LcdWidget::touchEvent, m_simulator, &SimulatorInterface::touchEvent);
 }
 
 void SimulatedUIWidget::connectScrollActions()
