@@ -28,24 +28,27 @@ static constexpr coord_t SENSOR_COL1 = 30;
 static constexpr coord_t SENSOR_COL2 = SENSOR_COL1 + 70;
 static constexpr coord_t SENSOR_COL3 = LCD_W - 50;
 
-class SensorSourceChoice : public SourceChoice {
-  public:
-    SensorSourceChoice(FormGroup * window, const rect_t &rect, uint8_t * source, IsValueAvailable isValueAvailable) :
+class SensorSourceChoice : public SourceChoice
+{
+ public:
+  SensorSourceChoice(FormGroup *window, const rect_t &rect, uint8_t *source,
+                     IsValueAvailable isValueAvailable) :
       SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
-                   GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1) : MIXSRC_NONE),
+                   GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1)
+                                       : MIXSRC_NONE),
                    [=](uint8_t newValue) {
-                     *source = newValue == MIXSRC_NONE ? 0 : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
+                     *source = newValue == MIXSRC_NONE
+                                   ? 0
+                                   : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
                    })
-    {
-      setAvailableHandler([=](int16_t value) {
-        if (value == MIXSRC_NONE)
-          return true;
-        if (value < MIXSRC_FIRST_TELEM)
-          return false;
-        auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-        return qr.rem == 0 && isValueAvailable(qr.quot + 1);
-      });
-    }
+  {
+    setAvailableHandler([=](int16_t value) {
+      if (value == MIXSRC_NONE) return true;
+      if (value < MIXSRC_FIRST_TELEM) return false;
+      auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
+      return qr.rem == 0 && isValueAvailable(qr.quot + 1);
+    });
+  }
 };
 
 class SensorButton : public Button {

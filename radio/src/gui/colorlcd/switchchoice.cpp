@@ -18,77 +18,77 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "libopenui_config.h"
 #include "switchchoice.h"
-#include "menutoolbar.h"
-#include "menu.h"
-#include "draw_functions.h"
-#include "strhelpers.h"
+
 #include "dataconstants.h"
+#include "draw_functions.h"
+#include "libopenui_config.h"
+#include "menu.h"
+#include "menutoolbar.h"
 #include "opentx.h"
+#include "strhelpers.h"
 
 class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
 {
-  public:
-    SwitchChoiceMenuToolbar(SwitchChoice * choice, Menu * menu):
+ public:
+  SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
       MenuToolbar<SwitchChoice>(choice, menu)
-    {
-      addButton(CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
-      addButton(CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-      addButton(CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH);
-    }
+  {
+    addButton(CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
+    addButton(CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
+    addButton(CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
+              SWSRC_LAST_LOGICAL_SWITCH);
+  }
 };
 
-SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin, int vmax,
-               std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue) :
-      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
-  {
-    setBeforeDisplayMenuHandler([=](Menu *menu) {
-      menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
+SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin,
+                           int vmax, std::function<int16_t()> getValue,
+                           std::function<void(int16_t)> setValue) :
+    ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
+{
+  setBeforeDisplayMenuHandler([=](Menu* menu) {
+    menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
 #if defined(AUTOSWITCH)
-      menu->setWaitHandler([menu,this, setValue]() {
-        swsrc_t val = 0;
-        swsrc_t swtch = getMovedSwitch();
-        if (swtch) {
-          div_t info = switchInfo(swtch);
-          if (IS_CONFIG_TOGGLE(info.quot)) {
-            if (info.rem != 0) {
-              val = (val == swtch ? swtch - 2 : swtch);
-            }
-          } else {
-            val = swtch;
+    menu->setWaitHandler([menu, this, setValue]() {
+      swsrc_t val = 0;
+      swsrc_t swtch = getMovedSwitch();
+      if (swtch) {
+        div_t info = switchInfo(swtch);
+        if (IS_CONFIG_TOGGLE(info.quot)) {
+          if (info.rem != 0) {
+            val = (val == swtch ? swtch - 2 : swtch);
           }
-          if (val && (!isValueAvailable || isValueAvailable(val))) {
-            if (setValue) setValue(val);
-            this->fillMenu(menu);
-          }
+        } else {
+          val = swtch;
         }
-      });
-#endif
-    });
-
-    setTextHandler([=] (int value) {
-      if (isValueAvailable && !isValueAvailable(value)) 
-        return std::to_string(0);  // we will fix this later
-
-      return std::string(getSwitchPositionName(value));
-    });
-
-    setLongPressHandler([=] (event_t) {
-      int16_t val = getValue();
-      if (isValueAvailable && isValueAvailable(-val) ) {
-        setValue(-val);
-        invalidate();
+        if (val && (!isValueAvailable || isValueAvailable(val))) {
+          if (setValue) setValue(val);
+          this->fillMenu(menu);
+        }
       }
     });
+#endif
+  });
 
-    setAvailableHandler(isSwitchAvailableInMixes);
+  setTextHandler([=](int value) {
+    if (isValueAvailable && !isValueAvailable(value))
+      return std::to_string(0);  // we will fix this later
 
-  }
+    return std::string(getSwitchPositionName(value));
+  });
 
+  setLongPressHandler([=](event_t) {
+    int16_t val = getValue();
+    if (isValueAvailable && isValueAvailable(-val)) {
+      setValue(-val);
+      invalidate();
+    }
+  });
 
-void SwitchChoice::fillMenu(Menu * menu, std::function<bool(int16_t)> filter)
+  setAvailableHandler(isSwitchAvailableInMixes);
+}
+
+void SwitchChoice::fillMenu(Menu* menu, std::function<bool(int16_t)> filter)
 {
   auto value = getValue();
   int count = 0;
@@ -111,4 +111,3 @@ void SwitchChoice::fillMenu(Menu * menu, std::function<bool(int16_t)> filter)
     menu->select(current);
   }
 }
-

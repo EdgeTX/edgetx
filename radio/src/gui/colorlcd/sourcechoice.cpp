@@ -55,51 +55,52 @@ class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice>
     }
 };
 
-
 // defined in gui/gui_common.cpp
 uint8_t switchToMix(uint8_t source);
-  
-SourceChoice::SourceChoice(FormGroup *parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, 
-                std::function<void(int16_t)> setValue, WindowFlags windowFlags, LcdFlags textFlags) :
-      ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
+
+SourceChoice::SourceChoice(FormGroup *parent, const rect_t &rect, int16_t vmin,
+                           int16_t vmax, std::function<int16_t()> getValue,
+                           std::function<void(int16_t)> setValue,
+                           WindowFlags windowFlags, LcdFlags textFlags) :
+    ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
 {
-    setBeforeDisplayMenuHandler([=](Menu *menu) {
-      menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));
+  setBeforeDisplayMenuHandler([=](Menu *menu) {
+    menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));
 #if defined(AUTOSOURCE)
-      menu->setWaitHandler([=]() {
-          int16_t val = getMovedSource(vmin);
-          if (val) {
-            if (setValue) {
-              setValue(val);
-            }
+    menu->setWaitHandler([=]() {
+      int16_t val = getMovedSource(vmin);
+      if (val) {
+        if (setValue) {
+          setValue(val);
+        }
+        this->fillMenu(menu);
+      }
+#if defined(AUTOSWITCH)
+      else {
+        swsrc_t swtch = abs(getMovedSwitch());
+        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+          val = switchToMix(swtch);
+          if (val && (val >= vmin) && (val <= vmax)) {
+            if (setValue) setValue(val);
             this->fillMenu(menu);
           }
-#if defined(AUTOSWITCH)
-          else {
-            swsrc_t swtch = abs(getMovedSwitch());
-            if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-              val = switchToMix(swtch);
-              if (val && (val >= vmin) && (val <= vmax)) {
-                if (setValue) setValue(val);
-                this->fillMenu(menu);
-              }
-            }
-          }
-#endif
-        });
+        }
+      }
 #endif
     });
+#endif
+  });
 
-    setTextHandler([=] (int value) {
-      if (isValueAvailable && !isValueAvailable(value)) 
-        return std::to_string(0);  // we will fix this later
+  setTextHandler([=](int value) {
+    if (isValueAvailable && !isValueAvailable(value))
+      return std::to_string(0);  // we will fix this later
 
-      return std::string(getSourceString(value));
-    });
+    return std::string(getSourceString(value));
+  });
 }
 
-
-void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & filter)
+void SourceChoice::fillMenu(Menu *menu,
+                            const std::function<bool(int16_t)> &filter)
 {
   auto value = getValue();
   int count = 0;
@@ -120,4 +121,3 @@ void SourceChoice::fillMenu(Menu * menu, const std::function<bool(int16_t)> & fi
     menu->select(current);
   }
 }
-

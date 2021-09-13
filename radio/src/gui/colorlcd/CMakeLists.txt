@@ -126,7 +126,6 @@ add_gui_src(sourcechoice.cpp)
 add_gui_src(switchchoice.cpp)
 add_gui_src(curveedit.cpp)
 
-
 if(HARDWARE_TOUCH)
   add_gui_src(keyboard_curve.cpp)
 endif()
