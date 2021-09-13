@@ -746,7 +746,7 @@ class TrainerModuleWindow : public FormGroup
         grid.nextLine();
       }
 
-#if defined(PCBNV14)
+#if defined(HARDWARE_TOUCH)
       new StaticText(this, grid.getLabelSlot(true));
 #endif
       getParent()->moveWindowsTop(top() + 1, adjustHeight());
