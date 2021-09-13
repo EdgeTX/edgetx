@@ -47,7 +47,7 @@ if(Qt5Widgets_FOUND)
 
   # Remove debug symbols on release builds
   if(NOT CLANG)
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
       add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
         COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${SIMULATOR_TARGET}>)
     endif()
