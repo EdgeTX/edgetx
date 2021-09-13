@@ -26,6 +26,10 @@
 #include "imu_lsm6ds33.h"
 #endif
 
+#if defined (FLYSKY_HALL_STICKS) || defined (FLYSKY_HALL_STICKS_REVERSE)
+#include "../../targets/horus/flyskyHallStick_driver.h"
+#endif
+
 constexpr coord_t ANA_OFFSET = 150;
 
 class RadioAnalogsDiagsWindow: public Window {
@@ -43,19 +47,49 @@ class RadioAnalogsDiagsWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
+#if !defined(SIMU) && (defined (FLYSKY_HALL_STICKS) || defined (FLYSKY_HALL_STICKS_REVERSE))
+        for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
+  #if LCD_W > LCD_H
+           coord_t y = 1 + (i / 2) * FH;
+           uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+  #else
+           coord_t y = 1 + i * FH;
+           uint8_t x = 10;
+  #endif
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
+          dc->drawText(x + 2 * 15 - 2, y, ":");
+          dc->drawNumber(x + 3 * 15 - 1, y, hall_raw_values[i], LEFT);
+          dc->drawNumber(x + ANA_OFFSET, y, hall_adc_values[i], RIGHT);
+        }
+
+        for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  #if LCD_W > LCD_H
+           coord_t y = 1 + (i / 2) * FH;
+           uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+  #else
+           coord_t y = 1 + i * FH;
+           uint8_t x = 10;
+  #endif
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
+          dc->drawText(x + 2 * 15 - 2, y, ":");
+          dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
+          dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
+        }
+#else		
       for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
 #if LCD_W > LCD_H
-					coord_t y = 1 + (i / 2) * FH;
-					uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+			coord_t y = 1 + (i / 2) * FH;
+			uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
 #else
-					coord_t y = 1 + i * FH;
-					uint8_t x = 10;
+			coord_t y = 1 + i * FH;
+			uint8_t x = 10;
 #endif
         dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
         dc->drawText(x + 2 * 15 - 2, y, ":");
-        drawHexNumber(dc, x + 3 * 15 - 1, y, anaIn(i));
+        dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
         dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
       }
+#endif
 
 #if !defined(SIMU) && defined(IMU_LSM6DS33)
       coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
