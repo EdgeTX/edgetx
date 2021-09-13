@@ -29,21 +29,30 @@ RadioTrainerPage::RadioTrainerPage():
 {
 }
 
-class NoEditNumberEdit : public NumberEdit {
-public:
-  NoEditNumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
-    NumberEdit(parent, rect, vmin, vmax, getValue, setValue, windowFlags, textFlags)
-  {
+class StaticNumber : public StaticText
+{
+  public:
+    StaticNumber(Window * parent, const rect_t & rect, std::function<int()> getValue, WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
+    StaticText(parent, rect, "", windowFlags, textFlags),
+    _getValue(std::move(getValue))
+    {    
+    }
+
+  void paint(BitmapBuffer * dc) {
+    auto curval = _getValue();
+    char buf[20];
+    if(textFlags & PREC1)
+      snprintf(buf, sizeof(buf), "%d.%.1d", curval / 10, abs(curval % 10));
+    else if(textFlags & PREC2)
+      snprintf(buf, sizeof(buf), "%d.%.2d", curval / 100, abs(curval % 100));
+    else
+      snprintf(buf, sizeof(buf), "%d", curval);
+    text = buf;
+    StaticText::paint(dc);
   }
-  // Disable all events, show only
-#if defined(HARDWARE_TOUCH)
-  bool onTouchEnd(coord_t, coord_t) {
-    return true;
-  }
-#endif  
-  void onEvent(event_t event) {
-    FormField::onEvent(event);
-  }
+
+  protected:
+    std::function<int()> _getValue;
 };
 
 void RadioTrainerPage::build(FormWindow * window)
@@ -87,10 +96,11 @@ void RadioTrainerPage::build(FormWindow * window)
 
   for (int i = 0; i < NUM_STICKS; i++) {
 #if defined (PPM_UNIT_PERCENT_PREC1)
-    auto calib = new NoEditNumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, nullptr, 0, LEFT | PREC1);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, 0, LEFT | PREC1);
 #else
-    auto calib = new NoEditNumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, nullptr, 0, LEFT);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, 0, LEFT);
 #endif
+
     calib->setWindowFlags(REFRESH_ALWAYS);
   }
 }
