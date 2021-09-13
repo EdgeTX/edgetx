@@ -515,7 +515,7 @@ class StructField: public DataField {
       return result;
     }
 
-    virtual int dump(int level=0, int offset=0)
+    int dump(int level=0, int offset=0) override
     {
       for (int i=0; i<level; i++) printf("  ");
       printf("%s (%d bytes)\n", getName().toLatin1().constData(), size()/8);

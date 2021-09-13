@@ -443,7 +443,7 @@ class SwitchField: public ConversionField< SignedField<N> > {
     {
     }
 
-    virtual void beforeExport()
+    void beforeExport() override
     {
       _switch = sw.toValue();
       ConversionField< SignedField<N> >::beforeExport();
@@ -477,7 +477,7 @@ class SourceField: public ConversionField< UnsignedField<N> > {
     {
     }
 
-    virtual void beforeExport()
+    void beforeExport() override
     {
       _source = source.toValue();
       ConversionField< UnsignedField<N> >::beforeExport();
@@ -603,7 +603,7 @@ class CurveReferenceField: public TransformedField {
       internalField.Append(new SignedField<8>(this, _curve_value));
     }
 
-    virtual void beforeExport()
+    void beforeExport() override
     {
       if (curve.value != 0) {
         _curve_type = (unsigned int)curve.type;
@@ -729,7 +729,7 @@ class FlightModeField: public TransformedField {
       }
     }
 
-    virtual void beforeExport()
+    void beforeExport() override
     {
       for (int i=0; i<CPN_MAX_STICKS+MAX_AUX_TRIMS(board); i++) {
         if (IS_HORUS_OR_TARANIS(board) || version >= 218) {
