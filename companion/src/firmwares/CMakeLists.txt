@@ -30,6 +30,7 @@ set(firmwares_SRCS
   opentx/opentxeeprom.cpp
   opentx/opentxinterface.cpp
   datahelpers.cpp
+  customisation_data.cpp
   )
 
 string(REPLACE ".cpp" ".h" firmwares_HDRS "${firmwares_SRCS}")
