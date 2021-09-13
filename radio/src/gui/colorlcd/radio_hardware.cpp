@@ -89,6 +89,30 @@ RadioHardwarePage::RadioHardwarePage():
 }
 
 #if defined(BLUETOOTH)
+
+class ModeChoice : public Choice
+{
+ public:
+  ModeChoice(FormGroup *parent, const rect_t &rect, const char *values,
+             int vmin, int vmax, std::function<int()> getValue,
+             std::function<void(int)> setValue = nullptr,
+             bool *menuOpen = nullptr) :
+      Choice(parent, rect, values, vmin, vmax, getValue, setValue),
+      menuOpen(menuOpen)
+  {
+  }
+
+ protected:
+  void openMenu()
+  {
+    if (menuOpen) *menuOpen = true;
+    Choice::openMenu();
+  }
+
+ private:
+  bool *menuOpen;
+};
+
 class BluetoothConfigWindow : public FormGroup
 {
   public:
@@ -96,6 +120,16 @@ class BluetoothConfigWindow : public FormGroup
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
     {
       update();
+    }
+
+    void checkEvents() override
+    {
+      FormGroup::checkEvents();
+      if (!rte) return;
+      if (bluetooth.state != lastbluetoothstate) {
+        lastbluetoothstate = bluetooth.state;
+        if (!(modechoiceopen || rte->hasFocus())) update();
+      }
     }
 
     void update()
@@ -108,13 +142,20 @@ class BluetoothConfigWindow : public FormGroup
 #endif
       clear();
 
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-      btMode = new Choice(this, grid.getFieldSlot(), STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER, GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int32_t newValue) {
-          g_eeGeneral.bluetoothMode = newValue;
-          update();
-          SET_DIRTY();
-          btMode->setFocus(SET_FOCUS_DEFAULT);
-      });
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
+                     COLOR_THEME_PRIMARY1);
+      modechoiceopen = false;
+      btMode = new ModeChoice(
+          this, grid.getFieldSlot(), STR_BLUETOOTH_MODES, BLUETOOTH_OFF,
+          BLUETOOTH_TRAINER, GET_DEFAULT(g_eeGeneral.bluetoothMode),
+          [=](int32_t newValue) {
+            g_eeGeneral.bluetoothMode = newValue;
+            update();
+            SET_DIRTY();
+            btMode->setFocus(SET_FOCUS_DEFAULT);
+            modechoiceopen = false;
+          },
+          &modechoiceopen);
       grid.nextLine();
 
       if (g_eeGeneral.bluetoothMode != BLUETOOTH_OFF) {
@@ -137,15 +178,20 @@ class BluetoothConfigWindow : public FormGroup
 
         // BT radio name
         new StaticText(this, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-        new RadioTextEdit(this, grid.getFieldSlot(), g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME);
+        rte = new RadioTextEdit(this, grid.getFieldSlot(), g_eeGeneral.bluetoothName, LEN_BLUETOOTH_NAME);
         grid.nextLine();
       }
 
       getParent()->moveWindowsTop(top() + 1, adjustHeight());
     }
 
-  protected:
-    Choice * btMode = nullptr;
+   protected:
+    Choice *btMode = nullptr;
+    RadioTextEdit *rte = nullptr;
+
+   private:
+    bool modechoiceopen = false;
+    uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
 };
 #endif
 
