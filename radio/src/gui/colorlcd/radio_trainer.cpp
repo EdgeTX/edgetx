@@ -29,6 +29,23 @@ RadioTrainerPage::RadioTrainerPage():
 {
 }
 
+class NoEditNumberEdit : public NumberEdit {
+public:
+  NoEditNumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
+    NumberEdit(parent, rect, vmin, vmax, getValue, setValue, windowFlags, textFlags)
+  {
+  }
+  // Disable all events, show only
+#if defined(HARDWARE_TOUCH)
+  bool onTouchEnd(coord_t, coord_t) {
+    return true;
+  }
+#endif  
+  void onEvent(event_t event) {
+    FormField::onEvent(event);
+  }
+};
+
 void RadioTrainerPage::build(FormWindow * window)
 {
 #if LCD_W > LCD_H
@@ -62,12 +79,17 @@ void RadioTrainerPage::build(FormWindow * window)
   grid.nextLine();
 
   // Trainer calibration
-  new StaticText(window, grid.getLabelSlot(), STR_CAL, 0, COLOR_THEME_PRIMARY1);
+  new TextButton(window, grid.getLabelSlot(), std::string(STR_CAL), [=]() -> uint8_t {
+    memcpy(g_eeGeneral.trainer.calib, ppmInput, sizeof(g_eeGeneral.trainer.calib));
+    SET_DIRTY();
+    return 0;
+    });
+
   for (int i = 0; i < NUM_STICKS; i++) {
 #if defined (PPM_UNIT_PERCENT_PREC1)
-    auto calib = new NumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, nullptr, 0, LEFT | PREC1);
+    auto calib = new NoEditNumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, nullptr, 0, LEFT | PREC1);
 #else
-    auto calib = new NumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, nullptr, 0, LEFT);
+    auto calib = new NoEditNumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, nullptr, 0, LEFT);
 #endif
     calib->setWindowFlags(REFRESH_ALWAYS);
   }
