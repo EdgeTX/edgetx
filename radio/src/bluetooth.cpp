@@ -259,7 +259,7 @@ void Bluetooth::sendTrainer()
 
   buffer[bufferIndex++] = START_STOP; // start byte
   pushByte(TRAINER_FRAME);
-  for (int channel=0; channel<lastCh; channel+=2, cur+=3) {
+  for (int channel=firstCh; channel<lastCh; channel+=2, cur+=3) {
     uint16_t channelValue1 = PPM_CH_CENTER(channel) + limit((int16_t)-PPM_range, channelOutputs[channel], (int16_t)PPM_range) / 2;
     uint16_t channelValue2 = PPM_CH_CENTER(channel+1) + limit((int16_t)-PPM_range, channelOutputs[channel+1], (int16_t)PPM_range) / 2;
     pushByte(channelValue1 & 0x00ff);
