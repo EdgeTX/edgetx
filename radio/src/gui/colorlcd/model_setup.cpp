@@ -584,11 +584,11 @@ class TrainerModuleWindow : public FormGroup
                        COLOR_THEME_PRIMARY1);
         channelStart = new NumberEdit(
             this, grid.getFieldSlot(2, 0), 1,
-            MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
+            MAX_OUTPUT_CHANNELS - BLUETOOTH_TRAINER_CHANNELS + 1,
             GET_DEFAULT(1 + g_model.trainerData.channelsStart));
         char chend[6];
         snprintf(chend, sizeof(chend), "%s%d", STR_CH,
-                 g_model.trainerData.channelsStart + 8);
+                 g_model.trainerData.channelsStart + BLUETOOTH_TRAINER_CHANNELS);
 
         btChannelEnd = new StaticText(this, grid.getFieldSlot(2, 1), chend, 0,
                                       COLOR_THEME_PRIMARY1);
@@ -597,7 +597,7 @@ class TrainerModuleWindow : public FormGroup
           g_model.trainerData.channelsStart = newValue - 1;
           char chend[6];
           snprintf(chend, sizeof(chend), "%s%d", STR_CH,
-                   g_model.trainerData.channelsStart + 8);
+                   g_model.trainerData.channelsStart + BLUETOOTH_TRAINER_CHANNELS);
           SET_DIRTY();
           btChannelEnd->setText(chend);
         });

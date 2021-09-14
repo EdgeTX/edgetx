@@ -151,7 +151,7 @@ void Bluetooth::processTrainerFrame(const uint8_t * buffer)
 {
   BLUETOOTH_TRACE(CRLF);
 
-  for (uint8_t channel=0, i=1; channel<8; channel+=2, i+=3) {
+  for (uint8_t channel=0, i=1; channel<BLUETOOTH_TRAINER_CHANNELS; channel+=2, i+=3) {
     // +-500 != 512, but close enough.
     ppmInput[channel] = buffer[i] + ((buffer[i+1] & 0xf0) << 4) - 1500;
     ppmInput[channel+1] = ((buffer[i+1] & 0x0f) << 4) + ((buffer[i+2] & 0xf0) >> 4) + ((buffer[i+2] & 0x0f) << 8) - 1500;
@@ -251,7 +251,7 @@ void Bluetooth::sendTrainer()
   int16_t PPM_range = g_model.extendedLimits ? 640*2 : 512*2;
 
   int firstCh = g_model.trainerData.channelsStart;
-  int lastCh = firstCh + 8;
+  int lastCh = firstCh + BLUETOOTH_TRAINER_CHANNELS;
 
   uint8_t * cur = buffer;
   bufferIndex = 0;
