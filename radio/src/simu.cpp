@@ -42,12 +42,14 @@
 #define W2 LCD_W*LCD_ZOOM
 #define H2 LCD_H*LCD_ZOOM
 
-#define TAP_TIME 25
+#if defined(HARDWARE_TOUCH)
+  #define TAP_TIME 25
 
-tmr10ms_t now = 0;
-tmr10ms_t downTime = 0;
-tmr10ms_t tapTime = 0;
-short tapCount = 0;
+  tmr10ms_t now = 0;
+  tmr10ms_t downTime = 0;
+  tmr10ms_t tapTime = 0;
+  short tapCount = 0;
+#endif
 
 class OpenTxSim: public FXMainWindow
 {
@@ -266,10 +268,10 @@ long OpenTxSim::onMouseDown(FXObject *, FXSelector, void * v)
 
   TRACE_WINDOWS("[Mouse Press] %d %d", evt->win_x, evt->win_y);
 
+#if defined(HARDWARE_TOUCH)
   now = get_tmr10ms();
   touchState.tapCount = 0;
 
-#if defined(HARDWARE_TOUCH)
   touchState.event = TE_DOWN;
   touchState.startX = touchState.x = evt->win_x;
   touchState.startY = touchState.y = evt->win_y;
@@ -286,9 +288,9 @@ long OpenTxSim::onMouseUp(FXObject*,FXSelector,void*v)
 
   TRACE_WINDOWS("[Mouse Release] %d %d", evt->win_x, evt->win_y);
 
+#if defined(HARDWARE_TOUCH)
   now = get_tmr10ms();
 
-#if defined(HARDWARE_TOUCH)
   if (touchState.event == TE_DOWN) {
     touchState.event = TE_UP;
     touchState.x = touchState.startX;
