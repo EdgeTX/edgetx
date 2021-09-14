@@ -37,7 +37,7 @@ AboutUs::AboutUs() :
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 
-  messageWidget->setText("EdgeTX Endeavour (2.4.0)\n"
+  messageWidget->setText("EdgeTX Dauntless (2.5.0)\n"
                          "Copyright (C) 2021 EdgeTX");
 
   qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, COLOR_THEME_SECONDARY1,
