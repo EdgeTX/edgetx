@@ -37,8 +37,7 @@ enum ModuleType {
   MODULE_TYPE_R9M_LITE_PRO_PXX2,
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
-  MODULE_TYPE_AFHDS3, //no more protocols possible because of 4 bits value
-  //MODULE_TYPE_AFHDS2A,
+  MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
 };

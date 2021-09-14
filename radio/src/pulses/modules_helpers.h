@@ -101,6 +101,11 @@ inline bool isModuleTypeXJT(uint8_t type)
   return type == MODULE_TYPE_XJT_PXX1 || type == MODULE_TYPE_XJT_LITE_PXX2;
 }
 
+inline bool isModuleNone(uint8_t idx)
+{
+  return g_model.moduleData[idx].type == MODULE_TYPE_NONE;
+}
+
 inline bool isModuleXJT(uint8_t idx)
 {
   return isModuleTypeXJT(g_model.moduleData[idx].type);
@@ -322,7 +327,7 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
 inline bool isModuleFlySky(uint8_t idx)
 {
   return
-    (g_model.moduleData[idx].type == MODULE_TYPE_AFHDS3);
+    (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY);
 }
 
 inline bool isModuleAFHDS2A(uint8_t idx)
@@ -700,8 +705,10 @@ inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     moduleData.sbus.refreshRate = -31;
   else if (moduleData.type == MODULE_TYPE_PPM)
     setDefaultPpmFrameLength(moduleIdx);
-  else if (moduleData.type == MODULE_TYPE_AFHDS3)
+  else if (moduleData.type == MODULE_TYPE_FLYSKY) {
+    // TODO: what if AFHDS2A
     resetAfhds3Options(moduleIdx);
+  }
   else
     resetAccessAuthenticationCount();
 }

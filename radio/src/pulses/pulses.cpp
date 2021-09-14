@@ -189,7 +189,7 @@ uint8_t getRequiredProtocol(uint8_t module)
 #endif
 
 #if defined(AFHDS3) || defined(AFHDS2)
-    case MODULE_TYPE_AFHDS3:
+    case MODULE_TYPE_FLYSKY:
       if (isModuleAFHDS3(module)) {
         protocol = PROTOCOL_CHANNELS_AFHDS3;
       } else if (isModuleAFHDS2A(module)) {

@@ -153,41 +153,45 @@ inline bool isSportLineUsedByInternalModule()
 }
 #endif
 
+#include "pulses/modules_helpers.h"
+
 inline uint8_t modelTelemetryProtocol()
 {
   bool sportUsed = isSportLineUsedByInternalModule();
 
 #if defined(CROSSFIRE)
-  if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE) {
+  if (isModuleCrossfire(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_CROSSFIRE;
   }
 #endif
 
 #if defined(GHOST)
-  if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_GHOST) {
+  if (isModuleGhost(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_GHOST;
   }
 #endif
 
-  if (!sportUsed && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_PPM) {
+  if (!sportUsed && isModulePPM(EXTERNAL_MODULE)) {
     return g_model.telemetryProtocol;
   }
 
 #if defined(MULTIMODULE)
-  if (!sportUsed && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_MULTIMODULE) {
+  if (!sportUsed && isModuleMultimodule(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_MULTIMODULE;
   }
 #if defined(INTERNAL_MODULE_MULTI)
-  if (g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_MULTIMODULE && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_NONE) {
+  if (isModuleMultimodule(INTERNAL_MODULE) && isModuleNone(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_MULTIMODULE;
   }
 #endif
 #endif
+
 #if defined(AFHDS3)
-  if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_AFHDS3) {
+  if (isModuleAFHDS3(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_AFHDS3;
   }
 #endif
+
   // default choice
   return PROTOCOL_TELEMETRY_FRSKY_SPORT;
 }
