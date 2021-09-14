@@ -21,6 +21,7 @@
 #include "opentx.h"
 #include "multi.h"
 #include "pulses/afhds3.h"
+#include "pulses/flysky.h"
 #include "mixer_scheduler.h"
 #include "io/multi_protolist.h"
 
@@ -143,6 +144,18 @@ void telemetryWakeup()
     MultiRfProtocols::instance(INTERNAL_MODULE)->scanReply();
   }
 #endif
+#endif
+
+#if defined(PCBNV14)
+  if (//!moduleUpdateActive(INTERNAL_MODULE) &&
+      moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_AFHDS2A &&
+      intmoduleFifo.pop(data)) {
+    LOG_TELEMETRY_WRITE_START();
+    do {
+      processInternalFlySkyTelemetryData(data);
+      LOG_TELEMETRY_WRITE_BYTE(data);
+    } while (intmoduleFifo.pop(data));
+  }
 #endif
 
 #if defined(STM32)
@@ -430,6 +443,11 @@ void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
   lastUpdate  = get_tmr10ms();
 
   TRACE("[SYNC] update rate = %dus; lag = %dus",refreshRate,currentLag);
+}
+
+void ModuleSyncStatus::invalidate() {
+  //make invalid after use
+  currentLag = 0;
 }
 
 uint16_t ModuleSyncStatus::getAdjustedRefreshRate()

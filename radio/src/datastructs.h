@@ -463,8 +463,18 @@ PACK(struct ModuleData {
 #if defined(AFHDS2)
     NOBACKUP(struct {
       uint8_t rx_id[4];
-      uint8_t mode;
+      uint8_t mode:3;
+      uint8_t rfPower:1;
+      uint8_t reserved:4;
       uint8_t rx_freq[2];
+
+      void setDefault() {
+        rx_id[0] = rx_id[1] = rx_id[2] = rx_id[3] = 0;
+        mode = 0;
+        rfPower = 0;
+        rx_freq[0] = 50;
+        rx_freq[1] = 0;
+      }
     } flysky);
 #endif
 #if defined(AFHDS3)

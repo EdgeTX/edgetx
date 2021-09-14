@@ -529,8 +529,8 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
   }
 #endif
 
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(moduleIdx))
+#if defined(AFHDS3) || defined(AFHDS2)
+  if (isModuleFlySky(moduleIdx))
     return true;
 #endif
 
@@ -542,12 +542,16 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
 
 inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
-  return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) || isModuleAFHDS3(moduleIdx);
+  return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
+         isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
+         isModuleFlySky(moduleIdx);
 }
 
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  return isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
+  return isModuleBindRangeAvailable(moduleIdx)
+    && !IS_RX_MULTI(moduleIdx)
+    && !isModuleAFHDS3(moduleIdx);
 }
 
 constexpr uint8_t MAX_RXNUM = 63;

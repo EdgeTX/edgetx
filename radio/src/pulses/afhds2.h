@@ -27,6 +27,8 @@
 #include <map>
 #include <list>
 
+#define AFHDS2_PERIOD (2 * 1000) /* us */
+
 struct FlySkySerialPulsesData {
   uint8_t  pulses[64];
   uint8_t  * ptr;
