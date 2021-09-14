@@ -532,7 +532,7 @@ void ModelSelectMenu::build(int index)
       setCurrentTab(idx+1);
     }
   } else {
-    if(index < modelslist.getCategories().size())
+    if(index < static_cast<int>(modelslist.getCategories().size()))
       setCurrentTab(index);
   }
 }
