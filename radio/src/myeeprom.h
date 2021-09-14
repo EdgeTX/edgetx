@@ -117,18 +117,6 @@ enum CurveRefType {
 #define LIMIT_EXT_MAX       (LIMIT_EXT_PERCENT*10)
 #define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
 #define PPM_CENTER_MAX      500
-#if (defined(COLORLCD))
-#define LIMIT_MAX(lim)                                               \
-  (GV_IS_GV_VALUE(lim->max + LIMIT_STD_MAX, 0, +GV_RANGELARGE)       \
-       ? GET_GVAR_PREC1(lim->max + LIMIT_STD_MAX, 0, +LIMIT_EXT_MAX, \
-                        mixerCurrentFlightMode)                      \
-       : lim->max + LIMIT_STD_MAX)
-#define LIMIT_MIN(lim)                                               \
-  (GV_IS_GV_VALUE(lim->min - LIMIT_STD_MAX, -GV_RANGELARGE, 0)       \
-       ? GET_GVAR_PREC1(lim->min - LIMIT_STD_MAX, -LIMIT_EXT_MAX, 0, \
-                        mixerCurrentFlightMode)                      \
-       : lim->min - LIMIT_STD_MAX)
-#else
 #define LIMIT_MAX(lim)                                            \
   (GV_IS_GV_VALUE(lim->max, -GV_RANGELARGE, GV_RANGELARGE)        \
        ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
@@ -139,7 +127,6 @@ enum CurveRefType {
        ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
        : lim->min - LIMIT_STD_MAX)
-#endif
 #define LIMIT_OFS(lim)                                               \
   (GV_IS_GV_VALUE(lim->offset, -LIMIT_STD_MAX, LIMIT_STD_MAX)        \
        ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
