@@ -162,7 +162,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   dc->drawBitmapPattern(AUDIO_X, 25, LBM_TOPMENU_TXBATT, COLOR_THEME_PRIMARY2);
 #endif
   for (unsigned int i = 0; i < 5; i++) {
-    dc->drawSolidFilledRect(AUDIO_X - 2 + 4 * i, 30, 2, 8, i >= bars ? COLOR_THEME_PRIMARY3 : COLOR_THEME_PRIMARY2);
+    dc->drawSolidFilledRect(AUDIO_X + 2 + 4 * i, 30, 2, 8, i >= bars ? COLOR_THEME_PRIMARY3 : COLOR_THEME_PRIMARY2);
   }
 
 #if 0
