@@ -606,37 +606,36 @@ class TrainerModuleWindow : public FormGroup
       } else
 #endif
           if (g_model.trainerData.mode == TRAINER_MODE_SLAVE) {
+        #define PPMCH_START_MIN 1
+        #define PPMCH_START_MAX (MAX_OUTPUT_CHANNELS - g_model.trainerData.channelsCount + 1 - DEF_TRAINER_CHANNELS)
+        #define PPMCH_END_MIN (g_model.trainerData.channelsStart + MIN_TRAINER_CHANNELS)
+        #define PPMCH_END_MAX min<uint8_t>(g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS, MAX_OUTPUT_CHANNELS)
+
         new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0,
                        COLOR_THEME_PRIMARY1);
         channelStart = new NumberEdit(
-            this, grid.getFieldSlot(2, 0), 1,
-            MAX_OUTPUT_CHANNELS - 8 + g_model.trainerData.channelsCount + 1,
+            this, grid.getFieldSlot(2, 0), PPMCH_START_MIN, PPMCH_START_MAX,
             GET_DEFAULT(1 + g_model.trainerData.channelsStart));
-        channelEnd =
-            new NumberEdit(this, grid.getFieldSlot(2, 1),
-                           g_model.trainerData.channelsStart + 1,
-                           min<int8_t>(MAX_TRAINER_CHANNELS,
-                                       g_model.trainerData.channelsStart +
-                                           MAX_TRAINER_CHANNELS_M8),
-                           GET_DEFAULT(g_model.trainerData.channelsStart + 8 +
-                                       g_model.trainerData.channelsCount));
+        channelEnd = new NumberEdit(
+            this, grid.getFieldSlot(2, 1), PPMCH_END_MIN, PPMCH_END_MAX,
+            GET_DEFAULT((g_model.trainerData.channelsStart +
+                         DEF_TRAINER_CHANNELS +
+                         g_model.trainerData.channelsCount)));
         channelStart->setPrefix(STR_CH);
         channelEnd->setPrefix(STR_CH);
         channelStart->setSetValueHandler([=](int32_t newValue) {
           g_model.trainerData.channelsStart = newValue - 1;
           SET_DIRTY();
-          channelEnd->setMin(g_model.trainerData.channelsStart + 1);
-          channelEnd->setMax(min<int8_t>(
-              MAX_TRAINER_CHANNELS,
-              g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS_M8));
+          channelEnd->setMin(PPMCH_END_MIN);
+          channelEnd->setMax(PPMCH_END_MAX);
           channelEnd->invalidate();
         });
         channelEnd->setSetValueHandler([=](int32_t newValue) {
           g_model.trainerData.channelsCount =
-              newValue - g_model.trainerData.channelsStart - 8;
+              newValue - g_model.trainerData.channelsStart -
+              DEF_TRAINER_CHANNELS;
           SET_DIRTY();
-          channelStart->setMax(MAX_TRAINER_CHANNELS - 8 +
-                               g_model.trainerData.channelsCount + 1);
+          channelStart->setMax(PPMCH_START_MAX);
         });
 
         grid.nextLine();
