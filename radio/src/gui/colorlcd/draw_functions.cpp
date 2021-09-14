@@ -65,13 +65,13 @@ void drawGVarValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t gvar, gvar_t
 
 void drawValueOrGVar(BitmapBuffer* dc, coord_t x, coord_t y, gvar_t value,
                      gvar_t vmin, gvar_t vmax, LcdFlags flags,
-                     const char* suffix)
+                     const char* suffix, gvar_t offset)
 {
   if (GV_IS_GV_VALUE(value, vmin, vmax)) {
     int index = GV_INDEX_CALC_DELTA(value, GV_GET_GV1_VALUE(vmin, vmax));
     dc->drawText(x, y, getGVarString(index), flags);
   } else {
-    dc->drawNumber(x, y, value, flags, 0, nullptr, suffix);
+    dc->drawNumber(x, y, value + offset, flags, 0, nullptr, suffix);
   }
 }
 

@@ -66,7 +66,6 @@ enum MenuModelOutputsItems {
 #endif
 
 #define LIMITS_CURVE_POS          17*FW+1
-#define LIMITS_MIN_MAX_OFFSET 1000
 #define CONVERT_US_MIN_MAX(x) ((int16_t(x)*128)/25)
 #define MIN_MAX_ATTR          attr
 
@@ -116,7 +115,7 @@ void menuModelLimitsOne(event_t event)
     uint8_t i = k + menuVerticalOffset;
     uint8_t attr = (sub==i ? (s_editMode>0 ? BLINK|INVERS : INVERS) : 0);
     uint8_t active = (attr && s_editMode > 0) ;
-    int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
+    int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
 
     switch (i) {
       case ITEM_OUTPUTONE_CH_NAME:

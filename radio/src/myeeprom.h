@@ -149,6 +149,8 @@ enum CurveRefType {
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))
 
+#define LIMITS_MIN_MAX_OFFSET LIMIT_STD_MAX
+
 #define TRIM_OFF    (1)
 #define TRIM_ON     (0)
 #define TRIM_RUD    (-1)
