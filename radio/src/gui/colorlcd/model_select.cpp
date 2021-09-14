@@ -328,18 +328,33 @@ class ModelCategoryPageBody : public FormWindow
     }
   }
 
+  void addFirstModel() {
+    Menu *menu = new Menu(this);
+    menu->addLine(STR_CREATE_MODEL, getCreateModelAction());      
+  }
+
 #if defined(HARDWARE_KEYS)
   void onEvent(event_t event) override
   {
     if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      Menu *menu = new Menu(this);
-      menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
-      // TODO: create category?
+      addFirstModel();
     } else {
       FormWindow::onEvent(event);
     }
   }
 #endif
+
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y)
+    {
+      if(category->size() == 0)
+        addFirstModel();
+      else
+        FormWindow::onTouchEnd(x,y);
+      return true;
+    }
+#endif
+  
 
   void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
                 Window *from = nullptr) override
