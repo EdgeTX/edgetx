@@ -34,7 +34,6 @@
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
-#define EVT_TOUCH_TAP_TIME      25
 #define EVT_TOUCH_SWIPE_LOCK     4
 #define EVT_TOUCH_SWIPE_SPEED   60
 #define EVT_TOUCH_SWIPE_TIMEOUT 50

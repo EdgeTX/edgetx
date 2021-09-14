@@ -32,6 +32,11 @@
 int16_t g_anas[Analogs::NUM_ANALOGS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
+tmr10ms_t downTime = 0;
+tmr10ms_t tapTime = 0;
+short tapCount = 0;
+#define TAP_TIME 25
+
 uint16_t anaIn(uint8_t chan)
 {
   return g_anas[chan];
@@ -301,6 +306,9 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
 
 void OpenTxSimulator::touchEvent(int type, int x, int y)
 {
+  tmr10ms_t now = get_tmr10ms();
+  touchState.tapCount = 0;
+
   switch (type) {
     case TouchDown:
       TRACE_WINDOWS("[Mouse Press] %d %d", x, y);
@@ -309,6 +317,7 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
       touchState.event = TE_DOWN;
       touchState.startX = touchState.x = x;
       touchState.startY = touchState.y = y;
+      downTime = now;
 #endif
       break;
 
@@ -320,6 +329,14 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
         touchState.event = TE_UP;
         touchState.x = touchState.startX;
         touchState.y = touchState.startY;
+        if (now - downTime <= TAP_TIME) {
+          if (now - tapTime > TAP_TIME)
+            tapCount = 1;
+          else
+            tapCount++;
+          touchState.tapCount = tapCount;
+          tapTime = now;
+        }
       } else {
         touchState.event = TE_SLIDE_END;
       }
