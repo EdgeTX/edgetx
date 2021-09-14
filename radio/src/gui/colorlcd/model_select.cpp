@@ -463,11 +463,12 @@ class CategoryEditPage : public PageTab
             return 0;
           });
           } else {
+#ifdef CATEGORIES_SHOW_DELETE_NON_EMPTY
           new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
             new MessageDialog(window, "Cannot Delete" , "Category not Empty");
             return 0;
           });
-
+#endif
           }
 
         grid.nextLine();
