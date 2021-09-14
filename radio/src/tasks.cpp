@@ -72,6 +72,7 @@ bool isModuleSynchronous(uint8_t moduleIdx)
     case PROTOCOL_CHANNELS_CROSSFIRE:
     case PROTOCOL_CHANNELS_GHOST:
     case PROTOCOL_CHANNELS_AFHDS3:
+    case PROTOCOL_CHANNELS_AFHDS2A:
     case PROTOCOL_CHANNELS_NONE:
 
 #if defined(MULTIMODULE)
