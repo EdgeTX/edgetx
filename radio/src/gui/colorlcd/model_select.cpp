@@ -439,8 +439,10 @@ class CategoryEditPage : public PageTab
         // NAME
         auto catname = new TextEdit(window, grid.getFieldSlot(3,0), category->name, sizeof(category->name));
         catname->setChangeHandler([=]() {          
-          if(category->name[0] == '\0')
-            category->name[0] == ' ';
+          if(category->name[0] == '\0') {
+            category->name[0] == ' '; category->name[1] == '\0';
+            modelslist.save();
+          }
           update();
         });
 
