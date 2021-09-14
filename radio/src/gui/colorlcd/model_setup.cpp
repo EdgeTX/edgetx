@@ -595,6 +595,7 @@ class TrainerModuleWindow : public FormGroup
         channelStart->setPrefix(STR_CH);
         channelStart->setSetValueHandler([=](int32_t newValue) {
           g_model.trainerData.channelsStart = newValue - 1;
+          g_model.trainerData.channelsCount = BLUETOOTH_TRAINER_CHANNELS - DEF_TRAINER_CHANNELS;
           char chend[6];
           snprintf(chend, sizeof(chend), "%s%d", STR_CH,
                    g_model.trainerData.channelsStart + BLUETOOTH_TRAINER_CHANNELS);
