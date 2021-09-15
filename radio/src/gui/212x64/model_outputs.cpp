@@ -53,7 +53,6 @@ enum LimitsItems {
   #define LIMITS_CURVE_POS        32*FW-3
 #endif
 
-#define LIMITS_MIN_MAX_OFFSET 1000
 #define CONVERT_US_MIN_MAX(x) (((x)*1280)/250)
 
 #if defined(PPM_UNIT_US)

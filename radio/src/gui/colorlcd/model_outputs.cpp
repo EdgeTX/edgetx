@@ -59,30 +59,34 @@ class OutputEditWindow : public Page {
       LimitData * output = limitAddress(channel);
 
       // Name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(window, grid.getFieldSlot(), output->name, sizeof(output->name));
+      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
+                     COLOR_THEME_PRIMARY1);
+      new ModelTextEdit(window, grid.getFieldSlot(), output->name,
+                        sizeof(output->name));
       grid.nextLine();
 
       // Offset
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0, COLOR_THEME_PRIMARY1);
-      new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX, +LIMIT_STD_MAX,
-                         GET_SET_DEFAULT(output->offset), 0, PREC1);
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0,
+                     COLOR_THEME_PRIMARY1);
+      new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
+                         +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0,
+                         PREC1);
       grid.nextLine();
 
       // Min
       new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                         GET_VALUE(output->min - LIMIT_STD_MAX),
-                         SET_VALUE(output->min, newValue + LIMIT_STD_MAX), 0, PREC1);
+                         GET_SET_DEFAULT(output->min), 0, PREC1,
+                         -LIMIT_STD_MAX);
       grid.nextLine();
 
       // Max
       new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                         GET_VALUE(output->max + LIMIT_STD_MAX),
-                         SET_VALUE(output->max, newValue - LIMIT_STD_MAX), 0, PREC1);
+                         GET_SET_DEFAULT(output->max), 0, PREC1,
+                         +LIMIT_STD_MAX);
       grid.nextLine();
 
       // Direction
@@ -91,23 +95,30 @@ class OutputEditWindow : public Page {
       grid.nextLine();
 
       // Curve
-      new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES, +MAX_CURVES, GET_SET_DEFAULT(output->curve));
-      edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawText(2, 2, getCurveString(value));
-      });
+      new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
+                                 +MAX_CURVES, GET_SET_DEFAULT(output->curve));
+      edit->setDisplayHandler(
+          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+            dc->drawText(2, 2, getCurveString(value));
+          });
       grid.nextLine();
 
       // PPM center
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX, PPM_CENTER + PPM_CENTER_MAX,
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER,
+                     0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
+                     PPM_CENTER + PPM_CENTER_MAX,
                      GET_VALUE(output->ppmCenter + PPM_CENTER),
                      SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
       grid.nextLine();
 
       // Subtrims mode
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE, 0, COLOR_THEME_PRIMARY1);
-      new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1, GET_SET_DEFAULT(output->symetrical));
+      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE,
+                     0, COLOR_THEME_PRIMARY1);
+      new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
+                 GET_SET_DEFAULT(output->symetrical));
       grid.nextLine();
 
       window->setInnerHeight(grid.getWindowHeight());
@@ -129,17 +140,28 @@ class OutputLineButton : public Button {
     {
       LcdFlags textColor = COLOR_THEME_SECONDARY1;
       LcdFlags bgColor   = COLOR_THEME_PRIMARY2;
-      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
 
       dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
 
       // first line
-      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min - 1000,
-                      -limit, 0, PREC1 | textColor, nullptr);
-      drawValueOrGVar(dc, 68, FIELD_PADDING_TOP, output->max + 1000,
-                      0, limit, PREC1 | textColor, nullptr);
-      drawValueOrGVar(dc, 132, FIELD_PADDING_TOP, output->offset,
-                      -limit, +limit, PREC1 | textColor, nullptr);
+
+      // Min
+      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+                      output->min, -GV_RANGELARGE,
+                      0, PREC1 | textColor, nullptr,
+                      -LIMITS_MIN_MAX_OFFSET);
+
+      // Max
+      drawValueOrGVar(dc, 68, FIELD_PADDING_TOP,
+                      output->max, 0,
+                      GV_RANGELARGE, PREC1 | textColor, nullptr,
+                       +LIMITS_MIN_MAX_OFFSET);
+
+      // Offset
+      drawValueOrGVar(dc, 132, FIELD_PADDING_TOP, output->offset, -LIMIT_STD_MAX,
+                      +LIMIT_STD_MAX, PREC1 | textColor, nullptr);
+
+      // PPM center
       dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter,
                      RIGHT | textColor);
       dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
