@@ -29,6 +29,32 @@ RadioTrainerPage::RadioTrainerPage():
 {
 }
 
+class StaticNumber : public StaticText
+{
+  public:
+    StaticNumber(Window * parent, const rect_t & rect, std::function<int()> getValue, WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
+    StaticText(parent, rect, "", windowFlags, textFlags),
+    _getValue(std::move(getValue))
+    {    
+    }
+
+  void paint(BitmapBuffer * dc) {
+    auto curval = _getValue();
+    char buf[20];
+    if(textFlags & PREC1)
+      snprintf(buf, sizeof(buf), "%d.%.1d", curval / 10, abs(curval % 10));
+    else if(textFlags & PREC2)
+      snprintf(buf, sizeof(buf), "%d.%.2d", curval / 100, abs(curval % 100));
+    else
+      snprintf(buf, sizeof(buf), "%d", curval);
+    text = buf;
+    StaticText::paint(dc);
+  }
+
+  protected:
+    std::function<int()> _getValue;
+};
+
 void RadioTrainerPage::build(FormWindow * window)
 {
 #if LCD_W > LCD_H
@@ -62,13 +88,19 @@ void RadioTrainerPage::build(FormWindow * window)
   grid.nextLine();
 
   // Trainer calibration
-  new StaticText(window, grid.getLabelSlot(), STR_CAL, 0, COLOR_THEME_PRIMARY1);
+  new TextButton(window, grid.getLabelSlot(), std::string(STR_CAL), [=]() -> uint8_t {
+    memcpy(g_eeGeneral.trainer.calib, ppmInput, sizeof(g_eeGeneral.trainer.calib));
+    SET_DIRTY();
+    return 0;
+    });
+
   for (int i = 0; i < NUM_STICKS; i++) {
 #if defined (PPM_UNIT_PERCENT_PREC1)
-    auto calib = new NumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, nullptr, 0, LEFT | PREC1);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, 0, LEFT | PREC1);
 #else
-    auto calib = new NumberEdit(window, grid.getFieldSlot(4, i), 0 , 0, [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, nullptr, 0, LEFT);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, 0, LEFT);
 #endif
+
     calib->setWindowFlags(REFRESH_ALWAYS);
   }
 }
