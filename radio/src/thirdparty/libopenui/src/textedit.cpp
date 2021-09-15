@@ -108,6 +108,9 @@ void TextEdit::onEvent(event_t event)
         changed = true;
       }
     }
+    else if (c == (uint8_t)KEYBOARD_ENTER[0]) {
+      changeEnd();
+    }
     else if (cursorPos < length) {
       memmove(value + cursorPos + 1, value + cursorPos, length - cursorPos - 1);
       value[cursorPos++] = c;

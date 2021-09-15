@@ -254,6 +254,7 @@ bool TextKeyboard::onTouchEnd(coord_t x, coord_t y)
     }
     else if (*key == KEYBOARD_ENTER[0]) {
       if (x <= KEYBOARD_ENTER_WIDTH) {
+        pushEvent(EVT_VIRTUAL_KEY(KEYBOARD_ENTER[0]));
         // enter
         hide();
         return true;
