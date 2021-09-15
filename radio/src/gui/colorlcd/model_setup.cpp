@@ -1198,7 +1198,6 @@ class ModuleWindow : public FormGroup {
                 moduleState[moduleIdx].mode = MODULE_MODE_BIND;
                 if (isModuleFlySky(moduleIdx)) {
                   resetPulsesAFHDS2();
-                  setFlyskyState(1/*STATE_INIT*/);
                 }
                 return 1;
               }
