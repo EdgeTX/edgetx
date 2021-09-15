@@ -200,21 +200,12 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
   Page(ICON_RADIO_TOOLS),
   moduleIdx(moduleIdx)
 {
+  setCloseHandler([=]() { stop(); });
   init();
   buildHeader(&header);
   buildBody(&body);
   start();
 }
-
-#if defined(HARDWARE_KEYS)
-void RadioSpectrumAnalyser::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    stop();
-  }
-  Page::onEvent(event);
-}
-#endif
 
 void RadioSpectrumAnalyser::buildHeader(Window * window)
 {
@@ -231,10 +222,13 @@ void RadioSpectrumAnalyser::buildBody(FormWindow * window)
 void RadioSpectrumAnalyser::init()
 {
 #if defined(INTERNAL_MODULE_MULTI)
-  if (moduleIdx == INTERNAL_MODULE && g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
-      reusableBuffer.spectrumAnalyser.moduleOFF = true;
-      setModuleType(INTERNAL_MODULE, MODULE_TYPE_MULTIMODULE);
-    }
+  if (moduleIdx == INTERNAL_MODULE &&
+      g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
+    reusableBuffer.spectrumAnalyser.moduleOFF = true;
+    setModuleType(INTERNAL_MODULE, MODULE_TYPE_MULTIMODULE);
+  } else {
+    reusableBuffer.spectrumAnalyser.moduleOFF = false;
+  }
 #endif
 
   if (isModuleR9MAccess(moduleIdx)) {
@@ -271,15 +265,16 @@ void RadioSpectrumAnalyser::start()
 
 void RadioSpectrumAnalyser::stop()
 {
-  new MessageDialog(this, STR_MODULE, STR_STOPPING);
   if (isModulePXX2(moduleIdx)) {
-    moduleState[moduleIdx].readModuleInformation(&reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
-  }
-  else if (isModuleMultimodule(moduleIdx)) {
-    if (reusableBuffer.spectrumAnalyser.moduleOFF)
+    moduleState[moduleIdx].readModuleInformation(
+        &reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID,
+        PXX2_HW_INFO_TX_ID);
+  } else if (isModuleMultimodule(moduleIdx)) {
+    if (reusableBuffer.spectrumAnalyser.moduleOFF) {
       setModuleType(INTERNAL_MODULE, MODULE_TYPE_NONE);
-    else
+    } else {
       moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+    }
   }
   /* wait 1s to resume normal operation before leaving */
   //  watchdogSuspend(1000);
