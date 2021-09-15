@@ -424,7 +424,7 @@ class CategoryEditPage : public PageTab
   public:
     explicit CategoryEditPage(ModelSelectMenu *modelselectmenu, bool scrolltobot=false) : 
 
-      PageTab("Model Categories", ICON_MODEL_SETUP),
+      PageTab(STR_MODEL_CATEGORIES, ICON_MODEL_SETUP),
       modelselectmenu(modelselectmenu), 
       scrolltobot(scrolltobot)
     {     
@@ -458,11 +458,11 @@ class CategoryEditPage : public PageTab
 
         // Details
         char cnt[19];
-        snprintf(cnt, sizeof(cnt), "%d Models", category->size());
+        snprintf(cnt, sizeof(cnt), "%d %s", category->size(), STR_MODELS);
         new StaticText(window, grid.getFieldSlot(3,1), cnt);             
         
         if(category->empty()) {
-          new TextButton(window, grid.getFieldSlot(3,2),"Delete", [=]() -> uint8_t {
+          new TextButton(window, grid.getFieldSlot(3,2),TR_DELETE, [=]() -> uint8_t {
             new ConfirmDialog(window, STR_DELETE_CATEGORY,
               std::string(category->name, sizeof(category->name)).c_str(),
               [=] {
@@ -475,7 +475,7 @@ class CategoryEditPage : public PageTab
           } else {
 #ifdef CATEGORIES_SHOW_DELETE_NON_EMPTY
           new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
-            new MessageDialog(window, "Cannot Delete" , "Category not Empty");
+            new MessageDialog(window, STR_DELETE_CATEGORY, TR_CAT_NOT_EMPTY);
             return 0;
           });
 #endif
@@ -489,7 +489,7 @@ class CategoryEditPage : public PageTab
         y += height + 2;
       }
             
-      new TextButton(window, grid.getCenteredSlot(LCD_W/2), "Add Category", [=]() -> uint8_t {
+      new TextButton(window, grid.getCenteredSlot(LCD_W/2), STR_CREATE_CATEGORY, [=]() -> uint8_t {
         modelslist.createCategory("New");
         update();
         return 0;
