@@ -151,7 +151,7 @@ void Bluetooth::processTrainerFrame(const uint8_t * buffer)
 {
   BLUETOOTH_TRACE(CRLF);
 
-  for (uint8_t channel=0, i=1; channel<8; channel+=2, i+=3) {
+  for (uint8_t channel=0, i=1; channel<BLUETOOTH_TRAINER_CHANNELS; channel+=2, i+=3) {
     // +-500 != 512, but close enough.
     ppmInput[channel] = buffer[i] + ((buffer[i+1] & 0xf0) << 4) - 1500;
     ppmInput[channel+1] = ((buffer[i+1] & 0x0f) << 4) + ((buffer[i+2] & 0xf0) >> 4) + ((buffer[i+2] & 0x0f) << 8) - 1500;
@@ -251,7 +251,7 @@ void Bluetooth::sendTrainer()
   int16_t PPM_range = g_model.extendedLimits ? 640*2 : 512*2;
 
   int firstCh = g_model.trainerData.channelsStart;
-  int lastCh = firstCh + 8;
+  int lastCh = firstCh + BLUETOOTH_TRAINER_CHANNELS;
 
   uint8_t * cur = buffer;
   bufferIndex = 0;
@@ -259,7 +259,7 @@ void Bluetooth::sendTrainer()
 
   buffer[bufferIndex++] = START_STOP; // start byte
   pushByte(TRAINER_FRAME);
-  for (int channel=0; channel<lastCh; channel+=2, cur+=3) {
+  for (int channel=firstCh; channel<lastCh; channel+=2, cur+=3) {
     uint16_t channelValue1 = PPM_CH_CENTER(channel) + limit((int16_t)-PPM_range, channelOutputs[channel], (int16_t)PPM_range) / 2;
     uint16_t channelValue2 = PPM_CH_CENTER(channel+1) + limit((int16_t)-PPM_range, channelOutputs[channel+1], (int16_t)PPM_range) / 2;
     pushByte(channelValue1 & 0x00ff);

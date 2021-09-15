@@ -48,6 +48,7 @@ enum BluetoothStates {
 #define MAX_BLUETOOTH_DISTANT_ADDR      6
 #define BLUETOOTH_PACKET_SIZE           14
 #define BLUETOOTH_LINE_LENGTH           32
+#define BLUETOOTH_TRAINER_CHANNELS      8
 
 #if defined(LOG_BLUETOOTH)
   #define BLUETOOTH_TRACE(...)  \

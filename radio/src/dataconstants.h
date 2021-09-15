@@ -46,6 +46,8 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  9
   #define MAX_INPUTS                   32
+  #define MIN_TRAINER_CHANNELS         4
+  #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        60
   #define MAX_CUSTOM_SCREENS           5
@@ -59,6 +61,8 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
+  #define MIN_TRAINER_CHANNELS         4
+  #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
@@ -71,6 +75,8 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
+  #define MIN_TRAINER_CHANNELS         4
+  #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        40
 #else

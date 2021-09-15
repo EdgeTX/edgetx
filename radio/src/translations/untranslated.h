@@ -177,7 +177,7 @@
 #define TR_AFHDS3_POWERS               "25 mW\0""100 mW""500 mW""1 W\0  ""2 W\0  "
 
 #define LEN_PPM_POL                    "\001"
-#define TR_PPM_POL                     "+""-"
+#define TR_PPM_POL                     "-""+"
 
 #define LEN_SBUS_INVERSION_VALUES      "\014"
 #define TR_SBUS_INVERSION_VALUES       "normal\0     ""not inverted"
