@@ -32,10 +32,12 @@
 int16_t g_anas[Analogs::NUM_ANALOGS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
-tmr10ms_t downTime = 0;
-tmr10ms_t tapTime = 0;
-short tapCount = 0;
-#define TAP_TIME 25
+#if defined(HARDWARE_TOUCH)
+  tmr10ms_t downTime = 0;
+  tmr10ms_t tapTime = 0;
+  short tapCount = 0;
+  #define TAP_TIME 25
+#endif
 
 uint16_t anaIn(uint8_t chan)
 {
@@ -306,8 +308,10 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
 
 void OpenTxSimulator::touchEvent(int type, int x, int y)
 {
-  tmr10ms_t now = get_tmr10ms();
-  touchState.tapCount = 0;
+  #if defined(HARDWARE_TOUCH)
+    tmr10ms_t now = get_tmr10ms();
+    touchState.tapCount = 0;
+  #endif
 
   switch (type) {
     case TouchDown:
