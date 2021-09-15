@@ -187,5 +187,13 @@ void intmoduleSendNextFrame()
       intmoduleSendBuffer(intmodulePulsesData.multi.getData(), intmodulePulsesData.multi.getSize());
       break;
 #endif
+      
+#if defined(AFHDS2)
+  case PROTOCOL_CHANNELS_AFHDS2A: {
+    uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
+    uint16_t size = intmodulePulsesData.flysky.ptr - data;
+    intmoduleSendBuffer(data, size);
+  } break;
+#endif
   }
 }
