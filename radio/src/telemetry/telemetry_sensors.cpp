@@ -26,6 +26,8 @@
   #include "libopenui.h"
 #endif
 
+#include "telemetry/flysky_nv14.h"
+
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 uint8_t allowNewSensors;
 
@@ -554,6 +556,12 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
 #if defined(MULTIMODULE) || defined(AFHDS3)
       case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
         flySkySetDefault(index,id, subId, instance);
+        break;
+#endif
+
+#if defined(AFHDS2)
+      case PROTOCOL_TELEMETRY_FLYSKY_NV14:
+        flySkyNv14SetDefault(index, id, subId, instance);
         break;
 #endif
 

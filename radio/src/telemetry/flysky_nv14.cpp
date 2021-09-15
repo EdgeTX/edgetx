@@ -21,6 +21,46 @@
 #include "opentx.h"
 #include "flysky_nv14.h"
 
+enum FlySkySensorType_E {
+  FLYSKY_SENSOR_RX_VOLTAGE=0,
+  FLYSKY_SENSOR_RX_SIGNAL,
+  FLYSKY_SENSOR_RX_RSSI,
+  FLYSKY_SENSOR_RX_NOISE,
+  FLYSKY_SENSOR_RX_SNR,
+
+  FLYSKY_SENSOR_TEMP,
+  FLYSKY_SENSOR_EXT_VOLTAGE,
+  FLYSKY_SENSOR_MOTO_RPM,
+  FLYSKY_SENSOR_PRESSURE,
+  FLYSKY_SENSOR_GPS
+};
+
+typedef struct FLYSKY_GPS_INFO_S {
+  uint8_t position_fix;
+  uint8_t satell_cnt;
+  uint8_t latitude[4];
+  uint8_t longtitude[4];
+  uint8_t altitude[4];
+  uint8_t g_speed[2];
+  uint8_t direction[2];
+} gps_info_t;
+
+typedef struct FLYSKY_SENSOR_DATA_S {
+  uint8_t sensor_type;
+  uint8_t sensor_id;
+  uint8_t voltage[2];
+  uint8_t signal;
+  uint8_t rssi[2];
+  uint8_t noise[2];
+  uint8_t snr[2];
+  uint8_t temp[2];
+  uint8_t ext_voltage[2];
+  uint8_t moto_rpm[2];
+  uint8_t pressure_value[2];
+  gps_info_t gps_info;
+} rx_sensor_t;
+
+
 #define FLYSKY_FIXED_RX_VOLTAGE (uint8_t)(FLYSKY_SENSOR_RX_VOLTAGE + (uint8_t)0xA0)
 
 #define MIN_SNR 8
@@ -43,15 +83,12 @@ struct FlyskyNv14Sensor {
   const bool issigned;
 };
 
-
 union nv14SensorData {
   uint8_t UINT8;
   uint16_t UINT16;
   int16_t INT16;
   uint32_t UINT32;
 };
-
-
 
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
@@ -187,15 +224,25 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   return value;
 }
 
-void flySkyNv14ProcessTelemetryPacket(const uint8_t* ptr, uint8_t sensorID)
+void flySkyNv14ProcessTelemetryPacket(uint8_t* ptr, uint8_t len)
 {
-  uint8_t instance = *ptr++;
-  if (sensorID == FLYSKY_SENSOR_RX_VOLTAGE) sensorID = FLYSKY_FIXED_RX_VOLTAGE;
+  uint8_t sensorType = *ptr++;
+  uint8_t sensorID   = *ptr++;
+
+  TRACE("ID[%02X] Type[%02X] len=%d", ptr[1], ptr[0], len);
+
+  // remove unknown sensor (strange values)
+  if (sensorType == 0xEE) return;
+  if (sensorType == FLYSKY_SENSOR_RX_VOLTAGE)
+    sensorType = FLYSKY_FIXED_RX_VOLTAGE;
+
   for (const FlyskyNv14Sensor sensor : Nv14Sensor) {
-    if (sensor.id == sensorID) {
+    if (sensor.id == sensorType) {
       int32_t value = GetSensorValueFlySkyNv14(&sensor, ptr);
+      TRACE("[%02X] id=%02X(%s) subId=%02X value=%d",
+            sensorID, sensor.id, sensor.name, sensor.subId, value);
       setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor.id, sensor.subId,
-                        instance, value, sensor.unit, sensor.precision);
+                        sensorID, value, sensor.unit, sensor.precision);
     }
   }
 

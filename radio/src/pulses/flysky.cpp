@@ -39,7 +39,8 @@ enum DEBUG_RF_FRAME_PRINT_E {
   BOTH_FRAME_PRINT = 3
 };
 
-#define DEBUG_RF_FRAME_PRINT FRAME_PRINT_OFF
+//#define DEBUG_RF_FRAME_PRINT FRAME_PRINT_OFF
+#define DEBUG_RF_FRAME_PRINT BOTH_FRAME_PRINT
 #define FLYSKY_MODULE_TIMEOUT 155             /* ms */
 #define FLYSKY_PERIOD 4                       /*ms*/
 #define NUM_OF_NV14_CHANNELS (14)
@@ -399,7 +400,7 @@ inline void debugFrame(const uint8_t* rxBuffer, uint8_t rxBufferCount)
 
 inline void parseResponse()
 {
-  const afhds2Resp* resp =
+  afhds2Resp* resp =
       reinterpret_cast<afhds2Resp*>(intmodulePulsesData.flysky.telemetry);
   uint8_t dataLen = intmodulePulsesData.flysky.telemetry_index;
 
