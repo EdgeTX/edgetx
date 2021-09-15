@@ -27,6 +27,7 @@ class RadioSpectrumAnalyser: public Page
 {
   public:
     explicit RadioSpectrumAnalyser(uint8_t moduleIdx);
+    void onEvent(event_t event) override;
 
   protected:
     uint8_t moduleIdx;

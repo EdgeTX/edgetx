@@ -206,6 +206,16 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
   start();
 }
 
+#if defined(HARDWARE_KEYS)
+void RadioSpectrumAnalyser::onEvent(event_t event)
+{
+  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
+    stop();
+  }
+  Page::onEvent(event);
+}
+#endif
+
 void RadioSpectrumAnalyser::buildHeader(Window * window)
 {
   new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_SPECTRUM_ANALYSER, 0, COLOR_THEME_SECONDARY1);
