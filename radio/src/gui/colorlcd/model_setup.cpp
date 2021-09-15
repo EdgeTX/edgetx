@@ -836,7 +836,9 @@ class ModuleWindow : public FormGroup {
                          update();
                          rfChoice->setFocus(SET_FOCUS_DEFAULT);
                        });
-      } else if (isModuleFlySky(moduleIdx)) {
+      }
+#if defined(AFHDS2) || defined(AFHDS3)
+      else if (isModuleFlySky(moduleIdx)) {
         rfChoice =
             new Choice(this, grid.getFieldSlot(2, 1),
                        STR_FLYSKY_PROTOCOLS, 0, FLYSKY_SUBTYPE_AFHDS2A,
@@ -929,6 +931,7 @@ class ModuleWindow : public FormGroup {
         }
 #endif
       }
+#endif
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
         Choice * mmSubProto = nullptr;
@@ -1187,7 +1190,9 @@ class ModuleWindow : public FormGroup {
               }
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+#if defined(AFHDS2)
                 if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
+#endif
                 return 0;
               } else {
 #if defined(MULTIMODULE)
@@ -1196,9 +1201,11 @@ class ModuleWindow : public FormGroup {
                 }
 #endif
                 moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+#if defined(AFHDS2)
                 if (isModuleFlySky(moduleIdx)) {
                   resetPulsesAFHDS2();
                 }
+#endif
                 return 1;
               }
               return 0;

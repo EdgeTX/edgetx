@@ -144,7 +144,6 @@ void setFlyskyState(uint8_t state);
 void onFlySkyBindReceiver();
 void onFlySkyModuleSetPower(bool isPowerOn);
 void afhds2Command(uint8_t type, uint8_t cmd);
-void intmoduleSendBufferDMA(uint8_t* data, uint16_t size);
 void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer);
 // void usbDownloadTransmit(uint8_t *buffer, uint32_t size);
 
