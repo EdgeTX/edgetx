@@ -37,7 +37,6 @@ coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
 
 bool Keyboard::attachKeyboard()
 {
-  TRACE("ATTACH KEYBOARD");
   if (activeKeyboard) {
     if (activeKeyboard == this) return false;
     activeKeyboard->clearField();

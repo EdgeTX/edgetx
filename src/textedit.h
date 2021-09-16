@@ -42,11 +42,6 @@ class TextEdit : public FormField {
     }
 #endif
 
-    void setChangeHandler(std::function<void()> handler)
-    {
-      changeHandler = std::move(handler);
-    }
-
     uint8_t getMaxLength() const
     {
       return length;
@@ -73,11 +68,10 @@ class TextEdit : public FormField {
     uint8_t length;
     const char * extra_chars;
     uint8_t cursorPos = 0;
-    std::function<void()> changeHandler = nullptr;
 
     void trim();
 
-    void changeEnd(bool forceChanged = false)
+    void changeEnd(bool forceChanged = false) override
     {
       cursorPos = 0;
       if (changed || forceChanged) {

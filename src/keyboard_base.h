@@ -43,6 +43,7 @@ class Keyboard: public FormWindow
       }
       if (field) {
         field->setEditMode(false);
+        field->changeEnd();
         field = nullptr;
     }  
   }
