@@ -604,6 +604,10 @@ enum MixSources {
 #if defined(PCBX10)
   MIXSRC_EXT1,                          LUA_EXPORT("ext1", "Ext 1")
   MIXSRC_EXT2,                          LUA_EXPORT("ext2", "Ext 2")
+#if defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS)
+  MIXSRC_EXT3,                          LUA_EXPORT("ext3", "Ext 3")
+  MIXSRC_EXT4,                          LUA_EXPORT("ext4", "Ext 4")
+#endif
 #endif
   MIXSRC_FIRST_SLIDER SKIP,
 #if defined(PCBX12S)
