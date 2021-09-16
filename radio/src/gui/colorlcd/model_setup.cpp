@@ -1188,7 +1188,7 @@ class ModuleWindow : public FormGroup {
           bindButton = new TextButton(this, grid.getFieldSlot(2 + thirdColumn, 0 + thirdColumn), STR_MODULE_BIND);
           bindButton->setPressHandler([=]() -> uint8_t {
               if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
-                rangeButton->check(false);
+                if (rangeButton) rangeButton->check(false);
               }
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
@@ -1226,8 +1226,11 @@ class ModuleWindow : public FormGroup {
 #endif
           });
 
-          rangeButton = new TextButton(this, grid.getFieldSlot(2 + thirdColumn, 1 + thirdColumn), STR_MODULE_RANGE);
-          rangeButton->setPressHandler([=]() -> uint8_t {
+          if (isModuleRangeAvailable(moduleIdx)) {
+            rangeButton = new TextButton(
+                this, grid.getFieldSlot(2 + thirdColumn, 1 + thirdColumn),
+                STR_MODULE_RANGE);
+            rangeButton->setPressHandler([=]() -> uint8_t {
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 bindButton->check(false);
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
@@ -1235,8 +1238,7 @@ class ModuleWindow : public FormGroup {
               if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 return 0;
-              }
-              else {
+              } else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
                 auto rssiDialog = new DynamicMessageDialog(
                     this, "Range Test",
@@ -1253,7 +1255,8 @@ class ModuleWindow : public FormGroup {
                 });
                 return 1;
               }
-          });
+            });
+          }
         }
 
         grid.nextLine();

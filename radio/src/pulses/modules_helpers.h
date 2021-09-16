@@ -611,7 +611,7 @@ inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   return isModuleBindRangeAvailable(moduleIdx)
     && !IS_RX_MULTI(moduleIdx)
-    && !isModuleAFHDS3(moduleIdx);
+    && !isModuleFlySky(moduleIdx);
 }
 
 constexpr uint8_t MAX_RXNUM = 63;
