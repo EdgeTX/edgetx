@@ -495,6 +495,8 @@ class CategoryEditPage : public PageTab
         return 0;
       });
 
+      grid.nextLine();
+
       window->setInnerHeight(grid.getWindowHeight()); 
 
       if(scrolltobot)
