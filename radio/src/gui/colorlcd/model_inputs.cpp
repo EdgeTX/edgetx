@@ -231,20 +231,24 @@ class InputEditWindow : public Page
 
       // Source
       new StaticText(window, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
-      new SourceChoice(window, grid.getFieldSlot(), INPUTSRC_FIRST, INPUTSRC_LAST,
-                       GET_DEFAULT(line->srcRaw),
-                       [=] (int32_t newValue) {
-                         line->srcRaw = newValue;
-                         if (line->srcRaw > MIXSRC_Ail && line->carryTrim == TRIM_ON) {
-                           line->carryTrim = TRIM_OFF;
-                           trimChoice->invalidate();
-                         }
-                         SET_DIRTY();
-                       }
-      );
+      Choice *src = new SourceChoice(
+          window, grid.getFieldSlot(), INPUTSRC_FIRST, INPUTSRC_LAST,
+          GET_DEFAULT(line->srcRaw), [=](int32_t newValue) {
+            line->srcRaw = newValue;
+            if (line->srcRaw > MIXSRC_Ail && line->carryTrim == TRIM_ON) {
+              line->carryTrim = TRIM_OFF;
+              trimChoice->invalidate();
+            }
+            SET_DIRTY();
+          });
+      src->setAvailableHandler(
+          [](int v) { return isSourceAvailableInInputs(v); });
+
       /* TODO telemetry current value
       if (ed->srcRaw >= MIXSRC_FIRST_TELEM) {
-        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+75, y, (ed->srcRaw - MIXSRC_FIRST_TELEM)/3, convertTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1, ed->scale), LEFT|(menuHorizontalPosition==1?attr:0));
+        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+75, y, (ed->srcRaw -
+      MIXSRC_FIRST_TELEM)/3, convertTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM +
+      1, ed->scale), LEFT|(menuHorizontalPosition==1?attr:0));
       } */
       grid.nextLine();
 

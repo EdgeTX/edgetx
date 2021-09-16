@@ -97,6 +97,8 @@ SourceChoice::SourceChoice(FormGroup *parent, const rect_t &rect, int16_t vmin,
 
     return std::string(getSourceString(value));
   });
+
+  setAvailableHandler([](int v){ return isSourceAvailable(v); });
 }
 
 void SourceChoice::fillMenu(Menu *menu,
