@@ -32,6 +32,18 @@ class FormField: public Window
   public:
     FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
+    virtual void changeEnd(bool forceChanged = false)
+    {
+      if (changeHandler) {
+        changeHandler();
+      }
+    }
+    
+    void setChangeHandler(std::function<void()> handler)
+    {
+      changeHandler = std::move(handler);
+    }
+
     inline void setNextField(FormField *field)
     {
       next = field;
@@ -104,6 +116,7 @@ class FormField: public Window
     FormField * previous = nullptr;
     bool editMode = false;
     bool enabled = true;
+    std::function<void()> changeHandler = nullptr;
 };
 
 class FormGroup: public FormField
