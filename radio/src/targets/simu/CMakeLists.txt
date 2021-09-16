@@ -118,7 +118,11 @@ if(FOX_FOUND)
   if(SIMU_DISKIO)
     set(SIMU_SRC ${SIMU_SRC} ${FATFS_DIR}/FatFs/ff.c ${FATFS_DIR}/option/ccsbcs.c)
   endif()
-  add_executable(simu WIN32 ${SIMU_SRC} ${RADIO_SRC_DIR}/simu.cpp)
+
+  add_executable(simu WIN32
+    EXCLUDE_FROM_ALL
+    ${SIMU_SRC} ${RADIO_SRC_DIR}/simu.cpp)
+
   add_dependencies(simu ${RADIO_DEPENDENCIES})
 
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
