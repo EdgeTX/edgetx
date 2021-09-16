@@ -164,6 +164,11 @@ void AppPreferencesDialog::initSettings()
 {
   const Profile & profile = g.currentProfile();
 
+  // Disable these for now, until online elements are implemented
+  ui->autoCheckFirmware->setDisabled(true);
+  ui->autoCheckCompanion->setDisabled(true);
+  ui->OpenTxBranch->setDisabled(true);
+
   ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
   ui->burnFirmware->setChecked(profile.burnFirmware());
   ui->snapshotPath->setText(g.snapshotDir());
