@@ -57,6 +57,10 @@ void rotaryEncoderEnd();
 #define STORAGE_NUM_SWITCHES           NUM_SWITCHES
 #define NUM_SWITCHES_POSITIONS         9
 
+#if !defined(NUM_FUNCTIONS_SWITCHES)
+#define NUM_FUNCTIONS_SWITCHES          0
+#endif
+
 enum EnumKeys
 {
   KEY_MENU,

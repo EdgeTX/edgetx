@@ -38,7 +38,7 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
-#if defined(RADIO_ZORRO)
+#if defined(RADIO_ZORRO) || defined(RADIO_TPRO)
 #define ROTARY_ENCODER_INVERT
 #endif
 
@@ -330,7 +330,16 @@ enum EnumSwitches
   SW_SE,
   SW_SF,
   SW_SG,
-  SW_SH
+  SW_SH,
+  SW_SI,
+  SW_SJ,
+  SW_SK,
+  SW_SL,
+  SW_SM,
+  SW_SO,
+  SW_SP,
+  SW_SQ,
+  SW_SR,
 };
 #if defined(RADIO_TX12)
   #define IS_3POS(x)                      ((x) != SW_SA && (x) != SW_SD)
@@ -353,22 +362,22 @@ enum EnumSwitchesPositions
   SW_SD0,
   SW_SD1,
   SW_SD2,
-#if defined(PCBX9) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_TX12) || defined(RADIO_ZORRO)
+#if defined(HARDWARE_SWITCH_E)
   SW_SE0,
   SW_SE1,
   SW_SE2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_T12)) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_T8) || defined(RADIO_ZORRO)
+#if defined(HARDWARE_SWITCH_F)
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES) || defined(RADIO_T12) || defined(RADIO_ZORRO)
+#if defined(HARDWARE_SWITCH_G)
   SW_SG0,
   SW_SG1,
   SW_SG2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_TX12)) || defined(RADIO_T8) || defined(RADIO_ZORRO)
+#if defined(HARDWARE_SWITCH_H)
   SW_SH0,
   SW_SH1,
   SW_SH2,
@@ -440,6 +449,16 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          8
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_2POS << 6) + (SWITCH_2POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0);
   #define DEFAULT_POTS_CONFIG           (0)
+#elif defined(RADIO_TPRO)
+  #define NUM_SWITCHES                  10
+  #define NUM_FUNCTIONS_SWITCHES        6
+  #define NUM_REGULAR_SWITCHES          (NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES)
+  #define STORAGE_NUM_SWITCHES          10
+  #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 6) + (SWITCH_TOGGLE << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0);
+  #define DEFAULT_FS_CONFIG             (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + (SWITCH_2POS << 4) + (SWITCH_2POS << 2) + (SWITCH_2POS << 0)
+  #define DEFAULT_FS_GROUPS             (1 << 10) + (1 << 8) + (1 << 6) + (1 << 4) + (1 << 2) + (1 << 0)  // Set all FS to group 1 to act like a 6pos
+  #define DEFAULT_FS_STARTUP_CONFIG     ((FS_START_PREVIOUS << 10) + (FS_START_PREVIOUS << 8) + (FS_START_PREVIOUS << 6) + (FS_START_PREVIOUS << 4) + (FS_START_PREVIOUS << 2) + (FS_START_PREVIOUS << 0))  // keep last state by default
+  #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 0) + (POT_WITH_DETENT << 2); // S1 = pot without detent, S2 = pot with detent
 #elif defined(RADIO_FAMILY_JUMPER_T12)
   #define NUM_SWITCHES                  8
   #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
@@ -500,17 +519,24 @@ enum EnumSwitchesPositions
   #define DEFAULT_SLIDERS_CONFIG        (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
 #endif
 
+#if !defined(NUM_FUNCTIONS_SWITCHES)
+  #define NUM_FUNCTIONS_SWITCHES        0
+#endif
+
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
 
 void keysInit();
 uint32_t switchState(uint8_t index);
-#if defined(RADIO_ZORRO)
-static const uint8_t switchReOrder[] = {1, 0, 4, 2, 3, 5};
-#else
-static const uint8_t switchReOrder[] = {0, 1, 2, 3, 4, 5};
-#endif
 uint32_t readKeys();
 uint32_t readTrims();
+#if defined(FUNCTION_SWITCHES)
+extern uint8_t fsPreviousState;
+void evalFunctionSwitches();
+void setFSStartupPosition();
+uint8_t getFSLogicalState(uint8_t index);
+uint8_t getFSPhysicalState(uint8_t index);
+#endif
+
 #define TRIMS_PRESSED()                 (readTrims())
 #define KEYS_PRESSED()                  (readKeys())
 
@@ -926,6 +952,10 @@ void ledOff();
 void ledRed();
 void ledGreen();
 void ledBlue();
+#if defined(FUNCTION_SWITCHES)
+void fsLedOff(uint8_t);
+void fsLedOn(uint8_t);
+#endif
 
 // LCD driver
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
@@ -942,7 +972,7 @@ void ledBlue();
 #define IS_LCD_RESET_NEEDED()           true
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
-#if defined(RADIO_TX12) || defined(RADIO_FAMILY_JUMPER_T12)
+#if defined(RADIO_TX12)  || defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15

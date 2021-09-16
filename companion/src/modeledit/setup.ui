@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1007</width>
-    <height>405</height>
+    <height>435</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -629,6 +629,9 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
       </layout>
      </item>
     </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="functionSwitchesLayout"/>
    </item>
    <item>
     <layout class="QVBoxLayout" name="modulesLayout"/>

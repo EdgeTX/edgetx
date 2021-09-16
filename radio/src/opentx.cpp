@@ -171,6 +171,10 @@ void per10ms()
 
   readKeysAndTrims();
 
+#if defined(FUNCTION_SWITCHES)
+  evalFunctionSwitches();
+#endif
+
 #if defined(ROTARY_ENCODER_NAVIGATION)
   if (IS_ROTARY_ENCODER_NAVIGATION_ENABLE()) {
     static rotenc_t rePreviousValue;
@@ -371,7 +375,6 @@ uint16_t evalChkSum()
     sum += calibValues[i];
   return sum;
 }
-
 
 bool isInputRecursive(int index)
 {
@@ -1412,6 +1415,12 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
 #if defined(TEST_BUILD_WARNING)
   ALERT(STR_TEST_WARNING, TR_TEST_NOTSAFE, AU_ERROR);
+#endif
+
+#if defined(FUNCTION_SWITCHES)
+  if (!UNEXPECTED_SHUTDOWN()) {
+    setFSStartupPosition();
+  }
 #endif
 
 #if defined(GUI)

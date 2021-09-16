@@ -40,6 +40,7 @@
 #define JUMPER_TLITE_VARIANT           0x4003
 #define RADIOMASTER_T8_VARIANT         0x4004
 #define RADIOMASTER_ZORRO_VARIANT      0x4006
+#define JUMPER_TPRO_VARIANT            0x4005
 
 class OpenTxGeneralData: public TransformedField {
   public:

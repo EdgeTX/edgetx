@@ -212,6 +212,17 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
   }
 }
 
+void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
+{
+  if (functionSwitchCount == 0)
+    return;
+
+  for (int i = 0; i < functionSwitchCount; i++) {
+    functionSwitchConfig |= (Board::SWITCH_2POS << 2 * i);
+    functionSwitchGroup |= (1 << 2 * i);
+  }
+}
+
 void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settings)
 {
   clear();
@@ -221,6 +232,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
     moduleData[i].modelId = id + 1;
   }
   setDefaultMixes(settings);
+  setDefaultFunctionSwitches(getCurrentFirmware()->getCapability(FunctionSwitches));
 }
 
 int ModelData::getTrimValue(int phaseIdx, int trimIdx)

@@ -22,6 +22,7 @@
 #include "ui_setup.h"
 #include "ui_setup_timer.h"
 #include "ui_setup_module.h"
+#include "ui_setup_function_switches.h"
 #include "appdata.h"
 #include "modelprinter.h"
 #include "multiprotocols.h"
@@ -983,6 +984,170 @@ void ModulePanel::onClearAccessRxClicked()
 }
 
 /******************************************************************************/
+FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
+  ModelPanel(parent, model, generalSettings, firmware),
+  ui(new Ui::FunctionSwitches)
+{
+  ui->setupUi(this);
+
+  lock = true;
+
+  QRegExp rx(CHAR_FOR_NAMES_REGEX);
+
+  switchcnt = Boards::getCapability(firmware->getBoard(), Board::NumFunctionSwitches);
+
+  for (int i = 0; i < switchcnt; i++) {
+    QLabel * lblSwitchId = new QLabel(this);
+    lblSwitchId->setText(tr("SW%1").arg(i + 1));
+
+    AutoLineEdit * aleName = new AutoLineEdit(this);
+    aleName->setProperty("index", i);
+    aleName->setValidator(new QRegExpValidator(rx, this));
+    aleName->setField((char *)model.functionSwitchNames[i], 3);
+
+    //  TODO itemmodel
+    QComboBox * cboConfig = new QComboBox(this);
+    cboConfig->setProperty("index", i);
+    cboConfig->addItem(tr("NONE"));
+    cboConfig->addItem(tr("TOGGLE"));
+    cboConfig->addItem(tr("2POS"));
+
+    //  TODO itemmodel
+    QComboBox * cboStartPosn = new QComboBox(this);
+    cboStartPosn->setProperty("index", i);
+    cboStartPosn->addItem(CPN_STR_SW_INDICATOR_UP);
+    cboStartPosn->addItem(CPN_STR_SW_INDICATOR_DN);
+    cboStartPosn->addItem("=");
+
+    QSpinBox * sbGroup = new QSpinBox(this);
+    sbGroup->setProperty("index", i);
+    sbGroup->setMaximum(3);
+
+    int row = 0;
+    int coloffset = 1;
+    ui->gridSwitches->addWidget(lblSwitchId, row++, i + coloffset);
+    ui->gridSwitches->addWidget(aleName, row++, i + coloffset);
+    ui->gridSwitches->addWidget(cboConfig, row++, i + coloffset);
+    ui->gridSwitches->addWidget(cboStartPosn, row++, i + coloffset);
+    ui->gridSwitches->addWidget(sbGroup, row++, i + coloffset);
+
+    connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
+    connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_startPosnCurrentIndexChanged);
+    connect(sbGroup, QOverload<int>::of(&QSpinBox::valueChanged), this, &FunctionSwitchesPanel::on_groupChanged);
+
+    aleNames << aleName;
+    cboConfigs << cboConfig;
+    cboStartupPosns << cboStartPosn;
+    sbGroups << sbGroup;
+  }
+
+  update();
+
+  lock = false;
+}
+
+FunctionSwitchesPanel::~FunctionSwitchesPanel()
+{
+  delete ui;
+}
+
+void FunctionSwitchesPanel::update()
+{
+  for (int i = 0; i < switchcnt; i++) {
+    update(i);
+  }
+}
+
+void FunctionSwitchesPanel::update(int index)
+{
+  lock = true;
+
+  for (int i = 0; i < switchcnt; i++) {
+    aleNames[i]->update();
+    cboConfigs[i]->setCurrentIndex((model->functionSwitchConfig >> (2 * i)) & 0x03);
+    cboStartupPosns[i]->setCurrentIndex((model->functionSwitchStartConfig >> (2 * i)) & 0x03);
+    sbGroups[i]->setValue((model->functionSwitchGroup >> (2 * i)) & 0x03);
+
+    if (cboConfigs[i]->currentIndex() < 2)
+      cboStartupPosns[i]->setEnabled(false);
+    else
+      cboStartupPosns[i]->setEnabled(true);
+
+    if (cboConfigs[i]->currentIndex() < 1)
+      sbGroups[i]->setEnabled(false);
+    else
+      sbGroups[i]->setEnabled(true);
+  }
+
+  lock = false;
+}
+
+void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
+{
+  if (!sender())
+    return;
+
+  QComboBox * cb = qobject_cast<QComboBox *>(sender());
+
+  if (cb && !lock) {
+    lock = true;
+    bool ok = false;
+    int i = sender()->property("index").toInt(&ok);
+    if (ok && ((model->functionSwitchConfig >> (2 * i)) & 0x03) != (unsigned int)index) {
+      unsigned int mask = ((unsigned int) 0x03 << (2 * i));
+      model->functionSwitchConfig = (model->functionSwitchConfig & ~ mask) | ((unsigned int) index << (2 * i));
+      if (index < 2)
+        model->functionSwitchStartConfig = (model->functionSwitchStartConfig & ~ mask) | ((unsigned int) 0 << (2 * i));
+      if (index < 1)
+        model->functionSwitchGroup = (model->functionSwitchGroup & ~ mask) | ((unsigned int) 0 << (2 * i));
+      update(i);
+      emit modified();
+    }
+    lock = false;
+  }
+}
+
+void FunctionSwitchesPanel::on_startPosnCurrentIndexChanged(int index)
+{
+  if (!sender())
+    return;
+
+  QComboBox * cb = qobject_cast<QComboBox *>(sender());
+
+  if (cb && !lock) {
+    lock = true;
+    bool ok = false;
+    int i = sender()->property("index").toInt(&ok);
+    if (ok && ((model->functionSwitchStartConfig >> (2 * i)) & 0x03) != (unsigned int)index) {
+      unsigned int mask = ((unsigned int) 0x03 << (2 * i));
+      model->functionSwitchStartConfig = (model->functionSwitchStartConfig & ~ mask) | ((unsigned int) index << (2 * i));
+      emit modified();
+    }
+    lock = false;
+  }
+}
+
+void FunctionSwitchesPanel::on_groupChanged(int value)
+{
+  if (!sender())
+    return;
+
+  QSpinBox * sb = qobject_cast<QSpinBox *>(sender());
+
+  if (sb && !lock) {
+    lock = true;
+    bool ok = false;
+    int i = sender()->property("index").toInt(&ok);
+    if (ok && ((model->functionSwitchGroup >> (2 * i)) & 0x03) != (unsigned int)value) {
+      unsigned int mask = ((unsigned int) 0x03 << (2 * i));
+      model->functionSwitchGroup = (model->functionSwitchGroup & ~ mask) | ((unsigned int) value << (2 * i));
+      emit modified();
+    }
+    lock = false;
+  }
+}
+
+/******************************************************************************/
 
 SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware,
                        CompoundItemModelFactory * sharedItemModels) :
@@ -1220,6 +1385,11 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   ui->trimsDisplay->setField(model.trimsDisplay, this);
+
+  if (Boards::getCapability(firmware->getBoard(), Board::NumFunctionSwitches) > 0)
+    ui->functionSwitchesLayout->addWidget(new FunctionSwitchesPanel(this, model, generalSettings, firmware));
+  //else
+  //  ui->functionSwitchesLayout->hide();
 
   for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
     modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i);

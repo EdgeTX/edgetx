@@ -35,6 +35,8 @@
   #include <storage/sdcard_common.h>
 #endif
 
+#if STORAGE_CONVERSIONS < 220
+
 //
 // Summary of all changes between 219 & 220
 //
@@ -348,4 +350,6 @@ const char* convertRadioData_219_to_220()
   free(rd_220);
   return nullptr;
 }
+#endif
+
 #endif

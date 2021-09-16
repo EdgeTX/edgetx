@@ -568,7 +568,7 @@ class TransformedField: public DataField {
 
     virtual void afterImport() = 0;
 
-    int dump(int level, int offset) override
+    int dump(int level=0, int offset=0) override
     {
       beforeExport();
       return field.dump(level, offset);

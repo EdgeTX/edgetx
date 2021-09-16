@@ -114,6 +114,13 @@ void applyDefaultTemplate()
 
   setDefaultModelRegistrationID();
 
+#if defined(FUNCTION_SWITCHES)
+  g_model.functionSwitchConfig = DEFAULT_FS_CONFIG;
+  g_model.functionSwitchGroup = DEFAULT_FS_GROUPS;
+  g_model.functionSwitchStartConfig = DEFAULT_FS_STARTUP_CONFIG;
+  g_model.functionSwitchLogicalState = 0;
+#endif
+
 #if defined(COLORLCD)
   //TODO: not sure yet we need it here
   loadDefaultLayout();

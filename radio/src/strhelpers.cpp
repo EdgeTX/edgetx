@@ -444,20 +444,20 @@ int getRawSwitchIdx(char sw)
 
 char getRawSwitchFromIdx(int idx)
 {
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
     if (idx >= 5)
       return 'H' + idx - 5;
     else if (idx == 4)
-#if defined(RADIO_T12)
+  #if defined(RADIO_T12)
       return 'G';
-#else
+  #else
       return 'F';
-#endif
+  #endif
     else
       return 'A' + idx;
 #else
     return 'A' + idx;
-#endif  
+#endif
 }
 
 char *getSwitchName(char *dest, swsrc_t idx)
@@ -467,6 +467,13 @@ char *getSwitchName(char *dest, swsrc_t idx)
     dest =
         strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
   } else {
+#if defined(FUNCTIONS_SWITCHES)
+    if (swinfo.quot >= NUM_REGULAR_SWITCHES)  {
+      *dest++ = 'W';
+      *dest++ = '1' + swinfo.quot - 4;
+      return dest;
+    }
+#endif
     *dest++ = 'S';
     *dest++ = getRawSwitchFromIdx(swinfo.quot);
   }

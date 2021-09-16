@@ -62,6 +62,8 @@ const char * OpenTxEepromInterface::getName()
       return "OpenTX for Jumper T12";
     case BOARD_JUMPER_TLITE:
       return "OpenTX for Jumper T-Lite";
+    case BOARD_JUMPER_TPRO:
+      return "OpenTX for Jumper T-Pro";
     case BOARD_JUMPER_T16:
       return "OpenTX for Jumper T16";
     case BOARD_JUMPER_T18:
@@ -346,6 +348,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_JUMPER_TLITE(board)) {
     variant |= JUMPER_TLITE_VARIANT;
+  }
+  else if (IS_JUMPER_TPRO(board)) {
+    variant |= JUMPER_TPRO_VARIANT;
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     variant |= RADIOMASTER_TX12_VARIANT;
@@ -752,6 +757,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_HORUS_OR_TARANIS(board) ? true : false;
     case TopBarZones:
       return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
+    case FunctionSwitches:
+      return IS_JUMPER_TPRO(board) ? 6 : 0;
+
     default:
       return 0;
   }
@@ -1022,6 +1030,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_JUMPER_TLITE(board)) {
     if (variant != JUMPER_TLITE_VARIANT) {
+      variantError = true;
+    }
+  }
+  else if (IS_JUMPER_TPRO(board)) {
+    if (variant != JUMPER_TPRO_VARIANT) {
       variantError = true;
     }
   }
@@ -1363,6 +1376,16 @@ void registerOpenTxFirmwares()
 
   /* Jumper T-Lite board */
   firmware = new OpenTxFirmware("opentx-tlite", QCoreApplication::translate("Firmware", "Jumper T-Lite"), BOARD_JUMPER_TLITE);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
+  /* Jumper T-Pro board */
+  firmware = new OpenTxFirmware("opentx-tpro", QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));

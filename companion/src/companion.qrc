@@ -188,6 +188,10 @@
     <file>images/simulator/JumperTLITE/right_top.png</file>
     <file>images/simulator/JumperTLITE/right_bottom.png</file>
     <file>images/simulator/JumperTLITE/top.png</file>
+    <file>images/simulator/JumperTPRO/bottom.png</file>
+    <file>images/simulator/JumperTPRO/left.png</file>
+    <file>images/simulator/JumperTPRO/right.png</file>
+    <file>images/simulator/JumperTPRO/top.png</file>
     <file>images/simulator/TX12/left.png</file>
     <file>images/simulator/TX12/left-pageup.png</file>
     <file>images/simulator/TX12/left-pagedn.png</file>

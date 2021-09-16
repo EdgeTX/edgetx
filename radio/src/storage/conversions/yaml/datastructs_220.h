@@ -999,6 +999,9 @@ static inline void check_struct()
 #elif defined(PCBXLITE)
   CHKSIZE(RadioData, 859);
   CHKSIZE(ModelData, 6157);
+#elif defined(RADIO_TPRO)
+  CHKSIZE(RadioData, 860);
+  CHKSIZE(ModelData, 6157);
 #elif defined(PCBX7)
   CHKSIZE(RadioData, 865);
   CHKSIZE(ModelData, 6157);
