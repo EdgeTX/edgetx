@@ -485,6 +485,8 @@ PACK(struct ModuleData {
       uint8_t telemetry:1;
       uint16_t failsafeTimeout;
       uint8_t rx_freq[2];
+      uint8_t mode:2;
+      uint8_t reserved:6;
       uint16_t rxFreq()
       {
         return (uint16_t)rx_freq[0] | (((uint16_t)rx_freq[1]) << 8);

@@ -549,7 +549,7 @@ inline bool isSbus(uint8_t mode)
 
 inline bool isPWM(uint8_t mode)
 {
-  return mode < 2;
+  return !(mode & 2);
 }
 
 RUN_POWER PulsesData::getMaxRunPower() const
@@ -604,7 +604,9 @@ bool PulsesData::syncSettings()
     putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
-  PULSE_MODE modelPulseMode = isPWM(moduleData->subType) ? PULSE_MODE::PWM_MODE : PULSE_MODE::PPM_MODE;
+  PULSE_MODE modelPulseMode = isPWM(moduleData->afhds3.mode)
+                                  ? PULSE_MODE::PWM_MODE
+                                  : PULSE_MODE::PPM_MODE;
   if (modelPulseMode != cfg.config.pulseMode) {
     cfg.config.pulseMode = modelPulseMode;
     TRACE("AFHDS3 PWM/PPM %d", modelPulseMode);
@@ -613,7 +615,9 @@ bool PulsesData::syncSettings()
     return true;
   }
 
-  SERIAL_MODE modelSerialMode = isSbus(moduleData->subType) ? SERIAL_MODE::SBUS_MODE : SERIAL_MODE::IBUS;
+  SERIAL_MODE modelSerialMode = isSbus(moduleData->afhds3.mode)
+                                    ? SERIAL_MODE::SBUS_MODE
+                                    : SERIAL_MODE::IBUS;
   if (modelSerialMode != cfg.config.serialMode) {
     cfg.config.serialMode = modelSerialMode;
     TRACE("AFHDS3 IBUS/SBUS %d", modelSerialMode);
@@ -660,9 +664,12 @@ void PulsesData::setConfigFromModel()
   cfg.config.emiStandard = EMI_STANDARD::FCC;
   cfg.config.telemetry = moduleData->afhds3.telemetry; //always use bidirectional mode
   cfg.config.pwmFreq = moduleData->afhds3.rxFreq();
-  cfg.config.serialMode = isSbus(moduleData->subType) ? SERIAL_MODE::SBUS_MODE : SERIAL_MODE::IBUS;
-  cfg.config.pulseMode = isPWM(moduleData->subType) ? PULSE_MODE::PWM_MODE : PULSE_MODE::PPM_MODE;
-  //use max channels - because channel count can not be changed after bind
+  cfg.config.serialMode = isSbus(moduleData->afhds3.mode)
+                              ? SERIAL_MODE::SBUS_MODE
+                              : SERIAL_MODE::IBUS;
+  cfg.config.pulseMode = isPWM(moduleData->afhds3.mode) ? PULSE_MODE::PWM_MODE
+                                                        : PULSE_MODE::PPM_MODE;
+  // use max channels - because channel count can not be changed after bind
   cfg.config.channelCount = MAX_CHANNELS;
   cfg.config.failSafeTimout = moduleData->afhds3.failsafeTimeout;
   setFailSafe(cfg.config.failSafeMode);

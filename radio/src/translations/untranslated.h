@@ -176,6 +176,12 @@
 #define LEN_AFHDS3_POWERS              "\006"
 #define TR_AFHDS3_POWERS               "25 mW\0""100 mW""500 mW""1 W\0  ""2 W\0  "
 
+#define LEN_FLYSKY_PULSE_PROTO         "\x003"
+#define TR_FLYSKY_PULSE_PROTO          "PWM""PPM"
+
+#define LEN_FLYSKY_SERIAL_PROTO         "\x004"
+#define TR_FLYSKY_SERIAL_PROTO          "iBUS""SBUS"
+
 #define LEN_PPM_POL                    "\001"
 #define TR_PPM_POL                     "-""+"
 

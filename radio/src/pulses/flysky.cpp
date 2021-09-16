@@ -97,7 +97,7 @@ enum FlySkyModuleState_E {
   STATE_SEND_CHANNELS = 19,
 };
 
-#define AfhdsPwmMode (gRomData.mode < 2 ? FLYSKY_PWM : FLYSKY_PPM)
+#define AfhdsPwmMode (gRomData.mode & 2 ? FLYSKY_PPM : FLYSKY_PWM)
 #define AfhdsIbusMode (gRomData.mode & 1 ? FLYSKY_SBUS : FLYSKY_IBUS)
 
 struct rf_info_t {
