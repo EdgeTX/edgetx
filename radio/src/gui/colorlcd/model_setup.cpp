@@ -862,6 +862,7 @@ class ModuleWindow : public FormGroup {
                        COLOR_THEME_PRIMARY1);
 
         // PPM / PWM
+#if defined(AFHDS2)
         if (isModuleAFHDS2A(moduleIdx)) {
           new Choice(
               this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
@@ -871,7 +872,9 @@ class ModuleWindow : public FormGroup {
                     (g_model.moduleData[moduleIdx].flysky.mode & 1) |
                     ((v & 1) << 1);
               });
-        } else {
+        } else
+#endif
+        {
           new Choice(
               this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
               [=]() { return g_model.moduleData[moduleIdx].afhds3.mode >> 1; },
@@ -883,6 +886,7 @@ class ModuleWindow : public FormGroup {
         }
 
         // SBUS / iBUS
+#if defined(AFHDS2)
         if (isModuleAFHDS2A(moduleIdx)) {
           new Choice(
               this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
@@ -891,7 +895,9 @@ class ModuleWindow : public FormGroup {
                 g_model.moduleData[moduleIdx].flysky.mode =
                     (g_model.moduleData[moduleIdx].flysky.mode & 2) | (v & 1);
               });
-        } else {
+        } else
+#endif
+        {
           new Choice(
               this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
               [=]() { return g_model.moduleData[moduleIdx].afhds3.mode & 1; },
