@@ -161,7 +161,9 @@ set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm -T${RADIO_SRC
 # use smaller nano libc
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
-add_executable(bootloader ${BOOTLOADER_SRC})
+add_executable(bootloader EXCLUDE_FROM_ALL
+  ${BOOTLOADER_SRC}
+  )
 add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
 
 if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)

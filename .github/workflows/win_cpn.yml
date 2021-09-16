@@ -48,7 +48,6 @@ jobs:
         run: |
           pacman -S --noconfirm mingw-w64-x86_64-cmake \
                                 mingw-w64-x86_64-python-pip \
-                                mingw-w64-x86_64-arm-none-eabi-gcc \
                                 mingw-w64-x86_64-libjpeg-turbo \
                                 mingw-w64-x86_64-zlib \
                                 mingw-w64-x86_64-libtiff \
@@ -59,8 +58,9 @@ jobs:
                                 mingw-w64-x86_64-libimagequant \
                                 mingw-w64-x86_64-libraqm \
                                 mingw-w64-x86_64-SDL \
+                                mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis
-          pip install Pillow
+          pip install Pillow clang
           
       - name: Install Qt
         uses: jurplel/install-qt-action@v2

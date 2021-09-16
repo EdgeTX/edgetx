@@ -50,11 +50,6 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip Pillow
 
-      - name: Install ARM toolchain
-        uses: fiam/arm-none-eabi-gcc@v1
-        with:
-          release: '10-2020-q4'
-
       - name: Install dfu-util
         run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
           tar xfv dfu-util-0.9.tar.gz &&

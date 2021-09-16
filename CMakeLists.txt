@@ -84,6 +84,18 @@ if(WIN32)
   list(APPEND CMAKE_PREFIX_PATH "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/SDL")  # hints for FindSDL
 endif()
 
+if(APPLE)
+  execute_process(COMMAND xcrun --show-sdk-path
+    OUTPUT_VARIABLE SDKROOT
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  message("-- SDKROOT: ${SDKROOT}")
+  set(CMAKE_OSX_SYSROOT ${SDKROOT})
+  set(SYSROOT_ARG -isysroot ${SDKROOT})
+endif()
+
+
 # Python check
 find_package(PythonInterp 3 REQUIRED)
 if(PYTHONINTERP_FOUND)

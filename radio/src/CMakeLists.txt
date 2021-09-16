@@ -108,6 +108,7 @@ endif()
 add_subdirectory(translations)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
+add_subdirectory(lua)
 
 if(NOT PCB STREQUAL 9XRPRO)
   option(DBLKEYS "Double Keys" ON)
@@ -678,8 +679,3 @@ if(NOT MSVC)
   PrintTargetReport("firmware")
 
 endif(NOT MSVC)
-
-# Include the lua subdirectory after CMAKE_C_COMPILER has been
-# set. Otherwise, the custom commands it includes will use the
-# default CMAKE_C_COMPILER instead of the one we set manually
-add_subdirectory(lua)
