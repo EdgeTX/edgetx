@@ -92,6 +92,65 @@ void deleteExpo(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
+class SensorValue : Window
+{
+ public:
+  SensorValue(Window *parent, const rect_t &rect, ExpoData *expoData) :
+      Window(parent, rect), expoData(expoData)
+  {
+  }
+  void paint(BitmapBuffer *dc) override
+  {
+    if (isTelemetryValue()) {
+      uint8_t sensorIndex = (expoData->srcRaw - MIXSRC_FIRST_TELEM) / 3;
+#if defined(SIMU)
+      if(true)  {
+#else
+      TelemetryItem &telemetryItem = telemetryItems[sensorIndex];
+      if (telemetryItem.isAvailable())  {
+#endif
+        LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
+        drawSensorCustomValue(dc, 3, 2, sensorIndex, lastSensorVal, flags);
+      } else {
+        dc->drawText(3, 2, "---", COLOR_THEME_PRIMARY1);
+      }
+    } 
+  }
+  bool isTelemetryValue()
+  {
+    return expoData->srcRaw >= MIXSRC_FIRST_TELEM &&
+           expoData->srcRaw <= MIXSRC_LAST_TELEM;
+  }
+  void checkEvents() override
+  {
+    getvalue_t sensorVal = -1;
+    if (isTelemetryValue()) {
+      sensorVal = getValue(expoData->srcRaw);
+    }
+    if (lastSensorVal != sensorVal) {
+      lastSensorVal = sensorVal;
+      invalidate();
+    }
+  }
+
+  LcdFlags getSensorPrec()
+  {
+    LcdFlags prec = 0;
+    if (isTelemetryValue()) {
+      uint8_t sensorIndex = (expoData->srcRaw - MIXSRC_FIRST_TELEM) / 3;
+      TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
+      if (sensor.prec > 0) {
+        prec |= (sensor.prec == 1 ? PREC1 : PREC2);
+      }
+    }
+    return prec;
+  }
+
+ protected:
+  getvalue_t lastSensorVal;
+  ExpoData *expoData;
+};
+
 class InputEditWindow : public Page
 {
  public:
@@ -231,31 +290,34 @@ class InputEditWindow : public Page
 
       // Source
       new StaticText(window, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
-      Choice *src = new SourceChoice(
-          window, grid.getFieldSlot(), INPUTSRC_FIRST, INPUTSRC_LAST,
-          GET_DEFAULT(line->srcRaw), [=](int32_t newValue) {
-            line->srcRaw = newValue;
-            if (line->srcRaw > MIXSRC_Ail && line->carryTrim == TRIM_ON) {
-              line->carryTrim = TRIM_OFF;
-              trimChoice->invalidate();
-            }
-            SET_DIRTY();
-          });
-      src->setAvailableHandler(
-          [](int v) { return isSourceAvailableInInputs(v); });
+      new SourceChoice(window, grid.getFieldSlot(2, 0), INPUTSRC_FIRST, INPUTSRC_LAST,
+                       GET_DEFAULT(line->srcRaw),
+                       [=] (int32_t newValue) {
+                         line->srcRaw = newValue;
+                         if (line->srcRaw > MIXSRC_Ail && line->carryTrim == TRIM_ON) {
+                           line->carryTrim = TRIM_OFF;
+                           trimChoice->invalidate();
+                         }
+                         window->clear();
+                         buildBody(window);
+                         SET_DIRTY();
+                       }
+      );
 
-      /* TODO telemetry current value
-      if (ed->srcRaw >= MIXSRC_FIRST_TELEM) {
-        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+75, y, (ed->srcRaw -
-      MIXSRC_FIRST_TELEM)/3, convertTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM +
-      1, ed->scale), LEFT|(menuHorizontalPosition==1?attr:0));
-      } */
-      grid.nextLine();
+      SensorValue *sensor = nullptr;
+      if (line->srcRaw >= MIXSRC_FIRST_TELEM) {
+        sensor = new SensorValue(window, grid.getFieldSlot(2, 1), line);
 
-      // Scale
-      // TODO only displayed when source is telemetry + unfinished
-      new StaticText(window, grid.getLabelSlot(), STR_SCALE, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->scale));
+        grid.nextLine();
+        // Scale        
+        new StaticText(window, grid.getLabelSlot(), STR_SCALE, 0,
+                       COLOR_THEME_PRIMARY1);
+        new NumberEdit(window, grid.getFieldSlot(), 0,
+                       maxTelemValue(line->srcRaw - MIXSRC_FIRST_TELEM + 1),
+                       GET_SET_DEFAULT(line->scale), 0,
+                       sensor->getSensorPrec());
+        adjustHeight();
+      }
       grid.nextLine();
 
       // Weight
