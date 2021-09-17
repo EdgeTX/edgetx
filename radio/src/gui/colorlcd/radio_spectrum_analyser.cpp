@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -200,6 +201,7 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
   Page(ICON_RADIO_TOOLS),
   moduleIdx(moduleIdx)
 {
+  setCloseHandler([=]() { stop(); });
   init();
   buildHeader(&header);
   buildBody(&body);
@@ -221,10 +223,15 @@ void RadioSpectrumAnalyser::buildBody(FormWindow * window)
 void RadioSpectrumAnalyser::init()
 {
 #if defined(INTERNAL_MODULE_MULTI)
-  if (moduleIdx == INTERNAL_MODULE && g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
-      reusableBuffer.spectrumAnalyser.moduleOFF = true;
-      setModuleType(INTERNAL_MODULE, MODULE_TYPE_MULTIMODULE);
-    }
+  if (moduleIdx == INTERNAL_MODULE &&
+      g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
+    reusableBuffer.spectrumAnalyser.moduleOFF = true;
+    // this needs to be set BEFORE the module is set to prevent proto list scanning
+    moduleState[moduleIdx].mode = MODULE_MODE_SPECTRUM_ANALYSER;
+    setModuleType(INTERNAL_MODULE, MODULE_TYPE_MULTIMODULE);
+  } else {
+    reusableBuffer.spectrumAnalyser.moduleOFF = false;
+  }
 #endif
 
   if (isModuleR9MAccess(moduleIdx)) {
@@ -261,15 +268,14 @@ void RadioSpectrumAnalyser::start()
 
 void RadioSpectrumAnalyser::stop()
 {
-  new MessageDialog(this, STR_MODULE, STR_STOPPING);
   if (isModulePXX2(moduleIdx)) {
-    moduleState[moduleIdx].readModuleInformation(&reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
-  }
-  else if (isModuleMultimodule(moduleIdx)) {
+    moduleState[moduleIdx].readModuleInformation(
+        &reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID,
+        PXX2_HW_INFO_TX_ID);
+  } else if (isModuleMultimodule(moduleIdx)) {
+    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
     if (reusableBuffer.spectrumAnalyser.moduleOFF)
       setModuleType(INTERNAL_MODULE, MODULE_TYPE_NONE);
-    else
-      moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
   }
   /* wait 1s to resume normal operation before leaving */
   //  watchdogSuspend(1000);

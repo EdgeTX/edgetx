@@ -205,7 +205,9 @@ void MultiRfProtocols::fillList(std::function<void(const RfProto&)> addProto) co
 
 bool MultiRfProtocols::triggerScan()
 {
-  if (scanState == ScanStop) {
+  if (scanState == ScanStop
+      && moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
+
     proto2idx.clear();
     protoList.clear();
     scanState = ScanBegin;
