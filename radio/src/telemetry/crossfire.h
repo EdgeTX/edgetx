@@ -95,21 +95,31 @@ void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
 uint8_t createCrossfireModelIDFrame(uint8_t * frame);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
-  3750000,
-  1870000,
-  921600,
-  400000,
   115200,
+  400000,
+  921600,
+  1870000,
+  3750000,
 };
 const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
-  4,
-  4,
-  4,
-  4,
   16,
+  4,
+  4,
+  4,
+  4,
 };
-#define CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[g_eeGeneral.telemetryBaudrate]
-#define CROSSFIRE_PERIOD      (CROSSFIRE_FRAME_PERIODS[g_eeGeneral.telemetryBaudrate] * 1000)
+#if SPORT_MAX_BAUDRATE < 400000
+  // index 0 (115200) is the default 0 value
+  #define CROSSFIRE_STORE_TO_INDEX(v) v
+  #define CROSSFIRE_INDEX_TO_STORE(i) i
+#else
+  // index 1 (400000) is the default 0 value
+  #define CROSSFIRE_STORE_TO_INDEX(v) (v + 1) % DIM(CROSSFIRE_BAUDRATES)
+  #define CROSSFIRE_INDEX_TO_STORE(i) (i + 4) % DIM(CROSSFIRE_BAUDRATES)
+#endif
+
+#define CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)]
+#define CROSSFIRE_PERIOD      (CROSSFIRE_FRAME_PERIODS[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)] * 1000)
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
 
