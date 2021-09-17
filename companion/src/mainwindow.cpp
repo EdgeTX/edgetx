@@ -1018,7 +1018,9 @@ void MainWindow::about()
   aboutStr.append("<br/><br/>");
   aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION).arg(CODENAME).arg(__DATE__));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright EdgeTX Team") + QString("<br/>&copy; 2011-%1<br/>").arg(QString(__DATE__).right(4)));
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2021 EdgeTX<br/>"));
+  // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
+
   QMessageBox msgBox(this);
   msgBox.setWindowIcon(CompanionIcon("information.png"));
   msgBox.setWindowTitle(tr("About Companion"));
