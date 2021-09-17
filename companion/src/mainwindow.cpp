@@ -1016,7 +1016,7 @@ void MainWindow::about()
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("If you've found this program useful, please support by <a href='%1'>donating</a>").arg(DONATE_STR));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(QString("Version %1, %2").arg(VERSION).arg(__DATE__));
+  aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION).arg(CODENAME).arg(__DATE__));
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("Copyright EdgeTX Team") + QString("<br/>&copy; 2011-%1<br/>").arg(QString(__DATE__).right(4)));
   QMessageBox msgBox(this);
