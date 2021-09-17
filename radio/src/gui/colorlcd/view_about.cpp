@@ -28,7 +28,7 @@ const uint8_t mask_qrcode[] = {
 };
 
 constexpr coord_t ABOUT_WIDTH = 220;
-const std::string about_str = "EdgeTX" " " CODENAME " " VERSION;
+const std::string about_str = "EdgeTX" " " CODENAME " (" VERSION ")";
 const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
 
 AboutUs::AboutUs() :
