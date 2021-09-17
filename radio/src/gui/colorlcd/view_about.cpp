@@ -28,6 +28,8 @@ const uint8_t mask_qrcode[] = {
 };
 
 constexpr coord_t ABOUT_WIDTH = 220;
+const std::string about_str = "EdgeTX" " " CODENAME " " VERSION;
+const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
 
 AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
@@ -38,13 +40,10 @@ AboutUs::AboutUs() :
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 
-  std::string about_str = "EdgeTX" " " CODENAME " " VERSION;
-  std::string copyright_str = "Copyright (C) 2021 EdgeTX";
-
   messageWidget->setText(about_str + "\n" + copyright_str);
 
-  qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, COLOR_THEME_SECONDARY1,
-                                                  COLOR_THEME_SECONDARY3);
+  qrcode = BitmapBuffer::load8bitMaskOnBackground(
+      mask_qrcode, COLOR_THEME_SECONDARY1, COLOR_THEME_SECONDARY3);
   new StaticBitmap(content,
                    rect_t{ content->width() / 2 - qrcode->width() / 2, 80,
                        qrcode->width(), qrcode->height()},
