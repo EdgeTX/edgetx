@@ -226,6 +226,8 @@ void RadioSpectrumAnalyser::init()
   if (moduleIdx == INTERNAL_MODULE &&
       g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
     reusableBuffer.spectrumAnalyser.moduleOFF = true;
+    // this needs to be set BEFORE the module is set to prevent proto list scanning
+    moduleState[moduleIdx].mode = MODULE_MODE_SPECTRUM_ANALYSER;
     setModuleType(INTERNAL_MODULE, MODULE_TYPE_MULTIMODULE);
   } else {
     reusableBuffer.spectrumAnalyser.moduleOFF = false;
