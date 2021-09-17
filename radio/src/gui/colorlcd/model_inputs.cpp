@@ -114,9 +114,7 @@ class SensorValue : Window
       } else {
         dc->drawText(3, 2, "---", COLOR_THEME_PRIMARY1);
       }
-    } else {
-      dc->clearClippingRect();
-    }
+    } 
   }
   bool isTelemetryValue()
   {
