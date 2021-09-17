@@ -39,6 +39,7 @@ class MultiRfProtocols
 
   uint32_t scanStart = 0;
   uint32_t lastScan = 0;
+  uint8_t currentProto = 0;
   uint8_t totalProtos = 0;
 
   MultiRfProtocols(unsigned int moduleIdx) : moduleIdx(moduleIdx) {}
@@ -78,6 +79,7 @@ class MultiRfProtocols
 
   std::string getLastProtoLabel() const;
   bool triggerScan();
+  uint8_t getScanProto() { return currentProto; }
 
   bool scanReply(const uint8_t * packet = nullptr, uint8_t len = 0);
   void fillList(std::function<void(const RfProto&)> addProto) const;

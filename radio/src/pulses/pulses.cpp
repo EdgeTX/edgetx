@@ -473,7 +473,9 @@ static void enablePulsesInternalModule(uint8_t protocol)
       getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
 #if defined(MULTI_PROTOLIST)
+      TRACE("enablePulsesInternalModule(): trigger scan");
       MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
+      TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
 #endif
       break;
 #endif

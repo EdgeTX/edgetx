@@ -177,8 +177,11 @@ void setupPulsesMulti(uint8_t moduleIdx)
     sendChannels(moduleIdx);
 
   // Multi V1.3.X.X -> Send byte 26, Protocol (bits 7 & 6), RX_Num (bits 5 & 4), invert, not used, disable telemetry, disable mapping
-  if ((moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER) ||
-      (moduleState[moduleIdx].mode == MODULE_MODE_GET_HARDWARE_INFO)) {
+  if ((moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER)
+#if defined(MULTI_PROTOLIST)
+      || (moduleState[moduleIdx].mode == MODULE_MODE_GET_HARDWARE_INFO)
+#endif
+      ) {
     sendMulti(moduleIdx, invert[moduleIdx] & 0x08);
   }
   else {
@@ -371,17 +374,19 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
     return;
   }
 
+#if defined(MULTI_PROTOLIST)
   if (moduleMode == MODULE_MODE_GET_HARDWARE_INFO) {
     sendMulti(moduleIdx, (uint8_t) 0x55); // Header byte
     sendMulti(moduleIdx, (uint8_t) 0);    // PROTOLIST custom protocol
     sendMulti(moduleIdx, (uint8_t) 0);
 
     // proto array item
-    uint8_t protoIdx = moduleState[moduleIdx].counter;
+    uint8_t protoIdx = MultiRfProtocols::instance(moduleIdx)->getScanProto();
     TRACE("scan [%d]", protoIdx);
     sendMulti(moduleIdx, protoIdx);
     return;
   }
+#endif
 
   if (moduleMode == MODULE_MODE_BIND)
     protoByte |= MULTI_SEND_BIND;

@@ -211,8 +211,8 @@ bool MultiRfProtocols::triggerScan()
     proto2idx.clear();
     protoList.clear();
     scanState = ScanBegin;
+    currentProto = MULTI_INVALID_PROTO;
     moduleState[moduleIdx].mode = MODULE_MODE_GET_HARDWARE_INFO;
-    moduleState[moduleIdx].counter = MULTI_INVALID_PROTO;
     scanStart = lastScan = RTOS_GET_MS();
     return true;
   }
@@ -232,7 +232,7 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
 
         // new status received
         if (replyProtoId != MULTI_INVALID_PROTO) {
-          if (moduleState[moduleIdx].counter == MULTI_INVALID_PROTO) {
+          if (currentProto == MULTI_INVALID_PROTO) {
             //TRACE("# of protos: %d", totalProtos);
             totalProtos = replyProtoId;
             scanState = Scanning;
@@ -271,7 +271,7 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
             }
           }
 
-          moduleState[moduleIdx].counter++;
+          currentProto++;
           lastScan = RTOS_GET_MS();
           return true;
 
