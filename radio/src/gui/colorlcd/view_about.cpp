@@ -21,6 +21,7 @@
 
 #include "view_about.h"
 #include "opentx.h"
+#include "stamp.h"
 
 const uint8_t mask_qrcode[] = {
 #include "mask_qrcode.lbm"
@@ -37,8 +38,10 @@ AboutUs::AboutUs() :
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 
-  messageWidget->setText("EdgeTX Dauntless (2.5.0)\n"
-                         "Copyright (C) 2021 EdgeTX");
+  std::string about_str = "EdgeTX" " " CODENAME " " VERSION;
+  std::string copyright_str = "Copyright (C) 2021 EdgeTX";
+
+  messageWidget->setText(about_str + "\n" + copyright_str);
 
   qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, COLOR_THEME_SECONDARY1,
                                                   COLOR_THEME_SECONDARY3);
