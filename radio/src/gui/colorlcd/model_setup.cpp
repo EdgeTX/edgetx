@@ -736,17 +736,24 @@ class ModuleWindow : public FormGroup {
 
     void addChannelRange(FormGridLayout &grid)
     {
-      new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
-      auto channelStart = new NumberEdit(this, grid.getFieldSlot(2, 0), 1,
-                                         MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1,
-                                         GET_DEFAULT(1 + g_model.moduleData[moduleIdx].channelsStart));
-      auto channelEnd = new NumberEdit(this, grid.getFieldSlot(2, 1),
-                                       g_model.moduleData[moduleIdx].channelsStart + minModuleChannels(moduleIdx),
-                                       min<int8_t>(MAX_OUTPUT_CHANNELS, g_model.moduleData[moduleIdx].channelsStart + maxModuleChannels(moduleIdx)),
-                                       GET_DEFAULT(g_model.moduleData[moduleIdx].channelsStart + 8 + g_model.moduleData[moduleIdx].channelsCount));
+      new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto channelStart = new NumberEdit(
+          this, grid.getFieldSlot(2, 0), 1,
+          MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1,
+          GET_DEFAULT(1 + g_model.moduleData[moduleIdx].channelsStart));
+      auto channelEnd = new NumberEdit(
+          this, grid.getFieldSlot(2, 1),
+          g_model.moduleData[moduleIdx].channelsStart +
+              minModuleChannels(moduleIdx),
+          min<int8_t>(MAX_OUTPUT_CHANNELS,
+                      g_model.moduleData[moduleIdx].channelsStart +
+                          maxModuleChannels(moduleIdx)),
+          GET_DEFAULT(g_model.moduleData[moduleIdx].channelsStart + 8 +
+                      g_model.moduleData[moduleIdx].channelsCount));
       if (isModulePXX2(moduleIdx)) {
         channelEnd->setAvailableHandler([=](int value) {
-            return isPxx2IsrmChannelsCountAllowed(value - 8);
+          return isPxx2IsrmChannelsCountAllowed(value - 8);
         });
       }
       channelStart->setPrefix(STR_CH);
@@ -754,17 +761,24 @@ class ModuleWindow : public FormGroup {
       channelStart->setSetValueHandler([=](int32_t newValue) {
         g_model.moduleData[moduleIdx].channelsStart = newValue - 1;
         SET_DIRTY();
-        channelEnd->setMin(g_model.moduleData[moduleIdx].channelsStart + minModuleChannels(moduleIdx));
-        channelEnd->setMax(min<int8_t>(MAX_OUTPUT_CHANNELS, g_model.moduleData[moduleIdx].channelsStart + maxModuleChannels(moduleIdx)));
+        channelEnd->setMin(g_model.moduleData[moduleIdx].channelsStart +
+                           minModuleChannels(moduleIdx));
+        channelEnd->setMax(min<int8_t>(
+            MAX_OUTPUT_CHANNELS, g_model.moduleData[moduleIdx].channelsStart +
+                                     maxModuleChannels(moduleIdx)));
         channelEnd->invalidate();
       });
       channelEnd->setSetValueHandler([=](int32_t newValue) {
-        g_model.moduleData[moduleIdx].channelsCount = newValue - g_model.moduleData[moduleIdx].channelsStart - 8;
+        g_model.moduleData[moduleIdx].channelsCount =
+            newValue - g_model.moduleData[moduleIdx].channelsStart - 8;
         SET_DIRTY();
-        channelStart->setMax(MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1);
+        channelStart->setMax(MAX_OUTPUT_CHANNELS -
+                             sentModuleChannels(moduleIdx) + 1);
       });
-      channelEnd->enable(minModuleChannels(moduleIdx) < maxModuleChannels(moduleIdx));
-      if (channelEnd->getValue() > channelEnd->getMax()) channelEnd->setValue(channelEnd->getMax());
+      channelEnd->enable(minModuleChannels(moduleIdx) <
+                         maxModuleChannels(moduleIdx));
+      if (channelEnd->getValue() > channelEnd->getMax())
+        channelEnd->setValue(channelEnd->getMax());
     }
 
     void update()
@@ -778,11 +792,10 @@ class ModuleWindow : public FormGroup {
                                 MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
                                 GET_DEFAULT(g_model.moduleData[moduleIdx].type),
                                 [=](int32_t newValue) {
-                                  g_model.moduleData[moduleIdx].type = newValue;
-                                  SET_DIRTY();
-                                  // TODO resetModuleSettings(moduleIdx);
+                                  setModuleType(moduleIdx, newValue);
                                   update();
                                   moduleChoice->setFocus(SET_FOCUS_DEFAULT);
+                                  SET_DIRTY();
                                 });
       moduleChoice->setAvailableHandler([=](int8_t moduleType) {
           return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType) : isExternalModuleAvailable(moduleType);
@@ -1088,10 +1101,13 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
 
         // PPM frame length
-        auto edit = new NumberEdit(this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
-                                   GET_DEFAULT(g_model.moduleData[moduleIdx].ppm.frameLength * 5 + 225),
-                                   SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength, (newValue - 225) / 5),
-                                   0, PREC1);
+        auto edit = new NumberEdit(
+            this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
+            GET_DEFAULT(g_model.moduleData[moduleIdx].ppm.frameLength * 5 +
+                        225),
+            SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength,
+                      (newValue - 225) / 5),
+            0, PREC1);
         edit->setStep(5);
         edit->setSuffix(STR_MS);
 

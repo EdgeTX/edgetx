@@ -337,10 +337,42 @@ inline bool isModuleAFHDS3(uint8_t idx)
     && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS3);
 }
 
-// order is the same as in enum Protocols in myeeprom.h (none, ppm, pxx, pxx2, dsm, crossfire, multi, r9m, r9m2, sbus)
-//qba667 count is not matching!
-static const int8_t maxChannelsModules_M8[] = { 0, 8, 8, 16, -2, 8, 4, 8, 16, 8, 10 }; // relative to 8!
-static const int8_t maxChannelsXJT_M8[] = { 0, 8, 0, 4 }; // relative to 8!
+// See enum ModuleType in modules_constant.h
+// relative to 8!
+static const int8_t maxChannelsModules_M8[] = {
+  0, // MODULE_TYPE_NONE
+  8, // MODULE_TYPE_PPM
+  0, // MODULE_TYPE_XJT_PXX1: index NOT USED
+  16,// MODULE_TYPE_ISRM_PXX2
+  -2,// MODULE_TYPE_DSM2
+  8, // MODULE_TYPE_CROSSFIRE
+  8, // MODULE_TYPE_MULTIMODULE
+  0, // MODULE_TYPE_R9M_PXX1: index NOT USED
+  0, // MODULE_TYPE_R9M_PXX2: index NOT USED
+  0, // MODULE_TYPE_R9M_LITE_PXX1: index NOT USED
+  0, // MODULE_TYPE_R9M_LITE_PXX2: index NOT USED
+  4, // MODULE_TYPE_GHOST
+  0, // MODULE_TYPE_R9M_LITE_PRO_PXX2: index NOT USED
+  8, // MODULE_TYPE_SBUS
+  0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
+  6, // MODULE_TYPE_FLYSKY: 14 channels for AFHDS2A, AFHDS3 special cased
+};
+
+static_assert(MODULE_TYPE_COUNT == sizeof(maxChannelsModules_M8),
+              "MODULE_TYPE_COUNT != sizeof(maxChannelsModules_M8)");
+
+// See enum ModuleSubtypePXX1 in modules_constant.h
+// relative to 8!
+static const int8_t maxChannelsXJT_M8[] = {
+  0, // MODULE_SUBTYPE_PXX1_OFF
+  8, // MODULE_SUBTYPE_PXX1_ACCST_D16
+  0, // MODULE_SUBTYPE_PXX1_ACCST_D8
+  4  // MODULE_SUBTYPE_PXX1_ACCST_LR12
+};
+
+// MODULE_SUBTYPE_PXX1_OFF == -1
+static_assert(MODULE_SUBTYPE_PXX1_LAST + 2 == sizeof(maxChannelsXJT_M8),
+              "MODULE_SUBTYPE_PXX1_LAST + 2 != sizeof(maxChannelsXJT_M8)");
 
 constexpr int8_t MAX_TRAINER_CHANNELS_M8 = MAX_TRAINER_CHANNELS - 8;
 constexpr int8_t MAX_EXTRA_MODULE_CHANNELS_M8 = 8; // only 16ch PPM
@@ -349,35 +381,27 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
 {
   if (isExtraModule(moduleIdx)) {
     return MAX_EXTRA_MODULE_CHANNELS_M8;
-  }
-  else if (isModuleXJT(moduleIdx)) {
+  } else if (isModuleXJT(moduleIdx)) {
     return maxChannelsXJT_M8[1 + g_model.moduleData[moduleIdx].subType];
-  }
-  else if (isModuleR9M(moduleIdx)) {
+  } else if (isModuleR9M(moduleIdx)) {
     if (isModuleR9M_LBT(moduleIdx)) {
       if (isModuleR9MLite(moduleIdx))
-        return g_model.moduleData[moduleIdx].pxx.power == R9M_LITE_LBT_POWER_25_8CH ? 0 : 8;
+        return g_model.moduleData[moduleIdx].pxx.power ==
+                       R9M_LITE_LBT_POWER_25_8CH
+                   ? 0
+                   : 8;
       else
-        return g_model.moduleData[moduleIdx].pxx.power == R9M_LBT_POWER_25_8CH ? 0 : 8;
+        return g_model.moduleData[moduleIdx].pxx.power == R9M_LBT_POWER_25_8CH
+                   ? 0
+                   : 8;
+    } else {
+      return 8;  // always 16 channels in FCC / FLEX
     }
-    else {
-      return 8; // always 16 channels in FCC / FLEX
-    }
-  }
-  else if (isModuleAFHDS3(moduleIdx)) {
+  } else if (isModuleAFHDS3(moduleIdx)) {
     return 10;
-  }
-  else if (isModuleDSM2(moduleIdx)) {
-    return -2; // 6 channels
-  }
-  else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4; // 12 channels
-  }
-  //TODO: This should be based on the selected protocol
-  else if(isModuleMultimodule(moduleIdx)) {
-    return 8; // 16 channels
-  }
-  else {
+  } else if (isModuleMultimoduleDSM2(moduleIdx)) {
+    return 4;  // 12 channels
+  } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
 }
@@ -399,18 +423,6 @@ inline int8_t defaultModuleChannels_M8(uint8_t idx)
 {
   if (isModulePPM(idx))
     return 0; // 8 channels
-  else if (isModuleDSM2(idx))
-    return 0; // 8 channels
-  else if (isModuleMultimoduleDSM2(idx))
-    return -1; // 7 channels
-  else if (isModuleXJTD8(idx))
-    return 0;  // 8 channels
-  else if (isModuleXJTLR12(idx))
-    return 4;  // 12 channels
-  else if (isModulePXX2(idx))
-    return 8; // 16 channels
-  else if (isModuleGhost(idx))
-    return 4; // 12 channels
   else
     return maxModuleChannels_M8(idx);
 }
@@ -637,7 +649,9 @@ inline void removePXX2ReceiverIfEmpty(uint8_t moduleIdx, uint8_t receiverIdx)
 
 inline void setDefaultPpmFrameLength(uint8_t moduleIdx)
 {
-  g_model.moduleData[moduleIdx].ppm.frameLength = 4 * max<int>(0, g_model.moduleData[moduleIdx].channelsCount);
+  // channelsCount + 8 ???
+  g_model.moduleData[moduleIdx].ppm.frameLength =
+      4 * max<int>(0, g_model.moduleData[moduleIdx].channelsCount);
 }
 
 inline void resetAccessAuthenticationCount()
