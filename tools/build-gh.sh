@@ -138,7 +138,7 @@ do
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
             ;;
-        TX16S_FS)
+        tx16s-fs)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DFLYSKY_HALL_STICKS=ON"
             ;;
         nv14)
