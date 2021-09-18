@@ -632,6 +632,8 @@
 #define TR_VOLTAGE                      TR(INDENT "Voltage", INDENT "電壓來源")
 #define TR_CURRENT                      TR(INDENT "Current", INDENT "電流來源")
 #define TR_SELECT_MODEL                 "選擇模型"
+#define TR_MODEL_CATEGORIES            "Model Categories"
+#define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                  "選擇模式"
 #define TR_CREATE_CATEGORY              "創建分類"
 #define TR_RENAME_CATEGORY              "分類改名"

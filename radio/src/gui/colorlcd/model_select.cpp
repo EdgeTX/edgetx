@@ -264,8 +264,23 @@ class ModelCategoryPageBody : public FormWindow
               POPUP_WARNING("Invalid File");
             }
           });
-          // menu->addLine(STR_MOVE_MODEL);
           if (model != modelslist.getCurrentModel()) {
+            // Move
+            if(modelslist.getCategories().size() > 1) {
+              menu->addLine(STR_MOVE_MODEL, [=]() {
+              auto moveToMenu = new Menu(parent);
+              moveToMenu->setTitle(STR_MOVE_MODEL);              
+                for (auto newcategory: modelslist.getCategories()) {
+                  if(category != newcategory) {
+                    moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
+                      modelslist.moveModel(model, category, newcategory);
+                      update(index < (int)category->size() - 1 ? index : index - 1);
+                      modelslist.save();
+                    });
+                  }
+                }
+              });
+            }
             menu->addLine(STR_DELETE_MODEL, [=]() {
               new ConfirmDialog(
                   parent, STR_DELETE_MODEL,
@@ -313,18 +328,33 @@ class ModelCategoryPageBody : public FormWindow
     }
   }
 
+  void addFirstModel() {
+    Menu *menu = new Menu(this);
+    menu->addLine(STR_CREATE_MODEL, getCreateModelAction());      
+  }
+
 #if defined(HARDWARE_KEYS)
   void onEvent(event_t event) override
   {
     if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      Menu *menu = new Menu(this);
-      menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
-      // TODO: create category?
+      addFirstModel();
     } else {
       FormWindow::onEvent(event);
     }
   }
 #endif
+
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y)
+    {
+      if(category->size() == 0)
+        addFirstModel();
+      else
+        FormWindow::onTouchEnd(x,y);
+      return true;
+    }
+#endif
+  
 
   void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
                 Window *from = nullptr) override
@@ -370,18 +400,141 @@ class ModelCategoryPage : public PageTab
   }
 };
 
+class CategoryGroup: public FormGroup
+{
+  public:
+    CategoryGroup(Window * parent, const rect_t & rect, ModelsCategory *category) :
+      FormGroup(parent, rect),
+      category(category)
+    {
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_PRIMARY2);
+      FormGroup::paint(dc);
+    }
+
+  protected:
+    ModelsCategory *category;
+};
+
+class CategoryEditPage : public PageTab
+{
+  public:
+    explicit CategoryEditPage(ModelSelectMenu *modelselectmenu, bool scrolltobot=false) : 
+
+      PageTab(STR_MODEL_CATEGORIES, ICON_MODEL_SETUP),
+      modelselectmenu(modelselectmenu), 
+      scrolltobot(scrolltobot)
+    {     
+    }
+
+  protected:
+    void update()
+    {
+      modelselectmenu->build(0);
+    }
+
+    void build(FormWindow *window) override
+    {
+      FormGridLayout grid;
+      grid.setMarginRight(15);
+      grid.setLabelWidth(0);
+      grid.spacer();
+
+      coord_t y = 2;
+
+      for (auto category: modelslist.getCategories()) {
+        // NAME
+        auto catname = new TextEdit(window, grid.getFieldSlot(3,0), category->name, sizeof(category->name));
+        catname->setChangeHandler([=]() {          
+          if(category->name[0] == '\0') {
+            category->name[0] = ' '; category->name[1] = '\0';            
+          }
+          modelslist.save();
+          update();
+        });
+
+        // Details
+        char cnt[19];
+        snprintf(cnt, sizeof(cnt), "%d %s", category->size(), STR_MODELS);
+        new StaticText(window, grid.getFieldSlot(3,1), cnt);             
+        
+        if(category->empty()) {
+          new TextButton(window, grid.getFieldSlot(3,2),TR_DELETE, [=]() -> uint8_t {
+            new ConfirmDialog(window, STR_DELETE_CATEGORY,
+              std::string(category->name, sizeof(category->name)).c_str(),
+              [=] {
+                modelslist.removeCategory(category);    
+                modelslist.save();
+                update();
+              });
+            return 0;
+          });
+          } else {
+#ifdef CATEGORIES_SHOW_DELETE_NON_EMPTY
+          new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
+            new MessageDialog(window, STR_DELETE_CATEGORY, TR_CAT_NOT_EMPTY);
+            return 0;
+          });
+#endif
+          }
+
+        grid.nextLine();
+
+        grid.spacer();
+        coord_t height = grid.getWindowHeight();
+        //window->setHeight(height);
+        y += height + 2;
+      }
+            
+      new TextButton(window, grid.getCenteredSlot(LCD_W/2), STR_CREATE_CATEGORY, [=]() -> uint8_t {
+        modelslist.createCategory("New");
+        update();
+        return 0;
+      });
+
+      grid.nextLine();
+
+      window->setInnerHeight(grid.getWindowHeight()); 
+
+      if(scrolltobot)
+        window->setScrollPositionY(y+40);
+    }  
+  private:
+    ModelSelectMenu *modelselectmenu;
+    bool scrolltobot;
+};
+
 ModelSelectMenu::ModelSelectMenu():
   TabsGroup(ICON_MODEL_SELECT)
-{
+{  
+  build();
+}
+
+void ModelSelectMenu::build(int index) 
+{  
+  modelslist.clear();
   modelslist.load();
 
-  TRACE("TabsGroup: %p", this);
+  removeAllTabs();
+
+  TRACE("TabsGroup: %p", this);  
+  
+  addTab(new CategoryEditPage(this));
+
   for (auto category: modelslist.getCategories()) {
     addTab(new ModelCategoryPage(category));
   }
 
-  int idx = modelslist.getCurrentCategoryIdx();
-  if (idx >= 0) {
-    setCurrentTab(idx);
+  if(index < 0) {
+    int idx = modelslist.getCurrentCategoryIdx();
+    if (idx >= 0) {
+      setCurrentTab(idx+1);
+    }
+  } else {
+    if(index < static_cast<int>(modelslist.getCategories().size()))
+      setCurrentTab(index);
   }
 }
