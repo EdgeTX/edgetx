@@ -74,8 +74,8 @@
 #endif
 
 #if LCD_W < LCD_H    // Portrait mode
-  #define TR3(x, y, z) x
-  #define TR2(x, y) x
+  #define TR3(x, y, z) z
+  #define TR2(x, y) y
 #elif LCD_W >= 480
   #define TR3(x, y, z) z
   #define TR2(x, y) y
