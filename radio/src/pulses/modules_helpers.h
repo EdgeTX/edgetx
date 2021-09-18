@@ -33,7 +33,7 @@
 #endif
 
 #define CROSSFIRE_CHANNELS_COUNT        16
-#define GHOST_CHANNELS_COUNT            12
+#define GHOST_CHANNELS_COUNT            16
 
 #if defined(MULTIMODULE)
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
@@ -345,13 +345,13 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_XJT_PXX1: index NOT USED
   16,// MODULE_TYPE_ISRM_PXX2
   -2,// MODULE_TYPE_DSM2
-  8, // MODULE_TYPE_CROSSFIRE
+  CROSSFIRE_CHANNELS_COUNT - 8, // MODULE_TYPE_CROSSFIRE
   8, // MODULE_TYPE_MULTIMODULE
   0, // MODULE_TYPE_R9M_PXX1: index NOT USED
   0, // MODULE_TYPE_R9M_PXX2: index NOT USED
   0, // MODULE_TYPE_R9M_LITE_PXX1: index NOT USED
   0, // MODULE_TYPE_R9M_LITE_PXX2: index NOT USED
-  4, // MODULE_TYPE_GHOST
+  GHOST_CHANNELS_COUNT - 8, // MODULE_TYPE_GHOST
   0, // MODULE_TYPE_R9M_LITE_PRO_PXX2: index NOT USED
   8, // MODULE_TYPE_SBUS
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
