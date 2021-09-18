@@ -376,6 +376,11 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += input.srcRaw.toString(&model, &generalSettings).toHtmlEscaped();
   }
 
+  if (input.srcRaw.type == SOURCE_TYPE_TELEMETRY && input.scale != 0){
+    RawSourceRange range = input.srcRaw.getRange(&model, generalSettings);
+    str += " " + tr("Scale(%1)").arg(input.scale * range.step).toHtmlEscaped();
+  }
+
   str += " " + tr("Weight(%1)").arg(AdjustmentReference(input.weight).toString(&model, true)).toHtmlEscaped();
   if (input.curve.value)
     str += " " + input.curve.toString(&model).toHtmlEscaped();
