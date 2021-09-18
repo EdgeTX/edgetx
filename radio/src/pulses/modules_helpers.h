@@ -414,6 +414,10 @@ inline int8_t maxModuleChannels(uint8_t moduleIdx)
 inline int8_t minModuleChannels(uint8_t idx)
 {
   if (isModuleCrossfire(idx))
+    return CROSSFIRE_CHANNELS_COUNT;
+  else if (isModuleGhost(idx))
+    return GHOST_CHANNELS_COUNT;
+  else if (isModuleSBUS(idx))
     return 16;
   else
     return 1;
