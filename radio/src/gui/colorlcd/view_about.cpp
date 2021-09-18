@@ -21,12 +21,15 @@
 
 #include "view_about.h"
 #include "opentx.h"
+#include "stamp.h"
 
 const uint8_t mask_qrcode[] = {
 #include "mask_qrcode.lbm"
 };
 
 constexpr coord_t ABOUT_WIDTH = 220;
+const std::string about_str = "EdgeTX" " " CODENAME " (" VERSION ")";
+const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
 
 AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
@@ -37,11 +40,10 @@ AboutUs::AboutUs() :
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 
-  messageWidget->setText("EdgeTX Dauntless (2.5.0)\n"
-                         "Copyright (C) 2021 EdgeTX");
+  messageWidget->setText(about_str + "\n" + copyright_str);
 
-  qrcode = BitmapBuffer::load8bitMaskOnBackground(mask_qrcode, COLOR_THEME_SECONDARY1,
-                                                  COLOR_THEME_SECONDARY3);
+  qrcode = BitmapBuffer::load8bitMaskOnBackground(
+      mask_qrcode, COLOR_THEME_SECONDARY1, COLOR_THEME_SECONDARY3);
   new StaticBitmap(content,
                    rect_t{ content->width() / 2 - qrcode->width() / 2, 80,
                        qrcode->width(), qrcode->height()},

@@ -19,12 +19,13 @@
  */
 
 #include "opentx.h"
+#include "stamp.h"
 
 #define ABOUT_INDENT 4
 
-const char ABOUT_VERSION_1[] = "EdgeTX Endeavour (2.4.0)";
+const char ABOUT_VERSION_1[] = "EdgeTX " CODENAME "(" VERSION ")";
 const char ABOUT_VERSION_2[] = "Copyright (C) 2021 EdgeTX";
-const char ABOUT_VERSION_3[] = "https://edge-tx.org";
+const char ABOUT_VERSION_3[] = "https://edgetx.org";
 
 void menuAboutView(event_t event)
 {

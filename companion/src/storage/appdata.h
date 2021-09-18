@@ -46,7 +46,7 @@
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
 
 #define COMPANY                     QStringLiteral("EdgeTX")
-#define COMPANY_DOMAIN              QStringLiteral("edge-tx.org")
+#define COMPANY_DOMAIN              QStringLiteral("edgetx.org")
 #define PRODUCT                     QStringLiteral("Companion " QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR))
 #define APP_COMPANION               QStringLiteral("EdgeTX Companion")
 #define APP_SIMULATOR               QStringLiteral("EdgeTX Simulator")
@@ -58,7 +58,7 @@
 #define CPN_SETTINGS_INI_FILE       QString(PRODUCT % " " % QCoreApplication::translate("Companion", "settings") % " %1.ini")
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
-#define CPN_URL_DOWNLOAD           "https://downloads.edge-tx.org/"
+#define CPN_URL_DOWNLOAD           "https://downloads.edgetx.org/"
 #define CPN_URL_DOWNLOAD_CUR_VERS  CPN_URL_DOWNLOAD QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR) "/"
 #define CPN_URL_DOWNLOAD_CUR_REL   CPN_URL_DOWNLOAD_CUR_VERS "release/"
 #define CPN_URL_DOWNLOAD_CUR_RC    CPN_URL_DOWNLOAD_CUR_VERS "rc/"

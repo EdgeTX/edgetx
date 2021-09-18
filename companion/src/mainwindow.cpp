@@ -65,8 +65,8 @@
 #define INTERACTIVE_DOWNLOAD   4
 #define AUTOMATIC_DOWNLOAD     8
 
-#define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("http://www.edge-tx.org/downloads")
-#define DONATE_STR                        QStringLiteral("https://www.edge-tx.org")
+#define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("https://edgetx.org/downloads")
+#define DONATE_STR                        QStringLiteral("https://edgetx.org")
 
 #ifdef Q_OS_MACOS
   #define COMPANION_STAMP                 QStringLiteral("companion-macosx.stamp")
@@ -710,7 +710,7 @@ void MainWindow::newFile()
 
 void MainWindow::openDocURL()
 {
-  QString link = "http://www.edge-tx.org/";
+  QString link = "https://edgetx.org/";
   QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -879,7 +879,7 @@ void MainWindow::sdsync()
 
 void MainWindow::changelog()
 {
-  QString link = "http://www.edge-tx.org";
+  QString link = "https://edgetx.org";
   QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -1010,15 +1010,17 @@ void MainWindow::logFile()
 void MainWindow::about()
 {
   QString aboutStr = "<center><img src=\":/images/companion-title.png\"></center><br/>";
-  aboutStr.append(tr("EdgeTX Home Page: <a href='%1'>%1</a>").arg("http://www.edge-tx.org"));
+  aboutStr.append(tr("EdgeTX Home Page: <a href='%1'>%1</a>").arg("https://edgetx.org"));
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("The EdgeTX Companion project was originally forked from <a href='%1'>OpenTX</a>").arg("https://github.com/opentx/opentx"));
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("If you've found this program useful, please support by <a href='%1'>donating</a>").arg(DONATE_STR));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(QString("Version %1, %2").arg(VERSION).arg(__DATE__));
+  aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION).arg(CODENAME).arg(__DATE__));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright EdgeTX Team") + QString("<br/>&copy; 2011-%1<br/>").arg(QString(__DATE__).right(4)));
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2021 EdgeTX<br/>"));
+  // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
+
   QMessageBox msgBox(this);
   msgBox.setWindowIcon(CompanionIcon("information.png"));
   msgBox.setWindowTitle(tr("About Companion"));
