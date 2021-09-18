@@ -325,10 +325,10 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
   new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, DIM(CROSSFIRE_BAUDRATES) - 1,
                [=]() -> int {
-                   return DIM(CROSSFIRE_BAUDRATES) - 1 - g_eeGeneral.telemetryBaudrate;
+                   return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate);
                },
                [=](int newValue) {
-                   g_eeGeneral.telemetryBaudrate = DIM(CROSSFIRE_BAUDRATES) - 1 - newValue;
+                   g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
                    SET_DIRTY();
                    restartExternalModule();
                });
