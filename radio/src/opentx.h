@@ -251,7 +251,7 @@
 
 #include "debug.h"
 
-#if defined(PCBFRSKY)
+#if defined(PCBFRSKY) || defined(PCBFLYSKY)
   #define SWSRC_THR                    SWSRC_SB2
   #define SWSRC_GEA                    SWSRC_SG2
   #define SWSRC_ID0                    SWSRC_SA0
