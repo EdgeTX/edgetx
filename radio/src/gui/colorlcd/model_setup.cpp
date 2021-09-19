@@ -849,13 +849,17 @@ class ModuleWindow : public FormGroup {
                          update();
                          rfChoice->setFocus(SET_FOCUS_DEFAULT);
                        });
-#if defined(PCBNV14)
+
         if (moduleIdx == INTERNAL_MODULE) {
           g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS2A;
           rfChoice->setAvailableHandler(
               [](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
+        } else {
+          g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS3;
+          rfChoice->setAvailableHandler(
+              [](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
         }
-#endif
+
         // RX options:
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_OPTIONS, 0,
