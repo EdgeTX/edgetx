@@ -82,7 +82,7 @@ do
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
         x7-access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DAUTOUPDATE=YES -DPXX1=YES"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
             ;;
         t12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
