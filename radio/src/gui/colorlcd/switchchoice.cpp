@@ -62,8 +62,7 @@ SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin,
           val = swtch;
         }
         if (val && (!isValueAvailable || isValueAvailable(val))) {
-          if (setValue) setValue(val);
-          this->fillMenu(menu);
+          fillMenu(menu, val);
         }
       }
     });
@@ -88,9 +87,8 @@ SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin,
   setAvailableHandler(isSwitchAvailableInMixes);
 }
 
-void SwitchChoice::fillMenu(Menu* menu, std::function<bool(int16_t)> filter)
+void SwitchChoice::fillMenu(Menu* menu, int16_t value, const FilterFct& filter)
 {
-  auto value = getValue();
   int count = 0;
   int current = 0;
 

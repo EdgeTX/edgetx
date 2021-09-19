@@ -70,10 +70,7 @@ SourceChoice::SourceChoice(FormGroup *parent, const rect_t &rect, int16_t vmin,
     menu->setWaitHandler([=]() {
       int16_t val = getMovedSource(vmin);
       if (val) {
-        if (setValue) {
-          setValue(val);
-        }
-        this->fillMenu(menu);
+        fillMenu(menu, val);
       }
 #if defined(AUTOSWITCH)
       else {
@@ -81,8 +78,7 @@ SourceChoice::SourceChoice(FormGroup *parent, const rect_t &rect, int16_t vmin,
         if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
           val = switchToMix(swtch);
           if (val && (val >= vmin) && (val <= vmax)) {
-            if (setValue) setValue(val);
-            this->fillMenu(menu);
+            fillMenu(menu, val);
           }
         }
       }
@@ -101,10 +97,8 @@ SourceChoice::SourceChoice(FormGroup *parent, const rect_t &rect, int16_t vmin,
   setAvailableHandler([](int v){ return isSourceAvailable(v); });
 }
 
-void SourceChoice::fillMenu(Menu *menu,
-                            const std::function<bool(int16_t)> &filter)
+void SourceChoice::fillMenu(Menu *menu, int16_t value, const FilterFct& filter)
 {
-  auto value = getValue();
   int count = 0;
   int current = 0;
 

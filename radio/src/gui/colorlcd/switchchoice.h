@@ -38,7 +38,8 @@ class SwitchChoice : public ChoiceEx
 #endif
 
 protected:
-  void fillMenu(Menu* menu, std::function<bool(int16_t)> condition = nullptr);
+  typedef std::function<bool(int16_t)> FilterFct;
+  void fillMenu(Menu* menu, int16_t value, const FilterFct& filter = nullptr);
 };
 
 #endif // _SWITCHCHOICE_H_

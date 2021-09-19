@@ -42,8 +42,8 @@ class SourceChoice : public ChoiceEx
 #endif
 
  protected:
-  void fillMenu(Menu* menu,
-                const std::function<bool(int16_t)>& condition = nullptr);
+  typedef std::function<bool(int16_t)> FilterFct;
+  void fillMenu(Menu* menu, int16_t value, const FilterFct& condition = nullptr);
 };
 
 #endif  // _SOURCECHOICE_H_
