@@ -85,7 +85,7 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     { ADC_CHANNEL_POT3,    ADC_SAMPTIME },
     { ADC_CHANNEL_EXT1,    ADC_SAMPTIME },
     { ADC_CHANNEL_EXT2,    ADC_SAMPTIME },
-#if (defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS))
+#if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
     { ADC_CHANNEL_EXT3,    ADC_SAMPTIME },
     { ADC_CHANNEL_EXT4,    ADC_SAMPTIME },
 #endif

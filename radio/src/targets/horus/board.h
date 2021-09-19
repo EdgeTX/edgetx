@@ -335,7 +335,7 @@ void watchdogInit(unsigned int duration);
 // ADC driver
 
 #if defined(PCBX10)
-  #if defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS)
+  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
     #define NUM_POTS                   7
   #else
     #define NUM_POTS                   5
@@ -374,7 +374,7 @@ enum Analogs {
   EXT1,
   EXT2,
 #endif
-#if defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS)
+#if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
   EXT3,
   EXT4,
 #endif
@@ -420,7 +420,7 @@ enum Analogs {
 #if !defined(PCBX12S) // ext are used by mouse on X12S
   #define HARDWARE_EXT1
   #define HARDWARE_EXT2
-  #if (defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS))
+  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
     #define HARDWARE_EXT3
     #define HARDWARE_EXT4
   #endif
@@ -444,7 +444,7 @@ enum CalibratedAnalogs {
 #else
   CALIBRATED_POT_EXT1,
   CALIBRATED_POT_EXT2,
-  #if (defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS))
+  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
     CALIBRATED_POT_EXT3,
     CALIBRATED_POT_EXT4,
   #endif
