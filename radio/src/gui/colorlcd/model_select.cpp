@@ -345,7 +345,7 @@ class ModelCategoryPageBody : public FormWindow
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y)
+    bool onTouchEnd(coord_t x, coord_t y) override
     {
       if(category->size() == 0)
         addFirstModel();
