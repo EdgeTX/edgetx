@@ -85,9 +85,13 @@ jobs:
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
           tools/build-companion-nightly.sh $(pwd) $(pwd)/output/
 
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-cpn-win-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: companion-nightly
+          name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output
           retention-days: 15
