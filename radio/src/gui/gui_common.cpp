@@ -712,7 +712,7 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(AFHDS3) && !defined(AFHDS2A)
+#if !defined(AFHDS3)
   if (moduleType == MODULE_TYPE_FLYSKY)
     return false;
 #endif
