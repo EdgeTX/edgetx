@@ -147,19 +147,24 @@ class MenuToolbar: public FormGroup {
       if (vmin > filtermin || vmax < filtermin)
         return;
 
-      if (choice->isValueAvailable && getFirstAvailable(filtermin, filtermax, choice->isValueAvailable) == 0)
+      if (choice->isValueAvailable &&
+          getFirstAvailable(filtermin, filtermax, choice->isValueAvailable) ==
+              0)
         return;
 
-      auto button = new MenuToolbarButton(this, {0, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH}, picto);
+      auto button = new MenuToolbarButton(
+          this, {0, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH},
+          picto);
+
       button->setPressHandler([=]() {
+        auto val = choice->getValue();
         if (button->checked()) {
-          choice->fillMenu(menu, [=](int16_t index) {
+          choice->fillMenu(menu, val, [=](int16_t index) {
             return index >= filtermin && index <= filtermax;
           });
           menu->setFocusBody();
-        }
-        else {
-          choice->fillMenu(menu);
+        } else {
+          choice->fillMenu(menu, val);
           menu->setFocusBody();
         }
         return 1;
