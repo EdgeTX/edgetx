@@ -3,18 +3,22 @@ name: MacOSX Companion
 on:
   push:
     branches:
-    - 'main'
+      - 'main'
+      - '2.5'
+    tags:
+      - v*
     paths:
-    - '.github/workflow/macosx_cpn.yml'
-    - 'companion/**'
-    - 'tools/build-companion-nightly.sh'
+      - '.github/workflow/macosx_cpn.yml'
+      - 'companion/**'
+      - 'tools/build-companion-nightly.sh'
+
   pull_request:
     branches:
-    - 'main'
+      - 'main'
     paths:
-    - '.github/workflow/macosx_cpn.yml'
-    - 'companion/**'
-    - 'tools/build-companion-nightly.sh'
+      - '.github/workflow/macosx_cpn.yml'
+      - 'companion/**'
+      - 'tools/build-companion-nightly.sh'
 
   workflow_dispatch:
 
