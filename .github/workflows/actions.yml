@@ -3,23 +3,22 @@ name: Run tests and package firmware
 on:
   push:
     branches:
-    - '2.4'
-    - 'main'
-    paths-ignore:
-    - '**.md'
-    - '.github/ISSUE_TEMPLATE/**'
-    - 'companion/**'
-  pull_request:
-    branches:
-    - '2.4'
-    - 'main'
-    paths-ignore:
-    - '**.md'
-    - '.github/ISSUE_TEMPLATE/**'
-    - 'companion/**'
-  create:
+      - '2.4'
+      - 'main'
     tags:
       - v*
+    paths-ignore:
+      - '**.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'companion/**'
+  pull_request:
+    branches:
+      - '2.4'
+      - 'main'
+    paths-ignore:
+      - '**.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'companion/**'
 
 jobs:
   test:
@@ -28,24 +27,24 @@ jobs:
     strategy:
       matrix:
         target:
-          - NV14
-          - T12
-          - T16
-          - T18
-          - T8
-          - TLITE
-          - TX12
-          - TX16S
-          - X10
-          - X12S
-          - X7
-          - X9D
-          - X9DP
-          - X9DP2019
-          - X9LITE
-          - X9LITES
-          - XLITE
-          - XLITES
+          - nv14
+          - t12
+          - t16
+          - t18
+          - t8
+          - tlite
+          - tx12
+          - tx16s
+          - x10
+          - x12s
+          - x7
+          - x9d
+          - x9dp
+          - x9dp2019
+          - x9lite
+          - x9lites
+          - xlite
+          - xlites
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
@@ -63,6 +62,38 @@ jobs:
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
+
+
+  build:
+    name: Run builds
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - nv14
+          - t12
+          - t16
+          - t18
+          - t8
+          - tlite
+          - tx12
+          - tx16s
+          - x10;x10-access
+          - x12s
+          - x7;x7-access
+          - x9d;x9dp;x9dp2019
+          - x9lite;x9lites
+          - xlite;xlites
+    container:
+      image: ghcr.io/edgetx/edgetx-commit-tests
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - name: Build ${{ matrix.target }}
         env:
