@@ -865,9 +865,9 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_OPTIONS, 0,
                        COLOR_THEME_PRIMARY1);
 
-        // PPM / PWM
 #if defined(AFHDS2)
         if (isModuleAFHDS2A(moduleIdx)) {
+          // PPM / PWM
           new Choice(
               this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
               [=]() { return g_model.moduleData[moduleIdx].flysky.mode >> 1; },
@@ -876,9 +876,20 @@ class ModuleWindow : public FormGroup {
                     (g_model.moduleData[moduleIdx].flysky.mode & 1) |
                     ((v & 1) << 1);
               });
-        } else
+          // SBUS / iBUS
+          new Choice(
+              this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
+              [=]() { return g_model.moduleData[moduleIdx].flysky.mode & 1; },
+              [=](int v) {
+                g_model.moduleData[moduleIdx].flysky.mode =
+                    (g_model.moduleData[moduleIdx].flysky.mode & 2) | (v & 1);
+              });
+        }
 #endif
-        {
+#if defined(AFHDS3)
+        if (isModuleAFHDS3(moduleIdx)) {
+
+          // PPM / PWM
           new Choice(
               this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
               [=]() { return g_model.moduleData[moduleIdx].afhds3.mode >> 1; },
@@ -887,21 +898,7 @@ class ModuleWindow : public FormGroup {
                     (g_model.moduleData[moduleIdx].afhds3.mode & 1) |
                     ((v & 1) << 1);
               });
-        }
-
-        // SBUS / iBUS
-#if defined(AFHDS2)
-        if (isModuleAFHDS2A(moduleIdx)) {
-          new Choice(
-              this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
-              [=]() { return g_model.moduleData[moduleIdx].flysky.mode & 1; },
-              [=](int v) {
-                g_model.moduleData[moduleIdx].flysky.mode =
-                    (g_model.moduleData[moduleIdx].flysky.mode & 2) | (v & 1);
-              });
-        } else
-#endif
-        {
+          // SBUS / iBUS
           new Choice(
               this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
               [=]() { return g_model.moduleData[moduleIdx].afhds3.mode & 1; },
@@ -909,10 +906,6 @@ class ModuleWindow : public FormGroup {
                 g_model.moduleData[moduleIdx].afhds3.mode =
                     (g_model.moduleData[moduleIdx].afhds3.mode & 2) | (v & 1);
               });
-        }
-
-#if defined(AFHDS3)
-        if (isModuleAFHDS3(moduleIdx)) {
 
           // TYPE
           grid.nextLine();
