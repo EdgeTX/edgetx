@@ -97,7 +97,9 @@ if(NOT UNEXPECTED_SHUTDOWN)
 endif()
 
 set(AFHDS2 ON)
-set(AFHDS3 ON)
+
+# disable for now as it crashes on radio
+#set(AFHDS3 ON)
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
