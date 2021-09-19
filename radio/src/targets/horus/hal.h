@@ -282,12 +282,12 @@
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
   #define ADC_RCC_APB2Periph            (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
-  #if !(defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS))
+  #if !defined(FLYSKY_HALL_STICKS)
     #define ADC_GPIO_PIN_STICK_LH       GPIO_Pin_0      // PA.00
     #define ADC_GPIO_PIN_STICK_LV       GPIO_Pin_1      // PA.01
     #define ADC_GPIO_PIN_STICK_RH       GPIO_Pin_2      // PA.02
     #define ADC_GPIO_PIN_STICK_RV       GPIO_Pin_3      // PA.03
-  #else
+  #elif defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
     #define ADC_GPIO_PIN_EXT3           GPIO_Pin_2      // PA.02
     #define ADC_GPIO_PIN_EXT4           GPIO_Pin_3      // PA.03
   #endif
