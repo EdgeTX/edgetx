@@ -27,24 +27,24 @@ jobs:
     strategy:
       matrix:
         target:
-          - NV14
-          - T12
-          - T16
-          - T18
-          - T8
-          - TLITE
-          - TX12
-          - TX16S
-          - X10
-          - X12S
-          - X7
-          - X9D
-          - X9DP
-          - X9DP2019
-          - X9LITE
-          - X9LITES
-          - XLITE
-          - XLITES
+          - nv14
+          - t12
+          - t16
+          - t18
+          - t8
+          - tlite
+          - tx12
+          - tx16s
+          - x10
+          - x12s
+          - x7
+          - x9d
+          - x9dp
+          - x9dp2019
+          - x9lite
+          - x9lites
+          - xlite
+          - xlites
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
@@ -71,20 +71,20 @@ jobs:
     strategy:
       matrix:
         target:
-          - NV14
-          - T12
-          - T16
-          - T18
-          - T8
-          - TLITE
-          - TX12
-          - TX16S
-          - X10;X10_ACCESS
-          - X12S
-          - X7;X7_ACCESS
-          - X9D;X9DP;X9DP2019
-          - X9LITE;X9LITES
-          - XLITE;XLITES
+          - nv14
+          - t12
+          - t16
+          - t18
+          - t8
+          - tlite
+          - tx12
+          - tx16s
+          - x10;x10-access
+          - x12s
+          - x7;x7-access
+          - x9d;x9dp;x9dp2019
+          - x9lite;x9lites
+          - xlite;xlites
     container:
       image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
