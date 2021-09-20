@@ -23,28 +23,10 @@
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
 #define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
 
-#define MAX_ADC_CHANNEL_VALUE           ( 4095 )
-#define MIN_ADC_CHANNLE_VALUE           ( 0 )
-#define MIDDLE_ADC_CHANNLE_VALUE        ( 2047 )
+#define FLYSKY_OFFSET_VALUE             ( 16384 )
 
 #define FLYSKY_HALL_PROTOLO_HEAD        0x55
-#define FLYSKY_HALL_RESP_TYPE_CALIB     0x0e
 #define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c
-#define FLYSKY_HALL_ERROR_OFFSET        10
-
-typedef  struct
-{
-  signed short min;
-  signed short mid;
-  signed short max;
-} STRUCT_STICK_CALIBRATION;
-
-typedef  struct
-{
-  STRUCT_STICK_CALIBRATION sticksCalibration[4];
-  unsigned char reststate;
-  unsigned short CRC16;
-} STRUCT_STICK_CALIBRATION_PACK;
 
 typedef  struct
 {
@@ -53,12 +35,6 @@ typedef  struct
   unsigned short CRC16;
 } STRUCT_CHANNEL_PACK;
 
-typedef  union
-{
-  STRUCT_STICK_CALIBRATION_PACK channelPack;
-  STRUCT_CHANNEL_PACK sticksCalibrationPack;
-} UNION_DATA;
-
 typedef  struct
 {
   unsigned char start;
@@ -66,7 +42,7 @@ typedef  struct
   unsigned char receiverID:2;
   unsigned char packetID:4;
   unsigned char length;
-  UNION_DATA    payload;
+  STRUCT_CHANNEL_PACK payload;
 } STRUCT_HALLDATA;
 
 typedef  struct

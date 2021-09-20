@@ -29,7 +29,6 @@ unsigned char HallCmd[264] __DMA;
 STRUCT_HALL HallProtocol = { 0 };
 STRUCT_HALL HallProtocolTx = { 0 };
 signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
-STRUCT_STICK_CALIBRATION hall_calibration[FLYSKY_HALL_CHANNEL_COUNT] = { {0, 0, 0} };
 unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
 /* crc16 implementation according to CCITT standards */
@@ -93,11 +92,11 @@ uint16_t get_flysky_hall_adc_value(uint8_t ch)
 #if defined(FLYSKY_HALL_STICKS_REVERSE)
   ch = sticks_mapping[ch];
 
-  return MAX_ADC_CHANNEL_VALUE - hall_adc_values[ch];
+  return 2*FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
 #else
   if (ch < 2)
   {
-    return MAX_ADC_CHANNEL_VALUE - hall_adc_values[ch];
+    return 2*FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
   }
 
   return hall_adc_values[ch];
@@ -153,7 +152,6 @@ uint8_t HallGetByte(uint8_t * byte)
   return hallDMAFifo.pop(*byte);
 }
 
-
 void reset_hall_stick( void )
 {
   unsigned short crc16 = 0xffff;
@@ -167,23 +165,6 @@ void reset_hall_stick( void )
 
   HallCmd[4] = crc16 & 0xff;
   HallCmd[5] = crc16 >>8 & 0xff;
-
-  HallSendBuffer( HallCmd, 6);
-}
-
-void get_hall_config( void )
-{
-  unsigned short crc16 = 0xffff;
-
-  HallCmd[0] = FLYSKY_HALL_PROTOLO_HEAD;
-  HallCmd[1] = 0xD1;
-  HallCmd[2] = 0x01;
-  HallCmd[3] = 0x00;
-
-  crc16 = calc_crc16(HallCmd, 4); // 2B 2C
-
-  HallCmd[4] = crc16 & 0xff;
-  HallCmd[5] = crc16 >>8 & 0xff ;
 
   HallSendBuffer( HallCmd, 6);
 }
@@ -325,45 +306,9 @@ exit:
   return;
 }
 
-void convert_hall_to_adc_value( void )
-{
-    uint16_t value;
-
-    for ( uint8_t channel = 0; channel < 4; channel++ )
-    {
-        if (hall_raw_values[channel] < hall_calibration[channel].mid)
-        {
-            value = hall_calibration[channel].mid - (hall_calibration[channel].min+FLYSKY_HALL_ERROR_OFFSET);
-            value = ( MIDDLE_ADC_CHANNLE_VALUE * (hall_calibration[channel].mid - hall_raw_values[channel] ) ) / ( value );
-
-            if (value >= MIDDLE_ADC_CHANNLE_VALUE ) {
-                value = MIDDLE_ADC_CHANNLE_VALUE;
-            }
-
-            hall_adc_values[channel] = MIDDLE_ADC_CHANNLE_VALUE - value;
-        }
-        else
-        {
-            value = (hall_calibration[channel].max - FLYSKY_HALL_ERROR_OFFSET) - hall_calibration[channel].mid;
-
-            value = ( MIDDLE_ADC_CHANNLE_VALUE * (hall_raw_values[channel] - hall_calibration[channel].mid ) ) / (value );
-
-            if (value >= MIDDLE_ADC_CHANNLE_VALUE )
-            {
-                value = MIDDLE_ADC_CHANNLE_VALUE;
-            }
-
-            hall_adc_values[channel] = MIDDLE_ADC_CHANNLE_VALUE + value + 1;
-        }
-    }
-}
-
 /* Run it in 1ms timer routine */
 void flysky_hall_stick_loop(void)
 {
-    static tmr10ms_t lastConfigTime = get_tmr10ms();
-    bool log = 0;
-
     uint8_t byte;
 
     while(HallGetByte(&byte))
@@ -379,34 +324,15 @@ void flysky_hall_stick_loop(void)
             switch ( HallProtocol.hallID.hall_Id.receiverID )
             {
             case TRANSFER_DIR_TXMCU:
-                if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_CALIB) {
-                  memcpy(&hall_calibration, HallProtocol.data, sizeof(hall_calibration));
-                }
-                else if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_VALUES) {
+                if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_VALUES) {
                   memcpy(hall_raw_values, HallProtocol.data, sizeof(hall_raw_values));
-                  convert_hall_to_adc_value();
+                  for ( uint8_t channel = 0; channel < 4; channel++ )
+                  {
+                    hall_adc_values[channel] = FLYSKY_OFFSET_VALUE + hall_raw_values[channel];
+                  }
                 }
                 break;
             }
-        }
-    }
-    //check periodically  if calibration is correct
-    if (get_tmr10ms() - lastConfigTime > 200)
-    {
-        //invalid calibration
-        if(hall_calibration[0].max - hall_calibration[0].min < 1024) {
-          TRACE("GET HALL CONFIG");
-          get_hall_config();
-          lastConfigTime = get_tmr10ms();
-        }
-
-        if (log)
-        {
-            for (int idx = 0; idx < HallProtocol.length + 5; idx++)
-            {
-                TRACE_NOCRLF(" %02X", *((uint8_t*)&HallProtocol + idx));
-            }
-            TRACE(";");
         }
     }
 }

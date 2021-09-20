@@ -1020,7 +1020,11 @@ void checkTrims()
 }
 
 #if !defined(SIMU)
+#if defined(FLYSKY_HALL_STICKS)
+uint32_t s_anaFilt[NUM_ANALOGS];
+#else
 uint16_t s_anaFilt[NUM_ANALOGS];
+#endif
 #endif
 
 #if defined(JITTER_MEASURE)
@@ -1064,9 +1068,8 @@ void getADC()
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
-    uint16_t v;
-
 #if defined(FLYSKY_HALL_STICKS)
+    uint32_t v;
     if (x < 4) {
       v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
     } else {
@@ -1085,6 +1088,7 @@ void getADC()
       #endif
     }
 #else
+    uint16_t v;
     v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 #endif
 
@@ -1122,8 +1126,13 @@ void getADC()
     // Variables mapping:
     //   * <in> = v
     //   * <out> = s_anaFilt[x]
+#if defined(FLYSKY_HALL_STICKS)
+    uint32_t previous = s_anaFilt[x] / JITTER_ALPHA;
+    uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
+#else
     uint16_t previous = s_anaFilt[x] / JITTER_ALPHA;
     uint16_t diff = (v > previous) ? (v - previous) : (previous - v);
+#endif
     if (!g_eeGeneral.jitterFilter && diff < (10*ANALOG_MULTIPLIER)) { // g_eeGeneral.jitterFilter is inverted, 0 - active
       // apply jitter filter
       s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
