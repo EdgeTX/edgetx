@@ -1280,11 +1280,7 @@ extern Clipboard clipboard;
 #endif
 
 #if !defined(SIMU)
-#if defined(FLYSKY_HALL_STICKS)
 extern uint32_t s_anaFilt[NUM_ANALOGS];
-#else
-extern uint16_t s_anaFilt[NUM_ANALOGS];
-#endif
 #endif
 
 #if defined(JITTER_MEASURE)
