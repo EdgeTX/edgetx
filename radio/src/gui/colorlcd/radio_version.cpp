@@ -214,16 +214,9 @@ void RadioVersionPage::build(FormWindow * window)
   // Radio type
   new StaticText(window, grid.getLineSlot(), fw_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-#if LCD_W > LCD_H
-  new StaticText(window, grid.getLineSlot(), vers_stamp, 0, COLOR_THEME_PRIMARY1);
-#else
-  memcpy(reusableBuffer.version.id, vers_stamp, strcspn(vers_stamp, " "));
-  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
 
-  strAppend(reusableBuffer.version.id, strpbrk(vers_stamp, " "));
-  new StaticText(window, grid.getFieldSlot(), reusableBuffer.version.id, 0, COLOR_THEME_PRIMARY1);
-#endif
+  // Firmware version
+  new StaticText(window, grid.getLineSlot(), vers_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Firmware date
