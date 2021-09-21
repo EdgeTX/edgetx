@@ -413,7 +413,6 @@
 #define INTMODULE_USART_IRQHandler      UART7_IRQHandler
 #define INTMODULE_DMA_STREAM            DMA1_Stream1
 #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream7_IRQHandler
 #define INTMODULE_DMA_FLAG_TC           DMA_IT_TCIF1
 #define INTMODULE_DMA_CHANNEL           DMA_Channel_5
 

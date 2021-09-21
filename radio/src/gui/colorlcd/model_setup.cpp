@@ -21,6 +21,7 @@
 #include "model_setup.h"
 #include "multi_rfprotos.h"
 #include "io/multi_protolist.h"
+#include "pulses/flysky.h"
 
 #include "opentx.h"
 #include "libopenui.h"
@@ -803,46 +804,178 @@ class ModuleWindow : public FormGroup {
 
       // Module parameters
       if (isModuleXJT(moduleIdx)) {
-        auto xjtChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS, MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_ACCST_LR12,
-                                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
-        xjtChoice->setAvailableHandler([](int index) {
-          return index != MODULE_SUBTYPE_PXX1_OFF;
-        });
-      }
-      else if (isModuleDSM2(moduleIdx)) {
-        new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS, DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
+        auto xjtChoice = new Choice(
+            this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
+            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_ACCST_LR12,
+            GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+        xjtChoice->setAvailableHandler(
+            [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
+      } else if (isModuleDSM2(moduleIdx)) {
+        new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
+                   DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+      } else if (isModuleR9M(moduleIdx)) {
+        rfChoice =
+            new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION,
+                       MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_EU,
+                       GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
+                       [=](int32_t newValue) {
+                         g_model.moduleData[moduleIdx].subType = newValue;
+                         SET_DIRTY();
+                         update();
+                         rfChoice->setFocus(SET_FOCUS_DEFAULT);
+                       });
+      } else if (isModulePXX2(moduleIdx)) {
+        rfChoice =
+            new Choice(this, grid.getFieldSlot(2, 1), STR_ISRM_RF_PROTOCOLS, 0,
+                       MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
+                       GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
+                       [=](int32_t newValue) {
+                         g_model.moduleData[moduleIdx].subType = newValue;
+                         SET_DIRTY();
+                         update();
+                         rfChoice->setFocus(SET_FOCUS_DEFAULT);
+                       });
       }
-      else if (isModuleR9M(moduleIdx)) {
-        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION, MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_EU,
-                              GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                              [=](int32_t newValue) {
-                                  g_model.moduleData[moduleIdx].subType = newValue;
-                                  SET_DIRTY();
-                                  update();
-                                  rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                              });
-      }
-      else if (isModulePXX2(moduleIdx)) {
-        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_ISRM_RF_PROTOCOLS, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
-                              GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                              [=](int32_t newValue) {
-                                  g_model.moduleData[moduleIdx].subType = newValue;
-                                  SET_DIRTY();
-                                  update();
-                                  rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                              });
-      }
+#if defined(AFHDS2) || defined(AFHDS3)
       else if (isModuleFlySky(moduleIdx)) {
-        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_FLYSKY_PROTOCOLS, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
-                              GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                              [=](int32_t newValue) {
-                                  g_model.moduleData[moduleIdx].subType = newValue;
-                                  SET_DIRTY();
-                                  update();
-                                  rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                              });
+        rfChoice =
+            new Choice(this, grid.getFieldSlot(2, 1),
+                       STR_FLYSKY_PROTOCOLS, 0, FLYSKY_SUBTYPE_AFHDS2A,
+                       GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
+                       [=](int32_t newValue) {
+                         g_model.moduleData[moduleIdx].subType = newValue;
+                         SET_DIRTY();
+                         update();
+                         rfChoice->setFocus(SET_FOCUS_DEFAULT);
+                       });
+
+        if (moduleIdx == INTERNAL_MODULE) {
+          g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS2A;
+          rfChoice->setAvailableHandler(
+              [](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
+        } else {
+          g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS3;
+          rfChoice->setAvailableHandler(
+              [](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
+        }
+
+        // RX options:
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_OPTIONS, 0,
+                       COLOR_THEME_PRIMARY1);
+
+#if defined(AFHDS2)
+        if (isModuleAFHDS2A(moduleIdx)) {
+          // PPM / PWM
+          new Choice(
+              this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
+              [=]() { return g_model.moduleData[moduleIdx].flysky.mode >> 1; },
+              [=](int v) {
+                g_model.moduleData[moduleIdx].flysky.mode =
+                    (g_model.moduleData[moduleIdx].flysky.mode & 1) |
+                    ((v & 1) << 1);
+              });
+          // SBUS / iBUS
+          new Choice(
+              this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
+              [=]() { return g_model.moduleData[moduleIdx].flysky.mode & 1; },
+              [=](int v) {
+                g_model.moduleData[moduleIdx].flysky.mode =
+                    (g_model.moduleData[moduleIdx].flysky.mode & 2) | (v & 1);
+              });
+        }
+#endif
+#if defined(AFHDS3)
+        if (isModuleAFHDS3(moduleIdx)) {
+
+          // PPM / PWM
+          new Choice(
+              this, grid.getFieldSlot(2, 0), STR_FLYSKY_PULSE_PROTO, 0, 1,
+              [=]() { return g_model.moduleData[moduleIdx].afhds3.mode >> 1; },
+              [=](int v) {
+                g_model.moduleData[moduleIdx].afhds3.mode =
+                    (g_model.moduleData[moduleIdx].afhds3.mode & 1) |
+                    ((v & 1) << 1);
+              });
+          // SBUS / iBUS
+          new Choice(
+              this, grid.getFieldSlot(2, 1), STR_FLYSKY_SERIAL_PROTO, 0, 1,
+              [=]() { return g_model.moduleData[moduleIdx].afhds3.mode & 1; },
+              [=](int v) {
+                g_model.moduleData[moduleIdx].afhds3.mode =
+                    (g_model.moduleData[moduleIdx].afhds3.mode & 2) | (v & 1);
+              });
+
+          // TYPE
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_TYPE, 0,
+                         COLOR_THEME_PRIMARY1);
+
+          // This is chosen when binding (menu? see stdlcd/model_setup_afhds3.cpp)
+          new StaticText(this, grid.getFieldSlot(),
+                         g_model.moduleData[moduleIdx].afhds3.telemetry
+                             ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY
+                             : TR_AFHDS3_ONE_TO_MANY,
+                         0, COLOR_THEME_PRIMARY1);
+
+          // Status
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0,
+                         COLOR_THEME_PRIMARY1);
+          new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getModuleStatusString(moduleIdx, msg);
+            return std::string(msg);
+          });
+
+          // Power source
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE,
+                         0, COLOR_THEME_PRIMARY1);
+          new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getModuleSyncStatusString(moduleIdx, msg);
+            return std::string(msg);
+          });
+
+          // RX Freq
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ, 0,
+                         COLOR_THEME_PRIMARY1);
+          auto edit = new NumberEdit(
+              this, grid.getFieldSlot(2, 0), MIN_FREQ, MAX_FREQ,
+              GET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.rxFreq()));
+          edit->setSetValueHandler([=](int32_t newValue) {
+            g_model.moduleData[moduleIdx].afhds3.setRxFreq(
+                (uint16_t)newValue);
+          });
+          edit->setSuffix(STR_HZ);
+
+          // Module actual power
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER,
+                         0, COLOR_THEME_PRIMARY1);
+          new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getStringAtIndex(msg, STR_AFHDS3_POWERS,
+                             actualAfhdsRunPower(moduleIdx));
+            return std::string(msg);
+          });
+
+          // Module power
+          grid.nextLine();
+          new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0,
+                         COLOR_THEME_PRIMARY1);
+          new Choice(
+              this, grid.getFieldSlot(2, 0), STR_AFHDS3_POWERS,
+              afhds3::RUN_POWER::RUN_POWER_FIRST,
+              afhds3::RUN_POWER::RUN_POWER_LAST,
+              GET_SET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.runPower));
+        }
+#endif
       }
+#endif
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
         Choice * mmSubProto = nullptr;
@@ -1031,62 +1164,6 @@ class ModuleWindow : public FormGroup {
         }
       }
 #endif
-#if defined(AFHDS3)
-      else if (isModuleAFHDS3(moduleIdx)) {
-        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_AFHDS3_PROTOCOLS, AFHDS_SUBTYPE_FIRST, AFHDS_SUBTYPE_LAST,
-                              GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
-
-        // TYPE
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-        new StaticText(this, grid.getFieldSlot(),
-                       g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY,
-                       0, COLOR_THEME_PRIMARY1);
-
-        // Status
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
-        new DynamicText(this, grid.getFieldSlot(), [=] {
-            char msg[64] = "";
-            getModuleStatusString(moduleIdx, msg);
-            return std::string(msg);
-        });
-
-
-        // Power source
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE, 0, COLOR_THEME_PRIMARY1);
-        new DynamicText(this, grid.getFieldSlot(), [=] {
-            char msg[64] = "";
-            getModuleSyncStatusString(moduleIdx, msg);
-            return std::string(msg);
-        });
-
-        // RX Freq
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ, 0, COLOR_THEME_PRIMARY1);
-        auto edit = new NumberEdit(this, grid.getFieldSlot(2,0), MIN_FREQ, MAX_FREQ, GET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.rxFreq()));
-        edit->setSetValueHandler([=](int32_t newValue) {
-            g_model.moduleData[EXTERNAL_MODULE].afhds3.setRxFreq((uint16_t)newValue);
-        });
-        edit->setSuffix(STR_HZ);
-
-        // Module actual power
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER, 0, COLOR_THEME_PRIMARY1);
-        new DynamicText(this, grid.getFieldSlot(), [=] {
-            char msg[64] = "";
-            getStringAtIndex(msg, STR_AFHDS3_POWERS, actualAfhdsRunPower(moduleIdx));
-            return std::string(msg);
-        });
-
-        // Module power
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
-        new Choice(this, grid.getFieldSlot(2, 0), STR_AFHDS3_POWERS, afhds3::RUN_POWER::RUN_POWER_FIRST, afhds3::RUN_POWER::RUN_POWER_LAST,
-                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.runPower));
-      }
-#endif
       grid.nextLine();
 
       // Channel Range
@@ -1126,7 +1203,9 @@ class ModuleWindow : public FormGroup {
       // Module parameters
 
       // Bind and Range buttons
-      if (!isModuleRFAccess(moduleIdx) && (isModuleModelIndexAvailable(moduleIdx)|| isModuleBindRangeAvailable(moduleIdx))) {
+      if (!isModuleRFAccess(moduleIdx) &&
+          (isModuleModelIndexAvailable(moduleIdx) ||
+           isModuleBindRangeAvailable(moduleIdx))) {
         uint8_t thirdColumn = 0;
         new StaticText(this, grid.getLabelSlot(true), STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
 
@@ -1151,10 +1230,13 @@ class ModuleWindow : public FormGroup {
           bindButton = new TextButton(this, grid.getFieldSlot(2 + thirdColumn, 0 + thirdColumn), STR_MODULE_BIND);
           bindButton->setPressHandler([=]() -> uint8_t {
               if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
-                rangeButton->check(false);
+                if (rangeButton) rangeButton->check(false);
               }
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+#if defined(AFHDS2)
+                if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
+#endif
                 return 0;
               } else {
 #if defined(MULTIMODULE)
@@ -1163,6 +1245,11 @@ class ModuleWindow : public FormGroup {
                 }
 #endif
                 moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+#if defined(AFHDS2)
+                if (isModuleFlySky(moduleIdx)) {
+                  resetPulsesAFHDS2();
+                }
+#endif
                 return 1;
               }
               return 0;
@@ -1172,7 +1259,8 @@ class ModuleWindow : public FormGroup {
                 bindButton->check(false);
               }
 #if defined(MULTIMODULE)
-              if (isModuleMultimodule(moduleIdx) && getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
+              if (isModuleMultimodule(moduleIdx) &&
+                  getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
                 setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 bindButton->check(false);
@@ -1180,8 +1268,11 @@ class ModuleWindow : public FormGroup {
 #endif
           });
 
-          rangeButton = new TextButton(this, grid.getFieldSlot(2 + thirdColumn, 1 + thirdColumn), STR_MODULE_RANGE);
-          rangeButton->setPressHandler([=]() -> uint8_t {
+          if (isModuleRangeAvailable(moduleIdx)) {
+            rangeButton = new TextButton(
+                this, grid.getFieldSlot(2 + thirdColumn, 1 + thirdColumn),
+                STR_MODULE_RANGE);
+            rangeButton->setPressHandler([=]() -> uint8_t {
               if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
                 bindButton->check(false);
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
@@ -1189,8 +1280,7 @@ class ModuleWindow : public FormGroup {
               if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 return 0;
-              }
-              else {
+              } else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
                 auto rssiDialog = new DynamicMessageDialog(
                     this, "Range Test",
@@ -1207,7 +1297,8 @@ class ModuleWindow : public FormGroup {
                 });
                 return 1;
               }
-          });
+            });
+          }
         }
 
         grid.nextLine();

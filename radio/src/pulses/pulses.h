@@ -28,6 +28,7 @@
 #include "pxx2.h"
 #include "multi.h"
 #include "afhds3.h"
+#include "afhds2.h"
 #include "modules_helpers.h"
 #include "ff.h"
 
@@ -264,6 +265,10 @@ union InternalModulePulsesData {
 
 #if defined(PXX2)
   Pxx2Pulses pxx2;
+#endif
+
+#if defined(INTMODULE_USART) && defined(AFHDS2)
+  FlySkySerialPulsesData flysky;
 #endif
 
 #if defined(MULTIMODULE) //&& defined(INTMODULE_USART)

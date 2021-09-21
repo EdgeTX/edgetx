@@ -19,10 +19,12 @@
  */
 
 #include "opentx.h"
-#include "io/frsky_pxx2.h"
-#include "pulses/pxx2.h"
 #include "mixer_scheduler.h"
+
+#include "io/frsky_pxx2.h"
 #include "io/multi_protolist.h"
+#include "pulses/pxx2.h"
+#include "pulses/flysky.h"
 
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
@@ -189,7 +191,7 @@ uint8_t getRequiredProtocol(uint8_t module)
 #endif
 
 #if defined(AFHDS3) || defined(AFHDS2)
-    case MODULE_TYPE_AFHDS3:
+    case MODULE_TYPE_FLYSKY:
       if (isModuleAFHDS3(module)) {
         protocol = PROTOCOL_CHANNELS_AFHDS3;
       } else if (isModuleAFHDS2A(module)) {
@@ -489,9 +491,11 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
-/*      extmodulePulsesData.afhds2.init(INTERNAL_MODULE);
-      extmoduleSerialStart();*/
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, 2 * 1000 /* us */);
+      resetPulsesAFHDS2();
+      intmoduleSerialStart(INTMODULE_USART_AFHDS2_BAUDRATE, true,
+                           USART_Parity_No, USART_StopBits_1,
+                           USART_WordLength_8b);
+      mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
       break;
 #endif
 
@@ -542,6 +546,19 @@ bool setupPulsesInternalModule(uint8_t protocol)
       setupPulsesMultiInternalModule();
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
       return true;
+#endif
+
+#if defined(AFHDS2)
+    case PROTOCOL_CHANNELS_AFHDS2A:
+    { 
+      ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+      mixerSchedulerSetPeriod(
+          INTERNAL_MODULE,
+          status.isValid() ? status.getAdjustedRefreshRate() : AFHDS2_PERIOD);
+      status.invalidate();
+      setupPulsesAFHDS2();
+      return true;
+    }
 #endif
 
     default:

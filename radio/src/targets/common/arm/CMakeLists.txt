@@ -159,9 +159,11 @@ endif()
 if(MULTIMODULE OR AFHDS3)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
 endif()
+
 if(AFHDS2)
   add_definitions(-DAFHDS2)
   set(SRC ${SRC} telemetry/flysky_nv14.cpp)
+  set(PULSES_SRC ${PULSES_SRC} flysky.cpp)
 endif()
 
 if(AFHDS3)

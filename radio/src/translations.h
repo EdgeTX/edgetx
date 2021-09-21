@@ -187,6 +187,9 @@ extern const char STR_AFHDS3_RX_FREQ[];
 extern const char STR_AFHDS3_ACTUAL_POWER[];
 extern const char STR_AFHDS3_POWER_SOURCE[];
 
+extern const char STR_FLYSKY_PULSE_PROTO[];
+extern const char STR_FLYSKY_SERIAL_PROTO[];
+
 extern const char STR_CURVE_TYPES[];
 extern const char STR_VSENSORTYPES[];
 extern const char STR_VFORMULAS[];

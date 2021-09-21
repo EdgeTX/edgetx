@@ -24,7 +24,6 @@
 #include "libopenui/src/bitfield.h"
 #include "definitions.h"
 #include "opentx_helpers.h"
-#include "telemetry/telemetry.h"
 #include "storage/storage.h"
 #include "globals.h"
 
@@ -34,6 +33,67 @@
 
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
+
+#if defined (MULTIMODULE)
+#define IS_D16_MULTI(module)                                                   \
+  (((g_model.moduleData[module].getMultiProtocol() ==                          \
+     MODULE_SUBTYPE_MULTI_FRSKY) &&                                            \
+    (g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16 ||          \
+     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_8CH ||      \
+     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT ||      \
+     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH ||  \
+     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_CLONED)) || \
+   (g_model.moduleData[module].getMultiProtocol() ==                           \
+    MODULE_SUBTYPE_MULTI_FRSKYX2))
+
+#define IS_R9_MULTI(module)                         \
+  (g_model.moduleData[module].getMultiProtocol() == \
+   MODULE_SUBTYPE_MULTI_FRSKY_R9)
+
+#define IS_HOTT_MULTI(module)                                           \
+  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_HOTT)
+
+#define IS_CONFIG_MULTI(module)                                         \
+  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_CONFIG)
+
+#define IS_DSM_MULTI(module)                                            \
+  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+
+#define IS_RX_MULTI(module)                          \
+  ((g_model.moduleData[module].getMultiProtocol() == \
+    MODULE_SUBTYPE_MULTI_AFHDS2A_RX) ||              \
+   (g_model.moduleData[module].getMultiProtocol() == \
+    MODULE_SUBTYPE_MULTI_FRSKYX_RX) ||               \
+   (g_model.moduleData[module].getMultiProtocol() == \
+    MODULE_SUBTYPE_MULTI_BAYANG_RX) ||               \
+   (g_model.moduleData[module].getMultiProtocol() == \
+    MODULE_SUBTYPE_MULTI_DSM_RX))
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+#define IS_FRSKY_SPORT_PROTOCOL()                                      \
+  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||              \
+   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&             \
+    (IS_D16_MULTI(INTERNAL_MODULE) || IS_D16_MULTI(EXTERNAL_MODULE) || \
+     IS_R9_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
+#else
+#define IS_FRSKY_SPORT_PROTOCOL()                          \
+  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
+   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
+    (IS_D16_MULTI(EXTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
+#endif
+
+#else
+  #define IS_D16_MULTI(module)           false
+  #define IS_R9_MULTI(module)            false
+  #define IS_HOTT_MULTI(module)          false
+  #define IS_CONFIG_MULTI(module)        false
+  #define IS_DSM_MULTI(module)           false
+  #define IS_FRSKY_SPORT_PROTOCOL()      (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT)
+  #define IS_RX_MULTI(module)            false
+#endif
+
+#define IS_SPEKTRUM_PROTOCOL()           (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM)
+
 
 #if defined(MULTIMODULE)
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
@@ -99,6 +159,11 @@ inline bool isModuleMultimoduleDSM2(uint8_t)
 inline bool isModuleTypeXJT(uint8_t type)
 {
   return type == MODULE_TYPE_XJT_PXX1 || type == MODULE_TYPE_XJT_LITE_PXX2;
+}
+
+inline bool isModuleNone(uint8_t idx)
+{
+  return g_model.moduleData[idx].type == MODULE_TYPE_NONE;
 }
 
 inline bool isModuleXJT(uint8_t idx)
@@ -322,7 +387,7 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
 inline bool isModuleFlySky(uint8_t idx)
 {
   return
-    (g_model.moduleData[idx].type == MODULE_TYPE_AFHDS3);
+    (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY);
 }
 
 inline bool isModuleAFHDS2A(uint8_t idx)
@@ -524,8 +589,8 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
   }
 #endif
 
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(moduleIdx))
+#if defined(AFHDS3) || defined(AFHDS2)
+  if (isModuleFlySky(moduleIdx))
     return true;
 #endif
 
@@ -537,12 +602,16 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
 
 inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
-  return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) || isModuleAFHDS3(moduleIdx);
+  return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
+         isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
+         isModuleFlySky(moduleIdx);
 }
 
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  return isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
+  return isModuleBindRangeAvailable(moduleIdx)
+    && !IS_RX_MULTI(moduleIdx)
+    && !isModuleFlySky(moduleIdx);
 }
 
 constexpr uint8_t MAX_RXNUM = 63;
@@ -594,6 +663,18 @@ inline bool isBindCh9To16Allowed(uint8_t moduleIndex)
     return true;
   }
 }
+
+#if defined(PCBTARANIS) || defined(PCBHORUS)
+inline bool isSportLineUsedByInternalModule()
+{
+  return g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_XJT_PXX1;
+}
+#else
+inline bool isSportLineUsedByInternalModule()
+{
+  return false;
+}
+#endif
 
 inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
 {
@@ -700,8 +781,10 @@ inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     moduleData.sbus.refreshRate = -31;
   else if (moduleData.type == MODULE_TYPE_PPM)
     setDefaultPpmFrameLength(moduleIdx);
-  else if (moduleData.type == MODULE_TYPE_AFHDS3)
+  else if (moduleData.type == MODULE_TYPE_FLYSKY) {
+    // TODO: what if AFHDS2A
     resetAfhds3Options(moduleIdx);
+  }
   else
     resetAccessAuthenticationCount();
 }
@@ -759,21 +842,5 @@ inline void getMultiOptionValues(int8_t multi_proto, int8_t & min, int8_t & max)
   }
 }
 #endif
-
-inline const char * getRssiLabel()
-{
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && (g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A
-                                                           || g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() == MODULE_SUBTYPE_MULTI_HOTT)) {
-    return "RQly";
-  }
-#endif
-#if defined(GHOST)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
-    return "RQly";
-  }
-#endif
-  return "RSSI";
-}
 
 #endif // _MODULES_HELPERS_H_

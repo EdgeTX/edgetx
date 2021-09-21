@@ -21,6 +21,46 @@
 #include "opentx.h"
 #include "flysky_nv14.h"
 
+enum FlySkySensorType_E {
+  FLYSKY_SENSOR_RX_VOLTAGE=0,
+  FLYSKY_SENSOR_RX_SIGNAL,
+  FLYSKY_SENSOR_RX_RSSI,
+  FLYSKY_SENSOR_RX_NOISE,
+  FLYSKY_SENSOR_RX_SNR,
+
+  FLYSKY_SENSOR_TEMP,
+  FLYSKY_SENSOR_EXT_VOLTAGE,
+  FLYSKY_SENSOR_MOTO_RPM,
+  FLYSKY_SENSOR_PRESSURE,
+  FLYSKY_SENSOR_GPS
+};
+
+typedef struct FLYSKY_GPS_INFO_S {
+  uint8_t position_fix;
+  uint8_t satell_cnt;
+  uint8_t latitude[4];
+  uint8_t longtitude[4];
+  uint8_t altitude[4];
+  uint8_t g_speed[2];
+  uint8_t direction[2];
+} gps_info_t;
+
+typedef struct FLYSKY_SENSOR_DATA_S {
+  uint8_t sensor_type;
+  uint8_t sensor_id;
+  uint8_t voltage[2];
+  uint8_t signal;
+  uint8_t rssi[2];
+  uint8_t noise[2];
+  uint8_t snr[2];
+  uint8_t temp[2];
+  uint8_t ext_voltage[2];
+  uint8_t moto_rpm[2];
+  uint8_t pressure_value[2];
+  gps_info_t gps_info;
+} rx_sensor_t;
+
+
 #define FLYSKY_FIXED_RX_VOLTAGE (uint8_t)(FLYSKY_SENSOR_RX_VOLTAGE + (uint8_t)0xA0)
 
 #define MIN_SNR 8
@@ -43,15 +83,12 @@ struct FlyskyNv14Sensor {
   const bool issigned;
 };
 
-
 union nv14SensorData {
   uint8_t UINT8;
   uint16_t UINT16;
   int16_t INT16;
   uint32_t UINT32;
 };
-
-
 
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
@@ -64,8 +101,8 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_TEMP,       0, STR_SENSOR_TEMP1,       UNIT_CELSIUS,       1, 0, 2, true},
     {FLYSKY_SENSOR_EXT_VOLTAGE,0, STR_SENSOR_A3,          UNIT_VOLTS,         2, 0, 2, false},
     {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
-    {FLYSKY_SENSOR_PRESURRE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
-    {FLYSKY_SENSOR_PRESURRE,   1, STR_SENSOR_ALT,         UNIT_METERS,        0, 0, 2, true},
+    {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
+    {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        0, 0, 2, true},
     {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
     {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
     {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
@@ -77,25 +114,32 @@ const FlyskyNv14Sensor Nv14Sensor[]=
 
 FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
 
-const signed short tAltitude[225]=
-{
-    20558, 20357, 20158, 19962, 19768, 19576, 19387, 19200, 19015,  18831, 18650, 18471, 18294, 18119, 17946, 17774,
-    17604, 17436, 17269, 17105, 16941, 16780, 16619, 16461, 16304,  16148, 15993, 15841, 15689, 15539, 15390, 15242,
-    15096, 14950, 14806, 14664, 14522, 14381, 14242, 14104, 13966,  13830, 13695, 13561, 13428, 13296, 13165, 13035,
-    12906, 12777, 12650, 12524, 12398, 12273, 12150, 12027, 11904,  11783, 11663, 11543, 11424, 11306, 11189, 11072,
-    10956, 10841, 10726, 10613, 10500, 10387, 10276, 10165, 10054,   9945,  9836,  9727,  9620,  9512,  9406,  9300,
-    9195,  9090,  8986,  8882,  8779,  8677,   8575,  8474,  8373,   8273,  8173,  8074,  7975,  7877,  7779,  7682,
-    7585,  7489,  7394,  7298,  7204,  7109,   7015,  6922,  6829,   6737,  6645,  6553,  6462,  6371,  6281,  6191,
-    6102,  6012,  5924,  5836,  5748,  5660,   5573,  5487,  5400,   5314,  5229,  5144,  5059,  4974,  4890,  4807,
-    4723,  4640,  4557,  4475,  4393,  4312,   4230,  4149,  4069,   3988,  3908,  3829,  3749,  3670,  3591,  3513,
-    3435,  3357,  3280,  3202,  3125,  3049,   2972,  2896,  2821,   2745,  2670,  2595,  2520,  2446,  2372,  2298,
-    2224,  2151,  2078,  2005,  1933,   1861,  1789,  1717,  1645,   1574,  1503,  1432,  1362,  1292,  1222,  1152,
-    1082,  1013,   944,   875,   806,   738,    670,   602,   534,    467,   399,   332,   265,   199,   132,    66,
-     0,     -66,  -131,  -197,  -262,  -327,   -392,  -456,  -521,   -585,  -649,  -713,  -776,  -840,  -903,  -966,
-    -1029,-1091, -1154, -1216, -1278, -1340,  -1402, -1463,  -1525, -1586, -1647, -1708, -1769, -1829, -1889, -1950,
-    -2010
+const signed short tAltitude[225] = {
+    20558, 20357, 20158, 19962, 19768, 19576, 19387, 19200, 19015, 18831, 18650,
+    18471, 18294, 18119, 17946, 17774, 17604, 17436, 17269, 17105, 16941, 16780,
+    16619, 16461, 16304, 16148, 15993, 15841, 15689, 15539, 15390, 15242, 15096,
+    14950, 14806, 14664, 14522, 14381, 14242, 14104, 13966, 13830, 13695, 13561,
+    13428, 13296, 13165, 13035, 12906, 12777, 12650, 12524, 12398, 12273, 12150,
+    12027, 11904, 11783, 11663, 11543, 11424, 11306, 11189, 11072, 10956, 10841,
+    10726, 10613, 10500, 10387, 10276, 10165, 10054, 9945,  9836,  9727,  9620,
+    9512,  9406,  9300,  9195,  9090,  8986,  8882,  8779,  8677,  8575,  8474,
+    8373,  8273,  8173,  8074,  7975,  7877,  7779,  7682,  7585,  7489,  7394,
+    7298,  7204,  7109,  7015,  6922,  6829,  6737,  6645,  6553,  6462,  6371,
+    6281,  6191,  6102,  6012,  5924,  5836,  5748,  5660,  5573,  5487,  5400,
+    5314,  5229,  5144,  5059,  4974,  4890,  4807,  4723,  4640,  4557,  4475,
+    4393,  4312,  4230,  4149,  4069,  3988,  3908,  3829,  3749,  3670,  3591,
+    3513,  3435,  3357,  3280,  3202,  3125,  3049,  2972,  2896,  2821,  2745,
+    2670,  2595,  2520,  2446,  2372,  2298,  2224,  2151,  2078,  2005,  1933,
+    1861,  1789,  1717,  1645,  1574,  1503,  1432,  1362,  1292,  1222,  1152,
+    1082,  1013,  944,   875,   806,   738,   670,   602,   534,   467,   399,
+    332,   265,   199,   132,   66,    0,     -66,   -131,  -197,  -262,  -327,
+    -392,  -456,  -521,  -585,  -649,  -713,  -776,  -840,  -903,  -966,  -1029,
+    -1091, -1154, -1216, -1278, -1340, -1402, -1463, -1525, -1586, -1647, -1708,
+    -1769, -1829, -1889, -1950, -2010
 };
-signed short CalculateAltitude( unsigned int Pressure, unsigned int SeaLevelPressure )
+
+signed short CalculateAltitude(unsigned int Pressure,
+                               unsigned int SeaLevelPressure)
 {
   unsigned int Index;
   signed int Altitude1;
@@ -103,91 +147,104 @@ signed short CalculateAltitude( unsigned int Pressure, unsigned int SeaLevelPres
   unsigned int Decimal;
   unsigned long Ratio;
 
-  Ratio = ( ( ( unsigned long long ) Pressure << 16 ) + ( SeaLevelPressure / 2 ) ) / SeaLevelPressure;
-  if( Ratio < ( ( 1 << 16 ) * 250 / 1000 ) )// 0.250 inclusive
-  {
-      Ratio = ( 1 << 16 ) * 250 / 1000;
-  }
-  else if( Ratio > ( 1 << 16 ) * 1125 / 1000 - 1 ) // 1.125 non-inclusive
-  {
-      Ratio = ( 1 << 16 ) * 1125 / 1000 - 1;
+  Ratio = (((unsigned long long)Pressure << 16) + (SeaLevelPressure / 2)) /
+          SeaLevelPressure;
+
+  if (Ratio < ((1 << 16) * 250 / 1000)) {  // 0.250 inclusive
+    Ratio = (1 << 16) * 250 / 1000;
+  } else if (Ratio > (1 << 16) * 1125 / 1000 - 1) {  // 1.125 non-inclusive
+    Ratio = (1 << 16) * 1125 / 1000 - 1;
   }
 
-  Ratio -= ( 1 << 16 ) * 250 / 1000; // from 0.000 (inclusive) to 0.875 (non-inclusive)
+  // from 0.000 (inclusive) to 0.875 (non-inclusive)
+  Ratio -= (1 << 16) * 250 / 1000;
   Index = Ratio >> 8;
-  Decimal = Ratio & ( ( 1 << 8 ) - 1 );
+  Decimal = Ratio & ((1 << 8) - 1);
   Altitude1 = tAltitude[Index];
   Altitude2 = Altitude1 - tAltitude[Index + 1];
-  Altitude1 = Altitude1 - ( Altitude2 * Decimal + ( 1 << 7 ) ) / ( 1 << 8 );
-  if( Altitude1 >= 0 )
-  {
-      return( ( Altitude1 + 1 ) / 2 );
-  }
-  else
-  {
-      return( ( Altitude1 - 1 ) / 2 );
+  Altitude1 = Altitude1 - (Altitude2 * Decimal + (1 << 7)) / (1 << 8);
+  if (Altitude1 >= 0) {
+    return ((Altitude1 + 1) / 2);
+  } else {
+    return ((Altitude1 - 1) / 2);
   }
 }
 
 const FlyskyNv14Sensor* getFlyskyNv14Sensor(uint16_t id, uint8_t subId)
 {
-  for(unsigned index = 0; index < *(&Nv14Sensor + 1) - Nv14Sensor; index++ ){
+  for (unsigned index = 0; index < *(&Nv14Sensor + 1) - Nv14Sensor; index++) {
     if (Nv14Sensor[index].id == id && Nv14Sensor[index].subId == subId) {
       return &Nv14Sensor[index];
     }
   }
-    return &defaultNv14Sensor;
+  return &defaultNv14Sensor;
 }
 
-void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId, uint8_t instance)
+void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
+                          uint8_t instance)
 {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    telemetrySensor.id = id;
-    telemetrySensor.subId = subId;
-    telemetrySensor.instance = instance;
-    const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
-    telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
-    storageDirty(EE_MODEL);
+  TelemetrySensor& telemetrySensor = g_model.telemetrySensors[index];
+  telemetrySensor.id = id;
+  telemetrySensor.subId = subId;
+  telemetrySensor.instance = instance;
+  const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
+  telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
+  storageDirty(EE_MODEL);
 }
 
-
-
-int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor, const uint8_t * data){
+int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
+                                 const uint8_t* data)
+{
   int32_t value = 0;
-  const nv14SensorData* sensorData = reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
-  if(sensor->bytes == 1) value = sensorData->UINT8;
-  else if(sensor->bytes == 2) value = sensor->issigned ? sensorData->INT16 : sensorData->UINT16;
-  else if(sensor->bytes == 4) value = sensorData->UINT32;
+  const nv14SensorData* sensorData =
+      reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
+  if (sensor->bytes == 1)
+    value = sensorData->UINT8;
+  else if (sensor->bytes == 2)
+    value = sensor->issigned ? sensorData->INT16 : sensorData->UINT16;
+  else if (sensor->bytes == 4)
+    value = sensorData->UINT32;
 
-  if(sensor->id == FLYSKY_SENSOR_RX_RSSI) {
-    if(value < -200) value = -200;
-#if defined (PCBNV14)
-    if(!g_model.rssiAlarms.flysky_telemetry)
+  if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
+    if (value < -200) value = -200;
+#if defined(PCBNV14)
+    if (!g_model.rssiAlarms.flysky_telemetry)
 #endif
     {
-        value += 200;
-        value /= 2;
+      value += 200;
+      value /= 2;
     }
+    TRACE("RSSI: %d", value);
     telemetryData.rssi.set(value);
   }
-  if(sensor->id == FLYSKY_SENSOR_PRESURRE && sensor->subId != 0){
+  if (sensor->id == FLYSKY_SENSOR_PRESSURE && sensor->subId != 0) {
     value = CalculateAltitude(value, 101325);
-    value = (value+500)/1000;
+    value = (value + 500) / 1000;
   }
   return value;
 }
 
-void flySkyNv14ProcessTelemetryPacket(const uint8_t * ptr, uint8_t sensorID )
+void flySkyNv14ProcessTelemetryPacket(uint8_t* ptr, uint8_t len)
 {
-  uint8_t instnace = *ptr++;
-  if(sensorID == FLYSKY_SENSOR_RX_VOLTAGE) sensorID = FLYSKY_FIXED_RX_VOLTAGE;
+  uint8_t sensorType = *ptr++;
+  uint8_t sensorID   = *ptr++;
+
+  TRACE("ID[%02X] Type[%02X] len=%d", ptr[1], ptr[0], len);
+
+  // remove unknown sensor (strange values)
+  if (sensorType == 0xEE) return;
+  if (sensorType == FLYSKY_SENSOR_RX_VOLTAGE)
+    sensorType = FLYSKY_FIXED_RX_VOLTAGE;
+
   for (const FlyskyNv14Sensor sensor : Nv14Sensor) {
-  if (sensor.id == sensorID) {
-  int32_t value = GetSensorValueFlySkyNv14(&sensor, ptr);
-  setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor.id, sensor.subId, instnace, value, sensor.unit, sensor.precision);
-}
+    if (sensor.id == sensorType) {
+      int32_t value = GetSensorValueFlySkyNv14(&sensor, ptr);
+      TRACE("[%02X] id=%02X(%s) subId=%02X value=%d",
+            sensorID, sensor.id, sensor.name, sensor.subId, value);
+      setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor.id, sensor.subId,
+                        sensorID, value, sensor.unit, sensor.precision);
     }
+  }
 
-    telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+  telemetryStreaming = TELEMETRY_TIMEOUT10ms;
 }
-

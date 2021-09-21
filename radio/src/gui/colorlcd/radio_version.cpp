@@ -236,6 +236,8 @@ void RadioVersionPage::build(FormWindow * window)
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
 
+  //TODO: NV14 internal module version (NV14internalModuleFwVersion)
+
 #if defined(PXX2)
   // Module and receivers versions
   auto moduleVersions = new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);

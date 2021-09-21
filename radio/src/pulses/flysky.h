@@ -1,6 +1,8 @@
 /*
  * Copyright (C) OpenTX
  *
+ * Dedicate for FlySky NV14 board.
+ *
  * Based on code named
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
@@ -18,10 +20,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __FLYSKY_NV14_H__
-#define __FLYSKY_NV14_H__
+#pragma once
 
-void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId, uint8_t instance);
-void flySkyNv14ProcessTelemetryPacket(uint8_t * ptr, uint8_t len );
+#define INTMODULE_USART_AFHDS2_BAUDRATE 921600
 
-#endif
+void setupPulsesAFHDS2();
+void resetPulsesAFHDS2();
+
+void processInternalFlySkyTelemetryData(uint8_t byte);
