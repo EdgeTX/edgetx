@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '2.4'
+      - '2.5'
       - 'main'
     tags:
       - v*
@@ -14,6 +15,7 @@ on:
   pull_request:
     branches:
       - '2.4'
+      - '2.5'
       - 'main'
     paths-ignore:
       - '**.md'
