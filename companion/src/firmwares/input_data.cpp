@@ -20,6 +20,8 @@
 
 #include "input_data.h"
 #include "radiodataconversionstate.h"
+#include "eeprominterface.h"
+#include "compounditemmodels.h"
 
 void ExpoData::convert(RadioDataConversionState & cstate)
 {
@@ -32,4 +34,45 @@ void ExpoData::convert(RadioDataConversionState & cstate)
 bool ExpoData::isEmpty() const
 {
   return (chn == 0 && mode == INPUT_MODE_NONE);
+}
+
+QString ExpoData::carryTrimToString() const
+{
+  if (carryTrim == CARRYTRIM_STICK_OFF)
+    return tr("OFF");
+  else if (carryTrim == CARRYTRIM_DEFAULT) {
+      if (srcRaw.isStick())
+        return tr("ON");
+      else
+        return tr("OFF");
+  }
+  else if (carryTrim < 0 && abs(carryTrim) <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims))
+    return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim) - 1).toString();
+  else
+    return CPN_STR_UNKNOWN_ITEM;
+}
+
+//  static
+AbstractStaticItemModel * ExpoData::carryTrimItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_EXPO_CARRYTRIM);
+  ExpoData tmp = ExpoData();
+
+  tmp.srcRaw = RawSource(SOURCE_TYPE_STICK, 0);
+
+  for (int i = -CARRYTRIM_STICK_OFF; i <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+    tmp.carryTrim = -i;
+    mdl->appendToItemList(tmp.carryTrimToString(), -i, true, 0, CarryTrimSticksGroup);
+  }
+
+  tmp.srcRaw = RawSource(SOURCE_TYPE_NONE, 0);
+
+  for (int i = CARRYTRIM_DEFAULT; i <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+    tmp.carryTrim = -i;
+    mdl->appendToItemList(tmp.carryTrimToString(), -i, true, 0, CarryTrimNotSticksGroup);
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }

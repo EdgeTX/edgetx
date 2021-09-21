@@ -394,10 +394,10 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
 
 
   if (firmware->getCapability(VirtualInputs)) {
-    if (input.carryTrim > 0)
-      str += " " + tr("NoTrim");
-    else if (input.carryTrim < 0)
-      str += " " + RawSource(SOURCE_TYPE_TRIM, (-(input.carryTrim) - 1)).toString(&model, &generalSettings).toHtmlEscaped();
+    if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
+      str += " " + tr("No Trim");
+    else if (input.carryTrim != CARRYTRIM_DEFAULT)
+      str += " " + input.carryTrimToString().toHtmlEscaped();
   }
 
   if (input.offset)

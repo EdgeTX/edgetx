@@ -68,6 +68,7 @@ class ExpoDialog : public QDialog {
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
+    int carryTrimFilterFlags = 0;
 };
 
 #endif // _EXPODIALOG_H_
