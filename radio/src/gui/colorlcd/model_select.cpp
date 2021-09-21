@@ -304,16 +304,12 @@ class ModelCategoryPageBody : public FormWindow
 
       index++;
 
-#if LCD_W > LCD_H
       if (index % MODEL_CELLS_PER_LINE == 0) {
         x = MODEL_CELL_PADDING;
         y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
       } else {
         x += MODEL_CELL_PADDING + MODEL_SELECT_CELL_WIDTH;
       }
-#else
-      y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
-#endif
     }
 
     if (index % MODEL_CELLS_PER_LINE != 0) {
