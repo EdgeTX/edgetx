@@ -175,7 +175,9 @@ void ExpoDialog::updateScale()
     ui->lblScaleUnit->setText(range.unit);
   }
   else {
+    ui->dsbScale->setValue(0);
     ui->dsbScale->setEnabled(false);
+    ui->lblScaleUnit->setText("");
     ui->lblScaleUnit->setEnabled(false);
   }
 }
