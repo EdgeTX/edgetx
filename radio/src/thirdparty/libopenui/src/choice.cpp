@@ -111,8 +111,8 @@ void Choice::paint(BitmapBuffer * dc)
     str = textHandler(val).c_str();
   } else {
     val -= vmin;
-    if (val > 0 && val < values.size()) {
-      values[val - vmin].c_str();
+    if (val >= 0 && val < (int)values.size()) {
+      str = values[val].c_str();
     }
   }
 
