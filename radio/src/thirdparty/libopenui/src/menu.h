@@ -17,230 +17,300 @@
  * Lesser General Public License for more details.
  */
 
-#pragma once
+#include "menu.h"
+#include "font.h"
+#include "theme.h"
 
-#include <vector>
-#include <functional>
-#include <utility>
-#include "modal_window.h"
 
-class Menu;
-class MenuWindowContent;
-
-class MenuBody: public Window
+// ensure index is in range and also handle wrapping index
+int MenuBody::rangeCheck(int index)
 {
-  friend class MenuWindowContent;
-  friend class Menu;
+    if (index < 0) 
+      index = lines.size() - 1;
+    else if (index > lines.size() - 1)
+      index = 0;
 
-  class MenuLine {
-    friend class MenuBody;
+    return index;
+}
 
-    public:
-      MenuLine(std::string text, std::function<void()> onPress, std::function<bool()> isChecked):
-        text(std::move(text)),
-        onPress(std::move(onPress)),
-        isChecked(std::move(isChecked))
-      {
-      }
+void MenuBody::setIndex(int index)
+{
+  selectedIndex = index;
+  // calculate the correct scroll postion based on there being separators
+  int scrollY = 0;
+  for (int i = 0; i < selectedIndex; i++)
+    scrollY += lines[i].lineHeight();
 
-      MenuLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked):
-        drawLine(std::move(drawLine)),
-        onPress(std::move(onPress)),
-        isChecked(std::move(isChecked))
-      {
-      }
+  if (innerHeight > height()) {
+    setScrollPositionY(scrollY - 3 * MENUS_LINE_HEIGHT);
+  }
 
-      MenuLine(MenuLine &) = delete;
+  invalidate();
+}
 
-      MenuLine(MenuLine &&) = default;
+void MenuBody::select(int index)
+{
+  // adjust the selection based on separators
+  for (int i = 0; i <= index; i++) {
+    if (lines[i].isSeparator)
+      index++;
+    index = rangeCheck(index);
+  }
 
-    protected:
-      std::string text;
-      std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine;
-      std::function<void()> onPress;
-      std::function<bool()> isChecked;
-  };
+  setIndex(index);
+}
 
-  public:
-    MenuBody(Window * parent, const rect_t & rect):
-      Window(parent, rect, OPAQUE)
-    {
-      setPageHeight(MENUS_LINE_HEIGHT);
-    }
+void MenuBody::selectNext(MENU_DIRECTION direction)
+{
+  // look for the next non separator line
+  int index = selectedIndex + direction;
+  index = rangeCheck(index);
+  while (lines[index].isSeparator) {
+    index += direction;
+    index = rangeCheck(index);
+  }
 
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "MenuBody";
-    }
-#endif
+  setIndex(index);
+}
 
-    void select(int index);
-
-    int selection() const
-    {
-      return selectedIndex;
-    }
-
-    int count() const
-    {
-      return lines.size();
-    }
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+void MenuBody::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+
+  if (event == EVT_ROTARY_RIGHT) {
+    if (!lines.empty()) {
+      selectNext(DIRECTION_UP);
+      onKeyPress();
+    }
+  }
+  else if (event == EVT_ROTARY_LEFT) {
+    if (!lines.empty()) {
+      selectNext(DIRECTION_DOWN);
+      onKeyPress();
+    }
+  }
+  else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    if (!lines.empty()) {
+      onKeyPress();
+      if (selectedIndex < 0) {
+        select(0);
+      }
+      else {
+        Menu * menu = getParentMenu();
+        if (menu->multiple) {
+          lines[selectedIndex].onPress();
+          menu->invalidate();
+        }
+        else {
+          menu->deleteLater();
+          lines[selectedIndex].onPress();
+        }
+      }
+    }
+  }
+  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    onKeyPress();
+    if (onCancel) {
+      onCancel();
+    }
+    Window::onEvent(event);
+  }
+  else {
+    Window::onEvent(event);
+  }
+}
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
-    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
-    {
-      lines.emplace_back(text, std::move(onPress), std::move(isChecked));
-      invalidate();
-    }
-
-    void addCustomLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
-    {
-      lines.emplace_back(std::move(drawLine), std::move(onPress), std::move(isChecked));
-      invalidate();
-    }
-
-    void removeLines()
-    {
-      lines.clear();
-      invalidate();
-    }
-
-    void setCancelHandler(std::function<void()> handler)
-    {
-      onCancel = std::move(handler);
-    }
-
-    void paint(BitmapBuffer * dc) override;
-
-  protected:
-    std::vector<MenuLine> lines;
-    int selectedIndex = 0;
-    std::function<void()> onCancel;
-
-    inline Menu * getParentMenu();
-};
-
-class MenuWindowContent: public ModalWindowContent
+bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 {
-  friend class Menu;
+  Menu * menu = getParentMenu();
 
-  public:
-    explicit MenuWindowContent(Menu * parent);
+  int index = 0;
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
-
-      body.deleteLater(true, false);
-      ModalWindowContent::deleteLater(detach, trash);
+  // dynamically find the selected element based on variable line heights
+  coord_t yAccumulator = 0;
+  for (int i = 0; i < lines.size(); i++) {
+    if (y >= yAccumulator && y <= yAccumulator + lines[i].lineHeight()) {
+      index = i;
+      break;
     }
+    yAccumulator += lines[i].lineHeight();
+  }
 
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "MenuWindowContent";
+  // dont allow selecting separators
+  if (lines[index].isSeparator)
+    return false;
+
+  if (index < (int)lines.size()) {
+    onKeyPress();
+    if (menu->multiple) {
+      if (selectedIndex == index)
+        lines[index].onPress();
+      else
+        setIndex(index);
+      menu->invalidate();
     }
+    else {
+      setIndex(index);
+      menu->deleteLater();
+      lines[index].onPress();
+    }
+  }
+
+  return true;
+}
 #endif
 
-    void paint(BitmapBuffer * dc) override;
-
-  protected:
-    MenuBody body;
-};
-
-class Menu: public ModalWindow
+void MenuBody::paint(BitmapBuffer * dc)
 {
-  friend class MenuBody;
+  dc->clear(COLOR_THEME_PRIMARY2);
 
-  public:
-    explicit Menu(Window * parent, bool multiple = false);
+  int y = 0;
+  for (int i = 0; i < lines.size(); i++) {
+    auto& line = lines[i];
+    LcdFlags flags = COLOR_THEME_SECONDARY1 | MENU_FONT;
 
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Menu";
-    }
-#endif
-    
-    void setCancelHandler(std::function<void()> handler)
-    {
-      content->body.setCancelHandler(std::move(handler));
-    }
-
-    void setWaitHandler(std::function<void()> handler)
-    {
-      waitHandler = std::move(handler);
-    }
-
-    void setFocusBody(uint8_t flag = SET_FOCUS_DEFAULT)
-    {
-      content->body.setFocus(flag);
-    }
-
-    void setToolbar(Window * window)
-    {
-      toolbar = window;
-      content->setLeft(toolbar->right());
-      content->setTop(toolbar->top());
-      content->setHeight(toolbar->height());
-    }
-
-    void setTitle(std::string text);
-
-    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
-
-    void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
-
-    void removeLines();
-
-    unsigned count() const
-    {
-      return content->body.count();
-    }
-
-    int selection() const
-    {
-      return content->body.selection();
-    }
-
-    void select(int index)
-    {
-      content->body.select(index);
-    }
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-    void checkEvents() override
-    {
-      ModalWindow::checkEvents();
-      if (waitHandler) {
-        waitHandler();
+    // draw selection if appropriate
+    if (selectedIndex == i && ! line.isSeparator) {
+      flags = COLOR_THEME_PRIMARY2 | MENU_FONT;
+      if (COLOR_THEME_FOCUS != COLOR_THEME_PRIMARY2) {
+        dc->drawSolidFilledRect(0, y, width(),
+                                MENUS_LINE_HEIGHT, COLOR_THEME_FOCUS);
       }
     }
 
-    void paint(BitmapBuffer * dc) override;
+    if (line.isSeparator) {
+      dc->drawHorizontalLine(5, y + MENUS_SEPARATOR_HEIGHT / 2, width() - 10, 255, COLOR_THEME_SECONDARY2);
+    } else if (line.drawLine) {
+      line.drawLine(dc, 0, y, flags);
+    } else {
+      const char* text = line.text.data();
+      dc->drawText(10,
+                   y + (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2,
+                   text[0] == '\0' ? "---" : text, flags);
+    }
 
-  protected:
-    MenuWindowContent * content;
-    bool multiple;
-    Window * toolbar = nullptr;
-    std::function<void()> waitHandler;
-    void updatePosition();
-};
+    Menu* menu = getParentMenu();
+    if (menu->multiple && line.isChecked) {
+      theme->drawCheckBox(dc, line.isChecked(), width() - 35,
+                          y + (MENUS_LINE_HEIGHT - 20) / 2,
+                          0);
+    }
 
-Menu * MenuBody::getParentMenu()
-{
-  return static_cast<Menu *>(getParent()->getParent());
+    // if (i > 0 && ! lines[i].isSeparator && ! lines[i-1].isSeparator) {
+    //   dc->drawSolidHorizontalLine(0, y, MENUS_WIDTH, COLOR_THEME_SECONDARY2);
+    // }
+
+    y += line.lineHeight();
+  }
 }
 
+MenuWindowContent::MenuWindowContent(Menu* parent) :
+    ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2,
+                                (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
+    body(this, {0, 0, width(), height()})
+{
+  body.setFocus(SET_FOCUS_DEFAULT);
+}
+
+void MenuWindowContent::paint(BitmapBuffer * dc)
+{
+  // the background
+  dc->clear(COLOR_THEME_PRIMARY2);
+
+  // the title
+  if (!title.empty()) {
+    dc->drawText(MENUS_WIDTH / 2,
+                 (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2,
+                 title.c_str(), CENTERED | MENU_HEADER_FONT);
+    dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH,
+                                COLOR_THEME_SECONDARY2);
+  }
+}
+
+Menu::Menu(Window * parent, bool multiple):
+  ModalWindow(parent, true),
+  content(createMenuWindow(this)),
+  multiple(multiple)
+{
+}
+
+void Menu::updatePosition()
+{
+  // calcualte the correct menu height given that the line heights are variable
+  coord_t height = 0;
+  for (int i = 0; i < content->body.lines.size(); i++)
+    height += content->body.lines[i].lineHeight();
+
+  if (!toolbar) {
+    // there is no navigation bar at the left, we may center the window on screen
+    auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
+    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, height, MENUS_MAX_HEIGHT);
+    content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
+    content->setHeight(headerHeight + bodyHeight);
+    content->body.setTop(headerHeight);
+    content->body.setHeight(bodyHeight);
+  }
+
+  content->body.setInnerHeight(height);
+}
+
+void Menu::setTitle(std::string text)
+{
+  content->setTitle(std::move(text));
+  updatePosition();
+}
+
+void Menu::addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
+{
+  content->body.addLine(text, std::move(onPress), std::move(isChecked));
+  updatePosition();
+}
+
+void Menu::addSeparator()
+{
+  content->body.addSeparator();
+  updatePosition();
+}
+
+void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
+{
+  content->body.addCustomLine(std::move(drawLine), std::move(onPress), std::move(isChecked));
+  updatePosition();
+}
+
+void Menu::removeLines()
+{
+  content->body.removeLines();
+  updatePosition();
+}
+
+#if defined(HARDWARE_KEYS)
+void Menu::onEvent(event_t event)
+{
+  if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN))) {
+    toolbar->onEvent(event);
+  }
+  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+  else if (event == EVT_KEY_BREAK(KEY_ENTER) && !multiple) {
+    deleteLater();
+  }
+}
+#endif
+
+void Menu::paint(BitmapBuffer * dc)
+{
+  ModalWindow::paint(dc);
+
+  rect_t r(content->getRect());
+  if (toolbar) {
+    r.x = toolbar->left();
+    r.w += toolbar->width();
+  }
+  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, COLOR_THEME_SECONDARY2);
+}
