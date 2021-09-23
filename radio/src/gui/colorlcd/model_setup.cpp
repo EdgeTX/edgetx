@@ -30,6 +30,9 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+static ModelSetupPage* page = nullptr;
+static coord_t scrollPos = 0;
+
 std::string switchWarninglabel(swsrc_t index)
 {
   static const char switchPositions[] = {
@@ -721,7 +724,8 @@ class ModuleWindow : public FormGroup {
   public:
     ModuleWindow(FormWindow * parent, const rect_t &rect, uint8_t moduleIdx) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
-      moduleIdx(moduleIdx)
+      moduleIdx(moduleIdx),
+      fWindow(parent)
     {
       update();
     }
@@ -734,6 +738,7 @@ class ModuleWindow : public FormGroup {
     TextButton * rangeButton = nullptr;
     TextButton * registerButton = nullptr;
     Choice * failSafeChoice = nullptr;
+    FormWindow* fWindow;
 
     void addChannelRange(FormGridLayout &grid)
     {
@@ -786,20 +791,31 @@ class ModuleWindow : public FormGroup {
     {
       FormGridLayout grid;
       clear();
+      fWindow->setScrollPositionY(scrollPos);
 
       // Module Type
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-      moduleChoice = new Choice(this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
-                                MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-                                GET_DEFAULT(g_model.moduleData[moduleIdx].type),
-                                [=](int32_t newValue) {
-                                  setModuleType(moduleIdx, newValue);
-                                  update();
-                                  moduleChoice->setFocus(SET_FOCUS_DEFAULT);
-                                  SET_DIRTY();
-                                });
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
+                     COLOR_THEME_PRIMARY1);
+      moduleChoice = new Choice(
+          this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
+          MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+          GET_DEFAULT(g_model.moduleData[moduleIdx].type),
+          [=](int32_t newValue) {
+            setModuleType(moduleIdx, newValue);
+            update();
+            scrollPos = fWindow->getScrollPositionY() +
+                        ((PAGE_LINE_HEIGHT + PAGE_LINE_SPACING) << 2);
+            if(page != nullptr) {
+              fWindow->clear();
+              page->build(fWindow);
+            }
+            moduleChoice->setFocus(SET_FOCUS_DEFAULT);
+            SET_DIRTY();
+          });
       moduleChoice->setAvailableHandler([=](int8_t moduleType) {
-          return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType) : isExternalModuleAvailable(moduleType);
+        return moduleIdx == INTERNAL_MODULE
+                   ? isInternalModuleAvailable(moduleType)
+                   : isExternalModuleAvailable(moduleType);
       });
 
       // Module parameters
@@ -1776,6 +1792,7 @@ void ModelSetupPage::build(FormWindow * window)
 
 
   window->setInnerHeight(grid.getWindowHeight());
+  page = this;
 }
 
 // Switch to external antenna confirmation
