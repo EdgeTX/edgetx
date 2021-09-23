@@ -106,17 +106,17 @@ void Choice::paint(BitmapBuffer * dc)
   FormField::paint(dc);
   auto val = getValue();
 
-  const char* str = "";
+  std::string str = "";
   if (textHandler) {
-    str = textHandler(val).c_str();
+    str = textHandler(val);
   } else {
     val -= vmin;
     if (val >= 0 && val < (int)values.size()) {
-      str = values[val].c_str();
+      str = values[val];
     }
   }
 
-  theme->drawChoice(dc, this, str);
+  theme->drawChoice(dc, this, str.c_str());
 }
 
 #if defined(HARDWARE_KEYS)
