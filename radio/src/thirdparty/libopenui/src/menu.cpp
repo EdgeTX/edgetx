@@ -21,58 +21,14 @@
 #include "font.h"
 #include "theme.h"
 
-
-// ensure index is in range and also handle wrapping index
-int MenuBody::rangeCheck(int index)
-{
-    if (index < 0) 
-      index = lines.size() - 1;
-    else if (index > lines.size() - 1)
-      index = 0;
-
-    return index;
-}
-
-void MenuBody::setIndex(int index)
-{
-  selectedIndex = index;
-  // calculate the correct scroll postion based on there being separators
-  int scrollY = 0;
-  for (int i = 0; i < selectedIndex; i++)
-    scrollY += lines[i].lineHeight();
-
-  if (innerHeight > height()) {
-    setScrollPositionY(scrollY - 3 * MENUS_LINE_HEIGHT);
-  }
-
-  invalidate();
-}
-
 void MenuBody::select(int index)
 {
-  // adjust the selection based on separators
-  for (int i = 0; i <= index; i++) {
-    if (lines[i].isSeparator)
-      index++;
-    index = rangeCheck(index);
+  selectedIndex = index;
+  if (innerHeight > height()) {
+    setScrollPositionY(MENUS_LINE_HEIGHT * index - 3 * MENUS_LINE_HEIGHT);
   }
-
-  setIndex(index);
+  invalidate();
 }
-
-void MenuBody::selectNext(MENU_DIRECTION direction)
-{
-  // look for the next non separator line
-  int index = selectedIndex + direction;
-  index = rangeCheck(index);
-  while (lines[index].isSeparator) {
-    index += direction;
-    index = rangeCheck(index);
-  }
-
-  setIndex(index);
-}
-
 
 #if defined(HARDWARE_KEYS)
 void MenuBody::onEvent(event_t event)
@@ -81,13 +37,13 @@ void MenuBody::onEvent(event_t event)
 
   if (event == EVT_ROTARY_RIGHT) {
     if (!lines.empty()) {
-      selectNext(DIRECTION_UP);
+      select(int((selectedIndex + 1) % lines.size()));
       onKeyPress();
     }
   }
   else if (event == EVT_ROTARY_LEFT) {
     if (!lines.empty()) {
-      selectNext(DIRECTION_DOWN);
+      select(int(selectedIndex <= 0 ? lines.size() - 1 : selectedIndex - 1));
       onKeyPress();
     }
   }
@@ -127,39 +83,22 @@ void MenuBody::onEvent(event_t event)
 bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 {
   Menu * menu = getParentMenu();
-
-  int index = 0;
-
-  // dynamically find the selected element based on variable line heights
-  coord_t yAccumulator = 0;
-  for (int i = 0; i < lines.size(); i++) {
-    if (y >= yAccumulator && y <= yAccumulator + lines[i].lineHeight()) {
-      index = i;
-      break;
-    }
-    yAccumulator += lines[i].lineHeight();
-  }
-
-  // dont allow selecting separators
-  if (lines[index].isSeparator)
-    return false;
-
+  int index = y / MENUS_LINE_HEIGHT;
   if (index < (int)lines.size()) {
     onKeyPress();
     if (menu->multiple) {
       if (selectedIndex == index)
         lines[index].onPress();
       else
-        setIndex(index);
+        select(index);
       menu->invalidate();
     }
     else {
-      setIndex(index);
+      select(index);
       menu->deleteLater();
       lines[index].onPress();
     }
   }
-
   return true;
 }
 #endif
@@ -168,43 +107,37 @@ void MenuBody::paint(BitmapBuffer * dc)
 {
   dc->clear(COLOR_THEME_PRIMARY2);
 
-  int y = 0;
-  for (int i = 0; i < lines.size(); i++) {
+  for (unsigned i = 0; i < lines.size(); i++) {
     auto& line = lines[i];
     LcdFlags flags = COLOR_THEME_SECONDARY1 | MENU_FONT;
-
-    // draw selection if appropriate
-    if (selectedIndex == i && ! line.isSeparator) {
+    if (selectedIndex == (int)i) {
       flags = COLOR_THEME_PRIMARY2 | MENU_FONT;
       if (COLOR_THEME_FOCUS != COLOR_THEME_PRIMARY2) {
-        dc->drawSolidFilledRect(0, y, width(),
+        dc->drawSolidFilledRect(0, i * MENUS_LINE_HEIGHT, width(),
                                 MENUS_LINE_HEIGHT, COLOR_THEME_FOCUS);
       }
     }
-
-    if (line.isSeparator) {
-      dc->drawHorizontalLine(5, y + MENUS_SEPARATOR_HEIGHT / 2, width() - 10, 255, COLOR_THEME_SECONDARY2);
-    } else if (line.drawLine) {
-      line.drawLine(dc, 0, y, flags);
+    if (line.drawLine) {
+      line.drawLine(dc, 0, i * MENUS_LINE_HEIGHT, flags);
     } else {
       const char* text = line.text.data();
       dc->drawText(10,
-                   y + (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2,
+                   i * MENUS_LINE_HEIGHT +
+                       (MENUS_LINE_HEIGHT - getFontHeight(MENU_FONT)) / 2,
                    text[0] == '\0' ? "---" : text, flags);
     }
 
     Menu* menu = getParentMenu();
     if (menu->multiple && line.isChecked) {
       theme->drawCheckBox(dc, line.isChecked(), width() - 35,
-                          y + (MENUS_LINE_HEIGHT - 20) / 2,
+                          i * MENUS_LINE_HEIGHT + (MENUS_LINE_HEIGHT - 20) / 2,
                           0);
     }
 
-    // if (i > 0 && ! lines[i].isSeparator && ! lines[i-1].isSeparator) {
-    //   dc->drawSolidHorizontalLine(0, y, MENUS_WIDTH, COLOR_THEME_SECONDARY2);
-    // }
-
-    y += line.lineHeight();
+    if (i > 0) {
+      dc->drawSolidHorizontalLine(0, i * MENUS_LINE_HEIGHT, MENUS_WIDTH,
+                                  COLOR_THEME_SECONDARY2);
+    }
   }
 }
 
@@ -240,22 +173,18 @@ Menu::Menu(Window * parent, bool multiple):
 
 void Menu::updatePosition()
 {
-  // calcualte the correct menu height given that the line heights are variable
-  coord_t height = 0;
-  for (int i = 0; i < content->body.lines.size(); i++)
-    height += content->body.lines[i].lineHeight();
-
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
-    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, height, MENUS_MAX_HEIGHT);
+    auto bodyHeight = limit<coord_t>(
+        MENUS_MIN_HEIGHT, content->body.lines.size() * MENUS_LINE_HEIGHT,
+        MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
     content->setHeight(headerHeight + bodyHeight);
     content->body.setTop(headerHeight);
     content->body.setHeight(bodyHeight);
   }
-
-  content->body.setInnerHeight(height);
+  content->body.setInnerHeight(content->body.lines.size() * MENUS_LINE_HEIGHT);
 }
 
 void Menu::setTitle(std::string text)
@@ -267,12 +196,6 @@ void Menu::setTitle(std::string text)
 void Menu::addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
 {
   content->body.addLine(text, std::move(onPress), std::move(isChecked));
-  updatePosition();
-}
-
-void Menu::addSeparator()
-{
-  content->body.addSeparator();
   updatePosition();
 }
 
