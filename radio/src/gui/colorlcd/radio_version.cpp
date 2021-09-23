@@ -205,6 +205,7 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
+extern uint32_t NV14internalModuleFwVersion;
 void RadioVersionPage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -236,8 +237,12 @@ void RadioVersionPage::build(FormWindow * window)
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
 
-  //TODO: NV14 internal module version (NV14internalModuleFwVersion)
-
+#if defined(AFHDS2)
+  new StaticText(window, grid.getLabelSlot(), "RF FW:");
+  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d", (int)((NV14internalModuleFwVersion >> 16) & 0xFF), (int)((NV14internalModuleFwVersion >> 8) & 0xFF), (int)(NV14internalModuleFwVersion & 0xFF));
+  new StaticText(window, grid.getFieldSlot(), reusableBuffer.moduleSetup.msg);
+  grid.nextLine();
+#endif
 #if defined(PXX2)
   // Module and receivers versions
   auto moduleVersions = new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
