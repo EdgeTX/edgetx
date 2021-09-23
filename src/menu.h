@@ -32,6 +32,12 @@ class MenuBody: public Window
   friend class MenuWindowContent;
   friend class Menu;
 
+  enum MENU_DIRECTION
+  {
+    DIRECTION_UP = 1,
+    DIRECTION_DOWN = -1
+  };
+
   class MenuLine {
     friend class MenuBody;
 
@@ -50,11 +56,21 @@ class MenuBody: public Window
       {
       }
 
+      MenuLine(bool isSeparator) :
+        isSeparator(true),
+        height(MENUS_SEPARATOR_HEIGHT)
+      {
+      }
+
+      inline coord_t lineHeight() { return height; }
+
       MenuLine(MenuLine &) = delete;
 
       MenuLine(MenuLine &&) = default;
 
     protected:
+      bool isSeparator = false;
+      coord_t height = MENUS_LINE_HEIGHT;
       std::string text;
       std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine;
       std::function<void()> onPress;
@@ -79,7 +95,12 @@ class MenuBody: public Window
 
     int selection() const
     {
-      return selectedIndex;
+      int index = selectedIndex;
+      for (int i = 0; i < selectedIndex; i++)
+        if (lines[i].isSeparator)
+          index--;
+
+      return index;
     }
 
     int count() const
@@ -107,6 +128,11 @@ class MenuBody: public Window
       invalidate();
     }
 
+    void addSeparator()
+    {
+      lines.emplace_back(true);
+    }
+
     void removeLines()
     {
       lines.clear();
@@ -121,6 +147,10 @@ class MenuBody: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
+    void selectNext(MENU_DIRECTION direction);
+    int rangeCheck(int);
+    void setIndex(int index);
+
     std::vector<MenuLine> lines;
     int selectedIndex = 0;
     std::function<void()> onCancel;
@@ -199,6 +229,8 @@ class Menu: public ModalWindow
     void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
 
     void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
+
+    void addSeparator();
 
     void removeLines();
 
