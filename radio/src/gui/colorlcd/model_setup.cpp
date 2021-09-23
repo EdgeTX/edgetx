@@ -130,6 +130,7 @@ class FailSafeBody : public FormGroup {
       auto out2fail = new TextButton(this, grid.getLineSlot(), STR_CHANNELS2FAILSAFE);
       out2fail->setPressHandler([=]() {
         setCustomFailsafe(moduleIdx);
+        AUDIO_WARNING1();
         storageDirty(EE_MODEL);
         return 0;
       });
