@@ -30,7 +30,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-
 std::string switchWarninglabel(swsrc_t index)
 {
   static const char switchPositions[] = {
@@ -1459,7 +1458,7 @@ void ModelSetupPage::build(FormWindow * window)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
-  
+
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   auto text =
