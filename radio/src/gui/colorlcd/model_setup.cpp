@@ -518,7 +518,6 @@ class TrainerModuleWindow : public FormGroup
           g_model.trainerData.mode = newValue;
           SET_DIRTY();
           update();
-          getParent()->moveWindowsTop(top() + 1, adjustHeight());
           trainerChoice->setFocus(SET_FOCUS_DEFAULT);
           trChoiceOpen = false;
         },
@@ -673,7 +672,9 @@ class TrainerModuleWindow : public FormGroup
 #if defined(HARDWARE_TOUCH)
       new StaticText(this, grid.getLabelSlot(true));
 #endif
-      getParent()->moveWindowsTop(top() + 1, adjustHeight());
+      auto par = getParent();
+      par->moveWindowsTop(top() + 1, adjustHeight());
+      par->adjustInnerHeight();
     }
   }
 
@@ -798,7 +799,6 @@ class ModuleWindow : public FormGroup {
           [=](int32_t newValue) {
             setModuleType(moduleIdx, newValue);
             update();
-            getParent()->moveWindowsTop(top() + 1, adjustHeight());
             moduleChoice->setFocus(SET_FOCUS_DEFAULT);
             SET_DIRTY();
           });
@@ -1397,7 +1397,9 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
-      getParent()->moveWindowsTop(top() + 1, adjustHeight());
+      auto par = getParent();
+      par->moveWindowsTop(top() + 1, adjustHeight());
+      par->adjustInnerHeight();
     }
 
     void checkEvents() override
