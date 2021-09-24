@@ -30,8 +30,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-static ModelSetupPage* page = nullptr;
-static coord_t scrollPos = 0;
 
 std::string switchWarninglabel(swsrc_t index)
 {
@@ -521,6 +519,7 @@ class TrainerModuleWindow : public FormGroup
           g_model.trainerData.mode = newValue;
           SET_DIRTY();
           update();
+          getParent()->moveWindowsTop(top() + 1, adjustHeight());
           trainerChoice->setFocus(SET_FOCUS_DEFAULT);
           trChoiceOpen = false;
         },
@@ -724,8 +723,7 @@ class ModuleWindow : public FormGroup {
   public:
     ModuleWindow(FormWindow * parent, const rect_t &rect, uint8_t moduleIdx) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
-      moduleIdx(moduleIdx),
-      fWindow(parent)
+      moduleIdx(moduleIdx)
     {
       update();
     }
@@ -738,7 +736,6 @@ class ModuleWindow : public FormGroup {
     TextButton * rangeButton = nullptr;
     TextButton * registerButton = nullptr;
     Choice * failSafeChoice = nullptr;
-    FormWindow* fWindow;
 
     void addChannelRange(FormGridLayout &grid)
     {
@@ -791,7 +788,6 @@ class ModuleWindow : public FormGroup {
     {
       FormGridLayout grid;
       clear();
-      fWindow->setScrollPositionY(scrollPos);
 
       // Module Type
       new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
@@ -803,12 +799,7 @@ class ModuleWindow : public FormGroup {
           [=](int32_t newValue) {
             setModuleType(moduleIdx, newValue);
             update();
-            scrollPos = fWindow->getScrollPositionY() +
-                        ((PAGE_LINE_HEIGHT + PAGE_LINE_SPACING) << 2);
-            if(page != nullptr) {
-              fWindow->clear();
-              page->build(fWindow);
-            }
+            getParent()->moveWindowsTop(top() + 1, adjustHeight());
             moduleChoice->setFocus(SET_FOCUS_DEFAULT);
             SET_DIRTY();
           });
@@ -1468,7 +1459,7 @@ void ModelSetupPage::build(FormWindow * window)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
-
+  
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   auto text =
@@ -1792,7 +1783,6 @@ void ModelSetupPage::build(FormWindow * window)
 
 
   window->setInnerHeight(grid.getWindowHeight());
-  page = this;
 }
 
 // Switch to external antenna confirmation
