@@ -668,14 +668,13 @@ class TrainerModuleWindow : public FormGroup
                    GET_SET_DEFAULT(g_model.trainerData.pulsePol));
         grid.nextLine();
       }
-
-#if defined(HARDWARE_TOUCH)
-      new StaticText(this, grid.getLabelSlot(true));
-#endif
-      auto par = getParent();
-      par->moveWindowsTop(top() + 1, adjustHeight());
-      par->adjustInnerHeight();
     }
+#if defined(HARDWARE_TOUCH)
+    new StaticText(this, grid.getLabelSlot(true));
+#endif
+    auto par = getParent();
+    par->moveWindowsTop(top() + 1, adjustHeight());
+    par->adjustInnerHeight();    
   }
 
  protected:
