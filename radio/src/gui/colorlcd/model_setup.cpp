@@ -669,12 +669,13 @@ class TrainerModuleWindow : public FormGroup
                    GET_SET_DEFAULT(g_model.trainerData.pulsePol));
         grid.nextLine();
       }
-
-#if defined(HARDWARE_TOUCH)
-      new StaticText(this, grid.getLabelSlot(true));
-#endif
-      getParent()->moveWindowsTop(top() + 1, adjustHeight());
     }
+#if defined(HARDWARE_TOUCH)
+    new StaticText(this, grid.getLabelSlot(true));
+#endif
+    auto par = getParent();
+    par->moveWindowsTop(top() + 1, adjustHeight());
+    par->adjustInnerHeight();    
   }
 
  protected:
@@ -789,18 +790,22 @@ class ModuleWindow : public FormGroup {
       clear();
 
       // Module Type
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-      moduleChoice = new Choice(this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
-                                MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-                                GET_DEFAULT(g_model.moduleData[moduleIdx].type),
-                                [=](int32_t newValue) {
-                                  setModuleType(moduleIdx, newValue);
-                                  update();
-                                  moduleChoice->setFocus(SET_FOCUS_DEFAULT);
-                                  SET_DIRTY();
-                                });
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
+                     COLOR_THEME_PRIMARY1);
+      moduleChoice = new Choice(
+          this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
+          MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+          GET_DEFAULT(g_model.moduleData[moduleIdx].type),
+          [=](int32_t newValue) {
+            setModuleType(moduleIdx, newValue);
+            update();
+            moduleChoice->setFocus(SET_FOCUS_DEFAULT);
+            SET_DIRTY();
+          });
       moduleChoice->setAvailableHandler([=](int8_t moduleType) {
-          return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType) : isExternalModuleAvailable(moduleType);
+        return moduleIdx == INTERNAL_MODULE
+                   ? isInternalModuleAvailable(moduleType)
+                   : isExternalModuleAvailable(moduleType);
       });
 
       // Module parameters
@@ -1392,7 +1397,9 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
-      getParent()->moveWindowsTop(top() + 1, adjustHeight());
+      auto par = getParent();
+      par->moveWindowsTop(top() + 1, adjustHeight());
+      par->adjustInnerHeight();
     }
 
     void checkEvents() override
