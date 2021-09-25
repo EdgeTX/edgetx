@@ -118,21 +118,21 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
 inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  const mm_protocol_definition *pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
-
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FRSKY) {
+  auto proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
     return 7;
   }
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() > MODULE_SUBTYPE_MULTI_LAST) {
-    if (status.isValid())
-      return (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
-    else
-      return 7;
+  uint8_t max_pdef = 0;
+  const mm_protocol_definition *pdef = getMultiProtocolDefinition(proto);
+  if (pdef) {
+    max_pdef = pdef->maxSubtype;
   }
-  else {
-    return max((uint8_t )(status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1), pdef->maxSubtype);
+  uint8_t max_status = 0;
+  if (status.isValid()) {
+    max_status = (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
   }
+  return max(max_status, max_pdef);
 }
 
 inline bool isModuleMultimodule(uint8_t idx)
@@ -142,7 +142,9 @@ inline bool isModuleMultimodule(uint8_t idx)
 
 inline bool isModuleMultimoduleDSM2(uint8_t idx)
 {
-  return isModuleMultimodule(idx) && g_model.moduleData[idx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2;
+  return isModuleMultimodule(idx) &&
+         g_model.moduleData[idx].getMultiProtocol() ==
+             MODULE_SUBTYPE_MULTI_DSM2;
 }
 #else
 inline bool isModuleMultimodule(uint8_t)
@@ -583,8 +585,10 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
       return status.supportsFailsafe();
     }
     else {
-      const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
-      return pdef->failsafe;
+      auto proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+      const mm_protocol_definition * pdef = getMultiProtocolDefinition(proto);
+      if (pdef) return pdef->failsafe;
+      return false;
     }
   }
 #endif
