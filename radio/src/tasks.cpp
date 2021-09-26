@@ -224,6 +224,10 @@ TASK_FUNCTION(menusTask)
   }
 #endif
 
+#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
+  touchPanelInit();
+#endif
+  
   opentxInit();
 
 #if defined(PWR_BUTTON_PRESS)
