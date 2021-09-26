@@ -158,7 +158,6 @@ class FilePreview : public Window
     {
       coord_t y = parent->getScrollPositionY() + 2;
       coord_t h = MENU_BODY_HEIGHT - 4;
-      lcd->drawSolidFilledRect(0, y, width(), h, COLOR_THEME_DISABLED);
       if (bitmap) {
         coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
         coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());

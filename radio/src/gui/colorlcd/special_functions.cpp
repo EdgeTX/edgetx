@@ -636,7 +636,13 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
     strAppendUnsigned(&s[2], i+1);
 
     if (cfn->swtch == 0) {
-      auto button = new TextButton(window, grid.getLabelSlot(), s);
+      auto button = new TextButton(window, grid.getLabelSlot(), s, nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
+      button->setFocusHandler([=](bool focus) {
+        if (focus)
+          button->setTextFlags(COLOR_THEME_PRIMARY2);
+        else
+          button->setTextFlags(COLOR_THEME_PRIMARY1);
+      });
       button->setPressHandler([=]() {
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
           Menu *menu = new Menu(window);
