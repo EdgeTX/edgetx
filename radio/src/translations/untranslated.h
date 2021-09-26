@@ -251,6 +251,7 @@
 #define TR_SENSOR_RX_RSSI2                  "2RSS"
 #define TR_SENSOR_RX_QUALITY                "RQly"
 #define TR_SENSOR_RX_SNR                    "RSNR"
+#define TR_SENSOR_RX_SIGNAL                 "Sgnl"
 #define TR_SENSOR_RX_NOISE                  "RNse"
 #define TR_SENSOR_ANTENNA                   "ANT"
 #define TR_SENSOR_RF_MODE                   "RFMD"
