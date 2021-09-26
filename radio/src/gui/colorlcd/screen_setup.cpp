@@ -265,14 +265,14 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   FormGridLayout grid;
 
   // Theme choice
-  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, 0);
+  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
   // TODO: Theme picklist
   grid.nextLine();
 
   // Theme options ?
 
   // Top Bar
-  new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, 0);
+  new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
 
   auto menu = this->menu;
   auto setupTopbarWidgets = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS);
@@ -380,7 +380,7 @@ static void updateLayoutOptions(FormGroup* optionsWindow, unsigned customScreenI
     ZoneOptionValue * value = &layoutData->options[index].value;
 
     // Option label
-    new StaticText(optionsWindow, grid.getLabelSlot(false), option->name);
+    new StaticText(optionsWindow, grid.getLabelSlot(false), option->name, 0, COLOR_THEME_PRIMARY1);
 
     // Option value
     switch (option->type) {
@@ -407,7 +407,7 @@ void ScreenSetupPage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
 
   // Layout choice...
-  new StaticText(window, grid.getLabelSlot(false), STR_LAYOUT);
+  new StaticText(window, grid.getLabelSlot(false), STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
 
   auto layoutSlot = grid.getFieldSlot();
   layoutSlot.h = 2 * PAGE_LINE_HEIGHT - 1;
@@ -435,7 +435,7 @@ void ScreenSetupPage::build(FormWindow * window)
   grid.nextLine(layoutChoice->height());
 
   // Setup widgets button...
-  auto setupWidgetsButton = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS);
+  auto setupWidgetsButton = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS, nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
 
   auto menu = this->menu;
   setupWidgetsButton->setPressHandler([idx, menu]() -> uint8_t {
@@ -455,7 +455,7 @@ void ScreenSetupPage::build(FormWindow * window)
   
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    auto button = new TextButton(window, grid.getFieldSlot(), STR_REMOVE_SCREEN);
+    auto button = new TextButton(window, grid.getFieldSlot(), STR_REMOVE_SCREEN, nullptr, 0, COLOR_THEME_PRIMARY1);
     auto menu = this->menu;
     button->setPressHandler([menu, idx]() -> uint8_t {
 

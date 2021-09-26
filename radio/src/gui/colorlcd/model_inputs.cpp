@@ -597,8 +597,15 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
       grid.spacer(7);
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSourceString(MIXSRC_FIRST_INPUT + input));
+                                   getSourceString(MIXSRC_FIRST_INPUT + input), nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       if (focusIndex == inputIndex) button->setFocus(SET_FOCUS_DEFAULT);
+      button->setFocusHandler([=](bool focus) {
+        if (focus)
+          button->setTextFlags(COLOR_THEME_PRIMARY2);
+        else
+          button->setTextFlags(COLOR_THEME_PRIMARY1);
+      });
+
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
         Menu *menu = new Menu(window);
