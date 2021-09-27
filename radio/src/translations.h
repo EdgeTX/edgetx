@@ -870,6 +870,7 @@ extern const char STR_SENSOR_RX_RSSI1[];
 extern const char STR_SENSOR_RX_RSSI2[];
 extern const char STR_SENSOR_RX_QUALITY[];
 extern const char STR_SENSOR_RX_SNR[];
+extern const char STR_SENSOR_RX_SIGNAL[];
 extern const char STR_SENSOR_RX_NOISE[];
 extern const char STR_SENSOR_ANTENNA[];
 extern const char STR_SENSOR_RF_MODE[];

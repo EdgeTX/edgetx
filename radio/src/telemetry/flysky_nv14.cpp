@@ -92,8 +92,8 @@ union nv14SensorData {
 
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
-    {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A3,          UNIT_VOLTS,         2, 0, 2, false},
-    {FLYSKY_SENSOR_RX_SIGNAL,  0, STR_SENSOR_RX_QUALITY,  UNIT_RAW,           0, 0, 2, false},
+    {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A1,          UNIT_VOLTS,         2, 0, 2, false},
+    {FLYSKY_SENSOR_RX_SIGNAL,  0, STR_SENSOR_RX_SIGNAL,   UNIT_RAW,           0, 0, 2, false},
     {FLYSKY_SENSOR_RX_RSSI,    0, STR_SENSOR_RSSI,        UNIT_DB,            0, 0, 2, true,},
     {FLYSKY_SENSOR_RX_NOISE,   0, STR_SENSOR_RX_NOISE,    UNIT_DB,            0, 0, 2, true},
     {FLYSKY_SENSOR_RX_SNR,     0, STR_SENSOR_RX_SNR,      UNIT_DB,            0, 0, 2, false},
