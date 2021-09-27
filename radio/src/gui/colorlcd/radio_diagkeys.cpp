@@ -50,7 +50,7 @@ class RadioKeyDiagsWindow : public Window
       status[0] = t + '0';
       status[1] = '\0';
       // TODO INVERS?
-      dc->drawText(x, y, status, 0);
+      dc->drawText(x, y, status, COLOR_THEME_PRIMARY1);
     }
 
     void paint(BitmapBuffer * dc) override
@@ -66,30 +66,30 @@ class RadioKeyDiagsWindow : public Window
       constexpr coord_t TRIM_MINUS_COLUMN = TRIM_COLUMN + 60;
       constexpr coord_t TRIM_PLUS_COLUMN = TRIM_MINUS_COLUMN + 20;
 
-      dc->drawText(TRIM_COLUMN, 1, "Trims");
-      dc->drawText(TRIM_MINUS_COLUMN, 1, "-");
-      dc->drawText(TRIM_PLUS_COLUMN, 1, "+");
+      dc->drawText(TRIM_COLUMN, 1, "Trims", COLOR_THEME_PRIMARY1);
+      dc->drawText(TRIM_MINUS_COLUMN, 1, "-", COLOR_THEME_PRIMARY1);
+      dc->drawText(TRIM_PLUS_COLUMN, 1, "+", COLOR_THEME_PRIMARY1);
 
 #if !defined(PCBNV14)
       // KEYS
       for (uint8_t i = KEY_START; i <= 6; i++) {
         coord_t y = 1 + FH * (i - KEY_START);
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, i, 0);
+        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, i, COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, i);
       }
 #if defined(ROTARY_ENCODER_NAVIGATION)
       coord_t y = FH * (8 - KEY_START);
-      dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER);
-      dc->drawNumber(70, y, rotencValue, 0);
+      dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
+      dc->drawNumber(70, y, rotencValue, COLOR_THEME_PRIMARY1);
 #endif
 #else // defined(PCBNV14)
       // KEYS
       {
         coord_t y = 1;
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, 0);
+        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, KEY_ENTER);
         y += FH;
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_EXIT, 0);
+        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_EXIT, COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, KEY_EXIT);
       }      
 #endif
@@ -99,7 +99,7 @@ class RadioKeyDiagsWindow : public Window
           coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
           getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-          drawSwitch(dc, SWITCHES_COLUMN, y, sw, 0);
+          drawSwitch(dc, SWITCHES_COLUMN, y, sw, COLOR_THEME_PRIMARY1);
         }
       }
 
@@ -112,8 +112,8 @@ class RadioKeyDiagsWindow : public Window
 #endif
         coord_t y = 1 + FH + FH * (i / 2);
         if (i & 1) {
-          dc->drawText(TRIM_COLUMN, y, "T", 0);
-          dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, 0);
+          dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
         }
         displayKeyState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, TRM_BASE + trimMap[i]);
       }

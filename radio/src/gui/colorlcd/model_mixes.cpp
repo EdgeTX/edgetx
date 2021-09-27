@@ -484,13 +484,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
       grid.spacer(7);
     }
     else {
-      auto button = new TextButton(window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch), nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
-      button->setFocusHandler([=](bool focus) {
-        if (focus)
-          button->setTextFlags(COLOR_THEME_PRIMARY2);
-        else
-          button->setTextFlags(COLOR_THEME_PRIMARY1);
-      });
+      auto button = new TextButton(window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch));
       if (focusMixIndex == mixIndex)
         button->setFocus(SET_FOCUS_DEFAULT);
       button->setPressHandler([=]() -> uint8_t {

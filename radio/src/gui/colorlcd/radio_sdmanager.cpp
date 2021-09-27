@@ -271,22 +271,13 @@ void RadioSdManagerPage::build(FormWindow * window)
     files.sort(compare_nocase);
     
     for (auto name: directories) {
-      auto b = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
           f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
           build(window);
           return 0;
-      }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
-
-      b->setFocusHandler([=] (bool focus) {
-        if (focus)
-          b->setTextFlags(COLOR_THEME_PRIMARY2);
-        else
-          b->setTextFlags(COLOR_THEME_PRIMARY1);
       });
-
-      // b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
 
       grid.nextLine();
     }
@@ -427,13 +418,9 @@ void RadioSdManagerPage::build(FormWindow * window)
           }
           return 0;
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
-      // button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));
-          button->setTextFlags(COLOR_THEME_PRIMARY2);
-        } else {
-          button->setTextFlags(COLOR_THEME_PRIMARY1);
         }
       });
       grid.nextLine();

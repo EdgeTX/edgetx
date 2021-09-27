@@ -368,7 +368,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
 
     if (ls->func == LS_FUNC_NONE) {
       auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSwitchPositionName(SWSRC_SW1 + i), nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
+                                   getSwitchPositionName(SWSRC_SW1 + i));
       button->setPressHandler([=]() {
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
           Menu* menu = new Menu(window);
@@ -383,12 +383,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
         }
         return 0;
       });
-      button->setFocusHandler([=](bool focus) {
-        if (focus)
-          button->setTextFlags(COLOR_THEME_PRIMARY2);
-        else
-          button->setTextFlags(COLOR_THEME_PRIMARY1);
-      });
+      
       grid.spacer(button->height() + 5);
     } else {
       auto txt = new StaticText(window, grid.getLabelSlot(),
