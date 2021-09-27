@@ -1255,7 +1255,8 @@ void menuModelSetup(event_t event)
             }
             uint8_t newFlag = 0;
 #if defined(MULTIMODULE)
-            if (getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
+            if (isModuleMultimodule(moduleIdx) &&
+                getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
               setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
               s_editMode = 0;
             }
@@ -1294,7 +1295,8 @@ void menuModelSetup(event_t event)
             }
             moduleState[moduleIdx].mode = newFlag;
 #if defined(MULTIMODULE)
-            if (newFlag == MODULE_MODE_BIND) {
+            if (isModuleMultimodule(moduleIdx) &&
+                (newFlag == MODULE_MODE_BIND)) {
               setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
             }
 #endif
