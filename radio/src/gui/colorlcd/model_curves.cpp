@@ -386,13 +386,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       grid.spacer(button->height() + 5);
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getCurveString(1 + index), nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
-      button->setFocusHandler([=](bool focus) {
-        if (focus)
-          button->setTextFlags(COLOR_THEME_PRIMARY2);
-        else
-          button->setTextFlags(COLOR_THEME_PRIMARY1);
-      });
+                                   getCurveString(1 + index));
       button->setPressHandler([=]() {
         Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {

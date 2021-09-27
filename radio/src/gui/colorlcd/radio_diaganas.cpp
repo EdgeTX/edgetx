@@ -56,10 +56,10 @@ class RadioAnalogsDiagsWindow: public Window {
            coord_t y = 1 + i * FH;
            uint8_t x = 10;
   #endif
-          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
-          dc->drawText(x + 2 * 15 - 2, y, ":");
-          dc->drawNumber(x + 3 * 15 - 1, y, hall_raw_values[i], LEFT);
-          dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+          dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + 3 * 15 - 1, y, hall_raw_values[i], LEFT | COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
         }
 
         for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
@@ -70,10 +70,10 @@ class RadioAnalogsDiagsWindow: public Window {
            coord_t y = 1 + i * FH;
            uint8_t x = 10;
   #endif
-          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
-          dc->drawText(x + 2 * 15 - 2, y, ":");
-          dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
-          dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+          dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT | COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
         }
 #else		
       for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
@@ -84,10 +84,10 @@ class RadioAnalogsDiagsWindow: public Window {
 			coord_t y = 1 + i * FH;
 			uint8_t x = 10;
 #endif
-        dc->drawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
-        dc->drawText(x + 2 * 15 - 2, y, ":");
-        dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT);
-        dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT);
+        dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+        dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT | COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
       }
 #endif
 

@@ -25,7 +25,7 @@
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 #define TEXT_LEFT_MARGIN 2
-#define GVAR_NAME_SIZE 43
+#define GVAR_NAME_SIZE 45
 
 GVarButton::GVarButton(FormGroup * parent, const rect_t &rect, uint8_t gvar) :
   Button(parent, rect),

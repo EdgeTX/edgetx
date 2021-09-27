@@ -435,7 +435,7 @@ void ScreenSetupPage::build(FormWindow * window)
   grid.nextLine(layoutChoice->height());
 
   // Setup widgets button...
-  auto setupWidgetsButton = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS, nullptr, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
+  auto setupWidgetsButton = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS);
 
   auto menu = this->menu;
   setupWidgetsButton->setPressHandler([idx, menu]() -> uint8_t {
@@ -455,7 +455,7 @@ void ScreenSetupPage::build(FormWindow * window)
   
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    auto button = new TextButton(window, grid.getFieldSlot(), STR_REMOVE_SCREEN, nullptr, 0, COLOR_THEME_PRIMARY1);
+    auto button = new TextButton(window, grid.getFieldSlot(), STR_REMOVE_SCREEN);
     auto menu = this->menu;
     button->setPressHandler([menu, idx]() -> uint8_t {
 
