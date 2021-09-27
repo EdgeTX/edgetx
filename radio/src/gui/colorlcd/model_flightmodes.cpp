@@ -41,6 +41,18 @@ class FlightModeGroup: public FormGroup
       FormGroup(parent, rect),
       index(index)
     {
+      setFocusHandler([=] (bool focus) {
+
+        int32_t color = focus ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1;
+        if (index == getFlightMode()) 
+          color = COLOR_THEME_PRIMARY1;
+
+        for (auto window: getChildren()) {
+          if (dynamic_cast<StaticText *>(window) != nullptr) {
+            window->setTextFlags(color);
+          }
+        }
+      });
     }
 
     void checkEvents() override
@@ -55,11 +67,15 @@ class FlightModeGroup: public FormGroup
 
     void paint(BitmapBuffer * dc) override
     {
+      uint32_t fillColor = index == getFlightMode() ? COLOR_THEME_ACTIVE : COLOR_THEME_SECONDARY2;
+      if (getFocus() == this) 
+        fillColor = COLOR_THEME_FOCUS;
+        
       if (index == getFlightMode()) {
         dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_ACTIVE);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY2);
+        dc->drawSolidFilledRect(0, 0, width(), height(), fillColor);
       }
       FormGroup::paint(dc);
     }
