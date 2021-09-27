@@ -59,7 +59,7 @@ class FlightModeGroup: public FormGroup
         dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_ACTIVE);
       }
       else {
-        dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_PRIMARY2);
+        dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY2);
       }
       FormGroup::paint(dc);
     }
