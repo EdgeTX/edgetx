@@ -277,8 +277,17 @@ void RadioSdManagerPage::build(FormWindow * window)
           window->clear();
           build(window);
           return 0;
-      }, OPAQUE);
-      b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+      }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
+
+      b->setFocusHandler([=] (bool focus) {
+        if (focus)
+          b->setTextFlags(COLOR_THEME_PRIMARY2);
+        else
+          b->setTextFlags(COLOR_THEME_PRIMARY1);
+      });
+
+      // b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+
       grid.nextLine();
     }
 
@@ -417,11 +426,14 @@ void RadioSdManagerPage::build(FormWindow * window)
             });
           }
           return 0;
-      }, OPAQUE);
-      button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+      }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
+      // button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));
+          button->setTextFlags(COLOR_THEME_PRIMARY2);
+        } else {
+          button->setTextFlags(COLOR_THEME_PRIMARY1);
         }
       });
       grid.nextLine();
