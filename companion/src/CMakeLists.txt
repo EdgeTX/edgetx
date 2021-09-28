@@ -5,12 +5,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
   set(COMPANION_NAME "companion${C9X_NAME_SUFFIX}")
   set(SIMULATOR_NAME "simulator${C9X_NAME_SUFFIX}")
   if (NOT ${SIMULATOR_INSTALL_PREFIX} STREQUAL "")
-    set(SIMULATOR_LIB_PATH ${SIMULATOR_INSTALL_PREFIX}/lib/companion${C9X_NAME_SUFFIX})
+    set(SIMULATOR_LIB_PATH ${SIMULATOR_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   else()
-    set(SIMULATOR_LIB_PATH ${CMAKE_INSTALL_PREFIX}/lib/companion${C9X_NAME_SUFFIX})
+    set(SIMULATOR_LIB_PATH "../lib/${COMPANION_NAME}")
   endif()
   message(STATUS "Simulators library search path: " ${SIMULATOR_LIB_PATH})
-  set(SIMULATOR_LIB_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib/companion${C9X_NAME_SUFFIX})
+  set(SIMULATOR_LIB_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
 else()
   set(COMPANION_NAME "companion")
   set(SIMULATOR_NAME "simulator")
@@ -532,24 +532,7 @@ IF(APPLE)
    " COMPONENT Runtime)
 endif()
 
-find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
-
-if(DPKG_PROGRAM)
-  set(CPACK_GENERATOR "DEB")
-  execute_process(
-    COMMAND ${DPKG_PROGRAM} --print-architecture
-    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME_LOWERCASE}_${VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Raphael Coeffic")
-  set(CPACK_DEBIAN_PACKAGE_VERSION ${VERSION})
-  set(CPACK_DEBIAN_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-  set(CPACK_DEBIAN_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-  set(CPACK_DEBIAN_ARCHITECTURE $(CMAKE_SYSTEM_PROCESSOR))
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5multimedia5-plugins")
-  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-elseif(APPLE)
+if(APPLE)
   set(CPACK_GENERATOR "DragNDrop")
 # set(CPACK_GENERATOR "TGZ")  # for quick testing
   set(CPACK_BINARY_DRAGNDROP ON)
@@ -557,12 +540,43 @@ elseif(APPLE)
   set(CPACK_DMG_VOLUME_NAME "EdgeTX Companion")
   set(CPACK_DMG_DS_STORE ${PROJECT_SOURCE_DIR}/companion/targets/mac/DS_Store)
   set(CPACK_PACKAGE_FILE_NAME "opentx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
-else(DPKG_PROGRAM)
-  set(CPACK_GENERATOR "RPM")
-  set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
-  set(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
-  set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/lib /lib/udev /lib/udev/rules.d")
-endif(DPKG_PROGRAM)
+endif(APPLE)
+  
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+  find_program(LINUXDEPLOY_EXECUTABLE linuxdeployqt HINTS "${_qt_bin_dir}")
+
+  if(NOT LINUXDEPLOY_EXECUTABLE)
+    message(STATUS "linuxdeployqt will be downloaded")
+
+    set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
+
+    set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
+    set(LINUXDEPLOY_BUNDLE "linuxdeployqt.AppImage")
+
+    if (NOT EXISTS "${LINUXDEPLOY_EXECUTABLE}")
+
+      file(DOWNLOAD "${LINUXDEPLOY_URL}" ${LINUXDEPLOY_BUNDLE})
+      execute_process(
+        COMMAND chmod +x ${LINUXDEPLOY_BUNDLE}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+      execute_process(
+        COMMAND ./${LINUXDEPLOY_BUNDLE} --appimage-extract
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+      file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/deployqt)
+      execute_process(
+        COMMAND mv squashfs-root deployqt
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+      file(REMOVE ${CMAKE_BINARY_DIR}/${LINUXDEPLOY_BUNDLE})
+    endif()
+  endif()
+
+  set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
+  set(CPACK_GENERATOR "External")
+
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeployQt.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
+  set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
+endif()
 
 include(CPack)
