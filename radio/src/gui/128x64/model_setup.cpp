@@ -1802,7 +1802,7 @@ void menuModelSetup(event_t event)
 #endif
       {
         lcdDrawTextAlignedLeft(y, STR_MODULE_STATUS);
-        getModuleStatusString(EXTERNAL_MODULE, reusableBuffer.moduleSetup.msg);
+        getModuleStatusString(moduleIdx, reusableBuffer.moduleSetup.msg);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, reusableBuffer.moduleSetup.msg);
         break;
       }
