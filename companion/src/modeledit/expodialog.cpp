@@ -111,16 +111,10 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     ui->trimCB->hide();
   }
 
-  dialogFilteredItemModels->registerItemModel(new FilteredItemModel(ExpoData::carryTrimItemModel()), AIM_EXPO_CARRYTRIM);
-  ui->trimCB->setModel(dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM));
-
-  if (ed->srcRaw.isStick())
-    carryTrimFilterFlags = CarryTrimSticksGroup;
-  else
-    carryTrimFilterFlags = CarryTrimNotSticksGroup;
-
-  dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM)->setFilterFlags(carryTrimFilterFlags);
-  ui->trimCB->setCurrentIndex(ui->trimCB->findData(ed->carryTrim));
+  for(int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+    ui->trimCB->addItem(RawSource(SOURCE_TYPE_TRIM, i).toString(), i + 1);
+  }
+  ui->trimCB->setCurrentIndex(1 - ed->carryTrim);
 
   int expolength = firmware->getCapability(HasExpoNames);
   if (!expolength) {
@@ -165,8 +159,9 @@ void ExpoDialog::updateScale()
 {
   if (firmware->getCapability(VirtualInputs) && ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
     RawSourceRange range = ed->srcRaw.getRange(&model, generalSettings);
-    ui->dsbScale->setEnabled(true);
-    ui->lblScaleUnit->setEnabled(true);
+    ui->lblScale->show();
+    ui->dsbScale->show();
+    ui->lblScaleUnit->show();
     ui->dsbScale->setDecimals(range.decimals);
     ui->dsbScale->setMinimum(range.min);
     ui->dsbScale->setMaximum(range.max);
@@ -175,10 +170,9 @@ void ExpoDialog::updateScale()
     ui->lblScaleUnit->setText(range.unit);
   }
   else {
-    ui->dsbScale->setValue(0);
-    ui->dsbScale->setEnabled(false);
-    ui->lblScaleUnit->setText("");
-    ui->lblScaleUnit->setEnabled(false);
+    ui->lblScale->hide();
+    ui->dsbScale->hide();
+    ui->lblScaleUnit->hide();
   }
 }
 
@@ -189,20 +183,13 @@ void ExpoDialog::valuesChanged()
     RawSource srcRaw = RawSource(ui->sourceCB->itemData(ui->sourceCB->currentIndex()).toInt());
     if (ed->srcRaw != srcRaw) {
       ed->srcRaw = srcRaw;
-      if (ed->srcRaw.isStick())
-        carryTrimFilterFlags = CarryTrimSticksGroup;
-      else
-        carryTrimFilterFlags = CarryTrimNotSticksGroup;
-      ed->carryTrim = CARRYTRIM_DEFAULT;
-      dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM)->setFilterFlags(carryTrimFilterFlags);
-      ui->trimCB->setCurrentIndex(ui->trimCB->findData(-ed->carryTrim));
       ed->scale= 0;
       updateScale();
     }
 
     RawSourceRange range = srcRaw.getRange(&model, generalSettings);
     ed->scale = round(float(ui->dsbScale->value()) / range.step);
-    ed->carryTrim = ui->trimCB->itemData(ui->trimCB->currentIndex()).toInt();
+    ed->carryTrim = 1 - ui->trimCB->currentIndex();
     ed->swtch = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
     ed->mode = ui->sideCB->currentIndex() + 1;
 

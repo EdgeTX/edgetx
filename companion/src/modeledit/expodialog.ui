@@ -202,7 +202,18 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QComboBox" name="trimCB"/>
+    <widget class="QComboBox" name="trimCB">
+     <item>
+      <property name="text">
+       <string>No</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Yes</string>
+      </property>
+     </item>
+    </widget>
    </item>
    <item row="9" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,1,0">
