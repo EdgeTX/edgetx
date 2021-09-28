@@ -32,7 +32,7 @@
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
 #if defined(HARDWARE_TOUCH)
-  back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH },
+  back(this, { 0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT },
        [=]() -> uint8_t {
          parent->deleteLater();
          ViewMain::instance()->setFocus((SET_FOCUS_DEFAULT));
