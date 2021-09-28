@@ -280,38 +280,38 @@ class LogicalSwitchButton : public Button
     uint8_t lsFamily = lswFamily(ls->func);
 
     // CSW func
-    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_PRIMARY1);
+    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
 
     // CSW params
     if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
-      drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_PRIMARY1);
+      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
+      drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
     } else if (lsFamily == LS_FAMILY_EDGE) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
-      putsEdgeDelayParam(dc, col3, line1, ls, COLOR_THEME_PRIMARY1);
+      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
+      putsEdgeDelayParam(dc, col3, line1, ls, COLOR_THEME_SECONDARY1);
     } else if (lsFamily == LS_FAMILY_COMP) {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
-      drawSource(dc, col3, line1, ls->v2, COLOR_THEME_PRIMARY1);
+      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
+      drawSource(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
     } else if (lsFamily == LS_FAMILY_TIMER) {
-      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), COLOR_THEME_PRIMARY1 | LEFT | PREC1);
-      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), COLOR_THEME_PRIMARY1 | LEFT | PREC1);
+      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
+      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
     } else {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_PRIMARY1);
+      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
       drawSourceCustomValue(dc, col3, line1, ls->v1,
-          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), COLOR_THEME_PRIMARY1);
+          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), COLOR_THEME_SECONDARY1);
     }
 
     // AND switch
-    drawSwitch(dc, col1, line2, ls->andsw, COLOR_THEME_PRIMARY1);
+    drawSwitch(dc, col1, line2, ls->andsw, COLOR_THEME_SECONDARY1);
 
     // CSW duration
     if (ls->duration > 0) {
-      dc->drawNumber(col2, line2, ls->duration, COLOR_THEME_PRIMARY1 | PREC1 | LEFT);
+      dc->drawNumber(col2, line2, ls->duration, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
     }
 
     // CSW delay
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-      dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_PRIMARY1 | PREC1 | LEFT);
+      dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
     }
   }
 
