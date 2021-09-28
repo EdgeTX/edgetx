@@ -46,6 +46,11 @@ uint16_t getMixerSchedulerPeriod()
     return mixerSchedules[EXTERNAL_MODULE].period;
   }
 #endif
+#if defined(STM32) && !defined(SIMU)
+  if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+    return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+  }
+#endif
   return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
 }
 
