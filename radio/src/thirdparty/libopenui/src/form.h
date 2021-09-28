@@ -44,6 +44,11 @@ class FormField: public Window
       changeHandler = std::move(handler);
     }
 
+    void setBackgroundHandler(std::function<uint32_t(FormField *field)> handler)
+    {
+      backgroundHandler = std::move(handler);
+    }
+
     inline void setNextField(FormField *field)
     {
       next = field;
@@ -117,6 +122,7 @@ class FormField: public Window
     bool editMode = false;
     bool enabled = true;
     std::function<void()> changeHandler = nullptr;
+    std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
 };
 
 class FormGroup: public FormField

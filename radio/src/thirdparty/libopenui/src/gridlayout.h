@@ -23,8 +23,9 @@
 
 class GridLayout {
   public:
-    explicit GridLayout(coord_t width):
-      width(width)
+    explicit GridLayout(coord_t width, coord_t top = 0):
+      width(width),
+      currentY(top)
     {
     }
 
@@ -68,8 +69,8 @@ class GridLayout {
 
 class FormGridLayout: public GridLayout {
   public:
-    explicit FormGridLayout(coord_t width = LCD_W):
-      GridLayout(width)
+    explicit FormGridLayout(coord_t width = LCD_W, coord_t top = 0):
+      GridLayout(width, top)
     {
     }
 
