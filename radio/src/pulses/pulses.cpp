@@ -327,8 +327,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 #endif
 
     default:
-      // external module stopped, set period to 50ms (necessary for USB Joystick, for instance)
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 50000/*us*/);
+      // external module stopped, use default mixer period
+      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
       break;
   }
 }
@@ -500,7 +500,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
     default:
-      // internal module stopped, set internal period to 0 and start the scheduler
+      // internal module stopped, use default mixer period
       mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
       break;
   }
