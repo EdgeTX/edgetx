@@ -133,7 +133,7 @@ if [ "$(uname)" = "Darwin" ]; then
     cp *.dmg ${OUTDIR}
 elif [ "$(uname)" = "Linux" ]; then
     make -j${JOBS} package
-    cp *.deb ${OUTDIR}
+    cp *.AppImage ${OUTDIR}
 else
     make installer
     cp companion/*.exe ${OUTDIR}

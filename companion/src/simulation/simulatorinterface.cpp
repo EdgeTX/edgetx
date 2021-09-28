@@ -86,7 +86,7 @@ int SimulatorLoader::registerSimulators(const QDir & dir)
 
 void SimulatorLoader::registerSimulators()
 {
-  QDir dir(".");
+  QDir dir(QCoreApplication::applicationDirPath());
   if (registerSimulators(dir)) {
     return;
   }
@@ -100,9 +100,13 @@ void SimulatorLoader::registerSimulators()
   path.truncate(path.lastIndexOf('\\'));
   dir.setPath(path);
 #else
-  dir.setPath(SIMULATOR_LIB_SEARCH_PATH);
+  if (QDir::isAbsolutePath(SIMULATOR_LIB_SEARCH_PATH)) {
+    dir.setPath(SIMULATOR_LIB_SEARCH_PATH);
+  } else {
+    dir.setPath(QCoreApplication::applicationDirPath() + "/" SIMULATOR_LIB_SEARCH_PATH);
+  }
 #endif
-  registerSimulators(dir);
+  registerSimulators(dir.absolutePath());
 }
 
 void SimulatorLoader::unregisterSimulators()
