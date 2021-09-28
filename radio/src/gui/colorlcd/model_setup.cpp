@@ -1664,14 +1664,14 @@ void ModelSetupPage::build(FormWindow * window)
     // Pots and sliders warning
 #if NUM_POTS + NUM_SLIDERS 
     {
-      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE);
+      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), {"OFF", "ON", "AUTO"}, 0, 2,
                  GET_SET_DEFAULT(g_model.potsWarnMode));
       grid.nextLine();
 
 #if (NUM_POTS) 
       {
-        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING);
+        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
@@ -1705,7 +1705,7 @@ void ModelSetupPage::build(FormWindow * window)
 
 #if (NUM_SLIDERS) 
       {
-        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING);
+        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
