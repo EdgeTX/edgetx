@@ -76,6 +76,10 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
 
   if (fullscreen) {
     //TODO: forward to widget (lua for instance)
+
+    if(touchState.tapCount > 1) {
+      setFullscreen(false);
+    }
     return true;
   }
 
