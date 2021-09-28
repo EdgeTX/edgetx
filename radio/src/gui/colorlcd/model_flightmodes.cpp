@@ -144,7 +144,7 @@ void ModelFlightModesPage::build(FormWindow * window)
     // Flight mode switch
     if (i > 0) {
       if (! bNarrowScreen) {
-        new StaticText(group, getRightAlignedFieldSlot(grid, 3, 0), STR_SWITCH, 0, RIGHT | COLOR_THEME_PRIMARY1);
+        new StaticText(group, getRightAlignedFieldSlot(grid, 3, 1), STR_SWITCH, 0, RIGHT | COLOR_THEME_PRIMARY1);
         a = new SwitchChoice(group, grid.getFieldSlot(3, 2), SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(g_model.flightModeData[i].swtch));
       } 
       else {
