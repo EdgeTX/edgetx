@@ -26,25 +26,13 @@
 
 #include <QtCore>
 
-// identiying names of static abstract item models
-constexpr char AIM_EXPO_CARRYTRIM[]        {"expo.carrytrim"};
-
 class RadioDataConversionState;
-class AbstractStaticItemModel;
 
 enum InputMode {
   INPUT_MODE_NONE,
   INPUT_MODE_POS,
   INPUT_MODE_NEG,
   INPUT_MODE_BOTH
-};
-
-constexpr int CARRYTRIM_DEFAULT = {0};
-constexpr int CARRYTRIM_STICK_OFF = {1};
-
-enum CarryTrimGroups {
-  CarryTrimSticksGroup      = 0x001,
-  CarryTrimNotSticksGroup   = 0x002
 };
 
 #define EXPODATA_NAME_LEN  10
@@ -70,7 +58,4 @@ class ExpoData {
     void convert(RadioDataConversionState & cstate);
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ExpoData)); }
     bool isEmpty() const;
-    QString carryTrimToString() const;
-
-    static AbstractStaticItemModel * carryTrimItemModel();
 };
