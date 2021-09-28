@@ -41,12 +41,12 @@ void ModalWindow::deleteLater(bool detach, bool trash)
 
 void ModalWindow::paint(BitmapBuffer * dc)
 {
-  dc->drawFilledRect(0, 0, width(), height(), SOLID, COLOR_THEME_SECONDARY3, OPACITY(5));
+  dc->drawFilledRect(0, 0, width(), height(), SOLID, BLACK, OPACITY(6));
 }
 
 void ModalWindowContent::paint(BitmapBuffer * dc)
 {
-  dc->drawSolidFilledRect(0, 0, width(), POPUP_HEADER_HEIGHT, COLOR_THEME_FOCUS);
+  dc->drawSolidFilledRect(0, 0, width(), POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
   dc->drawText(FIELD_PADDING_LEFT, (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, title.c_str(), COLOR_THEME_PRIMARY2);
   dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, width(), height() - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
 }
