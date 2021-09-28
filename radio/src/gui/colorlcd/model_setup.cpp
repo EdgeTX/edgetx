@@ -810,23 +810,12 @@ class ModuleWindow : public FormGroup {
 
       // Module parameters
       if (isModuleXJT(moduleIdx)) {
-        rfChoice = new Choice(
+        auto xjtChoice = new Choice(
             this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
-            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_LAST,
-            GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-            [=](int32_t newValue) {
-              g_model.moduleData[moduleIdx].subType = newValue;
-              g_model.moduleData[moduleIdx].channelsStart = 0;
-              g_model.moduleData[moduleIdx].channelsCount =
-                  defaultModuleChannels_M8(moduleIdx);
-              SET_DIRTY();
-              update();
-              rfChoice->setFocus(SET_FOCUS_DEFAULT);
-            });
-
-        rfChoice->setAvailableHandler(
+            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_ACCST_LR12,
+            GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+        xjtChoice->setAvailableHandler(
             [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
-
       } else if (isModuleDSM2(moduleIdx)) {
         new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
                    DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
