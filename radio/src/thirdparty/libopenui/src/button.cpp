@@ -70,7 +70,7 @@ void Button::checkEvents()
 
 void TextButton::paint(BitmapBuffer * dc)
 {
-  auto textColor = COLOR_THEME_SECONDARY1;
+  auto textColor = getTextFlags();
   auto bgColor   = COLOR_THEME_SECONDARY2;
 
   if (bgColorHandler) {
@@ -79,6 +79,7 @@ void TextButton::paint(BitmapBuffer * dc)
     bgColor = COLOR_THEME_ACTIVE;
   } else if (hasFocus()) {
     bgColor = COLOR_THEME_FOCUS;
+    textColor = COLOR_THEME_PRIMARY2;
   }
 
   if (checked()) {
@@ -104,7 +105,7 @@ void TextButton::paint(BitmapBuffer * dc)
   }
 
   dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2,
-               text.c_str(), CENTERED | textFlags | textColor);
+               text.c_str(), CENTERED | textColor);
 }
 
 void IconButton::paint(BitmapBuffer * dc)

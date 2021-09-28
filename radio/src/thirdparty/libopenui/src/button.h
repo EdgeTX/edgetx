@@ -96,6 +96,7 @@ class TextButton: public Button
        Button(parent, rect, std::move(pressHandler), windowFlags, textFlags),
        text(std::move(text))
    {
+     setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
    }
 
 #if defined(DEBUG_WINDOWS)
