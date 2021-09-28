@@ -86,20 +86,23 @@ void FormField::setFocus(uint8_t flag, Window * from)
 
 void FormField::paint(BitmapBuffer * dc)
 {
-  if (editMode) {
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_EDIT);
-  }
-  else {
-
-    if (!(windowFlags & FORM_NO_BORDER)) {
-
-      if (hasFocus()) {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_FOCUS);
-      } else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
-        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
-      }
+  uint32_t bgColor = 0;
+  if (backgroundHandler) {
+    bgColor = backgroundHandler(this);
+  } else {
+    if (editMode) {
+      bgColor = COLOR_THEME_EDIT;
+    } else if (hasFocus()) {
+        bgColor = COLOR_THEME_FOCUS;
+    } else {
+      bgColor = COLOR_THEME_PRIMARY2;
     }
+  }
+
+  if (editMode || ! (windowFlags & FORM_NO_BORDER)) {
+    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
+    if (!editMode)
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 }
 
