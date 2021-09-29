@@ -214,6 +214,7 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   RMDir /r "$INSTDIR\platforms"
   RMDir /r "$INSTDIR\playlistformats"
   RMDir /r "$INSTDIR\printsupport"
+  RMDir /r "$INSTDIR\styles"
 
   RMDir "$INSTDIR"
 
