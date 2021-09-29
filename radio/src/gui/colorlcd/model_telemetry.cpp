@@ -24,9 +24,10 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static constexpr coord_t SENSOR_COL1 = 30;
+static constexpr coord_t SENSOR_LABEL_WIDTH = 80;
+static constexpr coord_t SENSOR_COL1 = 10;
 static constexpr coord_t SENSOR_COL2 = SENSOR_COL1 + 70;
-static constexpr coord_t SENSOR_COL3 = LCD_W - 50;
+static constexpr coord_t SENSOR_COL3 = LCD_W - SENSOR_LABEL_WIDTH - 30;  // 66 for label column 30 to move it to the right of the screen
 
 class SensorSourceChoice : public SourceChoice
 {
@@ -88,9 +89,7 @@ class SensorButton : public Button {
         dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, COLOR_THEME_PRIMARY2);
 
       if (telemetryItem.isFresh())
-        dc->drawFilledCircle(24, (2 + rect.h - 4)/2, 4, COLOR_THEME_SECONDARY1);
-
-      dc->drawNumber(2, 1, number, LEFT, 0, nullptr, ":");
+        dc->drawFilledCircle(SENSOR_COL2 - 10, (2 + rect.h - 4)/2, 4, COLOR_THEME_SECONDARY1);
 
       dc->drawSizedText(SENSOR_COL1, line1, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
 
@@ -444,17 +443,19 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   uint8_t sensorsCount = getTelemetrySensorsCount();
   if (sensorsCount > 0) {
     // put in the +14 and +17 to align the text correctly.  Not sure why we need this
-    new StaticText(window, {SENSOR_COL2 + 14, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
+    new StaticText(window, { SENSOR_LABEL_WIDTH + SENSOR_COL1, grid.getWindowHeight() + 3, SENSOR_COL2 - SENSOR_COL1, PAGE_LINE_HEIGHT}, STR_NAME, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
+    new StaticText(window, { SENSOR_LABEL_WIDTH + SENSOR_COL2, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
-      new StaticText(window, {SENSOR_COL3 + 17, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
+      new StaticText(window, { SENSOR_LABEL_WIDTH + SENSOR_COL3, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     }
   }
 
   grid.nextLine();
-  grid.setLabelWidth(PAGE_PADDING + PAGE_INDENT_WIDTH);
+  grid.setLabelWidth(SENSOR_LABEL_WIDTH);
 
   for (uint8_t idx = 0, count = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
     if (g_model.telemetrySensors[idx].isAvailable()) {
+      auto txt = new StaticText(window, grid.getLabelSlot(), std::to_string(idx), BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
       Button * button = new SensorButton(window, grid.getFieldSlot(), idx, ++count);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
@@ -484,6 +485,18 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
         });
         return 0;
       });
+      button->setFocusHandler([=](bool focus) {
+        if (focus) {
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        } else {
+          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
+          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+        }
+        txt->invalidate();
+      });
+
+
       if (focusSensorIndex == idx) {
         button->setFocus(SET_FOCUS_DEFAULT);
       }
