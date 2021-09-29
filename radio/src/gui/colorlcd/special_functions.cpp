@@ -462,18 +462,18 @@ class SpecialFunctionButton : public Button
     }
     uint8_t func = CFN_FUNC(cfn);
 
-    drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_PRIMARY1);
+    drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_SECONDARY1);
     if (cfn->isEmpty()) return;
 
-    dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_PRIMARY1);
+    dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_SECONDARY1);
     int16_t val_min = 0;
     int16_t val_max = 255;
 
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        drawChn(dc, col1, line2, CFN_CH_INDEX(cfn) + 1, COLOR_THEME_PRIMARY1);
+        drawChn(dc, col1, line2, CFN_CH_INDEX(cfn) + 1, COLOR_THEME_SECONDARY1);
         getMixSrcRange(MIXSRC_FIRST_CH, val_min, val_max);
-        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_TRAINER: {
@@ -485,77 +485,77 @@ class SpecialFunctionButton : public Button
           text = std::string(STR_CHANS);
         else
           text = TEXT_AT_INDEX(STR_VSRCRAW, value);
-        dc->drawText(col1, line2, text.c_str(), COLOR_THEME_PRIMARY1);
+        dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
         break;
       }
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-          dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+          dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         } else {
           TelemetrySensor *sensor =
               &g_model.telemetrySensors[CFN_PARAM(cfn) -
                                         FUNC_RESET_PARAM_FIRST_TELEM];
-          dc->drawSizedText(col1, line2, sensor->label, TELEM_LABEL_LEN, COLOR_THEME_PRIMARY1);
+          dc->drawSizedText(col1, line2, sensor->label, TELEM_LABEL_LEN, COLOR_THEME_SECONDARY1);
         }
         break;
 
       case FUNC_VOLUME:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_BACKLIGHT:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_PLAY_SOUND:
-        dc->drawTextAtIndex(col1, line2, STR_FUNCSOUNDS, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        dc->drawTextAtIndex(col1, line2, STR_FUNCSOUNDS, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
         if (ZEXIST(cfn->play.name))
-          dc->drawSizedText(col1, line2, cfn->play.name, sizeof(cfn->play.name), COLOR_THEME_PRIMARY1);
+          dc->drawSizedText(col1, line2, cfn->play.name, sizeof(cfn->play.name), COLOR_THEME_SECONDARY1);
         else
-          dc->drawTextAtIndex(col1, line2, STR_VCSWFUNC, 0, COLOR_THEME_PRIMARY1);
+          dc->drawTextAtIndex(col1, line2, STR_VCSWFUNC, 0, COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_SET_TIMER:
-        drawStringWithIndex(dc, col1, line2, STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, COLOR_THEME_PRIMARY1);
+        drawStringWithIndex(dc, col1, line2, STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_SET_FAILSAFE:
-        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_PLAY_VALUE:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_HAPTIC:
-        dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+        dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_LOGS:
-        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1 | PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
+        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1 | PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
         break;
 
       case FUNC_ADJUST_GVAR:
         switch(CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
-          dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+          dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_PRIMARY1);
+          drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
           break;
         case FUNC_ADJUST_GVAR_GVAR:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_PRIMARY1);
+          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_SECONDARY1);
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t value = CFN_PARAM(cfn);
           std::string text(value >= 0 ? "+= " : "-= ");
           text += std::to_string(abs(value));
-          dc->drawText(col1, line2, text.c_str(), COLOR_THEME_PRIMARY1);
+          dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
           break;
         }
         }
@@ -564,11 +564,11 @@ class SpecialFunctionButton : public Button
       theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col3, line2);
     } else if (HAS_REPEAT_PARAM(func)) {
       if (CFN_PLAY_REPEAT(cfn) == 0) {
-        dc->drawText(col3, line2, "1x", COLOR_THEME_PRIMARY1);
+        dc->drawText(col3, line2, "1x", COLOR_THEME_SECONDARY1);
       } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-        dc->drawText(col3, line2, "!1x", COLOR_THEME_PRIMARY1);
+        dc->drawText(col3, line2, "!1x", COLOR_THEME_SECONDARY1);
       } else {
-        dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_PRIMARY1 | RIGHT, 0, nullptr, "s");
+        dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "s");
       }
     }
   }
