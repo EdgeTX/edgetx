@@ -1016,7 +1016,7 @@
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
 #define TR_UNIT                "Unit"
-#define TR_TELEMETRY_NEWSENSOR INDENT "Add a new sensor..."
+#define TR_TELEMETRY_NEWSENSOR INDENT "Add..."
 #define TR_CHANNELRANGE        INDENT "Channel Range"
 #define TR_RXFREQUENCY         TR("Rx Freqency", "Rx Servo Frequency")
 #define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
@@ -1195,7 +1195,7 @@
 #define TR_SERVOS_KO           "Servos KO"
 #define TR_INVERTED_SERIAL     INDENT "Invert"
 #define TR_IGNORE_INSTANCE     INDENT "Ignore instance"
-#define TR_DISCOVER_SENSORS    "Discover new sensors"
+#define TR_DISCOVER_SENSORS    "Discover"
 #define TR_STOP_DISCOVER_SENSORS "Stop discovery"
 #define TR_DELETE_ALL_SENSORS  "Delete all sensors"
 #define TR_CONFIRMDELETE       "Really " LCDW_128_480_LINEBREAK "delete all ?"
