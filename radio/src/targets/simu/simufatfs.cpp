@@ -440,6 +440,8 @@ FRESULT f_opendir (DIR * rep, const TCHAR * name)
     TRACE_SIMPGMSPACE("f_opendir(%s) = OK", path.c_str());
     return FR_OK;
   }
+
+  rep->obj.fs = nullptr;
   TRACE_SIMPGMSPACE("f_opendir(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
   return FR_NO_PATH;
 }
