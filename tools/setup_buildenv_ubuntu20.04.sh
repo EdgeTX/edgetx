@@ -132,7 +132,7 @@ fi
 
 echo "=== Step $((STEP++)): Removing the downloaded archive and build folder of USB DFU host utility ==="
 rm dfu-util-0.11.tar.gz
-rm -rf dfu-util-0.10
+rm -rf dfu-util-0.11
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished."
 fi
