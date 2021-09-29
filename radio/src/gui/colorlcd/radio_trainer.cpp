@@ -96,9 +96,9 @@ void RadioTrainerPage::build(FormWindow * window)
 
   for (int i = 0; i < NUM_STICKS; i++) {
 #if defined (PPM_UNIT_PERCENT_PREC1)
-    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, 0, LEFT | PREC1);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) * 2; }, 0, LEFT | PREC1 | COLOR_THEME_PRIMARY1);
 #else
-    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, 0, LEFT);
+    auto calib = new StaticNumber(window, grid.getFieldSlot(4, i), [=]() { return (ppmInput[i]-g_eeGeneral.trainer.calib[i]) / 5; }, 0, LEFT | COLOR_THEME_PRIMARY1);
 #endif
 
     calib->setWindowFlags(REFRESH_ALWAYS);
