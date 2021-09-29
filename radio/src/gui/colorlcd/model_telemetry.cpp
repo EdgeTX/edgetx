@@ -443,9 +443,10 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   // Sensors columns titles
   uint8_t sensorsCount = getTelemetrySensorsCount();
   if (sensorsCount > 0) {
-    new StaticText(window, {SENSOR_COL2, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_DISABLED);
+    // put in the +14 and +17 to align the text correctly.  Not sure why we need this
+    new StaticText(window, {SENSOR_COL2 + 14, grid.getWindowHeight() + 3, SENSOR_COL3 - SENSOR_COL2, PAGE_LINE_HEIGHT}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
-      new StaticText(window, {SENSOR_COL3, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | COLOR_THEME_DISABLED);
+      new StaticText(window, {SENSOR_COL3 + 17, grid.getWindowHeight() + 3, LCD_W - SENSOR_COL3, PAGE_LINE_HEIGHT}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     }
   }
 

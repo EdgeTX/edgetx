@@ -261,10 +261,10 @@ class CurveButton : public Button {
       // curve characteristics
       if (isCurveUsed(index)) {
         CurveHeader &curve = g_model.curves[index];
-        dc->drawNumber(130, 5, 5 + curve.points, LEFT | COLOR_THEME_PRIMARY1, 0, nullptr, STR_PTS);
-        dc->drawTextAtIndex(130, 25, STR_CURVE_TYPES, curve.type, COLOR_THEME_PRIMARY1);
+        dc->drawNumber(130, 5, 5 + curve.points, LEFT | COLOR_THEME_SECONDARY1, 0, nullptr, STR_PTS);
+        dc->drawTextAtIndex(130, 25, STR_CURVE_TYPES, curve.type, COLOR_THEME_SECONDARY1);
         if (curve.smooth)
-          dc->drawText(130, 45, STR_SMOOTH, COLOR_THEME_PRIMARY1);
+          dc->drawText(130, 45, STR_SMOOTH, COLOR_THEME_SECONDARY1);
       }
     }
 
@@ -387,7 +387,6 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
                                    getCurveString(1 + index));
-
       button->setPressHandler([=]() {
         Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {

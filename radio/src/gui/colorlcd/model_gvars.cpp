@@ -25,7 +25,7 @@
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 #define TEXT_LEFT_MARGIN 2
-#define GVAR_NAME_SIZE 50
+#define GVAR_NAME_SIZE 45
 
 GVarButton::GVarButton(FormGroup * parent, const rect_t &rect, uint8_t gvar) :
   Button(parent, rect),
@@ -64,7 +64,7 @@ void GVarButton::paint(BitmapBuffer * dc)
   currentFlightMode = getFlightMode();
   gvarSum = 0;
 
-  LcdFlags bgColor = COLOR_THEME_PRIMARY2;
+  LcdFlags bgColor = COLOR_THEME_SECONDARY2;
   LcdFlags textColor = COLOR_THEME_PRIMARY1;
   if (hasFocus()) {
     bgColor   = COLOR_THEME_FOCUS;

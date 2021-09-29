@@ -810,23 +810,12 @@ class ModuleWindow : public FormGroup {
 
       // Module parameters
       if (isModuleXJT(moduleIdx)) {
-        rfChoice = new Choice(
+        auto xjtChoice = new Choice(
             this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
-            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_LAST,
-            GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-            [=](int32_t newValue) {
-              g_model.moduleData[moduleIdx].subType = newValue;
-              g_model.moduleData[moduleIdx].channelsStart = 0;
-              g_model.moduleData[moduleIdx].channelsCount =
-                  defaultModuleChannels_M8(moduleIdx);
-              SET_DIRTY();
-              update();
-              rfChoice->setFocus(SET_FOCUS_DEFAULT);
-            });
-
-        rfChoice->setAvailableHandler(
+            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_ACCST_LR12,
+            GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+        xjtChoice->setAvailableHandler(
             [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
-
       } else if (isModuleDSM2(moduleIdx)) {
         new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
                    DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
@@ -1664,14 +1653,14 @@ void ModelSetupPage::build(FormWindow * window)
     // Pots and sliders warning
 #if NUM_POTS + NUM_SLIDERS 
     {
-      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE);
+      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), {"OFF", "ON", "AUTO"}, 0, 2,
                  GET_SET_DEFAULT(g_model.potsWarnMode));
       grid.nextLine();
 
 #if (NUM_POTS) 
       {
-        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING);
+        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
@@ -1705,7 +1694,7 @@ void ModelSetupPage::build(FormWindow * window)
 
 #if (NUM_SLIDERS) 
       {
-        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING);
+        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);

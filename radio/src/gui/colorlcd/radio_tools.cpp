@@ -130,7 +130,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
               return 0;
             },
             OPAQUE);
-        b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+        b->setBgColorHandler([=]() {
+          return COLOR_THEME_PRIMARY2; 
+        });
         b->setFocusHandler([=](bool focus) {
           if (focus) {
             txt->setBackgroundColor(COLOR_THEME_FOCUS);

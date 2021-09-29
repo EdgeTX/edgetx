@@ -158,7 +158,6 @@ class FilePreview : public Window
     {
       coord_t y = parent->getScrollPositionY() + 2;
       coord_t h = MENU_BODY_HEIGHT - 4;
-      lcd->drawSolidFilledRect(0, y, width(), h, COLOR_THEME_DISABLED);
       if (bitmap) {
         coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
         coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
@@ -272,14 +271,14 @@ void RadioSdManagerPage::build(FormWindow * window)
     files.sort(compare_nocase);
     
     for (auto name: directories) {
-      auto b = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
           f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
           build(window);
           return 0;
-      }, OPAQUE);
-      b->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+      });
+
       grid.nextLine();
     }
 
@@ -418,8 +417,7 @@ void RadioSdManagerPage::build(FormWindow * window)
             });
           }
           return 0;
-      }, OPAQUE);
-      button->setBgColorHandler([=]() -> LcdFlags { return COLOR_THEME_PRIMARY2; });
+      }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       button->setFocusHandler([=](bool active) {
         if (active) {
           preview->setFile(getFullPath(name));
