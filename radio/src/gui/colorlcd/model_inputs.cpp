@@ -598,7 +598,6 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
                                    getSourceString(MIXSRC_FIRST_INPUT + input));
-      if (focusIndex == inputIndex) button->setFocus(SET_FOCUS_DEFAULT);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
         Menu *menu = new Menu(window);

@@ -129,7 +129,7 @@ void ViewMainMenu::paint(BitmapBuffer* dc)
   rect_t zone = carouselRect;
   zone.x -= 8; zone.y -= 8;
   zone.w += 16; zone.h += 16;
-  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, COLOR_THEME_PRIMARY1, OPACITY(5));
+  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, BLACK, OPACITY(4));
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)

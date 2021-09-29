@@ -42,18 +42,19 @@ void SelectFabButton::paint(BitmapBuffer* dc)
   auto pos = title.find('\n');
 
   auto y_pos = FAB_BUTTON_SIZE;
+  
   dc->drawSizedText(width() / 2, y_pos,
                     title.c_str(), pos,
-                    COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
+                    COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
 
   if (pos != std::string::npos) {
     y_pos += PAGE_LINE_HEIGHT;
     dc->drawSizedText(width() / 2, y_pos, title.substr(pos+1).c_str(),
-                      255, COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
+                      255, COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
   }
 
   if (hasFocus()) {
-    dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
+    dc->drawSolidRect(0, 0, width(), height(), 2, COLOR2FLAGS(WHITE));
   }
 }
 

@@ -38,7 +38,7 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
   setCloseWhenClickOutside(true);
 
   auto form = &content->form;
-  FormGridLayout grid(content->form.width());
+  FormGridLayout grid(content->form.width(), 10);
   grid.setLabelWidth(width() / 3);
   form->clear();
 
@@ -47,7 +47,7 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
   while (optPtr && optPtr->name != nullptr) {
 
     auto option = *optPtr;
-    new StaticText(form, grid.getLabelSlot(), option.name);
+    new StaticText(form, grid.getLabelSlot(), option.name, 0, COLOR_THEME_PRIMARY1);
 
     switch (option.type) {
 
