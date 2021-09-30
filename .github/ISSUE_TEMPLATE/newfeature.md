@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea to make EdgeTX even better!
-
+labels: enhancement
 ---
 *Before suggesting a new feature here, please search the open issue if there is already a request for the feature.
 You can add your comment there, or react so that we know know much interest there is in the feature request.*
