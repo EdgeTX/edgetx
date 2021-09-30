@@ -101,6 +101,15 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
   return Boards::getCapability(board, Board::Pots);
 }
 
+inline int MAX_XPOTS(Board::Type board, int version)
+{
+  if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
+    return 3;
+  if (IS_FAMILY_T12(board))
+    return 2;
+  return Boards::getCapability(board, Board::MultiposPots);
+}
+
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
   if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)))
@@ -195,7 +204,7 @@ class SwitchesConversionTable: public ConversionTable {
       }
 
       if (IS_HORUS_OR_TARANIS(board)) {
-        for (int i=1; i<=MAX_POTS(board, version)*6; i++) {
+        for (int i=1; i<=MAX_XPOTS(board, version)*6; i++) {
           addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, -i), -val+offset);
           addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, i), val++);
         }
