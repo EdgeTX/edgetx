@@ -26,6 +26,7 @@
 #include "topbar.h"
 #include "libopenui.h"
 #include "layouts/layout_factory_impl.h"
+#include "theme_manager.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -262,14 +263,35 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
 
 void ScreenUserInterfacePage::build(FormWindow * window)
 {
-  FormGridLayout grid;
+  FormGridLayout grid(LCD_W, 10);
 
+  
   // Theme choice
   new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
-  // TODO: Theme picklist
-  grid.nextLine();
+  auto tp = ThemePersistance::instance();
+  tp->refresh();
+  std::vector<std::string> names = tp->getNames();
+  names.insert(names.begin(), std::string("Default"));
 
-  // Theme options ?
+  new Choice(window, grid.getFieldSlot(), names, 0, names.size() - 1,
+    [=] () {
+      return tp->getCurrentTheme();
+    }, 
+    [=] (int value) { 
+      tp->setCurrentTheme(value);
+      if (value == 0) {
+        OpenTxTheme::instance()->load();
+        tp->deleteDefaultTheme();
+      } else {
+        tp->applyTheme(value - 1);
+        tp->setDefaultTheme(value - 1);
+      }
+    
+      window->clear();
+      build(window);
+    });
+
+  grid.nextLine();
 
   // Top Bar
   new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);

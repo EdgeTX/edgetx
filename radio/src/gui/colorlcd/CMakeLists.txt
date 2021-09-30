@@ -18,6 +18,7 @@ set(GUI_SRC
   curves.cpp
   bitmaps.cpp
   theme.cpp
+  theme_manager.cpp
   tabsgroup.cpp
   page.cpp
   fab_button.cpp

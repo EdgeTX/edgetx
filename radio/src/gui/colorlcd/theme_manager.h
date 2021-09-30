@@ -1,0 +1,126 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+#pragma once
+#include <stdlib.h>
+#include <list>
+#include "sdcard.h"
+#include "colors.h"
+#include "str_functions.h"
+
+class ThemePersistance;
+
+extern char * getWorkingDirectory();
+extern ThemePersistance themePersistance;
+
+struct ColorEntry
+{
+    LcdColorIndex colorNumber;
+    uint32_t colorValue;
+};
+
+class ThemeFile
+{
+ public:
+    ThemeFile(std::string themePath) :
+      path(themePath)
+    {
+        scanFile();
+    }
+
+    std::string getPath() { return path; }
+    std::string getName() { return name; }
+    std::string getAuthor() { return author; }
+    std::string getInfo() { return info; }
+    std::vector<ColorEntry> getColorList() { return colorList; }
+
+  protected:
+    FIL file;
+    std::string path;
+    std::string name;
+    std::string author;
+    std::string info;
+    std::vector<ColorEntry> colorList;
+
+
+    enum ScanState
+    {
+        none,
+        summary,
+        colors
+    };
+
+    void scanFile();
+    bool convertRGB(char *pColorRGB, uint32_t &color);
+    LcdColorIndex findColorIndex(char *name);
+    bool readNextLine(char * line, int maxlen);
+};
+
+
+class ThemePersistance
+{
+  public:
+    ThemePersistance()
+    {
+        scanForThemes();
+    }
+
+    static ThemePersistance *instance() {
+        return &themePersistance;
+    }
+
+    void loadDefaultTheme();
+    void setDefaultTheme(int index);
+    void deleteDefaultTheme();
+
+    std::vector<std::string> getNames()
+    {
+        std::vector<std::string> names;
+        for (auto theme:themes) {
+            names.emplace_back(theme->getName());
+        }
+
+        return names;
+    }
+
+    void applyTheme(int index) 
+    {
+        auto theme = themes[index];
+        auto colorTable = theme->getColorList();
+        for (auto color: colorTable) {
+            lcdColorTable[color.colorNumber] = color.colorValue;
+        }
+        OpenTxTheme::instance()->update(false);
+    }
+
+    inline int getCurrentTheme() {return currentTheme;}
+    inline void setCurrentTheme(int index) { currentTheme = index;}
+
+    void refresh()
+    {
+        scanForThemes();
+    }
+
+  protected:
+    std::vector<ThemeFile *> themes;
+    int currentTheme = 0;
+    void scanForThemes();
+};
+
