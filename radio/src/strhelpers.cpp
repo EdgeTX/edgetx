@@ -443,7 +443,17 @@ char * getSourceString(char * dest, mixsrc_t idx)
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       *dest++ = CHAR_LUA;
       // *dest++ = '1'+qr.quot;
-      strcpy(dest, scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+      char temp[64];
+      strcpy(temp, g_model.scriptsData[qr.quot].name);
+
+      if ( temp[0]== 0) {
+        sprintf( temp, "%d-%s/%s", qr.quot+1, g_model.scriptsData[qr.quot].file, scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+      }
+      else  {
+        sprintf( temp, "%s/%s", g_model.scriptsData[qr.quot].name, scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+      }
+
+      strcpy( dest, temp);
     }
 #else
     strcpy(dest, "N/A");
