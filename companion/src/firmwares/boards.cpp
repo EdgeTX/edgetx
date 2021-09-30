@@ -390,7 +390,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) + getCapability(board, Board::MouseAnalogs) + getCapability(board, Board::GyroAnalogs);
 
     case MultiposPots:
-      return IS_HORUS_OR_TARANIS(board) ? getCapability(board, Board::Pots) : 0;
+      if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board))
+        return getCapability(board, Board::Pots);
+      else
+        return 0;
 
     case MultiposPotsPositions:
       return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
