@@ -587,7 +587,7 @@
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " Zum Start"
   #define TR_SETMIDPOINT               "STICKS/SLIDERS/POTIS auf Mitte"
-  #define TR_MOVESTICKSPOTS            "STICKS/SLIDERS/POTIS" bewegen
+  #define TR_MOVESTICKSPOTS            "STICKS/SLIDERS/POTIS bewegen"
   #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Zum START"
