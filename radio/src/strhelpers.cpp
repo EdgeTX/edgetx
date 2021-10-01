@@ -442,15 +442,20 @@ char * getSourceString(char * dest, mixsrc_t idx)
     div_t qr = div(idx-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       *dest++ = CHAR_LUA;
-      // *dest++ = '1'+qr.quot;
-      char temp[64];
-      strcpy(temp, g_model.scriptsData[qr.quot].name);
+      // temporary string
+      #define MAX_CHAR  16
+      char temp[MAX_CHAR];
+      strncpy( temp, g_model.scriptsData[qr.quot].name, MAX_CHAR );
 
+      // instance Name is empty : dest = n-ScriptFileName/OutputName
       if ( temp[0]== 0) {
-        sprintf( temp, "%d-%s/%s", qr.quot+1, g_model.scriptsData[qr.quot].file, scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
-      }
-      else  {
-        sprintf( temp, "%s/%s", g_model.scriptsData[qr.quot].name, scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        snprintf( temp, MAX_CHAR, "%d-%s/%s", qr.quot+1,  
+                                              g_model.scriptsData[qr.quot].file, 
+                                              scriptInputsOutputs[qr.quot].outputs[qr.rem].name );
+      // instance Name is not empty : dest = InstanceName/OutputName
+      } else  {
+        snprintf( temp, MAX_CHAR, "%s/%s",  g_model.scriptsData[qr.quot].name, 
+                                            scriptInputsOutputs[qr.quot].outputs[qr.rem].name );
       }
 
       strcpy( dest, temp);
