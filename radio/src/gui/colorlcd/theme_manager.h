@@ -79,7 +79,6 @@ class ThemePersistance
   public:
     ThemePersistance()
     {
-        scanForThemes();
     }
 
     static ThemePersistance *instance() {

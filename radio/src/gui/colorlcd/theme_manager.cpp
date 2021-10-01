@@ -36,14 +36,17 @@ char *getWorkingDirectory()
 {
   static char path[FF_MAX_LFN + 1];  // TODO optimize that!
   f_getcwd((TCHAR *)path, FF_MAX_LFN);
+  if (path[strlen(path) - 1] != '/')
+    strncat(path, "/", FF_MAX_LFN);
+
   strncat(path, THEMES, FF_MAX_LFN);
   return path;
 }
 
 void ThemeFile::scanFile()
 {
-  char line[128 + 1];
-  char fullPath[256];
+  char line[256 + 1];
+  char fullPath[FF_MAX_LFN + 1];
   ScanState scanState = none;
 
   strcpy(fullPath, getWorkingDirectory());
@@ -52,7 +55,7 @@ void ThemeFile::scanFile()
   if (result != FR_OK) return;
 
   int lineNo = 1;
-  while (readNextLine(line, 128)) {
+  while (readNextLine(line, 256)) {
     int len = strlen(line);
     if (len == 0) continue;
 
@@ -187,11 +190,17 @@ bool ThemeFile::readNextLine(char *line, int maxlen)
 void ThemePersistance::scanForThemes()
 {
   themes.clear();
+  TRACE("in scanForThemes");
 
   DIR dir;
   FILINFO fno;
-  FRESULT res = f_opendir(&dir, getWorkingDirectory());  // Open the directory
+
+  char fullPath[FF_MAX_LFN+1];
+  strcpy(fullPath, "./");
+  strcat(fullPath, THEMES);
+  FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
   if (res == FR_OK) {
+    TRACE("scanForThemes: open successful");
     // read all entries
     bool firstTime = true;
     for (;;) {
@@ -203,6 +212,7 @@ void ThemePersistance::scanForThemes()
       if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
       if (fno.fattrib & AM_DIR) continue;
 
+      TRACE("scanForThemes: found file %s", fno.fname);
       std::string fname(fno.fname);
       auto found = fname.find('.');
       if (found != std::string::npos) {

@@ -280,8 +280,9 @@ void ScreenUserInterfacePage::build(FormWindow * window)
     [=] (int value) { 
       tp->setCurrentTheme(value);
       if (value == 0) {
+        tp->deleteDefaultTheme();  // this needs to be first
         OpenTxTheme::instance()->load();
-        tp->deleteDefaultTheme();
+        OpenTxTheme::instance()->update(false);
       } else {
         tp->applyTheme(value - 1);
         tp->setDefaultTheme(value - 1);
