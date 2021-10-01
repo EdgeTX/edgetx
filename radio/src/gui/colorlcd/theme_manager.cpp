@@ -30,7 +30,7 @@ static const char *conversionArray[COLOR_COUNT] = {
 };
 
 constexpr const char *RGBSTRING = "RGB(";
-constexpr const char *THEMES = "THEMES/";
+constexpr const char *THEMES = "THEMES";
 
 char *getWorkingDirectory()
 {
@@ -49,8 +49,10 @@ void ThemeFile::scanFile()
   char fullPath[FF_MAX_LFN + 1];
   ScanState scanState = none;
 
-  strcpy(fullPath, getWorkingDirectory());
-  strcat(fullPath, path.c_str());
+  strncpy(fullPath, getWorkingDirectory(), FF_MAX_LFN);
+  if (fullPath[strlen(fullPath) - 1] != '/')
+    strncat(fullPath, "/", FF_MAX_LFN);
+  strncat(fullPath, path.c_str(), FF_MAX_LFN);
   FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
 
@@ -198,6 +200,8 @@ void ThemePersistance::scanForThemes()
   char fullPath[FF_MAX_LFN+1];
   strcpy(fullPath, "./");
   strcat(fullPath, THEMES);
+
+  TRACE("opening directory: %s", fullPath);
   FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
   if (res == FR_OK) {
     TRACE("scanForThemes: open successful");
