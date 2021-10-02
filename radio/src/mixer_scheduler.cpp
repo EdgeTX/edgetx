@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -44,6 +45,11 @@ uint16_t getMixerSchedulerPeriod()
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (mixerSchedules[EXTERNAL_MODULE].period) {
     return mixerSchedules[EXTERNAL_MODULE].period;
+  }
+#endif
+#if defined(STM32) && !defined(SIMU)
+  if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+    return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
   }
 #endif
   return MIXER_SCHEDULER_DEFAULT_PERIOD_US;

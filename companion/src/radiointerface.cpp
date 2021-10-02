@@ -50,7 +50,7 @@ QStringList getDfuArgs(const QString & cmd, const QString & filename)
   if (cmd == "-U")
     args.last().append(":" % QString::number(Boards::getFlashSize(getCurrentBoard())));
   args << "--device" << "0483:df11";
-  args << "" << cmd % filename;
+  args << cmd % filename;
   return args;
 }
 

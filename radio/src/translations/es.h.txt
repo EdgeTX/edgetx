@@ -847,6 +847,10 @@
 #define TR_TIME                "Hora"
 #define TR_MAXBAUDRATE         "Máx bauds"
 
+#define TR_SAMPLE_MODE         "Modo de muestra"
+#define LEN_SAMPLE_MODES       "\006"
+#define TR_SAMPLE_MODES        "Normal""OneBit"
+
 #define TR_BLUETOOTH            "Bluetooth"
 #define TR_BLUETOOTH_DISC       "Buscar"
 #define TR_BLUETOOTH_INIT       "Init"

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -327,8 +328,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 #endif
 
     default:
-      // external module stopped, set period to 50ms (necessary for USB Joystick, for instance)
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 50000/*us*/);
+      // external module stopped, use default mixer period
+      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
       break;
   }
 }
@@ -500,7 +501,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
     default:
-      // internal module stopped, set internal period to 0 and start the scheduler
+      // internal module stopped, use default mixer period
       mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
       break;
   }

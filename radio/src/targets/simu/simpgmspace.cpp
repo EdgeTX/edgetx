@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -211,7 +212,25 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   }
 
 #if defined(RTCLOCK)
-  g_rtcTime = time(0);
+  time_t rawtime;
+  struct tm * timeinfo;
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+
+  if (timeinfo != nullptr) {
+    struct gtm gti;
+    gti.tm_sec  = timeinfo->tm_sec;
+    gti.tm_min  = timeinfo->tm_min;
+    gti.tm_hour = timeinfo->tm_hour;
+    gti.tm_mday = timeinfo->tm_mday;
+    gti.tm_mon  = timeinfo->tm_mon;
+    gti.tm_year = timeinfo->tm_year;
+    gti.tm_wday = timeinfo->tm_wday;
+    gti.tm_yday = timeinfo->tm_yday;
+    g_rtcTime = gmktime(&gti);
+  } else {
+    g_rtcTime = rawtime;
+  }
 #endif
 
 #if defined(SIMU_EXCEPTIONS)

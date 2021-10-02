@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -16,7 +17,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 /*
@@ -27,7 +27,6 @@
  *  \001 to \034     -extended spacing (value * FW/2)
  *  \0               -ends current string
  */
-
 
 #if defined(PCBX12S)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"6P\0" STR_CHAR_POT"S2\0" STR_CHAR_TRIM "L1\0" STR_CHAR_TRIM "L2\0" STR_CHAR_SLIDER"LS\0" STR_CHAR_SLIDER"RS\0" STR_CHAR_POT"JSx" STR_CHAR_POT"JSy"
