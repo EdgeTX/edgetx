@@ -26,7 +26,6 @@
 #include "str_functions.h"
 
 class ThemePersistance;
-
 extern char * getWorkingDirectory();
 extern ThemePersistance themePersistance;
 
@@ -42,14 +41,26 @@ class ThemeFile
     ThemeFile(std::string themePath) :
       path(themePath)
     {
-        scanFile();
+        if (themePath.size()) {
+            scanFile();
+        }
     }
 
     std::string getPath() { return path; }
     std::string getName() { return name; }
     std::string getAuthor() { return author; }
     std::string getInfo() { return info; }
+    
+    void setName(std::string name) { this->name = name; }
+    void setAuthor(std::string author) { this->author = author; }
+    void setInfo(std::string info) { this->info = info; }
+
     std::vector<ColorEntry> getColorList() { return colorList; }
+    void setColor(LcdColorIndex colorIndex, uint32_t color);
+
+    std::string getThemeImageFileName();
+
+    virtual void applyTheme();
 
   protected:
     FIL file;
@@ -69,7 +80,7 @@ class ThemeFile
 
     void scanFile();
     bool convertRGB(char *pColorRGB, uint32_t &color);
-    LcdColorIndex findColorIndex(char *name);
+    LcdColorIndex findColorIndex(const char *name);
     bool readNextLine(char * line, int maxlen);
 };
 
@@ -99,27 +110,29 @@ class ThemePersistance
         return names;
     }
 
-    void applyTheme(int index) 
+    void applyTheme(int index)
     {
         auto theme = themes[index];
-        auto colorTable = theme->getColorList();
-        for (auto color: colorTable) {
-            lcdColorTable[color.colorNumber] = color.colorValue;
-        }
-        OpenTxTheme::instance()->update(false);
+        theme->applyTheme();
     }
 
-    inline int getCurrentTheme() {return currentTheme;}
-    inline void setCurrentTheme(int index) { currentTheme = index;}
+    inline int getThemeIndex() {return currentTheme;}
+    inline void setThemeIndex(int index) { currentTheme = index;}
+
+    inline ThemeFile* getCurrentTheme() { return themes[currentTheme]; }
 
     void refresh()
     {
         scanForThemes();
+        insertDefaultTheme();
     }
 
   protected:
     std::vector<ThemeFile *> themes;
     int currentTheme = 0;
     void scanForThemes();
+    void insertDefaultTheme();
 };
+
+
 

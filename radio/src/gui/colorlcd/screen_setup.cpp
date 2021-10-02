@@ -27,6 +27,7 @@
 #include "libopenui.h"
 #include "layouts/layout_factory_impl.h"
 #include "theme_manager.h"
+#include "file_preview.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -265,35 +266,6 @@ void ScreenUserInterfacePage::build(FormWindow * window)
 {
   FormGridLayout grid(LCD_W, 10);
 
-  
-  // Theme choice
-  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
-  auto tp = ThemePersistance::instance();
-  tp->refresh();
-  std::vector<std::string> names = tp->getNames();
-  names.insert(names.begin(), std::string("Default"));
-
-  new Choice(window, grid.getFieldSlot(), names, 0, names.size() - 1,
-    [=] () {
-      return tp->getCurrentTheme();
-    }, 
-    [=] (int value) { 
-      tp->setCurrentTheme(value);
-      if (value == 0) {
-        tp->deleteDefaultTheme();  // this needs to be first
-        OpenTxTheme::instance()->load();
-        OpenTxTheme::instance()->update(false);
-      } else {
-        tp->applyTheme(value - 1);
-        tp->setDefaultTheme(value - 1);
-      }
-    
-      window->clear();
-      build(window);
-    });
-
-  grid.nextLine();
-
   // Top Bar
   new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
 
@@ -303,6 +275,56 @@ void ScreenUserInterfacePage::build(FormWindow * window)
       new SetupTopBarWidgetsPage(menu);
       return 0;
   });
+
+  grid.nextLine();
+  grid.spacer(8);
+
+  // Theme choice
+  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
+  auto tp = ThemePersistance::instance();
+  tp->refresh();
+  std::vector<std::string> names = tp->getNames();
+  new Choice(window, grid.getFieldSlot(), names, 0, names.size() - 1,
+    [=] () {
+      return tp->getThemeIndex();
+    }, 
+    [=] (int value) { 
+      tp->setThemeIndex(value);
+      tp->applyTheme(value);
+      tp->setDefaultTheme(value);
+
+      window->clear();
+      build(window);
+    });
+
+  grid.nextLine();
+  auto theme = tp->getCurrentTheme();
+  auto themeImage = theme->getThemeImageFileName();
+  auto preview = new FilePreview(window, {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()});
+  preview->setFile(themeImage.c_str());
+
+  grid.spacer(8);
+
+  new StaticText(window, grid.getLabelSlot(), "Author", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot(), theme->getAuthor(), 0, COLOR_THEME_PRIMARY1);
+  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot(), "Description", 0, COLOR_THEME_PRIMARY1  | FONT(BOLD));
+  grid.nextLine();
+
+  std::string info = theme->getInfo();
+  for (int i = 1; i < 500; i++) {
+    if (info.size() > 30 * i)
+      info.insert((i * 30), "\n");
+    else 
+      break;
+  }
+
+  rect_t r = grid.getLabelSlot();
+  r.h += 50;
+  new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
+
+  window->setInnerHeight(grid.getWindowHeight());
 }
 
 ScreenAddPage::ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex):

@@ -36,11 +36,26 @@ char *getWorkingDirectory()
 {
   static char path[FF_MAX_LFN + 1];  // TODO optimize that!
   f_getcwd((TCHAR *)path, FF_MAX_LFN);
-  if (path[strlen(path) - 1] != '/')
-    strncat(path, "/", FF_MAX_LFN);
+  if (path[strlen(path) - 1] != '/') strncat(path, "/", FF_MAX_LFN);
 
   strncat(path, THEMES, FF_MAX_LFN);
   return path;
+}
+
+std::string ThemeFile::getThemeImageFileName()
+{
+  char fullPath[FF_MAX_LFN + 1];
+  strncpy(fullPath, getWorkingDirectory(), FF_MAX_LFN);
+  if (fullPath[strlen(fullPath) - 1] != '/') 
+    strncat(fullPath, "/", FF_MAX_LFN);
+  
+  auto found = path.find('.');
+  if (found != std::string::npos) {
+    auto baseFileName(fullPath + path.substr(0, found) + ".png");
+    return baseFileName;
+  }
+
+  return "";
 }
 
 void ThemeFile::scanFile()
@@ -50,8 +65,7 @@ void ThemeFile::scanFile()
   ScanState scanState = none;
 
   strncpy(fullPath, getWorkingDirectory(), FF_MAX_LFN);
-  if (fullPath[strlen(fullPath) - 1] != '/')
-    strncat(fullPath, "/", FF_MAX_LFN);
+  if (fullPath[strlen(fullPath) - 1] != '/') strncat(fullPath, "/", FF_MAX_LFN);
   strncat(fullPath, path.c_str(), FF_MAX_LFN);
   FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
@@ -64,8 +78,7 @@ void ThemeFile::scanFile()
     if (lineNo == 1 && len != 3 && strcmp(line, "---") != 0) {
       TRACE("invalid yml file at line %d", lineNo);
       return;
-    } 
-    else if (lineNo != 1) {
+    } else if (lineNo != 1) {
       if (line[0] != ' ' && line[0] != '\t') {
         char *pline = trim(line);
         if (line[strlen(line) - 1] != ':') {
@@ -92,7 +105,7 @@ void ThemeFile::scanFile()
 
       strncpy(lvalue, line, ptr - line);
       lvalue[ptr - line] = '\0';
-      strcpy(rvalue, ptr + 1);
+      strncpy(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
       prvalue = trim(rvalue);
 
@@ -158,7 +171,7 @@ bool ThemeFile::convertRGB(char *pColorRGB, uint32_t &color)
   return false;
 }
 
-LcdColorIndex ThemeFile::findColorIndex(char *name)
+LcdColorIndex ThemeFile::findColorIndex(const char *name)
 {
   int i;
   for (i = 0; i < COLOR_COUNT; i++) {
@@ -189,15 +202,30 @@ bool ThemeFile::readNextLine(char *line, int maxlen)
   return false;
 }
 
+void ThemeFile::setColor(LcdColorIndex colorIndex, uint32_t color)
+{
+  if (colorIndex >= DEFAULT_COLOR_INDEX && colorIndex < LCD_COLOR_COUNT) {
+    colorList.emplace_back(ColorEntry {colorIndex, color});
+  }
+}
+
+void ThemeFile::applyTheme()
+{
+  for (auto color: colorList) {
+      lcdColorTable[color.colorNumber] = color.colorValue;
+  }
+  OpenTxTheme::instance()->update(false);
+}
+
 void ThemePersistance::scanForThemes()
 {
-  themes.clear();
   TRACE("in scanForThemes");
+  themes.clear();
 
   DIR dir;
   FILINFO fno;
 
-  char fullPath[FF_MAX_LFN+1];
+  char fullPath[FF_MAX_LFN + 1];
   strcpy(fullPath, "./");
   strcat(fullPath, THEMES);
 
@@ -230,63 +258,102 @@ void ThemePersistance::scanForThemes()
   }
 }
 
+void ThemePersistance::loadDefaultTheme()
+{
+  FIL file;
+  char fullPath[128];
+  strcpy(fullPath, getWorkingDirectory());
+  if (fullPath[strlen(fullPath) - 1] != '/')
+    strcat(fullPath, "/");
+  strcat(fullPath, "selectedtheme.txt");
 
-    void ThemePersistance::loadDefaultTheme()
-    {
-      FIL file;
-      char fullPath[128];
-      strcpy(fullPath, getWorkingDirectory());
-      strcat(fullPath, "defaulttheme.txt");
+  FRESULT status = f_open(&file, fullPath, FA_READ);
+  if (status != FR_OK) return;
 
-      FRESULT status = f_open(&file, fullPath, FA_READ);
-      if (status != FR_OK)
-        return;
+  char line[256];
+  uint len;
+  status = f_read(&file, line, 256, &len);
+  if (status == FR_OK) {
+    refresh();
 
-      char line[256];
-      uint len;
-      status = f_read(&file, line, 256, &len);
-      if (status == FR_OK) {
-        refresh();
+    line[len] = '\0';
 
-        line[len] = '\0';
-
-        int index = 0;
-        for (auto theme:themes) {
-          if (theme->getPath() == std::string(line)) {
-            applyTheme(index);
-            setCurrentTheme(index+1);
-          }
-
-          index++;
-        }
+    int index = 0;
+    for (auto theme : themes) {
+      if (theme->getPath() == std::string(line)) {
+        applyTheme(index);
+        setThemeIndex(index);
       }
-      f_close(&file);
-    }
 
-    void ThemePersistance::deleteDefaultTheme()
+      index++;
+    }
+  }
+  f_close(&file);
+}
+
+void ThemePersistance::deleteDefaultTheme()
+{
+  char fullPath[128];
+  strcpy(fullPath, getWorkingDirectory());
+  if (fullPath[strlen(fullPath) - 1] != '/')
+    strcat(fullPath, "/");
+  strcat(fullPath, "selectedtheme.txt");
+  FIL file;
+
+  FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  if (status == FR_OK) f_close(&file);
+}
+
+void ThemePersistance::setDefaultTheme(int index)
+{
+  char fullPath[128];
+  strcpy(fullPath, getWorkingDirectory());
+  if (fullPath[strlen(fullPath) - 1] != '/')
+    strcat(fullPath, "/");
+  strcat(fullPath, "selectedtheme.txt");
+  FIL file;
+
+  auto theme = themes[index];
+  FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  if (status != FR_OK) return;
+
+  f_printf(&file, theme->getPath().c_str());
+  f_close(&file);
+}
+
+class DefaultEdgeTxTheme : public ThemeFile
+{
+  public:
+    DefaultEdgeTxTheme() : ThemeFile("")
     {
-      char fullPath[128];
-      strcpy(fullPath, getWorkingDirectory());
-      strcat(fullPath, "defaulttheme.txt");
-      FIL file;
-
-      FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
-      if (status == FR_OK)
-        f_close(&file);
+      setName("EdgeTX Default");
+      setAuthor("EdgeTX Team");
+      setInfo("Default EdgeTX Color Scheme");
     }
 
-    void ThemePersistance::setDefaultTheme(int index)
+    void applyTheme() override
     {
-        char fullPath[128];
-        strcpy(fullPath, getWorkingDirectory());
-        strcat(fullPath, "defaulttheme.txt");
-        FIL file;
+      lcdColorTable[DEFAULT_COLOR_INDEX] = RGB(18, 94, 153);
 
-        auto theme = themes[index];
-        FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
-        if (status != FR_OK)
-            return;
-
-        f_printf(&file, theme->getPath().c_str());
-        f_close(&file);
+      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
+      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
+      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
+      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
+      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
+      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
+      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
+      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
+      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
+      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
+      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
+      lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
+      
+      OpenTxTheme::instance()->update(false);
     }
+};
+
+void ThemePersistance::insertDefaultTheme()
+{
+  auto themeFile = new DefaultEdgeTxTheme();
+  themes.insert(themes.begin(), themeFile);
+}

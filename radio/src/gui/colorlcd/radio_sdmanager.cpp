@@ -27,6 +27,7 @@
 #include "standalone_lua.h"
 #include "sdcard.h"
 #include "view_text.h"
+#include "file_preview.h"
 
 class FileNameEditWindow : public Page
 {
@@ -127,48 +128,6 @@ char * getCurrentPath()
   return path;
 }
 
-class FilePreview : public Window
-{
-  public:
-    FilePreview(Window *parent, const rect_t &rect) :
-            Window(parent, rect, NO_SCROLLBAR)
-    {
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "FilePreview";
-    }
-#endif
-
-    void setFile(const char *filename)
-    {
-      delete bitmap;
-      const char *ext = getFileExtension(filename);
-      if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
-        bitmap = BitmapBuffer::loadBitmap(filename);
-      } else {
-        bitmap = nullptr;
-      }
-      invalidate();
-    }
-
-    void paint(BitmapBuffer *dc) override
-    {
-      coord_t y = parent->getScrollPositionY() + 2;
-      coord_t h = MENU_BODY_HEIGHT - 4;
-      if (bitmap) {
-        coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
-        coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
-        dc->drawScaledBitmap(bitmap, (width() - bitmapWidth) / 2, y + (h - bitmapHeight) / 2, bitmapWidth,
-                             bitmapHeight);
-      }
-    }
-
-  protected:
-    BitmapBuffer *bitmap = nullptr;
-};
 
 template <class T>
 class FlashDialog: public FullScreenDialog
