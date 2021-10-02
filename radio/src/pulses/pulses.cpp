@@ -584,8 +584,8 @@ bool setupPulsesInternalModule()
 
   if (moduleState[INTERNAL_MODULE].protocol != protocol) {
     intmoduleStop();
-    moduleState[INTERNAL_MODULE].protocol = protocol;
     enablePulsesInternalModule(protocol);
+    moduleState[INTERNAL_MODULE].protocol = protocol;
     return false;
   }
   else {
@@ -612,8 +612,8 @@ bool setupPulsesExternalModule()
 
   if (moduleState[EXTERNAL_MODULE].protocol != protocol) {
     extmoduleStop();
-    moduleState[EXTERNAL_MODULE].protocol = protocol;
     enablePulsesExternalModule(protocol);
+    moduleState[EXTERNAL_MODULE].protocol = protocol;
     return false;
   }
   else {
