@@ -21,7 +21,6 @@
  * The content of this file partially stems from STM32F4 HAL by STMicroelectronics.
  */
 
-
 #pragma once
 
 #include <stdint.h>

@@ -1,13 +1,13 @@
 /*
- * Authors (alphabetical order)
- * - Bertrand Songis <bsongis@gmail.com>
- * - Martin Hotar <mhotar@gmail.com>
+ * Copyright (C) EdgeTX
  *
- * opentx is based on code named
- * gruvin9x by Bryan J. Rentoul: http://code.google.com/p/gruvin9x/,
- * er9x by Erez Raviv: http://code.google.com/p/er9x/,
- * and the original (and ongoing) project by
- * Thomas Husterer, th9x: http://code.google.com/p/th9x/
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,7 +17,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 #include "opentx.h"

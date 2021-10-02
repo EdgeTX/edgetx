@@ -1,8 +1,7 @@
 /*
- * Authors (alphabetical order)
- * - Ziyu Ren
+ * Copyright (C) EdgeTX
  *
- * EdgeTX is Based on code named
+ * Based on code named
  *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
