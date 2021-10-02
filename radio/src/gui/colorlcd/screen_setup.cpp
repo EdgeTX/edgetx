@@ -181,7 +181,7 @@ class SetupWidgetsPage: public FormWindow
 
 #if defined(HARDWARE_TOUCH)
       new Button(
-          this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
+          this, {0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT},
           [this]() -> uint8_t {
             this->deleteLater();
             return 1;
