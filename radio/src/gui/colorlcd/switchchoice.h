@@ -18,6 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #ifndef _SWITCHCHOICE_H_
 #define _SWITCHCHOICE_H_
 
