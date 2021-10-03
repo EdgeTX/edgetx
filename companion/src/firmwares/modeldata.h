@@ -146,7 +146,7 @@ class ModelData {
     unsigned int  rssiSource;
     RSSIAlarmData rssiAlarms;
 
-    char bitmap[CPN_MAX_BITMAP_LEN+1];
+    char bitmap[CPN_MAX_BITMAP_LEN + 1];
 
     unsigned int trainerMode;  // TrainerMode
 
