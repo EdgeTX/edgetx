@@ -115,8 +115,9 @@ void ThemeFile::scanFile()
           if (colorIndex >= 0) {
             uint32_t color;
             if (convertRGB(prvalue, color))
-              colorList.emplace_back(
-                  ColorEntry{(LcdColorIndex)colorIndex, color});
+              colorList.emplace_back(ColorEntry{(LcdColorIndex)colorIndex, color});
+            else
+              TRACE("Theme: Could not convert color value");
           }
         } break;
 
@@ -137,37 +138,55 @@ void ThemeFile::scanFile()
   f_close(&file);
 }
 
+#define HEX_COLOR_VALUE_LEN 8
+
 bool ThemeFile::convertRGB(char *pColorRGB, uint32_t &color)
 {
   if (strlen(pColorRGB) < strlen(RGBSTRING)) return false;
-  if (strncmp(pColorRGB, RGBSTRING, strlen(RGBSTRING)) != 0) return false;
-  if (pColorRGB[strlen(pColorRGB) - 1] != ')') return false;
 
-  pColorRGB[strlen(pColorRGB) - 1] = '\0';
+  if (strncmp(pColorRGB, RGBSTRING, strlen(RGBSTRING)) == 0) {
+    if (pColorRGB[strlen(pColorRGB) - 1] != ')') return false;
 
-  pColorRGB += strlen(RGBSTRING);
-  if (strlen(pColorRGB)) {
-    char *token = nullptr;
-    int numTokens = 0;
-    uint32_t tokens[3];
+    pColorRGB[strlen(pColorRGB) - 1] = '\0';
+    pColorRGB += strlen(RGBSTRING);
+    if (strlen(pColorRGB)) {
+      char *token = nullptr;
+      int numTokens = 0;
+      uint32_t tokens[3];
 
-    token = strtok(pColorRGB, ",");
-    while (token != nullptr) {
-      if (numTokens < 3) {
-        tokens[numTokens] = strtol(token, nullptr, 0);
-        numTokens++;
-      } else
-        break;
+      token = strtok(pColorRGB, ",");
+      while (token != nullptr) {
+        if (numTokens < 3) {
+          tokens[numTokens] = strtol(token, nullptr, 0);
+          numTokens++;
+        } else
+          break;
 
-      token = strtok(nullptr, ",");
+        token = strtok(nullptr, ",");
+      }
+
+      if (numTokens != 3) return false;
+
+      color = RGB(tokens[0], tokens[1], tokens[2]);
+      return true;
     }
-
-    if (numTokens != 3) return false;
+  } else if (pColorRGB[0] == '0' && pColorRGB[1] == 'x') {
+    if (strlen(pColorRGB) != HEX_COLOR_VALUE_LEN) return false;
+    pColorRGB += 2;
+    uint32_t tokens[3];
+    char hexVal[3];
+    for (int i = 0; i < 3; i++) {
+      strncpy(hexVal, pColorRGB, 2);
+      hexVal[2] = '\0';
+      tokens[i] = strtol(hexVal, nullptr, 16);
+      pColorRGB += 2;
+    }
 
     color = RGB(tokens[0], tokens[1], tokens[2]);
     return true;
   }
 
+  TRACE("Theme: Invalid color value");
   return false;
 }
 
