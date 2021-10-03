@@ -103,7 +103,7 @@ void ThemeFile::scanFile()
       char *plvalue;
       char *prvalue;
 
-      strncpy(lvalue, line, ptr - line);
+      strncpy(lvalue, line, min((int)(ptr - line), 63));
       lvalue[ptr - line] = '\0';
       strncpy(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
