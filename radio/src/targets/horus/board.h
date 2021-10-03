@@ -146,7 +146,26 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 void SDRAM_Init();
 
 // Pulses driver
-#define INTERNAL_MODULE_ON()           GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#if defined(RADIO_T18)
+
+// TX18S Workaround (see https://github.com/EdgeTX/edgetx/issues/802):
+//   Add some delay after turning the internal module ON
+//   on the T18 / TX18S, as the latter seems to have issues
+//   with power supply showing instability
+//
+#define INTERNAL_MODULE_ON()                                  \
+  do {                                                        \
+    GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN); \
+    delay_ms(1);                                              \
+  } while (0)
+
+#else
+
+// Just turn the modue ON for all other targets
+#define INTERNAL_MODULE_ON() \
+  GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+
+#endif
 
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
   #define HARDWARE_INTERNAL_RAS
