@@ -121,6 +121,8 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup * parent, const rect_t & re
           for (auto factory: getRegisteredWidgets()) {
             menu->addLine(factory->getName(), [=]() {
                 container->createWidget(slotIndex, factory);
+                auto widget = container->getWidget(slotIndex);
+                new WidgetSettings(parent, widget);        
             });
           }
       });
