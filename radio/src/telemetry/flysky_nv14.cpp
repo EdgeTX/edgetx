@@ -85,16 +85,15 @@ extern uint32_t NV14internalModuleFwVersion;
 
 extern int32_t getALT(uint32_t value);
 
-
 signed short CalculateAltitude(unsigned int pressure)
 {
-  int32_t alt = getALT(pressure|(700 >> 19));
+  int32_t alt = getALT(pressure | (700 >> 19));
   return alt;
 }
 
 const FlyskyNv14Sensor* getFlyskyNv14Sensor(uint16_t id, uint8_t subId)
 {
-  for(const FlyskyNv14Sensor* sensor = Nv14Sensor; sensor->id; sensor++ ){
+  for (const FlyskyNv14Sensor* sensor = Nv14Sensor; sensor->id; sensor++) {
     if (sensor->id == id && sensor->subId == subId) {
       return sensor;
     }
@@ -102,30 +101,37 @@ const FlyskyNv14Sensor* getFlyskyNv14Sensor(uint16_t id, uint8_t subId)
   return &defaultNv14Sensor;
 }
 
-void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId, uint8_t instance)
+void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
+                          uint8_t instance)
 {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    telemetrySensor.id = id;
-    telemetrySensor.subId = subId;
-    telemetrySensor.instance = instance;
-    const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
-    telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
-    if (sensor->unit == UNIT_RPMS) {
-      telemetrySensor.custom.ratio = 1;
-      telemetrySensor.custom.offset = 1;
-    }    
-    storageDirty(EE_MODEL);
+  TelemetrySensor& telemetrySensor = g_model.telemetrySensors[index];
+  telemetrySensor.id = id;
+  telemetrySensor.subId = subId;
+  telemetrySensor.instance = instance;
+  const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
+  telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
+  if (sensor->unit == UNIT_RPMS) {
+    telemetrySensor.custom.ratio = 1;
+    telemetrySensor.custom.offset = 1;
+  }
+  storageDirty(EE_MODEL);
 }
 
-int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor, const uint8_t * data){
+int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
+                                 const uint8_t* data)
+{
   int32_t value = 0;
-  const nv14SensorData* sensorData = reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
-  if(sensor->bytes == 1) value = sensorData->UINT8;
-  else if(sensor->bytes == 2) value = sensor->issigned ? sensorData->INT16 : sensorData->UINT16;
-  else if(sensor->bytes == 4) value = sensorData->UINT32;
+  const nv14SensorData* sensorData =
+      reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
+  if (sensor->bytes == 1)
+    value = sensorData->UINT8;
+  else if (sensor->bytes == 2)
+    value = sensor->issigned ? sensorData->INT16 : sensorData->UINT16;
+  else if (sensor->bytes == 4)
+    value = sensorData->UINT32;
 
-  if(sensor->id == FLYSKY_SENSOR_RX_RSSI) {
-    if(value < -200) value = -200;
+  if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
+    if (value < -200) value = -200;
 #if defined(PCBNV14)
     if (!g_model.rssiAlarms.flysky_telemetry)
 #endif
@@ -135,78 +141,86 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor, const uint8_t *
     }
     telemetryData.rssi.set(value);
   }
-  if(sensor->id == FLYSKY_SENSOR_PRESURRE && sensor->subId != 0){
+  if (sensor->id == FLYSKY_SENSOR_PRESURRE && sensor->subId != 0) {
     value = CalculateAltitude(value);
   }
   return value;
 }
 
 // Module pulse synchronization
-#define SAFE_SYNC_LAG          800 /* us */
-#define SYNC_UPDATE_TIMEOUT    200 /* *10ms */
-#define AFHDS2_SYNC_SAMPLES         8
-#define AFHDS2_NEGATIVE_SYNC_LIMIT  (AFHDS2_PERIOD - SAFE_SYNC_LAG)
+#define SAFE_SYNC_LAG 800       /* us */
+#define SYNC_UPDATE_TIMEOUT 200 /* *10ms */
+#define AFHDS2_SYNC_SAMPLES 8
+#define AFHDS2_NEGATIVE_SYNC_LIMIT (AFHDS2_PERIOD - SAFE_SYNC_LAG)
 
-int16_t syncAfhds2min=0;
-int16_t syncAfhds2max=0;
+int16_t syncAfhds2min = 0;
+int16_t syncAfhds2max = 0;
 unsigned currentSyncIndex;
 
-void flySkyNv14Sync(int16_t delayValue) {
-  if(delayValue > AFHDS2_NEGATIVE_SYNC_LIMIT) {
-     delayValue -= AFHDS2_PERIOD;
+void flySkyNv14Sync(int16_t delayValue)
+{
+  if (delayValue > AFHDS2_NEGATIVE_SYNC_LIMIT) {
+    delayValue -= AFHDS2_PERIOD;
   }
   if (currentSyncIndex == 0) {
     syncAfhds2min = AFHDS2_PERIOD;
     syncAfhds2max = -SAFE_SYNC_LAG;
   }
 
-  if(delayValue > syncAfhds2max) {
+  if (delayValue > syncAfhds2max) {
     syncAfhds2max = delayValue;
   }
-  if(delayValue < syncAfhds2min) {
+  if (delayValue < syncAfhds2min) {
     syncAfhds2min = delayValue;
   }
   if (currentSyncIndex++ == AFHDS2_SYNC_SAMPLES) {
     currentSyncIndex = 0;
-    //check against to late delivered frames up to 800us, some frames still in range
+    // check against to late delivered frames up to 800us, some frames still in
+    // range
     if (syncAfhds2min < 0 && syncAfhds2max < SAFE_SYNC_LAG) {
-      getModuleSyncStatus(INTERNAL_MODULE).update(AFHDS2_PERIOD, (syncAfhds2min-100)+SAFE_SYNC_LAG);
-    }
-    else if(syncAfhds2max > SAFE_SYNC_LAG + 100) { // > 900us
-      if (syncAfhds2min > 100) { //never sync if last registred value is below 100us - we are to close to perfect time
-        getModuleSyncStatus(INTERNAL_MODULE).update(AFHDS2_PERIOD, (syncAfhds2min-100)+SAFE_SYNC_LAG);
-      }
-      else if (syncAfhds2min < 0) {
-        getModuleSyncStatus(INTERNAL_MODULE).update(AFHDS2_PERIOD, (syncAfhds2max-900)+SAFE_SYNC_LAG);
+      getModuleSyncStatus(INTERNAL_MODULE)
+          .update(AFHDS2_PERIOD, (syncAfhds2min - 100) + SAFE_SYNC_LAG);
+    } else if (syncAfhds2max > SAFE_SYNC_LAG + 100) {  // > 900us
+      if (syncAfhds2min > 100) {  // never sync if last registred value is below
+                                  // 100us - we are to close to perfect time
+        getModuleSyncStatus(INTERNAL_MODULE)
+            .update(AFHDS2_PERIOD, (syncAfhds2min - 100) + SAFE_SYNC_LAG);
+      } else if (syncAfhds2min < 0) {
+        getModuleSyncStatus(INTERNAL_MODULE)
+            .update(AFHDS2_PERIOD, (syncAfhds2max - 900) + SAFE_SYNC_LAG);
       }
     }
   }
 }
-void flySkyNv14ProcessTelemetryPacket(const uint8_t * ptr, uint8_t size)
-{ 
+
+void flySkyNv14ProcessTelemetryPacket(const uint8_t* ptr, uint8_t size)
+{
   uint8_t sensorID = ptr[0];
   uint8_t instnace = ptr[1];
   int sensorCount = 0;
-  if(sensorID != FLYSKY_SENSOR_SYNC) sensorCount++;
-  
-  //native telemetry for 1.1.2
-  if(NV14internalModuleFwVersion >= 0x010102) {
-    if(sensorID == FLYSKY_SENSOR_SYNC) flySkyNv14Sync((int16_t)(ptr[3] << 8 | ptr[2]));
+  if (sensorID != FLYSKY_SENSOR_SYNC) sensorCount++;
+
+  // native telemetry for 1.1.2
+  if (NV14internalModuleFwVersion >= 0x010102) {
+    if (sensorID == FLYSKY_SENSOR_SYNC)
+      flySkyNv14Sync((int16_t)(ptr[3] << 8 | ptr[2]));
     uint8_t frameType = 0xAA;
     if (size > 4) {
       frameType = 0xAC;
-    } else if(size != 4) {
+    } else if (size != 4) {
       return;
-    } 
+    }
     processFlySkySensor(ptr, frameType);
-  }
-  else {
-    if(sensorID == FLYSKY_SENSOR_RX_VOLTAGE) sensorID = FLYSKY_FIXED_RX_VOLTAGE;
+  } else {
+    if (sensorID == FLYSKY_SENSOR_RX_VOLTAGE)
+      sensorID = FLYSKY_FIXED_RX_VOLTAGE;
     for (const FlyskyNv14Sensor* sensor = Nv14Sensor; sensor->id; sensor++) {
       if (sensor->id == sensorID) {
         int32_t value = GetSensorValueFlySkyNv14(sensor, ptr + 2);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor->id, sensor->subId, instnace, value, sensor->unit, sensor->precision);
-        if(sensor->id == FLYSKY_SENSOR_SYNC) flySkyNv14Sync(value);
+        setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor->id,
+                          sensor->subId, instnace, value, sensor->unit,
+                          sensor->precision);
+        if (sensor->id == FLYSKY_SENSOR_SYNC) flySkyNv14Sync(value);
       }
     }
   }
@@ -214,4 +228,3 @@ void flySkyNv14ProcessTelemetryPacket(const uint8_t * ptr, uint8_t size)
     telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   }
 }
-
