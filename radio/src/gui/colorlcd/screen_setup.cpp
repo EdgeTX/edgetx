@@ -313,7 +313,7 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   grid.nextLine();
 
   std::string info = theme->getInfo();
-  for (int i = 1; i < 500; i++) {
+  for (uint32_t i = 1; i < 500; i++) {
     if (info.size() > 30 * i)
       info.insert((i * 30), "\n");
     else 

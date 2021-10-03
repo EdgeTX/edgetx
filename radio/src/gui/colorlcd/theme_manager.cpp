@@ -170,7 +170,7 @@ bool ThemeFile::convertRGB(char *pColorRGB, uint32_t &color)
       color = RGB(tokens[0], tokens[1], tokens[2]);
       return true;
     }
-  } else if (pColorRGB[0] == '0' && pColorRGB[1] == 'x') {
+  } else if (pColorRGB[0] == '0' && (pColorRGB[1] == 'x' || pColorRGB[1] == 'X')) {
     if (strlen(pColorRGB) != HEX_COLOR_VALUE_LEN) return false;
     pColorRGB += 2;
     uint32_t tokens[3];
@@ -368,6 +368,11 @@ class DefaultEdgeTxTheme : public ThemeFile
       lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
       
       OpenTxTheme::instance()->update(false);
+    }
+
+    std::string getThemeImageFileName() override
+    {
+      return "/THEMES/EdgeTX.png";
     }
 };
 
