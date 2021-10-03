@@ -125,7 +125,6 @@ void SDRAM_InitSequence(void)
   FMC_SDRAMCommandTypeDef FMC_SDRAMCommandStructure;
   uint32_t tmpr = 0;
 
-  /* Step 3 --------------------------------------------------------------------*/
   /* Configure a clock configuration enable command */
   FMC_SDRAMCommandStructure.FMC_CommandMode = FMC_Command_Mode_CLK_Enabled;
   FMC_SDRAMCommandStructure.FMC_CommandTarget = FMC_Command_Target_bank1;
@@ -137,11 +136,6 @@ void SDRAM_InitSequence(void)
   /* Send the command */
   FMC_SDRAMCmdConfig(&FMC_SDRAMCommandStructure);
 
-  /* Step 4 --------------------------------------------------------------------*/
-  /* Insert 100 ms delay */
-  delay_ms(100);
-
-  /* Step 5 --------------------------------------------------------------------*/
   /* Configure a PALL (precharge all) command */
   FMC_SDRAMCommandStructure.FMC_CommandMode = FMC_Command_Mode_PALL;
   FMC_SDRAMCommandStructure.FMC_CommandTarget = FMC_Command_Target_bank1;
@@ -153,7 +147,6 @@ void SDRAM_InitSequence(void)
   /* Send the command */
   FMC_SDRAMCmdConfig(&FMC_SDRAMCommandStructure);
 
-  /* Step 6 --------------------------------------------------------------------*/
   /* Configure a Auto-Refresh command */
   FMC_SDRAMCommandStructure.FMC_CommandMode = FMC_Command_Mode_AutoRefresh;
   FMC_SDRAMCommandStructure.FMC_CommandTarget = FMC_Command_Target_bank1;
@@ -171,7 +164,6 @@ void SDRAM_InitSequence(void)
   /* Send the second command */
   FMC_SDRAMCmdConfig(&FMC_SDRAMCommandStructure);
 
-  /* Step 7 --------------------------------------------------------------------*/
   /* Program the external memory mode register */
   tmpr = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_2 |
          SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL |
@@ -190,7 +182,6 @@ void SDRAM_InitSequence(void)
   /* Send the command */
   FMC_SDRAMCmdConfig(&FMC_SDRAMCommandStructure);
 
-  /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
   /* Set the device refresh counter */
@@ -200,11 +191,8 @@ void SDRAM_InitSequence(void)
   }
 }
 
-
 void SDRAM_Init(void)
 {
-  //delay funcion needed
-  delaysInit();
   // Clocks must be enabled here, because the sdramInit is called before main
   RCC_AHB1PeriphClockCmd(SDRAM_RCC_AHB1Periph, ENABLE);
   RCC_AHB3PeriphClockCmd(SDRAM_RCC_AHB3Periph, ENABLE);
