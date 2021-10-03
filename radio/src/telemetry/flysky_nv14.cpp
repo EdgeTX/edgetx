@@ -55,6 +55,8 @@ union nv14SensorData {
   uint32_t UINT32;
 };
 
+FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
+
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
     {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A1,          UNIT_VOLTS,         2, 0, 2, false},
@@ -74,10 +76,10 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_GPS,        4, STR_SENSOR_ALT,         UNIT_METERS,        0, 8, 2, true},
     {FLYSKY_SENSOR_GPS,        5, STR_SENSOR_GSPD,        UNIT_KMH,           1, 10, 2, false},
     {FLYSKY_SENSOR_GPS,        6, STR_SENSOR_HDG,         UNIT_DEGREE,        3, 12, 2, false},
-    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false}
+    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
+    defaultNv14Sensor
 };
 
-FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
 
 extern uint32_t NV14internalModuleFwVersion;
 
@@ -92,9 +94,9 @@ signed short CalculateAltitude(unsigned int pressure)
 
 const FlyskyNv14Sensor* getFlyskyNv14Sensor(uint16_t id, uint8_t subId)
 {
-  for(unsigned index = 0; index < sizeof(Nv14Sensor) / sizeof(FlyskyNv14Sensor); index++ ){
-    if (Nv14Sensor[index].id == id && Nv14Sensor[index].subId == subId) {
-      return &Nv14Sensor[index];
+  for(const FlyskyNv14Sensor* sensor = Nv14Sensor; sensor->id; sensor++ ){
+    if (sensor->id == id && sensor->subId == subId) {
+      return sensor;
     }
   }
   return &defaultNv14Sensor;
@@ -108,6 +110,10 @@ void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId, uint8_t instance
     telemetrySensor.instance = instance;
     const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
     telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
+    if (sensor->unit == UNIT_RPMS) {
+      telemetrySensor.custom.ratio = 1;
+      telemetrySensor.custom.offset = 1;
+    }    
     storageDirty(EE_MODEL);
 }
 
@@ -196,11 +202,11 @@ void flySkyNv14ProcessTelemetryPacket(const uint8_t * ptr, uint8_t size)
   }
   else {
     if(sensorID == FLYSKY_SENSOR_RX_VOLTAGE) sensorID = FLYSKY_FIXED_RX_VOLTAGE;
-    for (const FlyskyNv14Sensor sensor : Nv14Sensor) {
-      if (sensor.id == sensorID) {
-        int32_t value = GetSensorValueFlySkyNv14(&sensor, ptr + 2);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor.id, sensor.subId, instnace, value, sensor.unit, sensor.precision);
-        if(sensor.id == FLYSKY_SENSOR_SYNC) flySkyNv14Sync(value);
+    for (const FlyskyNv14Sensor* sensor = Nv14Sensor; sensor->id; sensor++) {
+      if (sensor->id == sensorID) {
+        int32_t value = GetSensorValueFlySkyNv14(sensor, ptr + 2);
+        setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_NV14, sensor->id, sensor->subId, instnace, value, sensor->unit, sensor->precision);
+        if(sensor->id == FLYSKY_SENSOR_SYNC) flySkyNv14Sync(value);
       }
     }
   }
