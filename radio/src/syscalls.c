@@ -45,6 +45,24 @@ extern caddr_t _sbrk(int nbytes)
   }
 }
 
+#if defined(THREADSAFE_MALLOC) && !defined(BOOT)
+
+#include <FreeRTOS.h>
+#include <task.h>
+
+void __malloc_lock(struct _reent *r)
+{
+  (void)(r);
+  vTaskSuspendAll();
+};
+
+void __malloc_unlock(struct _reent *r)
+{
+  (void)(r);
+  (void)xTaskResumeAll();
+};
+#endif
+
 #if !defined(SEMIHOSTING)
 extern int _gettimeofday(void *p1, void *p2)
 {
