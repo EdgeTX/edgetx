@@ -30,26 +30,16 @@ static const char *conversionArray[COLOR_COUNT] = {
 };
 
 constexpr const char *RGBSTRING = "RGB(";
-constexpr const char *THEMES = "THEMES";
 
-char *getWorkingDirectory()
-{
-  static char path[FF_MAX_LFN + 1];  // TODO optimize that!
-  f_getcwd((TCHAR *)path, FF_MAX_LFN);
-  if (path[strlen(path) - 1] != '/') strncat(path, "/", FF_MAX_LFN);
 
-  strncat(path, THEMES, FF_MAX_LFN);
-  return path;
-}
+constexpr const char* SELECTED_THEME_FILE = THEMES_PATH "/selectedtheme.txt";
 
 std::string ThemeFile::getThemeImageFileName()
 {
   char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, getWorkingDirectory(), FF_MAX_LFN);
-  if (fullPath[strlen(fullPath) - 1] != '/') 
-    strncat(fullPath, "/", FF_MAX_LFN);
+  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
   
-  auto found = path.find('.');
+  auto found = path.rfind('.');
   if (found != std::string::npos) {
     auto baseFileName(fullPath + path.substr(0, found) + ".png");
     return baseFileName;
@@ -64,9 +54,9 @@ void ThemeFile::scanFile()
   char fullPath[FF_MAX_LFN + 1];
   ScanState scanState = none;
 
-  strncpy(fullPath, getWorkingDirectory(), FF_MAX_LFN);
-  if (fullPath[strlen(fullPath) - 1] != '/') strncat(fullPath, "/", FF_MAX_LFN);
+  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
   strncat(fullPath, path.c_str(), FF_MAX_LFN);
+
   FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
 
@@ -245,8 +235,9 @@ void ThemePersistance::scanForThemes()
   FILINFO fno;
 
   char fullPath[FF_MAX_LFN + 1];
-  strcpy(fullPath, "./");
-  strcat(fullPath, THEMES);
+
+  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
+  fullPath[FF_MAX_LFN] = '\0';
 
   TRACE("opening directory: %s", fullPath);
   FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
@@ -280,17 +271,12 @@ void ThemePersistance::scanForThemes()
 void ThemePersistance::loadDefaultTheme()
 {
   FIL file;
-  char fullPath[128];
-  strcpy(fullPath, getWorkingDirectory());
-  if (fullPath[strlen(fullPath) - 1] != '/')
-    strcat(fullPath, "/");
-  strcat(fullPath, "selectedtheme.txt");
-
-  FRESULT status = f_open(&file, fullPath, FA_READ);
+  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_READ);
   if (status != FR_OK) return;
 
   char line[256];
   unsigned int len;
+
   status = f_read(&file, line, 256, &len);
   if (status == FR_OK) {
     refresh();
@@ -312,28 +298,16 @@ void ThemePersistance::loadDefaultTheme()
 
 void ThemePersistance::deleteDefaultTheme()
 {
-  char fullPath[128];
-  strcpy(fullPath, getWorkingDirectory());
-  if (fullPath[strlen(fullPath) - 1] != '/')
-    strcat(fullPath, "/");
-  strcat(fullPath, "selectedtheme.txt");
   FIL file;
-
-  FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
   if (status == FR_OK) f_close(&file);
 }
 
 void ThemePersistance::setDefaultTheme(int index)
 {
-  char fullPath[128];
-  strcpy(fullPath, getWorkingDirectory());
-  if (fullPath[strlen(fullPath) - 1] != '/')
-    strcat(fullPath, "/");
-  strcat(fullPath, "selectedtheme.txt");
   FIL file;
-
   auto theme = themes[index];
-  FRESULT status = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
   if (status != FR_OK) return;
 
   f_printf(&file, theme->getPath().c_str());

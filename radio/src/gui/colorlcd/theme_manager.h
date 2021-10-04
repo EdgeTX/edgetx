@@ -26,7 +26,6 @@
 #include "str_functions.h"
 
 class ThemePersistance;
-extern char * getWorkingDirectory();
 extern ThemePersistance themePersistance;
 
 struct ColorEntry
