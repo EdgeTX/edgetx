@@ -1296,7 +1296,7 @@ class ModuleWindow : public FormGroup {
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
               }
               if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
-                moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;                
+                moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 return 0;
               } else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
