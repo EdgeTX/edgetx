@@ -150,12 +150,8 @@ void boardInit()
   while (boardState == BOARD_POWER_OFF) {
     uint32_t now = get_tmr10ms();
     if (pwrPressed()) {
-      press_end = now;
-      if (press_start == 0) press_start = now;
-      if ((now - press_start) > POWER_ON_DELAY) {
-          pwrOn();
-          break;
-      }
+       pwrOn();
+       break;
     }
     else {
       uint32_t press_end_touch = press_end;
