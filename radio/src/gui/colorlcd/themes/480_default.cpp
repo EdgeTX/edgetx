@@ -282,7 +282,6 @@ class Theme480: public OpenTxTheme
     {
       loadColors();
       ThemePersistance::instance()->loadDefaultTheme();
-      
       OpenTxTheme::load();
       if (!backgroundBitmap) {
         backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));

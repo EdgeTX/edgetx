@@ -31,8 +31,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-
-
 class LayoutChoice: public FormField
 {
   public:
@@ -320,14 +318,6 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   int charBreak = bNarrowScreen ? 40 : 30;
   auto info = wrap(theme->getInfo(), charBreak);
 
-  // std::string info = theme->getInfo();
-  // for (uint32_t i = 1; i < 500; i++) {
-  //   if (info.size() > charBreak * i)
-  //     info.insert((i * charBreak), "\n");
-  //   else 
-  //     break;
-  // }
-
   rect_t r = grid.getLabelSlot();
   r.h += 50;
   new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
@@ -337,7 +327,6 @@ void ScreenUserInterfacePage::build(FormWindow * window)
     rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
   auto preview = new FilePreview(window, previewRect);
   preview->setFile(themeImage.c_str());
-
 
   window->setInnerHeight(grid.getWindowHeight());
 }

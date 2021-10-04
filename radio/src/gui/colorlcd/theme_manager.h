@@ -132,6 +132,3 @@ class ThemePersistance
     void scanForThemes();
     void insertDefaultTheme();
 };
-
-
-

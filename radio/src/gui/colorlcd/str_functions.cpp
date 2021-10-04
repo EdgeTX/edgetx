@@ -130,6 +130,3 @@ std::string wrap(std::string str, uint32_t width)
 
     return strBuilder.str();
 }
-
-
-
