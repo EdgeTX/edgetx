@@ -290,7 +290,7 @@ void ThemePersistance::loadDefaultTheme()
   if (status != FR_OK) return;
 
   char line[256];
-  uint len;
+  unsigned int len;
   status = f_read(&file, line, 256, &len);
   if (status == FR_OK) {
     refresh();
