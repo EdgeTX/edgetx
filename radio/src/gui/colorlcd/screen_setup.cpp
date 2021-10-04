@@ -31,6 +31,8 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+
+
 class LayoutChoice: public FormField
 {
   public:
@@ -296,12 +298,15 @@ void ScreenUserInterfacePage::build(FormWindow * window)
       window->clear();
       build(window);
     });
+  
+  bool bNarrowScreen = LCD_W < LCD_H;
+
+  if (bNarrowScreen)
+    grid.setLabelWidth(LCD_W);
 
   grid.nextLine();
   auto theme = tp->getCurrentTheme();
   auto themeImage = theme->getThemeImageFileName();
-  auto preview = new FilePreview(window, {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()});
-  preview->setFile(themeImage.c_str());
 
   grid.spacer(8);
 
@@ -312,17 +317,27 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), "Description", 0, COLOR_THEME_PRIMARY1  | FONT(BOLD));
   grid.nextLine();
 
-  std::string info = theme->getInfo();
-  for (uint32_t i = 1; i < 500; i++) {
-    if (info.size() > 30 * i)
-      info.insert((i * 30), "\n");
-    else 
-      break;
-  }
+  int charBreak = bNarrowScreen ? 40 : 30;
+  auto info = wrap(theme->getInfo(), charBreak);
+
+  // std::string info = theme->getInfo();
+  // for (uint32_t i = 1; i < 500; i++) {
+  //   if (info.size() > charBreak * i)
+  //     info.insert((i * charBreak), "\n");
+  //   else 
+  //     break;
+  // }
 
   rect_t r = grid.getLabelSlot();
   r.h += 50;
   new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
+
+  rect_t previewRect = bNarrowScreen ? 
+    rect_t {0, r.x + r.h, LCD_W- 12, window->height()} :
+    rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
+  auto preview = new FilePreview(window, previewRect);
+  preview->setFile(themeImage.c_str());
+
 
   window->setInnerHeight(grid.getWindowHeight());
 }

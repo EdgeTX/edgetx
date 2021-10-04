@@ -1,20 +1,12 @@
 #pragma once
-inline char *trim(char *str)
-{
-  char *end;
+#include <wctype.h>
+#include <string>
+#include <iostream>
+#include <sstream>
 
-  // Trim leading space
-  while(isspace((unsigned char)*str)) str++;
+extern char *trim(char *str);
+extern std::string trim_start(std::string str);
+extern std::string wrap(std::string str, uint32_t width);
 
-  if(*str == 0)  // All spaces?
-    return str;
 
-  // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
 
-  // Write new null terminator character
-  end[1] = '\0';
-
-  return str;
-}
