@@ -388,7 +388,7 @@ extern "C" {
 
 // Power driver
 #define SOFT_PWR_CTRL
-#define POWER_ON_DELAY               100 // 3s
+#define POWER_ON_DELAY               25 // 0.75s
 void pwrInit();
 void extModuleInit();
 uint32_t pwrCheck();
