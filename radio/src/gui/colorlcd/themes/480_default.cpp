@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "tabsgroup.h"
 #include "480_bitmaps.h"
+#include "theme_manager.h"
 
 const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(WHITE) },
@@ -281,6 +282,7 @@ class Theme480: public OpenTxTheme
     void load() const override
     {
       loadColors();
+      ThemePersistance::instance()->loadDefaultTheme();
       OpenTxTheme::load();
       if (!backgroundBitmap) {
         backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));

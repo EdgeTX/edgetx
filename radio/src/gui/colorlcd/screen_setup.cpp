@@ -27,6 +27,8 @@
 #include "topbar.h"
 #include "libopenui.h"
 #include "layouts/layout_factory_impl.h"
+#include "theme_manager.h"
+#include "file_preview.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -265,14 +267,7 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
 
 void ScreenUserInterfacePage::build(FormWindow * window)
 {
-  FormGridLayout grid;
-
-  // Theme choice
-  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
-  // TODO: Theme picklist
-  grid.nextLine();
-
-  // Theme options ?
+  FormGridLayout grid(LCD_W, 10);
 
   // Top Bar
   new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
@@ -283,6 +278,60 @@ void ScreenUserInterfacePage::build(FormWindow * window)
       new SetupTopBarWidgetsPage(menu);
       return 0;
   });
+
+  grid.nextLine();
+  grid.spacer(8);
+
+  // Theme choice
+  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
+  auto tp = ThemePersistance::instance();
+  tp->refresh();
+  std::vector<std::string> names = tp->getNames();
+  new Choice(window, grid.getFieldSlot(), names, 0, names.size() - 1,
+    [=] () {
+      return tp->getThemeIndex();
+    }, 
+    [=] (int value) { 
+      tp->setThemeIndex(value);
+      tp->applyTheme(value);
+      tp->setDefaultTheme(value);
+
+      window->clear();
+      build(window);
+    });
+  
+  bool bNarrowScreen = LCD_W < LCD_H;
+
+  if (bNarrowScreen)
+    grid.setLabelWidth(LCD_W);
+
+  grid.nextLine();
+  auto theme = tp->getCurrentTheme();
+  auto themeImage = theme->getThemeImageFileName();
+
+  grid.spacer(8);
+
+  new StaticText(window, grid.getLabelSlot(), "Author", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot(), theme->getAuthor(), 0, COLOR_THEME_PRIMARY1);
+  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot(), "Description", 0, COLOR_THEME_PRIMARY1  | FONT(BOLD));
+  grid.nextLine();
+
+  int charBreak = bNarrowScreen ? 40 : 30;
+  auto info = wrap(theme->getInfo(), charBreak);
+
+  rect_t r = grid.getLabelSlot();
+  r.h += 50;
+  new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
+
+  rect_t previewRect = bNarrowScreen ? 
+    rect_t {0, r.x + r.h, LCD_W- 12, window->height()} :
+    rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
+  auto preview = new FilePreview(window, previewRect);
+  preview->setFile(themeImage.c_str());
+
+  window->setInnerHeight(grid.getWindowHeight());
 }
 
 ScreenAddPage::ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex):
