@@ -31,12 +31,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-#if defined(PCBNV14)
-extern uint32_t NV14internalModuleFwVersion;
-#else
-uint32_t NV14internalModuleFwVersion = 0;
-#endif
-
 std::string switchWarninglabel(swsrc_t index)
 {
   static const char switchPositions[] = {
@@ -1339,7 +1333,7 @@ class ModuleWindow : public FormGroup {
       }
 
 #if defined(AFHDS2) && defined(PCBNV14)
-      if (isModuleAFHDS2A(moduleIdx) && NV14internalModuleFwVersion >= 0x1000E) {
+      if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {
         new StaticText(this, grid.getLabelSlot(true), STR_MULTI_RFPOWER);
         new Choice(this, grid.getFieldSlot(), "\007""Default""High", 0, 1,
             GET_DEFAULT(g_model.moduleData[moduleIdx].flysky.rfPower),
