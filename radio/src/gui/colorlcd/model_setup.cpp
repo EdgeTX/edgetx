@@ -31,6 +31,12 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+#if defined(PCBNV14)
+extern uint32_t NV14internalModuleFwVersion;
+#else
+uint32_t NV14internalModuleFwVersion = 0;
+#endif
+
 std::string switchWarninglabel(swsrc_t index)
 {
   static const char switchPositions[] = {
