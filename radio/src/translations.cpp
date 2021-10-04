@@ -936,3 +936,7 @@ const char STR_ABOUTUS[] = TR_ABOUTUS;
 const char STR_AUTH_FAILURE[] = TR_AUTH_FAILURE;
 const char STR_PROTOCOL[] = TR_PROTOCOL;
 const char STR_RACING_MODE[] = TR_RACING_MODE;
+
+#if defined(PCBNV14)
+const char STR_RFPOWER_AFHDS2[] = TR_RFPOWER_AFHDS2;
+#endif
