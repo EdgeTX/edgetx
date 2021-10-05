@@ -1215,10 +1215,6 @@ void LCD_Init_LTDC() {
   NVIC_Init( &NVIC_InitStructure );
   DMA2D->IFCR = (unsigned long)DMA2D_IFSR_CTCIF;
 #endif
-
-  // Enable LTDC IRQ in NVIC
-  NVIC_EnableIRQ(LTDC_IRQn);
-  NVIC_SetPriority(LTDC_IRQn, 7);
 }
 
 void LCD_LayerInit() {
