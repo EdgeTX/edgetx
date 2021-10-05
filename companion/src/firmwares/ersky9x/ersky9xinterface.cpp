@@ -387,3 +387,8 @@ int Ersky9xInterface::getCapability(Capability capability)
       return 0;
   }
 }
+
+QString Ersky9xInterface::getCapabilityStr(Capability capability)
+{
+  return QString();
+}
