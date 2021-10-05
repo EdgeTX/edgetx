@@ -1197,13 +1197,13 @@ class ModuleWindow : public FormGroup {
 
         // PPM frame length
         auto edit = new NumberEdit(
-            this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
-            GET_DEFAULT(g_model.moduleData[moduleIdx].ppm.frameLength * 5 +
-                        225),
+            this, grid.getFieldSlot(3, 0), 125, 35 * PPM_STEP_SIZE + PPM_DEF_PERIOD,
+            GET_DEFAULT(g_model.moduleData[moduleIdx].ppm.frameLength * PPM_STEP_SIZE +
+                        PPM_DEF_PERIOD),
             SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength,
-                      (newValue - 225) / 5),
+                      (newValue - PPM_DEF_PERIOD) / PPM_STEP_SIZE),
             0, PREC1);
-        edit->setStep(5);
+        edit->setStep(PPM_STEP_SIZE);
         edit->setSuffix(STR_MS);
 
         // PPM frame delay
@@ -1396,9 +1396,9 @@ class ModuleWindow : public FormGroup {
       // SBUS refresh rate
       if (isModuleSBUS(moduleIdx)) {
         new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE, 0, COLOR_THEME_PRIMARY1);
-        auto edit = new NumberEdit(this, grid.getFieldSlot(2, 0), 60, 400,
-                                           GET_DEFAULT((int16_t)g_model.moduleData[moduleIdx].ppm.frameLength*5 + 225),
-                                           SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength, (newValue - 225)/5),
+        auto edit = new NumberEdit(this, grid.getFieldSlot(2, 0), SBUS_MIN_PERIOD, SBUS_MAX_PERIOD,
+                                           GET_DEFAULT((int16_t)g_model.moduleData[moduleIdx].sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD),
+                                           SET_VALUE(g_model.moduleData[moduleIdx].sbus.refreshRate, (newValue - SBUS_DEF_PERIOD) / SBUS_STEPSIZE),
                                            0, PREC1);
         edit->setSuffix(STR_MS);
         edit->setStep(SBUS_STEPSIZE);
