@@ -1036,62 +1036,51 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   ui->name->setValidator(new QRegExpValidator(rx, this));
   ui->name->setMaxLength(firmware->getCapability(ModelName));
 
-  if (firmware->getCapability(ModelImage)) {
+  if (firmware->getCapability(HasModelImage)) {
+    if (Boards::getCapability(board, Board::HasColorLcd)) {
+      ui->imagePreview->setFixedSize(QSize(192, 114));
+    }
+    else {
+      ui->imagePreview->setFixedSize(QSize(64, 32));
+    }
     QStringList items;
     items.append("");
     QString path = g.profile[g.id()].sdPath();
     path.append("/IMAGES/");
     QDir qd(path);
     if (qd.exists()) {
-      QStringList filters;
-      if(IS_FAMILY_HORUS_OR_T16(board)) {
-        filters << "*.bmp" << "*.jpg" << "*.png";
-        foreach ( QString file, qd.entryList(filters, QDir::Files) ) {
-          QFileInfo fi(file);
-          QString temp = fi.fileName();
-          if (!items.contains(temp) && temp.length() <= 6 + 4) {
-            items.append(temp);
-          }
-        }
-      }
-      else {
-        filters << "*.bmp";
-        foreach (QString file, qd.entryList(filters, QDir::Files)) {
-          QFileInfo fi(file);
-          QString temp = fi.completeBaseName();
-          if (!items.contains(temp) && temp.length() <= 10 + 4) {
-            items.append(temp);
-          }
-        }
+      QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
+      foreach ( QString file, qd.entryList(filters, QDir::Files) ) {
+        QFileInfo fi(file);
+        QString temp;
+        if (firmware->getCapability(ModelImageKeepExtn))
+          temp = fi.fileName();
+        else
+          temp = fi.completeBaseName();
+        if (!items.contains(temp) && temp.length() <= firmware->getCapability(ModelImageNameLen))
+          items.append(temp);
       }
     }
     if (!items.contains(model.bitmap)) {
       items.append(model.bitmap);
     }
-    items.sort();
+    items.sort(Qt::CaseInsensitive);
     foreach (QString file, items) {
       ui->image->addItem(file);
       if (file == model.bitmap) {
         ui->image->setCurrentIndex(ui->image->count() - 1);
-        QString fileName = path;
-        fileName.append(model.bitmap);
-        if (!IS_FAMILY_HORUS_OR_T16(board))
-          fileName.append(".bmp");
-        QImage image(fileName);
-        if (image.isNull() && !IS_FAMILY_HORUS_OR_T16(board)) {
-          fileName = path;
+        if (!file.isEmpty()) {
+          QString fileName = path;
           fileName.append(model.bitmap);
-          fileName.append(".BMP");
-          image.load(fileName);
-        }
-        if (!image.isNull()) {
-          if (IS_FAMILY_HORUS_OR_T16(board)) {
-            ui->imagePreview->setFixedSize(QSize(192, 114));
-            ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(192, 114)));
+          if (!firmware->getCapability(ModelImageKeepExtn)) {
+            QString extn = firmware->getCapabilityStr(ModelImageFilters);
+            if (extn.size() > 0)
+              extn.remove(0, 1);  //  remove *
+            fileName.append(extn);
           }
-          else {
-            ui->imagePreview->setFixedSize(QSize(64, 32));
-            ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(64, 32)));
+          QImage image(fileName);
+          if (!image.isNull()) {
+            ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
           }
         }
       }
@@ -1334,36 +1323,23 @@ void SetupPanel::on_name_editingFinished()
 void SetupPanel::on_image_currentIndexChanged(int index)
 {
   if (!lock) {
-    Board::Type board = firmware->getBoard();
-    strncpy(model->bitmap, ui->image->currentText().toLatin1(), 10);
-    QString path = g.profile[g.id()].sdPath();
-    path.append("/IMAGES/");
-    QDir qd(path);
-    if (qd.exists()) {
-      QString fileName=path;
-      fileName.append(model->bitmap);
-      if (!IS_FAMILY_HORUS_OR_T16(board))
-        fileName.append(".bmp");
-      QImage image(fileName);
-      if (image.isNull() && !IS_FAMILY_HORUS_OR_T16(board)) {
-        fileName=path;
-        fileName.append(model->bitmap);
-        fileName.append(".BMP");
-        image.load(fileName);
+    memset(model->bitmap, 0, CPN_MAX_BITMAP_LEN);
+    strncpy(model->bitmap, ui->image->currentText().toLatin1(), CPN_MAX_BITMAP_LEN);
+    if (model->bitmap[0] != '\0') {
+      QString path = g.profile[g.id()].sdPath();
+      path.append("/IMAGES/");
+      path.append(model->bitmap);
+      if (!firmware->getCapability(ModelImageKeepExtn)) {
+        QString extn = firmware->getCapabilityStr(ModelImageFilters);
+        if (extn.size() > 0)
+          extn.remove(0, 1);  //  remove *
+        path.append(extn);
       }
-      if (!image.isNull()) {
-        if (IS_FAMILY_HORUS_OR_T16(board)) {
-          ui->imagePreview->setFixedSize(QSize(192, 114));
-          ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(192, 114)));
-        }
-        else {
-          ui->imagePreview->setFixedSize(QSize(64, 32));
-          ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(64, 32)));
-        }
-      }
-      else {
+      QImage image(path);
+      if (!image.isNull())
+        ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
+      else
         ui->imagePreview->clear();
-      }
     }
     else {
       ui->imagePreview->clear();

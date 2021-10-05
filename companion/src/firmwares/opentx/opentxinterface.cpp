@@ -447,8 +447,12 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 60;
     case Imperial:
       return 0;
-    case ModelImage:
+    case HasModelImage:
       return (board == BOARD_TARANIS_X9D || IS_TARANIS_PLUS(board) || board == BOARD_TARANIS_X9DP_2019 || IS_FAMILY_HORUS_OR_T16(board));
+    case ModelImageNameLen:
+      return (IS_FAMILY_HORUS_OR_T16(board) ? 14 : 10); //  including extension if saved and <= CPN_MAX_BITMAP_LEN
+    case ModelImageKeepExtn:
+      return (IS_FAMILY_HORUS_OR_T16(board) ? true : false);
     case HasBeeper:
       return false;
     case HasPxxCountry:
@@ -745,6 +749,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
     default:
       return 0;
+  }
+}
+
+QString OpenTxFirmware::getCapabilityStr(::Capability capability)
+{
+  switch (capability) {
+    case ModelImageFilters:
+      return IS_FAMILY_HORUS_OR_T16(board) ? "*.bmp|*.jpg|*.png" : "*.bmp";
+    default:
+      return QString();
   }
 }
 
