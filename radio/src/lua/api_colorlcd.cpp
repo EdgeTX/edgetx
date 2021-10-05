@@ -210,7 +210,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
 
   // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
   x += getTextHorizontalOffset(flags);
-  y += getTextVerticalOffset(flags) - INVERT_BOX_MARGIN;
+  y += getTextVerticalOffset(flags);
 
   bool invers = flags & INVERS;
   if (flags & BLINK)
@@ -234,7 +234,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
     if (flags & RIGHT)
       ix -= width;
     width += 2 * INVERT_BOX_MARGIN;
-    luaLcdBuffer->drawSolidFilledRect(ix, y, width, height, color);
+    luaLcdBuffer->drawSolidFilledRect(ix, y - INVERT_BOX_MARGIN, width, height, color);
   } else {
     if ((flags & BLINK) && !BLINK_ON_PHASE)
       return;
