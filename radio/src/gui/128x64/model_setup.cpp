@@ -1363,7 +1363,7 @@ void menuModelSetup(event_t event)
         if (isModulePPM(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_PPMFRAME);
           lcdDrawText(MODEL_SETUP_2ND_COLUMN+3*FW, y, STR_MS);
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*5 + 225, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*PPM_STEP_SIZE + PPM_DEF_PERIOD, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
           lcdDrawChar(MODEL_SETUP_2ND_COLUMN+8*FW+2, y, 'u');
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN+8*FW+2, y, (moduleData.ppm.delay*50)+300, RIGHT | ((CURSOR_ON_LINE() || menuHorizontalPosition==1) ? attr : 0));
           lcdDrawChar(MODEL_SETUP_2ND_COLUMN+10*FW, y, moduleData.ppm.pulsePol ? '+' : '-', (CURSOR_ON_LINE() || menuHorizontalPosition==2) ? attr : 0);
@@ -1383,13 +1383,13 @@ void menuModelSetup(event_t event)
         }
         else if (isModuleSBUS(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_REFRESHRATE);
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*5 + 225, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
           lcdDrawText(lcdLastRightPos, y, STR_MS);
           lcdDrawText(MODEL_SETUP_2ND_COLUMN+5*FW+2, y, moduleData.sbus.noninverted ? STR_NOT_INVERTED : STR_NORMAL, (CURSOR_ON_LINE() || menuHorizontalPosition==1) ? attr : 0);
           if (attr && s_editMode > 0) {
             switch (menuHorizontalPosition) {
               case 0:
-                CHECK_INCDEC_MODELVAR(event, moduleData.ppm.frameLength, -33, 35);
+                CHECK_INCDEC_MODELVAR(event, moduleData.sbus.refreshRate, (SBUS_MIN_PERIOD-SBUS_DEF_PERIOD)/SBUS_STEPSIZE, (SBUS_MAX_PERIOD-SBUS_DEF_PERIOD)/SBUS_STEPSIZE);
                 break;
               case 1:
                 CHECK_INCDEC_MODELVAR_ZERO(event, moduleData.sbus.noninverted, 1);
