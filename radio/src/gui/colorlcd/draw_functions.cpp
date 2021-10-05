@@ -106,26 +106,26 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (shutdown) {
     lcd->drawMask((LCD_W - shutdown->width()) / 2,
                   (LCD_H - shutdown->height()) / 2, shutdown,
-                  COLOR2FLAGS(WHITE));
+                  COLOR_THEME_PRIMARY1);
 
     int quarter = duration / (totalDuration / 5);
     if (quarter >= 1)
       lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE), 0,
+                             LBM_SHUTDOWN_CIRCLE, COLOR_THEME_PRIMARY1, 0,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 2)
       lcd->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE,
-                             COLOR2FLAGS(WHITE), SHUTDOWN_CIRCLE_DIAMETER / 2,
+                             COLOR_THEME_PRIMARY1, SHUTDOWN_CIRCLE_DIAMETER / 2,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 3)
       lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
-                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE),
+                             LBM_SHUTDOWN_CIRCLE, COLOR_THEME_PRIMARY1,
                              SHUTDOWN_CIRCLE_DIAMETER,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
     if (quarter >= 4)
       lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
                              (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, COLOR2FLAGS(WHITE),
+                             LBM_SHUTDOWN_CIRCLE, COLOR_THEME_PRIMARY1,
                              SHUTDOWN_CIRCLE_DIAMETER * 3 / 2,
                              SHUTDOWN_CIRCLE_DIAMETER / 2);
   } else {
@@ -134,7 +134,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     for (int i = 1; i <= 4; i++) {
       if (quarter >= i) {
         lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
-                                 20, COLOR2FLAGS(WHITE));
+                                 20, COLOR_THEME_PRIMARY1);
       }
     }
   }
