@@ -1185,7 +1185,7 @@ void menuModelSetup(event_t event)
         ModuleData & moduleData = g_model.moduleData[moduleIdx];
         if (isModulePPM(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_PPMFRAME);
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*5 + 225, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*PPM_STEP_SIZE + PPM_DEF_PERIOD, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
           lcdDrawText(lcdLastRightPos, y, STR_MS);
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN+6*FW, y, (moduleData.ppm.delay*50)+300, (CURSOR_ON_LINE() || menuHorizontalPosition==1) ? attr : 0);
           lcdDrawChar(lcdLastRightPos, y, 'u');
@@ -1206,13 +1206,13 @@ void menuModelSetup(event_t event)
         }
         else if (isModuleSBUS(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_REFRESHRATE);
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.ppm.frameLength*5 + 225, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)moduleData.sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
           lcdDrawText(lcdLastRightPos, y, STR_MS);
           lcdDrawText(MODEL_SETUP_3RD_COLUMN, y, moduleData.sbus.noninverted ? STR_NOT_INVERTED : STR_NORMAL, (CURSOR_ON_LINE() || menuHorizontalPosition==1) ? attr : 0);
           if (attr && s_editMode > 0) {
             switch (menuHorizontalPosition) {
               case 0:
-                CHECK_INCDEC_MODELVAR(event, moduleData.ppm.frameLength, -33, 35);
+                CHECK_INCDEC_MODELVAR(event, moduleData.ppm.frameLength, (SBUS_MIN_PERIOD-SBUS_DEF_PERIOD)/SBUS_STEPSIZE, (SBUS_MAX_PERIOD-SBUS_DEF_PERIOD)/SBUS_STEPSIZE);
                 break;
               case 1:
                 CHECK_INCDEC_MODELVAR_ZERO(event, moduleData.sbus.noninverted, 1);
