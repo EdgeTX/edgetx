@@ -233,12 +233,18 @@ PACK(struct Dsm2TimerPulsesData {
 typedef Dsm2TimerPulsesData Dsm2PulsesData;
 #endif
 
-#define PPM_PERIOD_HALF_US(module)   ((g_model.moduleData[module].ppm.frameLength * 5 + 225) * 200) /*half us*/
+#define PPM_DEF_PERIOD               225 /* 22.5ms */
+#define PPM_STEP_SIZE                5 /*0.5ms*/
+#define PPM_PERIOD_HALF_US(module)   ((g_model.moduleData[module].ppm.frameLength * PPM_STEP_SIZE + PPM_DEF_PERIOD) * 200) /*half us*/
 #define PPM_PERIOD(module)           (PPM_PERIOD_HALF_US(module) / 2) /*us*/
 #define DSM2_BAUDRATE                125000
 #define DSM2_PERIOD                  22000 /*us*/
 #define SBUS_BAUDRATE                100000
-#define SBUS_PERIOD_HALF_US          ((g_model.moduleData[EXTERNAL_MODULE].sbus.refreshRate * 5 + 225) * 200) /*half us*/
+#define SBUS_MIN_PERIOD              60  /*6.0ms 1/10ms*/
+#define SBUS_MAX_PERIOD              325 /*Overflows uint16_t if set higher*/
+#define SBUS_DEF_PERIOD              225
+#define SBUS_STEPSIZE                5   /* SBUS Step Size 0.5ms */
+#define SBUS_PERIOD_HALF_US          ((g_model.moduleData[EXTERNAL_MODULE].sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD) * 200) /*half us*/
 #define SBUS_PERIOD                  (SBUS_PERIOD_HALF_US / 2) /*us*/
 #define MULTIMODULE_BAUDRATE         100000
 #define MULTIMODULE_PERIOD           7000 /*us*/
