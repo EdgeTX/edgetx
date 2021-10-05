@@ -1424,6 +1424,7 @@ class ModuleWindow : public FormGroup {
                                            SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength, (newValue - 225)/5),
                                            0, PREC1);
         edit->setSuffix(STR_MS);
+        edit->setStep(SBUS_STEPSIZE);
         new Choice(this, grid.getFieldSlot(2, 1), STR_SBUS_INVERSION_VALUES, 0, 1, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].sbus.noninverted));
 #if defined(RADIO_TX16S)
         grid.nextLine();
