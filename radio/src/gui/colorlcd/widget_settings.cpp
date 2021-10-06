@@ -28,9 +28,9 @@
 
 static const rect_t widgetSettingsDialogRect = {
   LCD_W / 10, // x
-  LCD_H / 4,  // y
+  LCD_H / 5,  // y
   LCD_W - 2 * LCD_W / 10, // width
-  LCD_H - 2 * LCD_H / 4   // height
+  LCD_H - 2 * LCD_H / 5   // height
 };
 
 WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
