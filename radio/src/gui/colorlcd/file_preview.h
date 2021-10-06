@@ -51,6 +51,7 @@ class FilePreview : public Window
 
     void paint(BitmapBuffer *dc) override
     {
+      dc->setFormat(BMP_RGB565);
       coord_t y = parent->getScrollPositionY() + 2;
       coord_t h = MENU_BODY_HEIGHT - 4;
       if (bitmap) {
