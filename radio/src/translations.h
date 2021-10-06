@@ -1140,6 +1140,21 @@ extern const char STR_RACING_MODE[];
 
 extern const char STR_USE_THEME_COLOR[];
 
+extern const char STR_DUPLICATE[];
+extern const char STR_ACTIVATE[];
+extern const char STR_RED[];
+extern const char STR_BLUE[];
+extern const char STR_GREEN[];
+extern const char STR_COLOR_PICKER[];
+extern const char STR_EDIT_THEME_DETAILS[];
+extern const char STR_AUTHOR[];
+extern const char STR_DESCRIPTION[];
+extern const char STR_SAVE[];
+extern const char STR_CANCEL[];
+extern const char STR_EDIT_THEME[];
+extern const char STR_DETAILS[];
+extern const char STR_THEME_EDITOR[];
+
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT
 

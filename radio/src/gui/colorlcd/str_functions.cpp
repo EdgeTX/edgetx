@@ -26,6 +26,17 @@
 
 static char splitChars[] = { ' ', '-', '\t' };
 
+void removeAllWhiteSpace(char *str)
+{
+  int len = strlen(str);
+  int origLen = len;
+  while(len) {
+    if (iswspace(str[len]))
+      memmove(str + len, str + len + 1, origLen - len);
+    len--;
+  }
+}
+
 char *trim(char *str)
 {
   char *end;

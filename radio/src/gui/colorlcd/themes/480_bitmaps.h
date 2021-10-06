@@ -160,6 +160,10 @@ const uint8_t mask_radio_setup[] = {
 const uint8_t mask_radio_tools[] = {
 #include "mask_radio_tools.lbm"
 };
+const uint8_t mask_radio_edit_theme[] = {
+#include "mask_radio_edit_theme.lbm"
+};
+
 const uint8_t mask_radio_trainer[] = {
 #include "mask_radio_trainer.lbm"
 };

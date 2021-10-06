@@ -88,6 +88,7 @@ constexpr uint32_t DATETIME_SEPARATOR_X =          LCD_W - 53;
 constexpr uint32_t DATETIME_LINE1 =                7;
 constexpr uint32_t DATETIME_LINE2 =                22;
 constexpr uint32_t DATETIME_MIDDLE =               (LCD_W + DATETIME_SEPARATOR_X + 1) / 2;
+constexpr coord_t  LINE_HEIGHT =                   PAGE_LINE_HEIGHT;
 
 constexpr uint32_t RSSI_X =                        LCD_W - 80;
 constexpr uint32_t AUDIO_X =                       LCD_W - 115;

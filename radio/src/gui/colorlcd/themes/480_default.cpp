@@ -109,6 +109,7 @@ class Theme480: public OpenTxTheme
       loadMenuIcon(ICON_RADIO_TRAINER, mask_radio_trainer, reload);
       loadMenuIcon(ICON_RADIO_HARDWARE, mask_radio_hardware, reload);
       loadMenuIcon(ICON_RADIO_CALIBRATION, mask_radio_calibration, reload);
+      loadMenuIcon(ICON_RADIO_EDIT_THEME, mask_radio_edit_theme, reload);
       loadMenuIcon(ICON_RADIO_VERSION, mask_radio_version, reload);
       loadMenuIcon(ICON_MODEL, mask_menu_model, reload);
       loadMenuIcon(ICON_MODEL_SETUP, mask_model_setup, reload);
