@@ -71,7 +71,7 @@ void ThemeFile::scanFile()
     } else if (lineNo != 1) {
       if (line[0] != ' ' && line[0] != '\t') {
         char *pline = trim(line);
-        if (line[strlen(line) - 1] != ':') {
+        if (line[strlen(line) - 1] != ':' && pline[0] != '#') {
           TRACE("invalid yml file at line %d", lineNo);
           return;
         }
