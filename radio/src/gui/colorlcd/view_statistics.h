@@ -42,7 +42,7 @@ class DebugInfoNumber : public Window
         new StaticText(this, {0, 0,  prefixSize, rect.h}, prefix, 0, COLOR_THEME_SECONDARY1 | FONT(XS));
       }
       new DynamicNumber<uint32_t>(this, {prefixSize, 0, rect.w - prefixSize, rect.h},
-                                  numberHandler);
+                                  numberHandler, COLOR_THEME_PRIMARY1);
     }
 
   protected:

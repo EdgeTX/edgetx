@@ -46,7 +46,7 @@ class ThrottleCurveWindow : public Window
         invalidate();
       }
     }
-    
+
     void paint(BitmapBuffer * dc) override
     {
       // Axis
@@ -92,42 +92,42 @@ void StatisticsViewPage::build(FormWindow * window)
   grid.setLabelWidth(LCD_W / 4);
 
   // Session data
-  new StaticText(window, grid.getLabelSlot(), STR_SESSION);
+  new StaticText(window, grid.getLabelSlot(), STR_SESSION, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 0), [] {
       return getTimerString(sessionTimer, TIMEHOUR);
-  });
+  }, COLOR_THEME_PRIMARY1);
 
   // Battery data
-  new StaticText(window, grid.getFieldSlot(3, 1), STR_BATT_LABEL);
+  new StaticText(window, grid.getFieldSlot(3, 1), STR_BATT_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 2), [] {
       return getTimerString(g_eeGeneral.globalTimer + sessionTimer, TIMEHOUR);
-  });
+  }, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Throttle
-  new StaticText(window, grid.getLabelSlot(), STR_THROTTLE_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 0), [] {
       return getTimerString(s_timeCumThr, TIMEHOUR);
-  });
+  }, COLOR_THEME_PRIMARY1);
 
   // Throttle %  data
-  new StaticText(window, grid.getFieldSlot(3, 1), STR_THROTTLE_PERCENT_LABEL);
+  new StaticText(window, grid.getFieldSlot(3, 1), STR_THROTTLE_PERCENT_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 2), [] {
       return getTimerString(s_timeCum16ThrP/16, TIMEHOUR);
-  });
+  }, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Timers
-  new StaticText(window, grid.getLabelSlot(), STR_TIMER_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_TIMER_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 0), [] {
       return getTimerString(timersStates[0].val, TIMEHOUR);
-  }, 0);
+  }, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 1), [] {
       return getTimerString(timersStates[1].val, TIMEHOUR);
-  }, 0);
+  }, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 2), [] {
       return getTimerString(timersStates[2].val, TIMEHOUR);
-  }, 0);
+  }, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Throttle curve
@@ -151,77 +151,77 @@ void DebugViewPage::build(FormWindow * window)
   grid.setLabelWidth(LCD_W / 4);
 
   // Mixer data
-  new StaticText(window, grid.getLabelSlot(), STR_TMIXMAXMS);
+  new StaticText(window, grid.getLabelSlot(), STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(window, grid.getFieldSlot(), [] {
       return DURATION_MS_PREC2(maxMixerDuration);
-  }, PREC2, nullptr, "ms");
+  }, PREC2 | COLOR_THEME_PRIMARY1, nullptr, "ms");
   grid.nextLine();
 
   // Free mem
-  new StaticText(window, grid.getLabelSlot(), STR_FREE_MEM_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<int>(window, grid.getFieldSlot(), [] {
       return availableMemory();
-  }, 0, nullptr, "b");
+  }, COLOR_THEME_PRIMARY1, nullptr, "b");
   grid.nextLine();
 
 #if defined(LUA)
   // LUA timing data
-  new StaticText(window, grid.getLabelSlot(), STR_LUA_SCRIPTS_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_LUA_SCRIPTS_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DebugInfoNumber<uint16_t>(window, grid.getFieldSlot(3, 0), [] {
       return 10 * maxLuaDuration;
-  }, 0, "[Dur] ", "ms");
+  }, COLOR_THEME_PRIMARY1, "[Dur] ", "ms");
   new DebugInfoNumber<uint16_t>(window, grid.getFieldSlot(3, 1), [] {
       return 10 * maxLuaInterval;
-  }, 0, "[Int] ", "ms");
+  }, COLOR_THEME_PRIMARY1, "[Int] ", "ms");
   grid.nextLine();
 
   // lUA memory data
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 0), [] {
       return 10 * luaGetMemUsed(lsScripts);
-  }, 0, "[S] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[S] ", nullptr);
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 1), [] {
       return 10 * luaGetMemUsed(lsWidgets);
-  }, 0, "[W] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[W] ", nullptr);
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 2), [] {
       return luaExtraMemoryUsage;
-  }, 0, "[B] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[B] ", nullptr);
   grid.nextLine();
 #endif
 
   // Stacks data
-  new StaticText(window, grid.getLabelSlot(), STR_FREE_STACK);
+  new StaticText(window, grid.getLabelSlot(), STR_FREE_STACK, 0, COLOR_THEME_PRIMARY1);
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 0), [] {
       return menusStack.available();
-  }, 0, "[Menu] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[Menu] ", nullptr);
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 1), [] {
       return  mixerStack.available();
-  }, 0, "[Mix] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[Mix] ", nullptr);
   new DebugInfoNumber<uint32_t>(window, grid.getFieldSlot(3, 2), [] {
       return audioStack.available();
-  }, 0, "[Audio] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[Audio] ", nullptr);
   grid.nextLine();
 
 #if defined(DEBUG_LATENCY)
-  new StaticText(window, grid.getLabelSlot(), STR_HEARTBEAT_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_HEARTBEAT_LABEL, 0, COLOR_THEME_PRIMARY1);
   if (heartbeatCapture.valid)
     new DebugInfoNumber<uint16_t>(window, grid.getFieldSlot(3, 0), [] {
       return heartbeatCapture.count;
-  });
+  }, COLOR_THEME_PRIMARY1);
   else
-    new StaticText(window, grid.getFieldSlot(),"---");
+    new StaticText(window, grid.getFieldSlot(),"---", 0, COLOR_THEME_PRIMARY1);
 #endif
 
 #if defined(INTERNAL_GPS)
-  new StaticText(window, grid.getLabelSlot(), STR_INT_GPS_LABEL);
+  new StaticText(window, grid.getLabelSlot(), STR_INT_GPS_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(window, grid.getFieldSlot(3, 0), [] {
       return std::string(gpsData.fix ? "[Fix] Yes" : "[Fix] No");
-  });
+  }, COLOR_THEME_PRIMARY1);
   new DebugInfoNumber<uint8_t>(window, grid.getFieldSlot(3, 1), [] {
       return  gpsData.numSat;
-  }, 0, "[Sats] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[Sats] ", nullptr);
   new DebugInfoNumber<uint16_t>(window, grid.getFieldSlot(3, 2), [] {
       return gpsData.hdop;
-  }, 0, "[Hdop] ", nullptr);
+  }, COLOR_THEME_PRIMARY1, "[Hdop] ", nullptr);
   grid.nextLine();
 #endif
 
