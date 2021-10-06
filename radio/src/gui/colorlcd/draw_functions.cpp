@@ -75,9 +75,6 @@ void drawValueOrGVar(BitmapBuffer* dc, coord_t x, coord_t y, gvar_t value,
   }
 }
 
-constexpr LcdFlags splash_background_color =
-  COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
-
 void drawSleepBitmap()
 {
   lcd->reset();
@@ -86,7 +83,7 @@ void drawSleepBitmap()
   const BitmapBuffer* bitmap = OpenTxTheme::instance()->shutdown;
   if (bitmap) {
     lcd->drawMask((LCD_W-bitmap->width())/2, (LCD_H-bitmap->height())/2,
-                  bitmap, splash_background_color);
+                  bitmap, COLOR2FLAGS(WHITE));
   }
 
   lcdRefresh();
@@ -103,7 +100,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   static const BitmapBuffer * shutdown = OpenTxTheme::instance()->shutdown;
 
   lcd->reset();
-  lcd->clear(splash_background_color);
+  lcd->clear(COLOR2FLAGS(BLACK));
   
   if (shutdown) {
     lcd->drawMask((LCD_W - shutdown->width()) / 2,
