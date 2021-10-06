@@ -258,7 +258,7 @@ void ThemePersistance::scanForThemes()
       std::string fname(fno.fname);
       auto found = fname.find('.');
       if (found != std::string::npos) {
-        if (fname.substr(found) != ".yml") continue;
+        if (strcasecmp(fname.substr(found).c_str(), YAML_EXT) != 0) continue;
       }
 
       themes.emplace_back(new ThemeFile(fno.fname));

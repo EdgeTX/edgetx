@@ -21,6 +21,8 @@
 #pragma once
 #include <stdlib.h>
 #include <list>
+#include <string>
+#include <locale>
 #include "sdcard.h"
 #include "colors.h"
 #include "str_functions.h"
