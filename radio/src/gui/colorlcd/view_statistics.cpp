@@ -157,7 +157,7 @@ void StatisticsViewPage::build(FormWindow *window)
         sessionTimer = 0;
         return 0;
       },
-      BUTTON_BACKGROUND | NO_FOCUS);
+      BUTTON_BACKGROUND);
 }
 
 void DebugViewPage::build(FormWindow *window)
@@ -263,5 +263,5 @@ void DebugViewPage::build(FormWindow *window)
 #endif
         return 0;
       },
-      BUTTON_BACKGROUND | NO_FOCUS);
+      BUTTON_BACKGROUND);
 }
