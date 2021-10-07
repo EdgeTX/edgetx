@@ -38,9 +38,9 @@ class DebugInfoNumber : public Window
   {
     coord_t prefixSize = 0;
     if (prefix != nullptr) {
-      prefixSize = getTextWidth(prefix, 0, COLOR_THEME_PRIMARY2 | FONT(XS));
+      prefixSize = getTextWidth(prefix, 0, COLOR_THEME_PRIMARY1 | FONT(XS));
       new StaticText(this, {0, 0, prefixSize, rect.h}, prefix, 0,
-                     COLOR_THEME_PRIMARY2 | FONT(XS));
+                     COLOR_THEME_PRIMARY1 | FONT(XS));
     }
     new DynamicNumber<uint32_t>(this,
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
