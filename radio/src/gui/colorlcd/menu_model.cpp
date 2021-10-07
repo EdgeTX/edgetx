@@ -48,8 +48,8 @@ ModelMenu::ModelMenu():
   addTab(new ModelGVarsPage());
   addTab(new ModelLogicalSwitchesPage());
   addTab(new SpecialFunctionsPage(g_model.customFn));
-// #if defined(LUA)
-//   addTab(new ModelMixerScriptsPage());
-// #endif
+#if defined(LUA) && defined(LUA_MODEL_SCRIPTS)
+  addTab(new ModelMixerScriptsPage());
+#endif
   addTab(new ModelTelemetryPage());
 }
