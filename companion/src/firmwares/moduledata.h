@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef MODULEDATA_H
-#define MODULEDATA_H
+#pragma once
 
 #include "constants.h"
 
@@ -58,7 +57,8 @@ enum PulsesProtocol {
   PULSES_XJT_LITE_X16,
   PULSES_XJT_LITE_D8,
   PULSES_XJT_LITE_LR12,
-  PULSES_AFHDS3,
+  PULSES_FLYSKY_AFHDS3,
+  PULSES_FLYSKY_AFHDS2A,
   PULSES_GHOST,
   PULSES_PROTOCOL_LAST
 };
@@ -162,6 +162,12 @@ enum ModuleSubtypeR9M {
   MODULE_SUBTYPE_R9M_LAST=MODULE_SUBTYPE_R9M_AUPLUS
 };
 
+enum ModuleSubtypeFlysky {
+  MODULE_SUBTYPE_FLYSKY_AFHDS3,
+  MODULE_SUBTYPE_FLYSKY_AFHDS2A,
+  MODULE_SUBTYPE_FLYSKY_LAST = MODULE_SUBTYPE_FLYSKY_AFHDS2A
+};
+
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;
 
@@ -201,9 +207,21 @@ class ModuleData {
     } multi;
 
     struct Afhds3 {
-      unsigned int rxFreq;
-      unsigned int rfPower;
+      unsigned int bindPower; // 0 25mW, 1 100mW, 2 500mW, 3 1W, 4 2W
+      unsigned int runPower;
+      unsigned int emi;
+      unsigned int telemetry;
+      unsigned int failsafeTimeout;
+      unsigned int rx_freq[2];
+      unsigned int mode;
     } afhds3;
+
+    struct Afhds2a {
+      unsigned int rx_id[4];
+      unsigned int mode;
+      unsigned int rfPower; // 0 25mW, 1 100mW, 2 500mW, 3 1W, 4 2W
+      unsigned int rx_freq[2];
+    } afhds2a;
 
     struct PXX {
       unsigned int power;          // 0 10 mW, 1 100 mW, 2 500 mW, 3 1W
@@ -232,5 +250,3 @@ class ModuleData {
     bool hasFailsafes(Firmware * fw) const;
     int getMaxChannelCount();
 };
-
-#endif // MODULEDATA_H

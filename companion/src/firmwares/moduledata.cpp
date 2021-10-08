@@ -21,7 +21,7 @@
 #include "moduledata.h"
 #include "eeprominterface.h"
 #include "multiprotocols.h"
-#include "afhds3.h"
+#include "afhds.h"
 #include "radiodataconversionstate.h"
 
 void ModuleData::convert(RadioDataConversionState & cstate)
@@ -120,8 +120,9 @@ QString ModuleData::subTypeToString(int type) const
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
-    case PULSES_AFHDS3:
-      return Afhds3Data::protocolToString(type);
+    case PULSES_FLYSKY_AFHDS3:
+    case PULSES_FLYSKY_AFHDS2A:
+      return AfhdsData::subTypeToString(type);
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -130,7 +131,7 @@ QString ModuleData::subTypeToString(int type) const
 QString ModuleData::powerValueToString(Firmware * fw) const
 {
   const QStringList & strRef = powerValueStrings((enum PulsesProtocol)protocol, subType, fw);
-  return strRef.value(protocol == PULSES_AFHDS3 ? afhds3.rfPower : pxx.power, CPN_STR_UNKNOWN_ITEM);
+  return strRef.value(protocol == PULSES_FLYSKY_AFHDS3 ? afhds3.bindPower : (protocol == PULSES_FLYSKY_AFHDS2A ? afhds2a.rfPower : pxx.power), CPN_STR_UNKNOWN_ITEM);
 }
 
 // static
@@ -170,7 +171,7 @@ QString ModuleData::protocolToString(unsigned protocol)
     "FrSky ACCESS R9M Lite",
     "FrSky ACCESS R9M Lite Pro",
     "FrSky XJT lite (D16)", "FrSky XJT lite (D8)", "FrSky XJT lite (LR12)",
-    "AFHDS3",
+    "FlySky AFHDS3", "FlySky AFHDS2A",
     "ImmersionRC Ghost"
   };
 
@@ -186,13 +187,14 @@ QStringList ModuleData::powerValueStrings(enum PulsesProtocol protocol, int subT
     { tr("100mW - 16CH") },                                                                                         // mini FCC
     { tr("25mW - 8CH"), tr("25mW - 16CH"), tr("100mW - 16CH (no telemetry)") }                                      // mini EU
   };
-  static const QStringList afhds3Strings = {
-    tr("25 mW"), tr("100 mW"), tr("500 mW"), tr("1 W"), tr("2 W")
+  static const QStringList afhdsStrings = {
+    tr("25mW"), tr("100mW"), tr("500mW"), tr("1W"), tr("2W")
   };
 
   switch(protocol) {
-    case PULSES_AFHDS3:
-      return afhds3Strings;
+    case PULSES_FLYSKY_AFHDS3:
+    case PULSES_FLYSKY_AFHDS2A:
+      return afhdsStrings;
     default:
       int strIdx = 0;
       if (subType == MODULE_SUBTYPE_R9M_EU)
@@ -215,7 +217,8 @@ bool ModuleData::hasFailsafes(Firmware * fw) const
     protocol == PULSES_ACCESS_R9M_LITE_PRO ||
     protocol == PULSES_XJT_LITE_X16 ||
     protocol == PULSES_MULTIMODULE ||
-    protocol == PULSES_AFHDS3
+    protocol == PULSES_FLYSKY_AFHDS3 ||
+    protocol == PULSES_FLYSKY_AFHDS2A
     );
 }
 
@@ -253,8 +256,9 @@ int ModuleData::getMaxChannelCount()
       else
         return 16;
       break;
-    case PULSES_AFHDS3:
-      return 18;
+    case PULSES_FLYSKY_AFHDS3:
+    case PULSES_FLYSKY_AFHDS2A:
+      return 14;
     case PULSES_OFF:
       break;
     default:
