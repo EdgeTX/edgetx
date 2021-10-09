@@ -145,7 +145,7 @@ class ValueWidget: public Widget
 
 const ZoneOption ValueWidget::options[] = {
   { STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_Rud) },
-  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(WHITE) },
+  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY1) },
   { STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)  },
   { nullptr, ZoneOption::Bool }
 };

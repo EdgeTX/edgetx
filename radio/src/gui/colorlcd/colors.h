@@ -55,23 +55,10 @@ enum LcdColorIndex
 
 //
 // Basic color definitions
-// 
+//
+
 #define WHITE                          RGB(0xFF, 0xFF, 0xFF)
-#define LIGHTWHITE                     RGB(238, 234, 238)
 #define BLACK                          RGB(0, 0, 0)
-#define YELLOW                         RGB(0xF0, 0xD0, 0x10)
-#define BLUE                           RGB(0x30, 0xA0, 0xE0)
-#define DARKBLUE                       RGB(0, 0x35, 0x67)
-#define GREY                           RGB(96, 96, 96)
-#define DARKGREY                       RGB(64, 64, 64)
-#define LIGHTGREY                      RGB(180, 180, 180)
-#define RED                            RGB(229, 32, 30)
-#define DARKRED                        RGB(160, 0, 6)
-#define GREEN                          RGB(25, 150, 50)
-#define LIGHTBROWN                     RGB(156, 109, 32)
-#define DARKBROWN                      RGB(106, 72, 16)
-#define BRIGHTGREEN                    RGB(0, 180, 60)
-#define ORANGE                         RGB(229, 100, 30)
 
 #define RGB2FLAGS(r, g, b)             (COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG)
 
