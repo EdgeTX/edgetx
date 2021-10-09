@@ -260,7 +260,6 @@ class GeneralSettings {
     static QString auxSerialModeToString(int value);
     static QString telemetryBaudrateToString(int value);
     static FieldRange getPPM_MultiplierRange();
-    static FieldRange getTxVoltageCalibrationRange();
     static FieldRange getTxCurrentCalibration();
     static AbstractStaticItemModel * antennaModeItemModel();
     static AbstractStaticItemModel * bluetoothModeItemModel();

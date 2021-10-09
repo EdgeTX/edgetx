@@ -495,20 +495,6 @@ FieldRange GeneralSettings::getPPM_MultiplierRange()
 }
 
 //  static
-FieldRange GeneralSettings::getTxVoltageCalibrationRange()
-{
-  FieldRange result;
-
-  result.decimals = 1;
-  result.max = 9.9;
-  result.min = -result.max;
-  result.step = 0.1;
-  result.unit = tr("v");
-
-  return result;
-}
-
-//  static
 FieldRange GeneralSettings::getTxCurrentCalibration()
 {
   FieldRange result;
