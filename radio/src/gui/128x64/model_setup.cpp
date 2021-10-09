@@ -1111,7 +1111,7 @@ void menuModelSetup(event_t event)
       break;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS_PROTOCOL:
         lcdDrawText(INDENT_WIDTH, y, STR_PROTOCOL);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, attr);
@@ -1787,7 +1787,7 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_RX_FREQ:
         lcdDrawText(INDENT_WIDTH, y, STR_AFHDS3_RX_FREQ);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].afhds3.rxFreq(), attr | LEFT);
@@ -1831,7 +1831,7 @@ void menuModelSetup(event_t event)
         }
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: {
         lcdDrawTextAlignedLeft(y, STR_MODULE_STATUS);
 
