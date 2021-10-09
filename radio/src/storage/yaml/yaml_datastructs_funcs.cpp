@@ -288,7 +288,14 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         val_len--;
     }
 
-    if (val_len > 3
+    if (val_len >= 2
+             && val[0] == 'L'
+             && (val[1] >= '0' && val[1] <= '9')) {
+
+        ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
+    }
+#if NUM_XPOTS > 0
+    else if (val_len > 3
         && val[0] == '6'
         && val[1] == 'P'
         && (val[2] >= '0' && val[2] <= '9')
@@ -297,12 +304,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
             + SWSRC_FIRST_MULTIPOS_SWITCH;
     }
-    else if (val_len >= 2
-             && val[0] == 'L'
-             && (val[1] >= '0' && val[1] <= '9')) {
-
-        ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
-    }
+#endif
     else if (val_len == 3
              && val[0] == 'F'
              && val[1] == 'M'
@@ -332,8 +334,16 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     }
 
     const char* str = NULL;
-    if (sval >= SWSRC_FIRST_MULTIPOS_SWITCH
-        && sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
+    if (sval >= SWSRC_FIRST_LOGICAL_SWITCH
+             && sval <= SWSRC_LAST_LOGICAL_SWITCH) {
+
+        wf(opaque, "L", 1);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
+        return wf(opaque,str, strlen(str));
+    }
+#if NUM_XPOTS > 0
+    else if (sval >= SWSRC_FIRST_MULTIPOS_SWITCH
+             && sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
 
         wf(opaque, "6P", 2);
 
@@ -346,13 +356,7 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
         str = yaml_unsigned2str(sval % XPOTS_MULTIPOS_COUNT);
         return wf(opaque,str, strlen(str));
     }
-    else if (sval >= SWSRC_FIRST_LOGICAL_SWITCH
-             && sval <= SWSRC_LAST_LOGICAL_SWITCH) {
-
-        wf(opaque, "L", 1);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
-        return wf(opaque,str, strlen(str));
-    }
+#endif
     else if (sval >= SWSRC_FIRST_FLIGHT_MODE
              && sval <= SWSRC_LAST_FLIGHT_MODE) {
 
