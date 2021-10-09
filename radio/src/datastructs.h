@@ -76,11 +76,11 @@ PACK(struct MixData {
   uint16_t srcRaw:10 CUST(r_mixSrcRaw,w_mixSrcRaw); // srcRaw=0 means not used
   uint16_t carryTrim:1;
   uint16_t mixWarn:2;       // mixer warning
-  uint16_t mltpx:2;         // multiplex method: 0 means +=, 1 means *=, 2 means :=
+  uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t spare:1 SKIP;
   int32_t  offset:14;
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9;
+  uint32_t flightModes:9; //TODO ??
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -100,7 +100,7 @@ PACK(struct ExpoData {
   int16_t  carryTrim:6;
   uint32_t chn:5;
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9;
+  uint32_t flightModes:9; //TODO ??
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
   int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
@@ -229,9 +229,9 @@ PACK(struct GVarData {
 
 PACK(struct TimerData {
   uint32_t start:22;
-  int32_t  swtch:10;
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   int32_t  value:22;
-  uint32_t mode:3; // timer mode (OFF, ON, Start, THs, TH%, THt)
+  uint32_t mode:3 ENUM(TimerModes);
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
@@ -461,7 +461,6 @@ PACK(struct ModuleData {
       uint8_t racingMode:1;
       char receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME];
     } pxx2);
-#if defined(AFHDS2)
     NOBACKUP(struct {
       uint8_t rx_id[4];
       uint8_t mode:3;
@@ -477,8 +476,6 @@ PACK(struct ModuleData {
         rx_freq[1] = 0;
       }
     } flysky);
-#endif
-#if defined(AFHDS3)
     NOBACKUP(PACK(struct {
       uint8_t bindPower:3;
       uint8_t runPower:3;
@@ -499,7 +496,6 @@ PACK(struct ModuleData {
         rx_freq[1] = value >> 8;
       }
     } afhds3));
-#endif
   } NAME(mod) FUNC(select_mod_type);
 
   // Helper functions to set both of the rfProto protocol at the same time
@@ -810,15 +806,15 @@ PACK(struct TrainerData {
 
 PACK(struct RadioData {
   NOBACKUP(uint8_t version);
-  NOBACKUP(uint16_t variant);
+  NOBACKUP(uint16_t variant SKIP);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS];
-  NOBACKUP(uint16_t chkSum);
+  NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);
   NOBACKUP(uint8_t vBatWarn);
   NOBACKUP(int8_t txVoltageCalibration);
-  uint8_t backlightMode:3;
-  int8_t antennaMode:2;
+  uint8_t backlightMode:3 ENUM(BacklightMode);
+  int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
   int8_t spare1:1 SKIP;
@@ -826,7 +822,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t view);            // index of view in main screen
   NOBACKUP(BUZZER_FIELD); /* 2bits */
   NOBACKUP(uint8_t fai:1);
-  NOBACKUP(int8_t beepMode:2);      // -2=quiet, -1=only alarms, 0=no keys, 1=all
+  NOBACKUP(int8_t beepMode:2 ENUM(BeeperMode) CUST(r_beeperMode,w_beeperMode));
   NOBACKUP(uint8_t alarmsFlash:1);
   NOBACKUP(uint8_t disableMemoryWarning:1);
   NOBACKUP(uint8_t disableAlarmWarning:1);
@@ -836,20 +832,20 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t inactivityTimer);
   uint8_t telemetryBaudrate:3;
   SPLASH_MODE; /* 3bits */
-  int8_t hapticMode:2;    // -2=quiet, -1=only alarms, 0=no keys, 1=all
+  int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;
   NOBACKUP(uint8_t lightAutoOff);
   NOBACKUP(uint8_t templateSetup);   // RETA order for receiver channels
   NOBACKUP(int8_t PPM_Multiplier);
-  NOBACKUP(int8_t hapticLength);
+  NOBACKUP(int8_t hapticLength CUST(r_5pos,w_5pos));
   N_HORUS_FIELD(N_TARANIS_FIELD(uint8_t spare2 SKIP));
   N_HORUS_FIELD(N_TARANIS_FIELD(uint8_t stickReverse));
-  NOBACKUP(int8_t beepLength:3);
-  NOBACKUP(int8_t hapticStrength:3);
+  NOBACKUP(int8_t beepLength:3 CUST(r_5pos,w_5pos));
+  NOBACKUP(int8_t hapticStrength:3 CUST(r_5pos,w_5pos));
   NOBACKUP(uint8_t gpsFormat:1);
   NOBACKUP(uint8_t unexpectedShutdown:1);
-  NOBACKUP(uint8_t speakerPitch);
-  NOBACKUP(int8_t speakerVolume);
+  NOBACKUP(uint8_t speakerPitch CUST(r_spPitch,w_spPitch));
+  NOBACKUP(int8_t speakerVolume CUST(r_vol,w_vol));
   NOBACKUP(int8_t vBatMin CUST(r_vbat_min,w_vbat_min));
   NOBACKUP(int8_t vBatMax CUST(r_vbat_max,w_vbat_max));
 
@@ -867,12 +863,12 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  jackMode:2);
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
   NOBACKUP(char     ttsLanguage[2]);
-  NOBACKUP(int8_t   beepVolume:4);
-  NOBACKUP(int8_t   wavVolume:4);
-  NOBACKUP(int8_t   varioVolume:4);
-  NOBACKUP(int8_t   backgroundVolume:4);
-  NOBACKUP(int8_t   varioPitch);
-  NOBACKUP(int8_t   varioRange);
+  NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
+  NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));
+  NOBACKUP(int8_t   varioVolume:4 CUST(r_5pos,w_5pos));
+  NOBACKUP(int8_t   backgroundVolume:4 CUST(r_5pos,w_5pos));
+  NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
+  NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 

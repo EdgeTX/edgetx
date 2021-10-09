@@ -157,9 +157,11 @@ enum CurveRefType {
   #define TRIM_LAST TRIM_AIL
 #endif
 
-#define MLTPX_ADD   0
-#define MLTPX_MUL   1
-#define MLTPX_REP   2
+enum MixerMultiplex {
+  MLTPX_ADD = 0,
+  MLTPX_MUL = 1,
+  MLTPX_REP = 2,
+};
 
 #define GV1_SMALL       128
 #define GV1_LARGE       1024

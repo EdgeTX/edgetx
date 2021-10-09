@@ -141,7 +141,8 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     data += bitoffs >> 3UL;
     data -= offsetof(ModuleData, ppm);
 
-    switch(((ModuleData*)data)->type) {
+    ModuleData* mod_data = reinterpret_cast<ModuleData*>(data);
+    switch(mod_data->type) {
     case MODULE_TYPE_NONE:
     case MODULE_TYPE_PPM:
     case MODULE_TYPE_DSM2:
@@ -162,8 +163,11 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
     case MODULE_TYPE_XJT_LITE_PXX2:
         return 5;
-    case MODULE_TYPE_AFHDS3:
-        return 7;
+    case MODULE_TYPE_FLYSKY:
+        if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS2A)
+            return 6;
+        if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS3)
+            return 7;
     }
     return 0;
 }
@@ -171,6 +175,7 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
 static uint8_t select_custom_fn(uint8_t* data, uint32_t bitoffs)
 {
     // always use 'all'
+    //TODO
     return 1;
 }
 
@@ -298,8 +303,19 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
         ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
-    //TODO: Flight modes ('FM[0-9]')
-    //TODO: Sensors ('Sensor[0-9]')
+    else if (val_len == 3
+             && val[0] == 'F'
+             && val[1] == 'M'
+             && (val[2] >= '0' && val[2] <= '9')) {
+        
+        ival = SWSRC_FIRST_FLIGHT_MODE + (val[3] - '0');
+    }
+    else if (val_len >= 2
+             && val[0] == 'T'
+             && (val[1] >= '0' && val[1] <= '9')) {
+
+        ival = SWSRC_FIRST_SENSOR + yaml_str2int(val+1, val_len-1) - 1;
+    }
     else {
         ival = yaml_parse_enum(enum_SwitchSources, val, val_len);
     }
@@ -340,14 +356,16 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     else if (sval >= SWSRC_FIRST_FLIGHT_MODE
              && sval <= SWSRC_LAST_FLIGHT_MODE) {
 
-        //TODO
-        return true;
+        wf(opaque, "FM", 2);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE + 1);
+        return wf(opaque,str, strlen(str));
     }
     else if (sval >= SWSRC_FIRST_SENSOR
              && sval <= SWSRC_LAST_SENSOR) {
 
-        //TODO
-        return true;
+        wf(opaque, "T", 2);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
+        return wf(opaque,str, strlen(str));
     }
     
     str = yaml_output_enum(sval, enum_SwitchSources);
@@ -469,3 +487,65 @@ static bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 
     return true;
 }
+
+extern const struct YamlIdStr enum_BeeperMode[];
+
+static uint32_t r_beeperMode(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return yaml_parse_enum(enum_BeeperMode, val, val_len);
+}
+
+static bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    int32_t sval = yaml_to_signed(val,node->size);
+    const char* str = yaml_output_enum(sval, enum_BeeperMode);
+    return wf(opaque, str, strlen(str));
+}
+
+static uint32_t r_5pos(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return (uint32_t)(yaml_str2int(val, val_len) - 2);
+}
+
+static bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    int32_t sval = yaml_to_signed(val,node->size);
+    char* s = yaml_signed2str(sval + 2);
+    return wf(opaque, s, strlen(s));
+}
+
+static uint32_t r_vol(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return (uint32_t)(yaml_str2int(val, val_len) - VOLUME_LEVEL_DEF);
+}
+
+static bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    int32_t sval = yaml_to_signed(val,node->size);
+    char* s = yaml_signed2str(sval + VOLUME_LEVEL_DEF);
+    return wf(opaque, s, strlen(s));
+}
+
+static uint32_t r_spPitch(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return (uint32_t)(yaml_str2int(val, val_len) / 15);
+}
+
+static bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    char* s = yaml_signed2str(val * 15);
+    return wf(opaque, s, strlen(s));
+}
+
+static uint32_t r_vPitch(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return (uint32_t)(yaml_str2int(val, val_len) / 10);
+}
+
+static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+    int32_t sval = yaml_to_signed(val,node->size);
+    char* s = yaml_signed2str(sval * 10);
+    return wf(opaque, s, strlen(s));
+}
+

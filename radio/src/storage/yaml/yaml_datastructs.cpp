@@ -22,12 +22,17 @@
 #include "opentx.h"
 #include "yaml_node.h"
 
+// Warning: this file must be kept in sync with the CMakeLists.txt
+//          in the same directory.
+
 #include "yaml_datastructs_funcs.cpp"
 
-#if defined(PCBX10)
- #include "yaml_datastructs_x10.cpp"
-#elif defined(PCBX12S)
+#if defined(PCBX12S)
  #include "yaml_datastructs_x12s.cpp"
+#elif defined(PCBX10)
+ #include "yaml_datastructs_x10.cpp"
+#elif defined(PCBNV14)
+ #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBX7)
  #if defined(RADIO_T12)
   #include "yaml_datastructs_t12.cpp"
@@ -50,10 +55,8 @@
  #include "yaml_datastructs_xlites.cpp"
 #elif defined(PCBX9E)
  #include "yaml_datastructs_x9e.cpp"
-#elif defined(PCBX9D)
+#elif defined(PCBX9D) || defined(PCBX9DP)
  #include "yaml_datastructs_x9d.cpp"
-#elif defined(PCBX9DP)
- #include "yaml_datastructs_x9dp.cpp"
 #else
 #error "Board not supported by YAML storage"
 #endif

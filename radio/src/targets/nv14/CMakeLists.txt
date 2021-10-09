@@ -28,6 +28,11 @@ else()
   set(LINKER_SCRIPT targets/nv14/stm32f4_flash.ld)
 endif()
 
+if(YAML_STORAGE)
+  set(STORAGE_FORMAT  YAML)
+  set(STORAGE_CONVERT SDCARD_RAW)
+endif()
+
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 # for size report script

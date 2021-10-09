@@ -765,13 +765,8 @@ enum MixSources {
 
   MIXSRC_TX_VOLTAGE,                        LUA_EXPORT("tx-voltage", "Transmitter battery voltage [volts]")
   MIXSRC_TX_TIME,                           LUA_EXPORT("clock", "RTC clock [minutes from midnight]")
-#if defined(INTERNAL_GPS)
   MIXSRC_TX_GPS,
   MIXSRC_FIRST_RESERVE SKIP,
-#else
-  MIXSRC_FIRST_RESERVE SKIP,
-  MIXSRC_RESERVE2 SKIP,
-#endif
   MIXSRC_RESERVE3 SKIP,
   MIXSRC_RESERVE4 SKIP,
   MIXSRC_LAST_RESERVE SKIP,

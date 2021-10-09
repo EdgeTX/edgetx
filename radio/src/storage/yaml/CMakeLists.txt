@@ -6,10 +6,15 @@ set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
                storage/yaml/yaml_modelslist.cpp
                storage/yaml/yaml_datastructs.cpp)
 
+# Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
+#          in the same directory.
+
 if(PCB STREQUAL X12S)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x12s.cpp)
 elseif(PCB STREQUAL X10)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x10.cpp)
+elseif(PCB STREQUAL NV14)
+  set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_nv14.cpp)
 elseif(PCB STREQUAL X7)
   if(PCBREV STREQUAL T12)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_t12.cpp)
@@ -32,10 +37,8 @@ elseif(PCB STREQUAL XLITES)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_xlites.cpp)
 elseif(PCB STREQUAL X9E)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x9e.cpp)
-elseif(PCB STREQUAL X9D)
+elseif((PCB STREQUAL X9D) OR (PCB STREQUAL X9D+))
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x9d.cpp)
-elseif(PCB STREQUAL X9D+)
-  set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x9dp.cpp)
 else()
   message(FATAL_ERROR "PCB '${PCB}' is not supported by YAML storage")
 endif()
