@@ -498,6 +498,7 @@
   #define TR_MENUTOSTART                TR_ENTER " 開始"
   #define TR_SETMIDPOINT                "將搖桿、旋鈕和滑塊居中"
   #define TR_MOVESTICKSPOTS             "轉動搖桿、旋鈕和滑塊到最大邊界"
+  #define TR_MENUWHENDONE               CENTER "\006" TR_ENTER " 完成后"
 #endif
 #define TR_RXBATT                       "Rx Batt:"
 #define TR_TXnRX                        "Tx:\0Rx:"
