@@ -58,7 +58,7 @@ class TimerWidget: public Widget
           dc->drawBitmapPattern(3, 4, LBM_TIMER, COLOR_THEME_SECONDARY1);
         }
         if (abs(timerState.val) >= 3600) {
-          drawTimer(dc, 70, 31, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(STD) | LEFT | TIMEHOUR);
+          drawTimer(dc, 76, 38, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(STD) | LEFT | TIMEHOUR);
         }
         else {
           drawTimer(dc,76, 31, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(XL) | LEFT);
