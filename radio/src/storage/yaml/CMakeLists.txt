@@ -3,9 +3,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
                storage/yaml/yaml_parser.cpp
                storage/yaml/yaml_bits.cpp
-               storage/yaml/yaml_modelslist.cpp
                storage/yaml/yaml_datastructs.cpp)
 
+if(STORAGE_MODELSLIST)
+  set(SRC ${SRC} storage/yaml/yaml_modelslist.cpp)
+endif()
+          
 # Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
 #          in the same directory.
 

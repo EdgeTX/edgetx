@@ -843,8 +843,9 @@ bool modelHasNotes()
     return true;
   }
 
-#if !defined(EEPROM)
-  buf = strAppendFilename(&filename[sizeof(MODELS_PATH)], g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
+#if defined(STORAGE_MODELSLIST)
+  buf = strAppendFilename(&filename[sizeof(MODELS_PATH)],
+                          g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
   strcpy(buf, TEXT_EXT);
   if (isFileAvailable(filename)) {
     return true;

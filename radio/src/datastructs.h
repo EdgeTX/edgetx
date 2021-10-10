@@ -759,7 +759,6 @@ PACK(struct TrainerData {
     NOBACKUP(uint8_t spare5:1 SKIP); \
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
-  #define CURR_MODEL_FILENAME
 #elif defined(PCBTARANIS)
   #if defined(STORAGE_BLUETOOTH)
     #define BLUETOOTH_FIELDS \
@@ -778,14 +777,8 @@ PACK(struct TrainerData {
     char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME]; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME]; \
     BLUETOOTH_FIELDS
-  #if defined(SDCARD_YAML)
-    #define CURR_MODEL_FILENAME char currModelFilename[LEN_MODEL_FILENAME+1]
-  #else
-    #define CURR_MODEL_FILENAME
-  #endif
 #else
   #define EXTRA_GENERAL_FIELDS
-  #define CURR_MODEL_FILENAME
 #endif
 
 #if defined(COLORLCD) && !defined(BACKUP)
@@ -881,9 +874,6 @@ PACK(struct RadioData {
   GYRO_FIELDS
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
-#if defined(PCBTARANIS)
-  CURR_MODEL_FILENAME;
-#endif
 });
 
 #undef SWITCHES_WARNING_DATA
@@ -990,39 +980,19 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
-  #if !defined(SDCARD_YAML)
-    CHKSIZE(RadioData, 861);
-  #else
-    CHKSIZE(RadioData, 878);
-  #endif
+  CHKSIZE(RadioData, 861);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBXLITE)
-  #if !defined(SDCARD_YAML)
-    CHKSIZE(RadioData, 859);
-  #else
-    CHKSIZE(RadioData, 876);
-  #endif
+  CHKSIZE(RadioData, 859);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBX7)
-  #if !defined(SDCARD_YAML)
-    CHKSIZE(RadioData, 865);
-  #else
-    CHKSIZE(RadioData, 882);
-  #endif
+  CHKSIZE(RadioData, 865);
   CHKSIZE(ModelData, 6157);
 #elif defined(PCBX9E)
-  #if !defined(SDCARD_YAML)
-    CHKSIZE(RadioData, 961);
-  #else
-    CHKSIZE(RadioData, 978);
-  #endif
+  CHKSIZE(RadioData, 961);
   CHKSIZE(ModelData, 6614);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  #if !defined(SDCARD_YAML)
-    CHKSIZE(RadioData, 899);
-  #else
-    CHKSIZE(RadioData, 916);
-  #endif
+  CHKSIZE(RadioData, 899);
   CHKSIZE(ModelData, 6604);
 #elif defined(PCBHORUS)
   CHKSIZE(RadioData, 902);
