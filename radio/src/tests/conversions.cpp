@@ -31,7 +31,7 @@ void loadEEPROMFile(const char * filename)
 }
 #endif
 
-#if defined(PCBX9DP)
+#if defined(PCBX9DP) && defined(EEPROM)
 TEST(Conversions, ConversionX9DPFrom23)
 {
   loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+.bin");
