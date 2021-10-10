@@ -63,7 +63,7 @@ void ViewTextWindow::buildBody(Window *window)
 
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
-  const int maxLineLength = int(floor(window->width() / 10 / 10)) * 10 - 2;
+  const int maxLineLength = static_cast<int>(window->width() / 10 / 10) * 10 - 2;
   window->setFocus();
 
   FIL file;
@@ -194,7 +194,7 @@ void ViewTextWindow::buildBody(Window *window)
 
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
-  maxLineLength = int(floor(window->width() / 10 / 10)) * 10 - 2;
+  maxLineLength = static_cast<int>(window->width() / 10 / 10) * 10 - 2;
   maxScreenLines = window->height() / (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
   window->setFocus();
   readLinesCount = 0;
