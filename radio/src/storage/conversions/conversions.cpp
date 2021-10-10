@@ -170,23 +170,6 @@ void eeConvertModel(int id, int version)
   uint8_t currModel = g_eeGeneral.currModel;
   g_eeGeneral.currModel = id;
 
-#if !defined(EEPROM)
-  char filename[LEN_MODEL_FILENAME+1];
-  memset(filename, 0, sizeof(filename));
-  char* s = strAppend(filename, MODEL_FILENAME_PREFIX);
-  s = strAppendUnsigned(s, id + 1, 2);
-  s = strAppend(s, MODEL_FILENAME_SUFFIX);
-  memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
-
-  if (!modelslist.getCurrentCategory()) {
-    ModelsCategory* cat = modelslist.createCategory("Models", false);
-    modelslist.setCurrentCategory(cat);
-  }
-  ModelCell* model = modelslist.addModel(modelslist.getCurrentCategory(),
-                                         filename, false);
-  model->setModelName(g_model.header.name);
-#endif
-  
   storageDirty(EE_MODEL);
   storageCheck(true);
 
@@ -233,7 +216,7 @@ bool eeConvert()
   storageDirty(EE_GENERAL);
   storageCheck(true);
 
-#if !defined(EEPROM)
+#if defined(STORAGE_MODELSLIST)
   modelslist.clear();
 #endif
   
@@ -265,7 +248,7 @@ bool eeConvert()
     }
   }
 
-#if !defined(EEPROM)
+#if defined(STORAGE_MODELSLIST)
   modelslist.save();
 #endif
 

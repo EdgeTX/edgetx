@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "opentx_helpers.h"
 #include "storage.h"
 #include "sdcard_common.h"
 #include "sdcard_raw.h"
@@ -67,6 +68,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 // Generic storage interface
 //
 
+#if !defined(EEPROM_RLC)
 void storageCreateModelsList()
 {
     modelslist.clear();
@@ -74,6 +76,7 @@ void storageCreateModelsList()
     cat->addModel(DEFAULT_MODEL_FILENAME);
     modelslist.save();
 }
+#endif
 
 //
 // SDCARD storage interface
@@ -244,7 +247,94 @@ const char * writeModelYaml(const char* filename)
     return NULL;
 }
 
+#if !defined(STORAGE_MODELSLIST)
+// EEPROM slot simulation based on file names:
+// - /MODELS/model[00-99].yml
+
+constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
+
+static void getModelNumberStr(uint8_t idx, char* model_idx)
+{
+  memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
+  model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;
+  model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx % 10;
+  model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '\0';
+}
+#endif
+
 const char * writeModel()
 {
-    return writeModelYaml(g_eeGeneral.currModelFilename);
+#if defined(STORAGE_MODELSLIST)
+  return writeModelYaml(g_eeGeneral.currModelFilename);
+#else
+  char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+  getModelNumberStr(g_eeGeneral.currModel, fname);
+  strcat(fname, YAML_EXT);
+  return writeModelYaml(fname);
+#endif
 }
+
+#if !defined(STORAGE_MODELSLIST)
+void loadModelHeader(uint8_t id, ModelHeader* header)
+{
+  PartialModel partial;
+  memclear(&partial, sizeof(PartialModel));
+
+  if (modelExists(id)) {
+    uint8_t dummy;
+    char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+    getModelNumberStr(id, fname);
+    strcat(fname, YAML_EXT);
+    readModelYaml(fname, reinterpret_cast<uint8_t*>(&partial), sizeof(partial), &dummy);
+    memcpy(header, &partial, sizeof(ModelHeader));
+  }
+}
+
+const char * loadModel(uint8_t idx, bool alarms)
+{
+  char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+  getModelNumberStr(idx, fname);
+  strcat(fname, YAML_EXT);
+  return loadModel(fname, alarms);
+}
+
+bool modelExists(uint8_t idx)
+{
+  char model_idx[MODELIDX_STRLEN];
+  getModelNumberStr(idx, model_idx);
+  GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
+
+  FILINFO fno;
+  return f_stat(fname, &fno) == FR_OK;
+}
+
+bool copyModel(uint8_t dst, uint8_t src)
+{
+  // TODO: overwrite possible?
+  char model_idx_src[MODELIDX_STRLEN];
+  char model_idx_dst[MODELIDX_STRLEN];
+  getModelNumberStr(src, model_idx_src);
+  getModelNumberStr(dst, model_idx_dst);
+  
+  GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
+  GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
+
+  return sdCopyFile(fname_src, fname_dst);
+}
+
+void swapModels(uint8_t id1, uint8_t id2)
+{
+  //TODO
+}
+
+int8_t deleteModel(uint8_t idx)
+{
+  char model_idx[MODELIDX_STRLEN];
+  getModelNumberStr(idx, model_idx);
+  
+  GET_FILENAME(fname, MODELS_PATH PATH_SEPARATOR MODEL_FILENAME_PREFIX,
+               model_idx, YAML_EXT);
+
+  return f_unlink(fname) == FR_OK ? 0 : -1;
+}
+#endif

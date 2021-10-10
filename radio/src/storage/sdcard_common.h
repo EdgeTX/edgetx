@@ -53,6 +53,19 @@ const char * loadModel(const char * filename, bool alarms=true);
 const char * createModel();
 const char * writeModel();
 
+#if !defined(STORAGE_MODELSLIST)
+
+// index storage vs modelslist
+void selectModel(uint8_t idx);
+const char* loadModel(uint8_t idx, bool alarms=true);
+bool modelExists(uint8_t idx);
+bool copyModel(uint8_t dst, uint8_t src);
+void swapModels(uint8_t id1, uint8_t id2);
+int8_t deleteModel(uint8_t idx);
+uint8_t findEmptyModel(uint8_t id, bool down);
+
+#endif
+
 const char * loadRadioSettings();
 const char * writeGeneralSettings();
 

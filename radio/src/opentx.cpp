@@ -335,7 +335,7 @@ void generalDefault()
   memcpy(g_eeGeneral.bluetoothName, defaultName, sizeof(defaultName));
 #endif
 
-#if !defined(EEPROM)
+#if defined(STORAGE_MODELSLIST)
   strcpy(g_eeGeneral.currModelFilename, DEFAULT_MODEL_FILENAME);
 #endif
 
