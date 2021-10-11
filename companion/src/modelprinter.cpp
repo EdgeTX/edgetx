@@ -190,9 +190,9 @@ QString ModelPrinter::printModule(int idx)
   QString result;
   ModuleData module = model.moduleData[(idx<0 ? CPN_MAX_MODULES : idx)];
   if (idx < 0) {
-    str << printLabelValue(tr("Mode"), printTrainerMode());
+    str << printLabelValue(tr("Mode"), model.trainerModeToString());
     if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      if (model.trainerMode == TRAINER_SLAVE_JACK) {
+      if (model.trainerMode == TRAINER_MODE_SLAVE_JACK) {
         str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
         str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
         str << printLabelValue(tr("PPM delay"), QString("%1us").arg(module.ppm.delay));
@@ -235,31 +235,6 @@ QString ModelPrinter::printModule(int idx)
     if (((PulsesProtocol)module.protocol == PulsesProtocol::PULSES_PXX_XJT_X16 || (PulsesProtocol)module.protocol == PulsesProtocol::PULSES_PXX_R9M)
        && firmware->getCapability(HasFailsafe))
       result.append("<br/>" + printFailsafe(idx));
-  }
-  return result;
-}
-
-QString ModelPrinter::printTrainerMode()
-{
-  QString result;
-  switch (model.trainerMode) {
-    case TRAINER_MASTER_JACK:
-      result = tr("Master/Jack");
-      break;
-    case TRAINER_SLAVE_JACK:
-      result = tr("Slave/Jack");
-      break;
-    case TRAINER_MASTER_SBUS_MODULE:
-      result = tr("Master/SBUS Module");
-      break;
-    case TRAINER_MASTER_CPPM_MODULE:
-      result = tr("Master/CPPM Module");
-      break;
-    case TRAINER_MASTER_SBUS_BATT_COMPARTMENT:
-      result = tr("Master/SBUS in battery compartment");
-      break;
-    default:
-      result = CPN_STR_UNKNOWN_ITEM;
   }
   return result;
 }

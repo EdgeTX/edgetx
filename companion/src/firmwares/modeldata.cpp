@@ -26,6 +26,7 @@
 #include "radiodataconversionstate.h"
 #include "helpers.h"
 #include "adjustmentreference.h"
+#include "compounditemmodels.h"
 
 ModelData::ModelData()
 {
@@ -1564,4 +1565,73 @@ void ModelData::limitsSet(const int index, const QByteArray & data)
     return;
 
   memcpy(&limitData[index], data.constData(), sizeof(LimitData));
+}
+
+QString ModelData::trainerModeToString() const
+{
+  return trainerModeToString(trainerMode);
+}
+
+//  static
+QString ModelData::trainerModeToString(int value)
+{
+  switch (value) {
+    case TRAINER_MODE_MASTER_JACK:
+      return tr("Master/Jack");
+    case TRAINER_MODE_SLAVE_JACK:
+      return tr("Slave/Jack");
+    case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
+      return tr("Master/SBUS Module");
+    case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
+      return tr("Master/CPPM Module");
+    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
+      return tr("Master/Battery");
+    case TRAINER_MODE_MASTER_BLUETOOTH:
+      return tr("Master/Bluetooth");
+    case TRAINER_MODE_SLAVE_BLUETOOTH:
+      return tr("Slave/Bluetooth");
+    case TRAINER_MODE_MULTI:
+      return tr("Master/Multi");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value)
+{
+  if (value < 0 || value >= TRAINER_MODE_COUNT)
+    return false;
+
+  bool ret = true;
+  const Board::Type board = firmware->getBoard();
+
+  if (!IS_TARANIS(board) || IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
+    if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE && value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+      ret = false;
+  }
+  else if (generalSettings.auxSerialMode != UART_MODE_SBUS_TRAINER && value == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+      ret = false;
+
+  if (generalSettings.bluetoothMode != GeneralSettings::BLUETOOTH_MODE_TRAINER && value >= TRAINER_MODE_MASTER_BLUETOOTH && value <= TRAINER_MODE_SLAVE_BLUETOOTH)
+      ret = false;
+
+  if (!IS_RADIOMASTER_TX16S(board) && value == TRAINER_MODE_MULTI)
+      ret = false;
+
+  return ret;
+}
+
+//  static
+AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_TRAINERMODE);
+
+  for (int i = 0; i < TRAINER_MODE_COUNT; i++) {
+    mdl->appendToItemList(trainerModeToString(i), i, isTrainerModeAvailable(generalSettings, firmware, i));
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }

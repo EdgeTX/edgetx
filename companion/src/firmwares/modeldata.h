@@ -40,6 +40,9 @@
 
 class GeneralSettings;
 class RadioDataConversionState;
+class AbstractStaticItemModel;
+
+constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 
 #define CHAR_FOR_NAMES " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-."
 #define CHAR_FOR_NAMES_REGEX "[ A-Za-z0-9_.-,]*"
@@ -69,14 +72,15 @@ class ScriptData {
 };
 
 enum TrainerMode {
-  TRAINER_MODE_MASTER_TRAINER_JACK,
-  TRAINER_MODE_SLAVE,
+  TRAINER_MODE_MASTER_JACK,
+  TRAINER_MODE_SLAVE_JACK,
   TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE,
   TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE,
   TRAINER_MODE_MASTER_BATTERY_COMPARTMENT,
   TRAINER_MODE_MASTER_BLUETOOTH,
   TRAINER_MODE_SLAVE_BLUETOOTH,
-  TRAINER_MODE_MULTI
+  TRAINER_MODE_MULTI,
+  TRAINER_MODE_COUNT
 };
 
 #define INPUT_NAME_LEN 4
@@ -247,6 +251,11 @@ class ModelData {
     void limitsInsert(const int index);
     void limitsMove(const int index, const int offset);
     void limitsSet(const int index, const QByteArray & data);
+
+    QString trainerModeToString() const;
+    static QString trainerModeToString(const int value);
+    static bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
+    static AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
 
   protected:
     void removeGlobalVar(int & var);

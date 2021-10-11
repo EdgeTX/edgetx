@@ -2849,6 +2849,15 @@ void OpenTxModelData::beforeExport()
     }
     modelData.switchWarningStates = newSwitchWarningStates;
   }
+
+  //  TODO remove when enum not radio specific requires eeprom change and conversion
+  if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
+    if (!IS_TARANIS(board)) {
+      modelData.trainerMode -= 2;
+      if (!IS_RADIOMASTER_TX16S(board))
+        modelData.trainerMode -= 1;
+    }
+  }
 }
 
 void OpenTxModelData::afterImport()
@@ -2875,6 +2884,15 @@ void OpenTxModelData::afterImport()
 
   if (version <= 218 && IS_HORUS_X10(board) && modelData.thrTraceSrc > 3) {
     modelData.thrTraceSrc += 2;
+  }
+
+  //  TODO remove when enum not radio specific requires eeprom change and conversion
+  if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
+    if (!IS_TARANIS(board)) {
+      modelData.trainerMode += 2;
+      if (!IS_RADIOMASTER_TX16S(board))
+        modelData.trainerMode += 1;
+    }
   }
 }
 
