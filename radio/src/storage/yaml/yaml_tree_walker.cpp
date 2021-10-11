@@ -191,7 +191,8 @@ static bool yaml_output_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* nod
 YamlTreeWalker::YamlTreeWalker()
     : stack_level(NODE_STACK_DEPTH),
       virt_level(0),
-      anon_union(0)
+      anon_union(0),
+      idx_invalid(false)
 {
     memset(stack,0,sizeof(stack));
 }
@@ -201,6 +202,7 @@ void YamlTreeWalker::reset(const YamlNode* node, uint8_t* data)
     this->data = data;
     stack_level = NODE_STACK_DEPTH;
     virt_level  = 0;
+    idx_invalid = false;
 
     push();
     setNode(node);
@@ -214,6 +216,7 @@ bool YamlTreeWalker::push()
 
     stack_level--;
     memset(&(stack[stack_level]), 0, sizeof(State));
+    idx_invalid = false;
 
     return true;
 }
@@ -225,6 +228,8 @@ bool YamlTreeWalker::pop()
 
     memset(&(stack[stack_level]), 0, sizeof(State));
     stack_level++;
+    idx_invalid = false;
+
     return true;
 }
 
@@ -321,6 +326,11 @@ bool YamlTreeWalker::toNextElmt()
             return false;
         }
 
+        if (idx_invalid) {
+            idx_invalid = false;
+            stack[stack_level].elmts = 0;
+        }
+        
         if (getElmts() >= node->u._array.u._a.elmts - 1)
             return false;
 
@@ -405,7 +415,7 @@ void YamlTreeWalker::toNextAttr()
 
 void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
 {
-    if (!buf || !len)
+    if (!buf || !len || idx_invalid)
         return;
 
     const YamlNode* attr = getAttr();
@@ -417,7 +427,12 @@ void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
         else
             i = yaml_str2uint(buf, len);
 
+        //TODO: detect -1 and set idx_invalid = true
+
         while ((i > getElmts()) && toNextElmt());
+
+        if (i > getElmts())
+            idx_invalid = true;
     }
     else {
         yaml_set_attr(data, getBitOffset(), attr, buf, len);
@@ -622,7 +637,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
 
 static void set_attr(void* ctx, char* buf, uint8_t len)
 {
-    return ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
+    ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
 }
 
 const YamlParserCalls YamlTreeWalkerCalls = {
