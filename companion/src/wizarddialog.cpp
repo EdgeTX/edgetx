@@ -281,7 +281,6 @@ ModelSelectionPage::ModelSelectionPage(WizardDialog *dlg, QString image, QString
   planeRB->setChecked(true);
   multirotorRB = new QRadioButton(tr("Multirotor"));
   helicopterRB = new QRadioButton(tr("Helicopter"));
-  helicopterRB->setDisabled(true);  //TODO REMOVE TO ENABLE HELICOPTERS
 
   registerField("evaluate.name*", nameLineEdit);
 
