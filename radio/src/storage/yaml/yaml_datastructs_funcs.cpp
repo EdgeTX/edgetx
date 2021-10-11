@@ -218,6 +218,29 @@ static bool sw_write(uint32_t idx, yaml_writer_func wf, void* opaque)
     return str ? wf(opaque, str, strlen(str)) : true;
 }
 
+static void sw_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                         uint16_t idx, const char* val, uint8_t val_len)
+{
+    // data / bitoffs already incremented
+    data -= ((idx + 1) * 2) / 8;
+    data -= offsetof(RadioData, switchConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    strncpy(rd->switchNames[idx], val, std::min<uint8_t>(val_len, LEN_SWITCH_NAME));
+}
+
+static bool sw_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                          uint16_t idx, yaml_writer_func wf, void* opaque)
+{
+    // data / bitoffs already incremented
+    data -= ((idx + 1) * 2) / 8;
+    data -= offsetof(RadioData, switchConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    const char* str = rd->switchNames[idx];
+    return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+}
+
 static const struct YamlIdStr enum_SwitchConfig[] = {
     {  SWITCH_NONE, "none"  },
     {  SWITCH_TOGGLE, "toggle"  },
@@ -229,6 +252,7 @@ static const struct YamlIdStr enum_SwitchConfig[] = {
 static const struct YamlNode struct_switchConfig[] = {
     YAML_IDX_CUST( "sw", sw_read, sw_write ),
     YAML_ENUM( "type", 2, enum_SwitchConfig),
+    YAML_CUSTOM( "name", sw_name_read, sw_name_write),
     YAML_END
 };
 
@@ -247,6 +271,31 @@ static bool pot_write(uint32_t idx, yaml_writer_func wf, void* opaque)
     return str ? wf(opaque, str, strlen(str)) : true;
 }
 
+static void pot_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                          uint16_t idx, const char* val, uint8_t val_len)
+{
+    // data / bitoffs already incremented
+    data -= ((idx + 1) * 2) / 8;
+    data -= offsetof(RadioData, potsConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    idx += NUM_STICKS;
+    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+}
+
+static bool pot_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                           uint16_t idx, yaml_writer_func wf, void* opaque)
+{
+    // data / bitoffs already incremented
+    data -= ((idx + 1) * 2) / 8;
+    data -= offsetof(RadioData, potsConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    idx += NUM_STICKS;
+    const char* str = rd->anaNames[idx];
+    return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+}
+
 static const struct YamlIdStr enum_PotConfig[] = {
     {  POT_NONE, "none" },
     {  POT_WITH_DETENT, "with_detent" },
@@ -258,6 +307,7 @@ static const struct YamlIdStr enum_PotConfig[] = {
 static const struct YamlNode struct_potConfig[] = {
     YAML_IDX_CUST( "pot", pot_read, pot_write ),
     YAML_ENUM( "type", 2, enum_PotConfig),
+    YAML_CUSTOM( "name", pot_name_read, pot_name_write),
     YAML_END
 };
 
@@ -276,6 +326,31 @@ static bool slider_write(uint32_t idx, yaml_writer_func wf, void* opaque)
     return str ? wf(opaque, str, strlen(str)) : true;
 }
 
+static void sl_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                         uint16_t idx, const char* val, uint8_t val_len)
+{
+    // data / bitoffs already incremented
+    data -= (idx + 1) / 8;
+    data -= offsetof(RadioData, slidersConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    idx += NUM_STICKS + STORAGE_NUM_POTS;
+    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+}
+
+static bool sl_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
+                          uint16_t idx, yaml_writer_func wf, void* opaque)
+{
+    // data / bitoffs already incremented
+    data -= (idx + 1) / 8;
+    data -= offsetof(RadioData, slidersConfig);
+
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    idx += NUM_STICKS + STORAGE_NUM_POTS;
+    const char* str = rd->anaNames[idx];
+    return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+}
+
 static const struct YamlIdStr enum_SliderConfig[] = {
     {  SLIDER_NONE, "none" },
     {  SLIDER_WITH_DETENT, "with_detent" },
@@ -285,6 +360,7 @@ static const struct YamlIdStr enum_SliderConfig[] = {
 static const struct YamlNode struct_sliderConfig[] = {
     YAML_IDX_CUST( "sl", slider_read, slider_write ),
     YAML_ENUM( "type", 1, enum_SliderConfig),
+    YAML_CUSTOM( "name", sl_name_read, sl_name_write),
     YAML_END
 };
 

@@ -50,7 +50,7 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
 }
 
 static void yaml_set_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* node,
-                          const char* val, uint8_t val_len)
+                          uint16_t idx, const char* val, uint8_t val_len)
 {
     uint32_t i = 0;
 
@@ -78,6 +78,10 @@ static void yaml_set_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* node,
     case YDT_ENUM:
         i = yaml_parse_enum(node->u._enum.choices, val, val_len);
         break;
+    case YDT_CUSTOM:
+        if (node->u._cust_attr.read)
+            node->u._cust_attr.read(node, ptr, bit_ofs, idx, val, val_len);
+        return;
     default:
         break;
     }
@@ -127,7 +131,7 @@ static bool yaml_output_string(const char* str, uint32_t max_len,
 }
 
 static bool yaml_output_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* node,
-                             yaml_writer_func wf, void* opaque)
+                             uint16_t idx, yaml_writer_func wf, void* opaque)
 {
     if (node->type == YDT_NONE)
         return false;
@@ -151,6 +155,11 @@ static bool yaml_output_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* nod
         if (node->type == YDT_STRING) {
             //assert(!bit_ofs);
             if (!yaml_output_string((const char*)ptr, (node->size)>>3UL, wf, opaque))
+                return false;
+        }
+        else if (node->type == YDT_CUSTOM) {
+            if (node->u._cust_attr.write
+                && !node->u._cust_attr.write(node, ptr, bit_ofs, idx, wf, opaque))
                 return false;
         }
         else {
@@ -435,7 +444,7 @@ void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
             idx_invalid = true;
     }
     else {
-        yaml_set_attr(data, getBitOffset(), attr, buf, len);
+        yaml_set_attr(data, getBitOffset(), attr, getElmts(), buf, len);
         //walker.dump_stack();
     }
 }
@@ -500,7 +509,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=2; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(NULL, 0, node, wf, opaque))
+                if (!yaml_output_attr(NULL, 0, node, getElmts(), wf, opaque))
                     return false; // TODO: error handling???
 
                 // grab attr idx...
@@ -512,7 +521,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=1; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(data, getBitOffset(), attr, wf, opaque))
+                if (!yaml_output_attr(data, getBitOffset(), attr, getElmts(), wf, opaque))
                     return false; // TODO: error handling???
 
                 if (attr->type != YDT_ARRAY
@@ -545,7 +554,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=2; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(NULL, 0, getNode(), wf, opaque))
+                if (!yaml_output_attr(NULL, 0, getNode(), getElmts(), wf, opaque))
                     return false; // TODO: error handling???
                 continue;
             }
@@ -596,7 +605,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             if (!wf(opaque, "\r\n", 2))
                 return false;
         }
-        else if (!yaml_output_attr(data, getBitOffset(), attr, wf, opaque))
+        else if (!yaml_output_attr(data, getBitOffset(), attr, getElmts(), wf, opaque))
             return false; // TODO: error handling???
 
         toNextAttr();

@@ -392,13 +392,12 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_UNSIGNED( "switchUnlockStates", 64 ),
   YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
-  YAML_ARRAY("switchNames", 24, 18, struct_string_24, NULL),
-  YAML_ARRAY("anaNames", 24, 12, struct_string_24, NULL),
+  YAML_PADDING( 432 ),
+  YAML_PADDING( 288 ),
   YAML_PADDING( 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_SIGNED( "uartSampleMode", 2 ),
-  YAML_STRING("currModelFilename", 17),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

@@ -38,7 +38,8 @@ enum YamlDataType {
     YDT_ARRAY,
     YDT_ENUM,
     YDT_UNION,
-    YDT_PADDING
+    YDT_PADDING,
+    YDT_CUSTOM
 };
 
 struct YamlIdStr
@@ -62,7 +63,14 @@ struct YamlNode
 
     typedef uint32_t (*cust_idx_read_func)(const char* val, uint8_t val_len);
     typedef bool (*cust_idx_write_func)(uint32_t idx, yaml_writer_func wf, void* opaque);
-    
+
+    typedef void (*cust_read_func)(const YamlNode* node, uint8_t* data,
+                                   uint32_t bitoffs, uint16_t idx,
+                                   const char* val, uint8_t val_len);
+    typedef bool (*cust_write_func)(const YamlNode* node, uint8_t* data,
+                                    uint32_t bitoffs, uint16_t idx,
+                                    yaml_writer_func wf, void* opaque);
+
     uint8_t      type;
     uint32_t     size;  // bits
     uint8_t      tag_len;
@@ -92,6 +100,11 @@ struct YamlNode
             cust_idx_read_func  read;
             cust_idx_write_func write;
         } _cust_idx;
+
+        struct {
+            cust_read_func  read;
+            cust_write_func write;
+        } _cust_attr;
     } u;
 };
 
@@ -134,6 +147,9 @@ struct YamlNode
 
 #define YAML_PADDING(bits)                      \
     { .type=YDT_PADDING, .size=(bits) }
+
+#define YAML_CUSTOM(tag, f_read, f_write)       \
+    { .type=YDT_CUSTOM, .size=0, YAML_TAG(tag), .u={._cust_attr={.read=(f_read), .write=(f_write) }} }
 
 #define YAML_END                                \
     { .type=YDT_NONE }
