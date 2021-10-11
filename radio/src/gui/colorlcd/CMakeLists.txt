@@ -79,6 +79,10 @@ endmacro(add_gui_src)
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
+  set(SRC ${SRC} lua/widgets.cpp)
+endif()
+
+if(LUA STREQUAL YES)
   add_gui_src(model_mixer_scripts.cpp)
 endif()
 
@@ -100,10 +104,6 @@ endif()
 
 if(GHOST)
   add_gui_src(radio_ghost_module_config.cpp)
-endif()
-
-if(LUA STREQUAL YES)
-  set(SRC ${SRC} lua/widgets.cpp)
 endif()
 
 set(SRC ${SRC} storage/modelslist.cpp)
