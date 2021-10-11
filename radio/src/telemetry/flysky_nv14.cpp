@@ -36,6 +36,7 @@
 #define DECIMAL(val) (val >> FIXED_PRECISION)
 #define R_DIV_G_MUL_10_Q15 UINT64_C(9591506)
 #define INV_LOG2_E_Q1DOT31 UINT64_C(0x58b90bfc) // Inverse log base 2 of e
+#define PRESSURE_MASK 0x7FFFF
 
 struct FlyskyNv14Sensor {
   const uint16_t id;
@@ -70,13 +71,14 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
+    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},   
     {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
     {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
     {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
     {FLYSKY_SENSOR_GPS,        4, STR_SENSOR_ALT,         UNIT_METERS,        0, 8, 2, true},
     {FLYSKY_SENSOR_GPS,        5, STR_SENSOR_GSPD,        UNIT_KMH,           1, 10, 2, false},
     {FLYSKY_SENSOR_GPS,        6, STR_SENSOR_HDG,         UNIT_DEGREE,        3, 12, 2, false},
-    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
+//    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
     defaultNv14Sensor
 };
 
@@ -87,7 +89,7 @@ extern int32_t getALT(uint32_t value);
 
 signed short CalculateAltitude(unsigned int pressure)
 {
-  int32_t alt = getALT(pressure | (700 >> 19));
+  int32_t alt = getALT(pressure);
   return alt;
 }
 
@@ -130,20 +132,37 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   else if (sensor->bytes == 4)
     value = sensorData->UINT32;
 
-  if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
-    if (value < -200) value = -200;
-#if defined(PCBNV14)
-    if (!g_model.rssiAlarms.flysky_telemetry)
-#endif
-    {
-      value += 200;
-      value /= 2;
+  // For older RF module FW Sgml is in [0, 10] range
+  // and we need to use RSSI for alarm
+  if (NV14internalModuleFwVersion <  0x1000E) {
+    if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
+      if (value < -200) value = -200;
+      // if g_model.rssiAlarms.flysky_telemetry == 1
+      // RSSI will be kept within native FlySky range [-90, -60]
+      if (!g_model.rssiAlarms.flysky_telemetry) {
+        value += 200;
+        value /= 2;
+      }
+      telemetryData.rssi.set(value);
     }
-    telemetryData.rssi.set(value);
+  } else if (sensor->id == FLYSKY_SENSOR_RX_SIGNAL) {
+      telemetryData.rssi.set(value);
   }
-  if (sensor->id == FLYSKY_SENSOR_PRESSURE && sensor->subId != 0) {
-    value = CalculateAltitude(value);
-  }
+  
+  if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
+    switch(sensor->subId)
+    {
+      case 0:
+        value = value & PRESSURE_MASK;
+        break;
+      case 1:
+        value = CalculateAltitude(value);
+        break;
+      case 2:
+        value = (int16_t)(value >> 19) + 150;// - 400;
+        break;    
+    }
+  } 
   return value;
 }
 
