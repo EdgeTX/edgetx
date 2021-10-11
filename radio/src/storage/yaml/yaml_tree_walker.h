@@ -44,6 +44,7 @@ class YamlTreeWalker
     uint8_t stack_level;
     uint8_t virt_level;
     uint8_t anon_union;
+    bool    idx_invalid;
 
     uint8_t* data;
 

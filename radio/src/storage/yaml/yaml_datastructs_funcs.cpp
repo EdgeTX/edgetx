@@ -205,13 +205,17 @@ static uint8_t select_sensor_cfg(uint8_t* data, uint32_t bitoffs)
 
 static uint32_t sw_read(const char* val, uint8_t val_len)
 {
-    return yaml_parse_enum(enum_MixSources, val, val_len) - MIXSRC_FIRST_SWITCH;
+    uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
+    if (sw >= MIXSRC_FIRST_SWITCH)
+        return sw - MIXSRC_FIRST_SWITCH;
+
+    return -1;
 }
 
 static bool sw_write(uint32_t idx, yaml_writer_func wf, void* opaque)
 {
     const char* str = yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
-    return wf(opaque, str, strlen(str));
+    return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static const struct YamlIdStr enum_SwitchConfig[] = {
@@ -230,13 +234,17 @@ static const struct YamlNode struct_switchConfig[] = {
 
 static uint32_t pot_read(const char* val, uint8_t val_len)
 {
-    return yaml_parse_enum(enum_MixSources, val, val_len) - MIXSRC_FIRST_POT;
+    uint32_t pot = yaml_parse_enum(enum_MixSources, val, val_len);
+    if (pot >= MIXSRC_FIRST_POT)
+        return pot - MIXSRC_FIRST_POT;
+
+    return -1;
 }
 
 static bool pot_write(uint32_t idx, yaml_writer_func wf, void* opaque)
 {
     const char* str = yaml_output_enum(idx + MIXSRC_FIRST_POT, enum_MixSources);
-    return wf(opaque, str, strlen(str));
+    return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -255,13 +263,17 @@ static const struct YamlNode struct_potConfig[] = {
 
 static uint32_t slider_read(const char* val, uint8_t val_len)
 {
-    return yaml_parse_enum(enum_MixSources, val, val_len) - MIXSRC_FIRST_SLIDER;
+    uint32_t sl = yaml_parse_enum(enum_MixSources, val, val_len);
+    if (sl >= MIXSRC_FIRST_SLIDER)
+        return sl - MIXSRC_FIRST_SLIDER;
+
+    return -1;
 }
 
 static bool slider_write(uint32_t idx, yaml_writer_func wf, void* opaque)
 {
     const char* str = yaml_output_enum(idx + MIXSRC_FIRST_SLIDER, enum_MixSources);
-    return wf(opaque, str, strlen(str));
+    return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
