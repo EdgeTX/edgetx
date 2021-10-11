@@ -549,6 +549,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if(NOT LINUXDEPLOY_EXECUTABLE)
     message(STATUS "linuxdeployqt will be downloaded")
 
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/deployqt/AppRun")
     set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
 
     set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
