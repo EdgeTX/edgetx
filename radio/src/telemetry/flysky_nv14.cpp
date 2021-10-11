@@ -71,7 +71,7 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
-    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},   
+//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},   
     {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
     {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
     {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
@@ -159,6 +159,7 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
         value = CalculateAltitude(value);
         break;
       case 2:
+      // TO DO: fix temperature calculation
         value = (int16_t)(value >> 19) + 150;// - 400;
         break;    
     }
