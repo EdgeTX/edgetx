@@ -62,5 +62,6 @@ char * getSwitchPositionName(swsrc_t idx);
 char * getSwitchWarningString(swsrc_t idx);
 char * getCurveString(int idx);
 char * getTimerString(int32_t tme, uint8_t hours);
+void splitTimer( char * s0, char * s1, char * s2, char * s3, int tme );
 
 #endif // _STRHELPERS_H_

@@ -41,40 +41,59 @@ class TimerWidget: public Widget
       uint32_t index = persistentData->options[0].value.unsignedValue;
       TimerData & timerData = g_model.timers[index];
       TimerState & timerState = timersStates[index];
+      char sDigitGroup0[LEN_TIMER_STRING];
+      char sDigitGroup1[LEN_TIMER_STRING];
+      char sUnit0[] = "M";
+      char sUnit1[] = "S";
+      LcdFlags colorBack;     // background color
+      LcdFlags colorFore;     // foreground color
 
+      // Middle size widget
       if (width() >= 180 && height() >= 70) {
-        if (timerState.val >= 0 || !(timerState.val % 2)) {
-          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, COLOR_THEME_PRIMARY2);
-        }
-        else {
-          dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, COLOR_THEME_PRIMARY2);
-        }
+        colorBack = (timerState.val >= 0 || !(timerState.val % 2)) ? COLOR_THEME_PRIMARY2   : COLOR_THEME_WARNING;
+        colorFore = (timerState.val >= 0 || !(timerState.val % 2)) ? COLOR_THEME_SECONDARY1 : COLOR_THEME_SECONDARY2;
+        
+        // background
+        dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
+
         if (timerData.start && timerState.val >= 0) {
           dc->drawBitmapPatternPie(
-            2, 3, LBM_RSCALE, COLOR_THEME_SECONDARY1, 0,
+            2, 3, LBM_RSCALE, colorFore, 0,
             timerState.val <= 0 ? 360 : 360 * (timerData.start - timerState.val) / timerData.start);
         }
         else {
-          dc->drawBitmapPattern(3, 4, LBM_TIMER, COLOR_THEME_SECONDARY1);
+          dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
         }
-        if (abs(timerState.val) >= 3600) {
-          drawTimer(dc, 76, 38, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(STD) | LEFT | TIMEHOUR);
+        // value
+        splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(timerState.val));
+
+        dc->drawSizedText(76   , 31,  sDigitGroup0, ZLEN(sDigitGroup0), FONT(XL)  | colorFore);
+        dc->drawSizedText(76+35, 33,  sUnit0, ZLEN(sUnit0),             FONT(STD) | colorFore);
+        dc->drawSizedText(76+50, 31,  sDigitGroup1, ZLEN(sDigitGroup1), FONT(XL)  | colorFore);
+        dc->drawSizedText(76+85, 33,  sUnit1, ZLEN(sUnit1),             FONT(STD) | colorFore);
+        // name
+        if (ZLEN(timerData.name) > 0) {   // user name exist
+          dc->drawSizedText(78, 20, timerData.name, LEN_TIMER_NAME, FONT(XS) | colorFore);
         }
-        else {
-          drawTimer(dc,76, 31, abs(timerState.val), COLOR_THEME_SECONDARY1 | FONT(XL) | LEFT);
-        }
-        if (ZLEN(timerData.name) > 0) {
-          dc->drawSizedText(78, 20, timerData.name, LEN_TIMER_NAME, FONT(XS) | COLOR_THEME_SECONDARY1);
-        }
-        else {
-          drawStringWithIndex(dc, 137, 17, "TMR", index + 1, FONT(XS) | COLOR_THEME_SECONDARY1);
+        else {                            // user name not exist "TMRn"
+          drawStringWithIndex(dc, 137, 17, "TMR", index + 1, FONT(XS) | colorFore);
         }
       }
+      // Small size widget
       else {
+        // background
         if (timerState.val < 0 && timerState.val % 2) {
-          dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+          dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_WARNING);
         }
-        drawStringWithIndex(dc, 2, 0, "TMR", index + 1, FONT(XS) | COLOR_THEME_PRIMARY2);
+        // name
+        if (ZLEN(timerData.name) > 0) {   // user name exist
+          dc->drawText(2, 0, timerData.name, FONT(XS) | COLOR_THEME_PRIMARY2);
+        } 
+        else  {                         // user name not exist "TMRn"
+          drawStringWithIndex(dc, 2, 0, "TMR", index + 1, FONT(XS) | COLOR_THEME_PRIMARY2);
+        }
+        //value
+        // small size
         if (width() > 100 && height() > 40) {
           if (abs(timerState.val) >= 3600) {
             drawTimer(dc,3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
@@ -83,6 +102,7 @@ class TimerWidget: public Widget
             drawTimer(dc, 3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
           }
         }
+        // very smal size
         else {
           if (abs(timerState.val) >= 3600) {
             drawTimer(dc,3, 14, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);

@@ -175,7 +175,8 @@ char * strAppendStringWithIndex(char * dest, const char * s, int idx)
   return strAppendUnsigned(strAppend(dest, s), abs(idx));
 }
 
-#define SECONDSPERHOUR  3600
+#define SECONDSPERMIN   60
+#define SECONDSPERHOUR  (60 * SECONDSPERMIN)
 #define SECONDSPERDAY   (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR  (365 * SECONDSPERDAY)
 
@@ -183,13 +184,15 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
 {
   char *  s = dest;
   div_t   qr;
-  int     val = tme;
+  int     val = abs(tme);
   uint8_t digit_group =0;
 
+  
   if (tme < 0) {
     tme = -tme;
     *s++ = '-';
   }
+  
   // years
   qr = div((int) val, SECONDSPERYEAR);
   if ( qr.quot != 0 )    {
@@ -204,8 +207,8 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
   qr = div((int) val, SECONDSPERDAY);
   if ( qr.quot != 0 || digit_group!= 0)    {
     qr = div((int) val, SECONDSPERDAY);
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
+    *s++ = '0' +  (qr.quot / 10);
+    *s++ = '0' +  (qr.quot % 10);
     *s++ = 'D';
     val = qr.rem;
     digit_group++;
@@ -214,29 +217,120 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
   qr = div((int) val, SECONDSPERHOUR);
   if ( qr.quot != 0 || digit_group!= 0 )    {
     qr = div((int) val, SECONDSPERHOUR);
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
-    *s++ = 'h';
+    *s++ = '0' +  (qr.quot / 10);
+    *s++ = '0' +  (qr.quot % 10);
+    *s++ = 'H';
     val = qr.rem;
     digit_group++;
   }
   if ( digit_group == 3 ) { *s=0; return dest; }
-  // minutes  
-  qr = div((int) val, 60);
-  *s++ = '0' + (qr.quot / 10);
-  *s++ = '0' + (qr.quot % 10);
-  if ( digit_group!=0 )     *s++ = 'm';
-  else                      *s++ = ':';
+  // minutes
+  qr = div((int) val, SECONDSPERMIN);
+  *s++ = '0' +  (qr.quot / 10);
+  *s++ = '0' +  (qr.quot % 10);
+  if ( digit_group!=0 )     *s++ = 'M';
+  else                      *s++ = 'M';
   digit_group++;
   if ( digit_group == 3 ) { *s=0; return dest; }
-  // seconds  
-  *s++ = '0' + (qr.rem / 10);
-  *s++ = '0' + (qr.rem % 10);
-  if ( digit_group != 1 )   *s++ = 's';
+  // seconds
+  *s++ = '0' +  (qr.rem / 10);
+  *s++ = '0' +  (qr.rem % 10);
+  if ( digit_group != 1 )   *s++ = 'S';
   *s=0;
-    
+
   return dest;
 }
+
+void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme )
+{
+  char *  s0 = sDb0;
+  char *  s1 = sDb1;
+  char *  s2 = sUnit0;
+  char *  s3 = sUnit1;
+  s0[0] = s1[0] = s0[1] = s1[1] = '0';
+  div_t   qr;
+  int     val = tme;
+  uint8_t digit_group =0;
+
+  /*
+  if (tme < 0) {
+    tme = -tme;
+    *s++ = '-';
+  }
+  */
+  // years
+  qr = div((int) val, SECONDSPERYEAR);
+  if ( qr.quot != 0 )    {
+    qr = div((int) val, SECONDSPERYEAR);
+    *s0++ +=  (qr.quot / 10);
+    *s0++ +=  (qr.quot % 10);
+    *s0 = 0;;
+    *s2++ = 'Y';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // days
+  qr = div((int) val, SECONDSPERDAY);
+  if ( digit_group == 1 ) {
+    *s1++ +=  (qr.quot / 10);
+    *s1++ +=  (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = 'D';
+    *s3 = 0;
+    return;
+  } 
+  if ( qr.quot != 0 )    {
+    *s0++ +=  (qr.quot / 10);
+    *s0++ +=  (qr.quot % 10);
+    *s0 = 0;;
+    *s2++ = 'D';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // hours
+  qr = div((int) val, SECONDSPERHOUR);
+  if ( digit_group == 1 ) {
+    *s1++ +=  (qr.quot / 10);
+    *s1++ +=  (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = 'H';
+    *s3 = 0;
+    return;
+  }
+  if ( qr.quot != 0  )    {
+    *s0++ +=  (qr.quot / 10);
+    *s0++ +=  (qr.quot % 10);
+    *s0 = 0;
+    *s2++ = 'H';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // minutes
+  qr = div((int) val, SECONDSPERMIN);
+  if ( digit_group == 1 ) {
+    *s1++ +=  (qr.quot / 10);
+    *s1++ +=  (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = 'M';
+    *s3 = 0;
+    return;
+  }
+  *s0++ +=  (qr.quot / 10);
+  *s0++ +=  (qr.quot % 10);
+  *s0 = 0;
+  *s2++ = 'M';
+  *s2 = 0;
+  // seconds
+  *s1++ +=  (qr.rem / 10);
+  *s1++ +=  (qr.rem % 10);
+  *s1=0;
+  *s3++ = 'S';
+  *s3 = 0;
+}
+
 
 char * getCurveString(char * dest, int idx)
 {
