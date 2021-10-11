@@ -1019,7 +1019,7 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QComboBox" name="trainerMode">
+         <widget class="AutoComboBox" name="trainerMode">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1035,46 +1035,6 @@
           <property name="sizeAdjustPolicy">
            <enum>QComboBox::AdjustToContents</enum>
           </property>
-          <item>
-           <property name="text">
-            <string>Master/Jack</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Slave/Jack</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Master/SBUS Module</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Master/CPPM Module</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Master/SBUS in battery compartment</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Master/Bluetooth</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Slave/Bluetooth</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Master/Multi</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item row="7" column="1">

@@ -32,6 +32,7 @@
 
 constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
 constexpr char FIM_THRSOURCE[]   {"Throttle Source"};
+constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
 
 TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
                        QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
@@ -202,7 +203,8 @@ void TimerPanel::onModeChanged(int index)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
-ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & module, GeneralSettings & generalSettings, Firmware * firmware, int moduleIdx):
+ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & module, GeneralSettings & generalSettings, Firmware * firmware, int moduleIdx,
+                         FilteredItemModelFactory * panelFilteredItemModels):
   ModelPanel(parent, model, generalSettings, firmware),
   module(module),
   moduleIdx(moduleIdx),
@@ -214,30 +216,17 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
 
   ui->label_module->setText(ModuleData::indexToString(moduleIdx, firmware));
   if (moduleIdx < 0) {
-    if (!IS_TARANIS(firmware->getBoard()) || IS_ACCESS_RADIO(firmware->getBoard(), Firmware::getCurrentVariant()->getId())) {
-      ui->trainerMode->setItemData(TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, 0, Qt::UserRole - 1);
-      ui->trainerMode->setItemData(TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, 0, Qt::UserRole - 1);
-      ui->trainerMode->setItemData(TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, 0, Qt::UserRole - 1);
-    }
-    else if (generalSettings.auxSerialMode != UART_MODE_SBUS_TRAINER) {
-      ui->trainerMode->setItemData(TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, 0, Qt::UserRole - 1);
-    }
-
-    if (generalSettings.bluetoothMode != 2) {
-      ui->trainerMode->setItemData(TRAINER_MODE_MASTER_BLUETOOTH, 0, Qt::UserRole - 1);
-      ui->trainerMode->setItemData(TRAINER_MODE_SLAVE_BLUETOOTH, 0, Qt::UserRole - 1);
-    }
-
-    if (!IS_FAMILY_T16(firmware->getBoard())) {
-      ui->trainerMode->setItemData(TRAINER_MODE_MULTI, 0, Qt::UserRole - 1);
-    }
-
-    ui->trainerMode->setCurrentIndex(model.trainerMode);
+    ui->formLayout_col1->setSpacing(0);
     if (!IS_HORUS_OR_TARANIS(firmware->getBoard())) {
       ui->label_trainerMode->hide();
       ui->trainerMode->hide();
     }
-    ui->formLayout_col1->setSpacing(0);
+    else {
+      if (panelFilteredItemModels)
+        ui->trainerMode->setModel(panelFilteredItemModels->getItemModel(FIM_TRAINERMODE));
+      ui->trainerMode->setField(model.trainerMode);
+      connect(ui->trainerMode, SIGNAL(currentDataChanged(int)), this, SLOT(update()));
+    }
   }
   else {
     ui->label_trainerMode->hide();
@@ -471,11 +460,11 @@ void ModulePanel::update()
     }
   }
   else if (IS_HORUS_OR_TARANIS(board)) {
-    if (model->trainerMode == TRAINER_SLAVE_JACK) {
-      mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
+    if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
+      mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
     }
   }
-  else if (model->trainerMode != TRAINER_MASTER_JACK) {
+  else if (model->trainerMode != TRAINER_MODE_MASTER_JACK) {
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
   }
 
@@ -665,15 +654,6 @@ void ModulePanel::update()
 
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
-}
-
-void ModulePanel::on_trainerMode_currentIndexChanged(int index)
-{
-  if (!lock && model->trainerMode != (unsigned)index) {
-    model->trainerMode = index;
-    update();
-    emit modified();
-  }
 }
 
 void ModulePanel::onProtocolChanged(int index)
@@ -1026,7 +1006,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownBeepItemModel());
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
-  panelItemModels->registerItemModel(TimerData::modeItemModel());
+  panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
 
   Board::Type board = firmware->getBoard();
 
@@ -1255,7 +1235,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   if (firmware->getCapability(ModelTrainerEnable)) {
-    modules[CPN_MAX_MODULES] = new ModulePanel(this, model, model.moduleData[CPN_MAX_MODULES], generalSettings, firmware, -1);
+    modules[CPN_MAX_MODULES] = new ModulePanel(this, model, model.moduleData[CPN_MAX_MODULES], generalSettings, firmware, -1, panelFilteredModels);
     ui->modulesLayout->addWidget(modules[CPN_MAX_MODULES]);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::modified, this, &SetupPanel::modified);
   }
