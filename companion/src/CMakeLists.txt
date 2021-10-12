@@ -566,7 +566,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       execute_process(
         COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" deployqt
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      file(REMOVE "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_BUNDLE}")
+      file(REMOVE "${LINUXDEPLOY_BUNDLE}")
     endif()
   endif()
 
