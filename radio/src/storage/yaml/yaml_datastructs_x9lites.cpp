@@ -340,6 +340,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("potsConfig", 2, 4, struct_potConfig, nullptr),
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_UNSIGNED( "switchUnlockStates", 16 ),
+  YAML_ARRAY("sticksConfig", 0, 4, struct_sticksConfig, stick_name_valid),
   YAML_ARRAY("switchConfig", 2, 8, struct_switchConfig, nullptr),
   YAML_PADDING( 168 ),
   YAML_PADDING( 120 ),

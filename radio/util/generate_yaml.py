@@ -342,6 +342,8 @@ def parse_field_array(f, node):
             for a in ann:
                 if a['type'] == 'idx':
                     use_idx = True
+                elif a['type'] == 'raw':
+                    f.raw = a['val']
 
         # let's see first if it's some kind of struct/union/enum
         elmt_st = parse_node(RootAST, elmt_decl)

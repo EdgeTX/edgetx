@@ -53,7 +53,7 @@ typedef bool (*yaml_writer_func)(void* opaque, const char* str, size_t len);
 
 struct YamlNode
 {
-    typedef bool (*is_active_func)(uint8_t* data, uint32_t bitoffs);
+    typedef bool (*is_active_func)(uint8_t* data, uint32_t bitoffs, uint16_t idx);
 
     typedef uint32_t (*cust_to_uint_func)(const YamlNode* node, const char* val, uint8_t val_len);
 
