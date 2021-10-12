@@ -155,6 +155,10 @@ void StatisticsViewPage::build(FormWindow *window)
         g_eeGeneral.globalTimer = 0;
         storageDirty(EE_GENERAL);
         sessionTimer = 0;
+        s_timeCumThr = 0;
+        s_timeCum16ThrP = 0;
+        s_traceWr = 0;
+        curve->invalidate();
         return 0;
       },
       BUTTON_BACKGROUND);
