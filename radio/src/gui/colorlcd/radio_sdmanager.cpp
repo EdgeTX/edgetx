@@ -334,8 +334,8 @@ void RadioSdManagerPage::build(FormWindow * window)
               std::string fullpath = currentPath + "/" + name;
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(fullpath.c_str());
-                //TODO: check 'luaState'
-                StandaloneLuaWindow::instance()->attach(window);
+                if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS)
+                  StandaloneLuaWindow::instance()->attach(window);
               });
             }
 #endif
