@@ -218,6 +218,36 @@ static bool sw_write(uint32_t idx, yaml_writer_func wf, void* opaque)
     return str ? wf(opaque, str, strlen(str)) : true;
 }
 
+static void r_stick_name(const YamlNode* node, uint8_t* data,
+                         uint32_t bitoffs, uint16_t idx,
+                         const char* val, uint8_t val_len)
+{
+    data -= offsetof(RadioData, switchConfig);
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+}
+
+static bool w_stick_name(const YamlNode* node, uint8_t* data,
+                         uint32_t bitoffs, uint16_t idx,
+                         yaml_writer_func wf, void* opaque)
+{
+    data -= offsetof(RadioData, switchConfig);
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    return wf(opaque, rd->anaNames[idx], strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+}
+
+static bool stick_name_valid(uint8_t* data, uint32_t bitoffs, uint16_t idx)
+{
+    RadioData* rd = reinterpret_cast<RadioData*>(data);
+    return rd->anaNames[idx][0] != '\0';
+}
+
+static const struct YamlNode struct_sticksConfig[] = {
+    YAML_IDX,
+    YAML_CUSTOM( "name", r_stick_name, w_stick_name),
+    YAML_END
+};
+
 static void sw_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
                          uint16_t idx, const char* val, uint8_t val_len)
 {
@@ -464,19 +494,19 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     return wf(opaque, str, strlen(str));
 }
 
-static bool cfn_is_active(uint8_t* data, uint32_t bitoffs)
+static bool cfn_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
 {
     data += bitoffs >> 3UL;
     return ((CustomFunctionData*)data)->swtch;
 }
 
-static bool gvar_is_active(uint8_t* data, uint32_t bitoffs)
+static bool gvar_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
 {
     gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
     return *gvar != GVAR_MAX+1;
 }
 
-static bool fmd_is_active(uint8_t* data, uint32_t bitoffs)
+static bool fmd_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
 {
     uint32_t data_ofs = bitoffs >> 3UL;
     if (data_ofs == offsetof(ModelData, flightModeData)) {

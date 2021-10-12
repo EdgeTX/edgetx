@@ -369,7 +369,7 @@ bool YamlTreeWalker::isElmtEmpty(uint8_t* data)
 
         // assume structs aligned on 8bit boundaries
         if (node->u._array.u._a.is_active)
-            return !node->u._array.u._a.is_active(data, bit_ofs);
+            return !node->u._array.u._a.is_active(data, bit_ofs, getElmts());
 
         return yaml_is_zero(data, bit_ofs, node->size);
     }
