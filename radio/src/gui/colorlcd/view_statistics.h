@@ -21,65 +21,63 @@
 
 #pragma once
 
-#include "opentx.h"
-#include "tabsgroup.h"
-#include "static.h"
-#include "window.h"
 #include "font.h"
+#include "opentx.h"
+#include "static.h"
+#include "tabsgroup.h"
+#include "window.h"
 
 template <class T>
 class DebugInfoNumber : public Window
 {
-  public:
-    DebugInfoNumber(Window * parent, const rect_t & rect, std::function<T()> numberHandler, LcdFlags textFlags = 0, const char * prefix = nullptr, const char * suffix = nullptr):
-    Window(parent, rect, 0, textFlags),
-    prefix(prefix),
-    suffix(suffix)
-    {
-      coord_t prefixSize = 0;
-      if (prefix != nullptr) {
-        prefixSize = getTextWidth(prefix, 0, COLOR_THEME_SECONDARY1 | FONT(XS));
-        new StaticText(this, {0, 0,  prefixSize, rect.h}, prefix, 0, COLOR_THEME_SECONDARY1 | FONT(XS));
-      }
-      new DynamicNumber<uint32_t>(this, {prefixSize, 0, rect.w - prefixSize, rect.h},
-                                  numberHandler);
+ public:
+  DebugInfoNumber(Window* parent, const rect_t& rect,
+                  std::function<T()> numberHandler, LcdFlags textFlags = 0,
+                  const char* prefix = nullptr, const char* suffix = nullptr) :
+      Window(parent, rect, 0, textFlags), prefix(prefix), suffix(suffix)
+  {
+    coord_t prefixSize = 0;
+    if (prefix != nullptr) {
+      prefixSize = getTextWidth(prefix, 0, COLOR_THEME_PRIMARY1 | FONT(XS));
+      new StaticText(this, {0, 0, prefixSize, rect.h}, prefix, 0,
+                     COLOR_THEME_PRIMARY1 | FONT(XS));
     }
+    new DynamicNumber<uint32_t>(this,
+                                {prefixSize, 0, rect.w - prefixSize, rect.h},
+                                numberHandler, COLOR_THEME_PRIMARY1);
+  }
 
-  protected:
-    const char * prefix;
-    const char * suffix;
+ protected:
+  const char* prefix;
+  const char* suffix;
 };
 
 class StatisticsViewPage : public PageTab
 {
-  public:
-    StatisticsViewPage() :
-      PageTab(STR_STATISTICS, ICON_STATS_THROTTLE_GRAPH)
-    {
-    }
+ public:
+  StatisticsViewPage() : PageTab(STR_STATISTICS, ICON_STATS_THROTTLE_GRAPH) {}
 
-  protected:
-    void build(FormWindow * window) override;
+ protected:
+  void build(FormWindow* window) override;
 };
 
-class StatisticsViewPageGroup: public TabsGroup {
-  public:
-    StatisticsViewPageGroup();
+class StatisticsViewPageGroup : public TabsGroup
+{
+ public:
+  StatisticsViewPageGroup();
 };
 
 class DebugViewPage : public PageTab
 {
-  public:
-    DebugViewPage() :
-      PageTab(STR_DEBUG, ICON_STATS_DEBUG)
-    {
-    }
+ public:
+  DebugViewPage() : PageTab(STR_DEBUG, ICON_STATS_DEBUG) {}
 
-  protected:
-    void build(FormWindow * window) override;
+ protected:
+  void build(FormWindow* window) override;
 };
 
-class DebugViewMenu: public TabsGroup {
-  public:
-    DebugViewMenu();
+class DebugViewMenu : public TabsGroup
+{
+ public:
+  DebugViewMenu();
 };

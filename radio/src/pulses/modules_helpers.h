@@ -32,6 +32,10 @@
 #include "telemetry/multi.h"
 #endif
 
+#if defined(PCBNV14)
+extern uint32_t NV14internalModuleFwVersion;
+#endif
+
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
@@ -612,11 +616,25 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
          isModuleFlySky(moduleIdx);
 }
 
+inline uint32_t getNV14RfFwVersion()
+{
+#if defined(PCBNV14)
+  return  NV14internalModuleFwVersion;
+#else
+  return 0;
+#endif
+}
+
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  return isModuleBindRangeAvailable(moduleIdx)
-    && !IS_RX_MULTI(moduleIdx)
-    && !isModuleFlySky(moduleIdx);
+  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
+#if defined(PCBNV14)
+  ret = ret &&
+        (!isModuleFlySky(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
+#else
+  ret = ret && (!isModuleFlySky(moduleIdx));
+#endif
+  return ret;
 }
 
 constexpr uint8_t MAX_RXNUM = 63;

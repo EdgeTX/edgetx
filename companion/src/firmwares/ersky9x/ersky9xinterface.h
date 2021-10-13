@@ -36,24 +36,26 @@ class Ersky9xInterface : public EEPROMInterface
     virtual ~Ersky9xInterface();
 
     virtual const char * getName();
-    
-    
+
+
     virtual unsigned long load(RadioData &, const uint8_t * eeprom, int size);
 
     virtual unsigned long loadBackup(RadioData &, const uint8_t * eeprom, int esize, int index);
-    
+
     virtual int save(uint8_t * eeprom, const RadioData & radioData, uint8_t version=0, uint32_t variant=0)
     {
       return 0;
     }
 
     virtual int getSize(const ModelData &);
-    
+
     virtual int getSize(const GeneralSettings & settings);
 
     virtual bool isAvailable(PulsesProtocol proto, int port=0);
-    
+
     virtual int getCapability(Capability capability);
+
+    virtual QString getCapabilityStr(Capability);
 
   protected:
 
@@ -61,17 +63,17 @@ class Ersky9xInterface : public EEPROMInterface
 
   private:
     void appendTextElement(QDomDocument * qdoc, QDomElement * pe, QString name, QString value);
-    
+
     void appendNumberElement(QDomDocument * qdoc, QDomElement * pe,QString name, int value, bool forceZeroWrite = false);
-    
+
     void appendCDATAElement(QDomDocument * qdoc, QDomElement * pe,QString name, const char * data, int size);
-    
+
     QDomElement getGeneralDataXML(QDomDocument * qdoc, Ersky9xGeneral * tgen);   //parse out data to XML format
-    
+
     QDomElement getModelDataXML(QDomDocument * qdoc, Ersky9xModelData_v11 * tmod, int modelNum, int mdver); //parse out data to XML format
-    
+
     bool loadRadioSettingsDataXML(QDomDocument * qdoc, Ersky9xGeneral * tgen); // get data from XML
-    
+
     template <class T>
     bool loadModelDataXML(QDomDocument * qdoc, ModelData * model, int modelNum, int stickMode); // get data from XML
 

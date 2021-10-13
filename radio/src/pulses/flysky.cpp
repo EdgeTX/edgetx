@@ -113,7 +113,7 @@ static uint32_t rfRxCount = 0;
 static uint8_t lastState = STATE_IDLE;
 static uint32_t set_loop_cnt = 0;
 
-uint32_t NV14internalModuleFwVersion;
+uint32_t NV14internalModuleFwVersion = 0;
 
 static rf_info_t rf_info = {
     .bind_power = BIND_LOW_POWER,

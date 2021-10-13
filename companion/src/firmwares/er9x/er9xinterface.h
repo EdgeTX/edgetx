@@ -53,8 +53,10 @@ class Er9xInterface : public EEPROMInterface
     virtual int getSize(const GeneralSettings &settings);
 
     virtual bool isAvailable(PulsesProtocol proto, int port=0);
-    
+
     virtual int getCapability(Capability capability);
+
+    virtual QString getCapabilityStr(Capability);
 
   protected:
 

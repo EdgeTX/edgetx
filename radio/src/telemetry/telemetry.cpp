@@ -140,18 +140,22 @@ void telemetryWakeup()
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)
-  if (intmoduleFifo.pop(data)) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      processMultiTelemetryData(data, INTERNAL_MODULE);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (intmoduleFifo.pop(data));
-  }
+  if (isModuleMultimodule(INTERNAL_MODULE)) {
+    if (intmoduleFifo.pop(data)) {
+      LOG_TELEMETRY_WRITE_START();
+      do {
+        processMultiTelemetryData(data, INTERNAL_MODULE);
+        LOG_TELEMETRY_WRITE_BYTE(data);
+      } while (intmoduleFifo.pop(data));
+    }
 #if defined(MULTI_PROTOLIST)
-  if (MultiRfProtocols::instance(INTERNAL_MODULE)->isScanning()) {
-    MultiRfProtocols::instance(INTERNAL_MODULE)->scanReply();
-  }
+    if ((moduleState[INTERNAL_MODULE].protocol ==
+         PROTOCOL_CHANNELS_MULTIMODULE) &&
+        MultiRfProtocols::instance(INTERNAL_MODULE)->isScanning()) {
+      MultiRfProtocols::instance(INTERNAL_MODULE)->scanReply();
+    }
 #endif
+  }
 #endif
 
 #if defined(STM32)
@@ -177,11 +181,13 @@ void telemetryWakeup()
 
 #if defined(MULTI_PROTOLIST)
   if (isModuleMultimodule(EXTERNAL_MODULE) &&
-      MultiRfProtocols::instance(EXTERNAL_MODULE)->isScanning()) {    
-    MultiRfProtocols::instance(EXTERNAL_MODULE)->scanReply();    
+      (moduleState[EXTERNAL_MODULE].protocol ==
+       PROTOCOL_CHANNELS_MULTIMODULE) &&
+      MultiRfProtocols::instance(EXTERNAL_MODULE)->isScanning()) {
+    MultiRfProtocols::instance(EXTERNAL_MODULE)->scanReply();
   }
 #endif
-  
+
 #elif defined(PCBSKY9X)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
     while (telemetrySecondPortReceive(data)) {

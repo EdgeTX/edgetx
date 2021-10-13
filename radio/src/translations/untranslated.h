@@ -190,6 +190,10 @@
 #define LEN_PWR_OFF_DELAYS             "\002"
 #define TR_PWR_OFF_DELAYS              "0s""1s""2s""4s"
 
+#if defined(PCBNV14)
+#define  TR_RFPOWER_AFHDS2             "\007" "Default\0""High\0"
+#endif
+
 #define TR_SENSOR_RSSI                      "RSSI"
 #define TR_SENSOR_R9PW                      "R9PW"
 #define TR_SENSOR_RAS                       "SWR"

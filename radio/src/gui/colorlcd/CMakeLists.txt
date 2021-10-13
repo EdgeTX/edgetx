@@ -11,6 +11,7 @@ file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gu
 
 set(GUI_SRC
   ${GUI_SRC}
+  str_functions.cpp
   colors.cpp
   lcd.cpp
   splash.cpp
@@ -18,6 +19,7 @@ set(GUI_SRC
   curves.cpp
   bitmaps.cpp
   theme.cpp
+  theme_manager.cpp
   tabsgroup.cpp
   page.cpp
   fab_button.cpp
@@ -77,6 +79,10 @@ endmacro(add_gui_src)
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
+  set(SRC ${SRC} lua/widgets.cpp)
+endif()
+
+if(LUA STREQUAL YES)
   add_gui_src(model_mixer_scripts.cpp)
 endif()
 
@@ -98,10 +104,6 @@ endif()
 
 if(GHOST)
   add_gui_src(radio_ghost_module_config.cpp)
-endif()
-
-if(LUA STREQUAL YES)
-  set(SRC ${SRC} lua/widgets.cpp)
 endif()
 
 set(SRC ${SRC} storage/modelslist.cpp)

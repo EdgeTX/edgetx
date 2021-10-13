@@ -1,0 +1,60 @@
+name: Linux Companion
+
+on:
+  push:
+    branches:
+      - '2.5'
+      - 'main'
+    tags:
+      - v*
+    paths:
+      - '.github/workflows/linux_cpn.yml'
+      - 'companion/**'
+      - 'tools/build-companion-nightly.sh'
+
+  pull_request:
+    branches:
+      - '2.5'
+      - 'main'
+    paths:
+      - '.github/workflows/linux_cpn.yml'
+      - 'companion/**'
+      - 'tools/build-companion-nightly.sh'
+
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/edgetx/edgetx-dev
+      volumes:
+        - ${{ github.workspace }}:/src
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: |
+          mkdir output && \
+          tools/build-companion-nightly.sh $(pwd) $(pwd)/output/
+
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-cpn-linux-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ env.artifact_name }}"
+          path:  ${{github.workspace}}/output
+          retention-days: 15

@@ -160,6 +160,9 @@ if (MULTIMODULE)
     )
 endif()
 
+# Make malloc() thread-safe
+add_definitions(-DTHREADSAFE_MALLOC)
+
 set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c

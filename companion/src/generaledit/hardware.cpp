@@ -86,15 +86,6 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addLine(row);
   }
 
-  addLabel(tr("Battery Offset"), row, 0);
-  AutoDoubleSpinBox *txVoltageCalibration = new AutoDoubleSpinBox(this);
-  FieldRange txVCRng = GeneralSettings::getTxVoltageCalibrationRange();
-  txVoltageCalibration->setDecimals(txVCRng.decimals);
-  txVoltageCalibration->setSingleStep(txVCRng.step);
-  txVoltageCalibration->setSuffix(txVCRng.unit);
-  txVoltageCalibration->setField(generalSettings.txVoltageCalibration);
-  addParams(row, txVoltageCalibration);
-
   if (Boards::getCapability(board, Board::HasRTC)) {
     addLabel(tr("RTC Battery Check"), row, 0);
     AutoCheckBox *rtcCheckDisable = new AutoCheckBox(this);
@@ -183,7 +174,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addLabel(tr("Current Offset"), row, 0);
     AutoSpinBox *txCurrentCalibration = new AutoSpinBox(this);
     FieldRange txCCRng = GeneralSettings::getTxCurrentCalibration();
-    txCurrentCalibration->setSuffix(txVCRng.unit);
+    txCurrentCalibration->setSuffix(txCCRng.unit);
     txCurrentCalibration->setField(generalSettings.txCurrentCalibration);
     addParams(row, txCurrentCalibration);
   }
