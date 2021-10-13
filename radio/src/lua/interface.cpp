@@ -985,7 +985,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       luaLcdAllowed = allowLcdUsage;
   }
  
-  do {
+  while (idx < luaScriptsCount) {
     ScriptInternalData & sid = scriptInternalData[idx];
     if (sid.state != SCRIPT_OK) continue;
    
@@ -1159,7 +1159,9 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       }
       else luaFree(lsScripts, sid);
     }
-  } while (++idx < luaScriptsCount);
+    
+    idx++;
+  } // while
  
   // Toggle between background and foreground scripts
   luaLcdAllowed = !luaLcdAllowed;
