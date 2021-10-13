@@ -550,25 +550,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     message(STATUS "linuxdeployqt will be downloaded")
 
     set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
-
     set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
-    set(LINUXDEPLOY_BUNDLE "linuxdeployqt.AppImage")
+    set(LINUXDEPLOY_BUNDLE "${CMAKE_BINARY_DIR}/linuxdeployqt.AppImage")
 
     if (NOT EXISTS "${LINUXDEPLOY_EXECUTABLE}")
+      file(DOWNLOAD "${LINUXDEPLOY_URL}" "${LINUXDEPLOY_BUNDLE}")
+      execute_process(
+        COMMAND chmod +x "${LINUXDEPLOY_BUNDLE}"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+      execute_process(
+        COMMAND "${LINUXDEPLOY_BUNDLE}" --appimage-extract
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-      file(DOWNLOAD "${LINUXDEPLOY_URL}" ${LINUXDEPLOY_BUNDLE})
+      file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/deployqt")
       execute_process(
-        COMMAND chmod +x ${LINUXDEPLOY_BUNDLE}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-      execute_process(
-        COMMAND ./${LINUXDEPLOY_BUNDLE} --appimage-extract
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-      file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/deployqt)
-      execute_process(
-        COMMAND mv squashfs-root deployqt
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-      file(REMOVE ${CMAKE_BINARY_DIR}/${LINUXDEPLOY_BUNDLE})
+        COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" deployqt
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+      file(REMOVE "${LINUXDEPLOY_BUNDLE}")
     endif()
   endif()
 
