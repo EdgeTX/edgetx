@@ -1300,6 +1300,11 @@ class ModuleWindow : public FormGroup {
                 return 0;
               } else {
                 moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+#if defined(AFHDS2)
+                if (isModuleFlySky(moduleIdx)) {
+                  resetPulsesAFHDS2();
+                }
+#endif
                 auto rssiDialog = new DynamicMessageDialog(
                     this, "Range Test",
                     [=]() {
@@ -1312,6 +1317,11 @@ class ModuleWindow : public FormGroup {
                 rssiDialog->setCloseHandler([this]() {
                   rangeButton->check(false);
                   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+#if defined(AFHDS2)
+                  if (isModuleFlySky(moduleIdx)) {
+                    resetPulsesAFHDS2();
+                  }
+#endif
                 });
                 return 1;
               }
@@ -1321,6 +1331,19 @@ class ModuleWindow : public FormGroup {
 
         grid.nextLine();
       }
+
+#if defined(AFHDS2) && defined(PCBNV14)
+      if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {
+        new StaticText(this, grid.getLabelSlot(true), STR_MULTI_RFPOWER);
+        new Choice(this, grid.getFieldSlot(), "\007""Default""High", 0, 1,
+            GET_DEFAULT(g_model.moduleData[moduleIdx].flysky.rfPower),
+            [=](int32_t newValue) -> void {
+          g_model.moduleData[moduleIdx].flysky.rfPower = newValue;
+          resetPulsesAFHDS2();
+        });
+        grid.nextLine();
+      }
+#endif
 
       // Failsafe
       if (isModuleFailsafeAvailable(moduleIdx)) {
