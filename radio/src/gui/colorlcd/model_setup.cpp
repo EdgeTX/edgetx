@@ -1304,7 +1304,7 @@ class ModuleWindow : public FormGroup {
                 if (isModuleFlySky(moduleIdx)) {
                   resetPulsesAFHDS2();
                 }
-#endif                
+#endif
                 auto rssiDialog = new DynamicMessageDialog(
                     this, "Range Test",
                     [=]() {
@@ -1321,7 +1321,7 @@ class ModuleWindow : public FormGroup {
                   if (isModuleFlySky(moduleIdx)) {
                     resetPulsesAFHDS2();
                   }
-#endif                                          
+#endif
                 });
                 return 1;
               }
@@ -1404,7 +1404,6 @@ class ModuleWindow : public FormGroup {
                    GET_DEFAULT(min<uint8_t>(g_model.moduleData[moduleIdx].pxx.power, R9M_LBT_POWER_MAX)),
                    SET_DEFAULT(g_model.moduleData[moduleIdx].pxx.power));
       }
-
 
       // Receivers
       if (isModuleRFAccess(moduleIdx)) {
