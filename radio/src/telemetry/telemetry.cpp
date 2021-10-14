@@ -75,6 +75,13 @@ void processTelemetryData(uint8_t data)
   }
 #endif
 
+#if defined(AFHDS2)
+  if(telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
+    processInternalFlySkyTelemetryData(data);
+    return;
+  }
+#endif
+
 #if defined(AFHDS3)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_AFHDS3) {
     afhds3::processTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount, TELEMETRY_RX_PACKET_SIZE);
@@ -151,6 +158,15 @@ void telemetryWakeup()
   }
 #endif
 
+#if defined(STM32)
+  if (telemetryGetByte(&data)) {
+    LOG_TELEMETRY_WRITE_START();
+    do {
+      processTelemetryData(data);
+      LOG_TELEMETRY_WRITE_BYTE(data);
+    } while (telemetryGetByte(&data));
+  }
+
 #if defined(PCBNV14)
   if (//!moduleUpdateActive(INTERNAL_MODULE) &&
       moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_AFHDS2A &&
@@ -162,15 +178,6 @@ void telemetryWakeup()
     } while (intmoduleFifo.pop(data));
   }
 #endif
-
-#if defined(STM32)
-  if (telemetryGetByte(&data)) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      processTelemetryData(data);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (telemetryGetByte(&data));
-  }
 
 #if defined(MULTI_PROTOLIST)
   if (isModuleMultimodule(EXTERNAL_MODULE) &&
@@ -365,6 +372,13 @@ void telemetryInit(uint8_t protocol)
 #if defined(AFHDS3)
   else if (protocol == PROTOCOL_TELEMETRY_AFHDS3) {
     telemetryPortInvertedInit(AFHDS3_BAUDRATE);
+    telemetryPortSetDirectionInput();
+  }
+#endif
+
+#if defined(AFHDS2)
+  else if (protocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
+    telemetryPortInit(INTMODULE_USART_AFHDS2_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
     telemetryPortSetDirectionInput();
   }
 #endif

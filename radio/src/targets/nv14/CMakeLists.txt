@@ -73,7 +73,6 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
 
-set(FIRMWARE_DEPENDENCIES datacopy)
 
 add_definitions(-DSTM32F429_439xx -DSDRAM -DCOLORLCD -DLIBOPENUI
       -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD)
@@ -197,7 +196,7 @@ MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
       # Remove the leading and trailing empty characters
       string(REPLACE "\r" "" _line ${_line})
       string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I${_line}")
+      set(_include_path "${_include_path}" "-I\"${_line}\"")
     endif()
 
     if(${_line} STREQUAL "#include <...> search starts here:")

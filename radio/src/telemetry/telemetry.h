@@ -134,6 +134,12 @@ inline const char* getRssiLabel()
     return "RQly";
   }
 #endif
+#if defined (PCBNV14)
+  extern uint32_t NV14internalModuleFwVersion;
+  if ( (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) 
+        && (NV14internalModuleFwVersion >=  0x1000E) )
+    return "Sgnl";
+#endif
   return "RSSI";
 }
 
@@ -171,6 +177,12 @@ inline uint8_t modelTelemetryProtocol()
 #if defined(AFHDS3)
   if (isModuleAFHDS3(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_AFHDS3;
+  }
+#endif
+
+#if defined(AFHDS2)
+  if (isModuleAFHDS2A(INTERNAL_MODULE)) {
+    return PROTOCOL_TELEMETRY_FLYSKY_NV14;
   }
 #endif
 
