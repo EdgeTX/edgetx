@@ -44,7 +44,8 @@ char * strAppendFilename(char * dest, const char * filename, const int size);
 char * getStringAtIndex(char * dest, const char * s, int idx);
 char * strAppendStringWithIndex(char * dest, const char * s, int idx);
 #define LEN_TIMER_STRING               10 // "-00:00:00"
-char * getTimerString(char * dest, int tme, uint8_t hours=0);
+char * getTimerString(char * dest, int32_t tme, uint8_t hours=0u);
+char * getTimerStringCase(char * dest, int32_t tme, uint8_t hours=0u, bool bLowerCase=true);
 char * getCurveString(char * dest, int idx);
 char * getGVarString(char * dest, int idx);
 char * getGVarString(int idx);
@@ -62,6 +63,7 @@ char * getSwitchPositionName(swsrc_t idx);
 char * getSwitchWarningString(swsrc_t idx);
 char * getCurveString(int idx);
 char * getTimerString(int32_t tme, uint8_t hours);
-void splitTimer( char * s0, char * s1, char * s2, char * s3, int tme );
+char * getTimerString(int32_t tme, uint8_t hours, bool bLowercase);
+void   splitTimer(char* s0, char* s1, char* s2, char* s3, int tme, bool bLowercase=true);
 
 #endif // _STRHELPERS_H_

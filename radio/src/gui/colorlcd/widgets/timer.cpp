@@ -65,7 +65,7 @@ class TimerWidget: public Widget
           dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
         }
         // value
-        splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(timerState.val));
+        splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(timerState.val), false);
 
         dc->drawSizedText(76   , 31,  sDigitGroup0, ZLEN(sDigitGroup0), FONT(XL)  | colorFore);
         dc->drawSizedText(76+35, 33,  sUnit0, ZLEN(sUnit0),             FONT(STD) | colorFore);
@@ -96,19 +96,19 @@ class TimerWidget: public Widget
         // small size
         if (width() > 100 && height() > 40) {
           if (abs(timerState.val) >= 3600) {
-            drawTimer(dc,3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
+            drawTimer(dc,3, 20, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
           }
           else {
-            drawTimer(dc, 3, 16, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
+            drawTimer(dc, 3, 18, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
           }
         }
         // very smal size
         else {
           if (abs(timerState.val) >= 3600) {
-            drawTimer(dc,3, 14, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);
+            drawTimer(dc,3, 20, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);
           }
           else {
-            drawTimer(dc, 3, 14, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT);
+            drawTimer(dc, 3, 18, abs(timerState.val), COLOR_THEME_PRIMARY2 | LEFT);
           }
         }
       }

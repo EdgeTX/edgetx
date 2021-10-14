@@ -180,7 +180,7 @@ char * strAppendStringWithIndex(char * dest, const char * s, int idx)
 #define SECONDSPERDAY   (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR  (365 * SECONDSPERDAY)
 
-char * getTimerString(char * dest, int tme, uint8_t hours)
+char * getTimerStringCase(char * dest, int32_t tme, uint8_t hours, bool bLowerCase)
 {
   char *  s = dest;
   div_t   qr;
@@ -199,7 +199,7 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
     qr = div((int) val, SECONDSPERYEAR);
     *s++ = '0' + (qr.quot / 10);
     *s++ = '0' + (qr.quot % 10);
-    *s++ = 'Y';
+    *s++ = bLowerCase ? 'y' : 'Y';
     val = qr.rem;
     digit_group++;
   }
@@ -209,7 +209,7 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
     qr = div((int) val, SECONDSPERDAY);
     *s++ = '0' +  (qr.quot / 10);
     *s++ = '0' +  (qr.quot % 10);
-    *s++ = 'D';
+    *s++ = bLowerCase ? 'd' : 'D';
     val = qr.rem;
     digit_group++;
   }
@@ -219,7 +219,7 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
     qr = div((int) val, SECONDSPERHOUR);
     *s++ = '0' +  (qr.quot / 10);
     *s++ = '0' +  (qr.quot % 10);
-    *s++ = 'H';
+    *s++ = bLowerCase ? 'h' : 'H';
     val = qr.rem;
     digit_group++;
   }
@@ -228,20 +228,21 @@ char * getTimerString(char * dest, int tme, uint8_t hours)
   qr = div((int) val, SECONDSPERMIN);
   *s++ = '0' +  (qr.quot / 10);
   *s++ = '0' +  (qr.quot % 10);
-  if ( digit_group!=0 )     *s++ = 'M';
-  else                      *s++ = 'M';
+  *s++ = bLowerCase ? 'm' : 'M';
   digit_group++;
   if ( digit_group == 3 ) { *s=0; return dest; }
   // seconds
   *s++ = '0' +  (qr.rem / 10);
   *s++ = '0' +  (qr.rem % 10);
-  if ( digit_group != 1 )   *s++ = 'S';
+  //if ( digit_group != 1 )   {
+    *s++ = bLowerCase ? 's' : 'S';
+  //}
   *s=0;
 
   return dest;
 }
 
-void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme )
+void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme, bool bLowerCase )
 {
   char *  s0 = sDb0;
   char *  s1 = sDb1;
@@ -265,7 +266,7 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s0++ +=  (qr.quot / 10);
     *s0++ +=  (qr.quot % 10);
     *s0 = 0;;
-    *s2++ = 'Y';
+    *s2++ = bLowerCase ? 'y' : 'Y';
     *s2 = 0;
     digit_group++;
     val = qr.rem;
@@ -276,7 +277,7 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s1++ +=  (qr.quot / 10);
     *s1++ +=  (qr.quot % 10);
     *s1 = 0;
-    *s3++ = 'D';
+    *s3++ = bLowerCase ? 'd' : 'D';
     *s3 = 0;
     return;
   } 
@@ -284,7 +285,7 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s0++ +=  (qr.quot / 10);
     *s0++ +=  (qr.quot % 10);
     *s0 = 0;;
-    *s2++ = 'D';
+    *s2++ = bLowerCase ? 'd' : 'D';
     *s2 = 0;
     digit_group++;
     val = qr.rem;
@@ -295,7 +296,7 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s1++ +=  (qr.quot / 10);
     *s1++ +=  (qr.quot % 10);
     *s1 = 0;
-    *s3++ = 'H';
+    *s3++ = bLowerCase ? 'h': 'H';
     *s3 = 0;
     return;
   }
@@ -303,7 +304,7 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s0++ +=  (qr.quot / 10);
     *s0++ +=  (qr.quot % 10);
     *s0 = 0;
-    *s2++ = 'H';
+    *s2++ = bLowerCase ? 'h' : 'H';
     *s2 = 0;
     digit_group++;
     val = qr.rem;
@@ -314,20 +315,20 @@ void splitTimer( char * sDb0, char * sDb1, char * sUnit0, char * sUnit1, int tme
     *s1++ +=  (qr.quot / 10);
     *s1++ +=  (qr.quot % 10);
     *s1 = 0;
-    *s3++ = 'M';
+    *s3++ = bLowerCase ? 'm' : 'M';
     *s3 = 0;
     return;
   }
   *s0++ +=  (qr.quot / 10);
   *s0++ +=  (qr.quot % 10);
   *s0 = 0;
-  *s2++ = 'M';
+  *s2++ = bLowerCase ? 'm' : 'M';
   *s2 = 0;
   // seconds
   *s1++ +=  (qr.rem / 10);
   *s1++ +=  (qr.rem % 10);
   *s1=0;
-  *s3++ = 'S';
+  *s3++ = bLowerCase ? 's' : 'S';
   *s3 = 0;
 }
 
@@ -754,7 +755,17 @@ char * getCurveString(int idx)
 
 char * getTimerString(int32_t tme, uint8_t hours)
 {
-  return getTimerString(tmpHelpersString, tme, hours);
+  return getTimerStringCase(tmpHelpersString, tme, hours, true);
+}
+
+char * getTimerString(int32_t tme, uint8_t hours, bool bLowerCase)
+{
+  return getTimerStringCase(tmpHelpersString, tme, hours, bLowerCase);
+}
+
+char * getTimerString(char * dest, int32_t tme, uint8_t hours)
+{
+  return getTimerStringCase( dest, tme, hours, true);
 }
 
 char * getSwitchPositionName(swsrc_t idx)
