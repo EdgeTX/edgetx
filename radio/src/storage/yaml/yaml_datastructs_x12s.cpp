@@ -431,7 +431,6 @@ static const struct YamlNode struct_CurveRef[] = {
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
-  YAML_IDX,
   YAML_SIGNED_CUST( "weight", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "destCh", 5 ),
   YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),
@@ -464,7 +463,6 @@ static const struct YamlNode struct_LimitData[] = {
   YAML_END
 };
 static const struct YamlNode struct_ExpoData[] = {
-  YAML_IDX,
   YAML_UNSIGNED( "mode", 2 ),
   YAML_UNSIGNED( "scale", 14 ),
   YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),

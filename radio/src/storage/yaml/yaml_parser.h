@@ -63,6 +63,7 @@ class YamlParser
 
     // parser state
     uint8_t state;
+    uint8_t saved_state;
 
     // scratch buffer w/ 16 bytes
     // used for attribute and values

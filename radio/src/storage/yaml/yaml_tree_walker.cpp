@@ -200,8 +200,7 @@ static bool yaml_output_attr(uint8_t* ptr, uint32_t bit_ofs, const YamlNode* nod
 YamlTreeWalker::YamlTreeWalker()
     : stack_level(NODE_STACK_DEPTH),
       virt_level(0),
-      anon_union(0),
-      idx_invalid(false)
+      anon_union(0)
 {
     memset(stack,0,sizeof(stack));
 }
@@ -211,7 +210,6 @@ void YamlTreeWalker::reset(const YamlNode* node, uint8_t* data)
     this->data = data;
     stack_level = NODE_STACK_DEPTH;
     virt_level  = 0;
-    idx_invalid = false;
 
     push();
     setNode(node);
@@ -225,7 +223,6 @@ bool YamlTreeWalker::push()
 
     stack_level--;
     memset(&(stack[stack_level]), 0, sizeof(State));
-    idx_invalid = false;
 
     return true;
 }
@@ -237,7 +234,6 @@ bool YamlTreeWalker::pop()
 
     memset(&(stack[stack_level]), 0, sizeof(State));
     stack_level++;
-    idx_invalid = false;
 
     return true;
 }
@@ -261,10 +257,15 @@ bool YamlTreeWalker::findNode(const char* tag, uint8_t tag_len)
 {
     if (virt_level)
         return false;
-    
+
     rewind();
 
     const struct YamlNode* attr = getAttr();
+    if (isArrayElmt() && attr && attr->type == YDT_IDX) {
+        setAttrValue((char*)tag, tag_len);
+        return true;
+    }
+            
     while(attr && attr->type != YDT_NONE) {
 
         if ((tag_len == attr->tag_len)
@@ -303,9 +304,21 @@ bool YamlTreeWalker::toChild()
     const struct YamlNode* attr = getAttr();
     if (!attr
         || (attr->type != YDT_ARRAY
-            && attr->type != YDT_UNION)) {
+            && attr->type != YDT_UNION
+            && !isArrayElmt())) {
         virt_level++;
         return true;
+    }
+
+    bool is_array = false;
+    if (attr->type == YDT_ARRAY
+        && attr->u._array.u._a.elmts > 1) {
+        is_array = true;
+    }
+
+    const YamlNode* parent_node = getNode();
+    if (isArrayElmt() && attr->type == YDT_IDX) {
+        attr = parent_node;
     }
 
     if (!push()) {
@@ -317,11 +330,17 @@ bool YamlTreeWalker::toChild()
     setAttrOfs(getLevelOfs());
 
     attr = getAttr();
+    if (!attr)
+        return false;
+    
     if ((attr->type == YDT_UNION) && (attr->tag_len == 0)) {
         toChild();
         anon_union++;
     }
 
+    if (is_array)
+        setArrayElmt(true);
+    
     return true;
 }
 
@@ -335,8 +354,8 @@ bool YamlTreeWalker::toNextElmt()
             return false;
         }
 
-        if (idx_invalid) {
-            idx_invalid = false;
+        if (isIdxInvalid()) {
+            setIdxInvalid(false);
             stack[stack_level].elmts = 0;
         }
         
@@ -424,7 +443,7 @@ void YamlTreeWalker::toNextAttr()
 
 void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
 {
-    if (!buf || !len || idx_invalid)
+    if (!buf || !len || isIdxInvalid())
         return;
 
     const YamlNode* attr = getAttr();
@@ -441,10 +460,10 @@ void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
         while ((i > getElmts()) && toNextElmt());
 
         if (i > getElmts())
-            idx_invalid = true;
+            setIdxInvalid(true);
     }
     else {
-        yaml_set_attr(data, getBitOffset(), attr, getElmts(), buf, len);
+        yaml_set_attr(data, getBitOffset(), attr, getParentElmts(), buf, len);
         //walker.dump_stack();
     }
 }
@@ -476,6 +495,10 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                     return false;
             }
             else {
+
+                if (isParentArrayElmt() && !toParent())
+                    return false;
+                
                 // walk to next non-empty element
                 while (toNextElmt()) {
                     if (!isElmtEmpty(data)) {
@@ -509,7 +532,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=2; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(NULL, 0, node, getElmts(), wf, opaque))
+                if (!yaml_output_attr(NULL, 0, node, 0, wf, opaque))
                     return false; // TODO: error handling???
 
                 // grab attr idx...
@@ -521,7 +544,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=1; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(data, getBitOffset(), attr, getElmts(), wf, opaque))
+                if (!yaml_output_attr(data, getBitOffset(), attr, 0, wf, opaque))
                     return false; // TODO: error handling???
 
                 if (attr->type != YDT_ARRAY
@@ -554,7 +577,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=2; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(NULL, 0, getNode(), getElmts(), wf, opaque))
+                if (!yaml_output_attr(NULL, 0, getNode(),0, wf, opaque))
                     return false; // TODO: error handling???
                 continue;
             }
@@ -567,30 +590,13 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             continue;
         }
 
-        if (new_elmt) {
-
-            for(int i=2; i < getLevel(); i++)
-                if (!wf(opaque, "   ", 3))
-                    return false;
-
-            if (!wf(opaque, " - ", 3))
-                return false;
+        // TODO: support for lists (inputs, mixers)
+        if (attr->type == YDT_IDX) {
 
             new_elmt = false;
-        }
-        else {
             for(int i=1; i < getLevel(); i++)
                 if (!wf(opaque, "   ", 3))
                     return false;
-        }
-
-        if (attr->type == YDT_IDX) {
-
-            if (!wf(opaque, attr->tag, attr->tag_len))
-                return false;
-
-            if (!wf(opaque, ": ", 2))
-                return false;
 
             if (attr->u._cust_idx.write) {
                 if (!attr->u._cust_idx.write(getElmts(),wf,opaque))
@@ -602,11 +608,33 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                     return false;
             }
 
-            if (!wf(opaque, "\r\n", 2))
+            if (!wf(opaque, ":\r\n", 3))
                 return false;
+
+            toChild(); //TODO: error checking
         }
-        else if (!yaml_output_attr(data, getBitOffset(), attr, getElmts(), wf, opaque))
-            return false; // TODO: error handling???
+        else {
+
+            // only for lists:
+            // - arrays have IDX upfront
+            // - structs are not marked as arrays
+            if (new_elmt && isArrayElmt()) {
+                for(int i=2; i < getLevel(); i++)
+                    if (!wf(opaque, "   ", 3))
+                        return false;
+
+                if (!wf(opaque, " -\r\n", 4))
+                    return false;
+            }
+                
+            new_elmt = false;
+            for(int i=1; i < getLevel(); i++)
+                if (!wf(opaque, "   ", 3))
+                    return false;
+            
+            if (!yaml_output_attr(data, getBitOffset(), attr, getParentElmts(), wf, opaque))
+                return false; // TODO: error handling???
+        }
 
         toNextAttr();
     }

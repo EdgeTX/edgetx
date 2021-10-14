@@ -22,7 +22,7 @@ const struct YamlIdStr {{ enum.name }}[] = {
 static const struct YamlNode {{ struct.name }}_elmts[] = {
 {% else %}
 static const struct YamlNode {{ struct.name }}[] = {
-  {% if struct.used_in_arrays %}
+  {% if struct.use_idx %}
   YAML_IDX,
   {% endif%}
 {% endif %}

@@ -35,6 +35,7 @@ void YamlParser::init(const YamlParserCalls* parser_calls, void* parser_ctx)
     indent = 0;
     level  = 0;
     memset(indents, 0, sizeof(indents));
+    saved_state = 0;
 
     calls = parser_calls;
     ctx   = parser_ctx;
@@ -43,8 +44,11 @@ void YamlParser::init(const YamlParserCalls* parser_calls, void* parser_ctx)
 
 void YamlParser::reset()
 {
-    state = ps_Indent;
-    indents[level] = indent;
+    state = saved_state;
+    if (state != ps_Dash) {
+        indents[level] = indent;
+        state = saved_state = ps_Indent;
+    }
     indent = scratch_len  = 0;
     node_found = false;
 }
@@ -105,6 +109,12 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
 
+            if (*c == '\r' || *c == '\n') {
+                saved_state = state;
+                state = ps_CRLF;
+                continue;
+            }
+            
             if (indent < getLastIndent()) {
                 // go up as many levels as necessary
                 do {
@@ -114,6 +124,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                     }
                 } while (indent < getLastIndent());
 
+                // attribute on same line as dash
                 if (state == ps_Dash) {
                     if (!calls->to_next_elmt(ctx)) {
                         return DONE_PARSING;
@@ -122,13 +133,15 @@ YamlParser::parse(const char* buffer, unsigned int size)
             }
             // go down one level
             else if (indent > getLastIndent()) {
+                // TODO: check dash?
                 if (!toChild()) {
                     TRACE_YAML("STOP (stack full)!\n");
                     return DONE_PARSING; // ERROR
                 }
             }
             // same level, next element
-            else if (state == ps_Dash) {
+            else if (state == ps_Dash || saved_state == ps_Dash) {
+                // attribute on same line or next line as dash
                 if (!calls->to_next_elmt(ctx)) {
                     return DONE_PARSING;
                 }
@@ -160,6 +173,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                               scratch_len, scratch_buf);
                     }
                 }
+                saved_state = state;
                 state = ps_CRLF;
                 continue;
             }
@@ -180,6 +194,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             if (*c == ' ')
                 break;
             if (*c == '\r' || *c == '\n'){
+                saved_state = state;
                 state = ps_CRLF;
                 continue;
             }
@@ -251,6 +266,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 if (node_found) {
                     calls->set_attr(ctx, scratch_buf, scratch_len);
                 }
+                saved_state = state;
                 state = ps_CRLF;
                 continue;
             }
