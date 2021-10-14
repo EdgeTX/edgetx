@@ -336,12 +336,12 @@ def parse_field_array(f, node):
     if f.type != 'string':
         elmt_decl = et.get_declaration()
 
-        use_idx = False
+        use_idx = True
         ann = get_annotations(node)
         if len(ann) > 0:
             for a in ann:
-                if a['type'] == 'idx':
-                    use_idx = True
+                if a['type'] == 'idx' and a['val'] == 'false':
+                    use_idx = False
                 elif a['type'] == 'raw':
                     f.raw = a['val']
 
@@ -353,6 +353,7 @@ def parse_field_array(f, node):
             f.var_name = elmt_st.var_name
             # mark array usage for unions
             elmt_st.used_in_arrays = True
+            elmt_st.use_idx = use_idx
         elif elmt_decl.kind == CursorKind.TYPEDEF_DECL:
             # it's some typedef
             #print_error("TYPEDEF {} {}".format(f.name, elmt_decl.spelling));

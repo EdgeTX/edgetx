@@ -618,9 +618,9 @@ PACK(struct ModelData {
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
   BeepANACenter beepANACenter;
-  MixData   mixData[MAX_MIXERS];
+  MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  ExpoData  expoData[MAX_EXPOS];
+  ExpoData  expoData[MAX_EXPOS] NO_IDX;
 
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];
