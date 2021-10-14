@@ -53,13 +53,15 @@ extern caddr_t _sbrk(int nbytes)
 void __malloc_lock(struct _reent *r)
 {
   (void)(r);
-  vTaskSuspendAll();
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    vTaskSuspendAll();
 };
 
 void __malloc_unlock(struct _reent *r)
 {
   (void)(r);
-  (void)xTaskResumeAll();
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    (void)xTaskResumeAll();
 };
 #endif
 
