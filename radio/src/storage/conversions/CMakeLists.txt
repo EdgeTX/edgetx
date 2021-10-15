@@ -7,4 +7,6 @@ if(STORAGE_CONVERSIONS)
     storage/conversions/conversions.cpp
     storage/conversions/conversions_219_220.cpp
     )
+
+  include(storage/conversions/yaml/CMakeLists.txt)
 endif()
