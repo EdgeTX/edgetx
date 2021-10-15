@@ -360,8 +360,17 @@ static void sl_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
                          uint16_t idx, const char* val, uint8_t val_len)
 {
     // data / bitoffs already incremented
+#if defined(PCBTARANIS)
+    // Please note:
+    //   slidersConfig is defined as a bit-field member,
+    //   so let's take the next field and subtract 1
+    //
+    data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
+    data -= offsetof(RadioData, potsConfig) - 1;
+#else
     data -= (idx + 1) / 8;
     data -= offsetof(RadioData, slidersConfig);
+#endif
 
     RadioData* rd = reinterpret_cast<RadioData*>(data);
     idx += NUM_STICKS + STORAGE_NUM_POTS;
@@ -372,8 +381,17 @@ static bool sl_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
                           uint16_t idx, yaml_writer_func wf, void* opaque)
 {
     // data / bitoffs already incremented
+#if defined(PCBTARANIS)
+    // Please note:
+    //   slidersConfig is defined as a bit-field member,
+    //   so let's take the next field and subtract 1
+    //
+    data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
+    data -= offsetof(RadioData, potsConfig) - 1;
+#else
     data -= (idx + 1) / 8;
     data -= offsetof(RadioData, slidersConfig);
+#endif
 
     RadioData* rd = reinterpret_cast<RadioData*>(data);
     idx += NUM_STICKS + STORAGE_NUM_POTS;
