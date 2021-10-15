@@ -73,6 +73,7 @@ class YamlTreeWalker
 
     void incAttr() { stack[stack_level].attr_idx++; }
     void incElmts() { stack[stack_level].elmts++; }
+    void setElmts(uint16_t idx) { stack[stack_level].elmts = idx; }
 
     inline bool isIdxInvalid() {
         return stack[stack_level].flags & FLAG_STATE_IDX_INVALID;

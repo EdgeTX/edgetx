@@ -356,14 +356,15 @@ bool YamlTreeWalker::toNextElmt()
 
         if (isIdxInvalid()) {
             setIdxInvalid(false);
-            stack[stack_level].elmts = 0;
+            setElmts(0);
         }
         
-        if (getElmts() >= node->u._array.u._a.elmts - 1)
+        if (getElmts() < node->u._array.u._a.elmts - 1) {
+            incElmts();
+            rewind();
+        } else {
             return false;
-
-        incElmts();
-        rewind();
+        }
     }
 
     return true;
@@ -455,16 +456,16 @@ void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
         else
             i = yaml_str2uint(buf, len);
 
-        //TODO: detect -1 and set idx_invalid = true
-
-        while ((i > getElmts()) && toNextElmt());
-
-        if (i > getElmts())
+        const YamlNode* node = getNode();
+        if (i < node->u._array.u._a.elmts) {
+            setElmts(i);
+            rewind();
+        } else {
             setIdxInvalid(true);
+        }
     }
     else {
         yaml_set_attr(data, getBitOffset(), attr, getParentElmts(), buf, len);
-        //walker.dump_stack();
     }
 }
 
