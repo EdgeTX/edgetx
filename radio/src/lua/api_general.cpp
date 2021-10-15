@@ -1878,7 +1878,7 @@ const luaR_value_entry opentxConstants[] = {
   { "PREC2", PREC2 },
   { "VALUE", INPUT_TYPE_VALUE },
   { "SOURCE", INPUT_TYPE_SOURCE },
-  { "REPLACE", MLTPX_REP },
+  { "REPLACE", MLTPX_REPL },
   { "MIXSRC_MAX", MIXSRC_MAX },
   { "MIXSRC_FIRST_INPUT", MIXSRC_FIRST_INPUT },
   { "MIXSRC_Rud", MIXSRC_Rud },

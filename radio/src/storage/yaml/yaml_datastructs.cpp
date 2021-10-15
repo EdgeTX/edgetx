@@ -60,3 +60,5 @@
 #else
 #error "Board not supported by YAML storage"
 #endif
+
+static_assert(MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN);

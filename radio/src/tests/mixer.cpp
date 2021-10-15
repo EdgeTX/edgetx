@@ -789,12 +789,12 @@ TEST_F(MixerTest, flightModeTransition)
   g_model.flightModeData[1].fadeIn = 100;
   g_model.flightModeData[1].fadeOut = 100;
   g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_REP;
+  g_model.mixData[0].mltpx = MLTPX_REPL;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].flightModes = 0b11110;
   g_model.mixData[0].weight = 100;
   g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_REP;
+  g_model.mixData[1].mltpx = MLTPX_REPL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].flightModes = 0b11101;
   g_model.mixData[1].weight = -10;
@@ -813,7 +813,7 @@ TEST_F(MixerTest, flightModeOverflow)
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
   g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_REP;
+  g_model.mixData[0].mltpx = MLTPX_REPL;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].flightModes = 0;
   g_model.mixData[0].weight = 250;

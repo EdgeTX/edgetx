@@ -158,9 +158,15 @@ enum CurveRefType {
 #endif
 
 enum MixerMultiplex {
-  MLTPX_ADD = 0,
-  MLTPX_MUL = 1,
-  MLTPX_REP = 2,
+  MLTPX_ADD  = 0,
+  MLTPX_MUL  = 1,
+  MLTPX_REPL = 2,
+};
+
+enum TrainerMultiplex {
+  TRAINER_OFF  = 0,
+  TRAINER_ADD  = 1,
+  TRAINER_REPL = 2,
 };
 
 #define GV1_SMALL       128
