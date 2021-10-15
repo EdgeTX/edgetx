@@ -396,7 +396,7 @@ PACK(struct TelemetrySensor {
  */
 
 PACK(struct TrainerModuleData {
-  uint8_t mode ENUM(TrainerMode);
+  uint8_t mode CUST(r_trainerMode,w_trainerMode);
   uint8_t channelsStart;
   int8_t  channelsCount; // 0=8 channels
   int8_t frameLength;
