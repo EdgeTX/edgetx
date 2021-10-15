@@ -19,21 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "strhelpers.h"
+
+#include "opentx.h"
 
 #if !defined(BOOT)
 const char s_charTab[] = "_-.,";
 
-char hex2zchar(uint8_t hex)
-{
-  return (hex >= 10 ? hex-9 : 27+hex);
-}
+char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
 
-char hex2char(uint8_t hex)
-{
-  return (hex >= 10 ? hex-9+'A' : hex+'0');
-}
+char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 9 + 'A' : hex + '0'); }
 
 char zchar2char(int8_t idx)
 {
@@ -44,23 +39,20 @@ char zchar2char(int8_t idx)
   }
   if (idx < 27) return 'A' + idx - 1;
   if (idx < 37) return '0' + idx - 27;
-  if (idx <= 40) return *(s_charTab+idx-37);
+  if (idx <= 40) return *(s_charTab + idx - 37);
 #if LEN_SPECIAL_CHARS > 0
   if (idx <= (LEN_STD_CHARS + LEN_SPECIAL_CHARS)) return 'z' + 5 + idx - 40;
 #endif
   return ' ';
 }
 
-char char2lower(char c)
-{
-  return (c >= 'A' && c <= 'Z') ? c + 32 : c;
-}
+char char2lower(char c) { return (c >= 'A' && c <= 'Z') ? c + 32 : c; }
 
 int8_t char2zchar(char c)
 {
   if (c == '_') return 37;
 #if LEN_SPECIAL_CHARS > 0
-  if ((int8_t)c < 0 && c+128 <= LEN_SPECIAL_CHARS) return 41 + (c+128);
+  if ((int8_t)c < 0 && c + 128 <= LEN_SPECIAL_CHARS) return 41 + (c + 128);
 #endif
   if (c >= 'a') return 'a' - c - 1;
   if (c >= 'A') return c - 'A' + 1;
@@ -71,65 +63,63 @@ int8_t char2zchar(char c)
   return 0;
 }
 
-void str2zchar(char * dest, const char * src, int size)
+void str2zchar(char *dest, const char *src, int size)
 {
   memset(dest, 0, size);
-  for (int c=0; c<size && src[c]; c++) {
+  for (int c = 0; c < size && src[c]; c++) {
     dest[c] = char2zchar(src[c]);
   }
 }
 
-int zchar2str(char * dest, const char * src, int size)
+int zchar2str(char *dest, const char *src, int size)
 {
-  for (int c=0; c<size; c++) {
+  for (int c = 0; c < size; c++) {
     dest[c] = zchar2char(src[c]);
   }
   do {
     dest[size--] = '\0';
   } while (size >= 0 && dest[size] == ' ');
-  return size+1;
+  return size + 1;
 }
 
 int strnlen(const char *src, int max_size)
 {
-  for (int i=0; i<max_size; i++) {
-    if (src[i] == '\0')
-      return i;
+  for (int i = 0; i < max_size; i++) {
+    if (src[i] == '\0') return i;
   }
 
   return max_size;
 }
 
-unsigned int effectiveLen(const char * str, unsigned int size)
+unsigned int effectiveLen(const char *str, unsigned int size)
 {
   while (size > 0) {
-    if (str[size-1] != ' ' && str[size-1] != '\0')
-      return size;
+    if (str[size - 1] != ' ' && str[size - 1] != '\0') return size;
     size--;
   }
   return 0;
 }
 
-bool zexist(const char * str, uint8_t size)
+bool zexist(const char *str, uint8_t size)
 {
-  for (int i=0; i<size; i++) {
-    if (str[i] != 0)
-      return true;
+  for (int i = 0; i < size; i++) {
+    if (str[i] != 0) return true;
   }
   return false;
 }
 
-uint8_t zlen(const char * str, uint8_t size)
+uint8_t zlen(const char *str, uint8_t size)
 {
   while (size > 0) {
-    if (str[size-1] != 0)
-      return size;
+    if (str[size - 1] != 0) return size;
     size--;
   }
   return 0;
 }
 
-char * strcat_zchar(char * dest, const char * name, uint8_t size, const char spaceSym, const char * defaultName, uint8_t defaultNameSize, uint8_t defaultIdx)
+char *strcat_zchar(char *dest, const char *name, uint8_t size,
+                   const char spaceSym, const char *defaultName,
+                   uint8_t defaultNameSize, uint8_t defaultIdx)
 {
   int8_t len = 0;
 
@@ -137,14 +127,12 @@ char * strcat_zchar(char * dest, const char * name, uint8_t size, const char spa
     memcpy(dest, name, size);
     dest[size] = '\0';
 
-    int8_t i = size-1;
+    int8_t i = size - 1;
 
-    while (i>=0) {
-      if (!len && dest[i])
-        len = i+1;
+    while (i >= 0) {
+      if (!len && dest[i]) len = i + 1;
       if (len) {
-        if (dest[i] == spaceSym)
-          dest[i] = '_';
+        if (dest[i] == spaceSym) dest[i] = '_';
       }
       i--;
     }
@@ -162,100 +150,192 @@ char * strcat_zchar(char * dest, const char * name, uint8_t size, const char spa
 #endif
 
 #if !defined(BOOT)
-char * getStringAtIndex(char * dest, const char * s, int idx)
+char *getStringAtIndex(char *dest, const char *s, int idx)
 {
   uint8_t len = s[0];
-  strncpy(dest, s+1+len*idx, len);
+  strncpy(dest, s + 1 + len * idx, len);
   dest[len] = '\0';
   return dest;
 }
 
-char * strAppendStringWithIndex(char * dest, const char * s, int idx)
+char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 {
   return strAppendUnsigned(strAppend(dest, s), abs(idx));
 }
 
-constexpr int secondsPerDay = 24 * 3600;
-constexpr int secondsPer99Hours = 99*3600 + 59*60 + 59;
-constexpr int secondsPerYear = 365 * secondsPerDay;
+#define SECONDSPERMIN 60
+#define SECONDSPERHOUR (60 * SECONDSPERMIN)
+#define SECONDSPERDAY (24 * SECONDSPERHOUR)
+#define SECONDSPERYEAR (365 * SECONDSPERDAY)
 
-char * getTimerString(char * dest, int tme, uint8_t hours)
+char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
+                         bool bLowerCase)
 {
-  char * s = dest;
+  char *s = dest;
   div_t qr;
+  int val = abs(tme);
+  uint8_t digit_group = 0;
 
   if (tme < 0) {
     tme = -tme;
     *s++ = '-';
   }
 
-  if (tme < secondsPerDay) {
-    qr = div((int) tme, 60);
+  // years
+  qr = div((int)val, SECONDSPERYEAR);
+  if (qr.quot != 0) {
+    qr = div((int)val, SECONDSPERYEAR);
+    *s++ = '0' + (qr.quot / 10);
+    *s++ = '0' + (qr.quot % 10);
+    *s++ = bLowerCase ? 'y' : 'Y';
+    val = qr.rem;
+    digit_group++;
+  }
+  // days
+  qr = div((int)val, SECONDSPERDAY);
+  if (qr.quot != 0 || digit_group != 0) {
+    qr = div((int)val, SECONDSPERDAY);
+    *s++ = '0' + (qr.quot / 10);
+    *s++ = '0' + (qr.quot % 10);
+    *s++ = bLowerCase ? 'd' : 'D';
+    val = qr.rem;
+    digit_group++;
+  }
+  // hours
+  qr = div((int)val, SECONDSPERHOUR);
+  if (qr.quot != 0 || digit_group != 0) {
+    qr = div((int)val, SECONDSPERHOUR);
+    *s++ = '0' + (qr.quot / 10);
+    *s++ = '0' + (qr.quot % 10);
+    *s++ = bLowerCase ? 'h' : 'H';
+    val = qr.rem;
+    digit_group++;
+  }
+  if (digit_group == 3) {
+    *s = 0;
+    return dest;
+  }
+  // minutes
+  qr = div((int)val, SECONDSPERMIN);
+  *s++ = '0' + (qr.quot / 10);
+  *s++ = '0' + (qr.quot % 10);
+  *s++ = bLowerCase ? 'm' : 'M';
+  digit_group++;
+  if (digit_group == 3) {
+    *s = 0;
+    return dest;
+  }
+  // seconds
+  *s++ = '0' + (qr.rem / 10);
+  *s++ = '0' + (qr.rem % 10);
+  // if ( digit_group != 1 )   {
+  *s++ = bLowerCase ? 's' : 'S';
+  //}
+  *s = 0;
 
-    if (hours) {
-      div_t qr2 = div(qr.quot, 60);
-      *s++ = '0' + (qr2.quot / 10);
-      *s++ = '0' + (qr2.quot % 10);
-      *s++ = ':';
-      qr.quot = qr2.rem;
-    }
-
-    if (!hours && qr.quot > 99) {
-      *s++ = '0' + (qr.quot / 100);
-      qr.quot = qr.quot % 100;
-    }
-
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
-    *s++ = ':';
-    *s++ = '0' + (qr.rem / 10);
-    *s++ = '0' + (qr.rem % 10);
-    *s = '\0';
-  }
-  else if (tme < secondsPer99Hours) {
-    qr = div(tme, 3600);
-    div_t qr2 = div(qr.rem, 60);
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
-    *s++ = 'H';
-    *s++ = '0' + (qr2.quot / 10);
-    *s++ = '0' + (qr2.quot % 10);
-    *s = '\0';
-  }
-  else if (tme < secondsPerYear) {
-    qr = div(tme, secondsPerDay);
-    div_t qr2 = div(qr.rem, 60);
-    *s++ = '0' + (qr.quot / 100);
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
-    *s++ = 'D';
-    *s++ = '0' + (qr2.quot / 10);
-    *s++ = '0' + (qr2.quot % 10);
-    *s++ = 'H';
-    *s = '\0';
-  }
-  else {
-    qr = div(tme, secondsPerYear);
-    div_t qr2 = div(qr.rem, secondsPerDay);
-    *s++ = '0' + (qr.quot / 10);
-    *s++ = '0' + (qr.quot % 10);
-    *s++ = 'Y';
-    *s++ = 'Y';
-    *s++ = '0' + (qr2.quot / 10);
-    *s++ = '0' + (qr2.quot % 10);
-    *s++ = 'D';
-    *s = '\0';
-  }
   return dest;
 }
 
-char * getCurveString(char * dest, int idx)
+void splitTimer(char *sDb0, char *sDb1, char *sUnit0, char *sUnit1, int tme,
+                bool bLowerCase)
+{
+  char *s0 = sDb0;
+  char *s1 = sDb1;
+  char *s2 = sUnit0;
+  char *s3 = sUnit1;
+  s0[0] = s1[0] = s0[1] = s1[1] = '0';
+  div_t qr;
+  int val = tme;
+  uint8_t digit_group = 0;
+
+  /*
+  if (tme < 0) {
+    tme = -tme;
+    *s++ = '-';
+  }
+  */
+  // years
+  qr = div((int)val, SECONDSPERYEAR);
+  if (qr.quot != 0) {
+    qr = div((int)val, SECONDSPERYEAR);
+    *s0++ += (qr.quot / 10);
+    *s0++ += (qr.quot % 10);
+    *s0 = 0;
+    ;
+    *s2++ = bLowerCase ? 'y' : 'Y';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // days
+  qr = div((int)val, SECONDSPERDAY);
+  if (digit_group == 1) {
+    *s1++ += (qr.quot / 10);
+    *s1++ += (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = bLowerCase ? 'd' : 'D';
+    *s3 = 0;
+    return;
+  }
+  if (qr.quot != 0) {
+    *s0++ += (qr.quot / 10);
+    *s0++ += (qr.quot % 10);
+    *s0 = 0;
+    ;
+    *s2++ = bLowerCase ? 'd' : 'D';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // hours
+  qr = div((int)val, SECONDSPERHOUR);
+  if (digit_group == 1) {
+    *s1++ += (qr.quot / 10);
+    *s1++ += (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = bLowerCase ? 'h' : 'H';
+    *s3 = 0;
+    return;
+  }
+  if (qr.quot != 0) {
+    *s0++ += (qr.quot / 10);
+    *s0++ += (qr.quot % 10);
+    *s0 = 0;
+    *s2++ = bLowerCase ? 'h' : 'H';
+    *s2 = 0;
+    digit_group++;
+    val = qr.rem;
+  }
+  // minutes
+  qr = div((int)val, SECONDSPERMIN);
+  if (digit_group == 1) {
+    *s1++ += (qr.quot / 10);
+    *s1++ += (qr.quot % 10);
+    *s1 = 0;
+    *s3++ = bLowerCase ? 'm' : 'M';
+    *s3 = 0;
+    return;
+  }
+  *s0++ += (qr.quot / 10);
+  *s0++ += (qr.quot % 10);
+  *s0 = 0;
+  *s2++ = bLowerCase ? 'm' : 'M';
+  *s2 = 0;
+  // seconds
+  *s1++ += (qr.rem / 10);
+  *s1++ += (qr.rem % 10);
+  *s1 = 0;
+  *s3++ = bLowerCase ? 's' : 'S';
+  *s3 = 0;
+}
+
+char *getCurveString(char *dest, int idx)
 {
   if (idx == 0) {
     return getStringAtIndex(dest, STR_MMMINV, 0);
   }
 
-  char * s = dest;
+  char *s = dest;
   if (idx < 0) {
     *s++ = '!';
     idx = -idx;
@@ -269,27 +349,27 @@ char * getCurveString(char * dest, int idx)
   return dest;
 }
 
-char * getGVarString(char * dest, int idx)
+char *getGVarString(char *dest, int idx)
 {
-  char * s = dest;
+  char *s = dest;
   if (idx < 0) {
     *s++ = '-';
-    idx = -idx-1;
+    idx = -idx - 1;
   }
 
   if (g_model.gvars[idx].name[0])
     strAppend(s, g_model.gvars[idx].name, LEN_GVAR_NAME);
   else
-    strAppendStringWithIndex(s, STR_GV, idx+1);
+    strAppendStringWithIndex(s, STR_GV, idx + 1);
 
   return dest;
 }
 
-char * getFlightModeString(char * dest, int8_t idx)
+char *getFlightModeString(char *dest, int8_t idx)
 {
-  char * s = dest;
+  char *s = dest;
 
-  if (idx==0) {
+  if (idx == 0) {
     strcpy(s, "---");
     return dest;
   }
@@ -304,10 +384,10 @@ char * getFlightModeString(char * dest, int8_t idx)
   return dest;
 }
 
-char * getSwitchWarningString(char * dest, swsrc_t idx)
+char *getSwitchWarningString(char *dest, swsrc_t idx)
 {
-  char * s = dest;
-  uint8_t state = g_model.switchWarningState >> (3*idx) & 0x07;
+  char *s = dest;
+  uint8_t state = g_model.switchWarningState >> (3 * idx) & 0x07;
 
   *s++ = 'A' + idx;
   if (state == 0)
@@ -320,25 +400,25 @@ char * getSwitchWarningString(char * dest, swsrc_t idx)
 }
 
 #if !defined(PCBSKY9X)
-char * getSwitchName(char * dest, swsrc_t idx)
+char *getSwitchName(char *dest, swsrc_t idx)
 {
   div_t swinfo = switchInfo(idx);
   if (g_eeGeneral.switchNames[swinfo.quot][0] != '\0') {
-    dest = strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
-  }
-  else {
+    dest =
+        strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
+  } else {
     *dest++ = 'S';
 #if defined(PCBX7) && !defined(RADIO_TX12)
     if (swinfo.quot >= 5)
-        *dest++ = 'H' + swinfo.quot - 5;
-      else if (swinfo.quot == 4)
+      *dest++ = 'H' + swinfo.quot - 5;
+    else if (swinfo.quot == 4)
 #if defined(RADIO_T12)
-        *dest++ = 'G';
+      *dest++ = 'G';
 #else
-        *dest++ = 'F';
+      *dest++ = 'F';
 #endif
-      else
-        *dest++ = 'A'+swinfo.quot;
+    else
+      *dest++ = 'A' + swinfo.quot;
 #else
     *dest++ = 'A' + swinfo.quot;
 #endif
@@ -347,65 +427,64 @@ char * getSwitchName(char * dest, swsrc_t idx)
 }
 #endif
 
-char * getSwitchPositionName(char * dest, swsrc_t idx)
+char *getSwitchPositionName(char *dest, swsrc_t idx)
 {
   if (idx == SWSRC_NONE) {
     return getStringAtIndex(dest, STR_VSWITCHES, 0);
-  }
-  else if (idx == SWSRC_OFF) {
+  } else if (idx == SWSRC_OFF) {
     return getStringAtIndex(dest, STR_OFFON, 0);
   }
 
-  char * s = dest;
+  char *s = dest;
   if (idx < 0) {
     *s++ = '!';
     idx = -idx;
   }
 
 #if defined(PCBSKY9X)
-  #define IDX_TRIMS_IN_STR_VSWITCHES   (1+SWSRC_LAST_SWITCH)
-  #define IDX_ON_IN_STR_VSWITCHES      (IDX_TRIMS_IN_STR_VSWITCHES+SWSRC_LAST_TRIM-SWSRC_FIRST_TRIM+2)
+#define IDX_TRIMS_IN_STR_VSWITCHES (1 + SWSRC_LAST_SWITCH)
+#define IDX_ON_IN_STR_VSWITCHES \
+  (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 2)
   if (idx <= SWSRC_LAST_SWITCH) {
     getStringAtIndex(s, STR_VSWITCHES, idx);
   }
 #else
-#define IDX_TRIMS_IN_STR_VSWITCHES   (1)
-#define IDX_ON_IN_STR_VSWITCHES      (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 1)
+#define IDX_TRIMS_IN_STR_VSWITCHES (1)
+#define IDX_ON_IN_STR_VSWITCHES \
+  (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 1)
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
     s = getSwitchName(s, idx);
     *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
     *s = '\0';
   }
-#endif // PCBSKY9X
+#endif  // PCBSKY9X
 
 #if NUM_XPOTS > 0
   else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    div_t swinfo = div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
-    char temp[LEN_ANA_NAME+1];
-    getSourceString(temp, MIXSRC_FIRST_POT+swinfo.quot);
-    temp[LEN_ANA_NAME]= '\0';
-    strAppendStringWithIndex(s, temp, swinfo.rem+1);
+    div_t swinfo =
+        div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
+    char temp[LEN_ANA_NAME + 1];
+    getSourceString(temp, MIXSRC_FIRST_POT + swinfo.quot);
+    temp[LEN_ANA_NAME] = '\0';
+    strAppendStringWithIndex(s, temp, swinfo.rem + 1);
   }
 #endif
 
   else if (idx <= SWSRC_LAST_TRIM) {
-    getStringAtIndex(s, STR_VSWITCHES, IDX_TRIMS_IN_STR_VSWITCHES+idx-SWSRC_FIRST_TRIM);
-  }
-  else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
+    getStringAtIndex(s, STR_VSWITCHES,
+                     IDX_TRIMS_IN_STR_VSWITCHES + idx - SWSRC_FIRST_TRIM);
+  } else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
     *s++ = 'L';
-    strAppendUnsigned(s, idx-SWSRC_FIRST_LOGICAL_SWITCH+1, 2);
-  }
-  else if (idx <= SWSRC_ONE) {
-    getStringAtIndex(s, STR_VSWITCHES, IDX_ON_IN_STR_VSWITCHES + idx - SWSRC_ON);
-  }
-  else if (idx <= SWSRC_LAST_FLIGHT_MODE) {
-    strAppendStringWithIndex(s, STR_FM, idx-SWSRC_FIRST_FLIGHT_MODE);
-  }
-  else if (idx == SWSRC_TELEMETRY_STREAMING) {
+    strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
+  } else if (idx <= SWSRC_ONE) {
+    getStringAtIndex(s, STR_VSWITCHES,
+                     IDX_ON_IN_STR_VSWITCHES + idx - SWSRC_ON);
+  } else if (idx <= SWSRC_LAST_FLIGHT_MODE) {
+    strAppendStringWithIndex(s, STR_FM, idx - SWSRC_FIRST_FLIGHT_MODE);
+  } else if (idx == SWSRC_TELEMETRY_STREAMING) {
     strcpy(s, "Tele");
-  }
-  else if (idx == SWSRC_RADIO_ACTIVITY) {
+  } else if (idx == SWSRC_RADIO_ACTIVITY) {
     strcpy(s, "Act");
   }
 #if defined(DEBUG_LATENCY)
@@ -414,52 +493,52 @@ char * getSwitchPositionName(char * dest, swsrc_t idx)
   }
 #endif
   else {
-    strncpy(s, g_model.telemetrySensors[idx-SWSRC_FIRST_SENSOR].label, TELEM_LABEL_LEN);
+    strncpy(s, g_model.telemetrySensors[idx - SWSRC_FIRST_SENSOR].label,
+            TELEM_LABEL_LEN);
     s[TELEM_LABEL_LEN] = '\0';
   }
 
   return dest;
 }
 
-char * getSourceString(char * dest, mixsrc_t idx)
+char *getSourceString(char *dest, mixsrc_t idx)
 {
   if (idx == MIXSRC_NONE) {
     return getStringAtIndex(dest, STR_VSRCRAW, 0);
-  }
-  else if (idx <= MIXSRC_LAST_INPUT) {
+  } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
     *dest = CHAR_INPUT;
     if (strlen(g_model.inputNames[idx])) {
-      memset(dest + 1, 0, LEN_INPUT_NAME+1);
+      memset(dest + 1, 0, LEN_INPUT_NAME + 1);
       strncpy(dest + 1, g_model.inputNames[idx], LEN_INPUT_NAME);
-    }
-    else {
+    } else {
       strAppendUnsigned(dest + 1, idx + 1, 2);
     }
   }
 #if defined(LUA_INPUTS)
   else if (idx <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div(idx-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+    div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    if (qr.quot < MAX_SCRIPTS &&
+        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       *dest++ = CHAR_LUA;
-      // temporary string
-      #define MAX_CHAR  16
+// temporary string
+#define MAX_CHAR 16
       char temp[MAX_CHAR];
-      strncpy( temp, g_model.scriptsData[qr.quot].name, MAX_CHAR );
+      strncpy(temp, g_model.scriptsData[qr.quot].name, MAX_CHAR);
 
       // instance Name is empty : dest = n-ScriptFileName/OutputName
-      if ( temp[0]== 0) {
-        snprintf( temp, MAX_CHAR, "%d-%s/%s", qr.quot+1,  
-                                              g_model.scriptsData[qr.quot].file, 
-                                              scriptInputsOutputs[qr.quot].outputs[qr.rem].name );
-      // instance Name is not empty : dest = InstanceName/OutputName
-      } else  {
-        snprintf( temp, MAX_CHAR, "%s/%s",  g_model.scriptsData[qr.quot].name, 
-                                            scriptInputsOutputs[qr.quot].outputs[qr.rem].name );
+      if (temp[0] == 0) {
+        snprintf(temp, MAX_CHAR, "%d-%s/%s", qr.quot + 1,
+                 g_model.scriptsData[qr.quot].file,
+                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        // instance Name is not empty : dest = InstanceName/OutputName
+      } else {
+        snprintf(temp, MAX_CHAR, "%s/%s", g_model.scriptsData[qr.quot].name,
+                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
       }
 
-      strcpy( dest, temp);
+      strcpy(dest, temp);
     }
 #else
     strcpy(dest, "N/A");
@@ -469,9 +548,8 @@ char * getSourceString(char * dest, mixsrc_t idx)
   else if (idx <= MIXSRC_LAST_POT) {
 
     if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
-
-      //TODO: add correct symbol
-      if(idx <= MIXSRC_LAST_STICK) {
+      // TODO: add correct symbol
+      if (idx <= MIXSRC_LAST_STICK) {
         dest[0] = CHAR_STICK;
 #if NUM_SLIDERS > 0
       } else if (idx < MIXSRC_FIRST_SLIDER) {
@@ -485,66 +563,65 @@ char * getSourceString(char * dest, mixsrc_t idx)
       }
 
       idx -= MIXSRC_Rud;
-      memcpy(dest+1, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
-      dest[LEN_ANA_NAME+1] = '\0';
-    }
-    else {
+      memcpy(dest + 1, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+      dest[LEN_ANA_NAME + 1] = '\0';
+    } else {
       idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
     }
-  }
-  else if (idx <= MIXSRC_LAST_TRIM) {
+  } else if (idx <= MIXSRC_LAST_TRIM) {
     idx -= MIXSRC_Rud;
     getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
-  }
-  else if (idx <= MIXSRC_LAST_SWITCH) {
+  } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     if (g_eeGeneral.switchNames[idx][0] != '\0') {
       strncpy(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
       dest[LEN_SWITCH_NAME] = '\0';
+    } else {
+      getStringAtIndex(dest, STR_VSRCRAW,
+                       idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
     }
-    else {
-      getStringAtIndex(dest, STR_VSRCRAW, idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
-    }
-  }
-  else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
+  } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
     getSwitchPositionName(dest, SWSRC_SW1 + idx - MIXSRC_SW1);
-  }
-  else if (idx <= MIXSRC_LAST_TRAINER) {
-    strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx - MIXSRC_FIRST_TRAINER + 1);
-  }
-  else if (idx <= MIXSRC_LAST_CH) {
+  } else if (idx <= MIXSRC_LAST_TRAINER) {
+    strAppendStringWithIndex(dest, STR_PPM_TRAINER,
+                             idx - MIXSRC_FIRST_TRAINER + 1);
+  } else if (idx <= MIXSRC_LAST_CH) {
     strAppendStringWithIndex(dest, STR_CH, idx - MIXSRC_CH1 + 1);
-  }
-  else if (idx <= MIXSRC_LAST_GVAR) {
+  } else if (idx <= MIXSRC_LAST_GVAR) {
     strAppendStringWithIndex(dest, STR_GV, idx - MIXSRC_GVAR1 + 1);
-  }
-  else if (idx < MIXSRC_FIRST_TIMER) {
-    getStringAtIndex(dest, STR_VSRCRAW, idx-MIXSRC_Rud+1-MAX_LOGICAL_SWITCHES-MAX_TRAINER_CHANNELS-MAX_OUTPUT_CHANNELS-MAX_GVARS);
-  }
-  else if (idx <= MIXSRC_LAST_TIMER) {
-    if(g_model.timers[idx-MIXSRC_FIRST_TIMER].name[0] != '\0') {
-      strncpy(dest,g_model.timers[idx-MIXSRC_FIRST_TIMER].name, LEN_TIMER_NAME);
+  } else if (idx < MIXSRC_FIRST_TIMER) {
+    getStringAtIndex(dest, STR_VSRCRAW,
+                     idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
+                         MAX_TRAINER_CHANNELS - MAX_OUTPUT_CHANNELS -
+                         MAX_GVARS);
+  } else if (idx <= MIXSRC_LAST_TIMER) {
+    if (g_model.timers[idx - MIXSRC_FIRST_TIMER].name[0] != '\0') {
+      strncpy(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name,
+              LEN_TIMER_NAME);
       dest[LEN_TIMER_NAME] = '\0';
+    } else {
+      getStringAtIndex(dest, STR_VSRCRAW,
+                       idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
+                           MAX_TRAINER_CHANNELS - MAX_OUTPUT_CHANNELS -
+                           MAX_GVARS);
     }
-    else {
-      getStringAtIndex(dest, STR_VSRCRAW, idx-MIXSRC_Rud+1-MAX_LOGICAL_SWITCHES-MAX_TRAINER_CHANNELS-MAX_OUTPUT_CHANNELS-MAX_GVARS);
-    }
-  }
-  else {
+  } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div(idx, 3);
     dest[0] = CHAR_TELEMETRY;
-    char  * pos = strAppend(&dest[1], g_model.telemetrySensors[qr.quot].label, sizeof(g_model.telemetrySensors[qr.quot].label));
-    if (qr.rem) * pos = (qr.rem==2 ? '+' : '-');
-    * ++pos = '\0';
+    char *pos = strAppend(&dest[1], g_model.telemetrySensors[qr.quot].label,
+                          sizeof(g_model.telemetrySensors[qr.quot].label));
+    if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
+    *++pos = '\0';
   }
 
   return dest;
 }
 #endif
 
-char * strAppendUnsigned(char * dest, uint32_t value, uint8_t digits, uint8_t radix)
+char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits,
+                        uint8_t radix)
 {
   if (digits == 0) {
     unsigned int tmp = value;
@@ -564,7 +641,7 @@ char * strAppendUnsigned(char * dest, uint32_t value, uint8_t digits, uint8_t ra
   return &dest[digits];
 }
 
-char * strAppendSigned(char * dest, int32_t value, uint8_t digits, uint8_t radix)
+char *strAppendSigned(char *dest, int32_t value, uint8_t digits, uint8_t radix)
 {
   if (value < 0) {
     *dest++ = '-';
@@ -573,7 +650,7 @@ char * strAppendSigned(char * dest, int32_t value, uint8_t digits, uint8_t radix
   return strAppendUnsigned(dest, (uint32_t)value, digits, radix);
 }
 
-char * strAppend(char * dest, const char * source, int len)
+char *strAppend(char *dest, const char *source, int len)
 {
   while ((*dest++ = *source++)) {
     if (--len == 0) {
@@ -584,7 +661,7 @@ char * strAppend(char * dest, const char * source, int len)
   return dest - 1;
 }
 
-char * strSetCursor(char * dest, int position)
+char *strSetCursor(char *dest, int position)
 {
   *dest++ = 0x1F;
   *dest++ = position;
@@ -592,10 +669,10 @@ char * strSetCursor(char * dest, int position)
   return dest;
 }
 
-char * strAppendFilename(char * dest, const char * filename, const int size)
+char *strAppendFilename(char *dest, const char *filename, const int size)
 {
   memset(dest, 0, size);
-  for (int i=0; i<size; i++) {
+  for (int i = 0; i < size; i++) {
     char c = *filename++;
     if (c == '\0' || c == '.') {
       *dest = 0;
@@ -609,12 +686,12 @@ char * strAppendFilename(char * dest, const char * filename, const int size)
 #if defined(RTCLOCK)
 #include "rtc.h"
 
-char * strAppendDate(char * str, bool time)
+char *strAppendDate(char *str, bool time)
 {
   str[0] = '-';
   struct gtm utm;
   gettime(&utm);
-  div_t qr = div(utm.tm_year+TM_YEAR_BASE, 10);
+  div_t qr = div(utm.tm_year + TM_YEAR_BASE, 10);
   str[4] = '0' + qr.rem;
   qr = div(qr.quot, 10);
   str[3] = '0' + qr.rem;
@@ -622,7 +699,7 @@ char * strAppendDate(char * str, bool time)
   str[2] = '0' + qr.rem;
   str[1] = '0' + qr.quot;
   str[5] = '-';
-  qr = div(utm.tm_mon+1, 10);
+  qr = div(utm.tm_mon + 1, 10);
   str[7] = '0' + qr.rem;
   str[6] = '0' + qr.quot;
   str[8] = '-';
@@ -643,8 +720,7 @@ char * strAppendDate(char * str, bool time)
     str[16] = '0' + qr.quot;
     str[18] = '\0';
     return &str[18];
-  }
-  else {
+  } else {
     str[11] = '\0';
     return &str[11];
   }
@@ -654,33 +730,37 @@ char * strAppendDate(char * str, bool time)
 #if !defined(BOOT)
 static char tmpHelpersString[32];
 
-char * getSwitchWarningString(swsrc_t idx)
+char *getSwitchWarningString(swsrc_t idx)
 {
   return getSwitchWarningString(tmpHelpersString, idx);
 }
 
-char * getSourceString(mixsrc_t idx)
+char *getSourceString(mixsrc_t idx)
 {
   return getSourceString(tmpHelpersString, idx);
 }
 
-char * getCurveString(int idx)
+char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
+
+char *getTimerString(int32_t tme, uint8_t hours)
 {
-  return getCurveString(tmpHelpersString, idx);
+  return getTimerStringCase(tmpHelpersString, tme, hours, true);
 }
 
-char * getTimerString(int32_t tme, uint8_t hours)
+char *getTimerString(int32_t tme, uint8_t hours, bool bLowerCase)
 {
-  return getTimerString(tmpHelpersString, tme, hours);
+  return getTimerStringCase(tmpHelpersString, tme, hours, bLowerCase);
 }
 
-char * getSwitchPositionName(swsrc_t idx)
+char *getTimerString(char *dest, int32_t tme, uint8_t hours)
+{
+  return getTimerStringCase(dest, tme, hours, true);
+}
+
+char *getSwitchPositionName(swsrc_t idx)
 {
   return getSwitchPositionName(tmpHelpersString, idx);
 }
 
-char * getGVarString(int idx)
-{
-  return getGVarString(tmpHelpersString, idx);
-}
+char *getGVarString(int idx) { return getGVarString(tmpHelpersString, idx); }
 #endif
