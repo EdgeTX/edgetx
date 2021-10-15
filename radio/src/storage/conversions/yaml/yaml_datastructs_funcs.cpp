@@ -22,7 +22,6 @@
 #include <debug.h>
 #include <string.h>
 
-//#include "bitfield.h"
 #include "dataconstants_220.h"
 #include "datastructs_220.h"
 #include "myeeprom_220.h"

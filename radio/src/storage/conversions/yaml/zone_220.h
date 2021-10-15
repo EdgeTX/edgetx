@@ -62,5 +62,5 @@ struct ZoneOption
 struct ZoneOptionValueTyped
 {
   ZoneOptionValueEnum type;
-  ZoneOptionValue     value FUNC(select_zov);
+  ZoneOptionValue     value;
 };
