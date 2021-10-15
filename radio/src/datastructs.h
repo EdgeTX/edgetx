@@ -396,7 +396,7 @@ PACK(struct TelemetrySensor {
  */
 
 PACK(struct TrainerModuleData {
-  uint8_t mode;
+  uint8_t mode ENUM(TrainerMode);
   uint8_t channelsStart;
   int8_t  channelsCount; // 0=8 channels
   int8_t frameLength;
@@ -558,7 +558,7 @@ typedef uint8_t swarnenable_t;
     NOBACKUP(swarnstate_t  switchWarningState CUST(r_swtchWarn,w_swtchWarn));
 #else
   #define SWITCHES_WARNING_DATA \
-    swarnstate_t  switchWarningState; \
+    swarnstate_t  switchWarningState CUST(r_swtchWarn,w_swtchWarn); \
     swarnenable_t switchWarningEnable; // TODO remove it in 2.4
 #endif
 
@@ -723,7 +723,7 @@ PACK(struct CalibData {
 
 PACK(struct TrainerMix {
   uint8_t srcChn:6; // 0-7 = ch1-8
-  uint8_t mode:2;   // off,add-mode,subst-mode
+  uint8_t mode:2 ENUM(TrainerMultiplex);   // off,add-mode,subst-mode
   int8_t  studWeight;
 });
 
@@ -748,8 +748,8 @@ PACK(struct TrainerData {
 
 #if defined(PCBHORUS) || defined(PCBNV14)
   #define EXTRA_GENERAL_FIELDS \
-    NOBACKUP(uint8_t auxSerialMode:4); \
-    NOBACKUP(uint8_t aux2SerialMode:4); \
+    NOBACKUP(uint8_t auxSerialMode:4 ENUM(UartModes)); \
+    NOBACKUP(uint8_t aux2SerialMode:4 ENUM(UartModes)); \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);       \
     uint16_t potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */ \
@@ -769,7 +769,7 @@ PACK(struct TrainerData {
     #define BLUETOOTH_FIELDS
   #endif
   #define EXTRA_GENERAL_FIELDS \
-    uint8_t  auxSerialMode:4; \
+    uint8_t  auxSerialMode:4 ENUM(UartModes); \
     uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
     uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
@@ -849,7 +849,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  backlightBright);
   NOBACKUP(uint32_t globalTimer);
   NOBACKUP(uint8_t  bluetoothBaudrate:4);
-  NOBACKUP(uint8_t  bluetoothMode:4);
+  NOBACKUP(uint8_t  bluetoothMode:4 ENUM(BluetoothModes));
   NOBACKUP(uint8_t  countryCode:2);
   NOBACKUP(int8_t   pwrOnSpeed:3);
   NOBACKUP(int8_t   pwrOffSpeed:3);

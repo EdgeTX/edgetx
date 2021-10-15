@@ -21,11 +21,24 @@ const struct YamlIdStr enum_AntennaModes[] = {
   {  ANTENNA_MODE_LAST, "MODE_LAST"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_TrainerMultiplex[] = {
+  {  TRAINER_OFF, "OFF"  },
+  {  TRAINER_ADD, "ADD"  },
+  {  TRAINER_REPL, "REPL"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_BeeperMode[] = {
   {  e_mode_quiet, "mode_quiet"  },
   {  e_mode_alarms, "mode_alarms"  },
   {  e_mode_nokeys, "mode_nokeys"  },
   {  e_mode_all, "mode_all"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_BluetoothModes[] = {
+  {  BLUETOOTH_OFF, "OFF"  },
+  {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
+  {  BLUETOOTH_TRAINER, "TRAINER"  },
+  {  BLUETOOTH_MAX, "MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_Functions[] = {
@@ -57,6 +70,16 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_MAX, "MAX"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_UartModes[] = {
+  {  UART_MODE_NONE, "MODE_NONE"  },
+  {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
+  {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
+  {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
+  {  UART_MODE_LUA, "MODE_LUA"  },
+  {  UART_MODE_COUNT, "MODE_COUNT"  },
+  {  UART_MODE_MAX, "MODE_MAX"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -71,7 +94,7 @@ const struct YamlIdStr enum_TimerModes[] = {
 const struct YamlIdStr enum_MixerMultiplex[] = {
   {  MLTPX_ADD, "ADD"  },
   {  MLTPX_MUL, "MUL"  },
-  {  MLTPX_REP, "REP"  },
+  {  MLTPX_REPL, "REPL"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_MixSources[] = {
@@ -207,6 +230,17 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_MAX, "TYPE_MAX"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_TrainerMode[] = {
+  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MODE_MASTER_TRAINER_JACK"  },
+  {  TRAINER_MODE_SLAVE, "MODE_SLAVE"  },
+  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MODE_MASTER_SBUS_EXTERNAL_MODULE"  },
+  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MODE_MASTER_CPPM_EXTERNAL_MODULE"  },
+  {  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, "MODE_MASTER_BATTERY_COMPARTMENT"  },
+  {  TRAINER_MODE_MASTER_BLUETOOTH, "MODE_MASTER_BLUETOOTH"  },
+  {  TRAINER_MODE_SLAVE_BLUETOOTH, "MODE_SLAVE_BLUETOOTH"  },
+  {  TRAINER_MODE_MULTI, "MODE_MULTI"  },
+  {  0, NULL  }
+};
 
 //
 // Structs last
@@ -227,7 +261,7 @@ static const struct YamlNode struct_signed_16[] = {
 static const struct YamlNode struct_TrainerMix[] = {
   YAML_IDX,
   YAML_UNSIGNED( "srcChn", 6 ),
-  YAML_UNSIGNED( "mode", 2 ),
+  YAML_ENUM("mode", 2, enum_TrainerMultiplex),
   YAML_SIGNED( "studWeight", 8 ),
   YAML_END
 };
@@ -316,7 +350,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "backlightBright", 8 ),
   YAML_UNSIGNED( "globalTimer", 32 ),
   YAML_UNSIGNED( "bluetoothBaudrate", 4 ),
-  YAML_UNSIGNED( "bluetoothMode", 4 ),
+  YAML_ENUM("bluetoothMode", 4, enum_BluetoothModes),
   YAML_UNSIGNED( "countryCode", 2 ),
   YAML_SIGNED( "pwrOnSpeed", 3 ),
   YAML_SIGNED( "pwrOffSpeed", 3 ),
@@ -335,7 +369,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
-  YAML_UNSIGNED( "auxSerialMode", 4 ),
+  YAML_ENUM("auxSerialMode", 4, enum_UartModes),
   YAML_ARRAY("slidersConfig", 1, 4, struct_sliderConfig, nullptr),
   YAML_ARRAY("potsConfig", 2, 4, struct_potConfig, nullptr),
   YAML_UNSIGNED( "backlightColor", 8 ),
@@ -597,7 +631,7 @@ static const struct YamlNode struct_ModuleData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TrainerModuleData[] = {
-  YAML_UNSIGNED( "mode", 8 ),
+  YAML_ENUM("mode", 8, enum_TrainerMode),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED( "channelsCount", 8 ),
   YAML_SIGNED( "frameLength", 8 ),
@@ -751,7 +785,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("swashR", 64, struct_SwashRingData, NULL),
   YAML_ARRAY("flightModeData", 288, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED( "thrTraceSrc", 8 ),
-  YAML_UNSIGNED( "switchWarningState", 16 ),
+  YAML_UNSIGNED_CUST( "switchWarningState", 16, r_swtchWarn, w_swtchWarn ),
   YAML_UNSIGNED( "switchWarningEnable", 8 ),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
@@ -780,7 +814,7 @@ static const struct YamlNode struct_PartialModel[] = {
   YAML_END
 };
 
-#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 24
+#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 32
 
 static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
 
