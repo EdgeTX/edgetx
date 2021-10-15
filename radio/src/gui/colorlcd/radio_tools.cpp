@@ -126,8 +126,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
               *((char *)getBasename(toolPath)-1) = '\0';
               f_chdir(toolPath);
 
-              StandaloneLuaWindow::instance()->attach(window);
               luaExec(path_str.c_str());
+              if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS)
+                StandaloneLuaWindow::instance()->attach(window);
+              
               return 0;
             },
             OPAQUE);

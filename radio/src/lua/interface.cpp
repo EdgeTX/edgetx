@@ -891,6 +891,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             if (sid.run == LUA_NOREF) {
               TRACE_ERROR("luaLoadScripts(%s): No run function\n", getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
+              initFunction = LUA_NOREF;
             }
 #if defined(LUA_MODEL_SCRIPTS)
             // Get input/output tables for mixer scripts              
@@ -908,6 +909,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             TRACE_ERROR("luaLoadScripts(%s): The script did not return a table\n", getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
+            initFunction = LUA_NOREF;
           }
          
           // Pop the table off the stack
@@ -929,11 +931,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         else
           TRACE_ERROR("luaLoadScripts(%s): %s\n", getScriptName(idx), lua_tostring(lsScripts, -1));
        
-        if (ref == SCRIPT_STANDALONE) {
-          luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
-          luaError(lsScripts, sid.state, true);
-          return;
-        }
+        initFunction = LUA_NOREF;
         
         // Replace the dead coroutine with a new one
         lua_pop(L, 1);  // Pop the dead coroutine off the main stack
@@ -944,6 +942,12 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
      
     } while(initFunction != LUA_NOREF);  
    
+    if (ref == SCRIPT_STANDALONE && sid.state != SCRIPT_OK) {
+      luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
+      luaError(lsScripts, sid.state, true);
+      return;
+    }
+    
   } while(++ref < SCRIPT_STANDALONE);
  
   // Loading has finished - start running scripts
@@ -981,7 +985,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       luaLcdAllowed = allowLcdUsage;
   }
  
-  do {
+  for (; idx < luaScriptsCount; idx++) {
     ScriptInternalData & sid = scriptInternalData[idx];
     if (sid.state != SCRIPT_OK) continue;
    
@@ -1155,7 +1159,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       }
       else luaFree(lsScripts, sid);
     }
-  } while (++idx < luaScriptsCount);
+  } // for
  
   // Toggle between background and foreground scripts
   luaLcdAllowed = !luaLcdAllowed;
