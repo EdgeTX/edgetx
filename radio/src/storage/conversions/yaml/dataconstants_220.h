@@ -182,7 +182,7 @@ enum CurveType {
   #define LEN_FUNCTION_NAME            6
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
-#elif LCD_W == 212
+#elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
   #define LEN_FLIGHT_MODE_NAME         10
@@ -226,7 +226,7 @@ enum MainViews {
   VIEW_TELEM4,
   VIEW_COUNT
 };
-#elif LCD_W >= 212
+#elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
 enum MainViews {
   VIEW_TIMERS,
   VIEW_INPUTS,
@@ -412,7 +412,7 @@ enum TelemetryUnit {
   UNIT_DATETIME_SEC
 };
 
-#if LCD_W >= 212
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define NUM_LINE_ITEMS 3
 #else
   #define NUM_LINE_ITEMS 2
