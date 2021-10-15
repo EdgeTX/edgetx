@@ -263,15 +263,6 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_MAX, "TYPE_MAX"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_TrainerMode[] = {
-  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MODE_MASTER_TRAINER_JACK"  },
-  {  TRAINER_MODE_SLAVE, "MODE_SLAVE"  },
-  {  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, "MODE_MASTER_BATTERY_COMPARTMENT"  },
-  {  TRAINER_MODE_MASTER_BLUETOOTH, "MODE_MASTER_BLUETOOTH"  },
-  {  TRAINER_MODE_SLAVE_BLUETOOTH, "MODE_SLAVE_BLUETOOTH"  },
-  {  TRAINER_MODE_MULTI, "MODE_MULTI"  },
-  {  0, NULL  }
-};
 
 //
 // Structs last
@@ -681,7 +672,7 @@ static const struct YamlNode struct_ModuleData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TrainerModuleData[] = {
-  YAML_ENUM("mode", 8, enum_TrainerMode),
+  YAML_UNSIGNED_CUST( "mode", 8, r_trainerMode, w_trainerMode ),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED( "channelsCount", 8 ),
   YAML_SIGNED( "frameLength", 8 ),
@@ -861,7 +852,7 @@ static const struct YamlNode struct_PartialModel[] = {
   YAML_END
 };
 
-#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 31
+#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 24
 
 static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
 

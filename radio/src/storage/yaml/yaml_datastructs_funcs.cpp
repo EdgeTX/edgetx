@@ -689,3 +689,39 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
     return wf(opaque, s, strlen(s));
 }
 
+const struct YamlIdStr enum_TrainerMode[] = {
+#if defined(PCBNV14)
+  {  TRAINER_MODE_OFF, "OFF"  },
+#endif
+  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
+  {  TRAINER_MODE_SLAVE, "SLAVE"  },
+#if defined(PCBTARANIS) || defined(PCBNV14)
+  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
+  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
+#endif
+#if defined(PCBTARANIS) || defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+  {  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, "MASTER_BATT_COMP"  },
+#endif
+  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
+  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
+  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  0, NULL  }
+};
+
+static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
+{
+    return yaml_parse_enum(enum_TrainerMode, val, val_len);
+}
+
+static bool w_trainerMode(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
+{
+  const char* str = nullptr;
+  str = yaml_output_enum(val, enum_TrainerMode);
+
+  if (str) {
+    return wf(opaque, str, strlen(str));
+  }
+
+  return true;
+}
