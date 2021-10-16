@@ -54,9 +54,9 @@ static void drawProgressScreen(const char* filename, int progress, int total)
 #endif
 }
 
-void convertRadioData(int version)
+void convertBinRadioData(const char * path, int version)
 {
-  TRACE("convertRadioData(%d)", version);
+  TRACE("convertRadioData(%s,%d)", path, version);
 
 #if defined(COLORLCD)
   // the theme has not been loaded before
@@ -71,6 +71,7 @@ void convertRadioData(int version)
               AU_NONE);
 
   // Load models list before converting
+  // TODO: force old .txt format
   modelslist.load();
 
   unsigned converted = 0;
@@ -81,13 +82,18 @@ void convertRadioData(int version)
 
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    convertRadioData_219_to_220(g_eeGeneral);
-    storageDirty(EE_GENERAL);
+    // TODO: alloc specific structure for destination
+    convertRadioData_219_to_220(path);
   }
 #endif
-  g_eeGeneral.version = EEPROM_VER;
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
+#if STORAGE_CONVERSIONS < 220
+  if (version == 220) {
+    convertRadioData_220_to_221(path);
+    // g_eeGeneral.version = EEPROM_VER;
+    // storageDirty(EE_GENERAL);
+    // storageCheck(true);
+  }
+#endif
   converted++;
 
 #if defined(SIMU)
@@ -107,17 +113,20 @@ void convertRadioData(int version)
       error = readModelBin(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
       if (!error) {
 
-        convertModelData(model_version);
+        // TODO: error handling
+        convertBinModelData(filename, model_version);
 
 #if defined(SDCARD_YAML)
-        //TODO: convert filename  & output to YAML directly
+        // patch model filename
         const char* ext = strrchr(filename, '.');
         if ((ext != nullptr) && !strncmp(ext, MODELS_EXT, 4)) {
           memcpy((void*)ext, (void*)YAML_EXT, sizeof(YAML_EXT) - 1);
         }
+        // in case it's the current model, patch it as well
         if (!strncmp(filename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
           strncpy(g_eeGeneral.currModelFilename, filename, LEN_MODEL_FILENAME+1);
         }
+        // and write to YAML file
         error = writeModelYaml(filename);
 #else
         char path[256];
@@ -146,34 +155,47 @@ void convertRadioData(int version)
   modelslist.clear();
   modelslist.load();
 }
-#endif
 
-void convertModelData(int version)
+void convertBinModelData(const char* filename, int version)
 {
-  TRACE("convertModelData(%d)", version);
-
+  TRACE("convertModelData(%s,%d)", filename);
+  
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    version = 219;
-    convertModelData_219_to_220(g_model);
+    convertModelData_219_to_220(filename);
+    version = 220;
   }
 #endif
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    convertModelData_220_to_221(filename);
+    version = 221;
+  }
+#endif
+  // TODO: error handling
 }
+#endif
 
 #if defined(EEPROM) || defined(EEPROM_RLC)
 #include "storage/eeprom_common.h"
 
 void eeConvertModel(int id, int version)
 {
-  eeLoadModelData(id);
-  convertModelData(version);
-  uint8_t currModel = g_eeGeneral.currModel;
-  g_eeGeneral.currModel = id;
-
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-
-  g_eeGeneral.currModel = currModel;
+  TRACE("eeConvertModel(%d,%d)", id, version);
+  
+#if STORAGE_CONVERSIONS < 220
+  if (version == 219) {
+    convertModelData_219_to_220(id);
+    version = 220;
+  }
+#endif
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    convertModelData_220_to_221(id);
+    version = 221;
+  }
+#endif
+  // TODO: error handling
 }
 
 bool eeConvert()
@@ -209,12 +231,19 @@ bool eeConvert()
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     version = 220;
-    convertRadioData_219_to_220(g_eeGeneral);
+    convertRadioData_219_to_220();
   }
 #endif
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    version = 221;
+    convertRadioData_220_to_221();
+  }
+#endif
+  //TODO: reload from YAML
   g_eeGeneral.version = EEPROM_VER;
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
+  // storageDirty(EE_GENERAL);
+  // storageCheck(true);
 
 #if defined(STORAGE_MODELSLIST)
   modelslist.clear();

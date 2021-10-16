@@ -127,20 +127,17 @@ static bool yaml_writer(void* opaque, const char* str, size_t len)
     return (ctx->result == FR_OK) && (bytes_written == len);
 }
 
-const char * writeGeneralSettings()
+const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data)
 {
-    // YAML reader
-    TRACE("YAML radio settings writer");
-
     FIL file;
 
-    FRESULT result = f_open(&file, RADIO_SETTINGS_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK) {
         return SDCARD_ERROR(result);
     }
       
     YamlTreeWalker tree;
-    tree.reset(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral);
+    tree.reset(root_node, data);
 
     yaml_writer_ctx ctx;
     ctx.file = &file;
@@ -155,6 +152,13 @@ const char * writeGeneralSettings()
 
     f_close(&file);
     return NULL;
+}
+
+const char * writeGeneralSettings()
+{
+    TRACE("YAML radio settings writer");
+    return writeFileYaml(RADIO_SETTINGS_YAML_PATH, get_radiodata_nodes(),
+                         (uint8_t*)&g_eeGeneral);
 }
 
 
@@ -216,35 +220,10 @@ const char* readModel(const char* filename, uint8_t* buffer, uint32_t size,
 
 const char * writeModelYaml(const char* filename)
 {
-    // YAML reader
     TRACE("YAML model writer");
-
     char path[256];
     getModelPath(path, filename);
-
-    FIL file;
-
-    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
-    }
-      
-    YamlTreeWalker tree;
-    tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-
-    yaml_writer_ctx ctx;
-    ctx.file = &file;
-    ctx.result = FR_OK;
-    
-    if (!tree.generate(yaml_writer, &ctx)) {
-        if (ctx.result != FR_OK) {
-            f_close(&file);
-            return SDCARD_ERROR(ctx.result);
-        }
-    }
-
-    f_close(&file);
-    return NULL;
+    return writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model);
 }
 
 #if !defined(STORAGE_MODELSLIST)

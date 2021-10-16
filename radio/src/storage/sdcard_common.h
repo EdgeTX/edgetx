@@ -44,7 +44,15 @@ const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
                         uint8_t* version);
 
 const char* writeFileBin(const char* fullpath, const uint8_t* data,
-                         uint16_t size);
+                         uint16_t size, uint8_t version = EEPROM_VER);
+
+// open, read, and close the file
+const char *loadFileBin(const char *fullpath, uint8_t *data,
+                        uint16_t maxsize, uint8_t *version);
+
+// writes a complete YAML file
+struct YamlNode;
+const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data);
 
 void getModelPath(char * path, const char * filename);
 

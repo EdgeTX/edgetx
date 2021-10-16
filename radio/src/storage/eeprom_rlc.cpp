@@ -746,19 +746,48 @@ void RlcFile::flush()
   ENABLE_SYNC_WRITE(false);
 }
 
+static uint16_t eeLoadData(uint8_t idx, uint8_t* data, unsigned size)
+{
+  memset(data, 0, size);
+  theFile.openRlc(idx);
+  return theFile.readRlc(data, size);
+}
+
+static void eeWriteData(uint8_t idx, uint8_t typ, uint8_t* data,
+                        unsigned size, bool immediately)
+{
+  theFile.writeRlc(idx, typ, data, size, immediately);
+}
+
 // For conversions ...
+void eeWriteGeneralSettingData(uint8_t* data, unsigned size, bool immediately)
+{
+  eeWriteData(FILE_GENERAL, FILE_TYP_GENERAL, data, size, immediately);
+}
+
+uint16_t eeLoadGeneralSettingsData(uint8_t* data, unsigned size)
+{
+  return eeLoadData(FILE_GENERAL, data, size);
+}
+
 uint16_t eeLoadGeneralSettingsData()
 {
-  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
-  theFile.openRlc(FILE_GENERAL);
-  return theFile.readRlc((uint8_t*)&g_eeGeneral, sizeof(g_eeGeneral));
+  return eeLoadGeneralSettingsData((uint8_t*)&g_eeGeneral, sizeof(g_eeGeneral));
+}
+
+void eeWriteModelData(uint8_t index, uint8_t* data, unsigned size, bool immediately)
+{
+  eeWriteData(FILE_MODEL(index), FILE_TYP_MODEL, data, size, immediately);
+}
+
+uint16_t eeLoadModelData(uint8_t index, uint8_t* data, unsigned size)
+{
+  return eeLoadData(FILE_MODEL(index), data, size);
 }
 
 uint16_t eeLoadModelData(uint8_t index)
 {
-  memset(&g_model, 0, sizeof(g_model));
-  theFile.openRlc(FILE_MODEL(index));
-  return theFile.readRlc((uint8_t*)&g_model, sizeof(g_model));
+  return eeLoadModelData(index, (uint8_t*)&g_model, sizeof(g_model));
 }
 
 bool eeLoadGeneral(bool allowFixes)

@@ -23,7 +23,8 @@
 #include "modelslist.h"
 #include "conversions/conversions.h"
 
-const char * writeFileBin(const char * filename, const uint8_t * data, uint16_t size)
+const char *writeFileBin(const char *filename, const uint8_t *data,
+                         uint16_t size, uint8_t version)
 {
   TRACE("writeFileBin(%s)", filename);
 
@@ -37,7 +38,7 @@ const char * writeFileBin(const char * filename, const uint8_t * data, uint16_t 
   }
 
   *(uint32_t*)&buf[0] = OTX_FOURCC;
-  buf[4] = EEPROM_VER;
+  buf[4] = version;
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = size;
 
@@ -108,14 +109,14 @@ const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint
   return nullptr;
 }
 
-static const char *loadFile(const char *fullpath, uint8_t *data,
-                            uint16_t maxsize, uint8_t *version)
+const char *loadFileBin(const char *fullpath, uint8_t *data,
+                        uint16_t maxsize, uint8_t *version)
 {
   FIL      file;
   UINT     read;
   uint16_t size;
 
-  TRACE("loadFile(%s)", fullpath);
+  TRACE("loadFileBin(%s)", fullpath);
 
   const char * err = openFileBin(fullpath, &file, &size, version);
   if (err)
@@ -136,14 +137,14 @@ const char * readModelBin(const char * filename, uint8_t * buffer, uint32_t size
 {
   char path[256];
   getModelPath(path, filename);
-  return loadFile(path, buffer, size, version);
+  return loadFileBin(path, buffer, size, version);
 }
 
 
 const char * loadRadioSettingsBin(const char * path)
 {
   uint8_t version;
-  const char * error = loadFile(path, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral), &version);
+  const char * error = loadFileBin(path, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral), &version);
   if (error) {
     TRACE("loadRadioSettings error=%s", error);
     return error;
@@ -151,7 +152,7 @@ const char * loadRadioSettingsBin(const char * path)
 
 #if defined(STORAGE_CONVERSIONS)
   if (version < EEPROM_VER) {
-    convertRadioData(version);
+    convertBinRadioData(path, version);
   }
 #endif
 
