@@ -68,19 +68,13 @@ const uint8_t LBM_OK[] = {
 };
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
-#define BL_RED        COLOR2FLAGS(RED)
+#define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
 #define BL_BACKGROUND COLOR2FLAGS(BLACK)
 #define BL_FOREGROUND COLOR2FLAGS(WHITE)
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
 void bootloaderInitScreen()
 {
-//  lcdColorTable[COLOR_THEME_SECONDARY1_INDEX]      = WHITE;
-//  lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = BLACK;
-//  lcdColorTable[COLOR_THEME_PRIMARY3_INDEX]      = RED;
-//  lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RED;
-//  lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(73, 219, 62); // green
- 
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 	
   // TODO: load/decompress bitmaps

@@ -78,7 +78,7 @@ const ZoneOption GaugeWidget::options[] = {
   { STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(1) },
   { STR_MIN, ZoneOption::Integer, OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX) },
   { STR_MAX, ZoneOption::Integer, OPTION_VALUE_SIGNED(RESX), OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX) },
-  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(RED) },
+  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_WARNING) },
   { nullptr, ZoneOption::Bool }
 };
 

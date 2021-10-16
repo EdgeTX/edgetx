@@ -102,7 +102,7 @@ class SpectrumScaleWindow: public Window
       // Draw tracker
       int offset = reusableBuffer.spectrumAnalyser.track - (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2);
       int x = limit<int>(0, offset / reusableBuffer.spectrumAnalyser.step, width() - 1);
-      dc->drawSolidVerticalLine(x, 0, height(), BLACK);
+      dc->drawSolidVerticalLine(x, 0, height(), COLOR_THEME_PRIMARY1);
 
       // Draw text scale
       for (uint32_t frequency =
@@ -172,11 +172,11 @@ class SpectrumWindow: public Window
         coord_t max_yv = SCALE_TOP - 1 - limit<int>(0, getAverage(step, &reusableBuffer.spectrumAnalyser.max[xv]) << 1, SCALE_TOP);
 
         // Signal bar
-        dc->drawSolidFilledRect(xv, yv, step - 1, SCALE_TOP - yv, YELLOW);
+        dc->drawSolidFilledRect(xv, yv, step - 1, SCALE_TOP - yv, COLOR_THEME_ACTIVE);
         // lcdDrawSolidRect(xv, yv, step - 1, SCALE_TOP - yv, 1, TEXT_COLOR);
 
         // Signal max
-        dc->drawSolidHorizontalLine(xv, max_yv, step - 1, BLACK);
+        dc->drawSolidHorizontalLine(xv, max_yv, step - 1, COLOR_THEME_PRIMARY1);
 
         // Decay max values
         if (max_yv < yv) { // Those value are INVERTED (MENU_FOOTER_TOP - value)
@@ -189,7 +189,7 @@ class SpectrumWindow: public Window
       // Draw tracker
       int offset = reusableBuffer.spectrumAnalyser.track - (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2);
       int x = limit<int>(0, offset / reusableBuffer.spectrumAnalyser.step, width() - 1);
-      dc->drawSolidVerticalLine(x, 0, height(), BLACK);
+      dc->drawSolidVerticalLine(x, 0, height(), COLOR_THEME_PRIMARY1);
     }
 
   protected:

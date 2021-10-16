@@ -25,8 +25,8 @@
 #include "theme_manager.h"
 
 const ZoneOption OPTIONS_THEME_DEFAULT[] = {
-  { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(WHITE) },
-  { STR_MAIN_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(RED) },
+  { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2) },
+  { STR_MAIN_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_WARNING) },
   { nullptr, ZoneOption::Bool }
 };
 
