@@ -137,10 +137,13 @@ const char * loadModel(const char * filename, bool alarms)
     return error;
   }
 
-#if defined(STORAGE_CONVERSIONS)
+  // Conversions from EEPROM are done in batch when converting the radio file.
+  // It is not supported on a model by model base when loaded.
+#if defined(STORAGE_CONVERSIONS) && !defined(EEPROM_RLC)
   if (version < EEPROM_VER) {
-    convertModelData(version);
+    convertBinModelData(filename, version);
   }
+  // TODO: reload model afterwards
 #endif
 
   postModelLoad(alarms);

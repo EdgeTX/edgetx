@@ -25,7 +25,12 @@
 #define EEPROM_MIN_MODEL_SIZE          256
 
 uint16_t eeLoadModelData(uint8_t id);
+uint16_t eeLoadModelData(uint8_t index, uint8_t* data, unsigned size);
+void eeWriteModelData(uint8_t index, uint8_t* data, unsigned size, bool immediately);
+
 uint16_t eeLoadGeneralSettingsData();
+uint16_t eeLoadGeneralSettingsData(uint8_t* data, unsigned size);
+void eeWriteGeneralSettingData(uint8_t* data, unsigned size, bool immediately);
 
 bool eeModelExists(uint8_t id);
 void eeLoadModel(uint8_t id);

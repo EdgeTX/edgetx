@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
-void convertRadioData(int version);
-void convertModelData(int version);
+// Entry points for converting radio & model data
+void convertBinRadioData(const char * path, int version);
+void convertBinModelData(const char * path, int version);
 
 bool eeConvert();
 void eeConvertModel(int id, int version);
@@ -39,5 +40,15 @@ void eeConvertModel(int id, int version);
 
 
 // Conversions 219 to 220
-void convertModelData_219_to_220(ModelData &model);
-void convertRadioData_219_to_220(RadioData &settings);
+const char* convertModelData_219_to_220(uint8_t id);
+const char* convertModelData_219_to_220(const char* filename);
+
+const char* convertRadioData_219_to_220();
+const char* convertRadioData_219_to_220(const char* path);
+
+// Conversions 220 to 221
+const char* convertModelData_220_to_221(uint8_t id);
+const char* convertModelData_220_to_221(const char* filename);
+
+const char* convertRadioData_220_to_221();
+const char* convertRadioData_220_to_221(const char* path);
