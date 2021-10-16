@@ -92,7 +92,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
 #endif
   //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, COLOR_THEME_SECONDARY1);
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
-  getTimerString(str, getValue(MIXSRC_TX_TIME));
+  getTimerString(str, getValue(MIXSRC_TX_TIME), 1);
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
 
 #if defined(INTERNAL_GPS)

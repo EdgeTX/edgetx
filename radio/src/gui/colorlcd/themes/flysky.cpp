@@ -403,7 +403,7 @@ class FlyskyTheme: public OpenTxTheme
 #endif
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
 
-      getTimerString(str, getValue(MIXSRC_TX_TIME));
+      getTimerString(str, getValue(MIXSRC_TX_TIME), 1);
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 

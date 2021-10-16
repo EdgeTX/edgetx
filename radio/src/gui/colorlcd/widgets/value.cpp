@@ -22,6 +22,12 @@
 #include "opentx.h"
 #include "widgets_container_impl.h"
 
+// libopemui defines TIMOUR as zero
+#if !TIMHOUR
+#undef TIMEHOUR
+#define TIMEHOUR 0x2000
+#endif
+
 const coord_t NUMBERS_PADDING = 4;
 
 class ValueWidget: public Widget
@@ -101,11 +107,11 @@ class ValueWidget: public Widget
         if (persistentData->options[2].value.boolValue) {
           drawSource(dc, xLabel + 1, yLabel + 1, field, COLOR2FLAGS(BLACK));
           drawTimer(dc, xValue + 1, yValue + 1, tme,
-                    attrValue | FONT(STD) | COLOR2FLAGS(BLACK));
+                    attrValue | FONT(STD) | COLOR2FLAGS(BLACK) | TIMEHOUR);
         }
         drawSource(dc, xLabel, yLabel, field, attrLabel | color);
         drawTimer(dc, xValue, yValue, tme,
-                  attrValue | FONT(STD) | color);
+                  attrValue | FONT(STD) | color | TIMEHOUR);
       } else {
 
         if (field >= MIXSRC_FIRST_TELEM) {

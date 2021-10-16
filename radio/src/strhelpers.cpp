@@ -176,6 +176,8 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
   int val = abs(tme);
   uint8_t digit_group = 0;
 
+  if(hours) val *= 60;
+
   if (tme < 0) {
     tme = -tme;
     *s++ = '-';
@@ -221,7 +223,7 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
   *s++ = '0' + (qr.quot % 10);
   *s++ = bLowerCase ? 'm' : 'M';
   digit_group++;
-  if (digit_group == 3) {
+  if (digit_group == 3 || hours) {
     *s = 0;
     return dest;
   }
