@@ -46,11 +46,19 @@ void onModelSelectMenu(const char * result)
   }
   else if (result == STR_BACKUP_MODEL) {
     storageCheck(true); // force writing of current model data before this is changed
-    //TODO
-    //POPUP_WARNING(eeBackupModel(sub));
+    POPUP_WARNING(backupModel(sub));
   }
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
-    if (sdListFiles(MODELS_PATH, MODELS_EXT, MENU_LINE_LENGTH-1, nullptr))
+    const char* ext = nullptr;
+    const char* path = nullptr;
+#if defined(SDCARD_YAML)
+    ext = STR_YAML_EXT;
+    path = STR_BACKUP_PATH;
+#else
+    ext = STR_MODELS_EXT;
+    path = STR_MODELS_PATH;
+#endif
+    if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
       POPUP_WARNING(STR_NO_MODELS_ON_SD);
@@ -64,11 +72,10 @@ void onModelSelectMenu(const char * result)
   else if (result != STR_EXIT) {
     // The user choosed a file on SD to restore
     storageCheck(true);
-    // TODO
-    // POPUP_WARNING(eeRestoreModel(sub, (char *)result));
-    // if (!warningText && g_eeGeneral.currModel == sub) {
-    //   eeLoadModel(sub);
-    // }
+    POPUP_WARNING(restoreModel(sub, (char *)result));
+    if (!warningText && g_eeGeneral.currModel == sub) {
+      loadModel(sub);
+    }
   }
 }
 

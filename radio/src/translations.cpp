@@ -905,6 +905,8 @@ const char STR_LOGS_PATH[] = LOGS_PATH;
 const char STR_LOGS_EXT[] = LOGS_EXT;
 const char STR_MODELS_PATH[] = MODELS_PATH;
 const char STR_MODELS_EXT[] = MODELS_EXT;
+const char STR_BACKUP_PATH[] = BACKUP_PATH;
+const char STR_YAML_EXT[] = YAML_EXT;
 
 const char STR_TEST_WARNING[] = TR_TEST_WARNING;
 const char STR_TEST_NOTSAFE[] = TR_TEST_NOTSAFE;

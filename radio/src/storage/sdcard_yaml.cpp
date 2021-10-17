@@ -301,19 +301,141 @@ bool copyModel(uint8_t dst, uint8_t src)
   return sdCopyFile(fname_src, fname_dst);
 }
 
+static void swapModelHeaders(uint8_t id1, uint8_t id2)
+{
+  char tmp[sizeof(g_model.header)];
+  memcpy(tmp, &modelHeaders[id1], sizeof(ModelHeader));
+  memcpy(&modelHeaders[id1], &modelHeaders[id2], sizeof(ModelHeader));
+  memcpy(&modelHeaders[id2], tmp, sizeof(ModelHeader));
+}
+
 void swapModels(uint8_t id1, uint8_t id2)
 {
-  //TODO
+  char model_idx_1[MODELIDX_STRLEN];
+  char model_idx_2[MODELIDX_STRLEN];
+  getModelNumberStr(id1, model_idx_1);
+  getModelNumberStr(id2, model_idx_2);
+  
+  GET_FILENAME(fname1, MODELS_PATH, model_idx_1, YAML_EXT);
+  GET_FILENAME(fname1_tmp, MODELS_PATH, model_idx_1, ".tmp");
+  GET_FILENAME(fname2, MODELS_PATH, model_idx_2, YAML_EXT);
+
+  FILINFO fno;
+  if (f_stat(fname2,&fno) != FR_OK) {
+    if (f_stat(fname1,&fno) == FR_OK) {
+      if (f_rename(fname1, fname2) == FR_OK)
+        swapModelHeaders(id1,id2);
+    }
+    return;
+  }
+
+  if (f_stat(fname1,&fno) != FR_OK) {
+    f_rename(fname2, fname1);
+    return;
+  }
+
+  // just in case...
+  f_unlink(fname1_tmp);
+
+  if (f_rename(fname1, fname1_tmp) != FR_OK) {
+    TRACE("Error renaming 1");
+    return;
+  }
+
+  if (f_rename(fname2, fname1) != FR_OK) {
+    TRACE("Error renaming 2");
+    return;
+  }
+
+  if (f_rename(fname1_tmp, fname2) != FR_OK) {
+    TRACE("Error renaming 1 tmp");
+    return;
+  }
+
+  swapModelHeaders(id1,id2);
 }
 
 int8_t deleteModel(uint8_t idx)
 {
   char model_idx[MODELIDX_STRLEN];
   getModelNumberStr(idx, model_idx);
-  
-  GET_FILENAME(fname, MODELS_PATH PATH_SEPARATOR MODEL_FILENAME_PREFIX,
-               model_idx, YAML_EXT);
+  GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  return f_unlink(fname) == FR_OK ? 0 : -1;
+  if (f_unlink(fname) != FR_OK) {
+    return -1;
+  }
+
+  modelHeaders[idx].name[0] = '\0';
+  return 0;
 }
+
+const char * backupModel(uint8_t idx)
+{
+  char * buf = reusableBuffer.modelsel.mainname;
+
+  // check and create folder here
+  const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
+  if (error) {
+    return error;
+  }
+
+  strncpy(buf, modelHeaders[idx].name, sizeof(g_model.header.name));
+  buf[sizeof(g_model.header.name)] = '\0';
+
+  int8_t i = sizeof(g_model.header.name)-1;
+  uint8_t len = 0;
+  while (i > 0) {
+    if (!len && buf[i])
+      len = i+1;
+    if (len) {
+      if (!buf[i])
+        buf[i] = '_';
+    }
+    i--;
+  }
+
+  if (len == 0) {
+    uint8_t num = idx + 1;
+    strcpy(buf, STR_MODEL);
+    buf[PSIZE(TR_MODEL)] = (char)((num / 10) + '0');
+    buf[PSIZE(TR_MODEL) + 1] = (char)((num % 10) + '0');
+    len = PSIZE(TR_MODEL) + 2;
+  }
+
+#if defined(RTCLOCK)
+  char * tmp = strAppendDate(&buf[len]);
+  len = tmp - buf;
+#endif
+
+  strcpy(&buf[len], STR_YAML_EXT);
+
+#ifdef SIMU
+  TRACE("SD-card backup filename=%s", buf);
+#endif
+
+  char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+  getModelNumberStr(idx, model_idx);
+  strcat(model_idx, STR_YAML_EXT);
+  
+  return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+}
+
+const char * restoreModel(uint8_t idx, char *model_name)
+{
+  char * buf = reusableBuffer.modelsel.mainname;
+  strcpy(buf, model_name);
+  strcpy(&buf[strlen(buf)], STR_YAML_EXT);
+
+  char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+  getModelNumberStr(idx, model_idx);
+  strcat(model_idx, STR_YAML_EXT);
+
+  const char* error = sdCopyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  if (!error) {
+    loadModelHeader(idx, &modelHeaders[idx]);
+  }
+
+  return error;
+}
+
 #endif

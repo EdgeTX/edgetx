@@ -160,7 +160,7 @@ std::string convertToSimuPath(const char * path)
   else {
     result = std::string(path);
   }
-  TRACE_SIMPGMSPACE("convertToSimuPath(): %s -> %s", path, result.c_str());
+  // TRACE_SIMPGMSPACE("convertToSimuPath(): %s -> %s", path, result.c_str());
   return result;
 }
 
@@ -179,7 +179,7 @@ std::string convertFromSimuPath(const char * path)
       result = "/" + result;
     }
   }
-  TRACE_SIMPGMSPACE("convertFromSimuPath(): %s -> %s", path, result.c_str());
+  // TRACE_SIMPGMSPACE("convertFromSimuPath(): %s -> %s", path, result.c_str());
   return result;
 }
 
@@ -269,12 +269,12 @@ std::vector<std::string> listDirectoryFiles(const std::string & dirName)
 
 std::string findTrueFileName(const std::string & path)
 {
-  TRACE_SIMPGMSPACE("findTrueFileName(%s)", path.c_str());
+  // TRACE_SIMPGMSPACE("findTrueFileName(%s)", path.c_str());
   std::string result;
   filemap_t::iterator i = fileMap.find(path);
   if (i != fileMap.end()) {
     result = i->second;
-    TRACE_SIMPGMSPACE("\tfound in map: %s", result.c_str());
+    // TRACE_SIMPGMSPACE("\tfound in map: %s", result.c_str());
     return result;
   }
   else {
@@ -285,7 +285,7 @@ std::string findTrueFileName(const std::string & path)
     std::vector<std::string> files = listDirectoryFiles(dirName);
     for(unsigned int i=0; i<files.size(); ++i) {
       if (!strcasecmp(files[i].c_str(), path.c_str())) {
-        TRACE_SIMPGMSPACE("\tfound: %s", files[i].c_str());
+        // TRACE_SIMPGMSPACE("\tfound: %s", files[i].c_str());
         fileMap.insert(filemap_t::value_type(path, files[i]));
         return files[i];
       }
