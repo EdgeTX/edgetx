@@ -253,6 +253,10 @@ enum UartModes {
   UART_MODE_MAX = UART_MODE_COUNT-1
 };
 
+#if defined(CLI) || defined(DEBUG)
+#define UART_MODE_NONE UART_MODE_DEBUG
+#endif
+
 #define LEN_SWITCH_NAME    3
 #define LEN_ANA_NAME       3
 #define LEN_MODEL_FILENAME 16

@@ -598,6 +598,8 @@ extern const char STR_LOGS_PATH[];
 extern const char STR_LOGS_EXT[];
 extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
+extern const char STR_BACKUP_PATH[];
+extern const char STR_YAML_EXT[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
