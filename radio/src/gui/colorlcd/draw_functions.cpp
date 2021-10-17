@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "lcd.h"
 
 coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char * str, int idx, LcdFlags flags, const char * prefix, const char * suffix)
 {
@@ -415,11 +416,6 @@ void drawSensorCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t sens
   }
 }
 
-// libopemui defines TIMOUR as zero
-#if !TIMHOUR
-#undef TIMEHOUR
-#define TIMEHOUR 0x2000
-#endif
 
 void drawTimer(BitmapBuffer * dc, coord_t x, coord_t y, int32_t tme, LcdFlags flags)
 {

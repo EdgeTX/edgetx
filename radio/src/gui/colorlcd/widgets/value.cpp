@@ -22,12 +22,6 @@
 #include "opentx.h"
 #include "widgets_container_impl.h"
 
-// libopemui defines TIMOUR as zero
-#if !TIMHOUR
-#undef TIMEHOUR
-#define TIMEHOUR 0x2000
-#endif
-
 const coord_t NUMBERS_PADDING = 4;
 
 class ValueWidget: public Widget
