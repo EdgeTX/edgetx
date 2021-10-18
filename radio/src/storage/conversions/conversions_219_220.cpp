@@ -301,7 +301,7 @@ void convertRadioData_219_to_220(void* data)
   // Clear CustomScreenData + TopBarPersistentData
   // as they cannot be converted (missing option types)
   strcpy(settings.themeName, defaultTheme->getName());
-  defaultTheme->init(); // TODO: just dump the data into the settings
+  memset(&settings.themeData, 0, sizeof(settings.themeData));
 #endif
 
   for (int i = 0; i < NUM_SWITCHES_219; ++i) {

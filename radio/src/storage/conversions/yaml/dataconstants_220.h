@@ -33,12 +33,22 @@
 #define STORAGE_NUM_SLIDERS  0
 #define STORAGE_NUM_MOUSE_ANALOGS 0
 
+#define NUM_POTS  2
+#define NUM_XPOTS 0
+
 #elif defined(PCBHORUS)
 
 #define STORAGE_NUM_SWITCHES 10
 #define STORAGE_NUM_POTS     5
 #define STORAGE_NUM_SLIDERS  4
 #define STORAGE_NUM_MOUSE_ANALOGS 2
+
+#if defined(PCBX10)
+  #define NUM_POTS  5
+#else
+  #define NUM_POTS  3
+#endif
+#define NUM_XPOTS NUM_POTS
 
 #elif defined(PCBTARANIS)
 

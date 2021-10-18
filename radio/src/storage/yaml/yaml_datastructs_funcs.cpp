@@ -132,6 +132,8 @@ static uint8_t select_zov(uint8_t* data, uint32_t bitoffs)
     data += bitoffs >> 3UL;
     data -= sizeof(ZoneOptionValueEnum);
     ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
+    if (*p_zovt > ZOV_String)
+        return 0;
     return *p_zovt;
 }
 #endif
