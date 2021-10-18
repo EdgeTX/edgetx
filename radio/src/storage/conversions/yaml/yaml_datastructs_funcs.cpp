@@ -138,8 +138,19 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
 
 static uint8_t select_custom_fn(uint8_t* data, uint32_t bitoffs)
 {
-    // always use 'all'
-    //TODO
+    data += bitoffs >> 3UL;
+    data -= offsetof(CustomFunctionData, all);
+
+    auto cf = reinterpret_cast<CustomFunctionData*>(data);
+    switch(cf->func) {
+    case FUNC_PLAY_TRACK:
+    case FUNC_BACKGND_MUSIC:
+    case FUNC_PLAY_SCRIPT:
+        // play: 0
+        return 0;
+    }
+    
+    // all:  1
     return 1;
 }
 
