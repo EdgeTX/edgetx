@@ -448,7 +448,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
              && val[1] == 'M'
              && (val[2] >= '0' && val[2] <= '9')) {
         
-        ival = SWSRC_FIRST_FLIGHT_MODE + (val[3] - '0');
+        ival = SWSRC_FIRST_FLIGHT_MODE + (val[2] - '0');
     }
     else if (val_len >= 2
              && val[0] == 'T'
@@ -499,7 +499,7 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
              && sval <= SWSRC_LAST_FLIGHT_MODE) {
 
         wf(opaque, "FM", 2);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE + 1);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
         return wf(opaque,str, strlen(str));
     }
     else if (sval >= SWSRC_FIRST_SENSOR

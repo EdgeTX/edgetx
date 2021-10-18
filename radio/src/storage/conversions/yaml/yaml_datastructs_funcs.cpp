@@ -441,7 +441,7 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
              && sval <= SWSRC_LAST_FLIGHT_MODE) {
 
         wf(opaque, "FM", 2);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE + 1);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
         return wf(opaque,str, strlen(str));
     }
     else if (sval >= SWSRC_FIRST_SENSOR
