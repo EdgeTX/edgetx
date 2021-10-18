@@ -126,7 +126,7 @@ void convertBinRadioData(const char * path, int version)
   }
 
 #if defined(SDCARD_YAML) || defined(STORAGE_MODELSLIST)
-  modelslist.save(ModelsList::Format::yaml);
+  modelslist.save();
 #endif
   
   // reload models list

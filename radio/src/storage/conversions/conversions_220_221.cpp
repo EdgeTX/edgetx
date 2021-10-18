@@ -37,7 +37,7 @@ void patchFilenameToYaml(char* str)
   constexpr unsigned yml_len = sizeof(YAML_EXT) - 1;
 
   // patch file extension
-  const char* ext = strrchr(path, '.');
+  const char* ext = strrchr(str, '.');
   if (ext && (strlen(ext) == bin_len) &&
       !strncmp(ext, STR_MODELS_EXT, bin_len)) {
     memcpy((void*)ext, (void*)STR_YAML_EXT, yml_len + 1);
@@ -56,8 +56,12 @@ static const char* convertData_220_to_221(
   if (!error) {
     if (patchBinary) patchBinary(data);
 
-    patchFilenameToYaml(path);
-    error = writeFileYaml(path, root_node, data);
+    char output_fname[FF_MAX_LFN+1];
+    strncpy(output_fname, path, FF_MAX_LFN);
+    output_fname[FF_MAX_LFN] = '\0';
+    
+    patchFilenameToYaml(output_fname);
+    error = writeFileYaml(output_fname, root_node, data);
   }
 
   free(data);
