@@ -82,11 +82,13 @@ void convertBinRadioData(const char * path, int version)
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     convertRadioData_219_to_220(path);
+    version = 220;
   }
 #endif
 #if STORAGE_CONVERSIONS < 220
   if (version == 220) {
     convertRadioData_220_to_221(path);
+    version = 221;
   }
 #endif
   converted++;
@@ -137,17 +139,22 @@ void convertBinRadioData(const char * path, int version)
 const char* convertBinModelData(const char* filename, int version)
 {
   TRACE("convertModelData(%s,%d)", filename);
+
+  char path[FF_MAX_LFN + 1];
+  memcpy(path, MODELS_PATH, sizeof(MODELS_PATH)-1);
+  path[sizeof(MODELS_PATH)-1] = '/';
+  strcat(&path[sizeof(MODELS_PATH)], filename);
   
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    const char* error = convertModelData_219_to_220(filename);
+    const char* error = convertModelData_219_to_220(path);
     if (error) return error;
     version = 220;
   }
 #endif
 #if STORAGE_CONVERSIONS < 221
   if (version == 220) {
-    const char* error = convertModelData_220_to_221(filename);
+    const char* error = convertModelData_220_to_221(path);
     if (error) return error;
     version = 221;
   }
