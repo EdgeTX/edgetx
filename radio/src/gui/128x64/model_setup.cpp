@@ -744,7 +744,7 @@ void menuModelSetup(event_t event)
 #endif
               }
               uint8_t swactive = !(g_model.switchWarningEnable & (1<<i));
-              c = "\300-\301"[states & 0x03];
+              c = (STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
               // lcdDrawChar(MODEL_SETUP_2ND_COLUMN+qr.rem*(2*FW+1), y+FH*qr.quot, 'A'+i, attr && (menuHorizontalPosition==current) ? INVERS : 0);
               lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN + qr.rem*((2*FW)+1), y+FH*qr.quot, FIRSTSW_STR+(i*length)+3, 1, attr && (menuHorizontalPosition==current) ? INVERS : 0);
               if (swactive) lcdDrawChar(lcdNextPos, y+FH*qr.quot, c);

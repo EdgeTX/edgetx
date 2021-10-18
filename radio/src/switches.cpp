@@ -708,7 +708,7 @@ void checkSwitches()
           LcdFlags attr = ((states & mask) == (switches_states & mask)) ? 0 : INVERS;
           if (attr) {
             if (++numWarnings < 6) {
-              char c = "\300-\301"[(states & mask) >> (i*2)];
+              char c = (STR_CHAR_UP "-" STR_CHAR_DOWN)[(states & mask) >> (i*2)];
               drawSource(x, y, MIXSRC_FIRST_SWITCH+i, attr);
               lcdDrawChar(lcdNextPos, y, c, attr);
               x = lcdNextPos + 3;
@@ -727,9 +727,9 @@ void checkSwitches()
               if (++numWarnings < 6) {
                 lcdDrawTextAtIndex(x, y, STR_VSRCRAW, NUM_STICKS + 1 + i, INVERS);
                 if (IS_POT(POT1 + i))
-                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? 126 : 127, INVERS);
+                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? 126 : 127, INVERS); // TODO: use constants for chars
                 else
-                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? '\300' : '\301', INVERS);
+                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? CHAR_UP : CHAR_DOWN, INVERS);
                 x = lcdNextPos + 3;
               }
             }
