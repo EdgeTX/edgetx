@@ -138,12 +138,12 @@ void convertBinRadioData(const char * path, int version)
 
 const char* convertBinModelData(const char* filename, int version)
 {
-  TRACE("convertModelData(%s,%d)", filename);
+  TRACE("convertModelData(%s)", filename);
 
   char path[FF_MAX_LFN + 1];
   memcpy(path, MODELS_PATH, sizeof(MODELS_PATH)-1);
   path[sizeof(MODELS_PATH)-1] = '/';
-  strcat(&path[sizeof(MODELS_PATH)], filename);
+  strcpy(&path[sizeof(MODELS_PATH)], filename);
   
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
