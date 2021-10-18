@@ -1070,19 +1070,7 @@ void getADC()
     if (x < 4) {
       v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
     } else {
-      #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-      switch (x) {
-        case EXT3:
-        case EXT4:
-          v = getAnalogValue(x - 7) >> (1 - ANALOG_SCALE);
-          break;
-        default:
-          v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-          break;
-      }
-      #else
       v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-      #endif
     }
 #else
     v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
