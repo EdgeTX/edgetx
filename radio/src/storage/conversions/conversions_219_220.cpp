@@ -344,7 +344,7 @@ const char* convertRadioData_219_to_220()
   auto rd_220 = reinterpret_cast<uint8_t*>(malloc(rd_size));
   
   uint16_t read = eeLoadGeneralSettingsData(rd_220, rd_size);
-  if (read == rd_size) {
+  if (read >= rd_size - 1) { // 220 started with 1 byte less than 219
     convertRadioData_219_to_220((void*)rd_220);
     eeWriteGeneralSettingData((uint8_t *)rd_220, rd_size, true);
   } else {

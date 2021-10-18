@@ -74,7 +74,7 @@
   #define STORAGE_NUM_SLIDERS           2
 #endif
 
-// #define NUM_XPOTS                       STORAGE_NUM_POTS
+#define NUM_XPOTS                       STORAGE_NUM_POTS
 // #define NUM_TRIMS                       4
 // #define NUM_MOUSE_ANALOGS               0
 #define STORAGE_NUM_MOUSE_ANALOGS       0

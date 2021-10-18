@@ -98,11 +98,24 @@ class ModelsList
 
 public:
 
+  enum class Format {
+    txt,
+#if defined(SDCARD_YAML)
+    yaml,
+    yaml_txt,
+    load_default = yaml_txt,
+    save_default = yaml,
+#else
+    load_default = txt,
+    save_default = txt,
+#endif
+  };
+  
   ModelsList();
   ~ModelsList();
 
-  bool load();
-  void save();
+  bool load(Format fmt = Format::load_default);
+  void save(Format fmt = Format::save_default);
   void clear();
 
   const std::list<ModelsCategory *> & getCategories() const

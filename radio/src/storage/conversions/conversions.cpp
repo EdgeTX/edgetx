@@ -29,7 +29,7 @@
 #include "storage/sdcard_yaml.h"
 #endif
 
-#if !defined(EEPROM_RLC)
+#if defined(STORAGE_MODELSLIST)
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
 #if defined(COLORLCD)
@@ -71,8 +71,7 @@ void convertBinRadioData(const char * path, int version)
               AU_NONE);
 
   // Load models list before converting
-  // TODO: force old .txt format
-  modelslist.load();
+  modelslist.load(ModelsList::Format::txt);
 
   unsigned converted = 0;
   auto to_convert = modelslist.getModelsCount() + 1;
@@ -82,16 +81,12 @@ void convertBinRadioData(const char * path, int version)
 
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    // TODO: alloc specific structure for destination
     convertRadioData_219_to_220(path);
   }
 #endif
 #if STORAGE_CONVERSIONS < 220
   if (version == 220) {
     convertRadioData_220_to_221(path);
-    // g_eeGeneral.version = EEPROM_VER;
-    // storageDirty(EE_GENERAL);
-    // storageCheck(true);
   }
 #endif
   converted++;
@@ -110,31 +105,16 @@ void convertBinRadioData(const char * path, int version)
       TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
       drawProgressScreen(filename, converted, to_convert);
 
-      error = readModelBin(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
+      // read only the version number (size=0)
+      error = readModelBin(filename, nullptr, 0, &model_version);
       if (!error) {
 
         // TODO: error handling
-        convertBinModelData(filename, model_version);
-
-#if defined(SDCARD_YAML)
-        // patch model filename
-        const char* ext = strrchr(filename, '.');
-        if ((ext != nullptr) && !strncmp(ext, MODELS_EXT, 4)) {
-          memcpy((void*)ext, (void*)YAML_EXT, sizeof(YAML_EXT) - 1);
+        error = convertBinModelData(filename, model_version);
+        if (error) {
+          // add error counter?
+          continue;
         }
-        // in case it's the current model, patch it as well
-        if (!strncmp(filename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
-          strncpy(g_eeGeneral.currModelFilename, filename, LEN_MODEL_FILENAME+1);
-        }
-        // and write to YAML file
-        error = writeModelYaml(filename);
-#else
-        char path[256];
-        getModelPath(path, filename);
-
-        error = writeFileBin(path, (uint8_t *)&g_model, sizeof(g_model));
-#endif
-        //TODO: what should be done with this error?
       }
 
       converted++;
@@ -145,10 +125,8 @@ void convertBinRadioData(const char * path, int version)
     }
   }
 
-#if defined(SDCARD_YAML)
-  modelslist.save();
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
+#if defined(SDCARD_YAML) || defined(STORAGE_MODELSLIST)
+  modelslist.save(ModelsList::Format::yaml);
 #endif
   
   // reload models list
@@ -156,23 +134,25 @@ void convertBinRadioData(const char * path, int version)
   modelslist.load();
 }
 
-void convertBinModelData(const char* filename, int version)
+const char* convertBinModelData(const char* filename, int version)
 {
   TRACE("convertModelData(%s,%d)", filename);
   
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    convertModelData_219_to_220(filename);
+    const char* error = convertModelData_219_to_220(filename);
+    if (error) return error;
     version = 220;
   }
 #endif
 #if STORAGE_CONVERSIONS < 221
   if (version == 220) {
-    convertModelData_220_to_221(filename);
+    const char* error = convertModelData_220_to_221(filename);
+    if (error) return error;
     version = 221;
   }
 #endif
-  // TODO: error handling
+  return nullptr;
 }
 #endif
 
@@ -225,7 +205,6 @@ bool eeConvert()
   RAISE_ALERT(STR_STORAGE_WARNING, STR_EEPROM_CONVERTING, NULL, AU_NONE);
 
   // General Settings conversion
-  eeLoadGeneralSettingsData();
   int version = conversionVersionStart;
 
 #if STORAGE_CONVERSIONS < 220

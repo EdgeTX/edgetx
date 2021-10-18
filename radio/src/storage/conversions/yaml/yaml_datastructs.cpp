@@ -25,6 +25,9 @@
 
 #include <algorithm>
 
+#include <debug.h>
+#include <string.h>
+
 namespace yaml_conv_220 {
 
 #include "yaml_datastructs_funcs.cpp"

@@ -32,8 +32,11 @@
 #include "yaml/yaml_datastructs.h"
 
 #if defined(EEPROM_RLC)
+ #include "storage/eeprom_common.h"
  #include "storage/eeprom_rlc.h"
 #endif
+
+#include "storage/conversions/conversions.h"
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx)
 {
@@ -68,7 +71,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 // Generic storage interface
 //
 
-#if !defined(EEPROM_RLC)
+#if defined(STORAGE_MODELSLIST)
 void storageCreateModelsList()
 {
     modelslist.clear();
@@ -97,14 +100,27 @@ const char * loadRadioSettings()
 {
     FILINFO fno;
     if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
-#if !defined(EEPROM_RLC)
-      return loadRadioSettingsBin();
-#else
+#if defined(STORAGE_MODELSLIST)
+      uint8_t version;
+      const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
+      if (error) {
+        TRACE("loadRadioSettings error=%s", error);
+        return error;
+      }
+      convertBinRadioData(RADIO_SETTINGS_PATH, version);
+#elif defined(EEPROM_RLC)
       // Load from EEPROM
-      if (!eepromOpen() || !eeLoadGeneral(true)) {
+      uint8_t versions[3];
+      uint16_t* variant = (uint16_t*)&versions[1];
+      if (!eepromOpen() || (eeLoadGeneralSettingsData(versions, 3) != 3)
+          || (*variant != EEPROM_VARIANT)) {
         return "ERROR";
       }
-      return nullptr;
+      g_eeGeneral.version = versions[0];
+      g_eeGeneral.variant = *variant;
+      eeConvert();
+#else
+  #error "Unsupported conversion format"
 #endif
     }
 

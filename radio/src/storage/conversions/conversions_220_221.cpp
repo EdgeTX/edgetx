@@ -29,10 +29,24 @@ namespace yaml_conv_220 {
     const YamlNode* get_partialmodel_nodes();
 };
 
-#if !defined(EEPROM_RLC)
+#if defined(STORAGE_MODELSLIST)
 
-static const char* convertData_220_to_221(const char* path, unsigned size,
-                                          const YamlNode* root_node)
+void patchFilenameToYaml(char* str)
+{
+  constexpr unsigned bin_len = sizeof(MODELS_EXT) - 1;
+  constexpr unsigned yml_len = sizeof(YAML_EXT) - 1;
+
+  // patch file extension
+  const char* ext = strrchr(path, '.');
+  if (ext && (strlen(ext) == bin_len) &&
+      !strncmp(ext, STR_MODELS_EXT, bin_len)) {
+    memcpy((void*)ext, (void*)STR_YAML_EXT, yml_len + 1);
+  }
+}
+
+static const char* convertData_220_to_221(
+    const char* path, unsigned size, const YamlNode* root_node,
+    void (*patchBinary)(uint8_t*) = nullptr)
 {
   auto data = reinterpret_cast<uint8_t*>(malloc(size));
   memset(data, 0, size);
@@ -40,7 +54,9 @@ static const char* convertData_220_to_221(const char* path, unsigned size,
   uint8_t version;
   const char* error = loadFileBin(path, data, size, &version);
   if (!error) {
-    // TODO: patch file name into .yml
+    if (patchBinary) patchBinary(data);
+
+    patchFilenameToYaml(path);
     error = writeFileYaml(path, root_node, data);
   }
 
@@ -51,13 +67,22 @@ static const char* convertData_220_to_221(const char* path, unsigned size,
 const char* convertModelData_220_to_221(const char* path)
 {
   constexpr unsigned md_size = sizeof(bin_storage_220::ModelData);
-  return convertData_220_to_221(path, md_size, yaml_conv_220::get_modeldata_nodes());
+  return convertData_220_to_221(path, md_size,
+                                yaml_conv_220::get_modeldata_nodes());
+}
+
+static void patchCurrentModelFilename(uint8_t* data)
+{
+  auto rd = reinterpret_cast<bin_storage_220::RadioData*>(data);
+  patchFilenameToYaml(rd->currModelFilename);
 }
 
 const char* convertRadioData_220_to_221(const char* path)
 {
   constexpr unsigned rd_size = sizeof(bin_storage_220::RadioData);
-  return convertData_220_to_221(path, rd_size, yaml_conv_220::get_radiodata_nodes());
+  return convertData_220_to_221(path, rd_size,
+                                yaml_conv_220::get_radiodata_nodes(),
+                                patchCurrentModelFilename);
 }
 
 #else
