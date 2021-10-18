@@ -104,10 +104,8 @@ public:
     yaml,
     yaml_txt,
     load_default = yaml_txt,
-    save_default = yaml,
 #else
     load_default = txt,
-    save_default = txt,
 #endif
   };
   
@@ -115,7 +113,7 @@ public:
   ~ModelsList();
 
   bool load(Format fmt = Format::load_default);
-  void save(Format fmt = Format::save_default);
+  void save();
   void clear();
 
   const std::list<ModelsCategory *> & getCategories() const

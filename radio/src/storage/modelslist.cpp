@@ -370,17 +370,20 @@ bool ModelsList::loadYaml()
 }
 #endif
 
-bool ModelsList::load()
+bool ModelsList::load(Format fmt)
 {
   if (loaded)
     return true;
 
   bool res = false;
 #if !defined(SDCARD_YAML)
+  (void)fmt;
   res = loadTxt();
 #else
   FILINFO fno;
-  if (f_stat(RADIO_MODELSLIST_YAML_PATH, &fno) != FR_OK) {
+  if (fmt == Format::txt ||
+      (fmt == Format::yaml_txt &&
+       f_stat(RADIO_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
   } else {
     res = loadYaml();
