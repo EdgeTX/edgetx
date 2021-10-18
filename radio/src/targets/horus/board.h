@@ -355,17 +355,14 @@ void watchdogInit(unsigned int duration);
 // ADC driver
 
 #if defined(PCBX10)
-  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-    #define NUM_POTS                   7
-  #else
-    #define NUM_POTS                   5
-  #endif
+  #define NUM_POTS                     7
+  #define STORAGE_NUM_POTS             7
 #else
-#define NUM_POTS                       3
+  #define NUM_POTS                     3
+  #define STORAGE_NUM_POTS             5
 #endif
 
 #define NUM_XPOTS                      NUM_POTS
-#define STORAGE_NUM_POTS               5
 
 #if defined(PCBX10)
   #define NUM_SLIDERS                  2
@@ -393,8 +390,6 @@ enum Analogs {
 #if defined(PCBX10)
   EXT1,
   EXT2,
-#endif
-#if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
   EXT3,
   EXT4,
 #endif
@@ -440,7 +435,7 @@ enum Analogs {
 #if !defined(PCBX12S) // ext are used by mouse on X12S
   #define HARDWARE_EXT1
   #define HARDWARE_EXT2
-  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
+  #if defined(FLYSKY_HALL_STICKS)
     #define HARDWARE_EXT3
     #define HARDWARE_EXT4
   #endif
@@ -464,10 +459,8 @@ enum CalibratedAnalogs {
 #else
   CALIBRATED_POT_EXT1,
   CALIBRATED_POT_EXT2,
-  #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-    CALIBRATED_POT_EXT3,
-    CALIBRATED_POT_EXT4,
-  #endif
+  CALIBRATED_POT_EXT3,
+  CALIBRATED_POT_EXT4,
   CALIBRATED_SLIDER_REAR_LEFT,
   CALIBRATED_SLIDER_REAR_RIGHT,
 #endif

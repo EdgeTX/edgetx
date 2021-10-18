@@ -194,10 +194,11 @@ if(FLYSKY_HALL_STICKS)
   add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
   set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
 
-  option(FLYSKY_HALL_STICKS_EXT3_EXT4 "Additional EXT3 & EXT4 inputs for FlySky Hall Sticks" OFF)
-  if(FLYSKY_HALL_STICKS_EXT3_EXT4)
-    add_definitions(-DFLYSKY_HALL_STICKS_EXT3_EXT4)
-  endif()
+  # option(FLYSKY_HALL_STICKS_EXT3_EXT4
+  #        "Additional EXT3 & EXT4 inputs for FlySky Hall Sticks" OFF)
+  # if(FLYSKY_HALL_STICKS_EXT3_EXT4)
+  #   add_definitions(-DFLYSKY_HALL_STICKS_EXT3_EXT4)
+  # endif()
 endif()
 
 if(IMU_LSM6DS33)
