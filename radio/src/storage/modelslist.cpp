@@ -27,6 +27,13 @@ using std::list;
 #include "yaml/yaml_modelslist.h"
 #endif
 
+#include "myeeprom.h"
+#include "datastructs.h"
+#include "pulses/modules_helpers.h"
+#include "strhelpers.h"
+
+#include <cstring>
+
 ModelsList modelslist;
 
 ModelCell::ModelCell(const char* name) : valid_rfData(false)

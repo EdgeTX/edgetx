@@ -35,9 +35,9 @@
 #define DEFAULT_MODEL_FILENAME   MODEL_FILENAME_PREFIX "1" MODEL_FILENAME_SUFFIX
 #define MODEL_FILENAME_PATTERN   MODEL_FILENAME_PREFIX MODEL_FILENAME_SUFFIX
 
-//#if !defined(EEPROM)
+#if !defined(STORAGE_MODELSLIST)
 extern ModelHeader modelHeaders[MAX_MODELS];
-//#endif
+#endif
 
 // opens radio.bin or model file
 const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,

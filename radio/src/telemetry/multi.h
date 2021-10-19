@@ -22,6 +22,8 @@
 #ifndef OPENTX_MULTI_H
 #define OPENTX_MULTI_H
 
+#include "../timers.h"
+
 #define MULTI_BUFFER_SIZE 177
 extern uint8_t * Multi_Buffer;
 

@@ -19,16 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include <cstdlib>
+#include <cstring>
+
+#include "definitions.h"
 #include "datastructs_219.h"
 #include "datastructs_220.h"
 
-#if defined(COLORLCD)
-#include "theme.h"
-#endif
+#include "debug.h"
+#include "strhelpers.h"
 
 #if defined(EEPROM) || defined(EEPROM_RLC)
-#include <storage/eeprom_common.h>
+  #include <storage/eeprom_common.h>
+#else
+  #include <storage/sdcard_common.h>
 #endif
 
 //
@@ -85,7 +89,7 @@
 //  -> ModelData: +1284 (CustomScreenData x 5 = 1200; TopBar::PersistentData: +84)
 //
 
-typedef TimerData TimerData_v220;
+typedef bin_storage_220::TimerData TimerData_v220;
 
 static void convertToStr(char* str, size_t len)
 {
@@ -98,11 +102,6 @@ static void convertToStr(char* str, size_t len)
     str[--len] = '\0';
   }
 }
-
-#if defined(COLORLCD)
-extern const LayoutFactory * defaultLayout;
-extern OpenTxTheme * defaultTheme;
-#endif
 
 void convertModelData_219_to_220(void* data)
 {
@@ -125,17 +124,17 @@ void convertModelData_219_to_220(void* data)
 
     // Convert mode
 
-    if (timer_219.mode >= TMRMODE_START) {
+    if (timer_219.mode >= bin_storage_220::TMRMODE_START) {
       timer_219.mode += 1;
     }
-    if (timer_219.mode < TMRMODE_COUNT
+    if (timer_219.mode < bin_storage_220::TMRMODE_COUNT
         && timer_219.mode >=0) {
       timer.mode = timer_219.mode;
     }
     else {
-      timer.mode = TMRMODE_ON;
+      timer.mode = bin_storage_220::TMRMODE_ON;
       if (timer_219.mode > 0)
-        timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
+        timer.swtch = timer_219.mode - (bin_storage_220::TMRMODE_COUNT - 1);
       else
         timer.swtch = timer_219.mode;
     }
@@ -219,33 +218,28 @@ void convertModelData_219_to_220(void* data)
          sizeof(newModel.screenData) +
          sizeof(newModel.topbarData));
 
-  if (defaultLayout) {
-    strcpy(newModel.screenData[0].LayoutId, "Layout2P1");
+  strcpy(newModel.screenData[0].LayoutId, "Layout2P1");
+  auto persistentData = &newModel.screenData[0].layoutData;
 
-    // TODO: copy the raw structure for the default layout in version 220
-    //defaultLayout->initPersistentData(&newModel.screenData[0].layoutData, true);
-    auto persistentData = &newModel.screenData[0].layoutData;
+  // top bar
+  persistentData->options[0].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[0].value.boolValue = true;
 
-    // top bar
-    persistentData->options[0].type  = bin_storage_220::ZOV_Bool;
-    persistentData->options[0].value.boolValue = true;
+  // flight mode
+  persistentData->options[1].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[1].value.boolValue = true;
 
-    // flight mode
-    persistentData->options[1].type  = bin_storage_220::ZOV_Bool;
-    persistentData->options[1].value.boolValue = true;
+  // sliders
+  persistentData->options[2].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[2].value.boolValue = true;
 
-    // sliders
-    persistentData->options[2].type  = bin_storage_220::ZOV_Bool;
-    persistentData->options[2].value.boolValue = true;
+  // trims
+  persistentData->options[3].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[3].value.boolValue = true;
 
-    // trims
-    persistentData->options[3].type  = bin_storage_220::ZOV_Bool;
-    persistentData->options[3].value.boolValue = true;
-
-    // mirrored
-    persistentData->options[4].type  = bin_storage_220::ZOV_Bool;
-    persistentData->options[4].value.boolValue = false;
-  }
+  // mirrored
+  persistentData->options[4].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[4].value.boolValue = false;
 #endif
   free(oldModelAllocated);
 }
@@ -300,7 +294,7 @@ void convertRadioData_219_to_220(void* data)
 #if defined(COLORLCD)
   // Clear CustomScreenData + TopBarPersistentData
   // as they cannot be converted (missing option types)
-  strcpy(settings.themeName, defaultTheme->getName());
+  strcpy(settings.themeName, "EdgeTX");
   memset(&settings.themeData, 0, sizeof(settings.themeData));
 #endif
 

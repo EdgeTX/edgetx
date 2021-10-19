@@ -22,11 +22,12 @@
 #ifndef _SDCARD_H_
 #define _SDCARD_H_
 
-#if !defined(SIMU)
 #include "ff.h"
-#endif
 
-#include "opentx.h"
+extern FATFS g_FATFS_Obj;
+extern FIL g_oLogFile;
+
+#include "translations.h"
 
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
@@ -104,9 +105,6 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
 
-extern FATFS g_FATFS_Obj;
-extern FIL g_oLogFile;
-
 extern uint8_t logDelay;
 void logsInit();
 void logsClose();
@@ -178,7 +176,5 @@ const char * sdCopyFile(const char * srcFilename, const char * srcDir, const cha
 #define LIST_NONE_SD_FILE   1
 #define LIST_SD_FILE_EXT    2
 bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
-
-void sdReadTextFile(const char * filename, char lines[NUM_BODY_LINES][LCD_COLS + 1], int & lines_count);
 
 #endif // _SDCARD_H_
