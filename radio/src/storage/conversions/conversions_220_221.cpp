@@ -41,18 +41,7 @@ namespace yaml_conv_220 {
 
 #if defined(STORAGE_MODELSLIST)
 
-void patchFilenameToYaml(char* str)
-{
-  constexpr unsigned bin_len = sizeof(MODELS_EXT) - 1;
-  constexpr unsigned yml_len = sizeof(YAML_EXT) - 1;
-
-  // patch file extension
-  const char* ext = strrchr(str, '.');
-  if (ext && (strlen(ext) == bin_len) &&
-      !strncmp(ext, STR_MODELS_EXT, bin_len)) {
-    memcpy((void*)ext, (void*)STR_YAML_EXT, yml_len + 1);
-  }
-}
+void patchFilenameToYaml(char* str);
 
 static const char* convertData_220_to_221(
     const char* path, unsigned size, const YamlNode* root_node,
