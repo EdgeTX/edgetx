@@ -57,7 +57,7 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 void getModelPath(char * path, const char * filename);
 
 const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, uint8_t * version);
-const char * loadModel(const char * filename, bool alarms=true);
+const char * loadModel(char * filename, bool alarms=true);
 const char * createModel();
 const char * writeModel();
 

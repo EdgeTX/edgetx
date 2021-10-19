@@ -99,9 +99,13 @@ void convertBinRadioData(const char * path, int version)
 
   const char* error = nullptr;
   for (auto category_ptr : modelslist.getCategories()) {
-    for (auto model_ptr : *category_ptr) {
 
-      uint8_t model_version;
+    auto model_it = category_ptr->begin();
+
+    while(model_it != category_ptr->end()) {
+
+      uint8_t model_version = 0;
+      auto* model_ptr = *model_it;
       char* filename = model_ptr->modelFilename;
 
       TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
@@ -110,19 +114,22 @@ void convertBinRadioData(const char * path, int version)
       // read only the version number (size=0)
       error = readModelBin(filename, nullptr, 0, &model_version);
       if (!error) {
-
         // TODO: error handling
         error = convertBinModelData(filename, model_version);
-        if (error) {
-          // add error counter?
-          continue;
-        }
+        ++model_it;
+
+      } else {
+        TRACE("ERROR reading '%s': %s", filename, error);
+
+        // remove that file from the models list
+        ++model_it;
+        category_ptr->removeModel(model_ptr);
       }
 
       converted++;
 
 #if defined(SIMU)
-  RTOS_WAIT_MS(200);
+      RTOS_WAIT_MS(200);
 #endif
     }
   }
@@ -136,7 +143,20 @@ void convertBinRadioData(const char * path, int version)
   modelslist.load();
 }
 
-const char* convertBinModelData(const char* filename, int version)
+void patchFilenameToYaml(char* str)
+{
+  constexpr unsigned bin_len = sizeof(MODELS_EXT) - 1;
+  constexpr unsigned yml_len = sizeof(YAML_EXT) - 1;
+
+  // patch file extension
+  const char* ext = strrchr(str, '.');
+  if (ext && (strlen(ext) == bin_len) &&
+      !strncmp(ext, STR_MODELS_EXT, bin_len)) {
+    memcpy((void*)ext, (void*)STR_YAML_EXT, yml_len + 1);
+  }
+}
+
+const char* convertBinModelData(char* filename, int version)
 {
   TRACE("convertModelData(%s)", filename);
 
@@ -159,6 +179,8 @@ const char* convertBinModelData(const char* filename, int version)
     version = 221;
   }
 #endif
+
+  patchFilenameToYaml(filename);
   return nullptr;
 }
 #endif

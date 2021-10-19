@@ -21,7 +21,7 @@
 
 // Entry points for converting radio & model data
 void convertBinRadioData(const char * path, int version);
-const char* convertBinModelData(const char * path, int version);
+const char* convertBinModelData(char * filename, int version);
 
 bool eeConvert();
 void eeConvertModel(int id, int version);

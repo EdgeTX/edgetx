@@ -118,7 +118,7 @@ const char * createModel()
 }
 #endif
 
-const char * loadModel(const char * filename, bool alarms)
+const char * loadModel(char * filename, bool alarms)
 {
   uint8_t version;
   preModelLoad();
