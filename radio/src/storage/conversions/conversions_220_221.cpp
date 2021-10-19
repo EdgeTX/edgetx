@@ -19,8 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include <cstdlib>
+#include <cstring>
+
+#include "definitions.h"
 #include "datastructs_220.h"
+
+#include "sdcard.h"
+
+#include <storage/yaml/yaml_node.h>
+
+using namespace bin_storage_220;
+#include <storage/sdcard_common.h>
 
 // see "yaml/yaml_datastructs.h"
 namespace yaml_conv_220 {

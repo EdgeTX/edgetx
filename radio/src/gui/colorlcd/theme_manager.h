@@ -18,14 +18,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #pragma once
-#include <stdlib.h>
+
 #include <list>
 #include <string>
+#include <vector>
 #include <locale>
+
+#include "debug.h"
 #include "sdcard.h"
 #include "colors.h"
 #include "str_functions.h"
+
+// sdReadir: used to be in "sdcard.h" (another GPL violation...)
+#include "libopenui_file.h"
 
 class ThemePersistance;
 extern ThemePersistance themePersistance;

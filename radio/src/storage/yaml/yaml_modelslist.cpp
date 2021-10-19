@@ -24,6 +24,8 @@
 
 #include "storage/modelslist.h"
 
+#include <cstring>
+
 using std::list;
 
 struct modelslist_iter

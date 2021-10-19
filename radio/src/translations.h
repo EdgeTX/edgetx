@@ -22,6 +22,7 @@
 #ifndef _TRANSLATIONS_H_
 #define _TRANSLATIONS_H_
 
+#include "opentx_types.h"
 #include "translations/untranslated.h"
 
 #if defined(TRANSLATIONS_FR)
@@ -778,14 +779,29 @@ const LanguagePack * const languagePacks[] = {
 #endif
 
 #if defined(SIMU)
-  #define LANGUAGE_PACK_DECLARE(lng, name) const LanguagePack lng ## LanguagePack = { #lng, name, lng ## _ ## playNumber, lng ## _ ## playDuration }
+#define LANGUAGE_PACK_DECLARE(lng, name)                                  \
+  const LanguagePack lng##LanguagePack = {#lng, name, lng##_##playNumber, \
+                                          lng##_##playDuration}
 #else
-  #define LANGUAGE_PACK_DECLARE(lng, name) extern const LanguagePack lng ## LanguagePack = { #lng, name, lng ## _ ## playNumber, lng ## _ ## playDuration }
+#define LANGUAGE_PACK_DECLARE(lng, name)          \
+  extern const LanguagePack lng##LanguagePack = { \
+      #lng, name, lng##_##playNumber, lng##_##playDuration}
 #endif
 
-#define LANGUAGE_PACK_DECLARE_DEFAULT(lng, name) LANGUAGE_PACK_DECLARE(lng, name); const LanguagePack * currentLanguagePack = & lng ## LanguagePack; uint8_t currentLanguagePackIdx
-inline PLAY_FUNCTION(playNumber, getvalue_t number, uint8_t unit, uint8_t flags) { currentLanguagePack->playNumber(number, unit, flags, id); }
-inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) { currentLanguagePack->playDuration(seconds, flags, id); }
+#define LANGUAGE_PACK_DECLARE_DEFAULT(lng, name)                \
+  LANGUAGE_PACK_DECLARE(lng, name);                             \
+  const LanguagePack* currentLanguagePack = &lng##LanguagePack; \
+  uint8_t currentLanguagePackIdx
+
+#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id)
+
+inline PLAY_FUNCTION(playNumber, getvalue_t number, uint8_t unit, uint8_t flags) {
+  currentLanguagePack->playNumber(number, unit, flags, id);
+}
+
+inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
+   currentLanguagePack->playDuration(seconds, flags, id);
+}
 
 extern const char STR_MODELNAME[];
 extern const char STR_PHASENAME[];

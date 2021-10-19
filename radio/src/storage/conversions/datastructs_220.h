@@ -28,3 +28,6 @@ namespace bin_storage_220 {
 #include "yaml/myeeprom_220.h"
 
 };
+
+// prevent board.h from being included
+#define _BOARD_H_

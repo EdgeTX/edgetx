@@ -18,7 +18,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #include "theme_manager.h"
+#include "theme.h"
+
+#include <cstdlib>
+#include <cstring>
 
 ThemePersistance themePersistance;
 
@@ -93,7 +98,7 @@ void ThemeFile::scanFile()
       char *plvalue;
       char *prvalue;
 
-      strncpy(lvalue, line, min((int)(ptr - line), 63));
+      strncpy(lvalue, line, std::min((int)(ptr - line), 63));
       lvalue[ptr - line] = '\0';
       strncpy(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
@@ -226,6 +231,9 @@ void ThemeFile::applyTheme()
   OpenTxTheme::instance()->update(false);
 }
 
+// not sure why this is needed...
+constexpr unsigned MAX_SD_FILE_LENGTH = 64;
+
 void ThemePersistance::scanForThemes()
 {
   TRACE("in scanForThemes");
@@ -251,7 +259,7 @@ void ThemePersistance::scanForThemes()
       if (res != FR_OK || fno.fname[0] == 0)
         break;  // Break on error or end of dir
 
-      if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
+      if (strlen((const char *)fno.fname) > MAX_SD_FILE_LENGTH) continue;
       if (fno.fattrib & AM_DIR) continue;
 
       TRACE("scanForThemes: found file %s", fno.fname);
