@@ -124,7 +124,12 @@ const char * loadRadioSettings()
 #endif
     }
 
-    return loadRadioSettingsYaml();
+    const char* error = loadRadioSettingsYaml();
+    if (!error) {
+      g_eeGeneral.chkSum = evalChkSum();
+    }
+
+    return error;
 }
 
 struct yaml_writer_ctx {
