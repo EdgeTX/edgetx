@@ -168,15 +168,13 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 #define SECONDSPERDAY (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR (365 * SECONDSPERDAY)
 
-char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
+char *getTimerStringCase(char *dest, int32_t tme, uint8_t options,
                          bool bLowerCase)
 {
   char *s = dest;
   div_t qr;
   int val = abs(tme);
   uint8_t digit_group = 0;
-
-  if(hours) val *= 60;
 
   if (tme < 0) {
     tme = -tme;
@@ -221,9 +219,12 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
   qr = div((int)val, SECONDSPERMIN);
   *s++ = '0' + (qr.quot / 10);
   *s++ = '0' + (qr.quot % 10);
-  *s++ = bLowerCase ? 'm' : 'M';
+  if(!options)
+    *s++ = bLowerCase ? 'm' : 'M';
+  else
+    *s++ = ':';
   digit_group++;
-  if (digit_group == 3 || hours) {
+  if (digit_group == 3) {
     *s = 0;
     return dest;
   }
@@ -231,7 +232,8 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
   *s++ = '0' + (qr.rem / 10);
   *s++ = '0' + (qr.rem % 10);
   // if ( digit_group != 1 )   {
-  *s++ = bLowerCase ? 's' : 'S';
+  if(!options)
+    *s++ = bLowerCase ? 's' : 'S';
   //}
   *s = 0;
 
@@ -744,19 +746,19 @@ char *getSourceString(mixsrc_t idx)
 
 char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
 
-char *getTimerString(int32_t tme, uint8_t hours)
+char *getTimerString(int32_t tme, uint8_t options)
 {
-  return getTimerStringCase(tmpHelpersString, tme, hours, true);
+  return getTimerStringCase(tmpHelpersString, tme, options, true);
 }
 
-char *getTimerString(int32_t tme, uint8_t hours, bool bLowerCase)
+char *getTimerString(int32_t tme, uint8_t options, bool bLowerCase)
 {
-  return getTimerStringCase(tmpHelpersString, tme, hours, bLowerCase);
+  return getTimerStringCase(tmpHelpersString, tme, options, bLowerCase);
 }
 
-char *getTimerString(char *dest, int32_t tme, uint8_t hours)
+char *getTimerString(char *dest, int32_t tme, uint8_t options)
 {
-  return getTimerStringCase(dest, tme, hours, true);
+  return getTimerStringCase(dest, tme, options, true);
 }
 
 char *getSwitchPositionName(swsrc_t idx)
