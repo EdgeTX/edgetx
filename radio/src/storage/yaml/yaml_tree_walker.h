@@ -132,14 +132,12 @@ public:
         return NULL;
     }
 
-    uint16_t getElmts() {
-        return stack[stack_level].elmts;
+    uint16_t getElmts(uint8_t lvl = 0) {
+        if (stack_level + lvl >= NODE_STACK_DEPTH)
+            return 0;
+        return stack[stack_level + lvl].elmts;
     }
 
-    uint16_t getParentElmts() {
-        return empty() ? 0 : stack[stack_level + 1].elmts;
-    }
-    
     // Increment the cursor until a match is found or the end of
     // the current collection (node of type YDT_NONE) is reached.
     //

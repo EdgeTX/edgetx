@@ -803,7 +803,7 @@ static const struct YamlNode union_TelemetryScreenData_elmts[] = {
 };
 static const struct YamlNode union_TelemetryScreenData[] = {
   YAML_IDX,
-  YAML_UNION("u", 192, union_TelemetryScreenData_elmts, NULL),
+  YAML_UNION("u", 192, union_TelemetryScreenData_elmts, select_tele_screen_data),
   YAML_END
 };
 static const struct YamlNode struct_ModelData[] = {

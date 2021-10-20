@@ -310,7 +310,7 @@ union TelemetryScreenData {
 #if defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
-};
+} FUNC(select_tele_screen_data);
 #endif
 
 PACK(struct VarioData {
