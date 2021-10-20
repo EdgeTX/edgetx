@@ -89,7 +89,7 @@ static bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
 }
 
 #if defined(COLORLCD)
-static uint8_t select_zov(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
     data -= sizeof(ZoneOptionValueEnum);
@@ -100,7 +100,7 @@ static uint8_t select_zov(uint8_t* data, uint32_t bitoffs)
 }
 #endif
 
-static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
     data -= offsetof(ModuleData, ppm);
@@ -136,7 +136,7 @@ static uint8_t select_mod_type(uint8_t* data, uint32_t bitoffs)
     return 0;
 }
 
-static uint8_t select_custom_fn(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_custom_fn(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
     data -= offsetof(CustomFunctionData, all);
@@ -154,71 +154,58 @@ static uint8_t select_custom_fn(uint8_t* data, uint32_t bitoffs)
     return 1;
 }
 
-static uint8_t select_script_input(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 {
     // always use 'value'
     return 0;
 }
 
-static uint8_t select_id1(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs)
 {
     // always use 'id'
     return 0;
 }
 
-static uint8_t select_id2(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
 {
     // always use 'instance'
     return 0;
 }
 
-static uint8_t select_sensor_cfg(uint8_t* data, uint32_t bitoffs)
+static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
 {
     // always use 'param'
     return 5;
 }
 
-#if 0
-static uint32_t sw_read(const char* val, uint8_t val_len)
+static bool sw_write(void* user, yaml_writer_func wf, void* opaque)
 {
-    uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
-    if (sw >= MIXSRC_FIRST_SWITCH)
-        return sw - MIXSRC_FIRST_SWITCH;
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
 
-    return -1;
-}
-#endif
-
-static bool sw_write(uint32_t idx, yaml_writer_func wf, void* opaque)
-{
-    const char* str = yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
-    return str ? wf(opaque, str, strlen(str)) : true;
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
 }
 
-#if 0
-static void r_stick_name(const YamlNode* node, uint8_t* data,
-                         uint32_t bitoffs, uint16_t idx,
-                         const char* val, uint8_t val_len)
-{
-    data -= offsetof(RadioData, switchConfig);
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-#endif
-
-static bool w_stick_name(const YamlNode* node, uint8_t* data,
-                         uint32_t bitoffs, uint16_t idx,
+static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
                          yaml_writer_func wf, void* opaque)
 {
-    data -= offsetof(RadioData, switchConfig);
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    return wf(opaque, rd->anaNames[idx], strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  data -= offsetof(RadioData, switchConfig);
+  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  return wf(opaque, rd->anaNames[idx],
+            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
 }
 
-static bool stick_name_valid(uint8_t* data, uint32_t bitoffs, uint16_t idx)
+static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    return rd->anaNames[idx][0] != '\0';
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  return rd->anaNames[idx][0] != '\0';
 }
 
 static const struct YamlNode struct_sticksConfig[] = {
@@ -227,29 +214,19 @@ static const struct YamlNode struct_sticksConfig[] = {
     YAML_END
 };
 
-#if 0
-static void sw_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                         uint16_t idx, const char* val, uint8_t val_len)
+static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
+                          yaml_writer_func wf, void* opaque)
 {
-    // data / bitoffs already incremented
-    data -= ((idx + 1) * 2) / 8;
-    data -= offsetof(RadioData, switchConfig);
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
 
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    strncpy(rd->switchNames[idx], val, std::min<uint8_t>(val_len, LEN_SWITCH_NAME));
-}
-#endif
+  // data / bitoffs already incremented
+  data -= ((idx + 1) * 2) / 8;
+  data -= offsetof(RadioData, switchConfig);
 
-static bool sw_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                          uint16_t idx, yaml_writer_func wf, void* opaque)
-{
-    // data / bitoffs already incremented
-    data -= ((idx + 1) * 2) / 8;
-    data -= offsetof(RadioData, switchConfig);
-
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    const char* str = rd->switchNames[idx];
-    return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  const char* str = rd->switchNames[idx];
+  return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
 }
 
 static const struct YamlIdStr enum_SwitchConfig[] = {
@@ -267,48 +244,29 @@ static const struct YamlNode struct_switchConfig[] = {
     YAML_END
 };
 
-#if 0
-static uint32_t pot_read(const char* val, uint8_t val_len)
+static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
 {
-    uint32_t pot = yaml_parse_enum(enum_MixSources, val, val_len);
-    if (pot >= MIXSRC_FIRST_POT)
-        return pot - MIXSRC_FIRST_POT;
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
 
-    return -1;
-}
-#endif
-
-static bool pot_write(uint32_t idx, yaml_writer_func wf, void* opaque)
-{
-    const char* str = yaml_output_enum(idx + MIXSRC_FIRST_POT, enum_MixSources);
-    return str ? wf(opaque, str, strlen(str)) : true;
+  const char* str = yaml_output_enum(idx + MIXSRC_FIRST_POT, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
 }
 
-#if 0
-static void pot_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                          uint16_t idx, const char* val, uint8_t val_len)
+static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
+                           yaml_writer_func wf, void* opaque)
 {
-    // data / bitoffs already incremented
-    data -= ((idx + 1) * 2) / 8;
-    data -= offsetof(RadioData, potsConfig);
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
 
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    idx += NUM_STICKS;
-    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-#endif
+  // data / bitoffs already incremented
+  data -= ((idx + 1) * 2) / 8;
+  data -= offsetof(RadioData, potsConfig);
 
-static bool pot_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                           uint16_t idx, yaml_writer_func wf, void* opaque)
-{
-    // data / bitoffs already incremented
-    data -= ((idx + 1) * 2) / 8;
-    data -= offsetof(RadioData, potsConfig);
-
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    idx += NUM_STICKS;
-    const char* str = rd->anaNames[idx];
-    return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  idx += NUM_STICKS;
+  const char* str = rd->anaNames[idx];
+  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -326,66 +284,39 @@ static const struct YamlNode struct_potConfig[] = {
     YAML_END
 };
 
-#if 0
-static uint32_t slider_read(const char* val, uint8_t val_len)
+static bool slider_write(void* user, yaml_writer_func wf, void* opaque)
 {
-    uint32_t sl = yaml_parse_enum(enum_MixSources, val, val_len);
-    if (sl >= MIXSRC_FIRST_SLIDER)
-        return sl - MIXSRC_FIRST_SLIDER;
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
 
-    return -1;
-}
-#endif
-
-static bool slider_write(uint32_t idx, yaml_writer_func wf, void* opaque)
-{
-    const char* str = yaml_output_enum(idx + MIXSRC_FIRST_SLIDER, enum_MixSources);
-    return str ? wf(opaque, str, strlen(str)) : true;
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_FIRST_SLIDER, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
 }
 
-#if 0
-static void sl_name_read(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                         uint16_t idx, const char* val, uint8_t val_len)
+static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
+                          yaml_writer_func wf, void* opaque)
 {
-    // data / bitoffs already incremented
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  // data / bitoffs already incremented
 #if defined(PCBTARANIS)
-    // Please note:
-    //   slidersConfig is defined as a bit-field member,
-    //   so let's take the next field and subtract 1
-    //
-    data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-    data -= offsetof(RadioData, potsConfig) - 1;
+  // Please note:
+  //   slidersConfig is defined as a bit-field member,
+  //   so let's take the next field and subtract 1
+  //
+  data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
+  data -= offsetof(RadioData, potsConfig) - 1;
 #else
-    data -= (idx + 1) / 8;
-    data -= offsetof(RadioData, slidersConfig);
+  data -= (idx + 1) / 8;
+  data -= offsetof(RadioData, slidersConfig);
 #endif
 
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    idx += NUM_STICKS + STORAGE_NUM_POTS;
-    strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-#endif
-
-static bool sl_name_write(const YamlNode* node, uint8_t* data, uint32_t bitoffs,
-                          uint16_t idx, yaml_writer_func wf, void* opaque)
-{
-    // data / bitoffs already incremented
-#if defined(PCBTARANIS)
-    // Please note:
-    //   slidersConfig is defined as a bit-field member,
-    //   so let's take the next field and subtract 1
-    //
-    data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-    data -= offsetof(RadioData, potsConfig) - 1;
-#else
-    data -= (idx + 1) / 8;
-    data -= offsetof(RadioData, slidersConfig);
-#endif
-
-    RadioData* rd = reinterpret_cast<RadioData*>(data);
-    idx += NUM_STICKS + STORAGE_NUM_POTS;
-    const char* str = rd->anaNames[idx];
-    return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  idx += NUM_STICKS + STORAGE_NUM_POTS;
+  const char* str = rd->anaNames[idx];
+  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
@@ -456,19 +387,19 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     return wf(opaque, str, strlen(str));
 }
 
-static bool cfn_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
+static bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
     return ((CustomFunctionData*)data)->swtch;
 }
 
-static bool gvar_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
+static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
     gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
     return *gvar != GVAR_MAX+1;
 }
 
-static bool fmd_is_active(uint8_t* data, uint32_t bitoffs, uint16_t idx)
+static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
     uint32_t data_ofs = bitoffs >> 3UL;
     if (data_ofs == offsetof(ModelData, flightModeData)) {
@@ -612,3 +543,27 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 
   return true;
 }
+
+#if !defined(COLORLCD)
+static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(2);
+
+  auto md = reinterpret_cast<ModelData*>(data);
+  uint8_t st = (md->screensType >> (2 * idx)) & 0x03;
+  switch(st){
+  case TELEMETRY_SCREEN_TYPE_NONE:
+      break;
+  case TELEMETRY_SCREEN_TYPE_VALUES:
+      return 1; // lines
+  case TELEMETRY_SCREEN_TYPE_BARS:
+      return 0; // bars
+  case TELEMETRY_SCREEN_TYPE_SCRIPT:
+      return 2;
+  }
+
+  TRACE("select_tele_screen_data(idx=%d)", idx);
+  return 0;
+}
+#endif
