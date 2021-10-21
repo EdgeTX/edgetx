@@ -168,7 +168,7 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 #define SECONDSPERDAY (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR (365 * SECONDSPERDAY)
 
-char *getTimerStringCase(char *dest, int32_t tme, TimerOptions timerOptions)
+char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
   char *s = dest;
   div_t qr;
@@ -752,12 +752,12 @@ char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
 
 char *getTimerString(int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(tmpHelpersString, tme, timerOptions);
+  return getFormattedTimerString(tmpHelpersString, tme, timerOptions);
 }
 
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(dest, tme, timerOptions);
+  return getFormattedTimerString(dest, tme, timerOptions);
 }
 
 char *getSwitchPositionName(swsrc_t idx)
