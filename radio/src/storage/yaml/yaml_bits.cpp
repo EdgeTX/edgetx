@@ -93,33 +93,49 @@ bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits)
     return !yaml_get_bits(data + (bitoffs>>3UL), bitoffs & 0x7, bits);
 }
 
-int32_t yaml_str2int(const char* val, uint8_t val_len)
+int32_t yaml_str2int_ref(const char*& val, uint8_t& val_len)
 {
     bool  neg = false;
     int i_val = 0;
-    
-    for(uint8_t i=0; i < val_len; i++) {
-        if (val[i] == '-')
-            neg = true;
-        else if (val[i] >= '0' && val[i] <= '9') {
-            i_val = i_val * 10 + (val[i] - '0');
-        }
+
+    while (val_len > 0) {
+      if (*val == '-') {
+        neg = true;
+      } else if (*val >= '0' && *val <= '9') {
+        i_val = i_val * 10 + (*val - '0');
+      } else {
+        break;
+      }
+      val++; val_len--;
     }
 
     return neg ? -i_val : i_val;
 }
 
-uint32_t yaml_str2uint(const char* val, uint8_t val_len)
+int32_t yaml_str2int(const char* val, uint8_t val_len)
+{
+    return yaml_str2int_ref(val, val_len);
+}
+
+uint32_t yaml_str2uint_ref(const char* val, uint8_t val_len)
 {
     uint32_t i_val = 0;
     
-    for(uint8_t i=0; i < val_len; i++) {
-        if (val[i] >= '0' && val[i] <= '9') {
-            i_val = i_val * 10 + (val[i] - '0');
+    while(val_len > 0) {
+        if (*val >= '0' && *val <= '9') {
+            i_val = i_val * 10 + (*val - '0');
+        } else {
+            break;
         }
+        val++; val_len--;
     }
 
     return i_val;
+}
+
+uint32_t yaml_str2uint(const char* val, uint8_t val_len)
+{
+    return yaml_str2uint_ref(val, val_len);
 }
 
 static char int2str_buffer[MAX_STR] = {0};
