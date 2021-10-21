@@ -49,6 +49,17 @@ extern const struct YamlIdStr enum_MixSources[];
 
 #define r_mixSrcRaw nullptr
 
+static constexpr char closing_parenthesis[] = ")";
+
+static bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
+                                  yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque, src_prefix, src_len)) return false;
+  const char* str = yaml_unsigned2str(n);
+  if (!wf(opaque, str, strlen(str))) return false;
+  return true;
+}
+
 static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     const char* str = nullptr;
@@ -60,6 +71,69 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
             return false;
 
         str = yaml_unsigned2str(val - MIXSRC_FIRST_INPUT);
+    }
+#if defined(LUA_INPUTS)
+    else if (val >= MIXSRC_FIRST_LUA
+             && val <= MIXSRC_LAST_LUA) {
+      
+        if (!wf(opaque, "lua(", 4)) return false;
+
+        val -= MIXSRC_FIRST_LUA;
+        uint32_t script = val / MAX_SCRIPT_OUTPUTS;
+
+        if (!output_source_1_param("lua(", 4, script, wf, opaque)) return false;
+        if (!wf(opaque, ",", 1)) return false;
+
+        val = val % MAX_SCRIPT_OUTPUTS;
+        str = yaml_unsigned2str(val);
+
+        if (!wf(opaque, str, strlen(str))) return false;
+        str = closing_parenthesis;
+    }
+#endif
+    else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
+             && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
+
+        val -= MIXSRC_FIRST_LOGICAL_SWITCH;
+        if (!output_source_1_param("ls(", 3, val, wf, opaque)) return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_TRAINER
+             && val <= MIXSRC_LAST_TRAINER) {
+
+        val -= MIXSRC_FIRST_TRAINER;
+        if (!output_source_1_param("tr(", 3, val, wf, opaque)) return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_CH
+             && val <= MIXSRC_LAST_CH) {
+
+        val -= MIXSRC_FIRST_CH;
+        if (!output_source_1_param("ch(", 3, val, wf, opaque)) return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_GVAR
+             && val <= MIXSRC_LAST_GVAR) {
+
+        val -= MIXSRC_FIRST_GVAR;
+        if (!output_source_1_param("gv(", 3, val, wf, opaque)) return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_TELEM
+             && val <= MIXSRC_LAST_TELEM) {
+
+        val -= MIXSRC_FIRST_TELEM;
+        uint8_t sign = val % 3;
+        val = val / 3;
+        if (!wf(opaque, "tele(", 5)) return false;
+        if (sign == 1) {
+          if (!wf(opaque, "-", 1)) return false;
+        } else if (sign == 2) {
+          if (!wf(opaque, "+", 1)) return false;
+        }
+        str = yaml_unsigned2str(val);
+        if (!wf(opaque, str, strlen(str))) return false;
+        str = closing_parenthesis;
     }
     else {
         str = yaml_output_enum(val, enum_MixSources);

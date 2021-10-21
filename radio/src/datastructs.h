@@ -257,7 +257,7 @@ PACK(struct SwashRingData {
 #if MAX_SCRIPTS > 0
 union ScriptDataInput {
   int16_t value;
-  source_t source;
+  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
 } FUNC(select_script_input);
 
 PACK(struct ScriptData {
@@ -288,14 +288,23 @@ typedef int16_t ls_telemetry_value_t;
 
 #if !defined(COLORLCD)
 PACK(struct FrSkyBarData {
-  source_t source;
+  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
   ls_telemetry_value_t barMin;           // minimum for bar display
   ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
+#if defined(YAML_GENERATOR)
+PACK(struct LineDataSource {
+  source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
+});
+PACK(struct FrSkyLineData {
+  LineDataSource sources[NUM_LINE_ITEMS];
+});
+#else
 PACK(struct FrSkyLineData {
   source_t sources[NUM_LINE_ITEMS];
 });
+#endif
 
 #if defined(PCBTARANIS)
 PACK(struct TelemetryScriptData {

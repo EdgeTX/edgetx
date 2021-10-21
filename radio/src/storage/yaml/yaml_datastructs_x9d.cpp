@@ -644,7 +644,7 @@ static const struct YamlNode struct_TrainerModuleData[] = {
 };
 static const struct YamlNode union_ScriptDataInput_elmts[] = {
   YAML_SIGNED( "value", 16 ),
-  YAML_UNSIGNED( "source", 16 ),
+  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_END
 };
 static const struct YamlNode union_ScriptDataInput[] = {
@@ -736,19 +736,19 @@ static const struct YamlNode struct_TelemetrySensor[] = {
 };
 static const struct YamlNode struct_FrSkyBarData[] = {
   YAML_IDX,
-  YAML_UNSIGNED( "source", 16 ),
+  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_SIGNED( "barMin", 16 ),
   YAML_SIGNED( "barMax", 16 ),
   YAML_END
 };
-static const struct YamlNode struct_unsigned_16[] = {
+static const struct YamlNode struct_LineDataSource[] = {
   YAML_IDX,
-  YAML_UNSIGNED( "val", 16 ),
+  YAML_UNSIGNED_CUST( "val", 16, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_END
 };
 static const struct YamlNode struct_FrSkyLineData[] = {
   YAML_IDX,
-  YAML_ARRAY("sources", 16, 3, struct_unsigned_16, NULL),
+  YAML_ARRAY("sources", 16, 3, struct_LineDataSource, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TelemetryScriptData[] = {

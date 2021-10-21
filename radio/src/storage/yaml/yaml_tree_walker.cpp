@@ -510,6 +510,11 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             if (!toParent())
                 return true;
 
+            if (getNode()->type == YDT_UNION) {
+                if (!toParent()) {
+                    return true;
+                }
+            }
             toNextAttr();
             continue;
         }
