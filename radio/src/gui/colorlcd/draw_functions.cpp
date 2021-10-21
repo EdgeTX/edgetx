@@ -420,7 +420,9 @@ void drawSensorCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t sens
 void drawTimer(BitmapBuffer * dc, coord_t x, coord_t y, int32_t tme, LcdFlags flags)
 {
   char str[LEN_TIMER_STRING];
-  getTimerString(str, tme, (flags & TIMEHOUR) != 0);
+  TimerOptions timerOptions;
+  timerOptions.options = (flags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
+  getTimerString(str, tme, timerOptions);
   dc->drawText(x, y, str, flags);
 }
 

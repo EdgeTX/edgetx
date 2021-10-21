@@ -89,12 +89,13 @@ void StatisticsViewPage::build(FormWindow *window)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(LCD_W / 4);
 
+  const TimerOptions timerOptions = {.options = SHOW_TIMER};
   // Session data
   new StaticText(window, grid.getLabelSlot(), STR_SESSION, 0,
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(sessionTimer, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(sessionTimer, timerOptions); },
       COLOR_THEME_PRIMARY1);
 
   // Battery data
@@ -102,8 +103,8 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
-      [] {
-        return getTimerString(g_eeGeneral.globalTimer + sessionTimer, SHOW_TIMER);
+      [timerOptions] {
+        return getTimerString(g_eeGeneral.globalTimer + sessionTimer, timerOptions);
       },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
@@ -113,7 +114,7 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(s_timeCumThr, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(s_timeCumThr, timerOptions); },
       COLOR_THEME_PRIMARY1);
 
   // Throttle %  data
@@ -121,7 +122,7 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
-      [] { return getTimerString(s_timeCum16ThrP / 16, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(s_timeCum16ThrP / 16, timerOptions); },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
@@ -130,15 +131,15 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(timersStates[0].val, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(timersStates[0].val, timerOptions); },
       COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 1),
-      [] { return getTimerString(timersStates[1].val, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(timersStates[1].val, timerOptions); },
       COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
-      [] { return getTimerString(timersStates[2].val, SHOW_TIMER); },
+      [timerOptions] { return getTimerString(timersStates[2].val, timerOptions); },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
 

@@ -35,9 +35,6 @@
 #define TIMEHOUR 0x2000
 #endif
 
-#define SHOW_TIME  1
-#define SHOW_TIMER 0
-
 #define OPTION_MENU_NO_FOOTER          0x01
 #define OPTION_MENU_TITLE_BAR          0x02
 #define OPTION_MENU_NO_SCROLLBAR       0x04

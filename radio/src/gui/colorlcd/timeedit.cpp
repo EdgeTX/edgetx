@@ -41,8 +41,8 @@ void TimeEdit::paint(BitmapBuffer * dc)
   else
     textColor = COLOR_THEME_SECONDARY1;
 
+  TimerOptions timerOptions;
+  timerOptions.options = (textFlags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
   dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-               getTimerString(getValue(), (textFlags & TIMEHOUR) != 0),
-               textColor);
+               getTimerString(getValue(), timerOptions), textColor);
 }
-

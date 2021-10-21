@@ -168,13 +168,17 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 #define SECONDSPERDAY (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR (365 * SECONDSPERDAY)
 
-char *getTimerStringCase(char *dest, int32_t tme, uint8_t options,
-                         bool bLowerCase)
+char *getTimerStringCase(char *dest, int32_t tme, TimerOptions timerOptions)
 {
   char *s = dest;
   div_t qr;
   int val = abs(tme);
   uint8_t digit_group = 0;
+  bool bLowerCase = !(timerOptions.options & SHOW_TIMER_UPPER_CASE);
+  bool showTime = timerOptions.options & SHOW_TIME;
+  uint8_t numDigitGroupRequired = (timerOptions.options >> 2) & 0x7;
+
+  if(!numDigitGroupRequired) numDigitGroupRequired = 3;
 
   if (tme < 0) {
     tme = -tme;
@@ -211,7 +215,7 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t options,
     val = qr.rem;
     digit_group++;
   }
-  if (digit_group == 3) {
+  if (digit_group == numDigitGroupRequired) {
     *s = 0;
     return dest;
   }
@@ -219,12 +223,12 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t options,
   qr = div((int)val, SECONDSPERMIN);
   *s++ = '0' + (qr.quot / 10);
   *s++ = '0' + (qr.quot % 10);
-  if(!options)
+  if(!showTime)
     *s++ = bLowerCase ? 'm' : 'M';
   else
     *s++ = ':';
   digit_group++;
-  if (digit_group == 3) {
+  if (digit_group == numDigitGroupRequired) {
     *s = 0;
     return dest;
   }
@@ -232,7 +236,7 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t options,
   *s++ = '0' + (qr.rem / 10);
   *s++ = '0' + (qr.rem % 10);
   // if ( digit_group != 1 )   {
-  if(!options)
+  if(!showTime)
     *s++ = bLowerCase ? 's' : 'S';
   //}
   *s = 0;
@@ -746,19 +750,14 @@ char *getSourceString(mixsrc_t idx)
 
 char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
 
-char *getTimerString(int32_t tme, uint8_t options)
+char *getTimerString(int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(tmpHelpersString, tme, options, true);
+  return getTimerStringCase(tmpHelpersString, tme, timerOptions);
 }
 
-char *getTimerString(int32_t tme, uint8_t options, bool bLowerCase)
+char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(tmpHelpersString, tme, options, bLowerCase);
-}
-
-char *getTimerString(char *dest, int32_t tme, uint8_t options)
-{
-  return getTimerStringCase(dest, tme, options, true);
+  return getTimerStringCase(dest, tme, timerOptions);
 }
 
 char *getSwitchPositionName(swsrc_t idx)
