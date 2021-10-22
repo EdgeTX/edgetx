@@ -455,7 +455,7 @@
 
 #define TR_MENUWHENDONE        CENTER "\007" TR_ENTER " Conferma"
 #define TR_FREE                "Disp."
-#define TR_YES                         "Yes"
+#define TR_YES                         "Si"
 #define TR_NO                          "No"
 #define TR_DELETEMODEL         "CANCELLA" BREAKSPACE "MODELLO"
 #define TR_COPYINGMODEL        "Copia in corso.."
