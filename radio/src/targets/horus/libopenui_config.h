@@ -61,6 +61,7 @@ constexpr uint32_t MENU_FOOTER_HEIGHT =            0;
 constexpr uint32_t MENU_FOOTER_TOP =               LCD_H - MENU_FOOTER_HEIGHT;
 constexpr uint32_t MENU_BODY_HEIGHT =              MENU_FOOTER_TOP - MENU_BODY_TOP;
 constexpr uint32_t MENUS_MARGIN_LEFT =             6;
+constexpr coord_t  MENUS_SEPARATOR_HEIGHT =        15;
 
 constexpr uint32_t MENU_HEADER_BACK_BUTTON_WIDTH  = MENU_HEADER_HEIGHT;
 constexpr uint32_t MENU_HEADER_BACK_BUTTON_HEIGHT = MENU_HEADER_HEIGHT;
