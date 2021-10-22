@@ -293,6 +293,10 @@ PACK(struct FrSkyBarData {
   ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
+// This is used to be able to use
+// custom read/write functions in
+// an array made of typdef'ed literal types
+// (YAML generator)
 #if defined(YAML_GENERATOR)
 PACK(struct LineDataSource {
   source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
@@ -301,6 +305,7 @@ PACK(struct FrSkyLineData {
   LineDataSource sources[NUM_LINE_ITEMS];
 });
 #else
+// This here is the real structure used at run-time
 PACK(struct FrSkyLineData {
   source_t sources[NUM_LINE_ITEMS];
 });
@@ -313,6 +318,19 @@ PACK(struct TelemetryScriptData {
 });
 #endif
 
+#if defined(YAML_GENERATOR)
+union TelemetryScreenData_u {
+  FrSkyBarData  bars[4];
+  FrSkyLineData lines[4];
+#if defined(PCBTARANIS)
+  TelemetryScriptData script;
+#endif
+};
+PACK(struct TelemetryScreenData {
+  CUST_ATTR(type,r_tele_screen_type,w_tele_screen_type);
+  TelemetryScreenData_u u FUNC(select_tele_screen_data);
+});
+#else
 union TelemetryScreenData {
   FrSkyBarData  bars[4];
   FrSkyLineData lines[4];
@@ -322,8 +340,10 @@ union TelemetryScreenData {
 } FUNC(select_tele_screen_data);
 #endif
 
+#endif
+
 PACK(struct VarioData {
-  uint8_t source:7;
+  uint8_t source:7; // telemetry sensor idx + 1
   uint8_t centerSilent:1;
   int8_t  centerMax;
   int8_t  centerMin;
@@ -340,7 +360,8 @@ PACK(struct VarioData {
 
 PACK(struct TelemetrySensor {
   union {
-    uint16_t id;                   // data identifier, for FrSky we can reuse existing ones. Source unit is derived from type.
+    uint16_t id;  // data identifier, for FrSky we can reuse existing ones.
+                  // Source unit is derived from type.
     NOBACKUP(uint16_t persistentValue);
   } NAME(id1) FUNC(select_id1);
   union {
@@ -353,7 +374,8 @@ PACK(struct TelemetrySensor {
   } NAME(id2) FUNC(select_id2);
   char     label[TELEM_LABEL_LEN]; // user defined label
   uint8_t  subId;
-  uint8_t  type:1; // 0=custom / 1=calculated // user can choose what unit to display each value in
+  uint8_t  type:1; // 0=custom / 1=calculated
+                   // user can choose what unit to display each value in
   uint8_t  spare1:1 SKIP;
   uint8_t  unit:6;
   uint8_t  prec:2;
@@ -587,7 +609,7 @@ PACK(struct CustomScreenData {
   NOBACKUP(uint8_t view);
 #else
 #define CUSTOM_SCREENS_DATA \
-  uint8_t screensType; /* 2bits per screen (None/Gauges/Numbers/Script) */ \
+  uint8_t screensType SKIP; /* 2bits per screen (None/Gauges/Numbers/Script) */ \
   TelemetryScreenData screens[MAX_TELEMETRY_SCREENS]; \
   uint8_t view;
 #endif
@@ -934,7 +956,7 @@ static inline void check_struct()
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
   CHKSIZE(FrSkyLineData, 4);
-  CHKTYPE(union TelemetryScreenData, 24);
+  CHKTYPE(TelemetryScreenData, 24);
   CHKSIZE(ModelHeader, 12);
   CHKSIZE(CurveHeader, 4);
 #elif defined(PCBTARANIS)
@@ -948,7 +970,7 @@ static inline void check_struct()
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
   CHKSIZE(FrSkyLineData, 6);
-  CHKTYPE(union TelemetryScreenData, 24);
+  CHKTYPE(TelemetryScreenData, 24);
   CHKSIZE(ModelHeader, 24);
   CHKSIZE(CurveHeader, 4);
 #elif defined(PCBHORUS)
