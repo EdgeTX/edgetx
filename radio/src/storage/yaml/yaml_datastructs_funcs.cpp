@@ -923,6 +923,47 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 }
 
 #if !defined(COLORLCD)
+
+static const char* _tele_screen_type_lookup[] = {
+  "NONE",
+  "VALUES",
+  "BARS",
+  "SCRIPT",
+};
+
+static void r_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
+                               const char* val, uint8_t val_len)
+{
+  uint8_t type = 0;
+  for (uint8_t i = 0; i < 4; i++) {
+    if (!strncmp(val, _tele_screen_type_lookup[i], val_len)) {
+      type = i;
+      break;
+    }
+  }
+
+  if (!type) return;
+  
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+  
+  data -= sizeof(TelemetryScreenData) * idx + 1;
+  *data = (*data & ~(0x03 << (2 * idx))) | (type << (2 * idx));
+}
+
+static bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
+                               yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  data -= sizeof(TelemetryScreenData) * idx + 1;
+  uint8_t type = ((*data) >> (2 * idx)) & 0x03;
+
+  const char* str = _tele_screen_type_lookup[type];
+  return wf(opaque, str, strlen(str));
+}
+
 static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);

@@ -619,6 +619,28 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 }
 
 #if !defined(COLORLCD)
+#define r_tele_screen_type nullptr
+
+static const char* _tele_screen_type_lookup[] = {
+  "NONE",
+  "VALUES",
+  "BARS",
+  "SCRIPT",
+};
+
+static bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
+                               yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  data -= sizeof(TelemetryScreenData) * idx + 1;
+  uint8_t type = ((*data) >> (2 * idx)) & 0x03;
+
+  const char* str = _tele_screen_type_lookup[type];
+  return wf(opaque, str, strlen(str));
+}
+
 static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);

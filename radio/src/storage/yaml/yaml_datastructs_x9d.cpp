@@ -756,15 +756,16 @@ static const struct YamlNode struct_TelemetryScriptData[] = {
   YAML_ARRAY("inputs", 16, 8, struct_signed_16, NULL),
   YAML_END
 };
-static const struct YamlNode union_TelemetryScreenData_elmts[] = {
+static const struct YamlNode union_TelemetryScreenData_u_elmts[] = {
   YAML_ARRAY("bars", 48, 4, struct_FrSkyBarData, NULL),
   YAML_ARRAY("lines", 48, 4, struct_FrSkyLineData, NULL),
   YAML_STRUCT("script", 176, struct_TelemetryScriptData, NULL),
   YAML_END
 };
-static const struct YamlNode union_TelemetryScreenData[] = {
+static const struct YamlNode struct_TelemetryScreenData[] = {
   YAML_IDX,
-  YAML_UNION("u", 192, union_TelemetryScreenData_elmts, select_tele_screen_data),
+  YAML_CUSTOM("type",r_tele_screen_type,w_tele_screen_type),
+  YAML_UNION("u", 192, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
   YAML_END
 };
 static const struct YamlNode struct_ModelData[] = {
@@ -811,8 +812,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "potsWarnEnabled", 8 ),
   YAML_ARRAY("potsWarnPosition", 8, 5, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_UNSIGNED( "screensType", 8 ),
-  YAML_ARRAY("screens", 192, 4, union_TelemetryScreenData, NULL),
+  YAML_PADDING( 8 ),
+  YAML_ARRAY("screens", 192, 4, struct_TelemetryScreenData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_END
