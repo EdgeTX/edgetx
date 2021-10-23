@@ -469,27 +469,31 @@ bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 
 bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
-    return *gvar != GVAR_MAX+1;
+  // TODO: no need to output 0 values for FM0
+  gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
+  return *gvar != GVAR_MAX+1;
 }
 
 bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    uint32_t data_ofs = bitoffs >> 3UL;
-    if (data_ofs == offsetof(ModelData, flightModeData)) {
-        return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData)*8);
-    }
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
 
-    bool is_active = !yaml_is_zero(data, bitoffs,
-                                   (sizeof(FlightModeData)
-                                    - sizeof(FlightModeData::gvars))*8);
+  // FM0 defaults to all 0
+  if (idx == 0) {
+    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData));
+  }
 
-    FlightModeData* fmd = (FlightModeData*)(data + data_ofs);
-    for (uint8_t i=0; i<MAX_GVARS; i++) {
-        is_active |= fmd->gvars[i] != GVAR_MAX+1;
-    }
+  // assumes gvars array is last
+  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars));
 
-    return is_active;
+  data += bitoffs >> 3UL;
+  FlightModeData* fmd = (FlightModeData*)(data);
+  for (uint8_t i=0; i<MAX_GVARS; i++) {
+    is_active |= fmd->gvars[i] != GVAR_MAX+1; // FM0 -> default
+  }
+
+  return is_active;
 }
 
 #define r_swtchWarn nullptr

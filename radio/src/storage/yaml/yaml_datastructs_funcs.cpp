@@ -69,20 +69,24 @@ namespace yaml_conv_220 {
 //
 static inline void check_yaml_funcs()
 {
-  check_size<ModuleData, 29>(); // offsetof(ModuleData, ppm) == 4
+  static_assert(offsetof(ModuleData, ppm) == 4,"");
+  check_size<ModuleData, 29>();
+  static_assert(MAX_GVARS == 9,"");
 #if defined(PCBHORUS)
-  // offsetof(ModelData, flightModeData)
-  // sizeof(FlightModeData::gvars)
+  static_assert(offsetof(FlightModeData, gvars) == 26,"");
   check_size<FlightModeData, 44>();
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBNV14)
+  static_assert(offsetof(FlightModeData, gvars) == 22,"");
   check_size<FlightModeData, 40>();
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
+  static_assert(offsetof(FlightModeData, gvars) == 18,"");
   check_size<FlightModeData, 36>();
   check_size<CustomFunctionData, 11>();
   check_size<TelemetryScreenData, 24>();
 #else
+  static_assert(offsetof(FlightModeData, gvars) == 22,"");
   check_size<FlightModeData, 40>();
   check_size<CustomFunctionData, 11>();
   check_size<TelemetryScreenData, 24>();
