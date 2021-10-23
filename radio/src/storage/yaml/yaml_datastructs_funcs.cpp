@@ -24,7 +24,6 @@
 #include "yaml_tree_walker.h"
 
 // Use definitions from v220 conversions as long as nothing changes
-#include "../conversions/datastructs_220.h"
 
 namespace yaml_conv_220 {
   bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
@@ -58,12 +57,28 @@ namespace yaml_conv_220 {
                           yaml_writer_func wf, void* opaque);
 };
 
-static_assert(sizeof(CustomFunctionData) == sizeof(bin_storage_220::CustomFunctionData),"");
-static_assert(sizeof(ModuleData) == sizeof(bin_storage_220::ModuleData),"");
-static_assert(sizeof(FlightModeData) == sizeof(bin_storage_220::FlightModeData),"");
-
-#if !defined(COLORLCD)
-static_assert(sizeof(TelemetryScreenData) == sizeof(bin_storage_220::TelemetryScreenData),"");
+//
+// WARNING:
+// ========
+//
+//  If any of these static_assert() fails, you need to check that
+//  the functions bellow are still applicable.
+//
+//  Please note that the sizes used here are those from the v220 format
+//  (see storage/conversions/yaml/datastructs_220.h)
+//
+static_assert(sizeof(ModuleData) == 29,"");
+#if defined(PCBHORUS) || defined(PCBNV14)
+static_assert(sizeof(FlightModeData) == 44, "");
+static_assert(sizeof(CustomFunctionData) == 9,"");
+#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
+static_assert(sizeof(FlightModeData) == 36, "");
+static_assert(sizeof(CustomFunctionData) == 11,"");
+static_assert(sizeof(TelemetryScreenData) == 24, "");
+#else
+static_assert(sizeof(FlightModeData) == 40, "");
+static_assert(sizeof(CustomFunctionData) == 11,"");
+static_assert(sizeof(TelemetryScreenData) == 24, "");
 #endif
 
 #define GVAR_SMALL 128

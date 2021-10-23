@@ -19,11 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MYEEPROM_H_
-#define _MYEEPROM_H_
+#if defined(_MYEEPROM_H_)
+#error "This file MUST NOT be included side-by-side with myeeprom.h"
+#endif 
 
-// #include "datastructs.h"
-// #include "libopenui/src/bitfield.h"
 
 #if defined(SDCARD_YAML)
   #define EEPROM_VER           221
@@ -278,5 +277,3 @@ PACK(union u_int8int16_t {
 
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;
-
-#endif // _MYEEPROM_H_

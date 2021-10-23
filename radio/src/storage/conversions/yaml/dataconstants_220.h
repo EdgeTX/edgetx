@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DATACONSTANTS_H_
-#define _DATACONSTANTS_H_
+#if defined(_DATACONSTANTS_H_)
+#error "This file MUST NOT be included side-by-side with dataconstants.h"
+#endif
 
 #include <storage/yaml/yaml_defs.h>
 #include <hal.h>
@@ -1046,5 +1047,3 @@ enum CalibrationState {
   CALIB_STORE,
   CALIB_FINISHED
 };
-
-#endif // _DATACONSTANTS_H_
