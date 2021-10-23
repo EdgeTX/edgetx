@@ -135,6 +135,7 @@ void BitmapBuffer::drawScaledBitmap(const T *bitmap, coord_t x, coord_t y,
 
     int xshift = (w - (bitmap->width() * scale)) / 2;
     int yshift = (h - (bitmap->height() * scale)) / 2;
+    //TRACE("  BitmapBuffer::drawScaledBitmap()---- scale %f", scale);
     drawBitmap(x + xshift, y + yshift, bitmap, 0, 0, 0, 0, scale);
   }
 }
@@ -150,6 +151,9 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
 {
   coord_t bmpw = bmp->width();
   coord_t bmph = bmp->height();
+  //TRACE("  BitmapBuffer::drawBitmapAbs %dx%d %s->%s", bmpw, bmph,
+  //           bmp->getFormat() == BMP_RGB565 ? "BMP_RGB565" : "BMP_ARGB4444",
+  //                getFormat() == BMP_RGB565 ? "BMP_RGB565" : "BMP_ARGB4444");
 
   if (srcw == 0) srcw = bmpw;
   if (srch == 0) srch = bmph;
@@ -205,28 +209,54 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
                     srcx, srcy, srcw, srch);
     }
   } else {
+
     int scaledw = srcw * scale;
     int scaledh = srch * scale;
 
     if (x + scaledw > _width) scaledw = _width - x;
     if (y + scaledh > _height) scaledh = _height - y;
 
-    for (int i = 0; i < scaledh; i++) {
-      pixel_t *p = getPixelPtrAbs(x, y + i);
-      const pixel_t *qstart = bmp->getPixelPtrAbs(srcx, srcy + int(i / scale));
-      for (int j = 0; j < scaledw; j++) {
-        const pixel_t *q = qstart;
-        MOVE_PIXEL_RIGHT(q, int(j / scale));
-        if (bmp->getFormat() == BMP_ARGB4444) {
-          ARGB_SPLIT(*q, a, r, g, b);
-          drawAlphaPixel(p, a, RGB_JOIN(r << 1, g << 2, b << 1));
-        } else {
-          drawPixel(p, *q);
+    if ( format == BMP_ARGB4444)  {
+
+      for (int i = 0; i < scaledh; i++) {
+        pixel_t *p = getPixelPtrAbs(x, y + i);
+        const pixel_t *qstart = bmp->getPixelPtrAbs(srcx, srcy + int(i / scale));
+
+        for (int j = 0; j < scaledw; j++) {
+          const pixel_t *q = qstart;
+          MOVE_PIXEL_RIGHT(q, int(j / scale));
+
+          if (bmp->getFormat() == BMP_RGB565) {
+            RGB_SPLIT(*q, r, g, b);
+            drawPixel(p, ARGB_JOIN(0xF, r>>1, g>>2, b>>1));
+
+          } else {  // bmp->getFormat() == BMP_ARGB4444
+            drawPixel(p, *q);
+          }
+          MOVE_TO_NEXT_RIGHT_PIXEL(p);
         }
-        MOVE_TO_NEXT_RIGHT_PIXEL(p);
       }
-    }
-  }
+    } else  {   // format == BM_RGB565
+
+      for (int i = 0; i < scaledh; i++) {
+        pixel_t *p = getPixelPtrAbs(x, y + i);
+        const pixel_t *qstart = bmp->getPixelPtrAbs(srcx, srcy + int(i / scale));
+
+        for (int j = 0; j < scaledw; j++) {
+          const pixel_t *q = qstart;
+          MOVE_PIXEL_RIGHT(q, int(j / scale));
+
+          if (bmp->getFormat() == BMP_RGB565) {
+            drawPixel(p, *q);
+          } else { // bmp->getFormat() == BMP_ARGB4444
+            ARGB_SPLIT(*q, a, r, g, b);
+            drawAlphaPixel(p, a, RGB_JOIN(r << 1, g << 2, b << 1));
+          }
+          MOVE_TO_NEXT_RIGHT_PIXEL(p);
+        } // for j
+      } //for i
+    } // if format
+  } //  else (scale != 0) {
 }
 
 template
@@ -237,6 +267,7 @@ void BitmapBuffer::drawBitmapAbs(coord_t, coord_t, const BitmapBuffer *,
 
 void BitmapBuffer::drawAlphaPixel(pixel_t *p, uint8_t opacity, uint16_t color)
 {
+  //TRACE("BitmapBuffer::drawAlphaPixel()");
   if (opacity == OPACITY_MAX) {
     drawPixel(p, color);
   }
@@ -1152,6 +1183,7 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 
 BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename)
 {
+  //TRACE("  BitmapBuffer::loadBitmap(%s)", filename);
   const char * ext = getFileExtension(filename);
   if (ext && !strcmp(ext, ".bmp"))
     return load_bmp(filename);
@@ -1355,7 +1387,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       f_close(&imgFile);
       return nullptr;
   }
-
+  //TRACE("  BitmapBuffer::load_bmp() %dx%d", w, h);
   if (*((uint16_t *)&buf[0]) != 1) { /* planes */
     f_close(&imgFile);
     return nullptr;
@@ -1557,7 +1589,19 @@ const stbi_io_callbacks stbCallbacks = {
 
 BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
 {
+  //TRACE("  BitmapBuffer::load_stb(%s)", filename);
+
   FRESULT result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
+  if (result != FR_OK) {
+    return nullptr;
+  }
+
+  int x, y, nn;
+  stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
+  f_close(&imgFile);
+  //TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d", filename, x, y, nn);
+
+  result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     return nullptr;
   }
@@ -1571,6 +1615,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
     return nullptr;
   }
 
+  //TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d/%d", filename, x, y, nn, n);
   BitmapBuffer * bmp = convert_stb_bitmap(img, w, h, n);
   stbi_image_free(img);
   return bmp;
@@ -1593,6 +1638,7 @@ BitmapBuffer * BitmapBuffer::load_stb_buffer(const uint8_t * buffer, int len)
 BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int n)
 {
   // convert to RGB565 or ARGB4444 format
+  //TRACE("  BitmapBuffer::convert_stb_bitmap(%d)", n);
   BitmapBuffer * bmp = new BitmapBuffer(n == 4 ? BMP_ARGB4444 : BMP_RGB565, w, h);
   if (bmp == nullptr) {
     TRACE("convert_stn_bitmap: malloc failed");
