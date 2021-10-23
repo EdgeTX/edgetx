@@ -35,6 +35,7 @@ class ModelBitmapWidget: public Widget
 
     void refresh(BitmapBuffer * dc) override
     {
+      dc->setFormat(BMP_ARGB4444);
       if (buffer &&
           ((buffer->width() != width()) || (buffer->height() != height()) ||
            (deps_hash != getHash()))) {
@@ -88,10 +89,10 @@ class ModelBitmapWidget: public Widget
       std::string fullpath = std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
 
       if (!buffer || (buffer->width() != width()) || (buffer->height() != height())) {
-        buffer.reset(new BitmapBuffer(BMP_RGB565, width(), height()));
+        buffer.reset(new BitmapBuffer(BMP_ARGB4444, width(), height()));
       }
 
-      buffer->clear(COLOR_THEME_SECONDARY3);
+      buffer->clear();
       if (!filename.empty()) {
         std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
         if (!bitmap) {
