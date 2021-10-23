@@ -62,6 +62,9 @@
   uint16_t g = ((color) & 0x07E0) >> 5; \
   uint16_t b = ((color) & 0x001F)
 
+#define ARGB_JOIN(a, r, g, b) \
+  (((a&0xF) << 12) + ((r&0xF) << 8) + ((g&0xF) << 4) + (b&0xF))
+
 #define RGB_JOIN(r, g, b) \
   (((r) << 11) + ((g) << 5) + (b))
 
