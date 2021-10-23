@@ -67,19 +67,27 @@ namespace yaml_conv_220 {
 //  Please note that the sizes used here are those from the v220 format
 //  (see storage/conversions/yaml/datastructs_220.h)
 //
-static_assert(sizeof(ModuleData) == 29,"");
-#if defined(PCBHORUS) || defined(PCBNV14)
-static_assert(sizeof(FlightModeData) == 44, "");
-static_assert(sizeof(CustomFunctionData) == 9,"");
+static inline void check_yaml_funcs()
+{
+  check_size<ModuleData, 29>(); // offsetof(ModuleData, ppm) == 4
+#if defined(PCBHORUS)
+  // offsetof(ModelData, flightModeData)
+  // sizeof(FlightModeData::gvars)
+  check_size<FlightModeData, 44>();
+  check_size<CustomFunctionData, 9>();
+#elif defined(PCBNV14)
+  check_size<FlightModeData, 40>();
+  check_size<CustomFunctionData, 9>();
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
-static_assert(sizeof(FlightModeData) == 36, "");
-static_assert(sizeof(CustomFunctionData) == 11,"");
-static_assert(sizeof(TelemetryScreenData) == 24, "");
+  check_size<FlightModeData, 36>();
+  check_size<CustomFunctionData, 11>();
+  check_size<TelemetryScreenData, 24>();
 #else
-static_assert(sizeof(FlightModeData) == 40, "");
-static_assert(sizeof(CustomFunctionData) == 11,"");
-static_assert(sizeof(TelemetryScreenData) == 24, "");
+  check_size<FlightModeData, 40>();
+  check_size<CustomFunctionData, 11>();
+  check_size<TelemetryScreenData, 24>();
 #endif
+}
 
 #define GVAR_SMALL 128
 
