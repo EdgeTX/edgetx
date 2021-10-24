@@ -1550,7 +1550,11 @@ void ModelSetupPage::build(FormWindow * window)
     // Timer start value
     new StaticText(window, grid.getLabelSlot(true), "Start", 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
-    new TimeEdit(group, timerGrid.getSlot(), 0, TIMER_MAX, GET_SET_DEFAULT(timer->start));
+    new TimeEdit(group, timerGrid.getSlot(), 0, TIMER_MAX, GET_DEFAULT(timer->start), 
+                  [timer, i](int32_t value) {
+                    timer->start = value;
+                    timerSet(i, value);
+    });
     timerGrid.nextLine();
 
     // Timer minute beep
