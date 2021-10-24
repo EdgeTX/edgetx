@@ -80,7 +80,7 @@ PACK(struct MixData {
   uint16_t spare:1 SKIP;
   int32_t  offset:14;
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9; //TODO ??
+  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -100,7 +100,7 @@ PACK(struct ExpoData {
   int16_t  carryTrim:6;
   uint32_t chn:5;
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9; //TODO ??
+  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
   int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
@@ -244,11 +244,11 @@ PACK(struct TimerData {
  */
 
 PACK(struct SwashRingData {
-  uint8_t   type;
+  uint8_t   type ENUM(SwashType);
   uint8_t   value;
-  uint8_t   collectiveSource;
-  uint8_t   aileronSource;
-  uint8_t   elevatorSource;
+  uint8_t   collectiveSource CUST(r_mixSrcRaw,w_mixSrcRaw);
+  uint8_t   aileronSource CUST(r_mixSrcRaw,w_mixSrcRaw);
+  uint8_t   elevatorSource CUST(r_mixSrcRaw,w_mixSrcRaw);
   int8_t    collectiveWeight;
   int8_t    aileronWeight;
   int8_t    elevatorWeight;
@@ -343,7 +343,7 @@ union TelemetryScreenData {
 #endif
 
 PACK(struct VarioData {
-  uint8_t source:7; // telemetry sensor idx + 1
+  uint8_t source:7 CUST(r_tele_sensor,w_tele_sensor); // telemetry sensor idx + 1
   uint8_t centerSilent:1;
   int8_t  centerMax;
   int8_t  centerMin;
@@ -615,9 +615,10 @@ PACK(struct CustomScreenData {
 #endif
 
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
+  // telemetry sensor idx + 1
   #define TOPBAR_DATA \
-    NOBACKUP(uint8_t voltsSource); \
-    NOBACKUP(uint8_t altitudeSource);
+    NOBACKUP(uint8_t voltsSource CUST(r_tele_sensor,w_tele_sensor)); \
+    NOBACKUP(uint8_t altitudeSource CUST(r_tele_sensor,w_tele_sensor));
 #else
   #define TOPBAR_DATA
 #endif
@@ -658,7 +659,7 @@ PACK(struct ModelData {
 
   LogicalSwitchData logicalSw[MAX_LOGICAL_SWITCHES];
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
-  SwashRingData swashR;
+  SwashRingData swashR FUNC(swash_is_active);
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc);
@@ -668,7 +669,7 @@ PACK(struct ModelData {
   GVarData gvars[MAX_GVARS];
 
   NOBACKUP(VarioData varioData);
-  NOBACKUP(uint8_t rssiSource);
+  NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));
 
   TOPBAR_DATA
 
