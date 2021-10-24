@@ -22,19 +22,21 @@
 #ifndef _STRHELPERS_H_
 #define _STRHELPERS_H_
 
+#include "definitions.h"
 #include "opentx_types.h"
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
 #define SHOW_TIMER_UPPER_CASE   0x2
 #define SHOW_TIMER_HM_FORMAT    0x5
-typedef struct {
+
+PACK(typedef struct {
   uint8_t showTime:1;
   uint8_t upperCase:1;
   uint8_t numDigitGroups:3;  
   uint8_t hmFormat:1;
   uint8_t reserved:2;
-} TimerDisplayOptions;
+}) TimerDisplayOptions;
 
 typedef union  {
   uint8_t options;
