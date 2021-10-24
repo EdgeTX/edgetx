@@ -64,6 +64,13 @@ class MainWindow: public Window
 
     void checkEvents() override;
 
+#if defined(HARDWARE_TOUCH)
+    void setTouchEnabled(bool enable)
+    {
+      touchEnabled = enable;
+    }
+#endif
+
     void invalidate()
     {
       invalidate({0, 0, rect.w, rect.h});
@@ -85,4 +92,7 @@ class MainWindow: public Window
     static void emptyTrash();
     rect_t invalidatedRect;
     const char * shutdown = nullptr;
+#if defined(HARDWARE_TOUCH)
+    bool touchEnabled = true;
+#endif
 };

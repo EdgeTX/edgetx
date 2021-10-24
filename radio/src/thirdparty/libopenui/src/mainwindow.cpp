@@ -46,6 +46,9 @@ void MainWindow::checkEvents()
     touchPanelRead();
   }
 
+  if(!touchEnabled)
+       touchState.event = TE_NONE;
+
   if (touchState.event == TE_DOWN) {
     onTouchStart(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
     slidingWindow = nullptr;
