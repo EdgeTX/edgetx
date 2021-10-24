@@ -38,7 +38,6 @@ const struct YamlIdStr enum_BluetoothModes[] = {
   {  BLUETOOTH_OFF, "OFF"  },
   {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
   {  BLUETOOTH_TRAINER, "TRAINER"  },
-  {  BLUETOOTH_MAX, "MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_Functions[] = {
@@ -67,7 +66,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
   {  FUNC_RACING_MODE, "RACING_MODE"  },
-  {  FUNC_MAX, "MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_UartModes[] = {
@@ -87,8 +85,6 @@ const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_THR, "THR"  },
   {  TMRMODE_THR_REL, "THR_REL"  },
   {  TMRMODE_THR_START, "THR_START"  },
-  {  TMRMODE_COUNT, "COUNT"  },
-  {  TMRMODE_MAX, "MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_MixerMultiplex[] = {
@@ -177,7 +173,6 @@ const struct YamlIdStr enum_SwashType[] = {
   {  SWASH_TYPE_120X, "TYPE_120X"  },
   {  SWASH_TYPE_140, "TYPE_140"  },
   {  SWASH_TYPE_90, "TYPE_90"  },
-  {  SWASH_TYPE_MAX, "TYPE_MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwitchSources[] = {
@@ -242,6 +237,23 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
   {  MODULE_TYPE_COUNT, "TYPE_COUNT"  },
   {  MODULE_TYPE_MAX, "TYPE_MAX"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_TelemetrySensorFormula[] = {
+  {  TELEM_FORMULA_ADD, "FORMULA_ADD"  },
+  {  TELEM_FORMULA_AVERAGE, "FORMULA_AVERAGE"  },
+  {  TELEM_FORMULA_MIN, "FORMULA_MIN"  },
+  {  TELEM_FORMULA_MAX, "FORMULA_MAX"  },
+  {  TELEM_FORMULA_MULTIPLY, "FORMULA_MULTIPLY"  },
+  {  TELEM_FORMULA_TOTALIZE, "FORMULA_TOTALIZE"  },
+  {  TELEM_FORMULA_CELL, "FORMULA_CELL"  },
+  {  TELEM_FORMULA_CONSUMPTION, "FORMULA_CONSUMPTION"  },
+  {  TELEM_FORMULA_DIST, "FORMULA_DIST"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_TelemetrySensorType[] = {
+  {  TELEM_TYPE_CUSTOM, "TYPE_CUSTOM"  },
+  {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
   {  0, NULL  }
 };
 
@@ -673,7 +685,7 @@ static const struct YamlNode struct_anonymous_14[] = {
 static const struct YamlNode union_anonymous_13_elmts[] = {
   YAML_STRUCT("frskyInstance", 8, struct_anonymous_14, NULL),
   YAML_UNSIGNED( "instance", 8 ),
-  YAML_UNSIGNED( "formula", 8 ),
+  YAML_ENUM("formula", 8, enum_TelemetrySensorFormula),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_16[] = {
@@ -717,7 +729,7 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNION("id2", 8, union_anonymous_13_elmts, select_id2),
   YAML_STRING("label", 4),
   YAML_UNSIGNED( "subId", 8 ),
-  YAML_UNSIGNED( "type", 1 ),
+  YAML_ENUM("type", 1, enum_TelemetrySensorType),
   YAML_PADDING( 1 ),
   YAML_UNSIGNED( "unit", 6 ),
   YAML_UNSIGNED( "prec", 2 ),
