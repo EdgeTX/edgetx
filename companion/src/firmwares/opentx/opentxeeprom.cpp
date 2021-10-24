@@ -2854,6 +2854,10 @@ void OpenTxModelData::beforeExport()
   }
 
   //  TODO remove when enum not radio specific requires eeprom change and conversion
+  //  Note: this must mirror reverse afterImport
+  if (!IS_FLYSKY_NV14(board))
+      modelData.trainerMode -= 1;
+
   if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
     if (!IS_TARANIS(board)) {
       modelData.trainerMode -= 2;
@@ -2890,6 +2894,10 @@ void OpenTxModelData::afterImport()
   }
 
   //  TODO remove when enum not radio specific requires eeprom change and conversion
+  //  Note: this must mirror reverse beforeExport
+  if (!IS_FLYSKY_NV14(board))
+      modelData.trainerMode += 1;
+
   if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
     if (!IS_TARANIS(board)) {
       modelData.trainerMode += 2;
