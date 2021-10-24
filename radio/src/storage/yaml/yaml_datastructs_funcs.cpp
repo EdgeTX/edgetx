@@ -42,6 +42,7 @@ namespace yaml_conv_220 {
   bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+  bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
@@ -55,6 +56,12 @@ namespace yaml_conv_220 {
   extern const char* _tele_screen_type_lookup[];
   bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
                           yaml_writer_func wf, void* opaque);
+
+  bool w_tele_sensor(const YamlNode* node, uint32_t val,
+                     yaml_writer_func wf, void* opaque);
+
+  bool w_flightModes(const YamlNode* node, uint32_t val,
+                     yaml_writer_func wf, void* opaque);
 };
 
 //
@@ -595,6 +602,11 @@ static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   return yaml_conv_220::fmd_is_active(user, data, bitoffs);
 }
 
+static bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  return yaml_conv_220::swash_is_active(user, data, bitoffs);
+}
+
 static uint32_t r_swtchWarn(const YamlNode* node, const char* val, uint8_t val_len)
 {
     // Read from string like 'AdBuC-':
@@ -812,3 +824,34 @@ static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitof
   return 0;
 }
 #endif
+
+static uint32_t r_tele_sensor(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  if (val_len == 0 || val[0] < '0' || val[0] > '9') return 0;
+  return yaml_str2uint(val, val_len) + 1;
+}
+
+static bool w_tele_sensor(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_tele_sensor(node, val, wf, opaque);
+}
+
+static uint32_t r_flightModes(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  uint32_t bits = 0;
+  uint32_t mask = 1;
+
+  for (uint32_t i = 0; i < val_len; i++) {
+    if (val[i] == '1') bits |= mask;
+    mask <<= 1;
+  }
+
+  return bits;
+}
+
+static bool w_flightModes(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_flightModes(node, val, wf, opaque);
+}

@@ -171,6 +171,15 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_MAX, "FUNC_MAX"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_SwashType[] = {
+  {  SWASH_TYPE_NONE, "TYPE_NONE"  },
+  {  SWASH_TYPE_120, "TYPE_120"  },
+  {  SWASH_TYPE_120X, "TYPE_120X"  },
+  {  SWASH_TYPE_140, "TYPE_140"  },
+  {  SWASH_TYPE_90, "TYPE_90"  },
+  {  SWASH_TYPE_MAX, "TYPE_MAX"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_NONE, "NONE"  },
   {  SWSRC_SA0, "SA0"  },
@@ -416,7 +425,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_PADDING( 1 ),
   YAML_SIGNED( "offset", 14 ),
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_UNSIGNED( "flightModes", 9 ),
+  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "delayUp", 8 ),
   YAML_UNSIGNED( "delayDown", 8 ),
@@ -445,7 +454,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_SIGNED( "carryTrim", 6 ),
   YAML_UNSIGNED( "chn", 5 ),
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_UNSIGNED( "flightModes", 9 ),
+  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
   YAML_PADDING( 1 ),
   YAML_STRING("name", 6),
@@ -480,11 +489,11 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_END
 };
 static const struct YamlNode struct_SwashRingData[] = {
-  YAML_UNSIGNED( "type", 8 ),
+  YAML_ENUM("type", 8, enum_SwashType),
   YAML_UNSIGNED( "value", 8 ),
-  YAML_UNSIGNED( "collectiveSource", 8 ),
-  YAML_UNSIGNED( "aileronSource", 8 ),
-  YAML_UNSIGNED( "elevatorSource", 8 ),
+  YAML_UNSIGNED_CUST( "collectiveSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_UNSIGNED_CUST( "aileronSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_UNSIGNED_CUST( "elevatorSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_SIGNED( "collectiveWeight", 8 ),
   YAML_SIGNED( "aileronWeight", 8 ),
   YAML_SIGNED( "elevatorWeight", 8 ),
@@ -519,7 +528,7 @@ static const struct YamlNode struct_GVarData[] = {
   YAML_END
 };
 static const struct YamlNode struct_VarioData[] = {
-  YAML_UNSIGNED( "source", 7 ),
+  YAML_UNSIGNED_CUST( "source", 7, r_tele_sensor, w_tele_sensor ),
   YAML_UNSIGNED( "centerSilent", 1 ),
   YAML_SIGNED( "centerMax", 8 ),
   YAML_SIGNED( "centerMin", 8 ),
@@ -777,14 +786,14 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
-  YAML_STRUCT("swashR", 64, struct_SwashRingData, NULL),
+  YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 288, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED( "thrTraceSrc", 8 ),
   YAML_UNSIGNED_CUST( "switchWarningState", 16, r_swtchWarn, w_swtchWarn ),
   YAML_UNSIGNED( "switchWarningEnable", 8 ),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
-  YAML_UNSIGNED( "rssiSource", 8 ),
+  YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 16, struct_RssiAlarmData, NULL),
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),

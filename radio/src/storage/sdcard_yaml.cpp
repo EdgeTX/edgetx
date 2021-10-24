@@ -188,12 +188,14 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     // YAML reader
     TRACE("YAML model reader");
 
+    bool init_model = true;
     const YamlNode* data_nodes = nullptr;
     if (size == sizeof(g_model)) {
         data_nodes = get_modeldata_nodes();
     }
     else if (size == sizeof(PartialModel)) {
         data_nodes = get_partialmodel_nodes();
+        init_model = false;
     }
     else {
         TRACE("cannot find YAML data nodes for object size (size=%d)", size);
@@ -209,16 +211,23 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     // wipe memory before reading YAML
     memset(buffer,0,size);
 
+    if (init_model) {
+      auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
-    // reset GVars to default values
-    // Note: taken from opentx.cpp::modelDefault()
-    //TODO: new func in gvars
-    for (int p=1; p<MAX_FLIGHT_MODES; p++) {
+      // reset GVars to default values
+      // Note: taken from opentx.cpp::modelDefault()
+      //TODO: new func in gvars
+      for (int p=1; p<MAX_FLIGHT_MODES; p++) {
         for (int i=0; i<MAX_GVARS; i++) {
-            g_model.flightModeData[p].gvars[i] = GVAR_MAX+1;
+          md->flightModeData[p].gvars[i] = GVAR_MAX+1;
         }
-    }
+      }
 #endif
+      // is that necessary ???
+      // md->swashR.collectiveWeight = 100;
+      // md->swashR.aileronWeight    = 100;
+      // md->swashR.elevatorWeight   = 100;
+    }
 
     *version = 255; // max version number
     return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree);

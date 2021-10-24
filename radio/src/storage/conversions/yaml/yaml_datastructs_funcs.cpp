@@ -496,6 +496,12 @@ bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   return is_active;
 }
 
+bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto swashR = reinterpret_cast<SwashRingData*>(data + (bitoffs >> 3UL));
+  return swashR->type | swashR->value;
+}
+
 #define r_swtchWarn nullptr
 
 bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
@@ -667,3 +673,28 @@ uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitoffs)
   return 0;
 }
 #endif
+
+#define r_tele_sensor nullptr
+
+bool w_tele_sensor(const YamlNode* node, uint32_t val,
+                   yaml_writer_func wf, void* opaque)
+{
+  if (!val) {
+    return wf(opaque, "none", 4);
+  }
+  
+  const char* str = yaml_unsigned2str(val-1);  
+  return wf(opaque, str, strlen(str));
+}
+
+#define r_flightModes nullptr
+
+bool w_flightModes(const YamlNode* node, uint32_t val,
+                   yaml_writer_func wf, void* opaque)
+{
+  for (uint32_t i = 0; i < node->size; i++) {
+    uint32_t bit = (val >> i) & 1;
+    if (!wf(opaque, bit ? "1" : "0", 1)) return false;
+  }
+  return true;
+}
