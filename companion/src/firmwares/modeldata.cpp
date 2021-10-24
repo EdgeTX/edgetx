@@ -177,6 +177,8 @@ void ModelData::clear()
   for (unsigned i = 0; i < CPN_MAX_SENSORS; i++)
     sensorData[i].clear();
 
+  trainerMode = TRAINER_MODE_MASTER_JACK;
+
   const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
   RadioLayout::init(layoutId, customScreens);
 }
@@ -1576,6 +1578,8 @@ QString ModelData::trainerModeToString() const
 QString ModelData::trainerModeToString(int value)
 {
   switch (value) {
+    case TRAINER_MODE_OFF:
+      return tr("OFF");
     case TRAINER_MODE_MASTER_JACK:
       return tr("Master/Jack");
     case TRAINER_MODE_SLAVE_JACK:
@@ -1600,13 +1604,15 @@ QString ModelData::trainerModeToString(int value)
 //  static
 bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value)
 {
-  if (value < 0 || value >= TRAINER_MODE_COUNT)
+  if (value < TRAINER_MODE_FIRST || value > TRAINER_MODE_LAST)
     return false;
 
   bool ret = true;
   const Board::Type board = firmware->getBoard();
 
-  if (!IS_TARANIS(board) || IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
+  if (!IS_FLYSKY_NV14(board) && value == TRAINER_MODE_OFF)
+    ret = false;
+  else if (!IS_TARANIS(board) || IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
     if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE && value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
       ret = false;
   }
@@ -1628,7 +1634,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_MODELDATA_TRAINERMODE);
 
-  for (int i = 0; i < TRAINER_MODE_COUNT; i++) {
+  for (int i = TRAINER_MODE_FIRST; i <= TRAINER_MODE_LAST; i++) {
     mdl->appendToItemList(trainerModeToString(i), i, isTrainerModeAvailable(generalSettings, firmware, i));
   }
 

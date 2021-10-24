@@ -225,7 +225,10 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       if (panelFilteredItemModels)
         ui->trainerMode->setModel(panelFilteredItemModels->getItemModel(FIM_TRAINERMODE));
       ui->trainerMode->setField(model.trainerMode);
-      connect(ui->trainerMode, SIGNAL(currentDataChanged(int)), this, SLOT(update()));
+      connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
+              update();
+              emit modified();
+      });
     }
   }
   else {
