@@ -174,9 +174,10 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
   div_t qr;
   int val = abs(tme);
   uint8_t digit_group = 0;
-  bool bLowerCase = !(timerOptions.options & SHOW_TIMER_UPPER_CASE);
-  bool showTime = timerOptions.options & SHOW_TIME;
+  const bool bLowerCase = !(timerOptions.options & SHOW_TIMER_UPPER_CASE);
+  const bool showTime = timerOptions.options & SHOW_TIME;
   uint8_t numDigitGroupRequired = (timerOptions.options >> 2) & 0x7;
+  const bool hmFormat = timerOptions.options & SHOW_TIMER_HM_FORMAT;
 
   if(!numDigitGroupRequired) numDigitGroupRequired = 3;
 
@@ -195,6 +196,10 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
     val = qr.rem;
     digit_group++;
   }
+   if (digit_group == numDigitGroupRequired) {
+    *s = 0;
+    return dest;
+  } 
   // days
   qr = div((int)val, SECONDSPERDAY);
   if (qr.quot != 0 || digit_group != 0) {
@@ -205,15 +210,27 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
     val = qr.rem;
     digit_group++;
   }
+  if (digit_group == numDigitGroupRequired) {
+    *s = 0;
+    return dest;
+  }
   // hours
   qr = div((int)val, SECONDSPERHOUR);
   if (qr.quot != 0 || digit_group != 0) {
     qr = div((int)val, SECONDSPERHOUR);
     *s++ = '0' + (qr.quot / 10);
     *s++ = '0' + (qr.quot % 10);
-    *s++ = bLowerCase ? 'h' : 'H';
-    val = qr.rem;
     digit_group++;
+    // if format hm is selected h should be always printed
+    if (digit_group == numDigitGroupRequired && !hmFormat) {
+      *s = 0;
+      return dest;
+    }
+    if(numDigitGroupRequired < 3 || hmFormat)
+      *s++ = bLowerCase ? 'h' : 'H';
+    else
+      *s++ = ':';
+    val = qr.rem;
   }
   if (digit_group == numDigitGroupRequired) {
     *s = 0;
@@ -223,22 +240,19 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
   qr = div((int)val, SECONDSPERMIN);
   *s++ = '0' + (qr.quot / 10);
   *s++ = '0' + (qr.quot % 10);
-  if(!showTime)
-    *s++ = bLowerCase ? 'm' : 'M';
-  else
-    *s++ = ':';
   digit_group++;
   if (digit_group == numDigitGroupRequired) {
     *s = 0;
     return dest;
   }
+  if(!showTime && hmFormat)
+    *s++ = bLowerCase ? 'm' : 'M';
+  else
+    *s++ = ':';
+  
   // seconds
   *s++ = '0' + (qr.rem / 10);
   *s++ = '0' + (qr.rem % 10);
-  // if ( digit_group != 1 )   {
-  if(!showTime)
-    *s++ = bLowerCase ? 's' : 'S';
-  //}
   *s = 0;
 
   return dest;

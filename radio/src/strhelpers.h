@@ -26,12 +26,14 @@
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
-#define SHOW_TIMER_UPPER_CASE 0x2
+#define SHOW_TIMER_UPPER_CASE   0x2
+#define SHOW_TIMER_HM_FORMAT    0x5
 typedef struct {
   uint8_t showTime:1;
   uint8_t upperCase:1;
   uint8_t numDigitGroups:3;  
-  uint8_t reserved:3;
+  uint8_t hmFormat:1;
+  uint8_t reserved:2;
 } TimerDisplayOptions;
 
 typedef union  {
