@@ -1473,6 +1473,8 @@ class CustomFunctionsConversionTable: public ConversionTable {
       addConversion(FuncBacklight, val++);
       if (IS_STM32(board))
         addConversion(FuncScreenshot, val++);
+        addConversion(FuncRacingMode, val++);
+        addConversion(FuncDisableTouch, val++);
     }
 };
 

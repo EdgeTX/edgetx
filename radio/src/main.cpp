@@ -374,6 +374,8 @@ void guiMain(event_t evt)
   }
 #endif
 
+  MainWindow* mainWin = MainWindow::instance();
+  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH));
   MainWindow::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
