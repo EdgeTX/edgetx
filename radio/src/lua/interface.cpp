@@ -971,20 +971,21 @@ static bool resumeLua(bool init, bool allowLcdUsage)
   static uint8_t luaDisplayStatistics = false;
  
   // Run in the right interactive mode
-  if (allowLcdUsage != luaLcdAllowed) {
+  if (lua_status(lsScripts) == LUA_YIELD && allowLcdUsage != luaLcdAllowed) {
 #if defined(PCBTARANIS)
-    if (luaLcdAllowed && scriptInternalData[0].reference != SCRIPT_STANDALONE && menuHandlers[menuLevel] != menuViewTelemetry) {
+    uint8_t ref = scriptInternalData[idx].reference;
+    if (luaLcdAllowed && menuHandlers[menuLevel] != menuViewTelemetry && ref >= SCRIPT_TELEMETRY_FIRST && ref <= SCRIPT_TELEMETRY_LAST) {
       // Telemetry screen was exited while foreground function was preempted - finish in the background
       luaLcdAllowed = false;
-    }
-    else
+    } else
 #endif
-    if (lua_status(lsScripts) == LUA_YIELD)
+    {
       return scriptWasRun;
-    else
-      luaLcdAllowed = allowLcdUsage;
+    }
+  } else {
+    luaLcdAllowed = allowLcdUsage;
   }
- 
+  
   for (; idx < luaScriptsCount; idx++) {
     ScriptInternalData & sid = scriptInternalData[idx];
     if (sid.state != SCRIPT_OK) continue;
@@ -1161,8 +1162,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     }
   } // for
  
-  // Toggle between background and foreground scripts
-  luaLcdAllowed = !luaLcdAllowed;
+  // Start a new cycle
   idx = 0;
  
   return scriptWasRun;
