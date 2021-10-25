@@ -132,8 +132,8 @@ PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
   int32_t  v1:10;
   int32_t  v3:10;
-  int32_t  andsw:9;      // TODO rename to xswtch
-  uint32_t andswtype:1;  // TODO rename to xswtchType (AND / OR)
+  int32_t  andsw:9 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
+  uint32_t andswtype:1 SKIP;  // TODO rename to xswtchType (AND / OR)
   uint32_t spare:2 SKIP; // anything else needed?
   int16_t  v2;
   uint8_t  delay;
