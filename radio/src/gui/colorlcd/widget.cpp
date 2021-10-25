@@ -38,7 +38,8 @@ static void openWidgetMenu(Widget * parent)
   menu->addLine("Full screen", [=]() {
       parent->setFullscreen(true);
     });
-  menu->addLine(TR_WIDGET_SETTINGS, [=]() {
+  if(parent->getOptions() && parent->getOptions()->name)  
+    menu->addLine(TR_WIDGET_SETTINGS, [=]() {
       new WidgetSettings(parent, parent);
     });
 }

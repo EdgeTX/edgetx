@@ -124,14 +124,16 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup * parent, const rect_t & re
             menu->addLine(factory->getName(), [=]() {
                 container->createWidget(slotIndex, factory);
                 auto widget = container->getWidget(slotIndex);
-                new WidgetSettings(parent, widget);        
+                if(widget->getOptions() && widget->getOptions()->name)
+                  new WidgetSettings(parent, widget);        
             });
           }
       });
 
       if (container->getWidget(slotIndex)) {
-        menu->addLine(TR_WIDGET_SETTINGS, [=]() {
-            auto widget = container->getWidget(slotIndex);
+        auto widget = container->getWidget(slotIndex);
+        if(widget->getOptions() && widget->getOptions()->name)
+          menu->addLine(TR_WIDGET_SETTINGS, [=]() {
             new WidgetSettings(parent, widget);
         });
         menu->addLine(STR_REMOVE_WIDGET, [=]() {
