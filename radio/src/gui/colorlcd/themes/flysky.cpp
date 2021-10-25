@@ -391,6 +391,7 @@ class FlyskyTheme: public OpenTxTheme
     {
       dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, COLOR_THEME_PRIMARY2);
 
+      const TimerOptions timerOptions = {.options = SHOW_TIME};
       struct gtm t;
       gettime(&t);
       char str[10];
@@ -403,7 +404,7 @@ class FlyskyTheme: public OpenTxTheme
 #endif
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
 
-      getTimerString(str, getValue(MIXSRC_TX_TIME));
+      getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 

@@ -367,7 +367,9 @@ static int luaLcdDrawTimer(lua_State *L)
   char s[LEN_TIMER_STRING];
   int tme = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optunsigned(L, 4, 0);
-  getTimerString(s, tme, (flags & TIMEHOUR) != 0);
+  TimerOptions timerOptions;
+  timerOptions.options = (flags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
+  getTimerString(s, tme, timerOptions);
   drawString(L, s, flags);
   return 0;
 }

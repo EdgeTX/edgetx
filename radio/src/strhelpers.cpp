@@ -168,13 +168,18 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 #define SECONDSPERDAY (24 * SECONDSPERHOUR)
 #define SECONDSPERYEAR (365 * SECONDSPERDAY)
 
-char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
-                         bool bLowerCase)
+char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
   char *s = dest;
   div_t qr;
   int val = abs(tme);
   uint8_t digit_group = 0;
+  const bool bLowerCase = !(timerOptions.options & SHOW_TIMER_UPPER_CASE);
+  const bool showTime = timerOptions.options & SHOW_TIME;
+  uint8_t numDigitGroupRequired = (timerOptions.options >> 2) & 0x7;
+  const bool hmFormat = timerOptions.options & SHOW_TIMER_HM_FORMAT;
+
+  if(!numDigitGroupRequired) numDigitGroupRequired = 3;
 
   if (tme < 0) {
     tme = -tme;
@@ -191,6 +196,10 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
     val = qr.rem;
     digit_group++;
   }
+   if (digit_group == numDigitGroupRequired) {
+    *s = 0;
+    return dest;
+  } 
   // days
   qr = div((int)val, SECONDSPERDAY);
   if (qr.quot != 0 || digit_group != 0) {
@@ -201,17 +210,29 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
     val = qr.rem;
     digit_group++;
   }
+  if (digit_group == numDigitGroupRequired) {
+    *s = 0;
+    return dest;
+  }
   // hours
   qr = div((int)val, SECONDSPERHOUR);
   if (qr.quot != 0 || digit_group != 0) {
     qr = div((int)val, SECONDSPERHOUR);
     *s++ = '0' + (qr.quot / 10);
     *s++ = '0' + (qr.quot % 10);
-    *s++ = bLowerCase ? 'h' : 'H';
-    val = qr.rem;
     digit_group++;
+    // if format hm is selected h should be always printed
+    if (digit_group == numDigitGroupRequired && !hmFormat) {
+      *s = 0;
+      return dest;
+    }
+    if(numDigitGroupRequired < 3 || hmFormat)
+      *s++ = bLowerCase ? 'h' : 'H';
+    else
+      *s++ = ':';
+    val = qr.rem;
   }
-  if (digit_group == 3) {
+  if (digit_group == numDigitGroupRequired) {
     *s = 0;
     return dest;
   }
@@ -219,18 +240,19 @@ char *getTimerStringCase(char *dest, int32_t tme, uint8_t hours,
   qr = div((int)val, SECONDSPERMIN);
   *s++ = '0' + (qr.quot / 10);
   *s++ = '0' + (qr.quot % 10);
-  *s++ = bLowerCase ? 'm' : 'M';
   digit_group++;
-  if (digit_group == 3) {
+  if (digit_group == numDigitGroupRequired) {
     *s = 0;
     return dest;
   }
+  if(!showTime && hmFormat)
+    *s++ = bLowerCase ? 'm' : 'M';
+  else
+    *s++ = ':';
+  
   // seconds
   *s++ = '0' + (qr.rem / 10);
   *s++ = '0' + (qr.rem % 10);
-  // if ( digit_group != 1 )   {
-  *s++ = bLowerCase ? 's' : 'S';
-  //}
   *s = 0;
 
   return dest;
@@ -742,19 +764,14 @@ char *getSourceString(mixsrc_t idx)
 
 char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
 
-char *getTimerString(int32_t tme, uint8_t hours)
+char *getTimerString(int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(tmpHelpersString, tme, hours, true);
+  return getFormattedTimerString(tmpHelpersString, tme, timerOptions);
 }
 
-char *getTimerString(int32_t tme, uint8_t hours, bool bLowerCase)
+char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
-  return getTimerStringCase(tmpHelpersString, tme, hours, bLowerCase);
-}
-
-char *getTimerString(char *dest, int32_t tme, uint8_t hours)
-{
-  return getTimerStringCase(dest, tme, hours, true);
+  return getFormattedTimerString(dest, tme, timerOptions);
 }
 
 char *getSwitchPositionName(swsrc_t idx)

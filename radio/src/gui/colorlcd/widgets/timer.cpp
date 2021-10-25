@@ -22,12 +22,6 @@
 #include "opentx.h"
 #include "widgets_container_impl.h"
 
-// libopemui defines TIMOUR as zero
-#ifdef TIMEHOUR
-#undef TIMEHOUR
-#define TIMEHOUR 0x2000
-#endif
-
 class TimerWidget : public Widget
 {
  public:

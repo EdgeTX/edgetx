@@ -26,6 +26,15 @@
 #include "telemetry/telemetry_sensors.h"
 #include <stdio.h>
 
+// libopenui defines TIMOUR as zero
+#if !TIMEHOUR
+#undef TIMEHOUR
+#endif
+
+#if !defined(TIMEHOUR)
+#define TIMEHOUR 0x2000
+#endif
+
 #define OPTION_MENU_NO_FOOTER          0x01
 #define OPTION_MENU_TITLE_BAR          0x02
 #define OPTION_MENU_NO_SCROLLBAR       0x04

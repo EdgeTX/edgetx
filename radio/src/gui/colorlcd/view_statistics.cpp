@@ -20,9 +20,9 @@
  */
 
 #include "view_statistics.h"
-
-#include "libopenui.h"
 #include "opentx.h"
+#include "draw_functions.h"
+
 
 StatisticsViewPageGroup::StatisticsViewPageGroup() : TabsGroup(ICON_STATS)
 {
@@ -94,7 +94,7 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(sessionTimer, TIMEHOUR); },
+      [] { return getTimerString(sessionTimer); },
       COLOR_THEME_PRIMARY1);
 
   // Battery data
@@ -103,7 +103,7 @@ void StatisticsViewPage::build(FormWindow *window)
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
       [] {
-        return getTimerString(g_eeGeneral.globalTimer + sessionTimer, TIMEHOUR);
+        return getTimerString(g_eeGeneral.globalTimer + sessionTimer);
       },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
@@ -113,7 +113,7 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(s_timeCumThr, TIMEHOUR); },
+      [] { return getTimerString(s_timeCumThr); },
       COLOR_THEME_PRIMARY1);
 
   // Throttle %  data
@@ -121,7 +121,7 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
-      [] { return getTimerString(s_timeCum16ThrP / 16, TIMEHOUR); },
+      [] { return getTimerString(s_timeCum16ThrP / 16); },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
@@ -130,15 +130,15 @@ void StatisticsViewPage::build(FormWindow *window)
                  COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 0),
-      [] { return getTimerString(timersStates[0].val, TIMEHOUR); },
+      [] { return getTimerString(timersStates[0].val); },
       COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 1),
-      [] { return getTimerString(timersStates[1].val, TIMEHOUR); },
+      [] { return getTimerString(timersStates[1].val); },
       COLOR_THEME_PRIMARY1);
   new DynamicText(
       window, grid.getFieldSlot(3, 2),
-      [] { return getTimerString(timersStates[2].val, TIMEHOUR); },
+      [] { return getTimerString(timersStates[2].val); },
       COLOR_THEME_PRIMARY1);
   grid.nextLine();
 

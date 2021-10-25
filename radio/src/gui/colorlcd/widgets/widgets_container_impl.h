@@ -23,6 +23,7 @@
 
 #include "widget.h"
 #include "widgets_container.h"
+#include "draw_functions.h"
 
 template<int N, int O>
 class WidgetsContainerImpl: public WidgetsContainer
