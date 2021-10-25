@@ -373,7 +373,10 @@ void guiMain(event_t evt)
     maxLuaDuration = t0;
   }
 #endif
-
+#if defined(HARDWARE_TOUCH)
+  MainWindow* mainWin = MainWindow::instance();
+  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH));
+#endif
   MainWindow::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));

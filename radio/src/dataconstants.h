@@ -835,6 +835,7 @@ enum Functions {
   FUNC_BACKLIGHT,
   FUNC_SCREENSHOT,
   FUNC_RACING_MODE,
+  FUNC_DISABLE_TOUCH,
 #if defined(DEBUG)
   FUNC_TEST, // should remain the last before MAX as not added in Companion
 #endif

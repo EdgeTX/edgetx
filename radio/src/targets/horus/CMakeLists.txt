@@ -320,9 +320,9 @@ set(SRC ${SRC}
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
-  set(SRC ${SRC}
-    io/multi_protolist.cpp
-    )
+    set(SRC ${SRC}
+      io/multi_protolist.cpp
+  )
 endif()
 
 # Make malloc() thread-safe

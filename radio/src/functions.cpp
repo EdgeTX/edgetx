@@ -388,7 +388,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             }
             break;
 #endif
-
+#if defined(HARDWARE_TOUCH)
+          case FUNC_DISABLE_TOUCH:
+            newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
+        	break;
+#endif
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();

@@ -29,6 +29,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_LOGS, "LOGS"  },
   {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
+  {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
   {  FUNC_MAX, "MAX"  },
   {  0, NULL  }
 };
