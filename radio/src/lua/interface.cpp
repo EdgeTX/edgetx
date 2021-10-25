@@ -1181,7 +1181,7 @@ bool luaTask(event_t evt, bool allowLcdUsage)
   }
  
   // For preemption
-  if (!allowLcdUsage) luaCycleStart = get_tmr10ms();
+  luaCycleStart = get_tmr10ms();
  
   // Trying to replace CPU usage measure
   instructionsPercent = 100 * maxLuaDuration / LUA_TASK_PERIOD_TICKS;
