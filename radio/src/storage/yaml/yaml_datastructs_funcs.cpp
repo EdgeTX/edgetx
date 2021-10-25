@@ -62,6 +62,12 @@ namespace yaml_conv_220 {
 
   bool w_flightModes(const YamlNode* node, uint32_t val,
                      yaml_writer_func wf, void* opaque);
+
+  extern const char* _func_sound_lookup[];
+  extern const uint8_t _func_sound_lookup_size;
+  
+  bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
+                  yaml_writer_func wf, void* opaque);
 };
 
 //
@@ -854,4 +860,193 @@ static bool w_flightModes(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
   return yaml_conv_220::w_flightModes(node, val, wf, opaque);
+}
+
+static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
+                       const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  data -= offsetof(CustomFunctionData, all);
+
+  auto cfn = reinterpret_cast<CustomFunctionData*>(data);
+  uint8_t func = CFN_FUNC(cfn);
+
+  if (func == FUNC_OVERRIDE_CHANNEL) {
+    // CH index
+    CFN_CH_INDEX(cfn) = yaml_str2uint_ref(val, val_len);
+    // ","
+    if (!val_len || val[0] != ',') return;
+    // value
+    CFN_PARAM(cfn) = yaml_str2int_ref(val, val_len);
+  }
+  
+  // find "," and cut val_len
+  const char* sep = (const char *)memchr(val, ',', val_len);
+  uint8_t l_sep = sep ? sep - val : val_len;
+
+  // read values...
+  switch (func) {
+
+  case FUNC_OVERRIDE_CHANNEL:
+    break;
+
+  case FUNC_TRAINER:
+    if (l_sep == 6
+        && val[0] == 's'
+        && val[1] == 't'
+        && val[2] == 'i'
+        && val[3] == 'c'
+        && val[4] == 'k'
+        && val[5] == 's') {
+      CFN_CH_INDEX(cfn) = 0;
+    } else if (l_sep == 5
+               && val[0] == 'c'
+               && val[1] == 'h'
+               && val[2] == 'a'
+               && val[3] == 'n'
+               && val[4] == 's') {
+      CFN_CH_INDEX(cfn) = NUM_STICKS + 1;
+    } else {
+      uint32_t stick = yaml_parse_enum(enum_MixSources, val, l_sep);
+      if (stick >= MIXSRC_FIRST_STICK && stick <= MIXSRC_LAST_STICK) {
+        CFN_CH_INDEX(cfn) = stick - MIXSRC_FIRST_STICK + 1;
+      }
+    }
+    break;
+
+  case FUNC_RESET:
+    if (l_sep == 4
+        && val[0] == 'T'
+        && val[1] == 'm'
+        && val[2] == 'r'
+        && val[3] >= '1'
+        && val[3] <= '3') {
+      CFN_PARAM(cfn) = val[3] - '1';
+    } else if (l_sep == 3
+               && val[0] == 'A'
+               && val[1] == 'l'
+               && val[2] == 'l') {
+      CFN_PARAM(cfn) = FUNC_RESET_FLIGHT;
+    } else if (l_sep == 4
+               && val[0] == 'T'
+               && val[1] == 'e'
+               && val[2] == 'l'
+               && val[3] == 'e') {
+      CFN_PARAM(cfn) = FUNC_RESET_TELEMETRY;
+    } else {
+      uint32_t sensor = yaml_str2uint(val, l_sep);
+      CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
+    }
+    break;
+      
+  case FUNC_VOLUME:
+  case FUNC_BACKLIGHT:
+  case FUNC_PLAY_VALUE:
+    // find "," and cut val_len
+    CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
+    break;
+
+  case FUNC_PLAY_SOUND:
+    // find "," and cut val_len
+    for (int i=0; i < yaml_conv_220::_func_sound_lookup_size; i++) {
+      if (!strncmp(yaml_conv_220::_func_sound_lookup[i],val,l_sep)) {
+        CFN_PARAM(cfn) = i;
+        break;
+      }
+    }
+    break;
+
+  case FUNC_PLAY_TRACK:
+  case FUNC_BACKGND_MUSIC:
+  case FUNC_PLAY_SCRIPT:
+    strncpy(cfn->play.name, val, std::min<uint8_t>(l_sep, LEN_FUNCTION_NAME));
+    break;
+
+  case FUNC_SET_TIMER:
+    // Tmr1,Tmr2,Tmr3
+    if (l_sep >= 4
+        && val[0] == 'T'
+        && val[1] == 'm'
+        && val[2] == 'r'
+        && val[3] >= '1'
+        && val[3] <= '3') {
+      CFN_TIMER_INDEX(cfn) = val[3] - '1';
+    }
+    break;
+
+  case FUNC_SET_FAILSAFE:
+    // Int,Ext
+    if (l_sep == 3) {
+      if (val[0] == 'I'
+          && val[1] == 'n'
+          && val[2] == 't') {
+        CFN_PARAM(cfn) = 0;
+      } else if (val[0] == 'E'
+                 && val[1] == 'x'
+                 && val[2] == 't') {
+        CFN_PARAM(cfn) = 1;
+      }
+    }
+    break;
+
+  case FUNC_HAPTIC:
+  case FUNC_LOGS: // 10th of seconds
+    CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
+    break;
+
+  case FUNC_ADJUST_GVAR:
+    switch(CFN_GVAR_MODE(cfn)) {
+    case FUNC_ADJUST_GVAR_CONSTANT:
+    case FUNC_ADJUST_GVAR_INCDEC:
+      CFN_PARAM(cfn) = yaml_str2int(val, l_sep);
+      break;
+    case FUNC_ADJUST_GVAR_SOURCE:
+      CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
+      break;
+    case FUNC_ADJUST_GVAR_GVAR: {
+      uint32_t gvar = r_mixSrcRaw(nullptr, val, l_sep);
+      if (gvar >= MIXSRC_FIRST_GVAR) {
+        CFN_PARAM(cfn) = gvar - MIXSRC_FIRST_GVAR;
+      }
+    } break;
+    } break;
+  }
+
+  val += l_sep;
+  val_len -= l_sep;
+
+  if (val_len == 0 || val[0] != ',')
+    return;
+
+  val++; val_len--;
+  if (HAS_ENABLE_PARAM(func)) {
+    // "0/1"
+    if (val_len > 0) {
+      if (val[0] == '0') {
+        CFN_ACTIVE(cfn) = 0;
+      } else if (val[0] == '1') {
+        CFN_ACTIVE(cfn) = 1;
+      }
+    }
+  } else if (HAS_REPEAT_PARAM(func)) {
+    if (val_len == 2
+        && val[0] == '1'
+        && val[1] == 'x') {
+      CFN_PLAY_REPEAT(cfn) = 0;
+    } else if (val_len == 3
+        && val[0] == '!'
+        && val[1] == '1'
+        && val[2] == 'x') {
+      CFN_PLAY_REPEAT(cfn) = CFN_PLAY_REPEAT_NOSTART;
+    } else {
+      // repeat time in seconds
+      CFN_PLAY_REPEAT(cfn) = yaml_str2uint(val,val_len) / CFN_PLAY_REPEAT_MUL;
+    }
+  }
+}
+
+static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
+                       yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_customFn(user, data, bitoffs, wf, opaque);
 }

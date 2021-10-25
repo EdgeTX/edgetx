@@ -210,23 +210,7 @@ uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     return 0;
 }
 
-uint8_t select_custom_fn(void* user, uint8_t* data, uint32_t bitoffs)
-{
-    data += bitoffs >> 3UL;
-    data -= offsetof(CustomFunctionData, all);
-
-    auto cf = reinterpret_cast<CustomFunctionData*>(data);
-    switch(cf->func) {
-    case FUNC_PLAY_TRACK:
-    case FUNC_BACKGND_MUSIC:
-    case FUNC_PLAY_SCRIPT:
-        // play: 0
-        return 0;
-    }
     
-    // all:  1
-    return 1;
-}
 
 uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 {
@@ -695,6 +679,147 @@ bool w_flightModes(const YamlNode* node, uint32_t val,
   for (uint32_t i = 0; i < node->size; i++) {
     uint32_t bit = (val >> i) & 1;
     if (!wf(opaque, bit ? "1" : "0", 1)) return false;
+  }
+  return true;
+}
+
+#define r_customFn nullptr
+
+static const char* _func_reset_param_lookup[] = {
+  "Tmr1","Tmr2","Tmr3","All","Tele"
+};
+
+static const char* _func_failsafe_lookup[] = {
+  "Int","Ext"
+};
+
+// used in read routine as well
+const char* _func_sound_lookup[] = {
+  "Bp1","Bp2","Bp3","Wrn1","Wrn2",
+  "Chee","Rata","Tick","Sirn","Ring",
+  "SciF","Robt","Chrp","Tada","Crck","Alrm"
+};
+
+// force external linkage
+extern const uint8_t _func_sound_lookup_size = sizeof(_func_sound_lookup);
+
+bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
+                yaml_writer_func wf, void* opaque)
+{
+  data += bitoffs >> 3UL;
+  data -= offsetof(CustomFunctionData, all);
+
+  auto cfn = reinterpret_cast<CustomFunctionData*>(data);
+  uint8_t func = CFN_FUNC(cfn);
+
+  const char* str = nullptr;
+  switch (func) {
+  case FUNC_OVERRIDE_CHANNEL:
+    str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque, ",", 1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));    // value
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_TRAINER: {
+    int16_t value = CFN_CH_INDEX(cfn);
+    switch(value) {
+    case 0:
+      if (!wf(opaque, "sticks", 6)) return false;
+      break;
+    case NUM_STICKS + 1:
+      if (!wf(opaque, "chans", 5)) return false;
+      break;
+    default:
+      if (value > 0 && value < NUM_STICKS + 1) {
+        str = yaml_output_enum(value - 1 + MIXSRC_FIRST_STICK, enum_MixSources);
+        if (str && !wf(opaque, str, strlen(str))) return false;
+      }
+    }
+  } break;
+
+  case FUNC_RESET:
+    if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
+      // Tmr1,Tmr2,Tmr3,All
+      str = _func_reset_param_lookup[CFN_PARAM(cfn)];
+    } else {
+      // sensor index
+      str = yaml_unsigned2str(CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM);
+    }
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+      
+  case FUNC_VOLUME:
+  case FUNC_BACKLIGHT:
+  case FUNC_PLAY_VALUE:
+    if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+    break;
+
+  case FUNC_PLAY_SOUND:
+    // Bp1,Bp2,Bp3,Wrn1,Wrn2,Chee,Rata,Tick,Sirn,Ring,SciF,Robt,Chrp,Tada,Crck,Alrm
+    str = _func_sound_lookup[CFN_PARAM(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_PLAY_TRACK:
+  case FUNC_BACKGND_MUSIC:
+  case FUNC_PLAY_SCRIPT:
+    if (!wf(opaque, cfn->play.name, strnlen(cfn->play.name, LEN_FUNCTION_NAME)))
+      return false;
+    break;
+
+  case FUNC_SET_TIMER:
+    // Tmr1,Tmr2,Tmr3
+    str = _func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_SET_FAILSAFE:
+    // Int,Ext
+    str = _func_failsafe_lookup[CFN_PARAM(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_HAPTIC:
+  case FUNC_LOGS: // 10th of seconds
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_ADJUST_GVAR:
+    switch(CFN_GVAR_MODE(cfn)) {
+    case FUNC_ADJUST_GVAR_CONSTANT:
+    case FUNC_ADJUST_GVAR_INCDEC:
+      str = yaml_signed2str(CFN_PARAM(cfn));
+      if (!wf(opaque, str, strlen(str))) return false;
+      break;
+    case FUNC_ADJUST_GVAR_SOURCE:
+      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+      break;
+    case FUNC_ADJUST_GVAR_GVAR:
+      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
+      break;
+    }
+  }
+
+  if (HAS_ENABLE_PARAM(func)) {
+    // ",0/1"
+    if (!wf(opaque,CFN_ACTIVE(cfn) ? ",1":",0",2)) return false;
+  } else if (HAS_REPEAT_PARAM(func)) {
+    // ","
+    if (!wf(opaque,",",1)) return false;
+    if (CFN_PLAY_REPEAT(cfn) == 0) {
+      // "1x"
+      if (!wf(opaque,"1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+      // "!1x"
+      if (!wf(opaque,"!1x",3)) return false;
+    } else {
+      // repeat time in seconds
+      str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
+      if (!wf(opaque, str, strlen(str))) return false;
+    }
   }
   return true;
 }

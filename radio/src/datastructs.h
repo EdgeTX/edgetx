@@ -154,6 +154,7 @@ PACK(struct LogicalSwitchData {
 PACK(struct CustomFunctionData {
   int16_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
   uint16_t func:7 ENUM(Functions);
+  CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
       char name[LEN_FUNCTION_NAME];
@@ -163,15 +164,15 @@ PACK(struct CustomFunctionData {
       int16_t val;
       uint8_t mode;
       uint8_t param;
-      NOBACKUP(CFN_SPARE_TYPE spare SKIP);
+      NOBACKUP(CFN_SPARE_TYPE spare);
     }) all;
 
     NOBACKUP(PACK(struct {
       int32_t val1;
-      NOBACKUP(CFN_SPARE_TYPE val2 SKIP);
+      NOBACKUP(CFN_SPARE_TYPE val2);
     }) clear);
-  }) NAME(fp) FUNC(select_custom_fn);
-  uint8_t active;
+  }) SKIP;
+  uint8_t active SKIP;
 
   bool isEmpty() const
   {
