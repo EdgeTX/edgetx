@@ -821,7 +821,8 @@ static int luaLcdGetColor(lua_State *L)
 }
 
 /*luadoc
-@function lcd.RGB(r, g, b | rgb)
+@function lcd.RGB(r, g, b | rgb) deprecated, please replace by
+@function lcd.setColorFlag(r, g, b | rgb)
 
 Returns a drawing flag with RGB color code
 
@@ -835,11 +836,11 @@ Returns a drawing flag with RGB color code
 
 @retval flag with RGB565 color
 
-@notice Only available on radios with color display. Use *either* lcd.RGB(r,g,b) *or* lcd.RGB(rgb)
+@notice Only available on radios with color display. Use *either* lcd.setColorFlag(r,g,b) *or* lcd.setColorFlag(rgb)
 
 @status current Introduced in 2.2.0
 */
-static int luaRGB(lua_State *L)
+static int luaLcdSetColorFlag(lua_State *L)
 {
   int r, g, b;
   if (lua_gettop(L) == 1) {
@@ -1259,7 +1260,8 @@ const luaL_Reg lcdLib[] = {
   { "drawBitmap", luaLcdDrawBitmap },
   { "setColor", luaLcdSetColor },
   { "getColor", luaLcdGetColor },
-  { "RGB", luaRGB },
+  { "RGB", luaLcdSetColorFlag },
+  { "setColorFlag", luaLcdSetColorFlag},
   { "drawCircle", luaLcdDrawCircle },
   { "drawFilledCircle", luaLcdDrawFilledCircle },
   { "drawTriangle", luaLcdDrawTriangle },
