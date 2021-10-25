@@ -280,12 +280,12 @@ static const struct YamlNode struct_anonymous_2[] = {
   YAML_SIGNED( "val", 16 ),
   YAML_UNSIGNED( "mode", 8 ),
   YAML_UNSIGNED( "param", 8 ),
-  YAML_PADDING( 32 ),
+  YAML_SIGNED( "spare", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_3[] = {
   YAML_SIGNED( "val1", 32 ),
-  YAML_PADDING( 32 ),
+  YAML_SIGNED( "val2", 32 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_0_elmts[] = {
@@ -298,8 +298,9 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_IDX,
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
   YAML_ENUM("func", 7, enum_Functions),
-  YAML_UNION("fp", 64, union_anonymous_0_elmts, select_custom_fn),
-  YAML_UNSIGNED( "active", 8 ),
+  YAML_CUSTOM("def",r_customFn,w_customFn),
+  YAML_PADDING( 64 ),
+  YAML_PADDING( 8 ),
   YAML_END
 };
 static const struct YamlNode struct_string_24[] = {
