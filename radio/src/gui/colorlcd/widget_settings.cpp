@@ -79,6 +79,7 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
                      },
                      [=](int8_t newValue) {
                          widget->getOptionValue(optIdx)->boolValue = newValue;
+                         SET_DIRTY();
                      });
         break;
 
@@ -96,6 +97,7 @@ WidgetSettings::WidgetSettings(Window * parent, Widget * widget) :
                                    },
                                    [=](int newValue) {   // setValue
                                        widget->getOptionValue(optIdx)->unsignedValue = (uint32_t) newValue;
+                                       SET_DIRTY();
                                    });
         break;
       }
