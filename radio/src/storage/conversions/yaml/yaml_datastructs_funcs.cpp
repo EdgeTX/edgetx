@@ -465,11 +465,11 @@ bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 
   // FM0 defaults to all 0
   if (idx == 0) {
-    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData));
+    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
   }
 
   // assumes gvars array is last
-  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars));
+  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars) << 3UL);
 
   data += bitoffs >> 3UL;
   FlightModeData* fmd = (FlightModeData*)(data);

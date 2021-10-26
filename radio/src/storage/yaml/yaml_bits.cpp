@@ -88,9 +88,34 @@ uint32_t yaml_get_bits(uint8_t* src, uint32_t bit_ofs, uint32_t bits)
     return i;
 }
 
+// if the start address is not aligned on a byte,
+// checking max 32 bits is supported.
 bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits)
 {
-    return !yaml_get_bits(data + (bitoffs>>3UL), bitoffs & 0x7, bits);
+  data += bitoffs >> 3;
+  bitoffs &= 0x7;
+
+  if (bitoffs) {
+    return !yaml_get_bits(data, bitoffs, bits);
+  }
+
+  while (bits >= 32) {
+    if (*(uint32_t*)data) return false;
+    data += 4;
+    bits -= 32;
+  }
+
+  while (bits >= 8) {
+    if (*data) return false;
+    data++;
+    bits -= 8;
+  }
+
+  if (bits) {
+    return !yaml_get_bits(data, 0, bits);
+  }
+
+  return true;
 }
 
 int32_t yaml_str2int_ref(const char*& val, uint8_t& val_len)
