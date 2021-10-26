@@ -29,10 +29,15 @@
 
 #define MIN(a,b) (a < b ? a : b)
 
-static void copy_string(char* dst, const char* src, uint8_t len)
+static void copy_string(char* dst, uint8_t dst_len, const char* src,
+                        uint8_t src_len)
 {
-    memcpy(dst,src,len);
-    dst[len] = '\0';
+  if (src_len < dst_len) {
+    memcpy(dst, src, src_len);
+    dst[src_len] = '\0';
+  } else {
+    memcpy(dst, src, dst_len);
+  }
 }
 
 uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8_t val_len)
@@ -63,7 +68,7 @@ static void yaml_set_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
 
   if (node->type == YDT_STRING) {
     // assert(!bit_ofs);
-    copy_string((char*)ptr, val, MIN(val_len, node->size - 1));
+    copy_string((char*)ptr, node->size >> 3, val, val_len);
     return;
   }
 
@@ -112,7 +117,7 @@ static bool yaml_output_string(const char* str, uint32_t max_len,
     if (!wf(opaque, "\"", 1))
         return false;
     
-    while(*str && max_len > 0) {
+    while(max_len > 0 && *str) {
         if (*str >= 0x20 && *str <= 0x7E) {
             if (!wf(opaque, str++, 1)) return false;
             max_len--;

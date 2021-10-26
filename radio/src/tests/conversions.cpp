@@ -23,6 +23,14 @@
 #include "storage/conversions/conversions.h"
 #include "location.h"
 
+#if defined(EEPROM) || defined(EEPROM_RLC)
+#include <storage/eeprom_common.h>
+#endif
+
+#if defined(SDCARD_YAML)
+const char * loadRadioSettingsYaml();
+#endif
+
 #if defined(EEPROM_SIZE)
 void loadEEPROMFile(const char * filename)
 {
@@ -31,16 +39,25 @@ void loadEEPROMFile(const char * filename)
 }
 #endif
 
-#if defined(PCBX9DP) && defined(EEPROM)
+#if defined(PCBX9DP) && (defined(EEPROM) || defined(EEPROM_RLC))
 TEST(Conversions, ConversionX9DPFrom23)
 {
-  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+.bin");
+#if defined(SDCARD_YAML)
+  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_x9dp/", TESTS_BUILD_PATH "/model_x9dp/");
+#endif
 
+  loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+.bin");
   eepromOpen();
+#if defined(EEPROM)
   eeLoadGeneralSettingsData();
   convertRadioData_219_to_220(g_eeGeneral);
+#else
+  convertRadioData_219_to_220();
+  convertRadioData_220_to_221();
+  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+#endif
   eeConvertModel(0, 219);
-  eeLoadModel(0);
+  loadModel((uint8_t)0);
 
   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
@@ -88,10 +105,16 @@ TEST(Conversions, ConversionX9DPFrom23_2)
   loadEEPROMFile(TESTS_PATH "/eeprom_23_x9d+2.bin");
 
   eepromOpen();
+#if defined(EEPROM)
   eeLoadGeneralSettingsData();
   convertRadioData_219_to_220(g_eeGeneral);
+#else
+  convertRadioData_219_to_220();
+  convertRadioData_220_to_221();
+  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+#endif
   eeConvertModel(6, 219);
-  eeLoadModel(6);
+  loadModel((uint8_t)6);
 
   EXPECT_EQ(710, g_eeGeneral.calib[0].spanNeg);
   EXPECT_EQ(944, g_eeGeneral.calib[0].mid);

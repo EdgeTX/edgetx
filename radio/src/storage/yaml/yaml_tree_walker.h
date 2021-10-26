@@ -89,7 +89,8 @@ class YamlTreeWalker
     }
 
     inline bool isParentArrayElmt() {
-        return !empty() && stack[stack_level + 1].flags & FLAG_STATE_ARRAY_ELMT;
+        return (stack_level + 1 < NODE_STACK_DEPTH)
+            && stack[stack_level + 1].flags & FLAG_STATE_ARRAY_ELMT;
     }
 
     inline void setArrayElmt(bool set) {
