@@ -23,6 +23,7 @@
 
 #include "opentx.h"
 #include "tabsgroup.h"
+#include "switches.h"
 
 constexpr coord_t CSW_1ST_COLUMN = 50;
 constexpr coord_t CSW_2ND_COLUMN = 120;
