@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 enum LogicalSwitchFields {
   LS_FIELD_FUNCTION,

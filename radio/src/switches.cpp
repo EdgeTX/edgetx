@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 #define CS_LAST_VALUE_INIT -32768
 
@@ -881,6 +882,10 @@ uint8_t lswFamily(uint8_t func)
     return LS_FAMILY_TIMER+func-LS_FUNC_TIMER;
 }
 
+// val = [-129,-110] => [0,19]     (step  1)
+// val = [-109,6]    => [20,595]   (step  5)
+// val = [7,122]     => [600,1750] (step 10)
+//
 int16_t lswTimerValue(delayval_t val)
 {
   return (val < -109 ? 129+val : (val < 7 ? (113+val)*5 : (53+val)*10));

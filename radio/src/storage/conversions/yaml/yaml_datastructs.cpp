@@ -28,6 +28,8 @@
 #include <debug.h>
 #include <string.h>
 
+#include "switches.h"
+
 namespace yaml_conv_220 {
 
 #include "yaml_datastructs_funcs.cpp"

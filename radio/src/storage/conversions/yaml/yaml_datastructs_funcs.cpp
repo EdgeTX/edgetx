@@ -823,3 +823,66 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   }
   return true;
 }
+
+#define r_logicSw nullptr
+
+static const struct YamlNode _ls_node_v1 = YAML_PADDING(10);
+static const struct YamlNode _ls_node_v2 = YAML_PADDING(16);
+
+bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
+               yaml_writer_func wf, void* opaque)
+{
+  data += bitoffs >> 3UL;
+  data -= sizeof(LogicalSwitchData::func);
+
+  const char* str = nullptr;
+  auto ls = reinterpret_cast<LogicalSwitchData*>(data);
+  switch(lswFamily(ls->func)) {
+  
+  case LS_FAMILY_BOOL:
+  case LS_FAMILY_STICKY:
+    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_swtchSrc(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    break;
+
+  case LS_FAMILY_EDGE:
+    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(lswTimerValue(ls->v2));
+    if (!wf(opaque,str,strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (ls->v3 < 0) {
+      if (!wf(opaque,"<",1)) return false;
+    } else if(ls->v3 == 0) {
+      if (!wf(opaque,"-",1)) return false;
+    } else {
+      str = yaml_unsigned2str(lswTimerValue(ls->v2 + ls->v3));
+    }
+    break;
+    
+  case LS_FAMILY_COMP:
+    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_mixSrcRaw(nullptr, ls->v2, wf, opaque)) return false;
+    break;
+    
+  case LS_FAMILY_TIMER:
+    str = yaml_unsigned2str(lswTimerValue(ls->v1));
+    if (!wf(opaque,str,strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(lswTimerValue(ls->v2));
+    if (!wf(opaque,str,strlen(str))) return false;
+    break;
+    
+  default:
+    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
+    str = yaml_signed2str(ls->v2);
+    if (!wf(opaque,str,strlen(str))) return false;
+    break;
+  }
+
+  return true;
+}

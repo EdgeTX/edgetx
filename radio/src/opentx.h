@@ -818,20 +818,6 @@ inline bool isMixActive(uint8_t mix)
   return swOn[mix].activeMix;
 }
 
-enum LogicalSwitchFamilies {
-  LS_FAMILY_OFS,
-  LS_FAMILY_BOOL,
-  LS_FAMILY_COMP,
-  LS_FAMILY_DIFF,
-  LS_FAMILY_TIMER,
-  LS_FAMILY_STICKY,
-  LS_FAMILY_RANGE,
-  LS_FAMILY_EDGE
-};
-
-uint8_t lswFamily(uint8_t func);
-int16_t lswTimerValue(delayval_t val);
-
 enum FunctionsActive {
   FUNCTION_TRAINER_STICK1,
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + NUM_STICKS,

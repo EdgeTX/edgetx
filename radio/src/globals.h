@@ -61,7 +61,7 @@ enum MainRequest {
 extern uint8_t mainRequestFlags;
 
 #define DELAY_POS_MARGIN   3
-typedef int16_t delayval_t;
+
 PACK(struct SwOn {
   uint16_t delay:14; // max = 2550
   uint8_t  activeMix:1;

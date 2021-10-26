@@ -130,12 +130,13 @@ PACK(struct LimitData {
 
 PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
-  int32_t  v1:10;
-  int32_t  v3:10;
+  CUST_ATTR(def,r_logicSw,w_logicSw);
+  int32_t  v1:10 SKIP;
+  int32_t  v3:10 SKIP;
   int32_t  andsw:9 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
   uint32_t andswtype:1 SKIP;  // TODO rename to xswtchType (AND / OR)
   uint32_t spare:2 SKIP; // anything else needed?
-  int16_t  v2;
+  int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
 });
@@ -171,7 +172,7 @@ PACK(struct CustomFunctionData {
       int32_t val1;
       NOBACKUP(CFN_SPARE_TYPE val2);
     }) clear);
-  }) SKIP;
+  }) NAME(fp) SKIP;
   uint8_t active SKIP;
 
   bool isEmpty() const

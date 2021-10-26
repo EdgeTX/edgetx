@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers.h"
+#include "switches.h"
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
