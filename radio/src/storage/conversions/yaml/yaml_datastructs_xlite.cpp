@@ -483,12 +483,13 @@ static const struct YamlNode struct_signed_8[] = {
 static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_IDX,
   YAML_ENUM("func", 8, enum_LogicalSwitchesFunctions),
-  YAML_SIGNED( "v1", 10 ),
-  YAML_SIGNED( "v3", 10 ),
+  YAML_CUSTOM("def",r_logicSw,w_logicSw),
+  YAML_PADDING( 10 ),
+  YAML_PADDING( 10 ),
   YAML_SIGNED_CUST( "andsw", 9, r_swtchSrc, w_swtchSrc ),
   YAML_PADDING( 1 ),
   YAML_PADDING( 2 ),
-  YAML_SIGNED( "v2", 16 ),
+  YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
   YAML_END

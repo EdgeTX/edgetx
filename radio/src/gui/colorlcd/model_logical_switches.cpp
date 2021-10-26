@@ -22,6 +22,7 @@
 #include "model_logical_switches.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "switches.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 

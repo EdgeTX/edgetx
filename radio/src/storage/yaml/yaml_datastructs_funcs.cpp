@@ -67,6 +67,9 @@ namespace yaml_conv_220 {
   
   bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                   yaml_writer_func wf, void* opaque);
+
+  bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque);
 };
 
 //
@@ -1043,4 +1046,92 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                        yaml_writer_func wf, void* opaque)
 {
   return yaml_conv_220::w_customFn(user, data, bitoffs, wf, opaque);
+}
+
+#include "switches.h"
+
+static delayval_t timerValue2lsw(uint32_t t)
+{
+  if (t < 20) {
+    return t - 129;
+  } else if (600) {
+    return t / 5 - 113;
+  } else {
+    return t / 10 - 53;
+  }
+}
+
+static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
+                      const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  data -= sizeof(LogicalSwitchData::func);
+
+  // find "," and cut val_len
+  const char* sep = (const char *)memchr(val, ',', val_len);
+  uint8_t l_sep = sep ? sep - val : val_len;
+
+  auto ls = reinterpret_cast<LogicalSwitchData*>(data);
+  switch(lswFamily(ls->func)) {
+  
+  case LS_FAMILY_BOOL:
+  case LS_FAMILY_STICKY:
+    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    ls->v2 = r_swtchSrc(nullptr, val, val_len);
+    break;
+
+  case LS_FAMILY_EDGE:
+    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    ls->v2 = timerValue2lsw(yaml_str2uint_ref(val, val_len));
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    if (val_len == 1) {
+      if (val[0] == '<')
+        ls->v3 = -1;
+      else if (val[0] == '-')
+        ls->v3 = 0;
+    } else {
+      int16_t t = (int16_t)timerValue2lsw(yaml_str2uint_ref(val, val_len));
+      ls->v3 = t - ls->v2;
+    }
+    break;
+    
+  case LS_FAMILY_COMP:
+    ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    ls->v2 = r_mixSrcRaw(nullptr, val, val_len);
+    break;
+    
+  case LS_FAMILY_TIMER:
+    ls->v1 = timerValue2lsw(yaml_str2uint(val, l_sep));
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
+    break;
+    
+  default:
+    ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
+    ls->v2 = yaml_str2int_ref(val, val_len);
+    break;
+  }
+
+}
+
+static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
+                      yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_logicSw(user, data, bitoffs, wf, opaque);
 }
