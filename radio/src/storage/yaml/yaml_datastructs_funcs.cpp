@@ -32,7 +32,6 @@ namespace yaml_conv_220 {
   bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_custom_fn(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs);
@@ -270,11 +269,6 @@ static uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return yaml_conv_220::select_mod_type(user, data, bitoffs);
-}
-
-static uint8_t select_custom_fn(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  return yaml_conv_220::select_custom_fn(user, data, bitoffs);
 }
 
 static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
