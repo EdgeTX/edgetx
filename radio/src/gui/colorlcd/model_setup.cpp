@@ -1537,7 +1537,7 @@ void ModelSetupPage::build(FormWindow * window)
     // Timer name
     new StaticText(window, grid.getLabelSlot(true), STR_NAME, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
-    new RadioTextEdit(group, timerGrid.getSlot(), timer->name, LEN_TIMER_NAME);
+    new ModelTextEdit(group, timerGrid.getSlot(), timer->name, LEN_TIMER_NAME);
     timerGrid.nextLine();
 
     // Timer mode
