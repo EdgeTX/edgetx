@@ -258,15 +258,20 @@ TEST(Conversions, ConversionX7From23)
 }
 #endif
 
-#if 0 //TODO defined(PCBX10) && !defined(RADIO_FAMILY_T16)
-TEST(Conversions, ConversionX10From22)
+#if defined(PCBX10) && !defined(RADIO_FAMILY_T16)
+TEST(Conversions, ConversionX10From23)
 {
-  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_22_x10/", TESTS_BUILD_PATH "/model_22_x10/");
+  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_23_x10/", TESTS_BUILD_PATH "/model_23_x10/");
 
-  loadRadioSettings("/RADIO/radio.bin");
-  loadModel("model1.bin");
+  convertRadioData_219_to_220("/RADIO/radio.bin");
+  convertRadioData_220_to_221("/RADIO/radio.bin");
+  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
 
-  EXPECT_EQ(219, g_eeGeneral.version);
+  char modelname[] = "model1.bin";
+  convertBinModelData(modelname, 219);
+  loadModel(modelname);
+
+  EXPECT_EQ(220, g_eeGeneral.version); // TODO: 221?
 
   EXPECT_EQ(100, g_eeGeneral.calib[9].spanNeg);
   EXPECT_EQ(500, g_eeGeneral.calib[9].mid);
@@ -279,7 +284,7 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(-23, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
   EXPECT_STRNEQ("en", g_eeGeneral.ttsLanguage);
-  EXPECT_STRNEQ("model1.bin", g_eeGeneral.currModelFilename);
+  EXPECT_STRNEQ("model1.yml", g_eeGeneral.currModelFilename);
 
   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
@@ -289,16 +294,13 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(FUNC_VOLUME, g_eeGeneral.customFn[1].func);
   EXPECT_EQ(MIXSRC_RS, g_eeGeneral.customFn[1].all.val);
 
-  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
+  EXPECT_STRNEQ("Tes", g_eeGeneral.switchNames[0]);
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
-  EXPECT_ZSTREQ("BT_X10", g_eeGeneral.bluetoothName);
-  EXPECT_STREQ("Default", g_eeGeneral.themeName);
+  EXPECT_STRNEQ("BT_X10", g_eeGeneral.bluetoothName);
+  EXPECT_STREQ("EdgeTX", g_eeGeneral.themeName);
 
-  EXPECT_EQ(WHITE, g_eeGeneral.themeData.options[0].value.unsignedValue);
-  EXPECT_EQ(RED, g_eeGeneral.themeData.options[1].value.unsignedValue);
-
-  EXPECT_ZSTREQ("Test", g_model.header.name);
+  EXPECT_STRNEQ("Test", g_model.header.name);
   EXPECT_EQ(0, g_model.noGlobalFunctions);
   EXPECT_EQ(0, g_model.beepANACenter);
   EXPECT_EQ(80, g_model.mixData[0].weight);
@@ -315,38 +317,37 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(20, g_model.logicalSw[1].v2);
   EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH, g_model.logicalSw[1].andsw);
   EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
-  EXPECT_ZSTREQ("Tes", g_model.flightModeData[0].name);
+  EXPECT_STRNEQ("Tes", g_model.flightModeData[0].name);
   EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-  EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
+  EXPECT_STRNEQ("Tes", g_model.gvars[0].name);
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
-  EXPECT_ZSTREQ("Rud", g_model.inputNames[0]);
-  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
+  EXPECT_STRNEQ("Rud", g_model.inputNames[0]);
+  EXPECT_STRNEQ("Tes", g_model.telemetrySensors[0].label);
   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
   EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ((NUM_POTS + NUM_SLIDERS + 3), g_model.thrTraceSrc); // CH3
-
-  EXPECT_STREQ("Layout2P1", g_model.screenData[0].LayoutId);
-  EXPECT_STREQ("ModelBmp", g_model.screenData[0].layoutData.zones[0].widgetName);
-  EXPECT_STREQ("Value", g_model.topbarData.zones[0].widgetName);
-  EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.topbarData.zones[0].widgetData.options[0].value.unsignedValue);
-  EXPECT_EQ(MIXSRC_RS, g_model.screenData[0].layoutData.zones[2].widgetData.options[0].value.unsignedValue);
 }
 #endif
 
-#if 0 //TODO defined(PCBX12S)
-TEST(Conversions, ConversionX12SFrom22)
+#if defined(PCBX12S)
+TEST(Conversions, ConversionX12SFrom23)
 {
-  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_22_x12s/", TESTS_BUILD_PATH "/model_22_x12s/");
+  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_23_x12s/", TESTS_BUILD_PATH "/model_23_x12s/");
 
-  loadRadioSettings("/RADIO/radio.bin");
-  loadModel("model1.bin");
+  convertRadioData_219_to_220("/RADIO/radio.bin");
+  convertRadioData_220_to_221("/RADIO/radio.bin");
+  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
 
-  EXPECT_EQ(219, g_eeGeneral.version);
+  char modelname[] = "model1.bin";
+  convertBinModelData(modelname, 219);
+  loadModel(modelname);
+
+  EXPECT_EQ(220, g_eeGeneral.version); // TODO: 221?
   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
   EXPECT_STRNEQ("en", g_eeGeneral.ttsLanguage);
-  EXPECT_STRNEQ("model1.bin", g_eeGeneral.currModelFilename);
+  EXPECT_STRNEQ("model1.yml", g_eeGeneral.currModelFilename);
 
   EXPECT_EQ(SWSRC_TELEMETRY_STREAMING, g_eeGeneral.customFn[0].swtch);
   EXPECT_EQ(FUNC_LOGS, g_eeGeneral.customFn[0].func);
@@ -356,16 +357,13 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_EQ(FUNC_VOLUME, g_eeGeneral.customFn[1].func);
   EXPECT_EQ(MIXSRC_RS, g_eeGeneral.customFn[1].all.val);
 
-  EXPECT_ZSTREQ("Tes", g_eeGeneral.switchNames[0]);
+  EXPECT_STRNEQ("Tes", g_eeGeneral.switchNames[0]);
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
-  EXPECT_ZSTREQ("BT", g_eeGeneral.bluetoothName);
-  EXPECT_STREQ("Default", g_eeGeneral.themeName);
+  EXPECT_STRNEQ("BT", g_eeGeneral.bluetoothName);
+  EXPECT_STREQ("EdgeTX", g_eeGeneral.themeName);
 
-  EXPECT_EQ(WHITE, g_eeGeneral.themeData.options[0].unsignedValue);
-  EXPECT_EQ(RED, g_eeGeneral.themeData.options[1].unsignedValue);
-
-  EXPECT_ZSTREQ("Test", g_model.header.name);
+  EXPECT_STRNEQ("Test", g_model.header.name);
   EXPECT_EQ(0, g_model.noGlobalFunctions);
   EXPECT_EQ(0, g_model.beepANACenter);
   EXPECT_EQ(80, g_model.mixData[0].weight);
@@ -382,22 +380,16 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_EQ(20, g_model.logicalSw[1].v2);
   EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH, g_model.logicalSw[1].andsw);
   EXPECT_EQ(SWASH_TYPE_120X, g_model.swashR.type);
-  EXPECT_ZSTREQ("Test", g_model.flightModeData[0].name);
+  EXPECT_STRNEQ("Test", g_model.flightModeData[0].name);
   EXPECT_EQ(10, g_model.flightModeData[0].gvars[0]);
-  EXPECT_ZSTREQ("Tes", g_model.gvars[0].name);
+  EXPECT_STRNEQ("Tes", g_model.gvars[0].name);
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
-  EXPECT_ZSTREQ("Rud", g_model.inputNames[0]);
-  EXPECT_ZSTREQ("Tes", g_model.telemetrySensors[0].label);
+  EXPECT_STRNEQ("Rud", g_model.inputNames[0]);
+  EXPECT_STRNEQ("Tes", g_model.telemetrySensors[0].label);
   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
   EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ((NUM_POTS + NUM_SLIDERS + 3), g_model.thrTraceSrc); // CH3
-
-  EXPECT_STREQ("Layout2P1", g_model.screenData[0].LayoutId);
-  EXPECT_STREQ("ModelBmp", g_model.screenData[0].layoutData.zones[0].widgetName);
-  EXPECT_STREQ("Value", g_model.topbarData.zones[0].widgetName);
-  EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.topbarData.zones[0].widgetData.options[0].unsignedValue);
-  EXPECT_EQ(MIXSRC_RS, g_model.screenData[0].layoutData.zones[2].widgetData.options[0].unsignedValue);
 }
 #endif
 

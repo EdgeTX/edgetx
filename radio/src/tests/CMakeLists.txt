@@ -15,7 +15,7 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
 
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
 
-    set(EXTRACT_MODEL_FILES model_22_x12s model_22_x10)
+    set(EXTRACT_MODEL_FILES model_23_x12s model_23_x10)
 
     foreach(model_file ${EXTRACT_MODEL_FILES})
       add_custom_command(
