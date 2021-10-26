@@ -272,8 +272,19 @@ class ComboChannelBar : public ChannelBar
         value = newValue;
         invalidate();
       }
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+      int newSafetyChValue = safetyCh[channel];
+      if (safetyChValue != newSafetyChValue)
+      {
+        safetyChValue = newSafetyChValue;
+        invalidate();
+      }
+#endif
     }
 
   protected:
     int value = 0;
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+    int safetyChValue = OVERRIDE_CHANNEL_UNDEFINED;
+#endif
 };
