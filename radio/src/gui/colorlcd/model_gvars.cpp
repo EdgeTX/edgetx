@@ -263,7 +263,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
   grid.spacer(8);
 
   new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-  new RadioTextEdit(window, grid.getFieldSlot(), gvar->name, LEN_GVAR_NAME);
+  new ModelTextEdit(window, grid.getFieldSlot(), gvar->name, LEN_GVAR_NAME);
 
   grid.nextLine();
 

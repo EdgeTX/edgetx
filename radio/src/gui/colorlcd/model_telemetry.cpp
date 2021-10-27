@@ -344,7 +344,7 @@ class SensorEditWindow : public Page {
 
       // Sensor name
       new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new RadioTextEdit(window, grid.getFieldSlot(), sensor->label, sizeof(sensor->label));
+      new ModelTextEdit(window, grid.getFieldSlot(), sensor->label, sizeof(sensor->label));
       grid.nextLine();
 
       // Type
