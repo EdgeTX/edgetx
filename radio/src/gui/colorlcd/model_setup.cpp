@@ -175,7 +175,7 @@ class RegisterDialog: public Dialog {
 
       // Register ID
       new StaticText(form, grid.getLabelSlot(), STR_REG_ID, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new RadioTextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID, sizeof(g_model.modelRegistrationID));
+      auto edit = new ModelTextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID, sizeof(g_model.modelRegistrationID));
       grid.nextLine();
 
       // UID
@@ -222,7 +222,7 @@ class RegisterDialog: public Dialog {
         rect_t rect = waiting->getRect();
         waiting->deleteLater();
 
-        rxName = new RadioTextEdit(&content->form, rect, reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME);
+        rxName = new ModelTextEdit(&content->form, rect, reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME);
         rect = exitButton->getRect();
         auto okButton = new TextButton(&content->form, rect, "OK",
                                     [=]() -> int8_t {

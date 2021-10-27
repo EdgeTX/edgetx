@@ -87,7 +87,7 @@ class CurveEditWindow : public Page
       // Name
       new StaticText(window, grid.getFieldSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
       grid.nextLine();
-      new RadioTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
+      new ModelTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
       grid.nextLine();
 
       // Type
@@ -169,7 +169,7 @@ class CurveEditWindow : public Page
 
       // Name
       new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new RadioTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
+      new ModelTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
       grid.nextLine();
 
       // Type
