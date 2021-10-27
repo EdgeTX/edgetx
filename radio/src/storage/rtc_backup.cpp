@@ -24,7 +24,7 @@
 
 namespace Backup {
 #define BACKUP
-#include "datastructs.h"
+#include "datastructs_private.h"
 PACK(struct RamBackupUncompressed {
   ModelData model;
   RadioData radio;
@@ -47,8 +47,13 @@ void rambackupWrite()
 {
   copyRadioData(&ramBackupUncompressed.radio, &g_eeGeneral);
   copyModelData(&ramBackupUncompressed.model, &g_model);
-  ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data), (const uint8_t *)&ramBackupUncompressed, sizeof(ramBackupUncompressed));
-  TRACE("RamBackupWrite sdsize=%d backupsize=%d rlcsize=%d", sizeof(ModelData)+sizeof(RadioData), sizeof(Backup::RamBackupUncompressed), ramBackup->size);
+  ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
+                             (const uint8_t *)&ramBackupUncompressed,
+                             sizeof(ramBackupUncompressed));
+
+  TRACE("RamBackupWrite sdsize=%d backupsize=%d rlcsize=%d",
+        sizeof(ModelData) + sizeof(RadioData),
+        sizeof(Backup::RamBackupUncompressed), ramBackup->size);
 }
 
 bool rambackupRestore()
