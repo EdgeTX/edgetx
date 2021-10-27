@@ -686,6 +686,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         menu->addLine(STR_CLEAR, [=]() {
           memset(cfn, 0, sizeof(CustomFunctionData));
           SET_DIRTY();
+          rebuild(window, i);
         });
         for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
           if (!functions[j].isEmpty()) {
