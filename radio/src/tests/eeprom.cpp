@@ -27,7 +27,7 @@ extern const char * eepromFile;
 #include "storage/rtc_backup.h"
 namespace Backup {
 #define BACKUP
-#include "datastructs.h"
+#include "datastructs_private.h"
 PACK(struct RamBackupUncompressed {
   ModelData model;
   RadioData radio;
