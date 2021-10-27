@@ -35,7 +35,6 @@ class ModelBitmapWidget: public Widget
 
     void refresh(BitmapBuffer * dc) override
     {
-      dc->setFormat(BMP_ARGB4444);
       if (buffer &&
           ((buffer->width() != width()) || (buffer->height() != height()) ||
            (deps_hash != getHash()))) {
