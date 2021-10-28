@@ -76,6 +76,9 @@ namespace yaml_conv_220 {
 
   bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                    yaml_writer_func wf, void* opaque);
+
+  bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                void* opaque);
 };
 
 //
@@ -1178,4 +1181,21 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
                       yaml_writer_func wf, void* opaque)
 {
   return yaml_conv_220::w_logicSw(user, data, bitoffs, wf, opaque);
+}
+
+static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  auto src = r_mixSrcRaw(nullptr, val, val_len);
+  auto thrSrc = source2ThrottleSource(src);
+
+  if (thrSrc < 0)
+    return 0;
+
+  return thrSrc;
+}
+
+static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                     void* opaque)
+{
+  return yaml_conv_220::w_thrSrc(node, val, wf, opaque);
 }

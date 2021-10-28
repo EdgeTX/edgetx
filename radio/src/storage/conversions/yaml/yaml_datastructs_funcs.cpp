@@ -912,3 +912,11 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
   return true;
 }
+
+#define r_thrSrc nullptr
+
+bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  auto src = throttleSource2Source(val);
+  return w_mixSrcRaw(nullptr, src, wf, opaque);
+}

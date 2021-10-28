@@ -212,6 +212,12 @@ const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_OFF, "OFF"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_PotsWarnMode[] = {
+  {  POTS_WARN_OFF, "WARN_OFF"  },
+  {  POTS_WARN_MANUAL, "WARN_MANUAL"  },
+  {  POTS_WARN_AUTO, "WARN_AUTO"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_NONE, "TYPE_NONE"  },
   {  MODULE_TYPE_PPM, "TYPE_PPM"  },
@@ -798,7 +804,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 288, 9, struct_FlightModeData, fmd_is_active),
-  YAML_UNSIGNED( "thrTraceSrc", 8 ),
+  YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_UNSIGNED_CUST( "switchWarningState", 16, r_swtchWarn, w_swtchWarn ),
   YAML_UNSIGNED( "switchWarningEnable", 8 ),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
@@ -807,7 +813,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("rssiAlarms", 16, struct_RssiAlarmData, NULL),
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
-  YAML_UNSIGNED( "potsWarnMode", 2 ),
+  YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
