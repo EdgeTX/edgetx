@@ -355,8 +355,12 @@ bool ModelsList::loadYaml()
     // YAML reader
     TRACE("YAML modelslist reader");
 
-    YamlParser yp; //TODO: move to re-usable buffer
-    yp.init(get_modelslist_parser_calls(), get_modelslist_iter());
+    YamlParser yp;
+    void* ctx = get_modelslist_iter(
+        g_eeGeneral.currModelFilename,
+        strnlen(g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME));
+
+    yp.init(get_modelslist_parser_calls(), ctx);
 
     UINT bytes_read=0;
     while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {

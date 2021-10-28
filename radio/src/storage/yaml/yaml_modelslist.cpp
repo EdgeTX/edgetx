@@ -37,16 +37,21 @@ struct modelslist_iter
     };
 
     ModelsList* root;
+    const char* currentModel;
+    unsigned    currentModel_len;
     uint8_t     level;
     char        current_attr[16]; // set after find_node()
 };
 
 static modelslist_iter __modelslist_iter_inst;
 
-void* get_modelslist_iter()
+void* get_modelslist_iter(const char* currentModel, unsigned currentModel_len)
 {
     __modelslist_iter_inst.root = &modelslist;
+    __modelslist_iter_inst.currentModel = currentModel;
+    __modelslist_iter_inst.currentModel_len = currentModel_len;
     __modelslist_iter_inst.level = 0;
+    
     return &__modelslist_iter_inst;
 }
 
@@ -102,29 +107,36 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
 
 static void set_attr(void* ctx, char* buf, uint8_t len)
 {
-    modelslist_iter* mi = (modelslist_iter*)ctx;
-    list<ModelsCategory *>& cats = mi->root->getCategories();
-    switch(mi->level) {
+  modelslist_iter* mi = (modelslist_iter*)ctx;
+  auto ml = mi->root;
+  list<ModelsCategory*>& cats = ml->getCategories();
 
+  switch (mi->level) {
     case modelslist_iter::Model:
-        if (!strcmp(mi->current_attr,"filename")) {
-            if (!cats.empty()) {
-                ModelCell* model = new ModelCell(buf, len);
-                cats.back()->push_back(model);
-                mi->root->incModelsCount();
-            }
+      if (!strcmp(mi->current_attr, "filename")) {
+        if (!cats.empty()) {
+          ModelCell* model = new ModelCell(buf, len);
+          auto cat = cats.back();
+          cat->push_back(model);
+          ml->incModelsCount();
+
+          if (!strncmp(model->modelFilename, mi->currentModel,
+                       mi->currentModel_len)) {
+            ml->setCurrentCategory(cat);
+            ml->setCurrentModel(model);
+          }
         }
-        else if (!strcmp(mi->current_attr,"name")) {
-            if (!cats.empty()) {
-                ModelsCategory* cat = cats.back();
-                if (!cat->empty()) {
-                    ModelCell* model = cat->back();
-                    model->setModelName(buf,len);
-                }
-            }
+      } else if (!strcmp(mi->current_attr, "name")) {
+        if (!cats.empty()) {
+          auto cat = cats.back();
+          if (!cat->empty()) {
+            auto model = cat->back();
+            model->setModelName(buf, len);
+          }
         }
-        break;
-    }
+      }
+      break;
+  }
 }
 
 static const YamlParserCalls modelslistCalls = {

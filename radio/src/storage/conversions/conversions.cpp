@@ -136,11 +136,9 @@ void convertBinRadioData(const char * path, int version)
 
 #if defined(SDCARD_YAML) || defined(STORAGE_MODELSLIST)
   modelslist.save();
-#endif
-  
-  // reload models list
+  // trigger models list reload
   modelslist.clear();
-  modelslist.load();
+#endif
 }
 
 void patchFilenameToYaml(char* str)

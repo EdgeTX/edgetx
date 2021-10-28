@@ -43,44 +43,6 @@ constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 
 
-enum ModelSelectMode {
-  MODE_SELECT_MODEL,
-  MODE_RENAME_CATEGORY,
-  MODE_MOVE_MODEL,
-};
-
-enum ModelDeleteMode {
-  MODE_DELETE_MODEL,
-  MODE_DELETE_CATEGORY,
-};
-
-uint8_t selectMode, deleteMode;
-
-#if 0
-void setCurrentModel(unsigned int index)
-{
-  auto it = currentCategory->begin();
-  std::advance(it, index);
-  currentModel = *it;
-}
-#endif
-
-#if 0
-void setCurrentCategory(unsigned int index)
-{
-  currentCategoryIndex = index;
-  auto it = modelslist.getCategories().begin();
-  std::advance(it, index);
-  currentCategory = *it;
-  categoriesVerticalPosition = index;
-  categoriesVerticalOffset = limit<int>(categoriesVerticalPosition-4, categoriesVerticalOffset, min<int>(categoriesVerticalPosition, max<int>(0, modelslist.getCategories().size()-5)));
-  /*if (currentCategory->size() > 0)
-    setCurrentModel(0);
-  else
-    currentModel = nullptr;*/
-}
-#endif
-
 class ModelButton : public Button
 {
  public:
