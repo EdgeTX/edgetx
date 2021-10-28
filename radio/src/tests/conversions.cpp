@@ -393,3 +393,26 @@ TEST(Conversions, ConversionX12SFrom23)
 }
 #endif
 
+#if defined(RADIO_TX16S)
+TEST(Conversions, ConversionTX16SFrom25)
+{
+  simuFatfsSetPaths(TESTS_BUILD_PATH "/model_25_tx16s/", TESTS_BUILD_PATH "/model_25_tx16s/");
+
+  convertRadioData_219_to_220("/RADIO/radio.bin");
+  convertRadioData_220_to_221("/RADIO/radio.bin");
+  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+
+  char modelname[] = "model1.bin";
+  convertBinModelData(modelname, 220);
+  loadModel(modelname);
+
+  EXPECT_EQ(220, g_eeGeneral.version); // TODO: 221?
+  EXPECT_EQ(-23, g_eeGeneral.vBatMin);
+  EXPECT_EQ(0, g_eeGeneral.speakerVolume);
+  EXPECT_STRNEQ("en", g_eeGeneral.ttsLanguage);
+  EXPECT_STRNEQ("model1.yml", g_eeGeneral.currModelFilename);
+
+  EXPECT_STRNEQ("Model", g_model.header.name);
+}
+#endif
+
