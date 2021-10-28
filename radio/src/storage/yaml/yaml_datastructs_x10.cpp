@@ -803,7 +803,7 @@ static const struct YamlNode struct_WidgetPersistentData[] = {
 };
 static const struct YamlNode struct_ZonePersistentData[] = {
   YAML_IDX,
-  YAML_STRING("widgetName", 10),
+  YAML_STRING("widgetName", 12),
   YAML_STRUCT("widgetData", 480, struct_WidgetPersistentData, NULL),
   YAML_END
 };

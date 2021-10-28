@@ -27,7 +27,7 @@
 #include "form.h"
 #include "zone.h"
 
-#define WIDGET_NAME_LEN     10
+#define WIDGET_NAME_LEN     12
 #define MAX_WIDGET_OPTIONS   5 // Name?
 
 #if LCD_W > LCD_H
