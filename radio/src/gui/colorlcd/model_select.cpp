@@ -334,7 +334,10 @@ class ModelCategoryPageBody : public FormWindow
   {
     return [=]() {
       storageCheck(true);
-      modelslist.setCurrentModel(modelslist.addModel(category, createModel()));
+      auto model = modelslist.addModel(category, createModel(), false);
+      model->setModelName(g_model.header.name);
+      modelslist.setCurrentModel(model);
+      modelslist.save();
       update(category->size() - 1);
     };
   }
