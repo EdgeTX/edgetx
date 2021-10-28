@@ -45,13 +45,15 @@ union ZoneOptionValue
   int32_t signedValue;
   uint32_t boolValue;
   char stringValue[LEN_ZONE_OPTION_STRING];
+  CUST_ATTR(source, r_zov_source, w_zov_source);
 };
 
 enum ZoneOptionValueEnum {
   ZOV_Unsigned=0,
   ZOV_Signed,
   ZOV_Bool,
-  ZOV_String
+  ZOV_String,
+  ZOV_Source
 };
 
 struct ZoneOption
@@ -95,10 +97,12 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
   case ZoneOption::Bool:
     return ZOV_Bool;
 
+  case ZoneOption::Source:
+    return ZOV_Source;
+
   case ZoneOption::Color:
   case ZoneOption::Timer:
   case ZoneOption::Switch:
-  case ZoneOption::Source:
   case ZoneOption::TextSize:
   default:
     return ZOV_Unsigned;

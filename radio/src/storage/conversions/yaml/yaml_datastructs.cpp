@@ -28,6 +28,7 @@
 #include <debug.h>
 #include <string.h>
 
+#include "strhelpers.h"
 #include "switches.h"
 
 namespace yaml_conv_220 {
