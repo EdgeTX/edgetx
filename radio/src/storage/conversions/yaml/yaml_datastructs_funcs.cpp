@@ -168,9 +168,18 @@ uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
     data += bitoffs >> 3UL;
     data -= sizeof(ZoneOptionValueEnum);
     ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
-    if (*p_zovt > ZOV_String)
-        return 0;
+    if (*p_zovt > ZOV_Source) return 0;
     return *p_zovt;
+}
+
+#define r_zov_source nullptr
+
+bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                  yaml_writer_func wf, void* opaque)
+{
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+  return w_mixSrcRaw(nullptr, p_val->unsignedValue, wf, opaque);
 }
 #endif
 

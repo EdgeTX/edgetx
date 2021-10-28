@@ -413,6 +413,13 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_STRNEQ("model1.yml", g_eeGeneral.currModelFilename);
 
   EXPECT_STRNEQ("Model", g_model.header.name);
+
+  const auto& top_widget = g_model.topbarData.zones[3];
+  EXPECT_STRNEQ("Value", top_widget.widgetName);
+
+  const auto& top_option = top_widget.widgetData.options[0];
+  EXPECT_EQ(ZOV_Source, top_option.type);
+  EXPECT_EQ(MIXSRC_TX_VOLTAGE, top_option.value.unsignedValue);
 }
 #endif
 

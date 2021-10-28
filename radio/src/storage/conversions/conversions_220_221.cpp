@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include "definitions.h"
 #include "datastructs_220.h"
@@ -67,11 +68,44 @@ static const char* convertData_220_to_221(
   return error;
 }
 
+#if defined(COLORLCD)
+template<class T> void patchWidgetOptions(T& zones)
+{
+  for (auto& zone : zones) {
+    auto name_len = strnlen(zone.widgetName, sizeof(zone.widgetName));
+    std::string widgetName(zone.widgetName, name_len);
+
+    if (widgetName.empty()) continue;
+
+    if (widgetName == "Value" || widgetName == "Gauge") {
+      zone.widgetData.options[0].type = ZOV_Source;
+    }
+  }
+}
+
+static void patchModelData(uint8_t* data)
+{
+  auto md = reinterpret_cast<bin_storage_220::ModelData*>(data);
+  for (auto& screen : md->screenData) {
+
+    if (!strnlen(screen.LayoutId, sizeof(screen.LayoutId)))
+      break;
+
+    patchWidgetOptions(screen.layoutData.zones);
+  }
+
+  patchWidgetOptions(md->topbarData.zones);
+}
+#else
+  #define patchModelData nullptr
+#endif
+
 const char* convertModelData_220_to_221(const char* path)
 {
   constexpr unsigned md_size = sizeof(bin_storage_220::ModelData);
   return convertData_220_to_221(path, md_size,
-                                yaml_conv_220::get_modeldata_nodes());
+                                yaml_conv_220::get_modeldata_nodes(),
+                                patchModelData);
 }
 
 static void patchCurrentModelFilename(uint8_t* data)

@@ -35,7 +35,9 @@ enum ZoneOptionValueEnum {
   ZOV_Unsigned=0,
   ZOV_Signed,
   ZOV_Bool,
-  ZOV_String
+  ZOV_String,
+  // added for conversion:
+  ZOV_Source
 };
 
 struct ZoneOption

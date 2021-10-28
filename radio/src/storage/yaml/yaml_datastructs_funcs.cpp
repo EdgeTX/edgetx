@@ -70,6 +70,9 @@ namespace yaml_conv_220 {
 
   bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
                  yaml_writer_func wf, void* opaque);
+
+  bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque);
 };
 
 //
@@ -266,6 +269,20 @@ static bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
 static uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return yaml_conv_220::select_zov(user, data, bitoffs);
+}
+
+void r_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                  const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+  p_val->unsignedValue = r_mixSrcRaw(nullptr, val, val_len);
+}
+
+bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                  yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_zov_source(user, data, bitoffs, wf, opaque);
 }
 #endif
 
