@@ -37,7 +37,8 @@ enum ZoneOptionValueEnum {
   ZOV_Bool,
   ZOV_String,
   // added for conversion:
-  ZOV_Source
+  ZOV_Source,
+  ZOV_Color
 };
 
 struct ZoneOption

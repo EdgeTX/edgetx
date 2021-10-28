@@ -73,6 +73,9 @@ namespace yaml_conv_220 {
 
   bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque);
+
+  bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                   yaml_writer_func wf, void* opaque);
 };
 
 //
@@ -283,6 +286,30 @@ bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                   yaml_writer_func wf, void* opaque)
 {
   return yaml_conv_220::w_zov_source(user, data, bitoffs, wf, opaque);
+}
+
+void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  if (val_len < sizeof("0xFFFFFF")-1
+      || val[0] != '0'
+      || val[1] != 'x')
+    return;
+
+  val += 2; val_len -= 2;
+
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+
+  auto rgb24 = yaml_hex2uint(val, val_len);
+  p_val->unsignedValue =
+      RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+}
+
+bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_zov_color(user, data, bitoffs, wf, opaque);
 }
 #endif
 

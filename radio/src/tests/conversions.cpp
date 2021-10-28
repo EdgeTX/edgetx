@@ -420,6 +420,10 @@ TEST(Conversions, ConversionTX16SFrom25)
   const auto& top_option = top_widget.widgetData.options[0];
   EXPECT_EQ(ZOV_Source, top_option.type);
   EXPECT_EQ(MIXSRC_TX_VOLTAGE, top_option.value.unsignedValue);
+  
+  const auto& color_option = top_widget.widgetData.options[1];
+  EXPECT_EQ(ZOV_Color, color_option.type);
+  EXPECT_EQ(0xFFFF, color_option.value.unsignedValue);
 }
 #endif
 

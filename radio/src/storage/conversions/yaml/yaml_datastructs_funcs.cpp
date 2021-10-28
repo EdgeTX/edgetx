@@ -168,7 +168,7 @@ uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
     data += bitoffs >> 3UL;
     data -= sizeof(ZoneOptionValueEnum);
     ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
-    if (*p_zovt > ZOV_Source) return 0;
+    if (*p_zovt > ZOV_Color) return 0;
     return *p_zovt;
 }
 
@@ -180,6 +180,23 @@ bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
   data += bitoffs >> 3UL;
   auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
   return w_mixSrcRaw(nullptr, p_val->unsignedValue, wf, opaque);
+}
+
+#include "colors.h"
+#define r_zov_color nullptr
+
+bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+
+  uint32_t color = (uint32_t)GET_RED(p_val->unsignedValue) << 16 |
+                   (uint32_t)GET_GREEN(p_val->unsignedValue) << 8 |
+                   (uint32_t)GET_BLUE(p_val->unsignedValue);
+
+  if (!wf(opaque, "0x", 2)) return false;
+  return wf(opaque, yaml_rgb2hex(color), 3 * 2);
 }
 #endif
 

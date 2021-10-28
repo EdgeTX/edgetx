@@ -85,6 +85,7 @@ const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
   {  ZOV_Bool, "Bool"  },
   {  ZOV_String, "String"  },
   {  ZOV_Source, "Source"  },
+  {  ZOV_Color, "Color"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -357,6 +358,7 @@ static const struct YamlNode union_ZoneOptionValue_elmts[] = {
   YAML_UNSIGNED( "boolValue", 32 ),
   YAML_STRING("stringValue", 8),
   YAML_CUSTOM("source",r_zov_source,w_zov_source),
+  YAML_CUSTOM("color",r_zov_color,w_zov_color),
   YAML_END
 };
 static const struct YamlNode struct_ZoneOptionValueTyped[] = {

@@ -78,8 +78,18 @@ void patchWidgetOptions(ZonePersistentData* zones, unsigned n_zones)
 
     if (widgetName.empty()) continue;
 
-    if (widgetName == "Value" || widgetName == "Gauge") {
+    if (widgetName == "Value") {
       zone.widgetData.options[0].type = ZOV_Source;
+      zone.widgetData.options[1].type = ZOV_Color;
+    } else if (widgetName == "Gauge") {
+      zone.widgetData.options[0].type = ZOV_Source;
+      zone.widgetData.options[3].type = ZOV_Color;
+    } else if (widgetName == "Outputs") {
+      zone.widgetData.options[2].type = ZOV_Color;
+      zone.widgetData.options[3].type = ZOV_Color;
+      zone.widgetData.options[4].type = ZOV_Color;
+    } else if (widgetName == "Text") {
+      zone.widgetData.options[1].type = ZOV_Color;
     }
   }
 }

@@ -163,6 +163,29 @@ uint32_t yaml_str2uint(const char* val, uint8_t val_len)
     return yaml_str2uint_ref(val, val_len);
 }
 
+uint32_t yaml_hex2uint(const char* val, uint8_t val_len)
+{
+    uint32_t i_val = 0;
+    
+    while(val_len > 0) {
+        if (*val >= '0' && *val <= '9') {
+          i_val <<= 4;
+          i_val |= (*val - '0') & 0xF;
+        } else if (*val >= 'A' && *val <= 'F') {
+          i_val <<= 4;
+          i_val |= (*val - 'A' + 10) & 0xF;
+        } else if (*val >= 'a' && *val <= 'f') {
+          i_val <<= 4;
+          i_val |= (*val - 'a' + 10) & 0xF;
+        } else {
+            break;
+        }
+        val++; val_len--;
+    }
+
+    return i_val;
+}
+
 static char int2str_buffer[MAX_STR] = {0};
 static const char _int2str_lookup[] = { '0', '1', '2', '3', '4', '5', '6' , '7', '8', '9' };
 
@@ -186,6 +209,31 @@ char* yaml_signed2str(int32_t i)
     }
 
     return yaml_unsigned2str((uint32_t)i);
+}
+
+static const char _int2hex_lookup[] = {'0', '1', '2', '3',
+                                       '4', '5', '6', '7',
+                                       '8', '9', 'A', 'B',
+                                       'C', 'D', 'E', 'F'};
+
+char* yaml_unsigned2hex(uint32_t i)
+{
+  char* c = int2str_buffer;
+  for (int n = sizeof(uint32_t) * 2; n > 0; n--) {
+    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
+  }
+  *c = '\0';
+  return int2str_buffer;
+}
+
+char* yaml_rgb2hex(uint32_t i)
+{
+  char* c = int2str_buffer;
+  for (int n = 3 * 2; n > 0; n--) {
+    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
+  }
+  *c = '\0';
+  return int2str_buffer;
 }
 
 int32_t yaml_to_signed(uint32_t i, uint32_t bits)
