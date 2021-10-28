@@ -69,9 +69,10 @@ static const char* convertData_220_to_221(
 }
 
 #if defined(COLORLCD)
-template<class T> void patchWidgetOptions(T& zones)
+void patchWidgetOptions(ZonePersistentData* zones, unsigned n_zones)
 {
-  for (auto& zone : zones) {
+  for (unsigned i = 0; i < n_zones; i++) {
+    auto& zone = zones[i];
     auto name_len = strnlen(zone.widgetName, sizeof(zone.widgetName));
     std::string widgetName(zone.widgetName, name_len);
 
@@ -91,10 +92,10 @@ static void patchModelData(uint8_t* data)
     if (!strnlen(screen.LayoutId, sizeof(screen.LayoutId)))
       break;
 
-    patchWidgetOptions(screen.layoutData.zones);
+    patchWidgetOptions(screen.layoutData.zones, MAX_LAYOUT_ZONES);
   }
 
-  patchWidgetOptions(md->topbarData.zones);
+  patchWidgetOptions(md->topbarData.zones, MAX_TOPBAR_ZONES);
 }
 #else
   #define patchModelData nullptr
