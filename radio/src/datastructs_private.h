@@ -662,7 +662,7 @@ PACK(struct ModelData {
   SwashRingData swashR FUNC(swash_is_active);
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
-  NOBACKUP(uint8_t thrTraceSrc);
+  NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
 
   SWITCHES_WARNING_DATA
 
@@ -677,7 +677,7 @@ PACK(struct ModelData {
 
   uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
-  uint8_t potsWarnMode:2;
+  uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
