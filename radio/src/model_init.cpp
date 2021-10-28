@@ -135,7 +135,11 @@ void setModelDefaults(uint8_t id)
   
   setVendorSpecificModelDefaults(id);
 
-  strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id + 1, 2);
+#if !defined(STORAGE_MODELSLIST)
+  // EEPROM model indexes starting with 0
+  id++;
+#endif
+  strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id, 2);
 
 #if defined(LUA) && defined(PCBTARANIS) // Horus uses menuModelWizard() for wizard
   if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {

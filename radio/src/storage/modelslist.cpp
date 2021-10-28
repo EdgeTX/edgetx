@@ -38,7 +38,8 @@ ModelsList modelslist;
 
 ModelCell::ModelCell(const char* name) : valid_rfData(false)
 {
-  strncpy(modelFilename, name, sizeof(modelFilename));
+  strncpy(modelFilename, name, sizeof(modelFilename)-1);
+  modelFilename[sizeof(modelFilename)-1] = '\0';
 }
 
 ModelCell::ModelCell(const char* name, uint8_t len) : valid_rfData(false)

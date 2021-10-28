@@ -60,6 +60,7 @@ void storageEraseAll(bool warn)
 
   storageFormat();
   storageDirty(EE_GENERAL);
+  storageDirty(EE_MODEL);
   storageCheck(true);
 }
 
@@ -67,10 +68,13 @@ void storageFormat()
 {
   sdCheckAndCreateDirectory(RADIO_PATH);
   sdCheckAndCreateDirectory(MODELS_PATH);
-#if defined(STORAGE_MODELSLIST)
-  storageCreateModelsList();
-#endif
   generalDefault();
+#if defined(STORAGE_MODELSLIST)
+  setModelDefaults(1);
+  storageCreateModelsList();
+#else
+  setModelDefaults(0);
+#endif
 }
 
 void storageCheck(bool immediately)
