@@ -22,6 +22,7 @@
 
 Window * Window::focusWindow = nullptr;
 Window * Window::slidingWindow = nullptr;
+Window * Window::touchedWindow = nullptr;
 std::list<Window *> Window::trash;
 
 Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags):
@@ -411,6 +412,12 @@ bool Window::onTouchStart(coord_t x, coord_t y)
     auto child = *it;
     if (child->rect.contains(x, y)) {
       if (child->onTouchStart(x - child->rect.x + child->scrollPositionX, y - child->rect.y + child->scrollPositionY)) {
+        // remember the first window that processed the touch start event.  We will give that window
+        // the opportunity to process the touchend first, and also after a slide end so the touched window
+        // always gets a touchEnd if it processed the touch start.
+        if (touchedWindow == nullptr) {
+          touchedWindow = child;
+        }
         return true;
       }
     }
@@ -421,6 +428,26 @@ bool Window::onTouchStart(coord_t x, coord_t y)
 
 bool Window::forwardTouchEnd(coord_t x, coord_t y)
 {
+  // give the touched window the opportunity to process the touch first before it is 
+  // forwarded: See on touchstart
+  if (touchedWindow != nullptr) {
+    auto savedTouchWindow = touchedWindow;
+    touchedWindow = nullptr;
+    // transalte  x and y through the parent hierarchy
+    auto myParent = savedTouchWindow->parent;
+    while(myParent != nullptr) {
+      x = x - myParent->rect.x + myParent->scrollPositionX;
+      y = y - myParent->rect.y + myParent->scrollPositionY;
+      myParent = myParent->parent;
+    }
+
+    if (savedTouchWindow->onTouchEnd(
+          x - savedTouchWindow->rect.x + savedTouchWindow->scrollPositionX, 
+          y - savedTouchWindow->rect.y + savedTouchWindow->scrollPositionY)) {
+      return true;
+    }
+  }
+
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
     if (child->rect.contains(x, y)) {
