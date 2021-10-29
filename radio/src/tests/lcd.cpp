@@ -282,7 +282,6 @@ TEST(Lcd, DrawSwitch)
 #if defined(PCBTARANIS) && LCD_W >= 212
 TEST(Lcd, BMPWrapping)
 {
-  simuFatfsSetPaths("","");
   lcdClear();
   uint8_t bitmap[2+40*40/2];
   lcdLoadBitmap(bitmap, TESTS_PATH "/plane.bmp", 40, 40);
@@ -350,7 +349,6 @@ public:
 #if defined(PCBTARANIS) && LCD_W >= 212
 TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
 {
-  simuFatfsSetPaths("","");
   lcdClear();
   // Test proper BMP files, they should display correctly
   {

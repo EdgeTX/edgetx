@@ -100,6 +100,10 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_EQ(MIXSRC_FIRST_TELEM, g_model.logicalSw[0].v1);
 
   EXPECT_STRNEQ("abc.wav", g_model.customFn[1].play.name);
+
+#if defined(SDCARD_YAML)
+  simuFatfsSetPaths("","");
+#endif
 }
 
 TEST(Conversions, ConversionX9DPFrom23_2)
@@ -130,6 +134,10 @@ TEST(Conversions, ConversionX9DPFrom23_2)
 
   EXPECT_EQ(TMRMODE_ON, g_model.timers[0].mode); // new!
   EXPECT_EQ(-SWSRC_SA0, g_model.timers[0].swtch); // new!
+
+#if defined(SDCARD_YAML)
+  simuFatfsSetPaths("","");
+#endif
 }
 #endif
 
@@ -190,6 +198,10 @@ TEST(Conversions, ConversionXLiteFrom23)
   EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
   EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
+
+#if defined(SDCARD_YAML)
+  simuFatfsSetPaths("","");
+#endif
 }
 #endif
 
@@ -255,6 +267,10 @@ TEST(Conversions, ConversionX7From23)
   EXPECT_EQ(TELEMETRY_SCREEN_TYPE_VALUES, g_model.screensType & 0x03);
   EXPECT_EQ(MIXSRC_FIRST_TRAINER, g_model.screens[0].lines[0].sources[0]);
   EXPECT_EQ(MIXSRC_TIMER3, g_model.screens[0].lines[0].sources[1]);
+
+#if defined(SDCARD_YAML)
+  simuFatfsSetPaths("","");
+#endif
 }
 #endif
 
@@ -327,6 +343,8 @@ TEST(Conversions, ConversionX10From23)
   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
   EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ((NUM_POTS + NUM_SLIDERS + 3), g_model.thrTraceSrc); // CH3
+
+  simuFatfsSetPaths("","");
 }
 #endif
 
@@ -390,6 +408,8 @@ TEST(Conversions, ConversionX12SFrom23)
   EXPECT_EQ(10, g_model.telemetrySensors[0].id);
   EXPECT_EQ(9, g_model.telemetrySensors[0].frskyInstance.physID);
   EXPECT_EQ((NUM_POTS + NUM_SLIDERS + 3), g_model.thrTraceSrc); // CH3
+
+  simuFatfsSetPaths("","");
 }
 #endif
 
@@ -424,6 +444,12 @@ TEST(Conversions, ConversionTX16SFrom25)
   const auto& color_option = top_widget.widgetData.options[1];
   EXPECT_EQ(ZOV_Color, color_option.type);
   EXPECT_EQ(0xFFFF, color_option.value.unsignedValue);
+
+  char modelname2[] = "model2.bin";
+  convertBinModelData(modelname2, 220);
+  loadModel(modelname2);
+
+  simuFatfsSetPaths("","");
 }
 #endif
 
