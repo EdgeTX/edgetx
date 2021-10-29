@@ -30,13 +30,13 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 #if defined(SIMU)
   // not needed
 #elif defined(RADIO_T16)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,  -1,1,  -1,1};
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
 #elif defined(RADIO_T18)
-  const int8_t adcDirection[NUM_ANALOGS] = { 1,-1,1,-1, -1,1,-1,  -1,1,  -1,1 };
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1, -1,1,-1,  -1,1,1,1,  -1,1 };
 #elif defined(RADIO_TX16S)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,  -1,1,  -1,1};
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
 #elif defined(PCBX10)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,   1,1,    1, -1};
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 };
 #elif defined(PCBX9E)
   const int8_t adcDirection[NUM_ANALOGS] = {
 #if defined(HORUS_STICKS)
