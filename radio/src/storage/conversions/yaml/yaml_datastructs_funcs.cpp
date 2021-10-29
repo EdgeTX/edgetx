@@ -166,7 +166,7 @@ bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
 uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
-    data -= sizeof(ZoneOptionValueEnum);
+    data -= offsetof(ZoneOptionValueTyped, value);
     ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
     if (*p_zovt > ZOV_Color) return 0;
     return *p_zovt;
