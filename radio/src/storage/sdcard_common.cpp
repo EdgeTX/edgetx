@@ -69,11 +69,9 @@ void storageFormat()
   sdCheckAndCreateDirectory(RADIO_PATH);
   sdCheckAndCreateDirectory(MODELS_PATH);
   generalDefault();
+  setModelDefaults();
 #if defined(STORAGE_MODELSLIST)
-  setModelDefaults(1);
   storageCreateModelsList();
-#else
-  setModelDefaults(0);
 #endif
 }
 
