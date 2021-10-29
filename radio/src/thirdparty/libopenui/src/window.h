@@ -395,6 +395,7 @@ class Window
 
     static Window * focusWindow;
     static Window * slidingWindow;
+    static Window * touchedWindow;
     static std::list<Window *> trash;
 
     std::function<void()> closeHandler;
