@@ -78,7 +78,7 @@ TEST(getSwitch, nullSW)
 TEST(getSwitch, inputWithTrim)
 {
   MODEL_RESET();
-  setModelDefaults(0);
+  setModelDefaults();
   MIXER_RESET();
 
   // g_model.logicalSw[0] = { LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0 };
@@ -100,7 +100,7 @@ TEST(evalLogicalSwitches, playFile)
 {
   SYSTEM_RESET();
   MODEL_RESET();
-  setModelDefaults(0);
+  setModelDefaults();
   MIXER_RESET();
 
   extern BitField<(MAX_LOGICAL_SWITCHES * 2/*on, off*/)> sdAvailableLogicalSwitchAudioFiles;

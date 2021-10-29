@@ -24,5 +24,11 @@
 void clearInputs();
 void setDefaultInputs();
 
+#if defined(STORAGE_MODELSLIST)
+  #define DEFAULT_MODEL_IDX 1
+#else
+  #define DEFAULT_MODEL_IDX 0
+#endif
+
 // Reset the global model to full defaults
-void setModelDefaults(uint8_t id);
+void setModelDefaults(uint8_t id = DEFAULT_MODEL_IDX);
