@@ -142,7 +142,7 @@ int32_t yaml_str2int(const char* val, uint8_t val_len)
     return yaml_str2int_ref(val, val_len);
 }
 
-uint32_t yaml_str2uint_ref(const char* val, uint8_t val_len)
+uint32_t yaml_str2uint_ref(const char*& val, uint8_t& val_len)
 {
     uint32_t i_val = 0;
     

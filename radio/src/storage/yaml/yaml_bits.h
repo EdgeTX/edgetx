@@ -31,7 +31,7 @@ uint32_t yaml_get_bits(uint8_t* src, uint32_t bit_ofs, uint32_t bits);
 bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits);
 
 int32_t yaml_str2int_ref(const char*& val, uint8_t& val_len);
-uint32_t yaml_str2uint_ref(const char* val, uint8_t val_len);
+uint32_t yaml_str2uint_ref(const char*& val, uint8_t& val_len);
 
 int32_t  yaml_str2int(const char* val, uint8_t val_len);
 uint32_t yaml_str2uint(const char* val, uint8_t val_len);
