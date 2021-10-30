@@ -1241,15 +1241,16 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 
     int type = yaml_str2uint(val, l_sep);
     val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != '.') return;
+    if (!val_len || val[0] != ',') return;
     val++; val_len--;
     int subtype = yaml_str2uint(val, val_len);
 
     // convert to OTX format and write to vars
     convertMultiProtocolToOtx(&type, &subtype);
-    md->setMultiProtocol(type);
-    md->subType = subtype;
-
+    if (type > 0) {
+      md->setMultiProtocol(type - 1);
+      md->subType = subtype;
+    }
   } else if (md->type == MODULE_TYPE_DSM2) {
     md->rfProtocol = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
   } else {

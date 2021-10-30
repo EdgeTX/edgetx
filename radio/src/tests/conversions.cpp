@@ -434,6 +434,14 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   EXPECT_STRNEQ("Model", g_model.header.name);
 
+  EXPECT_EQ(MODULE_SUBTYPE_MULTI_FRSKY, g_model.moduleData[0].getMultiProtocol());
+  EXPECT_EQ(MM_RF_FRSKY_SUBTYPE_D8_CLONED, g_model.moduleData[0].subType);
+  EXPECT_EQ(-12, g_model.moduleData[0].multi.optionValue);
+
+  EXPECT_EQ(MODULE_TYPE_XJT_PXX1, g_model.moduleData[1].type);
+  EXPECT_EQ(MODULE_SUBTYPE_PXX1_ACCST_LR12, g_model.moduleData[1].subType);
+  EXPECT_EQ(4, g_model.moduleData[1].channelsCount); // 4 + 8 = 12
+
   const auto& top_widget = g_model.topbarData.zones[3];
   EXPECT_STRNEQ("Value", top_widget.widgetName);
 
@@ -445,9 +453,9 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(ZOV_Color, color_option.type);
   EXPECT_EQ(0xFFFF, color_option.value.unsignedValue);
 
-  char modelname3[] = "model3.bin";
-  convertBinModelData(modelname3, 220);
-  loadModel(modelname3);
+  char modelname2[] = "model2.bin";
+  convertBinModelData(modelname2, 220);
+  loadModel(modelname2);
 
   EXPECT_EQ(LS_FUNC_EDGE, g_model.logicalSw[0].func);
   EXPECT_EQ(SWSRC_SF2, g_model.logicalSw[0].v1);
