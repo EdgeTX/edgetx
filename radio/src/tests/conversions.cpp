@@ -445,9 +445,20 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(ZOV_Color, color_option.type);
   EXPECT_EQ(0xFFFF, color_option.value.unsignedValue);
 
-  char modelname2[] = "model2.bin";
-  convertBinModelData(modelname2, 220);
-  loadModel(modelname2);
+  char modelname3[] = "model3.bin";
+  convertBinModelData(modelname3, 220);
+  loadModel(modelname3);
+
+  EXPECT_EQ(LS_FUNC_EDGE, g_model.logicalSw[0].func);
+  EXPECT_EQ(SWSRC_SF2, g_model.logicalSw[0].v1);
+  EXPECT_EQ(-129, g_model.logicalSw[0].v2);
+  EXPECT_EQ(-1, g_model.logicalSw[0].v3);
+  EXPECT_EQ(SWSRC_SF2, g_model.logicalSw[0].andsw);
+
+  EXPECT_EQ(LS_FUNC_VNEG, g_model.logicalSw[1].func);
+  EXPECT_EQ(MIXSRC_FIRST_INPUT, g_model.logicalSw[1].v1);
+  EXPECT_EQ(-98, g_model.logicalSw[1].v2);
+  EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[1].andsw);
 
   simuFatfsSetPaths("","");
 }
