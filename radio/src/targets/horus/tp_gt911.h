@@ -30,28 +30,29 @@ extern bool touchPanelInit();
 void touchPanelRead();
 bool touchPanelEventOccured();
 
-#define GT911_TIMEOUT 3 // 3ms
+#define GT911_TIMEOUT           3 // 3ms
 
 #define GT911_MAX_TP            5
-#define GT911_CFG_NUMER         0x6C
+#define GT911_CFG_NUMER         0x6D
 
 //I2C
-#define GT_CMD_WR 		0X28
-#define GT_CMD_RD 		0X29
-#define I2C_TIMEOUT_MAX         1000
+#define GT911_I2C_ADDR          0x14
+//#define GT_CMD_WR             0x28
+//#define GT_CMD_RD             0x29
+//#define I2C_TIMEOUT_MAX       1000
 
-//GT9147
-#define GT_CTRL_REG 	        0X8040
-#define GT_CFGS_REG 	        0X8047
-#define GT_CHECK_REG 	        0X80FF
-#define GT_PID_REG 		0X8140
+//GT911
+#define GT_CTRL_REG 	        0x8040
+#define GT_CFGS_REG 	        0x8047
+#define GT_CHECK_REG 	        0x80FF
+#define GT_PID_REG              0x8140
 
-#define GT_GSTID_REG 	        0X814E
-#define GT_TP1_REG 		0X8150
-#define GT_TP2_REG 		0X8158
-#define GT_TP3_REG 		0X8160
-#define GT_TP4_REG 		0X8168
-#define GT_TP5_REG 		0X8170
+#define GT_GSTID_REG 	        0x814E
+#define GT_TP1_REG              0x8150
+#define GT_TP2_REG              0x8158
+#define GT_TP3_REG              0x8160
+#define GT_TP4_REG              0x8168
+#define GT_TP5_REG              0x8170
 
 #define GT911_READ_XY_REG               0x814E
 #define GT911_CLEARBUF_REG              0x814E

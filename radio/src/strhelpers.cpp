@@ -89,6 +89,16 @@ int zchar2str(char * dest, const char * src, int size)
   return size+1;
 }
 
+int strnlen(const char *src, int max_size)
+{
+  for (int i=0; i<max_size; i++) {
+    if (src[i] == '\0')
+      return i;
+  }
+
+  return max_size;
+}
+
 unsigned int effectiveLen(const char * str, unsigned int size)
 {
   while (size > 0) {

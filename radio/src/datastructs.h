@@ -672,6 +672,22 @@ PACK(struct ModelData {
         return thrTrimSw + MIXSRC_FIRST_TRIM;
     }
   }
+
+  void setThrottleStickTrimSource(int16_t src)
+  {
+    // The order here is TERA, so that 0 (default) means Throttle
+    switch (src) {
+      case MIXSRC_TrimThr:
+        thrTrimSw = 0;
+        break;
+      case MIXSRC_TrimRud:
+        thrTrimSw = 2;
+        break;
+      default:
+        thrTrimSw = src - MIXSRC_FIRST_TRIM;
+        break;
+    }
+  }
 });
 
 /*

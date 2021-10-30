@@ -144,14 +144,14 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+          drawTimer(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+          drawTimer(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         grid.nextLine();
       }

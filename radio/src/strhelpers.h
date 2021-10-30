@@ -30,6 +30,7 @@ char char2lower(char c);
 int8_t char2zchar(char c);
 void str2zchar(char *dest, const char *src, int size);
 int zchar2str(char *dest, const char *src, int size);
+int strnlen(const char *src, int max_size);
 
 char * strAppend(char * dest, const char * source, int len = 0);
 char * strAppendUnsigned(char * dest, uint32_t value, uint8_t digits = 0, uint8_t radix = 10);

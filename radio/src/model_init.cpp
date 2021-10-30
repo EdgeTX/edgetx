@@ -77,7 +77,7 @@ void setDefaultGVars()
 #endif
 }
 
-void setVendorSpecificModelDefaults()
+void setVendorSpecificModelDefaults(uint8_t id)
 {
 #if defined(FRSKY_RELEASE)
   g_model.moduleData[INTERNAL_MODULE].type = IS_PXX2_INTERNAL_ENABLED() ? MODULE_TYPE_ISRM_PXX2 : MODULE_TYPE_XJT_PXX1;
@@ -132,7 +132,7 @@ void setModelDefaults(uint8_t id)
   memset(&g_model, 0, sizeof(g_model));
   applyDefaultTemplate();
   
-  setVendorSpecificModelDefaults();
+  setVendorSpecificModelDefaults(id);
 
   strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id + 1, 2);
 

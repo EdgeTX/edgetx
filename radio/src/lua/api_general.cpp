@@ -372,7 +372,8 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
       const char* sensorName = g_model.telemetrySensors[i].label;
-      if ((len <= TELEM_LABEL_LEN) && !strncmp(sensorName, name, len)) {
+      int len = strnlen(sensorName, TELEM_LABEL_LEN);
+      if (!strncmp(sensorName, name, len)) {
         if (name[len] == '\0') {
           field.id = MIXSRC_FIRST_TELEM + 3 * i;
           field.desc[0] = '\0';

@@ -631,12 +631,13 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_TRACE:
       {
         lcdDrawTextAlignedLeft(y, STR_TTRACE);
-        if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTraceSrc, NUM_POTS+NUM_SLIDERS+MAX_OUTPUT_CHANNELS);
-        uint8_t idx = g_model.thrTraceSrc + MIXSRC_Thr;
-        if (idx > MIXSRC_Thr)
-          idx += 1;
-        if (idx >= MIXSRC_FIRST_POT+NUM_POTS+NUM_SLIDERS)
-          idx += MIXSRC_CH1 - MIXSRC_FIRST_POT - NUM_POTS - NUM_SLIDERS;
+        if (attr)
+          CHECK_INCDEC_MODELVAR_ZERO_CHECK(
+              event, g_model.thrTraceSrc,
+              NUM_POTS + NUM_SLIDERS + MAX_OUTPUT_CHANNELS,
+              isThrottleSourceAvailable);
+
+        uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
         drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
         break;
       }

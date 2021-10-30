@@ -75,7 +75,7 @@ class OutputsWidget: public Widget
           dc->drawSizedText(barLft + 23, barTop, g_model.limitData[curChan - 1].name, sizeof(g_model.limitData[curChan - 1].name), FONT(XS) | DEFAULT_COLOR | LEFT);
         }
         else {
-          drawSource(dc, barLft + 1, barTop, curChan, FONT(XS) | DEFAULT_COLOR | LEFT);
+          drawSource(dc, barLft + 1, barTop, MIXSRC_FIRST_CH+curChan-1, FONT(XS) | DEFAULT_COLOR | LEFT);
         }
       }
       return lastChan - 1;
@@ -111,7 +111,7 @@ class OutputsWidget: public Widget
         lastRefresh = now;
         invalidate();
       }
-      
+
       invalidate();
     }
 

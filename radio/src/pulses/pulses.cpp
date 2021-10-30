@@ -285,6 +285,8 @@ void enablePulsesExternalModule(uint8_t protocol)
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
 #endif
+      getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
+      getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
       break;
 #endif
 
@@ -309,7 +311,7 @@ void enablePulsesExternalModule(uint8_t protocol)
 #if defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
       extmodulePulsesData.afhds3.init(EXTERNAL_MODULE);
-      extmoduleSerialStart(/*AFHDS3_BAUDRATE, AFHDS3_COMMAND_TIMEOUT * 2000, false*/);
+      extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
       break;
 #endif
@@ -491,6 +493,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
       intmodulePulsesData.multi.initFrame();
       intmoduleSerialStart(MULTIMODULE_BAUDRATE, true, USART_Parity_Even, USART_StopBits_2, USART_WordLength_9b);
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+      getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
+      getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
       break;
 #endif
 

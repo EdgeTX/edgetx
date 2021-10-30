@@ -37,7 +37,7 @@ void i2cInit()
   GPIO_ResetBits(I2C_WP_GPIO, I2C_WP_GPIO_PIN);
 
   I2C_InitTypeDef I2C_InitStructure;
-  I2C_InitStructure.I2C_ClockSpeed = I2C_SPEED;
+  I2C_InitStructure.I2C_ClockSpeed = I2C_CLK_RATE;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   I2C_InitStructure.I2C_OwnAddress1 = 0x00;
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;

@@ -86,30 +86,45 @@ class ValueWidget: public Widget
         if (timerState.val < 0) {
           color = ALARM_COLOR;
         }
-        drawSource(dc, NUMBERS_PADDING, 2, field, color);
-        drawSource(dc, NUMBERS_PADDING + 1, 3, field, COLOR2FLAGS(BLACK));
-        drawTimer(dc, xValue, yValue, abs(timerState.val), attrValue | FONT(XL) | color);
-      }
-
-      if (field == MIXSRC_TX_TIME) {
-        drawTimer(dc, xValue, yValue, getValue(MIXSRC_TX_TIME),
-                  attrValue | FONT(XL) | color);
-      }
-      
-      if (field >= MIXSRC_FIRST_TELEM) {
-        TelemetryItem & telemetryItem = telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
-        if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
-          color = TEXT_DISABLE_COLOR;
+        if (persistentData->options[2].value.boolValue) {
+          drawSource(dc, xLabel + 1, yLabel + 1, field, attrLabel | COLOR2FLAGS(BLACK));
+          drawTimer(dc, xValue + 1, yValue + 1, abs(timerState.val),
+                    attrValue | FONT(STD) | COLOR2FLAGS(BLACK));
         }
-      }
+        drawSource(dc, xLabel, yLabel, field, attrLabel | color);
+        drawTimer(dc, xValue, yValue, abs(timerState.val),
+                    attrValue | FONT(STD) | color);        
 
-      if (persistentData->options[2].value.boolValue) {
-        drawSource(dc,xLabel + 1, yLabel + 1, field, attrLabel | COLOR2FLAGS(BLACK));
-        drawSourceValue(dc, xValue + 1, yValue + 1, field, attrValue | COLOR2FLAGS(BLACK));
-      }
+      } else if (field == MIXSRC_TX_TIME) {
+        int32_t tme = getValue(MIXSRC_TX_TIME);
+        if (persistentData->options[2].value.boolValue) {
+          drawSource(dc, xLabel + 1, yLabel + 1, field, COLOR2FLAGS(BLACK));
+          drawTimer(dc, xValue + 1, yValue + 1, tme,
+                    attrValue | FONT(STD) | COLOR2FLAGS(BLACK));
+        }
+        drawSource(dc, xLabel, yLabel, field, attrLabel | color);
+        drawTimer(dc, xValue, yValue, tme,
+                  attrValue | FONT(STD) | color);
+      } else {
 
-      drawSource(dc, xLabel, yLabel, field, attrLabel | color);
-      drawSourceValue(dc, xValue, yValue, field, attrValue | color);
+        if (field >= MIXSRC_FIRST_TELEM) {
+          TelemetryItem& telemetryItem =
+              telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
+          if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
+            color = TEXT_DISABLE_COLOR;
+          }
+        }
+
+        if (persistentData->options[2].value.boolValue) {
+          drawSource(dc, xLabel + 1, yLabel + 1, field,
+                     attrLabel | COLOR2FLAGS(BLACK));
+          drawSourceValue(dc, xValue + 1, yValue + 1, field,
+                          attrValue | COLOR2FLAGS(BLACK));
+        }
+
+        drawSource(dc, xLabel, yLabel, field, attrLabel | color);
+        drawSourceValue(dc, xValue, yValue, field, attrValue | color);
+      }
     }
 
     void checkEvents() override

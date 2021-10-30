@@ -89,7 +89,7 @@ class MixEditWindow : public Page
 
     // Mix name
     new StaticText(window, grid.getLabelSlot(), STR_MIXNAME);
-    new RadioTextEdit(window, grid.getFieldSlot(), mix->name,
+    new ModelTextEdit(window, grid.getFieldSlot(), mix->name,
                       sizeof(mix->name));
     grid.nextLine();
 
@@ -531,24 +531,22 @@ void copyMix(uint8_t source, uint8_t dest, int8_t ch)
   pauseMixerCalculations();
   MixData sourceMix;
   memcpy(&sourceMix, mixAddress(source), sizeof(MixData));
-  MixData * mix = mixAddress(dest);
-  if(ch == PASTE_AFTER) {
-    memmove(mix+2, mix+1, (MAX_MIXERS-(source+1))*sizeof(MixData));
-    memcpy(mix+1, &sourceMix, sizeof(MixData));
-    (mix+1)->destCh = (mix)->destCh;
-  }
-  else if(ch == PASTE_BEFORE) {
-    memmove(mix+1, mix, (MAX_MIXERS-(source+1))*sizeof(MixData));
+  MixData *mix = mixAddress(dest);
+  size_t trailingMixes = MAX_MIXERS - (dest + 1);
+  if (ch == PASTE_AFTER) {
+    trailingMixes--;
+    memmove(mix + 2, mix + 1, trailingMixes * sizeof(MixData));
+    memcpy(mix + 1, &sourceMix, sizeof(MixData));
+    (mix + 1)->destCh = (mix)->destCh;
+  } else if (ch == PASTE_BEFORE) {
+    memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
     memcpy(mix, &sourceMix, sizeof(MixData));
-    mix->destCh = (mix+1)->destCh;
-  }
-  else {
-    memmove(mix+1, mix, (MAX_MIXERS-(source+1))*sizeof(MixData));
+    mix->destCh = (mix + 1)->destCh;
+  } else {
+    memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
     memcpy(mix, &sourceMix, sizeof(MixData));
-    mix->destCh  = ch;
+    mix->destCh = ch;
   }
-
-  //memmove(mix + 1, mix, (MAX_MIXERS - (dest + 1)) * sizeof(MixData));
   resumeMixerCalculations();
   storageDirty(EE_MODEL);
 }

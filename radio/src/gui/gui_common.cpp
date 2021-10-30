@@ -442,12 +442,15 @@ bool isSwitch2POSWarningStateAvailable(int state)
 //  return isSwitchAvailable(swtch, TimersContext);
 //}
 
-bool isThrottleSourceAvailable(int source)
+bool isThrottleSourceAvailable(int src)
 {
-  if (source >= THROTTLE_SOURCE_FIRST_POT && source < THROTTLE_SOURCE_FIRST_POT+NUM_POTS+NUM_SLIDERS && !IS_POT_SLIDER_AVAILABLE(POT1+source-THROTTLE_SOURCE_FIRST_POT))
-    return false;
-  else
-    return true;
+#if !defined(LIBOPENUI)
+  src = throttleSource2Source(src);
+#endif
+  return isSourceAvailable(src) &&
+    ((src == MIXSRC_Thr) ||
+     ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
+     ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
 
 bool isLogicalSwitchFunctionAvailable(int function)
@@ -1097,6 +1100,13 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol)
 #endif
 
 #if defined(MULTIMODULE)
+const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
+{
+  const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+  const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
+  return pdef->optionsstr;
+}
+
 const char * getMultiOptionTitle(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
@@ -1107,10 +1117,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     }
     return mm_options_strings::options[status.optionDisp];
   }
-  else {
-    const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
-    const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-    return pdef->optionsstr;
-  }
+
+  return getMultiOptionTitleStatic(moduleIdx);
 }
 #endif

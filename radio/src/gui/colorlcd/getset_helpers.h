@@ -36,7 +36,7 @@
 #define GET_SET_DEFAULT(value)  GET_DEFAULT(value), SET_DEFAULT(value)
 #define GET_SET_INVERTED(value) GET_INVERTED(value), SET_INVERTED(value)
 #define GET_SET_VALUE_WITH_OFFSET(value, offset) GET_VALUE_WITH_OFFSET(value, offset), SET_VALUE_WITH_OFFSET(value, offset)
-#define GET_SET_WITH_OFFSET(value, offset) GET_VALUE_WITH_OFFSET(value, offset), SET_VALUE_WITH_OFFSET(value, offset)
+#define GET_SET_WITH_OFFSET(value, offset)       GET_VALUE_WITH_OFFSET(value, offset), SET_VALUE_WITH_OFFSET(value, offset)
 #define GET_SET_BF(value, offset, bits)  GET_VALUE_WITH_BF(value, offset, bits), SET_VALUE_WITH_BF(value, offset, bits)
 
 #endif // _GETSET_HELPERS_H_

@@ -174,3 +174,22 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
     }
   }
 }
+
+int16_t throttleSource2Source(int16_t thrSrc)
+{
+  if (thrSrc == 0) return (int16_t)MIXSRC_Thr;
+  if (--thrSrc < NUM_POTS + NUM_SLIDERS)
+    return (int16_t)(thrSrc + MIXSRC_FIRST_POT);
+  return (int16_t)(thrSrc - (NUM_POTS + NUM_SLIDERS) + MIXSRC_FIRST_CH);
+}
+
+int16_t source2ThrottleSource(int16_t src)
+{
+  if (src == MIXSRC_Thr)
+    return 0;
+  else if (src <= MIXSRC_LAST_POT)
+    return src - MIXSRC_FIRST_POT + 1;
+  else if (src <= MIXSRC_LAST_CH)
+    return src - MIXSRC_FIRST_CH + NUM_POTS + NUM_SLIDERS + 1;
+  return -1;
+}

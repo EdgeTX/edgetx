@@ -166,7 +166,7 @@
 #define TR_CSWEQUAL                    "a=x\0 "
 
 #define LEN_VCSWFUNC                   "\005"
-#define TR_VCSWFUNC            			"---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 ""Δ}x\0 ""|Δ|}x" TR_CSWTIMER TR_CSWSTICKY
+#define TR_VCSWFUNC            			"---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 " STR_CHAR_DELTA "}x\0 " "|" STR_CHAR_DELTA "|}x" TR_CSWTIMER TR_CSWSTICKY
 
 #define LEN_VFSWFUNC                   "\012"
 
