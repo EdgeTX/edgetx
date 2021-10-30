@@ -23,6 +23,8 @@
 #include "yaml_bits.h"
 #include "yaml_tree_walker.h"
 
+#include "pulses/multi.h"
+
 // Use definitions from v220 conversions as long as nothing changes
 
 namespace yaml_conv_220 {
@@ -79,6 +81,19 @@ namespace yaml_conv_220 {
 
   bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                 void* opaque);
+
+  extern const struct YamlIdStr enum_XJT_Subtypes[];
+  extern const struct YamlIdStr enum_ISRM_Subtypes[];
+  extern const struct YamlIdStr enum_R9M_Subtypes[];
+  extern const struct YamlIdStr enum_FLYSKY_Subtypes[];
+  extern const struct YamlIdStr enum_DSM2_Subtypes[];
+  
+  bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque);
+
+  bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                       void* opaque);
+
 };
 
 //
@@ -1198,4 +1213,62 @@ static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
   return yaml_conv_220::w_thrSrc(node, val, wf, opaque);
+}
+
+static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModuleData, channelsStart);
+
+  auto md = reinterpret_cast<ModuleData*>(data);
+  if (isModuleTypeXJT(md->type)) {
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_XJT_Subtypes, val, val_len);
+  } else if (isModuleTypeISRM(md->type)) {
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_ISRM_Subtypes, val, val_len);
+  } else if (isModuleTypeR9MNonAccess(md->type)) {
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_R9M_Subtypes, val, val_len);
+  } else if (md->type == MODULE_TYPE_FLYSKY) {
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_FLYSKY_Subtypes, val, val_len);
+  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
+    // Read type/subType by the book (see MPM documentation)
+    // TODO: remove that crappy translation and use the MPM
+    //       data as-is (no FrSky special casing)
+
+    // read "[type],[subtype]"
+    const char* sep = (const char *)memchr(val, ',', val_len);
+    uint8_t l_sep = sep ? sep - val : val_len;
+
+    int type = yaml_str2uint(val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != '.') return;
+    val++; val_len--;
+    int subtype = yaml_str2uint(val, val_len);
+
+    // convert to OTX format and write to vars
+    convertMultiProtocolToOtx(&type, &subtype);
+    md->setMultiProtocol(type);
+    md->subType = subtype;
+
+  } else if (md->type == MODULE_TYPE_DSM2) {
+    md->rfProtocol = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
+  } else {
+    md->subType = yaml_str2uint(val, val_len);
+  }  
+}
+
+static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
+                         yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_modSubtype(user, data, bitoffs, wf, opaque);
+}
+
+static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  return yaml_str2int(val,val_len) - 8;
+}
+
+bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_channelsCount(node, val, wf, opaque);
 }

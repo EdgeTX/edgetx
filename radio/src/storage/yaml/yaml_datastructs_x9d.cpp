@@ -252,6 +252,14 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_MAX, "TYPE_MAX"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_FailsafeModes[] = {
+  {  FAILSAFE_NOT_SET, "NOT_SET"  },
+  {  FAILSAFE_HOLD, "HOLD"  },
+  {  FAILSAFE_CUSTOM, "CUSTOM"  },
+  {  FAILSAFE_NOPULSES, "NOPULSES"  },
+  {  FAILSAFE_RECEIVER, "RECEIVER"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TelemetrySensorFormula[] = {
   {  TELEM_FORMULA_ADD, "FORMULA_ADD"  },
   {  TELEM_FORMULA_AVERAGE, "FORMULA_AVERAGE"  },
@@ -580,10 +588,10 @@ static const struct YamlNode struct_anonymous_5[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_6[] = {
-  YAML_UNSIGNED( "rfProtocolExtra", 3 ),
+  YAML_PADDING( 3 ),
   YAML_UNSIGNED( "disableTelemetry", 1 ),
   YAML_UNSIGNED( "disableMapping", 1 ),
-  YAML_UNSIGNED( "customProto", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "autoBindMode", 1 ),
   YAML_UNSIGNED( "lowPowerMode", 1 ),
   YAML_SIGNED( "optionValue", 8 ),
@@ -652,12 +660,13 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
   YAML_ENUM("type", 4, enum_ModuleType),
-  YAML_SIGNED( "rfProtocol", 4 ),
+  YAML_PADDING( 4 ),
+  YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
-  YAML_SIGNED( "channelsCount", 8 ),
-  YAML_UNSIGNED( "failsafeMode", 4 ),
-  YAML_UNSIGNED( "subType", 3 ),
-  YAML_UNSIGNED( "invertedSerial", 1 ),
+  YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
+  YAML_ENUM("failsafeMode", 4, enum_FailsafeModes),
+  YAML_PADDING( 3 ),
+  YAML_PADDING( 1 ),
   YAML_UNION("mod", 200, union_anonymous_4_elmts, select_mod_type),
   YAML_END
 };

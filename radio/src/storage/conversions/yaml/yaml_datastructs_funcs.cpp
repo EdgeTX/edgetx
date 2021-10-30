@@ -920,3 +920,103 @@ bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
   auto src = throttleSource2Source(val);
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
+
+// Force external linkage
+extern const struct YamlIdStr enum_XJT_Subtypes[];
+extern const struct YamlIdStr enum_ISRM_Subtypes[];
+extern const struct YamlIdStr enum_R9M_Subtypes[];
+extern const struct YamlIdStr enum_FLYSKY_Subtypes[];
+extern const struct YamlIdStr enum_DSM2_Subtypes[];
+
+const struct YamlIdStr enum_XJT_Subtypes[] = {
+  { MODULE_SUBTYPE_PXX1_ACCST_D16, "D16" },
+  { MODULE_SUBTYPE_PXX1_ACCST_D8, "D8" },
+  { MODULE_SUBTYPE_PXX1_ACCST_LR12, "LR12" },
+  { 0, NULL  }
+};
+
+const struct YamlIdStr enum_ISRM_Subtypes[] = {
+  { MODULE_SUBTYPE_ISRM_PXX2_ACCESS, "ACCESS" },
+  { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, "D16" },
+  // unused !!!
+  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12, "LR12" },
+  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D8, "D8" },
+  { 0, NULL  }
+};
+
+const struct YamlIdStr enum_R9M_Subtypes[] = {
+  { MODULE_SUBTYPE_R9M_FCC, "FCC" },
+  { MODULE_SUBTYPE_R9M_EU, "EU" },
+  { MODULE_SUBTYPE_R9M_EUPLUS, "EUPLUS" },
+  { MODULE_SUBTYPE_R9M_AUPLUS, "AUPLUS" },
+  { 0, NULL  }
+};
+
+const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
+  { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
+  { FLYSKY_SUBTYPE_AFHDS2A, "AFHDS2A" },
+  { 0, NULL  }
+};
+
+const struct YamlIdStr enum_DSM2_Subtypes[] = {
+  { 0, "LP45" },
+  { 1, "DSM2" },
+  { 3, "DSMX" },
+  { 0, NULL  }
+};
+
+#define r_modSubtype nullptr
+
+bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
+                  yaml_writer_func wf, void* opaque)
+{
+  // rfProtocol + subType, depending on the module
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModuleData, channelsStart);
+
+  const char* str = nullptr;
+  auto md = reinterpret_cast<ModuleData*>(data);
+  int32_t val = md->subType;
+  if (md->type == MODULE_TYPE_XJT_PXX1 || md->type == MODULE_TYPE_XJT_LITE_PXX2) {
+    str = yaml_output_enum(val, enum_XJT_Subtypes);
+  } else if (md->type == MODULE_TYPE_ISRM_PXX2) {
+    str = yaml_output_enum(val, enum_ISRM_Subtypes);
+  } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
+    str = yaml_output_enum(val, enum_R9M_Subtypes);
+  } else if (md->type == MODULE_TYPE_FLYSKY) {
+    str = yaml_output_enum(val, enum_FLYSKY_Subtypes);
+  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
+    // Use type/subType by the book (see MPM documentation)
+    // TODO: remove that crappy translation and use the MPM
+    //       data as-is (no FrSky special casing)
+    int type = md->getMultiProtocol() + 1;
+    int subtype = val;
+    convertOtxProtocolToMulti(&type, &subtype);
+
+    // output "[type],[subtype]"
+    str = yaml_unsigned2str(type);
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque, ",", 1)) return false;
+    str = yaml_unsigned2str(subtype);
+
+  } else if (md->type == MODULE_TYPE_DSM2) {
+    str = yaml_output_enum(md->rfProtocol, enum_DSM2_Subtypes);
+  } else {
+    str = yaml_unsigned2str(val);
+  }
+
+  if (str && !wf(opaque, str, strlen(str)))
+    return false;
+
+  return true;
+}
+
+#define r_channelsCount nullptr
+
+bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  // offset 8
+  int32_t sval = yaml_to_signed(val, node->size) + 8;  
+  const char* str = yaml_signed2str(sval);
+  return wf(opaque,str,strlen(str));
+}

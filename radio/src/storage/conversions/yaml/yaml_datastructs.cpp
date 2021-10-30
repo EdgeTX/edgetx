@@ -31,6 +31,7 @@
 #include "../../../strhelpers.h"
 #include "../../../switches.h"
 #include "../../../timers.h"
+#include "../../../pulses/multi.h"
 
 namespace yaml_conv_220 {
 

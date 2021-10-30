@@ -193,14 +193,20 @@ inline bool isModuleXJTD16(uint8_t idx)
   return isModuleXJT(idx) && g_model.moduleData[idx].subType == MODULE_SUBTYPE_PXX1_ACCST_D16;
 }
 
+inline bool isModuleTypeISRM(uint8_t type)
+{
+  return type == MODULE_TYPE_ISRM_PXX2;
+}
+
 inline bool isModuleISRM(uint8_t idx)
 {
-  return g_model.moduleData[idx].type == MODULE_TYPE_ISRM_PXX2;
+  return isModuleTypeISRM(g_model.moduleData[idx].type);
 }
 
 inline bool isModuleISRMD16(uint8_t idx)
 {
-  return g_model.moduleData[idx].type == MODULE_TYPE_ISRM_PXX2 && g_model.moduleData[idx].subType == MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16;
+  return isModuleISRM(idx) &&
+         g_model.moduleData[idx].subType == MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16;
 }
 
 inline bool isModuleD16(uint8_t idx)
@@ -210,7 +216,8 @@ inline bool isModuleD16(uint8_t idx)
 
 inline bool isModuleISRMAccess(uint8_t idx)
 {
-  return g_model.moduleData[idx].type == MODULE_TYPE_ISRM_PXX2 && g_model.moduleData[idx].subType == MODULE_SUBTYPE_ISRM_PXX2_ACCESS;
+  return isModuleISRM(idx) &&
+         g_model.moduleData[idx].subType == MODULE_SUBTYPE_ISRM_PXX2_ACCESS;
 }
 
 #if defined(CROSSFIRE)
