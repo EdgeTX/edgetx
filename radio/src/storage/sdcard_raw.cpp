@@ -133,13 +133,33 @@ const char *loadFileBin(const char *fullpath, uint8_t *data,
   return nullptr;
 }
 
-const char * readModelBin(const char * filename, uint8_t * buffer, uint32_t size, uint8_t * version)
+#if defined(SDCARD_RAW)
+const char* readModel(const char* filename, uint8_t* buffer, uint32_t size)
+{
+  uint8_t version = 0;
+  // Conversions from EEPROM are done in batch when converting the radio file.
+  // It is not supported on a model by model base when loaded.
+  const char *error = readModelBin(filename, buffer, size, &version);
+  if (error) return error;
+
+#if defined(STORAGE_CONVERSIONS)
+  if (version < EEPROM_VER) {
+    convertBinModelData(filename, version);
+    error = readModelBin(filename, buffer, size, &version);
+  }
+#endif
+
+  return error;
+}
+#endif
+
+const char *readModelBin(const char *filename, uint8_t *buffer, uint32_t size,
+                         uint8_t *version)
 {
   char path[256];
   getModelPath(path, filename);
   return loadFileBin(path, buffer, size, version);
 }
-
 
 const char * loadRadioSettingsBin(const char * path)
 {

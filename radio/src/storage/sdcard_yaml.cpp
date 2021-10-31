@@ -189,7 +189,7 @@ const char * writeGeneralSettings()
 }
 
 
-const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, uint8_t * version)
+const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size)
 {
     // YAML reader
     TRACE("YAML model reader");
@@ -235,23 +235,19 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       // md->swashR.elevatorWeight   = 100;
     }
 
-    *version = 255; // max version number
     return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree);
 }
 
-const char* readModel(const char* filename, uint8_t* buffer, uint32_t size,
-                      uint8_t* version)
+static const char _wrongExtentionError[] = "wrong file extension";
+
+const char* readModel(const char* filename, uint8_t* buffer, uint32_t size)
 {
   const char* ext = strrchr(filename, '.');
-  if (ext != nullptr) {
-    if (!strncmp(ext, YAML_EXT, 4)) {
-      return readModelYaml(filename, buffer, size, version);
-    }
-#if !defined(EEPROM_RLC)
-    return readModelBin(filename, buffer, size, version);
-#endif
+  if (!ext || strncmp(ext, YAML_EXT, 4) != 0) {
+    return _wrongExtentionError;
   }
-  return nullptr;
+
+  return readModelYaml(filename, buffer, size);
 }
 
 const char * writeModelYaml(const char* filename)

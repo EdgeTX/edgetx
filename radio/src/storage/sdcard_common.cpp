@@ -120,12 +120,11 @@ const char * createModel()
 }
 #endif
 
-const char * loadModel(char * filename, bool alarms)
+const char* loadModel(char* filename, bool alarms)
 {
-  uint8_t version;
   preModelLoad();
 
-  const char * error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &version);
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model));
   if (error) {
     TRACE("loadModel error=%s", error);
 
@@ -138,15 +137,6 @@ const char * loadModel(char * filename, bool alarms)
     postModelLoad(false);
     return error;
   }
-
-  // Conversions from EEPROM are done in batch when converting the radio file.
-  // It is not supported on a model by model base when loaded.
-#if defined(STORAGE_CONVERSIONS) && !defined(EEPROM_RLC)
-  if (version < EEPROM_VER) {
-    convertBinModelData(filename, version);
-  }
-  // TODO: reload model afterwards
-#endif
 
   postModelLoad(alarms);
   return nullptr;

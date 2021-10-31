@@ -24,19 +24,25 @@
 
 #include "FatFs/ff.h"
 
-#if !defined(SDCARD_YAML)
+#if defined(SDCARD_RAW)
+
 #define writeModel           writeModelBin
 #define loadRadioSettings    loadRadioSettingsBin
 #define writeGeneralSettings writeGeneralSettingsBin
-#define readModel            readModelBin
+
+const char* readModel(const char* filename, uint8_t* buffer, uint32_t size);
+
 #endif
 
 const char* loadRadioSettingsBin();
 const char * writeGeneralSettingsBin();
 
-const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint8_t * version);
+const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
+                        uint8_t* version);
+
 const char* readModelBin(const char* filename, uint8_t* buffer, uint32_t size,
                          uint8_t* version);
-const char * writeModelBin();
+
+const char* writeModelBin();
 
 #endif

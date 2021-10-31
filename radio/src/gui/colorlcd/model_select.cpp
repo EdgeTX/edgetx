@@ -59,7 +59,9 @@ class ModelButton : public Button
   
   void load()
   {
+#if defined(SDCARD_RAW)
     uint8_t version;
+#endif
 
     PACK(struct {
       ModelHeader header;
@@ -71,17 +73,25 @@ class ModelButton : public Button
     if (strncmp(modelCell->modelFilename, g_eeGeneral.currModelFilename,
                 LEN_MODEL_FILENAME) == 0) {
       memcpy(&partialModel.header, &g_model.header, sizeof(partialModel));
+#if defined(SDCARD_RAW)
       version = EEPROM_VER;
+#endif
     } else {
+#if defined(SDCARD_RAW)
       error =
-          readModel(modelCell->modelFilename, (uint8_t *)&partialModel.header,
-                    sizeof(partialModel), &version);
+          readModelBin(modelCell->modelFilename, (uint8_t *)&partialModel.header,
+                       sizeof(partialModel), &version);
+#else
+      error = readModel(modelCell->modelFilename,
+                        (uint8_t *)&partialModel.header, sizeof(partialModel));
+#endif
     }
 
     if (!error) {
       if (modelCell->modelName[0] == '\0' &&
           partialModel.header.name[0] != '\0') {
-        
+
+#if defined(SDCARD_RAW)
         if (version == 219) {
           int len = (int)sizeof(partialModel.header.name);
           char* str = partialModel.header.name;
@@ -94,6 +104,7 @@ class ModelButton : public Button
             str[--len] = '\0';
           }
         }
+#endif
         modelCell->setModelName(partialModel.header.name);
       }
     }
