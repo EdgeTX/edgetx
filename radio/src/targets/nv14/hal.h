@@ -438,7 +438,6 @@
 #define EXTMODULE_PULSES
 #define EXTMODULE_PWR_GPIO              GPIOD
 #define EXTMODULE_PWR_GPIO_PIN          GPIO_Pin_11
-#define EXTERNAL_MODULE_PWR_OFF()       GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTMODULE_PWR_FIX_GPIO          GPIOA
 #define EXTMODULE_PWR_FIX_GPIO_PIN      GPIO_Pin_2      // PA.02
 #define EXTMODULE_RCC_AHB1Periph                                        \
