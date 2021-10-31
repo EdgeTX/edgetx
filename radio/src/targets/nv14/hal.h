@@ -124,7 +124,11 @@
 #define ADC_GPIO_PIN_SWH                GPIO_Pin_1      // PC.01
 #define ADC_GPIO_PIN_BATT               GPIO_Pin_5      // PC.05
 
+#if !defined(FLYSKY_HALL_STICKS)
 #define ADC_GPIOA_PINS                  (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4| GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
+#else
+#define ADC_GPIOA_PINS                  (GPIO_Pin_6 | GPIO_Pin_7)
+#endif
 #define ADC_GPIOB_PINS                  (GPIO_Pin_0 | GPIO_Pin_1)
 #define ADC_GPIOC_PINS                  (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_5)
 #define ADC_GPIOF_PINS                  (GPIO_Pin_8 | GPIO_Pin_10)
