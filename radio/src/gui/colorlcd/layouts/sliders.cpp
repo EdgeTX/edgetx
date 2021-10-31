@@ -42,6 +42,7 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
 
 void MainView6POS::paint(BitmapBuffer * dc)
 {
+#if NUM_XPOTS > 0 // prevent compiler warning
   // The ticks
   int delta = (width() - TRIM_SQUARE_SIZE) / (XPOTS_MULTIPOS_COUNT - 1);
   coord_t x = TRIM_SQUARE_SIZE / 2;
@@ -55,6 +56,7 @@ void MainView6POS::paint(BitmapBuffer * dc)
   x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
   dc->drawNumber(x + 1, 0, value, COLOR_THEME_PRIMARY2);
+#endif
 }
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)
