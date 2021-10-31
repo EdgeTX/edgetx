@@ -343,7 +343,9 @@ class Theme480: public OpenTxTheme
         dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, COLOR_THEME_PRIMARY2);
       }
 
+#if LCD_W > LCD_H
       drawMenuDatetime(dc);
+#endif
     }
 
     const BitmapBuffer * getIconMask(uint8_t index) const override
