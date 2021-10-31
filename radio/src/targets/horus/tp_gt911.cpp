@@ -22,7 +22,6 @@
 #include "opentx.h"
 #include "i2c_driver.h"
 #include "tp_gt911.h"
-#include "touch.h"
 
 #if defined (RADIO_T18)
 const uint8_t TOUCH_GT911_Cfg[] = {
@@ -417,6 +416,8 @@ short tapCount = 0;
 
 I2C_HandleTypeDef hi2c1;
 
+static TouchState internalTouchState ={};
+
 static void TOUCH_AF_ExtiStop(void)
 {
   SYSCFG_EXTILineConfig(TOUCH_INT_EXTI_PortSource, TOUCH_INT_EXTI_PinSource1);
@@ -717,12 +718,12 @@ static const char* event2str(uint8_t ev)
 }
 #endif
 
-void touchPanelRead()
+struct TouchState touchPanelRead()
 {
   uint8_t state = 0;
 
   if (!touchEventOccured)
-    return;
+    return internalTouchState;
 
   touchEventOccured = false;
 
@@ -734,7 +735,7 @@ void touchPanelRead()
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit())
           TRACE("I2C B1 ReInit failed");
-      return;
+      return internalTouchState;
     }
 
     if (state & 0x80u) {
@@ -748,7 +749,7 @@ void touchPanelRead()
   if (state & 0x80u) {
     uint8_t pointsCount = (state & 0x0Fu);
     tmr10ms_t now = get_tmr10ms();
-    touchState.tapCount = 0;
+    internalTouchState.tapCount = 0;
 
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
@@ -758,40 +759,40 @@ void touchPanelRead()
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit())
             TRACE("I2C B1 ReInit failed");
-        return;
+        return internalTouchState;
       }
-      if (touchState.event == TE_NONE || touchState.event == TE_UP ||
-          touchState.event == TE_SLIDE_END) {
-        touchState.event = TE_DOWN;
-        touchState.startX = touchState.x = touchData.points[0].x;
-        touchState.startY = touchState.y = touchData.points[0].y;
+      if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
+          internalTouchState.event == TE_SLIDE_END) {
+        internalTouchState.event = TE_DOWN;
+        internalTouchState.startX = internalTouchState.x = touchData.points[0].x;
+        internalTouchState.startY = internalTouchState.y = touchData.points[0].y;
         downTime = now;
       } else {
-        touchState.deltaX = touchData.points[0].x - touchState.x;
-        touchState.deltaY = touchData.points[0].y - touchState.y;
-        if (touchState.event == TE_SLIDE ||
-            abs(touchState.deltaX) >= SLIDE_RANGE ||
-            abs(touchState.deltaY) >= SLIDE_RANGE) {
-          touchState.event = TE_SLIDE;
-          touchState.x = touchData.points[0].x;
-          touchState.y = touchData.points[0].y;
+        internalTouchState.deltaX = touchData.points[0].x - internalTouchState.x;
+        internalTouchState.deltaY = touchData.points[0].y - internalTouchState.y;
+        if (internalTouchState.event == TE_SLIDE ||
+            abs(internalTouchState.deltaX) >= SLIDE_RANGE ||
+            abs(internalTouchState.deltaY) >= SLIDE_RANGE) {
+          internalTouchState.event = TE_SLIDE;
+          internalTouchState.x = touchData.points[0].x;
+          internalTouchState.y = touchData.points[0].y;
         }
       }
     } else {
-      if (touchState.event == TE_SLIDE) {
-        touchState.event = TE_SLIDE_END;
-      } else if (touchState.event == TE_DOWN) {
-        touchState.event = TE_UP;
+      if (internalTouchState.event == TE_SLIDE) {
+        internalTouchState.event = TE_SLIDE_END;
+      } else if (internalTouchState.event == TE_DOWN) {
+        internalTouchState.event = TE_UP;
         if (now - downTime <= TAP_TIME) {
           if (now - tapTime > TAP_TIME)
             tapCount = 1;
           else
             tapCount++;
-          touchState.tapCount = tapCount;
+          internalTouchState.tapCount = tapCount;
           tapTime = now;
         }
-      } else if (touchState.event != TE_SLIDE_END) {
-        touchState.event = TE_NONE;
+      } else if (internalTouchState.event != TE_SLIDE_END) {
+        internalTouchState.event = TE_NONE;
       }
     }
   }
@@ -802,7 +803,8 @@ void touchPanelRead()
     TRACE("GT911 ERROR: clearing XY register failed");
   }
 
-  TRACE("touch event = %s", event2str(touchState.event));
+  TRACE("touch event = %s", event2str(internalTouchState.event));
+  return internalTouchState;
 }
 
 extern "C" void TOUCH_INT_EXTI_IRQHandler1(void)

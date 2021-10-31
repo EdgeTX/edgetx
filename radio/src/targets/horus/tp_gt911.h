@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "touch.h"
+
 #define HAS_TOUCH_PANEL()     touchGT911Flag == true
 
 extern bool touchGT911Flag;
@@ -28,7 +30,7 @@ extern uint16_t touchGT911fwver;
 extern uint32_t touchGT911hiccups;
 extern bool touchPanelInit();
 
-void touchPanelRead();
+struct TouchState touchPanelRead();
 bool touchPanelEventOccured();
 
 #define GT911_TIMEOUT           3 // 3ms

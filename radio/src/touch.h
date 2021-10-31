@@ -45,8 +45,9 @@ struct TouchState
   short tapCount;
 };
 
-constexpr uint8_t SLIDE_RANGE = 6;
 
-extern TouchState touchState;
+#define SLIDE_RANGE 6
+
+extern struct TouchState touchState;
 
 #endif // _TOUCH_H_

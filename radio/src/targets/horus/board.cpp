@@ -43,6 +43,7 @@ extern "C" {
 extern void flysky_hall_stick_init( void );
 
 HardwareOptions hardwareOptions;
+bool boardBacklightOn = false;
 
 void watchdogInit(unsigned int duration)
 {
@@ -329,4 +330,11 @@ uint16_t getBatteryVoltage()
 {
   int32_t instant_vbat = anaIn(TX_VOLTAGE);  // using filtered ADC value on purpose
   return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) / BATTERY_DIVIDER);
+}
+
+bool isBacklightEnabled()
+{
+  if(globalData.unexpectedShutdown)
+    return true;
+  return boardBacklightOn;
 }

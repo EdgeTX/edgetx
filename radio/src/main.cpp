@@ -375,7 +375,7 @@ void guiMain(event_t evt)
 #endif
 #if defined(HARDWARE_TOUCH)
   MainWindow* mainWin = MainWindow::instance();
-  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH));
+  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
 #endif
   MainWindow::instance()->run();
 
