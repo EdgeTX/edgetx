@@ -29,21 +29,28 @@
 
 namespace yaml_conv_220 {
   bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-  bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
+  bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
+                             yaml_writer_func wf, void* opaque);
+
   bool w_vbat_min(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
   uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs);
-  bool sw_write(void* user, yaml_writer_func wf, void* opaque);
+
+  extern const struct YamlIdStr enum_SwitchConfig[];
   bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
+
   bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs);
+
   bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
@@ -66,21 +73,15 @@ namespace yaml_conv_220 {
 
   extern const char* _func_sound_lookup[];
   extern const uint8_t _func_sound_lookup_size;
-  
-  bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
-                  yaml_writer_func wf, void* opaque);
 
-  bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
-                 yaml_writer_func wf, void* opaque);
+  extern const char* _func_reset_param_lookup[];
+  extern const char* _func_failsafe_lookup[];
 
   bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque);
 
   bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                    yaml_writer_func wf, void* opaque);
-
-  bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                void* opaque);
 
   extern const struct YamlIdStr enum_XJT_Subtypes[];
   extern const struct YamlIdStr enum_ISRM_Subtypes[];
@@ -259,9 +260,98 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
 
+static constexpr char closing_parenthesis[] = ")";
+
 static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_mixSrcRaw(node, val, wf, opaque);
+    const char* str = nullptr;
+
+    if (val >= MIXSRC_FIRST_INPUT
+        && val <= MIXSRC_LAST_INPUT) {
+
+        if (!wf(opaque, "I", 1))
+            return false;
+
+        str = yaml_unsigned2str(val - MIXSRC_FIRST_INPUT);
+    }
+#if defined(LUA_INPUTS)
+    else if (val >= MIXSRC_FIRST_LUA
+             && val <= MIXSRC_LAST_LUA) {
+      
+        if (!wf(opaque, "lua(", 4)) return false;
+
+        val -= MIXSRC_FIRST_LUA;
+        uint32_t script = val / MAX_SCRIPT_OUTPUTS;
+
+        if (!yaml_conv_220::output_source_1_param("lua(", 4, script, wf,
+                                                  opaque))
+          return false;
+        if (!wf(opaque, ",", 1)) return false;
+
+        val = val % MAX_SCRIPT_OUTPUTS;
+        str = yaml_unsigned2str(val);
+
+        if (!wf(opaque, str, strlen(str))) return false;
+        str = closing_parenthesis;
+    }
+#endif
+    else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
+             && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
+
+        val -= MIXSRC_FIRST_LOGICAL_SWITCH;
+        if (!yaml_conv_220::output_source_1_param("ls(", 3, val, wf, opaque))
+          return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_TRAINER
+             && val <= MIXSRC_LAST_TRAINER) {
+
+        val -= MIXSRC_FIRST_TRAINER;
+        if (!yaml_conv_220::output_source_1_param("tr(", 3, val, wf, opaque))
+          return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_CH
+             && val <= MIXSRC_LAST_CH) {
+
+        val -= MIXSRC_FIRST_CH;
+        if (!yaml_conv_220::output_source_1_param("ch(", 3, val, wf, opaque))
+          return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_GVAR
+             && val <= MIXSRC_LAST_GVAR) {
+
+        val -= MIXSRC_FIRST_GVAR;
+        if (!yaml_conv_220::output_source_1_param("gv(", 3, val, wf, opaque))
+          return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_TELEM
+             && val <= MIXSRC_LAST_TELEM) {
+
+        val -= MIXSRC_FIRST_TELEM;
+        uint8_t sign = val % 3;
+        val = val / 3;
+        if (!wf(opaque, "tele(", 5)) return false;
+        if (sign == 1) {
+          if (!wf(opaque, "-", 1)) return false;
+        } else if (sign == 2) {
+          if (!wf(opaque, "+", 1)) return false;
+        }
+        str = yaml_unsigned2str(val);
+        if (!wf(opaque, str, strlen(str))) return false;
+        str = closing_parenthesis;
+    }
+    else {
+        str = yaml_output_enum(val, enum_MixSources);
+    }
+
+    if (str) {
+        return wf(opaque, str, strlen(str));
+    }
+
+    return true;
 }
 
 static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_len)
@@ -367,7 +457,12 @@ static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
 
 bool sw_write(void* user, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::sw_write(user, wf, opaque);
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
@@ -438,17 +533,9 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
 }
 
-static const struct YamlIdStr enum_SwitchConfig[] = {
-    {  SWITCH_NONE, "none"  },
-    {  SWITCH_TOGGLE, "toggle"  },
-    {  SWITCH_2POS, "2pos"  },
-    {  SWITCH_3POS, "3pos"  },
-    {  0, NULL  }
-};
-
 static const struct YamlNode struct_switchConfig[] = {
     YAML_IDX_CUST( "sw", sw_read, sw_write),
-    YAML_ENUM( "type", 2, enum_SwitchConfig),
+    YAML_ENUM( "type", 2, yaml_conv_220::enum_SwitchConfig),
     YAML_CUSTOM( "name", sw_name_read, sw_name_write),
     YAML_END
 };
@@ -809,28 +896,9 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   return yaml_conv_220::w_vPitch(node, val, wf, opaque);
 }
 
-const struct YamlIdStr enum_TrainerMode[] = {
-#if defined(PCBNV14)
-  {  TRAINER_MODE_OFF, "OFF"  },
-#endif
-  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
-  {  TRAINER_MODE_SLAVE, "SLAVE"  },
-#if defined(PCBTARANIS) || defined(PCBNV14)
-  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
-  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
-#endif
-#if defined(PCBTARANIS) || defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  {  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, "MASTER_BATT_COMP"  },
-#endif
-  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
-  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
-  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
-  {  0, NULL  }
-};
-
 static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
 {
-    return yaml_parse_enum(enum_TrainerMode, val, val_len);
+  return yaml_parse_enum(yaml_conv_220::enum_TrainerMode, val, val_len);
 }
 
 static bool w_trainerMode(const YamlNode* node, uint32_t val,
@@ -1107,7 +1175,122 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                        yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_customFn(user, data, bitoffs, wf, opaque);
+  data += bitoffs >> 3UL;
+  data -= offsetof(CustomFunctionData, all);
+
+  auto cfn = reinterpret_cast<CustomFunctionData*>(data);
+  uint8_t func = CFN_FUNC(cfn);
+
+  const char* str = nullptr;
+  switch (func) {
+  case FUNC_OVERRIDE_CHANNEL:
+    str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque, ",", 1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));    // value
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_TRAINER: {
+    int16_t value = CFN_CH_INDEX(cfn);
+    switch(value) {
+    case 0:
+      if (!wf(opaque, "sticks", 6)) return false;
+      break;
+    case NUM_STICKS + 1:
+      if (!wf(opaque, "chans", 5)) return false;
+      break;
+    default:
+      if (value > 0 && value < NUM_STICKS + 1) {
+        str = yaml_output_enum(value - 1 + MIXSRC_FIRST_STICK, enum_MixSources);
+        if (str && !wf(opaque, str, strlen(str))) return false;
+      }
+    }
+  } break;
+
+  case FUNC_RESET:
+    if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
+      // Tmr1,Tmr2,Tmr3,All
+      str = yaml_conv_220::_func_reset_param_lookup[CFN_PARAM(cfn)];
+    } else {
+      // sensor index
+      str = yaml_unsigned2str(CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM);
+    }
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+      
+  case FUNC_VOLUME:
+  case FUNC_BACKLIGHT:
+  case FUNC_PLAY_VALUE:
+    if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+    break;
+
+  case FUNC_PLAY_SOUND:
+    // Bp1,Bp2,Bp3,Wrn1,Wrn2,Chee,Rata,Tick,Sirn,Ring,SciF,Robt,Chrp,Tada,Crck,Alrm
+    str = yaml_conv_220::_func_sound_lookup[CFN_PARAM(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_PLAY_TRACK:
+  case FUNC_BACKGND_MUSIC:
+  case FUNC_PLAY_SCRIPT:
+    if (!wf(opaque, cfn->play.name, strnlen(cfn->play.name, LEN_FUNCTION_NAME)))
+      return false;
+    break;
+
+  case FUNC_SET_TIMER:
+    // Tmr1,Tmr2,Tmr3
+    str = yaml_conv_220::_func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_SET_FAILSAFE:
+    // Int,Ext
+    str = yaml_conv_220::_func_failsafe_lookup[CFN_PARAM(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_HAPTIC:
+  case FUNC_LOGS: // 10th of seconds
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+
+  case FUNC_ADJUST_GVAR:
+    switch(CFN_GVAR_MODE(cfn)) {
+    case FUNC_ADJUST_GVAR_CONSTANT:
+    case FUNC_ADJUST_GVAR_INCDEC:
+      str = yaml_signed2str(CFN_PARAM(cfn));
+      if (!wf(opaque, str, strlen(str))) return false;
+      break;
+    case FUNC_ADJUST_GVAR_SOURCE:
+      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+      break;
+    case FUNC_ADJUST_GVAR_GVAR:
+      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
+      break;
+    }
+  }
+
+  if (HAS_ENABLE_PARAM(func)) {
+    // ",0/1"
+    if (!wf(opaque,CFN_ACTIVE(cfn) ? ",1":",0",2)) return false;
+  } else if (HAS_REPEAT_PARAM(func)) {
+    // ","
+    if (!wf(opaque,",",1)) return false;
+    if (CFN_PLAY_REPEAT(cfn) == 0) {
+      // "1x"
+      if (!wf(opaque,"1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+      // "!1x"
+      if (!wf(opaque,"!1x",3)) return false;
+    } else {
+      // repeat time in seconds
+      str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
+      if (!wf(opaque, str, strlen(str))) return false;
+    }
+  }
+  return true;
 }
 
 #include "switches.h"
@@ -1192,10 +1375,65 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
 }
 
+static const struct YamlNode _ls_node_v1 = YAML_PADDING(10);
+static const struct YamlNode _ls_node_v2 = YAML_PADDING(16);
+
 static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
                       yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_logicSw(user, data, bitoffs, wf, opaque);
+  data += bitoffs >> 3UL;
+  data -= sizeof(LogicalSwitchData::func);
+
+  const char* str = nullptr;
+  auto ls = reinterpret_cast<LogicalSwitchData*>(data);
+  switch(lswFamily(ls->func)) {
+  
+  case LS_FAMILY_BOOL:
+  case LS_FAMILY_STICKY:
+    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_swtchSrc(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    break;
+
+  case LS_FAMILY_EDGE:
+    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(lswTimerValue(ls->v2));
+    if (!wf(opaque,str,strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (ls->v3 < 0) {
+      if (!wf(opaque,"<",1)) return false;
+    } else if(ls->v3 == 0) {
+      if (!wf(opaque,"-",1)) return false;
+    } else {
+      str = yaml_unsigned2str(lswTimerValue(ls->v2 + ls->v3));
+    }
+    break;
+    
+  case LS_FAMILY_COMP:
+    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_mixSrcRaw(nullptr, ls->v2, wf, opaque)) return false;
+    break;
+    
+  case LS_FAMILY_TIMER:
+    str = yaml_unsigned2str(lswTimerValue(ls->v1));
+    if (!wf(opaque,str,strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(lswTimerValue(ls->v2));
+    if (!wf(opaque,str,strlen(str))) return false;
+    break;
+    
+  default:
+    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
+    str = yaml_signed2str(ls->v2);
+    if (!wf(opaque,str,strlen(str))) return false;
+    break;
+  }
+
+  return true;
 }
 
 static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1212,7 +1450,8 @@ static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
 static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
-  return yaml_conv_220::w_thrSrc(node, val, wf, opaque);
+  auto src = throttleSource2Source(val);
+  return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
 
 static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,

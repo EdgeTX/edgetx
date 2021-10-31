@@ -21,4 +21,5 @@
 
 #pragma once
 
+const char * loadRadioSettingsYaml();
 const char * writeModelYaml(const char* filename);

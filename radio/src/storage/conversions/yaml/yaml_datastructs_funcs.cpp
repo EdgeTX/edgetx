@@ -51,8 +51,8 @@ extern const struct YamlIdStr enum_MixSources[];
 
 static constexpr char closing_parenthesis[] = ")";
 
-static bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
-                                  yaml_writer_func wf, void* opaque)
+bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
+                           yaml_writer_func wf, void* opaque)
 {
   if (!wf(opaque, src_prefix, src_len)) return false;
   const char* str = yaml_unsigned2str(n);
@@ -313,7 +313,8 @@ bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
 }
 
-static const struct YamlIdStr enum_SwitchConfig[] = {
+extern const struct YamlIdStr enum_SwitchConfig[];
+const struct YamlIdStr enum_SwitchConfig[] = {
     {  SWITCH_NONE, "none"  },
     {  SWITCH_TOGGLE, "toggle"  },
     {  SWITCH_2POS, "2pos"  },
@@ -604,6 +605,7 @@ bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
     return wf(opaque, s, strlen(s));
 }
 
+extern const struct YamlIdStr enum_TrainerMode[];
 const struct YamlIdStr enum_TrainerMode[] = {
 #if defined(PCBNV14)
   {  TRAINER_MODE_OFF, "OFF"  },
@@ -711,11 +713,13 @@ bool w_flightModes(const YamlNode* node, uint32_t val,
 
 #define r_customFn nullptr
 
-static const char* _func_reset_param_lookup[] = {
+extern const char* _func_reset_param_lookup[];
+const char* _func_reset_param_lookup[] = {
   "Tmr1","Tmr2","Tmr3","All","Tele"
 };
 
-static const char* _func_failsafe_lookup[] = {
+extern const char* _func_failsafe_lookup[];
+const char* _func_failsafe_lookup[] = {
   "Int","Ext"
 };
 

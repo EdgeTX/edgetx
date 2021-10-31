@@ -28,7 +28,7 @@
 #endif
 
 #if defined(SDCARD_YAML)
-const char * loadRadioSettingsYaml();
+#include <storage/sdcard_yaml.h>
 #endif
 
 #if defined(EEPROM_SIZE)
@@ -455,8 +455,17 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   char modelname2[] = "model2.bin";
   convertBinModelData(modelname2, 220);
+
+  loadModel(modelname2);
+  writeModelYaml(modelname2);
   loadModel(modelname2);
 
+  EXPECT_EQ(MIXSRC_FIRST_LOGICAL_SWITCH + 4, g_model.mixData[4].srcRaw);
+  EXPECT_EQ(MIXSRC_SC, g_model.mixData[5].srcRaw);
+  EXPECT_EQ(MIXSRC_SB, g_model.mixData[6].srcRaw);
+  EXPECT_EQ(MIXSRC_SD, g_model.mixData[7].srcRaw);
+
+  
   EXPECT_EQ(LS_FUNC_EDGE, g_model.logicalSw[0].func);
   EXPECT_EQ(SWSRC_SF2, g_model.logicalSw[0].v1);
   EXPECT_EQ(-129, g_model.logicalSw[0].v2);
