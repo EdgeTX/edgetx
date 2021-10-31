@@ -119,9 +119,10 @@ const char* convertModelData_220_to_221(const char* path)
                                 patchModelData);
 }
 
-static void patchCurrentModelFilename(uint8_t* data)
+static void patchRadioData(uint8_t* data)
 {
   auto rd = reinterpret_cast<bin_storage_220::RadioData*>(data);
+  rd->version = 221;
   patchFilenameToYaml(rd->currModelFilename);
 }
 
@@ -130,7 +131,7 @@ const char* convertRadioData_220_to_221(const char* path)
   constexpr unsigned rd_size = sizeof(bin_storage_220::RadioData);
   return convertData_220_to_221(path, rd_size,
                                 yaml_conv_220::get_radiodata_nodes(),
-                                patchCurrentModelFilename);
+                                patchRadioData);
 }
 
 #else
