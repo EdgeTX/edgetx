@@ -1471,10 +1471,11 @@ class CustomFunctionsConversionTable: public ConversionTable {
       addConversion(FuncPlayHaptic, val++);
       addConversion(FuncLogs, val++);
       addConversion(FuncBacklight, val++);
-      if (IS_STM32(board))
+      if (IS_STM32(board)) {
         addConversion(FuncScreenshot, val++);
         addConversion(FuncRacingMode, val++);
         addConversion(FuncDisableTouch, val++);
+      }
     }
 };
 
