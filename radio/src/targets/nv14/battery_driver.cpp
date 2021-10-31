@@ -143,7 +143,6 @@ void handle_battery_charge(uint32_t last_press_time)
   static uint32_t info_until = 0;
   static bool lcdInited = false;
 
-  if(boardState != BOARD_POWER_OFF) return;
   uint32_t now = get_tmr10ms();
   uint16_t chargeState = get_battery_charge_state();
   if(chargeState != CHARGE_UNKNOWN) {

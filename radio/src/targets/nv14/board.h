@@ -352,7 +352,6 @@ enum EnumPowerupState
   BOARD_REBOOT = 0xC00010FF,
 };
 
-extern uint32_t boardState;
 
 #if defined(__cplusplus)
 enum PowerReason {

@@ -139,34 +139,38 @@ void boardInit()
   init2MhzTimer();
   init1msTimer();
   TouchInit();
+  usbInit();
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;
 
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
-  }
-  
-  while (boardState == BOARD_POWER_OFF) {
-    uint32_t now = get_tmr10ms();
-    if (pwrPressed()) {
-      press_end = now;
-      if (press_start == 0) press_start = now;
-      if ((now - press_start) > POWER_ON_DELAY) {
+  } else {
+
+    // prime debounce state...
+    usbPlugged();
+
+    while (usbPlugged()) {
+      uint32_t now = get_tmr10ms();
+      if (pwrPressed()) {
+        press_end = now;
+        if (press_start == 0) press_start = now;
+        if ((now - press_start) > POWER_ON_DELAY) {
           pwrOn();
           break;
+        }
+      } else {
+        uint32_t press_end_touch = press_end;
+        if (touchPanelEventOccured()) {
+          touchPanelRead();
+          press_end_touch = get_tmr10ms();
+        }
+        press_start = 0;
+        handle_battery_charge(press_end_touch);
+        delay_ms(20);
+        press_end = 0;
       }
-    }
-    else {
-      uint32_t press_end_touch = press_end;
-      if (touchPanelEventOccured()) {
-        touchPanelRead();
-        press_end_touch = get_tmr10ms();
-      }
-      press_start = 0;
-      handle_battery_charge(press_end_touch);
-      delay_ms(20);
-      press_end = 0;
     }
   }
 
@@ -179,10 +183,8 @@ void boardInit()
   adcInit(&stm32_hal_adc_driver);
   backlightInit();
   lcdInit();
-  usbInit();
   hapticInit();
 
-  boardState = BOARD_STARTED;
 
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
@@ -190,20 +192,27 @@ void boardInit()
  
   
 #if defined(DEBUG)
-  DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
+  DBGMCU_APB1PeriphConfig(
+      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
+          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
+          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
+          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
+          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
+      ENABLE);
 #endif
-
 }
+
 void boardOff()
 {
   lcd->drawFilledRect(0, 0, LCD_WIDTH, LCD_HEIGHT, SOLID, COLOR_THEME_FOCUS);
   lcdOff();
 
+  SysTick->CTRL = 0; // turn off systick
+
   while (pwrPressed()) {
     WDG_RESET();
   }
- 
- 
+
 #if defined(RTC_BACKUP_RAM)
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
   PWR_BackupRegulatorCmd(DISABLE);
@@ -211,15 +220,25 @@ void boardOff()
 
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
-  SysTick->CTRL = 0; // turn off systick
   pwrOff();
-#if !defined (SIMU)
-#if defined(HAPTIC) && !defined(BOOT)
-  haptic.event(AU_ERROR);
-  delay_ms(50);
-#endif
-  while(1) {
-    NVIC_SystemReset();
+
+  // We reach here only in forced power situations, such as hw-debugging with external power  
+  // Enter STM32 stop mode / deep-sleep
+  // Code snippet from ST Nucleo PWR_EnterStopMode example
+#define PDMode             0x00000000U
+#if defined(PWR_CR_MRUDS) && defined(PWR_CR_LPUDS) && defined(PWR_CR_FPDS)
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_FPDS | PWR_CR_LPUDS | PWR_CR_MRUDS), PDMode);
+#elif defined(PWR_CR_MRLVDS) && defined(PWR_CR_LPLVDS) && defined(PWR_CR_FPDS)
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_FPDS | PWR_CR_LPLVDS | PWR_CR_MRLVDS), PDMode);
+#else
+  MODIFY_REG(PWR->CR, (PWR_CR_PDDS| PWR_CR_LPDS), PDMode);
+#endif /* PWR_CR_MRUDS && PWR_CR_LPUDS && PWR_CR_FPDS */
+
+/* Set SLEEPDEEP bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+  
+  // To avoid HardFault at return address, end in an endless loop
+  while (1) {
+
   }
-#endif
 }
