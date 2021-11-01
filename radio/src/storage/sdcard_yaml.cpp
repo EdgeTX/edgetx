@@ -292,11 +292,10 @@ void loadModelHeader(uint8_t id, ModelHeader* header)
   memclear(&partial, sizeof(PartialModel));
 
   if (modelExists(id)) {
-    uint8_t dummy;
     char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
     getModelNumberStr(id, fname);
     strcat(fname, YAML_EXT);
-    readModelYaml(fname, reinterpret_cast<uint8_t*>(&partial), sizeof(partial), &dummy);
+    readModelYaml(fname, reinterpret_cast<uint8_t*>(&partial), sizeof(partial));
     memcpy(header, &partial, sizeof(ModelHeader));
   }
 }
