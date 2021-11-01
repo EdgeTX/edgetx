@@ -464,7 +464,6 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(MIXSRC_SC, g_model.mixData[5].srcRaw);
   EXPECT_EQ(MIXSRC_SB, g_model.mixData[6].srcRaw);
   EXPECT_EQ(MIXSRC_SD, g_model.mixData[7].srcRaw);
-
   
   EXPECT_EQ(LS_FUNC_EDGE, g_model.logicalSw[0].func);
   EXPECT_EQ(SWSRC_SF2, g_model.logicalSw[0].v1);
@@ -476,6 +475,26 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(MIXSRC_FIRST_INPUT, g_model.logicalSw[1].v1);
   EXPECT_EQ(-98, g_model.logicalSw[1].v2);
   EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[1].andsw);
+
+  EXPECT_EQ(LS_FUNC_AND, g_model.logicalSw[2].func);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH, g_model.logicalSw[2].v1);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 1, g_model.logicalSw[2].v2);
+  EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[2].andsw);
+
+  EXPECT_EQ(LS_FUNC_AND, g_model.logicalSw[3].func);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 1, g_model.logicalSw[3].v1);
+  EXPECT_EQ(SWSRC_SF0, g_model.logicalSw[3].v2);
+  EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[3].andsw);
+
+  EXPECT_EQ(LS_FUNC_STICKY, g_model.logicalSw[4].func);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 2, g_model.logicalSw[4].v1);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 3, g_model.logicalSw[4].v2);
+  EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[4].andsw);
+
+  EXPECT_EQ(LS_FUNC_AND, g_model.logicalSw[5].func);
+  EXPECT_EQ(-(SWSRC_FIRST_LOGICAL_SWITCH + 1), g_model.logicalSw[5].v1);
+  EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 4, g_model.logicalSw[5].v2);
+  EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[5].andsw);
 
   simuFatfsSetPaths("","");
 }

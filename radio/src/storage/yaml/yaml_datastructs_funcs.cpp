@@ -205,7 +205,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
-      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LOGICAL_SWITCH;
+      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LOGICAL_SWITCH - 1;
 
     } else if (val_len > 3 &&
                val[0] == 't' &&
@@ -299,7 +299,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
 
         val -= MIXSRC_FIRST_LOGICAL_SWITCH;
-        if (!yaml_conv_220::output_source_1_param("ls(", 3, val, wf, opaque))
+        if (!yaml_conv_220::output_source_1_param("ls(", 3, val + 1, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -736,7 +736,53 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
 static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_swtchSrc(node, val, wf, opaque);
+    int32_t sval = yaml_to_signed(val, node->size);
+    if (sval < 0) {
+        wf(opaque, "!", 1);
+        sval = abs(sval);
+    }
+
+    const char* str = NULL;
+    if (sval >= SWSRC_FIRST_LOGICAL_SWITCH
+             && sval <= SWSRC_LAST_LOGICAL_SWITCH) {
+
+        wf(opaque, "L", 1);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
+        return wf(opaque,str, strlen(str));
+    }
+#if NUM_XPOTS > 0
+    else if (sval >= SWSRC_FIRST_MULTIPOS_SWITCH
+             && sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
+
+        wf(opaque, "6P", 2);
+
+        // pot #: start with 6P1
+        sval -= SWSRC_FIRST_MULTIPOS_SWITCH;
+        str = yaml_unsigned2str(sval / XPOTS_MULTIPOS_COUNT);
+        wf(opaque,str, strlen(str));
+
+        // position
+        str = yaml_unsigned2str(sval % XPOTS_MULTIPOS_COUNT);
+        return wf(opaque,str, strlen(str));
+    }
+#endif
+    else if (sval >= SWSRC_FIRST_FLIGHT_MODE
+             && sval <= SWSRC_LAST_FLIGHT_MODE) {
+
+        wf(opaque, "FM", 2);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
+        return wf(opaque,str, strlen(str));
+    }
+    else if (sval >= SWSRC_FIRST_SENSOR
+             && sval <= SWSRC_LAST_SENSOR) {
+
+        wf(opaque, "T", 2);
+        str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
+        return wf(opaque,str, strlen(str));
+    }
+    
+    str = yaml_output_enum(sval, enum_SwitchSources);
+    return wf(opaque, str, strlen(str));
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)

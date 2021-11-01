@@ -95,7 +95,7 @@ bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* 
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
 
         val -= MIXSRC_FIRST_LOGICAL_SWITCH;
-        if (!output_source_1_param("ls(", 3, val, wf, opaque)) return false;
+        if (!output_source_1_param("ls(", 3, val + 1, wf, opaque)) return false;
         str = closing_parenthesis;
     }
     else if (val >= MIXSRC_FIRST_TRAINER
