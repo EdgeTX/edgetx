@@ -393,7 +393,9 @@ void r_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
 bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                   yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_zov_source(user, data, bitoffs, wf, opaque);
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+  return w_mixSrcRaw(nullptr, p_val->unsignedValue, wf, opaque);
 }
 
 void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
