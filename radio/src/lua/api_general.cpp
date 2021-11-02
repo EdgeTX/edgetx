@@ -712,14 +712,29 @@ static int luaCrossfireTelemetryPush(lua_State * L)
     uint8_t command = luaL_checkunsigned(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);
-    outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
-    outputTelemetryBuffer.pushByte(2 + length); // 1(COMMAND) + data length + 1(CRC)
-    outputTelemetryBuffer.pushByte(command); // COMMAND
-    for (int i=0; i<length; i++) {
-      lua_rawgeti(L, 2, i+1);
-      outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+    if (command == COMMAND_ID) {
+      outputTelemetryBuffer.pushByte(3 + length);
+      outputTelemetryBuffer.pushByte(COMMAND_ID);
+      for (int i = 0; i < length; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+      }
+      outputTelemetryBuffer.pushByte(
+          crc8_BA(outputTelemetryBuffer.data + 1, 1 + length));
+      outputTelemetryBuffer.pushByte(
+          crc8(outputTelemetryBuffer.data + 1, 2 + length));
+    } else {
+      outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
+      outputTelemetryBuffer.pushByte(
+          2 + length);  // 1(COMMAND) + data length + 1(CRC)
+      outputTelemetryBuffer.pushByte(command);  // COMMAND
+      for (int i = 0; i < length; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+      }
+      outputTelemetryBuffer.pushByte(
+          crc8(outputTelemetryBuffer.data + 2, 1 + length));
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data+2, 1 + length));
     outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }
