@@ -25,8 +25,6 @@
 
 using std::string;
 
-constexpr uint32_t STANDALONE_LUA_REFRESH = 1000 / 50; // 5Hz
-
 void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text, const char* info)
 {
   // popup background
@@ -107,18 +105,12 @@ void StandaloneLuaWindow::checkEvents()
   // Execute first in case onEvent() is called.
   // (would trigger refresh)
   Window::checkEvents();
-    
-  uint32_t now = RTOS_GET_MS();
-  if (now - lastRefresh >= STANDALONE_LUA_REFRESH) {
-    lastRefresh = now;
-    runLua(0);
-  }
+  runLua(0);
 }
 
 #if defined(HARDWARE_KEYS)
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  lastRefresh = RTOS_GET_MS(); // mark as 'refreshed'
   runLua(evt);
 }
 #endif

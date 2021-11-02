@@ -58,7 +58,6 @@ public:
 protected:
   // GFX
   BitmapBuffer lcdBuffer;
-  uint32_t lastRefresh = 0;
 
   // pop-ups
   LuaPopup popup;
