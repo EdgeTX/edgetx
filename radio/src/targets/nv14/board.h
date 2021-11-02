@@ -144,18 +144,18 @@ void stop_trainer_capture();
 // Keys driver
 enum EnumKeys
 {
+  KEY_ENTER,
+  KEY_EXIT,
   KEY_PGUP,
   KEY_PGDN,
-  KEY_ENTER,
-  KEY_MODEL,
-  KEY_UP /*= KEY_MODEL*/,
-  KEY_EXIT,
-  KEY_DOWN /*= KEY_EXIT*/,
+  KEY_UP,
+  KEY_DOWN,
+  KEY_RIGHT,
+  KEY_LEFT,
   KEY_TELEM,
-  KEY_RIGHT = KEY_TELEM,
+  KEY_MENU,
   KEY_RADIO,
-  KEY_LEFT = KEY_RADIO,
-
+  KEY_MODEL,
   TRM_BASE,
   TRM_LH_DWN = TRM_BASE,
   TRM_LH_UP,

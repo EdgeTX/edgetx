@@ -25,25 +25,43 @@
 uint32_t readKeys()
 {
   uint32_t result = 0;
-
-  // Arrow keys on right trim joystick
-  // is only supported within bootloader
-#if defined(BOOT)
-  if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
-    result |= 1 << KEY_DOWN;
-  if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
-    result |= 1 << KEY_UP;
-  if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
-    result |= 1 << KEY_LEFT;
-  if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
-    result |= 1 << KEY_RIGHT;
+  bool getKeys = true;
+#if defined(LUA)
+  if (scriptInternalData[0].reference != SCRIPT_STANDALONE) {
+    getKeys = false;
+  }
 #endif
+
+  if (getKeys) {
+    if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
+       result |= 1 << KEY_PGUP;
+     if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
+       result |= 1 << KEY_PGDN;
+     if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
+       result |= 1 << KEY_TELEM;
+     if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
+       result |= 1 << KEY_MENU;
+     if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
+       result |= 1 << KEY_DOWN;
+     if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
+       result |= 1 << KEY_UP;
+     if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
+       result |= 1 << KEY_LEFT;
+     if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
+       result |= 1 << KEY_RIGHT;
+  }
 
   // Enter and Exit are always supported
   if (TRIMS_GPIO_REG_RPRESS & TRIMS_GPIO_PIN_RPRESS)
     result |= 1 << KEY_ENTER;
   if (TRIMS_GPIO_REG_LPRESS & TRIMS_GPIO_PIN_LPRESS)
     result |= 1 << KEY_EXIT;
+
+  // if both keys pressed, toggle between reading as keys or trims
+  // if ((result & (1 << KEY_ENTER) && result & (1 << KEY_EXIT))) {
+  //     getKeys = !getKeys;
+  //     result = 0;
+  // }
 
   return result;
 }
@@ -52,6 +70,13 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
+  bool getTrim = true;
+#if defined(LUA)
+  if (scriptInternalData[0].reference == SCRIPT_STANDALONE) {
+    getTrim = false;
+  }
+#endif
+  if(!getTrim) return result;
   if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
     result |= 1 << (TRM_LH_DWN - TRM_BASE);
   if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
