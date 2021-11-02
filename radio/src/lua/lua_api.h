@@ -240,6 +240,9 @@ struct LuaMemTracer {
 
 void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 
+inline bool isLuaStandaloneRunning() {
+  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
+}
 #else  // defined(LUA)
 
 #define luaInit()

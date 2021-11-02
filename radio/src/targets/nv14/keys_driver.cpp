@@ -27,7 +27,7 @@ uint32_t readKeys()
   uint32_t result = 0;
   bool getKeys = true;
 #if defined(LUA)
-  if (scriptInternalData[0].reference != SCRIPT_STANDALONE) {
+  if (!isLuaStandaloneRunning()) {
     getKeys = false;
   }
 #endif
@@ -72,7 +72,7 @@ uint32_t readTrims()
 
   bool getTrim = true;
 #if defined(LUA)
-  if (scriptInternalData[0].reference == SCRIPT_STANDALONE) {
+  if (isLuaStandaloneRunning()) {
     getTrim = false;
   }
 #endif
