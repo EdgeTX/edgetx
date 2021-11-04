@@ -120,9 +120,9 @@ void unregisterWidget(const WidgetFactory * factory);
 class WidgetFactory
 {
   public:
-    explicit WidgetFactory(const char * name, const ZoneOption * options = nullptr, const char * friendlyName = nullptr):
+    explicit WidgetFactory(const char * name, const ZoneOption * options = nullptr, const char * displayName = nullptr):
       name(name),
-      friendlyName(friendlyName),
+      displayName(displayName),
       options(options)
     {
       registerWidget(this);
@@ -140,10 +140,10 @@ class WidgetFactory
       return options;
     }
 
-    inline const char * getFriendlyName() const
+    inline const char * getDisplayName() const
     {
-        if (friendlyName)
-          return friendlyName;
+        if (displayName)
+          return displayName;
         else
           return name;
     }
@@ -166,7 +166,7 @@ class WidgetFactory
 
   protected:
     const char * name;
-    const char * friendlyName;
+    const char * displayName;
     const ZoneOption * options;
 };
 
