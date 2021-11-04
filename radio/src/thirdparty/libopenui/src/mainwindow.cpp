@@ -47,7 +47,7 @@ void MainWindow::checkEvents()
   }
 
   if(!touchEnabled)
-       touchState.event = TE_NONE;
+    touchState.event = TE_NONE;
 
   if (touchState.event == TE_DOWN) {
     onTouchStart(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
@@ -81,7 +81,9 @@ void MainWindow::checkEvents()
       touchState.lastDeltaY = 0;
 
     onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
-    slidingWindow = nullptr;
+  } else if (touchState.event == TE_SLIDE_END && slidingWindow == nullptr) {
+    onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
+    touchState.event = TE_NONE;
   }
 #endif
 
