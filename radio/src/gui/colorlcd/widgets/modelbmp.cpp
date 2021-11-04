@@ -37,11 +37,15 @@ class ModelBitmapWidget: public Widget
     {
       std::string filename = std::string(g_model.header.bitmap);
 
-      // set font colour from options[0]
-      lcdSetColor(persistentData->options[0].value.unsignedValue);
+      // set font colour from options[0], if use theme color option off
+      LcdFlags fontColor;
+      if (persistentData->options[4].value.boolValue)
+        fontColor = COLOR_THEME_SECONDARY1;
+      else
+        fontColor = COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
 
       // get font size from options[1]
-      LcdFlags fontsize = persistentData->options[1].value.unsignedValue << 8u;
+      LcdFlags fontSize = persistentData->options[1].value.unsignedValue << 8u;
 
       // fill bg from options[3] if options[2] set
       if (persistentData->options[2].value.boolValue) {
@@ -64,7 +68,7 @@ class ModelBitmapWidget: public Widget
           dc->drawBitmap(0, 38, buffer.get());
         }
 
-        dc->drawSizedText(5, 5, g_model.header.name, LEN_MODEL_NAME, fontsize | COLOR_THEME_SECONDARY1);
+        dc->drawSizedText(5, 5, g_model.header.name, LEN_MODEL_NAME, fontSize | fontColor);
       }
       // smaller space to draw
       else {
@@ -72,7 +76,7 @@ class ModelBitmapWidget: public Widget
           dc->drawBitmap(0, 0, buffer.get());
         }
         else {
-          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME, fontsize | COLOR_THEME_SECONDARY1);
+          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME, fontSize | fontColor);
         }
       }
     }
@@ -127,6 +131,7 @@ const ZoneOption ModelBitmapWidget::options[] = {
     {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(FONT_STD_INDEX)},
     {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
     {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3>>16)},
+    {STR_USE_THEME_COLOR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options, "Models");
