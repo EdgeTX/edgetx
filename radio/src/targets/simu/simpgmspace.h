@@ -321,4 +321,9 @@ void simuMain();
   #define TRACE_SIMPGMSPACE(...)
 #endif
 
+#if defined(HARDWARE_TOUCH)
+  extern struct TouchState simTouchState;
+  extern bool simTouchOccured;
+#endif
+
 #endif // _SIMPGMSPACE_H_

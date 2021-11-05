@@ -315,7 +315,7 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
 {
   #if defined(HARDWARE_TOUCH)
     tmr10ms_t now = get_tmr10ms();
-    touchState.tapCount = 0;
+    simTouchState.tapCount = 0;
   #endif
 
   switch (type) {
@@ -323,9 +323,9 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
       TRACE_WINDOWS("[Mouse Press] %d %d", x, y);
 
 #if defined(HARDWARE_TOUCH)
-      touchState.event = TE_DOWN;
-      touchState.startX = touchState.x = x;
-      touchState.startY = touchState.y = y;
+      simTouchState.event = TE_DOWN;
+      simTouchState.startX = simTouchState.x = x;
+      simTouchState.startY = simTouchState.y = y;
       downTime = now;
 #endif
       break;
@@ -334,20 +334,20 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
       TRACE_WINDOWS("[Mouse Release] %d %d", x, y);
 
 #if defined(HARDWARE_TOUCH)
-      if (touchState.event == TE_DOWN) {
-        touchState.event = TE_UP;
-        touchState.x = touchState.startX;
-        touchState.y = touchState.startY;
+      if (simTouchState.event == TE_DOWN) {
+        simTouchState.event = TE_UP;
+        simTouchState.x = simTouchState.startX;
+        simTouchState.y = simTouchState.startY;
         if (now - downTime <= TAP_TIME) {
           if (now - tapTime > TAP_TIME)
             tapCount = 1;
           else
             tapCount++;
-          touchState.tapCount = tapCount;
+          simTouchState.tapCount = tapCount;
           tapTime = now;
         }
       } else {
-        touchState.event = TE_SLIDE_END;
+        simTouchState.event = TE_SLIDE_END;
       }
 #endif
       break;
@@ -356,18 +356,21 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
       TRACE_WINDOWS("[Mouse Move] %d %d", x, y);
 
 #if defined(HARDWARE_TOUCH)
-      touchState.deltaX += x - touchState.x;
-      touchState.deltaY += y - touchState.y;
-      if (touchState.event == TE_SLIDE ||
-          abs(touchState.deltaX) >= SLIDE_RANGE ||
-          abs(touchState.deltaY) >= SLIDE_RANGE) {
-        touchState.event = TE_SLIDE;
-        touchState.x = x;
-        touchState.y = y;
+      simTouchState.deltaX += x - simTouchState.x;
+      simTouchState.deltaY += y - simTouchState.y;
+      if (simTouchState.event == TE_SLIDE ||
+          abs(simTouchState.deltaX) >= SLIDE_RANGE ||
+          abs(simTouchState.deltaY) >= SLIDE_RANGE) {
+        simTouchState.event = TE_SLIDE;
+        simTouchState.x = x;
+        simTouchState.y = y;
       }
 #endif
       break;
   }
+#if defined(HARDWARE_TOUCH)
+  simTouchOccured=true;
+#endif
 }
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
