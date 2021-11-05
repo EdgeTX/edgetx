@@ -894,11 +894,22 @@ void check_intmodule_heartbeat()
 }
 #endif
 
+#if defined(HARDWARE_TOUCH)
+struct TouchState simTouchState = {};
+bool simTouchOccured = false;
+
 bool touchPanelEventOccured()
 {
+  if(simTouchOccured)
+  {
+    simTouchOccured = false;
+    return true;
+  }
   return false;
 }
 
-void touchPanelRead()
+struct TouchState touchPanelRead()
 {
+  return simTouchState;
 }
+#endif

@@ -597,11 +597,16 @@ void backlightEnable(uint8_t dutyCycle = 0);
 #else
 #define BACKLIGHT_LEVEL_MIN   46
 #endif
-
+#if defined(SIMU)
+#define BACKLIGHT_ENABLE()
+#define BACKLIGHT_DISABLE()
+#define isBacklightEnabled(...) true
+#else
 extern bool boardBacklightOn;
 #define BACKLIGHT_ENABLE()    {boardBacklightOn = true; backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : BACKLIGHT_LEVEL_MAX - currentBacklightBright);}
 #define BACKLIGHT_DISABLE()   {boardBacklightOn = false; backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) && (g_eeGeneral.backlightMode != e_backlight_mode_off)) ? 0 : g_eeGeneral.blOffBright);}
 bool isBacklightEnabled();
+#endif
 
 #if !defined(SIMU)
 void usbJoystickUpdate();
