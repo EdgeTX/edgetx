@@ -66,7 +66,7 @@
 #define AUTOMATIC_DOWNLOAD     8
 
 #define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("https://edgetx.org/downloads")
-#define DONATE_STR                        QStringLiteral("https://opencollective.com/edgetx")
+#define DONATE_STR                        QStringLiteral("https://opencollective.com/edgetx/donate")
 
 #ifdef Q_OS_MACOS
   #define COMPANION_STAMP                 QStringLiteral("companion-macosx.stamp")
