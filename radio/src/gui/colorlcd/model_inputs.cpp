@@ -174,6 +174,7 @@ class InputEditWindow : public Page
   {
 #if LCD_W > LCD_H
     body.setWidth(LCD_W - preview.width() - PAGE_PADDING);
+    body.setInnerWidth(LCD_W - preview.width() - PAGE_PADDING);
     body.setLeft(preview.width() + PAGE_PADDING);
 #else
     body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
