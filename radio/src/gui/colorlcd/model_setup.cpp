@@ -328,6 +328,78 @@ class BindRxChoiceMenu: public Menu {
     uint8_t receiverIdx;
 };
 
+class BindChoiceMenu : public Menu
+{
+ protected:
+  enum BindChanMode {
+    Bind_1_8_TELEM_ON,
+    Bind_1_8_TELEM_OFF,
+    Bind_9_16_TELEM_ON,
+    Bind_9_16_TELEM_OFF,
+  };
+
+  uint8_t moduleIdx;
+  std::function<void()> onPressHandler;
+
+  void onSelect(BindChanMode mode)
+  {
+    bool receiverTelemetry = false;
+    bool receiverHigherChannels = false;
+
+    switch (mode) {
+      case Bind_1_8_TELEM_ON:
+        receiverTelemetry = true;
+        break;
+      case Bind_1_8_TELEM_OFF:
+        break;
+      case Bind_9_16_TELEM_ON:
+        receiverTelemetry = true;
+        receiverHigherChannels = true;
+        break;
+      case Bind_9_16_TELEM_OFF:
+        receiverHigherChannels = true;
+        break;
+    }
+
+    if (isModuleMultimodule(moduleIdx)) {
+      g_model.moduleData[moduleIdx].multi.receiverTelemetryOff =
+          !receiverTelemetry;
+      g_model.moduleData[moduleIdx].multi.receiverHigherChannels =
+          receiverHigherChannels;
+    } else {
+      g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff =
+          !receiverTelemetry;
+      g_model.moduleData[moduleIdx].pxx.receiverHigherChannels =
+          receiverHigherChannels;
+    }
+
+    if (onPressHandler) onPressHandler();
+  }
+
+ public:
+  BindChoiceMenu(Window *parent, uint8_t moduleIdx,
+                 std::function<void()> onPress,
+                 std::function<void()> onCancel) :
+      Menu(parent), moduleIdx(moduleIdx), onPressHandler(std::move(onPress))
+  {
+    if (isTelemAllowedOnBind(moduleIdx)) {
+      addLine(STR_BINDING_1_8_TELEM_ON, [=]() { onSelect(Bind_1_8_TELEM_ON); });
+    }
+    addLine(STR_BINDING_1_8_TELEM_OFF, [=]() { onSelect(Bind_1_8_TELEM_OFF); });
+
+    if (isBindCh9To16Allowed(moduleIdx)) {
+      if (isTelemAllowedOnBind(moduleIdx)) {
+        addLine(STR_BINDING_9_16_TELEM_ON,
+                [=]() { onSelect(Bind_9_16_TELEM_ON); });
+      }
+      addLine(STR_BINDING_9_16_TELEM_OFF,
+              [=]() { onSelect(Bind_9_16_TELEM_ON); });
+    }
+    setTitle(STR_SELECT_MODE);
+    setCancelHandler(onCancel);
+  }
+};
+
 void BindWaitDialog::checkEvents()
 {
   if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
@@ -364,7 +436,6 @@ class ReceiverButton: public TextButton
             menu->addLine(STR_OPTIONS, [=]() {
                 memclear(&reusableBuffer.hardwareAndSettings, sizeof(reusableBuffer.hardwareAndSettings));
                 reusableBuffer.hardwareAndSettings.receiverSettings.receiverId = receiverIdx;
-                // g_moduleIdx = moduleIdx;
                 // pushMenu(menuModelReceiverOptions);
                 return 0;
             });
@@ -720,6 +791,9 @@ class TrainerModuleWindow : public FormGroup
 
 #endif
 };
+
+
+
 class ModuleWindow : public FormGroup {
   public:
     ModuleWindow(FormWindow * parent, const rect_t &rect, uint8_t moduleIdx) :
@@ -1257,6 +1331,26 @@ class ModuleWindow : public FormGroup {
 #endif
                 return 0;
               } else {
+                if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) ||
+                    IS_R9_MULTI(moduleIdx)) {
+                  new BindChoiceMenu(
+                      this, moduleIdx,
+                      [=]() {
+#if defined(MULTIMODULE)
+                        if (isModuleMultimodule(moduleIdx)) {
+                          setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+                        }
+#endif
+                        moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+                        bindButton->check(true);
+                      },
+                      [=]() {
+                        moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+                        bindButton->check(false);
+                      });
+
+                  return 0;
+                }
 #if defined(MULTIMODULE)
                 if (isModuleMultimodule(moduleIdx)) {
                   setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
@@ -1457,35 +1551,6 @@ class ModuleWindow : public FormGroup {
 ModelSetupPage::ModelSetupPage() :
   PageTab(STR_MENU_MODEL_SETUP, ICON_MODEL_SETUP)
 {
-}
-
-uint8_t g_moduleIdx;
-
-void onBindMenu(const char * result)
-{
-  uint8_t moduleIdx = 0; // TODO (menuVerticalPosition >= ITEM_MODEL_EXTERNAL_MODULE_LABEL ? EXTERNAL_MODULE : INTERNAL_MODULE);
-
-  if (result == STR_BINDING_1_8_TELEM_ON) {
-    g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff = false;
-    g_model.moduleData[moduleIdx].pxx.receiverHigherChannels = false;
-  }
-  else if (result == STR_BINDING_1_8_TELEM_OFF) {
-    g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff = true;
-    g_model.moduleData[moduleIdx].pxx.receiverHigherChannels = false;
-  }
-  else if (result == STR_BINDING_9_16_TELEM_ON) {
-    g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff = false;
-    g_model.moduleData[moduleIdx].pxx.receiverHigherChannels = true;
-  }
-  else if (result == STR_BINDING_9_16_TELEM_OFF) {
-    g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff = true;
-    g_model.moduleData[moduleIdx].pxx.receiverHigherChannels = true;
-  }
-  else {
-    return;
-  }
-
-  moduleState[moduleIdx].mode  = MODULE_MODE_BIND;
 }
 
 const char * STR_TIMER_MODES[] = {"OFF", "ON", "Start", "Throttle", "Throttle %", "Throttle Start"};
