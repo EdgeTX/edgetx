@@ -541,7 +541,7 @@ void checkBacklight()
       }
     }
 
-#if defined(HARDWARE_TOUCH) /*&& defined(PCBNV14)*/
+#if defined(HARDWARE_TOUCH)
     if (MainWindow::instance()->touchEventOccured() && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
       resetBacklightTimeout();
     }
