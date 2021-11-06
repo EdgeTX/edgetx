@@ -33,7 +33,7 @@
 #include "select_fab_carousel.h"
 #include "view_text.h"
 
-ViewMainMenu::ViewMainMenu(Window* parent) :
+ViewMainMenu::ViewMainMenu(Window* parent, uint8_t half) :
     Window(parent->getFullScreenWindow(), {})
 {
   // Save focus
@@ -121,6 +121,8 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
 
   carousel->setCloseHandler([=]() { deleteLater(); });
   carousel->setFocus();
+
+  if (half) pushEvent(EVT_ROTARY_LEFT);
 }
 
 uint16_t* lcdGetBackupBuffer();

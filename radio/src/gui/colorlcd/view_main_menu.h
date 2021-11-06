@@ -26,7 +26,7 @@
 class ViewMainMenu: public Window
 {
 public:
-    ViewMainMenu(Window * parent);
+    ViewMainMenu(Window * parent, uint8_t half = 0);
     void paint(BitmapBuffer * dc) override;
     void deleteLater(bool detach=true, bool trash=true) override;
 

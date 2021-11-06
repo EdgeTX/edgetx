@@ -102,7 +102,7 @@ class ViewMain: public Window
 
     void paint(BitmapBuffer * dc) override;
 
-    void openMenu();
+    void openMenu(uint8_t half = 0);
 };
 
 #endif // _VIEW_MAIN_H_

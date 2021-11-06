@@ -244,9 +244,8 @@ bool ViewMain::onTouchEnd(coord_t x, coord_t y)
   if (Window::onTouchEnd(x,y)) return true;
   if (!hasFocus()) {
     setFocus();
-  }
-  else {
-    openMenu();
+  } else {
+    openMenu((uint8_t)(x > parent->width() / 2));
   }
   return true;
 }
@@ -273,7 +272,7 @@ void ViewMain::onEvent(event_t event)
 
     case EVT_KEY_FIRST(KEY_ENTER):
       killEvents(event);
-      openMenu();
+      openMenu(0);
       break;
 
 #if defined(KEYS_GPIO_REG_PGUP)
@@ -310,9 +309,9 @@ void ViewMain::onEvent(event_t event)
 }
 #endif
 
-void ViewMain::openMenu()
+void ViewMain::openMenu(uint8_t half)
 {
-  new ViewMainMenu(this);
+  new ViewMainMenu(this, half);
 }
 
 void ViewMain::paint(BitmapBuffer * dc)
