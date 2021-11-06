@@ -34,13 +34,13 @@ uint32_t readKeys()
 
   if (getKeys) {
     if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
-       result |= 1 << KEY_PGUP;
-     if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
-       result |= 1 << KEY_PGDN;
-     if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
-       result |= 1 << KEY_TELEM;
-     if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
        result |= 1 << KEY_MENU;
+     if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
+       result |= 1 << KEY_TELEM;
+     if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
+       result |= 1 << KEY_PGDN;
+     if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
+       result |= 1 << KEY_PGUP;
      if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
        result |= 1 << KEY_DOWN;
      if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
@@ -56,12 +56,6 @@ uint32_t readKeys()
     result |= 1 << KEY_ENTER;
   if (TRIMS_GPIO_REG_LPRESS & TRIMS_GPIO_PIN_LPRESS)
     result |= 1 << KEY_EXIT;
-
-  // if both keys pressed, toggle between reading as keys or trims
-  // if ((result & (1 << KEY_ENTER) && result & (1 << KEY_EXIT))) {
-  //     getKeys = !getKeys;
-  //     result = 0;
-  // }
 
   return result;
 }
