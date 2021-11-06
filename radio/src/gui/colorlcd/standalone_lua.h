@@ -64,4 +64,5 @@ protected:
 
   // run LUA code
   void runLua(event_t evt);
+  event_t event = 0;
 };

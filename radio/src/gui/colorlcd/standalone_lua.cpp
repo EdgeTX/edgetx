@@ -102,16 +102,15 @@ void StandaloneLuaWindow::paint(BitmapBuffer* dc)
 
 void StandaloneLuaWindow::checkEvents()
 {
-  // Execute first in case onEvent() is called.
-  // (would trigger refresh)
   Window::checkEvents();
-  runLua(0);
+  runLua(event);
+  event = 0;
 }
 
 #if defined(HARDWARE_KEYS)
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  runLua(evt);
+  event = evt;
 }
 #endif
 
