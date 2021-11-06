@@ -29,7 +29,9 @@
 #include "storage/modelslist.h"
 #include "algorithm"
 
+#if defined(PXX2)
 #include "access_settings.h"
+#endif
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -1181,6 +1183,7 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
+#if defined(PXX2)
       // Register and Range buttons
       if (isModuleRFAccess(moduleIdx)) {
         new StaticText(this, grid.getLabelSlot(true), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
@@ -1204,6 +1207,7 @@ class ModuleWindow : public FormGroup {
 
         grid.nextLine();
       }
+#endif
 
       // R9M Power
       if (isModuleR9M_FCC(moduleIdx)) {
@@ -1218,7 +1222,7 @@ class ModuleWindow : public FormGroup {
                    GET_DEFAULT(min<uint8_t>(g_model.moduleData[moduleIdx].pxx.power, R9M_LBT_POWER_MAX)),
                    SET_DEFAULT(g_model.moduleData[moduleIdx].pxx.power));
       }
-
+#if defined(PXX2)
       // Receivers
       if (isModuleRFAccess(moduleIdx)) {
         for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE; receiverIdx++) {
@@ -1229,7 +1233,7 @@ class ModuleWindow : public FormGroup {
           grid.nextLine();
         }
       }
-
+#endif
       // SBUS refresh rate
       if (isModuleSBUS(moduleIdx)) {
         new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE, 0, COLOR_THEME_PRIMARY1);
