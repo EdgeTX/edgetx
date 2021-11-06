@@ -25,6 +25,21 @@
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
 
+PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
+{
+  return reusableBuffer.moduleSetup.pxx2;
+}
+
+BindInformation& getPXX2BindInformationBuffer()
+{
+  return reusableBuffer.moduleSetup.bindInformation;
+}
+
+PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer()
+{
+  return reusableBuffer.hardwareAndSettings;
+}
+
 uint8_t Pxx2Pulses::addFlag0(uint8_t module)
 {
   uint8_t flag0 = g_model.header.modelId[module] & 0x3F;

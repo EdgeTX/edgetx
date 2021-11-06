@@ -117,13 +117,14 @@ void processRegisterFrame(uint8_t module, const uint8_t * frame)
     return;
   }
 
+  PXX2ModuleSetup& mod = reusableBuffer.moduleSetup.pxx2;
   switch(frame[3]) {
     case 0x00:
-      if (reusableBuffer.moduleSetup.pxx2.registerStep == REGISTER_INIT) {
+      if (mod.registerStep == REGISTER_INIT) {
         // RX_NAME follows, we store it for the next step
-        str2zchar(reusableBuffer.moduleSetup.pxx2.registerRxName, (const char *)&frame[4], PXX2_LEN_RX_NAME);
-        reusableBuffer.moduleSetup.pxx2.registerLoopIndex = frame[12];
-        reusableBuffer.moduleSetup.pxx2.registerStep = REGISTER_RX_NAME_RECEIVED;
+        str2zchar(mod.registerRxName, (const char *)&frame[4], PXX2_LEN_RX_NAME);
+        mod.registerLoopIndex = frame[12];
+        mod.registerStep = REGISTER_RX_NAME_RECEIVED;
 #if defined(COLORLCD)
         pushEvent(EVT_REFRESH);
 #endif
@@ -131,11 +132,11 @@ void processRegisterFrame(uint8_t module, const uint8_t * frame)
       break;
 
     case 0x01:
-      if (reusableBuffer.moduleSetup.pxx2.registerStep == REGISTER_RX_NAME_SELECTED) {
+      if (mod.registerStep == REGISTER_RX_NAME_SELECTED) {
         // RX_NAME + PASSWORD follow, we check they are good
-        if (memcmp(&frame[4], reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME) == 0 &&
+        if (memcmp(&frame[4], mod.registerRxName, PXX2_LEN_RX_NAME) == 0 &&
             memcmp(&frame[12], g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID) == 0) {
-          reusableBuffer.moduleSetup.pxx2.registerStep = REGISTER_OK;
+          mod.registerStep = REGISTER_OK;
           moduleState[module].mode = MODULE_MODE_NORMAL;
 #if !defined(COLORLCD)
           POPUP_INFORMATION(STR_REG_OK);

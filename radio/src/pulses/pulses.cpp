@@ -33,8 +33,9 @@ InternalModulePulsesData intmodulePulsesData __DMA;
 ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
 
-//use only for PXX
-void ModuleState::startBind(BindInformation * destination, ModuleCallback bindCallback)
+// use only for PXX
+void ModuleState::startBind(BindInformation* destination,
+                            ModuleCallback bindCallback)
 {
   bindInformation = destination;
   callback = bindCallback;
@@ -44,6 +45,45 @@ void ModuleState::startBind(BindInformation * destination, ModuleCallback bindCa
   strcpy(bindInformation->candidateReceiversNames[0], "SimuRX1");
   strcpy(bindInformation->candidateReceiversNames[1], "SimuRX2");
 #endif
+}
+
+void ModuleState::readModuleInformation(ModuleInformation* destination,
+                                        int8_t first, int8_t last)
+{
+  moduleInformation = destination;
+  moduleInformation->current = first;
+  moduleInformation->maximum = last;
+  mode = MODULE_MODE_GET_HARDWARE_INFO;
+}
+
+void ModuleState::readModuleSettings(ModuleSettings* destination)
+{
+  moduleSettings = destination;
+  moduleSettings->state = PXX2_SETTINGS_READ;
+  mode = MODULE_MODE_MODULE_SETTINGS;
+}
+
+void ModuleState::writeModuleSettings(ModuleSettings* source)
+{
+  moduleSettings = source;
+  moduleSettings->state = PXX2_SETTINGS_WRITE;
+  moduleSettings->timeout = 0;
+  mode = MODULE_MODE_MODULE_SETTINGS;
+}
+
+void ModuleState::readReceiverSettings(ReceiverSettings* destination)
+{
+  receiverSettings = destination;
+  receiverSettings->state = PXX2_SETTINGS_READ;
+  mode = MODULE_MODE_RECEIVER_SETTINGS;
+}
+
+void ModuleState::writeReceiverSettings(ReceiverSettings* source)
+{
+  receiverSettings = source;
+  receiverSettings->state = PXX2_SETTINGS_WRITE;
+  receiverSettings->timeout = 0;
+  mode = MODULE_MODE_RECEIVER_SETTINGS;
 }
 
 void getModuleStatusString(uint8_t moduleIdx, char * statusText)

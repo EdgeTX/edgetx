@@ -98,6 +98,10 @@ if(PXX2 OR MULTIMODULE)
   add_gui_src(radio_spectrum_analyser.cpp)
 endif()
 
+if(PXX2)
+  add_gui_src(access_settings.cpp)
+endif()
+
 if(MULTIMODULE)
   add_gui_src(multi_rfprotos.cpp)
 endif()

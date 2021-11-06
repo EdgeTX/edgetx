@@ -67,77 +67,6 @@
 
 extern uint8_t s_pulses_paused;
 
-PACK(struct PXX2Version {
-  uint8_t major;
-  uint8_t revision:4;
-  uint8_t minor:4;
-});
-
-PACK(struct PXX2HardwareInformation {
-  uint8_t modelID;
-  PXX2Version hwVersion;
-  PXX2Version swVersion;
-  uint8_t variant;
-  uint32_t capabilities; // variable length
-  uint8_t capabilityNotSupported;
-});
-
-PACK(struct ModuleInformation {
-  int8_t current;
-  int8_t maximum;
-  uint8_t timeout;
-  PXX2HardwareInformation information;
-  struct {
-    PXX2HardwareInformation information;
-    tmr10ms_t timestamp;
-  } receivers[PXX2_MAX_RECEIVERS_PER_MODULE];
-});
-
-class ModuleSettings {
-  public:
-    uint8_t state;  // 0x00 = READ 0x40 = WRITE
-    tmr10ms_t timeout;
-    uint8_t externalAntenna;
-    int8_t txPower;
-    uint8_t dirty;
-};
-
-class ReceiverSettings {
-  public:
-    uint8_t state;  // 0x00 = READ 0x40 = WRITE
-    tmr10ms_t timeout;
-    uint8_t receiverId;
-    uint8_t dirty;
-    uint8_t telemetryDisabled;
-    uint8_t telemetry25mw;
-    uint8_t pwmRate;
-    uint8_t fport;
-    uint8_t enablePwmCh5Ch6;
-    uint8_t fport2;
-    uint8_t outputsCount;
-    uint8_t outputsMapping[24];
-};
-
-class BindInformation {
-  public:
-    int8_t step;
-    uint32_t timeout;
-    char candidateReceiversNames[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME + 1];
-    uint8_t candidateReceiversCount;
-    uint8_t selectedReceiverIndex;
-    uint8_t rxUid;
-    uint8_t lbtMode;
-    uint8_t flexMode;
-    PXX2HardwareInformation receiverInformation;
-};
-
-class OtaUpdateInformation: public BindInformation {
-  public:
-    char filename[FF_MAX_LFN + 1];
-    uint32_t address;
-    uint32_t module;
-};
-
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
@@ -146,6 +75,8 @@ PACK(struct ModuleState {
   uint8_t paused:1;
   uint8_t spare:7;
   uint16_t counter;
+
+  // PXX specific items
   union
   {
     ModuleInformation * moduleInformation;
@@ -157,44 +88,11 @@ PACK(struct ModuleState {
   ModuleCallback callback;
 
   void startBind(BindInformation * destination, ModuleCallback bindCallback = nullptr);
-
-  void readModuleInformation(ModuleInformation * destination, int8_t first, int8_t last)
-  {
-    moduleInformation = destination;
-    moduleInformation->current = first;
-    moduleInformation->maximum = last;
-    mode = MODULE_MODE_GET_HARDWARE_INFO;
-  }
-
-  void readModuleSettings(ModuleSettings * destination)
-  {
-    moduleSettings = destination;
-    moduleSettings->state = PXX2_SETTINGS_READ;
-    mode = MODULE_MODE_MODULE_SETTINGS;
-  }
-
-  void writeModuleSettings(ModuleSettings * source)
-  {
-    moduleSettings = source;
-    moduleSettings->state = PXX2_SETTINGS_WRITE;
-    moduleSettings->timeout = 0;
-    mode = MODULE_MODE_MODULE_SETTINGS;
-  }
-
-  void readReceiverSettings(ReceiverSettings * destination)
-  {
-    receiverSettings = destination;
-    receiverSettings->state = PXX2_SETTINGS_READ;
-    mode = MODULE_MODE_RECEIVER_SETTINGS;
-  }
-
-  void writeReceiverSettings(ReceiverSettings * source)
-  {
-    receiverSettings = source;
-    receiverSettings->state = PXX2_SETTINGS_WRITE;
-    receiverSettings->timeout = 0;
-    mode = MODULE_MODE_RECEIVER_SETTINGS;
-  }
+  void readModuleInformation(ModuleInformation * destination, int8_t first, int8_t last);
+  void readModuleSettings(ModuleSettings * destination);
+  void writeModuleSettings(ModuleSettings * source);
+  void readReceiverSettings(ReceiverSettings * destination);
+  void writeReceiverSettings(ReceiverSettings * source);
 });
 
 extern ModuleState moduleState[NUM_MODULES];

@@ -1036,24 +1036,7 @@ union ReusableBuffer
     uint8_t previousType;
     uint8_t newType;
     BindInformation bindInformation;
-    struct {
-      union {
-        uint8_t registerStep;
-        uint8_t resetStep;
-      };
-      uint8_t registerPopupVerticalPosition;
-      uint8_t registerPopupHorizontalPosition;
-      int8_t registerPopupEditMode;
-      char registerRxName[PXX2_LEN_RX_NAME];
-      uint8_t registerLoopIndex; // will be removed later
-      union {
-        uint8_t shareReceiverIndex;
-        uint8_t resetReceiverIndex;
-      };
-      uint8_t resetReceiverFlags;
-      ModuleInformation moduleInformation;
-      ModuleSettings moduleSettings;
-    } pxx2;
+    PXX2ModuleSetup pxx2;
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -1096,13 +1079,8 @@ union ReusableBuffer
   } version;
 #endif
 
-  struct {
-    ModuleInformation modules[NUM_MODULES];
-    uint32_t updateTime;
-    ModuleSettings moduleSettings;
-    ReceiverSettings receiverSettings; // when dealing with receiver settings, we also need module settings
-    char msg[64];
-  } hardwareAndSettings; // moduleOptions, receiverOptions, radioVersion
+  // moduleOptions, receiverOptions, radioVersion
+  PXX2HardwareAndSettings hardwareAndSettings;
 
   struct {
     ModuleInformation modules[NUM_MODULES];
