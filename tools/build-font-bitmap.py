@@ -54,8 +54,15 @@ class FontBitmap:
         # default width for space
         width = 4
         if c != ' ':
-            width = self.font.getmask(c).getbbox()[2]
-            _, (offset_x, offset_y) = self.font.font.getsize(c)
+            if "0123456789".find(c) >= 0 :
+              width = self.font.getmask("4").getbbox()[2]
+              _, (offset_x, offset_y) = self.font.font.getsize(c)
+              _, (offset_x2, offset_y2) = self.font.font.getsize("4")
+              offset_x = (offset_x + offset_x2) / 2
+            else :
+              width = self.font.getmask(c).getbbox()[2]
+              _, (offset_x, offset_y) = self.font.font.getsize(c)
+
             draw.text((x - offset_x, 0), c, fill=self.foreground, font=self.font)
 
         return width
