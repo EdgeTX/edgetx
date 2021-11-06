@@ -122,7 +122,7 @@ void processRegisterFrame(uint8_t module, const uint8_t * frame)
     case 0x00:
       if (mod.registerStep == REGISTER_INIT) {
         // RX_NAME follows, we store it for the next step
-        str2zchar(mod.registerRxName, (const char *)&frame[4], PXX2_LEN_RX_NAME);
+        memcpy(mod.registerRxName, (const char *)&frame[4], PXX2_LEN_RX_NAME);
         mod.registerLoopIndex = frame[12];
         mod.registerStep = REGISTER_RX_NAME_RECEIVED;
 #if defined(COLORLCD)

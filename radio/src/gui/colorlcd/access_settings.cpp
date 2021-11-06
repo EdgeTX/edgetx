@@ -88,7 +88,7 @@ void BindWaitDialog::checkEvents()
     removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
     deleteLater();
     if (bindInfo.step == BIND_OK) {
-      new MessageDialog(parent, STR_BIND, STR_BIND_OK);
+      POPUP_INFORMATION(STR_REG_OK);
     } else {
       // TODO: display error???
     }
@@ -278,17 +278,17 @@ void RegisterDialog::start()
 
 void RegisterDialog::checkEvents()
 {
-  if (!rxName && reusableBuffer.moduleSetup.pxx2.registerStep >=
-                     REGISTER_RX_NAME_RECEIVED) {
+  auto& modSetup = getPXX2ModuleSetupBuffer();
+  if (!rxName && modSetup.registerStep >= REGISTER_RX_NAME_RECEIVED) {
     rect_t rect = waiting->getRect();
     waiting->deleteLater();
 
-    rxName = new ModelTextEdit(&content->form, rect,
-                               reusableBuffer.moduleSetup.pxx2.registerRxName,
+    rxName = new ModelTextEdit(&content->form, rect, modSetup.registerRxName,
                                PXX2_LEN_RX_NAME);
     rect = exitButton->getRect();
     auto okButton = new TextButton(&content->form, rect, "OK", [=]() -> int8_t {
-      reusableBuffer.moduleSetup.pxx2.registerStep = REGISTER_RX_NAME_SELECTED;
+      auto& modSetup = getPXX2ModuleSetupBuffer();
+      modSetup.registerStep = REGISTER_RX_NAME_SELECTED;
       return 0;
     });
     exitButton->setLeft(left() + rect.w + 10);
@@ -296,10 +296,22 @@ void RegisterDialog::checkEvents()
     FormField::link(rxName, okButton);
     FormField::link(okButton, exitButton);
     okButton->setFocus(SET_FOCUS_DEFAULT);
-  } else if (reusableBuffer.moduleSetup.pxx2.registerStep == REGISTER_OK) {
+  } else if (modSetup.registerStep == REGISTER_OK) {
     deleteLater();
     POPUP_INFORMATION(STR_REG_OK);
   }
 
   Dialog::checkEvents();
 }
+
+#if defined(HARDWARE_KEYS)
+void RegisterDialog::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif

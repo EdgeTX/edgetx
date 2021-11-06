@@ -75,6 +75,9 @@ class RegisterDialog : public Dialog
 
   void start();
   void checkEvents() override;
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
 
  protected:
   uint8_t moduleIdx;
