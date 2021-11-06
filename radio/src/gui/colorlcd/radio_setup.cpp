@@ -330,31 +330,59 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Backlight mode
     new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(2,0), STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on, GET_SET_DEFAULT(g_eeGeneral.backlightMode));
-    //grid.nextLine();
+#if defined COLORLCD
+    BacklightMode minBacklightMode = e_backlight_mode_keys;
+#else
+    BacklightMode minBacklightMode = e_backlight_mode_off;
+#endif
+    const char* values[e_backlight_mode_on+1] = {};
+    uint8_t len = STR_VBLMODE[0];
+    const char * value = &STR_VBLMODE[1];
+    for (int i = e_backlight_mode_off; i <= e_backlight_mode_on; i++) {
+      values[i] = value;
+      value += len;
+    }
 
+    new Choice(window, grid.getFieldSlot(2,0), &values[minBacklightMode], minBacklightMode, e_backlight_mode_on, GET_DEFAULT(g_eeGeneral.backlightMode),
+               [=](int32_t newValue) {
+                 g_eeGeneral.backlightMode = newValue;
+                 updateBacklightControls();
+               });
+    //grid.nextLine();
     // Delay
-    auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 0, 600,
+    auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 5, 600,
                                GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
                                SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
     edit->setStep(5);
     edit->setSuffix("s");
+    backlightTimeout = edit;
+
     grid.nextLine();
 
     // Backlight ON bright
     new StaticText(window, grid.getLabelSlot(true), STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-    new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+    backlightOnBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                [=]() -> int32_t {
                  return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                },
                [=](int32_t newValue) {
-                 g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
+                 if(newValue >= g_eeGeneral.blOffBright || g_eeGeneral.backlightMode == e_backlight_mode_on)
+                   g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
+                 else
+                   g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
                });
     grid.nextLine();
 
     // Backlight OFF bright
     new StaticText(window, grid.getLabelSlot(true), STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-    new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_SET_DEFAULT(g_eeGeneral.blOffBright));
+    backlightOffBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+        [=](int32_t newValue) {
+          int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+          if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+            g_eeGeneral.blOffBright = newValue;
+          else
+            g_eeGeneral.blOffBright = onBright;
+        });
     grid.nextLine();
 
 #if defined(KEYS_BACKLIGHT_GPIO)
@@ -368,6 +396,8 @@ void RadioSetupPage::build(FormWindow * window)
     new StaticText(window, grid.getLabelSlot(true), STR_ALARM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
     grid.nextLine();
+
+    updateBacklightControls();
   }
 
 #if defined(PWR_BUTTON_PRESS)
@@ -495,4 +525,34 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
+}
+
+void RadioSetupPage::updateBacklightControls()
+{
+  switch(g_eeGeneral.backlightMode)
+  {
+  case e_backlight_mode_off:
+    backlightTimeout->enable(false);
+    backlightOnBright->enable(false);
+    backlightOffBright->enable(true);
+    break;
+  case e_backlight_mode_keys:
+  case e_backlight_mode_sticks:
+  case e_backlight_mode_all:
+  default:
+  {
+    backlightTimeout->enable(true);
+    backlightOnBright->enable(true);
+    backlightOffBright->enable(true);
+    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+    if(onBright < g_eeGeneral.blOffBright)
+      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+    break;
+  }
+  case e_backlight_mode_on:
+    backlightTimeout->enable(false);
+    backlightOnBright->enable(true);
+    backlightOffBright->enable(false);
+    break;
+  }
 }
