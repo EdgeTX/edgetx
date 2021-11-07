@@ -607,17 +607,6 @@ void lcdCopy(void * dest, void * src)
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void lcdStoreBackupBuffer()
-{
-  lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
-}
-
-int lcdRestoreBackupBuffer()
-{
-  lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
-  return 1;
-}
-
 uint16_t* lcdGetBackupBuffer()
 {
   return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;

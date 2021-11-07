@@ -123,8 +123,6 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   carousel->setFocus();
 }
 
-uint16_t* lcdGetBackupBuffer();
-
 void ViewMainMenu::paint(BitmapBuffer* dc)
 {
   rect_t zone = carouselRect;
