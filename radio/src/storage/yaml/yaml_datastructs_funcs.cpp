@@ -1051,6 +1051,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     CFN_CH_INDEX(cfn) = yaml_str2uint_ref(val, val_len);
     // ","
     if (!val_len || val[0] != ',') return;
+    val++; val_len--;
     // value
     CFN_PARAM(cfn) = yaml_str2int_ref(val, val_len);
   }
@@ -1235,7 +1236,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque, ",", 1)) return false;
-    str = yaml_unsigned2str(CFN_PARAM(cfn));    // value
+    str = yaml_signed2str(CFN_PARAM(cfn));    // value
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 

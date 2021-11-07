@@ -442,6 +442,10 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(MODULE_SUBTYPE_PXX1_ACCST_LR12, g_model.moduleData[1].subType);
   EXPECT_EQ(4, g_model.moduleData[1].channelsCount); // 4 + 8 = 12
 
+  EXPECT_EQ(-SWSRC_SE0, g_model.customFn[0].swtch);
+  EXPECT_EQ(FUNC_OVERRIDE_CHANNEL, g_model.customFn[0].func);
+  EXPECT_EQ(-100, CFN_PARAM(&(g_model.customFn[0])));
+  
   const auto& top_widget = g_model.topbarData.zones[3];
   EXPECT_STRNEQ("Value", top_widget.widgetName);
 

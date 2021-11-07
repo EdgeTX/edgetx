@@ -748,7 +748,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque, ",", 1)) return false;
-    str = yaml_unsigned2str(CFN_PARAM(cfn));    // value
+    str = yaml_signed2str(CFN_PARAM(cfn));    // value
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
