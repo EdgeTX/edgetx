@@ -569,7 +569,7 @@ void RxOptions::checkEvents()
 {
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
   auto& module = hwSettings.modules[moduleIdx];
-  auto& receiver = module.receivers[receiverIdx];
+  auto& rxInfo = module.receivers[receiverIdx].information;
 
   switch (state) {
     case RO_Init:
@@ -583,8 +583,8 @@ void RxOptions::checkEvents()
     case RO_ReadModuleInfo:
       // times out after a while (see pxx2.cpp)
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
-        // uint8_t rxModelId = receiver.information.modelID;
-        uint8_t rxVariant = receiver.information.variant;
+        // uint8_t rxModelId = rxInfo.modelID;
+        uint8_t rxVariant = rxInfo.variant;
         if (isModuleR9MAccess(moduleIdx) && rxVariant == PXX2_VARIANT_EU &&
             !hwSettings.moduleSettings.txPower) {
           moduleState[moduleIdx].readModuleSettings(&hwSettings.moduleSettings);
