@@ -639,7 +639,9 @@ class ModuleWindow : public FormGroup {
                          update();
                          rfChoice->setFocus(SET_FOCUS_DEFAULT);
                        });
-      } else if (isModulePXX2(moduleIdx)) {
+      }
+#if defined(PXX2)
+      else if (isModulePXX2(moduleIdx)) {
         rfChoice =
             new Choice(this, grid.getFieldSlot(2, 1), STR_ISRM_RF_PROTOCOLS, 0,
                        MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
@@ -651,6 +653,7 @@ class ModuleWindow : public FormGroup {
                          rfChoice->setFocus(SET_FOCUS_DEFAULT);
                        });
       }
+#endif
 #if defined(AFHDS2) || defined(AFHDS3)
       else if (isModuleFlySky(moduleIdx)) {
         rfChoice =
@@ -1205,6 +1208,15 @@ class ModuleWindow : public FormGroup {
             }
         });
 
+        grid.nextLine();
+
+        new StaticText(this, grid.getLabelSlot(true), TR_OPTIONS, 0,
+                       COLOR_THEME_PRIMARY1);
+        auto options = new TextButton(this, grid.getFieldSlot(2, 0), TR_SET);
+        options->setPressHandler([=]() {
+            new ModuleOptions(this, moduleIdx);
+            return 0;
+          });
         grid.nextLine();
       }
 #endif

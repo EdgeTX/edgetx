@@ -331,6 +331,8 @@ PACK(struct PXX2HardwareInformation {
   uint8_t capabilityNotSupported;
 });
 
+bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value);
+
 PACK(struct ModuleInformation {
   int8_t current;
   int8_t maximum;

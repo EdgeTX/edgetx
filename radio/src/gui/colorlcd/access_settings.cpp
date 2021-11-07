@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "access_settings.h"
+#include "channel_bar.h"
 
 #include <functional>
 
@@ -43,12 +44,14 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
       if (isModuleR9MAccess(moduleIdx) &&
           modInfo.information.variant == PXX2_VARIANT_EU) {
         bindInfo.step = BIND_RX_NAME_SELECTED;
+        // TODO:
         //              POPUP_MENU_ADD_ITEM(STR_16CH_WITH_TELEMETRY);
         //              POPUP_MENU_ADD_ITEM(STR_16CH_WITHOUT_TELEMETRY);
         //              POPUP_MENU_START(onPXX2R9MBindModeMenu);
       } else if (isModuleR9MAccess(moduleIdx) &&
                  modInfo.information.variant == PXX2_VARIANT_FLEX) {
         bindInfo.step = BIND_RX_NAME_SELECTED;
+        // TODO:
         //              POPUP_MENU_ADD_ITEM(STR_FLEX_868);
         //              POPUP_MENU_ADD_ITEM(STR_FLEX_915);
         //              POPUP_MENU_START(onPXX2R9MBindModeMenu);
@@ -137,10 +140,8 @@ uint8_t ReceiverButton::pressBind()
       return 0;
     });
     menu->addLine(STR_OPTIONS, [=]() {
-      auto hwSettings = getPXX2HardwareAndSettingsBuffer();
-      memclear(&hwSettings, sizeof(hwSettings));
-      hwSettings.receiverSettings.receiverId = receiverIdx;
       // pushMenu(menuModelReceiverOptions);
+      new RxOptions(this, moduleIdx, receiverIdx);
       return 0;
     });
     menu->addLine(STR_SHARE, [=]() {
@@ -245,7 +246,7 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
   // RX name
   new StaticText(form, grid.getLabelSlot(), STR_RX_NAME, 0,
                  COLOR_THEME_PRIMARY1);
-  waiting = new StaticText(form, grid.getFieldSlot(), STR_WAITING, 0,
+  waiting = new StaticText(form, grid.getFieldSlot(), STR_WAITING_FOR_RX, 0,
                            COLOR_THEME_PRIMARY1);
   grid.nextLine();
   grid.spacer(6);
@@ -315,3 +316,540 @@ void RegisterDialog::onEvent(event_t event)
   }
 }
 #endif
+
+ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
+  Dialog(parent, STR_MODULE_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
+  moduleIdx(moduleIdx)
+{
+  setCloseWhenClickOutside(true);
+  auto form = &content->form;
+  new StaticText(form, {0, height() / 2, width(), PAGE_LINE_HEIGHT},
+                 STR_WAITING_FOR_MODULE, CENTERED | VCENTERED | COLOR_THEME_PRIMARY1);
+
+#if defined(SIMU)
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  memclear(&hwSettings, sizeof(hwSettings));
+  hwSettings.moduleSettings.state = PXX2_SETTINGS_OK;
+  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  state = MO_ReadModuleSettings;
+#endif
+  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  setFocus();
+}
+
+void ModuleOptions::checkEvents()
+{
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  switch (state) {
+    case MO_Init:
+      // kickstart fetching HW settings
+      memclear(&hwSettings, sizeof(hwSettings));
+      moduleState[moduleIdx].readModuleInformation(
+          &hwSettings.modules[moduleIdx], PXX2_HW_INFO_TX_ID,
+          PXX2_HW_INFO_TX_ID);
+      state = MO_ReadModuleInfo;
+      break;
+    case MO_ReadModuleInfo:
+      // times out after a while (see pxx2.cpp)
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
+        moduleState[moduleIdx].readModuleSettings(&hwSettings.moduleSettings);
+        state = MO_ReadModuleSettings;
+      }
+      break;
+    case MO_ReadModuleSettings:
+      // this one does NOT timeout (see pxx2.cpp)
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
+          hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
+        state = MO_DisplaySettings;
+        update();
+      }
+      break;
+    case MO_WriteSettings:
+      // TODO: ask for confirmation ???
+      moduleState[moduleIdx].writeModuleSettings(&hwSettings.moduleSettings);
+      state = MO_WritingSettings;
+      break;
+
+    case MO_WritingSettings:      
+#if defined(SIMU)
+      statusText.clear();
+      deleteLater();
+#else
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
+          hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
+        statusText.clear();
+        deleteLater();
+      }
+#endif
+      break;
+
+    default: // MO_DisplaySettings
+      break;
+  }
+
+  Dialog::checkEvents();
+}
+
+#if defined(HARDWARE_KEYS)
+void ModuleOptions::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
+
+uint8_t ModuleOptions::getModuleSettingsState()
+{
+  const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  return hwSettings.moduleSettings.state;
+}
+
+void ModuleOptions::update()
+{
+  auto form = &content->form;
+  form->clear();
+
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  uint8_t modelId = hwSettings.modules[moduleIdx].information.modelID;
+
+#if defined(SIMU)
+  if (modelId == 0) {
+    modelId = PXX2_MODULE_R9M_LITE_PRO;
+    hwSettings.modules[moduleIdx].information.modelID = modelId;
+    hwSettings.modules[moduleIdx].information.variant = PXX2_VARIANT_FCC;
+  }
+#endif
+  
+  uint8_t optionsAvailable =
+      getPXX2ModuleOptions(modelId) &
+      ((1 << MODULE_OPTION_EXTERNAL_ANTENNA) | (1 << MODULE_OPTION_POWER));
+
+  FormGridLayout grid(content->form.width(), 10);
+  grid.setLabelWidth(width() / 3);
+
+  new StaticText(form, grid.getLabelSlot(), STR_MODULE);
+  new StaticText(form, grid.getFieldSlot(), getPXX2ModuleName(modelId));
+  grid.nextLine();
+
+  if (!optionsAvailable) {
+    // no options available
+    new StaticText(form, grid.getCenteredSlot(), STR_NO_TX_OPTIONS, 0, CENTERED);
+  } else {
+    // some options available
+    if (optionsAvailable & (1 << MODULE_OPTION_EXTERNAL_ANTENNA)) {
+      new StaticText(form, grid.getLabelSlot(), STR_EXT_ANTENNA, 0,
+                     COLOR_THEME_PRIMARY1);
+      new CheckBox(form, grid.getFieldSlot(),
+                   []() {
+                     const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+                     return hwSettings.moduleSettings.externalAntenna;
+                   },
+                   [&](uint8_t val) {
+                     auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+                     hwSettings.moduleSettings.externalAntenna = val;
+                   });
+      grid.nextLine();
+    }
+
+    if (optionsAvailable & (1 << MODULE_OPTION_POWER)) {
+
+      // TODO: use isTelemetryAvailable() to check if rebind is necessary
+      new StaticText(form, grid.getLabelSlot(), STR_POWER, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto txPower = new Choice(
+          form, grid.getFieldSlot(), 0, 30,
+          []() {
+            const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+            return hwSettings.moduleSettings.txPower;
+          },
+          [&](int val) {
+            auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+            hwSettings.moduleSettings.txPower = val;
+            //state = MO_WriteSettings;
+          });
+
+      txPower->setTextHandler([](int val) {
+        switch (val) {
+          case 10:
+            return std::string("10 mW");
+          case 14:
+            return std::string("25 mW");
+          case 20:
+            return std::string("100 mW");
+          case 23:
+            return std::string("200 mW");
+          case 27:
+            return std::string("500 mW");
+          case 30:
+            return std::string("1000 mW");
+          default:
+            return std::string("---");
+        }
+      });
+
+      txPower->setAvailableHandler([=](int val) {
+        const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+        return isPXX2PowerAvailable(hwSettings.modules[moduleIdx].information, val);
+      });
+      grid.nextLine();
+    }
+  }
+
+  new DynamicText(form, grid.getFieldSlot(), [=]() { return statusText; });
+  grid.setLabelWidth(15);
+  grid.setMarginRight(15);
+  grid.nextLine();
+
+  auto exitButton =
+    new TextButton(form, grid.getFieldSlot(2, 0), STR_EXIT, [=]() -> int8_t {
+        this->deleteLater();
+        return 0;
+      });
+
+  new TextButton(form, grid.getFieldSlot(2, 1), STR_OK, [=]() -> int8_t {
+    this->writeSettings();
+    return 0;
+  });
+
+  exitButton->setFocus(SET_FOCUS_DEFAULT);
+  grid.nextLine();
+  grid.spacer(PAGE_PADDING);
+
+  form->setInnerHeight(grid.getWindowHeight());
+  form->setHeight(form->getInnerHeight());
+
+  content->adjustHeight();
+  content->setWindowCentered();
+}
+
+void ModuleOptions::writeSettings()
+{
+  if (state == MO_DisplaySettings) {
+    statusText = STR_WRITING;
+    state = MO_WriteSettings;
+  }
+}
+
+RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
+  Dialog(parent, STR_RECEIVER_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
+  moduleIdx(moduleIdx),
+  receiverIdx(rxIdx)
+{
+  setCloseWhenClickOutside(true);
+  auto form = &content->form;
+  new StaticText(
+      form,
+      {0, static_cast<coord_t>(form->height() / 2 - PAGE_LINE_HEIGHT),
+       form->width(), PAGE_LINE_HEIGHT},
+      STR_WAITING_FOR_RX, 0, CENTERED | VCENTERED | COLOR_THEME_PRIMARY1);
+
+#if defined(SIMU)
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  memclear(&hwSettings, sizeof(hwSettings));
+  hwSettings.moduleSettings.state = PXX2_SETTINGS_OK;
+  hwSettings.receiverSettings.state = PXX2_SETTINGS_OK;
+  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  state = RO_ReadReceiverSettings;
+  auto& rxInfo = hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
+  rxInfo.capabilities = 0xFFFFFFFF;
+  hwSettings.receiverSettings.outputsCount = 6;
+  for (int i=0; i<6; i++) {
+    hwSettings.receiverSettings.outputsMapping[i] = i;
+  }
+#endif
+  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  setFocus();
+}
+
+void RxOptions::checkEvents()
+{
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  auto& module = hwSettings.modules[moduleIdx];
+  auto& receiver = module.receivers[receiverIdx];
+
+  switch (state) {
+    case RO_Init:
+      // kickstart fetching RX settings
+      memclear(&hwSettings, sizeof(hwSettings));
+      //hwSettings.receiverSettings.receiverId = receiverIdx;
+      moduleState[moduleIdx].readModuleInformation(
+          &hwSettings.modules[moduleIdx], receiverIdx, receiverIdx);
+      state = RO_ReadModuleInfo;
+      break;
+    case RO_ReadModuleInfo:
+      // times out after a while (see pxx2.cpp)
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
+        // uint8_t rxModelId = receiver.information.modelID;
+        uint8_t rxVariant = receiver.information.variant;
+        if (isModuleR9MAccess(moduleIdx) && rxVariant == PXX2_VARIANT_EU &&
+            !hwSettings.moduleSettings.txPower) {
+          moduleState[moduleIdx].readModuleSettings(&hwSettings.moduleSettings);
+          state = RO_ReadModuleSettings;
+        } else {
+          moduleState[moduleIdx].readReceiverSettings(&hwSettings.receiverSettings);
+          state = RO_ReadReceiverSettings;
+        }
+      }
+      break;
+    case RO_ReadModuleSettings:
+      // this one does NOT timeout (see pxx2.cpp)
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
+          hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
+        moduleState[moduleIdx].readReceiverSettings(&hwSettings.receiverSettings);
+        state = RO_ReadReceiverSettings;
+      }
+      break;
+    case RO_ReadReceiverSettings:
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
+          hwSettings.receiverSettings.state == PXX2_SETTINGS_OK) {
+        state = RO_DisplaySettings;
+        update();
+      }
+      break;
+    case RO_WriteSettings:
+      // TODO: ask for confirmation ???
+      moduleState[moduleIdx].writeReceiverSettings(&hwSettings.receiverSettings);
+      state = RO_WritingSettings;
+      break;
+
+    case RO_WritingSettings:
+#if defined(SIMU)
+      statusText.clear();
+      deleteLater();
+#else
+      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
+          hwSettings.receiverSettings.state == PXX2_SETTINGS_OK) {
+        statusText.clear();
+        deleteLater();
+      }
+#endif
+      break;
+
+    default: // RO_DisplaySettings
+      break;
+  }
+
+  Dialog::checkEvents();
+}
+
+#if defined(HARDWARE_KEYS)
+void RxOptions::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
+
+#define CH_ENABLE_SPORT 4
+#define CH_ENABLE_SBUS  5
+
+static uint8_t getShiftedChannel(int8_t moduleIdx, int ch)
+{
+  return g_model.moduleData[moduleIdx].channelsStart + ch;
+}
+
+static std::string getChannelText(int8_t moduleIdx, uint8_t pin, int val)
+{
+  uint8_t ch = getShiftedChannel(moduleIdx, val);
+  uint8_t channelsMax = sentModuleChannels(moduleIdx) - 1;
+  if (val <= channelsMax) {
+    return std::string("CH") + std::to_string(ch + 1);
+  } else if (pin == CH_ENABLE_SPORT) {
+    return std::string("S.PORT");
+  } else if (pin == CH_ENABLE_SBUS) {
+    return std::string("SBUS");
+  }
+  return std::string();
+}
+
+void RxOptions::update()
+{
+  auto form = &content->form;
+  form->clear();
+
+  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+  auto& rxInfo = hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
+  // uint8_t receiverModelId = rxInfo.modelID;
+  uint8_t receiverVariant = rxInfo.variant;
+  uint8_t capabilities = rxInfo.capabilities;
+
+  FormGridLayout grid(content->form.width(), 10);
+  grid.setLabelWidth(width() / 3);
+
+  new StaticText(form, grid.getLabelSlot(), STR_RECEIVER);
+  new StaticText(form, grid.getFieldSlot(),
+                 g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx]);
+  grid.nextLine();
+
+  // PWM rate
+  new StaticText(form, grid.getLabelSlot(),
+                 isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
+  new CheckBox(
+      form, grid.getFieldSlot(),
+      []() {
+        auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+        return hwSettings.receiverSettings.pwmRate;
+      },
+      [](int val) {
+        auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+        hwSettings.receiverSettings.pwmRate = val;
+      });
+  grid.nextLine();
+
+  // telemetry disabled
+  new StaticText(form, grid.getLabelSlot(), STR_TELEMETRY_DISABLED);
+  auto tele25mw = new CheckBox(
+        form, grid.getFieldSlot(),
+        []() {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          return hwSettings.receiverSettings.telemetryDisabled;
+        },
+        [](int val) {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          hwSettings.receiverSettings.telemetryDisabled = val;
+        });
+
+  if (isModuleR9MAccess(moduleIdx) && receiverVariant == PXX2_VARIANT_EU &&
+      hwSettings.moduleSettings.txPower > 14 /*25mW*/) {
+    // read only field in this case
+    tele25mw->disable();
+  }
+  grid.nextLine();
+
+  if (capabilities & (1 << RECEIVER_CAPABILITY_TELEMETRY_25MW)) {
+    // telemetry 25 mW
+    new StaticText(form, grid.getLabelSlot(), "25mw Tele");
+    new CheckBox(
+        form, grid.getFieldSlot(),
+        []() {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          return hwSettings.receiverSettings.telemetry25mw;
+        },
+        [](int val) {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          hwSettings.receiverSettings.telemetry25mw = val;
+        });
+    grid.nextLine();
+  }
+
+  if (capabilities &
+      ((1 << RECEIVER_CAPABILITY_FPORT) | (1 << RECEIVER_CAPABILITY_FPORT2))) {
+
+    // SPORT modes
+    new StaticText(form, grid.getLabelSlot(), STR_PROTOCOL);
+    auto sportModes = new Choice(
+        form, grid.getFieldSlot(2, 0), STR_SPORT_MODES, 0, 2,
+        []() {
+          const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          const auto& rxSettings = hwSettings.receiverSettings;
+          return rxSettings.fport | (rxSettings.fport2 << 1);
+        },
+        [](int val) {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          auto& rxSettings = hwSettings.receiverSettings;
+          rxSettings.fport = val & 0x01;
+          rxSettings.fport2 = (val & 0x02) >> 1;
+        });
+
+    sportModes->setAvailableHandler([=](int val) {
+      switch (val) {
+        case 1:  // FPORT
+          return (bool)(capabilities & (1 << RECEIVER_CAPABILITY_FPORT));
+        case 2:  // FPORT2
+          return (bool)(capabilities & (1 << RECEIVER_CAPABILITY_FPORT2));
+      }
+      return true;
+    });
+    grid.nextLine();
+  }
+
+  auto outputsCount = min<uint8_t>(16, hwSettings.receiverSettings.outputsCount);
+  for (uint8_t i = 0; i < outputsCount; i++) {
+    std::string i_str = std::to_string(i+1);
+    new StaticText(form, grid.getLabelSlot(), std::string(STR_PIN) + i_str);
+
+    uint8_t channelsMax = sentModuleChannels(moduleIdx) - 1;
+    uint8_t selectionMax = channelsMax;
+    if (capabilities & (1 << RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)
+        && (CH_ENABLE_SPORT == i || CH_ENABLE_SBUS == i)) {
+          selectionMax++;
+    }
+
+    uint8_t mapping = hwSettings.receiverSettings.outputsMapping[i];
+    uint8_t channel = getShiftedChannel(moduleIdx, mapping);
+
+    auto r = grid.getFieldSlot(2, 1);
+    if (r.h > BAR_HEIGHT) {
+      r.y += (r.h - BAR_HEIGHT)/2;
+      r.h = BAR_HEIGHT;
+    }
+    auto chBar = new OutputChannelBar(form, r, channel);
+
+    auto chDn = new Choice(
+        form, grid.getFieldSlot(2, 0), 0, selectionMax,
+        [=]() {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          return hwSettings.receiverSettings.outputsMapping[i];
+        },
+        [=](int val) {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          hwSettings.receiverSettings.outputsMapping[i] = val;
+          if (val <= channelsMax) {
+            chBar->setChannel(getShiftedChannel(moduleIdx, val));
+            chBar->setEnabled(true);
+          } else {
+            chBar->setEnabled(false);
+          }
+        });
+    chDn->setTextHandler(
+        [=](int val) { return getChannelText(moduleIdx, i, val); });
+
+    grid.nextLine();
+  }
+
+  new DynamicText(form, grid.getFieldSlot(), [=]() { return statusText; });
+  grid.setLabelWidth(15);
+  grid.setMarginRight(15);
+  grid.nextLine();
+
+  auto exitButton =
+    new TextButton(form, grid.getFieldSlot(2, 0), STR_EXIT, [=]() -> int8_t {
+        this->deleteLater();
+        return 0;
+      });
+
+  new TextButton(form, grid.getFieldSlot(2, 1), STR_OK, [=]() -> int8_t {
+    this->writeSettings();
+    return 0;
+  });
+
+  exitButton->setFocus(SET_FOCUS_DEFAULT);
+  grid.nextLine();
+  grid.spacer(PAGE_PADDING);
+
+  form->setInnerHeight(grid.getWindowHeight());
+  if (form->getInnerHeight() < LCD_H - 2*POPUP_HEADER_HEIGHT) {
+    form->setHeight(form->getInnerHeight());
+  } else {
+    form->setHeight(LCD_H - 2*POPUP_HEADER_HEIGHT);
+  }
+
+  content->adjustHeight();
+  content->setWindowCentered();
+}
+
+void RxOptions::writeSettings()
+{
+  if (state == RO_DisplaySettings) {
+    statusText = STR_WRITING;
+    state = RO_WriteSettings;
+  }
+}

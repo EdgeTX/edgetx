@@ -86,3 +86,69 @@ class RegisterDialog : public Dialog
   TextEdit* rxName = nullptr;
   TextButton* exitButton;
 };
+
+class ModuleOptions : public Dialog
+{
+ public:
+  ModuleOptions(Window* parent, uint8_t moduleIdx);
+
+  void checkEvents() override;
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
+
+ protected:
+
+  enum {
+    MO_Init=0,
+    MO_ReadModuleInfo,
+    MO_ReadModuleSettings,
+    MO_DisplaySettings,
+    MO_WriteSettings,
+    MO_WritingSettings,
+  };
+  
+  uint8_t moduleIdx;
+  uint8_t state = MO_Init;
+
+  std::string statusText;
+
+  uint8_t getModuleSettingsState();
+
+  void update();
+  void writeSettings();
+};
+
+class RxOptions : public Dialog
+{
+ public:
+  RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx);
+
+  void checkEvents() override;
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
+
+ protected:
+
+  enum {
+    RO_Init=0,
+    RO_ReadModuleInfo,
+    RO_ReadModuleSettings,
+    RO_ReadReceiverSettings,
+    RO_DisplaySettings,
+    RO_WriteSettings,
+    RO_WritingSettings,
+  };
+  
+  uint8_t moduleIdx;
+  uint8_t receiverIdx;
+  uint8_t state = RO_Init;
+
+  std::string statusText;
+
+  uint8_t getRxSettingsState();
+
+  void update();
+  void writeSettings();
+};
