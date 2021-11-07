@@ -559,7 +559,12 @@ void checkBacklight()
         backlightOn = !backlightOn;
       }
       if (backlightOn) {
-        currentBacklightBright = requiredBacklightBright;
+        uint8_t backlightBrightness = requiredBacklightBright;
+        if(g_eeGeneral.backlightMode != e_backlight_mode_on)
+        {
+          backlightBrightness = std::min<uint8_t>(requiredBacklightBright, BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright);
+        }
+        currentBacklightBright = backlightBrightness;
         BACKLIGHT_ENABLE();
       }
       else {
