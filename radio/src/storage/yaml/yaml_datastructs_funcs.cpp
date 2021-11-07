@@ -77,6 +77,9 @@ namespace yaml_conv_220 {
   extern const char* _func_reset_param_lookup[];
   extern const char* _func_failsafe_lookup[];
 
+  extern const char* _adjust_gvar_mode_lookup[];
+  extern const uint8_t _adjust_gvar_mode_lookup_size;
+
   bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque);
 
@@ -1171,6 +1174,20 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    // parse CFN_GVAR_MODE
+    for (int i=0; i < yaml_conv_220::_adjust_gvar_mode_lookup_size; i++) {
+      if (!strncmp(yaml_conv_220::_adjust_gvar_mode_lookup[i],val,l_sep)) {
+        CFN_GVAR_MODE(cfn) = i;
+        break;
+      }
+    }
+    val += l_sep; val_len -= l_sep;
+    if (val_len == 0 || val[0] != ',') return;
+    val++; val_len--;
+    // find "," and cut val_len
+    sep = (const char *)memchr(val, ',', val_len);
+    l_sep = sep ? sep - val : val_len;
+    // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
     case FUNC_ADJUST_GVAR_INCDEC:
@@ -1306,6 +1323,11 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    // output CFN_GVAR_MODE
+    str = yaml_conv_220::_adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;    
+    // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
     case FUNC_ADJUST_GVAR_INCDEC:

@@ -445,7 +445,12 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(-SWSRC_SE0, g_model.customFn[0].swtch);
   EXPECT_EQ(FUNC_OVERRIDE_CHANNEL, g_model.customFn[0].func);
   EXPECT_EQ(-100, CFN_PARAM(&(g_model.customFn[0])));
-  
+
+  EXPECT_EQ(SWSRC_TrimThrUp, g_model.customFn[1].swtch);
+  EXPECT_EQ(FUNC_ADJUST_GVAR, g_model.customFn[1].func);
+  EXPECT_EQ(FUNC_ADJUST_GVAR_INCDEC, CFN_GVAR_MODE(&(g_model.customFn[1])));
+  EXPECT_EQ(5, CFN_PARAM(&(g_model.customFn[1])));
+
   const auto& top_widget = g_model.topbarData.zones[3];
   EXPECT_STRNEQ("Value", top_widget.widgetName);
 

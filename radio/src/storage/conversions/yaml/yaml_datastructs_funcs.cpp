@@ -733,6 +733,13 @@ const char* _func_sound_lookup[] = {
 // force external linkage
 extern const uint8_t _func_sound_lookup_size = sizeof(_func_sound_lookup);
 
+extern const char* _adjust_gvar_mode_lookup[];
+const char* _adjust_gvar_mode_lookup[] = {
+  "Cst", "Src", "GVar", "IncDec"
+};
+
+extern const uint8_t _adjust_gvar_mode_lookup_size = sizeof(_adjust_gvar_mode_lookup);
+  
 bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                 yaml_writer_func wf, void* opaque)
 {
@@ -818,6 +825,11 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    // output CFN_GVAR_MODE
+    str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;    
+    // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
     case FUNC_ADJUST_GVAR_INCDEC:
