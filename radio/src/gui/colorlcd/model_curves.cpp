@@ -154,17 +154,17 @@ class CurveEditWindow : public Page
 #else
     void buildBody(FormWindow * window)
     {
-      FormGridLayout grid;
-      grid.setMarginLeft(20);
-      grid.setMarginRight(20);
-      grid.setLabelWidth(100);
-      grid.spacer(20);
-
       CurveHeader & curve = g_model.curves[index];
       int8_t * points = curveAddress(index);
 
+      FormGridLayout grid;
+      grid.setMarginLeft(PAGE_PADDING);
+      grid.setMarginRight(PAGE_PADDING);
+      grid.setLabelWidth(100);
+      grid.spacer(PAGE_PADDING);
+
       // Curve editor
-      curveEdit = new CurveEdit(window, { 20, grid.getWindowHeight(), LCD_W - 40, LCD_W - 40}, index);
+      curveEdit = new CurveEdit(window, { 42, grid.getWindowHeight(), LCD_W - 80, LCD_W - 80}, index);
       grid.spacer(curveEdit->height() + 15);
 
       // Name
@@ -229,6 +229,8 @@ class CurveEditWindow : public Page
                      curveEdit->updatePreview();
                    });
       grid.nextLine();
+
+      curveDataEdit = new CurveDataEdit(window, {PAGE_PADDING, grid.getWindowHeight(), coord_t(LCD_W - PAGE_PADDING - 1), window->height() -  grid.getWindowHeight() - PAGE_PADDING}, index, curveEdit);
     }
 #endif
 };

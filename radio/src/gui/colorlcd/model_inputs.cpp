@@ -173,7 +173,9 @@ class InputEditWindow : public Page
           [=]() -> int { return getValue(expoAddress(index)->srcRaw); })
   {
 #if LCD_W > LCD_H
-    body.setWidth(LCD_W - preview.width() - PAGE_PADDING);
+    auto BODY_WIDTH = LCD_W - preview.width() - PAGE_PADDING;
+    body.setWidth(BODY_WIDTH);
+    body.setInnerWidth(BODY_WIDTH);
     body.setLeft(preview.width() + PAGE_PADDING);
 #else
     body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
