@@ -27,6 +27,41 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
+                                uint8_t receiverIdx)
+{
+  auto& bindInfo = getPXX2BindInformationBuffer();
+#if defined(SIMU)
+  const char* receiverName =
+      bindInfo.candidateReceiversNames[bindInfo.selectedReceiverIndex];
+  memcpy(g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx],
+         receiverName, PXX2_LEN_RX_NAME);
+  storageDirty(EE_MODEL);
+  bindInfo.step = BIND_OK;
+  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  new MessageDialog(parent, STR_BIND, STR_BIND_OK);
+#else
+  bindInfo.step = BIND_START;
+  new BindWaitDialog(parent, moduleIdx, receiverIdx);
+#endif
+}
+
+static void startFlexBindWaitDialog(Window* parent, uint8_t moduleIdx,
+                                    uint8_t receiverIdx, uint8_t flex)
+{
+  auto& bindInfo = getPXX2BindInformationBuffer();
+  bindInfo.flexMode = flex;
+  startBindWaitDialog(parent, moduleIdx, receiverIdx);
+}
+
+static void startLBTBindWaitDialog(Window* parent, uint8_t moduleIdx,
+                                   uint8_t receiverIdx, uint8_t lbt)
+{
+  auto& bindInfo = getPXX2BindInformationBuffer();
+  bindInfo.lbtMode = lbt;
+  startBindWaitDialog(parent, moduleIdx, receiverIdx);
+}
+
 BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
                                    uint8_t receiverIdx) :
     Menu(parent), moduleIdx(moduleIdx), receiverIdx(receiverIdx)
@@ -43,31 +78,30 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
       bindInfo.selectedReceiverIndex = i;
       if (isModuleR9MAccess(moduleIdx) &&
           modInfo.information.variant == PXX2_VARIANT_EU) {
-        bindInfo.step = BIND_RX_NAME_SELECTED;
-        // TODO:
-        //              POPUP_MENU_ADD_ITEM(STR_16CH_WITH_TELEMETRY);
-        //              POPUP_MENU_ADD_ITEM(STR_16CH_WITHOUT_TELEMETRY);
-        //              POPUP_MENU_START(onPXX2R9MBindModeMenu);
+
+        auto& modSetup = getPXX2ModuleSetupBuffer();
+        if (modSetup.moduleSettings.txPower <= 14) {
+          // with telemetry
+          startLBTBindWaitDialog(parent, moduleIdx, receiverIdx, 1);
+        } else {
+          // without telemetry
+          startLBTBindWaitDialog(parent, moduleIdx, receiverIdx, 2);
+        }
+        return;
       } else if (isModuleR9MAccess(moduleIdx) &&
                  modInfo.information.variant == PXX2_VARIANT_FLEX) {
         bindInfo.step = BIND_RX_NAME_SELECTED;
-        // TODO:
-        //              POPUP_MENU_ADD_ITEM(STR_FLEX_868);
-        //              POPUP_MENU_ADD_ITEM(STR_FLEX_915);
-        //              POPUP_MENU_START(onPXX2R9MBindModeMenu);
-      } else {
-#if defined(SIMU)
-        memcpy(g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx],
-               receiverName, PXX2_LEN_RX_NAME);
-        storageDirty(EE_MODEL);
-        bindInfo.step = BIND_OK;
-        moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-        new MessageDialog(parent, STR_BIND, STR_BIND_OK);
-#else
-        bindInfo.step = BIND_START;
-        new BindWaitDialog(parent, moduleIdx, receiverIdx);
-#endif
+        auto flexMenu = new Menu(parent);
+        flexMenu->addLine(STR_FLEX_868, [=]() {
+          startFlexBindWaitDialog(parent, moduleIdx, receiverIdx, 0);
+        });
+        flexMenu->addLine(STR_FLEX_915, [=]() {
+          startFlexBindWaitDialog(parent, moduleIdx, receiverIdx, 1);
+        });
+        return;
       }
+
+      startBindWaitDialog(parent, moduleIdx, receiverIdx);
     });
   }
 
@@ -82,18 +116,49 @@ BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
 {
   new StaticText(&content->form, {0, height() / 2, width(), PAGE_LINE_HEIGHT},
                  STR_WAITING_FOR_RX, 0, CENTERED | COLOR_THEME_PRIMARY1);
+
+  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void BindWaitDialog::checkEvents()
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
+
   if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
-    removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
-    deleteLater();
-    if (bindInfo.step == BIND_OK) {
-      POPUP_INFORMATION(STR_REG_OK);
-    } else {
-      // TODO: display error???
+
+    // returned to normal after bind
+    if (bindInfo.step > BIND_INIT) {
+      removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
+      deleteLater();
+      if (bindInfo.step == BIND_OK) {
+        POPUP_INFORMATION(STR_REG_OK);
+      }
+      return;
+    }
+
+    // pre-bind phase: fetching info for R9M
+    auto& modSetup = getPXX2ModuleSetupBuffer();
+    switch(bindInfo.step) {
+    case BIND_MODULE_TX_INFORMATION_REQUEST:
+      if (modSetup.moduleInformation.information.variant == PXX2_VARIANT_EU) {
+        // In EU mode we will need the power of the module to know if telemetry
+        // can be proposed
+        bindInfo.step = BIND_MODULE_TX_SETTINGS_REQUEST;
+#if defined(SIMU)
+        modSetup.moduleSettings.txPower = 14;
+#else
+        moduleState[moduleIdx].readModuleSettings(&modSetup.moduleSettings);
+#endif
+      } else {
+        bindInfo.step = 0;
+        moduleState[moduleIdx].startBind(&bindInfo);
+      }
+      break;
+    case BIND_MODULE_TX_SETTINGS_REQUEST:
+      // We just receive the module settings (for TX power)
+      bindInfo.step = 0;
+      moduleState[moduleIdx].startBind(&bindInfo);
+      break;
     }
     return;
   }
@@ -114,7 +179,6 @@ void BindWaitDialog::onEvent(event_t event)
                 event);
 
   if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
     deleteLater();
   }
 }

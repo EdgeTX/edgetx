@@ -462,12 +462,14 @@ bool Pxx2Pulses::setupFrame(uint8_t module)
       setupRegisterFrame(module);
       break;
     case MODULE_MODE_BIND:
-      if (g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 && g_model.moduleData[module].subType != MODULE_SUBTYPE_ISRM_PXX2_ACCESS)
+      if ((g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 &&
+           g_model.moduleData[module].subType !=
+               MODULE_SUBTYPE_ISRM_PXX2_ACCESS) ||
+          (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)) {
         setupAccstBindFrame(module);
-      else if (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)
-        setupAccstBindFrame(module);
-      else
+      } else {
         setupAccessBindFrame(module);
+      }
       break;
     case MODULE_MODE_RESET:
       setupResetFrame(module);
