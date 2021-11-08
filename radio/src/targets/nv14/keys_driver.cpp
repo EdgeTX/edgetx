@@ -34,11 +34,11 @@ uint32_t readKeys()
 
   if (getKeys) {
     if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
-       result |= 1 << KEY_MENU;
+       result |= 1 << KEY_RADIO;
      if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
-       result |= 1 << KEY_TELEM;
+       result |= 1 << KEY_MODEL;
      if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
-       result |= 1 << KEY_PGDN;
+       result |= 1 << KEY_TELEM;
      if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
        result |= 1 << KEY_PGUP;
      if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
