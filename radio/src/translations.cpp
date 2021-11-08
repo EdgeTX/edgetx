@@ -940,3 +940,5 @@ const char STR_RACING_MODE[] = TR_RACING_MODE;
 #if defined(PCBNV14)
 const char STR_RFPOWER_AFHDS2[] = TR_RFPOWER_AFHDS2;
 #endif
+
+const char STR_USE_THEME_COLOR[] = TR_USE_THEME_COLOR;

@@ -120,8 +120,9 @@ void unregisterWidget(const WidgetFactory * factory);
 class WidgetFactory
 {
   public:
-    explicit WidgetFactory(const char * name, const ZoneOption * options = nullptr):
+    explicit WidgetFactory(const char * name, const ZoneOption * options = nullptr, const char * displayName = nullptr):
       name(name),
+      displayName(displayName),
       options(options)
     {
       registerWidget(this);
@@ -137,6 +138,14 @@ class WidgetFactory
     inline const ZoneOption * getOptions() const
     {
       return options;
+    }
+
+    inline const char * getDisplayName() const
+    {
+        if (displayName)
+          return displayName;
+        else
+          return name;
     }
 
     void initPersistentData(Widget::PersistentData * persistentData) const
@@ -157,6 +166,7 @@ class WidgetFactory
 
   protected:
     const char * name;
+    const char * displayName;
     const ZoneOption * options;
 };
 

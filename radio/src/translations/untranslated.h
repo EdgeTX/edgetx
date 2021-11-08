@@ -331,3 +331,5 @@
 #define CHAR_CHANNEL   STR_CHAR_CHANNEL[0]
 #define CHAR_TELEMETRY STR_CHAR_TELEMETRY[0]
 #define CHAR_LUA       STR_CHAR_LUA[0]
+
+#define TR_USE_THEME_COLOR "Use theme color"

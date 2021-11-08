@@ -160,8 +160,8 @@ template<class T>
 class BaseWidgetFactory: public WidgetFactory
 {
   public:
-    BaseWidgetFactory(const char * name, const ZoneOption * options):
-      WidgetFactory(name, options)
+    BaseWidgetFactory(const char * name, const ZoneOption * options, const char * displayName = nullptr):
+      WidgetFactory(name, options, displayName)
     {
     }
 
