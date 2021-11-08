@@ -117,6 +117,11 @@ void readKeysAndTrims()
   for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
     keys[index++].input(trims & i);
   }
+
+  if ((in || trims) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+    // on keypress turn the light on
+    resetBacklightTimeout();
+  }
 }
 
 #if !defined(BOOT)
