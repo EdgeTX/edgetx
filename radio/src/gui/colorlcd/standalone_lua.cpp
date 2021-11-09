@@ -153,8 +153,6 @@ void StandaloneLuaWindow::runLua(event_t evt)
       TRACE("# StandaloneLuaWindow::invalidate()");
 #endif
       invalidate();
-    } else {
-      // The script was preempted, and the LCD should not be updated yet
     }
   }
 

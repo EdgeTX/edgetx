@@ -170,18 +170,7 @@ bool displayTelemetryScreen()
 {
 #if defined(LUA)
   if (TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
-    uint8_t state = isTelemetryScriptAvailable(s_frsky_view);
-    switch (state) {
-      case SCRIPT_OK:
-        return true;  // contents will be drawed by Lua Task
-      case SCRIPT_NOFILE:
-        return false;  // requested lua telemetry screen not available
-      case SCRIPT_SYNTAX_ERROR:
-      case SCRIPT_PANIC:
-        luaError(lsScripts, state, false);
-        return true;
-    }
-    return false;
+    return isTelemetryScriptAvailable(); // contents will be drawn by Lua Task
   }
 #endif
 
@@ -194,8 +183,6 @@ bool displayTelemetryScreen()
   if (s_frsky_view < MAX_TELEMETRY_SCREENS) {
     return displayCustomTelemetryScreen(s_frsky_view);
   }
-
-
 
   return true;
 }

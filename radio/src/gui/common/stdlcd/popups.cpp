@@ -50,7 +50,7 @@ void drawMessageBoxBackground(coord_t top, coord_t height)
 void drawMessageBox(const char * title)
 {
   // background + border
-  drawMessageBoxBackground(MESSAGEBOX_Y, 40);
+  drawMessageBoxBackground(MESSAGEBOX_Y, 48);
 
   // title
   lcdDrawSizedText(WARNING_LINE_X, WARNING_LINE_Y, title, WARNING_LINE_LEN);
