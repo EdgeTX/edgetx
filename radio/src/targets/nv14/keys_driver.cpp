@@ -25,19 +25,31 @@
 uint32_t readKeys()
 {
   uint32_t result = 0;
-
-  // Arrow keys on right trim joystick
-  // is only supported within bootloader
-#if defined(BOOT)
-  if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
-    result |= 1 << KEY_DOWN;
-  if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
-    result |= 1 << KEY_UP;
-  if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
-    result |= 1 << KEY_LEFT;
-  if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
-    result |= 1 << KEY_RIGHT;
+  bool getKeys = true;
+#if defined(LUA)
+  if (!isLuaStandaloneRunning()) {
+    getKeys = false;
+  }
 #endif
+
+  if (getKeys) {
+    if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
+       result |= 1 << KEY_RADIO;
+     if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
+       result |= 1 << KEY_MODEL;
+     if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
+       result |= 1 << KEY_TELEM;
+     if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
+       result |= 1 << KEY_PGUP;
+     if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
+       result |= 1 << KEY_DOWN;
+     if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
+       result |= 1 << KEY_UP;
+     if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
+       result |= 1 << KEY_LEFT;
+     if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
+       result |= 1 << KEY_RIGHT;
+  }
 
   // Enter and Exit are always supported
   if (TRIMS_GPIO_REG_RPRESS & TRIMS_GPIO_PIN_RPRESS)
@@ -52,6 +64,13 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
+  bool getTrim = true;
+#if defined(LUA)
+  if (isLuaStandaloneRunning()) {
+    getTrim = false;
+  }
+#endif
+  if(!getTrim) return result;
   if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
     result |= 1 << (TRM_LH_DWN - TRM_BASE);
   if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
@@ -97,6 +116,11 @@ void readKeysAndTrims()
 
   for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
     keys[index++].input(trims & i);
+  }
+
+  if ((in || trims) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+    // on keypress turn the light on
+    resetBacklightTimeout();
   }
 }
 
