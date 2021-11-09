@@ -36,6 +36,10 @@ class BindRxChoiceMenu : public Menu
  protected:
   uint8_t moduleIdx;
   uint8_t receiverIdx;
+
+#if defined(HARDWARE_TOUCH)
+  bool onTouchEnd(coord_t x, coord_t y) override;
+#endif  
 };
 
 class BindWaitDialog : public Dialog

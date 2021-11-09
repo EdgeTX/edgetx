@@ -108,6 +108,21 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
   setCancelHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
+#if defined(HARDWARE_TOUCH)
+bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
+{
+  // Note: onCancel() is not called when the menu is discarded
+  //       by clicking outside the menu window and the onCancel
+  //       handler is not accessible from here
+  if (!Window::onTouchEnd(x, y)) {
+    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+    onKeyPress();
+    deleteLater();
+  }
+  return true;
+}
+#endif
+
 BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
                                uint8_t receiverIdx) :
     Dialog(parent, STR_BIND, {50, 73, LCD_W - 100, LCD_H - 146}),
@@ -164,7 +179,12 @@ void BindWaitDialog::checkEvents()
   }
 
   if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
+
+    // create RX choice dialog...
     new BindRxChoiceMenu(parent, moduleIdx, receiverIdx);
+
+    // ... prevent module mode being reset to NORMAL before exiting
+    setCloseHandler(nullptr);
     deleteLater();
     return;
   }
@@ -249,6 +269,7 @@ void ReceiverButton::startBind()
 
   memclear(&bindInfo, sizeof(bindInfo));
   bindInfo.rxUid = receiverIdx;
+  bindInfo.step = BIND_INIT;
 
   if (isModuleR9MAccess(moduleIdx)) {
     bindInfo.step = BIND_MODULE_TX_INFORMATION_REQUEST;
