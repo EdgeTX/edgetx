@@ -908,3 +908,14 @@ void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
 {
   lswFm[dst] = lswFm[src];
 }
+
+void setStickySwitch(uint8_t i, bool value)
+{
+  if (i >= MAX_LOGICAL_SWITCHES) return;  
+  LogicalSwitchData * ls = lswAddress(i);
+  if (ls->func != LS_FUNC_STICKY) return;
+  for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
+    ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
+    lastValue.state = value ? 1 : 0;
+  }
+}

@@ -1789,6 +1789,24 @@ static int luaSerialRead(lua_State * L)
   return 1;
 }
 
+/*luadoc
+@function setStickySwitch(id, value) 
+@param id: integer identifying the sticky logical switch.
+@param value: true/false. The new value of the sticky logical switch.
+Sets the value of a sticky logical switch.
+@status current Introduced in 2.6
+*/
+
+static int luaSetStickySwitch(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+  bool value = lua_toboolean(L, 2);
+
+  setStickySwitch(id, value);
+
+  return 0;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -1844,6 +1862,7 @@ const luaL_Reg opentxLib[] = {
   { "setSerialBaudrate", luaSetSerialBaudrate },
   { "serialWrite", luaSerialWrite },
   { "serialRead", luaSerialRead },
+  { "setStickySwitch", luaSetStickySwitch },
   { nullptr, nullptr }  /* sentinel */
 };
 

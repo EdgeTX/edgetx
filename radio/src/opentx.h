@@ -541,7 +541,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags=0);
 
 void logicalSwitchesTimerTick();
 void logicalSwitchesReset();
-
+void setStickySwitch(uint8_t i, bool value);
 void evalLogicalSwitches(bool isCurrentFlightmode=true);
 void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
 
