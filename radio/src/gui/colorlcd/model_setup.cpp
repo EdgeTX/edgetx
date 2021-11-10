@@ -1122,7 +1122,7 @@ class ModuleWindow : public FormGroup {
                   resetPulsesAFHDS2();
                 }
 #endif
-                startRSSIDialog([]() {
+                startRSSIDialog([=]() {
 #if defined(AFHDS2)
                   if (isModuleFlySky(moduleIdx)) {
                     resetPulsesAFHDS2();
