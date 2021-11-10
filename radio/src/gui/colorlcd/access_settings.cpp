@@ -660,7 +660,7 @@ void RxOptions::checkEvents()
     case RO_Init:
       // kickstart fetching RX settings
       memclear(&hwSettings, sizeof(hwSettings));
-      //hwSettings.receiverSettings.receiverId = receiverIdx;
+      hwSettings.receiverSettings.receiverId = receiverIdx;
       moduleState[moduleIdx].readModuleInformation(
           &hwSettings.modules[moduleIdx], receiverIdx, receiverIdx);
       state = RO_ReadModuleInfo;
