@@ -514,8 +514,6 @@ class TrainerModuleWindow : public FormGroup
 #endif
 };
 
-
-
 class ModuleWindow : public FormGroup {
   public:
     ModuleWindow(FormWindow * parent, const rect_t &rect, uint8_t moduleIdx) :
@@ -1124,18 +1122,7 @@ class ModuleWindow : public FormGroup {
                   resetPulsesAFHDS2();
                 }
 #endif
-                auto rssiDialog = new DynamicMessageDialog(
-                    this, "Range Test",
-                    [=]() {
-                      char buf[16];
-                      sprintf(buf, "%d db", (int)TELEMETRY_RSSI());
-                      return std::string(buf);
-                    },
-                    "RSSI:", 50,
-                    COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
-                rssiDialog->setCloseHandler([this]() {
-                  rangeButton->check(false);
-                  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+                startRSSIDialog([]() {
 #if defined(AFHDS2)
                   if (isModuleFlySky(moduleIdx)) {
                     resetPulsesAFHDS2();
@@ -1204,19 +1191,11 @@ class ModuleWindow : public FormGroup {
             }
             else {
               moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+              startRSSIDialog();
               return 1;
             }
         });
 
-        grid.nextLine();
-
-        new StaticText(this, grid.getLabelSlot(true), TR_OPTIONS, 0,
-                       COLOR_THEME_PRIMARY1);
-        auto options = new TextButton(this, grid.getFieldSlot(2, 0), TR_SET);
-        options->setPressHandler([=]() {
-            new ModuleOptions(this, moduleIdx);
-            return 0;
-          });
         grid.nextLine();
       }
 #endif
@@ -1266,6 +1245,23 @@ class ModuleWindow : public FormGroup {
       auto par = getParent();
       par->moveWindowsTop(top() + 1, adjustHeight());
       par->adjustInnerHeight();
+    }
+
+    void startRSSIDialog(std::function<void()> closeHandler = nullptr)
+    {
+      auto rssiDialog = new DynamicMessageDialog(
+          parent, "Range Test",
+          [=]() {
+            return std::to_string((int)TELEMETRY_RSSI()) + std::string(" db");
+          },
+          "RSSI:", 50,
+          COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
+
+      rssiDialog->setCloseHandler([this, closeHandler]() {
+        rangeButton->check(false);
+        moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+        if (closeHandler) closeHandler();
+      });
     }
 
     void checkEvents() override
