@@ -56,6 +56,9 @@ void Slider::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool Slider::onTouchStart(coord_t x, coord_t y)
 {
+  if(!enabled)
+    return true;
+
   if (!hasFocus()) {
     onKeyPress();
     setFocus(SET_FOCUS_DEFAULT);
@@ -66,6 +69,9 @@ bool Slider::onTouchStart(coord_t x, coord_t y)
 
 bool Slider::onTouchEnd(coord_t x, coord_t y)
 {
+  if(!enabled)
+    return true;
+
   setValue(value(x));
   invalidate();
   onKeyPress();
@@ -74,6 +80,9 @@ bool Slider::onTouchEnd(coord_t x, coord_t y)
 
 bool Slider::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
 {
+  if(!enabled)
+    return true;
+
   if (hasFocus() && sliding) {
     int newValue = value(x);
     if (getValue() != newValue) {
