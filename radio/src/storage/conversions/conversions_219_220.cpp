@@ -19,11 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "datastructs_219.h"
+#include <cstdlib>
+#include <cstring>
 
-#if defined(COLORLCD)
-#include "theme.h"
+#include "definitions.h"
+#include "datastructs_219.h"
+#include "datastructs_220.h"
+
+#include "debug.h"
+#include "strhelpers.h"
+
+#if defined(EEPROM) || defined(EEPROM_RLC)
+  #include <storage/eeprom_common.h>
+#else
+  #include <storage/sdcard_common.h>
 #endif
 
 //
@@ -80,7 +89,7 @@
 //  -> ModelData: +1284 (CustomScreenData x 5 = 1200; TopBar::PersistentData: +84)
 //
 
-typedef TimerData TimerData_v220;
+typedef bin_storage_220::TimerData TimerData_v220;
 
 static void convertToStr(char* str, size_t len)
 {
@@ -94,40 +103,38 @@ static void convertToStr(char* str, size_t len)
   }
 }
 
-#if defined(COLORLCD)
-extern const LayoutFactory * defaultLayout;
-extern OpenTxTheme * defaultTheme;
-#endif
-
-void convertModelData_219_to_220(ModelData &model)
+void convertModelData_219_to_220(void* data)
 {
-  ModelData* oldModelAllocated = (ModelData*)malloc(sizeof(ModelData));
-  ModelData& oldModel = *oldModelAllocated;
+  constexpr unsigned md_size = sizeof(bin_storage_220::ModelData);
+  auto& model = *reinterpret_cast<bin_storage_220::ModelData*>(data);
 
-  memcpy(&oldModel, &model, sizeof(ModelData));
-  ModelData& newModel = (ModelData&)model;
+  auto oldModelAllocated = reinterpret_cast<bin_storage_220::ModelData*>(malloc(md_size));
+  bin_storage_220::ModelData& oldModel = *oldModelAllocated;
+
+  memcpy(&oldModel, &model, md_size);
+  bin_storage_220::ModelData& newModel = (bin_storage_220::ModelData&)model;
   convertToStr(model.header.name, LEN_MODEL_NAME_219);
 
   for (uint8_t i=0; i<MAX_TIMERS_219; i++) {
     // convert to new timers v220
-    TimerData& timer = newModel.timers[i];
+    bin_storage_220::TimerData& timer = newModel.timers[i];
     convertToStr(timer.name, LEN_TIMER_NAME_219);
 
     TimerData_v219& timer_219 = *(TimerData_v219*)(&oldModel.timers[i]);
 
     // Convert mode
 
-    if (timer_219.mode >= TMRMODE_START) {
+    if (timer_219.mode >= bin_storage_220::TMRMODE_START) {
       timer_219.mode += 1;
     }
-    if (timer_219.mode < TMRMODE_COUNT
+    if (timer_219.mode < bin_storage_220::TMRMODE_COUNT
         && timer_219.mode >=0) {
       timer.mode = timer_219.mode;
     }
     else {
-      timer.mode = TMRMODE_ON;
+      timer.mode = bin_storage_220::TMRMODE_ON;
       if (timer_219.mode > 0)
-        timer.swtch = timer_219.mode - (TMRMODE_COUNT - 1);
+        timer.swtch = timer_219.mode - (bin_storage_220::TMRMODE_COUNT - 1);
       else
         timer.swtch = timer_219.mode;
     }
@@ -211,30 +218,84 @@ void convertModelData_219_to_220(ModelData &model)
          sizeof(newModel.screenData) +
          sizeof(newModel.topbarData));
 
-  if (defaultLayout) {
-    strcpy(newModel.screenData[0].LayoutId, defaultLayout->getId());
-    defaultLayout->initPersistentData(&newModel.screenData[0].layoutData);
-  }
+  strcpy(newModel.screenData[0].LayoutId, "Layout2P1");
+  auto persistentData = &newModel.screenData[0].layoutData;
+
+  // top bar
+  persistentData->options[0].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[0].value.boolValue = true;
+
+  // flight mode
+  persistentData->options[1].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[1].value.boolValue = true;
+
+  // sliders
+  persistentData->options[2].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[2].value.boolValue = true;
+
+  // trims
+  persistentData->options[3].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[3].value.boolValue = true;
+
+  // mirrored
+  persistentData->options[4].type  = bin_storage_220::ZOV_Bool;
+  persistentData->options[4].value.boolValue = false;
 #endif
   free(oldModelAllocated);
 }
 
-void convertRadioData_219_to_220(RadioData & settings)
+#if !defined(EEPROM_RLC)
+const char* convertModelData_219_to_220(const char* path)
+{
+  constexpr unsigned md_size = sizeof(bin_storage_220::ModelData);
+
+  auto md_220 = reinterpret_cast<bin_storage_220::ModelData*>(malloc(md_size));
+  memset(md_220, 0, md_size);
+  
+  uint8_t version;
+  const char* error = loadFileBin(path, (uint8_t *)md_220, md_size, &version);
+  if (!error) {
+    convertModelData_219_to_220((void*)md_220);
+    error = writeFileBin(path, (uint8_t *)md_220, md_size, 220);
+  }
+
+  free(md_220);
+  return error;
+}
+#else
+const char* convertModelData_219_to_220(uint8_t id)
+{
+  constexpr unsigned md_size = sizeof(bin_storage_220::ModelData);
+
+  auto md_220 = reinterpret_cast<uint8_t*>(malloc(md_size));
+  memset(md_220, 0, md_size);
+  
+  uint16_t read = eeLoadModelData(id, md_220, md_size);
+  if (read == md_size) {
+    convertModelData_219_to_220((void*)md_220);
+    eeWriteModelData(id, (uint8_t *)md_220, md_size, true);
+  } else {
+    // ERROR: size mismatch !!!
+  }
+
+  free(md_220);
+  return nullptr;
+}
+#endif
+
+void convertRadioData_219_to_220(void* data)
 {
   TRACE("Radio conversion from v219 to v220");
 
+  auto& settings = *reinterpret_cast<bin_storage_220::RadioData*>(data);
   settings.version = 220;
   settings.variant = EEPROM_VARIANT;
-
-  RadioData* oldSettingsAllocated = (RadioData*)malloc(sizeof(RadioData));
-  RadioData& oldSettings = *oldSettingsAllocated;
-  memcpy(&oldSettings, &settings, sizeof(RadioData));
 
 #if defined(COLORLCD)
   // Clear CustomScreenData + TopBarPersistentData
   // as they cannot be converted (missing option types)
-  strcpy(g_eeGeneral.themeName, defaultTheme->getName());
-  defaultTheme->init();
+  strcpy(settings.themeName, "EdgeTX");
+  memset(&settings.themeData, 0, sizeof(settings.themeData));
 #endif
 
   for (int i = 0; i < NUM_SWITCHES_219; ++i) {
@@ -250,6 +311,41 @@ void convertRadioData_219_to_220(RadioData & settings)
 #if defined(PCBHORUS) || defined(PCBNV14)
   convertToStr(settings.bluetoothName, LEN_BLUETOOTH_NAME_219);
 #endif
-
-  free(oldSettingsAllocated);
 }
+
+#if !defined(EEPROM_RLC)
+const char* convertRadioData_219_to_220(const char* path)
+{
+  constexpr unsigned rd_size = sizeof(bin_storage_220::RadioData);
+
+  auto rd_220 = reinterpret_cast<bin_storage_220::RadioData*>(malloc(rd_size));
+  memset(rd_220, 0, rd_size);
+  
+  uint8_t version;
+  const char* error = loadFileBin(path, (uint8_t *)rd_220, rd_size, &version);
+  if (!error) {
+    convertRadioData_219_to_220((void*)rd_220);
+    error = writeFileBin(path, (uint8_t *)rd_220, rd_size, 220);
+  }
+
+  free(rd_220);
+  return error;
+}
+#else
+const char* convertRadioData_219_to_220()
+{
+  constexpr unsigned rd_size = sizeof(bin_storage_220::RadioData);
+  auto rd_220 = reinterpret_cast<uint8_t*>(malloc(rd_size));
+  
+  uint16_t read = eeLoadGeneralSettingsData(rd_220, rd_size);
+  if (read >= rd_size - 1) { // 220 started with 1 byte less than 219
+    convertRadioData_219_to_220((void*)rd_220);
+    eeWriteGeneralSettingData((uint8_t *)rd_220, rd_size, true);
+  } else {
+    // ERROR: size mismatch !!!
+  }
+
+  free(rd_220);
+  return nullptr;
+}
+#endif

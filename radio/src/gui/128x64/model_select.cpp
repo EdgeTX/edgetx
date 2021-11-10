@@ -27,7 +27,7 @@ void onDeleteModelConfirm(const char * result)
 {
   if (result == STR_OK) {
     storageCheck(true);
-    eeDeleteModel(menuVerticalPosition); // delete file
+    deleteModel(menuVerticalPosition); // delete file
     s_copyMode = 0;
   }
 }
@@ -56,10 +56,19 @@ void onModelSelectMenu(const char * result)
 #if defined(SDCARD)
   else if (result == STR_BACKUP_MODEL) {
     storageCheck(true); // force writing of current model data before this is changed
-    POPUP_WARNING(eeBackupModel(sub));
+    POPUP_WARNING(backupModel(sub));
   }
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
-    if (sdListFiles(MODELS_PATH, MODELS_EXT, MENU_LINE_LENGTH-1, nullptr))
+    const char* ext = nullptr;
+    const char* path = nullptr;
+#if defined(SDCARD_YAML)
+    ext = STR_YAML_EXT;
+    path = STR_BACKUP_PATH;
+#else
+    ext = STR_MODELS_EXT;
+    path = STR_MODELS_PATH;
+#endif
+    if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
       POPUP_WARNING(STR_NO_MODELS_ON_SD);
@@ -73,9 +82,9 @@ void onModelSelectMenu(const char * result)
   else if (result != STR_EXIT) {
     // The user choosed a file on SD to restore
     storageCheck(true);
-    POPUP_WARNING(eeRestoreModel(sub, (char *)result));
+    POPUP_WARNING(restoreModel(sub, (char *)result));
     if (!warningText && g_eeGeneral.currModel == sub) {
-      eeLoadModel(sub);
+      loadModel(sub);
     }
   }
 #endif
@@ -108,7 +117,7 @@ void menuModelSelect(event_t event)
 
     case EVT_KEY_LONG(KEY_EXIT):
       killEvents(event);
-      if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && eeModelExists(sub)) {
+      if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && modelExists(sub)) {
         POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
         SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
       }
@@ -135,7 +144,7 @@ void menuModelSelect(event_t event)
     case EVT_KEY_BREAK(KEY_ENTER):
       s_editMode = 0;
       if (READ_ONLY()) {
-        if (g_eeGeneral.currModel != sub && eeModelExists(sub)) {
+        if (g_eeGeneral.currModel != sub && modelExists(sub)) {
           selectModel(sub);
         }
       }
@@ -146,7 +155,7 @@ void menuModelSelect(event_t event)
         uint8_t cur = (MAX_MODELS + sub + s_copyTgtOfs) % MAX_MODELS;
 
         if (s_copyMode == COPY_MODE) {
-          if (!eeCopyModel(cur, s_copySrcRow)) {
+          if (!copyModel(cur, s_copySrcRow)) {
             cur = sub;
           }
         }
@@ -155,7 +164,7 @@ void menuModelSelect(event_t event)
         while (sub != cur) {
           uint8_t src = cur;
           cur = (s_copyTgtOfs > 0 ? cur+MAX_MODELS-1 : cur+1) % MAX_MODELS;
-          eeSwapModels(src, cur);
+          swapModels(src, cur);
           if (src == s_copySrcRow)
             s_copySrcRow = cur;
           else if (cur == s_copySrcRow)
@@ -174,7 +183,7 @@ void menuModelSelect(event_t event)
         s_copyMode = 0;
         killEvents(event);
         if (g_eeGeneral.currModel != sub) {
-          if (eeModelExists(sub)) {
+          if (modelExists(sub)) {
             POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
             POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
             POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
@@ -197,7 +206,7 @@ void menuModelSelect(event_t event)
         }
         POPUP_MENU_START(onModelSelectMenu);
       }
-      else if (eeModelExists(sub)) {
+      else if (modelExists(sub)) {
         s_copyMode = (s_copyMode == COPY_MODE ? MOVE_MODE : COPY_MODE);
         s_copyTgtOfs = 0;
         s_copySrcRow = -1;
@@ -261,7 +270,7 @@ void menuModelSelect(event_t event)
         if (s_copySrcRow < 0 && s_copyMode==COPY_MODE) {
           s_copySrcRow = oldSub;
           // find a hole (in the first empty slot above / below)
-          sub = eeFindEmptyModel(s_copySrcRow, IS_ROTARY_RIGHT(event) || event==EVT_KEY_FIRST(KEY_DOWN));
+          sub = findEmptyModel(s_copySrcRow, IS_ROTARY_RIGHT(event) || event==EVT_KEY_FIRST(KEY_DOWN));
           if (sub < 0) {
             // no free room for duplicating the model
             AUDIO_ERROR();
@@ -276,14 +285,10 @@ void menuModelSelect(event_t event)
       break;
   }
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM)
   lcdDrawText(9*FW-(LEN_FREE-4)*FW-4, 0, STR_FREE);
   if (event) reusableBuffer.modelsel.eepromfree = EeFsGetFree();
   lcdDrawNumber(lcdLastRightPos+3, 0, reusableBuffer.modelsel.eepromfree, LEFT);
-#elif defined(EEPROM_RLC)
-  lcdDrawText(9*FW-(LEN_FREE-4)*FW, 0, STR_FREE);
-  if (event) reusableBuffer.modelsel.eepromfree = EeFsGetFree();
-  lcdDrawNumber(17*FW, 0, reusableBuffer.modelsel.eepromfree, RIGHT);
 #endif
 
 #if defined(NAVIGATION_X7)
@@ -320,7 +325,7 @@ void menuModelSelect(event_t event)
 
     k %= MAX_MODELS;
 
-    if (eeModelExists(k)) {
+    if (modelExists(k)) {
       drawModelName(4*FW, y, modelHeaders[k].name, k, 0);
       if (k==g_eeGeneral.currModel && (s_copyMode!=COPY_MODE || s_copySrcRow<0 || i+menuVerticalOffset!=(vertpos_t)sub)) {
         lcdDrawChar(1, y, '*');

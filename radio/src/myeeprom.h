@@ -25,7 +25,11 @@
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
 
-#define EEPROM_VER             220
+#if defined(SDCARD_YAML)
+  #define EEPROM_VER           221
+#else
+  #define EEPROM_VER           220
+#endif
 #define FIRST_CONV_EEPROM_VER  219
 
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
@@ -153,9 +157,17 @@ enum CurveRefType {
   #define TRIM_LAST TRIM_AIL
 #endif
 
-#define MLTPX_ADD   0
-#define MLTPX_MUL   1
-#define MLTPX_REP   2
+enum MixerMultiplex {
+  MLTPX_ADD  = 0,
+  MLTPX_MUL  = 1,
+  MLTPX_REPL = 2,
+};
+
+enum TrainerMultiplex {
+  TRAINER_OFF  = 0,
+  TRAINER_ADD  = 1,
+  TRAINER_REPL = 2,
+};
 
 #define GV1_SMALL       128
 #define GV1_LARGE       1024
@@ -216,7 +228,7 @@ enum TelemetrySensorFormula
   TELEM_FORMULA_CELL,
   TELEM_FORMULA_CONSUMPTION,
   TELEM_FORMULA_DIST,
-  TELEM_FORMULA_LAST = TELEM_FORMULA_DIST
+  TELEM_FORMULA_LAST SKIP = TELEM_FORMULA_DIST
 };
 
 enum SwashType {
@@ -225,7 +237,7 @@ enum SwashType {
   SWASH_TYPE_120X,
   SWASH_TYPE_140,
   SWASH_TYPE_90,
-  SWASH_TYPE_MAX = SWASH_TYPE_90
+  SWASH_TYPE_MAX SKIP = SWASH_TYPE_90
 };
 
 #define TRIM_EXTENDED_MAX 500

@@ -21,6 +21,11 @@
 
 #include "opentx.h"
 
+#if !defined(EEPROM)
+#include "storage/sdcard_common.h"
+#include "storage/modelslist.h"
+#endif
+
 // TODO find why we need this (for REGISTER at least)
 #if defined(PCBXLITE)
   #define EVT_BUTTON_PRESSED() EVT_KEY_FIRST(KEY_ENTER)
@@ -739,7 +744,7 @@ void menuModelSetup(event_t event)
 #endif
               }
               uint8_t swactive = !(g_model.switchWarningEnable & (1<<i));
-              c = "\300-\301"[states & 0x03];
+              c = (STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
               // lcdDrawChar(MODEL_SETUP_2ND_COLUMN+qr.rem*(2*FW+1), y+FH*qr.quot, 'A'+i, attr && (menuHorizontalPosition==current) ? INVERS : 0);
               lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN + qr.rem*((2*FW)+1), y+FH*qr.quot, FIRSTSW_STR+(i*length)+3, 1, attr && (menuHorizontalPosition==current) ? INVERS : 0);
               if (swactive) lcdDrawChar(lcdNextPos, y+FH*qr.quot, c);
@@ -1106,7 +1111,7 @@ void menuModelSetup(event_t event)
       break;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS_PROTOCOL:
         lcdDrawText(INDENT_WIDTH, y, STR_PROTOCOL);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, attr);
@@ -1414,7 +1419,12 @@ void menuModelSetup(event_t event)
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
                   killEvents(event);
-                  uint8_t newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
+                  uint8_t newVal = 0;
+#if defined(STORAGE_MODELSLIST)
+                  newVal = modelslist.findNextUnusedModelId(moduleIdx);
+#else
+                  newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
+#endif
                   if (newVal != g_model.header.modelId[moduleIdx]) {
                     modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx] = newVal;
                     storageDirty(EE_MODEL);
@@ -1778,7 +1788,7 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_RX_FREQ:
         lcdDrawText(INDENT_WIDTH, y, STR_AFHDS3_RX_FREQ);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].afhds3.rxFreq(), attr | LEFT);
@@ -1822,7 +1832,7 @@ void menuModelSetup(event_t event)
         }
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: {
         lcdDrawTextAlignedLeft(y, STR_MODULE_STATUS);
 

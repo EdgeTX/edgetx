@@ -253,16 +253,14 @@ enum UartModes {
   UART_MODE_MAX = UART_MODE_COUNT-1
 };
 
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define LEN_SWITCH_NAME              3
-  #define LEN_ANA_NAME                 3
-  #define LEN_MODEL_FILENAME           16
-  #define LEN_BLUETOOTH_NAME           10
-#else
-  #define LEN_SWITCH_NAME              3
-  #define LEN_ANA_NAME                 3
-  #define LEN_BLUETOOTH_NAME           10
+#if defined(CLI) || defined(DEBUG)
+#define UART_MODE_NONE UART_MODE_DEBUG
 #endif
+
+#define LEN_SWITCH_NAME    3
+#define LEN_ANA_NAME       3
+#define LEN_MODEL_FILENAME 16
+#define LEN_BLUETOOTH_NAME 10
 
 enum TelemetryProtocol
 {
@@ -605,10 +603,8 @@ enum MixSources {
 #if defined(PCBX10)
   MIXSRC_EXT1,                          LUA_EXPORT("ext1", "Ext 1")
   MIXSRC_EXT2,                          LUA_EXPORT("ext2", "Ext 2")
-#if defined(FLYSKY_HALL_STICKS) && defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
   MIXSRC_EXT3,                          LUA_EXPORT("ext3", "Ext 3")
   MIXSRC_EXT4,                          LUA_EXPORT("ext4", "Ext 4")
-#endif
 #endif
   MIXSRC_FIRST_SLIDER SKIP,
 #if defined(PCBX12S)
@@ -626,7 +622,7 @@ enum MixSources {
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
   MIXSRC_POT3,                          LUA_EXPORT("s3", "Potentiometer 3")
   MIXSRC_POT4,                          LUA_EXPORT("s4", "Potentiometer 4 (X9E only)")
-  MIXSRC_FIRST_SLIDER,
+  MIXSRC_FIRST_SLIDER SKIP,
   MIXSRC_SLIDER1 = MIXSRC_FIRST_SLIDER, LUA_EXPORT("ls", "Left slider")
   MIXSRC_SLIDER2,                       LUA_EXPORT("rs", "Right slider")
   MIXSRC_SLIDER3,                       LUA_EXPORT("lcs", "Left center slider (X9E only)")
@@ -635,9 +631,11 @@ enum MixSources {
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT2,
   MIXSRC_LAST_POT SKIP = MIXSRC_POT2,
 #elif defined(PCBX9LITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT1,
   MIXSRC_LAST_POT SKIP = MIXSRC_POT1,
 #elif defined(PCBTARANIS)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
@@ -769,13 +767,8 @@ enum MixSources {
 
   MIXSRC_TX_VOLTAGE,                        LUA_EXPORT("tx-voltage", "Transmitter battery voltage [volts]")
   MIXSRC_TX_TIME,                           LUA_EXPORT("clock", "RTC clock [minutes from midnight]")
-#if defined(INTERNAL_GPS)
   MIXSRC_TX_GPS,
   MIXSRC_FIRST_RESERVE SKIP,
-#else
-  MIXSRC_FIRST_RESERVE SKIP,
-  MIXSRC_RESERVE2 SKIP,
-#endif
   MIXSRC_RESERVE3 SKIP,
   MIXSRC_RESERVE4 SKIP,
   MIXSRC_LAST_RESERVE SKIP,
@@ -835,11 +828,13 @@ enum Functions {
   FUNC_BACKLIGHT,
   FUNC_SCREENSHOT,
   FUNC_RACING_MODE,
+#if defined(COLORLCD)
   FUNC_DISABLE_TOUCH,
+#endif
 #if defined(DEBUG)
   FUNC_TEST, // should remain the last before MAX as not added in Companion
 #endif
-  FUNC_MAX
+  FUNC_MAX SKIP
 };
 
 enum TimerModes {
@@ -849,8 +844,8 @@ enum TimerModes {
   TMRMODE_THR,
   TMRMODE_THR_REL,
   TMRMODE_THR_START,
-  TMRMODE_COUNT,
-  TMRMODE_MAX = TMRMODE_COUNT - 1
+  TMRMODE_COUNT SKIP,
+  TMRMODE_MAX SKIP = TMRMODE_COUNT - 1
 };
 
 enum CountDownModes {
@@ -860,7 +855,7 @@ enum CountDownModes {
 #if defined(HAPTIC)
   COUNTDOWN_HAPTIC,
 #endif
-  COUNTDOWN_COUNT
+  COUNTDOWN_COUNT SKIP
 };
 
 enum ResetFunctionParam {
@@ -871,8 +866,8 @@ enum ResetFunctionParam {
   FUNC_RESET_TELEMETRY,
   FUNC_RESET_PARAM_FIRST_TELEM,
   FUNC_RESET_PARAM_LAST_TELEM = FUNC_RESET_PARAM_FIRST_TELEM + MAX_TELEMETRY_SENSORS,
-  FUNC_RESET_PARAMS_COUNT,
-  FUNC_RESET_PARAM_LAST = FUNC_RESET_PARAMS_COUNT-1,
+  FUNC_RESET_PARAMS_COUNT SKIP,
+  FUNC_RESET_PARAM_LAST SKIP = FUNC_RESET_PARAMS_COUNT-1,
 };
 
 enum AdjustGvarFunctionParam {
@@ -887,9 +882,9 @@ enum BluetoothModes {
   BLUETOOTH_TELEMETRY,
   BLUETOOTH_TRAINER,
 #if defined(PCBX9E)
-  BLUETOOTH_MAX=BLUETOOTH_TELEMETRY
+  BLUETOOTH_MAX SKIP = BLUETOOTH_TELEMETRY
 #else
-  BLUETOOTH_MAX=BLUETOOTH_TRAINER
+  BLUETOOTH_MAX SKIP = BLUETOOTH_TRAINER
 #endif
 };
 
@@ -897,7 +892,7 @@ enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,
 
-  UART_SAMPLE_MODE_MAX = UART_SAMPLE_MODE_ONEBIT
+  UART_SAMPLE_MODE_MAX SKIP = UART_SAMPLE_MODE_ONEBIT
 };
 
 // PXX2 constants

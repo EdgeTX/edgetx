@@ -5,8 +5,8 @@ set(GUI_SRC
   popups.cpp
   widgets.cpp
   startup_shutdown.cpp
-  menu_model.cpp
   model_select.cpp
+  menu_model.cpp
   model_setup.cpp
   model_failsafe.cpp
   model_logical_switches.cpp

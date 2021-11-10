@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers.h"
+#include "switches.h"
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
@@ -480,11 +481,11 @@ void evalInputs(uint8_t mode)
           vStud *= td->studWeight;
           vStud /= 50;
           switch (td->mode) {
-            case 1:
+            case TRAINER_ADD:
               // add-mode
               v = limit<int16_t>(-RESX, v+vStud, RESX);
               break;
-            case 2:
+            case TRAINER_REPL:
               // subst-mode
               v = vStud;
               break;
@@ -732,7 +733,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
           swOn[i].now = swOn[i].prev = mixEnabled;
         }
         if (!mixEnabled) {
-          if ((md->speedDown || md->speedUp) && md->mltpx!=MLTPX_REP) {
+          if ((md->speedDown || md->speedUp) && md->mltpx!=MLTPX_REPL) {
             if (mixCondition) {
               v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
               applyOffsetAndCurve = false;
@@ -829,7 +830,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       int32_t * ptr = &chans[md->destCh]; // Save calculating address several times
 
       switch (md->mltpx) {
-        case MLTPX_REP:
+        case MLTPX_REPL:
           *ptr = dv;
           if (mode == e_perout_mode_normal) {
             for (uint8_t m=i-1; m<MAX_MIXERS && mixAddress(m)->destCh==md->destCh; m--)

@@ -23,9 +23,10 @@
 #include "modelslist.h"
 #include "conversions/conversions.h"
 
-const char * writeFile(const char * filename, const uint8_t * data, uint16_t size)
+const char *writeFileBin(const char *filename, const uint8_t *data,
+                         uint16_t size, uint8_t version)
 {
-  TRACE("writeFile(%s)", filename);
+  TRACE("writeFileBin(%s)", filename);
 
   FIL file;
   unsigned char buf[8];
@@ -37,7 +38,7 @@ const char * writeFile(const char * filename, const uint8_t * data, uint16_t siz
   }
 
   *(uint32_t*)&buf[0] = OTX_FOURCC;
-  buf[4] = EEPROM_VER;
+  buf[4] = version;
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = size;
 
@@ -57,21 +58,31 @@ const char * writeFile(const char * filename, const uint8_t * data, uint16_t siz
   return NULL;
 }
 
-const char * writeModel()
+// TODO: move to "common"
+const char * writeModelBin()
 {
   char path[256];
   getModelPath(path, g_eeGeneral.currModelFilename);
 
   sdCheckAndCreateDirectory(MODELS_PATH);
-  return writeFile(path, (uint8_t *)&g_model, sizeof(g_model));
+  return writeFileBin(path, (uint8_t *)&g_model, sizeof(g_model));
 }
 
-const char * openFile(const char * fullpath, FIL * file, uint16_t * size, uint8_t * version)
+// TODO: move partly to common
+const char * openFile(const char * fullpath, FIL * file)
 {
   FRESULT result = f_open(file, fullpath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     return SDCARD_ERROR(result);
   }
+
+  return nullptr;
+}
+
+const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint8_t * version)
+{
+  const char* err = openFile(fullpath, file);
+  if (err) return err;
 
   if (f_size(file) < 8) {
     f_close(file);
@@ -81,16 +92,15 @@ const char * openFile(const char * fullpath, FIL * file, uint16_t * size, uint8_
   UINT read;
   char buf[8];
 
-  result = f_read(file, (uint8_t *)buf, sizeof(buf), &read);
+  FRESULT result = f_read(file, (uint8_t *)buf, sizeof(buf), &read);
   if ((result != FR_OK) || (read != sizeof(buf))) {
     f_close(file);
     return SDCARD_ERROR(result);
   }
 
-  //TODO: move this code into some checkCompatibleFormat()
-
   *version = (uint8_t)buf[4];
-  if (*(uint32_t*)&buf[0] != OTX_FOURCC || *version < FIRST_CONV_EEPROM_VER || *version > EEPROM_VER || buf[5] != 'M') {
+  if (*(uint32_t *)&buf[0] != OTX_FOURCC || *version < FIRST_CONV_EEPROM_VER ||
+      *version > EEPROM_VER || buf[5] != 'M') {
     f_close(file);
     return STR_INCOMPATIBLE;
   }
@@ -99,15 +109,16 @@ const char * openFile(const char * fullpath, FIL * file, uint16_t * size, uint8_
   return nullptr;
 }
 
-const char * loadFile(const char * fullpath, uint8_t * data, uint16_t maxsize, uint8_t * version)
+const char *loadFileBin(const char *fullpath, uint8_t *data,
+                        uint16_t maxsize, uint8_t *version)
 {
   FIL      file;
   UINT     read;
   uint16_t size;
 
-  TRACE("loadFile(%s)", fullpath);
+  TRACE("loadFileBin(%s)", fullpath);
 
-  const char * err = openFile(fullpath, &file, &size, version);
+  const char * err = openFileBin(fullpath, &file, &size, version);
   if (err)
     return err;
 
@@ -122,18 +133,38 @@ const char * loadFile(const char * fullpath, uint8_t * data, uint16_t maxsize, u
   return nullptr;
 }
 
-const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, uint8_t * version)
+#if defined(SDCARD_RAW)
+const char* readModel(const char* filename, uint8_t* buffer, uint32_t size)
+{
+  uint8_t version = 0;
+  // Conversions from EEPROM are done in batch when converting the radio file.
+  // It is not supported on a model by model base when loaded.
+  const char *error = readModelBin(filename, buffer, size, &version);
+  if (error) return error;
+
+#if defined(STORAGE_CONVERSIONS)
+  if (version < EEPROM_VER) {
+    convertBinModelData(filename, version);
+    error = readModelBin(filename, buffer, size, &version);
+  }
+#endif
+
+  return error;
+}
+#endif
+
+const char *readModelBin(const char *filename, uint8_t *buffer, uint32_t size,
+                         uint8_t *version)
 {
   char path[256];
   getModelPath(path, filename);
-  return loadFile(path, buffer, size, version);
+  return loadFileBin(path, buffer, size, version);
 }
 
-
-const char * loadRadioSettings(const char * path)
+const char * loadRadioSettingsBin(const char * path)
 {
   uint8_t version;
-  const char * error = loadFile(path, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral), &version);
+  const char * error = loadFileBin(path, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral), &version);
   if (error) {
     TRACE("loadRadioSettings error=%s", error);
     return error;
@@ -141,7 +172,7 @@ const char * loadRadioSettings(const char * path)
 
 #if defined(STORAGE_CONVERSIONS)
   if (version < EEPROM_VER) {
-    convertRadioData(version);
+    convertBinRadioData(path, version);
   }
 #endif
 
@@ -150,16 +181,17 @@ const char * loadRadioSettings(const char * path)
   return nullptr;
 }
 
-const char * loadRadioSettings()
+const char * loadRadioSettingsBin()
 {
-  return loadRadioSettings(RADIO_SETTINGS_PATH);
+  return loadRadioSettingsBin(RADIO_SETTINGS_PATH);
 }
 
-const char * writeGeneralSettings()
+const char * writeGeneralSettingsBin()
 {
-  return writeFile(RADIO_SETTINGS_PATH, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral));
+  return writeFileBin(RADIO_SETTINGS_PATH, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral));
 }
 
+#if !defined(SDCARD_YAML)
 void storageCreateModelsList()
 {
   FIL file;
@@ -170,3 +202,4 @@ void storageCreateModelsList()
     f_close(&file);
   }
 }
+#endif

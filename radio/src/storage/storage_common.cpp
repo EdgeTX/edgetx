@@ -237,3 +237,66 @@ void storageFlushCurrentModel()
     storageDirty(EE_MODEL);
   }
 }
+
+#if !defined(STORAGE_MODELSLIST)
+void selectModel(uint8_t idx)
+{
+#if !defined(COLORLCD)
+  showMessageBox(STR_LOADINGMODEL);
+#endif
+  storageFlushCurrentModel();
+  storageCheck(true); // force writing of current model data before this is changed
+  g_eeGeneral.currModel = idx;
+  storageDirty(EE_GENERAL);
+  loadModel(idx);
+}
+
+uint8_t findEmptyModel(uint8_t id, bool down)
+{
+  uint8_t i = id;
+  for (;;) {
+    i = (MAX_MODELS + (down ? i+1 : i-1)) % MAX_MODELS;
+    if (!modelExists(i)) break;
+    if (i == id) return 0xff; // no free space in directory left
+  }
+  return i;
+}
+
+ModelHeader modelHeaders[MAX_MODELS];
+
+void loadModelHeaders()
+{
+  for (uint32_t i=0; i<MAX_MODELS; i++) {
+    loadModelHeader(i, &modelHeaders[i]);
+  }
+}
+
+uint8_t findNextUnusedModelId(uint8_t index, uint8_t module)
+{
+  uint8_t usedModelIds[(MAX_RXNUM + 7) / 8];
+  memset(usedModelIds, 0, sizeof(usedModelIds));
+
+  for (uint8_t modelIndex = 0; modelIndex < MAX_MODELS; modelIndex++) {
+    if (modelIndex == index)
+      continue;
+
+    uint8_t id = modelHeaders[modelIndex].modelId[module];
+    if (id == 0)
+      continue;
+
+    uint8_t mask = 1u << (id & 7u);
+    usedModelIds[id >> 3u] |= mask;
+  }
+
+  for (uint8_t id = 1; id <= getMaxRxNum(module); id++) {
+    uint8_t mask = 1u << (id & 7u);
+    if (!(usedModelIds[id >> 3u] & mask)) {
+      // found free ID
+      return id;
+    }
+  }
+
+  // failed finding something...
+  return 0;
+}
+#endif

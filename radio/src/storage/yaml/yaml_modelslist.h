@@ -24,7 +24,7 @@
 
 struct YamlParserCalls;
 
-void* get_modelslist_iter();
+void* get_modelslist_iter(const char* currentModel, unsigned currentModel_len);
 const YamlParserCalls* get_modelslist_parser_calls();
 
 #endif

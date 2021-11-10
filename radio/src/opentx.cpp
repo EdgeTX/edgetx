@@ -335,7 +335,7 @@ void generalDefault()
   memcpy(g_eeGeneral.bluetoothName, defaultName, sizeof(defaultName));
 #endif
 
-#if !defined(EEPROM)
+#if defined(STORAGE_MODELSLIST)
   strcpy(g_eeGeneral.currModelFilename, DEFAULT_MODEL_FILENAME);
 #endif
 
@@ -702,7 +702,7 @@ static void checkFailsafe()
 #if defined(GUI)
 void checkAll()
 {
-#if defined(EEPROM_RLC)
+#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
   checkLowEEPROM();
 #endif
 
@@ -753,7 +753,7 @@ void checkAll()
 #endif // GUI
 
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 void checkLowEEPROM()
 {
   if (g_eeGeneral.disableMemoryWarning) return;
@@ -1070,19 +1070,7 @@ void getADC()
     if (x < 4) {
       v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
     } else {
-      #if defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-      switch (x) {
-        case EXT3:
-        case EXT4:
-          v = getAnalogValue(x - 7) >> (1 - ANALOG_SCALE);
-          break;
-        default:
-          v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-          break;
-      }
-      #else
       v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-      #endif
     }
 #else
     v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
@@ -1977,7 +1965,10 @@ int main()
 
 #if !defined(EEPROM)
   if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
+    // TODO: b/w SD card fatal screen
+#if defined(COLORLCD)
     runFatalErrorScreen(STR_NO_SDCARD);
+#endif
   }
 #endif
 

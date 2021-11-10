@@ -22,7 +22,7 @@ const struct YamlIdStr {{ enum.name }}[] = {
 static const struct YamlNode {{ struct.name }}_elmts[] = {
 {% else %}
 static const struct YamlNode {{ struct.name }}[] = {
-  {% if struct.used_in_arrays %}
+  {% if struct.use_idx %}
   YAML_IDX,
   {% endif%}
 {% endif %}
@@ -45,8 +45,10 @@ static const struct YamlNode {{ struct.name }}[] = {
   YAML_UNION("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}_elmts, {{ elmt.func}}),
     {% elif elmt.type == 'array' %}
   YAML_ARRAY("{{ max_len(elmt.name) }}", {{elmt.bits // elmt.length}}, {{elmt.length}}, {{elmt.var_type}}, {{ elmt.func }}),
+    {% elif elmt.raw %}
+  {{ elmt.raw }},
     {% else %}
-  // name='{{elmt.name}}', type='{{elmt.type}}', bits='{{elmt.bits}}', is_array='{{elmt.is_array}}', var_type='{{elmt.var_type}}', kind='{{elmt.cursor.kind}}' , type.kind='{{elmt.cursor.type.kind}}'
+  // name='{{elmt.name}}', type='{{elmt.type}}', bits='{{elmt.bits}}', is_array='{{elmt.is_array}}', var_type='{{elmt.var_type}}', kind='{{elmt.cursor.kind}}' , type.kind='{{elmt.cursor.type.kind}}', raw='{{elmt.raw}}'
     {% endif %}
   {% endfor %}
   YAML_END

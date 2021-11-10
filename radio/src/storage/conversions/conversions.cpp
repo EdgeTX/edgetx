@@ -22,12 +22,17 @@
 #include "opentx.h"
 #include "conversions.h"
 
-#if defined(COLORLCD)
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
+#include "storage/sdcard_raw.h"
+#include "storage/sdcard_yaml.h"
+#endif
 
+#if defined(STORAGE_MODELSLIST)
 static void drawProgressScreen(const char* filename, int progress, int total)
 {
+#if defined(COLORLCD)
   OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
 
   lcd->reset();
@@ -44,24 +49,29 @@ static void drawProgressScreen(const char* filename, int progress, int total)
 
   WDG_RESET();
   lcdRefresh();
+#else
+  // TODO: BW progress screen
+#endif
 }
 
-void convertRadioData(int version)
+void convertBinRadioData(const char * path, int version)
 {
-  TRACE("convertRadioData(%d)", version);
+  TRACE("convertRadioData(%s,%d)", path, version);
 
+#if defined(COLORLCD)
   // the theme has not been loaded before
   static_cast<OpenTxTheme*>(theme)->load();
 
   // Init backlight mode before entering alert screens
   requiredBacklightBright = BACKLIGHT_FORCED_ON;
   g_eeGeneral.blOffBright = 20;
+#endif
 
   RAISE_ALERT(STR_STORAGE_WARNING, STR_SDCARD_CONVERSION_REQUIRE, NULL,
               AU_NONE);
 
   // Load models list before converting
-  modelslist.load();
+  modelslist.load(ModelsList::Format::txt);
 
   unsigned converted = 0;
   auto to_convert = modelslist.getModelsCount() + 1;
@@ -71,9 +81,14 @@ void convertRadioData(int version)
 
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    convertRadioData_219_to_220(g_eeGeneral);
-    storageDirty(EE_GENERAL);
-    storageCheck(true);
+    convertRadioData_219_to_220(path);
+    version = 220;
+  }
+#endif
+#if STORAGE_CONVERSIONS < 220
+  if (version == 220) {
+    convertRadioData_220_to_221(path);
+    version = 221;
   }
 #endif
   converted++;
@@ -84,61 +99,110 @@ void convertRadioData(int version)
 
   const char* error = nullptr;
   for (auto category_ptr : modelslist.getCategories()) {
-    for (auto model_ptr : *category_ptr) {
 
-      uint8_t model_version;
-      const char* filename = model_ptr->modelFilename;
+    auto model_it = category_ptr->begin();
+
+    while(model_it != category_ptr->end()) {
+
+      uint8_t model_version = 0;
+      auto* model_ptr = *model_it;
+      char* filename = model_ptr->modelFilename;
 
       TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
       drawProgressScreen(filename, converted, to_convert);
 
-      error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &model_version);
+      // read only the version number (size=0)
+      error = readModelBin(filename, nullptr, 0, &model_version);
       if (!error) {
+        // TODO: error handling
+        error = convertBinModelData(filename, model_version);
+        ++model_it;
 
-        convertModelData(model_version);
+      } else {
+        TRACE("ERROR reading '%s': %s", filename, error);
 
-        char path[256];
-        getModelPath(path, filename);
-        error = writeFile(path, (uint8_t *)&g_model, sizeof(g_model));
-        //TODO: what should be done with this error?
+        // remove that file from the models list
+        ++model_it;
+        category_ptr->removeModel(model_ptr);
       }
 
       converted++;
 
 #if defined(SIMU)
-  RTOS_WAIT_MS(200);
+      RTOS_WAIT_MS(200);
 #endif
     }
   }
 
-  // reload models list
+#if defined(SDCARD_YAML) || defined(STORAGE_MODELSLIST)
+  modelslist.save();
+  // trigger models list reload
   modelslist.clear();
-  modelslist.load();
-}
 #endif
+}
 
-void convertModelData(int version)
+void patchFilenameToYaml(char* str)
 {
-  TRACE("convertModelData(%d)", version);
+  constexpr unsigned bin_len = sizeof(MODELS_EXT) - 1;
+  constexpr unsigned yml_len = sizeof(YAML_EXT) - 1;
 
+  // patch file extension
+  const char* ext = strrchr(str, '.');
+  if (ext && (strlen(ext) == bin_len) &&
+      !strncmp(ext, STR_MODELS_EXT, bin_len)) {
+    memcpy((void*)ext, (void*)STR_YAML_EXT, yml_len + 1);
+  }
+}
+
+const char* convertBinModelData(char* filename, int version)
+{
+  TRACE("convertModelData(%s)", filename);
+
+  char path[FF_MAX_LFN + 1];
+  memcpy(path, MODELS_PATH, sizeof(MODELS_PATH)-1);
+  path[sizeof(MODELS_PATH)-1] = '/';
+  strcpy(&path[sizeof(MODELS_PATH)], filename);
+  
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
-    version = 219;
-    convertModelData_219_to_220(g_model);
+    const char* error = convertModelData_219_to_220(path);
+    if (error) return error;
+    version = 220;
   }
 #endif
-}
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    const char* error = convertModelData_220_to_221(path);
+    if (error) return error;
+    version = 221;
+  }
+#endif
 
-#if defined(EEPROM)
+  patchFilenameToYaml(filename);
+  return nullptr;
+}
+#endif
+
+#if defined(EEPROM) || defined(EEPROM_RLC)
+#include "storage/eeprom_common.h"
+
 void eeConvertModel(int id, int version)
 {
-  eeLoadModelData(id);
-  convertModelData(version);
-  uint8_t currModel = g_eeGeneral.currModel;
-  g_eeGeneral.currModel = id;
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-  g_eeGeneral.currModel = currModel;
+  TRACE("eeConvertModel(%d,%d)", id, version);
+  
+#if STORAGE_CONVERSIONS < 220
+  if (version == 219) {
+    convertModelData_219_to_220(id);
+    version = 220;
+  }
+#endif
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    convertModelData_220_to_221(id);
+    version = 221;
+  }
+#endif
+  // TODO: error handling
 }
 
 bool eeConvert()
@@ -148,6 +212,9 @@ bool eeConvert()
   switch (g_eeGeneral.version) {
     case 219:
       msg = "EEprom Data v219";
+      break;
+    case 220:
+      msg = "EEprom Data v220";
       break;
     default:
       return false;
@@ -165,21 +232,30 @@ bool eeConvert()
   RAISE_ALERT(STR_STORAGE_WARNING, STR_EEPROM_CONVERTING, NULL, AU_NONE);
 
   // General Settings conversion
-  eeLoadGeneralSettingsData();
   int version = conversionVersionStart;
 
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     version = 220;
-    convertRadioData_219_to_220(g_eeGeneral);
+    convertRadioData_219_to_220();
   }
 #endif
+#if STORAGE_CONVERSIONS < 221
+  if (version == 220) {
+    version = 221;
+    convertRadioData_220_to_221();
+  }
+#endif
+  //TODO: reload from YAML
+  g_eeGeneral.version = EEPROM_VER;
+  // storageDirty(EE_GENERAL);
+  // storageCheck(true);
 
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
-
-#if defined(COLORLCD)
-#elif LCD_W >= 212
+#if defined(STORAGE_MODELSLIST)
+  modelslist.clear();
+#endif
+  
+#if LCD_W >= 212
   lcdDrawRect(60, 6*FH+4, 132, 3);
 #else
   lcdDrawRect(10, 6*FH+4, 102, 3);
@@ -187,17 +263,29 @@ bool eeConvert()
 
   // Models conversion
   for (uint8_t id=0; id<MAX_MODELS; id++) {
-#if defined(COLORLCD)
-#elif LCD_W >= 212
+#if LCD_W >= 212
     lcdDrawSolidHorizontalLine(61, 6*FH+5, 10+id*2, FORCE);
 #else
     lcdDrawSolidHorizontalLine(11, 6*FH+5, 10+(id*3)/2, FORCE);
 #endif
     lcdRefresh();
+
+#if defined(SIMU)
+    RTOS_WAIT_MS(100);
+#endif
+
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
+    if (eeModelExistsRlc(id)) {
+#else
     if (eeModelExists(id)) {
+#endif
       eeConvertModel(id, conversionVersionStart);
     }
   }
+
+#if defined(STORAGE_MODELSLIST)
+  modelslist.save();
+#endif
 
   return true;
 }

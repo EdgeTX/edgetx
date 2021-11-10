@@ -30,11 +30,16 @@
 #include "sdcard_raw.h"
 #endif
 
+#include "dataconstants.h"
+
 // #define MODELCELL_WIDTH                172
 // #define MODELCELL_HEIGHT               59
 
 // modelXXXXXXX.bin F,FF F,3F,FF\r\n
 #define LEN_MODELS_IDX_LINE (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n")-1)
+
+struct ModelData;
+struct ModuleData;
 
 struct SimpleModuleData
 {
@@ -98,10 +103,21 @@ class ModelsList
 
 public:
 
+  enum class Format {
+    txt,
+#if defined(SDCARD_YAML)
+    yaml,
+    yaml_txt,
+    load_default = yaml_txt,
+#else
+    load_default = txt,
+#endif
+  };
+  
   ModelsList();
   ~ModelsList();
 
-  bool load();
+  bool load(Format fmt = Format::load_default);
   void save();
   void clear();
 
@@ -145,7 +161,7 @@ public:
   ModelsCategory * createCategory(const char * name, bool save=true);
   void removeCategory(ModelsCategory * category);
 
-  ModelCell * addModel(ModelsCategory * category, const char * name);
+  ModelCell * addModel(ModelsCategory * category, const char * name, bool save=true);
   void removeModel(ModelsCategory * category, ModelCell * model);
   void moveModel(ModelsCategory * category, ModelCell * model, int8_t step);
   void moveModel(ModelCell * model, ModelsCategory * previous_category, ModelsCategory * new_category);
@@ -157,6 +173,11 @@ public:
 
 protected:
   FIL file;
+
+  bool loadTxt();
+#if defined(SDCARD_YAML)
+  bool loadYaml();
+#endif
 };
 
 extern ModelsList modelslist;

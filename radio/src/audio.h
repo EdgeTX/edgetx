@@ -615,7 +615,6 @@ void pushUnit(uint8_t unit, uint8_t idx, uint8_t id);
 void playModelName();
 
 #define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id)
-#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id)
 #define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id)
 #define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id)
 #define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id)

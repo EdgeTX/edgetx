@@ -60,6 +60,7 @@ void storageEraseAll(bool warn)
 
   storageFormat();
   storageDirty(EE_GENERAL);
+  storageDirty(EE_MODEL);
   storageCheck(true);
 }
 
@@ -67,8 +68,11 @@ void storageFormat()
 {
   sdCheckAndCreateDirectory(RADIO_PATH);
   sdCheckAndCreateDirectory(MODELS_PATH);
-  storageCreateModelsList();
   generalDefault();
+  setModelDefaults();
+#if defined(STORAGE_MODELSLIST)
+  storageCreateModelsList();
+#endif
 }
 
 void storageCheck(bool immediately)
@@ -92,6 +96,7 @@ void storageCheck(bool immediately)
   }
 }
 
+#if defined(STORAGE_MODELSLIST)
 const char * createModel()
 {
   preModelLoad();
@@ -104,6 +109,7 @@ const char * createModel()
   if (index > 0) {
     setModelDefaults(index);
     memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
+
     storageDirty(EE_GENERAL);
     storageDirty(EE_MODEL);
     storageCheck(true);
@@ -112,13 +118,13 @@ const char * createModel()
 
   return g_eeGeneral.currModelFilename;
 }
+#endif
 
-const char * loadModel(const char * filename, bool alarms)
+const char* loadModel(char* filename, bool alarms)
 {
-  uint8_t version;
   preModelLoad();
 
-  const char * error = readModel(filename, (uint8_t *)&g_model, sizeof(g_model), &version);
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model));
   if (error) {
     TRACE("loadModel error=%s", error);
 
@@ -132,12 +138,6 @@ const char * loadModel(const char * filename, bool alarms)
     return error;
   }
 
-#if defined(STORAGE_CONVERSIONS)
-  if (version < EEPROM_VER) {
-    convertModelData(version);
-  }
-#endif
-
   postModelLoad(alarms);
   return nullptr;
 }
@@ -146,21 +146,30 @@ void storageReadAll()
 {
   TRACE("storageReadAll");
 
+#if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
   // it's being reloaded after USB connection
   modelslist.clear();
+#endif
 
   if (loadRadioSettings() != nullptr) {
     storageEraseAll(true);
   }
+#if !defined(STORAGE_MODELSLIST)
+  else {
+    loadModelHeaders();
+  }
+#endif
 
   for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
     if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
       currentLanguagePackIdx = i;
       currentLanguagePack = languagePacks[i];
+      break;
     }
   }
 
+#if defined(STORAGE_MODELSLIST)
   // and reload the list
   modelslist.load();
 
@@ -180,5 +189,17 @@ void storageReadAll()
   if (loadModel(g_eeGeneral.currModelFilename, false) != nullptr) {
     TRACE("No current model or SD card error");
   }
+#else
+  if (loadModel(g_eeGeneral.currModel, false) != nullptr) {
+    TRACE("No current model or SD card error");
+  }  
+#endif
 }
+
+#if !defined(COLORLCD)
+void checkModelIdUnique(uint8_t index, uint8_t module)
+{
+  //TODO
+}
+#endif
 

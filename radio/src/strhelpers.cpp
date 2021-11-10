@@ -406,20 +406,19 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
-char *getSwitchWarningString(char *dest, swsrc_t idx)
-{
-  char *s = dest;
-  uint8_t state = g_model.switchWarningState >> (3 * idx) & 0x07;
-
-  *s++ = 'A' + idx;
-  if (state == 0)
-    *s = '\0';
-  else {
-    *s++ = "x\300-\301"[state];
-    *s = '\0';
-  }
-  return dest;
-}
+// char * getSwitchWarningString(char * dest, swsrc_t idx)
+// {
+//   char * s = dest;
+//   uint8_t state = g_model.switchWarningState >> (3*idx) & 0x07;
+//   *s++ = 'A' + idx;
+//   if (state == 0)
+//     *s = '\0';
+//   else {
+//     *s++ = "x\300-\301"[state];
+//     *s = '\0';
+//   }
+//   return dest;
+// }
 
 #if !defined(PCBSKY9X)
 char *getSwitchName(char *dest, swsrc_t idx)
@@ -752,10 +751,10 @@ char *strAppendDate(char *str, bool time)
 #if !defined(BOOT)
 static char tmpHelpersString[32];
 
-char *getSwitchWarningString(swsrc_t idx)
-{
-  return getSwitchWarningString(tmpHelpersString, idx);
-}
+// char * getSwitchWarningString(swsrc_t idx)
+// {
+//   return getSwitchWarningString(tmpHelpersString, idx);
+// }
 
 char *getSourceString(mixsrc_t idx)
 {

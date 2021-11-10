@@ -43,44 +43,6 @@ constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 
 
-enum ModelSelectMode {
-  MODE_SELECT_MODEL,
-  MODE_RENAME_CATEGORY,
-  MODE_MOVE_MODEL,
-};
-
-enum ModelDeleteMode {
-  MODE_DELETE_MODEL,
-  MODE_DELETE_CATEGORY,
-};
-
-uint8_t selectMode, deleteMode;
-
-#if 0
-void setCurrentModel(unsigned int index)
-{
-  auto it = currentCategory->begin();
-  std::advance(it, index);
-  currentModel = *it;
-}
-#endif
-
-#if 0
-void setCurrentCategory(unsigned int index)
-{
-  currentCategoryIndex = index;
-  auto it = modelslist.getCategories().begin();
-  std::advance(it, index);
-  currentCategory = *it;
-  categoriesVerticalPosition = index;
-  categoriesVerticalOffset = limit<int>(categoriesVerticalPosition-4, categoriesVerticalOffset, min<int>(categoriesVerticalPosition, max<int>(0, modelslist.getCategories().size()-5)));
-  /*if (currentCategory->size() > 0)
-    setCurrentModel(0);
-  else
-    currentModel = nullptr;*/
-}
-#endif
-
 class ModelButton : public Button
 {
  public:
@@ -97,7 +59,9 @@ class ModelButton : public Button
   
   void load()
   {
+#if defined(SDCARD_RAW)
     uint8_t version;
+#endif
 
     PACK(struct {
       ModelHeader header;
@@ -109,17 +73,25 @@ class ModelButton : public Button
     if (strncmp(modelCell->modelFilename, g_eeGeneral.currModelFilename,
                 LEN_MODEL_FILENAME) == 0) {
       memcpy(&partialModel.header, &g_model.header, sizeof(partialModel));
+#if defined(SDCARD_RAW)
       version = EEPROM_VER;
+#endif
     } else {
+#if defined(SDCARD_RAW)
       error =
-          readModel(modelCell->modelFilename, (uint8_t *)&partialModel.header,
-                    sizeof(partialModel), &version);
+          readModelBin(modelCell->modelFilename, (uint8_t *)&partialModel.header,
+                       sizeof(partialModel), &version);
+#else
+      error = readModel(modelCell->modelFilename,
+                        (uint8_t *)&partialModel.header, sizeof(partialModel));
+#endif
     }
 
     if (!error) {
       if (modelCell->modelName[0] == '\0' &&
           partialModel.header.name[0] != '\0') {
-        
+
+#if defined(SDCARD_RAW)
         if (version == 219) {
           int len = (int)sizeof(partialModel.header.name);
           char* str = partialModel.header.name;
@@ -132,6 +104,7 @@ class ModelButton : public Button
             str[--len] = '\0';
           }
         }
+#endif
         modelCell->setModelName(partialModel.header.name);
       }
     }
@@ -372,7 +345,10 @@ class ModelCategoryPageBody : public FormWindow
   {
     return [=]() {
       storageCheck(true);
-      modelslist.setCurrentModel(modelslist.addModel(category, createModel()));
+      auto model = modelslist.addModel(category, createModel(), false);
+      model->setModelName(g_model.header.name);
+      modelslist.setCurrentModel(model);
+      modelslist.save();
       update(category->size() - 1);
     };
   }

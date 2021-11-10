@@ -23,6 +23,9 @@
 #include <string.h>
 #include "opentx.h"
 #include "../timers.h"
+
+#include "storage/eeprom_common.h"
+#include "storage/eeprom_rlc.h"
 #include "conversions/conversions.h"
 
 uint8_t   s_write_err = 0;    // error reasons
@@ -154,6 +157,7 @@ void eepromCheck()
   ENABLE_SYNC_WRITE(false);
 }
 
+#if !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 void storageFormat()
 {
   ENABLE_SYNC_WRITE(true);
@@ -179,6 +183,7 @@ void storageFormat()
 
   ENABLE_SYNC_WRITE(false);
 }
+#endif
 
 bool eepromOpen()
 {
@@ -444,7 +449,7 @@ bool RlcFile::copy(uint8_t i_fileDst, uint8_t i_fileSrc)
   return true;
 }
 
-#if defined(SDCARD)
+#if defined(SDCARD) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 const char * eeBackupModel(uint8_t i_fileSrc)
 {
   char * buf = reusableBuffer.modelsel.mainname;
@@ -741,19 +746,48 @@ void RlcFile::flush()
   ENABLE_SYNC_WRITE(false);
 }
 
+static uint16_t eeLoadData(uint8_t idx, uint8_t* data, unsigned size)
+{
+  memset(data, 0, size);
+  theFile.openRlc(idx);
+  return theFile.readRlc(data, size);
+}
+
+static void eeWriteData(uint8_t idx, uint8_t typ, uint8_t* data,
+                        unsigned size, bool immediately)
+{
+  theFile.writeRlc(idx, typ, data, size, immediately);
+}
+
 // For conversions ...
+void eeWriteGeneralSettingData(uint8_t* data, unsigned size, bool immediately)
+{
+  eeWriteData(FILE_GENERAL, FILE_TYP_GENERAL, data, size, immediately);
+}
+
+uint16_t eeLoadGeneralSettingsData(uint8_t* data, unsigned size)
+{
+  return eeLoadData(FILE_GENERAL, data, size);
+}
+
 uint16_t eeLoadGeneralSettingsData()
 {
-  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
-  theFile.openRlc(FILE_GENERAL);
-  return theFile.readRlc((uint8_t*)&g_eeGeneral, sizeof(g_eeGeneral));
+  return eeLoadGeneralSettingsData((uint8_t*)&g_eeGeneral, sizeof(g_eeGeneral));
+}
+
+void eeWriteModelData(uint8_t index, uint8_t* data, unsigned size, bool immediately)
+{
+  eeWriteData(FILE_MODEL(index), FILE_TYP_MODEL, data, size, immediately);
+}
+
+uint16_t eeLoadModelData(uint8_t index, uint8_t* data, unsigned size)
+{
+  return eeLoadData(FILE_MODEL(index), data, size);
 }
 
 uint16_t eeLoadModelData(uint8_t index)
 {
-  memset(&g_model, 0, sizeof(g_model));
-  theFile.openRlc(FILE_MODEL(index));
-  return theFile.readRlc((uint8_t*)&g_model, sizeof(g_model));
+  return eeLoadModelData(index, (uint8_t*)&g_model, sizeof(g_model));
 }
 
 bool eeLoadGeneral(bool allowFixes)
@@ -827,11 +861,16 @@ void eeLoadModelName(uint8_t id, char *name)
   }
 }
 
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
+bool eeModelExistsRlc(uint8_t id)
+#else
 bool eeModelExists(uint8_t id)
+#endif
 {
   return EFile::exists(FILE_MODEL(id));
 }
 
+#if !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
 void storageCheck(bool immediately)
 {
   if (immediately) {
@@ -851,6 +890,7 @@ void storageCheck(bool immediately)
     theFile.writeRlc(FILE_MODEL(g_eeGeneral.currModel), FILE_TYP_MODEL, (uint8_t*)&g_model, sizeof(g_model), immediately);
   }
 }
+#endif
 
 void eeLoadModelHeader(uint8_t id, ModelHeader *header)
 {

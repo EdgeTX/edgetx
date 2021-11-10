@@ -283,15 +283,16 @@
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
   #define ADC_RCC_APB2Periph            (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
-  #if !defined(FLYSKY_HALL_STICKS)
+  // #if !defined(FLYSKY_HALL_STICKS)
+  // this does not seem to be used anywhere...
     #define ADC_GPIO_PIN_STICK_LH       GPIO_Pin_0      // PA.00
     #define ADC_GPIO_PIN_STICK_LV       GPIO_Pin_1      // PA.01
     #define ADC_GPIO_PIN_STICK_RH       GPIO_Pin_2      // PA.02
     #define ADC_GPIO_PIN_STICK_RV       GPIO_Pin_3      // PA.03
-  #elif defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-    #define ADC_GPIO_PIN_EXT3           GPIO_Pin_2      // PA.02
-    #define ADC_GPIO_PIN_EXT4           GPIO_Pin_3      // PA.03
-  #endif
+  // #elif defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
+  //   #define ADC_GPIO_PIN_EXT3           GPIO_Pin_2      // PA.02
+  //   #define ADC_GPIO_PIN_EXT4           GPIO_Pin_3      // PA.03
+  // #endif
   #define ADC_GPIO_PIN_POT1             GPIO_Pin_0      // PC.00
   #define ADC_GPIO_PIN_POT2             GPIO_Pin_1      // PC.01
   #define ADC_GPIO_PIN_POT3             GPIO_Pin_2      // PC.02
@@ -329,10 +330,8 @@
   #define ADC_CHANNEL_BATT              ADC_Channel_5   // ADC3_IN5
   #define ADC_CHANNEL_EXT1              ADC_Channel_6   // ADC3_IN6
   #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
-#if (defined(RADIO_TX16S) && defined(FLYSKY_HALL_STICKS))
-  #define ADC_CHANNEL_EXT3              ADC_Channel_2   // ADC3_IN2
-  #define ADC_CHANNEL_EXT4              ADC_Channel_3   // ADC3_IN3
-#endif
+  #define ADC_CHANNEL_EXT3              ADC_Channel_2   // ADC3_IN2: same as RH
+  #define ADC_CHANNEL_EXT4              ADC_Channel_3   // ADC3_IN3: same as RV
   #define ADC_MAIN                      ADC3
   #define ADC_EXT                       ADC1
   #define ADC_SAMPTIME                  3

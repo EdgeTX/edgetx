@@ -27,6 +27,9 @@
 
 struct YamlParserCalls;
 
+#define FLAG_STATE_IDX_INVALID (1 << 0)
+#define FLAG_STATE_ARRAY_ELMT  (1 << 1)
+
 class YamlTreeWalker
 {
     struct State {
@@ -34,6 +37,7 @@ class YamlTreeWalker
         uint32_t    bit_ofs;
         int8_t      attr_idx;
         uint16_t    elmts;
+        uint8_t     flags;
 
         inline uint32_t getOfs() {
             return bit_ofs + node->size * elmts;
@@ -69,6 +73,30 @@ class YamlTreeWalker
 
     void incAttr() { stack[stack_level].attr_idx++; }
     void incElmts() { stack[stack_level].elmts++; }
+    void setElmts(uint16_t idx) { stack[stack_level].elmts = idx; }
+
+    inline bool isIdxInvalid() {
+        return stack[stack_level].flags & FLAG_STATE_IDX_INVALID;
+    }
+
+    inline void setIdxInvalid(bool set) {
+        if (set) stack[stack_level].flags |= FLAG_STATE_IDX_INVALID;
+        else stack[stack_level].flags &= ~FLAG_STATE_IDX_INVALID;
+    }
+
+    inline bool isArrayElmt() {
+        return stack[stack_level].flags & FLAG_STATE_ARRAY_ELMT;
+    }
+
+    inline bool isParentArrayElmt() {
+        return (stack_level + 1 < NODE_STACK_DEPTH)
+            && stack[stack_level + 1].flags & FLAG_STATE_ARRAY_ELMT;
+    }
+
+    inline void setArrayElmt(bool set) {
+        if (set) stack[stack_level].flags |= FLAG_STATE_ARRAY_ELMT;
+        else stack[stack_level].flags &= ~FLAG_STATE_ARRAY_ELMT;
+    }
 
     bool empty() { return stack_level == NODE_STACK_DEPTH; }
     bool full()  { return stack_level == 0; }
@@ -105,8 +133,10 @@ public:
         return NULL;
     }
 
-    uint16_t getElmts() {
-        return stack[stack_level].elmts;
+    uint16_t getElmts(uint8_t lvl = 0) {
+        if (stack_level + lvl >= NODE_STACK_DEPTH)
+            return 0;
+        return stack[stack_level + lvl].elmts;
     }
 
     // Increment the cursor until a match is found or the end of

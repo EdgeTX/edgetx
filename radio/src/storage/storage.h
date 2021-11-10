@@ -63,6 +63,15 @@ void preModelLoad();
 void postModelLoad(bool alarms);
 void checkExternalAntenna();
 
+#if !defined(STORAGE_MODELSLIST)
+extern ModelHeader modelHeaders[MAX_MODELS];
+
+void loadModelHeader(uint8_t id, ModelHeader *header);
+void loadModelHeaders();
+
+uint8_t findNextUnusedModelId(uint8_t index, uint8_t module);
+#endif
+
 #if defined(EEPROM)
 #include "eeprom_common.h"
 #endif
