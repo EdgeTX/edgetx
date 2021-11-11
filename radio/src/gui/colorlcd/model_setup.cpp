@@ -1197,6 +1197,15 @@ class ModuleWindow : public FormGroup {
         });
 
         grid.nextLine();
+
+        new StaticText(this, grid.getLabelSlot(true), TR_OPTIONS, 0,
+                       COLOR_THEME_PRIMARY1);
+        auto options = new TextButton(this, grid.getFieldSlot(2, 0), TR_SET);
+        options->setPressHandler([=]() {
+            new ModuleOptions(this, moduleIdx);
+            return 0;
+          });
+        grid.nextLine();
       }
 #endif
 
