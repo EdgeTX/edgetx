@@ -60,7 +60,7 @@ class FileNameEditWindow : public Page
     char extension[LEN_FILE_EXTENSION_MAX + 1];
     memset(extension, 0, sizeof(extension));
     const char *ext =
-        getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
+        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
 
     if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
     if (ext) strncpy(extension, ext, extLength);
@@ -246,7 +246,7 @@ void RadioSdManagerPage::build(FormWindow * window)
       auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
           f_chdir(currentPath.c_str());
-          const char *ext = getFileExtension(name.data());
+          const char *ext = getFileExtension(name.c_str());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [=]() {
@@ -257,7 +257,7 @@ void RadioSdManagerPage::build(FormWindow * window)
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
             if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
               MultiFirmwareInformation information;
-              if (information.readMultiFirmwareInformation(name.data()) == nullptr) {
+              if (information.readMultiFirmwareInformation(name.c_str()) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
                 menu->addLine(STR_FLASH_INTERNAL_MULTI, [=]() {
                   MultiDeviceFirmwareUpdate deviceFirmwareUpdate(
@@ -298,7 +298,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               });
             }
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
-              if (isBootloader(name.data())) {
+              if (isBootloader(name.c_str())) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [=]() {
                   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
                   auto dialog = new FlashDialog<BootloaderFirmwareUpdate>(
