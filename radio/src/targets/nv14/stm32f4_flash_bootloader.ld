@@ -20,27 +20,25 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
+_estack = 0x10010000;    /* end of 64K CCM */
 _heap_end = 0xC0800000;  /* end of 8192K SDRAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0;      /* required amount of heap  */
-_Main_Stack_Size = 1024; /* required amount of stack for interrupt stack (Main stack) */
+_Min_Heap_Size = 4096K;      /* required amount of heap  */
+_Main_Stack_Size = 8192; /* required amount of stack for interrupt stack (Main stack) */
 
+/* Main stack end */
+_main_stack_start = _estack - _Main_Stack_Size;
 
 /* Specify the memory areas */
 MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
   RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 192K
-  CCM (xrw)       : ORIGIN = 0x10000000, LENGTH = 65520
-  NO_INIT (xrw)   : ORIGIN = 0x1000FFF0, LENGTH = 16
+  CCM (xrw)       : ORIGIN = 0x10000000, LENGTH = 64K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
   SDRAM(xrw)      : ORIGIN = 0xC0000000, LENGTH = 8192K
 }
-
-/* Main stack end */
-_estack = 0x10000000 + LENGTH(CCM);
-_main_stack_start = _estack - _Main_Stack_Size;
 
 /* Define output sections */
 SECTIONS
@@ -111,7 +109,7 @@ SECTIONS
   _sidata = .;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : AT ( _sidata )
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -119,12 +117,12 @@ SECTIONS
     *(.data*)          /* .data* sections */
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >CCM
+  } >RAM AT> FLASH
 
   /* Uninitialized data section */
-  . = ALIGN(4);
   .bss :
   {
+    . = ALIGN(4);
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
     /* __bss_start__ = _sbss; */
@@ -133,14 +131,14 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-  } >CCM
+  } >RAM
 
   /* Non-zeroed data section */
   . = ALIGN(4);
   .noinit (NOLOAD) :
   {
     *(.noinit)
-  } >NO_INIT
+  } >RAM
 
   /* collect all uninitialized .ccm sections */
   .ram (NOLOAD) :
@@ -150,14 +148,15 @@ SECTIONS
     *(.ram)
   } >RAM
 
-  /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
+  .ccm (NOLOAD) :
   {
     . = ALIGN(4);
-    . = . + _Min_Heap_Size;
-    . = . + _Main_Stack_Size;
+    _sccm = .;
+    *(.ccm)
     . = ALIGN(4);
-  } >RAM
+    . = . + _Main_Stack_Size;
+    _eccm = .;
+  } >CCM
 
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */
@@ -175,8 +174,10 @@ SECTIONS
     *(.sdram*)
     *(.sdram_rodata)
     *(.sdram_rodata*)
-    . = ALIGN(4);
     _eram = .;
+    . = ALIGN(4);
+    . = . + _Min_Heap_Size;
+    . = ALIGN(4);
   } >SDRAM
 
   PROVIDE ( end = _eram );
