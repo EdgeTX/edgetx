@@ -316,6 +316,111 @@ enum PXX2ReceiverStatus {
   PXX2_SETTINGS_OK
 };
 
+PACK(struct PXX2Version {
+  uint8_t major;
+  uint8_t revision:4;
+  uint8_t minor:4;
+});
+
+PACK(struct PXX2HardwareInformation {
+  uint8_t modelID;
+  PXX2Version hwVersion;
+  PXX2Version swVersion;
+  uint8_t variant;
+  uint32_t capabilities; // variable length
+  uint8_t capabilityNotSupported;
+});
+
+bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value);
+
+PACK(struct ModuleInformation {
+  int8_t current;
+  int8_t maximum;
+  uint8_t timeout;
+  PXX2HardwareInformation information;
+  struct {
+    PXX2HardwareInformation information;
+    tmr10ms_t timestamp;
+  } receivers[PXX2_MAX_RECEIVERS_PER_MODULE];
+});
+
+class ModuleSettings {
+  public:
+    uint8_t state;  // 0x00 = READ 0x40 = WRITE
+    tmr10ms_t timeout;
+    uint8_t externalAntenna;
+    int8_t txPower;
+    uint8_t dirty;
+};
+
+struct PXX2ModuleSetup {
+  union {
+    uint8_t registerStep;
+    uint8_t resetStep;
+  };
+  uint8_t registerPopupVerticalPosition;
+  uint8_t registerPopupHorizontalPosition;
+  int8_t registerPopupEditMode;
+  char registerRxName[PXX2_LEN_RX_NAME];
+  uint8_t registerLoopIndex; // will be removed later
+  union {
+    uint8_t shareReceiverIndex;
+    uint8_t resetReceiverIndex;
+  };
+  uint8_t resetReceiverFlags;
+  ModuleInformation moduleInformation;
+  ModuleSettings moduleSettings;
+};
+
+class ReceiverSettings {
+  public:
+    uint8_t state;  // 0x00 = READ 0x40 = WRITE
+    tmr10ms_t timeout;
+    uint8_t receiverId;
+    uint8_t dirty;
+    uint8_t telemetryDisabled;
+    uint8_t telemetry25mw;
+    uint8_t pwmRate;
+    uint8_t fport;
+    uint8_t enablePwmCh5Ch6;
+    uint8_t fport2;
+    uint8_t outputsCount;
+    uint8_t outputsMapping[24];
+};
+
+class BindInformation {
+  public:
+    int8_t step;
+    uint32_t timeout;
+    char candidateReceiversNames[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME + 1];
+    uint8_t candidateReceiversCount;
+    uint8_t selectedReceiverIndex;
+    uint8_t rxUid;
+    uint8_t lbtMode;
+    uint8_t flexMode;
+    PXX2HardwareInformation receiverInformation;
+};
+
+class OtaUpdateInformation: public BindInformation {
+  public:
+    char filename[FF_MAX_LFN + 1];
+    uint32_t address;
+    uint32_t module;
+};
+
+struct PXX2HardwareAndSettings {
+  ModuleInformation modules[NUM_MODULES];
+  uint32_t updateTime;
+  ModuleSettings moduleSettings;
+  ReceiverSettings receiverSettings;  // when dealing with receiver settings, we
+                                      // also need module settings
+  char msg[64];
+};
+
+PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
+BindInformation& getPXX2BindInformationBuffer();
+PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
+
 extern ModuleFifo intmoduleFifo;
 extern ModuleFifo extmoduleFifo;
 

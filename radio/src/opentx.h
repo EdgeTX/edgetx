@@ -1022,24 +1022,7 @@ union ReusableBuffer
     uint8_t previousType;
     uint8_t newType;
     BindInformation bindInformation;
-    struct {
-      union {
-        uint8_t registerStep;
-        uint8_t resetStep;
-      };
-      uint8_t registerPopupVerticalPosition;
-      uint8_t registerPopupHorizontalPosition;
-      int8_t registerPopupEditMode;
-      char registerRxName[PXX2_LEN_RX_NAME];
-      uint8_t registerLoopIndex; // will be removed later
-      union {
-        uint8_t shareReceiverIndex;
-        uint8_t resetReceiverIndex;
-      };
-      uint8_t resetReceiverFlags;
-      ModuleInformation moduleInformation;
-      ModuleSettings moduleSettings;
-    } pxx2;
+    PXX2ModuleSetup pxx2;
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -1082,13 +1065,8 @@ union ReusableBuffer
   } version;
 #endif
 
-  struct {
-    ModuleInformation modules[NUM_MODULES];
-    uint32_t updateTime;
-    ModuleSettings moduleSettings;
-    ReceiverSettings receiverSettings; // when dealing with receiver settings, we also need module settings
-    char msg[64];
-  } hardwareAndSettings; // moduleOptions, receiverOptions, radioVersion
+  // moduleOptions, receiverOptions, radioVersion
+  PXX2HardwareAndSettings hardwareAndSettings;
 
   struct {
     ModuleInformation modules[NUM_MODULES];
@@ -1171,7 +1149,6 @@ extern ReusableBuffer reusableBuffer;
 
 uint8_t zlen(const char *str, uint8_t size);
 bool zexist(const char *str, uint8_t size);
-unsigned int effectiveLen(const char * str, unsigned int size);
 char * strcat_zchar(char *dest, const char *name, uint8_t size, const char spaceSym = 0, const char *defaultName=nullptr, uint8_t defaultNameSize=0, uint8_t defaultIdx=0);
 #define strcatFlightmodeName(dest, idx) strcat_zchar(dest, g_model.flightModeData[idx].name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, PSIZE(TR_FM), idx+1)
 

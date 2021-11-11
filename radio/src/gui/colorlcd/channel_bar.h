@@ -36,15 +36,26 @@ constexpr coord_t LEG_COLORBOX = 15;
 
 class ChannelBar : public Window
 {
-  public:
-    ChannelBar(Window * parent, const rect_t & rect, uint8_t channel):
-      Window(parent, rect),
-      channel(channel)
-    {
-    }
-    
-  protected:
-    uint8_t channel = 0;
+ public:
+  ChannelBar(Window* parent, const rect_t& rect, uint8_t channel) :
+      Window(parent, rect), channel(channel)
+  {
+  }
+
+  void setChannel(uint8_t ch)
+  {
+    channel = ch;
+    invalidate();
+  }
+
+  void setEnabled(bool en)
+  {
+    enabled = en;
+  }
+
+ protected:
+  uint8_t channel = 0;
+  bool enabled = true;
 };
 
 class MixerChannelBar : public ChannelBar
@@ -54,6 +65,8 @@ class MixerChannelBar : public ChannelBar
 
     void paint(BitmapBuffer * dc) override
     {
+      if (!enabled) return;
+      
       int chanVal = calcRESXto100(ex_chans[channel]);
       const int displayVal = chanVal;
 
@@ -112,6 +125,8 @@ class OutputChannelBar : public ChannelBar
 
     void paint(BitmapBuffer * dc) override
     {
+      if (!enabled) return;
+      
       int chanVal = calcRESXto100(channelOutputs[channel]);
       int displayVal = chanVal;
 
@@ -238,6 +253,8 @@ class ComboChannelBar : public ChannelBar
 
     void paint(BitmapBuffer * dc) override
     {
+      if (!enabled) return;
+      
       char chanString[] = "CH32 ";
       int usValue = PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
 

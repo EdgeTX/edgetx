@@ -25,6 +25,50 @@
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
 
+bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
+{
+  uint8_t modelId = info.modelID;
+  uint8_t variant = info.variant;
+
+  if (modelId == PXX2_MODULE_R9M_LITE) {
+    if (variant == PXX2_VARIANT_EU)
+      return (value == 14 /* 25 mW with telemetry */ ||
+              value == 20 /* 100 mW without telemetry */);
+    else
+      return value == 20; /* 100 mW */
+  }
+  else if (modelId == PXX2_MODULE_R9M || modelId == PXX2_MODULE_R9M_LITE_PRO) {
+      if (variant == PXX2_VARIANT_EU)
+        return (value == 14 /* 25 mW */ ||
+                value == 23 /* 200 mW */ ||
+                value == 27 /* 500 mW */);
+      else
+        return (value == 10 /* 10 mW */ ||
+                value == 20 /* 100 mW */ ||
+                value == 27 /* 500 mW */ ||
+                value == 30 /* 1000 mW */);
+  }
+  else {
+    // other modules do not have the power option
+    return false;
+  }
+}
+
+PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
+{
+  return reusableBuffer.moduleSetup.pxx2;
+}
+
+BindInformation& getPXX2BindInformationBuffer()
+{
+  return reusableBuffer.moduleSetup.bindInformation;
+}
+
+PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer()
+{
+  return reusableBuffer.hardwareAndSettings;
+}
+
 uint8_t Pxx2Pulses::addFlag0(uint8_t module)
 {
   uint8_t flag0 = g_model.header.modelId[module] & 0x3F;
@@ -418,12 +462,14 @@ bool Pxx2Pulses::setupFrame(uint8_t module)
       setupRegisterFrame(module);
       break;
     case MODULE_MODE_BIND:
-      if (g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 && g_model.moduleData[module].subType != MODULE_SUBTYPE_ISRM_PXX2_ACCESS)
+      if ((g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 &&
+           g_model.moduleData[module].subType !=
+               MODULE_SUBTYPE_ISRM_PXX2_ACCESS) ||
+          (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)) {
         setupAccstBindFrame(module);
-      else if (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)
-        setupAccstBindFrame(module);
-      else
+      } else {
         setupAccessBindFrame(module);
+      }
       break;
     case MODULE_MODE_RESET:
       setupResetFrame(module);
