@@ -129,7 +129,7 @@ void menuModelCustomScripts(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
-void menuModelTemplates(event_t event);
+// void menuModelTemplates(event_t event);  //TODO: this function is not called anywhere, can remove?
 void menuModelGVarOne(event_t event);
 
 static const MenuHandlerFunc menuTabModel[]  = {
