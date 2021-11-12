@@ -1802,6 +1802,8 @@ static int shmVar[16] = {0};
 Sets the value of a shared memory variable that can be used for passing data between Lua widgets and other Lua scripts.
 
 @status current Introduced in 2.6
+
+@notice Only available on radios with color display
 */
 
 static int luaSetShmVar(lua_State * L)
@@ -1825,6 +1827,8 @@ static int luaSetShmVar(lua_State * L)
 Gets the value of a shared memory variable that can be used for passing data between Lua widgets and other Lua scripts.
 
 @status current Introduced in 2.6
+
+@notice Only available on radios with color display
 */
 
 static int luaGetShmVar(lua_State * L)
