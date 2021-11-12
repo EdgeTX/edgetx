@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 
+/* TODO: this function is not called anywhere, can remove?
+
 void menuModelTemplates(event_t event)
 {
   SIMPLE_MENU(STR_MENUTEMPLATES, menuTabModel, MENU_MODEL_TEMPLATES, 1+TMPL_COUNT);
@@ -48,3 +50,5 @@ void menuModelTemplates(event_t event)
     y+=FH;
   }
 }
+
+*/
