@@ -328,7 +328,8 @@ void GeneralSetupPanel::populateBacklightCB()
   QString strings[] = { tr("OFF"), tr("Keys"), tr("Sticks"), tr("Keys + Sticks"), tr("ON"), NULL };
 
   b->clear();
-  for (int i=0; !strings[i].isNull(); i++) {
+  int startValue = (firmware->getCapability(LcdDepth)>=8)?1:0;
+  for (int i=startValue; !strings[i].isNull(); i++) {
     b->addItem(strings[i], 0);
     if (generalSettings.backlightMode == i) {
       b->setCurrentIndex(b->count()-1);

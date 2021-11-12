@@ -1878,6 +1878,10 @@ void opentxInit()
 
 #if defined(COLORLCD)
   loadTheme();
+  if (g_eeGeneral.backlightMode == e_backlight_mode_off) {
+    // no backlight mode off on color lcd radios
+    g_eeGeneral.backlightMode = e_backlight_mode_keys;
+  }
 #endif
 
   if (g_eeGeneral.backlightMode != e_backlight_mode_off) {
