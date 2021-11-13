@@ -807,7 +807,6 @@ PACK(struct TrainerData {
     uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
     uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
-    swarnstate_t switchUnlockStates; \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr); \
     char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME] SKIP; \

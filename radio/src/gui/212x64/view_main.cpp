@@ -449,7 +449,6 @@ void menuMainView(event_t event)
       POPUP_MENU_START(onMainViewMenu);
       break;
 
-#if MENUS_LOCK != 2/*no menus*/
     case EVT_KEY_BREAK(KEY_MENU):
       pushMenu(menuModelSelect);
       break;
@@ -458,7 +457,6 @@ void menuMainView(event_t event)
       pushMenu(menuTabGeneral[0]);
       killEvents(event);
       break;
-#endif
 
     case EVT_KEY_BREAK(KEY_PAGE):
       storageDirty(EE_MODEL);

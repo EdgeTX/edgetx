@@ -461,7 +461,6 @@ void menuMainView(event_t event)
       POPUP_MENU_START(onMainViewMenu);
       break;
 
-#if MENUS_LOCK != 2 /*no menus*/
 #if defined(EVT_KEY_LAST_MENU)
     case EVT_KEY_LAST_MENU:
       pushMenu(lastPopMenu());
@@ -478,7 +477,7 @@ void menuMainView(event_t event)
       pushMenu(menuTabGeneral[0]);
       killEvents(event);
       break;
-#endif
+
 #if defined(HARDWARE_NO_TRIMS)
       case EVT_KEY_FIRST(KEY_ENTER):
         if (!trimSelection.preEnterValid) {
