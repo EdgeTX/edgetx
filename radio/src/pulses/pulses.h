@@ -176,8 +176,12 @@ union InternalModulePulsesData {
   FlySkySerialPulsesData flysky;
 #endif
 
-#if defined(MULTIMODULE) //&& defined(INTMODULE_USART)
+#if defined(MULTIMODULE)
   UartMultiPulses multi;
+#endif
+
+#if defined(CROSSFIRE)
+  CrossfirePulsesData crossfire;
 #endif
 
 #if defined(INTERNAL_MODULE_PPM)
@@ -212,9 +216,13 @@ union ExternalModulePulsesData {
 
   PpmPulsesData<pulse_duration_t> ppm;
 
+#if defined(CROSSFIRE)
   CrossfirePulsesData crossfire;
+#endif
 
+#if defined(GHOST)
   GhostPulsesData ghost;
+#endif
 } __ALIGNED(4);
 
 /* The __ALIGNED keyword is required to align the struct inside the modulePulsesData below,
@@ -242,7 +250,7 @@ bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
 #endif
 void setupPulsesDSM2();
-void setupPulsesCrossfire();
+void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
 void setupPulsesMultiInternalModule();

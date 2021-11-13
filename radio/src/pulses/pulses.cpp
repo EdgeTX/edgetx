@@ -420,7 +420,7 @@ bool setupPulsesExternalModule(uint8_t protocol)
         mixerSchedulerSetPeriod(EXTERNAL_MODULE, status.getAdjustedRefreshRate());
       else
         mixerSchedulerSetPeriod(EXTERNAL_MODULE, CROSSFIRE_PERIOD);
-      setupPulsesCrossfire();
+      setupPulsesCrossfire(EXTERNAL_MODULE);
       return true;
     }
 #endif
@@ -523,6 +523,14 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
+#if defined(INTERNAL_MODULE_CRSF)
+    case PROTOCOL_CHANNELS_CROSSFIRE:
+      intmoduleSerialStart(CROSSFIRE_BAUDRATE, true, USART_Parity_No,
+                           USART_StopBits_1, USART_WordLength_8b);
+      mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
+      break;
+#endif
+
 #if defined(INTERNAL_MODULE_PPM)
     case PROTOCOL_CHANNELS_PPM:
       intmodulePpmStart();
@@ -580,6 +588,19 @@ bool setupPulsesInternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_PPM:
       setupPulsesPPMInternalModule();
       return true;
+#endif
+
+#if defined(INTERNAL_MODULE_CRSF)
+    case PROTOCOL_CHANNELS_CROSSFIRE:
+    {
+      ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+      if (status.isValid())
+        mixerSchedulerSetPeriod(INTERNAL_MODULE, status.getAdjustedRefreshRate());
+      else
+        mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
+      setupPulsesCrossfire(INTERNAL_MODULE);
+      return true;
+    }
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)

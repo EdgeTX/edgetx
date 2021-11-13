@@ -584,6 +584,10 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
       if (moduleBay == EXTERNAL_MODULE)
         return false;
 
+    case MODULE_TYPE_CROSSFIRE:
+      if (moduleBay == INTERNAL_MODULE)
+        return false;
+      
     default:
       return true;
   }
@@ -606,27 +610,30 @@ bool isInternalModuleAvailable(int moduleType)
 #if defined(INTERNAL_MODULE_MULTI)
   if (moduleType == MODULE_TYPE_MULTIMODULE)
     return true;
-  else
-    return false;
 #endif
 
-  if (moduleType == MODULE_TYPE_XJT_PXX1) {
-#if defined(PXX1) && defined(INTERNAL_MODULE_PXX1)
-    return !isModuleUsingSport(EXTERNAL_MODULE, g_model.moduleData[EXTERNAL_MODULE].type);
-#endif
-  }
-
-  if (moduleType == MODULE_TYPE_ISRM_PXX2) {
-#if defined(PXX2) && defined(INTERNAL_MODULE_PXX2)
-    return !areModulesConflicting(moduleType, g_model.moduleData[EXTERNAL_MODULE].type);
-#endif
-  }
-
-  if (moduleType == MODULE_TYPE_PPM) {
-#if defined(PPM) && defined(INTERNAL_MODULE_PPM)
+#if defined(INTERNAL_MODULE_CRSF)
+  if (moduleType == MODULE_TYPE_CROSSFIRE)
     return true;
 #endif
+
+#if defined(PXX1) && defined(INTERNAL_MODULE_PXX1)
+  if (moduleType == MODULE_TYPE_XJT_PXX1) {
+    return !isModuleUsingSport(EXTERNAL_MODULE, g_model.moduleData[EXTERNAL_MODULE].type);
   }
+#endif
+
+#if defined(PXX2) && defined(INTERNAL_MODULE_PXX2)
+  if (moduleType == MODULE_TYPE_ISRM_PXX2) {
+    return !areModulesConflicting(moduleType, g_model.moduleData[EXTERNAL_MODULE].type);
+  }
+#endif
+
+#if defined(PPM) && defined(INTERNAL_MODULE_PPM)
+  if (moduleType == MODULE_TYPE_PPM) {
+    return true;
+  }
+#endif
 
 #if (defined(AFHDS3) || defined(AFHDS2)) && (defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3))
   if (moduleType == MODULE_TYPE_FLYSKY) {
