@@ -103,10 +103,6 @@ static uint16_t& getMultiTelemetryLastRxTS(uint8_t module)
   return multiTelemetryLastRxTS[module];
 }
 
-// Use additional telemetry buffer
-uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
-uint8_t intTelemetryRxBufferCount;
-
 #else // !INTERNAL_MODULE_MULTI
 
 static MultiModuleStatus multiModuleStatus;
@@ -556,28 +552,10 @@ void MultiModuleStatus::getStatusString(char * statusText) const
   }
 }
 
-static uint8_t * getRxBuffer(uint8_t moduleIdx)
-{
-#if defined(INTERNAL_MODULE_MULTI)
-  if (moduleIdx == INTERNAL_MODULE)
-    return intTelemetryRxBuffer;
-#endif
-  return telemetryRxBuffer;
-}
-
-static uint8_t &getRxBufferCount(uint8_t moduleIdx)
-{
-#if defined(INTERNAL_MODULE_MULTI)
-  if (moduleIdx == INTERNAL_MODULE)
-    return intTelemetryRxBufferCount;
-#endif
-  return telemetryRxBufferCount;
-}
-
 static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
 {
-  uint8_t * rxBuffer = getRxBuffer(module);
-  uint8_t &rxBufferCount = getRxBufferCount(module);
+  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
+  uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
 
   if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
     rxBuffer[rxBufferCount++] = data;
@@ -607,8 +585,8 @@ static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
 
 void processMultiTelemetryData(uint8_t data, uint8_t module)
 {
-  uint8_t * rxBuffer = getRxBuffer(module);
-  uint8_t &rxBufferCount = getRxBufferCount(module);
+  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
+  uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
 
   uint16_t &lastRxTS = getMultiTelemetryLastRxTS(module);
   uint16_t nowMs = (uint16_t)RTOS_GET_MS();

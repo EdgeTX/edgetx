@@ -40,15 +40,34 @@ TelemetryData telemetryData;
 
 uint8_t telemetryProtocol = 255;
 
-#if defined(PCBSKY9X) && defined(REVX)
-uint8_t serialInversion = 0;
+#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
+uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
+uint8_t intTelemetryRxBufferCount;
 #endif
+
+uint8_t * getTelemetryRxBuffer(uint8_t moduleIdx)
+{
+#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
+  if (moduleIdx == INTERNAL_MODULE)
+    return intTelemetryRxBuffer;
+#endif
+  return telemetryRxBuffer;
+}
+
+uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
+{
+#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
+  if (moduleIdx == INTERNAL_MODULE)
+    return intTelemetryRxBufferCount;
+#endif
+  return telemetryRxBufferCount;
+}
 
 void processTelemetryData(uint8_t data)
 {
 #if defined(CROSSFIRE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    processCrossfireTelemetryData(data);
+    processCrossfireTelemetryData(data, EXTERNAL_MODULE);
     return;
   }
 #endif
