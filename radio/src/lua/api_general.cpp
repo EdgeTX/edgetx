@@ -1789,6 +1789,61 @@ static int luaSerialRead(lua_State * L)
   return 1;
 }
 
+#if defined(COLORLCD)
+static int shmVar[16] = {0};
+
+/*luadoc
+@function setShmVar(id, value) 
+
+@param id: integer between 1 and 16 identifying the shared memory variable.
+
+@param value: integer. The value of the shared memory variable.
+
+Sets the value of a shared memory variable that can be used for passing data between Lua widgets and other Lua scripts.
+
+@status current Introduced in 2.6
+
+@notice Only available on radios with color display
+*/
+
+static int luaSetShmVar(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+  int value = luaL_checkinteger(L, 2);
+  
+  if (1 <= id && id <= 16)
+    shmVar[id - 1] = value;
+  
+  return 0;
+}
+
+/*luadoc
+@function getShmVar(id)
+
+@param id: integer between 1 and 16 identifying the shared memory variable.
+
+@retval value: integer. The value of the shared memory variable.
+
+Gets the value of a shared memory variable that can be used for passing data between Lua widgets and other Lua scripts.
+
+@status current Introduced in 2.6
+
+@notice Only available on radios with color display
+*/
+
+static int luaGetShmVar(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+  
+  if (1 <= id && id <= 16)
+    lua_pushinteger(L, shmVar[id - 1]);
+  else
+    lua_pushnil(L);
+
+  return 1;
+}
+#endif
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -1844,6 +1899,10 @@ const luaL_Reg opentxLib[] = {
   { "setSerialBaudrate", luaSetSerialBaudrate },
   { "serialWrite", luaSerialWrite },
   { "serialRead", luaSerialRead },
+#if defined(COLORLCD)
+  { "setShmVar", luaSetShmVar },
+  { "getShmVar", luaGetShmVar },
+#endif
   { nullptr, nullptr }  /* sentinel */
 };
 
