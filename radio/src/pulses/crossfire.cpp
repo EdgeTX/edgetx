@@ -70,10 +70,11 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   return buf - frame;
 }
 
-static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data)
+static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
+                                 uint8_t endpoint)
 {
 #if defined(LUA)
-  if (outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT) {
+  if (outputTelemetryBuffer.destination == endpoint) {
     memcpy(p_data->pulses, outputTelemetryBuffer.data,
            outputTelemetryBuffer.size);
     p_data->length = outputTelemetryBuffer.size;
@@ -96,9 +97,9 @@ void setupPulsesCrossfire(uint8_t idx)
 {
   if (idx == INTERNAL_MODULE) {
     auto* p_data = &intmodulePulsesData.crossfire;
-    setupPulsesCrossfire(idx, p_data);
+    setupPulsesCrossfire(idx, p_data, 0);
   } else if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
     auto* p_data = &extmodulePulsesData.crossfire;
-    setupPulsesCrossfire(idx, p_data);
+    setupPulsesCrossfire(idx, p_data, TELEMETRY_ENDPOINT_SPORT);
   }
 }
