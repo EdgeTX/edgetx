@@ -37,7 +37,7 @@ const char *writeFileBin(const char *filename, const uint8_t *data,
     return SDCARD_ERROR(result);
   }
 
-  *(uint32_t*)&buf[0] = OTX_FOURCC;
+  *(uint32_t*)&buf[0] = ETX_FOURCC;
   buf[4] = version;
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = size;
@@ -99,7 +99,7 @@ const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint
   }
 
   *version = (uint8_t)buf[4];
-  if (*(uint32_t *)&buf[0] != OTX_FOURCC || *version < FIRST_CONV_EEPROM_VER ||
+  if (*(uint32_t *)&buf[0] != ETX_FOURCC || *version < FIRST_CONV_EEPROM_VER ||
       *version > EEPROM_VER || buf[5] != 'M') {
     f_close(file);
     return STR_INCOMPATIBLE;

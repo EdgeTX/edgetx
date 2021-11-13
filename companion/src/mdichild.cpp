@@ -1320,7 +1320,7 @@ void MdiChild::newFile(bool createDefaults)
 {
   static int sequenceNumber = 1;
   isUntitled = true;
-  curFile = QString("document%1.otx").arg(sequenceNumber++);
+  curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
 
   if (createDefaults && firmware->getCapability(Capability::HasModelCategories)) {
@@ -1375,7 +1375,7 @@ bool MdiChild::saveAs(bool isNew)
 #ifdef __APPLE__
   QString filter;
 #else
-  QString filter(OTX_FILES_FILTER % YML_FILES_FILTER);
+  QString filter(ETX_FILES_FILTER % YML_FILES_FILTER);
 #endif
 
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
@@ -1455,7 +1455,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx)$"), suffix + "." + ext);
+  curFile.replace(QRegExp("\\.(eepe|bin|hex|etx)$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)

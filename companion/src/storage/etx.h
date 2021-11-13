@@ -18,8 +18,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OTX_H_
-#define _OTX_H_
+#ifndef _ETX_H_
+#define _ETX_H_
 
 #include "categorized.h"
 
@@ -29,17 +29,17 @@
 #include "miniz.c"
 #undef MINIZ_HEADER_FILE_ONLY
 
-class OtxFormat : public CategorizedStorageFormat
+class EtxFormat : public CategorizedStorageFormat
 {
-  Q_DECLARE_TR_FUNCTIONS(OtxFormat)
+  Q_DECLARE_TR_FUNCTIONS(EtxFormat)
 
   public:
-    OtxFormat(const QString & filename):
+    EtxFormat(const QString & filename):
       CategorizedStorageFormat(filename)
     {
     }
 
-    virtual QString name() { return "otx"; }
+    virtual QString name() { return "etx"; }
     virtual bool load(RadioData & radioData);
     virtual bool write(const RadioData & radioData);
 
@@ -50,4 +50,4 @@ class OtxFormat : public CategorizedStorageFormat
     mz_zip_archive zip_archive;
 };
 
-#endif // _OTX_H_
+#endif // _ETX_H_

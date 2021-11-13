@@ -157,7 +157,7 @@ MainWindow::MainWindow():
   if (!str.isEmpty()) {
     int fileType = getStorageType(str);
 
-    if (fileType==STORAGE_TYPE_EEPE || fileType==STORAGE_TYPE_EEPM || fileType==STORAGE_TYPE_BIN || fileType==STORAGE_TYPE_OTX) {
+    if (fileType==STORAGE_TYPE_EEPE || fileType==STORAGE_TYPE_EEPM || fileType==STORAGE_TYPE_BIN || fileType==STORAGE_TYPE_ETX) {
       MdiChild * child = createMdiChild();
       if (child->loadFile(str)) {
         if (!(printing && model >= 0 && (getCurrentFirmware()->getCapability(Models) == 0 || model<getCurrentFirmware()->getCapability(Models)) && !printfilename.isEmpty())) {
@@ -901,7 +901,7 @@ void MainWindow::readEeprom()
   Board::Type board = getCurrentBoard();
   QString tempFile;
   if (IS_FAMILY_HORUS_OR_T16(board))
-    tempFile = generateProcessUniqueTempFileName("temp.otx");
+    tempFile = generateProcessUniqueTempFileName("temp.etx");
   else
     tempFile = generateProcessUniqueTempFileName("temp.bin");
 
