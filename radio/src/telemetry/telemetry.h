@@ -71,8 +71,14 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 #define TELEMETRY_RX_PACKET_SIZE       19  // 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 #endif
 
+//TODO: remove this public definition
 extern uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
 extern uint8_t telemetryRxBufferCount;
+
+//TODO: use module scoped buffers instead
+uint8_t* getTelemetryRxBuffer(uint8_t moduleIdx);
+uint8_t& getTelemetryRxBufferCount(uint8_t moduleIdx);
+
 
 #define TELEMETRY_AVERAGE_COUNT        3
 
