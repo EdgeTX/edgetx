@@ -521,16 +521,16 @@ swsrc_t getMovedSwitch()
   static tmr10ms_t s_move_last_time = 0;
   swsrc_t result = 0;
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
   // Switches
   for (int i = 0; i < NUM_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
-      swarnstate_t mask = ((swarnstate_t) 0x03 << (i * 2));
-      uint8_t prev = (switches_states & mask) >> (i * 2);
-      uint8_t next = (1024 + getValue(MIXSRC_SA + i)) / 1024;
+      swarnstate_t mask = ((swarnstate_t) 0x07 << (i * 3));
+      uint8_t prev = (switches_states & mask) >> (i * 3);
+      uint8_t next = (1024 + getValue(MIXSRC_SA + i)) / 1024 + 1;
       if (prev != next) {
-        switches_states = (switches_states & (~mask)) | ((swarnstate_t) next << (i * 2));
-        result = 1 + (3 * i) + next;
+        switches_states =
+            (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 3));
+        result = (3 * i) + next;
       }
     }
   }
@@ -547,26 +547,6 @@ swsrc_t getMovedSwitch()
       }
     }
   }
-#else
-  // return delivers 1 to 3 for ID1 to ID3
-  // 4..8 for all other switches if changed to true
-  // -4..-8 for all other switches if changed to false
-  // 9 for Trainer switch if changed to true; Change to false is ignored
-  swarnstate_t mask = 0x80;
-  for (uint8_t i=NUM_SWITCHES_POSITIONS; i>1; i--) {
-    bool prev;
-    prev = (switches_states & mask);
-    // don't use getSwitch here to always get the proper value, even getSwitch manipulates
-    bool next = switchState(i-1);
-    if (prev != next) {
-      if (((i<NUM_SWITCHES_POSITIONS) && (i>3)) || next==true)
-        result = next ? i : -i;
-      if (i<=3 && result==0) result = 1;
-      switches_states ^= mask;
-    }
-    mask >>= 1;
-  }
-#endif
 
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 10)
     result = 0;
@@ -635,9 +615,9 @@ void checkSwitches()
     }
 #elif defined(PCBTARANIS)
     for (int i=0; i<NUM_SWITCHES; i++) {
-      if (SWITCH_WARNING_ALLOWED(i) && !(g_model.switchWarningEnable & (1<<i))) {
-        swarnstate_t mask = ((swarnstate_t)0x03 << (i*2));
-        if (!((states & mask) == (switches_states & mask))) {
+      if (SWITCH_WARNING_ALLOWED(i)) {
+        swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
+        if ((states & mask) && !((states & mask) == (switches_states & mask))) {
           warn = true;
         }
       }
@@ -705,15 +685,19 @@ void checkSwitches()
 #endif
       int numWarnings = 0;
       for (int i=0; i<NUM_SWITCHES; ++i) {
-        if (SWITCH_WARNING_ALLOWED(i) && !(g_model.switchWarningEnable & (1<<i))) {
-          swarnstate_t mask = ((swarnstate_t)0x03 << (i*2));
-          LcdFlags attr = ((states & mask) == (switches_states & mask)) ? 0 : INVERS;
-          if (attr) {
-            if (++numWarnings < 6) {
-              char c = (STR_CHAR_UP "-" STR_CHAR_DOWN)[(states & mask) >> (i*2)];
-              drawSource(x, y, MIXSRC_FIRST_SWITCH+i, attr);
-              lcdDrawChar(lcdNextPos, y, c, attr);
-              x = lcdNextPos + 3;
+        if (SWITCH_WARNING_ALLOWED(i)) {
+          swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
+          if (states & mask) {
+            LcdFlags attr =
+                ((states & mask) == (switches_states & mask)) ? 0 : INVERS;
+            if (attr) {
+              if (++numWarnings < 6) {
+                char c = (" " STR_CHAR_UP
+                          "-" STR_CHAR_DOWN)[(states & mask) >> (i * 2)];
+                drawSource(x, y, MIXSRC_FIRST_SWITCH + i, attr);
+                lcdDrawChar(lcdNextPos, y, c, attr);
+                x = lcdNextPos + 3;
+              }
             }
           }
         }

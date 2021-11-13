@@ -571,27 +571,12 @@ typedef uint32_t swarnstate_t;
 #elif defined(PCBX9E)
 typedef uint64_t swconfig_t;
 typedef uint64_t swarnstate_t;
-typedef uint32_t swarnenable_t;
 #elif defined(PCBX9D) || defined(PCBX9DP)
 typedef uint32_t swconfig_t;
 typedef uint32_t swarnstate_t;
-typedef uint16_t swarnenable_t; // TODO remove it in 2.4
-#elif defined(PCBTARANIS)
+#else
 typedef uint16_t swconfig_t;
-typedef uint16_t swarnstate_t;
-typedef uint8_t swarnenable_t; // TODO remove it in 2.4
-#else
-typedef uint8_t swarnstate_t;
-typedef uint8_t swarnenable_t;
-#endif
-
-#if defined(COLORLCD)
-  #define SWITCHES_WARNING_DATA \
-    NOBACKUP(swarnstate_t  switchWarningState CUST(r_swtchWarn,w_swtchWarn));
-#else
-  #define SWITCHES_WARNING_DATA \
-    swarnstate_t  switchWarningState CUST(r_swtchWarn,w_swtchWarn); \
-    swarnenable_t switchWarningEnable; // TODO remove it in 2.4
+typedef uint32_t swarnstate_t;
 #endif
 
 #if defined(COLORLCD) && defined(BACKUP)
@@ -664,8 +649,8 @@ PACK(struct ModelData {
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
-
-  SWITCHES_WARNING_DATA
+  CUST_ATTR(switchWarningState, r_swtchWarn, w_swtchWarn);
+  NOBACKUP(swarnstate_t  switchWarningState SKIP);
 
   GVarData gvars[MAX_GVARS];
 

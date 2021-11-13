@@ -525,6 +525,7 @@ bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 
 #define r_swtchWarn nullptr
 
+#if defined(COLORLCD)
 bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     for (int i = 0; i < STORAGE_NUM_SWITCHES; i++) {
@@ -568,6 +569,58 @@ bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* 
 
     return true;
 }
+#else
+bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  data += (bitoffs >> 3UL);
+
+  // switchWarningState
+  swarnstate_t states = *(swarnstate_t*)data;
+  data += sizeof(swarnstate_t);
+
+  // switchWarningEnable
+  swarnenable_t enables = *(swarnenable_t*)data;
+
+  for (int i = 0; i < STORAGE_NUM_SWITCHES; i++) {
+    // decode check state
+    // -> 2 bits per switch + enable
+    swarnenable_t en = (enables >> i) & 0x01;
+    if (en) continue;
+
+    // state == 0 -> no check
+    // state == 1 -> UP
+    // state == 2 -> MIDDLE
+    // state == 3 -> DOWN
+    char swtchWarn[2] = {(char)('A' + i), 0};
+
+    uint8_t state = (states >> (2 * i)) & 0x03;
+    switch (state) {
+      case 0:
+        swtchWarn[1] = 'u';
+        break;
+      case 1:
+        swtchWarn[1] = '-';
+        break;
+      case 2:
+        swtchWarn[1] = 'd';
+        break;
+      default:
+        // this should never happen
+        swtchWarn[1] = 'x';
+        break;
+    }
+
+    if (swtchWarn[1] != 0) {
+      if (!wf(opaque, swtchWarn, 2)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+#endif
 
 extern const struct YamlIdStr enum_BeeperMode[];
 
