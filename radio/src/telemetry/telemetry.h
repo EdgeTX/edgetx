@@ -149,6 +149,9 @@ inline const char* getRssiLabel()
   return "RSSI";
 }
 
+// TODO: this should handle only the external S.PORT line
+//  - and go away in the end: one proto per module, not global!
+//
 inline uint8_t modelTelemetryProtocol()
 {
   bool sportUsed = isSportLineUsedByInternalModule();
@@ -173,11 +176,6 @@ inline uint8_t modelTelemetryProtocol()
   if (!sportUsed && isModuleMultimodule(EXTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_MULTIMODULE;
   }
-#if defined(INTERNAL_MODULE_MULTI)
-  if (isModuleMultimodule(INTERNAL_MODULE) && isModuleNone(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_MULTIMODULE;
-  }
-#endif
 #endif
 
 #if defined(AFHDS3)
@@ -186,6 +184,7 @@ inline uint8_t modelTelemetryProtocol()
   }
 #endif
 
+  // TODO: Check if that is really necessary...
 #if defined(AFHDS2)
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_FLYSKY_NV14;

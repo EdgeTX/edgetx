@@ -125,99 +125,138 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-void telemetryWakeup()
+#if defined(INTERNAL_MODULE_PXX2)
+static void pollIntPXX2()
 {
-  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
-  uint8_t data;
-
-#if defined(REVX)
-  uint8_t requiredSerialInversion = g_model.moduleData[EXTERNAL_MODULE].invertedSerial;
-  if (telemetryProtocol != requiredTelemetryProtocol || serialInversion != requiredSerialInversion) {
-    serialInversion = requiredSerialInversion;
-    telemetryInit(requiredTelemetryProtocol);
-  }
-#else
-  if (telemetryProtocol != requiredTelemetryProtocol) {
-    telemetryInit(requiredTelemetryProtocol);
-  }
-#endif
-
-#if defined(INTERNAL_MODULE_PXX2) || defined(EXTMODULE_USART)
   uint8_t frame[PXX2_FRAME_MAXLENGTH];
 
-  #if defined(INTERNAL_MODULE_PXX2)
   while (intmoduleFifo.getFrame(frame)) {
     processPXX2Frame(INTERNAL_MODULE, frame);
   }
-  #endif
+}
+#endif  
 
-  #if defined(EXTMODULE_USART)
-  while (isModulePXX2(EXTERNAL_MODULE) && extmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(EXTERNAL_MODULE, frame);
+#if defined(PXX2)
+static void pollExtPXX2()
+{
+  uint8_t frame[PXX2_FRAME_MAXLENGTH];
+
+  while (intmoduleFifo.getFrame(frame)) {
+    processPXX2Frame(INTERNAL_MODULE, frame);
   }
-  #endif
+}
+#endif  
+
+#if defined(MULTI_PROTOLIST)
+static inline void pollMultiProtolist(uint8_t idx)
+{
+  if ((moduleState[idx].protocol == PROTOCOL_CHANNELS_MULTIMODULE) &&
+      MultiRfProtocols::instance(idx)->isScanning()) {
+    MultiRfProtocols::instance(idx)->scanReply();
+  }
+}
 #endif
+
+static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
+{
+  uint8_t data;
+  if (intmoduleFifo.pop(data)) {
+    LOG_TELEMETRY_WRITE_START();
+    do {
+      processData(data, INTERNAL_MODULE);
+      LOG_TELEMETRY_WRITE_BYTE(data);
+    } while (intmoduleFifo.pop(data));
+  }  
+}
 
 #if defined(INTERNAL_MODULE_MULTI)
-  if (isModuleMultimodule(INTERNAL_MODULE)) {
-    if (intmoduleFifo.pop(data)) {
-      LOG_TELEMETRY_WRITE_START();
-      do {
-        processMultiTelemetryData(data, INTERNAL_MODULE);
-        LOG_TELEMETRY_WRITE_BYTE(data);
-      } while (intmoduleFifo.pop(data));
-    }
+static void pollIntMulti()
+{
+  pollIntTelemetry(processMultiTelemetryData);
 #if defined(MULTI_PROTOLIST)
-    if ((moduleState[INTERNAL_MODULE].protocol ==
-         PROTOCOL_CHANNELS_MULTIMODULE) &&
-        MultiRfProtocols::instance(INTERNAL_MODULE)->isScanning()) {
-      MultiRfProtocols::instance(INTERNAL_MODULE)->scanReply();
-    }
+  pollMultiProtolist(INTERNAL_MODULE);
 #endif
-  }
+}
 #endif
 
-#if defined(STM32)
+#if defined(INTERNAL_MODULE_CRSF)
+static void pollIntCrossfire()
+{
+  pollIntTelemetry(processCrossfireTelemetryData);
+}
+#endif
+
+#if defined(PCBNV14)
+static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
+{
+  (void)idx;
+  processInternalFlySkyTelemetryData(data);
+}
+
+static void pollIntAFHDS2A()
+{
+  pollIntTelemetry(processFlySkyTelemetryData);
+}
+#endif
+
+static void pollExtTelemetry()
+{
+  uint8_t data;
   if (telemetryGetByte(&data)) {
     LOG_TELEMETRY_WRITE_START();
     do {
       processTelemetryData(data);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (telemetryGetByte(&data));
-  }
-
-#if defined(PCBNV14)
-  if (//!moduleUpdateActive(INTERNAL_MODULE) &&
-      moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_AFHDS2A &&
-      intmoduleFifo.pop(data)) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      processInternalFlySkyTelemetryData(data);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (intmoduleFifo.pop(data));
-  }
-#endif
-
+  }  
 #if defined(MULTI_PROTOLIST)
-  if (isModuleMultimodule(EXTERNAL_MODULE) &&
-      (moduleState[EXTERNAL_MODULE].protocol ==
-       PROTOCOL_CHANNELS_MULTIMODULE) &&
-      MultiRfProtocols::instance(EXTERNAL_MODULE)->isScanning()) {
-    MultiRfProtocols::instance(EXTERNAL_MODULE)->scanReply();
+  if (isModuleMultimodule(EXTERNAL_MODULE)) {
+    pollMultiProtolist(EXTERNAL_MODULE);
+  }
+#endif
+#if defined(PXX2) && defined(EXTMODULE_USART)
+  if (isModulePXX2(EXTERNAL_MODULE)) {
+    pollExtPXX2();
+  }
+#endif
+}
+
+// TODO: this needs to be rewritten completely
+//   - telemetry polling needs to happen for each enabled module
+void telemetryWakeup()
+{
+  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+
+  if (telemetryProtocol != requiredTelemetryProtocol) {
+    telemetryInit(requiredTelemetryProtocol);
+  }
+
+  // Poll internal modules
+#if defined(INTERNAL_MODULE_PXX2)
+  if (isModuleISRM(INTERNAL_MODULE)) {
+    pollIntPXX2();
+  }
+#endif
+#if defined(INTERNAL_MODULE_MULTI)
+  if (isModuleMultimodule(INTERNAL_MODULE)) {
+    pollIntMulti();
+  }
+#endif
+#if defined(INTERNAL_MODULE_CRSF)
+  if (isModuleCrossfire(INTERNAL_MODULE)) {
+    pollIntCrossfire();
+  }
+#endif
+#if defined(PCBNV14)
+  //! moduleUpdateActive(INTERNAL_MODULE) &&
+  if (isModuleAFHDS2A(INTERNAL_MODULE)) {
+    pollIntAFHDS2A();
   }
 #endif
 
-#elif defined(PCBSKY9X)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    while (telemetrySecondPortReceive(data)) {
-      processTelemetryData(data);
-    }
-  }
-  else {
-    // Receive serial data here
-    rxPdcUsart(processTelemetryData);
-  }
-#endif
+  // Poll external / S.PORT telemetry
+  // TODO: how to switch this OFF ???
+  pollExtTelemetry();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];
