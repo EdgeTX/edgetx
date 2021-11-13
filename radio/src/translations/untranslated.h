@@ -93,11 +93,7 @@
 #define LEN_CRSF_BAUDRATE              "\005"
 #define TR_CRSF_BAUDRATE               "115k\0""400k\0""921k\0""1.87M""3.75M"
 
-#if defined(MODULE_PROTOCOL_FLEX)
-#define TR_MODULE_R9M_LITE             "R9ML\0       "
-#else
 #define TR_MODULE_R9M_LITE             "R9MLite\0    "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)

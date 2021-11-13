@@ -531,14 +531,6 @@ bool isSourceAvailableInResetSpecialFunction(int index)
   }
 }
 
-bool isR9MModeAvailable(int mode)
-{
-#if defined(MODULE_PROTOCOL_FLEX)
-  return true;
-#else
-  return mode <= MODULE_SUBTYPE_R9M_EU;
-#endif
-}
 
 #if defined(PXX2)
 bool isPxx2IsrmChannelsCountAllowed(int channels)

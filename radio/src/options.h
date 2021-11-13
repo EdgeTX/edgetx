@@ -44,9 +44,6 @@ static const char * const options[] = {
 #if defined(FAI_CHOICE)
   "FAIchoice",
 #endif
-#if defined(MODULE_PROTOCOL_FLEX)
-  "flexr9m",
-#endif
 #if defined(AFHDS3)
   "afhds3",
 #endif

@@ -92,7 +92,6 @@ bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
 bool isSwitchAvailableInTimers(int swtch);
-bool isR9MModeAvailable(int mode);
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();
