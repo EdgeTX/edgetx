@@ -696,7 +696,10 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaCrossfireTelemetryPush(lua_State * L)
 {
-  if (telemetryProtocol != PROTOCOL_TELEMETRY_CROSSFIRE) {
+  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE);
+  bool internal = (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
+
+  if (!internal && !sport) {
     lua_pushnil(L);
     return 1;
   }
@@ -719,8 +722,8 @@ static int luaCrossfireTelemetryPush(lua_State * L)
       lua_rawgeti(L, 2, i+1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data+2, 1 + length));
-    outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length));
+    outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }
   else {
