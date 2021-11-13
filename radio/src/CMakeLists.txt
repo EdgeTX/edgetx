@@ -50,7 +50,6 @@ option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
 option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
-option(MODULE_PROTOCOL_FLEX "Add support for non certified FLEX modules" OFF)
 option(MODULE_PROTOCOL_D8 "Add support for D8 modules" ON)
 option(FRSKY_RELEASE "Used to build FrSky released firmware" OFF)
 option(TBS_RELEASE "Used to build TBS released firmware" OFF)
@@ -416,10 +415,6 @@ endif()
 
 if(MODULE_PROTOCOL_LBT)
   add_definitions(-DMODULE_PROTOCOL_LBT)
-endif()
-
-if(MODULE_PROTOCOL_FLEX)
-  add_definitions(-DMODULE_PROTOCOL_FLEX)
 endif()
 
 if(MODULE_PROTOCOL_D8)
