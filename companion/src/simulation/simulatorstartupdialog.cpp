@@ -120,7 +120,7 @@ QString SimulatorStartupDialog::radioEepromFileName(const QString & firmwareId, 
   if (pos > 0)
     radioId = radioId.mid(pos+1);
   if (usesCategorizedStorage(radioId))
-    ext = "otx";
+    ext = "etx";
 
   eepromFileName = QString("eeprom-%1.%2").arg(radioId, ext);
   eepromFileName = QDir(folder).filePath(eepromFileName.toLatin1());

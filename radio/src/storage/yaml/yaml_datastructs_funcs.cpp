@@ -1646,8 +1646,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     int subtype = yaml_str2uint(val, val_len);
 
-    // convert to OTX format and write to vars
-    convertMultiProtocolToOtx(&type, &subtype);
+    // convert to ETX format and write to vars
+    convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
       md->setMultiProtocol(type - 1);
       md->subType = subtype;

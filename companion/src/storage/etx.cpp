@@ -18,13 +18,13 @@
  * GNU General Public License for more details.
  */
 
-#include "otx.h"
+#include "etx.h"
 #include "miniz.c"
 #include <QFile>
 
 #define MZ_ALLOCATION_SIZE    (32*1024)
 
-bool OtxFormat::load(RadioData & radioData)
+bool EtxFormat::load(RadioData & radioData)
 {
   QFile file(filename);
 
@@ -40,7 +40,7 @@ bool OtxFormat::load(RadioData & radioData)
   // open zip file
   memset(&zip_archive, 0, sizeof(zip_archive));
   if (!mz_zip_reader_init_mem(&zip_archive, archiveContents.data(), archiveContents.size(), 0)) {
-    qDebug() << tr("Error opening OTX archive %1").arg(filename);
+    qDebug() << tr("Error opening ETX archive %1").arg(filename);
     return false;
   }
 
@@ -49,13 +49,13 @@ bool OtxFormat::load(RadioData & radioData)
   return result;
 }
 
-bool OtxFormat::write(const RadioData & radioData)
+bool EtxFormat::write(const RadioData & radioData)
 {
   qDebug() << "Saving to archive" << filename;
 
   memset(&zip_archive, 0, sizeof(zip_archive));
   if (!mz_zip_writer_init_heap(&zip_archive, 0, MZ_ALLOCATION_SIZE)) {
-    setError(tr("Error initializing OTX archive writer"));
+    setError(tr("Error initializing ETX archive writer"));
     return false;
   }
 
@@ -76,12 +76,12 @@ bool OtxFormat::write(const RadioData & radioData)
         }
       }
       else {
-        setError(tr("Error creating OTX file %1:\n%2.").arg(filename).arg(file.errorString()));
+        setError(tr("Error creating ETX file %1:\n%2.").arg(filename).arg(file.errorString()));
         result = false;
       }
     }
     else {
-      setError(tr("Error creating OTX archive"));
+      setError(tr("Error creating ETX archive"));
       result = false;
     }
   }
@@ -90,7 +90,7 @@ bool OtxFormat::write(const RadioData & radioData)
   return result;
 }
 
-bool OtxFormat::loadFile(QByteArray & filedata, const QString & filename)
+bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename)
 {
   size_t size;
   void * data = mz_zip_reader_extract_file_to_heap(&zip_archive, qPrintable(filename), &size, 0);
@@ -105,10 +105,10 @@ bool OtxFormat::loadFile(QByteArray & filedata, const QString & filename)
   return true;
 }
 
-bool OtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
+bool EtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
 {
   if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), filedata.data(), filedata.size(), MZ_DEFAULT_LEVEL)) {
-    setError(tr("Error adding %1 to OTX archive").arg(filename));
+    setError(tr("Error adding %1 to ETX archive").arg(filename));
     return false;
   }
 

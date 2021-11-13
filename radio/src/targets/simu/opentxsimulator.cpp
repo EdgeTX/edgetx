@@ -32,7 +32,7 @@
 
 #define GET_SWITCH_BOOL(sw__)    getSwitch((sw__), 0);
 
-#define OTXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
+#define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
 
 int16_t g_anas[Analogs::NUM_ANALOGS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
@@ -106,7 +106,7 @@ void OpenTxSimulator::init()
   if (isRunning())
     return;
 
-  OTXS_DBG;
+  ETXS_DBG;
 
   if (!m_timer10ms) {
     // make sure we create & control the timer from current thread
@@ -134,7 +134,7 @@ void OpenTxSimulator::start(const char * filename, bool tests)
 {
   if (isRunning())
     return;
-  OTXS_DBG << "file:" << filename << "tests:" << tests;
+  ETXS_DBG << "file:" << filename << "tests:" << tests;
 
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
@@ -150,7 +150,7 @@ void OpenTxSimulator::stop()
 {
   if (!isRunning())
     return;
-  OTXS_DBG;
+  ETXS_DBG;
 
   setStopRequested(true);
 
@@ -380,7 +380,7 @@ void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
 
 void OpenTxSimulator::sendTelemetry(const QByteArray data)
 {
-  //OTXS_DBG << data;
+  //ETXS_DBG << data;
   sportProcessTelemetryPacket((uint8_t *)data.constData());
 }
 

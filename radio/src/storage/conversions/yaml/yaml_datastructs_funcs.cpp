@@ -1132,7 +1132,7 @@ bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     //       data as-is (no FrSky special casing)
     int type = md->getMultiProtocol() + 1;
     int subtype = val;
-    convertOtxProtocolToMulti(&type, &subtype);
+    convertEtxProtocolToMulti(&type, &subtype);
 
     // output "[type],[subtype]"
     str = yaml_unsigned2str(type);

@@ -53,7 +53,7 @@ static void sendDSM(uint8_t moduleIdx);
 void multiPatchCustom(uint8_t moduleIdx)
 {
   if (g_model.moduleData[moduleIdx].multi.customProto) {
-    uint8_t type = g_model.moduleData[moduleIdx].getMultiProtocol() - 1;  // custom where starting at 1, otx list at 0
+    uint8_t type = g_model.moduleData[moduleIdx].getMultiProtocol() - 1;  // custom where starting at 1, etx list at 0
     int subtype = g_model.moduleData[moduleIdx].subType;
 
     g_model.moduleData[moduleIdx].multi.customProto = 0;
@@ -268,7 +268,7 @@ void sendChannels(uint8_t moduleIdx)
   }
 }
 
-void convertMultiProtocolToOtx(int *protocol, int *subprotocol)
+void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 {
   if (*protocol == 3 && *subprotocol == 0) {
     *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
@@ -312,7 +312,7 @@ void convertMultiProtocolToOtx(int *protocol, int *subprotocol)
     *protocol -= 1;
 }
 
-void convertOtxProtocolToMulti(int *protocol, int *subprotocol)
+void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
 {
   // Special treatment for the FrSky entry...
   if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
@@ -407,7 +407,7 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
   }
 
   // Special treatment for the FrSky entry...
-  convertOtxProtocolToMulti(&type, &subtype);
+  convertEtxProtocolToMulti(&type, &subtype);
 
   // Set the highest bit of option byte in AFHDS2A protocol to instruct MULTI to passthrough telemetry bytes instead
   // of sending Frsky D telemetry

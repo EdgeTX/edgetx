@@ -19,9 +19,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
 
     foreach(model_file ${EXTRACT_MODEL_FILES})
       add_custom_command(
-        DEPENDS ${TESTS_PATH}/${model_file}.otx
+        DEPENDS ${TESTS_PATH}/${model_file}.etx
         OUTPUT ${TESTS_BUILD_PATH}/${model_file}/RADIO/radio.bin
-        COMMAND mkdir -p ${model_file} && cd ${model_file} && unzip -o -q -DD ${TESTS_PATH}/${model_file}.otx >/dev/null
+        COMMAND mkdir -p ${model_file} && cd ${model_file} && unzip -o -q -DD ${TESTS_PATH}/${model_file}.etx >/dev/null
         WORKING_DIRECTORY ${TESTS_BUILD_PATH}
       )
       add_custom_target(${model_file}_files

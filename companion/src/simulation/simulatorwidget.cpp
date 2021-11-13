@@ -249,9 +249,9 @@ bool SimulatorWidget::setStartupData(const QByteArray & dataSource, bool fromFil
       error = store.error();
     }
     else {
-      if (fileName.endsWith(".otx", Qt::CaseInsensitive)) {
-        // no radios can work with .otx files directly, so we load contents into either
-        //   a temporary folder (Horus) or local data array (other radios) which we'll save back to .otx upon exit
+      if (fileName.endsWith(".etx", Qt::CaseInsensitive)) {
+        // no radios can work with .etx files directly, so we load contents into either
+        //   a temporary folder (Horus) or local data array (other radios) which we'll save back to .etx upon exit
         if ((ret = setRadioData(&simuData))) {
           startupFromFile = false;
           return true;
@@ -365,7 +365,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   if (deleteTempRadioData)
     deleteTempData();
 
-  QTemporaryDir tmpDir(QDir::tempPath() + "/otx-XXXXXX");
+  QTemporaryDir tmpDir(QDir::tempPath() + "/etx-XXXXXX");
   if (tmpDir.isValid()) {
     setDataPath(tmpDir.path());
     tmpDir.setAutoRemove(false);
@@ -379,7 +379,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   }
 }
 
-// This will save radio data from temporary folder structure back into an .otx file, eg. for Horus.
+// This will save radio data from temporary folder structure back into an .etx file, eg. for Horus.
 bool SimulatorWidget::saveTempData()
 {
   bool ret = false;

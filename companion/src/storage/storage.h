@@ -37,7 +37,8 @@ enum StorageType
   STORAGE_TYPE_XML,
   STORAGE_TYPE_SDCARD,
   STORAGE_TYPE_OTX,
-  STORAGE_TYPE_YML
+  STORAGE_TYPE_YML,
+  STORAGE_TYPE_ETX
 };
 
 StorageType getStorageType(const QString & filename);
