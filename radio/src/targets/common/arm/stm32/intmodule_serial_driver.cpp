@@ -188,7 +188,14 @@ void intmoduleSendNextFrame()
       intmoduleSendBuffer(intmodulePulsesData.multi.getData(), intmodulePulsesData.multi.getSize());
       break;
 #endif
-      
+
+#if defined(INTERNAL_MODULE_CRSF)
+    case PROTOCOL_CHANNELS_CROSSFIRE:
+      intmoduleSendBuffer(intmodulePulsesData.crossfire.pulses,
+                          intmodulePulsesData.crossfire.length);
+      break;
+#endif
+
 #if defined(AFHDS2)
   case PROTOCOL_CHANNELS_AFHDS2A: {
     uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
