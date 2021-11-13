@@ -629,7 +629,7 @@ class ModuleWindow : public FormGroup {
       } else if (isModuleR9M(moduleIdx)) {
         rfChoice =
             new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION,
-                       MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_EU,
+                       MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_LAST,
                        GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
                        [=](int32_t newValue) {
                          g_model.moduleData[moduleIdx].subType = newValue;
