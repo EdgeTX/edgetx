@@ -25,6 +25,8 @@
 #include <malloc.h>
 #include <new>
 
+#include "cli_traces.h"
+
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
 
@@ -837,10 +839,13 @@ int cliSet(const char **argv)
       return -1;
     }
 
-    if (level)
+    if (level) {
       GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-    else
+      serialPrint("%s: bootpin set", argv[0]);
+    } else {
       GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+      serialPrint("%s: bootpin reset", argv[0]);
+    }
   }
 #endif
 
@@ -1187,9 +1192,11 @@ int cliDisplay(const char ** argv)
     printDebugTimers();
   }
 #endif
+#if defined(DEBUG_AUDIO)
   else if (!strcmp(argv[1], "audio")) {
     printAudioVars();
   }
+#endif
 #if defined(DISK_CACHE)
   else if (!strcmp(argv[1], "dc")) {
     DiskCacheStats stats = diskCache.getStats();
@@ -1234,9 +1241,12 @@ int cliRepeat(const char ** argv)
   if (toInt(argv, 1, &interval) > 0 && argv[2]) {
     interval *= 50;
     counter = interval;
+
     uint8_t c;
-    while (!cliRxFifo.pop(c) || !(c == '\r' || c == '\n' || c == ' ')) {
-      RTOS_WAIT_MS(20); // 20ms
+    const TickType_t xTimeout = 20 / RTOS_MS_PER_TICK;
+    while (!xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout)
+           || !(c == '\r' || c == '\n' || c == ' ')) {
+
       if (++counter >= interval) {
         cliExecCommand(&argv[2]);
         counter = 0;
