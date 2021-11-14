@@ -122,10 +122,10 @@ class SensorButton : public Button {
     uint32_t lastRefresh = 0;
 };
 
-class SensorrEditorFooter: public Window {
+class SensorLiveValue: public Window {
   public:
-    explicit SensorrEditorFooter(Window * parent, int index):
-      Window(parent,  {0, parent->height() - MODEL_SELECT_FOOTER_HEIGHT, LCD_W, MODEL_SELECT_FOOTER_HEIGHT}, OPAQUE),
+    explicit SensorLiveValue(Window * parent, const rect_t & rect,  int index):
+      Window(parent, rect, OPAQUE),
       index(index)
     {
     }
@@ -150,13 +150,12 @@ class SensorrEditorFooter: public Window {
     {
       TelemetryItem &telemetryItem = telemetryItems[index];
 
-      coord_t x = 10;
       dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
       if (telemetryItem.isAvailable()) {
         LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_PRIMARY2;
-        drawSensorCustomValue(dc, x, 2, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+        drawSensorCustomValue(dc, 0, 1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
       } else {
-        dc->drawText(x, 0, "---", COLOR_THEME_PRIMARY2);
+        dc->drawText(0, 1, "---", COLOR_THEME_PRIMARY2);
       }
     }
   protected:
@@ -185,8 +184,10 @@ class SensorEditWindow : public Page {
                       PAGE_LINE_HEIGHT},
                      STR_SENSOR + std::to_string(index + 1), 0,
                      COLOR_THEME_PRIMARY2);
-      // dynamic display of sensor value ?
-      //new StaticText(window, {70, 28, 100, 20}, "SF" + std::to_string(index), 0, COLOR_THEME_SECONDARY1);
+
+      new SensorLiveValue(window,
+          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, index);
     }
 
     void updateSensorParametersWindow()
@@ -411,9 +412,7 @@ class SensorEditWindow : public Page {
       updateSensorParametersWindow();
       grid.addWindow(sensorParametersWindow);
 
-      window->setInnerHeight(grid.getWindowHeight() + MODEL_SELECT_FOOTER_HEIGHT);
-
-      new SensorrEditorFooter(window->getParent(), index);
+      window->setInnerHeight(grid.getWindowHeight());
     }
 };
 
