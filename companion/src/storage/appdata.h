@@ -38,7 +38,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 
-//! CPN_SETTINGS_REVISION is used to track settings changes independently of OpenTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
+//! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
 #define CPN_SETTINGS_REVISION       0
 
@@ -51,7 +51,7 @@
 #define APP_COMPANION               QStringLiteral("EdgeTX Companion")
 #define APP_SIMULATOR               QStringLiteral("EdgeTX Simulator")
 
-//! Default location for OpenTX-related user documents (settigns, logs, etc)
+//! Default location for EdgeTX-related user documents (settigns, logs, etc)
 #define CPN_DOCUMENTS_LOCATION      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) % "/" % COMPANY
 //! Location for settings backup files. TODO: make option or remember last location.
 #define CPN_SETTINGS_BACKUP_DIR     CPN_DOCUMENTS_LOCATION % "/backup"
