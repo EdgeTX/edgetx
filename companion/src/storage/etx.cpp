@@ -40,7 +40,7 @@ bool EtxFormat::load(RadioData & radioData)
   // open zip file
   memset(&zip_archive, 0, sizeof(zip_archive));
   if (!mz_zip_reader_init_mem(&zip_archive, archiveContents.data(), archiveContents.size(), 0)) {
-    qDebug() << tr("Error opening ETX archive %1").arg(filename);
+    qDebug() << tr("Error opening EdgeTX archive %1").arg(filename);
     return false;
   }
 
@@ -55,7 +55,7 @@ bool EtxFormat::write(const RadioData & radioData)
 
   memset(&zip_archive, 0, sizeof(zip_archive));
   if (!mz_zip_writer_init_heap(&zip_archive, 0, MZ_ALLOCATION_SIZE)) {
-    setError(tr("Error initializing ETX archive writer"));
+    setError(tr("Error initializing EdgeTX archive writer"));
     return false;
   }
 
@@ -76,12 +76,12 @@ bool EtxFormat::write(const RadioData & radioData)
         }
       }
       else {
-        setError(tr("Error creating ETX file %1:\n%2.").arg(filename).arg(file.errorString()));
+        setError(tr("Error creating EdgeTX file %1:\n%2.").arg(filename).arg(file.errorString()));
         result = false;
       }
     }
     else {
-      setError(tr("Error creating ETX archive"));
+      setError(tr("Error creating EdgeTX archive"));
       result = false;
     }
   }
@@ -108,7 +108,7 @@ bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename)
 bool EtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
 {
   if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), filedata.data(), filedata.size(), MZ_DEFAULT_LEVEL)) {
-    setError(tr("Error adding %1 to ETX archive").arg(filename));
+    setError(tr("Error adding %1 to EdgeTX archive").arg(filename));
     return false;
   }
 
