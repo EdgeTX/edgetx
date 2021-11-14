@@ -61,6 +61,7 @@ struct MemArea
 void cliPrompt()
 {
   serialPutc('>');
+  serialPutc(' ');
 }
 
 int toLongLongInt(const char ** argv, int index, long long int * val)

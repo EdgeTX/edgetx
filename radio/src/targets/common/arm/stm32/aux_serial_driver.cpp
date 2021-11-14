@@ -212,9 +212,11 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
       uint8_t data = AUX_SERIAL_USART->DR;
       if (!(status & USART_FLAG_ERRORS)) {
         switch (auxSerialMode) {
-          case UART_MODE_DEBUG:
-            cliRxFifo.push(data);
-            break;
+          case UART_MODE_DEBUG: {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
+                                     &xHigherPriorityTaskWoken);
+          } break;
         }
       }
       status = AUX_SERIAL_USART->SR;
@@ -403,9 +405,11 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
       uint8_t data = AUX2_SERIAL_USART->DR;
       if (!(status & USART_FLAG_ERRORS)) {
         switch (aux2SerialMode) {
-          case UART_MODE_DEBUG:
-            cliRxFifo.push(data);
-            break;
+          case UART_MODE_DEBUG: {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
+                                     &xHigherPriorityTaskWoken);
+          } break;
         }
       }
       status = AUX2_SERIAL_USART->SR;
