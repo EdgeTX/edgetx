@@ -205,3 +205,15 @@ void intmoduleSendNextFrame()
 #endif
   }
 }
+
+void intmoduleWaitForTxCompleted()
+{
+#if defined(INTMODULE_DMA_STREAM)
+  if (DMA_GetCmdStatus(INTMODULE_DMA_STREAM) == ENABLE) {
+    while(DMA_GetFlagStatus(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC) == RESET);
+    DMA_ClearFlag(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC);
+  }
+#else
+  #error "intmoduleWaitForTC() not implemented for IRQ based transfer"
+#endif
+}

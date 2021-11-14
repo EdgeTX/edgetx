@@ -1,6 +1,7 @@
 set(TIMERS 3 CACHE STRING "Timers count (2 or 3)")
 set_property(CACHE TIMERS PROPERTY STRINGS 2 3)
 option(CLI "Command Line Interface" OFF)
+option(ENABLE_SERIAL_PASSTHROUGH "Enable serial passthrough" OFF)
 option(DEBUG "Debug mode" OFF)
 option(LOG_TELEMETRY "Telemetry Logs on SD card" OFF)
 option(LOG_BLUETOOTH "Bluetooth Logs on SD card" OFF)
@@ -99,6 +100,10 @@ endif()
 
 if(CLI OR DEBUG)
   set(SRC ${SRC} dump.cpp)
+endif()
+
+if(ENABLE_SERIAL_PASSTHROUGH)
+  add_definitions(-DENABLE_SERIAL_PASSTHROUGH)
 endif()
 
 if(DEBUG)

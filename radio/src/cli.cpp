@@ -808,12 +808,13 @@ int cliSet(const char **argv)
       t.tm_hour = hour;
       t.tm_min = minute;
       t.tm_sec = second;
-      g_rtcTime =
-          gmktime(&t);  // update local timestamp and get wday calculated
+      // update local timestamp and get wday calculated
+      g_rtcTime = gmktime(&t);
       rtcSetTime(&t);
     } else {
       serialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);
+      return -1;
     }
   }
 #if !defined(SOFTWARE_VOLUME)
@@ -824,12 +825,122 @@ int cliSet(const char **argv)
     } else {
       serialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);
+      return -1;
     }
-    return 0;
   }
 #endif
+#if defined(INTMODULE_BOOTCMD_GPIO)
+  else if (!strcmp(argv[1], "bootpin")) {
+    int level = 0;
+    if (toInt(argv, 2, &level) < 0) {
+      serialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
+      return -1;
+    }
+
+    if (level)
+      GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+    else
+      GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  }
+#endif
+
   return 0;
 }
+
+#if defined(ENABLE_SERIAL_PASSTHROUGH)
+int cliSerialPassthrough(const char **argv)
+{
+  const char* port_type = argv[1];
+  const char* port_num  = argv[2];
+  const char* rate_str  = argv[3];
+
+  if (!port_type || !port_num || !rate_str) {
+    serialPrint("%s: missing argument", argv[0]);
+    return -1;
+  }
+
+  int port_n = 0;
+  int err = toInt(argv, 2, &port_n);
+  if (err == -1) return err;
+  if (err == 0) {
+    serialPrint("%s: missing port #", argv[0]);
+    return -1;
+  }
+
+  int baudrate = 0;
+  err = toInt(argv, 2, &baudrate);
+  if (err == -1) return err;
+  if (err == 0) {
+    serialPrint("%s: missing baudrate", argv[0]);
+    return -1;
+  }
+
+  if (!strcmp("rfmod", port_type)) {
+
+    if (port_n >= NUM_MODULES
+        // only internal module supported for now
+        && port_n != INTERNAL_MODULE) {
+      serialPrint("%s: invalid port # '%s'", port_num);
+      return -1;
+    }
+    
+    //  stop pulses
+    watchdogSuspend(200/*2s*/);
+    pausePulses();
+#if defined(HARDWARE_INTERNAL_MODULE)
+    stopPulsesInternalModule();
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+    stopPulsesExternalModule();
+#endif
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+    if (port_n == INTERNAL_MODULE) {
+
+      // TODO: check the stack level so we don't crash it
+      uint8_t tmpBuf[256];
+
+      // setup serial com
+      // TODO:
+      // - '8n1' param
+      intmoduleSerialStart(baudrate, true, USART_Parity_No, USART_StopBits_1,
+                           USART_WordLength_8b);
+      for (;;) {
+        /* Block for max 10ms. */
+        const TickType_t xTimeout = 10 / RTOS_MS_PER_TICK;
+        size_t xReceivedBytes =
+            xStreamBufferReceive(cliRxBuffer, tmpBuf, sizeof(tmpBuf), xTimeout);
+
+        // keep us up & running
+        WDG_RESET();
+
+        if (xReceivedBytes) {
+          // TODO: wait for previous buffer flushed
+          intmoduleWaitForTxCompleted();
+          intmoduleSendBuffer(tmpBuf, xReceivedBytes);
+        }
+
+        // Let's hope this does not starve the other side
+        uint8_t inData;
+        while(intmoduleFifo.pop(inData)) {
+          serialPutc(inData);
+        }
+      }
+    }
+#endif
+
+    // TODO:
+    //  - external module (S.PORT?)
+    //  - how to exit this mode ??? USB exit ?
+    
+  } else {
+    serialPrint("%s: invalid port type '%s'", port_type);
+    return -1;
+  }
+  
+  return 0;
+}
+#endif
 
 #if defined(DEBUG_INTERRUPTS)
 void printInterrupts()
@@ -1268,6 +1379,9 @@ const CliCommand cliCommands[] = {
   { "play", cliPlay, "<filename>" },
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
+#if defined(ENABLE_SERIAL_PASSTHROUGH)
+  { "serialpassthrough", cliSerialPassthrough, "<port type> <port number>"},
+#endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
   { "p", cliDisplay, "<address> [<size>] | <what>" },
@@ -1395,6 +1509,7 @@ void cliTask(void * pdata)
         // save new command
         strcpy(cliLastLine, line);
       }
+      // TODO: check return value
       cliExecLine(line);
       pos = 0;
       cliPrompt();

@@ -202,6 +202,7 @@ void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, 
 void intmoduleSendByte(uint8_t byte);
 void intmoduleSendBuffer(const uint8_t * data, uint8_t size);
 void intmoduleSendNextFrame();
+void intmoduleWaitForTxCompleted();
 
 void extmoduleSerialStart();
 void extmoduleInvertedSerialStart(uint32_t baudrate);
