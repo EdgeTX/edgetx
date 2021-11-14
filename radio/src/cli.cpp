@@ -873,7 +873,7 @@ int cliSerialPassthrough(const char **argv)
   }
 
   int baudrate = 0;
-  err = toInt(argv, 2, &baudrate);
+  err = toInt(argv, 3, &baudrate);
   if (err == -1) return err;
   if (err == 0) {
     serialPrint("%s: missing baudrate", argv[0]);
