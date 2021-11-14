@@ -124,20 +124,11 @@ do
         t16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
             ;;
-        t16-fs)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON -DFLYSKY_HALL_STICKS=ON"
-            ;;
         t18)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
             ;;
-        t18-fs)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18 -DFLYSKY_HALL_STICKS=ON"
-            ;;
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
-            ;;
-        tx16s-fs)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DFLYSKY_HALL_STICKS=ON"
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"

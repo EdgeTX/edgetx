@@ -98,9 +98,6 @@ static const char * const options[] = {
 #if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
   "externalaccessmod",
 #endif
-#if defined(FLYSKY_HALL_STICKS)
-  "flyskyhallsticks",
-#endif
 #if defined(IMU_LSM6DS33)
   "lsm6ds33",
 #endif

@@ -67,7 +67,7 @@ const unsigned short CRC16Table[256]= {
   0x6e17,0x7e36,0x4e55,0x5e74,0x2e93,0x3eb2,0x0ed1,0x1ef0
 };
 
-const uint8_t sticks_mapping[4] = { 0 /*STICK1*/,  1/*STICK2*/, 2/*STICK3*/, 3 /*STICK4*/};
+//const uint8_t sticks_mapping[4] = { 0 /*STICK1*/,  1/*STICK2*/, 2/*STICK3*/, 3 /*STICK4*/};
 
 unsigned short calc_crc16(void *pBuffer,unsigned char BufferSize)
 {
@@ -89,18 +89,7 @@ uint16_t get_flysky_hall_adc_value(uint8_t ch)
     return 0;
   }
 
-#if defined(FLYSKY_HALL_STICKS_REVERSE)
-  ch = sticks_mapping[ch];
-
   return 2*FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
-#else
-  if (ch < 2)
-  {
-    return 2*FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
-  }
-
-  return hall_adc_values[ch];
-#endif
 }
 
 void HallSendBuffer(uint8_t * buffer, uint32_t count)
@@ -169,8 +158,69 @@ void reset_hall_stick( void )
   HallSendBuffer( HallCmd, 6);
 }
 
+void flysky_hall_stick_check_init()
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel = FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    USART_InitTypeDef USART_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_PinAFConfig(FLYSKY_HALL_SERIAL_GPIO, FLYSKY_HALL_SERIAL_RX_GPIO_PinSource, FLYSKY_HALL_SERIAL_GPIO_AF);
+
+    GPIO_InitStructure.GPIO_Pin = FLYSKY_HALL_SERIAL_RX_GPIO_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_Init(FLYSKY_HALL_SERIAL_GPIO, &GPIO_InitStructure);
+
+    USART_InitStructure.USART_BaudRate = FLYSKY_HALL_BAUDRATE;
+    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+    USART_InitStructure.USART_StopBits = USART_StopBits_1;
+    USART_InitStructure.USART_Parity = USART_Parity_No;
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_InitStructure.USART_Mode = USART_Mode_Rx;
+    USART_Init(FLYSKY_HALL_SERIAL_USART, &USART_InitStructure);
+
+    DMA_Cmd(FLYSKY_HALL_DMA_Stream_RX, DISABLE);
+    USART_DMACmd(FLYSKY_HALL_SERIAL_USART, USART_DMAReq_Rx, DISABLE);
+    DMA_DeInit(FLYSKY_HALL_DMA_Stream_RX);
+
+    DMA_InitTypeDef DMA_InitStructure;
+    hallDMAFifo.clear();
+
+    USART_ITConfig(FLYSKY_HALL_SERIAL_USART, USART_IT_RXNE, DISABLE);
+
+    DMA_InitStructure.DMA_Channel = FLYSKY_HALL_DMA_Channel;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLYSKY_HALL_SERIAL_USART->DR);
+    DMA_InitStructure.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(hallDMAFifo.buffer());
+    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize = hallDMAFifo.size();
+    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+    DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+    DMA_Init(FLYSKY_HALL_DMA_Stream_RX, &DMA_InitStructure);
+    USART_DMACmd(FLYSKY_HALL_SERIAL_USART, USART_DMAReq_Rx, ENABLE);
+    USART_Cmd(FLYSKY_HALL_SERIAL_USART, ENABLE);
+    DMA_Cmd(FLYSKY_HALL_DMA_Stream_RX, ENABLE);
+}
+
 void flysky_hall_stick_init()
 {
+  USART_DeInit(FLYSKY_HALL_SERIAL_USART);
+
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -333,6 +383,7 @@ void flysky_hall_stick_loop(void)
                 }
                 break;
             }
+            globalData.flyskygimbals = true;
         }
     }
 }

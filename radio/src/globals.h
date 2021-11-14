@@ -31,7 +31,8 @@ PACK(struct GlobalData {
   uint8_t authenticationCount:2;
   uint8_t upgradeModulePopup:1;
   uint8_t internalModuleVersionChecked:1;
-  uint8_t spare:2;
+  uint8_t flyskygimbals:1;
+  uint8_t spare:1;
 });
 
 extern GlobalData globalData;

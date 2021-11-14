@@ -35,7 +35,14 @@ static void adc_init_pins()
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 #if defined(ADC_GPIOA_PINS)
-  GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+  if (globalData.flyskygimbals)
+  {
+      GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS_FS;
+  }
+  else
+#endif
+      GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 #endif
 
@@ -134,12 +141,26 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
   if (STICKS_PWM_ENABLED())
     return ADC_MAIN_channels + 4;
 #endif
-  return ADC_MAIN_channels + FIRST_ANALOG_ADC;
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+  if (globalData.flyskygimbals)
+  {
+      return ADC_MAIN_channels + FIRST_ANALOG_ADC_FS;
+  }
+  else
+#endif
+  {
+      return ADC_MAIN_channels + FIRST_ANALOG_ADC;
+  }
 }
 
 static uint8_t ADC_MAIN_get_nconv()
 {
-  return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+    if (globalData.flyskygimbals)
+      return NUM_ANALOGS_ADC_FS;
+  else
+#endif
+      return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
 }
 
 #if defined(ADC_EXT)
@@ -181,13 +202,29 @@ static const stm32_hal_adc_channel* ADC_EXT_get_channels()
 
 static uint16_t* ADC_MAIN_get_dma_buffer()
 {
-  return &adcValues[FIRST_ANALOG_ADC];
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+    if (globalData.flyskygimbals)
+    {
+        return &adcValues[FIRST_ANALOG_ADC_FS];
+    }
+    else
+#endif
+    {
+        return &adcValues[FIRST_ANALOG_ADC];
+    }
 }
 
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
-  return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
+    if (globalData.flyskygimbals)
+    {
+        return adcValues + NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS;
+    }
+    else
+    {
+        return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
+    }
 }
 #endif
 

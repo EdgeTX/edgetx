@@ -60,8 +60,11 @@ void interrupt1ms()
   ++pre_scale;
 
   // 1 ms loop
-#if defined(FLYSKY_HALL_STICKS) && !defined(SIMU)
-  flysky_hall_stick_loop();  // TODO: need to put in 1ms timer loop for best performance
+#if not defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+  if (globalData.flyskygimbals)
+  {
+    flysky_hall_stick_loop();
+  }
 #endif
 
   // 5ms loop
