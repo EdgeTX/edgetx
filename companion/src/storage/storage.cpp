@@ -20,6 +20,7 @@
 
 #include "bineeprom.h"
 #include "eepe.h"
+#include "otx.h"
 #include "etx.h"
 #include "sdcard.h"
 #include "yaml.h"
@@ -65,6 +66,7 @@ void registerStorageFactories()
   registerStorageFactory(new DefaultStorageFactory<BinEepromFormat>("bin"));
   registerStorageFactory(new DefaultStorageFactory<EepeFormat>("eepe"));
   registerStorageFactory(new DefaultStorageFactory<HexEepromFormat>("hex"));
+  registerStorageFactory(new DefaultStorageFactory<OtxFormat>("otx"));
   registerStorageFactory(new DefaultStorageFactory<EtxFormat>("etx"));
   registerStorageFactory(new DefaultStorageFactory<YamlFormat>("yml"));
   registerStorageFactory(new SdcardStorageFactory());
@@ -86,17 +88,20 @@ bool Storage::load(RadioData & radioData)
 
   bool ret = false;
   foreach(StorageFactory * factory, registeredStorageFactories) {
-    StorageFormat * format = factory->instance(filename);
-    if (format->load(radioData)) {
-      board = format->getBoard();
-      setWarning(format->warning());
-      ret = true;
-      break;
+    if (factory->probe(filename)) {
+      StorageFormat * format = factory->instance(filename);
+      if (format->load(radioData)) {
+        board = format->getBoard();
+        setWarning(format->warning());
+        ret = true;
+        delete format;
+        break;
+      }
+      else {
+        setError(format->error());
+      }
+      delete format;
     }
-    else {
-      setError(format->error());
-    }
-    delete format;
   }
 
   return ret;
