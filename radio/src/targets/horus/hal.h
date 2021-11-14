@@ -283,16 +283,10 @@
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
   #define ADC_RCC_APB2Periph            (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
-  // #if !defined(FLYSKY_HALL_STICKS)
-  // this does not seem to be used anywhere...
-    #define ADC_GPIO_PIN_STICK_LH       GPIO_Pin_0      // PA.00
-    #define ADC_GPIO_PIN_STICK_LV       GPIO_Pin_1      // PA.01
-    #define ADC_GPIO_PIN_STICK_RH       GPIO_Pin_2      // PA.02
-    #define ADC_GPIO_PIN_STICK_RV       GPIO_Pin_3      // PA.03
-  // #elif defined(FLYSKY_HALL_STICKS_EXT3_EXT4)
-  //   #define ADC_GPIO_PIN_EXT3           GPIO_Pin_2      // PA.02
-  //   #define ADC_GPIO_PIN_EXT4           GPIO_Pin_3      // PA.03
-  // #endif
+  #define ADC_GPIO_PIN_STICK_LH       GPIO_Pin_0      // PA.00
+  #define ADC_GPIO_PIN_STICK_LV       GPIO_Pin_1      // PA.01
+  #define ADC_GPIO_PIN_STICK_RH       GPIO_Pin_2      // PA.02
+  #define ADC_GPIO_PIN_STICK_RV       GPIO_Pin_3      // PA.03
   #define ADC_GPIO_PIN_POT1             GPIO_Pin_0      // PC.00
   #define ADC_GPIO_PIN_POT2             GPIO_Pin_1      // PC.01
   #define ADC_GPIO_PIN_POT3             GPIO_Pin_2      // PC.02
@@ -309,13 +303,8 @@
     #define PWM_IRQn                    TIM5_IRQn
     #define PWM_GPIOA_PINS              (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
   #endif
-  #if defined(FLYSKY_HALL_STICKS)
-    #if defined (RADIO_TX16S)
-      #define ADC_GPIOA_PINS            (GPIO_Pin_2 | GPIO_Pin_3)
-    #endif
-  #else
-    #define ADC_GPIOA_PINS              (STICKS_PWM_ENABLED() ? 0 : (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3))
-  #endif      
+  #define ADC_GPIOA_PINS_FS            (GPIO_Pin_2 | GPIO_Pin_3)
+  #define ADC_GPIOA_PINS               (STICKS_PWM_ENABLED() ? 0 : (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3))
   #define ADC_GPIOC_PINS                (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
   #define ADC_GPIOF_PINS                (GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9)
   #define ADC_CHANNEL_STICK_LH          ADC_Channel_0   // ADC3_IN0
@@ -784,10 +773,7 @@
   #define HAPTIC_TIMER_OUTPUT_ENABLE    TIM_CCER_CC2E
   #define HAPTIC_TIMER_MODE             TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
   #define HAPTIC_TIMER_COMPARE_VALUE    HAPTIC_GPIO_TIMER->CCR2
-#endif
-
-// Flysky Hall Stick
-#if defined(FLYSKY_HALL_STICKS)
+  // FlySky Hall Sticks
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
   #define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4

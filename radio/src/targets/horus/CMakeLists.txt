@@ -1,6 +1,5 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(FLYSKY_HALL_STICKS "Enable FlySky Hall Sticks" OFF)
 option(IMU_LSM6DS33 "Enable I2C2 and LSM6DS33 IMU" OFF)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
@@ -189,16 +188,8 @@ if(HARDWARE_EXTERNAL_ACCESS_MOD)
   add_definitions(-DHARDWARE_EXTERNAL_ACCESS_MOD)
 endif()
 
-if(FLYSKY_HALL_STICKS)
-  add_definitions(-DFLYSKY_HALL_STICKS)
-  add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
+if(PCB STREQUAL X10)
   set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
-
-  # option(FLYSKY_HALL_STICKS_EXT3_EXT4
-  #        "Additional EXT3 & EXT4 inputs for FlySky Hall Sticks" OFF)
-  # if(FLYSKY_HALL_STICKS_EXT3_EXT4)
-  #   add_definitions(-DFLYSKY_HALL_STICKS_EXT3_EXT4)
-  # endif()
 endif()
 
 if(IMU_LSM6DS33)

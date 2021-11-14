@@ -398,14 +398,6 @@ if(FRSKY_STICKS)
   add_definitions(-DFRSKY_STICKS)
 endif()
 
-if(FLYSKY_HALL_STICKS)
-  add_definitions(-DFLYSKY_HALL_STICKS)
-endif()
-
-if(FLYSKY_HALL_STICKS_REVERSE)
-  add_definitions(-DFLYSKY_HALL_STICKS_REVERSE)
-endif()
-
 if(IMU_LSM6DS33)
     add_definitions(-DIMU_LSM6DS33)
 endif()

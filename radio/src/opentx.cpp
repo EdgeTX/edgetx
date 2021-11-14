@@ -1066,15 +1066,20 @@ void getADC()
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint32_t v;
-#if defined(FLYSKY_HALL_STICKS)
-    if (x < 4) {
-      v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
-    } else {
-      v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+    if (globalData.flyskygimbals)
+    {
+        if (x < 4) {
+          v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
+        } else {
+        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+        }
     }
-#else
-    v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+    else
 #endif
+    {
+        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+    }
 
     // Jitter filter:
     //    * pass trough any big change directly

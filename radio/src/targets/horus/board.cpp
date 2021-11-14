@@ -40,7 +40,9 @@ extern "C" {
 }
 #endif
 
-extern void flysky_hall_stick_init( void );
+extern void flysky_hall_stick_check_init(void);
+extern void flysky_hall_stick_init(void);
+extern void flysky_hall_stick_loop( void );
 
 HardwareOptions hardwareOptions;
 
@@ -121,8 +123,8 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          KEYS_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-#if defined(FLYSKY_HALL_STICKS)                         
-                         FLYSKY_HALL_RCC_AHB1Periph |                         
+#if defined(RADIO_FAMILY_T16)
+                         FLYSKY_HALL_RCC_AHB1Periph |
 #endif
 #if defined(IMU_LSM6DS33)
                          I2C_B2_RCC_AHB1Periph |
@@ -149,8 +151,8 @@ void boardInit()
                          ADC_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(FLYSKY_HALL_STICKS)                         
-                         FLYSKY_HALL_RCC_APB1Periph |                         
+#if defined(RADIO_FAMILY_T16)
+                         FLYSKY_HALL_RCC_APB1Periph |
 #endif
 #if defined(IMU_LSM6DS33)
                          I2C_B2_RCC_APB1Periph |
@@ -216,15 +218,33 @@ void boardInit()
   }
 #endif
 
-  if (!adcInit(&ADC_DRIVER))
-      TRACE("adcInit failed");
-
   lcdInit();
   backlightInit();
 
-#if defined(FLYSKY_HALL_STICKS)
-  flysky_hall_stick_init();
+  globalData.flyskygimbals = false;
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+  flysky_hall_stick_check_init();
+
+  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
+  for (uint8_t ui8 = 0; ui8 < 70; ui8++)
+  {
+      flysky_hall_stick_loop();
+      delay_ms(1);
+      if (globalData.flyskygimbals)
+      {
+          break;
+      }
+  }
+
 #endif
+
+  if (globalData.flyskygimbals)
+  {
+      flysky_hall_stick_init();
+  }
+
+  if (!adcInit(&ADC_DRIVER))
+      TRACE("adcInit failed");
 
 #if defined(IMU_LSM6DS33)
   imu_lsm6ds33_init();

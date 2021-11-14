@@ -366,7 +366,7 @@ void watchdogInit(unsigned int duration);
 
 #if defined(PCBX10)
   #define NUM_SLIDERS                  2
-  #if defined(RADIO_TX16S)
+  #if defined(RADIO_TX16S) || defined(RADIO_T18) || defined(RADIO_T16)
     #define NUM_PWMSTICKS              0
   #else
     #define NUM_PWMSTICKS              4
@@ -435,10 +435,8 @@ enum Analogs {
 #if !defined(PCBX12S) // ext are used by mouse on X12S
   #define HARDWARE_EXT1
   #define HARDWARE_EXT2
-  #if defined(FLYSKY_HALL_STICKS)
-    #define HARDWARE_EXT3
-    #define HARDWARE_EXT4
-  #endif
+  #define HARDWARE_EXT3
+  #define HARDWARE_EXT4
 #endif
 
 enum CalibratedAnalogs {

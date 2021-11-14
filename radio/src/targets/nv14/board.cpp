@@ -133,9 +133,7 @@ void boardInit()
   pwrInit();
   extModuleInit();
   battery_charge_init();
-#if defined(FLYSKY_HALL_STICKS)
   flysky_hall_stick_init();
-#endif
   init2MhzTimer();
   init1msTimer();
   TouchInit();

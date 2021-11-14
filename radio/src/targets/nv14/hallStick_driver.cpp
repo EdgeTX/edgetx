@@ -68,7 +68,7 @@ const unsigned short CRC16Table[256]= {
  0x6e17,0x7e36,0x4e55,0x5e74,0x2e93,0x3eb2,0x0ed1,0x1ef0
 };
 
-const uint8_t sticks_mapping[4] = { 0 /*STICK1*/,  1/*STICK2*/, 2/*STICK3*/, 3 /*STICK4*/};
+//const uint8_t sticks_mapping[4] = { 0 /*STICK1*/,  1/*STICK2*/, 2/*STICK3*/, 3 /*STICK4*/};
 
 unsigned short  calc_crc16(void *pBuffer,unsigned char BufferSize)
 {
@@ -90,18 +90,12 @@ uint16_t get_hall_adc_value(uint8_t ch)
     return 0;
   }
 
-#if defined(FLYSKY_HALL_STICKS_REVERSE)
-  ch = sticks_mapping[ch];
-
-  return MAX_ADC_CHANNEL_VALUE - hall_adc_values[ch];
-#else
   if (ch < 2)
   {
     return MAX_ADC_CHANNEL_VALUE - hall_adc_values[ch];
   }
 
   return hall_adc_values[ch];
-#endif
 }
 
 
