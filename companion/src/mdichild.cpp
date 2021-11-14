@@ -1360,7 +1360,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 bool MdiChild::save()
 {
   QFileInfo fi(curFile);
-  if (isUntitled || !fi.isWritable()) {
+  if (isUntitled || !fi.isWritable() || (fi.suffix().toLower() != "etx" && fi.suffix().toLower() != "yml")) {
     return saveAs(true);
   }
   else {
@@ -1455,7 +1455,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegExp("\\.(eepe|bin|hex|etx)$"), suffix + "." + ext);
+  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
