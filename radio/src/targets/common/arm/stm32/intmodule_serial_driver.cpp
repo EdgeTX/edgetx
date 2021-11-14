@@ -208,6 +208,7 @@ void intmoduleSendNextFrame()
 
 void intmoduleWaitForTxCompleted()
 {
+#if !defined(SIMU)
 #if defined(INTMODULE_DMA_STREAM)
   if (DMA_GetCmdStatus(INTMODULE_DMA_STREAM) == ENABLE) {
     while(DMA_GetFlagStatus(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC) == RESET);
@@ -215,5 +216,6 @@ void intmoduleWaitForTxCompleted()
   }
 #else
   while (intmoduleTxBufferRemaining > 0);
+#endif
 #endif
 }
