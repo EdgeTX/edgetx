@@ -20,6 +20,7 @@
 
 #include "categorized.h"
 #include "firmwares/opentx/opentxinterface.h"
+#include "miniz.c"    //  Can only be included once!
 
 bool CategorizedStorageFormat::load(RadioData & radioData)
 {
