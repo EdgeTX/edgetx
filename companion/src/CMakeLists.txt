@@ -313,7 +313,7 @@ add_subdirectory(tests)
 ############# Install ####################
 
 # Generate list of simulator plugins, used by all platforms
-file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*opentx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
+file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*edgetx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # the current flavour is not automatically added if build in the current cmake iteration, so always
 # add its library name to be sure
@@ -345,7 +345,7 @@ if(POLICY CMP0026)
 endif()
 
 if(SIMU_TARGET)
-  get_property(current_plugin TARGET opentx-${FLAVOUR}-simulator PROPERTY LOCATION)
+  get_property(current_plugin TARGET edgetx-${FLAVOUR}-simulator PROPERTY LOCATION)
   list(APPEND simulator_plugins "${current_plugin}")
 endif()
 
@@ -541,7 +541,7 @@ if(APPLE)
   set(CPACK_DMG_DS_STORE ${PROJECT_SOURCE_DIR}/companion/targets/mac/DS_Store)
   set(CPACK_PACKAGE_FILE_NAME "opentx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 endif(APPLE)
-  
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
   find_program(LINUXDEPLOY_EXECUTABLE linuxdeployqt HINTS "${_qt_bin_dir}")
