@@ -22,18 +22,21 @@
 #ifndef _CLI_H_
 #define _CLI_H_
 
-#include "serial.h"
+#include <stdint.h>
 
+#include <FreeRTOS.h>
+#include <stream_buffer.h>
+
+// CLI receive buffer size
+#define CLI_RX_BUFFER_SIZE 256
+
+// CLI receive stream buffer
+extern StreamBufferHandle_t cliRxBuffer;
+
+// Allows for switchable debug prints via CLI
 extern uint8_t cliTracesEnabled;
 
-#ifdef __cplusplus
-#include "fifo.h"
-extern Fifo<uint8_t, 256> cliRxFifo;
-#include "tasks.h"
-extern RTOS_TASK_HANDLE cliTaskId;
-extern RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
-#endif
-
+// CLI task function
 void cliStart();
 
 #endif // _CLI_H_

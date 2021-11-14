@@ -152,7 +152,6 @@ uint16_t charsWritten = 0;
 
 void usbSerialPutc(uint8_t c)
 {
-
   /*
       Apparently there is no reliable way to tell if the
       virtual serial port is opened or not.
@@ -218,23 +217,30 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
   //        the sender and we will receive the same packet at a later time.
 
 #if defined(CLI)
+
   //copy data to the application FIFO
-  for (uint32_t i = 0; i < Len; i++) {
-    cliRxFifo.push(Buf[i]);
-  }
-#endif
-#if defined(LUA) && !defined(CLI)
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xStreamBufferSendFromISR(cliRxBuffer, Buf, Len, &xHigherPriorityTaskWoken);
+
+  // Please note that we don't try to yield to the task that has
+  // potentially been woken up, as this might effect a context switch
+  // in place, whereby the ISR is not done yet handling the USB request
+
+#elif defined(LUA)
+  // TODO: find a better implementation to allow
+  //       run-time selection of the USB CDC receiver
+  //       (here either CLI or LUA)
+  
   // copy data to the LUA FIFO
   if (luaRxFifo) {
     for (uint32_t i = 0; i < Len; i++) {
       luaRxFifo->push(Buf[i]);
     }
   }
+
 #endif
 
   return USBD_OK;
 }
-
-
 
 // /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

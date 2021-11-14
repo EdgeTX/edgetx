@@ -31,7 +31,11 @@
 RTOS_TASK_HANDLE cliTaskId;
 RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
 
-Fifo<uint8_t, 256> cliRxFifo;
+static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
+static StaticStreamBuffer_t cliRxBufferStatic;
+
+StreamBufferHandle_t cliRxBuffer;
+
 uint8_t cliTracesEnabled = true;
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
@@ -1337,6 +1341,11 @@ int cliExecLine(char * line)
   return cliExecCommand(argv);
 }
 
+#define CHAR_LF         0x0A
+#define CHAR_NEWPAGE    0x0C
+#define CHAR_CR         0x0D
+#define CHAR_BACKSPACE  0xFF
+
 void cliTask(void * pdata)
 {
   char line[CLI_COMMAND_MAX_LEN+1];
@@ -1347,23 +1356,33 @@ void cliTask(void * pdata)
   for (;;) {
     uint8_t c;
 
-    while (!cliRxFifo.pop(c)) {
-      RTOS_WAIT_MS(20); // 20ms
-    }
+    // TODO: implement block read instead
+    //       of going byte-by-byte.
+    
+    /* Block for max 100ms. */
+    const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
+    size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
+    if (!xReceivedBytes) continue;
 
-    if (c == 12) {
+    switch(c) {
+    case CHAR_NEWPAGE:
       // clear screen
       serialPrint("\033[2J\033[1;1H");
       cliPrompt();
-    }
-    else if (c == 127) {
-      // backspace
+      break;
+
+    case CHAR_BACKSPACE:
       if (pos) {
         line[--pos] = '\0';
         serialPutc(c);
       }
-    }
-    else if (c == '\r' || c == '\n') {
+      break;
+
+    case CHAR_CR:
+      // ignore
+      break;
+
+    case CHAR_LF:
       // enter
       serialCrlf();
       line[pos] = '\0';
@@ -1378,16 +1397,26 @@ void cliTask(void * pdata)
       cliExecLine(line);
       pos = 0;
       cliPrompt();
-    }
-    else if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
-      line[pos++] = c;
-      serialPutc(c);
+      break;
+
+    default:
+      if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
+        line[pos++] = c;
+        serialPutc(c);
+      }
+      break;
     }
   }
 }
 
 void cliStart()
 {
-  RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack,
-                   CLI_STACK_SIZE, CLI_TASK_PRIO);
+  // Init stream buffer
+  const size_t xTriggerLevel = 1;
+  cliRxBuffer =
+      xStreamBufferCreateStatic(sizeof(cliRxBufferStorage), xTriggerLevel,
+                                cliRxBufferStorage, &cliRxBufferStatic);
+
+  RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack, CLI_STACK_SIZE,
+                   CLI_TASK_PRIO);
 }
