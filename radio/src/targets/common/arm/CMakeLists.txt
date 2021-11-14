@@ -95,8 +95,9 @@ endif()
 if(CLI)
   add_definitions(-DCLI)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} cli.cpp)
-  set(SRC ${SRC} dump.cpp)
-elseif(DEBUG)
+endif()
+
+if(CLI OR DEBUG)
   set(SRC ${SRC} dump.cpp)
 endif()
 
