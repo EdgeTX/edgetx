@@ -26,17 +26,29 @@
 constexpr int BOX_MARGIN = 2;
 constexpr int MAX_BOX_WIDTH = 15;
 
-class MyButton : public Window
+class PageButton : public Window
 {
   public:
-   MyButton(FormGroup *parent, const rect_t &rect, std::string text,
+   PageButton(FormGroup *parent, const rect_t &rect, std::string text,
+            std::function<void ()> setTab = nullptr,
             WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
             LcdFlags textFlags = 0) :
        Window(parent, rect, windowFlags | NO_FOCUS, textFlags),
+       _setTab(std::move(setTab)),
        _text(text)
-
    {
    }
+
+#if defined(HARDWARE_TOUCH)
+  bool onTouchEnd(coord_t x, coord_t y) override
+  {
+    if (_setTab != nullptr) {
+      _setTab();
+    }
+
+    return true;
+  }
+#endif
 
   void paint(BitmapBuffer *dc) override
   {   
@@ -54,6 +66,7 @@ class MyButton : public Window
    }
   
   private:
+    std::function<void ()> _setTab;
     bool _checked = false;
     std::string _text;
 };

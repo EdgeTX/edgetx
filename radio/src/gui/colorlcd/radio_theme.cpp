@@ -175,23 +175,36 @@ public:
     buildBody(&body); 
   }
 
+  void setActiveColorBar(int activeTab)
+  {
+    if (activeTab >= 0 && _activeTab <= (int)_tabs.size()) {
+      _activeTab = activeTab;
+      for (auto i = 0; i < (int) _tabs.size(); i++)
+        _tabs[i]->check(i == _activeTab);
+      _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
+      onKeyPress();
+    }
+  }
+
+#if defined(HARDWARE_KEYS)
   void onEvent(event_t event ) override
   {
     if (event == EVT_KEY_BREAK(KEY_TELEM)) {
       _colorEditor->setNextFocusBar();
     } else if (event == EVT_KEY_BREAK(KEY_PGUP) || event == EVT_KEY_BREAK(KEY_PGDN)) {
       int direction = event == EVT_KEY_BREAK(KEY_PGUP) ? -1 : 1;
-      _activeTab = _activeTab + direction;
-      if (_activeTab < 0) _activeTab = 1;
-      if (_activeTab >= (int) _tabs.size()) _activeTab = 0;
-      for (auto i = 0; i < (int) _tabs.size(); i++)
-        _tabs[i]->check(i == _activeTab);
-      _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
-      onKeyPress();
+      int newActiveTab = _activeTab + direction;
+      if (newActiveTab < 0) 
+        newActiveTab = 1;
+      if (newActiveTab >= (int) _tabs.size()) 
+        newActiveTab = 0;
+
+      setActiveColorBar(newActiveTab);
     } else {
       Page::onEvent(event);
     }
   }
+#endif
 
 protected:
   std::function<void (uint32_t rgb)> _setValue;
@@ -200,7 +213,7 @@ protected:
   TextButton *_cancelButton;
   ColorEditor *_colorEditor;
   PreviewWindow *_previewWindow;
-  std::vector<MyButton *> _tabs;
+  std::vector<PageButton *> _tabs;
   int _activeTab = 0;
   ColorSquare *_colorSquare;
   StaticText *_hexBox;
@@ -261,9 +274,19 @@ protected:
 
     // page tabs
     rect_t r = { LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-    _tabs.emplace_back(new MyButton(window, r, "RGB", 0, COLOR_THEME_PRIMARY1));
+    _tabs.emplace_back(
+      new PageButton(window, r, "RGB", 
+        [=] () {
+          setActiveColorBar(0);
+        }, 
+        0, COLOR_THEME_PRIMARY1));
     r.x -= (BUTTON_WIDTH + 5);
-    _tabs.emplace_back(new MyButton(window, r, "HSV", 0, COLOR_THEME_PRIMARY1));
+    _tabs.emplace_back(
+      new PageButton(window, r, "HSV", 
+        [=] () {
+          setActiveColorBar(1);
+        },
+        0, COLOR_THEME_PRIMARY1));
     _tabs[1]->check(true);
   }
 };
@@ -296,6 +319,8 @@ class ThemeEditPage : public Page
         if (focus != nullptr && focus->getNextField()) {
           focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
         }
+      } else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+        deleteLater();
       } else {
         Window::onEvent(event);
       }
