@@ -122,6 +122,48 @@ class SensorButton : public Button {
     uint32_t lastRefresh = 0;
 };
 
+class SensorrEditorFooter: public Window {
+  public:
+    explicit SensorrEditorFooter(Window * parent, int index):
+      Window(parent,  {0, parent->height() - MODEL_SELECT_FOOTER_HEIGHT, LCD_W, MODEL_SELECT_FOOTER_HEIGHT}, OPAQUE),
+      index(index)
+    {
+    }
+
+    void checkEvents() override
+    {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
+      TelemetryItem & telemetryItem = telemetryItems[index];
+      if (telemetryItem.isFresh()) {
+        invalidate();
+      }
+
+      Window::checkEvents();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      TelemetryItem &telemetryItem = telemetryItems[index];
+
+      coord_t x = 10;
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+      if (telemetryItem.isAvailable()) {
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_PRIMARY2;
+        drawSensorCustomValue(dc, x, 2, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+      } else {
+        dc->drawText(x, 0, "---", COLOR_THEME_PRIMARY2);
+      }
+    }
+  protected:
+    uint8_t index;
+    uint32_t lastRefresh = 0;
+};
+
 class SensorEditWindow : public Page {
   public:
     explicit SensorEditWindow(uint8_t index) :
@@ -369,7 +411,9 @@ class SensorEditWindow : public Page {
       updateSensorParametersWindow();
       grid.addWindow(sensorParametersWindow);
 
-      window->setInnerHeight(grid.getWindowHeight());
+      window->setInnerHeight(grid.getWindowHeight() + MODEL_SELECT_FOOTER_HEIGHT);
+
+      new SensorrEditorFooter(window->getParent(), index);
     }
 };
 
