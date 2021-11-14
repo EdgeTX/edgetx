@@ -24,7 +24,7 @@
 ModuleFifo intmoduleFifo;
 #if !defined(INTMODULE_DMA_STREAM)
 uint8_t * intmoduleTxBufferData;
-uint8_t intmoduleTxBufferRemaining;
+volatile uint8_t intmoduleTxBufferRemaining;
 #endif
 
 void intmoduleStop()
@@ -214,6 +214,6 @@ void intmoduleWaitForTxCompleted()
     DMA_ClearFlag(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC);
   }
 #else
-  #error "intmoduleWaitForTC() not implemented for IRQ based transfer"
+  while (intmoduleTxBufferRemaining > 0);
 #endif
 }
