@@ -225,12 +225,11 @@ void processCrossfireTelemetryFrame(uint8_t module)
     }
 
     case RADIO_ID:
-      if (telemetryRxBuffer[3] == 0xEA    // radio address
-          && telemetryRxBuffer[5] == 0x10 // timing correction frame
-          ) {
-
+      if (rxBuffer[3] == 0xEA     // radio address
+          && rxBuffer[5] == 0x10  // timing correction frame
+      ) {
         uint32_t update_interval;
-        int32_t  offset;
+        int32_t offset;
         if (getCrossfireTelemetryValue<4>(6, (int32_t &)update_interval,
                                           module) &&
             getCrossfireTelemetryValue<4>(10, offset, module)) {
