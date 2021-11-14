@@ -19,7 +19,7 @@
  */
 
 #include "otx.h"
-#include "miniz.c"
+//#include "miniz.c"  Can only be included once refer etx.cpp
 #include <QFile>
 
 #define MZ_ALLOCATION_SIZE    (32*1024)
