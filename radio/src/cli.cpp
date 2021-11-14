@@ -903,7 +903,7 @@ int cliSerialPassthrough(const char **argv)
     if (port_n == INTERNAL_MODULE) {
 
       // TODO: check the stack level so we don't crash it
-      uint8_t tmpBuf[256];
+      uint8_t* tmpBuf = (uint8_t*)malloc(256);
 
       // setup serial com
       // TODO:
@@ -931,6 +931,9 @@ int cliSerialPassthrough(const char **argv)
           serialPutc(inData);
         }
       }
+
+      free(tmpBuf);
+      tmpBuf = nullptr;
     }
 #endif
 
