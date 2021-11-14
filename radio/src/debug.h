@@ -29,11 +29,7 @@
 
 #define CRLF "\r\n"
 
-#if defined(CLI)
-#include "cli.h"
-#else
 #include "serial.h"
-#endif
 
 extern volatile uint32_t g_tmr10ms;
 
