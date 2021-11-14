@@ -26,13 +26,13 @@
 
 // stack sizes should be in multiples of 8 for better alignment
 #if defined (COLORLCD)
-  #define MENUS_STACK_SIZE     4000
+  #define MENUS_STACK_SIZE     (8 * 1024)
 #else
   #define MENUS_STACK_SIZE     2000
 #endif
 #define MIXER_STACK_SIZE       400
 #define AUDIO_STACK_SIZE       400
-#define CLI_STACK_SIZE         1000  // only consumed with CLI build option
+#define CLI_STACK_SIZE         1024  // only consumed with CLI build option
 
 #if defined(FREE_RTOS)
 #define MIXER_TASK_PRIO        (tskIDLE_PRIORITY + 4)
@@ -49,13 +49,17 @@
 extern RTOS_TASK_HANDLE menusTaskId;
 extern RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
+extern RTOS_MUTEX_HANDLE mixerMutex;
 extern RTOS_TASK_HANDLE mixerTaskId;
 extern RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 extern RTOS_TASK_HANDLE audioTaskId;
 extern RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
-extern RTOS_MUTEX_HANDLE mixerMutex;
+#if defined(CLI)
+extern RTOS_TASK_HANDLE cliTaskId;
+extern RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
+#endif
 
 void stackPaint();
 void tasksStart();

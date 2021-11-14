@@ -252,6 +252,13 @@ set(FIRMWARE_SRC
   ${RTOS_DIR}/timers.c
   rtos.c)
 
+if(CLI)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    ${RTOS_DIR}/stream_buffer.c)
+endif()
+
+
 set(PULSES_SRC
   ${PULSES_SRC}
   pulses.cpp

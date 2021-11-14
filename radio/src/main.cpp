@@ -72,7 +72,7 @@ void openUsbMenu()
     TRACE("USB mass storage");
     setSelectedUsbMode(USB_MASS_STORAGE_MODE);
   });
-#if defined(DEBUG)
+#if defined(DEBUG) || defined(CLI)
   _usbMenu->addLine(STR_USB_SERIAL, [] {
     TRACE("USB serial");
     setSelectedUsbMode(USB_SERIAL_MODE);

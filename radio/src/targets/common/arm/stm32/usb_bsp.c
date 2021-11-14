@@ -75,6 +75,7 @@ void USB_OTG_BSP_Deinit(USB_OTG_CORE_HANDLE *pdev)
 */
 void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 {
+  // FreeRTOS syscall prio is 5
   NVIC_SetPriority(OTG_FS_IRQn, 11); // Lower priority interrupt
   NVIC_EnableIRQ(OTG_FS_IRQn);
 }
