@@ -28,7 +28,7 @@
 static constexpr coord_t SENSOR_LABEL_WIDTH = 80;
 static constexpr coord_t SENSOR_COL1 = 10;
 static constexpr coord_t SENSOR_COL2 = SENSOR_COL1 + 70;
-static constexpr coord_t SENSOR_COL3 = LCD_W - SENSOR_LABEL_WIDTH - 38;  // 66 for label column 30 to move it to the right of the screen
+static constexpr coord_t SENSOR_COL3 = LCD_W - SENSOR_LABEL_WIDTH - 38;
 
 class SensorSourceChoice : public SourceChoice
 {
