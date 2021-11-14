@@ -13,6 +13,7 @@ set(storage_NAMES
   categorized
   sdcard
   etx
+  otx
   yaml
 )
 
