@@ -171,7 +171,7 @@ void MenuBody::paint(BitmapBuffer * dc)
   int y = 0;
   for (int i = 0; i < lines.size(); i++) {
     auto& line = lines[i];
-    LcdFlags flags = COLOR_THEME_SECONDARY1 | MENU_FONT;
+    LcdFlags flags = COLOR_THEME_PRIMARY3 | MENU_FONT;
 
     // draw selection if appropriate
     if (selectedIndex == i && ! line.isSeparator) {
@@ -183,9 +183,9 @@ void MenuBody::paint(BitmapBuffer * dc)
     }
 
     if (line.isSeparator) {
-      dc->drawHorizontalLine(5, y + MENUS_SEPARATOR_HEIGHT / 2, width() - 10, 255, COLOR_THEME_SECONDARY2);
+      dc->drawHorizontalLine(5, y + MENUS_SEPARATOR_HEIGHT / 2, width() - 10, 255, COLOR_THEME_SECONDARY1);
     } else if (line.drawLine) {
-      line.drawLine(dc, 0, y, flags);
+      line.drawLine(dc, 0, y, COLOR_THEME_SECONDARY3);
     } else {
       const char* text = line.text.data();
       dc->drawText(10,
@@ -199,10 +199,6 @@ void MenuBody::paint(BitmapBuffer * dc)
                           y + (MENUS_LINE_HEIGHT - 20) / 2,
                           0);
     }
-
-    // if (i > 0 && ! lines[i].isSeparator && ! lines[i-1].isSeparator) {
-    //   dc->drawSolidHorizontalLine(0, y, MENUS_WIDTH, COLOR_THEME_SECONDARY2);
-    // }
 
     y += line.lineHeight();
   }
@@ -219,13 +215,13 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
 void MenuWindowContent::paint(BitmapBuffer * dc)
 {
   // the background
-  dc->clear(COLOR_THEME_PRIMARY2);
+  dc->clear(COLOR_THEME_SECONDARY1);
 
   // the title
   if (!title.empty()) {
     dc->drawText(MENUS_WIDTH / 2,
                  (POPUP_HEADER_HEIGHT - getFontHeight(MENU_HEADER_FONT)) / 2,
-                 title.c_str(), CENTERED | MENU_HEADER_FONT);
+                 title.c_str(), CENTERED | MENU_HEADER_FONT | COLOR_THEME_PRIMARY2);
     dc->drawSolidHorizontalLine(0, POPUP_HEADER_HEIGHT - 1, MENUS_WIDTH,
                                 COLOR_THEME_SECONDARY2);
   }
@@ -312,5 +308,5 @@ void Menu::paint(BitmapBuffer * dc)
     r.x = toolbar->left();
     r.w += toolbar->width();
   }
-  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, COLOR_THEME_SECONDARY2);
+  dc->drawSolidRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2, 1, COLOR_THEME_SECONDARY1);
 }
