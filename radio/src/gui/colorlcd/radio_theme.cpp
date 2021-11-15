@@ -479,18 +479,15 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
     new ThemeDetailsDialog(window, newTheme, [=] (ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
-        char path[NAME_LENGTH + 20];
-        strncpy(path, theme.getName(), NAME_LENGTH + 19);
-        removeAllWhiteSpace(path);
-        strncat(path, ".yml", NAME_LENGTH + 19);
-        theme.setPath(path);
-
+        char name[NAME_LENGTH + 20];
+        strncpy(name, theme.getName(), NAME_LENGTH + 19);
+        removeAllWhiteSpace(name);
         // use the current themes color list to make the new theme
         auto curTheme = tp->getCurrentTheme();
         for (auto color : curTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
-        theme.serialize();
+        tp->createNewTheme(name, theme);
         tp->refresh();
         listBox->setNames(tp->getNames());
         listBox->setSelected(currentTheme);
@@ -504,7 +501,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
         tp->deleteThemeByIndex(listBox->getSelected());
         listBox->setNames(tp->getNames());
-        listBox->setSelected(currentTheme);
+        listBox->setSelected(min<int>(currentTheme, tp->getNames().size() - 1));
       }
     });
   }
@@ -530,7 +527,10 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
   listBox->setActiveIndex(tp->getThemeIndex());
   listBox->setTitle(STR_THEME + std::string("s"));
   listBox->setLongPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
-  listBox->setPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
+  listBox->setPressHandler([=] (event_t event) { 
+    if (event != 0)
+      displayThemeMenu(window, tp); 
+  });
 }
 
 void ThemeSetupPage::build(FormWindow *window)

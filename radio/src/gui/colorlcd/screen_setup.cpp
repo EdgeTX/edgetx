@@ -421,7 +421,7 @@ void ScreenUserInterfacePage::build(FormWindow * window)
 
   grid.nextLine();
   auto theme = tp->getCurrentTheme();
-  auto themeImage = theme->getThemeImageFileName();
+  auto themeImage = theme->getThemeImageFileNames();
 
   grid.spacer(8);
 
@@ -443,7 +443,7 @@ void ScreenUserInterfacePage::build(FormWindow * window)
     rect_t {0, r.h, LCD_W- 12, window->height()} :
     rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
   auto preview = new FilePreview(window, previewRect);
-  preview->setFile(themeImage.c_str());
+  preview->setFile(themeImage.size() > 0 ? themeImage[0].c_str() : "");
 
   window->setInnerHeight(grid.getWindowHeight());
 }

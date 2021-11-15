@@ -20,7 +20,7 @@
  */
 #include "theme_manager.h"
 
-#define MAX_FILES 20
+#define MAX_FILES 9
 ThemePersistance themePersistance;
 
 static const char *colorNames[COLOR_COUNT] = {
@@ -33,6 +33,32 @@ static const char *colorNames[COLOR_COUNT] = {
 constexpr const char *RGBSTRING = "RGB(";
 constexpr const char* SELECTED_THEME_FILE = THEMES_PATH "/selectedtheme.txt";
 
+ThemeFile::ThemeFile(std::string themePath) :
+  path(themePath)
+{
+  if (path.size()) {
+      deSerialize();
+  }
+
+  FIL file;
+  auto found = path.rfind('/');
+  if (found != std::string::npos) {
+    int n = 0;
+    while (n < MAX_FILES) {
+      auto baseFileName(path.substr(0, found + 1) + (n != 0 ? "screenshot" + std::to_string(n) : "logo") + ".png");
+      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
+      if (result == FR_OK) {
+        _imageFileNames.emplace_back(baseFileName);
+        f_close(&file);
+      } else {
+        break;
+      }
+
+      n++;
+    }
+  }
+}
+
 ThemeFile& ThemeFile::operator= (const ThemeFile& theme)
 {
   if (this == &theme)
@@ -43,58 +69,20 @@ ThemeFile& ThemeFile::operator= (const ThemeFile& theme)
   strncpy(author, theme.author, AUTHOR_LENGTH);
   strncpy(info, theme.info, INFO_LENGTH);
   colorList.assign(theme.colorList.begin(), theme.colorList.end());
+  _imageFileNames.assign(theme._imageFileNames.begin(), theme._imageFileNames.end());
+
   return *this;
 };
 
-std::string ThemeFile::getThemeImageFileName()
-{
-  char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
-  
-  auto found = path.rfind('.');
-  if (found != std::string::npos) {
-    auto baseFileName(fullPath + path.substr(0, found) + ".png");
-    return baseFileName;
-  }
-
-  return "";
-}
-
 std::vector<std::string> ThemeFile::getThemeImageFileNames()
 {
-  std::vector<std::string> fileNames;
-
-  char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
-  auto found = path.rfind('.');
-  FIL file;
-  if (found != std::string::npos) {
-    int n = 0;
-    while (n < MAX_FILES) {
-      auto baseFileName(fullPath + path.substr(0, found) + (n != 0 ? std::to_string(n) : "") + ".png");
-      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
-      if (result == FR_OK) {
-        fileNames.emplace_back(baseFileName);
-        f_close(&file);
-      } else {
-        break;
-      }
-
-      n++;
-    }
-  }
-
-  return fileNames;
+  return _imageFileNames;
 }
 
 void ThemeFile::serialize()
 {
-  char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
-  strncat(fullPath, path.c_str(), FF_MAX_LFN);
-
   FIL file;
-  FRESULT result = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT result = f_open(&file, path.c_str(), FA_CREATE_ALWAYS | FA_WRITE);
   if (result == FR_OK) {
     f_printf(&file, "---\n");
     f_printf(&file, "summary:\n");
@@ -121,14 +109,10 @@ void ThemeFile::serialize()
 void ThemeFile::deSerialize()
 {
   char line[256 + 1];
-  char fullPath[FF_MAX_LFN + 1];
   ScanState scanState = none;
 
-  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
-  strncat(fullPath, path.c_str(), FF_MAX_LFN);
-
   FIL file;
-  FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
+  FRESULT result = f_open(&file, path.c_str(), FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
 
   int lineNo = 1;
@@ -318,7 +302,16 @@ void ThemePersistance::clearThemes()
   themes.clear();
 }
 
-#define MAX_SD_FILE_LENGTH 128
+void ThemePersistance::scanThemeFolder(char *fullPath)
+{
+  FIL file;
+  strncat(fullPath, "/theme.yml", FF_MAX_LFN);
+  FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
+  if (result != FR_OK) return;
+
+  TRACE("scanForThemes: found file %s", fullPath);
+  themes.emplace_back(new ThemeFile(fullPath));
+}
 
 void ThemePersistance::scanForThemes()
 {
@@ -345,20 +338,27 @@ void ThemePersistance::scanForThemes()
         break;  // Break on error or end of dir
 
       if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-      if (fno.fattrib & AM_DIR) continue;
-
-      TRACE("scanForThemes: found file %s", fno.fname);
-      std::string fname(fno.fname);
-      auto found = fname.find(".");
-      if (found != std::string::npos) {
-        if (strcasecmp(fname.substr(found).c_str(), YAML_EXT) != 0) continue;
+      if (fno.fattrib & AM_DIR) {
+        char themePath[FF_MAX_LFN + 1];
+        strncpy(themePath, fullPath, FF_MAX_LFN);
+        strncat(themePath, "/", FF_MAX_LFN);
+        strncat(themePath, fno.fname, FF_MAX_LFN);
+        scanThemeFolder(themePath);
       }
-      else continue;
-
-      themes.emplace_back(new ThemeFile(fno.fname));
     }
 
     f_closedir(&dir);
+    // std::sort(themes.begin(), themes.end(), 
+    //   [] (const ThemeFile &a, const ThemeFile &b) {
+    //     return false;
+    //   });
+
+    std::sort(
+        themes.begin(), themes.end(),
+        [](ThemeFile *a, ThemeFile *b) {
+            return strcmp(a->getName(), b->getName()) < 0;
+        });
+
   }
 }
 
@@ -402,16 +402,12 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   if (index > 0 && index < (int) themes.size()) {
     ThemeFile* theme = themes[index];
     
-    char curFile[FF_MAX_LFN + 1];
-    strncpy(curFile, THEMES_PATH "/", FF_MAX_LFN);
-    strncat(curFile, theme->getPath().c_str(), FF_MAX_LFN);
-    
     char newFile[FF_MAX_LFN + 1];
-    strncpy(newFile, curFile, FF_MAX_LFN);
+    strncpy(newFile, theme->getPath().c_str(), FF_MAX_LFN);
     strcat(newFile, ".deleted");
 
     // for now we are just renaming the file so we don't find it
-    FRESULT status = f_rename(curFile, newFile);
+    FRESULT status = f_rename(theme->getPath().c_str(), newFile);
     refresh();
     
     // make sure currentTheme stays in bounds
@@ -421,6 +417,23 @@ bool ThemePersistance::deleteThemeByIndex(int index)
     return status == FR_OK;
   }
   return false;
+}
+
+bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
+{
+  char fullPath[FF_MAX_LFN + 1];
+  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
+  fullPath[FF_MAX_LFN] = '\0';
+  strncat(fullPath, "/", FF_MAX_LFN);
+  strncat(fullPath, name.c_str(), FF_MAX_LFN);
+
+  FRESULT result = f_mkdir(fullPath);
+  if (result != FR_OK) return false;
+  strncat(fullPath, "/", FF_MAX_LFN);
+  strncat(fullPath, "theme.yml", FF_MAX_LFN);
+  theme.setPath(fullPath);
+  theme.serialize();
+  return true;
 }
 
 void ThemePersistance::deleteDefaultTheme()
@@ -472,15 +485,10 @@ class DefaultEdgeTxTheme : public ThemeFile
       ThemeFile::applyTheme();
     }
 
-    std::string getThemeImageFileName() override
-    {
-      return "/THEMES/EdgeTX.png";
-    }
-
     std::vector<std::string> getThemeImageFileNames() override
     {
       std::vector<std::string> fileNames;
-      fileNames.emplace_back("/THEMES/EdgeTX.png");
+      fileNames.emplace_back("/THEMES/EdgeTX/EdgeTX.png");
       return fileNames;
     }
 };
@@ -490,3 +498,4 @@ void ThemePersistance::insertDefaultTheme()
   auto themeFile = new DefaultEdgeTxTheme();
   themes.insert(themes.begin(), themeFile);
 }
+

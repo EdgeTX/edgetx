@@ -55,13 +55,7 @@ class ThemeFile
       info[0] = '\0';
     }
     
-    ThemeFile(std::string themePath) :
-      path(themePath)
-    {
-        if (themePath.size()) {
-            deSerialize();
-        }
-    }
+    ThemeFile(std::string themePath);
     ThemeFile(const ThemeFile &theme)
     {
         path = theme.path;
@@ -117,7 +111,6 @@ class ThemeFile
     void setColor(LcdColorIndex colorIndex, uint32_t color);
     void setColorByIndex(int index, uint32_t color);
 
-    virtual std::string getThemeImageFileName();
     virtual std::vector<std::string> getThemeImageFileNames();
     virtual void applyTheme();
 
@@ -127,6 +120,7 @@ class ThemeFile
     char author[AUTHOR_LENGTH + 1];
     char info[INFO_LENGTH + 1];
     std::vector<ColorEntry> colorList;
+    std::vector<std::string> _imageFileNames;
 
     enum ScanState
     {
@@ -158,6 +152,7 @@ class ThemePersistance
     void deleteDefaultTheme();
     static char **getColorNames();
     bool deleteThemeByIndex(int index);
+    bool createNewTheme(std::string name, ThemeFile &theme);
 
     std::vector<std::string> getNames()
     {
@@ -206,4 +201,5 @@ class ThemePersistance
     void scanForThemes();
     void insertDefaultTheme();
     void clearThemes();
+    void scanThemeFolder(char *fullPath);
 };
