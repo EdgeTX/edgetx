@@ -244,6 +244,7 @@ extern TrainerPulsesData trainerPulsesData;
 #if defined(HARDWARE_INTERNAL_MODULE)
 bool setupPulsesInternalModule();
 void stopPulsesInternalModule();
+void intmoduleSendNextFrame();
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();

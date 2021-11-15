@@ -27,6 +27,10 @@
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
@@ -470,6 +474,24 @@ bool setupPulsesExternalModule(uint8_t protocol)
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
+
+#if defined(INTERNAL_MODULE_CRSF)
+static void intmoduleCRSF_rx(uint8_t data)
+{
+  intmoduleFifo.push(data);
+
+  // wakeup mixer when rx buffer is quarter full (16 bytes)
+  if (intmoduleFifo.size() >= 16) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xTaskNotifyFromISR(mixerTaskId.rtos_handle, 0, eNoAction,
+                       &xHigherPriorityTaskWoken);
+
+    // might effect a context switch on ISR exit
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
+}
+#endif
+
 static void enablePulsesInternalModule(uint8_t protocol)
 {
   // start new protocol hardware here
@@ -496,8 +518,13 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
 #if defined(PXX2)
-    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-      intmoduleSerialStart(PXX2_HIGHSPEED_BAUDRATE, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
+    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED: {
+      etx_serial_init params;
+      params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
+      params.rx_enable = true;
+
+      intmoduleFifo.clear();
+      intmoduleSerialStart(&params);
       resetAccessAuthenticationCount();
 
 #if defined(INTMODULE_HEARTBEAT)
@@ -505,30 +532,56 @@ static void enablePulsesInternalModule(uint8_t protocol)
       init_intmodule_heartbeat();
 #endif
       mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
-      break;
+    } break;
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+    case PROTOCOL_CHANNELS_MULTIMODULE: {
+
+      // serial port setup
+      etx_serial_init params;
+      params.baudrate    = MULTIMODULE_BAUDRATE;
+      params.rx_enable   = true;
+      params.parity      = USART_Parity_Even;
+      params.stop_bits   = USART_StopBits_2;
+      params.word_length = USART_WordLength_9b;
+
       intmodulePulsesData.multi.initFrame();
-      intmoduleSerialStart(MULTIMODULE_BAUDRATE, true, USART_Parity_Even, USART_StopBits_2, USART_WordLength_9b);
+      intmoduleFifo.clear();
+      intmoduleSerialStart(&params);
+
+      // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+
+      // reset status
       getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+
 #if defined(MULTI_PROTOLIST)
       TRACE("enablePulsesInternalModule(): trigger scan");
       MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
       TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
 #endif
-      break;
+    } break;
 #endif
 
 #if defined(INTERNAL_MODULE_CRSF)
-    case PROTOCOL_CHANNELS_CROSSFIRE:
-      intmoduleSerialStart(CROSSFIRE_BAUDRATE, true, USART_Parity_No,
-                           USART_StopBits_1, USART_WordLength_8b);
+    case PROTOCOL_CHANNELS_CROSSFIRE: {
+
+      // serial port setup
+      etx_serial_init params;
+      params.baudrate  = CROSSFIRE_BAUDRATE;
+      params.rx_enable = true;
+
+      // wakeup mixer when rx buffer is quarter full (16 bytes)
+      params.on_receive = intmoduleCRSF_rx;
+
+      intmoduleFifo.clear();
+      intmoduleSerialStart(&params);
+
+      // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
-      break;
+    } break;
 #endif
 
 #if defined(INTERNAL_MODULE_PPM)
@@ -539,13 +592,20 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
 #if defined(AFHDS2)
-    case PROTOCOL_CHANNELS_AFHDS2A:
+    case PROTOCOL_CHANNELS_AFHDS2A: {
+
+      // serial port setup
+      etx_serial_init params;
+      params.baudrate  = INTMODULE_USART_AFHDS2_BAUDRATE;
+      params.rx_enable = true;
+
       resetPulsesAFHDS2();
-      intmoduleSerialStart(INTMODULE_USART_AFHDS2_BAUDRATE, true,
-                           USART_Parity_No, USART_StopBits_1,
-                           USART_WordLength_8b);
+      intmoduleFifo.clear();
+      intmoduleSerialStart(&params);
+
+      // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
-      break;
+    } break;
 #endif
 
     default:
@@ -634,6 +694,44 @@ void stopPulsesInternalModule()
     mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
     intmoduleStop();
     moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  }
+}
+
+void intmoduleSendNextFrame()
+{
+  switch (moduleState[INTERNAL_MODULE].protocol) {
+#if defined(PXX2)
+    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
+      intmoduleSendBuffer(intmodulePulsesData.pxx2.getData(), intmodulePulsesData.pxx2.getSize());
+      break;
+#endif
+
+#if defined(PXX1)
+    case PROTOCOL_CHANNELS_PXX1_SERIAL:
+      intmoduleSendBuffer(intmodulePulsesData.pxx_uart.getData(), intmodulePulsesData.pxx_uart.getSize());
+      break;
+#endif
+
+#if defined(INTERNAL_MODULE_MULTI)
+    case PROTOCOL_CHANNELS_MULTIMODULE:
+      intmoduleSendBuffer(intmodulePulsesData.multi.getData(), intmodulePulsesData.multi.getSize());
+      break;
+#endif
+
+#if defined(INTERNAL_MODULE_CRSF)
+    case PROTOCOL_CHANNELS_CROSSFIRE:
+      intmoduleSendBuffer(intmodulePulsesData.crossfire.pulses,
+                          intmodulePulsesData.crossfire.length);
+      break;
+#endif
+
+#if defined(AFHDS2)
+  case PROTOCOL_CHANNELS_AFHDS2A: {
+    uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
+    uint16_t size = intmodulePulsesData.flysky.ptr - data;
+    intmoduleSendBuffer(data, size);
+  } break;
+#endif
   }
 }
 

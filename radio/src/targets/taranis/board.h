@@ -136,14 +136,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #endif
 
-void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, uint16_t stopBits, uint16_t wordLength);
-#if defined(INTERNAL_MODULE_MULTI)
-void intmoduleTimerStart(uint32_t periodMs);
-#endif
-void intmoduleSendByte(uint8_t byte);
-void intmoduleSendBuffer(const uint8_t * data, uint8_t size);
-void intmoduleSendNextFrame();
-
 void extmoduleSerialStart();
 void extmoduleInvertedSerialStart(uint32_t baudrate);
 void extmoduleSendBuffer(const uint8_t * data, uint8_t size);

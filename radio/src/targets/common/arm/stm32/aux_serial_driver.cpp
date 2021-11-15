@@ -192,6 +192,8 @@ uint8_t auxSerialTracesEnabled()
 extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
   // Send
   if (USART_GetITStatus(AUX_SERIAL_USART, USART_IT_TXE) != RESET) {
     uint8_t txchar;
@@ -212,11 +214,10 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
       uint8_t data = AUX_SERIAL_USART->DR;
       if (!(status & USART_FLAG_ERRORS)) {
         switch (auxSerialMode) {
-          case UART_MODE_DEBUG: {
-            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+          case UART_MODE_DEBUG:
             xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
                                      &xHigherPriorityTaskWoken);
-          } break;
+            break;
         }
       }
       status = AUX_SERIAL_USART->SR;
@@ -237,6 +238,9 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
     }
     status = AUX_SERIAL_USART->SR;
   }
+
+  // might effect a context switch on ISR exit
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif // AUX_SERIAL
 
@@ -385,6 +389,8 @@ uint8_t aux2SerialTracesEnabled()
 extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
   // Send
   if (USART_GetITStatus(AUX2_SERIAL_USART, USART_IT_TXE) != RESET) {
     uint8_t txchar;
@@ -405,11 +411,10 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
       uint8_t data = AUX2_SERIAL_USART->DR;
       if (!(status & USART_FLAG_ERRORS)) {
         switch (aux2SerialMode) {
-          case UART_MODE_DEBUG: {
-            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+          case UART_MODE_DEBUG:
             xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
                                      &xHigherPriorityTaskWoken);
-          } break;
+            break;
         }
       }
       status = AUX2_SERIAL_USART->SR;
@@ -431,5 +436,8 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
     }
     status = AUX2_SERIAL_USART->SR;
   }
+
+  // might effect a context switch on ISR exit
+  taskYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif // AUX2_SERIAL

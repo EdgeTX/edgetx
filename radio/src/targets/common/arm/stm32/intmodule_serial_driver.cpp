@@ -20,12 +20,43 @@
  */
 
 #include "opentx.h"
+#include "intmodule_serial_driver.h"
 
 ModuleFifo intmoduleFifo;
 #if !defined(INTMODULE_DMA_STREAM)
 uint8_t * intmoduleTxBufferData;
 volatile uint8_t intmoduleTxBufferRemaining;
 #endif
+
+struct etx_serial_driver {
+  void (*on_receive)(uint8_t data);
+  void (*on_error)();
+};
+
+static etx_serial_driver intmodule_driver = { nullptr, nullptr };
+
+// TODO: move this somewhere else
+static void intmoduleFifoReceive(uint8_t data)
+{
+  intmoduleFifo.push(data);
+}
+
+static void intmoduleFifoError()
+{
+  intmoduleFifo.errors++;
+}
+
+etx_serial_init::etx_serial_init():
+  baudrate(0),
+  parity(USART_Parity_No),
+  stop_bits(USART_StopBits_1),
+  word_length(USART_WordLength_8b),
+  rx_enable(false),
+  // TODO: this should not be needed
+  on_receive(intmoduleFifoReceive),
+  on_error(intmoduleFifoError)
+{
+}
 
 void intmoduleStop()
 {
@@ -46,27 +77,38 @@ void intmoduleStop()
   USART_DeInit(INTMODULE_USART);
 
   GPIO_ResetBits(INTMODULE_GPIO, INTMODULE_TX_GPIO_PIN | INTMODULE_RX_GPIO_PIN);
+
+  // reset callbacks
+  intmodule_driver.on_receive = nullptr;
+  intmodule_driver.on_error = nullptr;
 }
 
 void intmodulePxx1SerialStart()
 {
-  intmoduleSerialStart(INTMODULE_PXX1_SERIAL_BAUDRATE, false, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
+  etx_serial_init params;
+  params.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
+  intmoduleSerialStart(&params);
 }
 
-void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, uint16_t stopBits, uint16_t wordLength)
+void intmoduleSerialStart(const etx_serial_init* params)
 {
+  if (!params) return;
+  
   INTERNAL_MODULE_ON();
 
+  // init callbacks
+  intmodule_driver.on_receive = params->on_receive;
+  intmodule_driver.on_error = params->on_error;
+  
+#if !defined(INTMODULE_DMA_STREAM)
+  // IRQ based TX
   NVIC_InitTypeDef NVIC_InitStructure;
-#if defined(INTMODULE_DMA_STREAM)
-  NVIC_InitStructure.NVIC_IRQChannel = INTMODULE_DMA_STREAM_IRQ;
-#else
   NVIC_InitStructure.NVIC_IRQChannel = INTMODULE_USART_IRQn;
-#endif
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+#endif
 
   GPIO_PinAFConfig(INTMODULE_GPIO, INTMODULE_GPIO_PinSource_TX, INTMODULE_GPIO_AF);
   GPIO_PinAFConfig(INTMODULE_GPIO, INTMODULE_GPIO_PinSource_RX, INTMODULE_GPIO_AF);
@@ -81,16 +123,17 @@ void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, 
 
   USART_DeInit(INTMODULE_USART);
   USART_InitTypeDef USART_InitStructure;
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_Parity = parity;
-  USART_InitStructure.USART_StopBits = stopBits;
-  USART_InitStructure.USART_WordLength = wordLength;
+  USART_InitStructure.USART_BaudRate = params->baudrate;
+  USART_InitStructure.USART_Parity = params->parity;
+  USART_InitStructure.USART_StopBits = params->stop_bits;
+  USART_InitStructure.USART_WordLength = params->word_length;
   USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
   USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
   USART_Init(INTMODULE_USART, &USART_InitStructure);
   USART_Cmd(INTMODULE_USART, ENABLE);
 
-  if (rxEnable) {
+  if (params->rx_enable) {
+    // TODO: move into the caller
     intmoduleFifo.clear();
     USART_ITConfig(INTMODULE_USART, USART_IT_RXNE, ENABLE);
     NVIC_SetPriority(INTMODULE_USART_IRQn, 6);
@@ -120,10 +163,12 @@ extern "C" void INTMODULE_USART_IRQHandler(void)
   while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
     uint8_t data = INTMODULE_USART->DR;
     if (status & USART_FLAG_ERRORS) {
-      intmoduleFifo.errors++;
+      if (intmodule_driver.on_error)
+        intmodule_driver.on_error();
     }
     else {
-      intmoduleFifo.push(data);
+      if (intmodule_driver.on_receive)
+        intmodule_driver.on_receive(data);
     }
     status = INTMODULE_USART->SR;
   }
@@ -166,44 +211,6 @@ void intmoduleSendBuffer(const uint8_t * data, uint8_t size)
   intmoduleTxBufferRemaining = size;
   USART_ITConfig(INTMODULE_USART, USART_IT_TXE, ENABLE);
 #endif
-}
-
-void intmoduleSendNextFrame()
-{
-  switch (moduleState[INTERNAL_MODULE].protocol) {
-#if defined(PXX2)
-    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-      intmoduleSendBuffer(intmodulePulsesData.pxx2.getData(), intmodulePulsesData.pxx2.getSize());
-      break;
-#endif
-
-#if defined(PXX1)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      intmoduleSendBuffer(intmodulePulsesData.pxx_uart.getData(), intmodulePulsesData.pxx_uart.getSize());
-      break;
-#endif
-
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-      intmoduleSendBuffer(intmodulePulsesData.multi.getData(), intmodulePulsesData.multi.getSize());
-      break;
-#endif
-
-#if defined(INTERNAL_MODULE_CRSF)
-    case PROTOCOL_CHANNELS_CROSSFIRE:
-      intmoduleSendBuffer(intmodulePulsesData.crossfire.pulses,
-                          intmodulePulsesData.crossfire.length);
-      break;
-#endif
-
-#if defined(AFHDS2)
-  case PROTOCOL_CHANNELS_AFHDS2A: {
-    uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
-    uint16_t size = intmodulePulsesData.flysky.ptr - data;
-    intmoduleSendBuffer(data, size);
-  } break;
-#endif
-  }
 }
 
 void intmoduleWaitForTxCompleted()

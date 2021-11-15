@@ -29,6 +29,10 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
 #define PRIM_REQ_POWERUP    0
 #define PRIM_REQ_VERSION    1
 #define PRIM_CMD_DOWNLOAD   3
@@ -329,10 +333,16 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   if (module == INTERNAL_MODULE && information.productId == FIRMWARE_ID_MODULE_XJT) {
     INTERNAL_MODULE_ON();
     RTOS_WAIT_MS(1);
-    intmoduleSerialStart(38400, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
+
+    etx_serial_init params;
+    params.baudrate = 38400;
+    params.rx_enable = true;
+    intmoduleSerialStart(&params);
+
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
     GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+
     f_close(&file);
     return result;
   }
@@ -340,9 +350,12 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
 
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
-    case INTERNAL_MODULE:
-      intmoduleSerialStart(57600, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
-      break;
+    case INTERNAL_MODULE: {
+      etx_serial_init params;
+      params.baudrate = 57600;
+      params.rx_enable = true;
+      intmoduleSerialStart(&params);
+    } break;
 #endif
 
     default:
