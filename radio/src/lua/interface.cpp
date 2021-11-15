@@ -714,13 +714,14 @@ void displayLuaError(bool firstCall = false)
   }
 
   luaLcdBuffer->drawSolidFilledRect(left, top - hh, w, hh, COLOR_THEME_SECONDARY1);
+  luaLcdBuffer->drawSolidFilledRect(left, top, w, h, COLOR_THEME_SECONDARY3);
 #if (LCD_W > LCD_H)
   luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(XL) | COLOR_THEME_PRIMARY2);
+  drawTextLines(luaLcdBuffer, left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(L) | COLOR_THEME_PRIMARY1);
 #else
   luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(L) | COLOR_THEME_PRIMARY2);
+  drawTextLines(luaLcdBuffer, left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(STD) | COLOR_THEME_PRIMARY1);
 #endif
-  luaLcdBuffer->drawSolidFilledRect(left, top, w, h, COLOR_THEME_SECONDARY3);
-  drawTextLines(luaLcdBuffer, left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(L) | COLOR_THEME_PRIMARY1);
 #else
   if (!luaLcdAllowed)
     return;
