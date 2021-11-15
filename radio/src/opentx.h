@@ -1310,3 +1310,5 @@ inline bool isAsteriskDisplayed()
 }
 
 #include "module.h"
+
+extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
