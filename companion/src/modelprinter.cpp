@@ -25,6 +25,7 @@
 #include "helpers_html.h"
 #include "appdata.h"
 #include "adjustmentreference.h"
+#include "afhds.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -224,10 +225,10 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("Sub Type"), module.subTypeToString());
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
         }
-        if (module.protocol == PULSES_AFHDS3) {
+        if (module.protocol == PULSES_FLYSKY_AFHDS2A || module.protocol == PULSES_FLYSKY_AFHDS3) {
           str << printLabelValue(tr("Output Type"), module.subTypeToString());
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
-          str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
+          str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(AfhdsData::rxFreq(module)));
         }
       }
     }

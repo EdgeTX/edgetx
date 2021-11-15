@@ -109,7 +109,8 @@ class ProtocolsConversionTable: public ConversionTable
       addConversion(PULSES_XJT_LITE_LR12, val++);
 
       if (version >= 219) {
-        addConversion(PULSES_AFHDS3, val++);
+        addConversion(PULSES_FLYSKY_AFHDS3, val);
+        addConversion(PULSES_FLYSKY_AFHDS2A, val++);
       }
     }
 };

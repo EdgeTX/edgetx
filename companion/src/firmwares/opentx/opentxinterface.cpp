@@ -793,7 +793,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
             return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
-          case PULSES_AFHDS3:
+          case PULSES_FLYSKY_AFHDS2A:
             return IS_FLYSKY_NV14(board);
           default:
             return false;
@@ -815,7 +815,6 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_SBUS:
           case PULSES_MULTIMODULE:
           case PULSES_CROSSFIRE:
-          case PULSES_AFHDS3:
           case PULSES_GHOST:
             return true;
           case PULSES_ACCESS_R9M:
@@ -827,6 +826,8 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_XJT_LITE_D8:
           case PULSES_XJT_LITE_LR12:
             return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board));
+          case PULSES_FLYSKY_AFHDS3:
+            return id.contains("afhds3");
           default:
             return false;
         }

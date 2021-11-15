@@ -25,6 +25,7 @@
 #include "appdata.h"
 #include "modelprinter.h"
 #include "multiprotocols.h"
+#include "afhds.h"
 #include "checklistdialog.h"
 #include "helpers.h"
 
@@ -182,6 +183,7 @@ void TimerPanel::onModeChanged(int index)
 
 #define FAILSAFE_CHANNEL_HOLD    2000
 #define FAILSAFE_CHANNEL_NOPULSE 2001
+#define FAILSAFE_CHANNEL_RECEIVER 2002
 
 #define MASK_PROTOCOL       (1<<0)
 #define MASK_CHANNELS_COUNT (1<<1)
@@ -453,10 +455,12 @@ void ModulePanel::update()
         if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
           mask |= MASK_FAILSAFES;
         break;
-      case PULSES_AFHDS3:
-        module.channelsCount = 18;
+      case PULSES_FLYSKY_AFHDS3:
+        mask |= MASK_RX_FREQ | MASK_RF_POWER;
+      case PULSES_FLYSKY_AFHDS2A:
+        module.channelsCount = 14;
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
-        mask |= MASK_SUBTYPES | MASK_RX_FREQ | MASK_RF_POWER;
+        mask |= MASK_SUBTYPES;
         break;
       default:
         break;
@@ -539,7 +543,7 @@ void ModulePanel::update()
     const QSignalBlocker blocker(ui->r9mPower);
     ui->r9mPower->clear();
     ui->r9mPower->addItems(ModuleData::powerValueStrings(protocol, module.subType, firmware));
-    ui->r9mPower->setCurrentIndex(mask & MASK_R9M ? module.pxx.power : module.afhds3.rfPower);
+    ui->r9mPower->setCurrentIndex(mask & MASK_R9M ? module.pxx.power : module.afhds3.runPower);
   }
 
   // module subtype
@@ -556,18 +560,29 @@ void ModulePanel::update()
       if (firmware->getCapability(HasModuleR9MFlex))
         i = 2;
       break;
-    case PULSES_AFHDS3:
-        numEntries = 4;
-        break;
+    case PULSES_FLYSKY_AFHDS3:
+    case PULSES_FLYSKY_AFHDS2A:
+      break;
     default:
       break;
     }
     numEntries += i;
     const QSignalBlocker blocker(ui->multiSubType);
     ui->multiSubType->clear();
-    for ( ; i < numEntries; i++)
-      ui->multiSubType->addItem(module.subTypeToString(i), i);
-    ui->multiSubType->setCurrentIndex(ui->multiSubType->findData(module.subType));
+    if (module.protocol == PULSES_FLYSKY_AFHDS2A || module.protocol == PULSES_FLYSKY_AFHDS3) {
+      for ( ; i < 4; i++) {
+        ui->multiSubType->addItem(AfhdsData::modeToString(i), i);
+      }
+      ui->multiSubType->setCurrentIndex(ui->multiSubType->findData(AfhdsData::mode(module)));
+      ui->label_multiSubType->setText("Options");
+    }
+    else {
+      for ( ; i < numEntries; i++) {
+        ui->multiSubType->addItem(module.subTypeToString(i), i);
+      }
+      ui->multiSubType->setCurrentIndex(ui->multiSubType->findData(module.subType));
+      ui->label_multiSubType->setText("Sub Type");
+    }
   }
 
   // Multi settings fields
@@ -623,8 +638,6 @@ void ModulePanel::update()
   // Failsafes
   ui->label_failsafeMode->setVisible(mask & MASK_FAILSAFES);
   ui->failsafeMode->setVisible(mask & MASK_FAILSAFES);
-  //hide reciever mode for afhds3
-  qobject_cast<QListView *>(ui->failsafeMode->view())->setRowHidden(FAILSAFE_RECEIVER, protocol == PULSES_AFHDS3);
 
   if ((mask & MASK_FAILSAFES) && module.failsafeMode == FAILSAFE_CUSTOM) {
     if (ui->failsafesGroupBox->isHidden()) {
@@ -657,6 +670,8 @@ void ModulePanel::update()
 
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
+  if ((mask & MASK_RX_FREQ) && module.protocol == PULSES_FLYSKY_AFHDS3)
+    ui->rxFreq->setValue(AfhdsData::rxFreq(module));
 }
 
 void ModulePanel::onProtocolChanged(int index)
@@ -664,6 +679,9 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock && module.protocol != ui->protocol->itemData(index).toUInt()) {
     module.protocol = ui->protocol->itemData(index).toInt();
     module.channelsCount = module.getMaxChannelCount();
+    if (module.protocol >= PULSES_FLYSKY_AFHDS3 && module.protocol <= PULSES_FLYSKY_AFHDS2A) {
+      AfhdsData::setDefaults(module);
+    }
     update();
     emit updateItemModels();
     emit modified();
@@ -681,13 +699,14 @@ void ModulePanel::on_ppmPolarity_currentIndexChanged(int index)
 void ModulePanel::on_r9mPower_currentIndexChanged(int index)
 {
   if (!lock) {
-
-    if (module.protocol == PULSES_AFHDS3 && module.afhds3.rfPower != (unsigned int)index) {
-      module.afhds3.rfPower = index;
+    if (module.protocol == PULSES_FLYSKY_AFHDS3 && module.afhds3.runPower != (unsigned int)index) {
+      module.afhds3.runPower = index;
       emit modified();
     }
-    else if(module.pxx.power != (unsigned int)index)
+    else if(module.pxx.power != (unsigned int)index) {
       module.pxx.power = index;
+      emit modified();
+    }
   }
 }
 
@@ -785,18 +804,21 @@ void ModulePanel::onSubTypeChanged()
   const unsigned type = ui->multiSubType->currentData().toUInt();
   if (!lock && module.subType != type) {
     lock=true;
-    module.subType = type;
-    if (module.protocol != PULSES_AFHDS3) {
+    if (module.protocol == PULSES_FLYSKY_AFHDS2A || module.protocol == PULSES_FLYSKY_AFHDS3) {
+      AfhdsData::setMode(module, type);
+    }
+    else {
+      module.subType = type;
       update();
     }
     emit modified();
-    lock =  false;
+    lock = false;
   }
 }
 
 void ModulePanel::onRfFreqChanged(int freq) {
-  if (module.afhds3.rxFreq != (unsigned int)freq) {
-    module.afhds3.rxFreq = (unsigned int)freq;
+  if (AfhdsData::rxFreq(module) != (unsigned int)freq) {
+    AfhdsData::setRxFreq(module, (unsigned int)freq);
     emit modified();
   }
 }
