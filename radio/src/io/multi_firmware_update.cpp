@@ -37,6 +37,10 @@
   #include "io/multi_protolist.h"
 #endif
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
 #define UPDATE_MULTI_EXT_BIN ".bin"
 
 class MultiFirmwareUpdateDriver
@@ -77,7 +81,10 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) const override
     {
-      intmoduleSerialStart(57600, true, USART_Parity_No, USART_StopBits_1, USART_WordLength_8b);
+      etx_serial_init params;
+      params.baudrate = 57600;
+      params.rx_enable = true;
+      intmoduleSerialStart(&params);
     }
 
     bool getByte(uint8_t & byte) const override
