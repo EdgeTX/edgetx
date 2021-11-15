@@ -704,7 +704,11 @@ void displayLuaError(bool firstCall = false)
   
   coord_t w = 0.75 * LCD_W;
   coord_t left = (LCD_W - w) / 2;
+#if (LCD_W > LCD_H)
   coord_t hh = getFontHeight(FONT(XL)) + 4;
+#else
+  coord_t hh = getFontHeight(FONT(L)) + 4;
+#endif
   coord_t h = 0.75 * LCD_H - hh;
   coord_t top = (LCD_H - h + hh / 2) / 2;
   
