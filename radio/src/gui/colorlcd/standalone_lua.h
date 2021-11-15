@@ -58,11 +58,11 @@ public:
 protected:
   // GFX
   BitmapBuffer lcdBuffer;
-  uint32_t lastRefresh = 0;
 
   // pop-ups
   LuaPopup popup;
 
   // run LUA code
   void runLua(event_t evt);
+  event_t event = 0;
 };

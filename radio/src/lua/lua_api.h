@@ -113,8 +113,7 @@ enum ScriptState {
   SCRIPT_OK,
   SCRIPT_NOFILE,
   SCRIPT_SYNTAX_ERROR,
-  SCRIPT_PANIC,
-  SCRIPT_FINISHED
+  SCRIPT_PANIC
 };
 
 enum ScriptReference {
@@ -169,10 +168,9 @@ bool luaTask(event_t evt, bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
 void luaDoGc(lua_State * L, bool full);
-void luaError(lua_State * L, uint8_t error, bool acknowledge=true);
 uint32_t luaGetMemUsed(lua_State * L);
 void luaGetValueAndPush(lua_State * L, int src);
-uint8_t isTelemetryScriptAvailable(uint8_t index);
+bool isTelemetryScriptAvailable();
 
 #define luaGetCpuUsed(idx) scriptInternalData[idx].instructions
 #define LUA_LOAD_MODEL_SCRIPTS()   luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS
