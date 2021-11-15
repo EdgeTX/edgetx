@@ -133,6 +133,7 @@ void boardInit()
   pwrInit();
   extModuleInit();
   battery_charge_init();
+  globalData.flyskygimbals = true;
   flysky_hall_stick_init();
   init2MhzTimer();
   init1msTimer();
