@@ -86,15 +86,22 @@ class ThemedTextEdit : public TextEdit
 class ThemedStaticText : public StaticText
 {
  public:
-  using StaticText::StaticText;
+  ThemedStaticText(FormGroup *window, const rect_t &rect, std::string text, LcdColorIndex colorIndex) :
+    StaticText(window, rect, text, 0, COLOR(colorIndex)),
+    _colorIndex(colorIndex)
+  {
+  }
 
   void paint(BitmapBuffer *dc) override
   {
     colorMaintainer.applyColorValues();
-    setTextFlags(COLOR_THEME_PRIMARY1);
+    setTextFlags(COLOR(_colorIndex));
     StaticText::paint(dc);
     colorMaintainer.restoreColorValues();
   }
+
+  protected:
+    LcdColorIndex _colorIndex;
 };
 
 class ThemedCheckBox : public CheckBox
@@ -120,14 +127,14 @@ class ThemedCheckBox : public CheckBox
 
 class ThemedMainViewHorizontalTrim : public MainViewHorizontalTrim
 {
- public:
-  using MainViewHorizontalTrim::MainViewHorizontalTrim;
-  void paint(BitmapBuffer *dc) override
-  {
-    colorMaintainer.applyColorValues();
-    MainViewHorizontalTrim::paint(dc);
-    colorMaintainer.restoreColorValues();
-  }
+  public:
+    using MainViewHorizontalTrim::MainViewHorizontalTrim;
+    void paint(BitmapBuffer *dc) override
+    {
+      colorMaintainer.applyColorValues();
+      MainViewHorizontalTrim::paint(dc);
+      colorMaintainer.restoreColorValues();
+    }
 };
 
 class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
@@ -142,6 +149,29 @@ class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
   }
 };
 
+class ThemedButton : public TextButton
+{
+  public:
+    ThemedButton(FormGroup *window, const rect_t &rect, std::string text, WindowFlags windowFlags, 
+                 LcdColorIndex colorIndex) :
+      TextButton(window, rect, text, nullptr, windowFlags, COLOR(colorIndex)),
+      _colorIndex(colorIndex)
+    {
+      setPressHandler([=] () { return true; });
+    }
+
+    void paint(BitmapBuffer *dc) override
+    {
+      colorMaintainer.applyColorValues();
+      setTextFlags(COLOR(_colorIndex));
+      TextButton::paint(dc);
+      colorMaintainer.restoreColorValues();
+    }
+  protected:
+    LcdColorIndex _colorIndex;
+};
+
+
 // display controls using the appropriate theme.
 class PreviewWindow : public FormGroup
 {
@@ -150,14 +180,14 @@ class PreviewWindow : public FormGroup
                 std::vector<ColorEntry> colorList) :
       FormGroup(window, rect, NO_FOCUS), _colorList(colorList)
   {
-    new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, "Checkbox", 0,
-                         COLOR_THEME_PRIMARY1);
+    new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, "Checkbox", COLOR_THEME_PRIMARY1_INDEX);
     new ThemedCheckBox(this, {100 + 15, 40, 20, LINE_HEIGHT}, true);
     new ThemedCheckBox(this, {140 + 15, 40, 20, LINE_HEIGHT}, false);
-    new ThemedMainViewHorizontalTrim(this,
-                                     {5, 65, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedMainViewHorizontalSlider(
-        this, {5, 87, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedMainViewHorizontalTrim(this, {5, 65, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedMainViewHorizontalSlider(this, {5, 87, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedButton(this, {5, 109, 100, LINE_HEIGHT + 10}, "Checked", BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {110, 109, 100, LINE_HEIGHT + 10}, "Regular", 0, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedStaticText(this, {5, 145, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
     ticks = getTicks();
   }
 
@@ -214,26 +244,23 @@ class PreviewWindow : public FormGroup
     dc->clear(COLOR_THEME_SECONDARY3);
 
     // top bar background
-    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_HEIGHT,
-                            COLOR_THEME_SECONDARY1);
+    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_HEIGHT, COLOR_THEME_SECONDARY1);
 
     int width;
     int x = 5;
     // topbar icons
-    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1,
-                        COLOR_THEME_PRIMARY2, &width);
+    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    bm = getBitmap(mask_radio_tools, COLOR_THEME_SECONDARY1,
-                   COLOR_THEME_PRIMARY2, &width);
+    dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2, TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
+    bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1,
-                   COLOR_THEME_PRIMARY2, &width);
+    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     delete bm;
 

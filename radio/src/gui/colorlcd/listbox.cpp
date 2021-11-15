@@ -80,17 +80,15 @@ void ListBase::drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, Lc
 void ListBase::paint(BitmapBuffer *dc)
 {
   dc->clear(COLOR_THEME_SECONDARY3);
-  uint32_t bgColor = 0;
-  bgColor = hasFocus() ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY1;
 
   int curY = 0;
   for (int n = 0; n < (int)names.size(); n++) {
-    if (n == selected) {
-      dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, bgColor);
-    }
+    //if (n == selected) {
+      dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, n == selected ? COLOR_THEME_FOCUS : COLOR_THEME_PRIMARY2);
+    //}
 
     LcdFlags textColor =
-        n == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1;
+        n == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
 
     auto fontHeight = getFontHeight(FONT(STD));
     drawLine(dc, { 8, curY  + (lineHeight - fontHeight) / 2, rect.w, lineHeight}, n, textColor);
