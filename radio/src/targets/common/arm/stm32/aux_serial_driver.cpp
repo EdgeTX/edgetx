@@ -22,6 +22,10 @@
 #include "opentx.h"
 #include "targets/horus/board.h"
 
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+#include <FreeRTOS.h>
+#endif
+
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
 Fifo<uint8_t, 512> auxSerialTxFifo;
@@ -438,6 +442,6 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
   }
 
   // might effect a context switch on ISR exit
-  taskYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif // AUX2_SERIAL
