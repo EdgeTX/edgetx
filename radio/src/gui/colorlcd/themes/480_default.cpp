@@ -301,6 +301,7 @@ class Theme480: public OpenTxTheme
     void drawBackground(BitmapBuffer * dc) const override
     {
       if (backgroundBitmap) {
+        dc->clear(COLOR_THEME_SECONDARY3);
         dc->drawBitmap(0 - dc->getOffsetX(), 0 - dc->getOffsetY(), backgroundBitmap);
       }
       else {
