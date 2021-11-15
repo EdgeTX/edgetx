@@ -1360,7 +1360,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 bool MdiChild::save()
 {
   QFileInfo fi(curFile);
-  if (isUntitled || !fi.isWritable() || (fi.suffix().toLower() != "etx" && fi.suffix().toLower() != "yml")) {
+  if (isUntitled || !fi.isWritable() || fi.suffix().toLower() != "etx") {
     return saveAs(true);
   }
   else {
@@ -1375,7 +1375,7 @@ bool MdiChild::saveAs(bool isNew)
 #ifdef __APPLE__
   QString filter;
 #else
-  QString filter(ETX_FILES_FILTER % YML_FILES_FILTER);
+  QString filter(ETX_FILES_FILTER);
 #endif
 
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
