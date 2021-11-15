@@ -19,12 +19,34 @@
  * GNU General Public License for more details.
  */
 #pragma once
-#include <wctype.h>
-#include <string>
-#include <iostream>
-#include <sstream>
+#include "color_editor.h"
+#include "file_preview.h"
+#include "file_carosell.h"
+#include "tabsgroup.h"
 
-extern char *trim(char *str);
-extern void removeAllWhiteSpace(char *str);
-extern std::string trim_start(std::string str);
-extern std::string wrap(std::string str, uint32_t width);
+class FileCarosell : public FormGroup
+{
+ public:
+  FileCarosell(Window *parent, const rect_t &rect,
+               std::vector<std::string> fileNames, FormField *nextCtrl = nullptr);
+  ~FileCarosell();
+
+  inline void setSelected(int n)
+  {
+    if (n == selected) return;
+    if (n >= 0 && n < (int)_fileNames.size()) {
+      selected = n;
+      fp->setFile(_fileNames[selected].c_str());
+    } else
+      fp->setFile("");
+  }
+
+  void setFileNames(std::vector<std::string> fileNames);
+  void checkEvents() override;
+
+ protected:
+  int selected = -1;
+  std::vector<std::string> _fileNames;
+  FilePreview *fp;
+  uint32_t timer;
+};

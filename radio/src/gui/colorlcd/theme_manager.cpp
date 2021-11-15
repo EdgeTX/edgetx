@@ -18,26 +18,33 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 #include "theme_manager.h"
-#include "theme.h"
 
-#include <cstdlib>
-#include <cstring>
-
+#define MAX_FILES 20
 ThemePersistance themePersistance;
 
-#define COLOR_COUNT 12
-static const char *conversionArray[COLOR_COUNT] = {
+static const char *colorNames[COLOR_COUNT] = {
     "DEFAULT",    "PRIMARY1",   "PRIMARY2",   "PRIMARY3",
     "SECONDARY1", "SECONDARY2", "SECONDARY3", "FOCUS",
-    "EDIT",       "ACTIVE",     "WARNING",    "DISABLED",
+    "EDIT",       "ACTIVE",     "WARNING",    "DISABLED", "CUSTOM",
 };
 
+#define HEX_COLOR_VALUE_LEN 8
 constexpr const char *RGBSTRING = "RGB(";
-
-
 constexpr const char* SELECTED_THEME_FILE = THEMES_PATH "/selectedtheme.txt";
+
+ThemeFile& ThemeFile::operator= (const ThemeFile& theme)
+{
+  if (this == &theme)
+    return *this;
+
+  path = theme.path;
+  strncpy(name, theme.name, NAME_LENGTH);
+  strncpy(author, theme.author, AUTHOR_LENGTH);
+  strncpy(info, theme.info, INFO_LENGTH);
+  colorList.assign(theme.colorList.begin(), theme.colorList.end());
+  return *this;
+};
 
 std::string ThemeFile::getThemeImageFileName()
 {
@@ -53,7 +60,65 @@ std::string ThemeFile::getThemeImageFileName()
   return "";
 }
 
-void ThemeFile::scanFile()
+std::vector<std::string> ThemeFile::getThemeImageFileNames()
+{
+  std::vector<std::string> fileNames;
+
+  char fullPath[FF_MAX_LFN + 1];
+  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
+  auto found = path.rfind('.');
+  FIL file;
+  if (found != std::string::npos) {
+    int n = 0;
+    while (n < MAX_FILES) {
+      auto baseFileName(fullPath + path.substr(0, found) + (n != 0 ? std::to_string(n) : "") + ".png");
+      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
+      if (result == FR_OK) {
+        fileNames.emplace_back(baseFileName);
+        f_close(&file);
+      } else {
+        break;
+      }
+
+      n++;
+    }
+  }
+
+  return fileNames;
+}
+
+void ThemeFile::serialize()
+{
+  char fullPath[FF_MAX_LFN + 1];
+  strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
+  strncat(fullPath, path.c_str(), FF_MAX_LFN);
+
+  FIL file;
+  FRESULT result = f_open(&file, fullPath, FA_CREATE_ALWAYS | FA_WRITE);
+  if (result == FR_OK) {
+    f_printf(&file, "---\n");
+    f_printf(&file, "summary:\n");
+    f_printf(&file, "  name: %s\n", name);
+    f_printf(&file, "  author: %s\n", author);
+    f_printf(&file, "  info: %s\n", info);
+    f_printf(&file, "\n");
+    f_printf(&file, "colors:\n");
+
+    for (auto colorEntry : colorList) {
+      auto r = GET_RED(colorEntry.colorValue);
+      auto g = GET_GREEN(colorEntry.colorValue);
+      auto b = GET_BLUE(colorEntry.colorValue);
+
+      std::string colorName(colorNames[colorEntry.colorNumber]);
+      colorName += ":";
+
+      f_printf(&file, "  %-11s 0x%02X%02X%02X\n", colorName.c_str(), r,g,b);
+    }
+    f_close(&file);
+  }
+}
+
+void ThemeFile::deSerialize()
 {
   char line[256 + 1];
   char fullPath[FF_MAX_LFN + 1];
@@ -62,11 +127,12 @@ void ThemeFile::scanFile()
   strncpy(fullPath, THEMES_PATH "/", FF_MAX_LFN);
   strncat(fullPath, path.c_str(), FF_MAX_LFN);
 
+  FIL file;
   FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
 
   int lineNo = 1;
-  while (readNextLine(line, 256)) {
+  while (readNextLine(file, line, 256)) {
     int len = strlen(line);
     if (len == 0) continue;
 
@@ -98,7 +164,7 @@ void ThemeFile::scanFile()
       char *plvalue;
       char *prvalue;
 
-      strncpy(lvalue, line, std::min((int)(ptr - line), 63));
+      strncpy(lvalue, line, min((int)(ptr - line), 63));
       lvalue[ptr - line] = '\0';
       strncpy(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
@@ -117,12 +183,16 @@ void ThemeFile::scanFile()
         } break;
 
         case summary: {
-          if (strcmp(plvalue, "name") == 0)
-            name = prvalue;
-          else if (strcmp(plvalue, "author") == 0)
-            author = prvalue;
-          else if (strcmp(plvalue, "info") == 0)
-            info = prvalue;
+          if (strcmp(plvalue, "name") == 0) {
+            strncpy(name, prvalue, NAME_LENGTH);
+            name[NAME_LENGTH] = '\0';
+          } else if (strcmp(plvalue, "author") == 0) {
+            strncpy(author, prvalue, AUTHOR_LENGTH);
+            author[AUTHOR_LENGTH] = '\0';
+          } else if (strcmp(plvalue, "info") == 0) {
+            strncpy(info, prvalue, INFO_LENGTH);
+            info[INFO_LENGTH] = '\0';
+          }
         } break;
       }
     }
@@ -132,8 +202,6 @@ void ThemeFile::scanFile()
 
   f_close(&file);
 }
-
-#define HEX_COLOR_VALUE_LEN 8
 
 bool ThemeFile::convertRGB(char *pColorRGB, uint32_t &color)
 {
@@ -189,7 +257,7 @@ LcdColorIndex ThemeFile::findColorIndex(const char *name)
 {
   int i;
   for (i = 0; i < COLOR_COUNT; i++) {
-    if (strcmp(name, conversionArray[i]) == 0) break;
+    if (strcmp(name, colorNames[i]) == 0) break;
   }
 
   if (i >= COLOR_COUNT) return DEFAULT_COLOR_INDEX;
@@ -197,12 +265,11 @@ LcdColorIndex ThemeFile::findColorIndex(const char *name)
   return (LcdColorIndex)i;
 }
 
-bool ThemeFile::readNextLine(char *line, int maxlen)
+bool ThemeFile::readNextLine(FIL &file, char *line, int maxlen)
 {
   if (f_gets(line, maxlen, &file) != NULL) {
     int curlen = strlen(line) - 1;
-    if (line[curlen] ==
-        '\n') {  // remove unwanted chars if file was edited using windows
+    if (line[curlen] == '\n') {  // remove unwanted chars if file was edited using windows
       if (line[curlen - 1] == '\r') {
         line[curlen - 1] = 0;
       } else {
@@ -216,10 +283,21 @@ bool ThemeFile::readNextLine(char *line, int maxlen)
   return false;
 }
 
+void ThemeFile::setColorByIndex(int index, uint32_t color)
+{
+  if (index >= 0 && index < (int) colorList.size()) {
+    colorList[index].colorValue = color;
+  }
+}
+
 void ThemeFile::setColor(LcdColorIndex colorIndex, uint32_t color)
 {
   if (colorIndex >= DEFAULT_COLOR_INDEX && colorIndex < LCD_COLOR_COUNT) {
-    colorList.emplace_back(ColorEntry {colorIndex, color});
+    auto colorEntry = std::find(colorList.begin(), colorList.end(), ColorEntry { colorIndex, 0});
+    if (colorEntry != colorList.end())
+      colorEntry->colorValue = color;
+    else
+      colorList.emplace_back(ColorEntry {colorIndex, color});
   }
 }
 
@@ -231,13 +309,20 @@ void ThemeFile::applyTheme()
   OpenTxTheme::instance()->update(false);
 }
 
-// not sure why this is needed...
-constexpr unsigned MAX_SD_FILE_LENGTH = 64;
+// avoid leaking memory
+void ThemePersistance::clearThemes()
+{
+  for (auto theme: themes) {
+    delete theme;
+  }
+  themes.clear();
+}
+
+#define MAX_SD_FILE_LENGTH 128
 
 void ThemePersistance::scanForThemes()
 {
-  TRACE("in scanForThemes");
-  themes.clear();
+  clearThemes();
 
   DIR dir;
   FILINFO fno;
@@ -259,15 +344,16 @@ void ThemePersistance::scanForThemes()
       if (res != FR_OK || fno.fname[0] == 0)
         break;  // Break on error or end of dir
 
-      if (strlen((const char *)fno.fname) > MAX_SD_FILE_LENGTH) continue;
+      if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
       if (fno.fattrib & AM_DIR) continue;
 
       TRACE("scanForThemes: found file %s", fno.fname);
       std::string fname(fno.fname);
-      auto found = fname.find('.');
+      auto found = fname.find(".");
       if (found != std::string::npos) {
         if (strcasecmp(fname.substr(found).c_str(), YAML_EXT) != 0) continue;
       }
+      else continue;
 
       themes.emplace_back(new ThemeFile(fno.fname));
     }
@@ -278,6 +364,8 @@ void ThemePersistance::scanForThemes()
 
 void ThemePersistance::loadDefaultTheme()
 {
+  refresh();
+
   FIL file;
   FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_READ);
   if (status != FR_OK) return;
@@ -287,7 +375,6 @@ void ThemePersistance::loadDefaultTheme()
 
   status = f_read(&file, line, 256, &len);
   if (status == FR_OK) {
-    refresh();
 
     line[len] = '\0';
 
@@ -304,6 +391,38 @@ void ThemePersistance::loadDefaultTheme()
   f_close(&file);
 }
 
+char ** ThemePersistance::getColorNames()
+{
+  return (char **) colorNames;
+}
+
+bool ThemePersistance::deleteThemeByIndex(int index)
+{
+  // greater than 0 is intentional here.  cant delete default theme.
+  if (index > 0 && index < (int) themes.size()) {
+    ThemeFile* theme = themes[index];
+    
+    char curFile[FF_MAX_LFN + 1];
+    strncpy(curFile, THEMES_PATH "/", FF_MAX_LFN);
+    strncat(curFile, theme->getPath().c_str(), FF_MAX_LFN);
+    
+    char newFile[FF_MAX_LFN + 1];
+    strncpy(newFile, curFile, FF_MAX_LFN);
+    strcat(newFile, ".deleted");
+
+    // for now we are just renaming the file so we don't find it
+    FRESULT status = f_rename(curFile, newFile);
+    refresh();
+    
+    // make sure currentTheme stays in bounds
+    if (getThemeIndex() >= (int) themes.size())
+      setThemeIndex(themes.size() - 1);
+
+    return status == FR_OK;
+  }
+  return false;
+}
+
 void ThemePersistance::deleteDefaultTheme()
 {
   FIL file;
@@ -314,12 +433,15 @@ void ThemePersistance::deleteDefaultTheme()
 void ThemePersistance::setDefaultTheme(int index)
 {
   FIL file;
-  auto theme = themes[index];
-  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
-  if (status != FR_OK) return;
+  if (index >= 0 && index < (int) themes.size()) {
+    auto theme = themes[index];
+    FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
+    if (status != FR_OK) return;
 
-  f_printf(&file, theme->getPath().c_str());
-  f_close(&file);
+    currentTheme = index;
+    f_printf(&file, theme->getPath().c_str());
+    f_close(&file);
+  }
 }
 
 class DefaultEdgeTxTheme : public ThemeFile
@@ -330,31 +452,36 @@ class DefaultEdgeTxTheme : public ThemeFile
       setName("EdgeTX Default");
       setAuthor("EdgeTX Team");
       setInfo("Default EdgeTX Color Scheme");
+    
+      // initializze the default color table
+      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY1_INDEX, RGB(0, 0, 0) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY2_INDEX, RGB(255, 255, 255) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY3_INDEX, RGB(12, 63, 102) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY1_INDEX, RGB(18, 94, 153) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY2_INDEX, RGB(182, 224, 242) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY3_INDEX, RGB(228, 238, 242) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_FOCUS_INDEX, RGB(20, 161, 229) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_EDIT_INDEX, RGB(0, 153, 9) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_ACTIVE_INDEX, RGB(255, 222, 0) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_WARNING_INDEX, RGB(224, 0, 0) });
+      colorList.emplace_back(ColorEntry { COLOR_THEME_DISABLED_INDEX, RGB(140, 140, 140) });
     }
 
     void applyTheme() override
     {
-      lcdColorTable[DEFAULT_COLOR_INDEX] = RGB(18, 94, 153);
-
-      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
-      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
-      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
-      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
-      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
-      lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
-      
-      OpenTxTheme::instance()->update(false);
+      ThemeFile::applyTheme();
     }
 
     std::string getThemeImageFileName() override
     {
       return "/THEMES/EdgeTX.png";
+    }
+
+    std::vector<std::string> getThemeImageFileNames() override
+    {
+      std::vector<std::string> fileNames;
+      fileNames.emplace_back("/THEMES/EdgeTX.png");
+      return fileNames;
     }
 };
 

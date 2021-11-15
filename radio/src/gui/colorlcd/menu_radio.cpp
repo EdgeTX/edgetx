@@ -29,6 +29,7 @@
 #include "radio_trainer.h"
 #include "radio_version.h"
 #include "radio_hardware.h"
+#include "radio_theme.h"
 #include "myeeprom.h"
 
 RadioMenu::RadioMenu():
@@ -37,6 +38,7 @@ RadioMenu::RadioMenu():
   addTab(new RadioToolsPage());
   addTab(new RadioSdManagerPage());
   addTab(new RadioSetupPage());
+  addTab(new ThemeSetupPage());
   addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
   addTab(new RadioTrainerPage());
   addTab(new RadioHardwarePage());

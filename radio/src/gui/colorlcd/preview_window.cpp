@@ -18,13 +18,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#pragma once
-#include <wctype.h>
-#include <string>
-#include <iostream>
-#include <sstream>
+#include "preview_window.h"
 
-extern char *trim(char *str);
-extern void removeAllWhiteSpace(char *str);
-extern std::string trim_start(std::string str);
-extern std::string wrap(std::string str, uint32_t width);
+ColorMaintainer colorMaintainer;

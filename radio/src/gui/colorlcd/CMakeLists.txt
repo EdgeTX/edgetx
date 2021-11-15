@@ -20,6 +20,12 @@ set(GUI_SRC
   bitmaps.cpp
   theme.cpp
   theme_manager.cpp
+  color_editor_popup.cpp
+  color_editor.cpp
+  color_list.cpp
+  preview_window.cpp
+  file_carosell.cpp
+  listbox.cpp
   tabsgroup.cpp
   page.cpp
   fab_button.cpp
@@ -56,6 +62,7 @@ set(GUI_SRC
   radio_hardware.cpp
   radio_diagkeys.cpp
   radio_diaganas.cpp
+  radio_theme.cpp
   radio_calibration.cpp
   view_about.cpp
   view_main.cpp

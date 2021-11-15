@@ -68,6 +68,8 @@ constexpr uint32_t MENU_HEADER_BACK_BUTTON_HEIGHT = MENU_HEADER_HEIGHT;
 
 constexpr coord_t PAGE_PADDING =                   6;
 constexpr uint32_t PAGE_LINE_HEIGHT =              20;
+constexpr coord_t  LINE_HEIGHT =                   PAGE_LINE_HEIGHT;
+
 constexpr uint32_t PAGE_LINE_SPACING =             2;
 constexpr uint32_t PAGE_INDENT_WIDTH =             10;
 constexpr uint32_t PAGE_LABEL_WIDTH =              240;

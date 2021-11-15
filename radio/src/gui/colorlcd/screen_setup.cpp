@@ -18,7 +18,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 #include <algorithm>
 #include "screen_setup.h"
 #include "opentx.h"
@@ -30,7 +29,10 @@
 #include "theme_manager.h"
 #include "file_preview.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY()   storageDirty(EE_MODEL)
+#define BUTTON_HEIGHT 30
+#define BUTTON_WIDTH  75
+
 
 class LayoutChoice: public FormField
 {
@@ -261,15 +263,113 @@ class SetupWidgetsPage: public FormWindow
     // }
 };
 
+class ThemeEditorPage : public Page
+{
+  public:
+    explicit ThemeEditorPage(Window *parent, ThemeFile *theme, WindowFlags flags = 0) : 
+      Page(0),
+      theme(theme)
+    {
+      buildBody(&body);
+      buildHeader(&header);
+    }
+
+    void buildHeader(FormGroup *window)
+    {
+      ThemePersistance *tp = ThemePersistance::instance();
+
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                     "Edit Theme", 0, COLOR_THEME_PRIMARY2);
+      new StaticText(window,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                     theme->getName(), 0, COLOR_THEME_PRIMARY2);
+
+      rect_t r = {LCD_W - (BUTTON_WIDTH + 5), static_cast<coord_t>(PAGE_TITLE_TOP + ((header.getRect().h - BUTTON_HEIGHT) / 2)), BUTTON_WIDTH, BUTTON_HEIGHT };
+      new TextButton(window, r, "Save", [=] () {
+        theme->serialize();
+        tp->refresh();
+        tp->applyTheme(tp->getThemeIndex());
+        body.clear();
+        buildBody(&body);
+        return 0;
+      });
+    }
+
+    void buildBody(FormGroup *window)
+    {
+      FormGridLayout grid;
+      grid.spacer(8);
+
+      new StaticText(window, grid.getLabelSlot(), "Name", 0, COLOR_THEME_PRIMARY1);
+      new TextEdit(window, grid.getFieldSlot(), theme->getName(), NAME_LENGTH);
+      grid.nextLine();
+      new StaticText(window, grid.getLabelSlot(), "Author", 0, COLOR_THEME_PRIMARY1);
+      new TextEdit(window, grid.getFieldSlot(), theme->getAuthor(), AUTHOR_LENGTH);
+      grid.nextLine();
+      new StaticText(window, grid.getLineSlot(), "Description", 0, COLOR_THEME_PRIMARY1);
+      grid.nextLine();
+      new TextEdit(window, grid.getLineSlot(), theme->getInfo(), INFO_LENGTH);
+      grid.nextLine();
+
+      grid.spacer(10);
+      new StaticText(window, grid.getLineSlot(), "Colors", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+      grid.nextLine();
+      grid.spacer(10);
+
+      char **colorNames = ThemePersistance::getColorNames();
+      for (int i = 0; i < COLOR_COUNT; i++) {
+        char * name = colorNames[i];
+        new StaticText(window, grid.getLabelSlot(), name, 0, COLOR_THEME_PRIMARY1);
+
+        new ColorEdit(window, grid.getFieldSlot(), 
+          [=] () {
+            return theme->getColorByName(name);
+          },
+          [=] (uint16_t value) {
+            theme->setColor((LcdColorIndex)i, value);
+          });
+
+        grid.nextLine();
+      }
+
+      grid.spacer(20);
+      window->setInnerHeight(grid.getWindowHeight());
+    }
+
+  protected:
+    ThemeFile *theme;
+};
+
 ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
   PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP),
   menu(menu)
 {
 }
 
+
+class MyFormGridLayout : public FormGridLayout
+{
+  public:
+    MyFormGridLayout(int width, int top) :
+      FormGridLayout(width, top)
+    {
+    }
+
+    rect_t getFieldSlotEx(uint8_t count = 1, uint8_t index = 0, uint8_t number = 1) const
+    {
+      coord_t width = (this->width - labelWidth - lineMarginRight - (count - 1) * PAGE_LINE_SPACING) / count;
+      coord_t left = labelWidth + (width + PAGE_LINE_SPACING) * index;
+      return {left, currentY, width *number, PAGE_LINE_HEIGHT};
+    }
+};
+
+
 void ScreenUserInterfacePage::build(FormWindow * window)
 {
-  FormGridLayout grid(LCD_W, 10);
+  MyFormGridLayout grid(LCD_W, 10);
 
   // Top Bar
   new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
@@ -289,7 +389,7 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   auto tp = ThemePersistance::instance();
   tp->refresh();
   std::vector<std::string> names = tp->getNames();
-  new Choice(window, grid.getFieldSlot(), names, 0, names.size() - 1,
+  new Choice(window, grid.getFieldSlotEx(), names, 0, names.size() - 1,
     [=] () {
       return tp->getThemeIndex();
     }, 
@@ -300,10 +400,22 @@ void ScreenUserInterfacePage::build(FormWindow * window)
 
       window->clear();
       build(window);
+  });
+
+  std::function<uint8_t ()> launchEditor = [=]() {
+    auto theme = tp->getCurrentTheme();
+    auto te = new ThemeEditorPage(window, theme);
+    te->setCloseHandler([=] () {
+      window->clear();
+      build(window);
     });
+
+    return 0;
+  };
+
+  // new TextButton(window, grid.getFieldSlot(3, 2), STR_EDIT, launchEditor, BUTTON_BACKGROUND | OPAQUE, COLOR_THEME_PRIMARY2);
   
   bool bNarrowScreen = LCD_W < LCD_H;
-
   if (bNarrowScreen)
     grid.setLabelWidth(LCD_W);
 
@@ -328,7 +440,7 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
 
   rect_t previewRect = bNarrowScreen ? 
-    rect_t {0, r.x + r.h, LCD_W- 12, window->height()} :
+    rect_t {0, r.h, LCD_W- 12, window->height()} :
     rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
   auto preview = new FilePreview(window, previewRect);
   preview->setFile(themeImage.c_str());
@@ -409,8 +521,6 @@ ScreenSetupPage::ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned
   customScreenIndex(customScreenIndex)
 {
 }
-
-
 
 static void updateLayoutOptions(FormGroup* optionsWindow, unsigned customScreenIndex)
 {
