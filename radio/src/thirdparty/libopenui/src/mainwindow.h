@@ -65,9 +65,14 @@ class MainWindow: public Window
     void checkEvents() override;
 
 #if defined(HARDWARE_TOUCH)
-    void setTouchEnabled(bool enable)
-    {
-      touchEnabled = enable;
+    void setTouchEnabled(bool enable);
+    bool touchEventOccured() {
+      if(_touchEventOccured)
+      {
+        _touchEventOccured = false;
+        return true;
+      }
+      return false;
     }
 #endif
 
@@ -93,6 +98,17 @@ class MainWindow: public Window
     rect_t invalidatedRect;
     const char * shutdown = nullptr;
 #if defined(HARDWARE_TOUCH)
-    bool touchEnabled = true;
+    bool lastTouchState = false;
+    bool _touchEventOccured = false;
+
+    enum TouchEnableState {
+    	TouchOn,
+		TouchOn_Touching,
+		TouchOnToOff_Touching,
+		TouchOff,
+		TouchOff_Touching,
+		TouchOffToOn_Touching
+    };
+    TouchEnableState touchEnableState = TouchOn;
 #endif
 };
