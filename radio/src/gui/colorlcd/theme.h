@@ -25,6 +25,7 @@
 #include <list>
 #include <vector>
 #include "zone.h"
+#include "ffconf.h"
 #include "thirdparty/libopenui/src/theme.h"
 
 class BitmapBuffer;
@@ -82,6 +83,12 @@ class OpenTxTheme: public Theme
 
     ZoneOptionValue * getOptionValue(unsigned int index) const;
 
+    virtual void setBackgroundImageFileName(const char *fileName)
+    {
+      strncpy(backgroundImageFileName, fileName, FF_MAX_LFN);
+      backgroundImageFileName[FF_MAX_LFN] = '\0'; // ensure string termination
+    }
+
     virtual void load() const;
 
     virtual void drawBackground(BitmapBuffer * dc) const;
@@ -112,6 +119,7 @@ class OpenTxTheme: public Theme
     const char * name;
     const ZoneOption * options;
     BitmapBuffer * thumb;
+    char backgroundImageFileName[FF_MAX_LFN + 1];
 
   public:
     static const BitmapBuffer * error;

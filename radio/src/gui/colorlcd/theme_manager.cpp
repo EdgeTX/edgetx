@@ -285,11 +285,31 @@ void ThemeFile::setColor(LcdColorIndex colorIndex, uint32_t color)
   }
 }
 
-void ThemeFile::applyTheme()
+void ThemeFile::applyColors()
 {
   for (auto color: colorList) {
       lcdColorTable[color.colorNumber] = color.colorValue;
   }
+}
+
+void ThemeFile::applyBackground()
+{
+  auto instance = OpenTxTheme::instance();
+  std::string backgroundImageFileName(getPath());
+  auto pos = backgroundImageFileName.rfind('/');
+  if (pos != std::string::npos) {
+    auto rootDir = backgroundImageFileName.substr(0, pos + 1);
+    rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" + std::to_string(LCD_H) + ".png";
+    instance->setBackgroundImageFileName((char *)rootDir.c_str());
+  } else {
+    instance->setBackgroundImageFileName("");
+  }
+}
+
+void ThemeFile::applyTheme()
+{
+  applyColors();
+  applyBackground();
   OpenTxTheme::instance()->update(false);
 }
 
@@ -348,17 +368,10 @@ void ThemePersistance::scanForThemes()
     }
 
     f_closedir(&dir);
-    // std::sort(themes.begin(), themes.end(), 
-    //   [] (const ThemeFile &a, const ThemeFile &b) {
-    //     return false;
-    //   });
-
-    std::sort(
-        themes.begin(), themes.end(),
-        [](ThemeFile *a, ThemeFile *b) {
-            return strcmp(a->getName(), b->getName()) < 0;
-        });
-
+    std::sort(themes.begin(), themes.end(),
+      [](ThemeFile *a, ThemeFile *b) {
+          return strcmp(a->getName(), b->getName()) < 0;
+      });
   }
 }
 
@@ -480,9 +493,14 @@ class DefaultEdgeTxTheme : public ThemeFile
       colorList.emplace_back(ColorEntry { COLOR_THEME_DISABLED_INDEX, RGB(140, 140, 140) });
     }
 
-    void applyTheme() override
+    void applyBackground() override
     {
-      ThemeFile::applyTheme();
+      auto instance = OpenTxTheme::instance();
+      char fileName[FF_MAX_LFN + 1];
+      fileName[FF_MAX_LFN] = '\0';
+      strncpy(fileName, THEMES_PATH, FF_MAX_LFN);
+      strcat(fileName, "/EdgeTX/background.png");
+      instance->setBackgroundImageFileName(fileName);
     }
 
     std::vector<std::string> getThemeImageFileNames() override

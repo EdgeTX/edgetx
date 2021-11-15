@@ -112,7 +112,7 @@ class ThemeFile
     void setColorByIndex(int index, uint32_t color);
 
     virtual std::vector<std::string> getThemeImageFileNames();
-    virtual void applyTheme();
+    void applyTheme();
 
   protected:
     std::string path;
@@ -121,6 +121,8 @@ class ThemeFile
     char info[INFO_LENGTH + 1];
     std::vector<ColorEntry> colorList;
     std::vector<std::string> _imageFileNames;
+    void applyColors();
+    virtual void applyBackground();
 
     enum ScanState
     {
