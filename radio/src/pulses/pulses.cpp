@@ -483,6 +483,7 @@ static void intmoduleCRSF_rx(uint8_t data)
 {
   intmoduleFifo.push(data);
 
+#if !defined(SIMU)
   // wakeup mixer when rx buffer is quarter full (16 bytes)
   if (intmoduleFifo.size() >= 16) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -492,6 +493,7 @@ static void intmoduleCRSF_rx(uint8_t data)
     // might effect a context switch on ISR exit
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
   }
+#endif
 }
 #endif
 
