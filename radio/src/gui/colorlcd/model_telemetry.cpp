@@ -28,7 +28,7 @@
 static constexpr coord_t SENSOR_LABEL_WIDTH = 80;
 static constexpr coord_t SENSOR_COL1 = 10;
 static constexpr coord_t SENSOR_COL2 = SENSOR_COL1 + 70;
-static constexpr coord_t SENSOR_COL3 = LCD_W - SENSOR_LABEL_WIDTH - 30;  // 66 for label column 30 to move it to the right of the screen
+static constexpr coord_t SENSOR_COL3 = LCD_W - SENSOR_LABEL_WIDTH - 38;
 
 class SensorSourceChoice : public SourceChoice
 {
@@ -122,6 +122,47 @@ class SensorButton : public Button {
     uint32_t lastRefresh = 0;
 };
 
+class SensorLiveValue: public Window {
+  public:
+    explicit SensorLiveValue(Window * parent, const rect_t & rect,  int index):
+      Window(parent, rect, OPAQUE),
+      index(index)
+    {
+    }
+
+    void checkEvents() override
+    {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
+      TelemetryItem & telemetryItem = telemetryItems[index];
+      if (telemetryItem.isFresh()) {
+        invalidate();
+      }
+
+      Window::checkEvents();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      TelemetryItem &telemetryItem = telemetryItems[index];
+
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+      if (telemetryItem.isAvailable()) {
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_PRIMARY2;
+        drawSensorCustomValue(dc, 0, 1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+      } else {
+        dc->drawText(0, 1, "---", COLOR_THEME_PRIMARY2);
+      }
+    }
+  protected:
+    uint8_t index;
+    uint32_t lastRefresh = 0;
+};
+
 class SensorEditWindow : public Page {
   public:
     explicit SensorEditWindow(uint8_t index) :
@@ -143,8 +184,10 @@ class SensorEditWindow : public Page {
                       PAGE_LINE_HEIGHT},
                      STR_SENSOR + std::to_string(index + 1), 0,
                      COLOR_THEME_PRIMARY2);
-      // dynamic display of sensor value ?
-      //new StaticText(window, {70, 28, 100, 20}, "SF" + std::to_string(index), 0, COLOR_THEME_SECONDARY1);
+
+      new SensorLiveValue(window,
+          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, index);
     }
 
     void updateSensorParametersWindow()
