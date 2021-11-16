@@ -108,6 +108,7 @@ const uint32_t CROSSFIRE_BAUDRATES[] = {
   921600,
   1870000,
   3750000,
+  5250000,
 };
 const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   16,
