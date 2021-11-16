@@ -111,6 +111,9 @@ class ThemedCheckBox : public CheckBox
       CheckBox(parent, rect, [=]() { return checked; }, [](uint8_t value) {}, NO_FOCUS),
       checked(checked)
   {
+    enable(false);
+    setFocusHandler([] (bool focus) {
+    });
   }
 
 #if defined(HARDWARE_KEYS)
