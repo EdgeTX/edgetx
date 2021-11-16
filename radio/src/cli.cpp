@@ -25,7 +25,7 @@
 #include <malloc.h>
 #include <new>
 
-#include "cli_traces.h"
+#include "cli.h"
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
@@ -34,13 +34,30 @@
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
 
+// CLI receive buffer size
+#define CLI_RX_BUFFER_SIZE 256
+
 RTOS_TASK_HANDLE cliTaskId;
 RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
 
 static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
 static StaticStreamBuffer_t cliRxBufferStatic;
 
-StreamBufferHandle_t cliRxBuffer;
+// CLI receive stream buffer
+static StreamBufferHandle_t cliRxBuffer;
+
+static void cliDefaultRx(uint8_t* buf, uint32_t len)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
+  xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
+                     &xHigherPriorityTaskWoken);
+
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void (*cliReceiveCallBack)(uint8_t* buf, uint32_t len) = cliDefaultRx;
 
 uint8_t cliTracesEnabled = true;
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
@@ -857,18 +874,29 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-static StreamBufferHandle_t spIntRxBuffer;
+// static StreamBufferHandle_t spIntRxBuffer;
 
-static void spRx(uint8_t data)
+// static void spRx(uint8_t data)
+// {
+//   BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
+//   xStreamBufferSendFromISR(spIntRxBuffer, &data, 1,
+//                            &xHigherPriorityTaskWoken);
+//   xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
+//                      &xHigherPriorityTaskWoken);
+
+//   // might effect a context switch on ISR exit
+//   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+// }
+
+static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
-  xStreamBufferSendFromISR(spIntRxBuffer, &data, 1,
-                           &xHigherPriorityTaskWoken);
-  xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
-                     &xHigherPriorityTaskWoken);
+  intmoduleSendBuffer(buf, len);
+  intmoduleWaitForTxCompleted();
+}
 
-  // might effect a context switch on ISR exit
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+static void spSerialTx(uint8_t data)
+{
+  serialPutc(data);
 }
 
 int cliSerialPassthrough(const char **argv)
@@ -920,67 +948,27 @@ int cliSerialPassthrough(const char **argv)
 #if defined(HARDWARE_INTERNAL_MODULE)
     if (port_n == INTERNAL_MODULE) {
 
-      size_t rx_bytes = 0;
-
-      // allocate quick & dirty a buffer on the heap
-      // to be able to send via DMA
-      constexpr size_t tmpBufSize = 128;
-      uint8_t* tmpBuf = (uint8_t*)malloc(tmpBufSize*2);
-      uint8_t* tmpBuf2 = tmpBuf + tmpBufSize;
-
-      StaticStreamBuffer_t spIntRxBufferStatic;
-      // uses first half of 'tmpBuf'
-      spIntRxBuffer = xStreamBufferCreateStatic(tmpBufSize, 1, tmpBuf, &spIntRxBufferStatic);
-
       // setup serial com
       // TODO:
       // - '8n1' param
       etx_serial_init params;
       params.baudrate = baudrate;
       params.rx_enable = true;
-      params.on_receive = spRx;
+      params.on_receive = spSerialTx;
       intmoduleSerialStart(&params);
 
+      cliReceiveCallBack = spInternalModuleTx;
+      
       // loop forever
       for (;;) {
         
-        /* Block for max 100ms. */
-        const TickType_t xTimeout = 10 / RTOS_MS_PER_TICK;
-        BaseType_t notified = xTaskNotifyWait(0, 0, NULL, xTimeout);
-        
         // keep us up & running
         WDG_RESET();
-
-        // Timeout ?
-        if (notified == pdFALSE)
-          continue;
-
-        // use 2nd half of 'tmpBuf'
-        rx_bytes = xStreamBufferBytesAvailable(cliRxBuffer);
-        if (rx_bytes) {
-
-          // wait for end of last transmission
-          intmoduleWaitForTxCompleted();
-
-          rx_bytes = xStreamBufferReceive(cliRxBuffer, tmpBuf2, tmpBufSize, 0);
-          intmoduleSendBuffer(tmpBuf2, rx_bytes); // sends asynchronously
-
-        }
-
-        // Let's hope this does not starve the other side
-        uint8_t inData[tmpBufSize];
-        rx_bytes = xStreamBufferReceive(spIntRxBuffer, inData, tmpBufSize, 0);
-        if (rx_bytes) {
-          for (uint8_t *tx_data = inData; rx_bytes > 0; tx_data++, rx_bytes--) {
-            serialPutc(*tx_data); // sends synchronously
-          }
-        }
+        RTOS_WAIT_MS(200);
       }
 
       intmoduleSerialStop();
-      vStreamBufferDelete(spIntRxBuffer);
-      free(tmpBuf);
-      tmpBuf = nullptr;
+      // TODO: reset cli rx callback
     }
 #endif
 
@@ -1583,6 +1571,13 @@ void cliTask(void * pdata)
       break;
     }
   }
+}
+
+// Called from receive ISR (either USB or UART)
+void cliReceiveData(uint8_t* buf, uint32_t len)
+{
+  if (cliReceiveCallBack)
+    cliReceiveCallBack(buf, len);
 }
 
 void cliStart()
