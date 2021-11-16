@@ -320,6 +320,7 @@ class ThemeEditPage : public Page
           focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
         }
       } else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+        killEvents(event);
         deleteLater();
       } else {
         Window::onEvent(event);

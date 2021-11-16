@@ -108,11 +108,17 @@ class ThemedCheckBox : public CheckBox
 {
  public:
   ThemedCheckBox(Window *parent, rect_t rect, bool checked) :
-      CheckBox(
-          parent, rect, [=]() { return checked; }, [](uint8_t value) {}),
+      CheckBox(parent, rect, [=]() { return checked; }, [](uint8_t value) {}, NO_FOCUS),
       checked(checked)
   {
   }
+
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override
+  {
+    return parent->onEvent(event);
+  }
+#endif
 
   void paint(BitmapBuffer *dc) override
   {
@@ -152,13 +158,21 @@ class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
 class ThemedButton : public TextButton
 {
   public:
-    ThemedButton(FormGroup *window, const rect_t &rect, std::string text, WindowFlags windowFlags, 
+    ThemedButton(FormGroup *window, const rect_t &rect, std::string text, bool isChecked, WindowFlags windowFlags, 
                  LcdColorIndex colorIndex) :
-      TextButton(window, rect, text, nullptr, windowFlags, COLOR(colorIndex)),
-      _colorIndex(colorIndex)
+      TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS, COLOR(colorIndex)),
+      _colorIndex(colorIndex),
+      _isChecked(isChecked)
     {
-      setPressHandler([=] () { return true; });
+      setPressHandler([=] () { return _isChecked; });
     }
+
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override
+    {
+      parent->onEvent(event);
+    }
+#endif
 
     void paint(BitmapBuffer *dc) override
     {
@@ -169,6 +183,7 @@ class ThemedButton : public TextButton
     }
   protected:
     LcdColorIndex _colorIndex;
+    bool _isChecked = true;
 };
 
 
@@ -185,8 +200,8 @@ class PreviewWindow : public FormGroup
     new ThemedCheckBox(this, {140 + 15, 40, 20, LINE_HEIGHT}, false);
     new ThemedMainViewHorizontalTrim(this, {5, 65, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
     new ThemedMainViewHorizontalSlider(this, {5, 87, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedButton(this, {5, 109, 100, LINE_HEIGHT + 10}, "Checked", BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedButton(this, {110, 109, 100, LINE_HEIGHT + 10}, "Regular", 0, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {5, 109, 100, LINE_HEIGHT + 10}, "Checked", true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {110, 109, 100, LINE_HEIGHT + 10}, "Regular", false, 0, COLOR_THEME_PRIMARY1_INDEX);
     new ThemedStaticText(this, {5, 145, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
     ticks = getTicks();
   }
