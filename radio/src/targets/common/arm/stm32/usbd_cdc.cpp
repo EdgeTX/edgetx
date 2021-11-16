@@ -149,6 +149,7 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
 // some debug vars
 uint16_t usbWraps = 0;
 uint16_t charsWritten = 0;
+uint16_t usbTxErrors = 0;
 
 void usbSerialPutc(uint8_t c)
 {
@@ -172,7 +173,10 @@ void usbSerialPutc(uint8_t c)
   }
 
   // buffer is too full, skip this write
-  if (txDataLen > (APP_RX_DATA_SIZE - CDC_DATA_MAX_PACKET_SIZE)) return;
+  if (txDataLen > (APP_RX_DATA_SIZE - CDC_DATA_MAX_PACKET_SIZE)) {
+    usbTxErrors++;
+    return;
+  }
 
   ++charsWritten;
 
@@ -217,17 +221,11 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
   //        if the cliRxFifo does not have enough free space to receive all
   //        available characters, return VCP_FAIL. Maybe that will throttle down
   //        the sender and we will receive the same packet at a later time.
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 #if defined(CLI)
 
-  //copy data to the application FIFO
-  xStreamBufferSendFromISR(cliRxBuffer, Buf, Len, &xHigherPriorityTaskWoken);
-  xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
-                     &xHigherPriorityTaskWoken);
-  // Please note that we don't try to yield to the task that has
-  // potentially been woken up, as this might effect a context switch
-  // in place, whereby the ISR is not done yet handling the USB request
+  // pass data to CLI
+  cliReceiveData(Buf, Len);
 
 #elif defined(LUA)
   // TODO: find a better implementation to allow
@@ -243,8 +241,6 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 
 #endif
 
-  // might effect a context switch on ISR exit
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
   return USBD_OK;
 }
 

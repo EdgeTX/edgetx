@@ -22,10 +22,6 @@
 #include "opentx.h"
 #include "targets/horus/board.h"
 
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-#include <FreeRTOS.h>
-#endif
-
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
 Fifo<uint8_t, 512> auxSerialTxFifo;
@@ -196,7 +192,6 @@ uint8_t auxSerialTracesEnabled()
 extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
   // Send
   if (USART_GetITStatus(AUX_SERIAL_USART, USART_IT_TXE) != RESET) {
@@ -219,8 +214,7 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
       if (!(status & USART_FLAG_ERRORS)) {
         switch (auxSerialMode) {
           case UART_MODE_DEBUG:
-            xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
-                                     &xHigherPriorityTaskWoken);
+            cliReceiveData(&data, 1);
             break;
         }
       }
@@ -242,9 +236,6 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
     }
     status = AUX_SERIAL_USART->SR;
   }
-
-  // might effect a context switch on ISR exit
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif // AUX_SERIAL
 
@@ -393,7 +384,6 @@ uint8_t aux2SerialTracesEnabled()
 extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
   // Send
   if (USART_GetITStatus(AUX2_SERIAL_USART, USART_IT_TXE) != RESET) {
@@ -416,8 +406,7 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
       if (!(status & USART_FLAG_ERRORS)) {
         switch (aux2SerialMode) {
           case UART_MODE_DEBUG:
-            xStreamBufferSendFromISR(cliRxBuffer, &data, 1,
-                                     &xHigherPriorityTaskWoken);
+            cliReceiveData(&data, 1);
             break;
         }
       }
@@ -440,8 +429,5 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
     }
     status = AUX2_SERIAL_USART->SR;
   }
-
-  // might effect a context switch on ISR exit
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif // AUX2_SERIAL
