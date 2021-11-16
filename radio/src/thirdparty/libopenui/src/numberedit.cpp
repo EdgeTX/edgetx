@@ -82,6 +82,7 @@ void NumberEdit::onEvent(event_t event)
           onKeyPress();
         }
         else {
+          setValue(vmax);
           onKeyError();
         }
         return;
@@ -97,6 +98,7 @@ void NumberEdit::onEvent(event_t event)
           onKeyPress();
         }
         else {
+          setValue(vmin);
           onKeyError();
         }
         return;
