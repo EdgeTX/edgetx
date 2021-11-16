@@ -958,8 +958,6 @@ int cliSerialPassthrough(const char **argv)
         // use 2nd half of 'tmpBuf'
         rx_bytes = xStreamBufferBytesAvailable(cliRxBuffer);
         if (rx_bytes) {
-          // debug
-          GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
 
           // wait for end of last transmission
           intmoduleWaitForTxCompleted();
@@ -967,8 +965,6 @@ int cliSerialPassthrough(const char **argv)
           rx_bytes = xStreamBufferReceive(cliRxBuffer, tmpBuf2, tmpBufSize, 0);
           intmoduleSendBuffer(tmpBuf2, rx_bytes); // sends asynchronously
 
-          // debug
-          GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
         }
 
         // Let's hope this does not starve the other side
