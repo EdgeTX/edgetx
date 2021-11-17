@@ -910,6 +910,9 @@ bool touchPanelEventOccured()
 
 struct TouchState touchPanelRead()
 {
-  return simTouchState;
+  struct TouchState st = simTouchState;
+  simTouchState.deltaX = 0;
+  simTouchState.deltaY = 0;
+  return st;
 }
 #endif
