@@ -40,11 +40,15 @@
   #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
   #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
   #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
+  #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
+  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT)
 #else
-  #define COLOR_PREVIEW_WIDTH 18
-  #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
+  #define COLOR_PREVIEW_WIDTH LCD_W
+  #define COLOR_PREVIEW_HEIGHT  18
   #define LEFT_LIST_WIDTH LCD_W
   #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
+  #define COLOR_LIST_WIDTH LCD_W
+  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 38)
 #endif
 
 #define MARGIN_WIDTH 5
@@ -74,8 +78,6 @@ constexpr int COLOR_BUTTON_WIDTH = COLOR_BOX_WIDTH;
 constexpr int COLOR_BUTTON_HEIGHT = 20;
 #endif
 
-#define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-#define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT)
 
 
 class ThemeDetailsDialog: public Dialog
@@ -227,7 +229,11 @@ protected:
     _hexBox = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
     setHexStr(_hexBox, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
 
-    r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
+    if (LCD_W > LCD_H)
+      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
+    else
+      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, LCD_H / 2 - COLOR_BOX_HEIGHT - 20 };
+
     _colorEditor = new ColorEditor(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
       [=](uint32_t rgb) {
         _theme.setColor(_indexOfColor, rgb);
@@ -550,24 +556,32 @@ void ThemeSetupPage::build(FormWindow *window)
   rect_t r = { 2, 3, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
   setupListbox(window, r, tp);
 
+  rect_t colorPreviewRect;
+  rect_t previewRect;
   if (LCD_W > LCD_H) {
     r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH;
     r.w = LCD_W - r.x;
+    colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   } else {
     r.y += LEFT_LIST_HEIGHT + 4;
     r.x = 0;
     r.w = LCD_W;
+    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 3, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   }
 
   // setup ThemeColorPreview()
   auto colorList = theme != nullptr ? theme->getColorList() : std::vector<ColorEntry>();
-  rect_t colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   themeColorPreview = new ThemeColorPreview(window, colorPreviewRect, colorList);
   
   // setup FileCarosell()
-  r.h = 130;
-  r.w -= COLOR_PREVIEW_WIDTH;
-  r.x += COLOR_PREVIEW_WIDTH;
+  if (LCD_W > LCD_H) {
+    r.w -= COLOR_PREVIEW_WIDTH;
+    r.h = 130;
+    r.x += COLOR_PREVIEW_WIDTH;
+  } else {
+    r.y += COLOR_PREVIEW_HEIGHT;
+    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 6;
+  }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
   fileCarosell = new FileCarosell(window, r, fileNames, listBox);
 
