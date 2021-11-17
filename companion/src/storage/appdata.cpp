@@ -412,7 +412,7 @@ void AppData::convertSettings(QSettings & settings)
   if (savedVer == CPN_SETTINGS_VERSION)
     return;
   if (savedVer > CPN_SETTINGS_VERSION) {
-    qWarning().noquote() << "Saved settings version is newer than current, skippig conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
+    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
     return;
   }
 
@@ -428,13 +428,21 @@ void AppData::convertSettings(QSettings & settings)
 
   // firmwares renamed from opentx-* to edgetx-* at 2.6
   if (savedMajMin < 0x206) {
+    qInfo().noquote() << "Converting profiles";
     static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
     for (int i = 0; i < MAX_PROFILES; i++) {
       if (settings.contains(profileFwTypePath.arg(i))) {
         const QVariant oldValue = settings.value(profileFwTypePath.arg(i));
         if (oldValue.isValid()) {
-          QString val = settings.value(profileFwTypePath.arg(i)).toString();
-          settings.setValue(profileFwTypePath.arg(i), val.replace("opentx-", "edgetx-"));
+          const QString oldval = settings.value(profileFwTypePath.arg(i)).toString();
+          QString newval = oldval;
+          newval.replace("opentx-", "edgetx-");
+          if (oldval != newval) {
+            settings.setValue(profileFwTypePath.arg(i), newval);
+            qInfo().noquote().nospace() << "Converted entry " << profileFwTypePath.arg(i)
+                                        << " from (" << oldval << ")"
+                                        << " to (" << newval << ")";
+          }
         }
       }
     }
@@ -485,7 +493,8 @@ bool AppData::findPreviousVersionSettings(QString * version) const
 
 bool AppData::importSettings(const QString & fromVersion)
 {
-  QString fromProduct;
+  QString fromProduct =  PRODUCT_NO_VERS % " " % fromVersion;
+  //qDebug() << "From Product:" << fromProduct;
   upgradeFromVersion.clear();
 
   upgradeFromVersion = fromVersion;
@@ -501,8 +510,10 @@ bool AppData::importSettings(QSettings * fromSettings)
 
   // Create temporary settings because we may modify them before import.
   QSettings tempSettings(COMPANY, PRODUCT % "_import");
-  for (const QString & key : fromSettings->allKeys())
+  for (const QString & key : fromSettings->allKeys()) {
     tempSettings.setValue(key, fromSettings->value(key));
+    //qInfo().noquote() << "Import key(" << key << ") value(" << fromSettings->value(key) << ")";
+  }
 
   // convert settings first to simplify import process
   convertSettings(tempSettings);

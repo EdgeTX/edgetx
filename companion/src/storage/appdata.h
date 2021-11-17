@@ -47,6 +47,7 @@
 
 #define COMPANY                     QStringLiteral("EdgeTX")
 #define COMPANY_DOMAIN              QStringLiteral("edgetx.org")
+#define PRODUCT_NO_VERS             QStringLiteral("Companion")
 #define PRODUCT                     QStringLiteral("Companion " QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR))
 #define APP_COMPANION               QStringLiteral("EdgeTX Companion")
 #define APP_SIMULATOR               QStringLiteral("EdgeTX Simulator")
