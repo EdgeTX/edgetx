@@ -46,18 +46,8 @@ static StaticStreamBuffer_t cliRxBufferStatic;
 // CLI receive stream buffer
 static StreamBufferHandle_t cliRxBuffer;
 
-static void cliDefaultRx(uint8_t* buf, uint32_t len)
-{
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
-  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
-  xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
-                     &xHigherPriorityTaskWoken);
-
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-}
-
-void (*cliReceiveCallBack)(uint8_t* buf, uint32_t len) = cliDefaultRx;
+// CLI receive call back
+void (*cliReceiveCallBack)(uint8_t* buf, uint32_t len) = nullptr;
 
 uint8_t cliTracesEnabled = true;
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
@@ -921,13 +911,7 @@ int cliSerialPassthrough(const char **argv)
     
     //  stop pulses
     watchdogSuspend(200/*2s*/);
-    pausePulses();
-#if defined(HARDWARE_INTERNAL_MODULE)
-    stopPulsesInternalModule();
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-    stopPulsesExternalModule();
-#endif
+    stopPulses();
 
     // suspend RTOS scheduler
     vTaskSuspendAll();
@@ -936,13 +920,15 @@ int cliSerialPassthrough(const char **argv)
     if (port_n == INTERNAL_MODULE) {
 
       // setup serial com
-      // TODO:
-      // - '8n1' param
+
+      // TODO: '8n1' param
       etx_serial_init params;
       params.baudrate = baudrate;
       params.rx_enable = true;
-
       intmoduleSerialStart(&params);
+
+      // backup and swap CLI input
+      auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
       // loop until cable disconnected
@@ -959,23 +945,21 @@ int cliSerialPassthrough(const char **argv)
           usbSerialPutc(data);
         }
 
-        // RTOS_WAIT_MS(200);
-        
         // keep us up & running
         WDG_RESET();
       }
 
+      // restore CLI input
+      cliReceiveCallBack = backupCB;
       intmoduleStop();
-      // TODO: reset cli rx callback
     }
 #endif
 
     // TODO:
     //  - external module (S.PORT?)
-    //  - how to exit this mode ??? USB exit ?
 
     watchdogSuspend(200/*2s*/);
-    resumePulses();
+    startPulses();
 
     // suspend RTOS scheduler
     xTaskResumeAll();
@@ -1584,6 +1568,13 @@ void cliReceiveData(uint8_t* buf, uint32_t len)
     cliReceiveCallBack(buf, len);
 }
 
+static void cliDefaultRx(uint8_t *buf, uint32_t len)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
 void cliStart()
 {
   // Init stream buffer
@@ -1591,6 +1582,9 @@ void cliStart()
   cliRxBuffer =
       xStreamBufferCreateStatic(sizeof(cliRxBufferStorage), xTriggerLevel,
                                 cliRxBufferStorage, &cliRxBufferStatic);
+
+  // Setup consumer callback
+  cliReceiveCallBack = cliDefaultRx;
 
   RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack, CLI_STACK_SIZE,
                    CLI_TASK_PRIO);
