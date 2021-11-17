@@ -271,12 +271,13 @@ long OpenTxSim::onMouseDown(FXObject *, FXSelector, void * v)
 
 #if defined(HARDWARE_TOUCH)
   now = get_tmr10ms();
-  touchState.tapCount = 0;
+  simTouchState.tapCount = 0;
 
-  touchState.event = TE_DOWN;
-  touchState.startX = touchState.x = evt->win_x;
-  touchState.startY = touchState.y = evt->win_y;
+  simTouchState.event = TE_DOWN;
+  simTouchState.startX = simTouchState.x = evt->win_x;
+  simTouchState.startY = simTouchState.y = evt->win_y;
   downTime = now;
+  simTouchOccured = true;
 #endif
 
   return 0;
@@ -292,22 +293,23 @@ long OpenTxSim::onMouseUp(FXObject*,FXSelector,void*v)
 #if defined(HARDWARE_TOUCH)
   now = get_tmr10ms();
 
-  if (touchState.event == TE_DOWN) {
-    touchState.event = TE_UP;
-    touchState.x = touchState.startX;
-    touchState.y = touchState.startY;
+  if (simTouchState.event == TE_DOWN) {
+    simTouchState.event = TE_UP;
+    simTouchState.x = simTouchState.startX;
+    simTouchState.y = simTouchState.startY;
     if (now - downTime <= TAP_TIME) {
       if (now - tapTime > TAP_TIME)
         tapCount = 1;
       else
         tapCount++;
-      touchState.tapCount = tapCount;
+      simTouchState.tapCount = tapCount;
       tapTime = now;
     }
   }
   else {
-    touchState.event = TE_SLIDE_END;
+    simTouchState.event = TE_SLIDE_END;
   }
+  simTouchOccured = true;
 #endif
 
   return 0;
@@ -322,13 +324,14 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
     TRACE_WINDOWS("[Mouse Move] %d %d", evt->win_x, evt->win_y);
 
 #if defined(HARDWARE_TOUCH)
-    touchState.deltaX += evt->win_x - touchState.x;
-    touchState.deltaY += evt->win_y - touchState.y;
-    if (touchState.event == TE_SLIDE || abs(touchState.deltaX) >= SLIDE_RANGE || abs(touchState.deltaY) >= SLIDE_RANGE) {
-      touchState.event = TE_SLIDE;
-      touchState.x = evt->win_x;
-      touchState.y = evt->win_y;
+    simTouchState.deltaX += evt->win_x - simTouchState.x;
+    simTouchState.deltaY += evt->win_y - simTouchState.y;
+    if (simTouchState.event == TE_SLIDE || abs(simTouchState.deltaX) >= SLIDE_RANGE || abs(simTouchState.deltaY) >= SLIDE_RANGE) {
+      simTouchState.event = TE_SLIDE;
+      simTouchState.x = evt->win_x;
+      simTouchState.y = evt->win_y;
     }
+    simTouchOccured = true;
 #endif
   }
 
