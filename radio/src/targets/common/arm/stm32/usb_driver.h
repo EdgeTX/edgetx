@@ -19,10 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef OPENTX_USB_DRIVER_H
-#define OPENTX_USB_DRIVER_H
+#pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // USB driver
 enum usbMode {
@@ -37,22 +37,20 @@ enum usbMode {
 #endif
 };
 
-int usbPlugged();
+int  usbPlugged();
 void usbInit();
 void usbStart();
 void usbStop();
 bool usbStarted();
-int getSelectedUsbMode();
+
+int  getSelectedUsbMode();
 void setSelectedUsbMode(int mode);
 
-void usbSerialPutc(uint8_t c);
+uint32_t usbSerialFreeSpace();
+void     usbSerialPutc(uint8_t c);
 
-// Used in view_statistics.cpp
-#if defined(DEBUG) && !defined(BOOT)
-  extern uint16_t usbWraps;
-  extern uint16_t charsWritten;
-  extern volatile uint32_t APP_Rx_ptr_in;
-  extern volatile uint32_t APP_Rx_ptr_out;
-#endif
+uint32_t usbSerialBaudRate(void);
 
-#endif
+void usbSerialSetReceiveDataCb(void (*cb)(uint8_t* buf, uint32_t len));
+void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState));
+void usbSerialSetBaudRateCb(void (*cb)(uint32_t baud));

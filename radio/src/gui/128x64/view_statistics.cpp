@@ -214,18 +214,6 @@ void menuStatisticsDebug(event_t event)
   y += FH;
 #endif
 
-#if defined(STM32) && !defined(SIMU) && defined(DEBUG)
-  lcdDrawTextAlignedLeft(y, "Usb");
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, charsWritten, LEFT);
-  lcdDrawText(lcdLastRightPos, y, " ");
-  lcdDrawNumber(lcdLastRightPos, y, APP_Rx_ptr_in, LEFT);
-  lcdDrawText(lcdLastRightPos, y, " ");
-  lcdDrawNumber(lcdLastRightPos, y, APP_Rx_ptr_out, LEFT);
-  lcdDrawText(lcdLastRightPos, y, " ");
-  lcdDrawNumber(lcdLastRightPos, y, usbWraps, LEFT);
-  y += FH;
-#endif
-
 #if defined(STM32)
   lcdDrawTextAlignedLeft(y, "Free Mem");
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, availableMemory(), LEFT);

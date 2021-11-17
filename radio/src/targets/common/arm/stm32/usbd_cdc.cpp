@@ -23,7 +23,8 @@
 #pragma     data_alignment = 4
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 
-#include "opentx.h"
+// include STM32 headers and generic board defs
+#include "board_common.h"
 
 extern "C" {
 
@@ -35,6 +36,18 @@ extern "C" {
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
+/* The following structures groups all needed parameters to be configured for the
+   ComPort. These parameters can modified on the fly by the host through CDC class
+   command class requests. */
+typedef struct __attribute__ ((packed))
+{
+  uint32_t bitrate;
+  uint8_t  format;
+  uint8_t  paritytype;
+  uint8_t  datatype;
+} LINE_CODING;
+
+static LINE_CODING g_lc;
 
 /* These are external variables imported from CDC core to be used for IN
    transfer management. */
@@ -63,6 +76,10 @@ extern "C" const CDC_IF_Prop_TypeDef VCP_fops =
 
 }   // extern "C"
 
+static void (*receiveDataCb)(uint8_t* buf, uint32_t len);
+static void (*ctrlLineStateCb)(uint16_t ctrlLineState);
+static void (*baudRateCb)(uint32_t baud);
+
 bool cdcConnected = false;
 
 /* Private functions ---------------------------------------------------------*/
@@ -75,6 +92,8 @@ bool cdcConnected = false;
 static uint16_t VCP_Init(void)
 {
   cdcConnected = true;
+  ctrlLineStateCb = NULL;
+  baudRateCb = NULL;
   return USBD_OK;
 }
 
@@ -90,6 +109,13 @@ static uint16_t VCP_DeInit(void)
   return USBD_OK;
 }
 
+void ust_cpy(LINE_CODING* plc2, const LINE_CODING* plc1)
+{
+   plc2->bitrate    = plc1->bitrate;
+   plc2->format     = plc1->format;
+   plc2->paritytype = plc1->paritytype;
+   plc2->datatype   = plc1->datatype;
+}
 
 /**
   * @brief  VCP_Ctrl
@@ -101,6 +127,10 @@ static uint16_t VCP_DeInit(void)
   */
 static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
 {
+  LINE_CODING* plc = (LINE_CODING*)Buf;
+
+  assert_param(Len>=sizeof(LINE_CODING));
+
   switch (Cmd)
   {
   case SEND_ENCAPSULATED_COMMAND:
@@ -124,15 +154,29 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
     break;
 
   case SET_LINE_CODING:
-    /* Not  needed for this driver */
+    if (plc && (Len == sizeof (*plc))) {
+      // If a callback is provided, tell the upper driver of changes in baud rate
+      if (baudRateCb) {
+        baudRateCb(plc->bitrate);
+      }
+      // Copy into structure to save for later
+      ust_cpy(&g_lc, plc);
+    }
     break;
 
   case GET_LINE_CODING:
-    /* Not  needed for this driver */
+    if (plc && (Len == sizeof (*plc))) {
+      ust_cpy(plc, &g_lc);
+    }
     break;
 
   case SET_CONTROL_LINE_STATE:
-    /* Not  needed for this driver */
+    // If a callback is provided, tell the upper driver of changes in DTR/RTS state
+    if (plc && (Len == sizeof (uint16_t))) {
+      if (ctrlLineStateCb) {
+        ctrlLineStateCb(*((uint16_t *)Buf));
+      }
+    }
     break;
 
   case SEND_BREAK:
@@ -145,11 +189,6 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
 
   return USBD_OK;
 }
-
-// some debug vars
-uint16_t usbWraps = 0;
-uint16_t charsWritten = 0;
-uint16_t usbTxErrors = 0;
 
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()
@@ -169,23 +208,14 @@ uint32_t usbSerialFreeSpace()
 void usbSerialPutc(uint8_t c)
 {
   /*
-      Apparently there is no reliable way to tell if the
-      virtual serial port is opened or not.
+    Apparently there is no reliable way to tell if the
+    virtual serial port is opened or not.
 
-      The cdcConnected variable only reports the state
-      of the physical USB connection.
+    The cdcConnected variable only reports the state
+    of the physical USB connection.
   */
 
   if (!cdcConnected) return;
-
-  uint32_t prim = __get_PRIMASK();
-  __disable_irq();
-  uint32_t txDataLen = APP_RX_DATA_SIZE + APP_Rx_ptr_in - APP_Rx_ptr_out;
-  if (!prim) __enable_irq();
-
-  if (txDataLen >= APP_RX_DATA_SIZE) {
-    txDataLen -= APP_RX_DATA_SIZE;
-  }
 
   /*
     APP_Rx_Buffer and associated variables must be modified
@@ -194,14 +224,13 @@ void usbSerialPutc(uint8_t c)
 
   /* Read PRIMASK register, check interrupt status before you disable them */
   /* Returns 0 if they are enabled, or non-zero if disabled */
-  prim = __get_PRIMASK();
+
+  uint32_t prim = __get_PRIMASK();
   __disable_irq();
-  APP_Rx_Buffer[APP_Rx_ptr_in++] = c;
-  if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE)
-  {
-    APP_Rx_ptr_in = 0;
-    ++usbWraps;
-  }
+
+  APP_Rx_Buffer[APP_Rx_ptr_in] = c;
+  APP_Rx_ptr_in = (APP_Rx_ptr_in + 1) % APP_RX_DATA_SIZE;
+
   if (!prim) __enable_irq();
 }
 
@@ -224,31 +253,42 @@ void usbSerialPutc(uint8_t c)
   */
 static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 {
-  // TODO: try implementing inbound flow control:
-  //        if the cliRxFifo does not have enough free space to receive all
-  //        available characters, return VCP_FAIL. Maybe that will throttle down
-  //        the sender and we will receive the same packet at a later time.
-
-#if defined(CLI)
-
-  // pass data to CLI
-  cliReceiveData(Buf, Len);
-
-#elif defined(LUA)
-  // TODO: find a better implementation to allow
-  //       run-time selection of the USB CDC receiver
-  //       (here either CLI or LUA)
+  if (receiveDataCb)
+    receiveDataCb(Buf, Len);
   
-  // copy data to the LUA FIFO
-  if (luaRxFifo) {
-    for (uint32_t i = 0; i < Len; i++) {
-      luaRxFifo->push(Buf[i]);
-    }
-  }
-
-#endif
+// #if defined(CLI)
+//   // pass data to CLI
+//   cliReceiveData(Buf, Len);
+// #elif defined(LUA)  
+//   // copy data to the LUA FIFO
+//   if (luaRxFifo) {
+//     for (uint32_t i = 0; i < Len; i++) {
+//       luaRxFifo->push(Buf[i]);
+//     }
+//   }
+// #endif
 
   return USBD_OK;
+}
+
+uint32_t usbSerialBaudRate(void)
+{
+    return g_lc.bitrate;
+}
+
+void usbSerialSetReceiveDataCb(void (*cb)(uint8_t* buf, uint32_t len))
+{
+  receiveDataCb = cb;
+}
+
+void usbSerialSetBaudRateCb(void (*cb)(uint32_t baud))
+{
+  baudRateCb = cb;
+}
+
+void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState))
+{
+  ctrlLineStateCb = cb;
 }
 
 // /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -1586,6 +1586,11 @@ void cliStart()
   // Setup consumer callback
   cliReceiveCallBack = cliDefaultRx;
 
+  // Setup USB callbacks
+  usbSerialSetReceiveDataCb(cliReceiveData);
+  // usbSerialSetBaudRateCb(...);
+  // usbSerialSetCtrlLineStateCb(...);
+
   RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack, CLI_STACK_SIZE,
                    CLI_TASK_PRIO);
 }
