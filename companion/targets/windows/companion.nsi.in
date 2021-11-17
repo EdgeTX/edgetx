@@ -104,7 +104,7 @@
 
 Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
 
-  Delete "$INSTDIR\opentx-*-simulator.dll"
+  Delete "$INSTDIR\edgetx-*-simulator.dll"
   RMDir /r "$INSTDIR\lang"
   RMDir /r "$INSTDIR\phonon_backend"
 
@@ -116,8 +116,8 @@ Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
   ;Store installation folder
   WriteRegStr HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@" "" $INSTDIR
 
-  ;Associate with extentions .otx
-  ${registerExtension} "$INSTDIR\companion.exe" ".otx" "EdgeTX Settings File"
+  ;Associate with extentions .etx
+  ${registerExtension} "$INSTDIR\companion.exe" ".etx" "EdgeTX Settings File"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -177,7 +177,7 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\license.txt"
   Delete "$INSTDIR\companion.exe"
   Delete "$INSTDIR\simulator.exe"
-  Delete "$INSTDIR\*opentx-*-simulator.dll"
+  Delete "$INSTDIR\*edgetx-*-simulator.dll"
   Delete "$INSTDIR\SDL.dll"
   ; MSVC-specific libs
   Delete "$INSTDIR\msvcp140.dll"
@@ -218,10 +218,7 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
 
   RMDir "$INSTDIR"
 
-  ${unregisterExtension} ".bin" "BIN File"
-  ${unregisterExtension} ".hex" "HEX File"
-  ${unregisterExtension} ".eepm" "EEPE File"
-  ${unregisterExtension} ".otx" "EdgeTX Settings File"
+  ${unregisterExtension} ".etx" "EdgeTX Settings File"
 
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
@@ -275,7 +272,7 @@ Function StartMenuLocationCreator
   ${NSD_CreateLabel} 0u 0u 100% 12u $(SML_MainLabel)
   Pop $R0
 
-  ${NSD_CreateRadioButton} 8u 20u 100% 12u $(SML_RadioCurrent) 
+  ${NSD_CreateRadioButton} 8u 20u 100% 12u $(SML_RadioCurrent)
   Pop $StartMenuLocationRadioCurrent
   ${NSD_AddStyle} $StartMenuLocationRadioCurrent ${WS_GROUP}
 
@@ -284,7 +281,7 @@ Function StartMenuLocationCreator
 
   ${If} $StartMenuLocationValue == "all_users"
     ${NSD_SetState} $StartMenuLocationRadioAll ${BST_CHECKED}
-  ${Else}  
+  ${Else}
     ${NSD_SetState} $StartMenuLocationRadioCurrent ${BST_CHECKED}
   ${EndIf}
 
