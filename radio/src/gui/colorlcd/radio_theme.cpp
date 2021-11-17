@@ -557,7 +557,6 @@ void ThemeSetupPage::build(FormWindow *window)
   setupListbox(window, r, tp);
 
   rect_t colorPreviewRect;
-  rect_t previewRect;
   if (LCD_W > LCD_H) {
     r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH;
     r.w = LCD_W - r.x;
@@ -566,7 +565,7 @@ void ThemeSetupPage::build(FormWindow *window)
     r.y += LEFT_LIST_HEIGHT + 4;
     r.x = 0;
     r.w = LCD_W;
-    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 3, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
+    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 6, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   }
 
   // setup ThemeColorPreview()
@@ -580,7 +579,7 @@ void ThemeSetupPage::build(FormWindow *window)
     r.x += COLOR_PREVIEW_WIDTH;
   } else {
     r.y += COLOR_PREVIEW_HEIGHT;
-    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 6;
+    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
   }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
   fileCarosell = new FileCarosell(window, r, fileNames, listBox);
