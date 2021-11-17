@@ -59,8 +59,13 @@
 #define CDC_DATA_MAX_PACKET_SIZE     64   /* Endpoint IN & OUT Packet size */
 #define CDC_CMD_PACKET_SZE           8    /* Control Endpoint Packet size */
 
+#if defined(STM32F2)
 #define CDC_IN_FRAME_INTERVAL        4    /* Number of frames between IN transfers */
 #define APP_RX_DATA_SIZE             512  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#else
+#define CDC_IN_FRAME_INTERVAL        15    /* Number of frames between IN transfers */
+#define APP_RX_DATA_SIZE             2048  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#endif
 #define APP_FOPS                     VCP_fops
 
 #endif // _USBD_CONF_H_

@@ -151,6 +151,21 @@ uint16_t usbWraps = 0;
 uint16_t charsWritten = 0;
 uint16_t usbTxErrors = 0;
 
+// return the bytes free in the circular buffer
+uint32_t usbSerialFreeSpace()
+{
+  // functionally equivalent to:
+  //
+  //      (APP_Rx_ptr_out > APP_Rx_ptr_in ? APP_Rx_ptr_out - APP_Rx_ptr_in :
+  //      APP_RX_DATA_SIZE - APP_Rx_ptr_in + APP_Rx_ptr_in)
+  //
+  //  but without the impact of the condition check.
+
+  return ((APP_Rx_ptr_out - APP_Rx_ptr_in) +
+          (-((int)(APP_Rx_ptr_out <= APP_Rx_ptr_in)) & APP_RX_DATA_SIZE)) -
+         1;
+}
+
 void usbSerialPutc(uint8_t c)
 {
   /*
@@ -171,14 +186,6 @@ void usbSerialPutc(uint8_t c)
   if (txDataLen >= APP_RX_DATA_SIZE) {
     txDataLen -= APP_RX_DATA_SIZE;
   }
-
-  // buffer is too full, skip this write
-  if (txDataLen > (APP_RX_DATA_SIZE - CDC_DATA_MAX_PACKET_SIZE)) {
-    usbTxErrors++;
-    return;
-  }
-
-  ++charsWritten;
 
   /*
     APP_Rx_Buffer and associated variables must be modified

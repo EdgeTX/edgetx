@@ -874,30 +874,14 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-// static StreamBufferHandle_t spIntRxBuffer;
-
-// static void spRx(uint8_t data)
-// {
-//   BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
-//   xStreamBufferSendFromISR(spIntRxBuffer, &data, 1,
-//                            &xHigherPriorityTaskWoken);
-//   xTaskNotifyFromISR(cliTaskId.rtos_handle, 0, eNoAction,
-//                      &xHigherPriorityTaskWoken);
-
-//   // might effect a context switch on ISR exit
-//   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-// }
-
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   intmoduleSendBuffer(buf, len);
   intmoduleWaitForTxCompleted();
 }
 
-static void spSerialTx(uint8_t data)
-{
-  serialPutc(data);
-}
+extern bool cdcConnected;
+uint32_t usbSerialFreeSpace();
 
 int cliSerialPassthrough(const char **argv)
 {
@@ -945,6 +929,9 @@ int cliSerialPassthrough(const char **argv)
     stopPulsesExternalModule();
 #endif
 
+    // suspend RTOS scheduler
+    vTaskSuspendAll();
+
 #if defined(HARDWARE_INTERNAL_MODULE)
     if (port_n == INTERNAL_MODULE) {
 
@@ -954,20 +941,31 @@ int cliSerialPassthrough(const char **argv)
       etx_serial_init params;
       params.baudrate = baudrate;
       params.rx_enable = true;
-      params.on_receive = spSerialTx;
-      intmoduleSerialStart(&params);
 
+      intmoduleSerialStart(&params);
       cliReceiveCallBack = spInternalModuleTx;
-      
-      // loop forever
-      for (;;) {
+
+      // loop until cable disconnected
+      while (cdcConnected) {
+
+        uint8_t data;
+        if (intmoduleFifo.pop(data)) {
+          uint8_t timeout = 10; // 10 ms
+          while(!usbSerialFreeSpace() && (timeout > 0)) {
+            delay_ms(1);
+            timeout--;
+          }
+
+          usbSerialPutc(data);
+        }
+
+        // RTOS_WAIT_MS(200);
         
         // keep us up & running
         WDG_RESET();
-        RTOS_WAIT_MS(200);
       }
 
-      intmoduleSerialStop();
+      intmoduleStop();
       // TODO: reset cli rx callback
     }
 #endif
@@ -975,6 +973,12 @@ int cliSerialPassthrough(const char **argv)
     // TODO:
     //  - external module (S.PORT?)
     //  - how to exit this mode ??? USB exit ?
+
+    watchdogSuspend(200/*2s*/);
+    resumePulses();
+
+    // suspend RTOS scheduler
+    xTaskResumeAll();
     
   } else {
     serialPrint("%s: invalid port type '%s'", port_type);

@@ -186,14 +186,14 @@ __ALIGN_BEGIN uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE] __ALIGN_END ;
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 __ALIGN_BEGIN uint8_t CmdBuff[CDC_CMD_PACKET_SZE] __ALIGN_END ;
 
-volatile uint32_t APP_Rx_ptr_in  = 0;	// modified by OpenTX
-volatile uint32_t APP_Rx_ptr_out = 0;	// modified by OpenTX
+uint32_t APP_Rx_ptr_in  = 0;
+uint32_t APP_Rx_ptr_out = 0;
 uint32_t APP_Rx_length  = 0;
 
 uint8_t  USB_Tx_State = USB_CDC_IDLE;
 
 static uint32_t cdcCmd = 0xFF;
-static uint8_t cdcLen = 0;   // modified by OpenTX
+static uint32_t cdcLen = 0;   // modified by OpenTX
 
 /* CDC interface class callbacks structure */
 const USBD_Class_cb_TypeDef  USBD_CDC_cb =   // modified by OpenTX
