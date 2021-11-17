@@ -317,7 +317,8 @@ enum ChannelsProtocols {
 inline void stopPulses()
 {
   s_pulses_paused = true;
-  moduleState[0].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+  for (uint8_t i = 0; i < NUM_MODULES; i++)
+    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
 }
 
 inline bool pulsesStarted()
