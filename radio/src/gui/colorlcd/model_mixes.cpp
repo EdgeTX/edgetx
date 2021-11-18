@@ -28,11 +28,14 @@
 #include "gvar_numberedit.h"
 #include "model_curves.h"
 #include "dataconstants.h"
+#include "channel_bar.h"
 
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
 #define PASTE_AFTER     -1
+
+constexpr coord_t STATUS_BAR_HEIGHT = 25;
 
 uint8_t getMixesCount()
 {
@@ -57,6 +60,26 @@ bool reachMixesLimit()
   return false;
 }
 
+class MixerEditStatusBar : public Window
+{
+  public:
+    MixerEditStatusBar(Window *parent, const rect_t &rect, int8_t channel) :
+      Window(parent, rect),
+      _channel(channel)
+    {
+      mixerChannelBar = new MixerChannelBar(this, {4, 4, rect.w - 8, rect.h - 8}, channel);
+    }
+
+    void paint(BitmapBuffer *dc) override
+    {
+      dc->clear(COLOR_THEME_SECONDARY1);
+    }
+
+  protected:
+    MixerChannelBar *mixerChannelBar;
+    int8_t _channel;
+};
+
 class MixEditWindow : public Page
 {
  public:
@@ -64,6 +87,12 @@ class MixEditWindow : public Page
       Page(ICON_MODEL_MIXER), channel(channel), mixIndex(mixIndex)
   {
     buildBody(&body);
+    body.setHeight(body.height() - STATUS_BAR_HEIGHT);
+    statusBar = new MixerEditStatusBar(
+                      this, 
+                      {this->rect.x, this->rect.h - STATUS_BAR_HEIGHT, this->rect.w, STATUS_BAR_HEIGHT}, 
+                      channel);
+
     buildHeader(&header);
   }
 
@@ -71,6 +100,7 @@ class MixEditWindow : public Page
   uint8_t channel;
   uint8_t mixIndex;
   FormGroup *curveParamField = nullptr;
+  MixerEditStatusBar *statusBar = nullptr;
 
   void buildHeader(Window *window)
   {
