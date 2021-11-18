@@ -876,9 +876,6 @@ static void spInternalModuleSetBaudRate(uint32_t baud)
   params.baudrate = baud;
   params.rx_enable = true;
 
-  // just in case...
-  intmoduleWaitForTxCompleted();
-
   // re-configure serial port
   intmoduleSerialStart(&params);
 }
@@ -890,9 +887,9 @@ int cliSerialPassthrough(const char **argv)
 {
   const char* port_type = argv[1];
   const char* port_num  = argv[2];
-  const char* rate_str  = argv[3];
 
-  if (!port_type || !port_num || !rate_str) {
+  // 3rd argument (baudrate is optional)
+  if (!port_type || !port_num) {
     serialPrint("%s: missing argument", argv[0]);
     return -1;
   }
@@ -907,10 +904,14 @@ int cliSerialPassthrough(const char **argv)
 
   int baudrate = 0;
   err = toInt(argv, 3, &baudrate);
-  if (err == -1) return err;
-  if (err == 0) {
+  if (err <= 0) {
     // use current USB CDC baudrate
     baudrate = usbSerialBaudRate();
+    if (!baudrate) {
+      // default to 115200
+      baudrate = 115200;
+      serialPrint("%s: USB baudrate is 0, default to 115200", argv[0]);
+    }
   }
 
   if (!strcmp("rfmod", port_type)) {
