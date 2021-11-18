@@ -330,6 +330,7 @@
 
 #define TR_USE_THEME_COLOR "Use theme color"
 
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS "Add all Trms to Subtrims"
 #define TR_DUPLICATE "Duplicate"
 #define TR_ACTIVATE "Set Active"
 #define TR_RED "Red"
