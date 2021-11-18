@@ -870,8 +870,21 @@ static void spInternalModuleTx(uint8_t* buf, uint32_t len)
   intmoduleWaitForTxCompleted();
 }
 
+static void spInternalModuleSetBaudRate(uint32_t baud)
+{
+  etx_serial_init params;
+  params.baudrate = baud;
+  params.rx_enable = true;
+
+  // just in case...
+  intmoduleWaitForTxCompleted();
+
+  // re-configure serial port
+  intmoduleSerialStart(&params);
+}
+
+// TODO: use proper method instead
 extern bool cdcConnected;
-uint32_t usbSerialFreeSpace();
 
 int cliSerialPassthrough(const char **argv)
 {
@@ -896,8 +909,8 @@ int cliSerialPassthrough(const char **argv)
   err = toInt(argv, 3, &baudrate);
   if (err == -1) return err;
   if (err == 0) {
-    serialPrint("%s: missing baudrate", argv[0]);
-    return -1;
+    // use current USB CDC baudrate
+    baudrate = usbSerialBaudRate();
   }
 
   if (!strcmp("rfmod", port_type)) {
@@ -931,11 +944,16 @@ int cliSerialPassthrough(const char **argv)
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
+      // setup CDC baudrate callback
+      usbSerialSetBaudRateCb(spInternalModuleSetBaudRate);
+
       // loop until cable disconnected
       while (cdcConnected) {
 
         uint8_t data;
         if (intmoduleFifo.pop(data)) {
+          GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
             delay_ms(1);
@@ -943,14 +961,18 @@ int cliSerialPassthrough(const char **argv)
           }
 
           usbSerialPutc(data);
+          GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
         }
 
         // keep us up & running
         WDG_RESET();
       }
 
-      // restore CLI input
+      // restore callsbacks
+      usbSerialSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
+
+      // and stop module
       intmoduleStop();
     }
 #endif
