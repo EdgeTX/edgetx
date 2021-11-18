@@ -133,8 +133,6 @@ void intmoduleSerialStart(const etx_serial_init* params)
   USART_Cmd(INTMODULE_USART, ENABLE);
 
   if (params->rx_enable) {
-    // TODO: move into the caller
-    intmoduleFifo.clear();
     USART_ITConfig(INTMODULE_USART, USART_IT_RXNE, ENABLE);
     NVIC_SetPriority(INTMODULE_USART_IRQn, 6);
     NVIC_EnableIRQ(INTMODULE_USART_IRQn);
