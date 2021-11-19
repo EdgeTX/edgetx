@@ -37,6 +37,10 @@ enum usbMode {
 #endif
 };
 
+// Control line state bits
+#define CTRL_LINE_STATE_DTR (1 << 0)
+#define CTRL_LINE_STATE_RTS (1 << 1)
+
 int  usbPlugged();
 void usbInit();
 void usbStart();

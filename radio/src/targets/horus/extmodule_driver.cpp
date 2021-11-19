@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(CROSSFIRE)
+#include "pulses/crossfire.h"
+#endif
+
 void extmoduleStop()
 {
   EXTERNAL_MODULE_OFF();
@@ -413,7 +417,9 @@ void extmoduleSendNextFrame()
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      sportSendBuffer(extmodulePulsesData.crossfire.pulses, extmodulePulsesData.crossfire.length);
+      if (CrossfireModuleDriver.sendPulses) {
+        CrossfireModuleDriver.sendPulses((void*)EXTERNAL_MODULE);
+      }
       break;
 #endif
 

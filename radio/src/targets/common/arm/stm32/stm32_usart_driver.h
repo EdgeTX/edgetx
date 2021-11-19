@@ -19,24 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "afhds2.h"
+#pragma once
 
-etx_serial_init afhds2SerialInitParams = {
-    .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
-    .rx_enable = true,
-    .on_receive = intmoduleFifoReceive,
-    .on_error = intmoduleFifoError,
-};
+#include <stdint.h>
+#include "hal/serial_driver.h"
 
-afhds2::afhds2() {
-  // TODO Auto-generated constructor stub
+#if defined(STM32F4)
+//  #include "stm32f4xx.h"
+  #include "stm32f4xx_usart.h"
+#else
+//  #include "stm32f2xx.h"
+  #include "stm32f2xx_usart.h"
+#endif
 
-}
-
-afhds2::~afhds2() {
-  // TODO Auto-generated destructor stub
-}
-
+void stm32_usart_init(USART_TypeDef *USARTx, const etx_serial_init* params);

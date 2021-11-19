@@ -25,6 +25,20 @@
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+
+const etx_serial_init pxx2SerialInitParams = {
+    .baudrate = PXX2_HIGHSPEED_BAUDRATE,
+    .parity = ETX_Parity_None,
+    .stop_bits = ETX_StopBits_One,
+    .word_length = ETX_WordLength_8,
+    .rx_enable = true,
+    .on_receive = intmoduleFifoReceive,
+    .on_error = intmoduleFifoError,
+};
+#endif
+
 bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
 {
   uint8_t modelId = info.modelID;

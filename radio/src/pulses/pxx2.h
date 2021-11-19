@@ -26,6 +26,7 @@
 #include "io/frsky_pxx2.h"
 #include "popups.h"
 #include "./pxx.h"
+#include "hal/serial_driver.h"
 
 #define PXX2_TYPE_C_MODULE                  0x01
   #define PXX2_TYPE_ID_REGISTER             0x01
@@ -574,5 +575,7 @@ class Pxx2OtaUpdate {
     bool waitStep(uint8_t step, uint8_t timeout);
     const char * nextStep(uint8_t step, const char * rxName, uint32_t address, const uint8_t * buffer);
 };
+
+extern const etx_serial_init pxx2SerialInitParams;
 
 #endif
