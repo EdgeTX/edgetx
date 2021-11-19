@@ -64,8 +64,8 @@ constexpr int COLOR_BOX_LEFT = 3;
 constexpr int COLOR_BOX_WIDTH = 45;
 constexpr int COLOR_BOX_HEIGHT = 27;
 #else
-constexpr int BUTTON_HEIGHT = 25;
-constexpr int BUTTON_WIDTH  = 50;
+constexpr int BUTTON_HEIGHT = 30;
+constexpr int BUTTON_WIDTH  = 65;
 constexpr LcdFlags textFont = FONT(XS);
 constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 340};
 constexpr int labelWidth = 120;
@@ -586,7 +586,7 @@ void ThemeSetupPage::build(FormWindow *window)
 
   // author and name of theme on right side of screen
   r.x += 7;
-  r.y += 130;
+  r.y += 135;
   r.h = 20;
   nameText = new StaticText(window, r, theme != nullptr ? theme->getName() : "", 0, 
                             COLOR_THEME_PRIMARY1);
