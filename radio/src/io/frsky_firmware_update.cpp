@@ -251,11 +251,14 @@ void FrskyDeviceFirmwareUpdate::sendFrame()
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE:
-      return intmoduleSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      IntmoduleSerialDriver.sendBuffer(outputTelemetryBuffer.data,
+                                       ptr - outputTelemetryBuffer.data);
+      return;
 #endif
 
     default:
-      return sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      return;
   }
 }
 
@@ -306,6 +309,7 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 // X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
 // XLite PRO / X9Lite / X9D+ 2019 ISRM = use TX + RX @ 57600 bauds
 
+#if defined(INTMODULE_USART)
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
   .parity = ETX_Parity_None,
@@ -315,6 +319,7 @@ static const etx_serial_init serialInitParams = {
   .on_receive = intmoduleFifoReceive,
   .on_error = intmoduleFifoError,
 };
+#endif
 
 const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
 {
