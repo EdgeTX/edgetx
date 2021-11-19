@@ -136,13 +136,13 @@ static void pollIntPXX2()
 }
 #endif  
 
-#if defined(PXX2)
+#if defined(PXX2) && defined(EXTMODULE_USART)
 static void pollExtPXX2()
 {
   uint8_t frame[PXX2_FRAME_MAXLENGTH];
 
-  while (intmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(INTERNAL_MODULE, frame);
+  while (extmoduleFifo.getFrame(frame)) {
+    processPXX2Frame(EXTERNAL_MODULE, frame);
   }
 }
 #endif  
