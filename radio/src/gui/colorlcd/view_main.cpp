@@ -247,7 +247,10 @@ bool ViewMain::onTouchEnd(coord_t x, coord_t y)
   }
   else {
     openMenu();
-    if(x > getParent()->width() / 2)
+    int x1 = x;
+    int w1 = getParent()->width();
+    while (x1 > w1)   x1 -= w1;
+    if (x1 > w1 / 2)
       pushEvent(EVT_ROTARY_LEFT);
   }
   return true;
