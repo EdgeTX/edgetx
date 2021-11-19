@@ -116,7 +116,9 @@
 
 #define LEN_RETA123                    "\001"
 
-#if defined(PCBHORUS)
+#if defined(PCBX10)
+  #define TR_RETA123                   "SVPK1324567LR"
+#elif defined(PCBHORUS)
   #define TR_RETA123                   "SVPK13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "SVPK1234LRLR"
