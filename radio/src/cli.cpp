@@ -995,7 +995,6 @@ int cliSerialPassthrough(const char **argv)
 
         uint8_t data;
         if (intmoduleFifo.pop(data)) {
-          GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1004,7 +1003,6 @@ int cliSerialPassthrough(const char **argv)
           }
 
           usbSerialPutc(data);
-          GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
         }
 
         // keep us up & running
