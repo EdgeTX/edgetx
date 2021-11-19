@@ -35,8 +35,6 @@
 #define PASTE_BEFORE    -2
 #define PASTE_AFTER     -1
 
-constexpr coord_t STATUS_BAR_HEIGHT = 25;
-
 uint8_t getMixesCount()
 {
   uint8_t count = 0;
@@ -67,16 +65,17 @@ class MixerEditStatusBar : public Window
       Window(parent, rect),
       _channel(channel)
     {
-      mixerChannelBar = new MixerChannelBar(this, {4, 4, rect.w - 8, rect.h - 8}, channel);
+      channelBar = new ComboChannelBar(this, {3, 0, rect.w - 6, rect.h}, channel);
+      channelBar->setLeftMargin(0);
     }
 
     void paint(BitmapBuffer *dc) override
     {
-      dc->clear(COLOR_THEME_SECONDARY1);
+      dc->clear(COLOR_THEME_SECONDARY2);
     }
 
   protected:
-    MixerChannelBar *mixerChannelBar;
+    ComboChannelBar *channelBar;
     int8_t _channel;
 };
 
@@ -87,12 +86,6 @@ class MixEditWindow : public Page
       Page(ICON_MODEL_MIXER), channel(channel), mixIndex(mixIndex)
   {
     buildBody(&body);
-    body.setHeight(body.height() - STATUS_BAR_HEIGHT);
-    statusBar = new MixerEditStatusBar(
-                      this, 
-                      {this->rect.x, this->rect.h - STATUS_BAR_HEIGHT, this->rect.w, STATUS_BAR_HEIGHT}, 
-                      channel);
-
     buildHeader(&header);
   }
 
@@ -112,6 +105,10 @@ class MixEditWindow : public Page
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
                    getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
+
+    statusBar = new MixerEditStatusBar(
+        window, {window->getRect().w - 250, 0, 250, MENU_HEADER_HEIGHT + 3},
+        channel);
   }
 
   void buildBody(FormWindow *window)

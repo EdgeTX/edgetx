@@ -247,8 +247,13 @@ class ComboChannelBar : public ChannelBar
     ComboChannelBar(Window * parent, const rect_t & rect, uint8_t channel):
       ChannelBar(parent, rect, channel)
     {
-      new OutputChannelBar(this, {lmargin, BAR_HEIGHT, width() - lmargin, BAR_HEIGHT}, channel);
-      new MixerChannelBar(this, {lmargin, 2 * BAR_HEIGHT + 1, width() - lmargin, BAR_HEIGHT}, channel);
+      new OutputChannelBar(this, {leftMargin, BAR_HEIGHT, width() - leftMargin, BAR_HEIGHT}, channel);
+      new MixerChannelBar(this, {leftMargin, 2 * BAR_HEIGHT + 1, width() - leftMargin, BAR_HEIGHT}, channel);
+    }
+
+    void setLeftMargin(int margin)
+    {
+      leftMargin = margin; 
     }
 
     void paint(BitmapBuffer * dc) override
@@ -260,10 +265,10 @@ class ComboChannelBar : public ChannelBar
 
       // Channel number
       strAppendSigned(&chanString[2], channel + 1, 2);
-      dc->drawText(lmargin, 0, chanString, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
+      dc->drawText(leftMargin, 0, chanString, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
 
       // Channel name
-      dc->drawSizedText(lmargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
+      dc->drawSizedText(leftMargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
 
       // Channel value in µS
       dc->drawNumber(width(), 0, usValue, FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, STR_US);
@@ -301,6 +306,7 @@ class ComboChannelBar : public ChannelBar
 
   protected:
     int value = 0;
+    int leftMargin = lmargin;
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
     int safetyChValue = OVERRIDE_CHANNEL_UNDEFINED;
 #endif
