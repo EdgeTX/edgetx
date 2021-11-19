@@ -242,6 +242,7 @@ set(TARGET_SRC
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   ../common/arm/stm32/intmodule_serial_driver.cpp
+  ../common/arm/stm32/stm32_usart_driver.cpp
   ../common/arm/stm32/rotary_encoder_driver.cpp
   )
 

@@ -33,6 +33,10 @@
 #include "intmodule_pulses_driver.h"
 #endif
 
+#if defined(CROSSFIRE)
+#include "pulses/crossfire.h"
+#endif
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
@@ -304,7 +308,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
       EXTERNAL_MODULE_ON();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, CROSSFIRE_PERIOD);
+      if (CrossfireModuleDriver.init)
+        CrossfireModuleDriver.init(EXTERNAL_MODULE);
       break;
 #endif
 
@@ -409,15 +414,14 @@ bool setupPulsesExternalModule(uint8_t protocol)
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-    {
-      ModuleSyncStatus& status = getModuleSyncStatus(EXTERNAL_MODULE);
-      if (status.isValid())
-        mixerSchedulerSetPeriod(EXTERNAL_MODULE, status.getAdjustedRefreshRate());
-      else
-        mixerSchedulerSetPeriod(EXTERNAL_MODULE, CROSSFIRE_PERIOD);
-      setupPulsesCrossfire(EXTERNAL_MODULE);
+      if (CrossfireModuleDriver.setupPulses) {
+        int16_t* channels =
+            &channelOutputs[g_model.moduleData[EXTERNAL_MODULE].channelsStart];
+        uint8_t nChannels = 16;  // TODO: MAX_CHANNELS - channelsStart
+        CrossfireModuleDriver.setupPulses((void*)EXTERNAL_MODULE, channels,
+                                          nChannels);
+      }
       return true;
-    }
 #endif
 
 #if defined(GHOST)
@@ -466,25 +470,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 
-#if defined(INTERNAL_MODULE_CRSF)
-static void intmoduleCRSF_rx(uint8_t data)
-{
-  intmoduleFifo.push(data);
-
-#if !defined(SIMU)
-  // wakeup mixer when rx buffer is quarter full (16 bytes)
-  if (intmoduleFifo.size() >= 16) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTaskNotifyFromISR(mixerTaskId.rtos_handle, 0, eNoAction,
-                       &xHigherPriorityTaskWoken);
-
-    // might effect a context switch on ISR exit
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
-#endif
-}
-#endif
-
 static void enablePulsesInternalModule(uint8_t protocol)
 {
   // start new protocol hardware here
@@ -512,12 +497,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED: {
-      etx_serial_init params;
-      params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
-      params.rx_enable = true;
-
       intmoduleFifo.clear();
-      intmoduleSerialStart(&params);
+      IntmoduleSerialDriver.init(&pxx2SerialInitParams)
       resetAccessAuthenticationCount();
 
 #if defined(INTMODULE_HEARTBEAT)
@@ -529,19 +510,11 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE: {
-
+    case PROTOCOL_CHANNELS_MULTIMODULE:
       // serial port setup
-      etx_serial_init params;
-      params.baudrate    = MULTIMODULE_BAUDRATE;
-      params.rx_enable   = true;
-      params.parity      = USART_Parity_Even;
-      params.stop_bits   = USART_StopBits_2;
-      params.word_length = USART_WordLength_9b;
-
       intmodulePulsesData.multi.initFrame();
       intmoduleFifo.clear();
-      intmoduleSerialStart(&params);
+      IntmoduleSerialDriver.init(&multiSerialInitParams);
 
       // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
@@ -555,26 +528,16 @@ static void enablePulsesInternalModule(uint8_t protocol)
       MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
       TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
 #endif
-    } break;
+      break;
 #endif
 
 #if defined(INTERNAL_MODULE_CRSF)
-    case PROTOCOL_CHANNELS_CROSSFIRE: {
-
-      // serial port setup
-      etx_serial_init params;
-      params.baudrate  = CROSSFIRE_BAUDRATE;
-      params.rx_enable = true;
-
-      // wakeup mixer when rx buffer is quarter full (16 bytes)
-      params.on_receive = intmoduleCRSF_rx;
-
-      intmoduleFifo.clear();
-      intmoduleSerialStart(&params);
-
-      // mixer setup
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
-    } break;
+    case PROTOCOL_CHANNELS_CROSSFIRE:
+      if (CrossfireModuleDriver.init) {
+        // TODO: save context
+        CrossfireModuleDriver.init(INTERNAL_MODULE);
+      }
+      break;
 #endif
 
 #if defined(INTERNAL_MODULE_PPM)
@@ -585,20 +548,15 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #endif
 
 #if defined(AFHDS2)
-    case PROTOCOL_CHANNELS_AFHDS2A: {
-
+    case PROTOCOL_CHANNELS_AFHDS2A:
       // serial port setup
-      etx_serial_init params;
-      params.baudrate  = INTMODULE_USART_AFHDS2_BAUDRATE;
-      params.rx_enable = true;
-
       resetPulsesAFHDS2();
       intmoduleFifo.clear();
-      intmoduleSerialStart(&params);
+      IntmoduleSerialDriver.init(&afhds2SerialInitParams)
 
       // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
-    } break;
+      break;
 #endif
 
     default:
@@ -645,15 +603,14 @@ bool setupPulsesInternalModule(uint8_t protocol)
 
 #if defined(INTERNAL_MODULE_CRSF)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-    {
-      ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
-      if (status.isValid())
-        mixerSchedulerSetPeriod(INTERNAL_MODULE, status.getAdjustedRefreshRate());
-      else
-        mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
-      setupPulsesCrossfire(INTERNAL_MODULE);
+      if (CrossfireModuleDriver.setupPulses) {
+        int16_t* channels =
+            &channelOutputs[g_model.moduleData[INTERNAL_MODULE].channelsStart];
+        uint8_t nChannels = 16;  // TODO: MAX_CHANNELS - channelsStart
+        CrossfireModuleDriver.setupPulses((void*)INTERNAL_MODULE, channels,
+                                          nChannels);
+      }
       return true;
-    }
 #endif
 
 #if defined(INTERNAL_MODULE_MULTI)
@@ -711,8 +668,8 @@ void intmoduleSendNextFrame()
 #if defined(PXX1)
 #if defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      intmoduleSendBuffer(intmodulePulsesData.pxx_uart.getData(),
-                          intmodulePulsesData.pxx_uart.getSize());
+      IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.pxx_uart.getData(),
+                                       intmodulePulsesData.pxx_uart.getSize());
       break;
 #else
     case PROTOCOL_CHANNELS_PXX1_PULSES:
@@ -724,15 +681,16 @@ void intmoduleSendNextFrame()
 
 #if defined(INTERNAL_MODULE_MULTI)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      intmoduleSendBuffer(intmodulePulsesData.multi.getData(),
-                          intmodulePulsesData.multi.getSize());
+      IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.multi.getData(),
+                                       intmodulePulsesData.multi.getSize());
       break;
 #endif
 
 #if defined(INTERNAL_MODULE_CRSF)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      intmoduleSendBuffer(intmodulePulsesData.crossfire.pulses,
-                          intmodulePulsesData.crossfire.length);
+      if (CrossfireModuleDriver.sendPulses) {
+        CrossfireModuleDriver.sendPulses((void*)INTERNAL_MODULE);
+      }
       break;
 #endif
 

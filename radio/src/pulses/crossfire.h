@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,24 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "afhds2.h"
+#pragma once
 
-etx_serial_init afhds2SerialInitParams = {
-    .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
-    .rx_enable = true,
-    .on_receive = intmoduleFifoReceive,
-    .on_error = intmoduleFifoError,
-};
+#include "hal/module_driver.h"
 
-afhds2::afhds2() {
-  // TODO Auto-generated constructor stub
-
-}
-
-afhds2::~afhds2() {
-  // TODO Auto-generated destructor stub
-}
-
+extern etx_hal_module_driver_t CrossfireModuleDriver;

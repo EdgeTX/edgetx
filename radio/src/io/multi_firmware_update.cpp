@@ -68,6 +68,17 @@ class MultiFirmwareUpdateDriver
 };
 
 #if defined(INTERNAL_MODULE_MULTI)
+
+static const etx_serial_init serialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+  .on_receive = intmoduleFifoReceive,
+  .on_error = intmoduleFifoError,
+};
+
 class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 {
   public:
@@ -81,10 +92,9 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) const override
     {
-      etx_serial_init params;
+      etx_serial_init params(serialInitParams);
       params.baudrate = 57600;
-      params.rx_enable = true;
-      intmoduleSerialStart(&params);
+      IntmoduleSerialDriver.init(&params);
     }
 
     bool getByte(uint8_t & byte) const override
@@ -94,7 +104,7 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void sendByte(uint8_t byte) const override
     {
-      intmoduleSendByte(byte);
+      IntmoduleSerialDriver.sendByte(byte);
     }
 
     void clear() const override
