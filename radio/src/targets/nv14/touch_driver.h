@@ -79,6 +79,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <touch.h>
 
 /* Set Multi-touch as non supported */
 #ifndef TS_MULTI_TOUCH_SUPPORTED
