@@ -886,6 +886,21 @@ int cliSet(const char **argv)
     }
 #endif
   }
+  else if (!strcmp(argv[1], "pulses")) {
+    int level = 0;
+    if (toInt(argv, 2, &level) < 0) {
+      serialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
+      return -1;
+    }
+
+    if (level) {
+      serialPrint("%s: pulses start", argv[0]);
+      startPulses();
+    } else {
+      serialPrint("%s: pulses stop", argv[0]);
+      stopPulses();
+    }
+  }
 
   return 0;
 }
@@ -1567,7 +1582,14 @@ void cliTask(void * pdata)
     /* Block for max 100ms. */
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
-    if (!xReceivedBytes) continue;
+
+    if (s_pulses_paused) {
+      WDG_RESET();
+    }
+
+    if (!xReceivedBytes) {
+      continue;
+    }
 
     switch(c) {
     case CHAR_NEWPAGE:
