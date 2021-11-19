@@ -295,14 +295,14 @@ eventData LuaWidget::events[EVENT_BUFFER_SIZE] = { 0 };
   tmr10ms_t LuaWidget::swipeTimeOut = 0;
 #endif  
 
-void l_pushtableint(const char * key, int value)
+static void l_pushtableint(const char * key, int value)
 {
   lua_pushstring(lsWidgets, key);
   lua_pushinteger(lsWidgets, value);
   lua_settable(lsWidgets, -3);
 }
 
-void l_pushtablebool(const char * key, bool value)
+static void l_pushtablebool(const char * key, bool value)
 {
   lua_pushstring(lsWidgets, key);
   lua_pushboolean(lsWidgets, value);

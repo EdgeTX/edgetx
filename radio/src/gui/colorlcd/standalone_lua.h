@@ -22,6 +22,7 @@
 #pragma once
 
 #include "libopenui.h"
+#include "lua/lua_api.h"
 
 struct LuaPopup
 {
@@ -52,6 +53,12 @@ public:
   void onEvent(event_t evt) override;
 #endif
 
+#if defined(HARDWARE_TOUCH)
+  bool onTouchStart(coord_t x, coord_t y) override;
+  bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
+#endif
+
   bool displayPopup(event_t event, uint8_t type, const char* text,
                     const char* info, bool& result);
 
@@ -65,4 +72,8 @@ protected:
   // run LUA code
   void runLua(event_t evt);
   event_t event = 0;
+#if defined(HARDWARE_TOUCH)
+  static bool fingerDown;
+  LuaTouchData touch;
+#endif
 };
