@@ -120,7 +120,11 @@
 
 #define LEN_RETA123            "\001"
 
-#if defined(PCBX9E)
+#if defined(PCBX10)
+  #define TR_RETA123           "RHGS1324567LR"
+#elif defined(PCBHORUS)
+  #define TR_RETA123           "RHGS13245LR"
+#elif defined(PCBX9E)
   #define TR_RETA123           "RHGS1234HVHV"
 #elif defined(PCBTARANIS) || defined(REVX)
   #define TR_RETA123           "RHGS123HV"
