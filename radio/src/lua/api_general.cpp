@@ -494,7 +494,8 @@ When called without parameters, it will only return the status of the output buf
 
 static int luaSportTelemetryPush(lua_State * L)
 {
-  if (!IS_FRSKY_SPORT_PROTOCOL()) {
+  // dirty hack until 2 simultanous protocols are supported
+  if (isModuleCrossfire(INTERNAL_MODULE) || !IS_FRSKY_SPORT_PROTOCOL()) {
     lua_pushnil(L);
     return 1;
   }
