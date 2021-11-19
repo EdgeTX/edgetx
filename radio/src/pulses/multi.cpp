@@ -50,6 +50,20 @@ static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
 #endif
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+
+etx_serial_init multiSerialInitParams = {
+    .baudrate = MULTIMODULE_BAUDRATE,
+    .parity = ETX_Parity_Even,
+    .stop_bits = ETX_StopBits_Two,
+    .word_length = ETX_WordLength_9,
+    .rx_enable = true,
+    .on_receive = intmoduleFifoReceive,
+    .on_error = intmoduleFifoError,
+};
+#endif
+
 void multiPatchCustom(uint8_t moduleIdx)
 {
   if (g_model.moduleData[moduleIdx].multi.customProto) {

@@ -56,4 +56,6 @@ public:
   virtual ~afhds2();
 };
 
+extern etx_serial_init afhds2SerialInitParams;
+
 #endif /* PULSES_AFHDS2_H_ */

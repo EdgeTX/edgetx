@@ -145,6 +145,10 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
+#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
+  #define HARDWARE_INTERNAL_RAS
+#endif
+
 // Pulses driver
 #if defined(RADIO_T18) || defined(RADIO_T16)
 
@@ -168,20 +172,14 @@ void SDRAM_Init();
 
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-  #define HARDWARE_INTERNAL_RAS
-#endif
+#define INTERNAL_MODULE_OFF()   GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_ON()    GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_OFF()   GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 
-#if defined(INTMODULE_USART)
-  #define INTERNAL_MODULE_OFF()        intmoduleStop()
-#else
-  #define INTERNAL_MODULE_OFF()        GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#endif
-
-#define EXTERNAL_MODULE_ON()           GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_OFF()          GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define IS_INTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#define IS_EXTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_INTERNAL_MODULE_ON()                                         \
+  (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_EXTERNAL_MODULE_ON() \
+  (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
 
 #if !defined(PXX2)
   #define IS_PXX2_INTERNAL_ENABLED()            (false)

@@ -22,22 +22,10 @@
 #pragma once
 
 #include <stdint.h>
+#include "hal/serial_driver.h"
 
-struct etx_serial_init {
-  uint32_t baudrate;
-  uint16_t parity;
-  uint16_t stop_bits;
-  uint16_t word_length;
-  bool     rx_enable;
-  void     (*on_receive)(uint8_t data);
-  void     (*on_error)();
+// Callbacks using intmoduleFifo
+void intmoduleFifoReceive(uint8_t data);
+void intmoduleFifoError();
 
-  etx_serial_init();
-};
-
-void intmoduleSerialStart(const etx_serial_init* params);
-void intmoduleSerialStop();
-
-void intmoduleSendByte(uint8_t byte);
-void intmoduleSendBuffer(const uint8_t* data, uint8_t size);
-void intmoduleWaitForTxCompleted();
+extern etx_hal_serial_driver_t IntmoduleSerialDriver;

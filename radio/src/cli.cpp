@@ -917,19 +917,28 @@ int cliSet(const char **argv)
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   while (len > 0) {
-    intmoduleSendByte(*(buf++));
+    IntmoduleSerialDriver.sendByte(*(buf++));
     len--;
   }
 }
 
+static const etx_serial_init spIntmoduleSerialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+  .on_receive = intmoduleFifoReceive,
+  .on_error = intmoduleFifoError,
+};
+
 static void spInternalModuleSetBaudRate(uint32_t baud)
 {
-  etx_serial_init params;
+  etx_serial_init params(spIntmoduleSerialInitParams);
   params.baudrate = baud;
-  params.rx_enable = true;
 
   // re-configure serial port
-  intmoduleSerialStart(&params);
+  IntmoduleSerialDriver.init(&params);
 }
 
 // TODO: use proper method instead
@@ -988,10 +997,10 @@ int cliSerialPassthrough(const char **argv)
       // setup serial com
 
       // TODO: '8n1' param
-      etx_serial_init params;
+      etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
-      params.rx_enable = true;
-      intmoduleSerialStart(&params);
+
+      IntmoduleSerialDriver.init(&params);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
@@ -1024,7 +1033,7 @@ int cliSerialPassthrough(const char **argv)
       cliReceiveCallBack = backupCB;
 
       // and stop module
-      intmoduleStop();
+      IntmoduleSerialDriver.deinit();
 
       // power off the module and wait for a bit
       INTERNAL_MODULE_OFF();

@@ -350,7 +350,9 @@ void extmoduleSendNextFrame()
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      sportSendBuffer(extmodulePulsesData.crossfire.pulses, extmodulePulsesData.crossfire.length);
+      if (CrossfireModuleDriver.sendPulses) {
+        CrossfireModuleDriver.sendPulses((void*)EXTERNAL_MODULE);
+      }
       break;
 #endif
 

@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "intmodule_serial_driver.h"
+#include "stm32_usart_driver.h"
 
 ModuleFifo intmoduleFifo;
 #if !defined(INTMODULE_DMA_STREAM)
@@ -36,32 +37,30 @@ struct etx_serial_driver {
 static etx_serial_driver intmodule_driver = { nullptr, nullptr };
 
 // TODO: move this somewhere else
-static void intmoduleFifoReceive(uint8_t data)
+void intmoduleFifoReceive(uint8_t data)
 {
   intmoduleFifo.push(data);
 }
 
-static void intmoduleFifoError()
+void intmoduleFifoError()
 {
   intmoduleFifo.errors++;
 }
 
-etx_serial_init::etx_serial_init():
-  baudrate(0),
-  parity(USART_Parity_No),
-  stop_bits(USART_StopBits_1),
-  word_length(USART_WordLength_8b),
-  rx_enable(false),
-  // TODO: this should not be needed
-  on_receive(intmoduleFifoReceive),
-  on_error(intmoduleFifoError)
-{
-}
+// etx_serial_init::etx_serial_init():
+//   baudrate(0),
+//   parity(USART_Parity_No),
+//   stop_bits(USART_StopBits_1),
+//   word_length(USART_WordLength_8b),
+//   rx_enable(false),
+//   // TODO: this should not be needed
+//   on_receive(intmoduleFifoReceive),
+//   on_error(intmoduleFifoError)
+// {
+// }
 
 void intmoduleStop()
 {
-  GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN);
-
 #if defined(INTMODULE_DMA_STREAM)
   INTMODULE_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
 #endif
@@ -83,17 +82,29 @@ void intmoduleStop()
   intmodule_driver.on_error = nullptr;
 }
 
+static const etx_serial_init pxx1SerialInit = {
+  .baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = false,
+  .on_receive = intmoduleFifoReceive,
+  .on_error = intmoduleFifoError,
+};
+
 void intmodulePxx1SerialStart()
 {
-  etx_serial_init params;
-  params.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
-  intmoduleSerialStart(&params);
+  IntmoduleSerialDriver.init(&pxx1SerialInit);
 }
 
 void intmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return;
-  
+
+  // TODO: sanity check parameters
+  //  - the UART seems to block when initialised with baudrate = 0
+
+  // TODO: remove this!!!
   INTERNAL_MODULE_ON();
 
   // init callbacks
@@ -130,16 +141,7 @@ void intmoduleSerialStart(const etx_serial_init* params)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(INTMODULE_GPIO, &GPIO_InitStructure);
 
-  USART_DeInit(INTMODULE_USART);
-  USART_InitTypeDef USART_InitStructure;
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_Parity = params->parity;
-  USART_InitStructure.USART_StopBits = params->stop_bits;
-  USART_InitStructure.USART_WordLength = params->word_length;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-  USART_Init(INTMODULE_USART, &USART_InitStructure);
-  USART_Cmd(INTMODULE_USART, ENABLE);
+  stm32_usart_init(INTMODULE_USART, params);
 
   if (params->rx_enable) {
     USART_ITConfig(INTMODULE_USART, USART_IT_RXNE, ENABLE);
@@ -224,6 +226,8 @@ void intmoduleWaitForTxCompleted()
 {
 #if !defined(SIMU)
 #if defined(INTMODULE_DMA_STREAM)
+  // TODO: check if everything is properly initialised, this seems to block when
+  //       the port has been initialised with a zero baudrate
   if (DMA_GetCmdStatus(INTMODULE_DMA_STREAM) == ENABLE) {
     while(DMA_GetFlagStatus(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC) == RESET);
     DMA_ClearFlag(INTMODULE_DMA_STREAM, INTMODULE_DMA_FLAG_TC);
@@ -233,3 +237,11 @@ void intmoduleWaitForTxCompleted()
 #endif
 #endif
 }
+
+etx_hal_serial_driver_t IntmoduleSerialDriver = {
+  .init = intmoduleSerialStart,
+  .deinit = intmoduleStop,
+  .sendByte = intmoduleSendByte,
+  .sendBuffer = intmoduleSendBuffer,
+  .waitForTxCompleted = intmoduleWaitForTxCompleted,
+};
