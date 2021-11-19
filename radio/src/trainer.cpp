@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "heartbeat_driver.h"
 
 int16_t ppmInput[MAX_TRAINER_CHANNELS];
 uint8_t ppmInputValidityTimer;

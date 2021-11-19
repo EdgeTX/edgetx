@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(CROSSFIRE)
+#include "pulses/crossfire.h"
+#endif
+
 void extmoduleStop()
 {
   NVIC_DisableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
@@ -286,7 +290,7 @@ void extmoduleSendNextFrame()
 #if defined(PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
     case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
-      extmoduleSendBuffer(extmodulePulsesData.pxx2.getData(), extmodulePulsesData.pxx2.getSize());
+      Pxx2ModuleDriver.sendPulses((void*)EXTERNAL_MODULE);
       break;
 #endif
 #endif
@@ -295,7 +299,8 @@ void extmoduleSendNextFrame()
     case PROTOCOL_CHANNELS_AFHDS3:
     {
 #if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
-      extmoduleSendBuffer(extmodulePulsesData.afhds3.getData(), extmodulePulsesData.afhds3.getSize());
+      extmoduleSendBuffer(extmodulePulsesData.afhds3.getData(),
+                          extmodulePulsesData.afhds3.getSize());
 #else
       if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN)
         return;
