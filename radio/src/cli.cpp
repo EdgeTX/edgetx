@@ -842,23 +842,50 @@ int cliSet(const char **argv)
     }
   }
 #endif
-#if defined(INTMODULE_BOOTCMD_GPIO)
-  else if (!strcmp(argv[1], "bootpin")) {
-    int level = 0;
-    if (toInt(argv, 2, &level) < 0) {
-      serialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
+  else if (!strcmp(argv[1], "rfmod")) {
+    int module = 0;
+    if (toInt(argv, 2, &module) < 0) {
+      serialPrint("%s: invalid module argument '%s'", argv[0], argv[2]);
       return -1;
     }
-
-    if (level) {
-      GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-      serialPrint("%s: bootpin set", argv[0]);
-    } else {
-      GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-      serialPrint("%s: bootpin reset", argv[0]);
+    if (!strcmp(argv[3], "power")) {
+      if (!strcmp("on", argv[4])) {
+        if (module == 0) {
+          INTERNAL_MODULE_ON();
+        } else {
+          EXTERNAL_MODULE_ON();
+        }
+      } else if (!strcmp("off", argv[4])) {
+        if (module == 0) {
+          INTERNAL_MODULE_OFF();
+        } else {
+          EXTERNAL_MODULE_OFF();
+        }
+      } else {
+        serialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
+        return -1;
+      }
+      serialPrint("%s: rfmod %d power %d", argv[0], module, argv[4]);
     }
-  }
+#if defined(INTMODULE_BOOTCMD_GPIO)
+    else if (!strcmp(argv[3], "bootpin")) {
+      int level = 0;
+      if (toInt(argv, 4, &level) < 0) {
+        serialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
+        return -1;
+      }
+      if (module == 0) {
+        if (level) {
+          GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+          serialPrint("%s: bootpin set", argv[0]);
+        } else {
+          GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+          serialPrint("%s: bootpin reset", argv[0]);
+        }
+      }
+    }
 #endif
+  }
 
   return 0;
 }
@@ -975,6 +1002,10 @@ int cliSerialPassthrough(const char **argv)
 
       // and stop module
       intmoduleStop();
+
+      // power off the module and wait for a bit
+      INTERNAL_MODULE_OFF();
+      delay_ms(200);
     }
 #endif
 
