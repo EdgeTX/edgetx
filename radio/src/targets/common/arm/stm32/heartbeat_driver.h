@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,6 +21,7 @@
 
 #pragma once
 
-#include "hal/module_driver.h"
+void init_intmodule_heartbeat();
+void check_intmodule_heartbeat();
+void stop_intmodule_heartbeat();
 
-extern etx_module_driver_t CrossfireModuleDriver;

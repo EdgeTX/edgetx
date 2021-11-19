@@ -194,9 +194,6 @@ void SDRAM_Init();
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
 
-void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-
 void extmoduleSerialStart();
 void extmoduleInvertedSerialStart(uint32_t baudrate);
 void extmoduleSendBuffer(const uint8_t * data, uint8_t size);

@@ -345,7 +345,7 @@ void extmoduleSendNextFrame()
 #if defined(PXX2) && defined(EXTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
     case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
-      extmoduleSendBuffer(extmodulePulsesData.pxx2.getData(), extmodulePulsesData.pxx2.getSize());
+      Pxx2ModuleDriver.sendPulses((void*)EXTERNAL_MODULE);
       break;
 #endif
 

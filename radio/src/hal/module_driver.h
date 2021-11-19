@@ -42,7 +42,7 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_GHOST
 };
 
-struct etx_hal_module_driver_t {
+struct etx_module_driver_t {
 
     // Protocol implemented by this module driver
     ChannelsProtocols protocol;

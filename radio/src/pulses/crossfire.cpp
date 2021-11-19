@@ -127,7 +127,6 @@ static void intmoduleCRSF_rx(uint8_t data)
   }
 #endif
 }
-#endif
 
 static const etx_serial_init intmoduleCrossfireInitParams = {
   .baudrate = 0,
@@ -138,6 +137,7 @@ static const etx_serial_init intmoduleCrossfireInitParams = {
   .on_receive = intmoduleCRSF_rx,
   .on_error = nullptr,
 };
+#endif
 
 static void* crossfireInit(uint8_t module)
 {
@@ -156,16 +156,17 @@ static void* crossfireInit(uint8_t module)
   } else {
     // TODO: setup S.PORT
     //  - for now, the init is still done via telemetryWakeup()....
+    telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
   }
 
   // mixer setup
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
-  return (void*)(uint32_t)module;
+  mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+  return (void*)(ulong)module;
 }
 
 static void crossfireDeInit(void* context)
 {
-  uint32_t module = (uint32_t)context;
+  ulong module = (ulong)context;
 
   if (module == INTERNAL_MODULE) {
 #if defined(INTERNAL_MODULE_CRSF)
@@ -180,7 +181,7 @@ static void crossfireDeInit(void* context)
 
 static void crossfireSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
 {
-  uint32_t module = (uint32_t)context;
+  ulong module = (ulong)context;
 
   ModuleSyncStatus& status = getModuleSyncStatus(module);
   if (status.isValid()) {
@@ -194,11 +195,13 @@ static void crossfireSetupPulses(void* context, int16_t* channels, uint8_t nChan
 
 static void crossfireSendPulses(void* context)
 {
-  uint32_t module = (uint32_t)context;
+  ulong module = (ulong)context;
 
   if (module == INTERNAL_MODULE) {
+#if defined(INTERNAL_MODULE_CRSF)
     IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.crossfire.pulses,
                                      intmodulePulsesData.crossfire.length);
+#endif
   } else {
     sportSendBuffer(extmodulePulsesData.crossfire.pulses,
                     extmodulePulsesData.crossfire.length);
@@ -207,7 +210,7 @@ static void crossfireSendPulses(void* context)
 
 #include "hal/module_driver.h"
 
-etx_hal_module_driver_t CrossfireModuleDriver = {
+etx_module_driver_t CrossfireModuleDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
   .init = crossfireInit,
   .deinit = crossfireDeInit,

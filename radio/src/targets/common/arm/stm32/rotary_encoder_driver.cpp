@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "heartbeat_driver.h"
 
 uint8_t rotencPosition;
 
