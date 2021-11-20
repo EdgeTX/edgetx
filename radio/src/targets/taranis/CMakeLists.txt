@@ -384,9 +384,9 @@ endif()
 
 if(GYRO)
   add_definitions(-DGYRO)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/lsm6ds_driver.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/lsm6ds_driver.cpp
     )
   set(SRC
     ${SRC}
@@ -408,10 +408,10 @@ if(INTERNAL_MODULE_SERIAL)
   if(PXX_FREQUENCY STREQUAL HIGH)
     add_definitions(-DPXX_FREQUENCY_HIGH)
   endif()
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/intmodule_serial_driver.cpp
-    ../common/arm/stm32/stm32_usart_driver.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/intmodule_serial_driver.cpp
+    targets/common/arm/stm32/stm32_usart_driver.cpp
     )
 
 else()
@@ -419,46 +419,50 @@ else()
   # defines existing internal modules
   set(INTERNAL_MODULES PXX1)
 
-  set(TARGET_SRC
-    ${TARGET_SRC}
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
     intmodule_pulses_driver.cpp
     )
 endif()
 
 if(HARDWARE_EXTERNAL_MODULE)
-  set(TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/extmodule_serial_driver.cpp
+    targets/common/arm/stm32/stm32_usart_driver.cpp
+    )
 endif()
 
 if(ROTARY_ENCODER)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/rotary_encoder_driver.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/rotary_encoder_driver.cpp
     )
 endif()
 
 if(BIND_KEY)
-  set(TARGET_SRC
-        ${TARGET_SRC}
-        bind_button_driver.cpp
-        )
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+    bind_button_driver.cpp
+    )
   add_definitions(-DBIND_KEY)
 endif()
 
 if(USB_CHARGER)
-  set(TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC} usb_charger_driver.cpp)
   add_definitions(-DUSB_CHARGER)
 endif()
 
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/bluetooth_driver.cpp
-    )
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+    targets/common/arm/stm32/bluetooth_driver.cpp)
   set(SRC
     ${SRC}
-    bluetooth.cpp
-    )
+    bluetooth.cpp)
   if(NOT PCB STREQUAL X9E)
     # Bluetooth on X9E is compatible with almost nothing
     add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
@@ -518,37 +522,32 @@ set(SRC
   sbus.cpp
   )
 
-set(TARGET_SRC
-  ${TARGET_SRC}
+set(FIRMWARE_TARGET_SRC
+  ${FIRMWARE_TARGET_SRC}
   ${LED_DRIVER}
-  backlight_driver.cpp
-  trainer_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
-  ../common/arm/stm32/audio_dac_driver.cpp
-  )
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  ../common/arm/stm32/stm32_hal_adc.cpp
-  ../../hal/adc_driver.cpp
-  ../common/arm/stm32/heartbeat_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  )
-
-if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/sticks_pwm_driver.cpp
-    )
-endif()
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
   board.cpp
   i2c_driver.cpp
-  ../common/arm/stm32/pwr_driver.cpp
-  ../common/arm/loadboot.cpp
+  backlight_driver.cpp
+  trainer_driver.cpp
+  )
+
+if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/sticks_pwm_driver.cpp)
+endif()
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  targets/common/arm/loadboot.cpp
+  targets/common/arm/stm32/stm32_hal_adc.cpp
+  targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/timers_driver.cpp
+  targets/common/arm/stm32/audio_dac_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
   )
 
 if(LCD_DUAL_BUFFER)

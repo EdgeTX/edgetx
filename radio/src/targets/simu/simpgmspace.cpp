@@ -47,34 +47,13 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
+// TODO: remove all STM32 defs
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
-RCC_TypeDef rcc;
-DMA_Stream_TypeDef dma1_stream1, dma1_stream2, dma1_stream3, dma1_stream4, dma1_stream5, dma1_stream6, dma1_stream7, dma2_stream1, dma2_stream2, dma2_stream5, dma2_stream6, dma2_stream7;
-DMA_TypeDef dma2;
 USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
-SysTick_Type systick;
 ADC_Common_TypeDef adc;
 RTC_TypeDef rtc;
 void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct) { }
-void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct) { }
-void SPI_CalculateCRC(SPI_TypeDef* SPIx, FunctionalState NewState) { }
-void SPI_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState) { }
-FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG) { return RESET; }
-uint16_t SPI_I2S_ReceiveData(SPI_TypeDef* SPIx) { return 0; }
-void SPI_I2S_SendData(SPI_TypeDef* SPIx, uint16_t Data) { }
-void DMA_DeInit(DMA_Stream_TypeDef* DMAy_Streamx) { }
-void DMA_Init(DMA_Stream_TypeDef* DMAy_Streamx, DMA_InitTypeDef* DMA_InitStruct) { }
-void DMA_ITConfig(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT, FunctionalState NewState) { }
-void DMA_StructInit(DMA_InitTypeDef* DMA_InitStruct) { }
-void DMA_Cmd(DMA_Stream_TypeDef* DMAy_Streamx, FunctionalState NewState) { }
 void lcdCopy(void * dest, void * src);
-FlagStatus DMA_GetFlagStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_FLAG) { return RESET; }
-ITStatus DMA_GetITStatus(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { return RESET; }
-void DMA_ClearITPendingBit(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { }
-void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState) { }
-void UART3_Configure(uint32_t baudrate, uint32_t masterClock) { }
-void NVIC_Init(NVIC_InitTypeDef * NVIC_InitStruct) { }
 
 FATFS g_FATFS_Obj;
 
@@ -129,15 +108,6 @@ uint64_t CoGetOSTime(void)
 
 void simuInit()
 {
-  RCC->CSR = 0;
-
-  // set power button to "not pressed"
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  GPIO_SetBits(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN);
-#elif defined(PIO_PC17)       // AT91SAM3
-  PIOC->PIO_PDSR &= ~PIO_PC17;
-#endif
-
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
@@ -488,35 +458,11 @@ void boardInit()
 {
 }
 
-uint32_t pwrCheck()
-{
-  // TODO: ability to simulate shutdown warning for a "soft" simulator restart
-  return simu_shutdown ? e_power_off : e_power_on;
-}
-
-bool pwrPressed()
-{
-  // TODO: simulate power button
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
-#elif defined(PIO_PC17)       // AT91SAM3
-  return PIOC->PIO_PDSR & PIO_PC17;
-#else
-  return false;
-#endif
-}
-
-void pwrInit()
-{
-}
-
-void pwrOn()
-{
-}
-
-void pwrOff()
-{
-}
+uint32_t pwrCheck() { return simu_shutdown ? e_power_off : e_power_on; }
+bool pwrPressed() { return false; }
+void pwrInit() {}
+void pwrOn() {}
+void pwrOff() {}
 
 void readKeysAndTrims()
 {
@@ -744,6 +690,8 @@ uint16_t getRTCBatteryVoltage()
 void boardOff()
 {
 }
+
+void hapticOff() {}
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 HardwareOptions hardwareOptions;
