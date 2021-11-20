@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 #include "pulses/pxx1.h"
+#include "mixer_scheduler.h"
+#include "heartbeat_driver.h"
 
 template <class PxxTransport>
 void Pxx1Pulses<PxxTransport>::addFlag1(uint8_t module, uint8_t sendFailsafe)
@@ -219,3 +221,67 @@ void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module)
 template class Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport> >;
 template class Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport> >;
 template class Pxx1Pulses<UartPxx1Transport>;
+
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+
+static const etx_serial_init pxx1SerialInit = {
+  .baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = false,
+  .on_receive = intmoduleFifoReceive,
+  .on_error = intmoduleFifoError,
+};
+
+static void* pxx1InitInternal(uint8_t module)
+{
+  (void)module;
+
+  IntmoduleSerialDriver.init(&pxx1SerialInit);
+
+#if defined(INTMODULE_HEARTBEAT)
+  init_intmodule_heartbeat();
+#endif
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
+
+  return nullptr;
+}
+
+static void pxx1DeInitInternal(void* context)
+{
+  (void)context;
+
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+#if defined(INTMODULE_HEARTBEAT)
+  stop_intmodule_heartbeat();
+#endif
+  IntmoduleSerialDriver.deinit();
+}
+
+static void pxx1SetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+  intmodulePulsesData.pxx_uart.setupFrame(INTERNAL_MODULE);
+}
+
+static void pxx1SendPulsesInternal(void* context)
+{
+  (void)context;
+  IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.pxx_uart.getData(),
+                                   intmodulePulsesData.pxx_uart.getSize());
+}
+
+const etx_module_driver_t Pxx1InternalSerialDriver = {
+  .init = pxx1InitInternal,
+  .deinit = pxx1DeInitInternal,
+  .setupPulses = pxx1SetupPulsesInternal,
+  .sendPulses = pxx1SendPulsesInternal,
+};
+
+#endif

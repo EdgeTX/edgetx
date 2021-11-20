@@ -25,6 +25,8 @@
 #include "pxx.h"
 #include "crc.h"
 
+#include "hal/module_driver.h"
+
 class Pxx1CrcMixin {
   protected:
     void initCrc()
@@ -165,5 +167,7 @@ class Pxx1Pulses: public PxxTransport
 typedef Pxx1Pulses<UartPxx1Transport> UartPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport>> PwmPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport>> SerialPxx1Pulses;
+
+extern const etx_module_driver_t Pxx1InternalSerialDriver;
 
 #endif
