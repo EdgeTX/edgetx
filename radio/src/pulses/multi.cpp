@@ -24,6 +24,7 @@
 
 #include "io/multi_protolist.h"
 #include "telemetry/multi.h"
+#include "mixer_scheduler.h"
 
 // for the  MULTI protocol definition
 // see https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
@@ -249,6 +250,67 @@ void setupPulsesMultiInternalModule()
   intmodulePulsesData.multi.initFrame();
   setupPulsesMulti(INTERNAL_MODULE);
 }
+
+static void* multiInit(uint8_t module)
+{
+  (void)module;
+  
+  // serial port setup
+  intmodulePulsesData.multi.initFrame();
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.init(&multiSerialInitParams);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+
+  // reset status
+  getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
+  getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+
+#if defined(MULTI_PROTOLIST)
+  TRACE("enablePulsesInternalModule(): trigger scan");
+  MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
+  TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
+#endif
+
+  return nullptr;
+}
+
+static void multiDeInit(void* context)
+{
+  (void)context;
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  IntmoduleSerialDriver.deinit();
+  //TODO: power OFF ???
+}
+
+static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+  
+  intmodulePulsesData.multi.initFrame();
+  setupPulsesMulti(INTERNAL_MODULE);
+}
+
+static void multiSendPulses(void* context)
+{
+  (void)context;
+  IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.multi.getData(),
+                                   intmodulePulsesData.multi.getSize());
+}
+
+#include "hal/module_driver.h"
+
+const etx_module_driver_t MultiInternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
+  .init = multiInit,
+  .deinit = multiDeInit,
+  .setupPulses = multiSetupPulses,
+  .sendPulses = multiSendPulses  
+};
 #endif
 
 void sendChannels(uint8_t moduleIdx)
