@@ -77,9 +77,13 @@ void MainWindow::checkEvents()
 #if defined(HARDWARE_TOUCH)
 
   if (touchPanelEventOccured()) {
+    short lastDeltaX = touchState.lastDeltaX;
+    short lastDeltaY = touchState.lastDeltaY;;
     touchState = touchPanelRead();
+    touchState.lastDeltaX = lastDeltaX;
+    touchState.lastDeltaY = lastDeltaY;
   } else {
-      touchState.event = TE_NONE;
+     touchState.event = TE_NONE;
   }
 
   TouchEnableState currentState = touchEnableState;
