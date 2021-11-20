@@ -59,21 +59,17 @@ if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
   add_definitions(-DPCBX10)
   add_definitions(-DSOFTWARE_VOLUME)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/audio_dac_driver.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/stm32_hal_adc.cpp
+    targets/common/arm/stm32/audio_dac_driver.cpp
     )
   if (NOT PCBREV STREQUAL TX16S)
-      set(TARGET_SRC
-        ${TARGET_SRC}
-        ../common/arm/stm32/sticks_pwm_driver.cpp
+      set(FIRMWARE_SRC
+        ${FIRMWARE_SRC}
+        targets/common/arm/stm32/sticks_pwm_driver.cpp
         )
   endif()
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/stm32_hal_adc.cpp
-    ../../hal/adc_driver.cpp
-    )
   set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
@@ -141,13 +137,9 @@ elseif (PCB STREQUAL X12S)
   endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
   add_definitions(-DPCBX12S)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    audio_spi_driver.cpp
-    )
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../../hal/adc_driver.cpp
+    audio_spi_driver.cpp
     x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)
@@ -235,18 +227,6 @@ endif()
 
 set(GVAR_SCREEN model_gvars.cpp)
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  led_driver.cpp
-  trainer_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
-  ../common/arm/stm32/intmodule_serial_driver.cpp
-  ../common/arm/stm32/extmodule_serial_driver.cpp
-  ../common/arm/stm32/stm32_usart_driver.cpp
-  ../common/arm/stm32/rotary_encoder_driver.cpp
-  )
-
 if(HARDWARE_TOUCH)
   set(TOUCH_DRIVER tp_gt911.cpp i2c_driver.cpp)
   add_definitions(-DHARDWARE_TOUCH)
@@ -254,7 +234,7 @@ if(HARDWARE_TOUCH)
 endif()
 
 if(USB_CHARGER)
-  set(TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
   add_definitions(-DUSB_CHARGER)
 endif()
 
@@ -292,17 +272,31 @@ set(FIRMWARE_TARGET_SRC
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
-  ../common/arm/stm32/pwr_driver.cpp
+  led_driver.cpp
+  extmodule_driver.cpp
+  trainer_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
-  ../common/arm/stm32/heartbeat_driver.cpp
-  ../common/arm/stm32/sdio_sd.c
+  )
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/timers_driver.cpp
+  targets/common/arm/stm32/intmodule_serial_driver.cpp
+  targets/common/arm/stm32/extmodule_serial_driver.cpp
+  targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/rotary_encoder_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/sdio_sd.c
   )
 
 if(BOOTLOADER)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    ../common/arm/loadboot.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/loadboot.cpp
     )
 endif()
 
