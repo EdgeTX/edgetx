@@ -122,14 +122,6 @@ void EXTERNAL_MODULE_OFF();
 #define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
 
-void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-
-//void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
-void extmoduleSerialStart();
-void extmoduleSendNextFrame();
-void extmoduleSendInvertedByte(uint8_t byte);
-
 // Trainer driver
 void init_trainer_ppm();
 void stop_trainer_ppm();
