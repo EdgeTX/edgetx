@@ -312,11 +312,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(PXX1) && defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      intmodulePxx1SerialStart();
-#if defined(INTMODULE_HEARTBEAT)
-      init_intmodule_heartbeat();
-#endif
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
+      internalModuleContext = Pxx1InternalSerialDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &Pxx1InternalSerialDriver;
       break;
 #endif
 
@@ -350,13 +347,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
-      // serial port setup
-      resetPulsesAFHDS2();
-      intmoduleFifo.clear();
-      IntmoduleSerialDriver.init(&afhds2SerialInitParams);
-
-      // mixer setup
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
+      internalModuleContext = Afhds2InternalDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &Afhds2InternalDriver;
       break;
 #endif
 
@@ -386,29 +378,10 @@ bool setupPulsesInternalModule(uint8_t protocol)
       return true;
 #endif
 
-#if defined(PXX1) && defined(INTMODULE_USART)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      intmodulePulsesData.pxx_uart.setupFrame(INTERNAL_MODULE);
-      return true;
-#endif
-
 #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
     case PROTOCOL_CHANNELS_PPM:
       setupPulsesPPMInternalModule();
       return true;
-#endif
-
-#if defined(AFHDS2)
-    case PROTOCOL_CHANNELS_AFHDS2A:
-    { 
-      ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
-      mixerSchedulerSetPeriod(
-          INTERNAL_MODULE,
-          status.isValid() ? status.getAdjustedRefreshRate() : AFHDS2_PERIOD);
-      status.invalidate();
-      setupPulsesAFHDS2();
-      return true;
-    }
 #endif
 
     default:
@@ -448,26 +421,11 @@ void intmoduleSendNextFrame()
       break;
 #endif
 
-#if defined(PXX1)
-#if defined(INTMODULE_USART)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.pxx_uart.getData(),
-                                       intmodulePulsesData.pxx_uart.getSize());
-      break;
-#else
+#if defined(PXX1) && !defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       intmoduleSendNextFramePxx1(intmodulePulsesData.pxx.getData(),
                                  intmodulePulsesData.pxx.getSize());
       break;
-#endif
-#endif
-
-#if defined(AFHDS2)
-  case PROTOCOL_CHANNELS_AFHDS2A: {
-    uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
-    uint16_t size = intmodulePulsesData.flysky.ptr - data;
-    IntmoduleSerialDriver.sendBuffer(data, size);
-  } break;
 #endif
   }
 }

@@ -21,7 +21,18 @@
 
 #include "afhds2.h"
 #include "flysky.h"
+
 #include "intmodule_serial_driver.h"
+#include "mixer_scheduler.h"
+
+afhds2::afhds2() {
+  // TODO Auto-generated constructor stub
+
+}
+
+afhds2::~afhds2() {
+  // TODO Auto-generated destructor stub
+}
 
 etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
@@ -33,12 +44,57 @@ etx_serial_init afhds2SerialInitParams = {
     .on_error = intmoduleFifoError,
 };
 
-afhds2::afhds2() {
-  // TODO Auto-generated constructor stub
+static void* afhds2Init(uint8_t module)
+{
+  (void)module;
 
+  // serial port setup
+  resetPulsesAFHDS2();
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.init(&afhds2SerialInitParams);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
+
+  return nullptr;
 }
 
-afhds2::~afhds2() {
-  // TODO Auto-generated destructor stub
+static void afhds2DeInit(void* context)
+{
+  (void)context;
+
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.deinit();
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
 }
 
+static void afhds2SetupPulses(void* context)
+{
+  (void)context;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, status.isValid()
+                                               ? status.getAdjustedRefreshRate()
+                                               : AFHDS2_PERIOD);
+  status.invalidate();
+  setupPulsesAFHDS2();
+}
+
+static void afhds2SendPulses(void* context)
+{
+  (void)context;
+
+  uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
+  uint16_t size = intmodulePulsesData.flysky.ptr - data;
+  IntmoduleSerialDriver.sendBuffer(data, size);
+}
+
+etx_module_driver_t Afhds2InternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_AFHDS2A,
+  .init = afhds2Init,
+  .deinit = afhds2DeInit,
+  .setupPulses = afhds2SetupPulses,
+  .sendPulses = afhds2SendPulses,    
+};

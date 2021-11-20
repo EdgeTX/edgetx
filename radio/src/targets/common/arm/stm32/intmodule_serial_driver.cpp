@@ -71,21 +71,6 @@ void intmoduleStop()
   intmodule_driver.on_error = nullptr;
 }
 
-static const etx_serial_init pxx1SerialInit = {
-  .baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = false,
-  .on_receive = intmoduleFifoReceive,
-  .on_error = intmoduleFifoError,
-};
-
-void intmodulePxx1SerialStart()
-{
-  IntmoduleSerialDriver.init(&pxx1SerialInit);
-}
-
 void intmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return;
@@ -227,7 +212,7 @@ void intmoduleWaitForTxCompleted()
 #endif
 }
 
-etx_serial_driver_t IntmoduleSerialDriver = {
+const etx_serial_driver_t IntmoduleSerialDriver = {
   .init = intmoduleSerialStart,
   .deinit = intmoduleStop,
   .sendByte = intmoduleSendByte,

@@ -28,4 +28,4 @@
 void intmoduleFifoReceive(uint8_t data);
 void intmoduleFifoError();
 
-extern etx_serial_driver_t IntmoduleSerialDriver;
+extern const etx_serial_driver_t IntmoduleSerialDriver;
