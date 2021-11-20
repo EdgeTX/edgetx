@@ -21,6 +21,10 @@
 
 #include "mixer_scheduler.h"
 #include "board.h"
+#include "debug.h"
+
+#include "heartbeat_driver.h"
+#include "timers_driver.h"
 
 #if defined(INTMODULE_HEARTBEAT_GPIO)
 
@@ -79,9 +83,7 @@ void stop_intmodule_heartbeat()
 void check_intmodule_heartbeat()
 {
   if (EXTI_GetITStatus(INTMODULE_HEARTBEAT_EXTI_LINE) != RESET) {
-#if !defined(INTMODULE_USART)
     heartbeatCapture.timestamp = getTmr2MHz();
-#endif
 #if defined(DEBUG_LATENCY)
     heartbeatCapture.count++;
 #endif

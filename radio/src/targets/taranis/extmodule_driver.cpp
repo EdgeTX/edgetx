@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "extmodule_driver.h"
+#include "timers_driver.h"
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"

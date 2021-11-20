@@ -25,20 +25,6 @@
 #include "pxx.h"
 #include "crc.h"
 
-#if defined(INTMODULE_HEARTBEAT_GPIO)
-struct HeartbeatCapture {
-#if !defined(INTMODULE_USART)
-  uint32_t timestamp;
-#endif
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
-#endif
-  uint8_t valid;
-};
-
-extern volatile HeartbeatCapture heartbeatCapture;
-#endif
-
 class Pxx1CrcMixin {
   protected:
     void initCrc()

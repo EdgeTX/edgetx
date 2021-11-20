@@ -22,6 +22,7 @@
 #include "opentx.h"
 
 #include "hal/adc_driver.h"
+#include "../common/arm/stm32/timers_driver.h"
 
 #if !defined(PCBX12S)
   #include "../common/arm/stm32/stm32_hal_adc.h"
