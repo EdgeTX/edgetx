@@ -548,7 +548,6 @@ set(FIRMWARE_TARGET_SRC
   board.cpp
   i2c_driver.cpp
   ../common/arm/stm32/pwr_driver.cpp
-  ../common/arm/stm32/heartbeat_driver.cpp
   ../common/arm/loadboot.cpp
   )
 

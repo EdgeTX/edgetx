@@ -33,6 +33,7 @@
 #include "intmodule_pulses_driver.h"
 #endif
 
+#include "extmodule_serial_driver.h"
 #include "extmodule_driver.h"
 
 #if defined(CROSSFIRE)
@@ -720,8 +721,8 @@ void extmoduleSendNextFrame()
 
 #if defined(PXX1) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      extmoduleSendBuffer(extmodulePulsesData.pxx_uart.getData(),
-                          extmodulePulsesData.pxx_uart.getSize());
+      ExtmoduleSerialDriver.sendBuffer(extmodulePulsesData.pxx_uart.getData(),
+                                       extmodulePulsesData.pxx_uart.getSize());
       break;
 #endif
 

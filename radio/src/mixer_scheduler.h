@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MIXER_SCHEDULER_H_
-#define _MIXER_SCHEDULER_H_
+#pragma once
+
+#include <stdint.h>
 
 #define MIXER_SCHEDULER_DEFAULT_PERIOD_US  4000u // 4ms
 #define MIXER_SCHEDULER_JOYSTICK_PERIOD_US 2000u // 2ms
@@ -83,7 +84,5 @@ static inline bool mixerSchedulerWaitForTrigger(uint8_t timeout)
 
 #define getMixerSchedulerPeriod() (MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 #define mixerSchedulerISRTrigger()
-
-#endif
 
 #endif
