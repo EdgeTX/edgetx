@@ -820,11 +820,16 @@ void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, Lcd
   }
 }
 
-void lcdSetContrast()
-{
-  lcdSetRefVolt(g_eeGeneral.contrast);
-}
 #endif // BOOT
+
+void lcdSetContrast(bool useDefault)
+{
+#if defined(BOOT)
+  lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
+#else
+  lcdSetRefVolt(useDefault ? LCD_CONTRAST_DEFAULT : g_eeGeneral.contrast);
+#endif
+}
 
 void lcdMaskPoint(uint8_t *p, uint8_t mask, LcdFlags att)
 {
