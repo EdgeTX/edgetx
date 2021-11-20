@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "mixer_scheduler.h"
+#include "board.h"
 
 #if defined(INTMODULE_HEARTBEAT_GPIO)
 
