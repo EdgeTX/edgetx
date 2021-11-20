@@ -1544,6 +1544,7 @@
   #define EXTMODULE_USART_IRQHandler            USART6_IRQHandler
   #define EXTMODULE_USART_TX_DMA_CHANNEL        DMA_Channel_5
   #define EXTMODULE_USART_TX_DMA_STREAM         DMA2_Stream6
+  #define EXTMODULE_USART_TX_DMA_FLAG_TC        DMA_FLAG_TCIF6
   #define EXTMODULE_USART_RX_DMA_CHANNEL        DMA_Channel_5
   #define EXTMODULE_USART_RX_DMA_STREAM         DMA2_Stream1
 #else
