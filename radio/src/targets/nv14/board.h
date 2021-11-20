@@ -67,10 +67,6 @@ extern HardwareOptions hardwareOptions;
 void boardInit();
 void boardOff();
 
-// Timers driver
-void init2MhzTimer();
-void init1msTimer();
-
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
