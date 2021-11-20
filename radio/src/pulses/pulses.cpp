@@ -364,7 +364,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
       // serial port setup
       resetPulsesAFHDS2();
       intmoduleFifo.clear();
-      IntmoduleSerialDriver.init(&afhds2SerialInitParams)
+      IntmoduleSerialDriver.init(&afhds2SerialInitParams);
 
       // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
@@ -491,7 +491,7 @@ void intmoduleSendNextFrame()
   case PROTOCOL_CHANNELS_AFHDS2A: {
     uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
     uint16_t size = intmodulePulsesData.flysky.ptr - data;
-    intmoduleSendBuffer(data, size);
+    IntmoduleSerialDriver.sendBuffer(data, size);
   } break;
 #endif
   }
