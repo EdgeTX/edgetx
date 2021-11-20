@@ -951,7 +951,9 @@ void lcdRefresh();
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #endif
 void lcdSetRefVolt(unsigned char val);
-void lcdSetContrast();
+#ifdef __cplusplus
+void lcdSetContrast(bool useDefault = false);
+#endif
 
 // Top LCD driver
 #if defined(TOPLCD_GPIO)

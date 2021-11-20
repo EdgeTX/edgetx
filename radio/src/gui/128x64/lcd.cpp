@@ -952,10 +952,6 @@ void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, Lcd
   drawGPSPosition(x, y, telemetryItem.gps.longitude, telemetryItem.gps.latitude, flags);
 }
 
-void lcdSetContrast()
-{
-  lcdSetRefVolt(g_eeGeneral.contrast);
-}
 
 #define LCD_BYTE_FILTER(p, keep, add) *(p) = (*(p) & (keep)) | (add)
 
@@ -998,6 +994,15 @@ void lcdDraw1bitBitmap(coord_t x, coord_t y, const uint8_t * img, uint8_t idx, L
 }
 
 #endif
+
+void lcdSetContrast(bool useDefault)
+{
+#if defined(BOOT)
+  lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
+#else
+  lcdSetRefVolt(useDefault ? LCD_CONTRAST_DEFAULT : g_eeGeneral.contrast);
+#endif
+}
 
 void lcdMaskPoint(uint8_t * p, uint8_t mask, LcdFlags att)
 {

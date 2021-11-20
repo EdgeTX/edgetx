@@ -27,6 +27,7 @@ extern MemoryType memoryType;
 
 void bootloaderInitScreen()
 {
+  lcdSetContrast(true);
 }
 
 static void bootloaderDrawMsg(unsigned int x, const char *str, uint8_t line, bool inverted)
