@@ -217,14 +217,14 @@ static uint16_t* ADC_MAIN_get_dma_buffer()
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)  
     if (globalData.flyskygimbals)
     {
         return adcValues + NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS;
     }
     else
-    {
-        return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
-    }
+#endif
+      return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
 }
 #endif
 
