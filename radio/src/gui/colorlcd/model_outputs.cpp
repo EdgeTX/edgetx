@@ -216,6 +216,14 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
+  new TextButton(window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
+    [=] () {
+      moveTrimsToOffsets(); // if highlighted and menu pressed - move trims to offsets
+      rebuild(window, 0);
+      return 0;
+    }, 0, COLOR_THEME_PRIMARY1);
+  grid.nextLine();
+
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
     LimitData * output = limitAddress(ch);
 
