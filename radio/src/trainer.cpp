@@ -141,7 +141,7 @@ void checkTrainerSettings()
         break;
     }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO)
+#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU)
 #if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
     if (requiredTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
         requiredTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
