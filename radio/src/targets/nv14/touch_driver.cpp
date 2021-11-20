@@ -550,5 +550,8 @@ TouchState touchPanelRead()
       internalTouchState.event = TE_SLIDE_END;
     }
   }
-  return internalTouchState;
+  TouchState ret = internalTouchState;
+  internalTouchState.deltaX = 0;
+  internalTouchState.deltaY = 0;
+  return ret;
 }

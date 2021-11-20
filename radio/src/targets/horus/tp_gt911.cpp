@@ -745,6 +745,8 @@ struct TouchState touchPanelRead()
     RTOS_WAIT_MS(1);
   } while(RTOS_GET_MS() - startReadStatus < GT911_TIMEOUT);
 
+  internalTouchState.deltaX = 0;
+  internalTouchState.deltaY = 0;
   TRACE("touch state = 0x%x", state);
   if (state & 0x80u) {
     uint8_t pointsCount = (state & 0x0Fu);
