@@ -162,7 +162,7 @@ void extmodulePxx1SerialStart()
 }
 #endif
 
-static void extmoduleSendNextFramePpm(uint16_t* pulses, uint16_t length,
+static void extmoduleSendNextFramePpm(const void* pulses, uint16_t length,
                                       uint16_t trailing_pulse)
 {
   EXTMODULE_TIMER->CCR1 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE) * 2;
@@ -184,7 +184,7 @@ static void extmoduleSendNextFramePpm(uint16_t* pulses, uint16_t length,
 }
 
 #if defined(PXX1)
-void extmoduleSendNextFramePxx1(const uint16_t* pulses, uint16_t length)
+void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
@@ -206,7 +206,7 @@ void extmoduleSendNextFramePxx1(const uint16_t* pulses, uint16_t length)
 #endif
 
 #if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
-void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize)
+void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
@@ -225,7 +225,7 @@ void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize)
 }
 #endif
 
-void extmoduleSendNextFrameSoftSerial100kbit(const uint16_t* pulses, uint16_t length)
+void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 

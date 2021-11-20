@@ -208,7 +208,7 @@ void extmoduleSerialStart()
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
 }
 
-static void extmoduleSendNextFramePpm(uint32_t* pulses, uint16_t length,
+static void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
                                       uint16_t trailing_pulse)
 {
 #if defined(PCBX10) || PCBREV >= 13
@@ -243,7 +243,7 @@ static void extmoduleSendNextFramePpm(uint32_t* pulses, uint16_t length,
 }
 
 #if defined(PXX1)
-void extmoduleSendNextFramePxx1(const uint32_t* pulses, uint16_t length)
+void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
@@ -264,7 +264,7 @@ void extmoduleSendNextFramePxx1(const uint32_t* pulses, uint16_t length)
 #endif
 
 #if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
-void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize)
+void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
@@ -283,7 +283,7 @@ void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize)
 }
 #endif
 
-void extmoduleSendNextFrameSoftSerial100kbit(const uint32_t* pulses, uint16_t length)
+void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 

@@ -28,17 +28,17 @@ void extmodulePpmStart();
 
 #if defined(PXX1)
 void extmodulePxx1PulsesStart();
-void extmoduleSendNextFramePxx1(const uint16_t* pulses, uint16_t length);
+void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length);
 #endif
 
 // Soft serial on PPM pin
 void extmoduleSerialStart();
 
 #if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
-void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize);
+void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize);
 #endif
 
-void extmoduleSendNextFrameSoftSerial100kbit(const uint16_t* pulses, uint16_t length);
+void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length);
 
 // Bitbang serial
 void extmoduleSendInvertedByte(uint8_t byte);
