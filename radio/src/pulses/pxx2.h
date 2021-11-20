@@ -579,7 +579,9 @@ class Pxx2OtaUpdate {
 };
 
 extern const etx_serial_init pxx2SerialInitParams;
-extern const etx_module_driver_t Pxx2ModuleDriver;
-extern const etx_module_driver_t Pxx2LowSpeedModuleDriver;
+
+extern const etx_module_driver_t Pxx2InternalDriver;
+extern const etx_module_driver_t Pxx2ExternalDriver;
+extern const etx_module_driver_t Pxx2LowSpeedExternalDriver;
 
 #endif

@@ -51,7 +51,7 @@ struct etx_serial_init {
   void (*on_error)();                // = nullptr;
 };
 
-struct etx_hal_serial_driver_t {
+struct etx_serial_driver_t {
   // Init module communication
   void (*init)(const etx_serial_init* params);
 

@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "hal/module_driver.h"
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
@@ -99,14 +100,13 @@ static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
   }
 }
 
-static void setupPulsesCrossfire(uint8_t idx, int16_t* channels, uint8_t nChannels)
+static void crossfireSetupMixerScheduler(uint8_t module)
 {
-  if (idx == INTERNAL_MODULE) {
-    auto* p_data = &intmodulePulsesData.crossfire;
-    setupPulsesCrossfire(idx, p_data, 0, channels, nChannels);
-  } else if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    auto* p_data = &extmodulePulsesData.crossfire;
-    setupPulsesCrossfire(idx, p_data, TELEMETRY_ENDPOINT_SPORT, channels, nChannels);
+  ModuleSyncStatus& status = getModuleSyncStatus(module);
+  if (status.isValid()) {
+    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
+  } else {
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
   }
 }
 
@@ -137,83 +137,91 @@ static const etx_serial_init intmoduleCrossfireInitParams = {
   .on_receive = intmoduleCRSF_rx,
   .on_error = nullptr,
 };
-#endif
 
-static void* crossfireInit(uint8_t module)
+static void* crossfireInitInternal(uint8_t module)
 {
-  if (module == INTERNAL_MODULE) {
-#if defined(INTERNAL_MODULE_CRSF)
-    // serial port setup
-    etx_serial_init params(intmoduleCrossfireInitParams);
-    params.baudrate = CROSSFIRE_BAUDRATE;
+  (void)module;
 
-    // wakeup mixer when rx buffer is quarter full (16 bytes)
-    params.on_receive = intmoduleCRSF_rx;
+  // serial port setup
+  etx_serial_init params(intmoduleCrossfireInitParams);
+  params.baudrate = CROSSFIRE_BAUDRATE;
 
-    intmoduleFifo.clear();
-    IntmoduleSerialDriver.init(&params);
-#endif
-  } else {
-    // TODO: setup S.PORT
-    //  - for now, the init is still done via telemetryWakeup()....
-    telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
-  }
+  // wakeup mixer when rx buffer is quarter full (16 bytes)
+  params.on_receive = intmoduleCRSF_rx;
 
-  // mixer setup
-  mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
-  return (void*)(ulong)module;
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.init(&params);
+
+  return nullptr;
 }
 
-static void crossfireDeInit(void* context)
+static void crossfireDeInitInternal(void* context)
 {
-  ulong module = (ulong)context;
+  (void)context;
 
-  if (module == INTERNAL_MODULE) {
-#if defined(INTERNAL_MODULE_CRSF)
-    mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-    intmoduleStop();
-    intmoduleFifo.clear();
-#endif
-  } else {
-    mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  }
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  intmoduleStop();
+  intmoduleFifo.clear();
 }
 
-static void crossfireSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void crossfireSetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
 {
-  ulong module = (ulong)context;
-
-  ModuleSyncStatus& status = getModuleSyncStatus(module);
-  if (status.isValid()) {
-    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
-  } else {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
-  }
-
-  setupPulsesCrossfire(module, channels, nChannels);
+  auto* p_data = &intmodulePulsesData.crossfire;
+  crossfireSetupMixerScheduler(INTERNAL_MODULE);
+  setupPulsesCrossfire(INTERNAL_MODULE, p_data, 0, channels, nChannels);
 }
 
-static void crossfireSendPulses(void* context)
+static void crossfireSendPulsesInternal(void* context)
 {
-  ulong module = (ulong)context;
+  (void)context;
 
-  if (module == INTERNAL_MODULE) {
-#if defined(INTERNAL_MODULE_CRSF)
-    IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.crossfire.pulses,
-                                     intmodulePulsesData.crossfire.length);
-#endif
-  } else {
-    sportSendBuffer(extmodulePulsesData.crossfire.pulses,
-                    extmodulePulsesData.crossfire.length);
-  }
+  IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.crossfire.pulses,
+                                   intmodulePulsesData.crossfire.length);
 }
 
-#include "hal/module_driver.h"
-
-etx_module_driver_t CrossfireModuleDriver = {
+etx_module_driver_t CrossfireInternalDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
-  .init = crossfireInit,
-  .deinit = crossfireDeInit,
-  .setupPulses = crossfireSetupPulses,
-  .sendPulses = crossfireSendPulses
+  .init = crossfireInitInternal,
+  .deinit = crossfireDeInitInternal,
+  .setupPulses = crossfireSetupPulsesInternal,
+  .sendPulses = crossfireSendPulsesInternal,
+};
+#endif
+
+static void* crossfireInitExternal(uint8_t module)
+{
+  telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
+  mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+  return nullptr;
+}
+
+static void crossfireDeInitExternal(void* context)
+{
+  (void)context;
+  telemetryProtocol = 0xFF;
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+}
+
+static void crossfireSetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  auto* p_data = &extmodulePulsesData.crossfire;
+  crossfireSetupMixerScheduler(EXTERNAL_MODULE);
+  setupPulsesCrossfire(EXTERNAL_MODULE, p_data, TELEMETRY_ENDPOINT_SPORT,
+                       channels, nChannels);
+}
+
+static void crossfireSendPulsesExternal(void* context)
+{
+  (void)context;
+
+  sportSendBuffer(extmodulePulsesData.crossfire.pulses,
+                  extmodulePulsesData.crossfire.length);
+}
+
+etx_module_driver_t CrossfireExternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
+  .init = crossfireInitExternal,
+  .deinit = crossfireDeInitExternal,
+  .setupPulses = crossfireSetupPulsesExternal,
+  .sendPulses = crossfireSendPulsesExternal
 };

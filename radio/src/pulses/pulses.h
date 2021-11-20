@@ -231,6 +231,7 @@ void intmoduleSendNextFrame();
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
+void extmoduleSendNextFrame();
 #endif
 void setupPulsesDSM2();
 void setupPulsesCrossfire(uint8_t idx);
