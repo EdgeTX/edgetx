@@ -402,26 +402,13 @@ void ScreenUserInterfacePage::build(FormWindow * window)
       build(window);
   });
 
-  std::function<uint8_t ()> launchEditor = [=]() {
-    auto theme = tp->getCurrentTheme();
-    auto te = new ThemeEditorPage(window, theme);
-    te->setCloseHandler([=] () {
-      window->clear();
-      build(window);
-    });
-
-    return 0;
-  };
-
-  // new TextButton(window, grid.getFieldSlot(3, 2), STR_EDIT, launchEditor, BUTTON_BACKGROUND | OPAQUE, COLOR_THEME_PRIMARY2);
-  
   bool bNarrowScreen = LCD_W < LCD_H;
   if (bNarrowScreen)
     grid.setLabelWidth(LCD_W);
 
   grid.nextLine();
   auto theme = tp->getCurrentTheme();
-  auto themeImage = theme->getThemeImageFileName();
+  auto themeImage = theme->getThemeImageFileNames();
 
   grid.spacer(8);
 
@@ -440,10 +427,10 @@ void ScreenUserInterfacePage::build(FormWindow * window)
   new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
 
   rect_t previewRect = bNarrowScreen ? 
-    rect_t {0, r.h, LCD_W- 12, window->height()} :
+    rect_t {0, r.h, LCD_W, window->height()} :
     rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
   auto preview = new FilePreview(window, previewRect);
-  preview->setFile(themeImage.c_str());
+  preview->setFile(themeImage.size() > 0 ? themeImage[0].c_str() : "");
 
   window->setInnerHeight(grid.getWindowHeight());
 }

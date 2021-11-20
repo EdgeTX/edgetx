@@ -40,11 +40,15 @@
   #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
   #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
   #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
+  #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
+  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT)
 #else
-  #define COLOR_PREVIEW_WIDTH 18
-  #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
+  #define COLOR_PREVIEW_WIDTH LCD_W
+  #define COLOR_PREVIEW_HEIGHT  18
   #define LEFT_LIST_WIDTH LCD_W
   #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
+  #define COLOR_LIST_WIDTH LCD_W
+  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 38)
 #endif
 
 #define MARGIN_WIDTH 5
@@ -60,8 +64,8 @@ constexpr int COLOR_BOX_LEFT = 3;
 constexpr int COLOR_BOX_WIDTH = 45;
 constexpr int COLOR_BOX_HEIGHT = 27;
 #else
-constexpr int BUTTON_HEIGHT = 25;
-constexpr int BUTTON_WIDTH  = 50;
+constexpr int BUTTON_HEIGHT = 30;
+constexpr int BUTTON_WIDTH  = 65;
 constexpr LcdFlags textFont = FONT(XS);
 constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 340};
 constexpr int labelWidth = 120;
@@ -74,8 +78,6 @@ constexpr int COLOR_BUTTON_WIDTH = COLOR_BOX_WIDTH;
 constexpr int COLOR_BUTTON_HEIGHT = 20;
 #endif
 
-#define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-#define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT)
 
 
 class ThemeDetailsDialog: public Dialog
@@ -227,7 +229,11 @@ protected:
     _hexBox = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
     setHexStr(_hexBox, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
 
-    r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
+    if (LCD_W > LCD_H)
+      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
+    else
+      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, LCD_H / 2 - COLOR_BOX_HEIGHT - 20 };
+
     _colorEditor = new ColorEditor(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
       [=](uint32_t rgb) {
         _theme.setColor(_indexOfColor, rgb);
@@ -320,6 +326,7 @@ class ThemeEditPage : public Page
           focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
         }
       } else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+        killEvents(event);
         deleteLater();
       } else {
         Window::onEvent(event);
@@ -479,18 +486,15 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
     new ThemeDetailsDialog(window, newTheme, [=] (ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
-        char path[NAME_LENGTH + 20];
-        strncpy(path, theme.getName(), NAME_LENGTH + 19);
-        removeAllWhiteSpace(path);
-        strncat(path, ".yml", NAME_LENGTH + 19);
-        theme.setPath(path);
-
+        char name[NAME_LENGTH + 20];
+        strncpy(name, theme.getName(), NAME_LENGTH + 19);
+        removeAllWhiteSpace(name);
         // use the current themes color list to make the new theme
         auto curTheme = tp->getCurrentTheme();
         for (auto color : curTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
-        theme.serialize();
+        tp->createNewTheme(name, theme);
         tp->refresh();
         listBox->setNames(tp->getNames());
         listBox->setSelected(currentTheme);
@@ -504,7 +508,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
         tp->deleteThemeByIndex(listBox->getSelected());
         listBox->setNames(tp->getNames());
-        listBox->setSelected(currentTheme);
+        listBox->setSelected(min<int>(currentTheme, tp->getNames().size() - 1));
       }
     });
   }
@@ -530,7 +534,10 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
   listBox->setActiveIndex(tp->getThemeIndex());
   listBox->setTitle(STR_THEME + std::string("s"));
   listBox->setLongPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
-  listBox->setPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
+  listBox->setPressHandler([=] (event_t event) { 
+    if (event != 0)
+      displayThemeMenu(window, tp); 
+  });
 }
 
 void ThemeSetupPage::build(FormWindow *window)
@@ -549,30 +556,37 @@ void ThemeSetupPage::build(FormWindow *window)
   rect_t r = { 2, 3, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
   setupListbox(window, r, tp);
 
+  rect_t colorPreviewRect;
   if (LCD_W > LCD_H) {
     r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH;
     r.w = LCD_W - r.x;
+    colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   } else {
     r.y += LEFT_LIST_HEIGHT + 4;
     r.x = 0;
     r.w = LCD_W;
+    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 6, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   }
 
   // setup ThemeColorPreview()
   auto colorList = theme != nullptr ? theme->getColorList() : std::vector<ColorEntry>();
-  rect_t colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   themeColorPreview = new ThemeColorPreview(window, colorPreviewRect, colorList);
   
   // setup FileCarosell()
-  r.h = 130;
-  r.w -= COLOR_PREVIEW_WIDTH;
-  r.x += COLOR_PREVIEW_WIDTH;
+  if (LCD_W > LCD_H) {
+    r.w -= COLOR_PREVIEW_WIDTH;
+    r.h = 130;
+    r.x += COLOR_PREVIEW_WIDTH;
+  } else {
+    r.y += COLOR_PREVIEW_HEIGHT;
+    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
+  }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
   fileCarosell = new FileCarosell(window, r, fileNames, listBox);
 
   // author and name of theme on right side of screen
   r.x += 7;
-  r.y += 130;
+  r.y += 135;
   r.h = 20;
   nameText = new StaticText(window, r, theme != nullptr ? theme->getName() : "", 0, 
                             COLOR_THEME_PRIMARY1);
