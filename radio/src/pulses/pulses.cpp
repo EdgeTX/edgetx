@@ -763,7 +763,7 @@ void extmoduleSendNextFrame()
       break;
 #endif
 
-#if defined(DSM2)
+#if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_SBUS:
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
