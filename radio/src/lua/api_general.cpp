@@ -1848,12 +1848,10 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
-//api_general.cpp
-
 /*luadoc
 @function setStickySwitch(id, value) 
 
-@param id: integer identifying the sticky logical switch.
+@param id: integer identifying the sticky logical switch (zero for LS1 etc.).
 
 @param value: true/false. The new value of the sticky logical switch.
 
@@ -1879,7 +1877,30 @@ static int luaSetStickySwitch(lua_State * L)
   if (value) msg |= (1 << 7);
   msg |= (id & 0x3F);
 
-  lua_pushboolean (L, luaSetStickySwitchBuffer.write(msg));
+  lua_pushboolean(L, luaSetStickySwitchBuffer.write(msg));
+  return 1;
+}
+
+/*luadoc
+@function getLS(id)
+
+@param id: integer identifying the logical switch (zero for LS1 etc.).
+
+@retval value: true/false.
+
+Reads the value of a logical switch.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetLS(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+
+  if (id >= 0 && id < MAX_LOGICAL_SWITCHES)
+    lua_pushboolean(L, getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + id));
+  else
+    lua_pushnil(L);
   return 1;
 }
 
@@ -1943,6 +1964,7 @@ const luaL_Reg opentxLib[] = {
   { "getShmVar", luaGetShmVar },
 #endif
   { "setStickySwitch", luaSetStickySwitch },
+  { "getLS", luaGetLS },
   { nullptr, nullptr }  /* sentinel */
 };
 
