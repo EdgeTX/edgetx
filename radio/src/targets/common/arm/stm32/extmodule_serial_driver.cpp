@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/serial_driver.h"
+#include "extmodule_serial_driver.h"
 #include "board.h"
 
 #if defined(EXTMODULE_USART)
@@ -92,6 +92,16 @@ void extmoduleInvertedSerialStart(uint32_t baudrate)
   params.baudrate = baudrate;
   extmoduleSerialStart(&params);
 }
+
+#if defined(PXX1)
+void extmodulePxx1SerialStart()
+{
+  EXTERNAL_MODULE_ON();
+  etx_serial_init params(extmoduleSerialParams);
+  params.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
+  ExtmoduleSerialDriver.init(&params);
+}
+#endif
 
 void extmoduleSerialStop()
 {

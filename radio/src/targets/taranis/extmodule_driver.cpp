@@ -154,14 +154,6 @@ void extmoduleSerialStart()
   NVIC_SetPriority(EXTMODULE_TIMER_CC_IRQn, 7);
 }
 
-
-#if defined(PXX1) && defined(EXTMODULE_USART)
-void extmodulePxx1SerialStart()
-{
-  extmoduleInvertedSerialStart(EXTMODULE_PXX1_SERIAL_BAUDRATE);
-}
-#endif
-
 static void extmoduleSendNextFramePpm(const void* pulses, uint16_t length,
                                       uint16_t trailing_pulse)
 {
