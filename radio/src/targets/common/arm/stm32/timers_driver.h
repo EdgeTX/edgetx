@@ -21,16 +21,18 @@
 
 #pragma once
 
-struct HeartbeatCapture {
-  uint32_t timestamp;
-  uint8_t valid;
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
+#if defined(SIMU)
+
+uint16_t getTmr2MHz();
+
+#elif defined(STM32)
+
+#include "board.h"
+
+void init2MhzTimer();
+void init1msTimer();
+void stop1msTimer();
+
+static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
+
 #endif
-};
-
-extern volatile HeartbeatCapture heartbeatCapture;
-
-void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-void stop_intmodule_heartbeat();

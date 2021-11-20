@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "sbus.h"
+#include "timers_driver.h"
 
 #define SBUS_FRAME_GAP_DELAY   1000 // 500uS
 

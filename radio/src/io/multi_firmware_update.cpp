@@ -26,6 +26,7 @@
 #include "multi_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"
+#include "timers_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

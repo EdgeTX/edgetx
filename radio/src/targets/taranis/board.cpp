@@ -24,6 +24,8 @@
 #include "hal/adc_driver.h"
 #include "stm32_hal_adc.h"
 
+#include "../common/arm/stm32/timers_driver.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
