@@ -24,6 +24,7 @@
 
 #include "pulses_common.h"
 #include "hal/serial_driver.h"
+#include "hal/module_driver.h"
 
 void multiPatchCustom(uint8_t moduleIdx);
 void convertEtxProtocolToMulti(int *protocol, int *subprotocol);
@@ -45,5 +46,6 @@ class UartMultiPulses: public DataBuffer<uint8_t, 64>
 };
 
 extern etx_serial_init multiSerialInitParams;
+extern const etx_module_driver_t MultiInternalDriver;
 
 #endif

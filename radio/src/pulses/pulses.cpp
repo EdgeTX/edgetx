@@ -24,7 +24,6 @@
 #include "heartbeat_driver.h"
 
 #include "io/frsky_pxx2.h"
-#include "io/multi_protolist.h"
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
 
@@ -38,6 +37,11 @@
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"
+#endif
+
+#if defined(MULTIMODULE)
+#include "io/multi_protolist.h"
+#include "pulses/multi.h"
 #endif
 
 uint8_t s_pulses_paused = 0;
@@ -324,24 +328,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(INTERNAL_MODULE_MULTI)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      // TODO: use module interface
-      // serial port setup
-      intmodulePulsesData.multi.initFrame();
-      intmoduleFifo.clear();
-      IntmoduleSerialDriver.init(&multiSerialInitParams);
-
-      // mixer setup
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
-
-      // reset status
-      getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
-      getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
-
-#if defined(MULTI_PROTOLIST)
-      TRACE("enablePulsesInternalModule(): trigger scan");
-      MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
-      TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
-#endif
+      internalModuleContext = MultiInternalDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &MultiInternalDriver;
       break;
 #endif
 
@@ -409,13 +397,6 @@ bool setupPulsesInternalModule(uint8_t protocol)
       return true;
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-      setupPulsesMultiInternalModule();
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
-      return true;
-#endif
-
 #if defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
     { 
@@ -478,13 +459,6 @@ void intmoduleSendNextFrame()
                                  intmodulePulsesData.pxx.getSize());
       break;
 #endif
-#endif
-
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-      IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.multi.getData(),
-                                       intmodulePulsesData.multi.getSize());
-      break;
 #endif
 
 #if defined(AFHDS2)
