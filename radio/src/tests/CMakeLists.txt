@@ -61,6 +61,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     ../targets/simu/simueeprom.cpp
     ../targets/simu/simufatfs.cpp
     ../targets/simu/simulcd.cpp
+    ../targets/simu/module_drivers.cpp
+    ../targets/simu/led_driver.cpp
+    ../targets/simu/backlight_driver.cpp
     )
   add_dependencies(gtests-radio ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES} gtests-radio-lib)
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
