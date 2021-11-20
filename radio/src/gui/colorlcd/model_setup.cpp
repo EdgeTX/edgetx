@@ -1589,13 +1589,17 @@ void ModelSetupPage::build(FormWindow * window)
         if (j > 0 && (j % 6) == 0)
           centerGrid.nextLine();
 
-        new TextButton(group, centerGrid.getSlot(6, j % 6), getStringAtIndex(s, STR_RETA123, i),
-                       [=]() -> uint8_t {
-                           BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
-                           SET_DIRTY();
-                           return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i);
-                       },
-                       OPAQUE | (bfSingleBitGet(g_model.beepANACenter, i) ? BUTTON_CHECKED : 0));
+        new TextButton(
+            group, centerGrid.getSlot(6, j % 6),
+            getStringAtIndex(s, STR_RETA123, i),
+            [=]() -> uint8_t {
+              BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
+              SET_DIRTY();
+              return (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) ? 1 : 0);
+            },
+            OPAQUE | (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i)
+                          ? BUTTON_CHECKED
+                          : 0));
         j++;
       }
     }
