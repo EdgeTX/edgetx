@@ -41,6 +41,8 @@
 #include "intmodule_serial_driver.h"
 #endif
 
+#include "extmodule_driver.h"
+
 #define UPDATE_MULTI_EXT_BIN ".bin"
 
 class MultiFirmwareUpdateDriver

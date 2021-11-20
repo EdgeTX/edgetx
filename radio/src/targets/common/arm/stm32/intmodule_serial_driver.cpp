@@ -24,17 +24,18 @@
 #include "stm32_usart_driver.h"
 
 ModuleFifo intmoduleFifo;
+
 #if !defined(INTMODULE_DMA_STREAM)
 uint8_t * intmoduleTxBufferData;
 volatile uint8_t intmoduleTxBufferRemaining;
 #endif
 
-struct etx_serial_driver {
+struct etx_serial_callbacks_t {
   void (*on_receive)(uint8_t data);
   void (*on_error)();
 };
 
-static etx_serial_driver intmodule_driver = { nullptr, nullptr };
+static etx_serial_callbacks_t intmodule_driver = { nullptr, nullptr };
 
 // TODO: move this somewhere else
 void intmoduleFifoReceive(uint8_t data)
@@ -46,18 +47,6 @@ void intmoduleFifoError()
 {
   intmoduleFifo.errors++;
 }
-
-// etx_serial_init::etx_serial_init():
-//   baudrate(0),
-//   parity(USART_Parity_No),
-//   stop_bits(USART_StopBits_1),
-//   word_length(USART_WordLength_8b),
-//   rx_enable(false),
-//   // TODO: this should not be needed
-//   on_receive(intmoduleFifoReceive),
-//   on_error(intmoduleFifoError)
-// {
-// }
 
 void intmoduleStop()
 {
@@ -238,7 +227,7 @@ void intmoduleWaitForTxCompleted()
 #endif
 }
 
-etx_hal_serial_driver_t IntmoduleSerialDriver = {
+etx_serial_driver_t IntmoduleSerialDriver = {
   .init = intmoduleSerialStart,
   .deinit = intmoduleStop,
   .sendByte = intmoduleSendByte,

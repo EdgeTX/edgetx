@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,7 +21,16 @@
 
 #pragma once
 
-#include "hal/module_driver.h"
+#include <stdint.h>
+#include "hal/serial_driver.h"
 
-extern etx_module_driver_t CrossfireInternalDriver;
-extern etx_module_driver_t CrossfireExternalDriver;
+// Callbacks using intmoduleFifo
+void extmoduleFifoReceive(uint8_t data);
+void extmoduleFifoError();
+
+// void extmoduleSerialStart();
+// void extmoduleInvertedSerialStart(uint32_t baudrate);
+// void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
+// void extmoduleSendNextFrame();
+
+extern etx_serial_driver_t ExtmoduleSerialDriver;
