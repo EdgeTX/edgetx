@@ -857,21 +857,6 @@ void aux2SerialStop()
 }
 #endif
 
-#if defined(INTMODULE_HEARTBEAT_GPIO)
-volatile HeartbeatCapture heartbeatCapture;
-
-void init_intmodule_heartbeat()
-{
-}
-
-void stop_intmodule_heartbeat()
-{
-}
-
-void check_intmodule_heartbeat()
-{
-}
-#endif
 
 #if defined(HARDWARE_TOUCH)
 struct TouchState simTouchState = {};
