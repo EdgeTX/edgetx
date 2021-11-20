@@ -431,9 +431,9 @@ class CategoryEditPage : public PageTab
 
         // Details
         char cnt[19];
-        snprintf(cnt, sizeof(cnt), "%d %s", category->size(), STR_MODELS);
-        new StaticText(window, grid.getFieldSlot(3,1), cnt);             
-        
+        snprintf(cnt, sizeof(cnt), "%lu %s", category->size(), STR_MODELS);
+        new StaticText(window, grid.getFieldSlot(3,1), cnt);
+
         if(category->empty()) {
           new TextButton(window, grid.getFieldSlot(3,2),TR_DELETE, [=]() -> uint8_t {
             new ConfirmDialog(window, STR_DELETE_CATEGORY,
