@@ -194,12 +194,6 @@ void SDRAM_Init();
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
 
-void extmoduleSerialStart();
-void extmoduleInvertedSerialStart(uint32_t baudrate);
-void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
-void extmoduleSendNextFrame();
-void extmoduleSendInvertedByte(uint8_t byte);
-
 // Trainer driver
 void init_trainer_ppm();
 void stop_trainer_ppm();

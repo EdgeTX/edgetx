@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,7 +21,24 @@
 
 #pragma once
 
-#include "hal/module_driver.h"
+#include <stdint.h>
 
-extern etx_module_driver_t CrossfireInternalDriver;
-extern etx_module_driver_t CrossfireExternalDriver;
+void extmoduleStop();
+void extmodulePpmStart();
+
+#if defined(PXX1)
+void extmodulePxx1PulsesStart();
+void extmoduleSendNextFramePxx1(const uint32_t* pulses, uint16_t length);
+#endif
+
+// Soft serial on PPM pin
+void extmoduleSerialStart();
+
+#if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
+void extmoduleSendNextFrameAFHDS3(const uint16_t* dataPtr, uint16_t dataSize);
+#endif
+
+void extmoduleSendNextFrameSoftSerial100kbit(const uint32_t* pulses, uint16_t length);
+
+// Bitbang serial
+void extmoduleSendInvertedByte(uint8_t byte);
