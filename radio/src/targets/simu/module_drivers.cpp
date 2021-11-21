@@ -21,19 +21,26 @@
 
 #include "hal/serial_driver.h"
 #include "intmodule_serial_driver.h"
+#include "extmodule_serial_driver.h"
 
 #include "io/frsky_pxx2.h"
 ModuleFifo intmoduleFifo;
+ModuleFifo extmoduleFifo;
 
 void intmoduleStop() {}
 void intmoduleFifoError() {}
 void intmoduleFifoReceive(uint8_t){}
+
 void intmodulePxx1PulsesStart() {}
 void intmoduleSendNextFramePxx1() {}
 
 void extmoduleStop() {}
+void extmoduleFifoError() {}
+void extmoduleFifoReceive(uint8_t){}
+
 void extmodulePpmStart() {}
 void extmoduleSerialStart() {}
+void extmodulePxx1SerialStart() {}
 void extmodulePxx1PulsesStart() {}
 void extmoduleSendInvertedByte(uint8_t) {}
 void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
@@ -62,6 +69,16 @@ static void sendBuffer(const uint8_t*, uint8_t) {}
 static void waitForTxCompleted() {}
 
 const etx_serial_driver_t IntmoduleSerialDriver = {
+    .init = init,
+    .deinit = deinit,
+    .sendByte = sendByte,
+    .sendBuffer = sendBuffer,
+    .waitForTxCompleted = waitForTxCompleted,
+    .setReceiveCb = nullptr,
+    .setOnErrorCb = nullptr,
+};
+
+const etx_serial_driver_t ExtmoduleSerialDriver = {
     .init = init,
     .deinit = deinit,
     .sendByte = sendByte,
