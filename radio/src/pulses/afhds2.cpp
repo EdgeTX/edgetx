@@ -25,6 +25,11 @@
 #include "intmodule_serial_driver.h"
 #include "mixer_scheduler.h"
 
+// solely for 'intmoduleFifo'
+// TODO: remove this non-sense
+#include "opentx.h"
+#include "pulses/pxx2.h"
+
 afhds2::afhds2() {
   // TODO Auto-generated constructor stub
 
@@ -34,7 +39,7 @@ afhds2::~afhds2() {
   // TODO Auto-generated destructor stub
 }
 
-etx_serial_init afhds2SerialInitParams = {
+const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
     .parity = ETX_Parity_None,
     .stop_bits = ETX_StopBits_One,
@@ -70,9 +75,13 @@ static void afhds2DeInit(void* context)
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
 }
 
-static void afhds2SetupPulses(void* context)
+static void afhds2SetupPulses(void* context, int16_t* channels, uint8_t nChannels)
 {
   (void)context;
+
+  // TODO:
+  (void)channels;
+  (void)nChannels;
 
   ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
   mixerSchedulerSetPeriod(INTERNAL_MODULE, status.isValid()
@@ -91,7 +100,7 @@ static void afhds2SendPulses(void* context)
   IntmoduleSerialDriver.sendBuffer(data, size);
 }
 
-etx_module_driver_t Afhds2InternalDriver = {
+const etx_module_driver_t Afhds2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS2A,
   .init = afhds2Init,
   .deinit = afhds2DeInit,
