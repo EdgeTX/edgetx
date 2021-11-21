@@ -193,7 +193,7 @@ static void extmoduleWaitForTxCompleted()
 #endif
 }
 
-etx_serial_driver_t ExtmoduleSerialDriver = {
+const etx_serial_driver_t ExtmoduleSerialDriver = {
   .init = extmoduleSerialStart,
   .deinit = extmoduleSerialStop,
   .sendByte = extmoduleSendByte,

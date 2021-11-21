@@ -19,22 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "fifo.h"
 
-#include <stdint.h>
-#include "hal/serial_driver.h"
+//#define BT_TX_FIFO_SIZE 64
+Fifo<uint8_t, 2> btTxFifo;
+Fifo<uint8_t, 2> btRxFifo;
 
-// Callbacks using intmoduleFifo
-void extmoduleFifoReceive(uint8_t data);
-void extmoduleFifoError();
+void bluetoothInit(unsigned int, bool) {}
+void bluetoothDisable() {}
 
-// void extmoduleSerialStart();
-// void extmoduleInvertedSerialStart(uint32_t baudrate);
-// void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
-// void extmoduleSendNextFrame();
+void bluetoothWriteWakeup() {}
+bool bluetoothIsWriting() { return false; }
 
-#if defined(PXX1)
-void extmodulePxx1SerialStart();
-#endif
-
-extern const etx_serial_driver_t ExtmoduleSerialDriver;
