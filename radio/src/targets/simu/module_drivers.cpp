@@ -32,7 +32,7 @@ void intmoduleFifoError() {}
 void intmoduleFifoReceive(uint8_t){}
 
 void intmodulePxx1PulsesStart() {}
-void intmoduleSendNextFramePxx1() {}
+void intmoduleSendNextFramePxx1(unsigned short const*, unsigned char) {}
 
 void extmoduleStop() {}
 void extmoduleFifoError() {}
