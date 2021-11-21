@@ -20,4 +20,5 @@
  */
 
 void backlightEnable(unsigned char) {}
+void backlightEnable(unsigned char, unsigned char) {}
 void backlightDisable() {}

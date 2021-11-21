@@ -21,5 +21,6 @@
 
 void usbChargerLed() {}
 void ledRed() {}
+void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
