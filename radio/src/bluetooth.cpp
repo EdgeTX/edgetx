@@ -208,8 +208,22 @@ void Bluetooth::processTrainerByte(uint8_t data)
       break;
 
     case STATE_DATA_XOR:
-      appendTrainerByte(data ^ STUFF_MASK);
-      dataState = STATE_DATA_IN_FRAME;
+      switch (data) {
+        case BYTE_STUFF ^ STUFF_MASK:
+        case START_STOP ^ STUFF_MASK:
+          // Expected content, save the data
+          appendTrainerByte(data ^ STUFF_MASK);
+          dataState = STATE_DATA_IN_FRAME;
+          break;
+        case START_STOP:  // Illegal situation, as we have START_STOP, try to start from the beginning
+          bufferIndex = 0;
+          dataState = STATE_DATA_IN_FRAME;
+          break;
+        default:  
+          // Illegal situation, start looking for a new START_STOP byte
+          dataState = STATE_DATA_START;
+          break;
+      }
       break;
 
     case STATE_DATA_IDLE:
