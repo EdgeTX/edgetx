@@ -463,7 +463,7 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
     else if (sval >= SWSRC_FIRST_SENSOR
              && sval <= SWSRC_LAST_SENSOR) {
 
-        wf(opaque, "T", 2);
+        wf(opaque, "T", 1);
         str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
         return wf(opaque,str, strlen(str));
     }
