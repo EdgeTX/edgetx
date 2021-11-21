@@ -803,6 +803,15 @@ void logicalSwitchesTimerTick()
       for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         lastValue.state = s;
+        bool now;
+        if (s)
+          now = getSwitch(ls->v2);
+        else
+          now = getSwitch(ls->v1);
+        if (now)
+          lastValue.last |= 1;
+        else
+          lastValue.last &= ~1;
       }
     }
     msg = luaSetStickySwitchBuffer.read();
