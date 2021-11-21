@@ -1882,7 +1882,7 @@ static int luaSetStickySwitch(lua_State * L)
 }
 
 /*luadoc
-@function getLS(id)
+@function getLogicalSwitchValue(id)
 
 @param id: integer identifying the logical switch (zero for LS1 etc.).
 
@@ -1893,7 +1893,7 @@ Reads the value of a logical switch.
 @status current Introduced in 2.6
 */
 
-static int luaGetLS(lua_State * L)
+static int luaGetLogicalSwitchValue(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
 
@@ -1964,7 +1964,7 @@ const luaL_Reg opentxLib[] = {
   { "getShmVar", luaGetShmVar },
 #endif
   { "setStickySwitch", luaSetStickySwitch },
-  { "getLS", luaGetLS },
+  { "getLogicalSwitchValue", luaGetLogicalSwitchValue },
   { nullptr, nullptr }  /* sentinel */
 };
 
