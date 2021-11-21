@@ -22,6 +22,32 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
+{
+#if !defined(SIMU)
+  uint32_t ulNotificationValue;
+  const TickType_t xMaxBlockTime = pdMS_TO_TICKS( timeoutMs );
+
+  /* Wait to be notified that the transmission is complete.  Note
+     the first parameter is pdTRUE, which has the effect of clearing
+     the task's notification value back to 0, making the notification
+     value act like a binary (rather than a counting) semaphore.  */
+  ulNotificationValue = ulTaskNotifyTake( pdTRUE, xMaxBlockTime );
+
+  if( ulNotificationValue == 1 ) {
+    /* The transmission ended as expected. */
+    return false;
+
+  } else {
+    /* The call to ulTaskNotifyTake() timed out. */
+    return true;
+  }
+#else
+  simuSleep(timeoutMs);
+  return true;
+#endif
+}
+
 #if !defined(SIMU)
 
 // Global trigger flag
@@ -70,27 +96,6 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   }
 
   mixerSchedules[moduleIdx].period = periodUs;
-}
-
-bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
-{
-  uint32_t ulNotificationValue;
-  const TickType_t xMaxBlockTime = pdMS_TO_TICKS( timeoutMs );
-
-  /* Wait to be notified that the transmission is complete.  Note
-     the first parameter is pdTRUE, which has the effect of clearing
-     the task's notification value back to 0, making the notification
-     value act like a binary (rather than a counting) semaphore.  */
-  ulNotificationValue = ulTaskNotifyTake( pdTRUE, xMaxBlockTime );
-
-  if( ulNotificationValue == 1 ) {
-    /* The transmission ended as expected. */
-    return false;
-
-  } else {
-    /* The call to ulTaskNotifyTake() timed out. */
-    return true;
-  }
 }
 
 void mixerSchedulerISRTrigger()

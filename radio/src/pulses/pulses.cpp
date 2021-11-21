@@ -45,6 +45,10 @@
 #include "pulses/multi.h"
 #endif
 
+#if defined(AFHDS2)
+#include "pulses/afhds2.h"
+#endif
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
@@ -345,7 +349,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(AFHDS2)
+#if defined(INTERNAL_MODULE_AFHDS2A)
     case PROTOCOL_CHANNELS_AFHDS2A:
       internalModuleContext = Afhds2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Afhds2InternalDriver;
