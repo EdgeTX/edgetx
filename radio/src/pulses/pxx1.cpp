@@ -278,6 +278,7 @@ static void pxx1SendPulsesInternal(void* context)
 }
 
 const etx_module_driver_t Pxx1InternalSerialDriver = {
+  .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
   .init = pxx1InitInternal,
   .deinit = pxx1DeInitInternal,
   .setupPulses = pxx1SetupPulsesInternal,
