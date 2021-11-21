@@ -67,7 +67,7 @@ void ListBase::drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, Lc
   int x = rect.x;
 
   if ((uint32_t)activeIndex == index) {
-    LcdFlags circleColor = index == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1;
+    LcdFlags circleColor = index == (uint32_t) selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1;
     auto textWidth = getTextWidth(name.c_str(), name.length(), lcdFlags);
     auto fontHeight = getFontHeight(FONT(STD));
 
@@ -83,12 +83,9 @@ void ListBase::paint(BitmapBuffer *dc)
 
   int curY = 0;
   for (int n = 0; n < (int)names.size(); n++) {
-    //if (n == selected) {
-      dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, n == selected ? COLOR_THEME_FOCUS : COLOR_THEME_PRIMARY2);
-    //}
+    dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, n == selected ? COLOR_THEME_FOCUS : COLOR_THEME_PRIMARY2);
 
-    LcdFlags textColor =
-        n == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+    LcdFlags textColor = n == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
 
     auto fontHeight = getFontHeight(FONT(STD));
     drawLine(dc, { 8, curY  + (lineHeight - fontHeight) / 2, rect.w, lineHeight}, n, textColor);
