@@ -21,6 +21,7 @@ set(SIMU_SRC
   backlight_driver.cpp
   gyro_driver.cpp
   bt_driver.cpp
+  gps_driver.cpp
   )
 
 if(SIMU_DISKIO)
