@@ -22,77 +22,6 @@
 #include <opentx.h>
 #include "hal/adc_driver.h"
 
-#if defined(PCBSKY9X)
-#define HW_SETTINGS_COLUMN (2+(15*FW))
-enum {
-  ITEM_RADIO_HARDWARE_OPTREX_DISPLAY,
-  ITEM_RADIO_HARDWARE_STICKS_GAINS_LABELS,
-  ITEM_RADIO_HARDWARE_STICK_LV_GAIN,
-  ITEM_RADIO_HARDWARE_STICK_LH_GAIN,
-  ITEM_RADIO_HARDWARE_STICK_RV_GAIN,
-  ITEM_RADIO_HARDWARE_STICK_RH_GAIN,
-  CASE_BLUETOOTH(ITEM_RADIO_HARDWARE_BT_BAUDRATE)
-  ITEM_RADIO_HARDWARE_MAX
-};
-
-void menuRadioHardware(event_t event)
-{
-  MENU(STR_HARDWARE, menuTabGeneral, MENU_RADIO_HARDWARE, ITEM_RADIO_HARDWARE_MAX+1, {0, 0, 0, 0, 0, 0, CASE_BLUETOOTH(0)});
-
-  uint8_t sub = menuVerticalPosition - 1;
-
-  for (uint8_t i=0; i<LCD_LINES-1; i++) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
-    uint8_t k = i+menuVerticalOffset;
-    uint8_t blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
-    uint8_t attr = (sub == k ? blink : 0);
-
-    switch(k) {
-      case ITEM_RADIO_HARDWARE_OPTREX_DISPLAY:
-        g_eeGeneral.optrexDisplay = editChoice(HW_SETTINGS_COLUMN, y, STR_LCD, STR_VLCD, g_eeGeneral.optrexDisplay, 0, 1, attr, event);
-        break;
-
-      case ITEM_RADIO_HARDWARE_STICKS_GAINS_LABELS:
-        lcdDrawTextAlignedLeft(y, "Sticks");
-        lcdDrawText(LCD_W, y, BUTTON(TR_CALIBRATION), attr| RIGHT);
-        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
-          pushMenu(menuRadioCalibration);
-        }
-        break;
-
-      case ITEM_RADIO_HARDWARE_STICK_LV_GAIN:
-      case ITEM_RADIO_HARDWARE_STICK_LH_GAIN:
-      case ITEM_RADIO_HARDWARE_STICK_RV_GAIN:
-      case ITEM_RADIO_HARDWARE_STICK_RH_GAIN:
-      {
-        lcdDrawTextAtIndex(INDENT_WIDTH, y, "\002LVLHRVRH", k-ITEM_RADIO_HARDWARE_STICK_LV_GAIN, 0);
-        lcdDrawText(INDENT_WIDTH+3*FW, y, "Gain");
-        uint8_t mask = (1<<(k-ITEM_RADIO_HARDWARE_STICK_LV_GAIN));
-        uint8_t val = (g_eeGeneral.sticksGain & mask ? 1 : 0);
-        lcdDrawChar(HW_SETTINGS_COLUMN, y, val ? '2' : '1', attr);
-        if (attr) {
-          CHECK_INCDEC_GENVAR(event, val, 0, 1);
-          if (checkIncDec_Ret) {
-            g_eeGeneral.sticksGain ^= mask;
-            setSticksGain(g_eeGeneral.sticksGain);
-          }
-        }
-        break;
-      }
-
-#if defined(BLUETOOTH)
-      case ITEM_RADIO_HARDWARE_BT_BAUDRATE:
-        g_eeGeneral.bluetoothBaudrate = editChoice(HW_SETTINGS_COLUMN, y, STR_BAUDRATE, "\005115k 9600 19200", g_eeGeneral.bluetoothBaudrate, 0, 2, attr, event);
-        if (attr && checkIncDec_Ret) {
-          btInit();
-        }
-        break;
-#endif
-    }
-  }
-}
-#endif // PCBSKY9X
-
 #if defined(PCBTARANIS)
 enum {
   ITEM_RADIO_HARDWARE_LABEL_STICKS,
@@ -166,6 +95,10 @@ enum {
   ITEM_RADIO_HARDWARE_CAPACITY_CALIB,
 #endif
 
+#if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
+  ITEM_RADIO_HARDWARE_INTERNAL_MODULE,
+#endif
+  
 #if (defined(CROSSFIRE) || defined(GHOST))
   ITEM_RADIO_HARDWARE_SERIAL_BAUDRATE,
 #endif
@@ -573,6 +506,16 @@ void menuRadioHardware(event_t event)
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.txCurrentCalibration, -49, 49);
         }
+        break;
+#endif
+
+#if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
+      case ITEM_RADIO_HARDWARE_INTERNAL_MODULE:
+        g_eeGeneral.internalModule =
+            editChoice(HW_SETTINGS_COLUMN2, y, STR_INTERNAL_MODULE,
+                       STR_INTERNAL_MODULE_PROTOCOLS,
+                       g_eeGeneral.internalModule, MODULE_TYPE_NONE,
+                       MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
         break;
 #endif
 

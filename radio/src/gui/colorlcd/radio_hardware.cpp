@@ -330,28 +330,7 @@ void RadioHardwarePage::build(FormWindow * window)
                  GET_SET_DEFAULT(g_eeGeneral.internalModule));
 
   internalModule->setAvailableHandler([](int module){
-      switch(module) {
-      case MODULE_TYPE_NONE: return true;
-#if defined(INTERNAL_MODULE_MULTI)
-      case MODULE_TYPE_MULTIMODULE: return true;
-#endif
-#if defined(INTERNAL_MODULE_CRSF)
-      case MODULE_TYPE_CROSSFIRE: return true;
-#endif
-#if defined(INTERNAL_MODULE_PXX1)
-      case MODULE_TYPE_XJT_PXX1: return true;
-#endif
-#if defined(INTERNAL_MODULE_PXX2)
-      case MODULE_TYPE_ISRM_PXX2: return true;
-#endif
-#if defined(INTERNAL_MODULE_PPM)
-      case MODULE_TYPE_PPM: return true;
-#endif
-#if defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3)
-      case MODULE_TYPE_FLYSKY: return true;
-#endif
-      }
-      return false;
+      return isInternalModuleSupported(module);
   });
   grid.nextLine();
 #endif
