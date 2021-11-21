@@ -56,7 +56,7 @@ TEST(Conversions, ConversionX9DPFrom23)
 #else
   convertRadioData_219_to_220();
   convertRadioData_220_to_221();
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 #endif
   eeConvertModel(0, 219);
   loadModel((uint8_t)0);
