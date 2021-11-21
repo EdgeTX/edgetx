@@ -457,8 +457,8 @@ endif()
 
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
     targets/common/arm/stm32/bluetooth_driver.cpp)
   set(SRC
     ${SRC}
