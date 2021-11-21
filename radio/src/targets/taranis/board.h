@@ -28,6 +28,8 @@
 #include "board_common.h"
 #include "hal.h"
 
+#include "watchdog_driver.h"
+
 #if defined(RADIO_TX12) || defined(RADIO_ZORRO)
   #define  NAVIGATION_X7_TX12
 #endif
@@ -515,20 +517,6 @@ uint8_t getFSPhysicalState(uint8_t index);
 
 #define TRIMS_PRESSED()                 (readTrims())
 #define KEYS_PRESSED()                  (readKeys())
-
-// WDT driver
-#define WDG_DURATION                      500 /*ms*/
-#if !defined(WATCHDOG) || defined(SIMU)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #define WDG_ENABLE(x)                 watchdogInit(x)
-  #define WDG_RESET()                   IWDG->KR = 0xAAAA
-#endif
-void watchdogInit(unsigned int duration);
-#define WAS_RESET_BY_SOFTWARE()             (RCC->CSR & RCC_CSR_SFTRSTF)
-#define WAS_RESET_BY_WATCHDOG()             (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
 
 // ADC driver
 enum Analogs {
