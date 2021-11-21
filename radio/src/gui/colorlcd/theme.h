@@ -25,8 +25,14 @@
 #include <list>
 #include <vector>
 #include "zone.h"
-#include "ffconf.h"
 #include "thirdparty/libopenui/src/theme.h"
+
+// TODO: hotfix, through FatFS out of libopenui instead
+#if !defined(YAML_GENERATOR)
+#include "ffconf.h"
+#else
+#define FF_MAX_LFN 255
+#endif
 
 class BitmapBuffer;
 class PageTab;
