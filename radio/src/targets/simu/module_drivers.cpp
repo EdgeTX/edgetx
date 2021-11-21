@@ -28,6 +28,8 @@ ModuleFifo intmoduleFifo;
 void intmoduleStop() {}
 void intmoduleFifoError() {}
 void intmoduleFifoReceive(uint8_t){}
+void intmodulePxx1PulsesStart() {}
+void intmoduleSendNextFramePxx1() {}
 
 void extmoduleStop() {}
 void extmodulePpmStart() {}

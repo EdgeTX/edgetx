@@ -37,6 +37,7 @@
 #include "touch_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
+#include "watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
@@ -243,27 +244,6 @@ bool getTrimsAsButtons();
 #define DBLKEYS_PRESSED_UP_DWN(in)      (false)
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
-
-#define WDG_DURATION                              500 /*ms*/
-void watchdogInit(unsigned int duration);
-#if defined(SIMU)
-  #define WAS_RESET_BY_WATCHDOG()               (false)
-  #define WAS_RESET_BY_SOFTWARE()               (false)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #if defined(WATCHDOG)
-    #define WDG_ENABLE(x)                       watchdogInit(x)
-    #define WDG_RESET()                         IWDG->KR = 0xAAAA
-  #else
-    #define WDG_ENABLE(x)
-    #define WDG_RESET()
-  #endif
-  #define WAS_RESET_BY_WATCHDOG()               (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-  #define WAS_RESET_BY_SOFTWARE()               (RCC->CSR & RCC_CSR_SFTRSTF)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-#endif
 
 // ADC driver
 #define NUM_POTS                        2

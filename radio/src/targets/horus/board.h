@@ -27,6 +27,8 @@
 #include "board_common.h"
 #include "hal.h"
 
+#include "watchdog_driver.h"
+
 #if defined(HARDWARE_TOUCH)
 #include "tp_gt911.h"
 #endif
@@ -313,29 +315,6 @@ uint32_t readTrims();
 #define ROTARY_ENCODER_NAVIGATION
 void rotaryEncoderInit();
 void rotaryEncoderCheck();
-
-// WDT driver
-#define WDG_DURATION                              500 /*ms*/
-
-void watchdogInit(unsigned int duration);
-#if defined(SIMU)
-  #define WAS_RESET_BY_WATCHDOG()               (false)
-  #define WAS_RESET_BY_SOFTWARE()               (false)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #if defined(WATCHDOG)
-    #define WDG_ENABLE(x)                       watchdogInit(x)
-    #define WDG_RESET()                         IWDG->KR = 0xAAAA
-  #else
-    #define WDG_ENABLE(x)
-    #define WDG_RESET()
-  #endif
-  #define WAS_RESET_BY_WATCHDOG()               (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-  #define WAS_RESET_BY_SOFTWARE()               (RCC->CSR & RCC_CSR_SFTRSTF)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-#endif
 
 // ADC driver
 
