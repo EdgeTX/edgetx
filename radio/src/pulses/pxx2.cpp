@@ -414,10 +414,16 @@ void Pxx2Pulses::sendOtaUpdate(uint8_t module, const char * rxName, uint32_t add
 
   endFrame();
 
-  if (module == EXTERNAL_MODULE)
-    extmoduleSendNextFrame();
-  else if (module == INTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE)
+  if (module == INTERNAL_MODULE) {
     intmoduleSendNextFrame();
+  }
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) {
+    extmoduleSendNextFrame();
+  }
+#endif
 }
 
 void Pxx2Pulses::setupAuthenticationFrame(uint8_t module, uint8_t mode, const uint8_t * outputMessage)
