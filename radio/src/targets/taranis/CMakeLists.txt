@@ -355,7 +355,7 @@ endif()
 
 if(INTERNAL_MODULE_SERIAL)
 
-  if(${PCBREV} STREQUAL 2019 OR ${PCBREV} STREQUAL ACCESS)
+  if("${PCBREV}" STREQUAL 2019 OR "${PCBREV}" STREQUAL ACCESS)
     # defines existing internal modules
     set(INTERNAL_MODULES PXX2)
   else()
