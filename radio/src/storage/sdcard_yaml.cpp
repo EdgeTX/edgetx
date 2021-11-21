@@ -148,7 +148,9 @@ static bool yaml_writer(void* opaque, const char* str, size_t len)
     UINT bytes_written;
     yaml_writer_ctx* ctx = (yaml_writer_ctx*)opaque;
 
+#if defined(DEBUG_YAML)
     TRACE_NOCRLF("%.*s",len,str);
+#endif
 
     ctx->result = f_write(ctx->file, str, len, &bytes_written);
     return (ctx->result == FR_OK) && (bytes_written == len);
