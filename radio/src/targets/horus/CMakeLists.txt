@@ -220,7 +220,7 @@ endif()
 
 if(INTERNAL_GPS)
   set(SRC ${SRC} gps.cpp)
-  set(TARGET_SRC ${TARGET_SRC} gps_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} gps_driver.cpp)
   add_definitions(-DINTERNAL_GPS)
   message("Horus: Internal GPS enabled")
 endif()
