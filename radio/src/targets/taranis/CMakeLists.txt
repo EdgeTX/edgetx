@@ -383,6 +383,10 @@ else()
     )
 endif()
 
+if(HARDWARE_EXTERNAL_MODULE)
+  set(TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
+endif()
+
 if(ROTARY_ENCODER)
   set(TARGET_SRC
     ${TARGET_SRC}
