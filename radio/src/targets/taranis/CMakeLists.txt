@@ -355,8 +355,13 @@ endif()
 
 if(INTERNAL_MODULE_SERIAL)
 
-  # defines existing internal modules
-  set(INTERNAL_MODULES PXX1 PXX2 MULTI CRSF)
+  if(${PCBREV} STREQUAL 2019 OR ${PCBREV} STREQUAL ACCESS)
+    # defines existing internal modules
+    set(INTERNAL_MODULES PXX2)
+  else()
+    # defines existing internal modules
+    set(INTERNAL_MODULES PXX1 PXX2 MULTI CRSF)
+  endif()
 
   add_definitions(-DINTERNAL_MODULE_SERIAL)
   if(PXX_FREQUENCY STREQUAL HIGH)
