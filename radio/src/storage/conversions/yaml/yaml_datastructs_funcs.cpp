@@ -900,6 +900,7 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque,"-",1)) return false;
     } else {
       str = yaml_unsigned2str(lswTimerValue(ls->v2 + ls->v3));
+      if (!wf(opaque, str, strlen(str))) return false;
     }
     break;
     
