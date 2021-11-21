@@ -214,21 +214,9 @@ enum MenuModelSetupItems {
   #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW)
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1)
-#define INTERNAL_MODULE_TYPE_ROWS      ((isModuleXJT(INTERNAL_MODULE) || isModulePXX2(INTERNAL_MODULE)) ? (uint8_t)1 : (uint8_t)0) // Module type + RF protocols
-#else
-#define INTERNAL_MODULE_TYPE_ROWS      (0) // Module type + RF protocols
-#endif
-
-#if defined(PCBSKY9X) && defined(REVX)
-  #define OUTPUT_TYPE_ROW              (isModulePPM(EXTERNAL_MODULE) ? (uint8_t)0 : HIDDEN_ROW), // Output type (OpenDrain / PushPull)
-#else
-  #define OUTPUT_TYPE_ROW
-#endif
-
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
-  if (isModuleXJT(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx))
+  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx))
     return 1;
   else
     return 0;
@@ -445,8 +433,6 @@ void menuModelSetup(event_t event)
     INTERNAL_MODULE_ROWS
 
     EXTERNAL_MODULE_ROWS
-
-    OUTPUT_TYPE_ROW
 
     EXTRA_MODULE_ROWS
 
@@ -885,57 +871,6 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_LABEL:
         lcdDrawTextAlignedLeft(y, STR_INTERNALRF);
         break;
-
-#if !defined(INTERNAL_MODULE_MULTI)
-      case ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE:
-      {
-        lcdDrawText(INDENT_WIDTH, y, STR_MODE);
-#if defined(INTERNAL_MODULE_PXX1)
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_INTERNAL_MODULE_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].type, menuHorizontalPosition==0 ? attr : 0);
-        if (isModuleXJT(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, 1+g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
-        else if (isModuleISRM(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
-        if (attr) {
-          if (menuHorizontalPosition == 0) {
-            uint8_t moduleType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL, isInternalModuleAvailable);
-            if (checkIncDec_Ret) {
-              setModuleType(INTERNAL_MODULE, moduleType);
-            }
-          }
-          else if (isModuleXJT(INTERNAL_MODULE)) {
-            g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
-            if (checkIncDec_Ret) {
-              g_model.moduleData[0].type = MODULE_TYPE_XJT_PXX1;
-              g_model.moduleData[0].channelsStart = 0;
-              g_model.moduleData[0].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
-            }
-          }
-          else if (isModulePXX2(INTERNAL_MODULE)) {
-            g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
-          }
-        }
-#else
-      uint8_t index = 0;
-      if (g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_ISRM_PXX2) {
-        index = 1 + g_model.moduleData[INTERNAL_MODULE].subType;
-      }
-      lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_ISRM_RF_PROTOCOLS, index, attr);
-      if (attr) {
-        index = checkIncDec(event, index, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16 + 1 /* because of --- */, EE_MODEL);
-        if (checkIncDec_Ret) {
-          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
-          if (index > 0) {
-            g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_ISRM_PXX2;
-            g_model.moduleData[INTERNAL_MODULE].subType = index - 1;
-            g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
-          }
-        }
-      }
-#endif
-        break;
-      }
-#endif
 #endif
 
 #if defined(PCBSKY9X)
@@ -957,13 +892,23 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
 #endif
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_EXTERNAL_MODULE_PROTOCOLS, moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType : g_model.moduleData[moduleIdx].type, menuHorizontalPosition==0 ? attr : 0);
+        lcdDrawTextAtIndex(
+            MODEL_SETUP_2ND_COLUMN, y,
+            moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS
+                                         : STR_INTERNAL_MODULE_PROTOCOLS,
+            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType
+                                         : g_model.moduleData[moduleIdx].type,
+            menuHorizontalPosition == 0 ? attr : 0);
+
         if (isModuleXJT(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, 1+g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
+        else if (isModuleISRM(moduleIdx))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleDSM2(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS, g_model.moduleData[moduleIdx].rfProtocol, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleR9MNonAccess(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION, g_model.moduleData[moduleIdx].subType, (menuHorizontalPosition==1 ? attr : 0));
+
         if (attr && menuHorizontalPosition == 0  && moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
             g_model.moduleData[moduleIdx].type = MODULE_TYPE_NONE;
@@ -996,7 +941,18 @@ void menuModelSetup(event_t event)
                 break;
 
               case 1:
-                if (isModuleDSM2(moduleIdx)) {
+                if (isModuleXJT(moduleIdx)) {
+                  g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
+                  if (checkIncDec_Ret) {
+                    g_model.moduleData[0].type = MODULE_TYPE_XJT_PXX1;
+                    g_model.moduleData[0].channelsStart = 0;
+                    g_model.moduleData[0].channelsCount = defaultModuleChannels_M8(moduleIdx);
+                  }
+                }
+                else if (isModuleISRM(moduleIdx)) {
+                  g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
+                }
+                else if (isModuleDSM2(moduleIdx)) {
                   CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].rfProtocol, DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
                 }
                 else if (isModuleR9MNonAccess(moduleIdx)) {
