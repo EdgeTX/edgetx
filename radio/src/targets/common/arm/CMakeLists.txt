@@ -67,13 +67,8 @@ if(DEFAULT_INTERNAL_MODULE)
 endif()
 
 if(HARDWARE_EXTERNAL_MODULE)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    extmodule_driver.cpp
-    )
   add_definitions(-DHARDWARE_EXTERNAL_MODULE)
 endif()
-
 
 if(TIMERS EQUAL 3)
   add_definitions(-DTIMERS=3)
