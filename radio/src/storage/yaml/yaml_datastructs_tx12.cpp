@@ -21,6 +21,27 @@ const struct YamlIdStr enum_AntennaModes[] = {
   {  ANTENNA_MODE_LAST, "MODE_LAST"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_ModuleType[] = {
+  {  MODULE_TYPE_NONE, "TYPE_NONE"  },
+  {  MODULE_TYPE_PPM, "TYPE_PPM"  },
+  {  MODULE_TYPE_XJT_PXX1, "TYPE_XJT_PXX1"  },
+  {  MODULE_TYPE_ISRM_PXX2, "TYPE_ISRM_PXX2"  },
+  {  MODULE_TYPE_DSM2, "TYPE_DSM2"  },
+  {  MODULE_TYPE_CROSSFIRE, "TYPE_CROSSFIRE"  },
+  {  MODULE_TYPE_MULTIMODULE, "TYPE_MULTIMODULE"  },
+  {  MODULE_TYPE_R9M_PXX1, "TYPE_R9M_PXX1"  },
+  {  MODULE_TYPE_R9M_PXX2, "TYPE_R9M_PXX2"  },
+  {  MODULE_TYPE_R9M_LITE_PXX1, "TYPE_R9M_LITE_PXX1"  },
+  {  MODULE_TYPE_R9M_LITE_PXX2, "TYPE_R9M_LITE_PXX2"  },
+  {  MODULE_TYPE_GHOST, "TYPE_GHOST"  },
+  {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
+  {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
+  {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
+  {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
+  {  MODULE_TYPE_COUNT, "TYPE_COUNT"  },
+  {  MODULE_TYPE_MAX, "TYPE_MAX"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TrainerMultiplex[] = {
   {  TRAINER_OFF, "OFF"  },
   {  TRAINER_ADD, "ADD"  },
@@ -224,27 +245,6 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  POTS_WARN_AUTO, "WARN_AUTO"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_ModuleType[] = {
-  {  MODULE_TYPE_NONE, "TYPE_NONE"  },
-  {  MODULE_TYPE_PPM, "TYPE_PPM"  },
-  {  MODULE_TYPE_XJT_PXX1, "TYPE_XJT_PXX1"  },
-  {  MODULE_TYPE_ISRM_PXX2, "TYPE_ISRM_PXX2"  },
-  {  MODULE_TYPE_DSM2, "TYPE_DSM2"  },
-  {  MODULE_TYPE_CROSSFIRE, "TYPE_CROSSFIRE"  },
-  {  MODULE_TYPE_MULTIMODULE, "TYPE_MULTIMODULE"  },
-  {  MODULE_TYPE_R9M_PXX1, "TYPE_R9M_PXX1"  },
-  {  MODULE_TYPE_R9M_PXX2, "TYPE_R9M_PXX2"  },
-  {  MODULE_TYPE_R9M_LITE_PXX1, "TYPE_R9M_LITE_PXX1"  },
-  {  MODULE_TYPE_R9M_LITE_PXX2, "TYPE_R9M_LITE_PXX2"  },
-  {  MODULE_TYPE_GHOST, "TYPE_GHOST"  },
-  {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
-  {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
-  {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
-  {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
-  {  MODULE_TYPE_COUNT, "TYPE_COUNT"  },
-  {  MODULE_TYPE_MAX, "TYPE_MAX"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_FailsafeModes[] = {
   {  FAILSAFE_NOT_SET, "NOT_SET"  },
   {  FAILSAFE_HOLD, "HOLD"  },
@@ -349,6 +349,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "disableRtcWarning", 1 ),
   YAML_UNSIGNED( "keysBacklight", 1 ),
   YAML_PADDING( 1 ),
+  YAML_ENUM("internalModule", 8, enum_ModuleType),
   YAML_STRUCT("trainer", 128, struct_TrainerData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_PADDING( 2 ),
