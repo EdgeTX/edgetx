@@ -54,21 +54,6 @@ add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  audio_spi_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
-  )
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  battery_driver.cpp
-  ../horus/flyskyHallStick_driver.cpp
-  ../common/arm/stm32/stm32_hal_adc.cpp
-  ../../hal/adc_driver.cpp
-  )
-
 set(BITMAPS_TARGET nv14_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
@@ -81,7 +66,6 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
-
 
 add_definitions(-DSTM32F429_439xx -DSDRAM -DCOLORLCD -DLIBOPENUI
       -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD)
@@ -127,27 +111,6 @@ set(SRC
 
 set(GVAR_SCREEN model_gvars.cpp)
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  extmodule_helper.cpp
-  ../horus/extmodule_driver.cpp
-  trainer_driver.cpp
-  ../common/arm/stm32/intmodule_serial_driver.cpp
-  ../common/arm/stm32/stm32_usart_driver.cpp
-  )
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  ${LCD_DRIVER}
-  ${TOUCH_DRIVER}
-  board.cpp
-  backlight_driver.cpp
-  sdram_driver.c
-  startup_stm32f42_43xxx.s
-  ../common/arm/stm32/pwr_driver.cpp
-  ../common/arm/stm32/sdio_sd.c
-  )
-
 if(BOOTLOADER)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
@@ -167,6 +130,34 @@ if (MULTIMODULE)
     io/multi_protolist.cpp
     )
 endif()
+
+set(FIRMWARE_TARGET_SRC
+  ${FIRMWARE_TARGET_SRC}
+  board.cpp
+  startup_stm32f42_43xxx.s
+  ${LCD_DRIVER}
+  ${TOUCH_DRIVER}
+  sdram_driver.c
+  trainer_driver.cpp
+  battery_driver.cpp
+  audio_spi_driver.cpp
+  backlight_driver.cpp
+  extmodule_helper.cpp
+  ../horus/extmodule_driver.cpp
+  ../horus/flyskyHallStick_driver.cpp
+  )
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  targets/common/arm/stm32/stm32_hal_adc.cpp
+  targets/common/arm/stm32/timers_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/intmodule_serial_driver.cpp
+  targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/sdio_sd.c
+  )
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
