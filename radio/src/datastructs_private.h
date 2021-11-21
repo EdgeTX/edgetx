@@ -848,6 +848,7 @@ PACK(struct RadioData {
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
   int8_t spare1:1 SKIP;
+  NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
   NOBACKUP(BUZZER_FIELD); /* 2bits */
