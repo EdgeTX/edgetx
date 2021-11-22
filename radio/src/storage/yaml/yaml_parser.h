@@ -42,6 +42,7 @@ class YamlParser
         ps_Indent=0,
         ps_Dash,
         ps_Attr,
+        ps_AttrQuo,
         ps_AttrSP,
         ps_Sep,
         ps_Val,
