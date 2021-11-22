@@ -19,13 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+#include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
+#include "hal.h"
 #include "extmodule_driver.h"
 #include "timers_driver.h"
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"
 #endif
+
+// PPM delay in uS
+#define DEFAULT_PPM_DELAY 300
+static uint32_t (*getPPMDelayCb)() = nullptr;
+
+static inline uint32_t getPPMDelay()
+{
+  if (getPPMDelayCb)
+    return getPPMDelayCb();
+
+  return DEFAULT_PPM_DELAY;
+}
+
+// PPM polarity
+#define DEFAULT_PPM_POLARITY (true)
+static bool (*getPPMPolarityCb)() = nullptr;
+
+static inline bool getPPMPolarity()
+{
+  if (getPPMPolarityCb)
+    return getPPMPolarityCb();
+
+  return DEFAULT_PPM_POLARITY;
+}
 
 void extmoduleStop()
 {
@@ -47,7 +73,7 @@ void extmoduleStop()
   GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
 }
 
-void extmodulePpmStart()
+void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
 {
   EXTERNAL_MODULE_ON();
 
@@ -68,25 +94,21 @@ void extmodulePpmStart()
   // CCR1 register defines duration of pulse length and is constant
   // AAR register defines duration of each pulse, it is
   // updated after every pulse in Update interrupt handler.
-  // CCR2 register defines duration of no pulses (time between two pulse trains)
-  // it is calculated every round to have PPM period constant.
-  // CC2 interrupt is then used to setup new PPM values for the
-  // next PPM pulses train.
 
   EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN; // Stop timer
   EXTMODULE_TIMER->PSC = EXTMODULE_TIMER_FREQ / 2000000 - 1; // 0.5uS (2Mhz)
 
 #if defined(PCBX10) || PCBREV >= 13
-  EXTMODULE_TIMER->CCR3 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE)*2;
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC3E | (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC3P : 0);
+  EXTMODULE_TIMER->CCR3 = ppm_delay * 2;
+  EXTMODULE_TIMER->CCER = TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0);
   EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_0; // Force O/P high
   EXTMODULE_TIMER->BDTR = TIM_BDTR_MOE;
   EXTMODULE_TIMER->EGR = 1; // Reloads register values now
   EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2; // PWM mode 1
 #else
-  EXTMODULE_TIMER->CCR1 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE)*2;
+  EXTMODULE_TIMER->CCR1 = ppm_delay * 2;
   EXTMODULE_TIMER->CCER = TIM_CCER_CC1E |
-    (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ?
+    (getPPMPolarity() ?
 #if defined(PCBNV14)
      0 : TIM_CCER_CC1P
 #else
@@ -98,16 +120,13 @@ void extmodulePpmStart()
   EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC2PE; // PWM mode 1
 #endif
 
-  EXTMODULE_TIMER->ARR = 45000;
-  EXTMODULE_TIMER->CCR2 = 40000; // The first frame will be sent in 20ms
+  EXTMODULE_TIMER->ARR = 65535; // start with max period
   EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF; // Clear flag
-  EXTMODULE_TIMER->DIER |= TIM_DIER_UDE | TIM_DIER_CC2IE; // Enable this interrupt
+  EXTMODULE_TIMER->DIER |= TIM_DIER_UDE /*| TIM_DIER_CC2IE*/; // Enable this interrupt
   EXTMODULE_TIMER->CR1 = TIM_CR1_CEN; // Start timer
 
   NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
-  NVIC_EnableIRQ(EXTMODULE_TIMER_CC_IRQn);
-  NVIC_SetPriority(EXTMODULE_TIMER_CC_IRQn, 7);
 }
 
 #if defined(PXX1)
@@ -157,8 +176,6 @@ void extmodulePxx1PulsesStart()
 
   NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
-  NVIC_EnableIRQ(EXTMODULE_TIMER_CC_IRQn);
-  NVIC_SetPriority(EXTMODULE_TIMER_CC_IRQn, 7);
 }
 #endif
 
@@ -209,30 +226,32 @@ void extmoduleSerialStart()
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
 }
 
-static void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
-                                      uint16_t trailing_pulse)
+void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
+                               uint16_t ppm_delay, bool polarity)
 {
+  if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
+
+    // disable timer
+  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
+
 #if defined(PCBX10) || PCBREV >= 13
   // Using timer channel 3
-  EXTMODULE_TIMER->CCR3 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE) * 2;
+  EXTMODULE_TIMER->CCR3 = ppm_delay * 2;
   EXTMODULE_TIMER->CCER =
-      TIM_CCER_CC3E |
-      (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC3P : 0);
+      TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0);
 #else
   // Using timer channel 1
-  EXTMODULE_TIMER->CCR1 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE) * 2;
-  EXTMODULE_TIMER->CCER =
-      TIM_CCER_CC1E | (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ?
+  EXTMODULE_TIMER->CCR1 = ppm_delay * 2;
+  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | (polarity ?
 #if defined(PCBNV14)
-                                                                0
-                                                                : TIM_CCER_CC1P
+                                                    0
+                                                    : TIM_CCER_CC1P
 #else
-                                                                TIM_CCER_CC1P
-                                                                : 0
+                                                    TIM_CCER_CC1P
+                                                    : 0
 #endif
-                      );
+                                          );
 #endif
-  EXTMODULE_TIMER->CCR2 = trailing_pulse - 4000;   // 2mS in advance
   EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN;  // Disable DMA
   EXTMODULE_TIMER_DMA_STREAM->CR |=
       EXTMODULE_TIMER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC |
@@ -241,6 +260,10 @@ static void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
   EXTMODULE_TIMER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(pulses);
   EXTMODULE_TIMER_DMA_STREAM->NDTR = length;
   EXTMODULE_TIMER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;  // Enable DMA
+
+  // re-init timer
+  EXTMODULE_TIMER->EGR = 1;
+  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
 }
 
 #if defined(PXX1)
@@ -284,22 +307,23 @@ void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize)
 }
 #endif
 
-void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length)
+void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length,
+                                             bool polarity)
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
-  if (PROTOCOL_CHANNELS_SBUS == moduleState[EXTERNAL_MODULE].protocol) {
+  //if (PROTOCOL_CHANNELS_SBUS == moduleState[EXTERNAL_MODULE].protocol) {
     // reverse polarity for Sbus if needed
     EXTMODULE_TIMER->CCER =
 #if defined(PCBX10) || PCBREV >= 13
-        TIM_CCER_CC3E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC3P : 0)
+        TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0)
 #elif defined(PCBNV14)
-        TIM_CCER_CC1E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? 0 : TIM_CCER_CC1P)
+        TIM_CCER_CC1E | (polarity ? 0 : TIM_CCER_CC1P)
 #else
-        TIM_CCER_CC1E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC1P : 0)
+        TIM_CCER_CC1E | (polarity ? TIM_CCER_CC1P : 0)
 #endif
         ;  //
-  }
+    //}
 
   // disable timer
   EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
@@ -358,22 +382,5 @@ extern "C" void EXTMODULE_TIMER_DMA_IRQHandler()
 
   DMA_ClearITPendingBit(EXTMODULE_TIMER_DMA_STREAM, EXTMODULE_TIMER_DMA_FLAG_TC);
 
-  switch (moduleState[EXTERNAL_MODULE].protocol) {
-    case PROTOCOL_CHANNELS_PPM:
-      EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF; // Clear flag
-      EXTMODULE_TIMER->DIER |= TIM_DIER_CC2IE; // Enable this interrupt
-      break;
-  }
-}
 
-extern "C" void EXTMODULE_TIMER_IRQHandler()
-{
-  EXTMODULE_TIMER->DIER &= ~TIM_DIER_CC2IE; // Stop this interrupt
-  EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF;
-
-  setupPulsesExternalModule();
-  extmoduleSendNextFramePpm(
-      extmodulePulsesData.ppm.pulses,
-      extmodulePulsesData.ppm.ptr - extmodulePulsesData.ppm.pulses,
-      *(extmodulePulsesData.ppm.ptr - 1));
 }

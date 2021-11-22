@@ -550,7 +550,9 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(PPM)
     case PROTOCOL_CHANNELS_PPM:
-      extmodulePpmStart();
+      extmodulePpmStart(
+          GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
+          GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
       break;
 #endif
@@ -664,15 +666,14 @@ void extmoduleSendNextFrame()
 
   switch (moduleState[EXTERNAL_MODULE].protocol) {
 
-    // Note: this is called directly from the EXTMODULE_TIMER_IRQHandler()
-    //       periodically (the only non-synchronous pulse driver
-    //
-    // case PROTOCOL_CHANNELS_PPM:
-    //   extmoduleSendNextFramePpm(
-    //       extmodulePulsesData.ppm.pulses,
-    //       extmodulePulsesData.ppm.ptr - extmodulePulsesData.ppm.pulses,
-    //       *(extmodulePulsesData.ppm.ptr - 1));
-    //   break;
+    case PROTOCOL_CHANNELS_PPM:
+      extmoduleSendNextFramePpm(
+          extmodulePulsesData.ppm.pulses,
+          extmodulePulsesData.ppm.ptr - extmodulePulsesData.ppm.pulses,
+          GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
+          GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
+      mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
+      break;
 
 #if defined(PXX1)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
@@ -702,6 +703,12 @@ void extmoduleSendNextFrame()
 
 #if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_SBUS:
+      extmoduleSendNextFrameSoftSerial100kbit(
+          extmodulePulsesData.dsm2.pulses,
+          extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
+          GET_SBUS_POLARITY(EXTERNAL_MODULE));
+      break;
+
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
