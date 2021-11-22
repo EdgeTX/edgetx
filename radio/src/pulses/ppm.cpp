@@ -61,7 +61,8 @@ void setupPulsesPPMInternalModule()
 
 void setupPulsesPPMExternalModule()
 {
-  setupPulsesPPM(&extmodulePulsesData.ppm, g_model.moduleData[EXTERNAL_MODULE].channelsStart, g_model.moduleData[EXTERNAL_MODULE].channelsCount, g_model.moduleData[EXTERNAL_MODULE].ppm.frameLength);
+  setupPulsesPPM(&extmodulePulsesData.ppm,
+                 g_model.moduleData[EXTERNAL_MODULE].channelsStart,
+                 g_model.moduleData[EXTERNAL_MODULE].channelsCount,
+                 g_model.moduleData[EXTERNAL_MODULE].ppm.frameLength);
 }
-
-
