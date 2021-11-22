@@ -118,6 +118,16 @@ void convertBinRadioData(const char * path, int version)
         error = convertBinModelData(filename, model_version);
         ++model_it;
 
+        if (error) {
+          TRACE("ERROR converting '%s': %s", filename, error);
+          category_ptr->removeModel(model_ptr);
+        } else {
+          PartialModel partial;
+          memclear(&partial, sizeof(PartialModel));
+          
+          readModelYaml(filename, reinterpret_cast<uint8_t*>(&partial), sizeof(partial));
+          model_ptr->setModelName(partial.header.name);
+        }
       } else {
         TRACE("ERROR reading '%s': %s", filename, error);
 

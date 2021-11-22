@@ -23,3 +23,4 @@
 
 const char * loadRadioSettingsYaml();
 const char * writeModelYaml(const char* filename);
+const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size);
