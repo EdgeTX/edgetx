@@ -351,7 +351,7 @@ bool ModelsList::loadTxt()
 bool ModelsList::loadYaml()
 {
   char line[LEN_MODELS_IDX_LINE+1];
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
     // YAML reader
     TRACE("YAML modelslist reader");
@@ -395,7 +395,7 @@ bool ModelsList::load(Format fmt)
   FILINFO fno;
   if (fmt == Format::txt ||
       (fmt == Format::yaml_txt &&
-       f_stat(RADIO_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
+       f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
   } else {
     res = loadYaml();
@@ -423,7 +423,7 @@ void ModelsList::save()
 #if !defined(SDCARD_YAML)
   FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
 #else
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
 #endif
   if (result != FR_OK) return;
 
