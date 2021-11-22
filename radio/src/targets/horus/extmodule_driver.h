@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 void extmoduleStop();
-void extmodulePpmStart();
+void extmodulePpmStart(uint16_t ppm_delay, bool polarity);
 
 #if defined(PXX1)
 void extmodulePxx1PulsesStart();
@@ -38,7 +38,12 @@ void extmoduleSerialStart();
 void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize);
 #endif
 
-void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length);
+void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
+                               uint16_t ppm_delay, bool polarity);
+
+void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses,
+                                             uint16_t length,
+                                             bool polarity = true);
 
 // Bitbang serial
 void extmoduleSendInvertedByte(uint8_t byte);

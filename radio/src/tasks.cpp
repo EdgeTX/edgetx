@@ -66,6 +66,7 @@ bool isForcePowerOffRequested()
   return false;
 }
 
+// TODO: remove this!!!
 bool isModuleSynchronous(uint8_t moduleIdx)
 {
   switch(moduleState[moduleIdx].protocol) {
@@ -83,7 +84,7 @@ bool isModuleSynchronous(uint8_t moduleIdx)
 #if defined(INTMODULE_USART) || defined(EXTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
 #endif
-    // case PROTOCOL_CHANNELS_PPM:
+    case PROTOCOL_CHANNELS_PPM:
     case PROTOCOL_CHANNELS_PXX1_PULSES:
 #if defined(DSM2)
     case PROTOCOL_CHANNELS_SBUS:
