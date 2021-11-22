@@ -108,7 +108,7 @@ public:
 #if defined(SDCARD_YAML)
     yaml,
     yaml_txt,
-    load_default = yaml_txt,
+    load_default = yaml,
 #else
     load_default = txt,
 #endif

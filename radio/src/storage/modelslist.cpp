@@ -352,6 +352,10 @@ bool ModelsList::loadYaml()
 {
   char line[LEN_MODELS_IDX_LINE+1];
   FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  if (result != FR_OK) {
+    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  }
+
   if (result == FR_OK) {
     // YAML reader
     TRACE("YAML modelslist reader");
@@ -395,7 +399,8 @@ bool ModelsList::load(Format fmt)
   FILINFO fno;
   if (fmt == Format::txt ||
       (fmt == Format::yaml_txt &&
-       f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
+       f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
+       f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
   } else {
     res = loadYaml();
