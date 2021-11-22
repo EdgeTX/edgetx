@@ -83,7 +83,6 @@ void ModelCell::setModelName(char* name, uint8_t len)
     if (tmp != nullptr)
       *tmp = 0;
   }
-
 }
 
 void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
