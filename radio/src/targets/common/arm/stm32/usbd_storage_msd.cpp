@@ -275,7 +275,6 @@ const char firmware_txt[] =
   "opentx-" FLAVOUR "-" VERSION " (" GIT_STR ")\r\n"
   "DATE       " DATE "\r\n"
   "TIME       " TIME "\r\n"
-  "req SD ver " REQUIRED_SDCARD_VERSION "\r\n"
 #if !defined(BOOT)
 "BOOTVER    "
 #else
