@@ -148,17 +148,24 @@ YamlParser::parse(const char* buffer, unsigned int size)
             }
 
             state = ps_Attr;
+            if (*c == '\"') {
+                state = ps_AttrQuo;
+                break;
+            }
+            CONCAT_STR(scratch_buf, scratch_len, *c);
+            break;
+
+        case ps_AttrQuo:
+            if (*c == '\"') {
+                state = ps_Attr;
+                break;
+            }
             CONCAT_STR(scratch_buf, scratch_len, *c);
             break;
 
         case ps_Attr:
-            if (*c == ' ') {// assumes nothing else comes after spaces start
-                node_found = calls->find_node(ctx, scratch_buf, scratch_len);
-                if (!node_found) {
-                    TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (1)\n",
-                          scratch_len, scratch_buf);
-                }
-                state = ps_AttrSP;
+            if (*c == '\"') {
+                state = ps_AttrQuo;
                 break;
             }
             if ((*c != ':') && (*c != '\r') && (*c != '\n'))
@@ -167,6 +174,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
         case ps_AttrSP:
             if (*c == '\r' || *c == '\n') {
                 if (state == ps_Attr) {
+                    // TODO: trim spaces at the end?
                     node_found = calls->find_node(ctx, scratch_buf, scratch_len);
                     if (!node_found) {
                         TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (2)\n",
@@ -179,6 +187,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             }
             if (*c == ':') {
                 if (state == ps_Attr) {
+                    // TODO: trim spaces at the end?
                     node_found = calls->find_node(ctx, scratch_buf, scratch_len);
                     if (!node_found) {
                         TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (3)\n",
@@ -261,9 +270,10 @@ YamlParser::parse(const char* buffer, unsigned int size)
             return DONE_PARSING;
             
         case ps_Val:
-            if (*c == ' ' || *c == '\r' || *c == '\n') {
+            if (*c == '\r' || *c == '\n') {
                 // set attribute
                 if (node_found) {
+                    // TODO: trim spaces at the end?
                     calls->set_attr(ctx, scratch_buf, scratch_len);
                 }
                 saved_state = state;
