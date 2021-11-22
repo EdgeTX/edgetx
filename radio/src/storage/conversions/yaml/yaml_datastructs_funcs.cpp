@@ -845,6 +845,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
+    break;
 
   default:
     add_comma = false;
