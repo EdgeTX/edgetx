@@ -229,7 +229,7 @@ void RadioSdManagerPage::build(FormWindow * window)
     // sort directories and files
     directories.sort(compare_nocase);
     files.sort(compare_nocase);
-    
+
     for (auto name: directories) {
       new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = currentPath + "/" + name;
@@ -260,26 +260,20 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (information.readMultiFirmwareInformation(name.c_str()) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
                 menu->addLine(STR_FLASH_INTERNAL_MULTI, [=]() {
-                  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(
-                      INTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
-                  auto dialog = new FlashDialog<MultiDeviceFirmwareUpdate>(
-                      deviceFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
+                  MultiFirmwareUpdate(name, INTERNAL_MODULE,
+                                      MULTI_TYPE_MULTIMODULE);
                 });
 #endif
                 menu->addLine(STR_FLASH_EXTERNAL_MULTI, [=]() {
-                    MultiDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
-                    auto dialog = new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-                    dialog->flash(getFullPath(name));
+                  MultiFirmwareUpdate(name, EXTERNAL_MODULE,
+                                      MULTI_TYPE_MULTIMODULE);
                 });
               }
             }
 #endif
             else if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
               menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
-                  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE, MULTI_TYPE_ELRS);
-                  auto dialog = new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
+                MultiFirmwareUpdate(name, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
               });
             }
             // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
@@ -289,7 +283,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
-   
+
                 auto textView = new ViewTextWindow(lfn, name);
                 textView->setCloseHandler([=]() {
                   //window->clear();
@@ -300,34 +294,101 @@ void RadioSdManagerPage::build(FormWindow * window)
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
               if (isBootloader(name.c_str())) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [=]() {
-                  BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
-                  auto dialog = new FlashDialog<BootloaderFirmwareUpdate>(
-                      bootloaderFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
-                  TRACE("### finished flashing ###");
+                  BootloaderUpdate(name);
                 });
               }
             } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
               if (HAS_SPORT_UPDATE_CONNECTOR()) {
                 menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-                  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(SPORT_MODULE);
-                  auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                      deviceFirmwareUpdate);
-                  dialog->flash(getFullPath(name));
+                  FrSkyFirmwareUpdate(name, SPORT_MODULE);
                 });
               }
               menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(INTERNAL_MODULE);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                FrSkyFirmwareUpdate(name, INTERNAL_MODULE);
               });
               menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-                FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(EXTERNAL_MODULE);
-                auto dialog = new FlashDialog<FrskyDeviceFirmwareUpdate>(
-                    deviceFirmwareUpdate);
-                dialog->flash(getFullPath(name));
+                FrSkyFirmwareUpdate(name, EXTERNAL_MODULE);
               });
+            } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
+              FrSkyFirmwareInformation information;
+              if (readFrSkyFirmwareInformation(getFullPath(name),
+                                               information) == nullptr) {
+#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
+                menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
+                  FrSkyFirmwareUpdate(name, INTERNAL_MODULE);
+                });
+#endif
+                if (information.productFamily ==
+                    FIRMWARE_FAMILY_EXTERNAL_MODULE) {
+                  menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+                    FrSkyFirmwareUpdate(name, EXTERNAL_MODULE);
+                  });
+                }
+                if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
+                    information.productFamily == FIRMWARE_FAMILY_SENSOR) {
+                  if (HAS_SPORT_UPDATE_CONNECTOR()) {
+                    menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
+                      FrSkyFirmwareUpdate(name, SPORT_MODULE);
+                    });
+                  } else {
+                    menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+                      FrSkyFirmwareUpdate(name, EXTERNAL_MODULE);
+                    });
+                  }
+                }
+// TODO: Integrate the remaining options
+#if 0
+#if defined(PXX2)
+                if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
+                  if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE,
+                                                     information.productId))
+                    menu->addLine(
+                        STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
+                          FrSkyFirmwareUpdate(name, INTERNAL_MODULE_OTA);
+                        });
+                  if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE,
+                                                     information.productId))
+                    menu->addLine(
+                        STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
+                          FrSkyFirmwareUpdate(name, EXTERNAL_MODULE_OTA);
+                        });
+                }
+                if (information.productFamily ==
+                    FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
+                  menu->addLine(
+                      STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA,
+                      [=]() {
+                        FrSkyFirmwareUpdate(
+                            name,
+                            STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
+                      });
+                  menu->addLine(
+                      STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA,
+                      [=]() {
+                        FrSkyFirmwareUpdate(
+                            name,
+                            STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
+                      });
+                }
+#endif
+#if defined(BLUETOOTH)
+                if (information.productFamily ==
+                    FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
+                  menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
+                    FrSkyFirmwareUpdate(name, STR_FLASH_BLUETOOTH_MODULE);
+                  });
+                }
+#endif
+#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
+                if (information.productFamily ==
+                    FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
+                  menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
+                    FrSkyFirmwareUpdate(name, STR_FLASH_POWER_MANAGEMENT_UNIT);
+                  });
+                }
+#endif
+#endif
+              }
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
@@ -388,6 +449,33 @@ void RadioSdManagerPage::build(FormWindow * window)
 
   window->setInnerHeight(grid.getWindowHeight());
   preview->setHeight(max(window->height(), grid.getWindowHeight()));
+}
+
+void RadioSdManagerPage::BootloaderUpdate(const std::string name)
+{
+  BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
+  auto dialog =
+      new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
+  dialog->flash(getFullPath(name));
+}
+
+void RadioSdManagerPage::FrSkyFirmwareUpdate(const std::string name,
+                                             ModuleIndex module)
+{
+  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
+  auto dialog =
+      new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
+  dialog->flash(getFullPath(name));
+}
+
+void RadioSdManagerPage::MultiFirmwareUpdate(const std::string name,
+                                             ModuleIndex module,
+                                             MultiModuleType type)
+{
+  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
+  auto dialog =
+      new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
+  dialog->flash(getFullPath(name));
 }
 
 #if 0

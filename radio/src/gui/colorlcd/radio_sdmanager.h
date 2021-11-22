@@ -19,14 +19,21 @@
  * GNU General Public License for more details.
  */
 
+#include "dataconstants.h"
 #include "tabsgroup.h"
+enum MultiModuleType : short;
 
-class RadioSdManagerPage: public PageTab {
-  public:
-    RadioSdManagerPage();
+class RadioSdManagerPage : public PageTab
+{
+ public:
+  RadioSdManagerPage();
 
-    void build(FormWindow * window) override;
+  void build(FormWindow* window) override;
 
-  protected:
-    void rebuild(FormWindow * window);
+ protected:
+  void BootloaderUpdate(const std::string name);
+  void FrSkyFirmwareUpdate(const std::string name, ModuleIndex module);
+  void MultiFirmwareUpdate(const std::string name, ModuleIndex module,
+                           MultiModuleType type);
+  void rebuild(FormWindow* window);
 };

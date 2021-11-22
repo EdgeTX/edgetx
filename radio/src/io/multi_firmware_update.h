@@ -104,7 +104,7 @@ class MultiFirmwareInformation
     const char * readV2Signature(const char * buffer);
 };
 
-enum MultiModuleType
+enum MultiModuleType : short
 {
   MULTI_TYPE_MULTIMODULE = 0,
   MULTI_TYPE_ELRS,
