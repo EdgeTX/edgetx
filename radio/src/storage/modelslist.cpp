@@ -352,8 +352,17 @@ bool ModelsList::loadYaml()
 {
   char line[LEN_MODELS_IDX_LINE+1];
   FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+
   if (result != FR_OK) {
-    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+    // move the YaML models list from the old to the new place
+    FILINFO fno;
+    if (f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK) {
+      if (!sdCopyFile(FALLBACK_MODELSLIST_YAML_PATH, MODELSLIST_YAML_PATH)) {
+        f_unlink(FALLBACK_MODELSLIST_YAML_PATH);
+        result =
+            f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+      }
+    }
   }
 
   if (result == FR_OK) {
