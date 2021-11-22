@@ -1313,6 +1313,7 @@ void ModelSetupPage::build(FormWindow * window)
     auto model = modelslist.getCurrentModel();
     if (model) {
       model->setModelName(g_model.header.name);
+      modelslist.save();
     }
     SET_DIRTY();
   });
