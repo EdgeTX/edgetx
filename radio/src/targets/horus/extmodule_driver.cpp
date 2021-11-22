@@ -371,7 +371,7 @@ extern "C" void EXTMODULE_TIMER_IRQHandler()
   EXTMODULE_TIMER->DIER &= ~TIM_DIER_CC2IE; // Stop this interrupt
   EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF;
 
-  setupPulsesPPMExternalModule();
+  setupPulsesExternalModule();
   extmoduleSendNextFramePpm(
       extmodulePulsesData.ppm.pulses,
       extmodulePulsesData.ppm.ptr - extmodulePulsesData.ppm.pulses,
