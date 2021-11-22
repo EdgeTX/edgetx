@@ -97,13 +97,13 @@ void ModelCell::save(FIL* file)
   f_puts(modelFilename, file);
   f_putc('\n', file);
 #else
-  f_puts("  - filename: ", file);
+  f_puts("  - filename: \"", file);
   f_puts(modelFilename, file);
-  f_putc('\n', file);
+  f_puts("\"\n", file);
 
-  f_puts("    name: ", file);
+  f_puts("    name: \"", file);
   f_puts(modelName, file);
-  f_putc('\n', file);
+  f_puts("\"\n", file);
 #endif
 }
 
@@ -269,10 +269,9 @@ void ModelsCategory::save(FIL * file)
   f_puts("]", file);
   f_putc('\n', file);
 #else
-  f_puts("- ", file);
+  f_puts("- \"", file);
   f_puts(name, file);
-  f_putc('\n', file);
-  //f_puts("  models:\n", file);
+  f_puts("\"\n", file);
 #endif
   for (list<ModelCell *>::iterator it = begin(); it != end(); ++it) {
     (*it)->save(file);
