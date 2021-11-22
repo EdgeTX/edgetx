@@ -271,7 +271,7 @@ void ModelsCategory::save(FIL * file)
 #else
   f_puts("- \"", file);
   f_puts(name, file);
-  f_puts("\"\n", file);
+  f_puts("\":\n", file);
 #endif
   for (list<ModelCell *>::iterator it = begin(); it != end(); ++it) {
     (*it)->save(file);
