@@ -750,6 +750,8 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   uint8_t func = CFN_FUNC(cfn);
 
   const char* str = nullptr;
+  bool add_comma = true;
+
   switch (func) {
   case FUNC_OVERRIDE_CHANNEL:
     str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
@@ -843,14 +845,24 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
+
+  default:
+    add_comma = false;
+    break;
   }
 
   if (HAS_ENABLE_PARAM(func)) {
-    // ",0/1"
-    if (!wf(opaque,CFN_ACTIVE(cfn) ? ",1":",0",2)) return false;
+    if (add_comma) {
+      // ","
+      if (!wf(opaque,",",1)) return false;
+    }
+    // "0/1"
+    if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
   } else if (HAS_REPEAT_PARAM(func)) {
-    // ","
-    if (!wf(opaque,",",1)) return false;
+    if (add_comma) {
+      // ","
+      if (!wf(opaque,",",1)) return false;
+    }
     if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;

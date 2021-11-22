@@ -1063,10 +1063,12 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   const char* sep = (const char *)memchr(val, ',', val_len);
   uint8_t l_sep = sep ? sep - val : val_len;
 
+  bool eat_comma = true;
   // read values...
   switch (func) {
 
   case FUNC_OVERRIDE_CHANNEL:
+    eat_comma = false;
     break;
 
   case FUNC_TRAINER:
@@ -1203,15 +1205,22 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       }
     } break;
     } break;
+
+  default:
+    eat_comma = false;
+    break;
   }
 
-  val += l_sep;
-  val_len -= l_sep;
+  if (eat_comma) {
+    val += l_sep;
+    val_len -= l_sep;
 
-  if (val_len == 0 || val[0] != ',')
-    return;
+    if (val_len == 0 || val[0] != ',')
+      return;
 
-  val++; val_len--;
+    val++; val_len--;
+  }
+
   if (HAS_ENABLE_PARAM(func)) {
     // "0/1"
     if (val_len > 0) {
@@ -1248,6 +1257,8 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   uint8_t func = CFN_FUNC(cfn);
 
   const char* str = nullptr;
+  bool add_comma = true;
+
   switch (func) {
   case FUNC_OVERRIDE_CHANNEL:
     str = yaml_unsigned2str(CFN_CH_INDEX(cfn)); // CH index
@@ -1341,14 +1352,24 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
+
+  default:
+    add_comma = false;
+    break;
   }
 
   if (HAS_ENABLE_PARAM(func)) {
-    // ",0/1"
-    if (!wf(opaque,CFN_ACTIVE(cfn) ? ",1":",0",2)) return false;
+    if (add_comma) {
+      // ","
+      if (!wf(opaque,",",1)) return false;
+    }
+    // "0/1"
+    if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
   } else if (HAS_REPEAT_PARAM(func)) {
-    // ","
-    if (!wf(opaque,",",1)) return false;
+    if (add_comma) {
+      // ","
+      if (!wf(opaque,",",1)) return false;
+    }
     if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;
