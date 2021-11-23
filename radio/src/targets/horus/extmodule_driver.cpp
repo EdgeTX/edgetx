@@ -19,8 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-#include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
+extern "C" {
+  #define USE_FULL_LL_DRIVER
+  #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
+}
+
 #include "hal.h"
 #include "extmodule_driver.h"
 #include "timers_driver.h"
@@ -29,39 +34,12 @@
 #include "pulses/crossfire.h"
 #endif
 
-// PPM delay in uS
-#define DEFAULT_PPM_DELAY 300
-static uint32_t (*getPPMDelayCb)() = nullptr;
-
-static inline uint32_t getPPMDelay()
-{
-  if (getPPMDelayCb)
-    return getPPMDelayCb();
-
-  return DEFAULT_PPM_DELAY;
-}
-
-// PPM polarity
-#define DEFAULT_PPM_POLARITY (true)
-static bool (*getPPMPolarityCb)() = nullptr;
-
-static inline bool getPPMPolarity()
-{
-  if (getPPMPolarityCb)
-    return getPPMPolarityCb();
-
-  return DEFAULT_PPM_POLARITY;
-}
-
 void extmoduleStop()
 {
-  EXTERNAL_MODULE_OFF();
-  
   NVIC_DisableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
-  NVIC_DisableIRQ(EXTMODULE_TIMER_CC_IRQn);
 
   EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
-  EXTMODULE_TIMER->DIER &= ~(TIM_DIER_CC2IE | TIM_DIER_UDE);
+  EXTMODULE_TIMER->DIER &= ~TIM_DIER_UDE;
   EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
 
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -77,15 +55,12 @@ void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
 {
   EXTERNAL_MODULE_ON();
 
-  GPIO_PinAFConfig(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PinSource, EXTMODULE_TIMER_TX_GPIO_AF);
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = EXTMODULE_TX_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
+  pinInit.Alternate = EXTMODULE_TIMER_TX_GPIO_AF;
+  LL_GPIO_Init(EXTMODULE_TX_GPIO, &pinInit);
 
   // PPM generation principle:
   //
@@ -95,35 +70,40 @@ void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
   // AAR register defines duration of each pulse, it is
   // updated after every pulse in Update interrupt handler.
 
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN; // Stop timer
-  EXTMODULE_TIMER->PSC = EXTMODULE_TIMER_FREQ / 2000000 - 1; // 0.5uS (2Mhz)
+  LL_TIM_InitTypeDef timInit;
+  LL_TIM_StructInit(&timInit);
 
-#if defined(PCBX10) || PCBREV >= 13
-  EXTMODULE_TIMER->CCR3 = ppm_delay * 2;
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0);
-  EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_0; // Force O/P high
-  EXTMODULE_TIMER->BDTR = TIM_BDTR_MOE;
-  EXTMODULE_TIMER->EGR = 1; // Reloads register values now
-  EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2; // PWM mode 1
-#else
-  EXTMODULE_TIMER->CCR1 = ppm_delay * 2;
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E |
-    (getPPMPolarity() ?
-#if defined(PCBNV14)
-     0 : TIM_CCER_CC1P
-#else
-     TIM_CCER_CC1P : 0
-#endif
-     );
-  EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_0; // Force O/P high
-  EXTMODULE_TIMER->EGR = 1; // Reloads register values now
-  EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC2PE; // PWM mode 1
-#endif
+  // 0.5uS (2Mhz)
+  timInit.Prescaler = __LL_TIM_CALC_PSC(EXTMODULE_TIMER_FREQ, 2000000);
+  timInit.Autoreload = 65535;
+  LL_TIM_Init(EXTMODULE_TIMER, &timInit);
 
-  EXTMODULE_TIMER->ARR = 65535; // start with max period
-  EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF; // Clear flag
-  EXTMODULE_TIMER->DIER |= TIM_DIER_UDE /*| TIM_DIER_CC2IE*/; // Enable this interrupt
-  EXTMODULE_TIMER->CR1 = TIM_CR1_CEN; // Start timer
+  LL_TIM_OC_InitTypeDef ocInit;
+  LL_TIM_OC_StructInit(&ocInit);
+
+  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
+  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+
+  ocInit.OCIdleState = LL_TIM_OCIDLESTATE_HIGH;
+
+  if (polarity) {
+    ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
+  } else {
+    ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  }
+
+  ocInit.CompareValue = ppm_delay * 2;
+
+  LL_TIM_DisableCounter(EXTMODULE_TIMER);
+  LL_TIM_OC_Init(EXTMODULE_TIMER, LL_TIM_CHANNEL_CH3, &ocInit);
+
+  LL_TIM_OC_EnablePreload(EXTMODULE_TIMER, LL_TIM_CHANNEL_CH3);
+
+  // BDTR = TIM_BDTR_MOE
+  LL_TIM_EnableAllOutputs(EXTMODULE_TIMER);
+
+  LL_TIM_EnableDMAReq_UPDATE(EXTMODULE_TIMER);
+  LL_TIM_EnableCounter(EXTMODULE_TIMER);
 
   NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
@@ -231,7 +211,7 @@ void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
 {
   if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
 
-    // disable timer
+  // disable timer
   EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
 
 #if defined(PCBX10) || PCBREV >= 13
