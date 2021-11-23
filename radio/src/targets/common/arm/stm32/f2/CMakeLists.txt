@@ -9,6 +9,7 @@ add_library(stm32cube_ll OBJECT
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_gpio.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_tim.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_dma.c
+  ${STM32CUBE_DIR}/Src/stm32f2xx_ll_usart.c
   )
 
 target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
