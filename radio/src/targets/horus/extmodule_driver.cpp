@@ -39,19 +39,17 @@ void extmoduleStop()
 {
   EXTERNAL_MODULE_OFF();
 
-  NVIC_DisableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
+  // De-init DMA & timer
+  LL_DMA_DeInit(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
+  LL_TIM_DeInit(EXTMODULE_TIMER);
 
-  EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
-  EXTMODULE_TIMER->DIER &= ~TIM_DIER_UDE;
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
+  // Reconfigure pin as output
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
+  pinInit.Pin = EXTMODULE_TX_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  LL_GPIO_Init(EXTMODULE_TX_GPIO, &pinInit);
 }
 
 static void extmoduleInitTxTimerPin()
@@ -284,17 +282,17 @@ void extmoduleSendInvertedByte(uint8_t byte)
 
   __disable_irq();
   time = getTmr2MHz();
-  GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+  LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
   while ((uint16_t) (getTmr2MHz() - time) < 34)	{
     // wait
   }
   time += 34;
   for (i = 0; i < 8; i++) {
     if (byte & 1) {
-      GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+      LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
     }
     else {
-      GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+      LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
     }
     byte >>= 1 ;
     while ((uint16_t) (getTmr2MHz() - time) < 35) {
@@ -302,7 +300,7 @@ void extmoduleSendInvertedByte(uint8_t byte)
     }
     time += 35 ;
   }
-  GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
   __enable_irq();	// No need to wait for the stop bit to complete
   while ((uint16_t) (getTmr2MHz() - time) < 34) {
     // wait
