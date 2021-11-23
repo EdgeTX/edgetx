@@ -462,6 +462,7 @@ void enablePulsesExternalModule(uint8_t protocol)
     externalModuleDriver->deinit(externalModuleContext);
     externalModuleDriver = nullptr;
     externalModuleContext = nullptr;
+    EXTERNAL_MODULE_PWR_OFF();
   } else {
     extmoduleStop();
   }
@@ -740,6 +741,7 @@ void stopPulsesExternalModule()
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
       extmoduleStop();
     }
+    EXTERNAL_MODULE_PWR_OFF();
     moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
   }
 }

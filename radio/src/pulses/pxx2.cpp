@@ -750,7 +750,7 @@ static void pxx2DeInitExternal(void* context)
   (void)context;
 
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  extmoduleStop();
+  ExtmoduleSerialDriver.deinit();
 }
 
 static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
