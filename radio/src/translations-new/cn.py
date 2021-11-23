@@ -1,4 +1,3 @@
-#include "../translations.h"
 #if defined(TRANSLATIONS_CN)
 
 STR_OFFON = ['禁用','开启']

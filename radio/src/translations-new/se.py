@@ -1,4 +1,3 @@
-#include "../translations.h"
 #if defined(TRANSLATIONS_SE)
 
 STR_OFFON = ['Av','På']
