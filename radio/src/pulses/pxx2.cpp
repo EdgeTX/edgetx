@@ -658,12 +658,14 @@ static void* pxx2InitInternal(uint8_t moduleType)
   init_intmodule_heartbeat();
 #endif
   mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
+  INTERNAL_MODULE_ON();
 
   return nullptr;
 }
 
 static void pxx2DeInitInternal(void* context)
 {
+  INTERNAL_MODULE_OFF();
   IntmoduleSerialDriver.deinit();
 #if defined(INTMODULE_HEARTBEAT)
   stop_intmodule_heartbeat();
@@ -723,24 +725,24 @@ static const etx_serial_init pxx2ExtSerialInitParams = {
 
 static void* pxx2InitLowSpeed(uint8_t module)
 {
-  if (module == EXTERNAL_MODULE) {
-    etx_serial_init params(pxx2ExtSerialInitParams);
-    params.baudrate = PXX2_LOWSPEED_BAUDRATE;
-    ExtmoduleSerialDriver.init(&params);
+  etx_serial_init params(pxx2ExtSerialInitParams);
+  params.baudrate = PXX2_LOWSPEED_BAUDRATE;
+  ExtmoduleSerialDriver.init(&params);
 
-    mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
-    return (void*)EXTERNAL_MODULE;
-  }
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
+  EXTERNAL_MODULE_ON();
 
   return nullptr;
 }
 
-static void* pxx2InitExternal(uint8_t moduleType)
+static void* pxx2InitExternal(uint8_t module)
 {
   etx_serial_init params(pxx2ExtSerialInitParams);
   params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
   ExtmoduleSerialDriver.init(&params);
+
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
+  EXTERNAL_MODULE_ON();
 
   return nullptr;
 }
@@ -749,6 +751,7 @@ static void pxx2DeInitExternal(void* context)
 {
   (void)context;
 
+  EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
   ExtmoduleSerialDriver.deinit();
 }

@@ -60,6 +60,7 @@ static void* afhds2Init(uint8_t module)
 
   // mixer setup
   mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
+  INTERNAL_MODULE_ON();
 
   return nullptr;
 }
@@ -68,6 +69,7 @@ static void afhds2DeInit(void* context)
 {
   (void)context;
 
+  INTERNAL_MODULE_OFF();
   intmoduleFifo.clear();
   IntmoduleSerialDriver.deinit();
 
