@@ -14,11 +14,4 @@ foreach(translation ${translations-new})
   list(APPEND translations_files ${target})
 endforeach()
 
-#add_custom_target(radio_translations_new DEPENDS ${translations_files})
-
-#set(SRC
-#  ${SRC}
-#  ${translations_files}
-#  )
-
 add_library(radio_translations_new ${translations_files})
