@@ -28,8 +28,8 @@
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
-#endif
 extern uint8_t MODELIDX_STRLEN;
+#endif
 
 /*luadoc
 @function model.getInfo()
