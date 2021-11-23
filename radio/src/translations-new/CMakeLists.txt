@@ -11,7 +11,7 @@ foreach(translation ${translations-new})
       DEPENDS ${translation} ${TOOLS_DIR}/encode-translation-new.py ${TOOLS_DIR}/charset.py
       )
   endif()
-  list(APPEND translations_files ${target})
+  list(APPEND translations_files_new ${target})
 endforeach()
 
-add_library(radio_translations_new ${translations_files})
+add_library(radio_translations_new ${translations_files_new})
