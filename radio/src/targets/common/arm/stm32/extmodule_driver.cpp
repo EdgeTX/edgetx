@@ -27,6 +27,12 @@ extern "C" {
     #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
     #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h"
   #elif defined(STM32F2)
+
+    // Workaround to prevent the other CMSIS header to be included
+    // and fix some missing items in the old one
+    #include "thirdparty/CMSIS/Include/cmsis_compiler.h"
+    #define __CORE_CM3_H_GENERIC
+
     #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h"
