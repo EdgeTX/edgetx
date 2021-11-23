@@ -158,7 +158,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
-                              CENTERED);
+                              COLOR_THEME_PRIMARY1 | CENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -240,7 +240,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
       isModuleMultimodule(EXTERNAL_MODULE)) {
     auto txt = new StaticText(window, grid.getLabelSlot(),
                               isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT,
         [=]() -> uint8_t {
@@ -269,7 +269,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_EXT,
         [=]() -> uint8_t {
