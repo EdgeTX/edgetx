@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_FI)
 
 STR_OFFON = ['POI','PÄÄ']

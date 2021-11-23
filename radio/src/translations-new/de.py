@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_DE)
 
 STR_OFFON = ['AUS','EIN']

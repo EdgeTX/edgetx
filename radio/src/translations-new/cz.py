@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_CZ)
 
 STR_OFFON = ['VYP','ZAP']

@@ -99,7 +99,7 @@ def transcode_line(line):
         name = keys[1]
         value = vars[name]
         if isinstance(value, list):
-            new_line = ' ' * (len(line) - len(stripped_line)) + 'const char ' + name + '[] = ' + '"' + transcode_list(value) + '"'
+            new_line = ' ' * (len(line) - len(stripped_line)) + 'const char ' + name + '[] = ' + '"' + transcode_list(value) + '";'
             return new_line
     return line
 
@@ -112,10 +112,10 @@ def transcode_list(value):
     for v in value:
         vlen = len(v)
         if vlen < max_vlen:
-            v = v + '\\000'
+            v = v + '\0'
             v = v + ' ' * (max_vlen - vlen - 1)
         for c in v:
-            if c in standard_chars:
+            if c != '\\' and c in standard_chars:
                 new_value = new_value + c
             else:
                 new_value = new_value + '\\' + oct(ord(c))[2:].zfill(3)
