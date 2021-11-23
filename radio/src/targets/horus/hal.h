@@ -846,6 +846,7 @@
   #define EXTMODULE_RX_GPIO_PinSource      GPIO_PinSource11
   #define EXTMODULE_TIMER_TX_GPIO_AF       GPIO_AF_TIM2
   #define EXTMODULE_TIMER                  TIM2
+  #define EXTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH3
   #define EXTMODULE_TIMER_32BITS
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_1 | DMA_SxCR_MSIZE_1)
   #define EXTMODULE_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
@@ -874,6 +875,7 @@
   #define EXTMODULE_TX_GPIO_PinSource      GPIO_PinSource10
   #define EXTMODULE_TIMER_TX_GPIO_AF       GPIO_AF_TIM1
   #define EXTMODULE_TIMER                  TIM1
+  #define EXTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH3
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0)
   #define EXTMODULE_TIMER_CC_IRQn          TIM1_CC_IRQn
   #define EXTMODULE_TIMER_IRQHandler       TIM1_CC_IRQHandler
@@ -892,6 +894,7 @@
   #define EXTMODULE_TX_GPIO_PinSource      GPIO_PinSource15
   #define EXTMODULE_TIMER_TX_GPIO_AF       GPIO_AF_TIM2
   #define EXTMODULE_TIMER                  TIM2
+  #define EXTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH1
   #define EXTMODULE_TIMER_32BITS
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_1 | DMA_SxCR_MSIZE_1)
   #define EXTMODULE_TIMER_CC_IRQn          TIM2_IRQn
