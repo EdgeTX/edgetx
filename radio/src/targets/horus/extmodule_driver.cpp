@@ -24,6 +24,7 @@ extern "C" {
   #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h"
 }
 
 #include "hal.h"
@@ -102,7 +103,9 @@ void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
   LL_TIM_OC_EnablePreload(EXTMODULE_TIMER, LL_TIM_CHANNEL_CH3);
 
   // BDTR = TIM_BDTR_MOE
-  LL_TIM_EnableAllOutputs(EXTMODULE_TIMER);
+  if (IS_TIM_BREAK_INSTANCE(EXTMODULE_TIMER)) {
+    LL_TIM_EnableAllOutputs(EXTMODULE_TIMER);
+  }
 
   LL_TIM_EnableDMAReq_UPDATE(EXTMODULE_TIMER);
   LL_TIM_EnableCounter(EXTMODULE_TIMER);
@@ -211,41 +214,68 @@ void extmoduleSerialStart()
 void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
                                uint16_t ppm_delay, bool polarity)
 {
-  if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
+  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
+                             EXTMODULE_TIMER_DMA_STREAM_LL))
+    return;
 
   // disable timer
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
+  LL_TIM_DisableCounter(EXTMODULE_TIMER);
 
-#if defined(PCBX10) || PCBREV >= 13
-  // Using timer channel 3
-  EXTMODULE_TIMER->CCR3 = ppm_delay * 2;
-  EXTMODULE_TIMER->CCER =
-      TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0);
-#else
-  // Using timer channel 1
-  EXTMODULE_TIMER->CCR1 = ppm_delay * 2;
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | (polarity ?
-#if defined(PCBNV14)
-                                                    0
-                                                    : TIM_CCER_CC1P
-#else
-                                                    TIM_CCER_CC1P
-                                                    : 0
-#endif
-                                          );
-#endif
-  EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN;  // Disable DMA
-  EXTMODULE_TIMER_DMA_STREAM->CR |=
-      EXTMODULE_TIMER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC |
-      EXTMODULE_TIMER_DMA_SIZE | DMA_SxCR_PL_0 | DMA_SxCR_PL_1;
-  EXTMODULE_TIMER_DMA_STREAM->PAR = CONVERT_PTR_UINT(&EXTMODULE_TIMER->ARR);
-  EXTMODULE_TIMER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(pulses);
-  EXTMODULE_TIMER_DMA_STREAM->NDTR = length;
-  EXTMODULE_TIMER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;  // Enable DMA
+  switch(EXTMODULE_TIMER_Channel){
+  case LL_TIM_CHANNEL_CH1:
+    LL_TIM_OC_SetCompareCH1(EXTMODULE_TIMER, ppm_delay * 2);
+    break;
+  case LL_TIM_CHANNEL_CH3:
+    LL_TIM_OC_SetCompareCH3(EXTMODULE_TIMER, ppm_delay * 2);
+    break;
+  }
+
+  uint32_t ll_polarity;
+  if (polarity) {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  }
+  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
+
+  LL_DMA_DeInit(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
+
+  LL_DMA_InitTypeDef dmaInit;
+  LL_DMA_StructInit(&dmaInit);
+
+  // Direction
+  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+  
+  // Source
+  dmaInit.MemoryOrM2MDstAddress = CONVERT_PTR_UINT(pulses);
+  dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+
+  // Destination
+  dmaInit.PeriphOrM2MSrcAddress = CONVERT_PTR_UINT(&EXTMODULE_TIMER->ARR);
+  dmaInit.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+
+  // Data width
+  if (IS_TIM_32B_COUNTER_INSTANCE(EXTMODULE_TIMER)) {
+    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+  } else {
+    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
+    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
+  }
+
+  dmaInit.NbData = length;
+  dmaInit.Channel = EXTMODULE_TIMER_DMA_CHANNEL;
+  dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
+  LL_DMA_Init(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL, &dmaInit);
+  
+
+  // Enable DMA
+  LL_DMA_EnableIT_TC(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
+  LL_DMA_EnableStream(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
 
   // re-init timer
-  EXTMODULE_TIMER->EGR = 1;
-  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
+  LL_TIM_GenerateEvent_UPDATE(EXTMODULE_TIMER);
+  LL_TIM_EnableCounter(EXTMODULE_TIMER);
 }
 
 #if defined(PXX1)
