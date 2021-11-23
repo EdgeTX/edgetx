@@ -1,7 +1,6 @@
 set(CPU_FAMILY STM32)
 set(MCU cortex-m3)
 set(FPU_FLAGS "")
-set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F2xx_StdPeriph_Lib_V1.1.0/Libraries)
 
 # STM32 HAL/LL library
 set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver)
@@ -21,9 +20,10 @@ target_include_directories(stm32cube_ll PRIVATE
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32cube_ll>)
 
 # StdPeriph library
+set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F2xx_StdPeriph_Lib_V1.1.0/Libraries)
 include_directories(${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/inc)
 include_directories(${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Include)
-include_directories(${STM32LIB_DIR}/CMSIS/include)
+include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F2)
 
