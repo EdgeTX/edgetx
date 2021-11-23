@@ -462,7 +462,6 @@ void enablePulsesExternalModule(uint8_t protocol)
     externalModuleDriver->deinit(externalModuleContext);
     externalModuleDriver = nullptr;
     externalModuleContext = nullptr;
-    EXTERNAL_MODULE_PWR_OFF();
   } else {
     extmoduleStop();
   }
@@ -497,7 +496,6 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      EXTERNAL_MODULE_ON();
       externalModuleContext = CrossfireExternalDriver.init(EXTERNAL_MODULE);
       externalModuleDriver = &CrossfireExternalDriver;
       break;
@@ -741,7 +739,6 @@ void stopPulsesExternalModule()
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
       extmoduleStop();
     }
-    EXTERNAL_MODULE_PWR_OFF();
     moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
   }
 }

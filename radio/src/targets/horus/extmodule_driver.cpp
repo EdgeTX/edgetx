@@ -36,6 +36,8 @@ extern "C" {
 
 void extmoduleStop()
 {
+  EXTERNAL_MODULE_OFF();
+
   NVIC_DisableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
 
   EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
