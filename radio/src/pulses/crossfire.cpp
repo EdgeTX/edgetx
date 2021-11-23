@@ -151,6 +151,7 @@ static void* crossfireInitInternal(uint8_t module)
 
   intmoduleFifo.clear();
   IntmoduleSerialDriver.init(&params);
+  INTERNAL_MODULE_ON();
 
   return nullptr;
 }
@@ -159,6 +160,7 @@ static void crossfireDeInitInternal(void* context)
 {
   (void)context;
 
+  INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
   intmoduleStop();
   intmoduleFifo.clear();
@@ -192,6 +194,7 @@ static void* crossfireInitExternal(uint8_t module)
 {
   telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
   mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+  EXTERNAL_MODULE_ON();
   return nullptr;
 }
 
@@ -199,6 +202,8 @@ static void crossfireDeInitExternal(void* context)
 {
   (void)context;
   telemetryProtocol = 0xFF;
+
+  EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
 }
 

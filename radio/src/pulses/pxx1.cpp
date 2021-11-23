@@ -245,6 +245,7 @@ static void* pxx1InitInternal(uint8_t module)
   init_intmodule_heartbeat();
 #endif
   mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
+  INTERNAL_MODULE_ON();
 
   return nullptr;
 }
@@ -253,6 +254,7 @@ static void pxx1DeInitInternal(void* context)
 {
   (void)context;
 
+  INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
 #if defined(INTMODULE_HEARTBEAT)
   stop_intmodule_heartbeat();
