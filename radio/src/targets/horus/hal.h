@@ -841,8 +841,10 @@
   #define EXTMODULE_TX_GPIO                GPIOB
   #define EXTMODULE_USART_GPIO             EXTMODULE_TX_GPIO
   #define EXTMODULE_TX_GPIO_PIN            GPIO_Pin_10 // PB.10 (TIM2_CH3)
+  #define EXTMODULE_TX_GPIO_PIN_LL         LL_GPIO_PIN_10 // PB.10 (TIM2_CH3)
   #define EXTMODULE_TX_GPIO_PinSource      GPIO_PinSource10
   #define EXTMODULE_RX_GPIO_PIN            GPIO_Pin_11 // PB.11
+  #define EXTMODULE_RX_GPIO_PIN_LL         LL_GPIO_PIN_11 // PB.11
   #define EXTMODULE_RX_GPIO_PinSource      GPIO_PinSource11
   #define EXTMODULE_TIMER_TX_GPIO_AF       GPIO_AF_TIM2
   #define EXTMODULE_TIMER                  TIM2
@@ -860,11 +862,14 @@
   #define EXTMODULE_TIMER_DMA_STREAM_IRQn  DMA1_Stream1_IRQn
   #define EXTMODULE_TIMER_DMA_IRQHandler   DMA1_Stream1_IRQHandler
   #define EXTMODULE_USART_GPIO_AF          GPIO_AF_USART3
+  #define EXTMODULE_USART_GPIO_AF_LL       LL_GPIO_AF_7
   #define EXTMODULE_USART                  USART3
   #define EXTMODULE_USART_IRQn             USART3_IRQn
   #define EXTMODULE_USART_IRQHandler       USART3_IRQHandler
+  #define EXTMODULE_USART_TX_DMA           DMA1
   #define EXTMODULE_USART_TX_DMA_CHANNEL   DMA_Channel_4
   #define EXTMODULE_USART_TX_DMA_STREAM    DMA1_Stream3
+  #define EXTMODULE_USART_TX_DMA_STREAM_LL LL_DMA_STREAM_3
   #define EXTMODULE_USART_TX_DMA_FLAG_TC   DMA_FLAG_TCIF3
   #define EXTMODULE_USART_RX_DMA_CHANNEL   DMA_Channel_4
   #define EXTMODULE_USART_RX_DMA_STREAM    DMA1_Stream1
