@@ -40,6 +40,6 @@ extern "C" {
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_dma.h"
-    #include "STM32F4xx_HAL_Driver/Inc/stm32f2xx_ll_usart.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usart.h"
   #endif
 }
