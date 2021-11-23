@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_NL)
 
 STR_OFFON = ['UIT','AAN']

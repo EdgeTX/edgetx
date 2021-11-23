@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_PL)
 
 STR_OFFON = ['WYŁ','ZAŁ']

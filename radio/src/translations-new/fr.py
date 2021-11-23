@@ -1,3 +1,4 @@
+#include "../translations.h"
 #if defined(TRANSLATIONS_FR)
 
 STR_OFFON = ['OFF','ON']

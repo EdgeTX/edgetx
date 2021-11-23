@@ -87,7 +87,7 @@ set(GVARS_VARIANT   1)
 set(FRSKY_VARIANT   2)
 set(3POS_VARIANT    4)
 
-set(RADIO_DEPENDENCIES radio_translations radio_translations_new)
+set(RADIO_DEPENDENCIES radio_translations)
 
 set(FATFS_SRC
   ${FATFS_DIR}/ff.c
@@ -108,7 +108,6 @@ else()
 endif()
 
 add_subdirectory(translations)
-add_subdirectory(translations-new)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 add_subdirectory(lua)
@@ -634,6 +633,9 @@ if(NOT MSVC)
     link_libraries(firmware -lstdc++)
     add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
     set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+    add_subdirectory(translations-new)
+    target_link_libraries(firmware radio_translations_new)
 
     if(ACCESS_DENIED)
       add_subdirectory(thirdparty/AccessDenied)
