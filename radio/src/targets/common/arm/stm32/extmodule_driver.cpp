@@ -21,10 +21,17 @@
 
 extern "C" {
   #define USE_FULL_LL_DRIVER
-  #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
-  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
-  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h"
+  #if defined(STM32F4)
+    #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+    #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
+    #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
+    #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h"
+  #elif defined(STM32F2)
+    #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_dma.h"
+  #endif
 }
 
 #include "hal.h"
