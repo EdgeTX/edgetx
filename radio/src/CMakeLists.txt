@@ -627,6 +627,7 @@ if(NOT MSVC)
     set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
     add_subdirectory(translations-new)
+    add_dependencies(radio_translations_new radio_translations)
     target_link_libraries(firmware radio_translations_new)
 
     if(ACCESS_DENIED)
