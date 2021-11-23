@@ -87,3 +87,36 @@ def get_chars_encoding(subset):
             if lower in result:
                 result[upper] = result[lower]
     return result
+
+def transcode_line(line):
+    vars = {}
+    stripped_line = line.lstrip()
+    exec(stripped_line, vars)
+    keys = list(vars.keys())
+    if len(keys) == 1:
+        return line.rstrip()
+    elif len(keys) == 2:
+        name = keys[1]
+        value = vars[name]
+        if isinstance(value, list):
+            new_line = ' ' * (len(line) - len(stripped_line)) + 'const char ' + name + '[] = ' + '"' + transcode_list(value) + '"'
+            return new_line
+    return line
+
+def transcode_list(value):
+    vlens = []
+    for v in value:
+        vlens.append(len(v))
+    max_vlen = max(vlens)
+    new_value = '\\' + oct(max_vlen)[2:].zfill(3)
+    for v in value:
+        vlen = len(v)
+        if vlen < max_vlen:
+            v = v + '\\000'
+            v = v + ' ' * (max_vlen - vlen - 1)
+        for c in v:
+            if c in standard_chars:
+                new_value = new_value + c
+            else:
+                new_value = new_value + '\\' + oct(ord(c))[2:].zfill(3)
+    return new_value            
