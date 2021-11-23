@@ -87,7 +87,7 @@ set(GVARS_VARIANT   1)
 set(FRSKY_VARIANT   2)
 set(3POS_VARIANT    4)
 
-set(RADIO_DEPENDENCIES radio_translations)
+set(RADIO_DEPENDENCIES radio_translations radio_translations_new)
 
 set(FATFS_SRC
   ${FATFS_DIR}/ff.c
@@ -108,6 +108,7 @@ else()
 endif()
 
 add_subdirectory(translations)
+add_subdirectory(translations-new)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 add_subdirectory(lua)
