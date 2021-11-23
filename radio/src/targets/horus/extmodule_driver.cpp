@@ -243,22 +243,14 @@ void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 #endif
 
 #if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
-void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize)
+void extmoduleSendNextFrameAFHDS3(const void* pulses, uint16_t length)
 {
-  if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
+  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
+                             EXTMODULE_TIMER_DMA_STREAM_LL))
+    return;
 
-  EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN;  // Disable DMA
-  EXTMODULE_TIMER_DMA_STREAM->CR |=
-      EXTMODULE_TIMER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC |
-      DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0 | DMA_SxCR_PL_0 | DMA_SxCR_PL_1;
-  EXTMODULE_TIMER_DMA_STREAM->PAR = CONVERT_PTR_UINT(&EXTMODULE_TIMER->ARR);
-  EXTMODULE_TIMER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(dataPtr);
-  EXTMODULE_TIMER_DMA_STREAM->NDTR = dataSize;
-  EXTMODULE_TIMER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;  // Enable DMA
-
-  // re-init timer
-  EXTMODULE_TIMER->EGR = TIM_PSCReloadMode_Immediate;
-  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
+  // Start DMA request and re-enable timer
+  extmoduleStartTimerDMARequest(pulses, length);
 }
 #endif
 
