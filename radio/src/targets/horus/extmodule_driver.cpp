@@ -87,9 +87,6 @@ static void extmoduleStartOutput(LL_TIM_OC_InitTypeDef* p_ocInit)
 
   LL_TIM_EnableDMAReq_UPDATE(EXTMODULE_TIMER);
   LL_TIM_EnableCounter(EXTMODULE_TIMER);
-
-  NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
-  NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
 }
 
 static void extmoduleStartTimerDMARequest(const void* pulses, uint16_t length)
@@ -125,7 +122,6 @@ static void extmoduleStartTimerDMARequest(const void* pulses, uint16_t length)
   LL_DMA_Init(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL, &dmaInit);
 
   // Enable DMA
-  LL_DMA_EnableIT_TC(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
   LL_DMA_EnableStream(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
 
   // re-init timer
@@ -319,14 +315,4 @@ void extmoduleSendInvertedByte(uint8_t byte)
   while ((uint16_t) (getTmr2MHz() - time) < 34) {
     // wait
   }
-}
-
-extern "C" void EXTMODULE_TIMER_DMA_IRQHandler()
-{
-  if (!DMA_GetITStatus(EXTMODULE_TIMER_DMA_STREAM, EXTMODULE_TIMER_DMA_FLAG_TC))
-    return;
-
-  DMA_ClearITPendingBit(EXTMODULE_TIMER_DMA_STREAM, EXTMODULE_TIMER_DMA_FLAG_TC);
-
-
 }
