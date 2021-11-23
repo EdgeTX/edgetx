@@ -25,17 +25,11 @@
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
-#include <storage/sdcard_common.h>
 
-constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
-
-static void getModelNumberStr(uint8_t idx, char* model_idx)
-{
-  memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx % 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '\0';
-}
+#if defined(SDCARD_YAML)
+#include <storage/sdcard_yaml.h>
+#endif
+extern uint8_t MODELIDX_STRLEN;
 
 /*luadoc
 @function model.getInfo()
