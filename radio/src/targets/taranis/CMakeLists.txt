@@ -248,7 +248,7 @@ elseif(PCB STREQUAL X7)
       ${FIRMWARE_TARGET_SRC}
       startup_stm32f40_41xxx.s
       )
-    add_definitions(-DSTM32F40_41xxx)
+    add_definitions(-DSTM32F40_41xxx -DSTM32F407xx)
     add_definitions(-DHARDWARE_POWER_MANAGEMENT_UNIT)
     set(PXX2 ON)
     set(PXX_FREQUENCY "HIGH")
