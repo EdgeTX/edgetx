@@ -19,7 +19,7 @@ if(PCB STREQUAL X9E)
   set(CPU_TYPE STM32F4)
   set(CPU_TYPE_FULL STM32F407xE)  # for size report
   set(LINKER_SCRIPT targets/taranis/stm32f4_flash.ld)
-  add_definitions(-DSTM32F40_41xxx)
+  add_definitions(-DSTM32F40_41xxx -DSTM32F407xx)
   set(HAPTIC YES)
   set(LUA_EXPORT lua_export_x9e)
   set(FLAVOUR x9e)
@@ -75,7 +75,7 @@ elseif(PCB STREQUAL X9D+)
       startup_stm32f40_41xxx.s
       )
     add_definitions(-DRADIO_X9DP2019)
-    add_definitions(-DSTM32F40_41xxx)
+    add_definitions(-DSTM32F40_41xxx -DSTM32F407xx)
     add_definitions(-DSOFTWARE_VOLUME -DPWR_BUTTON_${PWR_BUTTON} -DHARDWARE_POWER_MANAGEMENT_UNIT)
     set(STATUS_LEDS YES)
     set(PXX2 ON)
@@ -426,9 +426,9 @@ else()
 endif()
 
 if(HARDWARE_EXTERNAL_MODULE)
-  set(FIRMWARE_TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
+    targets/common/arm/stm32/extmodule_driver.cpp
     targets/common/arm/stm32/extmodule_serial_driver.cpp
     targets/common/arm/stm32/stm32_usart_driver.cpp
     )

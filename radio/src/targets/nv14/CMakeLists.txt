@@ -143,7 +143,6 @@ set(FIRMWARE_TARGET_SRC
   audio_spi_driver.cpp
   backlight_driver.cpp
   extmodule_helper.cpp
-  ../horus/extmodule_driver.cpp
   ../horus/flyskyHallStick_driver.cpp
   )
 
@@ -153,6 +152,8 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/stm32_hal_adc.cpp
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/extmodule_driver.cpp
+  targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/intmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp

@@ -277,7 +277,6 @@ set(FIRMWARE_TARGET_SRC
   board.cpp
   backlight_driver.cpp
   led_driver.cpp
-  extmodule_driver.cpp
   trainer_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
@@ -289,6 +288,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/intmodule_serial_driver.cpp
+  targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
