@@ -75,72 +75,10 @@ static void extmoduleInitBaseTimer()
   LL_TIM_Init(EXTMODULE_TIMER, &timInit);
 }
 
-void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
+static void extmoduleStartOutput(LL_TIM_OC_InitTypeDef* p_ocInit)
 {
-  EXTERNAL_MODULE_ON();
-  extmoduleInitTxTimerPin();
-  extmoduleInitBaseTimer();
-
-  // PPM generation principle:
-  //
-  // Hardware timer in PWM mode is used for PPM generation
-  // Output is OFF if CNT<CCR1(delay) and ON if bigger
-  // CCR1 register defines duration of pulse length and is constant
-  // AAR register defines duration of each pulse, it is
-  // updated after every pulse in Update interrupt handler.
-
-  LL_TIM_OC_InitTypeDef ocInit;
-  LL_TIM_OC_StructInit(&ocInit);
-
-  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
-  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-
-
-  if (polarity) {
-    ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
-  } else {
-    ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
-  }
-
-  ocInit.CompareValue = ppm_delay * 2;
-
   LL_TIM_DisableCounter(EXTMODULE_TIMER);
-  LL_TIM_OC_Init(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, &ocInit);
-  LL_TIM_OC_EnablePreload(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel);
-
-  // BDTR = TIM_BDTR_MOE
-  if (IS_TIM_BREAK_INSTANCE(EXTMODULE_TIMER)) {
-    LL_TIM_EnableAllOutputs(EXTMODULE_TIMER);
-  }
-
-  LL_TIM_EnableDMAReq_UPDATE(EXTMODULE_TIMER);
-  LL_TIM_EnableCounter(EXTMODULE_TIMER);
-
-  NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
-  NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
-}
-
-#if defined(PXX1)
-void extmodulePxx1PulsesStart()
-{
-  EXTERNAL_MODULE_ON();
-  extmoduleInitTxTimerPin();
-  extmoduleInitBaseTimer();
-
-
-
-
-  LL_TIM_OC_InitTypeDef ocInit;
-  LL_TIM_OC_StructInit(&ocInit);
-
-  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
-  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-  ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
-  ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
-  ocInit.CompareValue = 9 * 2;
-
-  LL_TIM_DisableCounter(EXTMODULE_TIMER);
-  LL_TIM_OC_Init(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, &ocInit);
+  LL_TIM_OC_Init(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, p_ocInit);
   LL_TIM_OC_EnablePreload(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel);
 
   if (IS_TIM_BREAK_INSTANCE(EXTMODULE_TIMER)) {
@@ -153,82 +91,9 @@ void extmodulePxx1PulsesStart()
   NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
   NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
 }
-#endif
 
-void extmoduleSerialStart()
+static void extmoduleStartTimerDMARequest(const void* pulses, uint16_t length)
 {
-  EXTERNAL_MODULE_ON();
-
-  GPIO_PinAFConfig(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PinSource, EXTMODULE_TIMER_TX_GPIO_AF);
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
-
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
-  EXTMODULE_TIMER->PSC = EXTMODULE_TIMER_FREQ / 2000000 - 1; // 0.5uS (2Mhz)
-
-#if defined(PCBX10) || PCBREV >= 13
-  EXTMODULE_TIMER->CCR3 = 0;
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC3E | TIM_CCER_CC3P;
-  EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_0; // Force O/P high
-  EXTMODULE_TIMER->BDTR = TIM_BDTR_MOE; // Enable outputs
-  EXTMODULE_TIMER->EGR = 1; // Restart
-  EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_0;
-#else
-
-#if defined(PCBNV14)
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E;
-#else
-  EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC1P;
-#endif
-  EXTMODULE_TIMER->BDTR = TIM_BDTR_MOE; // Enable outputs
-  EXTMODULE_TIMER->CCR1 = 0;
-  EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_0; // Force O/P high
-  EXTMODULE_TIMER->EGR = 1; // Restart
-  EXTMODULE_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_0;
-#endif
-
-  EXTMODULE_TIMER->ARR = 40000; // dummy value until the DMA request kicks in
-  EXTMODULE_TIMER->SR &= ~TIM_SR_CC2IF; // Clear flag
-  EXTMODULE_TIMER->DIER |= TIM_DIER_UDE;
-  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
-
-  NVIC_EnableIRQ(EXTMODULE_TIMER_DMA_STREAM_IRQn);
-  NVIC_SetPriority(EXTMODULE_TIMER_DMA_STREAM_IRQn, 7);
-}
-
-void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
-                               uint16_t ppm_delay, bool polarity)
-{
-  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
-                             EXTMODULE_TIMER_DMA_STREAM_LL))
-    return;
-
-  // disable timer
-  LL_TIM_DisableCounter(EXTMODULE_TIMER);
-
-  switch(EXTMODULE_TIMER_Channel){
-  case LL_TIM_CHANNEL_CH1:
-    LL_TIM_OC_SetCompareCH1(EXTMODULE_TIMER, ppm_delay * 2);
-    break;
-  case LL_TIM_CHANNEL_CH3:
-    LL_TIM_OC_SetCompareCH3(EXTMODULE_TIMER, ppm_delay * 2);
-    break;
-  }
-
-  uint32_t ll_polarity;
-  if (polarity) {
-    ll_polarity = LL_TIM_OCPOLARITY_LOW;
-  } else {
-    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
-  }
-  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
-
   LL_DMA_DeInit(EXTMODULE_TIMER_DMA, EXTMODULE_TIMER_DMA_STREAM_LL);
 
   LL_DMA_InitTypeDef dmaInit;
@@ -268,24 +133,116 @@ void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
   LL_TIM_EnableCounter(EXTMODULE_TIMER);
 }
 
+void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
+{
+  EXTERNAL_MODULE_ON();
+  extmoduleInitTxTimerPin();
+  extmoduleInitBaseTimer();
+
+  // PPM generation principle:
+  //
+  // Hardware timer in PWM mode is used for PPM generation
+  // Output is OFF if CNT<CCR1(delay) and ON if bigger
+  // CCR1 register defines duration of pulse length and is constant
+  // AAR register defines duration of each pulse, it is
+  // updated after every pulse in Update interrupt handler.
+
+  LL_TIM_OC_InitTypeDef ocInit;
+  LL_TIM_OC_StructInit(&ocInit);
+
+  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
+  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+
+  if (polarity) {
+    ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
+  } else {
+    ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  }
+
+  ocInit.CompareValue = ppm_delay * 2;
+  extmoduleStartOutput(&ocInit);
+}
+
+#if defined(PXX1)
+void extmodulePxx1PulsesStart()
+{
+  EXTERNAL_MODULE_ON();
+  extmoduleInitTxTimerPin();
+  extmoduleInitBaseTimer();
+
+  LL_TIM_OC_InitTypeDef ocInit;
+  LL_TIM_OC_StructInit(&ocInit);
+
+  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
+  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+  ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
+  ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
+  ocInit.CompareValue = 9 * 2; // 9 uS
+
+  extmoduleStartOutput(&ocInit);
+}
+#endif
+
+void extmoduleSerialStart()
+{
+  EXTERNAL_MODULE_ON();
+  extmoduleInitTxTimerPin();
+  extmoduleInitBaseTimer();
+
+  LL_TIM_OC_InitTypeDef ocInit;
+  LL_TIM_OC_StructInit(&ocInit);
+
+  ocInit.OCMode = LL_TIM_OCMODE_TOGGLE;
+  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+  ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
+  ocInit.CompareValue = 0;
+
+  extmoduleStartOutput(&ocInit);
+}
+
+void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
+                               uint16_t ppm_delay, bool polarity)
+{
+  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
+                             EXTMODULE_TIMER_DMA_STREAM_LL))
+    return;
+
+  // disable timer
+  LL_TIM_DisableCounter(EXTMODULE_TIMER);
+
+  switch(EXTMODULE_TIMER_Channel){
+  case LL_TIM_CHANNEL_CH1:
+    LL_TIM_OC_SetCompareCH1(EXTMODULE_TIMER, ppm_delay * 2);
+    break;
+  case LL_TIM_CHANNEL_CH3:
+    LL_TIM_OC_SetCompareCH3(EXTMODULE_TIMER, ppm_delay * 2);
+    break;
+  }
+
+  uint32_t ll_polarity;
+  if (polarity) {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  }
+  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
+
+  // Start DMA request and re-enable timer
+  extmoduleStartTimerDMARequest(pulses, length);
+}
+
 #if defined(PXX1)
 void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 {
-  if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
+  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
+                             EXTMODULE_TIMER_DMA_STREAM_LL))
+    return;
 
   // disable timer
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
-  EXTMODULE_TIMER_DMA_STREAM->CR |=
-      EXTMODULE_TIMER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC |
-      EXTMODULE_TIMER_DMA_SIZE | DMA_SxCR_PL_0 | DMA_SxCR_PL_1;
-  EXTMODULE_TIMER_DMA_STREAM->PAR = CONVERT_PTR_UINT(&EXTMODULE_TIMER->ARR);
-  EXTMODULE_TIMER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(pulses);
-  EXTMODULE_TIMER_DMA_STREAM->NDTR = length;
-  EXTMODULE_TIMER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;  // Enable DMA
+  LL_TIM_DisableCounter(EXTMODULE_TIMER);
 
-  // re-init timer
-  EXTMODULE_TIMER->EGR = 1;
-  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
+  // Start DMA request and re-enable timer
+  extmoduleStartTimerDMARequest(pulses, length);
 }
 #endif
 
@@ -312,37 +269,24 @@ void extmoduleSendNextFrameAFHDS3(const void* dataPtr, uint16_t dataSize)
 void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length,
                                              bool polarity)
 {
-  if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN) return;
+  if (LL_DMA_IsEnabledStream(EXTMODULE_TIMER_DMA,
+                             EXTMODULE_TIMER_DMA_STREAM_LL))
+    return;
 
-  //if (PROTOCOL_CHANNELS_SBUS == moduleState[EXTERNAL_MODULE].protocol) {
-    // reverse polarity for Sbus if needed
-    EXTMODULE_TIMER->CCER =
-#if defined(PCBX10) || PCBREV >= 13
-        TIM_CCER_CC3E | (polarity ? TIM_CCER_CC3P : 0)
-#elif defined(PCBNV14)
-        TIM_CCER_CC1E | (polarity ? 0 : TIM_CCER_CC1P)
-#else
-        TIM_CCER_CC1E | (polarity ? TIM_CCER_CC1P : 0)
-#endif
-        ;  //
-    //}
 
   // disable timer
-  EXTMODULE_TIMER->CR1 &= ~TIM_CR1_CEN;
+  LL_TIM_DisableCounter(EXTMODULE_TIMER);
 
-  // send DMA request
-  EXTMODULE_TIMER_DMA_STREAM->CR &= ~DMA_SxCR_EN;  // Disable DMA
-  EXTMODULE_TIMER_DMA_STREAM->CR |=
-      EXTMODULE_TIMER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC |
-      EXTMODULE_TIMER_DMA_SIZE | DMA_SxCR_PL_0 | DMA_SxCR_PL_1;
-  EXTMODULE_TIMER_DMA_STREAM->PAR = CONVERT_PTR_UINT(&EXTMODULE_TIMER->ARR);
-  EXTMODULE_TIMER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(pulses);
-  EXTMODULE_TIMER_DMA_STREAM->NDTR = length;
-  EXTMODULE_TIMER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;  // Enable DMA
+  uint32_t ll_polarity;
+  if (polarity) {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  }
+  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
 
-  // re-init timer
-  EXTMODULE_TIMER->EGR = 1;
-  EXTMODULE_TIMER->CR1 |= TIM_CR1_CEN;
+  // Start DMA request and re-enable timer
+  extmoduleStartTimerDMARequest(pulses, length);
 }
 
 void extmoduleSendInvertedByte(uint8_t byte)
