@@ -508,7 +508,7 @@ void menuMainView(event_t event)
   // Sliders (Pots / Sliders)
   drawSliders();
 
-  lcdDrawRleBitmap(BITMAP_X, BITMAP_Y, modelBitmap);
+  lcdDrawBitmap(BITMAP_X, BITMAP_Y, modelBitmap);
 
   // Switches
   if (getSwitchCount() > 8) {
