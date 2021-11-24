@@ -24,7 +24,7 @@
 #include "storage.h"
 #include "sdcard_common.h"
 #include "sdcard_raw.h"
-
+#include "sdcard_yaml.h"
 #include "modelslist.h"
 
 #include "yaml/yaml_tree_walker.h"
