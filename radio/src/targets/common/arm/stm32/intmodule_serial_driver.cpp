@@ -78,6 +78,7 @@ static const stm32_usart_t intmoduleUSART = {
   .GPIOx = INTMODULE_GPIO,
   .pinInit = &intmoduleUSART_PinDef,
   .IRQn = INTMODULE_USART_IRQn,
+  .IRQ_Prio = INTMODULE_USART_IRQ_PRIORITY,
   .DMAx = INTMODULE_DMA,
   .DMA_Stream = INTMODULE_DMA_STREAM_LL,
   .DMA_Channel = INTMODULE_DMA_CHANNEL,
