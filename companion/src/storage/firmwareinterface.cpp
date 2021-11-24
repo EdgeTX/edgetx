@@ -344,7 +344,7 @@ void FirmwareInterface::seekSplash()
     return;
   }
 
-  if (seekSplash(QByteArray(OTX_SPS_TARANIS, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), 3070)) {
+  if (seekSplash(QByteArray(OTX_SPS_TARANIS, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), RLE_SPLASH_MAX_SIZE)) { 
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
     splash_format = QImage::Format_Indexed8;
@@ -380,10 +380,10 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
         b[idx] |= z;
       }
     }
-    if(splashWidth == 212 && splashHeight == 64)
+    if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
 	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
-	    if(splashSize > 3070)
+	    if(splashSize > RLE_SPLASH_MAX_SIZE)
 	      return false;
     }
   }
@@ -427,7 +427,7 @@ QImage FirmwareInterface::getSplash()
 
   if (splash_format == QImage::Format_Indexed8) {
     QImage image(splashWidth, splashHeight, QImage::Format_RGB888);
-    if(splashWidth == 212 && splashHeight == 64)
+    if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
       std::vector<uint8_t> data;
       data.resize(splashWidth * splashHeight);

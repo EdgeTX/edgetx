@@ -36,6 +36,9 @@
 #define ERSKY9X_SPE "SPE"
 #define ERSKY9X_OFFSET (7)
 
+// 3kB - width and height bytes
+#define RLE_SPLASH_MAX_SIZE (3070)
+
 class FirmwareInterface
 {
   public:
