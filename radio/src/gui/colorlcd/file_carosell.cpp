@@ -25,7 +25,6 @@ extern inline tmr10ms_t getTicks()
   return g_tmr10ms;
 }
 
-#define PAGE_INTERVAL ((1000 / 10) * 2)
 
 
 FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
@@ -42,23 +41,43 @@ FileCarosell::~FileCarosell()
 {
 }
 
-  void FileCarosell::setFileNames(std::vector<std::string> fileNames)
-  {
-    _fileNames = fileNames;
-    selected = -1;  // so it passes the sameness comparison
-    setSelected(0);
-    timer = getTicks();
-  }
+void FileCarosell::setFileNames(std::vector<std::string> fileNames)
+{
+  _fileNames = fileNames;
+  setSelected(-1);
+  timer = getTicks();
+  pageInterval = SHORT_PAGE_INTERVAL;
+}
 
+void FileCarosell::setSelected(int n)
+{
+  if (n == selected) return;
+  
+  selected = n;
+
+  if (n >= 0 && n < (int)_fileNames.size()) {
+    fp->setFile(_fileNames[selected].c_str());
+  } else
+    fp->setFile("");
+}
+
+void FileCarosell::paint(BitmapBuffer *dc)
+{
+  if (selected == -1 || _fileNames.size() == 0) {
+    const char *message = selected == -1 && _fileNames.size() > 0 ? "Loading..." : "No theme image";
+    dc->drawText(width() / 2, height() / 2, message, FONT(L) + CENTERED);
+  }
+}
 
 void FileCarosell::checkEvents()
 {
   FormGroup::checkEvents();
 
   uint32_t newTicks = getTicks();
-  if (newTicks - timer > PAGE_INTERVAL && _fileNames.size()) {
+  if (newTicks - timer > pageInterval && _fileNames.size()) {
     int newSelected = (selected + 1) % _fileNames.size();
     setSelected(newSelected);
     timer = newTicks;
+    pageInterval = PAGE_INTERVAL;
   }
 }
