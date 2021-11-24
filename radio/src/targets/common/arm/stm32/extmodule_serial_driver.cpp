@@ -29,12 +29,9 @@
 #include "io/frsky_pxx2.h"
 ModuleFifo extmoduleFifo;
 
-struct etx_serial_callbacks_t {
-  void (*on_receive)(uint8_t data);
-  void (*on_error)();
+static etx_serial_callbacks_t extmodule_driver = {
+  nullptr, nullptr, nullptr
 };
-
-static etx_serial_callbacks_t extmodule_driver = { nullptr, nullptr };
 
 void extmoduleFifoReceive(uint8_t data)
 {
@@ -56,6 +53,25 @@ static const etx_serial_init extmoduleSerialParams = {
   .on_error = extmoduleFifoError,
 };
 
+static const LL_GPIO_InitTypeDef extmoduleUSART_PinDef = {
+  .Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = EXTMODULE_USART_GPIO_AF_LL,
+};
+
+static const stm32_usart_t extmoduleUSART = {
+  .USARTx = EXTMODULE_USART,
+  .GPIOx = EXTMODULE_TX_GPIO,
+  .pinInit = &extmoduleUSART_PinDef,
+  .IRQn = EXTMODULE_USART_IRQn,
+  .DMAx = EXTMODULE_USART_TX_DMA,
+  .DMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
+  .DMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
+};
+
 static void extmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return;
@@ -63,27 +79,9 @@ static void extmoduleSerialStart(const etx_serial_init* params)
   extmodule_driver.on_receive = params->on_receive;
   extmodule_driver.on_error = params->on_error;
 
-  // TX + RX Pins
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  pinInit.Alternate = EXTMODULE_USART_GPIO_AF_LL;
-  LL_GPIO_Init(EXTMODULE_USART_GPIO, &pinInit);
-
   // UART config
-  stm32_usart_init(EXTMODULE_USART, params);
+  stm32_usart_init(&extmoduleUSART, params);
   extmoduleFifo.clear();
-
-  // Enable TX DMA request
-  LL_USART_EnableDMAReq_TX(EXTMODULE_USART);
-
-  // Enable RX IRQ
-  LL_USART_EnableIT_RXNE(EXTMODULE_USART);
-
-  NVIC_SetPriority(EXTMODULE_USART_IRQn, 6);
-  NVIC_EnableIRQ(EXTMODULE_USART_IRQn);
 }
 
 void extmoduleInvertedSerialStart(uint32_t baudrate)
@@ -106,20 +104,7 @@ void extmodulePxx1SerialStart()
 
 void extmoduleSerialStop()
 {
-  DMA_DeInit(EXTMODULE_USART_TX_DMA_STREAM);
-
-  // Reconfigure pin as output
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(EXTMODULE_TX_GPIO, &pinInit);
-
-  LL_USART_DeInit(EXTMODULE_USART);
-  LL_GPIO_ResetOutputPin(EXTMODULE_USART_GPIO,
-                         EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN);
+  stm32_usart_deinit(&extmoduleUSART);
 
   // reset callbacks
   extmodule_driver.on_receive = nullptr;
@@ -128,76 +113,18 @@ void extmoduleSerialStop()
 
 static void extmoduleSendByte(uint8_t byte)
 {
-  while (!LL_USART_IsActiveFlag_TXE(EXTMODULE_USART));
-  LL_USART_TransmitData8(EXTMODULE_USART, byte);
+  stm32_usart_send_byte(&extmoduleUSART, byte);
 }
 
 static void extmoduleSendBuffer(const uint8_t * data, uint8_t size)
 {
   if (size == 0) return;
-  LL_DMA_DeInit(EXTMODULE_USART_TX_DMA, EXTMODULE_USART_TX_DMA_STREAM_LL);
-
-  LL_DMA_InitTypeDef dmaInit;
-  LL_DMA_StructInit(&dmaInit);
-  dmaInit.Channel = EXTMODULE_USART_TX_DMA_CHANNEL;
-  dmaInit.PeriphOrM2MSrcAddress = CONVERT_PTR_UINT(&EXTMODULE_USART->DR);
-  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-  dmaInit.MemoryOrM2MDstAddress = CONVERT_PTR_UINT(data);
-  dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-  dmaInit.NbData = size;
-  dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
-
-  LL_DMA_Init(EXTMODULE_USART_TX_DMA, EXTMODULE_USART_TX_DMA_STREAM_LL, &dmaInit);
-  LL_DMA_EnableStream(EXTMODULE_USART_TX_DMA, EXTMODULE_USART_TX_DMA_STREAM_LL);
-}
-
-#define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
-extern "C" void EXTMODULE_USART_IRQHandler(void)
-{
-  // No ISR based send loop: DMA only
-
-  // Receive
-  uint32_t status = LL_USART_ReadReg(EXTMODULE_USART, SR);
-  while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
-    uint8_t data = LL_USART_ReceiveData8(EXTMODULE_USART);
-    if (status & USART_FLAG_ERRORS) {
-      if (extmodule_driver.on_error)
-        extmodule_driver.on_error();
-    }
-    else {
-      if (extmodule_driver.on_receive)
-        extmodule_driver.on_receive(data);
-    }
-    status = LL_USART_ReadReg(EXTMODULE_USART, SR);
-  }
+  stm32_usart_send_buffer(&extmoduleUSART, data, size);
 }
 
 static void extmoduleWaitForTxCompleted()
 {
-  // TODO: check if everything is properly initialised, this seems to block when
-  //       the port has been initialised with a zero baudrate
-  if (LL_DMA_IsEnabledStream(EXTMODULE_USART_TX_DMA,
-                             EXTMODULE_USART_TX_DMA_STREAM_LL)) {
-
-    static_assert(EXTMODULE_USART_TX_DMA_STREAM_LL == LL_DMA_STREAM_3 ||
-                  EXTMODULE_USART_TX_DMA_STREAM_LL == LL_DMA_STREAM_6 ||
-                  EXTMODULE_USART_TX_DMA_STREAM_LL == LL_DMA_STREAM_7, "");    
-
-    switch(EXTMODULE_USART_TX_DMA_STREAM_LL) {
-    case LL_DMA_STREAM_3:
-      while (LL_DMA_IsActiveFlag_TC3(EXTMODULE_USART_TX_DMA));
-      LL_DMA_ClearFlag_TC3(EXTMODULE_USART_TX_DMA);
-      break;
-    case LL_DMA_STREAM_6:
-      while (LL_DMA_IsActiveFlag_TC6(EXTMODULE_USART_TX_DMA));
-      LL_DMA_ClearFlag_TC6(EXTMODULE_USART_TX_DMA);
-      break;
-    case LL_DMA_STREAM_7:
-      while (LL_DMA_IsActiveFlag_TC7(EXTMODULE_USART_TX_DMA));
-      LL_DMA_ClearFlag_TC7(EXTMODULE_USART_TX_DMA);
-      break;
-    }
-  }
+  stm32_usart_wait_for_tx_dma(&extmoduleUSART);
 }
 
 const etx_serial_driver_t ExtmoduleSerialDriver = {
@@ -207,5 +134,10 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
   .sendBuffer = extmoduleSendBuffer,
   .waitForTxCompleted = extmoduleWaitForTxCompleted,
 };
+
+extern "C" void EXTMODULE_USART_IRQHandler(void)
+{
+  stm32_usart_isr(&extmoduleUSART, &extmodule_driver);
+}
 
 #endif // defined(EXTMODULE_USART)

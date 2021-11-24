@@ -388,9 +388,12 @@
 #define INTMODULE_GPIO_PinSource_RX     GPIO_PinSource6
 #define INTMODULE_USART                 UART7
 #define INTMODULE_GPIO_AF               GPIO_AF_UART7
+#define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_8
 #define INTMODULE_USART_IRQn            UART7_IRQn
 #define INTMODULE_USART_IRQHandler      UART7_IRQHandler
+#define INTMODULE_DMA                   DMA1
 #define INTMODULE_DMA_STREAM            DMA1_Stream1
+#define INTMODULE_DMA_STREAM_LL         LL_DMA_STREAM_1
 #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
 #define INTMODULE_DMA_FLAG_TC           DMA_IT_TCIF1
 #define INTMODULE_DMA_CHANNEL           DMA_Channel_5
