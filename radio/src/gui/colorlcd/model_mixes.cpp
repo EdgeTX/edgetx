@@ -67,11 +67,13 @@ class MixerEditStatusBar : public Window
     {
       channelBar = new ComboChannelBar(this, {3, 0, rect.w - 6, rect.h}, channel);
       channelBar->setLeftMargin(0);
+      channelBar->setTextColor(COLOR_THEME_PRIMARY2);
+      channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
     }
 
     void paint(BitmapBuffer *dc) override
     {
-      dc->clear(COLOR_THEME_SECONDARY2);
+      // dc->clear(COLOR_THEME_SECONDARY2);
     }
 
   protected:

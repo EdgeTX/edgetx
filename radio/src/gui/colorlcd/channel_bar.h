@@ -123,6 +123,11 @@ class OutputChannelBar : public ChannelBar
   public:
     using ChannelBar::ChannelBar;
 
+    void setOutputBarLimitColor(uint32_t color)
+    {
+      outputBarLimitsColor = color;
+    }
+
     void paint(BitmapBuffer * dc) override
     {
       if (!enabled) return;
@@ -196,13 +201,13 @@ class OutputChannelBar : public ChannelBar
 
     void drawOutputBarLimits(BitmapBuffer * dc, coord_t left, coord_t right)
     {
-      dc->drawSolidVerticalLine(left, 0, BAR_HEIGHT, COLOR_THEME_SECONDARY1);
-      dc->drawSolidHorizontalLine(left, 0, 3, COLOR_THEME_SECONDARY1);
-      dc->drawSolidHorizontalLine(left, BAR_HEIGHT - 1, 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidVerticalLine(left, 0, BAR_HEIGHT, outputBarLimitsColor);
+      dc->drawSolidHorizontalLine(left, 0, 3, outputBarLimitsColor);
+      dc->drawSolidHorizontalLine(left, BAR_HEIGHT - 1, 3, outputBarLimitsColor);
 
-      dc->drawSolidVerticalLine(right, 0, BAR_HEIGHT, COLOR_THEME_SECONDARY1);
-      dc->drawSolidHorizontalLine(right - 3, 0, 3, COLOR_THEME_SECONDARY1);
-      dc->drawSolidHorizontalLine(right - 3, BAR_HEIGHT - 1, 3, COLOR_THEME_SECONDARY1);
+      dc->drawSolidVerticalLine(right, 0, BAR_HEIGHT, outputBarLimitsColor);
+      dc->drawSolidHorizontalLine(right - 3, 0, 3, outputBarLimitsColor);
+      dc->drawSolidHorizontalLine(right - 3, BAR_HEIGHT - 1, 3, outputBarLimitsColor);
     }
 
     void checkEvents() override
@@ -236,6 +241,7 @@ class OutputChannelBar : public ChannelBar
     int value = 0;
     int limMax = 0;
     int limMin = 0;
+    uint32_t outputBarLimitsColor = COLOR_THEME_SECONDARY1;
 };
 
 constexpr coord_t lmargin = 25;
@@ -247,8 +253,21 @@ class ComboChannelBar : public ChannelBar
     ComboChannelBar(Window * parent, const rect_t & rect, uint8_t channel):
       ChannelBar(parent, rect, channel)
     {
-      new OutputChannelBar(this, {leftMargin, BAR_HEIGHT, width() - leftMargin, BAR_HEIGHT}, channel);
+      outputChannelBar = new OutputChannelBar(this, {leftMargin, BAR_HEIGHT, width() - leftMargin, BAR_HEIGHT}, channel);
       new MixerChannelBar(this, {leftMargin, 2 * BAR_HEIGHT + 1, width() - leftMargin, BAR_HEIGHT}, channel);
+    }
+
+    void setOutputChannelBarLimitColor(uint32_t color)
+    {
+      if (outputChannelBar != nullptr) {
+        outputChannelBar->setOutputBarLimitColor(color);
+      }
+    }
+
+    void setTextColor(uint32_t color)
+    {
+      textColor = color;
+      invalidate();
     }
 
     void setLeftMargin(int margin)
@@ -265,24 +284,24 @@ class ComboChannelBar : public ChannelBar
 
       // Channel number
       strAppendSigned(&chanString[2], channel + 1, 2);
-      dc->drawText(leftMargin, 0, chanString, FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
+      dc->drawText(leftMargin, 0, chanString, FONT(XS) | textColor | LEFT);
 
       // Channel name
-      dc->drawSizedText(leftMargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | COLOR_THEME_SECONDARY1 | LEFT);
+      dc->drawSizedText(leftMargin + 45, 0, g_model.limitData[channel].name, sizeof(g_model.limitData[channel].name), FONT(XS) | textColor | LEFT);
 
       // Channel value in µS
-      dc->drawNumber(width(), 0, usValue, FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, STR_US);
+      dc->drawNumber(width(), 0, usValue, FONT(XS) | textColor | RIGHT, 0, nullptr, STR_US);
 
       // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED)
-        dc->drawMask(0, 1, chanMonLockedBitmap, COLOR_THEME_SECONDARY1);
+        dc->drawMask(0, 1, chanMonLockedBitmap, textColor);
 #endif
 
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        lcd->drawMask(0, 20, chanMonInvertedBitmap, COLOR_THEME_SECONDARY1);
+        lcd->drawMask(0, 20, chanMonInvertedBitmap, textColor);
       }
     }
 
@@ -305,8 +324,10 @@ class ComboChannelBar : public ChannelBar
     }
 
   protected:
+    OutputChannelBar *outputChannelBar = nullptr;
     int value = 0;
     int leftMargin = lmargin;
+    uint32_t textColor = COLOR_THEME_SECONDARY1;
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
     int safetyChValue = OVERRIDE_CHANNEL_UNDEFINED;
 #endif
