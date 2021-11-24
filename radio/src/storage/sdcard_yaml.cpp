@@ -24,7 +24,7 @@
 #include "storage.h"
 #include "sdcard_common.h"
 #include "sdcard_raw.h"
-
+#include "sdcard_yaml.h"
 #include "modelslist.h"
 
 #include "yaml/yaml_tree_walker.h"
@@ -264,9 +264,7 @@ const char * writeModelYaml(const char* filename)
 // EEPROM slot simulation based on file names:
 // - /MODELS/model[00-99].yml
 
-constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
-
-static void getModelNumberStr(uint8_t idx, char* model_idx)
+void getModelNumberStr(uint8_t idx, char* model_idx)
 {
   memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
   model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;

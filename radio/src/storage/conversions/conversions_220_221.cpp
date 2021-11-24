@@ -33,6 +33,10 @@
 using namespace bin_storage_220;
 #include <storage/sdcard_common.h>
 
+#if defined(SDCARD_YAML)
+#include <storage/sdcard_yaml.h>
+#endif
+
 // see "yaml/yaml_datastructs.h"
 namespace yaml_conv_220 {
     const YamlNode* get_radiodata_nodes();
@@ -138,15 +142,6 @@ const char* convertRadioData_220_to_221(const char* path)
 
 #include <storage/eeprom_common.h>
 
-constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
-
-static void getModelNumberStr(uint8_t idx, char* model_idx)
-{
-  memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx % 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '\0';
-}
 
 const char* convertModelData_220_to_221(uint8_t id)
 {
