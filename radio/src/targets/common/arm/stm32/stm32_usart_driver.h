@@ -23,13 +23,27 @@
 
 #include <stdint.h>
 #include "hal/serial_driver.h"
+#include "stm32_hal_ll.h"
 
-#if defined(STM32F4)
-//  #include "stm32f4xx.h"
-  #include "stm32f4xx_usart.h"
-#else
-//  #include "stm32f2xx.h"
-  #include "stm32f2xx_usart.h"
-#endif
+struct stm32_usart_t {
 
-void stm32_usart_init(USART_TypeDef *USARTx, const etx_serial_init* params);
+    // USART defs
+    USART_TypeDef*             USARTx;
+    GPIO_TypeDef*              GPIOx;
+    const LL_GPIO_InitTypeDef* pinInit;
+    IRQn_Type                  IRQn;
+
+    // TX DMA defs
+    DMA_TypeDef*               DMAx;
+    uint32_t                   DMA_Stream;
+    uint32_t                   DMA_Channel;
+};
+
+void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params);
+void stm32_usart_deinit(const stm32_usart_t* usart);
+void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte);
+void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size);
+void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart);
+void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb);
+
+

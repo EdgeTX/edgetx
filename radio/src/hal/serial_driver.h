@@ -51,7 +51,14 @@ struct etx_serial_init {
   void (*on_error)();                // = nullptr;
 };
 
+struct etx_serial_callbacks_t {
+  bool (*on_send)(uint8_t& data);
+  void (*on_receive)(uint8_t data);
+  void (*on_error)();
+};
+
 struct etx_serial_driver_t {
+
   // Init module communication
   void (*init)(const etx_serial_init* params);
 
