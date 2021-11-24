@@ -546,10 +546,6 @@ void audioTask(void * pdata)
   }
 #endif
 
-  if (!globalData.unexpectedShutdown) {
-    AUDIO_HELLO();
-  }
-
   while (true) {
     DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
     DEBUG_TIMER_START(debugTimerAudioDuration);
