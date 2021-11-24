@@ -22,11 +22,16 @@
 #include "opentx.h"
 
 #if defined(SPLASH)
-const unsigned char splashdata[]  = {
-  'S','P','S',0,
-  #include "bitmaps/212x64/splash.lbm"
-  'S','P','E',0 };
-const unsigned char * const splash_lbm = splashdata+4;
+#define MAXIMUM_SPLASH_IMAGE_SIZE 3072
+struct {
+  const uint8_t __magic_prefix[4] = { 'S','P','S',0 };
+  const uint8_t splashdata[MAXIMUM_SPLASH_IMAGE_SIZE] = {
+    #include "bitmaps/212x64/splash.lbm"
+  };
+  const uint8_t __magic_suffix[4] = { 'S','P','E',0 };
+} splash_struct;
+static_assert(sizeof(splash_struct.splashdata) <= MAXIMUM_SPLASH_IMAGE_SIZE, "");
+const unsigned char * const splash_lbm = splash_struct.splashdata+4;
 
 void drawSplash()
 {

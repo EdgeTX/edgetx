@@ -25,6 +25,7 @@
 #include "storage.h"
 
 #include <QFile>
+#include <vector>
 
 #define FW_MARK     "FW"
 #define VERS_MARK   "VERS"
@@ -32,6 +33,129 @@
 #define TIME_MARK   "TIME"
 #define EEPR_MARK   "EEPR"
 #define FSIZE_MAX   Boards::getFlashSize(Board::BOARD_UNKNOWN)
+
+class RleBitmap
+{
+public:
+  RleBitmap(const uint8_t *src, size_t offset) :
+    state(RLE_FIRST_BYTE), src(src), curPtr(src), byte(0), curCount(0), pos(0)
+  {
+    width = *curPtr++;
+    rawRows = *curPtr++;
+    rows = (rawRows +1)/2;
+    skip(offset);
+  }
+
+  void skip(size_t count)
+  {
+    while(count)
+    {
+      count--;
+      getNext();
+    }
+  }
+
+  uint8_t getNext()
+  {
+    pos++;
+    switch(state)
+    {
+    case RLE_FIRST_BYTE:
+      byte = *curPtr++;
+      if(byte == *curPtr)
+        state = RLE_SECOND_BYTE;
+      break;
+    case RLE_SECOND_BYTE:
+      byte = *curPtr++;
+      curCount = (*curPtr++)+1;
+      state = RLE_CONTINUE;
+      // fall through
+    case RLE_CONTINUE:
+      curCount--;
+      if(!curCount)
+        state = RLE_FIRST_BYTE;
+      break;
+    }
+    return byte;
+  }
+
+  bool to(uint8_t* buf, size_t size)
+  {
+    while(pos<size)
+      *buf++ = getNext();
+    return pos == size;
+  }
+  uint8_t getWidth() const { return width; }
+  uint8_t getRows() const { return rows; }
+  uint8_t getRawRows() const { return rawRows; }
+  void goToNextRow()
+  {
+    size_t offset = pos%width;
+    if(offset)
+      skip(width - pos%width);
+  }
+
+  static size_t encode(uint8_t *buf, size_t bytes)
+  {
+    uint8_t* readPtr = buf;
+    uint8_t* writePtr = buf;
+    uint8_t state = 0;
+    uint8_t count = 0;
+    uint16_t prevByte = 0xFFFF;
+
+    while(bytes)
+    {
+      bytes--;
+      uint8_t byte = *readPtr++;
+      if(state == 0)
+      {
+        *writePtr++ = byte;;
+        if(prevByte == byte)
+        {
+          state = 1;
+          count = 0;
+        } else {
+          prevByte = byte;
+        }
+      } else {
+        if(prevByte == byte)
+        {
+          count++;
+          if(count == 255)
+          {
+
+            *writePtr++ = count;
+            prevByte = 0xFFFF;
+            state = 0;
+          }
+
+        } else {
+          *writePtr++ = count;
+          *writePtr++ = byte;
+          prevByte = byte;
+          state = 0;
+        }
+      }
+    }
+    if(state != 0)
+      *writePtr++ = count;
+    return writePtr - buf;
+  }
+
+private:
+  enum State {RLE_FIRST_BYTE, RLE_SECOND_BYTE, RLE_CONTINUE} state;
+  const uint8_t* src;
+  const uint8_t* curPtr;
+
+  uint8_t width;
+  uint8_t rows;
+  uint8_t rawRows;
+
+  uint8_t byte;
+  uint16_t curCount;
+
+  size_t pos;
+};
 
 FirmwareInterface::FirmwareInterface(const QString & filename):
   flash(FSIZE_MAX, 0),
@@ -220,7 +344,7 @@ void FirmwareInterface::seekSplash()
     return;
   }
 
-  if (seekSplash(QByteArray(OTX_SPS_TARANIS, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), 6784)) {
+  if (seekSplash(QByteArray(OTX_SPS_TARANIS, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), 3070)) {
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
     splash_format = QImage::Format_Indexed8;
@@ -243,7 +367,7 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
     return false;
   }
 
-  char b[SPLASH_SIZE_MAX] = {0};
+  uint8_t b[SPLASH_SIZE_MAX] = {0};
   QColor color;
   QByteArray splash;
   if (splash_format == QImage::Format_Indexed8) {
@@ -255,6 +379,12 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
         if (y & 1) z <<= 4;
         b[idx] |= z;
       }
+    }
+    if(splashWidth == 212 && splashHeight == 64)
+    {
+	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
+	    if(splashSize > 3072)
+	      return false;
     }
   }
   else {
@@ -268,7 +398,7 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
     }
   }
   splash.clear();
-  splash.append(b, splashSize);
+  splash.append((char *)b, splashSize);
   flash.replace(splashOffset, splashSize, splash);
   return true;
 }
@@ -288,6 +418,7 @@ QImage::Format FirmwareInterface::getSplashFormat()
   return splash_format;
 }
 
+
 QImage FirmwareInterface::getSplash()
 {
   if (splashOffset == 0 || splashSize == 0) {
@@ -296,15 +427,35 @@ QImage FirmwareInterface::getSplash()
 
   if (splash_format == QImage::Format_Indexed8) {
     QImage image(splashWidth, splashHeight, QImage::Format_RGB888);
-    if (splashOffset > 0) {
-      for (unsigned int y=0; y<splashHeight; y++) {
-        unsigned int idx = (y/2)*splashWidth;
-        for (unsigned int x=0; x<splashWidth; x++, idx++) {
-          uint8_t byte = flash.at(splashOffset+idx);
-          unsigned int z = (y & 1) ? (byte >> 4) : (byte & 0x0F);
-          z = 255-(z*255)/15;
-          QRgb rgb = qRgb(z, z, z);
-          image.setPixel(x, y, rgb);
+    if(splashWidth == 212 && splashHeight == 64)
+    {
+      std::vector<uint8_t> data;
+      data.resize(splashWidth * splashHeight);
+      RleBitmap img((uint8_t*)flash.data() + splashOffset - 2, 0);
+      img.to(&data[0], data.size());
+      if (splashOffset > 0) {
+        for (unsigned int y=0; y<splashHeight; y++) {
+          unsigned int idx = (y/2)*splashWidth;
+          for (unsigned int x=0; x<splashWidth; x++, idx++) {
+            uint8_t byte = data[idx];
+            unsigned int z = (y & 1) ? (byte >> 4) : (byte & 0x0F);
+            z = 255-(z*255)/15;
+            QRgb rgb = qRgb(z, z, z);
+            image.setPixel(x, y, rgb);
+          }
+        }
+      }
+    } else {
+      if (splashOffset > 0) {
+        for (unsigned int y=0; y<splashHeight; y++) {
+          unsigned int idx = (y/2)*splashWidth;
+          for (unsigned int x=0; x<splashWidth; x++, idx++) {
+            uint8_t byte = flash.at(splashOffset+idx);
+            unsigned int z = (y & 1) ? (byte >> 4) : (byte & 0x0F);
+            z = 255-(z*255)/15;
+            QRgb rgb = qRgb(z, z, z);
+            image.setPixel(x, y, rgb);
+          }
         }
       }
     }
