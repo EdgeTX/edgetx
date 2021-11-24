@@ -383,7 +383,7 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
     if(splashWidth == 212 && splashHeight == 64)
     {
 	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
-	    if(splashSize > 3072)
+	    if(splashSize > 3070)
 	      return false;
     }
   }
