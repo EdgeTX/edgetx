@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include "hal/serial_driver.h"
 
+#define EXTMODULE_USART_IRQ_PRIORITY 6
+
 // Callbacks using intmoduleFifo
 void extmoduleFifoReceive(uint8_t data);
 void extmoduleFifoError();
