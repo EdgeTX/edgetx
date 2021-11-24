@@ -35,7 +35,6 @@ using namespace bin_storage_220;
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
-extern uint8_t MODELIDX_STRLEN;
 #endif
 
 // see "yaml/yaml_datastructs.h"

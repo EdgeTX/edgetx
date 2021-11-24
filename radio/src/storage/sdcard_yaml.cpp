@@ -264,8 +264,6 @@ const char * writeModelYaml(const char* filename)
 // EEPROM slot simulation based on file names:
 // - /MODELS/model[00-99].yml
 
-uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
-
 void getModelNumberStr(uint8_t idx, char* model_idx)
 {
   memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
