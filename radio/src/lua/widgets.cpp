@@ -342,6 +342,8 @@ class LuaWidgetFactory: public WidgetFactory
       l_pushtableint("y", 0);
       l_pushtableint("w", rect.w);
       l_pushtableint("h", rect.h);
+      l_pushtableint("xabs", rect.x);
+      l_pushtableint("yabs", rect.y);
 
       lua_newtable(lsWidgets);
       int i = 0;
