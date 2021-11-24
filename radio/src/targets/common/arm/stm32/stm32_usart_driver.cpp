@@ -82,7 +82,7 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
   if (!usart->DMAx || params->rx_enable) {
     // TODO: configurable priority ???
-    NVIC_SetPriority(usart->IRQn, 6);
+    NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
     NVIC_EnableIRQ(usart->IRQn);
   }
 }
@@ -107,6 +107,7 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
 
 void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
 {
+  // TODO: split into 2 steps to avoid blocking on send
   while (!LL_USART_IsActiveFlag_TXE(usart->USARTx));
   LL_USART_TransmitData8(usart->USARTx, byte);
 }
@@ -177,18 +178,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
 {
   uint32_t status = LL_USART_ReadReg(usart->USARTx, SR);
 
-  // IRQ based send: TXE IRQ is enabled only during transfer
-  if (LL_USART_IsEnabledIT_TXE(usart->USARTx) && (status & LL_USART_SR_TXE)) {
-
-    uint8_t data;
-    if (cb->on_send && cb->on_send(data)) {
-      LL_USART_TransmitData8(usart->USARTx, data);
-    } else {
-      LL_USART_DisableIT_TXE(usart->USARTx);
-    }
-  }
-
-  // Receive
+  // Receive: do it first as it is more time critical
   if (LL_USART_IsEnabledIT_TXE(usart->USARTx)) {
 
     // Drain RX
@@ -207,6 +197,17 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
       }
 
       status = LL_USART_ReadReg(usart->USARTx, SR);
+    }
+  }
+
+  // IRQ based send: TXE IRQ is enabled only during transfer
+  if (LL_USART_IsEnabledIT_TXE(usart->USARTx) && (status & LL_USART_SR_TXE)) {
+
+    uint8_t data;
+    if (cb->on_send && cb->on_send(data)) {
+      LL_USART_TransmitData8(usart->USARTx, data);
+    } else {
+      LL_USART_DisableIT_TXE(usart->USARTx);
     }
   }
 }

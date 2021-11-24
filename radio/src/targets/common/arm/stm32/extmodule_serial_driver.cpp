@@ -67,6 +67,7 @@ static const stm32_usart_t extmoduleUSART = {
   .GPIOx = EXTMODULE_TX_GPIO,
   .pinInit = &extmoduleUSART_PinDef,
   .IRQn = EXTMODULE_USART_IRQn,
+  .IRQ_Prio = EXTMODULE_USART_IRQ_PRIORITY,
   .DMAx = EXTMODULE_USART_TX_DMA,
   .DMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
   .DMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,

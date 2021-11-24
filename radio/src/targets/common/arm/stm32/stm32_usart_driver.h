@@ -31,7 +31,10 @@ struct stm32_usart_t {
     USART_TypeDef*             USARTx;
     GPIO_TypeDef*              GPIOx;
     const LL_GPIO_InitTypeDef* pinInit;
+
+    // USART IRQ
     IRQn_Type                  IRQn;
+    uint8_t                    IRQ_Prio;
 
     // TX DMA defs
     DMA_TypeDef*               DMAx;
