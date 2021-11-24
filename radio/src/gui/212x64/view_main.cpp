@@ -203,7 +203,7 @@ void displayTopBarGauge(coord_t x, int count, bool blinking=false)
 }
 
 #define LCD_NOTIF_ICON(x, icon) \
- lcdDrawBitmap(x, BAR_Y, icons, icon); \
+ lcdDrawRleBitmap(x, BAR_Y, icons, icon); \
  lcdDrawSolidHorizontalLine(x, BAR_Y+8, 11)
 
 void displayTopBar()
@@ -508,7 +508,7 @@ void menuMainView(event_t event)
   // Sliders (Pots / Sliders)
   drawSliders();
 
-  lcdDrawBitmap(BITMAP_X, BITMAP_Y, modelBitmap);
+  lcdDrawRleBitmap(BITMAP_X, BITMAP_Y, modelBitmap);
 
   // Switches
   if (getSwitchCount() > 8) {

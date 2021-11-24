@@ -31,7 +31,7 @@ const unsigned char * const splash_lbm = splashdata+4;
 void drawSplash()
 {
   lcdClear();
-  lcdDrawBitmap(0, 0, splash_lbm);
+  lcdDrawRleBitmap(0, 0, splash_lbm);
 
 #if MENUS_LOCK == 1
   if (readonly == false) {

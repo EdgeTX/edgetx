@@ -169,6 +169,8 @@ void lcdDraw1bitBitmap(coord_t x, coord_t y, const unsigned char * img, uint8_t 
 
 void lcdDrawBitmap(coord_t x, coord_t y, const uint8_t * img, coord_t offset=0, coord_t width=0);
 #define LCD_ICON(x, y, icon) lcdDrawBitmap(x, y, icons, icon)
+void lcdDrawRleBitmap(coord_t x, coord_t y, const uint8_t * img, coord_t offset=0, coord_t width=0);
+
 
 void lcdClear();
 
