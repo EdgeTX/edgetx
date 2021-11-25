@@ -422,10 +422,13 @@
   #define AUX_SERIAL_GPIO_PinSource_TX        GPIO_PinSource10
   #define AUX_SERIAL_GPIO_PinSource_RX        GPIO_PinSource11
   #define AUX_SERIAL_GPIO_AF                  GPIO_AF_USART3
+  #define AUX_SERIAL_GPIO_AF_LL               LL_GPIO_AF_7
   #define AUX_SERIAL_USART                    USART3
   #define AUX_SERIAL_USART_IRQHandler         USART3_IRQHandler
   #define AUX_SERIAL_USART_IRQn               USART3_IRQn
+  #define AUX_SERIAL_DMA_RX                   DMA1
   #define AUX_SERIAL_DMA_Stream_RX            DMA1_Stream1
+  #define AUX_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
   #define AUX_SERIAL_DMA_Channel_RX           DMA_Channel_4
 #if defined(RADIO_TX16S)
   #define AUX_SERIAL_PWR_GPIO                 GPIOA
@@ -444,6 +447,7 @@
   #define AUX2_SERIAL_RCC_APB2Periph           RCC_APB2Periph_USART6
   #define AUX2_SERIAL_USART                    USART6
   #define AUX2_SERIAL_GPIO_AF                  GPIO_AF_USART6
+  #define AUX2_SERIAL_GPIO_AF_LL               LL_GPIO_AF_8
   #define AUX2_SERIAL_USART_IRQn               USART6_IRQn
   #define AUX2_SERIAL_GPIO                     GPIOG
   #define AUX2_SERIAL_GPIO_PIN_TX              GPIO_Pin_14 // PG.14
