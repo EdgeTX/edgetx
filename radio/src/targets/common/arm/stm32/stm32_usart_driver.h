@@ -37,9 +37,14 @@ struct stm32_usart_t {
     uint8_t                    IRQ_Prio;
 
     // TX DMA defs
-    DMA_TypeDef*               DMAx;
-    uint32_t                   DMA_Stream;
-    uint32_t                   DMA_Channel;
+    DMA_TypeDef*               txDMA;
+    uint32_t                   txDMA_Stream;
+    uint32_t                   txDMA_Channel;
+
+    // RX DMA defs
+    DMA_TypeDef*               rxDMA;
+    uint32_t                   rxDMA_Stream;
+    uint32_t                   rxDMA_Channel;
 };
 
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params);

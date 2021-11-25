@@ -49,6 +49,8 @@ static const etx_serial_init extmoduleSerialParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
+  .rx_dma_buf = nullptr,
+  .rx_dma_buf_len = 0,
   .on_receive = extmoduleFifoReceive,
   .on_error = extmoduleFifoError,
 };
@@ -68,9 +70,12 @@ static const stm32_usart_t extmoduleUSART = {
   .pinInit = &extmoduleUSART_PinDef,
   .IRQn = EXTMODULE_USART_IRQn,
   .IRQ_Prio = EXTMODULE_USART_IRQ_PRIORITY,
-  .DMAx = EXTMODULE_USART_TX_DMA,
-  .DMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
-  .DMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
+  .txDMA = EXTMODULE_USART_TX_DMA,
+  .txDMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
+  .txDMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
+  .rxDMA = nullptr,
+  .rxDMA_Stream = 0,
+  .rxDMA_Channel = 0,
 };
 
 static void extmoduleSerialStart(const etx_serial_init* params)

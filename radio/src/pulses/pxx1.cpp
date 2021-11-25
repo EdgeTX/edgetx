@@ -231,6 +231,8 @@ static const etx_serial_init pxx1SerialInit = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = false,
+  .rx_dma_buf = nullptr,
+  .rx_dma_buf_len = 0,
   .on_receive = intmoduleFifoReceive,
   .on_error = intmoduleFifoError,
 };
