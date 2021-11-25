@@ -60,30 +60,30 @@ enum
 };
 
 const GhostSensor ghostSensors[] = {
-  {GHOST_ID_RX_RSSI,         STR_RSSI,             UNIT_DB,                0},
-  {GHOST_ID_RX_LQ,           STR_RX_QUALITY,       UNIT_PERCENT,           0},
-  {GHOST_ID_RX_SNR,          STR_RX_SNR,           UNIT_DB,                0},
+  {GHOST_ID_RX_RSSI,         STR_SENSOR_RSSI,             UNIT_DB,                0},
+  {GHOST_ID_RX_LQ,           STR_SENSOR_RX_QUALITY,       UNIT_PERCENT,           0},
+  {GHOST_ID_RX_SNR,          STR_SENSOR_RX_SNR,           UNIT_DB,                0},
 
-  {GHOST_ID_FRAME_RATE,      STR_FRAME_RATE,       UNIT_RAW,               0},
-  {GHOST_ID_TX_POWER,        STR_TX_POWER,         UNIT_MILLIWATTS,        0},
-  {GHOST_ID_RF_MODE,         STR_RF_MODE,          UNIT_TEXT,              0},
-  {GHOST_ID_TOTAL_LATENCY,   STR_TOTAL_LATENCY,    UNIT_RAW,               0},
+  {GHOST_ID_FRAME_RATE,      STR_SENSOR_FRAME_RATE,       UNIT_RAW,               0},
+  {GHOST_ID_TX_POWER,        STR_SENSOR_TX_POWER,         UNIT_MILLIWATTS,        0},
+  {GHOST_ID_RF_MODE,         STR_SENSOR_RF_MODE,          UNIT_TEXT,              0},
+  {GHOST_ID_TOTAL_LATENCY,   STR_SENSOR_TOTAL_LATENCY,    UNIT_RAW,               0},
 
-  {GHOST_ID_VTX_FREQ,        STR_VTX_FREQ,         UNIT_RAW,               0},
-  {GHOST_ID_VTX_POWER,       STR_VTX_PWR,          UNIT_RAW,               0},
-  {GHOST_ID_VTX_CHAN,        STR_VTX_CHAN,         UNIT_RAW,               0},
-  {GHOST_ID_VTX_BAND,        STR_VTX_BAND,         UNIT_TEXT,              0},
+  {GHOST_ID_VTX_FREQ,        STR_SENSOR_VTX_FREQ,         UNIT_RAW,               0},
+  {GHOST_ID_VTX_POWER,       STR_SENSOR_VTX_PWR,          UNIT_RAW,               0},
+  {GHOST_ID_VTX_CHAN,        STR_SENSOR_VTX_CHAN,         UNIT_RAW,               0},
+  {GHOST_ID_VTX_BAND,        STR_SENSOR_VTX_BAND,         UNIT_TEXT,              0},
 
-  {GHOST_ID_PACK_VOLTS,      STR_BATT,             UNIT_VOLTS,             2},
-  {GHOST_ID_PACK_AMPS,       STR_CURR,             UNIT_AMPS,              2},
-  {GHOST_ID_PACK_MAH,        STR_CAPACITY,         UNIT_MAH,               0},
+  {GHOST_ID_PACK_VOLTS,      STR_SENSOR_BATT,             UNIT_VOLTS,             2},
+  {GHOST_ID_PACK_AMPS,       STR_SENSOR_CURR,             UNIT_AMPS,              2},
+  {GHOST_ID_PACK_MAH,        STR_SENSOR_CAPACITY,         UNIT_MAH,               0},
 
-  {GHOST_ID_GPS_LAT,         STR_GPS,              UNIT_GPS_LATITUDE,      0},
-  {GHOST_ID_GPS_LONG,        STR_GPS,              UNIT_GPS_LONGITUDE,     0},
-  {GHOST_ID_GPS_GSPD,        STR_GSPD,             UNIT_KMH,               1},
-  {GHOST_ID_GPS_HDG,         STR_HDG,              UNIT_DEGREE,            3},
-  {GHOST_ID_GPS_ALT,         STR_ALT,              UNIT_METERS,            0},
-  {GHOST_ID_GPS_SATS,        STR_SATELLITES,       UNIT_RAW,               0},
+  {GHOST_ID_GPS_LAT,         STR_SENSOR_GPS,              UNIT_GPS_LATITUDE,      0},
+  {GHOST_ID_GPS_LONG,        STR_SENSOR_GPS,              UNIT_GPS_LONGITUDE,     0},
+  {GHOST_ID_GPS_GSPD,        STR_SENSOR_GSPD,             UNIT_KMH,               1},
+  {GHOST_ID_GPS_HDG,         STR_SENSOR_HDG,              UNIT_DEGREE,            3},
+  {GHOST_ID_GPS_ALT,         STR_SENSOR_ALT,              UNIT_METERS,            0},
+  {GHOST_ID_GPS_SATS,        STR_SENSOR_SATELLITES,       UNIT_RAW,               0},
 
   {0x00,                     NULL,                  UNIT_RAW,               0},
 };
