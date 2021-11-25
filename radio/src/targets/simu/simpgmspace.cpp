@@ -767,7 +767,7 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
 {
 }
 
-void auxSerialPutc(char c)
+void auxSerialPutc(uint8_t c)
 {
 }
 
@@ -792,7 +792,7 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
 {
 }
 
-void aux2SerialPutc(char c)
+void aux2SerialPutc(uint8_t c)
 {
 }
 
