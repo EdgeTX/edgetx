@@ -47,6 +47,9 @@ struct etx_serial_init {
   uint8_t word_length;  // = ETX_WordLength_8;
   bool rx_enable;       // = false;
 
+  void*    rx_dma_buf;
+  uint32_t rx_dma_buf_len;
+
   void (*on_receive)(uint8_t data);  // = nullptr;
   void (*on_error)();                // = nullptr;
 };
