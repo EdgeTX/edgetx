@@ -22,6 +22,7 @@
 #include "telemetry.h"
 #include "multi.h"
 #include "io/multi_protolist.h"
+#include "aux_serial_driver.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11

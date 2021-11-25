@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 const CrossfireSensor crossfireSensors[] = {
   {LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DB,                0},

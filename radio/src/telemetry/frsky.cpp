@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 void processFrskyTelemetryData(uint8_t data)
 {
