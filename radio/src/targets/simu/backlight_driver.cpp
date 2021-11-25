@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+bool isBacklightEnabled() { return false; }
 void backlightEnable(unsigned char) {}
 void backlightEnable(unsigned char, unsigned char) {}
 void backlightDisable() {}
