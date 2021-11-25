@@ -28,9 +28,6 @@
 // TODO common code, not in target
 enum LcdColorIndex
 {
-  // this one first for when colour is not set
-  DEFAULT_COLOR_INDEX,
-
   COLOR_THEME_PRIMARY1_INDEX,
   COLOR_THEME_PRIMARY2_INDEX,
   COLOR_THEME_PRIMARY3_INDEX,
@@ -48,6 +45,7 @@ enum LcdColorIndex
   LCD_COLOR_COUNT,
 };
 
+#define DEFAULT_COLOR_INDEX   COLOR_THEME_PRIMARY1_INDEX
 
 //#define COLOR_THEME_PRIMARY2_INDEX     COLOR_THEME_ACTIVE_INDEX
 //#define COLOR_THEME_SECONDARY2_INDEX          COLOR_THEME_PRIMARY3_INDEX
