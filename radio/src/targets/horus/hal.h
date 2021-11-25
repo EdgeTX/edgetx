@@ -455,8 +455,10 @@
   #define AUX2_SERIAL_GPIO_PinSource_TX        GPIO_PinSource14
   #define AUX2_SERIAL_GPIO_PinSource_RX        GPIO_PinSource9
   #define AUX2_SERIAL_USART_IRQHandler         USART6_IRQHandler
+  #define AUX2_SERIAL_DMA_RX                   DMA2
   #define AUX2_SERIAL_DMA_Stream_RX            DMA2_Stream1 // or DMA2_Stream2
   #define AUX2_SERIAL_DMA_Channel_RX           DMA_Channel_5
+  #define AUX_SERIAL_DMA_Stream_RX_LL          LL_DMA_STREAM_1
   #define AUX2_SERIAL_PWR_GPIO                 GPIOB
   #define AUX2_SERIAL_PWR_GPIO_PIN             GPIO_Pin_0  // PB.00
 #if defined(RADIO_TX16S)
