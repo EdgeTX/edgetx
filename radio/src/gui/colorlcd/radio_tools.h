@@ -29,6 +29,7 @@ class RadioToolsPage: public PageTab {
 
     void checkEvents() override;
 
+
   protected:
     static void rebuild(FormWindow * window);
     FormWindow * window = nullptr;

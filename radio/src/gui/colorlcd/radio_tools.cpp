@@ -72,6 +72,51 @@ void RadioToolsPage::checkEvents()
   PageTab::checkEvents();
 }
 
+struct LuaScript
+{
+  std::string path;
+  std::string label;
+  bool operator < (const LuaScript &a) { return label < a.label; }
+};
+
+void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayout &grid)
+{
+  for (auto luaScript : luaScripts) {
+    auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+
+    auto b = new TextButton(
+        window, grid.getFieldSlot(1), luaScript.label,
+        [window, luaScript]() -> uint8_t {
+
+          char toolPath[FF_MAX_LFN + 1];
+          strncpy(toolPath, luaScript.path.c_str(), sizeof(toolPath)-1);
+          *((char *)getBasename(toolPath)-1) = '\0';
+          f_chdir(toolPath);
+
+          luaExec(luaScript.path.c_str());
+          StandaloneLuaWindow::instance()->attach(window);
+          
+          return 0;
+        },
+        OPAQUE);
+    b->setBgColorHandler([=]() {
+      return COLOR_THEME_PRIMARY2; 
+    });
+    b->setFocusHandler([=](bool focus) {
+      if (focus) {
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+      } else {
+        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+      }
+      txt->invalidate();
+    });
+    grid.nextLine();
+  }
+}
+
 void RadioToolsPage::rebuild(FormWindow * window)
 {
   FormGridLayout grid;
@@ -93,6 +138,8 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
   FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
   if (res == FR_OK) {
+    std::vector<LuaScript> luaScripts;  // gather them all and then create UI after sort
+
     for (;;) {
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
@@ -113,41 +160,13 @@ void RadioToolsPage::rebuild(FormWindow * window)
           *ext = '\0';
           label = getBasename(path);
         }
-        auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
-                                  BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
-        std::string path_str(path);
-        auto b = new TextButton(
-            window, grid.getFieldSlot(1), label,
-            [window, path_str]() -> uint8_t {
-
-              char toolPath[FF_MAX_LFN + 1];
-              strncpy(toolPath, path_str.c_str(), sizeof(toolPath)-1);
-              *((char *)getBasename(toolPath)-1) = '\0';
-              f_chdir(toolPath);
-
-              luaExec(path_str.c_str());
-              StandaloneLuaWindow::instance()->attach(window);
-              
-              return 0;
-            },
-            OPAQUE);
-        b->setBgColorHandler([=]() {
-          return COLOR_THEME_PRIMARY2; 
-        });
-        b->setFocusHandler([=](bool focus) {
-          if (focus) {
-            txt->setBackgroundColor(COLOR_THEME_FOCUS);
-            txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-          } else {
-            txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-          }
-          txt->invalidate();
-        });
-        grid.nextLine();
+        luaScripts.emplace_back(LuaScript{ path, label });
       }
     }
+
+    std::sort(luaScripts.begin(), luaScripts.end());
+    buildLuaUi(luaScripts, window, grid);
   }
 #endif
 
