@@ -45,6 +45,8 @@ const etx_serial_init afhds2SerialInitParams = {
     .stop_bits = ETX_StopBits_One,
     .word_length = ETX_WordLength_8,
     .rx_enable = true,
+    .rx_dma_buf = nullptr,
+    .rx_dma_buf_len = 0,
     .on_receive = intmoduleFifoReceive,
     .on_error = intmoduleFifoError,
 };

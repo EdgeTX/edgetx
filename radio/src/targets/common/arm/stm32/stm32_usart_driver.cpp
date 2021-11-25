@@ -22,6 +22,25 @@
 #include "stm32_usart_driver.h"
 #include <string.h>
 
+static void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length)
+{
+  LL_DMA_InitTypeDef dmaInit;
+  LL_DMA_StructInit(&dmaInit);
+  dmaInit.Channel = usart->rxDMA_Channel;
+  dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&usart->USARTx->DR;
+  dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+  dmaInit.MemoryOrM2MDstAddress = (uint32_t)buffer;
+  dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+  dmaInit.Mode = LL_DMA_MODE_CIRCULAR;
+  dmaInit.NbData = length;
+  dmaInit.Priority = LL_DMA_PRIORITY_LOW; // TODO: make it configurable
+  LL_DMA_Init(usart->rxDMA, usart->rxDMA_Stream, &dmaInit);
+  LL_USART_EnableDMAReq_RX(usart->USARTx);
+
+  // Stream can be enable as the USART has alread been enabled
+  LL_DMA_EnableStream(usart->rxDMA, usart->rxDMA_Stream);
+}
+
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
   LL_USART_DeInit(usart->USARTx);
@@ -71,17 +90,23 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   LL_USART_Enable(usart->USARTx);
 
   // Enable TX DMA request
-  if (usart->DMAx) {
+  if (usart->txDMA) {
     LL_USART_EnableDMAReq_TX(usart->USARTx);
   }
 
   // Enable RX IRQ
   if (params->rx_enable) {
-    LL_USART_EnableIT_RXNE(usart->USARTx);
+    if (usart->rxDMA) {
+      // RX DMA
+      stm32_usart_init_rx_dma(usart, params->rx_dma_buf,
+                              params->rx_dma_buf_len);
+    } else {
+      // IRQ based RX
+      LL_USART_EnableIT_RXNE(usart->USARTx);
+    }
   }
 
-  if (!usart->DMAx || params->rx_enable) {
-    // TODO: configurable priority ???
+  if (!usart->txDMA || (params->rx_enable && !usart->rxDMA)) {
     NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
     NVIC_EnableIRQ(usart->IRQn);
   }
@@ -89,8 +114,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
 void stm32_usart_deinit(const stm32_usart_t* usart)
 {
-  if (usart->DMAx) {
-    LL_DMA_DeInit(usart->DMAx, usart->DMA_Stream);
+  if (usart->txDMA) {
+    LL_DMA_DeInit(usart->txDMA, usart->txDMA_Stream);
   }
   NVIC_DisableIRQ(usart->IRQn);
   LL_USART_DeInit(usart->USARTx);
@@ -114,22 +139,22 @@ void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
 
 void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size)
 {
-  if (usart->DMAx) {
-    LL_DMA_DeInit(usart->DMAx, usart->DMA_Stream);
+  if (usart->txDMA) {
+    LL_DMA_DeInit(usart->txDMA, usart->txDMA_Stream);
 
     LL_DMA_InitTypeDef dmaInit;
     LL_DMA_StructInit(&dmaInit);
 
-    dmaInit.Channel = usart->DMA_Channel;
+    dmaInit.Channel = usart->txDMA_Channel;
     dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&usart->USARTx->DR;
     dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
     dmaInit.MemoryOrM2MDstAddress = (uint32_t)data;
     dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
     dmaInit.NbData = size;
-    dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
+    dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH; // TODO: make it configurable
 
-    LL_DMA_Init(usart->DMAx, usart->DMA_Stream, &dmaInit);
-    LL_DMA_EnableStream(usart->DMAx, usart->DMA_Stream);
+    LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
+    LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
 
     return;
   } else {
@@ -144,28 +169,28 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
 {
   // TODO: check if everything is properly initialised, this seems to block when
   //       the port has been initialised with a zero baudrate
-  if (LL_DMA_IsEnabledStream(usart->DMAx, usart->DMA_Stream)) {
+  if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream)) {
 
-    switch(usart->DMA_Stream) {
+    switch(usart->txDMA_Stream) {
     case LL_DMA_STREAM_1:
-      while (LL_DMA_IsActiveFlag_TC1(usart->DMAx));
-      LL_DMA_ClearFlag_TC1(usart->DMAx);
+      while (LL_DMA_IsActiveFlag_TC1(usart->txDMA));
+      LL_DMA_ClearFlag_TC1(usart->txDMA);
       break;
     case LL_DMA_STREAM_3:
-      while (LL_DMA_IsActiveFlag_TC3(usart->DMAx));
-      LL_DMA_ClearFlag_TC3(usart->DMAx);
+      while (LL_DMA_IsActiveFlag_TC3(usart->txDMA));
+      LL_DMA_ClearFlag_TC3(usart->txDMA);
       break;
     case LL_DMA_STREAM_5:
-      while (LL_DMA_IsActiveFlag_TC5(usart->DMAx));
-      LL_DMA_ClearFlag_TC5(usart->DMAx);
+      while (LL_DMA_IsActiveFlag_TC5(usart->txDMA));
+      LL_DMA_ClearFlag_TC5(usart->txDMA);
       break;
     case LL_DMA_STREAM_6:
-      while (LL_DMA_IsActiveFlag_TC6(usart->DMAx));
-      LL_DMA_ClearFlag_TC6(usart->DMAx);
+      while (LL_DMA_IsActiveFlag_TC6(usart->txDMA));
+      LL_DMA_ClearFlag_TC6(usart->txDMA);
       break;
     case LL_DMA_STREAM_7:
-      while (LL_DMA_IsActiveFlag_TC7(usart->DMAx));
-      LL_DMA_ClearFlag_TC7(usart->DMAx);
+      while (LL_DMA_IsActiveFlag_TC7(usart->txDMA));
+      LL_DMA_ClearFlag_TC7(usart->txDMA);
       break;
     }
   }
