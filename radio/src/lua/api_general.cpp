@@ -2253,3 +2253,25 @@ const luaR_value_entry opentxConstants[] = {
 
   { nullptr, 0 }  /* sentinel */
 };
+
+const luaR_string_entry edgetxStrings[] = {
+  { "CHAR_RIGHT", STR_CHAR_RIGHT },
+  { "CHAR_LEFT", STR_CHAR_LEFT },
+  { "CHAR_UP", STR_CHAR_UP },
+  { "CHAR_DOWN", STR_CHAR_DOWN },
+  { "CHAR_DELTA", STR_CHAR_DELTA },
+  { "CHAR_STICK", STR_CHAR_STICK },
+  { "CHAR_POT", STR_CHAR_POT },
+  { "CHAR_SLIDER", STR_CHAR_SLIDER },
+  { "CHAR_SWITCH", STR_CHAR_SWITCH },
+  { "CHAR_TRIM", STR_CHAR_TRIM },
+  { "CHAR_INPUT", STR_CHAR_INPUT },
+  { "CHAR_FUNCTION", STR_CHAR_FUNCTION },
+  { "CHAR_CYC", STR_CHAR_CYC },
+  { "CHAR_TRAINER", STR_CHAR_TRAINER },
+  { "CHAR_CHANNEL", STR_CHAR_CHANNEL },
+  { "CHAR_TELEMETRY", STR_CHAR_TELEMETRY },
+  { "CHAR_LUA", STR_CHAR_LUA },
+
+  { nullptr, "" }  /* sentinel */
+};
