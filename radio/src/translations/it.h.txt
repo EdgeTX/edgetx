@@ -465,7 +465,7 @@
 #define TR_PROTOCOL            TR("Protoc.", "Protocollo")
 #define TR_PPMFRAME            INDENT "Frame PPM"
 #define TR_REFRESHRATE         TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE   TR(INDENT "Uscita VBAT: ", INDENT "Att.: livel. uscita VBAT: ")
+#define TR_WARN_BATTVOLTAGE   TR(INDENT "Uscita VBAT: ", INDENT "Att.: livel. uscita VBAT: ")
 #define TR_WARN_5VOLTS         "Attenzione: il livello d'uscita è 5 Volts"
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequenza"
@@ -1058,8 +1058,8 @@
 #define TR_SCRIPT              "Script"
 #define TR_INPUTS              "Ingresso"
 #define TR_OUTPUTS             "Uscita"
-#define STR_EEBACKUP           "Copiare l'EEPROM"
-#define STR_FACTORYRESET       "Inizializza dati"
+#define TR_EEBACKUP           "Copiare l'EEPROM"
+#define TR_FACTORYRESET       "Inizializza dati"
 #define TR_CONFIRMRESET        "Resettare TUTTI i dati?"
 #define TR_TOO_MANY_LUA_SCRIPTS "Troppi Scripts Lua!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"

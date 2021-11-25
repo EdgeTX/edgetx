@@ -461,7 +461,7 @@
 #define TR_PROTOCOL            TR("Proto", "Protokół")
 #define TR_PPMFRAME            INDENT "Ramka PPM"
 #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
+#define TR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Frequency"
@@ -1054,8 +1054,8 @@
 #define TR_SCRIPT              "Skrypt"
 #define TR_INPUTS              "Wejścia"
 #define TR_OUTPUTS             "Wyjścia"
-#define STR_EEBACKUP            "Backup EEPROMu"
-#define STR_FACTORYRESET        "Ustaw.Fabrycz"
+#define TR_EEBACKUP            "Backup EEPROMu"
+#define TR_FACTORYRESET        "Ustaw.Fabrycz"
 #define TR_CONFIRMRESET        "WYkasować wszytkie modele?    "
 #define TR_TOO_MANY_LUA_SCRIPTS "Za dużo skryptów Lua!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"

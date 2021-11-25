@@ -371,8 +371,7 @@
 #define TR_VTRAINER_MULTI              "Master/Multi"
 
 #define LEN_VFAILSAFE                  "\011"
-//#define TR_VFAILSAFE                   TR("Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur", "Pas déf.\0""Maintien\0""Prédéfini""Pas d'imp""Récepteur")
-#define TR_VFAILSAFE                   "Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur"
+#define TR_VFAILSAFE                   TR("Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur", "Pas déf.\0""Maintien\0""Prédéfini""Pas d'imp""Récepteur")
 
 
 #define LEN_VSENSORTYPES               "\012"
@@ -461,7 +460,7 @@
 #define TR_PROTOCOL                    TR("Proto.", "Protocole")
 #define TR_PPMFRAME                    INDENT "Trame PPM"
 #define TR_REFRESHRATE                 INDENT "Période"
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Signal est VBAT: ", INDENT "ATTENTION: signal est à VBAT: ")
+#define TR_WARN_BATTVOLTAGE           TR(INDENT "Signal est VBAT: ", INDENT "ATTENTION: signal est à VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Fréquence"
@@ -1057,14 +1056,14 @@
 #define TR_INPUTS                      "Entrées"
 #define TR_OUTPUTS                     "Sorties"
 #if defined(COLORLCD)
-#define STR_EEBACKUP                   "Sauvegarder l'EEPROM"
-#define STR_FACTORYRESET               "RAZ d'usine"
+#define TR_EEBACKUP                   "Sauvegarder l'EEPROM"
+#define TR_FACTORYRESET               "RAZ d'usine"
 #elif defined(PCBXLITE)
-#define STR_EEBACKUP                   "Sauvegarde"
-#define STR_FACTORYRESET               "RAZ usine"
+#define TR_EEBACKUP                   "Sauvegarde"
+#define TR_FACTORYRESET               "RAZ usine"
 #else
-#define STR_EEBACKUP                   TR("Sauvegarde", "Sauvegarder l'EEPROM")
-#define STR_FACTORYRESET               "RAZ d'usine"
+#define TR_EEBACKUP                   TR("Sauvegarde", "Sauvegarder l'EEPROM")
+#define TR_FACTORYRESET               "RAZ d'usine"
 #endif
 #define TR_CONFIRMRESET                TR("Effacer TOUT?","Effacer TOUS modèles/réglages?")
 #define TR_TOO_MANY_LUA_SCRIPTS         "Trop de scripts lua!"
