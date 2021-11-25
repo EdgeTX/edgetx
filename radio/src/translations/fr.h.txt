@@ -371,8 +371,7 @@
 #define TR_VTRAINER_MULTI              "Master/Multi"
 
 #define LEN_VFAILSAFE                  "\011"
-//#define TR_VFAILSAFE                   TR("Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur", "Pas déf.\0""Maintien\0""Prédéfini""Pas d'imp""Récepteur")
-#define TR_VFAILSAFE                   "Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur"
+#define TR_VFAILSAFE                   TR("Pas déf.\0""Maintien\0""Prédéf.\0 ""Pas d'imp""Récepteur", "Pas déf.\0""Maintien\0""Prédéfini""Pas d'imp""Récepteur")
 
 
 #define LEN_VSENSORTYPES               "\012"
