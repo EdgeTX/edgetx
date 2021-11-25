@@ -99,7 +99,7 @@ class SpecialFunctionEditPage : public Page
         grid.nextLine();
 
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX) / 10;
+        int limit = (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT);
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), -limit, limit,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
