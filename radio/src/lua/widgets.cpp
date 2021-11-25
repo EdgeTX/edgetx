@@ -295,14 +295,14 @@ eventData LuaWidget::events[EVENT_BUFFER_SIZE] = { 0 };
   tmr10ms_t LuaWidget::swipeTimeOut = 0;
 #endif  
 
-void l_pushtableint(const char * key, int value)
+static void l_pushtableint(const char * key, int value)
 {
   lua_pushstring(lsWidgets, key);
   lua_pushinteger(lsWidgets, value);
   lua_settable(lsWidgets, -3);
 }
 
-void l_pushtablebool(const char * key, bool value)
+static void l_pushtablebool(const char * key, bool value)
 {
   lua_pushstring(lsWidgets, key);
   lua_pushboolean(lsWidgets, value);
@@ -508,7 +508,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // Move the event buffer forward
   for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
     events[i - 1] = events[i];
-  memset(&events[EVENT_BUFFER_SIZE - 1], 0, sizeof(eventData));
+  memclear(&events[EVENT_BUFFER_SIZE - 1], sizeof(eventData));
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
@@ -554,7 +554,7 @@ void LuaWidget::onEvent(event_t event)
   if (fullscreen) {
     if (EVT_KEY_LONG(KEY_EXIT) == event) {
       // Clear event buffer on full screen exit
-      memset(&events, 0, EVENT_BUFFER_SIZE * sizeof(eventData));
+      memclear(&events, EVENT_BUFFER_SIZE * sizeof(eventData));
     } else {
       eventData* es = findOpenEventSlot();
 
@@ -760,7 +760,7 @@ void luaInitThemesAndWidgets()
 #if defined(USE_BIN_ALLOCATOR)
   lsWidgets = lua_newstate(bin_l_alloc, NULL);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
-  memset(&lsWidgetsTrace, 0 , sizeof(lsWidgetsTrace));
+  memclear(&lsWidgetsTrace, sizeof(lsWidgetsTrace));
   lsWidgetsTrace.script = "lua_newstate(widgets)";
   lsWidgets = lua_newstate(tracer_alloc, &lsWidgetsTrace);   //we use tracer allocator
 #else
