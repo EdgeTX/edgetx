@@ -462,7 +462,7 @@
 #define TR_PROTOCOL            TR("Proto", "Protocol")
 #define TR_PPMFRAME            INDENT "PPM frame"
 #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
+#define TR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Frequency"
@@ -1061,11 +1061,11 @@
 #define TR_INPUTS              "Inputs"
 #define TR_OUTPUTS             "Outputs"
 #if defined(COLORLCD)
-#define STR_EEBACKUP            "EEPROM backup"
-#define STR_FACTORYRESET        "Factory reset"
+#define TR_EEBACKUP            "EEPROM backup"
+#define TR_FACTORYRESET        "Factory reset"
 #else
-#define STR_EEBACKUP            TR("Backup", "EEPROM backup => SD")
-#define STR_FACTORYRESET        TR("Fact. reset", "Factory reset")
+#define TR_EEBACKUP            TR("Backup", "EEPROM backup => SD")
+#define TR_FACTORYRESET        TR("Fact. reset", "Factory reset")
 
 #endif
 #define TR_CONFIRMRESET        TR("Wis Alles?", "Wis ALLE modellen en instellingen?")

@@ -475,7 +475,7 @@
 #define TR_PROTOCOL            TR("Proto", "Protocol")
 #define TR_PPMFRAME            TR("PPM frame", INDENT "PPM frame")
 #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
+#define TR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Frequency"
@@ -1072,8 +1072,8 @@
 #define TR_SCRIPT              "Script"
 #define TR_INPUTS              "Inputs"
 #define TR_OUTPUTS             "Outputs"
-#define STR_EEBACKUP            "Backup the EEPROM"
-#define STR_FACTORYRESET        "Factory reset"
+#define TR_EEBACKUP            "Backup the EEPROM"
+#define TR_FACTORYRESET        "Factory reset"
 #define TR_CONFIRMRESET        "Erase ALL models and settings?"
 #define TR_TOO_MANY_LUA_SCRIPTS "Too many Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"

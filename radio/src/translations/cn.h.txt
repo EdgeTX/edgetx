@@ -377,7 +377,7 @@
 #define TR_PROTO                       TR(INDENT "Proto", INDENT "协议")
 #define TR_PPMFRAME                    INDENT "PPM帧"
 #define TR_REFRESHRATE                 TR(INDENT "Refresh", INDENT "刷新速率")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "注意: 输出电平为电池电压: ")
+#define TR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "注意: 输出电平为电池电压: ")
 #define TR_WARN_5VOLTS                 "注意: 输出电平是5V"
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "频率"
@@ -957,8 +957,8 @@
 #define TR_SCRIPT                      "脚本"
 #define TR_INPUTS                      "输入"
 #define TR_OUTPUTS                     "输出"
-#define STR_EEBACKUP                   "EEPROM 数据备份"
-#define STR_FACTORYRESET               "恢复出厂设置"
+#define TR_EEBACKUP                   "EEPROM 数据备份"
+#define TR_FACTORYRESET               "恢复出厂设置"
 #define TR_CONFIRMRESET                TR("Erase ALL", "是否清除所有模型和设置数据?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Lua脚本数量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 电源"

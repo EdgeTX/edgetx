@@ -76,15 +76,19 @@
 #if LCD_W < LCD_H    // Portrait mode
   #define TR3(x, y, z) z
   #define TR2(x, y) y
+  #define STRLEN_LONG
 #elif LCD_W >= 480
   #define TR3(x, y, z) z
   #define TR2(x, y) y
+  #define STRLEN_LONG
 #elif LCD_W >= 212
   #define TR3(x, y, z) y
   #define TR2(x, y) y
+  #define STRLEN_MEDIUM
 #else
   #define TR3(x, y, z) x
   #define TR2(x, y) x
+  #define STRLEN_SHORT
 #endif
 
 #define TR(x, y) TR2(x, y) // for compatibility
@@ -679,6 +683,11 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+
+extern const char STR_WARN_BATTVOLTAGE[];
+extern const char STR_EEBACKUP[];
+extern const char STR_FACTORYRESET[];
+
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];

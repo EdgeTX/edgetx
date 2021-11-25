@@ -126,7 +126,7 @@ STR_VKEYS = ['Menu','Exit','Bas','Haut','Droit','Gauch']
 #else
 #endif
 STR_VTMRMODES = ['OFF','ON','GZs','GZ%','GZt']
-STR_VFAILSAFE = ['Pas déf.','Maintien','Prédéf.','Pas d\'imp','Récepteur']
+STR_VFAILSAFE = ['Pas déf.','Maintien','Prédéf.','Pas d\'imp','Récepteur','Pas déf.','Maintien','Prédéfini','Pas d\'imp','Récepteur']
 STR_VSENSORTYPES = ['Perso','Calculé']
 STR_VFORMULAS = ['Addition','Moyenne','Min','Max','Multipl.','Totalise','Elément','Consomm.','Distance']
 STR_VPREC = ['0.--','0.0','0.00']
