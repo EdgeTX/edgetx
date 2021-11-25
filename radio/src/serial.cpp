@@ -23,6 +23,7 @@
 #include "serial.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "aux_serial_driver.h"
 
 #define PRINTF_BUFFER_SIZE    128
 

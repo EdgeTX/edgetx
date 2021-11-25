@@ -21,6 +21,7 @@
 
 #include <opentx.h>
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(PCBTARANIS)
 enum {

@@ -507,15 +507,8 @@ void hapticOn(uint32_t pwmPercent);
 //#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-extern uint8_t auxSerialMode;
-#if defined __cplusplus
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
 #define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialSbusInit();
-void auxSerialStop();
+
 #if defined(AUX_SERIAL_PWR_GPIO)
 #define AUX_SERIAL_POWER_ON()            auxSerialPowerOn()
 #define AUX_SERIAL__POWER_OFF()          auxSerialPowerOff()
@@ -523,7 +516,6 @@ void auxSerialStop();
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL__POWER_OFF()
 #endif
-#define USART_FLAG_ERRORS               (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
 extern uint8_t currentTrainerMode;
 void checkTrainerSettings();
