@@ -759,7 +759,7 @@ AuxSerialRxFifo auxSerialRxFifo;
 #endif
 uint8_t auxSerialMode;
 
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+void auxSerialSetup(unsigned int baudrate, bool dma, uint8_t length, uint8_t parity, uint8_t stop)
 {
 }
 
@@ -784,7 +784,7 @@ void auxSerialStop()
 AuxSerialRxFifo aux2SerialRxFifo(nullptr);
 uint8_t aux2SerialMode;
 
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+void aux2SerialSetup(unsigned int baudrate, bool dma, uint8_t length, uint8_t parity, uint8_t stop)
 {
 }
 
