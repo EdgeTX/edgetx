@@ -26,6 +26,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

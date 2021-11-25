@@ -25,6 +25,7 @@
 #include "pulses/flysky.h"
 #include "mixer_scheduler.h"
 #include "io/multi_protolist.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

@@ -82,6 +82,9 @@ void gpsSendByte(uint8_t byte)
   USART_ITConfig(GPS_USART, USART_IT_TXE, ENABLE);
 }
 
+#define USART_FLAG_ERRORS \
+  (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
+
 extern "C" void GPS_USART_IRQHandler(void)
 {
   // Send

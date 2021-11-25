@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
