@@ -30,7 +30,7 @@ void auxSerialSetup(unsigned int baudrate, bool rx_enable,
                     uint8_t parity = ETX_Parity_None,
                     uint8_t stop_bits = ETX_StopBits_One);
 void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
+void auxSerialPutc(uint8_t c);
 void auxSerialSbusInit();
 void auxSerialStop();
 uint8_t auxSerialTracesEnabled();
@@ -43,7 +43,7 @@ void aux2SerialSetup(unsigned int baudrate, bool rx_enable,
                     uint8_t parity = ETX_Parity_None,
                     uint8_t stop_bits = ETX_StopBits_One);
 void aux2SerialInit(unsigned int mode, unsigned int protocol);
-void aux2SerialPutc(char c);
+void aux2SerialPutc(uint8_t c);
 void aux2SerialSbusInit();
 void aux2SerialStop();
 uint8_t aux2SerialTracesEnabled();

@@ -65,12 +65,12 @@ const stm32_usart_t auxUSART = {
 #endif
 };
 
-static void auxSerialOnSend(uint8_t& data)
+static bool auxSerialOnSend(uint8_t& data)
 {
   return auxSerialTxFifo.pop(data);
 }
 
-static etx_serial_callbacks auxSerialCb = {
+static etx_serial_callbacks_t auxSerialCb = {
   .on_send = auxSerialOnSend,
   .on_receive = nullptr,
   .on_error = nullptr,
@@ -133,7 +133,7 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
   stm32_usart_isr(&auxUSART, &auxSerialCb);
 }
 
-void auxSerialPutc(char c)
+void auxSerialPutc(uint8_t c)
 {
   if (auxSerialTxFifo.isFull()) return;
   auxSerialTxFifo.push(c);
@@ -147,8 +147,11 @@ void auxSerialStop()
 
 static void serialPushLua(uint8_t data)
 {
-  if (luaRxFifo)
-    luaRxFifo->push(data);
+  // TODO: this should be set by LUA instead of
+  //       including some LUA header here.
+  //
+  // if (luaRxFifo)
+  //   luaRxFifo->push(data);
 }
 
 void auxSerialInit(unsigned int mode, unsigned int protocol)
@@ -224,7 +227,7 @@ uint8_t aux2SerialMode = UART_MODE_COUNT;  // Prevent debug output before port i
 Fifo<uint8_t, 512> aux2SerialTxFifo;
 AuxSerialRxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
 
-const LL_GPIO_InitTypeDef auxUSARTPinInit = {
+const LL_GPIO_InitTypeDef aux2USARTPinInit = {
   .Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
   .Mode = LL_GPIO_MODE_ALTERNATE,
   .Speed = LL_GPIO_SPEED_FREQ_LOW,
@@ -236,7 +239,7 @@ const LL_GPIO_InitTypeDef auxUSARTPinInit = {
 const stm32_usart_t aux2USART = {
   .USARTx = AUX2_SERIAL_USART,
   .GPIOx = AUX2_SERIAL_GPIO,
-  .pinInit = &auxUSARTPinInit,
+  .pinInit = &aux2USARTPinInit,
   .IRQn = AUX2_SERIAL_USART_IRQn,
   .IRQ_Prio = 7, // TODO: define constant
   .txDMA = nullptr,
@@ -247,12 +250,12 @@ const stm32_usart_t aux2USART = {
   .rxDMA_Channel = AUX2_SERIAL_DMA_Channel_RX,
 };
 
-static void aux2SerialOnSend(uint8_t& data)
+static bool aux2SerialOnSend(uint8_t& data)
 {
   return aux2SerialTxFifo.pop(data);
 }
 
-static etx_serial_callbacks aux2SerialCb = {
+static etx_serial_callbacks_t aux2SerialCb = {
   .on_send = aux2SerialOnSend,
   .on_receive = nullptr,
   .on_error = nullptr,
@@ -281,12 +284,12 @@ void aux2SerialSetup(unsigned int baudrate, bool rx_enable, uint8_t word_length,
 
   stm32_usart_init(&aux2USART, &serialInit);
   
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_PWR_GPIO_PIN;
-  GPIO_Init(AUX2_SERIAL_PWR_GPIO, &GPIO_InitStructure);
-#endif
+// #if defined(AUX2_SERIAL_PWR_GPIO)
+//   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+//   GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_PWR_GPIO_PIN;
+//   GPIO_Init(AUX2_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+// #endif
 }
 
 extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
@@ -295,7 +298,7 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
   stm32_usart_isr(&aux2USART, &aux2SerialCb);
 }
 
-void aux2SerialPutc(char c)
+void aux2SerialPutc(uint8_t c)
 {
   if (aux2SerialTxFifo.isFull()) return;
   aux2SerialTxFifo.push(c);

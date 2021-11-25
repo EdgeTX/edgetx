@@ -158,10 +158,6 @@ set(RADIO_DEPENDENCIES
   truetype_fonts
   )
 
-if(HARDWARE_EXTERNAL_MODULE)
-  set(TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
-endif()
-
 set(FIRMWARE_DEPENDENCIES datacopy)
 
 add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
