@@ -244,7 +244,7 @@ LcdColorIndex ThemeFile::findColorIndex(const char *name)
     if (strcmp(name, colorNames[i]) == 0) break;
   }
 
-  if (i >= COLOR_COUNT) return DEFAULT_COLOR_INDEX;
+  if (i >= COLOR_COUNT) return COLOR_THEME_PRIMARY1_INDEX;
 
   return (LcdColorIndex)i;
 }
@@ -276,7 +276,7 @@ void ThemeFile::setColorByIndex(int index, uint32_t color)
 
 void ThemeFile::setColor(LcdColorIndex colorIndex, uint32_t color)
 {
-  if (colorIndex >= DEFAULT_COLOR_INDEX && colorIndex < LCD_COLOR_COUNT) {
+  if (colorIndex >= COLOR_THEME_PRIMARY1_INDEX && colorIndex < LCD_COLOR_COUNT) {
     auto colorEntry = std::find(colorList.begin(), colorList.end(), ColorEntry { colorIndex, 0});
     if (colorEntry != colorList.end())
       colorEntry->colorValue = color;
