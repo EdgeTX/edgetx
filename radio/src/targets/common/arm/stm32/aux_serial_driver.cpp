@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_usart_driver.h"
+
 #include "opentx.h"
 #include "targets/horus/board.h"
+#include "aux_serial_driver.h"
 
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
@@ -32,85 +36,84 @@ AuxSerialRxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
 AuxSerialRxFifo auxSerialRxFifo;
 #endif
 
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+const LL_GPIO_InitTypeDef auxUSARTPinInit = {
+  .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = AUX_SERIAL_GPIO_AF_LL,
+};
+
+const stm32_usart_t auxUSART = {
+  .USARTx = AUX_SERIAL_USART,
+  .GPIOx = AUX_SERIAL_GPIO,
+  .pinInit = &auxUSARTPinInit,
+  .IRQn = AUX_SERIAL_USART_IRQn,
+  .IRQ_Prio = 7, // TODO: define constant
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+#if defined(AUX_SERIAL_DMA_Stream_RX)
+  .rxDMA = AUX_SERIAL_DMA_RX,
+  .rxDMA_Stream = AUX_SERIAL_DMA_Stream_RX_LL,
+  .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,
+#else
+  .rxDMA = nullptr,
+  .rxDMA_Stream = 0,
+  .rxDMA_Channel = 0,
+#endif
+};
+
+void auxSerialSetup(unsigned int baudrate, bool rx_enable, uint8_t word_length,
+                    uint8_t parity, uint8_t stop_bits)
 {
-  USART_InitTypeDef USART_InitStructure;
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_PinAFConfig(AUX_SERIAL_GPIO, AUX_SERIAL_GPIO_PinSource_RX, AUX_SERIAL_GPIO_AF);
-  GPIO_PinAFConfig(AUX_SERIAL_GPIO, AUX_SERIAL_GPIO_PinSource_TX, AUX_SERIAL_GPIO_AF);
-
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(AUX_SERIAL_GPIO, &GPIO_InitStructure);
-
 #if defined(AUX_SERIAL_PWR_GPIO)
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_PWR_GPIO_PIN;
-  GPIO_Init(AUX_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = AUX_SERIAL_PWR_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(AUX_SERIAL_PWR_GPIO, &pinInit);
 #endif
 
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_WordLength = length;
-  USART_InitStructure.USART_StopBits = stop;
-  USART_InitStructure.USART_Parity = parity;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-  USART_Init(AUX_SERIAL_USART, &USART_InitStructure);
-
-#if defined(AUX_SERIAL_TX_INVERT_GPIO_PIN)
+#if defined(AUX_SERIAL_TX_INVERT_GPIO_PIN) // NV14
+  // TODO
   GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_TX_INVERT_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_Init(AUX_SERIAL_TX_INVERT_GPIO, &GPIO_InitStructure);
   GPIO_ResetBits(AUX_SERIAL_TX_INVERT_GPIO, AUX_SERIAL_TX_INVERT_GPIO_PIN);
 #endif
 
-#if defined(AUX_SERIAL_RX_INVERT_GPIO_PIN)
+#if defined(AUX_SERIAL_RX_INVERT_GPIO_PIN) // NV14
+  // TODO
   GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_RX_INVERT_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_Init(AUX_SERIAL_RX_INVERT_GPIO, &GPIO_InitStructure);
   GPIO_ResetBits(AUX_SERIAL_RX_INVERT_GPIO, AUX_SERIAL_RX_INVERT_GPIO_PIN);
 #endif
 
+  etx_serial_init serialInit = {
+    .baudrate = baudrate,
+    .parity = parity,
+    .stop_bits = stop_bits,
+    .word_length = word_length,
+    .rx_enable = rx_enable,
+    .rx_dma_buf = nullptr,
+    .rx_dma_buf_len = 0,
+    .on_receive = nullptr, // TODO
+    .on_error = nullptr,   // TODO
+  };
+
 #if defined(AUX_SERIAL_DMA_Stream_RX)
-  if (dma) {
-    DMA_InitTypeDef DMA_InitStructure;
+  if (rx_enable) {
     auxSerialRxFifo.clear();
-    USART_ITConfig(AUX_SERIAL_USART, USART_IT_RXNE, DISABLE);
-    USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, DISABLE);
-    DMA_InitStructure.DMA_Channel = AUX_SERIAL_DMA_Channel_RX;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&AUX_SERIAL_USART->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(auxSerialRxFifo.buffer());
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-    DMA_InitStructure.DMA_BufferSize = auxSerialRxFifo.size();
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-    DMA_Init(AUX_SERIAL_DMA_Stream_RX, &DMA_InitStructure);
-    USART_DMACmd(AUX_SERIAL_USART, USART_DMAReq_Rx, ENABLE);
-    USART_Cmd(AUX_SERIAL_USART, ENABLE);
-    DMA_Cmd(AUX_SERIAL_DMA_Stream_RX, ENABLE);
-    return;
+    serialInit.rx_dma_buf = auxSerialRxFifo.buffer();
+    serialInit.rx_dma_buf_len = auxSerialRxFifo.size();
   }
 #endif
-
-  // no DMA ...
-  USART_Cmd(AUX_SERIAL_USART, ENABLE);
-  USART_ITConfig(AUX_SERIAL_USART, USART_IT_RXNE, ENABLE);
-  USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, DISABLE);
-  NVIC_SetPriority(AUX_SERIAL_USART_IRQn, 7);
-  NVIC_EnableIRQ(AUX_SERIAL_USART_IRQn);
+  
+  stm32_usart_init(&auxUSART, &serialInit);
 }
 
 void auxSerialInit(unsigned int mode, unsigned int protocol)
@@ -147,7 +150,9 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
       break;
 
     case UART_MODE_SBUS_TRAINER:
-      auxSerialSetup(SBUS_BAUDRATE, true, USART_WordLength_9b, USART_Parity_Even, USART_StopBits_2); // USART_WordLength_9b due to parity bit
+      auxSerialSetup(
+          SBUS_BAUDRATE, true, ETX_WordLength_9, ETX_Parity_Even,
+          ETX_StopBits_Two);  // USART_WordLength_9b due to parity bit
       AUX_SERIAL_POWER_ON();
       break;
 
@@ -244,7 +249,7 @@ uint8_t aux2SerialMode = UART_MODE_COUNT;  // Prevent debug output before port i
 Fifo<uint8_t, 512> aux2SerialTxFifo;
 AuxSerialRxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
 
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+void aux2SerialSetup(unsigned int baudrate, bool dma, uint8_t length, uint8_t parity, uint8_t stop)
 {
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -342,7 +347,9 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
       break;
 
     case UART_MODE_SBUS_TRAINER:
-      aux2SerialSetup(SBUS_BAUDRATE, true, USART_WordLength_9b, USART_Parity_Even, USART_StopBits_2); // 2 stop bits requires USART_WordLength_9b
+      aux2SerialSetup(
+          SBUS_BAUDRATE, true, ETX_WordLength_9, ETX_Parity_Even,
+          ETX_StopBits_Two);  // 2 stop bits requires USART_WordLength_9b
       AUX2_SERIAL_POWER_ON();
       break;
 
