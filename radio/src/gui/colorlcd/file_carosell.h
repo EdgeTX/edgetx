@@ -24,6 +24,9 @@
 #include "file_carosell.h"
 #include "tabsgroup.h"
 
+#define PAGE_INTERVAL ((1000 / 10) * 2)
+#define SHORT_PAGE_INTERVAL ((1000 / 20))  // 500 MS
+
 class FileCarosell : public FormGroup
 {
  public:
@@ -31,22 +34,16 @@ class FileCarosell : public FormGroup
                std::vector<std::string> fileNames, FormField *nextCtrl = nullptr);
   ~FileCarosell();
 
-  inline void setSelected(int n)
-  {
-    if (n == selected) return;
-    if (n >= 0 && n < (int)_fileNames.size()) {
-      selected = n;
-      fp->setFile(_fileNames[selected].c_str());
-    } else
-      fp->setFile("");
-  }
-
+  inline void setSelected(int n);
   void setFileNames(std::vector<std::string> fileNames);
   void checkEvents() override;
+
+  void paint(BitmapBuffer *dc) override;
 
  protected:
   int selected = -1;
   std::vector<std::string> _fileNames;
   FilePreview *fp;
   uint32_t timer;
+  uint32_t pageInterval = PAGE_INTERVAL;
 };
