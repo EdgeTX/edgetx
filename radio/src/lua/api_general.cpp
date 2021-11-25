@@ -1950,6 +1950,10 @@ static int luaSerialRead(lua_State * L)
   int num = luaL_optunsigned(L, 1, 0);
 
   if (!luaRxFifo) {
+    // TODO:
+    // - check which serial port has been assigned this function
+    // - set the receive callback on that serial port
+    //
     luaRxFifo = new Fifo<uint8_t, LUA_FIFO_SIZE>();
     if (!luaRxFifo) {
       lua_pushlstring(L, "", 0);
