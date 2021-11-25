@@ -60,8 +60,11 @@ LcdFlags flagsRGB(LcdFlags flags)
   // RGB or indexed color?
   if (flags & RGB_FLAG)
     return flags;
-  else
-    return (flags & 0xFFFF) | COLOR(COLOR_VAL(flags)) | RGB_FLAG;
+
+  if (!(flags & 0xFF)) 
+    return (flags & 0xFFFF) | COLOR_THEME_PRIMARY1;
+
+  return (flags & 0xFFFF) | COLOR(COLOR_VAL(flags)) | RGB_FLAG;
 }
 
 /*luadoc
