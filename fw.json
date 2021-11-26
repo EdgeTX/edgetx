@@ -2,10 +2,10 @@
     "targets": [
         ["Flysky NV14", "nv14-"],
         ["Frsky Horus X10", "x10-"],
-        ["Frsky Horus X10 Access", "x10-access"],
+        ["Frsky Horus X10 Access", "x10-access-"],
         ["Frsky Horus X12s", "x12s-"],
         ["Frsky QX7", "x7-"],
-        ["Frsky QX7 Access", "x7-access"],
+        ["Frsky QX7 Access", "x7-access-"],
         ["Frsky X9D", "x9d-"],
         ["Frsky X9D Plus", "x9dp-"],
         ["Frsky X9D Plus 2019", "x9dp2019-"],
