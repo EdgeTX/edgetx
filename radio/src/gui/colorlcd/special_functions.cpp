@@ -91,7 +91,7 @@ class SpecialFunctionEditPage : public Page
 
     // Func param
     switch (func) {
-      case FUNC_OVERRIDE_CHANNEL:
+      case FUNC_OVERRIDE_CHANNEL: {
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CH, 0, COLOR_THEME_PRIMARY1);
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
                        MAX_OUTPUT_CHANNELS,
@@ -99,10 +99,12 @@ class SpecialFunctionEditPage : public Page
         grid.nextLine();
 
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), -100, 100,
+        int limit = (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT);
+        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), -limit, limit,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
+    }
 
       case FUNC_TRAINER: {
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
