@@ -1150,7 +1150,20 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         && val[2] == 'r'
         && val[3] >= '1'
         && val[3] <= '3') {
+
       CFN_TIMER_INDEX(cfn) = val[3] - '1';
+
+      val += 4; val_len -= 4;
+      if (val_len == 0 || val[0] != ',') return;
+      val++; val_len--;
+
+      CFN_PARAM(cfn) = yaml_str2uint_ref(val, val_len);
+      if (val_len == 0 || val[0] != ',') return;
+      val++; val_len--;
+
+      eat_comma = false;
+    } else {
+      return;
     }
     break;
 
@@ -1330,6 +1343,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_SET_TIMER:
     // Tmr1,Tmr2,Tmr3
     str = yaml_conv_220::_func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 

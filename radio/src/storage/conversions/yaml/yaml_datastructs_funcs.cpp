@@ -811,6 +811,9 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // Tmr1,Tmr2,Tmr3
     str = _func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
+    if (!wf(opaque, str, strlen(str))) return false;
     break;
 
   case FUNC_SET_FAILSAFE:
