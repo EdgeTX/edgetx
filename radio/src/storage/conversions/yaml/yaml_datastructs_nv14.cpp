@@ -286,7 +286,7 @@ const struct YamlIdStr enum_TelemetrySensorType[] = {
 //
 
 static const struct YamlNode struct_CalibData[] = {
-  YAML_IDX,
+  YAML_IDX_CUST("calib",r_calib,w_calib),
   YAML_SIGNED( "mid", 16 ),
   YAML_SIGNED( "spanNeg", 16 ),
   YAML_SIGNED( "spanPos", 16 ),

@@ -749,6 +749,7 @@ PACK(struct StepsCalibData {
 #endif
 
 PACK(struct CalibData {
+  CUST_IDX(calib, r_calib, w_calib);
   int16_t mid;
   int16_t spanNeg;
   int16_t spanPos;
@@ -837,7 +838,7 @@ PACK(struct RadioData {
   // Real attributes
   NOBACKUP(uint8_t version);
   NOBACKUP(uint16_t variant SKIP);
-  CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS];
+  CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);

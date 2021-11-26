@@ -52,6 +52,10 @@
   int _dummy_##tag[0] _yaml_attribute("raw:YAML_ARRAY(" _yaml_note( \
       #tag) ", 0, 4, " _yaml_note(elmt_type) ", " _yaml_note(fcn) ")")
 
+#define CUST_IDX(tag, read, write)                                     \
+  int _dummy_##tag[0] _yaml_attribute("raw:YAML_IDX_CUST(" _yaml_note( \
+      #tag) "," _yaml_note(read) "," _yaml_note(write) ")")
+
 #else
 
 #define ENUM(label)
@@ -64,6 +68,7 @@
 #define ARRAY(elmt_size, elmt_type, fcn)
 #define CUST_ATTR(tag, read, write)
 #define CUST_ARRAY(tag, elmt_type, fcn)
+#define CUST_IDX(tag, read, write)
 
 #endif
 

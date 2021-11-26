@@ -451,6 +451,26 @@ static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
   return yaml_conv_220::select_sensor_cfg(user, data, bitoffs);
 }
 
+static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+
+  uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
+  if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
+
+  return (uint32_t)yaml_str2int(val, val_len);
+}
+
+static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
 static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
@@ -1150,7 +1170,20 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         && val[2] == 'r'
         && val[3] >= '1'
         && val[3] <= '3') {
+
       CFN_TIMER_INDEX(cfn) = val[3] - '1';
+
+      val += 4; val_len -= 4;
+      if (val_len == 0 || val[0] != ',') return;
+      val++; val_len--;
+
+      CFN_PARAM(cfn) = yaml_str2uint_ref(val, val_len);
+      if (val_len == 0 || val[0] != ',') return;
+      val++; val_len--;
+
+      eat_comma = false;
+    } else {
+      return;
     }
     break;
 
@@ -1174,7 +1207,16 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
     break;
 
-  case FUNC_ADJUST_GVAR:
+  case FUNC_ADJUST_GVAR: {
+
+    CFN_GVAR_INDEX(cfn) = yaml_str2int_ref(val, l_sep);
+    if (val_len == 0 || val[0] != ',') return;
+    val++; val_len--;
+
+    // find "," and cut val_len
+    sep = (const char *)memchr(val, ',', val_len);
+    l_sep = sep ? sep - val : val_len;
+
     // parse CFN_GVAR_MODE
     for (int i=0; i < yaml_conv_220::_adjust_gvar_mode_lookup_size; i++) {
       if (!strncmp(yaml_conv_220::_adjust_gvar_mode_lookup[i],val,l_sep)) {
@@ -1182,12 +1224,14 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         break;
       }
     }
+
     val += l_sep; val_len -= l_sep;
     if (val_len == 0 || val[0] != ',') return;
     val++; val_len--;
     // find "," and cut val_len
     sep = (const char *)memchr(val, ',', val_len);
     l_sep = sep ? sep - val : val_len;
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
@@ -1203,7 +1247,9 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         CFN_PARAM(cfn) = gvar - MIXSRC_FIRST_GVAR;
       }
     } break;
-    } break;
+    }
+
+  } break;
 
   default:
     eat_comma = false;
@@ -1318,6 +1364,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // Tmr1,Tmr2,Tmr3
     str = yaml_conv_220::_func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
+    if (!wf(opaque, str, strlen(str))) return false;
     break;
 
   case FUNC_SET_FAILSAFE:
@@ -1333,10 +1382,15 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    str = yaml_unsigned2str(CFN_GVAR_INDEX(cfn)); // GVAR index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+
     // output CFN_GVAR_MODE
     str = yaml_conv_220::_adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;    
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
@@ -1351,6 +1405,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
+    break;
 
   default:
     add_comma = false;

@@ -262,6 +262,18 @@ uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
     return 5;
 }
 
+#define r_calib nullptr
+
+static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
 bool sw_write(void* user, yaml_writer_func wf, void* opaque)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
@@ -724,21 +736,20 @@ const char* _func_failsafe_lookup[] = {
 };
 
 // used in read routine as well
+extern const char* _func_sound_lookup[];
 const char* _func_sound_lookup[] = {
   "Bp1","Bp2","Bp3","Wrn1","Wrn2",
   "Chee","Rata","Tick","Sirn","Ring",
   "SciF","Robt","Chrp","Tada","Crck","Alrm"
 };
+extern const uint8_t _func_sound_lookup_size = 16;
 
 // force external linkage
-extern const uint8_t _func_sound_lookup_size = sizeof(_func_sound_lookup);
-
 extern const char* _adjust_gvar_mode_lookup[];
 const char* _adjust_gvar_mode_lookup[] = {
   "Cst", "Src", "GVar", "IncDec"
 };
-
-extern const uint8_t _adjust_gvar_mode_lookup_size = sizeof(_adjust_gvar_mode_lookup);
+extern const uint8_t _adjust_gvar_mode_lookup_size = 4;
   
 bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                 yaml_writer_func wf, void* opaque)
@@ -812,6 +823,9 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // Tmr1,Tmr2,Tmr3
     str = _func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_unsigned2str(CFN_PARAM(cfn));
+    if (!wf(opaque, str, strlen(str))) return false;
     break;
 
   case FUNC_SET_FAILSAFE:
@@ -827,10 +841,15 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    str = yaml_unsigned2str(CFN_GVAR_INDEX(cfn)); // GVAR index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+
     // output CFN_GVAR_MODE
     str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;    
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
