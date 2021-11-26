@@ -1068,7 +1068,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   switch (func) {
 
   case FUNC_OVERRIDE_CHANNEL:
-    eat_comma = false;
     break;
 
   case FUNC_TRAINER:
