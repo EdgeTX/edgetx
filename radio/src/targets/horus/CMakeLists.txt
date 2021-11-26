@@ -49,7 +49,7 @@ endif()
 add_definitions(-DPCBFRSKY)
 
 # defines existing internal modules
-set(INTERNAL_MODULES PXX1 PXX2 MULTI CRSF)
+set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
