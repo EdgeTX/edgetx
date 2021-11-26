@@ -262,6 +262,18 @@ uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
     return 5;
 }
 
+#define r_calib nullptr
+
+static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
 bool sw_write(void* user, yaml_writer_func wf, void* opaque)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);

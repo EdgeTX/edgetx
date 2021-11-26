@@ -451,6 +451,26 @@ static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
   return yaml_conv_220::select_sensor_cfg(user, data, bitoffs);
 }
 
+static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+
+  uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
+  if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
+
+  return (uint32_t)yaml_str2int(val, val_len);
+}
+
+static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str =
+      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
 static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
