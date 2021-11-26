@@ -435,8 +435,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 
       uint8_t count = 0;
       while (mixIndex < MAX_MIXERS && mix->destCh == ch) {
-        // First mix cannot be empty
-        if(!mixIndex && !mix->srcRaw)  break;
         Button * button = new MixLineButton(window, grid.getFieldSlot(), mixIndex);
         button->setPressHandler([=]() -> uint8_t {
           button->bringToTop();
