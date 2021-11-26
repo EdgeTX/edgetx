@@ -82,8 +82,6 @@ void MainWindow::checkEvents()
     touchState = touchPanelRead();
     touchState.lastDeltaX = lastDeltaX;
     touchState.lastDeltaY = lastDeltaY;
-  } else {
-     touchState.event = TE_NONE;
   }
 
   TouchEnableState currentState = touchEnableState;
