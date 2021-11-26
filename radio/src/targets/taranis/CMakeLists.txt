@@ -357,10 +357,10 @@ if(INTERNAL_MODULE_SERIAL)
 
   if("${PCBREV}" STREQUAL 2019 OR "${PCBREV}" STREQUAL ACCESS)
     # defines existing internal modules
-    set(INTERNAL_MODULES PXX2)
+    set(INTERNAL_MODULES PXX2 CACHE STRING "Internal modules")
   else()
     # defines existing internal modules
-    set(INTERNAL_MODULES PXX1 PXX2 MULTI CRSF)
+    set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
   endif()
 
   add_definitions(-DINTERNAL_MODULE_SERIAL)
