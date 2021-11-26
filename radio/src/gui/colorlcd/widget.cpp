@@ -167,7 +167,7 @@ void Widget::setFullscreen(bool fullscreen)
   if (!fullscreen) {
 
     // Reset all zones in container
-    update();
+    Widget::update();
     setWindowFlags(getWindowFlags() & ~OPAQUE);
 
     // and give up focus
