@@ -321,6 +321,20 @@ void RadioHardwarePage::build(FormWindow * window)
   new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
   grid.nextLine();
 
+#if defined(HARDWARE_INTERNAL_MODULE)
+  new StaticText(window, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
+                 COLOR_THEME_PRIMARY1);
+  auto internalModule =
+      new Choice(window, grid.getFieldSlot(1, 0), STR_INTERNAL_MODULE_PROTOCOLS,
+                 MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+                 GET_SET_DEFAULT(g_eeGeneral.internalModule));
+
+  internalModule->setAvailableHandler([](int module){
+      return isInternalModuleSupported(module);
+  });
+  grid.nextLine();
+#endif
+
 #if defined(CROSSFIRE)
   // Max baud for external modules
   new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);

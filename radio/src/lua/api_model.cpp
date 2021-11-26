@@ -26,6 +26,10 @@
 #include "../timers.h"
 #include "model_init.h"
 
+#if defined(SDCARD_YAML)
+#include <storage/sdcard_yaml.h>
+#endif
+
 /*luadoc
 @function model.getInfo()
 
@@ -34,8 +38,9 @@ Get current Model information
 @retval table model information:
  * `name` (string) model name
  * `bitmap` (string) bitmap name (not present on X7)
+ * `filename` (string) model filename
 
-@status current Introduced in 2.0.6, changed in 2.2.0
+@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0
 */
 static int luaModelGetInfo(lua_State *L)
 {
@@ -44,6 +49,16 @@ static int luaModelGetInfo(lua_State *L)
 #if LCD_DEPTH > 1
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
+
+#if defined(STORAGE_MODELSLIST)
+  lua_pushtablenstring(L, "filename", g_eeGeneral.currModelFilename);
+#else
+  char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
+  getModelNumberStr(g_eeGeneral.currModel, fname);
+  strcat(fname, YAML_EXT);
+  lua_pushtablenstring(L, "filename", fname);
+#endif
+
   return 1;
 }
 

@@ -602,48 +602,64 @@ bool areModulesConflicting(int intModuleType, int extModuleType)
 }
 
 #if defined(HARDWARE_INTERNAL_MODULE)
+bool isInternalModuleSupported(int moduleType)
+{
+  switch(moduleType) {
+  case MODULE_TYPE_NONE: return true;
+#if defined(INTERNAL_MODULE_MULTI)
+  case MODULE_TYPE_MULTIMODULE: return true;
+#endif
+#if defined(INTERNAL_MODULE_CRSF)
+  case MODULE_TYPE_CROSSFIRE: return true;
+#endif
+#if defined(INTERNAL_MODULE_PXX1)
+  case MODULE_TYPE_XJT_PXX1: return true;
+#endif
+#if defined(INTERNAL_MODULE_PXX2)
+  case MODULE_TYPE_ISRM_PXX2: return true;
+#endif
+#if defined(INTERNAL_MODULE_PPM)
+  case MODULE_TYPE_PPM: return true;
+#endif
+#if defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3)
+  case MODULE_TYPE_FLYSKY: return true;
+#endif
+  }
+  return false;
+}
+
 bool isInternalModuleAvailable(int moduleType)
 {
   if (moduleType == MODULE_TYPE_NONE)
     return true;
 
-#if defined(INTERNAL_MODULE_MULTI)
-  if (moduleType == MODULE_TYPE_MULTIMODULE)
-    return true;
-#endif
+  if (g_eeGeneral.internalModule != moduleType)
+    return false;
 
-#if defined(INTERNAL_MODULE_CRSF)
-  if (moduleType == MODULE_TYPE_CROSSFIRE)
-    return true;
-#endif
-
-#if defined(PXX1) && defined(INTERNAL_MODULE_PXX1)
-  if (moduleType == MODULE_TYPE_XJT_PXX1) {
-    return !isModuleUsingSport(EXTERNAL_MODULE, g_model.moduleData[EXTERNAL_MODULE].type);
+#if defined(INTERNAL_MODULE_PXX1)
+  if ((moduleType == MODULE_TYPE_XJT_PXX1) &&
+      isModuleUsingSport(EXTERNAL_MODULE,
+                         g_model.moduleData[EXTERNAL_MODULE].type)) {
+    return false;
   }
 #endif
 
-#if defined(PXX2) && defined(INTERNAL_MODULE_PXX2)
-  if (moduleType == MODULE_TYPE_ISRM_PXX2) {
-    return !areModulesConflicting(moduleType, g_model.moduleData[EXTERNAL_MODULE].type);
+#if defined(INTERNAL_MODULE_PXX2)
+  if ((moduleType == MODULE_TYPE_ISRM_PXX2) &&
+      areModulesConflicting(moduleType,
+                            g_model.moduleData[EXTERNAL_MODULE].type)) {
+    return false;
   }
 #endif
 
-#if defined(PPM) && defined(INTERNAL_MODULE_PPM)
-  if (moduleType == MODULE_TYPE_PPM) {
-    return true;
-  }
-#endif
-
-#if (defined(AFHDS3) || defined(AFHDS2)) && (defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3))
-  if (moduleType == MODULE_TYPE_FLYSKY) {
-    return true;
-  }
-#endif
-
-  return false;
+  return true;
 }
 #else
+bool isInternalModuleSupported(int moduleType)
+{
+  return false;
+}
+
 bool isInternalModuleAvailable(int moduleType)
 {
   return false;

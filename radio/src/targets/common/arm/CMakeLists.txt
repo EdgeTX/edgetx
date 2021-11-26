@@ -24,6 +24,52 @@ option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TASKS "Task switching statistics" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
 
+# option to select the default internal module
+#set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
+set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
+
+# define variables for internal modules
+foreach(module ${INTERNAL_MODULES})
+  message("-- Adding support for ${module} as internal module")
+  set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
+endforeach()
+
+if(INTERNAL_MODULE_PXX1)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_PXX1)
+endif()
+
+if(INTERNAL_MODULE_PXX2)
+  set(PXX2 ON)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_PXX2)
+endif()
+
+if(INTERNAL_MODULE_MULTI)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_MULTI)
+  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
+endif()
+
+if(INTERNAL_MODULE_CRSF)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_CRSF)
+  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
+endif()
+
+if(INTERNAL_MODULE_PPM)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_PPM)
+endif()
+
+if(DEFAULT_INTERNAL_MODULE)
+  add_definitions(-DDEFAULT_INTERNAL_MODULE=MODULE_TYPE_${DEFAULT_INTERNAL_MODULE})
+endif()
+
+if(HARDWARE_EXTERNAL_MODULE)
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+endif()
+
 if(TIMERS EQUAL 3)
   add_definitions(-DTIMERS=3)
 else()

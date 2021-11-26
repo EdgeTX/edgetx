@@ -56,7 +56,7 @@ TEST(Conversions, ConversionX9DPFrom23)
 #else
   convertRadioData_219_to_220();
   convertRadioData_220_to_221();
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 #endif
   eeConvertModel(0, 219);
   loadModel((uint8_t)0);
@@ -123,7 +123,7 @@ TEST(Conversions, ConversionX9DPFrom23_2)
 #else
   convertRadioData_219_to_220();
   convertRadioData_220_to_221();
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 #endif
   eeConvertModel(6, 219);
   loadModel((uint8_t)6);
@@ -159,7 +159,7 @@ TEST(Conversions, ConversionXLiteFrom23)
 #else
   convertRadioData_219_to_220();
   convertRadioData_220_to_221();
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 #endif
   eeConvertModel(0, 219);
   loadModel((uint8_t)0);
@@ -223,7 +223,7 @@ TEST(Conversions, ConversionX7From23)
 #else
   convertRadioData_219_to_220();
   convertRadioData_220_to_221();
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 #endif
   eeConvertModel(0, 219);
   loadModel((uint8_t)0);
@@ -281,7 +281,7 @@ TEST(Conversions, ConversionX10From23)
 
   convertRadioData_219_to_220("/RADIO/radio.bin");
   convertRadioData_220_to_221("/RADIO/radio.bin");
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 219);
@@ -355,7 +355,7 @@ TEST(Conversions, ConversionX12SFrom23)
 
   convertRadioData_219_to_220("/RADIO/radio.bin");
   convertRadioData_220_to_221("/RADIO/radio.bin");
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 219);
@@ -420,7 +420,7 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   convertRadioData_219_to_220("/RADIO/radio.bin");
   convertRadioData_220_to_221("/RADIO/radio.bin");
-  EXPECT_EQ(nullptr, loadRadioSettingsYaml());
+  EXPECT_EQ(nullptr, loadRadioSettings());
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 220);

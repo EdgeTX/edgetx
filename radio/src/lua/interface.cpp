@@ -49,8 +49,18 @@ extern "C" {
 #define PERMANENT_SCRIPTS_MAX_INSTRUCTIONS 100
 #define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
-// Since we may not run FG every time, keep the first two events in a buffer
-event_t events[2] = {0, 0};
+#if defined(HARDWARE_TOUCH)
+#include "touch.h"
+#define EVT_TOUCH_SWIPE_LOCK     4
+#define EVT_TOUCH_SWIPE_SPEED   60
+#define EVT_TOUCH_SWIPE_TIMEOUT 50
+
+tmr10ms_t swipeTimeOut = 0;
+LuaTouchData touches[EVENT_BUFFER_SIZE] = { 0 };
+#endif
+
+// Since we may not run FG every time, keep the events in a buffer
+event_t events[EVENT_BUFFER_SIZE] = { 0 };
 // The main thread - lsScripts is now a coroutine
 lua_State * L = nullptr;
 lua_State *lsScripts = nullptr;
@@ -138,10 +148,26 @@ static void luaHook(lua_State * L, lua_Debug *ar)
 #endif // #if defined(LUA_ALLOCATOR_TRACER)
 }
 
+static void l_pushtableint(const char * key, int value)
+{
+  lua_pushstring(lsScripts, key);
+  lua_pushinteger(lsScripts, value);
+  lua_settable(lsScripts, -3);
+}
+
+static void l_pushtablebool(const char * key, bool value)
+{
+  lua_pushstring(lsScripts, key);
+  lua_pushboolean(lsScripts, value);
+  lua_settable(lsScripts, -3);
+}
+
 void luaEmptyEventBuffer()
 {
-  events[0] = 0;
-  events[1] = 0;
+  memclear(&events, sizeof(events));
+#if defined(HARDWARE_TOUCH)
+  memclear(&touches, sizeof(touches));
+#endif
 }
 
 #if defined(LUA_MODEL_SCRIPTS)
@@ -423,8 +449,8 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   bool scriptNeedsCompile = false;
   uint8_t loadFileType = 0;  // 1=text, 2=binary
 
-  memset(&fnoLuaS, 0, sizeof(FILINFO));
-  memset(&fnoLuaC, 0, sizeof(FILINFO));
+  memclear(&fnoLuaS, sizeof(FILINFO));
+  memclear(&fnoLuaC, sizeof(FILINFO));
 
   fnamelen = strlen(filename);
   // check if file extension is already in the file name and strip it
@@ -989,8 +1015,9 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       if (ref == SCRIPT_STANDALONE) {
         // Pull a new event from the buffer
         evt = events[0];
-        events[0] = events[1];
-        events[1] = 0;
+        for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
+          events[i - 1] = events[i];
+        events[EVENT_BUFFER_SIZE - 1] = 0;
       
         if (evt == EVT_KEY_LONG(KEY_EXIT)) {
           killEvents(evt);
@@ -1016,12 +1043,60 @@ static bool resumeLua(bool init, bool allowLcdUsage)
 #endif
           // Pull a new event from the buffer
           evt = events[0];
-          events[0] = events[1];
-          events[1] = 0;
-         
+          for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
+            events[i - 1] = events[i];
+          events[EVENT_BUFFER_SIZE - 1] = 0;
+#if defined(HARDWARE_TOUCH)
+          LuaTouchData* touch = &touches[0];
+#endif
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
           lua_pushunsigned(lsScripts, evt);
           inputsCount = 1;
+
+#if defined(HARDWARE_TOUCH)
+          if (IS_TOUCH_EVENT(evt)) {
+            lua_newtable(lsScripts);
+            l_pushtableint("x", touch->touchX);
+            l_pushtableint("y", touch->touchY);
+            l_pushtableint("tapCount", touch->tapCount);
+
+            if (evt == EVT_TOUCH_SLIDE) {
+              l_pushtableint("startX", touch->startX);
+              l_pushtableint("startY", touch->startY);
+              l_pushtableint("slideX", touch->slideX);
+              l_pushtableint("slideY", touch->slideY);
+
+              // Do we have a swipe? Only one at a time!
+              if (get_tmr10ms() > swipeTimeOut) {
+                coord_t absX = (touch->slideX < 0) ? -(touch->slideX) : touch->slideX;
+                coord_t absY = (touch->slideY < 0) ? -(touch->slideY) : touch->slideY;
+                bool swiped = false;
+
+                if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
+                  if ((swiped = (touch->slideX > EVT_TOUCH_SWIPE_SPEED)))
+                    l_pushtablebool("swipeRight", true);
+                  else if ((swiped = (touch->slideX < -EVT_TOUCH_SWIPE_SPEED)))
+                    l_pushtablebool("swipeLeft", true);
+                }
+                else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
+                  if ((swiped = (touch->slideY > EVT_TOUCH_SWIPE_SPEED)))
+                    l_pushtablebool("swipeDown", true);
+                  else if ((swiped = (touch->slideY < -EVT_TOUCH_SWIPE_SPEED)))
+                    l_pushtablebool("swipeUp", true);
+                }
+
+                if (swiped)
+                  swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
+              }
+            }
+            inputsCount = 2;
+          }
+
+          // Move the touch buffer forward
+          for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
+            touches[i - 1] = touches[i];
+          memclear(&touches[EVENT_BUFFER_SIZE - 1], sizeof(LuaTouchData));
+#endif
         }
         else continue;
       }
@@ -1180,8 +1255,12 @@ bool luaTask(event_t evt, bool allowLcdUsage)
  
   // Add event to buffer
   if (evt != 0) {
-    if (events[0] == 0) events[0] = evt;
-    else if (events[1] == 0) events[1] = evt;
+    for (int i = 0; i < EVENT_BUFFER_SIZE; i++) {
+      if (events[i] == 0) {
+        events[i] = evt;
+        break;
+      }
+    }
   }
  
   // For preemption
@@ -1254,7 +1333,7 @@ void luaInit()
 #if defined(USE_BIN_ALLOCATOR)
     L = lua_newstate(bin_l_alloc, nullptr);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
-    memset(&lsScriptsTrace, 0 , sizeof(lsScriptsTrace);
+    memclear(&lsScriptsTrace, sizeof(lsScriptsTrace);
     lsScriptsTrace.script = "lua_newstate(scripts)";
     L = lua_newstate(tracer_alloc, &lsScriptsTrace);   //we use tracer allocator
 #else
@@ -1274,8 +1353,8 @@ void luaInit()
       lsScripts = lua_newthread(L);
      
       // Clear loaded scripts
-      memset(scriptInternalData, 0, sizeof(scriptInternalData));
-      memset(scriptInputsOutputs, 0, sizeof(scriptInputsOutputs));
+      memclear(scriptInternalData, sizeof(scriptInternalData));
+      memclear(scriptInputsOutputs, sizeof(scriptInputsOutputs));
       luaScriptsCount = 0;
 
       // protect libs and constants registration
