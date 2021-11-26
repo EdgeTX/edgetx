@@ -1174,7 +1174,16 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
     break;
 
-  case FUNC_ADJUST_GVAR:
+  case FUNC_ADJUST_GVAR: {
+
+    CFN_GVAR_INDEX(cfn) = yaml_str2int_ref(val, l_sep);
+    if (val_len == 0 || val[0] != ',') return;
+    val++; val_len--;
+
+    // find "," and cut val_len
+    sep = (const char *)memchr(val, ',', val_len);
+    l_sep = sep ? sep - val : val_len;
+
     // parse CFN_GVAR_MODE
     for (int i=0; i < yaml_conv_220::_adjust_gvar_mode_lookup_size; i++) {
       if (!strncmp(yaml_conv_220::_adjust_gvar_mode_lookup[i],val,l_sep)) {
@@ -1182,12 +1191,14 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         break;
       }
     }
+
     val += l_sep; val_len -= l_sep;
     if (val_len == 0 || val[0] != ',') return;
     val++; val_len--;
     // find "," and cut val_len
     sep = (const char *)memchr(val, ',', val_len);
     l_sep = sep ? sep - val : val_len;
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
@@ -1203,7 +1214,9 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         CFN_PARAM(cfn) = gvar - MIXSRC_FIRST_GVAR;
       }
     } break;
-    } break;
+    }
+
+  } break;
 
   default:
     eat_comma = false;
@@ -1333,10 +1346,15 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    str = yaml_unsigned2str(CFN_GVAR_INDEX(cfn)); // GVAR index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+
     // output CFN_GVAR_MODE
     str = yaml_conv_220::_adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;    
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
@@ -1351,6 +1369,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
+    break;
 
   default:
     add_comma = false;

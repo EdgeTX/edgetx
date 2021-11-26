@@ -724,21 +724,20 @@ const char* _func_failsafe_lookup[] = {
 };
 
 // used in read routine as well
+extern const char* _func_sound_lookup[];
 const char* _func_sound_lookup[] = {
   "Bp1","Bp2","Bp3","Wrn1","Wrn2",
   "Chee","Rata","Tick","Sirn","Ring",
   "SciF","Robt","Chrp","Tada","Crck","Alrm"
 };
+extern const uint8_t _func_sound_lookup_size = 16;
 
 // force external linkage
-extern const uint8_t _func_sound_lookup_size = sizeof(_func_sound_lookup);
-
 extern const char* _adjust_gvar_mode_lookup[];
 const char* _adjust_gvar_mode_lookup[] = {
   "Cst", "Src", "GVar", "IncDec"
 };
-
-extern const uint8_t _adjust_gvar_mode_lookup_size = sizeof(_adjust_gvar_mode_lookup);
+extern const uint8_t _adjust_gvar_mode_lookup_size = 4;
   
 bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                 yaml_writer_func wf, void* opaque)
@@ -827,10 +826,15 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_ADJUST_GVAR:
+    str = yaml_unsigned2str(CFN_GVAR_INDEX(cfn)); // GVAR index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+
     // output CFN_GVAR_MODE
     str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;    
+
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
     case FUNC_ADJUST_GVAR_CONSTANT:
