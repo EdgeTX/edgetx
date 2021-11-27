@@ -102,6 +102,7 @@ class TabsCarousel: public Window {
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_TOUCH)
+    bool onTouchStart(coord_t x, coord_t y) override;
     bool onTouchEnd(coord_t x, coord_t y) override;
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif

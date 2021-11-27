@@ -71,13 +71,18 @@ void TabsCarousel::paint(BitmapBuffer * dc)
 }
 
 #if defined(HARDWARE_TOUCH)
+bool TabsCarousel::onTouchStart(coord_t x, coord_t y)
+{
+  if(sliding)
+    sliding = false;
+
+  return true;
+}
+
 bool TabsCarousel::onTouchEnd(coord_t x, coord_t y)
 {
   if(sliding)
-  {
-    sliding = false;
     return true;
-  }
 
   unsigned index = (x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
 
