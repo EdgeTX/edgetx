@@ -50,9 +50,8 @@ class SwitchWarnDialog: public FullScreenDialog {
 
   protected:
     swarnstate_t last_bad_switches;
-    swarnstate_t states;
-    uint8_t bad_pots;
-    uint8_t last_bad_pots;
+    uint8_t      bad_pots;
+    uint8_t      last_bad_pots;
     bool warningInactive();
 };
 

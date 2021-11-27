@@ -555,10 +555,49 @@ swsrc_t getMovedSwitch()
   return result;
 }
 
+bool isSwitchWarningRequired(uint8_t &bad_pots)
+{
+  swarnstate_t states = g_model.switchWarningState;
+
+  GET_ADC_IF_MIXER_NOT_RUNNING();
+  getMovedSwitch();
+
+  bool warn = false;
+  for (int i = 0; i < NUM_SWITCHES; i++) {
+    if (SWITCH_WARNING_ALLOWED(i)) {
+      swarnstate_t mask = ((swarnstate_t)0x07 << (i * 3));
+      if ((states & mask) && !((states & mask) == (switches_states & mask))) {
+        warn = true;
+      }
+    }
+  }
+
+  if (g_model.potsWarnMode) {
+    evalFlightModeMixes(e_perout_mode_normal, 0);
+    bad_pots = 0;
+    for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
+      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
+        continue;
+      }
+      if (!(g_model.potsWarnEnabled & (1 << i)) &&
+          (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
+        warn = true;
+        bad_pots |= (1 << i);
+      }
+    }
+  }
+
+  return warn;
+}
+
 #if defined(COLORLCD)
 #include "switch_warn_dialog.h"
 void checkSwitches()
 {
+  uint8_t bad_pots = 0;
+  if (!isSwitchWarningRequired(bad_pots))
+    return;
+
   auto dialog = new SwitchWarnDialog();
   dialog->runForever();
 }
@@ -567,112 +606,21 @@ void checkSwitches()
 {
   swarnstate_t last_bad_switches = 0xff;
   swarnstate_t states = g_model.switchWarningState;
-
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
   uint8_t bad_pots = 0, last_bad_pots = 0xff;
-#endif
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;
 #endif
 
   while (true) {
-#if defined(PCBFRSKY)
-  #define GETADC_COUNT 1
-#endif
 
-#ifdef GETADC_COUNT
-    for (uint8_t i=0; i<GETADC_COUNT; i++) {
-      GET_ADC_IF_MIXER_NOT_RUNNING();
-    }
-#undef GETADC_COUNT
-#endif
-
-    getMovedSwitch();
-
-    bool warn = false;
-#if defined(COLORLCD)
-    for (int i=0; i<NUM_SWITCHES; i++) {
-      if (SWITCH_WARNING_ALLOWED(i)) {
-        unsigned int state = ((states >> (3*i)) & 0x07);
-        if (state && state-1 != ((switches_states >> (i*2)) & 0x03)) {
-          warn = true;
-        }
-      }
-    }
-    if (g_model.potsWarnMode) {
-      evalFlightModeMixes(e_perout_mode_normal, 0);
-      bad_pots = 0;
-      for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
-        if (!IS_POT_SLIDER_AVAILABLE(POT1+i)) {
-          continue;
-        }
-        if (!(g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
-          warn = true;
-          bad_pots |= (1<<i);
-        }
-      }
-    }
-#elif defined(PCBTARANIS)
-    for (int i=0; i<NUM_SWITCHES; i++) {
-      if (SWITCH_WARNING_ALLOWED(i)) {
-        swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
-        if ((states & mask) && !((states & mask) == (switches_states & mask))) {
-          warn = true;
-        }
-      }
-    }
-    if (g_model.potsWarnMode) {
-      evalFlightModeMixes(e_perout_mode_normal, 0);
-      bad_pots = 0;
-      for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
-        if (!IS_POT_SLIDER_AVAILABLE(POT1+i)) {
-          continue;
-        }
-        if (!(g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
-          warn = true;
-          bad_pots |= (1<<i);
-        }
-      }
-    }
-#else
-    for (int i=0; i<NUM_SWITCHES-1; i++) {
-      if (!(g_model.switchWarningEnable & (1<<i))) {
-      	if (i == 0) {
-      	  if ((states & 0x03) != (switches_states & 0x03)) {
-      	    warn = true;
-      	  }
-      	}
-        else if ((states & (1<<(i+1))) != (switches_states & (1<<(i+1)))) {
-          warn = true;
-        }
-      }
-    }
-#endif
-
-    if (!warn) {
+    if (!isSwitchWarningRequired(bad_pots))
       break;
-    }
 
     LED_ERROR_BEGIN();
     resetBacklightTimeout();
 
     // first - display warning
-#if defined(PCBSKY9X)
-    if (last_bad_switches != switches_states) {
-      RAISE_ALERT(STR_SWITCHWARN, NULL, STR_PRESS_ANY_KEY_TO_SKIP, last_bad_switches == 0xff ? AU_SWITCH_ALERT : AU_NONE);
-      uint8_t x = 2;
-      for (uint8_t i=0; i<NUM_SWITCHES-1; i++) {
-        uint8_t attr;
-        if (i == 0)
-          attr = ((states & 0x03) != (switches_states & 0x03)) ? INVERS : 0;
-        else
-          attr = (states & (1 << (i+1))) == (switches_states & (1 << (i+1))) ? 0 : INVERS;
-        if (!(g_model.switchWarningEnable & (1<<i)))
-          drawSwitch(x, 5*FH, (i>0?(i+3):(states&0x3)+1), attr);
-        x += 3*FW+FW/2;
-      }
-#else
     if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
       drawAlertBox(STR_SWITCHWARN, nullptr, STR_PRESS_ANY_KEY_TO_SKIP);
       if (last_bad_switches == 0xff || last_bad_pots == 0xff) {
@@ -680,9 +628,6 @@ void checkSwitches()
       }
       int x = SWITCH_WARNING_LIST_X;
       int y = SWITCH_WARNING_LIST_Y;
-#if defined(COLORLCD)
-      lcdNextPos = SWITCH_WARNING_LIST_X;
-#endif
       int numWarnings = 0;
       for (int i=0; i<NUM_SWITCHES; ++i) {
         if (SWITCH_WARNING_ALLOWED(i)) {
@@ -693,7 +638,7 @@ void checkSwitches()
             if (attr) {
               if (++numWarnings < 6) {
                 char c = (" " STR_CHAR_UP
-                          "-" STR_CHAR_DOWN)[(states & mask) >> (i * 2)];
+                          "-" STR_CHAR_DOWN)[(states & mask) >> (i * 3)];
                 drawSource(x, y, MIXSRC_FIRST_SWITCH + i, attr);
                 lcdDrawChar(lcdNextPos, y, c, attr);
                 x = lcdNextPos + 3;
@@ -728,7 +673,6 @@ void checkSwitches()
       }
 
       last_bad_pots = bad_pots;
-#endif
 
       lcdRefresh();
       lcdSetContrast();

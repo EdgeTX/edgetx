@@ -23,34 +23,7 @@
 
 bool SwitchWarnDialog::warningInactive()
 {
-  GET_ADC_IF_MIXER_NOT_RUNNING();
-  getMovedSwitch();
-
-  bool warn = false;
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-    if (SWITCH_WARNING_ALLOWED(i)) {
-      unsigned int state = ((states >> (3 * i)) & 0x07);
-      if (state && state - 1 != ((switches_states >> (i * 2)) & 0x03)) {
-        warn = true;
-      }
-    }
-  }
-
-  if (g_model.potsWarnMode) {
-    evalFlightModeMixes(e_perout_mode_normal, 0);
-    bad_pots = 0;
-    for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
-        continue;
-      }
-      if ( (g_model.potsWarnEnabled & (1 << i)) && (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
-        warn = true;
-        bad_pots |= (1 << i);
-      }
-    }
-  }
-
-  if (!warn)
+  if (!isSwitchWarningRequired(bad_pots))
     return true;
 
   if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
