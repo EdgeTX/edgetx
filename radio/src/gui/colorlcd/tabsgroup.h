@@ -103,12 +103,16 @@ class TabsCarousel: public Window {
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
+    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif
 
   protected:
     constexpr static uint8_t padding_left = 3;
     TabsGroup * menu;
     uint8_t currentIndex = 0;
+#if defined(HARDWARE_TOUCH)
+    bool sliding = false;
+#endif
 };
 
 class TabsGroupHeader: public FormGroup {
