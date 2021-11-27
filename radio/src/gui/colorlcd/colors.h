@@ -24,10 +24,8 @@
 
 #include "libopenui_defines.h"
 
-
 // TODO common code, not in target
-enum LcdColorIndex
-{
+enum LcdColorIndex {
   // this one first for when colour is not set
   DEFAULT_COLOR_INDEX,
 
@@ -43,24 +41,19 @@ enum LcdColorIndex
   COLOR_THEME_WARNING_INDEX,
   COLOR_THEME_DISABLED_INDEX,
   CUSTOM_COLOR_INDEX,
-  
+
   // this one MUST be last
   LCD_COLOR_COUNT,
 };
-
-
-//#define COLOR_THEME_PRIMARY2_INDEX     COLOR_THEME_ACTIVE_INDEX
-//#define COLOR_THEME_SECONDARY2_INDEX          COLOR_THEME_PRIMARY3_INDEX
-
 
 //
 // Basic color definitions
 //
 
-#define WHITE                          RGB(0xFF, 0xFF, 0xFF)
-#define BLACK                          RGB(0, 0, 0)
+#define WHITE RGB(0xFF, 0xFF, 0xFF)
+#define BLACK RGB(0, 0, 0)
 
-#define RGB2FLAGS(r, g, b)             (COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG)
+#define RGB2FLAGS(r, g, b) (COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG)
 
 //
 // Indexed colors
@@ -72,10 +65,12 @@ inline void lcdSetColor(uint16_t color)
   lcdColorTable[CUSTOM_COLOR_INDEX] = color;
 }
 
-#define COLOR(index)                                                                                      \
-  ((uint32_t)lcdColorTable[unsigned(index & 0xFF) >= LCD_COLOR_COUNT    \
-                               ? DEFAULT_COLOR_INDEX                    \
-                               : ((index & 0xFF) == 0 ? COLOR_THEME_PRIMARY1_INDEX : unsigned(index & 0xFF))] \
+#define COLOR(index)                                                         \
+  ((uint32_t)                                                                \
+       lcdColorTable[unsigned(index & 0xFF) >= LCD_COLOR_COUNT               \
+                         ? DEFAULT_COLOR_INDEX                               \
+                         : ((index & 0xFF) == 0 ? COLOR_THEME_PRIMARY1_INDEX \
+                                                : unsigned(index & 0xFF))]   \
    << 16u)
 
 #define COLOR_THEME_PRIMARY1              COLOR(COLOR_THEME_PRIMARY1_INDEX)
@@ -92,7 +87,7 @@ inline void lcdSetColor(uint16_t color)
 #define CUSTOM_COLOR                      COLOR(CUSTOM_COLOR_INDEX)
 
 #if defined(WINDOWS_INSPECT_BORDERS)
-  #define WINDOWS_INSPECT_BORDER_COLOR COLOR_THEME_PRIMARY3
+#define WINDOWS_INSPECT_BORDER_COLOR COLOR_THEME_PRIMARY3
 #endif
 
 constexpr int MAX_SATURATION = 100;
@@ -100,6 +95,7 @@ constexpr int MAX_HUE = 360;
 constexpr int MAX_BRIGHTNESS = 100;
 
 extern uint32_t HSVtoRGB(float H, float S, float V);
-extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS, float& fV);
+extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS,
+                     float& fV);
 
-#endif // _COLORS_H_
+#endif  // _COLORS_H_
