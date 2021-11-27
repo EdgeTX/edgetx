@@ -47,6 +47,9 @@ void init_trainer_ppm()
   TRAINER_TIMER->CCMR1 = TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE; // PWM mode 1
   TRAINER_TIMER->CR1 |= TIM_CR1_CEN;
 
+  // reset DMA stream prior to using it
+  DMA_DeInit(TRAINER_DMA_STREAM);
+
   setupPulsesPPMTrainer();
   trainerSendNextFrame();
 
