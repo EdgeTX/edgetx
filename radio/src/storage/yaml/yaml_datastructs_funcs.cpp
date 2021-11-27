@@ -763,7 +763,7 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
 {
     int32_t sval = yaml_to_signed(val, node->size);
     if (sval < 0) {
-        wf(opaque, "!", 1);
+        wf(opaque, "\\!", 2);
         sval = abs(sval);
     }
 
