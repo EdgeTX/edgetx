@@ -1482,10 +1482,9 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     ls->v2 = timerValue2lsw(yaml_str2uint_ref(val, val_len));
     if (!val_len || val[0] != ',') return;
     val++; val_len--;
-    if (val_len == 1) {
-      if (val[0] == '<')
-        ls->v3 = -1;
-      else if (val[0] == '-')
+    if (val_len == 1 && val[0] == '<') {
+      ls->v3 = -1;
+    } else if (val_len == 1 && val[0] == '-') {
         ls->v3 = 0;
     } else {
       int16_t t = (int16_t)timerValue2lsw(yaml_str2uint_ref(val, val_len));
