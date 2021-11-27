@@ -27,6 +27,10 @@ const uint8_t __bmp_splash[] {
 #include "splash.lbm"
 };
 
+const uint8_t __bmp_splash_chr[] {
+#include "splash_chr.lbm"
+};
+
 void drawSplash()
 {
   constexpr LcdFlags splash_background_color =
@@ -42,9 +46,21 @@ void drawSplash()
     loadSplashImg = false;
 
     // otherwise load from FLASH
-    if (splashImg == nullptr) {
-      splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
-    }
+    struct gtm t;
+	gettime(&t);
+	// Please do not spoil the suprise by discussing following lines in public
+	// mon == 11 == December, starts from 0!
+	if (t.tm_mon == 11 && t.tm_mday >= 24 && t.tm_mday <= 26)
+	{
+		if (splashImg == nullptr) {
+			splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash_chr, sizeof(__bmp_splash_chr));
+		}
+	} else
+	{
+		if (splashImg == nullptr) {
+			splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
+		}
+	}
   }
 
   lcd->clear(splash_background_color);

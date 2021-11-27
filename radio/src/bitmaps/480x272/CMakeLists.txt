@@ -21,6 +21,7 @@ set(MASK_RLE_ARGS ${MASK_ARGS} --rle)
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/bmp_*.png" "5/6/5" "${BITMAP_ARGS}")
 add_png_target(${BITMAP_TARGET_PREFIX}_splash "${RADIO_SRC_DIR}/bitmaps/480x272/splash.png")
+add_png_target(${BITMAP_TARGET_PREFIX}_splash_chr "${RADIO_SRC_DIR}/bitmaps/480x272/splash_chr.png")
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_calibration_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/calibration/bmp_*.png" "5/6/5" "${BITMAP_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_button_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/button/alpha_*.png" "4/4/4/4" "${BITMAP_ARGS}")
@@ -40,5 +41,6 @@ add_bitmaps_target(${BITMAP_TARGET_PREFIX}_bootloader_icons "${RADIO_SRC_DIR}/bi
 
 add_dependencies(${BITMAP_TARGET_PREFIX}_bitmaps ${BITMAP_TARGET_PREFIX}_calibration_bitmaps ${BITMAP_TARGET_PREFIX}_button_bitmaps ${BITMAP_TARGET_PREFIX}_alpha_bitmaps
                  ${BITMAP_TARGET_PREFIX}_alpha_calibration_bitmaps ${BITMAP_TARGET_PREFIX}_masks ${BITMAP_TARGET_PREFIX}_slider_masks ${BITMAP_TARGET_PREFIX}_layouts_masks
-                 ${BITMAP_TARGET_PREFIX}_fonts ${BITMAP_TARGET_PREFIX}_themes_masks ${BITMAP_TARGET_PREFIX}_themes_alpha ${BITMAP_TARGET_PREFIX}_splash ${BITMAP_TARGET_PREFIX}_volume_masks 
+                 ${BITMAP_TARGET_PREFIX}_fonts ${BITMAP_TARGET_PREFIX}_themes_masks ${BITMAP_TARGET_PREFIX}_themes_alpha ${BITMAP_TARGET_PREFIX}_splash
+				 ${BITMAP_TARGET_PREFIX}_splash_chr ${BITMAP_TARGET_PREFIX}_volume_masks 
                  ${BITMAP_TARGET_PREFIX}_bootloader_bitmaps ${BITMAP_TARGET_PREFIX}_bootloader_icons )
