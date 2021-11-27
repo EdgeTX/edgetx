@@ -28,6 +28,7 @@
 #include "gvar_numberedit.h"
 #include "model_curves.h"
 #include "dataconstants.h"
+#include "channel_bar.h"
 
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
@@ -57,6 +58,29 @@ bool reachMixesLimit()
   return false;
 }
 
+class MixerEditStatusBar : public Window
+{
+  public:
+    MixerEditStatusBar(Window *parent, const rect_t &rect, int8_t channel) :
+      Window(parent, rect),
+      _channel(channel)
+    {
+      channelBar = new ComboChannelBar(this, {3, 0, rect.w - 6, rect.h}, channel);
+      channelBar->setLeftMargin(0);
+      channelBar->setTextColor(COLOR_THEME_PRIMARY2);
+      channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
+    }
+
+    void paint(BitmapBuffer *dc) override
+    {
+      // dc->clear(COLOR_THEME_SECONDARY2);
+    }
+
+  protected:
+    ComboChannelBar *channelBar;
+    int8_t _channel;
+};
+
 class MixEditWindow : public Page
 {
  public:
@@ -71,6 +95,7 @@ class MixEditWindow : public Page
   uint8_t channel;
   uint8_t mixIndex;
   FormGroup *curveParamField = nullptr;
+  MixerEditStatusBar *statusBar = nullptr;
 
   void buildHeader(Window *window)
   {
@@ -82,6 +107,10 @@ class MixEditWindow : public Page
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
                    getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
+
+    statusBar = new MixerEditStatusBar(
+        window, {window->getRect().w - 250, 0, 250, MENU_HEADER_HEIGHT + 3},
+        channel);
   }
 
   void buildBody(FormWindow *window)

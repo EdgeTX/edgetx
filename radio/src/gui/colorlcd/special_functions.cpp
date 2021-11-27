@@ -638,8 +638,9 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
     CustomFunctionData *cfn = &functions[i];
     strAppendUnsigned(&s[2], i+1);
 
+    Button *button;
     if (cfn->swtch == 0) {
-      auto button = new TextButton(window, grid.getLabelSlot(), s);
+      button = new TextButton(window, grid.getLabelSlot(), s);
       button->setPressHandler([=]() {
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
           Menu *menu = new Menu(window);
@@ -658,8 +659,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
     } else {
       auto txt = new StaticText(window, grid.getLabelSlot(), s, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
-      auto button =
-          new SpecialFunctionButton(window, grid.getFieldSlot(), functions, i);
+      button = new SpecialFunctionButton(window, grid.getFieldSlot(), functions, i);
       button->setPressHandler([=]() {
         button->bringToTop();
         Menu *menu = new Menu(window);
@@ -718,7 +718,6 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
       });
 
       if (focusIndex == i) {
-        button->setFocus(SET_FOCUS_DEFAULT);
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
         txt->invalidate();
@@ -727,6 +726,11 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     }
+
+    if (focusIndex == i) {  // fix focus #303
+      button->setFocus(SET_FOCUS_DEFAULT);
+    }
+
   }
 
   grid.nextLine();
