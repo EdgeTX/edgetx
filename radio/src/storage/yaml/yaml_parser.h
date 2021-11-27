@@ -46,6 +46,7 @@ class YamlParser
         ps_AttrSP,
         ps_Sep,
         ps_Val,
+        ps_ValEsc,
         ps_ValQuo,
         ps_ValEsc1,
         ps_ValEsc2,
