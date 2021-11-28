@@ -123,7 +123,11 @@ static inline void check_yaml_funcs()
 
 #if defined(PCBHORUS)
   static_assert(offsetof(FlightModeData, gvars) == 26,"");
+#if defined(PCBHORUS) && defined(PCBX10)
   check_size<FlightModeData, 58>();
+#else
+  check_size<FlightModeData, 44>();
+#endif
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBNV14)
   static_assert(offsetof(FlightModeData, gvars) == 22,"");
