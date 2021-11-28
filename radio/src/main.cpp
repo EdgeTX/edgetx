@@ -24,6 +24,7 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
+  #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
 uint8_t currentSpeakerVolume = 255;
@@ -373,6 +374,7 @@ void guiMain(event_t evt)
   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
 #endif
   MainWindow::instance()->run();
+  LvglWrapper::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
   if (screenshotRequested) {

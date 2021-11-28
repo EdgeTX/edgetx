@@ -22,6 +22,7 @@
 #include "radio_sdmanager.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "gui/colorlcd/LvglWrapper.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
@@ -163,6 +164,7 @@ class FlashDialog: public FullScreenDialog
             setMessage(message);
             progress.setValue(total > 0 ? count * 100 / total : 0);
             MainWindow::instance()->run(false);
+            LvglWrapper::instance()->run();
           });
       deleteLater();
     }
