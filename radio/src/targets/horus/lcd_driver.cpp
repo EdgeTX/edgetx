@@ -52,6 +52,7 @@ uint8_t currentLayer = LCD_FIRST_LAYER;
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_BACKUP_FRAME_BUFFER);
 
 BitmapBuffer * lcdFront = &lcdBuffer1;
 BitmapBuffer * lcd = &lcdBuffer2;
@@ -347,7 +348,7 @@ void lcdInit()
 
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
 #endif
@@ -380,7 +381,7 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
 
 void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);
@@ -424,7 +425,7 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
 
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);
@@ -478,7 +479,7 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
 void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);
@@ -609,12 +610,16 @@ void lcdCopy(void * dest, void * src)
 
 void lcdStoreBackupBuffer()
 {
+#if 0
   lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
+#endif
 }
 
 int lcdRestoreBackupBuffer()
 {
+#if 0
   lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
+#endif
   return 1;
 }
 
@@ -657,7 +662,18 @@ static void lcdSwitchLayers()
   while(_frameBufferAddressReloaded == 0);
 }
 
+void newLcdRefresh(uint16_t * buffer)
+{
+#if 0
+  lcdSwitchLayers();
+#else
+  LTDC_Layer1->CFBAR = (uint32_t)buffer;
+  _frameBufferAddressReloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+  while(_frameBufferAddressReloaded == 0);
+#endif
+}
 void lcdRefresh()
 {
-  lcdSwitchLayers();
+  //lcdSwitchLayers();
 }

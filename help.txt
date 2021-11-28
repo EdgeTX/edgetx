@@ -1,0 +1,68 @@
+additional libopenui patch:
+diff --git a/src/bitmapbuffer.h b/src/bitmapbuffer.h
+index 146c815..f5ce245 100644
+--- a/src/bitmapbuffer.h
++++ b/src/bitmapbuffer.h
+@@ -36,7 +36,7 @@ constexpr uint8_t STASHED = 0x33;
+ #define APPLY_OFFSET() x += this->offsetX; y += this->offsetY
+ #define RESTORE_OFFSET()  this->offsetX = offsetX, this->offsetY = offsetY
+ 
+-#if defined(LCD_VERTICAL_INVERT)
++#if defined(LCD_VERTICAL_INVERT) && 0
+   #define MOVE_PIXEL_RIGHT(p, count)   p -= count
+ #else
+   #define MOVE_PIXEL_RIGHT(p, count)   p += count
+@@ -156,7 +156,7 @@ class BitmapBufferBase
+ 
+     inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
+     {
+-#if defined(LCD_VERTICAL_INVERT)
++#if defined(LCD_VERTICAL_INVERT) && 0
+       x = _width - x - 1;
+       y = _height - y - 1;
+ #endif
+@@ -401,7 +401,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
+ 
+     inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
+     {
+-#if defined(LCD_VERTICAL_INVERT)
++#if defined(LCD_VERTICAL_INVERT) && 0
+       x = _width - x - 1;
+       y = _height - y - 1;
+ #endif
+@@ -410,7 +410,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
+ 
+     inline pixel_t * getPixelPtrAbs(coord_t x, coord_t y)
+     {
+-#if defined(LCD_VERTICAL_INVERT)
++#if defined(LCD_VERTICAL_INVERT) && 0
+       x = _width - x - 1;
+       y = _height - y - 1;
+ #endif
+diff --git a/src/mainwindow.cpp b/src/mainwindow.cpp
+index c256d0b..dede0c9 100644
+--- a/src/mainwindow.cpp
++++ b/src/mainwindow.cpp
+@@ -179,9 +179,21 @@ void MainWindow::invalidate(const rect_t & rect)
+     invalidatedRect = rect;
+   }
+ }
+-
++#include "lvgl/lvgl.h"
++extern lv_obj_t * canvas;
++extern BitmapBuffer lcdBackup;
+ bool MainWindow::refresh()
+ {
++  if (invalidatedRect.w) {
++    lcdBackup.setOffset(0, 0);
++    lcdBackup.setClippingRect(0,LCD_W,0, LCD_H);
++    fullPaint(&lcdBackup);
++    lv_canvas_copy_buf(canvas, lcdBackup.getData(), 0, 0, LCD_W, LCD_H);
++    lv_img_cache_invalidate_src(lcdBackup.getData());
++    lv_obj_invalidate(canvas);
++  }
++  return false;
++
+   if (invalidatedRect.w) {
+     if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
+       TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);

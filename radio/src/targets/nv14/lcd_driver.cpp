@@ -30,6 +30,7 @@ uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t currentLayer = LCD_FIRST_LAYER;
 
+BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_BACKUP_FRAME_BUFFER);
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
 
@@ -1645,8 +1646,15 @@ static void lcdSwitchLayers()
   // TODO: replace through some smarter mechanism without busy wait
   while(_frameBufferAddressReloaded == 0);
 }
+void newLcdRefresh(uint16_t *buffer)
+{
+  LTDC_Layer1->CFBAR = (intptr_t)buffer;
+  _frameBufferAddressReloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+  while(_frameBufferAddressReloaded == 0);
+}
 
 void lcdRefresh()
 {
-  lcdSwitchLayers();
+//  lcdSwitchLayers();
 }
