@@ -87,7 +87,7 @@ class MdiChild : public QWidget
     bool saveAs(bool isNew=false);
     bool saveFile(const QString & fileName, bool setCurrent=true);
     void closeFile(bool force = false);
-    void writeEeprom();
+    void writeSettings();
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 

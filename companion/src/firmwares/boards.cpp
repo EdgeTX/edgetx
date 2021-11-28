@@ -486,6 +486,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case NumFunctionSwitches:
       return IS_JUMPER_TPRO(board) ? 6 : 0;
 
+    case HasSDCard:
+      return IS_STM32(board);
+
     default:
       return 0;
   }

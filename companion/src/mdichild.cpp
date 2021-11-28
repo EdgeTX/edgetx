@@ -1528,7 +1528,7 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeEeprom()  // write to Tx
+void MdiChild::writeSettings()  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
@@ -1547,19 +1547,21 @@ void MdiChild::writeEeprom()  // write to Tx
   }
 
   Board::Type board = getCurrentBoard();
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
+
+  if (Boards::getCapability(board, Board::HasSDCard)) {
     QString radioPath = findMassstoragePath("RADIO", true);
     qDebug() << "Searching for SD card, found" << radioPath;
     if (radioPath.isEmpty()) {
-      qDebug() << "MdiChild::writeEeprom(): Horus radio not found";
+      qDebug() << "Radio SD card not found";
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
       return;
     }
     if (saveFile(radioPath, false)) {
-      emit newStatusMessage(tr("Models and Settings written"), 2000);
+      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Saved models and settings to radio"));
     }
     else {
       qDebug() << "MdiChild::writeEeprom(): saveFile error";
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error saving models and settings to radio!"));
     }
   }
   else {

@@ -103,8 +103,8 @@ class MainWindow : public QMainWindow
     bool loadProfileId(const unsigned pid);
     void loadProfile();
     void logFile();
-    void writeEeprom();
-    void readEeprom();
+    void writeSettings();
+    void readSettings();
     void writeFlash(QString fileToFlash="");
     void readFlash();
     void writeBackup();
@@ -203,8 +203,8 @@ class MainWindow : public QMainWindow
     QAction *changelogAct;
     QAction *compareAct;
     QAction *editSplashAct;
-    QAction *writeEepromAct;
-    QAction *readEepromAct;
+    QAction *writeSettingsAct;
+    QAction *readSettingsAct;
     QAction *burnConfigAct;
     QAction *burnListAct;
     QAction *writeFlashAct;
