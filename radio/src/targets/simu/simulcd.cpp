@@ -59,7 +59,11 @@ void lcdRefresh()
 pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
 pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
 pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
+pixel_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
 
+BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, LCD_BACKUP_FRAME_BUFFER);
+
+BitmapBuffer scratch(BMP_RGB565, LCD_W, LCD_H, scratchBuf);
 BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
 BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
 
@@ -81,6 +85,23 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
+void newLcdRefresh(uint16_t *buffer)
+{
+  // Mark screen dirty for async refresh
+  simuLcdRefresh = true;
+
+#if defined(LCD_VERTICAL_INVERT)
+  auto src = buffer + DISPLAY_BUFFER_SIZE - 1;
+  auto dst = simuLcdBuf;
+  auto end = dst + DISPLAY_BUFFER_SIZE;
+
+  while (dst != end) {
+    *(dst++) = *(src--);
+  }
+#else
+  memcpy(simuLcdBuf, buffer, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+#endif
+}
 void lcdRefresh()
 {
   // Mark screen dirty for async refresh
@@ -113,7 +134,7 @@ void lcdInit()
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                  uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
 #endif
@@ -130,7 +151,7 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                    uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                    uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);
@@ -149,7 +170,7 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
                         uint16_t srcw, uint16_t srch, uint16_t srcx,
                         uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);
@@ -184,7 +205,7 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
                       uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                       uint16_t h, uint16_t fg_color)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   x = destw - (x + w);
   y = desth - (y + h);
   srcx = srcw - (srcx + w);

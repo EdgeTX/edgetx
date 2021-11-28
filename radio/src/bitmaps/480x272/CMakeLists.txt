@@ -11,8 +11,8 @@ else()
   if(PCBREV STREQUAL T18)
     # straight screen
   else()
-    set(BITMAP_ARGS ${BITMAP_ARGS} --reverse)
-    set(MASK_ARGS ${MASK_ARGS} --reverse)
+#    set(BITMAP_ARGS ${BITMAP_ARGS} --reverse)
+#    set(MASK_ARGS ${MASK_ARGS} --reverse)
   endif()
 endif()
 

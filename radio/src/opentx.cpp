@@ -30,6 +30,9 @@
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
+#include "lvgl/lvgl.h"
+
+  #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
 
@@ -1768,6 +1771,7 @@ void opentxInit()
 #if defined(LIBOPENUI)
   // create ViewMain
   ViewMain::instance();
+  LvglWrapper::instance();
 #elif defined(GUI)
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
