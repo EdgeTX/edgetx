@@ -22,8 +22,58 @@
 #include "generalsettings.h"
 #include "yaml_trainerdata.h"
 
+typedef std::pair<int, std::string> YamlLookupTableElmt;
+typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
+
+const YamlLookupTable beeperModeLut = {
+  {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
+  {  GeneralSettings::BEEPER_ALARMS_ONLY, "mode_alarms" },
+  {  GeneralSettings::BEEPER_NOKEYS, "mode_nokeys" },
+  {  GeneralSettings::BEEPER_ALL, "mode_all"  },
+};
+
+enum BacklightMode {
+  e_backlight_mode_off  = 0,
+  e_backlight_mode_keys = 1,
+  e_backlight_mode_sticks = 2,
+  e_backlight_mode_all = e_backlight_mode_keys+e_backlight_mode_sticks,
+  e_backlight_mode_on
+};
+
+const YamlLookupTable backlightModeLut = {
+  {  e_backlight_mode_off, "backlight_mode_off"  },
+  {  e_backlight_mode_keys, "backlight_mode_keys"  },
+  {  e_backlight_mode_sticks, "backlight_mode_sticks"  },
+  {  e_backlight_mode_all, "backlight_mode_all"  },
+  {  e_backlight_mode_on, "backlight_mode_on"  },
+};
+
+const YamlLookupTable bluetoothModeLut = {
+  {  GeneralSettings::BLUETOOTH_MODE_OFF, "OFF"  },
+  {  GeneralSettings::BLUETOOTH_MODE_TELEMETRY, "TELEMETRY"  },
+  {  GeneralSettings::BLUETOOTH_MODE_TRAINER, "TRAINER"  },
+};
+
+const YamlLookupTable uartModeLut = {
+  {  GeneralSettings::AUX_SERIAL_OFF, "MODE_NONE"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "MODE_TELEMETRY_MIRROR"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_IN, "MODE_TELEMETRY"  },
+  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
+  {  GeneralSettings::AUX_SERIAL_LUA, "MODE_LUA"  },
+};
+
+const YamlLookupTable antennaModeLut = {
+  {  GeneralSettings::ANTENNA_MODE_INTERNAL, "MODE_INTERNAL"  },
+  {  GeneralSettings::ANTENNA_MODE_ASK, "MODE_ASK"  },
+  {  GeneralSettings::ANTENNA_MODE_PER_MODEL, "MODE_PER_MODEL"  },
+  {  GeneralSettings::ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
+  {  GeneralSettings::ANTENNA_MODE_INTERNAL_EXTERNAL, "MODE_INTERNAL_EXTERNAL"  },
+};
+
 namespace YAML {
-  
+
+  ENUM_CONVERTER(GeneralSettings::BeeperMode, beeperModeLut);
+
   template<>
   struct convert<GeneralSettings> {
 
@@ -45,20 +95,17 @@ namespace YAML {
       node["txVoltageCalibration"] >> rhs.txVoltageCalibration;
       node["vBatMin"] >> rhs.vBatMin;
       node["vBatMax"] >> rhs.vBatMax;
-
-      // TODO: lookup table
-      //rhs.backlightMode = node["backlightMode"].as<std::string>(); // backlight_mode_all
-
+      node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
       node["trainer"] >> rhs.trainer;
       node["view"] >> rhs.view;
       node["fai"] >> rhs.fai;
       node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
-      //node["beepMode"] >> rhs.beeperMode; // TODO: string mapping
+      node["beepMode"] >> rhs.beeperMode;
       node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
       node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
       node["USBMode"] >> rhs.usbMode;
       node["jackMode"] >> rhs.jackMode;
-      //node["hapticMode"] >> rhs.hapticMode; // TODO: strin mapping
+      node["hapticMode"] >> rhs.hapticMode;
       node["stickMode"] >> rhs.stickMode;
       node["timezone"] >> rhs.timezone;
       node["adjustRTC"] >> rhs.adjustRTC;
@@ -77,7 +124,7 @@ namespace YAML {
       node["globalTimer"] >> rhs.globalTimer;
       node["bluetoothName"] >> rhs.bluetoothName;
       node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
-      node["bluetoothMode"] >> rhs.bluetoothMode;
+      node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
       node["countryCode"] >> rhs.countryCode;
       node["jitterFilter"] >> rhs.jitterFilter;
       node["disableRtcWarning"] >> rhs.rtcCheckDisable; // TODO: verify
@@ -91,9 +138,9 @@ namespace YAML {
       node["varioRange"] >> rhs.varioRange;
       node["varioRepeat"] >> rhs.varioRepeat;
       node["backgroundVolume"] >> rhs.backgroundVolume;
-      //node["auxSerialMode"] >> rhs.auxSerialMode;
-      //node["aux2SerialMode"] >> rhs.aux2SerialMode;
-      //node["antennaMode"] >> rhs.antennaMode;
+      node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
+      node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
+      node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
       node["backlightColor"] >> rhs.backlightColor;
 
       // if (node["customFn"]) {
