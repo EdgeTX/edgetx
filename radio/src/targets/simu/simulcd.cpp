@@ -46,6 +46,13 @@ uint16_t *lcdGetBackupBuffer() { return (uint16_t *)simuLcdBackupBuf; }
 
 void lcdInit() {}
 
+void newLcdRefresh()
+{
+  // Mark screen dirty for async refresh
+  simuLcdRefresh = true;
+
+  memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+}
 void lcdRefresh()
 {
   // Mark screen dirty for async refresh

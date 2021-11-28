@@ -126,12 +126,17 @@ endif()
 
 # includes libopenui
 include(${RADIO_SRC_DIR}/thirdparty/libopenui/src/CMakeLists.txt)
+include(${RADIO_SRC_DIR}/thirdparty/lvgl/CMakeLists.txt)
 include_directories(gui/libopenui)
 
 add_definitions(-DLIBOPENUI)
 
 foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
   set(SRC ${SRC} thirdparty/libopenui/src/${LIBOPENUI_FILE})
+endforeach()
+
+foreach(LVGL_FILE ${LVGL_SOURCES})
+  set(SRC ${SRC} thirdparty/lvgl/src/${LVGL_FILE})
 endforeach()
 
 add_gui_src(fullscreen_dialog.cpp)
