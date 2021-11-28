@@ -752,14 +752,15 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAntennaChoice:
       return ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) ? true : false;
     case HasADCJitterFilter:
-      return IS_HORUS_OR_TARANIS(board) ? true : false;
+      return IS_HORUS_OR_TARANIS(board);
     case HasTelemetryBaudrate:
-      return IS_HORUS_OR_TARANIS(board) ? true : false;
+      return IS_HORUS_OR_TARANIS(board);
     case TopBarZones:
       return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
     case FunctionSwitches:
       return IS_JUMPER_TPRO(board) ? 6 : 0;
-
+    case HasModelsList:
+      return IS_FAMILY_HORUS_OR_T16(board);
     default:
       return 0;
   }
