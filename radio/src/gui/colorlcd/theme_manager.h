@@ -176,6 +176,7 @@ class ThemePersistance
 
     inline int getThemeIndex() {return currentTheme;}
     inline void setThemeIndex(int index) { currentTheme = index;}
+    inline bool isDefaultTheme() { if (currentTheme == 0) return true; else return false; }
 
     inline ThemeFile* getCurrentTheme() 
     { 
