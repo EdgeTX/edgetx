@@ -187,9 +187,9 @@ bool readSettings(const QString & filename, ProgressWidget * progress)
   }
 
   if (Boards::getCapability(board, Board::HasSDCard))
-    readSettingsSDCard(filename, progress);
+    return readSettingsSDCard(filename, progress);
   else
-    readSettingsEeprom(filename, progress);
+    return readSettingsEeprom(filename, progress);
 }
 
 bool readSettingsSDCard(const QString & filename, ProgressWidget * progress)
