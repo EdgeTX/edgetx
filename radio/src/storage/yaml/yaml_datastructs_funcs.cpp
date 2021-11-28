@@ -114,10 +114,10 @@ static inline void check_yaml_funcs()
 {
   static_assert(offsetof(ModuleData, ppm) == 4,"");
   check_size<ModuleData, 29>();
-  static_assert(MAX_GVARS == 9,"");
+  static_assert(MAX_GVARS == 16,"");
 #if defined(PCBHORUS)
   static_assert(offsetof(FlightModeData, gvars) == 26,"");
-  check_size<FlightModeData, 44>();
+  check_size<FlightModeData, 58>();
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBNV14)
   static_assert(offsetof(FlightModeData, gvars) == 22,"");

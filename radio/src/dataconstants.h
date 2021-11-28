@@ -388,7 +388,7 @@ enum PotsWarnMode {
 #define RESERVE_RANGE_FOR_GVARS        10
 // even we do not spend space in EEPROM for 10 GVARS, we reserve the space inside the range of values, like offset, weight, etc.
 
-#define MAX_GVARS                    9
+#define MAX_GVARS                      16
 
 enum SwitchSources {
   SWSRC_NONE = 0,

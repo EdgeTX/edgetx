@@ -79,7 +79,7 @@ static inline void check_struct()
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
   CHKSIZE(CustomFunctionData, 9);
-  CHKSIZE(FlightModeData, 44);
+  CHKSIZE(FlightModeData, 58);
   CHKSIZE(TimerData, 16);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(ModelHeader, 31);
@@ -133,7 +133,7 @@ static inline void check_struct()
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
     CHKSIZE(RadioData, 921);
-    CHKSIZE(ModelData, 11022);
+    CHKSIZE(ModelData, 11197);
   #else
     CHKSIZE(RadioData, 903);
     CHKSIZE(ModelData, 11020);
