@@ -38,7 +38,7 @@ class SensorSourceChoice : public SourceChoice
       SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
                    GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1)
                                        : MIXSRC_NONE),
-                   [=](uint8_t newValue) {
+                   [=](uint16_t newValue) {
                      *source = newValue == MIXSRC_NONE
                                    ? 0
                                    : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
