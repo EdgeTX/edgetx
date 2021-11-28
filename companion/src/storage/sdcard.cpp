@@ -61,4 +61,3 @@ bool SdcardStorageFactory::probe(const QString & path)
 {
   return QDir(path).exists();
 }
-

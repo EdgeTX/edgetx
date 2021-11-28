@@ -41,6 +41,13 @@ class CategorizedStorageFormat : public StorageFormat
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
+
+    virtual bool loadBin(RadioData & radioData);
+    virtual bool writeBin(const RadioData & radioData);
+    virtual bool loadYaml(RadioData & radioData);
+    virtual bool writeYaml(const RadioData & radioData);
+
+    StorageType probeFormat();
 };
 
 #endif // _CATEGORIZED_H_

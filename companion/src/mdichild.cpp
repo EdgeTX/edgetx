@@ -1375,7 +1375,7 @@ bool MdiChild::saveAs(bool isNew)
 #ifdef __APPLE__
   QString filter;
 #else
-  QString filter(ETX_FILES_FILTER);
+  QString filter(ETX_FILES_FILTER % YML_FILES_FILTER);
 #endif
 
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
