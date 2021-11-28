@@ -347,6 +347,7 @@ void lcdInit()
 
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
+	return;
 #if defined(LCD_VERTICAL_INVERT)
   x = destw - (x + w);
   y = desth - (y + h);
@@ -424,6 +425,7 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
 
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
 {
+	return;
 #if defined(LCD_VERTICAL_INVERT)
   x = destw - (x + w);
   y = desth - (y + h);
@@ -478,6 +480,7 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
 void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
 {
+	return;
 #if defined(LCD_VERTICAL_INVERT)
   x = destw - (x + w);
   y = desth - (y + h);
@@ -535,6 +538,7 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
 
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
 {
+	return;
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -572,6 +576,7 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 
 void lcdCopy(void * dest, void * src)
 {
+#if 0
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -605,16 +610,21 @@ void lcdCopy(void * dest, void * src)
   
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
+#endif
 }
 
 void lcdStoreBackupBuffer()
 {
+#if 0
   lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
+#endif
 }
 
 int lcdRestoreBackupBuffer()
 {
+#if 0
   lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
+#endif
   return 1;
 }
 
@@ -657,7 +667,11 @@ static void lcdSwitchLayers()
   while(_frameBufferAddressReloaded == 0);
 }
 
+void newLcdRefresh()
+{
+	lcdSwitchLayers();
+}
 void lcdRefresh()
 {
-  lcdSwitchLayers();
+  //lcdSwitchLayers();
 }
