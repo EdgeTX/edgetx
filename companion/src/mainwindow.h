@@ -156,7 +156,7 @@ class MainWindow : public QMainWindow
     QMdiSubWindow * findMdiChild(const QString & fileName);
     bool anyChildrenDirty();
 
-    bool readEepromFromRadio(const QString & filename);
+    bool readSettingsFromRadio(const QString & filename);
     bool readFirmwareFromRadio(const QString & filename);
 
     bool checkProfileRadioExists(int profId);

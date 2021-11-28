@@ -912,9 +912,9 @@ void MainWindow::readSettings()
   else
     tempFile = generateProcessUniqueTempFileName("temp.bin");
 
-  qDebug() << "MainWindow::readEeprom(): using temp file: " << tempFile;
+  qDebug() << "Reading models and settings into temp file: " << tempFile;
 
-  if (readEepromFromRadio(tempFile)) {
+  if (readSettingsFromRadio(tempFile)) {
     MdiChild * child = createMdiChild();
     child->newFile(false);
     child->loadFile(tempFile, false);
@@ -933,7 +933,7 @@ bool MainWindow::readFirmwareFromRadio(const QString & filename)
   return result;
 }
 
-bool MainWindow::readEepromFromRadio(const QString & filename)
+bool MainWindow::readSettingsFromRadio(const QString & filename)
 {
   ProgressDialog progressDialog(this, tr("Read Models and Settings from Radio"), CompanionIcon("read_eeprom.png"));
   bool result = ::readSettings(filename, progressDialog.progress());
@@ -974,7 +974,7 @@ void MainWindow::readBackup()
   }
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
   if (!fileName.isEmpty()) {
-    if (!readEepromFromRadio(fileName))
+    if (!readSettingsFromRadio(fileName))
       return;
   }
 }
