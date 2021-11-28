@@ -29,6 +29,7 @@ set(firmwares_SRCS
   ersky9x/ersky9xinterface.cpp
   opentx/opentxeeprom.cpp
   opentx/opentxinterface.cpp
+  edgetx/edgetxinterface.cpp
   datahelpers.cpp
   customisation_data.cpp
   )
@@ -48,14 +49,19 @@ set(firmwares_QT
 qt5_wrap_cpp(firmwares_SRCS ${firmwares_QT})
 
 add_library(firmwares ${firmwares_SRCS} ${firmwares_HDRS})
+
 target_link_libraries(firmwares ${CPN_COMMON_LIB} datamodels Qt5::Core Qt5::Xml Qt5::Widgets)
+target_link_libraries(firmwares yaml-cpp)
+
 target_include_directories(firmwares
   PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${COMPANION_SRC_DIRECTORY}/thirdparty/yaml-cpp/include
   PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CMAKE_CURRENT_LIST_DIR}/er9x"
     "${CMAKE_CURRENT_LIST_DIR}/ersky9x"
     "${CMAKE_CURRENT_LIST_DIR}/opentx"
+    "${CMAKE_CURRENT_LIST_DIR}/edgetx"
   )
