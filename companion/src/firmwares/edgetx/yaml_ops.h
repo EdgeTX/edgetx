@@ -25,7 +25,24 @@
 typedef std::pair<int, std::string> YamlLookupTableElmt;
 typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
 
-YAML::Node operator>>(const YAML::Node& node, const YamlLookupTable& lut)
+class ioffset_int {
+
+public:
+  ioffset_int(int& val, int offset)
+    : value(val), offset(offset)
+  {}
+
+  void assign(int newValue) const {
+    value = newValue - offset;
+  }
+
+private:
+  int& value;
+  int offset;
+};
+
+
+YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
   if (node) {
     std::string str = node.as<std::string>();
@@ -44,8 +61,15 @@ YAML::Node operator>>(const YAML::Node& node, const YamlLookupTable& lut)
   return node;
 }
 
+void operator >> (const YAML::Node& node, const ioffset_int& value)
+{
+  if (node && node.IsScalar()) {
+    value.assign(node.as<int>());
+  }
+}
+
 template <typename T>
-void operator>>(const YAML::Node& node, T& value)
+void operator >> (const YAML::Node& node, T& value)
 {
   if (node && !node.IsNull()) {
     value = node.as<T>();
@@ -53,7 +77,7 @@ void operator>>(const YAML::Node& node, T& value)
 }
 
 template <>
-void operator>>(const YAML::Node& node, bool& value)
+void operator >> (const YAML::Node& node, bool& value)
 {
   if (node && node.IsScalar()) {
     value = node.as<int>();
@@ -61,7 +85,7 @@ void operator>>(const YAML::Node& node, bool& value)
 }
 
 template <size_t N>
-void operator>>(const YAML::Node& node, char (&value)[N])
+void operator >> (const YAML::Node& node, char (&value)[N])
 {
   if (node && node.IsScalar()) {
     auto str = node.as<std::string>();

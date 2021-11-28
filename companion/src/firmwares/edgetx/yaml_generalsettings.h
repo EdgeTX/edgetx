@@ -83,7 +83,7 @@ namespace YAML {
     //       return node;
     // }
 
-    static bool decode(const YAML::Node& node, GeneralSettings& rhs) {
+    static bool decode(const Node& node, GeneralSettings& rhs) {
 
       node["version"] >> rhs.version;
       node["versionBla"] >> rhs.version;
@@ -93,8 +93,10 @@ namespace YAML {
       node["contrast"] >> rhs.contrast;
       node["vBatWarn"] >> rhs.vBatWarn;
       node["txVoltageCalibration"] >> rhs.txVoltageCalibration;
-      node["vBatMin"] >> rhs.vBatMin;
-      node["vBatMax"] >> rhs.vBatMax;
+
+      node["vBatMin"] >> ioffset_int(rhs.vBatMin, 90);
+      node["vBatMax"] >> ioffset_int(rhs.vBatMax, 120);
+
       node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
       node["trainer"] >> rhs.trainer;
       node["view"] >> rhs.view;
