@@ -23,6 +23,7 @@ option(DEBUG_LATENCY "Debug latency" OFF)
 option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TASKS "Task switching statistics" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
+option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
 # option to select the default internal module
 #set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
@@ -137,6 +138,10 @@ endif()
 if(DEBUG_LATENCY STREQUAL END_TO_END)
   add_definitions(-DDEBUG_LATENCY)
   add_definitions(-DDEBUG_LATENCY_END_TO_END)
+endif()
+
+if(DEBUG_BLUETOOTH)
+ add_definitions(-DDEBUG_BLUETOOTH)
 endif()
 
 if(CLI)
