@@ -99,14 +99,9 @@ bool TabsCarousel::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t st
 {
   sliding = true;
 
-  unsigned index = std::max<coord_t>(0,x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
+  Window::onTouchSlide(x,y,startX,startY,slideX,slideY);
+  menu->setCurrentTab(currentIndex);
 
-  if (index >= menu->tabs.size()) {
-    index = menu->tabs.size()-1;
-  }
-
-  menu->setCurrentTab(index);
-  setCurrentIndex(index);
   return true;
 }
 #endif
