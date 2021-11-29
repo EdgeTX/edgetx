@@ -271,7 +271,7 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 
     if ((old_editMode > 0) && (s_editMode == 0)) {
       bool modified = false;
-      for (uint8_t i = size - 1; i > 0; --i) {
+      for (int8_t i = size - 1; i >= 0; --i) {
         // wipe empty spaces
         if (name[i] == ' ') {
           name[i] = '\0';

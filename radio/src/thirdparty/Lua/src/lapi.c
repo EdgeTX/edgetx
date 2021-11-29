@@ -626,7 +626,7 @@ LUA_API void lua_getglobal (lua_State *L, const char *var) {
   const TValue *gt;  /* global table */
   lua_lock(L);
 
-  found = luaR_findglobal(var, &value);
+  found = luaR_findglobal(L, var, &value);
   if (found && ttislightfunction(&value)) {
     setsvalue2s(L, L->top++, luaS_new(L, var));
     setlfvalue(L->top - 1, lfvalue(&value))

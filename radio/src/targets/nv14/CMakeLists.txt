@@ -50,7 +50,7 @@ add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
 add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 
 # defines existing internal modules
-set(INTERNAL_MODULES AFHDS2A)
+set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
 set(TARGET_SRC

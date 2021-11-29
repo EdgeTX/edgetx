@@ -30,8 +30,10 @@ set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
 
 # define variables for internal modules
 foreach(module ${INTERNAL_MODULES})
-  message("-- Adding support for ${module} as internal module")
   set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
+  if (INTERNAL_MODULE_${module})
+    message("-- Adding support for ${module} as internal module")
+  endif()
 endforeach()
 
 if(INTERNAL_MODULE_PXX1)

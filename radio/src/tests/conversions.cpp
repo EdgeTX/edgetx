@@ -289,13 +289,13 @@ TEST(Conversions, ConversionX10From23)
 
   EXPECT_EQ(221, g_eeGeneral.version);
 
-  EXPECT_EQ(100, g_eeGeneral.calib[9].spanNeg);
-  EXPECT_EQ(500, g_eeGeneral.calib[9].mid);
-  EXPECT_EQ(900, g_eeGeneral.calib[9].spanPos);
+  EXPECT_EQ(100, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].spanNeg);
+  EXPECT_EQ(500, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].mid);
+  EXPECT_EQ(900, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].spanPos);
 
-  EXPECT_EQ(200, g_eeGeneral.calib[10].spanNeg);
-  EXPECT_EQ(400, g_eeGeneral.calib[10].mid);
-  EXPECT_EQ(600, g_eeGeneral.calib[10].spanPos);
+  EXPECT_EQ(200, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_RIGHT].spanNeg);
+  EXPECT_EQ(400, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_RIGHT].mid);
+  EXPECT_EQ(600, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_RIGHT].spanPos);
 
   EXPECT_EQ(-23, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);

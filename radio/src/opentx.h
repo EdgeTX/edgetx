@@ -471,7 +471,7 @@ void alert(const char * title, const char * msg, uint8_t sound);
 
 #elif defined(COLORLCD)
 
-bool confirmationDialog(const char *title, const char *msg, bool checkPwr = true);
+bool confirmationDialog(const char *title, const char *msg, bool checkPwr = true, const std::function<bool(void)>& closeCondition = nullptr);
 
 void raiseAlert(const char *title, const char *msg, const char *info,
                 uint8_t sound);
@@ -1310,3 +1310,5 @@ inline bool isAsteriskDisplayed()
 }
 
 #include "module.h"
+
+extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;

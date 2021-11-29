@@ -71,14 +71,37 @@ void TabsCarousel::paint(BitmapBuffer * dc)
 }
 
 #if defined(HARDWARE_TOUCH)
+bool TabsCarousel::onTouchStart(coord_t x, coord_t y)
+{
+  if(sliding)
+    sliding = false;
+
+  return true;
+}
+
 bool TabsCarousel::onTouchEnd(coord_t x, coord_t y)
 {
+  if(sliding)
+    return true;
+
   unsigned index = (x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
+
   if (index >= menu->tabs.size()) {
     return false;
   }
+
   menu->setCurrentTab(index);
   setCurrentIndex(index);
+  return true;
+}
+
+bool TabsCarousel::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
+{
+  sliding = true;
+
+  Window::onTouchSlide(x,y,startX,startY,slideX,slideY);
+  menu->setCurrentTab(currentIndex);
+
   return true;
 }
 #endif
