@@ -41,9 +41,34 @@ private:
   int offset;
 };
 
+template<typename T>
+class ifactor {
+
+public:
+  ifactor(T& val, int factor)
+    : value(val), factor(factor)
+  {}
+
+  void assign(T newValue) const {
+    value = newValue / factor;
+  }
+
+private:
+  T& value;
+  T factor;
+};
+
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut);
 void operator >> (const YAML::Node& node, const ioffset_int& value);
+
+template<typename T>
+void operator >> (const YAML::Node& node, const ifactor<T>& value)
+{
+  if (node && node.IsScalar()) {
+    value.assign(node.as<T>());
+  }
+}
 
 template <typename T>
 void operator >> (const YAML::Node& node, T& value)

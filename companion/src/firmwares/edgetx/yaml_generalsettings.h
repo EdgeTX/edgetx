@@ -82,12 +82,12 @@ namespace YAML {
       node["telemetryBaudrate"] >> rhs.telemetryBaudrate; // TODO: conversion???
       node["splashMode"] >> rhs.splashMode; // TODO: B&W only
       node["templateSetup"] >> rhs.templateSetup;
-      node["hapticLength"] >> rhs.hapticLength; // TODO: conversion???
-      node["speakerPitch"] >> rhs.speakerPitch; // TODO: conversion???
-      node["hapticStrength"] >> rhs.hapticStrength; // TODO: conversion???
-      node["beepLength"] >> rhs.beeperLength; // TODO: conversion???
+      node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
+      node["speakerPitch"] >> ifactor<unsigned int>(rhs.speakerPitch, 15);
+      node["hapticStrength"] >> ioffset_int(rhs.hapticStrength, 2);
+      node["beepLength"] >> ioffset_int(rhs.beeperLength, 2);
       node["gpsFormat"] >> rhs.gpsFormat;
-      node["speakerVolume"] >> rhs.speakerVolume; // TODO: conversion???
+      node["speakerVolume"] >> ioffset_int(rhs.speakerVolume, 12);
       node["backlightBright"] >> rhs.backlightBright;
       node["switchesDelay"] >> rhs.switchesDelay;
       node["globalTimer"] >> rhs.globalTimer;
@@ -100,13 +100,13 @@ namespace YAML {
       node["keysBacklight"] >> rhs.keysBacklight;
       node["imperial"] >> rhs.imperial;
       node["ttsLanguage"] >> rhs.ttsLanguage;
-      node["beepVolume"] >> rhs.beepVolume; // TODO: conversion???
-      node["wavVolume"] >> rhs.wavVolume;
-      node["varioVolume"] >> rhs.varioVolume;
-      node["varioPitch"] >> rhs.varioPitch;
-      node["varioRange"] >> rhs.varioRange;
+      node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
+      node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
+      node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);
+      node["varioPitch"] >> ifactor<int>(rhs.varioPitch, 10);
+      node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
       node["varioRepeat"] >> rhs.varioRepeat;
-      node["backgroundVolume"] >> rhs.backgroundVolume;
+      node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
       node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
       node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
       node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
