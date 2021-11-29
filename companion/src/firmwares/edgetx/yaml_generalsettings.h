@@ -22,6 +22,7 @@
 #include "generalsettings.h"
 #include "yaml_trainerdata.h"
 #include "yaml_calibdata.h"
+#include "yaml_switchconfig.h"
 
 extern const YamlLookupTable beeperModeLut;
 extern const YamlLookupTable backlightModeLut;
@@ -120,15 +121,21 @@ namespace YAML {
 
       // TODO:
       // char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
+
+      YamlStickConfig stickConfig;
+      node["sticksConfig"] >> stickConfig;
       
-      // char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
-      // unsigned int switchConfig[CPN_MAX_SWITCHES];
+      YamlSwitchConfig switchConfig;
+      node["switchConfig"] >> switchConfig;
+      switchConfig.copy(rhs.switchName, rhs.switchConfig);
 
-      // char potName[CPN_MAX_KNOBS][HARDWARE_NAME_LEN + 1];
-      // unsigned int potConfig[CPN_MAX_KNOBS];
+      YamlPotConfig potsConfig;
+      node["potsConfig"] >> potsConfig;
+      potsConfig.copy(rhs.potName, rhs.potConfig);
 
-      // char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
-      // unsigned int sliderConfig[CPN_MAX_SLIDERS];
+      YamlSliderConfig slidersConfig;
+      node["slidersConfig"] >> slidersConfig;
+      slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
 
       // Color lcd theme settings are probably obsolete
       // RadioTheme::ThemeData themeData;
