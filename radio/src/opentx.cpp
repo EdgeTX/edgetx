@@ -1782,10 +1782,6 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   static lv_disp_draw_buf_t disp_buf;
 
   /*Static or global buffer(s). The second buffer is optional*/
-  //static lv_color_t buf_1[480 * 272];
-//  static lv_color_t buf_2[480 * 10];
-//  extern uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)];
-//  extern uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)];
   static lv_indev_drv_t indev_drv;
   extern uint8_t currentLayer;
 #if defined(SIMU)
@@ -1802,19 +1798,12 @@ BitmapBuffer scratchBuffer(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SCRATCH_FRA
     uint16_t height = area->y2-area->y1+1;
     uint16_t x = 480 - area->x2 -1;
     uint16_t y = 272 - area->y2 -1;
-    uint16_t* fb = nullptr;
-/*    if(currentLayer == 0)
-    {
-      fb = (uint16_t*)LCD_SECOND_FRAME_BUFFER;
-    } else {*/
-//      fb = (uint16_t*)LCD_FIRST_FRAME_BUFFER;
-    //}
-    //      DMACopyBitmap(fb, 480, 272, x, y, (uint16_t*)lcdGetScratchBuffer(), 480, 272, x, y, width, height);
-    //DMACopyBitmap(lcdFront->getData(), 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
-//    DMACopyBitmap((uint16_t*)LCD_SECOND_FRAME_BUFFER, 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
+
+    DMACopyBitmap(lcdFront->getData(), 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
+    DMACopyBitmap(lcd->getData(), 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
 	  //newLcdRefresh();
-lcdFront->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
-lcd->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
+//lcdFront->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
+//lcd->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
 	  lcdRefresh();
 
       lv_disp_flush_ready(disp_drv);
@@ -1892,12 +1881,13 @@ void lv_example_slider_1(void)
     lv_obj_t * slider = lv_slider_create(lv_scr_act());
     lv_obj_center(slider);
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_align(slider, LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
     /*Create a label below the slider*/
     slider_label = lv_label_create(lv_scr_act());
     lv_label_set_text(slider_label, "0%");
 
-    lv_obj_align_to(slider_label, slider, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    lv_obj_align_to(slider_label, slider, LV_ALIGN_CENTER, 0, 0);
 }
 
 static void slider_event_cb(lv_event_t * e)
@@ -1906,7 +1896,7 @@ static void slider_event_cb(lv_event_t * e)
     char buf[8];
     lv_snprintf(buf, sizeof(buf), "%d%%", (int)lv_slider_get_value(slider));
     lv_label_set_text(slider_label, buf);
-    lv_obj_align_to(slider_label, slider, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    lv_obj_align_to(slider_label, slider, LV_ALIGN_CENTER, 0, 0);
 }
 
 static void sw_event_cb(lv_event_t * e)
@@ -1928,10 +1918,10 @@ static void sw_event_cb(lv_event_t * e)
 void lv_example_scroll_2(void)
 {
     lv_obj_t * panel = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(panel, 280, 120);
+    lv_obj_set_size(panel, 200, 120);
     lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
     lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
-    lv_obj_align(panel, LV_ALIGN_CENTER, 0, 20);
+    lv_obj_align(panel, LV_ALIGN_BOTTOM_RIGHT, 0, 20);
 
     unsigned int i;
     for(i = 0; i < 10; i++) {
@@ -1988,8 +1978,8 @@ void opentxInit()
   disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
   lv_indev_t * my_indev = lv_indev_drv_register(&indev_drv);
   lv_example_get_started_1();
-//  lv_example_label_1();
-//  lv_example_slider_1();
+  lv_example_label_1();
+  lv_example_slider_1();
   lv_example_scroll_2();
 
 
