@@ -19,6 +19,7 @@
  */
 
 #include "yaml_ops.h"
+#include <algorithm>
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
