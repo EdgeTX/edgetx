@@ -31,7 +31,7 @@ struct {
   const uint8_t __magic_suffix[4] = { 'S','P','E',0 };
 } splash_struct;
 static_assert(sizeof(splash_struct.splashdata) <= MAXIMUM_SPLASH_IMAGE_SIZE, "");
-const unsigned char * const splash_lbm = splash_struct.splashdata+4;
+const unsigned char * const splash_lbm = splash_struct.splashdata;
 
 void drawSplash()
 {
