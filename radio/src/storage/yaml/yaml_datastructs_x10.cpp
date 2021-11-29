@@ -91,7 +91,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_UartModes[] = {
-  {  UART_MODE_DEBUG, "MODE_DEBUG"  },
+  {  UART_MODE_NONE, "MODE_NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
   {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
   {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
