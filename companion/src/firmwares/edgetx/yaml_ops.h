@@ -42,31 +42,8 @@ private:
 };
 
 
-YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
-{
-  if (node) {
-    std::string str = node.as<std::string>();
-    const auto& it =
-        find_if(lut.begin(), lut.end(), [=](const YamlLookupTableElmt& elmt) {
-          if (elmt.second == str) return true;
-          return false;
-        });
-
-    if (it != lut.end()) {
-      return YAML::Node(it->first);
-    }  
-    return YAML::Node();
-  }
-
-  return node;
-}
-
-void operator >> (const YAML::Node& node, const ioffset_int& value)
-{
-  if (node && node.IsScalar()) {
-    value.assign(node.as<int>());
-  }
-}
+YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut);
+void operator >> (const YAML::Node& node, const ioffset_int& value);
 
 template <typename T>
 void operator >> (const YAML::Node& node, T& value)
@@ -76,13 +53,8 @@ void operator >> (const YAML::Node& node, T& value)
   }
 }
 
-template <>
-void operator >> (const YAML::Node& node, bool& value)
-{
-  if (node && node.IsScalar()) {
-    value = node.as<int>();
-  }
-}
+// type specialisation
+template <> void operator >> (const YAML::Node& node, bool& value);
 
 template <size_t N>
 void operator >> (const YAML::Node& node, char (&value)[N])

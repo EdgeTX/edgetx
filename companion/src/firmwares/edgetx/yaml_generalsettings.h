@@ -21,54 +21,13 @@
 #include "yaml_ops.h"
 #include "generalsettings.h"
 #include "yaml_trainerdata.h"
+#include "yaml_calibdata.h"
 
-typedef std::pair<int, std::string> YamlLookupTableElmt;
-typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
-
-const YamlLookupTable beeperModeLut = {
-  {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
-  {  GeneralSettings::BEEPER_ALARMS_ONLY, "mode_alarms" },
-  {  GeneralSettings::BEEPER_NOKEYS, "mode_nokeys" },
-  {  GeneralSettings::BEEPER_ALL, "mode_all"  },
-};
-
-enum BacklightMode {
-  e_backlight_mode_off  = 0,
-  e_backlight_mode_keys = 1,
-  e_backlight_mode_sticks = 2,
-  e_backlight_mode_all = e_backlight_mode_keys+e_backlight_mode_sticks,
-  e_backlight_mode_on
-};
-
-const YamlLookupTable backlightModeLut = {
-  {  e_backlight_mode_off, "backlight_mode_off"  },
-  {  e_backlight_mode_keys, "backlight_mode_keys"  },
-  {  e_backlight_mode_sticks, "backlight_mode_sticks"  },
-  {  e_backlight_mode_all, "backlight_mode_all"  },
-  {  e_backlight_mode_on, "backlight_mode_on"  },
-};
-
-const YamlLookupTable bluetoothModeLut = {
-  {  GeneralSettings::BLUETOOTH_MODE_OFF, "OFF"  },
-  {  GeneralSettings::BLUETOOTH_MODE_TELEMETRY, "TELEMETRY"  },
-  {  GeneralSettings::BLUETOOTH_MODE_TRAINER, "TRAINER"  },
-};
-
-const YamlLookupTable uartModeLut = {
-  {  GeneralSettings::AUX_SERIAL_OFF, "MODE_NONE"  },
-  {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "MODE_TELEMETRY_MIRROR"  },
-  {  GeneralSettings::AUX_SERIAL_TELE_IN, "MODE_TELEMETRY"  },
-  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
-  {  GeneralSettings::AUX_SERIAL_LUA, "MODE_LUA"  },
-};
-
-const YamlLookupTable antennaModeLut = {
-  {  GeneralSettings::ANTENNA_MODE_INTERNAL, "MODE_INTERNAL"  },
-  {  GeneralSettings::ANTENNA_MODE_ASK, "MODE_ASK"  },
-  {  GeneralSettings::ANTENNA_MODE_PER_MODEL, "MODE_PER_MODEL"  },
-  {  GeneralSettings::ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
-  {  GeneralSettings::ANTENNA_MODE_INTERNAL_EXTERNAL, "MODE_INTERNAL_EXTERNAL"  },
-};
+extern const YamlLookupTable beeperModeLut;
+extern const YamlLookupTable backlightModeLut;
+extern const YamlLookupTable bluetoothModeLut;
+extern const YamlLookupTable uartModeLut;
+extern const YamlLookupTable antennaModeLut;
 
 namespace YAML {
 
@@ -85,11 +44,18 @@ namespace YAML {
 
     static bool decode(const Node& node, GeneralSettings& rhs) {
 
+      // TODO: check board string and fetch Board instance
+      std::string board;
+      node["board"] >> board;
       node["version"] >> rhs.version;
-      node["versionBla"] >> rhs.version;
-      // // calib
+
+      // Radio calib
+      YamlCalibData calib;
+      node["calib"] >> calib;
+      calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+
       node["currModel"] >> rhs.currModelIndex;
-      // // filename
+      node["currModelFilename"] >> rhs.currModelFilename;
       node["contrast"] >> rhs.contrast;
       node["vBatWarn"] >> rhs.vBatWarn;
       node["txVoltageCalibration"] >> rhs.txVoltageCalibration;
@@ -153,13 +119,18 @@ namespace YAML {
       // }
 
       // TODO:
+      // char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
+      
       // char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
       // unsigned int switchConfig[CPN_MAX_SWITCHES];
-      // char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
+
       // char potName[CPN_MAX_KNOBS][HARDWARE_NAME_LEN + 1];
       // unsigned int potConfig[CPN_MAX_KNOBS];
+
       // char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
       // unsigned int sliderConfig[CPN_MAX_SLIDERS];
+
+      // Color lcd theme settings are probably obsolete
       // RadioTheme::ThemeData themeData;
 
       node["ownerRegistrationID"] >> rhs.registrationId;

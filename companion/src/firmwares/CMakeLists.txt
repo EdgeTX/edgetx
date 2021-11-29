@@ -30,6 +30,9 @@ set(firmwares_SRCS
   opentx/opentxeeprom.cpp
   opentx/opentxinterface.cpp
   edgetx/edgetxinterface.cpp
+  edgetx/yaml_ops.cpp
+  edgetx/yaml_generalsettings.cpp
+  edgetx/yaml_calibdata.cpp
   datahelpers.cpp
   customisation_data.cpp
   )
