@@ -26,6 +26,12 @@
 #define GVAR_SMALL 128
 #define VOLUME_LEVEL_DEF 12
 
+bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+             yaml_writer_func wf, void* opaque)
+{
+  return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
+}
+
 #define in_read_weight nullptr
 
 bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,

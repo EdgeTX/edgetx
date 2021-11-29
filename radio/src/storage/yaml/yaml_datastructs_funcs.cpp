@@ -28,6 +28,8 @@
 // Use definitions from v220 conversions as long as nothing changes
 
 namespace yaml_conv_220 {
+  bool w_board(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+
   bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
@@ -133,6 +135,12 @@ static inline void check_yaml_funcs()
   check_size<CustomFunctionData, 11>();
   check_size<TelemetryScreenData, 24>();
 #endif
+}
+
+static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_board(user, data, bitoffs, wf, opaque);
 }
 
 #define GVAR_SMALL 128

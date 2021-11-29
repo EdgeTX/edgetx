@@ -380,6 +380,7 @@ static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "version", 8 ),
+  YAML_CUSTOM("board",nullptr,w_board),
   YAML_PADDING( 16 ),
   YAML_ARRAY("calib", 48, 17, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
@@ -414,7 +415,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "beepLength", 3, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "hapticStrength", 3, r_5pos, w_5pos ),
   YAML_UNSIGNED( "gpsFormat", 1 ),
-  YAML_UNSIGNED( "unexpectedShutdown", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED_CUST( "speakerPitch", 8, r_spPitch, w_spPitch ),
   YAML_SIGNED_CUST( "speakerVolume", 8, r_vol, w_vol ),
   YAML_SIGNED_CUST( "vBatMin", 8, r_vbat_min, w_vbat_min ),
