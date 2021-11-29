@@ -1848,6 +1848,62 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
+/*luadoc
+@function setStickySwitch(id, value) 
+
+@param id: integer identifying the sticky logical switch (zero for LS1 etc.).
+
+@param value: true/false. The new value of the sticky logical switch.
+
+@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor 
+via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value 
+is returned and no messages was sent (i.e. the switch was not changed).
+
+Sets the value of a sticky logical switch.
+
+@status current Introduced in 2.6
+*/
+
+#if (MAX_LOGICAL_SWITCHES != 64)
+#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
+#endif
+
+static int luaSetStickySwitch(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+  bool value = lua_toboolean(L, 2);
+
+  uint8_t msg = (1 << 6);       // This bit is always set to have a non-zero value
+  if (value) msg |= (1 << 7);
+  msg |= (id & 0x3F);
+
+  lua_pushboolean(L, luaSetStickySwitchBuffer.write(msg));
+  return 1;
+}
+
+/*luadoc
+@function getLogicalSwitchValue(id)
+
+@param id: integer identifying the logical switch (zero for LS1 etc.).
+
+@retval value: true/false.
+
+Reads the value of a logical switch.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetLogicalSwitchValue(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+
+  if (id >= 0 && id < MAX_LOGICAL_SWITCHES)
+    lua_pushboolean(L, getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + id));
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -1907,6 +1963,8 @@ const luaL_Reg opentxLib[] = {
   { "setShmVar", luaSetShmVar },
   { "getShmVar", luaGetShmVar },
 #endif
+  { "setStickySwitch", luaSetStickySwitch },
+  { "getLogicalSwitchValue", luaGetLogicalSwitchValue },
   { nullptr, nullptr }  /* sentinel */
 };
 
