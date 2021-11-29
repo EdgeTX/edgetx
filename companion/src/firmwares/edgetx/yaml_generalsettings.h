@@ -19,10 +19,12 @@
  */
 
 #include "yaml_ops.h"
-#include "generalsettings.h"
 #include "yaml_trainerdata.h"
 #include "yaml_calibdata.h"
 #include "yaml_switchconfig.h"
+
+#include "generalsettings.h"
+#include "eeprominterface.h"
 
 extern const YamlLookupTable beeperModeLut;
 extern const YamlLookupTable backlightModeLut;
@@ -48,6 +50,13 @@ namespace YAML {
       // TODO: check board string and fetch Board instance
       std::string board;
       node["board"] >> board;
+
+      // TODO: we should be able to fetch the board based on 'board'
+      auto fw = getCurrentFirmware();
+      if (fw && fw->getId().toStdString() != ("edgetx-" + board)) {
+        throw std::runtime_error("Wrong board");
+      }
+      
       node["version"] >> rhs.version;
 
       // Radio calib
@@ -119,9 +128,6 @@ namespace YAML {
       //   }
       // }
 
-      // TODO:
-      // char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
-
       YamlStickConfig stickConfig;
       node["sticksConfig"] >> stickConfig;
       
@@ -137,11 +143,18 @@ namespace YAML {
       node["slidersConfig"] >> slidersConfig;
       slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
 
-      // Color lcd theme settings are probably obsolete
+      // Color lcd theme settings are not used in EdgeTx
       // RadioTheme::ThemeData themeData;
 
       node["ownerRegistrationID"] >> rhs.registrationId;
 
+      // Gyro (for now only xlites)
+      node["gyroMax"] >> rhs.gyroMax;
+      node["gyroOffset"] >> rhs.gyroOffset;
+
+      // OneBit sampling (X9D only?)
+      node["uartSampleMode"] >> rhs.uartSampleMode;
+      
       return true;
     }
   };
