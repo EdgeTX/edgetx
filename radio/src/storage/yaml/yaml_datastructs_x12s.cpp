@@ -91,7 +91,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_UartModes[] = {
-  {  UART_MODE_NONE, "MODE_NONE"  },
+  {  UART_MODE_DEBUG, "MODE_DEBUG"  },
   {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
   {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
   {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
@@ -881,7 +881,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 192, 9, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
-  YAML_UNSIGNED( "potsWarnEnabled", 16),
+  YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 9, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6800, 5, struct_CustomScreenData, NULL),

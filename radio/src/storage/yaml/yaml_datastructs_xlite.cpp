@@ -825,7 +825,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 192, 7, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 24, 32, struct_string_24, NULL),
-  YAML_UNSIGNED( "potsWarnEnabled", 16),
+  YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 2, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 40, struct_TelemetrySensor, NULL),
   YAML_PADDING( 8 ),
