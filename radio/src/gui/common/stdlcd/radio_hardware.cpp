@@ -221,6 +221,12 @@ enum {
   #define TX_CAPACITY_MEASUREMENT_ROWS
 #endif
 
+#if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
+  #define INTERNAL_MODULE_ROWS   0,
+#else
+  #define INTERNAL_MODULE_ROWS
+#endif
+
 #if (defined(CROSSFIRE) || defined(GHOST))
   #define MAX_BAUD_ROWS                  0,
 #else
@@ -292,6 +298,7 @@ void menuRadioHardware(event_t event)
     0 /* battery calib */,
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
+    INTERNAL_MODULE_ROWS
     MAX_BAUD_ROWS
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
