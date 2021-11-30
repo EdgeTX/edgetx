@@ -127,7 +127,7 @@ enum {
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
 #endif
   ITEM_RADIO_HARDWARE_DEBUG,
-#if defined(EEPROM_RLC)
+#if defined(EEPROM)
   ITEM_RADIO_BACKUP_EEPROM,
   ITEM_RADIO_FACTORY_RESET,
 #endif
@@ -249,7 +249,7 @@ enum {
   #define SPORT_POWER_ROWS
 #endif
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM)
 void onFactoryResetConfirm(const char * result)
 {
   if (result == STR_OK) {
