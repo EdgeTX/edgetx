@@ -64,10 +64,11 @@ class MenuToolbar: public FormGroup {
     void onEvent(event_t event) override
     {
       if (event == EVT_KEY_BREAK(KEY_PGDN)  || event == EVT_KEY_LONG(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
+#if defined(HARDWARE_TOUCH)
         if (current != children.end()) {
           static_cast<MenuToolbarButton *>(*current)->onTouchEnd(0,0);
         }
-
+#endif
         current = IS_KEY_LONG(event) || event == EVT_KEY_BREAK(KEY_PGUP) ?
           current == children.end() ?
             --current:
@@ -83,7 +84,9 @@ class MenuToolbar: public FormGroup {
 
         if (current != children.end()) {
           auto button = static_cast<MenuToolbarButton *>(*current);
+#if defined(HARDWARE_TOUCH)
           button->onTouchEnd(0,0);
+#endif
           scrollTo(button);
         }
         else {
