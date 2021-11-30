@@ -287,7 +287,8 @@ void Menu::removeLines()
 #if defined(HARDWARE_KEYS)
 void Menu::onEvent(event_t event)
 {
-  if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN))) {
+  if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN) || 
+      event == EVT_KEY_BREAK(KEY_PGUP))) {
     toolbar->onEvent(event);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
