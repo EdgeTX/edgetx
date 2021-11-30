@@ -276,9 +276,9 @@ const char firmware_txt[] =
   "DATE       " DATE "\r\n"
   "TIME       " TIME "\r\n"
 #if !defined(BOOT)
-"BOOTVER    "
+  "BOOTVER   "
 #else
-"FWVERSION  "
+  "FWVERSION "
 #endif
   ;
 
