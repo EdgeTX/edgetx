@@ -42,7 +42,7 @@
 class FirmwareInterface
 {
   public:
-    FirmwareInterface(const QString & filename);
+    FirmwareInterface(const QString & filename, QDialog* parentDialog = nullptr);
     inline QString getDate() { return date; }
     inline QString getTime() { return time; }
     int getSize() { return flashSize; }
@@ -62,6 +62,7 @@ class FirmwareInterface
     bool isValid();
 
   private:
+    QDialog* parentDialog;
     QByteArray flash;
     uint flashSize;
     QString seekString(const QString & string);

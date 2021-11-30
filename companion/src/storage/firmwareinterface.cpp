@@ -25,6 +25,7 @@
 #include "storage.h"
 
 #include <QFile>
+#include <QMessageBox>
 #include <vector>
 
 #define FW_MARK     "FW"
@@ -157,7 +158,8 @@ private:
   size_t pos;
 };
 
-FirmwareInterface::FirmwareInterface(const QString & filename):
+FirmwareInterface::FirmwareInterface(const QString & filename, QDialog* parentDialog):
+  parentDialog(parentDialog),
   flash(FSIZE_MAX, 0),
   flashSize(0),
   eepromVersion(0),
@@ -383,8 +385,11 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
     if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
 	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
-	    if(splashSize > RLE_SPLASH_MAX_SIZE)
-	      return false;
+	    if(splashSize > RLE_SPLASH_MAX_SIZE){
+	      if(parentDialog)
+            QMessageBox::critical(parentDialog, CPN_STR_TTL_ERROR, parentDialog->tr("Compressed image size exceeds reserved space."));
+          return false;
+	    }
     }
   }
   else {
