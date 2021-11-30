@@ -175,7 +175,7 @@ bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
     if (!getCurrentFirmware()->getCapability(HasModelCategories)) {
       // Use format with model number and file name. This is needed because
       // radios without category support can have unused model slots
-      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename));
+      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename).toLocal8Bit());
     } else {
       sortedModels[model.category].push_back(QString("%1\n").arg(model.filename));
     }
@@ -183,10 +183,12 @@ bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
 
   if (getCurrentFirmware()->getCapability(HasModelCategories)) {
     for (size_t c=0; c<numCategories; c++) {
-      modelsList.append(QString().sprintf("[%s]\n", radioData.categories[c].name));
+      modelsList.append(QString()
+                            .sprintf("[%s]\n", radioData.categories[c].name)
+                            .toLocal8Bit());
       numModels = sortedModels[c].size();
       for (size_t m=0; m<numModels; m++) {
-        modelsList.append(sortedModels[c][m]);
+        modelsList.append(sortedModels[c][m].toLocal8Bit());
       }
     }
   }
@@ -238,6 +240,51 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
   // TODO: provide a simple text mapping
   board = Board::BOARD_RADIOMASTER_TX16S;
+
+  // get models
+  QByteArray modelslistBuffer;
+  if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
+
+    // List< { filename, category index } >
+    EtxModelfiles modelFiles;
+
+    if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
+      setError(tr("Can't load MODELS/models.yml"));
+      return false;
+    }
+
+    radioData.models.reserve(modelFiles.size());
+
+    int modelIdx = 0;
+    for (const auto& mc : modelFiles) {
+      qDebug() << "Filename: " << mc.first.c_str() << " / Category: " << mc.second;
+
+      QByteArray modelBuffer;
+      QString filename = "MODELS/" + QString::fromStdString(mc.first);
+      if (!loadFile(modelBuffer, filename)) {
+        setError(tr("Can't extract ") + filename);
+        return false;      
+      }
+
+      // Please note:
+      //  ModelData() use memset to clear everything to 0
+      //
+      auto& model = radioData.models[modelIdx];
+      model.category = mc.second;
+      model.modelIndex = modelIdx;
+      strncpy(model.filename, mc.first.c_str(), sizeof(model.filename)-1);
+
+      if (!loadModelFromYaml(radioData.models[modelIdx],modelBuffer)) {
+        setError(tr("Can't load ") + filename);
+        return false;      
+      }
+      
+      modelIdx++;
+    }
+
+  } else {
+    // fetch "MODELS/modelXX.yml"
+  }
 
   return true;
 }

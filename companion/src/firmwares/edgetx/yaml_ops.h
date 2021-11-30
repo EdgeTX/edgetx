@@ -21,6 +21,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <QString>
 
 typedef std::pair<int, std::string> YamlLookupTableElmt;
 typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
@@ -89,6 +90,25 @@ void operator >> (const YAML::Node& node, char (&value)[N])
     str.copy(value, N-1);
     value[std::min(str.size(), N-1)] = '\0';
   }
+}
+
+template <typename T, size_t N>
+void operator>>(const YAML::Node& node, T (&value)[N])
+{
+  if (!node.IsMap()) return;// false;
+
+  for (const auto& elmt : node) {
+    try {
+      int idx = std::stoi(elmt.first.Scalar());
+      if (idx < 0 || idx >= N) return;// false;
+
+      elmt.second >> value[idx];
+    } catch (...) {
+      //return false;
+      return;
+    }
+  }
+  //return true;
 }
 
 #define ENUM_CONVERTER(enum_type, lut)                         \

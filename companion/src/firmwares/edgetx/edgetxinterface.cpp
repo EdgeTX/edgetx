@@ -22,6 +22,7 @@
 
 #include "yaml_ops.h"
 #include "yaml_generalsettings.h"
+#include "yaml_modeldata.h"
 
 static YAML::Node loadYamlFromByteArray(const QByteArray& data)
 {
@@ -30,11 +31,45 @@ static YAML::Node loadYamlFromByteArray(const QByteArray& data)
     return YAML::Load(data_istream);
 }
 
+bool loadModelsListFromYaml(std::vector<CategoryData> categories,
+                            EtxModelfiles& modelFiles,
+                            const QByteArray& data)
+{
+  try {
+    YAML::Node node = loadYamlFromByteArray(data);
+    if (!node.IsSequence()) return false;
+
+    for (const auto& cat : node) {
+
+      if (!cat.IsMap()) continue;
+
+      for (const auto& cat_map : cat) {
+        categories.push_back(cat_map.first.Scalar().c_str());
+
+        const auto& models = cat_map.second;
+        if (!models.IsSequence()) continue;
+
+        for (const auto& model : models) {
+          std::string filename;
+          model["filename"] >> filename;
+          modelFiles.push_back({ filename, categories.size()-1 });
+        }
+      }
+    }
+    
+  } catch (const std::runtime_error& e) {
+    qDebug() << "YAML::ParserException: " << e.what();
+    return false;
+  }
+
+  return true;  
+}
+
 bool loadModelFromYaml(ModelData& model, const QByteArray& data)
 {
   try {
     YAML::Node node = loadYamlFromByteArray(data);
-    //model << node;
+    node >> model;
   } catch (const std::runtime_error& e) {
     qDebug() << "YAML::ParserException: " << e.what();
     return false;

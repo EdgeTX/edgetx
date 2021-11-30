@@ -47,16 +47,24 @@ namespace YAML {
 
     static bool decode(const Node& node, GeneralSettings& rhs) {
 
+      if (!node.IsMap()) return false;
+      
+      // for (const auto& n : node) {
+      //   qDebug() << QString::fromStdString(n.first.Scalar());
+      // }
+      
       // TODO: check board string and fetch Board instance
       std::string board;
       node["board"] >> board;
-
       // TODO: we should be able to fetch the board based on 'board'
-      auto fw = getCurrentFirmware();
-      if (fw && fw->getId().toStdString() != ("edgetx-" + board)) {
-        throw std::runtime_error("Wrong board");
-      }
-      
+      // auto fw = getCurrentFirmware();
+      // if (fw) {
+      //   qDebug() << "FW Id: " << fw->getId();
+      //   if (fw->getId() != ("edgetx-" + radioData.generalSettings.board)) {
+      //     throw std::runtime_error("Wrong board");
+      //   }
+      // }
+
       node["version"] >> rhs.version;
 
       // Radio calib
