@@ -21,6 +21,7 @@
 
 #include "button.h"
 #include "menu.h"
+#include <algorithm>
 
 int getFirstAvailable(int min, int max, std::function<bool(int)>isValueAvailable);
 
@@ -28,7 +29,7 @@ class MenuToolbarButton: public Button {
   public:
     MenuToolbarButton(FormGroup * window, const rect_t & rect, char picto):
 #if defined(HARDWARE_TOUCH)
-      Button(window, rect, nullptr, BUTTON_CHECKED_ON_FOCUS),
+      Button(window, rect, nullptr),
 #else
       Button(window, rect, nullptr),
 #endif
@@ -37,28 +38,6 @@ class MenuToolbarButton: public Button {
     }
 
     void paint(BitmapBuffer * dc) override;
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override
-    {
-      if (hasFocus()) {
-        check(false);
-        clearFocus();
-      }
-      else {
-        setFocus(SET_FOCUS_DEFAULT);
-      }
-      onPress();
-      return true;
-    }
-#endif
-
-    void check(bool checked=true)
-    {
-      Button::check(checked);
-      onPress();
-      Button::check(checked);
-    }
 
   protected:
     char picto;
@@ -84,38 +63,27 @@ class MenuToolbar: public FormGroup {
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override
     {
-      if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-        if (current == children.end()) {
-          current = children.begin();
+      if (event == EVT_KEY_BREAK(KEY_PGDN)  || event == EVT_KEY_LONG(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
+        if (current != children.end()) {
+          static_cast<MenuToolbarButton *>(*current)->onTouchEnd(0,0);
         }
-        else {
-          static_cast<MenuToolbarButton *>(*current)->check(false);
-          ++current;
-        }
+
+        current = IS_KEY_LONG(event) || event == EVT_KEY_BREAK(KEY_PGUP) ?
+          current == children.end() ?
+            --current:
+            current == children.begin() ? 
+              children.end() :
+              --current : 
+          current == children.end() ?
+            children.begin() :
+            ++current;
+
+        if (IS_KEY_LONG(event))
+          killEvents(event);
+
         if (current != children.end()) {
           auto button = static_cast<MenuToolbarButton *>(*current);
-          button->check(true);
-          scrollTo(button);
-        }
-        else {
-          setScrollPositionY(0);
-        }
-      }
-      else if (event == EVT_KEY_LONG(KEY_PGDN)) {
-        killEvents(event);
-        if (current == children.end()) {
-          --current;
-        }
-        else {
-          static_cast<MenuToolbarButton *>(*current)->check(false);
-          if (current == children.begin())
-            current = children.end();
-          else
-            --current;
-        }
-        if (current != children.end()) {
-          auto button = static_cast<MenuToolbarButton *>(*current);
-          button->check(true);
+          button->onTouchEnd(0,0);
           scrollTo(button);
         }
         else {
@@ -138,6 +106,7 @@ class MenuToolbar: public FormGroup {
     T * choice;
     Menu * menu;
     coord_t y = 0;
+    std::vector<MenuToolbarButton *> menuButtons;
 
     void addButton(char picto, int16_t filtermin, int16_t filtermax)
     {
@@ -155,20 +124,33 @@ class MenuToolbar: public FormGroup {
       auto button = new MenuToolbarButton(
           this, {0, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH},
           picto);
-
       button->setPressHandler([=]() {
         auto val = choice->getValue();
+        button->check(!button->checked());
+
         if (button->checked()) {
           choice->fillMenu(menu, val, [=](int16_t index) {
             return index >= filtermin && index <= filtermax;
           });
-          menu->setFocusBody();
         } else {
           choice->fillMenu(menu, val);
-          menu->setFocusBody();
         }
-        return 1;
+        menu->setFocusBody();
+
+        // set current for page key procesing
+        current = std::find_if(children.begin(), children.end(), [button](Window *o) { return o == button; });
+        
+        // clear all checked but the current button
+        for (auto b : menuButtons) {
+          if (b != button)
+            b->check(false);
+        }
+
+        return button->checked();
       });
+
+      menuButtons.emplace_back(button);
+
 
       y += MENUS_TOOLBAR_BUTTON_WIDTH;
 
