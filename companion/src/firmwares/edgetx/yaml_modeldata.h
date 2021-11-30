@@ -19,6 +19,8 @@
  */
 
 #include "yaml_ops.h"
+#include "yaml_rawswitch.h"
+
 #include "modeldata.h"
 
 #include <string>
@@ -45,7 +47,7 @@ struct convert<TimerData> {
 
   static bool decode(const Node& node, TimerData& rhs)
   {
-    // TODO: node["swtch"] >> rhs.swtch;
+    node["swtch"] >> rhs.swtch;
     node["mode"] >> timerModeLut >> rhs.mode;
     node["name"] >> rhs.name;
     node["minuteBeep"] >> rhs.minuteBeep;
