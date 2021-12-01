@@ -54,45 +54,45 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   //                "Tasks", 0, COLOR_THEME_PRIMARY2 | FONT(XL) | CENTERED);
   // pos += title->height() + PAGE_LINE_SPACING;
 
-  carousel->addButton(ICON_MODEL_SELECT, "Select\nModel", [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_SELECT_MODEL, [=]() -> uint8_t {
     deleteLater();
     new ModelSelectMenu();
     return 0;
   });
 
   if (modelHasNotes()) {
-    carousel->addButton(ICON_MODEL_NOTES, "Model\nNotes", [=]() -> uint8_t {
+    carousel->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, [=]() -> uint8_t {
       deleteLater();
       readModelNotes();
       return 0;
     });
   }
 
-  carousel->addButton(ICON_MONITOR, "Channel\nMonitor", [=]() -> uint8_t {
+  carousel->addButton(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR, [=]() -> uint8_t {
     deleteLater();
     new ChannelsViewMenu();
     return 0;
   });
 
-  carousel->addButton(ICON_MODEL, "Model\nSettings", [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, [=]() -> uint8_t {
     deleteLater();
     new ModelMenu();
     return 0;
   });
 
-  carousel->addButton(ICON_RADIO, "Radio\nSettings", [=]() -> uint8_t {
+  carousel->addButton(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, [=]() -> uint8_t {
     deleteLater();
     new RadioMenu();
     return 0;
   });
 
-  carousel->addButton(ICON_THEME, "Screens\nSettings", [=]() -> uint8_t {
+  carousel->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, [=]() -> uint8_t {
     deleteLater();
     new ScreenMenu();
     return 0;
   });
 
-  carousel->addButton(ICON_MODEL_TELEMETRY, "Reset\nTelemetry", [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
     deleteLater();
     Menu* resetMenu = new Menu(parent);
     resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
@@ -104,13 +104,13 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  carousel->addButton(ICON_STATS, "Statistics", [=]() -> uint8_t {
+  carousel->addButton(ICON_STATS, STR_MAIN_MENU_STATISTICS, [=]() -> uint8_t {
     deleteLater();
     new StatisticsViewPageGroup();
     return 0;
   });
 
-  carousel->addButton(ICON_OPENTX, "About\nEdgeTX", [=]() -> uint8_t {
+  carousel->addButton(ICON_OPENTX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
     deleteLater();
     new AboutUs();
     return 0;

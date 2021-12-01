@@ -57,6 +57,7 @@
 #define LEN_SPECIAL_CHARS 0
 #elif defined(TRANSLATIONS_CN)
 #include "translations/cn.h"
+#define LEN_SPECIAL_CHARS 0
 #elif defined(TRANSLATIONS_TW)
 #include "translations/tw.h"
 #define LEN_SPECIAL_CHARS 0
@@ -1161,7 +1162,22 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
+#if defined(COLORLCD)
+
+extern const char STR_MAIN_MENU_SELECT_MODEL[];
+extern const char STR_MAIN_MENU_MODEL_NOTES[];
+extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
+extern const char STR_MAIN_MENU_MODEL_SETTINGS[];
+extern const char STR_MAIN_MENU_RADIO_SETTINGS[];
+extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
+extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
+extern const char STR_MAIN_MENU_STATISTICS[];
+extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
+
+#endif
+
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT
 
 #endif // _TRANSLATIONS_H_
+

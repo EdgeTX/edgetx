@@ -1402,3 +1402,15 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+
+// Main menu
+#define TR_MAIN_MENU_SELECT_MODEL       "Select\nModel"
+#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nSettings"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio\nSettings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Screens\nSettings"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelemetry"
+#define TR_MAIN_MENU_STATISTICS         "Statistics"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
+// End Main menu
