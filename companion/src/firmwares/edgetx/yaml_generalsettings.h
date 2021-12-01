@@ -45,9 +45,8 @@ namespace YAML {
       node["version"] = rhs.version;
 
       // Radio calib
-      // YamlCalibData calib;
-      // node["calib"] = calib;
-      // calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+      YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+      node["calib"] = calib;
 
       node["currModel"] = rhs.currModelIndex;
       node["currModelFilename"] = rhs.currModelFilename;
@@ -61,11 +60,11 @@ namespace YAML {
       node["backlightMode"] = backlightModeLut << rhs.backlightMode;
       node["trainer"] = rhs.trainer;
       node["view"] = rhs.view;
-      node["fai"] = rhs.fai;
-      node["disableMemoryWarning"] = rhs.disableMemoryWarning;
+      node["fai"] = (int)rhs.fai;
+      node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
       node["beepMode"] = rhs.beeperMode;
-      node["disableAlarmWarning"] = rhs.disableAlarmWarning;
-      node["disableRssiPoweroffAlarm"] = rhs.disableRssiPoweroffAlarm;
+      node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
+      node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
       node["USBMode"] = rhs.usbMode;
       node["jackMode"] = rhs.jackMode;
       node["hapticMode"] = rhs.hapticMode;
@@ -89,9 +88,9 @@ namespace YAML {
       node["bluetoothBaudrate"] = rhs.bluetoothBaudrate;
       node["bluetoothMode"] = bluetoothModeLut << rhs.bluetoothMode;
       node["countryCode"] = rhs.countryCode;
-      node["jitterFilter"] = rhs.jitterFilter;
-      node["disableRtcWarning"] = rhs.rtcCheckDisable; // TODO: verify
-      node["keysBacklight"] = rhs.keysBacklight;
+      node["jitterFilter"] = (int)rhs.jitterFilter;
+      node["disableRtcWarning"] = (int)rhs.rtcCheckDisable; // TODO: verify
+      node["keysBacklight"] = (int)rhs.keysBacklight;
       node["imperial"] = rhs.imperial;
       node["ttsLanguage"] = rhs.ttsLanguage;
       node["beepVolume"] = rhs.beepVolume + 2;

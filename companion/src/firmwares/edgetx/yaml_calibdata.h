@@ -31,34 +31,21 @@ struct YamlCalibData {
   CalibData calib[CPN_MAX_ANALOGS];
 
   YamlCalibData();
+  YamlCalibData(const int* calibMid, const int* calibSpanNeg, const int* calibSpanPos);
   void copy(int* calibMid, int* calibSpanNeg, int* calibSpanPos) const;
 };
 
-extern const YamlLookupTable calibIdxLut;
+namespace YAML
+{
+template <>
+struct convert<CalibData> {
+  static Node encode(const CalibData& rhs);
+  static bool decode(const Node& node, CalibData& rhs);
+};
 
-namespace YAML {
-
-  template<>
-  struct convert<CalibData> {
-    static bool decode(const Node& node, CalibData& rhs) {
-      if (!node.IsMap()) return false;
-      node["mid"] >> rhs.mid;
-      node["spanNeg"] >> rhs.spanNeg;
-      node["spanPos"] >> rhs.spanPos;
-      return true;
-    }
-  };
-
-  template<>
-  struct convert<YamlCalibData> {
-    static bool decode(const Node& node, YamlCalibData& rhs) {
-      if (!node.IsMap()) return false;
-      int idx = 0;
-      for (const auto& kv : node) {
-        kv.first >> calibIdxLut >> idx;
-        kv.second >> rhs.calib[idx];
-      }
-      return true;
-    }
-  }; 
-}
+template <>
+struct convert<YamlCalibData> {
+  static Node encode(const YamlCalibData& rhs);
+  static bool decode(const Node& node, YamlCalibData& rhs);
+};
+}  // namespace YAML

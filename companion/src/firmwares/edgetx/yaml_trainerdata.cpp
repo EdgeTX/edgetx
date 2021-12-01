@@ -33,14 +33,16 @@ namespace YAML
 Node convert<TrainerMix>::encode(const TrainerMix& rhs)
 {
   Node node;
-  // TODO: convert struct into Node
+  node["srcChn"] = rhs.src;
+  node["mode"] = trainerMixMode << rhs.mode;
+  node["studWeight"] = rhs.weight;
   return node;
 }
 
 bool convert<TrainerMix>::decode(const Node& node, TrainerMix& rhs)
 {
   node["srcChn"] >> rhs.src;
-  // node["mode"] >> rhs.mode; // TODO: string mapping
+  node["mode"] >> trainerMixMode >> rhs.mode;
   node["studWeight"] >> rhs.weight;
   return true;
 }
@@ -48,7 +50,12 @@ bool convert<TrainerMix>::decode(const Node& node, TrainerMix& rhs)
 Node convert<TrainerData>::encode(const TrainerData& rhs)
 {
   Node node;
-  // TODO: convert struct into Node
+  for (int i = 0; i < 4; i++) {
+    node["calib"][std::to_string(i)]["val"] = rhs.calib[i];
+  }
+  for (int i = 0; i < 4; i++) {
+    node["mix"][std::to_string(i)] = rhs.mix[i];
+  }
   return node;
 }
 
@@ -57,14 +64,14 @@ bool convert<TrainerData>::decode(const Node& node, TrainerData& rhs)
   if (node["calib"]) {
     const Node& calib = node["calib"];
     for (int i = 0; i < 4; i++) {
-      calib[i] >> rhs.calib[i];
+      calib[std::to_string(i)]["val"] >> rhs.calib[i];
     }
   }
 
   if (node["mix"]) {
     const Node& mix = node["mix"];
     for (int i = 0; i < 4; i++) {
-      mix[i] >> rhs.mix[i];
+      mix[std::to_string(i)] >> rhs.mix[i];
     }
   }
   return true;
