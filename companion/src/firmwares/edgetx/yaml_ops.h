@@ -115,14 +115,14 @@ namespace YAML {
 
 Node operator << (const YamlLookupTable& lut, const int& value);
 
-template <typename T, const YamlLookupTable& lut>
+template <typename T>
 struct convert_enum
 {
-  static YAML::Node encode(const T& rhs)
+  static YAML::Node encode(const YamlLookupTable& lut, const T& rhs)
   {
     return lut << rhs;
   }
-  static bool decode(const YAML::Node& node, T& rhs)
+  static bool decode(const YAML::Node& node, const YamlLookupTable& lut, T& rhs)
   {
     if (node) {
       YAML::Node conv = node >> lut;
@@ -141,10 +141,10 @@ struct convert_enum
   struct convert<enum_type> {                                  \
     static YAML::Node encode(const enum_type& rhs)             \
     {                                                          \
-      return convert_enum<enum_type, lut>::encode(rhs);        \
+      return convert_enum<enum_type>::encode(lut,rhs);       \
     }                                                          \
     static bool decode(const YAML::Node& node, enum_type& rhs) \
     {                                                          \
-      return convert_enum<enum_type, lut>::decode(node, rhs);  \
+      return convert_enum<enum_type>::decode(node, lut, rhs);   \
     }                                                          \
   }
