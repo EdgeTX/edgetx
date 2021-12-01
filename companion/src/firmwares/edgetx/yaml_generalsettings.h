@@ -112,20 +112,10 @@ namespace YAML {
       //   }
       // }
 
-      // YamlStickConfig stickConfig;
-      // node["sticksConfig"] = stickConfig;
-      
-      // YamlSwitchConfig switchConfig;
-      // node["switchConfig"] = switchConfig;
-      // switchConfig.copy(rhs.switchName, rhs.switchConfig);
-
-      // YamlPotConfig potsConfig;
-      // node["potsConfig"] = potsConfig;
-      // potsConfig.copy(rhs.potName, rhs.potConfig);
-
-      // YamlSliderConfig slidersConfig;
-      // node["slidersConfig"] = slidersConfig;
-      // slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
+      node["sticksConfig"] = YamlStickConfig(rhs.stickName);
+      node["switchConfig"] = YamlSwitchConfig(rhs.switchName, rhs.switchConfig);
+      node["potsConfig"] = YamlPotConfig(rhs.potName, rhs.potConfig);
+      node["slidersConfig"] = YamlSliderConfig(rhs.sliderName, rhs.sliderConfig);
 
       // Color lcd theme settings are not used in EdgeTx
       // RadioTheme::ThemeData themeData;

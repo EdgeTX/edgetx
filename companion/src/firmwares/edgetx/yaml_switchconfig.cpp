@@ -62,3 +62,4 @@ const YamlLookupTable sliderConfigLut = {
     {Board::SLIDER_NONE, "none"},
     {Board::SLIDER_WITH_DETENT, "with_detent"},
 };
+

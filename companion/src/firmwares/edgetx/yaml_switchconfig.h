@@ -22,28 +22,47 @@
 
 #include "yaml_ops.h"
 #include "generalsettings.h"
+#include <string.h>
 
-template<unsigned int N, const YamlLookupTable& name_lut>
+template <unsigned int N, const YamlLookupTable& name_lut>
 struct YamlNameConfig {
-
   char name[N][HARDWARE_NAME_LEN + 1];
 
-  void copy(char out_names[N][HARDWARE_NAME_LEN + 1]) {
-      memcpy(out_names, name, sizeof(name));
+  YamlNameConfig() { memset(name, 0, sizeof(name)); }
+
+  YamlNameConfig(const char in_names[N][HARDWARE_NAME_LEN + 1])
+  {
+    memcpy(name, in_names, sizeof(name));
+  }
+
+  void copy(char out_names[N][HARDWARE_NAME_LEN + 1])
+  {
+    memcpy(out_names, name, sizeof(name));
   }
 };
 
 extern const YamlLookupTable sticksLut;
 typedef YamlNameConfig<CPN_MAX_SWITCHES, sticksLut> YamlStickConfig;
 
-template<unsigned int N, const YamlLookupTable& name_lut, const YamlLookupTable& cfg_lut>
+template <unsigned int N, const YamlLookupTable& name_lut,
+          const YamlLookupTable& cfg_lut>
 struct YamlKnobConfig : public YamlNameConfig<N, name_lut> {
-
   unsigned int config[N];
 
-  void copy(char out_names[N][HARDWARE_NAME_LEN + 1], unsigned int out_configs[N]) {
-      YamlNameConfig<N, name_lut>::copy(out_names);
-      memcpy(out_configs, config, sizeof(config));
+  YamlKnobConfig() { memset(config, 0, sizeof(config)); }
+
+  YamlKnobConfig(const char in_names[N][HARDWARE_NAME_LEN + 1],
+                 const unsigned int in_configs[N]) :
+      YamlNameConfig<N, name_lut>(in_names)
+  {
+    memset(config, 0, sizeof(config));
+  }
+
+  void copy(char out_names[N][HARDWARE_NAME_LEN + 1],
+            unsigned int out_configs[N])
+  {
+    YamlNameConfig<N, name_lut>::copy(out_names);
+    memcpy(out_configs, config, sizeof(config));
   }
 };
 
@@ -52,26 +71,36 @@ struct YamlKnobConfig : public YamlNameConfig<N, name_lut> {
 //    name:
 extern const YamlLookupTable switchesLut;
 extern const YamlLookupTable switchConfigLut;
-typedef YamlKnobConfig<CPN_MAX_SWITCHES, switchesLut, switchConfigLut> YamlSwitchConfig;
+typedef YamlKnobConfig<CPN_MAX_SWITCHES, switchesLut, switchConfigLut>
+    YamlSwitchConfig;
 
 // S1:
 //    type: with_detent
-//    name: 
+//    name:
 extern const YamlLookupTable potsLut;
 extern const YamlLookupTable potConfigLut;
 typedef YamlKnobConfig<CPN_MAX_KNOBS, potsLut, potConfigLut> YamlPotConfig;
 
 // S1:
 //    type: with_detent
-//    name: 
+//    name:
 extern const YamlLookupTable slidersLut;
 extern const YamlLookupTable sliderConfigLut;
-typedef YamlKnobConfig<CPN_MAX_SLIDERS, slidersLut, sliderConfigLut> YamlSliderConfig;
+typedef YamlKnobConfig<CPN_MAX_SLIDERS, slidersLut, sliderConfigLut>
+    YamlSliderConfig;
 
 namespace YAML
 {
 template <unsigned int N, const YamlLookupTable& name_lut>
 struct convert<YamlNameConfig<N, name_lut> > {
+  static Node encode(const YamlNameConfig<N, name_lut>& rhs)
+  {
+    Node node;
+    for (const auto& kv : name_lut) {
+      node[kv.second]["name"] = rhs.name[kv.first];
+    }
+    return node;
+  }
   static bool decode(const Node& node, YamlNameConfig<N, name_lut>& rhs)
   {
     if (!node.IsMap()) return false;
@@ -84,9 +113,20 @@ struct convert<YamlNameConfig<N, name_lut> > {
   }
 };
 
-template <unsigned int N, const YamlLookupTable& name_lut, const YamlLookupTable& cfg_lut>
+template <unsigned int N, const YamlLookupTable& name_lut,
+          const YamlLookupTable& cfg_lut>
 struct convert<YamlKnobConfig<N, name_lut, cfg_lut> > {
-  static bool decode(const Node& node, YamlKnobConfig<N, name_lut, cfg_lut>& rhs)
+  static Node encode(const YamlKnobConfig<N, name_lut, cfg_lut>& rhs)
+  {
+    Node node;
+    for (const auto& kv : name_lut) {
+      node[kv.second]["type"] = cfg_lut << rhs.config[kv.first];
+      node[kv.second]["name"] = rhs.name[kv.first];
+    }
+    return node;
+  }
+  static bool decode(const Node& node,
+                     YamlKnobConfig<N, name_lut, cfg_lut>& rhs)
   {
     if (!node.IsMap()) return false;
     int idx = 0;
