@@ -37,5 +37,5 @@ bool loadModelsListFromYaml(std::vector<CategoryData> categories,
 bool loadModelFromYaml(ModelData& model, const QByteArray& data);
 bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data);
 
-bool writeModelToByteArray(const ModelData& model, QByteArray& data);
-bool writeRadioSettingsToByteArray(const GeneralSettings& settings, QByteArray& data);
+bool writeModelToYaml(const ModelData& model, QByteArray& data);
+bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data);

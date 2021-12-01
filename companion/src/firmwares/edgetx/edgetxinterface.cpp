@@ -31,6 +31,14 @@ static YAML::Node loadYamlFromByteArray(const QByteArray& data)
     return YAML::Load(data_istream);
 }
 
+static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
+{
+    // TODO: use real streaming to avoid memory copies
+    std::stringstream data_ostream;
+    data_ostream << node;
+    data = QByteArray::fromStdString(data_ostream.str());
+}
+
 bool loadModelsListFromYaml(std::vector<CategoryData> categories,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
@@ -98,5 +106,8 @@ bool writeModelToYaml(const ModelData& model, QByteArray& data)
 
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
 {
-    return false;
+  YAML::Node node;
+  node = settings;
+  writeYamlToByteArray(node, data);
+  return true;
 }

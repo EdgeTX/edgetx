@@ -220,13 +220,6 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       qDebug() << tr("Found %1").arg(filename);
   }
 
-  // setError(tr("Error: Yaml format ignored - under development"));
-  // return false; // force failure until fully developed
-
-  /*
-          This code a copy of loadBin with yaml file extensions ONLY
-  */
-
   QByteArray radioSettingsBuffer;
   if (!loadFile(radioSettingsBuffer, "RADIO/radio.yml")) {
     setError(tr("Can't extract RADIO/radio.yml"));
@@ -291,6 +284,10 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
 bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
 {
-  setError("Error: Yaml format ignored - under development");
-  return false; // force failure until fully developed
+  QByteArray radioSettingsBuffer;
+  if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer)) {
+    return false;
+  }
+
+  return writeFile(radioSettingsBuffer, "RADIO/radio.yml");
 }

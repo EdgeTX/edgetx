@@ -19,7 +19,6 @@
  */
 
 #include "yaml_ops.h"
-#include <algorithm>
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
@@ -53,4 +52,22 @@ void operator >> (const YAML::Node& node, bool& value)
   if (node && node.IsScalar()) {
     value = node.as<int>();
   }
+}
+
+namespace YAML {
+
+Node operator << (const YamlLookupTable& lut, const int& value)
+{
+  const auto& it =
+    find_if(lut.begin(), lut.end(), [=](const YamlLookupTableElmt& elmt) {
+        if (elmt.first == value) return true;
+        return false;
+      });
+  
+  if (it != lut.end()) {
+    return Node(it->second);
+  }
+  return Node();
+}
+
 }

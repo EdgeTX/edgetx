@@ -33,6 +33,7 @@ set(firmwares_SRCS
   edgetx/yaml_ops.cpp
   edgetx/yaml_generalsettings.cpp
   edgetx/yaml_calibdata.cpp
+  edgetx/yaml_trainerdata.cpp
   edgetx/yaml_switchconfig.cpp
   edgetx/yaml_modeldata.cpp
   edgetx/yaml_rawswitch.cpp

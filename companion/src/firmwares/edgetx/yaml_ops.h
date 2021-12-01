@@ -21,6 +21,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <algorithm>
 #include <QString>
 
 typedef std::pair<int, std::string> YamlLookupTableElmt;
@@ -58,7 +59,6 @@ private:
   T& value;
   T factor;
 };
-
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut);
 void operator >> (const YAML::Node& node, const ioffset_int& value);
@@ -111,17 +111,40 @@ void operator>>(const YAML::Node& node, T (&value)[N])
   //return true;
 }
 
+namespace YAML {
+
+Node operator << (const YamlLookupTable& lut, const int& value);
+
+template <typename T, const YamlLookupTable& lut>
+struct convert_enum
+{
+  static YAML::Node encode(const T& rhs)
+  {
+    return lut << rhs;
+  }
+  static bool decode(const YAML::Node& node, T& rhs)
+  {
+    if (node) {
+      YAML::Node conv = node >> lut;
+      if (conv.IsScalar()) {
+        rhs = (T)conv.as<int>();
+      }
+    }
+    return true;
+  }
+};
+
+}
+
 #define ENUM_CONVERTER(enum_type, lut)                         \
   template <>                                                  \
   struct convert<enum_type> {                                  \
+    static YAML::Node encode(const enum_type& rhs)             \
+    {                                                          \
+      return convert_enum<enum_type, lut>::encode(rhs);        \
+    }                                                          \
     static bool decode(const YAML::Node& node, enum_type& rhs) \
     {                                                          \
-      if (node) {                                              \
-        YAML::Node conv = node >> lut;                         \
-        if (conv.IsScalar()) {                                 \
-          rhs = (enum_type)conv.as<int>();                     \
-        }                                                      \
-      }                                                        \
-      return true;                                             \
+      return convert_enum<enum_type, lut>::decode(node, rhs);  \
     }                                                          \
   }

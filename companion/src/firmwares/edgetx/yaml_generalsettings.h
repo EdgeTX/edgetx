@@ -39,11 +39,109 @@ namespace YAML {
   template<>
   struct convert<GeneralSettings> {
 
-    // static YAML::Node encode(const GeneralSettings& rhs) {
-    //       Node node;
-    //       // TODO: convert struct into Node
-    //       return node;
-    // }
+    static YAML::Node encode(const GeneralSettings& rhs) {
+      Node node;
+      
+      node["version"] = rhs.version;
+
+      // Radio calib
+      // YamlCalibData calib;
+      // node["calib"] = calib;
+      // calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+
+      node["currModel"] = rhs.currModelIndex;
+      node["currModelFilename"] = rhs.currModelFilename;
+      node["contrast"] = rhs.contrast;
+      node["vBatWarn"] = rhs.vBatWarn;
+      node["txVoltageCalibration"] = rhs.txVoltageCalibration;
+
+      node["vBatMin"] = rhs.vBatMin + 90;
+      node["vBatMax"] = rhs.vBatMax + 120;
+
+      node["backlightMode"] = backlightModeLut << rhs.backlightMode;
+      node["trainer"] = rhs.trainer;
+      node["view"] = rhs.view;
+      node["fai"] = rhs.fai;
+      node["disableMemoryWarning"] = rhs.disableMemoryWarning;
+      node["beepMode"] = rhs.beeperMode;
+      node["disableAlarmWarning"] = rhs.disableAlarmWarning;
+      node["disableRssiPoweroffAlarm"] = rhs.disableRssiPoweroffAlarm;
+      node["USBMode"] = rhs.usbMode;
+      node["jackMode"] = rhs.jackMode;
+      node["hapticMode"] = rhs.hapticMode;
+      node["stickMode"] = rhs.stickMode;
+      node["timezone"] = rhs.timezone;
+      node["adjustRTC"] = rhs.adjustRTC;
+      node["inactivityTimer"] = rhs.inactivityTimer;
+      node["telemetryBaudrate"] = rhs.telemetryBaudrate; // TODO: conversion???
+      node["splashMode"] = rhs.splashMode; // TODO: B&W only
+      node["templateSetup"] = rhs.templateSetup;
+      node["hapticLength"] = rhs.hapticLength + 2;
+      node["speakerPitch"] = rhs.speakerPitch * 15;
+      node["hapticStrength"] = rhs.hapticStrength + 2;
+      node["beepLength"] = rhs.beeperLength + 2;
+      node["gpsFormat"] = rhs.gpsFormat;
+      node["speakerVolume"] = rhs.speakerVolume + 12 ;
+      node["backlightBright"] = rhs.backlightBright;
+      node["switchesDelay"] = rhs.switchesDelay;
+      node["globalTimer"] = rhs.globalTimer;
+      node["bluetoothName"] = rhs.bluetoothName;
+      node["bluetoothBaudrate"] = rhs.bluetoothBaudrate;
+      node["bluetoothMode"] = bluetoothModeLut << rhs.bluetoothMode;
+      node["countryCode"] = rhs.countryCode;
+      node["jitterFilter"] = rhs.jitterFilter;
+      node["disableRtcWarning"] = rhs.rtcCheckDisable; // TODO: verify
+      node["keysBacklight"] = rhs.keysBacklight;
+      node["imperial"] = rhs.imperial;
+      node["ttsLanguage"] = rhs.ttsLanguage;
+      node["beepVolume"] = rhs.beepVolume + 2;
+      node["wavVolume"] = rhs.wavVolume + 2;
+      node["varioVolume"] = rhs.varioVolume + 2;
+      node["varioPitch"] = rhs.varioPitch * 10;
+      node["varioRange"] = rhs.varioRange * 15;
+      node["varioRepeat"] = rhs.varioRepeat;
+      node["backgroundVolume"] = rhs.backgroundVolume + 2;
+      node["auxSerialMode"] = uartModeLut << rhs.auxSerialMode;
+      node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
+      node["antennaMode"] = antennaModeLut << rhs.antennaMode;
+      node["backlightColor"] = rhs.backlightColor;
+
+      // if (node["customFn"]) {
+      //   const YAML::Node& cfn = node["customFn"];
+      //   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
+      //     cfn[i] = rhs.customFn[i];
+      //   }
+      // }
+
+      // YamlStickConfig stickConfig;
+      // node["sticksConfig"] = stickConfig;
+      
+      // YamlSwitchConfig switchConfig;
+      // node["switchConfig"] = switchConfig;
+      // switchConfig.copy(rhs.switchName, rhs.switchConfig);
+
+      // YamlPotConfig potsConfig;
+      // node["potsConfig"] = potsConfig;
+      // potsConfig.copy(rhs.potName, rhs.potConfig);
+
+      // YamlSliderConfig slidersConfig;
+      // node["slidersConfig"] = slidersConfig;
+      // slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
+
+      // Color lcd theme settings are not used in EdgeTx
+      // RadioTheme::ThemeData themeData;
+
+      node["ownerRegistrationID"] = rhs.registrationId;
+
+      // Gyro (for now only xlites)
+      node["gyroMax"] = rhs.gyroMax;
+      node["gyroOffset"] = rhs.gyroOffset;
+
+      // OneBit sampling (X9D only?)
+      node["uartSampleMode"] = rhs.uartSampleMode;
+
+      return node;
+    }
 
     static bool decode(const Node& node, GeneralSettings& rhs) {
 
@@ -138,6 +236,7 @@ namespace YAML {
 
       YamlStickConfig stickConfig;
       node["sticksConfig"] >> stickConfig;
+      stickConfig.copy(rhs.stickName);
       
       YamlSwitchConfig switchConfig;
       node["switchConfig"] >> switchConfig;
