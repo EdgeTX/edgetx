@@ -113,6 +113,7 @@ void operator>>(const YAML::Node& node, T (&value)[N])
 
 namespace YAML {
 
+std::string LookupValue(const YamlLookupTable& lut, const int& value);
 Node operator << (const YamlLookupTable& lut, const int& value);
 
 template <typename T>

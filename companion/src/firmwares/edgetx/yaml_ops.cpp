@@ -56,7 +56,7 @@ void operator >> (const YAML::Node& node, bool& value)
 
 namespace YAML {
 
-Node operator << (const YamlLookupTable& lut, const int& value)
+std::string LookupValue(const YamlLookupTable& lut, const int& value)
 {
   const auto& it =
     find_if(lut.begin(), lut.end(), [=](const YamlLookupTableElmt& elmt) {
@@ -65,7 +65,17 @@ Node operator << (const YamlLookupTable& lut, const int& value)
       });
   
   if (it != lut.end()) {
-    return Node(it->second);
+    return it->second;
+  }
+
+  return std::string();
+}
+
+Node operator << (const YamlLookupTable& lut, const int& value)
+{
+  std::string str = LookupValue(lut, value);
+  if (!str.empty()) {
+    return Node(str);
   }
   return Node();
 }

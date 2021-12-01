@@ -25,118 +25,17 @@
 
 #include <string>
 
-extern const YamlLookupTable timerModeLut;
-extern const YamlLookupTable trainerModeLut;
-
-// extern const YamlLookupTable backlightModeLut;
-// extern const YamlLookupTable bluetoothModeLut;
-// extern const YamlLookupTable uartModeLut;
-// extern const YamlLookupTable antennaModeLut;
-
 namespace YAML {
-
-// ENUM_CONVERTER(GeneralSettings::BeeperMode, beeperModeLut);
 
 template <>
 struct convert<TimerData> {
-  // static YAML::Node encode(const GeneralSettings& rhs) {
-  //       Node node;
-  //       // TODO: convert struct into Node
-  //       return node;
-  // }
-
-  static bool decode(const Node& node, TimerData& rhs)
-  {
-    node["swtch"] >> rhs.swtch;
-    node["mode"] >> timerModeLut >> rhs.mode;
-    node["name"] >> rhs.name;
-    node["minuteBeep"] >> rhs.minuteBeep;
-    node["countdownBeep"] >> rhs.countdownBeep;
-    node["start"] >> rhs.val;
-    node["persistent"] >> rhs.persistent;
-    node["countdownStart"] >> rhs.countdownStart;
-    node["value"] >> rhs.pvalue;
-    return true;
-  }
+  static Node encode(const TimerData& rhs);
+  static bool decode(const Node& node, TimerData& rhs);
 };
 
 template <>
 struct convert<ModelData> {
-  // static YAML::Node encode(const GeneralSettings& rhs) {
-  //       Node node;
-  //       // TODO: convert struct into Node
-  //       return node;
-  // }
-
-  static bool decode(const Node& node, ModelData& rhs)
-  {
-    if (!node.IsMap()) return false;
-
-    if (node["header"]) {
-      const auto& header = node["header"];
-      if (!header.IsMap()) return false;
-
-      header["name"] >> rhs.name;
-      header["bitmap"] >> rhs.bitmap;
-      // TODO: modelId
-    }
-
-    if (node["timers"]) {
-      const auto& timers = node["timers"];
-      if (!timers.IsMap()) return false;
-      timers >> rhs.timers;
-    }
-
-    node["noGlobalFunctions"] >> rhs.noGlobalFunctions;
-    node["thrTrim"] >> rhs.thrTrim;
-    node["trimInc"] >> rhs.trimInc;
-    node["displayTrims"] >> rhs.trimsDisplay;
-    node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
-    //node[] >> rhs.beepANACenter;
-    node["extendedLimits"] >> rhs.extendedLimits;
-    node["extendedTrims"] >> rhs.extendedTrims;
-    node["throttleReversed"] >> rhs.throttleReversed;
-
-    //flightModeData[]
-    //mixData[]
-    //limitData[]
-    //inputNames[]
-    //expoData[]
-    //curves[]
-    //logicalSw[]
-    //customFn[]
-
-    //swashRingData
-    //thrTraceSrc
-    //switchWarningStates
-    //thrTrimSwitch
-    //potsWarningMode
-    //potsWarnEnabled[]
-    //potsWarnPosition[]
-
-    node["displayChecklist"] >> rhs.displayChecklist;
-
-    //gvarData[]
-    //mavlink ???
-    //telemetryProtocol ???
-    //frsky
-    //rssiSource
-    //rssiAlarms
-
-    node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
-
-    //moduleData[]
-    //scriptData[]
-    //sensorData[]
-
-    node["toplcdTimer"] >> rhs.toplcdTimer;
-
-    //customScreens
-    //topBarData
-    node["view"] >> rhs.view;
-    node["modelRegistrationID"] >> rhs.registrationId;
-    
-    return true;
-  }
+  static Node encode(const ModelData& rhs);
+  static bool decode(const Node& node, ModelData& rhs);
 };
 }  // namespace YAML

@@ -42,7 +42,7 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
     qDebug() << data_ostream.str().c_str();
 }
 
-bool loadModelsListFromYaml(std::vector<CategoryData> categories,
+bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
@@ -102,16 +102,42 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
   return true;
 }
 
+// TODO:
+//   'modelFiles' should be ordered by Category index to avoid
+//   turning the sequence into a map.
+//
+bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
+                           const EtxModelfiles& modelFiles,
+                           QByteArray& data)
+{
+  YAML::Node node;
+  for (const auto& modelFile: modelFiles) {
+
+    YAML::Node cat_attrs;
+    cat_attrs["filename"] = modelFile.first;
+
+    const std::string cat_name = categories[modelFile.second].name;
+    node[modelFile.second][cat_name].push_back(cat_attrs);
+  }
+
+  writeYamlToByteArray(node, data);
+  return true;
+}
+
 bool writeModelToYaml(const ModelData& model, QByteArray& data)
 {
-    return false;
+  YAML::Node node;
+  node = model;
+  
+  writeYamlToByteArray(node, data);
+  return true;
 }
 
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
 {
   YAML::Node node;
   node = settings;
-  writeYamlToByteArray(node, data);
 
+  writeYamlToByteArray(node, data);
   return false;
 }

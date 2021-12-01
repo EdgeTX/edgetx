@@ -30,12 +30,16 @@
 typedef std::pair<std::string, int> EtxModelfileCategoryPair;
 typedef std::list<EtxModelfileCategoryPair> EtxModelfiles;
 
-bool loadModelsListFromYaml(std::vector<CategoryData> categories,
+bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data);
 
 bool loadModelFromYaml(ModelData& model, const QByteArray& data);
 bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data);
+
+bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
+                           const EtxModelfiles& modelFiles,
+                           QByteArray& data);
 
 bool writeModelToYaml(const ModelData& model, QByteArray& data);
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data);

@@ -290,5 +290,30 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     return false;
   }
 
-  return writeFile(radioSettingsBuffer, "RADIO/radio.yml");
+  if (!writeFile(radioSettingsBuffer, "RADIO/radio.yml")) {
+    return false;
+  }
+
+  EtxModelfiles modelFiles;
+  for (const auto& model : radioData.models) {
+
+    // TODO: verify '.yml' (in case we moved from '.bin') 
+    QString modelFilename = QString("MODELS/%1").arg(model.filename);
+    QByteArray modelData;
+    writeModelToYaml(model, modelData);
+    if (!writeFile(modelData, modelFilename)) {
+      return false;
+    }
+
+    modelFiles.push_back({ std::string(model.filename), model.category });
+  }
+
+  // TODO: sort 'modelFiles' by category index
+  QByteArray modelslistBuffer;
+  if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
+      || writeFile(modelslistBuffer, "MODELS/models.yml")) {
+    return false;
+  }
+
+  return true;
 }

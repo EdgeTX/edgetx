@@ -50,6 +50,55 @@ namespace YAML {
 
 ENUM_CONVERTER(RawSwitchType, switchTypeLut);
 
+Node convert<RawSwitch>::encode(const RawSwitch& rhs)
+{
+  std::string sw_str;
+
+  int32_t sval = rhs.index;
+  if (rhs.index < 0) {
+    sval = -sval;
+    sw_str += "!";
+  }
+
+  switch (rhs.type) {
+  case SWITCH_TYPE_SWITCH:
+    sw_str += 'S';
+    sw_str += 'A' + sval;
+    break;
+
+  case SWITCH_TYPE_VIRTUAL:
+    sw_str += "L";
+    sw_str += std::to_string(sval + 1);
+    break;
+
+  case SWITCH_TYPE_MULTIPOS_POT:
+    sw_str += "6P";
+    sw_str += std::to_string(sval / XPOTS_MULTIPOS_COUNT);
+    sw_str += std::to_string(sval % XPOTS_MULTIPOS_COUNT);
+    break;
+
+  case SWITCH_TYPE_TRIM:
+    sw_str += LookupValue(trimSwitchLut, sval);
+    break;
+
+  case SWITCH_TYPE_FLIGHT_MODE:
+    sw_str += "FM";
+    sw_str += std::to_string(sval);
+    break;
+
+  case SWITCH_TYPE_SENSOR:
+    sw_str += "T";
+    sw_str += std::to_string(sval + 1);
+    break;
+
+  default:
+    sw_str += LookupValue(switchTypeLut, rhs.type);
+    break;
+  }
+
+  return Node(sw_str);
+}
+
 bool convert<RawSwitch>::decode(const Node& node, RawSwitch& rhs)
 {
   const std::string& sw_str = node.Scalar();

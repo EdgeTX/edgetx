@@ -25,7 +25,7 @@ namespace YAML {
 
 template <>
 struct convert<RawSwitch> {
-  // static YAML::Node encode(const GeneralSettings& rhs);
+  static Node encode(const RawSwitch& rhs);
   static bool decode(const Node& node, RawSwitch& rhs);
 };
 
