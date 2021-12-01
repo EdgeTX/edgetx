@@ -24,6 +24,9 @@
 #include <QObject>
 #include <QString>
 
+#include <string>
+#include <vector>
+
 class AbstractStaticItemModel;
 
 // identiying names of static abstract item models
@@ -174,6 +177,9 @@ namespace Board {
 
 }
 
+typedef std::pair<int, std::string> AnalogIndexNamesLookupElmt;
+typedef std::vector<AnalogIndexNamesLookupElmt> AnalogIndexNamesLookupTable;
+
 class Boards
 {
   Q_DECLARE_TR_FUNCTIONS(Boards)
@@ -202,6 +208,8 @@ class Boards
     static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
+    static AnalogIndexNamesLookupTable getAnalogNamesLookupTable(Board::Type board);
+    static int getAnalogInputIndex(Board::Type board, char * name);
     static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);

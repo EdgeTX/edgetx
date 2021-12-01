@@ -510,102 +510,107 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-QString Boards::getAnalogInputName(Board::Type board, int index)
+#define ANALOGINDEXNAMEENTRY(name)      tbl.push_back( { cnt++, name } );
+
+AnalogIndexNamesLookupTable Boards::getAnalogNamesLookupTable(Board::Type board)
 {
-  if (index < 0)
-    return CPN_STR_UNKNOWN_ITEM;
+  AnalogIndexNamesLookupTable tbl;
+  int cnt = 0;
 
-  if (index < getBoardCapability(board, Board::Sticks)) {
-    const QString sticks[] = {
-      tr("Rud"),
-      tr("Ele"),
-      tr("Thr"),
-      tr("Ail")
-    };
-    return sticks[index];
+  if (getBoardCapability(board, Board::Sticks)) {
+    ANALOGINDEXNAMEENTRY("Rud")
+    ANALOGINDEXNAMEENTRY("Ele")
+    ANALOGINDEXNAMEENTRY("Thr")
+    ANALOGINDEXNAMEENTRY("Ail")
   }
-
-  index -= getCapability(board, Board::Sticks);
 
   if (IS_SKY9X(board)) {
-    const QString pots[] = {
-      "P1",
-      "P2",
-      "P3"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("P1")
+    ANALOGINDEXNAMEENTRY("P2")
+    ANALOGINDEXNAMEENTRY("P3")
   }
   else if (IS_TARANIS_X9E(board)) {
-    const QString pots[] = {
-      "F1",
-      "F2",
-      "F3",
-      "F4",
-      "S1",
-      "S2",
-      "LS",
-      "RS"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("F1")
+    ANALOGINDEXNAMEENTRY("F2")
+    ANALOGINDEXNAMEENTRY("F3")
+    ANALOGINDEXNAMEENTRY("F4")
+    ANALOGINDEXNAMEENTRY("S1")
+    ANALOGINDEXNAMEENTRY("S2")
+    ANALOGINDEXNAMEENTRY("LS")
+    ANALOGINDEXNAMEENTRY("RS")
   }
   else if (IS_TARANIS_XLITE(board)) {
-    const QString pots[] = {
-      "S1",
-      "S2",
-      "GyrX",
-      "GyrY"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("S1")
+    ANALOGINDEXNAMEENTRY("S2")
+    ANALOGINDEXNAMEENTRY("GyrX")
+    ANALOGINDEXNAMEENTRY("GyrY")
   }
   else if (IS_TARANIS(board)) {
-    const QString pots[] = {
-      "S1",
-      "S2",
-      "S3",
-      "LS",
-      "RS"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("S1")
+    ANALOGINDEXNAMEENTRY("S2")
+    ANALOGINDEXNAMEENTRY("S3")
+    ANALOGINDEXNAMEENTRY("LS")
+    ANALOGINDEXNAMEENTRY("RS")
   }
   else if (IS_HORUS_X12S(board)) {
-    const QString pots[] = {
-      "S1",
-      "6P",
-      "S2",
-      "L1",
-      "L2",
-      "LS",
-      "RS",
-      "JSx",
-      "JSy"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("S1")
+    ANALOGINDEXNAMEENTRY("6P")
+    ANALOGINDEXNAMEENTRY("S2")
+    ANALOGINDEXNAMEENTRY("L1")
+    ANALOGINDEXNAMEENTRY("L2")
+    ANALOGINDEXNAMEENTRY("LS")
+    ANALOGINDEXNAMEENTRY("RS")
+    ANALOGINDEXNAMEENTRY("JSx")
+    ANALOGINDEXNAMEENTRY("JSy")
   }
   else if (IS_FLYSKY_NV14(board)) {
-    const QString pots[] = {
-      "VRA",
-      "VRB",
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("VRA")
+    ANALOGINDEXNAMEENTRY("VRB")
   }
   else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    const QString pots[] = {
-      "S1",
-      "6P",
-      "S2",
-      "EX1",
-      "EX2",
-      "LS",
-      "RS"
-    };
-    if (index < DIM(pots))
-      return pots[index];
+    ANALOGINDEXNAMEENTRY("S1")
+    ANALOGINDEXNAMEENTRY("6P")
+    ANALOGINDEXNAMEENTRY("S2")
+    ANALOGINDEXNAMEENTRY("EX1")
+    ANALOGINDEXNAMEENTRY("EX2" )
+    //ANALOGINDEXNAMEENTRY("EX3") // not yet implemented
+    //ANALOGINDEXNAMEENTRY("EX4") // not yet implemented
+    ANALOGINDEXNAMEENTRY("LS")
+    ANALOGINDEXNAMEENTRY("RS")
+  }
+
+  return tbl;
+}
+
+int Boards::getAnalogInputIndex(Board::Type board, char * name)
+{
+  AnalogIndexNamesLookupTable lut = getAnalogNamesLookupTable(board);
+
+  const auto& it =
+    find_if(lut.begin(), lut.end(), [=](const AnalogIndexNamesLookupElmt& elmt) {
+      if (elmt.second == name) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it->first;
+  }
+
+  return 0;
+}
+
+QString Boards::getAnalogInputName(Board::Type board, int index)
+{
+  AnalogIndexNamesLookupTable lut = getAnalogNamesLookupTable(board);
+
+  const auto& it =
+    find_if(lut.begin(), lut.end(), [=](const AnalogIndexNamesLookupElmt& elmt) {
+      if (elmt.first == index) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return QString::fromUtf8(it->second.data(), it->second.size());
   }
 
   return CPN_STR_UNKNOWN_ITEM;
