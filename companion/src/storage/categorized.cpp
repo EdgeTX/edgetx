@@ -246,7 +246,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       return false;
     }
 
-    radioData.models.reserve(modelFiles.size());
+    radioData.models.resize(modelFiles.size());
 
     int modelIdx = 0;
     for (const auto& mc : modelFiles) {
@@ -267,11 +267,12 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       model.modelIndex = modelIdx;
       strncpy(model.filename, mc.first.c_str(), sizeof(model.filename)-1);
 
-      if (!loadModelFromYaml(radioData.models[modelIdx],modelBuffer)) {
+      if (!loadModelFromYaml(model,modelBuffer)) {
         setError(tr("Can't load ") + filename);
         return false;      
       }
-      
+
+      model.used = true;
       modelIdx++;
     }
 
