@@ -50,7 +50,7 @@ Node convert<TimerData>::encode(const TimerData& rhs)
   node["swtch"] = rhs.swtch;
   node["mode"] = timerModeLut << rhs.mode;
   node["name"] = rhs.name;
-  node["minuteBeep"] = rhs.minuteBeep;
+  node["minuteBeep"] = (int)rhs.minuteBeep;
   node["countdownBeep"] = rhs.countdownBeep;
   node["start"] = rhs.val;
   node["persistent"] = rhs.persistent;
@@ -86,15 +86,15 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["timers"][std::to_string(i)] = timer;
   }
 
-  node["noGlobalFunctions"] = rhs.noGlobalFunctions;
-  node["thrTrim"] = rhs.thrTrim;
+  node["noGlobalFunctions"] = (int)rhs.noGlobalFunctions;
+  node["thrTrim"] = (int)rhs.thrTrim;
   node["trimInc"] = rhs.trimInc;
   node["displayTrims"] = rhs.trimsDisplay;
-  node["disableThrottleWarning"] = rhs.disableThrottleWarning;
+  node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
   // node[] = rhs.beepANACenter;
-  node["extendedLimits"] = rhs.extendedLimits;
-  node["extendedTrims"] = rhs.extendedTrims;
-  node["throttleReversed"] = rhs.throttleReversed;
+  node["extendedLimits"] = (int)rhs.extendedLimits;
+  node["extendedTrims"] = (int)rhs.extendedTrims;
+  node["throttleReversed"] = (int)rhs.throttleReversed;
 
   // flightModeData[]
   // mixData[]
@@ -113,7 +113,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   // potsWarnEnabled[]
   // potsWarnPosition[]
 
-  node["displayChecklist"] = rhs.displayChecklist;
+  node["displayChecklist"] = (int)rhs.displayChecklist;
 
   // gvarData[]
   // mavlink ???

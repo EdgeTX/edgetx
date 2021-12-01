@@ -55,7 +55,7 @@ struct YamlKnobConfig : public YamlNameConfig<N, name_lut> {
                  const unsigned int in_configs[N]) :
       YamlNameConfig<N, name_lut>(in_names)
   {
-    memset(config, 0, sizeof(config));
+    memcpy(config, in_configs, sizeof(config));
   }
 
   void copy(char out_names[N][HARDWARE_NAME_LEN + 1],

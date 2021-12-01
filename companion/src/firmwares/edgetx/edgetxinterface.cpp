@@ -38,7 +38,7 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
     data_ostream << node;
     data = QByteArray::fromStdString(data_ostream.str());
 
-    qDebug() << "Saving radio.yml:";
+    qDebug() << "Saving YAML:";
     qDebug() << data_ostream.str().c_str();
 }
 
@@ -139,5 +139,5 @@ bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
   node = settings;
 
   writeYamlToByteArray(node, data);
-  return false;
+  return true;
 }

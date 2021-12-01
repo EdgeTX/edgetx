@@ -311,9 +311,10 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
   // TODO: sort 'modelFiles' by category index
   QByteArray modelslistBuffer;
   if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
-      || writeFile(modelslistBuffer, "MODELS/models.yml")) {
+      || !writeFile(modelslistBuffer, "MODELS/models.yml")) {
     return false;
   }
 
-  return true;
+  // force error to avoid overwriting the archive...
+  return false;
 }

@@ -139,7 +139,7 @@ bool convert<RawSwitch>::decode(const Node& node, RawSwitch& rhs)
     // TODO: check if we have a match?
     //       or does RawSwitch default to NONE anyway?
     //
-    node >> switchTypeLut >> rhs.type;
+    node >> rhs.type;
     rhs.index = 0;
   }
 
