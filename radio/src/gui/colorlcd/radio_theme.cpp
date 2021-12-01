@@ -41,7 +41,7 @@
   #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
   #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
   #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT)
+  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 11)
 #else
   #define COLOR_PREVIEW_WIDTH LCD_W
   #define COLOR_PREVIEW_HEIGHT  18
@@ -400,7 +400,7 @@ class ThemeEditPage : public Page
 
     void buildBody(FormGroup *window)
     {
-      rect_t r = { 0, 4, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
+      rect_t r = { 2, 3, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
       _cList = new ColorList(window, r, _theme.getColorList());
       _cList->setLongPressHandler([=] (event_t event) { editColorPage(); });
       _cList->setPressHandler([=] (event_t event) { editColorPage(); });
@@ -428,6 +428,13 @@ class ThemeEditPage : public Page
 ThemeSetupPage::ThemeSetupPage() : PageTab(STR_THEME_EDITOR, ICON_RADIO_EDIT_THEME) {}
 ThemeSetupPage::~ThemeSetupPage()
 {
+}
+void ThemeSetupPage::setAuthor(ThemeFile *theme)
+{
+  char author[256];
+  strcpy(author, "By: ");
+  strcat(author, theme->getAuthor());
+  authorText->setText(author);
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
@@ -470,9 +477,15 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
               // save it to disk so it will come back the next time.
               curTheme->serialize();
 
-              // if the active theme was edited then activate it.
-              if (listBox->getSelected() == tp->getThemeIndex())
+              // if the active theme was edited then activate and update
+              // the UI
+              if (listBox->getSelected() == tp->getThemeIndex()) {
                 tp->applyTheme(listBox->getSelected());
+                setAuthor(&theme);
+                nameText->setText(theme.getName());
+                nameText->setTextFlags(COLOR_THEME_PRIMARY1);
+                authorText->setTextFlags(COLOR_THEME_PRIMARY1);
+              }
 
               // the list of theme names might have changed
               listBox->setNames(tp->getNames());
@@ -525,7 +538,7 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
         if (themeColorPreview && authorText && nameText && fileCarosell) {
           ThemeFile *theme = tp->getThemeByIndex(value);
           themeColorPreview->setColorList(theme->getColorList());
-          authorText->setText(theme->getAuthor());
+          setAuthor(theme);
           nameText->setText(theme->getName());
           fileCarosell->setFileNames(theme->getThemeImageFileNames());
         }
@@ -592,9 +605,7 @@ void ThemeSetupPage::build(FormWindow *window)
                             COLOR_THEME_PRIMARY1);
   if (theme != nullptr && strlen(theme->getAuthor())) {
     r.y += 20;
-    char author[256];
-    strcpy(author, "By: ");
-    strcat(author, theme->getAuthor());
-    authorText = new StaticText(window, r, author, 0, COLOR_THEME_PRIMARY1);
+    authorText = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1);
+    setAuthor(theme);
   }
 }

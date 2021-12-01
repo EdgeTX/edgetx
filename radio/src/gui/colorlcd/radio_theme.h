@@ -137,4 +137,5 @@ class ThemeSetupPage: public PageTab {
     int currentTheme = 0;
     void setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp);
     void displayThemeMenu(Window *window, ThemePersistance *tp);
+    void setAuthor(ThemeFile *theme);
 };
