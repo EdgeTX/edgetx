@@ -27,7 +27,7 @@ int MenuBody::rangeCheck(int index)
 {
     if (index < 0) 
       index = lines.size() - 1;
-    else if (index > lines.size() - 1)
+    else if (index > (signed)lines.size() - 1)
       index = 0;
 
     return index;
@@ -132,7 +132,7 @@ bool MenuBody::onTouchEnd(coord_t /*x*/, coord_t y)
 
   // dynamically find the selected element based on variable line heights
   coord_t yAccumulator = 0;
-  for (int i = 0; i < lines.size(); i++) {
+  for (int i = 0; i < (signed)lines.size(); i++) {
     if (y >= yAccumulator && y <= yAccumulator + lines[i].lineHeight()) {
       index = i;
       break;
@@ -169,7 +169,7 @@ void MenuBody::paint(BitmapBuffer * dc)
   dc->clear(COLOR_THEME_PRIMARY2);
 
   int y = 0;
-  for (int i = 0; i < lines.size(); i++) {
+  for (int i = 0; i < (signed)lines.size(); i++) {
     auto& line = lines[i];
     LcdFlags flags = COLOR_THEME_PRIMARY3 | MENU_FONT;
 
@@ -238,7 +238,7 @@ void Menu::updatePosition()
 {
   // calcualte the correct menu height given that the line heights are variable
   coord_t height = 0;
-  for (int i = 0; i < content->body.lines.size(); i++)
+  for (int i = 0; i < (signed)content->body.lines.size(); i++)
     height += content->body.lines[i].lineHeight();
 
   if (!toolbar) {
