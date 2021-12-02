@@ -466,7 +466,7 @@ void readModelNotes()
 #if !defined(EEPROM) 
   if(!notesFound) {   
     modelNotesName.assign(g_eeGeneral.currModelFilename);
-    size_t index = modelNotesName.find(".bin");
+    size_t index = modelNotesName.find(".yml");
     if(index != std::string::npos)
     {
       modelNotesName.erase(index);
