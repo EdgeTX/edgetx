@@ -96,35 +96,30 @@ namespace YAML
 {
 ENUM_CONVERTER(MltpxValue, mixMultiplexLut);
 
-template <>
-struct convert<CurveReference> {
-  static Node encode(const CurveReference& rhs)
-  {
-    Node node;
-    node["type"] = (int)rhs.type;
-    node["value"] = rhs.value;
-    return node;
-  }
+Node convert<CurveReference>::encode(const CurveReference& rhs)
+{
+  Node node;
+  node["type"] = (int)rhs.type;
+  node["value"] = rhs.value;
+  return node;
+}
 
-  static bool decode(const Node& node, CurveReference& rhs)
-  {
-    // no symbolic value defined in radio
-    int type = 0;
-    node["type"] >> type;
-    rhs.type = (CurveReference::CurveRefType)type;
+bool convert<CurveReference>::decode(const Node& node, CurveReference& rhs)
+{
+  // no symbolic value defined in radio
+  int type = 0;
+  node["type"] >> type;
+  rhs.type = (CurveReference::CurveRefType)type;
 
-    node["value"] >> rhs.value;
-    return true;
-  }
-};
+  node["value"] >> rhs.value;
+  return true;
+}
 
 Node convert<MixData>::encode(const MixData& rhs)
 {
   Node node;
   node["destCh"] = rhs.destCh - 1;
-
-  // node["srcRaw"] = rhs.srcRaw; // r_mixSrcRaw
-
+  node["srcRaw"] = rhs.srcRaw;
   node["weight"] = writeMixWeight(rhs.weight);
   node["swtch"] = rhs.swtch;
   node["curve"] = rhs.curve;
@@ -159,7 +154,6 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   if (!weight_str.empty()) {
     rhs.weight = readMixWeight(weight_str);
   }
-  
   node["swtch"] >> rhs.swtch;
   node["curve"] >> rhs.curve;
   node["delayUp"] >> rhs.delayUp;

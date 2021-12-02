@@ -21,7 +21,13 @@
 #include "yaml_ops.h"
 #include "mixdata.h"
 
-namespace YAML {
+namespace YAML
+{
+template <>
+struct convert<CurveReference> {
+  static Node encode(const CurveReference& rhs);
+  static bool decode(const Node& node, CurveReference& rhs);
+};
 
 template <>
 struct convert<MixData> {

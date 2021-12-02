@@ -22,6 +22,7 @@
 #include "yaml_rawswitch.h"
 #include "yaml_mixdata.h"
 #include "modeldata.h"
+#include "output_data.h"
 
 #include <string>
 
@@ -77,6 +78,38 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   return true;
 }
 
+template <>
+struct convert<LimitData> {
+  static Node encode(const LimitData& rhs)
+  {
+    Node node;
+    node["min"] = rhs.min;
+    node["max"] = rhs.max;
+    node["revert"] = rhs.revert;
+    node["offset"] = rhs.offset;
+    node["ppmCenter"] = rhs.ppmCenter;
+    node["symetrical"] = rhs.symetrical;
+    node["failsafe"] = rhs.failsafe;
+    node["name"] = rhs.name;
+    node["curve"] = rhs.curve;
+    return node;
+  }
+
+  static bool decode(const Node& node, LimitData& rhs)
+  {
+    node["min"] >> rhs.min;
+    node["max"] >> rhs.max;
+    node["revert"] >> rhs.revert;
+    node["offset"] >> rhs.offset;
+    node["ppmCenter"] >> rhs.ppmCenter;
+    node["symetrical"] >> rhs.symetrical;
+    node["failsafe"] >> rhs.failsafe;
+    node["name"] >> rhs.name;
+    node["curve"] >> rhs.curve;
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -101,6 +134,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["throttleReversed"] = (int)rhs.throttleReversed;
 
   // flightModeData[]
+
   for (int i=0; i<CPN_MAX_MIXERS; i++) {
       const MixData& mix = rhs.mixData[i];
       if (!mix.isEmpty()) {
@@ -109,7 +143,16 @@ Node convert<ModelData>::encode(const ModelData& rhs)
           node["mixData"].push_back(mixNode);
       }
   }
-  // limitData[]
+
+  for (int i=0; i<CPN_MAX_CHNOUT; i++) {
+    const LimitData& limit = rhs.limitData[i];
+    if (!limit.isEmpty()) {
+      Node limitNode;
+      limitNode = rhs.limitData[i];
+      node["limitData"].push_back(limitNode);
+    }
+  }
+
   // inputNames[]
   // expoData[]
   // curves[]
@@ -179,9 +222,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["throttleReversed"] >> rhs.throttleReversed;
 
   // flightModeData[]
-  // mixData[]
+
   node["mixData"] >> rhs.mixData;
-  // limitData[]
+  node["limitData"] >> rhs.limitData;
+
   // inputNames[]
   // expoData[]
   // curves[]

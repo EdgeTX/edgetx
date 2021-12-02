@@ -71,11 +71,74 @@ const YamlLookupTable specialSourceLut = {
 
 namespace YAML {
 
-//ENUM_CONVERTER(RawSourceType, sourceTypeLut);
-
 Node convert<RawSource>::encode(const RawSource& rhs)
 {
   std::string src_str;
+  switch(rhs.type) {
+  case SOURCE_TYPE_VIRTUAL_INPUT:
+      src_str += "I" + std::to_string(rhs.index);
+      break;
+  case SOURCE_TYPE_LUA_OUTPUT:
+      src_str += "lua(";
+      src_str += std::to_string(rhs.index / 16);
+      src_str += ",";
+      src_str += std::to_string(rhs.index % 16);
+      src_str += ")";
+      break;
+  case SOURCE_TYPE_STICK:
+      src_str = LookupValue(analogSourceLut, rhs.index);
+      break;
+  case SOURCE_TYPE_TRIM:
+      src_str = LookupValue(trimSourceLut, rhs.index);
+      break;
+  case SOURCE_TYPE_MAX:
+      src_str += "MAX";
+      break;
+  case SOURCE_TYPE_SWITCH:
+      src_str += "S" + (rhs.index + 'A');
+      break;
+  case SOURCE_TYPE_CUSTOM_SWITCH:
+      src_str += "ls(";
+      src_str += std::to_string(rhs.index);
+      src_str += ")";
+      break;
+  case SOURCE_TYPE_CYC:
+      src_str = LookupValue(cycSourceLut, rhs.index);
+      break;
+  case SOURCE_TYPE_PPM:
+      src_str += "tr(";
+      src_str += std::to_string(rhs.index);
+      src_str += ")";
+      break;
+  case SOURCE_TYPE_CH:
+      src_str += "ch(";
+      src_str += std::to_string(rhs.index);
+      src_str += ")";
+      break;
+  case SOURCE_TYPE_GVAR:
+      src_str += "gv(";
+      src_str += std::to_string(rhs.index);
+      src_str += ")";
+      break;
+  case SOURCE_TYPE_SPECIAL:
+      src_str = LookupValue(specialSourceLut, rhs.index);
+      break;
+  case SOURCE_TYPE_TELEMETRY:
+      src_str = "tele(";
+      switch(rhs.index % 3) {
+      case 0:
+          break;
+      case 1:
+          src_str += '-';
+          break;
+      case 2:
+          src_str += '+';
+          break;
+      }
+      src_str += std::to_string(rhs.index / 3);
+      break;
+  }
+
   return Node(src_str);
 }
 
@@ -89,6 +152,13 @@ bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
 
     rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, std::stoi(src_str.substr(1)));
 
+  } else if (val_len >= 2
+             && val[0] == 'S'
+             && val[1] >= 'A'
+             && val[1] <= 'Z') {
+
+    rhs = RawSource(SOURCE_TYPE_SWITCH, val[1] - 'A');
+      
   } else if (val_len > 4 &&
              val[0] == 'l' &&
              val[1] == 'u' &&
@@ -188,6 +258,12 @@ bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
       if (conv.IsScalar()) {
         rhs.type = SOURCE_TYPE_SPECIAL;
         rhs.index = conv.as<int>();
+      }
+
+      if (node.IsScalar()
+          && node.as<std::string>() == "MAX") {
+          rhs.type = SOURCE_TYPE_MAX;
+          rhs.index = 0;
       }
   }
   // TODO: raw analogs
