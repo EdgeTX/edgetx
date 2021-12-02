@@ -626,14 +626,13 @@ if(NOT MSVC)
 
     add_definitions(-DFREE_RTOS)
 
+    include(translations-new/CMakeLists.txt)
+    set (SRC ${SRC} ${TRANSLATIONS_SRC})
+
     add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
     link_libraries(firmware -lstdc++)
     add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
     set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
-
-    add_subdirectory(translations-new)
-    add_dependencies(radio_translations_new radio_translations)
-    target_link_libraries(firmware radio_translations_new)
 
     if(ACCESS_DENIED)
       add_subdirectory(thirdparty/AccessDenied)
