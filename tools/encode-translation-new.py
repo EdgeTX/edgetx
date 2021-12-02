@@ -5,6 +5,7 @@ import argparse
 import codecs
 import sys
 from charset import special_chars, get_chars_encoding, transcode_line
+from pathlib import Path
 
 
 def main():
@@ -27,6 +28,7 @@ def main():
     in_file = codecs.open(args.input, "r", "utf-8")
 
     # Write the result to a temporary file
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     out_file = codecs.open(args.output, 'w', 'utf-8')
 
     for line in in_file.readlines():

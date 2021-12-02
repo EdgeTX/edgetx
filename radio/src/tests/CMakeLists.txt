@@ -45,6 +45,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     set(RADIO_SRC ${RADIO_SRC} ../${FILE})
   endforeach()
 
+  include(../translations-new/CMakeLists.txt)
+  set(RADIO_SRC ${RADIO_SRC} ${TRANSLATIONS_SRC})
+
   file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp)
 
   if(MINGW)
@@ -66,7 +69,7 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
     add_dependencies(gtests-radio ${HORUS_MODEL_FILES})
   endif()
-  target_link_libraries(gtests-radio gtests-radio-lib radio_translations_new pthread Qt5::Core Qt5::Widgets)
+  target_link_libraries(gtests-radio gtests-radio-lib pthread Qt5::Core Qt5::Widgets)
   message(STATUS "Added optional gtests target")
 else()
   message(WARNING "WARNING: gtests target will not be available (check that GTEST_INCDIR, GTEST_SRCDIR, and Qt5Widgets are configured).")
