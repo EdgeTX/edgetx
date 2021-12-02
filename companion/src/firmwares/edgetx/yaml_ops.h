@@ -95,20 +95,25 @@ void operator >> (const YAML::Node& node, char (&value)[N])
 template <typename T, size_t N>
 void operator>>(const YAML::Node& node, T (&value)[N])
 {
-  if (!node.IsMap()) return;// false;
+  if (node.IsMap()) {
+    for (const auto& elmt : node) {
+      try {
+        int idx = std::stoi(elmt.first.Scalar());
+        if (idx < 0 || idx >= N) return;  // false;
 
-  for (const auto& elmt : node) {
-    try {
-      int idx = std::stoi(elmt.first.Scalar());
-      if (idx < 0 || idx >= N) return;// false;
-
-      elmt.second >> value[idx];
-    } catch (...) {
-      //return false;
-      return;
+        elmt.second >> value[idx];
+      } catch (...) {
+        // return false;
+        return;
+      }
+    }
+  } else if (node.IsSequence()) {
+    int idx = 0;
+    for (const auto& elmt : node) {
+      elmt >> value[idx];
+      idx++;
     }
   }
-  //return true;
 }
 
 namespace YAML {

@@ -19,7 +19,11 @@
  */
 
 #include "yaml_modeldata.h"
+#include "yaml_rawswitch.h"
+#include "yaml_mixdata.h"
 #include "modeldata.h"
+
+#include <string>
 
 static const YamlLookupTable timerModeLut = {
     {TimerData::TIMERMODE_OFF, "OFF"},
@@ -97,7 +101,14 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["throttleReversed"] = (int)rhs.throttleReversed;
 
   // flightModeData[]
-  // mixData[]
+  for (int i=0; i<CPN_MAX_MIXERS; i++) {
+      const MixData& mix = rhs.mixData[i];
+      if (!mix.isEmpty()) {
+          Node mixNode;
+          mixNode = rhs.mixData[i];
+          node["mixData"].push_back(mixNode);
+      }
+  }
   // limitData[]
   // inputNames[]
   // expoData[]
@@ -169,6 +180,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   // flightModeData[]
   // mixData[]
+  node["mixData"] >> rhs.mixData;
   // limitData[]
   // inputNames[]
   // expoData[]

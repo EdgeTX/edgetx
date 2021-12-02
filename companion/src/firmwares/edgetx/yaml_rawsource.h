@@ -19,19 +19,14 @@
  */
 
 #include "yaml_ops.h"
-#include "modeldata.h"
+#include "rawsource.h"
 
 namespace YAML {
 
 template <>
-struct convert<TimerData> {
-  static Node encode(const TimerData& rhs);
-  static bool decode(const Node& node, TimerData& rhs);
+struct convert<RawSource> {
+  static Node encode(const RawSource& rhs);
+  static bool decode(const Node& node, RawSource& rhs);
 };
 
-template <>
-struct convert<ModelData> {
-  static Node encode(const ModelData& rhs);
-  static bool decode(const Node& node, ModelData& rhs);
-};
-}  // namespace YAML
+}
