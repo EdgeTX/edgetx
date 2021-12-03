@@ -20,30 +20,6 @@
 
 #include "yaml_calibdata.h"
 
-// TODO: we need a function that
-// does the opposite of Boards::getAnalogInputName()
-//
-// This is only valid for X10, T16, TX16S (not X12S)
-//
-static const YamlLookupTable calibIdxLut = {
-  {  0, "Rud"  },
-  {  1, "Ele"  },
-  {  2, "Thr"  },
-  {  3, "Ail"  },
-  {  4, "S1"  },
-  {  5, "6POS"  },
-  {  6, "S2"  },
-  {  7, "EXT1"  },
-  {  8, "EXT2"  },
-  // not yet supported in Companion:
-  // {  9, "EXT3"  },
-  // {  10, "EXT4"  },
-  {  9, "LS"  },
-  {  10, "RS"  },
-  {  11, "MOUSE1"  },
-  {  12, "MOUSE2"  },
-};
-
 YamlCalibData::YamlCalibData() { memset(calib, 0, sizeof(calib)); }
 
 YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
@@ -53,7 +29,7 @@ YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
     calib[i].mid = calibMid[i];
     calib[i].spanNeg = calibSpanNeg[i];
     calib[i].spanPos = calibSpanPos[i];
-  }    
+  }
 }
 
 void YamlCalibData::copy(int* calibMid, int* calibSpanNeg,
@@ -90,6 +66,8 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
+  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
+  const YamlLookupTable calibIdxLut = Boards::getAnalogNamesLookupTable(getCurrentBoard());
   // TODO: we need something better here!
   for (const auto& kv : calibIdxLut) {
     node[kv.second] = rhs.calib[kv.first];
@@ -100,6 +78,8 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
+  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
+  const YamlLookupTable calibIdxLut = Boards::getAnalogNamesLookupTable(getCurrentBoard());
   int idx = 0;
   for (const auto& kv : node) {
     kv.first >> calibIdxLut >> idx;
