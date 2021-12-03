@@ -192,7 +192,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       // parse int and ignore ','
       val += 4; val_len -= 4;
-      uint8_t script = yaml_str2uint(val, val_len);
+      uint8_t script = yaml_str2uint_ref(val, val_len);
 
       if (!val_len) return MIXSRC_NONE;
       val++; val_len--;
@@ -226,7 +226,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
-      return yaml_str2uint_ref(val, val_len) + MIXSRC_FIRST_CH;
+      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
       
     } else if (val_len > 3 &&
                val[0] == 'g' &&
@@ -235,7 +235,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
-      return yaml_str2uint_ref(val, val_len) + MIXSRC_FIRST_GVAR;
+      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_GVAR;
 
     } else if (val_len > 5 &&
                val[0] == 't' &&
@@ -257,7 +257,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       }
 
       // parse int and ignore closing ')'
-      return yaml_str2uint_ref(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
+      return yaml_str2uint(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
     }
 
     return yaml_parse_enum(enum_MixSources, val, val_len);
@@ -281,8 +281,6 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     else if (val >= MIXSRC_FIRST_LUA
              && val <= MIXSRC_LAST_LUA) {
       
-        if (!wf(opaque, "lua(", 4)) return false;
-
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
 
