@@ -99,11 +99,10 @@ void operator>>(const YAML::Node& node, T (&value)[N])
     for (const auto& elmt : node) {
       try {
         int idx = std::stoi(elmt.first.Scalar());
-        if (idx < 0 || idx >= N) return;  // false;
+        if (idx < 0 || idx >= N) return;
 
         elmt.second >> value[idx];
       } catch (...) {
-        // return false;
         return;
       }
     }
@@ -121,6 +120,21 @@ namespace YAML {
 std::string LookupValue(const YamlLookupTable& lut, const int& value);
 Node operator << (const YamlLookupTable& lut, const int& value);
 
+template <typename T, size_t N>
+struct convert_array
+{
+  static YAML::Node encode(const T (&rhs)[N])
+  {
+    Node node;
+    for (size_t i=0; i<N; i++) {
+      Node elmt;
+      elmt = rhs[i];
+      node.push_back(elmt);
+    }
+    return node;
+  }
+};
+  
 template <typename T>
 struct convert_enum
 {

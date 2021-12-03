@@ -47,6 +47,17 @@ static const YamlLookupTable trainerModeLut = {
   {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
 };
 
+struct YamlTrim {
+  int mode = 0;
+  int ref = 0;
+  int value = 0;
+
+  YamlTrim() = default;
+  YamlTrim(int mode, int ref, int value):
+    mode(mode), ref(ref), value(value)
+  {}
+};
+
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
@@ -110,6 +121,72 @@ struct convert<LimitData> {
   }
 };
 
+template <>
+struct convert<YamlTrim> {
+  static Node encode(const YamlTrim& rhs)
+  {
+    Node node;
+    node["value"] = rhs.value;
+    if (rhs.mode < 0) {
+      node["mode"] = -1;
+    } else {
+      node["mode"] = 2 * rhs.ref + rhs.mode;
+    }
+    return node;
+  }
+  static bool decode(const Node& node, YamlTrim& rhs)
+  {
+    node["value"] >> rhs.value;
+
+    int trimMode = 0;
+    node["mode"] >> trimMode;
+    if (trimMode < 0) {
+      rhs.mode = trimMode;
+    } else {
+      rhs.mode = trimMode % 2;
+      rhs.ref = trimMode / 2;
+    }
+    return true;
+  }
+};
+  
+template <>
+struct convert<FlightModeData> {
+  static Node encode(const FlightModeData& rhs)
+  {
+    Node node;
+    // TODO: use max number of trims for radio instead
+    YamlTrim yt[CPN_MAX_TRIMS];
+    for (int i=0; i<CPN_MAX_TRIMS; i++) {
+      yt[i] = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
+    }
+    node["trim"] = convert_array<YamlTrim,CPN_MAX_TRIMS>::encode(yt);
+    node["swtch"] = rhs.swtch;
+    node["name"] = rhs.name;
+    node["fadeIn"] = rhs.fadeIn;
+    node["fadeOut"] = rhs.fadeOut;
+    node["gvars"] = convert_array<int,CPN_MAX_GVARS>::encode(rhs.gvars);
+    return node;
+  }
+
+  static bool decode(const Node& node, FlightModeData& rhs)
+  {
+    YamlTrim trims[CPN_MAX_TRIMS];
+    node["trim"] >> trims;
+    for (size_t i=0; i<CPN_MAX_TRIMS; i++) {
+      rhs.trimMode[i] = trims[i].mode;
+      rhs.trimRef[i] = trims[i].ref;
+      rhs.trim[i] = trims[i].value;
+    }
+    node["swtch"] >> rhs.swtch;
+    node["name"] >> rhs.name;
+    node["fadeIn"] >> rhs.fadeIn;
+    node["fadeOut"] >> rhs.fadeOut;
+    node["gvars"] >> rhs.gvars;
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -133,22 +210,26 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["extendedTrims"] = (int)rhs.extendedTrims;
   node["throttleReversed"] = (int)rhs.throttleReversed;
 
-  // flightModeData[]
-
-  for (int i=0; i<CPN_MAX_MIXERS; i++) {
-      const MixData& mix = rhs.mixData[i];
-      if (!mix.isEmpty()) {
-          Node mixNode;
-          mixNode = rhs.mixData[i];
-          node["mixData"].push_back(mixNode);
-      }
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    Node fmNode;
+    fmNode = rhs.flightModeData[i];
+    node["flightModeData"].push_back(fmNode);
   }
 
-  for (int i=0; i<CPN_MAX_CHNOUT; i++) {
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    const MixData& mix = rhs.mixData[i];
+    if (!mix.isEmpty()) {
+      Node mixNode;
+      mixNode = mix;
+      node["mixData"].push_back(mixNode);
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     const LimitData& limit = rhs.limitData[i];
     if (!limit.isEmpty()) {
       Node limitNode;
-      limitNode = rhs.limitData[i];
+      limitNode = limit;
       node["limitData"].push_back(limitNode);
     }
   }
@@ -221,8 +302,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["extendedTrims"] >> rhs.extendedTrims;
   node["throttleReversed"] >> rhs.throttleReversed;
 
-  // flightModeData[]
-
+  node["flightModeData"] >> rhs.flightModeData;
   node["mixData"] >> rhs.mixData;
   node["limitData"] >> rhs.limitData;
 

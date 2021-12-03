@@ -70,72 +70,75 @@ const YamlLookupTable specialSourceLut = {
 };
 
 namespace YAML {
-
 Node convert<RawSource>::encode(const RawSource& rhs)
 {
   std::string src_str;
-  switch(rhs.type) {
-  case SOURCE_TYPE_VIRTUAL_INPUT:
+  switch (rhs.type) {
+    case SOURCE_TYPE_VIRTUAL_INPUT:
       src_str += "I" + std::to_string(rhs.index);
       break;
-  case SOURCE_TYPE_LUA_OUTPUT:
+    case SOURCE_TYPE_LUA_OUTPUT:
       src_str += "lua(";
       src_str += std::to_string(rhs.index / 16);
       src_str += ",";
       src_str += std::to_string(rhs.index % 16);
       src_str += ")";
       break;
-  case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_STICK:
       src_str = LookupValue(analogSourceLut, rhs.index);
       break;
-  case SOURCE_TYPE_TRIM:
+    case SOURCE_TYPE_TRIM:
       src_str = LookupValue(trimSourceLut, rhs.index);
       break;
-  case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_MAX:
       src_str += "MAX";
       break;
-  case SOURCE_TYPE_SWITCH:
-      src_str += "S" + (rhs.index + 'A');
+    case SOURCE_TYPE_SWITCH:
+      src_str += "S";
+      src_str += (rhs.index + 'A');
       break;
-  case SOURCE_TYPE_CUSTOM_SWITCH:
+    case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
       src_str += std::to_string(rhs.index);
       src_str += ")";
       break;
-  case SOURCE_TYPE_CYC:
+    case SOURCE_TYPE_CYC:
       src_str = LookupValue(cycSourceLut, rhs.index);
       break;
-  case SOURCE_TYPE_PPM:
+    case SOURCE_TYPE_PPM:
       src_str += "tr(";
       src_str += std::to_string(rhs.index);
       src_str += ")";
       break;
-  case SOURCE_TYPE_CH:
+    case SOURCE_TYPE_CH:
       src_str += "ch(";
       src_str += std::to_string(rhs.index);
       src_str += ")";
       break;
-  case SOURCE_TYPE_GVAR:
+    case SOURCE_TYPE_GVAR:
       src_str += "gv(";
       src_str += std::to_string(rhs.index);
       src_str += ")";
       break;
-  case SOURCE_TYPE_SPECIAL:
+    case SOURCE_TYPE_SPECIAL:
       src_str = LookupValue(specialSourceLut, rhs.index);
       break;
-  case SOURCE_TYPE_TELEMETRY:
+    case SOURCE_TYPE_TELEMETRY:
       src_str = "tele(";
-      switch(rhs.index % 3) {
-      case 0:
+      switch (rhs.index % 3) {
+        case 0:
           break;
-      case 1:
+        case 1:
           src_str += '-';
           break;
-      case 2:
+        case 2:
           src_str += '+';
           break;
       }
       src_str += std::to_string(rhs.index / 3);
+      break;
+    default:
+      src_str = "NONE";
       break;
   }
 
