@@ -21,8 +21,10 @@
 #include "yaml_modeldata.h"
 #include "yaml_rawswitch.h"
 #include "yaml_mixdata.h"
+#include "yaml_rawsource.h"
 #include "modeldata.h"
 #include "output_data.h"
+#include "eeprominterface.h"
 
 #include <string>
 
@@ -56,6 +58,53 @@ struct YamlTrim {
   YamlTrim(int mode, int ref, int value):
     mode(mode), ref(ref), value(value)
   {}
+};
+
+struct YamlThrTrace {
+  RawSource src;
+
+  YamlThrTrace() = default;
+
+  YamlThrTrace(unsigned int cpn_value)
+  {
+    if (cpn_value == 0) {
+      src = RawSource(SOURCE_TYPE_STICK, 2/* throttle */);
+      return;
+    }
+    cpn_value--;
+    Boards board(getCurrentBoard());
+    int pots = board.getCapability(Board::Pots);
+    int sliders = board.getCapability(Board::Sliders);
+    if (cpn_value < pots + sliders) {
+      src = RawSource(SOURCE_TYPE_STICK, 4/* sticks */ + cpn_value);
+    }
+    else {
+      cpn_value -= pots + sliders;
+      src = RawSource(SOURCE_TYPE_CH, cpn_value);
+    }
+  }
+
+  unsigned int toCpn()
+  {
+    switch (src.type) {
+      case SOURCE_TYPE_STICK:
+        if (src.index == 2 /* throttle */) {
+          return 0;
+        } else {
+          return src.index - 4/* sticks */ + 1;
+        }
+        break;
+      case SOURCE_TYPE_CH: {
+        Boards board(getCurrentBoard());
+        int pots = board.getCapability(Board::Pots);
+        int sliders = board.getCapability(Board::Sliders);
+        return pots + sliders + src.index;
+      } break;
+      default:
+        break;
+    }
+    return 0;
+  }
 };
 
 namespace YAML
@@ -239,9 +288,11 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   // curves[]
   // logicalSw[]
   // customFn[]
-
   // swashRingData
-  // thrTraceSrc
+
+  YamlThrTrace thrTrace(rhs.thrTraceSrc);
+  node["thrTraceSrc"] = thrTrace.src;
+
   // switchWarningStates
   // thrTrimSwitch
   // potsWarningMode
@@ -313,7 +364,11 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // customFn[]
 
   // swashRingData
-  // thrTraceSrc
+
+  YamlThrTrace thrTrace;
+  node["thrTraceSrc"] >> thrTrace.src;
+  rhs.thrTraceSrc = thrTrace.toCpn();
+
   // switchWarningStates
   // thrTrimSwitch
   // potsWarningMode
