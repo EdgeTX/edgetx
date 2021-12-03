@@ -281,8 +281,6 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     else if (val >= MIXSRC_FIRST_LUA
              && val <= MIXSRC_LAST_LUA) {
       
-        if (!wf(opaque, "lua(", 4)) return false;
-
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
 
