@@ -75,7 +75,7 @@ struct YamlThrTrace {
     Boards board(getCurrentBoard());
     int pots = board.getCapability(Board::Pots);
     int sliders = board.getCapability(Board::Sliders);
-    if (cpn_value < pots + sliders) {
+    if (cpn_value < (unsigned int)(pots + sliders)) {
       src = RawSource(SOURCE_TYPE_STICK, 4/* sticks */ + cpn_value);
     }
     else {
@@ -198,7 +198,7 @@ struct convert<YamlTrim> {
     return true;
   }
 };
-  
+
 template <>
 struct convert<FlightModeData> {
   static Node encode(const FlightModeData& rhs)

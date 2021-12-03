@@ -99,7 +99,7 @@ void operator>>(const YAML::Node& node, T (&value)[N])
     for (const auto& elmt : node) {
       try {
         int idx = std::stoi(elmt.first.Scalar());
-        if (idx < 0 || idx >= N) return;
+        if (idx < 0 || idx >= (int)N) return;
 
         elmt.second >> value[idx];
       } catch (...) {
@@ -134,7 +134,7 @@ struct convert_array
     return node;
   }
 };
-  
+
 template <typename T>
 struct convert_enum
 {
