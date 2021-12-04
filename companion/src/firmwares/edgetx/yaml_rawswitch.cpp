@@ -63,7 +63,8 @@ Node convert<RawSwitch>::encode(const RawSwitch& rhs)
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
     sw_str += 'S';
-    sw_str += 'A' + sval;
+    sw_str += 'A' + (sval - 1) / 3;
+    sw_str += std::to_string((sval - 1) % 3);
     break;
 
   case SWITCH_TYPE_VIRTUAL:
