@@ -95,6 +95,7 @@ void operator >> (const YAML::Node& node, char (&value)[N])
 template <typename T, size_t N>
 void operator>>(const YAML::Node& node, T (&value)[N])
 {
+  if (!node) return;
   if (node.IsMap()) {
     for (const auto& elmt : node) {
       try {

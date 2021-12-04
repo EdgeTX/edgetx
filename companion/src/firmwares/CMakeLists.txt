@@ -39,6 +39,8 @@ set(firmwares_SRCS
   edgetx/yaml_rawswitch.cpp
   edgetx/yaml_rawsource.cpp
   edgetx/yaml_mixdata.cpp
+  edgetx/yaml_expodata.cpp
+  edgetx/yaml_curvedata.cpp
   datahelpers.cpp
   customisation_data.cpp
   )

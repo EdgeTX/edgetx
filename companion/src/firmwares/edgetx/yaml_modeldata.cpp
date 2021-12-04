@@ -22,6 +22,9 @@
 #include "yaml_rawswitch.h"
 #include "yaml_mixdata.h"
 #include "yaml_rawsource.h"
+#include "yaml_expodata.h"
+#include "yaml_curvedata.h"
+
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
@@ -283,9 +286,30 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
-  // inputNames[]
-  // expoData[]
-  // curves[]
+  node["inputNames"] =
+      convert_array<char[INPUT_NAME_LEN + 1], CPN_MAX_INPUTS>::encode(
+          rhs.inputNames);
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    const ExpoData& expo = rhs.expoData[i];
+    if (!expo.isEmpty()) {
+      Node expoNode;
+      expoNode = expo;
+      node["expoData"].push_back(expoNode);
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_CURVES; i++) {
+    const CurveData& curve = rhs.curves[i];
+    if (!curve.isEmpty()) {
+      node["curves"][std::to_string(i)] = curve;
+    }
+  }
+
+  YAML::Node points;
+  YamlWriteCurvePoints(points, rhs.curves);
+  node["points"] = points;
+
   // logicalSw[]
   // customFn[]
   // swashRingData
@@ -357,9 +381,13 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["mixData"] >> rhs.mixData;
   node["limitData"] >> rhs.limitData;
 
-  // inputNames[]
-  // expoData[]
+  node["inputNames"] >> rhs.inputNames;
+  node["expoData"] >> rhs.expoData;
+
   // curves[]
+  node["curves"] >> rhs.curves;
+  YamlReadCurvePoints(node["points"], rhs.curves);
+
   // logicalSw[]
   // customFn[]
 

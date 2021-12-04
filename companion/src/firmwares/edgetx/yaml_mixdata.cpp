@@ -53,8 +53,9 @@ static const YamlLookupTable mixMultiplexLut = {
 #define GVAR_SMALL 128
 #define CPN_GV1 1024
 
-static int32_t readMixWeight(const std::string& val)
+int32_t YamlReadMixWeight(const YAML::Node& node)
 {
+  std::string val = node.as<std::string>();
   if ((val.size() >= 4)
       && (val[0] == '-')
       && (val[1] == 'G')
@@ -77,7 +78,7 @@ static int32_t readMixWeight(const std::string& val)
   return std::stoi(val);
 }
 
-static std::string writeMixWeight(int32_t sval)
+std::string YamlWriteMixWeight(int32_t sval)
 {
   if (sval < -10000) {
     int n = -sval - 10000;
@@ -88,6 +89,30 @@ static std::string writeMixWeight(int32_t sval)
   }
 
   return std::to_string(sval);
+}
+
+uint32_t YamlReadFlightModes(const YAML::Node& node)
+{
+  std::string fm_str = node.as<std::string>();
+  uint32_t bits = 0;
+  uint32_t mask = 1;
+
+  for (uint32_t i = 0; i < fm_str.size(); i++) {
+    if (fm_str[i] == '1') bits |= mask;
+    mask <<= 1;
+  }
+  return bits;
+}
+
+std::string YamlWriteFlightModes(uint32_t val)
+{
+  std::string fm_str;
+  // TODO: constant for number of flight modes
+  for (int i=0; i<9; i++) {
+    uint32_t bit = (val >> i) & 1;
+    fm_str += bit ? "1" : "0";
+  }
+  return fm_str;
 }
 
 static const YamlLookupTable dummy = {};
@@ -120,7 +145,7 @@ Node convert<MixData>::encode(const MixData& rhs)
   Node node;
   node["destCh"] = rhs.destCh - 1;
   node["srcRaw"] = rhs.srcRaw;
-  node["weight"] = writeMixWeight(rhs.weight);
+  node["weight"] = YamlWriteMixWeight(rhs.weight);
   node["swtch"] = rhs.swtch;
   node["curve"] = rhs.curve;
   node["delayUp"] = rhs.delayUp;
@@ -130,16 +155,8 @@ Node convert<MixData>::encode(const MixData& rhs)
   node["carryTrim"] = rhs.carryTrim;
   node["mltpx"] = rhs.mltpx;
   node["mixWarn"] = rhs.mixWarn;
-
-  // TODO: constant for number of flight modes
-  std::string fm_str;
-  for (int i=0; i<9; i++) {
-    uint32_t bit = (rhs.flightModes >> i) & 1;
-    fm_str += bit ? "1" : "0";
-  }
-  node["flightModes"] = fm_str;
-
-  node["offset"] = rhs.sOffset; // TODO: use writeMixWeight()
+  node["flightModes"] = YamlWriteFlightModes(rhs.flightModes);
+  node["offset"] = YamlWriteMixWeight(rhs.sOffset);
   node["name"] = rhs.name;
   return node;
 }
@@ -148,11 +165,8 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
 {
   node["destCh"] >> ioffset_int((int&)rhs.destCh, -1);
   node["srcRaw"] >> rhs.srcRaw;
-
-  std::string weight_str;
-  node["weight"] >> weight_str;
-  if (!weight_str.empty()) {
-    rhs.weight = readMixWeight(weight_str);
+  if (node["weight"]) {
+    rhs.weight = YamlReadMixWeight(node["weight"]);
   }
   node["swtch"] >> rhs.swtch;
   node["curve"] >> rhs.curve;
@@ -163,23 +177,12 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   node["carryTrim"] >> rhs.carryTrim;
   node["mltpx"] >> rhs.mltpx;
   node["mixWarn"] >> rhs.mixWarn;
-
   if (node["flightModes"]) {
-      std::string fm_str;
-      node["flightModes"] >> fm_str;
-
-      uint32_t bits = 0;
-      uint32_t mask = 1;
-
-      for (uint32_t i = 0; i < fm_str.size(); i++) {
-          if (fm_str[i] == '1') bits |= mask;
-          mask <<= 1;
-      }
-
-      rhs.flightModes = bits;
+    rhs.flightModes = YamlReadFlightModes(node["flightModes"]);
   }
-
-  node["offset"] >> rhs.sOffset; // TODO: use readMixWeight()
+  if (node["offset"]) {
+    rhs.sOffset = YamlReadMixWeight(node["offset"]);
+  }
   node["name"] >> rhs.name;
   return true;
 }

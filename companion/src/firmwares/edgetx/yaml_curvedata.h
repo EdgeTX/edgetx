@@ -19,26 +19,16 @@
  */
 
 #include "yaml_ops.h"
-#include "mixdata.h"
+#include "curvedata.h"
 
-int32_t YamlReadMixWeight(const YAML::Node& node);
-std::string YamlWriteMixWeight(int32_t sval);
-
-uint32_t YamlReadFlightModes(const YAML::Node& node);
-std::string YamlWriteFlightModes(uint32_t val);
-
+void YamlReadCurvePoints(const YAML::Node& node, CurveData* curves);
+void YamlWriteCurvePoints(YAML::Node& node, const CurveData* curves);
 
 namespace YAML
 {
 template <>
-struct convert<CurveReference> {
-  static Node encode(const CurveReference& rhs);
-  static bool decode(const Node& node, CurveReference& rhs);
-};
-
-template <>
-struct convert<MixData> {
-  static Node encode(const MixData& rhs);
-  static bool decode(const Node& node, MixData& rhs);
+struct convert<CurveData> {
+  static Node encode(const CurveData& rhs);
+  static bool decode(const Node& node, CurveData& rhs);
 };
 }  // namespace YAML
