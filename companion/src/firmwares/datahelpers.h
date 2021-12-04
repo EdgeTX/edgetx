@@ -21,6 +21,11 @@
 #pragma once
 
 #include <QtCore>
+#include <string>
+#include <vector>
+
+typedef std::pair<int, std::string> Int2StringMapping;
+typedef std::vector<Int2StringMapping> Int2StringMappingTable;
 
 class FieldRange
 {

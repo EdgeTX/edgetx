@@ -66,10 +66,9 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
-  const YamlLookupTable calibIdxLut = Boards::getAnalogNamesLookupTable(getCurrentBoard());
+  const YamlLookupTable* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
   // TODO: we need something better here!
-  for (const auto& kv : calibIdxLut) {
+  for (const auto& kv : *calibIdxLut) {
     node[kv.second] = rhs.calib[kv.first];
   }
   return node;
@@ -78,11 +77,13 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
-  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
-  const YamlLookupTable calibIdxLut = Boards::getAnalogNamesLookupTable(getCurrentBoard());
+  const YamlLookupTable* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
+  //for_each(calibIdxLut->begin(), calibIdxLut->end(), [=](const Int2StringMapping& row) {
+  //    qDebug() << "index:" << row.first << "value:" << row.second.c_str();
+  //  });
   int idx = 0;
   for (const auto& kv : node) {
-    kv.first >> calibIdxLut >> idx;
+    kv.first >> *calibIdxLut >> idx;
     kv.second >> rhs.calib[idx];
   }
   return true;

@@ -510,73 +510,73 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-#define ANALOGINDEXNAMEENTRY(name)      tbl.push_back( { cnt++, name } );
+#define ADDINDEXNAMEPAIR(name)      tbl.push_back( { cnt++, name } );
 
-AnalogIndexNamesLookupTable Boards::getAnalogNamesLookupTable(Board::Type board)
+Int2StringMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
 {
-  AnalogIndexNamesLookupTable tbl;
+  Int2StringMappingTable tbl;
   int cnt = 0;
 
   if (getBoardCapability(board, Board::Sticks)) {
-    ANALOGINDEXNAMEENTRY("Rud")
-    ANALOGINDEXNAMEENTRY("Ele")
-    ANALOGINDEXNAMEENTRY("Thr")
-    ANALOGINDEXNAMEENTRY("Ail")
+    ADDINDEXNAMEPAIR("Rud")
+    ADDINDEXNAMEPAIR("Ele")
+    ADDINDEXNAMEPAIR("Thr")
+    ADDINDEXNAMEPAIR("Ail")
   }
 
   if (IS_SKY9X(board)) {
-    ANALOGINDEXNAMEENTRY("P1")
-    ANALOGINDEXNAMEENTRY("P2")
-    ANALOGINDEXNAMEENTRY("P3")
+    ADDINDEXNAMEPAIR("P1")
+    ADDINDEXNAMEPAIR("P2")
+    ADDINDEXNAMEPAIR("P3")
   }
   else if (IS_TARANIS_X9E(board)) {
-    ANALOGINDEXNAMEENTRY("F1")
-    ANALOGINDEXNAMEENTRY("F2")
-    ANALOGINDEXNAMEENTRY("F3")
-    ANALOGINDEXNAMEENTRY("F4")
-    ANALOGINDEXNAMEENTRY("S1")
-    ANALOGINDEXNAMEENTRY("S2")
-    ANALOGINDEXNAMEENTRY("LS")
-    ANALOGINDEXNAMEENTRY("RS")
+    ADDINDEXNAMEPAIR("F1")
+    ADDINDEXNAMEPAIR("F2")
+    ADDINDEXNAMEPAIR("F3")
+    ADDINDEXNAMEPAIR("F4")
+    ADDINDEXNAMEPAIR("S1")
+    ADDINDEXNAMEPAIR("S2")
+    ADDINDEXNAMEPAIR("LS")
+    ADDINDEXNAMEPAIR("RS")
   }
   else if (IS_TARANIS_XLITE(board)) {
-    ANALOGINDEXNAMEENTRY("S1")
-    ANALOGINDEXNAMEENTRY("S2")
-    ANALOGINDEXNAMEENTRY("GyrX")
-    ANALOGINDEXNAMEENTRY("GyrY")
+    ADDINDEXNAMEPAIR("S1")
+    ADDINDEXNAMEPAIR("S2")
+    ADDINDEXNAMEPAIR("GyrX")
+    ADDINDEXNAMEPAIR("GyrY")
   }
   else if (IS_TARANIS(board)) {
-    ANALOGINDEXNAMEENTRY("S1")
-    ANALOGINDEXNAMEENTRY("S2")
-    ANALOGINDEXNAMEENTRY("S3")
-    ANALOGINDEXNAMEENTRY("LS")
-    ANALOGINDEXNAMEENTRY("RS")
+    ADDINDEXNAMEPAIR("S1")
+    ADDINDEXNAMEPAIR("S2")
+    ADDINDEXNAMEPAIR("S3")
+    ADDINDEXNAMEPAIR("LS")
+    ADDINDEXNAMEPAIR("RS")
   }
   else if (IS_HORUS_X12S(board)) {
-    ANALOGINDEXNAMEENTRY("S1")
-    ANALOGINDEXNAMEENTRY("6P")
-    ANALOGINDEXNAMEENTRY("S2")
-    ANALOGINDEXNAMEENTRY("L1")
-    ANALOGINDEXNAMEENTRY("L2")
-    ANALOGINDEXNAMEENTRY("LS")
-    ANALOGINDEXNAMEENTRY("RS")
-    ANALOGINDEXNAMEENTRY("JSx")
-    ANALOGINDEXNAMEENTRY("JSy")
+    ADDINDEXNAMEPAIR("S1")
+    ADDINDEXNAMEPAIR("6P")
+    ADDINDEXNAMEPAIR("S2")
+    ADDINDEXNAMEPAIR("L1")
+    ADDINDEXNAMEPAIR("L2")
+    ADDINDEXNAMEPAIR("LS")
+    ADDINDEXNAMEPAIR("RS")
+    ADDINDEXNAMEPAIR("JSx")
+    ADDINDEXNAMEPAIR("JSy")
   }
   else if (IS_FLYSKY_NV14(board)) {
-    ANALOGINDEXNAMEENTRY("VRA")
-    ANALOGINDEXNAMEENTRY("VRB")
+    ADDINDEXNAMEPAIR("VRA")
+    ADDINDEXNAMEPAIR("VRB")
   }
   else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    ANALOGINDEXNAMEENTRY("S1")
-    ANALOGINDEXNAMEENTRY("6P")
-    ANALOGINDEXNAMEENTRY("S2")
-    ANALOGINDEXNAMEENTRY("EX1")
-    ANALOGINDEXNAMEENTRY("EX2" )
-    //ANALOGINDEXNAMEENTRY("EX3") // not yet implemented
-    //ANALOGINDEXNAMEENTRY("EX4") // not yet implemented
-    ANALOGINDEXNAMEENTRY("LS")
-    ANALOGINDEXNAMEENTRY("RS")
+    ADDINDEXNAMEPAIR("S1")
+    ADDINDEXNAMEPAIR("6P")
+    ADDINDEXNAMEPAIR("S2")
+    ADDINDEXNAMEPAIR("EX1")
+    ADDINDEXNAMEPAIR("EX2" )
+    //ADDINDEXNAMEPAIR("EX3") // not yet implemented
+    //ADDINDEXNAMEPAIR("EX4") // not yet implemented
+    ADDINDEXNAMEPAIR("LS")
+    ADDINDEXNAMEPAIR("RS")
   }
 
   return tbl;
@@ -584,15 +584,15 @@ AnalogIndexNamesLookupTable Boards::getAnalogNamesLookupTable(Board::Type board)
 
 int Boards::getAnalogInputIndex(Board::Type board, char * name)
 {
-  AnalogIndexNamesLookupTable lut = getAnalogNamesLookupTable(board);
+  Int2StringMappingTable tbl = getAnalogNamesLookupTable(board);
 
   const auto& it =
-    find_if(lut.begin(), lut.end(), [=](const AnalogIndexNamesLookupElmt& elmt) {
-      if (elmt.second == name) return true;
+    find_if(tbl.begin(), tbl.end(), [=](const Int2StringMapping& row) {
+      if (row.second == name) return true;
       return false;
     });
 
-  if (it != lut.end()) {
+  if (it != tbl.end()) {
     return it->first;
   }
 
@@ -601,15 +601,15 @@ int Boards::getAnalogInputIndex(Board::Type board, char * name)
 
 QString Boards::getAnalogInputName(Board::Type board, int index)
 {
-  AnalogIndexNamesLookupTable lut = getAnalogNamesLookupTable(board);
+  Int2StringMappingTable tbl = getAnalogNamesLookupTable(board);
 
   const auto& it =
-    find_if(lut.begin(), lut.end(), [=](const AnalogIndexNamesLookupElmt& elmt) {
-      if (elmt.first == index) return true;
+    find_if(tbl.begin(), tbl.end(), [=](const Int2StringMapping& row) {
+      if (row.first == index) return true;
       return false;
     });
 
-  if (it != lut.end()) {
+  if (it != tbl.end()) {
     return QString::fromUtf8(it->second.data(), it->second.size());
   }
 
