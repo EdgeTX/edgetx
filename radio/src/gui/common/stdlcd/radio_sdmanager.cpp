@@ -176,7 +176,7 @@ void onSdManagerMenu(const char * result)
     }
     POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename,
                              clipboard.data.sd.directory, destNamePtr, lfn));
-    REFRESH_FILES()
+    REFRESH_FILES();
   }
   else if (result == STR_RENAME_FILE) {
     memcpy(reusableBuffer.sdManager.originalName, line, sizeof(reusableBuffer.sdManager.originalName));
