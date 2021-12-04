@@ -139,8 +139,6 @@ bool writeModelToYaml(const ModelData& model, QByteArray& data)
 
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
 {
-  settings.version = CURRENT_DATA_VERSION;
-
   YAML::Node node;
   node = settings;
 

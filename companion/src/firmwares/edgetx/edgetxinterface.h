@@ -27,8 +27,6 @@
 #include <utility>
 #include <vector>
 
-constexpr unsigned int CURRENT_DATA_VERSION = { 221 };
-
 typedef std::pair<std::string, int> EtxModelfileCategoryPair;
 typedef std::list<EtxModelfileCategoryPair> EtxModelfiles;
 
