@@ -116,6 +116,10 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
     YAML::Node cat_attrs;
     cat_attrs["filename"] = modelFile.first;
 
+    if (modelFile.second >= categories.size()) {
+      return false;
+    }
+
     const std::string cat_name = categories[modelFile.second].name;
     node[modelFile.second][cat_name].push_back(cat_attrs);
   }

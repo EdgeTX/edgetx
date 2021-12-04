@@ -294,25 +294,39 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     return false;
   }
 
+  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+  
   EtxModelfiles modelFiles;
   for (const auto& model : radioData.models) {
 
-    // TODO: verify '.yml' (in case we moved from '.bin') 
-    QString modelFilename = QString("MODELS/%1").arg(model.filename);
+    qDebug() << "Model index: " << model.modelIndex;
+    if (model.isEmpty())
+      continue;
+
+    // TODO: verify '.yml' (in case we moved from '.bin')
+
+    QString modelFilename;
+    if (hasCategories) {
+      modelFilename = QString("MODELS/%1").arg(model.filename);
+      modelFiles.push_back({ std::string(model.filename), model.category });
+    } else {
+      modelFilename = QString("MODELS/model%1").arg(model.modelIndex, 2, QLatin1Char('0'));
+    }
+
     QByteArray modelData;
     writeModelToYaml(model, modelData);
     if (!writeFile(modelData, modelFilename)) {
       return false;
     }
-
-    modelFiles.push_back({ std::string(model.filename), model.category });
   }
 
-  // TODO: sort 'modelFiles' by category index
-  QByteArray modelslistBuffer;
-  if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
-      || !writeFile(modelslistBuffer, "MODELS/models.yml")) {
-    return false;
+  if (hasCategories) {
+    // TODO: sort 'modelFiles' by category index
+    QByteArray modelslistBuffer;
+    if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
+        || !writeFile(modelslistBuffer, "MODELS/models.yml")) {
+      return false;
+    }
   }
 
   // force error to avoid overwriting the archive...

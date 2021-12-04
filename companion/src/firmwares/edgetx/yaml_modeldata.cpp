@@ -286,17 +286,19 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
-  node["inputNames"] =
-      convert_array<char[INPUT_NAME_LEN + 1], CPN_MAX_INPUTS>::encode(
-          rhs.inputNames);
-
+  std::set<int> inputs;
   for (int i = 0; i < CPN_MAX_EXPOS; i++) {
     const ExpoData& expo = rhs.expoData[i];
     if (!expo.isEmpty()) {
       Node expoNode;
       expoNode = expo;
       node["expoData"].push_back(expoNode);
+      inputs.insert(expo.chn);
     }
+  }
+
+  for (auto input : inputs) {
+    node["inputNames"][std::to_string(input)]["val"] = rhs.inputNames[input];
   }
 
   for (int i = 0; i < CPN_MAX_CURVES; i++) {
@@ -308,7 +310,9 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   YAML::Node points;
   YamlWriteCurvePoints(points, rhs.curves);
-  node["points"] = points;
+  if (points && (points.IsMap() || points.IsSequence())) {
+    node["points"] = points;
+  }
 
   // logicalSw[]
   // customFn[]
@@ -384,7 +388,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["inputNames"] >> rhs.inputNames;
   node["expoData"] >> rhs.expoData;
 
-  // curves[]
   node["curves"] >> rhs.curves;
   YamlReadCurvePoints(node["points"], rhs.curves);
 
