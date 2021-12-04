@@ -583,7 +583,7 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
 QString Boards::getAnalogInputName(Board::Type board, int index)
 {
   const StringTagMappingTable& lut = getAnalogNamesLookupTable(board);
-  if (index < lut.size())
+  if (index < (int)lut.size())
     return QString::fromStdString(lut[index].name);
 
   return CPN_STR_UNKNOWN_ITEM;

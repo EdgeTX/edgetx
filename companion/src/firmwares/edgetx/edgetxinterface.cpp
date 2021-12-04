@@ -67,13 +67,13 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
         }
       }
     }
-    
+
   } catch (const std::runtime_error& e) {
     qDebug() << "YAML::ParserException: " << e.what();
     return false;
   }
 
-  return true;  
+  return true;
 }
 
 bool loadModelFromYaml(ModelData& model, const QByteArray& data)
@@ -116,7 +116,7 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
     YAML::Node cat_attrs;
     cat_attrs["filename"] = modelFile.first;
 
-    if (modelFile.second >= categories.size()) {
+    if (modelFile.second >= (int)categories.size()) {
       return false;
     }
 
@@ -132,7 +132,7 @@ bool writeModelToYaml(const ModelData& model, QByteArray& data)
 {
   YAML::Node node;
   node = model;
-  
+
   writeYamlToByteArray(node, data);
   return true;
 }
