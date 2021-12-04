@@ -37,10 +37,15 @@ class FileCarosell : public FormGroup
   inline void setSelected(int n);
   void setFileNames(std::vector<std::string> fileNames);
   void checkEvents() override;
+  inline void pause(bool pause)
+  {
+    _paused = pause;
+  }
 
   void paint(BitmapBuffer *dc) override;
 
  protected:
+  bool _paused = false;
   int selected = -1;
   std::vector<std::string> _fileNames;
   FilePreview *fp;

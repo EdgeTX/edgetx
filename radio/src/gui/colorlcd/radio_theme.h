@@ -126,8 +126,10 @@ class ThemeSetupPage: public PageTab {
     ~ThemeSetupPage();
 
     void build(FormWindow * window) override;
+    void checkEvents() override;
 
   protected:
+    Window *pageWindow = nullptr;
     Window *previewWindow = nullptr;
     FileCarosell *fileCarosell = nullptr;
     ThemeColorPreview *themeColorPreview = nullptr;

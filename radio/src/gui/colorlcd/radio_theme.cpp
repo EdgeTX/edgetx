@@ -41,7 +41,9 @@
   #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
   #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
   #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 11)
+  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 14)
+  #define TOP_LIST_OFFSET 4
+  #define LEFT_LIST_OFFSET 3
 #else
   #define COLOR_PREVIEW_WIDTH LCD_W
   #define COLOR_PREVIEW_HEIGHT  18
@@ -49,6 +51,8 @@
   #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
   #define COLOR_LIST_WIDTH LCD_W
   #define COLOR_LIST_HEIGHT (LCD_H / 2 - 38)
+  #define TOP_LIST_OFFSET 4
+  #define LEFT_LIST_OFFSET 4
 #endif
 
 #define MARGIN_WIDTH 5
@@ -60,7 +64,7 @@ constexpr LcdFlags textFont = FONT(STD);
 constexpr rect_t detailsDialogRect = {50, 50, 400, 170};
 constexpr int labelWidth = 150;
 
-constexpr int COLOR_BOX_LEFT = 3;
+constexpr int COLOR_BOX_LEFT = 5;
 constexpr int COLOR_BOX_WIDTH = 45;
 constexpr int COLOR_BOX_HEIGHT = 27;
 #else
@@ -225,7 +229,7 @@ protected:
     rect_t r;
 
     // hexBox
-    r = { COLOR_BOX_LEFT + COLOR_BOX_WIDTH + 5, 4, 90, 30 };
+    r = { COLOR_BOX_LEFT + COLOR_BOX_WIDTH + 5, TOP_LIST_OFFSET, 90, 30 };
     _hexBox = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
     setHexStr(_hexBox, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
 
@@ -256,7 +260,11 @@ protected:
     _colorSquare = new ColorSquare(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
 
     r = LCD_W > LCD_H ?
-          rect_t { COLOR_LIST_WIDTH + MARGIN_WIDTH, 4, LCD_W - COLOR_LIST_WIDTH - MARGIN_WIDTH * 2, COLOR_LIST_HEIGHT } :
+          rect_t { 
+            COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
+            TOP_LIST_OFFSET, 
+            LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
+            COLOR_LIST_HEIGHT } :
           rect_t { 0, LEFT_LIST_HEIGHT + 4,  LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT - 4 };
     _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
   }
@@ -400,13 +408,18 @@ class ThemeEditPage : public Page
 
     void buildBody(FormGroup *window)
     {
-      rect_t r = { 2, 3, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
+      rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
       _cList = new ColorList(window, r, _theme.getColorList());
       _cList->setLongPressHandler([=] (event_t event) { editColorPage(); });
       _cList->setPressHandler([=] (event_t event) { editColorPage(); });
 
       if (LCD_W > LCD_H) {
-        r = { COLOR_LIST_WIDTH + MARGIN_WIDTH, 4, LCD_W - COLOR_LIST_WIDTH - MARGIN_WIDTH*2, COLOR_LIST_HEIGHT };
+        r = { 
+          COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
+          TOP_LIST_OFFSET, 
+          LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
+          COLOR_LIST_HEIGHT 
+        };
       } else {
         r = { 0, LEFT_LIST_HEIGHT + 4,  LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT - 4};
       }
@@ -435,6 +448,24 @@ void ThemeSetupPage::setAuthor(ThemeFile *theme)
   strcpy(author, "By: ");
   strcat(author, theme->getAuthor());
   authorText->setText(author);
+}
+
+
+bool isTopWindow(Window *window)
+{
+  Window *parent = window->getParent();
+  if (parent != nullptr) {
+    parent = parent->getParent();
+    return parent == Layer::stack.back().main;
+  }
+  return false;
+}
+
+void ThemeSetupPage::checkEvents()
+{
+  PageTab::checkEvents();
+
+  fileCarosell->pause(!isTopWindow(pageWindow));
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
@@ -473,6 +504,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
                 curTheme->setColorByIndex(n, color.colorValue);
                 n++;
               }
+
+              themeColorPreview->setColorList(theme.getColorList());
 
               // save it to disk so it will come back the next time.
               curTheme->serialize();
@@ -555,6 +588,8 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
 
 void ThemeSetupPage::build(FormWindow *window)
 {
+  pageWindow = window;
+
   auto tp = ThemePersistance::instance();
   auto theme = tp->getCurrentTheme();
   currentTheme = tp->getThemeIndex();
@@ -566,12 +601,12 @@ void ThemeSetupPage::build(FormWindow *window)
   authorText = nullptr;
   
   // create listbox and setup menus
-  rect_t r = { 2, 3, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
+  rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
   setupListbox(window, r, tp);
 
   rect_t colorPreviewRect;
   if (LCD_W > LCD_H) {
-    r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH;
+    r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET;
     r.w = LCD_W - r.x;
     colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
   } else {
