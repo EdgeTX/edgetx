@@ -164,10 +164,19 @@ void onSdManagerMenu(const char * result)
       strcat(lfn, "/");
       strcat(lfn, line);
     }
-    if (strcmp(clipboard.data.sd.directory, lfn)) {  // prevent copying to the same directory
-      POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, clipboard.data.sd.filename, lfn));
-      REFRESH_FILES();
+    char *destNamePtr = clipboard.data.sd.filename;
+    if (!strcmp(clipboard.data.sd.directory, lfn)) {
+        // prevent copying to the same directory under the same name
+        char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
+        destNamePtr =
+            strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
+        destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                                CLIPBOARD_PATH_LEN);
+        destNamePtr = destFileName;
     }
+    POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename,
+                             clipboard.data.sd.directory, destNamePtr, lfn));
+    REFRESH_FILES()
   }
   else if (result == STR_RENAME_FILE) {
     memcpy(reusableBuffer.sdManager.originalName, line, sizeof(reusableBuffer.sdManager.originalName));

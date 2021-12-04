@@ -30,7 +30,6 @@
 #include "view_text.h"
 #include "file_preview.h"
 
-#define FILE_COPY_PREFIX  "cp_"
 class FileNameEditWindow : public Page
 {
   public:
