@@ -30,6 +30,7 @@
 #include "view_text.h"
 #include "file_preview.h"
 
+#define FILE_COPY_PREFIX  "cp_"
 class FileNameEditWindow : public Page
 {
   public:
@@ -411,13 +412,20 @@ void RadioSdManagerPage::build(FormWindow * window)
               menu->addLine(STR_PASTE, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
-                // prevent copying to the same directory
-                if (strcmp(clipboard.data.sd.directory, lfn)) {
-                  sdCopyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory,
-                             clipboard.data.sd.filename, lfn);
-                  clipboard.type = CLIPBOARD_TYPE_NONE;
+                // prevent copying to the same directory with the same name
+                char *destNamePtr = clipboard.data.sd.filename;
+                if (!strcmp(clipboard.data.sd.directory, lfn)) {
+                  char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
+                  destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = destFileName;
                 }
+                sdCopyFile(clipboard.data.sd.filename,
+                           clipboard.data.sd.directory, destNamePtr, lfn);
+                clipboard.type = CLIPBOARD_TYPE_NONE;
+
                 rebuild(window);
               });
             }
