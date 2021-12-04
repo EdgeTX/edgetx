@@ -47,12 +47,12 @@
 #else
   #define COLOR_PREVIEW_WIDTH LCD_W
   #define COLOR_PREVIEW_HEIGHT  18
-  #define LEFT_LIST_WIDTH LCD_W
+  #define LEFT_LIST_WIDTH LCD_W - 6
   #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
-  #define COLOR_LIST_WIDTH LCD_W
-  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 38)
+  #define COLOR_LIST_WIDTH LCD_W - 6
+  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 24)
   #define TOP_LIST_OFFSET 4
-  #define LEFT_LIST_OFFSET 4
+  #define LEFT_LIST_OFFSET 3
 #endif
 
 #define MARGIN_WIDTH 5
@@ -265,7 +265,12 @@ protected:
             TOP_LIST_OFFSET, 
             LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
             COLOR_LIST_HEIGHT } :
-          rect_t { 0, LEFT_LIST_HEIGHT + 4,  LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT - 4 };
+          rect_t { 
+            LEFT_LIST_OFFSET, 
+            TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
+            LEFT_LIST_WIDTH, 
+            COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
+          };
     _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
   }
 
@@ -421,7 +426,12 @@ class ThemeEditPage : public Page
           COLOR_LIST_HEIGHT 
         };
       } else {
-        r = { 0, LEFT_LIST_HEIGHT + 4,  LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT - 4};
+        r = { 
+          LEFT_LIST_OFFSET, 
+          TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
+          LEFT_LIST_WIDTH, 
+          COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
+        };
       }
       _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
     }
