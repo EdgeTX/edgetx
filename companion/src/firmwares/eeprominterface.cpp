@@ -195,3 +195,12 @@ int Firmware::getAnalogInputIndex(const char * tag)
 
   return -1;
 }
+
+std::string Firmware::getAnalogInputTag(unsigned int index)
+{
+  const StringTagMappingTable& lut = analogInputNamesLookupTable;
+  if (index < lut.size())
+    return lut[index].tag;
+
+  return std::string();
+}

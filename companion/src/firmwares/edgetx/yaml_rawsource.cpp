@@ -19,25 +19,7 @@
  */
 
 #include "yaml_rawsource.h"
-
-// SOURCE_TYPE_STICK
-const YamlLookupTable analogSourceLut = {
-  {  0, "Rud"  },
-  {  1, "Ele"  },
-  {  2, "Thr"  },
-  {  3, "Ail"  },
-  {  4, "S1"  },
-  {  5, "6POS"  },
-  {  6, "S2"  },
-  {  7, "EXT1"  }, {  7, "S3"  }, // rename to use only S3
-  {  8, "EXT2"  }, {  8, "S4"  }, // rename to use only S4
-  // {  9, "EXT3"  },
-  // {  10, "EXT4"  },
-  {  9, "LS"  },
-  {  10, "RS"  },
-  {  11, "MOUSE1"  },
-  {  12, "MOUSE2"  },
-};
+#include "eeprominterface.h"
 
 // SOURCE_TYPE_TRIM
 const YamlLookupTable trimSourceLut = {
@@ -85,7 +67,7 @@ Node convert<RawSource>::encode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = LookupValue(analogSourceLut, rhs.index);
+      src_str = getCurrentFirmware()->getAnalogInputTag(rhs.index);
       break;
     case SOURCE_TYPE_TRIM:
       src_str = LookupValue(trimSourceLut, rhs.index);
@@ -239,35 +221,36 @@ bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
 
   } else {
 
-      YAML::Node conv = node >> analogSourceLut;
-      if (conv.IsScalar()) {
-        rhs.type = SOURCE_TYPE_STICK;
-        rhs.index = conv.as<int>();
-      }
+    std::string ana_str;
+    node >> ana_str;
+    int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());
+    if (ana_idx >= 0) {
+      rhs.type = SOURCE_TYPE_STICK;
+      rhs.index = ana_idx;
+    }
 
-      conv = node >> trimSourceLut;
-      if (conv.IsScalar()) {
-        rhs.type = SOURCE_TYPE_TRIM;
-        rhs.index = conv.as<int>();
-      }
+    YAML::Node conv = node >> trimSourceLut;
+    if (conv.IsScalar()) {
+      rhs.type = SOURCE_TYPE_TRIM;
+      rhs.index = conv.as<int>();
+    }
 
-      conv = node >> cycSourceLut;
-      if (conv.IsScalar()) {
-        rhs.type = SOURCE_TYPE_CYC;
-        rhs.index = conv.as<int>();
-      }
+    conv = node >> cycSourceLut;
+    if (conv.IsScalar()) {
+      rhs.type = SOURCE_TYPE_CYC;
+      rhs.index = conv.as<int>();
+    }
 
-      conv = node >> specialSourceLut;
-      if (conv.IsScalar()) {
-        rhs.type = SOURCE_TYPE_SPECIAL;
-        rhs.index = conv.as<int>();
-      }
+    conv = node >> specialSourceLut;
+    if (conv.IsScalar()) {
+      rhs.type = SOURCE_TYPE_SPECIAL;
+      rhs.index = conv.as<int>();
+    }
 
-      if (node.IsScalar()
-          && node.as<std::string>() == "MAX") {
-          rhs.type = SOURCE_TYPE_MAX;
-          rhs.index = 0;
-      }
+    if (node.IsScalar() && node.as<std::string>() == "MAX") {
+      rhs.type = SOURCE_TYPE_MAX;
+      rhs.index = 0;
+    }
   }
   // TODO: raw analogs
 

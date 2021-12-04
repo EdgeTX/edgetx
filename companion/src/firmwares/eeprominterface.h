@@ -34,6 +34,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <string>
 
 const uint8_t modn12x3[4][4]= {
   {1, 2, 3, 4},
@@ -404,6 +405,7 @@ class Firmware
     }
 
     int getAnalogInputIndex(const char * tag);
+    std::string getAnalogInputTag(unsigned int index);
 
   protected:
     QString id;
