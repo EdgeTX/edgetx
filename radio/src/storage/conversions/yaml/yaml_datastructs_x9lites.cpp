@@ -437,7 +437,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_PADDING( 1 ),
-  YAML_SIGNED( "offset", 14 ),
+  YAML_SIGNED_CUST( "offset", 14, in_read_weight, in_write_weight ),
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
@@ -472,7 +472,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
   YAML_PADDING( 1 ),
   YAML_STRING("name", 6),
-  YAML_SIGNED( "offset", 8 ),
+  YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_END
 };

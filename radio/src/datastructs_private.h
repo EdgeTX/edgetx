@@ -76,7 +76,7 @@ PACK(struct MixData {
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t spare:1 SKIP;
-  int32_t  offset:14;
+  int32_t  offset:14 CUST(in_read_weight,in_write_weight);
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
@@ -102,7 +102,7 @@ PACK(struct ExpoData {
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
   int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
-  int8_t   offset;
+  int8_t   offset CUST(in_read_weight,in_write_weight);
   CurveRef curve;
 });
 
