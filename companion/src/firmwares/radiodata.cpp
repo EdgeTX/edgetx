@@ -39,7 +39,8 @@ void RadioData::fixModelFilename(unsigned int index)
 {
   ModelData & model = models[index];
   QString filename(model.filename);
-  bool ok = filename.endsWith(".bin");
+  const bool hasSDCard = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasSDCard);
+  bool ok = hasSDCard ? filename.endsWith(".yml") : filename.endsWith(".bin");
   if (ok) {
     if (filename.startsWith("model") && filename.mid(5, filename.length()-9).toInt() > 0) {
       ok = false;
@@ -54,7 +55,7 @@ void RadioData::fixModelFilename(unsigned int index)
     }
   }
   if (!ok) {
-    sprintf(model.filename, "model%d.bin", index+1);
+    sprintf(model.filename, "model%d.%s", index + 1, hasSDCard ? "yml" : "bin");
   }
 }
 
@@ -68,11 +69,12 @@ void RadioData::fixModelFilenames()
 
 QString RadioData::getNextModelFilename()
 {
+  const bool hasSDCard = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasSDCard);
   char filename[sizeof(ModelData::filename)];
   int index = 0;
   bool found = true;
   while (found) {
-    sprintf(filename, "model%d.bin", ++index);
+    sprintf(filename, "model%d.%s", ++index, hasSDCard ? "yml" : "bin");
     found = false;
     for (unsigned int i=0; i<models.size(); i++) {
       if (strcmp(filename, models[i].filename) == 0) {
