@@ -510,108 +510,81 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-#define ADDINDEXNAMEPAIR(name)      tbl.push_back( { cnt++, name } );
-
-Int2StringMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
+StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
 {
-  Int2StringMappingTable tbl;
-  int cnt = 0;
+  StringTagMappingTable tbl;
 
   if (getBoardCapability(board, Board::Sticks)) {
-    ADDINDEXNAMEPAIR("Rud")
-    ADDINDEXNAMEPAIR("Ele")
-    ADDINDEXNAMEPAIR("Thr")
-    ADDINDEXNAMEPAIR("Ail")
+    tbl.insert(tbl.end(), {"Rud", "Ele", "Thr", "Ail"});
   }
 
   if (IS_SKY9X(board)) {
-    ADDINDEXNAMEPAIR("P1")
-    ADDINDEXNAMEPAIR("P2")
-    ADDINDEXNAMEPAIR("P3")
-  }
-  else if (IS_TARANIS_X9E(board)) {
-    ADDINDEXNAMEPAIR("F1")
-    ADDINDEXNAMEPAIR("F2")
-    ADDINDEXNAMEPAIR("F3")
-    ADDINDEXNAMEPAIR("F4")
-    ADDINDEXNAMEPAIR("S1")
-    ADDINDEXNAMEPAIR("S2")
-    ADDINDEXNAMEPAIR("LS")
-    ADDINDEXNAMEPAIR("RS")
-  }
-  else if (IS_TARANIS_XLITE(board)) {
-    ADDINDEXNAMEPAIR("S1")
-    ADDINDEXNAMEPAIR("S2")
-    ADDINDEXNAMEPAIR("GyrX")
-    ADDINDEXNAMEPAIR("GyrY")
-  }
-  else if (IS_TARANIS(board)) {
-    ADDINDEXNAMEPAIR("S1")
-    ADDINDEXNAMEPAIR("S2")
-    ADDINDEXNAMEPAIR("S3")
-    ADDINDEXNAMEPAIR("LS")
-    ADDINDEXNAMEPAIR("RS")
-  }
-  else if (IS_HORUS_X12S(board)) {
-    ADDINDEXNAMEPAIR("S1")
-    ADDINDEXNAMEPAIR("6P")
-    ADDINDEXNAMEPAIR("S2")
-    ADDINDEXNAMEPAIR("L1")
-    ADDINDEXNAMEPAIR("L2")
-    ADDINDEXNAMEPAIR("LS")
-    ADDINDEXNAMEPAIR("RS")
-    ADDINDEXNAMEPAIR("JSx")
-    ADDINDEXNAMEPAIR("JSy")
-  }
-  else if (IS_FLYSKY_NV14(board)) {
-    ADDINDEXNAMEPAIR("VRA")
-    ADDINDEXNAMEPAIR("VRB")
-  }
-  else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    ADDINDEXNAMEPAIR("S1")
-    ADDINDEXNAMEPAIR("6P")
-    ADDINDEXNAMEPAIR("S2")
-    ADDINDEXNAMEPAIR("EX1")
-    ADDINDEXNAMEPAIR("EX2" )
-    //ADDINDEXNAMEPAIR("EX3") // not yet implemented
-    //ADDINDEXNAMEPAIR("EX4") // not yet implemented
-    ADDINDEXNAMEPAIR("LS")
-    ADDINDEXNAMEPAIR("RS")
+    tbl.insert(tbl.end(), {"P1", "P2", "P3"});
+  } else if (IS_TARANIS_X9E(board)) {
+    tbl.insert(tbl.end(), {
+                              {"F1", "POT1"},
+                              {"F2", "POT2"},
+                              {"F3", "POT3"},
+                              {"F4", "POT4"},
+                              {"S1", "SLIDER1"},
+                              {"S2", "SLIDER2"},
+                              {"LS", "SLIDER3"},
+                              {"RS", "SLIDER4"},
+                          });
+  } else if (IS_TARANIS_XLITE(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "POT1"},
+                              {"S2", "POT2"},
+                              {"GyrX", "GYRO1"},
+                              {"GyrY", "GYRO2"},
+                          });
+  } else if (IS_TARANIS(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "POT1"},
+                              {"S2", "POT2"},
+                              {"S3", "POT3"},
+                              {"LS", "SLIDER1"},
+                              {"RS", "SLIDER2"},
+                          });
+  } else if (IS_HORUS_X12S(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "S1"},
+                              {"6P", "6POS"},
+                              {"S2", "S2"},
+                              {"L1", "S3"},
+                              {"L2", "S4"},
+                              {"LS", "LS"},
+                              {"RS", "RS"},
+                              {"JSx", "MOUSE1"},
+                              {"JSy", "MOUSE2"},
+                          });
+  } else if (IS_FLYSKY_NV14(board)) {
+    tbl.insert(tbl.end(), {
+                              {"VRA", "POT1"},
+                              {"VRB", "POT2"},
+                          });
+  } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "S1"},
+                              {"6P", "6POS"},
+                              {"S2", "S2"},
+                              {"EX1", "EXT1"},
+                              {"EX2", "EXT2"},
+                              // {"EX3", "EXT3"},
+                              // {"EX4", "EXT4"},
+                              {"LS", "LS"},
+                              {"RS", "RS"},
+                          });
   }
 
   return tbl;
 }
 
-int Boards::getAnalogInputIndex(Board::Type board, char * name)
-{
-  Int2StringMappingTable tbl = getAnalogNamesLookupTable(board);
-
-  const auto& it =
-    find_if(tbl.begin(), tbl.end(), [=](const Int2StringMapping& row) {
-      if (row.second == name) return true;
-      return false;
-    });
-
-  if (it != tbl.end()) {
-    return it->first;
-  }
-
-  return 0;
-}
-
 QString Boards::getAnalogInputName(Board::Type board, int index)
 {
-  Int2StringMappingTable tbl = getAnalogNamesLookupTable(board);
-
-  const auto& it =
-    find_if(tbl.begin(), tbl.end(), [=](const Int2StringMapping& row) {
-      if (row.first == index) return true;
-      return false;
-    });
-
-  if (it != tbl.end()) {
-    return QString::fromUtf8(it->second.data(), it->second.size());
-  }
+  const StringTagMappingTable& lut = getAnalogNamesLookupTable(board);
+  if (index < lut.size())
+    return QString::fromStdString(lut[index].name);
 
   return CPN_STR_UNKNOWN_ITEM;
 }

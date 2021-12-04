@@ -20,7 +20,6 @@
 
 #include "yaml_ops.h"
 #include "generalsettings.h"
-#include "eeprominterface.h"
 
 struct CalibData {
   int16_t mid;

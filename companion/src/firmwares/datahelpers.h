@@ -24,8 +24,30 @@
 #include <string>
 #include <vector>
 
-typedef std::pair<int, std::string> Int2StringMapping;
-typedef std::vector<Int2StringMapping> Int2StringMappingTable;
+struct StringTagMapping {
+  std::string name;
+  std::string tag;
+
+  StringTagMapping() = default;
+  StringTagMapping(const char* name) :
+      name(name), tag(name)
+  {
+  }
+  StringTagMapping(const std::string& name) :
+      name(name), tag(name)
+  {
+  }
+  StringTagMapping(const char* name, const char* tag) :
+      name(name), tag(tag)
+  {
+  }
+  StringTagMapping(const std::string& name, const std::string& tag) :
+      name(name), tag(tag)
+  {
+  }
+};
+
+typedef std::vector<StringTagMapping> StringTagMappingTable;
 
 class FieldRange
 {

@@ -19,6 +19,7 @@
  */
 
 #include "yaml_calibdata.h"
+#include "eeprominterface.h"
 
 YamlCalibData::YamlCalibData() { memset(calib, 0, sizeof(calib)); }
 
@@ -66,10 +67,11 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  const YamlLookupTable* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
-  // TODO: we need something better here!
+  int idx = 0;
+  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
+  const auto* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
   for (const auto& kv : *calibIdxLut) {
-    node[kv.second] = rhs.calib[kv.first];
+    node[kv.tag] = rhs.calib[idx++];
   }
   return node;
 }
@@ -77,14 +79,14 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
-  const YamlLookupTable* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
-  //for_each(calibIdxLut->begin(), calibIdxLut->end(), [=](const Int2StringMapping& row) {
-  //    qDebug() << "index:" << row.first << "value:" << row.second.c_str();
-  //  });
-  int idx = 0;
+
   for (const auto& kv : node) {
-    kv.first >> *calibIdxLut >> idx;
-    kv.second >> rhs.calib[idx];
+    std::string tag;
+    kv.first >> tag;
+    int idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
+    if (idx >= 0) {
+      kv.second >> rhs.calib[idx];
+    }
   }
   return true;
 }

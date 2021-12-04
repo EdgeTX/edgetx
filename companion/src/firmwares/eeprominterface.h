@@ -291,11 +291,6 @@ class Firmware
       eepromInterface(nullptr),
       analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board))
     {
-/*       qDebug() << "board:" << Boards::getBoardName(board);
- *       for_each(analogInputNamesLookupTable.begin(), analogInputNamesLookupTable.end(), [=](const Int2StringMapping& row) {
- *           qDebug() << "index:" << row.first << "value:" << row.second.c_str();
- *         });
- */
     }
 
     virtual ~Firmware() { }
@@ -403,10 +398,12 @@ class Firmware
       currentVariant = value;
     }
 
-    const Int2StringMappingTable * getAnalogIndexNamesLookupTable()
+    const StringTagMappingTable* getAnalogIndexNamesLookupTable()
     {
       return &analogInputNamesLookupTable;
     }
+
+    int getAnalogInputIndex(const char * tag);
 
   protected:
     QString id;
@@ -415,7 +412,7 @@ class Firmware
     unsigned int variantBase;
     Firmware * base;
     EEPROMInterface * eepromInterface;
-    const Int2StringMappingTable analogInputNamesLookupTable;
+    const StringTagMappingTable analogInputNamesLookupTable;
     QList<const char *> languages;
     //QList<const char *> ttslanguages;
     OptionsList opts;

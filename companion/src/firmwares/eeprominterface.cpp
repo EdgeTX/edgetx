@@ -178,3 +178,20 @@ void Firmware::addOptionsGroup(const OptionsGroup & options)
 {
   this->opts.append(options);
 }
+
+int Firmware::getAnalogInputIndex(const char * tag)
+{
+  const StringTagMappingTable& lut = analogInputNamesLookupTable;
+
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it - lut.begin();
+  }
+
+  return -1;
+}

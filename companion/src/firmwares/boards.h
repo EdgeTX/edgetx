@@ -203,8 +203,7 @@ class Boards
     static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
-    static Int2StringMappingTable getAnalogNamesLookupTable(Board::Type board);
-    static int getAnalogInputIndex(Board::Type board, char * name);
+    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board);
     static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
