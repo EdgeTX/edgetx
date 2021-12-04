@@ -28,7 +28,7 @@ const unsigned char ASTERISK_BITMAP[]  = {
 void drawAlertBox(const char * title, const char * text, const char * action)
 {
   lcdClear();
-  lcdDrawBitmap(0, 0, ASTERISK_BITMAP);
+  lcdDrawRleBitmap(0, 0, ASTERISK_BITMAP);
 
 #define MESSAGE_LCD_OFFSET   60
 

@@ -52,9 +52,9 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
   lcdClear();
 
   if (index == 0)
-    lcdDrawBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_lock, 0, ANIMATIONS_BITMAP_WIDTH);
+    lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_lock, 0, ANIMATIONS_BITMAP_WIDTH);
   else
-    lcdDrawBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_startup, (index - 1) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
+    lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_startup, (index - 1) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
 
   lcdRefresh();
 }
@@ -69,7 +69,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
   lcdRefreshWait();
   lcdClear();
 
-  lcdDrawBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_shutdown, (3 - index) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
+  lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_shutdown, (3 - index) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
   if (message) {
     lcdDrawText((LCD_W - getTextWidth(message)) / 2, LCD_H - 2*FH, message);
   }
@@ -81,7 +81,7 @@ void drawSleepBitmap()
 {
   lcdRefreshWait();
   lcdClear();
-  lcdDrawBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_sleep, 0);
+  lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_sleep, 0);
   lcdRefresh();
   lcdRefreshWait();
 }
