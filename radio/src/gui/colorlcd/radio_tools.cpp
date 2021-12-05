@@ -79,6 +79,11 @@ struct LuaScript
   bool operator < (const LuaScript &a) { return label < a.label; }
 };
 
+inline bool LuaScript_compare_nocase(LuaScript first, LuaScript second)
+{
+  return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
+}
+
 void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayout &grid)
 {
   for (auto luaScript : luaScripts) {
@@ -165,7 +170,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
       }
     }
 
-    std::sort(luaScripts.begin(), luaScripts.end());
+    std::sort(luaScripts.begin(), luaScripts.end(), LuaScript_compare_nocase);
     buildLuaUi(luaScripts, window, grid);
   }
 #endif
