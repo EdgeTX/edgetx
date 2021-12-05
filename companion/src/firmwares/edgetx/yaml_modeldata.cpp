@@ -24,6 +24,7 @@
 #include "yaml_rawsource.h"
 #include "yaml_expodata.h"
 #include "yaml_curvedata.h"
+#include "yaml_moduledata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -338,7 +339,12 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["trainerMode"] = trainerModeLut << rhs.trainerMode;
 
-  // moduleData[]
+  for (int i=0; i<CPN_MAX_MODULES; i++) {
+    if (rhs.moduleData[i].protocol != PULSES_OFF) {
+      node["moduleData"][std::to_string(i)] = rhs.moduleData[i];
+    }
+  }
+  
   // scriptData[]
   // sensorData[]
 
@@ -416,8 +422,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // rssiAlarms
 
   node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
-
-  // moduleData[]
+  node["moduleData"] >> rhs.moduleData;
   // scriptData[]
   // sensorData[]
 
