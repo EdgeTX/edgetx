@@ -46,14 +46,9 @@ const YamlLookupTable switchTypeLut = {
   {  SWITCH_TYPE_OFF, "OFF"  },
 };
 
-namespace YAML {
-
-ENUM_CONVERTER(RawSwitchType, switchTypeLut);
-
-Node convert<RawSwitch>::encode(const RawSwitch& rhs)
+std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
   std::string sw_str;
-
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
     sval = -sval;
@@ -96,13 +91,12 @@ Node convert<RawSwitch>::encode(const RawSwitch& rhs)
     sw_str += LookupValue(switchTypeLut, rhs.type);
     break;
   }
-
-  return Node(sw_str);
+  return sw_str;
 }
 
-bool convert<RawSwitch>::decode(const Node& node, RawSwitch& rhs)
+RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
-  const std::string& sw_str = node.Scalar();
+  RawSwitch rhs;
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
 
@@ -147,7 +141,21 @@ bool convert<RawSwitch>::decode(const Node& node, RawSwitch& rhs)
   if (neg) {
     rhs.index = -rhs.index;
   }
+  return rhs;
+}
 
+namespace YAML {
+
+ENUM_CONVERTER(RawSwitchType, switchTypeLut);
+
+Node convert<RawSwitch>::encode(const RawSwitch& rhs)
+{
+  return Node(YamlRawSwitchEncode(rhs));
+}
+
+bool convert<RawSwitch>::decode(const Node& node, RawSwitch& rhs)
+{
+  rhs = YamlRawSwitchDecode(node.Scalar());
   return true;
 }
 }  // namespace YAML

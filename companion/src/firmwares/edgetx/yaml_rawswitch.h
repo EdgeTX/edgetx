@@ -21,6 +21,9 @@
 #include "yaml_ops.h"
 #include "rawswitch.h"
 
+std::string YamlRawSwitchEncode(const RawSwitch& rhs);
+RawSwitch YamlRawSwitchDecode(const std::string& sw_str);
+
 namespace YAML {
 
 template <>

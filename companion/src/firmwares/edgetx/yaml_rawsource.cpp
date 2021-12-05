@@ -51,8 +51,7 @@ const YamlLookupTable specialSourceLut = {
   // TODO: {  ???, "TX_GPS" },
 };
 
-namespace YAML {
-Node convert<RawSource>::encode(const RawSource& rhs)
+std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
   switch (rhs.type) {
@@ -123,13 +122,12 @@ Node convert<RawSource>::encode(const RawSource& rhs)
       src_str = "NONE";
       break;
   }
-
-  return Node(src_str);
+  return src_str;
 }
 
-bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
+RawSource YamlRawSourceDecode(const std::string& src_str)
 {
-  std::string src_str = node.Scalar();
+  RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
 
@@ -252,8 +250,20 @@ bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
       rhs.index = 0;
     }
   }
-  // TODO: raw analogs
+  
+  return rhs;
+}
 
+namespace YAML {
+Node convert<RawSource>::encode(const RawSource& rhs)
+{
+  return Node(YamlRawSourceEncode(rhs));
+}
+
+bool convert<RawSource>::decode(const Node& node, RawSource& rhs)
+{
+  std::string src_str = node.Scalar();
+  rhs = YamlRawSourceDecode(src_str);
   return true;
 }
 }  // namespace YAML

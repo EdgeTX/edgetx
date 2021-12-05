@@ -25,6 +25,7 @@
 #include "yaml_expodata.h"
 #include "yaml_curvedata.h"
 #include "yaml_moduledata.h"
+#include "yaml_logicalswitchdata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -315,7 +316,13 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["points"] = points;
   }
 
-  // logicalSw[]
+  for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++) {
+    const LogicalSwitchData& ls = rhs.logicalSw[i];
+    if (!ls.isEmpty()) {
+      node["logicalSw"][std::to_string(i)] = ls;
+    }
+  }
+  
   // customFn[]
   // swashRingData
 
@@ -397,8 +404,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["curves"] >> rhs.curves;
   YamlReadCurvePoints(node["points"], rhs.curves);
 
-  // logicalSw[]
-  // customFn[]
+  node["logicalSw"] >> rhs.logicalSw;
+  node["customFn"] >> rhs.customFn;
 
   // swashRingData
 

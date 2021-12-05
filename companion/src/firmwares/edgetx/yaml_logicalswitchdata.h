@@ -19,15 +19,13 @@
  */
 
 #include "yaml_ops.h"
-#include "rawsource.h"
+#include "logicalswitchdata.h"
 
-std::string YamlRawSourceEncode(const RawSource& rhs);
-RawSource YamlRawSourceDecode(const std::string& src_str);
-
-namespace YAML {
+namespace YAML
+{
 template <>
-struct convert<RawSource> {
-  static Node encode(const RawSource& rhs);
-  static bool decode(const Node& node, RawSource& rhs);
+struct convert<LogicalSwitchData> {
+  static Node encode(const LogicalSwitchData& rhs);
+  static bool decode(const Node& node, LogicalSwitchData& rhs);
 };
-}
+}  // namespace YAML
