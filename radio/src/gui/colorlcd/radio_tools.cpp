@@ -294,7 +294,6 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #endif
 
 #if defined(GHOST)
-#if 0
   if (isModuleGhost(EXTERNAL_MODULE)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "ghost",
                               BUTTON_BACKGROUND, CENTERED);
@@ -318,7 +317,6 @@ void RadioToolsPage::rebuild(FormWindow * window)
     });
     grid.nextLine();
   }
-#endif
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());
