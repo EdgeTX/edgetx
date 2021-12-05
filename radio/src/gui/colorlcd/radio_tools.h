@@ -21,17 +21,17 @@
 
 #include "tabsgroup.h"
 
-class RadioToolsPage: public PageTab {
-  public:
-    RadioToolsPage();
+class RadioToolsPage : public PageTab
+{
+ public:
+  RadioToolsPage();
 
-    void build(FormWindow * window) override;
+  void build(FormWindow* window) override;
 
-    void checkEvents() override;
+  void checkEvents() override;
 
-
-  protected:
-    static void rebuild(FormWindow * window);
-    FormWindow * window = nullptr;
-    uint8_t waiting = 0;
+ protected:
+  static void rebuild(FormWindow* window);
+  FormWindow* window = nullptr;
+  uint8_t waiting = 0;
 };
