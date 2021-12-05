@@ -121,6 +121,12 @@ void FullScreenDialog::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
+bool FullScreenDialog::onTouchStart(coord_t x, coord_t y)
+{
+  Window::onTouchStart(x, y);
+  return true;
+}
+
 bool FullScreenDialog::onTouchEnd(coord_t x, coord_t y)
 {
   Window::onTouchEnd(x, y);

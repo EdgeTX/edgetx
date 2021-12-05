@@ -73,6 +73,13 @@ void FileCarosell::checkEvents()
 {
   FormGroup::checkEvents();
 
+  // if we are paused then just update time.  we will begin the carosell after
+  // timeout period once unpaused
+  if (_paused) {
+    timer = getTicks();
+    return;
+  }
+
   uint32_t newTicks = getTicks();
   if (newTicks - timer > pageInterval && _fileNames.size()) {
     int newSelected = (selected + 1) % _fileNames.size();
