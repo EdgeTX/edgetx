@@ -231,7 +231,7 @@ class BindChoiceMenu : public Menu
                 [=]() { onSelect(Bind_9_16_TELEM_ON); });
       }
       addLine(STR_BINDING_9_16_TELEM_OFF,
-              [=]() { onSelect(Bind_9_16_TELEM_ON); });
+              [=]() { onSelect(Bind_9_16_TELEM_OFF); });
     }
     setTitle(STR_SELECT_MODE);
     setCancelHandler(onCancel);
@@ -469,7 +469,7 @@ class TrainerModuleWindow : public FormGroup
 #endif
     auto par = getParent();
     par->moveWindowsTop(top() + 1, adjustHeight());
-    par->adjustInnerHeight();    
+    par->adjustInnerHeight();
   }
 
  protected:
@@ -936,7 +936,7 @@ class ModuleWindow : public FormGroup {
         if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
 
           const char* servoRates[] = { "22ms", "11ms" };
-          
+
           new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
           new Choice(
               this, grid.getFieldSlot(), servoRates, 0, 1,
@@ -1358,7 +1358,7 @@ void ModelSetupPage::build(FormWindow * window)
     // Timer start value
     new StaticText(window, grid.getLabelSlot(true), "Start", 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
-    new TimeEdit(group, timerGrid.getSlot(), 0, TIMER_MAX, GET_DEFAULT(timer->start), 
+    new TimeEdit(group, timerGrid.getSlot(), 0, TIMER_MAX, GET_DEFAULT(timer->start),
                   [timer, i](int32_t value) {
                     timer->start = value;
                     timerSet(i, value);
@@ -1498,14 +1498,14 @@ void ModelSetupPage::build(FormWindow * window)
     grid.addWindow(group);
 
     // Pots and sliders warning
-#if NUM_POTS + NUM_SLIDERS 
+#if NUM_POTS + NUM_SLIDERS
     {
       new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
       new Choice(window, grid.getFieldSlot(), {"OFF", "ON", "AUTO"}, 0, 2,
                  GET_SET_DEFAULT(g_model.potsWarnMode));
       grid.nextLine();
 
-#if (NUM_POTS) 
+#if (NUM_POTS)
       {
         new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
@@ -1537,9 +1537,9 @@ void ModelSetupPage::build(FormWindow * window)
         }
         grid.addWindow(group);
       }
-#endif      
+#endif
 
-#if (NUM_SLIDERS) 
+#if (NUM_SLIDERS)
       {
         new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING, 0, COLOR_THEME_PRIMARY1);
         auto group =
