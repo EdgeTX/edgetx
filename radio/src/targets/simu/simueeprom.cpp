@@ -42,7 +42,7 @@ void eepromReadBlock (uint8_t * buffer, size_t address, size_t size)
     if (fread(buffer, size, 1, fp) <= 0)
       perror("error in fread");
   }
-  else {
+  else if (eeprom) {
     memcpy(buffer, &eeprom[address], size);
   }
 }
@@ -58,7 +58,7 @@ void eepromSimuWriteBlock(uint8_t * buffer, size_t address, size_t size)
     if (fwrite(buffer, size, 1, fp) <= 0)
       perror("error in fwrite");
   }
-  else {
+  else if (eeprom) {
     memcpy(&eeprom[address], buffer, size);
   }
 }

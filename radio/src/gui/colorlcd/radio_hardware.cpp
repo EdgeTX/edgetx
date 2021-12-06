@@ -246,6 +246,12 @@ void RadioHardwarePage::build(FormWindow * window)
   new Subtitle(window, grid.getLineSlot(), STR_POTS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_POTS; i++) {
+    // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
+#if !defined(SIMU) && defined(RADIO_FAMILY_T16)
+      if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2)))
+        continue;
+#endif
+
     new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + 1)), 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
     new Choice(window, grid.getFieldSlot(2,1), STR_POTTYPES, POT_NONE, POT_WITHOUT_DETENT,

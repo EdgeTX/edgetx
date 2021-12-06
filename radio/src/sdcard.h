@@ -29,6 +29,8 @@ extern FIL g_oLogFile;
 
 #include "translations.h"
 
+#define FILE_COPY_PREFIX "cp_"
+
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important

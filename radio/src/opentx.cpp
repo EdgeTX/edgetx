@@ -1406,6 +1406,7 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
 #if defined(GUI)
   if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
+    AUDIO_HELLO();
     doSplash();
   }
 #endif
@@ -2245,6 +2246,10 @@ uint32_t pwrCheck()
         BACKLIGHT_ENABLE();
       }
       if (get_tmr10ms() - pwr_press_time > PWR_PRESS_SHUTDOWN_DELAY()) {
+#if defined(COLORLCD)
+        bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
+        bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+#endif
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
 #else
@@ -2288,15 +2293,30 @@ uint32_t pwrCheck()
 #else  // COLORLCD
 
           const char* message = nullptr;
-          if (usbPlugged()) {
+          std::function<bool(void)> closeCondition = nullptr;
+          if (!usbConfirmed) {
             message = STR_USB_STILL_CONNECTED;
+            closeCondition = [](){
+              return !usbPlugged();
+            };
           }
-          else {
+          else if (!modelConnectedConfirmed) {
             message = STR_MODEL_STILL_POWERED;
+            closeCondition = [](){
+              return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+            };
           }
 
           // TODO: abort dialog condition (here, RSSI lost / USB connected)
-          if (confirmationDialog(STR_MODEL_SHUTDOWN, message, false)) {
+          if (confirmationDialog(STR_MODEL_SHUTDOWN, message, false, closeCondition)) {
+            if( message == STR_USB_STILL_CONNECTED)
+              usbConfirmed=true;
+            if( message == STR_MODEL_STILL_POWERED)
+              modelConnectedConfirmed = true;
+
+            if(!usbConfirmed || !modelConnectedConfirmed)
+              continue;
+
             pwr_check_state = PWR_CHECK_OFF;
             return e_power_off;
           } else {

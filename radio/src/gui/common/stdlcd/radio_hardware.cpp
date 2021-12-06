@@ -127,7 +127,7 @@ enum {
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
 #endif
   ITEM_RADIO_HARDWARE_DEBUG,
-#if defined(EEPROM_RLC)
+#if defined(EEPROM)
   ITEM_RADIO_BACKUP_EEPROM,
   ITEM_RADIO_FACTORY_RESET,
 #endif
@@ -221,6 +221,12 @@ enum {
   #define TX_CAPACITY_MEASUREMENT_ROWS
 #endif
 
+#if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
+  #define INTERNAL_MODULE_ROWS   0,
+#else
+  #define INTERNAL_MODULE_ROWS
+#endif
+
 #if (defined(CROSSFIRE) || defined(GHOST))
   #define MAX_BAUD_ROWS                  0,
 #else
@@ -249,7 +255,7 @@ enum {
   #define SPORT_POWER_ROWS
 #endif
 
-#if defined(EEPROM_RLC)
+#if defined(EEPROM)
 void onFactoryResetConfirm(const char * result)
 {
   if (result == STR_OK) {
@@ -292,6 +298,7 @@ void menuRadioHardware(event_t event)
     0 /* battery calib */,
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
+    INTERNAL_MODULE_ROWS
     MAX_BAUD_ROWS
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS

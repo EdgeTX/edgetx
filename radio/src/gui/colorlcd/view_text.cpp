@@ -438,6 +438,12 @@ static void replaceSpaceWithUnderscore(std::string& name)
   } while (index != std::string::npos);
 }
 
+#if defined(SDCARD_YAML)
+#define MODEL_FILE_EXT  YAML_EXT
+#else
+#define MODEL_FILE_EXT  MODELS_EXT
+#endif
+
 bool openNotes(const char buf[], std::string modelNotesName)
 {
   if(isFileAvailable(modelNotesName.c_str())) { 
@@ -466,7 +472,7 @@ void readModelNotes()
 #if !defined(EEPROM) 
   if(!notesFound) {   
     modelNotesName.assign(g_eeGeneral.currModelFilename);
-    size_t index = modelNotesName.find(".bin");
+    size_t index = modelNotesName.find(MODEL_FILE_EXT);
     if(index != std::string::npos)
     {
       modelNotesName.erase(index);

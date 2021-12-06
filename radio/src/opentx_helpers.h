@@ -56,13 +56,49 @@ inline void SWAP(T & a, T & b)
 
 inline void memclear(void * p, size_t size)
 {
-memset(p, 0, size);
+  memset(p, 0, size);
 }
 
 inline bool is_memclear(void * p, size_t size)
 {
-uint8_t * buf = (uint8_t *)p;
-return buf[0] == 0 && memcmp(buf, buf + 1, size - 1) == 0;
+  uint8_t * buf = (uint8_t *)p;
+  return buf[0] == 0 && memcmp(buf, buf + 1, size - 1) == 0;
 }
+
+// Circular buffer to send data between two threads
+template<class T, uint8_t N>
+class CircularBuffer {
+  protected:
+    volatile T buffer[N] = {0};
+    uint8_t readPos = 0;
+    uint8_t writePos = 0;
+    
+  public:
+    void clear()
+    {
+      memclear(this, sizeof(*this));
+    }
+
+    T read()
+    {
+      T value = buffer[readPos];
+      if (value) {
+        buffer[readPos] = 0;
+        readPos = (readPos + 1) % N;
+      }
+      return value;
+    }
+
+    // Values must be non-zero
+    bool write(T value)
+    {
+      if (value && !buffer[writePos]) {
+        buffer[writePos] = value;
+        writePos = (writePos + 1) % N;
+        return false;
+      }    
+      return true;
+    }  
+};
 
 #endif

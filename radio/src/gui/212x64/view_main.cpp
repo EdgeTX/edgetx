@@ -203,7 +203,7 @@ void displayTopBarGauge(coord_t x, int count, bool blinking=false)
 }
 
 #define LCD_NOTIF_ICON(x, icon) \
- lcdDrawBitmap(x, BAR_Y, icons, icon); \
+ lcdDrawRleBitmap(x, BAR_Y, icons, icon); \
  lcdDrawSolidHorizontalLine(x, BAR_Y+8, 11)
 
 void displayTopBar()

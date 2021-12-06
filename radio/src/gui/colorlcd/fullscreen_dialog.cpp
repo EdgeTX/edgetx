@@ -121,6 +121,12 @@ void FullScreenDialog::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
+bool FullScreenDialog::onTouchStart(coord_t x, coord_t y)
+{
+  Window::onTouchStart(x, y);
+  return true;
+}
+
 bool FullScreenDialog::onTouchEnd(coord_t x, coord_t y)
 {
   Window::onTouchEnd(x, y);
@@ -201,12 +207,24 @@ void raiseAlert(const char * title, const char * msg, const char * action, uint8
 }
 
 // POPUP_CONFIRMATION
-bool confirmationDialog(const char* title, const char* msg, bool checkPwr)
+bool confirmationDialog(const char* title, const char* msg, bool checkPwr, const std::function<bool(void)>& closeCondition)
 {
   bool confirmed = false;
   auto dialog = new FullScreenDialog(WARNING_TYPE_CONFIRM, title ? title : "",
                                      msg ? msg : "", "",
                                      [&confirmed]() { confirmed = true; });
+  if(closeCondition)
+  {
+    dialog->setCloseCondition([&confirmed,&closeCondition]() {
+      if(closeCondition())
+      {
+        confirmed=true;
+        return true;
+      } else {
+        return false;
+      }});
+  }
+
   if (checkPwr) {
     dialog->runForever();
   } else {

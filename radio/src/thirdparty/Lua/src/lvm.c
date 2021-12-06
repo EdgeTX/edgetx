@@ -123,7 +123,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       char keyname[LUA_MAX_ROTABLE_NAME + 1];
       lua_getcstr(keyname, rawtsvalue(key), LUA_MAX_ROTABLE_NAME);
       TRACE_LUA_INTERNALS("luaV_gettable(%s)", keyname);
-      luaR_findentry(rvalue(t), keyname, val);
+      luaR_findentry(L, rvalue(t), keyname, val);
     }
     return;
   }
@@ -624,7 +624,7 @@ void luaV_execute (lua_State *L) {
           char keyname[LUA_MAX_ROTABLE_NAME + 1];
           lua_getcstr(keyname, rawtsvalue(RKC(i)), LUA_MAX_ROTABLE_NAME);
           TRACE_LUA_INTERNALS("luaV_execute(OP_GETTABUP, %s)", keyname);
-          if (luaR_findglobal(keyname, ra)) {
+          if (luaR_findglobal(L, keyname, ra)) {
             break;
           }
         }

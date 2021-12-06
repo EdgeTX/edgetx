@@ -43,25 +43,20 @@ void init_trainer_ppm()
   TRAINER_TIMER->CCMR1 = TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_0; // Force O/P high
   TRAINER_TIMER->BDTR = TIM_BDTR_MOE;
   TRAINER_TIMER->EGR = 1;
-  TRAINER_TIMER->DIER |= TIM_DIER_UDE;
   TRAINER_TIMER->CCMR1 = TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE; // PWM mode 1
   TRAINER_TIMER->CR1 |= TIM_CR1_CEN;
 
   setupPulsesPPMTrainer();
   trainerSendNextFrame();
 
-  NVIC_EnableIRQ(TRAINER_DMA_IRQn);
-  NVIC_SetPriority(TRAINER_DMA_IRQn, 7);
   NVIC_EnableIRQ(TRAINER_TIMER_IRQn);
   NVIC_SetPriority(TRAINER_TIMER_IRQn, 7);
 }
 
 void stop_trainer_ppm()
 {
-  NVIC_DisableIRQ(TRAINER_DMA_IRQn);
   NVIC_DisableIRQ(TRAINER_TIMER_IRQn);
 
-  TRAINER_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
   TRAINER_TIMER->DIER = 0; // Stop Interrupt
   TRAINER_TIMER->CR1 &= ~TIM_CR1_CEN; // Stop counter
 }
@@ -103,26 +98,15 @@ void trainerSendNextFrame()
 {
   TRAINER_TIMER->CCR2 = GET_TRAINER_PPM_DELAY() * 2;
   TRAINER_TIMER->CCER = TIM_CCER_CC2E | (GET_TRAINER_PPM_POLARITY() ? 0 : TIM_CCER_CC2P);
-  TRAINER_TIMER->CCR3 = *(trainerPulsesData.ppm.ptr - 1) - 4000; // 2mS in advance
 
-  TRAINER_DMA_STREAM->CR &= ~DMA_SxCR_EN; // Disable DMA
-  TRAINER_DMA_STREAM->CR |= TRAINER_DMA_CHANNEL | DMA_SxCR_DIR_0 | DMA_SxCR_MINC | DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0 | DMA_SxCR_PL_0 | DMA_SxCR_PL_1;
-  TRAINER_DMA_STREAM->PAR = CONVERT_PTR_UINT(&TRAINER_TIMER->ARR);
-  TRAINER_DMA_STREAM->M0AR = CONVERT_PTR_UINT(trainerPulsesData.ppm.pulses);
-  TRAINER_DMA_STREAM->NDTR = trainerPulsesData.ppm.ptr - trainerPulsesData.ppm.pulses;
-  TRAINER_DMA_STREAM->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE; // Enable DMA
+  // load the first period: next reload when CCR2 compare event triggers
+  trainerPulsesData.ppm.ptr = trainerPulsesData.ppm.pulses;
+  TRAINER_TIMER->ARR = *(trainerPulsesData.ppm.ptr++);
+  TRAINER_TIMER->DIER |= TIM_DIER_CC2IE;
 }
 
-extern "C" void TRAINER_DMA_IRQHandler()
-{
-  if (!DMA_GetITStatus(TRAINER_DMA_STREAM, TRAINER_DMA_FLAG_TC))
-    return;
 
-  DMA_ClearITPendingBit(TRAINER_DMA_STREAM, TRAINER_DMA_FLAG_TC);
 
-  TRAINER_TIMER->SR &= ~TIM_SR_CC3IF; // Clear flag
-  TRAINER_TIMER->DIER |= TIM_DIER_CC3IE; // Enable this interrupt
-}
 
 extern "C" void TRAINER_TIMER_IRQHandler()
 {
@@ -145,12 +129,16 @@ extern "C" void TRAINER_TIMER_IRQHandler()
   }
 
   // PPM out compare interrupt
-  if ((TRAINER_TIMER->DIER & TIM_DIER_CC3IE) && (TRAINER_TIMER->SR & TIM_SR_CC3IF)) {
+  if ((TRAINER_TIMER->DIER & TIM_DIER_CC2IE) && (TRAINER_TIMER->SR & TIM_SR_CC2IF)) {
     // compare interrupt
-    TRAINER_TIMER->DIER &= ~TIM_DIER_CC3IE; // stop this interrupt
-    TRAINER_TIMER->SR &= ~TIM_SR_CC3IF; // Clear flag
-    setupPulsesPPMTrainer();
-    trainerSendNextFrame();
+    TRAINER_TIMER->SR &= ~TIM_SR_CC2IF; // Clear flag
+    if (*trainerPulsesData.ppm.ptr) {
+      // load next period
+      TRAINER_TIMER->ARR = *(trainerPulsesData.ppm.ptr++);
+    } else {
+      setupPulsesPPMTrainer();
+      trainerSendNextFrame();
+    }
   }
 }
 

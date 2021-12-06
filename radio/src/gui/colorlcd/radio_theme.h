@@ -126,8 +126,10 @@ class ThemeSetupPage: public PageTab {
     ~ThemeSetupPage();
 
     void build(FormWindow * window) override;
+    void checkEvents() override;
 
   protected:
+    Window *pageWindow = nullptr;
     Window *previewWindow = nullptr;
     FileCarosell *fileCarosell = nullptr;
     ThemeColorPreview *themeColorPreview = nullptr;
@@ -137,4 +139,5 @@ class ThemeSetupPage: public PageTab {
     int currentTheme = 0;
     void setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp);
     void displayThemeMenu(Window *window, ThemePersistance *tp);
+    void setAuthor(ThemeFile *theme);
 };

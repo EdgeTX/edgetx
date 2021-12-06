@@ -1848,6 +1848,185 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
+/*luadoc
+@function setStickySwitch(id, value) 
+
+@param id: integer identifying the sticky logical switch (zero for LS1 etc.).
+
+@param value: true/false. The new value of the sticky logical switch.
+
+@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor 
+via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value 
+is returned and no messages was sent (i.e. the switch was not changed).
+
+Sets the value of a sticky logical switch.
+
+@status current Introduced in 2.6
+*/
+
+#if (MAX_LOGICAL_SWITCHES != 64)
+#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
+#endif
+
+static int luaSetStickySwitch(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+  bool value = lua_toboolean(L, 2);
+
+  uint8_t msg = (1 << 6);       // This bit is always set to have a non-zero value
+  if (value) msg |= (1 << 7);
+  msg |= (id & 0x3F);
+
+  lua_pushboolean(L, luaSetStickySwitchBuffer.write(msg));
+  return 1;
+}
+
+/*luadoc
+@function getLogicalSwitchValue(id)
+
+@param id: integer identifying the logical switch (zero for LS1 etc.).
+
+@retval value: true/false.
+
+Reads the value of a logical switch.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetLogicalSwitchValue(lua_State * L)
+{
+  int id = luaL_checkinteger(L, 1);
+
+  if (id >= 0 && id < MAX_LOGICAL_SWITCHES)
+    lua_pushboolean(L, getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + id));
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+/*luadoc
+@function getSwitchIndex(positionName)
+
+@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have 
+special characters in them like arrow up/down etc.
+
+@retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`. Also corresponds
+to the fields in the table returned by `model.getLogicalSwitch(switch)` identifying switches.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetSwitchIndex(lua_State * L)
+{
+  const char * name = luaL_checkstring(L, 1);
+  bool negate = false;
+  bool found = false;
+  swsrc_t idx;
+  
+  if (name[0] == '!') {
+    name++;
+    negate = true;
+  }
+  
+  for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
+    if (isSwitchAvailableInLogicalSwitches(idx)) {
+      char* s = getSwitchPositionName(idx);
+      if (!strncasecmp(s, name, 31)) {
+        found = true;
+        break;
+      }
+    }
+  }
+  
+  if (found) {
+    if (negate)
+      idx = -idx;
+    lua_pushinteger(L, idx);
+  }
+  else
+    lua_pushnil(L);
+
+  return 1;
+}
+
+/*luadoc
+@function getSwitchName(switchIndex)
+
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+`model.getLogicalSwitch(switch)` identifying switches.
+
+@retval value: string naming the switch position as it is shown on radio menus where a switch can be chosen.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetSwitchName(lua_State * L)
+{
+  swsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx)) {
+    char* name = getSwitchPositionName(idx);
+    lua_pushstring(L, name);
+  }
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+/*luadoc
+@function getSwitchValue(switchIndex)
+
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+`model.getLogicalSwitch(switch)` identifying switches.
+
+@retval value: true/false. The value of the switch.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetSwitchValue(lua_State * L)
+{
+  swsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx))
+    lua_pushboolean(L, getSwitch(idx));
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+/*luadoc
+@function getPhysicalSwitches()
+
+@retval switches: table in the format `{{switchName, switchIndex}, ...}`
+
+Returns a list of physical switch positions.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetPhysicalSwitches(lua_State * L)
+{
+  int i = 1;
+  lua_newtable(L);
+  for (swsrc_t idx = 1 - SWSRC_FIRST_TRIM; idx < SWSRC_FIRST_TRIM; idx++) {
+    if (idx != SWSRC_NONE && isSwitchAvailableInLogicalSwitches(idx)) {
+      char* name = getSwitchPositionName(idx);
+      lua_pushinteger(L, i++);
+      lua_createtable (L, 2, 0);
+
+      lua_pushinteger(L, 1);
+      lua_pushstring(L, name);
+      lua_settable(L, -3);
+
+      lua_pushinteger(L, 2);
+      lua_pushinteger(L, idx);
+      lua_settable(L, -3);
+      
+      lua_settable(L, -3);
+    }
+  }
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -1907,6 +2086,12 @@ const luaL_Reg opentxLib[] = {
   { "setShmVar", luaSetShmVar },
   { "getShmVar", luaGetShmVar },
 #endif
+  { "setStickySwitch", luaSetStickySwitch },
+  { "getLogicalSwitchValue", luaGetLogicalSwitchValue },
+  { "getSwitchIndex", luaGetSwitchIndex },
+  { "getSwitchName", luaGetSwitchName },
+  { "getSwitchValue", luaGetSwitchValue },
+  { "getPhysicalSwitches", luaGetPhysicalSwitches },
   { nullptr, nullptr }  /* sentinel */
 };
 
@@ -1964,6 +2149,7 @@ const luaR_value_entry opentxConstants[] = {
 #endif
   { "MIXSRC_CH1", MIXSRC_CH1 },
   { "SWSRC_LAST", SWSRC_LAST_LOGICAL_SWITCH },
+  { "SWITCH_COUNT", SWSRC_COUNT },
   { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },
 #if defined(COLORLCD)
   { "SHADOWED", SHADOWED },
@@ -2021,7 +2207,7 @@ const luaR_value_entry opentxConstants[] = {
   { "WHITE", RGB2FLAGS(0xFF, 0xFF, 0xFF) },
   { "LIGHTWHITE", RGB2FLAGS(0xEA, 0xEA, 0xEA) },
   { "YELLOW", RGB2FLAGS(0xFF, 0xFF, 0x00) },
-  { "BLUE", RGB2FLAGS(0xFF, 0xFF, 0xFF) },
+  { "BLUE", RGB2FLAGS(0x00, 0x00, 0xFF) },
   { "DARKBLUE", RGB2FLAGS(0x00, 0x00, 0xA0) },
   { "GREY", RGB2FLAGS(0x60, 0x60, 0x60) },
   { "DARKGREY", RGB2FLAGS(0x40, 0x40, 0x40) },
@@ -2252,4 +2438,26 @@ const luaR_value_entry opentxConstants[] = {
   {"AM_ARC", AM_ARC},
 
   { nullptr, 0 }  /* sentinel */
+};
+
+const luaR_string_entry edgetxStrings[] = {
+  { "CHAR_RIGHT", STR_CHAR_RIGHT },
+  { "CHAR_LEFT", STR_CHAR_LEFT },
+  { "CHAR_UP", STR_CHAR_UP },
+  { "CHAR_DOWN", STR_CHAR_DOWN },
+  { "CHAR_DELTA", STR_CHAR_DELTA },
+  { "CHAR_STICK", STR_CHAR_STICK },
+  { "CHAR_POT", STR_CHAR_POT },
+  { "CHAR_SLIDER", STR_CHAR_SLIDER },
+  { "CHAR_SWITCH", STR_CHAR_SWITCH },
+  { "CHAR_TRIM", STR_CHAR_TRIM },
+  { "CHAR_INPUT", STR_CHAR_INPUT },
+  { "CHAR_FUNCTION", STR_CHAR_FUNCTION },
+  { "CHAR_CYC", STR_CHAR_CYC },
+  { "CHAR_TRAINER", STR_CHAR_TRAINER },
+  { "CHAR_CHANNEL", STR_CHAR_CHANNEL },
+  { "CHAR_TELEMETRY", STR_CHAR_TELEMETRY },
+  { "CHAR_LUA", STR_CHAR_LUA },
+
+  { nullptr, "" }  /* sentinel */
 };

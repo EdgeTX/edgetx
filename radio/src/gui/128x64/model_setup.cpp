@@ -960,8 +960,7 @@ void menuModelSetup(event_t event)
                                                                       g_model.moduleData[moduleIdx].subType,
                                                                       MODULE_SUBTYPE_R9M_FCC,
                                                                       MODULE_SUBTYPE_R9M_LAST,
-                                                                      EE_MODEL,
-                                                                      isR9MModeAvailable);
+                                                                      EE_MODEL);
                   if (checkIncDec_Ret) {
                     g_model.moduleData[moduleIdx].pxx.power = 0;
                     g_model.moduleData[moduleIdx].channelsStart = 0;

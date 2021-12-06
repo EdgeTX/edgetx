@@ -213,6 +213,10 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValQuo;
                 break;
             }
+            if (*c == '\\') {
+                state = ps_ValEsc;
+                break;
+            }
             CONCAT_STR(scratch_buf, scratch_len, *c);
             break;
 
@@ -284,6 +288,15 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValQuo;
                 break;
             }
+            if (*c == '\\') {
+                state = ps_ValEsc;
+                break;
+            }
+            CONCAT_STR(scratch_buf, scratch_len, *c);
+            break;
+
+        case ps_ValEsc:
+            state = ps_Val;
             CONCAT_STR(scratch_buf, scratch_len, *c);
             break;
                 

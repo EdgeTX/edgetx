@@ -57,4 +57,8 @@ void ScreenMenu::updateTabs()
       break;
     }
   }
+
+  // set the active tab to the currently shown screen on the MainView
+  if ((unsigned)(g_model.view + 1) < getTabs())
+    setCurrentTab(g_model.view + 1);
 }
