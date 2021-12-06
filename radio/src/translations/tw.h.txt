@@ -357,11 +357,11 @@
 #define TR_COPYINGMODEL                 "複製模型..."
 #define TR_MOVINGMODEL                  "移動模型..."
 #define TR_LOADINGMODEL                 "載入模型..."
-#define TR_NAME                         "命名"
+#define TR_NAME                         "名稱"
 #define TR_MODELNAME                    "模型名稱"
 #define TR_PHASENAME                    "模式名稱"
 #define TR_MIXNAME                      "混控名稱"
-#define TR_INPUTNAME                    TR("輸入", "輸入名稱")
+#define TR_INPUTNAME                    TR("名稱", "輸入名稱")
 #define TR_EXPONAME                     TR("名稱", "曲線名稱")
 #define TR_BITMAP                       "模型圖片"
 #define TR_TIMER                        TR("計時器", "計時器 ")
@@ -543,8 +543,8 @@
 #define TR_MENU_RADIO_ANALOGS           TR("ANALOGS", "類比輸入測試")
 #define TR_MENUCALIBRATION              "校準"
 #define TR_TRIMS2OFFSETS                "將當前微調量保存至中點"
-#define TR_CHANNELS2FAILSAFE            "將當前所有通道值保存至接收機失控保護"
-#define TR_CHANNEL2FAILSAFE             "將當前通道值保存至接收機失控保護"
+#define TR_CHANNELS2FAILSAFE            "導入當前所有通道值"
+#define TR_CHANNEL2FAILSAFE             "導入當前通道值"
 #define TR_MENUMODELSEL                 TR("MODELSEL", "模型選擇")
 #define TR_MENU_MODEL_SETUP             TR("SETUP", "模型設置")
 #define TR_MENUFLIGHTMODES              "飛行模式設置"
@@ -1274,14 +1274,34 @@
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
 
+#define TR_USE_THEME_COLOR            "使用主題顏色"
+
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将將所有微調導入中點偏移值"
+#define TR_DUPLICATE                  "複製"
+#define TR_ACTIVATE                   "啟用"
+#define TR_RED                        "紅"
+#define TR_BLUE                       "藍"
+#define TR_GREEN                      "綠"
+#define TR_COLOR_PICKER               "拾取顏色"
+#define TR_EDIT_THEME_DETAILS         "主題信息"
+#define TR_AUTHOR                     "作者"
+#define TR_DESCRIPTION                "描述"
+#define TR_SAVE                       "保存"
+#define TR_CANCEL                     "取消"
+#define TR_EDIT_THEME                 "編輯主題"
+#define TR_DETAILS                    "詳細信息"
+#define TR_THEME_EDITOR               "主題"
+
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "模型選擇"
-#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "通道查看"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "模型設置"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "系統設置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "顯示設置"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "復位功能"
-#define TR_MAIN_MENU_STATISTICS         "統計信息"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "關於"
+#define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
+#define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
+#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
+#define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
+#define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
+#define TR_MAIN_MENU_SCREEN_SETTINGS  "顯示設置"
+#define TR_MAIN_MENU_RESET_TELEMETRY  "復位功能"
+#define TR_MAIN_MENU_STATISTICS       "統計信息"
+#define TR_MAIN_MENU_ABOUT_EDGETX     "關於"
 // End Main menu
+
+#define NoUsedChineseChar             "椴" 

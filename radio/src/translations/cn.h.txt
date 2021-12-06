@@ -357,12 +357,12 @@
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
 #define TR_LOADINGMODEL                "载入模型..."
-#define TR_NAME                        "命名"
-#define TR_MODELNAME                   "模型命名"
-#define TR_PHASENAME                   "模式命名"
-#define TR_MIXNAME                     "混控命名"
-#define TR_INPUTNAME                   TR("输入", "输入命名")
-#define TR_EXPONAME                    TR("命名", "曲线命名")
+#define TR_NAME                        "名称"
+#define TR_MODELNAME                   "模型名称"
+#define TR_PHASENAME                   "模式名称"
+#define TR_MIXNAME                     "混控名称"
+#define TR_INPUTNAME                   TR("名称", "输入名称")
+#define TR_EXPONAME                    TR("名称", "曲线名称")
 #define TR_BITMAP                      "模型图片"
 #define TR_TIMER                       TR("计时器", "计时器 ")
 #define TR_START                       "开始"
@@ -543,8 +543,8 @@
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "类比输入测试")
 #define TR_MENUCALIBRATION             "校准"
 #define TR_TRIMS2OFFSETS               "将当前微调量保存至中点"
-#define TR_CHANNELS2FAILSAFE           "将当前所有通道值保存至接收机失控保护"
-#define TR_CHANNEL2FAILSAFE            "将当前通道值保存至接收机失控保护"
+#define TR_CHANNELS2FAILSAFE           "导入当前所有通道值"
+#define TR_CHANNEL2FAILSAFE            "导入当前通道值"
 #define TR_MENUMODELSEL                TR("MODELSEL", "模型选择")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "模型设置")
 #define TR_MENUFLIGHTMODES             "飞行模式设置"
@@ -1274,16 +1274,34 @@
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
 
+#define TR_USE_THEME_COLOR            "使用主题颜色"
+
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
+#define TR_DUPLICATE                  "复制"
+#define TR_ACTIVATE                   "启用"
+#define TR_RED                        "红"
+#define TR_BLUE                       "蓝"
+#define TR_GREEN                      "绿"
+#define TR_COLOR_PICKER               "拾取颜色"
+#define TR_EDIT_THEME_DETAILS         "主题信息"
+#define TR_AUTHOR                     "作者"
+#define TR_DESCRIPTION                "描述"
+#define TR_SAVE                       "保存"
+#define TR_CANCEL                     "取消"
+#define TR_EDIT_THEME                 "编辑主题"
+#define TR_DETAILS                    "详细信息"
+#define TR_THEME_EDITOR               "主题"
+
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "模型选择"
-#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "通道查看"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "模型设置"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "系统设置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "显示设置"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "复位功能"
-#define TR_MAIN_MENU_STATISTICS         "统计信息"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "关于"
+#define TR_MAIN_MENU_SELECT_MODEL     "模型选择"
+#define TR_MAIN_MENU_MODEL_NOTES      "模型说明"
+#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
+#define TR_MAIN_MENU_MODEL_SETTINGS   "模型设置"
+#define TR_MAIN_MENU_RADIO_SETTINGS   "系统设置"
+#define TR_MAIN_MENU_SCREEN_SETTINGS  "显示设置"
+#define TR_MAIN_MENU_RESET_TELEMETRY  "复位功能"
+#define TR_MAIN_MENU_STATISTICS       "统计信息"
+#define TR_MAIN_MENU_ABOUT_EDGETX     "关于"
 // End Main menu
 
-#define NoUsedChineseChar               "晨" 
+#define NoUsedChineseChar             "昧" 
