@@ -180,7 +180,7 @@ ZoneOption * createOptionsArray(int reference, uint8_t maxOptions)
               // TRACE("default bool = %d", (int)(option->deflt.boolValue));
             }
             else if (option->type == ZoneOption::String) {
-              str2zchar(option->deflt.stringValue, lua_tostring(lsWidgets, -1), sizeof(option->deflt.stringValue));  // stringValue is ZCHAR
+              strncpy(option->deflt.stringValue, lua_tostring(lsWidgets, -1), LEN_ZONE_OPTION_STRING);
               // TRACE("default string = %s", lua_tostring(lsWidgets, -1));
             }
             break;
@@ -348,11 +348,19 @@ class LuaWidgetFactory: public WidgetFactory
       lua_newtable(lsWidgets);
       int i = 0;
       for (const ZoneOption * option = options; option->name; option++, i++) {
-        int32_t value = persistentData->options[i].value.signedValue;
-        if (option->type == ZoneOption::Color)
-          l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
-        else
+        if (option->type == ZoneOption::String) {
+          lua_pushstring(lsWidgets, option->name);
+          char str[LEN_ZONE_OPTION_STRING + 1] = {0}; // Zero-terminated string for Lua
+          strncpy(str, persistentData->options[i].value.stringValue, LEN_ZONE_OPTION_STRING);
+          lua_pushstring(lsWidgets, &str[0]);
+          lua_settable(lsWidgets, -3);
+        } else if (option->type == ZoneOption::Color) {
+          int32_t value = persistentData->options[i].value.signedValue;
+          l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);
+        } else {
+          int32_t value = persistentData->options[i].value.signedValue;
           l_pushtableint(option->name, value);
+        }
       }
 
       bool err = lua_pcall(lsWidgets, 2, 1, 0);
@@ -417,11 +425,19 @@ void LuaWidget::update()
   lua_newtable(lsWidgets);
   int i = 0;
   for (const ZoneOption * option = getOptions(); option->name; option++, i++) {
-    int32_t value = persistentData->options[i].value.signedValue;
-    if (option->type == ZoneOption::Color)
-      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);      
-    else
+    if (option->type == ZoneOption::String) {
+      lua_pushstring(lsWidgets, option->name);
+      char str[LEN_ZONE_OPTION_STRING + 1] = {0}; // Zero-terminated string for Lua
+      strncpy(str, persistentData->options[i].value.stringValue, LEN_ZONE_OPTION_STRING);
+      lua_pushstring(lsWidgets, &str[0]);
+      lua_settable(lsWidgets, -3);
+    } else if (option->type == ZoneOption::Color) {
+      int32_t value = persistentData->options[i].value.signedValue;
+      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);
+    } else {
+      int32_t value = persistentData->options[i].value.signedValue;
       l_pushtableint(option->name, value);
+    }
   }
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
