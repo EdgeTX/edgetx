@@ -48,6 +48,14 @@ void Button::onEvent(event_t event)
 #endif
 
 #if defined(HARDWARE_TOUCH)
+bool Button::onTouchStart(coord_t x, coord_t y)
+{
+  Window::onTouchStart(x, y);
+  return true;
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
 bool Button::onTouchEnd(coord_t x, coord_t y)
 {
   if (enabled) {
