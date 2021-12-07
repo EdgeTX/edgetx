@@ -94,6 +94,14 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
   try {
     YAML::Node node = loadYamlFromByteArray(data);
     node >> settings;
+    if (settings.version < CPN_CURRENT_SETTINGS_VERSION) {
+      qDebug() << "Older version of settings detected:" << settings.version;
+    }
+    else if (settings.version > CPN_CURRENT_SETTINGS_VERSION) {
+      qDebug() << "Newer version of settings detected:" << settings.version;
+      QMessageBox::critical(NULL, CPN_STR_APP_NAME, QCoreApplication::translate("EdgeTXInterface", "Companion does not support settings version %1!").arg(settings.version));
+      return false;
+    }
   } catch (const std::runtime_error& e) {
     qDebug() << "YAML::ParserException: " << e.what();
     return false;

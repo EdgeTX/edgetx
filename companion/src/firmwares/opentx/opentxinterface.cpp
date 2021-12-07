@@ -254,7 +254,7 @@ unsigned long OpenTxEepromInterface::load(RadioData &radioData, const uint8_t * 
     errors.set(HAS_WARNINGS);
   }
   else if (version_error == NOT_OPENTX) {
-    dbg << " not open9x";
+    dbg << " not OpenTX";
     errors.set(version_error);
     return errors.to_ulong();
   }
@@ -286,7 +286,7 @@ unsigned long OpenTxEepromInterface::load(RadioData &radioData, const uint8_t * 
 
 uint8_t OpenTxEepromInterface::getLastDataVersion(Board::Type board)
 {
-  return 220;
+  return 220; // Note: this is the last bin format before the switch to YAML introduced in Companion version 2.6
 }
 
 void OpenTxEepromInterface::showErrors(const QString & title, const QStringList & errors)

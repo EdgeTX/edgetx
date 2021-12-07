@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+constexpr unsigned int CPN_CURRENT_SETTINGS_VERSION = { 221 };
+
 typedef std::pair<std::string, int> EtxModelfileCategoryPair;
 typedef std::list<EtxModelfileCategoryPair> EtxModelfiles;
 

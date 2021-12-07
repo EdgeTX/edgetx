@@ -25,6 +25,7 @@
 
 #include "generalsettings.h"
 #include "eeprominterface.h"
+#include "edgetxinterface.h"
 
 extern const YamlLookupTable beeperModeLut;
 extern const YamlLookupTable backlightModeLut;
@@ -41,8 +42,8 @@ namespace YAML {
 
     static YAML::Node encode(const GeneralSettings& rhs) {
       Node node;
-      
-      node["version"] = rhs.version;
+
+      node["version"] = CPN_CURRENT_SETTINGS_VERSION;
 
       // Radio calib
       YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
@@ -135,11 +136,11 @@ namespace YAML {
     static bool decode(const Node& node, GeneralSettings& rhs) {
 
       if (!node.IsMap()) return false;
-      
+
       // for (const auto& n : node) {
       //   qDebug() << QString::fromStdString(n.first.Scalar());
       // }
-      
+
       // TODO: check board string and fetch Board instance
       std::string board;
       node["board"] >> board;
@@ -226,7 +227,7 @@ namespace YAML {
       YamlStickConfig stickConfig;
       node["sticksConfig"] >> stickConfig;
       stickConfig.copy(rhs.stickName);
-      
+
       YamlSwitchConfig switchConfig;
       node["switchConfig"] >> switchConfig;
       switchConfig.copy(rhs.switchName, rhs.switchConfig);
@@ -250,7 +251,7 @@ namespace YAML {
 
       // OneBit sampling (X9D only?)
       node["uartSampleMode"] >> rhs.uartSampleMode;
-      
+
       return true;
     }
   };
