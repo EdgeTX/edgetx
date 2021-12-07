@@ -265,7 +265,6 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
-add_definitions(-DREQUIRED_SDCARD_VERSION="${SDCARD_VERSION}")
 
 include_directories(${RTOS_DIR}/include)
 
