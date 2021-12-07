@@ -1514,7 +1514,7 @@ void ModelSetupPage::build(FormWindow * window)
         GridLayout centerGrid(group);
         for (int i = POT_FIRST, j = 0; i <= POT_LAST; i++) {
           char s[8];
-          if ((IS_POT(i) || IS_POT_MULTIPOS(i))) {
+          if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
             if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
 
             auto button = new TextButton(
@@ -1563,9 +1563,9 @@ void ModelSetupPage::build(FormWindow * window)
                   (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)))) {
                 SAVE_POT_POSITION(j + NUM_POTS);
               }
-              button->check(g_model.potsWarnEnabled & (1 << (j + NUM_POTS)));
+              button->check(g_model.potsWarnEnabled & (1 << (j + NUM_POTS)) ? true : false);
               SET_DIRTY();
-              return (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)));
+              return (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)) ? 1 : 0);
             });
             j++;
           }

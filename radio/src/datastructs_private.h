@@ -687,7 +687,7 @@ PACK(struct ModelData {
   SCRIPT_DATA
 
   NOBACKUP(char inputNames[MAX_INPUTS][LEN_INPUT_NAME]);
-  NOBACKUP(uint8_t potsWarnEnabled);
+  NOBACKUP(uint16_t potsWarnEnabled);
   NOBACKUP(int8_t potsWarnPosition[STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS]);
 
   NOBACKUP(TelemetrySensor telemetrySensors[MAX_TELEMETRY_SENSORS];)
