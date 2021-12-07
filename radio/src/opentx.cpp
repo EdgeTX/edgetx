@@ -1758,11 +1758,16 @@ BitmapBuffer scratchBuffer(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SCRATCH_FRA
   {
     uint16_t width = area->x2-area->x1+1;
     uint16_t height = area->y2-area->y1+1;
-    uint16_t x = 480 - area->x2 -1;
-    uint16_t y = 272 - area->y2 -1;
+#if defined (LCD_VERTICAL_INVERT)
+    uint16_t x = LCD_W - area->x2 -1;
+    uint16_t y = LCD_H - area->y2 -1;
+#else
+    uint16_t x = area->x1;
+    uint16_t y = area->y1;
+#endif
 
-    DMACopyBitmap(lcdFront->getData(), 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
-    DMACopyBitmap(lcd->getData(), 480, 272, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
+    DMACopyBitmap(lcdFront->getData(), LCD_W, LCD_H, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
+    DMACopyBitmap(lcd->getData(), LCD_W, LCD_H, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
 	  //newLcdRefresh();
 //lcdFront->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
 //lcd->drawBitmap(x,y,&scratchBuffer, 0,0,width,height);
@@ -1823,8 +1828,13 @@ extern "C" void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 		return;
 	if(st.event == TE_DOWN || st.event == TE_SLIDE)
 	{
-		data->point.x = 480 - st.x;
-		data->point.y = 272 - st.y;
+#if defined (LCD_VERTICAL_INVERT)
+		data->point.x = LCD_W - st.x;
+		data->point.y = LCD_H - st.y;
+#else
+		data->point.x = st.x;
+		data->point.y = st.y;
+#endif
 		data->state = LV_INDEV_STATE_PRESSED;
 	} else {
       data->state = LV_INDEV_STATE_RELEASED;
@@ -1843,7 +1853,7 @@ void lv_example_slider_1(void)
     lv_obj_t * slider = lv_slider_create(lv_scr_act());
     lv_obj_center(slider);
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_align(slider, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    lv_obj_align(slider, LV_ALIGN_BOTTOM_LEFT, 10, -10);
 
     /*Create a label below the slider*/
     slider_label = lv_label_create(lv_scr_act());
@@ -1880,15 +1890,16 @@ static void sw_event_cb(lv_event_t * e)
 void lv_example_scroll_2(void)
 {
     lv_obj_t * panel = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(panel, 200, 120);
+    lv_obj_set_size(panel, LCD_W/3, LCD_H/3);
     lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
     lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
-    lv_obj_align(panel, LV_ALIGN_BOTTOM_RIGHT, 0, 20);
+    lv_obj_align(panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
+//    lv_obj_align(panel, LV_ALIGN_BOTTOM_RIGHT, 0, 20);
 
     unsigned int i;
     for(i = 0; i < 10; i++) {
         lv_obj_t * btn = lv_btn_create(panel);
-        lv_obj_set_size(btn, 150, lv_pct(100));
+        lv_obj_set_size(btn, lv_pct(60), lv_pct(80));
 
         lv_obj_t * label = lv_label_create(btn);
         if(i == 3) {
@@ -1920,15 +1931,17 @@ void opentxInit()
   // create ViewMain
   ViewMain::instance();
   lv_init();
-  lv_disp_draw_buf_init(&disp_buf, lcdGetScratchBuffer(),NULL/* LCD_SECOND_FRAME_BUFFER*//*buf_2*/, 480*272);
+  lv_disp_draw_buf_init(&disp_buf, lcdGetScratchBuffer(),NULL, LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
   disp_drv.flush_cb = my_flush_cb;        /*Set a flush callback to draw to the display*/
-  disp_drv.hor_res = 480;                 /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = 272;                 /*Set the vertical resolution in pixels*/
+  disp_drv.hor_res = LCD_W;                 /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_H;                 /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
+#if defined (LCD_VERTICAL_INVERT)
   disp_drv.rotated = LV_DISP_ROT_180;
+#endif
   disp_drv.sw_rotate = 1;
 
   lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
