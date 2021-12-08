@@ -292,6 +292,10 @@ void generalDefault()
   g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
+#if defined(DEFAULT_INTERNAL_MODULE)
+    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
+#endif
+
 #if defined(DEFAULT_POTS_CONFIG)
   g_eeGeneral.potsConfig = DEFAULT_POTS_CONFIG;
 #endif
