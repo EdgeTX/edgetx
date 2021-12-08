@@ -489,6 +489,10 @@ PACK(struct ModuleData {
       int8_t refreshRate;  // definition as framelength for ppm (* 5 + 225 = time in 1/10 ms)
     } sbus);
     NOBACKUP(struct {
+      uint8_t raw12bits:1;
+      uint8_t spare1:7;
+    } ghost);
+    NOBACKUP(struct {
       uint8_t receivers:7; // 4 bits spare
       uint8_t racingMode:1;
       char receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME];

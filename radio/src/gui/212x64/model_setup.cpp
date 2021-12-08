@@ -1431,6 +1431,10 @@ void menuModelSetup(event_t event)
          lcdDrawTextAlignedLeft(y, STR_WARN_BATTVOLTAGE);
          putsVolts(lcdLastRightPos, y, getBatteryVoltage(), attr | PREC2 | LEFT);
        }
+       else if (isModuleGhost(moduleIdx)) {
+         auto & module = g_model.moduleData[moduleIdx];
+         module.ghost.raw12bits = editCheckBox(module.ghost.raw12bits , MODEL_SETUP_2ND_COLUMN, y, INDENT "Raw 12 bits", attr, event);
+       }
      }
      break;
 
