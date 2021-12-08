@@ -405,7 +405,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   YamlReadCurvePoints(node["points"], rhs.curves);
 
   node["logicalSw"] >> rhs.logicalSw;
-  node["customFn"] >> rhs.customFn;
+  //node["customFn"] >> rhs.customFn;
 
   // swashRingData
 

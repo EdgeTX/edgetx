@@ -129,7 +129,8 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
     std::string sw_str;
     getline(def, sw_str, ',');
     rhs.val1 = YamlRawSwitchDecode(sw_str).toValue();
-    rhs.val2 = YamlRawSwitchDecode(def.str()).toValue();
+    getline(def, sw_str);
+    rhs.val2 = YamlRawSwitchDecode(sw_str).toValue();
   } break;
 
   case LS_FAMILY_EDGE: {
@@ -154,7 +155,8 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
     std::string src_str;
     getline(def, src_str, ',');
     rhs.val1 = YamlRawSourceDecode(src_str).toValue();
-    rhs.val2 = YamlRawSourceDecode(def.str()).toValue();
+    getline(def, src_str);
+    rhs.val2 = YamlRawSourceDecode(src_str).toValue();
   } break;
 
   case LS_FAMILY_TIMER: {

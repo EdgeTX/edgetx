@@ -69,7 +69,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str = getCurrentFirmware()->getAnalogInputTag(rhs.index);
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = LookupValue(trimSourceLut, rhs.index);
+      src_str = YAML::LookupValue(trimSourceLut, rhs.index);
       break;
     case SOURCE_TYPE_MAX:
       src_str += "MAX";
@@ -84,7 +84,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_CYC:
-      src_str = LookupValue(cycSourceLut, rhs.index);
+      src_str = YAML::LookupValue(cycSourceLut, rhs.index);
       break;
     case SOURCE_TYPE_PPM:
       src_str += "tr(";
@@ -102,7 +102,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str = LookupValue(specialSourceLut, rhs.index);
+      src_str = YAML::LookupValue(specialSourceLut, rhs.index);
       break;
     case SOURCE_TYPE_TELEMETRY:
       src_str = "tele(";
@@ -148,15 +148,11 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[2] == 'a' &&
              val[3] == '(') {
 
-    src_str = src_str.substr(4);
-
-    size_t next_pos = 0;
-    int script = std::stoi(src_str, &next_pos);
-
-    if (next_pos >= src_str.size()) return false;
-    src_str = src_str.substr(next_pos + 1);
-
-    int output = std::stoi(src_str);
+    std::stringstream src(src_str.substr(4));
+    int script = 0, output = 0;
+    src >> script;
+    src.ignore();
+    src >> output;
     rhs = RawSource(SOURCE_TYPE_LUA_OUTPUT, script * 16 + output);
 
   } else if (val_len > 3 &&
@@ -164,8 +160,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 's' &&
              val[2] == '(') {
 
-    src_str = src_str.substr(3);
-    int ls = std::stoi(src_str);
+    std::stringstream src(src_str.substr(3));
+    int ls = 0;
+    src >> ls;
     rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls);
 
   } else if (val_len > 3 &&
@@ -173,8 +170,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 'r' &&
              val[2] == '(') {
 
-    src_str = src_str.substr(3);
-    int tr = std::stoi(src_str);
+    std::stringstream src(src_str.substr(3));
+    int tr = 0;
+    src >> tr;
     rhs = RawSource(SOURCE_TYPE_PPM, tr);
     
   } else if (val_len > 3 &&
@@ -182,8 +180,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 'h' &&
              val[2] == '(') {
 
-    src_str = src_str.substr(3);
-    int ch = std::stoi(src_str);
+    std::stringstream src(src_str.substr(3));
+    int ch = 0;
+    src >> ch;
     rhs = RawSource(SOURCE_TYPE_CH, ch);
     
   } else if (val_len > 3 &&
@@ -191,8 +190,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 'v' &&
              val[2] == '(') {
 
-    src_str = src_str.substr(3);
-    int gv = std::stoi(src_str);
+    std::stringstream src(src_str.substr(3));
+    int gv = 0;
+    src >> gv;
     rhs = RawSource(SOURCE_TYPE_GVAR, gv);
 
   } else if (val_len > 5 &&
@@ -202,23 +202,26 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[3] == 'e' &&
              val[4] == '(') {
 
-    src_str = src_str.substr(5);
+    std::stringstream src(src_str.substr(5));
 
     // parse sign
     uint8_t sign = 0;
-    if (src_str[0] == '-') {
+    char c = src.peek();
+    if (c == '-') {
       sign = 1;
-      src_str = src_str.substr(1);
-    } else if (src_str[0] == '+') {
+      src.ignore();
+    } else if (c == '+') {
       sign = 2;
-      src_str = src_str.substr(1);
+      src.ignore();
     }
 
-    int sensor = std::stoi(src_str);
+    int sensor = 0;
+    src >> sensor;
     rhs = RawSource(SOURCE_TYPE_TELEMETRY, sensor * 3 + sign);
 
   } else {
 
+    YAML::Node node(src_str);
     std::string ana_str;
     node >> ana_str;
     int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());

@@ -74,7 +74,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TRIM:
-    sw_str += LookupValue(trimSwitchLut, sval);
+    sw_str += YAML::LookupValue(trimSwitchLut, sval);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -88,7 +88,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   default:
-    sw_str += LookupValue(switchTypeLut, rhs.type);
+    sw_str += YAML::LookupValue(switchTypeLut, rhs.type);
     break;
   }
   return sw_str;
@@ -125,7 +125,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (sw_str.substr(0, 3) == std::string("Trim")) {  // "Trim"
 
     rhs.type = SWITCH_TYPE_TRIM;
-    node >> trimSwitchLut >> rhs.index;
+    YAML::Node(sw_str) >> trimSwitchLut >> rhs.index;
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
@@ -134,7 +134,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     // TODO: check if we have a match?
     //       or does RawSwitch default to NONE anyway?
     //
-    node >> rhs.type;
+    YAML::Node(sw_str) >> rhs.type;
     rhs.index = 0;
   }
 
