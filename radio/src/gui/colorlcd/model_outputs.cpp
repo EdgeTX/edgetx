@@ -55,7 +55,9 @@ class OutputEditWindow : public Page {
       FormGridLayout grid;
       grid.spacer(8);
 
+#if defined(GVARS)
       int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
+#endif
 
       LimitData * output = limitAddress(channel);
 
@@ -77,17 +79,21 @@ class OutputEditWindow : public Page {
       // Min
       new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
                      COLOR_THEME_PRIMARY1);
+#if defined(GVARS)
       new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
                          GET_SET_DEFAULT(output->min), 0, PREC1,
                          -LIMIT_STD_MAX);
+#endif
       grid.nextLine();
 
       // Max
       new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
                      COLOR_THEME_PRIMARY1);
+#if defined(GVARS)
       new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
                          GET_SET_DEFAULT(output->max), 0, PREC1,
                          +LIMIT_STD_MAX);
+#endif
       grid.nextLine();
 
       // Direction
