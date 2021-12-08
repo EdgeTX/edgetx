@@ -27,8 +27,8 @@
 //  channelsStart: 0
 //  channelsCount: 12
 //  failsafeMode: NOT_SET
-//  mod: 
-//     multi: 
+//  mod:
+//     multi:
 //        disableTelemetry: 0
 //        disableMapping: 0
 //        autoBindMode: 0
@@ -152,17 +152,17 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
       //D8
       *protocol = 3;
       *subprotocol = 0;
-    } 
+    }
     else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
       //D8
       *protocol = 3;
       *subprotocol = 1;
-    } 
+    }
     else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
       //V8
       *protocol = 25;
       *subprotocol = 0;
-    } 
+    }
     else {
       *protocol = 15;
       if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
@@ -260,7 +260,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         Node pxx2;
         pxx2["receivers"] = rhs.access.receivers;
         pxx2["racingMode"] = rhs.access.racingMode;
-        for (int i=0; i<rhs.access.receivers; i++) {
+        for (int i=0; i<(int)rhs.access.receivers; i++) {
           pxx2["receiverName"][std::to_string(i)] = rhs.access.receiverName[i];
         }
         mod["pxx2"] = pxx2;
@@ -345,7 +345,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
   node["channelsStart"] >> rhs.channelsStart;
   node["channelsCount"] >> rhs.channelsCount;
   node["failsafeMode"] >> failsafeLut >> rhs.failsafeMode;
-  
+
   if (node["mod"]) {
       Node mod = node["mod"];
       if (mod["ppm"]) {
@@ -384,7 +384,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           //TODO
       }
   }
-  
+
   return true;
 }
 }
