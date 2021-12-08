@@ -199,6 +199,17 @@
     <file>images/simulator/TX12/right-mdl.png</file>
     <file>images/simulator/TX12/bottom.png</file>
     <file>images/simulator/TX12/top.png</file>
+    <file>images/simulator/Zorro/left.png</file>
+    <file>images/simulator/Zorro/left-pageup.png</file>
+    <file>images/simulator/Zorro/left-pagedn.png</file>
+    <file>images/simulator/Zorro/left-rtn.png</file>
+    <file>images/simulator/Zorro/left-sys.png</file>
+    <file>images/simulator/Zorro/right-tele.png</file>
+    <file>images/simulator/Zorro/right.png</file>
+    <file>images/simulator/Zorro/right-ent.png</file>
+    <file>images/simulator/Zorro/right-mdl.png</file>
+    <file>images/simulator/Zorro/bottom.png</file>
+    <file>images/simulator/Zorro/top.png</file>
     <file>images/simulator/T8/left.png</file>
     <file>images/simulator/T8/left-pageup.png</file>
     <file>images/simulator/T8/left-pagedn.png</file>

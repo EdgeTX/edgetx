@@ -153,6 +153,11 @@ def main():
         cmake_options["PCBREV"] = "TX12"
         firmware_options = options_radiomaster_tx12
         maxsize = 65536 * 8
+    elif board_name == "zorro":
+        cmake_options["PCB"] = "X7"
+        cmake_options["PCBREV"] = "ZORRO"
+        firmware_options = options_radiomaster_zorro
+        maxsize = 65536 * 8
     elif board_name == "t8":
         cmake_options["PCB"] = "X7"
         cmake_options["PCBREV"] = "T8"

@@ -273,6 +273,10 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     potConfig[0] = Board::POT_WITHOUT_DETENT;
     potConfig[1] = Board::POT_WITH_DETENT;
   }
+  else if(IS_RADIOMASTER_ZORRO(board)) {
+    potConfig[0] = Board::POT_WITHOUT_DETENT;
+    potConfig[1] = Board::POT_WITHOUT_DETENT;
+  }
   else if (IS_FAMILY_T12(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
     potConfig[1] = Board::POT_WITH_DETENT;

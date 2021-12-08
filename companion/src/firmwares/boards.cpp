@@ -90,6 +90,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3878746F;
     case BOARD_RADIOMASTER_TX12:
       return 0x4178746F;
+    case BOARD_RADIOMASTER_ZORRO:
+      return 0x4778746F;
     case BOARD_RADIOMASTER_T8:
       return 0x4378746F;
     case BOARD_FLYSKY_NV14:
@@ -121,6 +123,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TLITE:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_T8:
+    case BOARD_RADIOMASTER_ZORRO:
       return EESIZE_TARANIS;
     case BOARD_UNKNOWN:
       return EESIZE_MAX;
@@ -158,6 +161,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_TLITE:
     case BOARD_RADIOMASTER_TX12:
+    case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_T8:
       return FSIZE_TARANIS;
     case BOARD_HORUS_X12S:
@@ -239,6 +243,20 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
       {SWITCH_3POS,     "SF"},
       {SWITCH_2POS,     "SI"},
       {SWITCH_2POS,     "SJ"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
+  else if (IS_RADIOMASTER_ZORRO(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_TOGGLE,   "SA"},
+      {SWITCH_3POS,     "SB"},
+      {SWITCH_3POS,     "SC"},
+      {SWITCH_TOGGLE,   "SD"},
+      {SWITCH_2POS,     "SE"},
+      {SWITCH_2POS,     "SF"},
+      {SWITCH_TOGGLE,   "SG"},
+      {SWITCH_TOGGLE,   "SH"}
     };
     if (index < DIM(switches))
       return switches[index];
@@ -431,6 +449,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 8;
       else if (IS_JUMPER_TLITE(board))
         return 4;
+      else if(IS_RADIOMASTER_ZORRO(board))
+        return 8;
       else if (IS_FAMILY_T12(board))
         return 6;
       else if (IS_HORUS_X12S(board))
@@ -633,6 +653,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
       return "Radiomaster TX12";
+    case BOARD_RADIOMASTER_ZORRO:
+      return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
     case BOARD_FLYSKY_NV14:

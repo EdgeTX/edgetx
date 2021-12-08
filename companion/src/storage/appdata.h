@@ -64,7 +64,7 @@
 #define CPN_URL_DOWNLOAD_CUR_RC    CPN_URL_DOWNLOAD_CUR_VERS "rc/"
 #define CPN_URL_DOWNLOAD_CUR_UNST  CPN_URL_DOWNLOAD_CUR_VERS "nightlies/"
 
-#define MAX_PROFILES 15
+#define MAX_PROFILES 20
 #define MAX_JOYSTICKS 8
 
 // It important that these function names are consistent everywhere.
