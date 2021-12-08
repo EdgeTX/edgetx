@@ -24,6 +24,8 @@
 #include "yaml_generalsettings.h"
 #include "yaml_modeldata.h"
 
+#include <QMessageBox>
+
 static YAML::Node loadYamlFromByteArray(const QByteArray& data)
 {
     // TODO: use real streaming to avoid memory copies
