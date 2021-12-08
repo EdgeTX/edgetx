@@ -62,9 +62,11 @@ bool reachMixesLimit()
 #if (LCD_W > LCD_H)
   #define MIX_STATUS_BAR_WIDTH 250
   #define MIX_STATUS_BAR_MARGIN 3
+  #define MIX_RIGHT_MARGIN 0
 #else
   #define MIX_STATUS_BAR_WIDTH 180
   #define MIX_STATUS_BAR_MARGIN 0
+  #define MIX_RIGHT_MARGIN 3
 #endif
 
 class MixerEditStatusBar : public Window
@@ -118,7 +120,7 @@ class MixEditWindow : public Page
                    getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
 
     statusBar = new MixerEditStatusBar(
-        window, {window->getRect().w - MIX_STATUS_BAR_WIDTH, 0, MIX_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+        window, {window->getRect().w - MIX_STATUS_BAR_WIDTH - MIX_RIGHT_MARGIN, 0, MIX_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
         channel);
   }
 
