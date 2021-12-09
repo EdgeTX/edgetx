@@ -645,7 +645,7 @@ void menuModelSetup(event_t event)
         lcdDrawText(0, y, INDENT "Start", menuHorizontalPosition < 0 ? attr : 0);
         for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
           uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
-          c = "\300\301="[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
+          c = STR_CHAR_UP STR_CHAR_DOWN "="[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN - (2 + FW) + i * 2 * FW, y, i + 1, 0);
           lcdDrawChar(lcdNextPos, y, c, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
           if (attr && menuHorizontalPosition == i) {
