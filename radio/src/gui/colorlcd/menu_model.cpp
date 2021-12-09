@@ -41,7 +41,9 @@ ModelMenu::ModelMenu():
 #if defined(HELI)
   addTab(new ModelHeliPage());
 #endif
+#if defined(FLIGHT_MODES)
   addTab(new ModelFlightModesPage());
+#endif
   addTab(new ModelInputsPage());
   addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
