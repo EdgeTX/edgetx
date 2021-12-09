@@ -359,6 +359,7 @@ class InputEditWindow : public Page
       updateCurveParamField(line);
       grid.nextLine();
 
+#if defined(FLIGHT_MODES)
       // Flight modes
       new StaticText(window, grid.getLabelSlot(), STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
       for (uint32_t i=0; i<MAX_FLIGHT_MODES; i++) {
@@ -374,6 +375,7 @@ class InputEditWindow : public Page
                        OPAQUE | (bfSingleBitGet(line->flightModes, i) ? 0 : BUTTON_CHECKED));
       }
       grid.nextLine();
+#endif
 
       window->setInnerHeight(grid.getWindowHeight());
     }
