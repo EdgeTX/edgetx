@@ -876,10 +876,18 @@ int cliSet(const char **argv)
       }
       if (module == 0) {
         if (level) {
+#if defined(INTMODULE_BOOTCMD_INVERTED)
+          GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#else
           GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#endif
           serialPrint("%s: bootpin set", argv[0]);
         } else {
+#if defined(INTMODULE_BOOTCMD_INVERTED)
+          GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#else
           GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#endif
           serialPrint("%s: bootpin reset", argv[0]);
         }
       }
