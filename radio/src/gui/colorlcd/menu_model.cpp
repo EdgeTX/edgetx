@@ -46,7 +46,9 @@ ModelMenu::ModelMenu():
   addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
   addTab(new ModelCurvesPage());
+#if defined(GVARS)
   addTab(new ModelGVarsPage());
+#endif
   addTab(new ModelLogicalSwitchesPage());
   addTab(new SpecialFunctionsPage(g_model.customFn));
 #if defined(LUA_MODEL_SCRIPTS)
