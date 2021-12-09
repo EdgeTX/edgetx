@@ -286,11 +286,11 @@ class ModelData {
     static QString trainerModeToString(const int value);
     static bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
     static AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
-    QString funcSwitchConfigToString(unsigned int index) const;
-    static QString funcSwitchConfigToString(const int value);
+    QString funcSwitchConfigToString(const int index) const;
+    static QString funcSwitchConfigToString(const int index, const int value);
     static AbstractStaticItemModel * funcSwitchConfigItemModel();
-    QString funcSwitchStartToString(unsigned int index) const;
-    static QString funcSwitchStartToString(const int value);
+    QString funcSwitchStartToString(const int index) const;
+    static QString funcSwitchStartToString(const int index, const int value);
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
   protected:

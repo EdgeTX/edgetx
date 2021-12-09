@@ -1654,16 +1654,16 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   return mdl;
 }
 
-QString ModelData::funcSwitchConfigToString(unsigned int index) const
+QString ModelData::funcSwitchConfigToString(const int index) const
 {
   if (index < CPN_MAX_FUNCTION_SWITCHES)
-    return funcSwitchConfigToString((functionSwitchConfig >> (2 * index)) & 0x03);
+    return funcSwitchConfigToString(index, (int)(functionSwitchConfig >> (2 * index)) & 0x03);
   else
     return CPN_STR_UNKNOWN_ITEM;
 }
 
 //  static
-QString ModelData::funcSwitchConfigToString(int value)
+QString ModelData::funcSwitchConfigToString(const int index, const int value)
 {
   switch (value) {
     case FUNC_SWITCH_CONFIG_NONE:
@@ -1684,23 +1684,23 @@ AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
   mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
 
   for (int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
-    mdl->appendToItemList(funcSwitchConfigToString(i), i);
+    mdl->appendToItemList(funcSwitchConfigToString(0, i), i);
   }
 
   mdl->loadItemList();
   return mdl;
 }
 
-QString ModelData::funcSwitchStartToString(unsigned int index) const
+QString ModelData::funcSwitchStartToString(const int index) const
 {
   if (index < CPN_MAX_FUNCTION_SWITCHES)
-    return funcSwitchStartToString((functionSwitchStartConfig >> (2 * index)) & 0x03);
+    return funcSwitchStartToString(index, (int)(functionSwitchStartConfig >> (2 * index)) & 0x03);
   else
     return CPN_STR_UNKNOWN_ITEM;
 }
 
 //  static
-QString ModelData::funcSwitchStartToString(int value)
+QString ModelData::funcSwitchStartToString(const int index, const int value)
 {
   switch (value) {
     case FUNC_SWITCH_START_INACTIVE:
@@ -1721,7 +1721,7 @@ AbstractStaticItemModel * ModelData::funcSwitchStartItemModel()
   mdl->setName(AIM_MODELDATA_FUNCSWITCHSTART);
 
   for (int i = FUNC_SWITCH_START_FIRST; i <= FUNC_SWITCH_START_LAST; i++) {
-    mdl->appendToItemList(funcSwitchStartToString(i), i);
+    mdl->appendToItemList(funcSwitchStartToString(0, i), i);
   }
 
   mdl->loadItemList();
