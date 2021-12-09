@@ -33,7 +33,6 @@ class SwitchWarnDialog: public FullScreenDialog {
       FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN)
     {
       last_bad_switches = 0xff;
-      states = g_model.switchWarningState;
       bad_pots = 0;
       last_bad_pots = 0xff;
       setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
