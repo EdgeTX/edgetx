@@ -44,6 +44,9 @@ do
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
+        zorro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
