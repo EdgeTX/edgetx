@@ -35,6 +35,7 @@
 #include "telem_data.h"
 #include "timerdata.h"
 #include "customisation_data.h"
+#include "generalsettings.h"
 
 #include <QtCore>
 
