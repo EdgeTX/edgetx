@@ -707,9 +707,9 @@ void menuModelSetup(event_t event)
               uint8_t curr_state = (states & 0x07);
               // remove old setting
               g_model.switchWarningState &= ~(0x07 << (3 * i));
-              // add the new one
-              g_model.switchWarningState |= ((curr_state + 1) & 0x03)
-                                            << (3 * i);
+              // add the new one (if switch UP and 2POS, jump directly to DOWN)
+              curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
+              g_model.switchWarningState |= (curr_state & 0x03) << (3 * i);
               storageDirty(EE_MODEL);
             }
             c = (" " STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
