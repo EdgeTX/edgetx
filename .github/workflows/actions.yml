@@ -77,7 +77,7 @@ jobs:
           - t12
           - t16
           - t18
-          - t8
+          - t8;zorro
           - tlite
           - tx12
           - tx16s
