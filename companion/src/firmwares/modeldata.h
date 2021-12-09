@@ -44,6 +44,8 @@ class RadioDataConversionState;
 class AbstractStaticItemModel;
 
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
+constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
+constexpr char AIM_MODELDATA_FUNCSWITCHSTART[]  {"modeldata.funcswitchstart"};
 
 #define CHAR_FOR_NAMES " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-."
 #define CHAR_FOR_NAMES_REGEX "[ A-Za-z0-9_.-,]*"
@@ -172,6 +174,22 @@ class ModelData {
 
     char registrationId[8+1];
 
+    enum FunctionSwitchConfig {
+      FUNC_SWITCH_CONFIG_NONE,
+      FUNC_SWITCH_CONFIG_FIRST = FUNC_SWITCH_CONFIG_NONE,
+      FUNC_SWITCH_CONFIG_TOGGLE,
+      FUNC_SWITCH_CONFIG_2POS,
+      FUNC_SWITCH_CONFIG_LAST = FUNC_SWITCH_CONFIG_2POS
+    };
+
+    enum FunctionSwitchStart {
+      FUNC_SWITCH_START_INACTIVE,
+      FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_INACTIVE,
+      FUNC_SWITCH_START_ACTIVE,
+      FUNC_SWITCH_START_PREVIOUS,
+      FUNC_SWITCH_START_LAST = FUNC_SWITCH_START_PREVIOUS
+    };
+
     // Function switches
     unsigned int functionSwitchConfig;
     unsigned int functionSwitchGroup;
@@ -268,6 +286,12 @@ class ModelData {
     static QString trainerModeToString(const int value);
     static bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
     static AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
+    QString funcSwitchConfigToString(unsigned int index) const;
+    static QString funcSwitchConfigToString(const int value);
+    static AbstractStaticItemModel * funcSwitchConfigItemModel();
+    QString funcSwitchStartToString(unsigned int index) const;
+    static QString funcSwitchStartToString(const int value);
+    static AbstractStaticItemModel * funcSwitchStartItemModel();
 
   protected:
     void removeGlobalVar(int & var);

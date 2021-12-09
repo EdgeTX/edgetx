@@ -1653,3 +1653,77 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   mdl->loadItemList();
   return mdl;
 }
+
+QString ModelData::funcSwitchConfigToString(unsigned int index) const
+{
+  if (index < CPN_MAX_FUNCTION_SWITCHES)
+    return funcSwitchConfigToString((functionSwitchConfig >> (2 * index)) & 0x03);
+  else
+    return CPN_STR_UNKNOWN_ITEM;
+}
+
+//  static
+QString ModelData::funcSwitchConfigToString(int value)
+{
+  switch (value) {
+    case FUNC_SWITCH_CONFIG_NONE:
+      return tr("NONE");
+    case FUNC_SWITCH_CONFIG_TOGGLE:
+      return tr("TOGGLE");
+    case FUNC_SWITCH_CONFIG_2POS:
+      return tr("2POS");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
+
+  for (int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
+    mdl->appendToItemList(funcSwitchConfigToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ModelData::funcSwitchStartToString(unsigned int index) const
+{
+  if (index < CPN_MAX_FUNCTION_SWITCHES)
+    return funcSwitchStartToString((functionSwitchStartConfig >> (2 * index)) & 0x03);
+  else
+    return CPN_STR_UNKNOWN_ITEM;
+}
+
+//  static
+QString ModelData::funcSwitchStartToString(int value)
+{
+  switch (value) {
+    case FUNC_SWITCH_START_INACTIVE:
+      return CPN_STR_SW_INDICATOR_UP;
+    case FUNC_SWITCH_START_ACTIVE:
+      return CPN_STR_SW_INDICATOR_DN;
+    case FUNC_SWITCH_START_PREVIOUS:
+      return "=";
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * ModelData::funcSwitchStartItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHSTART);
+
+  for (int i = FUNC_SWITCH_START_FIRST; i <= FUNC_SWITCH_START_LAST; i++) {
+    mdl->appendToItemList(funcSwitchStartToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
