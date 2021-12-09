@@ -111,6 +111,9 @@ GeneralSettings::GeneralSettings()
   setDefaultControlTypes(board);
 
   backlightMode = 3; // keys and sticks
+  backlightDelay = 2; // 2 * 5 = 10 secs
+  inactivityTimer = 10;
+
   // backlightBright = 0; // 0 = 100%
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
@@ -118,6 +121,11 @@ GeneralSettings::GeneralSettings()
   }
 
   speakerVolume = 12;
+  wavVolume = 2;
+  backgroundVolume = 1;
+
+  if (IS_TARANIS(board))
+    contrast = 25;
 
   if (IS_JUMPER_T16(board))
     strcpy(bluetoothName, "t16");
