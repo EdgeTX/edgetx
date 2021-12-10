@@ -621,7 +621,7 @@ void menuModelSetup(event_t event)
         int config = FSWITCH_CONFIG(index);
         lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES - MIXSRC_Rud + index + 1, menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
-          editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, true, menuHorizontalPosition == 0 ? attr : 0, old_editMode);
+          editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
           lcdDrawMMM(35, y, menuHorizontalPosition == 0 ? attr : 0);
         config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event);
