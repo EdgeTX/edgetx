@@ -33,7 +33,7 @@ typedef int16_t safetych_t;
 typedef int16_t gvar_t;
 typedef uint32_t bitfield_channels_t;
 typedef uint16_t FlightModesType;
-#if defined(PCBFRSKY)
+#if defined(PCBFRSKY) || defined(PCBNV14)
 typedef uint16_t source_t;
 #else
 typedef uint8_t source_t;
