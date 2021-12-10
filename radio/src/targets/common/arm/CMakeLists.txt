@@ -141,7 +141,11 @@ if(DEBUG_LATENCY STREQUAL END_TO_END)
 endif()
 
 if(DEBUG_BLUETOOTH)
- add_definitions(-DDEBUG_BLUETOOTH)
+  add_definitions(-DDEBUG_BLUETOOTH)
+  option(DEBUG_BLUETOOTH_VERBOSE "Debug Bluetooth Verbose" OFF)
+  if(DEBUG_BLUETOOTH_VERBOSE)
+    add_definitions(-DDEBUG_BLUETOOTH_VERBOSE)
+  endif()
 endif()
 
 if(CLI)
