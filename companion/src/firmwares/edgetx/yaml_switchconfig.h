@@ -79,7 +79,7 @@ typedef YamlKnobConfig<CPN_MAX_SWITCHES, switchesLut, switchConfigLut>
 //    name:
 extern const YamlLookupTable potsLut;
 extern const YamlLookupTable potConfigLut;
-typedef YamlKnobConfig<CPN_MAX_KNOBS, potsLut, potConfigLut> YamlPotConfig;
+typedef YamlKnobConfig<CPN_MAX_POTS, potsLut, potConfigLut> YamlPotConfig;
 
 // S1:
 //    type: with_detent

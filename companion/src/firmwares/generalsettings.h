@@ -231,8 +231,8 @@ class GeneralSettings {
     char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
     unsigned int switchConfig[CPN_MAX_SWITCHES];
     char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
-    char potName[CPN_MAX_KNOBS][HARDWARE_NAME_LEN + 1];
-    unsigned int potConfig[CPN_MAX_KNOBS];
+    char potName[CPN_MAX_POTS][HARDWARE_NAME_LEN + 1];
+    unsigned int potConfig[CPN_MAX_POTS];
     char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
     unsigned int sliderConfig[CPN_MAX_SLIDERS];
 

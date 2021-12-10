@@ -103,7 +103,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   for (i=0; i < Board::STICK_AXIS_COUNT; ++i) {
     cb->addItem(Boards::getAxisName(i) % tr(" Stick"), i);
   }
-  for (; i < Board::STICK_AXIS_COUNT + CPN_MAX_POTS; ++i) {
+  for (; i < Board::STICK_AXIS_COUNT + CPN_MAX_POTS + CPN_MAX_SLIDERS; ++i) {
     cb->addItem(tr("Knob/Slider %1").arg(i - Board::STICK_AXIS_COUNT + 1), i);
   }
 }

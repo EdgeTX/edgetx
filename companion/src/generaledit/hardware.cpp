@@ -64,7 +64,8 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   }
 
   count = Boards::getCapability(board, Board::Pots);
-  if (count) {
+  count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
+  if (count > 0) {
     for (int i = 0; i < count; i++) {
       addPot(i, row);
     }

@@ -41,9 +41,8 @@ const YamlLookupTable switchConfigLut = {
 };
 
 const YamlLookupTable potsLut = {
-    {0, "S1"}, {1, "6POS"}, {2, "S2"}, {3, "EXT1"}, {4, "EXT2"},
-    // {  5, "EXT3"  },
-    // {  6, "EXT4"  },
+    {0, "S1"}, {1, "6POS"}, {2, "S2"},
+    {3, "EXT1"}, {4, "EXT2"}, {5, "EXT3"}, {6, "EXT4"},
 };
 
 const YamlLookupTable potConfigLut = {

@@ -145,8 +145,8 @@ class ModelData {
     unsigned int switchWarningEnable;
     unsigned int thrTrimSwitch;
     unsigned int potsWarningMode;
-    bool potsWarnEnabled[CPN_MAX_POTS];
-    int potsWarnPosition[CPN_MAX_POTS];
+    bool potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS];
+    int potsWarnPosition[CPN_MAX_POTS + CPN_MAX_SLIDERS];
     bool displayChecklist;
 
     GVarData gvarData[CPN_MAX_GVARS];

@@ -374,7 +374,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else if (IS_TARANIS_X9E(board))
         return 4;
       else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board))
-        return 5;
+        return 7;
       else if (IS_HORUS_X12S(board))
         return 3;
       else if (IS_FLYSKY_NV14(board))
@@ -570,8 +570,8 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"S2", "S2"},
                               {"EX1", "EXT1"},
                               {"EX2", "EXT2"},
-                              // {"EX3", "EXT3"},
-                              // {"EX4", "EXT4"},
+                              {"EX3", "EXT3"},
+                              {"EX4", "EXT4"},
                               {"LS", "LS"},
                               {"RS", "RS"},
                           });

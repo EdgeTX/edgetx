@@ -25,15 +25,22 @@
 CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
   GeneralPanel(parent, generalSettings, firmware)
 {
-  int rows = Boards::getCapability(getCurrentBoard(), Board::MaxAnalogs);
+  Board::Type board = getCurrentBoard();
+  int rows = Boards::getCapability(board, Board::MaxAnalogs);
 
   QStringList headerLabels;
   headerLabels << "" << tr("Negative span") << tr("Mid value") << tr("Positive span");
 
   TableLayout * tableLayout = new TableLayout(this, rows, headerLabels);
 
-  for (int i = 0; i < rows; i++) {
+  for (int i = 0, row = 0; i < rows; i++) {
     int col = 0;
+    if (firmware->getCapability(HasFlySkyGimbals) &&
+        i >= (Boards::getCapability(board, Board::Sticks) + 5) &&
+        i < (Boards::getCapability(board, Board::Sticks) + 7))
+      continue;
+
+    row++;
     QLabel * label = new QLabel(this);
     label->setText(firmware->getAnalogInputName(i));
     tableLayout->addWidget(i, col++, label);
