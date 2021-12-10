@@ -57,12 +57,12 @@ Bluetooth bluetooth;
 void Bluetooth::write(const uint8_t * data, uint8_t length)
 {
   if (btTxFifo.hasSpace(length)) {
-    BLUETOOTH_TRACE("BT>");
+    BLUETOOTH_TRACE_VERBOSE("BT>");
     for (int i = 0; i < length; i++) {
-      BLUETOOTH_TRACE(" %02X", data[i]);
+      BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
       btTxFifo.push(data[i]);
     }
-    BLUETOOTH_TRACE(CRLF);
+    BLUETOOTH_TRACE_VERBOSE(CRLF);
   }
   else {
     BLUETOOTH_TRACE("[BT] TX fifo full!" CRLF);
@@ -95,7 +95,7 @@ char * Bluetooth::readline(bool error_reset)
       return nullptr;
     }
 
-    BLUETOOTH_TRACE("%02X ", byte);
+    BLUETOOTH_TRACE_VERBOSE("%02X ", byte);
 
 #if 0
     if (error_reset && byte == 'R' && bufferIndex == 4 && memcmp(buffer, "ERRO", 4)) {
