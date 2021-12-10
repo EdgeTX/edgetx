@@ -190,7 +190,12 @@ void luaGetInputs(ScriptInputsOutputs & sid)
           case 0:
             luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
             luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
-            lua_xmove(lsScripts, L, 1);          // To preserve the string value, move it to the main stack
+            { // To preserve the string value, truncate to 6 chars and move it to the main stack
+              char str[7] = {0};
+              strncpy(str, lua_tostring(lsScripts, -1), 6);
+              lua_pushstring(L, &str[0]);
+            }
+            lua_pop(lsScripts, 1);
             lua_pushnil(lsScripts);              // Keep the stack balanced
             lua_insert(L, -2);                   // Keep the coroutine at the top of the main stack
             si->name = lua_tostring(L, -2);
@@ -248,11 +253,15 @@ void luaGetOutputs(ScriptInputsOutputs & sid)
     luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
     luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
     if (sid.outputsCount < MAX_SCRIPT_OUTPUTS) {
-      lua_xmove(lsScripts, L, 1);   // To preserve the string value, move it to the main stack
-      lua_insert(L, -2);            // Keep the coroutine at the top of the main stack
+      // To preserve the string value, truncate to 6 chars and move it to the main stack
+      char str[7] = {0};
+      strncpy(str, lua_tostring(lsScripts, -1), 6);
+      lua_pushstring(L, &str[0]);
+      // Keep the coroutine at the top of the main stack
+      lua_insert(L, -2);
       sid.outputs[sid.outputsCount++].name = lua_tostring(L, -2);
     }
-    else lua_pop(lsScripts, 1);
+    lua_pop(lsScripts, 1);
   }
 }
 #endif
