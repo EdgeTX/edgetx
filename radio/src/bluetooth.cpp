@@ -150,8 +150,6 @@ char * Bluetooth::readline(bool error_reset)
 
 void Bluetooth::processTrainerFrame(const uint8_t * buffer)
 {
-  BLUETOOTH_TRACE(CRLF);
-
   for (uint8_t channel=0, i=1; channel<BLUETOOTH_TRAINER_CHANNELS; channel+=2, i+=3) {
     // +-500 != 512, but close enough.
     ppmInput[channel] = buffer[i] + ((buffer[i+1] & 0xf0) << 4) - 1500;
@@ -285,6 +283,16 @@ void Bluetooth::sendTrainer()
   buffer[bufferIndex++] = START_STOP; // end byte
 
   write(buffer, bufferIndex);
+
+  // If not in verbose mode output one buffer per line
+  #if defined(DEBUG_BLUETOOTH) && !defined(DEBUG_BLUETOOTH_VERBOSE)
+    BLUETOOTH_TRACE_TIMESTAMP();
+    for(int i=0; i < bufferIndex; i++) {
+      BLUETOOTH_TRACE(" %02X", buffer[i]);
+    }
+    BLUETOOTH_TRACE(CRLF);
+  #endif
+
   bufferIndex = 0;
 }
 
@@ -303,6 +311,15 @@ void Bluetooth::forwardTelemetry(const uint8_t * packet)
     write(buffer, bufferIndex);
     bufferIndex = 0;
   }
+
+  // If not in verbose mode output one buffer per line
+  #if defined(DEBUG_BLUETOOTH) && !defined(DEBUG_BLUETOOTH_VERBOSE)
+    BLUETOOTH_TRACE_TIMESTAMP();
+    for(int i=0; i < bufferIndex; i++) {
+      BLUETOOTH_TRACE(" %02X", buffer[i]);
+    }
+    BLUETOOTH_TRACE(CRLF);
+  #endif
 }
 
 void Bluetooth::receiveTrainer()
@@ -314,7 +331,15 @@ void Bluetooth::receiveTrainer()
       return;
     }
 
+#if defined(DEBUG_BLUETOOTH)
+    static uint8_t lastb=0;
     BLUETOOTH_TRACE("%02X ", byte);
+    if(byte == START_STOP && lastb != START_STOP) {
+      BLUETOOTH_TRACE(CRLF);
+      BLUETOOTH_TRACE_TIMESTAMP();
+    }
+    lastb = byte;
+#endif
 
     processTrainerByte(byte);
   }
