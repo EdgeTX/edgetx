@@ -50,15 +50,17 @@ void menuRadioDiagKeys(event_t event)
       displayKeyState(i&1? 20*FW : 18*FW, y, TRM_BASE+i);
     }
 
-    if (i == 7) {
-      y = MENU_HEADER_HEIGHT + 1 + FH * 6;
-      lcdDrawTextAtIndex(8, y, STR_VKEYS, i, 0);
-      displayKeyState(lcdNextPos + 10, y, i);
-    }
-    else if (i <= KEY_MAX) {
-      y = MENU_HEADER_HEIGHT + 1 + FH * i;
-      lcdDrawTextAtIndex(0, y, STR_VKEYS, i, 0);
-      displayKeyState(5 * FW + 2, y, i);
+    if (i <= KEY_MAX) {
+      if (i == 7) { // T8 8th key???
+        y = MENU_HEADER_HEIGHT + 1 + FH * 6;
+        lcdDrawTextAtIndex(8, y, STR_VKEYS, i, 0);
+        displayKeyState(lcdNextPos + 10, y, i);
+      }
+      else {
+        y = MENU_HEADER_HEIGHT + 1 + FH * i;
+        lcdDrawTextAtIndex(0, y, STR_VKEYS, i, 0);
+        displayKeyState(5 * FW + 2, y, i);
+      }
     }
 
 #if defined(PCBSKY9X)

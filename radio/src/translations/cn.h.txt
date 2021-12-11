@@ -252,9 +252,6 @@
 #define LEN_VSWASHTYPE                 "\004"
 #define TR_VSWASHTYPE                  "---\0" "120\0" "120X" "140\0" "90\0"
 
-#define LEN_VKEYS                    "\004"
-#define TR_VKEYS                     "菜单" "退出" "确认" "向上" "向下" "向右" "向左"
-
 #define LEN_VSWITCHES                  "\003"
 #define LEN_VSRCRAW                    "\004"
 
