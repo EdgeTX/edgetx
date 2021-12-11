@@ -167,6 +167,7 @@ class MixEditWindow : public Page
     updateCurveParamField(mix);
     grid.nextLine();
 
+#if defined(FLIGHT_MODES)
     // Flight modes
     new StaticText(window, grid.getLabelSlot(), STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
     for (uint32_t i = 0; i < MAX_FLIGHT_MODES; i++) {
@@ -182,6 +183,7 @@ class MixEditWindow : public Page
           OPAQUE | (bfSingleBitGet(mix->flightModes, i) ? 0 : BUTTON_CHECKED));
     }
     grid.nextLine();
+#endif
 
     // Switch
     new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
