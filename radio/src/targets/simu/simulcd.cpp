@@ -66,7 +66,11 @@ void lcdRefresh()
 pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
 pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
 pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
+pixel_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
 
+BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, LCD_BACKUP_FRAME_BUFFER);
+
+BitmapBuffer scratch(BMP_RGB565, LCD_W, LCD_H, scratchBuf);
 BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
 BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
 

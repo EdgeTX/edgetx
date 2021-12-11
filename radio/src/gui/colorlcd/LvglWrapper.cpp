@@ -195,6 +195,47 @@ void lv_example_scroll_2(void)
     lv_label_set_text(label, "One scroll");
     lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
 }
+/**
+ * Create a transparent canvas with Chroma keying and indexed color format (palette).
+ */
+#define CANVAS_WIDTH LCD_W
+#define CANVAS_HEIGHT LCD_H
+lv_obj_t * canvas=nullptr;
+void lv_example_canvas_2(void)
+{
+    /*Create a button to better see the transparency*/
+    //lv_btn_create(lv_scr_act());
+
+    /*Create a buffer for the canvas*/
+    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
+
+    /*Create a canvas and initialize its palette*/
+    /*lv_obj_t * */canvas = lv_canvas_create(lv_scr_act());
+    lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
+#if 0
+    lv_canvas_set_palette(canvas, 0, LV_COLOR_CHROMA_KEY);
+    lv_canvas_set_palette(canvas, 1, lv_palette_main(LV_PALETTE_RED));
+
+    /*Create colors with the indices of the palette*/
+    lv_color_t c0;
+    lv_color_t c1;
+
+    c0.full = 0;
+    c1.full = 1;
+
+    /*Red background (There is no dedicated alpha channel in indexed images so LV_OPA_COVER is ignored)*/
+    lv_canvas_fill_bg(canvas, c1, LV_OPA_COVER);
+
+    /*Create hole on the canvas*/
+    uint32_t x;
+    uint32_t y;
+    for( y = 10; y < 30; y++) {
+        for( x = 5; x < 20; x++) {
+            lv_canvas_set_px_color(canvas, x, y, c0);
+        }
+    }
+#endif
+}
 
 LvglWrapper::LvglWrapper()
 {
@@ -219,6 +260,7 @@ LvglWrapper::LvglWrapper()
 
 
 	  disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
+	  lv_example_canvas_2();
 #if 0
 	  /*lv_indev_t * my_indev = */lv_indev_drv_register(&indev_drv);
 	  lv_example_get_started_1();
@@ -227,7 +269,7 @@ LvglWrapper::LvglWrapper()
 	  lv_example_scroll_2();
 #endif
 }
-const lv_obj_class_t GuiWidgetClass;
+extern const lv_obj_class_t GuiWidgetClass;
 
 extern "C"
 void GuiWidgetConstructor(const struct _lv_obj_class_t * class_p, struct _lv_obj_t * obj)

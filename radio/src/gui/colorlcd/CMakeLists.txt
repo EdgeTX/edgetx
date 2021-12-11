@@ -75,6 +75,7 @@ set(GUI_SRC
   menu_screen.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
+  LvglWrapper.cpp
   )
 
 macro(add_gui_src src)
