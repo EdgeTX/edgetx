@@ -651,7 +651,7 @@ void TreeModel::refresh()
   EEPROMInterface * eepromInterface = getCurrentEEpromInterface();
   Board::Type board = eepromInterface->getBoard();
   TreeItem * defaultCategoryItem = NULL;
-  bool hasEepromSizeData = (IS_FAMILY_HORUS_OR_T16(board) ? false : true);
+  bool hasEepromSizeData = false; //  not necessary with move to YAML storage for all boards TODO: remove unused code
 
   if (hasEepromSizeData) {
     availableEEpromSize = Boards::getEEpromSize(board) - 64; // let's consider fat
@@ -753,7 +753,7 @@ bool TreeModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsigned pro
   int cnt = 0;
   if (protocol== PULSES_PXX_XJT_D8)
     return true;
-  
+
   for (auto const& model: radioData->models) {
     if (!model.isEmpty()) {
       const ModuleData& moduleData = model.moduleData[module];
