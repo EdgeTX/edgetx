@@ -45,9 +45,8 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
 
   lcdCopy(lcd->getData(), lcdFront->getData());
   DMACopyBitmap(lcd->getData(), LCD_W, LCD_H, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
-  lcdRefresh();
-
   lv_disp_flush_ready(disp_drv);
+  lcdRefresh();
 }
   /*Initialize `disp_buf` with the buffer(s). With only one buffer use NULL instead buf_2 */
 static void btn_event_cb(lv_event_t * e)
@@ -201,13 +200,13 @@ void lv_example_scroll_2(void)
 #define CANVAS_WIDTH LCD_W
 #define CANVAS_HEIGHT LCD_H
 lv_obj_t * canvas=nullptr;
+static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)] __SDRAM;
 void lv_example_canvas_2(void)
 {
     /*Create a button to better see the transparency*/
     //lv_btn_create(lv_scr_act());
 
     /*Create a buffer for the canvas*/
-    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
 
     /*Create a canvas and initialize its palette*/
     /*lv_obj_t * */canvas = lv_canvas_create(lv_scr_act());
