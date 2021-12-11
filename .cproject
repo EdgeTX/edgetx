@@ -25,7 +25,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1678050828." name="/" resourcePath="">
 						<toolChain id="de.marw.cmake.cdt.lsp.toolchain.cmake.381749393" name="CMake driven" superClass="de.marw.cmake.cdt.lsp.toolchain.cmake">
 							<targetPlatform id="de.marw.cmake.cdt.lsp.targetPlatform.cmake.43762503" name="Any Platform" superClass="de.marw.cmake.cdt.lsp.targetPlatform.cmake"/>
-							<builder buildPath="/edgetx/_Debug" enableAutoBuild="false" id="de.marw.cmake.cdt.lsp.builder.portable.1009313804" incrementalBuildTarget="firmware" keepEnvironmentInBuildfile="false" name="CMake Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="de.marw.cmake.cdt.lsp.builder.portable"/>
+							<builder buildPath="/edgetx/_Debug" enableAutoBuild="false" id="de.marw.cmake.cdt.lsp.builder.portable.1009313804" incrementalBuildTarget="simu" keepEnvironmentInBuildfile="false" name="CMake Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="de.marw.cmake.cdt.lsp.builder.portable"/>
 							<tool id="de.marw.cmake.cdt.lsp.toolchain.tool.dummy.1684248541" name="CMake driven Languages Proxy" superClass="de.marw.cmake.cdt.lsp.toolchain.tool.dummy">
 								<inputType id="de.marw.cmake.cdt.lsp.inputType.c.182546266" superClass="de.marw.cmake.cdt.lsp.inputType.c"/>
 								<inputType id="de.marw.cmake.cdt.lsp.inputType.cpp.467835616" superClass="de.marw.cmake.cdt.lsp.inputType.cpp"/>
@@ -46,14 +46,10 @@
 					<def name="LUA" type="STRING" val="YES"/>
 					<def name="INTERNAL_GPS" type="STRING" val="NO"/>
 					<def name="CMAKE_BUILD_TYPE" type="STRING" val="Debug"/>
-					<def name="DISABLE_COMPANION" type="BOOL" val="ON"/>
-					<def name="UNEXPECTED_SHUTDOWN" type="BOOL" val="OFF"/>
+					<def name="DISABLE_COMPANION" type="BOOL" val="OFF"/>
+					<def name="SHUTDOWN_CONFIRMATION" type="BOOL" val="ON"/>
 				</defs>
-				<linux command="/home/gagarin/edgetx/edgetx_lvgl/cmake.sh" generator="UnixMakefiles">
-					<defs>
-						<def name="UNEXPECTED_SHUTDOWN" type="BOOL" val="OFF"/>
-					</defs>
-					<undefs/>
+				<linux command="${ProjDirPath}/cmake.sh" generator="UnixMakefiles">
 				</linux>
 				<win32 command="cmake" generator="MinGWMakefiles" use-default="true">
 					<defs/>

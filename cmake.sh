@@ -1,2 +1,2 @@
 #!/bin/bash
-cmake --target firmware "$@"
+cmake --target simu "$@"
