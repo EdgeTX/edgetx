@@ -847,6 +847,13 @@ void MainWindow::sdsync()
   static bool showExtraOptions = false;
   QStringList errorMsgs;
 
+  if (syncOpts.sessionId != g.sessionId()) {
+    syncOpts.reset();
+    syncOpts.folderA = QString();
+    syncOpts.folderB = QString();
+    syncOpts.sessionId = g.sessionId();
+  }
+
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();
   if (syncOpts.folderB.isEmpty())
