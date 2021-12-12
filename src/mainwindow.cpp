@@ -158,6 +158,9 @@ void MainWindow::checkEvents()
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
     touchState.event = TE_NONE;
   }
+  if(touchState.event != TE_SLIDE_END) {
+    touchState.event = TE_NONE;
+  } 
 #endif
 
   Window::checkEvents();
