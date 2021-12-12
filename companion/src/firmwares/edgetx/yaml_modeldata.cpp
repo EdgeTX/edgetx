@@ -26,6 +26,7 @@
 #include "yaml_curvedata.h"
 #include "yaml_moduledata.h"
 #include "yaml_logicalswitchdata.h"
+#include "yaml_customfunctiondata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -323,7 +324,12 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
   
-  // customFn[]
+  for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
+    const CustomFunctionData& fn = rhs.customFn[i];
+    if (!fn.isEmpty()) {
+      node["customFn"][std::to_string(i)] = fn;
+    }
+  }
   // swashRingData
 
   YamlThrTrace thrTrace(rhs.thrTraceSrc);
@@ -405,7 +411,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   YamlReadCurvePoints(node["points"], rhs.curves);
 
   node["logicalSw"] >> rhs.logicalSw;
-  //node["customFn"] >> rhs.customFn;
+  node["customFn"] >> rhs.customFn;
 
   // swashRingData
 

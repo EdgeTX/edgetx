@@ -43,6 +43,7 @@ set(firmwares_SRCS
   edgetx/yaml_curvedata.cpp
   edgetx/yaml_moduledata.cpp
   edgetx/yaml_logicalswitchdata.cpp
+  edgetx/yaml_customfunctiondata.cpp
   datahelpers.cpp
   customisation_data.cpp
   )

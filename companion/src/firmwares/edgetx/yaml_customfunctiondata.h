@@ -19,16 +19,13 @@
  */
 
 #include "yaml_ops.h"
-#include "generalsettings.h"
+#include "customfunctiondata.h"
 
-namespace YAML {
-
-  template<>
-  struct convert<GeneralSettings> {
-
-    static Node encode(const GeneralSettings& rhs);
-    static bool decode(const Node& node, GeneralSettings& rhs);
-  };
-}
-
-
+namespace YAML
+{
+template <>
+struct convert<CustomFunctionData> {
+  static Node encode(const CustomFunctionData& rhs);
+  static bool decode(const Node& node, CustomFunctionData& rhs);
+};
+}  // namespace YAML
