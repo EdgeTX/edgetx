@@ -331,6 +331,7 @@
 #define TR_COPYINGMODEL                "Copying model..."
 #define TR_MOVINGMODEL                 "Moving model..."
 #define TR_LOADINGMODEL                "Loading model..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "Name"
 #define TR_MODELNAME                   "Model name"
 #define TR_PHASENAME                   "Mode name"
@@ -626,13 +627,20 @@
 #define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "Voltage source")
 #define TR_CURRENT                     TR(INDENT "Current", INDENT "Current source")
 #define TR_SELECT_MODEL                "Select model"
-#define TR_MODEL_CATEGORIES            "Model Categories"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
-#define TR_CREATE_CATEGORY             "Create category"
-#define TR_RENAME_CATEGORY             "Rename category"
-#define TR_DELETE_CATEGORY             "Delete category"
 #define TR_CREATE_MODEL                "Create model"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "Duplicate model"
 #define TR_COPY_MODEL                  "Copy model"
 #define TR_MOVE_MODEL                  "Move model"
@@ -640,7 +648,6 @@
 #define TR_DELETE_MODEL                "Delete model"
 #define TR_RESTORE_MODEL               "Restore model"
 #define TR_DELETE_ERROR                "Delete error"
-#define TR_CAT_NOT_EMPTY               "Category is not empty"
 #define TR_SDCARD_ERROR                TR("SD error", "SD card error")
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
@@ -750,7 +757,7 @@
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
-#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE_FOLDER      "Select a template folder"
 #define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES                "No model templates were found in this folder"
 #define TR_SAVE_TEMPLATE               "Save as template"
@@ -794,7 +801,7 @@
 #define TR_PATH_TOO_LONG               "Path too long"
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
-#define TR_FLASH_DEVICE                TR("Flash device","Flash device")      
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "Flash S.Port device")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -911,11 +918,8 @@
 #define TR_TRAINER                     "Trainer"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM              CENTER "TX antenna problem!"
-#if defined(COLORLCD)
-  #define TR_MODELIDUSED               "ID used in:"
-#else
-  #define TR_MODELIDUSED               TR("ID used in:","Receiver ID used in:")
-#endif
+#define TR_MODELIDUSED                 "ID used in:"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "Module"
 #define TR_RX_NAME                     "Rx Name"
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetry type")
@@ -1300,9 +1304,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
 #endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"

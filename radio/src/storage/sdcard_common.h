@@ -25,8 +25,6 @@
 #include "ff.h"
 #include "translations.h"
 
-#define DEFAULT_CATEGORY "Models"
-
 #define MODEL_FILENAME_PREFIX    "model"
 #if defined(SDCARD_RAW)
 #define MODEL_FILENAME_SUFFIX    ".bin"

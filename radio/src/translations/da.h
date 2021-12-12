@@ -332,6 +332,7 @@
 #define TR_COPYINGMODEL                "Kopier model..."
 #define TR_MOVINGMODEL                 "Flytter model..."
 #define TR_LOADINGMODEL                "Indlæser model..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "Navn"
 #define TR_MODELNAME                   "Model navn"
 #define TR_PHASENAME                   "Mode navn"
@@ -627,13 +628,20 @@
 #define TR_VOLTAGE                     TR(INDENT "Spænding", INDENT "Spænding kilde")
 #define TR_CURRENT                     TR(INDENT "Strøm", INDENT "Strøm kilde")
 #define TR_SELECT_MODEL                "Vælg model"
-#define TR_MODEL_CATEGORIES            "Model kategorier"
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"
-#define TR_CREATE_CATEGORY             "Opret category"
-#define TR_RENAME_CATEGORY             "Omdøb category"
-#define TR_DELETE_CATEGORY             "Slet category"
 #define TR_CREATE_MODEL                "Opret model"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "Dupliker model"
 #define TR_COPY_MODEL                  "Kopier model"
 #define TR_MOVE_MODEL                  "Flyt model"
@@ -641,7 +649,6 @@
 #define TR_DELETE_MODEL                "Slet model"
 #define TR_RESTORE_MODEL               "Genskab model"
 #define TR_DELETE_ERROR                "Slet fejl"
-#define TR_CAT_NOT_EMPTY               "Kategori er ikke tom"
 #define TR_SDCARD_ERROR                TR("SD fejl", "SD kort fejl")
 #define TR_SDCARD                      "SD kort"
 #define TR_NO_FILES_ON_SD              "Ingen filer på SD!"
@@ -912,11 +919,8 @@
 #define TR_TRAINER                     "Træner"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM              CENTER "TX antenne problem!"
-#if defined(COLORLCD)
-  #define TR_MODELIDUSED               "ID brugt i:"
-#else
-  #define TR_MODELIDUSED               TR("ID brugt i:","Modtager ID brugt i:")
-#endif
+#define TR_MODELIDUSED                 "ID brugt i:"
+#define TR_MODELIDUNIQUE               "ID is Unique"
 #define TR_MODULE                      "Modul"
 #define TR_RX_NAME                     "Rx Navn"
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetri type")

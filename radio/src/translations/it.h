@@ -338,6 +338,7 @@
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                "Nome"
 #define TR_MODELNAME            TR("Nome Mode.", "Nome Modello")
 #define TR_PHASENAME           "Nome fase"
@@ -627,13 +628,20 @@
 #define TR_VOLTAGE             TR(INDENT "Voltagg.",INDENT "Voltaggio")
 #define TR_CURRENT             TR(INDENT "Corrente",INDENT "Corrente")
 #define TR_SELECT_MODEL        TR("Scegli mod.", "Scegli Modello")
-#define TR_MODEL_CATEGORIES            "Categorie Modelli"
 #define TR_MODELS                      "Modelli"
 #define TR_SELECT_MODE                 "Seleziona modo"
-#define TR_CREATE_CATEGORY     "Crea Categoria"
-#define TR_RENAME_CATEGORY     "Rinomina Categoria"
-#define TR_DELETE_CATEGORY     "Cancella Categoria"
 #define TR_CREATE_MODEL        "Crea Modello"
+#define TR_FAVORITE_LABEL       "Favorites"
+#define TR_NEW_MODEL            "New Model"
+#define TR_EDIT_LABELS          "Edit Labels"
+#define TR_ENTER_LABEL          "Enter Label"
+#define TR_LABEL                "Label"
+#define TR_LABELS               "Labels"
+#define TR_CURRENT_MODEL        "Current"
+#define TR_NEW                  "New"
+#define TR_NEW_LABEL            "New Label"
+#define TR_RENAME_LABEL         "Rename Label"
+#define TR_DELETE_LABEL         "Delete Label"
 #define TR_DUPLICATE_MODEL     "Duplica Modello"
 #define TR_COPY_MODEL          "Copia Modello"
 #define TR_MOVE_MODEL          "Sposta Modello"
@@ -641,7 +649,6 @@
 #define TR_DELETE_MODEL        TR("Elim. Modello", "Elimina Modello")
 #define TR_RESTORE_MODEL       TR("Ripr. Modello", "Ripristina Modello")
 #define TR_DELETE_ERROR        "Errore cancell."
-#define TR_CAT_NOT_EMPTY       "Categoria non vuota"
 #define TR_SDCARD_ERROR        TR("Errore SD", "Errore SDCard")
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "SD senza file!"
@@ -912,6 +919,7 @@
 #define TR_CHANS                       "Canali"
 #define TR_ANTENNAPROBLEM      CENTER "Problemi antenna TX!"
 #define TR_MODELIDUSED         TR("ID già usato", "ID Modello già usato")
+#define TR_MODELIDUNIQUE             "ID is unique"
 #define TR_MODULE              "Modulo"
 #define TR_RX_NAME                     "Nome RX"
 #define TR_TELEMETRY_TYPE      "Tipo Telemetria"

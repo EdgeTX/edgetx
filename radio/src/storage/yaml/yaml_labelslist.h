@@ -19,12 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _YAML_MODELSLIST_H_
-#define _YAML_MODELSLIST_H_
+#ifndef _YAML_LABELSLIST_H_
+#define _YAML_LABELSLIST_H_
+
+#define MODULE_ID_STR "mod%did"
+#define MODULE_TYPE_STR "mod%dtype"
+#define MODULE_RFPROTOCOL_STR "mod%drf"
 
 struct YamlParserCalls;
 
-void* get_modelslist_iter(const char* currentModel, unsigned currentModel_len);
-const YamlParserCalls* get_modelslist_parser_calls();
+void* get_labelslist_iter();
+const YamlParserCalls* get_labelslist_parser_calls();
 
 #endif

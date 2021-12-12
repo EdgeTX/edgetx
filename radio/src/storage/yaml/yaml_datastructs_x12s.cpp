@@ -478,6 +478,7 @@ static const struct YamlNode struct_ModelHeader[] = {
   YAML_STRING("name", 15),
   YAML_ARRAY("modelId", 8, 2, struct_unsigned_8, NULL),
   YAML_STRING("bitmap", 14),
+  YAML_STRING("labels", 100),
   YAML_END
 };
 static const struct YamlNode struct_TimerData[] = {
@@ -860,7 +861,7 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 };
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
+  YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
   YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
@@ -912,7 +913,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
-  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
+  YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
   YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_END
 };

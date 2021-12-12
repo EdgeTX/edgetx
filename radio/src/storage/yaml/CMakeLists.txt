@@ -6,9 +6,10 @@ set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
                storage/yaml/yaml_datastructs.cpp)
 
 if(STORAGE_MODELSLIST)
-  set(SRC ${SRC} storage/yaml/yaml_modelslist.cpp)
+  set(SRC ${SRC} storage/yaml/yaml_labelslist.cpp)
+  add_definitions(-DSTORAGE_MODELSLIST)
 endif()
-          
+
 # Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
 #          in the same directory.
 

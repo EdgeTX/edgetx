@@ -336,6 +336,7 @@
 #define TR_COPYINGMODEL                "Kopiere Modell"
 #define TR_MOVINGMODEL                 "Schiebe Modell"
 #define TR_LOADINGMODEL                "Lade Modell..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "Name"
 #define TR_MODELNAME                   "Modellname"
 #define TR_PHASENAME                   "Phase-Name"
@@ -625,13 +626,20 @@
 #define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
 #define TR_CURRENT                     TR(INDENT "Strom", INDENT "Stromquelle")
 #define TR_SELECT_MODEL                "Modell auswählen"
-#define TR_MODEL_CATEGORIES            "Model Categories"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
-#define TR_CREATE_CATEGORY             "Modelltyp erstellen"
-#define TR_RENAME_CATEGORY             "Modelltyp umbenennen"
-#define TR_DELETE_CATEGORY             "Modelltyp löschen"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "Kopiere Modell"
 #define TR_COPY_MODEL                  "Kopiere Modell"
 #define TR_MOVE_MODEL                  "Verschiebe Modell"
@@ -639,7 +647,6 @@
 #define TR_DELETE_MODEL                "Lösche Modell" // TODO merged into DELETEMODEL?
 #define TR_RESTORE_MODEL               TR("Modell wiederher.", "Modell wiederherstellen")
 #define TR_DELETE_ERROR                "Fehler beim\nLöschen"
-#define TR_CAT_NOT_EMPTY               "Modelltyp nicht leer"
 #define TR_SDCARD_ERROR                "SD-Kartenfehler"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
@@ -911,11 +918,7 @@
 #define TR_TRAINER             		   "DSC Buchse PPM In/Out"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM     		   CENTER "TX-Antennenproblem!"
-#if defined(COLORLCD)
-  #define TR_MODELIDUSED               "ID used in:"
-#else
-  #define TR_MODELIDUSED               TR("ID used in:","Receiver ID used in:")
-#endif
+#define TR_MODELIDUSED                 "ID used in:"#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE             		   "Modul-Typ"
 #define TR_RX_NAME                     "Rx Name"
 #define TR_TELEMETRY_TYPE      		   TR("Typ", "Telemetrietyp")
