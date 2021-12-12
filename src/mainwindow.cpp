@@ -150,8 +150,8 @@ void MainWindow::checkEvents()
       touchState.lastDeltaY += SLIDE_SPEED_REDUCTION;
     else
       touchState.lastDeltaY = 0;
-
-    touchedWindow = nullptr;  // this is also an end of a touch so reset the touched window. Fixes scroll and touch bug
+    
+    Window::capturedWindow = nullptr;
 
     onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
   } else if (touchState.event == TE_SLIDE_END && slidingWindow == nullptr) {
