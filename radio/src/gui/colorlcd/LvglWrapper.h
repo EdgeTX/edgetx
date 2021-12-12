@@ -30,20 +30,20 @@ struct GuiWidget
 };
 
 class LvglWrapper {
-  public:
-	LvglWrapper();
-	~LvglWrapper() {}
+public:
+  LvglWrapper();
+  ~LvglWrapper() {}
 
-    static LvglWrapper* instance()
-    {
-      if (!_instance)
-        _instance = new LvglWrapper();
+  static LvglWrapper* instance()
+  {
+    if (!_instance)
+      _instance = new LvglWrapper();
 
-      return _instance;
-    }
+    return _instance;
+  }
 
-  private:
-    static LvglWrapper* _instance;
+private:
+  static LvglWrapper* _instance;
 };
 
 #endif // _LVGLWRAPPER_H_
