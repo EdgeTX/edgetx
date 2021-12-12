@@ -321,6 +321,11 @@ class Window
       return scrollPositionX;
     }
 
+    void captureWindow(Window *window)
+    {
+      capturedWindow = window;
+    }
+
     coord_t getScrollPositionY() const
     {
       return scrollPositionY;
@@ -395,7 +400,7 @@ class Window
 
     static Window * focusWindow;
     static Window * slidingWindow;
-    static Window * touchedWindow;
+    static Window * capturedWindow;
     static std::list<Window *> trash;
 
     std::function<void()> closeHandler;
