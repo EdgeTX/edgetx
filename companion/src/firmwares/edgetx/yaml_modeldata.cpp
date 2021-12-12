@@ -55,6 +55,14 @@ static const YamlLookupTable trainerModeLut = {
   {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
 };
 
+static const YamlLookupTable swashTypeLut = {
+  {  0, "TYPE_NONE"  },
+  {  1, "TYPE_120"  },
+  {  2, "TYPE_120X"  },
+  {  3, "TYPE_140"  },
+  {  4, "TYPE_90"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -242,6 +250,36 @@ struct convert<FlightModeData> {
   }
 };
 
+template <>
+struct convert<SwashRingData> {
+  static Node encode(const SwashRingData& rhs)
+  {
+    Node node;
+    node["type"] = swashTypeLut << rhs.type;
+    node["value"] = rhs.value;
+    node["collectiveSource"] = rhs.collectiveSource;
+    node["aileronSource"] = rhs.aileronSource;
+    node["elevatorSource"] = rhs.elevatorSource;
+    node["collectiveWeight"] = rhs.collectiveWeight;
+    node["aileronWeight"] = rhs.aileronWeight;
+    node["elevatorWeight"] = rhs.elevatorWeight;
+    return node;
+  }
+
+  static bool decode(const Node& node, SwashRingData& rhs)
+  {
+    node["type"] >> swashTypeLut >> rhs.type;
+    node["value"] >> rhs.value;
+    node["collectiveSource"] >> rhs.collectiveSource;
+    node["aileronSource"] >> rhs.aileronSource;
+    node["elevatorSource"] >> rhs.elevatorSource;
+    node["collectiveWeight"] >> rhs.collectiveWeight;
+    node["aileronWeight"] >> rhs.aileronWeight;
+    node["elevatorWeight"] >> rhs.elevatorWeight;
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -260,7 +298,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["trimInc"] = rhs.trimInc;
   node["displayTrims"] = rhs.trimsDisplay;
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
-  // node[] = rhs.beepANACenter;
+  node["beepANACenter"] = rhs.beepANACenter;
   node["extendedLimits"] = (int)rhs.extendedLimits;
   node["extendedTrims"] = (int)rhs.extendedTrims;
   node["throttleReversed"] = (int)rhs.throttleReversed;
@@ -323,14 +361,16 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["logicalSw"][std::to_string(i)] = ls;
     }
   }
-  
+
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData& fn = rhs.customFn[i];
     if (!fn.isEmpty()) {
       node["customFn"][std::to_string(i)] = fn;
     }
   }
-  // swashRingData
+
+  if (getCurrentFirmware()->getCapability(Heli))
+    node["swashR"] = rhs.swashRingData;
 
   YamlThrTrace thrTrace(rhs.thrTraceSrc);
   node["thrTraceSrc"] = thrTrace.src;
@@ -357,7 +397,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["moduleData"][std::to_string(i)] = rhs.moduleData[i];
     }
   }
-  
+
   // scriptData[]
   // sensorData[]
 
@@ -395,7 +435,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["trimInc"] >> rhs.trimInc;
   node["displayTrims"] >> rhs.trimsDisplay;
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
-  // node[] >> rhs.beepANACenter;
+  node["beepANACenter"] >> rhs.beepANACenter;
   node["extendedLimits"] >> rhs.extendedLimits;
   node["extendedTrims"] >> rhs.extendedTrims;
   node["throttleReversed"] >> rhs.throttleReversed;
@@ -414,6 +454,11 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["customFn"] >> rhs.customFn;
 
   // swashRingData
+  if (node["swashR"]) {
+    const auto& swashR = node["swashR"];
+    if (!swashR.IsMap()) return false;
+    swashR >> rhs.swashRingData;
+  }
 
   YamlThrTrace thrTrace;
   node["thrTraceSrc"] >> thrTrace.src;
