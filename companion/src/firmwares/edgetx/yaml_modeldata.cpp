@@ -376,7 +376,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["thrTraceSrc"] = thrTrace.src;
 
   // switchWarningStates
-  // thrTrimSwitch
+  node["thrTrimSw"] = rhs.thrTrimSwitch;
   // potsWarningMode
   // potsWarnEnabled[]
   // potsWarnPosition[]
@@ -453,7 +453,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["logicalSw"] >> rhs.logicalSw;
   node["customFn"] >> rhs.customFn;
 
-  // swashRingData
   if (node["swashR"]) {
     const auto& swashR = node["swashR"];
     if (!swashR.IsMap()) return false;
@@ -465,7 +464,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   rhs.thrTraceSrc = thrTrace.toCpn();
 
   // switchWarningStates
-  // thrTrimSwitch
+  node["thrTrimSw"] >> rhs.thrTrimSwitch;
   // potsWarningMode
   // potsWarnEnabled[]
   // potsWarnPosition[]
