@@ -21,8 +21,6 @@
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
 
-#define XPOTS_MULTIPOS_COUNT 6  //  TODO: use Boards::getCapability(board, Board::MultiposPotsPositions)
-
 // TODO: use lookup of trims in Boards ???
 const YamlLookupTable trimSwitchLut = {
   {  0, "TrimRudLeft"  },
@@ -57,6 +55,8 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += "!";
   }
 
+  int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
+
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
     sw_str += getCurrentFirmware()->getSwitchesTag((sval - 1) / 3);
@@ -70,8 +70,8 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   case SWITCH_TYPE_MULTIPOS_POT:
     sw_str += "6P";
-    sw_str += std::to_string(sval / XPOTS_MULTIPOS_COUNT);
-    sw_str += std::to_string(sval % XPOTS_MULTIPOS_COUNT);
+    sw_str += std::to_string(sval / multiposcnt);
+    sw_str += std::to_string(sval % multiposcnt);
     break;
 
   case SWITCH_TYPE_TRIM:
@@ -109,14 +109,16 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     val_len--;
   }
 
+  int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
+
   if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {  //  TODO: range check < CPN_MAX_LOGICAL_SWITCHES
     rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
                     std::stoi(sw_str.substr(1, val_len - 1)) - 1);
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
              (val[2] >= '0' && val[2] <= '9') &&
-             (val[3] >= '0' && val[3] < (XPOTS_MULTIPOS_COUNT + '0'))) {
+             (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
     rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
-                    (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0'));
+                    (val[2] - '0') * multiposcnt + (val[3] - '0'));
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {  //  TODO: range check < CPN_MAX_FLIGHT_MODES
     rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0');
