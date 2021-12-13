@@ -171,6 +171,7 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
     duration10ms = getTicks();
   }
 
+  captureWindow(this);
   yDown = y;
 
   return true;  // stop the processing and say that i handled it
