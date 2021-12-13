@@ -19,9 +19,11 @@
  */
 
 #include "yaml_rawswitch.h"
+#include "eeprominterface.h"
 
-#define XPOTS_MULTIPOS_COUNT 6
+#define XPOTS_MULTIPOS_COUNT 6  //  TODO: use Boards::getCapability(board, Board::MultiposPotsPositions)
 
+// TODO: use lookup of trims in Boards ???
 const YamlLookupTable trimSwitchLut = {
   {  0, "TrimRudLeft"  },
   {  1, "TrimRudRight"  },
@@ -57,9 +59,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
-    sw_str += 'S';
-    // TODO: use lookup of switches in Boards ???
-    sw_str += 'A' + (sval - 1) / 3;
+    sw_str += getCurrentFirmware()->getSwitchesTag((sval - 1) / 3);
     sw_str += std::to_string((sval - 1) % 3);
     break;
 
@@ -75,6 +75,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TRIM:
+    // TODO: use lookup of trims in Boards ???
     sw_str += YAML::LookupValue(trimSwitchLut, sval);
     break;
 
@@ -97,7 +98,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
 RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
-  RawSwitch rhs;
+  RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
 
@@ -108,7 +109,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     val_len--;
   }
 
-  if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {
+  if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {  //  TODO: range check < CPN_MAX_LOGICAL_SWITCHES
     rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
                     std::stoi(sw_str.substr(1, val_len - 1)) - 1);
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
@@ -117,27 +118,26 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
                     (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0'));
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
-             (val[2] >= '0' && val[2] <= '9')) {
+             (val[2] >= '0' && val[2] <= '9')) {  //  TODO: range check < CPN_MAX_FLIGHT_MODES
     rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0');
   } else if (val_len >= 2 && val[0] == 'T' &&
-             (val[1] >= '0' && val[1] <= '9')) {
+             (val[1] >= '0' && val[1] <= '9')) {  //  TODO: range check < CPN_MAX_SENSORS
     rhs = RawSwitch(SWITCH_TYPE_SENSOR,
                     std::stoi(sw_str.substr(1, val_len - 1)) - 1);
-  } else if (sw_str.substr(0, 3) == std::string("Trim")) {  // "Trim"
-
+  } else if (sw_str.substr(0, 3) == std::string("Trim")) {
+    // TODO: use lookup of trims in Boards ???
     rhs.type = SWITCH_TYPE_TRIM;
     YAML::Node(sw_str) >> trimSwitchLut >> rhs.index;
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
-    // TODO: use lookup of switches in Boards ???
-    rhs = RawSwitch(SWITCH_TYPE_SWITCH, (val[1] - 'A') * 3 + val[2] - '0');
+    int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str.substr(0, 2).c_str());
+    if (sw_idx >= 0) {
+      rhs.type = SWITCH_TYPE_SWITCH;
+      rhs.index = sw_idx * 3 + val[2] - '0';
+    }
   } else {
-    // TODO: check if we have a match?
-    //       or does RawSwitch default to NONE anyway?
-    //
-    YAML::Node(sw_str) >> rhs.type;
-    rhs.index = 0;
+    // no match found
   }
 
   if (neg) {

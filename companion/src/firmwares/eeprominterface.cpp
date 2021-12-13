@@ -204,3 +204,29 @@ std::string Firmware::getAnalogInputTag(unsigned int index)
 
   return std::string();
 }
+
+int Firmware::getSwitchesIndex(const char * tag)
+{
+  const StringTagMappingTable& lut = switchesLookupTable;
+
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it - lut.begin();
+  }
+
+  return -1;
+}
+
+std::string Firmware::getSwitchesTag(unsigned int index)
+{
+  const StringTagMappingTable& lut = switchesLookupTable;
+  if (index < lut.size())
+    return lut[index].tag;
+
+  return std::string();
+}

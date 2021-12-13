@@ -201,6 +201,7 @@ class Boards
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
     static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
+    static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
     static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board);

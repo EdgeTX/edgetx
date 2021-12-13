@@ -291,7 +291,8 @@ class Firmware
       variantBase(0),
       base(base),
       eepromInterface(nullptr),
-      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board))
+      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
+      switchesLookupTable(Boards::getSwitchesLookupTable(board))
     {
     }
 
@@ -405,8 +406,15 @@ class Firmware
       return &analogInputNamesLookupTable;
     }
 
+    const StringTagMappingTable* getSwitchesLookupTable()
+    {
+      return &switchesLookupTable;
+    }
+
     int getAnalogInputIndex(const char * tag);
     std::string getAnalogInputTag(unsigned int index);
+    int getSwitchesIndex(const char * tag);
+    std::string getSwitchesTag(unsigned int index);
 
   protected:
     QString id;
@@ -416,6 +424,7 @@ class Firmware
     Firmware * base;
     EEPROMInterface * eepromInterface;
     const StringTagMappingTable analogInputNamesLookupTable;
+    const StringTagMappingTable switchesLookupTable;
     QList<const char *> languages;
     //QList<const char *> ttslanguages;
     OptionsList opts;
