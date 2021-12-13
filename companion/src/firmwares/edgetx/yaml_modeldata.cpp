@@ -403,8 +403,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["toplcdTimer"] = rhs.toplcdTimer;
 
+  // B&W only
   // customScreens
   // topBarData
+
   node["view"] = rhs.view;
   node["modelRegistrationID"] = rhs.registrationId;
 

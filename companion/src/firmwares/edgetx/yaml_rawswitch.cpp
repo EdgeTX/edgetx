@@ -58,6 +58,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
     sw_str += 'S';
+    // TODO: use lookup of switches in Boards ???
     sw_str += 'A' + (sval - 1) / 3;
     sw_str += std::to_string((sval - 1) % 3);
     break;
@@ -129,6 +130,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
+    // TODO: use lookup of switches in Boards ???
     rhs = RawSwitch(SWITCH_TYPE_SWITCH, (val[1] - 'A') * 3 + val[2] - '0');
   } else {
     // TODO: check if we have a match?

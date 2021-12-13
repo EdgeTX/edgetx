@@ -19,19 +19,9 @@
  */
 
 #include "yaml_switchconfig.h"
+
 #include "boards.h"
-
-const YamlLookupTable sticksLut = {
-    {0, "0"},
-    {1, "1"},
-    {2, "2"},
-    {3, "3"},
-};
-
-const YamlLookupTable switchesLut = {
-    {0, "SA"}, {1, "SB"}, {2, "SC"}, {3, "SD"}, {4, "SE"},
-    {5, "SF"}, {6, "SG"}, {7, "SH"}, {8, "SI"}, {9, "SJ"},
-};
+#include "eeprominterface.h"
 
 const YamlLookupTable switchConfigLut = {
     {Board::SWITCH_NOT_AVAILABLE, "none"},
@@ -40,10 +30,6 @@ const YamlLookupTable switchConfigLut = {
     {Board::SWITCH_3POS, "3pos"},
 };
 
-const YamlLookupTable potsLut = {
-    {0, "S1"}, {1, "6POS"}, {2, "S2"},
-    {3, "EXT1"}, {4, "EXT2"}, {5, "EXT3"}, {6, "EXT4"},
-};
 
 const YamlLookupTable potConfigLut = {
     {Board::POT_NONE, "none"},
@@ -62,3 +48,91 @@ const YamlLookupTable sliderConfigLut = {
     {Board::SLIDER_WITH_DETENT, "with_detent"},
 };
 
+int YamlStickLookup::name2idx(const std::string& name)
+{
+    int idx = std::stoi(name);
+    if (idx < 4) {
+        return idx;
+    }
+
+    return -1;
+}
+
+std::string YamlStickLookup::idx2name(unsigned int idx)
+{
+    if (idx < 4) {
+        return std::to_string(idx);
+    }
+
+    return std::string();
+}
+
+int YamlSwitchLookup::name2idx(const std::string& name)
+{
+    // TODO: replace this with a real lookup of available switches
+    if (name.size() == 2
+        && name[0] == 'S'
+        && (name[1] >= 'A' && name[1] <= 'J')) {
+
+        return name[1] - 'A';
+    }
+
+    return -1;
+}
+
+std::string YamlSwitchLookup::idx2name(unsigned int idx)
+{
+    // TODO: replace this with a real lookup of available switches
+    if (idx < 10) {
+        return std::string("S") + (char)('A' + idx);
+    }
+
+    return std::string();
+}
+
+int YamlPotLookup::name2idx(const std::string& name)
+{
+    auto fw = getCurrentFirmware();
+    int idx = fw->getAnalogInputIndex(name.c_str());
+    if (idx < 0) return idx;
+
+    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    if (idx >= pots) return -1;
+
+    return idx;
+}
+
+std::string YamlPotLookup::idx2name(unsigned int idx)
+{
+    auto fw = getCurrentFirmware();
+    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    if (idx >= pots) return std::string();
+
+    return fw->getAnalogInputTag(idx);
+}
+
+int YamlSliderLookup::name2idx(const std::string& name)
+{
+    auto fw = getCurrentFirmware();
+    int idx = fw->getAnalogInputIndex(name.c_str());
+    if (idx < 0) return idx;
+
+    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    if (idx < pots) return -1;
+    idx -= pots;
+
+    int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
+    if (idx >= sliders) return -1;
+
+    return idx;
+}
+
+std::string YamlSliderLookup::idx2name(unsigned int idx)
+{
+    auto fw = getCurrentFirmware();
+    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
+    if (idx >= sliders) return std::string();
+
+    return fw->getAnalogInputTag(idx + pots);
+}
