@@ -116,24 +116,29 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
                       std::stoi(sw_str.substr(1, val_len - 1)) - 1);
     }
+
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
              (val[2] >= '0' && val[2] <= '9') &&
              (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
     rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
                     (val[2] - '0') * multiposcnt + (val[3] - '0'));
+
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {
     rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0');
+
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
     if (std::stoi(sw_str.substr(1, val_len - 1)) < CPN_MAX_SENSORS) {
       rhs = RawSwitch(SWITCH_TYPE_SENSOR,
                       std::stoi(sw_str.substr(1, val_len - 1)) - 1);
     }
+
   } else if (sw_str.substr(0, 3) == std::string("Trim")) {
     // TODO: use lookup of trims in Boards ???
     rhs.type = SWITCH_TYPE_TRIM;
     YAML::Node(sw_str) >> trimSwitchLut >> rhs.index;
+
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
@@ -142,6 +147,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + val[2] - '0';
     }
+
   } else {
     // no match found
   }
