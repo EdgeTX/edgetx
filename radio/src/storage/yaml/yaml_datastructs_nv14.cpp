@@ -709,7 +709,7 @@ static const struct YamlNode struct_TrainerModuleData[] = {
 };
 static const struct YamlNode union_ScriptDataInput_elmts[] = {
   YAML_SIGNED( "value", 16 ),
-  YAML_UNSIGNED_CUST( "source", 8, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_END
 };
 static const struct YamlNode union_ScriptDataInput[] = {
