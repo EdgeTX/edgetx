@@ -149,7 +149,8 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     }
 
   } else {
-    // no match found
+    YAML::Node(sw_str) >> rhs.type;
+    rhs.index = 0;
   }
 
   if (neg) {
