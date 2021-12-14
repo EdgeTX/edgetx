@@ -63,8 +63,6 @@ class RSSIAlarmData {
     }
 };
 
-#define CPN_MAX_SCRIPTS       9
-#define CPN_MAX_SCRIPT_INPUTS 10
 class ScriptData {
   public:
     ScriptData() { clear(); }

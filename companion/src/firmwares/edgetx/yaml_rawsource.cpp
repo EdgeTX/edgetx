@@ -133,15 +133,19 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
 
   if (val_len > 0 && val[0] == 'I') {
 
-    rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, std::stoi(src_str.substr(1)));
+    int idx = std::stoi(src_str.substr(1));
+    if (idx < CPN_MAX_INPUTS)
+      rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
 
   } else if (val_len >= 2
              && val[0] == 'S'
              && val[1] >= 'A'
              && val[1] <= 'Z') {
 
-    rhs = RawSource(SOURCE_TYPE_SWITCH, val[1] - 'A');
-      
+    int idx = val[1] - 'A';
+    if (idx < CPN_MAX_SWITCHES)
+      rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
+
   } else if (val_len > 4 &&
              val[0] == 'l' &&
              val[1] == 'u' &&
@@ -149,11 +153,12 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[3] == '(') {
 
     std::stringstream src(src_str.substr(4));
-    int script = 0, output = 0;
+    int script = 0, output = 0;                   //  TODO: check rename outputs to inputs???
     src >> script;
     src.ignore();
     src >> output;
-    rhs = RawSource(SOURCE_TYPE_LUA_OUTPUT, script * 16 + output);
+    if (script < CPN_MAX_SCRIPTS && output < CPN_MAX_SCRIPT_INPUTS)
+      rhs = RawSource(SOURCE_TYPE_LUA_OUTPUT, script * 16 + output);
 
   } else if (val_len > 3 &&
              val[0] == 'l' &&
@@ -163,7 +168,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int ls = 0;
     src >> ls;
-    rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls);
+    if (ls < CPN_MAX_LOGICAL_SWITCHES)
+      rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls);
 
   } else if (val_len > 3 &&
              val[0] == 't' &&
@@ -173,8 +179,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int tr = 0;
     src >> tr;
-    rhs = RawSource(SOURCE_TYPE_PPM, tr);
-    
+    if (tr < getCurrentFirmware()->getCapability(TrainerInputs))
+      rhs = RawSource(SOURCE_TYPE_PPM, tr);
+
   } else if (val_len > 3 &&
              val[0] == 'c' &&
              val[1] == 'h' &&
@@ -183,8 +190,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int ch = 0;
     src >> ch;
-    rhs = RawSource(SOURCE_TYPE_CH, ch);
-    
+    if (ch < CPN_MAX_CHNOUT)
+      rhs = RawSource(SOURCE_TYPE_CH, ch);
+
   } else if (val_len > 3 &&
              val[0] == 'g' &&
              val[1] == 'v' &&
@@ -193,7 +201,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int gv = 0;
     src >> gv;
-    rhs = RawSource(SOURCE_TYPE_GVAR, gv);
+    if (gv < CPN_MAX_GVARS)
+      rhs = RawSource(SOURCE_TYPE_GVAR, gv);
 
   } else if (val_len > 5 &&
              val[0] == 't' &&
@@ -217,7 +226,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
 
     int sensor = 0;
     src >> sensor;
-    rhs = RawSource(SOURCE_TYPE_TELEMETRY, sensor * 3 + sign);
+    if (sensor < CPN_MAX_SENSORS)
+      rhs = RawSource(SOURCE_TYPE_TELEMETRY, sensor * 3 + sign);
 
   } else {
 
@@ -253,7 +263,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = 0;
     }
   }
-  
+
   return rhs;
 }
 
