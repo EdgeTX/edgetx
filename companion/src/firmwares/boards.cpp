@@ -757,3 +757,30 @@ StringTagMappingTable Boards::getSwitchesLookupTable(Board::Type board)
 
   return tbl;
 }
+
+// static
+StringTagMappingTable Boards::getTrimSwitchesLookupTable(Board::Type board)
+{
+  StringTagMappingTable tbl;
+
+  tbl.insert(tbl.end(), {
+                          {std::to_string(TRIM_SW_LH_DEC), "TrimRudLeft"},
+                          {std::to_string(TRIM_SW_LH_INC), "TrimRudRight"},
+                          {std::to_string(TRIM_SW_LV_DEC), "TrimEleDown"},
+                          {std::to_string(TRIM_SW_LV_INC), "TrimEleUp"},
+                          {std::to_string(TRIM_SW_RV_DEC), "TrimThrDown"},
+                          {std::to_string(TRIM_SW_RV_INC), "TrimThrUp"},
+                          {std::to_string(TRIM_SW_RH_DEC), "TrimAilLeft"},
+                          {std::to_string(TRIM_SW_RH_INC), "TrimAilRight"},
+                        });
+
+  if (getCapability(board, Board::NumTrims) > 4)
+    tbl.insert(tbl.end(), {
+                            {std::to_string(TRIM_SW_T5_DEC), "TrimT5Down"},
+                            {std::to_string(TRIM_SW_T5_INC), "TrimT5Up"},
+                            {std::to_string(TRIM_SW_T6_DEC), "TrimT6Down"},
+                            {std::to_string(TRIM_SW_T6_INC), "TrimT6Up"},
+                          });
+
+  return tbl;
+}

@@ -21,22 +21,6 @@
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
 
-// TODO: use lookup of trims in Boards ???
-const YamlLookupTable trimSwitchLut = {
-  {  0, "TrimRudLeft"  },
-  {  1, "TrimRudRight"  },
-  {  2, "TrimEleDown"  },
-  {  3, "TrimEleUp"  },
-  {  4, "TrimThrDown"  },
-  {  5, "TrimThrUp"  },
-  {  6, "TrimAilLeft"  },
-  {  7, "TrimAilRight"  },
-  {  8, "TrimT5Down"  },
-  {  9, "TrimT5Up"  },
-  {  10, "TrimT6Down"  },
-  {  11, "TrimT6Up"  },
-};
-
 const YamlLookupTable switchTypeLut = {
   {  SWITCH_TYPE_NONE, "NONE" },
   {  SWITCH_TYPE_ON, "ON"  },
@@ -75,8 +59,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TRIM:
-    // TODO: use lookup of trims in Boards ???
-    sw_str += YAML::LookupValue(trimSwitchLut, sval);
+    sw_str += getCurrentFirmware()->getTrimSwitchesTag(sval);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -134,10 +117,12 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
                       std::stoi(sw_str.substr(1, val_len - 1)) - 1);
     }
 
-  } else if (sw_str.substr(0, 3) == std::string("Trim")) {
-    // TODO: use lookup of trims in Boards ???
-    rhs.type = SWITCH_TYPE_TRIM;
-    YAML::Node(sw_str) >> trimSwitchLut >> rhs.index;
+  } else if (sw_str.substr(0, 4) == std::string("Trim")) {
+    int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str.c_str());
+    if (tsw_idx >= 0) {
+      rhs.type = SWITCH_TYPE_TRIM;
+      rhs.index = tsw_idx;
+    }
 
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
