@@ -267,7 +267,7 @@ LvglWrapper::LvglWrapper()
 
   lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
   indev_drv.type =LV_INDEV_TYPE_POINTER;                 /*See below.*/
-  indev_drv.read_cb =my_input_read;              /*See below.*/
+//  indev_drv.read_cb = my_input_read;              /*See below.*/
   /*Register the driver in LVGL and save the created input device object*/
 
 
