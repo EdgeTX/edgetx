@@ -293,7 +293,8 @@ class Firmware
       eepromInterface(nullptr),
       analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
       switchesLookupTable(Boards::getSwitchesLookupTable(board)),
-      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board))
+      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
+      rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable())
     {
     }
 
@@ -417,12 +418,19 @@ class Firmware
       return &trimSwitchesLookupTable;
     }
 
+    const StringTagMappingTable* getRawSwitchTypesLookupTable()
+    {
+      return &rawSwitchTypesLookupTable;
+    }
+
     int getAnalogInputIndex(const char * tag);
     std::string getAnalogInputTag(unsigned int index);
     int getSwitchesIndex(const char * tag);
     std::string getSwitchesTag(unsigned int index);
     int getTrimSwitchesIndex(const char * tag);
     std::string getTrimSwitchesTag(unsigned int index);
+    int getRawSwitchTypesIndex(const char * tag);
+    std::string getRawSwitchTypesTag(unsigned int index);
 
   protected:
     QString id;
@@ -434,6 +442,7 @@ class Firmware
     const StringTagMappingTable analogInputNamesLookupTable;
     const StringTagMappingTable switchesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable rawSwitchTypesLookupTable;
     QList<const char *> languages;
     //QList<const char *> ttslanguages;
     OptionsList opts;

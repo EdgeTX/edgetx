@@ -21,15 +21,6 @@
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
 
-const YamlLookupTable switchTypeLut = {
-  {  SWITCH_TYPE_NONE, "NONE" },
-  {  SWITCH_TYPE_ON, "ON"  },
-  {  SWITCH_TYPE_ONE, "ONE"  },
-  {  SWITCH_TYPE_TELEMETRY, "TELEMETRY_STREAMING"  },
-  {  SWITCH_TYPE_ACT, "RADIO_ACTIVITY"  },
-  {  SWITCH_TYPE_OFF, "OFF"  },
-};
-
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
   std::string sw_str;
@@ -73,7 +64,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   default:
-    sw_str += YAML::LookupValue(switchTypeLut, rhs.type);
+    sw_str += getCurrentFirmware()->getRawSwitchTypesTag(sval);
     break;
   }
   return sw_str;
@@ -95,6 +86,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
 
   if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {
+
     if (std::stoi(sw_str.substr(1, val_len - 1)) < CPN_MAX_LOGICAL_SWITCHES) {
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
                       std::stoi(sw_str.substr(1, val_len - 1)) - 1);
@@ -103,21 +95,25 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
              (val[2] >= '0' && val[2] <= '9') &&
              (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
+
     rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
                     (val[2] - '0') * multiposcnt + (val[3] - '0'));
 
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {
+
     rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0');
 
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
+
     if (std::stoi(sw_str.substr(1, val_len - 1)) < CPN_MAX_SENSORS) {
       rhs = RawSwitch(SWITCH_TYPE_SENSOR,
                       std::stoi(sw_str.substr(1, val_len - 1)) - 1);
     }
 
   } else if (sw_str.substr(0, 4) == std::string("Trim")) {
+
     int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
@@ -127,15 +123,23 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
+
     int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str.substr(0, 2).c_str());
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + val[2] - '0';
     }
 
+  //  TODO: SWITCH_TYPE_TIMER_MODE
+  //} else if (sw_str.substr(0, ?) == std::string("????")) {
+
   } else {
-    YAML::Node(sw_str) >> rhs.type;
-    rhs.index = 0;
+    //  types which do not use index
+    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str.c_str());
+    if (sw_type >= 0) {
+      rhs.type = (RawSwitchType)sw_type;
+      rhs.index = 0;
+    }
   }
 
   if (neg) {
@@ -145,8 +149,6 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 }
 
 namespace YAML {
-
-ENUM_CONVERTER(RawSwitchType, switchTypeLut);
 
 Node convert<RawSwitch>::encode(const RawSwitch& rhs)
 {
