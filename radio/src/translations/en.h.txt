@@ -52,8 +52,8 @@
 #define LEN_VBEEPMODE                  "\005"
 #define TR_VBEEPMODE                   "Quiet""Alarm""NoKey""All\0 "
 
-#define LEN_VBLMODE                    TR("\004", "\010")
-#define TR_VBLMODE                     TR("OFF\0""Keys""Ctrl""Both""ON\0 ", "OFF\0    ""Keys\0   ""Controls""Both\0   ""ON\0     ")
+#define LEN_VBLMODE                    TR("\004", "\011")
+#define TR_VBLMODE                     TR("OFF\0""Keys""Ctrl""Both""ON\0 ", "OFF\0     ""Keys\0    ""Controls\0""Both\0    ""ON\0      ")
 
 #define LEN_TRNMODE                    "\003"
 #define TR_TRNMODE                     "OFF""+=\0"":=\0"
