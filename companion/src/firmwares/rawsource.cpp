@@ -439,3 +439,17 @@ tbl.insert(tbl.end(), {
 
   return tbl;
 }
+
+// static
+StringTagMappingTable RawSource::getCyclicLookupTable()
+{
+  StringTagMappingTable tbl;
+
+tbl.insert(tbl.end(), {
+                          {"0", "CYC1"},
+                          {"1", "CYC2"},
+                          {"2", "CYC3"},
+                          });
+
+  return tbl;
+}

@@ -276,6 +276,7 @@ class RawSource {
     QStringList getStickList(Boards board) const;
     QStringList getSwitchList(Boards board) const;
     static StringTagMappingTable getSpecialTypesLookupTable();
+    static StringTagMappingTable getCyclicLookupTable();
 
     bool operator == ( const RawSource & other) const {
       return (this->type == other.type) && (this->index == other.index);

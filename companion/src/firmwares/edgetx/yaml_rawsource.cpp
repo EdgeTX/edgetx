@@ -31,16 +31,6 @@ const YamlLookupTable trimSourceLut = {
   {  5, "TrimT6"  },
 };
 
-// SOURCE_TYPE_CYC
-const YamlLookupTable cycSourceLut = {
-  {  0, "CYC1"  },
-  {  1, "CYC2"  },
-  {  2, "CYC3"  },
-};
-
-// SOURCE_TYPE_MAX
-  // {  MIXSRC_MAX, "MAX"  },
-
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
@@ -74,7 +64,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_CYC:
-      src_str = YAML::LookupValue(cycSourceLut, rhs.index);
+      src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:
       src_str += "tr(";
@@ -236,10 +226,10 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = conv.as<int>();
     }
 
-    conv = node >> cycSourceLut;
-    if (conv.IsScalar()) {
+    int cyc_idx = getCurrentFirmware()->getRawSourceCyclicIndex(src_str.c_str());
+    if (cyc_idx >= 0) {
       rhs.type = SOURCE_TYPE_CYC;
-      rhs.index = conv.as<int>();
+      rhs.index = cyc_idx;
     }
 
     int sp_idx = getCurrentFirmware()->getRawSourceSpecialTypesIndex(src_str.c_str());

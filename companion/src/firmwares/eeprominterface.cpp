@@ -308,3 +308,29 @@ std::string Firmware::getRawSourceSpecialTypesTag(unsigned int index)
 
   return std::string();
 }
+
+int Firmware::getRawSourceCyclicIndex(const char * tag)
+{
+  const StringTagMappingTable& lut = rawSourceCyclicLookupTable;
+
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it - lut.begin();
+  }
+
+  return -1;
+}
+
+std::string Firmware::getRawSourceCyclicTag(unsigned int index)
+{
+  const StringTagMappingTable& lut = rawSourceCyclicLookupTable;
+  if (index < lut.size())
+    return lut[index].tag;
+
+  return std::string();
+}
