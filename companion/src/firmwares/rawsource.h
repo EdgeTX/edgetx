@@ -23,6 +23,7 @@
 
 #include "boards.h"
 #include "constants.h"
+#include "datahelpers.h"
 
 #include <QtCore>
 
@@ -274,6 +275,7 @@ class RawSource {
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
     QStringList getStickList(Boards board) const;
     QStringList getSwitchList(Boards board) const;
+    static StringTagMappingTable getSpecialTypesLookupTable();
 
     bool operator == ( const RawSource & other) const {
       return (this->type == other.type) && (this->index == other.index);

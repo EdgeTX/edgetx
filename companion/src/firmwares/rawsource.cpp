@@ -418,3 +418,24 @@ QStringList RawSource::getSwitchList(Boards board) const
   }
   return ret;
 }
+
+// static
+StringTagMappingTable RawSource::getSpecialTypesLookupTable()
+{
+  StringTagMappingTable tbl;
+
+tbl.insert(tbl.end(), {
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_BATT),    "TX_VOLTAGE"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_TIME),    "TX_TIME"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_GPS),     "TX_GPS"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED1),  "RESERVED1"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "TIMER1"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "TIMER2"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "TIMER3"},
+                          });
+
+  return tbl;
+}

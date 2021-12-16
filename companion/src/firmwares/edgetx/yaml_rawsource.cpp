@@ -41,19 +41,6 @@ const YamlLookupTable cycSourceLut = {
 // SOURCE_TYPE_MAX
   // {  MIXSRC_MAX, "MAX"  },
 
-const YamlLookupTable specialSourceLut = {
-  {  0, "TX_VOLTAGE" },
-  {  1, "TX_TIME"  },
-  {  2, "TX_GPS"  },
-  {  3, "RESERVED1"  },
-  {  4, "RESERVED2"  },
-  {  5, "RESERVED3"  },
-  {  6, "RESERVED4"  },
-  {  7, "TIMER1"  },
-  {  8, "TIMER2"  },
-  {  9, "TIMER3"  },
-};
-
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
@@ -105,7 +92,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str = YAML::LookupValue(specialSourceLut, rhs.index);
+      src_str = getCurrentFirmware()->getRawSourceSpecialTypesTag(rhs.index);
       break;
     case SOURCE_TYPE_TELEMETRY:
       src_str = "tele(";
@@ -255,10 +242,10 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = conv.as<int>();
     }
 
-    conv = node >> specialSourceLut;
-    if (conv.IsScalar()) {
+    int sp_idx = getCurrentFirmware()->getRawSourceSpecialTypesIndex(src_str.c_str());
+    if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
-      rhs.index = conv.as<int>();
+      rhs.index = sp_idx;
     }
 
     if (node.IsScalar() && node.as<std::string>() == "MAX") {
