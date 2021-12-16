@@ -262,9 +262,9 @@ int8_t STORAGE_GetMaxLun (void)
 /* Firmware.txt */
 const char firmware_txt[] =
 #if defined(BOOT)
-  "OpenTX Bootloader"
+  "EdgeTX Bootloader"
 #else
-  "OpenTX Firmware"
+  "EdgeTX Firmware"
 #endif
   " for " FLAVOUR "\r\n\r\n"
 #if defined(BOOT)
@@ -272,14 +272,13 @@ const char firmware_txt[] =
 #else
   "FWVERSION  "
 #endif
-  "opentx-" FLAVOUR "-" VERSION " (" GIT_STR ")\r\n"
+  "edgetx-" FLAVOUR "-" VERSION " (" GIT_STR ")\r\n"
   "DATE       " DATE "\r\n"
   "TIME       " TIME "\r\n"
-  "req SD ver " REQUIRED_SDCARD_VERSION "\r\n"
 #if !defined(BOOT)
-"BOOTVER    "
+  "BOOTVER   "
 #else
-"FWVERSION  "
+  "FWVERSION "
 #endif
   ;
 

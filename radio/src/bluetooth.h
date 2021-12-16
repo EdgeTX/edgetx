@@ -56,8 +56,19 @@ enum BluetoothStates {
     f_printf(&g_bluetoothFile, __VA_ARGS__); \
     TRACE_NOCRLF(__VA_ARGS__);
 #else
-  #define BLUETOOTH_TRACE(...)  \
-    TRACE_NOCRLF(__VA_ARGS__);
+#if defined(DEBUG_BLUETOOTH)
+  #define BLUETOOTH_TRACE(...)  TRACE_NOCRLF(__VA_ARGS__);
+  #define BLUETOOTH_TRACE_TIMESTAMP(f_, ...)  debugPrintf((TRACE_TIME_FORMAT f_), TRACE_TIME_VALUE, ##__VA_ARGS__)
+#if defined(DEBUG_BLUETOOTH_VERBOSE)
+  #define BLUETOOTH_TRACE_VERBOSE(...) TRACE_NOCRLF(__VA_ARGS__);
+#else
+  #define BLUETOOTH_TRACE_VERBOSE(...)
+#endif
+#else
+  #define BLUETOOTH_TRACE(...)
+  #define BLUETOOTH_TIMESTAMP(f_, ...)
+  #define BLUETOOTH_TRACE_VERBOSE(...)
+#endif
 #endif
 
 class Bluetooth

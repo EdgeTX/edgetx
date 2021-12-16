@@ -184,6 +184,7 @@ class SpecialFunctionEditPage : public Page
             [=](std::string newValue) {
               strncpy(cfn->play.name, newValue.c_str(), sizeof(cfn->play.name));
               SET_DIRTY();
+              LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension
         grid.nextLine();
@@ -648,6 +649,8 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
           menu->addLine(STR_PASTE, [=]() {
             *cfn = clipboard.data.cfn;
             SET_DIRTY();
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              LUA_LOAD_MODEL_SCRIPTS();
             rebuild(window, i);
           });
         } else {
@@ -670,7 +673,11 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         });
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
           menu->addLine(STR_PASTE, [=]() {
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              LUA_LOAD_MODEL_SCRIPTS();
             *cfn = clipboard.data.cfn;
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              LUA_LOAD_MODEL_SCRIPTS();
             SET_DIRTY();
             rebuild(window, i);
           });
@@ -686,6 +693,8 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
           });
         }
         menu->addLine(STR_CLEAR, [=]() {
+          if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+            LUA_LOAD_MODEL_SCRIPTS();
           memset(cfn, 0, sizeof(CustomFunctionData));
           SET_DIRTY();
           rebuild(window, i);
@@ -693,6 +702,8 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
           if (!functions[j].isEmpty()) {
             menu->addLine(STR_DELETE, [=]() {
+              if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+                LUA_LOAD_MODEL_SCRIPTS();
               memmove(
                   cfn, cfn + 1,
                   (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));

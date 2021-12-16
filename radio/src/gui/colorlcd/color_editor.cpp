@@ -48,10 +48,11 @@ HSVColorType::HSVColorType(FormGroup *window, uint32_t color) :
   values[2] *= MAX_BRIGHTNESS;
 
   auto spacePerBar = (window->width() / MAX_BARS);
+
   int leftPos = 0;
 
   for (auto i = 0; i < MAX_BARS; i++) {
-    barInfo[i].leftPos = leftPos + (i != 0 ? BAR_MARGIN : 0);
+    barInfo[i].leftPos = leftPos + BAR_MARGIN;
     barInfo[i].barWidth = spacePerBar - BAR_MARGIN - 5;
     barInfo[i].maxValue = i == 0 ? MAX_HUE : MAX_BRIGHTNESS;
     barInfo[i].invert = i != 0;
@@ -121,7 +122,7 @@ RGBColorType::RGBColorType(FormGroup *window, uint32_t color) :
   auto spacePerBar = (window->width() / MAX_BARS);
   int leftPos = 0;
   for (auto i = 0; i < MAX_BARS; i++) {
-    barInfo[i].leftPos = leftPos + (i != 0 ? BAR_MARGIN : 0);
+    barInfo[i].leftPos = leftPos + BAR_MARGIN;
     barInfo[i].barWidth = spacePerBar - BAR_MARGIN - 5;
     barInfo[i].maxValue = 255;
     barInfo[i].sliding = false;

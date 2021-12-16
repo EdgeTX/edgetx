@@ -41,12 +41,16 @@ ModelMenu::ModelMenu():
 #if defined(HELI)
   addTab(new ModelHeliPage());
 #endif
+#if defined(FLIGHT_MODES)
   addTab(new ModelFlightModesPage());
+#endif
   addTab(new ModelInputsPage());
   addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
   addTab(new ModelCurvesPage());
+#if defined(GVARS)
   addTab(new ModelGVarsPage());
+#endif
   addTab(new ModelLogicalSwitchesPage());
   addTab(new SpecialFunctionsPage(g_model.customFn));
 #if defined(LUA_MODEL_SCRIPTS)

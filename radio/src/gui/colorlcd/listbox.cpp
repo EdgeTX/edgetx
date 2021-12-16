@@ -51,7 +51,7 @@ ListBase::ListBase(Window *parent, const rect_t &rect, std::vector<std::string> 
 
 void ListBase::setSelected(int selected)
 {
-  if (selected >= 0 && selected < (int)names.size()) {
+  if (selected >= 0 && selected < (int)names.size()  && selected != this->selected) {
     this->selected = selected;
     setScrollPositionY(lineHeight * this->selected - lineHeight);
     if (_setValue != nullptr) {
@@ -171,6 +171,7 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
     duration10ms = getTicks();
   }
 
+  captureWindow(this);
   yDown = y;
 
   return true;  // stop the processing and say that i handled it

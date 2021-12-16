@@ -23,6 +23,7 @@ option(DEBUG_LATENCY "Debug latency" OFF)
 option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TASKS "Task switching statistics" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
+option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
 # option to select the default internal module
 #set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
@@ -139,6 +140,14 @@ endif()
 if(DEBUG_LATENCY STREQUAL END_TO_END)
   add_definitions(-DDEBUG_LATENCY)
   add_definitions(-DDEBUG_LATENCY_END_TO_END)
+endif()
+
+if(DEBUG_BLUETOOTH)
+  add_definitions(-DDEBUG_BLUETOOTH)
+  option(DEBUG_BLUETOOTH_VERBOSE "Debug Bluetooth Verbose" OFF)
+  if(DEBUG_BLUETOOTH_VERBOSE)
+    add_definitions(-DDEBUG_BLUETOOTH_VERBOSE)
+  endif()
 endif()
 
 if(CLI)
@@ -265,7 +274,6 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
-add_definitions(-DREQUIRED_SDCARD_VERSION="${SDCARD_VERSION}")
 
 include_directories(${RTOS_DIR}/include)
 

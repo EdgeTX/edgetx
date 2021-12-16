@@ -28,10 +28,14 @@
 
 //*** Side Class ***
 
-Side::Side(){
+Side::Side(QDialog* parent):
+  parent(parent)
+{
   imageLabel = 0;
   fileNameEdit = 0;
   saveButton = 0;
+  invertButton = 0;
+  libraryButton = 0;
   loadFwButton=0;
   loadPictButton = 0;
   loadProfileButton = 0;
@@ -62,7 +66,7 @@ bool Side::displayImage(QString fileName, Source pictSource)
 
   // Determine which picture format to use
   if (pictSource == FW) {
-    FirmwareInterface firmware(fileName);
+    FirmwareInterface firmware(fileName, parent);
     if (!firmware.hasSplash())
       return false;
     else
@@ -120,7 +124,7 @@ bool Side::saveImage()
 {
   if (*source == FW )
   {
-    FirmwareInterface firmware(*saveToFileName);
+    FirmwareInterface firmware(*saveToFileName, parent);
     if (!firmware.hasSplash()) {
       return false;
     }
@@ -152,6 +156,8 @@ bool Side::saveImage()
 
 CustomizeSplashDialog::CustomizeSplashDialog(QWidget *parent) :
   QDialog(parent),
+  left(this),
+  right(this),
   ui(new Ui::CustomizeSplashDialog)
 {
   ui->setupUi(this);

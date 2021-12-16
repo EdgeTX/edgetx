@@ -59,6 +59,7 @@ class FullScreenDialog : public FormGroup
 #endif
 
 #if defined(HARDWARE_TOUCH)
+    bool onTouchStart(coord_t x, coord_t y) override;
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 

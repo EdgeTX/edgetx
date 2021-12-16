@@ -431,7 +431,7 @@ class CategoryEditPage : public PageTab
 
         // Details
         char cnt[19];
-        snprintf(cnt, sizeof(cnt), "%lu %s", category->size(), STR_MODELS);
+        snprintf(cnt, sizeof(cnt), "%u %s", category->size(), STR_MODELS);
         new StaticText(window, grid.getFieldSlot(3,1), cnt);
 
         if(category->empty()) {

@@ -72,7 +72,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_SET_FAILSAFE, "SET_FAILSAFE"  },
   {  FUNC_RANGECHECK, "RANGECHECK"  },
   {  FUNC_BIND, "BIND"  },
-  {  FUNC_FIRST_WITHOUT_ENABLE, "FIRST_WITHOUT_ENABLE"  },
   {  FUNC_PLAY_SOUND, "PLAY_SOUND"  },
   {  FUNC_PLAY_TRACK, "PLAY_TRACK"  },
   {  FUNC_PLAY_VALUE, "PLAY_VALUE"  },
@@ -710,7 +709,7 @@ static const struct YamlNode struct_TrainerModuleData[] = {
 };
 static const struct YamlNode union_ScriptDataInput_elmts[] = {
   YAML_SIGNED( "value", 16 ),
-  YAML_UNSIGNED_CUST( "source", 8, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
   YAML_END
 };
 static const struct YamlNode union_ScriptDataInput[] = {
@@ -864,7 +863,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 192, 9, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
-  YAML_UNSIGNED( "potsWarnEnabled", 8 ),
+  YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 5, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6800, 5, struct_CustomScreenData, NULL),

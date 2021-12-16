@@ -553,5 +553,7 @@ TouchState touchPanelRead()
   TouchState ret = internalTouchState;
   internalTouchState.deltaX = 0;
   internalTouchState.deltaY = 0;
+  if(internalTouchState.event == TE_UP)
+    internalTouchState.event = TE_NONE;
   return ret;
 }
