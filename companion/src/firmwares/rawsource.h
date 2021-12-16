@@ -179,7 +179,7 @@ enum RawSourceType {
 };
 
 constexpr int SOURCE_TYPE_STICK_THR_IDX { 3 };      //  TODO is there a function to determine index?
-constexpr int SOURCE_TYPE_SPECIAL_TIMER1_IDX { 2 }; //  TODO temp const until Timers own source type
+constexpr int SOURCE_TYPE_SPECIAL_TIMER1_IDX { 3 }; //  TODO temp const until Timers own source type
 
 class RawSourceRange
 {

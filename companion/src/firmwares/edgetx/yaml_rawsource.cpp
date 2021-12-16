@@ -44,11 +44,10 @@ const YamlLookupTable cycSourceLut = {
 const YamlLookupTable specialSourceLut = {
   {  0, "TX_VOLTAGE" },
   {  1, "TX_TIME"  },
-  {  2, "ONE"  },
+  {  2, "TX_GPS"  },
   {  3, "TIMER1"  },
   {  4, "TIMER2"  },
   {  5, "TIMER3"  },
-  // TODO: {  ???, "TX_GPS" },
 };
 
 std::string YamlRawSourceEncode(const RawSource& rhs)

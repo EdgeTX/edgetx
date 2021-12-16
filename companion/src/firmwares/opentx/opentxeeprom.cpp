@@ -384,10 +384,11 @@ class SourcesConversionTable: public ConversionTable {
           addConversion(RawSource(SOURCE_TYPE_GVAR, i), val++);
         addConversion(RawSource(SOURCE_TYPE_SPECIAL, 0), val++); // BATT
         addConversion(RawSource(SOURCE_TYPE_SPECIAL, 1), val++); // TIME
-        val += 5;
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 2), val++); // Timer1
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 3), val++); // Timer2
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 4), val++); // Timer3
+        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 2), val++); // GPS
+        val += 4;
+        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 3), val++); // Timer1
+        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 4), val++); // Timer2
+        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 5), val++); // Timer3
         for (int i=0; i<MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
           addConversion(RawSource(SOURCE_TYPE_TELEMETRY, i), val++);
         }

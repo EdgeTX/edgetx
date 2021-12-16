@@ -96,6 +96,10 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
         result.max = 24 * 60 * result.step - 60;  // 23:59:00 with 1-minute resolution
         result.unit = tr("s");
       }
+      else if (index == 2) {   //GPS
+        result.max = 30000;
+        result.min = -result.max;
+      }
       else {      // Timers 1 - 3
         result.step = 1;
         result.max = 9 * 60 * 60 - 1;  // 8:59:59 (to match firmware)
@@ -137,7 +141,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   };
 
   static const QString special[] = {
-    tr("Batt"), tr("Time"), tr("Timer1"), tr("Timer2"), tr("Timer3"),
+    tr("Batt"), tr("Time"), tr("GPS")
   };
 
   static const QString rotary[]  = { tr("REa"), tr("REb") };
@@ -289,7 +293,7 @@ bool RawSource::isSlider(int * sliderIndex, Board::Type board) const
 
 bool RawSource::isTimeBased(Board::Type board) const
 {
-  return (type == SOURCE_TYPE_SPECIAL && index > 0);
+  return (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_TIMER1_IDX);
 }
 
 bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
