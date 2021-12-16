@@ -57,6 +57,7 @@
 #include "coloredit.h"
 #include "draw_functions.h"
 #include "textedits.h"
+#include "LvglWrapper.h"
 
 inline MessageDialog * createPopupInformation(const char * message)
 {
@@ -74,6 +75,7 @@ inline void POPUP_INFORMATION(const char * message)
   while (popup->getParent()) {
     WDG_RESET();
     MainWindow::instance()->run(false);
+    LvglWrapper::instance()->run();
   }
 }
 
@@ -86,6 +88,7 @@ inline void POPUP_WARNING(const char * message, const char * info = nullptr)
   while (popup->getParent()) {
     WDG_RESET();
     MainWindow::instance()->run(false);
+    LvglWrapper::instance()->run();
   }
 }
 

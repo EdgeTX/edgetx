@@ -20,6 +20,7 @@
  */
 
 #include "fullscreen_dialog.h"
+#include "LvglWrapper.h"
 #include "mainwindow.h"
 #include "opentx.h"
 #include "libopenui.h"
@@ -177,6 +178,7 @@ void FullScreenDialog::runForever()
 
     RTOS_WAIT_MS(1);
     MainWindow::instance()->run(false);
+    LvglWrapper::instance()->run();
   }
 
   deleteLater();
@@ -192,6 +194,7 @@ void FullScreenDialog::runForeverNoPwrCheck()
 
     RTOS_WAIT_MS(1);
     MainWindow::instance()->run(false);
+    LvglWrapper::instance()->run();
   }
 
   deleteLater();
