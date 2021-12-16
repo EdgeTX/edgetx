@@ -46,13 +46,6 @@ uint16_t *lcdGetBackupBuffer() { return (uint16_t *)simuLcdBackupBuf; }
 
 void lcdInit() {}
 
-void newLcdRefresh()
-{
-  // Mark screen dirty for async refresh
-  simuLcdRefresh = true;
-
-  memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-}
 void lcdRefresh()
 {
   // Mark screen dirty for async refresh
@@ -92,6 +85,23 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
+void newLcdRefresh(uint16_t *buffer)
+{
+  // Mark screen dirty for async refresh
+  simuLcdRefresh = true;
+
+#if defined(LCD_VERTICAL_INVERT)
+  auto src = buffer + DISPLAY_BUFFER_SIZE - 1;
+  auto dst = simuLcdBuf;
+  auto end = dst + DISPLAY_BUFFER_SIZE;
+
+  while (dst != end) {
+    *(dst++) = *(src--);
+  }
+#else
+  memcpy(simuLcdBuf, buffer, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+#endif
+}
 void lcdRefresh()
 {
   // Mark screen dirty for async refresh

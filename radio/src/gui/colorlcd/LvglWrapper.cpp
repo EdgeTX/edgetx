@@ -31,8 +31,8 @@ lv_disp_t * disp;
 static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t indev_drv;
 
-void newLcdRefresh(uint8_t* buffer);
-void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+void newLcdRefresh(uint16_t* buffer);
+static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
 #if 0
   uint16_t width = area->x2-area->x1+1;
@@ -50,10 +50,11 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
   lv_disp_flush_ready(disp_drv);
   newLcdRefresh(nullptr);
 #else
-  newLcdRefresh((uint8_t*)color_p);
+  newLcdRefresh((uint16_t*)color_p);
   lv_disp_flush_ready(disp_drv);
 #endif
 }
+#if 0
   /*Initialize `disp_buf` with the buffer(s). With only one buffer use NULL instead buf_2 */
 static void btn_event_cb(lv_event_t * e)
 {
@@ -202,6 +203,7 @@ void lv_example_scroll_2(void)
   lv_label_set_text(label, "One scroll");
   lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
 }
+#endif
 /**
  * Create a transparent canvas with Chroma keying and indexed color format (palette).
  */
@@ -243,10 +245,7 @@ void lv_example_canvas_2(void)
   }
 #endif
 }
-/*
-extern uint16_t* LCD_FIRST_FRAME_BUFFER;
-extern uint16_t* LCD_SECOND_FRAME_BUFFER;
-*/
+
 extern BitmapBuffer * lcdFront;
 extern BitmapBuffer * lcd;
 LvglWrapper::LvglWrapper()
@@ -256,7 +255,7 @@ LvglWrapper::LvglWrapper()
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
-  disp_drv.flush_cb = my_flush_cb;        /*Set a flush callback to draw to the display*/
+  disp_drv.flush_cb = flushLcd;        /*Set a flush callback to draw to the display*/
   disp_drv.hor_res = LCD_W;                 /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H;                 /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
@@ -284,6 +283,16 @@ LvglWrapper::LvglWrapper()
   lv_example_scroll_2();
 #endif
 }
+
+void LvglWrapper::run()
+{
+    tmr10ms_t tick = get_tmr10ms();
+    lv_tick_inc((tick - lastTick) * 10);
+    lastTick = tick;
+    lv_timer_handler();
+}
+
+#if 0
 extern const lv_obj_class_t GuiWidgetClass;
 
 extern "C"
@@ -318,3 +327,4 @@ const lv_obj_class_t GuiWidgetClass = {
   .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
   .instance_size = sizeof(GuiWidget)
 };
+#endif

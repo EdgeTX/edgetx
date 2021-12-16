@@ -22,12 +22,14 @@
 #ifndef _LVGLWRAPPER_H_
 #define _LVGLWRAPPER_H_
 
+#include "opentx_types.h"
 #include "lvgl/lvgl.h"
-
+#if 0
 struct GuiWidget
 {
   lv_obj_t obj;
 };
+#endif
 
 class LvglWrapper {
 public:
@@ -41,9 +43,11 @@ public:
 
     return _instance;
   }
+  void run();
 
 private:
   static LvglWrapper* _instance;
+  tmr10ms_t lastTick = 0;
 };
 
 #endif // _LVGLWRAPPER_H_
