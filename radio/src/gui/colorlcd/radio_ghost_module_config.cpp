@@ -143,14 +143,14 @@ void RadioGhostModuleConfig::checkEvents()
 {
   Page::checkEvents();
 
-    if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_UNOPENED) { // Handles situation where module is plugged after tools start
+  if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_UNOPENED) { // Handles situation where module is plugged after tools start
     reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
     reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_OPEN;
     moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
   }
   else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
-          RTOS_WAIT_MS(10);
-          deleteLater();
+    RTOS_WAIT_MS(10);
+    deleteLater();
   }
 }
 #endif
