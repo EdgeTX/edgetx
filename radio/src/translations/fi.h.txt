@@ -1384,3 +1384,35 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+
+// The following content is Untranslated)
+
+#define TR_USE_THEME_COLOR              "Use theme color"
+
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#define TR_DUPLICATE                    "Duplicate"
+#define TR_ACTIVATE                     "Set Active"
+#define TR_RED                          "Red"
+#define TR_BLUE                         "Blue"
+#define TR_GREEN                        "Green"
+#define TR_COLOR_PICKER                 "Color Picker"
+#define TR_EDIT_THEME_DETAILS           "Edit Theme Details"
+#define TR_AUTHOR                       "Author"
+#define TR_DESCRIPTION                  "Description"
+#define TR_SAVE                         "Save"
+#define TR_CANCEL                       "Cancel"
+#define TR_EDIT_THEME                   "EDIT THEME"
+#define TR_DETAILS                      "Details"
+#define TR_THEME_EDITOR                 "THEMES"
+
+// Main menu
+#define TR_MAIN_MENU_SELECT_MODEL       "Select\nModel"
+#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nSettings"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio\nSettings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Screens\nSettings"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelemetry"
+#define TR_MAIN_MENU_STATISTICS         "Statistics"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
+// End Main menu

@@ -111,6 +111,18 @@ const unsigned char font_l[] = {
 #include "font_24.lbm"
 };
 
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW) //CN & TW XL Font
+
+const uint16_t font_xl_specs[] = {
+#include "font_28.specs"
+};
+
+const unsigned char font_xl[] = {
+#include "font_28.lbm"
+};
+
+#else //EN & Other languages XL Font
+
 const uint16_t font_xl_specs[] = {
 #include "font_32.specs"
 };
@@ -118,6 +130,8 @@ const uint16_t font_xl_specs[] = {
 const unsigned char font_xl[] = {
 #include "font_32.lbm"
 };
+
+#endif //CN & TW XL Font
 
 const uint16_t font_xxl_specs[] = {
 #include "font_64.specs"

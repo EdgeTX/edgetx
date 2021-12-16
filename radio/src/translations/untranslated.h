@@ -329,20 +329,3 @@
 #define CHAR_TELEMETRY STR_CHAR_TELEMETRY[0]
 #define CHAR_LUA       STR_CHAR_LUA[0]
 
-#define TR_USE_THEME_COLOR "Use theme color"
-
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS "Add all Trims to Subtrims"
-#define TR_DUPLICATE "Duplicate"
-#define TR_ACTIVATE "Set Active"
-#define TR_RED "Red"
-#define TR_BLUE "Blue"
-#define TR_GREEN "Green"
-#define TR_COLOR_PICKER "Color Picker"
-#define TR_EDIT_THEME_DETAILS "Edit Theme Details"
-#define TR_AUTHOR "Author"
-#define TR_DESCRIPTION "Description"
-#define TR_SAVE "Save"
-#define TR_CANCEL "Cancel"
-#define TR_EDIT_THEME "EDIT THEME"
-#define TR_DETAILS "Details"
-#define TR_THEME_EDITOR "THEMES"
