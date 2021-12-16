@@ -45,9 +45,13 @@ const YamlLookupTable specialSourceLut = {
   {  0, "TX_VOLTAGE" },
   {  1, "TX_TIME"  },
   {  2, "TX_GPS"  },
-  {  3, "TIMER1"  },
-  {  4, "TIMER2"  },
-  {  5, "TIMER3"  },
+  {  3, "RESERVED1"  },
+  {  4, "RESERVED2"  },
+  {  5, "RESERVED3"  },
+  {  6, "RESERVED4"  },
+  {  7, "TIMER1"  },
+  {  8, "TIMER2"  },
+  {  9, "TIMER3"  },
 };
 
 std::string YamlRawSourceEncode(const RawSource& rhs)

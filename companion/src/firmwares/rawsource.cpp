@@ -141,7 +141,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   };
 
   static const QString special[] = {
-    tr("Batt"), tr("Time"), tr("GPS")
+    tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
   };
 
   static const QString rotary[]  = { tr("REa"), tr("REb") };
@@ -212,11 +212,11 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
         return LimitData().nameToString(index);
 
     case SOURCE_TYPE_SPECIAL:
-      if (index >= SOURCE_TYPE_SPECIAL_TIMER1_IDX && index <= SOURCE_TYPE_SPECIAL_TIMER1_IDX + CPN_MAX_TIMERS - 1) {
+      if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER) {
         if (model)
-          result = model->timers[index - SOURCE_TYPE_SPECIAL_TIMER1_IDX].nameToString(index - SOURCE_TYPE_SPECIAL_TIMER1_IDX);
+          result = model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
         else
-          result = TimerData().nameToString(index - SOURCE_TYPE_SPECIAL_TIMER1_IDX);
+          result = TimerData().nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
       }
       else
         result = CHECK_IN_ARRAY(special, index);
@@ -293,7 +293,7 @@ bool RawSource::isSlider(int * sliderIndex, Board::Type board) const
 
 bool RawSource::isTimeBased(Board::Type board) const
 {
-  return (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_TIMER1_IDX);
+  return (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER);
 }
 
 bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
@@ -307,6 +307,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     return false;
 
   if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))
+    return false;
+
+  if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
     return false;
 
   if (model) {
