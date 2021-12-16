@@ -31,8 +31,10 @@ lv_disp_t * disp;
 static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t indev_drv;
 
+void newLcdRefresh(uint8_t* buffer);
 void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
+#if 0
   uint16_t width = area->x2-area->x1+1;
   uint16_t height = area->y2-area->y1+1;
 #if defined (LCD_VERTICAL_INVERT)
@@ -46,7 +48,11 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
   lcdCopy(lcd->getData(), lcdFront->getData());
   DMACopyBitmap(lcd->getData(), LCD_W, LCD_H, x, y, (uint16_t*)color_p, width, height, 0, 0, width, height);
   lv_disp_flush_ready(disp_drv);
-  lcdRefresh();
+  newLcdRefresh(nullptr);
+#else
+  newLcdRefresh((uint8_t*)color_p);
+  lv_disp_flush_ready(disp_drv);
+#endif
 }
   /*Initialize `disp_buf` with the buffer(s). With only one buffer use NULL instead buf_2 */
 static void btn_event_cb(lv_event_t * e)
@@ -237,11 +243,17 @@ void lv_example_canvas_2(void)
   }
 #endif
 }
-
+/*
+extern uint16_t* LCD_FIRST_FRAME_BUFFER;
+extern uint16_t* LCD_SECOND_FRAME_BUFFER;
+*/
+extern BitmapBuffer * lcdFront;
+extern BitmapBuffer * lcd;
 LvglWrapper::LvglWrapper()
 {
   lv_init();
-  lv_disp_draw_buf_init(&disp_buf, lcdGetScratchBuffer(),NULL, LCD_W*LCD_H);
+//  lv_disp_draw_buf_init(&disp_buf, lcdGetScratchBuffer(),NULL, LCD_W*LCD_H);
+  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
   disp_drv.flush_cb = my_flush_cb;        /*Set a flush callback to draw to the display*/
@@ -250,9 +262,9 @@ LvglWrapper::LvglWrapper()
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
   #if defined (LCD_VERTICAL_INVERT)
-  disp_drv.rotated = LV_DISP_ROT_180;
+//  disp_drv.rotated = LV_DISP_ROT_180;
   #endif
-  disp_drv.sw_rotate = 1;
+//  disp_drv.sw_rotate = 1;
 
   lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
   indev_drv.type =LV_INDEV_TYPE_POINTER;                 /*See below.*/
@@ -264,7 +276,6 @@ LvglWrapper::LvglWrapper()
   lv_example_canvas_2();
 
 
-    
 #if 0
   /*lv_indev_t * my_indev = */lv_indev_drv_register(&indev_drv);
   lv_example_get_started_1();

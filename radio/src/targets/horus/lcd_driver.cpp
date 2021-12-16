@@ -52,6 +52,7 @@ uint8_t currentLayer = LCD_FIRST_LAYER;
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_BACKUP_FRAME_BUFFER);
 
 BitmapBuffer * lcdFront = &lcdBuffer1;
 BitmapBuffer * lcd = &lcdBuffer2;
@@ -667,9 +668,16 @@ static void lcdSwitchLayers()
   while(_frameBufferAddressReloaded == 0);
 }
 
-void newLcdRefresh()
+void newLcdRefresh(uint8_t * buffer)
 {
-	lcdSwitchLayers();
+#if 0
+  lcdSwitchLayers();
+#else
+  LTDC_Layer1->CFBAR = (uint32_t)buffer;
+  _frameBufferAddressReloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+  while(_frameBufferAddressReloaded == 0);
+#endif
 }
 void lcdRefresh()
 {
