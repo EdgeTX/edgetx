@@ -18,6 +18,7 @@ class FontBitmap:
         self.background = background
         self.font = self.load_font(font_name)
         self.extra_bitmap = self.load_extra_bitmap()
+        self.extra_bitmap_added = False
         self.extra_bitmap_width = EXTRA_BITMAP_MAX_WIDTH
         if self.extra_bitmap is not None:
             self.extra_bitmap_width = self.extra_bitmap.width
@@ -80,22 +81,26 @@ class FontBitmap:
         width = 0
         for c in self.chars:
             if c in extra_chars:
-                if self.extra_bitmap:
-
+                if not self.extra_bitmap_added:
                     # append same width for non-existing characters
                     for i in range(128 - 32 - len(standard_chars)):
                         coords.append(width)
 
-                    # copy extra_bitmap at once
-                    image.paste(self.extra_bitmap, (width, offset_y))
+                    if self.extra_bitmap:
 
-                    # append width for extra_bitmap symbols
-                    for coord in [14, 14, 12, 12, 13, 13, 13, 13, 13] + [15] * 12:
-                        coords.append(width)
-                        width += coord
+                        # copy extra_bitmap at once
+                        image.paste(self.extra_bitmap, (width, offset_y))
 
-                    # once inserted, now remove it
-                    self.extra_bitmap = None
+                        # append width for extra_bitmap symbols
+                        for coord in [14, 14, 12, 12, 13, 13, 13, 13, 13] + [15] * 12:
+                            coords.append(width)
+                            width += coord
+                    else:
+                        for coord in range(21):
+                            coords.append(width)                    
+
+                    # once inserted, disable insert again
+                    self.extra_bitmap_added = True
 
                 # skip
                 continue
