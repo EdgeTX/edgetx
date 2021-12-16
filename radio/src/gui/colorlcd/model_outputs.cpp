@@ -50,7 +50,19 @@ class OutputEditWindow : public Page {
                      getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
     }
 
-    void buildBody(FormWindow * window)
+#if defined(GVARS)
+#define GET_SET_OUTPUT_MAX(val) GET_SET_DEFAULT(val)
+#define GET_SET_OUTPUT_MIN(val) GET_SET_DEFAULT(val)
+#define OFFSET_MAX  , LIMIT_STD_MAX
+#define OFFSET_MIN  , -LIMIT_STD_MAX
+#else
+#define GET_SET_OUTPUT_MAX(val) GET_SET_VALUE_WITH_OFFSET(val, LIMIT_STD_MAX)
+#define GET_SET_OUTPUT_MIN(val) GET_SET_VALUE_WITH_OFFSET(val, -LIMIT_STD_MAX)
+#define OFFSET_MAX 
+#define OFFSET_MIN 
+#endif
+
+    void buildBody(FormWindow *window)
     {
       FormGridLayout grid;
       grid.spacer(8);
@@ -78,11 +90,7 @@ class OutputEditWindow : public Page {
       new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                         GET_SET_DEFAULT(output->min), 0, PREC1
-#if defined(GVARS)
-                         , -LIMIT_STD_MAX
-#endif
-                         );
+                         GET_SET_OUTPUT_MIN(output->min), 0, PREC1  OFFSET_MIN);
 
       grid.nextLine();
 
@@ -90,11 +98,8 @@ class OutputEditWindow : public Page {
       new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                         GET_SET_DEFAULT(output->max), 0, PREC1
-#if defined(GVARS)
-                         , +LIMIT_STD_MAX
-#endif
-                         );
+                         GET_SET_OUTPUT_MAX(output->max), 0, PREC1  OFFSET_MAX);
+
       grid.nextLine();
 
       // Direction
