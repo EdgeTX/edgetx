@@ -257,6 +257,33 @@ std::string Firmware::getTrimSwitchesTag(unsigned int index)
   return std::string();
 }
 
+
+int Firmware::getTrimSourcesIndex(const char * tag)
+{
+  const StringTagMappingTable& lut = trimSourcesLookupTable;
+
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it - lut.begin();
+  }
+
+  return -1;
+}
+
+std::string Firmware::getTrimSourcesTag(unsigned int index)
+{
+  const StringTagMappingTable& lut = trimSourcesLookupTable;
+  if (index < lut.size())
+    return lut[index].tag;
+
+  return std::string();
+}
+
 int Firmware::getRawSwitchTypesIndex(const char * tag)
 {
   const StringTagMappingTable& lut = rawSwitchTypesLookupTable;

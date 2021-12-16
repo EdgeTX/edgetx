@@ -21,16 +21,6 @@
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
 
-// SOURCE_TYPE_TRIM
-const YamlLookupTable trimSourceLut = {
-  {  0, "TrimRud"  },
-  {  1, "TrimEle"  },
-  {  2, "TrimThr"  },
-  {  3, "TrimAil"  },
-  {  4, "TrimT5"  },
-  {  5, "TrimT6"  },
-};
-
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
@@ -49,7 +39,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str = getCurrentFirmware()->getAnalogInputTag(rhs.index);
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = YAML::LookupValue(trimSourceLut, rhs.index);
+      src_str = getCurrentFirmware()->getTrimSourcesTag(rhs.index);
       break;
     case SOURCE_TYPE_MAX:
       src_str += "MAX";
@@ -220,10 +210,10 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = ana_idx;
     }
 
-    YAML::Node conv = node >> trimSourceLut;
-    if (conv.IsScalar()) {
+    int trm_idx = getCurrentFirmware()->getTrimSourcesIndex(src_str.c_str());
+    if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
-      rhs.index = conv.as<int>();
+      rhs.index = trm_idx;
     }
 
     int cyc_idx = getCurrentFirmware()->getRawSourceCyclicIndex(src_str.c_str());

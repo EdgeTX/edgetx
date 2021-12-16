@@ -294,6 +294,7 @@ class Firmware
       analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
       switchesLookupTable(Boards::getSwitchesLookupTable(board)),
       trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
+      trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
       rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
       rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
       rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
@@ -420,6 +421,11 @@ class Firmware
       return &trimSwitchesLookupTable;
     }
 
+    const StringTagMappingTable* getTrimSourcesLookupTable()
+    {
+      return &trimSourcesLookupTable;
+    }
+
     const StringTagMappingTable* getRawSwitchTypesLookupTable()
     {
       return &rawSwitchTypesLookupTable;
@@ -441,6 +447,8 @@ class Firmware
     std::string getSwitchesTag(unsigned int index);
     int getTrimSwitchesIndex(const char * tag);
     std::string getTrimSwitchesTag(unsigned int index);
+    int getTrimSourcesIndex(const char * tag);
+    std::string getTrimSourcesTag(unsigned int index);
     int getRawSwitchTypesIndex(const char * tag);
     std::string getRawSwitchTypesTag(unsigned int index);
     int getRawSourceSpecialTypesIndex(const char * tag);
@@ -458,6 +466,7 @@ class Firmware
     const StringTagMappingTable analogInputNamesLookupTable;
     const StringTagMappingTable switchesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable trimSourcesLookupTable;
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
     const StringTagMappingTable rawSourceCyclicLookupTable;

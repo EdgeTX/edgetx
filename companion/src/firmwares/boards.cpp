@@ -784,3 +784,24 @@ StringTagMappingTable Boards::getTrimSwitchesLookupTable(Board::Type board)
 
   return tbl;
 }
+
+// static
+StringTagMappingTable Boards::getTrimSourcesLookupTable(Board::Type board)
+{
+  StringTagMappingTable tbl;
+
+  tbl.insert(tbl.end(), {
+                          {std::to_string(TRIM_AXIS_LH), "TrimRud"},
+                          {std::to_string(TRIM_AXIS_LV), "TrimEle"},
+                          {std::to_string(TRIM_AXIS_RV), "TrimThr"},
+                          {std::to_string(TRIM_AXIS_RH), "TrimAil"},
+                        });
+
+  if (getCapability(board, Board::NumTrims) > 4)
+    tbl.insert(tbl.end(), {
+                            {std::to_string(TRIM_AXIS_T5), "TrimT5"},
+                            {std::to_string(TRIM_AXIS_T6), "TrimT6"},
+                          });
+
+  return tbl;
+}
