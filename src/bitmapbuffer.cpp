@@ -1061,7 +1061,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
       s++;
       c = uint8_t(*s) + ((c & 0x01u) << 8u) - 1;
       // TRACE("CJK = %d", c);
-      if (c >= 0x101)
+      if (c >= 0x100)
         c -= 1;
       c += CJK_FIRST_LETTER_INDEX;
       uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
