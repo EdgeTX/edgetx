@@ -198,7 +198,7 @@ widgets/lv_slider.c
 widgets/lv_textarea.c
 widgets/lv_arc.c
 )
-message(STATUS "LVGL ${LVGL_SOURCES}")
+#message(STATUS "LVGL ${LVGL_SOURCES}")
 #[[
     file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
     file(GLOB_RECURSE EXAMPLE_SOURCES ${CMAKE_CURRENT_LIST_DIR}/examples/*.c)

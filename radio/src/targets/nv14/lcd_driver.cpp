@@ -1646,8 +1646,15 @@ static void lcdSwitchLayers()
   // TODO: replace through some smarter mechanism without busy wait
   while(_frameBufferAddressReloaded == 0);
 }
+void newLcdRefresh(uint16_t *buffer)
+{
+  LTDC_Layer1->CFBAR = (intptr_t)buffer;
+  _frameBufferAddressReloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+  while(_frameBufferAddressReloaded == 0);
+}
 
 void lcdRefresh()
 {
-  lcdSwitchLayers();
+//  lcdSwitchLayers();
 }

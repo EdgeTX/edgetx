@@ -24,8 +24,8 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
+  #include "gui/colorlcd/LvglWrapper.h"
 #endif
-#include "lvgl/lvgl.h"
 
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
@@ -344,7 +344,6 @@ void periodicTick()
 }
 
 #if defined(GUI) && defined(COLORLCD)
-tmr10ms_t lastTick = 0;
 void guiMain(event_t evt)
 {
 
@@ -380,16 +379,13 @@ void guiMain(event_t evt)
   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
 #endif
   MainWindow::instance()->run();
+  LvglWrapper::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
   if (screenshotRequested) {
     writeScreenshot();
     mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
   }
-  tmr10ms_t tick = get_tmr10ms();
-  lv_tick_inc((tick - lastTick) * 10);
-  lastTick = tick;
-  lv_timer_handler();
 }
 #elif defined(GUI)
 
