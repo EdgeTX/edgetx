@@ -63,6 +63,12 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += std::to_string(sval + 1);
     break;
 
+  case SWITCH_TYPE_TIMER_MODE:
+    //  TODO:
+    //sw_str += "Tmr";
+    //sw_str += std::to_string(sval + 1);
+    break;
+
   default:
     sw_str += getCurrentFirmware()->getRawSwitchTypesTag(sval);
     break;
