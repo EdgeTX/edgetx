@@ -64,9 +64,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TIMER_MODE:
-    //  TODO:
-    //sw_str += "Tmr";
-    //sw_str += std::to_string(sval + 1);
+    //  TODO: check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
     break;
 
   default:
@@ -137,7 +135,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     }
 
   //  TODO: SWITCH_TYPE_TIMER_MODE
-  //} else if (sw_str.substr(0, ?) == std::string("????")) {
+  //        check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
 
   } else {
     //  types which do not use index
