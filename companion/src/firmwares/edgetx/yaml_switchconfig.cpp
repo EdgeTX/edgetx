@@ -105,7 +105,7 @@ int YamlPotLookup::name2idx(const std::string& name)
 std::string YamlPotLookup::idx2name(unsigned int idx)
 {
     auto fw = getCurrentFirmware();
-    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    unsigned int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
     if (idx >= pots) return std::string();
 
     return fw->getAnalogInputTag(idx);
@@ -131,7 +131,7 @@ std::string YamlSliderLookup::idx2name(unsigned int idx)
 {
     auto fw = getCurrentFirmware();
     int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
-    int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
+    unsigned int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
     if (idx >= sliders) return std::string();
 
     return fw->getAnalogInputTag(idx + pots);
