@@ -1088,11 +1088,6 @@ extern const char STR_RTC_CHECK[];
 extern const char STR_SPORT_UPDATE_POWER_MODE[];
 extern const char STR_SPORT_UPDATE_POWER_MODES[];
 
-#if MENUS_LOCK == 1
-  extern const char STR_UNLOCKED[];
-  extern const char STR_MODS_FORBIDDEN[];
-#endif
-
 extern const char STR_MODULE_RANGE[];
 extern const char STR_RECEIVER_OPTIONS[];
 

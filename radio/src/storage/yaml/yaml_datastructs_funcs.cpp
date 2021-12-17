@@ -828,89 +828,94 @@ static bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   return yaml_conv_220::swash_is_active(user, data, bitoffs);
 }
 
-static uint32_t r_swtchWarn(const YamlNode* node, const char* val, uint8_t val_len)
+static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
 {
-    // Read from string like 'AdBuC-':
-    //
-    // -> reads:
-    //    - Switch A: must be DOWN
-    //    - Switch B: must be UP
-    //    - Switch C: must be MIDDLE
-    //
-    // -> switches not in the list shall not be checked
-    //
-    swarnstate_t swtchWarn = 0;
-    while(val_len--) {
+  data += (bitoffs >> 3UL);
+  swarnstate_t& swtchWarn = *(swarnstate_t*)data;
 
-        signed swtch = *(val++) - 'A';
-        if (swtch >= NUM_SWITCHES)
-            break;
+  // Read from string like 'AdBuC-':
+  //
+  // -> reads:
+  //    - Switch A: must be DOWN
+  //    - Switch B: must be UP
+  //    - Switch C: must be MIDDLE
+  //
+  // -> switches not in the list shall not be checked
+  //
+  swtchWarn = 0;
+  while (val_len--) {
+    signed swtch = getRawSwitchIdx(*(val++));
+    if (swtch < 0) break;
 
-        unsigned state = 0;
-        switch (*(val++)) {
-        case 'u':
-            state = 1;
-            break;
-        case '-':
-            state = 2;
-            break;
-        case 'd':
-            state = 3;
-            break;
-        default:
-            // no check
-            break;
-        }
-
-        // 3 bits per switch
-        swtchWarn |= (state << (3*swtch));
+    unsigned state = 0;
+    switch (*(val++)) {
+      case 'u':
+        state = 1;
+        break;
+      case '-':
+        state = 2;
+        break;
+      case 'd':
+        state = 3;
+        break;
+      default:
+        // no check
+        break;
     }
-    
-    return swtchWarn;
+
+    // 3 bits per switch
+    swtchWarn |= (state << (3 * swtch));
+  }
 }
 
-static bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
+                        yaml_writer_func wf, void* opaque)
 {
-    for (int i = 0; i < NUM_SWITCHES; i++) {
-        if (SWITCH_EXISTS(i)) {
+  data += (bitoffs >> 3UL);
+  swarnstate_t states = *(swarnstate_t*)data;
 
-            // decode check state
-            // -> 3 bits per switch
-            auto state = (val >> (3*i)) & 0x07;
+  for (int i = 0; i < NUM_SWITCHES; i++) {
+    // TODO: SWITCH_EXISTS() uses the g_eeGeneral stucture, which might not be
+    // avail
+    if (SWITCH_EXISTS(i)) {
+      // decode check state
+      // -> 3 bits per switch
+      auto state = (states >> (3 * i)) & 0x07;
 
-            // state == 0 -> no check
-            // state == 1 -> UP
-            // state == 2 -> MIDDLE
-            // state == 3 -> DOWN
-            char swtchWarn[2] = {(char)('A' + i), 0};
+      // state == 0 -> no check
+      // state == 1 -> UP
+      // state == 2 -> MIDDLE
+      // state == 3 -> DOWN
+      char swtchWarn[2] = {getRawSwitchFromIdx(i), 0};
 
-            switch (state) {
-            case 0:
-                break;
-            case 1:
-                swtchWarn[1] = 'u';
-                break;
-            case 2:
-                swtchWarn[1] = '-';
-                break;
-            case 3:
-                swtchWarn[1] = 'd';
-                break;
-            default:
-                // this should never happen
-                swtchWarn[1] = 'x';
-                break;
-            }
+      switch (state) {
+        case 0:
+          break;
+        case 1:
+          swtchWarn[1] = 'u';
+          break;
+        case 2:
+          swtchWarn[1] = '-';
+          break;
+        case 3:
+          swtchWarn[1] = 'd';
+          break;
+        default:
+          // this should never happen
+          swtchWarn[1] = 'x';
+          break;
+      }
 
-            if (swtchWarn[1] != 0) {
-                if (!wf(opaque, swtchWarn, 2)) {
-                    return false;
-                }
-            }
+      if (swtchWarn[1] != 0) {
+        if (!wf(opaque, swtchWarn, 2)) {
+          return false;
         }
+      }
     }
+  }
 
-    return true;
+  return true;
 }
 
 extern const struct YamlIdStr enum_BeeperMode[];

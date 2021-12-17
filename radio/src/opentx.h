@@ -621,15 +621,9 @@ void flightReset(uint8_t check=true);
   void doSplash();
 #endif
 
-#if MENUS_LOCK == 1
-  extern bool readonly;
-  extern bool readonlyUnlocked();
-  #define READ_ONLY() readonly
-  #define READ_ONLY_UNLOCKED() readonlyUnlocked()
-#else
-  #define READ_ONLY() false
-  #define READ_ONLY_UNLOCKED() true
-#endif
+// disabled function (not used anywhere)
+#define READ_ONLY() false
+#define READ_ONLY_UNLOCKED() true
 
 void checkLowEEPROM();
 void checkThrottleStick();

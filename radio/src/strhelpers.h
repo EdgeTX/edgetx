@@ -74,6 +74,8 @@ char *getGVarString(int idx);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
 char *getSourceString(char *dest, mixsrc_t idx);
+int  getRawSwitchIdx(char sw);
+char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);

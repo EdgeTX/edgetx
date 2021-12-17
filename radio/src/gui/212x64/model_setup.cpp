@@ -679,7 +679,14 @@ void menuModelSetup(event_t event)
                 if (menuHorizontalPosition < 0) {
                   START_NO_HIGHLIGHT();
                   getMovedSwitch();
-                  g_model.switchWarningState = switches_states;
+                  // Mask switches enabled for warnings
+                  swarnstate_t sw_mask = 0;
+                  for(uint8_t i=0; i<NUM_SWITCHES; i++) {
+                    if (SWITCH_WARNING_ALLOWED(i))
+                      if (g_model.switchWarningState & (0x07 << (3 * i)))
+                        sw_mask |= (0x07 << (3 * i));
+                  }
+                  g_model.switchWarningState = switches_states & sw_mask;
                   AUDIO_WARNING1();
                   storageDirty(EE_MODEL);
                 }
@@ -695,17 +702,25 @@ void menuModelSetup(event_t event)
         for (int i=0; i<NUM_SWITCHES; i++) {
           if (SWITCH_WARNING_ALLOWED(i)) {
             div_t qr = div(current, 8);
-            if (!READ_ONLY() && event==EVT_KEY_BREAK(KEY_ENTER) && line && l_posHorz==current) {
-              g_model.switchWarningEnable ^= (1 << i);
+            if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && line &&
+                l_posHorz == current) {
+              uint8_t curr_state = (states & 0x07);
+              // remove old setting
+              g_model.switchWarningState &= ~(0x07 << (3 * i));
+              // add the new one (if switch UP and 2POS, jump directly to DOWN)
+              curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
+              g_model.switchWarningState |= (curr_state & 0x03) << (3 * i);
               storageDirty(EE_MODEL);
             }
-            uint8_t swactive = !(g_model.switchWarningEnable & (1<<i));
-            c = (STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
-            lcdDrawChar(MODEL_SETUP_2ND_COLUMN+qr.rem*(2*FW+1), y+FH*qr.quot, 'A'+i, line && (menuHorizontalPosition==current) ? INVERS : 0);
-            if (swactive) lcdDrawChar(lcdNextPos, y+FH*qr.quot, c);
+            c = (" " STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
+            lcdDrawChar(
+                MODEL_SETUP_2ND_COLUMN + qr.rem * (2 * FW + 1),
+                y + FH * qr.quot, 'A' + i,
+                line && (menuHorizontalPosition == current) ? INVERS : 0);
+            lcdDrawChar(lcdNextPos, y + FH * qr.quot, c);
             ++current;
           }
-          states >>= 2;
+          states >>= 3;
         }
         if (attr && menuHorizontalPosition < 0) {
 #if defined(PCBX9E)

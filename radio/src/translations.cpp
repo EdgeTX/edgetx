@@ -925,11 +925,6 @@ const char * const STR_LSW_DESCRIPTIONS[] = TR_LSW_DESCRIPTIONS;
 const char * const STR_GVAR_HEADERS[] = TR_GVAR_HEADERS;
 #endif
 
-#if MENUS_LOCK == 1
-const char STR_UNLOCKED[] = TR_UNLOCKED;
-const char STR_MODS_FORBIDDEN[] = TR_MODS_FORBIDDEN;
-#endif
-
 #if defined(BLUETOOTH)
 const char STR_BLUETOOTH[] = TR_BLUETOOTH;
 const char STR_BLUETOOTH_DISC[] = TR_BLUETOOTH_DISC;

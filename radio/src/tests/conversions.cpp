@@ -73,6 +73,18 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_STRNEQ("Tes", g_eeGeneral.switchNames[0]); // ZSTREQ
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
+  swarnstate_t state =
+    (0x01) |            // SA up
+    (0x03 << (3 * 1)) | // SB down
+    (0x02 << (3 * 2)) | // SC middle
+    (0x01 << (3 * 3)) | // SD up
+    (0x02 << (3 * 4)) | // SE middle
+    (0x03 << (3 * 5)) | // SF down
+    (0x02 << (3 * 6));  // SG middle
+
+  // check only the "allowed switches"
+  EXPECT_EQ(state, g_model.switchWarningState & 0xFFFFF);
+  
   EXPECT_STRNEQ("Test", g_model.header.name); // ZSTREQ
   EXPECT_EQ(TMRMODE_ON, g_model.timers[0].mode); // new!
   EXPECT_EQ(SWSRC_SA0, g_model.timers[0].swtch); // new!
@@ -240,6 +252,17 @@ TEST(Conversions, ConversionX7From23)
   EXPECT_STRNEQ("Tes", g_eeGeneral.switchNames[0]);
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(0));
 
+  swarnstate_t state =
+    (0x02) |            // SA middle
+    (0x01 << (3 * 1)) | // SB up
+    (0x03 << (3 * 2)) | // SC down
+    (0x03 << (3 * 4));  // SF down
+
+  swarnstate_t sw_mask = (1 << (STORAGE_NUM_SWITCHES * 3)) - 1;
+  
+  // check only the "allowed switches"
+  EXPECT_EQ(state & sw_mask, g_model.switchWarningState & 0x7FFF);
+  
   EXPECT_STRNEQ("Test", g_model.header.name);
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_EU, g_model.moduleData[EXTERNAL_MODULE].subType);
@@ -468,6 +491,12 @@ TEST(Conversions, ConversionTX16SFrom25)
   loadModel(modelname2);
   writeModelYaml(modelname2);
   loadModel(modelname2);
+
+  constexpr swarnstate_t swWarnState =
+    (0x01) |// SA up
+    (0x02 << (3 * 2)) | // SB middle
+    (0x03 << (3 * 5));  // SF down
+  EXPECT_EQ(swWarnState, g_model.switchWarningState);
 
   EXPECT_EQ(MIXSRC_FIRST_LOGICAL_SWITCH + 4, g_model.mixData[4].srcRaw);
   EXPECT_EQ(MIXSRC_SC, g_model.mixData[5].srcRaw);
