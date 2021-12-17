@@ -258,7 +258,7 @@ TEST(Conversions, ConversionX7From23)
     (0x03 << (3 * 2)) | // SC down
     (0x03 << (3 * 4));  // SF down
 
-  swarnstate_t sw_mask = (1 << (NUM_SWITCHES * 3)) - 1;
+  swarnstate_t sw_mask = (1 << (STORAGE_NUM_SWITCHES * 3)) - 1;
   
   // check only the "allowed switches"
   EXPECT_EQ(state & sw_mask, g_model.switchWarningState & 0x7FFF);
