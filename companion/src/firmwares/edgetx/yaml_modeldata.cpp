@@ -127,6 +127,30 @@ struct YamlThrTrace {
   }
 };
 
+struct YamlPotsWarnEnabled {
+  unsigned int value;
+
+  YamlPotsWarnEnabled() = default;
+
+  YamlPotsWarnEnabled(const bool * potsWarnEnabled)
+  {
+    value = 0;
+
+    for (int i = 0; i < 8; i++) {
+      value |= (*(potsWarnEnabled + i) << (7 - i));
+    }
+  }
+
+  void toCpn(bool * potsWarnEnabled)
+  {
+    memset(potsWarnEnabled, 0, sizeof(bool) * (CPN_MAX_POTS + CPN_MAX_SLIDERS));
+
+    for (int i = 1; i <= 8; i++) {
+      *(potsWarnEnabled + (i - 1)) = (bool)((value >> (8 - i)) & 1);
+    }
+  }
+};
+
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
@@ -410,7 +434,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   // switchWarningStates
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
-  // potsWarnEnabled[]
+
+  YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
+  node["potsWarnEnabled"] = potsWarnEnabled.value;
+
   // potsWarnPosition[]
 
   node["displayChecklist"] = (int)rhs.displayChecklist;
@@ -506,7 +533,11 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // switchWarningStates
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
-  // potsWarnEnabled[]
+
+  YamlPotsWarnEnabled potsWarnEnabled;
+  node["potsWarnEnabled"] >> potsWarnEnabled.value;
+  potsWarnEnabled.toCpn(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
+
   // potsWarnPosition[]
 
   node["displayChecklist"] >> rhs.displayChecklist;
