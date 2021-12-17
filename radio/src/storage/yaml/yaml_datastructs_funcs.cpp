@@ -845,8 +845,8 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   //
   swtchWarn = 0;
   while (val_len--) {
-    signed swtch = *(val++) - 'A';
-    if (swtch >= NUM_SWITCHES) break;
+    signed swtch = getRawSwitchIdx(*(val++));
+    if (swtch < 0) break;
 
     unsigned state = 0;
     switch (*(val++)) {
@@ -887,7 +887,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
       // state == 1 -> UP
       // state == 2 -> MIDDLE
       // state == 3 -> DOWN
-      char swtchWarn[2] = {(char)('A' + i), 0};
+      char swtchWarn[2] = {getRawSwitchFromIdx(i), 0};
 
       switch (state) {
         case 0:

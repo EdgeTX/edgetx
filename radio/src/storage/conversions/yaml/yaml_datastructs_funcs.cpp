@@ -539,7 +539,7 @@ bool w_swtchWarn(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* 
             // state == 1 -> UP
             // state == 2 -> MIDDLE
             // state == 3 -> DOWN
-            char swtchWarn[2] = {(char)('A' + i), 0};
+            char swtchWarn[2] = {getRawSwitchFromIdx(i), 0};
 
             switch (state) {
             case 0:
