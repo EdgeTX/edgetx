@@ -1,9 +1,9 @@
 additional libopenui patch:
 diff --git a/src/mainwindow.cpp b/src/mainwindow.cpp
-index 40d5bd1..08de3be 100644
+index c256d0b..6bbb717 100644
 --- a/src/mainwindow.cpp
 +++ b/src/mainwindow.cpp
-@@ -176,9 +176,20 @@ void MainWindow::invalidate(const rect_t & rect)
+@@ -179,9 +179,24 @@ void MainWindow::invalidate(const rect_t & rect)
      invalidatedRect = rect;
    }
  }
@@ -13,17 +13,19 @@ index 40d5bd1..08de3be 100644
 +extern BitmapBuffer lcdBackup;
  bool MainWindow::refresh()
  {
-+         if (invalidatedRect.w) {
++  if (invalidatedRect.w) {
++    lv_obj_t *buf = lv_canvas_create(lv_scr_act());
++    lv_canvas_set_buffer(buf, (lv_color_t*)lcdBackup.getData(), LCD_W, LCD_H, LV_IMG_CF_TRUE_COLOR);
 +    lcdBackup.setOffset(0, 0);
 +    lcdBackup.setClippingRect(0,LCD_W,0, LCD_H);
-+  fullPaint(&lcdBackup);
-+  lv_canvas_copy_buf(canvas, lcdBackup.getData(), 0, 0, LCD_W, LCD_H);
-+  lv_img_cache_invalidate_src(lcdBackup.getData());
-+  lv_obj_invalidate(canvas);
-+         }
++    fullPaint(&lcdBackup);
++    lv_obj_invalidate(buf);
++    lv_canvas_transform(canvas, lv_canvas_get_img(buf), 1800, 256, 0, 0, LCD_W/2, LCD_H/2, false);
++    lv_obj_del(buf);
++    lv_obj_invalidate(canvas);
++  }
 +  return false;
++
    if (invalidatedRect.w) {
      if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
        TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);
-
-

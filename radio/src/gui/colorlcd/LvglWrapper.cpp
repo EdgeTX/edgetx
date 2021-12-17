@@ -54,7 +54,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_disp_flush_ready(disp_drv);
 #endif
 }
-#if 0
+#if 1
   /*Initialize `disp_buf` with the buffer(s). With only one buffer use NULL instead buf_2 */
 static void btn_event_cb(lv_event_t * e)
 {
@@ -260,14 +260,14 @@ LvglWrapper::LvglWrapper()
   disp_drv.ver_res = LCD_H;                 /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
-  #if defined (LCD_VERTICAL_INVERT)
-//  disp_drv.rotated = LV_DISP_ROT_180;
-  #endif
-//  disp_drv.sw_rotate = 1;
+#if defined (LCD_VERTICAL_INVERT)
+  disp_drv.rotated = LV_DISP_ROT_180;
+#endif
+  disp_drv.sw_rotate = 1;
 
   lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
   indev_drv.type =LV_INDEV_TYPE_POINTER;                 /*See below.*/
-//  indev_drv.read_cb = my_input_read;              /*See below.*/
+  indev_drv.read_cb = my_input_read;              /*See below.*/
   /*Register the driver in LVGL and save the created input device object*/
 
 
