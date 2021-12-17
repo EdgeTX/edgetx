@@ -29,9 +29,7 @@
 
 constexpr coord_t GVAR_BUTTON_WIDTH = 30;
 
-#if !defined(GVARS)
-typedef NumberEdit GVarNumberEdit;
-#else
+
 class GVarNumberEdit : public FormGroup
 {
  public:
@@ -128,7 +126,7 @@ class GVarNumberEdit : public FormGroup
       result->setSuffix(suffix);
       field = result;
     }
-
+#if defined(GVARS)
     // The GVAR button
     new TextButton(
         this, {width() - GVAR_BUTTON_WIDTH, 0, GVAR_BUTTON_WIDTH, height()},
@@ -138,8 +136,9 @@ class GVarNumberEdit : public FormGroup
           return 0;
         },
         BUTTON_BACKGROUND | OPAQUE | FORM_DETACHED);
+#endif        
   }
 };
-#endif
+
 
 #endif // _GVAR_NUMBEREDIT_H_
