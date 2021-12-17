@@ -252,7 +252,11 @@ uint32_t switchState(uint8_t index)
     // Only 4 switches
 #elif defined(PCBX7)
     ADD_3POS_CASE(D, 3);
+#if defined(RADIO_T12)
+    ADD_2POS_CASE(G);
+#else
     ADD_2POS_CASE(F);
+#endif
     ADD_2POS_CASE(H);
     ADD_2POS_CASE(I);
     ADD_2POS_CASE(J);
