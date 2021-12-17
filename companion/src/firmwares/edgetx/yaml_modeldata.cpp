@@ -63,6 +63,12 @@ static const YamlLookupTable swashTypeLut = {
   {  4, "TYPE_90"  },
 };
 
+static const YamlLookupTable potsWarningModeLut = {
+  {  0, "WARN_OFF"  },
+  {  1, "WARN_MANUAL"  },
+  {  2, "WARN_AUTO"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -403,7 +409,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   // switchWarningStates
   node["thrTrimSw"] = rhs.thrTrimSwitch;
-  // potsWarningMode
+  node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
   // potsWarnEnabled[]
   // potsWarnPosition[]
 
@@ -499,13 +505,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   // switchWarningStates
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
-  // potsWarningMode
+  node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
   // potsWarnEnabled[]
   // potsWarnPosition[]
 
   node["displayChecklist"] >> rhs.displayChecklist;
 
-  // gvarData[]
   node["gvars"] >> rhs.gvarData;
   // mavlink ???
   // telemetryProtocol ???
