@@ -280,6 +280,32 @@ struct convert<SwashRingData> {
   }
 };
 
+template <>
+struct convert<GVarData> {
+  static Node encode(const GVarData& rhs)
+  {
+    Node node;
+    node["name"] = rhs.name;
+    node["min"] = rhs.min;
+    node["max"] = rhs.max;
+    node["popup"] = rhs.popup;
+    node["prec"] = rhs.prec;
+    node["unit"] = rhs.unit;
+    return node;
+  }
+
+  static bool decode(const Node& node, GVarData& rhs)
+  {
+    node["name"] >> rhs.name;
+    node["min"] >> rhs.min;
+    node["max"] >> rhs.max;
+    node["popup"] >> rhs.popup;
+    node["prec"] >> rhs.prec;
+    node["unit"] >> rhs.unit;
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -383,7 +409,13 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["displayChecklist"] = (int)rhs.displayChecklist;
 
-  // gvarData[]
+  for (int i = 0; i < CPN_MAX_GVARS; i++) {
+    const GVarData& gv = rhs.gvarData[i];
+    if (!gv.isEmpty()) {
+      node["gvars"][std::to_string(i)] = gv;
+    }
+  }
+
   // mavlink ???
   // telemetryProtocol ???
   // frsky
@@ -474,6 +506,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["displayChecklist"] >> rhs.displayChecklist;
 
   // gvarData[]
+  node["gvars"] >> rhs.gvarData;
   // mavlink ???
   // telemetryProtocol ???
   // frsky
