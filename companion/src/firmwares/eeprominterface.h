@@ -411,50 +411,13 @@ class Firmware
       return &analogInputNamesLookupTable;
     }
 
-    const StringTagMappingTable* getSwitchesLookupTable()
-    {
-      return &switchesLookupTable;
-    }
-
-    const StringTagMappingTable* getTrimSwitchesLookupTable()
-    {
-      return &trimSwitchesLookupTable;
-    }
-
-    const StringTagMappingTable* getTrimSourcesLookupTable()
-    {
-      return &trimSourcesLookupTable;
-    }
-
-    const StringTagMappingTable* getRawSwitchTypesLookupTable()
-    {
-      return &rawSwitchTypesLookupTable;
-    }
-
-    const StringTagMappingTable* getRawSourceSpecialTypesLookupTable()
-    {
-      return &rawSourceSpecialTypesLookupTable;
-    }
-
-    const StringTagMappingTable* getRawSourceCyclicLookupTable()
-    {
-      return &rawSourceCyclicLookupTable;
-    }
-
-    int getAnalogInputIndex(const char * tag);
-    std::string getAnalogInputTag(unsigned int index);
-    int getSwitchesIndex(const char * tag);
-    std::string getSwitchesTag(unsigned int index);
-    int getTrimSwitchesIndex(const char * tag);
-    std::string getTrimSwitchesTag(unsigned int index);
-    int getTrimSourcesIndex(const char * tag);
-    std::string getTrimSourcesTag(unsigned int index);
-    int getRawSwitchTypesIndex(const char * tag);
-    std::string getRawSwitchTypesTag(unsigned int index);
-    int getRawSourceSpecialTypesIndex(const char * tag);
-    std::string getRawSourceSpecialTypesTag(unsigned int index);
-    int getRawSourceCyclicIndex(const char * tag);
-    std::string getRawSourceCyclicTag(unsigned int index);
+    STRINGTAGMAPPINGFUNCS(analogInputNamesLookupTable, AnalogInput);
+    STRINGTAGMAPPINGFUNCS(switchesLookupTable, Switches);
+    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
+    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
+    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
+    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
+    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
   protected:
     QString id;
@@ -463,6 +426,8 @@ class Firmware
     unsigned int variantBase;
     Firmware * base;
     EEPROMInterface * eepromInterface;
+
+    //  used by YAML encode and decode
     const StringTagMappingTable analogInputNamesLookupTable;
     const StringTagMappingTable switchesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
@@ -470,6 +435,7 @@ class Firmware
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
     const StringTagMappingTable rawSourceCyclicLookupTable;
+
     QList<const char *> languages;
     //QList<const char *> ttslanguages;
     OptionsList opts;

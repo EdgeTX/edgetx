@@ -49,6 +49,19 @@ struct StringTagMapping {
 
 typedef std::vector<StringTagMapping> StringTagMappingTable;
 
+#define STRINGTAGMAPPINGFUNCS_HELPER(tbl, name, index, tag)     \
+    inline int name##index (const char * tag)                   \
+    {                                                           \
+      return DataHelpers::getStringTagMappingIndex(tbl, tag);   \
+    }                                                           \
+                                                                \
+    inline std::string name##tag (unsigned int index)           \
+    {                                                           \
+      return DataHelpers::getStringTagMappingTag(tbl, index);   \
+    }
+
+#define STRINGTAGMAPPINGFUNCS(tbl, name)  STRINGTAGMAPPINGFUNCS_HELPER(tbl, get##name, Index, Tag)
+
 class FieldRange
 {
   public:
@@ -92,5 +105,6 @@ namespace DataHelpers
   QString boolToString(const bool value, const BoolFormat format);
   QString getElementName(const QString & prefix, const unsigned int index, const char * name = 0, const bool padding = false);
   QString timeToString(const int value, const unsigned int mask);
-
+  int getStringTagMappingIndex(const StringTagMappingTable& lut, const char * tag);
+  std::string getStringTagMappingTag(const StringTagMappingTable& lut, unsigned int index);
 }

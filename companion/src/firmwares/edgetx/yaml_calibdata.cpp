@@ -68,7 +68,6 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
   int idx = 0;
-  // TODO: for efficiency construct once at an outer level possibly add to Firmware?
   const auto* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
   for (const auto& kv : *calibIdxLut) {
     node[kv.tag] = rhs.calib[idx++];
