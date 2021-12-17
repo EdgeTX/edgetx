@@ -81,6 +81,10 @@ cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt
 
+cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TPRO ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
 cmake ${COMMON_OPTIONS} -DPCB=X9D ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt
