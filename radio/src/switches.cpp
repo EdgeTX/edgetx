@@ -258,12 +258,15 @@ void getSwitchesPosition(bool startup)
   CHECK_2POS(SW_SJ);
 #elif defined(PCBX7)
   CHECK_3POS(3, SW_SD);
-  #if defined(RADIO_T12)
-    CHECK_2POS(SW_SG);
-  #else
+  #if defined(HARDWARE_SWITCH_F)
     CHECK_2POS(SW_SF);
   #endif
-  CHECK_2POS(SW_SH);
+  #if defined(HARDWARE_SWITCH_G)
+    CHECK_2POS(SW_SG);
+  #endif
+  #if defined(HARDWARE_SWITCH_H)
+    CHECK_2POS(SW_SH);
+  #endif
 #else
   CHECK_3POS(3, SW_SD);
   CHECK_3POS(4, SW_SE);
