@@ -609,6 +609,8 @@
 #elif defined(RADIO_T8) || defined(RADIO_TLITE)
   // no SWF
   #define STORAGE_SWITCH_F
+#elif defined(RADIO_T12)
+  // no SWF
 #elif defined(PCBX7)
   #define STORAGE_SWITCH_F
   #define HARDWARE_SWITCH_F
@@ -633,6 +635,11 @@
   #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOC->IDR
   #define SWITCHES_GPIO_PIN_G           GPIO_Pin_2 // PC.02
+#elif defined(RADIO_T12)
+  #define STORAGE_SWITCH_G
+  #define HARDWARE_SWITCH_G
+  #define SWITCHES_GPIO_REG_G           GPIOE->IDR
+  #define SWITCHES_GPIO_PIN_G           GPIO_Pin_14 // PE.14
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8)
   // no SWG
 #else

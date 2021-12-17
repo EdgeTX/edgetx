@@ -352,12 +352,12 @@ enum EnumSwitchesPositions
   SW_SE1,
   SW_SE2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX7) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_T8)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_T12)) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_T8)
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES) || defined(RADIO_T12)
   SW_SG0,
   SW_SG1,
   SW_SG2,
