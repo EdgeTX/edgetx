@@ -295,29 +295,6 @@
 #define LEN_VSWASHTYPE                 "\004"
 #define TR_VSWASHTYPE                  "--- ""120 ""120X""140 ""90\0"
 
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "PGUP\0""PGDN\0""ENTER""MDL\0 ""RTN\0 ""TELE\0""SYS\0 "
-#elif defined(PCBXLITE)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "Shift""Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
-#elif defined(RADIO_TX12)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "Exit\0""Enter""Up\0  ""Down\0""SYS\0 ""MDL\0 ""TELE\0"
-#elif defined(RADIO_T8)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""UP\0  ""DOWN\0"
-#elif defined(PCBTARANIS)
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "Menu\0""Exit\0""Enter""Page\0""Plus\0""Minus"
-#else
-  #define LEN_VKEYS                    "\005"
-  #define TR_VKEYS                     "Menu\0""Exit\0""Down\0""Up\0  ""Right""Left\0"
-#endif
-
 #define LEN_VSWITCHES                  "\003"
 #define LEN_VSRCRAW                    "\004"
 

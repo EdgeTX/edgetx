@@ -103,7 +103,7 @@ void openUsbMenu()
   if (popupMenuHandler != onUSBConnectMenu) {
     POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
     POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
-#if defined(DEBUG)
+#if defined(USB_SERIAL)
     POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
 #endif
     POPUP_MENU_TITLE(STR_SELECT_MODE);

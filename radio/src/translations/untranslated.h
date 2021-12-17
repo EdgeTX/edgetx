@@ -46,9 +46,9 @@
 #elif defined(RADIO_TX12)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT "S1\0" STR_CHAR_POT "S2\0"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH "SC\0" STR_CHAR_SWITCH "SD\0" STR_CHAR_SWITCH "SE\0" STR_CHAR_SWITCH "SF\0" STR_CHAR_SWITCH "SI\0" STR_CHAR_SWITCH "SJ\0"
-#elif defined(RADIO_TX12)
-  #define TR_POTS_VSRCRAW              "\310S1\0""\310S2\0"
-  #define TR_SW_VSRCRAW                "\312SA\0""\312SB\0""\312SC\0""\312SD\0""\312SE\0""\312SF\0""\312SI\0""\312SJ\0"
+#elif defined(RADIO_ZORRO)
+  #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
+  #define TR_SW_VSRCRAW                STR_CHAR_SWITCH "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH "SC\0" STR_CHAR_SWITCH "SD\0" STR_CHAR_SWITCH "SE\0" STR_CHAR_SWITCH "SF\0" STR_CHAR_SWITCH "SG\0" STR_CHAR_SWITCH "SH\0"
 #elif defined(PCBX7)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SF\0" STR_CHAR_SWITCH"SH\0" STR_CHAR_SWITCH"SI\0" STR_CHAR_SWITCH"SJ\0"
@@ -86,6 +86,32 @@
   #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_SBUS_MODULE TR_VTRAINER_MASTER_CPPM_MODULE TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
 #else
   #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_CPPM_MODULE TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
+#endif
+
+#if defined(PCBHORUS) || defined(PCBNV14)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "PGUP\0""PGDN\0""ENTER""MDL\0 ""RTN\0 ""TELE\0""SYS\0 "
+#elif defined(PCBXLITE)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "Shift""Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
+#elif defined(RADIO_TX12)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "Exit\0""Enter""Up\0  ""Down\0""SYS\0 ""MDL\0 ""TELE\0"
+#elif defined(RADIO_T8)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""UP\0  ""DOWN\0"
+#elif defined(RADIO_ZORRO)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""TELE\0"
+#elif defined(PCBTARANIS)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "Menu\0""Exit\0""Enter""Page\0""Plus\0""Minus"
+#else
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "Menu\0""Exit\0""Down\0""Up\0  ""Right""Left\0"
 #endif
 
 #define TR_VSRCRAW                     "---\0" TR_STICKS_VSRCRAW TR_POTS_VSRCRAW TR_GYR_VSRCRAW "MAX\0" TR_CYC_VSRCRAW TR_TRIMS_VSRCRAW TR_SW_VSRCRAW TR_EXTRA_VSRCRAW

@@ -50,6 +50,7 @@ if(DEBUG OR CLI OR USB_SERIAL)
     ../common/arm/stm32/usbd_cdc.cpp
   )
   add_definitions(-DUSB_SERIAL)
+  message("-- Adding support for USB serial")
 endif()
 
 set(STM32USB_SRC

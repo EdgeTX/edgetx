@@ -129,7 +129,7 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
-#if defined(RADIO_TX12)
+#if defined(RADIO_TX12) || defined(RADIO_ZORRO)
   CHECK_2POS(SW_SA);
   CHECK_3POS(0, SW_SB);
   CHECK_3POS(1, SW_SC);
@@ -155,6 +155,12 @@ void getSwitchesPosition(bool startup)
 #elif defined(PCBXLITE)
   CHECK_3POS(3, SW_SD);
   // no SWE, SWF, SWG and SWH on XLITE
+#elif defined(RADIO_ZORRO)
+  CHECK_2POS(SW_SD);
+  CHECK_2POS(SW_SE);
+  CHECK_2POS(SW_SF);
+  CHECK_2POS(SW_SG);
+  CHECK_2POS(SW_SH);
 #elif defined(RADIO_TX12)
   CHECK_2POS(SW_SD);
   CHECK_3POS(2, SW_SE);
@@ -181,7 +187,7 @@ void getSwitchesPosition(bool startup)
 
 #if defined(PCBX7ACCESS)
   CHECK_2POS(SW_SI);
-#elif defined(PCBHORUS) || defined(PCBX7)
+#elif defined(PCBHORUS) || (defined(PCBX7) && !defined(RADIO_ZORRO))
   CHECK_2POS(SW_SI);
   CHECK_2POS(SW_SJ);
 #endif

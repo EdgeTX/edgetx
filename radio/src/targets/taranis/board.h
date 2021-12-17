@@ -28,7 +28,7 @@
 #include "board_common.h"
 #include "hal.h"
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12)
+#if defined(RADIO_TX12) || defined(RADIO_ZORRO)
   #define  NAVIGATION_X7_TX12
 #endif
 
@@ -36,6 +36,10 @@
 // Rotary Encoder driver
 void rotaryEncoderInit();
 void rotaryEncoderCheck();
+#endif
+
+#if defined(RADIO_ZORRO)
+#define ROTARY_ENCODER_INVERT
 #endif
 
 #define FLASHSIZE                       0x80000
@@ -330,6 +334,8 @@ enum EnumSwitches
 };
 #if defined(RADIO_TX12)
   #define IS_3POS(x)                      ((x) != SW_SA && (x) != SW_SD)
+#elif defined(RADIO_ZORRO)
+  #define IS_3POS(x)                      ((x) == SW_SB || (x) == SW_SC)
 #else
   #define IS_3POS(x)                      ((x) != SW_SF && (x) != SW_SH)
 #endif
@@ -347,22 +353,22 @@ enum EnumSwitchesPositions
   SW_SD0,
   SW_SD1,
   SW_SD2,
-#if defined(PCBX9) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_TX12)
+#if defined(PCBX9) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_TX12) || defined(RADIO_ZORRO)
   SW_SE0,
   SW_SE1,
   SW_SE2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_T12)) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_T8)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_T12)) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(RADIO_T8) || defined(RADIO_ZORRO)
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES) || defined(RADIO_T12)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES) || defined(RADIO_T12) || defined(RADIO_ZORRO)
   SW_SG0,
   SW_SG1,
   SW_SG2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_TX12)) || defined(RADIO_T8)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || (defined(PCBX7) && !defined(RADIO_TX12)) || defined(RADIO_T8) || defined(RADIO_ZORRO)
   SW_SH0,
   SW_SH1,
   SW_SH2,
@@ -376,7 +382,7 @@ enum EnumSwitchesPositions
   SW_SI0,
   SW_SI1,
   SW_SI2,
-#elif defined(PCBX7)
+#elif defined(PCBX7) && !defined(RADIO_ZORRO)
   SW_SI0,
   SW_SI1,
   SW_SI2,
@@ -444,6 +450,11 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_3POS << 10) + (SWITCH_3POS << 8) + (SWITCH_TOGGLE << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_TOGGLE << 0)
   #define DEFAULT_POTS_CONFIG           (POT_WITH_DETENT << 0) + (POT_WITH_DETENT << 2);
+#elif defined(RADIO_ZORRO)
+  #define NUM_SWITCHES                  8
+  #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
+  #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 14) + (SWITCH_TOGGLE << 12) + (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_TOGGLE << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_TOGGLE << 0)
+  #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2);
 #elif defined(RADIO_T8)
   #define NUM_SWITCHES                  4
   #define STORAGE_NUM_SWITCHES          8
@@ -493,6 +504,11 @@ enum EnumSwitchesPositions
 
 void keysInit();
 uint32_t switchState(uint8_t index);
+#if defined(RADIO_ZORRO)
+static const uint8_t switchReOrder[] = {1, 0, 4, 2, 3, 5};
+#else
+static const uint8_t switchReOrder[] = {0, 1, 2, 3, 4, 5};
+#endif
 uint32_t readKeys();
 uint32_t readTrims();
 #define TRIMS_PRESSED()                 (readTrims())
@@ -729,6 +745,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster TX12"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '2', ' '  /* 8 Bytes */
+#elif defined(RADIO_ZORRO)
+  #define USB_NAME                     "Radiomaster Zorro"
+  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'R', 'M', ' ', 'Z', 'O', 'R', 'R', 'O'  /* 8 Bytes */
 #elif defined(RADIO_T8)
   #define USB_NAME                     "Radiomaster T8"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */

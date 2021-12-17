@@ -29,6 +29,16 @@ boards = {
         "PCBREV": "TX12",
         "DEFAULT_MODE": "2",
     },
+    "ZORRO_1": {
+        "PCB": "X7",
+        "PCBREV": "ZORRO",
+        "DEFAULT_MODE": "1",
+    },
+    "ZORRO_2": {
+        "PCB": "X7",
+        "PCBREV": "ZORRO",
+        "DEFAULT_MODE": "2",
+    },
     "T8_1": {
         "PCB": "X7",
         "PCBREV": "T8",

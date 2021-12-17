@@ -40,6 +40,8 @@
   #include "yaml_datastructs_tlite.cpp"
  #elif defined(RADIO_TX12)
   #include "yaml_datastructs_tx12.cpp"
+ #elif defined(RADIO_ZORRO)
+  #include "yaml_datastructs_zorro.cpp"
  #elif defined(RADIO_T8)
   #include "yaml_datastructs_t8.cpp"
  #else

@@ -70,6 +70,8 @@ const char * OpenTxEepromInterface::getName()
       return "OpenTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
       return "OpenTX for Radiomaster TX12";
+    case BOARD_RADIOMASTER_ZORRO:
+      return "OpenTX for Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
       return "OpenTX for Radiomaster T8";
     case BOARD_TARANIS_X9D:
@@ -347,6 +349,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     variant |= RADIOMASTER_TX12_VARIANT;
+  }
+  else if (IS_RADIOMASTER_ZORRO(board)) {
+    variant |= RADIOMASTER_ZORRO_VARIANT;
   }
   else if (IS_RADIOMASTER_T8(board)) {
     variant |= RADIOMASTER_T8_VARIANT;
@@ -1025,6 +1030,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
       variantError = true;
     }
   }
+  else if (IS_RADIOMASTER_ZORRO(board)) {
+    if (variant != RADIOMASTER_ZORRO_VARIANT) {
+      variantError = true;
+    }
+  }
   else if (IS_RADIOMASTER_T8(board)) {
     if (variant != RADIOMASTER_T8_VARIANT) {
       variantError = true;
@@ -1379,6 +1389,17 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
+
+  /* Radiomaster Zorro board */
+  firmware = new OpenTxFirmware("opentx-zorro", QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
 
   /* Radiomaster T8 board */
   firmware = new OpenTxFirmware("opentx-t8", QCoreApplication::translate("Firmware", "Radiomaster T8"), BOARD_RADIOMASTER_T8);

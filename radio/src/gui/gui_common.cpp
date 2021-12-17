@@ -840,6 +840,17 @@ bool isTrainerModeAvailable(int mode)
     return false;
 #endif
 
+#if defined(PCBTARANIS) || defined(PCBNV14)
+  #if !defined(TRAINER_MODULE_CPPM)
+  if (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE)
+    return false;
+  #endif
+  #if !defined(TRAINER_MODULE_SBUS)
+  if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
+    return false;
+  #endif
+#endif
+  
   return true;
 }
 

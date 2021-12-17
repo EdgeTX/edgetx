@@ -908,8 +908,10 @@ int cliSet(const char **argv)
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
-  intmoduleSendBuffer(buf, len);
-  intmoduleWaitForTxCompleted();
+  while (len > 0) {
+    intmoduleSendByte(*(buf++));
+    len--;
+  }
 }
 
 static void spInternalModuleSetBaudRate(uint32_t baud)
