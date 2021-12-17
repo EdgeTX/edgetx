@@ -84,12 +84,46 @@ inline bool LuaScript_compare_nocase(LuaScript first, LuaScript second)
   return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
 }
 
-void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayout &grid)
+class FormGridLayoutEx : public FormGridLayout
+{
+  public:
+    using FormGridLayout::FormGridLayout;
+
+    void setLineHeight(uint8_t lineHeight)
+    {
+      _lineHeight = lineHeight;
+    }
+
+    rect_t getFieldSlot(uint8_t count = 1, uint8_t index = 0) const
+    {
+      auto rect = FormGridLayout::getFieldSlot(count, index);
+      rect.h = _lineHeight;
+      return rect;
+    }
+
+    rect_t getLabelSlot(bool indent = false) const
+    {
+      auto rect = FormGridLayout::getLabelSlot(indent);
+      rect.h = _lineHeight;
+      return rect;
+    }
+
+    void nextLine(coord_t height=PAGE_LINE_HEIGHT)
+    {
+      if (height == PAGE_LINE_HEIGHT)
+        height = _lineHeight;
+      spacer(height + PAGE_LINE_SPACING);
+    }
+
+  protected:
+    uint8_t _lineHeight = PAGE_LINE_HEIGHT;
+};
+
+void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayoutEx &grid)
 {
   for (auto luaScript : luaScripts) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
-
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), luaScript.label,
         [window, luaScript]() -> uint8_t {
@@ -122,9 +156,11 @@ void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridL
   }
 }
 
+
 void RadioToolsPage::rebuild(FormWindow * window)
 {
-  FormGridLayout grid;
+  FormGridLayoutEx grid;
+  grid.setLineHeight(PAGE_LINE_HEIGHT + 10);
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(100);
 
@@ -182,7 +218,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
-                              COLOR_THEME_PRIMARY1 | CENTERED);
+                              COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -209,7 +245,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_INT,
         [=]() -> uint8_t {
@@ -234,7 +270,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #if defined(INTERNAL_MODULE_MULTI)
   {
     auto txt = new StaticText(window, grid.getLabelSlot(), "multi",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -264,7 +300,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
       isModuleMultimodule(EXTERNAL_MODULE)) {
     auto txt = new StaticText(window, grid.getLabelSlot(),
                               isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT,
         [=]() -> uint8_t {
@@ -293,7 +329,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_EXT,
         [=]() -> uint8_t {
@@ -320,7 +356,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE)) {
     auto txt = new StaticText(window, grid.getLabelSlot(), "ghost",
-                              BUTTON_BACKGROUND, CENTERED);
+                              BUTTON_BACKGROUND, CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), "Ghost module config",
         [=]() -> uint8_t {
