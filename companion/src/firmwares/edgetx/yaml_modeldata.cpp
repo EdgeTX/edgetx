@@ -366,7 +366,7 @@ struct convert<ScriptData> {
     for (int i=0; i < 6; i++) {
       node["inputs"][std::to_string(i)]["u"]["value"] = (int)rhs.inputs[i];
     }
-    
+
     return node;
   }
 
@@ -381,7 +381,7 @@ struct convert<ScriptData> {
     for (int i=0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
       rhs.inputs[i] = inputs[i].i;
     }
-    
+
     return true;
   }
 };
@@ -488,7 +488,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
 
-  // potsWarnPosition[]
+  for (int i = 0; i < CPN_MAX_POTS + CPN_MAX_SLIDERS; i++) {
+    if (rhs.potsWarnPosition[i] != 0)
+      node["potsWarnPosition"][std::to_string(i)]["val"] = rhs.potsWarnPosition[i];
+  }
 
   node["displayChecklist"] = (int)rhs.displayChecklist;
 
@@ -615,7 +618,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["potsWarnEnabled"] >> potsWarnEnabled.value;
   potsWarnEnabled.toCpn(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
 
-  // potsWarnPosition[]
+  node["potsWarnPosition"] >> rhs.potsWarnPosition;
 
   node["displayChecklist"] >> rhs.displayChecklist;
 
@@ -633,8 +636,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["toplcdTimer"] >> rhs.toplcdTimer;
 
-  // customScreens
-  // topBarData
   node["screenData"] >> rhs.customScreens.customScreenData;
   node["topbarData"] >> rhs.topBarData;
 
