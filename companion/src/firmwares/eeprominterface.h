@@ -166,7 +166,6 @@ enum Capability {
   HasTelemetryBaudrate,
   TopBarZones,
   FunctionSwitches,
-  Has,
   HasModelsList,
   HasFlySkyGimbals
 };
