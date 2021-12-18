@@ -277,6 +277,9 @@ QString MultiModelPrinter::print(QTextDocument * document)
   if (firmware->getCapability(Timers)) {
     str.append(printTimers());
   }
+  if (Boards::getCapability(firmware->getBoard(), Board::NumFunctionSwitches)) {
+    str.append(printFunctionSwitches());
+  }
   str.append(printModules());
   if (firmware->getCapability(Heli))
     str.append(printHeliSetup());
@@ -936,5 +939,54 @@ QString MultiModelPrinter::printChecklist()
     columns.appendTableEnd();
     str.append(columns.print());
   }
+  return str;
+}
+
+QString MultiModelPrinter::printFunctionSwitches()
+{
+  QString str;
+  MultiColumns columns(modelPrinterMap.size());
+  columns.appendSectionTableStart();
+
+  int numFS = Boards::getCapability(firmware->getBoard(), Board::NumFunctionSwitches);
+  int colwidth = 80 / numFS;
+
+  QStringList headings = { tr("Function Switches") };
+  for (int i = 0; i < numFS; i++) {
+    headings << tr("Switch %1").arg(i + 1);
+  }
+  columns.appendRowHeader(headings);
+
+  columns.appendRowStart(tr("Name"), 20);
+
+  for (int i = 0; i < numFS; i++) {
+    COMPARECELLWIDTH(model->functionSwitchNames[i], colwidth);
+  }
+
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Type"), 20);
+
+  for (int i = 0; i < numFS; i++) {
+    COMPARECELLWIDTH(model->funcSwitchConfigToString((unsigned int)i), colwidth);
+  }
+
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Start"), 20);
+
+  for (int i = 0; i < numFS; i++) {
+    COMPARECELLWIDTH(model->funcSwitchStartToString((unsigned int)i), colwidth);
+  }
+
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Group"), 20);
+
+  for (int i = 0; i < numFS; i++) {
+    COMPARECELLWIDTH((model->functionSwitchGroup >> (2 * i)) & 0x03, colwidth);
+  }
+
+  columns.appendRowEnd();
+
+  columns.appendTableEnd();
+  str.append(columns.print());
   return str;
 }

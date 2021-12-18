@@ -44,6 +44,8 @@ namespace yaml_conv_220 {
     const YamlNode* get_partialmodel_nodes();
 };
 
+#if STORAGE_CONVERSIONS < 221
+
 #if defined(STORAGE_MODELSLIST)
 
 void patchFilenameToYaml(char* str);
@@ -182,5 +184,7 @@ const char* convertRadioData_220_to_221()
   free(data);
   return error;
 }
+
+#endif
 
 #endif

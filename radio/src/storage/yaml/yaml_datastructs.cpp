@@ -44,6 +44,8 @@
   #include "yaml_datastructs_zorro.cpp"
  #elif defined(RADIO_T8)
   #include "yaml_datastructs_t8.cpp"
+ #elif defined(RADIO_TPRO)
+  #include "yaml_datastructs_tpro.cpp"
  #else
   #include "yaml_datastructs_x7.cpp"
  #endif

@@ -178,6 +178,7 @@ extern const char STR_MULTI_POWER[];
 extern const char STR_MULTI_TELEMETRY_MODE[];
 extern const char STR_MULTI_WBUS_MODE[];
 extern const char STR_SPORT_MODES[];
+extern const char STR_FSGROUPS[];
 
 extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
 extern const char STR_AFHDS3_ONE_TO_MANY[];

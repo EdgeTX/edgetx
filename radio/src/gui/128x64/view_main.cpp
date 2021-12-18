@@ -660,7 +660,7 @@ void menuMainView(event_t event)
           }
         }
 #elif defined(PCBTARANIS)
-        uint8_t switches = min(NUM_SWITCHES, 6);
+        uint8_t switches = min(NUM_SWITCHES- NUM_FUNCTIONS_SWITCHES, 6);
         for (int i = 0; i < switches; ++i) {
           if (SWITCH_EXISTS(i)) {
             uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;

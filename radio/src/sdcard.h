@@ -152,6 +152,8 @@ const char * getBasename(const char * path);
   #define OTX_FOURCC 0x3D78746F // otx for Jumper T12
 #elif defined(RADIO_TLITE)
   #define OTX_FOURCC 0x4278746F // otx for Jumper TLite
+#elif defined(RADIO_TPRO)
+  #define OTX_FOURCC 0x4678746F // otx for Jumper TPro
 #elif defined(RADIO_TX12)
   #define OTX_FOURCC 0x4178746F // otx for Radiomaster TX12
 #elif defined(RADIO_ZORRO)

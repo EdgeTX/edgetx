@@ -51,6 +51,9 @@ inline int MAX_SWITCHES(Board::Type board, int version)
   if (IS_TARANIS_X7(board))
     return 8;
 
+  if (IS_JUMPER_TPRO(board))
+    return 10;
+
   return Boards::getCapability(board, Board::Switches);
 }
 
@@ -79,6 +82,13 @@ inline int MAX_POTS(Board::Type board, int version)
   if (IS_FAMILY_T12(board))
     return 2;
   return Boards::getCapability(board, Board::Pots);
+}
+
+inline int MAX_FUNCTION_SWITCHES(Board::Type board, int version)
+{
+  if (IS_JUMPER_TPRO(board))
+    return 6;
+  return 0;
 }
 
 inline int MAX_POTS_STORAGE(Board::Type board, int version)
@@ -2630,17 +2640,17 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
     internalField.Append(new LimitField(this, modelData.limitData[i], board, version));
   for (int i=0; i<MAX_EXPOS(board, version); i++)
     internalField.Append(new InputField(this, modelData.expoData[i], board, version));
+
   internalField.Append(new CurvesField(this, modelData.curves, board, version));
+
   for (int i=0; i<MAX_LOGICAL_SWITCHES(board, version); i++)
     internalField.Append(new LogicalSwitchField(this, modelData.logicalSw[i], board, version, variant, &modelData));
-  for (int i=0; i<MAX_CUSTOM_FUNCTIONS(board, version); i++) {
+  for (int i=0; i<MAX_CUSTOM_FUNCTIONS(board, version); i++)
     internalField.Append(new ArmCustomFunctionField(this, modelData.customFn[i], board, version, variant));
-  }
 
-  internalField.Append(new HeliField(this, modelData.swashRingData, board, version, variant));
-  for (int i=0; i<MAX_FLIGHT_MODES(board, version); i++) {
+  internalField.Append(new HeliField(this, modelData.swashRingData, board, version, variant));  // SwashRingData
+  for (int i=0; i<MAX_FLIGHT_MODES(board, version); i++)
     internalField.Append(new FlightModeField(this, modelData.flightModeData[i], i, board, version));
-  }
 
   internalField.Append(new UnsignedField<8>(this, modelData.thrTraceSrc, "Throttle Source"));
 
@@ -2835,6 +2845,16 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
   }
   else if (version >= 219) {
     internalField.Append(new ZCharField<8>(this, modelData.registrationId, "ACCESS Registration ID"));
+  }
+
+  if (IS_JUMPER_TPRO(board)) {
+    internalField.Append(new UnsignedField<16>(this, modelData.functionSwitchConfig));
+    internalField.Append(new UnsignedField<16>(this, modelData.functionSwitchGroup));
+    internalField.Append(new UnsignedField<16>(this, modelData.functionSwitchStartConfig));
+    internalField.Append(new UnsignedField<8>(this, modelData.functionSwitchLogicalState));
+    for (int i=0; i < MAX_FUNCTION_SWITCHES(board, version); ++i) {
+      internalField.Append(new ZCharField<3>(this, modelData.functionSwitchNames[i], "Function switch name"));
+    }
   }
 }
 

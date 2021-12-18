@@ -45,6 +45,7 @@ set(modeledit_HDRS
 set(modeledit_UIS
   setup_timer.ui
   setup_module.ui
+  setup_function_switches.ui
   flightmode.ui
   telemetry_customscreen.ui
   telemetry_sensor.ui

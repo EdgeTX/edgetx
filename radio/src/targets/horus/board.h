@@ -304,6 +304,10 @@ enum EnumSwitchesPositions
 
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
 
+#if !defined(NUM_FUNCTIONS_SWITCHES)
+#define NUM_FUNCTIONS_SWITCHES        0
+#endif
+
 void keysInit();
 uint32_t switchState(uint8_t index);
 uint32_t readKeys();

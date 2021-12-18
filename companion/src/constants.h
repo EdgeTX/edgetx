@@ -43,6 +43,7 @@
 #define CPN_MAX_POTS                   (CPN_MAX_KNOBS + CPN_MAX_SLIDERS)
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES               32
+#define CPN_MAX_FUNCTION_SWITCHES      6
 #define CPN_MAX_MOUSE_ANALOGS          2
 #define CPN_MAX_GYRO_ANALOGS           2
 #define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)

@@ -162,7 +162,8 @@ enum Capability {
   HasAntennaChoice,
   HasADCJitterFilter,
   HasTelemetryBaudrate,
-  TopBarZones
+  TopBarZones,
+  FunctionSwitches
 };
 
 class EEPROMInterface

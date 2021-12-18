@@ -83,9 +83,18 @@
 
 #if defined(PCBFRSKY) || defined(PCBNV14)
   #define SWITCH_CONFIG(x)            (bfGet<swconfig_t>(g_eeGeneral.switchConfig, 2*(x), 2))
+#if defined(FUNCTION_SWITCHES)
+  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, 2*(x), 2))
+  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2*(x), 2))
+  #define IS_SWITCH_FS(x)             (x >= NUM_REGULAR_SWITCHES)
+  #define SWITCH_EXISTS(x)            (IS_SWITCH_FS(x)  ? true : (FSWITCH_CONFIG(x) != SWITCH_NONE))
+  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
+  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
+#else
   #define SWITCH_EXISTS(x)            (SWITCH_CONFIG(x) != SWITCH_NONE)
   #define IS_CONFIG_3POS(x)           (SWITCH_CONFIG(x) == SWITCH_3POS)
   #define IS_CONFIG_TOGGLE(x)         (SWITCH_CONFIG(x) == SWITCH_TOGGLE)
+#endif
   #define SWITCH_WARNING_ALLOWED(x)   (SWITCH_EXISTS(x) && !IS_CONFIG_TOGGLE(x))
 #else
   #define IS_CONFIG_3POS(x)           IS_3POS(x)

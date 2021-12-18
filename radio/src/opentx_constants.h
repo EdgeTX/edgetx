@@ -41,6 +41,12 @@ enum SliderConfig {
   SLIDER_WITH_DETENT,
 };
 
+enum fsStartPositionType {
+  FS_START_UP,
+  FS_START_DOWN,
+  FS_START_PREVIOUS
+};
+
 enum CalibrationState {
   CALIB_START,
   CALIB_SET_MIDPOINT,

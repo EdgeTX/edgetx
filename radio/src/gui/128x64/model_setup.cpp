@@ -39,7 +39,7 @@ uint8_t g_moduleIdx;
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i=0; i<NUM_SWITCHES; ++i) {
+  for (int i=0; i<NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
@@ -68,6 +68,16 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
+#if defined(FUNCTION_SWITCHES)
+  ITEM_MODEL_SETUP_LABEL,
+  ITEM_MODEL_SETUP_SW1,
+  ITEM_MODEL_SETUP_SW2,
+  ITEM_MODEL_SETUP_SW3,
+  ITEM_MODEL_SETUP_SW4,
+  ITEM_MODEL_SETUP_SW5,
+  ITEM_MODEL_SETUP_SW6,
+  ITEM_MODEL_SETUP_FS_STARTUP,
+#endif
   ITEM_MODEL_SETUP_EXTENDED_LIMITS,
   ITEM_MODEL_SETUP_EXTENDED_TRIMS,
   ITEM_MODEL_SETUP_DISPLAY_TRIMS,
@@ -245,6 +255,12 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
   #define EXTRA_MODULE_ROWS
 #endif
 
+#if defined(FUNCTION_SWITCHES)
+  #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
+#else
+  #define FUNCTION_SWITCHES_ROWS
+#endif
+
 #define TRAINER_CHANNELS_ROW           (IS_SLAVE_TRAINER() ? (IS_BLUETOOTH_TRAINER() ? (uint8_t)0 : (uint8_t)1) : HIDDEN_ROW)
 #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
 #define TRAINER_BLUETOOTH_M_ROW        ((bluetooth.distantAddr[0] == '\0' || bluetooth.state == BLUETOOTH_STATE_CONNECTED) ? (uint8_t)0 : (uint8_t)1)
@@ -411,6 +427,7 @@ void menuModelSetup(event_t event)
     TIMER_ROWS(0),
     TIMER_ROWS(1),
     TIMER_ROWS(2),
+    FUNCTION_SWITCHES_ROWS
     0, // Extended limits
     1, // Extended trims
     0, // Show trims
@@ -587,7 +604,62 @@ void menuModelSetup(event_t event)
         timer->persistent = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT, timer->persistent, 0, 2, attr, event);
         break;
       }
+#if defined(FUNCTION_SWITCHES)
 
+      case ITEM_MODEL_SETUP_LABEL:
+        lcdDrawTextAlignedLeft(y, "Function Switches");
+        break;
+
+      case ITEM_MODEL_SETUP_SW1:
+      case ITEM_MODEL_SETUP_SW2:
+      case ITEM_MODEL_SETUP_SW3:
+      case ITEM_MODEL_SETUP_SW4:
+      case ITEM_MODEL_SETUP_SW5:
+      case ITEM_MODEL_SETUP_SW6:
+      {
+        int index = k - ITEM_MODEL_SETUP_SW1;
+        int config = FSWITCH_CONFIG(index);
+        lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES - MIXSRC_Rud + index + 1, menuHorizontalPosition < 0 ? attr : 0);
+        if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
+          editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
+        else
+          lcdDrawMMM(35, y, menuHorizontalPosition == 0 ? attr : 0);
+        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event);
+        if (attr && checkIncDec_Ret) {
+          swconfig_t mask = (swconfig_t)0x03 << (2*index);
+          g_model.functionSwitchConfig = (g_model.functionSwitchConfig & ~mask) | ((swconfig_t(config) & 0x03) << (2*index));
+        }
+
+        config = FSWITCH_GROUP(index);
+        config = editChoice(30 + 15*FW, y, "", STR_FSGROUPS, config, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event);
+        if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
+          swconfig_t mask = (swconfig_t) 0x03 << (2 * index);
+          g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | ((swconfig_t(config) & 0x03) << (2 * index));
+        }
+        break;
+      }
+
+      case ITEM_MODEL_SETUP_FS_STARTUP:
+      {
+        char c;
+        lcdDrawText(0, y, INDENT "Start", menuHorizontalPosition < 0 ? attr : 0);
+        for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
+          uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
+          c = STR_CHAR_UP STR_CHAR_DOWN "="[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN - (2 + FW) + i * 2 * FW, y, i + 1, 0);
+          lcdDrawChar(lcdNextPos, y, c, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+          if (attr && menuHorizontalPosition == i) {
+            CHECK_INCDEC_MODELVAR(event, startPos, 0, 2);
+          }
+          if (attr && checkIncDec_Ret) {
+            swconfig_t mask = (swconfig_t)0x03 << (2*i);
+            g_model.functionSwitchStartConfig = (g_model.functionSwitchStartConfig & ~mask) | ((swconfig_t(startPos) & 0x03) << (2*i));
+            storageDirty(EE_MODEL);
+          }
+        }
+        break;
+      }
+#endif
       case ITEM_MODEL_SETUP_EXTENDED_LIMITS:
         g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
         break;
@@ -724,7 +796,7 @@ void menuModelSetup(event_t event)
           }
 
           int current = 0;
-          for (int i = 0; i < NUM_SWITCHES; i++) {
+          for (int i = 0; i < NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; i++) {
             if (SWITCH_WARNING_ALLOWED(i)) {
               div_t qr = div(current, MAX_SWITCH_PER_LINE);
               if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && attr &&

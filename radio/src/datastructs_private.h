@@ -616,6 +616,17 @@ PACK(struct CustomScreenData {
   #define SCRIPT_DATA
 #endif
 
+#if defined(FUNCTION_SWITCHES) && NUM_FUNCTIONS_SWITCHES < 8
+  #define FUNCTION_SWITCHS_FIELDS \
+    uint16_t functionSwitchConfig;  \
+    uint16_t functionSwitchGroup; \
+    uint16_t functionSwitchStartConfig; \
+    uint8_t functionSwitchLogicalState;  \
+    char switchNames[NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME];
+#else
+  #define FUNCTION_SWITCHS_FIELDS
+#endif
+
 PACK(struct PartialModel {
   ModelHeader header;
   TimerData timers[MAX_TIMERS];
@@ -682,6 +693,8 @@ PACK(struct ModelData {
   CUSTOM_SCREENS_DATA
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
+
+  FUNCTION_SWITCHS_FIELDS
 
   bool isTrainerTraineeEnable() const
   {
@@ -794,7 +807,7 @@ PACK(struct TrainerData {
     uint8_t  backlightColor; \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr); \
-    char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME] SKIP; \
+    char switchNames[STORAGE_NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME] SKIP; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP; \
     BLUETOOTH_FIELDS
 #else

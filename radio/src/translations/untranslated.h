@@ -40,9 +40,20 @@
 #elif defined(PCBXLITE)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SE\0" STR_CHAR_SWITCH"SF\0"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
+#elif defined(RADIO_TPRO)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
-  #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SG\0" STR_CHAR_SWITCH"SH\0" STR_CHAR_SWITCH"SI\0" STR_CHAR_SWITCH"SJ\0"
+#define TR_SW_VSRCRAW                                                      \
+  STR_CHAR_SWITCH                                                          \
+      "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH "SC\0" STR_CHAR_SWITCH \
+      "SD\0" STR_CHAR_SWITCH "SW1" STR_CHAR_SWITCH "SW2" STR_CHAR_SWITCH   \
+      "SW3" STR_CHAR_SWITCH "SW4" STR_CHAR_SWITCH "SW5" STR_CHAR_SWITCH "SW6"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+#define TR_POTS_VSRCRAW STR_CHAR_POT "S1\0" STR_CHAR_POT "S2\0"
+#define TR_SW_VSRCRAW                                                                                                                                                                                                                        \
+  STR_CHAR_SWITCH "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH                                                                                                                                                                              \
+                  "SC\0" STR_CHAR_SWITCH "SD\0" STR_CHAR_SWITCH                                                                                                                                                                              \
+                  "SG\0" STR_CHAR_SWITCH "SH\0" STR_CHAR_SWITCH                                                                                                                                                                              \
+                  "SI\0" STR_CHAR_SWITCH "SJ\0"
 #elif defined(RADIO_TX12)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT "S1\0" STR_CHAR_POT "S2\0"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH "SC\0" STR_CHAR_SWITCH "SD\0" STR_CHAR_SWITCH "SE\0" STR_CHAR_SWITCH "SF\0" STR_CHAR_SWITCH "SI\0" STR_CHAR_SWITCH "SJ\0"
@@ -372,3 +383,7 @@
 #define TR_EDIT_THEME "EDIT THEME"
 #define TR_DETAILS "Details"
 #define TR_THEME_EDITOR "THEMES"
+
+#define LEN_FSGROUPS                    "\001"
+#define TR_FSGROUPS                     "-""1""2""3"
+

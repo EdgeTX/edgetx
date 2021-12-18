@@ -212,6 +212,17 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
   }
 }
 
+void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
+{
+  if (functionSwitchCount == 0)
+    return;
+
+  for (int i = 0; i < functionSwitchCount; i++) {
+    functionSwitchConfig |= (Board::SWITCH_2POS << 2 * i);
+    functionSwitchGroup |= (1 << 2 * i);
+  }
+}
+
 void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settings)
 {
   clear();
@@ -221,6 +232,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
     moduleData[i].modelId = id + 1;
   }
   setDefaultMixes(settings);
+  setDefaultFunctionSwitches(getCurrentFirmware()->getCapability(FunctionSwitches));
 }
 
 int ModelData::getTrimValue(int phaseIdx, int trimIdx)
@@ -1636,6 +1648,80 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
   for (int i = TRAINER_MODE_FIRST; i <= TRAINER_MODE_LAST; i++) {
     mdl->appendToItemList(trainerModeToString(i), i, isTrainerModeAvailable(generalSettings, firmware, i));
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ModelData::funcSwitchConfigToString(const int index) const
+{
+  if (index < CPN_MAX_FUNCTION_SWITCHES)
+    return funcSwitchConfigToString(index, (int)(functionSwitchConfig >> (2 * index)) & 0x03);
+  else
+    return CPN_STR_UNKNOWN_ITEM;
+}
+
+//  static
+QString ModelData::funcSwitchConfigToString(const int index, const int value)
+{
+  switch (value) {
+    case FUNC_SWITCH_CONFIG_NONE:
+      return tr("NONE");
+    case FUNC_SWITCH_CONFIG_TOGGLE:
+      return tr("TOGGLE");
+    case FUNC_SWITCH_CONFIG_2POS:
+      return tr("2POS");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
+
+  for (int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
+    mdl->appendToItemList(funcSwitchConfigToString(0, i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ModelData::funcSwitchStartToString(const int index) const
+{
+  if (index < CPN_MAX_FUNCTION_SWITCHES)
+    return funcSwitchStartToString(index, (int)(functionSwitchStartConfig >> (2 * index)) & 0x03);
+  else
+    return CPN_STR_UNKNOWN_ITEM;
+}
+
+//  static
+QString ModelData::funcSwitchStartToString(const int index, const int value)
+{
+  switch (value) {
+    case FUNC_SWITCH_START_INACTIVE:
+      return CPN_STR_SW_INDICATOR_UP;
+    case FUNC_SWITCH_START_ACTIVE:
+      return CPN_STR_SW_INDICATOR_DN;
+    case FUNC_SWITCH_START_PREVIOUS:
+      return "=";
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * ModelData::funcSwitchStartItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHSTART);
+
+  for (int i = FUNC_SWITCH_START_FIRST; i <= FUNC_SWITCH_START_LAST; i++) {
+    mdl->appendToItemList(funcSwitchStartToString(0, i), i);
   }
 
   mdl->loadItemList();
