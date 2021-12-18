@@ -538,6 +538,20 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["view"] = rhs.view;
   node["modelRegistrationID"] = rhs.registrationId;
 
+  if (getCurrentFirmware()->getCapability(FunctionSwitches)) {
+    node["functionSwitchConfig"] = rhs.functionSwitchConfig;
+    node["functionSwitchGroup"] = rhs.functionSwitchGroup;
+    node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
+    node["functionSwitchLogicalState"] = rhs.functionSwitchLogicalState;
+
+    for (int i = 0; i < CPN_MAX_FUNCTION_SWITCHES; i++) {
+      if (strlen(rhs.functionSwitchNames[i]) > 0) {
+        node["functionSwitchNames"][std::to_string(i)] =
+            rhs.functionSwitchNames[i];
+      }
+    }
+  }
+
   return node;
 }
 
@@ -626,6 +640,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["view"] >> rhs.view;
   node["modelRegistrationID"] >> rhs.registrationId;
+
+  node["functionSwitchConfig"] >> rhs.functionSwitchConfig;
+  node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
+  node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
+  node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
+  node["functionSwitchNames"] >> rhs.functionSwitchNames;
 
   return true;
 }
