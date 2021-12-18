@@ -234,8 +234,6 @@ uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     return 0;
 }
 
-    
-
 uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 {
     // always use 'value'
@@ -244,20 +242,49 @@ uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 
 uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    // always use 'id'
-    return 0;
+  data += bitoffs >> 3UL;
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->type == TELEM_TYPE_CALCULATED
+      && sensor->persistent)
+    return 1;
+
+  return 0;
 }
 
 uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    // always use 'instance'
-    return 0;
+  data += bitoffs >> 3UL;
+  data -= 2 /* size of id1 union */;
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->type == TELEM_TYPE_CALCULATED)
+    return 2; // formula
+  
+  return 1; // instance
 }
 
 uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
 {
-    // always use 'param'
-    return 5;
+  data += bitoffs >> 3UL;
+  data -= offsetof(TelemetrySensor, param);
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->unit < UNIT_FIRST_VIRTUAL) {
+    if (sensor->type == TELEM_TYPE_CALCULATED) {
+      switch(sensor->formula) {
+      case TELEM_FORMULA_CELL: return 1; // cell
+      case TELEM_FORMULA_DIST: return 4; // dist
+      case TELEM_FORMULA_CONSUMPTION: return 3; // consumption
+      case TELEM_FORMULA_TOTALIZE: return 3; // consumption
+      default: return 2; // calc
+      }
+    } else {
+      return 0; // custom
+    }
+  }
+  
+  return 5;
 }
 
 #define r_calib nullptr
