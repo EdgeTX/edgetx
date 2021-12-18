@@ -17,8 +17,6 @@ const struct YamlIdStr enum_AntennaModes[] = {
   {  ANTENNA_MODE_ASK, "MODE_ASK"  },
   {  ANTENNA_MODE_PER_MODEL, "MODE_PER_MODEL"  },
   {  ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
-  {  ANTENNA_MODE_FIRST, "MODE_FIRST"  },
-  {  ANTENNA_MODE_LAST, "MODE_LAST"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TrainerMultiplex[] = {
@@ -51,7 +49,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_SET_FAILSAFE, "SET_FAILSAFE"  },
   {  FUNC_RANGECHECK, "RANGECHECK"  },
   {  FUNC_BIND, "BIND"  },
-  {  FUNC_FIRST_WITHOUT_ENABLE, "FIRST_WITHOUT_ENABLE"  },
   {  FUNC_PLAY_SOUND, "PLAY_SOUND"  },
   {  FUNC_PLAY_TRACK, "PLAY_TRACK"  },
   {  FUNC_PLAY_VALUE, "PLAY_VALUE"  },
@@ -75,8 +72,6 @@ const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
   {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  UART_MODE_LUA, "MODE_LUA"  },
-  {  UART_MODE_COUNT, "MODE_COUNT"  },
-  {  UART_MODE_MAX, "MODE_MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
@@ -173,8 +168,6 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_ADIFFEGREATER, "FUNC_ADIFFEGREATER"  },
   {  LS_FUNC_TIMER, "FUNC_TIMER"  },
   {  LS_FUNC_STICKY, "FUNC_STICKY"  },
-  {  LS_FUNC_COUNT, "FUNC_COUNT"  },
-  {  LS_FUNC_MAX, "FUNC_MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwashType[] = {
@@ -251,8 +244,6 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
   {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
-  {  MODULE_TYPE_COUNT, "TYPE_COUNT"  },
-  {  MODULE_TYPE_MAX, "TYPE_MAX"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_FailsafeModes[] = {
