@@ -122,8 +122,9 @@ class FormGridLayoutEx : public FormGridLayout
 void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayoutEx &grid)
 {
   for (auto luaScript : luaScripts) {
-    auto txt = new StaticText(window, grid.getLabelSlot(), "lua",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt =
+        new StaticText(window, grid.getLabelSlot(), "lua", BUTTON_BACKGROUND,
+                       COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), luaScript.label,
         [window, luaScript]() -> uint8_t {
@@ -145,10 +146,10 @@ void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridL
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -217,8 +218,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
           reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    auto txt = new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
-                              COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt =
+        new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
+                       COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -230,10 +232,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -244,8 +246,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
           reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
-    auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt =
+        new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
+                       COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_INT,
         [=]() -> uint8_t {
@@ -257,10 +260,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -269,8 +272,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #endif
 #if defined(INTERNAL_MODULE_MULTI)
   {
-    auto txt = new StaticText(window, grid.getLabelSlot(), "multi",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt =
+        new StaticText(window, grid.getLabelSlot(), "multi", BUTTON_BACKGROUND,
+                       COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
         [=]() -> uint8_t {
@@ -282,10 +286,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -298,9 +302,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER) ||
       isModuleMultimodule(EXTERNAL_MODULE)) {
-    auto txt = new StaticText(window, grid.getLabelSlot(),
-                              isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt = new StaticText(
+        window, grid.getLabelSlot(),
+        isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
+        BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT,
         [=]() -> uint8_t {
@@ -312,10 +317,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -328,8 +333,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
           reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
-    auto txt = new StaticText(window, grid.getLabelSlot(), "access",
-                              BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
+    auto txt =
+        new StaticText(window, grid.getLabelSlot(), "access", BUTTON_BACKGROUND,
+                       COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_POWER_METER_EXT,
         [=]() -> uint8_t {
@@ -341,10 +347,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
@@ -368,10 +374,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     b->setFocusHandler([=](bool focus) {
       if (focus) {
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED | VCENTERED);
       } else {
         txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(CENTERED);
+        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
       }
       txt->invalidate();
     });
