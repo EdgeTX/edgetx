@@ -1,10 +1,11 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
- * th9x - http://code.google.com/p/th9x
- * er9x - http://code.google.com/p/er9x
- * gruvin9x - http://code.google.com/p/gruvin9x
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
@@ -111,7 +112,19 @@
 
 #define LEN_RETA123                     "\001"
 
-#define TR_RETA123                      "RETA13245LR"
+#if defined(PCBX10)
+  #define TR_RETA123                   "RETA1324567LR"
+#elif defined(PCBHORUS)
+  #define TR_RETA123                   "RETA13245LR"
+#elif defined(PCBX9E)
+  #define TR_RETA123                   "RETA1234LRLR"
+#elif defined(PCBTARANIS) || defined(REVX)
+  #define TR_RETA123                   "RETA123LR"
+#elif defined(PCBSKY9X)
+  #define TR_RETA123                   "RETA123a"
+#else
+  #define TR_RETA123                   "RETA123"
+#endif
 
 #define LEN_VCURVEFUNC                  "\003"
 #define TR_VCURVEFUNC                   "---" "x>0" "x<0" "|x|" "f>0" "f<0" "|f|"
@@ -199,8 +212,8 @@
 #endif
 
 #define TR_SF_SCREENSHOT                "截屏\0           "
-#define TR_SF_RACING_MODE               "RacingMode"
-#define TR_SF_DISABLE_TOUCH             "No Touch"
+#define TR_SF_RACING_MODE               "競速模式\0       "
+#define TR_SF_DISABLE_TOUCH             "禁用觸摸\0       "
 #define TR_SF_RESERVE                   "[保留]\0         "
 
 #define TR_VFSWFUNC                     TR_SF_SAFETY "教練\0           " "搖桿值存儲到微調" "重啟\0           " "設置\0           " TR_ADJUST_GVAR "音量\0           " "設置失控保護\0   " "測距模式\0       " "模塊對頻\0       "  TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "背光\0           " TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_DISABLE_TOUCH TR_SF_TEST
@@ -252,9 +265,6 @@
 #define LEN_VSWASHTYPE                  "\004"
 #define TR_VSWASHTYPE                   "---\0" "120\0" "120X" "140\0" "90\0"
 
-#define LEN_VKEYS                       "\004"
- #define TR_VKEYS                       "菜單" "退出" "確認" "向上" "向下" "向右" "向左"
-
 #define LEN_VSWITCHES                   "\003"
 #define LEN_VSRCRAW                     "\004"
 
@@ -297,8 +307,8 @@
 
 #define LEN_VTRAINERMODES               "\022"
 #define TR_VTRAINER_MASTER_OFF          "禁用\0             "
-#define TR_VTRAINER_MASTER_JACK         "教練主機/音頻插孔\0"
-#define TR_VTRAINER_SLAVE_JACK          "學生從機/音頻插孔\0"
+#define TR_VTRAINER_MASTER_JACK         "教練主機/教練口\0  "
+#define TR_VTRAINER_SLAVE_JACK          "學生從機/教練口\0  "
 #define TR_VTRAINER_MASTER_SBUS_MODULE  "教練主機/SBUS模塊\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE  "教練從機/CPPM模塊\0"
 #define TR_VTRAINER_MASTER_BATTERY      "教練主機/端口\0    "
@@ -315,7 +325,7 @@
 #define TR_VFORMULAS                    "加\0     " "平均值\0 " "最小值\0 " "最大值\0 " "乘\0     " "總計值\0 " "單節電池" "消耗量\0 " "距離\0   "
 
 #define LEN_VPREC                       "\004"
-#define TR_VPREC                        "0.--" "0.0 " "0.00"
+#define TR_VPREC                        "0.--" "0.0-" "0.00"
 
 #define LEN_VCELLINDEX                  "\006"
 #define TR_VCELLINDEX                   "最低值" "1\0    " "2\0    " "3\0    " "4\0    " "5\0    " "6\0    " "最高值" "差值\0 "
@@ -338,7 +348,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                      "[ENTER]"
-#elif defined(PCBNV14)
+#elif !defined(HARDWARE_KEYS)
   #define TR_ENTER                      "[NEXT]"
 #else
   #define TR_ENTER                      "[MENU]"
@@ -350,17 +360,17 @@
 #define TR_POPUPS_ENTER_EXIT            TR_ENTER "\010" TR_EXIT
 
 #define TR_FREE                         "空閒"
-#define TR_YES                         "Yes"
-#define TR_NO                          "No"
+#define TR_YES                         "是"
+#define TR_NO                          "否"
 #define TR_DELETEMODEL                  "刪除" BREAKSPACE "模型"
 #define TR_COPYINGMODEL                 "複製模型..."
 #define TR_MOVINGMODEL                  "移動模型..."
 #define TR_LOADINGMODEL                 "載入模型..."
-#define TR_NAME                         "命名"
+#define TR_NAME                         "名稱"
 #define TR_MODELNAME                    "模型名稱"
 #define TR_PHASENAME                    "模式名稱"
 #define TR_MIXNAME                      "混控名稱"
-#define TR_INPUTNAME                    TR("輸入", "輸入名稱")
+#define TR_INPUTNAME                    TR("名稱", "輸入名稱")
 #define TR_EXPONAME                     TR("名稱", "曲線名稱")
 #define TR_BITMAP                       "模型圖片"
 #define TR_TIMER                        TR("計時器", "計時器 ")
@@ -377,8 +387,8 @@
 #define TR_PROTO                        TR(INDENT "Proto", INDENT "協議")
 #define TR_PPMFRAME INDENT              "PPM幀"
 #define TR_REFRESHRATE                  TR(INDENT "Refresh", INDENT "刷新速率")
-#define STR_WARN_BATTVOLTAGE            TR(INDENT "Output is VBAT: ", INDENT "注意: 輸出電平為電池電壓: ")
-#define TR_WARN_5VOLTS                  "注意: 輸出電平是5V"
+#define STR_WARN_BATTVOLTAGE            TR(INDENT "Output is VBAT: ", INDENT "注意輸出電平為電池電壓")
+#define TR_WARN_5VOLTS                  "注意輸出電平是5V"
 #define TR_MS                           "ms"
 #define TR_FREQUENCY                    INDENT "頻率"
 #define TR_SWITCH                       "開關"
@@ -410,7 +420,7 @@
 #define TR_DREX                         "DRex"
 #define DREX_CHBOX_OFFSET               30
 #define TR_CURVE                        "曲線"
-#define TR_FLMODE                       TR("Mode", "模式")
+#define TR_FLMODE                       TR("Mode", "飛行模式")
 #define TR_MIXWARNING                   "警告"
 #define TR_OFF                          "禁用"
 #define TR_ANTENNA                      "天線"
@@ -486,9 +496,9 @@
 #define TR_SLAVE CENTER                 "從機"
 #define TR_MODESRC                      "Mode\006% Source"
 #define TR_MULTIPLIER                   "倍率"
-#define TR_CAL                          "Cal"
+#define TR_CAL                          "校準"
 #define TR_CALIBRATION                  "校準"
-#define TR_VTRIM                        "微調- +"
+#define TR_VTRIM                        "微調-+"
 #define TR_BG                           "BG:"
 #define TR_CALIB_DONE                   "校準完成"
 #if defined(PCBHORUS)
@@ -520,7 +530,7 @@
 #define TR_MENUTORESET                  TR_ENTER " to reset"
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "CH"
-#define TR_MODEL                        "MODEL"
+#define TR_MODEL                        "模型"
 #define TR_FM                           "FM"
 #define TR_MIX                          "MIX"
 #define TR_EEPROMLOWMEM                 "EEPROM low mem"
@@ -542,8 +552,8 @@
 #define TR_MENU_RADIO_ANALOGS           TR("ANALOGS", "類比輸入測試")
 #define TR_MENUCALIBRATION              "校準"
 #define TR_TRIMS2OFFSETS                "將當前微調量保存至中點"
-#define TR_CHANNELS2FAILSAFE            "將當前所有通道值保存至接收機失控保護"
-#define TR_CHANNEL2FAILSAFE             "將當前通道值保存至接收機失控保護"
+#define TR_CHANNELS2FAILSAFE            "導入當前所有通道值"
+#define TR_CHANNEL2FAILSAFE             "導入當前通道值"
 #define TR_MENUMODELSEL                 TR("MODELSEL", "模型選擇")
 #define TR_MENU_MODEL_SETUP             TR("SETUP", "模型設置")
 #define TR_MENUFLIGHTMODES              "飛行模式設置"
@@ -633,8 +643,8 @@
 #define TR_VOLTAGE                      TR(INDENT "Voltage", INDENT "電壓來源")
 #define TR_CURRENT                      TR(INDENT "Current", INDENT "電流來源")
 #define TR_SELECT_MODEL                 "選擇模型"
-#define TR_MODEL_CATEGORIES            "Model Categories"
-#define TR_MODELS                      "Models"
+#define TR_MODEL_CATEGORIES            "模型分類"
+#define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                  "選擇模式"
 #define TR_CREATE_CATEGORY              "創建分類"
 #define TR_RENAME_CATEGORY              "分類改名"
@@ -693,15 +703,15 @@
 #define TR_EEPROMWARN                   "EEPROM"
 #define TR_STORAGE_WARNING              "存儲"
 #define TR_EEPROM_CONVERTING            "轉換數據"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
-#define TR_CONVERTING                  "Converting: "
+#define TR_SDCARD_CONVERSION_REQUIRE   "需要轉換SD卡"
+#define TR_CONVERTING                  "轉換: "
 #define TR_THROTTLE_UPPERCASE           "油門"
 #define TR_ALARMSWARN                   "警告"
 #define TR_SWITCHWARN                   TR("開關", "開關位置")
 #define TR_FAILSAFEWARN                 "失控保護"
 #define TR_TEST_WARNING                 TR("TESTING", "測試版本")
 #define TR_TEST_NOTSAFE                 "只用於測試"
-#define TR_WRONG_SDCARDVERSION          TR("Expected ver: ", "預覽版本: ")
+#define TR_WRONG_SDCARDVERSION          TR("Expected ver: ", "請將SD卡文件更換為正確版本: ")
 #define TR_WARN_RTC_BATTERY_LOW         "時間驅動電池電壓低"
 #define TR_WARN_MULTI_LOWPOWER          "低功率模式"
 #define TR_BATTERY                      "電池"
@@ -721,7 +731,7 @@
 #define TR_COPROC_TEMP                  "主板溫度"
 #define TR_CAPAWARNING INDENT           "電流過低"
 #define TR_TEMPWARNING INDENT           "過熱"
-#define TR_TTL_WARNING                  "注意：使用逻辑电平3.3V"
+#define TR_TTL_WARNING                  "注意串口使用逻辑电平3.3V"
 #define TR_FUNC                         "功能"
 #define TR_V1                           "V1"
 #define TR_V2                           "V2"
@@ -802,7 +812,7 @@
 #define TR_FLASH_EXTERNAL_MODULE        "更新外置模塊韌體"
 #define TR_FLASH_EXTERNAL_MULTI         "更新外置多協議模塊韌體"
 #define TR_FIRMWARE_UPDATE_ERROR        "韌體更新失敗韌體"
-#define TR_FLASH_EXTERNAL_ELRS          "Flash External ELRS"
+#define TR_FLASH_EXTERNAL_ELRS          "更新外置ELRS模塊韌體"
 #define TR_FIRMWARE_UPDATE_SUCCESS      "韌體更新成功"
 #define TR_WRITING                      "正在寫入..."
 #define TR_CONFIRM_FORMAT               "是否格式化?"
@@ -1272,3 +1282,33 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+
+#define TR_USE_THEME_COLOR            "使用主題顏色"
+
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将將所有微調導入中點偏移值"
+#define TR_DUPLICATE                  "複製"
+#define TR_ACTIVATE                   "啟用"
+#define TR_RED                        "紅"
+#define TR_BLUE                       "藍"
+#define TR_GREEN                      "綠"
+#define TR_COLOR_PICKER               "拾取顏色"
+#define TR_EDIT_THEME_DETAILS         "主題信息"
+#define TR_AUTHOR                     "作者"
+#define TR_DESCRIPTION                "描述"
+#define TR_SAVE                       "保存"
+#define TR_CANCEL                     "取消"
+#define TR_EDIT_THEME                 "編輯主題"
+#define TR_DETAILS                    "詳細信息"
+#define TR_THEME_EDITOR               "主題"
+
+// Main menu
+#define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
+#define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
+#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
+#define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
+#define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
+#define TR_MAIN_MENU_SCREEN_SETTINGS  "顯示設置"
+#define TR_MAIN_MENU_RESET_TELEMETRY  "復位功能"
+#define TR_MAIN_MENU_STATISTICS       "統計信息"
+#define TR_MAIN_MENU_ABOUT_EDGETX     "關於"
+// End Main menu
