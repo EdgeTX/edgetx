@@ -28,6 +28,7 @@
 #include "yaml_logicalswitchdata.h"
 #include "yaml_customfunctiondata.h"
 #include "yaml_sensordata.h"
+#include "yaml_screendata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -526,9 +527,13 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["toplcdTimer"] = rhs.toplcdTimer;
 
-  // B&W only
-  // customScreens
-  // topBarData
+  for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
+    const auto& csd = rhs.customScreens.customScreenData[i];
+    if (!csd.isEmpty()) {
+      node["screenData"][std::to_string(i)] = csd;
+    }
+  }
+  node["topbarData"] = rhs.topBarData;
 
   node["view"] = rhs.view;
   node["modelRegistrationID"] = rhs.registrationId;
@@ -616,6 +621,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   // customScreens
   // topBarData
+  node["screenData"] >> rhs.customScreens.customScreenData;
+  node["topbarData"] >> rhs.topBarData;
+
   node["view"] >> rhs.view;
   node["modelRegistrationID"] >> rhs.registrationId;
 

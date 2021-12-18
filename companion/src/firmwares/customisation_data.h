@@ -20,6 +20,7 @@
 
 #pragma once
 #include "constants.h"
+#include "rawsource.h"
 
 #include <QtCore>
 
@@ -58,6 +59,8 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   int signedValue;
   unsigned int boolValue;
   char stringValue[LEN_ZONE_OPTION_STRING + 1];
+  RawSource sourceValue;
+  unsigned int colorValue;
 };
 
 enum ZoneOptionValueEnum {
@@ -65,7 +68,9 @@ enum ZoneOptionValueEnum {
   ZOV_Signed,
   ZOV_Bool,
   ZOV_String,
-  ZOV_LAST = ZOV_String
+  ZOV_Source,
+  ZOV_Color,
+  ZOV_LAST = ZOV_Color
 };
 
 struct ZoneOption
@@ -93,6 +98,8 @@ struct ZoneOptionValueTyped
 {
   ZoneOptionValueEnum type;
   ZoneOptionValue     value;
+
+  bool isEmpty() const;
 };
 
 struct WidgetPersistentData {
@@ -102,6 +109,8 @@ struct WidgetPersistentData {
 struct ZonePersistentData {
   char widgetName[WIDGET_NAME_LEN + 1];
   WidgetPersistentData widgetData;
+
+  bool isEmpty() const;
 };
 
 template<int N, int O>
@@ -141,6 +150,8 @@ class RadioLayout
     struct CustomScreenData {
       char layoutId[LAYOUT_ID_LEN + 1];
       LayoutPersistentData layoutPersistentData;
+
+      bool isEmpty() const;
     };
 
     struct CustomScreens {

@@ -85,6 +85,25 @@ inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
   }
 }
 
+static const ZoneOptionValueTyped zero_widget_option = {
+  ZOV_Unsigned, {0}
+};
+
+bool ZoneOptionValueTyped::isEmpty() const
+{
+  return !memcmp((void*)this, &zero_widget_option, sizeof(zero_widget_option));
+}
+
+bool ZonePersistentData::isEmpty() const
+{
+  return strlen(widgetName) == 0;
+}
+
+bool RadioLayout::CustomScreenData::isEmpty() const
+{
+  return strlen(layoutId) == 0;
+}
+
 void RadioTheme::init(const char* themeName, ThemeData& themeData)
 {
   memset(&themeData, 0, sizeof(ThemeData));
