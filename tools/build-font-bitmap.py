@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
-from charset import get_chars, special_chars, extra_chars, standard_chars, is_cjk_char
+from charset import get_chars, special_chars, extra_chars, standard_chars
 
 EXTRA_BITMAP_MAX_WIDTH = 297
 
