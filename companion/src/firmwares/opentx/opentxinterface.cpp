@@ -990,6 +990,7 @@ EepromLoadErrors OpenTxEepromInterface::checkVersion(unsigned int version)
       // ALL: YAML storage
       // X10PCB: add pots EXT3 and EXT4 (conversion required as shifts slider settings in multiple fields)
       // RM TX16S: add Flysky gimbals firmware build option and repurpose EXT3 and EXT4 if selected
+      // ??: add source TX GPS
       break;
 
     default:
@@ -1394,7 +1395,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
 
   /* Jumper T-Pro board */
-  firmware = new OpenTxFirmware("opentx-tpro", QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
+  firmware = new OpenTxFirmware("edgetx-tpro", QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
@@ -1423,7 +1424,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
 
   /* Radiomaster Zorro board */
-  firmware = new OpenTxFirmware("opentx-zorro", QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
+  firmware = new OpenTxFirmware("edgetx-zorro", QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
