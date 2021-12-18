@@ -27,6 +27,7 @@
 #include "yaml_moduledata.h"
 #include "yaml_logicalswitchdata.h"
 #include "yaml_customfunctiondata.h"
+#include "yaml_sensordata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -336,6 +337,54 @@ struct convert<GVarData> {
   }
 };
 
+struct YamlScriptDataInput { int i; };
+
+template <>
+struct convert<YamlScriptDataInput> {
+  static Node encode(const YamlScriptDataInput& rhs)
+  {
+    Node node;
+    node["u"]["value"] = rhs.i;
+    return node;
+  }
+  static bool decode(const Node& node, YamlScriptDataInput& rhs)
+  {
+    node["u"]["value"] >> rhs.i;
+    return true;
+  }
+};
+
+template <>
+struct convert<ScriptData> {
+  static Node encode(const ScriptData& rhs)
+  {
+    Node node;
+    node["file"] = rhs.filename;
+    node["name"] = rhs.name;
+
+    for (int i=0; i < 6; i++) {
+      node["inputs"][std::to_string(i)]["u"]["value"] = (int)rhs.inputs[i];
+    }
+    
+    return node;
+  }
+
+  static bool decode(const Node& node, ScriptData& rhs)
+  {
+    node["file"] >> rhs.filename;
+    node["name"] >> rhs.name;
+
+    YamlScriptDataInput inputs[CPN_MAX_SCRIPT_INPUTS];
+    node["inputs"] >> inputs;
+
+    for (int i=0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
+      rhs.inputs[i] = inputs[i].i;
+    }
+    
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -463,8 +512,17 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
-  // scriptData[]
-  // sensorData[]
+  for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
+    if (strlen(rhs.scriptData[i].filename) > 0) {
+      node["scriptData"][std::to_string(i)] = rhs.scriptData[i];
+    }
+  }
+
+  for (int i=0; i<CPN_MAX_SENSORS; i++) {
+    if (!rhs.sensorData[i].isEmpty()) {
+      node["telemetrySensors"][std::to_string(i)] = rhs.sensorData[i];
+    }
+  }
 
   node["toplcdTimer"] = rhs.toplcdTimer;
 
@@ -551,8 +609,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
   node["moduleData"] >> rhs.moduleData;
-  // scriptData[]
-  // sensorData[]
+  node["scriptData"] >> rhs.scriptData;
+  node["telemetrySensors"] >> rhs.sensorData;
 
   node["toplcdTimer"] >> rhs.toplcdTimer;
 
