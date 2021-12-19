@@ -479,6 +479,26 @@ struct convert<ScriptData> {
   }
 };
 
+template <>
+struct convert<RSSIAlarmData> {
+  static Node encode(const RSSIAlarmData& rhs)
+  {
+    Node node;
+    node["disabled"] = rhs.disabled;
+    node["warning"] = rhs.warning;
+    node["critical"] = rhs.critical;
+    return node;
+  }
+
+  static bool decode(const Node& node, RSSIAlarmData& rhs)
+  {
+    node["disabled"] >> rhs.disabled;
+    node["warning"] >> rhs.warning;
+    node["critical"] >> rhs.critical;
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -602,8 +622,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["telemetryProtocol"] = rhs.telemetryProtocol;
 
   // frsky
+
   // rssiSource
-  // rssiAlarms
+
+  node["rssiAlarms"] = rhs.rssiAlarms;
 
   node["trainerMode"] = trainerModeLut << rhs.trainerMode;
 
@@ -729,8 +751,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["telemetryProtocol"] >> rhs.telemetryProtocol;
 
   // frsky
+
   // rssiSource
-  // rssiAlarms
+
+  node["rssiAlarms"] >> rhs.rssiAlarms;
 
   node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
   node["moduleData"] >> rhs.moduleData;
