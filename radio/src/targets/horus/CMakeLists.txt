@@ -15,6 +15,7 @@ set(SDCARD YES)
 set(STORAGE SDCARD)
 set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
+set(SPI_FLASH YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
@@ -139,6 +140,9 @@ elseif (PCB STREQUAL X12S)
       message("Horus: Internal GPS is optional, use INTERNAL_GPS=YES option to enable it")
     endif()
   endif()
+  if(${PCBEV} LESS 13)
+    set(SPI_FLASH NO)
+  endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
   add_definitions(-DPCBX12S)
   set(TARGET_SRC
@@ -178,6 +182,15 @@ add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
 set(SDRAM ON)
+
+if(SPI_FLASH)
+  set(TARGET_SRC ${TARGET_SRC}
+    flash_spi_driver.cpp
+    ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+    ../../thirdparty/littlefs_v2.4.1/lfs.c
+  )
+  add_definitions(-DSPI_FLASH)
+endif()
 
 if(DEFAULT_THEME)
   add_definitions(-DDEFAULT_THEME_${DEFAULT_THEME})

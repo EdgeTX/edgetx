@@ -92,6 +92,10 @@ macro(add_gui_src src)
     )
 endmacro(add_gui_src)
 
+if(SPI_FLASH)
+  add_gui_src(radio_flashmanager.cpp)
+endif()
+
 if(LUA)
   add_gui_src(standalone_lua.cpp)
   set(SRC ${SRC} lua/widgets.cpp)

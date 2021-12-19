@@ -603,35 +603,41 @@
 #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
 
-// EEPROM
+// SPI NOR Flash 
 #if defined(PCBX12S) && PCBREV >= 13
-  #define EEPROM_RCC_AHB1Periph           RCC_AHB1Periph_GPIOA
-  #define EEPROM_RCC_APB1Periph           RCC_APB1Periph_SPI1
-  #define EEPROM_SPI_CS_GPIO              GPIOA
-  #define EEPROM_SPI_CS_GPIO_PIN          GPIO_Pin_15 // PA.15
-  #define EEPROM_SPI_SCK_GPIO             GPIOA
-  #define EEPROM_SPI_SCK_GPIO_PIN         GPIO_Pin_5  // PA.05
-  #define EEPROM_SPI_SCK_GPIO_PinSource   GPIO_PinSource5
-  #define EEPROM_SPI_MISO_GPIO            GPIOA
-  #define EEPROM_SPI_MISO_GPIO_PIN        GPIO_Pin_6  // PA.06
-  #define EEPROM_SPI_MISO_GPIO_PinSource  GPIO_PinSource6
-  #define EEPROM_SPI_MOSI_GPIO            GPIOA
-  #define EEPROM_SPI_MOSI_GPIO_PIN        GPIO_Pin_7  // PA.07
-  #define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource7
+  #define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOA
+  #define FLASH_RCC_APB1Periph           RCC_APB1Periph_SPI1
+  #define FLASH_SPI                      SPI1
+  #define FLASH_SPI_GPIO_AF              GPIO_AF_SPI1
+  #define FLASH_SPI_CS_GPIO              GPIOA
+  #define FLASH_SPI_CS_GPIO_PIN          GPIO_Pin_15 // PA.15
+  #define FLASH_SPI_CS_GPIO_PinSource    GPIO_PinSource15
+  #define FLASH_SPI_SCK_GPIO             GPIOA
+  #define FLASH_SPI_SCK_GPIO_PIN         GPIO_Pin_5  // PA.05
+  #define FLASH_SPI_SCK_GPIO_PinSource   GPIO_PinSource5
+  #define FLASH_SPI_MISO_GPIO            GPIOA
+  #define FLASH_SPI_MISO_GPIO_PIN        GPIO_Pin_6  // PA.06
+  #define FLASH_SPI_MISO_GPIO_PinSource  GPIO_PinSource6
+  #define FLASH_SPI_MOSI_GPIO            GPIOA
+  #define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_7  // PA.07
+  #define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource7
 #elif defined(PCBX10)
-  #define EEPROM_RCC_AHB1Periph           RCC_AHB1Periph_GPIOI
-  #define EEPROM_RCC_APB1Periph           RCC_APB1Periph_SPI2
-  #define EEPROM_SPI_CS_GPIO              GPIOI
-  #define EEPROM_SPI_CS_GPIO_PIN          GPIO_Pin_0  // PI.00
-  #define EEPROM_SPI_SCK_GPIO             GPIOI
-  #define EEPROM_SPI_SCK_GPIO_PIN         GPIO_Pin_1  // PI.01
-  #define EEPROM_SPI_SCK_GPIO_PinSource   GPIO_PinSource1
-  #define EEPROM_SPI_MISO_GPIO            GPIOI
-  #define EEPROM_SPI_MISO_GPIO_PIN        GPIO_Pin_2  // PI.02
-  #define EEPROM_SPI_MISO_GPIO_PinSource  GPIO_PinSource2
-  #define EEPROM_SPI_MOSI_GPIO            GPIOI
-  #define EEPROM_SPI_MOSI_GPIO_PIN        GPIO_Pin_3  // PI.03
-  #define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource3
+  #define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOI
+  #define FLASH_RCC_APB1Periph           RCC_APB1Periph_SPI2
+  #define FLASH_SPI                      SPI2
+  #define FLASH_SPI_GPIO_AF              GPIO_AF_SPI2
+  #define FLASH_SPI_CS_GPIO              GPIOI
+  #define FLASH_SPI_CS_GPIO_PIN          GPIO_Pin_0  // PI.00
+  #define FLASH_SPI_CS_GPIO_PinSource    GPIO_PinSource0
+  #define FLASH_SPI_SCK_GPIO             GPIOI
+  #define FLASH_SPI_SCK_GPIO_PIN         GPIO_Pin_1  // PI.01
+  #define FLASH_SPI_SCK_GPIO_PinSource   GPIO_PinSource1
+  #define FLASH_SPI_MISO_GPIO            GPIOI
+  #define FLASH_SPI_MISO_GPIO_PIN        GPIO_Pin_2  // PI.02
+  #define FLASH_SPI_MISO_GPIO_PinSource  GPIO_PinSource2
+  #define FLASH_SPI_MOSI_GPIO            GPIOI
+  #define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_3  // PI.03
+  #define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource3
 #endif
 
 // Audio

@@ -221,7 +221,7 @@ extern const char* boardLcdType;
 void RadioVersionPage::build(FormWindow * window)
 {
   FormGridLayout grid;
-  grid.setLabelWidth(60);
+  grid.setLabelWidth(80);
   grid.spacer(PAGE_PADDING);
 
   // Radio type
@@ -248,6 +248,13 @@ void RadioVersionPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), "OPTS:", 0, COLOR_THEME_PRIMARY1);
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
+
+#if defined(SPI_FLASH)
+  new StaticText(window, grid.getLabelSlot(), "SPI Flash ID:");
+  sprintf(reusableBuffer.moduleSetup.msg, "%04X", flashSpiReadID());
+  new StaticText(window, grid.getFieldSlot(1,0), reusableBuffer.moduleSetup.msg);
+  grid.nextLine();
+#endif
 
 #if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   new StaticText(window, grid.getLabelSlot(), "LCD:");
