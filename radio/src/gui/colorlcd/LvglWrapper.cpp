@@ -103,6 +103,7 @@ void lv_example_label_1(void)
 
 extern "C" void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 {
+#if defined(HARDWARE_TOUCH)
   TouchState st = touchPanelRead();
   if(st.event == TE_NONE)
   return;
@@ -119,6 +120,7 @@ extern "C" void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
   }
+#endif
 }
 
 static void slider_event_cb(lv_event_t * e);
