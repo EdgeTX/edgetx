@@ -19,7 +19,7 @@ else()
 endif()
 
 if(PCB STREQUAL X10)
-  set(FONT_ARGS ${FONT_ARGS} --reverse)
+#  set(FONT_ARGS ${FONT_ARGS} --reverse)
 endif()
 
 add_truetype_font_target(9      9  ${subset} none "${FONT_ARGS}")

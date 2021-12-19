@@ -170,7 +170,7 @@ uint8_t * decompressFont(const uint8_t * font, unsigned len)
   ((uint16_t*)buf)[0] = (uint16_t)width;
   ((uint16_t*)buf)[1] = (uint16_t)height;
 
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   uint8_t* src = raw_font + font_size - 1;
   for(uint8_t* dst = buf + 4; src >= raw_font; --src, ++dst) {
     *dst = 0xFF - *src;
