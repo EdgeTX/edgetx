@@ -79,11 +79,7 @@ class OutputEditWindow : public Page {
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
                          GET_SET_DEFAULT(output->min), 0, PREC1
-#if defined(GVARS)
-                         , -LIMIT_STD_MAX
-#endif
-                         );
-
+                         , -LIMIT_STD_MAX);
       grid.nextLine();
 
       // Max
@@ -91,10 +87,7 @@ class OutputEditWindow : public Page {
                      COLOR_THEME_PRIMARY1);
       new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
                          GET_SET_DEFAULT(output->max), 0, PREC1
-#if defined(GVARS)
-                         , +LIMIT_STD_MAX
-#endif
-                         );
+                         , +LIMIT_STD_MAX);
       grid.nextLine();
 
       // Direction
