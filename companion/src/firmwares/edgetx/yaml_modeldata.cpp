@@ -195,7 +195,7 @@ struct YamlSwitchWarningState {
     uint64_t states = 0;
 
     for (unsigned int i = 0; i < src_str.size() / 2; i++) {
-      const char* val = src_str.substr(i * 2, 2).c_str();
+      auto val = src_str.substr(i * 2, 2);
       if (val[0] >= 'A' && val[0] <= 'Z' && (
           val[1] == 'u' || val[1] == '-' || val[1] == 'd')) {
 
@@ -505,7 +505,7 @@ struct convert<RSSIAlarmData> {
   static Node encode(const RSSIAlarmData& rhs)
   {
     Node node;
-    node["disabled"] = rhs.disabled;
+    node["disabled"] = (int)rhs.disabled;
     node["warning"] = rhs.warning - 45;
     node["critical"] = rhs.critical - 42;
     return node;
@@ -525,9 +525,18 @@ struct convert<RSSIAlarmData> {
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
-  node["header"]["name"] = rhs.name;
-  node["header"]["bitmap"] = rhs.bitmap;
-  // TODO: modelId
+  auto board = getCurrentBoard();
+
+  Node header;
+  header["name"] = rhs.name;
+  header["bitmap"] = rhs.bitmap;
+
+  for (int i=0; i<CPN_MAX_MODULES; i++) {
+    if (rhs.moduleData[i].protocol != PULSES_OFF) {
+      header["modelId"][std::to_string(i)] = rhs.moduleData[i].modelId;
+    }
+  }
+  node["header"] = header;
 
   for (int i=0; i<CPN_MAX_TIMERS; i++) {
     Node timer;
@@ -671,17 +680,21 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
-  node["toplcdTimer"] = rhs.toplcdTimer;
-
-  for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
-    const auto& csd = rhs.customScreens.customScreenData[i];
-    if (!csd.isEmpty()) {
-      node["screenData"][std::to_string(i)] = csd;
-    }
+  if (IS_TARANIS_X9E(board)) {
+    node["toplcdTimer"] = rhs.toplcdTimer;
   }
-  node["topbarData"] = rhs.topBarData;
 
-  node["view"] = rhs.view;
+  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
+    for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
+      const auto& csd = rhs.customScreens.customScreenData[i];
+      if (!csd.isEmpty()) {
+        node["screenData"][std::to_string(i)] = csd;
+      }
+    }
+    node["topbarData"] = rhs.topBarData;
+    node["view"] = rhs.view;
+  }
+
   node["modelRegistrationID"] = rhs.registrationId;
 
   if (getCurrentFirmware()->getCapability(FunctionSwitches)) {
@@ -707,11 +720,16 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   if (node["header"]) {
     const auto& header = node["header"];
-    if (!header.IsMap()) return false;
+    if (header.IsMap()) {
+      header["name"] >> rhs.name;
+      header["bitmap"] >> rhs.bitmap;
 
-    header["name"] >> rhs.name;
-    header["bitmap"] >> rhs.bitmap;
-    // TODO: modelId
+      unsigned int modelIds[CPN_MAX_MODULES];
+      header["modelId"] >> modelIds;
+      for (int i=0; i<CPN_MAX_MODULES; i++) {
+        rhs.moduleData[i].modelId = modelIds[i];
+      }
+    }
   }
 
   if (node["timers"]) {
