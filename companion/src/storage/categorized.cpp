@@ -225,7 +225,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     setError(tr("Can't extract RADIO/radio.yml"));
     return false;
   }
-  
+
   if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
     setError(tr("Can't load RADIO/radio.yml"));
     return false;
@@ -256,7 +256,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       QString filename = "MODELS/" + QString::fromStdString(mc.first);
       if (!loadFile(modelBuffer, filename)) {
         setError(tr("Can't extract ") + filename);
-        return false;      
+        return false;
       }
 
       // Please note:
@@ -269,7 +269,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
       if (!loadModelFromYaml(model,modelBuffer)) {
         setError(tr("Can't load ") + filename);
-        return false;      
+        return false;
       }
 
       model.used = true;
@@ -295,7 +295,7 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
   }
 
   bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
-  
+
   EtxModelfiles modelFiles;
   for (const auto& model : radioData.models) {
 
@@ -329,6 +329,5 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     }
   }
 
-  // force error to avoid overwriting the archive...
-  return false;
+  return true;
 }
