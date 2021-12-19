@@ -80,6 +80,8 @@ struct YamlTrim {
   YamlTrim(int mode, int ref, int value):
     mode(mode), ref(ref), value(value)
   {}
+
+  bool isEmpty() { return !mode && !ref && !value; }
 };
 
 struct YamlThrTrace {
@@ -340,25 +342,46 @@ struct convert<YamlTrim> {
   }
 };
 
-template <>
-struct convert<FlightModeData> {
-  static Node encode(const FlightModeData& rhs)
-  {
+Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
+{
     Node node;
-    // TODO: use max number of trims for radio instead
-    YamlTrim yt[CPN_MAX_TRIMS];
-    for (int i=0; i<CPN_MAX_TRIMS; i++) {
+
+    size_t n_trims = Boards::getCapability(getCurrentBoard(), Board::NumTrims);
+    YamlTrim yt[n_trims];
+
+    Node trims;
+    for (size_t i=0; i<n_trims; i++) {
       yt[i] = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
+      if (!yt[i].isEmpty()) {
+        trims[std::to_string(i)] = yt[i];
+      }
     }
-    node["trim"] = encode_array(yt);
-    node["swtch"] = rhs.swtch;
+    if (trims && trims.IsMap()) {
+      node["trim"] = trims;
+    }
+
+    if (phaseIdx > 0) {
+      node["swtch"] = rhs.swtch;
+    }
     node["name"] = rhs.name;
     node["fadeIn"] = rhs.fadeIn;
     node["fadeOut"] = rhs.fadeOut;
-    node["gvars"] = encode_array(rhs.gvars);
-    return node;
-  }
 
+    Node gvars;
+    for (size_t i=0; i<CPN_MAX_GVARS; i++) {
+      if (!rhs.isGVarEmpty(phaseIdx, i)) {
+        gvars[std::to_string(i)] = rhs.gvars[i];
+      }
+    }
+    if (gvars && gvars.IsMap()) {
+      node["gvars"] = gvars;
+    }
+    
+    return node;
+}
+
+template <>
+struct convert<FlightModeData> {
   static bool decode(const Node& node, FlightModeData& rhs)
   {
     YamlTrim trims[CPN_MAX_TRIMS];
@@ -638,15 +661,19 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
-      header["modelId"][std::to_string(i)] = rhs.moduleData[i].modelId;
+      header["modelId"][std::to_string(i)]["val"] = rhs.moduleData[i].modelId;
     }
   }
   node["header"] = header;
 
+  Node timers;
   for (int i=0; i<CPN_MAX_TIMERS; i++) {
-    Node timer;
-    timer = rhs.timers[i];
-    node["timers"][std::to_string(i)] = timer;
+    if (!rhs.timers[i].isEmpty()) {
+      timers[std::to_string(i)] = rhs.timers[i];
+    }
+  }
+  if (timers && timers.IsMap()) {
+    node["timers"] = timers;
   }
 
   node["noGlobalFunctions"] = (int)rhs.noGlobalFunctions;
@@ -660,26 +687,23 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["throttleReversed"] = (int)rhs.throttleReversed;
 
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
-    Node fmNode;
-    fmNode = rhs.flightModeData[i];
-    node["flightModeData"].push_back(fmNode);
+    if (!rhs.flightModeData[i].isEmpty(i)) {
+      node["flightModeData"][std::to_string(i)] =
+          EncodeFMData(rhs.flightModeData[i], i);
+    }
   }
 
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
     const MixData& mix = rhs.mixData[i];
     if (!mix.isEmpty()) {
-      Node mixNode;
-      mixNode = mix;
-      node["mixData"].push_back(mixNode);
+      node["mixData"].push_back(Node(mix));
     }
   }
 
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     const LimitData& limit = rhs.limitData[i];
     if (!limit.isEmpty()) {
-      Node limitNode;
-      limitNode = limit;
-      node["limitData"].push_back(limitNode);
+      node["limitData"].push_back(Node(limit));
     }
   }
 
@@ -772,7 +796,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   Node vario;
-  vario["source"] = YamlTelemSource{rhs.frsky.varioSource};
+  vario["source"] = YamlTelemSource(rhs.frsky.varioSource);
   vario["centerSilent"] = (int)rhs.frsky.varioCenterSilent;
   vario["centerMax"] = rhs.frsky.varioCenterMax;
   vario["centerMin"] = rhs.frsky.varioCenterMin;
