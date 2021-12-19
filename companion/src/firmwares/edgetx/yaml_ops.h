@@ -122,19 +122,16 @@ std::string LookupValue(const YamlLookupTable& lut, const int& value);
 Node operator << (const YamlLookupTable& lut, const int& value);
 
 template <typename T, size_t N>
-struct convert_array
+Node encode_array(const T (&rhs)[N])
 {
-  static YAML::Node encode(const T (&rhs)[N])
-  {
-    Node node;
-    for (size_t i=0; i<N; i++) {
-      Node elmt;
-      elmt = rhs[i];
-      node.push_back(elmt);
-    }
-    return node;
+  Node node;
+  for (size_t i = 0; i < N; i++) {
+    Node elmt;
+    elmt = rhs[i];
+    node.push_back(elmt);
   }
-};
+  return node;
+}
 
 template <typename T>
 struct convert_enum

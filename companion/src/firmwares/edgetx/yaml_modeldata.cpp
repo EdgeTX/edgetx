@@ -369,12 +369,12 @@ struct convert<FlightModeData> {
     for (int i=0; i<CPN_MAX_TRIMS; i++) {
       yt[i] = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
     }
-    node["trim"] = convert_array<YamlTrim,CPN_MAX_TRIMS>::encode(yt);
+    node["trim"] = encode_array(yt);
     node["swtch"] = rhs.swtch;
     node["name"] = rhs.name;
     node["fadeIn"] = rhs.fadeIn;
     node["fadeOut"] = rhs.fadeOut;
-    node["gvars"] = convert_array<int,CPN_MAX_GVARS>::encode(rhs.gvars);
+    node["gvars"] = encode_array(rhs.gvars);
     return node;
   }
 
@@ -522,6 +522,130 @@ struct convert<RSSIAlarmData> {
   }
 };
 
+struct YamlTelemSource {
+  unsigned int src = 0;
+  YamlTelemSource() = default;
+  YamlTelemSource(const unsigned int src) : src(src) {}
+};
+
+template <>
+struct convert<YamlTelemSource> {
+  static Node encode(const YamlTelemSource& rhs)
+  {
+    if (rhs.src == 0)
+      return Node("none");
+    return Node(rhs.src - 1);
+  }
+
+  static bool decode(const Node& node, YamlTelemSource& rhs)
+  {
+    if (node && node.IsScalar()) {
+      std::string str = node.Scalar();
+      if (str == "none") {
+        rhs.src = 0;
+      } else {
+        rhs.src = std::stoi(str) + 1;
+      }
+    }
+    return true;
+  }
+};
+
+template <>
+struct convert<FrSkyBarData> {
+  static Node encode(const FrSkyBarData& rhs)
+  {
+    Node node;
+    if (rhs.source.isSet()) {
+      node["source"] = rhs.source;
+      node["barMin"] = rhs.barMin;
+      node["barMax"] = rhs.barMax;
+    }
+    return node;
+  }
+
+  static bool decode(const Node& node, FrSkyBarData& rhs)
+  {
+    node["source"] >> rhs.source;
+    node["barMin"] >> rhs.barMin;
+    node["barMax"] >> rhs.barMax;
+    return true;
+  }
+};
+
+template <>
+struct convert<FrSkyLineData> {
+  static Node encode(const FrSkyLineData& rhs)
+  {
+    Node node, sources;
+    sources = encode_array(rhs.source);
+    if (sources && sources.IsMap()) {
+      node["sources"] = sources;
+    }
+    return node;
+  }
+
+  static bool decode(const Node& node, FrSkyLineData& rhs)
+  {
+    node["sources"] >> rhs.source;
+    return true;
+  }
+};
+
+static const YamlLookupTable screenTypeLut = {
+  {TELEMETRY_SCREEN_NONE, "NONE"},
+  {TELEMETRY_SCREEN_NUMBERS, "VALUES"},
+  {TELEMETRY_SCREEN_BARS, "BARS"},
+  {TELEMETRY_SCREEN_SCRIPT, "SCRIPT"},
+};
+
+template <>
+struct convert<FrSkyScreenData> {
+  static Node encode(const FrSkyScreenData& rhs)
+  {
+    Node node;
+    node["type"] = LookupValue(screenTypeLut, rhs.type);
+    switch(rhs.type) {
+    case TELEMETRY_SCREEN_NONE:
+      break;
+    case TELEMETRY_SCREEN_NUMBERS:
+      node["lines"] = encode_array(rhs.body.lines);
+      break;
+    case TELEMETRY_SCREEN_BARS:
+      node["bars"] = encode_array(rhs.body.bars);
+      break;
+    case TELEMETRY_SCREEN_SCRIPT:
+      node["script"]["file"] = rhs.body.script.filename;
+      break;
+    }
+    return node;
+  }
+
+  static bool decode(const Node& node, FrSkyScreenData& rhs)
+  {
+    node["type"] >> screenTypeLut >> rhs.type;
+    switch(rhs.type) {
+    case TELEMETRY_SCREEN_NONE:
+      return true;
+    case TELEMETRY_SCREEN_NUMBERS:
+      node["lines"] >> rhs.body.lines;
+      break;
+    case TELEMETRY_SCREEN_BARS:
+      node["bars"] >> rhs.body.bars;
+      break;
+    case TELEMETRY_SCREEN_SCRIPT:
+      if (node["script"]) {
+        const auto& script = node["script"];
+        if (script && script.IsMap()) {
+          script["file"] >> rhs.body.script.filename;
+        }
+      }
+      break;
+    }
+    return true;
+  }
+};
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
@@ -653,13 +777,36 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["telemetryProtocol"] = rhs.telemetryProtocol;
 
-  // frsky
+  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+    Node screens;
+    for (int i=0; i<4; i++) {
+      const auto& scr = rhs.frsky.screens[i];
+      if (scr.type != TELEMETRY_SCREEN_NONE) {
+        screens[std::to_string(i)] = rhs.frsky.screens[i];
+      }
+    }
+    if (screens.IsMap()) {
+      node["screens"] = screens;
+    }
+  }
 
-  YamlRssiSource rssiSource(rhs.rssiSource);
-  node["rssiSource"] = rssiSource.src_str;
+  Node vario;
+  vario["source"] = YamlTelemSource{rhs.frsky.varioSource};
+  vario["centerSilent"] = (int)rhs.frsky.varioCenterSilent;
+  vario["centerMax"] = rhs.frsky.varioCenterMax;
+  vario["centerMin"] = rhs.frsky.varioCenterMin;
+  vario["min"] = rhs.frsky.varioMin;
+  vario["max"] = rhs.frsky.varioMax;
+
+  node["varioData"] = vario;
+  node["rssiSource"] = YamlTelemSource(rhs.rssiSource);
+
+  if (IS_TARANIS_X9(getCurrentBoard())) {
+    node["voltsSource"] = YamlTelemSource(rhs.frsky.voltsSource);
+    node["altitudeSource"] = YamlTelemSource(rhs.frsky.altitudeSource);
+  }
 
   node["rssiAlarms"] = rhs.rssiAlarms;
-
   node["trainerMode"] = trainerModeLut << rhs.trainerMode;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
@@ -793,10 +940,41 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["telemetryProtocol"] >> rhs.telemetryProtocol;
 
   // frsky
+  if (node["screens"]) {
+    node["screens"] >> rhs.frsky.screens;
+  }
 
-  YamlRssiSource rssiSource;
-  node["rssiSource"] >> rssiSource.src_str;
-  rhs.rssiSource = rssiSource.toCpn();
+  if (node["varioData"]) {
+    const auto& vario = node["varioData"];
+
+    YamlTelemSource varioSrc;
+    vario["source"] >> varioSrc;
+    rhs.frsky.varioSource = varioSrc.src;
+
+    vario["centerSilent"] >> rhs.frsky.varioCenterSilent;
+    vario["centerMax"] >> rhs.frsky.varioCenterMax;
+    vario["centerMin"] >> rhs.frsky.varioCenterMin;
+    vario["min"] >> rhs.frsky.varioMin;
+    vario["max"] >> rhs.frsky.varioMax;    
+  }
+  
+  if (node["rssiSource"]) {
+    YamlTelemSource rssiSource;
+    node["rssiSource"] >> rssiSource;
+    rhs.rssiSource = rssiSource.src;
+  }
+
+  if (node["voltsSource"]) {
+    YamlTelemSource voltsSource;
+    node["voltsSource"] >> voltsSource;
+    rhs.frsky.voltsSource = voltsSource.src;
+  }
+
+  if (node["altitudeSource"]) {
+    YamlTelemSource altitudeSource;
+    node["altitudeSource"] >> altitudeSource;
+    rhs.frsky.altitudeSource = altitudeSource.src;
+  }
 
   node["rssiAlarms"] >> rhs.rssiAlarms;
 
