@@ -170,7 +170,7 @@ struct YamlSwitchWarningState {
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
-          char val[2];
+          char val[3];
           val[0] = sw[1];
 
           uint64_t value = (i == 0 ? states & 0x3 : states & 0x1);
@@ -181,6 +181,7 @@ struct YamlSwitchWarningState {
             val[1] = '-';
           else
             val[1] = 'd';
+          val[2] = '\0';
 
           src_str.append(val);
         }
@@ -202,9 +203,10 @@ struct YamlSwitchWarningState {
         int shift = 0;
         uint64_t mask;
 
-        char sw[2];
+        char sw[3];
         sw[0] = 'S';
         sw[1] = val[0];
+        sw[2] = '\0';
 
         int index = getCurrentFirmware()->getSwitchesIndex(sw);
 
@@ -934,9 +936,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     vario["centerMax"] >> rhs.frsky.varioCenterMax;
     vario["centerMin"] >> rhs.frsky.varioCenterMin;
     vario["min"] >> rhs.frsky.varioMin;
-    vario["max"] >> rhs.frsky.varioMax;    
+    vario["max"] >> rhs.frsky.varioMax;
   }
-  
+
   if (node["rssiSource"]) {
     YamlTelemSource rssiSource;
     node["rssiSource"] >> rssiSource;
