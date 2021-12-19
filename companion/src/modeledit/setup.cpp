@@ -1171,6 +1171,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownBeepItemModel());
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
+  panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
 
   Board::Type board = firmware->getBoard();
