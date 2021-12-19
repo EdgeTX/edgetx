@@ -246,6 +246,27 @@ struct YamlSwitchWarningState {
   }
 };
 
+struct YamlRssiSource {
+  std::string src_str;
+
+  YamlRssiSource() = default;
+
+  YamlRssiSource(unsigned int cpn_value)
+  {
+    if (cpn_value == 0)
+      src_str.append("none");
+    else
+      src_str.append(std::to_string(cpn_value));
+  }
+
+  unsigned int toCpn()
+  {
+    if (src_str.find("none") == std::string::npos)
+      return std::stoul(src_str);
+    return 0;
+  }
+};
+
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
@@ -485,8 +506,8 @@ struct convert<RSSIAlarmData> {
   {
     Node node;
     node["disabled"] = rhs.disabled;
-    node["warning"] = rhs.warning;
-    node["critical"] = rhs.critical;
+    node["warning"] = rhs.warning - 45;
+    node["critical"] = rhs.critical - 42;
     return node;
   }
 
@@ -494,7 +515,9 @@ struct convert<RSSIAlarmData> {
   {
     node["disabled"] >> rhs.disabled;
     node["warning"] >> rhs.warning;
+    rhs.warning += 45;
     node["critical"] >> rhs.critical;
+    rhs.critical += 42;
     return true;
   }
 };
@@ -623,7 +646,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   // frsky
 
-  // rssiSource
+  YamlRssiSource rssiSource(rhs.rssiSource);
+  node["rssiSource"] = rssiSource.src_str;
 
   node["rssiAlarms"] = rhs.rssiAlarms;
 
@@ -752,7 +776,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   // frsky
 
-  // rssiSource
+  YamlRssiSource rssiSource;
+  node["rssiSource"] >> rssiSource.src_str;
+  rhs.rssiSource = rssiSource.toCpn();
 
   node["rssiAlarms"] >> rhs.rssiAlarms;
 
