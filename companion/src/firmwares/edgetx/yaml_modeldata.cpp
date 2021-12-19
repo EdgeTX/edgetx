@@ -153,6 +153,99 @@ struct YamlPotsWarnEnabled {
   }
 };
 
+//  modeldata: uint64_t switchWarningStates
+//  Yaml switchWarningState: AuBuEuFuG-IuJu
+struct YamlSwitchWarningState {
+  std::string src_str;
+
+  YamlSwitchWarningState() = default;
+
+  YamlSwitchWarningState(uint64_t cpn_value, unsigned int switchWarningEnable)
+  {
+    uint64_t states = cpn_value;
+
+    for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
+      if (!(switchWarningEnable & (1 << i))) {
+        std::string tag = getCurrentFirmware()->getSwitchesTag(i);
+        const char *sw = tag.data();
+
+        if (tag.size() >= 2 && sw[0] == 'S') {
+          char val[2];
+          val[0] = sw[1];
+
+          uint64_t value = (i == 0 ? states & 0x3 : states & 0x1);
+
+          if (value == 0)
+            val[1] = 'u';
+          else if (value == 1)
+            val[1] = '-';
+          else
+            val[1] = 'd';
+
+          src_str.append(val);
+        }
+      }
+
+      states >>= (i == 0 ? 2 : 1);
+    }
+  }
+
+  uint64_t toCpn()
+  {
+    uint64_t states = 0;
+
+    for (unsigned int i = 0; i < src_str.size() / 2; i++) {
+      const char* val = src_str.substr(i * 2, 2).c_str();
+      if (val[0] >= 'A' && val[0] <= 'Z' && (
+          val[1] == 'u' || val[1] == '-' || val[1] == 'd')) {
+
+        int shift = 0;
+        uint64_t mask;
+
+        char sw[2];
+        sw[0] = 'S';
+        sw[1] = val[0];
+
+        int index = getCurrentFirmware()->getSwitchesIndex(sw);
+
+        if (index > -1) {
+
+          if (IS_HORUS_OR_TARANIS(getCurrentFirmware()->getBoard())) {
+            shift = index * 2;
+            mask = 0x03ull << shift;
+          }
+          else {
+            if (index == 0) {
+              mask = 0x03;
+            }
+            else {
+              shift = index + 1;
+              mask = 0x01ull << shift;
+            }
+          }
+
+          states &= ~mask;
+
+          uint64_t value;
+
+          if (val[1] == 'u')
+            value = 0;
+          else if (val[1] == '-')
+            value = 1;
+          else
+            value = 2;
+
+          if (value) {
+            states |= ((uint64_t)value << shift);
+          }
+        }
+      }
+    }
+
+    return states;
+  }
+};
+
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
@@ -481,7 +574,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   YamlThrTrace thrTrace(rhs.thrTraceSrc);
   node["thrTraceSrc"] = thrTrace.src;
 
-  // switchWarningStates
+  YamlSwitchWarningState switchWarningState(rhs.switchWarningStates, rhs.switchWarningEnable);
+  node["switchWarningState"] = switchWarningState.src_str;
+
+
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
 
@@ -610,7 +706,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["thrTraceSrc"] >> thrTrace.src;
   rhs.thrTraceSrc = thrTrace.toCpn();
 
-  // switchWarningStates
+  YamlSwitchWarningState switchWarningState;
+  node["switchWarningState"] >> switchWarningState.src_str;
+  rhs.switchWarningStates = switchWarningState.toCpn();
+
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
 
