@@ -246,27 +246,6 @@ struct YamlSwitchWarningState {
   }
 };
 
-struct YamlRssiSource {
-  std::string src_str;
-
-  YamlRssiSource() = default;
-
-  YamlRssiSource(unsigned int cpn_value)
-  {
-    if (cpn_value == 0)
-      src_str.append("none");
-    else
-      src_str.append(std::to_string(cpn_value));
-  }
-
-  unsigned int toCpn()
-  {
-    if (src_str.find("none") == std::string::npos)
-      return std::stoul(src_str);
-    return 0;
-  }
-};
-
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
