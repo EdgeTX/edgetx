@@ -577,7 +577,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   YamlSwitchWarningState switchWarningState(rhs.switchWarningStates, rhs.switchWarningEnable);
   node["switchWarningState"] = switchWarningState.src_str;
 
-
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
 
@@ -599,7 +598,9 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   // mavlink ???
-  // telemetryProtocol ???
+
+  node["telemetryProtocol"] = rhs.telemetryProtocol;
+
   // frsky
   // rssiSource
   // rssiAlarms
@@ -722,8 +723,11 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["displayChecklist"] >> rhs.displayChecklist;
 
   node["gvars"] >> rhs.gvarData;
+
   // mavlink ???
-  // telemetryProtocol ???
+
+  node["telemetryProtocol"] >> rhs.telemetryProtocol;
+
   // frsky
   // rssiSource
   // rssiAlarms
