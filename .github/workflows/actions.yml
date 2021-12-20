@@ -5,6 +5,7 @@ on:
     branches:
       - '2.4'
       - '2.5'
+      - '2.6'
       - 'main'
     tags:
       - v*
@@ -16,6 +17,7 @@ on:
     branches:
       - '2.4'
       - '2.5'
+      - '2.6'
       - 'main'
     paths-ignore:
       - '**.md'
