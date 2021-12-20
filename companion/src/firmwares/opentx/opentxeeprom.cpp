@@ -119,6 +119,8 @@ inline int MAX_XPOTS(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
+  if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)))
+    return 5;
   if (IS_FAMILY_T12(board))
     return 2;
   return Boards::getCapability(board, Board::MultiposPots);
