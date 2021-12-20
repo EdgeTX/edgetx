@@ -22,7 +22,7 @@
 #include "radio_flashmanager.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "nor_flash.h"
+#include "SpiFlashStorage.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
@@ -31,11 +31,11 @@
 #include "view_text.h"
 #include "file_preview.h"
 
-class FileNameEditWindow : public Page
+class FlashFileNameEditWindow : public Page
 {
   public:
-  FileNameEditWindow(const std::string iName) :
-      Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
+  FlashFileNameEditWindow(const std::string iName, std::string path) :
+      Page(ICON_RADIO_SD_MANAGER), name(std::move(iName)), path(path)
   {
     buildHeader(&header);
     buildBody(&body);
@@ -46,6 +46,7 @@ class FileNameEditWindow : public Page
 #endif
   protected:
   const std::string name;
+  const std::string path;
 
   void buildHeader(Window *window)
   {
@@ -88,7 +89,7 @@ class FileNameEditWindow : public Page
         strncpy(changedName + totalSize, extension, extLength);
       }
       changedName[totalSize + extLength] = '\0';
-      SpiFlashStorage::instance()->rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+      SpiFlashStorage::instance()->rename((const TCHAR *)(path + "/" + name).c_str(), (const TCHAR *)(path + "/" + changedName).c_str());
     });
   };
 };
@@ -113,27 +114,27 @@ void RadioFlashManagerPage::rebuild(FormWindow * window)
 // TODO elsewhere
 extern bool compare_nocase(const std::string &first, const std::string &second);
 
-char * _getFullPath(const std::string &filename)
-{
-  return "/";
-#if 0
-  static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
-  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-  strcat(full_path, "/");
-  strcat(full_path, filename.c_str());
-  return full_path;
-#endif
-}
+//char * _getFullPath(const std::string &filename)
+//{
+//  return "/";
+//#if 0
+//  static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
+//  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
+//  strcat(full_path, "/");
+//  strcat(full_path, filename.c_str());
+//  return full_path;
+//#endif
+//}
 
-char * _getCurrentPath()
-{
-  return "/";
-#if 0
-  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
-  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-  return path;
-#endif
-}
+//char * _getCurrentPath()
+//{
+//  return "/";
+//#if 0
+//  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
+//  f_getcwd((TCHAR*)path, FF_MAX_LFN);
+//  return path;
+//#endif
+//}
 
 template <class T>
 class FlashDialog: public FullScreenDialog
@@ -207,12 +208,12 @@ void RadioFlashManagerPage::build(FormWindow * window)
   std::list<std::string> files;
   std::list<std::string> directories;
 
-  std::string currentPath(_getCurrentPath());
+  std::string workPath(currentPath);
   auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
   SpiFlashStorage* flash = SpiFlashStorage::instance();
 
-  int res = flash->openDirectory(&dir, "/");
+  int res = flash->openDirectory(&dir, workPath.c_str());
   if (res == LFS_ERR_OK) {
     // read all entries
     bool firstTime = true;
@@ -240,8 +241,8 @@ void RadioFlashManagerPage::build(FormWindow * window)
 
     for (auto name: directories) {
       new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
-          std::string fullpath = currentPath + "/" + name;
-          f_chdir((TCHAR*)fullpath.c_str());
+          std::string fullpath = workPath + "/" + name;
+          currentPath = fullpath.c_str();
           window->clear();
           build(window);
           return 0;
@@ -253,13 +254,13 @@ void RadioFlashManagerPage::build(FormWindow * window)
     for (auto name: files) {
       auto button = new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
-          f_chdir(currentPath.c_str());
+//          f_chdir(currentPath.c_str());
           const char *ext = getFileExtension(name.c_str());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [=]() {
                   audioQueue.stopAll();
-                  audioQueue.playFile(_getFullPath(name), 0, ID_PLAY_FROM_SD_MANAGER);
+                  audioQueue.playFile(_getFullPath(name).c_str(), 0, ID_PLAY_FROM_SD_MANAGER);
               });
             }
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
@@ -290,7 +291,8 @@ void RadioFlashManagerPage::build(FormWindow * window)
             else if (!strcasecmp(ext, TEXT_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                strncpy(lfn, workPath.c_str(), sizeof(lfn));
+                //f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
 
                 auto textView = new ViewTextWindow(lfn, name);
                 textView->setCloseHandler([=]() {
@@ -319,7 +321,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
               });
             } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
               FrSkyFirmwareInformation information;
-              if (readFrSkyFirmwareInformation(_getFullPath(name),
+              if (readFrSkyFirmwareInformation(_getFullPath(name).c_str(),
                                                information) == nullptr) {
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
                 menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
@@ -400,7 +402,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
-              std::string fullpath = currentPath + "/" + name;
+              std::string fullpath = workPath + "/" + name;
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(fullpath.c_str());
                 StandaloneLuaWindow::instance()->attach(window);
@@ -437,14 +439,14 @@ void RadioFlashManagerPage::build(FormWindow * window)
 //              });
 //            }
             menu->addLine(STR_RENAME_FILE, [=]() {
-              auto few = new FileNameEditWindow(name);
+              auto few = new FlashFileNameEditWindow(name, currentPath);
               few->setCloseHandler([=]() {
                 //window->clear();
                 rebuild(window);
               });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
-                f_unlink((const TCHAR*)_getFullPath(name));
+                //f_unlink((const TCHAR*)_getFullPath(name));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
@@ -455,7 +457,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       button->setFocusHandler([=](bool active) {
         if (active) {
-          preview->setFile(_getFullPath(name));
+          preview->setFile(_getFullPath(name).c_str());
         }
       });
       grid.nextLine();
@@ -471,7 +473,7 @@ void RadioFlashManagerPage::BootloaderUpdate(const std::string name)
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
   auto dialog =
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
-  dialog->flash(_getFullPath(name));
+  dialog->flash(_getFullPath(name).c_str());
 }
 
 void RadioFlashManagerPage::FrSkyFirmwareUpdate(const std::string name,
@@ -480,7 +482,7 @@ void RadioFlashManagerPage::FrSkyFirmwareUpdate(const std::string name,
   FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
   auto dialog =
       new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(_getFullPath(name));
+  dialog->flash(_getFullPath(name).c_str());
 }
 
 void RadioFlashManagerPage::MultiFirmwareUpdate(const std::string name,
@@ -490,7 +492,7 @@ void RadioFlashManagerPage::MultiFirmwareUpdate(const std::string name,
   MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
   auto dialog =
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(_getFullPath(name));
+  dialog->flash(_getFullPath(name).c_str());
 }
 
 #if 0

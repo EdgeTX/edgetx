@@ -36,4 +36,10 @@ class RadioFlashManagerPage : public PageTab
   void MultiFirmwareUpdate(const std::string name, ModuleIndex module,
                            MultiModuleType type);
   void rebuild(FormWindow* window);
+ private:
+  std::string currentPath = "/";
+  std::string _getFullPath(const std::string& filename)
+  {
+    return currentPath + "/" + filename;
+  }
 };

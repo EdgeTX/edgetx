@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef _NOR_FLASH_H_
-#define _NOR_FLASH_H_
+#ifndef _SPIFLASHSTORAGE_H_
+#define _SPIFLASHSTORAGE_H_
 
 #include "littlefs_v2.4.1/lfs.h"
 
@@ -203,4 +203,4 @@ private:
   lfs_t lfs = {0};
 };
 
-#endif // _NOR_FLASH_H_
+#endif // _SPIFLASHSTORAGE_H_

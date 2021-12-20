@@ -49,15 +49,62 @@
 #define SPI_SPEED_128                  6
 #define SPI_SPEED_256                  7
 
+#define CS_HIGH()                      do { FLASH_SPI_CS_GPIO->BSRRL = FLASH_SPI_CS_GPIO_PIN; } while (0)
+#define CS_LOW()                       do { FLASH_SPI_CS_GPIO->BSRRH = FLASH_SPI_CS_GPIO_PIN; } while (0)
+
+
+struct SpiFlashDescriptor
+{
+  uint16_t id;
+  uint32_t pageSize;
+  uint32_t sectorSize;
+  uint32_t blockSize;
+  uint32_t blockCount;
+
+  uint8_t readStatusCmd;
+  uint8_t readCmd;
+  uint8_t writeCmd;
+  uint8_t writeEnableCmd;
+  uint8_t eraseSectorCmd;
+  uint8_t eraseChipCmd;
+};
 
 // * RadioMaster/Eachine TX16S, RadioKing TX18S and Jumper T18 use GD25Q127C (16 MByte)
 // * FlySky PL18, Paladin EV and NV14 use WinBond W25Q64JV (8 MByte)
 
-struct SerialFlashDescriptor
+static const SpiFlashDescriptor spiFlashDescriptors[] =
 {
-	uint16_t id;
+    { // GD25Q127C
+        .id = 0xC817,
+        .pageSize = 256,
+        .sectorSize = 4096,
+        .blockSize = 65536,
+        .blockCount = 256,
 
+        .readStatusCmd = 0x05,
+        .readCmd = 0x03,
+        .writeCmd = 0x02,
+        .writeEnableCmd = 0x06,
+        .eraseSectorCmd = 0x20,
+        .eraseChipCmd = 0x60
+    },
+    { // W25Q64JV
+        .id = 0xEF16,
+        .pageSize = 256,
+        .sectorSize = 4096,
+        .blockSize = 65536,
+        .blockCount = 128,
+
+        .readStatusCmd = 0x05,
+        .readCmd = 0x03,
+        .writeCmd = 0x02,
+        .writeEnableCmd = 0x06,
+        .eraseSectorCmd = 0x20,
+        .eraseChipCmd = 0x60
+    }
 };
+
+static const SpiFlashDescriptor* flashDescriptor = nullptr;
 
 void flashSpiInit(void)
 {
@@ -140,7 +187,7 @@ void flashSpiSetSpeed(uint8_t speed)
 
 uint8_t flashSpiReadWriteByte(uint8_t value)
 {
-   uint16_t time_out = 0x0FFF;
+  uint16_t time_out = 0x0FFF;
   while (SPI_I2S_GetFlagStatus(FLASH_SPI, SPI_I2S_FLAG_TXE) == RESET) {
     if (--time_out == 0) {
       // reset SPI
@@ -171,10 +218,19 @@ uint8_t flashSpiReadWriteByte(uint8_t value)
   return SPI_I2S_ReceiveData(FLASH_SPI);
 }
 
-#define XDCS_HIGH() {}
-#define CS_HIGH()                      do { FLASH_SPI_CS_GPIO->BSRRL = FLASH_SPI_CS_GPIO_PIN; } while (0)
-#define CS_LOW()                       do { FLASH_SPI_CS_GPIO->BSRRH = FLASH_SPI_CS_GPIO_PIN; } while (0)
-#define XDCS_LOW() {}
+void flashSpiSync()
+{
+  delay_01us(100);
+  CS_LOW();
+  while(true)
+  {
+    uint8_t status = flashSpiReadWriteByte(flashDescriptor->readStatusCmd);
+    if((status & 0x01) == 0)
+      break;
+  }
+  CS_HIGH();
+  delay_01us(100);
+}
 
 uint16_t flashSpiReadID()
 {
@@ -187,89 +243,30 @@ uint16_t flashSpiReadID()
   result += flashSpiReadWriteByte(0xff);
   delay_01us(100); // 10us
   CS_HIGH();
+
   return result;
 }
 
-
-
-uint16_t flashSpiReadReg(uint8_t address)
-{
-  CS_LOW();
-  flashSpiReadWriteByte(address);
-  flashSpiReadWriteByte(0x00);
-  flashSpiReadWriteByte(0x00);
-  flashSpiReadWriteByte(0x00);
-  uint16_t result = flashSpiReadWriteByte(0xff) << 8;
-  result += flashSpiReadWriteByte(0xff);
-  delay_01us(100); // 10us
-  CS_HIGH();
-  return result;
-}
-
-uint16_t flashSpiReadCmd(uint8_t address)
-{
-  CS_LOW();
-//  flashSpiReadWriteByte(VS_READ_COMMAND);
-//  flashSpiReadWriteByte(address);
-//  uint16_t result = flashSpiReadWriteByte(0) << 8;
-//  result |= flashSpiReadWriteByte(0);
-//  delay_01us(50); // 5us
-  CS_HIGH();
-//  return result;
-  return 0;
-}
-
-uint8_t flashSpiWriteCmd(uint8_t address, uint16_t data)
-{
-  CS_LOW();
-//  flashSpiReadWriteByte(VS_WRITE_COMMAND);
-//  flashSpiReadWriteByte(address);
-//  flashSpiReadWriteByte(data >> 8);
-//  flashSpiReadWriteByte(data);
-//  delay_01us(50); // 5us
-  CS_HIGH();
-  return 1;
-}
-
-uint32_t flashSpiWriteData(const uint8_t * buffer, uint32_t size)
-{
-  XDCS_LOW();
-
-  uint32_t index = 0;
-/*  while (index < size && READ_DREQ() != 0) {
-    for (int i=0; i<MP3_BUFFER_SIZE && index<size; i++) {
-      flashSpiReadWriteByte(buffer[index++]);
-    }
-  }*/
-  return index;
-}
-
-void flashSpiWriteBuffer(const uint8_t * buffer, uint32_t size)
-{
-  const uint8_t * p = buffer;
-  while (size > 0) {
-    uint32_t written = flashSpiWriteData(p, size);
-    p += written;
-    size -= written;
-  }
-}
 size_t flashSpiGetSize()
 {
-	return 16 * 1024 * 1024;
+	return flashDescriptor->blockSize * flashDescriptor->blockCount;
 }
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
+  flashSpiSync();
+
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
   CS_LOW();
-  flashSpiReadWriteByte(0x03);
+  flashSpiReadWriteByte(flashDescriptor->readCmd);
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
-  for(int i = 0; i<size; i++)
+  for(size_t i = 0; i<size; i++)
     *data++ = flashSpiReadWriteByte(0xff);
   delay_01us(100); // 10us
   CS_HIGH();
+
   return size;
 }
 
@@ -278,31 +275,25 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
   if(size != 256)
 	  return -1;
+
+  flashSpiSync();
+
   CS_LOW();
-  flashSpiReadWriteByte(0x06);
+  flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
   delay_01us(100); // 10us
   CS_HIGH();
   delay_01us(100); // 10us
   CS_LOW();
 
-  flashSpiReadWriteByte(0x02);
+  flashSpiReadWriteByte(flashDescriptor->writeCmd);
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
-  for(int i = 0; i<size; i++)
+  for(size_t i = 0; i<size; i++)
     flashSpiReadWriteByte(*data++);
   delay_01us(100); // 10us
   CS_HIGH();
 
-  delay_01us(100); // 10us
-  CS_LOW();
-  while(true)
-  {
-    uint8_t status = flashSpiReadWriteByte(0x05);
-    if((status & 0x01) == 0)
-      break;
-  }
-  CS_HIGH();
   return size;
 }
 
@@ -311,50 +302,50 @@ int flashSpiErase(size_t address)
   if(address%4096 != 0)
     return -1;
 
-  CS_LOW();
-  flashSpiReadWriteByte(0x06);
-  delay_01us(100); // 10us
-  CS_HIGH();
-  delay_01us(100); // 10us
-  CS_LOW();
-  flashSpiReadWriteByte(0x20);
-  delay_01us(100); // 10us
-  CS_HIGH();
-  delay_01us(100); // 10us
+  flashSpiSync();
 
   CS_LOW();
-  while(true)
-  {
-    uint8_t status = flashSpiReadWriteByte(0x05);
-    if((status & 0x01) == 0)
-      break;
-  }
+  flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
+  delay_01us(100); // 10us
   CS_HIGH();
+  delay_01us(100); // 10us
+  CS_LOW();
+  flashSpiReadWriteByte(flashDescriptor->eraseSectorCmd);
+  delay_01us(100); // 10us
+  CS_HIGH();
+
   return 0;
 }
 
 void flashSpiEraseAll()
 {
+  flashSpiSync();
+
   CS_LOW();
-  flashSpiReadWriteByte(0x06);
+  flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
   delay_01us(100); // 10us
   CS_HIGH();
   delay_01us(100); // 10us
 
   CS_LOW();
-  flashSpiReadWriteByte(0x60);
+  flashSpiReadWriteByte(flashDescriptor->eraseChipCmd);
   delay_01us(100); // 10us
   CS_HIGH();
-  delay_01us(100); // 10us
 
-  CS_LOW();
-  while(true)
-  {
-    uint8_t status = flashSpiReadWriteByte(0x05);
-    if((status & 0x01) == 0)
-      break;
-  }
-  CS_HIGH();
+  flashSpiSync();
+}
+
+uint16_t flashSpiGetPageSize()
+{
+  return flashDescriptor->pageSize;
+}
+uint16_t flashSpiGetSectorSize()
+{
+  return flashDescriptor->sectorSize;
+}
+uint16_t flashSpiGetSectorCount()
+{
+  return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
 
 void flashInit()
@@ -362,6 +353,16 @@ void flashInit()
   flashSpiInit();
   flashSpiSetSpeed(SPI_SPEED_2);
   delay_ms(1); // 1ms
+
+  uint16_t id = flashSpiReadID();
+  for(size_t i = 0; i < sizeof(spiFlashDescriptors)/sizeof(SpiFlashDescriptor); i++)
+  {
+    if(spiFlashDescriptors[i].id == id)
+    {
+      flashDescriptor = &spiFlashDescriptors[i];
+      break;
+    }
+  }
 }
 
 #endif

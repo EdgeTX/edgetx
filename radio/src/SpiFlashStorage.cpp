@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "opentx.h"
 
-#include "nor_flash.h"
+#include "SpiFlashStorage.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -38,6 +38,8 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
 
 int flashSpiErase(size_t address);
 void flashSpiEraseAll();
+
+void flashSpiSync();
 
 
 extern "C"
@@ -64,10 +66,14 @@ int flashErase(const struct lfs_config *c, lfs_block_t block)
 
 int flashSync(const struct lfs_config *c)
 {
-    return LFS_ERR_OK;
+  flashSpiSync();
+  return LFS_ERR_OK;
 }
 }
 
+uint16_t flashSpiGetPageSize();
+uint16_t flashSpiGetSectorSize();
+uint16_t flashSpiGetSectorCount();
 
 SpiFlashStorage::SpiFlashStorage()
 {
@@ -78,10 +84,10 @@ SpiFlashStorage::SpiFlashStorage()
   lfsCfg.sync  = flashSync;
 
   // block device configuration
-  lfsCfg.read_size = 16;
-  lfsCfg.prog_size = 256;
-  lfsCfg.block_size = 4096;
-  lfsCfg.block_count = 4096;
+  lfsCfg.read_size = 256;
+  lfsCfg.prog_size = flashSpiGetPageSize();
+  lfsCfg.block_size = flashSpiGetSectorSize();
+  lfsCfg.block_count = flashSpiGetSectorCount();
   lfsCfg.block_cycles = 500;
   lfsCfg.cache_size = 512;
   lfsCfg.lookahead_size = 32;
@@ -95,6 +101,11 @@ SpiFlashStorage::SpiFlashStorage()
   lfsCfg.context = this;
   checkAndCreateDirectory("/test");
   checkAndCreateDirectory("/test/foo");
+  checkAndCreateDirectory("/anotherTest");
+  lfs_file_t file;
+  lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
+  lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
+  lfs_file_close(&lfs, &file);
 }
 
 SpiFlashStorage::~SpiFlashStorage()
@@ -497,7 +508,7 @@ bool flashListFiles(const char * path, const char * extension, const uint8_t max
 
 #endif // !LIBOPENUI
 
-#if defined(SDCARD)
+#if defined(SDCARD)&& 0
 const char * flashCopyFile(const char * srcPath, const char * destPath)
 {
 //  FIL srcFile;
@@ -562,21 +573,21 @@ uint32_t flashGetNoSectors()
   return noSectors;
 }
 
-uint32_t flashGetSize()
-{
-  return (flashGetNoSectors() / 1000000) * BLOCK_SIZE;
-}
-
-uint32_t flashGetFreeSectors()
-{
-//  DWORD nofree;
-//  FATFS * fat;
-//  if (f_getfree("", &nofree, &fat) != FR_OK) {
-//    return 0;
-//  }
-//  return nofree * fat->csize;
-  return 10;
-}
+//uint32_t flashGetSize()
+//{
+//  return (flashGetNoSectors() / 1000000) * BLOCK_SIZE;
+//}
+//
+//uint32_t flashGetFreeSectors()
+//{
+////  DWORD nofree;
+////  FATFS * fat;
+////  if (f_getfree("", &nofree, &fat) != FR_OK) {
+////    return 0;
+////  }
+////  return nofree * fat->csize;
+//  return 10;
+//}
 
 #else  // #if !defined(SIMU) || defined(SIMU_DISKIO)
 
