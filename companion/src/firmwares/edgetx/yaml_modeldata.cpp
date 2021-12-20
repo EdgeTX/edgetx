@@ -376,7 +376,7 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
     if (gvars && gvars.IsMap()) {
       node["gvars"] = gvars;
     }
-    
+
     return node;
 }
 
@@ -908,7 +908,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["expoData"] >> rhs.expoData;
 
   node["curves"] >> rhs.curves;
-  YamlReadCurvePoints(node["points"], rhs.curves);
+  if (node["points"])
+    YamlReadCurvePoints(node["points"], rhs.curves);
 
   node["logicalSw"] >> rhs.logicalSw;
   node["customFn"] >> rhs.customFn;
