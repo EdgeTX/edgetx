@@ -109,7 +109,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["hapticMode"] = rhs.hapticMode;
   node["stickMode"] = rhs.stickMode;
   node["timezone"] = rhs.timezone;
-  node["adjustRTC"] = rhs.adjustRTC;
+  node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
   node["telemetryBaudrate"] = rhs.telemetryBaudrate;  // TODO: conversion???
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
