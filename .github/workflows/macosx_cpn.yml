@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '2.5'
+      - '2.6'
       - 'main'
     tags:
       - v*
@@ -15,6 +16,7 @@ on:
   pull_request:
     branches:
       - '2.5'
+      - '2.6'
       - 'main'
     paths:
       - '.github/workflows/macosx_cpn.yml'
