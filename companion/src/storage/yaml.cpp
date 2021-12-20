@@ -19,7 +19,6 @@
  */
 
 #include "yaml.h"
-#include "../../../radio/src/storage/yaml/yaml_tree_walker.h" // just to confirm valid compiler path
 
 #include <QFile>
 #include <QDir>
