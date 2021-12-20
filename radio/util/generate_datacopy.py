@@ -19,7 +19,7 @@ def find_libclang():
                 return path
     elif sys.platform.startswith("linux"):
         for version in ("7", "6.0", "3.8"):
-            path = "/usr/lib/x86_64-linux-gnu/libclang-%s.so.1" % version
+            path = "/usr/lib/llvm-%s/lib/libclang.so" % version
             if os.path.exists(path):
                 return path
         for path in ("/usr/local/lib/libclang.so",
