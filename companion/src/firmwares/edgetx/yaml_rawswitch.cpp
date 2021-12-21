@@ -79,21 +79,25 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
+  std::string sw_str_tmp = sw_str;
 
   bool neg = false;
   if (val_len > 0 && val[0] == '!') {
     neg = true;
     val++;
     val_len--;
+    sw_str_tmp = sw_str.substr(1);
   }
 
   int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
 
+  //  TODO: validate all expected numeric chars are numeric not just first
+
   if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {
 
-    if (std::stoi(sw_str.substr(1, val_len - 1)) < CPN_MAX_LOGICAL_SWITCHES) {
+    if (std::stoi(sw_str_tmp.substr(1, val_len - 1)) < CPN_MAX_LOGICAL_SWITCHES) {
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
-                      std::stoi(sw_str.substr(1, val_len - 1)) - 1);
+                      std::stoi(sw_str_tmp.substr(1, val_len - 1)) - 1);
     }
 
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
@@ -111,14 +115,14 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
 
-    if (std::stoi(sw_str.substr(1, val_len - 1)) < CPN_MAX_SENSORS) {
+    if (std::stoi(sw_str_tmp.substr(1, val_len - 1)) < CPN_MAX_SENSORS) {
       rhs = RawSwitch(SWITCH_TYPE_SENSOR,
-                      std::stoi(sw_str.substr(1, val_len - 1)) - 1);
+                      std::stoi(sw_str_tmp.substr(1, val_len - 1)) - 1);
     }
 
-  } else if (sw_str.substr(0, 4) == std::string("Trim")) {
+  } else if (sw_str_tmp.substr(0, 4) == std::string("Trim")) {
 
-    int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str.c_str());
+    int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str_tmp.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx;
@@ -128,7 +132,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
 
-    int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str.substr(0, 2).c_str());
+    int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str_tmp.substr(0, 2).c_str());
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + val[2] - '0';
@@ -139,7 +143,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   } else {
     //  types which do not use index
-    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str.c_str());
+    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
     if (sw_type >= 0) {
       rhs.type = (RawSwitchType)sw_type;
       rhs.index = 0;

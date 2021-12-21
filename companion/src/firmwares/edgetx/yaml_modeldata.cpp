@@ -288,10 +288,10 @@ struct convert<LimitData> {
     Node node;
     node["min"] = rhs.min;
     node["max"] = rhs.max;
-    node["revert"] = rhs.revert;
+    node["revert"] = (int)rhs.revert;
     node["offset"] = rhs.offset;
     node["ppmCenter"] = rhs.ppmCenter;
-    node["symetrical"] = rhs.symetrical;
+    node["symetrical"] = (int)rhs.symetrical;
     node["failsafe"] = rhs.failsafe;
     node["name"] = rhs.name;
     node["curve"] = rhs.curve;
@@ -438,7 +438,7 @@ struct convert<GVarData> {
     node["name"] = rhs.name;
     node["min"] = rhs.min;
     node["max"] = rhs.max;
-    node["popup"] = rhs.popup;
+    node["popup"] = (int)rhs.popup;
     node["prec"] = rhs.prec;
     node["unit"] = rhs.unit;
     return node;
