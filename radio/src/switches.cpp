@@ -680,7 +680,7 @@ swsrc_t getMovedSwitch()
   return result;
 }
 
-bool isSwitchWarningRequired(uint8_t &bad_pots)
+bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
   swarnstate_t states = g_model.switchWarningState;
 
@@ -700,11 +700,11 @@ bool isSwitchWarningRequired(uint8_t &bad_pots)
   if (g_model.potsWarnMode) {
     evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
-    for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
+    for (int  i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
         continue;
       }
-      if (!(g_model.potsWarnEnabled & (1 << i)) &&
+      if ((g_model.potsWarnEnabled & (1 << i)) &&
           (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
         warn = true;
         bad_pots |= (1 << i);
@@ -719,7 +719,7 @@ bool isSwitchWarningRequired(uint8_t &bad_pots)
 #include "switch_warn_dialog.h"
 void checkSwitches()
 {
-  uint8_t bad_pots = 0;
+  uint16_t bad_pots = 0;
   if (!isSwitchWarningRequired(bad_pots))
     return;
 
@@ -731,7 +731,7 @@ void checkSwitches()
 {
   swarnstate_t last_bad_switches = 0xff;
   swarnstate_t states = g_model.switchWarningState;
-  uint8_t bad_pots = 0, last_bad_pots = 0xff;
+  uint16_t bad_pots = 0, last_bad_pots = 0xff;
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;

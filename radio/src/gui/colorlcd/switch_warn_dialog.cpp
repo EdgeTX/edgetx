@@ -29,7 +29,7 @@ bool SwitchWarnDialog::warningInactive()
 
   if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
     invalidate();
-    if (last_bad_switches == 0xff || last_bad_pots == 0xff) {
+    if (last_bad_switches == 0xff || last_bad_pots & 0x7ff) {
       AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
     }
   }
@@ -82,9 +82,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           if (y < LCD_H) {
             char s[8];
-            // TODO add an helper
-            strncpy(s, &STR_VSRCRAW[1 + (NUM_STICKS + 1 + i) * STR_VSRCRAW[0]], STR_VSRCRAW[0]);
-            s[int(STR_VSRCRAW[0])] = '\0';
+            getStringAtIndex(s, STR_VSRCRAW, POT1 + i + 1);
             dc->drawText(x, y, s, COLOR_THEME_PRIMARY1 | FONT(BOLD));
             x += 40;
           }

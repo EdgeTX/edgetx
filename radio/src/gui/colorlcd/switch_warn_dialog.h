@@ -34,7 +34,7 @@ class SwitchWarnDialog: public FullScreenDialog {
     {
       last_bad_switches = 0xff;
       bad_pots = 0;
-      last_bad_pots = 0xff;
+      last_bad_pots = 0x0;
       setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
     }
 
@@ -49,8 +49,8 @@ class SwitchWarnDialog: public FullScreenDialog {
 
   protected:
     swarnstate_t last_bad_switches;
-    uint8_t      bad_pots;
-    uint8_t      last_bad_pots;
+    uint16_t      bad_pots;
+    uint16_t      last_bad_pots;
     bool warningInactive();
 };
 
