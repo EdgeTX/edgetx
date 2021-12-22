@@ -78,18 +78,18 @@ static const YamlLookupTable soundLut = {
   { 1, "Bp2" },
   { 2, "Bp3" },
   { 3, "Wrn1" },
-  { 5, "Wrn2" },
-  { 6, "Chee" },
-  { 7, "Rata" },
-  { 8, "Tick" },
-  { 9, "Sirn" },
-  { 10, "Ring" },
-  { 11, "SciF" },
-  { 12, "Robt" },
-  { 13, "Chrp" },
-  { 14, "Tada" },
-  { 15, "Crck" },
-  { 16, "Alrm" },
+  { 4, "Wrn2" },
+  { 5, "Chee" },
+  { 6, "Rata" },
+  { 7, "Tick" },
+  { 8, "Sirn" },
+  { 9, "Ring" },
+  { 10, "SciF" },
+  { 11, "Robt" },
+  { 12, "Chrp" },
+  { 13, "Tada" },
+  { 14, "Crck" },
+  { 15, "Alrm" },
 };
 
 static const YamlLookupTable resetLut = {
@@ -193,6 +193,9 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncBindInternalModule: {
     def += LookupValue(moduleLut, p1);
   } break;
+  case FuncLogs:
+    def += std::to_string(rhs.param);
+    break;
   default:
     break;
   }
@@ -309,6 +312,11 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     int module=0;
     Node(mod) >> moduleLut >> module;
     rhs.func = (AssignFunc)((int)rhs.func + module);
+  } break;
+  case FuncLogs: {
+    int param = 0;
+    def >> param;
+    rhs.param = param;
   } break;
   default:
     break;
