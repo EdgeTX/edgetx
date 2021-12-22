@@ -97,7 +97,7 @@ static const YamlLookupTable resetLut = {
   { 1, "Tmr2" },
   { 2, "Tmr3" },
   { 3, "All" },
-  { 5, "Tele" },
+  { 4, "Tele" },
 };
 
 static const YamlLookupTable gvarModeLut = {
@@ -262,12 +262,13 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm)-1);
     } break;
   case FuncReset: {
+    std::string rst_str;
+    getline(def, rst_str, ',');
     try {
-      def >> rhs.param;
-      rhs.param += 5; // + FUNC_RESET_PARAM_FIRST_TELEM
+      rhs.param = std::stoi(rst_str);   // TODO: check this works for radio generated if not then encode and here will need fixing
       break;
     } catch(...) {}
-    Node(def.str()) >> resetLut >> rhs.param;
+    Node(rst_str.c_str()) >> resetLut >> rhs.param;
   } break;
   case FuncSetTimer1: {
     // + timer #
