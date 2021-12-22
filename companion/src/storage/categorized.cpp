@@ -263,14 +263,15 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       //  ModelData() use memset to clear everything to 0
       //
       auto& model = radioData.models[modelIdx];
-      model.category = mc.second;
-      model.modelIndex = modelIdx;
-      strncpy(model.filename, mc.first.c_str(), sizeof(model.filename)-1);
 
       if (!loadModelFromYaml(model,modelBuffer)) {
         setError(tr("Can't load ") + filename);
         return false;
       }
+
+      model.category = mc.second;
+      model.modelIndex = modelIdx;
+      strncpy(model.filename, mc.first.c_str(), sizeof(model.filename)-1);
 
       model.used = true;
       modelIdx++;
