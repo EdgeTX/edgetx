@@ -199,7 +199,7 @@ if(RTC_BACKUP_RAM)
   set(GTEST_SRC ${GTEST_SRC} ${RADIO_SRC_DIR}/storage/rtc_backup.cpp)
 endif()
 
-if(NOT LUA STREQUAL NO)
+if(LUA)
   add_definitions(-DLUA)
   if(LUA_COMPILER)
     add_definitions(-DLUA_COMPILER)
@@ -212,7 +212,7 @@ if(NOT LUA STREQUAL NO)
   endif()
   include_directories(${LUA_DIR})
   set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${LUA_EXPORT})
-  if(LUA STREQUAL YES)
+  if(LUA_MIXER)
     add_definitions(-DLUA_MODEL_SCRIPTS)
   endif()
   
@@ -271,6 +271,10 @@ if(NOT LUA STREQUAL NO)
     # silence lots of warnings regarding "insecure" use of functions (sprintf, strcpy, etc) from Lua code
     set(WARNING_FLAGS "${WARNING_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
   endif()
+endif()
+
+if (LUA_MIXER AND NOT LUA)
+  message(FATAL_ERROR "LUA_MIXER requires LUA!!")
 endif()
 
 if(HELI)
@@ -589,7 +593,7 @@ if(NOT MSVC)
     # Use newlib nano, which saves a few kilobytes.
     if(NOT NANO STREQUAL NO)
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
-      if(NOT LUA STREQUAL NO)
+      if(LUA)
         # Lua needs %g and %f
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
       endif()
