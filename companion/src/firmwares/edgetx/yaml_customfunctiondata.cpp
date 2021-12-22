@@ -253,9 +253,11 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     break;
   case FuncPlayPrompt:
   case FuncPlayScript:
-  case FuncBackgroundMusic:
-    strncpy(rhs.paramarm, def.str().c_str(), sizeof(rhs.paramarm)-1); // TODO fix eg def: engarm,1x
-    break;
+  case FuncBackgroundMusic: {
+    std::string file_str;
+    getline(def, file_str, ',');
+    strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm)-1);
+    } break;
   case FuncReset: {
     try {
       def >> rhs.param;
