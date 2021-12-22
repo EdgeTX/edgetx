@@ -135,7 +135,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str_tmp.substr(0, 2).c_str());
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
-      rhs.index = sw_idx * 3 + val[2] - '0';
+      rhs.index = sw_idx * 3 + (val[2] - '0' + 1);
     }
 
   //  TODO: SWITCH_TYPE_TIMER_MODE
