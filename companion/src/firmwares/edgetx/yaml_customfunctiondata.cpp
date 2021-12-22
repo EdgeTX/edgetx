@@ -61,7 +61,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncBacklight, "BACKLIGHT"  },
   {  FuncScreenshot, "SCREENSHOT"  },
   {  FuncRacingMode, "RACING_MODE"  },
-  {  FuncDisableTouch, "DISABLE_TOUCH"  },    
+  {  FuncDisableTouch, "DISABLE_TOUCH"  },
 };
 
 static const YamlLookupTable trainerLut = {
@@ -218,7 +218,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   if (!def.empty()) {
     node["def"] = def;
   }
-  
+
   return node;
 }
 
@@ -228,13 +228,13 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   node["swtch"] >> rhs.swtch;
 
   int func = 0;
-  node["func"] >> func;
+  node["func"] >> customFnLut >> func;
   rhs.func = (AssignFunc)func;
 
   std::string def_str;
   node["def"] >> def_str;
   std::stringstream def(def_str);
-      
+
   switch(rhs.func) {
   case FuncOverrideCH1: {
       int ch=0;
@@ -254,7 +254,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   case FuncPlayPrompt:
   case FuncPlayScript:
   case FuncBackgroundMusic:
-    strncpy(rhs.paramarm, def.str().c_str(), sizeof(rhs.paramarm)-1);
+    strncpy(rhs.paramarm, def.str().c_str(), sizeof(rhs.paramarm)-1); // TODO fix eg def: engarm,1x
     break;
   case FuncReset: {
     try {
@@ -327,7 +327,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
       rhs.repeatParam = std::stoi(repeat);
     }
   }
-  
+
   return true;
 }
 }  // namespace YAML
