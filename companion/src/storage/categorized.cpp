@@ -25,20 +25,28 @@
 
 bool CategorizedStorageFormat::load(RadioData & radioData)
 {
-  if (getStorageType(filename) == STORAGE_TYPE_ETX ||
-     (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX))
+  StorageType st = getStorageType(filename);
+  if (st == STORAGE_TYPE_UNKNOWN) {
+    st = probeFormat();
+  }
+  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML) {
     return loadYaml(radioData);
-  else
+  } else {
     return loadBin(radioData);
+  }
 }
 
 bool CategorizedStorageFormat::write(const RadioData & radioData)
 {
-  if (getStorageType(filename) == STORAGE_TYPE_ETX ||
-     (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX))
+  StorageType st = getStorageType(filename);
+  if (st == STORAGE_TYPE_UNKNOWN) {
+    st = probeFormat();
+  }
+  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_UNKNOWN) {
     return writeYaml(radioData);
-  else
+  } else {
     return writeBin(radioData);
+  }
 }
 
 StorageType CategorizedStorageFormat::probeFormat()
