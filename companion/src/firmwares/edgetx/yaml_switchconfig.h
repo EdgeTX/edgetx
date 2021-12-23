@@ -110,7 +110,7 @@ struct convert<YamlNameConfig<N, name_lookup> > {
     Node node;
     for (unsigned int i=0; i<N; i++) {
       std::string name = name_lookup::idx2name(i);
-      if (!name.empty()) {
+      if (!name.empty() && rhs.name[i][0]) {
         node[name]["name"] = rhs.name[i];
       }
     }
@@ -137,7 +137,7 @@ struct convert<YamlKnobConfig<N, name_lookup, cfg_lut> > {
     Node node;
     for (unsigned int i=0; i<N; i++) {
       std::string name = name_lookup::idx2name(i);
-      if (!name.empty()) {
+      if (!name.empty() && (rhs.config[i] || rhs.name[i][0])) {
         node[name]["type"] = cfg_lut << rhs.config[i];
         node[name]["name"] = rhs.name[i];
       }

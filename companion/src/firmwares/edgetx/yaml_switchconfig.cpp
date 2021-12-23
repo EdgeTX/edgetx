@@ -96,6 +96,10 @@ int YamlPotLookup::name2idx(const std::string& name)
     int idx = fw->getAnalogInputIndex(name.c_str());
     if (idx < 0) return idx;
 
+    int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
+    if (idx < sticks) return -1;
+    idx -= sticks;
+
     int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
     if (idx >= pots) return -1;
 
@@ -108,7 +112,8 @@ std::string YamlPotLookup::idx2name(unsigned int idx)
     unsigned int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
     if (idx >= pots) return std::string();
 
-    return fw->getAnalogInputTag(idx);
+    unsigned int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
+    return fw->getAnalogInputTag(idx + sticks);
 }
 
 int YamlSliderLookup::name2idx(const std::string& name)
@@ -116,6 +121,10 @@ int YamlSliderLookup::name2idx(const std::string& name)
     auto fw = getCurrentFirmware();
     int idx = fw->getAnalogInputIndex(name.c_str());
     if (idx < 0) return idx;
+
+    int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
+    if (idx < sticks) return -1;
+    idx -= sticks;
 
     int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
     if (idx < pots) return -1;
@@ -130,9 +139,10 @@ int YamlSliderLookup::name2idx(const std::string& name)
 std::string YamlSliderLookup::idx2name(unsigned int idx)
 {
     auto fw = getCurrentFirmware();
-    int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
     unsigned int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
     if (idx >= sliders) return std::string();
 
-    return fw->getAnalogInputTag(idx + pots);
+    unsigned int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
+    unsigned int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    return fw->getAnalogInputTag(idx + pots + sticks);
 }
