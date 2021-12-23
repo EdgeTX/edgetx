@@ -54,3 +54,46 @@ def get_chars_encoding(subset):
             if char not in standard_chars:
                 result[char] = "\\%03o" % (offset + chars.index(char))
     return result
+
+special_chars_BW = {
+    "en": "",
+    "fr": "éèàîç",
+    "de": "ÄäÖöÜüß",
+    "cz": "áčéěíóřšúůýÁÍŘÝŽÉ",
+    "nl": "",
+    "es": "ÑñÁáÉéÍíÓóÚú",
+    "fi": "åäöÅÄÖ",
+    "it": "àù",
+    "pl": "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ",
+    "pt": "ÁáÂâÃãÀàÇçÉéÊêÍíÓóÔôÕõÚú",
+    "se": "åäöÅÄÖ",
+    "cn": "",
+    "tw": "",
+}
+
+subset_lowercase_BW = {
+    "Č": "č",
+    "Ě": "ě",
+    "Š": "š",
+    "Ú": "ú",
+    "Ů": "ů",
+    "Ž": "ž"
+}
+
+def get_chars_BW(subset):
+    result = standard_chars + extra_chars
+    if subset in special_chars_BW:
+        result += "".join([char for char in special_chars_BW[subset] if char not in subset_lowercase_BW])
+    return result
+
+def get_chars_encoding_BW(subset):
+    result = {}
+    offset = 128 - len(standard_chars)
+    chars = get_chars_BW(subset)
+    for char in chars:
+        if char not in standard_chars:
+            result[char] = "\\%03o" % (offset + chars.index(char))
+    for upper, lower in subset_lowercase_BW.items():
+        if lower in result:
+            result[upper] = result[lower]
+    return result
