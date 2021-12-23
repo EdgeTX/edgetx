@@ -22,10 +22,22 @@
 #include "yaml_rawsource.h"
 #include "yaml_ops.h"
 
+#include <sstream>
+#include <iomanip>
+
 static const YamlLookupTable zoneOptionValueEnum = {
     {ZOV_Unsigned, "Unsigned"}, {ZOV_Signed, "Signed"}, {ZOV_Bool, "Bool"},
     {ZOV_String, "String"},     {ZOV_Source, "Source"}, {ZOV_Color, "Color"},
 };
+
+std::string color_to_hex( unsigned int i )
+{
+  std::stringstream stream;
+  stream << "0x" 
+         << std::setfill ('0') << std::setw(6)
+         << std::hex << i;
+  return stream.str();
+}
 
 namespace YAML
 {
@@ -47,10 +59,10 @@ Node convert<ZoneOptionValueTyped>::encode(const ZoneOptionValueTyped& rhs)
       value["boolValue"] = rhs.value.boolValue;
       break;
     case ZOV_Source:
-      value["sourceValue"] = rhs.value.sourceValue;
+      value["source"] = rhs.value.sourceValue;
       break;
     case ZOV_Color:
-      value["colorValue"] = rhs.value.colorValue;
+      value["color"] = color_to_hex(rhs.value.colorValue);
       break;
     default:
       break;
@@ -70,8 +82,8 @@ bool convert<ZoneOptionValueTyped>::decode(const Node& node,
       value["signedValue"] >> rhs.value.signedValue;
       value["boolValue"] >> rhs.value.boolValue;
       value["stringValue"] >> rhs.value.stringValue;
-      value["sourceValue"] >> rhs.value.sourceValue;
-      value["colorValue"] >> rhs.value.colorValue;
+      value["source"] >> rhs.value.sourceValue;
+      value["color"] >> rhs.value.colorValue;
     }
   }
   return true;
@@ -84,7 +96,11 @@ struct convert<WidgetPersistentData> {
     Node node;
     for (int i=0; i<MAX_WIDGET_OPTIONS; i++) {
       if (!rhs.options[i].isEmpty()) {
-        node["options"][std::to_string(i)] = rhs.options[i];
+        Node options;
+        options = rhs.options[i];
+        if (options && options.IsMap()) {
+          node["options"][std::to_string(i)] = options;
+        }
       }
     }
     return node;

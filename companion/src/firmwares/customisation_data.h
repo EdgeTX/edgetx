@@ -61,6 +61,8 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   char stringValue[LEN_ZONE_OPTION_STRING + 1];
   RawSource sourceValue;
   unsigned int colorValue;
+
+  ZoneOptionValue();
 };
 
 enum ZoneOptionValueEnum {
@@ -99,17 +101,21 @@ struct ZoneOptionValueTyped
   ZoneOptionValueEnum type;
   ZoneOptionValue     value;
 
+  ZoneOptionValueTyped();
   bool isEmpty() const;
 };
 
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
+
+  WidgetPersistentData();
 };
 
 struct ZonePersistentData {
   char widgetName[WIDGET_NAME_LEN + 1];
   WidgetPersistentData widgetData;
 
+  ZonePersistentData();
   bool isEmpty() const;
 };
 
@@ -117,6 +123,10 @@ template<int N, int O>
 struct WidgetsContainerPersistentData {
   ZonePersistentData   zones[N];
   ZoneOptionValueTyped options[O];
+
+  WidgetsContainerPersistentData() {
+    memset((void*)this, 0, sizeof(WidgetsContainerPersistentData));
+  }
 };
 
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
@@ -151,6 +161,7 @@ class RadioLayout
       char layoutId[LAYOUT_ID_LEN + 1];
       LayoutPersistentData layoutPersistentData;
 
+      CustomScreenData();
       bool isEmpty() const;
     };
 

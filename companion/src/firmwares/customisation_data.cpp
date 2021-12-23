@@ -27,6 +27,26 @@
 #define WHITE RADIO_RGB(0xFF, 0xFF, 0xFF)
 #define RED RADIO_RGB(229, 32, 30)
 
+ZoneOptionValue::ZoneOptionValue()
+{
+  memset((void*)this, 0, sizeof(ZoneOptionValue));
+}
+
+ZoneOptionValueTyped::ZoneOptionValueTyped()
+{
+  memset((void*)this, 0, sizeof(ZoneOptionValueTyped));
+}
+
+WidgetPersistentData::WidgetPersistentData()
+{
+  memset((void*)this, 0, sizeof(WidgetPersistentData));
+}
+
+ZonePersistentData::ZonePersistentData()
+{
+  memset((void*)this, 0, sizeof(ZonePersistentData));
+}
+
 inline void setZoneOptionValue(ZoneOptionValue& zov, bool value)
 {
   zov.boolValue = value;
@@ -61,9 +81,13 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
     return ZOV_Bool;
 
   case ZoneOption::Color:
+    return ZOV_Color;
+
+  case ZoneOption::Source:
+    return ZOV_Source;
+
   case ZoneOption::Timer:
   case ZoneOption::Switch:
-  case ZoneOption::Source:
   case ZoneOption::TextSize:
   default:
     return ZOV_Unsigned;
@@ -85,9 +109,7 @@ inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
   }
 }
 
-static const ZoneOptionValueTyped zero_widget_option = {
-  ZOV_Unsigned, {0}
-};
+static const ZoneOptionValueTyped zero_widget_option = {};
 
 bool ZoneOptionValueTyped::isEmpty() const
 {
@@ -97,6 +119,11 @@ bool ZoneOptionValueTyped::isEmpty() const
 bool ZonePersistentData::isEmpty() const
 {
   return strlen(widgetName) == 0;
+}
+
+RadioLayout::CustomScreenData::CustomScreenData()
+{
+  memset((void*)this, 0, sizeof(RadioLayout::CustomScreenData));
 }
 
 bool RadioLayout::CustomScreenData::isEmpty() const

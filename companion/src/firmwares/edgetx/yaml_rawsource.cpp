@@ -87,6 +87,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
           break;
       }
       src_str += std::to_string(rhs.index / 3);
+      src_str += ")";
       break;
     default:
       src_str = "NONE";
