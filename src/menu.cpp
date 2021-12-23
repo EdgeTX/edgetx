@@ -185,7 +185,7 @@ void MenuBody::paint(BitmapBuffer * dc)
     if (line.isSeparator) {
       dc->drawHorizontalLine(5, y + MENUS_SEPARATOR_HEIGHT / 2, width() - 10, 255, COLOR_THEME_SECONDARY1);
     } else if (line.drawLine) {
-      line.drawLine(dc, 0, y, COLOR_THEME_SECONDARY3);
+      line.drawLine(dc, 0, y, COLOR_THEME_PRIMARY3);
     } else {
       const char* text = line.text.data();
       dc->drawText(10,
