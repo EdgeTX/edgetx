@@ -719,7 +719,9 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   for (auto input : inputs) {
-    node["inputNames"][std::to_string(input)]["val"] = rhs.inputNames[input];
+    if (rhs.inputNames[input][0]) {
+      node["inputNames"][std::to_string(input)]["val"] = rhs.inputNames[input];
+    }
   }
 
   for (int i = 0; i < CPN_MAX_CURVES; i++) {

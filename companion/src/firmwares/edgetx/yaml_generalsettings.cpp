@@ -151,10 +151,29 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     }
   }
 
-  node["sticksConfig"] = YamlStickConfig(rhs.stickName);
-  node["switchConfig"] = YamlSwitchConfig(rhs.switchName, rhs.switchConfig);
-  node["potsConfig"] = YamlPotConfig(rhs.potName, rhs.potConfig);
-  node["slidersConfig"] = YamlSliderConfig(rhs.sliderName, rhs.sliderConfig);
+  Node sticksConfig;
+  sticksConfig = YamlStickConfig(rhs.stickName);
+  if (sticksConfig && sticksConfig.IsMap()) {
+    node["sticksConfig"] = sticksConfig;
+  }
+
+  Node switchConfig;
+  switchConfig = YamlSwitchConfig(rhs.switchName, rhs.switchConfig);
+  if (switchConfig && switchConfig.IsMap()) {
+    node["switchConfig"] = switchConfig;
+  }
+
+  Node potsConfig;
+  potsConfig = YamlPotConfig(rhs.potName, rhs.potConfig);
+  if (potsConfig && potsConfig.IsMap()) {
+    node["potsConfig"] = potsConfig;
+  }
+
+  Node slidersConfig;
+  slidersConfig = YamlSliderConfig(rhs.sliderName, rhs.sliderConfig);
+  if (slidersConfig && slidersConfig.IsMap()) {
+    node["slidersConfig"] = slidersConfig;
+  }
 
   // Color lcd theme settings are not used in EdgeTx
   // RadioTheme::ThemeData themeData;
