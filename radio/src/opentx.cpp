@@ -736,7 +736,7 @@ void checkAll()
     const int len = int(LEN_VKEYS[0]);
     char s[6];
     s[5] = 0;
-    for (int i = (int)KEY_PGUP; i < (int)TRM_BASE; i++) {
+    for (int i = 0; i < (int)TRM_BASE; i++) {
       if (keys & (1 << i)) {
         strncpy(s, &STR_VKEYS[i * len], len);
         strKeys += s;
