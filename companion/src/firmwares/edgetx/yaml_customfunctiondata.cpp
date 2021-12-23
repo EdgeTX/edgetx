@@ -163,7 +163,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncReset:
     def += LookupValue(resetLut, rhs.param);
     if (def.empty()) {
-      def += std::to_string(rhs.param);
+      def += std::to_string(rhs.param - resetLut.size());
     }
     break;
   case FuncSetTimer1: {
@@ -265,7 +265,8 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     std::string rst_str;
     getline(def, rst_str, ',');
     try {
-      rhs.param = std::stoi(rst_str);   // TODO: check this works for radio generated if not then encode and here will need fixing
+      rhs.param = std::stoi(rst_str);
+      rhs.param += resetLut.size();
       break;
     } catch(...) {}
     Node(rst_str.c_str()) >> resetLut >> rhs.param;
