@@ -69,25 +69,20 @@ std::string YamlStickLookup::idx2name(unsigned int idx)
 
 int YamlSwitchLookup::name2idx(const std::string& name)
 {
-    // TODO: replace this with a real lookup of available switches
-    if (name.size() == 2
-        && name[0] == 'S'
-        && (name[1] >= 'A' && name[1] <= 'J')) {
+    auto fw = getCurrentFirmware();
+    int idx = fw->getSwitchesIndex(name.c_str());
+    if (idx < 0) return -1;
 
-        return name[1] - 'A';
-    }
-
-    return -1;
+    return idx;
 }
 
 std::string YamlSwitchLookup::idx2name(unsigned int idx)
 {
-    // TODO: replace this with a real lookup of available switches
-    if (idx < 10) {
-        return std::string("S") + (char)('A' + idx);
-    }
+    auto fw = getCurrentFirmware();
+    unsigned int switches = Boards::getCapability(fw->getBoard(), Board::Switches);
+    if (idx >= switches) return std::string();
 
-    return std::string();
+    return fw->getSwitchesTag(idx);
 }
 
 int YamlPotLookup::name2idx(const std::string& name)
