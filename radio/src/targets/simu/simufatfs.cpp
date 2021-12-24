@@ -124,23 +124,20 @@ bool redirectToSettingsDirectory(const std::string & path)
       * model (*.bin) files in /MODELS directory
   */
   if (!simuSettingsDirectory.empty()) {
-#if defined(COLORLCD)
-    if (path == RADIO_MODELSLIST_PATH || path == RADIO_SETTINGS_PATH
-#if defined(SDCARD_YAML)
-        || path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH
-#endif
-        ) {
+#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
+    if (path == MODELS_PATH || path == RADIO_PATH) return true;
+  #if !defined(EEPROM_RLC)
+    if (path == RADIO_MODELSLIST_PATH || path == RADIO_SETTINGS_PATH)
       return true;
-    }
-#endif
-    if (startsWith(path, "/MODELS")
-        && (endsWith(path, MODELS_EXT)
-#if defined(SDCARD_YAML)
-            || endsWith(path, YAML_EXT)
-#endif
-            )) {
+    if (startsWith(path, MODELS_PATH) && endsWith(path, MODELS_EXT))
       return true;
-    }
+  #endif
+#endif
+#if defined(SDCARD_YAML)
+    if (path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH)
+      return true;
+    if (startsWith(path, MODELS_PATH) && endsWith(path, YAML_EXT)) return true;
+#endif
   }
   return false;
 }
