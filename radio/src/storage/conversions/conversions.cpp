@@ -244,6 +244,9 @@ bool eeConvert()
   // General Settings conversion
   int version = conversionVersionStart;
 
+  sdCheckAndCreateDirectory(RADIO_PATH);
+  sdCheckAndCreateDirectory(MODELS_PATH);
+
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {
     version = 220;
