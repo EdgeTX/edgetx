@@ -294,17 +294,20 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
 
   saveTempRadioData = (flags & SIMULATOR_FLAGS_STANDALONE);
 
-  if (IS_FAMILY_HORUS_OR_T16(m_board))
+  // All radios use SD card data path from 2.6.0 on
+  bool hasSdCard = Boards::getCapability(m_board, Board::HasSDCard);
+  if (hasSdCard)
     ret = useTempDataPath(true);
 
   if (ret) {
-    if (radioDataPath.isEmpty()) {
+    if (!hasSdCard) {
       startupData.fill(0, Boards::getEEpromSize(m_board));
-      if (firmware->getEEpromInterface()->save((uint8_t *)startupData.data(), *radioData, 0, firmware->getCapability(SimulatorVariant)) <= 0) {
+      if (firmware->getEEpromInterface()->save(
+              (uint8_t *)startupData.data(), *radioData, 0,
+              firmware->getCapability(SimulatorVariant)) <= 0) {
         ret = false;
       }
-    }
-    else {
+    } else {
       ret = saveRadioData(radioData, radioDataPath);
     }
   }
