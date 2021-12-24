@@ -319,7 +319,8 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
       modelFilename = QString("MODELS/%1").arg(model.filename);
       modelFiles.push_back({ std::string(model.filename), model.category });
     } else {
-      modelFilename = QString("MODELS/model%1").arg(model.modelIndex, 2, QLatin1Char('0'));
+      modelFilename = QString("MODELS/model%1.yml")
+                          .arg(model.modelIndex, 2, 10, QLatin1Char('0'));
     }
 
     QByteArray modelData;
