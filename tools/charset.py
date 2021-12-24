@@ -83,7 +83,10 @@ subset_lowercase_BW = {
 def get_chars_BW(subset):
     result = standard_chars + extra_chars
     if subset in special_chars_BW:
-        result += "".join([char for char in special_chars_BW[subset] if char not in subset_lowercase_BW])
+        if (subset == "cz"):
+            result += "".join([char for char in special_chars_BW[subset] if char not in subset_lowercase_BW])
+        else:
+            result += "".join([char for char in special_chars_BW[subset]])
     return result
 
 def get_chars_encoding_BW(subset):
@@ -93,7 +96,8 @@ def get_chars_encoding_BW(subset):
     for char in chars:
         if char not in standard_chars:
             result[char] = "\\%03o" % (offset + chars.index(char))
-    for upper, lower in subset_lowercase_BW.items():
-        if lower in result:
-            result[upper] = result[lower]
+    if (subset == "cz"):            
+        for upper, lower in subset_lowercase_BW.items():
+            if lower in result:
+                result[upper] = result[lower]
     return result
