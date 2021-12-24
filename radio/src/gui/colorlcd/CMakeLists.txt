@@ -89,7 +89,7 @@ if(LUA)
   set(SRC ${SRC} lua/widgets.cpp)
 endif()
 
-if(LUA STREQUAL YES)
+if(LUA_MIXER)
   add_gui_src(model_mixer_scripts.cpp)
 endif()
 
