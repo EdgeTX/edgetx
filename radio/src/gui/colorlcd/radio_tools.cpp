@@ -119,6 +119,7 @@ class FormGridLayoutEx : public FormGridLayout
     uint8_t _lineHeight = PAGE_LINE_HEIGHT;
 };
 
+#if defined(LUA)
 void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayoutEx &grid)
 {
   for (auto luaScript : luaScripts) {
@@ -136,7 +137,7 @@ void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridL
 
           luaExec(luaScript.path.c_str());
           StandaloneLuaWindow::instance()->attach(window);
-          
+
           return 0;
         },
         OPAQUE);
@@ -156,7 +157,7 @@ void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridL
     grid.nextLine();
   }
 }
-
+#endif
 
 void RadioToolsPage::rebuild(FormWindow * window)
 {

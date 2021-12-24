@@ -28,7 +28,7 @@ if(FLIGHT_MODES)
     )
 endif()
 
-if(LUA STREQUAL YES)
+if(LUA_MIXER)
   set(GUI_SRC
     ${GUI_SRC}
     model_custom_scripts.cpp

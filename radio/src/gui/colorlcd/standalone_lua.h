@@ -21,6 +21,7 @@
 
 #pragma once
 
+#if defined(LUA)
 #include "libopenui.h"
 #include "lua/lua_api.h"
 
@@ -77,3 +78,4 @@ protected:
   LuaTouchData touch;
 #endif
 };
+#endif
