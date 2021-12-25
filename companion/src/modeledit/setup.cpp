@@ -1321,6 +1321,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, i);
     switchInfo.config = Board::SwitchType(generalSettings.switchConfig[i]);
     if (switchInfo.config == Board::SWITCH_NOT_AVAILABLE || switchInfo.config == Board::SWITCH_TOGGLE) {
+      model.switchWarningEnable |= (1 << i);
       continue;
     }
     RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i);

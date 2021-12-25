@@ -163,18 +163,19 @@ struct YamlSwitchWarningState {
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
   std::string src_str;
-  uint64_t    enabled;
+  unsigned int enabled;
 
   YamlSwitchWarningState() = default;
 
   YamlSwitchWarningState(uint64_t cpn_value, unsigned int switchWarningEnable)
+    : enabled(~switchWarningEnable)
   {
     uint64_t states = cpn_value;
 
     std::stringstream ss;
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
       //TODO: exclude 2-pos toggle from switch warnings
-      if (!(switchWarningEnable & (1 << i))) {
+      if (enabled & (1 << i)) {
         std::string tag = getCurrentFirmware()->getSwitchesTag(i);
         const char *sw = tag.data();
 
@@ -870,17 +871,15 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 {
   if (!node.IsMap()) return false;
 
+  unsigned int modelIds[CPN_MAX_MODULES];
+  memset(modelIds, 0, sizeof(modelIds));
+
   if (node["header"]) {
     const auto& header = node["header"];
     if (header.IsMap()) {
       header["name"] >> rhs.name;
       header["bitmap"] >> rhs.bitmap;
-
-      unsigned int modelIds[CPN_MAX_MODULES];
       header["modelId"] >> modelIds;
-      for (int i=0; i<CPN_MAX_MODULES; i++) {
-        rhs.moduleData[i].modelId = modelIds[i];
-      }
     }
   }
 
@@ -984,9 +983,13 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   node["rssiAlarms"] >> rhs.rssiAlarms;
-
   node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
+
   node["moduleData"] >> rhs.moduleData;
+  for (int i=0; i<CPN_MAX_MODULES; i++) {
+    rhs.moduleData[i].modelId = modelIds[i];
+  }
+
   node["scriptData"] >> rhs.scriptData;
   node["telemetrySensors"] >> rhs.sensorData;
 

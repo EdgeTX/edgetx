@@ -188,6 +188,9 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
   }
 }
 
+static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
+static int importPpmDelay(int delay) { return 300 + 50 * delay; }
+
 namespace YAML
 {
 Node convert<ModuleData>::encode(const ModuleData& rhs)
@@ -284,9 +287,9 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     // TODO: afhds3, flysky
     default: {
         Node ppm;
-        ppm["delay"] = rhs.ppm.delay;
-        ppm["pulsePol"] = rhs.ppm.pulsePol;
-        ppm["outputType"] = rhs.ppm.outputType;
+        ppm["delay"] = exportPpmDelay(rhs.ppm.delay);
+        ppm["pulsePol"] = (int)rhs.ppm.pulsePol;
+        ppm["outputType"] = (int)rhs.ppm.outputType;
         ppm["frameLength"] = rhs.ppm.frameLength;
         mod["ppm"] = ppm;
     } break;
@@ -347,10 +350,11 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
   node["failsafeMode"] >> failsafeLut >> rhs.failsafeMode;
 
   if (node["mod"]) {
-      Node mod = node["mod"];
+      const Node& mod = node["mod"];
       if (mod["ppm"]) {
-          Node ppm = mod["ppm"];
+          const Node& ppm = mod["ppm"];
           ppm["delay"] >> rhs.ppm.delay;
+          rhs.ppm.delay = importPpmDelay(rhs.ppm.delay);
           ppm["pulsePol"] >> rhs.ppm.pulsePol;
           ppm["outputType"] >> rhs.ppm.outputType;
           ppm["frameLength"] >> rhs.ppm.frameLength;

@@ -102,7 +102,12 @@ void operator>>(const YAML::Node& node, T (&value)[N])
         int idx = std::stoi(elmt.first.Scalar());
         if (idx < 0 || idx >= (int)N) return;
 
-        elmt.second >> value[idx];
+        if (elmt.second.IsMap() && (elmt.second.size() == 1) &&
+            elmt.second["val"]) {
+          elmt.second["val"] >> value[idx];
+        } else {
+          elmt.second >> value[idx];
+        }
       } catch (...) {
         return;
       }
