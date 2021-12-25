@@ -295,7 +295,9 @@
 
 // SPI FLASH
 #define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
-#define FLASH_RCC_APB1Periph           RCC_APB1Periph_SPI6
+#define FLASH_RCC_APB2Periph           RCC_APB2Periph_SPI6
+#define FLASH_SPI                      SPI6
+#define FLASH_SPI_GPIO_AF              GPIO_AF_SPI6
 #define FLASH_SPI_CS_GPIO              GPIOG
 #define FLASH_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
 #define FLASH_SPI_SCK_GPIO             GPIOG

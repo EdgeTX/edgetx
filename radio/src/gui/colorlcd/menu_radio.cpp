@@ -40,7 +40,9 @@ RadioMenu::RadioMenu():
 {
   addTab(new RadioToolsPage());
   addTab(new RadioSdManagerPage());
+#if defined(SPI_FLASH)
   addTab(new RadioFlashManagerPage());
+#endif
   addTab(new RadioSetupPage());
   addTab(new ThemeSetupPage());
   addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));

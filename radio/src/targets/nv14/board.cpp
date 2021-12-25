@@ -103,7 +103,9 @@ void delay_self(int count)
                                AUX_SERIAL_RCC_APB1Periph |\
                                MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
                               )
-#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
+#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph |\
+                               FLASH_RCC_APB2Periph \
+                              )
 
 #define RCC_APB2PeriphOther   (ADC_RCC_APB2Periph |\
                                HAPTIC_RCC_APB2Periph |\
