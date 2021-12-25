@@ -845,7 +845,11 @@ Node convert<ModelData>::encode(const ModelData& rhs)
         node["screenData"][std::to_string(i)] = csd;
       }
     }
-    node["topbarData"] = rhs.topBarData;
+    Node topbarData;
+    topbarData = rhs.topBarData;
+    if (topbarData && topbarData.IsMap()) {
+      node["topbarData"] = topbarData;
+    }
     node["view"] = rhs.view;
   }
 
