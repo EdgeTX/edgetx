@@ -316,9 +316,11 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
 
     QString modelFilename;
     if (hasCategories) {
-      modelFilename = QString("MODELS/%1").arg(model.filename);
-      modelFiles.push_back({std::string(model.filename),
-                            std::string(model.name), model.category});
+      std::string ymlFilename = patchFilenameToYaml(model.filename);
+      modelFilename =
+          QString("MODELS/%1").arg(QString::fromStdString(ymlFilename));
+      modelFiles.push_back(
+          {ymlFilename, std::string(model.name), model.category});
     } else {
       modelFilename = QString("MODELS/model%1.yml")
                           .arg(model.modelIndex, 2, 10, QLatin1Char('0'));

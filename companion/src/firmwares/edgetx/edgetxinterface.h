@@ -50,3 +50,5 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
 
 bool writeModelToYaml(const ModelData& model, QByteArray& data);
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data);
+
+std::string patchFilenameToYaml(const std::string& str);

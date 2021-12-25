@@ -88,7 +88,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["calib"] = calib;
 
   node["currModel"] = rhs.currModelIndex;
-  node["currModelFilename"] = rhs.currModelFilename;
+  node["currModelFilename"] = patchFilenameToYaml(rhs.currModelFilename);
   node["contrast"] = rhs.contrast;
   node["vBatWarn"] = rhs.vBatWarn;
   node["txVoltageCalibration"] = rhs.txVoltageCalibration;

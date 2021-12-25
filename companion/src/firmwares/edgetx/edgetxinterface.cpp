@@ -158,3 +158,18 @@ bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
   writeYamlToByteArray(node, data);
   return true;
 }
+
+std::string patchFilenameToYaml(const std::string& str)
+{
+  constexpr const char MODELS_EXT[] = ".bin";
+  constexpr const char YAML_EXT[] = ".yml";
+  constexpr unsigned bin_len = sizeof(MODELS_EXT) - 1;
+
+  // patch file extension
+  auto const dot_pos = str.find_last_of('.');
+  if ((dot_pos != std::string::npos) && (str.substr(dot_pos) == MODELS_EXT)) {
+    std::string tmp = str;
+    return tmp.replace(dot_pos, bin_len, YAML_EXT);
+  }
+  return str;
+}
