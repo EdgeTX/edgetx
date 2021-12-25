@@ -40,6 +40,7 @@ void YamlParser::init(const YamlParserCalls* parser_calls, void* parser_ctx)
     calls = parser_calls;
     ctx   = parser_ctx;
     reset();
+    eof = false;
 }
 
 void YamlParser::reset()
@@ -311,6 +312,11 @@ YamlParser::parse(const char* buffer, unsigned int size)
         c++;
     } // for each char
 
+    if ((state == ps_Val) && eof && node_found) {
+        // TODO: trim spaces at the end?
+        calls->set_attr(ctx, scratch_buf, scratch_len);
+    }
+    
     return CONTINUE_PARSING;
 }
 

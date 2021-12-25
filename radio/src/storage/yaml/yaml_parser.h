@@ -73,6 +73,7 @@ class YamlParser
     uint8_t scratch_len;
 
     bool node_found;
+    bool eof;
 
     // tree iterator state
     const YamlParserCalls* calls;
@@ -98,6 +99,8 @@ public:
     void init(const YamlParserCalls* parser_calls, void* parser_ctx);
     
     YamlResult parse(const char* buffer, unsigned int size);
+
+    void set_eof() { eof = true; }
 };
 
 #endif
