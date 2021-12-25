@@ -29,8 +29,13 @@
 
 constexpr unsigned int CPN_CURRENT_SETTINGS_VERSION = { 221 };
 
-typedef std::pair<std::string, int> EtxModelfileCategoryPair;
-typedef std::list<EtxModelfileCategoryPair> EtxModelfiles;
+struct EtxModelMetadata {
+    std::string filename;
+    std::string name;
+    int         category;
+};
+
+typedef std::list<EtxModelMetadata> EtxModelfiles;
 
 bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
                             EtxModelfiles& modelFiles,

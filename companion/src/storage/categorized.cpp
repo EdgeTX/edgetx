@@ -258,10 +258,10 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
     int modelIdx = 0;
     for (const auto& mc : modelFiles) {
-      qDebug() << "Filename: " << mc.first.c_str() << " / Category: " << mc.second;
+      qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
 
       QByteArray modelBuffer;
-      QString filename = "MODELS/" + QString::fromStdString(mc.first);
+      QString filename = "MODELS/" + QString::fromStdString(mc.filename);
       if (!loadFile(modelBuffer, filename)) {
         setError(tr("Can't extract ") + filename);
         return false;
@@ -277,9 +277,9 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
         return false;
       }
 
-      model.category = mc.second;
+      model.category = mc.category;
       model.modelIndex = modelIdx;
-      strncpy(model.filename, mc.first.c_str(), sizeof(model.filename)-1);
+      strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
       model.used = true;
       modelIdx++;
@@ -317,7 +317,8 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     QString modelFilename;
     if (hasCategories) {
       modelFilename = QString("MODELS/%1").arg(model.filename);
-      modelFiles.push_back({ std::string(model.filename), model.category });
+      modelFiles.push_back({std::string(model.filename),
+                            std::string(model.name), model.category});
     } else {
       modelFilename = QString("MODELS/model%1.yml")
                           .arg(model.modelIndex, 2, 10, QLatin1Char('0'));

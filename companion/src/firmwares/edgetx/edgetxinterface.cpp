@@ -65,7 +65,9 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
         for (const auto& model : models) {
           std::string filename;
           model["filename"] >> filename;
-          modelFiles.push_back({ filename, categories.size()-1 });
+          std::string name;
+          model["name"] >> name;
+          modelFiles.push_back({filename, name, (int)categories.size() - 1});
         }
       }
     }
@@ -124,14 +126,15 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
   for (const auto& modelFile: modelFiles) {
 
     YAML::Node cat_attrs;
-    cat_attrs["filename"] = modelFile.first;
+    cat_attrs["filename"] = modelFile.filename;
+    cat_attrs["name"] = modelFile.name;
 
-    if (modelFile.second >= (int)categories.size()) {
+    if (modelFile.category >= (int)categories.size()) {
       return false;
     }
 
-    const std::string cat_name = categories[modelFile.second].name;
-    node[modelFile.second][cat_name].push_back(cat_attrs);
+    const std::string cat_name = categories[modelFile.category].name;
+    node[modelFile.category][cat_name].push_back(cat_attrs);
   }
 
   writeYamlToByteArray(node, data);
