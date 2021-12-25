@@ -158,7 +158,12 @@ struct YamlPotsWarnEnabled {
 //  modeldata: uint64_t switchWarningStates
 //  Yaml switchWarningState: AuBuEuFuG-IuJu
 struct YamlSwitchWarningState {
+
+  static constexpr size_t MASK_LEN = 2;
+  static constexpr size_t MASK = (1 << MASK_LEN) - 1;
+
   std::string src_str;
+  uint64_t    enabled;
 
   YamlSwitchWarningState() = default;
 
@@ -166,84 +171,73 @@ struct YamlSwitchWarningState {
   {
     uint64_t states = cpn_value;
 
+    std::stringstream ss;
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
+      //TODO: exclude 2-pos toggle from switch warnings
       if (!(switchWarningEnable & (1 << i))) {
         std::string tag = getCurrentFirmware()->getSwitchesTag(i);
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
-          char val[3];
-          val[0] = sw[1];
-
-          uint64_t value = (i == 0 ? states & 0x3 : states & 0x1);
-
-          if (value == 0)
-            val[1] = 'u';
-          else if (value == 1)
-            val[1] = '-';
-          else
-            val[1] = 'd';
-          val[2] = '\0';
-
-          src_str.append(val);
+          ss << sw[1];
+          switch(states & MASK) {
+          case 0:
+            ss << 'u';
+            break;
+          case 1:
+            ss << '-';
+            break;
+          case 2:
+            ss << 'd';
+            break;
+          }
         }
       }
-
-      states >>= (i == 0 ? 2 : 1);
+      states >>= MASK_LEN;
     }
+
+    ss >> src_str;
   }
 
   uint64_t toCpn()
   {
     uint64_t states = 0;
+    enabled = 0;
 
-    for (unsigned int i = 0; i < src_str.size() / 2; i++) {
-      auto val = src_str.substr(i * 2, 2);
-      if (val[0] >= 'A' && val[0] <= 'Z' && (
-          val[1] == 'u' || val[1] == '-' || val[1] == 'd')) {
-
-        int shift = 0;
-        uint64_t mask;
-
-        char sw[3];
-        sw[0] = 'S';
-        sw[1] = val[0];
-        sw[2] = '\0';
-
-        int index = getCurrentFirmware()->getSwitchesIndex(sw);
-
-        if (index > -1) {
-
-          if (IS_HORUS_OR_TARANIS(getCurrentFirmware()->getBoard())) {
-            shift = index * 2;
-            mask = 0x03ull << shift;
-          }
-          else {
-            if (index == 0) {
-              mask = 0x03;
-            }
-            else {
-              shift = index + 1;
-              mask = 0x01ull << shift;
-            }
-          }
-
-          states &= ~mask;
-
-          uint64_t value;
-
-          if (val[1] == 'u')
-            value = 0;
-          else if (val[1] == '-')
-            value = 1;
-          else
-            value = 2;
-
-          if (value) {
-            states |= ((uint64_t)value << shift);
-          }
-        }
+    std::stringstream ss(src_str);
+    while (!ss.eof()) {
+      auto c = ss.get();
+      if (c < 'A' && c > 'Z') {
+        ss.ignore();
+        continue;
       }
+
+      std::string sw = std::string("S") + (char)c;
+      int index = getCurrentFirmware()->getSwitchesIndex(sw.c_str());
+      if (index < 0) {
+        ss.ignore();
+        continue;
+      }
+
+      auto s = ss.get();
+
+      int value = 0;
+      switch(s) {
+      case 'u':
+        value = 0;
+        break;
+      case '-':
+        value = 1;
+        break;
+      case 'd':
+        value = 2;
+        break;
+      default:
+        continue;
+      }
+      
+      states |= ((uint64_t)value << (index * MASK_LEN));
+      enabled |= (1 << index);
     }
 
     return states;
@@ -933,6 +927,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   YamlSwitchWarningState switchWarningState;
   node["switchWarningState"] >> switchWarningState.src_str;
   rhs.switchWarningStates = switchWarningState.toCpn();
+  rhs.switchWarningEnable = ~switchWarningState.enabled;
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
