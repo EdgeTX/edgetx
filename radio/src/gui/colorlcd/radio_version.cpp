@@ -207,6 +207,10 @@ RadioVersionPage::RadioVersionPage():
 }
 
 extern uint32_t NV14internalModuleFwVersion;
+#if defined(PCBNV14)
+extern const char* boardLcdType;
+#endif
+
 void RadioVersionPage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -237,6 +241,12 @@ void RadioVersionPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), "OPTS:", 0, COLOR_THEME_PRIMARY1);
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
+
+#if defined(PCBNV14) && !defined(SIMU)
+  new StaticText(window, grid.getLabelSlot(), "LCD:");
+  new StaticText(window, grid.getFieldSlot(), boardLcdType);
+  grid.nextLine();
+#endif
 
 #if defined(AFHDS2)
   new StaticText(window, grid.getLabelSlot(), "RF FW:");
