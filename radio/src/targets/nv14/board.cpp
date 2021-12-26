@@ -29,7 +29,9 @@
 #include "hal/switch_driver.h"
 
 #include "globals.h"
+#if defined(SDCARD)
 #include "sdcard.h"
+#endif
 #include "touch.h"
 #include "debug.h"
 
@@ -112,7 +114,8 @@ void delay_self(int count)
 #define RCC_AHB1PeriphMinimum (PWR_RCC_AHB1Periph |\
                                LCD_RCC_AHB1Periph |\
                                BACKLIGHT_RCC_AHB1Periph |\
-                               SDRAM_RCC_AHB1Periph \
+                               SDRAM_RCC_AHB1Periph |\
+                               FLASH_RCC_AHB1Periph \
                               )
 #define RCC_AHB1PeriphOther   (SD_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
@@ -134,7 +137,9 @@ void delay_self(int count)
 #define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
                                MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
                               )
-#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
+#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph |\
+                               FLASH_RCC_APB2Periph \
+                              )
 
 #define RCC_APB2PeriphOther   (HAPTIC_RCC_APB2Periph |\
                                AUDIO_RCC_APB2Periph \
@@ -232,6 +237,7 @@ void boardInit()
   init1msTimer();
   TouchInit();
   usbInit();
+  flashInit();
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;

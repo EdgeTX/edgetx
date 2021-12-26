@@ -77,9 +77,11 @@ const char* Pxx2OtaUpdate::nextStep(uint8_t step, const char* rxName,
 const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
                                            ProgressHandler progressHandler)
 {
-  FIL file;
+  VfsError error = VfsError::OK;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFile file;
   uint8_t buffer[32];
-  UINT count;
+  size_t count;
   const char * result;
 
   result = nextStep(OTA_UPDATE_START, rxName, 0, nullptr);
@@ -87,30 +89,32 @@ const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
     return result;
   }
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  error = vfs.openFile(file, filename, VfsOpenFlags::READ);
+  if (error != VfsError::OK) {
     return "Open file failed";
   }
 
   uint32_t size;
-  const char * ext = getFileExtension(filename);
+  const char * ext = vfs.getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *) buffer;
-    if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK ||
-        count != sizeof(FrSkyFirmwareInformation)) {
-      f_close(&file);
+    error = file.read(buffer, sizeof(FrSkyFirmwareInformation), count);
+    if (error != VfsError::OK || count != sizeof(FrSkyFirmwareInformation)) {
+      file.close();
       return "Format error";
     }
     size = information->size;
   }
   else {
-    size = f_size(&file);
+    size = file.size();
   }
 
   uint32_t done = 0;
   while (1) {
-    progressHandler(getBasename(filename), STR_OTA_UPDATE, done, size);
-    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
-      f_close(&file);
+    progressHandler(VirtualFS::getBasename(filename), STR_OTA_UPDATE, done, size);
+    error = file.read(buffer, sizeof(buffer), count);
+    if (error != VfsError::OK) {
+      file.close();
       return "Read file failed";
     }
 
@@ -120,7 +124,7 @@ const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
     }
 
     if (count < sizeof(buffer)) {
-      f_close(&file);
+      file.close();
       break;
     }
 

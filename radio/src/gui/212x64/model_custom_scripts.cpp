@@ -20,13 +20,14 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 void onModelCustomScriptMenu(const char *result)
 {
   ScriptData &sd = g_model.scriptsData[s_currIdx];
 
   if (result == STR_UPDATE_LIST) {
-    if (!sdListFiles(SCRIPTS_MIXES_PATH, SCRIPTS_EXT, sizeof(sd.file), nullptr)) {
+    if (!VirtualFS::instance().listFiles(SCRIPTS_MIXES_PATH, SCRIPTS_EXT, sizeof(sd.file), nullptr)) {
       POPUP_WARNING(STR_NO_SCRIPTS_ON_SD);
     }
   }
@@ -74,7 +75,7 @@ void menuModelCustomScriptOne(event_t event)
         lcdDrawTextAtIndex(SCRIPT_ONE_2ND_COLUMN_POS, y, STR_VCSWFUNC, 0, attr);
       if (attr && event==EVT_KEY_BREAK(KEY_ENTER) && !READ_ONLY()) {
         s_editMode = 0;
-        if (sdListFiles(SCRIPTS_MIXES_PATH, SCRIPTS_EXT, sizeof(sd.file), sd.file, LIST_NONE_SD_FILE)) {
+        if (VirtualFS::instance().listFiles(SCRIPTS_MIXES_PATH, SCRIPTS_EXT, sizeof(sd.file), sd.file, LIST_NONE_SD_FILE)) {
           POPUP_MENU_START(onModelCustomScriptMenu);
         }
         else {

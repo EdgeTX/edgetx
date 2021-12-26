@@ -543,10 +543,20 @@ static int luaOpenBitmap(lua_State *L)
           luaExtraMemoryUsage, LUA_MEM_EXTRA_MAX);
     *b = 0;
   } else {
-    *b = BitmapBuffer::loadBitmap(filename);
+    std::string file;
+    if(filename[0] == '/')
+    {
+      file = ROOT_PATH;
+      file += filename;
+    } else if (filename[0] == ':') {
+      file += filename+1;
+    } else {
+      file = filename;
+    }
+    *b = BitmapBuffer::loadBitmap(file.c_str());
     if (*b == NULL && G(L)->gcrunning) {
       luaC_fullgc(L, 1);                       /* try to free some memory... */
-      *b = BitmapBuffer::loadBitmap(filename); /* try again */
+      *b = BitmapBuffer::loadBitmap(file.c_str()); /* try again */
     }
   }
 

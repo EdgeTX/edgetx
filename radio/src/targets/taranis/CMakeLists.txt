@@ -13,6 +13,7 @@ set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 
 add_definitions(-DPCBFRSKY)
+add_definitions(-DDEFAULT_STORAGE=SDCARD)
 
 if(PCB STREQUAL X9E)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -564,6 +565,13 @@ set(GUI_SRC
 
 if(STATUS_LEDS)
   set(LED_DRIVER led_driver.cpp)
+endif()
+
+if(SDCARD)
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+    diskio.cpp
+  )
 endif()
 
 set(FIRMWARE_TARGET_SRC

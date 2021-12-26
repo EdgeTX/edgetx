@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <vector>
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "hal/module_port.h"
 
 extern uint8_t g_moduleIdx;
@@ -73,8 +74,8 @@ void addRadioScriptTool(std::vector<LuaScript> luaScripts)
     if (addRadioTool(index++, luaScript.label.c_str())) {
       char toolPath[FF_MAX_LFN + 1];
       strncpy(toolPath, luaScript.path.c_str(), sizeof(toolPath) - 1);
-      *((char *)getBasename(toolPath) - 1) = '\0';
-      f_chdir(toolPath);
+      *((char *)VirtualFS::getBasename(toolPath) - 1) = '\0';
+      VirtualFS::instance().changeDirectory(toolPath);
 
       luaExec(luaScript.path.c_str());
     }
@@ -86,14 +87,14 @@ void addRadioScriptTool(uint8_t index, const char * path)
   char toolName[RADIO_TOOL_NAME_MAXLEN + 1];
 
   if (!readToolName(toolName, path)) {
-    strAppendFilename(toolName, getBasename(path), RADIO_TOOL_NAME_MAXLEN);
+    strAppendFilename(toolName, VirtualFS::getBasename(path), RADIO_TOOL_NAME_MAXLEN);
   }
 
   if (addRadioTool(index, toolName)) {
     char toolPath[FF_MAX_LFN];
     strcpy(toolPath, path);
-    *((char *)getBasename(toolPath)-1) = '\0';
-    f_chdir(toolPath);
+    *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
+    VirtualFS::instance().changeDirectory(toolPath);
     luaExec(path);
   }
 }
@@ -117,37 +118,41 @@ void menuRadioTools(event_t event)
   uint8_t index = 0;
 
 #if defined(LUA)
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
 
-  FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, SCRIPTS_TOOLS_PATH);
+  if (res == VfsError::OK) {
     std::vector<LuaScript> luaScripts;  // gather and sort before adding to menu
 
     for (;;) {
-      TCHAR path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
+      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
 
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
-      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
+      res = dir.read(fno);                   /* Read a directory item */
+      std::string name = fno.getName();
+      if (res != VfsError::OK || name.length() == 0) break;  /* Break on error or end of dir */
+      if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
+      /* Skip hidden and system files */
+      if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+          != VfsFileAttributes::NONE) continue;
 
-      strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname)) {
+      strcat(path, name.c_str());
+      if (isRadioScriptTool(fno.getName())) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char *label;
-        char *ext = (char *)getFileExtension(path);
+        char *ext = (char *)VirtualFS::getFileExtension(path);
         if (readToolName(toolName, path)) {
           label = toolName;
         } else {
           *ext = '\0';
-          label = getBasename(path);
+          label = VirtualFS::getBasename(path);
         }
-
-        luaScripts.emplace_back(LuaScript{path, label});
+        std::string p = ":";
+        p += path;
+       luaScripts.emplace_back(LuaScript{p.c_str(), label});
       }
     }
-    f_closedir(&dir);
+    dir.close();
 
     std::sort(luaScripts.begin(), luaScripts.end(), LuaScript_compare_nocase);
     addRadioScriptTool(luaScripts);

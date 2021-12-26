@@ -24,6 +24,7 @@
 #include "radio_spectrum_analyser.h"
 #include "radio_ghost_module_config.h"
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "libopenui.h"
 #include "lua/lua_api.h"
 #include "standalone_lua.h"
@@ -92,10 +93,10 @@ inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
 #if defined(LUA)
 static void run_lua_tool(Window* parent, const std::string& path)
 {
-  char toolPath[FF_MAX_LFN + 1];
+  char toolPath[VFS_MAX_LFN + 1];
   strncpy(toolPath, path.c_str(), sizeof(toolPath)-1);
-  *((char *)getBasename(toolPath)-1) = '\0';
-  f_chdir(toolPath);
+  *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
+  VirtualFS::instance().changeDirectory(toolPath);
 
   luaExec(path.c_str());
   auto lua_win = StandaloneLuaWindow::instance();
@@ -105,29 +106,31 @@ static void run_lua_tool(Window* parent, const std::string& path)
 // LUA scripts in TOOLS
 static void scanLuaTools(std::list<ToolEntry>& scripts)
 {
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
 
-  FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, SCRIPTS_TOOLS_PATH);
+  if (res == VfsError::OK) {
     for (;;) {
-      TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
-      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
-
-      strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname)) {
+      TCHAR path[FF_MAX_LFN+1] = ":" SCRIPTS_TOOLS_PATH "/";
+      res = dir.read(fno);                   /* Read a directory item */
+      if (res != VfsError::OK || strlen(fno.getName()) == 0) break;  /* Break on error or end of dir */
+      if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+          != VfsFileAttributes::NONE) continue;
+      if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
+      auto fname = fno.getName();
+      if (fname[0] == '.') continue;
+      strcat(path, fname);
+      if (isRadioScriptTool(fname)) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char * label;
-        char * ext = (char *)getFileExtension(path);
-        if (readToolName(toolName, path)) {
+        char * ext = (char *)VirtualFS::getFileExtension(path+1);
+        if (readToolName(toolName, path+1)) {
           label = toolName;
         }
         else {
           *ext = '\0';
-          label = getBasename(path);
+          label = VirtualFS::getBasename(path);
         }
 
         scripts.emplace_back(ToolEntry{ label, path, run_lua_tool });

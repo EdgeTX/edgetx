@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 #define MODEL_SPECIAL_FUNC_1ST_COLUMN          (4*FW+2)
 #define MODEL_SPECIAL_FUNC_2ND_COLUMN          (8*FW+2)
@@ -57,7 +58,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
       strcpy(directory, SOUNDS_PATH);
       strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
     }
-    if (!sdListFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), nullptr)) {
+    if (!VirtualFS::instance().listFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), nullptr)) {
       POPUP_WARNING(func==FUNC_PLAY_SCRIPT ? STR_NO_SCRIPTS_ON_SD : STR_NO_SOUNDS_ON_SD);
     }
   }
@@ -294,7 +295,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
           }
 #endif
-#if defined(SDCARD)
           else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT) {
             coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN;
             if (ZEXIST(cfn->play.name))
@@ -311,7 +311,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 strcpy(directory, SOUNDS_PATH);
                 strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
               }
-              if (sdListFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), cfn->play.name)) {
+              if (VirtualFS::instance().listFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), cfn->play.name)) {
                 POPUP_MENU_START(onCustomFunctionsFileSelectionMenu);
               }
               else {
@@ -328,7 +328,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(functionsContext == &globalFunctionsContext ? isSourceAvailableInGlobalFunctions : isSourceAvailable);
             }
           }
-#endif
           else if (func == FUNC_VOLUME) {
             val_max = MIXSRC_LAST_CH;
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);

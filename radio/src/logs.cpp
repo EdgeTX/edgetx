@@ -20,18 +20,20 @@
  */
 
 #include "opentx.h"
-#include "ff.h"
+#include "VirtualFS.h"
 
 #include "analogs.h"
 #include "switches.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 
+#include "logs.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
 
-FIL g_oLogFile __DMA;
+VfsFile g_oLogFile __DMA;
 uint8_t logDelay100ms;
 static tmr10ms_t lastLogTime = 0;
 
@@ -109,23 +111,24 @@ int getSwitchState(uint8_t swtch) {
 
 void logsInit()
 {
-  memset(&g_oLogFile, 0, sizeof(g_oLogFile));
+  g_oLogFile.close();
 }
 
 const char * logsOpen()
 {
   // Determine and set log file filename
-  FRESULT result;
+  VfsError result;
+  VirtualFS& vfs = VirtualFS::instance();
 
   // /LOGS/modelnamexxxxxx_YYYY-MM-DD-HHMMSS.log
   char filename[sizeof(LOGS_PATH) + LEN_MODEL_NAME + 18 + 4 + 1];
 
-  if (!sdMounted())
+  if (!VirtualFS::instance().sdCardMounted())
     return STR_NO_SDCARD;
 
   // check and create folder here
   strcpy(filename, STR_LOGS_PATH);
-  const char * error = sdCheckAndCreateDirectory(filename);
+  const char * error = vfs.checkAndCreateDirectory(filename);
   if (error) {
     return error;
   }
@@ -167,12 +170,12 @@ const char * logsOpen()
 
   strcpy(tmp, STR_LOGS_EXT);
 
-  result = f_open(&g_oLogFile, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_OPEN_APPEND);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  result = vfs.openFile(g_oLogFile, filename, VfsOpenFlags::OPEN_ALWAYS | VfsOpenFlags::WRITE | VfsOpenFlags::OPEN_APPEND);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
-  if (f_size(&g_oLogFile) == 0) {
+  if (g_oLogFile.size() == 0) {
     writeHeader();
   }
 
@@ -181,11 +184,8 @@ const char * logsOpen()
 
 void logsClose()
 {
-  if (g_oLogFile.obj.fs && sdMounted()) {
-    if (f_close(&g_oLogFile) != FR_OK) {
-      // close failed, forget file
-      g_oLogFile.obj.fs = 0;
-    }
+  if (g_oLogFile.isOpen() && VirtualFS::instance().sdCardMounted()) {
+    g_oLogFile.close();
     lastLogTime = 0;
   }
 
@@ -194,9 +194,9 @@ void logsClose()
 void writeHeader()
 {
 #if defined(RTCLOCK)
-  f_puts("Date,Time,", &g_oLogFile);
+  g_oLogFile.puts("Date,Time,");
 #else
-  f_puts("Time,", &g_oLogFile);
+  g_oLogFile.puts("Time,");
 #endif
 
 
@@ -215,7 +215,7 @@ void writeHeader()
           strcat(label, ")");
         }
         strcat(label, ",");
-        f_puts(label, &g_oLogFile);
+        g_oLogFile.puts(label);
       }
     }
   }
@@ -223,8 +223,8 @@ void writeHeader()
   auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t i = 0; i < n_inputs; i++) {
     const char* p = analogGetCanonicalName(ADC_INPUT_MAIN, i);
-    while (*p) { f_putc(*(p++), &g_oLogFile); }
-    f_putc(',', &g_oLogFile);
+    while (*p) { g_oLogFile.putc(*(p++)); }
+    g_oLogFile.putc(',');
   }
 
   n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
@@ -242,16 +242,16 @@ void writeHeader()
       temp = getSwitchName(s, i);
       *temp++ = ',';
       *temp = '\0';
-      f_puts(s, &g_oLogFile);
+      g_oLogFile.puts(s);
     }
   }
-  f_puts("LSW,", &g_oLogFile);
+  g_oLogFile.puts("LSW,");
   
   for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
-    f_printf(&g_oLogFile, "CH%d(us),", channel+1);
+    g_oLogFile.fprintf("CH%d(us),", channel+1);
   }
 
-  f_puts("TxBat(V)\n", &g_oLogFile);
+  g_oLogFile.puts("TxBat(V)\n");
 }
 
 uint32_t getLogicalSwitchesStates(uint8_t first)
@@ -267,7 +267,7 @@ void logsWrite()
 {
   static const char * error_displayed = nullptr;
 
-  if (!sdMounted()) {
+  if (!VirtualFS::instance().sdCardMounted()) {
     return;
   }
 
@@ -283,7 +283,7 @@ void logsWrite()
       bool sdCardFull = sdIsFull();
 
       // check if file needs to be opened
-      if (!g_oLogFile.obj.fs) {
+      if (!g_oLogFile.isOpen()) {
         const char *result = sdCardFull ? STR_SDCARD_FULL_EXT : logsOpen();
 
         // SD card is full or file open failed
@@ -313,10 +313,10 @@ void logsWrite()
           lastRtcTime = g_rtcTime;
           gettime(&utm);
         }
-        f_printf(&g_oLogFile, "%4d-%02d-%02d,%02d:%02d:%02d.%02d0,", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+        g_oLogFile.fprintf("%4d-%02d-%02d,%02d:%02d:%02d.%02d0,", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
       }
 #else
-      f_printf(&g_oLogFile, "%d,", tmr10ms);
+      g_oLogFile.fprintf("%d,", tmr10ms);
 #endif
 
       for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
@@ -327,34 +327,34 @@ void logsWrite()
             if (sensor.unit == UNIT_GPS) {
               if (telemetryItem.gps.longitude && telemetryItem.gps.latitude) {
                 div_t qr = div((int)telemetryItem.gps.latitude, 1000000);
-                if (telemetryItem.gps.latitude < 0) f_printf(&g_oLogFile, "-");
-                f_printf(&g_oLogFile, "%d.%06d ", abs(qr.quot), abs(qr.rem));
+                if (telemetryItem.gps.latitude < 0) g_oLogFile.fprintf("-");
+                g_oLogFile.fprintf("%d.%06d ", abs(qr.quot), abs(qr.rem));
                 qr = div((int)telemetryItem.gps.longitude, 1000000);
-                if (telemetryItem.gps.longitude < 0) f_printf(&g_oLogFile, "-");
-                f_printf(&g_oLogFile, "%d.%06d,", abs(qr.quot), abs(qr.rem));
+                if (telemetryItem.gps.longitude < 0) g_oLogFile.fprintf("-");
+                g_oLogFile.fprintf("%d.%06d,", abs(qr.quot), abs(qr.rem));
               }
               else {
-                f_printf(&g_oLogFile, ",");
+                g_oLogFile.fprintf(",");
               }
             }
             else if (sensor.unit == UNIT_DATETIME) {
-              f_printf(&g_oLogFile, "%4d-%02d-%02d %02d:%02d:%02d,", telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day, telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
+              g_oLogFile.fprintf("%4d-%02d-%02d %02d:%02d:%02d,", telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day, telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
             }
             else if (sensor.unit == UNIT_TEXT) {
-              f_printf(&g_oLogFile, "\"%s\",", telemetryItem.text);
+              g_oLogFile.fprintf("\"%s\",", telemetryItem.text);
             }
             else if (sensor.prec == 2) {
               div_t qr = div((int)telemetryItem.value, 100);
-              if (telemetryItem.value < 0) f_printf(&g_oLogFile, "-");
-              f_printf(&g_oLogFile, "%d.%02d,", abs(qr.quot), abs(qr.rem));
+              if (telemetryItem.value < 0) g_oLogFile.fprintf("-");
+              g_oLogFile.fprintf("%d.%02d,", abs(qr.quot), abs(qr.rem));
             }
             else if (sensor.prec == 1) {
               div_t qr = div((int)telemetryItem.value, 10);
-              if (telemetryItem.value < 0) f_printf(&g_oLogFile, "-");
-              f_printf(&g_oLogFile, "%d.%d,", abs(qr.quot), abs(qr.rem));
+              if (telemetryItem.value < 0) g_oLogFile.fprintf("-");
+              g_oLogFile.fprintf("%d.%d,", abs(qr.quot), abs(qr.rem));
             }
             else {
-              f_printf(&g_oLogFile, "%d,", telemetryItem.value);
+              g_oLogFile.fprintf("%d,", telemetryItem.value);
             }
           }
         }
@@ -364,7 +364,7 @@ void logsWrite()
       auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
 
       for (uint8_t i = 0; i < n_inputs; i++) {
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
+        g_oLogFile.fprint("%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
       n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
@@ -372,23 +372,22 @@ void logsWrite()
 
       for (uint8_t i = 0; i < n_inputs; i++) {
         if (IS_POT_AVAILABLE(i))
-          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+          g_oLogFile.fprint("%d,", calibratedAnalogs[offset + i]);
       }
 
       for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
-          f_printf(&g_oLogFile, "%d,", getSwitchState(i));
+          g_oLogFile.fprintf("%d,", getSwitchState(i));
         }
       }
-      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32),
-               getLogicalSwitchesStates(0));
+      g_oLogFile.fprintf("0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
-        f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
+        g_oLogFile.fprintf("%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
 
       div_t qr = div(g_vbat100mV, 10);
-      int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));
+      int result = g_oLogFile.fprintf("%d.%d\n", abs(qr.quot), abs(qr.rem));
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;

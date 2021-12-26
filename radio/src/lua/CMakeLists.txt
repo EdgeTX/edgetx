@@ -25,6 +25,7 @@ set(SRC ${SRC}
   lua/api_model.cpp
   lua/api_filesystem.cpp
   lua/lua_event.cpp
+  lua/lua_file_api.cpp
 )
 
 AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)

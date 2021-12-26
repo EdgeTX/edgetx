@@ -52,6 +52,7 @@ SD_Error SD_Init(void);
 SDTransferState SD_GetStatus(void);
 int SD_CheckStatusWithTimeout(uint32_t timeout);
 uint8_t SD_Detect(void);
+uint8_t SD_isHC(void);
 SD_Error SD_PowerOFF(void);
 SD_Error SD_ReadBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize, uint32_t NumberOfBlocks);
 SD_Error SD_WriteBlocks(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize, uint32_t NumberOfBlocks);

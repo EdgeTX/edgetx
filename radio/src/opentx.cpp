@@ -20,9 +20,12 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "logs.h"
+
 #include "timers_driver.h"
 #include "watchdog_driver.h"
 
@@ -54,9 +57,7 @@
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
-#if defined(SDCARD)
 Clipboard clipboard;
-#endif
 
 GlobalData globalData;
 
@@ -199,7 +200,6 @@ void per10ms()
 
 #if defined(SDCARD) && defined(PCBTARANIS)
   sdPoll10ms();
-#endif
 
   outputTelemetryBuffer.per10ms();
 
@@ -1214,16 +1214,14 @@ void opentxClose(uint8_t shutdown)
 #endif
 #endif
 
-#if defined(SDCARD)
-  sdDone();
-#endif
+  VirtualFS::instance().stop();
 }
 
 void opentxResume()
 {
   TRACE("opentxResume");
 
-  sdMount();
+  VirtualFS::instance().restart();
 #if defined(COLORLCD) && defined(LUA)
   // reload widgets
   luaInitThemesAndWidgets();
@@ -1497,15 +1495,13 @@ void opentxInit()
   SET_POWER_REASON(0);
 #endif
 
-#if defined(SDCARD)
-  // SDCARD related stuff, only done if not unexpectedShutdown
+  // storage related stuff, only done if not unexpectedShutdown
   if (!globalData.unexpectedShutdown) {
 
-    if (!sdMounted())
-      sdInit();
+    VirtualFS& vfs __attribute__((unused)) = VirtualFS::instance(); // initialize storage subsystem
 
 #if !defined(COLORLCD)
-    if (!sdMounted()) {
+    if (!vfs.defaultStorageAvailable()) {
       g_eeGeneral.pwrOffSpeed = 2;
       runFatalErrorScreen(STR_NO_SDCARD);
     }
@@ -1513,22 +1509,22 @@ void opentxInit()
 
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
-    if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
+    if (vfs.fstat(AUTOUPDATE_FILENAME, nullptr) == VfsError::OK) {
       FrSkyFirmwareInformation information;
       if (readFrSkyFirmwareInformation(AUTOUPDATE_FILENAME, information) == nullptr) {
 #if defined(BLUETOOTH)
         if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
           if (bluetooth.flashFirmware(AUTOUPDATE_FILENAME) == nullptr)
-            f_unlink(AUTOUPDATE_FILENAME);
+            vfs.unlink(AUTOUPDATE_FILENAME);
         }
 #endif
       }
     }
 #endif
-
+#if defined(SDCARD)
     logsInit();
-  }
 #endif
+  }
 
 #if defined(EEPROM)
   if (!radioSettingsValid)
@@ -1656,7 +1652,7 @@ int main()
   }
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && defined(SDCARD)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)

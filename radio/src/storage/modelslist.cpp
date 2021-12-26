@@ -901,9 +901,9 @@ bool ModelsList::loadTxt()
   char line[LEN_MODELS_IDX_LINE + 1];
   ModelCell *model = nullptr;
 
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
+  VfsError result =
+      VirtualFS::instance().openFile(file, RADIO_MODELSLIST_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
     // TXT reader
     while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
       int len = strlen(line);  // TODO could be returned by readNextLine
@@ -918,7 +918,7 @@ bool ModelsList::loadTxt()
       }
     }
 
-    f_close(&file);
+    file.close();
     return true;
   }
 
@@ -969,11 +969,15 @@ void ModelMap::updateModelCell(ModelCell *cell)
  * @return char* Pointer to buffer supplied
  */
 
-char *FILInfoToHexStr(char buffer[17], FILINFO *finfo)
+char *fileInfoToHexStr(char buffer[17], VfsFileInfo& fInfo)
 {
   char *str = buffer;
+  FInfoH info;
+  info.fsize = fInfo.getSize();
+  info.fdate = fInfo.getDate();
+  info.ftime = fInfo.getTime();
   for (unsigned int i = 0; i < sizeof(FInfoH); i++) {
-    sprintf(str, "%02x", *((uint8_t *)finfo + i));
+    sprintf(str, "%02x", *((uint8_t *)(&info) + i));
     str += 2;
   }
   return buffer;
@@ -996,20 +1000,22 @@ bool ModelsList::loadYaml()
   DEBUG_TIMER_START(debugTimerYamlScan);
 
   // Scan all models in folder
-  DIR moddir;
-  FILINFO finfo;
-  if (f_opendir(&moddir, MODELS_PATH) == FR_OK) {
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsDir moddir;
+  VfsFileInfo finfo;
+  if (vfs.openDirectory(moddir, MODELS_PATH) == VfsError::OK) {
     for (;;) {
-      FRESULT res = f_readdir(&moddir, &finfo);
-      if (res != FR_OK || finfo.fname[0] == 0) break;
-      if (finfo.fattrib & AM_DIR) continue;
-      unsigned int len = strlen(finfo.fname);
+      VfsError res = moddir.read(finfo);
+      if (res != VfsError::OK || finfo.getName()[0] == 0) break;
+      const char* fName = finfo.getName();
+      if (finfo.getType() == VfsType::DIR) continue;
+      unsigned int len = strlen(fName);
 
       // Only open model###.yml files
       bool modelNameInvalid = false;
-      if (strncasecmp(finfo.fname, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX) - 1) == 0) {
+      if (strncasecmp(fName, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX) - 1) == 0) {
         for (unsigned int i = sizeof(MODEL_FILENAME_PREFIX) - 1; i < len - 4; i++) {
-          if(finfo.fname[i] < '0' || finfo.fname[i] > '9') {
+          if(fName[i] < '0' || fName[i] > '9') {
             modelNameInvalid = true;
             break;
           }
@@ -1019,17 +1025,17 @@ bool ModelsList::loadYaml()
       }
 
       if (modelNameInvalid ||
-          strcasecmp(finfo.fname + len - 4, YAML_EXT) ||  // Skip non .yml files
-          (finfo.fattrib & AM_DIR)) {  // Skip sub dirs
+          strcasecmp(fName + len - 4, YAML_EXT) ||  // Skip non .yml files
+          (finfo.getType() == VfsType::DIR)) {  // Skip sub dirs
         continue;
       }
 
       // Store hash & filename
       filedat cf;
-      FILInfoToHexStr(cf.hash, &finfo);
-      cf.name = finfo.fname;
+      fileInfoToHexStr(cf.hash, finfo);
+      cf.name = fName;
       cf.celladded = false;
-      if (!strncmp(finfo.fname, g_eeGeneral.currModelFilename,
+      if (!strncmp(fName, g_eeGeneral.currModelFilename,
                    LEN_MODEL_FILENAME))
         cf.curmodel = true;
       else
@@ -1038,48 +1044,48 @@ bool ModelsList::loadYaml()
       TRACE_LABELS("File - %s \r\n  HASH - %s - CM: %s", finfo.fname, cf.hash,
                    cf.curmodel ? "Y" : "N");
     }
-    f_closedir(&moddir);
+    moddir.close();
   }
 
   // Check if models.yml exists
   // Any files found above that are not listed in the file will be moved into
   // /MDOELS/UNUSED and removed from the discovered file hash list
   char line[LEN_MODELS_IDX_LINE + 1];
-  FILINFO fno;
-  FRESULT result;
-  bool foundInModels = f_stat(MODELSLIST_YAML_PATH, &fno) == FR_OK;
-  bool foundInRadio = f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK;
+  VfsFileInfo fno;
+  VfsError result;
+  bool foundInModels = vfs.fstat(MODELSLIST_YAML_PATH, fno) == VfsError::OK;
+  bool foundInRadio = vfs.fstat(FALLBACK_MODELSLIST_YAML_PATH, fno) == VfsError::OK;
 
   if(foundInModels) { // Default to /Models copy
-    result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+    result = vfs.openFile(file, MODELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   } else if (foundInRadio) {
-    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+    result = vfs.openFile(file, FALLBACK_MODELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   }
-  if((foundInModels || foundInRadio) && result == FR_OK) {
+  if((foundInModels || foundInRadio) && result == VfsError::OK) {
     // Create /Models/Unused if it doesn't exist
     bool moveRequired = false;
-    DIR unusedFolder;
-    FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
-    if (result != FR_OK) {
-      if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
-      if (result != FR_OK) {
+    VfsDir unusedFolder;
+    VfsError result = vfs.openDirectory(unusedFolder, UNUSED_MODELS_PATH);
+    if (result != VfsError::OK) {
+      if (result == VfsError::NOENT) result = vfs.makeDirectory(UNUSED_MODELS_PATH);
+      if (result != VfsError::OK) {
         TRACE("Unable to create unused models folder");
-        f_close(&file);
+        file.close();
         return false;
       }
-    } else f_closedir(&unusedFolder);
+    } else unusedFolder.close();
 
     YamlParser ymp;
     std::vector<std::string> modfiles;
     void *ctx = get_modelslist_iter(&modfiles);
     ymp.init(get_modelslist_parser_calls(), ctx);
-    UINT bytes_read = 0;
-    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
+    size_t bytes_read = 0;
+    while (file.read(line, sizeof(line), bytes_read) == VfsError::OK) {
       if (bytes_read == 0) break;
-      if (f_eof(&file)) ymp.set_eof();
+      if (file.eof()) ymp.set_eof();
       if (ymp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
     }
-    f_close(&file);
+    file.close();
 
     // Loop through file hases, move any files found that don't exists to /unused
     std::vector<filedat> newFileHash;
@@ -1096,7 +1102,7 @@ bool ModelsList::loadYaml()
         moveRequired = true;
         TRACE_LABELS("Model %s not in models.yml, moving to /UNUSED", fhas.name.c_str());
         // Move model into unused folder.
-        const char *warning = sdMoveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
+        const char *warning = vfs.moveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
         if(warning)
           POPUP_WARNING(warning);
       } else {
@@ -1105,12 +1111,12 @@ bool ModelsList::loadYaml()
     }
 
     if(foundInRadio) {
-      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
+      const char *warning = vfs.moveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
       if(warning)
         POPUP_WARNING(warning);
     }
     if(foundInModels) { // Will overwrite the copy from /radio if both existed, do last
-      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
+      const char *warning = vfs.moveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
       if(warning)
         POPUP_WARNING(warning);
     }
@@ -1127,18 +1133,18 @@ bool ModelsList::loadYaml()
 #endif
 
   // Scan labels.yml
-  result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
+  result = vfs.openFile(file, LABELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
     YamlParser yp;
     void *ctx = get_labelslist_iter();
     yp.init(get_labelslist_parser_calls(), ctx);
-    UINT bytes_read = 0;
-    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
+    size_t bytes_read = 0;
+    while (file.read(line, sizeof(line), bytes_read) == VfsError::OK) {
       if (bytes_read == 0) break;
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
     }
-    f_close(&file);
+    file.close();
   }
 
 #if defined(DEBUG_TIMERS)
@@ -1206,15 +1212,16 @@ bool ModelsList::load(Format fmt)
 {
   if (loaded) return true;
 
+  VirtualFS& vfs = VirtualFS::instance();
   bool res = false;
 #if !defined(SDCARD_YAML)
   (void)fmt;
   res = loadTxt();
 #else
-  FILINFO fno;
+  VfsFileInfo fno;
   if (fmt == Format::txt ||
-      (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
-       f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
+      (fmt == Format::yaml_txt && vfs.fstat(MODELSLIST_YAML_PATH, fno) != VfsError::OK &&
+       vfs.fstat(FALLBACK_MODELSLIST_YAML_PATH, fno) != VfsError::OK)) {
     res = loadTxt();
   } else {
     res = loadYaml();
@@ -1252,70 +1259,71 @@ bool ModelsList::load(Format fmt)
 
 const char *ModelsList::save(LabelsVector newOrder)
 {
+  VirtualFS& vfs = VirtualFS::instance();
 #if !defined(SDCARD_YAML)
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  VfsError result =
+      vfs.openFile(file, RADIO_MODELSLIST_PATH, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
 #else
-  FRESULT result =
-      f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  VfsError result =
+      vfs.openFile(file, LABELSLIST_YAML_PATH, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
 #endif
-  if (result != FR_OK) return "Couldn't open labels.yml for writing";
+  if (result != VfsError::OK) return "Couldn't open labels.yml for writing";
 
   // Save current selection
-  f_puts("Labels:\r\n", &file);
+  file.puts("Labels:\r\n");
 
   std::string cursel = modelslabels.getCurrentLabel();
   if(newOrder.empty())
     newOrder = modelslabels.getLabels();
   for (auto &lbl : newOrder) {
-    f_printf(&file, "  \"%s\":\r\n", lbl.c_str());
+    file.fprintf("  \"%s\":\r\n", lbl.c_str());
     if (modelslabels.isLabelFiltered(lbl))
-      f_printf(&file, "    selected: true\r\n", lbl.c_str());
+      file.fprintf("    selected: true\r\n", lbl.c_str());
   }
 
   // Save current sort order
-  f_printf( &file, "Sort: %d\r\n", modelslabels.sortOrder());
+  file.fprintf("Sort: %d\r\n", modelslabels.sortOrder());
 
-  f_puts("Models:\r\n", &file);
+  file.puts("Models:\r\n");
   for (auto &model : modelslist) {
-    f_puts("  ", &file);
-    f_puts(model->modelFilename, &file);
-    f_puts(":\r\n", &file);
+    file.puts("  ");
+    file.puts(model->modelFilename);
+    file.puts(":\r\n");
 
-    f_puts("    hash: \"", &file);
-    f_puts(model->modelFinfoHash, &file);
-    f_puts("\"\r\n", &file);
+    file.puts("    hash: \"");
+    file.puts(model->modelFinfoHash);
+    file.puts("\"\r\n");
 
-    f_puts("    name: \"", &file);
-    f_puts(model->modelName, &file);
-    f_puts("\"\r\n", &file);
+    file.puts("    name: \"");
+    file.puts(model->modelName);
+    file.puts("\"\r\n");
 
     for (int i = 0; i < NUM_MODULES; i++) {
       if (model->modelId[i])
-        f_printf(&file, "    " MODULE_ID_STR ": %u\r\n", i,
+        file.fprintf("    " MODULE_ID_STR ": %u\r\n", i,
                  (unsigned int)model->modelId[i]);
       if (model->moduleData[i].type)
-        f_printf(&file, "    " MODULE_TYPE_STR ": %u\r\n", i,
+        file.fprintf("    " MODULE_TYPE_STR ": %u\r\n", i,
                  (unsigned int)model->moduleData[i].type);
       if (model->moduleData[i].subType)
-        f_printf(&file, "    " MODULE_RFPROTOCOL_STR ": %u\r\n", i,
+        file.fprintf("    " MODULE_RFPROTOCOL_STR ": %u\r\n", i,
                  (unsigned int)model->moduleData[i].subType);
     }
 
-    f_printf(&file, "    labels: \"%s\"\r\n", ModelMap::toCSV(modelslabels.getLabelsByModel(model)).c_str());
+    file.fprintf("    labels: \"%s\"\r\n", ModelMap::toCSV(modelslabels.getLabelsByModel(model)).c_str());
 
 #if LEN_BITMAP_NAME > 0
-    f_puts("    bitmap: \"", &file);
-    f_puts(model->modelBitmap, &file);
-    f_puts("\"\r\n", &file);
+    file.puts("    bitmap: \"");
+    file.puts(model->modelBitmap);
+    file.puts("\"\r\n");
 #endif
-    f_puts("    lastopen: ", &file);
-    f_puts(std::to_string(model->lastOpened).c_str(), &file);
-    f_puts("\r\n", &file);
+    file.puts("    lastopen: ");
+    file.puts(std::to_string(model->lastOpened).c_str());
+    file.puts("\r\n");
   }
 
-  f_puts("\r\n", &file);
-  f_close(&file);
+  file.puts("\r\n");
+  file.close();
   modelslabels._isDirty = false;
 
   return NULL;
@@ -1373,7 +1381,7 @@ void ModelsList::updateCurrentModelCell()
 
 bool ModelsList::readNextLine(char *line, int maxlen)
 {
-  if (f_gets(line, maxlen, &file) != NULL) {
+  if (file.gets(line, maxlen) != NULL) {
     int curlen = strlen(line) - 1;
     if (line[curlen] ==
         '\n') {  // remove unwanted chars if file was edited using windows
@@ -1433,20 +1441,21 @@ bool ModelsList::removeModel(ModelCell *model)
   modelslabels.removeModels(model);
 
   // Create deleted folder if it doesn't exist
-  DIR deletedFolder;
-  FRESULT result = f_opendir(&deletedFolder, DELETED_MODELS_PATH);
-  if (result != FR_OK) {
-    if (result == FR_NO_PATH) result = f_mkdir(DELETED_MODELS_PATH);
-    if (result != FR_OK) {
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsDir deletedFolder;
+  VfsError result = vfs.openDirectory(deletedFolder, DELETED_MODELS_PATH);
+  if (result != VfsError::OK) {
+    if (result == VfsError::NOENT) result = vfs.makeDirectory(DELETED_MODELS_PATH);
+    if (result != VfsError::OK) {
       TRACE("Unable to create deleted models folder");
       return true;
     }
-  } else f_closedir(&deletedFolder);
+  } else deletedFolder.close();
 
   // Move model into deleted folder. If not moved will be re-added on next
   // reboot
   TRACE_LABELS("Deleting Model %s", model->modelFilename);
-  const char *warning = sdMoveFile(model->modelFilename, MODELS_PATH, model->modelFilename, DELETED_MODELS_PATH);
+  const char *warning = vfs.moveFile(model->modelFilename, MODELS_PATH, model->modelFilename, DELETED_MODELS_PATH);
   if (warning) {
     TRACE("Labels: Unable to move file");
     return true;

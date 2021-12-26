@@ -43,7 +43,7 @@
 #define BLOCK_SIZE FF_MAX_SS
 #define DISK_CACHE_BLOCK_SIZE (DISK_CACHE_BLOCK_SECTORS * BLOCK_SIZE)
 
-DiskCache diskCache;
+DiskCache diskCache[2];
 
 class DiskCacheBlock
 {
@@ -143,7 +143,12 @@ DRESULT DiskCache::read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
   }
   
   // if block + cache block size is beyond the end of the disk, then read it directly without using cache
-  if (sector + DISK_CACHE_BLOCK_SECTORS >= sdGetNoSectors()) {
+  size_t sectors = 0;
+  DRESULT res = RES_OK;
+#if !defined(SIMU)
+  res = disk_ioctl(drv, GET_SECTOR_COUNT, &sectors);
+#endif
+  if (res != RES_OK || sector + DISK_CACHE_BLOCK_SECTORS >= sectors) {
     TRACE_DISK_CACHE("\t\t cache would be beyond end of disk %u (%u)", (uint32_t)sector, sdGetNoSectors());
     return __disk_read(drv, buff, sector, count);
   }
@@ -197,11 +202,11 @@ int DiskCache::getHitRate() const
 
 DRESULT disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
-  return diskCache.read(drv, buff, sector, count);
+  return diskCache[drv].read(drv, buff, sector, count);
 }
 
 
 DRESULT disk_write(BYTE drv, const BYTE * buff, DWORD sector, UINT count)
 {
-  return diskCache.write(drv, buff, sector, count);
+  return diskCache[drv].write(drv, buff, sector, count);
 }

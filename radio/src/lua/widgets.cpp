@@ -23,10 +23,11 @@
 #include <stdio.h>
 
 #include "opentx.h"
+#include "VirtualFS.h"
+#include "bin_allocator.h"
 #include "lua_api.h"
 
 #include "widget.h"
-#include "libopenui_file.h"
 #include "view_main.h"
 
 #include "lua_widget.h"
@@ -297,36 +298,38 @@ void luaLoadFile(const char * filename, void (*callback)())
 void luaLoadFiles(const char * directory, void (*callback)())
 {
   char path[LUA_FULLPATH_MAXLEN+1];
-  FILINFO fno;
-  DIR dir;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFileInfo fno;
+  VfsDir dir;
 
   strcpy(path, directory);
   TRACE("luaLoadFiles() %s", path);
 
-  FRESULT res = f_opendir(&dir, path);        /* Open the directory */
+  VfsError res = vfs.openDirectory(dir, path);        /* Open the directory */
 
-  if (res == FR_OK) {
+  if (res == VfsError::OK) {
     int pathlen = strlen(path);
     path[pathlen++] = '/';
     for (;;) {
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      uint8_t len = strlen(fno.fname);
+      res = dir.read(fno);                   /* Read a directory item */
+      std::string fname = fno.getName();
+      if (res != VfsError::OK || fname.length() == 0) break;  /* Break on error or end of dir */
+      uint8_t len = fname.length();
       if (len > 0 && (unsigned int)(len + pathlen + sizeof(LUA_WIDGET_FILENAME)) <= sizeof(path) &&
-          fno.fname[0]!='.' && (fno.fattrib & AM_DIR)) {
-        strcpy(&path[pathlen], fno.fname);
+          fname[0]!='.' && (fno.getType() == VfsType::DIR)) {
+        strcpy(&path[pathlen], fname.c_str());
         strcat(&path[pathlen], LUA_WIDGET_FILENAME);
-        if (isFileAvailable(path)) {
+        if (vfs.isFileAvailable(path)) {
           luaLoadFile(path, callback);
         }
       }
     }
   }
   else {
-    TRACE("f_opendir(%s) failed, code=%d", path, res);
+    TRACE("VirtualFS::openDirectory(%s) failed, code=%d", path, res);
   }
 
-  f_closedir(&dir);
+  dir.close();
 }
 
 #if defined(LUA_ALLOCATOR_TRACER)

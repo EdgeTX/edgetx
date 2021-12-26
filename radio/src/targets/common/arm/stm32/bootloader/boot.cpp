@@ -55,9 +55,25 @@
 #define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM)
+#if defined(SPI_FLASH)
+  #define MAIN_MENU_LEN 4
+#else
+  #define MAIN_MENU_LEN 3
+#endif
+#else
+#if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
 #else
   #define MAIN_MENU_LEN 2
+#endif
+#endif
+
+#if defined(SPI_FLASH) && defined(SDCARD)
+  #define SEL_STORAGE_MENU_LEN 2
+#endif
+
+#if defined(SPI_FLASH)
+  #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
 typedef void (*voidFunction)(void);
@@ -147,7 +163,7 @@ uint32_t isValidBufferStart(const uint8_t * buffer)
 {
 #if !defined(SIMU)
 #if defined(EEPROM)
-  if (memoryType == MEM_FLASH)
+  if (memoryType != MEM_EEPROM)
     return isFirmwareStart(buffer);
   else
     return isEepromStart(buffer);
@@ -228,16 +244,31 @@ void bootloaderInitApp()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                              LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
+                             KEYS_BACKLIGHT_RCC_AHB1Periph | 
+#if defined(FLASH_RCC_AHB1Periph)
+                             FLASH_RCC_AHB1Periph |
+#endif
+                             SD_RCC_AHB1Periph,
                          ENABLE);
 
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
-                             BACKLIGHT_RCC_APB1Periph |
-                             INTERRUPT_xMS_RCC_APB1Periph | SD_RCC_APB1Periph,
-                         ENABLE);
+  RCC_APB1PeriphClockCmd(
+      ROTARY_ENCODER_RCC_APB1Periph |
+      LCD_RCC_APB1Periph |
+      BACKLIGHT_RCC_APB1Periph |
+      INTERRUPT_xMS_RCC_APB1Periph |
+#if defined(FLASH_RCC_APB1Periph)
+      FLASH_RCC_APB1Periph |
+#endif
+      SD_RCC_APB1Periph,
+      ENABLE);
 
   RCC_APB2PeriphClockCmd(
-      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | RCC_APB2Periph_SYSCFG,
+      LCD_RCC_APB2Periph |
+      BACKLIGHT_RCC_APB2Periph |
+#if defined(FLASH_RCC_APB2Periph)
+      FLASH_RCC_APB2Periph |
+#endif
+      RCC_APB2Periph_SYSCFG,
       ENABLE);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
@@ -265,9 +296,11 @@ void bootloaderInitApp()
 
   // wait a bit for the inputs to stabilize...
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
+#if !defined(PCBHORUS) && !defined(PCBNV14)
     for (uint32_t i = 0; i < 150000; i++) {
       __ASM volatile ("nop");
     }
+#endif
   }
 
 #if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
@@ -313,10 +346,13 @@ void bootloaderInitApp()
 
   init10msTimer();
 
-  // SD card detect pin
-  sdInit();
+#if defined(SPI_FLASH)
+  flashInit();
+#endif
   usbInit();
 }
+
+void flashSpiEraseAll();
 
 int main()
 #else // SIMU
@@ -397,15 +433,30 @@ int  bootloaderMain()
         else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
           switch (vpos) {
             case 0:
-              memoryType = MEM_FLASH;
+#if defined(SPI_FLASH) && defined(SDCARD)
+              state = ST_SELECT_STORAGE;
+#else
+              memoryType = MEM_INTERNAL;
               state = ST_DIR_CHECK;
+#endif
               break;
 #if defined(EEPROM)
             case 1:
               memoryType = MEM_EEPROM;
               state = ST_DIR_CHECK;
               break;
+#if defined(SPI_FLASH)
+            case 2:
+              state = ST_CLEAR_FLASH_CHECK;
+              break;
 #endif
+#elif defined(SPI_FLASH)
+            case 1:
+              state = ST_CLEAR_FLASH_CHECK;
+              vpos = 1;
+              break;
+#endif
+
             default:
               if(vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN-1))
               {
@@ -421,6 +472,43 @@ int  bootloaderMain()
           continue;
         }
       }
+#if defined(SPI_FLASH) && defined(SDCARD)
+      else  if (state == ST_SELECT_STORAGE) {
+
+          bootloaderDrawScreen(state, vpos);
+          if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+            if (vpos < SEL_STORAGE_MENU_LEN - 1) { vpos++; }
+            continue;
+          }
+          else if (event == EVT_KEY_FIRST(KEY_UP)) {
+            if (vpos > 0) { vpos--; }
+            continue;
+          }
+          else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+            switch (vpos) {
+              case 0:
+                memoryType = MEM_INTERNAL;
+                state = ST_DIR_CHECK;
+                break;
+              case 1:
+                memoryType = MEM_SDCARD;
+                state = ST_DIR_CHECK;
+                break;
+              default:
+                break;
+            }
+
+            // next loop
+            continue;
+          }
+          else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+            state = ST_START;
+            vpos = 0;
+            continue;
+          }
+
+        }
+#endif
       else if (state == ST_DIR_CHECK) {
         fr = openBinDir(memoryType);
 
@@ -431,7 +519,7 @@ int  bootloaderMain()
           continue;
         }
         else {
-          bootloaderDrawScreen(state, fr);
+          bootloaderDrawScreen(state, (int)fr);
 
           if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
             vpos = 0;
@@ -483,7 +571,11 @@ int  bootloaderMain()
           continue;
         }
         else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+#if defined(SPI_FLASH) && defined(SDCARD)
+          state = ST_SELECT_STORAGE;
+#else
           state = ST_START;
+#endif
           vpos = 0;
           continue;
         }
@@ -499,7 +591,7 @@ int  bootloaderMain()
         else if (result == 1) {
           // confirmed
 
-          if (memoryType == MEM_FLASH) {
+          if (memoryType != MEM_EEPROM) {
             firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
             firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
             firmwareWritten = 0;
@@ -515,13 +607,13 @@ int  bootloaderMain()
       }
       else if (state == ST_FLASHING) {
         // commit to flashing
-        if (!unlocked && (memoryType == MEM_FLASH)) {
+        if (!unlocked && (memoryType != MEM_EEPROM)) {
           unlocked = 1;
           unlockFlash();
         }
 
         int progress = 0;
-        if (memoryType == MEM_FLASH) {
+        if (memoryType != MEM_EEPROM) {
           flashWriteBlock();
           firmwareWritten += sizeof(Block_buffer);
           progress = (100 * firmwareWritten) / firmwareSize;
@@ -540,13 +632,42 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+        else if (memoryType != MEM_EEPROM && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)
         else if (memoryType == MEM_EEPROM && eepromWritten >= EEPROM_SIZE) {
           state = ST_FLASH_DONE; // Backstop
         }
+#endif
+#if defined(SPI_FLASH)
+      } else if (state == ST_CLEAR_FLASH_CHECK) {
+        bootloaderDrawScreen(state, vpos);
+        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+          if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
+          continue;
+        }
+        if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+          if (vpos > 0) { vpos--; }
+          continue;
+        }
+        if (event == EVT_KEY_LONG(KEY_ENTER) && vpos == 0)
+        {
+          state = ST_CLEAR_FLASH;
+        } else if (event == EVT_KEY_BREAK(KEY_EXIT) ||
+            (event == EVT_KEY_BREAK(KEY_ENTER) && vpos == 1) ) {
+          vpos = 0;
+          state = ST_START;
+          continue;
+        }
+      } else if (state == ST_CLEAR_FLASH) {
+        bootloaderDrawScreen(state, 0);
+        lcdRefresh();
+        if(event != EVT_KEY_BREAK(KEY_ENTER))
+          continue;
+        flashSpiEraseAll();
+        vpos = 0;
+        state = ST_START;
 #endif
       } else if (state == ST_RADIO_MENU) {
         if(bootloaderRadioMenu(radioMenuItem, event))
@@ -556,6 +677,7 @@ int  bootloaderMain()
           bootloaderDrawScreen(state, vpos);
         }
       }
+
 
       if (state == ST_FLASH_DONE) {
         if (unlocked) {
@@ -613,6 +735,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14))
+#if !defined(SIMU)
 void *__dso_handle = nullptr;
 #endif

@@ -78,6 +78,12 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     lcdDrawCenteredText(7 * FH, vers);
     lcdInvertLine(7);
   }
+#if defined(SPI_FLASH) && defined(SDCARD)
+  else if (st == ST_SELECT_STORAGE) {
+    lcdDrawText(3*FW, 2*FH, "Internal", opt == 0 ? INVERS : 0);
+    lcdDrawText(3*FW, 2*FH, "SD Card", opt == 1 ? INVERS : 0);
+  }
+#endif
   else if (st == ST_USB) {
     lcdDrawCenteredText(4 * FH, TR_BL_USB_CONNECTED);
   }
@@ -92,13 +98,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   }
   else if (st == ST_FLASH_CHECK) {
     if (opt == FC_ERROR) {
-      if (memoryType == MEM_FLASH)
+      if (memoryType == MEM_INTERNAL)
         bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
       else
         bootloaderDrawMsg(0, TR_BL_INVALID_EEPROM, 2, false);
     }
     else if (opt == FC_OK) {
-      if (memoryType == MEM_FLASH) {
+      if (memoryType == MEM_INTERNAL) {
         const char * vers = getFirmwareVersion((const char *)Block_buffer);
 #if LCD_W < 212
         // Remove "edgetx-" from string

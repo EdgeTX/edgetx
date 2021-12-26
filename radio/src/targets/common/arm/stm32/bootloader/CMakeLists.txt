@@ -44,8 +44,29 @@ set(BOOTLOADER_SRC
   ../stm32_dma.cpp
   init.c
   boot.cpp
-  bin_files.cpp
   )
+
+if(SPI_FLASH)
+  set(BOOTLOADER_SRC
+    ${BOOTLOADER_SRC}
+    ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
+    ../../../../../thirdparty/tjftl/tjftl.c
+  )
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
+  if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/diskio_sdio_spiflash.cpp
+      )
+  else()
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/diskio.cpp
+      )
+  endif()
+endif()
 
 if(ROTARY_ENCODER)
   set(BOOTLOADER_SRC
@@ -78,10 +99,11 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     ../../../../../targets/common/arm/stm32/sdio_sd.cpp
-    ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
+    ../../../../../VirtualFS.cpp
+    bin_files_vfs.cpp
     )
 
   # Add LVGL sources
@@ -120,7 +142,7 @@ else()
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../targets/${TARGET_DIR}/eeprom_driver.cpp
-    ../../../../../targets/${TARGET_DIR}/diskio.cpp
+    bin_files.cpp
     )
   remove_definitions(-DDEBUG)
 endif()

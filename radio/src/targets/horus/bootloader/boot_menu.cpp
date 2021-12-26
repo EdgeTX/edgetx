@@ -114,11 +114,20 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       coord_t pos = lcd->drawText(124, 75, TR_BL_WRITE_FW, BL_FOREGROUND);
       pos += 8;
 
+#if defined(SPI_FLASH)
+      lcd->drawText(100, 110, LV_SYMBOL_WARNING, BL_FOREGROUND);
+      pos = lcd->drawText(124, 110, "Erase Flash Storage", BL_FOREGROUND);
+      pos += 8;
+
+      lcd->drawText(100, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+      lcd->drawText(124, 145, "Exit", BL_FOREGROUND);
+#else
       lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
       lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
+#endif
 
       pos -= 92;
-      lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+      lcd->drawSolidRect(92, 72 + (opt*35), pos, 26, 2, BL_SELECTED);
 
       lcd->drawBitmap(60, 166, (const BitmapBuffer*)&BMP_PLUG_USB);
       lcd->drawText(195, 175, TR_BL_USB_PLUGIN, BL_FOREGROUND);
@@ -127,6 +136,55 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       bootloaderDrawFooter();
       lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
+#if defined(SPI_FLASH) && defined(SDCARD)
+    else if (st == ST_SELECT_STORAGE) {
+
+        bootloaderDrawTitle(88, LV_SYMBOL_DIRECTORY " select storage");
+
+        lcd->drawText(102, 75, LV_SYMBOL_DIRECTORY, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(124, 75, "Internal", BL_FOREGROUND);
+
+        pos += 8;
+
+        lcd->drawText(100, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        lcd->drawText(124, 110, "SD Card", BL_FOREGROUND);
+
+        pos -= 92;
+        lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+
+        bootloaderDrawFooter();
+        lcd->drawText(56, 244, "[ENT] to select storage", BL_FOREGROUND);
+        lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
+    }
+#endif
+#if defined(SPI_FLASH)
+    else if (st == ST_CLEAR_FLASH_CHECK) {
+
+        bootloaderDrawTitle(88, "erase internal flash storage");
+
+        lcd->drawText(100, 75, LV_SYMBOL_DRIVE, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(124, 75, "Erase Flash Storage", BL_FOREGROUND);
+        pos += 8;
+
+        lcd->drawText(102, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(124, 110, "Exit", BL_FOREGROUND);
+
+        pos -= 92;
+        lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+
+        bootloaderDrawFooter();
+        lcd->drawText(56, 244, "Hold [ENT] long to erase storage", BL_FOREGROUND);
+        lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
+    }
+    else if (st == ST_CLEAR_FLASH) {
+        bootloaderDrawTitle(88, "erasing internal flash storage");
+
+        lcd->drawText(102, 75, "This may take up to 150s", BL_FOREGROUND);
+        bootloaderDrawFooter();
+    }
+#endif
     else if (st == ST_USB) {
 
         lcd->drawBitmap(136, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);

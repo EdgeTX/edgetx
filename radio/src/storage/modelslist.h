@@ -33,7 +33,7 @@
 #include <sstream>
 #include <vector>
 
-#include "sdcard.h"
+#include "VirtualFS.h"
 
 #if !defined(SDCARD_YAML)
 #include "sdcard_raw.h"
@@ -267,7 +267,7 @@ class ModelsList : public ModelsVector
   std::vector<filedat> fileHashInfo;
 
  protected:
-  FIL file;
+  VfsFile file;
 
   bool loadTxt();
 #if defined(SDCARD_YAML)

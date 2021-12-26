@@ -28,8 +28,6 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
-#else
-  #include "libopenui/src/libopenui_file.h"
 #endif
 
 #include "hal/module_port.h"
@@ -48,20 +46,20 @@
 
 const char * readFrSkyFirmwareInformation(const char * filename, FrSkyFirmwareInformation & data)
 {
-  FIL file;
-  UINT count;
+  VfsFile file;
+  size_t count;
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     return STR_NEEDS_FILE;
   }
 
-  if (f_read(&file, &data, sizeof(data), &count) != FR_OK || count != sizeof(data)) {
-    f_close(&file);
+  if (file.read(&data, sizeof(data), count) != VfsError::OK || count != sizeof(data)) {
+    file.close();
     return STR_DEVICE_FILE_ERROR;
   }
 
-  uint32_t size = f_size(&file);
-  f_close(&file);
+  size_t size = file.size();
+  file.close();
 
   if (data.headerVersion != 1 && data.fourcc != 0x4B535246) {
     return STR_DEVICE_FILE_ERROR;
@@ -271,12 +269,12 @@ static const etx_serial_init serialInitParams = {
 const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     const char *filename, ProgressHandler progressHandler)
 {
-  FIL file;
+  VfsFile file;
   const char *result;
   FrSkyFirmwareInformation information;
-  UINT count;
+  size_t count;
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     return STR_NEEDS_FILE;
   }
 
@@ -296,12 +294,11 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
   etx_serial_init cfg(serialInitParams);
   cfg.baudrate = 57600;
   
-  const char *ext = getFileExtension(filename);
+  const char * ext = VirtualFS::getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
-    auto ret =
-        f_read(&file, &information, sizeof(FrSkyFirmwareInformation), &count);
-    if (ret != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
-      f_close(&file);
+    auto ret = file.read(&information, sizeof(FrSkyFirmwareInformation), count);
+    if (ret != VfsError::OK || count != sizeof(FrSkyFirmwareInformation)) {
+      file.close();
       return STR_DEVICE_FILE_ERROR;
     }    
 
@@ -358,9 +355,9 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
 
   // Special update method for X12S / X10 iXJT
   if (module == INTERNAL_MODULE && port == ETX_MOD_PORT_UART && set_bootcmd != nullptr) {
-    result = uploadFileToHorusXJT(filename, &file, progressHandler);
+    result = uploadFileToHorusXJT(filename, file, progressHandler);
   } else {
-    result = uploadFileNormal(filename, &file, progressHandler);
+    result = uploadFileNormal(filename, file, progressHandler);
   }
 
   if (set_pwr) set_pwr(false);
@@ -371,10 +368,10 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
 }
 
 const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
-    const char *filename, FIL *file, ProgressHandler progressHandler)
+    const char *filename, VfsFile& file, ProgressHandler progressHandler)
 {
   uint32_t buffer[1024 / sizeof(uint32_t)];
-  UINT count;
+  size_t count;
   uint8_t frame[8];
 
   if (!readBuffer(frame, 8, 100) || frame[0] != 0x01) {
@@ -392,10 +389,11 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
   readBuffer(frame, 1, 100);
 
   uint8_t index = 0;
+  size_t fSize = file.size();
   while (true) {
-    progressHandler(getBasename(filename), STR_WRITING, file->fptr, file->obj.objsize);
+    progressHandler(VirtualFS::getBasename(filename), STR_WRITING, file.tell(), fSize);
 
-    if (f_read(file, buffer, 1024, &count) != FR_OK) {
+    if (file.read(buffer, 1024, count) != VfsError::OK) {
       return STR_DEVICE_FILE_ERROR;
     }
 
@@ -439,10 +437,10 @@ void FrskyDeviceFirmwareUpdate::sendDataTransfer(uint32_t* buffer)
 }
 
 const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
-    const char *filename, FIL *file, ProgressHandler progressHandler)
+    const char *filename, VfsFile& file, ProgressHandler progressHandler)
 {
   uint32_t buffer[1024 / sizeof(uint32_t)];
-  UINT count;
+  size_t count;
 
   const char * result = sendPowerOn();
   if (result)
@@ -461,8 +459,9 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
 
   uint8_t retries = 0;
 
+  size_t fSize = file.size();
   while (true) {
-    if (f_read(file, buffer, 1024, &count) != FR_OK) {
+    if (file.read(buffer, 1024, count) != VfsError::OK) {
         return STR_DEVICE_FILE_ERROR;
     }
 
@@ -482,7 +481,7 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
       sendDataTransfer(buffer);
 
       if (i == 0) {
-        progressHandler(getBasename(filename), STR_WRITING, file->fptr, file->obj.objsize);
+        progressHandler(VirtualFS::getBasename(filename), STR_WRITING, file.tell(), fSize);
       }
     }
 
@@ -514,7 +513,7 @@ const char *FrskyDeviceFirmwareUpdate::flashFirmware(
   // switch S.PORT power OFF if supported
   modulePortSetPower(SPORT_MODULE, false);
 
-  progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
+  progressHandler(VirtualFS::getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
   /* wait 2s off */
   watchdogSuspend(1000 /*10s*/);

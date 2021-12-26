@@ -94,6 +94,7 @@ void boardInit()
                          BACKLIGHT_RCC_AHB1Periph |
                          KEYS_BACKLIGHT_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
+                         FLASH_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
@@ -108,6 +109,9 @@ void boardInit()
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
+#if !defined(PCBX12S) || PCBREV < 13 
+                         FLASH_RCC_APB1Periph |
+#endif
                          AUDIO_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
@@ -117,6 +121,9 @@ void boardInit()
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
                          LCD_RCC_APB2Periph |
+#if defined(PCBX12S) && PCBREV >= 13 
+                         FLASH_RCC_APB2Periph |
+#endif
                          HAPTIC_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph |
                          BT_RCC_APB2Periph |
@@ -154,6 +161,8 @@ void boardInit()
 
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
+
+  flashInit();
 
   audioInit();
 

@@ -21,12 +21,13 @@
 
 #include <stdio.h>
 #include "opentx.h"
+#include "VirtualFS.h"
+#include "logs.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
-#include "libopenui/src/libopenui_file.h"
 
-#define NODE_TYPE(fname)       fname[SD_SCREEN_FILE_LENGTH+1]
+#define NODE_TYPE(fname)       fname[STORAGE_SCREEN_FILE_LENGTH+1]
 #define IS_DIRECTORY(fname)    ((bool)(!NODE_TYPE(fname)))
 #define IS_FILE(fname)         ((bool)(NODE_TYPE(fname)))
 
@@ -73,7 +74,9 @@ inline bool isFilenameLower(bool isfile, const char * fn, const char * line)
 
 void getSelectionFullPath(char * lfn)
 {
-  f_getcwd(lfn, FF_MAX_LFN);
+  const std::string& curWorkDir = VirtualFS::instance().getCurWorkDir();
+  strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN);
+  lfn[FF_MAX_LFN] = 0;
   strcat(lfn, "/");
   strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
@@ -120,6 +123,7 @@ void onUpdateStateChanged()
 void onSdManagerMenu(const char * result)
 {
   TCHAR lfn[FF_MAX_LFN+1];
+  VirtualFS& vfs = VirtualFS::instance();
 
   // TODO possible buffer overflows here!
 
@@ -130,44 +134,46 @@ void onSdManagerMenu(const char * result)
     pushMenu(menuRadioSdManagerInfo);
   }
   else if (result == STR_COPY_FILE) {
-    clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-    strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
+    clipboard.type = CLIPBOARD_TYPE_STORAGE_FILE;
+    const std::string& curWorkDir = vfs.getCurWorkDir();
+    strncpy(clipboard.data.storage.directory, curWorkDir.c_str(), CLIPBOARD_PATH_LEN);
+    strncpy(clipboard.data.storage.filename, line, CLIPBOARD_PATH_LEN-1);
   }
   else if (result == STR_PASTE) {
-    f_getcwd(lfn, FF_MAX_LFN);
+    const std::string& curWorkDir = vfs.getCurWorkDir();
+    strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN);
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
       strcat(lfn, "/");
       strcat(lfn, line);
     }
-    char *destNamePtr = clipboard.data.sd.filename;
-    if (!strcmp(clipboard.data.sd.directory, lfn)) {
+    char *destNamePtr = clipboard.data.storage.filename;
+    if (!strcmp(clipboard.data.storage.directory, lfn)) {
         // prevent copying to the same directory under the same name
         char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
         destNamePtr =
             strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
-        destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+        destNamePtr = strAppend(destNamePtr, clipboard.data.storage.filename,
                                 CLIPBOARD_PATH_LEN);
         destNamePtr = destFileName;
     }
-    POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory, destNamePtr, lfn));
+    POPUP_WARNING(STORAGE_ERROR(vfs.copyFile(clipboard.data.storage.filename,
+                             clipboard.data.storage.directory, destNamePtr, lfn)));
     REFRESH_FILES();
   }
   else if (result == STR_RENAME_FILE) {
     memcpy(reusableBuffer.sdManager.originalName, line, sizeof(reusableBuffer.sdManager.originalName));
     uint8_t fnlen = 0, extlen = 0;
-    getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
+    VirtualFS::getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
-    memset(line + fnlen - extlen, ' ', SD_SCREEN_FILE_LENGTH - fnlen + extlen);
-    line[SD_SCREEN_FILE_LENGTH-extlen] = '\0';
+    memset(line + fnlen - extlen, ' ', STORAGE_SCREEN_FILE_LENGTH - fnlen + extlen);
+    line[STORAGE_SCREEN_FILE_LENGTH-extlen] = '\0';
     s_editMode = EDIT_MODIFY_STRING;
     editNameCursorPos = 0;
   }
   else if (result == STR_DELETE_FILE) {
     getSelectionFullPath(lfn);
-    f_unlink(lfn);
+    vfs.unlink(lfn);
     strncpy(statusLineMsg, line, 13);
     strcpy(statusLineMsg+min((uint8_t)strlen(statusLineMsg), (uint8_t)13), STR_REMOVED);
     showStatusLine();
@@ -258,7 +264,9 @@ void onSdManagerMenu(const char * result)
 #if defined(LUA)
   else if (result == STR_EXECUTE_FILE) {
     getSelectionFullPath(lfn);
-    luaExec(lfn);
+    std::string p = ":";
+    p += lfn;
+    luaExec(p.c_str());
   }
 #endif
 }
@@ -302,7 +310,7 @@ void menuRadioSdManager(event_t _event)
 
   switch (_event) {
     case EVT_ENTRY:
-      f_chdir(ROOT_PATH);
+      VirtualFS::instance().changeDirectory(ROOT_PATH);
 #if LCD_DEPTH > 1
       lastPos = -1;
 #endif
@@ -337,7 +345,7 @@ void menuRadioSdManager(event_t _event)
       else {
         int index = menuVerticalPosition - HEADER_LINE - menuVerticalOffset;
         if (IS_DIRECTORY(reusableBuffer.sdManager.lines[index])) {
-          f_chdir(reusableBuffer.sdManager.lines[index]);
+          VirtualFS::instance().changeDirectory(reusableBuffer.sdManager.lines[index]);
           menuVerticalOffset = 0;
           menuVerticalPosition = HEADER_LINE;
           REFRESH_FILES();
@@ -366,20 +374,20 @@ void menuRadioSdManager(event_t _event)
         if (!strcmp(line, "..")) {
           break; // no menu for parent dir
         }
-        const char * ext = getFileExtension(line);
+        const char * ext = VirtualFS::getFileExtension(line);
         if (ext) {
           if (!strcasecmp(ext, SOUNDS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_PLAY_FILE);
           }
 #if LCD_DEPTH > 1
-          else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+          else if (VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
             if (!READ_ONLY() && (ext-line) <= (int)sizeof(g_model.header.bitmap)) {
               POPUP_MENU_ADD_ITEM(STR_ASSIGN_BITMAP);
             }
           }
 #endif
 #if defined(LUA)
-          else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
+          else if (VirtualFS::isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_EXECUTE_FILE);
           }
 #endif
@@ -457,14 +465,14 @@ void menuRadioSdManager(event_t _event)
             }
           }
 #endif
-          if (isExtensionMatching(ext, TEXT_EXT) || isExtensionMatching(ext, SCRIPTS_EXT)) {
+          if (VirtualFS::isFileExtensionMatching(ext, TEXT_EXT) || VirtualFS::isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_VIEW_TEXT);
           }
         }
         if (!READ_ONLY()) {
           if (IS_FILE(line))
             POPUP_MENU_ADD_ITEM(STR_COPY_FILE);
-          if (clipboard.type == CLIPBOARD_TYPE_SD_FILE)
+          if (clipboard.type == CLIPBOARD_TYPE_STORAGE_FILE)
             POPUP_MENU_ADD_ITEM(STR_PASTE);
           POPUP_MENU_ADD_ITEM(STR_RENAME_FILE);
           if (IS_FILE(line))
@@ -477,12 +485,12 @@ void menuRadioSdManager(event_t _event)
 
   if (SD_CARD_PRESENT()) {
     if (reusableBuffer.sdManager.offset != menuVerticalOffset) {
-      FILINFO fno;
-      DIR dir;
+      VfsFileInfo fno;
+      VfsDir dir;
 
       if (menuVerticalOffset == reusableBuffer.sdManager.offset + 1) {
         memmove(reusableBuffer.sdManager.lines[0], reusableBuffer.sdManager.lines[1], (NUM_BODY_LINES-1)*sizeof(reusableBuffer.sdManager.lines[0]));
-        memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0xff, SD_SCREEN_FILE_LENGTH);
+        memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0xff, STORAGE_SCREEN_FILE_LENGTH);
         NODE_TYPE(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1]) = 1;
       }
       else if (menuVerticalOffset == reusableBuffer.sdManager.offset - 1) {
@@ -496,27 +504,29 @@ void menuRadioSdManager(event_t _event)
 
       reusableBuffer.sdManager.count = 0;
 
-      FRESULT res = f_opendir(&dir, "."); // Open the directory
-      if (res == FR_OK) {
-        bool firstTime = true;
+      VfsError res = VirtualFS::instance().openDirectory(dir, "."); // Open the directory
+      if (res == VfsError::OK) {
         for (;;) {
-          res = sdReadDir(&dir, &fno, firstTime);
-          if (res != FR_OK || fno.fname[0] == 0) break;              /* Break on error or end of dir */
-          if (strlen(fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-          if (fno.fattrib & (AM_HID|AM_SYS)) continue;               /* Ignore hidden and system files */
-          if (fno.fname[0] == '.' && fno.fname[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
+          res = dir.read(fno);
+          std::string name = fno.getName();
+          if (res != VfsError::OK || name.length() == 0) break;              /* Break on error or end of dir */
+          if (name.length() > STORAGE_SCREEN_FILE_LENGTH) continue;
+          /* Ignore hidden and system files */
+          if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+              != VfsFileAttributes::NONE) continue;
+          if (name[0] == '.' && name[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
 
           reusableBuffer.sdManager.count++;
 
-          bool isfile = !(fno.fattrib & AM_DIR);
+          bool isfile = (fno.getType() != VfsType::DIR);
 
           if (menuVerticalOffset == 0) {
             for (uint8_t i=0; i<NUM_BODY_LINES; i++) {
               char * line = reusableBuffer.sdManager.lines[i];
-              if (line[0] == '\0' || isFilenameLower(isfile, fno.fname, line)) {
+              if (line[0] == '\0' || isFilenameLower(isfile, name.c_str(), line)) {
                 if (i < NUM_BODY_LINES-1) memmove(reusableBuffer.sdManager.lines[i+1], line, sizeof(reusableBuffer.sdManager.lines[i]) * (NUM_BODY_LINES-1-i));
                 memset(line, 0, sizeof(reusableBuffer.sdManager.lines[0]));
-                strcpy(line, fno.fname);
+                strcpy(line, name.c_str());
                 NODE_TYPE(line) = isfile;
                 break;
               }
@@ -525,31 +535,31 @@ void menuRadioSdManager(event_t _event)
           else if (reusableBuffer.sdManager.offset == menuVerticalOffset) {
             for (int8_t i=NUM_BODY_LINES-1; i>=0; i--) {
               char * line = reusableBuffer.sdManager.lines[i];
-              if (line[0] == '\0' || isFilenameGreater(isfile, fno.fname, line)) {
+              if (line[0] == '\0' || isFilenameGreater(isfile, name.c_str(), line)) {
                 if (i > 0) memmove(reusableBuffer.sdManager.lines[0], reusableBuffer.sdManager.lines[1], sizeof(reusableBuffer.sdManager.lines[0]) * i);
                 memset(line, 0, sizeof(reusableBuffer.sdManager.lines[0]));
-                strcpy(line, fno.fname);
+                strcpy(line, name.c_str());
                 NODE_TYPE(line) = isfile;
                 break;
               }
             }
           }
           else if (menuVerticalOffset > reusableBuffer.sdManager.offset) {
-            if (isFilenameGreater(isfile, fno.fname, reusableBuffer.sdManager.lines[NUM_BODY_LINES-2]) && isFilenameLower(isfile, fno.fname, reusableBuffer.sdManager.lines[NUM_BODY_LINES-1])) {
+            if (isFilenameGreater(isfile, name.c_str(), reusableBuffer.sdManager.lines[NUM_BODY_LINES-2]) && isFilenameLower(isfile, name.c_str(), reusableBuffer.sdManager.lines[NUM_BODY_LINES-1])) {
               memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0, sizeof(reusableBuffer.sdManager.lines[0]));
-              strcpy(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], fno.fname);
+              strcpy(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], name.c_str());
               NODE_TYPE(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1]) = isfile;
             }
           }
           else {
-            if (isFilenameLower(isfile, fno.fname, reusableBuffer.sdManager.lines[1]) && isFilenameGreater(isfile, fno.fname, reusableBuffer.sdManager.lines[0])) {
+            if (isFilenameLower(isfile, name.c_str(), reusableBuffer.sdManager.lines[1]) && isFilenameGreater(isfile, name.c_str(), reusableBuffer.sdManager.lines[0])) {
               memset(reusableBuffer.sdManager.lines[0], 0, sizeof(reusableBuffer.sdManager.lines[0]));
-              strcpy(reusableBuffer.sdManager.lines[0], fno.fname);
+              strcpy(reusableBuffer.sdManager.lines[0], name.c_str());
               NODE_TYPE(reusableBuffer.sdManager.lines[0]) = isfile;
             }
           }
         }
-        f_closedir(&dir);
+        dir.close();
       }
     }
 
@@ -566,13 +576,13 @@ void menuRadioSdManager(event_t _event)
         }
         if (s_editMode == EDIT_MODIFY_STRING && attr) {
           uint8_t extlen, efflen;
-          const char * ext = getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
+          const char * ext = VirtualFS::getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
 
           editName(lcdNextPos, y, reusableBuffer.sdManager.lines[i],
-                   SD_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
+                   STORAGE_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
 
           efflen = effectiveLen(reusableBuffer.sdManager.lines[i],
-                                SD_SCREEN_FILE_LENGTH - extlen);
+                                STORAGE_SCREEN_FILE_LENGTH - extlen);
 
           if (s_editMode == 0) {
             if (ext) {
@@ -581,7 +591,7 @@ void menuRadioSdManager(event_t _event)
             else {
               reusableBuffer.sdManager.lines[i][efflen] = 0;
             }
-            f_rename(reusableBuffer.sdManager.originalName, reusableBuffer.sdManager.lines[i]);
+            VirtualFS::instance().rename(reusableBuffer.sdManager.originalName, reusableBuffer.sdManager.lines[i]);
             REFRESH_FILES();
           }
         }
@@ -616,8 +626,8 @@ void menuRadioSdManager(event_t _event)
 #endif
 
 #if LCD_DEPTH > 1
-    const char * ext = getFileExtension(reusableBuffer.sdManager.lines[index]);
-    if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
+    const char * ext = VirtualFS::getFileExtension(reusableBuffer.sdManager.lines[index]);
+    if (ext && VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
           memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);

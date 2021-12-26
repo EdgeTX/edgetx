@@ -20,15 +20,16 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
 
-static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
+static void storageReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
 {
-  FIL file;
-  int result;
+  VfsFile file;
+  VfsError result;
   char c;
-  unsigned int sz;
+  size_t sz;
   int line_length = 0;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
@@ -36,9 +37,9 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
 
   memclear(lines, TEXT_VIEWER_LINES * (LCD_COLS + 1));
 
-  result = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    for (uint32_t i = 0; i < TEXT_FILE_MAXSIZE && f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 && (lines_count == 0 || current_line - menuVerticalOffset < int(TEXT_VIEWER_LINES)); i++) {
+  result = VirtualFS::instance().openFile(file, filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
+    for (uint32_t i = 0; i < TEXT_FILE_MAXSIZE && file.read(&c, 1, sz) == VfsError::OK && sz == 1 && (lines_count == 0 || current_line - menuVerticalOffset < int(TEXT_VIEWER_LINES)); i++) {
       if (c == '\n') {
         ++current_line;
         line_length = 0;
@@ -84,7 +85,7 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
     if (c != '\n') {
       current_line += 1;
     }
-    f_close(&file);
+    file.close();
   }
 
   if (lines_count == 0) {
@@ -127,16 +128,16 @@ void menuTextView(event_t event)
   if (event == EVT_ENTRY) {
       menuVerticalOffset = 0;
       reusableBuffer.viewText.linesCount = 0;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
   } else if (IS_PREVIOUS_EVENT(event)) {
     if (menuVerticalOffset > 0) {
       menuVerticalOffset--;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
     }
   } else if (IS_NEXT_EVENT(event)) {
     if (menuVerticalOffset + LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
       ++menuVerticalOffset;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
     }
   } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     popMenu();
@@ -152,7 +153,7 @@ void menuTextView(event_t event)
 #else
   // TODO?
 #endif
-  lcdDrawText(LCD_W/2, 0, getBasename(title), CENTERED);
+  lcdDrawText(LCD_W/2, 0, VirtualFS::getBasename(title), CENTERED);
   lcdInvertLine(0);
 
   if (reusableBuffer.viewText.linesCount > LCD_LINES-1) {

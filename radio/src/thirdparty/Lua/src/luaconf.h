@@ -11,12 +11,26 @@
 #include <limits.h>
 #include <stddef.h>
 
-#if defined(SDCARD)
-#define USE_FATFS
-#endif
-
 // force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
 #define LUA_ANSI
+
+// lua file system access
+struct open_files_t;
+#define lua_FILE struct open_files_t
+lua_FILE* lua_fopen(const char* name, const char *mode);
+int lua_fclose(lua_FILE* file);
+lua_FILE *lua_freopen(const char *pathname, const char *mode, lua_FILE *stream);
+int lua_feof(lua_FILE *stream);
+int lua_fseek(lua_FILE *stream, long offset, int whence);
+int lua_ferror(lua_FILE *stream);
+size_t lua_fread(void *ptr, size_t size, size_t nmemb, lua_FILE *stream);
+size_t lua_fwrite(const void *ptr, size_t size, size_t nmemb,
+                  lua_FILE *stream);
+char *lua_fgets(char *s, int size, lua_FILE *stream);
+char lua_fgetc(lua_FILE *stream);
+int lua_fputs(const char *s, lua_FILE *stream);
+char lua_fputc(lua_FILE *stream);
+
 
 /*
 ** ==================================================================
@@ -223,7 +237,7 @@
 
 #if defined(LUA_LIB) || defined(lua_c)
 #include <stdio.h>
-#define luai_writestring(s,l)	fwrite((s), sizeof(char), (l), stdout)
+#define luai_writestring(s,l)	lua_fwrite((s), sizeof(char), (l), stdout)
 #define luai_writeline()	(luai_writestring("\n", 1), fflush(stdout))
 #define luai_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
@@ -397,11 +411,7 @@
 @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
 ** CHANGE it if it uses too much C-stack space.
 */
-#if defined(USE_FATFS)
 #define LUAL_BUFFERSIZE         512
-#else
-#define LUAL_BUFFERSIZE		BUFSIZ
-#endif
 
 
 

@@ -807,7 +807,11 @@
  *----------*/
 
 /*1: Enable API to take snapshot for object*/
+#if !defined(BOOT)
 #define LV_USE_SNAPSHOT 1
+#else
+#define LV_USE_SNAPSHOT 0
+#endif
 
 /*1: Enable Monkey test*/
 #define LV_USE_MONKEY   0

@@ -24,9 +24,8 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
-
-#include <string>
-
+#include "strings.h"
+#include <string.h>
 #include <string>
 #include <cstring>
 
@@ -173,6 +172,12 @@ int strncasecmp(char (&s1)[L1], const char *const s2)
 
 std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
 std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
+
+// comparison, not case sensitive.
+inline bool compare_nocase(const std::string & first, const std::string & second)
+{
+  return strcasecmp(first.c_str(), second.c_str()) < 0;
+}
 
 // Timezone handling
 extern int8_t minTimezone();

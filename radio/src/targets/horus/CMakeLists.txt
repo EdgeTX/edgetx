@@ -6,9 +6,11 @@ option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
+option(SPI_FLASH "enable internal spi flash as additional storage" NO)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 
+set(DEFAULT_STORAGE "SDCARD" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
@@ -26,8 +28,44 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 
+if(NOT SDCARD AND NOT SPI_FLASH)
+  message(FATAL_ERROR "No storage type enabled")
+endif()
+if(NOT SDCARD AND DEFAULT_STORAGE STREQUAL "SDCARD")
+  message(FATAL_ERROR "SD card support disabled, but 'SDCARD' selected as default storage")
+endif()
+if(NOT SPI_FLASH AND DEFAULT_STORAGE STREQUAL "INTERNAL")
+  message(FATAL_ERROR "SPI flash support disabled, but 'INTERNAL' selected as default storage")
+endif()
+
+add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
+
+if(SPI_FLASH)
+  set(TARGET_SRC ${TARGET_SRC}
+    ../common/arm/stm32/flash_spi_driver.cpp
+  )
+
+  if(LITTLEFS)
+    set(TARGET_SRC ${TARGET_SRC}
+      ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+      ../../thirdparty/littlefs_v2.4.1/lfs.c
+    )
+    add_definitions(-DUSE_LITTLEFS)
+  else()
+    set(TARGET_SRC ${TARGET_SRC}
+        ../../thirdparty/tjftl/tjftl.c
+    )
+  endif()
+endif()
+
+
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    ../common/arm/stm32/diskio_sdio_spiflash.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
+    ../../thirdparty/tjftl/tjftl.c
+  )
 else()
   set(LINKER_SCRIPT targets/horus/stm32f4_flash.ld)
 endif()
@@ -142,6 +180,9 @@ elseif (PCB STREQUAL X12S)
     if(NOT INTERNAL_GPS)
       message("Horus: Internal GPS is optional, use INTERNAL_GPS=YES option to enable it")
     endif()
+  endif()
+  if(${PCBREV} LESS 13)
+    set(SPI_FLASH NO)
   endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
   set(AUX2_SERIAL ON) # wire to GPS
@@ -274,7 +315,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/ads79xx.cpp
   targets/common/arm/stm32/sdio_sd.cpp
-  targets/common/arm/stm32/diskio_sdio.cpp
+  targets/common/arm/stm32/diskio_sdio_spiflash.cpp
   )
 
 if(BOOTLOADER)

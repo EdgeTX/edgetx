@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
+#include "logs.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -242,9 +243,7 @@ if(g_model.rssiSource) {
     pulsesStart();
   }
 
-#if defined(SDCARD)
   referenceModelAudioFiles();
-#endif
 
 #if defined(COLORLCD)
   loadCustomScreens();

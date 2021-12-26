@@ -56,12 +56,12 @@ TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT)
 void TemplatePage::updateInfo()
 {
   if (buffer[0]) {
-    FIL fp;
-    FRESULT res = f_open(&fp, buffer, FA_READ);
-    unsigned int bytesRead = 0;
-    if (res == FR_OK) {
-      f_read(&fp, infoText, LEN_INFO_TEXT, &bytesRead);
-      f_close(&fp);
+    VfsFile fp;
+    VfsError res = VirtualFS::instance().openFile(fp, buffer, VfsOpenFlags::READ);
+    size_t bytesRead = 0;
+    if (res == VfsError::OK) {
+      fp.read(infoText, LEN_INFO_TEXT, bytesRead);
+      fp.close();
     }
     infoText[bytesRead] = '\0';
   }
@@ -101,30 +101,36 @@ class SelectTemplate : public TemplatePage
     snprintf(path, LEN_PATH, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
     std::list<std::string> files;
-    FILINFO fno;
-    DIR dir;
-    FRESULT res = f_opendir(&dir, path);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsFileInfo fno;
+    VfsDir dir;
+    VfsError res = vfs.openDirectory(dir, path);
 
     Button* firstButton = nullptr;
 
-    if (res == FR_OK) {
+    if (res == VfsError::OK) {
       // read all entries
       for (;;) {
-        res = f_readdir(&dir, &fno);
-        if (res != FR_OK || fno.fname[0] == 0)
+        res = dir.read(fno);
+        const char* fName = fno.getName();
+        if (res != VfsError::OK || fName[0] == 0)
           break;  // Break on error or end of dir
-        if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-        if (fno.fattrib & (AM_DIR | AM_HID | AM_SYS))
-          continue; /* Ignore folders, hidden and system files */
-        if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
-
-        const char* ext = getFileExtension(fno.fname);
-        if (ext && !strcasecmp(ext, YAML_EXT)) {
-          int len = ext - fno.fname;
-          if (len < FF_MAX_LFN) {
-            char name[FF_MAX_LFN] = {0};
-            strncpy(name, fno.fname, len);
-            files.push_back(name);
+        if (strlen(fName) > STORAGE_SCREEN_FILE_LENGTH)
+          continue;
+        if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+            != VfsFileAttributes::NONE)
+          continue;
+        if (fName[0] == '.')
+          continue;
+        if (fno.getType() == VfsType::FILE) {
+          const char *ext = vfs.getFileExtension(fName);
+          if (ext && !strcasecmp(ext, YAML_EXT)) {
+            int len = ext - fName;
+            if (len < FF_MAX_LFN) {
+              char name[FF_MAX_LFN] = {0};
+              strncpy(name, fName, len);
+              files.push_back(name);
+            }
           }
         }
       }
@@ -151,7 +157,7 @@ class SelectTemplate : public TemplatePage
       }
     }
 
-    f_closedir(&dir);
+    dir.close();
 
     if (files.size() == 0) {
       new StaticText(listWindow, rect_t{0, 0, lv_pct(100), lv_pct(50)},
@@ -187,21 +193,26 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(std::string folder
   });
 
   std::list<std::string> directories;
-  FILINFO fno;
-  DIR dir;
-  FRESULT res = f_opendir(&dir, TEMPLATES_PATH);
+  VfsFileInfo fno;
+  VfsDir dir;
+  VfsError res = VirtualFS::instance().openDirectory(dir, TEMPLATES_PATH);
 
-  if (res == FR_OK) {
+  if (res == VfsError::OK) {
     // read all entries
     for (;;) {
-      res = f_readdir(&dir, &fno);
-      if (res != FR_OK || fno.fname[0] == 0)
+      res = dir.read(fno);
+      const char* fName = fno.getName();
+      if (res != VfsError::OK || fName[0] == 0)
         break;  // Break on error or end of dir
-      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-      if (fno.fattrib & (AM_HID | AM_SYS))
-        continue;                        /* Ignore hidden and system files */
-      if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
-      if (fno.fattrib & AM_DIR) directories.push_back((char*)fno.fname);
+      if (strlen(fName) > STORAGE_SCREEN_FILE_LENGTH)
+        continue;
+      if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+          != VfsFileAttributes::NONE)
+        continue;
+      if (fName[0] == '.')
+        continue;
+      if (fno.getType() == VfsType::DIR)
+        directories.push_back(fName);
     }
 
     directories.sort(compare_nocase);
@@ -230,7 +241,7 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(std::string folder
     }
   }
 
-  f_closedir(&dir);
+  dir.close();
 
   if (directories.size() == 0) {
     new StaticText(listWindow, rect_t{0, 0, lv_pct(100), lv_pct(50)},

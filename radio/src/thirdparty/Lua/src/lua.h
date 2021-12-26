@@ -414,17 +414,11 @@ struct lua_Debug {
   struct CallInfo *i_ci;  /* active function */
 };
 
-#if defined(USE_FATFS)
-  #include "FatFs/ff.h"
-  int lua__getc(FIL *f);
-  #define lua_getc(f) lua__getc(&f)
-  #define lua_fclose  f_close
-#else
-  #include <stdio.h>
-  #define lua_getc    getc
-  #define lua_fclose  fclose
+#if 0
+#include <stdio.h>
+#define lua_getc    getc
+#define lua_fclose  fclose
 #endif
-
 /* }====================================================================== */
 
 /* ROTable extensions to the standard API */

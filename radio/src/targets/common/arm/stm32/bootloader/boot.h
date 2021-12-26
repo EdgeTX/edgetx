@@ -46,6 +46,7 @@
 enum BootloaderState {
   ST_START,
   ST_FLASH_MENU,
+  ST_SELECT_STORAGE,
   ST_DIR_CHECK,
   ST_OPEN_DIR,
   ST_FILE_LIST,
@@ -54,6 +55,8 @@ enum BootloaderState {
   ST_FLASH_DONE,
   ST_RESTORE_MENU,
   ST_USB,
+  ST_CLEAR_FLASH_CHECK,
+  ST_CLEAR_FLASH,
   ST_RADIO_MENU,
   ST_REBOOT,
 };
