@@ -102,14 +102,14 @@ if(BLUETOOTH)
     )
 endif()
 
-if(NOT (PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14))
+if(NOT (PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18))
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../targets/${TARGET_DIR}/i2c_driver.cpp
     )
 endif()
 
-if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
@@ -131,7 +131,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       )
   endif()
 
-  if(PCB STREQUAL NV14)
+  if(PCB STREQUAL NV14 OR PCB STREQUAL PL18)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
       ../../../../../targets/${TARGET_DIR}/extmodule_helper.cpp
@@ -173,7 +173,7 @@ add_executable(bootloader EXCLUDE_FROM_ALL
   )
 add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
 
-if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
   add_dependencies(bootloader truetype_fonts)
 endif()
 

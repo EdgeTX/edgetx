@@ -207,7 +207,8 @@ RadioVersionPage::RadioVersionPage():
 }
 
 extern uint32_t NV14internalModuleFwVersion;
-#if defined(PCBNV14)
+extern uint32_t PL18internalModuleFwVersion;
+#if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
 #endif
 
@@ -242,7 +243,7 @@ void RadioVersionPage::build(FormWindow * window)
   auto options = new OptionsText(window, grid.getFieldSlot(1,0));
   grid.nextLine(options->height() + 4);
 
-#if defined(PCBNV14) && !defined(SIMU)
+#if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   new StaticText(window, grid.getLabelSlot(), "LCD:");
   new StaticText(window, grid.getFieldSlot(), boardLcdType);
   grid.nextLine();
@@ -250,7 +251,12 @@ void RadioVersionPage::build(FormWindow * window)
 
 #if defined(AFHDS2)
   new StaticText(window, grid.getLabelSlot(), "RF FW:");
+#if defined(PCBNV14)
   sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d", (int)((NV14internalModuleFwVersion >> 16) & 0xFF), (int)((NV14internalModuleFwVersion >> 8) & 0xFF), (int)(NV14internalModuleFwVersion & 0xFF));
+#else
+  // PCBPL18
+  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d", (int)((PL18internalModuleFwVersion >> 16) & 0xFF), (int)((PL18internalModuleFwVersion >> 8) & 0xFF), (int)(PL18internalModuleFwVersion & 0xFF));
+#endif
   new StaticText(window, grid.getFieldSlot(), reusableBuffer.moduleSetup.msg);
   grid.nextLine();
 #endif

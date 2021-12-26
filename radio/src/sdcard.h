@@ -170,6 +170,8 @@ const char * getBasename(const char * path);
   #define OTX_FOURCC 0x3378746F // otx for Taranis X9D
 #elif defined(PCBNV14)
   #define OTX_FOURCC 0x3A78746F // otx for NV14
+#elif defined(PCBPL18)
+  #define OTX_FOURCC 0x4878746F // otx for PL18
 #elif defined(PCBSKY9X)
   #define OTX_FOURCC 0x3278746F // otx for sky9x
 #endif

@@ -75,7 +75,7 @@
 #elif defined(PCBSKY9X)
   #define TR_POTS_VSRCRAW              "P1\0 ""P2\0 ""P3\0 "
   #define TR_SW_VSRCRAW                "3POS" "THR\0""RUD\0""ELE\0""AIL\0""GEA\0""TRN\0"
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SE\0" STR_CHAR_SWITCH"SF\0" STR_CHAR_SWITCH"SG\0" STR_CHAR_SWITCH"SH\0"
 #endif
@@ -87,7 +87,7 @@
   #define TR_VSWITCHES                 "---" "ID0""ID1""ID2" "THR""RUD""ELE""AIL""GEA""TRN" TR_TRIMS_SWITCHES TR_ROTENC_SWITCHES TR_ON_ONE_SWITCHES
 #endif
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_OFF TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
 #elif defined(PCBHORUS) && defined(AUX_SERIAL)
   #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
@@ -99,7 +99,7 @@
   #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_CPPM_MODULE TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
 #endif
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "PGUP\0""PGDN\0""ENTER""MDL\0 ""RTN\0 ""TELE\0""SYS\0 "
 #elif defined(PCBXLITE)
@@ -219,7 +219,7 @@
 #define LEN_PWR_OFF_DELAYS             "\002"
 #define TR_PWR_OFF_DELAYS              "0s""1s""2s""4s"
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "\007" "Default\0""High\0"
 #endif
 

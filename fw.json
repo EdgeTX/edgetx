@@ -1,6 +1,7 @@
 {
     "targets": [
         ["Flysky NV14", "nv14-"],
+        ["Flysky PL18", "pl18-"],
         ["Frsky Horus X10", "x10-"],
         ["Frsky Horus X10 Access", "x10-access-"],
         ["Frsky Horus X12s", "x12s-"],
