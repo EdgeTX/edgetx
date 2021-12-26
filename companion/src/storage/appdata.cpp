@@ -427,7 +427,7 @@ void AppData::convertSettings(QSettings & settings)
                               <<  fmtHex(CPN_SETTINGS_VERSION) << " (" << fmtHex(currMajMin)  << "). Removing unused: " << removeUnused;
 
   // firmwares renamed from opentx-* to edgetx-* at 2.6
-  if (savedMajMin < 0x206) {
+  if (savedMajMin <= 0x207) {        // Note: change merged post 2.6 rc 1 and version bumped to 2.7 the Nightly users also require upgrade
     qInfo().noquote() << "Converting profiles";
     static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
     for (int i = 0; i < MAX_PROFILES; i++) {
