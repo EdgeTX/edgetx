@@ -462,6 +462,8 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     return MAX_EXTRA_MODULE_CHANNELS_M8;
   } else if (isModuleXJT(moduleIdx)) {
     return maxChannelsXJT_M8[1 + g_model.moduleData[moduleIdx].subType];
+  } else if (isModuleISRMD16(moduleIdx)) {
+    return maxChannelsXJT_M8[MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16];
   } else if (isModuleR9M(moduleIdx)) {
     if (isModuleR9M_LBT(moduleIdx)) {
       if (isModuleR9MLite(moduleIdx))
