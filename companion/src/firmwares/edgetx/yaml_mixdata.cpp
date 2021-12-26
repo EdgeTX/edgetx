@@ -125,7 +125,7 @@ Node convert<CurveReference>::encode(const CurveReference& rhs)
 {
   Node node;
   node["type"] = (int)rhs.type;
-  node["value"] = rhs.value;
+  node["value"] = YamlWriteMixWeight(rhs.value);
   return node;
 }
 
@@ -135,8 +135,9 @@ bool convert<CurveReference>::decode(const Node& node, CurveReference& rhs)
   int type = 0;
   node["type"] >> type;
   rhs.type = (CurveReference::CurveRefType)type;
-
-  node["value"] >> rhs.value;
+  if (node["value"]) {
+    rhs.value = YamlReadMixWeight(node["value"]);
+  }
   return true;
 }
 
