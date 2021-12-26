@@ -37,8 +37,10 @@
   #include "ghost.h"
 #endif
 
-#if defined(PCBNV14)
-  #include "telemetry/flysky_nv14.h"
+#if defined(PCBPL18)
+#include "telemetry/flysky_pl18.h"
+#else
+#include "telemetry/flysky_nv14.h"
 #endif
 
 #if defined(MULTIMODULE)
@@ -575,9 +577,15 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
 #endif
 
 #if defined(AFHDS2) && defined(PCBNV14)
-      case PROTOCOL_TELEMETRY_FLYSKY_NV14:
-        flySkyNv14SetDefault(index, id, subId, instance);
+#if defined(PCBPL18)
+      case PROTOCOL_TELEMETRY_FLYSKY_PL18:
+        flySkyPl18SetDefault(index, id, subId, instance);
         break;
+#else
+    case PROTOCOL_TELEMETRY_FLYSKY_NV14:
+      flySkyNv14SetDefault(index, id, subId, instance);
+      break;
+#endif
 #endif
 
       case PROTOCOL_TELEMETRY_SPEKTRUM:

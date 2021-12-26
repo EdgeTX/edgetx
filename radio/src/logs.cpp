@@ -95,7 +95,7 @@ void initLoggingTimer() {                                       // called cyclic
 
 void writeHeader();
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
+#if defined(PCBFRSKY) || defined(PCBNV14) || defined(PCBPL18)
   int getSwitchState(uint8_t swtch) {
     int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
     return (value == 0) ? 0 : (value < 0) ? -1 : +1;
@@ -223,7 +223,7 @@ void writeHeader()
     }
   }
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
+#if defined(PCBFRSKY) || defined(PCBNV14) || defined(PCBPL18)
   for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
     const char * p = STR_VSRCRAW[i] + 2;
     size_t len = strlen(p);
