@@ -40,7 +40,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   case SWITCH_TYPE_VIRTUAL:
     sw_str += "L";
-    sw_str += std::to_string(sval + 1);
+    sw_str += std::to_string(sval);
     break;
 
   case SWITCH_TYPE_MULTIPOS_POT:
@@ -55,7 +55,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   case SWITCH_TYPE_FLIGHT_MODE:
     sw_str += "FM";
-    sw_str += std::to_string(sval);
+    sw_str += std::to_string(sval - 1);
     break;
 
   case SWITCH_TYPE_SENSOR:
@@ -97,7 +97,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
     if (std::stoi(sw_str_tmp.substr(1, val_len - 1)) < CPN_MAX_LOGICAL_SWITCHES) {
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
-                      std::stoi(sw_str_tmp.substr(1, val_len - 1)) - 1);
+                      std::stoi(sw_str_tmp.substr(1, val_len - 1)));
     }
 
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
@@ -110,7 +110,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {
 
-    rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0');
+    rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0' + 1);
 
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
