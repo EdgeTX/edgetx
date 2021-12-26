@@ -310,7 +310,7 @@ void convertRadioData_219_to_220(void* data)
     convertToStr(sw_name, LEN_ANA_NAME_219);
   }
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   convertToStr(settings.bluetoothName, LEN_BLUETOOTH_NAME_219);
 #endif
 }

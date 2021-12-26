@@ -164,6 +164,9 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
+            ;;
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"

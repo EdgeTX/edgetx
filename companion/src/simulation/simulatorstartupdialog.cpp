@@ -86,7 +86,7 @@ void SimulatorStartupDialog::changeEvent(QEvent *e)
 // FIXME : need a better way to check for this
 bool SimulatorStartupDialog::usesCategorizedStorage(const QString & name)
 {
-  return name.contains(QRegExp("(x12|x10|horus|16|18|nv14)", Qt::CaseInsensitive));
+  return name.contains(QRegExp("(x12|x10|horus|16|18|nv14|pl18)", Qt::CaseInsensitive));
 }
 
 bool SimulatorStartupDialog::usesCategorizedStorage()

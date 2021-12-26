@@ -79,7 +79,19 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
                                              0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
                                              0 /*SWB*/, 0 /*SWD*/};
+#elif defined(PCBPL18)
+  /* TODO! Check */
+  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
+                                            4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
+                                            7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
+                                            11/*SWG*/,  10/*SWH*/,
+                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
 
+  const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
+                                            -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,
+                                             0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
+                                             0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
+                                             0 /*SWB*/, 0 /*SWD*/};
 #elif defined(PCBX12S)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
 #else
@@ -130,7 +142,7 @@ bool adcRead()
   uint16_t temp[NUM_ANALOGS] = { 0 };
 
   uint8_t first_analog_adc;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
     if (globalData.flyskygimbals)
     {
         first_analog_adc = FIRST_ANALOG_ADC_FS;
@@ -176,7 +188,7 @@ uint16_t getRTCBatteryVoltage()
   return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
 #elif defined(PCBX10) || defined(PCBX12S)
   return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #warning "TODO RTC voltage"
   return 330;
 #else
@@ -193,7 +205,7 @@ uint16_t getAnalogValue(uint8_t index)
     // which produces ghost readings on these inputs.
     return 0;
   }
-#if defined(PCBX9E) || defined(PCBNV14)
+#if defined(PCBX9E) || defined(PCBNV14) || defined(PCBPL18)
   index = adcMapping[index];
 #endif
   if (adcDirection[index] < 0)

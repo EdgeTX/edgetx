@@ -256,6 +256,7 @@ RadioVersionPage::RadioVersionPage():
 }
 
 #if defined(PCBNV14)
+
 extern uint32_t NV14internalModuleFwVersion;
 extern const char* boardLcdType;
 #endif
@@ -280,7 +281,7 @@ void RadioVersionPage::build(FormWindow * window)
     version += options[i];
   }
 
-#if defined(PCBNV14) && !defined(SIMU)
+#if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;

@@ -18,13 +18,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Dedicate for FlySky NV14 board.
+ * For FlySky NV14 & PL18 boards.
  */
 
 #include "opentx.h"
 
 #include "flysky.h"
+
+#if defined(PCBNV14)
 #include "telemetry/flysky_nv14.h"
+#else
+#include "telemetry/flysky_pl18.h"
+#endif
 
 #define IS_VALID_COMMAND_ID(id) ((id) < CMD_LAST)
 
@@ -44,7 +49,11 @@ enum DEBUG_RF_FRAME_PRINT_E {
 //#define DEBUG_RF_FRAME_PRINT BOTH_FRAME_PRINT
 #define FLYSKY_MODULE_TIMEOUT 155             /* ms */
 #define FLYSKY_PERIOD 4                       /*ms*/
+#if defined(PCBNV14)
 #define NUM_OF_NV14_CHANNELS (14)
+#else
+#define NUM_OF_PL18_CHANNELS (14)
+#endif
 #define VALID_CH_DATA(v) ((v) > 900 && (v) < 2100)
 #define FAILSAVE_SEND_COUNTER_MAX (400)
 
@@ -114,6 +123,7 @@ static uint8_t lastState = STATE_IDLE;
 static uint32_t set_loop_cnt = 0;
 
 uint32_t NV14internalModuleFwVersion = 0;
+uint32_t PL18internalModuleFwVersion = 0;
 
 static rf_info_t rf_info = {
     .bind_power = BIND_LOW_POWER,
@@ -465,7 +475,11 @@ inline void parseResponse()
       intmodulePulsesData.flysky.timeout = FLYSKY_MODULE_TIMEOUT;
       break;
     case CMD_RX_SENSOR_DATA:
+#if defined(PCBNV14)
       flySkyNv14ProcessTelemetryPacket(&resp->value, dataLen - 3);
+#else
+      flySkyPl18ProcessTelemetryPacket(&resp->value, dataLen - 3);
+#endif
       if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_NORMAL &&
           intmodulePulsesData.flysky.state >= STATE_IDLE) {
         setFlyskyState(STATE_SEND_CHANNELS);
@@ -506,8 +520,13 @@ inline void parseResponse()
     }
     case CMD_GET_VERSION_INFO: {
       if (intmodulePulsesData.flysky.state == STATE_GET_FW_VERSION_INIT) {
+#if defined(PCBNV14)
         memcpy(&NV14internalModuleFwVersion, &resp->value + 1,
                sizeof(NV14internalModuleFwVersion));
+#else
+          memcpy(&PL18internalModuleFwVersion, &resp->value + 1,
+                 sizeof(PL18internalModuleFwVersion));
+#endif
         setFlyskyState(STATE_SET_RECEIVER_ID);
         break;
       }
@@ -587,6 +606,7 @@ void processInternalFlySkyTelemetryData(uint8_t byte)
 void resetPulsesAFHDS2()
 {
   NV14internalModuleFwVersion = 0;
+  PL18internalModuleFwVersion = 0;
   intmodulePulsesData.flysky.frame_index = 1;
   setFlyskyState(STATE_SET_TX_POWER);
   intmodulePulsesData.flysky.timeout = 0;

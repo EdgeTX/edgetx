@@ -87,7 +87,7 @@ static inline void check_struct()
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(CustomScreenData, 850);
   CHKTYPE(TopBarPersistentData, 300);
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   // TODO
 #else
   // Common for all variants

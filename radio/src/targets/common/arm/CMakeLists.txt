@@ -219,7 +219,11 @@ endif()
 
 if(AFHDS2)
   add_definitions(-DAFHDS2)
-  set(SRC ${SRC} telemetry/flysky_nv14.cpp)
+  if(PCB STREQUAL PL18)
+    set(SRC ${SRC} telemetry/flysky_pl18.cpp)
+  else()
+    set(SRC ${SRC} telemetry/flysky_nv14.cpp)
+  endif()
   set(PULSES_SRC ${PULSES_SRC} flysky.cpp)
 endif()
 

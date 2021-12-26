@@ -70,7 +70,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               tlite tpro
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
-                              nv14
+                              nv14 pl18
                               x10 x10-access x12s
                               t16 t18 tx16s)
 
@@ -149,7 +149,9 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
-    esac
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
+            ;;   esac
 
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
