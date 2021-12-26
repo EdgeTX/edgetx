@@ -36,6 +36,9 @@
 #if defined(PCBNV14)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
+#if defined(PCBPL18)
+extern uint32_t PL18internalModuleFwVersion;
+#endif
 
 #if defined(AFHDS3)
 #include "pulses/afhds3_module.h"
@@ -648,12 +651,24 @@ inline uint32_t getNV14RfFwVersion()
 #endif
 }
 
+inline uint32_t getPL18RfFwVersion()
+{
+#if defined(PCBPL18)
+  return  PL18internalModuleFwVersion;
+#else
+  return 0;
+#endif
+}
+
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
 #if defined(PCBNV14)
   ret = ret &&
         (!isModuleFlySky(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
+#elif defined(PCBPL18)
+  ret = ret &&
+        (!isModuleFlySky(moduleIdx) || PL18internalModuleFwVersion >= 0x1000E);
 #else
   ret = ret && (!isModuleFlySky(moduleIdx));
 #endif

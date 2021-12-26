@@ -185,6 +185,9 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
+            ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;

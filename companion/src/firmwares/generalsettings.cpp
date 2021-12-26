@@ -146,6 +146,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "t16");
   else if (IS_FLYSKY_NV14(board))
     strcpy(bluetoothName, "nv14");
+  else if (IS_FLYSKY_PL18(board))
+    strcpy(bluetoothName, "pl18");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
@@ -277,12 +279,16 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     return;
 
   // TODO: move to Boards, like with switches
-  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) {
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
     potConfig[1] = Board::POT_MULTIPOS_SWITCH;
     potConfig[2] = Board::POT_WITH_DETENT;
   }
   else if (IS_FLYSKY_NV14(board)) {
+    potConfig[0] = Board::POT_WITHOUT_DETENT;
+    potConfig[1] = Board::POT_WITHOUT_DETENT;
+  }
+  else if (IS_FLYSKY_PL18(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;
     potConfig[1] = Board::POT_WITHOUT_DETENT;
   }

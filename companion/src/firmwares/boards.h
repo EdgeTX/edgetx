@@ -68,6 +68,7 @@ namespace Board {
     BOARD_JUMPER_TLITE,
     BOARD_JUMPER_TLITE_F4,
     BOARD_FLYSKY_NV14,
+    BOARD_FLYSKY_PL18,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
     BOARD_BETAFPV_LR3PRO,
@@ -360,6 +361,11 @@ inline bool IS_FLYSKY_EL18(Board::Type board)
   return (board == Board::BOARD_FLYSKY_EL18);
 }
 
+inline bool IS_FLYSKY_PL18(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_PL18);
+}
+
 inline bool IS_TARANIS_XLITE(Board::Type board)
 {
   return board == Board::BOARD_TARANIS_XLITE || board == Board::BOARD_TARANIS_XLITES;
@@ -437,7 +443,7 @@ inline bool IS_FAMILY_HORUS(Board::Type board)
 
 inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
-  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/;
+  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board);
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -447,7 +453,7 @@ inline bool IS_HORUS_OR_TARANIS(Board::Type board)
 
 inline bool IS_STM32(Board::Type board)
 {
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board);
+  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board);
 }
 
 inline bool IS_ARM(Board::Type board)

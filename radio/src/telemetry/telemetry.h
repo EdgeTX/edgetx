@@ -179,7 +179,11 @@ inline uint8_t modelTelemetryProtocol()
   // TODO: Check if that is really necessary...
 #if defined(AFHDS2) && defined(HARDWARE_INTERNAL_MODULE)
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
+#if defined(PCBPL18)
+    return PROTOCOL_TELEMETRY_FLYSKY_PL18;
+#else
     return PROTOCOL_TELEMETRY_FLYSKY_NV14;
+#endif
   }
 #endif
 

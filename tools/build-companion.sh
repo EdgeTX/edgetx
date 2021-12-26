@@ -71,7 +71,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               t20
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
-                              nv14
+                              nv14 pl18
                               x10 x10-access x12s
                               t16 t18 tx16s)
 
@@ -170,6 +170,9 @@ do
             ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
             ;;
         *)
             echo "Unknown target: $target_name"

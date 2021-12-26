@@ -39,7 +39,7 @@
 #define LABELS_LENGTH 100 // Maximum length of the label string
 #define LABEL_LENGTH 16
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES             9
@@ -98,7 +98,7 @@ enum CurveType {
 #define MIN_POINTS_PER_CURVE           3
 #define MAX_POINTS_PER_CURVE           17
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_FLIGHT_MODE_NAME         10
@@ -268,6 +268,7 @@ enum TelemetryProtocol
   PROTOCOL_TELEMETRY_AFHDS3,
   PROTOCOL_TELEMETRY_GHOST,
   PROTOCOL_TELEMETRY_FLYSKY_NV14,
+  PROTOCOL_TELEMETRY_FLYSKY_PL18,
   PROTOCOL_TELEMETRY_DSMP,
   PROTOCOL_TELEMETRY_LAST=PROTOCOL_TELEMETRY_DSMP,
   PROTOCOL_TELEMETRY_LUA
