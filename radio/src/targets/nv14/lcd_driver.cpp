@@ -623,11 +623,13 @@ void LCD_ILI9481_Off(void) {
 }
 
 unsigned int LCD_ILI9481_ReadID(void) {
+#if 1
+  /* Have a issue here */
+  return 0;
+#else
   int ID = 0;
   int Data;
 
-  /* Have a issue here */
-  return 0;
 
   lcdWriteByte(0, 0xBF);
 
@@ -647,6 +649,7 @@ unsigned int LCD_ILI9481_ReadID(void) {
   lcdWriteData(0x82);
   //lcdWriteData( 0x9b );
   return (ID);
+#endif
 }
 
 void LCD_ILI9486_On(void) {
@@ -978,113 +981,106 @@ void LCD_ST7796S_On(void) {
 }
 
 void LCD_ST7796S_Init(void) {
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x00);
-
-  lcdWriteCommand(0x11);
   delay_ms(120);
-  lcdWriteCommand(0x13);
 
-  lcdWriteCommand(0xf0);
-  lcdWriteData(0xc3);
-  lcdWriteCommand(0xf0);
-  lcdWriteData(0x96);
+  lcdWriteCommand( 0x11 );
+  delay_ms(120);
+  lcdWriteCommand( 0xF0 );
+  lcdWriteData( 0xC3 );
 
-  lcdWriteCommand(0x36);
+  lcdWriteCommand( 0xF0 );
+  lcdWriteData( 0x96 );
 
-#if defined( LCD_DIRECTION ) && ( LCD_DIRECTION == LCD_VERTICAL )
+  lcdWriteCommand( 0x36 );
+  lcdWriteData( 0x88 );
 
-  lcdWriteData( 0x08 );
+  lcdWriteCommand( 0x3A );
+  lcdWriteData( 0x66 );
 
-#else
-#if defined( LCD_DEBUG ) && ( LCD_DEBUG == ON )
-  lcdWriteData( 0xcc );
-#else
-  lcdWriteData(0xb8);
-#endif
+  //SET RGB STRAT
+  lcdWriteCommand (0xB0 );   //SET HS VS DE CLK 上升还是下降有效
+  lcdWriteData( 0x80 );
 
-#endif
+  lcdWriteCommand( 0xB4 );
+  lcdWriteData( 0x01 );
 
-  lcdWriteCommand(0x3A);
-  lcdWriteData(0x65);
+  lcdWriteCommand( 0xB6 );
+  lcdWriteData( 0x20 );
+  lcdWriteData( 0x02 );
+  lcdWriteData( 0x3B );
+  //SET RGB END
 
-  lcdWriteCommand(0xB4);
-  lcdWriteData(0x01);
+  lcdWriteCommand( 0xB7);
+  lcdWriteData( 0xC6);
 
-  lcdWriteCommand(0xb5);
-  lcdWriteData (VERTICAL_FRONT_PORCH);
-  lcdWriteData(VERTICAL_BACK_PORCH + VERTICAL_SYNC_HEIGHT);
-  lcdWriteData(0x00);
-  lcdWriteData(HORIZONTAL_BACK_PORCH + 4);
+  lcdWriteCommand( 0xB9 );
+  lcdWriteData( 0x02 );
+  lcdWriteData( 0xE0 );
 
-  lcdWriteCommand(0xb6);
-  lcdWriteData(0xe0);
-  lcdWriteData(0x42);
-  lcdWriteData(0x3b);
+  lcdWriteCommand( 0xC0 );
+  lcdWriteData( 0x80 );
+  lcdWriteData( 0x65 );
 
-  lcdWriteCommand(0xB7);
-  lcdWriteData(0x66);
+  lcdWriteCommand( 0xC1 );
+  lcdWriteData( 0x0D );
 
-  lcdWriteCommand(0xe8);
-  lcdWriteData(0x40);
-  lcdWriteData(0x8a);
-  lcdWriteData(0x00);
-  lcdWriteData(0x00);
-  lcdWriteData(0x29);
-  lcdWriteData(0x19);
-  lcdWriteData(0xa5);
-  lcdWriteData(0x33);
+  lcdWriteCommand( 0xC2 );
+  lcdWriteData( 0xA7 );
 
-  lcdWriteCommand(0xc1);
-  lcdWriteData(0x06);
+  lcdWriteCommand( 0xC5 );
+  lcdWriteData( 0x14 );
 
-  lcdWriteCommand(0xc2);
-  lcdWriteData(0xa7);
+  lcdWriteCommand( 0xE8 );
+  lcdWriteData( 0x40 );
+  lcdWriteData( 0x8A );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x29 );
+  lcdWriteData( 0x19 );
+  lcdWriteData( 0xA5 );
+  lcdWriteData( 0x33 );
 
-  lcdWriteCommand(0xc5);
-  lcdWriteData(0x18);
+  lcdWriteCommand( 0xE0 );
+  lcdWriteData( 0xD0 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x04 );
+  lcdWriteData( 0x05 );
+  lcdWriteData( 0x04 );
+  lcdWriteData( 0x21 );
+  lcdWriteData( 0x25 );
+  lcdWriteData( 0x43 );
+  lcdWriteData( 0x3F );
+  lcdWriteData( 0x37 );
+  lcdWriteData( 0x13 );
+  lcdWriteData( 0x13 );
+  lcdWriteData( 0x29 );
+  lcdWriteData( 0x32 );
 
-  lcdWriteCommand(0xe0); //Positive Voltage Gamma Control
-  lcdWriteData(0xf0);
-  lcdWriteData(0x09);
-  lcdWriteData(0x0b);
-  lcdWriteData(0x06);
-  lcdWriteData(0x04);
-  lcdWriteData(0x15);
-  lcdWriteData(0x2f);
-  lcdWriteData(0x54);
-  lcdWriteData(0x42);
-  lcdWriteData(0x3c);
-  lcdWriteData(0x17);
-  lcdWriteData(0x14);
-  lcdWriteData(0x18);
-  lcdWriteData(0x1b);
+  lcdWriteCommand( 0xE1 );
+  lcdWriteData( 0xD0 );
+  lcdWriteData( 0x04 );
+  lcdWriteData( 0x06 );
+  lcdWriteData( 0x09 );
+  lcdWriteData( 0x06 );
+  lcdWriteData( 0x03 );
+  lcdWriteData( 0x25 );
+  lcdWriteData( 0x32 );
+  lcdWriteData( 0x3E );
+  lcdWriteData( 0x18 );
+  lcdWriteData( 0x15 );
+  lcdWriteData( 0x15 );
+  lcdWriteData( 0x2B );
+  lcdWriteData( 0x30 );
 
-  lcdWriteCommand(0xe1); //Negative Voltage Gamma Control
-  lcdWriteData(0xf0);
-  lcdWriteData(0x09);
-  lcdWriteData(0x0b);
-  lcdWriteData(0x06);
-  lcdWriteData(0x04);
-  lcdWriteData(0x03);
-  lcdWriteData(0x2d);
-  lcdWriteData(0x43);
-  lcdWriteData(0x42);
-  lcdWriteData(0x3b);
-  lcdWriteData(0x16);
-  lcdWriteData(0x14);
-  lcdWriteData(0x17);
-  lcdWriteData(0x1b);
+  lcdWriteCommand( 0xF0 );
+  lcdWriteData( 0x3C );
 
-  lcdWriteCommand(0xf0);
-  lcdWriteData(0x3c);
-  lcdWriteCommand(0xf0);
-  lcdWriteData(0x69);
+  lcdWriteCommand( 0xF0 );
+  lcdWriteData( 0x69 );
 
-  delay_ms(5);
-  lcdWriteCommand(0x28);
-  //lcdWriteCommand( 0x29 );
-  lcdWriteCommand(0x2C);
+  delay_ms(120);
+
+  lcdWriteCommand( 0x21 );
 
   LCD_ST7796S_On();
 }
@@ -1094,37 +1090,33 @@ void LCD_ST7796S_Off(void) {
 }
 
 unsigned int LCD_ST7796S_ReadID(void) {
-  int ID = 0;
+  unsigned int ID = 0;
 
-  lcdWriteCommand(0XF7);
-  lcdWriteData(0xA9);
-  lcdWriteData(0x51);
-  lcdWriteData(0x2C);
-  lcdWriteData(0x82);
-  lcdWriteCommand(0XB0);
-  lcdWriteData(0X80);
+  lcdWriteCommand( 0XF0 );
+  lcdWriteData( 0XC3 );
+  lcdWriteCommand( 0XF0 );
+  lcdWriteData( 0X96 );
 
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x10 | 0x00);
-  ID = LCD_ReadRegister(0xd3);
+  lcdWriteCommand( 0XB0 );
+  lcdWriteData( 0X80 );
 
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x10 | 0x01);
-  ID = LCD_ReadRegister(0xd3);
+  lcdWriteCommand( 0XD3 );
 
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x10 | 0x02);
-  ID = LCD_ReadRegister(0xd3);
-  ID <<= 8;
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x10 | 0x03);
-  ID |= LCD_ReadRegister(0xd3);
+  SET_LCD_CLK_OUTPUT();
+  SET_LCD_DATA_INPUT();
+  CLR_LCD_CLK();
+  LCD_DELAY();
+  LCD_DELAY();
+  SET_LCD_CLK();
+  LCD_DELAY();
+  LCD_DELAY();
 
-  lcdWriteCommand(0XFB);
-  lcdWriteData(0x00);
+  LCD_ReadByte();
+  ID += (uint16_t)(LCD_ReadByte())<<8;
+  ID += LCD_ReadByte();
 
-  return (ID);
-}
+   return (ID);
+ }
 
 static void lcdReset() {
   LCD_NRST_HIGH();
@@ -1273,7 +1265,7 @@ void LCD_LayerInit() {
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
   LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_SECOND_FRAME_BUFFER;
-      
+
   /* Initialize LTDC layer 2 */
   LTDC_LayerInit(LTDC_Layer2, &LTDC_Layer_InitStruct);
 #endif
@@ -1294,6 +1286,7 @@ void LCD_LayerInit() {
 }
 
 extern void loadFonts();
+const char* boardLcdType = "";
 
 void LCD_SetLayer(uint32_t layer)
 {
@@ -1322,38 +1315,45 @@ void lcdInit(void) {
 
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
-  
+
   /* Send LCD initializaiton commands */
   if (LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
     TRACE("LCD INIT: ILI9481");
+    boardLcdType = "ILI9481";
     lcdInitFunction = LCD_ILI9481_Init;
     lcdOffFunction = LCD_ILI9481_Off;
     lcdOnFunction = LCD_ILI9481_On;
   } else if (LCD_ILI9486_ReadID() == LCD_ILI9486_ID) {
     TRACE("LCD INIT: ILI9486");
+    boardLcdType = "ILI9486";
     lcdInitFunction = LCD_ILI9486_Init;
     lcdOffFunction = LCD_ILI9486_Off;
     lcdOnFunction = LCD_ILI9486_On;
   } else if (LCD_ILI9488_ReadID() == LCD_ILI9488_ID) {
     TRACE("LCD INIT: ILI9488");
+    boardLcdType = "ILI9488";
     lcdInitFunction = LCD_ILI9488_Init;
     lcdOffFunction = LCD_ILI9488_Off;
     lcdOnFunction = LCD_ILI9488_On;
   } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID) {
+    TRACE("LCD INIT: HX8357D");
+    boardLcdType = "HX8357D";
     lcdInitFunction = LCD_HX8357D_Init;
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
-    TRACE("LCD INIT: HX8357D");
-  } else { //if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID)
-    /* Default is ST7796S */
+  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
     TRACE("LCD INIT (default): ST7796S");
+    boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
+  } else {
+    TRACE("LCD INIT: unknown LCD controller");
+    boardLcdType = "unknown";
   }
 
   lcdInitFunction();
-  
+
   LCD_Init_LTDC();
   LCD_LayerInit();
   LTDC_Cmd(ENABLE);
@@ -1383,7 +1383,7 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
   /* Check configuration error */
   if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
     return; // Exit if configuration or transfer error
-  
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -1499,7 +1499,7 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   DMA2D_FG_InitStruct.DMA2D_FGC_RED   = GET_RED(bg_color);   // 8 bit red
   DMA2D_FG_InitStruct.DMA2D_FGC_GREEN = GET_GREEN(bg_color); // 8 bit green
   DMA2D_FG_InitStruct.DMA2D_FGC_BLUE  = GET_BLUE(bg_color);  // 8 bit blue
-  
+
   DMA2D_FGConfig(&DMA2D_FG_InitStruct);
 
   DMA2D_BG_InitTypeDef DMA2D_BG_InitStruct;
@@ -1517,7 +1517,7 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   /* Check configuration error */
   if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
     return; // Exit if configuration or transfer error
- 
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -1591,7 +1591,7 @@ void lcdCopy(void * dest, void * src)
   /* Check configuration error */
   if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
     return; // Exit if configuration or transfer error
-  
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
