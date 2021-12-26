@@ -273,7 +273,7 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 {
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
-  if(size != 256)
+  if(size != 256 || address%256 != 0)
 	  return -1;
 
   flashSpiSync();
@@ -294,6 +294,8 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
   delay_01us(100); // 10us
   CS_HIGH();
 
+  flashSpiSync();
+
   return size;
 }
 
@@ -313,6 +315,8 @@ int flashSpiErase(size_t address)
   flashSpiReadWriteByte(flashDescriptor->eraseSectorCmd);
   delay_01us(100); // 10us
   CS_HIGH();
+
+  flashSpiSync();
 
   return 0;
 }
@@ -351,7 +355,7 @@ uint16_t flashSpiGetSectorCount()
 void flashInit()
 {
   flashSpiInit();
-  flashSpiSetSpeed(SPI_SPEED_2);
+  flashSpiSetSpeed(SPI_SPEED_16);
   delay_ms(1); // 1ms
 
   uint16_t id = flashSpiReadID();

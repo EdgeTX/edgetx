@@ -92,19 +92,26 @@ SpiFlashStorage::SpiFlashStorage()
   lfsCfg.cache_size = 512;
   lfsCfg.lookahead_size = 32;
 
+  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
       flashSpiEraseAll();
-      lfs_format(&lfs, &lfsCfg);
-      lfs_mount(&lfs, &lfsCfg);
+      delay_ms(100);
+      err = lfs_format(&lfs, &lfsCfg);
+      delay_ms(100);
+      if(err == LFS_ERR_OK)
+        err = lfs_mount(&lfs, &lfsCfg);
+      if(err != LFS_ERR_OK)
+        return;
   }
   lfsCfg.context = this;
   checkAndCreateDirectory("/test");
   checkAndCreateDirectory("/test/foo");
   checkAndCreateDirectory("/anotherTest");
   lfs_file_t file;
-  lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
-  lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
+  err = lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
+  if(err == LFS_ERR_OK)
+    lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
   lfs_file_close(&lfs, &file);
 }
 

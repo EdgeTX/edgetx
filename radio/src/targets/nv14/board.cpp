@@ -71,7 +71,8 @@ void delay_self(int count)
 #define RCC_AHB1PeriphMinimum (PWR_RCC_AHB1Periph |\
                                LCD_RCC_AHB1Periph |\
                                BACKLIGHT_RCC_AHB1Periph |\
-                               SDRAM_RCC_AHB1Periph \
+                               SDRAM_RCC_AHB1Periph |\
+                               FLASH_RCC_AHB1Periph \
                               )
 #define RCC_AHB1PeriphOther   (SD_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
@@ -144,6 +145,7 @@ void boardInit()
   pwrInit();
   extModuleInit();
   battery_charge_init();
+  flashInit();
   globalData.flyskygimbals = true;
   flysky_hall_stick_init();
   init2MhzTimer();
