@@ -169,7 +169,9 @@ const char * getBasename(const char * path);
 #elif defined(PCBX9D) || defined(PCBX9DP)
   #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
 #elif defined(PCBNV14)
-  #define ETX_FOURCC 0x3A78746F // etx for NV14
+  #define ETX_FOURCC 0x3A78746F // otx for NV14
+#elif defined(PCBPL18)
+  #define ETX_FOURCC 0x4878746F // otx for PL18
 #endif
 
 bool isFileAvailable(const char * filename, bool exclDir = false);

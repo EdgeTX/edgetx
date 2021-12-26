@@ -289,10 +289,12 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   return 1;
 }
 
+/*
 static uint8_t TS_IO_Read(uint8_t reg)
 {
   return TS_IO_Read(TOUCH_FT6236_I2C_ADDRESS, reg);
 }
+*/
 
 static void touch_ft6236_debug_info(void)
 {
@@ -348,7 +350,7 @@ static uint8_t ft6x06_TS_DetectTouch(uint16_t DeviceAddr)
 
  * @retval None.
  */
-static void ft6x06_TS_GetTouchInfo(uint16_t DeviceAddr,
+/*static void ft6x06_TS_GetTouchInfo(uint16_t DeviceAddr,
                                    uint32_t touchIdx,
                                    uint32_t * pWeight,
                                    uint32_t * pArea,
@@ -370,21 +372,21 @@ static void ft6x06_TS_GetTouchInfo(uint16_t DeviceAddr,
       default :
         break;
 
-    } /* end switch(touchIdx) */
+    } // end switch(touchIdx)
 
-    /* Read weight, area and Event Id of touch index */
+    // Read weight, area and Event Id of touch index
     TS_IO_ReadMultiple(DeviceAddr, regAddress, dataxy, sizeof(dataxy));
 
-    /* Return weight of touch index */
+    // Return weight of touch index
     *pWeight = (dataxy[0] & FT6206_TOUCH_WEIGHT_MASK) >> FT6206_TOUCH_WEIGHT_SHIFT;
-    /* Return area of touch index */
+    // Return area of touch index
     *pArea = (dataxy[1] & FT6206_TOUCH_AREA_MASK) >> FT6206_TOUCH_AREA_SHIFT;
-    /* Return Event Id  of touch index */
+    // Return Event Id  of touch index
     *pEvent = (dataxy[2] & FT6206_TOUCH_EVT_FLAG_MASK) >> FT6206_TOUCH_EVT_FLAG_SHIFT;
 
-  } /* of if(touchIdx < ft6x06_handle.currActiveTouchNb) */
+  } // of if(touchIdx < ft6x06_handle.currActiveTouchNb)
 }
-
+*/
 
 /**
  * @brief  Get the touch screen X and Y positions values

@@ -396,7 +396,7 @@
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -491,7 +491,7 @@
 #define TR_SLOWUP              "Spowoln.(+)"
 #define TR_MIXES               "MIKSERY"
 #define TR_CV                  "Kr"
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                  "ZG"
 #else
 #define TR_GV                  TR("G", "ZG")

@@ -35,7 +35,7 @@ static void adc_init_pins()
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 #if defined(ADC_GPIOA_PINS)
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
   if (globalData.flyskygimbals)
   {
       GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS_FS;
@@ -120,7 +120,7 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     {ADC_CHANNEL_POT3,    ADC_SAMPTIME},
     {ADC_CHANNEL_SLIDER1, ADC_SAMPTIME},
     {ADC_CHANNEL_SLIDER2, ADC_SAMPTIME},
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
     {ADC_CHANNEL_POT1, ADC_SAMPTIME},
     {ADC_CHANNEL_POT2, ADC_SAMPTIME},
     {ADC_CHANNEL_SWA,  ADC_SAMPTIME},
@@ -141,7 +141,7 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
   if (STICKS_PWM_ENABLED())
     return ADC_MAIN_channels + 4;
 #endif
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
   if (globalData.flyskygimbals)
   {
       return ADC_MAIN_channels + FIRST_ANALOG_ADC_FS;
@@ -155,7 +155,7 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
 
 static uint8_t ADC_MAIN_get_nconv()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
     if (globalData.flyskygimbals)
       return NUM_ANALOGS_ADC_FS;
   else
@@ -182,7 +182,7 @@ static const stm32_hal_adc_channel ADC_EXT_channels[] = {
 
 static uint8_t ADC_EXT_get_nconv() { return 1; }
 
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
 
 static const stm32_hal_adc_channel ADC_EXT_channels[] = {
     {ADC_CHANNEL_SWB, ADC_SAMPTIME},
@@ -202,7 +202,7 @@ static const stm32_hal_adc_channel* ADC_EXT_get_channels()
 
 static uint16_t* ADC_MAIN_get_dma_buffer()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
     if (globalData.flyskygimbals)
     {
         return &adcValues[FIRST_ANALOG_ADC_FS];
@@ -217,7 +217,7 @@ static uint16_t* ADC_MAIN_get_dma_buffer()
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)  
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)  || defined(PCBPL18)
     if (globalData.flyskygimbals)
     {
         return adcValues + NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS;

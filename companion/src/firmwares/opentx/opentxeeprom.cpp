@@ -128,7 +128,7 @@ inline int MAX_XPOTS(Board::Type board, int version)
 
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
-  if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)))
+  if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)))
     return 4;
   return Boards::getCapability(board, Board::Sliders);
 }
@@ -164,7 +164,7 @@ inline int SWITCHES_CONFIG_SIZE(Board::Type board, int version)
 
 inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 {
-  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
     return 2;
   else
     return 0;
@@ -182,10 +182,10 @@ inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 #define MAX_CURVES(board, version)            ((version >= 219 || HAS_LARGE_LCD(board)) ? 32 : 16)
 #define MAX_GVARS(board, version)             9
 #define MAX_SCRIPTS(board)                    (IS_FAMILY_HORUS_OR_T16(board) ? 9 : 7)
-#define MAX_TELEMETRY_SENSORS(board, version) (version <= 218 ? 32 : ((IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board) || IS_FLYSKY_NV14(board)) ? 60 : 40))
+#define MAX_TELEMETRY_SENSORS(board, version) (version <= 218 ? 32 : ((IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) ? 60 : 40))
 #define NUM_PPM_INPUTS(board, version)        16
 #define ROTENC_COUNT(board, version)          ((IS_STM32(board) && version >= 218) ? 0 : 1)
-#define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ? 2 : 0)
+#define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)) ? 2 : 0)
 #define MAX_SOURCE_TYPE_SPECIAL(board, version)    SOURCE_TYPE_SPECIAL_COUNT
 
 inline int switchIndex(int i, Board::Type board, unsigned int version)
@@ -2574,7 +2574,7 @@ class TopBarField: public StructField {
     TopBarField(DataField * parent, TopBarPersistentData & topBar, Board::Type board, unsigned int version):
       StructField(parent, "Top Bar")
     {
-      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, IS_FLYSKY_NV14(board) ? 2 : 4, MAX_TOPBAR_OPTIONS, board, version));
+      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) ? 2 : 4, MAX_TOPBAR_OPTIONS, board, version));
       //dump();
     }
 };
@@ -2876,7 +2876,7 @@ void OpenTxModelData::beforeExport()
 
   //  TODO remove when enum not radio specific requires eeprom change and conversion
   //  Note: this must mirror reverse afterImport
-  if (!IS_FLYSKY_NV14(board))
+  if (!IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
       modelData.trainerMode -= 1;
 
   if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
@@ -2923,7 +2923,7 @@ void OpenTxModelData::afterImport()
 
   //  TODO remove when enum not radio specific requires eeprom change and conversion
   //  Note: this must mirror reverse beforeExport
-  if (!IS_FLYSKY_NV14(board))
+  if (!IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
       modelData.trainerMode += 1;
 
   if (modelData.trainerMode > TRAINER_MODE_SLAVE_JACK) {
@@ -2969,7 +2969,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   internalField.Append(new UnsignedField<16>(this, chkSum));
 
-  if (!IS_FAMILY_HORUS_OR_T16(board) || (IS_FLYSKY_NV14(board))) {
+  if (!IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.currModelIndex));
     internalField.Append(new UnsignedField<8>(this, generalData.contrast));
   }
@@ -3035,11 +3035,11 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new SignedField<8>(this, generalData.PPM_Multiplier));
   internalField.Append(new SignedField<8>(this, generalData.hapticLength));
 
-  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
+  if (version < 218 || (!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)  || IS_FLYSKY_PL18(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.reNavigation));
   }
 
-  if ((!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board)) {
+  if ((!IS_TARANIS(board) && !IS_FAMILY_HORUS_OR_T16(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
     internalField.Append(new UnsignedField<8>(this, generalData.stickReverse));
   }
 
@@ -3323,7 +3323,7 @@ void OpenTxGeneralData::afterImport()
 {
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (version < 220) {    //  re-initialise as no conversion possible
-      const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
+      const char * themeName = (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) ? "FlySky" : "EdgeTX";
       RadioTheme::init(themeName, generalData.themeData);
     }
   }

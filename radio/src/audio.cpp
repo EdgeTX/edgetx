@@ -523,7 +523,7 @@ void audioTask(void * pdata)
 #if defined(PCBX12S) || defined(RADIO_TX16S)
   // The audio amp needs ~2s to start
   RTOS_WAIT_MS(1000); // 1s
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   while(!isAudioReady())
   {
     audioChipReset();

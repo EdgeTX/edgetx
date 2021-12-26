@@ -113,6 +113,10 @@ cmake ${COMMON_OPTIONS} -DPCB=NV14 ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt
 
+cmake ${COMMON_OPTIONS} -DPCB=PL18 ${SRCDIR}
+make -j${JOBS} libsimulator
+rm CMakeCache.txt
+
 cmake ${COMMON_OPTIONS} -DPCB=X10 ${SRCDIR}
 make -j${JOBS} libsimulator
 rm CMakeCache.txt

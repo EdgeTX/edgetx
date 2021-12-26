@@ -1147,8 +1147,13 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
-#if defined(AFHDS2) && defined(PCBNV14)
+#if defined(AFHDS2) && (defined(PCBNV14) || defined(PCBPL18))
+  #if defined(PCBNV14)
       if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {
+  #else
+      // PCBPL18
+      if (isModuleAFHDS2A(moduleIdx) && getPL18RfFwVersion() >= 0x1000E) {
+  #endif
         new StaticText(this, grid.getLabelSlot(true), STR_MULTI_RFPOWER);
         new Choice(this, grid.getFieldSlot(), "\007""Default""High", 0, 1,
             GET_DEFAULT(g_model.moduleData[moduleIdx].flysky.rfPower),

@@ -33,7 +33,7 @@ constexpr event_t EVT_ENTRY_UP =       0x1002;
 constexpr event_t EVT_ROTARY_LEFT =    0x1003;
 constexpr event_t EVT_ROTARY_RIGHT =   0x1004;
 
-#if defined(PCBHORUS) || defined (PCBNV14)
+#if defined(PCBHORUS) || defined (PCBNV14) || defined(PCBPL18)
 constexpr event_t _MSK_KEY_BREAK =     0x0200;
 constexpr event_t _MSK_KEY_REPT =      0x0400;
 constexpr event_t _MSK_KEY_FIRST =     0x0600;

@@ -24,7 +24,7 @@
 #include "libopenui.h"
 #include "trims.h"
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 constexpr uint8_t SLIDER_TICKS_COUNT = 30;
 #else
 constexpr uint8_t SLIDER_TICKS_COUNT = 40;

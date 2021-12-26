@@ -123,6 +123,10 @@ static inline void check_yaml_funcs()
   static_assert(offsetof(FlightModeData, gvars) == 22,"");
   check_size<FlightModeData, 40>();
   check_size<CustomFunctionData, 9>();
+#elif defined(PCBPL18)
+  static_assert(offsetof(FlightModeData, gvars) == 22,"");
+  check_size<FlightModeData, 40>();
+  check_size<CustomFunctionData, 9>();
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
   static_assert(offsetof(FlightModeData, gvars) == 18,"");
   check_size<FlightModeData, 36>();

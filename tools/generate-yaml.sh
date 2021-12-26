@@ -9,7 +9,7 @@ if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${FLAVOR:="t12;t8;tlite;tpro;tx12;zorro;tx16s;x12s;nv14;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
+: ${FLAVOR:="t12;t8;tlite;tpro;tx12;zorro;tx16s;x12s;nv14;pl18;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -DDISABLE_COMPANION=YES -Wno-dev -DYAML_STORAGE=YES "}
@@ -94,6 +94,9 @@ do
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
+            ;;
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
             ;;
     esac
 

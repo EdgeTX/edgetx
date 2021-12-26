@@ -272,7 +272,7 @@ PACK(struct ScriptData {
  */
 PACK(struct RssiAlarmData {
   int8_t disabled:1;
-#if defined (PCBNV14)
+#if defined (PCBNV14) || defined(PCBPL18)
   uint8_t flysky_telemetry:1; // if set for FlySky receivers use native RSSI values instead of rescaled ones
 #else
   int8_t  spare:1 SKIP;
@@ -613,7 +613,7 @@ PACK(struct CustomScreenData {
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
@@ -708,7 +708,7 @@ PACK(struct ModelData {
 
   bool isTrainerTraineeEnable() const
   {
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
     return trainerData.mode >= TRAINER_MODE_MASTER_TRAINER_JACK;
 #else
     return true;
@@ -788,7 +788,7 @@ PACK(struct TrainerData {
   #define GYRO_FIELDS
 #endif
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define EXTRA_GENERAL_FIELDS \
     NOBACKUP(uint8_t auxSerialMode:4 ENUM(UartModes)); \
     NOBACKUP(uint8_t aux2SerialMode:4 ENUM(UartModes)); \

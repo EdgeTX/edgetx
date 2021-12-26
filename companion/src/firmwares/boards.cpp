@@ -99,6 +99,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4378746F;
     case BOARD_FLYSKY_NV14:
       return 0x3A78746F;
+    case BOARD_FLYSKY_PL18:
+      return 0x4878746F;
     default:
       return 0;
   }
@@ -138,6 +140,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_PL18:
       return 0;
     default:
       return 0;
@@ -176,6 +179,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_PL18:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -302,6 +306,20 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
     if (index < DIM(switches))
       return switches[index];
   }
+  else if (IS_FLYSKY_PL18(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_2POS,   "SA"},
+      {SWITCH_3POS,   "SB"},
+      {SWITCH_TOGGLE, "SC"},
+      {SWITCH_2POS,   "SD"},
+      {SWITCH_TOGGLE, "SE"},
+      {SWITCH_3POS,   "SF"},
+      {SWITCH_3POS,   "SG"},
+      {SWITCH_TOGGLE, "SH"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
   else if (IS_FAMILY_HORUS_OR_T16(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_3POS,   "SA"},
@@ -380,6 +398,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 3;
       else if (IS_FLYSKY_NV14(board))
         return 2;
+      else if (IS_FLYSKY_PL18(board))
+        return 2;
       else
         return 3;
 
@@ -413,7 +433,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) + getCapability(board, Board::MouseAnalogs) + getCapability(board, Board::GyroAnalogs);
 
     case MultiposPots:
-      if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board))
+      if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
         return getCapability(board, Board::Pots);
       else
         return 0;
@@ -435,6 +455,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TPRO)
         return 4;
       else if (board == BOARD_FLYSKY_NV14)
+        return 8;
+      else if (board == BOARD_FLYSKY_PL18)
         return 8;
       else if (IS_FAMILY_T12(board))
         return 8;
@@ -464,13 +486,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return getCapability(board, Board::Switches);
 
     case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
+      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board || IS_FLYSKY_PL18(board)))
         return getCapability(board, Board::Switches) * 3;
       else
         return 9;
 
     case NumTrims:
-      if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
         return 6;
       else
         return 4;
@@ -567,6 +589,11 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"VRA", "POT1"},
                               {"VRB", "POT2"},
                           });
+  else if (IS_FLYSKY_PL18(board)) {
+    tbl.insert(tbl.end(), {
+                              {"VRA", "POT1"},
+                              {"VRB", "POT2"},
+                          });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
                               {"S1", "S1"},
@@ -653,6 +680,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster T8";
     case BOARD_FLYSKY_NV14:
       return "FlySky NV14";
+    case BOARD_FLYSKY_PL18:
+      return "FlySky PL18";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

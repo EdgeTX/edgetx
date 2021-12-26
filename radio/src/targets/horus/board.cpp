@@ -229,7 +229,7 @@ void boardInit()
   backlightInit();
 
   globalData.flyskygimbals = false;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
   flysky_hall_stick_check_init();
 
   // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required

@@ -713,12 +713,12 @@ bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
 
 extern const struct YamlIdStr enum_TrainerMode[];
 const struct YamlIdStr enum_TrainerMode[] = {
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
   {  TRAINER_MODE_OFF, "OFF"  },
 #endif
   {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
   {  TRAINER_MODE_SLAVE, "SLAVE"  },
-#if defined(PCBTARANIS) || defined(PCBNV14)
+#if defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18)
   {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
   {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
 #endif

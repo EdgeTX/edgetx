@@ -1622,7 +1622,7 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   bool ret = true;
   const Board::Type board = firmware->getBoard();
 
-  if (!IS_FLYSKY_NV14(board) && value == TRAINER_MODE_OFF)
+  if (!IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board) && value == TRAINER_MODE_OFF)
     ret = false;
   else if (!IS_TARANIS(board) || IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
     if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE && value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)

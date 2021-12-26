@@ -255,7 +255,7 @@ void memswap(void * a, void * b, uint8_t size);
   #define IS_POT_AVAILABLE(x)          (IS_POT(x) && POT_CONFIG(x)!=POT_NONE)
   #define IS_POT_SLIDER_AVAILABLE(x)   (IS_POT_AVAILABLE(x) || IS_SLIDER_AVAILABLE(x))
   #define IS_MULTIPOS_CALIBRATED(cal)  (cal->count>0 && cal->count<XPOTS_MULTIPOS_COUNT)
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
+#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14) || defined(PCBPL18)
   #define POT_CONFIG(x)                ((g_eeGeneral.potsConfig >> (2*((x)-POT1)))&0x03)
   #define IS_POT_MULTIPOS(x)           (IS_POT(x) && POT_CONFIG(x)==POT_MULTIPOS_SWITCH)
   #define IS_POT_WITHOUT_DETENT(x)     (IS_POT(x) && POT_CONFIG(x)==POT_WITHOUT_DETENT)
@@ -393,7 +393,7 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
+#if defined(PCBFRSKY) || defined(PCBNV14) || defined(PCBPL18)
 div_t switchInfo(int switchPosition);
 extern uint8_t potsPos[NUM_XPOTS];
 #endif

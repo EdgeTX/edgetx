@@ -95,7 +95,11 @@ void processTelemetryData(uint8_t data)
 #endif
 
 #if defined(AFHDS2)
+#if defined(PCBPL18)
+  if(telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_PL18) {
+#else
   if(telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
+#endif
     processInternalFlySkyTelemetryData(data);
     return;
   }
@@ -186,7 +190,7 @@ static void pollIntCrossfire()
 }
 #endif
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
 {
   (void)idx;
@@ -247,7 +251,7 @@ void telemetryWakeup()
     pollIntCrossfire();
   }
 #endif
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
   //! moduleUpdateActive(INTERNAL_MODULE) &&
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
     pollIntAFHDS2A();
@@ -438,7 +442,11 @@ void telemetryInit(uint8_t protocol)
 #endif
 
 #if defined(AFHDS2)
+#if defined(PCBPL18)
+  else if (protocol == PROTOCOL_TELEMETRY_FLYSKY_PL18) {
+#else
   else if (protocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
+#endif
     telemetryPortInit(INTMODULE_USART_AFHDS2_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
     telemetryPortSetDirectionInput();
   }
