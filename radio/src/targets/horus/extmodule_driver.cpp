@@ -81,7 +81,7 @@ void extmodulePpmStart()
   EXTMODULE_TIMER->CCR1 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE)*2;
   EXTMODULE_TIMER->CCER = TIM_CCER_CC1E |
     (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ?
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
      0 : TIM_CCER_CC1P
 #else
      TIM_CCER_CC1P : 0
@@ -133,7 +133,7 @@ void extmodulePxx1PulsesStart()
   EXTMODULE_TIMER->CCR1 = 18;
   EXTMODULE_TIMER->CCER =
     TIM_CCER_CC1E |
-#if !defined(PCBNV14)
+#if !defined(PCBNV14) && !defined(PCBPL18)
     TIM_CCER_CC1P |
 #endif
     TIM_CCER_CC1NE | TIM_CCER_CC1NP;
@@ -182,7 +182,7 @@ void extmoduleSerialStart()
   EXTMODULE_TIMER->CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_0;
 #else
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
   EXTMODULE_TIMER->CCER = TIM_CCER_CC1E;
 #else
   EXTMODULE_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC1P;
@@ -297,7 +297,7 @@ void extmoduleSendNextFrame()
       EXTMODULE_TIMER->CCR1 = GET_MODULE_PPM_DELAY(EXTERNAL_MODULE)*2;
       EXTMODULE_TIMER->CCER = TIM_CCER_CC1E |
         (GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE) ?
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
          0 : TIM_CCER_CC1P
 #else
          TIM_CCER_CC1P : 0
@@ -386,7 +386,7 @@ void extmoduleSendNextFrame()
         EXTMODULE_TIMER->CCER =
 #if defined(PCBX10) || PCBREV >= 13
           TIM_CCER_CC3E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC3P : 0)
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
           TIM_CCER_CC1E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? 0 : TIM_CCER_CC1P)
 #else
           TIM_CCER_CC1E | (GET_SBUS_POLARITY(EXTERNAL_MODULE) ? TIM_CCER_CC1P : 0)

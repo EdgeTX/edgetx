@@ -27,7 +27,7 @@
 #include "imu_lsm6ds33.h"
 #endif
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
 #include "../../targets/horus/flyskyHallStick_driver.h"
 #endif
 
@@ -48,7 +48,7 @@ class RadioAnalogsDiagsWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18))
         if (globalData.flyskygimbals)
         {
             for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -123,7 +123,7 @@ class RadioAnalogsDiagsWindow: public Window {
         dc->drawLine(touchState.x - 10, touchState.y - 8 - parent->top(), touchState.x + 10, touchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(touchState.x - 10, touchState.y + 8 - parent->top(), touchState.x + 10, touchState.y - 8- parent->top(), SOLID, 0);
       }
-#if !defined(SIMU) && !defined(PCBNV14)
+#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
       coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;

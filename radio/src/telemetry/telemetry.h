@@ -146,6 +146,12 @@ inline const char* getRssiLabel()
         && (NV14internalModuleFwVersion >=  0x1000E) )
     return "Sgnl";
 #endif
+#if defined (PCBPL18)
+  extern uint32_t PL18internalModuleFwVersion;
+  if ( (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_PL18)
+        && (PL18internalModuleFwVersion >=  0x1000E) )
+    return "Sgnl";
+#endif
   return "RSSI";
 }
 
@@ -187,7 +193,11 @@ inline uint8_t modelTelemetryProtocol()
   // TODO: Check if that is really necessary...
 #if defined(AFHDS2)
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
+#if defined(PCBPL18)
+    return PROTOCOL_TELEMETRY_FLYSKY_PL18;
+#else
     return PROTOCOL_TELEMETRY_FLYSKY_NV14;
+#endif
   }
 #endif
 
