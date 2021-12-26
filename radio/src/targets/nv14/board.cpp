@@ -145,13 +145,13 @@ void boardInit()
   pwrInit();
   extModuleInit();
   battery_charge_init();
-  flashInit();
   globalData.flyskygimbals = true;
   flysky_hall_stick_init();
   init2MhzTimer();
   init1msTimer();
   TouchInit();
   usbInit();
+  flashInit();
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;

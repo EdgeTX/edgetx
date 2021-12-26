@@ -92,13 +92,10 @@ SpiFlashStorage::SpiFlashStorage()
   lfsCfg.cache_size = 512;
   lfsCfg.lookahead_size = 32;
 
-  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
       flashSpiEraseAll();
-      delay_ms(100);
       err = lfs_format(&lfs, &lfsCfg);
-      delay_ms(100);
       if(err == LFS_ERR_OK)
         err = lfs_mount(&lfs, &lfsCfg);
       if(err != LFS_ERR_OK)
