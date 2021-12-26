@@ -58,6 +58,7 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
+option(LITTLEFS "Use LittleFS for internal flash" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -198,6 +199,7 @@ if(LUA)
     lua/api_model.cpp
     lua/api_filesystem.cpp
     lua/lua_event.cpp
+    lua/lua_file_api.cpp
   )
 
   if(GUI_DIR STREQUAL colorlcd)
@@ -316,9 +318,19 @@ endif()
 
 if(SDCARD)
   add_definitions(-DSDCARD)
+  set(SRC ${SRC} sdcard.cpp logs.cpp)
+endif()
+
+if(SPI_FLASH)
+  add_definitions(-DLFS_NO_ASSERT)
+  add_definitions(-DSPI_FLASH)
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
   include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp thirdparty/libopenui/src/libopenui_file.cpp)
+  set(SRC ${SRC} rtc.cpp VirtualFS.cpp)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
+  add_definitions(-DUSE_FATFS)
 endif()
 
 if(SHUTDOWN_CONFIRMATION)

@@ -24,9 +24,9 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "ff.h"
 #include "opentx_types.h"
 #include "dataconstants.h"
+#include "VirtualFS.h"
 
 /*
   Implements a bit field, number of bits is set by the template,
@@ -242,7 +242,7 @@ class WavContext {
     AudioFragment fragment;
 
     struct {
-      FIL      file;
+      VfsFile  file;
       uint8_t  codec;
       uint32_t freq;
       uint32_t size;
@@ -629,26 +629,16 @@ void playModelName();
 #define AUDIO_RESET()            audioQueue.stopAll()
 #define AUDIO_FLUSH()            audioQueue.flush()
 
-#if defined(SDCARD)
-  extern tmr10ms_t timeAutomaticPromptsSilence;
-  void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
-  #define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
-  #define PLAY_PHASE_ON(phase)          playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_ON)
-  #define PLAY_SWITCH_MOVED(sw)         playModelEvent(SWITCH_AUDIO_CATEGORY, sw)
-  #define PLAY_LOGICAL_SWITCH_OFF(sw)   playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_OFF)
-  #define PLAY_LOGICAL_SWITCH_ON(sw)    playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_ON)
-  #define PLAY_MODEL_NAME()             playModelName()
-  #define START_SILENCE_PERIOD()        timeAutomaticPromptsSilence = get_tmr10ms()
-  #define IS_SILENCE_PERIOD_ELAPSED()   (get_tmr10ms()-timeAutomaticPromptsSilence > 50)
-#else
-  #define PLAY_PHASE_OFF(phase)
-  #define PLAY_PHASE_ON(phase)
-  #define PLAY_SWITCH_MOVED(sw)
-  #define PLAY_LOGICAL_SWITCH_OFF(sw)
-  #define PLAY_LOGICAL_SWITCH_ON(sw)
-  #define PLAY_MODEL_NAME()
-  #define START_SILENCE_PERIOD()
-#endif
+extern tmr10ms_t timeAutomaticPromptsSilence;
+void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
+#define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
+#define PLAY_PHASE_ON(phase)          playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_ON)
+#define PLAY_SWITCH_MOVED(sw)         playModelEvent(SWITCH_AUDIO_CATEGORY, sw)
+#define PLAY_LOGICAL_SWITCH_OFF(sw)   playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_OFF)
+#define PLAY_LOGICAL_SWITCH_ON(sw)    playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_ON)
+#define PLAY_MODEL_NAME()             playModelName()
+#define START_SILENCE_PERIOD()        timeAutomaticPromptsSilence = get_tmr10ms()
+#define IS_SILENCE_PERIOD_ELAPSED()   (get_tmr10ms()-timeAutomaticPromptsSilence > 50)
 
 char * getAudioPath(char * path);
 

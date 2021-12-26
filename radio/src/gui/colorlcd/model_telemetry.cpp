@@ -23,6 +23,7 @@
 #include <sstream>
 #include "model_telemetry.h"
 #include "opentx.h"
+#include "logs.h"
 #include "libopenui.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -370,7 +371,9 @@ class SensorEditWindow : public Page {
       new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_LOGS, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(sensorParametersWindow, grid.getFieldSlot(), GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
         sensor->logs = newValue;
+#if defined(SDCARD)
         logsClose();
+#endif
         SET_DIRTY();
       });
 

@@ -28,7 +28,7 @@ void menuModelNotes(event_t event)
     char *buf = strcat_currentmodelname(
         &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], ' ');
     strcpy(buf, TEXT_EXT);
-    if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+    if (!VirtualFS::instance().isFileAvailable(reusableBuffer.viewText.filename)) {
       buf = strcat_currentmodelname(
           &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
       strcpy(buf, TEXT_EXT);

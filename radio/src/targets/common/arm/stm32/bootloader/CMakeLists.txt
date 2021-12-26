@@ -1,6 +1,10 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+# TODO: where to add these?
+# bin_files_vfs.cpp
+# bin_files.cpp
+
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
   ../../../../../gui/${GUI_DIR}/lcd.cpp
@@ -23,7 +27,6 @@ set(BOOTLOADER_SRC
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
   ../../../../../targets/${TARGET_DIR}/keys_driver.cpp
-  ../../../../../targets/${TARGET_DIR}/diskio.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../pwr_driver.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
@@ -37,8 +40,29 @@ set(BOOTLOADER_SRC
   ../stm32_exti_driver.cpp
   init.c
   boot.cpp
-  bin_files.cpp
   )
+
+if(SPI_FLASH)
+  set(BOOTLOADER_SRC
+    ${BOOTLOADER_SRC}
+    ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
+    ../../../../../thirdparty/tjftl/tjftl.c
+  )
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
+  if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/diskio_sdio_spiflash.cpp
+      )
+  else()
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/diskio.cpp
+      )
+  endif()
+endif()
 
 if(ROTARY_ENCODER)
   set(BOOTLOADER_SRC
@@ -67,6 +91,8 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
+    ../../../../../VirtualFS.cpp
+    bin_files_vfs.cpp
     )
 
   # Add LVGL sources
@@ -104,6 +130,7 @@ else()
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../targets/${TARGET_DIR}/eeprom_driver.cpp
+    bin_files.cpp
     )
   remove_definitions(-DDEBUG)
 endif()

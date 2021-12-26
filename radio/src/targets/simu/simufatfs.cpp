@@ -25,7 +25,7 @@
 #include <algorithm>
 #include "opentx.h"
 
-#if defined(SIMU_USE_SDCARD)  // rest of file is excluded otherwise
+#if defined(SIMU_USE_FAT_EMU)  // rest of file is excluded otherwise
 
 #if defined(_MSC_VER) || !defined (__GNUC__)
   #define MSVC_BUILD    1
@@ -39,6 +39,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #if MSVC_BUILD
   #include <direct.h>
@@ -65,6 +66,15 @@ std::string simuSettingsDirectory;    // path to the root of the models and sett
 bool isPathDelimiter(char delimiter)
 {
   return delimiter == '/';
+}
+
+bool pathHasStorageSelector(const char* path)
+{
+  if(strlen(path)<3)
+    return false;
+  if(isdigit(path[0]) && path[1] == ':' && path[2] == '/')
+    return true;
+  return false;
 }
 
 std::string removeTrailingPathDelimiter(const std::string & path)
@@ -145,6 +155,8 @@ bool redirectToSettingsDirectory(const std::string & path)
 std::string convertToSimuPath(const char * path)
 {
   std::string result;
+  if(pathHasStorageSelector(path))
+    path +=2;
   if (isPathDelimiter(path[0])) {
     if (redirectToSettingsDirectory(path)) {
       // TRACE("REDIRECT ********************************************");

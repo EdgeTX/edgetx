@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "hal/adc_driver.h"
+#include "logs.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -486,7 +487,7 @@ void guiMain(event_t evt)
 }
 #endif
 
-#if !defined(SIMU)
+#if defined(SDCARD) && !defined(SIMU)
   void initLoggingTimer();
 #endif
 
@@ -498,12 +499,14 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkEeprom();
-    
+
+#if defined(SDCARD)
     #if !defined(SIMU)     // use FreeRTOS software timer if radio firmware
       initLoggingTimer();  // initialize software timer for logging
     #else
       logsWrite();         // call logsWrite the old way for simu
     #endif
+#endif // SDCARD
   }
 
   handleUsbConnection();
@@ -536,11 +539,11 @@ void perMain()
 #endif
 
   if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
-      && SD_CARD_PRESENT() && !sdMounted()) {
-    sdMount();
+      && SD_CARD_PRESENT()) {
+    VirtualFS::instance().mountSd();
   }
 
-#if !defined(EEPROM)
+#if defined(SDCARD)
   // In case the SD card is removed during the session
   if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
       && !SD_CARD_PRESENT() && !globalData.unexpectedShutdown) {

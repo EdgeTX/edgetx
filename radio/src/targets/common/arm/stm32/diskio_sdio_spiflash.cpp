@@ -25,7 +25,7 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
-#include "diskio.h"
+#include "FatFs/diskio.h"
 #include "debug.h"
 #include "targets/common/arm/stm32/sdio_sd.h"
 
@@ -38,9 +38,15 @@
 /*-----------------------------------------------------------------------*/
 #if !defined(BOOT)
 static RTOS_MUTEX_HANDLE ioMutex;
+static bool initialized = false;
 uint32_t ioMutexReq = 0, ioMutexRel = 0;
 int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
 {
+  if(!initialized)
+  {
+    RTOS_CREATE_MUTEX(ioMutex);
+    initialized = true;
+  }
   *mutex = ioMutex;
   return 1;
 }
@@ -63,17 +69,80 @@ int ff_del_syncobj (FF_SYNC_t mutex)
   return 1;
 }
 #endif
+#if defined(SPI_FLASH)
+#include "tjftl/tjftl.h"
 
+size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
+size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
+uint16_t flashSpiGetPageSize();
+uint16_t flashSpiGetSectorSize();
+uint16_t flashSpiGetSectorCount();
 
+int flashSpiErase(size_t address);
+int flashSpiBlockErase(size_t address);
+void flashSpiEraseAll();
+
+void flashSpiSync();
+
+static tjftl_t* tjftl = nullptr;
+extern "C" {
+static bool flashRead(int addr, uint8_t* buf, int len, void* arg)
+{
+  flashSpiRead(addr, buf, len);
+  return true;
+}
+
+static bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
+{
+  size_t pageSize = flashSpiGetPageSize();
+  if(len%pageSize != 0)
+    return false;
+  while(len > 0)
+  {
+    flashSpiWrite(addr, buf, pageSize);
+    len -= pageSize;
+    buf += pageSize;
+    addr += pageSize;
+  }
+  if(len != 0)
+    return false;
+  return true;
+}
+
+static bool flashErase(int addr, void *arg)
+{
+  flashSpiBlockErase(addr);
+  return true;
+}
+}
+#endif
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 
 DSTATUS disk_initialize (
-  BYTE drv                                /* Physical drive nmuber (0..) */
+  BYTE drv                                /* Physical drive number (0..) */
 )
 {
   DSTATUS stat = 0;
+#if defined(SPI_FLASH)
+  if(drv == 1)
+  {
+    if(tjftl != nullptr)
+      return stat;
+    if(!tjftl_detect(flashRead, nullptr))
+      flashSpiEraseAll();
 
+    size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
+    // tjftl requires at least 10 free blocks after garbage collection.
+    // To ensure a working tjftl the fuilesystem must be at least 10 blocks smaller than the flash memory.
+    // the block and sector sizes used by tjftl are fixed. A block has 32k bytes and a sector has 512 bytes
+    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-((32768/512)*10), 0);
+
+    if(tjftl == nullptr)
+      stat |= STA_NOINIT;
+    return stat;
+  }
+#endif
   /* Supports only single drive */
   if (drv)
   {
@@ -81,12 +150,17 @@ DSTATUS disk_initialize (
   }
 
   /*-------------------------- SD Init ----------------------------- */
+  static bool initialized = false;
+  if(initialized)
+    return stat;
+
   SD_Error res = SD_Init();
   if (res != SD_OK)
   {
     TRACE("SD_Init() failed: %d", res);
     stat |= STA_NOINIT;
   }
+  initialized = true;
 
   TRACE("SD card info:");
   TRACE("sectors: %u", (uint32_t)(SDCardInfo.CardCapacity / 512));
@@ -108,7 +182,14 @@ DSTATUS disk_status (
 )
 {
   DSTATUS stat = 0;
-
+#if defined(SPI_FLASH)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+      stat |= STA_NODISK;
+    return stat;
+  }
+#endif
   if (SD_Detect() != SD_PRESENT)
     stat |= STA_NODISK;
 
@@ -162,6 +243,27 @@ DRESULT disk_read_dma(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 
 DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
+  DRESULT res = RES_OK;
+#if defined(SPI_FLASH)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    while(count)
+    {
+      if(!tjftl_read(tjftl, sector, (uint8_t*)buff))
+        return RES_ERROR;
+      buff += 512;
+      sector++;
+      count --;
+    }
+    return res;
+  }
+#endif
+
   // If unaligned, do the single block reads with a scratch buffer.
   // If aligned and single sector, do a single block read.
   // If aligned and multiple sectors, try multi block read.
@@ -174,7 +276,6 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
     return RES_NOTRDY;
   }
 
-  DRESULT res = RES_OK;
   if (count == 0) return res;
 
   if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
@@ -213,8 +314,27 @@ DRESULT __disk_write(
   UINT count                      /* Number of sectors to write (1..255) */
 )
 {
-  SD_Error Status;
   DRESULT res = RES_OK;
+#if defined(SPI_FLASH)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    while(count)
+    {
+      if(!tjftl_write(tjftl, sector, (uint8_t*)buff))
+        return RES_ERROR;
+      buff += 512;
+      sector++;
+      count --;
+    }
+    return res;
+  }
+#endif
+  SD_Error Status;
 
   // TRACE("disk_write %d %p %10d %d", drv, buff, sector, count);
 
@@ -274,11 +394,53 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
+#if defined(SPI_FLASH)
+  if(drv == 1)
+  {
+    disk_initialize(1);
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    res = RES_ERROR;
 
+    switch (ctrl) {
+      case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
+      {
+        *(DWORD*)buff = tjftl_getSectorCount(tjftl);
+        res = RES_OK;
+        break;
+      }
+      case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
+        *(WORD*)buff = tjftl_getSectorSize(tjftl);
+        res = RES_OK;
+        break;
+
+      case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
+        // TODO verify that this is the correct value
+        *(DWORD*)buff = 512;
+        res = RES_OK;
+        break;
+
+      case CTRL_SYNC:
+        res = RES_OK;
+        break;
+
+      default:
+        res = RES_OK;
+        break;
+
+    }
+
+    return res;
+  }
+#endif
   if (drv) return RES_PARERR;
 
   res = RES_ERROR;
 
+  disk_initialize(0);
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
@@ -311,85 +473,14 @@ DRESULT disk_ioctl (
   return res;
 }
 
-// TODO everything here should not be in the driver layer ...
-
-bool _g_FATFS_init = false;
-FATFS g_FATFS_Obj __DMA;    // initialized in boardInit()
-
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
-
-#if defined(BOOT)
-void sdInit(void)
-{
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    f_chdir("/");
-  }
-}
-#else
-
-#include "audio.h"
-#include "sdcard.h"
-#include "disk_cache.h"
-
-void sdInit()
-{
-  TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
-  sdMount();
-}
-
-void sdMount()
-{
-  TRACE("sdMount");
-  
-#if defined(DISK_CACHE)
-  diskCache.clear();
-#endif
-  
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
-    _g_FATFS_init = true;
-    sdGetFreeSectors();
-
-#if defined(LOG_TELEMETRY)
-    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_telemetryFile) > 0) {
-      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
-    }
-#endif
-  }
-  else {
-    TRACE("f_mount() failed");
-  }
-}
-
-void sdDone()
-{
-  TRACE("sdDone");
-  
-  if (sdMounted()) {
-    audioQueue.stopSD();
-#if defined(LOG_TELEMETRY)
-    f_close(&g_telemetryFile);
-#endif
-    f_mount(NULL, "", 0); // unmount SD
-  }
-}
-#endif
-
-uint32_t sdMounted()
-{
-  return _g_FATFS_init && g_FATFS_Obj.fs_type != 0;
-}
-
+#if defined (SDCARD)
 uint32_t sdIsHC()
 {
-  return true; // TODO (CardType & CT_BLOCK);
+  return SD_isHC();
 }
 
 uint32_t sdGetSpeed()
 {
   return 330000;
 }
+#endif

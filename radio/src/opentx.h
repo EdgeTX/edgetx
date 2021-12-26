@@ -38,8 +38,6 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
-#else
-  #include "libopenui/src/libopenui_file.h"
 #endif
 
 #if defined(SIMU)
@@ -138,11 +136,7 @@
   #define CASE_PXX2(x)
 #endif
 
-#if defined(SDCARD)
-  #define CASE_SDCARD(x) x,
-#else
-  #define CASE_SDCARD(x)
-#endif
+#define CASE_SDCARD(x) x,
 
 #if defined(BLUETOOTH)
   #define CASE_BLUETOOTH(x) x,
@@ -737,9 +731,7 @@ enum FunctionsActive {
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + NUM_STICKS,
   FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
-#if defined(SDCARD)
   FUNCTION_LOGS,
-#endif
   FUNCTION_BACKGND_MUSIC,
   FUNCTION_BACKGND_MUSIC_PAUSE,
   FUNCTION_BACKLIGHT,
@@ -869,9 +861,7 @@ enum AUDIO_SOUNDS {
 #include "haptic.h"
 #endif
 
-#if defined(SDCARD)
-#include "sdcard.h"
-#endif
+#include "VirtualFS.h"
 
 #if defined(RTCLOCK)
 #include "rtc.h"
@@ -906,9 +896,9 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 // Re-useable byte array to save having multiple buffers
 #if LCD_W <= 212
-constexpr uint8_t SD_SCREEN_FILE_LENGTH = 32;
+constexpr uint8_t STORAGE_SCREEN_FILE_LENGTH = 32;
 #else
-constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
+constexpr uint8_t STORAGE_SCREEN_FILE_LENGTH = 64;
 #endif
 
 #if defined(BLUETOOTH)
@@ -966,17 +956,15 @@ union ReusableBuffer
 #endif
   } calib;
 
-#if defined(SDCARD)
   struct {
-    char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
+    char lines[NUM_BODY_LINES][STORAGE_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
     uint32_t available;
     uint16_t offset;
     uint16_t count;
-    char originalName[SD_SCREEN_FILE_LENGTH+1];
+    char originalName[STORAGE_SCREEN_FILE_LENGTH+1];
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
   } sdManager;
-#endif
 
   struct
   {
@@ -1146,12 +1134,11 @@ void varioWakeup();
 
 #include "lua/lua_api.h"
 
-#if defined(SDCARD)
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
   CLIPBOARD_TYPE_CUSTOM_SWITCH,
   CLIPBOARD_TYPE_CUSTOM_FUNCTION,
-  CLIPBOARD_TYPE_SD_FILE,
+  CLIPBOARD_TYPE_STORAGE_FILE,
 };
 
 #if defined(SIMU)
@@ -1168,12 +1155,11 @@ struct Clipboard {
     struct {
       char directory[CLIPBOARD_PATH_LEN];
       char filename[CLIPBOARD_PATH_LEN];
-    } sd;
+    } storage;
   } data;
 };
 
 extern Clipboard clipboard;
-#endif
 
 #if defined(INTERNAL_GPS)
   #include "gps.h"

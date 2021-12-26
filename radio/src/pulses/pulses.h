@@ -31,7 +31,6 @@
 #include "afhds2.h"
 #include "afhds3_module.h"
 #include "modules_helpers.h"
-#include "ff.h"
 #include "hal/module_driver.h"
 
 

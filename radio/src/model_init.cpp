@@ -156,8 +156,9 @@ void setModelDefaults(uint8_t id)
   strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id, 2);
 
 #if defined(LUA) && defined(PCBTARANIS) // Horus uses menuModelWizard() for wizard
-  if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
-    f_chdir(WIZARD_PATH);
+  VirtualFS &vfs = VirtualFS::instance();
+  if (VirtualFS::instance().isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
+    vfs.changeDirectory(WIZARD_PATH);
     luaExec(WIZARD_NAME);
   }
 #endif
