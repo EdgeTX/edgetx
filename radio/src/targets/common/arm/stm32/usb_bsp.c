@@ -49,7 +49,8 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
   
   GPIO_PinAFConfig(USB_GPIO, USB_GPIO_PinSource_DM, USB_GPIO_AF);
   GPIO_PinAFConfig(USB_GPIO, USB_GPIO_PinSource_DP, USB_GPIO_AF);
-  
+
+#if defined(USB_GPIO_PIN_VBUS)
   /* Configure VBUS Pin */
   GPIO_InitStructure.GPIO_Pin = USB_GPIO_PIN_VBUS;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
@@ -57,6 +58,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
   GPIO_Init(USB_GPIO, &GPIO_InitStructure);
+#endif
   
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
   RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, ENABLE) ; 

@@ -39,7 +39,6 @@
 #include "timers_driver.h"
 
 #include "lcd_driver.h"
-#include "lcd_driver.h"
 #include "battery_driver.h"
 #include "touch_driver.h"
 
@@ -73,7 +72,8 @@ void delay_self(int count)
        for (; count > 0; count--);
    }
 }
-#define RCC_AHB1PeriphMinimum (PWR_RCC_AHB1Periph |\
+
+#define RCC_AHB1PeriphMinimum (PWR_RCC_AHB1Periph |	\
                                LCD_RCC_AHB1Periph |\
                                BACKLIGHT_RCC_AHB1Periph |\
                                SDRAM_RCC_AHB1Periph \

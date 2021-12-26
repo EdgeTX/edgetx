@@ -125,6 +125,7 @@ namespace Ui {
   class SimulatedUIWidgetT8;
   class SimulatedUIWidgetNV14;
   class SimulatedUIWidgetEL18;
+  class SimulatedUIWidgetPL18;
 }
 
 class SimulatedUIWidget9X: public SimulatedUIWidget
@@ -395,7 +396,7 @@ class SimulatedUIWidgetNV14: public SimulatedUIWidget
     Ui::SimulatedUIWidgetNV14 * ui;
 };
 
-class SimulatedUIWidgetEL18: public SimulatedUIWidget
+class SimulatedUIWidgetEL18 : public SimulatedUIWidget
 {
   Q_OBJECT
 
@@ -405,6 +406,18 @@ class SimulatedUIWidgetEL18: public SimulatedUIWidget
 
   private:
     Ui::SimulatedUIWidgetEL18 * ui;
+};
+
+class SimulatedUIWidgetPL18: public SimulatedUIWidget
+{
+  Q_OBJECT
+
+  public:
+    explicit SimulatedUIWidgetPL18(SimulatorInterface * simulator, QWidget * parent = nullptr);
+    virtual ~SimulatedUIWidgetPL18();
+
+  private:
+    Ui::SimulatedUIWidgetPL18 * ui;
 };
 
 #endif // SIMULATEDUIWIDGET_H

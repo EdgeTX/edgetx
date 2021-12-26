@@ -1040,6 +1040,7 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
+#if defined(HARDWARE_INTERNAL_MODULE)
 static etx_module_state_t *spInternalModuleState = nullptr;
 
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
@@ -1060,6 +1061,7 @@ static const etx_serial_init spIntmoduleSerialInitParams = {
   .polarity = ETX_Pol_Normal,
 };
 
+#endif // HARDWARE_INTERNAL_MODULE
 // TODO: use proper method instead
 extern bool cdcConnected;
 extern uint32_t usbSerialBaudRate(void*);
@@ -1576,7 +1578,7 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
 
 // from tp_gt911.cpp
 extern uint8_t tp_gt911_cfgVer;
@@ -1648,7 +1650,7 @@ const CliCommand cliCommands[] = {
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
   { "reset_gt911", cliResetGT911, ""},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */

@@ -9,15 +9,9 @@ import tempfile
 
 
 boards = {
-    "NV14": {
-        "PCB": "NV14",
-        "DEFAULT_MODE": "1",
-    },
-    "EL18": {
-        "PCB": "NV14",
-        "PCBREV": "EL18",
-        "DEFAULT_MODE": "1",
-    },
+    "NV14": { "PCB": "NV14" },
+    "EL18": { "PCB": "NV14", "PCBREV": "EL18" },
+    "PL18": { "PCB": "PL18" },
 }
 
 translations = [
