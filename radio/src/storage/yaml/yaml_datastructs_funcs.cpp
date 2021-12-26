@@ -143,10 +143,10 @@ static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
   return yaml_conv_220::w_board(user, data, bitoffs, wf, opaque);
 }
 
-#define GVAR_SMALL 128
-
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
 {
+  int gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
+  
   if ((val_len == 4)
       && (val[0] == '-')
       && (val[1] == 'G')
@@ -154,8 +154,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[3] >= '1')
       && (val[3] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, GVAR_SMALL - (val[3] - '0'));
-    return GVAR_SMALL - (val[3] - '0');  // -GVx => 128 - x
+    TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
+    return gvar - (val[3] - '0');  // -GVx => 128 - x
   }
 
   if ((val_len == 3)
@@ -164,8 +164,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[2] >= '1')
       && (val[2] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, -GVAR_SMALL + (val[2] - '1'));
-    return -GVAR_SMALL + (val[2] - '1');  //  GVx => -128 + (x-1)
+    TRACE("%.*s -> %i\n", val_len, val, -gvar + (val[2] - '1'));
+    return -gvar + (val[2] - '1');  //  GVx => -128 + (x-1)
   }
 
   return (uint32_t)yaml_str2int(val, val_len);
