@@ -30,6 +30,7 @@
 #include "timers_driver.h"
 #include "watchdog_driver.h"
 #include "hal/rotary_encoder.h"
+#include "dataconstants.h"
 
 // required by watchdog macro..
 #if !defined(SIMU)

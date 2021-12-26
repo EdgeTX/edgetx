@@ -368,7 +368,7 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-// #if defined(PCBFRSKY) || defined(PCBNV14)
+// #if defined(PCBFRSKY) || defined(PCBNV14) || defined(PCBPL18)
 // extern uint8_t potsPos[NUM_XPOTS];
 // #endif
 

@@ -93,7 +93,7 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
   deco->setSlidersVisible(true);
   deco->setFlightModeVisible(false);
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
                     [=]() -> uint8_t {
                         nextStep();

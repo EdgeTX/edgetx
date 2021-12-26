@@ -39,7 +39,7 @@
 #define LABELS_LENGTH 100 // Maximum length of the label string
 #define LABEL_LENGTH 16
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES             9
@@ -98,7 +98,7 @@ enum CurveType {
 #define MIN_POINTS_PER_CURVE           3
 #define MAX_POINTS_PER_CURVE           17
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_FLIGHT_MODE_NAME         10
@@ -405,10 +405,11 @@ enum PotsWarnMode {
 #define MAX_CALIB_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_AXIS)
 
 #define MAX_SWITCHES      20
-#if defined(RADIO_T20)
-#define MAX_TRIMS         8
+
+#if NUM_TRIMS > 6
+  #define MAX_TRIMS 8
 #else
-#define MAX_TRIMS         6
+  #define MAX_TRIMS 6
 #endif
 
 #define MAX_XPOTS_POSITIONS (MAX_POTS * XPOTS_MULTIPOS_COUNT)
@@ -424,6 +425,13 @@ enum SwitchSources {
 
   SWSRC_FIRST_TRIM SKIP,
   SWSRC_LAST_TRIM SKIP = SWSRC_FIRST_TRIM + 2 * MAX_TRIMS - 1,
+
+#if NUM_TRIMS > 6
+  SWSRC_TrimT7Down,
+  SWSRC_TrimT7Up,
+  SWSRC_TrimT8Down,
+  SWSRC_TrimT8Up,
+#endif
 
   SWSRC_FIRST_LOGICAL_SWITCH SKIP,
   SWSRC_LAST_LOGICAL_SWITCH SKIP = SWSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
@@ -515,10 +523,9 @@ enum MixSources {
   //#if defined(PCBHORUS)
   MIXSRC_TrimT5,
   MIXSRC_TrimT6,
-  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
-  //#else
-  //MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
-  //#endif
+  MIXSRC_TrimT7,
+    MIXSRC_TrimT8,
+    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT8,
 
   MIXSRC_FIRST_SWITCH SKIP,
   MIXSRC_LAST_SWITCH SKIP = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,

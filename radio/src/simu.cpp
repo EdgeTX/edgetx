@@ -348,7 +348,7 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
 void OpenTxSim::updateKeysAndSwitches(bool start)
 {
   static int keys[] = {
-#if defined(PCBNV14)
+#if defined(PCBFLYSKY)
     // no keys
 #elif defined(PCBHORUS)
     KEY_Page_Up,   KEY_PAGEUP,
@@ -570,7 +570,7 @@ void OpenTxSim::refreshDisplay()
         setPixel(x, y, color);
 #else
 #if LCD_DEPTH == 4
-        pixel_t *p = &simuLcdBuf[y / 2 * LCD_W + x];
+        pixel_t* p = &simuLcdBuf[y / 2 * LCD_W + x];
         uint8_t z = (y & 1) ? (*p >> 4) : (*p & 0x0F);
         if (z) {
           FXColor color;

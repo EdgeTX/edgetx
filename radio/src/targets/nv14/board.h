@@ -113,25 +113,17 @@ extern HardwareOptions hardwareOptions;
 #endif // defined(SIMU)
 
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
-#define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
-#define IS_PXX2_INTERNAL_ENABLED()      (false)
 
 #if !defined(NUM_FUNCTIONS_SWITCHES)
 #define NUM_FUNCTIONS_SWITCHES        0
 #endif
 
-#define NUM_TRIMS_KEYS                  (NUM_TRIMS * 2)
-
-#define DEFAULT_STICK_DEADZONE          2
-
-// 2 pots without detent
-#define DEFAULT_POTS_CONFIG   \
-  (POT_WITHOUT_DETENT << 0) + \
-      (POT_WITHOUT_DETENT << 2)
+#define DEFAULT_STICK_DEADZONE        2
 
 #define BATTERY_WARN                  36 // 3.6V
 #define BATTERY_MIN                   35 // 3.5V
 #define BATTERY_MAX                   42 // 4.2V
+#define BATTERY_DIVIDER               2942
 
 enum EnumPowerupState
 {
@@ -174,21 +166,30 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr);
 // LCD driver
 #define LCD_W                           320
 #define LCD_H                           480
-
-#define LCD_PHYS_W                      320
-#define LCD_PHYS_H                      480
-
+#define LCD_PHYS_W                      LCD_W
+#define LCD_PHYS_H                      LCD_H
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 
 void lcdInit();
 void lcdCopy(void * dest, void * src);
 
-void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
-void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
-void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
-void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color);
-void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format);
+void DMAFillRect(uint16_t* dest, uint16_t destw, uint16_t desth, uint16_t x,
+                 uint16_t y, uint16_t w, uint16_t h, uint16_t color);
+void DMACopyBitmap(uint16_t* dest, uint16_t destw, uint16_t desth, uint16_t x,
+                   uint16_t y, const uint16_t* src, uint16_t srcw,
+                   uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                   uint16_t h);
+void DMACopyAlphaBitmap(uint16_t* dest, uint16_t destw, uint16_t desth,
+                        uint16_t x, uint16_t y, const uint16_t* src,
+                        uint16_t srcw, uint16_t srch, uint16_t srcx,
+                        uint16_t srcy, uint16_t w, uint16_t h);
+void DMACopyAlphaMask(uint16_t* dest, uint16_t destw, uint16_t desth,
+                      uint16_t x, uint16_t y, const uint8_t* src, uint16_t srcw,
+                      uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                      uint16_t h, uint16_t bg_color);
+void DMABitmapConvert(uint16_t* dest, const uint8_t* src, uint16_t w,
+                      uint16_t h, uint32_t format);
 
 void lcdOff();
 void lcdOn();
@@ -299,7 +300,5 @@ void checkTrainerSettings();
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
 struct TouchState getInternalTouchState();
-
-#define BATTERY_DIVIDER 2942
 
 #endif // _BOARD_H_

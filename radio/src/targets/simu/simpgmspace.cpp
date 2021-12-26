@@ -534,7 +534,7 @@ void boardOff()
 
 void hapticOff() {}
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
+#if defined(PCBFRSKY) || defined(PCBNV14)
 HardwareOptions hardwareOptions;
 #endif
 

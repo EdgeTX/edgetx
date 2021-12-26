@@ -14,14 +14,11 @@ const char* const _key_labels[] = {
 {% endfor %}
 };
 
-constexpr uint32_t _defined_keys =
+constexpr uint32_t _defined_keys = 0
 {% for key in keys %}
-  {% if loop.last %}
-    (1 << {{ key.key }});
-  {% else %}
-    (1 << {{ key.key }}) |
-  {% endif %}
+  | (1 << {{ key.key }})
 {% endfor %}
+;
 
 constexpr uint8_t _n_keys = {{ keys | length }};
 constexpr uint8_t _n_trims = {{ trims | length }};

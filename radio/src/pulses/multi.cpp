@@ -115,12 +115,9 @@ static void sendFailsafeChannels(uint8_t*& p_buf, uint8_t module)
 static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
 {
   static int counter[2] = {0,0}; //TODO
-  static uint8_t invert[2] = {0x00,        //internal
-#if defined(PCBTARANIS) || defined(PCBHORUS) || defined(PCBNV14)
+  static uint8_t invert[2] = {
+    0x00,       //internal
     0x08        //external
-#else
-    0x00	//external
-#endif
   };
   uint8_t type=MULTI_NORMAL;
 
