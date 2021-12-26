@@ -65,7 +65,7 @@
 
 PACK(struct CurveRef {
   uint8_t type;
-  int8_t  value;
+  int8_t  value CUST(in_read_weight,in_write_weight);
 });
 
 PACK(struct MixData {

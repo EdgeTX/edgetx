@@ -437,7 +437,7 @@ static const struct YamlNode struct_TimerData[] = {
 };
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 8 ),
-  YAML_SIGNED( "value", 8 ),
+  YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
