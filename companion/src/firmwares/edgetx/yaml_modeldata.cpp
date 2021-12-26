@@ -281,10 +281,10 @@ struct convert<LimitData> {
   static Node encode(const LimitData& rhs)
   {
     Node node;
-    node["min"] = rhs.min;
-    node["max"] = rhs.max;
+    node["min"] = YamlWriteMixWeight(rhs.min);
+    node["max"] = YamlWriteMixWeight(rhs.max);
     node["revert"] = (int)rhs.revert;
-    node["offset"] = rhs.offset;
+    node["offset"] = YamlWriteMixWeight(rhs.offset);
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["failsafe"] = rhs.failsafe;
@@ -295,10 +295,16 @@ struct convert<LimitData> {
 
   static bool decode(const Node& node, LimitData& rhs)
   {
-    node["min"] >> rhs.min;
-    node["max"] >> rhs.max;
+    if (node["min"]) {
+      rhs.min = YamlReadMixWeight(node["min"]);
+    }
+    if (node["max"]) {
+      rhs.max = YamlReadMixWeight(node["max"]);
+    }
+    if (node["offset"]) {
+      rhs.offset = YamlReadMixWeight(node["offset"]);
+    }
     node["revert"] >> rhs.revert;
-    node["offset"] >> rhs.offset;
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["failsafe"] >> rhs.failsafe;
@@ -698,7 +704,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     const LimitData& limit = rhs.limitData[i];
     if (!limit.isEmpty()) {
-      node["limitData"].push_back(Node(limit));
+      node["limitData"][std::to_string(i)] = limit;
     }
   }
 
