@@ -507,10 +507,10 @@ static const struct YamlNode struct_MixData[] = {
 };
 static const struct YamlNode struct_LimitData[] = {
   YAML_IDX,
-  YAML_SIGNED( "min", 11 ),
-  YAML_SIGNED( "max", 11 ),
+  YAML_SIGNED_CUST( "min", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED_CUST( "max", 11, in_read_weight, in_write_weight ),
   YAML_SIGNED( "ppmCenter", 10 ),
-  YAML_SIGNED( "offset", 11 ),
+  YAML_SIGNED_CUST( "offset", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "symetrical", 1 ),
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 3 ),
