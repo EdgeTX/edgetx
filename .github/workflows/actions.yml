@@ -46,6 +46,7 @@ jobs:
           - tx16s
           - nv14
           - el18
+          - pl18
           - t12
           - t16
           - t18
@@ -90,9 +91,9 @@ jobs:
       matrix:
         target:
           - nv14;el18
+          - pl18
           - t12
-          - t16
-          - t18
+          - t16;t18
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
           - t20

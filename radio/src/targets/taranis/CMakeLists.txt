@@ -480,10 +480,6 @@ else()
   message( FATAL_ERROR "Unknown CPU_TYPE_FULL" )
 endif()
 
-if(NOT PCB STREQUAL PCBXLITE)
-  add_definitions(-DHARDWARE_TRAINER_JACK)
-endif()
-
 if(ENABLE_SERIAL_PASSTHROUGH)
   set(CLI ON "Enable CLI")
 endif()

@@ -34,6 +34,8 @@
  #include "yaml_datastructs_x10.cpp"
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
+#elif defined(PCBPL18)
+ #include "yaml_datastructs_pl18.cpp"
 #elif defined(PCBX7)
  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
   #include "yaml_datastructs_tpro.cpp"

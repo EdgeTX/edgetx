@@ -67,8 +67,7 @@ if(DEBUG_SEGGER_RTT)
   )
 endif()
 
-
-if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
@@ -88,12 +87,22 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
+  if(NOT PCB STREQUAL PL18)
+    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
+    )
+  else()
+    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+      ../../../../../targets/pl18/key_driver.cpp
+    )    
+  endif()
+  
   # Add LVGL sources
   foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
   endforeach()
 
-  if(NOT PCB STREQUAL NV14)
+  if(NOT (PCB STREQUAL NV14 OR PCB STREQUAL PL18))
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
       ../../../../../targets/${TARGET_DIR}/led_driver.cpp

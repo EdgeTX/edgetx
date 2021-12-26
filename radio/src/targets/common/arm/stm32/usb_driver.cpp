@@ -57,6 +57,7 @@ void setSelectedUsbMode(int mode)
   selectedUsbMode = usbMode(mode);
 }
 
+#if defined(USB_GPIO_PIN_VBUS)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
@@ -71,6 +72,7 @@ int usbPlugged()
   
   return debouncedState;
 }
+#endif
 
 USB_OTG_CORE_HANDLE USB_OTG_dev;
 

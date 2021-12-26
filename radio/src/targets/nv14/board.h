@@ -115,25 +115,17 @@ extern HardwareOptions hardwareOptions;
 #endif // defined(SIMU)
 
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
-#define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
-#define IS_PXX2_INTERNAL_ENABLED()      (false)
 
 #if !defined(NUM_FUNCTIONS_SWITCHES)
 #define NUM_FUNCTIONS_SWITCHES        0
 #endif
 
-#define NUM_TRIMS_KEYS                  (NUM_TRIMS * 2)
-
-#define DEFAULT_STICK_DEADZONE          2
-
-// 2 pots without detent
-#define DEFAULT_POTS_CONFIG   \
-  (POT_WITHOUT_DETENT << 0) + \
-      (POT_WITHOUT_DETENT << 2)
+#define DEFAULT_STICK_DEADZONE        2
 
 #define BATTERY_WARN                  36 // 3.6V
 #define BATTERY_MIN                   35 // 3.5V
 #define BATTERY_MAX                   42 // 4.2V
+#define BATTERY_DIVIDER               2942
 
 enum EnumPowerupState
 {
@@ -288,7 +280,5 @@ void checkTrainerSettings();
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
 struct TouchState getInternalTouchState();
-
-#define BATTERY_DIVIDER 2942
 
 #endif // _BOARD_H_

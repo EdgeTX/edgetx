@@ -559,6 +559,8 @@ void sdDone()
 
     f_mount(nullptr, "", 0); // unmount SD
   }
+
+  storageDeInit();
 }
 
 uint32_t sdMounted()
