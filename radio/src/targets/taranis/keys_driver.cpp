@@ -252,6 +252,8 @@ uint32_t switchState(uint8_t index)
     ADD_2POS_CASE(D);
     ADD_3POS_CASE(E, 4);
     ADD_3POS_CASE(F, 5);
+    ADD_2POS_CASE(I);
+    ADD_2POS_CASE(J);
 #elif defined(RADIO_T8)
     ADD_2POS_CASE(D);
 #elif defined(RADIO_TLITE)
