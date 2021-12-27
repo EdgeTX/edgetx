@@ -9,61 +9,31 @@ standard_chars = """ !"#$%&'()*+,-./0123456789:;<=>?°ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 extra_chars = "".join([chr(0x10000+i) for i in range(21)])
 
-def is_cjk_char(c):
-    return 0x4E00 <= ord(c) <= 0x9FFF
+def is_special_char(c):
+    return 192 <= ord(c) <= 383 or 0x4E00 <= ord(c) <= 0x9FFF
 
-def cjk_chars(lang):
+def get_special_chars():
+  result = {}
+  for lang in["en", "fr", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw"]:
     charset = set()
     tools_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(tools_path, "../radio/src/translations/%s.h.txt" % lang), encoding='utf-8') as f:
         data = f.read()
         for c in data:
-            if is_cjk_char(c):
+            if is_special_char(c):
                 charset.add(c)
-                # print(ord(c))
-    result = list(charset)
-    result.sort()
-    return result
+    data = list(charset)
+    data.sort()
+    result[lang] = data
 
+  return result
 
-special_chars = {
-    "en": "",
-    "fr": "éèàîç",
-    "de": "ÄäÖöÜüß",
-    "cz": "ěščřžýáíéňóůúďťĚŠČŘŽÝÁÍÉŇÓÚŮĎŤ",
-    "nl": "",
-    "es": "Ññ",
-    "fi": "åäöÅÄÖ",
-    "it": "àù",
-    "pl": "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ",
-    "pt": "ÁáÂâÃãÀàÇçÉéÊêÍíÓóÔôÕõÚú",
-    "se": "åäöÅÄÖ",
-    "cn": "".join(cjk_chars("cn")),
-    "tw": "".join(cjk_chars("tw")),
-}
-
-subset_lowercase = {
-    "Č": "č",
-    "Ě": "ě",
-    "Š": "š",
-    "Ú": "ú",
-    "Ů": "ů",
-    "Ž": "ž"
-}
-
-# print("CN charset: %d symbols" % len(special_chars["cn"]))
-
+special_chars = get_special_chars()
 
 def get_chars(subset):
     result = standard_chars + extra_chars
-    if False: # subset == "all":
-        for key, chars in special_chars.items():
-            result += "".join([char for char in chars if char not in result])
-    else:
-        if subset in special_chars:
-            result += "".join([char for char in special_chars[subset] if char not in subset_lowercase])
+    result += "".join([char for char in special_chars[subset]])
     return result
-
 
 def get_chars_encoding(subset):
     result = {}
@@ -83,7 +53,51 @@ def get_chars_encoding(subset):
         for char in chars:
             if char not in standard_chars:
                 result[char] = "\\%03o" % (offset + chars.index(char))
-        for upper, lower in subset_lowercase.items():
+    return result
+
+special_chars_BW = {
+    "en": "",
+    "fr": "éèàîç",
+    "de": "ÄäÖöÜüß",
+    "cz": "áčéěíóřšúůýÁÍŘÝžÉ",
+    "nl": "",
+    "es": "ÑñÁáÉéÍíÓóÚú",
+    "fi": "åäöÅÄÖ",
+    "it": "àù",
+    "pl": "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ",
+    "pt": "ÁáÂâÃãÀàÇçÉéÊêÍíÓóÔôÕõÚú",
+    "se": "åäöÅÄÖ",
+    "cn": "",
+    "tw": "",
+}
+
+subset_lowercase_BW = {
+    "Č": "č",
+    "Ě": "ě",
+    "Š": "š",
+    "Ú": "ú",
+    "Ů": "ů",
+    "Ž": "ž"
+}
+
+def get_chars_BW(subset):
+    result = standard_chars + extra_chars
+    if subset in special_chars_BW:
+        if (subset == "cz"):
+            result += "".join([char for char in special_chars_BW[subset] if char not in subset_lowercase_BW])
+        else:
+            result += "".join([char for char in special_chars_BW[subset]])
+    return result
+
+def get_chars_encoding_BW(subset):
+    result = {}
+    offset = 128 - len(standard_chars)
+    chars = get_chars_BW(subset)
+    for char in chars:
+        if char not in standard_chars:
+            result[char] = "\\%03o" % (offset + chars.index(char))
+    if (subset == "cz"):            
+        for upper, lower in subset_lowercase_BW.items():
             if lower in result:
                 result[upper] = result[lower]
     return result

@@ -4,20 +4,25 @@
 import argparse
 import codecs
 import sys
-from charset import special_chars, get_chars_encoding
-
+from charset import special_chars, get_chars_encoding, special_chars_BW, get_chars_encoding_BW
 
 def main():
     parser = argparse.ArgumentParser(description='Encoder for OpenTX translations')
     parser.add_argument('input', action="store", help="Input file name")
     parser.add_argument('output', action="store", help="Output file name")
     parser.add_argument('language', action="store", help="Two letter language identifier", default=None)
+    parser.add_argument('bwlcd', action="store", help="Black White LCD", default="F")
     parser.add_argument("--reverse", help="Reversed char conversion (from number to char)", action="store_true")
     args = parser.parse_args()
 
-    if args.language not in special_chars:
-        parser.error(args.language + ' is not a supported language. Try one of the supported ones: %s' % list(special_chars.keys()))
-        sys.exit()
+    if args.bwlcd == "F":
+      if args.language not in special_chars:
+          parser.error(args.language + ' is not a supported language. Try one of the supported ones: %s' % list(special_chars.keys()))
+          sys.exit()
+    else:
+      if args.language not in special_chars_BW:
+          parser.error(args.language + ' is not a supported language. Try one of the supported ones: %s' % list(special_chars_BW.keys()))
+          sys.exit()
 
     # if args.reverse:
     #     for translation in special_chars:
@@ -31,8 +36,13 @@ def main():
 
     for line in in_file.readlines():
         # Do the special chars replacements
-        for before, after in get_chars_encoding(args.language).items():
-            line = line.replace(before, after)
+        if args.bwlcd == "F":        
+            for before, after in get_chars_encoding(args.language).items():
+                line = line.replace(before, after)
+        else:
+            for before, after in get_chars_encoding_BW(args.language).items():
+                line = line.replace(before, after)
+
         if line.startswith("#define ZSTR_"):
             before = line[32:-2]
             after = ""
