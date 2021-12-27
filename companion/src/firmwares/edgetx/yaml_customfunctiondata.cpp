@@ -171,6 +171,11 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += ",";
     def += std::to_string(rhs.param);
   } break;
+  case FuncPlayValue:
+  case FuncVolume:
+  case FuncBacklight: {
+    def += YamlRawSourceEncode(RawSource(rhs.param));
+  } break; 
   case FuncAdjustGV1: {
     // + GV #
     def += std::to_string(p1);
@@ -280,6 +285,13 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     rhs.func = (AssignFunc)((int)rhs.func + tmr);
     def >> rhs.param;
   } break;
+  case FuncPlayValue:
+  case FuncVolume:
+  case FuncBacklight: {
+    std::string src_str;
+    getline(def, src_str, ',');
+    rhs.param = YamlRawSourceDecode(src_str).toValue();
+  } break; 
   case FuncAdjustGV1: {
     // + GV #
     int gvar_idx=0;

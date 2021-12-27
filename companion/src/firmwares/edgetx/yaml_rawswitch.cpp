@@ -68,7 +68,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   default:
-    sw_str += getCurrentFirmware()->getRawSwitchTypesTag(sval);
+    sw_str += getCurrentFirmware()->getRawSwitchTypesTag(rhs.type);
     break;
   }
   return sw_str;
