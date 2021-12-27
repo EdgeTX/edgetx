@@ -208,10 +208,12 @@ extern uint8_t instructionsPercent;
 
 struct LuaField {
   uint16_t id;
+  char name[20];
   char desc[50];
 };
 
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags=0);
+bool luaFindFieldById(int id, LuaField & field, unsigned int flags=0);
 void luaLoadThemes();
 void luaRegisterLibraries(lua_State * L);
 void registerBitmapClass(lua_State * L);
