@@ -327,7 +327,7 @@ struct convert<LimitData> {
     node["symetrical"] = (int)rhs.symetrical;
     node["failsafe"] = rhs.failsafe;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve;
+    node["curve"] = rhs.curve.value;
     return node;
   }
 
@@ -347,7 +347,7 @@ struct convert<LimitData> {
     node["symetrical"] >> rhs.symetrical;
     node["failsafe"] >> rhs.failsafe;
     node["name"] >> rhs.name;
-    node["curve"] >> rhs.curve;
+    node["curve"] >> rhs.curve.value;
     return true;
   }
 };
