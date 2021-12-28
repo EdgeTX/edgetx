@@ -216,7 +216,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     }
     if (rhs.repeatParam == 0) {
       def += "1x";
-    } else if (rhs.repeatParam == 0xFF) {
+    } else if (rhs.repeatParam == -1) {
       def += "!1x";
     } else {
       def += std::to_string(rhs.repeatParam);
@@ -350,7 +350,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     if (repeat == "1x") {
       rhs.repeatParam = 0;
     } else if (repeat == "!1x") {
-      rhs.repeatParam = 0xFF;
+      rhs.repeatParam = -1;
     } else {
       rhs.repeatParam = std::stoi(repeat);
     }
