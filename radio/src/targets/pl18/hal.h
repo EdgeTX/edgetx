@@ -41,29 +41,35 @@
    2/3/4 SDIO
 */
 
-
 // Trims
-#define TRIMS_GPIO_REG_RHL              GPIOD->IDR
-#define TRIMS_GPIO_PIN_RHL              GPIO_Pin_7  // PD.07
-#define TRIMS_GPIO_REG_RHR              GPIOG->IDR
-#define TRIMS_GPIO_PIN_RHR              GPIO_Pin_10 // PG.10
-#define TRIMS_GPIO_REG_RVD              GPIOJ->IDR
-#define TRIMS_GPIO_PIN_RVD              GPIO_Pin_0  // PJ.00
-#define TRIMS_GPIO_REG_RVU              GPIOB->IDR
-#define TRIMS_GPIO_PIN_RVU              GPIO_Pin_15 // PB.15
-#define TRIMS_GPIO_REG_RPRESS           GPIOC->IDR
-#define TRIMS_GPIO_PIN_RPRESS           GPIO_Pin_13 // PC.13
+#define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
+#define TRIMS_GPIO_PIN_TR1U             GPIO_Pin_8  // PH.08
+#define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
+#define TRIMS_GPIO_PIN_TR1D             GPIO_Pin_9  // PH.09
+#define TRIMS_GPIO_REG_TR2U             GPIOH->IDR
+#define TRIMS_GPIO_PIN_TR2U             GPIO_Pin_10 // PH.10
+#define TRIMS_GPIO_REG_TR2D             GPIOH->IDR
+#define TRIMS_GPIO_PIN_TR2D             GPIO_Pin_11 // PH.11
 
-#define TRIMS_GPIO_REG_LHL              GPIOH->IDR
-#define TRIMS_GPIO_PIN_LHL              GPIO_Pin_2  // PH.02
-#define TRIMS_GPIO_REG_LHR              GPIOG->IDR
-#define TRIMS_GPIO_PIN_LHR              GPIO_Pin_2  // PG.02
-#define TRIMS_GPIO_REG_LVU              GPIOH->IDR
-#define TRIMS_GPIO_PIN_LVU              GPIO_Pin_7  // PH.07
-#define TRIMS_GPIO_REG_LVD              GPIOJ->IDR
-#define TRIMS_GPIO_PIN_LVD              GPIO_Pin_12 // PJ.12
-#define TRIMS_GPIO_REG_LPRESS           GPIOG->IDR
-#define TRIMS_GPIO_PIN_LPRESS           GPIO_Pin_11 // PG.11
+// active 4x4 column/row based key-matrix to support up to 16 buttons with only 8 GPIOs
+#define TRIMS_GPIO_OUT1                 GPIOG
+#define TRIMS_GPIO_OUT1_PIN             GPIO_Pin_2  // PG.02
+#define TRIMS_GPIO_OUT2                 GPIOG
+#define TRIMS_GPIO_OUT2_PIN             GPIO_Pin_10 // PG.10
+#define TRIMS_GPIO_OUT3                 GPIOG
+#define TRIMS_GPIO_OUT3_PIN             GPIO_Pin_11 // PG.11
+// OUT4 routed on MCU PCB, but not attached to any physical buttons
+#define TRIMS_GPIO_OUT4                 GPIOH
+#define TRIMS_GPIO_OUT4_PIN             GPIO_Pin_7  // PH.07
+
+#define TRIMS_GPIO_REG_IN1              GPIOB->IDR
+#define TRIMS_GPIO_PIN_IN1              GPIO_Pin_15 // PB.15
+#define TRIMS_GPIO_REG_IN2              GPIOC->IDR
+#define TRIMS_GPIO_PIN_IN2              GPIO_Pin_13 // PC.13
+#define TRIMS_GPIO_REG_IN3              GPIOD->IDR
+#define TRIMS_GPIO_PIN_IN3              GPIO_Pin_7  // PD.07
+#define TRIMS_GPIO_REG_IN4              GPIOJ->IDR
+#define TRIMS_GPIO_PIN_IN4              GPIO_Pin_12 // PJ.12
 
 // Monitor pin
 #define MONITOR_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOJ)
@@ -90,12 +96,14 @@
 
 // Index of all switches / trims
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
-#define KEYS_GPIOB_PINS                 (GPIO_Pin_15)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_13)
+#define KEYS_GPIOB_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_14)
+#define KEYS_GPIOC_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_13 ) /* TODO! PC8-PC11, currently allocated for SDIO */
 #define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
-#define KEYS_GPIOG_PINS                 (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
-#define KEYS_GPIOH_PINS                 (GPIO_Pin_2 | GPIO_Pin_7)
-#define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
+#define KEYS_GPIOF_PINS                 (GPIO_Pin_10)
+#define KEYS_GPIOH_PINS                 (GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11)
+#define KEYS_GPIOJ_PINS                 (GPIO_Pin_12)
+#define KEYS_OUT_GPIOG_PINS             (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
+#define KEYS_OUT_GPIOH_PINS             (GPIO_Pin_7)
 
 // ADC
 #define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
@@ -275,8 +283,9 @@
 // SD card
 #define SD_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA2)
 #define SD_RCC_APB1Periph               0
-#define SD_PRESENT_GPIO                 GPIOH
+/*#define SD_PRESENT_GPIO               GPIOH
 #define SD_PRESENT_GPIO_PIN             GPIO_Pin_10  // PH.10
+*/
 #define SD_SDIO_DMA_STREAM              DMA2_Stream3
 #define SD_SDIO_DMA_CHANNEL             DMA_Channel_4
 #define SD_SDIO_DMA_FLAG_FEIF           DMA_FLAG_FEIF3
