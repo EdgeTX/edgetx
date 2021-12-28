@@ -73,15 +73,12 @@ set(BITMAPS_TARGET pl18_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(LUA_EXPORT lua_export_pl18)
-set(TOUCH_DRIVER touch_driver.cpp)
-set(HARDWARE_TOUCH YES)
-
+set(TOUCH_DRIVER tp_cst340.cpp ../horus/i2c_driver.cpp)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET} truetype_fonts)
 set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
-
 
 add_definitions(-DSTM32F429_439xx -DSDRAM -DCOLORLCD -DLIBOPENUI
       -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD)
