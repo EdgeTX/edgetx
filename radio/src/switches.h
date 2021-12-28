@@ -39,4 +39,4 @@ typedef int16_t delayval_t;
 uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
-bool isSwitchWarningRequired(uint8_t &bad_pots);
+bool isSwitchWarningRequired(uint16_t &bad_pots);
