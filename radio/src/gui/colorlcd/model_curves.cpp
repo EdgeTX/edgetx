@@ -403,5 +403,10 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
     }
   }
 
+// extra bottom padding if touchscreen
+#if defined HARDWARE_TOUCH
+  grid.nextLine();
+#endif
+
   window->setInnerHeight(grid.getWindowHeight());
 }

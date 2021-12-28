@@ -424,5 +424,10 @@ void RadioHardwarePage::build(FormWindow * window)
   });
   grid.nextLine();
 
+// extra bottom padding if touchscreen
+#if defined HARDWARE_TOUCH
+  grid.nextLine();
+#endif
+
   window->setInnerHeight(grid.getWindowHeight());
 }
