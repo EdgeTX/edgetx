@@ -933,7 +933,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 #if defined(LUA_MODEL_SCRIPTS)
             // Get input/output tables for mixer scripts              
             if (ref <= SCRIPT_MIX_LAST) {
-              ScriptInputsOutputs * sio = & scriptInputsOutputs[idx];
+              ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
               lua_getfield(lsScripts, -1, "input");
               luaGetInputs(*sio);
               lua_pop(lsScripts, 1);
