@@ -6,7 +6,7 @@ macro(add_bitmaps_target targetname filter format args)
     set(target ${target}.lbm)
     add_custom_command(
       OUTPUT ${target}
-      COMMAND ${PYTHON_EXECUTABLE} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py --format ${format} ${args} ${bitmap} ${target}
+      COMMAND ${Python3_EXECUTABLE} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py --format ${format} ${args} ${bitmap} ${target}
       DEPENDS ${bitmap} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py
     )
     list(APPEND bitmaps_files ${target})
@@ -22,7 +22,7 @@ macro(add_png_target targetname filter)
     set(target ${target}.lbm)
     add_custom_command(
       OUTPUT ${target}
-      COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${bitmap} ${target}
+      COMMAND ${Python3_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${bitmap} ${target}
       DEPENDS ${bitmap} ${UTILS_DIR}/bin2lbm.py
     )
     list(APPEND bitmaps_files ${target})
@@ -38,7 +38,7 @@ macro(add_fonts_target targetname filter)
     set(target ${target}.lbm)
     add_custom_command(
       OUTPUT ${target}
-      COMMAND ${PYTHON_EXECUTABLE} ${TOOLS_DIR}/encode-font.py ${font} ${target}
+      COMMAND ${Python3_EXECUTABLE} ${TOOLS_DIR}/encode-font.py ${font} ${target}
       DEPENDS ${font} ${TOOLS_DIR}/encode-font.py
     )
     list(APPEND fonts_files ${target})
@@ -55,8 +55,8 @@ macro(add_truetype_font_target name size subset effect args)
   endif()
   add_custom_command(
     OUTPUT ${target}.png ${target}.specs ${target}.lbm
-    COMMAND ${PYTHON_EXECUTABLE} ${TOOLS_DIR}/build-font-bitmap.py --subset ${subset} --size ${size} --font ${font} --output ${target}
-    COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${target}.png ${target}.lbm
+    COMMAND ${Python3_EXECUTABLE} ${TOOLS_DIR}/build-font-bitmap.py --subset ${subset} --size ${size} --font ${font} --output ${target}
+    COMMAND ${Python3_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${target}.png ${target}.lbm
     DEPENDS ${TOOLS_DIR}/build-font-bitmap.py ${TOOLS_DIR}/charset.py ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py
   )
   add_custom_target(truetype_font_${name} DEPENDS ${target}.png ${target}.specs)

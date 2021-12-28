@@ -51,9 +51,6 @@ set(RADIO_DIRECTORY ${PROJECT_SOURCE_DIR}/radio)
 set(RADIO_SRC_DIR ${RADIO_DIRECTORY}/src)
 set(COMPANION_SRC_DIRECTORY ${PROJECT_SOURCE_DIR}/companion/src)
 set(SIMU_SRC_DIRECTORY ${COMPANION_SRC_DIRECTORY}/simulation)
-set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
-set(UTILS_DIR ${PROJECT_SOURCE_DIR}/radio/util)
-set(LIBOPENUI_TOOLS_DIR ${RADIO_SRC_DIR}/thirdparty/libopenui/tools)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -67,6 +64,9 @@ git_id(GIT_STR)
 message(STATUS "EdgeTX ${VERSION} @ ${GIT_STR}")
 
 # options shared by all targets
+
+# Build radio firmware? We want to seperate Companion/sim and the firmware so both buildsystems can be generated seperately
+option(BUILD_FIRMWARE "Build radio firmware" ON)
 
 option(APP_CUSTOM_DBG_HANDLER "Use custom message handler for debug output in all Qt apps." ON)
 set(APP_CUSTOM_DBG_LEVEL "0" CACHE STRING
@@ -94,12 +94,12 @@ if(APPLE)
   set(SYSROOT_ARG -isysroot ${SDKROOT})
 endif()
 
-
 # Python check
-find_package(PythonInterp 3 REQUIRED)
-if(PYTHONINTERP_FOUND)
-  message(STATUS "Python found, version: ${PYTHON_VERSION_STRING}")
-  get_filename_component(PYTHON_DIRECTORY ${PYTHON_EXECUTABLE} DIRECTORY)
+find_package(Python3)
+
+if(Python3_FOUND)
+  message(STATUS "Python found, version: ${Python3_VERSION}")
+  get_filename_component(PYTHON_DIRECTORY ${Python3_EXECUTABLE} DIRECTORY)
 else()
   message(WARNING "Python not found! Most firmware and simu flavors not buildable.")
   set(LUA NO)
@@ -258,7 +258,38 @@ if(NOT GTEST_INCDIR OR NOT GTEST_SRCDIR)
   endif()
 endif()
 
-add_subdirectory(${RADIO_SRC_DIR})
+if(NOT DEFINED TOOLCHAIN_LOCATION)
+  message("")
+  message("*************************************************************")
+  message("** You must specify toolchain location in TOOLCHAIN_LOCATION")
+  message("** Add -DTOOLCHAIN_LOCATION2=<path to toolchain>")
+  message("")
+  message(FATAL_ERROR "Missing argument!")
+endif()
+
+set(MAIN_PROJECT_DIRECTORY ${RADIO_SRC_DIR}/../../)
+if(BUILD_FIRMWARE)
+  include(ExternalProject)
+  ExternalProject_Add(
+   firmware
+   SOURCE_DIR ${RADIO_SRC_DIR}
+    BINARY_DIR ${CMAKE_BINARY_DIR}/Firmware-build
+    CMAKE_ARGS -DPCB=${PCB} -DPCBREV=${PCBREV} 
+    CMAKE_CACHE_ARGS
+      -DTOOLCHAIN_LOCATION:STRING=${TOOLCHAIN_LOCATION}
+      #-DTOOLCHAIN_LOCATION:STRING=/Applications/gcc-arm-none-eabi-10-2021-q2-preview
+      -DVERSION:STRING=${VERSION}
+      -DVERSION_MAJOR:STRING=${VERSION_MAJOR}
+      -DVERSION_MINOR:STRING=${VERSION_MINOR}
+      -DVERSION_REVISION:STRING=${VERSION_REVISION}
+      -DRADIO_SRC_DIR:STRING=${RADIO_SRC_DIR}
+      -DCMAKE_TOOLCHAIN_FILE:STRING=../../cmake/arm-toolchain.cmake
+      -DMAIN_PROJECT_DIRECTORY:STRING=${MAIN_PROJECT_DIRECTORY}
+      -DCMAKE_MODULE_PATH:STRING=${MAIN_PROJECT_DIRECTORY}cmake
+    BUILD_COMMAND /usr/bin/make firmware
+    INSTALL_COMMAND ""
+  )
+endif()
 
 add_custom_target(tests-radio
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio
