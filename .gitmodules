@@ -8,3 +8,6 @@
 [submodule "companion/src/thirdparty/yaml-cpp"]
 	path = companion/src/thirdparty/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "radio/src/thirdparty/littlefs_v2.4.1"]
+	path = radio/src/thirdparty/littlefs_v2.4.1
+	url = https://github.com/littlefs-project/littlefs.git
