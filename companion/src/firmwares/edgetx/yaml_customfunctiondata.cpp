@@ -153,7 +153,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += LookupValue(trainerLut, p1);
     break;
   case FuncPlaySound:
-    def += std::to_string(rhs.param);
+    def += LookupValue(soundLut, rhs.param);
     break;
   case FuncPlayPrompt:
   case FuncPlayScript:
@@ -252,13 +252,17 @@ bool convert<CustomFunctionData>::decode(const Node& node,
       def >> rhs.param;
   } break;
   case FuncTrainer: {
+      std::string value_str;
+      getline(def, value_str, ',');
       int value=0;
-      Node(def.str()) >> trainerLut >> value;
+      Node(value_str) >> trainerLut >> value;
       rhs.func = (AssignFunc)((int)rhs.func + value);
   } break;
-  case FuncPlaySound:
-    Node(def.str()) >> soundLut >> rhs.param;
-    break;
+  case FuncPlaySound: {
+    std::string snd;
+    getline(def, snd, ',');
+    Node(snd) >> soundLut >> rhs.param;
+  } break;
   case FuncPlayPrompt:
   case FuncPlayScript:
   case FuncBackgroundMusic: {
