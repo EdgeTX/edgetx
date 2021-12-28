@@ -276,15 +276,53 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   return true;
 }
 
+static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
+{
+  std::string val = node.as<std::string>();
+  if ((val.size() >= 4)
+      && (val[0] == '-')
+      && (val[1] == 'G')
+      && (val[2] == 'V')
+      && (val[3] >= '1')
+      && (val[3] <= '9')) {
+
+      return -10000 - std::stoi(val.substr(3));
+  }
+
+  if ((val.size() >= 3)
+      && (val[0] == 'G')
+      && (val[1] == 'V')
+      && (val[2] >= '1')
+      && (val[2] <= '9')) {
+
+    return 10000 + std::stoi(val.substr(2));
+  }
+
+  return std::stoi(val) + shift;
+}
+
+static std::string YamlWriteLimitValue(int32_t sval, int32_t shift = 0)
+{
+  if (sval < -10000) {
+    int n = -sval - 10000;
+    return std::string("-GV") + std::to_string(n);
+  } else if (sval > 10000) {
+    int n = sval - 10000;
+    return std::string("GV") + std::to_string(n);
+  }
+
+  return std::to_string(sval - shift);
+}
+
 template <>
 struct convert<LimitData> {
   static Node encode(const LimitData& rhs)
   {
     Node node;
-    node["min"] = YamlWriteMixWeight(rhs.min);
-    node["max"] = YamlWriteMixWeight(rhs.max);
+    node["min"] = YamlWriteLimitValue(rhs.min, -1000);
+    node["max"] = YamlWriteLimitValue(rhs.max, 1000);
     node["revert"] = (int)rhs.revert;
-    node["offset"] = YamlWriteMixWeight(rhs.offset);
+    node["offset"] = YamlWriteLimitValue(rhs.offset);
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["failsafe"] = rhs.failsafe;
@@ -296,13 +334,13 @@ struct convert<LimitData> {
   static bool decode(const Node& node, LimitData& rhs)
   {
     if (node["min"]) {
-      rhs.min = YamlReadMixWeight(node["min"]);
+      rhs.min = YamlReadLimitValue(node["min"], -1000);
     }
     if (node["max"]) {
-      rhs.max = YamlReadMixWeight(node["max"]);
+      rhs.max = YamlReadLimitValue(node["max"], 1000);
     }
     if (node["offset"]) {
-      rhs.offset = YamlReadMixWeight(node["offset"]);
+      rhs.offset = YamlReadLimitValue(node["offset"]);
     }
     node["revert"] >> rhs.revert;
     node["ppmCenter"] >> rhs.ppmCenter;
