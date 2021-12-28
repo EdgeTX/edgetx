@@ -4,10 +4,10 @@ foreach(translation ${translations})
   get_filename_component(language ${translation} NAME_WE)
   get_filename_component(path ${translation} DIRECTORY)
   set(target ${language}.h)
-  if(PYTHONINTERP_FOUND)
+  if(Python3_FOUND)
     add_custom_command(
       OUTPUT ${target}
-      COMMAND ${PYTHON_EXECUTABLE} ${TOOLS_DIR}/encode-translation.py ${translation} ${target} ${language}
+      COMMAND ${Python3_EXECUTABLE} ${TOOLS_DIR}/encode-translation.py ${translation} ${target} ${language}
       DEPENDS ${translation} ${TOOLS_DIR}/encode-translation.py ${TOOLS_DIR}/charset.py
       )
   endif()

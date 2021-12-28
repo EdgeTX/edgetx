@@ -74,7 +74,7 @@ set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -DRTOS_COOS -Wno-inconsistent-missing-overrid
 
 add_custom_target(yaml_data
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} > ${YAML_GEN_OUTPUT}
+    COMMAND ${Python3_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} > ${YAML_GEN_OUTPUT}
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h
             ${RADIO_DIRECTORY}/src/dataconstants.h
             ${RADIO_DIRECTORY}/src/myeeprom.h
