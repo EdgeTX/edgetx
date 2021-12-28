@@ -728,6 +728,7 @@ void checkAll()
 #if defined(COLORLCD)
   if (!waitKeysReleased()) {
     auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
+    LED_ERROR_BEGIN();
     AUDIO_ERROR_MESSAGE(AU_ERROR);
     tmr10ms_t tgtime = get_tmr10ms() + 500;
     uint32_t keys = readKeys();
@@ -748,6 +749,7 @@ void checkAll()
       if (tgtime >= get_tmr10ms() && keyDown()) {
         return false;
       } else {
+        LED_ERROR_END();
         return true;
       }
     });
