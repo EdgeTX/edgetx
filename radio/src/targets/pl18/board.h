@@ -84,7 +84,7 @@ uint32_t sdGetSpeed();
 #define SD_IS_HC()                     (sdIsHC())
 #define SD_GET_SPEED()                 (sdGetSpeed())
 #define SD_GET_FREE_BLOCKNR()          (sdGetFreeSectors())
-#define SD_CARD_PRESENT()              (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
+#define SD_CARD_PRESENT()              true
 void sdInit();
 void sdMount();
 void sdDone();
@@ -152,17 +152,17 @@ enum EnumKeys
   KEY_RADIO,
   KEY_TELEM,
   TRM_BASE,
-  TRM_LH_DWN = TRM_BASE,
-  TRM_LH_UP,
-  TRM_LV_DWN,
-  TRM_LV_UP,
-  TRM_RV_DWN,
-  TRM_RV_UP,
-  TRM_RH_DWN,
-  TRM_RH_UP,
-  TRM_LS_DWN,
-  TRM_LS_UP,
-  TRM_LAST = TRM_LS_UP,
+  TRM1_DWN = TRM_BASE,
+  TRM1_UP,
+  TRM2_DWN,
+  TRM2_UP,
+  TRM3_DWN,
+  TRM3_UP,
+  TRM4_DWN,
+  TRM4_UP,
+  TRM5_DWN,
+  TRM5_UP,
+  TRM_LAST = TRM5_UP,
 
   NUM_KEYS
 };
