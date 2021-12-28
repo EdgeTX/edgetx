@@ -123,13 +123,15 @@ class RadioAnalogsDiagsWindow: public Window {
         dc->drawLine(touchState.x - 10, touchState.y - 8 - parent->top(), touchState.x + 10, touchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(touchState.x - 10, touchState.y + 8 - parent->top(), touchState.x + 10, touchState.y - 8- parent->top(), SOLID, 0);
       }
-#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
+#if !defined(SIMU) && !defined(PCBNV14)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
       coord_t x1 = MENUS_MARGIN_LEFT;
-      x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;
+  #if !defined(PCBPL18)
+      x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
       x1 = dc->drawNumber(x1, y1, touchGT911fwver, LEFT, 4) + 16;
+  #endif
       x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
-      dc->drawNumber(x1, y1, touchGT911hiccups, LEFT, 5);
+      dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);
 #endif
 #endif
     };
