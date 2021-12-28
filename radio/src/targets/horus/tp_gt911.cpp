@@ -408,7 +408,7 @@ bool touchGT911Flag = false;
 volatile static bool touchEventOccured = false;
 struct TouchData touchData;
 uint16_t touchGT911fwver = 0;
-uint32_t touchGT911hiccups = 0;
+uint32_t touchI2Chiccups = 0;
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
 short tapCount = 0;
@@ -731,7 +731,7 @@ struct TouchState touchPanelRead()
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
       //ledRed();
-      touchGT911hiccups++;
+      touchI2Chiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit())
           TRACE("I2C B1 ReInit failed");
@@ -757,7 +757,7 @@ struct TouchState touchPanelRead()
       if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG + 1, touchData.data,
                                   pointsCount * sizeof(TouchPoint))) {
         //ledRed();
-        touchGT911hiccups++;
+        touchI2Chiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit())
             TRACE("I2C B1 ReInit failed");

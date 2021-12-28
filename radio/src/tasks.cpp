@@ -229,7 +229,7 @@ TASK_FUNCTION(menusTask)
   }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(SIMU)
   touchPanelInit();
 #endif
   
