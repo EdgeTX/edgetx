@@ -371,7 +371,7 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
     Node gvars;
     for (size_t i=0; i<CPN_MAX_GVARS; i++) {
       if (!rhs.isGVarEmpty(phaseIdx, i)) {
-        gvars[std::to_string(i)] = rhs.gvars[i];
+        gvars[std::to_string(i)]["val"] = rhs.gvars[i];
       }
     }
     if (gvars && gvars.IsMap()) {
