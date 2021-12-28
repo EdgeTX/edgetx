@@ -621,6 +621,18 @@
   #define FLASH_SPI_MOSI_GPIO            GPIOA
   #define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_7  // PA.07
   #define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource7
+  #define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_3
+  #define FLASH_SPI_TX_DMA_STREAM        DMA1_Stream3
+  #define FLASH_SPI_TX_DMA_IRQn          DMA1_Stream3_IRQn
+  #define FLASH_SPI_TX_DMA_IRQHandler    DMA1_Stream3_IRQHandler
+  #define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF3
+  #define FLASH_SPI_TX_DMA_STATUS_REG    HISR
+  #define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_3
+  #define FLASH_SPI_RX_DMA_STREAM        DMA1_Stream5
+  #define FLASH_SPI_RX_DMA_IRQn          DMA1_Stream5_IRQn
+  #define FLASH_SPI_RX_DMA_IRQHandler    DMA1_Stream5_IRQHandler
+  #define FLASH_SPI_RX_DMA_STATUS_REG    HISR
+  #define FLASH_SPI_RX_DMA_FLAG_TC       DMA_IT_TCIF5
 #elif defined(PCBX10)
   #define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOI
   #define FLASH_RCC_APB1Periph           RCC_APB1Periph_SPI2
@@ -638,6 +650,18 @@
   #define FLASH_SPI_MOSI_GPIO            GPIOI
   #define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_3  // PI.03
   #define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource3
+  #define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_0
+  #define FLASH_SPI_TX_DMA_STREAM        DMA1_Stream4
+  #define FLASH_SPI_TX_DMA_IRQn          DMA1_Stream4_IRQn
+  #define FLASH_SPI_TX_DMA_IRQHandler    DMA1_Stream4_IRQHandler
+  #define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF4
+  #define FLASH_SPI_TX_DMA_STATUS_REG    HISR
+  #define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_0
+  #define FLASH_SPI_RX_DMA_STREAM        DMA1_Stream3
+  #define FLASH_SPI_RX_DMA_IRQn          DMA1_Stream3_IRQn
+  #define FLASH_SPI_RX_DMA_IRQHandler    DMA1_Stream3_IRQHandler
+  #define FLASH_SPI_RX_DMA_STATUS_REG    LISR
+  #define FLASH_SPI_RX_DMA_FLAG_TC       DMA_IT_TCIF3
 #endif
 
 // Audio

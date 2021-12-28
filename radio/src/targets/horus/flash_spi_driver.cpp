@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "rtos.h"
 #include "opentx.h"
 
 #if !defined(SIMU)
@@ -100,11 +101,18 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
         .writeCmd = 0x02,
         .writeEnableCmd = 0x06,
         .eraseSectorCmd = 0x20,
-        .eraseChipCmd = 0x60
+        .eraseChipCmd = 0xC7
     }
 };
 
 static const SpiFlashDescriptor* flashDescriptor = nullptr;
+static DMA_InitTypeDef dmaTxInfo = {0};
+static DMA_InitTypeDef dmaRxInfo =  {0};
+
+static RTOS_SEMAPHORE_HANDLE irqSem;
+static uint8_t *dmaReadBuf = nullptr;
+static uint8_t *dmaWriteBuf = nullptr;
+static volatile bool reading = false;
 
 void flashSpiInit(void)
 {
@@ -127,6 +135,7 @@ void flashSpiInit(void)
   GPIO_InitStructure.GPIO_Pin = FLASH_SPI_CS_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_Init(FLASH_SPI_CS_GPIO, &GPIO_InitStructure);
+  CS_HIGH();
 
   GPIO_PinAFConfig(FLASH_SPI_SCK_GPIO, FLASH_SPI_SCK_GPIO_PinSource, FLASH_SPI_GPIO_AF);
   GPIO_PinAFConfig(FLASH_SPI_MISO_GPIO, FLASH_SPI_MISO_GPIO_PinSource, FLASH_SPI_GPIO_AF);
@@ -150,7 +159,6 @@ void flashSpiInit(void)
 
   SPI_I2S_ClearFlag(FLASH_SPI, SPI_I2S_FLAG_RXNE);
   SPI_I2S_ClearFlag(FLASH_SPI, SPI_I2S_FLAG_TXE);
-
 }
 
 void flashSpiSetSpeed(uint8_t speed)
@@ -254,18 +262,43 @@ size_t flashSpiGetSize()
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
+  static char buf __DMA = 0;
+
   flashSpiSync();
 
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
+
+  DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
+
   CS_LOW();
+
   flashSpiReadWriteByte(flashDescriptor->readCmd);
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
-  for(size_t i = 0; i<size; i++)
-    *data++ = flashSpiReadWriteByte(0xff);
+
+  reading = true;
+
+  dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
+  dmaRxInfo.DMA_BufferSize = size;
+  DMA_Init(FLASH_SPI_RX_DMA_STREAM, &dmaRxInfo);
+  DMA_Cmd(FLASH_SPI_RX_DMA_STREAM, ENABLE);
+
+  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Disable;
+  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(buf);
+  dmaTxInfo.DMA_BufferSize = size;
+  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
+  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
+  DMA_ITConfig(FLASH_SPI_RX_DMA_STREAM, DMA_IT_TC, ENABLE);
+  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
+  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Rx|SPI_I2S_DMAReq_Tx, ENABLE);
+
+  RTOS_TAKE_SEMAPHORE(irqSem);
+
   delay_01us(100); // 10us
   CS_HIGH();
+
+  reading = false;
 
   return size;
 }
@@ -273,10 +306,12 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 {
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
-  if(size != 256)
+  if(size != flashDescriptor->pageSize || address%flashDescriptor->pageSize != 0)
 	  return -1;
 
   flashSpiSync();
+
+  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
 
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
@@ -289,10 +324,21 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
-  for(size_t i = 0; i<size; i++)
-    flashSpiReadWriteByte(*data++);
+
+  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
+  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
+  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
+  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
+  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Tx, ENABLE);
+  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
+
+  RTOS_TAKE_SEMAPHORE(irqSem);
+
   delay_01us(100); // 10us
   CS_HIGH();
+
+  flashSpiSync();
 
   return size;
 }
@@ -314,12 +360,16 @@ int flashSpiErase(size_t address)
   delay_01us(100); // 10us
   CS_HIGH();
 
+  flashSpiSync();
+
   return 0;
 }
 
 void flashSpiEraseAll()
 {
   flashSpiSync();
+
+  delay_01us(100); // 10us//
 
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
@@ -348,11 +398,78 @@ uint16_t flashSpiGetSectorCount()
   return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
 
+extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
+{
+  if (DMA_GetITStatus(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC))
+  {
+    DMA_ClearITPendingBit(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC);
+    if(!reading)
+      RTOS_GIVE_SEMAPHORE_ISR(irqSem);
+  }
+}
+extern "C" void FLASH_SPI_RX_DMA_IRQHandler(void)
+{
+  if (DMA_GetITStatus(FLASH_SPI_RX_DMA_STREAM, FLASH_SPI_RX_DMA_FLAG_TC))
+  {
+    DMA_ClearITPendingBit(FLASH_SPI_RX_DMA_STREAM, FLASH_SPI_RX_DMA_FLAG_TC);
+    RTOS_GIVE_SEMAPHORE_ISR(irqSem);
+  }
+}
+
+static void flashSpiInitDMA()
+{
+  RTOS_CREATE_SEAPHORE(irqSem);
+//  dmaReadBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
+//  dmaWriteBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
+  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
+  dmaTxInfo.DMA_Channel = FLASH_SPI_TX_DMA_CHANNEL;
+  dmaTxInfo.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLASH_SPI->DR);
+  dmaTxInfo.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(dmaWriteBuf);
+  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
+  dmaTxInfo.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  dmaTxInfo.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  dmaTxInfo.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  dmaTxInfo.DMA_Mode = DMA_Mode_Normal;
+  dmaTxInfo.DMA_Priority = DMA_Priority_Low;
+  dmaTxInfo.DMA_FIFOMode = DMA_FIFOMode_Disable;
+  dmaTxInfo.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+  dmaTxInfo.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  dmaTxInfo.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+  /* enable interrupt and set it's priority */
+  NVIC_EnableIRQ(FLASH_SPI_TX_DMA_IRQn);
+  NVIC_SetPriority(FLASH_SPI_TX_DMA_IRQn, 5);
+
+  DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
+  dmaRxInfo.DMA_Channel = FLASH_SPI_TX_DMA_CHANNEL;
+  dmaRxInfo.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLASH_SPI->DR);
+  dmaRxInfo.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(dmaReadBuf);
+  dmaRxInfo.DMA_BufferSize = flashDescriptor->pageSize;
+  dmaRxInfo.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  dmaRxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  dmaRxInfo.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  dmaRxInfo.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  dmaRxInfo.DMA_Mode = DMA_Mode_Normal;
+  dmaRxInfo.DMA_Priority = DMA_Priority_Low;
+  dmaRxInfo.DMA_FIFOMode = DMA_FIFOMode_Disable;
+  dmaRxInfo.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+  dmaRxInfo.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  dmaRxInfo.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+  /* enable interrupt and set it's priority */
+  NVIC_EnableIRQ(FLASH_SPI_RX_DMA_IRQn);
+  NVIC_SetPriority(FLASH_SPI_RX_DMA_IRQn, 5);
+
+}
+
 void flashInit()
 {
   flashSpiInit();
   flashSpiSetSpeed(SPI_SPEED_2);
-  delay_ms(1); // 1ms
+  delay_ms(1);
 
   uint16_t id = flashSpiReadID();
   for(size_t i = 0; i < sizeof(spiFlashDescriptors)/sizeof(SpiFlashDescriptor); i++)
@@ -363,6 +480,8 @@ void flashInit()
       break;
     }
   }
+  if(flashDescriptor != nullptr)
+    flashSpiInitDMA();
 }
 
 #endif
