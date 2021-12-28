@@ -137,7 +137,6 @@ void boardInit()
   flysky_hall_stick_init();
   init2MhzTimer();
   init1msTimer();
-  TouchInit();
   usbInit();
 
   uint32_t press_start = 0;
@@ -203,7 +202,7 @@ void boardInit()
 
 void boardOff()
 {
-  lcd->drawFilledRect(0, 0, LCD_WIDTH, LCD_HEIGHT, SOLID, COLOR_THEME_FOCUS);
+  lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_FOCUS);
   lcdOff();
 
   SysTick->CTRL = 0; // turn off systick
