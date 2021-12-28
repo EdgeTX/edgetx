@@ -11,3 +11,6 @@
 	path = radio/src/thirdparty/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
 	shallow = true
+[submodule "radio/src/thirdparty/littlefs_v2.4.1"]
+	path = radio/src/thirdparty/littlefs_v2.4.1
+	url = https://github.com/littlefs-project/littlefs.git
