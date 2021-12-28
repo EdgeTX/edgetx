@@ -34,7 +34,7 @@
 #include "stm32f4xx_fmc.h"
 #endif
 
-#include "touch_driver.h"
+#include "tp_cst340.h"
 //#include "hallStick_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
@@ -409,8 +409,8 @@ uint32_t pwrPressedDuration();;
 #define AUX_SERIAL_POWER_OFF()
 
 // LCD driver
-#define LCD_W                           480
-#define LCD_H                           320
+#define LCD_W                           320 /* TODO! should be 480 */
+#define LCD_H                           480 /* TODO! should be 320 */
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 void lcdInit();
