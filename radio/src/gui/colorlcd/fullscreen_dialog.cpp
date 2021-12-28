@@ -201,9 +201,11 @@ void raiseAlert(const char * title, const char * msg, const char * action, uint8
 {
   TRACE("raiseAlert('%s')", msg);
   AUDIO_ERROR_MESSAGE(sound);
+  LED_ERROR_BEGIN();
   auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, title ? title : "",
                                      msg ? msg : "", action ? action : "");
   dialog->runForever();
+  LED_ERROR_END();
 }
 
 // POPUP_CONFIRMATION
