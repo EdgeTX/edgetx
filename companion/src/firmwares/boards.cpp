@@ -486,7 +486,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return getCapability(board, Board::Switches);
 
     case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board || IS_FLYSKY_PL18(board)))
+      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board))
         return getCapability(board, Board::Switches) * 3;
       else
         return 9;
