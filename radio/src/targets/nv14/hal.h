@@ -309,6 +309,18 @@
 #define FLASH_SPI_MOSI_GPIO            GPIOG
 #define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
 #define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
+#define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_TX_DMA_STREAM        DMA2_Stream5
+#define FLASH_SPI_TX_DMA_IRQn          DMA2_Stream5_IRQn
+#define FLASH_SPI_TX_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+#define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF5
+#define FLASH_SPI_TX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_RX_DMA_STREAM        DMA2_Stream6
+#define FLASH_SPI_RX_DMA_IRQn          DMA2_Stream6_IRQn
+#define FLASH_SPI_RX_DMA_IRQHandler    DMA2_Stream6_IRQHandler
+#define FLASH_SPI_RX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_FLAG_TC       DMA_IT_TCIF6
 
 // Audio
 #define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOH)

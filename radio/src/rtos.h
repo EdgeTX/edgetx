@@ -160,6 +160,11 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
     StaticSemaphore_t mutex_struct;
   } RTOS_MUTEX_HANDLE;
   
+  typedef struct {
+    SemaphoreHandle_t rtos_handle;
+    StaticSemaphore_t semaphore_struct;
+  } RTOS_SEMAPHORE_HANDLE;
+
   typedef RTOS_MUTEX_HANDLE RTOS_FLAG_HANDLE;
   
   static inline void RTOS_START()
@@ -218,6 +223,37 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   }
 
   #define RTOS_UNLOCK_MUTEX(handle) _RTOS_UNLOCK_MUTEX(&handle)
+
+  static inline void _RTOS_CREATE_SEMAPHORE(RTOS_SEMAPHORE_HANDLE* h)
+  {
+    h->rtos_handle = xSemaphoreCreateBinaryStatic(&h->semaphore_struct);
+  }
+
+  #define RTOS_CREATE_SEAPHORE(handle) _RTOS_CREATE_SEMAPHORE(&handle)
+
+  static inline void _RTOS_TAKE_SEMAPHORE(RTOS_SEMAPHORE_HANDLE* h)
+  {
+    xSemaphoreTake(h->rtos_handle, portMAX_DELAY);
+  }
+
+  #define RTOS_TAKE_SEMAPHORE(handle) _RTOS_TAKE_SEMAPHORE(&handle)
+
+  static inline void _RTOS_GIVE_SEMAPHORE(RTOS_SEMAPHORE_HANDLE* h)
+  {
+    xSemaphoreGive(h->rtos_handle);
+  }
+
+  #define RTOS_GIVE_SEMAPHORE(handle) _RTOS_GIVE_SEMAPHORE(&handle)
+
+  static inline void _RTOS_GIVE_SEMAPHORE_ISR(RTOS_SEMAPHORE_HANDLE* h)
+  {
+    signed long pxHigherPriorityTaskWoken;
+    xSemaphoreGiveFromISR(h->rtos_handle, &pxHigherPriorityTaskWoken);
+
+    portYIELD_FROM_ISR(pxHigherPriorityTaskWoken);
+  }
+
+  #define RTOS_GIVE_SEMAPHORE_ISR(handle) _RTOS_GIVE_SEMAPHORE_ISR(&handle)
 
   //TODO: replace with FreeRTOS functions
   static inline uint32_t getStackAvailable(void * address, uint32_t size)

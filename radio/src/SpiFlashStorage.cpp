@@ -108,8 +108,10 @@ SpiFlashStorage::SpiFlashStorage()
   lfs_file_t file;
   err = lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
   if(err == LFS_ERR_OK)
+  {
     lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
-  lfs_file_close(&lfs, &file);
+    lfs_file_close(&lfs, &file);
+  }
 }
 
 SpiFlashStorage::~SpiFlashStorage()
@@ -229,7 +231,7 @@ bool SpiFlashStorage::isFileAvailable(const char * path, bool exclDir)
   } else {
     lfs_file_close(&lfs, &file);
   }
-  return false;
+  return true;
 }
 
 /**
