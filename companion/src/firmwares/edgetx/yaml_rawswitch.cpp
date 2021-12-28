@@ -81,12 +81,18 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   size_t val_len = sw_str.size();
   std::string sw_str_tmp = sw_str;
 
+  // yaml-cpp does not escape this
+  if (val_len > 0 && val[0] == '\\') {
+    val++; val_len--;
+    sw_str_tmp = sw_str_tmp.substr(1);
+  }
+
   bool neg = false;
   if (val_len > 0 && val[0] == '!') {
     neg = true;
     val++;
     val_len--;
-    sw_str_tmp = sw_str.substr(1);
+    sw_str_tmp = sw_str_tmp.substr(1);
   }
 
   int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
