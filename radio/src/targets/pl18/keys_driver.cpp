@@ -26,37 +26,68 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
   bool getKeys = true;
+
+/* TODO! Uncomment, only for testing
 #if defined(LUA)
   if (!isLuaStandaloneRunning()) {
     getKeys = false;
   }
 #endif
+*/
 
   if (getKeys) {
-    if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
-       result |= 1 << KEY_RADIO;
-     if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
-       result |= 1 << KEY_MODEL;
-     if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
-       result |= 1 << KEY_TELEM;
-     if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
-       result |= 1 << KEY_PGUP;
-     if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
-       result |= 1 << KEY_DOWN;
-     if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
-       result |= 1 << KEY_UP;
-     if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
-       result |= 1 << KEY_LEFT;
-     if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
-       result |= 1 << KEY_RIGHT;
+    GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+    GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+    GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+    GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
+    delay_us(10);
+
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << KEY_RADIO; // TR7 left
+
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << KEY_MODEL; // TR7 right
+
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << KEY_TELEM; // TR5 down
+
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << KEY_PGUP; // TR5 up
+
+    GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
+    GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+    delay_us(10);
+
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << KEY_DOWN; // TR3 down
+
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << KEY_UP; // TR3 up
+
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << KEY_LEFT; // TR4 up
+
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << KEY_RIGHT; // TR4 down
+
+    GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+    GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
   }
 
   // Enter and Exit are always supported
-  if (TRIMS_GPIO_REG_RPRESS & TRIMS_GPIO_PIN_RPRESS)
-    result |= 1 << KEY_ENTER;
-  if (TRIMS_GPIO_REG_LPRESS & TRIMS_GPIO_PIN_LPRESS)
-    result |= 1 << KEY_EXIT;
+  GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
+  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+  GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+  GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+  delay_us(10);
 
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+     result |= 1 << KEY_ENTER; // TR6 up
+
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+     result |= 1 << KEY_EXIT; // TR6 down
+
+  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
   return result;
 }
 
@@ -71,22 +102,17 @@ uint32_t readTrims()
   }
 #endif
   if(!getTrim) return result;
-  if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
-    result |= 1 << (TRM_LH_DWN - TRM_BASE);
-  if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
-    result |= 1 << (TRM_LH_UP - TRM_BASE);
-  if (TRIMS_GPIO_REG_LVD & TRIMS_GPIO_PIN_LVD)
-    result |= 1 << (TRM_LV_DWN - TRM_BASE);
-  if (TRIMS_GPIO_REG_LVU & TRIMS_GPIO_PIN_LVU)
-    result |= 1 << (TRM_LV_UP - TRM_BASE);
-  if (TRIMS_GPIO_REG_RVD & TRIMS_GPIO_PIN_RVD)
-    result |= 1 << (TRM_RV_DWN - TRM_BASE);
-  if (TRIMS_GPIO_REG_RVU & TRIMS_GPIO_PIN_RVU)
-    result |= 1 << (TRM_RV_UP - TRM_BASE);
-  if (TRIMS_GPIO_REG_RHL & TRIMS_GPIO_PIN_RHL)
-    result |= 1 << (TRM_RH_DWN - TRM_BASE);
-  if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
-    result |= 1 << (TRM_RH_UP - TRM_BASE);
+  if (TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
+    result |= 1 << (TRM1_UP - TRM_BASE);
+  if (TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
+    result |= 1 << (TRM1_DWN - TRM_BASE);
+
+  if (TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
+    result |= 1 << (TRM2_UP - TRM_BASE);
+  if (TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
+    result |= 1 << (TRM2_DWN - TRM_BASE);
+
+  // TODO! Extract the matrix trims
 
   return result;
 }
@@ -170,12 +196,22 @@ void keysInit()
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOD_PINS;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-  GPIO_InitStructure.GPIO_Pin = KEYS_GPIOG_PINS;
-  GPIO_Init(GPIOG, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = KEYS_GPIOF_PINS;
+  GPIO_Init(GPIOF, &GPIO_InitStructure);
 
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOH_PINS;
   GPIO_Init(GPIOH, &GPIO_InitStructure);
 
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOJ_PINS;
   GPIO_Init(GPIOJ, &GPIO_InitStructure);
+
+  // Matrix outputs
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+  GPIO_InitStructure.GPIO_Pin = KEYS_OUT_GPIOG_PINS;
+  GPIO_Init(GPIOG, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = KEYS_OUT_GPIOH_PINS;
+  GPIO_Init(GPIOH, &GPIO_InitStructure);
 }
