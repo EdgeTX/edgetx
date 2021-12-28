@@ -245,6 +245,14 @@ struct YamlSwitchWarningState {
   }
 };
 
+template <>
+void operator >> (const YAML::Node& node, FlightModeData& value)
+{
+  if (node && !node.IsNull()) {
+    YAML::convert<FlightModeData>::decode(node, value);
+  }
+}
+
 namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
@@ -419,25 +427,23 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
     return node;
 }
 
-template <>
-struct convert<FlightModeData> {
-  static bool decode(const Node& node, FlightModeData& rhs)
-  {
-    YamlTrim trims[CPN_MAX_TRIMS];
-    node["trim"] >> trims;
-    for (size_t i=0; i<CPN_MAX_TRIMS; i++) {
-      rhs.trimMode[i] = trims[i].mode;
-      rhs.trimRef[i] = trims[i].ref;
-      rhs.trim[i] = trims[i].value;
-    }
-    node["swtch"] >> rhs.swtch;
-    node["name"] >> rhs.name;
-    node["fadeIn"] >> rhs.fadeIn;
-    node["fadeOut"] >> rhs.fadeOut;
-    node["gvars"] >> rhs.gvars;
-    return true;
+bool convert<FlightModeData>::decode(const Node& node,
+                                     FlightModeData& rhs)
+{
+  YamlTrim trims[CPN_MAX_TRIMS];
+  node["trim"] >> trims;
+  for (size_t i = 0; i < CPN_MAX_TRIMS; i++) {
+    rhs.trimMode[i] = trims[i].mode;
+    rhs.trimRef[i] = trims[i].ref;
+    rhs.trim[i] = trims[i].value;
   }
-};
+  node["swtch"] >> rhs.swtch;
+  node["name"] >> rhs.name;
+  node["fadeIn"] >> rhs.fadeIn;
+  node["fadeOut"] >> rhs.fadeOut;
+  node["gvars"] >> rhs.gvars;
+  return true;
+}
 
 template <>
 struct convert<SwashRingData> {

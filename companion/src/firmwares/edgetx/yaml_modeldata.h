@@ -30,6 +30,11 @@ struct convert<TimerData> {
 };
 
 template <>
+struct convert<FlightModeData> {
+  static bool decode(const Node& node, FlightModeData& rhs);
+};
+
+template <>
 struct convert<ModelData> {
   static Node encode(const ModelData& rhs);
   static bool decode(const Node& node, ModelData& rhs);
