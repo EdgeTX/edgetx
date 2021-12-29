@@ -496,7 +496,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             }
             else {
 
-                if (isParentArrayElmt() && !toParent())
+                if (isParentArrayElmt() && (getParent() == node) && !toParent())
                     return false;
                 
                 // walk to next non-empty element
