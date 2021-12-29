@@ -407,7 +407,7 @@ const uint8_t TOUCH_GT911_Cfg[] =
 bool touchGT911Flag = false;
 volatile static bool touchEventOccured = false;
 struct TouchData touchData;
-uint16_t touchGT911fwver = 0;
+uint16_t touchICfwver = 0;
 uint32_t touchI2Chiccups = 0;
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
@@ -659,8 +659,8 @@ bool touchPanelInit(void)
       }
       else
       {
-          touchGT911fwver = (tmp[1] << 8) + tmp[0];
-          TRACE("GT911 FW version: %u", touchGT911fwver);
+          touchICfwver = (tmp[1] << 8) + tmp[0];
+          TRACE("GT911 FW version: %u", touchICfwver);
       }
 
       delay_ms(10);
