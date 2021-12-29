@@ -137,20 +137,19 @@
 
 /*Use STM32's DMA2D (aka Chrom Art) GPU*/
 #if defined(SIMU)
-#define LV_USE_GPU_STM32_DMA2D 0
-#else //SIUM
-#define LV_USE_GPU_STM32_DMA2D 1
-#endif // SIMU
-#if LV_USE_GPU_STM32_DMA2D
+  #define LV_USE_GPU_STM32_DMA2D 0
+#else //SIMU
+  #define LV_USE_GPU_STM32_DMA2D 1
+#endif
+
 /*Must be defined to include path of CMSIS header of target processor
 e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
-#define LV_GPU_DMA2D_CMSIS_INCLUDE stm32f4xx.h
+#define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f4xx.h"
 #define DMA2D_NLR_PL_Pos 16
 #define DMA2D_NLR_NL_Pos 0
 #define DMA2D_CR_START_Msk DMA2D_CR_START
 #define DMA2D_FGPFCCR_AM_Pos 16
 #define DMA2D_FGPFCCR_ALPHA_Pos 24
-#endif
 
 /*Use NXP's PXP GPU iMX RTxxx platforms*/
 #define LV_USE_GPU_NXP_PXP 0
