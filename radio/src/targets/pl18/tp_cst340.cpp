@@ -26,6 +26,7 @@
 bool touchCST340Flag = false;
 volatile static bool touchEventOccured = false;
 struct TouchData touchData;
+uint16_t touchICfwver = 0;
 uint32_t touchI2Chiccups = 0;
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
@@ -76,7 +77,6 @@ static void TOUCH_AF_ExtiConfig(void)
   NVIC_Init(&NVIC_InitStructure);
 }
 
-/* Currently not used, as no CST340 register needs to be written
 bool I2C_CST340_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 {
     uint8_t uAddrAndBuf[6];
@@ -97,7 +97,7 @@ bool I2C_CST340_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
         return false;
     }
     return true;
-} */
+}
 
 bool I2C_CST340_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 {
@@ -188,11 +188,39 @@ bool touchPanelInit(void)
     delay_ms(400);	// FlySky example uses 20ms only, datasheet says 300ms
 
 	TOUCH_AF_ExtiConfig();
+
+    // Enter info mode
+    if (!I2C_CST340_WriteRegister(CST340_MODE_DEBUG_INFO, tmp, 0)) {
+        TRACE("CST340 chip NOT FOUND");
+        return false;
+    }
 	
-    if (!I2C_CST340_ReadRegister(CST340_READ_XY_REG, tmp, 4)) {
-      TRACE("CST340 chip NOT FOUND");
+    if (!I2C_CST340_ReadRegister(CST340_CHIPTYPE_REG, tmp, 4)) {
+      TRACE("Error reading CST340 chip type!");
       return false;
 	}
+
+    // Check the value, expected ChipID
+    if ((tmp[0] << 8) + tmp[1] != CST340_CHIP_ID) {
+        TRACE("Error identifying CST340 touch controller chip!");
+        return false;
+    }
+
+    TRACE("CST340 chip detected");
+
+    if (!I2C_CST340_ReadRegister(CST340_FWVER_REG, tmp, 4)) {
+      TRACE("Error reading CST340 firmware version!");
+      return false;
+    }
+
+    // Enter normal mode
+    if (!I2C_CST340_WriteRegister(CST340_MODE_NORMAL, tmp, 0)) {
+        TRACE("ERROR chaning CST340 mode back to normal!");
+        return false;
+    }
+
+    touchICfwver = (tmp[0] << 8) + tmp[1];
+    TRACE("CST340 FW version: %u", touchICfwver);
     touchCST340Flag = true;
   }
   return true;
@@ -250,7 +278,7 @@ struct TouchState touchPanelRead()
     tmr10ms_t now = get_tmr10ms();
     internalTouchState.tapCount = 0;
 
-    if (!I2C_CST340_ReadRegister(CST340_READ_XY_REG, touchData, 4)) {
+    if (!I2C_CST340_ReadRegister(CST340_FINGER1_REG, touchData, 4)) {
       touchI2Chiccups++;
       TRACE("CST340 I2C read XY error");
       if (!I2C_ReInit())

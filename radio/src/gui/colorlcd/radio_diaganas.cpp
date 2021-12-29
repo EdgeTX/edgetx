@@ -143,10 +143,14 @@ class AnaCalibratedViewWindow: public Window {
 #if !defined(SIMU) && !defined(PCBNV14)
         constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
         coord_t x1 = MENUS_MARGIN_LEFT;
-  #if !defined(PCBPL18)
       x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
-        x1 = dc->drawNumber(x1, y1, touchGT911fwver, LEFT, 4) + 16;
-  #endif
+#if defined(PCBPL18) // major.minor format
+      x1 = dc->drawNumber(x1, y1, touchICfwver >> 8, LEFT, 0);
+      x1 = dc->drawText(x1, y1, ".");
+      x1 = dc->drawNumber(x1, y1, touchICfwver & 0xFF, LEFT, 0) + 16;
+#else
+      x1 = dc->drawNumber(x1, y1, touchICfwver, LEFT, 4) + 16;
+#endif
         x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
       dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);
       #endif
