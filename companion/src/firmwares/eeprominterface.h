@@ -262,6 +262,8 @@ enum EepromLoadErrors {
   NUM_ERRORS
 };
 
+constexpr char FIRMWARE_ID_PREFIX[] = { "edgetx-" };
+
 class Firmware
 {
   Q_DECLARE_TR_FUNCTIONS(Firmware)
@@ -403,6 +405,13 @@ class Firmware
     static void setCurrentVariant(Firmware * value)
     {
       currentVariant = value;
+    }
+
+    QString getFlavour();
+
+    static Firmware * getFirmwareForFlavour(const QString & flavour)
+    {
+      return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
     }
 
     const StringTagMappingTable* getAnalogIndexNamesLookupTable()

@@ -1345,6 +1345,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     setCurrentFile(filename);
   }
 
+  //  For etx files this will never be true as any conversion occurs when parsing file
   if (!Boards::isBoardCompatible(storage.getBoard(), getCurrentBoard())) {
     if (!convertStorage(storage.getBoard(), getCurrentBoard(), true))
       return false;

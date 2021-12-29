@@ -240,8 +240,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     return false;
   }
 
-  // TODO: provide a simple text mapping
-  board = Board::BOARD_RADIOMASTER_TX16S;
+  board = (Board::Type)radioData.generalSettings.variant;
 
   // get models
   QByteArray modelslistBuffer;

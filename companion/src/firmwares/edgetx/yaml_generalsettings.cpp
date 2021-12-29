@@ -27,6 +27,8 @@
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
 
+#include <QMessageBox>
+
 const YamlLookupTable beeperModeLut = {
   {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
   {  GeneralSettings::BEEPER_ALARMS_ONLY, "mode_alarms" },
@@ -81,9 +83,11 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 {
   Node node;
 
+  std::string board = getCurrentFirmware()->getFlavour().toStdString();
+  node["board"] = board;
+
   node["version"] = CPN_CURRENT_SETTINGS_VERSION;
 
-  // Radio calib
   YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
   node["calib"] = calib;
 
@@ -198,21 +202,40 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //   qDebug() << QString::fromStdString(n.first.Scalar());
   // }
 
-  // TODO: check board string and fetch Board instance
-  std::string board;
-  node["board"] >> board;
-  // TODO: we should be able to fetch the board based on 'board'
-  // auto fw = getCurrentFirmware();
-  // if (fw) {
-  //   qDebug() << "FW Id: " << fw->getId();
-  //   if (fw->getId() != ("edgetx-" + radioData.generalSettings.board)) {
-  //     throw std::runtime_error("Wrong board");
-  //   }
-  // }
-
   node["version"] >> rhs.version;
 
-  // Radio calib
+  // Decoding uses profile firmare therefore all conversions are performed on the fly
+  // So set board to firmware board
+  // However we should alert users that conversions may have occured
+  // If conversion should rename file with _converted suffix as done for bin
+  // Need to pass back messages and flags like converted so they can be handled in a more suitable section
+
+  rhs.variant = Board::BOARD_UNKNOWN;
+
+  std::string flavour;
+  node["board"] >> flavour;
+
+  auto fw = getCurrentFirmware();
+  auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
+
+  if (flavour.empty()) {
+    qDebug() << "Warning: Settings file does not contain board flavour! Default firmware board will be used";
+    flavour = msfw->getFlavour().toStdString();
+  }
+
+  qDebug() << "Settings version:" << rhs.version << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
+
+  if (fw->getFlavour().toStdString() != flavour) {
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "File board (%1) does not match current profile board (%2), models and settings will be converted where possible.\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
+
+    if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
+    }
+  }
+
+  rhs.variant = fw->getBoard();
+
   YamlCalibData calib;
   node["calib"] >> calib;
   calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
