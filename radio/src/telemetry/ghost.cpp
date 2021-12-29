@@ -302,6 +302,20 @@ void processGhostTelemetryFrame()
       processGhostTelemetryValue(GHOST_ID_GPS_SATS, telemetryRxBuffer[7]);   
       break; 
     }
+    case GHST_DL_MAGBARO: {
+      // Not implemented yet
+      break;
+    }
+#if defined(LUA)
+    default:
+      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(telemetryRxBufferCount-2) ) {
+        for (uint8_t i=1; i<telemetryRxBufferCount-1; i++) {
+          // destination address and CRC are skipped
+          luaInputTelemetryFifo->push(telemetryRxBuffer[i]);
+        }
+      }
+      break;
+#endif
   }
 }
 
