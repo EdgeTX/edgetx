@@ -25,7 +25,14 @@
 
 #define HAS_TOUCH_PANEL()           touchCST340Flag == true
 
-#define CST340_READ_XY_REG          0xD000		// Touch info register
+#define CST340_MODE_DEBUG_INFO      0xD101      // To read out chip ID and firmware version
+#define CST340_MODE_NORMAL          0xD109      // Normal mode
+#define CST340_FINGER1_REG          0xD000		// Touch info register
+#define CST340_CHIPTYPE_REG         0xD204		// uint16_t chip IC type & uint16_t project ID register
+#define CST340_FWVER_REG            0xD208		// Firmware version register(uint8_t major, uint8_t minor, uint16_t build)
+
+#define CST340_CHIP_ID              0x011C      // Expected answer to CST340_CHIPTYPE_REG query for the ChipID field
+
 #define TOUCH_POINTS_MAX            5	        // Max touch points
 
 #define TOUCH_ACK                   0  			       
@@ -35,6 +42,7 @@
 
 extern bool touchCST340Flag;
 extern uint32_t touchI2Chiccups;
+extern uint16_t touchICfwver;
 extern bool touchPanelInit();
 
 struct TouchState touchPanelRead();
