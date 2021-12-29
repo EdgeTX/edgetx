@@ -222,6 +222,12 @@ bool touchPanelInit(void)
     touchICfwver = (tmp[0] << 8) + tmp[1];
     TRACE("CST340 FW version: %u", touchICfwver);
     touchCST340Flag = true;
+
+    // Read once the finger register
+    if (!I2C_CST340_ReadRegister(CST340_FINGER1_REG, tmp, 4)) {
+        TRACE("Initial CST340 finger1 data register read failed!");
+        return false;
+    }
   }
   return true;
 }
