@@ -330,10 +330,17 @@ void RadioHardwarePage::build(FormWindow * window)
 #if defined(HARDWARE_INTERNAL_MODULE)
   new StaticText(window, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
                  COLOR_THEME_PRIMARY1);
-  auto internalModule =
-      new Choice(window, grid.getFieldSlot(1, 0), STR_INTERNAL_MODULE_PROTOCOLS,
-                 MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-                 GET_SET_DEFAULT(g_eeGeneral.internalModule));
+  auto internalModule = new Choice(window, grid.getFieldSlot(1, 0),
+      STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+      GET_DEFAULT(g_eeGeneral.internalModule),
+      [=](int moduleType) {
+        if (!isInternalModuleAvailable(moduleType)) {
+          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+        }
+        storageDirty(EE_MODEL);
+        g_eeGeneral.internalModule = moduleType;
+        SET_DIRTY();
+      });
 
   internalModule->setAvailableHandler([](int module){
       return isInternalModuleSupported(module);
