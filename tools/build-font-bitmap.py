@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
-from charset import get_chars, special_chars, extra_chars, standard_chars, is_cjk_char
+from charset import get_chars, special_chars, extra_chars, standard_chars
 
 EXTRA_BITMAP_MAX_WIDTH = 297
 
@@ -50,7 +50,7 @@ class FontBitmap:
 
         return (text_width, text_height)
 
-    def draw_char(self, draw, x, c):
+    def draw_char(self, draw, x, y, c):
 
         # default width for space
         width = 4
@@ -64,7 +64,7 @@ class FontBitmap:
               width = self.font.getmask(c).getbbox()[2]
               _, (offset_x, offset_y) = self.font.font.getsize(c)
 
-            draw.text((x - offset_x, 0), c, fill=self.foreground, font=self.font)
+            draw.text((x - offset_x, y), c, fill=self.foreground, font=self.font)
 
         return width
 
@@ -73,6 +73,11 @@ class FontBitmap:
 
         (_,baseline), (offset_x, offset_y) = self.font.font.getsize(self.chars)
         (text_width, text_height) = self.get_text_dimensions(self.chars)
+        y_shifts = 0
+        if offset_y < 0:
+            y_shifts = -offset_y
+            text_height += y_shifts
+            offset_y = 0
 
         img_width = text_width + self.extra_bitmap_width
         image = Image.new("RGB", (img_width, text_height), self.background)
@@ -89,7 +94,7 @@ class FontBitmap:
                     if self.extra_bitmap:
 
                         # copy extra_bitmap at once
-                        image.paste(self.extra_bitmap, (width, offset_y))
+                        image.paste(self.extra_bitmap, (width, offset_y + y_shifts))
 
                         # append width for extra_bitmap symbols
                         for coord in [14, 14, 12, 12, 13, 13, 13, 13, 13] + [15] * 12:
@@ -106,7 +111,7 @@ class FontBitmap:
                 continue
 
             # normal characters + CJK
-            w = self.draw_char(draw, width, c)
+            w = self.draw_char(draw, width, y_shifts, c)
 
             coords.append(width)
             width += w
