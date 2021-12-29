@@ -113,22 +113,17 @@ class RadioAnalogsDiagsWindow: public Window {
 #endif
 
 #if defined(HARDWARE_TOUCH)
-#if defined SIMU
-      #define TOUCH_STATE simTouchState
-#else
-      #define TOUCH_STATE internalTouchState
-      TouchState internalTouchState = getInternalTouchState();
-#endif
+      TouchState rawTouchState = getInternalTouchState();
       constexpr coord_t y = MENU_CONTENT_TOP + 5 * FH;
 
-      if (TOUCH_STATE.event != TE_NONE && TOUCH_STATE.event != TE_SLIDE_END) {
-        TRACE("touch event: %d", TOUCH_STATE.event);
+      if (rawTouchState.event != TE_NONE && rawTouchState.event != TE_SLIDE_END) {
+        TRACE("touch event: %d", rawTouchState.event);
         coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
-        x = dc->drawNumber(x + 5, y, TOUCH_STATE.x);
+        x = dc->drawNumber(x + 5, y, rawTouchState.x);
         x = dc->drawText(x, y, ":");
-        dc->drawNumber(x, y, TOUCH_STATE.y);
-        dc->drawLine(TOUCH_STATE.x - 10, TOUCH_STATE.y - 8 - parent->top(), TOUCH_STATE.x + 10, TOUCH_STATE.y + 8 - parent->top(), SOLID, 0);
-        dc->drawLine(TOUCH_STATE.x - 10, TOUCH_STATE.y + 8 - parent->top(), TOUCH_STATE.x + 10, TOUCH_STATE.y - 8- parent->top(), SOLID, 0);
+        dc->drawNumber(x, y, rawTouchState.y);
+        dc->drawLine(rawTouchState.x - 10, rawTouchState.y - 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y + 8 - parent->top(), SOLID, 0);
+        dc->drawLine(rawTouchState.x - 10, rawTouchState.y + 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y - 8- parent->top(), SOLID, 0);
       }
 #if !defined(SIMU) && !defined(PCBNV14)
       constexpr coord_t y1 = MENU_CONTENT_TOP + 6 * FH;
