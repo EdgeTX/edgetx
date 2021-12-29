@@ -101,7 +101,7 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
   deco->setFlightModeVisible(false);
   deco->adjustDecoration();
 
-#if defined(PCBNV14) // TODO! Check || defined (PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
                     [=]() -> uint8_t {
                         nextStep();
