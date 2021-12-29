@@ -117,7 +117,6 @@ class RadioAnalogsDiagsWindow: public Window {
       constexpr coord_t y = MENU_CONTENT_TOP + 5 * FH;
 
       if (rawTouchState.event != TE_NONE && rawTouchState.event != TE_SLIDE_END) {
-        TRACE("touch event: %d", rawTouchState.event);
         coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
         x = dc->drawNumber(x + 5, y, rawTouchState.x);
         x = dc->drawText(x, y, ":");
