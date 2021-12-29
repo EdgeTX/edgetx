@@ -471,7 +471,7 @@ void AppData::clearUnusedSettings(QSettings & settings)
 bool AppData::findPreviousVersionSettings(QString * version) const
 {
   //  TODO need a more dynamic method since ETX moves so quickly
-  static const QStringList versList({QStringLiteral("2.5"), QStringLiteral("2.4")});
+  static const QStringList versList({QStringLiteral("2.6"), QStringLiteral("2.5"), QStringLiteral("2.4")});
 
   for (const QString &ver : versList) {
     const QString prod("Companion " % ver);
