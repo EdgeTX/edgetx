@@ -557,3 +557,8 @@ TouchState touchPanelRead()
     internalTouchState.event = TE_NONE;
   return ret;
 }
+
+TouchState getInternalTouchState()
+{
+  return internalTouchState;
+}
