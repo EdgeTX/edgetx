@@ -142,6 +142,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   }
   node["func"] = LookupValue(customFnLut, fn);
 
+  bool add_comma = true;
   std::string def;
   switch(fn) {
   case FuncOverrideCH1:
@@ -202,16 +203,17 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += std::to_string(rhs.param);
     break;
   default:
+    add_comma = false;
     break;
   }
 
   if (fnHasEnable(rhs.func)) {
-    if (!def.empty()) {
+    if (add_comma) {
       def += ",";
     }
     def += std::to_string((int)rhs.enabled);
   } else if(fnHasRepeat(rhs.func)) {
-    if (!def.empty()) {
+    if (add_comma) {
       def += ",";
     }
     if (rhs.repeatParam == 0) {
@@ -352,7 +354,9 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     } else if (repeat == "!1x") {
       rhs.repeatParam = -1;
     } else {
-      rhs.repeatParam = std::stoi(repeat);
+      try {
+        rhs.repeatParam = std::stoi(repeat);
+      } catch(...) {}
     }
   }
 
