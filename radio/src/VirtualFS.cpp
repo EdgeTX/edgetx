@@ -21,10 +21,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <VirtualFS.h>
 #include <vector>
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 
 #if defined(LIBOPENUI)
@@ -192,6 +192,10 @@ void VirtualFS::normalizePath(std::string& path)
   std::vector<std::string> tokens;
   size_t oldpos = 0;
 
+  if(path[0] != '/')
+    path = curWorkDir + PATH_SEPARATOR + path;
+
+
   while (1)
   {
       size_t newpos = path.find_first_of(PATH_SEPARATOR, oldpos);
@@ -228,18 +232,16 @@ int VirtualFS::changeDirectory(const std::string& path)
   if(path.length() == 0)
     return -1;
 
-  if(path[0] == '/')
-    curWorkDir = path;
-  else
-    curWorkDir = curWorkDir + PATH_SEPARATOR + path;
-
-  normalizePath(curWorkDir);
+  std::string newWorkDir = path;
+  normalizePath(newWorkDir);
+  curWorkDir = newWorkDir;
 
   return 0;
 }
 
 int VirtualFS::openDirectory(VfsDir& dir, const char * path)
 {
+  dir.clear();
   if(path == nullptr)
     return -1;
 
@@ -247,9 +249,6 @@ int VirtualFS::openDirectory(VfsDir& dir, const char * path)
     return -1;
 
   std::string dirPath(path);
-
-  if(dirPath[0] != '/')
-    dirPath = curWorkDir + dirPath;
 
   normalizePath(dirPath);
 
@@ -270,6 +269,7 @@ int VirtualFS::openDirectory(VfsDir& dir, const char * path)
 
 int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
 {
+  info.clear();
   switch(dir.type)
   {
   case VfsDir::DIR_ROOT:
@@ -284,7 +284,13 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
     return 0;
   case VfsDir::DIR_FAT:
     info.type = VfsFileInfo::FILE_FAT;
-    return sdReadDir(&dir.fatDir, &info.fatInfo, firstTime);
+    if(dir.readIdx == 0)
+    {
+      dir.readIdx++;
+      info.name = "..";
+      return 0;
+    }
+    return sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime);
   case VfsDir::DIR_LFS:
     info.type = VfsFileInfo::FILE_LFS;
     return lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
@@ -294,14 +300,18 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
 
 int VirtualFS::closeDirectory(VfsDir& dir)
 {
+  int ret = -1;
   switch(dir.type)
   {
   case VfsDir::DIR_FAT:
-    return f_closedir(&dir.fatDir);
+    ret = f_closedir(&dir.fatDir);
+    break;
   case VfsDir::DIR_LFS:
-    return lfs_dir_close(&lfs, &dir.lfsDir);
+    ret = lfs_dir_close(&lfs, &dir.lfsDir);
+    break;
   }
-  return -1;
+  dir.clear();
+  return ret;
 }
 
 int VirtualFS::rename(const char* oldPath, const char* newPath)

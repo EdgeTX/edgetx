@@ -21,6 +21,8 @@
 #ifndef _SPIFLASHSTORAGE_H_
 #define _SPIFLASHSTORAGE_H_
 
+#include <string>
+
 #include "littlefs_v2.4.1/lfs.h"
 #include "sdcard.h"
 
@@ -121,27 +123,38 @@ private:
 
   enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
 
+  void clear()
+  {
+    type = DIR_UNKNOWN;
+    lfsDir = {0};
+    fatDir = {0};
+
+    readIdx = 0;
+    firstTime = true;
+  }
+
   DirType type = DIR_UNKNOWN;
   lfs_dir_t lfsDir = {0};
   DIR fatDir = {0};
 
   size_t readIdx = 0;
+  bool firstTime = true;
 };
 
 enum VfsType {VFS_TYPE_UNKNOWN, VFS_TYPE_DIR, VFS_TYPE_FILE};
+
 struct VfsFileInfo
 {
 public:
   VfsFileInfo(){}
   ~VfsFileInfo(){}
 
-
   std::string getName()
   {
     switch(type)
     {
     case FILE_ROOT: return name;
-    case FILE_FAT:  return fatInfo.fname;
+    case FILE_FAT:  return(!name.empty())?name:fatInfo.fname;
     case FILE_LFS:  return lfsInfo.name;
     }
     return "";
@@ -151,13 +164,18 @@ public:
   {
     switch(type)
     {
-    case FILE_ROOT: return VFS_TYPE_DIR;
+    case FILE_ROOT:
+      return VFS_TYPE_DIR;
+
     case FILE_FAT:
+      if (!name.empty())
+        return VFS_TYPE_DIR;
       if(fatInfo.fattrib & AM_DIR)
         return VFS_TYPE_DIR;
       else
         return VFS_TYPE_FILE;
     case FILE_LFS:
+
       if(lfsInfo.type == LFS_TYPE_DIR)
         return VFS_TYPE_DIR;
       else
@@ -171,6 +189,13 @@ private:
   VfsFileInfo(const VfsFileInfo&);
 
   enum FileType {FILE_UNKNOWN, FILE_ROOT, FILE_FAT, FILE_LFS};
+
+  void clear() {
+    type = FILE_UNKNOWN;
+    lfsInfo = {0};
+    fatInfo = {0};
+    name.clear();
+  }
 
   FileType type = FILE_UNKNOWN;
   lfs_info lfsInfo = {0};

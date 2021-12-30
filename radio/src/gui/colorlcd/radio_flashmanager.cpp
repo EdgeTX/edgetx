@@ -230,9 +230,9 @@ void RadioFlashManagerPage::build(FormWindow * window)
         continue; // Ignore hidden files under UNIX, but not ..
 
       if (fno.getType() == VFS_TYPE_DIR) {
-        directories.push_back((char*)name.c_str());
+        directories.push_back(name);
       } else {
-        files.push_back((char*)name.c_str());
+        files.push_back(name);
       }
     }
     flash->closeDirectory(dir);
