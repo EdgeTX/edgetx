@@ -32,6 +32,7 @@ extern bool touchPanelInit();
 
 struct TouchState touchPanelRead();
 bool touchPanelEventOccured();
+struct TouchState getInternalTouchState();
 
 #define GT911_TIMEOUT           3 // 3ms
 

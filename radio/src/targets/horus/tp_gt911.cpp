@@ -821,3 +821,9 @@ bool touchPanelEventOccured()
 {
   return touchEventOccured;
 }
+
+TouchState getInternalTouchState()
+{
+  return internalTouchState;
+}
+
