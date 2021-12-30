@@ -72,7 +72,7 @@ void menuRadioDiagKeys(event_t event)
 #elif (NUM_SWITCHES > 6)
     if (i < NUM_SWITCHES) {
       if (SWITCH_EXISTS(i)) {
-        y = (i > 4) ? FH*(i-4) : MENU_HEADER_HEIGHT + FH*i;
+        y = (i > 4) ? FH*(i-4)+1 : MENU_HEADER_HEIGHT + FH*i + 1;
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH+i);
         getvalue_t sw = ((val < 0) ? 3*i+1 : ((val == 0) ? 3*i+2 : 3*i+3));
         drawSwitch(i > 4 ? 11*FW-5: 8*FW-9, y, sw, 0, false);
@@ -101,8 +101,8 @@ void menuRadioDiagKeys(event_t event)
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  coord_t y = LCD_H - FH - 1;
-  lcdDrawText(0, y, STR_ROTARY_ENCODER);
-  lcdDrawNumber(5*FW+FWNUM+2, y, rotencValue / ROTARY_ENCODER_GRANULARITY, RIGHT);
+  coord_t y = LCD_H - FH + 1;
+  lcdDrawText(8*FW-9, y, STR_ROTARY_ENCODER);
+  lcdDrawNumber(12*FW+FWNUM+2, y, rotencValue / ROTARY_ENCODER_GRANULARITY, RIGHT);
 #endif
 }
