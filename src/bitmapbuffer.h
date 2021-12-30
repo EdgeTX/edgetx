@@ -36,7 +36,7 @@ constexpr uint8_t STASHED = 0x33;
 #define APPLY_OFFSET() x += this->offsetX; y += this->offsetY
 #define RESTORE_OFFSET()  this->offsetX = offsetX, this->offsetY = offsetY
 
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
   #define MOVE_PIXEL_RIGHT(p, count)   p -= count
 #else
   #define MOVE_PIXEL_RIGHT(p, count)   p += count
@@ -156,7 +156,7 @@ class BitmapBufferBase
 
     inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
     {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
@@ -401,7 +401,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     inline const pixel_t * getPixelPtrAbs(coord_t x, coord_t y) const
     {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
@@ -410,7 +410,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     inline pixel_t * getPixelPtrAbs(coord_t x, coord_t y)
     {
-#if defined(LCD_VERTICAL_INVERT)
+#if defined(LCD_VERTICAL_INVERT) && 0
       x = _width - x - 1;
       y = _height - y - 1;
 #endif
