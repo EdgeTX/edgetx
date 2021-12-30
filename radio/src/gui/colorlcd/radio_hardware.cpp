@@ -336,8 +336,8 @@ void RadioHardwarePage::build(FormWindow * window)
       [=](int moduleType) {
         if (!isInternalModuleAvailable(moduleType)) {
           memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+          storageDirty(EE_MODEL);
         }
-        storageDirty(EE_MODEL);
         g_eeGeneral.internalModule = moduleType;
         SET_DIRTY();
       });
