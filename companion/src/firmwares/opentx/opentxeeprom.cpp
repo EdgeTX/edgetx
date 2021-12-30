@@ -1280,10 +1280,6 @@ class CurvesField: public TransformedField {
             curve->points[j].x = *cur++;
           curve->points[curve->count-1].x = +100;
         }
-        else {
-          for (int j=0; j<curve->count; j++)
-            curve->points[j].x = -100 + (200*i) / (curve->count-1);
-        }
         qCDebug(eepromImport) << QString("imported curve: %3 points").arg(curve->count);
       }
     }
