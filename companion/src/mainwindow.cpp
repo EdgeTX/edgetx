@@ -907,7 +907,7 @@ void MainWindow::readSettings()
 {
   Board::Type board = getCurrentBoard();
   QString tempFile;
-  if (IS_FAMILY_HORUS_OR_T16(board))
+  if (Boards::getCapability(board, Board::HasSDCard))
     tempFile = generateProcessUniqueTempFileName("temp.etx");
   else
     tempFile = generateProcessUniqueTempFileName("temp.bin");

@@ -60,9 +60,11 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
 bool SdcardFormat::getFileList(std::list<std::string>& filelist)
 {
   QDir dir(filename);
+  if (!dir.cd("MODELS")) return false;
+  
   QStringList ql = dir.entryList();
   for (const auto& str : ql) {
-    filelist.push_back(str.toStdString());
+    filelist.push_back("MODELS/" + str.toStdString());
   }
   return true;
 }
