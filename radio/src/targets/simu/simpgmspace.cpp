@@ -915,4 +915,9 @@ struct TouchState touchPanelRead()
   simTouchState.deltaY = 0;
   return st;
 }
+
+struct TouchState getInternalTouchState()
+{
+  return simTouchState;
+}
 #endif
