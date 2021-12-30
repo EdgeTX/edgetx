@@ -529,11 +529,21 @@ void menuRadioHardware(event_t event)
 
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE:
-        g_eeGeneral.internalModule =
-            editChoice(HW_SETTINGS_COLUMN2, y, STR_INTERNAL_MODULE,
-                       STR_INTERNAL_MODULE_PROTOCOLS,
-                       g_eeGeneral.internalModule, MODULE_TYPE_NONE,
-                       MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
+        reusableBuffer.radioHardware.internalModule =
+            g_eeGeneral.internalModule;
+        reusableBuffer.radioHardware.internalModule = editChoice(
+            HW_SETTINGS_COLUMN2, y, STR_INTERNAL_MODULE,
+            STR_INTERNAL_MODULE_PROTOCOLS,
+            reusableBuffer.radioHardware.internalModule, MODULE_TYPE_NONE,
+            MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
+        if (reusableBuffer.radioHardware.internalModule !=
+            g_model.moduleData[INTERNAL_MODULE].type) {
+          storageDirty(EE_MODEL);
+          g_eeGeneral.internalModule =
+              reusableBuffer.radioHardware.internalModule;
+          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+          storageDirty(EE_GENERAL);
+        }
         break;
 #endif
 

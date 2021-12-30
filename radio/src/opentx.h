@@ -1076,6 +1076,7 @@ union ReusableBuffer
 
   struct {
     int8_t antennaMode;
+    int8_t internalModule;
   } radioHardware;
 
   struct {
