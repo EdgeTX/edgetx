@@ -325,15 +325,17 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
 
-  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
-  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
-  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
-  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
-  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
-  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Tx, ENABLE);
-  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
-
-  RTOS_TAKE_SEMAPHORE(irqSem);
+//  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
+//  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
+//  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
+//  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
+//  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
+//  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Tx, ENABLE);
+//  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
+//
+//  RTOS_TAKE_SEMAPHORE(irqSem);
+  for(size_t i=0; i < size; i++)
+    flashSpiReadWriteByte(*data++);
 
   delay_01us(100); // 10us
   CS_HIGH();

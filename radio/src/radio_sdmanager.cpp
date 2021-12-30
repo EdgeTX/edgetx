@@ -19,22 +19,21 @@
  * GNU General Public License for more details.
  */
 
-#include <VirtualFS.h>
-#include "radio_flashmanager.h"
+#include "radio_sdmanager.h"
 #include "opentx.h"
 #include "libopenui.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
 #include "standalone_lua.h"
-#include "littlefs_v2.4.1/lfs.h"
+#include "sdcard.h"
 #include "view_text.h"
 #include "file_preview.h"
 
-class FlashFileNameEditWindow : public Page
+class FileNameEditWindow : public Page
 {
   public:
-  FlashFileNameEditWindow(const std::string iName) :
+  FileNameEditWindow(const std::string iName) :
       Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
   {
     buildHeader(&header);
@@ -88,23 +87,21 @@ class FlashFileNameEditWindow : public Page
         strncpy(changedName + totalSize, extension, extLength);
       }
       changedName[totalSize + extLength] = '\0';
-      VirtualFS::instance()->rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
     });
   };
 };
 
-RadioFlashManagerPage::RadioFlashManagerPage() :
-  PageTab("int. flash", ICON_RADIO_SD_MANAGER)
+RadioSdManagerPage::RadioSdManagerPage() :
+  PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
   setOnSetVisibleHandler([]() {
     TRACE("f_chdir(ROOT_PATH)");
-    VirtualFS* flash = VirtualFS::instance();
-    flash->changeDirectory(ROOT_PATH);
-
+    f_chdir(ROOT_PATH);
   });
 }
 
-void RadioFlashManagerPage::rebuild(FormWindow * window)
+void RadioSdManagerPage::rebuild(FormWindow * window)
 {
   coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
@@ -115,27 +112,23 @@ void RadioFlashManagerPage::rebuild(FormWindow * window)
 // TODO elsewhere
 extern bool compare_nocase(const std::string &first, const std::string &second);
 
-//char * _getFullPath(const std::string &filename)
-//{
-//  return "/";
-//#if 0
-//  static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
-//  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-//  strcat(full_path, "/");
-//  strcat(full_path, filename.c_str());
-//  return full_path;
-//#endif
-//}
 
-//char * _getCurrentPath()
-//{
-//  return "/";
-//#if 0
-//  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
-//  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-//  return path;
-//#endif
-//}
+char * getFullPath(const std::string &filename)
+{
+  static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
+  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
+  strcat(full_path, "/");
+  strcat(full_path, filename.c_str());
+  return full_path;
+}
+
+char * getCurrentPath()
+{
+  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
+  f_getcwd((TCHAR*)path, FF_MAX_LFN);
+  return path;
+}
+
 
 template <class T>
 class FlashDialog: public FullScreenDialog
@@ -177,10 +170,10 @@ class FlashDialog: public FullScreenDialog
     Progress progress;
 };
 
-class FlashManagerButton : public TextButton
+class SDmanagerButton : public TextButton
 {
   public:
-	FlashManagerButton(FormGroup* parent, const rect_t& rect, std::string text,
+    SDmanagerButton(FormGroup* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
               WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
               LcdFlags textFlags = 0 ) : TextButton(parent, rect, text, pressHandler, windowFlags, textFlags)
@@ -199,53 +192,48 @@ class FlashManagerButton : public TextButton
 #endif              
 };
 
-void RadioFlashManagerPage::build(FormWindow * window)
+void RadioSdManagerPage::build(FormWindow * window)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
 
-  VfsFileInfo fno;
-  VfsDir dir;
+  FILINFO fno;
+  DIR dir;
   std::list<std::string> files;
   std::list<std::string> directories;
 
-  VirtualFS* flash = VirtualFS::instance();
-  std::string workPath(flash->getCurWorkDir());
+  std::string currentPath(getCurrentPath());
   auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
-  int res = flash->openDirectory(dir, workPath.c_str());
-  if (res == LFS_ERR_OK) {
+  FRESULT res = f_opendir(&dir, "."); // Open the directory
+  if (res == FR_OK) {
     // read all entries
     bool firstTime = true;
     for (;;) {
-      res = flash->readDirectory(dir, fno);//, firstTime);
-      if (res < 0)
+      res = sdReadDir(&dir, &fno, firstTime);
+
+      if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
-      std::string name = fno.getName();
-      if(name.length() == 0)
-        break; // Break on error or end of dir
-      if (name.length() > SD_SCREEN_FILE_LENGTH)
+      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
         continue;
-      if (name[0] == '.' && name[1] != '.')
+      if (fno.fname[0] == '.' && fno.fname[1] != '.')
         continue; // Ignore hidden files under UNIX, but not ..
 
-      if (fno.getType() == VFS_TYPE_DIR) {
-        directories.push_back((char*)name.c_str());
+      if (fno.fattrib & AM_DIR) {
+        directories.push_back((char*)fno.fname);
       } else {
-        files.push_back((char*)name.c_str());
+        files.push_back((char*)fno.fname);
       }
     }
-    flash->closeDirectory(dir);
 
     // sort directories and files
     directories.sort(compare_nocase);
     files.sort(compare_nocase);
 
     for (auto name: directories) {
-      new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
-          std::string fullpath = workPath + "/" + name;
-          //currentPath = fullpath.c_str();
-          flash->changeDirectory(fullpath);
+      new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+          std::string fullpath = currentPath + "/" + name;
+          f_chdir((TCHAR*)fullpath.c_str());
           window->clear();
           build(window);
           return 0;
@@ -255,15 +243,15 @@ void RadioFlashManagerPage::build(FormWindow * window)
     }
 
     for (auto name: files) {
-      auto button = new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
+      auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
-//          f_chdir(currentPath.c_str());
+          f_chdir(currentPath.c_str());
           const char *ext = getFileExtension(name.c_str());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [=]() {
                   audioQueue.stopAll();
-                  audioQueue.playFile(_getFullPath(name).c_str(), 0, ID_PLAY_FROM_SD_MANAGER);
+                  audioQueue.playFile(getFullPath(name), 0, ID_PLAY_FROM_SD_MANAGER);
               });
             }
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
@@ -294,8 +282,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
             else if (!strcasecmp(ext, TEXT_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-                strncpy(lfn, workPath.c_str(), sizeof(lfn));
-                //f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
 
                 auto textView = new ViewTextWindow(lfn, name);
                 textView->setCloseHandler([=]() {
@@ -324,7 +311,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
               });
             } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
               FrSkyFirmwareInformation information;
-              if (readFrSkyFirmwareInformation(_getFullPath(name).c_str(),
+              if (readFrSkyFirmwareInformation(getFullPath(name),
                                                information) == nullptr) {
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
                 menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
@@ -405,7 +392,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
-              std::string fullpath = workPath + "/" + name;
+              std::string fullpath = currentPath + "/" + name;
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(fullpath.c_str());
                 StandaloneLuaWindow::instance()->attach(window);
@@ -414,42 +401,42 @@ void RadioFlashManagerPage::build(FormWindow * window)
 #endif
           }
           if (!READ_ONLY()) {
-//            menu->addLine(STR_COPY_FILE, [=]() {
-//              clipboard.type = CLIPBOARD_TYPE_FLASH_FILE;
-//              f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-//              strncpy(clipboard.data.sd.filename, name.c_str(),
-//                      CLIPBOARD_PATH_LEN - 1);
-//            });
-//            if (clipboard.type == CLIPBOARD_TYPE_FLASH_FILE) {
-//              menu->addLine(STR_PASTE, [=]() {
-//                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-//                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
-//                // prevent copying to the same directory with the same name
-//                char *destNamePtr = clipboard.data.sd.filename;
-//                if (!strcmp(clipboard.data.sd.directory, lfn)) {
-//                  char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-//                  destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
-//                                       CLIPBOARD_PATH_LEN);
-//                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
-//                                       CLIPBOARD_PATH_LEN);
-//                  destNamePtr = destFileName;
-//                }
-//                sdCopyFile(clipboard.data.sd.filename,
-//                           clipboard.data.sd.directory, destNamePtr, lfn);
-//                clipboard.type = CLIPBOARD_TYPE_NONE;
-//
-//                rebuild(window);
-//              });
-//            }
+            menu->addLine(STR_COPY_FILE, [=]() {
+              clipboard.type = CLIPBOARD_TYPE_SD_FILE;
+              f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+              strncpy(clipboard.data.sd.filename, name.c_str(),
+                      CLIPBOARD_PATH_LEN - 1);
+            });
+            if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
+              menu->addLine(STR_PASTE, [=]() {
+                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
+                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                // prevent copying to the same directory with the same name
+                char *destNamePtr = clipboard.data.sd.filename;
+                if (!strcmp(clipboard.data.sd.directory, lfn)) {
+                  char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
+                  destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = destFileName;
+                }
+                sdCopyFile(clipboard.data.sd.filename,
+                           clipboard.data.sd.directory, destNamePtr, lfn);
+                clipboard.type = CLIPBOARD_TYPE_NONE;
+
+                rebuild(window);
+              });
+            }
             menu->addLine(STR_RENAME_FILE, [=]() {
-              auto few = new FlashFileNameEditWindow(name);
+              auto few = new FileNameEditWindow(name);
               few->setCloseHandler([=]() {
                 //window->clear();
                 rebuild(window);
               });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
-                //f_unlink((const TCHAR*)_getFullPath(name));
+                f_unlink((const TCHAR*)getFullPath(name));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
@@ -460,7 +447,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       button->setFocusHandler([=](bool active) {
         if (active) {
-          preview->setFile(_getFullPath(name).c_str());
+          preview->setFile(getFullPath(name));
         }
       });
       grid.nextLine();
@@ -471,31 +458,31 @@ void RadioFlashManagerPage::build(FormWindow * window)
   preview->setHeight(max(window->height(), grid.getWindowHeight()));
 }
 
-void RadioFlashManagerPage::BootloaderUpdate(const std::string name)
+void RadioSdManagerPage::BootloaderUpdate(const std::string name)
 {
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
   auto dialog =
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
-  dialog->flash(_getFullPath(name).c_str());
+  dialog->flash(getFullPath(name));
 }
 
-void RadioFlashManagerPage::FrSkyFirmwareUpdate(const std::string name,
+void RadioSdManagerPage::FrSkyFirmwareUpdate(const std::string name,
                                              ModuleIndex module)
 {
   FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
   auto dialog =
       new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(_getFullPath(name).c_str());
+  dialog->flash(getFullPath(name));
 }
 
-void RadioFlashManagerPage::MultiFirmwareUpdate(const std::string name,
+void RadioSdManagerPage::MultiFirmwareUpdate(const std::string name,
                                              ModuleIndex module,
                                              MultiModuleType type)
 {
   MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
   auto dialog =
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(_getFullPath(name).c_str());
+  dialog->flash(getFullPath(name));
 }
 
 #if 0

@@ -22,6 +22,7 @@
 #define _SPIFLASHSTORAGE_H_
 
 #include "littlefs_v2.4.1/lfs.h"
+#include "sdcard.h"
 
 #include "translations.h"
 
@@ -104,16 +105,90 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
 #endif
-class SpiFlashStorage
+
+
+class VirtualFS;
+
+struct VfsDir
 {
 public:
-  SpiFlashStorage();
-  ~SpiFlashStorage();
+  VfsDir(){}
+  ~VfsDir(){}
 
-  static SpiFlashStorage* instance()
+private:
+  friend class VirtualFS;
+  VfsDir(const VfsDir&);
+
+  enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
+
+  DirType type = DIR_UNKNOWN;
+  lfs_dir_t lfsDir = {0};
+  DIR fatDir = {0};
+
+  size_t readIdx = 0;
+};
+
+enum VfsType {VFS_TYPE_UNKNOWN, VFS_TYPE_DIR, VFS_TYPE_FILE};
+struct VfsFileInfo
+{
+public:
+  VfsFileInfo(){}
+  ~VfsFileInfo(){}
+
+
+  std::string getName()
+  {
+    switch(type)
+    {
+    case FILE_ROOT: return name;
+    case FILE_FAT:  return fatInfo.fname;
+    case FILE_LFS:  return lfsInfo.name;
+    }
+    return "";
+  };
+
+  VfsType getType()
+  {
+    switch(type)
+    {
+    case FILE_ROOT: return VFS_TYPE_DIR;
+    case FILE_FAT:
+      if(fatInfo.fattrib & AM_DIR)
+        return VFS_TYPE_DIR;
+      else
+        return VFS_TYPE_FILE;
+    case FILE_LFS:
+      if(lfsInfo.type == LFS_TYPE_DIR)
+        return VFS_TYPE_DIR;
+      else
+        return VFS_TYPE_FILE;
+    }
+    return VFS_TYPE_UNKNOWN;
+  };
+
+private:
+  friend class VirtualFS;
+  VfsFileInfo(const VfsFileInfo&);
+
+  enum FileType {FILE_UNKNOWN, FILE_ROOT, FILE_FAT, FILE_LFS};
+
+  FileType type = FILE_UNKNOWN;
+  lfs_info lfsInfo = {0};
+  FILINFO fatInfo = {0};
+
+  std::string name;
+};
+
+class VirtualFS
+{
+public:
+  VirtualFS();
+  ~VirtualFS();
+
+  static VirtualFS* instance()
   {
     if( _instance == nullptr)
-      _instance = new SpiFlashStorage();
+      _instance = new VirtualFS();
     return _instance;
   }
 
@@ -123,9 +198,11 @@ public:
   bool isFilePatternAvailable(const char * path, const char * file, const char * pattern = nullptr, bool exclDir = true, char * match = nullptr);
   char* getFileIndex(char * filename, unsigned int & value);
 
-  int openDirectory(lfs_dir_t* dir, const char * path);
-  int readDirectory(lfs_dir_t* dir, lfs_info* info);
-  int closeDirectory(lfs_dir_t* dir);
+  const std::string& getCurWorkDir()  { return curWorkDir;}
+  int changeDirectory(const std::string& path);
+  int openDirectory(VfsDir& dir, const char * path);
+  int readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
+  int closeDirectory(VfsDir& dir);
 
   int rename(const char* oldPath, const char* newPath);
 
@@ -197,10 +274,13 @@ public:
   #define LIST_SD_FILE_EXT    2
   bool flashListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
 private:
-  static SpiFlashStorage* _instance;
+  static VirtualFS* _instance;
 
   lfs_config lfsCfg = {0};
   lfs_t lfs = {0};
+  std::string curWorkDir = "/";
+
+  void normalizePath(std::string &path);
 };
 
 #endif // _SPIFLASHSTORAGE_H_

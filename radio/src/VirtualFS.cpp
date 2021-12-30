@@ -21,9 +21,11 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <VirtualFS.h>
+#include <vector>
+
 #include "opentx.h"
 
-#include "SpiFlashStorage.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -31,7 +33,7 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
-SpiFlashStorage* SpiFlashStorage::_instance = nullptr;;
+VirtualFS* VirtualFS::_instance = nullptr;;
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
@@ -75,7 +77,7 @@ uint16_t flashSpiGetPageSize();
 uint16_t flashSpiGetSectorSize();
 uint16_t flashSpiGetSectorCount();
 
-SpiFlashStorage::SpiFlashStorage()
+VirtualFS::VirtualFS()
 {
   // configuration of the filesystem is provided by this struct
   lfsCfg.read  = flashRead;
@@ -89,9 +91,10 @@ SpiFlashStorage::SpiFlashStorage()
   lfsCfg.block_size = flashSpiGetSectorSize();
   lfsCfg.block_count = flashSpiGetSectorCount();
   lfsCfg.block_cycles = 500;
-  lfsCfg.cache_size = 512;
+  lfsCfg.cache_size = 2048;
   lfsCfg.lookahead_size = 32;
 
+//  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
       flashSpiEraseAll();
@@ -114,7 +117,7 @@ SpiFlashStorage::SpiFlashStorage()
   }
 }
 
-SpiFlashStorage::~SpiFlashStorage()
+VirtualFS::~VirtualFS()
 {
   lfs_unmount(&lfs);
 }
@@ -130,7 +133,7 @@ int (*lock)(const struct lfs_config *c);
 int (*unlock)(const struct lfs_config *c);
 #endif
 
-bool SpiFlashStorage::format()
+bool VirtualFS::format()
 {
   flashSpiEraseAll();
   lfs_format(&lfs, &lfsCfg);
@@ -165,28 +168,149 @@ bool SpiFlashStorage::format()
 //  }
 }
 
-int SpiFlashStorage::openDirectory(lfs_dir_t* dir, const char * path)
+std::vector<std::string> tokenize(const char* seps, const std::string& data)
 {
-  return lfs_dir_open(&lfs, dir, path);
+    std::vector<std::string> ret;
+    size_t oldpos = 0;
+
+    while (1)
+    {
+        size_t newpos = data.find_first_of(seps,oldpos);
+        if(newpos == std::string::npos)
+        {
+            ret.push_back(data.substr(oldpos));
+            break;
+        }
+        ret.push_back(data.substr(oldpos,newpos-oldpos));
+        oldpos=newpos+1;
+    }
+    return ret;
 }
 
-int SpiFlashStorage::readDirectory(lfs_dir_t* dir, lfs_info* info)
+void VirtualFS::normalizePath(std::string& path)
 {
-  return lfs_dir_read(&lfs, dir, info);
+  std::vector<std::string> tokens;
+  size_t oldpos = 0;
+
+  while (1)
+  {
+      size_t newpos = path.find_first_of(PATH_SEPARATOR, oldpos);
+      if(newpos == std::string::npos)
+      {
+        std::string elem = path.substr(oldpos);
+        if(elem == "..")
+          tokens.pop_back();
+        else
+          tokens.push_back(path.substr(oldpos));
+        break;
+      }
+      tokens.push_back(path.substr(oldpos,newpos-oldpos));
+      oldpos=newpos+1;
+  }
+
+  if(tokens.empty())
+    return;
+
+  path = "";
+  for(auto token: tokens)
+  {
+    if(token.length() == 0)
+      continue;
+    path += PATH_SEPARATOR;
+    path += token;
+  }
+  if(path.length() == 0)
+    path = "/";
 }
 
-int SpiFlashStorage::closeDirectory(lfs_dir_t* dir)
+int VirtualFS::changeDirectory(const std::string& path)
 {
-  return lfs_dir_close(&lfs, dir);
+  if(path.length() == 0)
+    return -1;
+
+  if(path[0] == '/')
+    curWorkDir = path;
+  else
+    curWorkDir = curWorkDir + PATH_SEPARATOR + path;
+
+  normalizePath(curWorkDir);
+
+  return 0;
 }
 
-int SpiFlashStorage::rename(const char* oldPath, const char* newPath)
+int VirtualFS::openDirectory(VfsDir& dir, const char * path)
 {
-  return lfs_rename(&lfs, oldPath, newPath);
+  if(path == nullptr)
+    return -1;
+
+  if(path[0] == 0)
+    return -1;
+
+  std::string dirPath(path);
+
+  if(dirPath[0] != '/')
+    dirPath = curWorkDir + dirPath;
+
+  normalizePath(dirPath);
+
+  if(dirPath == "/")
+  {
+    dir.type = VfsDir::DIR_ROOT;
+    return 0;
+  }
+  if(dirPath.substr(0, 6) == "/FLASH")
+  {
+    dir.type = VfsDir::DIR_LFS;
+    return lfs_dir_open(&lfs, &dir.lfsDir, dirPath.substr(6).c_str());
+  } else {
+    dir.type = VfsDir::DIR_FAT;
+    return f_opendir(&dir.fatDir, dirPath.substr(7).c_str());
+  }
+}
+
+int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
+{
+  switch(dir.type)
+  {
+  case VfsDir::DIR_ROOT:
+    info.type = VfsFileInfo::FILE_ROOT;
+    if(dir.readIdx == 0)
+      info.name = "FLASH";
+    else if(dir.readIdx == 1)
+      info.name = "SDCARD";
+    else
+      info.name = "";
+    dir.readIdx++;
+    return 0;
+  case VfsDir::DIR_FAT:
+    info.type = VfsFileInfo::FILE_FAT;
+    return sdReadDir(&dir.fatDir, &info.fatInfo, firstTime);
+  case VfsDir::DIR_LFS:
+    info.type = VfsFileInfo::FILE_LFS;
+    return lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
+  }
+  return -1;
+}
+
+int VirtualFS::closeDirectory(VfsDir& dir)
+{
+  switch(dir.type)
+  {
+  case VfsDir::DIR_FAT:
+    return f_closedir(&dir.fatDir);
+  case VfsDir::DIR_LFS:
+    return lfs_dir_close(&lfs, &dir.lfsDir);
+  }
+  return -1;
+}
+
+int VirtualFS::rename(const char* oldPath, const char* newPath)
+{
+  return lfs_rename(&lfs, (curWorkDir + PATH_SEPARATOR + oldPath).c_str(), (curWorkDir + PATH_SEPARATOR + newPath).c_str());
 }
 
 
-const char* SpiFlashStorage::checkAndCreateDirectory(const char * path)
+const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {
 	lfs_dir_t dir;
 	int res = lfs_dir_open(&lfs, &dir, path);
@@ -219,7 +343,7 @@ const char* SpiFlashStorage::checkAndCreateDirectory(const char * path)
   return nullptr;
 }
 
-bool SpiFlashStorage::isFileAvailable(const char * path, bool exclDir)
+bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
 {
   lfs_file_t file;
   int res = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
@@ -249,7 +373,7 @@ bool SpiFlashStorage::isFileAvailable(const char * path, bool exclDir)
   @param match Optional container to hold the matched file extension (wide enough to hold LEN_FILE_EXTENSION_MAX + 1).
   @retval true if a file was found, false otherwise.
 */
-bool SpiFlashStorage::isFilePatternAvailable(const char * path, const char * file, const char * pattern, bool exclDir, char * match)
+bool VirtualFS::isFilePatternAvailable(const char * path, const char * file, const char * pattern, bool exclDir, char * match)
 {
 //  uint8_t fplen;
 //  char fqfp[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = "\0";
@@ -296,7 +420,7 @@ bool SpiFlashStorage::isFilePatternAvailable(const char * path, const char * fil
   return false;
 }
 
-char* SpiFlashStorage::getFileIndex(char * filename, unsigned int & value)
+char* VirtualFS::getFileIndex(char * filename, unsigned int & value)
 {
 //  value = 0;
 //  char * pos = (char *)getFileExtension(filename);
@@ -328,7 +452,7 @@ static uint8_t _getDigitsCount(unsigned int value)
   return count;
 }
 
-unsigned int SpiFlashStorage::findNextFileIndex(char * filename, uint8_t size, const char * directory)
+unsigned int VirtualFS::findNextFileIndex(char * filename, uint8_t size, const char * directory)
 {
 //  unsigned int index;
 //  uint8_t extlen;
