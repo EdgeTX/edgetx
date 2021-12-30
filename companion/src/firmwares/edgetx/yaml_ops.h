@@ -98,18 +98,18 @@ void operator>>(const YAML::Node& node, T (&value)[N])
   if (!node) return;
   if (node.IsMap()) {
     for (const auto& elmt : node) {
+      int idx = -1;
       try {
-        int idx = std::stoi(elmt.first.Scalar());
-        if (idx < 0 || idx >= (int)N) return;
-
-        if (elmt.second.IsMap() && (elmt.second.size() == 1) &&
-            elmt.second["val"]) {
-          elmt.second["val"] >> value[idx];
-        } else {
-          elmt.second >> value[idx];
-        }
+        idx = std::stoi(elmt.first.Scalar());
       } catch (...) {
-        return;
+      }
+      if (idx < 0 || idx >= (int)N) continue;
+
+      if (elmt.second.IsMap() && (elmt.second.size() == 1) &&
+          elmt.second["val"]) {
+        elmt.second["val"] >> value[idx];
+      } else {
+        elmt.second >> value[idx];
       }
     }
   } else if (node.IsSequence()) {

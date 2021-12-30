@@ -237,8 +237,13 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     return false;
   }
 
-  if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
-    setError(tr("Can't load RADIO/radio.yml"));
+  try {
+    if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
+      setError(tr("Can't load RADIO/radio.yml"));
+      return false;
+    }
+  } catch(const std::runtime_error& e) {
+    setError(tr("Can't load RADIO/radio.yml") + ":\n" + QString(e.what()));
     return false;
   }
 
@@ -249,8 +254,6 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
   QByteArray modelslistBuffer;
   if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
-
-
     if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
       setError(tr("Can't load MODELS/models.yml"));
       return false;
@@ -292,8 +295,13 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     //
     auto& model = radioData.models[mc.modelIdx];
 
-    if (!loadModelFromYaml(model,modelBuffer)) {
-      setError(tr("Can't load ") + filename);
+    try {
+      if (!loadModelFromYaml(model,modelBuffer)) {
+        setError(tr("Can't load ") + filename);
+        return false;
+      }
+    } catch(const std::runtime_error& e) {
+      setError(tr("Can't load ") + filename + ":\n" + QString(e.what()));
       return false;
     }
 

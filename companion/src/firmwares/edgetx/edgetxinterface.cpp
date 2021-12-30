@@ -83,20 +83,14 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
 
 bool loadModelFromYaml(ModelData& model, const QByteArray& data)
 {
-  try {
     YAML::Node node = loadYamlFromByteArray(data);
     node >> model;
-  } catch (const std::runtime_error& e) {
-    qDebug() << "YAML::ParserException: " << e.what();
-    return false;
-  }
 
   return true;
 }
 
 bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data)
 {
-  try {
     YAML::Node node = loadYamlFromByteArray(data);
     node >> settings;
     if (settings.version < CPN_CURRENT_SETTINGS_VERSION) {
@@ -107,10 +101,6 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
       QMessageBox::critical(NULL, CPN_STR_APP_NAME, QCoreApplication::translate("EdgeTXInterface", "Companion does not support settings version %1!").arg(settings.version));
       return false;
     }
-  } catch (const std::runtime_error& e) {
-    qDebug() << "YAML::ParserException: " << e.what();
-    return false;
-  }
 
   return true;
 }
