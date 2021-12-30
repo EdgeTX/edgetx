@@ -148,6 +148,7 @@ static void luaHook(lua_State * L, lua_Debug *ar)
 #endif // #if defined(LUA_ALLOCATOR_TRACER)
 }
 
+#if defined(COLORLCD)
 static void l_pushtableint(const char * key, int value)
 {
   lua_pushstring(lsScripts, key);
@@ -161,6 +162,7 @@ static void l_pushtablebool(const char * key, bool value)
   lua_pushboolean(lsScripts, value);
   lua_settable(lsScripts, -3);
 }
+#endif
 
 void luaEmptyEventBuffer()
 {
@@ -933,7 +935,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 #if defined(LUA_MODEL_SCRIPTS)
             // Get input/output tables for mixer scripts              
             if (ref <= SCRIPT_MIX_LAST) {
-              ScriptInputsOutputs * sio = & scriptInputsOutputs[idx];
+              ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
               lua_getfield(lsScripts, -1, "input");
               luaGetInputs(*sio);
               lua_pop(lsScripts, 1);
