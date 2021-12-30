@@ -33,6 +33,7 @@ struct EtxModelMetadata {
     std::string filename;
     std::string name;
     int         category;
+    int         modelIdx;
 };
 
 typedef std::list<EtxModelMetadata> EtxModelfiles;

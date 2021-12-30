@@ -113,3 +113,18 @@ bool EtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
 
   return true;
 }
+
+bool EtxFormat::getFileList(std::list<std::string>& filelist)
+{
+  int count = (int)mz_zip_reader_get_num_files(&zip_archive);
+  if (count == 0) return false;
+
+  mz_zip_archive_file_stat file_stat;
+  for (int i=0; i<count; i++) {
+    if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat)) continue;
+    if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) continue;
+    filelist.push_back(file_stat.m_filename);
+  }
+
+  return true;
+}

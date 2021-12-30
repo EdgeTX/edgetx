@@ -52,6 +52,7 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
     YAML::Node node = loadYamlFromByteArray(data);
     if (!node.IsSequence()) return false;
 
+    int modelIdx = 0;
     for (const auto& cat : node) {
 
       if (!cat.IsMap()) continue;
@@ -63,11 +64,11 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
         if (!models.IsSequence()) continue;
 
         for (const auto& model : models) {
-          std::string filename;
+          std::string filename, name;
           model["filename"] >> filename;
-          std::string name;
           model["name"] >> name;
-          modelFiles.push_back({filename, name, (int)categories.size() - 1});
+          modelFiles.push_back(
+              {filename, name, (int)categories.size() - 1, modelIdx++});
         }
       }
     }

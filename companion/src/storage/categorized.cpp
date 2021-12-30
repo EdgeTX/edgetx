@@ -23,6 +23,8 @@
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "miniz.c"    //  Can only be included once!
 
+#include <regex>
+
 bool CategorizedStorageFormat::load(RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
@@ -243,50 +245,63 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
   board = (Board::Type)radioData.generalSettings.variant;
 
   // get models
+  EtxModelfiles modelFiles;
+
   QByteArray modelslistBuffer;
   if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
 
-    // List< { filename, category index } >
-    EtxModelfiles modelFiles;
 
     if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
       setError(tr("Can't load MODELS/models.yml"));
       return false;
     }
-
-    radioData.models.resize(modelFiles.size());
-
-    int modelIdx = 0;
-    for (const auto& mc : modelFiles) {
-      qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
-
-      QByteArray modelBuffer;
-      QString filename = "MODELS/" + QString::fromStdString(mc.filename);
-      if (!loadFile(modelBuffer, filename)) {
-        setError(tr("Can't extract ") + filename);
-        return false;
-      }
-
-      // Please note:
-      //  ModelData() use memset to clear everything to 0
-      //
-      auto& model = radioData.models[modelIdx];
-
-      if (!loadModelFromYaml(model,modelBuffer)) {
-        setError(tr("Can't load ") + filename);
-        return false;
-      }
-
-      model.category = mc.category;
-      model.modelIndex = modelIdx;
-      strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
-
-      model.used = true;
-      modelIdx++;
-    }
-
   } else {
     // fetch "MODELS/modelXX.yml"
+    std::list<std::string> filelist;
+    if (!getFileList(filelist)) {
+      setError(tr("Can't list files"));
+      return false;
+    }
+
+    const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
+    for(const auto& f : filelist) {
+      std::smatch match;
+      if (std::regex_match(f, match, yml_regex)) {
+        if (match.size() == 3) {
+          std::ssub_match modelFile = match[1];
+          std::ssub_match modelIdx = match[2];
+          modelFiles.push_back({ modelFile.str(), "", 0, std::stoi(modelIdx.str()) });
+        }
+      }
+    }
+  }
+
+  radioData.models.resize(modelFiles.size());
+  for (const auto& mc : modelFiles) {
+    qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
+
+    QByteArray modelBuffer;
+    QString filename = "MODELS/" + QString::fromStdString(mc.filename);
+    if (!loadFile(modelBuffer, filename)) {
+      setError(tr("Can't extract ") + filename);
+      return false;
+    }
+
+    // Please note:
+    //  ModelData() use memset to clear everything to 0
+    //
+    auto& model = radioData.models[mc.modelIdx];
+
+    if (!loadModelFromYaml(model,modelBuffer)) {
+      setError(tr("Can't load ") + filename);
+      return false;
+    }
+
+    model.category = mc.category;
+    model.modelIndex = mc.modelIdx;
+    strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
+
+    model.used = true;
   }
 
   return true;
@@ -308,11 +323,8 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
   EtxModelfiles modelFiles;
   for (const auto& model : radioData.models) {
 
-    qDebug() << "Model index: " << model.modelIndex;
     if (model.isEmpty())
       continue;
-
-    // TODO: verify '.yml' (in case we moved from '.bin')
 
     QString modelFilename;
     if (hasCategories) {
