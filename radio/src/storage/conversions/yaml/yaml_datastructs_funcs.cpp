@@ -840,6 +840,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   const char* str = nullptr;
   bool add_comma = true;
+  if (!wf(opaque, "\"", 1)) return false;
 
   switch (func) {
   case FUNC_OVERRIDE_CHANNEL:
@@ -973,6 +974,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
     }
   }
+  if (!wf(opaque, "\"", 1)) return false;
   return true;
 }
 
@@ -986,6 +988,7 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 {
   data += bitoffs >> 3UL;
   data -= sizeof(LogicalSwitchData::func);
+  if (!wf(opaque,"\"",1)) return false;
 
   const char* str = nullptr;
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
@@ -1037,6 +1040,7 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
   }
 
+  if (!wf(opaque,"\"",1)) return false;
   return true;
 }
 
