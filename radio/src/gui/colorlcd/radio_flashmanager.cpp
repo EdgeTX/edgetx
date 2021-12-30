@@ -46,7 +46,6 @@ class FlashFileNameEditWindow : public Page
 #endif
   protected:
   const std::string name;
-  const std::string path;
 
   void buildHeader(Window *window)
   {

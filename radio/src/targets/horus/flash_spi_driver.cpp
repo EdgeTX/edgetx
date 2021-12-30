@@ -316,8 +316,6 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 
   flashSpiSync();
 
-  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
-
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
   delay_01us(100); // 10us
