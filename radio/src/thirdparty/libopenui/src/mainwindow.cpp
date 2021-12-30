@@ -186,9 +186,21 @@ void MainWindow::invalidate(const rect_t & rect)
     invalidatedRect = rect;
   }
 }
-
+#include "lvgl/lvgl.h"
+extern lv_obj_t * canvas;
+extern BitmapBuffer lcdBackup;
 bool MainWindow::refresh()
 {
+  if (invalidatedRect.w) {
+    lcdBackup.setOffset(0, 0);
+    lcdBackup.setClippingRect(0,LCD_W,0, LCD_H);
+    fullPaint(&lcdBackup);
+    lv_canvas_copy_buf(canvas, lcdBackup.getData(), 0, 0, LCD_W, LCD_H);
+    lv_img_cache_invalidate_src(lcdBackup.getData());
+    lv_obj_invalidate(canvas);
+  }
+  return false;
+
   if (invalidatedRect.w) {
     if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
       TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);
