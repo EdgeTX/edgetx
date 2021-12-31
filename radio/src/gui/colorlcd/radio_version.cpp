@@ -214,7 +214,6 @@ RadioVersionPage::RadioVersionPage():
 }
 
 uint16_t flashSpiReadID();
-
 extern uint32_t NV14internalModuleFwVersion;
 #if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
