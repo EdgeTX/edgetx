@@ -463,6 +463,11 @@ static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
   uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
   if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
 
+  // detect invalid values
+  if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
+    return -1;
+  }
+  
   return (uint32_t)yaml_str2int(val, val_len);
 }
 

@@ -301,7 +301,7 @@ bool YamlTreeWalker::toParent()
 bool YamlTreeWalker::toChild()
 {
     const struct YamlNode* attr = getAttr();
-    if (!attr
+    if (!attr || isIdxInvalid()
         || (attr->type != YDT_ARRAY
             && attr->type != YDT_UNION
             && !isArrayElmt())) {
