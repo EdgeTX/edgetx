@@ -23,6 +23,7 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
+add_definitions(-DLFS_NO_ASSERT)
 if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
     flash_spi_driver.cpp
