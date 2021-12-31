@@ -117,6 +117,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["inactivityTimer"] = rhs.inactivityTimer;
   node["telemetryBaudrate"] = rhs.telemetryBaudrate;  // TODO: conversion???
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
+  node["lightAutoOff"] = rhs.backlightDelay;
   node["templateSetup"] = rhs.templateSetup;
   node["hapticLength"] = rhs.hapticLength + 2;
   node["speakerPitch"] = rhs.speakerPitch * 15;
@@ -266,6 +267,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["inactivityTimer"] >> rhs.inactivityTimer;
   node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
   node["splashMode"] >> rhs.splashMode;                // TODO: B&W only
+  node["lightAutoOff"] >> rhs.backlightDelay;
   node["templateSetup"] >> rhs.templateSetup;
   node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
   node["speakerPitch"] >> ifactor<unsigned int>(rhs.speakerPitch, 15);
