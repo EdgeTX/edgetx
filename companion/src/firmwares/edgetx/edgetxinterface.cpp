@@ -48,6 +48,9 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
+  if (data.size() == 0)
+    return true;
+
   try {
     YAML::Node node = loadYamlFromByteArray(data);
     if (!node.IsSequence()) return false;
