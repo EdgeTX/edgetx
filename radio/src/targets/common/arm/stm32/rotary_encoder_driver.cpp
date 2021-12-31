@@ -110,8 +110,7 @@ void rotaryEncoderCheck()
     if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
 #endif
       --rotencValue;
-    }
-    else {
+    } else {
       ++rotencValue;
     }
     rotencPosition = newPosition;
