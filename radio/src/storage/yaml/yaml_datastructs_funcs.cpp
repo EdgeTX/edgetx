@@ -44,7 +44,6 @@ namespace yaml_conv_220 {
   uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs);
 
   extern const struct YamlIdStr enum_SwitchConfig[];
-  bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
@@ -757,11 +756,12 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
     return neg ? -ival : ival;
 }
 
-static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
+                                yaml_writer_func wf, void* opaque)
 {
     int32_t sval = yaml_to_signed(val, node->size);
     if (sval < 0) {
-        wf(opaque, "\\!", 2);
+        wf(opaque, "!", 1);
         sval = abs(sval);
     }
 
@@ -806,6 +806,15 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     
     str = yaml_output_enum(sval, enum_SwitchSources);
     return wf(opaque, str, strlen(str));
+}
+
+bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque,"\"",1)
+      || !w_swtchSrc_unquoted(node, val, wf, opaque)
+      || !wf(opaque,"\"",1))
+    return false;
+  return true;
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1541,13 +1550,13 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
-    if (!w_swtchSrc(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
     break;
 
   case LS_FAMILY_EDGE:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     str = yaml_unsigned2str(lswTimerValue(ls->v2));
     if (!wf(opaque,str,strlen(str))) return false;
