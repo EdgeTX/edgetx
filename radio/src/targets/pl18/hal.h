@@ -354,19 +354,33 @@
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // SPI FLASH
-#define EEPROM_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
-#define EEPROM_RCC_APB1Periph           RCC_APB1Periph_SPI6
-#define EEPROM_SPI_CS_GPIO              GPIOG
-#define EEPROM_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
-#define EEPROM_SPI_SCK_GPIO             GPIOG
-#define EEPROM_SPI_SCK_GPIO_PIN         GPIO_Pin_13 // PG.13
-#define EEPROM_SPI_SCK_GPIO_PinSource   GPIO_PinSource13
-#define EEPROM_SPI_MISO_GPIO            GPIOG
-#define EEPROM_SPI_MISO_GPIO_PIN        GPIO_Pin_12 // PG.12
-#define EEPROM_SPI_MISO_GPIO_PinSource  GPIO_PinSource12
-#define EEPROM_SPI_MOSI_GPIO            GPIOG
-#define EEPROM_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
-#define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
+#define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
+#define FLASH_RCC_APB2Periph           RCC_APB2Periph_SPI6
+#define FLASH_SPI                      SPI6
+#define FLASH_SPI_GPIO_AF              GPIO_AF_SPI6
+#define FLASH_SPI_CS_GPIO              GPIOG
+#define FLASH_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
+#define FLASH_SPI_SCK_GPIO             GPIOG
+#define FLASH_SPI_SCK_GPIO_PIN         GPIO_Pin_13 // PG.13
+#define FLASH_SPI_SCK_GPIO_PinSource   GPIO_PinSource13
+#define FLASH_SPI_MISO_GPIO            GPIOG
+#define FLASH_SPI_MISO_GPIO_PIN        GPIO_Pin_12 // PG.12
+#define FLASH_SPI_MISO_GPIO_PinSource  GPIO_PinSource12
+#define FLASH_SPI_MOSI_GPIO            GPIOG
+#define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
+#define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
+#define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_TX_DMA_STREAM        DMA2_Stream5
+#define FLASH_SPI_TX_DMA_IRQn          DMA2_Stream5_IRQn
+#define FLASH_SPI_TX_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+#define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF5
+#define FLASH_SPI_TX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_RX_DMA_STREAM        DMA2_Stream6
+#define FLASH_SPI_RX_DMA_IRQn          DMA2_Stream6_IRQn
+#define FLASH_SPI_RX_DMA_IRQHandler    DMA2_Stream6_IRQHandler
+#define FLASH_SPI_RX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_FLAG_TC       DMA_IT_TCIF6
 
 // Audio
 #define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)

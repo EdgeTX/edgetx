@@ -13,6 +13,7 @@ set(SDCARD YES)
 set(STORAGE SDCARD)
 set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
+set(SPI_FLASH YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
@@ -21,6 +22,15 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 # set(NAVIGATION_TYPE touch)
 set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
+
+if(SPI_FLASH)
+  set(TARGET_SRC ${TARGET_SRC}
+    flash_spi_driver.cpp
+    ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+    ../../thirdparty/littlefs_v2.4.1/lfs.c
+  )
+  add_definitions(-DSPI_FLASH)
+endif()
 
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
