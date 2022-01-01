@@ -245,9 +245,8 @@ GeneralSettings::GeneralSettings()
     }
   }
 
-  // TODO: add a preset in the radio profile
-  internalModule = Boards::getDefaultInternalModules(board);
-  
+  internalModule = g.profile[g.sessionId()].defaultInternalModule();
+
   const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
   RadioTheme::init(themeName, themeData);
 }
