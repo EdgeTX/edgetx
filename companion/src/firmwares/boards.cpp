@@ -490,7 +490,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_STM32(board);
 
     case HasInternalModuleSupport:
-      return (IS_STM32(board) && !IS_TARANIS_SMALL(board));
+      return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
     default:
       return 0;
