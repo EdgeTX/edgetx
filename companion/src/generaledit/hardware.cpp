@@ -33,6 +33,7 @@
 
 constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
 constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
+constexpr char FIM_INTERNALMODULES[] {"Internal Modules"};
 
 HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
@@ -51,6 +52,9 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
   int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::auxSerialModeItemModel());
   int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::telemetryBaudrateItemModel());
+
+  id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
 
   grid = new QGridLayout(this);
   int count;
@@ -127,6 +131,22 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams(row, antennaMode);
   }
 
+  if (Boards::getCapability(board, Board::HasInternalModuleSupport)) {
+    addLabel(tr("Internal module"), row, 0);
+    AutoComboBox *internalModule = new AutoComboBox(this);
+    internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
+    internalModule->setField(generalSettings.internalModule, this);
+    addParams(row, internalModule);
+  }
+
+  if (firmware->getCapability(HasTelemetryBaudrate)) {
+    addLabel(tr("Maximum Baud"), row, 0);
+    AutoComboBox *maxBaudRate = new AutoComboBox(this);
+    maxBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
+    maxBaudRate->setField(generalSettings.telemetryBaudrate, this);
+    addParams(row, maxBaudRate);
+  }
+
   if (firmware->getCapability(HasAuxSerialMode)) {
     QString lbl = "Serial Port";
     if (IS_RADIOMASTER_TX16S(board))
@@ -161,14 +181,6 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     AutoCheckBox *sportPower = new AutoCheckBox(this);
     sportPower->setField(generalSettings.sportPower, this);
     addParams(row, sportPower);
-  }
-
-  if (firmware->getCapability(HasTelemetryBaudrate)) {
-    addLabel(tr("Maximum Baud"), row, 0);
-    AutoComboBox *maxBaudRate = new AutoComboBox(this);
-    maxBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
-    maxBaudRate->setField(generalSettings.telemetryBaudrate, this);
-    addParams(row, maxBaudRate);
   }
 
   if (firmware->getCapability(HastxCurrentCalibration)) {

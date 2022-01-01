@@ -161,6 +161,7 @@ class GeneralSettings {
     int vBatMin;
     int vBatMax;
     int backlightMode;
+    unsigned int internalModule;  // Introducted in EdgeTX 2.6 yaml only
     TrainerData trainer;
     unsigned int view;    // main screen view // TODO enum
     bool disableThrottleWarning;

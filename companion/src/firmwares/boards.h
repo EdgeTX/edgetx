@@ -147,7 +147,8 @@ namespace Board {
     HasRTC,
     HasColorLcd,
     NumFunctionSwitches,
-    HasSDCard
+    HasSDCard,
+    HasInternalModuleSupport
   };
 
   struct SwitchInfo
@@ -211,9 +212,11 @@ class Boards
     static QString potTypeToString(int value);
     static QString sliderTypeToString(int value);
     static QString switchTypeToString(int value);
+    static QString intModuleTypeToString(int value);
     static AbstractStaticItemModel * potTypeItemModel();
     static AbstractStaticItemModel * sliderTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
+    static AbstractStaticItemModel * intModuleTypeItemModel();
     static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
 
