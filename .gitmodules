@@ -14,5 +14,4 @@
 	shallow = true
 [submodule "radio/src/thirdparty/lvgl"]
 	path = radio/src/thirdparty/lvgl
-	url = https://github.com/lvgl/lvgl.git
-	branch = v8.1.0
+	url = https://github.com/gagarinlg/lvgl.git
