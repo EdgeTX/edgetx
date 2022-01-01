@@ -23,6 +23,7 @@
 #include "yaml_trainerdata.h"
 #include "yaml_calibdata.h"
 #include "yaml_switchconfig.h"
+#include "yaml_moduledata.h"
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
@@ -74,6 +75,25 @@ const YamlLookupTable antennaModeLut = {
   {  GeneralSettings::ANTENNA_MODE_INTERNAL_EXTERNAL, "MODE_INTERNAL_EXTERNAL"  },
 };
 
+const YamlLookupTable internalModuleLut = {
+  {  MODULE_TYPE_NONE, "TYPE_NONE"  },
+  {  MODULE_TYPE_PPM, "TYPE_PPM"  },
+  {  MODULE_TYPE_XJT_PXX1, "TYPE_XJT_PXX1"  },
+  {  MODULE_TYPE_ISRM_PXX2, "TYPE_ISRM_PXX2"  },
+  {  MODULE_TYPE_DSM2, "TYPE_DSM2"  },
+  {  MODULE_TYPE_CROSSFIRE, "TYPE_CROSSFIRE"  },
+  {  MODULE_TYPE_MULTIMODULE, "TYPE_MULTIMODULE"  },
+  {  MODULE_TYPE_R9M_PXX1, "TYPE_R9M_PXX1"  },
+  {  MODULE_TYPE_R9M_PXX2, "TYPE_R9M_PXX2"  },
+  {  MODULE_TYPE_R9M_LITE_PXX1, "TYPE_R9M_LITE_PXX1"  },
+  {  MODULE_TYPE_R9M_LITE_PXX2, "TYPE_R9M_LITE_PXX2"  },
+  {  MODULE_TYPE_GHOST, "TYPE_GHOST"  },
+  {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
+  {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
+  {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
+  {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
+};
+
 namespace YAML
 {
 
@@ -116,6 +136,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
   node["telemetryBaudrate"] = rhs.telemetryBaudrate;  // TODO: conversion???
+  node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
   node["lightAutoOff"] = rhs.backlightDelay;
   node["templateSetup"] = rhs.templateSetup;
@@ -266,6 +287,13 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
   node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
+
+  if (node["internalModule"]) {
+    node["internalModule"] >> internalModuleLut >> rhs.internalModule;
+  } else {
+    rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
+  }
+
   node["splashMode"] >> rhs.splashMode;                // TODO: B&W only
   node["lightAutoOff"] >> rhs.backlightDelay;
   node["templateSetup"] >> rhs.templateSetup;
