@@ -234,8 +234,8 @@ void RadioVersionPage::build(FormWindow * window)
   new StaticText(window, grid.getLineSlot(), time_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
-  // EEprom version
-  new StaticText(window, grid.getLineSlot(), eeprom_stamp, 0, COLOR_THEME_PRIMARY1);
+  // Configuration version
+  new StaticText(window, grid.getLineSlot(), cfgv_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Firmware options
