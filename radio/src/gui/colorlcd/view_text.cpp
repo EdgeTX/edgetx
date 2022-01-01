@@ -24,6 +24,7 @@
 #include "menu.h"
 #include "opentx.h"
 #include "sdcard.h"
+#include "VirtualFS.h"
 
 #define CASE_EVT_KEY_NEXT_LINE \
   case EVT_ROTARY_RIGHT:       \
@@ -193,10 +194,10 @@ void ViewTextWindow::loadOneScreen(int offset)
 
 void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 {
-  FIL file;
+  VfsFile file;
   int result;
   char c;
-  unsigned int sz = 0;
+  size_t sz = 0;
   int line_length = 1;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
@@ -208,9 +209,11 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
     lines[i][0] = ' ';
   }
 
-  result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
+  VirtualFS& vfs = VirtualFS::instance();
+
+  result = vfs.openFile(file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
-    while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
+    while (vfs.read(file, &c, 1, sz) == FR_OK && sz == 1 &&
                          (lines_count == 0 ||
                           current_line - textVerticalOffset < maxScreenLines))
     {
@@ -260,12 +263,12 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
       ++current_line;
     }
 
-    if (f_eof(&file)) {
+    if (vfs.fileEof(file)) {
       textBottom = true;
       if (isInSetup) maxLines = current_line;
     }
 
-    f_close(&file);
+    vfs.closeFile(file);
   }
 
   if (lastLoadedLine < textVerticalOffset) lastLoadedLine = textVerticalOffset;

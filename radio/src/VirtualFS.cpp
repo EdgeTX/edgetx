@@ -187,6 +187,21 @@ std::vector<std::string> tokenize(const char* seps, const std::string& data)
     return ret;
 }
 
+VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
+{
+  if(path == "/")
+  {
+    return VfsDir::DIR_ROOT;
+  } else if(path.substr(0, 6) == "/FLASH")
+  {
+    path = path.substr(6);
+    return VfsDir::DIR_LFS;
+  } else {
+    path = path.substr(7);
+    return VfsDir::DIR_FAT;
+  }
+}
+
 void VirtualFS::normalizePath(std::string& path)
 {
   std::vector<std::string> tokens;
@@ -252,19 +267,19 @@ int VirtualFS::openDirectory(VfsDir& dir, const char * path)
 
   normalizePath(dirPath);
 
-  if(dirPath == "/")
+  VfsDir::DirType type = getDirTypeAndPath(dirPath);
+  dir.type = type;
+  switch(type)
   {
-    dir.type = VfsDir::DIR_ROOT;
+  case VfsDir::DIR_ROOT:
     return 0;
+  case VfsDir::DIR_LFS:
+    return lfs_dir_open(&lfs, &dir.lfsDir, dirPath.c_str());
+  case VfsDir::DIR_FAT:
+    return f_opendir(&dir.fatDir, dirPath.c_str());
   }
-  if(dirPath.substr(0, 6) == "/FLASH")
-  {
-    dir.type = VfsDir::DIR_LFS;
-    return lfs_dir_open(&lfs, &dir.lfsDir, dirPath.substr(6).c_str());
-  } else {
-    dir.type = VfsDir::DIR_FAT;
-    return f_opendir(&dir.fatDir, dirPath.substr(7).c_str());
-  }
+
+  return -1;
 }
 
 int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
@@ -273,7 +288,7 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
   switch(dir.type)
   {
   case VfsDir::DIR_ROOT:
-    info.type = VfsFileInfo::FILE_ROOT;
+    info.type = VfsFileType::ROOT;
     if(dir.readIdx == 0)
       info.name = "FLASH";
     else if(dir.readIdx == 1)
@@ -283,7 +298,7 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
     dir.readIdx++;
     return 0;
   case VfsDir::DIR_FAT:
-    info.type = VfsFileInfo::FILE_FAT;
+    info.type = VfsFileType::FAT;
     if(dir.readIdx == 0)
     {
       dir.readIdx++;
@@ -292,7 +307,7 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
     }
     return sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime);
   case VfsDir::DIR_LFS:
-    info.type = VfsFileInfo::FILE_LFS;
+    info.type = VfsFileType::LFS;
     return lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
   }
   return -1;
@@ -303,6 +318,9 @@ int VirtualFS::closeDirectory(VfsDir& dir)
   int ret = -1;
   switch(dir.type)
   {
+  case VfsDir::DIR_ROOT:
+    ret = 0;
+    break;
   case VfsDir::DIR_FAT:
     ret = f_closedir(&dir.fatDir);
     break;
@@ -319,6 +337,146 @@ int VirtualFS::rename(const char* oldPath, const char* newPath)
   return lfs_rename(&lfs, (curWorkDir + PATH_SEPARATOR + oldPath).c_str(), (curWorkDir + PATH_SEPARATOR + newPath).c_str());
 }
 
+int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
+           const std::string& targetDir, const std::string& targetFile)
+{
+  VfsFile src;
+  VfsFile tgt;
+
+  if(openFile(src, srcDir + "/" + srcFile, LFS_O_RDONLY) != LFS_ERR_OK)
+    return -1;
+
+  if(openFile(tgt, targetDir + "/" + targetFile, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR) != LFS_ERR_OK)
+    return -1;
+
+  char buf[256] = {0};
+  size_t readBytes = 0;
+  size_t written = 0;
+
+  read(src, buf, sizeof(buf), readBytes);
+  for(; readBytes != 0; read(src, buf, sizeof(buf), readBytes))
+    write(tgt, buf, readBytes, written);
+
+  closeFile(src);
+  closeFile(tgt);
+}
+
+
+int VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
+{
+  file.clear();
+  std::string normPath(path);
+  normalizePath(normPath);
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
+
+  int ret = -1;
+  switch(dirType)
+  {
+  case VfsDir::DIR_ROOT:
+    ret = -1;
+    break;
+  case VfsDir::DIR_FAT:
+  {
+    int fatFlags = FA_OPEN_EXISTING | FA_READ;
+    if( flags == (LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR ))
+      fatFlags = FA_CREATE_ALWAYS | FA_WRITE | FA_READ;
+    file.type = VfsFileType::FAT;
+    ret = f_open(&file.fat, normPath.c_str(), fatFlags);
+    break;
+  }
+  case VfsDir::DIR_LFS:
+  {
+    int lfsFlags = LFS_O_RDONLY;
+    if( flags == (LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR ))
+      lfsFlags = LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR;
+
+    file.type = VfsFileType::LFS;
+    ret = lfs_file_open(&lfs, &file.lfs, normPath.c_str(), lfsFlags);
+    break;
+  }
+  }
+
+  return ret;
+
+}
+
+int VirtualFS::closeFile(VfsFile& file)
+{
+  int ret = -1;
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    ret = f_close(&file.fat);
+    break;
+  case VfsFileType::LFS:
+    ret = lfs_file_close(&lfs, &file.lfs);
+    break;
+  }
+
+  file.clear();
+  return ret;
+}
+
+int VirtualFS::read(VfsFile& file, void* buf, size_t size, size_t& readSize)
+{
+  int ret = -1;
+
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    ret = f_read(&file.fat, buf, size, &readSize);
+    break;
+  case VfsFileType::LFS:
+    ret = lfs_file_read(&lfs, &file.lfs, buf, size);
+    if(ret >= 0)
+    {
+      readSize = ret;
+      ret = 0;
+    } else {
+      readSize = 0;
+    }
+    break;
+  }
+
+  return ret;
+}
+
+int VirtualFS::write(VfsFile& file, void* buf, size_t size, size_t& written)
+{
+  int ret = -1;
+
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    ret = f_write(&file.fat, buf, size, &written);
+    break;
+  case VfsFileType::LFS:
+    ret = lfs_file_write(&lfs, &file.lfs, buf, size);
+    if(ret >= 0)
+    {
+      written = ret;
+      ret = 0;
+    } else {
+      written = 0;
+    }
+    break;
+  }
+
+  return ret;
+}
+
+int VirtualFS::fileEof(VfsFile& file)
+{
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    return f_eof(&file.fat);
+  case VfsFileType::LFS:
+    return lfs_file_tell(&lfs, &file.lfs) == lfs_file_size(&lfs, &file.lfs);
+  }
+
+  return 0;
+}
 
 const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {

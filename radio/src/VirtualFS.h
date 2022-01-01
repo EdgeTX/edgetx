@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef _SPIFLASHSTORAGE_H_
-#define _SPIFLASHSTORAGE_H_
+#ifndef _VIRTUALFS_H_
+#define _VIRTUALFS_H_
 
 #include <string>
 
@@ -142,6 +142,7 @@ private:
 };
 
 enum VfsType {VFS_TYPE_UNKNOWN, VFS_TYPE_DIR, VFS_TYPE_FILE};
+enum class VfsFileType {UNKNOWN, ROOT, FAT, LFS};
 
 struct VfsFileInfo
 {
@@ -153,9 +154,9 @@ public:
   {
     switch(type)
     {
-    case FILE_ROOT: return name;
-    case FILE_FAT:  return(!name.empty())?name:fatInfo.fname;
-    case FILE_LFS:  return lfsInfo.name;
+    case VfsFileType::ROOT: return name;
+    case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
+    case VfsFileType::LFS:  return lfsInfo.name;
     }
     return "";
   };
@@ -164,17 +165,17 @@ public:
   {
     switch(type)
     {
-    case FILE_ROOT:
+    case VfsFileType::ROOT:
       return VFS_TYPE_DIR;
 
-    case FILE_FAT:
+    case VfsFileType::FAT:
       if (!name.empty())
         return VFS_TYPE_DIR;
       if(fatInfo.fattrib & AM_DIR)
         return VFS_TYPE_DIR;
       else
         return VFS_TYPE_FILE;
-    case FILE_LFS:
+    case VfsFileType::LFS:
 
       if(lfsInfo.type == LFS_TYPE_DIR)
         return VFS_TYPE_DIR;
@@ -188,20 +189,40 @@ private:
   friend class VirtualFS;
   VfsFileInfo(const VfsFileInfo&);
 
-  enum FileType {FILE_UNKNOWN, FILE_ROOT, FILE_FAT, FILE_LFS};
-
   void clear() {
-    type = FILE_UNKNOWN;
+    type = VfsFileType::UNKNOWN;
     lfsInfo = {0};
     fatInfo = {0};
     name.clear();
   }
 
-  FileType type = FILE_UNKNOWN;
+  VfsFileType type = VfsFileType::UNKNOWN;
   lfs_info lfsInfo = {0};
   FILINFO fatInfo = {0};
 
   std::string name;
+};
+
+struct VfsFile
+{
+public:
+  VfsFile(){}
+  ~VfsFile(){}
+
+private:
+  friend class VirtualFS;
+  VfsFile(const VfsFile&);
+
+
+  void clear() {
+    type = VfsFileType::UNKNOWN;
+    lfs = {0};
+    fat = {0};
+  }
+
+  VfsFileType type = VfsFileType::UNKNOWN;
+  lfs_file lfs = {0};
+  FIL fat = {0};
 };
 
 class VirtualFS
@@ -210,11 +231,11 @@ public:
   VirtualFS();
   ~VirtualFS();
 
-  static VirtualFS* instance()
+  static VirtualFS& instance()
   {
     if( _instance == nullptr)
       _instance = new VirtualFS();
-    return _instance;
+    return *_instance;
   }
 
   bool format();
@@ -229,7 +250,16 @@ public:
   int readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
   int closeDirectory(VfsDir& dir);
 
+  int openFile(VfsFile& file, const std::string& path, int flags);
+  int closeFile(VfsFile& file);
+  int read(VfsFile& file, void* buf, size_t size, size_t& readSize);
+  int write(VfsFile& file, void* buf, size_t size, size_t& written);
+  int fileEof(VfsFile& file);
+
   int rename(const char* oldPath, const char* newPath);
+  int copyFile(const std::string& srcFile, const std::string& srcDir,
+             const std::string& targetDir, const std::string& targetFile);
+
 
   uint32_t flashGetNoSectors();
   uint32_t flashGetSize();
@@ -306,6 +336,8 @@ private:
   std::string curWorkDir = "/";
 
   void normalizePath(std::string &path);
+
+  VfsDir::DirType getDirTypeAndPath(std::string& path);
 };
 
-#endif // _SPIFLASHSTORAGE_H_
+#endif // _VIRTUALFS_H_
