@@ -88,7 +88,7 @@ class FlashFileNameEditWindow : public Page
         strncpy(changedName + totalSize, extension, extLength);
       }
       changedName[totalSize + extLength] = '\0';
-      VirtualFS::instance()->rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+      VirtualFS::instance().rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
     });
   };
 };
@@ -98,9 +98,8 @@ RadioFlashManagerPage::RadioFlashManagerPage() :
 {
   setOnSetVisibleHandler([]() {
     TRACE("f_chdir(ROOT_PATH)");
-    VirtualFS* flash = VirtualFS::instance();
-    flash->changeDirectory(ROOT_PATH);
-
+    VirtualFS& vfs = VirtualFS::instance();
+    vfs.changeDirectory(ROOT_PATH);
   });
 }
 
@@ -209,16 +208,16 @@ void RadioFlashManagerPage::build(FormWindow * window)
   std::list<std::string> files;
   std::list<std::string> directories;
 
-  VirtualFS* flash = VirtualFS::instance();
-  std::string workPath(flash->getCurWorkDir());
+  VirtualFS* vfs = &VirtualFS::instance();
+  std::string workPath(vfs->getCurWorkDir());
   auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
-  int res = flash->openDirectory(dir, workPath.c_str());
+  int res = vfs->openDirectory(dir, workPath.c_str());
   if (res == LFS_ERR_OK) {
     // read all entries
     bool firstTime = true;
     for (;;) {
-      res = flash->readDirectory(dir, fno);//, firstTime);
+      res = vfs->readDirectory(dir, fno);//, firstTime);
       if (res < 0)
         break; // Break on error or end of dir
       std::string name = fno.getName();
@@ -235,7 +234,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
         files.push_back(name);
       }
     }
-    flash->closeDirectory(dir);
+    vfs->closeDirectory(dir);
 
     // sort directories and files
     directories.sort(compare_nocase);
@@ -245,7 +244,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           std::string fullpath = workPath + "/" + name;
           //currentPath = fullpath.c_str();
-          flash->changeDirectory(fullpath);
+          vfs->changeDirectory(fullpath);
           window->clear();
           build(window);
           return 0;
@@ -414,33 +413,37 @@ void RadioFlashManagerPage::build(FormWindow * window)
 #endif
           }
           if (!READ_ONLY()) {
-//            menu->addLine(STR_COPY_FILE, [=]() {
-//              clipboard.type = CLIPBOARD_TYPE_FLASH_FILE;
-//              f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-//              strncpy(clipboard.data.sd.filename, name.c_str(),
-//                      CLIPBOARD_PATH_LEN - 1);
-//            });
-//            if (clipboard.type == CLIPBOARD_TYPE_FLASH_FILE) {
-//              menu->addLine(STR_PASTE, [=]() {
-//                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-//                f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
-//                // prevent copying to the same directory with the same name
-//                char *destNamePtr = clipboard.data.sd.filename;
-//                if (!strcmp(clipboard.data.sd.directory, lfn)) {
-//                  char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-//                  destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
-//                                       CLIPBOARD_PATH_LEN);
-//                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
-//                                       CLIPBOARD_PATH_LEN);
-//                  destNamePtr = destFileName;
-//                }
+            menu->addLine(STR_COPY_FILE, [=]() {
+              clipboard.type = CLIPBOARD_TYPE_FLASH_FILE;
+              std::string workDir = vfs->getCurWorkDir();
+              strncpy(clipboard.data.sd.directory, workDir.c_str(), CLIPBOARD_PATH_LEN);
+              strncpy(clipboard.data.sd.filename, name.c_str(),
+                      CLIPBOARD_PATH_LEN - 1);
+            });
+            if (clipboard.type == CLIPBOARD_TYPE_FLASH_FILE) {
+              menu->addLine(STR_PASTE, [=]() {
+                static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
+                std::string curWorkDir = vfs->getCurWorkDir();
+                //((TCHAR *)lfn, FF_MAX_LFN);
+                // prevent copying to the same directory with the same name
+                char *destNamePtr = clipboard.data.sd.filename;
+                if (curWorkDir == clipboard.data.sd.directory) {
+                  char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
+                  destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                                       CLIPBOARD_PATH_LEN);
+                  destNamePtr = destFileName;
+                }
 //                sdCopyFile(clipboard.data.sd.filename,
 //                           clipboard.data.sd.directory, destNamePtr, lfn);
-//                clipboard.type = CLIPBOARD_TYPE_NONE;
-//
-//                rebuild(window);
-//              });
-//            }
+                vfs->copyFile(clipboard.data.sd.filename,
+                           clipboard.data.sd.directory, destNamePtr, lfn);
+                clipboard.type = CLIPBOARD_TYPE_NONE;
+
+                rebuild(window);
+              });
+            }
             menu->addLine(STR_RENAME_FILE, [=]() {
               auto few = new FlashFileNameEditWindow(name);
               few->setCloseHandler([=]() {
