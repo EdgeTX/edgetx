@@ -151,8 +151,8 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
       // if g_model.rssiAlarms.flysky_telemetry == 1
       // RSSI will be kept within native FlySky range [-90, -60]
       if (!g_model.rssiAlarms.flysky_telemetry) {
-        value += 200;
-        value /= 2;
+        value *= 2;
+        value += 220;
       }
       telemetryData.rssi.set(value);
     }
