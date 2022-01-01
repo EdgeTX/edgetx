@@ -136,7 +136,6 @@ foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
 endforeach()
 
 set(LVGL_SOURCES
-  gpu/lv_gpu_stm32_dma2d.c
   core/lv_group.c
   core/lv_obj.c
   core/lv_event.c
@@ -194,6 +193,7 @@ set(LVGL_SOURCES
   misc/lv_log.c
   misc/lv_area.c
   misc/lv_math.c
+  misc/lv_lru.c
   misc/lv_tlsf.c
   misc/lv_anim_timeline.c
   misc/lv_ll.c
@@ -204,9 +204,55 @@ set(LVGL_SOURCES
   misc/lv_anim.c
   misc/lv_txt_ap.c
   draw/lv_draw_mask.c
+  draw/nxp_pxp/lv_gpu_nxp_pxp_osa.c
+  draw/nxp_pxp/lv_gpu_nxp_pxp.c
   draw/lv_img_cache.c
-  draw/lv_draw_blend.c
+  draw/stm32_dma2d/lv_gpu_stm32_dma2d.c
+  draw/nxp_vglite/lv_gpu_nxp_vglite.c
+  draw/sw/lv_draw_sw.c
+  draw/sw/lv_draw_sw_blend.c
+  draw/sw/lv_draw_sw_letter.c
+  draw/sw/lv_draw_sw_arc.c
+  draw/sw/lv_draw_sw_polygon.c
+  draw/sw/lv_draw_sw_img.c
+  draw/sw/lv_draw_sw_line.c
+  draw/sw/lv_draw_sw_rect.c
   draw/lv_draw_line.c
+  draw/sdl/lv_draw_sdl_rect.c
+  draw/sdl/lv_draw_sdl_arc.c
+  draw/sdl/lv_draw_sdl.c
+  draw/sdl/lv_draw_sdl_mask.c
+  draw/sdl/lv_draw_sdl_stack_blur.c
+  draw/sdl/lv_draw_sdl_utils.c
+  draw/sdl/lv_draw_sdl_img.c
+  draw/sdl/lv_draw_sdl_blend.c
+  draw/sdl/lv_draw_sdl_bg.c
+  draw/sdl/lv_draw_sdl_label.c
+  draw/sdl/lv_draw_sdl_texture_cache.c
+  draw/sdl/lv_draw_sdl_line.c
+  draw/sdl/lv_draw_sdl_composite.c
+  draw/lv_draw.c
+  draw/lv_img_buf.c
+  draw/lv_draw_rect.c
+  draw/lv_draw_label.c
+  draw/lv_draw_img.c
+  draw/sw/lv_draw_sw_line.c
+  draw/sw/lv_draw_sw_rect.c
+  draw/lv_draw_line.c
+  draw/sdl/lv_draw_sdl_rect.c
+  draw/sdl/lv_draw_sdl_arc.c
+  draw/sdl/lv_draw_sdl.c
+  draw/sdl/lv_draw_sdl_mask.c
+  draw/sdl/lv_draw_sdl_stack_blur.c
+  draw/sdl/lv_draw_sdl_utils.c
+  draw/sdl/lv_draw_sdl_img.c
+  draw/sdl/lv_draw_sdl_blend.c
+  draw/sdl/lv_draw_sdl_bg.c
+  draw/sdl/lv_draw_sdl_label.c
+  draw/sdl/lv_draw_sdl_texture_cache.c
+  draw/sdl/lv_draw_sdl_line.c
+  draw/sdl/lv_draw_sdl_composite.c
+  draw/lv_draw.c
   draw/lv_img_buf.c
   draw/lv_draw_rect.c
   draw/lv_draw_label.c
@@ -217,10 +263,12 @@ set(LVGL_SOURCES
   hal/lv_hal_indev.c
   hal/lv_hal_disp.c
   hal/lv_hal_tick.c
+  extra/others/monkey/lv_monkey.c
   extra/others/snapshot/lv_snapshot.c
   extra/layouts/grid/lv_grid.c
   extra/layouts/flex/lv_flex.c
   extra/libs/bmp/lv_bmp.c
+  extra/libs/ffmpeg/lv_ffmpeg.c
   extra/libs/gif/lv_gif.c
   extra/libs/gif/gifdec.c
   extra/libs/freetype/lv_freetype.c
@@ -237,6 +285,7 @@ set(LVGL_SOURCES
   extra/libs/png/lodepng.c
   extra/lv_extra.c
   extra/widgets/imgbtn/lv_imgbtn.c
+  extra/widgets/menu/lv_menu.c
   extra/widgets/win/lv_win.c
   extra/widgets/colorwheel/lv_colorwheel.c
   extra/widgets/list/lv_list.c
