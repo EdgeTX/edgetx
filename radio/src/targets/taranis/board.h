@@ -38,7 +38,7 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TPRO)
+#if defined(RADIO_ZORRO)
 #define ROTARY_ENCODER_INVERT
 #endif
 
