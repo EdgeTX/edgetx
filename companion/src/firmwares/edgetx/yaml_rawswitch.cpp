@@ -101,9 +101,9 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {
 
-    if (std::stoi(sw_str_tmp.substr(1, val_len - 1)) < CPN_MAX_LOGICAL_SWITCHES) {
-      rhs = RawSwitch(SWITCH_TYPE_VIRTUAL,
-                      std::stoi(sw_str_tmp.substr(1, val_len - 1)));
+    int sw_idx = std::stoi(sw_str_tmp.substr(1, val_len - 1));
+    if (sw_idx < CPN_MAX_LOGICAL_SWITCHES) {
+      rhs = RawSwitch(SWITCH_TYPE_VIRTUAL, sw_idx);
     }
 
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
@@ -121,9 +121,10 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
 
-    if (std::stoi(sw_str_tmp.substr(1, val_len - 1)) < CPN_MAX_SENSORS) {
-      rhs = RawSwitch(SWITCH_TYPE_SENSOR,
-                      std::stoi(sw_str_tmp.substr(1, val_len - 1)) - 1);
+    // starts at T1
+    int sensor_idx = std::stoi(sw_str_tmp.substr(1, val_len - 1));
+    if ((sensor_idx > 0) && (sensor_idx < CPN_MAX_SENSORS)) {
+      rhs = RawSwitch(SWITCH_TYPE_SENSOR, sensor_idx - 1);
     }
 
   } else if (sw_str_tmp.substr(0, 4) == std::string("Trim")) {

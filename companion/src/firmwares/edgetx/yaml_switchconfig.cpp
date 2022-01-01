@@ -50,10 +50,12 @@ const YamlLookupTable sliderConfigLut = {
 
 int YamlStickLookup::name2idx(const std::string& name)
 {
-    int idx = std::stoi(name);
-    if (idx < 4) {
-        return idx;
-    }
+    try {
+        int idx = std::stoi(name);
+        if (idx < 4) {
+            return idx;
+        }
+    } catch(...) {}
 
     return -1;
 }

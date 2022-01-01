@@ -333,14 +333,16 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
       subType >> st_str;
       if (!st_str.empty()) {
         size_t pos = 0;
-        int rfProtocol = std::stoi(st_str, &pos);
-        st_str = st_str.substr(pos + 1);
-        int rfSubType = std::stoi(st_str);
-        convertMultiProtocolToEtx(&rfProtocol, &rfSubType);
-        if (rfProtocol > 0) {
-          rhs.multi.rfProtocol = rfProtocol - 1;
-          rhs.subType = rfSubType;
-        }
+        try {
+          int rfProtocol = std::stoi(st_str, &pos);
+          st_str = st_str.substr(pos + 1);
+          int rfSubType = std::stoi(st_str);
+          convertMultiProtocolToEtx(&rfProtocol, &rfSubType);
+          if (rfProtocol > 0) {
+            rhs.multi.rfProtocol = rfProtocol - 1;
+            rhs.subType = rfSubType;
+          }
+        } catch(...) {}
       }
     } break;
   }

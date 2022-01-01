@@ -102,12 +102,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
   const char* val = src_str.data();
   size_t val_len = src_str.size();
 
-  if (val_len > 0 && val[0] == 'I') {
+  if (val_len > 1 && val[0] == 'I'
+      && (val[1] >= '0') && (val[1] <= '9')) {
 
     int idx = std::stoi(src_str.substr(1));
-    if (idx < CPN_MAX_INPUTS)
+    if (idx < CPN_MAX_INPUTS) {
       rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
-
+    }
   } else if (val_len >= 2
              && val[0] == 'S'
              && val[1] >= 'A'

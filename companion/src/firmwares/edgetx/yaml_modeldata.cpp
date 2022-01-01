@@ -306,7 +306,11 @@ static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
     return 10000 + std::stoi(val.substr(2));
   }
 
-  return std::stoi(val) + shift;
+  try {
+    return std::stoi(val) + shift;
+  } catch(...) {
+    throw YAML::TypedBadConversion<int>(node.Mark());
+  }
 }
 
 static std::string YamlWriteLimitValue(int32_t sval, int32_t shift = 0)
@@ -593,7 +597,9 @@ struct convert<YamlTelemSource> {
       if (str == "none") {
         rhs.src = 0;
       } else {
-        rhs.src = std::stoi(str) + 1;
+        try {
+          rhs.src = std::stoi(str) + 1;
+        } catch(...) {}
       }
     }
     return true;
