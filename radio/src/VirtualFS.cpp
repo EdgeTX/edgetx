@@ -359,6 +359,7 @@ int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
 
   closeFile(src);
   closeFile(tgt);
+  return 0;
 }
 
 
