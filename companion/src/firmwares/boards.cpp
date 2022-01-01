@@ -21,6 +21,7 @@
 #include "boards.h"
 #include "macros.h"
 #include "compounditemmodels.h"
+#include "moduledata.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -807,4 +808,65 @@ StringTagMappingTable Boards::getTrimSourcesLookupTable(Board::Type board)
                           });
 
   return tbl;
+}
+
+QList<ModuleType> Boards::getSupportedInternalModules(Board::Type board)
+{
+  QList<ModuleType> modules;
+  if (IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board)) {
+    modules = {MODULE_TYPE_ISRM_PXX2};
+  } else if (IS_FLYSKY_NV14(board)) {
+    modules = {MODULE_TYPE_FLYSKY};
+  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board)
+             || (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
+    modules.append({
+        MODULE_TYPE_XJT_PXX1,
+        MODULE_TYPE_ISRM_PXX2,
+        MODULE_TYPE_CROSSFIRE,
+        MODULE_TYPE_MULTIMODULE,
+    });
+  } else if (IS_TARANIS(board)) {
+    modules = {MODULE_TYPE_XJT_PXX1};
+  }
+
+  return modules;
+}
+
+ModuleType Boards::getDefaultInternalModules(Board::Type board)
+{
+  switch(board) {
+  case BOARD_TARANIS_X7:
+  case BOARD_TARANIS_X9D:
+  case BOARD_TARANIS_X9DP:
+  case BOARD_TARANIS_X9E:
+  case BOARD_HORUS_X12S:
+  case BOARD_X10:
+  case BOARD_TARANIS_XLITE:
+    return MODULE_TYPE_XJT_PXX1;
+
+  case BOARD_TARANIS_X7_ACCESS:
+  case BOARD_TARANIS_X9DP_2019:
+  case BOARD_X10_EXPRESS:
+  case BOARD_TARANIS_XLITES:
+  case BOARD_TARANIS_X9LITE:
+  case BOARD_TARANIS_X9LITES:
+    return MODULE_TYPE_ISRM_PXX2;
+
+  case BOARD_JUMPER_T12:
+  case BOARD_JUMPER_T16:
+  case BOARD_RADIOMASTER_TX16S:
+  case BOARD_JUMPER_T18:
+  case BOARD_RADIOMASTER_TX12:
+  case BOARD_RADIOMASTER_T8:
+  case BOARD_JUMPER_TLITE:
+  case BOARD_RADIOMASTER_ZORRO:
+  case BOARD_JUMPER_TPRO:
+    return MODULE_TYPE_MULTIMODULE;
+
+  case BOARD_FLYSKY_NV14:
+    return MODULE_TYPE_FLYSKY;
+
+  default:
+    return MODULE_TYPE_NONE;
+  }
 }
