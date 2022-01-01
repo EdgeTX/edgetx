@@ -40,7 +40,7 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
 
   if (sval >= gvar - 10 && sval <= gvar) {
-    char n = gvar - sval + '0';
+    char n = gvar - sval + '1';
     return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
   } else if (sval <= -gvar + 10 && sval >= -gvar) {
     char n = val - gvar + '1';
