@@ -278,37 +278,39 @@ int ModuleData::getMaxChannelCount()
 //  static
 int ModuleData::getTypeFromProtocol(unsigned int protocol)
 {
+  //  must be kept in sync with opentxeeprom.h ProtocolsConversionTable
+
   const QVector<QPair<int, int>>ProtocolTypeTable = {
 
-                          { PULSES_OFF, MODULE_TYPE_NONE },
-                          { PULSES_PPM, MODULE_TYPE_PPM },
+                          { PULSES_OFF,                 MODULE_TYPE_NONE },
+                          { PULSES_PPM,                 MODULE_TYPE_PPM },
 
-                          { PULSES_PXX_XJT_X16, MODULE_TYPE_XJT_PXX1 },
-                          { PULSES_PXX_XJT_D8, MODULE_TYPE_XJT_PXX1 },
-                          { PULSES_PXX_XJT_LR12, MODULE_TYPE_XJT_PXX1 },
+                          { PULSES_PXX_XJT_X16,         MODULE_TYPE_XJT_PXX1 },
+                          { PULSES_PXX_XJT_D8,          MODULE_TYPE_XJT_PXX1 },
+                          { PULSES_PXX_XJT_LR12,        MODULE_TYPE_XJT_PXX1 },
 
-                          { PULSES_ACCESS_ISRM, MODULE_TYPE_ISRM_PXX2 },
-                          { PULSES_ACCST_ISRM_D16, MODULE_TYPE_ISRM_PXX2 },
+                          { PULSES_ACCESS_ISRM,         MODULE_TYPE_ISRM_PXX2 },
+                          { PULSES_ACCST_ISRM_D16,      MODULE_TYPE_ISRM_PXX2 },
 
-                          { PULSES_LP45, MODULE_TYPE_DSM2 },
-                          { PULSES_DSM2, MODULE_TYPE_DSM2 },
-                          { PULSES_DSMX, MODULE_TYPE_DSM2 },
+                          { PULSES_LP45,                MODULE_TYPE_DSM2 },
+                          { PULSES_DSM2,                MODULE_TYPE_DSM2 },
+                          { PULSES_DSMX,                MODULE_TYPE_DSM2 },
 
-                          { PULSES_CROSSFIRE, MODULE_TYPE_CROSSFIRE },
-                          { PULSES_MULTIMODULE, MODULE_TYPE_MULTIMODULE },
-                          { PULSES_PXX_R9M, MODULE_TYPE_R9M_PXX1 },
-                          { PULSES_ACCESS_R9M, MODULE_TYPE_R9M_PXX2 },
-                          { PULSES_PXX_R9M_LITE, MODULE_TYPE_R9M_LITE_PXX1 },
-                          { PULSES_ACCESS_R9M_LITE, MODULE_TYPE_R9M_LITE_PXX2 },
-                          { PULSES_GHOST, MODULE_TYPE_GHOST },
+                          { PULSES_CROSSFIRE,           MODULE_TYPE_CROSSFIRE },
+                          { PULSES_MULTIMODULE,         MODULE_TYPE_MULTIMODULE },
+                          { PULSES_PXX_R9M,             MODULE_TYPE_R9M_PXX1 },
+                          { PULSES_ACCESS_R9M,          MODULE_TYPE_R9M_PXX2 },
+                          { PULSES_PXX_R9M_LITE,        MODULE_TYPE_R9M_LITE_PXX1 },
+                          { PULSES_ACCESS_R9M_LITE,     MODULE_TYPE_R9M_LITE_PXX2 },
+                          { PULSES_GHOST,               MODULE_TYPE_GHOST },
                           { PULSES_ACCESS_R9M_LITE_PRO, MODULE_TYPE_R9M_LITE_PRO_PXX2 },
-                          { PULSES_SBUS, MODULE_TYPE_SBUS },
+                          { PULSES_SBUS,                MODULE_TYPE_SBUS },
 
-                          { PULSES_XJT_LITE_X16, MODULE_TYPE_XJT_LITE_PXX2 },
-                          { PULSES_XJT_LITE_D8, MODULE_TYPE_XJT_LITE_PXX2 },
-                          { PULSES_XJT_LITE_LR12, MODULE_TYPE_XJT_LITE_PXX2 },
+                          { PULSES_XJT_LITE_X16,        MODULE_TYPE_XJT_LITE_PXX2 },
+                          { PULSES_XJT_LITE_D8,         MODULE_TYPE_XJT_LITE_PXX2 },
+                          { PULSES_XJT_LITE_LR12,       MODULE_TYPE_XJT_LITE_PXX2 },
 
-                          { PULSES_AFHDS3, MODULE_TYPE_FLYSKY }
+                          { PULSES_AFHDS3,              MODULE_TYPE_FLYSKY }
                       };
 
   QPair<int, int>elmt;
@@ -357,51 +359,6 @@ QString ModuleData::typeToString(int type)
   return CHECK_IN_ARRAY(strings, type);
 }
 
-//  static
-bool ModuleData::isInternalModuleAvailable(int moduleType)
-{
-  if (moduleType == MODULE_TYPE_NONE)
-    return true;
-
-  Firmware *fw = getCurrentFirmware();
-  Board::Type board = fw->getBoard();
-  QString id = fw->getId();
-
-  if (!Boards::getCapability(board, Board::HasInternalModuleSupport))
-    return false;
-
-  //===================================
-  //  TODO: this is not finished!!!!!!!
-  //===================================
-
-  switch(moduleType) {
-    case MODULE_TYPE_MULTIMODULE:
-      return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
-      break;
-    case MODULE_TYPE_CROSSFIRE:
-      break;
-    case MODULE_TYPE_XJT_PXX1:
-      if(IS_TARANIS(board))
-        return true;
-      break;
-    case MODULE_TYPE_ISRM_PXX2:
-      if(IS_ACCESS_RADIO(board, id))
-        return true;
-      break;
-    case MODULE_TYPE_PPM:
-      break;
-    case MODULE_TYPE_FLYSKY:
-      if (IS_FLYSKY_NV14(board))
-        return true;
-      break;
-    default:
-      return false;
-  }
-
-  return false;
-}
-
-//  static
 AbstractStaticItemModel * ModuleData::internalModuleItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
