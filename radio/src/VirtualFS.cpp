@@ -242,6 +242,26 @@ void VirtualFS::normalizePath(std::string& path)
     path = "/";
 }
 
+int VirtualFS::unlink(const std::string& path)
+{
+  std::string p = path;
+  normalizePath(p);
+  VfsDir::DirType type = getDirTypeAndPath(p);
+
+  switch(type)
+  {
+  case VfsDir::DIR_ROOT:
+    return -1;
+  case VfsDir::DIR_FAT:
+    return f_unlink(p.c_str());
+    break;
+  case VfsDir::DIR_LFS:
+    return lfs_remove(&lfs, p.c_str());
+  }
+
+  return -1;
+}
+
 int VirtualFS::changeDirectory(const std::string& path)
 {
   if(path.length() == 0)
@@ -334,19 +354,44 @@ int VirtualFS::closeDirectory(VfsDir& dir)
 
 int VirtualFS::rename(const char* oldPath, const char* newPath)
 {
-  return lfs_rename(&lfs, (curWorkDir + PATH_SEPARATOR + oldPath).c_str(), (curWorkDir + PATH_SEPARATOR + newPath).c_str());
+  std::string oldP = oldPath;
+  std::string newP = newPath;
+
+  normalizePath(oldP);
+  normalizePath(newP);
+
+  VfsDir::DirType oldType = getDirTypeAndPath(oldP);
+  VfsDir::DirType newType = getDirTypeAndPath(newP);
+
+  if(oldType == newType)
+  {
+    switch(oldType)
+    {
+    case VfsDir::DIR_ROOT:
+      return -1;
+    case VfsDir::DIR_FAT:
+      f_rename(oldP.c_str(), newP.c_str());
+      break;
+    case VfsDir::DIR_LFS:
+      return lfs_rename(&lfs, oldP.c_str(), newP.c_str());
+      break;
+    }
+  } else {
+    copyFile(oldPath, newPath);
+    unlink(oldPath);
+  }
+  return 0;
 }
 
-int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
-           const std::string& targetDir, const std::string& targetFile)
+int VirtualFS::copyFile(const std::string& source, const std::string& destination)
 {
   VfsFile src;
-  VfsFile tgt;
+  VfsFile dest;
 
-  if(openFile(src, srcDir + "/" + srcFile, LFS_O_RDONLY) != LFS_ERR_OK)
+  if(openFile(src, source, LFS_O_RDONLY) != LFS_ERR_OK)
     return -1;
 
-  if(openFile(tgt, targetDir + "/" + targetFile, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR) != LFS_ERR_OK)
+  if(openFile(dest, destination, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR) != LFS_ERR_OK)
     return -1;
 
   char buf[256] = {0};
@@ -355,11 +400,17 @@ int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
 
   read(src, buf, sizeof(buf), readBytes);
   for(; readBytes != 0; read(src, buf, sizeof(buf), readBytes))
-    write(tgt, buf, readBytes, written);
+    write(dest, buf, readBytes, written);
 
   closeFile(src);
-  closeFile(tgt);
+  closeFile(dest);
   return 0;
+}
+
+int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
+           const std::string& destDir, const std::string& destFile)
+{
+  return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
 }
 
 

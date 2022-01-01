@@ -245,6 +245,9 @@ public:
   char* getFileIndex(char * filename, unsigned int & value);
 
   const std::string& getCurWorkDir()  { return curWorkDir;}
+
+  int unlink(const std::string& path);
+
   int changeDirectory(const std::string& path);
   int openDirectory(VfsDir& dir, const char * path);
   int readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
@@ -257,8 +260,9 @@ public:
   int fileEof(VfsFile& file);
 
   int rename(const char* oldPath, const char* newPath);
+  int copyFile(const std::string& source, const std::string& destination);
   int copyFile(const std::string& srcFile, const std::string& srcDir,
-             const std::string& targetDir, const std::string& targetFile);
+             const std::string& destDir, const std::string& destFile);
 
 
   uint32_t flashGetNoSectors();

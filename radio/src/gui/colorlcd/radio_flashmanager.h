@@ -37,9 +37,4 @@ class RadioFlashManagerPage : public PageTab
                            MultiModuleType type);
   void rebuild(FormWindow* window);
  private:
-  std::string currentPath = "/";
-  std::string _getFullPath(const std::string& filename)
-  {
-    return currentPath + "/" + filename;
-  }
 };
