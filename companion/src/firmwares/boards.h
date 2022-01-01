@@ -20,6 +20,7 @@
 
 #pragma once
 #include "datahelpers.h"
+#include "moduledata.h"
 
 #include <QtCore>
 #include <QObject>
@@ -219,7 +220,9 @@ class Boards
     static AbstractStaticItemModel * intModuleTypeItemModel();
     static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
-
+    static QList<ModuleType> getSupportedInternalModules(Board::Type board);
+    static ModuleType getDefaultInternalModules(Board::Type board);
+  
   protected:
 
     Board::Type m_boardType;
@@ -291,7 +294,12 @@ inline bool IS_FAMILY_T16(Board::Type board)
 
 inline bool IS_FAMILY_T12(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T12 || board == Board::BOARD_RADIOMASTER_TX12 || board == Board::BOARD_RADIOMASTER_ZORRO || board == Board::BOARD_RADIOMASTER_T8 || board == Board::BOARD_JUMPER_TLITE;
+  return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_RADIOMASTER_TX12 ||
+         board == Board::BOARD_RADIOMASTER_ZORRO ||
+         board == Board::BOARD_RADIOMASTER_T8 ||
+         board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_JUMPER_TPRO;
 }
 
 inline bool IS_FLYSKY_NV14(Board::Type board)
@@ -409,10 +417,17 @@ inline bool IS_TARANIS_X9DP_2019(Board::Type board)
   return (board == Board::BOARD_TARANIS_X9DP_2019);
 }
 
+inline bool IS_ACCESS_RADIO(Board::Type board)
+{
+  return IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board) ||
+         board == Board::BOARD_TARANIS_X9DP_2019 ||
+         board == Board::BOARD_X10_EXPRESS || IS_TARANIS_X7_ACCESS(board);
+}
+
 inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
-  return (IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board) || board == Board::BOARD_TARANIS_X9DP_2019 || board == Board::BOARD_X10_EXPRESS || IS_TARANIS_X7_ACCESS(board) ||
-          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess")));
+  return IS_ACCESS_RADIO(board) ||
+         (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
 }
 
 inline bool HAS_EEPROM_YAML(Board::Type board)

@@ -407,8 +407,9 @@ AbstractStaticItemModel * ModuleData::internalModuleItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("moduledata.internalmodule");
 
-  for (int i = 0; i < MODULE_TYPE_COUNT; i++) {
-    mdl->appendToItemList(typeToString(i), i, isInternalModuleAvailable(i));
+  auto modules = Boards::getSupportedInternalModules(getCurrentBoard());
+  for(auto mod : modules) {
+    mdl->appendToItemList(typeToString(mod), mod);
   }
 
   mdl->loadItemList();
