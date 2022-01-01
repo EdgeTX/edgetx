@@ -489,6 +489,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasSDCard:
       return IS_STM32(board);
 
+    case HasInternalModuleSupport:
+      return (IS_STM32(board) && !IS_TARANIS_SMALL(board));
+
     default:
       return 0;
   }
