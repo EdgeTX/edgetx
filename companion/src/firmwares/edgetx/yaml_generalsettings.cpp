@@ -100,7 +100,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["vBatMin"] = rhs.vBatMin + 90;
   node["vBatMax"] = rhs.vBatMax + 120;
 
-  node["backlightMode"] = backlightModeLut << rhs.backlightMode;
+  node["backlightMode"] = backlightModeLut << std::abs(rhs.backlightMode);
   node["trainer"] = rhs.trainer;
   node["view"] = rhs.view;
   node["fai"] = (int)rhs.fai;
