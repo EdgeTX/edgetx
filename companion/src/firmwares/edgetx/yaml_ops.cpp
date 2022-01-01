@@ -22,7 +22,7 @@
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
-  if (node) {
+  if (node && node.IsScalar()) {
     std::string str = node.as<std::string>();
     const auto& it =
         find_if(lut.begin(), lut.end(), [=](const YamlLookupTableElmt& elmt) {
