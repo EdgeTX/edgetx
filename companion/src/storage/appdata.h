@@ -380,6 +380,7 @@ class Profile: public CompStoreObj
     PROPERTYSTR(sdPath)
     PROPERTYSTR(pBackupDir)
 
+    PROPERTY (int, defaultInternalModule, 0)
     PROPERTY4(int, channelOrder, "default_channel_order",  0)
     PROPERTY4(int, defaultMode,  "default_mode",           1)
     PROPERTY (int, volumeGain,   10)
