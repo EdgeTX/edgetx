@@ -255,8 +255,10 @@ public:
 
   int openFile(VfsFile& file, const std::string& path, int flags);
   int closeFile(VfsFile& file);
+  int fileSize(VfsFile& file);
   int read(VfsFile& file, void* buf, size_t size, size_t& readSize);
   int write(VfsFile& file, void* buf, size_t size, size_t& written);
+  int lseek(VfsFile& file, size_t offset);
   int fileEof(VfsFile& file);
 
   int rename(const char* oldPath, const char* newPath);

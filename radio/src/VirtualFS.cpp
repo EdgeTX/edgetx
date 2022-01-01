@@ -469,6 +469,20 @@ int VirtualFS::closeFile(VfsFile& file)
   return ret;
 }
 
+int VirtualFS::fileSize(VfsFile& file)
+{
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    return f_size(&file.fat);
+    break;
+  case VfsFileType::LFS:
+    return lfs_file_size(&lfs, &file.lfs);
+  }
+
+  return -1;
+}
+
 int VirtualFS::read(VfsFile& file, void* buf, size_t size, size_t& readSize)
 {
   int ret = -1;
@@ -511,6 +525,23 @@ int VirtualFS::write(VfsFile& file, void* buf, size_t size, size_t& written)
     } else {
       written = 0;
     }
+    break;
+  }
+
+  return ret;
+}
+
+int VirtualFS::lseek(VfsFile& file, size_t offset)
+{
+  int ret = -1;
+
+  switch(file.type)
+  {
+  case VfsFileType::FAT:
+    ret = f_lseek(&file.fat, offset);
+    break;
+  case VfsFileType::LFS:
+    ret = lfs_file_seek(&lfs, &file.lfs, offset, LFS_SEEK_SET);
     break;
   }
 
