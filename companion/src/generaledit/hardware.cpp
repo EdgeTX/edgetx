@@ -137,6 +137,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
     internalModule->setField(generalSettings.internalModule, this);
     addParams(row, internalModule);
+    connect(internalModule, &AutoComboBox::currentDataChanged, this, [=] () {
+            QMessageBox::warning(this, CPN_STR_APP_NAME,
+                                 tr("ALERT: Check each model's internal module protocol to ensure it is compatible!"));
+    });
   }
 
   if (firmware->getCapability(HasTelemetryBaudrate)) {
