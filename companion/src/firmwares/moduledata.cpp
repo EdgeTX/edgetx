@@ -338,20 +338,20 @@ QString ModuleData::typeToString(int type)
   static const char * strings[] = {
     "OFF",
     "PPM",
-    "FrSky XJT",
+    "XJT",
     "ISRM",
     "DSM2",
-    "TBS Crossfire",
-    "DIY Multiprotocol Module",
-    "FrSky R9M",
-    "FrSky R9M ACCESS",
-    "FrSky R9MLite",
-    "FrSky R9ML ACCESS",
-    "ImmersionRC Ghost",
-    "FrSky R9MLP ACCESS",
-    "SBUS output at VBat",
-    "FrSky XJT Lite",
-    "FlySky"
+    "CRSF",
+    "MULTI",
+    "R9M",
+    "R9M ACCESS",
+    "R9MLite",
+    "R9ML ACCESS",
+    "GHST",
+    "R9MLP ACCESS",
+    "SBUS",
+    "XJT Lite",
+    "FLYSKY"
   };
 
   return CHECK_IN_ARRAY(strings, type);
