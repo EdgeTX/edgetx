@@ -114,27 +114,15 @@ void RadioFlashManagerPage::rebuild(FormWindow * window)
 // TODO elsewhere
 extern bool compare_nocase(const std::string &first, const std::string &second);
 
-//char * _getFullPath(const std::string &filename)
-//{
-//  return "/";
-//#if 0
-//  static char full_path[FF_MAX_LFN + 1]; // TODO optimize that!
-//  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-//  strcat(full_path, "/");
-//  strcat(full_path, filename.c_str());
-//  return full_path;
-//#endif
-//}
+std::string _getFullPath(const std::string &filename)
+{
+  return VirtualFS::instance().getCurWorkDir() + "/" + filename;
+}
 
-//char * _getCurrentPath()
-//{
-//  return "/";
-//#if 0
-//  static char path[FF_MAX_LFN + 1]; // TODO optimize that!
-//  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-//  return path;
-//#endif
-//}
+std::string _getCurrentPath()
+{
+  return VirtualFS::instance().getCurWorkDir();
+}
 
 template <class T>
 class FlashDialog: public FullScreenDialog
@@ -452,7 +440,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
               });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
-                //f_unlink((const TCHAR*)_getFullPath(name));
+                vfs->unlink(_getFullPath(name));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
