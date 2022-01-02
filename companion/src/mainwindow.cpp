@@ -1626,9 +1626,11 @@ int MainWindow::newProfile(bool loadProfile)
   if (i == MAX_PROFILES)  //Failed to find free slot
     return -1;
 
+  Firmware *newfw = Firmware::getDefaultVariant();
   g.profile[i].init();
-  g.profile[i].name(tr("New Radio"));
-  g.profile[i].fwType(Firmware::getDefaultVariant()->getId());
+  g.profile[i].name("New Radio");
+  g.profile[i].fwType(newfw->getId());
+  g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
 
   if (loadProfile) {
     if (loadProfileId(i))

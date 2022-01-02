@@ -460,6 +460,12 @@ void AppPreferencesDialog::on_clearImageButton_clicked()
 void AppPreferencesDialog::onBaseFirmwareChanged()
 {
   populateFirmwareOptions(getBaseFirmware());
+
+  Firmware *newfw = getFirmwareVariant();
+  Profile & profile = g.currentProfile();
+  profile.defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
+  ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel(newfw->getBoard()));
+  ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
 }
 
 Firmware *AppPreferencesDialog::getBaseFirmware() const
