@@ -25,7 +25,6 @@
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
 #include "generalsettings.h"
-#include "datahelpers.h"
 
 #include <QPair>
 #include <QVector>
@@ -359,12 +358,12 @@ QString ModuleData::typeToString(int type)
   return CHECK_IN_ARRAY(strings, type);
 }
 
-AbstractStaticItemModel * ModuleData::internalModuleItemModel()
+AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("moduledata.internalmodule");
 
-  auto modules = Boards::getSupportedInternalModules(getCurrentBoard());
+  auto modules = Boards::getSupportedInternalModules(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : (Board::Type)board);
   for(auto mod : modules) {
     mdl->appendToItemList(typeToString(mod), mod);
   }
