@@ -627,17 +627,8 @@ static bool luaLoadMixScript(uint8_t ref)
     sid.reference = ref;
 
     constexpr size_t maxlen{sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
-//    std::integral_constant<size_t, maxlen>::_;
-//    std::integral_constant<size_t, sizeof(SCRIPTS_MIXES_PATH)>::_;
-    
     char filename[maxlen];
     snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_MIXES_PATH, LEN_SCRIPT_FILENAME, sd.file, SCRIPT_EXT);
-
-//    char filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_MIXES_PATH "/";    
-//    strncpy(filename + sizeof(SCRIPTS_MIXES_PATH), sd.file, LEN_SCRIPT_FILENAME);
-//    filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-//    strcat(filename + sizeof(SCRIPTS_MIXES_PATH), SCRIPT_EXT);
-//    filename[sizeof(filename) - 1] = '\0';
 
     return luaLoad(filename, sid);
   }
@@ -669,11 +660,6 @@ static bool luaLoadFunctionScript(uint8_t ref)
       constexpr size_t maxlen{sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
       char filename[maxlen];
       snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_FUNCS_PATH, LEN_FUNCTION_NAME, fn->play.name, SCRIPT_EXT);
-      
-//      char filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)] = SCRIPTS_FUNCS_PATH "/";
-//      strncpy(filename + sizeof(SCRIPTS_FUNCS_PATH), fn->play.name, LEN_FUNCTION_NAME);
-//      filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME] = '\0';
-//      strcat(filename + sizeof(SCRIPTS_FUNCS_PATH), SCRIPT_EXT);
 
       return luaLoad(filename, sid);
     }
@@ -703,11 +689,6 @@ static bool luaLoadTelemetryScript(uint8_t ref)
         char filename[maxlen];
         snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_TELEM_PATH, LEN_SCRIPT_FILENAME, script.file, SCRIPT_EXT);
 
-//        char filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_TELEM_PATH "/";
-//        strncpy(filename + sizeof(SCRIPTS_TELEM_PATH), script.file, LEN_SCRIPT_FILENAME);
-//        filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-//        strcat(filename + sizeof(SCRIPTS_TELEM_PATH), SCRIPT_EXT);
-       
         return luaLoad(filename, sid);
       }
       else {
