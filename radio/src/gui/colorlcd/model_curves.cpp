@@ -361,7 +361,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
               button->invalidate();
           });
           menu->addLine(STR_CLEAR, [=]() {
-              curveReset(index);
+              curveClear(index);
               storageDirty(EE_MODEL);
               rebuild(window, index);
           });
