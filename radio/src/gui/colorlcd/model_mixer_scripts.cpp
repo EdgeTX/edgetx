@@ -75,17 +75,26 @@ class ScriptEditWindow : public Page {
       FormGridLayout grid;
       grid.spacer(PAGE_PADDING);
 
-      ScriptData* sd = &(g_model.scriptsData[idx]);
+      ScriptData* const sd = &(g_model.scriptsData[idx]);
 
+      // ***: special case of deleted entry resused here
+      // should first delete all entries in inputs/outputs to prevent stale display
+      if (sd->file[0] == '\0') {
+        scriptInputsOutputs[idx].inputsCount = 0;
+        scriptInputsOutputs[idx].outputsCount = 0;
+      }
+      
       // Filename
       new StaticText(window, grid.getLabelSlot(), STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
       auto fc = new FileChoice(
           window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
-          [=]() { return std::string(sd->file, LEN_SCRIPT_FILENAME); },
+          [=]() { return std::string(sd->file, strnlen(sd->file, LEN_SCRIPT_FILENAME)); },
           [=](std::string newValue) {
-            strncpy(sd->file, newValue.c_str(), LEN_SCRIPT_FILENAME);
-            if (newValue.empty()) { memset((void*)sd, 0, sizeof(ScriptData)); }
+             memset((void*)sd, 0, sizeof(ScriptData));               
+             if (!newValue.empty()) {
+                 strncpy(sd->file, newValue.c_str(), LEN_SCRIPT_FILENAME);                 
+             }
             storageDirty(EE_MODEL);
             LUA_LOAD_MODEL_SCRIPT(idx); // async reload...
             update = true;
@@ -161,8 +170,6 @@ class ScriptEditWindow : public Page {
     }
 };
 
-constexpr char SCRIPT_STATUS_ERROR[] = "(error)";
-
 class ScriptLineButton : public Button
 {
  public:
@@ -195,10 +202,17 @@ class ScriptLineButton : public Button
       
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
-          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR, sizeof(SCRIPT_STATUS_ERROR), textColor);
+          dc->drawSizedText(x, y, STR_SCRIPT_ERROR, strlen(STR_SCRIPT_ERROR), textColor);
+          break;
+      case SCRIPT_NOFILE:
+          dc->drawSizedText(x, y, STR_NEEDS_FILE, strlen(STR_NEEDS_FILE), textColor);
+          break;
+      case SCRIPT_OK:
+          dc->drawSizedText(x, y, "-", 1, textColor);
           break;
         default:
-          dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
+          // TODO: runtimeData->instructions has no value 
+//          dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
           break;
       }
     }
@@ -245,20 +259,22 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
     }
     
     // LUAx label
-    auto txt = new StaticText(window, grid.getLabelSlot(),
+    auto const txt = new StaticText(window, grid.getLabelSlot(),
                               std::string("LUA") + std::to_string(idx + 1),
                               BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     
-    Button* button = new ScriptLineButton(window, grid.getFieldSlot(), sd, runtimeData);
+    Button* const button = new ScriptLineButton(window, grid.getFieldSlot(), sd, runtimeData);
 
+    ScriptData* const sp = &sd;
     button->setPressHandler([=]() -> uint8_t {
-      Menu* menu = new Menu(window);
+      Menu* const menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() { editLine(window, idx); });
 
       if (runtimeData != nullptr) {
-        menu->addLine(STR_RESET, [=]() {
-          memset((void*)&sd, 0, sizeof(sd));
-          // TODO: anything else? reload scripts???
+        menu->addLine(STR_DELETE, [=]() {
+          memset((void*)sp, 0, sizeof(sd));
+          // scripts input/output should be cleared
+          // can't be done here, because script may be scheduled again (see: ***)
           storageDirty(EE_MODEL);
           rebuild(window, idx);
         });

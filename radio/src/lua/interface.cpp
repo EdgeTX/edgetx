@@ -618,6 +618,7 @@ static bool luaLoad(const char * filename, ScriptInternalData & sid)
 #if defined(LUA_MODEL_SCRIPTS)
 static bool luaLoadMixScript(uint8_t ref)
 {
+    assert(ref >= SCRIPT_MIX_FIRST);    
   uint8_t idx = ref - SCRIPT_MIX_FIRST;
   ScriptData & sd = g_model.scriptsData[idx];
 
@@ -625,10 +626,18 @@ static bool luaLoadMixScript(uint8_t ref)
     ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
     sid.reference = ref;
 
-    char filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_MIXES_PATH "/";
-    strncpy(filename + sizeof(SCRIPTS_MIXES_PATH), sd.file, LEN_SCRIPT_FILENAME);
-    filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-    strcat(filename + sizeof(SCRIPTS_MIXES_PATH), SCRIPT_EXT);
+    constexpr size_t maxlen{sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+//    std::integral_constant<size_t, maxlen>::_;
+//    std::integral_constant<size_t, sizeof(SCRIPTS_MIXES_PATH)>::_;
+    
+    char filename[maxlen];
+    snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_MIXES_PATH, LEN_SCRIPT_FILENAME, sd.file, SCRIPT_EXT);
+
+//    char filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_MIXES_PATH "/";    
+//    strncpy(filename + sizeof(SCRIPTS_MIXES_PATH), sd.file, LEN_SCRIPT_FILENAME);
+//    filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME] = '\0';
+//    strcat(filename + sizeof(SCRIPTS_MIXES_PATH), SCRIPT_EXT);
+//    filename[sizeof(filename) - 1] = '\0';
 
     return luaLoad(filename, sid);
   }
@@ -656,11 +665,15 @@ static bool luaLoadFunctionScript(uint8_t ref)
     if (luaScriptsCount < MAX_SCRIPTS) {
       ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
       sid.reference = ref;
-     
-      char filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)] = SCRIPTS_FUNCS_PATH "/";
-      strncpy(filename + sizeof(SCRIPTS_FUNCS_PATH), fn->play.name, LEN_FUNCTION_NAME);
-      filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME] = '\0';
-      strcat(filename + sizeof(SCRIPTS_FUNCS_PATH), SCRIPT_EXT);
+
+      constexpr size_t maxlen{sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+      char filename[maxlen];
+      snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_FUNCS_PATH, LEN_FUNCTION_NAME, fn->play.name, SCRIPT_EXT);
+      
+//      char filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)] = SCRIPTS_FUNCS_PATH "/";
+//      strncpy(filename + sizeof(SCRIPTS_FUNCS_PATH), fn->play.name, LEN_FUNCTION_NAME);
+//      filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME] = '\0';
+//      strcat(filename + sizeof(SCRIPTS_FUNCS_PATH), SCRIPT_EXT);
 
       return luaLoad(filename, sid);
     }
@@ -686,10 +699,14 @@ static bool luaLoadTelemetryScript(uint8_t ref)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = ref;
        
-        char filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_TELEM_PATH "/";
-        strncpy(filename + sizeof(SCRIPTS_TELEM_PATH), script.file, LEN_SCRIPT_FILENAME);
-        filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-        strcat(filename + sizeof(SCRIPTS_TELEM_PATH), SCRIPT_EXT);
+        constexpr size_t maxlen{sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME+ sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+        char filename[maxlen];
+        snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_TELEM_PATH, LEN_SCRIPT_FILENAME, script.file, SCRIPT_EXT);
+
+//        char filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_TELEM_PATH "/";
+//        strncpy(filename + sizeof(SCRIPTS_TELEM_PATH), script.file, LEN_SCRIPT_FILENAME);
+//        filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME] = '\0';
+//        strcat(filename + sizeof(SCRIPTS_TELEM_PATH), SCRIPT_EXT);
        
         return luaLoad(filename, sid);
       }
@@ -822,7 +839,7 @@ static int luaRegisterFunction(const char * key)
   }
   else {
     if (typ != LUA_TNIL) {
-      TRACE_ERROR("luaRegisterFunction(%s): Error: '%s' is not a function\n", getScriptName(luaScriptsCount - 1), key);
+      TRACE_ERROR("luaRegisterFunction(%s): Error: '%.*s' is not a function\n", LEN_SCRIPT_FILENAME, getScriptName(luaScriptsCount - 1), key);
     }
     lua_pop(lsScripts, 1);
     return LUA_NOREF;
@@ -929,7 +946,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
             if (sid.run == LUA_NOREF) {
-              snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%s): No run function\n", getScriptName(idx));
+              snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
               initFunction = LUA_NOREF;
             }
@@ -947,7 +964,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 #endif
           }
           else {
-            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%s): The script did not return a table\n", getScriptName(idx));
+            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
             initFunction = LUA_NOREF;
           }
@@ -1179,7 +1196,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         for (int j = sio -> outputsCount - 1; j >= 0; j--) {
           if (!lua_isnumber(lsScripts, -1)) {
             sid.state = SCRIPT_SYNTAX_ERROR;
-            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "Script %s: run function did not return a number\n", getScriptName(idx));
+            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "Script %.*s: run function did not return a number\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             luaError(lsScripts, sid.state);
             break;
           }
