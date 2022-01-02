@@ -33,7 +33,7 @@ enum BaseCurves {
   CURVE_BASE
 };
 
-void curveReset(uint8_t index);
+void curveClear(uint8_t index);
 void curveMirror(uint8_t index);
 bool isCurveUsed(uint8_t index);
 void loadCurves();
