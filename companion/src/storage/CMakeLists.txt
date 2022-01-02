@@ -12,6 +12,7 @@ set(storage_NAMES
   hexeeprom
   categorized
   sdcard
+  etx
   otx
   yaml
 )

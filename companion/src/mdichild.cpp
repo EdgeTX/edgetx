@@ -1320,7 +1320,7 @@ void MdiChild::newFile(bool createDefaults)
 {
   static int sequenceNumber = 1;
   isUntitled = true;
-  curFile = QString("document%1.otx").arg(sequenceNumber++);
+  curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
 
   if (createDefaults && firmware->getCapability(Capability::HasModelCategories)) {
@@ -1345,6 +1345,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     setCurrentFile(filename);
   }
 
+  //  For etx files this will never be true as any conversion occurs when parsing file
   if (!Boards::isBoardCompatible(storage.getBoard(), getCurrentBoard())) {
     if (!convertStorage(storage.getBoard(), getCurrentBoard(), true))
       return false;
@@ -1360,7 +1361,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 bool MdiChild::save()
 {
   QFileInfo fi(curFile);
-  if (isUntitled || !fi.isWritable()) {
+  if (isUntitled || !fi.isWritable() || fi.suffix().toLower() != "etx") {
     return saveAs(true);
   }
   else {
@@ -1375,7 +1376,7 @@ bool MdiChild::saveAs(bool isNew)
 #ifdef __APPLE__
   QString filter;
 #else
-  QString filter(OTX_FILES_FILTER % YML_FILES_FILTER);
+  QString filter(ETX_FILES_FILTER % YML_FILES_FILTER);
 #endif
 
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
@@ -1455,7 +1456,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx)$"), suffix + "." + ext);
+  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
@@ -1528,7 +1529,7 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeEeprom()  // write to Tx
+void MdiChild::writeSettings()  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
@@ -1547,19 +1548,21 @@ void MdiChild::writeEeprom()  // write to Tx
   }
 
   Board::Type board = getCurrentBoard();
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
+
+  if (Boards::getCapability(board, Board::HasSDCard)) {
     QString radioPath = findMassstoragePath("RADIO", true);
     qDebug() << "Searching for SD card, found" << radioPath;
     if (radioPath.isEmpty()) {
-      qDebug() << "MdiChild::writeEeprom(): Horus radio not found";
+      qDebug() << "Radio SD card not found";
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
       return;
     }
     if (saveFile(radioPath, false)) {
-      emit newStatusMessage(tr("Models and Settings written"), 2000);
+      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Saved models and settings to radio"));
     }
     else {
       qDebug() << "MdiChild::writeEeprom(): saveFile error";
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error saving models and settings to radio!"));
     }
   }
   else {

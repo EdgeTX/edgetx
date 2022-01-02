@@ -409,16 +409,10 @@ QMap<int, QString> AppData::getActiveProfiles() const
 void AppData::convertSettings(QSettings & settings)
 {
   quint32 savedVer = settings.value(SETTINGS_VERSION_KEY, 0).toUInt();
-#if (VERSION_NUMBER < QT_VERSION_CHECK(2, 3, 0))
-  // convert old 2.2.x version marker; TODO: remove once v2.3 is established (because we'll always convert and clean 2.2.x settings anyway)
-  if (savedVer == 220)
-    savedVer = 0x2020000;
-#endif
-
   if (savedVer == CPN_SETTINGS_VERSION)
     return;
   if (savedVer > CPN_SETTINGS_VERSION) {
-    qWarning().noquote() << "Saved settings version is newer than current, skippig conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
+    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
     return;
   }
 
@@ -432,29 +426,24 @@ void AppData::convertSettings(QSettings & settings)
                               << " from v" << fmtHex(savedVer) << " (" << fmtHex(savedMajMin) << ") to v"
                               <<  fmtHex(CPN_SETTINGS_VERSION) << " (" << fmtHex(currMajMin)  << "). Removing unused: " << removeUnused;
 
-  if (settings.contains("useWizard")) {
-    if (!settings.contains(newModelAction_key()))
-      settings.setValue(newModelAction_key(), (settings.value("useWizard").toBool() ? MODEL_ACT_WIZARD : MODEL_ACT_EDITOR));
-    if (removeUnused)
-      settings.remove("useWizard");
-  }
-
-  // meaning of warningId changed during v2.2 development but value of "7" indicates old setting, removing it will restore defaults
-  if (savedMajMin < 0x203 && settings.contains("warningId") && settings.value("warningId").toInt() == 7)
-    settings.remove("warningId");
-
-  // Convert joystick settings to new style of key names
-  static const QString jsCalBasePath = QStringLiteral("JsCalibration/%1");
-  if (settings.contains(jsCalBasePath.arg("stick0_axe"))) {
-    const QStringList vars({"axe", "inv", "max", "med", "min"});
-    for (int i=0; i < MAX_JOYSTICKS; ++i) {
-      for (const QString & var : vars) {
-        const QString oldPath = jsCalBasePath.arg(QString("stick%1_%2").arg(i).arg(var));     // old format "/stick#_var"
-        const QVariant val = settings.value(oldPath);
-        if (val.isValid())
-          settings.setValue(jsCalBasePath.arg(QString("%1/stick_%2").arg(i).arg(var)), val);  // new format "/#/stick_var"
-        if (removeUnused)
-          settings.remove(oldPath);
+  // firmwares renamed from opentx-* to edgetx-* at 2.6
+  if (savedMajMin <= 0x207) {        // Note: change merged post 2.6 rc 1 and version bumped to 2.7 the Nightly users also require upgrade
+    qInfo().noquote() << "Converting profiles";
+    static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
+    for (int i = 0; i < MAX_PROFILES; i++) {
+      if (settings.contains(profileFwTypePath.arg(i))) {
+        const QVariant oldValue = settings.value(profileFwTypePath.arg(i));
+        if (oldValue.isValid()) {
+          const QString oldval = settings.value(profileFwTypePath.arg(i)).toString();
+          QString newval = oldval;
+          newval.replace("opentx-", "edgetx-");
+          if (oldval != newval) {
+            settings.setValue(profileFwTypePath.arg(i), newval);
+            qInfo().noquote().nospace() << "Converted entry " << profileFwTypePath.arg(i)
+                                        << " from (" << oldval << ")"
+                                        << " to (" << newval << ")";
+          }
+        }
       }
     }
   }
@@ -481,7 +470,8 @@ void AppData::clearUnusedSettings(QSettings & settings)
 
 bool AppData::findPreviousVersionSettings(QString * version) const
 {
-  static const QStringList versList({QStringLiteral("2.2"), QStringLiteral("2.1"), QStringLiteral("2.0")});
+  //  TODO need a more dynamic method since ETX moves so quickly
+  static const QStringList versList({QStringLiteral("2.6"), QStringLiteral("2.5"), QStringLiteral("2.4")});
 
   for (const QString &ver : versList) {
     const QString prod("Companion " % ver);
@@ -498,29 +488,14 @@ bool AppData::findPreviousVersionSettings(QString * version) const
     }
   }
 
-  QSettings settings(COMPANY, "OpenTX Companion");
-  if (settings.contains(SETTINGS_VERSION_KEY)) {
-    *version = QStringLiteral("1.x");
-    return true;
-  }
-  else {
-    settings.clear();
-  }
-
   return false;
 }
 
 bool AppData::importSettings(const QString & fromVersion)
 {
-  QString fromProduct;
+  QString fromProduct =  PRODUCT_NO_VERS % " " % fromVersion;
+  //qDebug() << "From Product:" << fromProduct;
   upgradeFromVersion.clear();
-
-  if (fromVersion.startsWith("2."))
-    fromProduct = "Companion " % fromVersion;
-  else if (fromVersion == "1.x")
-    fromProduct = "OpenTX Companion";
-  else
-    return false;
 
   upgradeFromVersion = fromVersion;
 
@@ -535,8 +510,10 @@ bool AppData::importSettings(QSettings * fromSettings)
 
   // Create temporary settings because we may modify them before import.
   QSettings tempSettings(COMPANY, PRODUCT % "_import");
-  for (const QString & key : fromSettings->allKeys())
+  for (const QString & key : fromSettings->allKeys()) {
     tempSettings.setValue(key, fromSettings->value(key));
+    //qInfo().noquote() << "Import key(" << key << ") value(" << fromSettings->value(key) << ")";
+  }
 
   // convert settings first to simplify import process
   convertSettings(tempSettings);

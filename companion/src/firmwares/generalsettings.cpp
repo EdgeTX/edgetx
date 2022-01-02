@@ -54,14 +54,18 @@ bool GeneralSettings::switchSourceAllowedTaranis(int index) const
 
 bool GeneralSettings::isPotAvailable(int index) const
 {
-  if (index < 0 || index > Boards::getCapability(getCurrentBoard(), Board::Pots))
+  int numPots = Boards::getCapability(getCurrentBoard(), Board::Pots);
+  if (getCurrentFirmware()->getCapability(HasFlySkyGimbals))
+    numPots -= 2;
+
+  if (index < 0 || index >= numPots)
     return false;
   return potConfig[index] != Board::POT_NONE;
 }
 
 bool GeneralSettings::isSliderAvailable(int index) const
 {
-  if (index < 0 || index > Boards::getCapability(getCurrentBoard(), Board::Sliders))
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Sliders))
     return false;
   return sliderConfig[index] != Board::SLIDER_NONE;
 }
@@ -240,6 +244,8 @@ GeneralSettings::GeneralSettings()
       }
     }
   }
+
+  internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
   const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
   RadioTheme::init(themeName, themeData);

@@ -87,7 +87,7 @@ class MdiChild : public QWidget
     bool saveAs(bool isNew=false);
     bool saveFile(const QString & fileName, bool setCurrent=true);
     void closeFile(bool force = false);
-    void writeEeprom();
+    void writeSettings();
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 
@@ -179,7 +179,7 @@ class MdiChild : public QWidget
 
     bool maybeSave();
     void setCurrentFile(const QString & fileName);
-    void forceNewFilename(const QString & suffix = "", const QString & ext = "otx");
+    void forceNewFilename(const QString & suffix = "", const QString & ext = "etx");
     bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
     void showWarning(const QString & msg);
     int askQuestion(const QString & msg, QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No), QMessageBox::StandardButton defaultButton = QMessageBox::No);

@@ -23,6 +23,7 @@
 
 #include "boards.h"
 #include "constants.h"
+#include "datahelpers.h"
 
 #include <QtCore>
 
@@ -178,8 +179,25 @@ enum RawSourceType {
   MAX_SOURCE_TYPE
 };
 
+enum RawSourceTypeSpecial {
+  SOURCE_TYPE_SPECIAL_TX_BATT,
+  SOURCE_TYPE_SPECIAL_TX_TIME,
+  SOURCE_TYPE_SPECIAL_TX_GPS,
+  SOURCE_TYPE_SPECIAL_FIRST_RESERVED,
+  SOURCE_TYPE_SPECIAL_RESERVED1 = SOURCE_TYPE_SPECIAL_FIRST_RESERVED,
+  SOURCE_TYPE_SPECIAL_RESERVED2,
+  SOURCE_TYPE_SPECIAL_RESERVED3,
+  SOURCE_TYPE_SPECIAL_RESERVED4,
+  SOURCE_TYPE_SPECIAL_LAST_RESERVED = SOURCE_TYPE_SPECIAL_RESERVED4,
+  SOURCE_TYPE_SPECIAL_FIRST_TIMER,
+  SOURCE_TYPE_SPECIAL_TIMER1 = SOURCE_TYPE_SPECIAL_FIRST_TIMER,
+  SOURCE_TYPE_SPECIAL_TIMER2,
+  SOURCE_TYPE_SPECIAL_TIMER3,
+  SOURCE_TYPE_SPECIAL_LAST_TIMER = SOURCE_TYPE_SPECIAL_TIMER3,
+  SOURCE_TYPE_SPECIAL_COUNT
+};
+
 constexpr int SOURCE_TYPE_STICK_THR_IDX { 3 };      //  TODO is there a function to determine index?
-constexpr int SOURCE_TYPE_SPECIAL_TIMER1_IDX { 2 }; //  TODO temp const until Timers own source type
 
 class RawSourceRange
 {
@@ -257,6 +275,8 @@ class RawSource {
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
     QStringList getStickList(Boards board) const;
     QStringList getSwitchList(Boards board) const;
+    static StringTagMappingTable getSpecialTypesLookupTable();
+    static StringTagMappingTable getCyclicLookupTable();
 
     bool operator == ( const RawSource & other) const {
       return (this->type == other.type) && (this->index == other.index);

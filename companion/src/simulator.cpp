@@ -127,7 +127,7 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
                                     QApplication::translate("SimulatorMain", "type"));
 
   cliOptions.addPositionalArgument(QApplication::translate("SimulatorMain", "data-source"),
-                                   QApplication::translate("SimulatorMain", "Radio data (.bin/.eeprom/.otx) image file to use OR data folder path (for Horus-style radios).\n"
+                                   QApplication::translate("SimulatorMain", "Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).\n"
                                          "NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!"),
                                    QApplication::translate("SimulatorMain", "[data-source]"));
 

@@ -84,7 +84,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   else if (func == FuncReset)
     return tr("Reset");
   else if (func >= FuncSetTimer1 && func <= FuncSetTimerLast)
-    return tr("Set %1").arg(RawSource(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_TIMER1_IDX + func - FuncSetTimer1).toString(model));
+    return tr("Set %1").arg(RawSource(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_FIRST_TIMER + func - FuncSetTimer1).toString(model));
   else if (func == FuncVario)
     return tr("Vario");
   else if (func == FuncPlayPrompt)
@@ -249,7 +249,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
 
   if (value < step) {
     if (value < firmware->getCapability(Timers))
-      return RawSource(SOURCE_TYPE_SPECIAL, value + SOURCE_TYPE_SPECIAL_TIMER1_IDX).toString(model);
+      return RawSource(SOURCE_TYPE_SPECIAL, value + SOURCE_TYPE_SPECIAL_FIRST_TIMER).toString(model);
     else
       return QString(CPN_STR_UNKNOWN_ITEM);
   }

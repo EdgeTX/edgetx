@@ -175,7 +175,7 @@ bool writeFirmware(const QString & filename, ProgressWidget * progress)
   return flashProcess.run();
 }
 
-bool readEeprom(const QString & filename, ProgressWidget * progress)
+bool readSettings(const QString & filename, ProgressWidget * progress)
 {
   Board::Type board = getCurrentBoard();
 
@@ -186,64 +186,84 @@ bool readEeprom(const QString & filename, ProgressWidget * progress)
     return false;
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    QString radioPath = findMassstoragePath("RADIO", true);
-    qDebug() << "Searching for SD card, found" << radioPath;
-    if (radioPath.isEmpty()) {
-      QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
-                            QCoreApplication::translate("RadioInterface", "Unable to find radio SD card!"));
-      return false;
-    }
-    RadioData radioData;
-    Storage inputStorage(radioPath);
-    if (!inputStorage.load(radioData)) {
-      QMessageBox::critical(progress, CPN_STR_TTL_ERROR, inputStorage.error());
-      return false;
-    }
-    Storage outputStorage(filename);
-    if (!outputStorage.write(radioData)) {
-      QMessageBox::critical(progress, CPN_STR_TTL_ERROR, outputStorage.error());
-      return false;
-    }
+  if (Boards::getCapability(board, Board::HasSDCard))
+    return readSettingsSDCard(filename, progress);
+  else
+    return readSettingsEeprom(filename, progress);
+}
 
-    if (getCurrentBoard() == Board::BOARD_JUMPER_T16 && inputStorage.getBoard() == Board::BOARD_X10) {
-      if (displayT16ImportWarning() == false)
-        return false;
-    }
+bool readSettingsSDCard(const QString & filename, ProgressWidget * progress)
+{
+  QString radioPath = findMassstoragePath("RADIO", true);
+  qDebug() << "Searching for SD card, found" << radioPath;
+  if (radioPath.isEmpty()) {
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
+                          QCoreApplication::translate("RadioInterface", "Unable to find radio SD card!"));
+    return false;
   }
-  else {
-    QString path = findMassstoragePath("EEPROM.BIN");
-    if (path.isEmpty()) {
-      // On previous OpenTX we called the EEPROM file "TARANIS.BIN" :(
-      path = findMassstoragePath("TARANIS.BIN");
-    }
-    if (path.isEmpty()) {
-      // Mike's bootloader calls the EEPROM file "ERSKY9X.BIN" :(
-      path = findMassstoragePath("ERSKY9X.BIN");
-    }
-    if (path.isEmpty()) {
-      RadioNotFoundDialog dialog(progress);
-      dialog.exec();
+
+  // if radio.yml it is a converted radio
+  // if radio.bin unconverted pre 2.6
+  // if neither then unconverted eeprom or empty
+  if (!QFile::exists(radioPath % "/RADIO/radio.yml") && !QFile::exists(radioPath % "/RADIO/radio.bin"))
+    return readSettingsEeprom(filename, progress);
+
+  RadioData radioData;
+  Storage inputStorage(radioPath);
+  if (!inputStorage.load(radioData)) {
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QCoreApplication::translate("RadioInterface", "Failed to read Models and Settings from") % radioPath);
+    return false;
+  }
+  Storage outputStorage(filename);
+  if (!outputStorage.write(radioData)) {
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QCoreApplication::translate("RadioInterface", "Failed to write Models and Setting file") % filename);
+    return false;
+  }
+
+  if (getCurrentBoard() == Board::BOARD_JUMPER_T16 && inputStorage.getBoard() == Board::BOARD_X10) {
+    if (displayT16ImportWarning() == false)
       return false;
-    }
-    CopyProcess copyProcess(path, filename, progress);
-    if (!copyProcess.run()) {
-      return false;
-    }
+  }
+
+  return QFileInfo(filename).exists();
+}
 
 
-    if (!IS_STM32(board)) {
-      FlashProcess flashProcess(getRadioInterfaceCmd(), getReadEEpromCmd(filename), progress);
-      if (!flashProcess.run()) {
-        return false;
-      }
+bool readSettingsEeprom(const QString & filename, ProgressWidget * progress)
+{
+  Board::Type board = getCurrentBoard();
+
+  QString path = findMassstoragePath("EEPROM.BIN");
+  if (path.isEmpty()) {
+    // On previous OpenTX we called the EEPROM file "TARANIS.BIN" :(
+    path = findMassstoragePath("TARANIS.BIN");
+  }
+  if (path.isEmpty()) {
+    // Mike's bootloader calls the EEPROM file "ERSKY9X.BIN" :(
+    path = findMassstoragePath("ERSKY9X.BIN");
+  }
+  if (path.isEmpty()) {
+    RadioNotFoundDialog dialog(progress);
+    dialog.exec();
+    return false;
+  }
+  CopyProcess copyProcess(path, filename, progress);
+  if (!copyProcess.run()) {
+    return false;
+  }
+
+
+  if (!IS_STM32(board)) {
+    FlashProcess flashProcess(getRadioInterfaceCmd(), getReadEEpromCmd(filename), progress);
+    if (!flashProcess.run()) {
+      return false;
     }
   }
 
   return QFileInfo(filename).exists();
 }
 
-bool writeEeprom(const QString & filename, ProgressWidget * progress)
+bool writeSettings(const QString & filename, ProgressWidget * progress)
 {
   Board::Type board = getCurrentBoard();
 
@@ -272,94 +292,29 @@ bool writeEeprom(const QString & filename, ProgressWidget * progress)
   return false;
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 4, 0))
-#if defined WIN32 || !defined __GNUC__
-#include <windows.h>
-bool isRemovableMedia(const QString & vol)
-{
-  char szDosDeviceName[MAX_PATH];
-  QString volume = vol;
-  UINT driveType = GetDriveType(volume.replace("/", "\\").toLatin1());
-  if (driveType != DRIVE_REMOVABLE)
-    return false;
-  QueryDosDevice(volume.replace("/", "").toLatin1(), szDosDeviceName, MAX_PATH);
-  if (strstr(szDosDeviceName, "\\Floppy") != NULL) { // it's a floppy
-    return false;
-  }
-  return true;
-}
-#else
-  #include "mountlist.h"
-#endif  // defined WIN32 || !defined __GNUC__
-#endif  // (QT_VERSION < QT_VERSION_CHECK(5, 4, 0))
-
 QString findMassstoragePath(const QString & filename, bool onlyPath)
 {
   QString temppath;
-  QString eepromfile;
+  QString probefile;
   bool found = false;
+
   QRegularExpression fstypeRe("^(v?fat|msdos)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos"; Win: "FAT32"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+
   foreach(const QStorageInfo & si, QStorageInfo::mountedVolumes()) {
     //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady();
     if (!si.isReady() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
     temppath = si.rootPath();
-    eepromfile = temppath % "/" % filename;
-    qDebug() << "Searching for" << eepromfile;
-    if (QFile::exists(eepromfile)) {
+    probefile = temppath % "/" % filename;
+    qDebug() << "Searching for" << probefile;
+    if (QFile::exists(probefile)) {
       found = true;
       break;
     }
   }
-#elif defined WIN32 || !defined __GNUC__
-  static QStringList blacklist;
-  foreach(const QFileInfo & drive, QDir::drives()) {
-    temppath = drive.absolutePath();
-    if (blacklist.contains(temppath))
-      continue;
-    if (!isRemovableMedia(temppath)) {
-      blacklist.append(temppath);
-      continue;
-    }
-    WCHAR szVolumeName[256] ;
-    WCHAR szFileSystemName[256];
-    DWORD dwSerialNumber = 0;
-    DWORD dwMaxFileNameLength=256;
-    DWORD dwFileSystemFlags=0;
-    if (!GetVolumeInformationW( (WCHAR *) drive.absolutePath().utf16(),szVolumeName,256,&dwSerialNumber,&dwMaxFileNameLength,&dwFileSystemFlags,szFileSystemName,256))
-      continue;
-    eepromfile = temppath % "/" % filename;
-    qDebug() << "Searching for" << eepromfile;
-    if (QFile::exists(eepromfile)) {
-      found = true;
-      break;
-    }
-  }
-#else
-  const static QStringList blacklist = QStringList() << "/" << "/net" << "/proc" << "/run";
-  QStringList drives;
-  struct mount_entry *entry;
-  struct mount_entry *firstEntry;
-  firstEntry = entry = read_file_system_list(true);
-  while (entry != NULL) {
-    temppath = entry->me_mountdir;
-    if (!drives.contains(entry->me_devname) && !blacklist.contains(temppath) && QString(entry->me_type).contains(fstypeRe)) {
-      drives.append(entry->me_devname);
-      eepromfile = temppath % "/" % filename;
-      qDebug() << "Searching for" << eepromfile;
-      if (QFile::exists(eepromfile)) {
-        found = true;
-        break;
-      }
-    }
-    entry = entry->me_next;
-  }
-  free_file_system_list(firstEntry);
-#endif
 
   if (found)
-    return onlyPath ? temppath : eepromfile;
+    return onlyPath ? temppath : probefile;
   else
     return QString();
 }

@@ -34,7 +34,7 @@ if(SIMU_LUA_COMPILER)
 endif()
 
 if(Qt5Widgets_FOUND)
-  set(SIMULATOR_FLAVOUR opentx-${FLAVOUR})
+  set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
   add_definitions(-DSIMULATOR_FLAVOUR="${SIMULATOR_FLAVOUR}")
   include_directories(${COMPANION_SRC_DIRECTORY} ${COMPANION_SRC_DIRECTORY}/simulation)
@@ -52,7 +52,7 @@ if(Qt5Widgets_FOUND)
         COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${SIMULATOR_TARGET}>)
     endif()
   endif()
-      
+
 
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow

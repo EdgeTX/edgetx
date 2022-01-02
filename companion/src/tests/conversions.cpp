@@ -1,6 +1,6 @@
 #include "gtests.h"
 #include "location.h"
-#include "storage/otx.h"
+#include "storage/etx.h"
 #include "storage/storage.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/customfunctiondata.h"
@@ -210,12 +210,12 @@ TEST(Conversions, ConversionX10From22)
 {
   QByteArray byteBuffer;
 
-#define USE_OTX
+#define USE_ETX
 
-#if defined(USE_OTX)
-  OtxFormat otx(RADIO_TESTS_PATH "/model_22_x10.otx");
+#if defined(USE_ETX)
+  EtxFormat etx(RADIO_TESTS_PATH "/model_22_x10.etx");
   RadioData radio;
-  EXPECT_EQ(true, otx.load(radio));
+  EXPECT_EQ(true, etx.load(radio));
 
   const GeneralSettings& settings = radio.generalSettings;
   const ModelData& model = radio.models[0];
@@ -253,7 +253,7 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_STREQ("BT_X10", settings.bluetoothName);
   EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
-#if !defined(USE_OTX)
+#if !defined(USE_ETX)
   byteBuffer.clear();
   ASSERT_EQ(true, loadFile(byteBuffer, RADIO_TESTS_PATH "/model_22_x10/MODELS/model1.bin"));
 
@@ -295,12 +295,12 @@ TEST(Conversions, ConversionX12SFrom22)
 {
   QByteArray byteBuffer;
 
-#define USE_OTX
+#define USE_ETX
 
-#if defined(USE_OTX)
-  OtxFormat otx(RADIO_TESTS_PATH "/model_22_x12s.otx");
+#if defined(USE_ETX)
+  EtxFormat etx(RADIO_TESTS_PATH "/model_22_x12s.etx");
   RadioData radio;
-  EXPECT_EQ(true, otx.load(radio));
+  EXPECT_EQ(true, etx.load(radio));
 
   const GeneralSettings& settings = radio.generalSettings;
   const ModelData& model = radio.models[0];
@@ -330,7 +330,7 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_STREQ("BT", settings.bluetoothName);
   EXPECT_STREQ("EdgeTX", settings.themeData.themeName);
 
-#if !defined(USE_OTX)
+#if !defined(USE_ETX)
   byteBuffer.clear();
   ASSERT_EQ(true, loadFile(byteBuffer, RADIO_TESTS_PATH "/model_22_x10/MODELS/model1.bin"));
 
