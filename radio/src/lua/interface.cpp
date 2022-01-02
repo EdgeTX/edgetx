@@ -626,7 +626,7 @@ static bool luaLoadMixScript(uint8_t ref)
     ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
     sid.reference = ref;
 
-    constexpr size_t maxlen{sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+    constexpr size_t maxlen{sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)};  // sizeof(" ...") encloses '\0', but '/' and last '\0' needs that space    
     char filename[maxlen];
     snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_MIXES_PATH, LEN_SCRIPT_FILENAME, sd.file, SCRIPT_EXT);
 
@@ -657,7 +657,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
       ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
       sid.reference = ref;
 
-      constexpr size_t maxlen{sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+      constexpr size_t maxlen{sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)};
       char filename[maxlen];
       snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_FUNCS_PATH, LEN_FUNCTION_NAME, fn->play.name, SCRIPT_EXT);
 
@@ -685,7 +685,7 @@ static bool luaLoadTelemetryScript(uint8_t ref)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = ref;
        
-        constexpr size_t maxlen{sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME+ sizeof(SCRIPT_EXT) + 1};  // sizeof(" ...") encloses '\0'    
+        constexpr size_t maxlen{sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)};
         char filename[maxlen];
         snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_TELEM_PATH, LEN_SCRIPT_FILENAME, script.file, SCRIPT_EXT);
 

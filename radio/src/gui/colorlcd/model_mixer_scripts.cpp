@@ -200,6 +200,7 @@ class ScriptLineButton : public Button
       y = FIELD_PADDING_TOP;
       textColor |= RIGHT;
       
+      // TODO: runtimeData->instructions has no value 
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
           dc->drawSizedText(x, y, STR_SCRIPT_ERROR, strlen(STR_SCRIPT_ERROR), textColor);
@@ -210,9 +211,7 @@ class ScriptLineButton : public Button
       case SCRIPT_OK:
           dc->drawSizedText(x, y, "-", 1, textColor);
           break;
-        default:
-          // TODO: runtimeData->instructions has no value 
-//          dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
+      default:
           break;
       }
     }
