@@ -25,6 +25,7 @@
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class QGridLayout;
+class AutoComboBox;
 
 class HardwarePanel : public GeneralPanel
 {
@@ -34,11 +35,16 @@ class HardwarePanel : public GeneralPanel
     HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels);
     virtual ~HardwarePanel();
 
+  private slots:
+    void on_internalModuleChanged();
+
   private:
     Board::Type board;
     CompoundItemModelFactory *editorItemModels;
     FilteredItemModelFactory *tabFilteredModels;
     QGridLayout *grid;
+    AutoComboBox *internalModule;
+    unsigned int m_internalModule = 0;
 
     void addStick(int index, int & row);
     void addPot(int index, int & row);
