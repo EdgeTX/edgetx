@@ -25,7 +25,7 @@
 #define STR2(s) #s
 #define DEFNUMSTR(s)  STR2(s)
 
-#define EEPROM_STR DEFNUMSTR(EEPROM_VER);
+#define CFGV_STR DEFNUMSTR(EEPROM_VER);
 
 #define TAB "\037\033"
 
@@ -52,15 +52,15 @@
 #endif
   const char date_stamp[]  =   "DATE" TAB ": " DATE;
   const char time_stamp[]  =   "TIME" TAB ": " TIME;
-  const char eeprom_stamp[]  = "EEPR" TAB ": " EEPROM_STR;
+  const char cfgv_stamp[]  = "CFGV" TAB ": " CFGV_STR;
 #elif defined(BOARD_NAME)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " EEPROM_STR;
+  const char vers_stamp[]  = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #elif defined(RADIOMASTER_RELEASE)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " EEPROM_STR;
+  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #elif defined(JUMPER_RELEASE)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " EEPROM_STR;
+  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #else
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " EEPROM_STR;
+  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #endif
 
 /**
