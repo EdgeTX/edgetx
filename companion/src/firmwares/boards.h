@@ -20,7 +20,6 @@
 
 #pragma once
 #include "datahelpers.h"
-#include "moduledata.h"
 
 #include <QtCore>
 #include <QObject>
@@ -220,8 +219,8 @@ class Boards
     static AbstractStaticItemModel * intModuleTypeItemModel();
     static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
-    static QList<ModuleType> getSupportedInternalModules(Board::Type board);
-    static ModuleType getDefaultInternalModules(Board::Type board);
+    static QList<int> getSupportedInternalModules(Board::Type board);
+    static int getDefaultInternalModules(Board::Type board);
   
   protected:
 
