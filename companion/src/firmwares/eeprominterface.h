@@ -26,6 +26,7 @@
 #include "radiodata.h"
 #include "../../radio/src/definitions.h"
 #include "simulatorinterface.h"
+#include "datahelpers.h"
 
 #include <QtCore>
 #include <QStringList>
@@ -33,6 +34,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <string>
 
 const uint8_t modn12x3[4][4]= {
   {1, 2, 3, 4},
@@ -163,7 +165,9 @@ enum Capability {
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
-  FunctionSwitches
+  FunctionSwitches,
+  HasModelsList,
+  HasFlySkyGimbals
 };
 
 class EEPROMInterface
@@ -258,6 +262,8 @@ enum EepromLoadErrors {
   NUM_ERRORS
 };
 
+constexpr char FIRMWARE_ID_PREFIX[] = { "edgetx-" };
+
 class Firmware
 {
   Q_DECLARE_TR_FUNCTIONS(Firmware)
@@ -285,8 +291,16 @@ class Firmware
       board(board),
       variantBase(0),
       base(base),
-      eepromInterface(nullptr)
-    { }
+      eepromInterface(nullptr),
+      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
+      switchesLookupTable(Boards::getSwitchesLookupTable(board)),
+      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
+      trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
+      rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
+      rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
+      rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
+    {
+    }
 
     virtual ~Firmware() { }
 
@@ -393,6 +407,26 @@ class Firmware
       currentVariant = value;
     }
 
+    QString getFlavour();
+
+    static Firmware * getFirmwareForFlavour(const QString & flavour)
+    {
+      return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
+    }
+
+    const StringTagMappingTable* getAnalogIndexNamesLookupTable()
+    {
+      return &analogInputNamesLookupTable;
+    }
+
+    STRINGTAGMAPPINGFUNCS(analogInputNamesLookupTable, AnalogInput);
+    STRINGTAGMAPPINGFUNCS(switchesLookupTable, Switches);
+    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
+    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
+    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
+    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
+    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
+
   protected:
     QString id;
     QString name;
@@ -400,6 +434,16 @@ class Firmware
     unsigned int variantBase;
     Firmware * base;
     EEPROMInterface * eepromInterface;
+
+    //  used by YAML encode and decode
+    const StringTagMappingTable analogInputNamesLookupTable;
+    const StringTagMappingTable switchesLookupTable;
+    const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable trimSourcesLookupTable;
+    const StringTagMappingTable rawSwitchTypesLookupTable;
+    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
+    const StringTagMappingTable rawSourceCyclicLookupTable;
+
     QList<const char *> languages;
     //QList<const char *> ttslanguages;
     OptionsList opts;
@@ -407,6 +451,7 @@ class Firmware
     static QVector<Firmware *> registeredFirmwares;
     static Firmware * defaultVariant;
     static Firmware * currentVariant;
+
 };
 
 inline Firmware * getCurrentFirmware()

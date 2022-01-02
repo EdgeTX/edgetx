@@ -249,9 +249,9 @@ bool SimulatorWidget::setStartupData(const QByteArray & dataSource, bool fromFil
       error = store.error();
     }
     else {
-      if (fileName.endsWith(".otx", Qt::CaseInsensitive)) {
-        // no radios can work with .otx files directly, so we load contents into either
-        //   a temporary folder (Horus) or local data array (other radios) which we'll save back to .otx upon exit
+      if (fileName.endsWith(".etx", Qt::CaseInsensitive)) {
+        // no radios can work with .etx files directly, so we load contents into either
+        //   a temporary folder (Horus) or local data array (other radios) which we'll save back to .etx upon exit
         if ((ret = setRadioData(&simuData))) {
           startupFromFile = false;
           return true;
@@ -294,17 +294,20 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
 
   saveTempRadioData = (flags & SIMULATOR_FLAGS_STANDALONE);
 
-  if (IS_FAMILY_HORUS_OR_T16(m_board))
+  // All radios use SD card data path from 2.6.0 on
+  bool hasSdCard = Boards::getCapability(m_board, Board::HasSDCard);
+  if (hasSdCard)
     ret = useTempDataPath(true);
 
   if (ret) {
-    if (radioDataPath.isEmpty()) {
+    if (!hasSdCard) {
       startupData.fill(0, Boards::getEEpromSize(m_board));
-      if (firmware->getEEpromInterface()->save((uint8_t *)startupData.data(), *radioData, 0, firmware->getCapability(SimulatorVariant)) <= 0) {
+      if (firmware->getEEpromInterface()->save(
+              (uint8_t *)startupData.data(), *radioData, 0,
+              firmware->getCapability(SimulatorVariant)) <= 0) {
         ret = false;
       }
-    }
-    else {
+    } else {
       ret = saveRadioData(radioData, radioDataPath);
     }
   }
@@ -365,7 +368,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   if (deleteTempRadioData)
     deleteTempData();
 
-  QTemporaryDir tmpDir(QDir::tempPath() + "/otx-XXXXXX");
+  QTemporaryDir tmpDir(QDir::tempPath() + "/etx-XXXXXX");
   if (tmpDir.isValid()) {
     setDataPath(tmpDir.path());
     tmpDir.setAutoRemove(false);
@@ -379,7 +382,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   }
 }
 
-// This will save radio data from temporary folder structure back into an .otx file, eg. for Horus.
+// This will save radio data from temporary folder structure back into an .etx file, eg. for Horus.
 bool SimulatorWidget::saveTempData()
 {
   bool ret = false;

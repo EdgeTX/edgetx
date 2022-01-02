@@ -68,3 +68,26 @@ QString DataHelpers::timeToString(const int value, const unsigned int mask)
   result.append(QString("%1:%2").arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0')));
   return result;
 }
+
+int DataHelpers::getStringTagMappingIndex(const StringTagMappingTable& lut, const char * tag)
+{
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it - lut.begin();
+  }
+
+  return -1;
+}
+
+std::string DataHelpers::getStringTagMappingTag(const StringTagMappingTable& lut, unsigned int index)
+{
+  if (index < lut.size())
+    return lut[index].tag;
+
+  return std::string();
+}

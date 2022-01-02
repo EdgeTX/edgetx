@@ -65,7 +65,7 @@ void FrSkyData::clear()
   fasOffset = 0;
   for (int i=0; i<4; i++)
     screens[i].clear();
-  varioSource = 2/*VARIO*/;
+  varioSource = 0;
   blades = 2;
 }
 

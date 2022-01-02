@@ -40,7 +40,9 @@ QStringList getWriteFirmwareArgs(const QString &filename);
 
 bool readFirmware(const QString &filename, ProgressWidget *progress);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
-bool readEeprom(const QString &filename, ProgressWidget *progress);
-bool writeEeprom(const QString &filename, ProgressWidget *progress);
+bool readSettings(const QString &filename, ProgressWidget *progress);
+bool readSettingsSDCard(const QString &filename, ProgressWidget *progress);
+bool readSettingsEeprom(const QString &filename, ProgressWidget *progress);
+bool writeSettings(const QString &filename, ProgressWidget *progress);
 
 #endif // _RADIOINTERFACE_H_

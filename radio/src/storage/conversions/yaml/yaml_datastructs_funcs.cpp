@@ -23,8 +23,13 @@
 #include "datastructs_220.h"
 #include "myeeprom_220.h"
 
-#define GVAR_SMALL 128
 #define VOLUME_LEVEL_DEF 12
+
+bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+             yaml_writer_func wf, void* opaque)
+{
+  return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
+}
 
 #define in_read_weight nullptr
 
@@ -32,12 +37,13 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
   int32_t sval = yaml_to_signed(val, node->size);
+  int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
 
-  if (sval > GVAR_SMALL - 11 && sval < GVAR_SMALL - 1) {
-    char n = GVAR_SMALL - sval + '0';
+  if (sval >= gvar - 10 && sval <= gvar) {
+    char n = gvar - sval + '1';
     return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
-  } else if (sval < -GVAR_SMALL + 11 && sval > -GVAR_SMALL + 1) {
-    char n = val - GVAR_SMALL + '1';
+  } else if (sval <= -gvar + 10 && sval >= -gvar) {
+    char n = val - gvar + '1';
     return wf(opaque, "GV", 2) && wf(opaque, &n, 1);
   }
 
@@ -1132,7 +1138,7 @@ bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     //       data as-is (no FrSky special casing)
     int type = md->getMultiProtocol() + 1;
     int subtype = val;
-    convertOtxProtocolToMulti(&type, &subtype);
+    convertEtxProtocolToMulti(&type, &subtype);
 
     // output "[type],[subtype]"
     str = yaml_unsigned2str(type);

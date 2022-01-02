@@ -241,3 +241,28 @@ QStringList RawSwitch::getSwitchList(Boards board) const
   }
   return ret;
 }
+
+// static
+StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
+{
+  StringTagMappingTable tbl;
+
+  tbl.insert(tbl.end(), {
+                          {std::to_string(SWITCH_TYPE_NONE),            "NONE"},
+                          {std::to_string(SWITCH_TYPE_SWITCH),          "Sxn"},
+                          {std::to_string(SWITCH_TYPE_VIRTUAL),         "Ln"},
+                          {std::to_string(SWITCH_TYPE_MULTIPOS_POT),    "6Pn"},
+                          {std::to_string(SWITCH_TYPE_TRIM),            "Trim"},
+                          {std::to_string(SWITCH_TYPE_ROTARY_ENCODER),  "RE"},
+                          {std::to_string(SWITCH_TYPE_ON),              "ON"},
+                          {std::to_string(SWITCH_TYPE_OFF),             "OFF"},
+                          {std::to_string(SWITCH_TYPE_ONE),             "ONE"},
+                          {std::to_string(SWITCH_TYPE_FLIGHT_MODE),     "FMn"},
+                          {std::to_string(SWITCH_TYPE_TIMER_MODE),      "Timer"},
+                          {std::to_string(SWITCH_TYPE_TELEMETRY),       "TELEMETRY_STREAMING"},
+                          {std::to_string(SWITCH_TYPE_SENSOR),          "Tnn"},
+                          {std::to_string(SWITCH_TYPE_ACT),             "RADIO_ACTIVITY"},
+                          });
+
+  return tbl;
+}

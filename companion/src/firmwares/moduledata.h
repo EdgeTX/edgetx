@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef MODULEDATA_H
-#define MODULEDATA_H
+#pragma once
 
 #include "constants.h"
 
@@ -27,6 +26,30 @@
 
 class Firmware;
 class RadioDataConversionState;
+class AbstractStaticItemModel;
+class GeneralSettings;
+
+// from radio/src/pulses/module_constants.h
+enum ModuleType {
+  MODULE_TYPE_NONE = 0,
+  MODULE_TYPE_PPM,
+  MODULE_TYPE_XJT_PXX1,
+  MODULE_TYPE_ISRM_PXX2,
+  MODULE_TYPE_DSM2,
+  MODULE_TYPE_CROSSFIRE,
+  MODULE_TYPE_MULTIMODULE,
+  MODULE_TYPE_R9M_PXX1,  // R9M
+  MODULE_TYPE_R9M_PXX2,  // R9M ACCESS
+  MODULE_TYPE_R9M_LITE_PXX1,  //R9MLite
+  MODULE_TYPE_R9M_LITE_PXX2,  //R9MLP
+  MODULE_TYPE_GHOST,     // Replaces MODULE_TYPE_R9M_LITE_PRO_PXX1 which doesn't exist
+  MODULE_TYPE_R9M_LITE_PRO_PXX2,
+  MODULE_TYPE_SBUS,
+  MODULE_TYPE_XJT_LITE_PXX2,
+  MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
+  MODULE_TYPE_COUNT,
+  MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
+};
 
 enum PulsesProtocol {
   PULSES_OFF,
@@ -219,10 +242,14 @@ class ModuleData {
     QString subTypeToString(int type = -1) const;
     QString powerValueToString(Firmware * fw) const;
     static QString indexToString(int index, Firmware * fw);
-    static QString protocolToString(unsigned protocol);
+    static QString protocolToString(unsigned int protocol);
     static QStringList powerValueStrings(enum PulsesProtocol protocol, int subType, Firmware * fw);
     bool hasFailsafes(Firmware * fw) const;
     int getMaxChannelCount();
+    static int getTypeFromProtocol(unsigned int protocol);
+    static int getSubTypeFromProtocol(unsigned int protocol);
+    static QString typeToString(int type);
+    static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
+    static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & settings);
+    static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
 };
-
-#endif // MODULEDATA_H

@@ -328,6 +328,7 @@ static const struct YamlNode struct_string_24[] = {
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "version", 8 ),
+  YAML_CUSTOM("board",nullptr,w_board),
   YAML_PADDING( 16 ),
   YAML_ARRAY("calib", 48, 6, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
@@ -430,7 +431,7 @@ static const struct YamlNode struct_TimerData[] = {
 };
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 8 ),
-  YAML_SIGNED( "value", 8 ),
+  YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
@@ -441,7 +442,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_PADDING( 1 ),
-  YAML_SIGNED( "offset", 14 ),
+  YAML_SIGNED_CUST( "offset", 14, in_read_weight, in_write_weight ),
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
@@ -454,10 +455,10 @@ static const struct YamlNode struct_MixData[] = {
 };
 static const struct YamlNode struct_LimitData[] = {
   YAML_IDX,
-  YAML_SIGNED( "min", 11 ),
-  YAML_SIGNED( "max", 11 ),
+  YAML_SIGNED_CUST( "min", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED_CUST( "max", 11, in_read_weight, in_write_weight ),
   YAML_SIGNED( "ppmCenter", 10 ),
-  YAML_SIGNED( "offset", 11 ),
+  YAML_SIGNED_CUST( "offset", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "symetrical", 1 ),
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 3 ),
@@ -476,7 +477,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
   YAML_PADDING( 1 ),
   YAML_STRING("name", 6),
-  YAML_SIGNED( "offset", 8 ),
+  YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_END
 };
