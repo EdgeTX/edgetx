@@ -342,6 +342,10 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     break;
   }
 
+  if (def.peek() == ',') {
+    def.ignore();
+  }
+  
   if (fnHasEnable(rhs.func)) {
     int en = 0;
     def >> en;
