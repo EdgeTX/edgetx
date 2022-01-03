@@ -24,6 +24,8 @@
 #include "storage.h"
 
 #include <QtCore>
+#include <list>
+#include <string>
 
 class CategorizedStorageFormat : public StorageFormat
 {
@@ -41,6 +43,14 @@ class CategorizedStorageFormat : public StorageFormat
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
+    virtual bool getFileList(std::list<std::string>& filelist) = 0;
+
+    virtual bool loadBin(RadioData & radioData);
+    virtual bool writeBin(const RadioData & radioData);
+    virtual bool loadYaml(RadioData & radioData);
+    virtual bool writeYaml(const RadioData & radioData);
+
+    StorageType probeFormat();
 };
 
 #endif // _CATEGORIZED_H_

@@ -69,28 +69,22 @@ void checkSettingsImport(bool force = false)
   if (!found && !force)
     return;
 
-  const QString impFileBtn = QCoreApplication::translate("Companion", "Import from File");
-  const QString impPrevBtn = QCoreApplication::translate("Companion", "Import from v%1").arg(previousVersion);
-  const QString impNoneBtn = QCoreApplication::translate("Companion", "Do not import");
-
   QString msg;
   if (previousVersion.isEmpty()) {
+    const QString impFileBtn = QCoreApplication::translate("Companion", "Import from File");
+    const QString impNoneBtn = QCoreApplication::translate("Companion", "Do not import");
+
     if (found)
       msg = QCoreApplication::translate("Companion", "We have found possible Companion settings backup file(s).\nDo you want to import settings from a file?");
     else
       msg = QCoreApplication::translate("Companion", "Import settings from a file, or start with current values.");
+
+    const int ret = QMessageBox::question(nullptr, CPN_STR_APP_NAME, msg, impNoneBtn, impFileBtn, 0, 0);
+
+    if (!ret)
+      return;
   }
   else {
-    msg = QCoreApplication::translate("Companion", "We have found existing settings for Companion version: %1.\nDo you want to import them?\n\n" \
-                                                   "If you have a settings backup file, you may import that instead.").arg(previousVersion);
-  }
-
-  const int ret = QMessageBox::question(nullptr, CPN_STR_APP_NAME, msg, impNoneBtn, impFileBtn, (previousVersion.isEmpty() ? QString() : impPrevBtn), 0, 0);
-  if (!ret)
-    return;
-
-  // Import from previous version
-  if (ret == 2) {
     if (!g.importSettings(previousVersion)) {
       // very unlikely, but just in case of unexpected error, restart the import
       importError();

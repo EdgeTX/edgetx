@@ -79,6 +79,8 @@ inline int MAX_POTS(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
+  if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)))
+    return 5;
   if (IS_FAMILY_T12(board))
     return 2;
   return Boards::getCapability(board, Board::Pots);
@@ -95,7 +97,7 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
-  if (version >= 219 && IS_FAMILY_HORUS_OR_T16(board))
+  if (version <= 220 && IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
@@ -105,6 +107,8 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
 inline int MAX_POTS_SOURCES(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
+    return 3;
+  if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)))
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
@@ -115,6 +119,8 @@ inline int MAX_XPOTS(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
+  if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)))
+    return 5;
   if (IS_FAMILY_T12(board))
     return 2;
   return Boards::getCapability(board, Board::MultiposPots);
@@ -180,6 +186,7 @@ inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
 #define NUM_PPM_INPUTS(board, version)        16
 #define ROTENC_COUNT(board, version)          ((IS_STM32(board) && version >= 218) ? 0 : 1)
 #define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ? 2 : 0)
+#define MAX_SOURCE_TYPE_SPECIAL(board, version)    SOURCE_TYPE_SPECIAL_COUNT
 
 inline int switchIndex(int i, Board::Type board, unsigned int version)
 {
@@ -340,6 +347,8 @@ class SourcesConversionTable: public ConversionTable {
         int offset = 0;
         if (version <= 218 && IS_HORUS_X10(board) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
           offset += 2;
+        if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
+          offset += 2;
 
         addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
       }
@@ -376,12 +385,8 @@ class SourcesConversionTable: public ConversionTable {
       if (!(flags & FLAG_NOTELEMETRY)) {
         for (int i=0; i<MAX_GVARS(board, version); i++)
           addConversion(RawSource(SOURCE_TYPE_GVAR, i), val++);
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 0), val++); // BATT
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 1), val++); // TIME
-        val += 5;
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 2), val++); // Timer1
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 3), val++); // Timer2
-        addConversion(RawSource(SOURCE_TYPE_SPECIAL, 4), val++); // Timer3
+        for (int i=0; i<MAX_SOURCE_TYPE_SPECIAL(board, version); i++)
+          addConversion(RawSource(SOURCE_TYPE_SPECIAL, i), val++);
         for (int i=0; i<MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
           addConversion(RawSource(SOURCE_TYPE_TELEMETRY, i), val++);
         }
@@ -1274,10 +1279,6 @@ class CurvesField: public TransformedField {
           for (int j=1; j<curve->count-1; j++)
             curve->points[j].x = *cur++;
           curve->points[curve->count-1].x = +100;
-        }
-        else {
-          for (int j=0; j<curve->count; j++)
-            curve->points[j].x = -100 + (200*i) / (curve->count-1);
         }
         qCDebug(eepromImport) << QString("imported curve: %3 points").arg(curve->count);
       }
@@ -2945,6 +2946,9 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   for (int i=0, input=0; i<inputsCount; i++, input++) {
     if (version <= 218 && IS_HORUS_X10(board) && (i == CPN_MAX_STICKS + 3)) {
+      input += 2;
+    }
+    if (version <= 220 && IS_FAMILY_HORUS_OR_T16(board) && (i == CPN_MAX_STICKS + 5)) { // make room for EXT3 and EXT4
       input += 2;
     }
     internalField.Append(new SignedField<16>(this, generalData.calibMid[input]));

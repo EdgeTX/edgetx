@@ -28,6 +28,8 @@
 // Use definitions from v220 conversions as long as nothing changes
 
 namespace yaml_conv_220 {
+  bool w_board(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+
   bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
@@ -44,7 +46,6 @@ namespace yaml_conv_220 {
   uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs);
 
   extern const struct YamlIdStr enum_SwitchConfig[];
-  bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
@@ -136,10 +137,16 @@ static inline void check_yaml_funcs()
 #endif
 }
 
-#define GVAR_SMALL 128
+static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_board(user, data, bitoffs, wf, opaque);
+}
 
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
 {
+  int gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
+  
   if ((val_len == 4)
       && (val[0] == '-')
       && (val[1] == 'G')
@@ -147,8 +154,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[3] >= '1')
       && (val[3] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, GVAR_SMALL - (val[3] - '0'));
-    return GVAR_SMALL - (val[3] - '0');  // -GVx => 128 - x
+    TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
+    return gvar - (val[3] - '1');  // -GVx => 128 - x
   }
 
   if ((val_len == 3)
@@ -157,8 +164,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[2] >= '1')
       && (val[2] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, -GVAR_SMALL + (val[2] - '1'));
-    return -GVAR_SMALL + (val[2] - '1');  //  GVx => -128 + (x-1)
+    TRACE("%.*s -> %i\n", val_len, val, -gvar + (val[2] - '1'));
+    return -gvar + (val[2] - '1');  //  GVx => -128 + (x-1)
   }
 
   return (uint32_t)yaml_str2int(val, val_len);
@@ -456,6 +463,11 @@ static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
   uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
   if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
 
+  // detect invalid values
+  if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
+    return -1;
+  }
+  
   return (uint32_t)yaml_str2int(val, val_len);
 }
 
@@ -757,11 +769,12 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
     return neg ? -ival : ival;
 }
 
-static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
+                                yaml_writer_func wf, void* opaque)
 {
     int32_t sval = yaml_to_signed(val, node->size);
     if (sval < 0) {
-        wf(opaque, "\\!", 2);
+        wf(opaque, "!", 1);
         sval = abs(sval);
     }
 
@@ -806,6 +819,15 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     
     str = yaml_output_enum(sval, enum_SwitchSources);
     return wf(opaque, str, strlen(str));
+}
+
+bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque,"\"",1)
+      || !w_swtchSrc_unquoted(node, val, wf, opaque)
+      || !wf(opaque,"\"",1))
+    return false;
+  return true;
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1306,6 +1328,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   const char* str = nullptr;
   bool add_comma = true;
+  if (!wf(opaque, "\"", 1)) return false;
 
   switch (func) {
   case FUNC_OVERRIDE_CHANNEL:
@@ -1439,6 +1462,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
     }
   }
+  if (!wf(opaque, "\"", 1)) return false;
   return true;
 }
 
@@ -1531,6 +1555,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 {
   data += bitoffs >> 3UL;
   data -= sizeof(LogicalSwitchData::func);
+  if (!wf(opaque,"\"",1)) return false;
 
   const char* str = nullptr;
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
@@ -1538,13 +1563,13 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
-    if (!w_swtchSrc(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
     break;
 
   case LS_FAMILY_EDGE:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     str = yaml_unsigned2str(lswTimerValue(ls->v2));
     if (!wf(opaque,str,strlen(str))) return false;
@@ -1582,6 +1607,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
   }
 
+  if (!wf(opaque,"\"",1)) return false;
   return true;
 }
 
@@ -1633,8 +1659,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     int subtype = yaml_str2uint(val, val_len);
 
-    // convert to OTX format and write to vars
-    convertMultiProtocolToOtx(&type, &subtype);
+    // convert to ETX format and write to vars
+    convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
       md->setMultiProtocol(type - 1);
       md->subType = subtype;

@@ -30,18 +30,6 @@ void CurveData::clear(int count)
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(CurveData));
   this->count = count;
-
-  int incr = 200 / (count - 1);
-
-  //  points[0].x must be -100
-  for (int i = 0; i < count; i++) {
-    if (i < count - 1)
-      points[i].x = -100 + incr * i;
-    else
-      points[i].x = 100;    // points[last].x must be +100 do not risk a rounding issue using incr
-
-    points[i].y = points[i].x;
-  }
 }
 
 bool CurveData::isEmpty() const

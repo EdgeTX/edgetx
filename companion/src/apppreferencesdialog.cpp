@@ -28,6 +28,10 @@
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
+#include "moduledata.h"
+#include "compounditemmodels.h"
+
+#include <QAbstractItemModel>
 
 AppPreferencesDialog::AppPreferencesDialog(QWidget * parent) :
   QDialog(parent),
@@ -97,6 +101,7 @@ void AppPreferencesDialog::accept()
     g.jsSupport(false);
     g.jsCtrl(0);
   }
+  profile.defaultInternalModule(ui->defaultInternalModuleCB->currentData().toInt());
   profile.channelOrder(ui->channelorderCB->currentIndex());
   profile.defaultMode(ui->stickmodeCB->currentIndex());
   profile.renameFwFiles(ui->renameFirmware->isChecked());
@@ -256,6 +261,8 @@ void AppPreferencesDialog::initSettings()
   }
 #endif
   //  Profile Tab Inits
+  ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel());
+  ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
   ui->channelorderCB->setCurrentIndex(profile.channelOrder());
   ui->stickmodeCB->setCurrentIndex(profile.defaultMode());
   ui->renameFirmware->setChecked(profile.renameFwFiles());
@@ -453,6 +460,12 @@ void AppPreferencesDialog::on_clearImageButton_clicked()
 void AppPreferencesDialog::onBaseFirmwareChanged()
 {
   populateFirmwareOptions(getBaseFirmware());
+
+  Firmware *newfw = getFirmwareVariant();
+  Profile & profile = g.currentProfile();
+  profile.defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
+  ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel(newfw->getBoard()));
+  ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
 }
 
 Firmware *AppPreferencesDialog::getBaseFirmware() const

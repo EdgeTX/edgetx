@@ -1512,7 +1512,7 @@ void ModelSetupPage::build(FormWindow * window)
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         GridLayout centerGrid(group);
-        for (int i = POT_FIRST, j = 0; i <= POT_LAST; i++) {
+        for (int i = POT_FIRST, j = 0, k = 0; i <= POT_LAST; i++, k++) {
           char s[8];
           if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
             if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
@@ -1520,19 +1520,21 @@ void ModelSetupPage::build(FormWindow * window)
             auto button = new TextButton(
                 group, centerGrid.getSlot(4, j % 4),
                 getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
-                OPAQUE | ((g_model.potsWarnEnabled & (1 << j)) ? BUTTON_CHECKED
+                OPAQUE | ((g_model.potsWarnEnabled & (1 << k)) ? BUTTON_CHECKED
                                                                : 0));
-            button->setPressHandler([button, j] {
-              g_model.potsWarnEnabled ^= (1 << j);
+            button->setPressHandler([button, k] {
+              g_model.potsWarnEnabled ^= (1 << k);
               if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-                  (g_model.potsWarnEnabled & (1 << j))) {
-                SAVE_POT_POSITION(j);
+                  (g_model.potsWarnEnabled & (1 << k))) {
+                SAVE_POT_POSITION(k);
               }
-              button->check(g_model.potsWarnEnabled & (1 << j));
+              button->check(g_model.potsWarnEnabled & (1 << k) ? true : false);
               SET_DIRTY();
-              return (g_model.potsWarnEnabled & (1 << j));
+              return (g_model.potsWarnEnabled & (1 << k) ? 1 : 0);
             });
             j++;
+          } else {
+            g_model.potsWarnEnabled &= ~(1 << k);
           }
         }
         grid.addWindow(group);
@@ -1546,7 +1548,7 @@ void ModelSetupPage::build(FormWindow * window)
             new FormGroup(window, grid.getFieldSlot(),
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         GridLayout centerGrid(group);
-        for (int i = SLIDER_FIRST, j = 0; i <= SLIDER_LAST; i++) {
+        for (int i = SLIDER_FIRST, j = 0, k = NUM_POTS; i <= SLIDER_LAST; i++, k++) {
           char s[8];
           if ((IS_SLIDER(i))) {
             if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
@@ -1554,18 +1556,17 @@ void ModelSetupPage::build(FormWindow * window)
             auto *button = new TextButton(
                 group, centerGrid.getSlot(4, j % 4),
                 getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
-                OPAQUE | ((g_model.potsWarnEnabled & (1 << (j + NUM_POTS)))
-                              ? BUTTON_CHECKED
-                              : 0));
-            button->setPressHandler([button, j] {
-              g_model.potsWarnEnabled ^= (1 << (j + NUM_POTS));
+                OPAQUE | ((g_model.potsWarnEnabled & (1 << k)) ? BUTTON_CHECKED
+                                                               : 0));
+            button->setPressHandler([button, k] {
+              g_model.potsWarnEnabled ^= (1 << (k));
               if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-                  (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)))) {
-                SAVE_POT_POSITION(j + NUM_POTS);
+                  (g_model.potsWarnEnabled & (1 << k))) {
+                SAVE_POT_POSITION(k);
               }
-              button->check(g_model.potsWarnEnabled & (1 << (j + NUM_POTS)) ? true : false);
+              button->check(g_model.potsWarnEnabled & (1 << k) ? true : false);
               SET_DIRTY();
-              return (g_model.potsWarnEnabled & (1 << (j + NUM_POTS)) ? 1 : 0);
+              return (g_model.potsWarnEnabled & (1 << k) ? 1 : 0);
             });
             j++;
           }

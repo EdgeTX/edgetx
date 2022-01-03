@@ -22,6 +22,7 @@
 
 #include "boards.h"
 #include "constants.h"
+#include "datahelpers.h"
 
 #include <QtCore>
 
@@ -89,6 +90,7 @@ class RawSwitch {
     bool isSet() const { return type != SWITCH_TYPE_NONE || index != 0; }
     void clear() { type = SWITCH_TYPE_NONE; index = 0; }
     QStringList getSwitchList(Boards board) const;
+    static StringTagMappingTable getRawSwitchTypesLookupTable();
 
     bool operator== ( const RawSwitch& other) const {
       return (this->type == other.type) && (this->index == other.index);

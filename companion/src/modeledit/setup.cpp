@@ -237,14 +237,12 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
     ui->trainerMode->hide();
   }
 
-  // The protocols available on this board
-  for (unsigned int i = 0; i < PULSES_PROTOCOL_LAST; i++) {
-    if (firmware->isAvailable((PulsesProtocol) i, moduleIdx)) {
-      ui->protocol->addItem(ModuleData::protocolToString(i), i);
-      if (i == module.protocol)
-        ui->protocol->setCurrentIndex(ui->protocol->count() - 1);
-    }
+  if (panelFilteredItemModels && moduleIdx >= 0) {
+    int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
+    ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
+    ui->protocol->setField(module.protocol, this);
   }
+
   for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
     if (i == MODULE_SUBTYPE_MULTI_SCANNER)
       continue;
@@ -266,7 +264,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
 
   update();
 
-  connect(ui->protocol, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ModulePanel::onProtocolChanged);
+  connect(ui->protocol, &AutoComboBox::currentDataChanged, this, &ModulePanel::onProtocolChanged);
   connect(ui->multiSubType, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ModulePanel::onSubTypeChanged);
   connect(ui->multiProtocol, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ModulePanel::onMultiProtocolChanged);
   connect(this, &ModulePanel::channelsRangeChanged, this, &ModulePanel::setupFailsafes);
@@ -662,8 +660,7 @@ void ModulePanel::update()
 
 void ModulePanel::onProtocolChanged(int index)
 {
-  if (!lock && module.protocol != ui->protocol->itemData(index).toUInt()) {
-    module.protocol = ui->protocol->itemData(index).toInt();
+  if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
     emit updateItemModels();
@@ -1171,6 +1168,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownBeepItemModel());
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
+  panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
 
   Board::Type board = firmware->getBoard();
@@ -1320,6 +1318,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, i);
     switchInfo.config = Board::SwitchType(generalSettings.switchConfig[i]);
     if (switchInfo.config == Board::SWITCH_NOT_AVAILABLE || switchInfo.config == Board::SWITCH_TOGGLE) {
+      model.switchWarningEnable |= (1 << i);
       continue;
     }
     RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i);
@@ -1389,7 +1388,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   //  ui->functionSwitchesLayout->hide();
 
   for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
-    modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i);
+    modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i, panelFilteredModels);
     ui->modulesLayout->addWidget(modules[i]);
     connect(modules[i], &ModulePanel::modified, this, &SetupPanel::modified);
     connect(modules[i], &ModulePanel::updateItemModels, this, &SetupPanel::onModuleUpdateItemModels);

@@ -40,6 +40,7 @@ void YamlParser::init(const YamlParserCalls* parser_calls, void* parser_ctx)
     calls = parser_calls;
     ctx   = parser_ctx;
     reset();
+    eof = false;
 }
 
 void YamlParser::reset()
@@ -237,9 +238,9 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc2;
                 break;
             }
-            //TODO: more escapes needed???
-            TRACE_YAML("unknown escape char '%c'",*c);
-            return DONE_PARSING;
+            CONCAT_STR(scratch_buf, scratch_len, *c);
+            state = ps_ValQuo;
+            break;
 
         case ps_ValEsc2:
             if(scratch_len >= MAX_STR) {
@@ -311,6 +312,11 @@ YamlParser::parse(const char* buffer, unsigned int size)
         c++;
     } // for each char
 
+    if ((state == ps_Val) && eof && node_found) {
+        // TODO: trim spaces at the end?
+        calls->set_attr(ctx, scratch_buf, scratch_len);
+    }
+    
     return CONTINUE_PARSING;
 }
 

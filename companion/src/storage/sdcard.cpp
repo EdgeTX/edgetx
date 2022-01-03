@@ -57,8 +57,19 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
   return true;
 }
 
+bool SdcardFormat::getFileList(std::list<std::string>& filelist)
+{
+  QDir dir(filename);
+  if (!dir.cd("MODELS")) return false;
+  
+  QStringList ql = dir.entryList();
+  for (const auto& str : ql) {
+    filelist.push_back("MODELS/" + str.toStdString());
+  }
+  return true;
+}
+
 bool SdcardStorageFactory::probe(const QString & path)
 {
   return QDir(path).exists();
 }
-

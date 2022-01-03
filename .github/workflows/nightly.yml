@@ -22,8 +22,8 @@ jobs:
           - t12
           - t16
           - t18
-          - t8
-          - tlite
+          - t8;zorro
+          - tlite;tpro
           - tx12
           - tx16s
           - x10;x10-access

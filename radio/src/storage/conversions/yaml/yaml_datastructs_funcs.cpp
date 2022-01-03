@@ -23,8 +23,13 @@
 #include "datastructs_220.h"
 #include "myeeprom_220.h"
 
-#define GVAR_SMALL 128
 #define VOLUME_LEVEL_DEF 12
+
+bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+             yaml_writer_func wf, void* opaque)
+{
+  return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
+}
 
 #define in_read_weight nullptr
 
@@ -32,12 +37,13 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
   int32_t sval = yaml_to_signed(val, node->size);
+  int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
 
-  if (sval > GVAR_SMALL - 11 && sval < GVAR_SMALL - 1) {
-    char n = GVAR_SMALL - sval + '0';
+  if (sval >= gvar - 10 && sval <= gvar) {
+    char n = gvar - sval + '1';
     return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
-  } else if (sval < -GVAR_SMALL + 11 && sval > -GVAR_SMALL + 1) {
-    char n = val - GVAR_SMALL + '1';
+  } else if (sval <= -gvar + 10 && sval >= -gvar) {
+    char n = val - gvar + '1';
     return wf(opaque, "GV", 2) && wf(opaque, &n, 1);
   }
 
@@ -458,11 +464,12 @@ extern const struct YamlIdStr enum_SwitchSources[];
 
 #define r_swtchSrc nullptr
 
-bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
+                                yaml_writer_func wf, void* opaque)
 {
     int32_t sval = yaml_to_signed(val, node->size);
     if (sval < 0) {
-        wf(opaque, "\\!", 2);
+        wf(opaque, "!", 1);
         sval = abs(sval);
     }
 
@@ -507,6 +514,15 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
     
     str = yaml_output_enum(sval, enum_SwitchSources);
     return wf(opaque, str, strlen(str));
+}
+
+static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque,"\"",1)
+      || !w_swtchSrc_unquoted(node, val, wf, opaque)
+      || !wf(opaque,"\"",1))
+    return false;
+  return true;
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
@@ -840,6 +856,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   const char* str = nullptr;
   bool add_comma = true;
+  if (!wf(opaque, "\"", 1)) return false;
 
   switch (func) {
   case FUNC_OVERRIDE_CHANNEL:
@@ -973,6 +990,7 @@ bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
     }
   }
+  if (!wf(opaque, "\"", 1)) return false;
   return true;
 }
 
@@ -986,6 +1004,7 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 {
   data += bitoffs >> 3UL;
   data -= sizeof(LogicalSwitchData::func);
+  if (!wf(opaque,"\"",1)) return false;
 
   const char* str = nullptr;
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
@@ -993,13 +1012,13 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
-    if (!w_swtchSrc(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
     break;
 
   case LS_FAMILY_EDGE:
-    if (!w_swtchSrc(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     str = yaml_unsigned2str(lswTimerValue(ls->v2));
     if (!wf(opaque,str,strlen(str))) return false;
@@ -1037,6 +1056,7 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
   }
 
+  if (!wf(opaque,"\"",1)) return false;
   return true;
 }
 
@@ -1118,7 +1138,7 @@ bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     //       data as-is (no FrSky special casing)
     int type = md->getMultiProtocol() + 1;
     int subtype = val;
-    convertOtxProtocolToMulti(&type, &subtype);
+    convertEtxProtocolToMulti(&type, &subtype);
 
     // output "[type],[subtype]"
     str = yaml_unsigned2str(type);

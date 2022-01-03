@@ -104,10 +104,13 @@ void rotaryEncoderCheck()
 #else
   uint8_t newPosition = ROTARY_ENCODER_POSITION();
   if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
+#if defined(ROTARY_ENCODER_INVERT)
+    if (!((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1))) {
+#else
     if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
+#endif
       --rotencValue;
-    }
-    else {
+    } else {
       ++rotencValue;
     }
     rotencPosition = newPosition;

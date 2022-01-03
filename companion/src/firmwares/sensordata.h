@@ -24,7 +24,6 @@
 
 #include <QtCore>
 
-constexpr int CPN_MAX_SENSORS  { 60 };
 constexpr int SENSOR_LABEL_LEN { 4 };
 
 constexpr int SENSOR_ISCONFIGURABLE   { 1 << 1 };

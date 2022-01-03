@@ -1507,7 +1507,7 @@ then the loaded script (or "chunk") is returned as a function. Otherwise, return
   as part of the file name and the .lua/.luac will be appended to that.
 
 @param mode (string) (optional) Controls whether to force loading the text (.lua) or pre-compiled binary (.luac)
-  version of the script. By default OTx will load the newest version and compile a new binary if necessary (overwriting any
+  version of the script. By default ETX will load the newest version and compile a new binary if necessary (overwriting any
   existing .luac version of the same script, and stripping some debug info like line numbers).
   You can use `mode` to control the loading behavior more specifically. Possible values are:
    * `b` only binary.

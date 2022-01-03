@@ -240,10 +240,9 @@ enum TrainerMode {
 #endif
 
 enum UartModes {
-#if defined(CLI) || defined(DEBUG)
-  UART_MODE_DEBUG,
-#else
   UART_MODE_NONE,
+#if defined(CLI) || defined(DEBUG)
+  UART_MODE_DEBUG SKIP = UART_MODE_NONE,
 #endif
   UART_MODE_TELEMETRY_MIRROR,
   UART_MODE_TELEMETRY,

@@ -381,6 +381,7 @@ bool ModelsList::loadYaml()
       if (bytes_read == 0)
         break;
 
+      if (f_eof(&file)) yp.set_eof();
       if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
     }
