@@ -407,7 +407,7 @@ point_t getPoint(uint8_t index)
 {
   point_t result = getPoint(s_currIdxSubMenu, index);
   result.x = CURVE_CENTER_X + divRoundClosest(result.x * CURVE_SIDE_WIDTH, RESX);
-  result.y = CURVE_CENTER_Y + divRoundClosest(result.y * CURVE_SIDE_WIDTH, RESX);
+  result.y = CURVE_CENTER_Y - divRoundClosest(result.y * CURVE_SIDE_WIDTH, RESX);
   return result;
 }
 
