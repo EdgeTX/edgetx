@@ -122,7 +122,7 @@ struct YamlThrTrace {
         Boards board(getCurrentBoard());
         int pots = board.getCapability(Board::Pots);
         int sliders = board.getCapability(Board::Sliders);
-        return pots + sliders + src.index;
+        return 1 + pots + sliders + src.index;
       } break;
       default:
         break;
