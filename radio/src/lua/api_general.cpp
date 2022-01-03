@@ -836,7 +836,7 @@ The list of valid sources is available:
 
 @retval nil the requested field was not found
 
-@status current Introduced in 2.0.8, 'unit' field added in 2.2.0
+@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
 */
 static int luaGetFieldInfo(lua_State * L)
 {
@@ -2084,7 +2084,7 @@ static int luaGetSwitchValue(lua_State * L)
 
 This is an iterator function over switch positions. `for switchIndex, switchName in switches() do ...` will iterate over all available switch positions.
 
-@status current Introduced in 2.7
+@status current Introduced in 2.6
 */
 
 static int luaNextSwitch(lua_State * L)
@@ -2140,7 +2140,7 @@ static int luaSwitches(lua_State * L)
 @notice the source names shown on the screen are not the same as the names used by `getFieldInfo` and `getValue`. But the indices are the same, so `getValue(index)` will work with the indices obtained here.
 This function is rather time consuming, and should not be used repeatedly in a script, if it can be avoided.
 
-@status current Introduced in 2.7
+@status current Introduced in 2.6
 */
 
 static int luaGetSourceIndex(lua_State * L)
@@ -2176,7 +2176,7 @@ static int luaGetSourceIndex(lua_State * L)
 
 @notice the source names shown on the screen are not the same as the names used by `getFieldInfo` and `getValue`. But the indices are the same, so `getValue(index)` will work with the indices used here.
 
-@status current Introduced in 2.7
+@status current Introduced in 2.6
 */
 
 static int luaGetSourceName(lua_State * L)
@@ -2200,7 +2200,7 @@ static int luaGetSourceName(lua_State * L)
 
 This is an iterator function over value sources. `for sourceIndex, sourceName in sources() do ...` will iterate over all available value sources.
 
-@status current Introduced in 2.7
+@status current Introduced in 2.6
 */
 
 static int luaNextSource(lua_State * L)
