@@ -47,7 +47,8 @@ set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 set(FLAVOUR pl18)
 #add_definitions(-DPCBPL18 -DPCBFLYSKY -DINTERNAL_MODULE_BAUDRATE=${PCB_RF_BAUD})
 add_definitions(-DPCBPL18 -DPCBFLYSKY -DINTERNAL_MODULE_SERIAL -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
-add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
+add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 
 # defines existing internal modules
@@ -56,7 +57,7 @@ set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
 set(TARGET_SRC
   ${TARGET_SRC}
-  audio_spi_driver.cpp
+  ../common/arm/stm32/audio_dac_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   )
