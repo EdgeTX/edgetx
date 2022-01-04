@@ -207,17 +207,15 @@ HardwarePanel::~HardwarePanel()
 void HardwarePanel::on_internalModuleChanged()
 {
   if (QMessageBox::warning(this, CPN_STR_APP_NAME,
-                       tr("Warning: Changing the Internal module may invalidate the internal module protocol of one or more models!"),
-                       QMessageBox::Abort | QMessageBox::Ok, QMessageBox::Abort) != QMessageBox::Ok) {
+                       tr("Warning: Changing the Internal module may invalidate the internal module protocol of the models!"),
+                       QMessageBox::Cancel | QMessageBox::Ok, QMessageBox::Cancel) != QMessageBox::Ok) {
 
     generalSettings.internalModule = m_internalModule;
     internalModule->updateValue();
   }
   else {
     m_internalModule = generalSettings.internalModule;
-
-    QMessageBox::information(this, CPN_STR_APP_NAME,
-                       tr("Important: You are advised to check the internal module protocol for all models."));
+    emit internalModuleChanged();
   }
 }
 

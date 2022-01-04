@@ -35,6 +35,9 @@ class HardwarePanel : public GeneralPanel
     HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels);
     virtual ~HardwarePanel();
 
+  signals:
+    void internalModuleChanged();
+
   private slots:
     void on_internalModuleChanged();
 

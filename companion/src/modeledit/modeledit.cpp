@@ -49,6 +49,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("edit.png"));
+  setAttribute(Qt::WA_DeleteOnClose);
   restoreGeometry(g.modelEditGeo());
   ui->pushButton->setIcon(CompanionIcon("simulate.png"));
 

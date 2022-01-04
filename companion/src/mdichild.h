@@ -117,6 +117,7 @@ class MdiChild : public QWidget
     void onItemSelected(const QModelIndex &);
     void onCurrentItemChanged(const QModelIndex &, const QModelIndex &);
     void onDataChanged(const QModelIndex & index);
+    void onInternalModuleChanged();
 
     void generalEdit();
     void copyGeneralSettings();
@@ -183,6 +184,10 @@ class MdiChild : public QWidget
     bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
     void showWarning(const QString & msg);
     int askQuestion(const QString & msg, QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No), QMessageBox::StandardButton defaultButton = QMessageBox::No);
+    QDialog * getChildDialog(QRegularExpression & regexp);
+    QDialog * getModelEditDialog(int row);
+    QList<QDialog *> * getChildrenDialogsList(QRegularExpression & regexp);
+    QList<QDialog *> * getModelEditDialogsList();
 
     Ui::MdiChild * ui;
     TreeModel * modelsListModel;
