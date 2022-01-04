@@ -91,21 +91,6 @@ SSTR_A = ['']
 STR_VTELEMSCREENTYPE = ['None','Werte','Balken','Script']
 STR_GPSFORMAT = ['','GMS','NMEA']
 STR_VSWASHTYPE = ['---','120','120X','140','90']
-#if defined(PCBHORUS) || defined(PCBNV14)
-STR_VKEYS = ['PGUP','PGDN','ENTER','MDL','RTN','TELE','SYS']
-#elif defined(PCBXLITE)
-STR_VKEYS = ['Shift','Exit','Enter','Down','Up','Right','Left']
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-STR_VKEYS = ['Exit','Enter','Down','Up','Right','Left']
-#elif defined(RADIO_TX12)
-STR_VKEYS = ['Exit','Enter','Up','Down','SYS','MDL','TELE']
-#elif defined(RADIO_T8)
-STR_VKEYS = ['RTN','ENTER','PGUP','PGDN','SYS','MDL','UP','DOWN']
-#elif defined(PCBTARANIS)
-STR_VKEYS = ['Menu','Exit','Enter','Page','Plus','Minus']
-#else
-STR_VKEYS = ['Menu','Exit','Down','Up','Right','Left']
-#endif
 #if defined(PCBHORUS)
 #else
 #endif

@@ -90,19 +90,6 @@ STR_VTELEMUNIT = ['-','V','A','mA','kts','m/s','f/s','kmh','mph','m','ft','@C','
 STR_VTELEMSCREENTYPE = ['Nic','Hodnota','Ukazatel','Skript']
 STR_GPSFORMAT = ['DMS','NMEA']
 STR_VSWASHTYPE = ['---','120','120X','140','90']
-#if defined(PCBHORUS) || defined(PCBNV14)
-STR_VKEYS = ['PGUP','PGDN','ENTER','MDL','RTN','TELE','SYS']
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-STR_VKEYS = ['Exit','Enter','Dolů','Nhoru','Vprvo','Vlevo']
-#elif defined(RADIO_TX12)
-STR_VKEYS = ['Exit','Enter','Up','Down','SYS','MDL','TELE']
-#elif defined(RADIO_T8)
-STR_VKEYS = ['RTN','ENTER','PGUP','PGDN','SYS','MDL','UP','DOWN']
-#elif defined(PCBTARANIS)
-STR_VKEYS = ['Menu','Exit','Enter','Page','Plus','Mínus']
-#else
-STR_VKEYS = ['Menu','Exit','Dolů','Nhoru','Vprvo','Vlevo']
-#endif
 #if defined(PCBHORUS)
 #else
 #endif
