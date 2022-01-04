@@ -66,7 +66,6 @@ STR_VTELEMUNIT = ['-','V','A','mA','kts','m/s','f/s','kmh','mph','m','ft','@C','
 STR_VTELEMSCREENTYPE = ['禁用','数值','条形图','脚本']
 STR_GPSFORMAT = ['DMS','NMEA']
 STR_VSWASHTYPE = ['---','120','120X','140','90']
-STR_VKEYS = ['菜单','退出','确认','向上','向下','向右','向左']
 #if defined(PCBHORUS)
 #else
 #endif

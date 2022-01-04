@@ -387,7 +387,7 @@
 #define TR_PROTO                        TR(INDENT "Proto", INDENT "協議")
 #define TR_PPMFRAME INDENT              "PPM幀"
 #define TR_REFRESHRATE                  TR(INDENT "Refresh", INDENT "刷新速率")
-#define STR_WARN_BATTVOLTAGE            TR(INDENT "Output is VBAT: ", INDENT "注意輸出電平為電池電壓")
+#define TR_WARN_BATTVOLTAGE            TR(INDENT "Output is VBAT: ", INDENT "注意輸出電平為電池電壓")
 #define TR_WARN_5VOLTS                  "注意輸出電平是5V"
 #define TR_MS                           "ms"
 #define TR_FREQUENCY                    INDENT "頻率"
