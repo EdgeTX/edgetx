@@ -99,7 +99,6 @@ void delay_self(int count)
 #define RCC_APB2PeriphOther   (ADC_RCC_APB2Periph |\
                                HAPTIC_RCC_APB2Periph |\
                                AUX_SERIAL_RCC_APB2Periph |\
-                               AUDIO_RCC_APB2Periph |\
                                EXTMODULE_RCC_APB2Periph \
                               )
 
