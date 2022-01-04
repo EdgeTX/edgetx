@@ -481,7 +481,7 @@ bool audioChipReset();
 
 #define audioDisableIrq()             // interrupts must stay enabled on Horus
 #define audioEnableIrq()              // interrupts must stay enabled on Horus
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14)
 #define setSampleRate(freq)
 #else
 void setSampleRate(uint32_t frequency);
