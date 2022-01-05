@@ -561,7 +561,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     *dest = CHAR_INPUT;
     if (strlen(g_model.inputNames[idx])) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation="       
+#pragma GCC diagnostic ignored "-Wformat-truncation"       
         snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.inputNames[idx]), g_model.inputNames[idx]);
 #pragma GCC diagnostic pop
     } else {
@@ -575,7 +575,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation="       
+#pragma GCC diagnostic ignored "-Wformat-truncation"       
         // possible truncation is intentional
       snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name);
       // instance Name is empty : dest = n-ScriptFileName/OutputName

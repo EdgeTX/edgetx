@@ -108,14 +108,14 @@ std::string stringFromNtString(const char (&a)[N]) {
 template<size_t L>
 constexpr void copyToUnTerminated(char (&dest)[L], const char* const src) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation="       
+#pragma GCC diagnostic ignored "-Wstringop-truncation"       
     strncpy(dest, src, L);
 #pragma GCC diagnostic pop         
 }
 template<size_t L>
 constexpr void copyToUnTerminated(char (&dest)[L], const std::string& src) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation="       
+#pragma GCC diagnostic ignored "-Wstringop-truncation"       
     strncpy(dest, src.c_str(), L);
 #pragma GCC diagnostic pop         
 }
