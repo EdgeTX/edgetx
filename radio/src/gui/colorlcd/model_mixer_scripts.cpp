@@ -44,12 +44,12 @@ class ScriptEditWindow : public Page {
     }
 
   protected:
-    uint8_t idx;
-    bool    update = false;
+    const uint8_t idx;
+    bool update = false;
 
     void checkEvents() override
     {
-      if (update) {
+      if ((update) && (luaState == INTERPRETER_RUNNING)) {
         TRACE("rebuilding ScriptEditWindow...");
         rebuildBody(&body);
         update = false;
@@ -93,8 +93,7 @@ class ScriptEditWindow : public Page {
              }
             storageDirty(EE_MODEL);
             LUA_LOAD_MODEL_SCRIPT(idx); // async reload ...
-            *updatePtr = true; // TODO: sets update==true and afterwards calls rebuildBody(), but that does not work because lua script hasn't run yet
-            // ... to achieve the desired effect after successfully loading the lua-script an event has to be generated (then this update-logic can be deleted)
+            *updatePtr = true; // TODO: sets update==true and afterwards calls rebuildBody() via checkEvents()
           }, true);
       grid.nextLine();
 

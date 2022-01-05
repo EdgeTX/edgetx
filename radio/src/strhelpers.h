@@ -80,8 +80,6 @@ char *getGVarString(int idx);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
 
-//char *getSourceStringSized(char *dest, size_t destLength, mixsrc_t idx);
-
 template<size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx);
 
@@ -90,6 +88,7 @@ char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);
+
 #define SWITCH_WARNING_STR_SIZE 3
 // char *getSwitchWarningString(char *dest, swsrc_t idx);
 
