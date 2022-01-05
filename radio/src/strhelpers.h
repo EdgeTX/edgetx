@@ -26,6 +26,10 @@
 #include "opentx_types.h"
 
 #include <string>
+<<<<<<< HEAD
+=======
+#include <cstring>
+>>>>>>> 74fb7f489 (tried to obey all comments to the code)
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
@@ -75,7 +79,12 @@ char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
-char *getSourceString(char *dest, mixsrc_t idx);
+
+//char *getSourceStringSized(char *dest, size_t destLength, mixsrc_t idx);
+
+template<size_t L>
+char *getSourceString(char (&dest)[L], mixsrc_t idx);
+
 int  getRawSwitchIdx(char sw);
 char getRawSwitchFromIdx(int sw);
 #endif
@@ -96,4 +105,27 @@ template<size_t N>
 std::string stringFromNtString(const char (&a)[N]) {
     return std::string(a, strnlen(a, N));        
 }    
+template<size_t L>
+constexpr void copyToUnTerminated(char (&dest)[L], const char* const src) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation="       
+    strncpy(dest, src, L);
+#pragma GCC diagnostic pop         
+}
+template<size_t L>
+constexpr void copyToUnTerminated(char (&dest)[L], const std::string& src) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation="       
+    strncpy(dest, src.c_str(), L);
+#pragma GCC diagnostic pop         
+}
+template<size_t N>
+constexpr std::string stringFromNtString(const char (&a)[N]) {
+    return std::string(a, strnlen(a, N));        
+}    
+
+template<typename S>
+constexpr void clearStruct(S& s) {
+    memset((void*) &s, 0, sizeof(S));
+}
 #endif  // _STRHELPERS_H_

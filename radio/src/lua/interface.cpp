@@ -604,9 +604,9 @@ static const char * getScriptName(uint8_t idx)
   }
 }
 
-static bool luaLoad(const char * filename, ScriptInternalData & sid)
+static bool luaLoad(const char * pathname, ScriptInternalData & sid)
 {
-  sid.state = luaLoadScriptFileToState(lsScripts, filename, LUA_SCRIPT_LOAD_MODE);
+  sid.state = luaLoadScriptFileToState(lsScripts, pathname, LUA_SCRIPT_LOAD_MODE);
 
   if (sid.state != SCRIPT_OK) {
     luaFree(lsScripts, sid);
@@ -615,22 +615,29 @@ static bool luaLoad(const char * filename, ScriptInternalData & sid)
   return false;
 }
 
+template<unsigned int LD, unsigned int LF>
+static bool luaLoadFile(const char (&dirname)[LD], const char (&filename)[LF], ScriptInternalData & sid) {
+    constexpr size_t maxlen{LD  + LF + (sizeof(SCRIPT_EXT) - 1) + 1 + 1};  // iff dirname is string-literal (LD includes '\0') this is one byte too large, but with C++11 there is no chance to check if dirname is a literal or a (maybe-unterminated) char-array
+    char pathname[maxlen];
+    snprintf(pathname, maxlen, "%.*s/%.*s%s", LD, dirname, LF, filename, SCRIPT_EXT);    
+    return luaLoad(pathname, sid);
+}
+
 #if defined(LUA_MODEL_SCRIPTS)
 static bool luaLoadMixScript(uint8_t ref)
 {
-    assert(ref >= SCRIPT_MIX_FIRST);    
+#ifdef DEBUG
+    if (ref < SCRIPT_MIX_FIRST) {
+        return false;
+    }
+#endif
   uint8_t idx = ref - SCRIPT_MIX_FIRST;
   ScriptData & sd = g_model.scriptsData[idx];
 
   if (ZEXIST(sd.file)) {
     ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
     sid.reference = ref;
-
-    constexpr size_t maxlen{sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)};  // sizeof(" ...") encloses '\0', but '/' and last '\0' needs that space    
-    char filename[maxlen];
-    snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_MIXES_PATH, LEN_SCRIPT_FILENAME, sd.file, SCRIPT_EXT);
-
-    return luaLoad(filename, sid);
+    return luaLoadFile(SCRIPTS_MIXES_PATH, sd.file, sid);
   }
   return false;
 }
@@ -656,12 +663,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
     if (luaScriptsCount < MAX_SCRIPTS) {
       ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
       sid.reference = ref;
-
-      constexpr size_t maxlen{sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)};
-      char filename[maxlen];
-      snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_FUNCS_PATH, LEN_FUNCTION_NAME, fn->play.name, SCRIPT_EXT);
-
-      return luaLoad(filename, sid);
+      return luaLoadFile(SCRIPTS_FUNCS_PATH, fn->play.name, sid);
     }
     else {
       POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
@@ -684,12 +686,7 @@ static bool luaLoadTelemetryScript(uint8_t ref)
       if (luaScriptsCount < MAX_SCRIPTS) {
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = ref;
-       
-        constexpr size_t maxlen{sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)};
-        char filename[maxlen];
-        snprintf(filename, maxlen, "%s/%.*s%s", SCRIPTS_TELEM_PATH, LEN_SCRIPT_FILENAME, script.file, SCRIPT_EXT);
-
-        return luaLoad(filename, sid);
+        return luaLoadFile(SCRIPTS_TELEM_PATH, script.file, sid);
       }
       else {
         POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
