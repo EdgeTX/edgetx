@@ -61,19 +61,8 @@ Node convert<TrainerData>::encode(const TrainerData& rhs)
 
 bool convert<TrainerData>::decode(const Node& node, TrainerData& rhs)
 {
-  if (node["calib"]) {
-    const Node& calib = node["calib"];
-    for (int i = 0; i < 4; i++) {
-      calib[std::to_string(i)]["val"] >> rhs.calib[i];
-    }
-  }
-
-  if (node["mix"]) {
-    const Node& mix = node["mix"];
-    for (int i = 0; i < 4; i++) {
-      mix[std::to_string(i)] >> rhs.mix[i];
-    }
-  }
+  node["calib"] >> rhs.calib;
+  node["mix"] >> rhs.mix;
   return true;
 }
 
