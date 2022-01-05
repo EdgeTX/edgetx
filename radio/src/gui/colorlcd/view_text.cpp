@@ -195,7 +195,7 @@ void ViewTextWindow::loadOneScreen(int offset)
 void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 {
   VfsFile file;
-  int result;
+  VfsError result;
   char c;
   size_t sz = 0;
   int line_length = 1;
@@ -212,8 +212,8 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
   VirtualFS& vfs = VirtualFS::instance();
 
   result = vfs.openFile(file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    while (vfs.read(file, &c, 1, sz) == FR_OK && sz == 1 &&
+  if (result == VfsError::OK) {
+    while (vfs.read(file, &c, 1, sz) == VfsError::OK && sz == 1 &&
                          (lines_count == 0 ||
                           current_line - textVerticalOffset < maxScreenLines))
     {

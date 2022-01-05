@@ -287,24 +287,24 @@ public:
 
   const std::string& getCurWorkDir()  { return curWorkDir;}
 
-  int unlink(const std::string& path);
+  VfsError unlink(const std::string& path);
 
-  int changeDirectory(const std::string& path);
-  int openDirectory(VfsDir& dir, const char * path);
-  int readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
-  int closeDirectory(VfsDir& dir);
+  VfsError changeDirectory(const std::string& path);
+  VfsError openDirectory(VfsDir& dir, const char * path);
+  VfsError readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
+  VfsError closeDirectory(VfsDir& dir);
 
-  int openFile(VfsFile& file, const std::string& path, int flags);
-  int closeFile(VfsFile& file);
+  VfsError openFile(VfsFile& file, const std::string& path, int flags);
+  VfsError closeFile(VfsFile& file);
   int fileSize(VfsFile& file);
-  int read(VfsFile& file, void* buf, size_t size, size_t& readSize);
-  int write(VfsFile& file, void* buf, size_t size, size_t& written);
-  int lseek(VfsFile& file, size_t offset);
+  VfsError read(VfsFile& file, void* buf, size_t size, size_t& readSize);
+  VfsError write(VfsFile& file, void* buf, size_t size, size_t& written);
+  VfsError lseek(VfsFile& file, size_t offset);
   int fileEof(VfsFile& file);
 
-  int rename(const char* oldPath, const char* newPath);
-  int copyFile(const std::string& source, const std::string& destination);
-  int copyFile(const std::string& srcFile, const std::string& srcDir,
+  VfsError rename(const char* oldPath, const char* newPath);
+  VfsError copyFile(const std::string& source, const std::string& destination);
+  VfsError copyFile(const std::string& srcFile, const std::string& srcDir,
              const std::string& destDir, const std::string& destFile);
 
 

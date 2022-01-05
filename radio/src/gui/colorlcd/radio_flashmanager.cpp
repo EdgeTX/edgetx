@@ -200,13 +200,13 @@ void RadioFlashManagerPage::build(FormWindow * window)
   std::string workPath(vfs->getCurWorkDir());
   auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
-  int res = vfs->openDirectory(dir, workPath.c_str());
-  if (res == LFS_ERR_OK) {
+  VfsError res = vfs->openDirectory(dir, workPath.c_str());
+  if (res == VfsError::OK) {
     // read all entries
     bool firstTime = true;
     for (;;) {
       res = vfs->readDirectory(dir, fno);//, firstTime);
-      if (res < 0)
+      if (res != VfsError::OK)
         break; // Break on error or end of dir
       std::string name = fno.getName();
       if(name.length() == 0)
