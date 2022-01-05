@@ -646,6 +646,7 @@ PACK(struct ModelData {
   uint8_t   extendedLimits:1;
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
+
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];
@@ -675,6 +676,9 @@ PACK(struct ModelData {
   uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
+
+  uint8_t jitterFilter:1;
+  uint8_t spare2:7 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];

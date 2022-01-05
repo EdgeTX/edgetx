@@ -96,7 +96,7 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_BEEP_CENTER,
   ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS,
-
+  ITEM_MODEL_SETUP_USE_JITTER_FILTER,
 #if defined(PXX2)
   ITEM_MODEL_SETUP_REGISTRATION_ID,
 #endif
@@ -444,6 +444,8 @@ void menuModelSetup(event_t event)
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
     0, // Global functions
+    
+    0, // ADC Jitter filter
 
     REGISTRATION_ID_ROWS
 
@@ -894,11 +896,18 @@ void menuModelSetup(event_t event)
         }
         break;
 
-      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:
+      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:      
         lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);
         drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noGlobalFunctions, attr);
         if (attr) g_model.noGlobalFunctions = !checkIncDecModel(event, !g_model.noGlobalFunctions, 0, 1);
         break;
+      
+      case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
+        lcdDrawTextAlignedLeft(y, STR_JITTER_FILTER);
+        drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.jitterFilter, attr);
+        if (attr) g_model.jitterFilter = !checkIncDecModel(event, !g_model.jitterFilter, 0, 1);
+        break;
+
 
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_LABEL:
