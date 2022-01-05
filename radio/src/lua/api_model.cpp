@@ -158,7 +158,7 @@ static int luaModelGetModule(lua_State *L)
     if (module.type == MODULE_TYPE_MULTIMODULE) {
       int protocol = g_model.moduleData[idx].getMultiProtocol() + 1;
       int subprotocol = g_model.moduleData[idx].subType;
-      convertOtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
+      convertEtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
       lua_pushtableinteger(L, "protocol", protocol);
       lua_pushtableinteger(L, "subProtocol", subprotocol);
       if (getMultiModuleStatus(idx).isValid()) {
@@ -231,8 +231,8 @@ static int luaModelSetModule(lua_State *L)
 #endif
     }
 #if defined(MULTIMODULE)
-    if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute otx protocol
-      convertMultiProtocolToOtx(&protocol, &subprotocol);
+    if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute etx protocol
+      convertMultiProtocolToEtx(&protocol, &subprotocol);
       g_model.moduleData[idx].setMultiProtocol(protocol - 1);
       g_model.moduleData[idx].subType = subprotocol;
     }

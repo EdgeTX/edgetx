@@ -390,9 +390,14 @@ void ModelMixesPage::rebuild(FormWindow * window, int8_t focusMixIndex)
 void ModelMixesPage::editMix(FormWindow * window, uint8_t channel, uint8_t mixIndex)
 {
   Window::clearFocus();
-  Window * editWindow = new MixEditWindow(channel, mixIndex);
+  Window *editWindow = new MixEditWindow(channel, mixIndex);
   editWindow->setCloseHandler([=]() {
-    rebuild(window, mixIndex);
+    int8_t newIndex = mixIndex;
+    if (is_memclear(&g_model.mixData[mixIndex], sizeof(MixData))) {
+      deleteMix(mixIndex);
+      newIndex--;
+    }
+    rebuild(window, newIndex);
   });
 }
 
@@ -426,7 +431,10 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
   int mixIndex = 0;
   MixData * mix = g_model.mixData;
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
-    if (mixIndex < MAX_MIXERS && mix->destCh == ch) {
+
+    bool skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
+    
+    if (mixIndex < MAX_MIXERS && mix->destCh == ch && !skip_mix) {
 
       coord_t h = grid.getWindowHeight();
       auto txt = new MixLineTitle(window, grid.getLabelSlot(),
@@ -434,9 +442,8 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
                                   BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       uint8_t count = 0;
-      while (mixIndex < MAX_MIXERS && mix->destCh == ch) {
-        // First mix cannot be empty
-        if(!mixIndex && !mix->srcRaw)  break;
+      while (mixIndex < MAX_MIXERS && mix->destCh == ch && !skip_mix) {
+
         Button * button = new MixLineButton(window, grid.getFieldSlot(), mixIndex);
         button->setPressHandler([=]() -> uint8_t {
           button->bringToTop();
@@ -519,6 +526,8 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
         grid.spacer(button->height() - 1);
         ++mixIndex;
         ++mix;
+
+        skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
       }
 
       h = grid.getWindowHeight() - h + 1;
@@ -527,12 +536,12 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
       grid.spacer(7);
     }
     else {
-      auto button = new TextButton(window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch));
-      if (focusMixIndex == mixIndex)
-        button->setFocus(SET_FOCUS_DEFAULT);
+      auto button = new TextButton(window, grid.getLabelSlot(),
+                                   getSourceString(MIXSRC_CH1 + ch));
+      if (focusMixIndex == mixIndex) button->setFocus(SET_FOCUS_DEFAULT);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
-        Menu * menu = new Menu(window);
+        Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() {
           insertMix(mixIndex, ch);
           editMix(window, ch, mixIndex);
@@ -542,8 +551,9 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           if (s_copyMode != 0) {
             menu->addLine(STR_PASTE, [=]() {
               copyMix(s_copySrcIdx, mixIndex, ch);
-              if(s_copyMode == MOVE_MODE) {
-                deleteMix((s_copySrcIdx >= mixIndex) ? s_copySrcIdx+1 : s_copySrcIdx);
+              if (s_copyMode == MOVE_MODE) {
+                deleteMix((s_copySrcIdx >= mixIndex) ? s_copySrcIdx + 1
+                                                     : s_copySrcIdx);
                 s_copyMode = 0;
               }
               rebuild(window, -1);
@@ -551,7 +561,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
             });
           }
         }
-        // TODO STR_MOVE
         return 0;
       });
 

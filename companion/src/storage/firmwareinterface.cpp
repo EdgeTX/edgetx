@@ -305,11 +305,11 @@ bool FirmwareInterface::seekSplash(QByteArray sps, QByteArray spe, int size)
   return false;
 }
 
-#define OTX_SPS_9X      "SPS\0\200\100"
-#define OTX_SPS_TARANIS "SPS\0\324\100"
-#define OTX_SPS_SIZE    6
-#define OTX_SPE         "SPE"
-#define OTX_SPE_SIZE    4
+#define ETX_SPS_9X      "SPS\0\200\100"
+#define ETX_SPS_TARANIS "SPS\0\324\100"
+#define ETX_SPS_SIZE    6
+#define ETX_SPE         "SPE"
+#define ETX_SPE_SIZE    4
 
 void FirmwareInterface::seekSplash()
 {
@@ -342,11 +342,11 @@ void FirmwareInterface::seekSplash()
     return;
   }
 
-  if (seekSplash(QByteArray(OTX_SPS_9X, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), 1024)) {
+  if (seekSplash(QByteArray(ETX_SPS_9X, ETX_SPS_SIZE), QByteArray(ETX_SPE, ETX_SPE_SIZE), 1024)) {
     return;
   }
 
-  if (seekSplash(QByteArray(OTX_SPS_TARANIS, OTX_SPS_SIZE), QByteArray(OTX_SPE, OTX_SPE_SIZE), RLE_SPLASH_MAX_SIZE)) { 
+  if (seekSplash(QByteArray(ETX_SPS_TARANIS, ETX_SPS_SIZE), QByteArray(ETX_SPE, ETX_SPE_SIZE), RLE_SPLASH_MAX_SIZE)) {
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
     splash_format = QImage::Format_Indexed8;

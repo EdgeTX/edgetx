@@ -65,7 +65,7 @@
 
 PACK(struct CurveRef {
   uint8_t type;
-  int8_t  value;
+  int8_t  value CUST(in_read_weight,in_write_weight);
 });
 
 PACK(struct MixData {
@@ -76,7 +76,7 @@ PACK(struct MixData {
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t spare:1 SKIP;
-  int32_t  offset:14;
+  int32_t  offset:14 CUST(in_read_weight,in_write_weight);
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
@@ -102,7 +102,7 @@ PACK(struct ExpoData {
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
   int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
-  int8_t   offset;
+  int8_t   offset CUST(in_read_weight,in_write_weight);
   CurveRef curve;
 });
 
@@ -111,10 +111,10 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11;
-  int32_t max:11;
+  int32_t min:11 CUST(in_read_weight,in_write_weight);
+  int32_t max:11 CUST(in_read_weight,in_write_weight);
   int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11;
+  int16_t offset:11 CUST(in_read_weight,in_write_weight);
   uint16_t symetrical:1;
   uint16_t revert:1;
   uint16_t spare:3 SKIP;
@@ -834,6 +834,7 @@ PACK(struct RadioData {
 
   // Real attributes
   NOBACKUP(uint8_t version);
+  CUST_ATTR(board,nullptr,w_board);
   NOBACKUP(uint16_t variant SKIP);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
@@ -867,12 +868,10 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t templateSetup);   // RETA order for receiver channels
   NOBACKUP(int8_t PPM_Multiplier);
   NOBACKUP(int8_t hapticLength CUST(r_5pos,w_5pos));
-  N_HORUS_FIELD(N_TARANIS_FIELD(uint8_t spare2 SKIP));
-  N_HORUS_FIELD(N_TARANIS_FIELD(uint8_t stickReverse));
   NOBACKUP(int8_t beepLength:3 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t hapticStrength:3 CUST(r_5pos,w_5pos));
   NOBACKUP(uint8_t gpsFormat:1);
-  NOBACKUP(uint8_t unexpectedShutdown:1);
+  NOBACKUP(uint8_t unexpectedShutdown:1 SKIP);
   NOBACKUP(uint8_t speakerPitch CUST(r_spPitch,w_spPitch));
   NOBACKUP(int8_t speakerVolume CUST(r_vol,w_vol));
   NOBACKUP(int8_t vBatMin CUST(r_vbat_min,w_vbat_min));

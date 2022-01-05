@@ -307,7 +307,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         backupPath=g.backupDir();
       }
       backupFilename = backupPath + "/backup-" + QDateTime().currentDateTime().toString("yyyy-MM-dd-HHmmss") + ".bin";
-      result = readEeprom(backupFilename, progressDialog.progress());
+      result = readSettings(backupFilename, progressDialog.progress());
       sleep(2);
     }
 
@@ -322,14 +322,14 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         QMessageBox::warning(this, tr("Conversion failed"), tr("Cannot convert Models and Settings for use with this firmware, original data will be used"));
         restoreFilename = backupFilename;
       }
-      if (!writeEeprom(restoreFilename, progressDialog.progress())) {
+      if (!writeSettings(restoreFilename, progressDialog.progress())) {
         QMessageBox::warning(this, tr("Restore failed"), tr("Could not restore Models and Settings to Radio. The models and settings data file can be found at: %1").arg(backupFilename));
       }
     }
 
     progressDialog.progress()->setInfo(tr("Flashing done"));
   }
-  
+
   progressDialog.exec();
 
   if (isTempFileName(filename)) {

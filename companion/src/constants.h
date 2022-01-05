@@ -38,15 +38,17 @@
 #define CPN_MAX_MODULES                2
 #define CPN_MAX_STICKS                 Board::STICK_AXIS_COUNT
 #define CPN_MAX_TRIMS                  Board::TRIM_AXIS_COUNT
-#define CPN_MAX_KNOBS                  8
+#define CPN_MAX_POTS                   8
 #define CPN_MAX_SLIDERS                4
-#define CPN_MAX_POTS                   (CPN_MAX_KNOBS + CPN_MAX_SLIDERS)
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES               32
 #define CPN_MAX_FUNCTION_SWITCHES      6
 #define CPN_MAX_MOUSE_ANALOGS          2
 #define CPN_MAX_GYRO_ANALOGS           2
-#define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)
+#define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_SLIDERS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)
+#define CPN_MAX_SENSORS                60
+#define CPN_MAX_SCRIPTS                9
+#define CPN_MAX_SCRIPT_INPUTS          10
 
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
@@ -60,8 +62,9 @@
 #define DFU_FILES_FILTER               "DFU " % CPN_STR_FILES % " (*.dfu);;"
 #define EEPE_FILES_FILTER              "EEPE " % CPN_STR_FILES % " (*.eepe);;"
 #define OTX_FILES_FILTER               "OpenTX " % CPN_STR_FILES % " (*.otx);;"
-#define YML_FILES_FILTER               "YAML " % CPN_STR_FILES % " (*.yml);;"
-#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.otx *.yml *.eepe *.bin *.hex);;" % OTX_FILES_FILTER % YML_FILES_FILTER % EEPE_FILES_FILTER % BIN_FILES_FILTER % HEX_FILES_FILTER
+#define ETX_FILES_FILTER               "EdgeTX " % CPN_STR_FILES % " (*.etx);;"
+#define YML_FILES_FILTER               "EdgeTX YAML " % CPN_STR_FILES % " (*.yml);;"
+#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.etx *.yml *.otx *.eepe *.bin *.hex);;" % ETX_FILES_FILTER % YML_FILES_FILTER % OTX_FILES_FILTER % EEPE_FILES_FILTER % BIN_FILES_FILTER % HEX_FILES_FILTER
 #define FLASH_FILES_FILTER             "FLASH " % CPN_STR_FILES % " (*.bin *.hex *.dfu);;" % BIN_FILES_FILTER % HEX_FILES_FILTER % DFU_FILES_FILTER
 #define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin *.hex);;" % BIN_FILES_FILTER % HEX_FILES_FILTER
 #define ER9X_EEPROM_FILE_TYPE          "ER9X_EEPROM_FILE"

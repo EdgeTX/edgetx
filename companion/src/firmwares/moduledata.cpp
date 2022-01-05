@@ -23,6 +23,11 @@
 #include "multiprotocols.h"
 #include "afhds3.h"
 #include "radiodataconversionstate.h"
+#include "compounditemmodels.h"
+#include "generalsettings.h"
+
+#include <QPair>
+#include <QVector>
 
 void ModuleData::convert(RadioDataConversionState & cstate)
 {
@@ -149,7 +154,7 @@ QString ModuleData::indexToString(int index, Firmware * fw)
 }
 
 // static
-QString ModuleData::protocolToString(unsigned protocol)
+QString ModuleData::protocolToString(unsigned int protocol)
 {
   static const char * strings[] = {
     "OFF",
@@ -159,8 +164,8 @@ QString ModuleData::protocolToString(unsigned protocol)
     "LP45", "DSM2", "DSMX",
     "PPM16", "PPMsim",
     "FrSky XJT (D16)", "FrSky XJT (D8)", "FrSky XJT (LR12)", "FrSky DJT",
-    "TBS Crossfire",
-    "DIY Multiprotocol Module",
+    "Crossfire",
+    "Multi",
     "FrSky R9M",
     "FrSky R9M Lite",
     "FrSky R9M Lite Pro",
@@ -171,7 +176,7 @@ QString ModuleData::protocolToString(unsigned protocol)
     "FrSky ACCESS R9M Lite Pro",
     "FrSky XJT lite (D16)", "FrSky XJT lite (D8)", "FrSky XJT lite (LR12)",
     "AFHDS3",
-    "ImmersionRC Ghost"
+    "Ghost"
   };
 
   return CHECK_IN_ARRAY(strings, protocol);
@@ -261,4 +266,233 @@ int ModuleData::getMaxChannelCount()
       break;
   }
   return 8;
+}
+
+/*
+      If Companion did not combine the /radio/src/datastructs type and sub-type fields
+      this would be so much cleaner and, modules and protocols generally easier to maintain
+      Another case for refactoring ModuleData as a whole!
+*/
+
+//  static
+int ModuleData::getTypeFromProtocol(unsigned int protocol)
+{
+  //  must be kept in sync with opentxeeprom.h ProtocolsConversionTable
+
+  const QVector<QPair<int, int>>ProtocolTypeTable = {
+
+                          { PULSES_OFF,                 MODULE_TYPE_NONE },
+                          { PULSES_PPM,                 MODULE_TYPE_PPM },
+
+                          { PULSES_PXX_XJT_X16,         MODULE_TYPE_XJT_PXX1 },
+                          { PULSES_PXX_XJT_D8,          MODULE_TYPE_XJT_PXX1 },
+                          { PULSES_PXX_XJT_LR12,        MODULE_TYPE_XJT_PXX1 },
+
+                          { PULSES_ACCESS_ISRM,         MODULE_TYPE_ISRM_PXX2 },
+                          { PULSES_ACCST_ISRM_D16,      MODULE_TYPE_ISRM_PXX2 },
+
+                          { PULSES_LP45,                MODULE_TYPE_DSM2 },
+                          { PULSES_DSM2,                MODULE_TYPE_DSM2 },
+                          { PULSES_DSMX,                MODULE_TYPE_DSM2 },
+
+                          { PULSES_CROSSFIRE,           MODULE_TYPE_CROSSFIRE },
+                          { PULSES_MULTIMODULE,         MODULE_TYPE_MULTIMODULE },
+                          { PULSES_PXX_R9M,             MODULE_TYPE_R9M_PXX1 },
+                          { PULSES_ACCESS_R9M,          MODULE_TYPE_R9M_PXX2 },
+                          { PULSES_PXX_R9M_LITE,        MODULE_TYPE_R9M_LITE_PXX1 },
+                          { PULSES_ACCESS_R9M_LITE,     MODULE_TYPE_R9M_LITE_PXX2 },
+                          { PULSES_GHOST,               MODULE_TYPE_GHOST },
+                          { PULSES_ACCESS_R9M_LITE_PRO, MODULE_TYPE_R9M_LITE_PRO_PXX2 },
+                          { PULSES_SBUS,                MODULE_TYPE_SBUS },
+
+                          { PULSES_XJT_LITE_X16,        MODULE_TYPE_XJT_LITE_PXX2 },
+                          { PULSES_XJT_LITE_D8,         MODULE_TYPE_XJT_LITE_PXX2 },
+                          { PULSES_XJT_LITE_LR12,       MODULE_TYPE_XJT_LITE_PXX2 },
+
+                          { PULSES_AFHDS3,              MODULE_TYPE_FLYSKY }
+                      };
+
+  QPair<int, int>elmt;
+
+  foreach (elmt, ProtocolTypeTable) {
+    if (elmt.first == (int)protocol)
+      return elmt.second;
+  }
+
+  return -1;
+}
+
+//  static
+int ModuleData::getSubTypeFromProtocol(unsigned int protocol)
+{
+  if (protocol == PULSES_ACCST_ISRM_D16 || protocol == PULSES_ACCESS_ISRM)
+    return protocol - PULSES_ACCESS_ISRM;
+  else if (protocol >= PULSES_PXX_XJT_X16 && protocol <= PULSES_PXX_XJT_LR12)
+    return protocol - PULSES_PXX_XJT_X16;
+  else
+    return 0;
+}
+
+//  static
+QString ModuleData::typeToString(int type)
+{
+  static const char * strings[] = {
+    "OFF",
+    "PPM",
+    "XJT",
+    "ISRM",
+    "DSM2",
+    "CRSF",
+    "MULTI",
+    "R9M",
+    "R9M ACCESS",
+    "R9MLite",
+    "R9ML ACCESS",
+    "GHST",
+    "R9MLP ACCESS",
+    "SBUS",
+    "XJT Lite",
+    "FLYSKY"
+  };
+
+  return CHECK_IN_ARRAY(strings, type);
+}
+
+AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.internalmodule");
+
+  auto modules = Boards::getSupportedInternalModules(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : (Board::Type)board);
+  for(auto mod : modules) {
+    mdl->appendToItemList(typeToString(mod), mod);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & settings)
+{
+  if (protocol == PULSES_OFF)
+    return true;
+
+  Firmware *fw = getCurrentFirmware();
+  Board::Type board = fw->getBoard();
+
+  if (moduleidx == 0 && Boards::getCapability(board, Board::HasInternalModuleSupport))
+    return (int)settings.internalModule == getTypeFromProtocol(protocol);
+
+  QString id = fw->getId();
+
+  if (IS_HORUS_OR_TARANIS(board)) {
+    switch (moduleidx) {
+      case 1:
+        switch (protocol) {
+          case PULSES_OFF:
+          case PULSES_PPM:
+            return true;
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+          case PULSES_CROSSFIRE:
+          case PULSES_AFHDS3:
+          case PULSES_GHOST:
+            return true;
+          case PULSES_ACCESS_R9M:
+            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+          case PULSES_PXX_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE_PRO:
+          case PULSES_XJT_LITE_X16:
+          case PULSES_XJT_LITE_D8:
+          case PULSES_XJT_LITE_LR12:
+            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board));
+          default:
+            return false;
+        }
+
+      case -1:
+        switch (protocol) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+
+      default:
+        return false;
+    }
+  }
+  else if (IS_SKY9X(board)) {
+    switch (moduleidx) {
+      case 0:
+        switch (protocol) {
+          case PULSES_PPM:
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      case 1:
+        switch (protocol) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      default:
+        return false;
+    }
+  }
+  else {
+    switch (protocol) {
+      case PULSES_PPM:
+      case PULSES_DSMX:
+      case PULSES_LP45:
+      case PULSES_DSM2:
+        // case PULSES_PXX_DJT:     // Unavailable for now
+      case PULSES_PPM16:
+      case PULSES_PPMSIM:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  return false; //  to avoid compiler warning
+}
+
+//  static
+AbstractStaticItemModel * ModuleData::protocolItemModel(GeneralSettings & settings)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.protocol");
+
+  for (int i = 0; i <= 1; i++) {
+    for (unsigned int j = 0; j < PULSES_PROTOCOL_LAST; j++) {
+      mdl->appendToItemList(protocolToString(j), j, isProtocolAvailable(i, j, settings), 0, i + 1/*flag cannot be 0*/);
+    }
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }

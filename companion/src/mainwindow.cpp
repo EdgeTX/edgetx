@@ -157,7 +157,7 @@ MainWindow::MainWindow():
   if (!str.isEmpty()) {
     int fileType = getStorageType(str);
 
-    if (fileType==STORAGE_TYPE_EEPE || fileType==STORAGE_TYPE_EEPM || fileType==STORAGE_TYPE_BIN || fileType==STORAGE_TYPE_OTX) {
+    if (fileType==STORAGE_TYPE_EEPE || fileType==STORAGE_TYPE_EEPM || fileType==STORAGE_TYPE_BIN || fileType==STORAGE_TYPE_ETX) {
       MdiChild * child = createMdiChild();
       if (child->loadFile(str)) {
         if (!(printing && model >= 0 && (getCurrentFirmware()->getCapability(Models) == 0 || model<getCurrentFirmware()->getCapability(Models)) && !printfilename.isEmpty())) {
@@ -897,24 +897,24 @@ void MainWindow::customizeSplash()
   dialog->deleteLater();
 }
 
-void MainWindow::writeEeprom()
+void MainWindow::writeSettings()
 {
   if (activeMdiChild())
-    activeMdiChild()->writeEeprom();
+    activeMdiChild()->writeSettings();
 }
 
-void MainWindow::readEeprom()
+void MainWindow::readSettings()
 {
   Board::Type board = getCurrentBoard();
   QString tempFile;
-  if (IS_FAMILY_HORUS_OR_T16(board))
-    tempFile = generateProcessUniqueTempFileName("temp.otx");
+  if (Boards::getCapability(board, Board::HasSDCard))
+    tempFile = generateProcessUniqueTempFileName("temp.etx");
   else
     tempFile = generateProcessUniqueTempFileName("temp.bin");
 
-  qDebug() << "MainWindow::readEeprom(): using temp file: " << tempFile;
+  qDebug() << "Reading models and settings into temp file: " << tempFile;
 
-  if (readEepromFromRadio(tempFile)) {
+  if (readSettingsFromRadio(tempFile)) {
     MdiChild * child = createMdiChild();
     child->newFile(false);
     child->loadFile(tempFile, false);
@@ -933,10 +933,10 @@ bool MainWindow::readFirmwareFromRadio(const QString & filename)
   return result;
 }
 
-bool MainWindow::readEepromFromRadio(const QString & filename)
+bool MainWindow::readSettingsFromRadio(const QString & filename)
 {
   ProgressDialog progressDialog(this, tr("Read Models and Settings from Radio"), CompanionIcon("read_eeprom.png"));
-  bool result = ::readEeprom(filename, progressDialog.progress());
+  bool result = ::readSettings(filename, progressDialog.progress());
   if (!result) {
     if (!progressDialog.isEmpty()) {
       progressDialog.exec();
@@ -974,7 +974,7 @@ void MainWindow::readBackup()
   }
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
   if (!fileName.isEmpty()) {
-    if (!readEepromFromRadio(fileName))
+    if (!readSettingsFromRadio(fileName))
       return;
   }
 }
@@ -1045,8 +1045,8 @@ void MainWindow::updateMenus()
   saveAsAct->setEnabled(activeChild);
   closeAct->setEnabled(activeChild);
   compareAct->setEnabled(activeChild);
-  writeEepromAct->setEnabled(activeChild);
-  readEepromAct->setEnabled(true);
+  writeSettingsAct->setEnabled(activeChild);
+  readSettingsAct->setEnabled(true);
   if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
     writeBUToRadioAct->setEnabled(false);
     readBUToFileAct->setEnabled(false);
@@ -1199,8 +1199,8 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(sdsyncAct,          tr("Synchronize SD"),             tr("SD card synchronization"));
 
   trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
-  trAct(writeEepromAct,     tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
-  trAct(readEepromAct,      tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
+  trAct(writeSettingsAct,   tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
+  trAct(readSettingsAct,    tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
   trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
@@ -1256,8 +1256,8 @@ void MainWindow::createActions()
   burnListAct =        addAct("list.png",              SLOT(burnList()));
   readFlashAct =       addAct("read_flash.png",        SLOT(readFlash()));
   writeFlashAct =      addAct("write_flash.png",       SLOT(writeFlash()));
-  writeEepromAct =     addAct("write_eeprom.png",      SLOT(writeEeprom()));
-  readEepromAct =      addAct("read_eeprom.png",       SLOT(readEeprom()));
+  writeSettingsAct =   addAct("write_eeprom.png",      SLOT(writeSettings()));
+  readSettingsAct =    addAct("read_eeprom.png",       SLOT(readSettings()));
   burnConfigAct =      addAct("configure.png",         SLOT(burnConfig()));
 
   writeBUToRadioAct = addAct("write_eeprom_file.png", SLOT(writeBackup()));
@@ -1347,8 +1347,8 @@ void MainWindow::createMenus()
   settingsMenu->addAction(importSettingsAct);
 
   burnMenu = menuBar()->addMenu("");
-  burnMenu->addAction(writeEepromAct);
-  burnMenu->addAction(readEepromAct);
+  burnMenu->addAction(writeSettingsAct);
+  burnMenu->addAction(readSettingsAct);
   burnMenu->addSeparator();
   burnMenu->addAction(writeBUToRadioAct);
   burnMenu->addAction(readBUToFileAct);
@@ -1435,8 +1435,8 @@ void MainWindow::createToolBars()
   burnToolBar = new QToolBar(this);
   addToolBar( Qt::LeftToolBarArea, burnToolBar );
   burnToolBar->setObjectName("Write");
-  burnToolBar->addAction(writeEepromAct);
-  burnToolBar->addAction(readEepromAct);
+  burnToolBar->addAction(writeSettingsAct);
+  burnToolBar->addAction(readSettingsAct);
   burnToolBar->addSeparator();
   burnToolBar->addAction(writeBUToRadioAct);
   burnToolBar->addAction(readBUToFileAct);
@@ -1626,9 +1626,11 @@ int MainWindow::newProfile(bool loadProfile)
   if (i == MAX_PROFILES)  //Failed to find free slot
     return -1;
 
+  Firmware *newfw = Firmware::getDefaultVariant();
   g.profile[i].init();
-  g.profile[i].name(tr("New Radio"));
-  g.profile[i].fwType(Firmware::getDefaultVariant()->getId());
+  g.profile[i].name("New Radio");
+  g.profile[i].fwType(newfw->getId());
+  g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
 
   if (loadProfile) {
     if (loadProfileId(i))

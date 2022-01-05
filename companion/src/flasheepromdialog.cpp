@@ -266,7 +266,7 @@ void FlashEEpromDialog::on_burnButton_clicked()
     backupFilename = generateProcessUniqueTempFileName("eeprom.bin");
   }
   if (!backupFilename.isEmpty()) {
-    if (!readEeprom(backupFilename, progressDialog.progress())) {
+    if (!readSettings(backupFilename, progressDialog.progress())) {
       return;
     }
   }
@@ -297,7 +297,7 @@ void FlashEEpromDialog::on_burnButton_clicked()
   }
 
   // and write...
-  bool result = writeEeprom(filename, progressDialog.progress());
+  bool result = writeSettings(filename, progressDialog.progress());
   if (!result && !progressDialog.isEmpty()) {
     progressDialog.exec();
   }

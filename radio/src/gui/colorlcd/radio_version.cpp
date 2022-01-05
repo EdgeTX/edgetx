@@ -24,13 +24,14 @@
 #include "options.h"
 #include "libopenui.h"
 
-char * getVersion(char * str, PXX2Version version)
+char *getVersion(char *str, PXX2Version version)
 {
-  if (version.major == 0xFF && version.minor == 0x0F && version.revision == 0x0F) {
+  if (version.major == 0xFF && version.minor == 0x0F &&
+      version.revision == 0x0F) {
     return strAppend(str, "---", 4);
-  }
-  else {
-    sprintf(str, "%u.%u.%u", (1 + version.major) % 0xFF, version.minor, version.revision);
+  } else {
+    sprintf(str, "%u.%u.%u", (1 + version.major) % 0xFF, version.minor,
+            version.revision);
     return str;
   }
 }
@@ -233,8 +234,8 @@ void RadioVersionPage::build(FormWindow * window)
   new StaticText(window, grid.getLineSlot(), time_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
-  // EEprom version
-  new StaticText(window, grid.getLineSlot(), eeprom_stamp, 0, COLOR_THEME_PRIMARY1);
+  // Configuration version
+  new StaticText(window, grid.getLineSlot(), cfgv_stamp, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   // Firmware options
@@ -250,16 +251,21 @@ void RadioVersionPage::build(FormWindow * window)
 
 #if defined(AFHDS2)
   new StaticText(window, grid.getLabelSlot(), "RF FW:");
-  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d", (int)((NV14internalModuleFwVersion >> 16) & 0xFF), (int)((NV14internalModuleFwVersion >> 8) & 0xFF), (int)(NV14internalModuleFwVersion & 0xFF));
+  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d",
+          (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
+          (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
+          (int)(NV14internalModuleFwVersion & 0xFF));
   new StaticText(window, grid.getFieldSlot(), reusableBuffer.moduleSetup.msg);
   grid.nextLine();
 #endif
+
 #if defined(PXX2)
   // Module and receivers versions
-  auto moduleVersions = new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
+  auto moduleVersions =
+      new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
   moduleVersions->setPressHandler([=]() -> uint8_t {
-      new versionDialog(window, {50, 30, LCD_W - 100, 0});
-      return 0;
+    new versionDialog(window, {50, 30, LCD_W - 100, 0});
+    return 0;
   });
 #endif
 }

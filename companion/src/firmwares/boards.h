@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#include "datahelpers.h"
 
 #include <QtCore>
 #include <QObject>
@@ -145,7 +146,9 @@ namespace Board {
     NumTrimSwitches,
     HasRTC,
     HasColorLcd,
-    NumFunctionSwitches
+    NumFunctionSwitches,
+    HasSDCard,
+    HasInternalModuleSupport
   };
 
   struct SwitchInfo
@@ -199,18 +202,26 @@ class Boards
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
     static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
+    static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
+    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board);
     static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
     static QString potTypeToString(int value);
     static QString sliderTypeToString(int value);
     static QString switchTypeToString(int value);
+    static QString intModuleTypeToString(int value);
     static AbstractStaticItemModel * potTypeItemModel();
     static AbstractStaticItemModel * sliderTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
-
+    static AbstractStaticItemModel * intModuleTypeItemModel();
+    static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
+    static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
+    static QList<int> getSupportedInternalModules(Board::Type board);
+    static int getDefaultInternalModules(Board::Type board);
+  
   protected:
 
     Board::Type m_boardType;
@@ -282,7 +293,12 @@ inline bool IS_FAMILY_T16(Board::Type board)
 
 inline bool IS_FAMILY_T12(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T12 || board == Board::BOARD_RADIOMASTER_TX12 || board == Board::BOARD_RADIOMASTER_ZORRO || board == Board::BOARD_RADIOMASTER_T8 || board == Board::BOARD_JUMPER_TLITE;
+  return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_RADIOMASTER_TX12 ||
+         board == Board::BOARD_RADIOMASTER_ZORRO ||
+         board == Board::BOARD_RADIOMASTER_T8 ||
+         board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_JUMPER_TPRO;
 }
 
 inline bool IS_FLYSKY_NV14(Board::Type board)
@@ -400,10 +416,17 @@ inline bool IS_TARANIS_X9DP_2019(Board::Type board)
   return (board == Board::BOARD_TARANIS_X9DP_2019);
 }
 
+inline bool IS_ACCESS_RADIO(Board::Type board)
+{
+  return IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board) ||
+         board == Board::BOARD_TARANIS_X9DP_2019 ||
+         board == Board::BOARD_X10_EXPRESS || IS_TARANIS_X7_ACCESS(board);
+}
+
 inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
-  return (IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board) || board == Board::BOARD_TARANIS_X9DP_2019 || board == Board::BOARD_X10_EXPRESS || IS_TARANIS_X7_ACCESS(board) ||
-          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess")));
+  return IS_ACCESS_RADIO(board) ||
+         (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
 }
 
 inline bool HAS_EEPROM_YAML(Board::Type board)

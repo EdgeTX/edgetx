@@ -32,7 +32,7 @@ void yaml_put_bits(uint8_t* dst, uint32_t i, uint32_t bit_ofs, uint32_t bits)
 
     if (bit_ofs) {
 
-        *dst &= MASK_LOWER(bit_ofs);
+        *dst &= ~((MASK_LOWER(bits) << bit_ofs) & 0xFF);
         *(dst++) |= (i << bit_ofs) & 0xFF;
 
         if (bits <= 8 - bit_ofs)

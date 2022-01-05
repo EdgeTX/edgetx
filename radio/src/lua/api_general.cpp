@@ -327,6 +327,8 @@ void luaGetValueAndPush(lua_State* L, int src)
 */
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
 {
+  strncpy(field.name, name, sizeof(field.name) - 1);
+  field.name[sizeof(field.name) - 1] = '\0';
   // TODO better search method (binary lookup)
   for (unsigned int n=0; n<DIM(luaSingleFields); ++n) {
     if (!strcmp(name, luaSingleFields[n].name)) {
@@ -349,20 +351,25 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     unsigned int fieldLen = strlen(fieldName);
     if (!strncmp(name, fieldName, fieldLen)) {
       unsigned int index;
-      if (len == fieldLen+1 && isdigit(name[fieldLen])) {
-        index = name[fieldLen] - '1';
-      }
-      else if (len == fieldLen+2 && isdigit(name[fieldLen]) && isdigit(name[fieldLen+1])) {
-        index = 10 * (name[fieldLen] - '0') + (name[fieldLen+1] - '1');
+      if (len >= fieldLen + 1 && isdigit(name[fieldLen])) {
+        index = name[fieldLen] - '0';
+        if (len >= fieldLen + 2 && isdigit(name[fieldLen + 1])) {
+          index = 10 * index + (name[fieldLen + 1] - '0');
+        }
+        index -= 1;
       }
       else {
         continue;
       }
       if (index < luaMultipleFields[n].count) {
-        if(luaMultipleFields[n].id == MIXSRC_FIRST_TELEM)
-          field.id = luaMultipleFields[n].id + index*3;
-        else
-          field.id = luaMultipleFields[n].id + index;
+        if(luaMultipleFields[n].id == MIXSRC_FIRST_TELEM) {
+          index *= 3;
+          if (name[len - 1] == '-')
+            index += 1;
+          else if (name[len - 1] == '+')
+            index += 2;
+        }
+        field.id = luaMultipleFields[n].id + index;
         if (flags & FIND_FIELD_DESC) {
           snprintf(field.desc, sizeof(field.desc)-1, luaMultipleFields[n].desc, index+1);
           field.desc[sizeof(field.desc)-1] = '\0';
@@ -394,6 +401,73 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
           field.id = MIXSRC_FIRST_TELEM + 3 * i + 2;
           field.desc[0] = '\0';
           return true;
+        }
+      }
+    }
+  }
+
+  return false;  // not found
+}
+
+// Return field data for a given field id
+bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
+{
+  field.id = id;
+  field.name[sizeof(field.name) - 1] = '\0';
+  field.desc[0] = '\0';
+
+  // TODO better search method (binary lookup)
+  for (unsigned int n = 0; n < DIM(luaSingleFields); ++n) {
+    if (id == luaSingleFields[n].id) {
+      strncpy(field.name, luaSingleFields[n].name, sizeof(field.name) - 1);
+      if (flags & FIND_FIELD_DESC) {
+        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      }
+      return true;
+    }
+  }
+
+  // search in multiples
+  for (unsigned int n = 0; n < DIM(luaMultipleFields); ++n) {
+    int index = id - luaMultipleFields[n].id;
+    if (0 <= index && index < luaMultipleFields[n].count) {
+      int index2 = 0;
+      if(luaMultipleFields[n].id == MIXSRC_FIRST_TELEM) {
+        index2 = index % 3;
+        index /= 3;
+      }
+      switch (index2) {
+        case 0:
+          snprintf(field.name, sizeof(field.name), "%s%i", luaMultipleFields[n].name, index + 1);
+          break;
+        case 1:
+          snprintf(field.name, sizeof(field.name), "%s%i-", luaMultipleFields[n].name, index + 1);
+          break;
+        case 2:
+          snprintf(field.name, sizeof(field.name), "%s%i+", luaMultipleFields[n].name, index + 1);
+      }
+      if (flags & FIND_FIELD_DESC)
+        snprintf(field.desc, sizeof(field.desc), luaMultipleFields[n].desc, index + 1);
+      return true;
+    }
+  }
+
+  // search in telemetry
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    if (isTelemetryFieldAvailable(i)) {
+      int index = id - (MIXSRC_FIRST_TELEM + 3 * i);
+      if (0 <= index && index < 3) {
+        const char* sensorName = g_model.telemetrySensors[i].label;
+        switch (index) {
+          case 0:
+            snprintf(field.name, sizeof(field.name), "%s", sensorName);
+            break;
+          case 1:
+            snprintf(field.name, sizeof(field.name), "%s-", sensorName);
+            break;
+          case 2:
+            snprintf(field.name, sizeof(field.name), "%s+", sensorName);
         }
       }
     }
@@ -739,7 +813,7 @@ static int luaCrossfireTelemetryPush(lua_State * L)
 #endif
 
 /*luadoc
-@function getFieldInfo(name)
+@function getFieldInfo(source)
 
 Return detailed information about field (source)
 
@@ -752,7 +826,7 @@ The list of valid sources is available:
 | 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
 | 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
 
-@param name (string) name of the field
+@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
 
 @retval table information about requested field, table elements:
  * `id`   (number) field identifier
@@ -762,17 +836,22 @@ The list of valid sources is available:
 
 @retval nil the requested field was not found
 
-@status current Introduced in 2.0.8, 'unit' field added in 2.2.0
+@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
 */
 static int luaGetFieldInfo(lua_State * L)
 {
-  const char * what = luaL_checkstring(L, 1);
+  bool found;
   LuaField field;
-  bool found = luaFindFieldByName(what, field, FIND_FIELD_DESC);
+  
+  if (lua_isnumber(L, 1))
+    found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
+  else
+    found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);
+  
   if (found) {
     lua_newtable(L);
     lua_pushtableinteger(L, "id", field.id);
-    lua_pushtablestring(L, "name", what);
+    lua_pushtablestring(L, "name", field.name);
     lua_pushtablestring(L, "desc", field.desc);
     if (field.id >= MIXSRC_FIRST_TELEM && field.id <= MIXSRC_LAST_TELEM) {
       TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
@@ -806,8 +885,7 @@ To get a telemetry value simply use it's sensor name. For example:
  * to get the current altitude use the source "Alt"
  * to get the minimum altitude use the source "Alt-", to get the maximum use "Alt+"
 
-@param source  can be an identifier (number) (which was obtained by the getFieldInfo())
-or a name (string) of the source.
+@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
 
 @retval value current source value (number). Zero is returned for:
  * non-existing sources
@@ -1507,7 +1585,7 @@ then the loaded script (or "chunk") is returned as a function. Otherwise, return
   as part of the file name and the .lua/.luac will be appended to that.
 
 @param mode (string) (optional) Controls whether to force loading the text (.lua) or pre-compiled binary (.luac)
-  version of the script. By default OTx will load the newest version and compile a new binary if necessary (overwriting any
+  version of the script. By default ETX will load the newest version and compile a new binary if necessary (overwriting any
   existing .luac version of the same script, and stripping some debug info like line numbers).
   You can use `mode` to control the loading behavior more specifically. Possible values are:
    * `b` only binary.
@@ -1998,37 +2076,172 @@ static int luaGetSwitchValue(lua_State * L)
 }
 
 /*luadoc
-@function getPhysicalSwitches()
+@function switches([first[, last]])
 
-@retval switches: table in the format `{{switchName, switchIndex}, ...}`
+@param first: the first switch index. If `nil` or omitted, the first available switch is used.
 
-Returns a list of physical switch positions.
+@param last: the last switch index. If `nil` or omitted, the last available switch is used.
+
+This is an iterator function over switch positions. `for switchIndex, switchName in switches() do ...` will iterate over all available switch positions.
 
 @status current Introduced in 2.6
 */
 
-static int luaGetPhysicalSwitches(lua_State * L)
+static int luaNextSwitch(lua_State * L)
 {
-  int i = 1;
-  lua_newtable(L);
-  for (swsrc_t idx = 1 - SWSRC_FIRST_TRIM; idx < SWSRC_FIRST_TRIM; idx++) {
-    if (idx != SWSRC_NONE && isSwitchAvailableInLogicalSwitches(idx)) {
+  swsrc_t last = luaL_checkinteger(L, 1);
+  swsrc_t idx = luaL_checkinteger(L, 2);
+  
+  while (++idx <= last) {
+    if (isSwitchAvailableInLogicalSwitches(idx)) {
       char* name = getSwitchPositionName(idx);
-      lua_pushinteger(L, i++);
-      lua_createtable (L, 2, 0);
-
-      lua_pushinteger(L, 1);
-      lua_pushstring(L, name);
-      lua_settable(L, -3);
-
-      lua_pushinteger(L, 2);
       lua_pushinteger(L, idx);
-      lua_settable(L, -3);
-      
-      lua_settable(L, -3);
+      lua_pushstring(L, name);
+      return 2;
     }
   }
+  
+  lua_pushnil(L);
   return 1;
+}
+
+static int luaSwitches(lua_State * L)
+{
+  swsrc_t first;
+  swsrc_t last;
+  
+  if (lua_isnumber(L, 1)) {
+    first = luaL_checkinteger(L, 1) - 1;
+    if (first < SWSRC_FIRST - 1)
+      first = SWSRC_FIRST - 1;
+  } else
+    first = SWSRC_FIRST - 1;
+
+  if (lua_isnumber(L, 2)) {
+    last = luaL_checkinteger(L, 2);
+    if (last > SWSRC_LAST)
+      last = SWSRC_LAST;
+  } else
+    last = SWSRC_LAST;
+
+  lua_pushcfunction(L, luaNextSwitch);
+  lua_pushinteger(L, last);
+  lua_pushinteger(L, first);
+  return 3;
+}
+
+/*luadoc
+@function getSourceIndex(sourceName)
+
+@param sourceName: string naming a value source as it is shown on radio menus where you can select it. Notice that many names have special characters in them.
+
+@retval sourceIndex: integer. The source index, which can be used as input for `getSourceName(sourceIndex)`, `getValue(sourceIndex)`, and `getFieldInfo(sourceIndex)`.
+
+@notice the source names shown on the screen are not the same as the names used by `getFieldInfo` and `getValue`. But the indices are the same, so `getValue(index)` will work with the indices obtained here.
+This function is rather time consuming, and should not be used repeatedly in a script, if it can be avoided.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetSourceIndex(lua_State * L)
+{
+  const char * name = luaL_checkstring(L, 1);
+  bool found = false;
+  mixsrc_t idx;
+  
+  for (idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
+    if (isSourceAvailable(idx)) {
+      char* s = getSourceString(idx);
+      if (!strncasecmp(s, name, 31)) {
+        found = true;
+        break;
+      }
+    }
+  }
+  
+  if (found)
+    lua_pushinteger(L, idx);
+  else
+    lua_pushnil(L);
+
+  return 1;
+}
+
+/*luadoc
+@function getSourceName(sourceIndex)
+
+@param sourceIndex: integer identifying a value source as returned by `getSourceIndex(sourceName)` or the `id` field in the table returned by `getFieldInfo`.
+
+@retval sourceName: string naming the value source as it is shown on radio menus where a source can be chosen.
+
+@notice the source names shown on the screen are not the same as the names used by `getFieldInfo` and `getValue`. But the indices are the same, so `getValue(index)` will work with the indices used here.
+
+@status current Introduced in 2.6
+*/
+
+static int luaGetSourceName(lua_State * L)
+{
+  mixsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(idx)) {
+    char* name = getSourceString(idx);
+    lua_pushstring(L, name);
+  }
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+/*luadoc
+@function sources([first[, last]])
+
+@param first: the first source index. If `nil` or omitted, the first available source is used.
+
+@param last: the last soure index. If `nil` or omitted, the last available source is used.
+
+This is an iterator function over value sources. `for sourceIndex, sourceName in sources() do ...` will iterate over all available value sources.
+
+@status current Introduced in 2.6
+*/
+
+static int luaNextSource(lua_State * L)
+{
+  mixsrc_t last = luaL_checkinteger(L, 1);
+  mixsrc_t idx = luaL_checkinteger(L, 2);
+  
+  while (++idx <= last) {
+    if (isSourceAvailable(idx)) {
+      char* name = getSourceString(idx);
+      lua_pushinteger(L, idx);
+      lua_pushstring(L, name);
+      return 2;
+    }
+  }
+
+  lua_pushnil(L);
+  return 1;
+}
+
+static int luaSources(lua_State * L)
+{
+  mixsrc_t first;
+  mixsrc_t last;
+
+  if (lua_isnumber(L, 1))
+    first = luaL_checkinteger(L, 1) - 1;
+  else
+    first = MIXSRC_NONE - 1;
+
+  if (lua_isnumber(L, 2)) {
+    last = luaL_checkinteger(L, 2);
+    if (last > INPUTSRC_LAST)
+      last = INPUTSRC_LAST;
+  } else
+    last = INPUTSRC_LAST;
+
+  lua_pushcfunction(L, luaNextSource);
+  lua_pushinteger(L, last);
+  lua_pushinteger(L, first);
+  return 3;
 }
 
 const luaL_Reg opentxLib[] = {
@@ -2095,7 +2308,10 @@ const luaL_Reg opentxLib[] = {
   { "getSwitchIndex", luaGetSwitchIndex },
   { "getSwitchName", luaGetSwitchName },
   { "getSwitchValue", luaGetSwitchValue },
-  { "getPhysicalSwitches", luaGetPhysicalSwitches },
+  { "switches", luaSwitches },
+  { "getSourceIndex", luaGetSourceIndex },
+  { "getSourceName", luaGetSourceName },
+  { "sources", luaSources },
   { nullptr, nullptr }  /* sentinel */
 };
 

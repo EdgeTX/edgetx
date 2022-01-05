@@ -28,6 +28,8 @@
 // Use definitions from v220 conversions as long as nothing changes
 
 namespace yaml_conv_220 {
+  bool w_board(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
+
   bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
@@ -135,10 +137,16 @@ static inline void check_yaml_funcs()
 #endif
 }
 
-#define GVAR_SMALL 128
+static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  return yaml_conv_220::w_board(user, data, bitoffs, wf, opaque);
+}
 
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
 {
+  int gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
+  
   if ((val_len == 4)
       && (val[0] == '-')
       && (val[1] == 'G')
@@ -146,8 +154,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[3] >= '1')
       && (val[3] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, GVAR_SMALL - (val[3] - '0'));
-    return GVAR_SMALL - (val[3] - '0');  // -GVx => 128 - x
+    TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
+    return gvar - (val[3] - '1');  // -GVx => 128 - x
   }
 
   if ((val_len == 3)
@@ -156,8 +164,8 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[2] >= '1')
       && (val[2] <= '9')) {
 
-    TRACE("%.*s -> %i\n", val_len, val, -GVAR_SMALL + (val[2] - '1'));
-    return -GVAR_SMALL + (val[2] - '1');  //  GVx => -128 + (x-1)
+    TRACE("%.*s -> %i\n", val_len, val, -gvar + (val[2] - '1'));
+    return -gvar + (val[2] - '1');  //  GVx => -128 + (x-1)
   }
 
   return (uint32_t)yaml_str2int(val, val_len);
@@ -455,6 +463,11 @@ static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
   uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
   if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
 
+  // detect invalid values
+  if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
+    return -1;
+  }
+  
   return (uint32_t)yaml_str2int(val, val_len);
 }
 
@@ -1646,8 +1659,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     int subtype = yaml_str2uint(val, val_len);
 
-    // convert to OTX format and write to vars
-    convertMultiProtocolToOtx(&type, &subtype);
+    // convert to ETX format and write to vars
+    convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
       md->setMultiProtocol(type - 1);
       md->subType = subtype;

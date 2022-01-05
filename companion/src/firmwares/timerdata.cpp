@@ -35,9 +35,12 @@ void TimerData::clear()
   swtch = RawSwitch(SWITCH_TYPE_NONE);
 }
 
-bool TimerData::isEmpty()
+bool TimerData::isEmpty() const
 {
-  return (swtch == RawSwitch(SWITCH_TYPE_NONE, 0) && mode == TIMERMODE_OFF && name[0] == '\0' && minuteBeep == 0 && countdownBeep == COUNTDOWNBEEP_SILENT && val == 0 && persistent == 0 /*&& pvalue == 0*/);
+  return (swtch == RawSwitch(SWITCH_TYPE_NONE, 0) && mode == TIMERMODE_OFF &&
+          name[0] == '\0' && minuteBeep == 0 &&
+          countdownBeep == COUNTDOWNBEEP_SILENT && val == 0 &&
+          persistent == 0 /*&& pvalue == 0*/);
 }
 
 bool TimerData::isModeOff()
