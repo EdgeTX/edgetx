@@ -141,8 +141,49 @@ private:
   bool firstTime = true;
 };
 
-enum VfsType {VFS_TYPE_UNKNOWN, VFS_TYPE_DIR, VFS_TYPE_FILE};
-enum class VfsFileType {UNKNOWN, ROOT, FAT, LFS};
+enum class VfsType { UNKOWN, DIR, FILE };
+enum class VfsFileType { UNKNOWN, ROOT, FAT, LFS };
+
+enum class VfsError {
+    OK          = 0,    // No error
+    IO          = -5,   // Error during device operation
+    CORRUPT     = -84,  // Corrupted
+    NOENT       = -2,   // No directory entry
+    EXIST       = -17,  // Entry already exists
+    NOTDIR      = -20,  // Entry is not a dir
+    ISDIR       = -21,  // Entry is a dir
+    NOTEMPTY    = -39,  // Dir is not empty
+    BADF        = -9,   // Bad file number
+    FBIG        = -27,  // File too large
+    INVAL       = -22,  // Invalid parameter
+    NOSPC       = -28,  // No space left on device
+    NOMEM       = -12,  // No more memory available
+    NOATTR      = -61,  // No data/attr available
+    NAMETOOLONG = -36,  // File name too long
+};
+#if 0
+	FR_OK = 0,				/* (0) Succeeded */
+	FR_DISK_ERR,			/* (1) A hard error occurred in the low level disk I/O layer */
+	FR_INT_ERR,				/* (2) Assertion failed */
+	FR_NOT_READY,			/* (3) The physical drive cannot work */
+	FR_NO_FILE,				/* (4) Could not find the file */
+	FR_NO_PATH,				/* (5) Could not find the path */
+	FR_INVALID_NAME,		/* (6) The path name format is invalid */
+	FR_DENIED,				/* (7) Access denied due to prohibited access or directory full */
+	FR_EXIST,				/* (8) Access denied due to prohibited access */
+	FR_INVALID_OBJECT,		/* (9) The file/directory object is invalid */
+	FR_WRITE_PROTECTED,		/* (10) The physical drive is write protected */
+	FR_INVALID_DRIVE,		/* (11) The logical drive number is invalid */
+	FR_NOT_ENABLED,			/* (12) The volume has no work area */
+	FR_NO_FILESYSTEM,		/* (13) There is no valid FAT volume */
+	FR_MKFS_ABORTED,		/* (14) The f_mkfs() aborted due to any problem */
+	FR_TIMEOUT,				/* (15) Could not get a grant to access the volume within defined period */
+	FR_LOCKED,				/* (16) The operation is rejected according to the file sharing policy */
+	FR_NOT_ENOUGH_CORE,		/* (17) LFN working buffer could not be allocated */
+	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > FF_FS_LOCK */
+	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
+
+#endif
 
 struct VfsFileInfo
 {
@@ -166,23 +207,23 @@ public:
     switch(type)
     {
     case VfsFileType::ROOT:
-      return VFS_TYPE_DIR;
+      return VfsType::DIR;
 
     case VfsFileType::FAT:
       if (!name.empty())
-        return VFS_TYPE_DIR;
+        return VfsType::DIR;
       if(fatInfo.fattrib & AM_DIR)
-        return VFS_TYPE_DIR;
+        return VfsType::DIR;
       else
-        return VFS_TYPE_FILE;
+        return VfsType::FILE;
     case VfsFileType::LFS:
 
       if(lfsInfo.type == LFS_TYPE_DIR)
-        return VFS_TYPE_DIR;
+        return VfsType::DIR;
       else
-        return VFS_TYPE_FILE;
+        return VfsType::FILE;
     }
-    return VFS_TYPE_UNKNOWN;
+    return VfsType::UNKOWN;
   };
 
 private:
