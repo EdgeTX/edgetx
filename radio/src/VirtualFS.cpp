@@ -77,6 +77,58 @@ uint16_t flashSpiGetPageSize();
 uint16_t flashSpiGetSectorSize();
 uint16_t flashSpiGetSectorCount();
 
+
+VfsError convertResult(lfs_error err)
+{
+  switch(err)
+  {
+  case LFS_ERR_OK:          return VfsError::OK;
+  case LFS_ERR_IO:          return VfsError::IO;
+  case LFS_ERR_CORRUPT:     return VfsError::CORRUPT;
+  case LFS_ERR_NOENT:       return VfsError::NOENT;
+  case LFS_ERR_EXIST:       return VfsError::EXIST;
+  case LFS_ERR_NOTDIR:      return VfsError::NOTDIR;
+  case LFS_ERR_ISDIR:       return VfsError::ISDIR;
+  case LFS_ERR_NOTEMPTY:    return VfsError::NOTEMPTY;
+  case LFS_ERR_BADF:        return VfsError::BADF;
+  case LFS_ERR_FBIG:        return VfsError::FBIG;
+  case LFS_ERR_INVAL:       return VfsError::INVAL;
+  case LFS_ERR_NOSPC:       return VfsError::NOSPC;
+  case LFS_ERR_NOMEM:       return VfsError::NOMEM;
+  case LFS_ERR_NOATTR:      return VfsError::NOATTR;
+  case LFS_ERR_NAMETOOLONG: return VfsError::NAMETOOLONG;
+  }
+  return VfsError::INVAL;
+}
+
+VfsError converResult(FRESULT err)
+{
+  switch(err)
+  {
+  case FR_OK:                  return VfsError::OK;
+  case FR_DISK_ERR:            return VfsError::IO;
+  case FR_INT_ERR:             return VfsError::INVAL;
+  case FR_NOT_READY:           return VfsError::INVAL;
+  case FR_NO_FILE:             return VfsError::INVAL;
+  case FR_NO_PATH:             return VfsError::INVAL;
+  case FR_INVALID_NAME:        return VfsError::INVAL;
+  case FR_DENIED:              return VfsError::INVAL;
+  case FR_EXIST:               return VfsError::INVAL;
+  case FR_INVALID_OBJECT:      return VfsError::INVAL;
+  case FR_WRITE_PROTECTED:     return VfsError::INVAL;
+  case FR_INVALID_DRIVE:       return VfsError::INVAL;
+  case FR_NOT_ENABLED:         return VfsError::INVAL;
+  case FR_NO_FILESYSTEM:       return VfsError::INVAL;
+  case FR_MKFS_ABORTED:        return VfsError::INVAL;
+  case FR_TIMEOUT:             return VfsError::INVAL;
+  case FR_LOCKED:              return VfsError::INVAL;
+  case FR_NOT_ENOUGH_CORE:     return VfsError::INVAL;
+  case FR_TOO_MANY_OPEN_FILES: return VfsError::INVAL;
+  case FR_INVALID_PARAMETER:   return VfsError::INVAL;
+  }
+  return VfsError::INVAL;
+}
+
 VirtualFS::VirtualFS()
 {
   // configuration of the filesystem is provided by this struct

@@ -216,7 +216,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       if (name[0] == '.' && name[1] != '.')
         continue; // Ignore hidden files under UNIX, but not ..
 
-      if (fno.getType() == VFS_TYPE_DIR) {
+      if (fno.getType() == VfsType::DIR) {
         directories.push_back(name);
       } else {
         files.push_back(name);
