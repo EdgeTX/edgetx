@@ -101,7 +101,7 @@ VfsError convertResult(lfs_error err)
   return VfsError::INVAL;
 }
 
-VfsError converResult(FRESULT err)
+VfsError convertResult(FRESULT err)
 {
   switch(err)
   {
@@ -110,7 +110,7 @@ VfsError converResult(FRESULT err)
   case FR_INT_ERR:             return VfsError::INVAL;
   case FR_NOT_READY:           return VfsError::INVAL;
   case FR_NO_FILE:             return VfsError::INVAL;
-  case FR_NO_PATH:             return VfsError::INVAL;
+  case FR_NO_PATH:             return VfsError::NOENT;
   case FR_INVALID_NAME:        return VfsError::INVAL;
   case FR_DENIED:              return VfsError::INVAL;
   case FR_EXIST:               return VfsError::INVAL;
@@ -262,7 +262,6 @@ void VirtualFS::normalizePath(std::string& path)
   if(path[0] != '/')
     path = curWorkDir + PATH_SEPARATOR + path;
 
-
   while (1)
   {
       size_t newpos = path.find_first_of(PATH_SEPARATOR, oldpos);
@@ -294,7 +293,7 @@ void VirtualFS::normalizePath(std::string& path)
     path = "/";
 }
 
-int VirtualFS::unlink(const std::string& path)
+VfsError VirtualFS::unlink(const std::string& path)
 {
   std::string p = path;
   normalizePath(p);
@@ -303,37 +302,37 @@ int VirtualFS::unlink(const std::string& path)
   switch(type)
   {
   case VfsDir::DIR_ROOT:
-    return -1;
+    return VfsError::INVAL;
   case VfsDir::DIR_FAT:
-    return f_unlink(p.c_str());
+    return convertResult(f_unlink(p.c_str()));
     break;
   case VfsDir::DIR_LFS:
-    return lfs_remove(&lfs, p.c_str());
+    return convertResult((lfs_error)lfs_remove(&lfs, p.c_str()));
   }
 
-  return -1;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::changeDirectory(const std::string& path)
+VfsError VirtualFS::changeDirectory(const std::string& path)
 {
   if(path.length() == 0)
-    return -1;
+    return VfsError::INVAL;
 
   std::string newWorkDir = path;
   normalizePath(newWorkDir);
   curWorkDir = newWorkDir;
 
-  return 0;
+  return VfsError::OK;
 }
 
-int VirtualFS::openDirectory(VfsDir& dir, const char * path)
+VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
 {
   dir.clear();
   if(path == nullptr)
-    return -1;
+    return VfsError::INVAL;
 
   if(path[0] == 0)
-    return -1;
+    return VfsError::INVAL;
 
   std::string dirPath(path);
 
@@ -344,17 +343,17 @@ int VirtualFS::openDirectory(VfsDir& dir, const char * path)
   switch(type)
   {
   case VfsDir::DIR_ROOT:
-    return 0;
+    return VfsError::OK;
   case VfsDir::DIR_LFS:
-    return lfs_dir_open(&lfs, &dir.lfsDir, dirPath.c_str());
+    return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfsDir, dirPath.c_str()));
   case VfsDir::DIR_FAT:
-    return f_opendir(&dir.fatDir, dirPath.c_str());
+    return convertResult(f_opendir(&dir.fatDir, dirPath.c_str()));
   }
 
-  return -1;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
+VfsError VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
 {
   info.clear();
   switch(dir.type)
@@ -368,43 +367,48 @@ int VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
     else
       info.name = "";
     dir.readIdx++;
-    return 0;
+    return VfsError::OK;
   case VfsDir::DIR_FAT:
     info.type = VfsFileType::FAT;
-    if(dir.readIdx == 0)
+    if(dir.readIdx == 0) // emulate ".." entry
     {
       dir.readIdx++;
       info.name = "..";
-      return 0;
+      return VfsError::OK;
     }
-    return sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime);
+    return convertResult(sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime));
   case VfsDir::DIR_LFS:
-    info.type = VfsFileType::LFS;
-    return lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
+    {
+      info.type = VfsFileType::LFS;
+      int res = lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
+      if(res >= 0)
+        return VfsError::OK;
+      return convertResult((lfs_error)res);
+    }
   }
-  return -1;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::closeDirectory(VfsDir& dir)
+VfsError VirtualFS::closeDirectory(VfsDir& dir)
 {
-  int ret = -1;
+  VfsError ret = VfsError::INVAL;
   switch(dir.type)
   {
   case VfsDir::DIR_ROOT:
-    ret = 0;
+    ret = VfsError::OK;
     break;
   case VfsDir::DIR_FAT:
-    ret = f_closedir(&dir.fatDir);
+    ret = convertResult(f_closedir(&dir.fatDir));
     break;
   case VfsDir::DIR_LFS:
-    ret = lfs_dir_close(&lfs, &dir.lfsDir);
+    ret = convertResult((lfs_error)lfs_dir_close(&lfs, &dir.lfsDir));
     break;
   }
   dir.clear();
   return ret;
 }
 
-int VirtualFS::rename(const char* oldPath, const char* newPath)
+VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
 {
   std::string oldP = oldPath;
   std::string newP = newPath;
@@ -420,64 +424,82 @@ int VirtualFS::rename(const char* oldPath, const char* newPath)
     switch(oldType)
     {
     case VfsDir::DIR_ROOT:
-      return -1;
+      return VfsError::INVAL;
     case VfsDir::DIR_FAT:
-      f_rename(oldP.c_str(), newP.c_str());
-      break;
+      return convertResult(f_rename(oldP.c_str(), newP.c_str()));
     case VfsDir::DIR_LFS:
-      return lfs_rename(&lfs, oldP.c_str(), newP.c_str());
-      break;
+      return convertResult((lfs_error)lfs_rename(&lfs, oldP.c_str(), newP.c_str()));
     }
   } else {
-    copyFile(oldPath, newPath);
-    unlink(oldPath);
+    VfsError err = copyFile(oldPath, newPath);
+    if(err == VfsError::OK)
+      return unlink(oldPath);
+    return err;
   }
-  return 0;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::copyFile(const std::string& source, const std::string& destination)
+VfsError VirtualFS::copyFile(const std::string& source, const std::string& destination)
 {
   VfsFile src;
   VfsFile dest;
 
-  if(openFile(src, source, LFS_O_RDONLY) != LFS_ERR_OK)
-    return -1;
+  VfsError err = openFile(src, source, LFS_O_RDONLY);
+  if(err != VfsError::OK)
+    return err;
 
-  if(openFile(dest, destination, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR) != LFS_ERR_OK)
-    return -1;
+  err = openFile(dest, destination, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR);
+  if(err != VfsError::OK)
+  {
+    closeFile(src);
+    return err;
+  }
+
+  err = VfsError::OK;
 
   char buf[256] = {0};
   size_t readBytes = 0;
   size_t written = 0;
 
-  read(src, buf, sizeof(buf), readBytes);
-  for(; readBytes != 0; read(src, buf, sizeof(buf), readBytes))
-    write(dest, buf, readBytes, written);
+  err = read(src, buf, sizeof(buf), readBytes);
+  if(err != VfsError::OK)
+    goto cleanup;
 
+  while(readBytes)
+  {
+    err = write(dest, buf, readBytes, written);
+    if(err != VfsError::OK)
+      goto cleanup;
+    err = read(src, buf, sizeof(buf), readBytes);
+    if(err != VfsError::OK)
+      goto cleanup;
+  }
+
+cleanup:
   closeFile(src);
   closeFile(dest);
-  return 0;
+  return err;
 }
 
-int VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
+VfsError VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
            const std::string& destDir, const std::string& destFile)
 {
   return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
 }
 
 
-int VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
+VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
 {
   file.clear();
   std::string normPath(path);
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
-  int ret = -1;
+  VfsError ret = VfsError::INVAL;
   switch(dirType)
   {
   case VfsDir::DIR_ROOT:
-    ret = -1;
+    ret = VfsError::INVAL;
     break;
   case VfsDir::DIR_FAT:
   {
@@ -485,7 +507,7 @@ int VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
     if( flags == (LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR ))
       fatFlags = FA_CREATE_ALWAYS | FA_WRITE | FA_READ;
     file.type = VfsFileType::FAT;
-    ret = f_open(&file.fat, normPath.c_str(), fatFlags);
+    ret = convertResult(f_open(&file.fat, normPath.c_str(), fatFlags));
     break;
   }
   case VfsDir::DIR_LFS:
@@ -495,7 +517,7 @@ int VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
       lfsFlags = LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR;
 
     file.type = VfsFileType::LFS;
-    ret = lfs_file_open(&lfs, &file.lfs, normPath.c_str(), lfsFlags);
+    ret = convertResult((lfs_error)lfs_file_open(&lfs, &file.lfs, normPath.c_str(), lfsFlags));
     break;
   }
   }
@@ -504,16 +526,16 @@ int VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
 
 }
 
-int VirtualFS::closeFile(VfsFile& file)
+VfsError VirtualFS::closeFile(VfsFile& file)
 {
-  int ret = -1;
+  VfsError ret = VfsError::INVAL;
   switch(file.type)
   {
   case VfsFileType::FAT:
-    ret = f_close(&file.fat);
+    ret = convertResult(f_close(&file.fat));
     break;
   case VfsFileType::LFS:
-    ret = lfs_file_close(&lfs, &file.lfs);
+    ret = convertResult((lfs_error)lfs_file_close(&lfs, &file.lfs));
     break;
   }
 
@@ -529,75 +551,85 @@ int VirtualFS::fileSize(VfsFile& file)
     return f_size(&file.fat);
     break;
   case VfsFileType::LFS:
-    return lfs_file_size(&lfs, &file.lfs);
+    {
+      int res = lfs_file_size(&lfs, &file.lfs);
+      if(res < 0)
+        return (int)convertResult((lfs_error)res);
+      return res;
+    }
   }
 
   return -1;
 }
 
-int VirtualFS::read(VfsFile& file, void* buf, size_t size, size_t& readSize)
+VfsError VirtualFS::read(VfsFile& file, void* buf, size_t size, size_t& readSize)
 {
-  int ret = -1;
-
   switch(file.type)
   {
   case VfsFileType::FAT:
-    ret = f_read(&file.fat, buf, size, &readSize);
-    break;
+    return convertResult(f_read(&file.fat, buf, size, &readSize));
   case VfsFileType::LFS:
-    ret = lfs_file_read(&lfs, &file.lfs, buf, size);
-    if(ret >= 0)
     {
-      readSize = ret;
-      ret = 0;
-    } else {
-      readSize = 0;
+      int ret = lfs_file_read(&lfs, &file.lfs, buf, size);
+      if(ret >= 0)
+      {
+        readSize = ret;
+        return VfsError::OK;
+      } else {
+        readSize = 0;
+        return convertResult((lfs_error)ret);
+      }
+      break;
     }
-    break;
   }
 
-  return ret;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::write(VfsFile& file, void* buf, size_t size, size_t& written)
+VfsError VirtualFS::write(VfsFile& file, void* buf, size_t size, size_t& written)
 {
-  int ret = -1;
+  VfsError err = VfsError::INVAL;
 
   switch(file.type)
   {
   case VfsFileType::FAT:
-    ret = f_write(&file.fat, buf, size, &written);
-    break;
+    return convertResult(f_write(&file.fat, buf, size, &written));
   case VfsFileType::LFS:
-    ret = lfs_file_write(&lfs, &file.lfs, buf, size);
-    if(ret >= 0)
     {
-      written = ret;
-      ret = 0;
-    } else {
-      written = 0;
+      int ret = lfs_file_write(&lfs, &file.lfs, buf, size);
+      if(ret >= 0)
+      {
+        written = ret;
+        return VfsError::OK;
+      } else {
+        written = 0;
+        return convertResult((lfs_error)ret);
+      }
+      break;
     }
-    break;
   }
 
-  return ret;
+  return VfsError::INVAL;
 }
 
-int VirtualFS::lseek(VfsFile& file, size_t offset)
+VfsError VirtualFS::lseek(VfsFile& file, size_t offset)
 {
-  int ret = -1;
-
   switch(file.type)
   {
   case VfsFileType::FAT:
-    ret = f_lseek(&file.fat, offset);
+    return convertResult(f_lseek(&file.fat, offset));
     break;
   case VfsFileType::LFS:
-    ret = lfs_file_seek(&lfs, &file.lfs, offset, LFS_SEEK_SET);
-    break;
+    {
+      int ret = lfs_file_seek(&lfs, &file.lfs, offset, LFS_SEEK_SET);
+      if(ret < 0)
+        return convertResult((lfs_error)ret);
+      else
+        return VfsError::OK;
+    }
   }
 
-  return ret;
+  return VfsError::INVAL;
 }
 
 int VirtualFS::fileEof(VfsFile& file)
@@ -648,17 +680,40 @@ const char* VirtualFS::checkAndCreateDirectory(const char * path)
 
 bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
 {
-  lfs_file_t file;
-  int res = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
-  if(res != LFS_ERR_OK)
+  std::string p = path;
+  VfsDir::DirType dirType = getDirTypeAndPath(p);
+
+  VfsError ret = VfsError::INVAL;
+  switch(dirType)
   {
-    if(res == LFS_ERR_ISDIR)
-      return(!exclDir);
-    return false;
-  } else {
-    lfs_file_close(&lfs, &file);
+  case VfsDir::DIR_ROOT:
+    ret = VfsError::INVAL;
+    break;
+  case VfsDir::DIR_FAT:
+    {
+      if (exclDir) {
+        FILINFO fno;
+        return (f_stat(path, &fno) == FR_OK && !(fno.fattrib & AM_DIR));
+      }
+      return f_stat(path, nullptr) == FR_OK;
+    }
+  case VfsDir::DIR_LFS:
+    {
+      lfs_file_t file;
+      int res = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
+      if(res != LFS_ERR_OK)
+      {
+        if(res == LFS_ERR_ISDIR)
+          return(!exclDir);
+        return false;
+      } else {
+        lfs_file_close(&lfs, &file);
+        return true;
+      }
+    }
   }
-  return true;
+
+  return false;
 }
 
 /**
