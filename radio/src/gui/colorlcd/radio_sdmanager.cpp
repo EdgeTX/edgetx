@@ -401,7 +401,7 @@ void RadioSdManagerPage::build(FormWindow * const window)
               menu->addLine(STR_PASTE, [this, window]() {
                 if (fileExists(clipboard.data.sd.filename)) {
                   snprintf(pathBuffer, sizeof(pathBuffer),
-                           "%s%s", FILE_COPY_PREFIX, clipboard.data.sd.filename);
+                           "%s%.*s", FILE_COPY_PREFIX, (int)(sizeof(pathBuffer) - sizeof(FILE_COPY_PREFIX)), clipboard.data.sd.filename);
                   sdCopyFile(clipboard.data.sd.filename,
                              clipboard.data.sd.directory, pathBuffer, currentDir.c_str());
                 }
