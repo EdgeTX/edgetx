@@ -23,12 +23,18 @@
 #include "yaml_bits.h"
 #include "yaml_parser.h"
 
-#define MASK_LOWER(bits) ((1 << (bits)) - 1)
+#include <limits.h>     /* CHAR_BIT */
+
+#define BIT_MASK(__TYPE__, __ONE_COUNT__) \
+    ((__TYPE__) (-((__ONE_COUNT__) != 0))) \
+    & (((__TYPE__) -1) >> ((sizeof(__TYPE__) * CHAR_BIT) - (__ONE_COUNT__)))
+
+#define MASK_LOWER(bits) BIT_MASK(uint32_t, bits)
 #define MASK_UPPER(bits) (0xFF << bits)
 
 void yaml_put_bits(uint8_t* dst, uint32_t i, uint32_t bit_ofs, uint32_t bits)
 {
-    i &= ((1UL << bits) - 1);
+    i &= MASK_LOWER(bits);
 
     if (bit_ofs) {
 
