@@ -215,8 +215,6 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_RX         DMA1_Stream5
-#define TELEMETRY_DMA_Channel_RX        DMA_Channel_4
 #define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
