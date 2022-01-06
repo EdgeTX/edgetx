@@ -19,37 +19,101 @@
  * GNU General Public License for more details.
  */
 
+#include "opentx.h"
 #include "dataconstants.h"
 #include "tabsgroup.h"
 #include "sdcard.h"
 
 #include "strhelpers.h"
 
+// todo: move to strhelpers.h
+template<size_t L>
+struct Stringbuffer {
+    explicit Stringbuffer(char (&b)[L]) : buffer{b}, end{buffer} {
+        clear();
+    }
+    constexpr operator const char*() const {
+        return &buffer[0];
+    }
+    char* raw() {
+        end = &buffer[L - 1];
+        return &buffer[0];
+    }
+    void revalidate() {
+        for(end = &buffer[0]; end < &buffer[L]; ++end) {
+            if (*end == '\0') {
+                return;
+            }
+        }
+        *--end = '\0';
+    }
+    Stringbuffer& clear() {
+        buffer[0] = '\0';
+        end = &buffer[0];
+        return *this;
+    }
+    Stringbuffer& add(const char* const s, size_t maxChars = L - 1) {
+        if (s) {
+            for(size_t i = 0; (i < maxChars) && (end < &buffer[L - 1]); ++i, ++end) {
+                if ((*end = s[i]) == '\0') {
+                    return *this;
+                }
+            }
+            *end = '\0';
+        }
+        return *this;
+    }
+    Stringbuffer& add(const std::string& s) {
+        return add(s.c_str());
+    }
+    Stringbuffer& add(const char* const a, const char* const e) {
+        if ((a) && (e) && (e > a)) {
+            const size_t length = (e - a) - 1;
+            add(a, length);            
+        }
+        return *this;
+    }
+    constexpr size_t size() const {
+        return end - &buffer[0];
+    }
+    constexpr size_t capacity() const {
+        return L - 1;
+    }
+    constexpr size_t free() const {
+        return capacity() - size();
+    }
+private:
+    char (&buffer)[L];
+    char* end{}; // assert (end == '\0') && (end < &buffer[L])
+};
+
+using path_t = Stringbuffer<sizeof(reusableBuffer.sdManager.pathConstructBuffer)>;
+using name_t = Stringbuffer<sizeof(reusableBuffer.sdManager.nameBuffer)>;
+
 enum MultiModuleType : short;
 
 class RadioSdManagerPage : public PageTab
 {
- public:
-  RadioSdManagerPage();
-
-  void build(FormWindow* window) override;
-
- protected:
-  void BootloaderUpdate(const char* name);
-  void FrSkyFirmwareUpdate(const char* name, ModuleIndex module);
-  void MultiFirmwareUpdate(const char* name, ModuleIndex module,
-                           MultiModuleType type);
-  void rebuild(FormWindow* window);
-
-private:
-  void updateCurrentDir();
-    bool fileExists(const char* filename);
-
-    template<size_t BL>
-    const char* getFullPath(char (&buffer)[BL], const char* const filename) {
-      snprintf(buffer, BL, "%s%s%s", currentDir.c_str(), PATH_SEPARATOR, filename);
-      return buffer;
-    }
+public:
+    RadioSdManagerPage();
     
-  std::string currentDir;
+    void build(FormWindow* window) override;
+    
+protected:
+    void bootloaderUpdate(const char* name);
+    void frSkyFirmwareUpdate(const char* name, ModuleIndex module);
+    void multiFirmwareUpdate(const char* name, ModuleIndex module,
+                             MultiModuleType type);
+    void rebuild(FormWindow* window);
+    
+private:
+    void updateCurrentDir();
+    bool fileExists(const char* filename);
+     
+    inline const char* setPathBufferToFullPath(const char* filename) {
+        return pathBuffer.clear().add(currentDir).add(PATH_SEPARATOR).add(filename);        
+    }
+    path_t pathBuffer{reusableBuffer.sdManager.pathConstructBuffer}; 
+    // todo: make use of reusableBuffer
+    std::string currentDir;
 };

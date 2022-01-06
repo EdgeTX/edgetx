@@ -32,11 +32,12 @@
 
 #include <algorithm>
 
+// todo: nested class
 class FileNameEditWindow : public Page
 {
   public:
-  FileNameEditWindow(std::string iName) :
-      Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
+  explicit FileNameEditWindow(const char* const iName) :
+      Page{ICON_RADIO_SD_MANAGER}, name{iName}
   {
     buildHeader(&header);
     buildBody(&body);
@@ -45,8 +46,9 @@ class FileNameEditWindow : public Page
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FileNameEditWindow"; }
 #endif
-  protected:
-  const std::string name;
+
+    private:
+  const char* const name;
 
   void buildHeader(Window *window)
   {
@@ -55,33 +57,29 @@ class FileNameEditWindow : public Page
 
   void buildBody(Window *window)
   {
-    auto& originalName = reusableBuffer.sdManager.originalName;
-    
     GridLayout grid(window);
     grid.spacer(8);
     uint8_t nameLength{0};
     uint8_t extLength{0};
-    const char* const ext = getFileExtension(name.c_str(), 0, LEN_FILE_EXTENSION_MAX, &nameLength, &extLength);
+    const char* const ext = getFileExtension(name, 0, LEN_FILE_EXTENSION_MAX, &nameLength, &extLength);
     if (ext) {
-        strncpy(originalName, name.c_str(), nameLength - extLength);
+        originalName.clear().add(name, ext);
     }
     else {
-        strncpy(originalName, name.c_str(), sizeof(originalName));        
+        originalName.clear().add(name);
     }
 
-    auto newFileName = new TextEdit(
-        window, grid.getSlot(), originalName,
-        sizeof(originalName) - 1- extLength, LcdFlags(0)); 
-    newFileName->setChangeHandler([this, ext, extLength, &originalName]() mutable {
-        const uint8_t newLength = strnlen(originalName, sizeof(originalName) - 1);
-        if ((newLength + extLength) <= (sizeof(originalName) - 1)) {
-            if (ext) {
-                strcpy((&originalName[0] + newLength), ext);
-            }
-            f_rename((const TCHAR *)name.c_str(), (const TCHAR *)&originalName[0]);
+    auto newFileName = new TextEdit(window, grid.getSlot(), originalName.raw(), originalName.capacity() - 1 - extLength, LcdFlags(0)); 
+    newFileName->setChangeHandler([this, ext, extLength]() mutable {
+        originalName.revalidate();
+        if (originalName.free() >= extLength) {
+            originalName.add(ext);
+            f_rename((const TCHAR *)name, (const TCHAR *)originalName);
         }
     });
   }
+private:
+  name_t originalName{reusableBuffer.sdManager.nameBuffer};  
 };
 
 RadioSdManagerPage::RadioSdManagerPage() :
@@ -184,9 +182,7 @@ bool RadioSdManagerPage::fileExists(const char* const filename) {
 }
 
 void RadioSdManagerPage::build(FormWindow * const window)
-{
-  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
-    
+{    
   updateCurrentDir();
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
@@ -239,13 +235,12 @@ void RadioSdManagerPage::build(FormWindow * const window)
       auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [this, name, window]() -> uint8_t {
           const char* const namePtr = name.c_str(); // name is captured by-value: it lives as long as the button
           auto const menu = new Menu(window);
-//          f_chdir(currentDir.c_str()); // already in that dir
           const char* const ext = getFileExtension(name.c_str());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [this, namePtr]() {
                   audioQueue.stopAll();
-                  audioQueue.playFile(getFullPath(pathBuffer, namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
+                  audioQueue.playFile(setPathBufferToFullPath(namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
               });
             }
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
@@ -254,12 +249,12 @@ void RadioSdManagerPage::build(FormWindow * const window)
               if (information.readMultiFirmwareInformation(namePtr) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
                 menu->addLine(STR_FLASH_INTERNAL_MULTI, [this, namePtr]() {
-                  MultiFirmwareUpdate(namePtr, INTERNAL_MODULE,
+                  multiFirmwareUpdate(namePtr, INTERNAL_MODULE,
                                       MULTI_TYPE_MULTIMODULE);
                 });
 #endif
                 menu->addLine(STR_FLASH_EXTERNAL_MULTI, [this, namePtr]() {
-                  MultiFirmwareUpdate(namePtr, EXTERNAL_MODULE,
+                  multiFirmwareUpdate(namePtr, EXTERNAL_MODULE,
                                       MULTI_TYPE_MULTIMODULE);
                 });
               }
@@ -267,7 +262,7 @@ void RadioSdManagerPage::build(FormWindow * const window)
 #endif
             else if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
               menu->addLine(STR_FLASH_EXTERNAL_ELRS, [this, namePtr]() {
-                MultiFirmwareUpdate(namePtr, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
+                multiFirmwareUpdate(namePtr, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
               });
             }
             // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
@@ -284,45 +279,45 @@ void RadioSdManagerPage::build(FormWindow * const window)
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
               if (isBootloader(namePtr)) {
                 menu->addLine(STR_FLASH_BOOTLOADER, [this, namePtr]() {
-                  BootloaderUpdate(namePtr);
+                  bootloaderUpdate(namePtr);
                 });
               }
             } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
               if (HAS_SPORT_UPDATE_CONNECTOR()) {
                 menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [this, namePtr]() {
-                  FrSkyFirmwareUpdate(namePtr, SPORT_MODULE);
+                  frSkyFirmwareUpdate(namePtr, SPORT_MODULE);
                 });
               }
               menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
-                FrSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
+                frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
               });
               menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                FrSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
               });
             } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
               FrSkyFirmwareInformation information;
-              if (readFrSkyFirmwareInformation(getFullPath(pathBuffer, namePtr),
+              if (readFrSkyFirmwareInformation(setPathBufferToFullPath(namePtr),
                                                information) == nullptr) {
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
                 menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
-                  FrSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
+                  frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
                 });
 #endif
                 if (information.productFamily ==
                     FIRMWARE_FAMILY_EXTERNAL_MODULE) {
                   menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                    FrSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                    frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
                   });
                 }
                 if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
                     information.productFamily == FIRMWARE_FAMILY_SENSOR) {
                   if (HAS_SPORT_UPDATE_CONNECTOR()) {
                     menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [this, namePtr]() {
-                      FrSkyFirmwareUpdate(namePtr, SPORT_MODULE);
+                      frSkyFirmwareUpdate(namePtr, SPORT_MODULE);
                     });
                   } else {
                     menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                      FrSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                      frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
                     });
                   }
                 }
@@ -394,15 +389,13 @@ void RadioSdManagerPage::build(FormWindow * const window)
             menu->addLine(STR_COPY_FILE, [namePtr]() {
               clipboard.type = CLIPBOARD_TYPE_SD_FILE;
               f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-              strncpy(clipboard.data.sd.filename, namePtr,
-                      CLIPBOARD_PATH_LEN - 1);
+              strncpy(clipboard.data.sd.filename, namePtr, CLIPBOARD_PATH_LEN - 1); // TODO
             });
             if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
               menu->addLine(STR_PASTE, [this, window]() {
                 if (fileExists(clipboard.data.sd.filename)) {
-                  snprintf(pathBuffer, sizeof(pathBuffer),
-                           "%s%.*s", FILE_COPY_PREFIX, (int)(sizeof(pathBuffer) - sizeof(FILE_COPY_PREFIX)), clipboard.data.sd.filename);
-                  sdCopyFile(clipboard.data.sd.filename,
+                    pathBuffer.clear().add(FILE_COPY_PREFIX).add(clipboard.data.sd.filename);
+                    sdCopyFile(clipboard.data.sd.filename,
                              clipboard.data.sd.directory, pathBuffer, currentDir.c_str());
                 }
                 else {
@@ -415,13 +408,13 @@ void RadioSdManagerPage::build(FormWindow * const window)
               });
             }
             menu->addLine(STR_RENAME_FILE, [this, namePtr, window]() {
-              auto few = new FileNameEditWindow(std::move(namePtr));
+              auto const few = new FileNameEditWindow(namePtr);
               few->setCloseHandler([this, window]() {
                 rebuild(window);
               });
             });
             menu->addLine(STR_DELETE_FILE, [this, namePtr, window]() {
-                f_unlink((const TCHAR*)getFullPath(pathBuffer, namePtr));
+                f_unlink((const TCHAR*)setPathBufferToFullPath(namePtr));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
@@ -432,7 +425,7 @@ void RadioSdManagerPage::build(FormWindow * const window)
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       button->setFocusHandler([this, name, preview](bool active) {
         if (active) {
-          preview->setFile(getFullPath(pathBuffer, name.c_str()));
+          preview->setFile(setPathBufferToFullPath(name.c_str()));
         }
       });
       grid.nextLine();
@@ -443,34 +436,31 @@ void RadioSdManagerPage::build(FormWindow * const window)
 //  preview->setHeight(max(window->height(), grid.getWindowHeight()));
 }
 
-void RadioSdManagerPage::BootloaderUpdate(const char* const name)
+void RadioSdManagerPage::bootloaderUpdate(const char* const name)
 {
-  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
   auto dialog =
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
-  dialog->flash(getFullPath(pathBuffer, name));
+  dialog->flash(setPathBufferToFullPath(name));
 }
 
-void RadioSdManagerPage::FrSkyFirmwareUpdate(const char* const name,
+void RadioSdManagerPage::frSkyFirmwareUpdate(const char* const name,
                                              ModuleIndex module)
 {
- auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
   auto dialog =
       new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(getFullPath(pathBuffer, name));
+  dialog->flash(setPathBufferToFullPath(name));
 }
 
-void RadioSdManagerPage::MultiFirmwareUpdate(const char* const name,
+void RadioSdManagerPage::multiFirmwareUpdate(const char* const name,
                                              ModuleIndex module,
                                              MultiModuleType type)
 {
-  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
   auto dialog =
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(getFullPath(pathBuffer, name));
+  dialog->flash(setPathBufferToFullPath(name));
 }
 
 #if 0
