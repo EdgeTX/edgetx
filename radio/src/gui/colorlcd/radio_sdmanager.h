@@ -31,9 +31,16 @@ class RadioSdManagerPage : public PageTab
   void build(FormWindow* window) override;
 
  protected:
-  void BootloaderUpdate(const std::string name);
-  void FrSkyFirmwareUpdate(const std::string name, ModuleIndex module);
-  void MultiFirmwareUpdate(const std::string name, ModuleIndex module,
+  void BootloaderUpdate(const char* name);
+  void FrSkyFirmwareUpdate(const char* name, ModuleIndex module);
+  void MultiFirmwareUpdate(const char* name, ModuleIndex module,
                            MultiModuleType type);
   void rebuild(FormWindow* window);
+
+private:
+  void updateCurrentDir();
+  
+  bool fileExists(const char* filename);
+  
+  std::string currentDir;
 };

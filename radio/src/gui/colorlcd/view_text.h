@@ -33,7 +33,7 @@ constexpr uint16_t TEXT_FILE_MAXSIZE = 20480;
 class ViewTextWindow : public Page
 {
  public:
-  ViewTextWindow(const std::string iPath, const std::string iName, unsigned int icon = ICON_RADIO_SD_MANAGER) :
+  ViewTextWindow(std::string iPath, std::string iName, unsigned int icon = ICON_RADIO_SD_MANAGER) :
       Page(icon),
       path(std::move(iPath)),
       name(std::move(iName)),

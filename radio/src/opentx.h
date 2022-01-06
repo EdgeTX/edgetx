@@ -1052,6 +1052,7 @@ union ReusableBuffer
     uint32_t available;
     uint16_t offset;
     uint16_t count;
+    char pathConstructBuffer[FF_MAX_LFN + 1];
     char originalName[SD_SCREEN_FILE_LENGTH+1];
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
@@ -1144,6 +1145,8 @@ union ReusableBuffer
   uint8_t MSC_BOT_Data[MSC_MEDIA_PACKET];
 #endif
 };
+
+//std::integral_constant<size_t, sizeof(ReusableBuffer)>::_;
 
 extern ReusableBuffer reusableBuffer;
 
