@@ -223,8 +223,6 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_RX         DMA1_Stream5
-#define TELEMETRY_DMA_Channel_RX        DMA_Channel_4
 #define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
@@ -350,7 +348,6 @@
 #define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
 #define AUDIO_OUTPUT_GPIO             GPIOA
 #define AUDIO_OUTPUT_GPIO_PIN         GPIO_Pin_4  // PA.04
-#define AUDIO_GPIO_AF                 GPIO_AF_DAC1
 #define AUDIO_GPIO_PinSource          GPIO_PinSource4
 #define AUDIO_DMA_Stream              DMA1_Stream5
 #define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
@@ -509,12 +506,6 @@
 
 #define EXTMODULE_TIMER_DMA_SIZE           (DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0)
 //TIMER
-#define EXTMODULE_DMA_CHANNEL              DMA_Channel_7
-#define EXTMODULE_DMA_STREAM               DMA2_Stream1
-#define EXTMODULE_DMA_IRQn                 DMA2_Stream1_IRQn
-#define EXTMODULE_DMA_IRQHandler           DMA2_Stream1_IRQHandler
-#define EXTMODULE_DMA_FLAG_TC              DMA_IT_TCIF1
-
 #define EXTMODULE_TIMER_DMA_CHANNEL        DMA_Channel_7
 #define EXTMODULE_TIMER_DMA_STREAM         DMA2_Stream1
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
@@ -525,7 +516,6 @@
 #define EXTMODULE_TX_INVERT_GPIO_PIN       GPIO_Pin_3  // PE.03
 #define EXTMODULE_RX_INVERT_GPIO           GPIOI
 #define EXTMODULE_RX_INVERT_GPIO_PIN       GPIO_Pin_15 // PI.15
-
 
 #define EXTMODULE_TX_NORMAL()              EXTMODULE_TX_INVERT_GPIO->BSRRH = EXTMODULE_TX_INVERT_GPIO_PIN
 #define EXTMODULE_TX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_TX_INVERT_GPIO_PIN
