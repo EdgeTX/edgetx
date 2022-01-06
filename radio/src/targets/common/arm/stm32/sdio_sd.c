@@ -348,9 +348,11 @@ SD_Error SD_Init(void)
     errorstatus = SD_SelectDeselect((uint32_t) (SDCardInfo.RCA << 16));
   }
 
+#if !defined(PCBPL18)
   if (errorstatus == SD_OK) {
     errorstatus = SD_EnableWideBusOperation(SDIO_BusWide_4b);
   }
+#endif
 
   return errorstatus;
 }

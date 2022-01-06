@@ -72,7 +72,6 @@ void delay_self(int count)
                                AUX_SERIAL_RCC_AHB1Periph |\
                                TELEMETRY_RCC_AHB1Periph |\
                                TRAINER_RCC_AHB1Periph |\
-                               AUDIO_RCC_AHB1Periph |\
                                HAPTIC_RCC_AHB1Periph |\
                                INTMODULE_RCC_AHB1Periph |\
                                FLYSKY_HALL_RCC_AHB1Periph |\
@@ -86,6 +85,7 @@ void delay_self(int count)
                               )
 
 #define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
+                               AUDIO_RCC_APB1Periph |\
                                TRAINER_RCC_APB1Periph |\
                                INTMODULE_RCC_APB1Periph |\
                                FLYSKY_HALL_RCC_APB1Periph |\
