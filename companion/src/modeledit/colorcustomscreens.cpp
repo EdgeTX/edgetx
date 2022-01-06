@@ -22,8 +22,16 @@
 #include "customisation_data.h"
 #include "appdata.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <QImage>
 #include <QFile>
+#include <QString>
+#include <QStringList>
+
+#include <string>
+#include <sstream>
+
 
 //  used to screen out raw data that cannot be displayed in a user meaningful format at this time TODO remove
 #define SHOW_RAW_INFO  (1==0)
@@ -33,26 +41,80 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
 {
   RadioTheme::ThemeData & td = generalSettings.themeData;
 
+  QString sdPath = QString(g.profile[g.id()].sdPath()).trimmed();
+
   grid = new QGridLayout(this);
 
   int col = 0;
   int row = 0;
 
+  //  set default theme as back up
+  const std::string defaultTheme = "EdgeTX Default";
+  std::string themeName = defaultTheme;
+  std::string themeAuthor = "EdgeTX Team";
+  std::string themeInfo = "Default EdgeTX Color Scheme";
+  std::string themeFolder = "/THEMES/EdgeTX";
+
+  QString selTheme = QString();
+
+  QFile f(sdPath % "/THEMES/selectedtheme.txt");
+
+  if (f.exists()) {
+    if (f.open(QFile::ReadOnly | QFile::Text)) {
+      QTextStream in(&f);
+      if (in.status() == QTextStream::Ok) {
+        selTheme = in.readLine();
+        if (!(in.status() == QTextStream::Ok)) {
+          selTheme = QString();
+        }
+      }
+      f.close();
+    }
+  }
+
+  if (!selTheme.isEmpty()) {
+    QFile fst(sdPath % selTheme);
+
+    if (fst.exists()) {
+      QStringList strl = selTheme.split("/");
+      if (strl.size() >= 3)
+        themeFolder = "/THEMES/" + strl.at(2).toStdString();
+
+      YAML::Node node = YAML::LoadFile(QString(sdPath % selTheme).toStdString());
+      if (node["summary"]) {
+        const auto &summary = node["summary"];
+        if (summary.IsMap()) {
+          themeName = summary["name"].as<std::string>();
+          themeAuthor = summary["author"].as<std::string>();
+          themeInfo = summary["info"].as<std::string>();
+        }
+      }
+    }
+  }
+
   addGridBlankRow(grid, row);
-  addGridLabel(grid, tr("Theme"), row, col++);
-  addGridLabel(grid, td.themeName, row++, col++);
 
   col = 0;
-  addGridBlankRow(grid, row);
-  addGridLabel(grid, tr("Background"), row, col++);
+  addGridLabel(grid, tr("Theme"), row, col++);
+  addGridLabel(grid, themeName.c_str(), row++, col++);
 
-  QLabel * img = new QLabel(this);
-  img->setText(tr("background image"));
-  QString path = QString(g.profile[g.id()].sdPath()).trimmed();
-  if (!path.isEmpty()) {
-    path.append(QString("/THEMES/%1/background.png").arg(td.themeName));
-    QFile f(path);
-    if (f.exists()) {
+  col = 0;
+  addGridLabel(grid, tr("Author"), row, col++);
+  addGridLabel(grid, themeAuthor.c_str(), row++, col++);
+
+  col = 0;
+  addGridLabel(grid, tr("Information"), row, col++);
+  addGridLabel(grid, themeInfo.c_str(), row++, col++);
+
+  if (themeName != defaultTheme) {
+    col = 0;
+    addGridBlankRow(grid, row);
+    addGridLabel(grid, "", row, col++);
+
+    QLabel * img = new QLabel(this);
+    QString path = sdPath + themeFolder.c_str() + "/logo.png";
+    QFile fimg(path);
+    if (fimg.exists()) {
       QImage image(path);
       if (!image.isNull()) {
         img->setText("");
@@ -60,11 +122,12 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
         img->setPixmap(QPixmap::fromImage(image.scaled(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2)));
       }
     }
+
+    grid->addWidget(img, row++, col++);
   }
 
-  grid->addWidget(img, row++, col++);
-
   col = 0;
+  addGridBlankRow(grid, row);
   addGridLabel(grid, tr("Top Bar"), row, col++);
 
   int widgetdetailsrow = row;
