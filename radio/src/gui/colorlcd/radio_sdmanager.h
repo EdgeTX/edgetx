@@ -47,7 +47,7 @@ private:
 
     template<size_t BL>
     const char* getFullPath(char (&buffer)[BL], const char* const filename) {
-        snprintf(buffer, BL, "%s%s%s", currentDir.c_str(), PATH_SEPARATOR, filename);
+      snprintf(buffer, BL, "%s%s%s", currentDir.c_str(), PATH_SEPARATOR, filename);
       return buffer;
     }
     

@@ -56,43 +56,30 @@ class FileNameEditWindow : public Page
   void buildBody(Window *window)
   {
     auto& originalName = reusableBuffer.sdManager.originalName;
-      
+    
     GridLayout grid(window);
     grid.spacer(8);
-    uint8_t nameLength;
-    uint8_t extLength;
-    char extension[LEN_FILE_EXTENSION_MAX + 1];
-    memset(extension, 0, sizeof(extension));
-    const char *ext =
-        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
-
-    if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
-    if (ext) strncpy(extension, ext, extLength);
-
-    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
-    nameLength -= extLength;
-    if (nameLength > maxNameLength) nameLength = maxNameLength;
-
-    memset(originalName, 0, SD_SCREEN_FILE_LENGTH);
-
-    strncpy(originalName, name.c_str(), nameLength);
-    originalName[nameLength] = '\0';
+    uint8_t nameLength{0};
+    uint8_t extLength{0};
+    const char* const ext = getFileExtension(name.c_str(), 0, LEN_FILE_EXTENSION_MAX, &nameLength, &extLength);
+    if (ext) {
+        strncpy(originalName, name.c_str(), nameLength - extLength);
+    }
+    else {
+        strncpy(originalName, name.c_str(), sizeof(originalName));        
+    }
 
     auto newFileName = new TextEdit(
         window, grid.getSlot(), originalName,
-        SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
-    newFileName->setChangeHandler([this, extLength, extension]() {
-      char *newValue = originalName;
-      size_t totalSize = strlen(newValue);
-      char changedName[SD_SCREEN_FILE_LENGTH + 1];
-      memset(changedName, 0, sizeof(changedName));
-      strncpy(changedName, newValue, totalSize);
-      changedName[totalSize] = '\0';
-      if (extLength) {
-        strncpy(changedName + totalSize, extension, extLength);
-      }
-      changedName[totalSize + extLength] = '\0';
-      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+        sizeof(originalName) - 1- extLength, LcdFlags(0)); 
+    newFileName->setChangeHandler([this, ext, extLength, &originalName]() mutable {
+        const uint8_t newLength = strnlen(originalName, sizeof(originalName) - 1);
+        if ((newLength + extLength) <= (sizeof(originalName) - 1)) {
+            if (ext) {
+                strcpy((&originalName[0] + newLength), ext);
+            }
+            f_rename((const TCHAR *)name.c_str(), (const TCHAR *)&originalName[0]);
+        }
     });
   };
 };
