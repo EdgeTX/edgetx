@@ -55,6 +55,8 @@ class FileNameEditWindow : public Page
 
   void buildBody(Window *window)
   {
+    auto& originalName = reusableBuffer.sdManager.originalName;
+      
     GridLayout grid(window);
     grid.spacer(8);
     uint8_t nameLength;
@@ -71,16 +73,16 @@ class FileNameEditWindow : public Page
     nameLength -= extLength;
     if (nameLength > maxNameLength) nameLength = maxNameLength;
 
-    memset(reusableBuffer.sdManager.originalName, 0, SD_SCREEN_FILE_LENGTH);
+    memset(originalName, 0, SD_SCREEN_FILE_LENGTH);
 
-    strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
-    reusableBuffer.sdManager.originalName[nameLength] = '\0';
+    strncpy(originalName, name.c_str(), nameLength);
+    originalName[nameLength] = '\0';
 
     auto newFileName = new TextEdit(
-        window, grid.getSlot(), reusableBuffer.sdManager.originalName,
+        window, grid.getSlot(), originalName,
         SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
     newFileName->setChangeHandler([this, extLength, extension]() {
-      char *newValue = reusableBuffer.sdManager.originalName;
+      char *newValue = originalName;
       size_t totalSize = strlen(newValue);
       char changedName[SD_SCREEN_FILE_LENGTH + 1];
       memset(changedName, 0, sizeof(changedName));
@@ -110,15 +112,6 @@ void RadioSdManagerPage::rebuild(FormWindow * window)
   window->clear();
   build(window);
   window->setScrollPositionY(scrollPosition);
-}
-
-static char * getFullPath(const char* const filename)
-{
-  auto& full_path  = reusableBuffer.sdManager.pathConstructBuffer;                  
-  f_getcwd((TCHAR*)full_path, sizeof(full_path) - 1);
-  strcat(full_path, PATH_SEPARATOR);
-  strcat(full_path, filename);
-  return full_path;
 }
 
 template <class T>
@@ -205,6 +198,8 @@ bool RadioSdManagerPage::fileExists(const char* const filename) {
 
 void RadioSdManagerPage::build(FormWindow * window)
 {
+  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
+    
   updateCurrentDir();
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
@@ -214,7 +209,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   std::list<std::string> files;
   std::list<std::string> directories;
   
-  auto preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
+  auto const preview = new FilePreview(window, {LCD_W / 2 + 6, 0, LCD_W / 2 - 16, window->height()});
 
   FRESULT res = f_opendir(&dir, "."); // Open the directory
   if (res == FR_OK) {
@@ -263,7 +258,7 @@ void RadioSdManagerPage::build(FormWindow * window)
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [this, namePtr]() {
                   audioQueue.stopAll();
-                  audioQueue.playFile(getFullPath(namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
+                  audioQueue.playFile(getFullPath(pathBuffer, namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
               });
             }
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
@@ -319,11 +314,11 @@ void RadioSdManagerPage::build(FormWindow * window)
               });
             } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
               FrSkyFirmwareInformation information;
-              if (readFrSkyFirmwareInformation(getFullPath(namePtr),
+              if (readFrSkyFirmwareInformation(getFullPath(pathBuffer, namePtr),
                                                information) == nullptr) {
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
                 menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
-                  FrSkyFirmwareUpdate(name, INTERNAL_MODULE);
+                  FrSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
                 });
 #endif
                 if (information.productFamily ==
@@ -418,10 +413,10 @@ void RadioSdManagerPage::build(FormWindow * window)
             if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
               menu->addLine(STR_PASTE, [this, window]() {
                 if (fileExists(clipboard.data.sd.filename)) {
-                  snprintf(reusableBuffer.sdManager.pathConstructBuffer, sizeof(reusableBuffer.sdManager.pathConstructBuffer),
+                  snprintf(pathBuffer, sizeof(pathBuffer),
                            "%s%s", FILE_COPY_PREFIX, clipboard.data.sd.filename);
                   sdCopyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory, reusableBuffer.sdManager.pathConstructBuffer, currentDir.c_str());
+                             clipboard.data.sd.directory, pathBuffer, currentDir.c_str());
                 }
                 else {
                     sdCopyFile(clipboard.data.sd.filename,
@@ -439,7 +434,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               });
             });
             menu->addLine(STR_DELETE_FILE, [this, namePtr, window]() {
-                f_unlink((const TCHAR*)getFullPath(namePtr));
+                f_unlink((const TCHAR*)getFullPath(pathBuffer, namePtr));
                 // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
@@ -450,7 +445,7 @@ void RadioSdManagerPage::build(FormWindow * window)
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
       button->setFocusHandler([this, name, preview](bool active) {
         if (active) {
-          preview->setFile(getFullPath(name.c_str()));
+          preview->setFile(getFullPath(pathBuffer, name.c_str()));
         }
       });
       grid.nextLine();
@@ -463,29 +458,32 @@ void RadioSdManagerPage::build(FormWindow * window)
 
 void RadioSdManagerPage::BootloaderUpdate(const char* const name)
 {
+  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
   auto dialog =
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
-  dialog->flash(getFullPath(name));
+  dialog->flash(getFullPath(pathBuffer, name));
 }
 
 void RadioSdManagerPage::FrSkyFirmwareUpdate(const char* const name,
                                              ModuleIndex module)
 {
+ auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
   auto dialog =
       new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(getFullPath(name));
+  dialog->flash(getFullPath(pathBuffer, name));
 }
 
 void RadioSdManagerPage::MultiFirmwareUpdate(const char* const name,
                                              ModuleIndex module,
                                              MultiModuleType type)
 {
+  auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
   MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
   auto dialog =
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(getFullPath(name));
+  dialog->flash(getFullPath(pathBuffer, name));
 }
 
 #if 0

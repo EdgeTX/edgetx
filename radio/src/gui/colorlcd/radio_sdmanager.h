@@ -21,6 +21,10 @@
 
 #include "dataconstants.h"
 #include "tabsgroup.h"
+#include "sdcard.h"
+
+#include "strhelpers.h"
+
 enum MultiModuleType : short;
 
 class RadioSdManagerPage : public PageTab
@@ -39,8 +43,13 @@ class RadioSdManagerPage : public PageTab
 
 private:
   void updateCurrentDir();
-  
-  bool fileExists(const char* filename);
-  
+    bool fileExists(const char* filename);
+
+    template<size_t BL>
+    const char* getFullPath(char (&buffer)[BL], const char* const filename) {
+        snprintf(buffer, BL, "%s%s%s", currentDir.c_str(), PATH_SEPARATOR, filename);
+      return buffer;
+    }
+    
   std::string currentDir;
 };
