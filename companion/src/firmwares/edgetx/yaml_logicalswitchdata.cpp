@@ -84,7 +84,13 @@ Node convert<LogicalSwitchData>::encode(const LogicalSwitchData& rhs)
     def += ",";
     def += std::to_string(lswTimerValue(rhs.val2));
     def += ",";
-    def += std::to_string(lswTimerValue(rhs.val3));
+    if (rhs.val3 < 0) {
+      def += '<';
+    } else if (rhs.val3 == 0) {
+      def += '-';
+    } else {
+      def += std::to_string(lswTimerValue(rhs.val2 + rhs.val3));
+    }
   } break;
 
   case LS_FAMILY_VCOMP: {
@@ -147,7 +153,8 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
       rhs.val3 = 0;
     } else {
       def >> v3;
-      rhs.val3 = timerValue2lsw(v3);
+      v3 = timerValue2lsw(v3);
+      rhs.val3 = v3 - rhs.val2;
     }
   } break;
 
