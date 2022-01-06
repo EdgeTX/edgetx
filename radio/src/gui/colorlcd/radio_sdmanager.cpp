@@ -40,7 +40,7 @@ class FileNameEditWindow : public Page
   {
     buildHeader(&header);
     buildBody(&body);
-  };
+  }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FileNameEditWindow"; }
@@ -81,7 +81,7 @@ class FileNameEditWindow : public Page
             f_rename((const TCHAR *)name.c_str(), (const TCHAR *)&originalName[0]);
         }
     });
-  };
+  }
 };
 
 RadioSdManagerPage::RadioSdManagerPage() :
@@ -183,7 +183,7 @@ bool RadioSdManagerPage::fileExists(const char* const filename) {
     return (f_stat(filename, &finfo) == FR_OK);
 }
 
-void RadioSdManagerPage::build(FormWindow * window)
+void RadioSdManagerPage::build(FormWindow * const window)
 {
   auto& pathBuffer = reusableBuffer.sdManager.pathConstructBuffer;
     
@@ -304,7 +304,7 @@ void RadioSdManagerPage::build(FormWindow * window)
               if (readFrSkyFirmwareInformation(getFullPath(pathBuffer, namePtr),
                                                information) == nullptr) {
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-                menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
+                menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
                   FrSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
                 });
 #endif
