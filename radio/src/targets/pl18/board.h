@@ -310,6 +310,8 @@ enum Analogs {
   NUM_ANALOGS
 };
 
+//TODO! #define HAS_TX_RTC_VOLTAGE
+
 #define SLIDER_FIRST  0
 #define SLIDER_LAST  -1
 
