@@ -328,9 +328,6 @@ void ViewMainDecoration::createFlightMode()
   };
 
   std::function<std::string()> getFM = []() -> std::string {
-//    return g_model.flightModeData[mixerCurrentFlightMode].name;
-//      return std::string(g_model.flightModeData[mixerCurrentFlightMode].name, 
-//                         strnlen(g_model.flightModeData[mixerCurrentFlightMode].name, LEN_FLIGHT_MODE_NAME));
       return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
 };
 
