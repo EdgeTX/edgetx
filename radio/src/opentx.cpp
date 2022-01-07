@@ -1748,8 +1748,14 @@ void opentxInit()
   menuHandlers[1] = menuModelSelect;
 #endif
 
-#if defined(EEPROM)
+#if defined(STARTUP_ANIMATION)
+  lcdRefreshWait();
+  lcdClear();
+  lcdRefresh();
+  lcdRefreshWait();
+
   bool radioSettingsValid = storageReadRadioSettings(false);
+  (void)radioSettingsValid;
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
