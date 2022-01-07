@@ -26,7 +26,7 @@
 
 #include "strhelpers.h"
 
-// todo: move to strhelpers.h
+// todo: later move to strhelpers.h (#1317 may use that also)
 template<size_t L>
 struct Stringbuffer {
     explicit Stringbuffer(char (&b)[L]) : buffer{b}, end{buffer} {
@@ -37,6 +37,12 @@ struct Stringbuffer {
     }
     char* raw() {
         end = &buffer[L - 1];
+        return &buffer[0];
+    }
+    template<typename F>
+    char* fillRaw(F f) {
+        f(&buffer[0]);
+        revalidate();
         return &buffer[0];
     }
     void revalidate() {
@@ -72,6 +78,10 @@ struct Stringbuffer {
             add(a, length);            
         }
         return *this;
+    }
+    template<size_t Size>
+    Stringbuffer& add(const char (&s)[Size]) {
+        return add(s, Size);
     }
     constexpr size_t size() const {
         return end - &buffer[0];
@@ -115,7 +125,5 @@ private:
         return pathBuffer.clear().add(currentDir).add(PATH_SEPARATOR).add(filename);        
     }
     path_t pathBuffer{reusableBuffer.sdManager.pathConstructBuffer};
-    
-    // todo: make use of reusableBuffer
-    std::string currentDir;
+    path_t currentDir{reusableBuffer.sdManager.currentDirBuffer};
 };

@@ -85,9 +85,10 @@ private:
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
-  setOnSetVisibleHandler([]() {
+  setOnSetVisibleHandler([this]() {
     TRACE("f_chdir(ROOT_PATH)");
     f_chdir(ROOT_PATH);
+    currentDir.clear().add(ROOT_PATH);
   });
 }
 
@@ -170,10 +171,9 @@ std::string makeFilledString(size_t length, Func f, const char c = '\0') {
 }
 
 void RadioSdManagerPage::updateCurrentDir(){
-    std::string currentPath = makeFilledString(FF_MAX_LFN, [](char* const s){
-        f_getcwd(s, FF_MAX_LFN);
-    });
-    currentDir = currentPath;   
+    currentDir.fillRaw([this](char* s){
+        f_getcwd(s, currentDir.capacity());        
+    });    
 }
 
 bool RadioSdManagerPage::fileExists(const char* const filename) {
@@ -183,7 +183,6 @@ bool RadioSdManagerPage::fileExists(const char* const filename) {
 
 void RadioSdManagerPage::build(FormWindow * const window)
 {    
-  updateCurrentDir();
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
 
@@ -221,8 +220,8 @@ void RadioSdManagerPage::build(FormWindow * const window)
     
     for (const auto& dname: directories) {
       new SDmanagerButton(window, grid.getLabelSlot(), dname, [this, dname, window]() -> uint8_t {
-          std::string fullpath = currentDir + PATH_SEPARATOR + dname;
-          f_chdir((TCHAR*)fullpath.c_str());
+          currentDir.add(PATH_SEPARATOR).add(dname);
+          f_chdir((const TCHAR*)currentDir);
           window->clear();
           build(window);
           return 0;
@@ -270,7 +269,7 @@ void RadioSdManagerPage::build(FormWindow * const window)
             // }
             else if (!strcasecmp(ext, TEXT_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [this, namePtr, window]() {
-                auto textView = new ViewTextWindow(currentDir, namePtr);
+                auto textView = new ViewTextWindow(std::string{currentDir}, namePtr);
                 textView->setCloseHandler([this, window]() {
                   rebuild(window);
                 });
@@ -377,7 +376,7 @@ void RadioSdManagerPage::build(FormWindow * const window)
             }
 #if defined(LUA)
             else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
-              std::string fullpath = currentDir + PATH_SEPARATOR + namePtr;
+              std::string fullpath = std::string{currentDir} + PATH_SEPARATOR + namePtr;
               menu->addLine(STR_EXECUTE_FILE, [this, fullpath, window]() {
                 luaExec(fullpath.c_str());
                 StandaloneLuaWindow::instance()->attach(window);
@@ -396,11 +395,11 @@ void RadioSdManagerPage::build(FormWindow * const window)
                 if (fileExists(clipboard.data.sd.filename)) {
                     pathBuffer.clear().add(FILE_COPY_PREFIX).add(clipboard.data.sd.filename);
                     sdCopyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory, pathBuffer, currentDir.c_str());
+                             clipboard.data.sd.directory, pathBuffer, currentDir);
                 }
                 else {
                     sdCopyFile(clipboard.data.sd.filename,
-                               clipboard.data.sd.directory, clipboard.data.sd.filename, currentDir.c_str());
+                               clipboard.data.sd.directory, clipboard.data.sd.filename, currentDir);
                 }
                 clipboard.type = CLIPBOARD_TYPE_NONE;
 
