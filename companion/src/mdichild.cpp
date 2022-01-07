@@ -697,10 +697,6 @@ QVector<int> MdiChild::getSelectedModels() const
 void MdiChild::updateTitle()
 {
   QString title =  "[*]" + userFriendlyCurrentFile();  // + " (" + firmware->getName() + QString(")");
-  int availableEEpromSize = modelsListModel->getAvailableEEpromSize();
-  if (availableEEpromSize >= 0) {
-    title += QString(" - %1 ").arg(availableEEpromSize) + tr("free bytes");
-  }
   QFileInfo fi(curFile);
   if (!isUntitled && !fi.isWritable()) {
     title += QString(" (%1)").arg(tr("read only"));
