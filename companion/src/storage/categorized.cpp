@@ -254,9 +254,34 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
   QByteArray modelslistBuffer;
   if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
-    if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
-      setError(tr("Can't load MODELS/models.yml"));
-      return false;
+    try {
+      if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
+        setError(tr("Can't load MODELS/models.yml"));
+        return false;
+      }
+    } catch(const std::runtime_error& e) {
+      setError(tr("Can't load MODELS/models.yml") + ":\n" + QString(e.what()));
+      //return false;
+
+      //TODO: fall back to directory scan
+      std::list<std::string> filelist;
+      if (!getFileList(filelist)) {
+        return false;
+      }
+
+      // push default category
+      radioData.categories.push_back("Models");
+
+      const std::regex yml_regex("MODELS/(model[0-9]+\\.yml)");
+      for(const auto& f : filelist) {
+        std::smatch match;
+        if (std::regex_match(f, match, yml_regex)) {
+          if (match.size() == 2) {
+            std::ssub_match modelFile = match[1];
+            modelFiles.push_back({ modelFile.str(), "", 0, 0 });
+          }
+        }
+      }
     }
   } else {
     // fetch "MODELS/modelXX.yml"

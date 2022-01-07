@@ -51,34 +51,27 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
   if (data.size() == 0)
     return true;
 
-  try {
-    YAML::Node node = loadYamlFromByteArray(data);
-    if (!node.IsSequence()) return false;
+  YAML::Node node = loadYamlFromByteArray(data);
+  if (!node.IsSequence()) return false;
 
-    int modelIdx = 0;
-    for (const auto& cat : node) {
+  int modelIdx = 0;
+  for (const auto& cat : node) {
+    if (!cat.IsMap()) continue;
 
-      if (!cat.IsMap()) continue;
+    for (const auto& cat_map : cat) {
+      categories.push_back(cat_map.first.Scalar().c_str());
 
-      for (const auto& cat_map : cat) {
-        categories.push_back(cat_map.first.Scalar().c_str());
+      const auto& models = cat_map.second;
+      if (!models.IsSequence()) continue;
 
-        const auto& models = cat_map.second;
-        if (!models.IsSequence()) continue;
-
-        for (const auto& model : models) {
-          std::string filename, name;
-          model["filename"] >> filename;
-          model["name"] >> name;
-          modelFiles.push_back(
-              {filename, name, (int)categories.size() - 1, modelIdx++});
-        }
+      for (const auto& model : models) {
+        std::string filename, name;
+        model["filename"] >> filename;
+        model["name"] >> name;
+        modelFiles.push_back(
+            {filename, name, (int)categories.size() - 1, modelIdx++});
       }
     }
-
-  } catch (const std::runtime_error& e) {
-    qDebug() << "YAML::ParserException: " << e.what();
-    return false;
   }
 
   return true;
