@@ -1289,6 +1289,11 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->gfEnabled->hide();
   }
 
+  if (!firmware->getCapability(HasADCJitterFilter))
+  {
+    ui->jitterFilter->hide();
+  }
+
   // Beep Center checkboxes
   prevFocus = ui->trimsDisplay;
   int analogs = CPN_MAX_STICKS + getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders);
@@ -1533,6 +1538,7 @@ void SetupPanel::update()
   ui->extendedTrims->setChecked(model->extendedTrims);
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
+  ui->jitterFilter->setChecked(!model->jitterFilter);
 
   updateBeepCenter();
   updateStartupSwitches();
@@ -1681,6 +1687,12 @@ void SetupPanel::on_displayText_toggled(bool checked)
 void SetupPanel::on_gfEnabled_toggled(bool checked)
 {
   model->noGlobalFunctions = !checked;
+  emit modified();
+}
+
+void SetupPanel::on_jitterFilter_toggled(bool checked)
+{
+  model->jitterFilter = !checked;
   emit modified();
 }
 

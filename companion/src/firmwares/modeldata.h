@@ -121,6 +121,7 @@ class ModelData {
     int       trimInc;            // Trim Increments
     unsigned int trimsDisplay;
     bool      disableThrottleWarning;
+    bool      jitterFilter;
 
     unsigned int beepANACenter;      // 1<<0->A1.. 1<<6->A7
 

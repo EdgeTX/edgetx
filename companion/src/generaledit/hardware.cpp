@@ -173,13 +173,6 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams(row, serialPort2Mode);
   }
 
-  if (firmware->getCapability(HasADCJitterFilter)) {
-    addLabel(tr("ADC Filter"), row, 0);
-    AutoCheckBox *filterEnable = new AutoCheckBox(this);
-    filterEnable->setField(generalSettings.jitterFilter, this, true);
-    addParams(row, filterEnable);
-  }
-
   if (firmware->getCapability(HasSportConnector)) {
     addLabel(tr("S.Port Power"), row, 0);
     AutoCheckBox *sportPower = new AutoCheckBox(this);

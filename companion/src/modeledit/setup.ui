@@ -537,6 +537,13 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="2">
+        <widget class="QCheckBox" name="jitterFilter">
+         <property name="text">
+          <string>ADC Filter</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="4">
         <widget class="QPushButton" name="editText">
          <property name="sizePolicy">
