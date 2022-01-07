@@ -179,7 +179,7 @@ void onSdManagerMenu(const char * result)
     REFRESH_FILES();
   }
   else if (result == STR_RENAME_FILE) {
-    memcpy(reusableBuffer.sdManager.originalName, line, sizeof(reusableBuffer.sdManager.originalName));
+    memcpy(reusableBuffer.sdManager.nameBuffer, line, sizeof(reusableBuffer.sdManager.nameBuffer));
     uint8_t fnlen = 0, extlen = 0;
     getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
@@ -589,7 +589,7 @@ void menuRadioSdManager(event_t _event)
         }
         if (s_editMode == EDIT_MODIFY_STRING && attr) {
           uint8_t extlen, efflen;
-          const char * ext = getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
+          const char * ext = getFileExtension(reusableBuffer.sdManager.nameBuffer, 0, 0, nullptr, &extlen);
 
           editName(lcdNextPos, y, reusableBuffer.sdManager.lines[i],
                    SD_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
@@ -604,7 +604,7 @@ void menuRadioSdManager(event_t _event)
             else {
               reusableBuffer.sdManager.lines[i][efflen] = 0;
             }
-            f_rename(reusableBuffer.sdManager.originalName, reusableBuffer.sdManager.lines[i]);
+            f_rename(reusableBuffer.sdManager.nameBuffer, reusableBuffer.sdManager.lines[i]);
             REFRESH_FILES();
           }
         }

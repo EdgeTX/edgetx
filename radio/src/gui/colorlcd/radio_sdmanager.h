@@ -87,6 +87,7 @@ private:
     char* end{}; // assert (end == '\0') && (end < &buffer[L])
 };
 
+// in C++17 and onwards use CTAD
 using path_t = Stringbuffer<sizeof(reusableBuffer.sdManager.pathConstructBuffer)>;
 using name_t = Stringbuffer<sizeof(reusableBuffer.sdManager.nameBuffer)>;
 
@@ -113,7 +114,8 @@ private:
     inline const char* setPathBufferToFullPath(const char* filename) {
         return pathBuffer.clear().add(currentDir).add(PATH_SEPARATOR).add(filename);        
     }
-    path_t pathBuffer{reusableBuffer.sdManager.pathConstructBuffer}; 
+    path_t pathBuffer{reusableBuffer.sdManager.pathConstructBuffer};
+    
     // todo: make use of reusableBuffer
     std::string currentDir;
 };
