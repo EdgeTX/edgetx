@@ -162,14 +162,6 @@ class SDmanagerButton : public TextButton
 #endif              
 };
 
-template<typename Func>
-std::string makeFilledString(size_t length, Func f, const char c = '\0') {
-    std::string s(length + 1, c);
-    f(&s[0]);
-    s.resize(strnlen(s.c_str(), length));
-    return s;
-}
-
 void RadioSdManagerPage::updateCurrentDir(){
     currentDir.fillRaw([this](char* s){
         f_getcwd(s, currentDir.capacity());        
@@ -181,8 +173,8 @@ bool RadioSdManagerPage::fileExists(const char* const filename) {
     return (f_stat(filename, &finfo) == FR_OK);
 }
 
-void RadioSdManagerPage::build(FormWindow * const window)
-{    
+void RadioSdManagerPage::build(FormWindow * const window) {
+  updateCurrentDir();    
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
 
@@ -230,195 +222,199 @@ void RadioSdManagerPage::build(FormWindow * const window)
       grid.nextLine();
     }
 
+    if (files.empty() && (clipboard.type == CLIPBOARD_TYPE_SD_FILE)) {
+        files.push_back("");
+    }
     for (const auto& name: files) {
       auto button = new SDmanagerButton(window, grid.getLabelSlot(), name, [this, name, window]() -> uint8_t {
           const char* const namePtr = name.c_str(); // name is captured by-value: it lives as long as the button
           auto const menu = new Menu(window);
-          const char* const ext = getFileExtension(name.c_str());
-          if (ext) {
-            if (!strcasecmp(ext, SOUNDS_EXT)) {
-              menu->addLine(STR_PLAY_FILE, [this, namePtr]() {
-                  audioQueue.stopAll();
-                  audioQueue.playFile(setPathBufferToFullPath(namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
-              });
-            }
-#if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-            if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
-              MultiFirmwareInformation information;
-              if (information.readMultiFirmwareInformation(namePtr) == nullptr) {
-#if defined(INTERNAL_MODULE_MULTI)
-                menu->addLine(STR_FLASH_INTERNAL_MULTI, [this, namePtr]() {
-                  multiFirmwareUpdate(namePtr, INTERNAL_MODULE,
-                                      MULTI_TYPE_MULTIMODULE);
-                });
-#endif
-                menu->addLine(STR_FLASH_EXTERNAL_MULTI, [this, namePtr]() {
-                  multiFirmwareUpdate(namePtr, EXTERNAL_MODULE,
-                                      MULTI_TYPE_MULTIMODULE);
-                });
-              }
-            }
-#endif
-            else if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
-              menu->addLine(STR_FLASH_EXTERNAL_ELRS, [this, namePtr]() {
-                multiFirmwareUpdate(namePtr, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
-              });
-            }
-            // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-            //   // TODO
-            // }
-            else if (!strcasecmp(ext, TEXT_EXT)) {
-              menu->addLine(STR_VIEW_TEXT, [this, namePtr, window]() {
-                auto textView = new ViewTextWindow(std::string{currentDir}, namePtr);
-                textView->setCloseHandler([this, window]() {
-                  rebuild(window);
-                });
-              });
-            }
-            if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
-              if (isBootloader(namePtr)) {
-                menu->addLine(STR_FLASH_BOOTLOADER, [this, namePtr]() {
-                  bootloaderUpdate(namePtr);
-                });
-              }
-            } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
-              if (HAS_SPORT_UPDATE_CONNECTOR()) {
-                menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [this, namePtr]() {
-                  frSkyFirmwareUpdate(namePtr, SPORT_MODULE);
-                });
-              }
-              menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
-                frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
-              });
-              menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
-              });
-            } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
-              FrSkyFirmwareInformation information;
-              if (readFrSkyFirmwareInformation(setPathBufferToFullPath(namePtr),
-                                               information) == nullptr) {
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-                menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
-                  frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
-                });
-#endif
-                if (information.productFamily ==
-                    FIRMWARE_FAMILY_EXTERNAL_MODULE) {
-                  menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                    frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+          if (!name.empty()) {
+              const char* const ext = getFileExtension(name.c_str());
+              if (ext) {
+                if (!strcasecmp(ext, SOUNDS_EXT)) {
+                  menu->addLine(STR_PLAY_FILE, [this, namePtr]() {
+                      audioQueue.stopAll();
+                      audioQueue.playFile(setPathBufferToFullPath(namePtr), 0, ID_PLAY_FROM_SD_MANAGER);
                   });
                 }
-                if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
-                    information.productFamily == FIRMWARE_FAMILY_SENSOR) {
+    #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
+                if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
+                  MultiFirmwareInformation information;
+                  if (information.readMultiFirmwareInformation(namePtr) == nullptr) {
+    #if defined(INTERNAL_MODULE_MULTI)
+                    menu->addLine(STR_FLASH_INTERNAL_MULTI, [this, namePtr]() {
+                      multiFirmwareUpdate(namePtr, INTERNAL_MODULE,
+                                          MULTI_TYPE_MULTIMODULE);
+                    });
+    #endif
+                    menu->addLine(STR_FLASH_EXTERNAL_MULTI, [this, namePtr]() {
+                      multiFirmwareUpdate(namePtr, EXTERNAL_MODULE,
+                                          MULTI_TYPE_MULTIMODULE);
+                    });
+                  }
+                }
+    #endif
+                else if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
+                  menu->addLine(STR_FLASH_EXTERNAL_ELRS, [this, namePtr]() {
+                    multiFirmwareUpdate(namePtr, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
+                  });
+                }
+                // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+                //   // TODO
+                // }
+                else if (!strcasecmp(ext, TEXT_EXT)) {
+                  menu->addLine(STR_VIEW_TEXT, [this, namePtr, window]() {
+                    auto textView = new ViewTextWindow(std::string{currentDir}, namePtr);
+                    textView->setCloseHandler([this, window]() {
+                      rebuild(window);
+                    });
+                  });
+                }
+                if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
+                  if (isBootloader(namePtr)) {
+                    menu->addLine(STR_FLASH_BOOTLOADER, [this, namePtr]() {
+                      bootloaderUpdate(namePtr);
+                    });
+                  }
+                } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
                   if (HAS_SPORT_UPDATE_CONNECTOR()) {
                     menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [this, namePtr]() {
                       frSkyFirmwareUpdate(namePtr, SPORT_MODULE);
                     });
-                  } else {
-                    menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
-                      frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                  }
+                  menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
+                    frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
+                  });
+                  menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
+                    frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                  });
+                } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
+                  FrSkyFirmwareInformation information;
+                  if (readFrSkyFirmwareInformation(setPathBufferToFullPath(namePtr),
+                                                   information) == nullptr) {
+    #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
+                    menu->addLine(STR_FLASH_INTERNAL_MODULE, [this, namePtr]() {
+                      frSkyFirmwareUpdate(namePtr, INTERNAL_MODULE);
                     });
+    #endif
+                    if (information.productFamily ==
+                        FIRMWARE_FAMILY_EXTERNAL_MODULE) {
+                      menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
+                        frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                      });
+                    }
+                    if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
+                        information.productFamily == FIRMWARE_FAMILY_SENSOR) {
+                      if (HAS_SPORT_UPDATE_CONNECTOR()) {
+                        menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [this, namePtr]() {
+                          frSkyFirmwareUpdate(namePtr, SPORT_MODULE);
+                        });
+                      } else {
+                        menu->addLine(STR_FLASH_EXTERNAL_MODULE, [this, namePtr]() {
+                          frSkyFirmwareUpdate(namePtr, EXTERNAL_MODULE);
+                        });
+                      }
+                    }
+    // TODO: Integrate the remaining options
+    #if 0
+    #if defined(PXX2)
+                    if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
+                      if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE,
+                                                         information.productId))
+                        menu->addLine(
+                            STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
+                              FrSkyFirmwareUpdate(name, INTERNAL_MODULE_OTA);
+                            });
+                      if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE,
+                                                         information.productId))
+                        menu->addLine(
+                            STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
+                              FrSkyFirmwareUpdate(name, EXTERNAL_MODULE_OTA);
+                            });
+                    }
+                    if (information.productFamily ==
+                        FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
+                      menu->addLine(
+                          STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA,
+                          [=]() {
+                            FrSkyFirmwareUpdate(
+                                name,
+                                STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
+                          });
+                      menu->addLine(
+                          STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA,
+                          [=]() {
+                            FrSkyFirmwareUpdate(
+                                name,
+                                STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
+                          });
+                    }
+    #endif
+    #if defined(BLUETOOTH)
+                    if (information.productFamily ==
+                        FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
+                      menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
+                        FrSkyFirmwareUpdate(name, STR_FLASH_BLUETOOTH_MODULE);
+                      });
+                    }
+    #endif
+    #if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
+                    if (information.productFamily ==
+                        FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
+                      menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
+                        FrSkyFirmwareUpdate(name, STR_FLASH_POWER_MANAGEMENT_UNIT);
+                      });
+                    }
+    #endif
+    #endif
                   }
                 }
-// TODO: Integrate the remaining options
-#if 0
-#if defined(PXX2)
-                if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
-                  if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE,
-                                                     information.productId))
-                    menu->addLine(
-                        STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
-                          FrSkyFirmwareUpdate(name, INTERNAL_MODULE_OTA);
-                        });
-                  if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE,
-                                                     information.productId))
-                    menu->addLine(
-                        STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
-                          FrSkyFirmwareUpdate(name, EXTERNAL_MODULE_OTA);
-                        });
-                }
-                if (information.productFamily ==
-                    FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
-                  menu->addLine(
-                      STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA,
-                      [=]() {
-                        FrSkyFirmwareUpdate(
-                            name,
-                            STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
-                      });
-                  menu->addLine(
-                      STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA,
-                      [=]() {
-                        FrSkyFirmwareUpdate(
-                            name,
-                            STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
-                      });
-                }
-#endif
-#if defined(BLUETOOTH)
-                if (information.productFamily ==
-                    FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
-                  menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
-                    FrSkyFirmwareUpdate(name, STR_FLASH_BLUETOOTH_MODULE);
+    #if defined(LUA)
+                else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
+                  std::string fullpath = std::string{currentDir} + PATH_SEPARATOR + namePtr;
+                  menu->addLine(STR_EXECUTE_FILE, [this, fullpath, window]() {
+                    luaExec(fullpath.c_str());
+                    StandaloneLuaWindow::instance()->attach(window);
                   });
                 }
-#endif
-#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
-                if (information.productFamily ==
-                    FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
-                  menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
-                    FrSkyFirmwareUpdate(name, STR_FLASH_POWER_MANAGEMENT_UNIT);
-                  });
+    #endif
+                if (strlen(namePtr) > 0) {
+                    menu->addLine(STR_COPY_FILE, [this, namePtr]() {
+                        clipboard.type = CLIPBOARD_TYPE_SD_FILE;
+                        strncpy(clipboard.data.sd.directory, currentDir, CLIPBOARD_PATH_LEN - 1);
+                        strncpy(clipboard.data.sd.filename, namePtr, CLIPBOARD_PATH_LEN - 1);
+                    });
+                    menu->addLine(STR_RENAME_FILE, [this, namePtr, window]() {
+                        auto const few = new FileNameEditWindow(namePtr);
+                        few->setCloseHandler([this, window]() {
+                            rebuild(window);
+                        });
+                    });
+                    menu->addLine(STR_DELETE_FILE, [this, namePtr, window]() {
+                        f_unlink((const TCHAR*)setPathBufferToFullPath(namePtr));
+                        // coord_t scrollPosition = window->getScrollPositionY();
+                        window->clear();
+                        build(window);
+                        // window->setScrollPositionY(scrollPosition);
+                    });
                 }
-#endif
-#endif
-              }
-            }
-#if defined(LUA)
-            else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
-              std::string fullpath = std::string{currentDir} + PATH_SEPARATOR + namePtr;
-              menu->addLine(STR_EXECUTE_FILE, [this, fullpath, window]() {
-                luaExec(fullpath.c_str());
-                StandaloneLuaWindow::instance()->attach(window);
-              });
-            }
-#endif
-          }
+              } // ext
+          } // !name.empty()
           if (!READ_ONLY()) {
-            menu->addLine(STR_COPY_FILE, [namePtr]() {
-              clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-              f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-              strncpy(clipboard.data.sd.filename, namePtr, CLIPBOARD_PATH_LEN - 1); // TODO
-            });
             if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
               menu->addLine(STR_PASTE, [this, window]() {
                 if (fileExists(clipboard.data.sd.filename)) {
                     pathBuffer.clear().add(FILE_COPY_PREFIX).add(clipboard.data.sd.filename);
-                    sdCopyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory, pathBuffer, currentDir);
+                    sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, pathBuffer, currentDir);
                 }
                 else {
-                    sdCopyFile(clipboard.data.sd.filename,
-                               clipboard.data.sd.directory, clipboard.data.sd.filename, currentDir);
+                    sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, clipboard.data.sd.filename, currentDir);
                 }
                 clipboard.type = CLIPBOARD_TYPE_NONE;
-
                 rebuild(window);
               });
             }
-            menu->addLine(STR_RENAME_FILE, [this, namePtr, window]() {
-              auto const few = new FileNameEditWindow(namePtr);
-              few->setCloseHandler([this, window]() {
-                rebuild(window);
-              });
-            });
-            menu->addLine(STR_DELETE_FILE, [this, namePtr, window]() {
-                f_unlink((const TCHAR*)setPathBufferToFullPath(namePtr));
-                // coord_t scrollPosition = window->getScrollPositionY();
-                window->clear();
-                build(window);
-                // window->setScrollPositionY(scrollPosition);
-            });
           }
           return 0;
       }, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1);
