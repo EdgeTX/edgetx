@@ -970,13 +970,14 @@ union ReusableBuffer
     char id[27];
   } version;
 
-  // moduleOptions, receiverOptions, radioVersion
-  PXX2HardwareAndSettings hardwareAndSettings;
+  PXX2HardwareAndSettings hardwareAndSettings; // radio_version
 
   struct {
     ModuleInformation modules[NUM_MODULES];
-    uint8_t linesCount;
     char msg[64];
+#if !defined(COLORLCD)
+    uint8_t linesCount;
+#endif
   } radioTools;
 
   struct {

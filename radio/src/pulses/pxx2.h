@@ -418,6 +418,7 @@ struct PXX2HardwareAndSettings {
   ReceiverSettings receiverSettings;  // when dealing with receiver settings, we
                                       // also need module settings
   char msg[64];
+  uint8_t linesCount;
 };
 
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
