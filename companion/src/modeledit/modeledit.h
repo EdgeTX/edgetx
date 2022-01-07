@@ -48,6 +48,8 @@ class ModelEdit : public QDialog
     ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmware * firmware);
     ~ModelEdit();
 
+    int getModelId() { return modelId; }
+
   protected:
     void closeEvent(QCloseEvent *event);
 

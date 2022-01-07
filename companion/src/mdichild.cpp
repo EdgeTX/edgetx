@@ -1643,44 +1643,32 @@ bool MdiChild::loadBackup()
 #endif
 }
 
-QDialog * MdiChild::getChildDialog(QRegularExpression & regexp)
-{
-  QList<QDialog *>dlgs = findChildren<QDialog *>();
-
-  for (QDialog *dlg : dlgs) {
-    if (dlg->windowTitle().contains(regexp))
-      return dlg;
-  }
-
-  return nullptr;
-}
-
-QDialog * MdiChild::getModelEditDialog(int row)
-{
-  QRegularExpression regexp(QString(tr("^Editing model %1:*")).arg(row + 1), QRegularExpression::CaseInsensitiveOption);  //  to be safe use case insensitive
-
-  return getChildDialog(regexp);
-}
-
-QList<QDialog *> * MdiChild::getChildrenDialogsList(QRegularExpression & regexp)
+QList<QDialog *> * MdiChild::getModelEditDialogsList()
 {
   QList<QDialog *> *ret = new QList<QDialog *>();
 
-  QList<QDialog *>dlgs = findChildren<QDialog *>();
+  QList<QDialog *> dlgs = findChildren<QDialog *>();
 
   for (QDialog *dlg : dlgs) {
-    if (dlg->windowTitle().contains(regexp))
+    ModelEdit * med = dynamic_cast<ModelEdit *>(dlg);
+    if (med)
       ret->append(dlg);
   }
 
   return ret;
 }
 
-QList<QDialog *> * MdiChild::getModelEditDialogsList()
+QDialog * MdiChild::getModelEditDialog(int row)
 {
-  QRegularExpression regexp(QString(tr("^Editing model *")), QRegularExpression::CaseInsensitiveOption);  //  to be safe use case insensitive
+  QList<QDialog *> *dlgs = getModelEditDialogsList();
 
-  return getChildrenDialogsList(regexp);
+  for (QDialog *dlg : *dlgs) {
+    ModelEdit * med = dynamic_cast<ModelEdit *>(dlg);
+    if (med && med->getModelId() == row)
+      return med;
+  }
+
+  return nullptr;
 }
 
 void MdiChild::onInternalModuleChanged()
