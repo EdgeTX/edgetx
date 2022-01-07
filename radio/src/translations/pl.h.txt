@@ -869,6 +869,7 @@
 #define TR_PATH_TOO_LONG       "Ścieżka za długa"
 #define TR_VIEW_TEXT           "Pokaż tekst"
 #define TR_FLASH_BOOTLOADER    "Flash bootloader"
+#define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")      
 #define TR_FLASH_EXTERNAL_DEVICE "Sflashuj Moduł Zewnętrzny"
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"

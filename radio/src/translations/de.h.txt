@@ -849,7 +849,8 @@
 #define TR_MIXERS_MONITOR              "==>Mischer Monitor"
 #define TR_PATH_TOO_LONG               "Pfad zu Lang"
 #define TR_VIEW_TEXT                   "View Text"
-#define TR_FLASH_BOOTLOADER            TR("Flash bootloader","Flash bootloader")      //
+#define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")      
+#define TR_FLASH_BOOTLOADER            TR("Flash bootloader","Flash bootloader")      
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash ext. Gerät","Flash externes Gerät")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"

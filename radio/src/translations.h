@@ -714,6 +714,7 @@ extern const char STR_MIXERS_MONITOR[];
 extern const char STR_PATH_TOO_LONG[];
 extern const char STR_VIEW_TEXT[];
 extern const char STR_FLASH_BOOTLOADER[];
+extern const char STR_FLASH_DEVICE[];
 extern const char STR_FLASH_EXTERNAL_DEVICE[];
 extern const char STR_FLASH_RECEIVER_OTA[];
 extern const char STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA[];

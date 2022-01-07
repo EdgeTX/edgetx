@@ -135,7 +135,7 @@ class FlashDialog: public FullScreenDialog
 {
   public:
     explicit FlashDialog(const T & device):
-      FullScreenDialog(WARNING_TYPE_INFO, "Flash device"),
+      FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
       device(device),
       progress(this, {LCD_W / 2 - 50, LCD_H / 2, 100, 15})
     {

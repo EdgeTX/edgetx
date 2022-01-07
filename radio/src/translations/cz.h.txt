@@ -848,6 +848,7 @@
 #define TR_PATH_TOO_LONG               "Cesta je moc dlouhá"
 #define TR_VIEW_TEXT                   "Zobrazit text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloaderu"
+#define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")      
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Portem", "Flash S.Portem")
 #define TR_FLASH_RECEIVER_OTA          "Flash příjímače OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
