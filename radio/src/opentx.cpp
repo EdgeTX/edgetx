@@ -1112,7 +1112,7 @@ void getADC()
     uint32_t previous = s_anaFilt[x] / JITTER_ALPHA;
     uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
 
-    if (!g_model.jitterFilter && diff < (10*ANALOG_MULTIPLIER)) { // jitterFilter is inverted, 0 - active
+    if (!g_model.noJitterFilter && diff < (10*ANALOG_MULTIPLIER)) { // jitterFilter is inverted, 0 - active
       // apply jitter filter
       s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
     }

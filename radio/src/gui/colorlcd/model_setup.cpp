@@ -1616,7 +1616,7 @@ void ModelSetupPage::build(FormWindow * window)
   // Model ADC jitter filter
   {
     new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.jitterFilter));
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noJitterFilter));
     grid.nextLine();
   }
 

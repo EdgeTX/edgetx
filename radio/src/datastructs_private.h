@@ -677,7 +677,7 @@ PACK(struct ModelData {
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
 
-  uint8_t jitterFilter:1;
+  uint8_t noJitterFilter:1;
   uint8_t spare2:7 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
@@ -889,7 +889,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   pwrOnSpeed:3);
   NOBACKUP(int8_t   pwrOffSpeed:3);
   NOBACKUP(uint8_t  imperial:1);
-  NOBACKUP(uint8_t  jitterFilter:1); /* 0 - active */
+  NOBACKUP(uint8_t  noJitterFilter:1); /* 0 - active */
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
   NOBACKUP(uint8_t  jackMode:2);
