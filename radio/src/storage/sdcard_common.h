@@ -76,6 +76,8 @@ uint8_t findEmptyModel(uint8_t id, bool down);
 
 #endif
 
+bool storageReadRadioSettings(bool checks);
+
 const char * loadRadioSettings();
 const char * writeGeneralSettings();
 
