@@ -45,8 +45,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += "S";
-      src_str += (rhs.index + 'A');
+      src_str += getCurrentFirmware()->getSwitchesTag(rhs.index);
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -114,8 +113,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[1] >= 'A'
              && val[1] <= 'Z') {
 
-    int idx = val[1] - 'A';
-    if (idx < CPN_MAX_SWITCHES)
+    int idx = getCurrentFirmware()->getSwitchesIndex(src_str.c_str());
+    if (idx >= 0 && idx < CPN_MAX_SWITCHES)
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
 
   } else if (val_len > 4 &&
