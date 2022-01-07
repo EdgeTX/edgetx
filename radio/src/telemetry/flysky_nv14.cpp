@@ -125,7 +125,7 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   int32_t value = 0;
   const nv14SensorData* sensorData =
       reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
-  static bool oldRmFm = false;
+  static bool pre_10_0_14_RmFw = false;
 
   if (sensor->bytes == 1)
     value = sensorData->UINT8;
@@ -137,15 +137,15 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   if (NV14internalModuleFwVersion <= 0x1000E) {
     if (sensor->id == FLYSKY_SENSOR_RX_SIGNAL) {
       if (value <= 10)
-        oldRmFm = true;
+        pre_10_0_14_RmFw = true;
       else
-        oldRmFm = false;
+        pre_10_0_14_RmFw = false;
     }
   }
 
   // For older RF module FW Sgml is in [0, 10] range
   // and we need to use RSSI for alarm
-  if (oldRmFm) {
+  if (pre_10_0_14_RmFw) {
     if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
       if (value < -200) value = -200;
       // if g_model.rssiAlarms.flysky_telemetry == 1
