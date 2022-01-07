@@ -918,7 +918,7 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE:
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
