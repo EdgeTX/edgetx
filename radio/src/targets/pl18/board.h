@@ -293,11 +293,9 @@ enum Analogs {
   POT_FIRST,
   POT1 = POT_FIRST,
   POT2,
-  POT_LAST = POT2,
+  POT_LAST = POT_FIRST + NUM_POTS - 1,
   SWITCH_FIRST,
-  SWA = SWITCH_FIRST,
-  SWB,
-  SWC,
+  SWB = SWITCH_FIRST,
   SWD,
   SWE,
   SWF,
@@ -310,12 +308,14 @@ enum Analogs {
   NUM_ANALOGS
 };
 
-//TODO! #define HAS_TX_RTC_VOLTAGE
+//#define SLIDER1 SLIDER_FRONT_LEFT
+//#define SLIDER2 SLIDER_FRONT_RIGHT
 
 #define SLIDER_FIRST  0
 #define SLIDER_LAST  -1
 
 #define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
+//#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
 
 enum CalibratedAnalogs {
   CALIBRATED_STICK1,
@@ -324,9 +324,7 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
-  CALIBRATED_SWA,
   CALIBRATED_SWB,
-  CALIBRATED_SWC,
   CALIBRATED_SWD,
   CALIBRATED_SWE,
   CALIBRATED_SWF,
@@ -335,15 +333,16 @@ enum CalibratedAnalogs {
   NUM_CALIBRATED_ANALOGS
 };
 
-#define IS_POT(x)                       ((x)>=POT_FIRST && (x)<=POT_LAST)
+#define IS_POT(x)                     ((x)>=POT_FIRST && (x)<=POT_LAST)
 #define IS_SLIDER(x)                    (false)
+//#define IS_SLIDER(x)                  ((x)>=SLIDER_FIRST && (x)<=SLIDER_LAST)
 
 extern uint16_t adcValues[NUM_ANALOGS];
 
 
-#define BATTERY_WARN                  36 // 3.6V
-#define BATTERY_MIN                   35 // 3.5V
-#define BATTERY_MAX                   42 // 4.2V
+#define BATTERY_WARN                  37 // 3.7V
+#define BATTERY_MIN                   35 // 3.4V
+#define BATTERY_MAX                   43 // 4.3V
 
 enum EnumPowerupState
 {

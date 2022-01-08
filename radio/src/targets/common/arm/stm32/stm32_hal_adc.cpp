@@ -42,7 +42,7 @@ static void adc_init_pins()
   }
   else
 #endif
-      GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
+  GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 #endif
 
@@ -88,50 +88,58 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     {ADC_CHANNEL_STICK_RV, ADC_SAMPTIME},
     {ADC_CHANNEL_STICK_RH, ADC_SAMPTIME},
 #if defined(PCBX10)
-    { ADC_CHANNEL_POT1,    ADC_SAMPTIME },
-    { ADC_CHANNEL_POT2,    ADC_SAMPTIME },
-    { ADC_CHANNEL_POT3,    ADC_SAMPTIME },
-    { ADC_CHANNEL_EXT1,    ADC_SAMPTIME },
-    { ADC_CHANNEL_EXT2,    ADC_SAMPTIME },
-    { ADC_CHANNEL_EXT3,    ADC_SAMPTIME },
-    { ADC_CHANNEL_EXT4,    ADC_SAMPTIME },
-    { ADC_CHANNEL_SLIDER1, ADC_SAMPTIME },
-    { ADC_CHANNEL_SLIDER2, ADC_SAMPTIME },
-    { ADC_CHANNEL_BATT,    ADC_SAMPTIME }
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME },
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME },
+    {ADC_CHANNEL_POT3,     ADC_SAMPTIME },
+    {ADC_CHANNEL_EXT1,     ADC_SAMPTIME },
+    {ADC_CHANNEL_EXT2,     ADC_SAMPTIME },
+    {ADC_CHANNEL_EXT3,     ADC_SAMPTIME },
+    {ADC_CHANNEL_EXT4,     ADC_SAMPTIME },
+    {ADC_CHANNEL_SLIDER1,  ADC_SAMPTIME },
+    {ADC_CHANNEL_SLIDER2,  ADC_SAMPTIME },
+    {ADC_CHANNEL_BATT,     ADC_SAMPTIME }
 #else
 #if defined(RADIO_T8) || defined(RADIO_TLITE)
-    // fake channels to fill unsused POT1/POT2
+    // fake channels to fill unused POT1/POT2
     {0, 0},
     {0, 0},
 #elif defined(PCBX7) || defined(PCBXLITE)
-    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
-    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
 #elif defined(PCBX9LITE)
-    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
 #elif defined(PCBX9E)
-    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
-    {ADC_CHANNEL_POT3, ADC_SAMPTIME},
-    {ADC_CHANNEL_POT4, ADC_SAMPTIME},
-    {ADC_CHANNEL_SLIDER3, ADC_SAMPTIME},
-    {ADC_CHANNEL_SLIDER4, ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT3,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT4,     ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER3,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER4,  ADC_SAMPTIME},
 #elif defined(PCBX9D) || defined(PCBX9DP)
-    {ADC_CHANNEL_POT1,    ADC_SAMPTIME},
-    {ADC_CHANNEL_POT2,    ADC_SAMPTIME},
-    {ADC_CHANNEL_POT3,    ADC_SAMPTIME},
-    {ADC_CHANNEL_SLIDER1, ADC_SAMPTIME},
-    {ADC_CHANNEL_SLIDER2, ADC_SAMPTIME},
-#elif defined(PCBNV14) || defined(PCBPL18)
-    {ADC_CHANNEL_POT1, ADC_SAMPTIME},
-    {ADC_CHANNEL_POT2, ADC_SAMPTIME},
-    {ADC_CHANNEL_SWA,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWC,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWE,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWF,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWG,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWH,  ADC_SAMPTIME},
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT3,     ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER1,  ADC_SAMPTIME},
+    {ADC_CHANNEL_SLIDER2,  ADC_SAMPTIME},
+#elif defined(PCBNV14)
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
+    {ADC_CHANNEL_SWA,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWC,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWE,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWF,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWG,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWH,      ADC_SAMPTIME},
+#elif defined(PCBPL18)
+    {ADC_CHANNEL_SWB,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWD,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWE,      ADC_SAMPTIME},
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
+    {ADC_CHANNEL_SWF,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWG,      ADC_SAMPTIME},
 #endif
-    {ADC_CHANNEL_BATT, ADC_SAMPTIME},
-    {ADC_Channel_Vbat, ADC_SAMPTIME}
+    {ADC_CHANNEL_BATT,     ADC_SAMPTIME},
+    {ADC_Channel_Vbat,     ADC_SAMPTIME}
 #endif
 };
 
@@ -182,11 +190,19 @@ static const stm32_hal_adc_channel ADC_EXT_channels[] = {
 
 static uint8_t ADC_EXT_get_nconv() { return 1; }
 
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBNV14)
 
 static const stm32_hal_adc_channel ADC_EXT_channels[] = {
     {ADC_CHANNEL_SWB, ADC_SAMPTIME},
     {ADC_CHANNEL_SWD, ADC_SAMPTIME},
+};
+
+static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
+
+#elif defined(PCBPL18)
+
+static const stm32_hal_adc_channel ADC_EXT_channels[] = {
+    {ADC_CHANNEL_SWH,     ADC_SAMPTIME}
 };
 
 static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
@@ -217,14 +233,18 @@ static uint16_t* ADC_MAIN_get_dma_buffer()
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)  || defined(PCBPL18)
+#if defined(PCBPL18)
+    return &adcValues[FIRST_ANALOG_ADC_EXT];
+#endif
+
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
     if (globalData.flyskygimbals)
     {
-        return adcValues + NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS;
+        return &adcValues[NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS];
     }
     else
 #endif
-      return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
+      return &adcValues[NUM_ANALOGS_ADC + FIRST_ANALOG_ADC];
 }
 #endif
 
@@ -436,6 +456,12 @@ static void stm32_hal_adc_wait_completion()
   //TODO: move into completion IRQ trigger
   adc_disable_dma(ADC_DMA_Stream);
   adc_disable_dma(ADC_EXT_DMA_Stream);
+#if defined(PCBPL18)
+  if (isVBatBridgeEnabled()) {
+    rtcBatteryVoltage = adcValues[12]; // VBatBridge at indx 12
+    disableVBatBridge();
+  }
+#endif
 #else
   // Wait only for the main ADC, and hope others are done as well
   for (unsigned int i = 0; i < 10000; i++) {
