@@ -276,7 +276,7 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
-
+/*
   reading = true;
 
   dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
@@ -294,6 +294,9 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Rx|SPI_I2S_DMAReq_Tx, ENABLE);
 
   RTOS_TAKE_SEMAPHORE(irqSem);
+*/
+  for(size_t i=0; i < size; i++)
+    *data++ = flashSpiReadWriteByte(*data++);
 
   delay_01us(100); // 10us
   CS_HIGH();
