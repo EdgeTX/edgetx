@@ -31,7 +31,8 @@ bool CategorizedStorageFormat::load(RadioData & radioData)
   if (st == STORAGE_TYPE_UNKNOWN) {
     st = probeFormat();
   }
-  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML) {
+  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML
+      || st == STORAGE_TYPE_UNKNOWN) {
     return loadYaml(radioData);
   } else {
     return loadBin(radioData);
@@ -272,13 +273,14 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       // push default category
       radioData.categories.push_back("Models");
 
-      const std::regex yml_regex("MODELS/(model[0-9]+\\.yml)");
+      const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
       for(const auto& f : filelist) {
         std::smatch match;
         if (std::regex_match(f, match, yml_regex)) {
-          if (match.size() == 2) {
+          if (match.size() == 3) {
             std::ssub_match modelFile = match[1];
-            modelFiles.push_back({ modelFile.str(), "", 0, 0 });
+            std::ssub_match modelIdx = match[2];
+            modelFiles.push_back({ modelFile.str(), "", 0, std::stoi(modelIdx.str()) });
           }
         }
       }
@@ -304,6 +306,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     }
   }
 
+  int modelIdx = 0;
   radioData.models.resize(modelFiles.size());
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
@@ -318,7 +321,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     // Please note:
     //  ModelData() use memset to clear everything to 0
     //
-    auto& model = radioData.models[mc.modelIdx];
+    auto& model = radioData.models[modelIdx++];
 
     try {
       if (!loadModelFromYaml(model,modelBuffer)) {
