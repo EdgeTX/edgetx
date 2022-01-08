@@ -584,7 +584,11 @@ void checkBacklight()
 
 void resetBacklightTimeout()
 {
-  lightOffCounter = ((uint16_t)g_eeGeneral.lightAutoOff*250) << 1;
+  uint16_t autoOff = g_eeGeneral.lightAutoOff;
+#if defined(COLORLCD)
+  autoOff = std::max<uint16_t>(1, autoOff); // prevent the timeout from being 0 seconds on color lcd radios
+#endif
+  lightOffCounter = (autoOff*250) << 1;
 }
 
 #if defined(SPLASH)
