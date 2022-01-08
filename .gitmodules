@@ -5,6 +5,9 @@
 [submodule "radio/src/thirdparty/AccessDenied"]
 	path = radio/src/thirdparty/AccessDenied
 	url = https://github.com/raphaelcoeffic/AccessDenied.git
+[submodule "companion/src/thirdparty/yaml-cpp"]
+    path = companion/src/thirdparty/yaml-cpp
+    url = https://github.com/jbeder/yaml-cpp.git
 [submodule "radio/src/thirdparty/lvgl"]
 	path = radio/src/thirdparty/lvgl
 	url = https://github.com/gagarinlg/lvgl.git
