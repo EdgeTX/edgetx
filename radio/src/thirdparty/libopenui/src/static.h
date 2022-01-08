@@ -29,7 +29,18 @@ class StaticText: public Window
       Window(parent, rect, windowFlags, textFlags),
       text(std::move(text))
     {
+      label = lv_label_create(lvobj);
+      lv_label_set_text(label, this->text.c_str());
+
+      auto color = COLOR_VAL(textFlags);
+      lv_obj_set_style_text_color(label, lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color)), LV_PART_MAIN);
+      if (textFlags & CENTERED)
+        lv_obj_center(label);
+      if (textFlags & FONT(BOLD)) {
+      }
+
       if (windowFlags & BUTTON_BACKGROUND) {
+        lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
         setBackgroundColor(COLOR_THEME_SECONDARY2);
       }
     }
@@ -47,16 +58,20 @@ class StaticText: public Window
     {
       if (text != value) {
         text = std::move(value);
-        invalidate();
+        lv_label_set_text(label, this->text.c_str());
+        // invalidate();
       }
     }
 
     void setBackgroundColor(LcdFlags color)
     {
       bgColor = color;
+      auto actualColor = COLOR_VAL(bgColor);
+      lv_obj_set_style_bg_color(lvobj, lv_color_make(GET_RED(actualColor), GET_GREEN(actualColor), GET_BLUE(actualColor)), LV_PART_MAIN);
     }
 
   protected:
+    lv_obj_t *label = nullptr;
     std::string text;
     LcdFlags bgColor = 0;
 };

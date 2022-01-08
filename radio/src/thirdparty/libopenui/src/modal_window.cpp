@@ -23,7 +23,7 @@
 #include "layer.h"
 
 ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, 0, 0, true),
   closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);

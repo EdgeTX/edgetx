@@ -20,6 +20,7 @@
 #pragma once
 
 #include "window.h"
+extern lv_obj_t * canvas;
 
 class Layer
 {
@@ -36,10 +37,20 @@ class Layer
 
     static void push(Window * window)
     {
+      // if (window->getLvObj()->parent != nullptr) {
+      //   TRACE("Layers must have lvgl parent to be null");
+      //   return;
+      // }
+
       if (!stack.empty()) {
         Layer & parentLayer = stack.back();
         parentLayer.focus = Window::getFocus();
       }
+
+      // layers are screens in lvgl
+      lv_scr_load(window->getLvObj());
+      lv_obj_set_parent(canvas, window->getLvObj());
+
       stack.emplace_back(Layer(window));
 
 #if defined(DEBUG_WINDOWS)
@@ -55,6 +66,8 @@ class Layer
       if (stack.back().main == window) {
         stack.pop_back();
         const auto & back = stack.back();
+        lv_obj_set_parent(canvas, back.main->getLvObj());
+        lv_scr_load(back.main->getLvObj());  // load the screen.
         if (back.focus) {
           back.focus->setFocus(SET_FOCUS_DEFAULT);
         }
@@ -63,6 +76,8 @@ class Layer
         // TODO it would be better to do it in reverse order
         for (auto it = stack.begin(); it != stack.end(); it++) {
           if (it->main == window) {
+            lv_obj_set_parent(canvas, it->main->getLvObj());
+            lv_scr_load(it->main->getLvObj());
             stack.erase(it);
             break;
           }
