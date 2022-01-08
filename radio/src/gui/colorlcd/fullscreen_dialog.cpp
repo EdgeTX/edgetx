@@ -25,14 +25,10 @@
 #include "opentx.h"
 #include "libopenui.h"
 
-LvglWidgetFactory fullScreenDialogFactory = LvglWidgetFactory([] (lv_obj_t *parent) {
-  return lv_obj_create(nullptr);
-});
-
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
     const std::function<void(void)>& confirmHandler) :
-    FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE, &fullScreenDialogFactory),
+    FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE, true),
     type(type),
     title(std::move(title)),
     message(std::move(message)),
