@@ -272,6 +272,9 @@ public:
   VirtualFS();
   ~VirtualFS();
 
+  void stop();
+  void restart();
+
   static VirtualFS& instance()
   {
     if( _instance == nullptr)

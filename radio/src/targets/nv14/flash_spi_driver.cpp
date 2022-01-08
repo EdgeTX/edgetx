@@ -277,23 +277,33 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
 
-  reading = true;
+//  reading = true;
+//
+//  dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
+//  dmaRxInfo.DMA_BufferSize = size;
+//  DMA_Init(FLASH_SPI_RX_DMA_STREAM, &dmaRxInfo);
+//  DMA_Cmd(FLASH_SPI_RX_DMA_STREAM, ENABLE);
+//
+//  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Disable;
+//  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(buf);
+//  dmaTxInfo.DMA_BufferSize = size;
+//  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
+//  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
+//  DMA_ITConfig(FLASH_SPI_RX_DMA_STREAM, DMA_IT_TC, ENABLE);
+//  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
+//  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Rx|SPI_I2S_DMAReq_Tx, ENABLE);
+//
+//  if(SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk)
+//  {
+//    int32_t i;
+//    xSemaphoreTakeFromISR(irqSem.rtos_handle, &i);
+//  } else {
+//    RTOS_TAKE_SEMAPHORE(irqSem);
+//  }
 
-  dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(data);
-  dmaRxInfo.DMA_BufferSize = size;
-  DMA_Init(FLASH_SPI_RX_DMA_STREAM, &dmaRxInfo);
-  DMA_Cmd(FLASH_SPI_RX_DMA_STREAM, ENABLE);
+  for(size_t i=0; i < size; i++)
+    *data++ = flashSpiReadWriteByte(0xFF);
 
-  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Disable;
-  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(buf);
-  dmaTxInfo.DMA_BufferSize = size;
-  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
-  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
-  DMA_ITConfig(FLASH_SPI_RX_DMA_STREAM, DMA_IT_TC, ENABLE);
-  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
-  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Rx|SPI_I2S_DMAReq_Tx, ENABLE);
-
-  RTOS_TAKE_SEMAPHORE(irqSem);
 
   delay_01us(100); // 10us
   CS_HIGH();
