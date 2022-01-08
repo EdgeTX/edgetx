@@ -81,7 +81,8 @@ class AnaCalibratedViewWindow: public Window {
                 dc->drawNumber(x + VALUE_X_OFFSET, y, hall_raw_values[i], RIGHT | COLOR_THEME_PRIMARY1);
             }
 
-            for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+            //for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+            for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_CALIBRATED_ANALOGS; i++) {
                 #if LCD_W > LCD_H
                   coord_t y = 1 + (i / 2) * FH;
                   uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
@@ -140,20 +141,21 @@ class AnaCalibratedViewWindow: public Window {
         dc->drawLine(rawTouchState.x - 10, rawTouchState.y - 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(rawTouchState.x - 10, rawTouchState.y + 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y - 8- parent->top(), SOLID, 0);
       }
-#if !defined(SIMU) && !defined(PCBNV14)
+#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
         constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
         coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
-#if defined(PCBPL18) // major.minor format
+      x1 = dc->drawNumber(x1, y1, touchICfwver, LEFT, 4) + 16;
+#elif defined(PCBPL18)
+      constexpr coord_t y1 = MENU_CONTENT_TOP + NUM_CALIBRATED_ANALOGS * FH;
+      coord_t x1 = MENUS_MARGIN_LEFT;
+      x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
       x1 = dc->drawNumber(x1, y1, touchICfwver >> 8, LEFT, 0);
       x1 = dc->drawText(x1, y1, ".");
       x1 = dc->drawNumber(x1, y1, touchICfwver & 0xFF, LEFT, 0) + 16;
-#else
-      x1 = dc->drawNumber(x1, y1, touchICfwver, LEFT, 4) + 16;
 #endif
         x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
       dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);
-      #endif
 #endif
     };
 

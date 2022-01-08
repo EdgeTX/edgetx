@@ -57,7 +57,7 @@ class RadioKeyDiagsWindow : public Window
     void paint(BitmapBuffer * dc) override
     {
       constexpr coord_t KEY_COLUMN = 6;
-#if !defined(PCBNV14) // TODO! Check && !defined(PCBPL18)
+#if !defined(PCBNV14) && !defined(PCBPL18) // TODO! Remove PL18 after rotating the screen
       constexpr coord_t SWITCHES_COLUMN = LCD_W / 2 - 20;
       constexpr coord_t TRIM_COLUMN = LCD_W - 120;
 #else
