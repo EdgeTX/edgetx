@@ -27,7 +27,6 @@ LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_disp_drv_t disp_drv;          /*A variable to hold the drivers. Must be static or global.*/
 lv_disp_t * disp;
-
 static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t indev_drv;
 
@@ -268,14 +267,14 @@ LvglWrapper::LvglWrapper()
   disp_drv.sw_rotate = 1;
 
   lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
-  indev_drv.type =LV_INDEV_TYPE_POINTER;                 /*See below.*/
+  indev_drv.type = LV_INDEV_TYPE_POINTER;                 /*See below.*/
   indev_drv.read_cb = my_input_read;              /*See below.*/
   /*Register the driver in LVGL and save the created input device object*/
 
 
   disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
   lv_example_canvas_2();
-
+  lv_indev_t * my_indev = lv_indev_drv_register(&indev_drv);
 
 #if 0
   /*lv_indev_t * my_indev = */lv_indev_drv_register(&indev_drv);
