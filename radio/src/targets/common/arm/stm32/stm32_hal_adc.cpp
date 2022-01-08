@@ -449,6 +449,7 @@ static void stm32_hal_adc_wait_completion()
 #if defined(ADC_EXT) && !defined(ADC_EXT_DMA_Stream)
   if (isVBatBridgeEnabled()) {
     rtcBatteryVoltage = ADC_EXT->DR;
+    disableVBatBridge();
   }
 #endif
 #endif
