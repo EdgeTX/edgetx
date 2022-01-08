@@ -1770,8 +1770,8 @@ void opentxInit()
   TRACE("opentxInit");
 #if defined(LIBOPENUI)
   // create ViewMain
-  ViewMain::instance();
   LvglWrapper::instance();
+  ViewMain::instance();
 #elif defined(GUI)
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
