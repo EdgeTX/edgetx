@@ -82,16 +82,17 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 #elif defined(PCBPL18)
   /* TODO! Check */
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
-                                            7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                            11/*SWG*/,  10/*SWH*/,
-                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
+                                            4 /*POT1*/, 5 /*POT2*/,
+                                            6 /*SWB*/, 7 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
+                                            10/*SWG*/, 13 /*SWH*/,
+                                            11 /*TX_VOLTAGE*/, 12 /* TX_VBAT */ };
 
   const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
-                                            -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,
-                                             0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
+                                             0 /*POT1*/, 0 /*POT2*/,
+                                             0 /*SWB*/, 0 /*SWD*/,  0 /*SWE*/,  0 /*SWF*/,
+                                             0 /*SWG*/,
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
-                                             0 /*SWB*/, 0 /*SWD*/};
+                                             0 /*SWH*/ };
 #elif defined(PCBX12S)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
 #else
@@ -100,7 +101,7 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
 
-#if defined(PCBX10) || defined(PCBX12S)
+#if defined(PCBX10) || defined(PCBX12S) || defined(PCBPL18)
 uint16_t rtcBatteryVoltage;
 #endif
 
@@ -186,9 +187,9 @@ uint16_t getRTCBatteryVoltage()
 {
 #if defined(HAS_TX_RTC_VOLTAGE)
   return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBX10) || defined(PCBX12S)
+#elif defined(PCBX10) || defined(PCBX12S) || defined(PCBPL18)
   return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBNV14)
   #warning "TODO RTC voltage"
   return 330;
 #else
