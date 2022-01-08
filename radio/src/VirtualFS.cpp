@@ -37,6 +37,9 @@ VirtualFS* VirtualFS::_instance = nullptr;;
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
+uint16_t flashSpiGetPageSize();
+uint16_t flashSpiGetSectorSize();
+uint16_t flashSpiGetSectorCount();
 
 int flashSpiErase(size_t address);
 void flashSpiEraseAll();
@@ -72,11 +75,6 @@ int flashSync(const struct lfs_config *c)
   return LFS_ERR_OK;
 }
 }
-
-uint16_t flashSpiGetPageSize();
-uint16_t flashSpiGetSectorSize();
-uint16_t flashSpiGetSectorCount();
-
 
 VfsError convertResult(lfs_error err)
 {
@@ -143,9 +141,24 @@ VirtualFS::VirtualFS()
   lfsCfg.block_size = flashSpiGetSectorSize();
   lfsCfg.block_count = flashSpiGetSectorCount();
   lfsCfg.block_cycles = 500;
-  lfsCfg.cache_size = 2048;
+  lfsCfg.cache_size = 4096;
   lfsCfg.lookahead_size = 32;
 
+  restart();
+}
+
+VirtualFS::~VirtualFS()
+{
+  lfs_unmount(&lfs);
+}
+
+void VirtualFS::stop()
+{
+  lfs_unmount(&lfs);
+}
+
+void VirtualFS::restart()
+{
 //  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
@@ -167,11 +180,6 @@ VirtualFS::VirtualFS()
     lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
     lfs_file_close(&lfs, &file);
   }
-}
-
-VirtualFS::~VirtualFS()
-{
-  lfs_unmount(&lfs);
 }
 
 
