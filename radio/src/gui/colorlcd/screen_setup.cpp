@@ -161,7 +161,7 @@ class SetupWidgetsPage: public FormWindow
 {
   public:
     SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx):
-      FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
+      FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS,true),
       menu(menu),
       customScreenIdx(customScreenIdx)
     {
