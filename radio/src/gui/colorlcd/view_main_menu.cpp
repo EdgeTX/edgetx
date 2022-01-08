@@ -34,7 +34,7 @@
 #include "view_text.h"
 
 ViewMainMenu::ViewMainMenu(Window* parent) :
-    Window(parent->getFullScreenWindow(), {})
+    Window(parent->getFullScreenWindow(), {}, 0, 0, true)
 {
   // Save focus
   Layer::push(this);
