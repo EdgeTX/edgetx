@@ -30,7 +30,7 @@ constexpr WindowFlags FORM_FLAGS_LAST = FORM_NO_BORDER;
 class FormField: public Window
 {
   public:
-    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, bool isScreen = false);
 
     virtual void changeEnd(bool forceChanged = false)
     {
@@ -128,7 +128,7 @@ class FormField: public Window
 class FormGroup: public FormField
 {
   public:
-    FormGroup(Window * parent, const rect_t & rect, WindowFlags windowflags = 0) :
+    FormGroup(Window * parent, const rect_t & rect, WindowFlags windowflags = 0, bool isScreen = false) :
       FormField(parent, rect, windowflags)
     {
     }
@@ -212,8 +212,8 @@ class FormGroup: public FormField
 class FormWindow: public FormGroup
 {
   public:
-    FormWindow(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0) :
-      FormGroup(parent, rect, windowFlags)
+    FormWindow(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, bool isScreen = false) :
+      FormGroup(parent, rect, windowFlags, isScreen)
     {
     }
 

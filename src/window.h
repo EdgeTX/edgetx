@@ -30,6 +30,7 @@
 #include "libopenui_defines.h"
 #include "libopenui_helpers.h"
 #include "libopenui_config.h"
+#include "../../lvgl/src/lvgl.h"
 
 typedef uint32_t WindowFlags;
 
@@ -63,7 +64,7 @@ class Window
   friend class GridLayout;
 
   public:
-    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, bool isScreen = false);
 
     virtual ~Window();
 
@@ -384,7 +385,10 @@ class Window
       return _deleted;
     }
 
+    inline lv_obj_t *getLvObj() { return lvobj; }
+
   protected:
+    lv_obj_t *lvobj = nullptr;
     Window * parent;
     std::list<Window *> children;
     rect_t rect;

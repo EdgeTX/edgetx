@@ -23,17 +23,13 @@
 
 const char extra_chars_default[] = ":;<=>";
 
+static lv_obj_t *kb = nullptr;
+
 class TextEdit : public FormField {
   friend class TextKeyboard;
 
   public:
-    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * _extra_chars = nullptr) :
-      FormField(parent, rect, windowFlags),
-      value(value),
-      length(length)
-    {
-      extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
-    }
+    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * _extra_chars = nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override

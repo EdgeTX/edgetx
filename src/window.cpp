@@ -19,13 +19,29 @@
 
 #include "window.h"
 #include "touch.h"
+#include "mainwindow.h"
 
 Window * Window::focusWindow = nullptr;
 Window * Window::slidingWindow = nullptr;
 Window * Window::capturedWindow = nullptr;
 std::list<Window *> Window::trash;
 
-Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags):
+
+static void window_event_cb(lv_event_t * e)
+{
+  lv_event_code_t code = lv_event_get_code(e);
+  Window *window = (Window *) lv_event_get_user_data(e);
+  if (code == LV_EVENT_GET_SELF_SIZE) {
+    lv_point_t * p = (lv_point_t *)lv_event_get_param(e);
+    if (p->x >= 0) {
+      p->x = window->getInnerWidth();
+    }
+    if (p->y >= 0)
+      p->y = window->getInnerHeight();
+  }
+}
+
+Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, bool isScreen) :
   parent(parent),
   rect(rect),
   innerWidth(rect.w),
@@ -33,6 +49,18 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
   windowFlags(windowFlags),
   textFlags(textFlags)
 {
+  lvobj = lv_obj_create(isScreen ? nullptr : parent != nullptr ? parent->lvobj : nullptr);
+  lv_obj_set_pos(lvobj, rect.x, rect.y);
+  lv_obj_set_size(lvobj, rect.w, rect.h);
+
+  lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
+  lv_obj_set_style_radius(lvobj, 0, LV_PART_MAIN);
+  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
+  lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
+
   if (parent) {
     parent->addChild(this, windowFlags & PUSH_FRONT);
     if (!(windowFlags & TRANSPARENT)) {
@@ -44,6 +72,11 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
 Window::~Window()
 {
   TRACE_WINDOWS("Destroy %p %s", this, getWindowDebugString().c_str());
+  if (lvobj != nullptr)
+  {
+    lv_obj_del(lvobj);
+    lvobj = nullptr;
+  }
 
   if (focusWindow == this) {
     focusWindow = nullptr;
@@ -153,6 +186,7 @@ void Window::setScrollPositionX(coord_t value)
   auto newScrollPosition = max<coord_t>(0, min<coord_t>(innerWidth - width(), value));
   if (newScrollPosition != scrollPositionX) {
     scrollPositionX = newScrollPosition;
+    lv_obj_scroll_to_x(lvobj, scrollPositionX, LV_ANIM_OFF);
     invalidate();
   }
 }
@@ -167,6 +201,7 @@ void Window::setScrollPositionY(coord_t value)
 
   if (newScrollPosition != scrollPositionY) {
     scrollPositionY = newScrollPosition;
+    lv_obj_scroll_to_y(lvobj, value, LV_ANIM_OFF);
     invalidate();
   }
 }
