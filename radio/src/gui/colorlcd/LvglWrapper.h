@@ -24,12 +24,6 @@
 
 #include "opentx_types.h"
 #include "lvgl/lvgl.h"
-#if 0
-struct GuiWidget
-{
-  lv_obj_t obj;
-};
-#endif
 
 class LvglWrapper {
 public:
