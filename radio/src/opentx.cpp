@@ -781,7 +781,14 @@ bool isThrottleWarningAlertNeeded()
   if (g_model.thrTraceSrc && g_model.throttleReversed) { // TODO : proper review of THR source definition and handling
     v = -v;
   }
-  return v > THRCHK_DEADBAND - RESX;
+
+  if (g_model.enableCustomThrottleWarning) {
+    int16_t idleValue = (int32_t)RESX * (int32_t)g_model.customThrottleWarningPosition / (int32_t)100;
+    return abs(v - idleValue) > THRCHK_DEADBAND;
+  }
+  else {
+    return v > THRCHK_DEADBAND - RESX;
+  }
 }
 
 #if defined(COLORLCD)
