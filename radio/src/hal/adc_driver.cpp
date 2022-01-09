@@ -92,7 +92,7 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 
   const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
                                              0 /*POT1*/, 0 /*POT2*/, 0 /*SLIDER2*/,
-                                             0 /*SWB*/, 0 /*SWD*/,  0 /*SWE*/,  0 /*SWF*/, 0 /*SWG*/,
+                                            -1 /*SWB*/, -1 /*SWD*/,  0 /*SWE*/,  0 /*SWF*/, 0 /*SWG*/,
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
                                              0 /*POT3*/, 0 /*SLIDER1*/, 0 /*SWH*/ };
 #elif defined(PCBX12S)
