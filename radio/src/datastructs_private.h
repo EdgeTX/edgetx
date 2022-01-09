@@ -650,7 +650,7 @@ PACK(struct ModelData {
   uint8_t   extendedLimits:1;
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
-  uint8_t   enableCustomThrottleWarning;
+  uint8_t   enableCustomThrottleWarning;  // Might be 1-bit wide, but for now keeping 8-bit aligment
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
