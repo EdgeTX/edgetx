@@ -535,6 +535,13 @@ enum SwitchSources {
   SWSRC_TrimT6Up,
 #endif
 
+#if NUM_TRIMS > 6
+  SWSRC_TrimT7Down,
+  SWSRC_TrimT7Up,
+  SWSRC_TrimT8Down,
+  SWSRC_TrimT8Up,
+#endif
+
   SWSRC_FIRST_LOGICAL_SWITCH SKIP,
   SWSRC_SW1 = SWSRC_FIRST_LOGICAL_SWITCH,
   SWSRC_SW2,
@@ -647,8 +654,10 @@ enum MixSources {
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("vra", "Potentiometer A")
   MIXSRC_POT2,                          LUA_EXPORT("vrb", "Potentiometer B")
   MIXSRC_POT3,                          LUA_EXPORT("vrc", "Potentiometer C")
-  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT3,
-  MIXSRC_LAST_POT SKIP = MIXSRC_POT3,
+  MIXSRC_FIRST_SLIDER SKIP,
+  MIXSRC_LS = MIXSRC_FIRST_SLIDER,      LUA_EXPORT("ls", "Left slider")
+  MIXSRC_RS,                            LUA_EXPORT("rs", "Right slider")
+  MIXSRC_LAST_POT SKIP = MIXSRC_RS,
 #elif defined(PCBX9LITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT1,
@@ -678,29 +687,40 @@ enum MixSources {
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
 #endif
 
-  MIXSRC_MAX,                          LUA_EXPORT("max", "MAX")
+  MIXSRC_MAX,                           LUA_EXPORT("max", "MAX")
 
   MIXSRC_FIRST_HELI SKIP,
-  MIXSRC_CYC1 = MIXSRC_FIRST_HELI,     LUA_EXPORT("cyc1", "Cyclic 1")
-  MIXSRC_CYC2,                         LUA_EXPORT("cyc2", "Cyclic 2")
-  MIXSRC_CYC3,                         LUA_EXPORT("cyc3", "Cyclic 3")
+  MIXSRC_CYC1 = MIXSRC_FIRST_HELI,      LUA_EXPORT("cyc1", "Cyclic 1")
+  MIXSRC_CYC2,                          LUA_EXPORT("cyc2", "Cyclic 2")
+  MIXSRC_CYC3,                          LUA_EXPORT("cyc3", "Cyclic 3")
   MIXSRC_LAST_HELI SKIP = MIXSRC_CYC3,
 
   MIXSRC_FIRST_TRIM SKIP,
-  MIXSRC_TrimRud = MIXSRC_FIRST_TRIM,  LUA_EXPORT("trim-rud", "Rudder trim")
-  MIXSRC_TrimEle,                      LUA_EXPORT("trim-ele", "Elevator trim")
-  MIXSRC_TrimThr,                      LUA_EXPORT("trim-thr", "Throttle trim")
-  MIXSRC_TrimAil,                      LUA_EXPORT("trim-ail", "Aileron trim")
-#if defined(PCBHORUS)
-  MIXSRC_TrimT5,                       LUA_EXPORT("trim-t5", "Aux trim T5")
-  MIXSRC_TrimT6,                       LUA_EXPORT("trim-t6", "Aux trim T6")
-  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
-#else
-  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
-#endif
+  #if defined(PCBPL18)
+    MIXSRC_TrimTR1 = MIXSRC_FIRST_TRIM, LUA_EXPORT("trim-tr1", "Trim TR1")
+    MIXSRC_TrimTR2,                     LUA_EXPORT("trim-tr2", "Trim TR2")
+    MIXSRC_TrimTR3,                     LUA_EXPORT("trim-tr3", "Trim TR3")
+    MIXSRC_TrimTR4,                     LUA_EXPORT("trim-tr4", "Trim TR4")
+    MIXSRC_TrimTR5,                     LUA_EXPORT("trim-tr5", "Trim TR5")
+    MIXSRC_TrimTR6,                     LUA_EXPORT("trim-tr6", "Trim TR6")
+    MIXSRC_TrimTR7,                     LUA_EXPORT("trim-tr7", "Trim TR7")
+    MIXSRC_TrimTR8,                     LUA_EXPORT("trim-tr8", "Trim TR8")
+    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimTR8,
+  #else
+    MIXSRC_TrimRud = MIXSRC_FIRST_TRIM, LUA_EXPORT("trim-rud", "Rudder trim")
+    MIXSRC_TrimEle,                     LUA_EXPORT("trim-ele", "Elevator trim")
+    MIXSRC_TrimThr,                     LUA_EXPORT("trim-thr", "Throttle trim")
+    MIXSRC_TrimAil,                     LUA_EXPORT("trim-ail", "Aileron trim")
+    #if defined(PCBHORUS)
+      MIXSRC_TrimT5,                    LUA_EXPORT("trim-t5", "Aux trim T5")
+      MIXSRC_TrimT6,                    LUA_EXPORT("trim-t6", "Aux trim T6")
+      MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
+    #else
+      MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
+    #endif
+  #endif
 
   MIXSRC_FIRST_SWITCH SKIP,
-
 #if defined(HARDWARE_SWITCH_A)
   MIXSRC_SA = MIXSRC_FIRST_SWITCH,  LUA_EXPORT("sa", "Switch A")
   MIXSRC_SB,                        LUA_EXPORT("sb", "Switch B")
