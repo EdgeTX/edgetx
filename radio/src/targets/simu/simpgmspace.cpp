@@ -47,7 +47,6 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
-#if defined(STM32)
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
 TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
 RCC_TypeDef rcc;
@@ -76,17 +75,6 @@ void DMA_ClearITPendingBit(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT) { 
 void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState) { }
 void UART3_Configure(uint32_t baudrate, uint32_t masterClock) { }
 void NVIC_Init(NVIC_InitTypeDef * NVIC_InitStruct) { }
-#else
-Pio Pioa, Piob, Pioc;
-Pmc pmc;
-Ssc ssc;
-Pwm pwm;
-Tc tc1;
-Twi Twio;
-Usart Usart0;
-Dacc dacc;
-Adc Adc0;
-#endif
 
 FATFS g_FATFS_Obj;
 
@@ -141,9 +129,7 @@ uint64_t CoGetOSTime(void)
 
 void simuInit()
 {
-#if defined(STM32)
   RCC->CSR = 0;
-#endif
 
   // set power button to "not pressed"
 #if defined(PWR_SWITCH_GPIO)  // STM32
@@ -610,18 +596,6 @@ uint32_t readTrims()
 
 uint32_t switchState(uint8_t index)
 {
-#if defined(PCBSKY9X)
-  switch(index) {
-    case 0:
-      return switchesStates[0] < 0;
-    case 1:
-      return switchesStates[0] == 0;
-    case 2:
-      return switchesStates[0] > 0;
-    default:
-      return switchesStates[index - 2] > 0;
-  }
-#else
   div_t qr = div(index, 3);
   int state = switchesStates[qr.quot];
   switch (qr.rem) {
@@ -632,10 +606,8 @@ uint32_t switchState(uint8_t index)
     default:
       return state == 0;
   }
-#endif
 }
 
-#if defined(STM32)
 int usbPlugged() { return false; }
 int getSelectedUsbMode() { return USB_JOYSTICK_MODE; }
 void setSelectedUsbMode(int mode) {}
@@ -747,7 +719,6 @@ uint32_t isBootloaderStart(const uint8_t * block)
 {
   return 1;
 }
-#endif // defined(STM32)
 
 #if defined(PCBXLITES)
 bool isJackPlugged()

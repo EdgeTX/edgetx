@@ -129,18 +129,12 @@
   #define TR_RETA123           "RHGS13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123           "RHGS1234HVHV"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123           "RHGS123HV"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123           "RHGS123a"
 #else
   #define TR_RETA123           "RHGS123"
 #endif
 
-#if defined(PCBSKY9X) && defined(REVX)
-  #define LEN_VOUTPUT_TYPE     "\011"
-  #define TR_VOUTPUT_TYPE      "OpenDrain""PushPull\0"
-#endif
 
 #define LEN_VCURVEFUNC         "\003"
 #define TR_VCURVEFUNC          "---""x>0""x<0""|x|""f>0""f<0""|f|"
@@ -197,11 +191,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK      "Spela Spår"
-  #else
     #define TR_PLAY_TRACK      "Spela upp\0"
-  #endif
   #define TR_PLAY_BOTH         "Spela Båda"
   #define TR_PLAY_VALUE        TR("Säg värdet", "Säg värdet")
 #else
@@ -336,13 +326,8 @@
   #define TR_TRIMS_SWITCHES    TR("tRv""tRh""tHn""tHu""tGn""tGu""tSv""tSh",   STR_CHAR_TRIM "Rv"  STR_CHAR_TRIM "Rh"  STR_CHAR_TRIM "Hn"  STR_CHAR_TRIM "Hu"  STR_CHAR_TRIM "Gn"  STR_CHAR_TRIM "Gu"  STR_CHAR_TRIM "Sv"  STR_CHAR_TRIM "Sh")
 #endif
 
-#if defined(PCBSKY9X)
-  #define TR_ROTARY_ENCODERS   "REa\0"
-  #define TR_ROTENC_SWITCHES   "REa"
-#else
   #define TR_ROTARY_ENCODERS
   #define TR_ROTENC_SWITCHES
-#endif
 
 #define TR_ON_ONE_SWITCHES     "På\0""Ett"
 
@@ -465,9 +450,6 @@
 #define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR             TR("Cent.pip", "Centerpip")
 #define TR_USE_GLOBAL_FUNCS    TR("Glob.Funkt", "Använd Global Funk.")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE       INDENT "Output"
-#endif
 #define TR_PROTOCOL            TR("Proto", "Protokoll")
 #define TR_PPMFRAME            INDENT "PPM-paket"
 #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")

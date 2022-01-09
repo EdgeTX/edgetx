@@ -431,15 +431,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   } \
   simuSetSwitch(swtch, state_##swtch) \
 
-#if defined(PCBSKY9X)
-  SWITCH_KEY(1, 0, 3);
-  SWITCH_KEY(2, 1, 2);
-  SWITCH_KEY(3, 2, 2);
-  SWITCH_KEY(4, 3, 2);
-  SWITCH_KEY(5, 4, 2);
-  SWITCH_KEY(6, 5, 2);
-  SWITCH_KEY(7, 6, 2);
-#else
   SWITCH_KEY(A, 0, 3);
   SWITCH_KEY(B, 1, 3);
   SWITCH_KEY(C, 2, 3);
@@ -474,7 +465,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     SWITCH_KEY(Q, 16, 3);
     SWITCH_KEY(R, 17, 3);
   #endif
-#endif
 }
 
 long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
