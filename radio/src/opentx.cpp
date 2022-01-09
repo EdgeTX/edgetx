@@ -726,7 +726,35 @@ void checkAll()
 #endif
 
 #if defined(COLORLCD)
-  #warning "KEYSTUCK Message Not Yet Implemented"
+  if (!waitKeysReleased()) {
+    auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
+    LED_ERROR_BEGIN();
+    AUDIO_ERROR_MESSAGE(AU_ERROR);
+    tmr10ms_t tgtime = get_tmr10ms() + 500;
+    uint32_t keys = readKeys();
+    std::string strKeys("");
+    const char STR_VKEYS[] = TR_VKEYS;
+    const int len = int(LEN_VKEYS[0]);
+    char s[6];
+    s[5] = 0;
+    for (int i = 0; i < (int)TRM_BASE; i++) {
+      if (keys & (1 << i)) {
+        strncpy(s, &STR_VKEYS[i * len], len);
+        strKeys += s;
+      }
+    }
+
+    dlg->setMessage(strKeys.c_str());
+    dlg->setCloseCondition([tgtime]() {
+      if (tgtime >= get_tmr10ms() && keyDown()) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    dlg->runForever();
+    LED_ERROR_END();
+  }
 #else
   if (!waitKeysReleased()) {
     showMessageBox(STR_KEYSTUCK);
