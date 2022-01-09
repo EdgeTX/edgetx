@@ -276,12 +276,12 @@ void watchdogInit(unsigned int duration);
 #endif
 
 // ADC driver
-#define NUM_POTS                        2
+#define NUM_POTS                        3
 #define NUM_XPOTS                       0 // NUM_POTS
 #define NUM_SLIDERS                     0
 #define NUM_PWMSTICKS                   0
 #define NUM_MOUSE_ANALOGS               0
-#define STORAGE_NUM_POTS                5
+#define STORAGE_NUM_POTS                6
 #define STORAGE_NUM_SLIDERS             0
 #define STORAGE_NUM_MOUSE_ANALOGS       0
 
@@ -293,6 +293,7 @@ enum Analogs {
   POT_FIRST,
   POT1 = POT_FIRST,
   POT2,
+  POT3,
   POT_LAST = POT_FIRST + NUM_POTS - 1,
   SWITCH_FIRST,
   SWB = SWITCH_FIRST,
@@ -308,13 +309,15 @@ enum Analogs {
   NUM_ANALOGS
 };
 
+#define HARDWARE_POT3
+
 //#define SLIDER1 SLIDER_FRONT_LEFT
 //#define SLIDER2 SLIDER_FRONT_RIGHT
 
 #define SLIDER_FIRST  0
 #define SLIDER_LAST  -1
 
-#define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
+#define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_WITHOUT_DETENT << 2) + (POT_WITH_DETENT << 0) // VRA and VRC pots with detent, VRB without
 //#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
 
 enum CalibratedAnalogs {
@@ -324,6 +327,7 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK4,
   CALIBRATED_POT1,
   CALIBRATED_POT2,
+  CALIBRATED_POT3,
   CALIBRATED_SWB,
   CALIBRATED_SWD,
   CALIBRATED_SWE,
