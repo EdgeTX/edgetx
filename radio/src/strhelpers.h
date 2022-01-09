@@ -105,26 +105,20 @@ std::string stringFromNtString(const char (&a)[N]) {
     return std::string(a, strnlen(a, N));        
 }    
 template<size_t L>
-constexpr void copyToUnTerminated(char (&dest)[L], const char* const src) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"       
+void copyToUnTerminated(char (&dest)[L], const char* const src) {
     strncpy(dest, src, L);
-#pragma GCC diagnostic pop         
 }
 template<size_t L>
-constexpr void copyToUnTerminated(char (&dest)[L], const std::string& src) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"       
+void copyToUnTerminated(char (&dest)[L], const std::string& src) {
     strncpy(dest, src.c_str(), L);
-#pragma GCC diagnostic pop         
 }
 template<size_t N>
-constexpr std::string stringFromNtString(const char (&a)[N]) {
+std::string stringFromNtString(const char (&a)[N]) {
     return std::string(a, strnlen(a, N));        
 }    
 
 template<typename S>
-constexpr void clearStruct(S& s) {
+void clearStruct(S& s) {
     memset((void*) &s, 0, sizeof(S));
 }
 #endif  // _STRHELPERS_H_
