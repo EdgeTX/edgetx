@@ -33,10 +33,6 @@
 #include "modules_helpers.h"
 #include "ff.h"
 
-#if defined(PCBSKY9X) && defined(DSM2)
-  #define DSM2_BIND_TIMEOUT      255         // 255*11ms
-  extern uint8_t dsm2BindTimer;
-#endif
 
 #if defined(DSM2)
   #define IS_DSM2_PROTOCOL(protocol)         (protocol>=PROTOCOL_CHANNELS_DSM2_LP45 && protocol<=PROTOCOL_CHANNELS_DSM2_DSMX)

@@ -177,9 +177,6 @@ void killAllEvents()
 
 bool waitKeysReleased()
 {
-#if defined(PCBSKY9X)
-  RTOS_WAIT_MS(200); // 200ms
-#endif
 
   // loop until all keys are up
 #if !defined(BOOT)

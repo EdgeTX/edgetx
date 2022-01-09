@@ -58,9 +58,7 @@ void menuStatisticsView(event_t event)
 #if !defined(PCBTARANIS)
     case EVT_KEY_LONG(KEY_MENU): // historical
 #endif
-#if !defined(PCBSKY9X)
     case EVT_KEY_LONG(KEY_ENTER):
-#endif
       g_eeGeneral.globalTimer = 0;
       storageDirty(EE_GENERAL);
       sessionTimer = 0;
@@ -122,10 +120,6 @@ void menuStatisticsDebug(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
-#if defined(PCBSKY9X)
-      g_eeGeneral.mAhUsed = 0;
-      Current_used = 0;
-#endif
       g_eeGeneral.globalTimer = 0;
       sessionTimer = 0;
       storageDirty(EE_GENERAL);
@@ -170,14 +164,6 @@ void menuStatisticsDebug(event_t event)
       break;
   }
 
-#if defined(PCBSKY9X)
-  if (IS_RESET_REASON_WATCHDOG()) {
-    lcdDrawText(LCD_W-8*FW, 0, "WATCHDOG");
-  }
-  else if (globalData.unexpectedShutdown) {
-    lcdDrawText(LCD_W-13*FW, 0, "UNEXP.SHTDOWN");
-  }
-#endif
 
   uint8_t y = FH + 1;
 
@@ -214,12 +200,10 @@ void menuStatisticsDebug(event_t event)
   y += FH;
 #endif
 
-#if defined(STM32)
   lcdDrawTextAlignedLeft(y, "Free Mem");
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, availableMemory(), LEFT);
   lcdDrawText(lcdLastRightPos, y, "b");
   y += FH;
-#endif
 
 #if defined(LUA)
   lcdDrawTextAlignedLeft(y, "Lua scripts");
@@ -256,7 +240,6 @@ void menuStatisticsDebug(event_t event)
   lcdInvertLastLine();
 }
 
-#if defined(STM32)
 void menuStatisticsDebug2(event_t event)
 {
   title(STR_MENUDEBUG);
@@ -305,4 +288,3 @@ void menuStatisticsDebug2(event_t event)
   lcdDrawText(LCD_W/2, 7*FH+1, STR_MENUTORESET, CENTERED);
   lcdInvertLastLine();
 }
-#endif

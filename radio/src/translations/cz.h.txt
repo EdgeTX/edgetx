@@ -125,18 +125,12 @@
   #define TR_RETA123                   "SVPK13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "SVPK1234LRLR"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "SVPK123LR"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123                   "SVPK123a"
 #else
   #define TR_RETA123                   "SVPK123"
 #endif
 
-#if defined(PCBSKY9X) && defined(REVX)
-  #define LEN_VOUTPUT_TYPE             "\011"
-  #define TR_VOUTPUT_TYPE              "OpenDrain""PushPull\0"
-#endif
 
 #define LEN_VCURVEFUNC                 "\003"
 #define TR_VCURVEFUNC                  "---""x>0""x<0""|x|""f>0""f<0""|f|"
@@ -193,11 +187,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK              "\221\222Zvuk\0    "
-  #else
     #define TR_PLAY_TRACK              TR3("\221\222Stopa\0   ", "\221\222Stopa\0   ", "Přehrát wav")
-  #endif
   #define TR_PLAY_BOTH                 "\221\222Pár stop\0"
   #define TR_PLAY_VALUE                TR3("\221\222Hlásit\0  ", "\221\222Hlásit\0  ", "Hlásit stav")
 #else
@@ -312,13 +302,8 @@
   #define TR_TRIMS_SWITCHES            TR("tSl""tSp""tVd""tVn""tPd""tPn""tKl""tKp",   STR_CHAR_TRIM "Sl"  STR_CHAR_TRIM "Sp"  STR_CHAR_TRIM "Vd"  STR_CHAR_TRIM "Vn"  STR_CHAR_TRIM "Pd"  STR_CHAR_TRIM "Pn"  STR_CHAR_TRIM "Kl"  STR_CHAR_TRIM "Kp")
 #endif
 
-#if defined(PCBSKY9X)
-  #define TR_ROTARY_ENCODERS           "REa\0"
-  #define TR_ROTENC_SWITCHES           "REa"
-#else
   #define TR_ROTARY_ENCODERS
   #define TR_ROTENC_SWITCHES
-#endif
 
 #define TR_ON_ONE_SWITCHES             "ZAP""One"
 
@@ -437,9 +422,6 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR3("Středy \221\222", "Pípat středy \221\222", "Pípat středy")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funkce", "Použít Glob.Funkce")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE               INDENT "Výstup"
-#endif
 #define TR_PROTOCOL                    "Protokol"
 #define TR_PPMFRAME                    INDENT "PPM modulace"
 #define TR_REFRESHRATE                 TR(INDENT "Obnovit", INDENT "Obn. frekv.")

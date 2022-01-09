@@ -121,10 +121,8 @@
   #define TR_RETA123                   "RETA13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "RETA1234LRLR"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "RETA123LR"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123                   "RETA123a"
 #else
   #define TR_RETA123                   "RETA123"
 #endif

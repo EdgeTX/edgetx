@@ -1171,13 +1171,11 @@ int cliDisplay(const char ** argv)
     serialPrint("volume = %d", getVolume());
   }
 #endif
-#if defined(STM32)
   else if (!strcmp(argv[1], "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);
     serialPrint("uid = %s", str);
   }
-#endif
   else if (!strcmp(argv[1], "tim")) {
     int timerNumber;
     if (toInt(argv, 2, &timerNumber) > 0) {

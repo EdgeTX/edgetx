@@ -277,20 +277,7 @@ void displayBattVoltage()
 #endif
 }
 
-#if defined(PCBSKY9X)
-void displayVoltageOrAlarm()
-{
-  if (g_eeGeneral.mAhWarn && (g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration)/8192/36) / 500 >= g_eeGeneral.mAhWarn) {
-    drawValueWithUnit(7*FW-1, 2*FH, (g_eeGeneral.mAhUsed + Current_used*(488 + g_eeGeneral.txCurrentCalibration)/8192/36)/10, UNIT_MAH,
-                      BLINK|INVERS|DBLSIZE|RIGHT);
-  }
-  else {
-    displayBattVoltage();
-  }
-}
-#else
 #define displayVoltageOrAlarm() displayBattVoltage()
-#endif
 
 #if defined(RADIO_T8)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)

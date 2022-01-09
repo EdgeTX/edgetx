@@ -24,9 +24,6 @@
 #define DSM2_SEND_BIND                     (1 << 7)
 #define DSM2_SEND_RANGECHECK               (1 << 5)
 
-#if defined(PCBSKY9X)
-uint8_t  dsm2BindTimer = DSM2_BIND_TIMEOUT;
-#endif
 
 // DSM2 control bits
 #define DSM2_CHANS           6
@@ -135,28 +132,12 @@ void setupPulsesDSM2()
       break;
   }
 
-#if defined(PCBSKY9X)
-  if (dsm2BindTimer > 0) {
-    dsm2BindTimer--;
-    if (switchState(SW_DSM2_BIND)) {
-      moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_BIND;
-      dsmDat[0] |= DSM2_SEND_BIND;
-    }
-  }
-  else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
-    dsmDat[0] |= DSM2_SEND_RANGECHECK;
-  }
-  else {
-    moduleState[EXTERNAL_MODULE].mode = 0;
-  }
-#else
   if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_BIND) {
     dsmDat[0] |= DSM2_SEND_BIND;
   }
   else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
     dsmDat[0] |= DSM2_SEND_RANGECHECK;
   }
-#endif
 
   dsmDat[1] = g_model.header.modelId[EXTERNAL_MODULE]; // DSM2 Header second byte for model match
 

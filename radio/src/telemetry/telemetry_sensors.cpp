@@ -372,20 +372,11 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
           }
         }
         uint32_t angle = abs(gpsItem.gps.latitude - gpsItem.pilotLatitude);
-#if defined(STM32)
         uint32_t dist = uint64_t(EARTH_RADIUS * M_PI / 180) * angle / 1000000;
-#else
-        // TODO search later why it breaks Sky9x
-        uint32_t dist = EARTH_RADIUS * angle / 1000000;
-#endif
         uint32_t result = dist * dist;
 
         angle = abs(gpsItem.gps.longitude - gpsItem.pilotLongitude);
-#if defined(STM32)
         dist = uint64_t(gpsItem.distFromEarthAxis) * angle / 1000000;
-#else
-        dist = gpsItem.distFromEarthAxis * angle / 1000000;
-#endif
         result += dist * dist;
 
         // Length on ground (ignoring curvature of the earth)

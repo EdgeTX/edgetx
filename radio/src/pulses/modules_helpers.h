@@ -244,17 +244,10 @@ inline bool isModuleGhost(uint8_t idx)
 }
 #endif
 
-#if defined(PCBSKY9X)
-inline bool isExtraModule(uint8_t idx)
-{
-  return idx == EXTRA_MODULE;
-}
-#else
 inline bool isExtraModule(uint8_t)
 {
   return false;
 }
-#endif
 
 inline bool isModuleTypePPM(uint8_t type)
 {
@@ -263,10 +256,6 @@ inline bool isModuleTypePPM(uint8_t type)
 
 inline bool isModulePPM(uint8_t moduleIdx)
 {
-#if defined(PCBSKY9X)
-  if (moduleIdx == EXTRA_MODULE)
-    return true;
-#endif
   return isModuleTypePPM(g_model.moduleData[moduleIdx].type);
 }
 
