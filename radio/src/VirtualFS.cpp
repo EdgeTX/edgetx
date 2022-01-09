@@ -35,6 +35,7 @@
 
 VirtualFS* VirtualFS::_instance = nullptr;;
 
+#if defined (SPI_FLASH)
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
 uint16_t flashSpiGetPageSize();
@@ -76,7 +77,7 @@ int flashSync(const struct lfs_config *c)
 }
 }
 
-VfsError convertResult(lfs_error err)
+static VfsError convertResult(lfs_error err)
 {
   switch(err)
   {
@@ -99,7 +100,32 @@ VfsError convertResult(lfs_error err)
   return VfsError::INVAL;
 }
 
-VfsError convertResult(FRESULT err)
+static int convertOpenFlagsToLfs(VfsOpenFlags flags)
+{
+  int lfsFlags = 0;
+
+  if((flags & VfsOpenFlags::READ) != VfsOpenFlags::NONE && (flags & VfsOpenFlags::WRITE) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_RDWR;
+  else if ((flags & VfsOpenFlags::READ) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_RDONLY;
+  else if ((flags & VfsOpenFlags::WRITE) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_WRONLY;
+
+  if((flags & VfsOpenFlags::CREATE_NEW) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_CREAT | LFS_O_EXCL;
+  else if ((flags & VfsOpenFlags::CREATE_ALWAYS) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_CREAT | LFS_O_TRUNC;
+  else if((flags & VfsOpenFlags::OPEN_ALWAYS) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_CREAT;
+  else if((flags & VfsOpenFlags::OPEN_APPEND) != VfsOpenFlags::NONE)
+    lfsFlags |= LFS_O_CREAT | LFS_O_APPEND;
+
+  return lfsFlags;
+}
+#endif
+
+#if defined (SDCARD)
+static VfsError convertResult(FRESULT err)
 {
   switch(err)
   {
@@ -107,12 +133,12 @@ VfsError convertResult(FRESULT err)
   case FR_DISK_ERR:            return VfsError::IO;
   case FR_INT_ERR:             return VfsError::INVAL;
   case FR_NOT_READY:           return VfsError::INVAL;
-  case FR_NO_FILE:             return VfsError::INVAL;
+  case FR_NO_FILE:             return VfsError::NOENT;
   case FR_NO_PATH:             return VfsError::NOENT;
   case FR_INVALID_NAME:        return VfsError::INVAL;
   case FR_DENIED:              return VfsError::INVAL;
-  case FR_EXIST:               return VfsError::INVAL;
-  case FR_INVALID_OBJECT:      return VfsError::INVAL;
+  case FR_EXIST:               return VfsError::EXIST;
+  case FR_INVALID_OBJECT:      return VfsError::BADF;
   case FR_WRITE_PROTECTED:     return VfsError::INVAL;
   case FR_INVALID_DRIVE:       return VfsError::INVAL;
   case FR_NOT_ENABLED:         return VfsError::INVAL;
@@ -127,8 +153,219 @@ VfsError convertResult(FRESULT err)
   return VfsError::INVAL;
 }
 
+static int convertOpenFlagsToFat(VfsOpenFlags flags)
+{
+  return (int)flags;
+}
+#endif
+
+VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs)
+{
+  typedef typename
+    std::underlying_type<VfsOpenFlags>::type underlying;
+  return static_cast<VfsOpenFlags>(
+    static_cast<underlying>(lhs)
+  | static_cast<underlying>(rhs));
+}
+VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs)
+{
+  typedef typename
+    std::underlying_type<VfsOpenFlags>::type underlying;
+  return static_cast<VfsOpenFlags>(
+    static_cast<underlying>(lhs)
+  & static_cast<underlying>(rhs));
+}
+
+VfsError VfsFile::close()
+{
+  VfsError ret = VfsError::INVAL;
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    ret = convertResult(f_close(&fat.file));
+    break;
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    ret = convertResult((lfs_error)lfs_file_close(lfs.handle, &lfs.file));
+    break;
+#endif
+  }
+
+  clear();
+  return ret;
+}
+
+int VfsFile::size()
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return f_size(&fat.file);
+    break;
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    {
+      int res = lfs_file_size(lfs.handle, &lfs.file);
+      if(res < 0)
+        return (int)convertResult((lfs_error)res);
+      return res;
+    }
+#endif
+  }
+
+  return -1;
+}
+
+VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return convertResult(f_read(&fat.file, buf, size, &readSize));
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    {
+      int ret = lfs_file_read(lfs.handle, &lfs.file, buf, size);
+      if(ret >= 0)
+      {
+        readSize = ret;
+        return VfsError::OK;
+      } else {
+        readSize = 0;
+        return convertResult((lfs_error)ret);
+      }
+      break;
+    }
+#endif
+  }
+
+  return VfsError::INVAL;
+}
+
+char* VfsFile::gets(char* buf, size_t maxLen)
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return f_gets(buf, maxLen, &fat.file);
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    {
+      size_t nc = 0;
+      char* p = buf;
+      char s[4];
+      size_t rc;
+      char dc;
+      maxLen -= 1;   /* Make a room for the terminator */
+      while (nc < maxLen) {
+          read(s, 1, rc);
+          if (rc != 1) break;
+          dc = s[0];
+          *p++ = dc; nc++;
+          if (dc == '\n') break;
+      }
+      *p = 0;     /* Terminate the string */
+      return nc ? buf : 0;   /* When no data read due to EOF or error, return with error. */
+    }
+#endif
+  }
+
+  return 0;
+}
+
+VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return convertResult(f_write(&fat.file, buf, size, &written));
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    {
+      int ret = lfs_file_write(lfs.handle, &lfs.file, buf, size);
+      if(ret >= 0)
+      {
+        written = ret;
+        return VfsError::OK;
+      } else {
+        written = 0;
+        return convertResult((lfs_error)ret);
+      }
+      break;
+    }
+#endif
+  }
+
+  return VfsError::INVAL;
+}
+
+VfsError VfsFile::puts(const std::string& str)
+{
+  size_t written;
+  return this->write(str.data(), str.length(), written);
+}
+
+VfsError VfsFile::putc(char c)
+{
+  size_t written;
+  return this->write(&c, 1, written);
+}
+
+
+VfsError VfsFile::lseek(size_t offset)
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return convertResult(f_lseek(&fat.file, offset));
+    break;
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    {
+      int ret = lfs_file_seek(lfs.handle, &lfs.file, offset, LFS_SEEK_SET);
+      if(ret < 0)
+        return convertResult((lfs_error)ret);
+      else
+        return VfsError::OK;
+    }
+#endif
+  }
+
+  return VfsError::INVAL;
+}
+
+int VfsFile::eof()
+{
+  switch(type)
+  {
+#if defined (SDCARD)
+  case VfsFileType::FAT:
+    return f_eof(&fat.file);
+#endif
+#if defined (SPI_FLASH)
+  case VfsFileType::LFS:
+    return lfs_file_tell(lfs.handle, &lfs.file) == lfs_file_size(lfs.handle, &lfs.file);
+#endif
+  }
+
+  return 0;
+}
+
 VirtualFS::VirtualFS()
 {
+#if defined (SPI_FLASH)
   // configuration of the filesystem is provided by this struct
   lfsCfg.read  = flashRead;
   lfsCfg.prog  = flashWrite;
@@ -143,22 +380,28 @@ VirtualFS::VirtualFS()
   lfsCfg.block_cycles = 500;
   lfsCfg.cache_size = 4096;
   lfsCfg.lookahead_size = 32;
+#endif
 
   restart();
 }
 
 VirtualFS::~VirtualFS()
 {
+#if defined (SPI_FLASH)
   lfs_unmount(&lfs);
+#endif
 }
 
 void VirtualFS::stop()
 {
+#if defined (SPI_FLASH)
   lfs_unmount(&lfs);
+#endif
 }
 
 void VirtualFS::restart()
 {
+#if defined (SPI_FLASH)
 //  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
@@ -180,6 +423,7 @@ void VirtualFS::restart()
     lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
     lfs_file_close(&lfs, &file);
   }
+#endif
 }
 
 
@@ -195,10 +439,12 @@ int (*unlock)(const struct lfs_config *c);
 
 bool VirtualFS::format()
 {
+#if defined (SPI_FLASH)
+
   flashSpiEraseAll();
   lfs_format(&lfs, &lfsCfg);
   return true;
-
+#endif
 //  BYTE work[FF_MAX_SS];
 //  FRESULT res = f_mkfs("", FM_FAT32, 0, work, sizeof(work));
 //  switch(res) {
@@ -252,14 +498,32 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
   if(path == "/")
   {
     return VfsDir::DIR_ROOT;
-  } else if(path.substr(0, 6) == "/FLASH")
+  } else if(path.substr(0, 7) == "/FLASH/")
   {
     path = path.substr(6);
+#if defined (SPI_FLASH)
     return VfsDir::DIR_LFS;
-  } else {
+#else
+    return VfsDir::DIR_UNKOWN;
+#endif
+  } else if(path.substr(0, 8) == "/SDCARD/") {
     path = path.substr(7);
+#if defined (SDCARD)
     return VfsDir::DIR_FAT;
+#else
+    return VfsDir::DIR_UNKOWN;
+#endif
+  } else if(path.substr(0, 10) == "/DEFAULT/") {
+    path = path.substr(9);
+#if defined (SDCARD)
+    return VfsDir::DIR_FAT;
+#elif defined (SPI_FLASH)
+    return VfsDir::DIR_LFS;
+#else
+    return VFSDir::DIR_UNKNOWN;
+#endif
   }
+  return VfsDir::DIR_UNKNOWN;
 }
 
 void VirtualFS::normalizePath(std::string& path)
@@ -311,11 +575,14 @@ VfsError VirtualFS::unlink(const std::string& path)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
     return convertResult(f_unlink(p.c_str()));
-    break;
+#endif
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
     return convertResult((lfs_error)lfs_remove(&lfs, p.c_str()));
+#endif
   }
 
   return VfsError::INVAL;
@@ -352,10 +619,14 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::OK;
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
     return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfsDir, dirPath.c_str()));
+#endif
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
     return convertResult(f_opendir(&dir.fatDir, dirPath.c_str()));
+#endif
   }
 
   return VfsError::INVAL;
@@ -376,6 +647,7 @@ VfsError VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime
       info.name = "";
     dir.readIdx++;
     return VfsError::OK;
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
     info.type = VfsFileType::FAT;
     if(dir.readIdx == 0) // emulate ".." entry
@@ -385,6 +657,8 @@ VfsError VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime
       return VfsError::OK;
     }
     return convertResult(sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime));
+#endif
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
     {
       info.type = VfsFileType::LFS;
@@ -393,6 +667,7 @@ VfsError VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime
         return VfsError::OK;
       return convertResult((lfs_error)res);
     }
+#endif
   }
   return VfsError::INVAL;
 }
@@ -405,12 +680,16 @@ VfsError VirtualFS::closeDirectory(VfsDir& dir)
   case VfsDir::DIR_ROOT:
     ret = VfsError::OK;
     break;
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
     ret = convertResult(f_closedir(&dir.fatDir));
     break;
+#endif
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
     ret = convertResult((lfs_error)lfs_dir_close(&lfs, &dir.lfsDir));
     break;
+#endif
   }
   dir.clear();
   return ret;
@@ -433,10 +712,14 @@ VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
     {
     case VfsDir::DIR_ROOT:
       return VfsError::INVAL;
+#if defined (SDCARD)
     case VfsDir::DIR_FAT:
       return convertResult(f_rename(oldP.c_str(), newP.c_str()));
+#endif
+#if defined (SPI_FLASH)
     case VfsDir::DIR_LFS:
       return convertResult((lfs_error)lfs_rename(&lfs, oldP.c_str(), newP.c_str()));
+#endif
     }
   } else {
     VfsError err = copyFile(oldPath, newPath);
@@ -452,14 +735,14 @@ VfsError VirtualFS::copyFile(const std::string& source, const std::string& desti
   VfsFile src;
   VfsFile dest;
 
-  VfsError err = openFile(src, source, LFS_O_RDONLY);
+  VfsError err = openFile(src, source, VfsOpenFlags::READ);
   if(err != VfsError::OK)
     return err;
 
-  err = openFile(dest, destination, LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR);
+  err = openFile(dest, destination, VfsOpenFlags::CREATE_NEW);
   if(err != VfsError::OK)
   {
-    closeFile(src);
+    src.close();
     return err;
   }
 
@@ -469,23 +752,23 @@ VfsError VirtualFS::copyFile(const std::string& source, const std::string& desti
   size_t readBytes = 0;
   size_t written = 0;
 
-  err = read(src, buf, sizeof(buf), readBytes);
+  err = src.read(buf, sizeof(buf), readBytes);
   if(err != VfsError::OK)
     goto cleanup;
 
   while(readBytes)
   {
-    err = write(dest, buf, readBytes, written);
+    err = dest.write(buf, readBytes, written);
     if(err != VfsError::OK)
       goto cleanup;
-    err = read(src, buf, sizeof(buf), readBytes);
+    err = src.read(buf, sizeof(buf), readBytes);
     if(err != VfsError::OK)
       goto cleanup;
   }
 
 cleanup:
-  closeFile(src);
-  closeFile(dest);
+  src.close();
+  dest.close();
   return err;
 }
 
@@ -495,8 +778,31 @@ VfsError VirtualFS::copyFile(const std::string& srcFile, const std::string& srcD
   return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
 }
 
+VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
+{
+  std::string normPath(path);
+  normalizePath(normPath);
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
-VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
+  switch(dirType)
+  {
+  case VfsDir::DIR_ROOT:
+    return VfsError::INVAL;
+#if defined (SDCARD)
+  case VfsDir::DIR_FAT:
+    fileInfo.type = VfsFileType::FAT;
+    return convertResult(f_stat(normPath.c_str(), &fileInfo.fatInfo));
+#endif
+#if defined (SPI_FLASH)
+  case VfsDir::DIR_LFS:
+    fileInfo.type = VfsFileType::LFS;
+    return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), &fileInfo.lfsInfo));
+#endif
+  }
+  return VfsError::INVAL;
+}
+
+VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags)
 {
   file.clear();
   std::string normPath(path);
@@ -507,154 +813,35 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, int flags)
   switch(dirType)
   {
   case VfsDir::DIR_ROOT:
-    ret = VfsError::INVAL;
+    return VfsError::INVAL;
     break;
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
   {
-    int fatFlags = FA_OPEN_EXISTING | FA_READ;
-    if( flags == (LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR ))
-      fatFlags = FA_CREATE_ALWAYS | FA_WRITE | FA_READ;
     file.type = VfsFileType::FAT;
-    ret = convertResult(f_open(&file.fat, normPath.c_str(), fatFlags));
+    ret = convertResult(f_open(&file.fat.file, normPath.c_str(),
+                               convertOpenFlagsToFat(flags)));
     break;
   }
+#endif
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
   {
-    int lfsFlags = LFS_O_RDONLY;
-    if( flags == (LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR ))
-      lfsFlags = LFS_O_CREAT|LFS_O_TRUNC|LFS_O_RDWR;
-
     file.type = VfsFileType::LFS;
-    ret = convertResult((lfs_error)lfs_file_open(&lfs, &file.lfs, normPath.c_str(), lfsFlags));
+    file.lfs.handle = &lfs;
+    ret = convertResult((lfs_error)lfs_file_open(&lfs, &file.lfs.file, normPath.c_str(),
+                                                 convertOpenFlagsToLfs(flags)));
     break;
   }
+#endif
   }
 
   return ret;
 
 }
-
-VfsError VirtualFS::closeFile(VfsFile& file)
-{
-  VfsError ret = VfsError::INVAL;
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    ret = convertResult(f_close(&file.fat));
-    break;
-  case VfsFileType::LFS:
-    ret = convertResult((lfs_error)lfs_file_close(&lfs, &file.lfs));
-    break;
-  }
-
-  file.clear();
-  return ret;
-}
-
-int VirtualFS::fileSize(VfsFile& file)
-{
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    return f_size(&file.fat);
-    break;
-  case VfsFileType::LFS:
-    {
-      int res = lfs_file_size(&lfs, &file.lfs);
-      if(res < 0)
-        return (int)convertResult((lfs_error)res);
-      return res;
-    }
-  }
-
-  return -1;
-}
-
-VfsError VirtualFS::read(VfsFile& file, void* buf, size_t size, size_t& readSize)
-{
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    return convertResult(f_read(&file.fat, buf, size, &readSize));
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_read(&lfs, &file.lfs, buf, size);
-      if(ret >= 0)
-      {
-        readSize = ret;
-        return VfsError::OK;
-      } else {
-        readSize = 0;
-        return convertResult((lfs_error)ret);
-      }
-      break;
-    }
-  }
-
-  return VfsError::INVAL;
-}
-
-VfsError VirtualFS::write(VfsFile& file, void* buf, size_t size, size_t& written)
-{
-  VfsError err = VfsError::INVAL;
-
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    return convertResult(f_write(&file.fat, buf, size, &written));
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_write(&lfs, &file.lfs, buf, size);
-      if(ret >= 0)
-      {
-        written = ret;
-        return VfsError::OK;
-      } else {
-        written = 0;
-        return convertResult((lfs_error)ret);
-      }
-      break;
-    }
-  }
-
-  return VfsError::INVAL;
-}
-
-VfsError VirtualFS::lseek(VfsFile& file, size_t offset)
-{
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    return convertResult(f_lseek(&file.fat, offset));
-    break;
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_seek(&lfs, &file.lfs, offset, LFS_SEEK_SET);
-      if(ret < 0)
-        return convertResult((lfs_error)ret);
-      else
-        return VfsError::OK;
-    }
-  }
-
-  return VfsError::INVAL;
-}
-
-int VirtualFS::fileEof(VfsFile& file)
-{
-  switch(file.type)
-  {
-  case VfsFileType::FAT:
-    return f_eof(&file.fat);
-  case VfsFileType::LFS:
-    return lfs_file_tell(&lfs, &file.lfs) == lfs_file_size(&lfs, &file.lfs);
-  }
-
-  return 0;
-}
-
 const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {
+#if defined (SPI_FLASH)
 	lfs_dir_t dir;
 	int res = lfs_dir_open(&lfs, &dir, path);
 	if(res != LFS_ERR_OK)
@@ -669,7 +856,7 @@ const char* VirtualFS::checkAndCreateDirectory(const char * path)
 	} else {
 	  lfs_dir_close(&lfs, &dir);
 	}
-
+#endif
 //  DIR archiveFolder;
 //
 //  FRESULT result = f_opendir(&archiveFolder, path);
@@ -691,12 +878,12 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
   std::string p = path;
   VfsDir::DirType dirType = getDirTypeAndPath(p);
 
-  VfsError ret = VfsError::INVAL;
   switch(dirType)
   {
   case VfsDir::DIR_ROOT:
-    ret = VfsError::INVAL;
+    return false;
     break;
+#if defined (SDCARD)
   case VfsDir::DIR_FAT:
     {
       if (exclDir) {
@@ -705,6 +892,8 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
       }
       return f_stat(path, nullptr) == FR_OK;
     }
+#endif
+#if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
     {
       lfs_file_t file;
@@ -719,6 +908,7 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
         return true;
       }
     }
+#endif
   }
 
   return false;

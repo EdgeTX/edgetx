@@ -883,9 +883,10 @@ enum AUDIO_SOUNDS {
 #include "haptic.h"
 #endif
 
-#if defined(SDCARD)
-#include "sdcard.h"
+#if defined(SDCARD) || defined (SPI_FLASH)
+#include "VirtualFS.h"
 #endif
+
 
 #if defined(RTCLOCK)
 #include "rtc.h"

@@ -28,7 +28,7 @@ extern FATFS g_FATFS_Obj;
 extern FIL g_oLogFile;
 
 #include "translations.h"
-
+#if 0
 #define FILE_COPY_PREFIX "cp_"
 
 #define PATH_SEPARATOR      "/"
@@ -118,7 +118,7 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
   memcpy(&filename[sizeof(path)], var, sizeof(var)); \
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
-
+#endif
 extern uint8_t logDelay100ms;
 void logsInit();
 void logsClose();
