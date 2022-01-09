@@ -79,10 +79,21 @@
 // Switches
 #define HARDWARE_SWITCH_A
 #define STORAGE_SWITCH_A
+// Switches A and C on PL18/PL18EV are 2-position switches, so there is no NEED to configure two pins for Switches A and C.
+// Especially, as on current dev. state, using PC8 for SDIO D0 - happy coincidence ;)
+//#define SWITCHES_GPIO_REG_A_H         GPIOC->IDR
+//#define SWITCHES_GPIO_PIN_A_H         GPIO_Pin_8  // PC.08
+#define SWITCHES_GPIO_REG_A_L           GPIOC->IDR
+#define SWITCHES_GPIO_PIN_A_L           GPIO_Pin_9 // PC.09
 #define HARDWARE_SWITCH_B
 #define STORAGE_SWITCH_B
 #define HARDWARE_SWITCH_C
 #define STORAGE_SWITCH_C
+// High rail of Switch C is not required and thus PC10 is free to use for customizations.
+//#define SWITCHES_GPIO_REG_C_H         GPIOC->IDR
+//#define SWITCHES_GPIO_PIN_C_H         GPIO_Pin_10 // PC.10
+#define SWITCHES_GPIO_REG_C_L           GPIOC->IDR
+#define SWITCHES_GPIO_PIN_C_L           GPIO_Pin_11 // PC.11
 #define HARDWARE_SWITCH_D
 #define STORAGE_SWITCH_D
 #define HARDWARE_SWITCH_E
