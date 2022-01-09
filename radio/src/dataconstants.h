@@ -633,16 +633,22 @@ enum MixSources {
   MIXSRC_SLIDER3,                       LUA_EXPORT("lcs", "Left center slider (X9E only)")
   MIXSRC_SLIDER4,                       LUA_EXPORT("rcs", "Right center slider (X9E only)")
   MIXSRC_LAST_POT SKIP = MIXSRC_SLIDER4,
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
+#elif defined(PCBX7) || defined(PCBXLITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT2,
+  MIXSRC_LAST_POT SKIP = MIXSRC_POT2,
+#elif defined(PCBNV14)
+  MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("vra", "Potentiometer A")
+  MIXSRC_POT2,                          LUA_EXPORT("vrb", "Potentiometer B")
   MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT2,
   MIXSRC_LAST_POT SKIP = MIXSRC_POT2,
 #elif defined(PCBPL18)
-  MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
-  MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
-  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT2,
-  MIXSRC_LAST_POT SKIP = MIXSRC_POT2,
+  MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("vra", "Potentiometer A")
+  MIXSRC_POT2,                          LUA_EXPORT("vrb", "Potentiometer B")
+  MIXSRC_POT3,                          LUA_EXPORT("vrc", "Potentiometer C")
+  MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT3,
+  MIXSRC_LAST_POT SKIP = MIXSRC_POT3,
 #elif defined(PCBX9LITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_FIRST_SLIDER SKIP = MIXSRC_POT1,
