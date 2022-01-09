@@ -568,10 +568,10 @@ void checkBacklight()
       }
       if (backlightOn) {
         currentBacklightBright = requiredBacklightBright;
-#if defined(COLOR_LCD)
+#if defined(COLORLCD)
         // force backlight on for color lcd radios
-        if(currentBacklightBright > BACLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
-          currentBacklightBricht = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+        if(currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+          currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
 #endif
         BACKLIGHT_ENABLE();
       }
