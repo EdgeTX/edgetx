@@ -48,8 +48,8 @@
       "SD\0" STR_CHAR_SWITCH "SW1" STR_CHAR_SWITCH "SW2" STR_CHAR_SWITCH   \
       "SW3" STR_CHAR_SWITCH "SW4" STR_CHAR_SWITCH "SW5" STR_CHAR_SWITCH "SW6"
 #elif defined(RADIO_FAMILY_JUMPER_T12)
-#define TR_POTS_VSRCRAW STR_CHAR_POT "S1\0" STR_CHAR_POT "S2\0"
-#define TR_SW_VSRCRAW                                                                                                                                                                                                                        \
+  #define TR_POTS_VSRCRAW STR_CHAR_POT "S1\0" STR_CHAR_POT "S2\0"
+  #define TR_SW_VSRCRAW                                                                                                                                                                                                                        \
   STR_CHAR_SWITCH "SA\0" STR_CHAR_SWITCH "SB\0" STR_CHAR_SWITCH                                                                                                                                                                              \
                   "SC\0" STR_CHAR_SWITCH "SD\0" STR_CHAR_SWITCH                                                                                                                                                                              \
                   "SG\0" STR_CHAR_SWITCH "SH\0" STR_CHAR_SWITCH                                                                                                                                                                              \
@@ -75,8 +75,11 @@
 #elif defined(PCBSKY9X)
   #define TR_POTS_VSRCRAW              "P1\0 ""P2\0 ""P3\0 "
   #define TR_SW_VSRCRAW                "3POS" "THR\0""RUD\0""ELE\0""AIL\0""GEA\0""TRN\0"
-#elif defined(PCBNV14) || defined(PCBPL18)
-  #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1\0" STR_CHAR_POT"S2\0"
+#elif defined(PCBNV14)
+  #define TR_POTS_VSRCRAW              STR_CHAR_POT"VRA" STR_CHAR_POT"VRB" /* With 3 characters, NO terminating \0 ! */
+  #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SE\0" STR_CHAR_SWITCH"SF\0" STR_CHAR_SWITCH"SG\0" STR_CHAR_SWITCH"SH\0"
+#elif defined(PCBPL18)
+  #define TR_POTS_VSRCRAW              STR_CHAR_POT"VRA" STR_CHAR_POT"VRB" STR_CHAR_POT"VRC" /* With 3 characters, NO terminating \0 ! */
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA\0" STR_CHAR_SWITCH"SB\0" STR_CHAR_SWITCH"SC\0" STR_CHAR_SWITCH"SD\0" STR_CHAR_SWITCH"SE\0" STR_CHAR_SWITCH"SF\0" STR_CHAR_SWITCH"SG\0" STR_CHAR_SWITCH"SH\0"
 #endif
 

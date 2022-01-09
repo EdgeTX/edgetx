@@ -130,11 +130,11 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     {ADC_CHANNEL_SWG,      ADC_SAMPTIME},
     {ADC_CHANNEL_SWH,      ADC_SAMPTIME},
 #elif defined(PCBPL18)
+    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
+    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
     {ADC_CHANNEL_SWB,      ADC_SAMPTIME},
     {ADC_CHANNEL_SWD,      ADC_SAMPTIME},
     {ADC_CHANNEL_SWE,      ADC_SAMPTIME},
-    {ADC_CHANNEL_POT1,     ADC_SAMPTIME},
-    {ADC_CHANNEL_POT2,     ADC_SAMPTIME},
     {ADC_CHANNEL_SWF,      ADC_SAMPTIME},
     {ADC_CHANNEL_SWG,      ADC_SAMPTIME},
 #endif
@@ -202,7 +202,8 @@ static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
 #elif defined(PCBPL18)
 
 static const stm32_hal_adc_channel ADC_EXT_channels[] = {
-    {ADC_CHANNEL_SWH,     ADC_SAMPTIME}
+    {ADC_CHANNEL_POT3,     ADC_SAMPTIME},
+    {ADC_CHANNEL_SWH,      ADC_SAMPTIME},
 };
 
 static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }

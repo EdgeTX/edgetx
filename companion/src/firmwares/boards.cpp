@@ -617,6 +617,7 @@ QString Boards::getAnalogInputName(Board::Type board, int index)
     const QString pots[] = {
       "VRA",
       "VRB",
+      "VRC",
     };
     if (index < DIM(pots))
       return pots[index];
