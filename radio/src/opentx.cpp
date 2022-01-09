@@ -781,7 +781,7 @@ bool isThrottleWarningAlertNeeded()
   if (g_model.thrTraceSrc && g_model.throttleReversed) { // TODO : proper review of THR source definition and handling
     v = -v;
   }
-  return v > THRCHK_DEADBAND - 1024;
+  return v > THRCHK_DEADBAND - RESX;
 }
 
 #if defined(COLORLCD)
