@@ -646,7 +646,9 @@ PACK(struct ModelData {
   uint8_t   ignoreSensorIds:1;
   int8_t    trimInc:3;            // Trim Increments
   uint8_t   disableThrottleWarning:1;
-  uint8_t displayChecklist:1;
+  uint8_t   enableCustomThrottleWarning;
+  int8_t    customThrottleWarningPosition;
+  uint8_t   displayChecklist:1;
   uint8_t   extendedLimits:1;
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
