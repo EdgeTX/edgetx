@@ -307,6 +307,8 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
   }
 
   int modelIdx = 0;
+  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+
   radioData.models.resize(modelFiles.size());
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
@@ -321,7 +323,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     // Please note:
     //  ModelData() use memset to clear everything to 0
     //
-    auto& model = radioData.models[modelIdx++];
+    auto& model = radioData.models[modelIdx];
 
     try {
       if (!loadModelFromYaml(model,modelBuffer)) {
@@ -334,10 +336,17 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     }
 
     model.category = mc.category;
-    model.modelIndex = mc.modelIdx;
+    model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
+    if (hasCategories && !strncmp(radioData.generalSettings.currModelFilename,
+                                  model.filename, sizeof(model.filename))) {
+      radioData.generalSettings.currModelIndex = modelIdx;
+      qDebug() << "currModelIndex =" << modelIdx;
+    }
+
     model.used = true;
+    modelIdx++;
   }
 
   return true;
