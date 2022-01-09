@@ -153,7 +153,27 @@ void readKeysAndTrims()
 #if !defined(BOOT)
 uint32_t switchState(uint8_t index)
 {
-  uint16_t value = getAnalogValue(SWITCH_FIRST + index / 3);
+  uint8_t analogIdx = 0;
+  // Switches A and C are wired to digital inputs, other switches are sampled via analog inputs.
+  switch (index)
+  {
+    // Switch A:
+    case SW_SA0: return (SWITCHES_GPIO_REG_A_L & SWITCHES_GPIO_PIN_A_L); break;
+    case SW_SA2: return (~SWITCHES_GPIO_REG_A_L & SWITCHES_GPIO_PIN_A_L); break;
+    // Switch B:
+    case SW_SB0:
+    case SW_SB1:
+    case SW_SB2: analogIdx = 9; break;
+    // Switch C:
+    case SW_SC0: return (SWITCHES_GPIO_REG_C_L & SWITCHES_GPIO_PIN_C_L); break;
+    case SW_SC2: return (~SWITCHES_GPIO_REG_C_L & SWITCHES_GPIO_PIN_C_L); break;
+    default:
+      // all further cases are analog switches (SWD, SWE, SWF, SWG, SWH) and follow a pattern
+      analogIdx = ((index - SW_SD0)/3) + 10; // SWD is analog 10, SWE 11 and so on
+      break;
+  }
+
+  uint16_t value = getAnalogValue(analogIdx);
   uint8_t position;
 
   if (value < 1024)
@@ -162,7 +182,6 @@ uint32_t switchState(uint8_t index)
     position = 2;
   else
     position = 1;
-
   return position == (index % 3);
 }
 #endif

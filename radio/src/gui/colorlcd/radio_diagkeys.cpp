@@ -84,7 +84,7 @@ class RadioKeyDiagsWindow : public Window
       dc->drawNumber(70, y, rotencValue, COLOR_THEME_PRIMARY1);
 #endif
 #else // defined(PCBNV14) || defined(PCBPL18)
-      // KEYS
+      // KEYS (both radios do NOT have physical keys, only remapped trim keys)
       {
         coord_t y = 1;
         dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, COLOR_THEME_PRIMARY1);
