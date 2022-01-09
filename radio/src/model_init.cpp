@@ -126,9 +126,17 @@ void applyDefaultTemplate()
 #endif
 
   // enable switch warnings
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-    g_model.switchWarningState |= (1 << (3*i));
-  }
+  #if defined(PCBPL18)
+    // Due to some 2 and 3 position toggle switches on PL18EV, not meaningul to use all up default positions on all switches, thus following special default setting:
+    // H & G middle, F up, E & D middle, C up, B middle, A up
+    // The setting is 3 bits per switch: inactive = 000, up = 001, middle = 010, down = 011
+    g_model.switchWarningState = 0b010010001010010001010001;
+  #else
+    // Not PL18/PL18EV, use all switches up setting:
+    for (int i = 0; i < NUM_SWITCHES; i++) {
+      g_model.switchWarningState |= (1 << (3*i));
+    }
+  #endif
 #endif
 
   // TODO: what about switch warnings in non-color LCD radios?
