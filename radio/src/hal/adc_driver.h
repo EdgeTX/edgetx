@@ -33,10 +33,10 @@
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
 #elif defined(PCBPL18)
   #define FIRST_ANALOG_ADC_FS          4
-  #define NUM_ANALOGS_ADC_FS           9
-  #define NUM_ANALOGS_ADC_EXT          2
+  #define NUM_ANALOGS_ADC_FS           10
+  #define NUM_ANALOGS_ADC_EXT          3
   #define FIRST_ANALOG_ADC             0
-  #define FIRST_ANALOG_ADC_EXT         13
+  #define FIRST_ANALOG_ADC_EXT         14
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
 #else
   #define FIRST_ANALOG_ADC_FS          4

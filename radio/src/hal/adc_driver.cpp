@@ -47,6 +47,7 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
     // other analogs are the same
     -1,-1,-1,1, -1,1,1,-1, -1,-1 };
 
+  /* See radio/src/targets/common/arm/stm32/stm32_hal_adc.cpp for mapping order, first ADC_MAIN, then ADC_EXT */
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
                                             11 /*POT1*/, 4 /*POT2*/, 5 /*POT3*/, 6 /*POT4*/,
                                             12 /*SLIDER1*/, 13 /*SLIDER2*/, 7 /*SLIDER3*/, 8 /*SLIDER4*/,
@@ -68,6 +69,7 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 #elif defined(PCBXLITE)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
 #elif defined(PCBNV14)
+  /* See radio/src/targets/common/arm/stm32/stm32_hal_adc.cpp for mapping order, first ADC_MAIN, then ADC_EXT */
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
                                             4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
                                             7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
@@ -80,19 +82,19 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
                                              0 /*SWB*/, 0 /*SWD*/};
 #elif defined(PCBPL18)
-  /* TODO! Check */
+  /* See radio/src/targets/common/arm/stm32/stm32_hal_adc.cpp for mapping order, first ADC_MAIN, then ADC_EXT */
   const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            4 /*POT1*/, 5 /*POT2*/, 13 /*POT3*/,
-                                            6 /*SWB*/, 7 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                            10/*SWG*/, 14 /*SWH*/,
-                                            11 /*TX_VOLTAGE*/, 12 /* TX_VBAT */ };
+                                            4 /*POT1*/, 5 /*POT2*/, 14 /*POT3*/,
+                                            15 /*SLIDER1*/, 6 /*SLIDER2*/,
+                                            7 /*SWB*/, 8 /*SWD*/, 9 /*SWE*/, 10 /*SWF*/,
+                                            11/*SWG*/, 16 /*SWH*/,
+                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
 
   const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
-                                             0 /*POT1*/, 0 /*POT2*/,
-                                             0 /*SWB*/, 0 /*SWD*/,  0 /*SWE*/,  0 /*SWF*/,
-                                             0 /*SWG*/,
+                                             0 /*POT1*/, 0 /*POT2*/, 0 /*SLIDER2*/,
+                                             0 /*SWB*/, 0 /*SWD*/,  0 /*SWE*/,  0 /*SWF*/, 0 /*SWG*/,
                                              0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
-                                             0 /*POT3*/, 0 /*SWH*/ };
+                                             0 /*POT3*/, 0 /*SLIDER1*/, 0 /*SWH*/ };
 #elif defined(PCBX12S)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
 #else
