@@ -278,11 +278,11 @@ void watchdogInit(unsigned int duration);
 // ADC driver
 #define NUM_POTS                        3
 #define NUM_XPOTS                       0 // NUM_POTS
-#define NUM_SLIDERS                     0
+#define NUM_SLIDERS                     2
 #define NUM_PWMSTICKS                   0
 #define NUM_MOUSE_ANALOGS               0
-#define STORAGE_NUM_POTS                6
-#define STORAGE_NUM_SLIDERS             0
+#define STORAGE_NUM_POTS                3
+#define STORAGE_NUM_SLIDERS             2
 #define STORAGE_NUM_MOUSE_ANALOGS       0
 
 enum Analogs {
@@ -295,6 +295,10 @@ enum Analogs {
   POT2,
   POT3,
   POT_LAST = POT_FIRST + NUM_POTS - 1,
+  SLIDER_FIRST,
+  SLIDER_FRONT_LEFT = SLIDER_FIRST,
+  SLIDER_FRONT_RIGHT,
+  SLIDER_LAST = SLIDER_FIRST + NUM_SLIDERS - 1,
   SWITCH_FIRST,
   SWB = SWITCH_FIRST,
   SWD,
@@ -311,14 +315,11 @@ enum Analogs {
 
 #define HARDWARE_POT3
 
-//#define SLIDER1 SLIDER_FRONT_LEFT
-//#define SLIDER2 SLIDER_FRONT_RIGHT
-
-#define SLIDER_FIRST  0
-#define SLIDER_LAST  -1
+#define SLIDER1 SLIDER_FRONT_LEFT
+#define SLIDER2 SLIDER_FRONT_RIGHT
 
 #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_WITHOUT_DETENT << 2) + (POT_WITH_DETENT << 0) // VRA and VRC pots with detent, VRB without
-//#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
+#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
 
 enum CalibratedAnalogs {
   CALIBRATED_STICK1,
@@ -328,6 +329,8 @@ enum CalibratedAnalogs {
   CALIBRATED_POT1,
   CALIBRATED_POT2,
   CALIBRATED_POT3,
+  CALIBRATED_SLIDER_REAR_LEFT,
+  CALIBRATED_SLIDER_REAR_RIGHT,
   CALIBRATED_SWB,
   CALIBRATED_SWD,
   CALIBRATED_SWE,
@@ -338,8 +341,7 @@ enum CalibratedAnalogs {
 };
 
 #define IS_POT(x)                     ((x)>=POT_FIRST && (x)<=POT_LAST)
-#define IS_SLIDER(x)                    (false)
-//#define IS_SLIDER(x)                  ((x)>=SLIDER_FIRST && (x)<=SLIDER_LAST)
+#define IS_SLIDER(x)                  ((x)>=SLIDER_FIRST && (x)<=SLIDER_LAST)
 
 extern uint16_t adcValues[NUM_ANALOGS];
 
