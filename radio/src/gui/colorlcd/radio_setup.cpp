@@ -361,7 +361,7 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Backlight ON bright
     new StaticText(window, grid.getLabelSlot(true), STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-    backlightOnBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN+1, BACKLIGHT_LEVEL_MAX, // ON always has at least some backlight
+    backlightOnBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                [=]() -> int32_t {
                  return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                },

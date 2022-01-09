@@ -570,8 +570,8 @@ void checkBacklight()
         currentBacklightBright = requiredBacklightBright;
 #if defined(COLOR_LCD)
         // force backlight on for color lcd radios
-        if(currentBacklightBright <= BACKLIGHT_LEVEL_MIN)
-          currentBacklightBricht = BACKLIGHT_LEVEL_MIN+1;
+        if(currentBacklightBright > BACLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+          currentBacklightBricht = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
 #endif
         BACKLIGHT_ENABLE();
       }
@@ -1888,8 +1888,8 @@ void opentxInit()
     // no backlight mode off on color lcd radios
     g_eeGeneral.backlightMode = e_backlight_mode_keys;
   }
-  if (g_eeGeneral.backlightBright <= BACKLIGHT_LEVEL_MIN)
-    g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MIN+5;
+  if (g_eeGeneral.backlightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+    g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
   if (g_eeGeneral.lightAutoOff < 1)
     g_eeGeneral.lightAutoOff = 1;
 #endif
