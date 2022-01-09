@@ -28,7 +28,7 @@ extern FATFS g_FATFS_Obj;
 extern FIL g_oLogFile;
 
 #include "translations.h"
-
+#if 0
 #define FILE_COPY_PREFIX "cp_"
 
 #define PATH_SEPARATOR      "/"
@@ -107,7 +107,7 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   memcpy(&filename[sizeof(path)], var, sizeof(var)); \
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
-
+#endif
 extern uint8_t logDelay;
 void logsInit();
 void logsClose();

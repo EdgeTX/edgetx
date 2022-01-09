@@ -213,7 +213,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   result = vfs.openFile(file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result == VfsError::OK) {
-    while (vfs.read(file, &c, 1, sz) == VfsError::OK && sz == 1 &&
+    while (file.read(&c, 1, sz) == VfsError::OK && sz == 1 &&
                          (lines_count == 0 ||
                           current_line - textVerticalOffset < maxScreenLines))
     {
@@ -263,12 +263,12 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
       ++current_line;
     }
 
-    if (vfs.fileEof(file)) {
+    if (file.eof()) {
       textBottom = true;
       if (isInSetup) maxLines = current_line;
     }
 
-    vfs.closeFile(file);
+    file.close();
   }
 
   if (lastLoadedLine < textVerticalOffset) lastLoadedLine = textVerticalOffset;

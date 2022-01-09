@@ -23,15 +23,19 @@
 
 #include <string>
 
+#if defined (SPI_FLASH)
 #include "littlefs_v2.4.1/lfs.h"
+#endif
+#if defined (SDCARD)
 #include "sdcard.h"
+#endif
 
 #include "translations.h"
 
 #define FILE_COPY_PREFIX "cp_"
 
 #define PATH_SEPARATOR      "/"
-#define ROOT_PATH           PATH_SEPARATOR
+#define ROOT_PATH           PATH_SEPARATOR "DEFAULT" PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define LOGS_PATH           ROOT_PATH "LOGS"
@@ -56,7 +60,7 @@
 #define SCRIPTS_TOOLS_PATH  SCRIPTS_PATH PATH_SEPARATOR "TOOLS"
 
 #define LEN_FILE_PATH_MAX   (sizeof(SCRIPTS_TELEM_PATH)+1)  // longest + "/"
-#if 0
+
 #if defined(SDCARD_YAML) || defined(SDCARD_RAW)
 #define RADIO_FILENAME      "radio.bin"
 const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
@@ -106,7 +110,7 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   memcpy(&filename[sizeof(path)], var, sizeof(var)); \
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
-#endif
+
 
 
 class VirtualFS;
@@ -185,6 +189,20 @@ enum class VfsError {
 
 #endif
 
+enum class VfsOpenFlags {
+  NONE          = 0x00,
+  READ          = 0x01,
+  WRITE         = 0x02,
+  OPEN_EXISTING = 0x00,
+  CREATE_NEW    = 0x04,
+  CREATE_ALWAYS = 0x08,
+  OPEN_ALWAYS   = 0x10,
+  OPEN_APPEND   = 0x30,
+};
+
+VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs);
+VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs);
+
 struct VfsFileInfo
 {
 public:
@@ -196,8 +214,12 @@ public:
     switch(type)
     {
     case VfsFileType::ROOT: return name;
+#if defined (SDCARD)
     case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
+#endif
+#if defined (SPI_FLASH)
     case VfsFileType::LFS:  return lfsInfo.name;
+#endif
     }
     return "";
   };
@@ -208,7 +230,7 @@ public:
     {
     case VfsFileType::ROOT:
       return VfsType::DIR;
-
+#if defined (SDCARD)
     case VfsFileType::FAT:
       if (!name.empty())
         return VfsType::DIR;
@@ -216,12 +238,15 @@ public:
         return VfsType::DIR;
       else
         return VfsType::FILE;
+#endif
+#if defined (SPI_FLASH)
     case VfsFileType::LFS:
 
       if(lfsInfo.type == LFS_TYPE_DIR)
         return VfsType::DIR;
       else
         return VfsType::FILE;
+#endif
     }
     return VfsType::UNKOWN;
   };
@@ -238,8 +263,10 @@ private:
   }
 
   VfsFileType type = VfsFileType::UNKNOWN;
-  lfs_info lfsInfo = {0};
-  FILINFO fatInfo = {0};
+  union {
+    lfs_info lfsInfo = {0};
+    FILINFO fatInfo;
+  };
 
   std::string name;
 };
@@ -249,21 +276,39 @@ struct VfsFile
 public:
   VfsFile(){}
   ~VfsFile(){}
+  VfsError close();
+  int size();
+  VfsError read(void* buf, size_t size, size_t& readSize);
+  char* gets(char* buf, size_t maxLen);
+  VfsError write(const void* buf, size_t size, size_t& written);
+  VfsError puts(const std::string& str);
+  VfsError putc(char c);
+
+  VfsError lseek(size_t offset);
+  int eof();
 
 private:
   friend class VirtualFS;
   VfsFile(const VfsFile&);
 
-
   void clear() {
     type = VfsFileType::UNKNOWN;
-    lfs = {0};
-    fat = {0};
+    lfs.file = {0};
+    lfs.handle = nullptr;
+    fat.file = {0};
   }
 
   VfsFileType type = VfsFileType::UNKNOWN;
-  lfs_file lfs = {0};
-  FIL fat = {0};
+  union {
+    struct {
+      lfs_file file = {0};
+      lfs* handle = nullptr;
+    } lfs;
+    struct {
+      FIL file = {0};
+    } fat;
+  };
+
 };
 
 class VirtualFS
@@ -297,13 +342,8 @@ public:
   VfsError readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
   VfsError closeDirectory(VfsDir& dir);
 
-  VfsError openFile(VfsFile& file, const std::string& path, int flags);
-  VfsError closeFile(VfsFile& file);
-  int fileSize(VfsFile& file);
-  VfsError read(VfsFile& file, void* buf, size_t size, size_t& readSize);
-  VfsError write(VfsFile& file, void* buf, size_t size, size_t& written);
-  VfsError lseek(VfsFile& file, size_t offset);
-  int fileEof(VfsFile& file);
+  VfsError fstat(const std::string& path, VfsFileInfo& fileInfo);
+  VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);
 
   VfsError rename(const char* oldPath, const char* newPath);
   VfsError copyFile(const std::string& source, const std::string& destination);
@@ -371,9 +411,6 @@ public:
   #endif
 
   unsigned int findNextFileIndex(char * filename, uint8_t size, const char * directory);
-
-  const char * sdCopyFile(const char * src, const char * dest);
-  const char * flashCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
 
   #define LIST_NONE_SD_FILE   1
   #define LIST_SD_FILE_EXT    2
