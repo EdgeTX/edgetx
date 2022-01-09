@@ -749,11 +749,11 @@ void checkAll()
       if (tgtime >= get_tmr10ms() && keyDown()) {
         return false;
       } else {
-        LED_ERROR_END();
         return true;
       }
     });
     dlg->runForever();
+    LED_ERROR_END();
   }
 #else
   if (!waitKeysReleased()) {
