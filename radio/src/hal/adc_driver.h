@@ -34,7 +34,7 @@
 #elif defined(PCBPL18)
   #define FIRST_ANALOG_ADC_FS          4
   #define NUM_ANALOGS_ADC_FS           9
-  #define NUM_ANALOGS_ADC_EXT          1
+  #define NUM_ANALOGS_ADC_EXT          2
   #define FIRST_ANALOG_ADC             0
   #define FIRST_ANALOG_ADC_EXT         13
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
