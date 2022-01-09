@@ -211,7 +211,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   VirtualFS& vfs = VirtualFS::instance();
 
-  result = vfs.openFile(file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
+  result = vfs.openFile(file, (TCHAR *)filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   if (result == VfsError::OK) {
     while (file.read(&c, 1, sz) == VfsError::OK && sz == 1 &&
                          (lines_count == 0 ||
