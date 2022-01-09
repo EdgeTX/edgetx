@@ -111,13 +111,25 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
 {
   YAML::Node node;
   std::vector<CategoryData> cats = categories;
+  std::vector<EtxModelMetadata> files = { modelFiles.begin(), modelFiles.end() };
+
+  std::stable_sort(files.begin(), files.end(),
+                   [](const EtxModelMetadata &a, const EtxModelMetadata &b) {
+                     return a.category < b.category;
+                   });
+
+  int catIdx = 0;
+  for (const auto& cat : cats) {
+    node[catIdx++][cat.name] = YAML::Node();
+  }
+
   for (const auto& modelFile: modelFiles) {
 
     YAML::Node cat_attrs;
     cat_attrs["filename"] = modelFile.filename;
     cat_attrs["name"] = modelFile.name;
 
-    auto catIdx = modelFile.category;
+    catIdx = modelFile.category;
     if (catIdx >= (int)cats.size()) {
       catIdx = 0;
       if (cats.size() == 0) {
