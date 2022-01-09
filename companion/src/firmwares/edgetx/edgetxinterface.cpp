@@ -110,18 +110,23 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
                            QByteArray& data)
 {
   YAML::Node node;
+  std::vector<CategoryData> cats = categories;
   for (const auto& modelFile: modelFiles) {
 
     YAML::Node cat_attrs;
     cat_attrs["filename"] = modelFile.filename;
     cat_attrs["name"] = modelFile.name;
 
-    if (modelFile.category >= (int)categories.size()) {
-      return false;
+    auto catIdx = modelFile.category;
+    if (catIdx >= (int)cats.size()) {
+      catIdx = 0;
+      if (cats.size() == 0) {
+        cats.push_back("Models");
+      }
     }
 
-    const std::string cat_name = categories[modelFile.category].name;
-    node[modelFile.category][cat_name].push_back(cat_attrs);
+    const std::string cat_name = cats[catIdx].name;
+    node[catIdx][cat_name].push_back(cat_attrs);
   }
 
   writeYamlToByteArray(node, data);
