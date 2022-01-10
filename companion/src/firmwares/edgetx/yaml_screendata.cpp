@@ -58,6 +58,9 @@ Node convert<ZoneOptionValueTyped>::encode(const ZoneOptionValueTyped& rhs)
     case ZOV_Bool:
       value["boolValue"] = rhs.value.boolValue;
       break;
+    case ZOV_String:
+      value["stringValue"] = std::string(rhs.value.stringValue);
+      break;
     case ZOV_Source:
       value["source"] = rhs.value.sourceValue;
       break;
