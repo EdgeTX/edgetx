@@ -93,7 +93,7 @@ void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
                 bool bLowercase = true);
 
 template<size_t N>
-constexpr std::string stringFromNtString(const char (&a)[N]) {
+std::string stringFromNtString(const char (&a)[N]) {
     return std::string(a, strnlen(a, N));        
 }    
 #endif  // _STRHELPERS_H_
