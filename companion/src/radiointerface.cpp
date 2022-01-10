@@ -211,12 +211,16 @@ bool readSettingsSDCard(const QString & filename, ProgressWidget * progress)
   RadioData radioData;
   Storage inputStorage(radioPath);
   if (!inputStorage.load(radioData)) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QCoreApplication::translate("RadioInterface", "Failed to read Models and Settings from") % radioPath);
+    QString errorMsg = inputStorage.error();
+    if (errorMsg.isEmpty()) {
+      errorMsg = QCoreApplication::translate("RadioInterface", "Failed to read Models and Settings from") % radioPath;
+    }
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, errorMsg);
     return false;
   }
   Storage outputStorage(filename);
   if (!outputStorage.write(radioData)) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QCoreApplication::translate("RadioInterface", "Failed to write Models and Setting file") % filename);
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QCoreApplication::translate("RadioInterface", "Failed to write Models and Setting file") % " " % filename);
     return false;
   }
 

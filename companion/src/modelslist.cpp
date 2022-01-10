@@ -671,6 +671,7 @@ void TreeModel::refresh()
             defaultCategoryItem = rootItem->appendChild(0, -1);
             /*: Translators do NOT use accent for this, this is the default category name on Horus. */
             defaultCategoryItem->setData(0, tr("Models"));
+            radioData->categories.push_back(qPrintable(tr("Models")));
           }
           categoryItem = defaultCategoryItem;
         }

@@ -51,34 +51,27 @@ bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
   if (data.size() == 0)
     return true;
 
-  try {
-    YAML::Node node = loadYamlFromByteArray(data);
-    if (!node.IsSequence()) return false;
+  YAML::Node node = loadYamlFromByteArray(data);
+  if (!node.IsSequence()) return false;
 
-    int modelIdx = 0;
-    for (const auto& cat : node) {
+  int modelIdx = 0;
+  for (const auto& cat : node) {
+    if (!cat.IsMap()) continue;
 
-      if (!cat.IsMap()) continue;
+    for (const auto& cat_map : cat) {
+      categories.push_back(cat_map.first.Scalar().c_str());
 
-      for (const auto& cat_map : cat) {
-        categories.push_back(cat_map.first.Scalar().c_str());
+      const auto& models = cat_map.second;
+      if (!models.IsSequence()) continue;
 
-        const auto& models = cat_map.second;
-        if (!models.IsSequence()) continue;
-
-        for (const auto& model : models) {
-          std::string filename, name;
-          model["filename"] >> filename;
-          model["name"] >> name;
-          modelFiles.push_back(
-              {filename, name, (int)categories.size() - 1, modelIdx++});
-        }
+      for (const auto& model : models) {
+        std::string filename, name;
+        model["filename"] >> filename;
+        model["name"] >> name;
+        modelFiles.push_back(
+            {filename, name, (int)categories.size() - 1, modelIdx++});
       }
     }
-
-  } catch (const std::runtime_error& e) {
-    qDebug() << "YAML::ParserException: " << e.what();
-    return false;
   }
 
   return true;
@@ -117,18 +110,35 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
                            QByteArray& data)
 {
   YAML::Node node;
+  std::vector<CategoryData> cats = categories;
+  std::vector<EtxModelMetadata> files = { modelFiles.begin(), modelFiles.end() };
+
+  std::stable_sort(files.begin(), files.end(),
+                   [](const EtxModelMetadata &a, const EtxModelMetadata &b) {
+                     return a.category < b.category;
+                   });
+
+  int catIdx = 0;
+  for (const auto& cat : cats) {
+    node[catIdx++][cat.name] = YAML::Node();
+  }
+
   for (const auto& modelFile: modelFiles) {
 
     YAML::Node cat_attrs;
     cat_attrs["filename"] = modelFile.filename;
     cat_attrs["name"] = modelFile.name;
 
-    if (modelFile.category >= (int)categories.size()) {
-      return false;
+    catIdx = modelFile.category;
+    if (catIdx >= (int)cats.size()) {
+      catIdx = 0;
+      if (cats.size() == 0) {
+        cats.push_back("Models");
+      }
     }
 
-    const std::string cat_name = categories[modelFile.category].name;
-    node[modelFile.category][cat_name].push_back(cat_attrs);
+    const std::string cat_name = cats[catIdx].name;
+    node[catIdx][cat_name].push_back(cat_attrs);
   }
 
   writeYamlToByteArray(node, data);
