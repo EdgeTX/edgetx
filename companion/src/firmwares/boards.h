@@ -212,7 +212,6 @@ class Boards
     static QString potTypeToString(int value);
     static QString sliderTypeToString(int value);
     static QString switchTypeToString(int value);
-    static QString intModuleTypeToString(int value);
     static AbstractStaticItemModel * potTypeItemModel();
     static AbstractStaticItemModel * sliderTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
@@ -221,7 +220,7 @@ class Boards
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
-  
+
   protected:
 
     Board::Type m_boardType;

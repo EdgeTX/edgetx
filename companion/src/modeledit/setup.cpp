@@ -28,6 +28,7 @@
 #include "multiprotocols.h"
 #include "checklistdialog.h"
 #include "helpers.h"
+#include "moduledata.h"
 
 #include <QDir>
 
@@ -240,6 +241,23 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   if (panelFilteredItemModels && moduleIdx >= 0) {
     int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
     ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
+
+    if (ui->protocol->findData(module.protocol) < 0) {
+      QString msg = tr("Warning: The internal module protocol <b>%1</b> is incompatible with the hardware internal module <b>%2</b> and has been set to <b>OFF</b>!");
+      msg = msg.arg(module.protocolToString(module.protocol)).arg(ModuleData::typeToString(generalSettings.internalModule));
+
+      QMessageBox *msgBox = new QMessageBox(this);
+      msgBox->setIcon( QMessageBox::Warning );
+      msgBox->setText(msg);
+      msgBox->addButton( "Ok", QMessageBox::AcceptRole );
+      msgBox->setWindowFlag(Qt::WindowStaysOnTopHint);
+      msgBox->setAttribute(Qt::WA_DeleteOnClose); // delete pointer after close
+      msgBox->setModal(false);
+      msgBox->show();
+
+      module.clear();
+    }
+
     ui->protocol->setField(module.protocol, this);
   }
 

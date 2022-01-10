@@ -45,8 +45,8 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   case SWITCH_TYPE_MULTIPOS_POT:
     sw_str += "6P";
-    sw_str += std::to_string(sval / multiposcnt);
-    sw_str += std::to_string(sval % multiposcnt);
+    sw_str += std::to_string((sval - 1) / multiposcnt);
+    sw_str += std::to_string((sval - 1) % multiposcnt);
     break;
 
   case SWITCH_TYPE_TRIM:
@@ -111,7 +111,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
              (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
 
     rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
-                    (val[2] - '0') * multiposcnt + (val[3] - '0'));
+                    (val[2] - '0') * multiposcnt + (val[3] - '0') + 1);
 
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {

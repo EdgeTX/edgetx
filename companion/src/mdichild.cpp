@@ -32,6 +32,7 @@
 #include "storage.h"
 #include "radiointerface.h"
 #include "radiodataconversionstate.h"
+#include "filtereditemmodels.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -697,10 +698,6 @@ QVector<int> MdiChild::getSelectedModels() const
 void MdiChild::updateTitle()
 {
   QString title =  "[*]" + userFriendlyCurrentFile();  // + " (" + firmware->getName() + QString(")");
-  int availableEEpromSize = modelsListModel->getAvailableEEpromSize();
-  if (availableEEpromSize >= 0) {
-    title += QString(" - %1 ").arg(availableEEpromSize) + tr("free bytes");
-  }
   QFileInfo fi(curFile);
   if (!isUntitled && !fi.isWritable()) {
     title += QString(" (%1)").arg(tr("read only"));
@@ -1095,9 +1092,15 @@ void MdiChild::pasteGeneralData(const QMimeData * mimeData)
 
 void MdiChild::generalEdit()
 {
+  if (getModelEditDialogsList()->count() > 0) {
+    QMessageBox::information(this, CPN_STR_APP_NAME, tr("Unable to Edit Radio Settings whilst models are open for editing."));
+    return;
+  }
+
   GeneralEdit * t = new GeneralEdit(this, radioData, firmware);
   connect(t, &GeneralEdit::modified, this, &MdiChild::setModified);
-  t->show();
+  connect(t, &GeneralEdit::internalModuleChanged, this, &MdiChild::onInternalModuleChanged);  // passed up from HardwarePanel >> GeneralEdit
+  t->exec();
 }
 
 void MdiChild::copyGeneralSettings()
@@ -1263,6 +1266,13 @@ void MdiChild::openModelEditWindow(int row)
 {
   if (row < 0 && (row = getCurrentModel()) < 0)
     return;
+
+  QDialog * med = getModelEditDialog(row);
+  if (med) {
+    med->activateWindow();
+    med->raise();
+    return;
+  }
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
   checkAndInitModel(row);
@@ -1627,4 +1637,63 @@ bool MdiChild::loadBackup()
 #else
   return false;
 #endif
+}
+
+QList<QDialog *> * MdiChild::getModelEditDialogsList()
+{
+  QList<QDialog *> *ret = new QList<QDialog *>();
+
+  QList<QDialog *> dlgs = findChildren<QDialog *>();
+
+  for (QDialog *dlg : dlgs) {
+    ModelEdit * med = dynamic_cast<ModelEdit *>(dlg);
+    if (med)
+      ret->append(dlg);
+  }
+
+  return ret;
+}
+
+QDialog * MdiChild::getModelEditDialog(int row)
+{
+  QList<QDialog *> *dlgs = getModelEditDialogsList();
+
+  for (QDialog *dlg : *dlgs) {
+    ModelEdit * med = dynamic_cast<ModelEdit *>(dlg);
+    if (med && med->getModelId() == row)
+      return med;
+  }
+
+  return nullptr;
+}
+
+void MdiChild::onInternalModuleChanged()
+{
+  FilteredItemModel * fim = new FilteredItemModel(ModuleData::protocolItemModel(radioData.generalSettings), 0 + 1/*flag cannot be 0*/);
+
+  int cnt = 0;
+
+  for (unsigned int i = 0; i < radioData.models.size(); i++) {
+    ModuleData & module = radioData.models[i].moduleData[0];
+    bool found = false;
+
+    for (int j = 0; j < fim->rowCount(); j++) {
+      if (fim->data(fim->index(j, 0), AbstractItemModel::IMDR_Id).toInt() == (int)module.protocol) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      module.clear();
+      cnt++;
+    }
+  }
+
+  if (cnt > 0) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Internal module protocol changed to <b>OFF</b> for %1 models!").arg(cnt));
+    setModified();
+  }
+
+  delete fim;
 }

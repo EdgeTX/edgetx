@@ -733,8 +733,10 @@ void checkSwitches()
   if (!isSwitchWarningRequired(bad_pots))
     return;
 
+  LED_ERROR_BEGIN();
   auto dialog = new SwitchWarnDialog();
   dialog->runForever();
+  LED_ERROR_END();
 }
 #elif defined(GUI)
 void checkSwitches()

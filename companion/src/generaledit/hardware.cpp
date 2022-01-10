@@ -132,15 +132,13 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   }
 
   if (Boards::getCapability(board, Board::HasInternalModuleSupport)) {
+    m_internalModule = generalSettings.internalModule; // to permit undo
     addLabel(tr("Internal module"), row, 0);
-    AutoComboBox *internalModule = new AutoComboBox(this);
+    internalModule = new AutoComboBox(this);
     internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
     internalModule->setField(generalSettings.internalModule, this);
     addParams(row, internalModule);
-    connect(internalModule, &AutoComboBox::currentDataChanged, this, [=] () {
-            QMessageBox::warning(this, CPN_STR_APP_NAME,
-                                 tr("ALERT: Check each model's internal module protocol to ensure it is compatible!"));
-    });
+    connect(internalModule, &AutoComboBox::currentDataChanged, this, &HardwarePanel::on_internalModuleChanged);
   }
 
   if (firmware->getCapability(HasTelemetryBaudrate)) {
@@ -204,6 +202,21 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 HardwarePanel::~HardwarePanel()
 {
   delete tabFilteredModels;
+}
+
+void HardwarePanel::on_internalModuleChanged()
+{
+  if (QMessageBox::warning(this, CPN_STR_APP_NAME,
+                       tr("Warning: Changing the Internal module may invalidate the internal module protocol of the models!"),
+                       QMessageBox::Cancel | QMessageBox::Ok, QMessageBox::Cancel) != QMessageBox::Ok) {
+
+    generalSettings.internalModule = m_internalModule;
+    internalModule->updateValue();
+  }
+  else {
+    m_internalModule = generalSettings.internalModule;
+    emit internalModuleChanged();
+  }
 }
 
 void HardwarePanel::addStick(int index, int & row)

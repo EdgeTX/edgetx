@@ -108,11 +108,19 @@ void readModelNotes()
   waitKeysReleased();
   event_t event = EVT_ENTRY;
   while (event != EVT_KEY_BREAK(KEY_EXIT)) {
-    lcdRefreshWait();
-    lcdClear();
-    menuTextView(event);
+    uint32_t power = pwrCheck();
+    if (power != e_power_press) {
+      lcdRefreshWait();
+      lcdClear();
+      menuTextView(event);
+      lcdRefresh();
+    }
+    if (power == e_power_off){
+      drawSleepBitmap();
+      boardOff();
+      break;
+    }
     event = getEvent();
-    lcdRefresh();
     WDG_RESET();
   }
 

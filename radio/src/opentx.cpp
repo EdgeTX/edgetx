@@ -726,7 +726,35 @@ void checkAll()
 #endif
 
 #if defined(COLORLCD)
-  #warning "KEYSTUCK Message Not Yet Implemented"
+  if (!waitKeysReleased()) {
+    auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
+    LED_ERROR_BEGIN();
+    AUDIO_ERROR_MESSAGE(AU_ERROR);
+    tmr10ms_t tgtime = get_tmr10ms() + 500;
+    uint32_t keys = readKeys();
+    std::string strKeys("");
+    const char STR_VKEYS[] = TR_VKEYS;
+    const int len = int(LEN_VKEYS[0]);
+    char s[6];
+    s[5] = 0;
+    for (int i = 0; i < (int)TRM_BASE; i++) {
+      if (keys & (1 << i)) {
+        strncpy(s, &STR_VKEYS[i * len], len);
+        strKeys += s;
+      }
+    }
+
+    dlg->setMessage(strKeys.c_str());
+    dlg->setCloseCondition([tgtime]() {
+      if (tgtime >= get_tmr10ms() && keyDown()) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    dlg->runForever();
+    LED_ERROR_END();
+  }
 #else
   if (!waitKeysReleased()) {
     showMessageBox(STR_KEYSTUCK);
@@ -783,12 +811,14 @@ bool isThrottleWarningAlertNeeded()
 void checkThrottleStick()
 {
   if (isThrottleWarningAlertNeeded()) {
+    LED_ERROR_BEGIN();
     AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
-    auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP);
-    dialog->setCloseCondition([]() {
-        return !isThrottleWarningAlertNeeded();
-    });
+    auto dialog =
+        new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE,
+                             STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP);
+    dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
     dialog->runForever();
+    LED_ERROR_END();
   }
 }
 #else
@@ -1748,8 +1778,14 @@ void opentxInit()
   menuHandlers[1] = menuModelSelect;
 #endif
 
-#if defined(EEPROM)
+#if defined(STARTUP_ANIMATION)
+  lcdRefreshWait();
+  lcdClear();
+  lcdRefresh();
+  lcdRefreshWait();
+
   bool radioSettingsValid = storageReadRadioSettings(false);
+  (void)radioSettingsValid;
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation

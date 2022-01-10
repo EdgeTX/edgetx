@@ -125,6 +125,8 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   int32_t value = 0;
   const nv14SensorData* sensorData =
       reinterpret_cast<const nv14SensorData*>(data + sensor->offset);
+  static bool pre_10_0_14_RmFw = false;
+
   if (sensor->bytes == 1)
     value = sensorData->UINT8;
   else if (sensor->bytes == 2)
@@ -132,23 +134,32 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   else if (sensor->bytes == 4)
     value = sensorData->UINT32;
 
+  if (NV14internalModuleFwVersion <= 0x1000E) {
+    if (sensor->id == FLYSKY_SENSOR_RX_SIGNAL) {
+      if (value <= 10)
+        pre_10_0_14_RmFw = true;
+      else
+        pre_10_0_14_RmFw = false;
+    }
+  }
+
   // For older RF module FW Sgml is in [0, 10] range
   // and we need to use RSSI for alarm
-  if (NV14internalModuleFwVersion <  0x1000E) {
+  if (pre_10_0_14_RmFw) {
     if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
       if (value < -200) value = -200;
       // if g_model.rssiAlarms.flysky_telemetry == 1
       // RSSI will be kept within native FlySky range [-90, -60]
       if (!g_model.rssiAlarms.flysky_telemetry) {
-        value += 200;
-        value /= 2;
+        value *= 2;
+        value += 220;
       }
       telemetryData.rssi.set(value);
     }
   } else if (sensor->id == FLYSKY_SENSOR_RX_SIGNAL) {
-      telemetryData.rssi.set(value);
+    telemetryData.rssi.set(value);
   }
-  
+
   if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
     switch(sensor->subId)
     {

@@ -50,6 +50,7 @@ class MainWindow : public QMainWindow
     void firmwareDownloadCompleted();
     void firmwareChanged();
     void startSync();
+    void onInternalModuleChanged();
 
   protected:
     QString getCompanionUpdateBaseUrl() const;

@@ -49,6 +49,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("edit.png"));
+  setAttribute(Qt::WA_DeleteOnClose);
   restoreGeometry(g.modelEditGeo());
   ui->pushButton->setIcon(CompanionIcon("simulate.png"));
 
@@ -106,12 +107,11 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     s1.report("Telemetry");
   }
 
-  //  temporary hide
-  /*if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     addTab(new ColorCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
     s1.report("ColorLcd Custom Screens");
   }
-  else */if (firmware->getCapability(TelemetryCustomScreens)) {
+  else if (firmware->getCapability(TelemetryCustomScreens)) {
     addTab(new TelemetryCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
     s1.report("Telemetry Custom Screens");
   }

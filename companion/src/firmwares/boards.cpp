@@ -813,10 +813,11 @@ StringTagMappingTable Boards::getTrimSourcesLookupTable(Board::Type board)
 QList<int> Boards::getSupportedInternalModules(Board::Type board)
 {
   QList<int> modules;
+  modules = {(int)MODULE_TYPE_NONE};
   if (IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board)) {
-    modules = {(int)MODULE_TYPE_ISRM_PXX2};
+    modules.append({(int)MODULE_TYPE_ISRM_PXX2});
   } else if (IS_FLYSKY_NV14(board)) {
-    modules = {(int)MODULE_TYPE_FLYSKY};
+    modules.append({(int)MODULE_TYPE_FLYSKY});
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board)
              || (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append({
@@ -826,7 +827,7 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
         (int)MODULE_TYPE_MULTIMODULE,
     });
   } else if (IS_TARANIS(board)) {
-    modules = {(int)MODULE_TYPE_XJT_PXX1};
+    modules.append({(int)MODULE_TYPE_XJT_PXX1});
   }
 
   return modules;

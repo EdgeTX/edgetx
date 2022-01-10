@@ -66,8 +66,11 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   addTab(new GeneralSetupPanel(this, generalSettings, firmware), tr("Setup"));
   addTab(new CustomFunctionsPanel(this, nullptr, generalSettings, firmware, editorItemModels), tr("Global Functions"));
   addTab(new TrainerPanel(this, generalSettings, firmware, editorItemModels), tr("Trainer"));
-  addTab(new HardwarePanel(this, generalSettings, firmware, editorItemModels), tr("Hardware"));
+  auto hwpnl = new HardwarePanel(this, generalSettings, firmware, editorItemModels);
+  addTab(hwpnl, tr("Hardware"));
   addTab(new CalibrationPanel(this, generalSettings, firmware), tr("Calibration"));
+
+  connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
 
   ui->tabWidget->setCurrentIndex( g.generalEditTab() );
 }
@@ -81,6 +84,8 @@ GeneralEdit::~GeneralEdit()
 void GeneralEdit::closeEvent(QCloseEvent *event)
 {
   g.generalEditTab(ui->tabWidget->currentIndex());
+  if (intModChanged)
+    emit internalModuleChanged(); // for MidiChild to trap
 }
 
 void GeneralEdit::addTab(GenericPanel *panel, QString text)
