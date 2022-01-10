@@ -107,7 +107,7 @@ class RadioKeyDiagsWindow : public Window
       // TRIMS
       for (uint8_t i = 0; i < NUM_TRIMS_KEYS; i++) {
 #if NUM_TRIMS_KEYS == 16
-        const uint8_t trimMap[NUM_TRIMS_KEYS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+        const uint8_t trimMap[NUM_TRIMS_KEYS] = {8, 9, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 0, 1, 6, 7};
 #elif NUM_TRIMS_KEYS == 12
         const uint8_t trimMap[NUM_TRIMS_KEYS] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
 #else
@@ -115,8 +115,13 @@ class RadioKeyDiagsWindow : public Window
 #endif
         coord_t y = 1 + FH + FH * (i / 2);
         if (i & 1) {
+#if defined(PCBPL18)
+          dc->drawText(TRIM_COLUMN, y, "TR", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(TRIM_COLUMN + 20, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
+#else
           dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
           dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
+#endif
         }
         displayKeyState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, TRM_BASE + trimMap[i]);
       }

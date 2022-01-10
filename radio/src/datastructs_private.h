@@ -720,17 +720,9 @@ PACK(struct ModelData {
     // The order here is TERA, so that 0 (default) means Throttle
     switch (thrTrimSw) {
       case 0:
-#if defined(PCBPL18)
-        return MIXSRC_TrimTR3;
-#else
         return MIXSRC_TrimThr;
-#endif
       case 2:
-#if defined(PCBPL18)
-        return MIXSRC_TrimTR1;
-#else
         return MIXSRC_TrimRud;
-#endif
       default:
         return thrTrimSw + MIXSRC_FIRST_TRIM;
     }
@@ -740,18 +732,10 @@ PACK(struct ModelData {
   {
     // The order here is TERA, so that 0 (default) means Throttle
     switch (src) {
-#if defined(PCBPL18)
-      case MIXSRC_TrimTR5:
-#else
       case MIXSRC_TrimThr:
-#endif
         thrTrimSw = 0;
         break;
-#if defined(PCBPL18)
-      case MIXSRC_TrimTR8:
-#else
       case MIXSRC_TrimRud:
-#endif
         thrTrimSw = 2;
         break;
       default:

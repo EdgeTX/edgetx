@@ -42,7 +42,10 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
     sliders[SLIDERS_POT2]->setHeight(visible ? MULTIPOS_H : 0);
   }
   else if (IS_POT(POT2)) {
+#if !defined(HARDWARE_POT3) || (defined(HARDWARE_POT3) && (LCD_W > 400))
+    // If pot3 is present, show pot2 only on screens with width of higher than 400 pixels
     sliders[SLIDERS_POT2]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
+#endif
   }
 
 #if defined(HARDWARE_POT3)

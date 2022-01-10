@@ -696,28 +696,22 @@ enum MixSources {
   MIXSRC_LAST_HELI SKIP = MIXSRC_CYC3,
 
   MIXSRC_FIRST_TRIM SKIP,
-  #if defined(PCBPL18)
-    MIXSRC_TrimTR1 = MIXSRC_FIRST_TRIM, LUA_EXPORT("trim-tr1", "Trim TR1")
-    MIXSRC_TrimTR2,                     LUA_EXPORT("trim-tr2", "Trim TR2")
-    MIXSRC_TrimTR3,                     LUA_EXPORT("trim-tr3", "Trim TR3")
-    MIXSRC_TrimTR4,                     LUA_EXPORT("trim-tr4", "Trim TR4")
-    MIXSRC_TrimTR5,                     LUA_EXPORT("trim-tr5", "Trim TR5")
-    MIXSRC_TrimTR6,                     LUA_EXPORT("trim-tr6", "Trim TR6")
-    MIXSRC_TrimTR7,                     LUA_EXPORT("trim-tr7", "Trim TR7")
-    MIXSRC_TrimTR8,                     LUA_EXPORT("trim-tr8", "Trim TR8")
-    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimTR8,
+  MIXSRC_TrimRud = MIXSRC_FIRST_TRIM,   LUA_EXPORT("trim-rud", "Rudder trim")
+  MIXSRC_TrimEle,                       LUA_EXPORT("trim-ele", "Elevator trim")
+  MIXSRC_TrimThr,                       LUA_EXPORT("trim-thr", "Throttle trim")
+  MIXSRC_TrimAil,                       LUA_EXPORT("trim-ail", "Aileron trim")
+  #if defined(PCBHORUS)
+    MIXSRC_TrimT5,                      LUA_EXPORT("trim-t5", "Aux trim T5")
+    MIXSRC_TrimT6,                      LUA_EXPORT("trim-t6", "Aux trim T6")
+    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
+  #elif defined(PCBPL18)
+    MIXSRC_TrimT5,                      LUA_EXPORT("trim-t5", "Aux trim T5")
+    MIXSRC_TrimT6,                      LUA_EXPORT("trim-t6", "Aux trim T6")
+    MIXSRC_TrimT7,                      LUA_EXPORT("trim-t7", "Aux trim T7")
+    MIXSRC_TrimT8,                      LUA_EXPORT("trim-t8", "Aux trim T8")
+    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT8,
   #else
-    MIXSRC_TrimRud = MIXSRC_FIRST_TRIM, LUA_EXPORT("trim-rud", "Rudder trim")
-    MIXSRC_TrimEle,                     LUA_EXPORT("trim-ele", "Elevator trim")
-    MIXSRC_TrimThr,                     LUA_EXPORT("trim-thr", "Throttle trim")
-    MIXSRC_TrimAil,                     LUA_EXPORT("trim-ail", "Aileron trim")
-    #if defined(PCBHORUS)
-      MIXSRC_TrimT5,                    LUA_EXPORT("trim-t5", "Aux trim T5")
-      MIXSRC_TrimT6,                    LUA_EXPORT("trim-t6", "Aux trim T6")
-      MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
-    #else
-      MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
-    #endif
+    MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
   #endif
 
   MIXSRC_FIRST_SWITCH SKIP,
