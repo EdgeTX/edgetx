@@ -22,72 +22,112 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 
-uint32_t readKeys()
+uint32_t readKeyMatrix()
 {
-  uint32_t result = 0;
-  bool getKeys = true;
+    // This function avoids concurrent matrix agitation
 
-/* TODO! Uncomment, only for testing
-#if defined(LUA)
-  if (!isLuaStandaloneRunning()) {
-    getKeys = false;
-  }
-#endif
-*/
+    uint32_t result = 0;
+    /* Bit  0 - TR3 down
+     * Bit  1 - TR3 up
+     * Bit  2 - TR4 down
+     * Bit  3 - TR4 up
+     * Bit  4 - TR5 down
+     * Bit  5 - TR5 up
+     * Bit  6 - TR6 down
+     * Bit  7 - TR6 up
+     * Bit  8 - TR7 left
+     * Bit  9 - TR7 right
+     * Bit 10 - TR8 left
+     * Bit 11 - TR8 right
+     */
 
-  if (getKeys) {
+    volatile static struct
+    {
+        uint32_t oldResult = 0;
+        uint8_t ui8ReadInProgress = 0;
+    } syncelem;
+
+    if (syncelem.ui8ReadInProgress != 0) return syncelem.oldResult;
+
+    // ui8ReadInProgress was 0, increment it
+    syncelem.ui8ReadInProgress++;
+    // Double check before continuing, as non-atomic, non-blocking so far
+    // If ui8ReadInProgress is above 1, then there was concurrent task calling it, exit
+    if (syncelem.ui8ReadInProgress > 1) return syncelem.oldResult;
+
+    // If we land here, we have exclusive access to Matrix
     GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
     GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     delay_us(10);
-
-    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-       result |= 1 << KEY_RADIO; // TR7 left
-
-    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-       result |= 1 << KEY_MODEL; // TR7 right
-
-    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-       result |= 1 << KEY_TELEM; // TR5 down
-
-    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-       result |= 1 << KEY_PGUP; // TR5 up
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR7 left
+       result |= 1 << 8;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR7 right
+       result |= 1 << 9;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR5 down
+       result |= 1 << 4;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR5 up
+       result |= 1 << 5;
 
     GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     delay_us(10);
-
-    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-       result |= 1 << KEY_DOWN; // TR3 down
-
-    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-       result |= 1 << KEY_UP; // TR3 up
-
-    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-       result |= 1 << KEY_LEFT; // TR4 up
-
-    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-       result |= 1 << KEY_RIGHT; // TR4 down
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR3 down
+       result |= 1 << 0;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR3 up
+       result |= 1 << 1;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR4 up
+       result |= 1 << 3;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR4 down
+       result |= 1 << 2;
 
     GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+    delay_us(10);
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR6 up
+       result |= 1 << 7;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR6 down
+       result |= 1 << 6;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR8 left
+       result |= 1 << 10;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR8 right
+       result |= 1 << 11;
+    GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+    syncelem.oldResult = result;
+    syncelem.ui8ReadInProgress = 0;
+    return result;
+}
+
+uint32_t readKeys()
+{
+  uint32_t result = 0;
+  bool getKeys = true;
+
+#if defined(LUA)
+  if (!isLuaStandaloneRunning()) {
+    getKeys = false;
+  }
+#endif
+
+  uint32_t mkeys = readKeyMatrix();
+  if (getKeys) {
+    if (mkeys & (1 <<  0)) result |= 1 << KEY_TELEM; // TR3 down
+
+    if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)  // TR1 up
+      result |= 1 << KEY_RADIO;
+    if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)  // TR1 down
+      result |= 1 << KEY_MODEL;
+
+    if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)  // TR2 up
+      result |= 1 << KEY_PGUP;
+    if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)  // TR2 down
+      result |= 1 << KEY_PGDN;
   }
 
   // Enter and Exit are always supported
-  GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
-  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
-  GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
-  GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
-  delay_us(10);
-
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-     result |= 1 << KEY_ENTER; // TR6 up
-
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-     result |= 1 << KEY_EXIT; // TR6 down
-
-  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+  if (mkeys & (1 <<  2)) result |= 1 << KEY_ENTER;  // TR4 down
+  if (mkeys & (1 <<  3)) result |= 1 << KEY_EXIT;   // TR4 up
   return result;
 }
 
@@ -102,7 +142,7 @@ uint32_t readTrims()
   }
 #endif
   if(!getTrim) return result;
-  /* The bit-order has to be:
+  /* The output bit-order has to be:
       0 LHL  TR7L (Left equals down)
       1 LHR  TR7R
       2 LVD  TR5D
@@ -131,45 +171,19 @@ uint32_t readTrims()
   if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
     result |= 1 << (TRM_RS_DWN - TRM_BASE);
 
-  // Extract the matrix trims
-  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
-  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
-  GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
-  GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
-  delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR7 left
-     result |= 1 << (TRM_LH_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR7 right
-     result |= 1 << (TRM_LH_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR5 down
-     result |= 1 << (TRM_LV_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR5 up
-     result |= 1 << (TRM_LV_UP - TRM_BASE);
-
-  GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
-  GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
-  delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR3 down
-     result |= 1 << (TRM_EX1_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR3 up
-     result |= 1 << (TRM_EX1_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR4 up
-     result |= 1 << (TRM_EX2_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR4 down
-     result |= 1 << (TRM_EX2_DWN - TRM_BASE);
-
-  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
-  GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
-  delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR6 up
-     result |= 1 << (TRM_RV_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR6 down
-     result |= 1 << (TRM_RV_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR8 left
-     result |= 1 << (TRM_RH_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR8 right
-     result |= 1 << (TRM_RH_UP - TRM_BASE);
-  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+  uint32_t mkeys = readKeyMatrix();
+  if (mkeys & (1 <<  0)) result |= (1 << (TRM_EX1_DWN - TRM_BASE)); // TR3 down
+  if (mkeys & (1 <<  1)) result |= (1 << (TRM_EX1_UP  - TRM_BASE)); // TR3 up
+  if (mkeys & (1 <<  2)) result |= (1 << (TRM_EX2_DWN - TRM_BASE)); // TR4 down
+  if (mkeys & (1 <<  3)) result |= (1 << (TRM_EX2_UP  - TRM_BASE)); // TR4 up
+  if (mkeys & (1 <<  4)) result |= (1 << (TRM_LV_DWN  - TRM_BASE)); // TR5 down
+  if (mkeys & (1 <<  5)) result |= (1 << (TRM_LV_UP   - TRM_BASE)); // TR5 up
+  if (mkeys & (1 <<  6)) result |= (1 << (TRM_RV_DWN  - TRM_BASE)); // TR6 down
+  if (mkeys & (1 <<  7)) result |= (1 << (TRM_RV_UP   - TRM_BASE)); // TR6 up
+  if (mkeys & (1 <<  8)) result |= (1 << (TRM_LH_DWN  - TRM_BASE)); // TR7 left
+  if (mkeys & (1 <<  9)) result |= (1 << (TRM_LH_UP   - TRM_BASE)); // TR7 right
+  if (mkeys & (1 << 10)) result |= (1 << (TRM_RH_DWN  - TRM_BASE)); // TR8 left
+  if (mkeys & (1 << 11)) result |= (1 << (TRM_RH_UP   - TRM_BASE)); // TR8 right
   return result;
 }
 
