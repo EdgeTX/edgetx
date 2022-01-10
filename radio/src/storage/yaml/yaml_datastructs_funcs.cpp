@@ -105,7 +105,7 @@ namespace yaml_conv_220 {
 // ========
 //
 //  If any of these static_assert() fails, you need to check that
-//  the functions bellow are still applicable.
+//  the functions below are still applicable.
 //
 //  Please note that the sizes used here are those from the v220 format
 //  (see storage/conversions/yaml/datastructs_220.h)
@@ -124,8 +124,8 @@ static inline void check_yaml_funcs()
   check_size<FlightModeData, 40>();
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBPL18)
-  static_assert(offsetof(FlightModeData, gvars) == 22,"");
-  check_size<FlightModeData, 40>();
+  static_assert(offsetof(FlightModeData, gvars) == 30,"");
+  check_size<FlightModeData, 48>();
   check_size<CustomFunctionData, 9>();
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
   static_assert(offsetof(FlightModeData, gvars) == 18,"");

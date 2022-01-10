@@ -944,13 +944,15 @@ void alert(const char * title, const char * msg , uint8_t sound)
 }
 
 #if defined(GVARS)
-#if NUM_TRIMS == 6
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1, -1, -1 };
-#elif NUM_TRIMS == 4
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1 };
-#elif NUM_TRIMS == 2
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1 };
-#endif
+  #if NUM_TRIMS == 8
+    int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+  #elif NUM_TRIMS == 6
+    int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1, -1, -1 };
+  #elif NUM_TRIMS == 4
+    int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1 };
+  #elif NUM_TRIMS == 2
+    int8_t trimGvar[NUM_TRIMS] = { -1, -1 };
+  #endif
 #endif
 
 void checkTrims()
