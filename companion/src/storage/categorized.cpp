@@ -42,15 +42,12 @@ bool CategorizedStorageFormat::load(RadioData & radioData)
 bool CategorizedStorageFormat::write(const RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
-  if (st == STORAGE_TYPE_UNKNOWN) {
-    st = probeFormat();
-  }
   if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML ||
       st == STORAGE_TYPE_UNKNOWN) {
     return writeYaml(radioData);
-  } else {
-    return writeBin(radioData);
   }
+
+  return false;
 }
 
 StorageType CategorizedStorageFormat::probeFormat()
