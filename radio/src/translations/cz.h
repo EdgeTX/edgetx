@@ -79,7 +79,9 @@
 #define TR_VMLTPX                      "Sečíst","Násobit","Zaměnit"
 #define TR_VMLTPX2                     "+=","*=",":="
 
-#if defined(PCBHORUS)
+#if defined(PCBPL18)
+  #define TR_VMIXTRIMS                 "VYP","ZAP","Směr","Výšk","Plyn","Křid","TR1","TR2","TR3","TR4"
+#elif defined(PCBHORUS)
   #define TR_VMIXTRIMS                 "VYP","ZAP","Směr","Výšk","Plyn","Křid","T5","T6"
 #else
   #define TR_VMIXTRIMS                 "VYP","ZAP","Směr","Výšk","Plyn","Křid"

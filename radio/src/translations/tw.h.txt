@@ -138,7 +138,9 @@
 
 #define LEN_VMIXTRIMS                   "\004"
 
-#if defined(PCBHORUS)
+#if defined(PCBPL18)
+  #define TR_VMIXTRIMS                  "禁用" "啟用" "Rud\0" "Ele\0" "Thr\0" "Ail\0" "TR1\0" "TR2\0" "TR3\0" "TR4\0"
+#elif defined(PCBHORUS)
   #define TR_VMIXTRIMS                  "禁用" "啟用" "Rud\0" "Ele\0" "Thr\0" "Ail\0" "T5\0 " "T6\0 "
 #else
   #define TR_VMIXTRIMS                  "禁用" "啟用" "Rud\0" "Ele\0" "Thr\0" "Ail\0"

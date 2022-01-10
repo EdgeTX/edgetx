@@ -160,7 +160,13 @@ enum CurveRefType {
 #define TRIM_ELE    (-2)
 #define TRIM_THR    (-3)
 #define TRIM_AIL    (-4)
-#if defined(PCBHORUS)
+#if defined(PCBPL18)
+  #define TRIM_T5   (-5)
+  #define TRIM_T6   (-6)
+  #define TRIM_T7   (-7)
+  #define TRIM_T8   (-8)
+  #define TRIM_LAST TRIM_T8
+#elif defined(PCBHORUS)
   #define TRIM_T5   (-5)
   #define TRIM_T6   (-6)
   #define TRIM_LAST TRIM_T6
