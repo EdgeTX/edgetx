@@ -381,7 +381,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   Firmware *fw = getCurrentFirmware();
   Board::Type board = fw->getBoard();
 
-  if (moduleidx == 0 && Boards::getCapability(board, Board::HasInternalModuleSupport))
+  if (moduleidx == 0)
     return (int)settings.internalModule == getTypeFromProtocol(protocol);
 
   QString id = fw->getId();
