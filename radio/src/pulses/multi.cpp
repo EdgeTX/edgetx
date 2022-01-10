@@ -222,12 +222,7 @@ void setupPulsesMulti(uint8_t moduleIdx)
 
 void setupPulsesMultiExternalModule()
 {
-#if defined(PPM_PIN_SERIAL)
-  extmodulePulsesData.dsm2.serialByte = 0 ;
-  extmodulePulsesData.dsm2.serialBitCount = 0 ;
-#else
   extmodulePulsesData.dsm2.index = 0;
-#endif
   extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
 
   setupPulsesMulti(EXTERNAL_MODULE);
