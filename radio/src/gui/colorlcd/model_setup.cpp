@@ -113,7 +113,8 @@ class FailSafeBody : public FormGroup {
       grid.setLabelWidth(60);
       grid.spacer(8);
 
-      const int lim = (g_model.extendedLimits ? (512 * LIMIT_EXT_PERCENT / 100) : 512) * 2;
+      const int lim = calcRESXto1000(
+          (g_model.extendedLimits ? (512 * LIMIT_EXT_PERCENT / 100) : 512) * 2);
 
       for (int ch=0; ch < maxModuleChannels(moduleIdx); ch++) {
         // Channel name
@@ -122,8 +123,10 @@ class FailSafeBody : public FormGroup {
 
         // Channel numeric value
         new NumberEdit(this, grid.getFieldSlot(8, 0), -lim, lim,
-                       GET_DEFAULT(g_model.failsafeChannels[ch]),
-                       SET_VALUE(g_model.failsafeChannels[ch], newValue),
+                       [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); },
+                       [=](int32_t newValue) {
+                         g_model.failsafeChannels[ch] = calc1000toRESX(newValue);
+                       },
                        0, PREC1 | RIGHT);
 
         // Channel bargraph
