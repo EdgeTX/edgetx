@@ -37,9 +37,14 @@
 /* DMA Allocation:
    DMA/Stream/Channel
    1/5/7 DAC/Audio
-   2/0/0 ADC1
+   2/4/0 ADC1
+   2/0/2 ADC3
    2/3/4 SDIO
 */
+
+// Keys
+// PL18/PL18EV only has virtual keys via trim buttons
+#define KEYS_GPIO_PIN_PGUP              /* for activating PGUP in keys diagnose screen */
 
 // Trims
 #define TRIMS_GPIO_REG_TR1U             GPIOH->IDR

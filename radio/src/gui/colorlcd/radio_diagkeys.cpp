@@ -71,7 +71,7 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(TRIM_MINUS_COLUMN, 1, "-", COLOR_THEME_PRIMARY1);
       dc->drawText(TRIM_PLUS_COLUMN, 1, "+", COLOR_THEME_PRIMARY1);
 
-#if !defined(PCBNV14) && !defined(PCBPL18) // TODO! Check if can be removed !defined(PCBPL18) here
+#if !defined(PCBNV14)
       // KEYS
       for (uint8_t i = KEY_START; i <= 6; i++) {
         coord_t y = 1 + FH * (i - KEY_START);
@@ -83,8 +83,7 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
       dc->drawNumber(70, y, rotencValue, COLOR_THEME_PRIMARY1);
 #endif
-#else // defined(PCBNV14) || defined(PCBPL18)
-      // KEYS (both radios do NOT have physical keys, only remapped trim keys)
+#else // PCBNV14 does NOT have physical keys, only remapped trim keys
       {
         coord_t y = 1;
         dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, COLOR_THEME_PRIMARY1);
