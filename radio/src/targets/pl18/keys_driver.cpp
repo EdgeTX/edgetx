@@ -102,15 +102,34 @@ uint32_t readTrims()
   }
 #endif
   if(!getTrim) return result;
+  /* The bit-order has to be:
+      0 LHL  TR7L (Left equals down)
+      1 LHR  TR7R
+      2 LVD  TR5D
+      3 LVU  TR5U
+      4 RVD  TR6D
+      5 RVU  TR6U
+      6 RHL  TR8L
+      7 RHR  TR8R
+      8 LSD  TR1D
+      9 LSU  TR1U
+     10 RSD  TR2D
+     11 RSU  TR2U
+     12 EX1D TR3D
+     13 EX1U TR3U
+     14 EX2D TR4D
+     15 EX2U TR4U
+     */
+
   if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
-    result |= 1 << (TRM1_UP - TRM_BASE);
+    result |= 1 << (TRM_LS_UP - TRM_BASE);
   if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
-    result |= 1 << (TRM1_DWN - TRM_BASE);
+    result |= 1 << (TRM_LS_DWN - TRM_BASE);
 
   if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
-    result |= 1 << (TRM2_UP - TRM_BASE);
+    result |= 1 << (TRM_RS_UP - TRM_BASE);
   if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
-    result |= 1 << (TRM2_DWN - TRM_BASE);
+    result |= 1 << (TRM_RS_DWN - TRM_BASE);
 
   // Extract the matrix trims
   GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
@@ -118,38 +137,38 @@ uint32_t readTrims()
   GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
   GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
   delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-     result |= 1 << (TRM7_LEFT - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-     result |= 1 << (TRM7_RIGHT - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-     result |= 1 << (TRM5_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-     result |= 1 << (TRM5_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR7 left
+     result |= 1 << (TRM_LH_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR7 right
+     result |= 1 << (TRM_LH_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR5 down
+     result |= 1 << (TRM_LV_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR5 up
+     result |= 1 << (TRM_LV_UP - TRM_BASE);
 
   GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
   GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
   delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-     result |= 1 << (TRM3_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-     result |= 1 << (TRM3_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-     result |= 1 << (TRM4_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-     result |= 1 << (TRM4_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR3 down
+     result |= 1 << (TRM_EX1_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR3 up
+     result |= 1 << (TRM_EX1_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR4 up
+     result |= 1 << (TRM_EX2_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR4 down
+     result |= 1 << (TRM_EX2_DWN - TRM_BASE);
 
   GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
   GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
   delay_us(10);
-  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-     result |= 1 << (TRM6_UP - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-     result |= 1 << (TRM6_DWN - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-     result |= 1 << (TRM8_LEFT - TRM_BASE);
-  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-     result |= 1 << (TRM8_RIGHT - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR6 up
+     result |= 1 << (TRM_RV_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR6 down
+     result |= 1 << (TRM_RV_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR8 left
+     result |= 1 << (TRM_RH_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR8 right
+     result |= 1 << (TRM_RH_UP - TRM_BASE);
   GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
   return result;
 }
