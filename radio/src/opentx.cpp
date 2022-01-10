@@ -940,7 +940,6 @@ void alert(const char * title, const char * msg , uint8_t sound)
 #elif MAX_TRIMS == 2
   int8_t trimGvar[MAX_TRIMS] = { -1, -1 };
 #endif
-#endif
 
 void checkTrims()
 {

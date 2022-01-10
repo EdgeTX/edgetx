@@ -102,18 +102,55 @@ uint32_t readTrims()
   }
 #endif
   if(!getTrim) return result;
-  if (TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
+  if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
     result |= 1 << (TRM1_UP - TRM_BASE);
-  if (TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
+  if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
     result |= 1 << (TRM1_DWN - TRM_BASE);
 
-  if (TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
+  if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
     result |= 1 << (TRM2_UP - TRM_BASE);
-  if (TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
+  if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
     result |= 1 << (TRM2_DWN - TRM_BASE);
 
-  // TODO! Extract the matrix trims
+  // Extract the matrix trims
+  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+  GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+  GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
+  delay_us(10);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+     result |= 1 << (TRM7_LEFT - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+     result |= 1 << (TRM7_RIGHT - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+     result |= 1 << (TRM5_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+     result |= 1 << (TRM5_UP - TRM_BASE);
 
+  GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
+  GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+  delay_us(10);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+     result |= 1 << (TRM3_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+     result |= 1 << (TRM3_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+     result |= 1 << (TRM4_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+     result |= 1 << (TRM4_DWN - TRM_BASE);
+
+  GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
+  GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+  delay_us(10);
+  if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+     result |= 1 << (TRM6_UP - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+     result |= 1 << (TRM6_DWN - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+     result |= 1 << (TRM8_LEFT - TRM_BASE);
+  if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+     result |= 1 << (TRM8_RIGHT - TRM_BASE);
+  GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
   return result;
 }
 
