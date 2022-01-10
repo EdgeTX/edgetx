@@ -162,8 +162,13 @@ enum EnumKeys
   TRM4_UP,
   TRM5_DWN,
   TRM5_UP,
-  TRM_LAST = TRM5_UP,
-
+  TRM6_DWN,
+  TRM6_UP,
+  TRM7_LEFT,
+  TRM7_RIGHT,
+  TRM8_LEFT,
+  TRM8_RIGHT,
+  TRM_LAST = TRM8_RIGHT,
   NUM_KEYS
 };
 
@@ -245,7 +250,7 @@ uint8_t keyState(uint8_t index);
 uint32_t switchState(uint8_t index);
 uint32_t readKeys();
 uint32_t readTrims();
-#define NUM_TRIMS                       NUM_STICKS
+#define NUM_TRIMS                       8
 #define NUM_TRIMS_KEYS                  (NUM_TRIMS * 2)
 #define TRIMS_PRESSED()                 (readTrims())
 #define KEYS_PRESSED()                  (readKeys())
