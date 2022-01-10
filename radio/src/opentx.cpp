@@ -151,15 +151,6 @@ void per10ms()
   /* Update global Date/Time every 100 per10ms cycles */
   if (++g_ms100 == 100) {
     g_rtcTime++;   // inc global unix timestamp one second
-#if defined(COPROCESSOR)
-    if (g_rtcTime < 60 || rtc_count<5) {
-      rtcInit();
-      rtc_count++;
-    }
-    else {
-      coprocReadData(true);
-    }
-#endif
     g_ms100 = 0;
   }
 #endif
