@@ -75,7 +75,9 @@
 #define TR_VMLTPX              "Dodaj","Mnóż","Zastąp"
 #define TR_VMLTPX2             "+=","*=",":="
 
-#if defined(PCBHORUS)
+#if defined(PCBPL18)
+  #define TR_VMIXTRIMS         "WYŁ","ZAŁ","SK","SW","GAZ","Lot","Ail","TR1","TR2","TR3","TR4"
+#elif defined(PCBHORUS)
   #define TR_VMIXTRIMS         "WYŁ","ZAŁ","SK","SW","GAZ","Lot","Ail","T5","T6"
 #else
   #define TR_VMIXTRIMS         "WYŁ","ZAŁ","SK","SW","GAZ","Lot"

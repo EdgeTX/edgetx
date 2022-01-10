@@ -76,7 +76,9 @@
 #define TR_VMLTPX              "Añadir","Multipl.","Cambiar"
 #define TR_VMLTPX2             "+=","*=",":="
 
-#if defined(PCBHORUS)
+#if defined(PCBPL18)
+  #define TR_VMIXTRIMS         "OFF","ON","Rud","Ele","Thr","Ail","TR1","TR2","TR3","TR4"
+#elif defined(PCBHORUS)
   #define TR_VMIXTRIMS         "OFF","ON","Rud","Ele","Thr","Ail","T5","T6"
 #else
   #define TR_VMIXTRIMS         "OFF","ON","Rud","Ele","Thr","Ail"
