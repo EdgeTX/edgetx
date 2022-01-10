@@ -1645,6 +1645,7 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
   } else if (md->type == MODULE_TYPE_FLYSKY) {
     md->subType = yaml_parse_enum(yaml_conv_220::enum_FLYSKY_Subtypes, val, val_len);
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
+#if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
     // TODO: remove that crappy translation and use the MPM
     //       data as-is (no FrSky special casing)
@@ -1665,6 +1666,7 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
       md->setMultiProtocol(type - 1);
       md->subType = subtype;
     }
+#endif
   } else if (md->type == MODULE_TYPE_DSM2) {
     md->rfProtocol = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
   } else {

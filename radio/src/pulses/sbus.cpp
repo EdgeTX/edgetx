@@ -107,6 +107,14 @@ inline int getChannelValue(uint8_t port, int channel)
   return channelOutputs[ch] + 2 * PPM_CH_CENTER(ch) - 2*PPM_CENTER;
 }
 
+static void sbusFlush()
+{
+  if (extmodulePulsesData.dsm2.index & 1)
+    *extmodulePulsesData.dsm2.ptr++ = 60000;
+  else
+    *(extmodulePulsesData.dsm2.ptr - 1) = 60000;
+}
+
 void setupPulsesSbus()
 {
 #if defined(PPM_PIN_SERIAL)
@@ -150,6 +158,5 @@ void setupPulsesSbus()
   // last byte, always 0x0
   sendByteSbus(0x00);
 
-  putDsm2Flush();
-
+  sbusFlush();
 }
