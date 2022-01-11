@@ -1,7 +1,7 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
-option(AFHDS2 "Support for AFHDS2" ON)
+option(AFHDS2 "Support for AFHDS2" OFF)
 option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
@@ -40,20 +40,13 @@ set(CPU_TYPE_FULL STM32F429xI)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 option(USB_SERIAL "Enable USB serial (CDC)" ON)
 
-set(RF_BAUD_RATE 921600 230400 115200 57600 38400 19200 9600 4800 2400 1200)
-set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
-set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
-
 set(FLAVOUR pl18)
-#add_definitions(-DPCBPL18 -DPCBFLYSKY -DINTERNAL_MODULE_BAUDRATE=${PCB_RF_BAUD})
-add_definitions(-DPCBPL18 -DPCBFLYSKY -DINTERNAL_MODULE_SERIAL -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
+add_definitions(-DPCBPL18 -DPCBFLYSKY)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSOFTWARE_VOLUME)
-add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 
 # defines existing internal modules
-set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
-set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
+set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "No internal module")
 
 set(TARGET_SRC
   ${TARGET_SRC}
@@ -87,7 +80,6 @@ add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
-add_definitions(-DAFHDS2) 
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
 #add_definitions(-DAUX_SERIAL)
 #add_definitions(-DFLYSKY_AUTO_POWER_DOWN)
@@ -99,8 +91,6 @@ endif()
 if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
-
-set(AFHDS2 ON)
 
 # disable for now as it crashes on radio
 #set(AFHDS3 ON)
@@ -130,7 +120,6 @@ set(TARGET_SRC
   extmodule_helper.cpp
   ../horus/extmodule_driver.cpp
   trainer_driver.cpp
-  ../common/arm/stm32/intmodule_serial_driver.cpp
   )
 
 set(FIRMWARE_TARGET_SRC

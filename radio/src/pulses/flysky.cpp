@@ -123,7 +123,6 @@ static uint8_t lastState = STATE_IDLE;
 static uint32_t set_loop_cnt = 0;
 
 uint32_t NV14internalModuleFwVersion = 0;
-uint32_t PL18internalModuleFwVersion = 0;
 
 static rf_info_t rf_info = {
     .bind_power = BIND_LOW_POWER,
@@ -246,25 +245,34 @@ void onFlySkyModuleSetPower(bool isPowerOn)
   }
 }
 
-void setFlyskyState(uint8_t state) { intmodulePulsesData.flysky.state = state; }
+void setFlyskyState(uint8_t state) {
+#if defined(HARDWARE_INTERNAL_MODULE)
+    intmodulePulsesData.flysky.state = state;
+#endif
+}
 
 void onFlySkyUsbDownloadStart(uint8_t fw_state) { rf_info.fw_state = fw_state; }
 
 void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   lastState = intmodulePulsesData.flysky.state;
+#endif
   setFlyskyState(isRfTransfer ? STATE_GET_RF_VERSION_INFO
                               : STATE_GET_RX_VERSION_INFO);
 }
 
 inline void initFlySkyArray()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   intmodulePulsesData.flysky.ptr = intmodulePulsesData.flysky.pulses;
   intmodulePulsesData.flysky.crc = 0;
+#endif
 }
 
 inline void putFlySkyByte(uint8_t byte)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (END == byte) {
     *intmodulePulsesData.flysky.ptr++ = ESC;
     *intmodulePulsesData.flysky.ptr++ = ESC_END;
@@ -274,17 +282,22 @@ inline void putFlySkyByte(uint8_t byte)
   } else {
     *intmodulePulsesData.flysky.ptr++ = byte;
   }
+#endif
 }
 
 inline void putFlySkyFrameByte(uint8_t byte)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   intmodulePulsesData.flysky.crc += byte;
+#endif
   putFlySkyByte(byte);
 }
 
 inline void putFlySkyFrameCmd(uint8_t type, uint8_t cmd)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   intmodulePulsesData.flysky.crc += type + cmd;
+#endif
   putFlySkyByte(type);
   putFlySkyByte(cmd);
 }
@@ -292,7 +305,9 @@ inline void putFlySkyFrameCmd(uint8_t type, uint8_t cmd)
 inline void putFlySkyFrameBytes(uint8_t* data, int length)
 {
   for (int i = 0; i < length; i++) {
+#if defined(HARDWARE_INTERNAL_MODULE)
     intmodulePulsesData.flysky.crc += data[i];
+#endif
     putFlySkyByte(data[i]);
   }
 }
@@ -300,17 +315,21 @@ inline void putFlySkyFrameBytes(uint8_t* data, int length)
 inline void putFlySkyFrameHeader()
 {
   initFlySkyArray();
+#if defined(HARDWARE_INTERNAL_MODULE)
   *intmodulePulsesData.flysky.ptr++ = END;
   putFlySkyFrameByte(intmodulePulsesData.flysky.frame_index);
+#endif
 }
 
 inline void putFlySkyFrameFooter()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (++intmodulePulsesData.flysky.frame_index == 0) {
     intmodulePulsesData.flysky.frame_index = 1;
   }
   putFlySkyByte(intmodulePulsesData.flysky.crc ^ 0xff);
   *intmodulePulsesData.flysky.ptr++ = END;
+#endif
 }
 
 void afhds2Command(uint8_t type, uint8_t cmd)
@@ -411,6 +430,7 @@ inline void debugFrame(const uint8_t* rxBuffer, uint8_t rxBufferCount)
 
 inline void parseResponse()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   afhds2Resp* resp =
       reinterpret_cast<afhds2Resp*>(intmodulePulsesData.flysky.telemetry);
   uint8_t dataLen = intmodulePulsesData.flysky.telemetry_index;
@@ -523,9 +543,6 @@ inline void parseResponse()
 #if defined(PCBNV14)
         memcpy(&NV14internalModuleFwVersion, &resp->value + 1,
                sizeof(NV14internalModuleFwVersion));
-#else
-          memcpy(&PL18internalModuleFwVersion, &resp->value + 1,
-                 sizeof(PL18internalModuleFwVersion));
 #endif
         setFlyskyState(STATE_SET_RECEIVER_ID);
         break;
@@ -543,6 +560,7 @@ inline void parseResponse()
       break;
     }
   }
+#endif
 }
 
 bool isrxBufferMsgOK(void)
@@ -578,6 +596,7 @@ void processInternalFlySkyTelemetryData(uint8_t byte)
   //   }
   //   usbDownloadTransmit(pt, rxBuffer.length + 5);
   // }
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (byte == END && intmodulePulsesData.flysky.telemetry_index > 0) {
     parseResponse();
     intmodulePulsesData.flysky.telemetry_index = 0;
@@ -601,12 +620,13 @@ void processInternalFlySkyTelemetryData(uint8_t byte)
       }
     }
   }
+#endif
 }
 
 void resetPulsesAFHDS2()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   NV14internalModuleFwVersion = 0;
-  PL18internalModuleFwVersion = 0;
   intmodulePulsesData.flysky.frame_index = 1;
   setFlyskyState(STATE_SET_TX_POWER);
   intmodulePulsesData.flysky.timeout = 0;
@@ -616,11 +636,13 @@ void resetPulsesAFHDS2()
   if (50 > rx_freq || 400 < rx_freq) {
     gRomData.rx_freq[0] = 50;
   }
+#endif
 }
 
 void setupPulsesAFHDS2()
 {
   putFlySkyFrameHeader();
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (intmodulePulsesData.flysky.state == STATE_DISCONNECT) {
     TRACE("STATE_DISCONNECT");
     putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RECEIVER_ID);
@@ -747,6 +769,7 @@ void setupPulsesAFHDS2()
       TRACE_NOCRLF(";" CRLF);
     }
   }
+#endif
 }
 
 // void usbDownloadTransmit(uint8_t *buffer, uint32_t size)
