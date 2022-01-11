@@ -346,7 +346,7 @@ void ModelSetupPage::build(FormWindow * window)
 
   line = window->newLine(&grid2);
   line->padTop(2);
-
+#endif
   // Timer buttons
   new SubScreenButton(line, TR_TIMER "1", []() { new TimerWindow(0); });
   new SubScreenButton(line, TR_TIMER "2", []() { new TimerWindow(1); });

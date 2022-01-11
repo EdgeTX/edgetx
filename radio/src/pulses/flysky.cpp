@@ -135,7 +135,6 @@ static uint8_t _flysky_timeout;
 static uint8_t _esc_state;
 
 uint32_t NV14internalModuleFwVersion = 0;
-uint32_t PL18internalModuleFwVersion = 0;
 
 static rf_info_t rf_info = {
     .bind_power = BIND_LOW_POWER,
@@ -212,6 +211,7 @@ inline void initFlySkyCRC()
 
 inline void putFlySkyByte(uint8_t*& p_buf, uint8_t byte)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (END == byte) {
     *p_buf++ = ESC;
     *p_buf++ = ESC_END;
@@ -221,6 +221,7 @@ inline void putFlySkyByte(uint8_t*& p_buf, uint8_t byte)
   } else {
     *p_buf++ = byte;
   }
+#endif
 }
 
 inline void putFlySkyFrameByte(uint8_t*& p_buf, uint8_t byte)
@@ -249,6 +250,7 @@ inline void putFlySkyFrameHeader(uint8_t*& p_buf)
   initFlySkyCRC();
   *p_buf++ = END;
   putFlySkyFrameByte(p_buf, _flysky_frame_index);
+#endif
 }
 
 inline void putFlySkyFrameFooter(uint8_t*& p_buf)
@@ -258,6 +260,7 @@ inline void putFlySkyFrameFooter(uint8_t*& p_buf)
   }
   putFlySkyByte(p_buf, _flysky_crc ^ 0xff);
   *p_buf++ = END;
+#endif
 }
 
 void afhds2Command(uint8_t*& p_buf, uint8_t type, uint8_t cmd)
@@ -358,6 +361,7 @@ inline void debugFrame(const uint8_t* rxBuffer, uint8_t rxBufferCount)
 
 inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   afhds2Resp* resp = reinterpret_cast<afhds2Resp*>(buffer);
   if (resp->startByte != END || dataLen < 2) return;
 
@@ -467,9 +471,6 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
 #if defined(PCBNV14)
         memcpy(&NV14internalModuleFwVersion, &resp->value + 1,
                sizeof(NV14internalModuleFwVersion));
-#else
-          memcpy(&PL18internalModuleFwVersion, &resp->value + 1,
-                 sizeof(PL18internalModuleFwVersion));
 #endif
         setFlyskyState(STATE_SET_RECEIVER_ID);
         break;
@@ -487,10 +488,12 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
       break;
     }
   }
+#endif
 }
 
 void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (byte == END && *len > 0) {
     parseResponse(buffer, *len);
     *len = 0;
@@ -512,12 +515,13 @@ void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* 
       }
     }
   }
+#endif
 }
 
 void resetPulsesAFHDS2()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   NV14internalModuleFwVersion = 0;
-  PL18internalModuleFwVersion = 0;
   intmodulePulsesData.flysky.frame_index = 1;
   _flysky_frame_index = 1;
   setFlyskyState(STATE_SET_TX_POWER);
@@ -528,6 +532,7 @@ void resetPulsesAFHDS2()
   if (50 > rx_freq || 400 < rx_freq) {
     gRomData.rx_freq[0] = 50;
   }
+#endif
 }
 
 void setupPulsesAFHDS2(uint8_t*& p_buf)
@@ -660,6 +665,7 @@ void setupPulsesAFHDS2(uint8_t*& p_buf)
       TRACE_NOCRLF(";" CRLF);
     }
   }
+#endif
 }
 
 // void usbDownloadTransmit(uint8_t *buffer, uint32_t size)
