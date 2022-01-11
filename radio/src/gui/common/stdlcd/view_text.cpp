@@ -30,6 +30,7 @@
 #endif
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
+int checklistPosition;
 
 static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
 {
@@ -132,6 +133,7 @@ void menuTextView(event_t event)
   switch (event) {
     case EVT_ENTRY:
       menuVerticalOffset = 0;
+      checklistPosition = 0;
       reusableBuffer.viewText.linesCount = 0;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
       break;
@@ -142,6 +144,19 @@ void menuTextView(event_t event)
       else
         menuVerticalOffset--;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      break;
+    
+    case EVT_KEY_BREAK(KEY_ENTER):
+        if (checklistPosition < reusableBuffer.viewText.linesCount) {
+          ++checklistPosition;
+          if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+            ++menuVerticalOffset;
+            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+          }
+        } 
+        else {
+          popMenu();
+        }
       break;
 
     case EVT_KEY_NEXT_LINE:
@@ -158,7 +173,8 @@ void menuTextView(event_t event)
   }
 
   for (int i=0; i<LCD_LINES-1; i++) {
-    lcdDrawText(0, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
+    drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
+    lcdDrawText(8, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
   }
 
   char * title = reusableBuffer.viewText.filename;
