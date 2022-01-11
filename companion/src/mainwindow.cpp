@@ -1027,6 +1027,8 @@ void MainWindow::about()
   aboutStr.append("<br/>");
   aboutStr.append(QString("Commit <a href='%1'>%2</a>").arg("https://github.com/EdgeTX/edgetx/commit/" GIT_STR).arg(GIT_STR));
   aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("File a new <a href='%1'>Issue or Request</a>").arg("https://github.com/EdgeTX/edgetx/issues/new/choose"));
+  aboutStr.append("<br/><br/>");
   aboutStr.append(tr("Copyright") + QString(" &copy; 2022 EdgeTX<br/>"));
   // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
 
