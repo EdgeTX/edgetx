@@ -211,10 +211,19 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawBitmapPattern(DEFAULT_PADDING, LCD_H - DOUBLE_PADDING - 2, LBM_FLASH, BL_FOREGROUND);
 
             if (st == ST_FILE_LIST) {
+#if defined(PCBPL18)
+                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "[TR4 down] to select file", BL_FOREGROUND);
+#else
                 lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "[R TRIM] to select file", BL_FOREGROUND);
+#endif
             }
             else if (st == ST_FLASH_CHECK && opt == FC_OK) {
+#if defined(PCBPL18)
+                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [TR4 down] long to flash", BL_FOREGROUND);
+#else
                 lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [R TRIM] long to flash", BL_FOREGROUND);
+#endif
+
             }
             else if (st == ST_FLASHING) {
                 lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Writing Firmware ...", BL_FOREGROUND);
@@ -226,7 +235,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         if (st != ST_FLASHING) {
             lcd->drawBitmapPattern(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING - 2, LBM_EXIT, BL_FOREGROUND);
+#if defined(PCBPL18)
+            lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, "[TR4 up] to exit", BL_FOREGROUND);
+#else
             lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, "[L TRIM] to exit", BL_FOREGROUND);
+#endif
         }        
     }
 }
