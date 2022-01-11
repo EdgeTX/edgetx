@@ -113,7 +113,8 @@ class FailSafeBody : public FormGroup {
       grid.setLabelWidth(60);
       grid.spacer(8);
 
-      const int lim = (g_model.extendedLimits ? (512 * LIMIT_EXT_PERCENT / 100) : 512) * 2;
+      const int lim = calcRESXto1000(
+          (g_model.extendedLimits ? (512 * LIMIT_EXT_PERCENT / 100) : 512) * 2);
 
       for (int ch=0; ch < maxModuleChannels(moduleIdx); ch++) {
         // Channel name
@@ -122,8 +123,11 @@ class FailSafeBody : public FormGroup {
 
         // Channel numeric value
         new NumberEdit(this, grid.getFieldSlot(8, 0), -lim, lim,
-                       GET_DEFAULT(g_model.failsafeChannels[ch]),
-                       SET_VALUE(g_model.failsafeChannels[ch], newValue),
+                       [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); },
+                       [=](int32_t newValue) {
+                         g_model.failsafeChannels[ch] = calc1000toRESX(newValue);
+                         SET_DIRTY();
+                       },
                        0, PREC1 | RIGHT);
 
         // Channel bargraph
@@ -136,7 +140,7 @@ class FailSafeBody : public FormGroup {
       out2fail->setPressHandler([=]() {
         setCustomFailsafe(moduleIdx);
         AUDIO_WARNING1();
-        storageDirty(EE_MODEL);
+        SET_DIRTY();
         return 0;
       });
 
@@ -1401,7 +1405,7 @@ void ModelSetupPage::build(FormWindow * window)
                    for (auto &flightModeData : g_model.flightModeData) {
                      memclear(&flightModeData, TRIMS_ARRAY_SIZE);
                    }
-                   storageDirty(EE_MODEL);
+                   SET_DIRTY();
                    AUDIO_WARNING1();
                    return 0;
                  });
