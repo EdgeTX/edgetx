@@ -1048,6 +1048,7 @@
 #define TR_PERSISTENT_MAH      TR(INDENT "Zap. mAh", INDENT "Zapisz mAh")
 #define TR_PREFLIGHT           "Lista Ostrzeżeń"
 #define TR_CHECKLIST           TR(INDENT "Czeklista",INDENT "Pokaż Listę Ostrzeżeń")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interakt", INDENT "Interkatywna lista ostrż.")
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Port szreg."
 #define TR_AUX2_SERIAL_MODE    "Port szreg. 2"

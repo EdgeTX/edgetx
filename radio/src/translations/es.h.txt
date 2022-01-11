@@ -1033,6 +1033,7 @@
 #define TR_PERSISTENT_MAH      INDENT "Valor mAh"
 #define TR_PREFLIGHT           "Chequeos prevuelo"
 #define TR_CHECKLIST           TR(INDENT "Lista verif", INDENT "Lista verificación")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Puerto serie"
 #define TR_AUX2_SERIAL_MODE    "Puerto serie 2"

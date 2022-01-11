@@ -1045,6 +1045,7 @@
 #define TR_PERSISTENT_MAH      INDENT "Store mAh"
 #define TR_PREFLIGHT           "Preflight Checks"
 #define TR_CHECKLIST           INDENT "Display Checklist"
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Serial port"
 #define TR_AUX2_SERIAL_MODE    "Serial port 2"

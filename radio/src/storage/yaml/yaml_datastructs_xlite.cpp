@@ -791,6 +791,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "extendedLimits", 1 ),
   YAML_UNSIGNED( "extendedTrims", 1 ),
   YAML_UNSIGNED( "throttleReversed", 1 ),
+  YAML_UNSIGNED( "checklistInteractiveBW", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 88, 32, struct_LimitData, NULL),

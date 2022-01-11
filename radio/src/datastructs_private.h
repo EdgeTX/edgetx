@@ -646,6 +646,7 @@ PACK(struct ModelData {
   uint8_t   extendedLimits:1;
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
+  uint8_t   checklistInteractiveBW:8;  // might be 1-bit, but have to maintain correct bit-aligment
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];

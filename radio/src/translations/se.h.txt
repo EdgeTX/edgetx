@@ -1056,6 +1056,7 @@
 #define TR_PERSISTENT_MAH      INDENT "Lagra mAh"
 #define TR_PREFLIGHT           "Startkontroller"
 #define TR_CHECKLIST           TR(INDENT "Checklista", INDENT "Visa Checklista")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Serieporten"
 #define TR_AUX2_SERIAL_MODE    "Serieporten 2"

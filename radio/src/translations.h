@@ -970,6 +970,7 @@ extern const char STR_MODULE_PROTOCOL_WARN_LINE2[];
 extern const char STR_SET[];
 extern const char STR_PREFLIGHT[];
 extern const char STR_CHECKLIST[];
+extern const char STR_CHECKLIST_INTERACTIVE[];
 extern const char STR_VIEW_NOTES[];
 extern const char STR_MODEL_SELECT[];
 extern const char STR_RESET_SUBMENU[];

@@ -1033,6 +1033,7 @@
 #define TR_PERSISTENT_MAH              TR(INDENT "Spr. mAh", INDENT "Speichern mAh") //9XR-Pro
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS-Ofs", INDENT "FAS-Offset")
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
 #define TR_AUX2_SERIAL_MODE            "Serieller Port 2"
