@@ -126,6 +126,7 @@ class FailSafeBody : public FormGroup {
                        [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); },
                        [=](int32_t newValue) {
                          g_model.failsafeChannels[ch] = calc1000toRESX(newValue);
+                         SET_DIRTY();
                        },
                        0, PREC1 | RIGHT);
 
@@ -139,7 +140,7 @@ class FailSafeBody : public FormGroup {
       out2fail->setPressHandler([=]() {
         setCustomFailsafe(moduleIdx);
         AUDIO_WARNING1();
-        storageDirty(EE_MODEL);
+        SET_DIRTY();
         return 0;
       });
 
@@ -1404,7 +1405,7 @@ void ModelSetupPage::build(FormWindow * window)
                    for (auto &flightModeData : g_model.flightModeData) {
                      memclear(&flightModeData, TRIMS_ARRAY_SIZE);
                    }
-                   storageDirty(EE_MODEL);
+                   SET_DIRTY();
                    AUDIO_WARNING1();
                    return 0;
                  });
