@@ -147,9 +147,6 @@ void menuTextView(event_t event)
             sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
           }
         } 
-        else {
-          popMenu();
-        }
   } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     popMenu();
   }
