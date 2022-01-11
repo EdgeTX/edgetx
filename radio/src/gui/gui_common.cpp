@@ -333,13 +333,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 #if NUM_XPOTS > 0
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
     int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    if (IS_POT_MULTIPOS(POT1+index)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT1+index];
-      return (calib->count >= ((swtch - SWSRC_FIRST_MULTIPOS_SWITCH) % XPOTS_MULTIPOS_COUNT));
-    }
-    else {
-      return false;
-    }
+    return IS_POT_MULTIPOS(POT1+index);
   }
 #endif
 
