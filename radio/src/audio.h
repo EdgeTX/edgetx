@@ -27,6 +27,7 @@
 #include "ff.h"
 #include "opentx_types.h"
 #include "dataconstants.h"
+#include "VirtualFS.h"
 
 /*
   Implements a bit field, number of bits is set by the template,
@@ -242,7 +243,7 @@ class WavContext {
     AudioFragment fragment;
 
     struct {
-      FIL      file;
+      VfsFile  file;
       uint8_t  codec;
       uint32_t freq;
       uint32_t size;
