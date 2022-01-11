@@ -568,6 +568,11 @@ void checkBacklight()
       }
       if (backlightOn) {
         currentBacklightBright = requiredBacklightBright;
+#if defined(COLORLCD)
+        // force backlight on for color lcd radios
+        if(currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+          currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+#endif
         BACKLIGHT_ENABLE();
       }
       else {
@@ -579,7 +584,11 @@ void checkBacklight()
 
 void resetBacklightTimeout()
 {
-  lightOffCounter = ((uint16_t)g_eeGeneral.lightAutoOff*250) << 1;
+  uint16_t autoOff = g_eeGeneral.lightAutoOff;
+#if defined(COLORLCD)
+  autoOff = std::max<uint16_t>(1, autoOff); // prevent the timeout from being 0 seconds on color lcd radios
+#endif
+  lightOffCounter = (autoOff*250) << 1;
 }
 
 #if defined(SPLASH)
@@ -1885,6 +1894,10 @@ void opentxInit()
     // no backlight mode off on color lcd radios
     g_eeGeneral.backlightMode = e_backlight_mode_keys;
   }
+  if (g_eeGeneral.backlightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+    g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+  if (g_eeGeneral.lightAutoOff < 1)
+    g_eeGeneral.lightAutoOff = 1;
 #endif
 
   if (g_eeGeneral.backlightMode != e_backlight_mode_off) {
