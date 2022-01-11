@@ -288,9 +288,10 @@ void ModelSetupPage::build(FormWindow * window)
   lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   form->padAll(lv_dpx(8));
 
+#if defined(HARDWARE_INTERNAL_MODULE)  
   Window* btn = new IntmoduleButton(form);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
+#endif
   btn = new ExtmoduleButton(form);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 

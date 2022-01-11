@@ -83,8 +83,6 @@ const FlyskyPl18Sensor Pl18Sensor[]=
 };
 
 
-extern uint32_t PL18internalModuleFwVersion;
-
 extern int32_t getALT(uint32_t value);
 
 signed short CalculateAltitude(unsigned int pressure)
@@ -134,6 +132,7 @@ int32_t GetSensorValueFlySkyPl18(const FlyskyPl18Sensor* sensor,
 
   // For older RF module FW Sgml is in [0, 10] range
   // and we need to use RSSI for alarm
+/*
   if (PL18internalModuleFwVersion <  0x1000E) {
     if (sensor->id == FLYSKY_SENSOR_RX_RSSI) {
       if (value < -200) value = -200;
@@ -148,6 +147,7 @@ int32_t GetSensorValueFlySkyPl18(const FlyskyPl18Sensor* sensor,
   } else if (sensor->id == FLYSKY_SENSOR_RX_SIGNAL) {
       telemetryData.rssi.set(value);
   }
+*/
   
   if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
     switch(sensor->subId)
@@ -221,6 +221,7 @@ void flySkyPl18ProcessTelemetryPacket(const uint8_t* ptr, uint8_t size)
   if (sensorID != FLYSKY_SENSOR_SYNC) sensorCount++;
 
   // native telemetry for 1.1.2
+/*
   if (PL18internalModuleFwVersion >= 0x010102) {
     if (sensorID == FLYSKY_SENSOR_SYNC)
       flySkyPl18Sync((int16_t)(ptr[3] << 8 | ptr[2]));
@@ -244,6 +245,7 @@ void flySkyPl18ProcessTelemetryPacket(const uint8_t* ptr, uint8_t size)
       }
     }
   }
+*/
   if (sensorCount) {
     telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   }
