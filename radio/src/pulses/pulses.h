@@ -212,8 +212,9 @@ union ExternalModulePulsesData {
  * sizeof(ModulePulsesData). __ALIGNED is required for sizeof(ModulePulsesData) to be a multiple of the alignment.
  */
 
-
-extern InternalModulePulsesData intmodulePulsesData;
+#if defined(HARDWARE_INTERNAL_MODULE)
+  extern InternalModulePulsesData intmodulePulsesData;
+#endif
 extern ExternalModulePulsesData extmodulePulsesData;
 
 union TrainerPulsesData {

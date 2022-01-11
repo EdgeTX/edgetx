@@ -1656,13 +1656,14 @@ void ModelSetupPage::build(FormWindow * window)
     new Choice(window, grid.getFieldSlot(), STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.jitterFilter));
     grid.nextLine();
   }
-
+#if defined(HARDWARE_INTERNAL_MODULE)
   // Internal module
   {
     new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
     grid.addWindow(new ModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}, INTERNAL_MODULE));
   }
+#endif
 
   // External module
   {

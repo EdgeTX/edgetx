@@ -95,11 +95,16 @@ static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
 
 void setupPulsesCrossfire(uint8_t idx)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (idx == INTERNAL_MODULE) {
     auto* p_data = &intmodulePulsesData.crossfire;
     setupPulsesCrossfire(idx, p_data, 0);
-  } else if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    auto* p_data = &extmodulePulsesData.crossfire;
-    setupPulsesCrossfire(idx, p_data, TELEMETRY_ENDPOINT_SPORT);
+  } else
+#endif
+  {
+    if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
+      auto* p_data = &extmodulePulsesData.crossfire;
+      setupPulsesCrossfire(idx, p_data, TELEMETRY_ENDPOINT_SPORT);
+    }
   }
 }

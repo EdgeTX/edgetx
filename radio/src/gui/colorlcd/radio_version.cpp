@@ -45,11 +45,12 @@ class versionDialog: public Dialog
     {
       memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
       reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
-
+#if defined(HARDWARE_INTERNAL_MODULE)
       // Query modules
       if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
         moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
+#endif
 
       if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
         moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
@@ -66,9 +67,11 @@ class versionDialog: public Dialog
 
       grid.setLabelWidth(100);
 
+#if defined(HARDWARE_INTERNAL_MODULE)
       // Internal module
       drawModuleVersion(form, &grid, INTERNAL_MODULE);
       grid.nextLine();
+#endif
 
       // external module
       drawModuleVersion(form, &grid, EXTERNAL_MODULE);
@@ -149,10 +152,12 @@ class versionDialog: public Dialog
     {
       if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
         // Query modules
+#if defined(HARDWARE_INTERNAL_MODULE)
         if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
           moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID,
                                                              PXX2_MAX_RECEIVERS_PER_MODULE - 1);
         }
+#endif
         if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
           moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID,
                                                              PXX2_MAX_RECEIVERS_PER_MODULE - 1);
@@ -209,7 +214,6 @@ RadioVersionPage::RadioVersionPage():
 }
 
 extern uint32_t NV14internalModuleFwVersion;
-extern uint32_t PL18internalModuleFwVersion;
 #if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
 #endif
@@ -253,17 +257,10 @@ void RadioVersionPage::build(FormWindow * window)
 
 #if defined(AFHDS2)
   new StaticText(window, grid.getLabelSlot(), "RF FW:");
-#if defined(PCBNV14)
   sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d",
           (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
           (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
           (int)(NV14internalModuleFwVersion & 0xFF));
-#else // PCBPL18
-  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d",
-          (int)((PL18internalModuleFwVersion >> 16) & 0xFF),
-          (int)((PL18internalModuleFwVersion >> 8) & 0xFF),
-          (int)(PL18internalModuleFwVersion & 0xFF));
-#endif
   new StaticText(window, grid.getFieldSlot(), reusableBuffer.moduleSetup.msg);
   grid.nextLine();
 #endif

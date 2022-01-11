@@ -364,9 +364,12 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
       break;
   }
 
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (module == INTERNAL_MODULE)
     INTERNAL_MODULE_ON();
-  else if (module == EXTERNAL_MODULE)
+  else
+#endif
+      if (module == EXTERNAL_MODULE)
     EXTERNAL_MODULE_ON();
   else
     SPORT_UPDATE_POWER_ON();

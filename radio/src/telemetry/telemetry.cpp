@@ -170,7 +170,7 @@ static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
       processData(data, INTERNAL_MODULE);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (intmoduleFifo.pop(data));
-  }  
+  }
 }
 
 #if defined(INTERNAL_MODULE_MULTI)
@@ -190,7 +190,7 @@ static void pollIntCrossfire()
 }
 #endif
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14)
 static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
 {
   (void)idx;
@@ -251,7 +251,7 @@ void telemetryWakeup()
     pollIntCrossfire();
   }
 #endif
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14)
   //! moduleUpdateActive(INTERNAL_MODULE) &&
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
     pollIntAFHDS2A();

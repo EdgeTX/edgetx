@@ -27,10 +27,12 @@
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
 
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#else
-#include "intmodule_pulses_driver.h"
+#if defined(HARDWARE_INTERNAL_MODULE)
+  #if defined(INTMODULE_USART)
+    #include "intmodule_serial_driver.h"
+  #else
+    #include "intmodule_pulses_driver.h"
+  #endif
 #endif
 
 uint8_t s_pulses_paused = 0;
