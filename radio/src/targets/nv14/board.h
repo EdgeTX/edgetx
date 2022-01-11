@@ -244,6 +244,8 @@ uint8_t keyState(uint8_t index);
 uint32_t switchState(uint8_t index);
 uint32_t readKeys();
 uint32_t readTrims();
+void setTrimsAsButtons(bool);
+bool getTrimsAsButtons();
 #define NUM_TRIMS                       NUM_STICKS
 #define NUM_TRIMS_KEYS                  (NUM_TRIMS * 2)
 #define TRIMS_PRESSED()                 (readTrims())
