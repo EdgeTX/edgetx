@@ -836,9 +836,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
-        lcdDrawTextAlignedLeft(y, STR_JITTER_FILTER);
-        drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noJitterFilter, attr);
-        if (attr) g_model.noJitterFilter = !checkIncDecModel(event, !g_model.noJitterFilter, 0, 1);
+        g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_LABEL:

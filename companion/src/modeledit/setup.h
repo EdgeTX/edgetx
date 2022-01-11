@@ -180,7 +180,6 @@ class SetupPanel : public ModelPanel
     void on_throttleReverse_toggled(bool checked);
     void on_displayText_toggled(bool checked);
     void on_gfEnabled_toggled(bool checked);
-    void on_jitterFilter_toggled(bool checked);
     void on_image_currentIndexChanged(int index);
     void on_trimIncrement_currentIndexChanged(int index);
     void onBeepCenterToggled(bool checked);
@@ -203,6 +202,7 @@ class SetupPanel : public ModelPanel
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onModuleUpdateItemModels();
+    void on_jitterFilter_currentIndexChanged(int index);
 
   private:
     Ui::Setup *ui;

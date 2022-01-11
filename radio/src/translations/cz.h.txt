@@ -114,6 +114,9 @@
 #define LEN_CURVE_TYPES                "\010"
 #define TR_CURVE_TYPES                 "Rastr-X\0""Volná-XY"
 
+#define LEN_ADCFILTERVALUES            "\007"                                       
+#define TR_ADCFILTERVALUES             "VYP\0   ""ZAP\0   ""výchozí"
+
 #define LEN_RETA123                    "\001"
 
 #if defined(PCBX10)

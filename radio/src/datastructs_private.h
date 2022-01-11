@@ -677,8 +677,8 @@ PACK(struct ModelData {
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
 
-  uint8_t noJitterFilter:1;
-  uint8_t spare2:7 SKIP;
+  uint8_t jitterFilter:2 ENUM(ModelOverridableEnable);
+  uint8_t spare2:6 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];

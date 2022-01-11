@@ -115,6 +115,9 @@
 #define LEN_CURVE_TYPES       			 "\010"
 #define TR_CURVE_TYPES        			 " Nur Y  "" X und Y"      //"Standard""Custom\0"
 
+#define LEN_ADCFILTERVALUES          "\008"
+#define TR_ADCFILTERVALUES           "AUS\0    ""EIN\0    ""Standard"
+
 #define LEN_RETA123           			 "\001"
 
 #if defined(PCBX10)

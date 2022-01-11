@@ -1538,7 +1538,7 @@ void SetupPanel::update()
   ui->extendedTrims->setChecked(model->extendedTrims);
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
-  ui->jitterFilter->setChecked(!model->jitterFilter);
+  ui->jitterFilter->setCurrentIndex(model->jitterFilter);
 
   updateBeepCenter();
   updateStartupSwitches();
@@ -1690,10 +1690,12 @@ void SetupPanel::on_gfEnabled_toggled(bool checked)
   emit modified();
 }
 
-void SetupPanel::on_jitterFilter_toggled(bool checked)
+void SetupPanel::on_jitterFilter_currentIndexChanged(int index)
 {
-  model->jitterFilter = !checked;
-  emit modified();
+  if (!lock) {
+    model->jitterFilter = ui->jitterFilter->currentIndex();
+    emit modified();
+  }
 }
 
 void SetupPanel::on_throttleTrim_toggled(bool checked)

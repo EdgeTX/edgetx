@@ -210,7 +210,7 @@ class GeneralSettings {
     unsigned int sticksGain;
     unsigned int rotarySteps;
     unsigned int countryCode;
-    bool jitterFilter;
+    bool noJitterFilter;
     bool rtcCheckDisable;
     bool keysBacklight;
     unsigned int imperial;

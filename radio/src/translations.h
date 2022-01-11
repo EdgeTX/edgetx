@@ -198,6 +198,7 @@ extern const char STR_VFORMULAS[];
 extern const char STR_VPREC[];
 extern const char STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
+extern const char STR_ADCFILTERVALUES[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];

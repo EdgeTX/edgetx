@@ -811,7 +811,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
   YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode),
-  YAML_UNSIGNED( "noJitterFilter", 1 ),
+  YAML_UNSIGNED( "jitterFilter", 2 ),
   YAML_PADDING( 7 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
