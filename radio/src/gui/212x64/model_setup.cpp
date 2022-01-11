@@ -87,6 +87,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
+  ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE,
@@ -530,7 +531,6 @@ void menuModelSetup(event_t event)
       PREFLIGHT_ROW(0), // Checklist
       PREFLIGHT_ROW(0), // Throttle warning
       PREFLIGHT_ROW(0), // Custom position for throttle warning enable
-      PREFLIGHT_ROW(0), // Custom position for throttle warning value
       SW_WARN_ROWS, // Switch warning
       POT_WARN_ROWS, // Pot warning
 
@@ -818,6 +818,10 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_CHECKLIST_DISPLAY:
         g_model.displayChecklist = editCheckBox(g_model.displayChecklist, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST, attr, event);
+        break;
+      
+      case ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE:
+        g_model.checklistInteractiveBW = editCheckBox(g_model.checklistInteractiveBW, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST_INTERACTIVE, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:

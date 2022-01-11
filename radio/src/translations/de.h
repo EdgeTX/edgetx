@@ -907,6 +907,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
 #define TR_AUX2_SERIAL_MODE            "Serieller Port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Versorgung"

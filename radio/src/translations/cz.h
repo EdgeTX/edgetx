@@ -915,6 +915,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Vyp","Zap","Auto"
 #define TR_PREFLIGHT                   "Předletová kontrola"
 #define TR_CHECKLIST                   TR(INDENT "Poznámky", INDENT "Zobrazit poznámky")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Výkon portu"

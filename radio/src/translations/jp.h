@@ -905,6 +905,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","自動"
 #define TR_PREFLIGHT                   "飛行前チェック"
 #define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "チェックリスト表示")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "シリアルポート"
 #define TR_AUX2_SERIAL_MODE            "シリアルポート 2"
 #define TR_AUX_SERIAL_PORT_POWER       "ポート出力"
