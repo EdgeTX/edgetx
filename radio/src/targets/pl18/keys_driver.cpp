@@ -22,6 +22,22 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 
+enum PhysicalTrims
+{
+    TR3D,
+    TR3U,
+    TR4D,
+    TR4U,
+    TR5D,
+    TR5U,
+    TR6D,
+    TR6U,
+    TR7L,
+    TR7R,
+    TR8L,
+    TR8R
+};
+
 uint32_t readKeyMatrix()
 {
     // This function avoids concurrent matrix agitation
@@ -61,38 +77,38 @@ uint32_t readKeyMatrix()
     GPIO_SetBits(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     delay_us(10);
-    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR7 left
-       result |= 1 << 8;
-    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR7 right
-       result |= 1 << 9;
-    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR5 down
-       result |= 1 << 4;
-    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR5 up
-       result |= 1 << 5;
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << TR7L;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << TR7R;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << TR5D;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << TR5U;
 
     GPIO_SetBits(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     delay_us(10);
-    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR3 down
-       result |= 1 << 0;
-    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR3 up
-       result |= 1 << 1;
-    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR4 up
-       result |= 1 << 3;
-    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR4 down
-       result |= 1 << 2;
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << TR3D;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << TR3U;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << TR4U;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << TR4D;
 
     GPIO_SetBits(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     GPIO_ResetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
     delay_us(10);
-    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1) // TR6 up
-       result |= 1 << 7;
-    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2) // TR6 down
-       result |= 1 << 6;
-    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3) // TR8 left
-       result |= 1 << 10;
-    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4) // TR8 right
-       result |= 1 << 11;
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << TR6U;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << TR6D;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << TR8L;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << TR8R;
     GPIO_SetBits(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
     syncelem.oldResult = result;
     syncelem.ui8ReadInProgress = 0;
@@ -104,30 +120,31 @@ uint32_t readKeys()
   uint32_t result = 0;
   bool getKeys = true;
 
+/*
 #if defined(LUA)
   if (!isLuaStandaloneRunning()) {
     getKeys = false;
   }
 #endif
+*/
 
   uint32_t mkeys = readKeyMatrix();
   if (getKeys) {
-    if (mkeys & (1 <<  0)) result |= 1 << KEY_TELEM; // TR3 down
-
-    if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)  // TR1 up
+    if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
       result |= 1 << KEY_RADIO;
-    if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)  // TR1 down
+    if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
       result |= 1 << KEY_MODEL;
+    if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
+      result |= 1 << KEY_TELEM;
 
-    if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)  // TR2 up
-      result |= 1 << KEY_PGUP;
-    if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)  // TR2 down
-      result |= 1 << KEY_PGDN;
+    if (mkeys & (1 << TR3U)) result |= 1 << KEY_PGUP;
+    if (mkeys & (1 << TR3D)) result |= 1 << KEY_PGDN;
   }
 
   // Enter and Exit are always supported
-  if (mkeys & (1 <<  2)) result |= 1 << KEY_ENTER;  // TR4 down
-  if (mkeys & (1 <<  3)) result |= 1 << KEY_EXIT;   // TR4 up
+  if (mkeys & (1 << TR4D)) result |= 1 << KEY_ENTER;
+  if (mkeys & (1 << TR4U)) result |= 1 << KEY_EXIT;
+
   return result;
 }
 
@@ -172,18 +189,18 @@ uint32_t readTrims()
     result |= 1 << (TRM_RS_DWN - TRM_BASE);
 
   uint32_t mkeys = readKeyMatrix();
-  if (mkeys & (1 <<  0)) result |= (1 << (TRM_EX1_DWN - TRM_BASE)); // TR3 down
-  if (mkeys & (1 <<  1)) result |= (1 << (TRM_EX1_UP  - TRM_BASE)); // TR3 up
-  if (mkeys & (1 <<  2)) result |= (1 << (TRM_EX2_DWN - TRM_BASE)); // TR4 down
-  if (mkeys & (1 <<  3)) result |= (1 << (TRM_EX2_UP  - TRM_BASE)); // TR4 up
-  if (mkeys & (1 <<  4)) result |= (1 << (TRM_LV_DWN  - TRM_BASE)); // TR5 down
-  if (mkeys & (1 <<  5)) result |= (1 << (TRM_LV_UP   - TRM_BASE)); // TR5 up
-  if (mkeys & (1 <<  6)) result |= (1 << (TRM_RV_DWN  - TRM_BASE)); // TR6 down
-  if (mkeys & (1 <<  7)) result |= (1 << (TRM_RV_UP   - TRM_BASE)); // TR6 up
-  if (mkeys & (1 <<  8)) result |= (1 << (TRM_LH_DWN  - TRM_BASE)); // TR7 left
-  if (mkeys & (1 <<  9)) result |= (1 << (TRM_LH_UP   - TRM_BASE)); // TR7 right
-  if (mkeys & (1 << 10)) result |= (1 << (TRM_RH_DWN  - TRM_BASE)); // TR8 left
-  if (mkeys & (1 << 11)) result |= (1 << (TRM_RH_UP   - TRM_BASE)); // TR8 right
+  if (mkeys & (1 << TR3D)) result |= (1 << (TRM_EX1_DWN - TRM_BASE));
+  if (mkeys & (1 << TR3U)) result |= (1 << (TRM_EX1_UP  - TRM_BASE));
+  if (mkeys & (1 << TR4D)) result |= (1 << (TRM_EX2_DWN - TRM_BASE));
+  if (mkeys & (1 << TR4U)) result |= (1 << (TRM_EX2_UP  - TRM_BASE));
+  if (mkeys & (1 << TR5D)) result |= (1 << (TRM_LV_DWN  - TRM_BASE));
+  if (mkeys & (1 << TR5U)) result |= (1 << (TRM_LV_UP   - TRM_BASE));
+  if (mkeys & (1 << TR6D)) result |= (1 << (TRM_RV_DWN  - TRM_BASE));
+  if (mkeys & (1 << TR6U)) result |= (1 << (TRM_RV_UP   - TRM_BASE));
+  if (mkeys & (1 << TR7L)) result |= (1 << (TRM_LH_DWN  - TRM_BASE));
+  if (mkeys & (1 << TR7R)) result |= (1 << (TRM_LH_UP   - TRM_BASE));
+  if (mkeys & (1 << TR8L)) result |= (1 << (TRM_RH_DWN  - TRM_BASE));
+  if (mkeys & (1 << TR8R)) result |= (1 << (TRM_RH_UP   - TRM_BASE));
   return result;
 }
 
