@@ -173,7 +173,8 @@ void menuTextView(event_t event)
   }
 
   for (int i=0; i<LCD_LINES-1; i++) {
-    drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
+    if(i < reusableBuffer.viewText.linesCount)
+      drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
     lcdDrawText(8, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
   }
 
