@@ -22,19 +22,16 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 
-bool trimsAsButtons=false;
+bool trimsAsButtons = false;
 
-void setTrimsAsButtons(bool val)
-{
-	trimsAsButtons=val;
-}
+void setTrimsAsButtons(bool val) { trimsAsButtons = val; }
 
 bool getTrimsAsButtons()
 {
-	bool lua=false;
-	#if defined(LUA)
-    lua=isLuaStandaloneRunning();
-  #endif
+  bool lua = false;
+#if defined(LUA)
+  lua = isLuaStandaloneRunning();
+#endif
   return (trimsAsButtons || lua);
 }
 
@@ -74,7 +71,7 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
-  if(getTrimsAsButtons() /*!getTrim*/) return result;
+  if(getTrimsAsButtons()) return result;
   if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
     result |= 1 << (TRM_LH_DWN - TRM_BASE);
   if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
