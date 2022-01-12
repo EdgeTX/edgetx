@@ -35,13 +35,34 @@
 void battery_charge_init()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_STDBY_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_CHARGING_GPIO, &GPIO_InitStructure);
-  GPIO_SetBits(PWR_CHARGING_GPIO, PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN);
+  GPIO_Init(UCHARGER_STDBY_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_CHARGE_GPIO_PIN;
+  GPIO_Init(UCHARGER_CHARGE_GPIO, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_STDBY_GPIO_PIN;
+  GPIO_Init(WCHARGER_STDBY_GPIO, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_CHARGE_GPIO_PIN;
+  GPIO_Init(WCHARGER_CHARGE_GPIO, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_EN_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_Init(WCHARGER_EN_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(WCHARGER_EN_GPIO, WCHARGER_EN_GPIO_PIN);
+
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_VBUS_EN_GPIO_PIN;
+  GPIO_Init(WCHARGER_VBUS_EN_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(WCHARGER_VBUS_EN_GPIO, WCHARGER_VBUS_EN_GPIO_PIN);
+
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_I_CONTROL_GPIO_PIN;
+  GPIO_Init(WCHARGER_I_CONTROL_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(WCHARGER_I_CONTROL_GPIO, WCHARGER_I_CONTROL_GPIO_PIN);
 }
 
 #define CHARGE_SAMPLES 10
@@ -53,8 +74,8 @@ uint16_t get_battery_charge_state()
   uint16_t chargeState = CHARGE_UNKNOWN;
   int maxSamples = CHARGE_SAMPLES;
 #if !defined(SIMU)
-  bool isFinished = !READ_CHARGE_FINISHED_STATE();
-  bool isCharging = !READ_CHARGING_STATE();
+  bool isFinished = !READ_UCHARGE_FINISHED_STATE();
+  bool isCharging = !READ_UCHARGING_STATE();
   //maxSamples = boardState == BOARD_POWER_OFF ? CHARGE_SAMPLES/2 : CHARGE_SAMPLES;
   if(chargeSampleIndex >= maxSamples) chargeSampleIndex = 0;
   uint16_t currentChargeState = isFinished ? CHARGE_FINISHED : isCharging ? CHARGE_STARTED : CHARGE_NONE;
