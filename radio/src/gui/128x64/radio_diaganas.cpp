@@ -50,7 +50,7 @@ void menuRadioDiagAnalogs(event_t event)
     }
     drawStringWithIndex(x, y, "A", i+1);
     lcdDrawChar(lcdNextPos, y, ':');
-    lcdDrawHexNumber(x+3*FW-1, y, getAnalogValue(i));
+	lcdDrawNumber(x+3*FW-1, y, getAnalogValue(i), LEADING0|LEFT, 4);
     lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
   }
 
