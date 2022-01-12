@@ -63,7 +63,7 @@
 #define TRIMS_GPIO_OUT2_PIN             GPIO_Pin_10 // PG.10
 #define TRIMS_GPIO_OUT3                 GPIOG
 #define TRIMS_GPIO_OUT3_PIN             GPIO_Pin_11 // PG.11
-// OUT4 routed on MCU PCB, but not attached to any physical buttons
+// OUT4 routed on MCU PCB, but not attached to any physical buttons, free to use for extensions
 #define TRIMS_GPIO_OUT4                 GPIOH
 #define TRIMS_GPIO_OUT4_PIN             GPIO_Pin_7  // PH.07
 
@@ -113,7 +113,7 @@
 // Index of all switches / trims
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
 #define KEYS_GPIOB_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_14)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 ) /* TODO! PC8 currently allocated for SDIO D0 */
+#define KEYS_GPIOC_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 ) /* PC8 allocated to SDIO D0, is not required to sample SWA ! */
 #define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
 #define KEYS_GPIOF_PINS                 (GPIO_Pin_10)
 #define KEYS_GPIOH_PINS                 (GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11)
@@ -127,14 +127,18 @@
 #define ADC_GPIO_PIN_POT1               GPIO_Pin_6      // PA.06 VRA
 #define ADC_GPIO_PIN_POT2               GPIO_Pin_4      // PC.04 VRB
 #define ADC_GPIO_PIN_POT3               GPIO_Pin_8      // PF.08 VRC
-#define ADC_GPIO_PIN_SLIDER1            GPIO_Pin_9      // PF.09 LS
-#define ADC_GPIO_PIN_SLIDER2            GPIO_Pin_7      // PA.07 RS
+#define ADC_GPIO_PIN_EXT1               GPIO_Pin_2      // PA.02
+#define ADC_GPIO_PIN_EXT2               GPIO_Pin_6      // PF.06
+#define ADC_GPIO_PIN_SLIDER1            GPIO_Pin_9      // PF.09 VRD/LS
+#define ADC_GPIO_PIN_SLIDER2            GPIO_Pin_7      // PA.07 VRE/RS
 #define ADC_GPIO_PIN_SWB                GPIO_Pin_1      // PC.01
 #define ADC_GPIO_PIN_SWD                GPIO_Pin_0      // PC.00
 #define ADC_GPIO_PIN_SWE                GPIO_Pin_2      // PC.02
 #define ADC_GPIO_PIN_SWF                GPIO_Pin_0      // PB.00
 #define ADC_GPIO_PIN_SWG                GPIO_Pin_1      // PB.01
 #define ADC_GPIO_PIN_SWH                GPIO_Pin_10     // PF.10
+#define ADC_GPIO_PIN_SWI                GPIO_Pin_3      // PA.03
+#define ADC_GPIO_PIN_SWJ                GPIO_Pin_5      // PA.05
 #define ADC_GPIO_PIN_BATT               GPIO_Pin_5      // PC.05
 
 #define ADC_GPIOA_PINS_FS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
@@ -142,7 +146,7 @@
 #define ADC_GPIOB_PINS                  (GPIO_Pin_0 | GPIO_Pin_1)
 #define ADC_GPIOC_PINS \
   (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_5)
-#define ADC_GPIOF_PINS                  (GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10)
+#define ADC_GPIOF_PINS                  (GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10)
 
 #define ADC_CHANNEL_STICK_LH            0
 #define ADC_CHANNEL_STICK_LV            0
@@ -152,6 +156,8 @@
 #define ADC_CHANNEL_POT1                ADC_Channel_6   // ADC12_IN6   -> ADC1_IN6
 #define ADC_CHANNEL_POT2                ADC_Channel_14  // ADC12_IN14  -> ADC1_IN14
 #define ADC_CHANNEL_POT3                ADC_Channel_6   // ADC3_IN6    -> ADC3_IN6
+#define ADC_CHANNEL_EXT1                ADC_Channel_2   // ADC123_IN2  -> ADC3_IN2 (Right stick end pot on PL18EV)
+#define ADC_CHANNEL_EXT2                ADC_Channel_4   // ADC3_IN4    -> ADC3_IN4 (Left stick end pot on PL18EV)
 #define ADC_CHANNEL_SLIDER1             ADC_Channel_7   // ADC3_IN7    -> ADC3_IN7
 #define ADC_CHANNEL_SLIDER2             ADC_Channel_7   // ADC12_IN7   -> ADC1_IN7
 #define ADC_CHANNEL_SWB                 ADC_Channel_11  // ADC123_IN11 -> ADC3_IN11
@@ -160,6 +166,8 @@
 #define ADC_CHANNEL_SWF                 ADC_Channel_8   // ADC12_IN8   -> ADC1_IN8
 #define ADC_CHANNEL_SWG                 ADC_Channel_9   // ADC12_IN9   -> ADC1_IN9
 #define ADC_CHANNEL_SWH                 ADC_Channel_8   // ADC3_IN8    -> ADC3_IN8
+#define ADC_CHANNEL_SWI                 ADC_Channel_3   // ADC123_IN3  -> ADC3_IN3 (Right stick end buttons on PL18EV)
+#define ADC_CHANNEL_SWJ                 ADC_Channel_5   // ADC12_IN5   -> ADC1_IN5 (Left stick end buttons on PL18EV)
 
 #define ADC_CHANNEL_BATT                ADC_Channel_15  // ADC12_IN15  -> ADC1_IN15
 #define ADC_MAIN                        ADC1
@@ -183,6 +191,34 @@
 #define PWR_SWITCH_GPIO                 GPIOI
 #define PWR_SWITCH_GPIO_PIN             GPIO_Pin_11 // PI.11
 #define PWR_ON_GPIO_PIN                 GPIO_Pin_14 // PI.14
+
+// Chargers (USB and wireless)
+#define CHARGER_RCC_AHB1Periph          ( RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI )
+
+#define UCHARGER_STDBY_GPIO             GPIOB
+#define UCHARGER_STDBY_GPIO_REG         UCHARGER_STDBY_GPIO->IDR
+#define UCHARGER_STDBY_GPIO_PIN         GPIO_Pin_13 // PB.13 input
+
+#define UCHARGER_CHARGE_GPIO            GPIOB
+#define UCHARGER_CHARGE_GPIO_REG        UCHARGER_CHARGE_GPIO->IDR
+#define UCHARGER_CHARGE_GPIO_PIN        GPIO_Pin_14 // PB.14 input
+
+#define WCHARGER_EN_GPIO                GPIOH
+#define WCHARGER_EN_GPIO_PIN            GPIO_Pin_4  // PH.04 output
+
+#define WCHARGER_VBUS_EN_GPIO           GPIOG
+#define WCHARGER_VBUS_EN_GPIO_PIN       GPIO_Pin_3  // PG.03 output
+
+#define WCHARGER_I_CONTROL_GPIO         GPIOH
+#define WCHARGER_I_CONTROL_GPIO_PIN     GPIO_Pin_13 // PH.13 output
+
+#define WCHARGER_STDBY_GPIO             GPIOI
+#define WCHARGER_STDBY_GPIO_PIN         GPIO_Pin_10 // PI.10 input
+
+#define WCHARGER_CHARGE_GPIO            GPIOI
+#define WCHARGER_CHARGE_GPIO_PIN        GPIO_Pin_9  // PI.09 input
+
+// TODO! Check IOLL1 to PI.01 connectivity!
 
 // S.Port update connector
 #define SPORT_MAX_BAUDRATE              400000
@@ -251,6 +287,7 @@
 #define TELEMETRY_TX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_TX_REV_GPIO_PIN
 #define TELEMETRY_RX_POL_NORM()         TELEMETRY_REV_GPIO->BSRRH = TELEMETRY_RX_REV_GPIO_PIN
 #define TELEMETRY_RX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_RX_REV_GPIO_PIN
+
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
@@ -332,44 +369,44 @@
 #define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
 
 // Audio
-#define AUDIO_RCC_APB1Periph          (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
-#define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
-#define AUDIO_OUTPUT_GPIO             GPIOA
-#define AUDIO_OUTPUT_GPIO_PIN         GPIO_Pin_4  // PA.04
-#define AUDIO_GPIO_PinSource          GPIO_PinSource4
-#define AUDIO_DMA_Stream              DMA1_Stream5
-#define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
-#define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
-#define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
-#define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream5_IRQHandler
-#define AUDIO_TIMER                   TIM6
-#define AUDIO_DMA                     DMA1
+#define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
+#define AUDIO_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
+#define AUDIO_OUTPUT_GPIO               GPIOA
+#define AUDIO_OUTPUT_GPIO_PIN           GPIO_Pin_4  // PA.04
+#define AUDIO_GPIO_PinSource            GPIO_PinSource4
+#define AUDIO_DMA_Stream                DMA1_Stream5
+#define AUDIO_DMA_Stream_IRQn           DMA1_Stream5_IRQn
+#define AUDIO_TIM_IRQn                  TIM6_DAC_IRQn
+#define AUDIO_TIM_IRQHandler            TIM6_DAC_IRQHandler
+#define AUDIO_DMA_Stream_IRQHandler     DMA1_Stream5_IRQHandler
+#define AUDIO_TIMER                     TIM6
+#define AUDIO_DMA                       DMA1
 
 // I2C Bus - Touch
-#define I2C_B1_RCC_AHB1Periph             RCC_AHB1Periph_GPIOB
-#define I2C_B1_RCC_APB1Periph             RCC_APB1Periph_I2C1
-#define I2C_B1                            I2C1
-#define I2C_B1_GPIO                       GPIOB
-#define I2C_B1_SDA_GPIO_PIN               GPIO_Pin_7  // PB.07
-#define I2C_B1_SCL_GPIO_PIN               GPIO_Pin_8  // PB.08
-#define I2C_B1_GPIO_AF                    GPIO_AF_I2C1
-#define I2C_B1_SDA_GPIO_PinSource         GPIO_PinSource7
-#define I2C_B1_SCL_GPIO_PinSource         GPIO_PinSource8
-#define I2C_B1_CLK_RATE                   100000
+#define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOB
+#define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C1
+#define I2C_B1                          I2C1
+#define I2C_B1_GPIO                     GPIOB
+#define I2C_B1_SDA_GPIO_PIN             GPIO_Pin_7  // PB.07
+#define I2C_B1_SCL_GPIO_PIN             GPIO_Pin_8  // PB.08
+#define I2C_B1_GPIO_AF                  GPIO_AF_I2C1
+#define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource7
+#define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource8
+#define I2C_B1_CLK_RATE                 100000
 
-#define TOUCH_RST_RCC_AHB1Periph          RCC_AHB1Periph_GPIOB
-#define TOUCH_RST_GPIO                    GPIOB
-#define TOUCH_RST_GPIO_PIN                GPIO_Pin_12   // PB.12
+#define TOUCH_RST_RCC_AHB1Periph        RCC_AHB1Periph_GPIOB
+#define TOUCH_RST_GPIO                  GPIOB
+#define TOUCH_RST_GPIO_PIN              GPIO_Pin_12   // PB.12
 
-#define TOUCH_INT_RCC_AHB1Periph          RCC_AHB1Periph_GPIOB
-#define TOUCH_INT_GPIO                    GPIOB
-#define TOUCH_INT_GPIO_PIN                GPIO_Pin_9    // PB.09
-#define TOUCH_INT_EXTI_LINE1              EXTI_Line9
-#define TOUCH_INT_EXTI_IRQn1              EXTI9_5_IRQn
-#define TOUCH_INT_EXTI_IRQHandler1        EXTI9_5_IRQHandler
-#define TOUCH_INT_EXTI_PortSource         EXTI_PortSourceGPIOB
-#define TOUCH_INT_EXTI_PinSource1         EXTI_PinSource9
-#define TOUCH_INT_STATUS()                (GPIO_ReadInputDataBit(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN))
+#define TOUCH_INT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOB
+#define TOUCH_INT_GPIO                  GPIOB
+#define TOUCH_INT_GPIO_PIN              GPIO_Pin_9    // PB.09
+#define TOUCH_INT_EXTI_LINE1            EXTI_Line9
+#define TOUCH_INT_EXTI_IRQn1            EXTI9_5_IRQn
+#define TOUCH_INT_EXTI_IRQHandler1      EXTI9_5_IRQHandler
+#define TOUCH_INT_EXTI_PortSource       EXTI_PortSourceGPIOB
+#define TOUCH_INT_EXTI_PinSource1       EXTI_PinSource9
+#define TOUCH_INT_STATUS()              (GPIO_ReadInputDataBit(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN))
 
 // Haptic: TIM1_CH1
 #define HAPTIC_PWM
@@ -413,8 +450,6 @@
 #define EXTMODULE_PULSES
 #define EXTMODULE_PWR_GPIO                 GPIOD
 #define EXTMODULE_PWR_GPIO_PIN             GPIO_Pin_11
-#define EXTMODULE_PWR_FIX_GPIO             GPIOA
-#define EXTMODULE_PWR_FIX_GPIO_PIN         GPIO_Pin_2      // PA.02
 #define EXTMODULE_RCC_AHB1Periph                                        \
   (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | \
    RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
@@ -473,11 +508,6 @@
 #define EXTMODULE_RX_NORMAL()              EXTMODULE_TX_INVERT_GPIO->BSRRH = EXTMODULE_RX_INVERT_GPIO_PIN
 #define EXTMODULE_RX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
 
-// Heartbeat (not used)
-#define HEARTBEAT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOD
-#define HEARTBEAT_GPIO                  GPIOD
-#define HEARTBEAT_GPIO_PIN              GPIO_Pin_12 // PD.12
-
 // Trainer Port
 #define TRAINERMODULE
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
@@ -510,8 +540,8 @@
 
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
-#define BLUETOOTH_ON_GPIO               GPIOI
-#define BLUETOOTH_ON_GPIO_PIN           GPIO_Pin_8 // PI.8
+#define BT_EN_GPIO                      GPIOI
+#define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.8
 
 #define BT_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOH)
 #define BT_RCC_APB1Periph               (RCC_APB1Periph_USART3)
@@ -526,12 +556,9 @@
 #define BT_TX_GPIO_PinSource            GPIO_PinSource10
 #define BT_RX_GPIO_PinSource            GPIO_PinSource11
 #define BT_USART_IRQHandler             USART3_IRQHandler
-             
-#define BT_EN_GPIO                      GPIOI
-#define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.08
 
 #define BT_CONNECTED_GPIO               GPIOJ
-#define BT_CONNECTED_GPIO_PIN           GPIO_Pin_1 // PJ.10
+#define BT_CONNECTED_GPIO_PIN           GPIO_Pin_1 // PJ.01
 
 #define BT_CMD_MODE_GPIO                GPIOH
 #define BT_CMD_MODE_GPIO_PIN            GPIO_Pin_6 // PH.6

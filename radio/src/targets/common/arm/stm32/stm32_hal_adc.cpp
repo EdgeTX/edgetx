@@ -169,7 +169,7 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
 static uint8_t ADC_MAIN_get_nconv()
 {
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
-    if (globalData.flyskygimbals)
+  if (globalData.flyskygimbals)
       return NUM_ANALOGS_ADC_FS;
   else
 #endif
@@ -209,7 +209,7 @@ static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
 static const stm32_hal_adc_channel ADC_EXT_channels[] = {
     {ADC_CHANNEL_POT3,     ADC_SAMPTIME},
     {ADC_CHANNEL_SLIDER1,  ADC_SAMPTIME},
-    {ADC_CHANNEL_SWH,      ADC_SAMPTIME},
+    {ADC_CHANNEL_SWH,      ADC_SAMPTIME}
 };
 
 static uint8_t ADC_EXT_get_nconv() { return NUM_ANALOGS_ADC_EXT; }
