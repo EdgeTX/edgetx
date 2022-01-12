@@ -103,7 +103,8 @@ void readModelNotes()
 
   waitKeysReleased();
   event_t event = EVT_ENTRY;
-  while (event != EVT_KEY_BREAK(KEY_EXIT)) {
+  reusableBuffer.viewText.pushMenu = false;
+  while (true) {
     uint32_t power = pwrCheck();
     if (power != e_power_press) {
       lcdRefreshWait();
@@ -118,6 +119,7 @@ void readModelNotes()
     }
     event = getEvent();
     WDG_RESET();
+    if (reusableBuffer.viewText.checklistComplete) break;
   }
 
   LED_ERROR_END();
@@ -128,6 +130,7 @@ void menuTextView(event_t event)
   if (event == EVT_ENTRY) {
       menuVerticalOffset = 0;
 	  checklistPosition = 0;
+      reusableBuffer.viewText.checklistComplete = false;
       reusableBuffer.viewText.linesCount = 0;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
   } else if (IS_PREVIOUS_EVENT(event)) {
@@ -147,10 +150,17 @@ void menuTextView(event_t event)
             ++menuVerticalOffset;
             sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
           }
-        } 
+        }
+        else {
+          if (reusableBuffer.viewText.pushMenu == true) popMenu();
+          reusableBuffer.viewText.checklistComplete = true;
+        }
       }
   } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    popMenu();
+      if (!g_model.checklistInteractiveBW || reusableBuffer.viewText.pushMenu == true) {
+        if (reusableBuffer.viewText.pushMenu == true) popMenu();
+        reusableBuffer.viewText.checklistComplete = true;
+      }
   }
 
   for (int i=0; i<LCD_LINES-1; i++) {
@@ -182,6 +192,7 @@ void pushMenuTextView(const char *filename)
 {
   if (strlen(filename) < TEXT_FILENAME_MAXLEN) {
     strcpy(reusableBuffer.viewText.filename, filename);
+    reusableBuffer.viewText.pushMenu = true;
     pushMenu(menuTextView);
   }
 }

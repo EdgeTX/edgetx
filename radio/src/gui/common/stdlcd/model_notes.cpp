@@ -18,7 +18,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 #include "opentx.h"
 
 void menuModelNotes(event_t event)
@@ -34,7 +33,7 @@ void menuModelNotes(event_t event)
       strcpy(buf, TEXT_EXT);
     }
   }
-
+  reusableBuffer.viewText.pushMenu = true;
   menuTextView(event);
 }
 
