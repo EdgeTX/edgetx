@@ -29,6 +29,7 @@
 ***************************************************************************************************/
 
 #include "board.h"
+#include "hal.h"
 
 enum ChargeState
 {
@@ -38,17 +39,8 @@ enum ChargeState
   CHARGE_FINISHED
 };
 
-
-#define PWR_CHARGE_FINISHED_GPIO                 GPIOB
-#define PWR_CHARGE_FINISHED_GPIO_REG             PWR_CHARGE_FINISHED_GPIO->IDR
-#define PWR_CHARGE_FINISHED_GPIO_PIN             GPIO_Pin_13 // PB.13
-
-#define PWR_CHARGING_GPIO                        GPIOB
-#define PWR_CHARGING_GPIO_REG                    PWR_CHARGING_GPIO->IDR
-#define PWR_CHARGING_GPIO_PIN                    GPIO_Pin_14 // PB.14
-
-#define READ_CHARGE_FINISHED_STATE()             GPIO_ReadInputDataBit( PWR_CHARGE_FINISHED_GPIO, PWR_CHARGE_FINISHED_GPIO_PIN )
-#define READ_CHARGING_STATE()                    GPIO_ReadInputDataBit( PWR_CHARGING_GPIO, PWR_CHARGING_GPIO_PIN )
+#define READ_UCHARGE_FINISHED_STATE()             GPIO_ReadInputDataBit( UCHARGER_STDBY_GPIO, UCHARGER_STDBY_GPIO_PIN )
+#define READ_UCHARGING_STATE()                    GPIO_ReadInputDataBit( UCHARGER_CHARGE_GPIO, UCHARGER_CHARGE_GPIO_PIN )
 
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);
