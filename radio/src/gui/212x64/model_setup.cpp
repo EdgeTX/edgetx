@@ -640,7 +640,7 @@ void menuModelSetup(event_t event)
         break;
       
       case ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE:
-        g_model.checklistInteractiveBW = editCheckBox(g_model.checklistInteractiveBW, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST_INTERACTIVE, attr, event);
+        g_model.checklistInteractive = editCheckBox(g_model.checklistInteractive, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST_INTERACTIVE, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
