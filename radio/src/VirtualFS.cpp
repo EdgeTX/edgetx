@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include <stdarg.h>
 
 #include "opentx.h"
 #include "VirtualFS.h"
@@ -176,6 +177,75 @@ VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs)
   & static_cast<underlying>(rhs));
 }
 
+VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
+{
+  info.clear();
+  switch(type)
+  {
+  case VfsDir::DIR_ROOT:
+    info.type = VfsFileType::ROOT;
+    if(readIdx == 0)
+      info.name = "FLASH";
+    else if(readIdx == 1)
+      info.name = "SDCARD";
+    else
+      info.name = "";
+    readIdx++;
+    return VfsError::OK;
+#if defined (SDCARD)
+  case VfsDir::DIR_FAT:
+  {
+    info.type = VfsFileType::FAT;
+    if(readIdx == 0) // emulate ".." entry
+    {
+      readIdx++;
+      info.name = "..";
+      return VfsError::OK;
+    }
+    VfsError ret = convertResult(sdReadDir(&fat.dir, &info.fatInfo, firstTime));
+    firstTime = false;
+    return ret;
+  }
+#endif
+#if defined (SPI_FLASH)
+  case VfsDir::DIR_LFS:
+    {
+      info.type = VfsFileType::LFS;
+      int res = lfs_dir_read(lfs.handle, &lfs.dir, &info.lfsInfo);
+      if(res >= 0)
+        return VfsError::OK;
+      return convertResult((lfs_error)res);
+    }
+#endif
+  }
+  return VfsError::INVAL;
+}
+
+VfsError VfsDir::close()
+{
+  VfsError ret = VfsError::INVAL;
+  switch(type)
+  {
+  case VfsDir::DIR_ROOT:
+    ret = VfsError::OK;
+    break;
+#if defined (SDCARD)
+  case VfsDir::DIR_FAT:
+    ret = convertResult(f_closedir(&fat.dir));
+    break;
+#endif
+#if defined (SPI_FLASH)
+  case VfsDir::DIR_LFS:
+    ret = convertResult((lfs_error)lfs_dir_close(lfs.handle, &lfs.dir));
+    break;
+#endif
+  }
+  clear();
+  return ret;
+}
+
+
+
 VfsError VfsFile::close()
 {
   VfsError ret = VfsError::INVAL;
@@ -321,6 +391,152 @@ VfsError VfsFile::putc(char c)
   return this->write(&c, 1, written);
 }
 
+int VfsFile::printf(const TCHAR* str, ...)
+{
+  switch(type)
+  {
+  case VfsFileType::FAT:
+  {
+      va_list args;
+      va_start(args, str);
+
+      int ret = f_printf(&fat.file, str, args);
+      va_end(args);
+      return ret;
+  }
+  case VfsFileType::LFS:
+  {
+#if 0
+      va_list arp;
+         putbuff pb;
+         BYTE f, r;
+         UINT i, j, w;
+         DWORD v;
+         TCHAR c, d, str[32], *p;
+
+
+         putc_init(&pb, fp);
+
+         va_start(arp, fmt);
+
+         for (;;) {
+             c = *fmt++;
+             if (c == 0) break;          /* End of string */
+             if (c != '%') {             /* Non escape character */
+                 putc_bfd(&pb, c);
+                 continue;
+             }
+             w = f = 0;
+             c = *fmt++;
+             if (c == '0') {             /* Flag: '0' padding */
+                 f = 1; c = *fmt++;
+             } else {
+                 if (c == '-') {         /* Flag: left justified */
+                     f = 2; c = *fmt++;
+                 }
+             }
+             if (c == '*') {             /* Minimum width by argument */
+                 w = va_arg(arp, int);
+                 c = *fmt++;
+             } else {
+                 while (IsDigit(c)) {    /* Minimum width */
+                     w = w * 10 + c - '0';
+                     c = *fmt++;
+                 }
+             }
+             if (c == 'l' || c == 'L') { /* Type prefix: Size is long int */
+                 f |= 4; c = *fmt++;
+             }
+             if (c == 0) break;
+             d = c;
+             if (IsLower(d)) d -= 0x20;
+             switch (d) {                /* Atgument type is... */
+             case 'S' :                  /* String */
+                 p = va_arg(arp, TCHAR*);
+                 for (j = 0; p[j]; j++) ;
+                 if (!(f & 2)) {                     /* Right padded */
+                     while (j++ < w) putc_bfd(&pb, ' ') ;
+                 }
+                 while (*p) putc_bfd(&pb, *p++) ;        /* String body */
+                 while (j++ < w) putc_bfd(&pb, ' ') ;    /* Left padded */
+                 continue;
+
+             case 'C' :                  /* Character */
+                 putc_bfd(&pb, (TCHAR)va_arg(arp, int)); continue;
+
+             case 'B' :                  /* Unsigned binary */
+                 r = 2; break;
+
+             case 'O' :                  /* Unsigned octal */
+                 r = 8; break;
+
+             case 'D' :                  /* Signed decimal */
+             case 'U' :                  /* Unsigned decimal */
+                 r = 10; break;
+
+             case 'X' :                  /* Unsigned hexdecimal */
+                 r = 16; break;
+
+             default:                    /* Unknown type (pass-through) */
+                 putc_bfd(&pb, c); continue;
+             }
+
+             /* Get an argument and put it in numeral */
+             v = (f & 4) ? (DWORD)va_arg(arp, long) : ((d == 'D') ? (DWORD)(long)va_arg(arp, int) : (DWORD)va_arg(arp, unsigned int));
+             if (d == 'D' && (v & 0x80000000)) {
+                 v = 0 - v;
+                 f |= 8;
+             }
+             i = 0;
+             do {
+                 d = (TCHAR)(v % r); v /= r;
+                 if (d > 9) d += (c == 'x') ? 0x27 : 0x07;
+                 str[i++] = d + '0';
+             } while (v && i < sizeof str / sizeof *str);
+             if (f & 8) str[i++] = '-';
+             j = i; d = (f & 1) ? '0' : ' ';
+             if (!(f & 2)) {
+                 while (j++ < w) putc_bfd(&pb, d);   /* Right pad */
+             }
+             do {
+                 putc_bfd(&pb, str[--i]);            /* Number body */
+             } while (i);
+             while (j++ < w) putc_bfd(&pb, d);       /* Left pad */
+         }
+
+         va_end(arp);
+
+         return putc_flush(&pb);
+#endif
+  }
+  }
+
+  return (int)VfsError::INVAL;
+}
+
+
+size_t VfsFile::tell()
+{
+    switch(type)
+    {
+  #if defined (SDCARD)
+    case VfsFileType::FAT:
+      return f_tell(&fat.file);
+  #endif
+  #if defined (SPI_FLASH)
+    case VfsFileType::LFS:
+      {
+        int ret = lfs_file_tell(lfs.handle, &lfs.file);
+        if(ret < 0)
+          return (size_t)convertResult((lfs_error)ret);
+        else
+          return ret;
+      }
+  #endif
+    }
+
+    return (size_t)VfsError::INVAL;
+}
 
 VfsError VfsFile::lseek(size_t offset)
 {
@@ -621,78 +837,21 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
     return VfsError::OK;
 #if defined (SPI_FLASH)
   case VfsDir::DIR_LFS:
-    return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfsDir, dirPath.c_str()));
+      dir.lfs.handle = &lfs;
+    return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfs.dir, dirPath.c_str()));
 #endif
 #if defined (SDCARD)
   case VfsDir::DIR_FAT:
-    return convertResult(f_opendir(&dir.fatDir, dirPath.c_str()));
+    return convertResult(f_opendir(&dir.fat.dir, dirPath.c_str()));
 #endif
   }
 
   return VfsError::INVAL;
 }
 
-VfsError VirtualFS::readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime)
+VfsError VirtualFS::makeDirectory(const std::string& path)
 {
-  info.clear();
-  switch(dir.type)
-  {
-  case VfsDir::DIR_ROOT:
-    info.type = VfsFileType::ROOT;
-    if(dir.readIdx == 0)
-      info.name = "FLASH";
-    else if(dir.readIdx == 1)
-      info.name = "SDCARD";
-    else
-      info.name = "";
-    dir.readIdx++;
-    return VfsError::OK;
-#if defined (SDCARD)
-  case VfsDir::DIR_FAT:
-    info.type = VfsFileType::FAT;
-    if(dir.readIdx == 0) // emulate ".." entry
-    {
-      dir.readIdx++;
-      info.name = "..";
-      return VfsError::OK;
-    }
-    return convertResult(sdReadDir(&dir.fatDir, &info.fatInfo, dir.firstTime));
-#endif
-#if defined (SPI_FLASH)
-  case VfsDir::DIR_LFS:
-    {
-      info.type = VfsFileType::LFS;
-      int res = lfs_dir_read(&lfs, &dir.lfsDir, &info.lfsInfo);
-      if(res >= 0)
-        return VfsError::OK;
-      return convertResult((lfs_error)res);
-    }
-#endif
-  }
-  return VfsError::INVAL;
-}
-
-VfsError VirtualFS::closeDirectory(VfsDir& dir)
-{
-  VfsError ret = VfsError::INVAL;
-  switch(dir.type)
-  {
-  case VfsDir::DIR_ROOT:
-    ret = VfsError::OK;
-    break;
-#if defined (SDCARD)
-  case VfsDir::DIR_FAT:
-    ret = convertResult(f_closedir(&dir.fatDir));
-    break;
-#endif
-#if defined (SPI_FLASH)
-  case VfsDir::DIR_LFS:
-    ret = convertResult((lfs_error)lfs_dir_close(&lfs, &dir.lfsDir));
-    break;
-#endif
-  }
-  dir.clear();
-  return ret;
+    return VfsError::INVAL;
 }
 
 VfsError VirtualFS::rename(const char* oldPath, const char* newPath)

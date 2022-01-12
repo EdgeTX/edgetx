@@ -203,9 +203,8 @@ void RadioFlashManagerPage::build(FormWindow * window)
   VfsError res = vfs->openDirectory(dir, workPath.c_str());
   if (res == VfsError::OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = vfs->readDirectory(dir, fno);//, firstTime);
+      res = dir.read(fno);
       if (res != VfsError::OK)
         break; // Break on error or end of dir
       std::string name = fno.getName();
@@ -222,7 +221,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
         files.push_back(name);
       }
     }
-    vfs->closeDirectory(dir);
+    dir.close();
 
     // sort directories and files
     directories.sort(compare_nocase);

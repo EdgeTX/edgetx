@@ -115,36 +115,6 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
 
 class VirtualFS;
 
-struct VfsDir
-{
-public:
-  VfsDir(){}
-  ~VfsDir(){}
-
-private:
-  friend class VirtualFS;
-  VfsDir(const VfsDir&);
-
-  enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
-
-  void clear()
-  {
-    type = DIR_UNKNOWN;
-    lfsDir = {0};
-    fatDir = {0};
-
-    readIdx = 0;
-    firstTime = true;
-  }
-
-  DirType type = DIR_UNKNOWN;
-  lfs_dir_t lfsDir = {0};
-  DIR fatDir = {0};
-
-  size_t readIdx = 0;
-  bool firstTime = true;
-};
-
 enum class VfsType { UNKOWN, DIR, FILE };
 enum class VfsFileType { UNKNOWN, ROOT, FAT, LFS };
 
@@ -166,26 +136,26 @@ enum class VfsError {
     NAMETOOLONG = -36,  // File name too long
 };
 #if 0
-	FR_OK = 0,				/* (0) Succeeded */
-	FR_DISK_ERR,			/* (1) A hard error occurred in the low level disk I/O layer */
-	FR_INT_ERR,				/* (2) Assertion failed */
-	FR_NOT_READY,			/* (3) The physical drive cannot work */
-	FR_NO_FILE,				/* (4) Could not find the file */
-	FR_NO_PATH,				/* (5) Could not find the path */
-	FR_INVALID_NAME,		/* (6) The path name format is invalid */
-	FR_DENIED,				/* (7) Access denied due to prohibited access or directory full */
-	FR_EXIST,				/* (8) Access denied due to prohibited access */
-	FR_INVALID_OBJECT,		/* (9) The file/directory object is invalid */
-	FR_WRITE_PROTECTED,		/* (10) The physical drive is write protected */
-	FR_INVALID_DRIVE,		/* (11) The logical drive number is invalid */
-	FR_NOT_ENABLED,			/* (12) The volume has no work area */
-	FR_NO_FILESYSTEM,		/* (13) There is no valid FAT volume */
-	FR_MKFS_ABORTED,		/* (14) The f_mkfs() aborted due to any problem */
-	FR_TIMEOUT,				/* (15) Could not get a grant to access the volume within defined period */
-	FR_LOCKED,				/* (16) The operation is rejected according to the file sharing policy */
-	FR_NOT_ENOUGH_CORE,		/* (17) LFN working buffer could not be allocated */
-	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > FF_FS_LOCK */
-	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
+    FR_OK = 0,              /* (0) Succeeded */
+    FR_DISK_ERR,            /* (1) A hard error occurred in the low level disk I/O layer */
+    FR_INT_ERR,             /* (2) Assertion failed */
+    FR_NOT_READY,           /* (3) The physical drive cannot work */
+    FR_NO_FILE,             /* (4) Could not find the file */
+    FR_NO_PATH,             /* (5) Could not find the path */
+    FR_INVALID_NAME,        /* (6) The path name format is invalid */
+    FR_DENIED,              /* (7) Access denied due to prohibited access or directory full */
+    FR_EXIST,               /* (8) Access denied due to prohibited access */
+    FR_INVALID_OBJECT,      /* (9) The file/directory object is invalid */
+    FR_WRITE_PROTECTED,     /* (10) The physical drive is write protected */
+    FR_INVALID_DRIVE,       /* (11) The logical drive number is invalid */
+    FR_NOT_ENABLED,         /* (12) The volume has no work area */
+    FR_NO_FILESYSTEM,       /* (13) There is no valid FAT volume */
+    FR_MKFS_ABORTED,        /* (14) The f_mkfs() aborted due to any problem */
+    FR_TIMEOUT,             /* (15) Could not get a grant to access the volume within defined period */
+    FR_LOCKED,              /* (16) The operation is rejected according to the file sharing policy */
+    FR_NOT_ENOUGH_CORE,     /* (17) LFN working buffer could not be allocated */
+    FR_TOO_MANY_OPEN_FILES, /* (18) Number of open files > FF_FS_LOCK */
+    FR_INVALID_PARAMETER    /* (19) Given parameter is invalid */
 
 #endif
 
@@ -202,6 +172,8 @@ enum class VfsOpenFlags {
 
 VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs);
 VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs);
+
+struct VfsDir;
 
 struct VfsFileInfo
 {
@@ -253,6 +225,7 @@ public:
 
 private:
   friend class VirtualFS;
+  friend struct VfsDir;
   VfsFileInfo(const VfsFileInfo&);
 
   void clear() {
@@ -271,11 +244,52 @@ private:
   std::string name;
 };
 
+struct VfsDir
+{
+public:
+  VfsDir(){}
+  ~VfsDir(){}
+
+  VfsError read(VfsFileInfo& info, bool firstTime = false);
+  VfsError close();
+
+private:
+  friend class VirtualFS;
+  VfsDir(const VfsDir&);
+
+  enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
+
+  void clear()
+  {
+    type = DIR_UNKNOWN;
+    lfs.dir = {0};
+    lfs.handle = nullptr;
+    fat.dir = {0};
+
+    readIdx = 0;
+    firstTime = true;
+  }
+
+  DirType type = DIR_UNKNOWN;
+  union {
+    struct {
+      lfs_dir_t dir;
+      lfs* handle;
+    } lfs;
+    struct {
+      DIR dir;
+    } fat;
+  };
+
+  size_t readIdx = 0;
+  bool firstTime = true;
+};
+
+
 struct VfsFile
 {
 public:
   VfsFile(){}
-  ~VfsFile(){}
   VfsError close();
   int size();
   VfsError read(void* buf, size_t size, size_t& readSize);
@@ -283,7 +297,9 @@ public:
   VfsError write(const void* buf, size_t size, size_t& written);
   VfsError puts(const std::string& str);
   VfsError putc(char c);
+  int printf(const TCHAR* str, ...);
 
+  size_t tell();
   VfsError lseek(size_t offset);
   int eof();
 
@@ -339,8 +355,7 @@ public:
 
   VfsError changeDirectory(const std::string& path);
   VfsError openDirectory(VfsDir& dir, const char * path);
-  VfsError readDirectory(VfsDir& dir, VfsFileInfo& info, bool firstTime = false);
-  VfsError closeDirectory(VfsDir& dir);
+  VfsError makeDirectory(const std::string& path);
 
   VfsError fstat(const std::string& path, VfsFileInfo& fileInfo);
   VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);

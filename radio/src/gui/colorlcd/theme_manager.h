@@ -134,7 +134,7 @@ class ThemeFile
     void deSerialize();
     bool convertRGB(char *pColorRGB, uint32_t &color);
     LcdColorIndex findColorIndex(const char *name);
-    bool readNextLine(FIL &file, char *line, int maxlen);
+    bool readNextLine(VfsFile &file, char *line, int maxlen);
 };
 
 
