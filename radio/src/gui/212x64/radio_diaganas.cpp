@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "../../hal/adc_driver.h"
 
 void menuRadioDiagAnalogs(event_t event)
 {
@@ -30,7 +31,7 @@ void menuRadioDiagAnalogs(event_t event)
     uint8_t x = i&1 ? LCD_W/2 + FW : 0;
     lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
     lcdDrawChar(x+2*FW-2, y, ':');
-    lcdDrawHexNumber(x+3*FW-1, y, anaIn(i));
+    lcdDrawHexNumber(x+3*FW-1, y, getAnalogValue(i));
 #if defined(JITTER_MEASURE)
     lcdDrawNumber(x+10*FW-1, y, rawJitter[i].get(), RIGHT);
     lcdDrawNumber(x+13*FW-1, y, avgJitter[i].get(), RIGHT);
