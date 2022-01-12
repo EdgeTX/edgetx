@@ -24,6 +24,10 @@
 
 void menuRadioDiagAnalogs(event_t event)
 {
+#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
+    static int8_t entryCount = 0;
+    static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+	
   SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS, 0);
 
   for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
@@ -31,7 +35,11 @@ void menuRadioDiagAnalogs(event_t event)
     uint8_t x = i&1 ? LCD_W/2 + FW : 0;
     lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
     lcdDrawChar(x+2*FW-2, y, ':');
-    lcdDrawNumber(x+3*FW-1, y, getAnalogValue(i), LEADING0|LEFT, 4);
+    if (entryCount == 0)
+    {
+        lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+    }
+    lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i], LEADING0|LEFT, 4);	
 #if defined(JITTER_MEASURE)
     lcdDrawNumber(x+10*FW-1, y, rawJitter[i].get(), RIGHT);
     lcdDrawNumber(x+13*FW-1, y, avgJitter[i].get(), RIGHT);
@@ -39,5 +47,10 @@ void menuRadioDiagAnalogs(event_t event)
 #else
     lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
 #endif
+
+  if (entryCount > HOLDANAVALUEFRAMES)
+      entryCount = 0;
+  else
+      entryCount++;
   }
 }

@@ -49,6 +49,10 @@ class RadioAnalogsDiagsWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
+#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
+      static int8_t entryCount = 0;
+      static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
 #if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
         if (globalData.flyskygimbals)
         {
@@ -76,7 +80,11 @@ class RadioAnalogsDiagsWindow: public Window {
   #endif
                 dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
                 dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + 3 * 15 -1, y, getAnalogValue(i), LEFT | COLOR_THEME_PRIMARY1);
+                if (entryCount == 0)
+                {
+                    lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+                }
+                dc->drawNumber(x + 3 * 15 -1, y, lastShownAnalogValue[i], LEFT | COLOR_THEME_PRIMARY1);
                 dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
             }
         }
@@ -94,10 +102,18 @@ class RadioAnalogsDiagsWindow: public Window {
 #endif
                 dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
                 dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + 3 * 15 -1, y, getAnalogValue(i), LEFT | COLOR_THEME_PRIMARY1);
+                if (entryCount == 0)
+                {
+                    lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+                }
+                dc->drawNumber(x + 3 * 15 -1, y, lastShownAnalogValue[i], LEFT | COLOR_THEME_PRIMARY1);
                 dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
             }
         }
+        if (entryCount > HOLDANAVALUEFRAMES)
+            entryCount = 0;
+        else
+            entryCount++;
 
 #if !defined(SIMU) && defined(IMU_LSM6DS33)
       coord_t yimu = MENU_CONTENT_TOP + 3 * FH;

@@ -24,6 +24,10 @@
 
 void menuRadioDiagAnalogs(event_t event)
 {
+#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
+    static int8_t entryCount = 0;
+    static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
 // TODO enum
 #if defined(TX_CAPACITY_MEASUREMENT)
   #define ANAS_ITEMS_COUNT 3
@@ -50,9 +54,17 @@ void menuRadioDiagAnalogs(event_t event)
     }
     drawStringWithIndex(x, y, "A", i+1);
     lcdDrawChar(lcdNextPos, y, ':');
-	lcdDrawNumber(x+3*FW-1, y, getAnalogValue(i), LEADING0|LEFT, 4);
+    if (entryCount == 0)
+    {
+        lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+    }
+    lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i], LEADING0|LEFT, 4);
     lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
   }
+  if (entryCount > HOLDANAVALUEFRAMES)
+      entryCount = 0;
+  else
+      entryCount++;
 
 #if defined(GYRO)
   y += FH;
