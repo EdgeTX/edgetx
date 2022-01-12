@@ -529,6 +529,7 @@ coord_t Window::adjustHeight()
   coord_t old = rect.h;
   adjustInnerHeight();
   rect.h = innerHeight;
+  lv_obj_set_style_height(getLvObj(), rect.h, LV_PART_MAIN);
   return rect.h - old;
 }
 
