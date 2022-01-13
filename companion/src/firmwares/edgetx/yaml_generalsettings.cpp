@@ -176,6 +176,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["beepMode"] = rhs.beeperMode;
   node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
+  node["customWarningEnable"] = (int)rhs.customWarningEnable;
+  node["customWarningTitle"] = rhs.customWarningTitle;
+  node["customWarningText"] = rhs.customWarningText;
   node["USBMode"] = rhs.usbMode;
   node["stickDeadZone"] = rhs.stickDeadZone;
   node["jackMode"] = rhs.jackMode;
@@ -384,6 +387,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["beepMode"] >> rhs.beeperMode;
   node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
+  node["customWarningEnable"] >> rhs.customWarningEnable;
+  node["customWarningTitle"] >> rhs.customWarningTitle;
+  node["customWarningText"] >> rhs.customWarningText;
   node["USBMode"] >> rhs.usbMode;
   node["stickDeadZone"] >> rhs.stickDeadZone;
   node["jackMode"] >> rhs.jackMode;

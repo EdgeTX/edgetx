@@ -40,6 +40,9 @@ class GeneralSetupPanel : public GeneralPanel
     void on_splashScreenDuration_currentIndexChanged(int index);
     void on_alarmwarnChkB_stateChanged(int);
     void on_rssiPowerOffWarnChkB_stateChanged(int);
+    void on_customWarningEnable_stateChanged(int);
+    void on_customWarningTitle_editingFinished();
+    void on_customWarningText_editingFinished();
     void on_gpsFormatCB_currentIndexChanged(int index);
     void on_displayTypeCB_currentIndexChanged(int index);
     void on_BLBright_SB_editingFinished();

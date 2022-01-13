@@ -351,6 +351,8 @@
 #define TR_MEMORYWARNING               "Lav hukommelse"
 #define TR_ALARMWARNING                "Lyd fra"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI nedluk", "Check RSSI ved nedluk")
+#define TR_CUSTOM_ALARM_TITLE          "Custom-Title"
+#define TR_CUSTOM_ALARM                "Custom"
 #define TR_MODEL_STILL_POWERED         "Model stadig med strøm"
 #define TR_USB_STILL_CONNECTED         "USB stadig forbundet"
 #define TR_MODEL_SHUTDOWN              "Luk ned?"

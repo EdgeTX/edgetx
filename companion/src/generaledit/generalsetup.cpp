@@ -250,6 +250,11 @@ ui(new Ui::GeneralSetup)
 
   ui->rssiPowerOffWarnChkB->setChecked(!generalSettings.disableRssiPoweroffAlarm); // Default is zero=checked
 
+  ui->customWarningEnable->setChecked(generalSettings.customWarningEnable);
+  ui->customWarningTitle->setText(generalSettings.customWarningTitle);
+  ui->customWarningText->setText(generalSettings.customWarningText);
+  
+
   if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
     ui->splashScreenDuration->hide();
     ui->splashScreenLabel->hide();
@@ -727,6 +732,30 @@ void GeneralSetupPanel::on_alarmwarnChkB_stateChanged(int)
 void GeneralSetupPanel::on_rssiPowerOffWarnChkB_stateChanged(int)
 {
   generalSettings.disableRssiPoweroffAlarm = ui->rssiPowerOffWarnChkB->isChecked() ? 0 : 1;
+  emit modified();
+}
+
+void GeneralSetupPanel::on_customWarningEnable_stateChanged(int)
+{
+  generalSettings.customWarningEnable = ui->customWarningEnable->isChecked() ? 1 : 0;
+  emit modified();
+}
+
+void GeneralSetupPanel::on_customWarningTitle_editingFinished()
+{
+  //copy ownerID back to generalSettings.registrationId
+  QByteArray array = ui->customWarningTitle->text().toLocal8Bit();
+  strncpy(generalSettings.customWarningTitle, array, 8);
+  generalSettings.customWarningTitle[8] = '\0';
+  emit modified();
+}
+
+void GeneralSetupPanel::on_customWarningText_editingFinished()
+{
+  //copy ownerID back to generalSettings.registrationId
+  QByteArray array = ui->customWarningText->text().toLocal8Bit();
+  strncpy(generalSettings.customWarningText, array, 32);
+  generalSettings.customWarningText[32] = '\0';
   emit modified();
 }
 

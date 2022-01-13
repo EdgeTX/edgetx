@@ -344,6 +344,8 @@
 #define TR_MEMORYWARNING       "Memoria baja"
 #define TR_ALARMWARNING        "Sin sonido"
 #define TR_RSSI_SHUTDOWN_ALARM   TR("Apagado Rssi", "Check Rssi al apagar")
+#define TR_CUSTOM_ALARM_TITLE          "Custom-Title"
+#define TR_CUSTOM_ALARM                "Custom"
 #define TR_MODEL_STILL_POWERED "Modelo aun encendido"
 #define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Apagar ?"

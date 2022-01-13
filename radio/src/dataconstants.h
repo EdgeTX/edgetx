@@ -676,5 +676,7 @@ enum ModelOverridableEnable {
 };
 
 #define SELECTED_THEME_NAME_LEN 26
+#define CUSTOM_WARNING_TITLE_LEN 8
+#define CUSTOM_WARNING_TEXT_LEN 32
 
 #endif // _DATACONSTANTS_H_
