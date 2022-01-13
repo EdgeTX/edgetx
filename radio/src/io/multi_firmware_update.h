@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "ff.h"
+#include "VirtualFS.h"
 
 /* Signature format is multi-[board type]-[bootloader support][check for bootloader][multi telemetry type][telemetry inversion][debug]-[firmware version]
    Where:
@@ -83,7 +83,7 @@ class MultiFirmwareInformation
     }
 
     const char * readMultiFirmwareInformation(const char * filename);
-    const char * readMultiFirmwareInformation(FIL * file);
+    const char * readMultiFirmwareInformation(VfsFile& file);
 
   private:
     bool optibootSupport:1;
