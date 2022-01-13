@@ -647,7 +647,7 @@ PACK(struct ModelData {
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
   uint8_t   checklistInteractive:1;
-  uint8_t   memPadding:7;
+  uint8_t   spare2:7 SKIP;  // padding to 8-bit aligment
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];
