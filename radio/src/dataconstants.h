@@ -908,4 +908,7 @@ enum UartSampleModes {
 #define PXX2_LEN_RX_NAME                    8
 #define PXX2_MAX_RECEIVERS_PER_MODULE       3
 
+#define CUSTOM_WARNING_TITLE_LEN 8
+#define CUSTOM_WARNING_TEXT_LEN 32
+
 #endif // _DATACONSTANTS_H_
