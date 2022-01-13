@@ -89,6 +89,8 @@ enum {
   ITEM_RADIO_SETUP_MEMORY_WARNING,
   ITEM_RADIO_SETUP_ALARM_WARNING,
   ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM,
+  ITEM_RADIO_SETUP_CUSTOM_ALARM,
+  ITEM_RADIO_SETUP_CUSTOM_ALARM_TITLE,
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_LABEL)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
@@ -183,7 +185,12 @@ void menuRadioSetup(event_t event)
     CASE_IMU(0)
     CASE_IMU(0)
     0, LABEL(ALARMS), 0, CASE_CAPACITY(0)
-    0, 0, 0, 0, /* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM */
+      0, // inactivity warning
+      0, // memory warning
+      0, // alarm warning
+      0, // RSSI power off alarm
+      0, // Custom alarm
+      0, // Custom alarm title
     CASE_BACKLIGHT(LABEL(BACKLIGHT))
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
@@ -493,6 +500,16 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
         break;
       }
+
+      case ITEM_RADIO_SETUP_CUSTOM_ALARM:
+        lcdDrawText(INDENT_WIDTH, y, "Custom");
+        g_eeGeneral.customWarningEnable = editCheckBox(g_eeGeneral.customWarningEnable, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+        break;
+
+      case ITEM_RADIO_SETUP_CUSTOM_ALARM_TITLE:
+        lcdDrawText(INDENT_WIDTH, y, "Custom-Title");
+        editName(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.customWarningTitle, CUSTOM_WARNING_TITLE_LEN, event, attr, 0, old_editMode);
+        break;
 
 #if defined(TX_CAPACITY_MEASUREMENT)
       case ITEM_RADIO_SETUP_CAPACITY_WARNING:

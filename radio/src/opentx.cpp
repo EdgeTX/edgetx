@@ -668,6 +668,8 @@ void checkAll()
   }
   disableVBatBridge();
 
+  checkCustomWarning();
+
   if (g_model.displayChecklist && modelHasNotes()) {
     readModelNotes();
   }
@@ -830,6 +832,67 @@ void checkThrottleStick()
     }
     else if (power == e_power_on && refresh) {
       RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+      refresh = false;
+    }
+#else
+    if (pwrCheck() == e_power_off) {
+      break;
+    }
+#endif
+
+    checkBacklight();
+
+    WDG_RESET();
+
+    RTOS_WAIT_MS(10);
+  }
+
+  LED_ERROR_END();
+}
+#endif
+
+#if defined(COLORLCD)
+void checkCustomWarning()
+{
+  if (g_eeGeneral.customWarningEnable) {
+    LED_ERROR_BEGIN();
+    AUDIO_ERROR_MESSAGE(AU_NONE);
+    auto dialog =
+        new FullScreenDialog(WARNING_TYPE_ALERT, g_eeGeneral.customWarningTitle,
+                             g_eeGeneral.customWarningText, STR_PRESS_ANY_KEY_TO_SKIP);
+    dialog->setCloseCondition([]() { return false; });
+    dialog->runForever();
+    LED_ERROR_END();
+  }
+}
+#else
+void checkCustomWarning()
+{
+  if (!g_eeGeneral.customWarningEnable) {
+    return;
+  }
+
+  // first - display warning; also deletes inputs if any have been before
+  LED_ERROR_BEGIN();
+  RAISE_ALERT(g_eeGeneral.customWarningTitle, g_eeGeneral.customWarningText, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+
+#if defined(PWR_BUTTON_PRESS)
+  bool refresh = false;
+#endif
+
+  while (!keyDown()) {
+#if defined(PWR_BUTTON_PRESS)
+    uint32_t power = pwrCheck();
+    if (power == e_power_off) {
+      drawSleepBitmap();
+      boardOff();
+      break;
+    }
+    else if (power == e_power_press) {
+      refresh = true;
+    }
+    else if (power == e_power_on && refresh) {
+      RAISE_ALERT(TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
       refresh = false;
     }
 #else
