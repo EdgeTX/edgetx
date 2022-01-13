@@ -353,6 +353,8 @@
 #define TR_MEMORYWARNING               "Mémoire pleine"
 #define TR_ALARMWARNING                TR("Silence", "Sons désact.")
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI extinct.", "Vérif. RSSI à l'extinction")
+#define TR_CUSTOM_ALARM_TITLE          "Custom-Title"
+#define TR_CUSTOM_ALARM                "Custom"
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Utiliser valeur RSSI FlySky sans étalonner")
 #define TR_MODEL_STILL_POWERED         TR("Modèle alimenté", "Modèle encore alimenté")
 #define TR_USB_STILL_CONNECTED         "USB encore connecté"

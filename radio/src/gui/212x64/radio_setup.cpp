@@ -461,12 +461,12 @@ void menuRadioSetup(event_t event)
       }
 
       case ITEM_RADIO_SETUP_CUSTOM_ALARM:
-        lcdDrawText(INDENT_WIDTH, y, "Custom");
+        lcdDrawText(INDENT_WIDTH, y, STR_CUSTOM_ALARM);
         g_eeGeneral.customWarningEnable = editCheckBox(g_eeGeneral.customWarningEnable, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
         break;
 
       case ITEM_RADIO_SETUP_CUSTOM_ALARM_TITLE:
-        lcdDrawText(INDENT_WIDTH, y, "Custom-Title");
+        lcdDrawText(INDENT_WIDTH, y, STR_CUSTOM_ALARM_TITLE);
         editName(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.customWarningTitle, CUSTOM_WARNING_TITLE_LEN, event, attr, 0, old_editMode);
         break;
 

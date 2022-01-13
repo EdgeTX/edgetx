@@ -347,6 +347,8 @@
 #define TR_MEMORYWARNING       "Memoria Baixa"
 #define TR_ALARMWARNING        "Som Off"
 #define TR_RSSI_SHUTDOWN_ALARM   TR("Rssi Shutdown", "Check Rssi on Shutdown")
+#define TR_CUSTOM_ALARM_TITLE          "Custom-Title"
+#define TR_CUSTOM_ALARM                "Custom"
 #define TR_MODEL_STILL_POWERED "Model still powered"
 #define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Shutdown ?"

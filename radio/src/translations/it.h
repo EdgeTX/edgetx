@@ -345,6 +345,8 @@
 #define TR_MEMORYWARNING                TR(INDENT "Avv. Mem.", INDENT "Avviso Memoria")
 #define TR_ALARMWARNING                 "Suono spento"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI spento", "controlla RSSI spegnendo")
+#define TR_CUSTOM_ALARM_TITLE  "Custom-Title"
+#define TR_CUSTOM_ALARM        "Custom"
 #define TR_MODEL_STILL_POWERED          "Radio ancora\nconnessa"
 #define TR_USB_STILL_CONNECTED          "USB ancora\nconnesso"
 #define TR_MODEL_SHUTDOWN               "Spegnimento?"
