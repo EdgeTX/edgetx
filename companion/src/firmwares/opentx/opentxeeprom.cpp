@@ -2910,7 +2910,14 @@ void OpenTxModelData::afterImport()
     }
   }
 
+  // EX1 / EX2
   if (version <= 218 && IS_HORUS_X10(board) && modelData.thrTraceSrc > 3) {
+    modelData.thrTraceSrc += 2;
+  }
+
+  // EX3 / EX4
+  if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) &&
+      modelData.thrTraceSrc > 5) {
     modelData.thrTraceSrc += 2;
   }
 
