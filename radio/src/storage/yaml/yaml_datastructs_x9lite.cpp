@@ -223,6 +223,12 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  POTS_WARN_AUTO, "WARN_AUTO"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_ModelOverridableEnable[] = {
+  {  VALUE_OFF, "OFF"  },
+  {  VALUE_ON, "ON"  },
+  {  VALUE_RADIO_DEFAULT, "RADIO_DEFAULT"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_FailsafeModes[] = {
   {  FAILSAFE_NOT_SET, "NOT_SET"  },
   {  FAILSAFE_HOLD, "HOLD"  },
@@ -804,8 +810,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
   YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode),
-  YAML_UNSIGNED( "jitterFilter", 2 ),
-  YAML_PADDING( 7 ),
+  YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable),
+  YAML_PADDING( 6 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
