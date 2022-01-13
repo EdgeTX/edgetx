@@ -25,7 +25,6 @@
 #include "ff.h"
 
 extern FATFS g_FATFS_Obj;
-extern FIL g_oLogFile;
 
 #include "translations.h"
 #if 0

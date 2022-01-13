@@ -31,12 +31,12 @@
 
 bool isBootloader(const char * filename)
 {
-  FIL file;
-  f_open(&file, filename, FA_READ);
+  VfsFile file;
+  VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ);
   uint8_t buffer[1024];
-  UINT count;
+  size_t count;
 
-  if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK || count != sizeof(buffer)) {
+  if (file.read(buffer, sizeof(buffer), count) != VfsError::OK || count != sizeof(buffer)) {
     return false;
   }
 
@@ -45,13 +45,13 @@ bool isBootloader(const char * filename)
 
 void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
-  FIL file;
+  VfsFile file;
   uint8_t buffer[1024];
-  UINT count;
+  size_t count;
 
   pausePulses();
 
-  f_open(&file, filename, FA_READ);
+  VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ);
 
   static uint8_t unlocked = 0;
   if (!unlocked) {
@@ -59,7 +59,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     unlockFlash();
   }
 
-  UINT flash_size = file.obj.objsize;
+  size_t flash_size = file.size();
   if (flash_size > BOOTLOADER_SIZE) {
     flash_size = BOOTLOADER_SIZE;
   }
@@ -69,12 +69,12 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     watchdogSuspend(1000/*10s*/);
     memset(buffer, 0xFF, sizeof(buffer));
 
-    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
+    if (file.read(buffer, sizeof(buffer), count) != VfsError::OK) {
       POPUP_WARNING(STR_SDCARD_ERROR);
       break;
     }
     if (count != sizeof(buffer)
-        && !f_eof(&file)) {
+        && !file.eof()) {
       POPUP_WARNING(STR_SDCARD_ERROR);
       break;
     }
@@ -82,13 +82,13 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
       POPUP_WARNING(STR_INCOMPATIBLE);
       break;
     }
-    for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
+    for (size_t j = 0; j < count; j += FLASH_PAGESIZE) {
       flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
     }
     progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
     // Reached end-of-file
-    if (f_eof(&file)) break;
+    if (file.eof()) break;
 
 #if defined(SIMU)
     // add an artificial delay and check for simu quit
@@ -107,7 +107,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     unlocked = 0;
   }
 
-  f_close(&file);
+  file.close();
 
   resumePulses();
 }

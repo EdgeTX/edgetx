@@ -133,7 +133,7 @@ static VfsError convertResult(FRESULT err)
   case FR_OK:                  return VfsError::OK;
   case FR_DISK_ERR:            return VfsError::IO;
   case FR_INT_ERR:             return VfsError::INVAL;
-  case FR_NOT_READY:           return VfsError::INVAL;
+  case FR_NOT_READY:           return VfsError::NOT_READY;
   case FR_NO_FILE:             return VfsError::NOENT;
   case FR_NO_PATH:             return VfsError::NOENT;
   case FR_INVALID_NAME:        return VfsError::INVAL;
@@ -391,7 +391,7 @@ VfsError VfsFile::putc(char c)
   return this->write(&c, 1, written);
 }
 
-int VfsFile::printf(const TCHAR* str, ...)
+int VfsFile::printf(const char* str, ...)
 {
   switch(type)
   {

@@ -743,9 +743,9 @@ const char * Bluetooth::bootloaderWriteFlash(const uint8_t * data, uint32_t size
 const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
 {
   const char * result;
-  FIL file;
+  VfsFile file;
   uint8_t buffer[CC26XX_MAX_BYTES_PER_TRANSFER * 4];
-  UINT count;
+  size_t count;
 
   // Dummy command
   bootloaderSendCommand(0);
@@ -764,13 +764,13 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
   result = bootloaderWaitResponseData(id, 4);
   bootloaderSendCommandResponse(result == nullptr ? BLUETOOTH_ACK : BLUETOOTH_NACK);
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     return "Error opening file";
   }
 
   FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *)buffer;
-  if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
-    f_close(&file);
+  if (file.read(buffer, sizeof(FrSkyFirmwareInformation), count) != VfsError::OK || count != sizeof(FrSkyFirmwareInformation)) {
+    file.close();
     return "Format error";
   }
 
@@ -792,8 +792,8 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
   uint32_t done = 0;
   while (1) {
     progressHandler(getBasename(filename), STR_FLASH_WRITE, done, size);
-    if (f_read(&file, buffer, min<uint32_t>(sizeof(buffer), size - done), &count) != FR_OK) {
-      f_close(&file);
+    if (file.read(buffer, min<uint32_t>(sizeof(buffer), size - done), count) != VfsError::OK) {
+      file.close();
       return "Error reading file";
     }
     result = bootloaderWriteFlash(buffer, count);
@@ -801,7 +801,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
       return result;
     done += count;
     if (done >= size) {
-      f_close(&file);
+      file.close();
       return nullptr;
     }
   }
