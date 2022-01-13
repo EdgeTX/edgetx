@@ -10,7 +10,7 @@ TRANSLATIONS_PATH = os.path.dirname(os.path.realpath(__file__))
 
 def add_line(filename, newline, args):
     print(filename, newline)
-    with open(filename, "r") as f:
+    with open(filename, encoding='utf-8', mode='r') as f:
         lines = f.readlines()
     newline += "\n"
     if args.before:
@@ -25,7 +25,7 @@ def add_line(filename, newline, args):
                 break
     else:
         lines.append(newline)
-    with open(filename, 'w') as f:
+    with open(filename, encoding='utf-8', mode='w') as f:
         f.writelines(lines)
 
 
