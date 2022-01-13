@@ -543,6 +543,8 @@
 #define TR_MEMORYWARNING       TR(INDENT "Avv. Mem.", INDENT "Avviso Memoria")
 #define TR_ALARMWARNING        INDENT "Spegni suono"
 #define TR_RSSI_SHUTDOWN_ALARM TR(INDENT "RSSI Shut.", INDENT "Control. RSSI al Shutdown")
+#define TR_CUSTOM_ALARM_TITLE          "Custom-Title"
+#define TR_CUSTOM_ALARM                "Custom"
 #define TR_MODEL_STILL_POWERED "Ricevente ancora connessa"
 #define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Shutdown?"

@@ -323,12 +323,12 @@ void RadioSetupPage::build(FormWindow * window)
     grid.nextLine();
 
     // Custom warning
-    new StaticText(window, grid.getLabelSlot(true), "Custom", 0, COLOR_THEME_PRIMARY1);
+    new StaticText(window, grid.getLabelSlot(true), STR_CUSTOM_ALARM, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.customWarningEnable));
     grid.nextLine();
 
     // Custom warning title
-    new StaticText(window, grid.getLabelSlot(), "Custom-Title", 0, COLOR_THEME_PRIMARY1);
+    new StaticText(window, grid.getLabelSlot(), STR_CUSTOM_ALARM_TITLE, 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(window, grid.getFieldSlot(), g_eeGeneral.customWarningTitle, CUSTOM_WARNING_TITLE_LEN);
     grid.nextLine();
   }
