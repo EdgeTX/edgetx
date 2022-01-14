@@ -697,6 +697,7 @@ PACK(struct ModelData {
   CUSTOM_SCREENS_DATA
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
+  char modelNotesFileName[LEN_NOTES_FILE_NAME];
 
   FUNCTION_SWITCHS_FIELDS
 

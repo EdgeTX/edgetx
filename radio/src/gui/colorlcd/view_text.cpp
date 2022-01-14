@@ -208,13 +208,22 @@ void readModelNotes()
   bool notesFound = false;
   LED_ERROR_BEGIN();
 
-  std::string modelNotesName(g_model.header.name);
+  std::string modelNotesName(g_model.modelNotesFileName);
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR *)buf);
 
   notesFound = openNotes(buf, modelNotesName);
+
   if (!notesFound) {
+    modelNotesName.assign(g_model.header.name);
+    modelNotesName.append(TEXT_EXT);
+    const char buf[] = {MODELS_PATH};
+    f_chdir((TCHAR*)buf);
+
+    notesFound = openNotes(buf, modelNotesName);
+  }
+  if(!notesFound) {
     replaceSpaceWithUnderscore(modelNotesName);
     notesFound = openNotes(buf, modelNotesName);
   }

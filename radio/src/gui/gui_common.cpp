@@ -884,6 +884,14 @@ bool modelHasNotes()
     return true;
   }
 
+  filename[sizeof(MODELS_PATH)] = 0;
+  strncat(filename, g_model.modelNotesFileName,
+          sizeof(g_model.modelNotesFileName));
+  strcat(filename, TEXT_EXT);
+  if (isFileAvailable(filename)) {
+    return true;
+  }
+
   buf = strcat_currentmodelname(&filename[sizeof(MODELS_PATH)], ' ');
   strcpy(buf, TEXT_EXT);
   if (isFileAvailable(filename)) {

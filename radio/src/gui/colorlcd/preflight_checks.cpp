@@ -109,6 +109,24 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  new FileChoice(
+      line, rect_t{}, MODELS_PATH, TEXT_EXT, sizeof(g_model.modelNotesFileName),
+      []() {
+        std::string notes(g_model.modelNotesFileName,
+                          sizeof(g_model.modelNotesFileName));
+        notes += TEXT_EXT;
+        return notes;
+      },
+      [](std::string newValue) {
+        uint8_t nameLength;
+        uint8_t extLength;
+        getFileExtension(newValue.data(), 0, 0, &nameLength, &extLength);
+        nameLength -= extLength;
+        newValue = newValue.substr(0, nameLength);
+        strncpy(g_model.modelNotesFileName, newValue.c_str(),
+                sizeof(g_model.modelNotesFileName));
+        SET_DIRTY();
+      });
 
   // Throttle warning
   line = form->newLine(&grid);
