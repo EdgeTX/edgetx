@@ -23,6 +23,7 @@
 #include <FreeRTOS/include/stream_buffer.h>
 
 #include "opentx.h"
+#include "VirtualFS.h
 #include "diskio.h"
 #include "timers_driver.h"
 
@@ -249,17 +250,18 @@ int cliPlay(const char ** argv)
 
 int cliLs(const char ** argv)
 {
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
 
-  FRESULT res = f_opendir(&dir, argv[1]);        /* Open the directory */
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, argv[1]);        /* Open the directory */
+  if (res == VfsError::OK) {
     for (;;) {
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+      res = dir.read(fno);                   /* Read a directory item */
+      std::string name = fno.getName();
+      if (res != VfsError::OK || name.length() == 0) break;  /* Break on error or end of dir */
       cliSerialPrint(fno.fname);
     }
-    f_closedir(&dir);
+    dir.close();
   }
   else {
     cliSerialPrint("%s: Invalid directory \"%s\"", argv[0], argv[1]);
@@ -269,7 +271,7 @@ int cliLs(const char ** argv)
 
 int cliRead(const char ** argv)
 {
-  FIL file;
+  VfsFile file;
   uint32_t bytesRead = 0;
   int bufferSize;
   if (toInt(argv, 2, &bufferSize) == 0 || bufferSize < 0 ) {
@@ -283,8 +285,8 @@ int cliRead(const char ** argv)
     return 0;
   }
 
-  FRESULT result = f_open(&file, argv[1], FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  VfsError result = VirtualFS::instance().openFile(file, argv[1], VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) {
     free(buffer);
     cliSerialPrint("%s: File not found \"%s\"", argv[0], argv[1]);
     return 0;
@@ -293,12 +295,12 @@ int cliRead(const char ** argv)
   tmr10ms_t start = get_tmr10ms();
 
   while (true) {
-    UINT read;
-    result = f_read(&file, buffer, sizeof(buffer), &read);
+    size_t read;
+    result = file.read(buffer, sizeof(buffer), read);
     if (result == FR_OK) {
       if (read == 0) {
         // end of file
-        f_close(&file);
+        file.close();
         break;
       }
       bytesRead += read;

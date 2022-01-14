@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
@@ -497,8 +498,8 @@ void menuRadioSdManager(event_t _event)
 
   if (SD_CARD_PRESENT()) {
     if (reusableBuffer.sdManager.offset != menuVerticalOffset) {
-      FILINFO fno;
-      DIR dir;
+      VfsFileInfo fno;
+      VfsDir dir;
 
       if (menuVerticalOffset == reusableBuffer.sdManager.offset + 1) {
         memmove(reusableBuffer.sdManager.lines[0], reusableBuffer.sdManager.lines[1], (NUM_BODY_LINES-1)*sizeof(reusableBuffer.sdManager.lines[0]));
@@ -516,27 +517,28 @@ void menuRadioSdManager(event_t _event)
 
       reusableBuffer.sdManager.count = 0;
 
-      FRESULT res = f_opendir(&dir, "."); // Open the directory
-      if (res == FR_OK) {
+      VfsError res = VirtualFS::instance().openDirectory(dir, "."); // Open the directory
+      if (res == VfsError::OK) {
         bool firstTime = true;
         for (;;) {
-          res = sdReadDir(&dir, &fno, firstTime);
-          if (res != FR_OK || fno.fname[0] == 0) break;              /* Break on error or end of dir */
-          if (strlen(fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-          if (fno.fattrib & AM_HID) continue;                        /* Ignore Windows hidden files */
-          if (fno.fname[0] == '.' && fno.fname[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
+          res = dir.read(fno);
+          std::string name = fno.getName();
+          if (res != VfsError::OK || name.length() == 0) break;              /* Break on error or end of dir */
+          if (name.length() > SD_SCREEN_FILE_LENGTH) continue;
+//          if (fno.fattrib & AM_HID) continue;                        /* Ignore Windows hidden files */
+          if (name[0] == '.' && name[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
 
           reusableBuffer.sdManager.count++;
 
-          bool isfile = !(fno.fattrib & AM_DIR);
+          bool isfile = (fno.getType() != VfsType::DIR);
 
           if (menuVerticalOffset == 0) {
             for (uint8_t i=0; i<NUM_BODY_LINES; i++) {
               char * line = reusableBuffer.sdManager.lines[i];
-              if (line[0] == '\0' || isFilenameLower(isfile, fno.fname, line)) {
+              if (line[0] == '\0' || isFilenameLower(isfile, name.c_str(), line)) {
                 if (i < NUM_BODY_LINES-1) memmove(reusableBuffer.sdManager.lines[i+1], line, sizeof(reusableBuffer.sdManager.lines[i]) * (NUM_BODY_LINES-1-i));
                 memset(line, 0, sizeof(reusableBuffer.sdManager.lines[0]));
-                strcpy(line, fno.fname);
+                strcpy(line, name.c_str());
                 NODE_TYPE(line) = isfile;
                 break;
               }
@@ -545,31 +547,31 @@ void menuRadioSdManager(event_t _event)
           else if (reusableBuffer.sdManager.offset == menuVerticalOffset) {
             for (int8_t i=NUM_BODY_LINES-1; i>=0; i--) {
               char * line = reusableBuffer.sdManager.lines[i];
-              if (line[0] == '\0' || isFilenameGreater(isfile, fno.fname, line)) {
+              if (line[0] == '\0' || isFilenameGreater(isfile, name.c_str(), line)) {
                 if (i > 0) memmove(reusableBuffer.sdManager.lines[0], reusableBuffer.sdManager.lines[1], sizeof(reusableBuffer.sdManager.lines[0]) * i);
                 memset(line, 0, sizeof(reusableBuffer.sdManager.lines[0]));
-                strcpy(line, fno.fname);
+                strcpy(line, name.c_str());
                 NODE_TYPE(line) = isfile;
                 break;
               }
             }
           }
           else if (menuVerticalOffset > reusableBuffer.sdManager.offset) {
-            if (isFilenameGreater(isfile, fno.fname, reusableBuffer.sdManager.lines[NUM_BODY_LINES-2]) && isFilenameLower(isfile, fno.fname, reusableBuffer.sdManager.lines[NUM_BODY_LINES-1])) {
+            if (isFilenameGreater(isfile, name.c_str(), reusableBuffer.sdManager.lines[NUM_BODY_LINES-2]) && isFilenameLower(isfile, name.c_str(), reusableBuffer.sdManager.lines[NUM_BODY_LINES-1])) {
               memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0, sizeof(reusableBuffer.sdManager.lines[0]));
-              strcpy(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], fno.fname);
+              strcpy(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], name.c_str());
               NODE_TYPE(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1]) = isfile;
             }
           }
           else {
-            if (isFilenameLower(isfile, fno.fname, reusableBuffer.sdManager.lines[1]) && isFilenameGreater(isfile, fno.fname, reusableBuffer.sdManager.lines[0])) {
+            if (isFilenameLower(isfile, name.c_str(), reusableBuffer.sdManager.lines[1]) && isFilenameGreater(isfile, name.c_str(), reusableBuffer.sdManager.lines[0])) {
               memset(reusableBuffer.sdManager.lines[0], 0, sizeof(reusableBuffer.sdManager.lines[0]));
-              strcpy(reusableBuffer.sdManager.lines[0], fno.fname);
+              strcpy(reusableBuffer.sdManager.lines[0], name.c_str());
               NODE_TYPE(reusableBuffer.sdManager.lines[0]) = isfile;
             }
           }
         }
-        f_closedir(&dir);
+        dir.close();
       }
     }
 
