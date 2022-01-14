@@ -549,7 +549,7 @@
           <string>ADC Jitter filter</string>
          </property>
         </widget>
-       </item> 
+       </item>
        <item row="2" column="3">
         <widget class="QComboBox" name="jitterFilter">
          <property name="sizePolicy">
@@ -560,17 +560,17 @@
          </property>
          <item>
           <property name="text">
+           <string>Global</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Off</string>
           </property>
          </item>
          <item>
           <property name="text">
            <string>On</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Default</string>
           </property>
          </item>
         </widget>

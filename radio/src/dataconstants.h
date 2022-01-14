@@ -910,9 +910,9 @@ enum UartSampleModes {
 
 // A model On/Off setting that can also take a default value
 enum ModelOverridableEnable {
-  VALUE_OFF,
-  VALUE_ON,
-  VALUE_RADIO_DEFAULT
+  OVERRIDE_VALUE_DEFAULT,
+  OVERRIDE_VALUE_OFF,
+  OVERRIDE_VALUE_ON
 };
 
 #endif // _DATACONSTANTS_H_

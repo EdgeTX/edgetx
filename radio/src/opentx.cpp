@@ -1115,10 +1115,15 @@ void getADC()
     // Combine ADC jitter filter setting form radio and model.
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
-    uint8_t useJitterFilter = g_model.jitterFilter;
-    if (useJitterFilter == VALUE_RADIO_DEFAULT) {   // Use radio setting - which is inverted
+    uint8_t useJitterFilter = 0;
+    if (g_model.jitterFilter == OVERRIDE_VALUE_DEFAULT) {
+       // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
+    } else {
+      // Enable if value is "On", disable if "Off"
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
     }
+
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) { 
       // apply jitter filter
       s_anaFilt[x] = (s_anaFilt[x] - previous) + v;

@@ -71,6 +71,12 @@ static const YamlLookupTable potsWarningModeLut = {
   {  2, "WARN_AUTO"  },
 };
 
+static const YamlLookupTable jitterFilterLut = {
+  {  0, "RADIO_DEFAULT"  },
+  {  1, "OFF"  },
+  {  2, "ON"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -736,7 +742,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["extendedLimits"] = (int)rhs.extendedLimits;
   node["extendedTrims"] = (int)rhs.extendedTrims;
   node["throttleReversed"] = (int)rhs.throttleReversed;
-  node["jitterFilter"] = (int)rhs.jitterFilter;
 
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
     if (!rhs.flightModeData[i].isEmpty(i)) {
@@ -814,6 +819,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
+  node["jitterFilter"] = jitterFilterLut << rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
@@ -955,7 +961,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["extendedLimits"] >> rhs.extendedLimits;
   node["extendedTrims"] >> rhs.extendedTrims;
   node["throttleReversed"] >> rhs.throttleReversed;
-  node["jitterFilter"] >> rhs.jitterFilter;
 
   node["flightModeData"] >> rhs.flightModeData;
   node["mixData"] >> rhs.mixData;
@@ -988,6 +993,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
+  node["jitterFilter"] >> jitterFilterLut >> rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled;
   node["potsWarnEnabled"] >> potsWarnEnabled.value;

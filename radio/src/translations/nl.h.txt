@@ -117,7 +117,7 @@
 #define TR_CURVE_TYPES         "Standaard""Custom\0  "
 
 #define LEN_ADCFILTERVALUES    "\007"
-#define TR_ADCFILTERVALUES     "On\0    ""Off\0   ""Default"
+#define TR_ADCFILTERVALUES     "Globale""Off\0   ""On\0    "
 
 #define LEN_RETA123            "\001"
 
