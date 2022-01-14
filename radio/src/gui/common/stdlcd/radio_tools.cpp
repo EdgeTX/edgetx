@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include "opentx.h"
+#include "VirtualFS.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -91,24 +92,25 @@ void menuRadioTools(event_t event)
 
 
 #if defined(LUA)
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
 
-  FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, SCRIPTS_TOOLS_PATH);
+  if (res == VfsError::OK) {
     for (;;) {
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      res = dir.read(fno);                   /* Read a directory item */
+      std::string name = fno.getName();
+      if (res != VfsError::OK || name.length() == 0) break;  /* Break on error or end of dir */
+      if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
+//      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
+//      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
 
-      strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname))
+      strcat(path, name.c_str());
+      if (isRadioScriptTool(name.c_str()))
         addRadioScriptTool(index++, path);
     }
-    f_closedir(&dir);
+    dir.close();
   }
 #endif
 

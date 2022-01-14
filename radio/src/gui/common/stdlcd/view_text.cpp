@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 #define EVT_KEY_NEXT_LINE              EVT_ROTARY_RIGHT
@@ -31,10 +32,10 @@
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
 
-static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
+static void storageReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
 {
-  FIL file;
-  int result;
+  VfsFile file;
+  VfsError result;
   char c;
   unsigned int sz;
   int line_length = 0;
@@ -44,9 +45,9 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
 
   memclear(lines, TEXT_VIEWER_LINES * (LCD_COLS + 1));
 
-  result = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    for (uint32_t i = 0; i < TEXT_FILE_MAXSIZE && f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 && (lines_count == 0 || current_line - menuVerticalOffset < int(TEXT_VIEWER_LINES)); i++) {
+  result = VirtualFS::instance().openFile(file, filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
+    for (uint32_t i = 0; i < TEXT_FILE_MAXSIZE && file.read(&c, 1, sz) == VfsError::OK && sz == 1 && (lines_count == 0 || current_line - menuVerticalOffset < int(TEXT_VIEWER_LINES)); i++) {
       if (c == '\n') {
         ++current_line;
         line_length = 0;
@@ -92,7 +93,7 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
     if (c != '\n') {
       current_line += 1;
     }
-    f_close(&file);
+    file.close();
   }
 
   if (lines_count == 0) {
@@ -136,7 +137,7 @@ void menuTextView(event_t event)
     case EVT_ENTRY:
       menuVerticalOffset = 0;
       reusableBuffer.viewText.linesCount = 0;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
       break;
 
     case EVT_KEY_PREVIOUS_LINE:
@@ -144,7 +145,7 @@ void menuTextView(event_t event)
         break;
       else
         menuVerticalOffset--;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
       break;
 
     case EVT_KEY_NEXT_LINE:
@@ -152,7 +153,7 @@ void menuTextView(event_t event)
         break;
       else
         ++menuVerticalOffset;
-      sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+      storageReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
       break;
 
     case EVT_KEY_BREAK(KEY_EXIT):

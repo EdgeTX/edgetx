@@ -388,7 +388,7 @@ void referenceModelAudioFiles()
 
       // Eliminates directories / non wav files
       if (len < 5 || strcasecmp(name.c_str()+len-4, SOUNDS_EXT) || (fno.getType() == VfsType::DIR)) continue;
-      TRACE("referenceModelAudioFiles(): using file: %s", fno.fname);
+      TRACE("referenceModelAudioFiles(): using file: %s", name.c_str());
 
       // Flight modes Audio Files <flightmodename>-[on|off].wav
       for (int i=0; i<MAX_FLIGHT_MODES && !found; i++) {

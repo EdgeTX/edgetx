@@ -52,13 +52,14 @@ const uint8_t BMP_HEADER[] = {
 
 const char * writeScreenshot()
 {
-  FIL bmpFile;
-  UINT written;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFile bmpFile;
+  size_t written;
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
   // check and create folder here
   strcpy(filename, SCREENSHOTS_PATH);
-  const char * error = sdCheckAndCreateDirectory(filename);
+  const char * error = vfs.checkAndCreateDirectory(filename);
   if (error) {
     return error;
   }
@@ -67,15 +68,15 @@ const char * writeScreenshot()
   tmp = strAppendDate(tmp, true);
   strcpy(tmp, BMP_EXT);
 
-  FRESULT result = f_open(&bmpFile, filename, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = vfs.openFile(bmpFile, filename, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
-  result = f_write(&bmpFile, BMP_HEADER, sizeof(BMP_HEADER), &written);
-  if (result != FR_OK || written != sizeof(BMP_HEADER)) {
-    f_close(&bmpFile);
-    return SDCARD_ERROR(result);
+  result = bmpFile.write(BMP_HEADER, sizeof(BMP_HEADER), written);
+  if (result != VfsError::OK || written != sizeof(BMP_HEADER)) {
+    bmpFile.close();
+    return STORAGE_ERROR(result);
   }
 
 #if defined(COLORLCD)
@@ -84,9 +85,9 @@ const char * writeScreenshot()
       lcdFront->reset();
       auto pixel = *(lcdFront->getPixelPtr(x, y));
       uint32_t dst = (0xFF << 24) + (GET_RED(pixel) << 16) + (GET_GREEN(pixel) << 8) + (GET_BLUE(pixel) << 0);
-      if (f_write(&bmpFile, &dst, sizeof(dst), &written) != FR_OK || written != sizeof(dst)) {
-        f_close(&bmpFile);
-        return SDCARD_ERROR(result);
+      if (bmpFile.write(&dst, sizeof(dst), written) != VfsError::OK || written != sizeof(dst)) {
+        bmpFile.close();
+        return STORAGE_ERROR(result);
       }
     }
   }
@@ -94,15 +95,15 @@ const char * writeScreenshot()
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
       pixel_t byte = getPixel(x+1, y) + (getPixel(x, y) << 4);
-      if (f_write(&bmpFile, &byte, 1, &written) != FR_OK || written != 1) {
-        f_close(&bmpFile);
-        return SDCARD_ERROR(result);
+      if (bmpFile.write(&byte, 1, written) != VfsError::OK || written != 1) {
+        bmpFile.close();
+        return STORAGE_ERROR(result);
       }
     }
   }
 #endif
 
-  f_close(&bmpFile);
+  bmpFile.close();
 
   return nullptr;
 }
