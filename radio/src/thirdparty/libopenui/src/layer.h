@@ -50,6 +50,7 @@ class Layer
       // layers are screens in lvgl
       lv_scr_load(window->getLvObj());
       lv_obj_set_parent(canvas, window->getLvObj());
+      lv_obj_move_background(canvas);
 
       stack.emplace_back(Layer(window));
 
@@ -67,6 +68,7 @@ class Layer
         stack.pop_back();
         const auto & back = stack.back();
         lv_obj_set_parent(canvas, back.main->getLvObj());
+        lv_obj_move_background(canvas);
         lv_scr_load(back.main->getLvObj());  // load the screen.
         if (back.focus) {
           back.focus->setFocus(SET_FOCUS_DEFAULT);
