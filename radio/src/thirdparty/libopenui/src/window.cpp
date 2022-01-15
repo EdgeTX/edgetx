@@ -41,7 +41,18 @@ static void window_event_cb(lv_event_t * e)
   }
 }
 
-Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, bool isScreen) :
+LvglWidgetFactory windowFactory = LvglWidgetFactory(
+  [] (lv_obj_t *parent) {
+    return lv_obj_create(parent);
+  },
+  [] (LvglWidgetFactory *factory) {
+    lv_style_set_pad_all(&factory->style, 0);
+    lv_style_set_bg_opa(&factory->style, LV_OPA_TRANSP);
+    lv_style_set_border_width(&factory->style, 0);
+    lv_style_set_radius(&factory->style, 0);
+  });
+
+Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, LvglWidgetFactory *factory) :
   parent(parent),
   rect(rect),
   innerWidth(rect.w),
@@ -49,14 +60,15 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
   windowFlags(windowFlags),
   textFlags(textFlags)
 {
-  lvobj = lv_obj_create(isScreen ? nullptr : parent != nullptr ? parent->lvobj : nullptr);
+  lv_obj_t *lvParent = parent != nullptr ? parent->lvobj : nullptr;
+  lvobj = (factory == nullptr) ?
+    windowFactory.construct(lvParent) :
+    factory->construct(lvParent);
+
+  lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
   lv_obj_set_size(lvobj, rect.w, rect.h);
 
-  lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
-  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
-  lv_obj_set_style_radius(lvobj, 0, LV_PART_MAIN);
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
@@ -163,6 +175,7 @@ void Window::setFocus(uint8_t flag, Window * from)
   TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
 
   if (focusWindow != this) {
+    // lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
     // scroll before calling focusHandler so that the window can adjust the scroll position if needed
     Window * parent = this->parent;
     while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {

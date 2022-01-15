@@ -77,22 +77,22 @@ void Button::checkEvents()
 }
 
 
+LvglWidgetFactory textButtonFactory = LvglWidgetFactory(
+  [](lv_obj_t *parent) {
+    return lv_btn_create(parent);
+});
+
 TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
           std::function<uint8_t(void)> pressHandler,
           WindowFlags windowFlags,
           LcdFlags textFlags) :
-    Button(parent, rect, std::move(pressHandler), windowFlags, textFlags),
+    Button(parent, rect, std::move(pressHandler), windowFlags, textFlags, &textButtonFactory),
     text(std::move(text))
 {
-  if (lvobj != nullptr) {
-    lv_obj_del(lvobj);
-  }
-  lvobj = lv_btn_create(parent->getLvObj());
-  lv_obj_set_pos(lvobj, rect.x, rect.y);                            /*Set its position*/
-  lv_obj_set_size(lvobj, rect.w, rect.h);                          /*Set its size*/
+  lv_obj_set_pos(lvobj, rect.x, rect.y);
+  lv_obj_set_size(lvobj, rect.w, rect.h);
   setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
 
-#if 1
   auto color = COLOR_VAL(COLOR_THEME_PRIMARY2);
   auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
 
@@ -106,8 +106,7 @@ TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
   color = COLOR_VAL(this->getTextFlags());
-  lv_obj_set_style_text_color(label, lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color)), LV_PART_MAIN);
-#endif
+  // lv_obj_set_style_text_color(label, lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color)), LV_PART_MAIN);
 }
 
 TextButton::~TextButton()

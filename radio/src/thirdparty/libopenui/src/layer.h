@@ -37,10 +37,9 @@ class Layer
 
     static void push(Window * window)
     {
-      // if (window->getLvObj()->parent != nullptr) {
-      //   TRACE("Layers must have lvgl parent to be null");
-      //   return;
-      // }
+      if (window->getLvObj()->parent != nullptr) {
+        TRACE("Layers must have lvgl parent to be null");
+      }
 
       if (!stack.empty()) {
         Layer & parentLayer = stack.back();

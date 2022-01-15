@@ -30,7 +30,7 @@
 #include "libopenui_defines.h"
 #include "libopenui_helpers.h"
 #include "libopenui_config.h"
-#include "../../lvgl/src/lvgl.h"
+#include "LvglWrapper.h"
 
 typedef uint32_t WindowFlags;
 
@@ -64,7 +64,7 @@ class Window
   friend class GridLayout;
 
   public:
-    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, bool isScreen = false);
+    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr);
 
     virtual ~Window();
 
@@ -133,6 +133,11 @@ class Window
     void setTextFlags(LcdFlags flags)
     {
       textFlags = flags;
+
+      // lv integration for colors
+      auto textColor = COLOR_VAL(flags);
+      auto r = GET_RED(textColor), g = GET_GREEN(textColor), b = GET_BLUE(textColor);
+      lv_obj_set_style_text_color(getLvObj(), lv_color_make(r, g, b), LV_PART_MAIN);
     }
 
     void setCloseHandler(std::function<void()> handler)
