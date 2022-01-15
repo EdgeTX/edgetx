@@ -93,6 +93,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
+  ITEM_MODEL_NOTES_FILE,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE,
@@ -188,7 +189,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TRAINER_LABEL,
   ITEM_MODEL_SETUP_TRAINER_MODE,
   #if defined(BLUETOOTH)
-    ITEM_MODEL_SETUP_TRAINER_BLUETOOTH,
+  ITEM_MODEL_SETUP_TRAINER_BLUETOOTH,
   #endif
   ITEM_MODEL_SETUP_TRAINER_CHANNELS,
   ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS,
@@ -353,6 +354,29 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
         timer.countdownStart = -checkIncDecModel(event, -timer.countdownStart, -1, +2);
         break;
     }
+  }
+}
+
+void copySelection(char *dst, const char *src, uint8_t size)
+{
+  if (memcmp(src, "---", 3) == 0)
+    memset(dst, 0, size);
+  else
+    memcpy(dst, src, size);
+}
+
+void onModelNotesMenu(const char *result)
+{
+  if (result == STR_UPDATE_LIST) {
+    if (!sdListFiles(MODELS_PATH, TEXT_EXT, sizeof(g_model.modelNotesFileName),
+                     nullptr)) {
+      POPUP_WARNING(STR_NO_NOTES_ON_SD);
+    }
+  } else if (result != STR_EXIT) {
+    // The user choose a file in the list
+    copySelection(g_model.modelNotesFileName, result,
+                  sizeof(g_model.modelNotesFileName));
+    storageDirty(EE_MODEL);
   }
 }
 
@@ -757,6 +781,27 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_CHECKLIST_DISPLAY:
         g_model.displayChecklist = editCheckBox(g_model.displayChecklist, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST, attr, event);
+        break;
+
+      case ITEM_MODEL_NOTES_FILE:
+        lcdDrawTextAlignedLeft(y, STR_NOTES_FILE);
+        if (ZEXIST(g_model.modelNotesFileName))
+          lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN, y,
+                           g_model.modelNotesFileName,
+                           sizeof(g_model.modelNotesFileName), attr);
+        else
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VCSWFUNC, 0, attr);
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER) && READ_ONLY_UNLOCKED()) {
+          s_editMode = 0;
+          if (sdListFiles(MODELS_PATH, TEXT_EXT,
+                          sizeof(g_model.modelNotesFileName),
+                          g_model.modelNotesFileName, LIST_NONE_SD_FILE)) {
+            POPUP_MENU_START(onModelNotesMenu);
+            TRACE("Notes: %s", g_model.modelNotesFileName);
+          } else {
+            POPUP_WARNING(STR_NO_NOTES_ON_SD);
+          }
+        }
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:

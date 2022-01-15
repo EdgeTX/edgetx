@@ -105,8 +105,15 @@ void readModelNotes()
   LED_ERROR_BEGIN();
 
   strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
-  char *buf = strcat_currentmodelname(&reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
-  strcpy(buf, TEXT_EXT);
+  strcat(reusableBuffer.viewText.filename, g_model.modelNotesFileName);
+  char* buf = strcat(reusableBuffer.viewText.filename, TEXT_EXT);
+
+  if (!isFileAvailable(buf)) {
+    strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
+    buf = strcat_currentmodelname(
+        &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
+    strcpy(buf, TEXT_EXT);
+  }
 
   waitKeysReleased();
   event_t event = EVT_ENTRY;
@@ -118,7 +125,7 @@ void readModelNotes()
       menuTextView(event);
       lcdRefresh();
     }
-    if (power == e_power_off){
+    if (power == e_power_off) {
       drawSleepBitmap();
       boardOff();
       break;

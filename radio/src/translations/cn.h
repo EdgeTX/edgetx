@@ -684,6 +684,7 @@
 #define TR_NO_SOUNDS_ON_SD             "存储卡中无音频"
 #define TR_NO_MODELS_ON_SD             "存储卡中无模型"
 #define TR_NO_BITMAPS_ON_SD            "存储卡中无图片"
+#define TR_NO_NOTES_ON_SD              "No notes file" BREAKSPACE "on SD"
 #define TR_NO_SCRIPTS_ON_SD            "存储卡中无脚本"
 #define TR_SCRIPT_SYNTAX_ERROR         "脚本程序语法错误"
 #define TR_SCRIPT_PANIC                "Script panic"
@@ -930,6 +931,7 @@
 #define TR_PERSISTENT_MAH              TR(INDENT "关机保持mAh", INDENT "关机保持 mAh")
 #define TR_PREFLIGHT                   "初始位置检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
+#define TR_NOTES_FILE                  TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS偏移", INDENT "FAS 偏移量")
 #define TR_AUX_SERIAL_MODE             "串口"
 #define TR_AUX2_SERIAL_MODE            "串口 2"

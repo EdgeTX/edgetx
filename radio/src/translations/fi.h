@@ -696,6 +696,7 @@
 #define TR_NO_SOUNDS_ON_SD             "Ei ääniä SD:llä"
 #define TR_NO_MODELS_ON_SD             "No Models on SD"
 #define TR_NO_BITMAPS_ON_SD            "Ei bittikarttoja SD:llä"
+#define TR_NO_NOTES_ON_SD              "No notes file" BREAKSPACE "on SD"
 #define TR_NO_SCRIPTS_ON_SD            "Ei skriptejä SD:llä"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC                "Skriptipaniikki"
@@ -930,6 +931,7 @@
 #define TR_PERSISTENT_MAH              INDENT "Store mAh"
 #define TR_PREFLIGHT                   "Preflight Checks"
 #define TR_CHECKLIST                   INDENT "Display Checklist"
+#define TR_NOTES_FILE                  TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE             "Sarjaportti"
 #define TR_AUX2_SERIAL_MODE            "Sarjaportti 2"

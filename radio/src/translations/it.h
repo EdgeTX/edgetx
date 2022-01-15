@@ -684,6 +684,7 @@
 #define TR_NO_SOUNDS_ON_SD     "No Suoni" BREAKSPACE "su SD"
 #define TR_NO_MODELS_ON_SD     "No Model." BREAKSPACE "su SD"
 #define TR_NO_BITMAPS_ON_SD    "No Immag." BREAKSPACE "su SD"
+#define TR_NO_NOTES_ON_SD      "No notes file" BREAKSPACE "on SD"
 #define TR_NO_SCRIPTS_ON_SD    "No Scripts" BREAKSPACE "su SD"
 #define TR_SCRIPT_SYNTAX_ERROR TR("Errore sintassi", "Script errore sintassi")
 #define TR_SCRIPT_PANIC        "Script panico"
@@ -930,6 +931,7 @@
 #define TR_PERSISTENT_MAH      INDENT "Memo mAh"
 #define TR_PREFLIGHT           "Controlli Prevolo"
 #define TR_CHECKLIST           INDENT "Mostra Checklist"
+#define TR_NOTES_FILE          TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Porta Seriale"
 #define TR_AUX2_SERIAL_MODE    "Porta Seriale 2"

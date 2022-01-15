@@ -700,6 +700,7 @@
 #define TR_NO_SOUNDS_ON_SD             "žádný zvuk" BREAKSPACE "na SD"
 #define TR_NO_MODELS_ON_SD             "žádný model" BREAKSPACE "na SD"
 #define TR_NO_BITMAPS_ON_SD            "žádné obrázky" BREAKSPACE "na SD"
+#define TR_NO_NOTES_ON_SD              "No notes file" BREAKSPACE "na SD"
 #define TR_NO_SCRIPTS_ON_SD            "žádný skript" BREAKSPACE "na SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaktická chyba", "Syntaktická chyba skriptu")
 #define TR_SCRIPT_PANIC                "Script zmaten"
@@ -945,6 +946,7 @@
 #define TR_PERSISTENT_MAH              TR(INDENT "Ulož mAh", INDENT "Ukládat mAh")
 #define TR_PREFLIGHT                   "Předletová kontrola"
 #define TR_CHECKLIST                   TR(INDENT "Poznámky", INDENT "Zobrazit poznámky")
+#define TR_NOTES_FILE                  TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS Ofset")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"

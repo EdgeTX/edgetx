@@ -109,6 +109,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  new StaticText(line, rect_t{}, STR_NOTES_FILE, 0, COLOR_THEME_PRIMARY1);
   new FileChoice(
       line, rect_t{}, MODELS_PATH, TEXT_EXT, sizeof(g_model.modelNotesFileName),
       []() {

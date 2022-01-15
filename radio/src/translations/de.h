@@ -682,6 +682,7 @@
 #define TR_NO_SOUNDS_ON_SD             "Keine Töne" BREAKSPACE "auf SD"
 #define TR_NO_MODELS_ON_SD             "Kein Modelle" BREAKSPACE "auf SD"
 #define TR_NO_BITMAPS_ON_SD            "Keine Bitmaps" BREAKSPACE "auf SD"
+#define TR_NO_NOTES_ON_SD              "No notes file" BREAKSPACE "on SD"
 #define TR_NO_SCRIPTS_ON_SD            "Keine Skripte" BREAKSPACE "auf SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaxfehler", "Skript Syntaxfehler")
 #define TR_SCRIPT_PANIC                "Skript Panik"
@@ -933,6 +934,7 @@
 #define TR_PERSISTENT_MAH              TR(INDENT "Spr. mAh", INDENT "Speichern mAh") //9XR-Pro
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
+#define TR_NOTES_FILE                  TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS-Ofs", INDENT "FAS-Offset")
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
 #define TR_AUX2_SERIAL_MODE            "Serieller Port 2"

@@ -860,6 +860,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("screens", 192, 4, struct_TelemetryScreenData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
+  YAML_STRING("modelNotesFileName", 15),
   YAML_UNSIGNED( "functionSwitchConfig", 16 ),
   YAML_UNSIGNED( "functionSwitchGroup", 16 ),
   YAML_UNSIGNED( "functionSwitchStartConfig", 16 ),

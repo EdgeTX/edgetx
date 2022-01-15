@@ -713,6 +713,7 @@
 #define TR_NO_SOUNDS_ON_SD              "Inga ljud på SD"
 #define TR_NO_MODELS_ON_SD              "Inga modeller på SD"
 #define TR_NO_BITMAPS_ON_SD             "Ikoner saknas på SD"
+#define TR_NO_NOTES_ON_SD               "No notes file" BREAKSPACE "on SD"
 #define TR_NO_SCRIPTS_ON_SD             "Programkod saknas på SD"
 #define TR_SCRIPT_SYNTAX_ERROR          TR("Syntaxfel", "Skriptsyntaxfel")
 #define TR_SCRIPT_PANIC                 "Script panic"
@@ -962,6 +963,7 @@
 #define TR_PERSISTENT_MAH               INDENT "Lagra mAh"
 #define TR_PREFLIGHT                    "Startkontroller"
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
+#define TR_NOTES_FILE                   TR(INDENT "Notes", INDENT "Notes File")
 #define TR_FAS_OFFSET                   TR(INDENT "FAS ofs", INDENT "FAS offset")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"

@@ -78,6 +78,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
+  ITEM_MODEL_NOTES_FILE,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING,
   ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE,
@@ -179,6 +180,21 @@ void onModelSetupBitmapMenu(const char * result)
     // The user choosed a bmp file in the list
     copySelection(g_model.header.bitmap, result, sizeof(g_model.header.bitmap));
     memcpy(modelHeaders[g_eeGeneral.currModel].bitmap, g_model.header.bitmap, sizeof(g_model.header.bitmap));
+    storageDirty(EE_MODEL);
+  }
+}
+
+void onModelNotesMenu(const char *result)
+{
+  if (result == STR_UPDATE_LIST) {
+    if (!sdListFiles(MODELS_PATH, TEXT_EXT, sizeof(g_model.modelNotesFileName),
+                     nullptr)) {
+      POPUP_WARNING(STR_NO_NOTES_ON_SD);
+    }
+  } else if (result != STR_EXIT) {
+    // The user chose a file in the list
+    copySelection(g_model.modelNotesFileName, result,
+                  sizeof(g_model.modelNotesFileName));
     storageDirty(EE_MODEL);
   }
 }
@@ -468,9 +484,9 @@ void menuModelSetup(event_t event)
 #endif
 
   int sub = menuVerticalPosition;
-
-  for (int i = 0; i < NUM_BODY_LINES; ++i) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
+  for (int i = 0; i < NUM_BODY_LINES; ++i)
+  {
+    coord_t y = MENU_HEADER_HEIGHT + 1 + i* FH;
     uint8_t k = i + menuVerticalOffset;
     for (int j = 0; j <= k; j++) {
       if (mstate_tab[j] == HIDDEN_ROW)
@@ -665,6 +681,26 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_CHECKLIST_DISPLAY:
         g_model.displayChecklist = editCheckBox(g_model.displayChecklist, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST, attr, event);
+        break;
+
+      case ITEM_MODEL_NOTES_FILE:
+        lcdDrawTextAlignedLeft(y, STR_NOTES_FILE);
+        if (ZEXIST(g_model.modelNotesFileName)) lcdDrawSizedText(
+            MODEL_SETUP_2ND_COLUMN, y, g_model.modelNotesFileName,
+            sizeof(g_model.modelNotesFileName), attr);
+        else
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VCSWFUNC, 0, attr);
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER) && READ_ONLY_UNLOCKED()) {
+          s_editMode = 0;
+          if (sdListFiles(MODELS_PATH, TEXT_EXT,
+                          sizeof(g_model.modelNotesFileName),
+                          g_model.modelNotesFileName, LIST_NONE_SD_FILE)) {
+            POPUP_MENU_START(onModelNotesMenu);
+            TRACE("Notes: %s", g_model.modelNotesFileName);
+          } else {
+            POPUP_WARNING(STR_NO_NOTES_ON_SD);
+          }
+        }
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
