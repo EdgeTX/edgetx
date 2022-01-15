@@ -879,7 +879,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("topbarData", 2400, struct_TopBarPersistentData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
-  YAML_STRING("modelNotesFileName", 15),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
