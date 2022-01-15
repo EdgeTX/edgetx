@@ -59,6 +59,17 @@ extern "C" void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 #endif
 }
 
+/**
+ * Helper function to translate a colorFlags value to a lv_color_t suitable
+ * for passing to an lv_obj function
+ * @param colorFlags a textFlags value.  This value will contain the color shifted by 16 bits.
+ */
+lv_color_t makeLvColor(uint32_t colorFlags)
+{
+  auto color = COLOR_VAL(colorFlags);
+  return lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+}
+
 lv_obj_t * canvas=nullptr;
 static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(LCD_W, LCD_H)] __SDRAM;
 
@@ -70,9 +81,9 @@ LvglWrapper::LvglWrapper()
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
-  disp_drv.flush_cb = flushLcd;        /*Set a flush callback to draw to the display*/
-  disp_drv.hor_res = LCD_W;                 /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = LCD_H;                 /*Set the vertical resolution in pixels*/
+  disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
+  disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
 #if defined (LCD_VERTICAL_INVERT)
