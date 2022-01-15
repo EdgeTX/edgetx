@@ -34,7 +34,7 @@ Topbar * TopbarFactory::create(Window * parent)
 }
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
-  FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS, true),
+  FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
   menu(menu)
 {
   // remember focus
