@@ -21,8 +21,8 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-FormField::FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, bool isScreen) :
-  Window(parent, rect, windowFlags, textFlags, isScreen)
+FormField::FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, LvglWidgetFactory *factory) :
+  Window(parent, rect, windowFlags, textFlags, factory)
 {
   if (!(windowFlags & NO_FOCUS)) {
     auto * form = dynamic_cast<FormGroup *>(parent);
