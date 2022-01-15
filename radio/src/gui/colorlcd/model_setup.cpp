@@ -1518,9 +1518,11 @@ void ModelSetupPage::build(FormWindow * window)
 
     // Display checklist
     new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(2, 0), GET_SET_DEFAULT(g_model.displayChecklist));
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.displayChecklist));
+    grid.nextLine();
+    new StaticText(window, grid.getLabelSlot(true), STR_NOTES_FILE, 0, COLOR_THEME_PRIMARY1);
     new FileChoice(
-        window, grid.getFieldSlot(2, 1), MODELS_PATH, TEXT_EXT,
+        window, grid.getFieldSlot(), MODELS_PATH, TEXT_EXT,
         sizeof(g_model.modelNotesFileName),
         []() {
           std::string notes(g_model.modelNotesFileName,
