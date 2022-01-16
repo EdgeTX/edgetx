@@ -1832,6 +1832,13 @@ void opentxInit()
     if (!sdMounted())
       sdInit();
 
+#if !defined(COLORLCD)
+    if (!sdMounted()) {
+      g_eeGeneral.pwrOffSpeed = 2;
+      runFatalErrorScreen(STR_NO_SDCARD);
+    }
+#endif
+    
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -2013,12 +2020,12 @@ int main()
   }
 #endif
 
-#if !defined(EEPROM)
-  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    // TODO: b/w SD card fatal screen
 #if defined(COLORLCD)
+  // SD_CARD_PRESENT() does not work properly on most
+  // B&W targets, so that we need to delay the detection
+  // until the SD card is mounted (requires RTOS scheduler running)
+  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
     runFatalErrorScreen(STR_NO_SDCARD);
-#endif
   }
 #endif
 
