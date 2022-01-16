@@ -27,7 +27,8 @@ static bool fnHasEnable(AssignFunc fn)
   return (fn <= FuncInstantTrim)
     || (fn >= FuncReset && fn <= FuncSetTimerLast)
     || (fn >= FuncAdjustGV1 && fn <= FuncBindExternalModule)
-    || (fn == FuncVolume);
+    || (fn == FuncVolume)
+    || (fn == FuncBacklight);
 }
 
 static bool fnHasRepeat(AssignFunc fn)
