@@ -120,6 +120,11 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
 
+  // Interactive checklist
+  auto line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+
   // Throttle warning
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
