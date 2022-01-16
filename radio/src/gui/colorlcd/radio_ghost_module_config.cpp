@@ -34,17 +34,15 @@ class GhostModuleConfigWindow: public Window
 
     void paint(BitmapBuffer * dc) override
     {
-#if defined(PCBNV14)
+#if LCD_H > LCD_W
       constexpr coord_t xOffset = 20;
       constexpr coord_t xOffset2 = 140;
-      constexpr coord_t yOffset = 20;
-      constexpr coord_t lineSpacing = 25;
 #else
       constexpr coord_t xOffset = 140;
       constexpr coord_t xOffset2 = 260;
+#endif
       constexpr coord_t yOffset = 20;
       constexpr coord_t lineSpacing = 25;
-#endif
 
       for (uint8_t line = 0; line < GHST_MENU_LINES; line++) {
         if (reusableBuffer.ghostMenu.line[line].splitLine) {
@@ -91,8 +89,8 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
   buildHeader(&header);
   buildBody(&body);
   setFocus(SET_FOCUS_DEFAULT);
-#if defined(PCBNV14)
-  setTrimsAsButtons(true);  // Use NV14 trim joysticks to operate menu
+#if defined(TRIMS_EMULATE_BUTTONS)
+  setTrimsAsButtons(true);  // Use trim joysticks to operate menu (e.g. on NV14)
 #endif
 }
 
@@ -149,8 +147,8 @@ void RadioGhostModuleConfig::onEvent(event_t event)
       moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
       RTOS_WAIT_MS(10);
       Page::onEvent(event);
-#if defined(PCBNV14)
-      setTrimsAsButtons(false);  // switch NV14 trims back to normal
+#if defined(TRIMS_EMULATE_BUTTONS)
+      setTrimsAsButtons(false);  // switch trims back to normal
 #endif
       break;
   }
@@ -168,8 +166,8 @@ void RadioGhostModuleConfig::checkEvents()
   else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
     RTOS_WAIT_MS(10);
     deleteLater();
-#if defined(PCBNV14)
-    setTrimsAsButtons(false);  // switch NV14 trims back to normal
+#if defined(TRIMS_EMULATE_BUTTONS)
+    setTrimsAsButtons(false);  // switch trims back to normal
 #endif
   }
 }
