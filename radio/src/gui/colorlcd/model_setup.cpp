@@ -1466,6 +1466,11 @@ void ModelSetupPage::build(FormWindow * window)
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.displayChecklist));
     grid.nextLine();
 
+    // Interactive checklist
+    new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST_INTERACTIVE, 0, COLOR_THEME_PRIMARY1);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.checklistInteractive));
+    grid.nextLine();
+
     // Throttle warning
     new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
