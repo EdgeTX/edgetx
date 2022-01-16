@@ -170,6 +170,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["backlightColor"] = rhs.backlightColor;
+  node["pwrOnSpeed"] = rhs.pwrOnSpeed;
+  node["pwrOffSpeed"] = rhs.pwrOffSpeed;
 
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData& fn = rhs.customFn[i];
@@ -328,6 +330,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
+  node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
+  node["pwrOffSpeed"] >> rhs.pwrOffSpeed;
+
   node["customFn"] >> rhs.customFn;
 
   YamlStickConfig stickConfig;
