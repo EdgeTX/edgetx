@@ -147,6 +147,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["gpsFormat"] = rhs.gpsFormat;
   node["speakerVolume"] = rhs.speakerVolume + 12;
   node["backlightBright"] = rhs.backlightBright;
+  node["blOffBright"] = rhs.backlightOffBright;
   node["switchesDelay"] = rhs.switchesDelay;
   node["globalTimer"] = rhs.globalTimer;
   node["bluetoothName"] = rhs.bluetoothName;
@@ -304,6 +305,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["gpsFormat"] >> rhs.gpsFormat;
   node["speakerVolume"] >> ioffset_int(rhs.speakerVolume, 12);
   node["backlightBright"] >> rhs.backlightBright;
+  node["blOffBright"] >> rhs.backlightOffBright;
   node["switchesDelay"] >> rhs.switchesDelay;
   node["globalTimer"] >> rhs.globalTimer;
   node["bluetoothName"] >> rhs.bluetoothName;
