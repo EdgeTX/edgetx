@@ -15,6 +15,13 @@
 ### About EdgeTX
 EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and cutting-edge features are developed and field-tested by the enthusiasts of our hobby. EdgeTX is a community project – ideas from the community, developed by the community, and enjoyed by the community! The community will always have a say in what EdgeTX is and what EdgeTX will be in the future. Without community feedback and involvement EdgeTX cannot exist.
 
+### Community
+[Discord](https://discord.gg/wF9wUKnZ6H)   
+
+[Facebook](https://www.facebook.com/groups/edgetx)
+
+[Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
+  
 ### Navigation Links
 
 > [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
@@ -45,12 +52,6 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 > [EdgeTX Build Environment Docker Images](https://github.com/EdgeTX/build-edgetx)
 
-### Community
-[Discord](https://discord.gg/wF9wUKnZ6H)   
-
-[Facebook](https://www.facebook.com/groups/edgetx)
-
-[Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
 
 ## Acknowledgements
 Some icon assets provided by [ICONS8](https://icons8.com).</br>
