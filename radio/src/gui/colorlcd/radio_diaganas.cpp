@@ -32,7 +32,84 @@
 #include "../../targets/horus/flyskyHallStick_driver.h"
 #endif
 
-constexpr coord_t ANA_OFFSET = 150;
+constexpr coord_t DEV_OFFSET = 85;
+constexpr coord_t ANA_OFFSET = 190;
+
+#define STATSDEPTH 8 // ideally a value of power of 2
+
+int16_t intSqrt(int16_t val)
+{
+    if (val < 0)
+        return 0;
+    if (val <= 1)
+        return val;
+
+    // Try iteratively until i^2 >= val
+    int i = 1, retval = 1;
+    while (retval <= val)
+    {
+      i++;
+      retval = i * i;
+    }
+    return i - 1;
+}
+
+class Stats {
+  protected:
+    int16_t buffer[STATSDEPTH] = {0};
+    uint8_t writePos = 0;
+    uint8_t filledElems = 0;
+
+  public:
+   Stats() {}
+
+    // Always accept new data, discard old
+    void write(int16_t value)
+    {
+        buffer[writePos] = value;
+        writePos = (writePos + 1) % STATSDEPTH;
+        if (filledElems < STATSDEPTH)
+          filledElems++;
+    }
+
+    int16_t meanVal()
+    {
+        if (filledElems)
+        {
+            int sum = 0;
+            for (uint8_t i=0; i<filledElems; i++)
+                sum += buffer[i];
+            return (int16_t)(sum/filledElems);
+        } else
+            return 0;
+    }
+
+    uint16_t maxDev()
+    {
+        if (filledElems)
+        {
+            uint16_t ret = 0;
+            for (uint8_t i=0; i<filledElems; i++)
+                ret = max<uint16_t>(ret, abs(buffer[i] - meanVal()));
+            return ret;
+        } else
+            return 0;
+    }
+
+    int16_t stdDev()
+    {
+        if (filledElems)
+        {
+            int16_t mean=meanVal();
+            int calc = 0;
+            for (uint8_t i=0; i<filledElems; i++)
+                calc += (buffer[i] - mean)*(buffer[i] - mean);
+            calc = intSqrt((int16_t)(calc/filledElems));
+            return (int16_t)calc;
+        } else
+            return 0;
+    }
+};
 
 class RadioAnalogsDiagsWindow: public Window {
   public:
@@ -47,45 +124,92 @@ class RadioAnalogsDiagsWindow: public Window {
       invalidate();
     }
 
+    enum{
+      VIEW_FILTERED = 0,
+      VIEW_DEV,
+      VIEW_RAW,
+      NUM_ANAVIEWS
+    } ANAVIEWS;
+
     void paint(BitmapBuffer * dc) override
     {
-#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
-      static int8_t entryCount = 0;
-      static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+#define FRAMETIME 100 /* 20 frames per second */
+
+      static uint16_t entryCount = 0;
+      static Stats stats[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+      // Header line
+      if (entryCount < VIEW_DEV*FRAMETIME) {
+          // Std. "old" filtered view
+          dc->drawText(10, 1, "View 1: input to mixer:", COLOR_THEME_PRIMARY1);
+      } else if (entryCount < VIEW_RAW*FRAMETIME) {
+          // Deviation view
+#if LCD_W > LCD_H
+          dc->drawText(10, 1, "View 2: filtered raw values with deviation:", COLOR_THEME_PRIMARY1);
+#else
+          dc->drawText(10, 1, "View 2: filtered raw with dev.:", COLOR_THEME_PRIMARY1);
+#endif
+      } else {
+          // True raw view
+          dc->drawText(10, 1, "View 3: unfiltered raw values:", COLOR_THEME_PRIMARY1);
+      }
 
 #if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
         if (globalData.flyskygimbals)
         {
             for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
   #if LCD_W > LCD_H
-                coord_t y = 1 + (i / 2) * FH;
+                coord_t y = 1 + FH + (i / 2) * FH;
                 uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
   #else
-                coord_t y = 1 + i * FH;
+                coord_t y = 1 + (i + 1)*FH;
                 uint8_t x = 10;
   #endif
                 dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
                 dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + 3 * 15 - 1, y, hall_raw_values[i], LEFT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                if (entryCount < VIEW_DEV*FRAMETIME) {
+                    // Std. "old" filtered view
+                    dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else if (entryCount < VIEW_RAW*FRAMETIME) {
+                    // Deviation view
+                    stats[i].write(hall_raw_values[i]);
+                    dc->drawNumber(x + 3 * 15 - 1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else {
+                    // True raw view
+                    dc->drawNumber(x + 3 * 15 -1, y, getAnalogValue(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                }
+
             }
 
             for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
   #if LCD_W > LCD_H
-                coord_t y = 1 + (i / 2) * FH;
+                coord_t y = 1 +  FH + (i / 2) * FH;
                 uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
   #else
-                coord_t y = 1 + i * FH;
+                coord_t y = 1 + (i + 1)*FH;
                 uint8_t x = 10;
   #endif
                 dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
                 dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                if (entryCount == 0)
-                {
-                    lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+                if (entryCount < VIEW_DEV*FRAMETIME) {
+                    // Std. "old" filtered view
+                    dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else if (entryCount < VIEW_RAW*FRAMETIME) {
+                    // Deviation view
+                    stats[i].write(getAnalogValue(i));
+                    dc->drawNumber(x + 3 * 15 -1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else {
+                    // True raw view
+                    dc->drawNumber(x + 3 * 15 -1, y, getAnalogValue(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                 }
-                dc->drawNumber(x + 3 * 15 -1, y, lastShownAnalogValue[i], LEFT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
             }
         }
 #endif
@@ -94,23 +218,33 @@ class RadioAnalogsDiagsWindow: public Window {
         {
             for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
 #if LCD_W > LCD_H
-                coord_t y = 1 + (i / 2) * FH;
+                coord_t y = 1 +  FH + (i / 2) * FH;
                 uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
 #else
-                coord_t y = 1 + i * FH;
+                coord_t y = 1 + (i + 1)*FH;
                 uint8_t x = 10;
 #endif
                 dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
                 dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                if (entryCount == 0)
-                {
-                    lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+                if (entryCount < VIEW_DEV*FRAMETIME) {
+                    // Std. "old" filtered view
+                    dc->drawNumber(x + 3 * 15 -1, y, anaIn(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else if (entryCount < VIEW_RAW*FRAMETIME) {
+                    // Deviation view
+                    stats[i].write(getAnalogValue(i));
+                    dc->drawNumber(x + 3 * 15 -1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                } else {
+                    // True raw view
+                    dc->drawNumber(x + 3 * 15 -1, y, getAnalogValue(i), LEFT | COLOR_THEME_PRIMARY1);
+                    dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                 }
-                dc->drawNumber(x + 3 * 15 -1, y, lastShownAnalogValue[i], LEFT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
             }
         }
-        if (entryCount > HOLDANAVALUEFRAMES)
+
+        if (entryCount > NUM_ANAVIEWS*FRAMETIME)
             entryCount = 0;
         else
             entryCount++;
