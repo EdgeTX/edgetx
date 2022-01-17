@@ -213,6 +213,17 @@ class ModelCategoryPageBody : public FormWindow
               storageCheck(true);
               memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
                      LEN_MODEL_FILENAME);
+              bool modelConnectedConfirmed =
+                  !TELEMETRY_STREAMING() ||
+                  g_eeGeneral.disableRssiPoweroffAlarm;
+              if (!modelConnectedConfirmed) {
+                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+                confirmationDialog(
+                    STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                      return !TELEMETRY_STREAMING() ||
+                             g_eeGeneral.disableRssiPoweroffAlarm;
+                    });
+              }
               loadModel(g_eeGeneral.currModelFilename, false);
               storageDirty(EE_GENERAL);
               storageCheck(true);
