@@ -63,6 +63,12 @@ class Stats {
   public:
    Stats() {}
 
+    void clear()
+    {
+        writePos = 0;
+        filledElems = 0;
+    }
+
     // Always accept new data, discard old
     void write(int16_t value)
     {
@@ -173,6 +179,7 @@ class RadioAnalogsDiagsWindow: public Window {
                     dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                 } else if (entryCount < VIEW_RAW*FRAMETIME) {
                     // Deviation view
+                    if (entryCount == VIEW_DEV*FRAMETIME) stats[i].clear();
                     stats[i].write(hall_raw_values[i]);
                     dc->drawNumber(x + 3 * 15 - 1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
                     dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
@@ -201,6 +208,7 @@ class RadioAnalogsDiagsWindow: public Window {
                     dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                 } else if (entryCount < VIEW_RAW*FRAMETIME) {
                     // Deviation view
+                    if (entryCount == VIEW_DEV*FRAMETIME) stats[i].clear();
                     stats[i].write(getAnalogValue(i));
                     dc->drawNumber(x + 3 * 15 -1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
                     dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
@@ -232,6 +240,7 @@ class RadioAnalogsDiagsWindow: public Window {
                     dc->drawNumber(x + ANA_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                 } else if (entryCount < VIEW_RAW*FRAMETIME) {
                     // Deviation view
+                    if (entryCount == VIEW_DEV*FRAMETIME) stats[i].clear();
                     stats[i].write(getAnalogValue(i));
                     dc->drawNumber(x + 3 * 15 -1, y, stats[i].meanVal(), LEFT | COLOR_THEME_PRIMARY1);
                     dc->drawNumber(dc->drawText(x + DEV_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
