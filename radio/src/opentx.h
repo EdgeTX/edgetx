@@ -511,6 +511,7 @@ void checkAll();
 void getADC();
 
 #include "sbus.h"
+#include "ibus.h"
 
 void resetBacklightTimeout();
 void checkBacklight();
