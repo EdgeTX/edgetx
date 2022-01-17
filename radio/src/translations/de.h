@@ -52,7 +52,7 @@
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
 #define TR_TRNMODE                     "AUS",TR("+=","Addiere"),TR(":=","Ersetze")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
+#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","IBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
 #define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste"), "Schieber"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
@@ -184,6 +184,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Lehrer/Buchse"
 #define TR_VTRAINER_SLAVE_JACK         "Schüler/Buchse"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lehrer/SBUS Modul"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Lehrer/IBUS Modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lehrer/CPPM Modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Lehrer/BT","Lehrer/Bluetooth"),TR("Schüler/BT","Schüler/Bluetooth")
