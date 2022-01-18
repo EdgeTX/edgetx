@@ -69,6 +69,7 @@
 
 #define LEN_AUX_SERIAL_MODES   "\022"
 #define TR_AUX_SERIAL_MODES    "Av\0               ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              ""CLI\0              ""GPS\0              ""Debug\0            "
+//#define TR_AUX_SERIAL_MODES    "Debug\0            ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""IBUS Trainer\0     ""LUA\0              "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Ingen\0""Flipp\0""2Pos\0 ""3Pos\0"
@@ -350,6 +351,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Lärare/Uttag\0     "
 #define TR_VTRAINER_SLAVE_JACK         "Elev./Uttag\0      "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lärare/SBUS-Modul\0"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Lärare/IBUS-Modul\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lärare/CPPM-Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Lärare/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")

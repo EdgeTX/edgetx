@@ -62,6 +62,7 @@
 
 #define LEN_AUX_SERIAL_MODES           "\015"
 #define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
+//#define TR_AUX_SERIAL_MODES            "Debug\0       ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""IBUS Trenér\0 ""LUA\0         "
 
 #define LEN_SWTYPES                    "\013"
 #define TR_SWTYPES                     "Žádný\0     ""Bez aretace""2-polohový\0""3-polohový\0"
@@ -326,6 +327,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Učitel/Jack\0      "
 #define TR_VTRAINER_SLAVE_JACK         "Žák/Jack\0         "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/SBUS Modul\0"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Učitel/IBUS Modul\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Učitel/CPPM Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Učitel/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")

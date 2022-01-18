@@ -64,6 +64,7 @@
 
 #define LEN_AUX_SERIAL_MODES           "\010"
 #define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "LUA脚本\0""CLI\0     ""GPS\0     ""Debug\0   "
+//#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "IBUS教练" "LUA脚本\0"
 
 #define LEN_SWTYPES                    "\004"
 #define TR_SWTYPES                     "无\0 " "回弹" "2段\0""3段\0"
@@ -311,6 +312,7 @@
 #define TR_VTRAINER_MASTER_JACK        "教练主机/教练口\0  "
 #define TR_VTRAINER_SLAVE_JACK         "学生从机/教练口\0  "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "教练主机/SBUS模块\0"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "教练主机/IBUS模块\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "教练从机/CPPM模块\0"
 #define TR_VTRAINER_MASTER_BATTERY     "教练主机/串口\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "教练主机/蓝牙\0    " "教练从机/蓝牙\0    ")
