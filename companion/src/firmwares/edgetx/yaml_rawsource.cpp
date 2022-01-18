@@ -49,7 +49,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
-      src_str += std::to_string(rhs.index);
+      src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
     case SOURCE_TYPE_CYC:
@@ -108,7 +108,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (idx < CPN_MAX_INPUTS) {
       rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
     }
-  } else if (val_len >= 2
+  } else if (val_len == 2
              && val[0] == 'S'
              && val[1] >= 'A'
              && val[1] <= 'Z') {
@@ -139,8 +139,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int ls = 0;
     src >> ls;
-    if (ls < CPN_MAX_LOGICAL_SWITCHES)
-      rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls);
+    if (ls > 0 && ls < CPN_MAX_LOGICAL_SWITCHES)
+      rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
 
   } else if (val_len > 3 &&
              val[0] == 't' &&

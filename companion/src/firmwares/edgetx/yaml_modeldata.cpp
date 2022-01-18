@@ -369,7 +369,7 @@ struct convert<YamlTrim> {
     Node node;
     node["value"] = rhs.value;
     if (rhs.mode < 0) {
-      node["mode"] = -1;
+      node["mode"] = (1 << 5) - 1;
     } else {
       node["mode"] = 2 * rhs.ref + rhs.mode;
     }
@@ -381,8 +381,8 @@ struct convert<YamlTrim> {
 
     int trimMode = 0;
     node["mode"] >> trimMode;
-    if (trimMode < 0) {
-      rhs.mode = trimMode;
+    if (trimMode == (1 << 5) - 1) {
+      rhs.mode = -1;
     } else {
       rhs.mode = trimMode % 2;
       rhs.ref = trimMode / 2;
