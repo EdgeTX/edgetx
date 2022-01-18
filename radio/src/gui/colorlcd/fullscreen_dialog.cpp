@@ -159,6 +159,8 @@ void FullScreenDialog::runForever()
   running = true;
 
   while (running) {
+    resetBacklightTimeout();
+
     auto check = pwrCheck();
     if (check == e_power_off) {
       boardOff();
@@ -187,6 +189,8 @@ void FullScreenDialog::runForeverNoPwrCheck()
   running = true;
 
   while (running) {
+    resetBacklightTimeout();
+
     checkBacklight();
     WDG_RESET();
 
