@@ -25,14 +25,14 @@
 
 #define SBUS_FRAME_GAP_DELAY   1000 // 500uS
 
-#define SBUS_START_BYTE        0x0F
-#define SBUS_END_BYTE          0x00
-#define SBUS_FLAGS_IDX         23
+//#define SBUS_START_BYTE        0x0F
+//#define SBUS_END_BYTE          0x00
+//#define SBUS_FLAGS_IDX         23
 #define SBUS_FRAMELOST_BIT     2
 #define SBUS_FAILSAFE_BIT      3
 
-#define SBUS_CH_BITS           11
-#define SBUS_CH_MASK           ((1<<SBUS_CH_BITS) - 1)
+//#define SBUS_CH_BITS           11
+//#define SBUS_CH_MASK           ((1<<SBUS_CH_BITS) - 1)
 
 #define SBUS_CH_CENTER         0x3E0
 
@@ -77,22 +77,22 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
     return;  // SBUS invalid frame or failsafe mode
   }
 
-//  sbus++; // skip start byte
+  sbus++; // skip start byte
 
-//  uint32_t inputbitsavailable = 0;
-//  uint32_t inputbits = 0;
-//  for (uint32_t i=0; i<MAX_TRAINER_CHANNELS; i++) {
-//    while (inputbitsavailable < SBUS_CH_BITS) {
-//      inputbits |= *sbus++ << inputbitsavailable;
-//      inputbitsavailable += 8;
-//    }
-//    *pulses++ = ((int32_t) (inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
-//    inputbitsavailable -= SBUS_CH_BITS;
-//    inputbits >>= SBUS_CH_BITS;
-//  }
+  uint32_t inputbitsavailable = 0;
+  uint32_t inputbits = 0;
+  for (uint32_t i=0; i<MAX_TRAINER_CHANNELS; i++) {
+    while (inputbitsavailable < SBUS_CH_BITS) {
+      inputbits |= *sbus++ << inputbitsavailable;
+      inputbitsavailable += 8;
+    }
+    *pulses++ = ((int32_t) (inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
+    inputbitsavailable -= SBUS_CH_BITS;
+    inputbits >>= SBUS_CH_BITS;
+  }
 
-//  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
-//}
+  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+}
 
 //void processSbusInput()
 //{
@@ -229,7 +229,10 @@ namespace  SBus {
 }
 void sbusTrainerPauseCheck() {
 #if !defined(SIMU)
+//    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
     SBus::Servo::tick1ms();
+    processSbusInput();    
+//    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
 #endif    
 }
 
@@ -272,10 +275,15 @@ void processSbusInput() {
 #if !defined(SIMU)
   uint8_t rxchar;
 
+//    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+//    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    
   while (sbusGetByte(&rxchar)) {
       SBus::Servo::process(rxchar, [&](){
+//          GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
           SBus::Servo::convert(ppmInput);
           ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
+//          GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
       });
   }
 #endif    
