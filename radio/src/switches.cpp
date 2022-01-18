@@ -929,6 +929,7 @@ void logicalSwitchesTimerTick()
                   }
                 }
             }
+          }
         }
         else {
             if (ls->v1 != SWSRC_NONE) { // only if used / source set
@@ -940,6 +941,7 @@ void logicalSwitchesTimerTick()
                   }
                 }
             }
+          }
         }
       }
       else if (ls->func == LS_FUNC_EDGE) {
