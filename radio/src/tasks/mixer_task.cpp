@@ -126,7 +126,7 @@ void execMixerFrequentActions()
   if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) || (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER)) {
     processSbusInput();
   }
-  if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER) || (g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)) {
+  else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER) || (g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)) {
     processIbusInput();
   }
 #endif
