@@ -69,20 +69,14 @@ void stopTrainer()
 
 #if defined(TRAINER_MODULE_SBUS)
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
+      sbusSetGetByte(nullptr);
       stop_trainer_module_sbus();
       break;
 #endif
 
 #if defined(TRAINER_BATTERY_COMPARTMENT)
     case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-#if defined(AUX_SERIAL)
-      if (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER)
-        auxSerialStop();
-#endif
-#if defined(AUX2_SERIAL)
-      if (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
-        aux2SerialStop();
-#endif
+      sbusSetGetByte(nullptr);
       break;
 #endif
   }
@@ -115,26 +109,14 @@ void checkTrainerSettings()
 #if defined(TRAINER_MODULE_SBUS)
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
         init_trainer_module_sbus();
+        sbusSetGetByte(trainerModuleSbusGetByte);
         break;
 #endif
 
 #if defined(TRAINER_BATTERY_COMPARTMENT)
       case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-#if defined(AUX_SERIAL)
-        if (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) {
-          auxSerialSbusInit();
-          break;
-        }
-#endif
-
-#if defined(AUX2_SERIAL)
-        if (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER) {
-          aux2SerialSbusInit();
-          break;
-        }
-#endif
-
-        // no break
+        sbusSetGetByte(sbusAuxGetByte);
+        break;
 #endif
 
       case TRAINER_MODE_MASTER_TRAINER_JACK:

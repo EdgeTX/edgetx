@@ -94,6 +94,7 @@ static uint16_t VCP_Init(void)
   cdcConnected = true;
   ctrlLineStateCb = NULL;
   baudRateCb = NULL;
+
   return USBD_OK;
 }
 
@@ -205,7 +206,7 @@ uint32_t usbSerialFreeSpace()
          1;
 }
 
-void usbSerialPutc(uint8_t c)
+void usbSerialPutc(void*, uint8_t c)
 {
   /*
     Apparently there is no reliable way to tell if the
@@ -253,21 +254,8 @@ void usbSerialPutc(uint8_t c)
   */
 static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 {
-  if (receiveDataCb)
-    receiveDataCb(Buf, Len);
-  
-// #if defined(CLI)
-//   // pass data to CLI
-//   cliReceiveData(Buf, Len);
-// #elif defined(LUA)  
-//   // copy data to the LUA FIFO
-//   if (luaRxFifo) {
-//     for (uint32_t i = 0; i < Len; i++) {
-//       luaRxFifo->push(Buf[i]);
-//     }
-//   }
-// #endif
-
+  auto _rxCb = receiveDataCb;
+  if (_rxCb) _rxCb(Buf, Len);
   return USBD_OK;
 }
 

@@ -42,8 +42,8 @@ TelemetryData telemetryData;
 uint8_t telemetryProtocol = 255;
 
 #if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
-uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
-uint8_t intTelemetryRxBufferCount;
+static uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
+static uint8_t intTelemetryRxBufferCount;
 #endif
 
 uint8_t * getTelemetryRxBuffer(uint8_t moduleIdx)
@@ -62,6 +62,48 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
     return intTelemetryRxBufferCount;
 #endif
   return telemetryRxBufferCount;
+}
+
+static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
+static void* _telemetryGetByteCtx = nullptr;
+
+void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+{
+  _telemetryGetByte = nullptr;
+  _telemetryGetByteCtx = ctx;
+  _telemetryGetByte = fct;
+}
+
+static bool telemetryGetByte(uint8_t* data)
+{
+  auto _getByte = _telemetryGetByte;
+  auto _ctx = _telemetryGetByteCtx;
+
+  if (_getByte) {
+    return _getByte(_ctx, data);
+  }
+
+  return sportGetByte(data);
+}
+
+static void (*telemetryMirrorSendByte)(void*, uint8_t) = nullptr;
+static void* telemetryMirrorSendByteCtx = nullptr;
+
+void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t))
+{
+  telemetryMirrorSendByte = nullptr;
+  telemetryMirrorSendByteCtx = ctx;
+  telemetryMirrorSendByte = fct;
+}
+
+void telemetryMirrorSend(uint8_t data)
+{
+  auto _sendByte = telemetryMirrorSendByte;
+  auto _ctx = telemetryMirrorSendByteCtx;
+
+  if (_sendByte) {
+    _sendByte(_ctx, data);
+  }
 }
 
 void processTelemetryData(uint8_t data)
@@ -427,7 +469,8 @@ void telemetryInit(uint8_t protocol)
 #if defined(AUX_SERIAL)
   else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
     telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
-    auxSerialTelemetryInit(PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY);
+    // Note: this is done in initSerialPorts()
+    //auxSerialTelemetryInit(PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY);
   }
 #endif
 

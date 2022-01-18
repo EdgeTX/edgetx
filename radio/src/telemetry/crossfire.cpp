@@ -293,17 +293,7 @@ void processCrossfireTelemetryData(uint8_t data, uint8_t module)
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
 
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    auxSerialPutc(data);
-  }
-#endif
-
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    aux2SerialPutc(data);
-  }
-#endif
+  telemetryMirrorSend(data);
 
   if (rxBufferCount == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
     TRACE("[XF] address 0x%02X error", data);

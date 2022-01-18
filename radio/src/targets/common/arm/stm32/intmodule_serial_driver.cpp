@@ -28,13 +28,13 @@
 ModuleFifo intmoduleFifo;
 
 #if !defined(INTMODULE_DMA_STREAM)
-uint8_t * intmoduleTxBufferData;
-volatile uint8_t intmoduleTxBufferRemaining;
+static uint8_t * intmoduleTxBufferData;
+static volatile uint8_t intmoduleTxBufferRemaining;
 
-bool intmoduleTxBufferSend(uint8_t& data)
+bool intmoduleTxBufferSend(uint8_t* data)
 {
   if (intmoduleTxBufferRemaining) {
-    data = *(intmoduleTxBufferData++);
+    *data = *(intmoduleTxBufferData++);
     intmoduleTxBufferRemaining--;
     return true;
   }
@@ -96,9 +96,15 @@ void intmoduleStop()
   intmodule_driver.on_error = nullptr;
 }
 
-void intmoduleSerialStart(const etx_serial_init* params)
+static void intmoduleStop(void* ctx)
 {
-  if (!params) return;
+  (void)ctx;
+  intmoduleStop();
+}
+
+void* intmoduleSerialStart(const etx_serial_init* params)
+{
+  if (!params) return nullptr;
 
   // TODO: sanity check parameters
   //  - the UART seems to block when initialised with baudrate = 0
@@ -108,6 +114,7 @@ void intmoduleSerialStart(const etx_serial_init* params)
   intmodule_driver.on_error = params->on_error;
 
   stm32_usart_init(&intmoduleUSART, params);
+  return nullptr;
 }
 
 #define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
@@ -116,13 +123,15 @@ extern "C" void INTMODULE_USART_IRQHandler(void)
   stm32_usart_isr(&intmoduleUSART, &intmodule_driver);
 }
 
-void intmoduleSendByte(uint8_t byte)
+void intmoduleSendByte(void* ctx, uint8_t byte)
 {
+  (void)ctx;
   stm32_usart_send_byte(&intmoduleUSART, byte);
 }
 
-void intmoduleSendBuffer(const uint8_t * data, uint8_t size)
+void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 {
+  (void)ctx;
   if (size == 0)
     return;
 
@@ -133,8 +142,9 @@ void intmoduleSendBuffer(const uint8_t * data, uint8_t size)
   stm32_usart_send_buffer(&intmoduleUSART, data, size);
 }
 
-void intmoduleWaitForTxCompleted()
+void intmoduleWaitForTxCompleted(void* ctx)
 {
+  (void)ctx;
 #if defined(INTMODULE_DMA_STREAM)
   stm32_usart_wait_for_tx_dma(&intmoduleUSART);
 #else

@@ -33,9 +33,6 @@
 
 extern volatile uint32_t g_tmr10ms;
 
-uint8_t auxSerialTracesEnabled();
-uint8_t aux2SerialTracesEnabled();
-
 #if defined(SIMU)
   typedef void (*traceCallbackFunc)(const char * text);
   extern traceCallbackFunc traceCallback;
@@ -45,9 +42,9 @@ uint8_t aux2SerialTracesEnabled();
   #define debugPrintf(...) printf(__VA_ARGS__)
 #elif defined(DEBUG) && defined(CLI)
   #include "cli_traces.h"
-  #define debugPrintf(...) do { if (cliTracesEnabled) serialPrintf(__VA_ARGS__); } while(0)
+  #define debugPrintf(...) do { if (cliTracesEnabled) dbgSerialPrintf(__VA_ARGS__); } while(0)
 #elif defined(DEBUG)
-  #define debugPrintf(...) do { serialPrintf(__VA_ARGS__); } while(0)
+  #define debugPrintf(...) do { dbgSerialPrintf(__VA_ARGS__); } while(0)
 #else
   #define debugPrintf(...)
 #endif

@@ -1929,14 +1929,14 @@
   #define TRAINER_MODULE_CPPM_TIMER_IRQn          TRAINER_TIMER_IRQn
   #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF_TIM3
   // Trainer SBUS input on heartbeat pin
-  #define TRAINER_MODULE_SBUS
-  #define TRAINER_MODULE_SBUS_GPIO_AF             GPIO_AF_USART6
-  #define TRAINER_MODULE_SBUS_USART               USART6
-  #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
-  #define TRAINER_MODULE_SBUS_GPIO_PIN            INTMODULE_HEARTBEAT_GPIO_PIN
-  #define TRAINER_MODULE_SBUS_GPIO_PinSource      INTMODULE_HEARTBEAT_EXTI_PinSource
-  #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1
-  #define TRAINER_MODULE_SBUS_DMA_CHANNEL         DMA_Channel_5
+  // #define TRAINER_MODULE_SBUS
+  // #define TRAINER_MODULE_SBUS_GPIO_AF             GPIO_AF_USART6
+  // #define TRAINER_MODULE_SBUS_USART               USART6
+  // #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
+  // #define TRAINER_MODULE_SBUS_GPIO_PIN            INTMODULE_HEARTBEAT_GPIO_PIN
+  // #define TRAINER_MODULE_SBUS_GPIO_PinSource      INTMODULE_HEARTBEAT_EXTI_PinSource
+  // #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1
+  // #define TRAINER_MODULE_SBUS_DMA_CHANNEL         DMA_Channel_5
 #else
   // TODO: replace SBUS trainer with S.PORT pin
   #define TRAINER_MODULE_RCC_AHB1Periph           0
