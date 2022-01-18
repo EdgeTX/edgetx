@@ -42,6 +42,11 @@ class MainWindow: public Window
       children.clear();
     }
 
+    static bool isMainWindowCreated()
+    {
+      return _instance != nullptr;
+    }
+
     static MainWindow * instance()
     {
       if (!_instance)

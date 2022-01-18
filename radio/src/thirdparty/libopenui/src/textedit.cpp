@@ -43,6 +43,8 @@
 #endif
 
 
+static lv_obj_t *kb = nullptr;
+
 static void ta_event_cb(lv_event_t * e)
 {
   lv_event_code_t code = lv_event_get_code(e);
@@ -71,15 +73,14 @@ LvglWidgetFactory textEditFactory = LvglWidgetFactory(
   },
   [] (LvglWidgetFactory *factory) {
     lv_style_set_border_width(&factory->style, 1);
+    lv_style_set_border_color(&factory->style, makeLvColor(COLOR_THEME_SECONDARY2));
     lv_style_set_radius(&factory->style, 0);
-    lv_style_set_pad_top(&factory->style, 2);
-    lv_style_set_pad_bottom(&factory->style, 2);
-    lv_style_set_pad_left(&factory->style, 2);
-    lv_style_set_pad_right(&factory->style, 2);
-    lv_style_set_text_font(&factory->style, &lv_font_montserrat_14);
-    lv_style_set_text_line_space(&factory->style, 0);
-
-    lv_style_set_bg_color(&factory->style, lv_color_make(10,10,10));
+    lv_style_set_pad_top(&factory->style, 0);
+    lv_style_set_pad_bottom(&factory->style, 0);
+    lv_style_set_pad_left(&factory->style, 0);
+    lv_style_set_pad_right(&factory->style, 0);
+    lv_style_set_bg_color(&factory->style, makeLvColor(COLOR_THEME_PRIMARY2));
+    lv_style_set_bg_opa(&factory->style, LV_OPA_100);
   }
 );
 
@@ -93,8 +94,11 @@ TextEdit::TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t l
   lv_obj_add_event_cb(lvobj, ta_event_cb, LV_EVENT_ALL, NULL);
   lv_obj_add_style(lvobj, &textEditFactory.style, LV_PART_MAIN);
 
-  lv_obj_set_style_bg_color(lvobj, lv_color_make(255,10,10), LV_PART_MAIN);
-  
+  // this is for the focus state.  the master style takes care of the normal background
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), 
+                            LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN | LV_STATE_FOCUSED);
+
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_textarea_set_password_mode(lvobj, false);
   lv_textarea_set_one_line(lvobj, true);
@@ -104,6 +108,7 @@ TextEdit::TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t l
   
   auto label = lv_textarea_get_label(lvobj);
   lv_obj_set_style_text_color(label, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+  lv_obj_set_style_text_font(label, &lv_font_montserrat_12, LV_PART_MAIN);
   extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
 }
 

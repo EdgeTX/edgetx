@@ -229,7 +229,10 @@ void MainWindow::run(bool trash)
 {
   auto start = ticksNow();
 
-  checkEvents();
+  // KLK: removed for now.  This is now
+  // called from lvgl event processing when
+  // necessary
+  // checkEvents();
 
   if (trash) {
     emptyTrash();
