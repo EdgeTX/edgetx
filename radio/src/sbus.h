@@ -37,5 +37,6 @@ int sbusAuxGetByte(uint8_t* byte);
 void sbusSetGetByte(int (*fct)(uint8_t*));
 
 void processSbusInput();
+void sbusTrainerPauseCheck();
 
 #endif // _SBUS_H_
