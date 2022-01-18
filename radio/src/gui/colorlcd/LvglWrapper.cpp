@@ -28,7 +28,18 @@ LvglWrapper* LvglWrapper::_instance = nullptr;
 static lv_disp_drv_t disp_drv;          /*A variable to hold the drivers. Must be static or global.*/
 lv_disp_t * disp;
 static lv_disp_draw_buf_t disp_buf;
-static lv_indev_drv_t indev_drv;
+
+static lv_indev_drv_t touchDriver;
+static lv_indev_drv_t keyboard_drv;
+
+static TouchState lastState;
+
+#if defined(HARDWARE_TOUCH)
+TouchState getLastTochState()
+{
+  return lastState;
+}
+#endif
 
 void newLcdRefresh(uint16_t* buffer);
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
@@ -37,22 +48,32 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_disp_flush_ready(disp_drv);
 }
 
-extern "C" void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
+
+extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+  // if there is a keyboard event then call checkevents
+  if (isEvent())
+    MainWindow::instance()->checkEvents();
+}
+
+extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
   TouchState st = touchPanelRead();
+  lastState = st; // hack for now
+
   if(st.event == TE_NONE)
-  return;
+    return;
   if(st.event == TE_DOWN || st.event == TE_SLIDE)
   {
 #if defined (LCD_VERTICAL_INVERT)
-  data->point.x = LCD_W - st.x;
-  data->point.y = LCD_H - st.y;
+    data->point.x = LCD_W - st.x;
+    data->point.y = LCD_H - st.y;
 #else
-  data->point.x = st.x;
-  data->point.y = st.y;
+    data->point.x = st.x;
+    data->point.y = st.y;
 #endif
-  data->state = LV_INDEV_STATE_PRESSED;
+    data->state = LV_INDEV_STATE_PRESSED;
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
   }
@@ -91,9 +112,6 @@ LvglWrapper::LvglWrapper()
 #endif
   disp_drv.sw_rotate = 1;
 
-  lv_indev_drv_init(&indev_drv);      /*Basic initialization*/
-  indev_drv.type = LV_INDEV_TYPE_POINTER;                 /*See below.*/
-  indev_drv.read_cb = my_input_read;              /*See below.*/
   /*Register the driver in LVGL and save the created input device object*/
 
 
@@ -103,7 +121,15 @@ LvglWrapper::LvglWrapper()
   canvas = lv_canvas_create(lv_scr_act());
   lv_canvas_set_buffer(canvas, cbuf, LCD_W, LCD_H, LV_IMG_CF_TRUE_COLOR);
   
-  lv_indev_t * my_indev = lv_indev_drv_register(&indev_drv);
+  lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
+  touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
+  touchDriver.read_cb = touchDriverRead;      /*See below.*/
+  lv_indev_drv_register(&touchDriver);
+
+  lv_indev_drv_init(&keyboard_drv);
+  keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
+  keyboard_drv.read_cb = keyboardDriverRead;
+  lv_indev_drv_register(&keyboard_drv);
 }
 
 void LvglWrapper::run()
