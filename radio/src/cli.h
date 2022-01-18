@@ -35,4 +35,7 @@ void cliStart();
 // Called from receive ISR (either USB or UART)
 void cliReceiveData(uint8_t* buf, uint32_t len);
 
+// Set callbacks for sending data back to serial port
+void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
+
 #endif // _CLI_H_

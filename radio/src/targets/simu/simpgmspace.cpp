@@ -429,7 +429,7 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 {
 }
 
-bool telemetryGetByte(uint8_t * byte)
+bool sportGetByte(uint8_t * byte)
 {
   return false;
 }
@@ -732,6 +732,7 @@ void disableSpeaker()
 }
 #endif
 
+int trainerModuleSbusGetByte(unsigned char*) { return 0; }
 
 void rtcInit()
 {
@@ -751,60 +752,7 @@ void usbSerialPutc(uint8_t c)
 }
 #endif
 
-#if defined(AUX_SERIAL)
-#if defined(AUX_SERIAL_DMA_Stream_RX)
-AuxSerialRxFifo auxSerialRxFifo(nullptr);
-#else
-AuxSerialRxFifo auxSerialRxFifo;
-#endif
-uint8_t auxSerialMode;
-
-void auxSerialSetup(unsigned int baudrate, bool dma, uint8_t length, uint8_t parity, uint8_t stop)
-{
-}
-
-void auxSerialInit(unsigned int mode, unsigned int protocol)
-{
-}
-
-void auxSerialPutc(uint8_t c)
-{
-}
-
-void auxSerialSbusInit()
-{
-}
-
-void auxSerialStop()
-{
-}
-#endif
-
-#if defined(AUX2_SERIAL)
-AuxSerialRxFifo aux2SerialRxFifo(nullptr);
-uint8_t aux2SerialMode;
-
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint8_t length, uint8_t parity, uint8_t stop)
-{
-}
-
-void aux2SerialInit(unsigned int mode, unsigned int protocol)
-{
-}
-
-void aux2SerialPutc(uint8_t c)
-{
-}
-
-void aux2SerialSbusInit()
-{
-}
-
-void aux2SerialStop()
-{
-}
-#endif
-
+const etx_serial_port_t* auxSerialGetPort(int port_nr) { return nullptr; }
 
 #if defined(HARDWARE_TOUCH)
 struct TouchState simTouchState = {};

@@ -26,6 +26,10 @@
   #include "libopenui.h"
 #endif
 
+#if defined(CLI)
+  #include "cli.h"
+#endif
+
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
@@ -153,6 +157,22 @@ void handleUsbConnection()
         opentxClose(false);
         usbPluggedIn();
       }
+#if defined(USB_SERIAL)
+      else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+        // TODO: query USB serial mode
+        //  -> for now, only CLI / DEBUG / LUA
+#if defined(CLI)
+        cliSetSendCb(nullptr, usbSerialPutc);
+        usbSerialSetReceiveDataCb(cliReceiveData);
+#elif defined(DEBUG)
+        dbgSerialSetSendCb(nullptr, usbSerialPutc);
+        usbSerialSetReceiveDataCb(nullptr);
+#elif defined(LUA)
+        luaSetSendCb(nullptr, usbSerialPutc);
+        usbSerialSetReceiveDataCb(luaReceiveData);
+#endif
+      }
+#endif
 
       usbStart();
       TRACE("USB started");

@@ -134,8 +134,6 @@ static const etx_serial_init intmoduleCrossfireInitParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .rx_dma_buf = nullptr,
-  .rx_dma_buf_len = 0,
   .on_receive = intmoduleCRSF_rx,
   .on_error = nullptr,
 };
@@ -177,9 +175,7 @@ static void crossfireSetupPulsesInternal(void* context, int16_t* channels, uint8
 
 static void crossfireSendPulsesInternal(void* context)
 {
-  (void)context;
-
-  IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.crossfire.pulses,
+  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.crossfire.pulses,
                                    intmodulePulsesData.crossfire.length);
 }
 

@@ -26,6 +26,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
 
 #include "watchdog_driver.h"
 
@@ -197,9 +198,6 @@ void init_trainer_ppm();
 void stop_trainer_ppm();
 void init_trainer_capture();
 void stop_trainer_capture();
-
-// SBUS
-int sbusGetByte(uint8_t * byte);
 
 // Keys driver
 enum EnumKeys
@@ -623,7 +621,7 @@ void telemetryPortSetDirectionInput();
 void telemetryPortSetDirectionOutput();
 void sportSendByte(uint8_t byte);
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 extern uint32_t telemetryErrors;
 
@@ -654,32 +652,8 @@ void sportUpdatePowerInit();
   #define DEBUG_BAUDRATE                  115200
   #define LUA_DEFAULT_BAUDRATE            115200
 #endif
-#if defined(AUX_SERIAL)
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialPowerOn();
-void auxSerialPowerOff();
-#if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()             auxSerialPowerOn()
-#define AUX_SERIAL_POWER_OFF()            auxSerialPowerOff()
-#else
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-#endif
-#endif
 
-// Aux2 serial port driver
-#if defined(AUX2_SERIAL)
-#define aux2SerialTelemetryInit(protocol) aux2SerialInit(UART_MODE_TELEMETRY, protocol)
-void aux2SerialPowerOn();
-void aux2SerialPowerOff();
-#if defined(AUX2_SERIAL_PWR_GPIO)
-#define AUX2_SERIAL_POWER_ON()            aux2SerialPowerOn()
-#define AUX2_SERIAL_POWER_OFF()           aux2SerialPowerOff()
-#else
-#define AUX2_SERIAL_POWER_ON()
-#define AUX2_SERIAL_POWER_OFF()
-#endif
-#endif
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
 
 // Haptic driver
 void hapticInit();
@@ -710,15 +684,5 @@ void bluetoothInit(uint32_t baudrate, bool enable);
 void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
-
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-extern DMAFifo<512> telemetryFifo;
-typedef DMAFifo<32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
-extern AuxSerialRxFifo aux2SerialRxFifo;
-extern volatile uint32_t externalModulePort;
-#endif
 
 #endif // _BOARD_H_

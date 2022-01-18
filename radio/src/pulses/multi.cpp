@@ -60,8 +60,6 @@ etx_serial_init multiSerialInitParams = {
     .stop_bits = ETX_StopBits_Two,
     .word_length = ETX_WordLength_9,
     .rx_enable = true,
-    .rx_dma_buf = nullptr,
-    .rx_dma_buf_len = 0,
     .on_receive = intmoduleFifoReceive,
     .on_error = intmoduleFifoError,
 };
@@ -260,7 +258,7 @@ static void* multiInit(uint8_t module)
   // serial port setup
   intmodulePulsesData.multi.initFrame();
   intmoduleFifo.clear();
-  IntmoduleSerialDriver.init(&multiSerialInitParams);
+  void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
 
   // mixer setup
   mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
@@ -276,16 +274,14 @@ static void* multiInit(uint8_t module)
   TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
 #endif
 
-  return nullptr;
+  return uart_ctx;
 }
 
 static void multiDeInit(void* context)
 {
-  (void)context;
-
   INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-  IntmoduleSerialDriver.deinit();
+  IntmoduleSerialDriver.deinit(context);
 }
 
 static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
@@ -301,8 +297,7 @@ static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels
 
 static void multiSendPulses(void* context)
 {
-  (void)context;
-  IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.multi.getData(),
+  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.multi.getData(),
                                    intmodulePulsesData.multi.getSize());
 }
 

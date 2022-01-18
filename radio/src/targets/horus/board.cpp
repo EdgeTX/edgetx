@@ -19,13 +19,21 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "opentx.h"
 
 #include "hal/adc_driver.h"
-#include "../common/arm/stm32/timers_driver.h"
+#include "hal/serial_driver.h"
+#include "hal/serial_port.h"
+
+#include "timers_driver.h"
+
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+#include "aux_serial_driver.h"
+#endif
 
 #if !defined(PCBX12S)
-  #include "../common/arm/stm32/stm32_hal_adc.h"
+  #include "stm32_hal_adc.h"
   #define ADC_DRIVER stm32_hal_adc_driver
 #else
   #include "x12s_adc_driver.h"
@@ -57,30 +65,6 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xAAAA;      // reload
   IWDG->KR = 0xCCCC;      // start
 }
-
-#if defined(AUX_SERIAL_PWR_GPIO)
-void auxSerialPowerOn()
-{
-  GPIO_SetBits(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN);
-}
-
-void auxSerialPowerOff()
-{
-  GPIO_ResetBits(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN);
-}
-#endif
-#if defined(AUX2_SERIAL_PWR_GPIO)
-void aux2SerialPowerOn()
-{
-  GPIO_SetBits(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN);
-}
-
-void aux2SerialPowerOff()
-{
-  GPIO_ResetBits(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN);
-}
-#endif
-
 
 #if HAS_SPORT_UPDATE_CONNECTOR()
 void sportUpdateInit()
@@ -193,12 +177,7 @@ void boardInit()
 
   __enable_irq();
 
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
-#if defined(DEBUG) && defined(AUX2_SERIAL)
-  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
+  initSerialPorts();
 
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
@@ -358,4 +337,65 @@ bool isBacklightEnabled()
   if(globalData.unexpectedShutdown)
     return true;
   return boardBacklightOn;
+}
+
+static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = pin;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(GPIOx, &pinInit);
+
+  if (on) {
+    LL_GPIO_SetOutputPin(GPIOx, pin);
+  } else {
+    LL_GPIO_ResetOutputPin(GPIOx, pin);
+  }
+}
+
+#if defined(AUX_SERIAL)
+void set_aux_pwr(uint8_t on)
+{
+#if defined(AUX_SERIAL_PWR_GPIO)
+  _aux_pwr(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN, on);
+#endif
+}
+
+const etx_serial_port_t auxSerialPort = {
+  &AuxSerialDriver,
+  set_aux_pwr,
+};
+#define AUX_SERIAL_PORT &auxSerialPort
+#else
+#define AUX_SERIAL_PORT nullptr
+#endif
+
+#if defined(AUX2_SERIAL)
+void set_aux2_pwr(uint8_t on)
+{
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  _aux_pwr(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN, on);
+#endif
+}
+
+const etx_serial_port_t aux2SerialPort = {
+  &Aux2SerialDriver,
+  set_aux2_pwr,
+};
+#define AUX2_SERIAL_PORT &aux2SerialPort
+#else
+#define AUX2_SERIAL_PORT nullptr
+#endif // AUX2_SERIAL
+
+static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
+  AUX_SERIAL_PORT,
+  AUX2_SERIAL_PORT,
+};
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
+  return serialPorts[port_nr];
 }

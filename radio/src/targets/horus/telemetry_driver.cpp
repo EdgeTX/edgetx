@@ -21,6 +21,9 @@
 
 #include "opentx.h"
 
+#include "fifo.h"
+#include "dmafifo.h"
+
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 
@@ -415,7 +418,7 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
 }
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-bool telemetryGetByte(uint8_t * byte)
+bool sportGetByte(uint8_t * byte)
 {
 #if defined(PCBX12S)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)

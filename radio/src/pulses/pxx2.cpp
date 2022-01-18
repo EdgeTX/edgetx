@@ -36,8 +36,6 @@ const etx_serial_init pxx2SerialInitParams = {
     .stop_bits = ETX_StopBits_One,
     .word_length = ETX_WordLength_8,
     .rx_enable = true,
-    .rx_dma_buf = nullptr,
-    .rx_dma_buf_len = 0,
     .on_receive = intmoduleFifoReceive,
     .on_error = intmoduleFifoError,
 };
@@ -652,7 +650,7 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
 static void* pxx2InitInternal(uint8_t moduleType)
 {
   intmoduleFifo.clear();
-  IntmoduleSerialDriver.init(&pxx2SerialInitParams);
+  void* uart_ctx = IntmoduleSerialDriver.init(&pxx2SerialInitParams);
   resetAccessAuthenticationCount();
 
 #if defined(INTMODULE_HEARTBEAT)
@@ -662,13 +660,13 @@ static void* pxx2InitInternal(uint8_t moduleType)
   mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
   INTERNAL_MODULE_ON();
 
-  return nullptr;
+  return uart_ctx;
 }
 
 static void pxx2DeInitInternal(void* context)
 {
   INTERNAL_MODULE_OFF();
-  IntmoduleSerialDriver.deinit();
+  IntmoduleSerialDriver.deinit(context);
 #if defined(INTMODULE_HEARTBEAT)
   stop_intmodule_heartbeat();
 #endif
@@ -694,10 +692,8 @@ static void pxx2SetupPulsesInternal(void* context, int16_t* channels, uint8_t nC
 
 static void pxx2SendPulsesInternal(void* context)
 {
-  (void)context;
-
   if (pxx2InternalSendNextFrame) {
-    IntmoduleSerialDriver.sendBuffer(intmodulePulsesData.pxx2.getData(),
+    IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.pxx2.getData(),
                                      intmodulePulsesData.pxx2.getSize());
   }
 }
@@ -721,8 +717,6 @@ static const etx_serial_init pxx2ExtSerialInitParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .rx_dma_buf = nullptr,
-  .rx_dma_buf_len = 0,
   .on_receive = extmoduleFifoReceive,
   .on_error = extmoduleFifoError,
 };
@@ -743,21 +737,19 @@ static void* pxx2InitExternal(uint8_t module)
 {
   etx_serial_init params(pxx2ExtSerialInitParams);
   params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
-  ExtmoduleSerialDriver.init(&params);
+  void* uart_ctx = ExtmoduleSerialDriver.init(&params);
 
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
   EXTERNAL_MODULE_ON();
 
-  return nullptr;
+  return uart_ctx;
 }
 
 static void pxx2DeInitExternal(void* context)
 {
-  (void)context;
-
   EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  ExtmoduleSerialDriver.deinit();
+  ExtmoduleSerialDriver.deinit(context);
 }
 
 static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
@@ -768,8 +760,7 @@ static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nC
 
 static void pxx2SendPulsesExternal(void* context)
 {
-  (void)context;
-  ExtmoduleSerialDriver.sendBuffer(extmodulePulsesData.pxx2.getData(),
+  ExtmoduleSerialDriver.sendBuffer(context, extmodulePulsesData.pxx2.getData(),
                                    extmodulePulsesData.pxx2.getSize());
 }
 

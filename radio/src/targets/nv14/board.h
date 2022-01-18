@@ -26,6 +26,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -390,9 +391,8 @@ bool pwrPressed();
 #endif
 uint32_t pwrPressedDuration();;
   
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
+  
 // LCD driver
 #define LCD_W                           320
 #define LCD_H                           480
@@ -483,7 +483,7 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionOutput();
 void telemetryPortSetDirectionInput();
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 void sportSendByte(uint8_t byte);
 extern uint32_t telemetryErrors;
@@ -507,26 +507,9 @@ void hapticOn(uint32_t pwmPercent);
 //#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-
-#if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()            auxSerialPowerOn()
-#define AUX_SERIAL__POWER_OFF()          auxSerialPowerOff()
-#else
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL__POWER_OFF()
-#endif
 
 extern uint8_t currentTrainerMode;
 void checkTrainerSettings();
-
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-extern DMAFifo<512> telemetryFifo;
-typedef Fifo<uint8_t, 32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
-#endif
 
 // Touch panel driver
 bool touchPanelEventOccured();

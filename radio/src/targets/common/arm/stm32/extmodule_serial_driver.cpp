@@ -49,8 +49,6 @@ static const etx_serial_init extmoduleSerialParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .rx_dma_buf = nullptr,
-  .rx_dma_buf_len = 0,
   .on_receive = extmoduleFifoReceive,
   .on_error = extmoduleFifoError,
 };
@@ -78,9 +76,9 @@ static const stm32_usart_t extmoduleUSART = {
   .rxDMA_Channel = 0,
 };
 
-static void extmoduleSerialStart(const etx_serial_init* params)
+static void* extmoduleSerialStart(const etx_serial_init* params)
 {
-  if (!params) return;
+  if (!params) return nullptr;
     
   extmodule_driver.on_receive = params->on_receive;
   extmodule_driver.on_error = params->on_error;
@@ -88,6 +86,8 @@ static void extmoduleSerialStart(const etx_serial_init* params)
   // UART config
   stm32_usart_init(&extmoduleUSART, params);
   extmoduleFifo.clear();
+
+  return nullptr;
 }
 
 void extmoduleInvertedSerialStart(uint32_t baudrate)
@@ -108,7 +108,7 @@ void extmodulePxx1SerialStart()
 }
 #endif
 
-void extmoduleSerialStop()
+void extmoduleSerialStop(void*)
 {
   stm32_usart_deinit(&extmoduleUSART);
 
@@ -117,18 +117,18 @@ void extmoduleSerialStop()
   extmodule_driver.on_error = nullptr;
 }
 
-static void extmoduleSendByte(uint8_t byte)
+static void extmoduleSendByte(void*, uint8_t byte)
 {
   stm32_usart_send_byte(&extmoduleUSART, byte);
 }
 
-static void extmoduleSendBuffer(const uint8_t * data, uint8_t size)
+static void extmoduleSendBuffer(void*, const uint8_t * data, uint8_t size)
 {
   if (size == 0) return;
   stm32_usart_send_buffer(&extmoduleUSART, data, size);
 }
 
-static void extmoduleWaitForTxCompleted()
+static void extmoduleWaitForTxCompleted(void*)
 {
   stm32_usart_wait_for_tx_dma(&extmoduleUSART);
 }

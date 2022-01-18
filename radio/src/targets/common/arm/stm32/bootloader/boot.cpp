@@ -244,12 +244,9 @@ int main()
 #endif
 
   delaysInit(); // needed for lcdInit()
-
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
-#if defined(DEBUG) && defined(AUX2_SERIAL)
-  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
+  
+#if defined(DEBUG)
+  initSerialPorts();
 #endif
 
   __enable_irq();

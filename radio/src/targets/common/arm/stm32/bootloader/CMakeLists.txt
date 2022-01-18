@@ -144,6 +144,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c
       ../../../../../serial.cpp
       ../../../../../targets/common/arm/stm32/aux_serial_driver.cpp
+      ../../../../../targets/common/arm/stm32/stm32_usart_driver.cpp
       )
   endif()
 else()
