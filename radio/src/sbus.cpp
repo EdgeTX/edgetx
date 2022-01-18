@@ -230,8 +230,15 @@ namespace  SBus {
 void sbusTrainerPauseCheck() {
 #if !defined(SIMU)
 //    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    SBus::Servo::tick1ms();
-    processSbusInput();    
+
+    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
+        #ifdef AUX2_SERIAL
+            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
+        #endif
+            ) {
+        SBus::Servo::tick1ms();
+        processSbusInput();    
+    }
 //    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
 #endif    
 }
