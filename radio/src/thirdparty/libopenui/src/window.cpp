@@ -39,6 +39,20 @@ static void window_event_cb(lv_event_t * e)
     if (p->y >= 0)
       p->y = window->getInnerHeight();
   }
+
+  lv_obj_t *currentTarget = lv_event_get_current_target(e);
+  
+  // if the event bubbled to the topmost window then hand it to libopenui MainWindow.
+  if (MainWindow::isMainWindowCreated()) {
+    if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED || code == LV_EVENT_KEY ||
+        code == LV_EVENT_SCROLL_BEGIN  || code == LV_EVENT_SCROLL_END || code == LV_EVENT_SCROLL) {
+      
+      // if we have bubbled to the top then do legacy processing    
+      if (lv_obj_get_parent(currentTarget) == nullptr) {
+        MainWindow::instance()->checkEvents();
+      }
+    }
+  }
 }
 
 LvglWidgetFactory windowFactory = LvglWidgetFactory(
@@ -65,11 +79,14 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
     windowFactory.construct(lvParent) :
     factory->construct(lvParent);
 
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
+
   lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
   lv_obj_set_size(lvobj, rect.w, rect.h);
 
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_MOMENTUM);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
 
@@ -175,7 +192,12 @@ void Window::setFocus(uint8_t flag, Window * from)
   TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
 
   if (focusWindow != this) {
-    // lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
+    // synchronize lvgl focused state with libopenui
+    lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
+    if (focusWindow != nullptr) {
+      lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED);
+    }
+
     // scroll before calling focusHandler so that the window can adjust the scroll position if needed
     Window * parent = this->parent;
     while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
