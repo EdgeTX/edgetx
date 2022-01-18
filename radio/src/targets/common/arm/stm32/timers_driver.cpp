@@ -72,6 +72,9 @@ void interrupt1ms()
     flysky_hall_stick_loop();
   }
 #endif
+#if defined(SBUS_TRAINER)
+  sbusTrainerPauseCheck();
+#endif
 
   // 5ms loop
   if (pre_scale == 5 || pre_scale == 10) {
