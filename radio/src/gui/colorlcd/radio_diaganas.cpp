@@ -178,6 +178,17 @@ class AnaFilteredDevViewWindow: public Window {
           }
           return i - 1;
         }
+        int16_t meanVal()
+        {
+          if (filledElems)
+          {
+              int sum = 0;
+              for (uint8_t i=0; i<filledElems; i++)
+                  sum += buffer[i];
+              return (int16_t)(sum/filledElems);
+          } else
+              return 0;
+        }
 
       public:
         Stats() {}
@@ -195,18 +206,6 @@ class AnaFilteredDevViewWindow: public Window {
           writePos = (writePos + 1) % STATSDEPTH;
           if (filledElems < STATSDEPTH)
             filledElems++;
-        }
-
-        int16_t meanVal()
-        {
-          if (filledElems)
-          {
-              int sum = 0;
-              for (uint8_t i=0; i<filledElems; i++)
-                  sum += buffer[i];
-              return (int16_t)(sum/filledElems);
-          } else
-              return 0;
         }
 
         uint16_t maxDev()
@@ -274,7 +273,7 @@ class AnaFilteredDevViewWindow: public Window {
                   dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
                   dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                   stats[i].write(hall_raw_values[i]);
-                  dc->drawNumber(x + VALUE_X_OFFSET, y, stats[i].meanVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + VALUE_X_OFFSET, y, hall_raw_values[i], RIGHT | COLOR_THEME_PRIMARY1); // no need to use calculated mean for FlySky - the output is stable enough to display directly
                   dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
               }
 
@@ -290,7 +289,8 @@ class AnaFilteredDevViewWindow: public Window {
                   dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
                   dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                   stats[i].write(getAnalogValue(i));
-                  dc->drawNumber(x + VALUE_X_OFFSET, y, stats[i].meanVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  extern uint32_t s_anaFilt[NUM_ANALOGS];
+                  dc->drawNumber(x + VALUE_X_OFFSET, y, s_anaFilt[i]/JITTER_ALPHA, RIGHT | COLOR_THEME_PRIMARY1); // use integrated filter
                   dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
               }
           }
@@ -310,7 +310,12 @@ class AnaFilteredDevViewWindow: public Window {
                   dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
                   dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
                   stats[i].write(getAnalogValue(i));
-                  dc->drawNumber(x + VALUE_X_OFFSET, y, stats[i].meanVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  #if !defined(SIMU)
+                    extern uint32_t s_anaFilt[NUM_ANALOGS];
+                    dc->drawNumber(x + VALUE_X_OFFSET, y, s_anaFilt[i]/JITTER_ALPHA, RIGHT | COLOR_THEME_PRIMARY1); // use integrated filter
+                  #else
+                    dc->drawNumber(x + VALUE_X_OFFSET, y, anaIn(i), RIGHT | COLOR_THEME_PRIMARY1); // for simu, can use directly the input values without filtering
+                  #endif
                   dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
               }
           }
