@@ -198,6 +198,7 @@ void killEvents(event_t event);
 void killAllEvents();
 bool waitKeysReleased();
 event_t getEvent(bool trim=false);
+bool isEvent();
 bool keyDown();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
