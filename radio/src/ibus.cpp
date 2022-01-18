@@ -4,13 +4,13 @@
 #include <algorithm>
 #include <limits>
 
-#define IBUS_FRAME_GAP_DELAY   1000 // 500uS
+//#define IBUS_FRAME_GAP_DELAY   2000 // 1ms
 
 #define IBUS_VALUE_MIN 988
 #define IBUS_VALUE_MAX 2011
 #define IBUS_VALUE_CENTER 1500
 
-//namespace  {
+namespace IBus {
     struct CheckSum final {
         inline void reset() {
             mSum = std::numeric_limits<uint16_t>::max();
@@ -48,65 +48,94 @@
         const uint16_t clamped = clamp(ibusValue, IBUS_VALUE_MIN, IBUS_VALUE_MAX);
         return (clamped - IBUS_VALUE_CENTER);        
     }
+    struct Servo {
+        enum class State : uint8_t {Undefined, GotStart20, Data, CheckL, CheckH};
+        static inline void process(const uint8_t b, std::function<void()> f) {
+            switch(mState) {
+            case State::Undefined:
+                csum.reset();
+                if (b == 0x20) {
+                    csum += b;
+                    mState = State::GotStart20;
+                }
+                break;
+            case State::GotStart20:
+                if (b == 0x40) {
+                    csum += b;
+                    mState = State::Data;
+                    mIndex = 0;
+                }
+                else {
+                    mState = State::Undefined;
+                }
+                break;
+            case State::Data:
+                ibusFrame[mIndex] = b;
+                csum += b;
+                if (mIndex >= (ibusFrame.size() - 1)) {
+                    mState = State::CheckL;
+                }
+                else {
+                    ++mIndex;
+                }
+                break;
+            case State::CheckL:
+                csum.lowByte(b);
+                mState = State::CheckH;
+                break;
+            case State::CheckH:
+                csum.highByte(b);
+                mState = State::Undefined;
+                if (csum) {
+                    ++mPackagesCounter;
+                    f();
+                }
+                break;
+            }            
+        }        
+        static inline void convert(int16_t* pulses) {
+            for (size_t chi{0}; chi < MAX_TRAINER_CHANNELS; chi++) {
+                if (chi < 14) {
+                    const uint8_t h = ibusFrame[2 * chi + 1] & 0x0f;
+                    const uint8_t l = ibusFrame[2 * chi];
+                    const uint16_t  v = (uint16_t(h) << 8) + uint8_t(l);
+                    pulses[chi] = convertIbusToPuls(v);
+                }
+                else if (chi < 18) {
+                    const uint8_t h1 = ibusFrame[6 * (chi - 14) + 1] & 0xf0;
+                    const uint8_t h2 = ibusFrame[6 * (chi - 14) + 3] & 0xf0;
+                    const uint8_t h3 = ibusFrame[6 * (chi - 14) + 5] & 0xf0;
+                    const uint16_t v = (uint8_t(h1) >> 4) + uint8_t(h2) + (uint16_t(h3) << 4);
+                    pulses[chi] = convertIbusToPuls(v);
+                }
+            }
+        }
+    private:
+        using MesgType = std::array<uint8_t, 28>;  // 0x20, 0x40 , 28 Bytes, checkH, checkL
+        static CheckSum csum;
+        static State mState;
+        static MesgType ibusFrame;
+        static uint8_t mIndex;
+        static uint16_t mPackagesCounter;
+    };
     
-    void processIbusFrame(const uint8_t* const ibusFrame, int16_t* const pulses, uint8_t size) {
-        if (size != IBUS_FRAME_SIZE) return;
-        if (ibusFrame[0] != 0x20) return;
-        if (ibusFrame[1] != 0x40) return;
-        CheckSum cs;
-        cs += 0x20;
-        cs += 0x40;
-        for(size_t i = 0; i < 28; ++i) {
-            cs += ibusFrame[2 + i];
-        }
-        cs.lowByte(ibusFrame[2 + 28]);
-        cs.highByte(ibusFrame[2 + 28 + 1]);
-        if (!cs) return;
-        
-        for (size_t chi{0}; chi < MAX_TRAINER_CHANNELS; chi++) {
-            if (chi < 14) {
-                const uint8_t h = ibusFrame[2 * chi + 1 + 2] & 0x0f;
-                const uint8_t l = ibusFrame[2 * chi + 2];
-                const uint16_t  v = (uint16_t(h) << 8) + uint8_t(l);
-                pulses[chi] = convertIbusToPuls(v);
-            }
-            else if (chi < 18) {
-                const uint8_t h1 = ibusFrame[6 * (chi - 14) + 1 + 2] & 0xf0;
-                const uint8_t h2 = ibusFrame[6 * (chi - 14) + 3 + 2] & 0xf0;
-                const uint8_t h3 = ibusFrame[6 * (chi - 14) + 5 + 2] & 0xf0;
-                const uint16_t v = (uint8_t(h1) >> 4) + uint8_t(h2) + (uint16_t(h3) << 4);
-                pulses[chi] = convertIbusToPuls(v);
-            }
-        }
-        ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
-    }
-//}
+    CheckSum Servo::csum;
+    Servo::State Servo::mState{Servo::State::Undefined};
+    Servo::MesgType Servo::ibusFrame; 
+    uint8_t Servo::mIndex{};
+    uint16_t Servo::mPackagesCounter{};
+}
 
 void processIbusInput() {
 #if !defined(SIMU)
   uint8_t rxchar;
-  bool active = false;
-  static uint8_t IbusIndex = 0;
-  static uint16_t IbusTimer;
-  static uint8_t IbusFrame[IBUS_FRAME_SIZE];
 
   while (sbusGetByte(&rxchar)) {
-    active = true;
-    IbusIndex = std::min(IbusIndex, (uint8_t)(IBUS_FRAME_SIZE - 1));
-    IbusFrame[IbusIndex++] = rxchar;
-  }
-  if (active) {
-    IbusTimer = getTmr2MHz();
-    return;
-  }
-  else {
-    if (IbusIndex) {
-      if ((uint16_t) (getTmr2MHz() - IbusTimer) > IBUS_FRAME_GAP_DELAY) {
-        processIbusFrame(IbusFrame, ppmInput, IbusIndex);
-        IbusIndex = 0;
-      }
-    }
+      IBus::Servo::process(rxchar, [&](){
+          IBus::Servo::convert(ppmInput);
+          ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
+      });
   }
 #endif
-    
 }
+
