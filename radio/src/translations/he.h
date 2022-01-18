@@ -51,7 +51,7 @@
 #define TR_TRNMODE                     "OFF",TR("+=","הוספה"),TR(":=","החלפה")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","IBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot"
 #define TR_SLIDERTYPES                 "None","Slider"
@@ -268,6 +268,7 @@
 #define TR_VTRAINER_MASTER_JACK        "שלט ראשי"
 #define TR_VTRAINER_SLAVE_JACK         "שלט חניך"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Master/SBUS Module"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Master/IBUS Module"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")

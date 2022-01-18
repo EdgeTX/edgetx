@@ -51,7 +51,7 @@
 #define TR_VBLMODE                     "OFF",TR("Btns","Touches"),TR("Ctrl","Contrôles"),"Tous","ON"
 #define TR_TRNMODE                     "OFF",TR("+=","Ajoute"),TR(":=","Remplace")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
+#define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","Écolage IBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
 
 #define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS"
 #define TR_POTTYPES                    "Rien",TR("Pots av. ctr","Pots avec centre"),TR("Multipos.","Inter multi-pos""Potentiomètre"),TR("Pots","Potentiomètre"),"Curseurs"
@@ -194,6 +194,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Maître/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Élève/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Maître/SBUS Module"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Maître/IBUS Module"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Maître/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Maître/Série"
 #define TR_VTRAINER_BLUETOOTH          TR("Maître/BT","Maître/Bluetooth"),TR("Élève/BT","Élève/Bluetooth")
