@@ -63,11 +63,12 @@ void stop_trainer_module_sbus() {}
 void init_intmodule_heartbeat() {}
 void stop_intmodule_heartbeat() {}
 
-static void init(const etx_serial_init*) {}
-static void deinit() {}
-static void sendByte(uint8_t) {}
-static void sendBuffer(const uint8_t*, uint8_t) {}
-static void waitForTxCompleted() {}
+static void* init(const etx_serial_init*) { return nullptr; }
+static void deinit(void*) {}
+static void sendByte(void*, uint8_t) {}
+static void sendBuffer(void*, const uint8_t*, uint8_t) {}
+static void waitForTxCompleted(void*) {}
+static int getByte(void*,uint8_t*) { return -1; }
 
 const etx_serial_driver_t IntmoduleSerialDriver = {
     .init = init,
@@ -75,6 +76,7 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
     .sendByte = sendByte,
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
+    .getByte = getByte,
     .setReceiveCb = nullptr,
     .setOnErrorCb = nullptr,
 };
@@ -85,6 +87,7 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
     .sendByte = sendByte,
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
+    .getByte = getByte,
     .setReceiveCb = nullptr,
     .setOnErrorCb = nullptr,
 };

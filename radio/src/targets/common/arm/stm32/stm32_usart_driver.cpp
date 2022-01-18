@@ -22,8 +22,16 @@
 #include "stm32_usart_driver.h"
 #include <string.h>
 
-static void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length)
+void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length)
 {
+  // Disable IRQ based RX
+  LL_USART_DisableIT_RXNE(usart->USARTx);
+
+  // In case TX DMA is used, disable the ISR completely
+  if (usart->txDMA) {
+    NVIC_DisableIRQ(usart->IRQn);
+  }
+
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
   dmaInit.Channel = usart->rxDMA_Channel;
@@ -47,6 +55,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   LL_GPIO_Init(usart->GPIOx, (LL_GPIO_InitTypeDef*)usart->pinInit);
   
   LL_USART_InitTypeDef usartInit;
+  LL_USART_StructInit(&usartInit);
+
   usartInit.BaudRate = params->baudrate;
 
   uint32_t parity = LL_USART_PARITY_NONE;
@@ -96,14 +106,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
   // Enable RX IRQ
   if (params->rx_enable) {
-    if (usart->rxDMA) {
-      // RX DMA
-      stm32_usart_init_rx_dma(usart, params->rx_dma_buf,
-                              params->rx_dma_buf_len);
-    } else {
-      // IRQ based RX
-      LL_USART_EnableIT_RXNE(usart->USARTx);
-    }
+    // IRQ based RX
+    LL_USART_EnableIT_RXNE(usart->USARTx);
   }
 
   if (!usart->txDMA || (params->rx_enable && !usart->rxDMA)) {
@@ -159,7 +163,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     return;
   } else {
     // Please note that we don't use the buffer:
-    // it should set internally by the driver user
+    // it should be set internally by the driver user
     // and each byte is returned individually by on_send()
     LL_USART_EnableIT_TXE(usart->USARTx);
   }
@@ -204,7 +208,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   uint32_t status = LL_USART_ReadReg(usart->USARTx, SR);
 
   // Receive: do it first as it is more time critical
-  if (LL_USART_IsEnabledIT_TXE(usart->USARTx)) {
+  if (LL_USART_IsEnabledIT_RXNE(usart->USARTx)) {
 
     // Drain RX
     while (status & (LL_USART_SR_RXNE | USART_FLAG_ERRORS)) {
@@ -229,7 +233,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   if (LL_USART_IsEnabledIT_TXE(usart->USARTx) && (status & LL_USART_SR_TXE)) {
 
     uint8_t data;
-    if (cb->on_send && cb->on_send(data)) {
+    if (cb->on_send && cb->on_send(&data)) {
       LL_USART_TransmitData8(usart->USARTx, data);
     } else {
       LL_USART_DisableIT_TXE(usart->USARTx);

@@ -27,6 +27,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
 
 #include "watchdog_driver.h"
 
@@ -164,25 +165,19 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
   #define init_trainer_capture()
   #define stop_trainer_capture()
 #endif
+
 #if defined(TRAINER_MODULE_CPPM)
   void init_trainer_module_cppm();
   void stop_trainer_module_cppm();
-#else
-  #define init_trainer_module_cppm()
-  #define stop_trainer_module_cppm()
 #endif
+
 #if defined(TRAINER_MODULE_SBUS)
   void init_trainer_module_sbus();
   void stop_trainer_module_sbus();
-#else
-  #define init_trainer_module_sbus()
-  #define stop_trainer_module_sbus()
+  int trainerModuleSbusGetByte(uint8_t* byte);
 #endif
 
 void check_telemetry_exti();
-
-// SBUS
-int sbusGetByte(uint8_t * byte);
 
 // Keys driver
 enum EnumKeys
@@ -775,7 +770,7 @@ void sportSendByte(uint8_t byte);
 void sportSendByteLoop(uint8_t byte);
 void sportStopSendByteLoop();
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 extern uint32_t telemetryErrors;
 
@@ -860,15 +855,10 @@ void hapticOff();
   void hapticOn();
 #endif
 
-// Aux serial port driver
-#if defined(AUX_SERIAL_GPIO)
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-#define AUX_SERIAL
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-#endif
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
 
 // BT driver
 #define BLUETOOTH_BOOTLOADER_BAUDRATE   230400

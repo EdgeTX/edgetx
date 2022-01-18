@@ -40,44 +40,45 @@ enum SerialWordLength {
   ETX_WordLength_9,
 };
 
-struct etx_serial_init {
+typedef struct {
   uint32_t baudrate;    // = 0;
   uint8_t parity;       // = ETX_Parity_None;
   uint8_t stop_bits;    // = ETX_StopBits_One;
   uint8_t word_length;  // = ETX_WordLength_8;
   bool rx_enable;       // = false;
 
-  void*    rx_dma_buf;
-  uint32_t rx_dma_buf_len;
-
   void (*on_receive)(uint8_t data);  // = nullptr;
   void (*on_error)();                // = nullptr;
-};
+} etx_serial_init;
 
 struct etx_serial_callbacks_t {
-  bool (*on_send)(uint8_t& data);
+  bool (*on_send)(uint8_t* data);
   void (*on_receive)(uint8_t data);
   void (*on_error)();
 };
 
-struct etx_serial_driver_t {
+typedef struct {
 
-  // Init module communication
-  void (*init)(const etx_serial_init* params);
+  // Init serial communication
+  void* (*init)(const etx_serial_init* params);
 
-  // De-Init module communication
-  void (*deinit)();
+  // De-Init serial communication
+  void (*deinit)(void* ctx);
 
   // Send a single byte
-  void (*sendByte)(uint8_t byte);
+  void (*sendByte)(void* ctx, uint8_t byte);
 
   // Send a buffer
-  void (*sendBuffer)(const uint8_t* data, uint8_t size);
+  void (*sendBuffer)(void* ctx, const uint8_t* data, uint8_t size);
 
   // Wait for last send operation to complete
-  void (*waitForTxCompleted)();
+  void (*waitForTxCompleted)(void* ctx);
 
+  // Fetch byte from internal buffer
+  int (*getByte)(void* ctx, uint8_t* data);
+  
   // Callbacks
-  void (*setReceiveCb)(void (*on_receive)(uint8_t data));
-  void (*setOnErrorCb)(void (*on_error)());
-};
+  void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t data));
+  void (*setOnErrorCb)(void* ctx, void (*on_error)());
+
+} etx_serial_driver_t;

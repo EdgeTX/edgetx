@@ -48,10 +48,10 @@ struct stm32_usart_t {
 };
 
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params);
+void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length);
 void stm32_usart_deinit(const stm32_usart_t* usart);
 void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte);
 void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size);
 void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart);
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb);
-
 

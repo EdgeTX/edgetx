@@ -23,8 +23,8 @@
 #include "touch.h"
 
 #include "hal/adc_driver.h"
-#include "../common/arm/stm32/stm32_hal_adc.h"
-#include "../common/arm/stm32/timers_driver.h"
+#include "stm32_hal_adc.h"
+#include "timers_driver.h"
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
@@ -241,4 +241,9 @@ void boardOff()
   while (1) {
 
   }
+}
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  return nullptr;
 }

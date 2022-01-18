@@ -51,7 +51,7 @@ int  getSelectedUsbMode();
 void setSelectedUsbMode(int mode);
 
 uint32_t usbSerialFreeSpace();
-void     usbSerialPutc(uint8_t c);
+void     usbSerialPutc(void*, uint8_t c);
 
 uint32_t usbSerialBaudRate(void);
 

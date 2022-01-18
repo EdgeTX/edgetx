@@ -29,7 +29,6 @@ set(STM32USB_SRC
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
-  ${AUX_SERIAL_DRIVER}
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/usb_bsp.c
   ../common/arm/stm32/usbd_desc.c
@@ -39,6 +38,18 @@ set(FIRMWARE_TARGET_SRC
   ../common/arm/stm32/usbd_storage_msd.cpp
   ../common/arm/stm32/usbd_hid_joystick.c
   )
+
+if(AUX_SERIAL OR AUX2_SERIAL)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    ../common/arm/stm32/aux_serial_driver.cpp
+    )
+  if(AUX_SERIAL)
+    add_definitions(-DAUX_SERIAL)
+  endif()
+  if(AUX2_SERIAL)
+    add_definitions(-DAUX2_SERIAL)
+  endif()
+endif()
 
 if(DEBUG OR CLI OR USB_SERIAL)
   set(STM32USB_SRC
@@ -70,7 +81,6 @@ endif()
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  serial.cpp
   syscalls.c
   )
 

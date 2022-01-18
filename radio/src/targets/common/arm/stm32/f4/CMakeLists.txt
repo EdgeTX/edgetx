@@ -20,6 +20,7 @@ target_include_directories(stm32cube_ll PRIVATE
   ${THIRDPARTY_DIR}/CMSIS/Include)
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32cube_ll>)
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32cube_ll>)
 
 # StdPeriph library
 set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries)

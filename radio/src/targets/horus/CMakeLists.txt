@@ -245,16 +245,6 @@ if(BLUETOOTH)
   add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
 endif()
 
-if (AUX_SERIAL)
-  add_definitions(-DAUX_SERIAL)
-  set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
-endif()
-
-if (AUX2_SERIAL)
-  add_definitions(-DAUX2_SERIAL)
-  set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
-endif()
-
 if (SBUS_TRAINER)
   add_definitions(-DSBUS_TRAINER)
   set(SRC
@@ -266,7 +256,6 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
-  ${AUX_SERIAL_DRIVER}
   ${FLYSKY_HALL_STICKS_DRIVER}
   ${IMU_LSM6DS33_DRIVER}
   ${TOUCH_DRIVER}

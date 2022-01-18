@@ -380,7 +380,7 @@ void RadioHardwarePage::build(FormWindow * window)
                  UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.auxSerialMode),
                  [](int value) {
                    g_eeGeneral.auxSerialMode = value;
-                   auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
+                   serialInit(0, value);
                    SET_DIRTY();
                  });
   aux->setAvailableHandler(isAuxModeAvailable);
@@ -394,7 +394,7 @@ void RadioHardwarePage::build(FormWindow * window)
                  UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.aux2SerialMode),
                  [](int value) {
                    g_eeGeneral.aux2SerialMode = value;
-                   aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
+                   serialInit(1, value);
                    SET_DIRTY();
                  });
   aux2->setAvailableHandler(isAux2ModeAvailable);

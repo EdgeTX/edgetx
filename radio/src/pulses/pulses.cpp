@@ -476,8 +476,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(PXX1) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      extmodulePxx1SerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, EXTMODULE_PXX1_SERIAL_PERIOD);
+      externalModuleContext = Pxx1ExternalSerialDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &Pxx1ExternalSerialDriver;
       break;
 #endif
 
@@ -522,12 +522,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-#if defined(PCBSKY9X)
-      extmoduleSerialStart(MULTIMODULE_BAUDRATE, MULTIMODULE_PERIOD * 2000, true);
-#else
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
-#endif
       getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
 #if defined(MULTI_PROTOLIST)
@@ -558,6 +554,7 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
+      // convert to serial module interface
       extmodulePulsesData.afhds3.init(EXTERNAL_MODULE);
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
@@ -588,12 +585,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
 #if defined(PXX1)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       extmodulePulsesData.pxx.setupFrame(EXTERNAL_MODULE);
-      return true;
-#endif
-
-#if defined(PXX1) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      extmodulePulsesData.pxx_uart.setupFrame(EXTERNAL_MODULE);
       return true;
 #endif
 
@@ -678,13 +669,6 @@ void extmoduleSendNextFrame()
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       extmoduleSendNextFramePxx1(extmodulePulsesData.pxx.getData(),
                                  extmodulePulsesData.pxx.getSize());
-      break;
-#endif
-
-#if defined(PXX1) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      ExtmoduleSerialDriver.sendBuffer(extmodulePulsesData.pxx_uart.getData(),
-                                       extmodulePulsesData.pxx_uart.getSize());
       break;
 #endif
 

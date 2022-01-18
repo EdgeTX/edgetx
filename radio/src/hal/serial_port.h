@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,17 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#pragma once
 
-#include "hal/serial_driver.h"
+#include "serial_driver.h"
 
-#if defined(AUX_SERIAL)
+typedef void etx_pwr_driver;
 
-extern const etx_serial_driver_t AuxSerialDriver;
-#endif
-
-#if defined(AUX2_SERIAL)
-
-extern const etx_serial_driver_t Aux2SerialDriver;
-#endif
-
+typedef struct {
+    const etx_serial_driver_t* uart;
+    void (*set_pwr)(uint8_t on);
+} etx_serial_port_t;

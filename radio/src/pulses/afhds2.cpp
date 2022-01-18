@@ -45,8 +45,6 @@ const etx_serial_init afhds2SerialInitParams = {
     .stop_bits = ETX_StopBits_One,
     .word_length = ETX_WordLength_8,
     .rx_enable = true,
-    .rx_dma_buf = nullptr,
-    .rx_dma_buf_len = 0,
     .on_receive = intmoduleFifoReceive,
     .on_error = intmoduleFifoError,
 };
@@ -69,11 +67,9 @@ static void* afhds2Init(uint8_t module)
 
 static void afhds2DeInit(void* context)
 {
-  (void)context;
-
   INTERNAL_MODULE_OFF();
   intmoduleFifo.clear();
-  IntmoduleSerialDriver.deinit();
+  IntmoduleSerialDriver.deinit(context);
 
   // mixer setup
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
@@ -97,11 +93,9 @@ static void afhds2SetupPulses(void* context, int16_t* channels, uint8_t nChannel
 
 static void afhds2SendPulses(void* context)
 {
-  (void)context;
-
   uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
   uint16_t size = intmodulePulsesData.flysky.ptr - data;
-  IntmoduleSerialDriver.sendBuffer(data, size);
+  IntmoduleSerialDriver.sendBuffer(context, data, size);
 }
 
 const etx_module_driver_t Afhds2InternalDriver = {

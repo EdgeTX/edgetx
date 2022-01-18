@@ -22,6 +22,9 @@
 #include "opentx.h"
 #include "flyskyHallStick_driver.h"
 
+#include "fifo.h"
+#include "dmafifo.h"
+
 DMAFifo<HALLSTICK_BUFF_SIZE> hallDMAFifo __DMA (FLYSKY_HALL_DMA_Stream_RX);
 Fifo<uint8_t, HALLSTICK_BUFF_SIZE> hallStickTxFifo;
 unsigned char HallCmd[264] __DMA;
