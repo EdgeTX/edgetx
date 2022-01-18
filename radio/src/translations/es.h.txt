@@ -939,6 +939,9 @@
 #define TR_AND_SWITCH          TR("Inter. AND", "Interruptor AND")
 #define TR_SF                  "CF"
 #define TR_GF                  "GF"
+#define TR_ANADIAGS_CALIB      "Calibrated analogs"
+#define TR_ANADIAGS_FILTRAWDEV "Filtered raw analogs with deviation"
+#define TR_ANADIAGS_UNFILTRAW  "Unfiltered raw analogs"
 #define TR_SPEAKER             INDENT"Altavoz"
 #define TR_BUZZER              INDENT"Zumbador"
 #define TR_BYTES               "bytes"

@@ -433,7 +433,9 @@ extern const char STR_MENU_GLOBAL_VARS[];
 extern const char STR_AND_SWITCH[];
 extern const char STR_SF[];
 extern const char STR_GF[];
-
+extern const char STR_ANADIAGS_CALIB[];
+extern const char STR_ANADIAGS_FILTRAWDEV[];
+extern const char STR_ANADIAGS_UNFILTRAW[];
 extern const char STR_MULTI_CUSTOM[];
 extern const char STR_MULTI_FIXEDID[];
 extern const char STR_MULTI_OPTION[];
