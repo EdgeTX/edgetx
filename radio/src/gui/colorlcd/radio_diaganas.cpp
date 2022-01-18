@@ -37,12 +37,16 @@
 constexpr coord_t CA_X_OFFSET = 70;
 constexpr coord_t VALUE_X_OFFSET = 120;
 constexpr coord_t DEV_X_OFFSET = 125;
+constexpr coord_t MIN_X_OFFSET = 115;
+constexpr coord_t MAX_X_OFFSET = 165;
+constexpr coord_t RANGE_X_OFFSET = 170;
 
 RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup() : TabsGroup(ICON_STATS)
 {
   addTab(new AnaCalibratedViewPage());
   addTab(new AnaFilteredDevViewPage());
   addTab(new AnaUnfilteredRawViewPage());
+  addTab(new AnaMinMaxViewPage());
 }
 
 class AnaCalibratedViewWindow: public Window {
@@ -310,42 +314,6 @@ class AnaFilteredDevViewWindow: public Window {
                   dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
               }
           }
-
-#if !defined(SIMU) && defined(IMU_LSM6DS33)
-        coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
-        coord_t ximu = MENUS_MARGIN_LEFT;
-        char imudata[80];
-        sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
-                IMUoutput.fTemperatureDegC,
-                IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
-        dc->drawText(ximu, yimu, imudata);
-        yimu = MENU_CONTENT_TOP + 4 * FH;
-        sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
-                  IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
-        dc->drawText(ximu, yimu, imudata);
-#endif
-
-#if defined(HARDWARE_TOUCH)
-        TouchState rawTouchState = getInternalTouchState();
-        constexpr coord_t y = MENU_CONTENT_TOP + 4 * FH;
-
-        if (rawTouchState.event != TE_NONE && rawTouchState.event != TE_SLIDE_END) {
-          coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
-          x = dc->drawNumber(x + 5, y, rawTouchState.x);
-          x = dc->drawText(x, y, ":");
-          dc->drawNumber(x, y, rawTouchState.y);
-          dc->drawLine(rawTouchState.x - 10, rawTouchState.y - 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y + 8 - parent->top(), SOLID, 0);
-          dc->drawLine(rawTouchState.x - 10, rawTouchState.y + 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y - 8- parent->top(), SOLID, 0);
-        }
-        #if !defined(SIMU) && !defined(PCBNV14)
-          constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
-          coord_t x1 = MENUS_MARGIN_LEFT;
-          x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;
-          x1 = dc->drawNumber(x1, y1, touchGT911fwver, LEFT, 4) + 16;
-          x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
-          dc->drawNumber(x1, y1, touchGT911hiccups, LEFT, 5);
-        #endif
-#endif
     };
 };
 
@@ -413,45 +381,139 @@ class AnaUnfilteredRawViewWindow: public Window {
                 dc->drawNumber(x + VALUE_X_OFFSET, y, getAnalogValue(i), RIGHT | COLOR_THEME_PRIMARY1);
             }
         }
-
-#if !defined(SIMU) && defined(IMU_LSM6DS33)
-      coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
-      coord_t ximu = MENUS_MARGIN_LEFT;
-      char imudata[80];
-      sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
-              IMUoutput.fTemperatureDegC,
-              IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
-      dc->drawText(ximu, yimu, imudata);
-      yimu = MENU_CONTENT_TOP + 4 * FH;
-      sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
-                IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
-      dc->drawText(ximu, yimu, imudata);
-#endif
-
-#if defined(HARDWARE_TOUCH)
-      TouchState rawTouchState = getInternalTouchState();
-      constexpr coord_t y = MENU_CONTENT_TOP + 4 * FH;
-
-      if (rawTouchState.event != TE_NONE && rawTouchState.event != TE_SLIDE_END) {
-        coord_t x = dc->drawText(MENUS_MARGIN_LEFT, y, STR_TOUCH_PANEL);
-        x = dc->drawNumber(x + 5, y, rawTouchState.x);
-        x = dc->drawText(x, y, ":");
-        dc->drawNumber(x, y, rawTouchState.y);
-        dc->drawLine(rawTouchState.x - 10, rawTouchState.y - 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y + 8 - parent->top(), SOLID, 0);
-        dc->drawLine(rawTouchState.x - 10, rawTouchState.y + 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y - 8- parent->top(), SOLID, 0);
-      }
-      #if !defined(SIMU) && !defined(PCBNV14)
-        constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
-        coord_t x1 = MENUS_MARGIN_LEFT;
-        x1 = dc->drawText(x1, y1, "Touch GT911 FW ver:") + 8;
-        x1 = dc->drawNumber(x1, y1, touchGT911fwver, LEFT, 4) + 16;
-        x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
-        dc->drawNumber(x1, y1, touchGT911hiccups, LEFT, 5);
-      #endif
-#endif
     };
 
   protected:
+};
+
+class AnaMinMaxViewWindow: public Window {
+  protected:
+    class MinMax {
+      protected:
+        bool noElements = true;
+        int16_t minvalue = INT16_MAX;
+        int16_t maxvalue = INT16_MIN;
+
+      public:
+        MinMax() {}
+
+        void clear()
+        {
+          minvalue = INT16_MAX;
+          maxvalue = INT16_MIN;
+        }
+
+        // Always accept new data, discard old
+        void write(int16_t value)
+        {
+          if (value < minvalue)
+              minvalue = value;
+          if (value > maxvalue)
+              maxvalue = value;
+        }
+
+        int16_t MinVal()
+        {
+            return minvalue;
+        }
+
+        int16_t MaxVal()
+        {
+            return maxvalue;
+        }
+
+        uint16_t Range()
+        {
+            if (maxvalue > minvalue)
+                return (uint16_t)(maxvalue - minvalue);
+            else
+                return 0;
+        }
+    };
+    bool ClearStats = true;
+
+  public:
+    AnaMinMaxViewWindow(Window * parent, const rect_t & rect):
+      Window(parent, rect) {}
+
+    void checkEvents() override
+    {
+      // will always force a full monitor window refresh
+      invalidate();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+        static MinMax minmax[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+        if (ClearStats)
+        {
+            for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+                minmax[i].clear();
+            }
+            ClearStats = false;
+        }
+        dc->drawText(10, 1, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
+
+#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+          if (globalData.flyskygimbals)
+          {
+              for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
+                  #if LCD_W > LCD_H
+                    coord_t y = 1 + (i / 2 + 1) * FH;
+                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+                  #else
+                    coord_t y = 1 + (i + 1) * FH;
+                    uint8_t x = 10;
+                  #endif
+                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                  minmax[i].write(hall_raw_values[i]);
+                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
+              }
+
+              for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+                  #if LCD_W > LCD_H
+                    coord_t y = 1 + (i / 2 + 1) * FH;
+                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+                  #else
+                    coord_t y = 1 + (i + 1) * FH;
+                    uint8_t x = 10;
+                  #endif
+                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+                  dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                  minmax[i].write(getAnalogValue(i));
+                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
+              }
+          }
+#endif
+
+          if (!globalData.flyskygimbals) // Also Simulator
+          {
+              for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+                  #if LCD_W > LCD_H
+                    coord_t y = 1 + (i / 2 + 1) * FH;
+                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+                  #else
+                    coord_t y = 1 + (i + 1) * FH;
+                    uint8_t x = 10;
+                  #endif
+                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
+                  minmax[i].write(getAnalogValue(i));
+                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
+                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
+              }
+          }
+    };
 };
 
 void AnaCalibratedViewPage::build(FormWindow *window)
@@ -469,3 +531,7 @@ void AnaUnfilteredRawViewPage::build(FormWindow *window)
     new AnaUnfilteredRawViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
 }
 
+void AnaMinMaxViewPage::build(FormWindow *window)
+{
+    new AnaMinMaxViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
+}

@@ -59,3 +59,12 @@ class AnaUnfilteredRawViewPage : public PageTab
  protected:
   void build(FormWindow* window) override;
 };
+
+class AnaMinMaxViewPage : public PageTab
+{
+ public:
+  AnaMinMaxViewPage() : PageTab(STR_ANADIAGS_MINMAX, ICON_RADIO_CALIBRATION) {}
+
+ protected:
+  void build(FormWindow* window) override;
+};

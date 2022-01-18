@@ -436,6 +436,8 @@ extern const char STR_GF[];
 extern const char STR_ANADIAGS_CALIB[];
 extern const char STR_ANADIAGS_FILTRAWDEV[];
 extern const char STR_ANADIAGS_UNFILTRAW[];
+extern const char STR_ANADIAGS_MINMAX[];
+extern const char STR_ANADIAGS_MOVE[];
 extern const char STR_MULTI_CUSTOM[];
 extern const char STR_MULTI_FIXEDID[];
 extern const char STR_MULTI_OPTION[];

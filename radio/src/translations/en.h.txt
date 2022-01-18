@@ -945,6 +945,8 @@
 #define TR_ANADIAGS_CALIB              "Calibrated analogs"
 #define TR_ANADIAGS_FILTRAWDEV         "Filtered raw analogs with deviation"
 #define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
+#define TR_ANADIAGS_MINMAX             "Min., max. and range"
+#define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
 #define TR_SPEAKER                     INDENT "Speaker"
 #define TR_BUZZER                      INDENT "Buzzer"
 #define TR_BYTES                       "bytes"
