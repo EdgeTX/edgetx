@@ -23,8 +23,6 @@
 
 const char extra_chars_default[] = ":;<=>";
 
-static lv_obj_t *kb = nullptr;
-
 class TextEdit : public FormField {
   friend class TextKeyboard;
 

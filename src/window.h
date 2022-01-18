@@ -137,7 +137,11 @@ class Window
       // lv integration for colors
       auto textColor = COLOR_VAL(flags);
       auto r = GET_RED(textColor), g = GET_GREEN(textColor), b = GET_BLUE(textColor);
-      lv_obj_set_style_text_color(getLvObj(), lv_color_make(r, g, b), LV_PART_MAIN);
+      lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
+      for (auto i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
+        auto child = lv_obj_get_child(lvobj, i);
+        lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
+      }
     }
 
     void setCloseHandler(std::function<void()> handler)
