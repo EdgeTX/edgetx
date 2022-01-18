@@ -26,6 +26,9 @@
 #include "lvgl/lvgl.h"
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
+#if defined(HARDWARE_TOUCH)
+extern TouchState getLastTochState();
+#endif
 
 class LvglWidgetFactory;
 typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
