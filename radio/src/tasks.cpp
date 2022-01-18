@@ -90,10 +90,18 @@ void execMixerFrequentActions()
 {
 #if defined(SBUS_TRAINER)
   // SBUS trainer
-    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)) {
+    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
+        #ifdef AUX2_SERIAL
+            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
+        #endif
+            ) {
         processSbusInput();
     }
-    else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER) || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)) {
+    else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)
+         #ifdef AUX2_SERIAL
+             || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)
+         #endif
+             ) {
         processIbusInput();
     }
 #endif
