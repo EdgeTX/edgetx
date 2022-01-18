@@ -52,7 +52,7 @@
 #define TR_VBLMODE                     TR("Vyp","Vypnuto"),TR("Kláv.","Klávesy"),"Páky","Vše",TR("Zap","Zapnuto")
 #define TR_TRNMODE                     "X","Sečíst","Zaměnit"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
+#define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","IBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
 #define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr"),"Slider"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
@@ -194,6 +194,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Učitel/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Žák/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/SBUS Modul"
+#define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/IBUS Modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Učitel/CPPM Modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Učitel/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Učitel/BT","Učitel/Bluetooth"),TR("Žák/BT","Žák/Bluetooth")

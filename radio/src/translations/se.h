@@ -53,7 +53,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av",TR("+=","Addera"),TR(":=","Ersätt")
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","IBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos"
@@ -199,6 +199,7 @@
 #define TR_VTRAINER_MASTER_JACK         "Lärare/Uttag"
 #define TR_VTRAINER_SLAVE_JACK          "Elev/Uttag"
 #define TR_VTRAINER_MASTER_SBUS_MODULE  "Lärare/SBUS-modul"
+#define TR_VTRAINER_MASTER_IBUS_MODULE  "Lärare/IBUS-modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE  "Lärare/CPPM-modul"
 #define TR_VTRAINER_MASTER_BATTERY      "Lärare/Seriell"
 #define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")

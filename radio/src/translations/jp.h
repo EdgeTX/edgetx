@@ -48,7 +48,7 @@
 #define TR_TRNMODE                     "OFF","加算","置換"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
+#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","IBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
 #define TR_POTTYPES                    "なし",TR("Pot w. det","ダイヤル(ノッチ有)"),TR("Multipos","マルチPOSスイッチ"),"ダイヤル","スライダー"
 #define TR_VPERSISTENT                 "無効","飛行時","手動リセット"
@@ -187,6 +187,7 @@
 #define TR_VTRAINER_MASTER_JACK        "マスター/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "スレーブ/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "マスター/SBUSモジュール"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "マスター/IBUSモジュール"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "マスター/CPPMモジュール"
 #define TR_VTRAINER_MASTER_BATTERY     "マスター/シリアル"
 #define TR_VTRAINER_BLUETOOTH          "マスター/" TR("BT","Bluetooth"), "スレーブ/" TR("BT","Bluetooth")

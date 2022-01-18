@@ -49,7 +49,7 @@
 #define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
 #define TR_TRNMODE                     "FRA",TR("+=","Læg til"),TR(":=","Erstat")
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
+#define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","IBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"
@@ -190,6 +190,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Træner/Stik"
 #define TR_VTRAINER_SLAVE_JACK         "Elev/Stik"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Træner/SBUS modul"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Træner/IBUS modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Træner/CPPM modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Træner/Seriel"
 #define TR_VTRAINER_BLUETOOTH          "Træner/" TR("BT","Bluetooth"), "Elev/" TR("BT","Bluetooth")

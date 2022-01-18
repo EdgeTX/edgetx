@@ -50,7 +50,7 @@
 #define TR_VBLMODE             TR("Wył","Wyłącz"),TR("Przy","Przycisk"),TR("Drąż","Drązki"),"Oba",TR("Zał","Włącz")
 #define TR_TRNMODE             "Wył",TR("+=","Dodaj"),TR(":=","Zastąp")
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
-#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
+#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","Trener IBUS","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
 #define TR_POTTYPES            "Brak",TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr"),"Suwak"
 #define TR_VPERSISTENT         "Wyłącz","Lot","Ręczny Reset"
@@ -182,6 +182,7 @@
 #define TR_VTRAINER_MASTER_JACK        "Trener/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Uczeń/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Trener/SBUS Moduł"
+#define TR_VTRAINER_MASTER_IBUS_MODULE "Trener/IBUS Moduł"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Trener/CPPM Moduł"
 #define TR_VTRAINER_MASTER_BATTERY     "Trener/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
