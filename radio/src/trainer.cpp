@@ -130,6 +130,9 @@ void checkTrainerSettings()
         init_trainer_module_sbus();
         sbusSetGetByte(trainerModuleSbusGetByte);
         break;
+      case TRAINER_MODE_MASTER_IBUS_EXTERNAL_MODULE:
+        init_trainer_module_ibus();
+        break;
 #endif
     }
 

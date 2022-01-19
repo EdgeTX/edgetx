@@ -1,14 +1,14 @@
 #include "ibus.h"
 #include "opentx.h"
+#include "trainer.h"
 
 #include <algorithm>
 #include <limits>
 
-//#define IBUS_FRAME_GAP_DELAY   2000 // 1ms
-
-#define IBUS_VALUE_MIN 988
-#define IBUS_VALUE_MAX 2011
-#define IBUS_VALUE_CENTER 1500
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic error "-Wswitch" // unfortunately the project uses -Wnoswitch
+#endif
 
 namespace IBus {
     struct CheckSum final {
@@ -16,7 +16,7 @@ namespace IBus {
             mSum = std::numeric_limits<uint16_t>::max();
         }
         inline uint8_t operator+=(const uint8_t b) {
-            mSum -= static_cast<uint8_t>(b);
+            mSum -= b;
             return b;
         }
         inline uint8_t highByte() const {
@@ -40,27 +40,27 @@ namespace IBus {
         uint16_t mSum = std::numeric_limits<uint16_t>::max();
     };
     
-    uint16_t clamp(uint16_t v, uint16_t lower, uint16_t upper) {
-        return (v < lower) ? lower : ((v > upper) ? upper: v);        
-    }
-    
-    int16_t convertIbusToPuls(uint16_t const ibusValue) {
-        const uint16_t clamped = clamp(ibusValue, IBUS_VALUE_MIN, IBUS_VALUE_MAX);
-        return (clamped - IBUS_VALUE_CENTER);        
-    }
     struct Servo {
+        using IBus = Trainer::Protocol::IBus;
+        using MesgType = IBus::MesgType;
+        
         enum class State : uint8_t {Undefined, GotStart20, Data, CheckL, CheckH};
-        static inline void process(const uint8_t b, std::function<void()> f) {
-            switch(mState) {
+        
+        static inline int16_t convertIbusToPuls(uint16_t const ibusValue) {
+            return Trainer::clamp(ibusValue - IBus::CenterValue);
+        }
+        
+        static inline void process(const uint8_t b, const std::function<void()> f) {
+            switch(mState) { // enum-switch -> no default (intentional)
             case State::Undefined:
                 csum.reset();
-                if (b == 0x20) {
+                if (b == IBus::StartByte1) {
                     csum += b;
                     mState = State::GotStart20;
                 }
                 break;
             case State::GotStart20:
-                if (b == 0x40) {
+                if (b == IBus::StartByte2) {
                     csum += b;
                     mState = State::Data;
                     mIndex = 0;
@@ -93,7 +93,7 @@ namespace IBus {
                 break;
             }            
         }        
-        static inline void convert(int16_t* pulses) {
+        static inline void convert(int16_t* const pulses) {
             for (size_t chi{0}; chi < MAX_TRAINER_CHANNELS; chi++) {
                 if (chi < 14) {
                     const uint8_t h = ibusFrame[2 * chi + 1] & 0x0f;
@@ -111,7 +111,6 @@ namespace IBus {
             }
         }
     private:
-        using MesgType = std::array<uint8_t, 28>;  // 0x20, 0x40 , 28 Bytes, checkH, checkL
         static CheckSum csum;
         static State mState;
         static MesgType ibusFrame;
@@ -139,3 +138,6 @@ void processIbusInput() {
 #endif
 }
 
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
