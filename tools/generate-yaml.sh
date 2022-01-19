@@ -95,6 +95,9 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        tango)
+            BUILD_OPTIONS+="-DPCB=TANGO"
+            ;;
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"

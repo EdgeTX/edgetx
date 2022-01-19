@@ -212,6 +212,17 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
+#if !defined(HARDWARE_TRIMS)
+  "aileron_trim",
+  "elevator_trim",
+  "throttle_trim",
+  "rudder_trim",
+  "main_page",
+#endif
+#if defined(RADIO_FAMILY_TBS)
+  "category_enabled",
+  "category_disabled",
+#endif
 #if defined(PCBFRSKY)
   "midpot1",
   "midpot2",
@@ -336,6 +347,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
+  #if NUM_XPOTS > 0
   else {
     div_t swinfo = div(int(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
@@ -343,6 +355,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
     *str++ = '1' + swinfo.rem;
     *str = '\0';
   }
+  #endif
 #else
   int len = STR_VSWITCHES[0];
   strncpy(str, &STR_VSWITCHES[1+(len*index)], len);

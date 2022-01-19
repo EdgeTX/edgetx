@@ -87,7 +87,7 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
 #define ELRS_FIRMWARE_EXT   ".elrs"
 #define YAML_EXT            ".yml"
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) || defined(EEPROM_SDCARD)
 #define BITMAPS_EXT         BMP_EXT JPG_EXT PNG_EXT
 #define LEN_BITMAPS_EXT     4
 #else
@@ -144,6 +144,10 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x3778746F // etx for X10
 #elif defined(PCBX9E)
   #define ETX_FOURCC 0x3578746F // etx for Taranis X9E
+#elif defined(RADIO_TANGO)
+  #define ETX_FOURCC 0x4478746F // etx for Tango
+#elif defined(RADIO_MAMBO)
+  #define ETX_FOURCC 0x4578746F // etx for Mambo
 #elif defined(PCBXLITES)
   #define ETX_FOURCC 0x3B78746F // etx for Taranis X-Lite S
 #elif defined(PCBXLITE)

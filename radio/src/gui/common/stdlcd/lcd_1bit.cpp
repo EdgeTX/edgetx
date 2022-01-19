@@ -438,11 +438,6 @@ void lcdDrawHexChar(coord_t x, coord_t y, uint8_t val, LcdFlags flags)
   }
 }
 
-void lcdDraw8bitsNumber(coord_t x, coord_t y, int8_t val)
-{
-  lcdDrawNumber(x, y, val);
-}
-
 void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags)
 {
   lcdDrawNumber(x, y, val, flags, 0);
@@ -605,72 +600,12 @@ void lcdDrawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, 
   }
 }
 
-void drawTelemetryTopBar()
-{
-  drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
-  uint8_t att = (IS_TXBATT_WARNING() ? BLINK : 0);
-  putsVBat(14*FW,0,att);
-  if (g_model.timers[0].mode) {
-    att = (timersStates[0].val<0 ? BLINK : 0);
-    drawTimer(17*FW+5*FWNUM+1, 0, timersStates[0].val, att, att);
-  }
-  lcdInvertLine(0);
-}
-
 #if defined(RTCLOCK)
 void drawRtcTime(coord_t x, coord_t y, LcdFlags att)
 {
   drawTimer(x, y, getValue(MIXSRC_TX_TIME), att, att);
 }
 #endif
-
-void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags att, LcdFlags att2)
-{
-  div_t qr;
-  if (IS_RIGHT_ALIGNED(att)) {
-    att -= RIGHT;
-    if (att & DBLSIZE)
-      x -= 5*(2*FWNUM)-4;
-    else if (att & MIDSIZE)
-      x -= 5*8-8;
-    else
-      x -= 5*FWNUM+1;
-  }
-
-  if (tme < 0) {
-    lcdDrawChar(x - ((att & DBLSIZE) ? FW+2 : ((att & MIDSIZE) ? FW+0 : FWNUM)), y, '-', att);
-    tme = -tme;
-  }
-
-  qr = div((int)tme, 60);
-
-  char separator = ':';
-  if (att & TIMEHOUR) {
-    div_t qr2 = div(qr.quot, 60);
-    if (qr2.quot < 100) {
-      lcdDrawNumber(x, y, qr2.quot, att|LEADING0|LEFT, 2);
-    }
-    else {
-      lcdDrawNumber(x, y, qr2.quot, att|LEFT);
-    }
-    lcdDrawChar(lcdNextPos, y, separator, att);
-    qr.quot = qr2.rem;
-    x = lcdNextPos;
-  }
-  if (FONTSIZE(att) == MIDSIZE) {
-    lcdLastRightPos--;
-  }
-  if (separator == CHR_HOUR)
-    att &= ~DBLSIZE;
-  lcdDrawNumber(x, y, qr.quot, att|LEADING0|LEFT, 2);
-#if defined(RTCLOCK)
-  if (att & TIMEBLINK)
-    lcdDrawChar(lcdLastRightPos, y, separator, BLINK);
-  else
-#endif
-  lcdDrawChar(lcdLastRightPos, y, separator, att&att2);
-  lcdDrawNumber(lcdNextPos, y, qr.rem, (att2|LEADING0|LEFT) & (~RIGHT), 2);
-}
 
 // TODO to be optimized with drawValueWithUnit
 void putsVolts(coord_t x, coord_t y, uint16_t volts, LcdFlags att)
@@ -791,22 +726,6 @@ void drawModelName(coord_t x, coord_t y, char *name, uint8_t id, LcdFlags att)
   }
 }
 
-void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold)
-{
-  char s[8];
-  getSwitchPositionName(s, idx);
-  if (autoBold && idx != SWSRC_NONE && getSwitch(idx))
-    flags |= BOLD;
-  lcdDrawText(x, y, s, flags);
-}
-
-void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)
-{
-  char s[8];
-  getCurveString(s, idx);
-  lcdDrawText(x, y, s, att);
-}
-
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
 {
   if (mode >= 0) {
@@ -831,35 +750,6 @@ void drawShortTrimMode(coord_t x, coord_t y, uint8_t fm, uint8_t idx, LcdFlags a
   }
 }
 
-void drawGPSCoord(coord_t x, coord_t y, int32_t value, const char * direction, LcdFlags att, bool seconds=true)
-{
-  att &= ~RIGHT & ~BOLD;
-  uint32_t absvalue = abs(value);
-  lcdDrawNumber(x, y, absvalue / 1000000, att); // ddd
-  lcdDrawChar(lcdLastRightPos, y, '@', att);
-  absvalue = absvalue % 1000000;
-  absvalue *= 60;
-  if (g_eeGeneral.gpsFormat == 0 || !seconds) {
-    lcdDrawNumber(lcdNextPos, y, absvalue / 1000000, att|LEFT|LEADING0, 2); // mm before '.'
-    lcdDrawSolidVerticalLine(lcdLastRightPos, y, 2);
-    lcdLastRightPos += 1;
-    if (seconds) {
-      absvalue %= 1000000;
-      absvalue *= 60;
-      absvalue /= 10000;
-      lcdDrawNumber(lcdLastRightPos+2, y, absvalue, att|LEFT|PREC2);
-      lcdDrawSolidVerticalLine(lcdLastRightPos, y, 2);
-      lcdDrawSolidVerticalLine(lcdLastRightPos+2, y, 2);
-      lcdLastRightPos += 3;
-    }
-  }
-  else {
-    absvalue /= 10000;
-    lcdDrawNumber(lcdLastRightPos+FW, y, absvalue, att|LEFT|PREC2); // mm.mmm
-  }
-  lcdDrawSizedText(lcdLastRightPos+1, y, direction + (value>=0 ? 0 : 1), 1);
-}
-
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
 {
   if (BLINK_ON_PHASE) {
@@ -878,80 +768,10 @@ void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
   }
 }
 
-void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
+void lcdSetContrast()
 {
-  const TimerData &timer = g_model.timers[index];
-
-  if (timer.mode) {
-    const TimerState &timerState = timersStates[index];
-    const uint8_t negative = (timerState.val < 0 ? BLINK | INVERS : 0);
-    if (timerState.val < 60 * 60) { // display MM:SS
-      div_t qr = div((int) abs(timerState.val), 60);
-      lcdDrawNumber(x - 5, y, qr.rem, att | LEADING0 | negative, 2);
-      lcdDrawText(lcdLastLeftPos, y, ":", att | BLINK | negative);
-      lcdDrawNumber(lcdLastLeftPos, y, qr.quot, att | negative);
-      if (negative)
-        lcdDrawText(lcdLastLeftPos, y, "-", att | negative);
-    }
-    else if (timerState.val < (99 * 60 * 60) + (59 * 60)) { // display HHhMM
-      div_t qr = div((int) (abs(timerState.val) / 60), 60);
-      lcdDrawNumber(x - 5, y, qr.rem, att | LEADING0, 2);
-      lcdDrawText(lcdLastLeftPos, y, "h", att);
-      lcdDrawNumber(lcdLastLeftPos, y, qr.quot, att);
-      if (negative)
-        lcdDrawText(lcdLastLeftPos, y, "-", att);
-    }
-    else {  //display HHHH for crazy large persistent timers
-      lcdDrawText(x - 5, y, "h", att);
-      lcdDrawNumber(lcdLastLeftPos, y, timerState.val / 3600, att);
-    }
-    uint8_t xLabel = (negative ? x - 56 : x - 49);
-    uint8_t len = zlen(timer.name, LEN_TIMER_NAME);
-    if (len > 0) {
-      lcdDrawSizedText(xLabel, y + FH, timer.name, len, RIGHT);
-    }
-    else {
-      drawTimerMode(xLabel, y + FH, timer.mode, RIGHT);
-    }
-  }
+  lcdSetRefVolt(g_eeGeneral.contrast);
 }
-
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags att)
-{
-  y+=3;
-  sensor = (sensor-MIXSRC_FIRST_TELEM) / 3;
-	TelemetryItem & telemetryItem = telemetryItems[sensor];
-
-  lcdDrawNumber(x, y, telemetryItem.datetime.hour, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y, ":", att);
-  lcdDrawNumber(lcdNextPos, y, telemetryItem.datetime.min, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y, ":", att);
-  lcdDrawNumber(lcdNextPos, y, telemetryItem.datetime.sec, att|LEADING0, 2);
-
-  lcdDrawNumber(x-29, y, telemetryItem.datetime.month, att|LEADING0|LEFT, 2);
-  lcdDrawChar(lcdNextPos, y, '-', att);
-  lcdDrawNumber(lcdNextPos, y, telemetryItem.datetime.day, att|LEADING0|LEFT, 2);
-}
-
-void drawGPSPosition(coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags)
-{
-  if (flags & DBLSIZE) {
-    x -= (g_eeGeneral.gpsFormat == 0 ? 62 : 61);
-    flags &= ~0x0F00; // TODO constant
-    drawGPSCoord(x, y, latitude, "NS", flags);
-    drawGPSCoord(x, y+FH, longitude, "EW", flags);
-  }
-  else {
-    drawGPSCoord(x, y, latitude, "NS", flags, false);
-    drawGPSCoord(lcdNextPos+FWNUM, y, longitude, "EW", flags, false);
-  }
-}
-
-void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags)
-{
-  drawGPSPosition(x, y, telemetryItem.gps.longitude, telemetryItem.gps.latitude, flags);
-}
-
 
 #define LCD_BYTE_FILTER(p, keep, add) *(p) = (*(p) & (keep)) | (add)
 

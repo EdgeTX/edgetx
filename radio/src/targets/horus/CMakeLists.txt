@@ -26,6 +26,7 @@ set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
+add_definitions(-DHARDWARE_TRIMS)
 
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
@@ -361,13 +362,13 @@ MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
 ENDMACRO()
 
 if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(gcc_include_path)
+  GET_GCC_INCLUDE_PATH(arm_gcc_include_path)
 
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBHORUS -DPCBX10 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
+    DEPENDS ${RADIO_DIRECTORY}/src/datastructs_private.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
 
   add_custom_target(datacopy

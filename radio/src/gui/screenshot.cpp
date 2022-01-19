@@ -91,8 +91,13 @@ const char * writeScreenshot()
     }
   }
 #else
+#if LCD_H > 64
+  for (int y=0; y<LCD_H; y++) {
+    for (int x=LCD_W-2; x>=0; x-=2) {
+#else
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
+#endif
       pixel_t byte = getPixel(x+1, y) + (getPixel(x, y) << 4);
       if (f_write(&bmpFile, &byte, 1, &written) != FR_OK || written != 1) {
         f_close(&bmpFile);

@@ -28,6 +28,10 @@
 enum usbMode {
   USB_UNSELECTED_MODE,
   USB_JOYSTICK_MODE,
+#if defined(RADIO_FAMILY_TBS)
+  USB_AGENT_MODE,
+  USB_CHARGING_MODE,
+#endif
   USB_MASS_STORAGE_MODE,
   USB_SERIAL_MODE,
 #if defined(USB_SERIAL)
@@ -54,3 +58,7 @@ uint32_t usbSerialBaudRate(void);
 void usbSerialSetReceiveDataCb(void (*cb)(uint8_t* buf, uint32_t len));
 void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState));
 void usbSerialSetBaudRateCb(void (*cb)(uint32_t baud));
+
+#if defined(RADIO_FAMILY_TBS)
+void agentHandler();
+#endif

@@ -23,7 +23,11 @@
 
 void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 {
+#if LCD_H > 64
+#define BOX_CENTERY   (LCD_H-22-BOX_WIDTH/2)
+#else
 #define BOX_CENTERY   (LCD_H-9-BOX_WIDTH/2)
+#endif
 #define MARKER_WIDTH  5
   lcdDrawSquare(centrex-BOX_WIDTH/2, BOX_CENTERY-BOX_WIDTH/2, BOX_WIDTH);
   lcdDrawSolidVerticalLine(centrex, BOX_CENTERY-1, 3);

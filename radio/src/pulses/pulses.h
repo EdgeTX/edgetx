@@ -323,7 +323,11 @@ inline void stopPulses()
 
 inline bool pulsesStarted()
 {
+#if defined(RADIO_FAMILY_TBS)
+  return moduleState[1].protocol != PROTOCOL_CHANNELS_UNINITIALIZED;;
+#else
   return moduleState[0].protocol != PROTOCOL_CHANNELS_UNINITIALIZED;
+#endif
 }
 
 inline void pausePulses()

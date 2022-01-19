@@ -21,21 +21,11 @@
 
 #include "opentx.h"
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
 {
   div_t qr = div(source-1, 3);
   return qr.quot+MIXSRC_FIRST_SWITCH;
 }
-#else
-uint8_t switchToMix(uint8_t source)
-{
-  if (source <= 3)
-    return MIXSRC_3POS;
-  else
-    return MIXSRC_FIRST_SWITCH - 3 + source;
-}
-#endif
 
 int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable)
 {
@@ -483,6 +473,10 @@ bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
 #endif
     case FUNC_RESERVE5:
       return false;
+#if defined(RADIO_FAMILY_TBS)
+    case FUNC_SET_FAILSAFE:
+      return false;
+#endif
 
     default:
       return true;
@@ -798,6 +792,11 @@ bool isTelemetryProtocolAvailable(int protocol)
 
 bool isTrainerModeAvailable(int mode)
 {
+#if defined(RADIO_FAMILY_TBS)
+  if (mode != TRAINER_MODE_MULTI)
+    return false;
+#endif
+
 #if defined(PCBTARANIS)
   if (IS_EXTERNAL_MODULE_ENABLED() && (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
     return false;
@@ -824,7 +823,7 @@ bool isTrainerModeAvailable(int mode)
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))
     return false;
-#elif !defined(PCBSKY9X)
+#elif !defined(PCBSKY9X) && !defined(RADIO_FAMILY_TBS)
   if (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH)
     return false;
 #endif

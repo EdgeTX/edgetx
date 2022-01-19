@@ -226,6 +226,9 @@ enum MenuRadioVersionItems
 #if defined(PCBTARANIS)
   ITEM_RADIO_FIRMWARE_OPTIONS,
 #endif
+#if defined(RADIO_TANGO)
+  ITEM_RADIO_HARDWARE_VERSION,
+#endif
 #if defined(PXX2)
   ITEM_RADIO_MODULES_VERSION,
 #endif
@@ -250,6 +253,12 @@ void menuRadioVersion(event_t event)
 #endif
 
   y += 2;
+
+#if defined(RADIO_TANGO)
+  lcdDrawText(INDENT_WIDTH, y, TR_HW_REV " : ", 0);
+  lcdDrawNumber(lcdNextPos, y, hardwareOptions.pcbrev, 0);
+  y += 2 * FH;
+#endif
 
 #if defined(PCBTARANIS)
   lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_FIRMWARE_OPTIONS), menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS ? INVERS : 0);

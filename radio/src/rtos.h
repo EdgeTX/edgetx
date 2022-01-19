@@ -242,10 +242,9 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
     return getStackAvailable(&_main_stack_start, stackSize());
   }
 
-  //#define RTOS_CREATE_FLAG(flag)        flag = CoCreateFlag(false, false)
-  //#define RTOS_SET_FLAG(flag)           (void)CoSetFlag(flag)
-  //#define RTOS_CLEAR_FLAG(flag)         (void)CoClearFlag(flag)
-
+  #define RTOS_CREATE_SEM(sem, semBuffer)  sem = xSemaphoreCreateBinaryStatic(&semBuffer)
+  #define RTOS_GIVE_SEM(sem)               xSemaphoreGive(sem)
+  
   // returns true if timeout
   static inline bool _RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE* flag, uint32_t timeout)
   {

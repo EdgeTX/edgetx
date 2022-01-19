@@ -51,6 +51,14 @@
 #define HID_IN_PACKET                19
 #define HID_OUT_PACKET               9
 
+#if defined(RADIO_FAMILY_TBS)
+#define HID_AGENT_IN_EP              0x81
+#define HID_AGENT_OUT_EP             0x01
+
+#define HID_AGENT_IN_PACKET          64
+#define HID_AGENT_OUT_PACKET         64
+#endif
+
 #define CDC_IN_EP                    0x81  /* EP1 for data IN */
 #define CDC_OUT_EP                   0x01  /* EP1 for data OUT */
 #define CDC_CMD_EP                   0x82  /* EP2 for CDC commands */

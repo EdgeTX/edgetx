@@ -344,7 +344,7 @@ void boardOff()
   #define BATTERY_DIVIDER 1495
 #else
   #define BATTERY_DIVIDER 1629
-#endif 
+#endif
 
 uint16_t getBatteryVoltage()
 {

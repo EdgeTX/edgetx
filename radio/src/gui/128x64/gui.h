@@ -29,6 +29,13 @@
 
 #define MENUS_SCROLLBAR_WIDTH          0
 
+#if LCD_DEPTH == 4
+#define GREY(x)                        ((x) * 0x010000)
+#define WHITE                          GREY(0xf)
+#define GREY_DEFAULT                   GREY(11)
+#define FILL_WHITE                     0x10
+#endif
+
 #if defined(NAVIGATION_X7)
   #define HEADER_LINE                  0
   #define HEADER_LINE_COLUMNS
@@ -43,9 +50,15 @@
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
 
-#define CURVE_SIDE_WIDTH               (LCD_H/2)
-#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-2)
-#define CURVE_CENTER_Y                 (LCD_H/2)
+#if LCD_H > 64
+#define CURVE_SIDE_WIDTH               (32)
+#define CURVE_SIDE_HEIGHT              (64)
+#else
+#define CURVE_SIDE_WIDTH               (LCD_H / 2)
+#define CURVE_SIDE_HEIGHT              LCD_H
+#endif
+#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH - 2)
+#define CURVE_CENTER_Y                 (LCD_H / 2)
 
 #define MIXES_2ND_COLUMN               (12*FW)
 
@@ -197,7 +210,7 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t fl
 #else
 int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int16_t max, LcdFlags attr, event_t event);
 #define GVAR_MENU_ITEM(x, y, v, min, max, attr, editflags, event) editGVarFieldValue(x, y, v, min, max, attr, event)
-#define displayGVar(x, y, v, min, max) lcdDraw8bitsNumber(x, y, v)
+#define displayGVar(x, y, v, min, max) lcdDrawNumber(x, y, v)
 #endif
 
 void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event);
@@ -290,6 +303,22 @@ extern const unsigned char sticks[] ;
 
 void drawSplash();
 void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr);
+#if defined(RADIO_CALIBRATION_HALL)
+typedef enum {
+  MAINSCREEN_GRAPHICS_NONE = 0,
+  MAINSCREEN_GRAPHICS_STICKS = 0x01,
+  MAINSCREEN_GRAPHICS_POTS = 0x02,
+  MAINSCREEN_GRAPHICS_ALL = 0xFF
+} MainScreenGraphicsView;
+
+void doMainScreenGraphics(uint8_t viewMask, int16_t * sticksOverride);
+#endif
+
+// TODO: somewhere else!
+#if defined(RADIO_FAMILY_TBS)
+void drawDownload();
+#endif
+
 void drawStick(coord_t centrex, int16_t xval, int16_t yval);
 void drawPotsBars();
 void doMainScreenGraphics();

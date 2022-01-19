@@ -146,6 +146,8 @@ enum MenuModelSetupItems {
 
 #define MODEL_SETUP_2ND_COLUMN        (LCD_W-17*FW-MENUS_SCROLLBAR_WIDTH-1)
 #define MODEL_SETUP_3RD_COLUMN        (MODEL_SETUP_2ND_COLUMN+6*FW)
+#define MODEL_SETUP_BIND_OFS          3*FW-2
+#define MODEL_SETUP_RANGE_OFS         7*FW
 #define MODEL_SETUP_SET_FAILSAFE_OFS  10*FW-2
 
 void copySelection(char * dst, const char * src, uint8_t size)

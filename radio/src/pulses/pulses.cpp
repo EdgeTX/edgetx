@@ -29,7 +29,7 @@
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
-#else
+#elif !defined(RADIO_FAMILY_TBS)
 #include "intmodule_pulses_driver.h"
 #endif
 
@@ -233,6 +233,13 @@ uint8_t getRequiredProtocol(uint8_t module)
 
 #if defined(CROSSFIRE)
     case MODULE_TYPE_CROSSFIRE:
+#if defined(RADIO_TANGO)
+      // TODO: move this somewhere else !!!
+      if (module == EXTERNAL_MODULE && IS_PCBREV_01()) {
+        protocol = PROTOCOL_CHANNELS_NONE;
+        break;
+      }
+#endif
       protocol = PROTOCOL_CHANNELS_CROSSFIRE;
       break;
 #endif
@@ -478,7 +485,7 @@ bool setupPulsesExternalModule(uint8_t protocol)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 
-#if defined(INTERNAL_MODULE_CRSF)
+#if defined(INTERNAL_MODULE_CRSF) && defined(INTMODULE_USART)
 static void intmoduleCRSF_rx(uint8_t data)
 {
   intmoduleFifo.push(data);
@@ -502,27 +509,29 @@ static void enablePulsesInternalModule(uint8_t protocol)
   // start new protocol hardware here
 
   switch (protocol) {
-#if defined(PXX1) && !defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1)
+  #if !defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       intmodulePxx1PulsesStart();
-#if defined(INTMODULE_HEARTBEAT)
+  #if defined(INTMODULE_HEARTBEAT)
       init_intmodule_heartbeat();
-#endif
+  #endif
       mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
       break;
-#endif
+  #endif
 
-#if defined(PXX1) && defined(INTMODULE_USART)
+  #if defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
       intmodulePxx1SerialStart();
-#if defined(INTMODULE_HEARTBEAT)
+  #if defined(INTMODULE_HEARTBEAT)
       init_intmodule_heartbeat();
-#endif
+  #endif
       mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
       break;
+  #endif
 #endif
 
-#if defined(PXX2)
+#if defined(INTERNAL_MODULE_PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED: {
       etx_serial_init params;
       params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
@@ -573,6 +582,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
 #if defined(INTERNAL_MODULE_CRSF)
     case PROTOCOL_CHANNELS_CROSSFIRE: {
 
+#if !defined(RADIO_FAMILY_TBS)
       // serial port setup
       etx_serial_init params;
       params.baudrate  = CROSSFIRE_BAUDRATE;
@@ -583,9 +593,9 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
       intmoduleFifo.clear();
       intmoduleSerialStart(&params);
-
       // mixer setup
       mixerSchedulerSetPeriod(INTERNAL_MODULE, CROSSFIRE_PERIOD);
+#endif
     } break;
 #endif
 
@@ -720,7 +730,7 @@ void intmoduleSendNextFrame()
       break;
 #endif
 
-#if defined(PXX1)
+#if defined(INTERNAL_MODULE_PXX1)
 #if defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
       intmoduleSendBuffer(intmodulePulsesData.pxx_uart.getData(),
@@ -794,6 +804,7 @@ bool setupPulsesExternalModule()
 
   if (moduleState[EXTERNAL_MODULE].protocol != protocol) {
     extmoduleStop();
+    RTOS_WAIT_MS(10); // TODO: what is this ????
     enablePulsesExternalModule(protocol);
     moduleState[EXTERNAL_MODULE].protocol = protocol;
     return false;

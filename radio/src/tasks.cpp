@@ -22,6 +22,11 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+#if defined(RADIO_FAMILY_TBS)
+#include "io/crsf/crsf.h"
+#include "io/crsf/crossfire.h"
+#endif
+
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
@@ -195,6 +200,12 @@ TASK_FUNCTION(mixerTask)
       if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
         usbJoystickUpdate();
       }
+
+      // TODO: this needs to move somewhere else!
+      // #if defined(INTERNAL_MODULE_CRSF)
+      //     if (IS_INTERNAL_MODULE_ENABLED())
+      //       updateIntCrossfireChannels();
+      // #endif
 #endif
 
       if (heartbeat == HEART_WDT_CHECK) {
@@ -265,6 +276,23 @@ TASK_FUNCTION(menusTask)
     resetForcePowerOffRequest();
   }
 
+// TODO: create hook to be implemented in TBS targets
+//
+#if defined(RADIO_FAMILY_TBS) && defined(LIBCRSF_ENABLE_OPENTX_RELATED) && \
+    defined(LIBCRSF_ENABLE_SD)
+
+  if ((*(uint32_t *)CROSSFIRE_TASK_ADDRESS != 0xFFFFFFFF) &&
+      getSelectedUsbMode() != USB_MASS_STORAGE_MODE && sdMounted()) {
+
+    setCrsfFlag(CRSF_FLAG_EEPROM_SAVE);
+    uint32_t time = get_tmr10ms();
+    while (getCrsfFlag(CRSF_FLAG_EEPROM_SAVE) && get_tmr10ms() - time <= 100) {
+      // with 1s timeout
+      RTOS_WAIT_TICKS(1);
+    }
+  }
+#endif
+
 #if defined(PCBX9E)
   toplcdOff();
 #endif
@@ -280,8 +308,13 @@ TASK_FUNCTION(menusTask)
   TASK_RETURN();
 }
 
+
 void tasksStart()
 {
+#if !defined(SIMU)
+  stackPaint();
+#endif
+
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 

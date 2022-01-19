@@ -33,9 +33,11 @@ extern "C" {
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)
-static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
+usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
+#elif defined(USB_FIRMWARE_DEFAULT_MODE)
+usbMode selectedUsbMode = USB_FIRMWARE_DEFAULT_MODE;
 #else
-static usbMode selectedUsbMode = USB_UNSELECTED_MODE;
+usbMode selectedUsbMode = USB_UNSELECTED_MODE;
 #endif
 
 int getSelectedUsbMode()
@@ -45,7 +47,13 @@ int getSelectedUsbMode()
 
 void setSelectedUsbMode(int mode)
 {
+  usbMode selectedUsbModePrev = selectedUsbMode;
   selectedUsbMode = usbMode(mode);
+
+  // for disconnecting usb from host without unplugging
+  if (selectedUsbModePrev != selectedUsbMode) {
+    usbStop();
+  }
 }
 
 int usbPlugged()
@@ -77,12 +85,21 @@ void usbStart()
       // initialize USB as HID device
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
       break;
+#if defined(RADIO_FAMILY_TBS)
+    case USB_AGENT_MODE:
+      // initialize USB as HID device
+      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_AGENT_cb, &USR_cb);
+      break;
+    case USB_CHARGING_MODE:
+      // don't initialize USB in charging mode
+      break;
 #endif
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
       break;
+#endif
 #endif
     default:
     case USB_MASS_STORAGE_MODE:
@@ -95,6 +112,10 @@ void usbStart()
 
 void usbStop()
 {
+#if defined(RADIO_FAMILY_TBS)
+  // facilitate switching usb mode in runtime
+  USB_OTG_WRITE_REG32(&USB_OTG_dev.regs.GREGS->GCCFG, 0);
+#endif
   usbDriverStarted = false;
   USBD_DeInit(&USB_OTG_dev);
 }
@@ -107,7 +128,6 @@ bool usbStarted()
 #if !defined(BOOT)
 /*
   Prepare and send new USB data packet
-
   The format of HID_Buffer is defined by
   USB endpoint description can be found in
   file usb_hid_joystick.c, variable HID_JOYSTICK_ReportDesc

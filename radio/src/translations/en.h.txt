@@ -86,8 +86,13 @@
 #define LEN_COUNTRY_CODES              TR("\002", "\007")
 #define TR_COUNTRY_CODES               TR("US""JP""EU", "America""Japan\0 ""Europe\0")
 
+#if defined(RADIO_FAMILY_TBS)
+#define LEN_USBMODES                   TR("\006", "\010")
+#define TR_USBMODES                    TR("Ask\0  ""Joyst\0""Agent\0""SDCard""Serial", "Ask\0    ""Joystick""Agent\0 ""Storage\0""Serial\0 ")
+#else
 #define LEN_USBMODES                   TR("\006", "\010")
 #define TR_USBMODES                    TR("Ask\0  ""Joyst\0""SDCard""Serial", "Ask\0    ""Joystick""Storage\0""Serial\0 ")
+#endif
 
 #define LEN_JACK_MODES                 "\007"
 #define TR_JACK_MODES                  "Ask\0   ""Audio\0 ""Trainer"
@@ -515,6 +520,10 @@
 #define TR_BATTERYFULL                 "Battery full"
 #define TR_BATTERYNONE                 "None!"
 #define TR_BATTERYWARNING              "Battery low"
+#if defined(BATT_CRITICAL_SHUTDOWN)
+  #define TR_CRITICALBATTERYLEVEL      "Critical Batt. Level"
+  #define TR_SHUTDOWNINXXS             "Shutdown In xxs?"
+#endif
 #define TR_INACTIVITYALARM             "Inactivity"
 #define TR_MEMORYWARNING               "Memory low"
 #define TR_ALARMWARNING                "Sound off"
@@ -567,6 +576,30 @@
   #define TR_MENUTOSTART               TR_ENTER " TO START"
   #define TR_SETMIDPOINT               "CENTER STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
+#elif defined(RADIO_FAMILY_TBS)
+  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
+  #define TR_LEFT                      "\005LEFT"
+  #define TR_RIGHT                     "\005RIGHT"
+  #define TR_BOTH                      "\005BOTH"
+  #define TR_SETMIDPOINT               CENTER "\004CENTER POTS/SLIDERS"
+  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE POTS/SLIDERS"
+  #define TR_MOVESTICK_P0              CENTER "\004HOLD STICK AT CENTER"
+  #define TR_MOVESTICK_P1              CENTER "\004HOLD AT MIDDLE RIGHT"
+  #define TR_MOVESTICK_P2              CENTER "\006HOLD AT TOP RIGHT"
+  #define TR_MOVESTICK_P3              CENTER "\006HOLD AT TOP MIDDLE"
+  #define TR_MOVESTICK_P4              CENTER "\007HOLD AT TOP LEFT"
+  #define TR_MOVESTICK_P5              CENTER "\004HOLD AT MIDDLE LEFT"
+  #define TR_MOVESTICK_P6              CENTER "\004HOLD AT BOTTOM LEFT"
+  #define TR_MOVESTICK_P7              CENTER "\003HOLD AT BOTTOM MIDDLE"
+  #define TR_MOVESTICK_P8              CENTER "\003HOLD AT BOTTOM RIGHT"
+  #define TR_CAL_POINTS                CENTER "\002CALCULATING CONSTANTS"
+  #define TR_RELEASE_STICK             CENTER "\006RELEASE THE STICK"
+  #define TR_MOVE_PLUS                 CENTER "\005MOVE IN \"+\" PATTERN"
+  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
+  #define TR_JOYSTICK_RF               "RF in Joystick Mode"
+  #define TR_TURN_OFF_RF               "Turn off RF?"
+  #define TR_INVERT_ROTARY             "Invert Rotary"
+  #define TR_UPDATE_CROSSFIRE          "Pls Update Crossfire"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
   #define TR_SETMIDPOINT               TR(CENTER "\004SET STICKS MIDPOINT", CENTER "\004CENTER STICKS/SLIDERS")
@@ -646,7 +679,12 @@
 #define TR_MONITOR_SWITCHES            "LOGICAL SWITCHES MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Outputs"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
-  #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
+#if defined(RADIO_FAMILY_TBS)
+    #define TR_CROSSFIRE               "Crossfire"
+    #define TR_RECEIVER_NUM            TR("ModelMatch", "Receiver No.")
+#else
+    #define TR_RECEIVER_NUM            TR("RxNum", "Receiver No.")
+#endif
   #define TR_RECEIVER                  "Receiver"
 #define TR_MULTI_RFTUNE                TR("Freq tune", "RF Freq. fine tune")
 #define TR_MULTI_RFPOWER               "RF power"
@@ -875,6 +913,7 @@
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
 #define TR_CURRENT_VERSION             TR("Curr Vers: ", "Current version: ")
+#define TR_HW_REV                      "HW Rev"
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash int. module", "Flash internal module")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. module", "Flash external module")
@@ -935,6 +974,10 @@
 #define TR_STATISTICS                  "Statistics"
 #define TR_ABOUT_US                    "About"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
+#if defined(RADIO_FAMILY_TBS)
+#define TR_USB_AGENT                   "USB Agent (HID)"
+#define TR_USB_CHARGE                  "USB Charging"
+#endif
 #define TR_USB_MASS_STORAGE            "USB Storage (SD)"
 #define TR_USB_SERIAL                  "USB Serial (Debug)"
 #define TR_SETUP_SCREENS               "Setup screens"
@@ -1263,9 +1306,14 @@
 #define STR_RX_SNR                    "RSNR"
 #define STR_RX_NOISE                  "RNse"
 #define STR_RF_MODE                   "RFMD"
-#define STR_TX_POWER                  "TPWR"
+#define STR_TX_POWER                  "TPW2"
 #define STR_TX_RSSI                   "TRSS"
 #define STR_TX_QUALITY                "TQly"
+#define STR_RX_RSSI_PERC              "RRSP"
+#define STR_RX_RF_POWER               "RPWR"
+#define STR_TX_RSSI_PERC              "TRSP"
+#define STR_TX_RF_POWER               "TPWR"
+#define STR_TX_FPS                    "TFPS"
 #define STR_TX_SNR                    "TSNR"
 #define STR_TX_NOISE                  "TNse"
 #define STR_PITCH                     "Ptch"

@@ -41,7 +41,7 @@ uint8_t createCrossfireModelIDFrame(uint8_t * frame)
   *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
   *buf++ = COMMAND_MODEL_SELECT_ID;                   /* command of set model/receiver id */
   *buf++ = g_model.header.modelId[EXTERNAL_MODULE];   /* model ID */
-  *buf++ = crc8_BA(frame + 2, 6);
+  *buf++ = command_crc8(frame + 2, 6);
   *buf++ = crc8(frame + 2, 7);
   return buf - frame;
 }

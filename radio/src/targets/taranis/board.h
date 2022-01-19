@@ -527,6 +527,7 @@ enum EnumSwitchesPositions
 
 void keysInit();
 uint32_t switchState(uint8_t index);
+static const uint8_t switchReOrder[] = {0, 1, 2, 3, 4, 5};
 uint32_t readKeys();
 uint32_t readTrims();
 #if defined(FUNCTION_SWITCHES)
@@ -700,11 +701,13 @@ extern uint16_t adcValues[NUM_ANALOGS];
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
   #define BATTERY_MAX                   83 // 8.3V
+  #define BATTERY_TYPE_FIXED
 #elif defined(RADIO_T8) || defined(RADIO_TLITE)
   // 1S Li-ion /  Lipo, LDO for 3.3V
   #define BATTERY_WARN                  35 // 3.5V
   #define BATTERY_MIN                   34 // 3.4V
   #define BATTERY_MAX                   42 // 4.2V
+  #define BATTERY_TYPE_FIXED
 #else
   // NI-MH 7.2V
   #define BATTERY_WARN                  65 // 6.5V

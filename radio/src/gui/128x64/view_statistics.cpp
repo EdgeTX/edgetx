@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(RADIO_FAMILY_TBS)
+#include "targets/tbs/crsf_tasks.h"
+#endif
+
 #define STATS_1ST_COLUMN               1
 #define STATS_2ND_COLUMN               7*FW+FW/2
 #define STATS_3RD_COLUMN               14*FW+FW/2
@@ -249,6 +253,13 @@ void menuStatisticsDebug(event_t event)
     lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, heartbeatCapture.count, LEFT);
   else
     lcdDrawText(MENU_DEBUG_COL1_OFS, y, "---");
+  y += FH;
+#endif
+
+#if defined(RADIO_FAMILY_TBS)
+  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, crossfireStack.available(), LEFT);
+  lcdDrawText(lcdLastRightPos, y, "/");
+  lcdDrawNumber(lcdLastRightPos, y, systemStack.available(), LEFT);
   y += FH;
 #endif
 

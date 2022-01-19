@@ -81,7 +81,11 @@ void menuChannelsViewCommon(event_t event)
   // Channels
   for (uint8_t line = 0; line < 8; line++) {
     LimitData * ld = limitAddress(ch);
+#if LCD_H > 64
+    const uint8_t y = 11 + line * 11;
+#else
     const uint8_t y = 9 + line * 7;
+#endif
     const int32_t val = reusableBuffer.viewChannels.mixersView ? ex_chans[ch] : channelOutputs[ch];
     const uint8_t lenLabel = ZLEN(g_model.limitData[ch].name);
 

@@ -20,7 +20,6 @@
  */
 
 #include "opentx.h"
-#include "targets/horus/board.h"
 
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
@@ -189,6 +188,7 @@ uint8_t auxSerialTracesEnabled()
 #endif
 }
 
+#if !defined(SIMU) && !defined(RADIO_FAMILY_TBS)
 extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
@@ -237,6 +237,7 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
     status = AUX_SERIAL_USART->SR;
   }
 }
+#endif // !defined(SIMU) && !defined(RADIO_FAMILY_TBS)
 #endif // AUX_SERIAL
 
 #if defined(AUX2_SERIAL)

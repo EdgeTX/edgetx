@@ -133,12 +133,7 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  #define NUM_MODULES                  2
-#else
-  #define NUM_MODULES                  1
-#endif
-
+#define NUM_MODULES                    2
 #define XPOTS_MULTIPOS_COUNT           6
 
 #if defined(COLORLCD)
@@ -177,7 +172,6 @@ enum BeeperMode {
   e_mode_all
 };
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
 enum ModuleIndex {
   INTERNAL_MODULE,
   EXTERNAL_MODULE,
@@ -201,7 +195,6 @@ enum TrainerMode {
   TRAINER_MODE_SLAVE_BLUETOOTH,
   TRAINER_MODE_MULTI,
 };
-#endif
 
 #define TRAINER_MODE_MIN()               TRAINER_MODE_MASTER_TRAINER_JACK
 

@@ -137,6 +137,7 @@ swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags flags=0);
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags flags=0);
+void drawGPSCoord(coord_t x, coord_t y, int32_t value, const char * direction, LcdFlags att, bool seconds=true);
 void drawGPSPosition(coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags=0);
 void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags=0);
@@ -145,14 +146,18 @@ void drawSourceValue(coord_t x, coord_t y, source_t channel, LcdFlags flags=0);
 
 int convertMultiToOtx(int type);
 
-// model_setup Defines that are used in all uis in the same way
+#if !defined(EEPROM)
+void drawFatalErrorScreen(const char * message);
+void runFatalErrorScreen(const char * message);
+#endif
+
 #define IF_INTERNAL_MODULE_ON(x)                  (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
 #define IF_MODULE_ON(moduleIndex, x)              (IS_MODULE_ENABLED(moduleIndex) ? (uint8_t)(x) : HIDDEN_ROW)
 
 inline uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
   if (isModuleCrossfire(moduleIdx))
-    return 0;
+    return 1;
 
   if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
@@ -190,6 +195,15 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   else {
     return 1;
   }
+}
+
+inline uint8_t MODULE_CROSSFIRE_ROWS(int moduleIdx)
+{
+  if (!IS_MODULE_ENABLED(moduleIdx)) {
+    return HIDDEN_ROW;
+  }
+  else
+    return 0;
 }
 
 #if defined(PXX2)

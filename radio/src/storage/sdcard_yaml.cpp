@@ -126,8 +126,6 @@ const char * loadRadioSettings()
       g_eeGeneral.version = versions[0];
       g_eeGeneral.variant = *variant;
       eeConvert();
-#else
-  #error "Unsupported conversion format"
 #endif
     }
 

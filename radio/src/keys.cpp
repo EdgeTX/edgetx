@@ -32,12 +32,19 @@
   #define FILTERBITS                4   // defines how many bits are used for debounce
 #endif
 
+#if !defined(HARDWARE_TRIMS)
+  #define  ROTARY_FILTERBITS        1   // when make the rotary as the key, reduce the hold time
+#endif
+
 #define KSTATE_OFF                  0
 #define KSTATE_RPTDELAY             95
 #define KSTATE_START                97
 #define KSTATE_PAUSE                98
 #define KSTATE_KILLED               99
 
+#if !defined(HARDWARE_TRIMS)
+uint8_t g_trimEditMode = EDIT_TRIM_DISABLED;
+#endif
 
 event_t s_evt;
 struct InactivityData inactivity = {0};
@@ -59,6 +66,9 @@ void Key::input(bool val)
 {
   // store new value in the bits that hold the key state history (used for debounce)
   uint8_t t_vals = m_vals ;
+#if !defined(HARDWARE_TRIMS) && !defined(BOOT)
+  uint8_t filterBits = 0;
+#endif
   t_vals <<= 1 ;
   if (val) t_vals |= 1;
   m_vals = t_vals ;
@@ -78,7 +88,17 @@ void Key::input(bool val)
 
   switch (m_state) {
     case KSTATE_OFF:
+#if !defined(HARDWARE_TRIMS) && !defined(BOOT)
+      if (g_trimEditMode != EDIT_TRIM_DISABLED) {
+        filterBits = ROTARY_FILTERBITS;
+      }
+      else {
+        filterBits = FILTERBITS;
+      }
+      if (m_vals == ((1<<filterBits)-1)) {
+#else
       if (m_vals == ((1<<FILTERBITS)-1)) {
+#endif
         m_state = KSTATE_START;
         m_cnt = 0;
       }
@@ -93,6 +113,35 @@ void Key::input(bool val)
       break;
 
     case KSTATE_RPTDELAY: // gruvin: delay state before first key repeat
+#if !defined(HARDWARE_TRIMS)
+      if (g_trimEditMode != EDIT_TRIM_DISABLED) {
+  #if defined(SIMU)
+        if (m_cnt == KEY_LONG_DELAY) {
+          m_state = 16;
+          m_cnt = 0;
+        }
+        break;
+  #else
+        if (m_cnt == 6) {
+          m_state = 2;
+          m_cnt = 0;
+        }
+        break;
+  #endif
+      }
+      else {
+        if (m_cnt == KEY_LONG_DELAY) {
+          // generate long key press
+          //TRACE("key %d LONG", key());
+          pushEvent(EVT_KEY_LONG(key()));
+        }
+        if (m_cnt == KEY_REPEAT_DELAY) {
+          m_state = 16;
+          m_cnt = 0;
+        }
+        break;
+      }
+#else
       if (m_cnt == KEY_LONG_DELAY) {
         // generate long key press
         // TRACE("key %d LONG", key());
@@ -103,7 +152,7 @@ void Key::input(bool val)
         m_cnt = 0;
       }
       break;
-
+#endif
     case 16:
     case 8:
     case 4:

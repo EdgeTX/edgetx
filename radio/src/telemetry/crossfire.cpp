@@ -256,6 +256,13 @@ void processCrossfireTelemetryFrame(uint8_t module)
   }
 }
 
+#if defined(RADIO_FAMILY_TBS)
+bool isCrossfireOutputBufferAvailable()
+{
+  return outputTelemetryBuffer.size == 0;
+}
+#endif
+
 void processCrossfireTelemetryData(uint8_t data, uint8_t module)
 {
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
@@ -272,7 +279,7 @@ void processCrossfireTelemetryData(uint8_t data, uint8_t module)
   }
 #endif
 
-  if (rxBufferCount == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
+  if (rxBufferCount == 0 && (data != RADIO_ADDRESS && data != UART_SYNC)) {
     TRACE("[XF] address 0x%02X error", data);
     return;
   }

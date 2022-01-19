@@ -1,6 +1,6 @@
 set(GUI_SRC
   ${GUI_SRC}
-  lcd.cpp
+  draw_functions.cpp
   splash.cpp
   popups.cpp
   widgets.cpp
