@@ -93,6 +93,7 @@ lv_color_t makeLvColor(uint32_t colorFlags)
 
 lv_obj_t * canvas=nullptr;
 static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(LCD_W, LCD_H)] __SDRAM;
+BitmapBuffer canBuf(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)cbuf);
 
 extern BitmapBuffer * lcdFront;
 extern BitmapBuffer * lcd;
