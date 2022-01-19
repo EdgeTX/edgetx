@@ -88,17 +88,16 @@ constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
 void execMixerFrequentActions()
 {
-#if defined(SBUS_TRAINER)
-  // SBUS trainer
+#if defined(SBUS_TRAINER) && (defined(AUX_SERIAL) || defined(AUX2_SERIAL))
     if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
-        #ifdef AUX2_SERIAL
+        #if defined(AUX2_SERIAL)
             || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
         #endif
             ) {
         processSbusInput();
     }
     else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)
-         #ifdef AUX2_SERIAL
+         #if defined(AUX2_SERIAL)
              || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)
          #endif
              ) {
