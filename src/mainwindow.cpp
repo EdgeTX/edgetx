@@ -193,15 +193,13 @@ void MainWindow::invalidate(const rect_t & rect)
 }
 #include "lvgl/lvgl.h"
 extern lv_obj_t * canvas;
-extern BitmapBuffer lcdBackup;
+extern BitmapBuffer canBuf;
 bool MainWindow::refresh()
 {
   if (invalidatedRect.w) {
-    lcdBackup.setOffset(0, 0);
-    lcdBackup.setClippingRect(0,LCD_W,0, LCD_H);
-    fullPaint(&lcdBackup);
-    lv_canvas_copy_buf(canvas, lcdBackup.getData(), 0, 0, LCD_W, LCD_H);
-    lv_img_cache_invalidate_src(lcdBackup.getData());
+    canBuf.setOffset(0, 0);
+    canBuf.setClippingRect(0,LCD_W,0, LCD_H);
+    fullPaint(&canBuf);
     lv_obj_invalidate(canvas);
   }
   return false;
