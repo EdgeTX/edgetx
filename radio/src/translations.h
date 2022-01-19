@@ -407,6 +407,8 @@ extern const char STR_MENUSPECIALFUNCS[];
 extern const char STR_MENUVERSION[];
 extern const char STR_MENU_RADIO_SWITCHES[];
 extern const char STR_MENU_RADIO_ANALOGS[];
+extern const char STR_MENU_RADIO_ANALOGS_CALIB[];
+extern const char STR_MENU_RADIO_ANALOGS_RAWLOWFPS[];
 extern const char STR_MENUCALIBRATION[];
 extern const char STR_MENUMODELSEL[];
 extern const char STR_MENU_MODEL_SETUP[];

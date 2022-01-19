@@ -22,11 +22,21 @@
 #include "opentx.h"
 #include "../../hal/adc_driver.h"
 
+#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
+
 void menuRadioDiagAnalogs(event_t event)
 {
-#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
     static int8_t entryCount = 0;
     static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+    enum ANAVIEWS{
+       ANAVIEW_FIRST,
+       ANAVIEW_CALIB=ANAVIEW_FIRST,
+       ANAVIEW_RAWLOWFPS,
+       ANAVIEW_LAST=ANAVIEW_RAWLOWFPS
+    };
+
+    static int viewpage = ANAVIEW_FIRST;
 
 // TODO enum
 #if defined(TX_CAPACITY_MEASUREMENT)
@@ -37,7 +47,33 @@ void menuRadioDiagAnalogs(event_t event)
   #define ANAS_ITEMS_COUNT 1
 #endif
 
-  SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS, HEADER_LINE+ANAS_ITEMS_COUNT);
+#if defined(KEYS_GPIO_REG_PAGEDN)
+  if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
+      if (viewpage == ANAVIEW_LAST)
+        viewpage = ANAVIEW_FIRST;
+      else
+          viewpage++;
+      if (viewpage == ANAVIEW_RAWLOWFPS)
+        entryCount = 0;
+  }
+#endif
+
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
+      if (viewpage == ANAVIEW_FIRST)
+        viewpage = ANAVIEW_LAST;
+      else
+        viewpage--;
+      if (viewpage == ANAVIEW_RAWLOWFPS)
+        entryCount = 0;
+  }
+#endif
+
+  switch (viewpage)
+  {
+    case (ANAVIEW_CALIB): SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_CALIB, HEADER_LINE+ANAS_ITEMS_COUNT); break;
+    case (ANAVIEW_RAWLOWFPS): SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_RAWLOWFPS, HEADER_LINE+ANAS_ITEMS_COUNT); break;
+  }
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
 
@@ -54,17 +90,30 @@ void menuRadioDiagAnalogs(event_t event)
     }
     drawStringWithIndex(x, y, "A", i+1);
     lcdDrawChar(lcdNextPos, y, ':');
-    if (entryCount == 0)
+    switch (viewpage)
     {
-        lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+      case (ANAVIEW_RAWLOWFPS):
+        if (entryCount == 0)
+           {
+               lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+           }
+           lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i], LEADING0|LEFT, 4);
+        break;
+      case (ANAVIEW_CALIB):
+      default:
+        lcdDrawNumber(x+3*FW-1, y, anaIn(i), LEADING0|LEFT, 4); break;
+
     }
-    lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i], LEADING0|LEFT, 4);
     lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
   }
-  if (entryCount > HOLDANAVALUEFRAMES)
+
+  if (viewpage == ANAVIEW_RAWLOWFPS)
+  {
+    if (entryCount > HOLDANAVALUEFRAMES)
       entryCount = 0;
-  else
+    else
       entryCount++;
+  }
 
 #if defined(GYRO)
   y += FH;

@@ -610,6 +610,8 @@
 #define TR_MENUVERSION                 "VERZE"
 #define TR_MENU_RADIO_SWITCHES         "DIAG"
 #define TR_MENU_RADIO_ANALOGS          "ANALOGY"
+#define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
+#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION             "KALIBRACE"
 #if defined(COLORLCD)
 #define TR_TRIMS2OFFSETS               "Trimy => Subtrimy"
