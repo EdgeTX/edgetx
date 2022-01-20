@@ -47,6 +47,17 @@ void menuRadioDiagAnalogs(event_t event)
   #define ANAS_ITEMS_COUNT 1
 #endif
 
+#if defined(KEYS_GPIO_REG_PAGE)
+  if (event == EVT_KEY_BREAK(KEY_PAGE)) {
+    if (viewpage == ANAVIEW_LAST)
+      viewpage = ANAVIEW_FIRST;
+    else
+      viewpage++;
+    if (viewpage == ANAVIEW_RAWLOWFPS)
+      entryCount = 0;
+  }
+#endif
+
 #if defined(KEYS_GPIO_REG_PAGEDN)
   if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       if (viewpage == ANAVIEW_LAST)
