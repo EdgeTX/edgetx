@@ -77,11 +77,15 @@ void MainWindow::setTouchEnabled(bool enable)
 }
 #endif
 
+#if defined(HARDWARE_TOUCH)
+bool getTouchOccured();
+#endif
 void MainWindow::checkEvents()
 {
 #if defined(HARDWARE_TOUCH)
 
-  if (touchPanelEventOccured()) {
+//  if (touchPanelEventOccured()) {
+  if (getTouchOccured()) {
     short lastDeltaX = touchState.lastDeltaX;
     short lastDeltaY = touchState.lastDeltaY;;
     TouchState newTouchState = touchPanelRead();
@@ -230,7 +234,7 @@ void MainWindow::run(bool trash)
   // KLK: removed for now.  This is now
   // called from lvgl event processing when
   // necessary
-  // checkEvents();
+  checkEvents();
 
   if (trash) {
     emptyTrash();
