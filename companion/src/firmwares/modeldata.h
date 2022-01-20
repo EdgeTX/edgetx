@@ -175,7 +175,8 @@ class ModelData {
     unsigned int view;
 
     char registrationId[8+1];
-
+    char modelNotesFileName[15+1];
+    
     enum FunctionSwitchConfig {
       FUNC_SWITCH_CONFIG_NONE,
       FUNC_SWITCH_CONFIG_FIRST = FUNC_SWITCH_CONFIG_NONE,

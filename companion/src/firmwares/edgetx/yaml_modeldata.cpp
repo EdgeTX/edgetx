@@ -953,6 +953,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   node["modelRegistrationID"] = rhs.registrationId;
+  node["modelNotesFileName"] = rhs.modelNotesFileName;
 
   if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
     node["functionSwitchConfig"] = rhs.functionSwitchConfig;
@@ -1130,6 +1131,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["view"] >> rhs.view;
   node["modelRegistrationID"] >> rhs.registrationId;
+  node["modelNotesFileName"] >> rhs.modelNotesFileName;
 
   node["functionSwitchConfig"] >> rhs.functionSwitchConfig;
   node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
