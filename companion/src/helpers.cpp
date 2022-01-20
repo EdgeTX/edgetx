@@ -679,7 +679,7 @@ QString Helpers::getChecklistsPath()
 
 QString Helpers::getChecklistFilename(const ModelData * model)
 {
-  QString name = model->name;
+  QString name = model->modelNotesFileName;
   name.replace(" ", "_");
   name.append(".txt");          // TODO : add to constants
   return name;
