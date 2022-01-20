@@ -32,11 +32,18 @@ static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
 
-static TouchState lastState;
 
 #if defined(HARDWARE_TOUCH)
+static bool touchOccured = false;
+bool getTouchOccured()
+{
+  return touchOccured;
+}
+
+static TouchState lastState;
 TouchState getLastTochState()
 {
+  touchOccured = false;
   return lastState;
 }
 #endif
@@ -48,7 +55,6 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_disp_flush_ready(disp_drv);
 }
 
-
 extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   // if there is a keyboard event then call checkevents
@@ -59,6 +65,10 @@ extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
+  if(!touchPanelEventOccured())
+    return;
+
+  touchOccured = true;
   TouchState st = touchPanelRead();
   lastState = st; // hack for now
 
@@ -75,6 +85,13 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
     data->state = LV_INDEV_STATE_PRESSED;
   } else {
+#if defined (LCD_VERTICAL_INVERT)
+    data->point.x = LCD_W - st.x;
+    data->point.y = LCD_H - st.y;
+#else
+    data->point.x = st.x;
+    data->point.y = st.y;
+#endif
     data->state = LV_INDEV_STATE_RELEASED;
   }
 #endif
