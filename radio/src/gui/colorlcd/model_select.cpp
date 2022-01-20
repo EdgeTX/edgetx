@@ -208,22 +208,25 @@ class ModelCategoryPageBody : public FormWindow
           Menu *menu = new Menu(parent);
           if (model != modelslist.getCurrentModel()) {
             menu->addLine(STR_SELECT_MODEL, [=]() {
-              // we store the latest changes if any
+              bool modelConnected = TELEMETRY_STREAMING() &&
+                                    !g_eeGeneral.disableRssiPoweroffAlarm;
+              if (modelConnected) {
+                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+                if (!confirmationDialog(
+                        STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                          return !TELEMETRY_STREAMING() ||
+                                 g_eeGeneral.disableRssiPoweroffAlarm;
+                        })) {
+                  return;  // stop if connected but not confirmed
+                }
+              }
+
+              // store changes (if any) and load selected model
               storageFlushCurrentModel();
               storageCheck(true);
               memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
                      LEN_MODEL_FILENAME);
-              bool modelConnectedConfirmed =
-                  !TELEMETRY_STREAMING() ||
-                  g_eeGeneral.disableRssiPoweroffAlarm;
-              if (!modelConnectedConfirmed) {
-                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-                confirmationDialog(
-                    STR_MODEL_STILL_POWERED, nullptr, false, []() {
-                      return !TELEMETRY_STREAMING() ||
-                             g_eeGeneral.disableRssiPoweroffAlarm;
-                    });
-              }
+
               loadModel(g_eeGeneral.currModelFilename, false);
               storageDirty(EE_GENERAL);
               storageCheck(true);
