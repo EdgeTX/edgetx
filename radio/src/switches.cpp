@@ -126,17 +126,19 @@ void evalFunctionSwitches()
         g_model.functionSwitchLogicalState ^= 1 << i;   // Toggle bit
       }
       else if (FSWITCH_CONFIG(i) == SWITCH_TOGGLE) {
-        g_model.functionSwitchLogicalState ^= (physicalState ^ g_model.functionSwitchLogicalState) & (1 << i);   // Set bit to switch value
+        g_model.functionSwitchLogicalState ^= 1 << i;   // Toggle bit
       }
+
       if (FSWITCH_GROUP(i) && physicalState == 1) {    // switch is in a group, other in group need to be turned off
         for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
-          if (i ==  j)
+          if (i == j)
             continue;
           if (FSWITCH_GROUP(j) == FSWITCH_GROUP(i)) {
             g_model.functionSwitchLogicalState &= ~(1 << j);   // clear state
           }
         }
       }
+
       fsPreviousState ^= 1 << i;    // Toggle state
       storageDirty(EE_MODEL);
     }
