@@ -25,6 +25,8 @@
 #include "definitions.h"
 #include "opentx_types.h"
 
+#include <string>
+
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
 #define SHOW_TIMER_UPPER_CASE   0x2
@@ -90,4 +92,8 @@ char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
 void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
                 bool bLowercase = true);
 
+template<size_t N>
+std::string stringFromNtString(const char (&a)[N]) {
+    return std::string(a, strnlen(a, N));        
+}    
 #endif  // _STRHELPERS_H_
