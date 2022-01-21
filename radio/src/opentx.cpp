@@ -2049,6 +2049,10 @@ uint32_t pwrPressedDuration()
   }
 }
 
+#if defined(COLORLCD)
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
+#endif
+
 uint32_t pwrCheck()
 {
   const char * message = nullptr;
@@ -2139,7 +2143,11 @@ uint32_t pwrCheck()
           }
           else if (!modelConnectedConfirmed) {
             message = STR_MODEL_STILL_POWERED;
-            closeCondition = [](){
+            closeCondition = []() {
+              tmr10ms_t startTime = getTicks();
+              while (!TELEMETRY_STREAMING()) {
+                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY) break;
+              }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
             };
           }
