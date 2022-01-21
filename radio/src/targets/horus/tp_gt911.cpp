@@ -793,7 +793,7 @@ struct TouchState touchPanelRead()
           internalTouchState.tapCount = tapCount;
           tapTime = now;
         }
-      } else if (internalTouchState.event != TE_SLIDE_END) {
+      } else {
         internalTouchState.event = TE_NONE;
       }
     }
