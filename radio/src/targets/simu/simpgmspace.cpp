@@ -560,6 +560,7 @@ bool trimDown(uint8_t idx)
   return readTrims() & (1 << idx);
 }
 
+#if defined(TRIMS_EMULATE_BUTTONS)
 bool trimsAsButtons = false;
 
 void setTrimsAsButtons(bool val) { trimsAsButtons = val; }
@@ -572,6 +573,7 @@ bool getTrimsAsButtons()
 #endif
   return (trimsAsButtons || lua);
 }
+#endif
 
 uint32_t readKeys()
 {
