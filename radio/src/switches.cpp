@@ -909,7 +909,7 @@ void logicalSwitchesTimerTick()
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
             if (ls->v2 != SWSRC_NONE) {
-                bool now = getSwitch(ls->v2);
+                bool now = getSwitch(ls->v2); // only iff used
                 if (now != before) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -919,7 +919,7 @@ void logicalSwitchesTimerTick()
             }
         }
         else {
-            if (ls->v1 != SWSRC_NONE) {
+            if (ls->v1 != SWSRC_NONE) { // only iff used
                 bool now = getSwitch(ls->v1);
                 if (before != now) {
                   lastValue.last ^= 1;
