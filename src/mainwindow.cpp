@@ -79,7 +79,9 @@ void MainWindow::checkEvents()
   if (touchPanelEventOccured()) {
     short lastDeltaX = touchState.lastDeltaX;
     short lastDeltaY = touchState.lastDeltaY;;
-    touchState = touchPanelRead();
+    TouchState newTouchState = touchPanelRead();
+    if(touchState.event != TE_SLIDE_END || newTouchState.event != TE_NONE)
+      touchState = newTouchState;
     touchState.lastDeltaX = lastDeltaX;
     touchState.lastDeltaY = lastDeltaY;
   }
@@ -154,6 +156,11 @@ void MainWindow::checkEvents()
     Window::capturedWindow = nullptr;
 
     onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
+    if(touchState.lastDeltaX == 0 && touchState.lastDeltaY == 0)
+    {
+      touchState.event = TE_NONE;
+      slidingWindow = nullptr;
+    }
   } else if (touchState.event == TE_SLIDE_END && slidingWindow == nullptr) {
     onTouchEnd(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
     touchState.event = TE_NONE;
