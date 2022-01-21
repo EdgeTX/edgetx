@@ -1260,14 +1260,23 @@ class ModuleWindow : public FormGroup {
       par->adjustInnerHeight();
     }
 
+#if defined (PCBNV14)
+#define SIGNAL_POSTFIX 
+#define SIGNAL_MESSAGE "SGNL"
+#else
+#define SIGNAL_POSTFIX  " db"
+#define SIGNAL_MESSAGE  "RSSI"
+#endif
+
     void startRSSIDialog(std::function<void()> closeHandler = nullptr)
     {
       auto rssiDialog = new DynamicMessageDialog(
           parent, "Range Test",
           [=]() {
-            return std::to_string((int)TELEMETRY_RSSI()) + std::string(" db");
+            return std::to_string((int)TELEMETRY_RSSI()) +
+                   std::string(SIGNAL_POSTFIX);
           },
-          "RSSI:", 50,
+          SIGNAL_MESSAGE, 50,
           COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
 
       rssiDialog->setCloseHandler([this, closeHandler]() {
