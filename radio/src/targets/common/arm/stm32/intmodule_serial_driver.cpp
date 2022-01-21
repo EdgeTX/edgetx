@@ -99,7 +99,9 @@ void intmoduleSerialStart(const etx_serial_init* params)
   // init callbacks
   intmodule_driver.on_receive = params->on_receive;
   intmodule_driver.on_error = params->on_error;
-  
+
+  uint32_t baudrate = params->baudrate;
+
 #if !defined(INTMODULE_DMA_STREAM)
   // IRQ based TX
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -108,6 +110,13 @@ void intmoduleSerialStart(const etx_serial_init* params)
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  // rco: workaround for high baudrate not supported with
+  //      IRQ based TX.
+  if (baudrate > 1870000) {
+    TRACE("limiting baudrate to 1.87 MBit/s");
+    baudrate = 1870000;
+  }
 #endif
 
   GPIO_PinAFConfig(INTMODULE_GPIO, INTMODULE_GPIO_PinSource_TX, INTMODULE_GPIO_AF);
@@ -118,12 +127,12 @@ void intmoduleSerialStart(const etx_serial_init* params)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(INTMODULE_GPIO, &GPIO_InitStructure);
 
   USART_DeInit(INTMODULE_USART);
   USART_InitTypeDef USART_InitStructure;
-  USART_InitStructure.USART_BaudRate = params->baudrate;
+  USART_InitStructure.USART_BaudRate = baudrate;
   USART_InitStructure.USART_Parity = params->parity;
   USART_InitStructure.USART_StopBits = params->stop_bits;
   USART_InitStructure.USART_WordLength = params->word_length;
