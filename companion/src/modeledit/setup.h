@@ -213,7 +213,7 @@ class SetupPanel : public ModelPanel
     void onModuleUpdateItemModels();
     void onFunctionSwitchesUpdateItemModels();
     void on_jitterFilter_currentIndexChanged(int index);
-    void on_notesName_editingFinished();
+    void on_notesFile_editingFinished();
 
   private:
     Ui::Setup *ui;

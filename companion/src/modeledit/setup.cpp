@@ -1596,12 +1596,12 @@ void SetupPanel::on_name_editingFinished()
   }
 }
 
-void SetupPanel::on_notesName_editingFinished()
+void SetupPanel::on_notesFile_editingFinished()
 {
-  //if (QString(model->modelNotesFileName) != ui->notes_file->text()) 
+  if (QString(model->modelNotesFileName) != ui->notesFile->text()) 
   {
-    int length = ui->notes_file->maxLength();
-    strncpy(model->modelNotesFileName, ui->notes_file->text().toLatin1(),
+    int length = ui->notesFile->maxLength();
+    strncpy(model->modelNotesFileName, ui->notesFile->text().toLatin1(),
             length);
     emit modified();
   }
@@ -1674,7 +1674,7 @@ void SetupPanel::update()
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
   ui->jitterFilter->setCurrentIndex(model->jitterFilter);
-  ui->notes_file->setText(model->modelNotesFileName);
+  ui->notesFile->setText(model->modelNotesFileName);
 
   updateBeepCenter();
   updateStartupSwitches();
