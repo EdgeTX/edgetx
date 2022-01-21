@@ -844,6 +844,8 @@ PACK(struct RadioData {
 
   // Real attributes
   NOBACKUP(uint8_t version);
+  NOBACKUP(uint8_t manuallyEdited:1);
+  int8_t spare0:7 SKIP;
   CUST_ATTR(board,nullptr,w_board);
   NOBACKUP(uint16_t variant SKIP);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
