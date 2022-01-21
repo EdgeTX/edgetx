@@ -522,6 +522,8 @@
 #define TR_PRESSANYKEY         "\010Premi un tasto"
 #define TR_BADEEPROMDATA       "Dati corrotti!"
 #define TR_BAD_RADIO_DATA      "Dati radio errati"
+#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
+#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
 #define TR_EEPROMFORMATTING    "Formatto EEPROM..."
 #define TR_STORAGE_FORMAT      "Preparazione storage"
 #define TR_EEPROMOVERFLOW      "EEPROM Piena"

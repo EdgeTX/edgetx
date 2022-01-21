@@ -65,9 +65,9 @@ static const char* convertData_220_to_221(
     char output_fname[FF_MAX_LFN+1];
     strncpy(output_fname, path, FF_MAX_LFN);
     output_fname[FF_MAX_LFN] = '\0';
-    
+
     patchFilenameToYaml(output_fname);
-    error = writeFileYaml(output_fname, root_node, data);
+    error = writeFileYaml(output_fname, root_node, data, 0);
   }
 
   free(data);
@@ -157,7 +157,7 @@ const char* convertModelData_220_to_221(uint8_t id)
     char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
     getModelNumberStr(id, model_idx);
     GET_FILENAME(path, MODELS_PATH, model_idx, YAML_EXT);
-    error = writeFileYaml(path, yaml_conv_220::get_modeldata_nodes(), data);
+    error = writeFileYaml(path, yaml_conv_220::get_modeldata_nodes(), data, 0);
   } else {
     // ERROR: size mismatch !!!
   }
@@ -176,7 +176,7 @@ const char* convertRadioData_220_to_221()
   uint16_t read = eeLoadGeneralSettingsData(data, size);
   if (read == size) {
     error = writeFileYaml(RADIO_SETTINGS_YAML_PATH,
-                          yaml_conv_220::get_radiodata_nodes(), data);
+                          yaml_conv_220::get_radiodata_nodes(), data, 0);
   } else {
     // ERROR: size mismatch !!!
   }

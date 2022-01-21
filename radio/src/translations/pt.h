@@ -515,6 +515,8 @@
 #define TR_PRESSANYKEY         "\010Pressione Tecla"
 #define TR_BADEEPROMDATA       "EEPRON INVALIDA"
 #define TR_BAD_RADIO_DATA      "Bad Radio Data"
+#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
+#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
 #define TR_EEPROMFORMATTING    "Formatando EEPROM"
 #define TR_STORAGE_FORMAT      "Storage Preparation"
 #define TR_EEPROMOVERFLOW      "EEPROM CHEIA"
