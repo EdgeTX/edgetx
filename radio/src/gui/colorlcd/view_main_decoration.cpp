@@ -328,8 +328,8 @@ void ViewMainDecoration::createFlightMode()
   };
 
   std::function<std::string()> getFM = []() -> std::string {
-    return g_model.flightModeData[mixerCurrentFlightMode].name;
-  };
+      return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
+};
 
   flightMode = new DynamicText(this, r, getFM, CENTERED | COLOR_THEME_SECONDARY1);
 }
