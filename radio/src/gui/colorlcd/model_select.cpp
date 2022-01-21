@@ -42,6 +42,7 @@ constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 class ModelButton : public Button
 {
@@ -184,6 +185,8 @@ class ModelCategoryPageBody : public FormWindow
     update();
   }
 
+  
+
   void update(int selected = -1)
   {
     clear();
@@ -214,6 +217,10 @@ class ModelCategoryPageBody : public FormWindow
                 AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
                 if (!confirmationDialog(
                         STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                          tmr10ms_t startTime = getTicks();
+                          while (!TELEMETRY_STREAMING()) {
+                            if (getTicks() - startTime > 150) break;
+                          }
                           return !TELEMETRY_STREAMING() ||
                                  g_eeGeneral.disableRssiPoweroffAlarm;
                         })) {
