@@ -71,7 +71,8 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
-//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},   
+//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},
+    {FLYSKY_SENSOR_PRESSURE,   3, STR_SENSOR_VSPD,        UNIT_METERS_PER_SECOND,  2, 0, 2, true},   
     {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
     {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
     {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
@@ -119,6 +120,8 @@ void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
   storageDirty(EE_MODEL);
 }
 
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
+
 int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
                                  const uint8_t* data)
 {
@@ -161,18 +164,47 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   }
 
   if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
-    switch(sensor->subId)
+    static tmr10ms_t prevTimer = getTicks();
+    static unsigned int timePassed = 0;
+    static int32_t prevAlt = 0;
+    static int32_t vSpeed = 10000;
+    static int32_t altChange = 0;
+
+    switch (sensor->subId)
     {
       case 0:
         value = value & PRESSURE_MASK;
         break;
       case 1:
         value = CalculateAltitude(value);
-        break;
+        {
+          tmr10ms_t currTimer = getTicks();
+          int32_t currAlt = value;
+          if (currTimer > prevTimer) {
+            timePassed += currTimer - prevTimer;
+            altChange += prevAlt - currAlt;
+            prevAlt = currAlt;
+            prevTimer = currTimer;
+          } else if(currTimer < prevTimer) {  // overflow
+            timePassed = 0;
+            altChange = 0;
+            prevAlt = currAlt;
+            prevTimer = currTimer;
+          }
+        }
+      break;
       case 2:
       // TO DO: fix temperature calculation
         value = (int16_t)(value >> 19) + 150;// - 400;
-        break;    
+      break; 
+      case 3:
+        if (timePassed > 200) {
+          vSpeed = altChange  * 100 / timePassed;
+          altChange = 0;
+          timePassed = 0;
+        }
+        value = vSpeed;
+      break;   
     }
   } 
   return value;
