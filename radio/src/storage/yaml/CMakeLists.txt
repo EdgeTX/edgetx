@@ -66,12 +66,13 @@ get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTO
 foreach(dir ${dirs})
   #message(STATUS "dir='${dir}'")
   set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -I${dir})
-
-  # Force to build 32 bit binaries (Fix for Apple Silicon M1 hosts)
-  set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
 endforeach()
 
-set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -DRTOS_COOS -Wno-inconsistent-missing-override)
+# Force to build 32 bit binaries (Fix for Apple Silicon M1 hosts)
+# TODO: find a way to detect APPLE & M1
+# set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
+
+set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -Wno-inconsistent-missing-override)
 
 #message(STATUS "YAML_GEN_ARGS=${YAML_GEN_ARGS}")
 
