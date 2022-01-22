@@ -2146,7 +2146,7 @@ uint32_t pwrCheck()
             closeCondition = []() {
               tmr10ms_t startTime = getTicks();
               while (!TELEMETRY_STREAMING()) {
-                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY) break;
+                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
               }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
             };

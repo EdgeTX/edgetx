@@ -185,8 +185,6 @@ class ModelCategoryPageBody : public FormWindow
     update();
   }
 
-  
-
   void update(int selected = -1)
   {
     clear();
@@ -219,7 +217,7 @@ class ModelCategoryPageBody : public FormWindow
                         STR_MODEL_STILL_POWERED, nullptr, false, []() {
                           tmr10ms_t startTime = getTicks();
                           while (!TELEMETRY_STREAMING()) {
-                            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY)
+                            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms)
                               break;
                           }
                           return !TELEMETRY_STREAMING() ||
