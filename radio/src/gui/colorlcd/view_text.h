@@ -97,6 +97,7 @@ class ViewTextWindow : public Page
   bool lastLine;
   uint16_t readCount;
   int longestLine;
+  int checklistPosition;
 
 #if !READ_FILE_BY_LINE
 char** lines = nullptr;

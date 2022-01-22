@@ -37,7 +37,7 @@
 
 #define CASE_EVT_START \
   case EVT_ENTRY: \
-  case EVT_KEY_BREAK(KEY_ENTER): \
+  /*case EVT_KEY_BREAK(KEY_ENTER):*/ \
   case EVT_KEY_BREAK(KEY_TELEM)
 
 void ViewTextWindow::extractNameSansExt()
@@ -188,8 +188,9 @@ bool ViewTextWindow::sdReadTextLine(FIL *file, char line[],
 
 void ViewTextWindow::buildBody(Window *window)
 {
-  GridLayout grid(window);
+  FormGridLayout grid(window->width());
   grid.spacer();
+  grid.setLabelWidth(PAGE_LINE_HEIGHT);  // width of "first column" for checkboxes
   int i;
 
   // assume average characte is 10 pixels wide, round the string length to tens.
@@ -226,10 +227,26 @@ void ViewTextWindow::buildBody(Window *window)
   loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
-    new DynamicText(window, grid.getSlot(), [=]() {
-      std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
-      return std::string(str);
-    });
+    if (g_model.checklistInteractive || true) {
+      new DynamicText(window, grid.getLabelSlot(), [=]() {
+        if (i < checklistPosition-(int)textVerticalOffset)
+          return std::string("+");
+        else if (i == checklistPosition-(int)textVerticalOffset)
+          return std::string(">");
+        else
+          return std::string(" ");
+      });
+      new DynamicText(window, grid.getFieldSlot(), [=]() {
+        std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
+        return std::string(str);
+      });
+    }
+    else {
+      new DynamicText(window, grid.getSlot(), [=]() {
+        std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
+        return std::string(str);
+      });
+    }
     grid.nextLine();
   }
 }
@@ -287,7 +304,24 @@ void ViewTextWindow::checkEvents()
     CASE_EVT_START:
       textVerticalOffset = 0;
       readLinesCount = 0;
+      checklistPosition = 0;
       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+      break;
+    
+    case EVT_KEY_BREAK(KEY_ENTER):
+      if (g_model.checklistInteractive || true){
+        if (checklistPosition < readLinesCount) {
+          ++checklistPosition;
+          /*if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+            ++menuVerticalOffset;
+            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+          }*/
+        }
+        else {
+          /*if (reusableBuffer.viewText.pushMenu == true) popMenu();
+          reusableBuffer.viewText.checklistComplete = true;*/
+        }
+      }
       break;
 
     CASE_EVT_KEY_NEXT_LINE:
