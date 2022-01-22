@@ -138,8 +138,8 @@ static inline void check_struct()
     CHKSIZE(RadioData, 922);
     CHKSIZE(ModelData, 11023);
   #else
-    CHKSIZE(RadioData, 903);
-    CHKSIZE(ModelData, 11020);
+    CHKSIZE(RadioData, 904);
+    CHKSIZE(ModelData, 11021);
   #endif
 #endif
 
