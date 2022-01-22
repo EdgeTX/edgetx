@@ -291,7 +291,7 @@ void ViewTextWindow::checkEvents()
       break;
 
     CASE_EVT_KEY_NEXT_LINE:
-      if(textBottom && textVerticalOffset)  //(textVerticalOffset + maxScreenLines - 1 >= readLinesCount)
+      if(textVerticalOffset + maxScreenLines >= readLinesCount)
         break;
       else {
         textVerticalOffset += lineStep;
