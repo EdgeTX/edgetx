@@ -1029,9 +1029,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
     QComboBox * cboStartPosn = new QComboBox(this);
     cboStartPosn->setProperty("index", i);
-    cboStartPosn->addItem(tr("Inactive"));
-    cboStartPosn->addItem(tr("Active"));
-    cboStartPosn->addItem(tr("Restore"));
+    cboStartPosn->setModel(fsStart);
 
     QSpinBox * sbGroup = new QSpinBox(this);
     sbGroup->setProperty("index", i);
