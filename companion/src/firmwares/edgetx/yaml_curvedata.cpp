@@ -48,11 +48,6 @@ void YamlReadCurvePoints(const YAML::Node& node, CurveData* curves)
         }
       }
       curve.points[curve.count - 1].x = +100;
-    } else {
-      // Standard curve: X points are generated
-      for (int k = 0; k < curve.count; k++) {
-        curve.points[k].x = -100 + (200 * k) / (curve.count - 1);
-      }
     }
   }
 }

@@ -55,17 +55,25 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
 
   int limit = firmware->getCapability(OffsetWeight);
+
   id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
 
   gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, md->weight, model, 100, -limit, limit, 1.0,
                                 dialogFilteredItemModels->getItemModel(id));
+
   gvOffsetGroup = new GVarGroup(ui->offsetGV, ui->offsetSB, ui->offsetCB, md->sOffset, model, 0, -limit, limit, 1.0,
                                 dialogFilteredItemModels->getItemModel(id));
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
-  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, md->curve, model,
-                                           curveRefFilteredItemModels, this);
+
+  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ui->curveImage, md->curve,
+                                           model, sharedItemModels, curveRefFilteredItemModels, this);
+
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
 
   ui->MixDR_CB->setChecked(md->noExpo == 0);
 
@@ -141,9 +149,9 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   ui->delayUpSB->setSingleStep(1.0 / scale);
   ui->delayUpSB->setDecimals((scale == 1 ? 0 : 1));
   ui->delayUpSB->setValue((float)md->delayUp / scale);
-  QTimer::singleShot(0, this, SLOT(shrink()));
 
   valuesChanged();
+
   connect(ui->mixerName,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
   connect(ui->sourceCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
   connect(ui->trimCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
@@ -155,9 +163,12 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   connect(ui->delayUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
   connect(ui->slowDownSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
   connect(ui->slowUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
+
   for (int i=0; i<CPN_MAX_FLIGHT_MODES; i++) {
     connect(cb_fp[i],SIGNAL(toggled(bool)),this,SLOT(valuesChanged()));
   }
+
+  adjustSize();
 }
 
 MixerDialog::~MixerDialog()
@@ -214,11 +225,6 @@ void MixerDialog::valuesChanged()
 
     lock = false;
   }
-}
-
-void MixerDialog::shrink()
-{
-  resize(0, 0);
 }
 
 void MixerDialog::label_phases_customContextMenuRequested(const QPoint & pos)

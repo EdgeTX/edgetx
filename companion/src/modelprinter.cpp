@@ -25,6 +25,7 @@
 #include "helpers_html.h"
 #include "appdata.h"
 #include "adjustmentreference.h"
+#include "curveimage.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -646,55 +647,8 @@ QString ModelPrinter::printCurveName(int idx)
 
 QString ModelPrinter::printCurve(int idx)
 {
-  QString result;
   const CurveData & curve = model.curves[idx];
-  result += (curve.type == CurveData::CURVE_TYPE_CUSTOM) ? tr("Custom") : tr("Standard");
-  result += ", [";
-  if (curve.type == CurveData::CURVE_TYPE_CUSTOM) {
-    for (int j=0; j<curve.count; j++) {
-      if (j != 0)
-        result += ", ";
-      result += QString("(%1, %2)").arg(curve.points[j].x).arg(curve.points[j].y);
-    }
-  }
-  else {
-    for (int j=0; j<curve.count; j++) {
-      if (j != 0)
-        result += ", ";
-      result += QString("%1").arg(curve.points[j].y);
-    }
-  }
-  result += "]";
-  return result;
-}
-
-CurveImage::CurveImage():
-  size(200),
-  image(size+1, size+1, QImage::Format_RGB32),
-  painter(&image)
-{
-  painter.setBrush(QBrush("#FFFFFF"));
-  painter.setPen(QColor(0, 0, 0));
-  painter.drawRect(0, 0, size, size);
-
-  painter.setPen(QColor(0, 0, 0));
-  painter.drawLine(0, size/2, size, size/2);
-  painter.drawLine(size/2, 0, size/2, size);
-  for (int i=0; i<21; i++) {
-    painter.drawLine(size/2-5, (size*i)/(20), size/2+5, (size*i)/(20));
-    painter.drawLine((size*i)/(20), size/2-5, (size*i)/(20), size/2+5);
-  }
-}
-
-void CurveImage::drawCurve(const CurveData & curve, QColor color)
-{
-  painter.setPen(QPen(color, 2, Qt::SolidLine));
-  for (int j=1; j<curve.count; j++) {
-    if (curve.type == CurveData::CURVE_TYPE_CUSTOM)
-      painter.drawLine(size/2+(size*curve.points[j-1].x)/200, size/2-(size*curve.points[j-1].y)/200, size/2+(size*curve.points[j].x)/200, size/2-(size*curve.points[j].y)/200);
-    else
-      painter.drawLine(size*(j-1)/(curve.count-1), size/2-(size*curve.points[j-1].y)/200, size*(j)/(curve.count-1), size/2-(size*curve.points[j].y)/200);
-  }
+  return QString("%1   %2").arg(curve.typeToString()).arg(curve.pointsToString());
 }
 
 QString ModelPrinter::createCurveImage(int idx, QTextDocument * document)

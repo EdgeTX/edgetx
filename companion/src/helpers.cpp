@@ -584,18 +584,18 @@ TableLayout::TableLayout(QWidget * parent, int rowCount, const QStringList & hea
 #endif
 }
 
-void TableLayout::addWidget(int row, int column, QWidget * widget)
+void TableLayout::addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment)
 {
 #if defined(TABLE_LAYOUT)
   QHBoxLayout * layout = new QHBoxLayout(tableWidget);
   layout->addWidget(widget);
   addLayout(row, column, layout);
 #else
-  gridWidget->addWidget(widget, row + 1, column);
+  gridWidget->addWidget(widget, row + 1, column, alignment);
 #endif
 }
 
-void TableLayout::addLayout(int row, int column, QLayout * layout)
+void TableLayout::addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment)
 {
 #if defined(TABLE_LAYOUT)
   layout->setContentsMargins(1, 3, 1, 3);
@@ -603,7 +603,7 @@ void TableLayout::addLayout(int row, int column, QLayout * layout)
   containerWidget->setLayout(layout);
   tableWidget->setCellWidget(row, column, containerWidget);
 #else
-  gridWidget->addLayout(layout, row + 1, column);
+  gridWidget->addLayout(layout, row + 1, column, alignment);
 #endif
 }
 
