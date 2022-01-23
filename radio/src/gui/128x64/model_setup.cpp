@@ -256,7 +256,7 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
 #endif
 
 #if defined(FUNCTION_SWITCHES)
-  #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
+  #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -631,10 +631,22 @@ void menuModelSetup(event_t event)
         }
 
         config = FSWITCH_GROUP(index);
-        config = editChoice(30 + 15*FW, y, "", STR_FSGROUPS, config, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event);
+        config = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, config, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event);
         if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
           swconfig_t mask = (swconfig_t) 0x03 << (2 * index);
           g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | ((swconfig_t(config) & 0x03) << (2 * index));
+        }
+
+        if (FSWITCH_GROUP(index)) {
+          uint8_t groupeAlwaysOn = IS_FSWITCH_GROUP_ON(config);
+          groupeAlwaysOn = editCheckBox(groupeAlwaysOn, 30 + 15 * FW, y, "", menuHorizontalPosition == 3 ? attr : 0, event);
+          if (attr && checkIncDec_Ret && menuHorizontalPosition == 3) {
+            swconfig_t mask = (swconfig_t) 0x01 << (2 * NUM_FUNCTIONS_SWITCHES + config);
+            g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | (groupeAlwaysOn << (2 * NUM_FUNCTIONS_SWITCHES + config));
+          }
+        }
+        else if (attr && menuHorizontalPosition == 3) {  // Non visible checkbox
+          REPEAT_LAST_CURSOR_MOVE();
         }
         break;
       }
