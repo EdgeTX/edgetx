@@ -122,21 +122,25 @@ void evalFunctionSwitches()
 
     uint8_t physicalState = getFSPhysicalState(i);
     if (physicalState != getFSPreviousPhysicalState(i)) {      // FS was moved
-      if (FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) {
-        g_model.functionSwitchLogicalState ^= 1 << i;   // Toggle bit
+      if ((FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) || (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)) {
+        if (IS_FSWITCH_GROUP_ON(FSWITCH_GROUP(i)) != 0) { // In an always on group
+          g_model.functionSwitchLogicalState |= 1 << i;   // Set bit
+        }
+        else {
+          g_model.functionSwitchLogicalState ^= 1 << i;   // Toggle bit
+        }
       }
-      else if (FSWITCH_CONFIG(i) == SWITCH_TOGGLE) {
-        g_model.functionSwitchLogicalState ^= (physicalState ^ g_model.functionSwitchLogicalState) & (1 << i);   // Set bit to switch value
-      }
+
       if (FSWITCH_GROUP(i) && physicalState == 1) {    // switch is in a group, other in group need to be turned off
         for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
-          if (i ==  j)
+          if (i == j)
             continue;
           if (FSWITCH_GROUP(j) == FSWITCH_GROUP(i)) {
             g_model.functionSwitchLogicalState &= ~(1 << j);   // clear state
           }
         }
       }
+
       fsPreviousState ^= 1 << i;    // Toggle state
       storageDirty(EE_MODEL);
     }

@@ -1034,6 +1034,10 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     QSpinBox * sbGroup = new QSpinBox(this);
     sbGroup->setProperty("index", i);
     sbGroup->setMaximum(3);
+    sbGroup->setSpecialValueText("-");
+
+    QCheckBox * cbAlwaysOnGroup = new QCheckBox(this);
+    cbAlwaysOnGroup->setProperty("index", i);
 
     int row = 0;
     int coloffset = 1;
@@ -1042,15 +1046,18 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     ui->gridSwitches->addWidget(cboConfig, row++, i + coloffset);
     ui->gridSwitches->addWidget(cboStartPosn, row++, i + coloffset);
     ui->gridSwitches->addWidget(sbGroup, row++, i + coloffset);
+    ui->gridSwitches->addWidget(cbAlwaysOnGroup, row++, i + coloffset);
 
     connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
     connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_startPosnCurrentIndexChanged);
     connect(sbGroup, QOverload<int>::of(&QSpinBox::valueChanged), this, &FunctionSwitchesPanel::on_groupChanged);
+    connect(cbAlwaysOnGroup, &QCheckBox::toggled, this, &FunctionSwitchesPanel::on_alwaysOnGroupChanged);
 
     aleNames << aleName;
     cboConfigs << cboConfig;
     cboStartupPosns << cboStartPosn;
     sbGroups << sbGroup;
+    cbAlwaysOnGroups << cbAlwaysOnGroup;
   }
 
   update();
@@ -1078,7 +1085,9 @@ void FunctionSwitchesPanel::update(int index)
     aleNames[i]->update();
     cboConfigs[i]->setCurrentIndex((model->functionSwitchConfig >> (2 * i)) & 0x03);
     cboStartupPosns[i]->setCurrentIndex((model->functionSwitchStartConfig >> (2 * i)) & 0x03);
-    sbGroups[i]->setValue((model->functionSwitchGroup >> (2 * i)) & 0x03);
+    const int grp = (model->functionSwitchGroup >> (2 * i)) & 0x03;
+    sbGroups[i]->setValue(grp);
+    cbAlwaysOnGroups[i]->setChecked((model->functionSwitchGroup >> (2 * switchcnt + grp)) & 0x01);
 
     if (cboConfigs[i]->currentIndex() < 2)
       cboStartupPosns[i]->setEnabled(false);
@@ -1089,6 +1098,11 @@ void FunctionSwitchesPanel::update(int index)
       sbGroups[i]->setEnabled(false);
     else
       sbGroups[i]->setEnabled(true);
+
+    if (!(sbGroups[i]->isEnabled()) || grp < 1)
+      cbAlwaysOnGroups[i]->setEnabled(false);
+    else
+      cbAlwaysOnGroups[i]->setEnabled(true);
   }
 
   lock = false;
@@ -1153,8 +1167,33 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
     if (ok && ((model->functionSwitchGroup >> (2 * i)) & 0x03) != (unsigned int)value) {
       unsigned int mask = ((unsigned int) 0x03 << (2 * i));
       model->functionSwitchGroup = (model->functionSwitchGroup & ~ mask) | ((unsigned int) value << (2 * i));
+      update(i);
       emit modified();
     }
+    lock = false;
+  }
+}
+
+void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
+{
+  if (!sender())
+    return;
+
+  QCheckBox * cb = qobject_cast<QCheckBox *>(sender());
+
+  if (cb && !lock) {
+    lock = true;
+    bool ok = false;
+    int i = sender()->property("index").toInt(&ok);
+
+    if (ok) {
+      const int grp = (model->functionSwitchGroup >> (2 * i)) & 0x03;
+      unsigned int mask = ((unsigned int) 0x01 << (2 * switchcnt + grp));
+      model->functionSwitchGroup = (model->functionSwitchGroup & ~ mask) | ((unsigned int) value << (2 * switchcnt + grp));
+      update();
+      emit modified();
+    }
+
     lock = false;
   }
 }
