@@ -21,9 +21,7 @@
 
 #pragma once
 
-#define CHECKSUM_SUCCESS 0
-#define CHECKSUM_FAILED  1
-#define CHECKSUM_NONE    2
+enum class ChecksumResult {Success, Failed, None};
 
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 
