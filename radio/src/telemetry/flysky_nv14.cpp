@@ -164,10 +164,10 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   }
 
   if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
-    static tmr10ms_t prevTimer = getTicks();
-    static unsigned int timePassed = 0;
+    static tmr10ms_t prevTimer = 0;
+    static uint32_t timePassed = 0;
     static int32_t prevAlt = 0;
-    static int32_t vSpeed = 10000;
+    static int32_t vSpeed = 100000;
     static int32_t altChange = 0;
 
     switch (sensor->subId)
@@ -181,8 +181,8 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
           tmr10ms_t currTimer = getTicks();
           int32_t currAlt = value;
           if (currTimer > prevTimer) {
-            timePassed += currTimer - prevTimer;
-            altChange += prevAlt - currAlt;
+            timePassed += (currTimer - prevTimer);
+            altChange += (currAlt - prevAlt);
             prevAlt = currAlt;
             prevTimer = currTimer;
           } else if(currTimer < prevTimer) {  // overflow
@@ -198,13 +198,24 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
         value = (int16_t)(value >> 19) + 150;// - 400;
       break; 
       case 3:
-        if (timePassed > 200) {
-          vSpeed = altChange  * 100 / timePassed;
+        if (timePassed > 2) {  // Some averaging
+          bool neg = false;
+          // There are some problems with negative numbers arithmetic 
+          // (division, compiler)
+          if (altChange < 0) {
+            altChange = -altChange;
+            neg = true;
+          }
+          int32_t tmp = (altChange * 100) / timePassed;
+          if (neg)
+            vSpeed = -tmp;
+          else
+            vSpeed = tmp;
           altChange = 0;
           timePassed = 0;
         }
         value = vSpeed;
-      break;   
+        break;   
     }
   } 
   return value;
