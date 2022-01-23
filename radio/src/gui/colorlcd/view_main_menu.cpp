@@ -55,7 +55,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   if (modelHasNotes()) {
     carousel->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, [=]() -> uint8_t {
       deleteLater();
-      readModelNotes();
+      readModelNotes(true);
       return 0;
     });
   }
