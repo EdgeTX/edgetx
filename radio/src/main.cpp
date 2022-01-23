@@ -386,8 +386,8 @@ void guiMain(event_t evt)
   MainWindow* mainWin = MainWindow::instance();
   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
 #endif
-  MainWindow::instance()->run();
   LvglWrapper::instance()->run();
+  MainWindow::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
   if (screenshotRequested) {
