@@ -179,7 +179,7 @@ const char* convertRadioData_220_to_221()
   uint16_t read = eeLoadGeneralSettingsData(data, size);
   uint16_t file_checksum = 0;
 
-  YamlFileChecksum(yaml_conv_220::get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
+  YamlFileChecksum(yaml_conv_220::get_radiodata_nodes(), data, &file_checksum);
 
   if (read == size) {
     error = writeFileYaml(RADIO_SETTINGS_YAML_PATH,
