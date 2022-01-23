@@ -38,8 +38,7 @@ FabButton::FabButton(FormGroup* parent, coord_t x, coord_t y, uint8_t icon,
                      std::function<uint8_t(void)> pressHandler,
                      WindowFlags windowFlags) :
     Button(parent,
-           {x - FAB_BUTTON_SIZE / 2, y - FAB_BUTTON_SIZE / 2, FAB_BUTTON_SIZE,
-            FAB_BUTTON_SIZE},
+           {x, y, FAB_BUTTON_SIZE, FAB_BUTTON_SIZE},
            pressHandler, windowFlags),
     icon(icon)
 {
