@@ -42,10 +42,12 @@ FullScreenDialog::FullScreenDialog(
   Layer::push(this);
 
 #if defined(HARDWARE_TOUCH)
-  new FabButton(this, LCD_W - 50, LCD_H - 50, ICON_NEXT, [=]() -> uint8_t {
-    if (confirmHandler) confirmHandler();
-    return 0;
-  });
+  new FabButton(this, LCD_W - (FAB_BUTTON_SIZE + PAGE_PADDING),
+                LCD_H - (FAB_BUTTON_SIZE + PAGE_PADDING), ICON_NEXT,
+                [=]() -> uint8_t {
+                  if (confirmHandler) confirmHandler();
+                  return 0;
+                });
 #endif
 
   bringToTop();
