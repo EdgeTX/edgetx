@@ -43,6 +43,15 @@ event_t s_evt;
 struct InactivityData inactivity = {0};
 Key keys[NUM_KEYS];
 
+/**
+ * @brief returns true if there is an event waiting.
+ * 
+ */
+bool isEvent()
+{
+  return s_evt != 0;
+}
+
 event_t getEvent(bool trim)
 {
   event_t event = s_evt;
