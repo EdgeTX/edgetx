@@ -76,6 +76,8 @@ void Button::checkEvents()
     checkHandler();
 }
 
+lv_style_t style_btn;
+
 
 LvglWidgetFactory textButtonFactory = LvglWidgetFactory(
   [](lv_obj_t *parent) {

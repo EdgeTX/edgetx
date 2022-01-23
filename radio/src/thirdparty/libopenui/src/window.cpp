@@ -84,6 +84,7 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
   lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
   lv_obj_set_size(lvobj, rect.w, rect.h);
+  lv_obj_set_user_data(lvobj, this);
 
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_MOMENTUM);
@@ -97,28 +98,34 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
     }
   }
 }
-
+extern lv_obj_t * canvas;
 Window::~Window()
 {
   TRACE_WINDOWS("Destroy %p %s", this, getWindowDebugString().c_str());
-  if (lvobj != nullptr)
+  if (focusWindow == this) {
+    focusWindow = nullptr;
+  }
+
+  if(children.size() > 0)
+    deleteChildren();
+  if (lvobj != nullptr && lvobj != canvas)
   {
     lv_obj_del(lvobj);
     lvobj = nullptr;
   }
 
-  if (focusWindow == this) {
-    focusWindow = nullptr;
-  }
-
-  deleteChildren();
 }
 
 void Window::attach(Window * newParent)
 {
   if (parent) detach();
   parent = newParent;
-  if (newParent) newParent->addChild(this);
+  if (newParent)
+  {
+    newParent->addChild(this);
+    if(lvobj != nullptr)
+      lv_obj_set_parent(lvobj, newParent->lvobj);
+  }
 }
 
 void Window::detach()
@@ -126,6 +133,8 @@ void Window::detach()
   if (parent) {
     parent->removeChild(this);
     parent = nullptr;
+    if(lvobj != nullptr)
+      lv_obj_set_parent(lvobj, nullptr);
   }
 }
 
@@ -147,14 +156,14 @@ void Window::deleteLater(bool detach, bool trash)
   else
     parent = nullptr;
 
+  if (trash) {
+    Window::trash.push_back(this);
+  }
+
   deleteChildren();
 
   if (closeHandler) {
     closeHandler();
-  }
-
-  if (trash) {
-    Window::trash.push_back(this);
   }
 }
 
@@ -168,9 +177,20 @@ void Window::clear()
   invalidate();
 }
 
+void Window::clearLvgl()
+{
+  for (auto window: children)
+  {
+    if(lvobj != nullptr && window->lvobj != nullptr && window->lvobj->parent == lvobj)
+      window->clearLvgl();
+  }
+  lvobj = nullptr;
+}
+
 void Window::deleteChildren()
 {
   for (auto window: children) {
+    window->clearLvgl();
     window->deleteLater(false);
   }
   children.clear();
@@ -300,6 +320,8 @@ bool Window::hasOpaqueRect(const rect_t & testRect) const
 
 void Window::fullPaint(BitmapBuffer * dc)
 {
+  if(lvobj != nullptr)
+    lv_obj_invalidate(lvobj);
   bool paintNeeded = true;
   std::list<Window *>::iterator firstChild;
 

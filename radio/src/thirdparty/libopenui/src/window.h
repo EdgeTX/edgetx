@@ -162,6 +162,7 @@ class Window
     virtual void deleteLater(bool detach = true, bool trash = true);
 
     void clear();
+    void clearLvgl();
 
     void deleteChildren();
 
