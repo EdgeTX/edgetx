@@ -55,7 +55,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     uint16_t calculated_checksum = 0xFFFF;
     uint16_t file_checksum = 0;
-
+    bool first_block = true;
     char buffer[32];
     while (f_read(&file, buffer, sizeof(buffer), &bytes_read) == FR_OK) {
 
@@ -63,30 +63,37 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
       if (bytes_read == 0)
         break;
 
-      // Skip the 'checkum' value in the start of the file if present
       uint16_t skip = 0;
-      if(strncmp(buffer, "checksum: ", 10) == 0) {
-        skip = 10;
-        char* startPos = buffer + 10; // length of "checksum: "
-        char* endPos = startPos;
-        while(*endPos != '\r') {
-          if (endPos > buffer + bytes_read) {
-             return SDCARD_ERROR(	FR_INT_ERR);
+      if(first_block) {
+        // Get the 'checksum' value and skip from further YAML processing
+        // The checksum must be first in the first buffer read from file
+        first_block = false;
+        if(strncmp(buffer, "checksum: ", 10) == 0) {
+          skip = 10;
+          char* startPos = buffer + 10; // length of "checksum: "
+          char* endPos = startPos;
+          while(*endPos != '\r') {
+            if (endPos > buffer + bytes_read) {
+              return SDCARD_ERROR(	FR_INT_ERR);
+            }
+            endPos++;
           }
-          endPos++;
-        }
-        *endPos = 0;
+          *endPos = 0;
 
-        // Skip LF of line-ending CR-LF pair
-        endPos++;
-        if(*endPos == '\n') {
+          // Skip LF of line-ending CR-LF pair
           endPos++;
+          if(*endPos == '\n') {
+            endPos++;
+          }
+          file_checksum = atoi(startPos);
+          skip = endPos - buffer;
         }
-        file_checksum = atoi(startPos);
-        skip = endPos - buffer;
       }
 
-      calculated_checksum = crc16(0, (const uint8_t *)buffer + skip, bytes_read - skip, calculated_checksum);
+      // Calculate checksum on read block only if we are called with a pointer to write the resulting checksum
+      if (checksum_result != NULL) {
+        calculated_checksum = crc16(0, (const uint8_t *)buffer + skip, bytes_read - skip, calculated_checksum);
+      }
 
       if (f_eof(&file)) yp.set_eof();
       if (yp.parse(buffer + skip, bytes_read - skip) != YamlParser::CONTINUE_PARSING)
@@ -166,6 +173,7 @@ const char * loadRadioSettingsYaml()
               return SDCARD_ERROR(result);
             }
         }
+        TRACE("Unable to recover radio data");
         ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_BAD_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
       }
     }
@@ -221,7 +229,6 @@ struct yaml_checksummer_ctx {
 
 static bool yaml_checksummer(void* opaque, const char* str, size_t len)
 {
-    UINT bytes_written;
     yaml_checksummer_ctx* ctx = (yaml_checksummer_ctx*)opaque;
 
     ctx->checksum = crc16(0, (const uint8_t *) str, len, ctx->checksum);
@@ -244,10 +251,12 @@ bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checks
           return false;
         }
     }
+
     if(checksum != NULL) {
       *checksum = ctx.checksum;
     }
-    return false;
+
+    return true;
 }
 
 
