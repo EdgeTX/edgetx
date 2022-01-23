@@ -21,11 +21,13 @@
 
 #include "select_fab_carousel.h"
 
-SelectFabCarousel::SelectFabCarousel(Window* parent):
+SelectFabCarousel::SelectFabCarousel(Window* parent) :
     FormGroup(parent, {}, FORM_FORWARD_FOCUS | NO_SCROLLBAR)
 {
-    setPageWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
-    setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
+  setPageWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
+  setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
+
+  lv_obj_set_scroll_snap_x(lvobj, LV_SCROLL_SNAP_START);
 }
 
 void SelectFabCarousel::setMaxButtons(uint8_t max)
