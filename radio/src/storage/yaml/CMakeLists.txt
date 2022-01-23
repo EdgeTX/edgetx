@@ -8,7 +8,7 @@ set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
 if(STORAGE_MODELSLIST)
   set(SRC ${SRC} storage/yaml/yaml_modelslist.cpp)
 endif()
-          
+
 # Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
 #          in the same directory.
 
@@ -69,8 +69,11 @@ foreach(dir ${dirs})
 endforeach()
 
 # Force to build 32 bit binaries (Fix for Apple Silicon M1 hosts)
-# TODO: find a way to detect APPLE & M1
-# set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
+# CMAKE_HOST_SYSTEM_PROCESSOR is set by cmake depending on the value of CMAKE_APPLE_SILICON_PROCESSOR when invoked
+#
+if("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "arm")
+  set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
+endif()
 
 set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -Wno-inconsistent-missing-override)
 
