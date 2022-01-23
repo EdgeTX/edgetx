@@ -227,7 +227,7 @@ void ViewTextWindow::buildBody(Window *window)
   loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
-    if (g_model.checklistInteractive || true) {
+    if ((g_model.checklistInteractive || true) && !fromMenu) {
       new DynamicText(window, grid.getLabelSlot(), [=]() {
         if (i < checklistPosition-(int)textVerticalOffset)
           return std::string("+");
@@ -309,7 +309,7 @@ void ViewTextWindow::checkEvents()
       break;
     
     case EVT_KEY_BREAK(KEY_ENTER):
-      if (g_model.checklistInteractive || true){
+      if ((g_model.checklistInteractive || true) && !fromMenu){
         if (checklistPosition < readLinesCount) {
           ++checklistPosition;
           if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
@@ -479,16 +479,17 @@ static void replaceSpaceWithUnderscore(std::string& name)
 #define MODEL_FILE_EXT  MODELS_EXT
 #endif
 
-bool openNotes(const char buf[], std::string modelNotesName)
+bool openNotes(const char buf[], std::string modelNotesName, bool fromMenu = false)
 {
   if(isFileAvailable(modelNotesName.c_str())) { 
-    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);  
+    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL, fromMenu);  
     return true;
    } else {
      return false;
    }  
 }
-void readModelNotes()
+
+void readModelNotes(bool fromMenu)
 {
   bool notesFound = false;
   LED_ERROR_BEGIN();
@@ -498,10 +499,10 @@ void readModelNotes()
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR*)buf);
 
-  notesFound = openNotes(buf, modelNotesName);
+  notesFound = openNotes(buf, modelNotesName, fromMenu);
   if(!notesFound) {
     replaceSpaceWithUnderscore(modelNotesName);
-    notesFound = openNotes(buf, modelNotesName);
+    notesFound = openNotes(buf, modelNotesName, fromMenu);
   }
 
 #if !defined(EEPROM) 
@@ -512,11 +513,11 @@ void readModelNotes()
     {
       modelNotesName.erase(index);
       modelNotesName.append(TEXT_EXT);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
     if(!notesFound) {
       replaceSpaceWithUnderscore(modelNotesName);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
   }
 #endif
