@@ -40,7 +40,7 @@
 
 #include "storage/conversions/conversions.h"
 
-const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, uint16_t* checksum_result)
+const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {
     FIL  file;
     UINT bytes_read;
@@ -104,12 +104,10 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     if (checksum_result != NULL) {
       if (calculated_checksum == file_checksum) {
-        *checksum_result = CHECKSUM_SUCCESS;
+        *checksum_result = ChecksumResult::Success;
       } else {
-        *checksum_result = CHECKSUM_FAILED;
+        *checksum_result = ChecksumResult::Failed;
       }
-    } else {
-      *checksum_result = CHECKSUM_NONE;
     }
 
     return NULL;
@@ -140,7 +138,7 @@ void storageCreateModelsList()
 // SDCARD storage interface
 //
 
-static const char * attemptLoad(const char *filename, uint16_t* checksum_status)
+static const char * attemptLoad(const char *filename, ChecksumResult* checksum_status)
 {
   YamlTreeWalker tree;
   tree.reset(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral);
@@ -152,10 +150,10 @@ const char * loadRadioSettingsYaml()
     // YAML reader
     TRACE("YAML radio settings reader");
 
-    uint16_t checksum_status;
+    ChecksumResult checksum_status;
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
 
-    if(checksum_status != CHECKSUM_SUCCESS) {
+    if(checksum_status != ChecksumResult::Success) {
       FRESULT result = FR_OK;
       TRACE("radio settings: checksum check failed");
       if (g_eeGeneral.manuallyEdited) {
@@ -381,9 +379,8 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       // md->swashR.aileronWeight    = 100;
       // md->swashR.elevatorWeight   = 100;
     }
-    uint16_t checksum_status;
 
-    return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, &checksum_status);
+    return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
 }
 
 static const char _wrongExtentionError[] = "wrong file extension";
