@@ -37,6 +37,7 @@
 #define R_DIV_G_MUL_10_Q15 UINT64_C(9591506)
 #define INV_LOG2_E_Q1DOT31 UINT64_C(0x58b90bfc) // Inverse log base 2 of e
 #define PRESSURE_MASK 0x7FFFF
+#define V_SPEED_AVERAGING_TIME_10ms  2
 
 struct FlyskyNv14Sensor {
   const uint16_t id;
@@ -198,7 +199,7 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
         value = (int16_t)(value >> 19) + 150;// - 400;
       break; 
       case 3:
-        if (timePassed > 2) {  // Some averaging
+        if (timePassed > V_SPEED_AVERAGING_TIME_10ms) {  // Some averaging
           bool neg = false;
           // There are some problems with negative numbers arithmetic 
           // (division, compiler)
