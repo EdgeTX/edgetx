@@ -302,14 +302,10 @@ void ViewTextWindow::checkEvents()
 */
     switch (event) {
     CASE_EVT_START:
-      textVerticalOffset = 0;
-      readLinesCount = 0;
-      checklistPosition = 0;
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
       break;
     
     case EVT_KEY_BREAK(KEY_ENTER):
-      if ((g_model.checklistInteractive || true) && !fromMenu){
+      if ((g_model.checklistInteractive || true) && !fromMenu) {
         if (checklistPosition < readLinesCount) {
           ++checklistPosition;
           if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
@@ -318,9 +314,7 @@ void ViewTextWindow::checkEvents()
           }
         }
         else {
-          printf("Checklist finish\r\n");
-          /*if (reusableBuffer.viewText.pushMenu == true) popMenu();
-          reusableBuffer.viewText.checklistComplete = true;*/
+          Page::onEvent(EVT_KEY_BREAK(KEY_EXIT));
         }
       }
       break;
@@ -345,10 +339,19 @@ void ViewTextWindow::checkEvents()
 
       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
       break;
-
-      default:
+    
+    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_LONG(KEY_EXIT):
+    case EVT_KEY_REPT(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
+      if (!((g_model.checklistInteractive || true) && !fromMenu)) {
         Page::onEvent(event);
-        break;
+      }
+      break;
+
+    default:
+      Page::onEvent(event);
+      break;
     }
   }
   Page::checkEvents();

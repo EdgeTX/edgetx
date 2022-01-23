@@ -47,11 +47,15 @@ class ViewTextWindow : public Page
     maxPos = 0;
     maxLines = 0;
     isInSetup = true;
+    checklistPosition = 0;
+    textVerticalOffset = 0;
+    readLinesCount = 0;
     //body.setWindowFlags(FORWARD_SCROLL);
     header.setWindowFlags(NO_SCROLLBAR);
     
     buildHeader(&header);
     buildBody(&body);
+    sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   };
 
 #if READ_FILE_BY_LINE
