@@ -1,6 +1,6 @@
 [submodule "libopenui"]
 	path = radio/src/thirdparty/libopenui
-	url = https://github.com/gagarinlg/libopenui.git
+	url = https://github.com/EdgeTX/libopenui.git
 	branch = lvgl
 [submodule "radio/src/thirdparty/AccessDenied"]
 	path = radio/src/thirdparty/AccessDenied
