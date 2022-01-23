@@ -26,7 +26,6 @@ Window * Window::slidingWindow = nullptr;
 Window * Window::capturedWindow = nullptr;
 std::list<Window *> Window::trash;
 
-
 static void window_event_cb(lv_event_t * e)
 {
   lv_event_code_t code = lv_event_get_code(e);
@@ -38,19 +37,43 @@ static void window_event_cb(lv_event_t * e)
     }
     if (p->y >= 0)
       p->y = window->getInnerHeight();
+
+    return;
   }
 
   lv_obj_t *currentTarget = lv_event_get_current_target(e);
   
   // if the event bubbled to the topmost window then hand it to libopenui MainWindow.
-  if (MainWindow::isMainWindowCreated()) {
-    if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED || code == LV_EVENT_KEY ||
-        code == LV_EVENT_SCROLL_BEGIN  || code == LV_EVENT_SCROLL_END || code == LV_EVENT_SCROLL) {
-      
-      // if we have bubbled to the top then do legacy processing    
-      if (lv_obj_get_parent(currentTarget) == nullptr) {
-        MainWindow::instance()->checkEvents();
+  if (MainWindow::isMainWindowCreated()
+      && (lv_obj_get_parent(currentTarget) == nullptr)) {
+
+    switch(code) {
+    case LV_EVENT_PRESSED:
+    case LV_EVENT_RELEASED:
+    case LV_EVENT_KEY:
+      // do legacy processing    
+      MainWindow::instance()->checkEvents();
+      break;
+    case LV_EVENT_SCROLL: {
+      lv_obj_t* target = lv_event_get_target(e);
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+      TRACE("SCROLL[x=%d;y=%d]", scroll_x, scroll_y);
+      Window* w = (Window*)lv_obj_get_user_data(target);
+      if (w) {
+#if defined(DEBUG_WINDOWS)
+        TRACE("%s", w->getWindowDebugString().c_str());
+#endif
+        w->setScrollPositionY(scroll_y);
+        w->setScrollPositionX(scroll_x);
       }
+    } break;
+    case LV_EVENT_SCROLL_BEGIN:
+      TRACE("SCROLL_BEGIN");
+      break;
+    case LV_EVENT_SCROLL_END:
+      TRACE("SCROLL_END");
+      break;
     }
   }
 }
@@ -87,7 +110,6 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
   lv_obj_set_user_data(lvobj, this);
 
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_MOMENTUM);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
 
@@ -243,7 +265,6 @@ void Window::setScrollPositionX(coord_t value)
   auto newScrollPosition = max<coord_t>(0, min<coord_t>(innerWidth - width(), value));
   if (newScrollPosition != scrollPositionX) {
     scrollPositionX = newScrollPosition;
-    lv_obj_scroll_to_x(lvobj, scrollPositionX, LV_ANIM_OFF);
     invalidate();
   }
 }
@@ -258,7 +279,6 @@ void Window::setScrollPositionY(coord_t value)
 
   if (newScrollPosition != scrollPositionY) {
     scrollPositionY = newScrollPosition;
-    lv_obj_scroll_to_y(lvobj, value, LV_ANIM_OFF);
     invalidate();
   }
 }
@@ -288,17 +308,22 @@ void Window::scrollTo(Window * child)
 void Window::scrollTo(const rect_t & rect)
 {
   if (rect.top() < scrollPositionY) {
-    setScrollPositionY(pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.top() - 5);
-  }
-  else if (rect.bottom() > scrollPositionY + height() - 5) {
-    setScrollPositionY(pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.bottom() - height() + 5);
+    auto y =
+      pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.top();
+    lv_obj_scroll_to_y(lvobj, y, LV_ANIM_OFF);
+  } else if (rect.bottom() > scrollPositionY + height()) {
+    auto y = pageHeight ? rect.top() - (rect.top() % pageHeight)
+                        : rect.bottom() - height();
+    lv_obj_scroll_to_y(lvobj, y, LV_ANIM_OFF);
   }
 
   if (rect.left() < scrollPositionX) {
-    setScrollPositionX(pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.left() - 5);
+    auto x = pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.left();
+    lv_obj_scroll_to_x(lvobj, x, LV_ANIM_OFF);
   }
-  else if (rect.right() > scrollPositionX + width() - 5) {
-    setScrollPositionX(pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.right() - width() + 5);
+  else if (rect.right() > scrollPositionX + width()) {
+    auto x = pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.right() - width();
+    lv_obj_scroll_to_x(lvobj, x, LV_ANIM_OFF);
   }
 }
 
@@ -472,23 +497,6 @@ void Window::checkEvents()
   if (windowFlags & REFRESH_ALWAYS) {
     invalidate();
   }
-
-#if defined(HARDWARE_TOUCH)
-  if (touchState.event != TE_SLIDE && touchState.lastDeltaX == 0 && touchState.lastDeltaY == 0) {
-    if (pageWidth) {
-      coord_t relativeScrollPosition = getScrollPositionX() % pageWidth;
-      if (relativeScrollPosition) {
-        setScrollPositionX(getScrollPositionX() + getSnapStep(relativeScrollPosition, pageWidth));
-      }
-    }
-    if (pageHeight) {
-      coord_t relativeScrollPosition = getScrollPositionY() % pageHeight;
-      if (relativeScrollPosition) {
-        setScrollPositionY(getScrollPositionY() + getSnapStep(relativeScrollPosition, pageHeight));
-      }
-    }
-  }
-#endif
 }
 
 void Window::onEvent(event_t event)

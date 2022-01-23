@@ -139,44 +139,6 @@ void MainWindow::checkEvents()
     touchState.event = TE_NONE;
     onTouchEnd(touchState.startX + scrollPositionX, touchState.startY + scrollPositionY);
   }
-  else if (touchState.event == TE_SLIDE) {
-    if (touchState.deltaX || touchState.deltaY) {
-      onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.deltaX, touchState.deltaY);
-      touchState.lastDeltaX = touchState.deltaX;
-      touchState.lastDeltaY = touchState.deltaY;
-      touchState.deltaX = 0;
-      touchState.deltaY = 0;
-    }
-  }
-  else if (touchState.event == TE_SLIDE_END && slidingWindow) {
-    if (touchState.lastDeltaX > SLIDE_SPEED_REDUCTION)
-      touchState.lastDeltaX -= SLIDE_SPEED_REDUCTION;
-    else if (touchState.lastDeltaX < -SLIDE_SPEED_REDUCTION)
-      touchState.lastDeltaX += SLIDE_SPEED_REDUCTION;
-    else
-      touchState.lastDeltaX = 0;
-    if (touchState.lastDeltaY > SLIDE_SPEED_REDUCTION)
-      touchState.lastDeltaY -= SLIDE_SPEED_REDUCTION;
-    else if (touchState.lastDeltaY < -SLIDE_SPEED_REDUCTION)
-      touchState.lastDeltaY += SLIDE_SPEED_REDUCTION;
-    else
-      touchState.lastDeltaY = 0;
-    
-    Window::capturedWindow = nullptr;
-
-    onTouchSlide(touchState.x, touchState.y, touchState.startX, touchState.startY, touchState.lastDeltaX, touchState.lastDeltaY);
-    if(touchState.lastDeltaX == 0 && touchState.lastDeltaY == 0)
-    {
-      touchState.event = TE_NONE;
-      slidingWindow = nullptr;
-    }
-  } else if (touchState.event == TE_SLIDE_END && slidingWindow == nullptr) {
-    onTouchEnd(touchState.x + scrollPositionX, touchState.y + scrollPositionY);
-    touchState.event = TE_NONE;
-  }
-  if(touchState.event != TE_SLIDE_END) {
-    touchState.event = TE_NONE;
-  } 
 #endif
 
   Window::checkEvents();
