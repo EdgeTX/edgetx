@@ -337,7 +337,6 @@ struct convert<LimitData> {
     node["offset"] = YamlWriteLimitValue(rhs.offset);
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
-    node["failsafe"] = rhs.failsafe;
     node["name"] = rhs.name;
     node["curve"] = rhs.curve.value;
     return node;
@@ -357,7 +356,6 @@ struct convert<LimitData> {
     node["revert"] >> rhs.revert;
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
-    node["failsafe"] >> rhs.failsafe;
     node["name"] >> rhs.name;
     node["curve"] >> rhs.curve.value;
     return true;
@@ -371,7 +369,7 @@ struct convert<YamlTrim> {
     Node node;
     node["value"] = rhs.value;
     if (rhs.mode < 0) {
-      node["mode"] = -1;
+      node["mode"] = (1 << 5) - 1;
     } else {
       node["mode"] = 2 * rhs.ref + rhs.mode;
     }
@@ -383,8 +381,8 @@ struct convert<YamlTrim> {
 
     int trimMode = 0;
     node["mode"] >> trimMode;
-    if (trimMode < 0) {
-      rhs.mode = trimMode;
+    if (trimMode == (1 << 5) - 1) {
+      rhs.mode = -1;
     } else {
       rhs.mode = trimMode % 2;
       rhs.ref = trimMode / 2;
@@ -873,6 +871,12 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
+  for (int i=0; i<CPN_MAX_CHNOUT; i++) {
+    if (rhs.limitData[i].failsafe != 0) {
+      node["failsafeChannels"][std::to_string(i)]["val"] = rhs.limitData[i].failsafe;
+    }
+  }
+  
   for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
     if (strlen(rhs.scriptData[i].filename) > 0) {
       node["scriptData"][std::to_string(i)] = rhs.scriptData[i];
@@ -1044,6 +1048,15 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["moduleData"] >> rhs.moduleData;
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     rhs.moduleData[i].modelId = modelIds[i];
+  }
+
+  if (node["failsafeChannels"]) {
+    int failsafeChans[CPN_MAX_CHNOUT];
+    memset(failsafeChans, 0, sizeof(failsafeChans));
+    node["failsafeChannels"] >> failsafeChans;
+    for (int i=0; i<CPN_MAX_CHNOUT; i++) {
+      rhs.limitData[i].failsafe = failsafeChans[i];
+    }
   }
 
   node["scriptData"] >> rhs.scriptData;

@@ -436,8 +436,19 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
       break;
 
     case FrSkySportTelemetry:
-      if (len >= 4)
-        sportProcessTelemetryPacket(data);
+      if (len >= 4) {
+        if (sportProcessTelemetryPacket(data) && len >= 8) {
+          uint8_t primId = data[1];
+          uint16_t dataId = *((uint16_t *)(data+2));
+          if (primId == DATA_FRAME && dataId == RSSI_ID) {
+            // fetch MPM special TX_RSSI & TX_LQI sensors
+            uint8_t physicalId = data[0] & 0x1F;
+            uint8_t instance = physicalId + (TELEMETRY_ENDPOINT_SPORT << 5);
+            sportProcessTelemetryPacket(TX_RSSI_ID, 0, instance, data[5] >> 1u, UNIT_DB);
+            sportProcessTelemetryPacket(TX_LQI_ID, 0, instance, data[7], UNIT_RAW);
+          }
+        }
+      }
       else
         TRACE("[MP] Received sport telemetry len %d < 4", len);
       break;

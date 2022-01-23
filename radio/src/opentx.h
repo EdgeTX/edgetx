@@ -471,6 +471,8 @@ void alert(const char * title, const char * msg, uint8_t sound);
 
 #elif defined(COLORLCD)
 
+#define TELEMETRY_CHECK_DELAY10ms 150
+
 bool confirmationDialog(const char *title, const char *msg, bool checkPwr = true, const std::function<bool(void)>& closeCondition = nullptr);
 
 void raiseAlert(const char *title, const char *msg, const char *info,
@@ -1261,6 +1263,15 @@ extern Clipboard clipboard;
 
 #if !defined(SIMU)
 extern uint32_t s_anaFilt[NUM_ANALOGS];
+#endif
+
+#define JITTER_FILTER_STRENGTH  4         // tune this value, bigger value - more filtering (range: 1-5) (see explanation below)
+#define ANALOG_SCALE            1         // tune this value, bigger value - more filtering (range: 0-1) (see explanation below)
+
+#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
+#define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
+#if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
+  #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
 #endif
 
 #if defined(JITTER_MEASURE)

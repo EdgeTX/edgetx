@@ -1024,8 +1024,12 @@ void MainWindow::about()
   aboutStr.append(tr("If you've found this program useful, please support by <a href='%1'>donating</a>").arg(DONATE_STR));
   aboutStr.append("<br/><br/>");
   aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION).arg(CODENAME).arg(__DATE__));
+  aboutStr.append("<br/>");
+  aboutStr.append(QString("Commit <a href='%1'>%2</a>").arg("https://github.com/EdgeTX/edgetx/commit/" GIT_STR).arg(GIT_STR));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright") + QString(" &copy; 2021 EdgeTX<br/>"));
+  aboutStr.append(tr("File new <a href='%1'>Issue or Request</a>").arg("https://github.com/EdgeTX/edgetx/issues/new/choose"));
+  aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2022 EdgeTX<br/>"));
   // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
 
   QMessageBox msgBox(this);

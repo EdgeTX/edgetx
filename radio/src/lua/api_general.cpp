@@ -843,7 +843,7 @@ static int luaGetFieldInfo(lua_State * L)
   bool found;
   LuaField field;
   
-  if (lua_isnumber(L, 1))
+  if (lua_type(L, 1) == LUA_TNUMBER)
     found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
   else
     found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);

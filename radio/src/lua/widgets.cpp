@@ -27,11 +27,11 @@
 #include "widget.h"
 #include "libopenui_file.h"
 #include "api_colorlcd.h"
+#include "view_main.h"
 
 #define WIDGET_SCRIPTS_MAX_INSTRUCTIONS    (10000/100)
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
 #define LUA_WARNING_INFO_LEN               64
-#define EVENT_BUFFER_SIZE                   2
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
@@ -641,9 +641,10 @@ bool LuaWidget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t start
     eventData* es = findOpenEventSlot(EVT_TOUCH_SLIDE);
 
     if (es) {
+      ViewMain* vm = ViewMain::instance();
       es->event = EVT_TOUCH_SLIDE;
-      es->touchX = x;
-      es->touchY = y;
+      es->touchX = x + vm->getScrollPositionX();
+      es->touchY = y + vm->getScrollPositionY();
       es->startX = startX;
       es->startY = startY;
       es->slideX += slideX;

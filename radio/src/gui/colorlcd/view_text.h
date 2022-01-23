@@ -20,25 +20,20 @@
 
 #pragma once
 
-#include "page.h"
-#include "static.h"
+#include "ff.h"
 #include "lcd.h"
 #include "menus.h"
-#include "ff.h"
-
-#define READ_FILE_BY_LINE 0
+#include "page.h"
+#include "static.h"
 
 constexpr uint16_t TEXT_FILE_MAXSIZE = 20480;
 
 class ViewTextWindow : public Page
 {
  public:
-  ViewTextWindow(const std::string iPath, const std::string iName, unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = false) :
-      Page(icon),
-      path(std::move(iPath)),
-      name(std::move(iName)),
-      icon(icon),
-      fromMenu(fromMenu)
+  ViewTextWindow(const std::string iPath, const std::string iName,
+                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = false) :
+      Page(icon), path(std::move(iPath)), name(std::move(iName)), icon(icon), fromMenu(fromMenu)
   {
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
@@ -50,42 +45,36 @@ class ViewTextWindow : public Page
     checklistPosition = 0;
     textVerticalOffset = 0;
     readLinesCount = 0;
-    //body.setWindowFlags(FORWARD_SCROLL);
     header.setWindowFlags(NO_SCROLLBAR);
-    
+
     buildHeader(&header);
     buildBody(&body);
     sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   };
 
-#if READ_FILE_BY_LINE
-  bool sdReadTextLine(FIL* file, char lines[],
-                      const uint8_t lineLength = LCD_COLS); 
-#else
-  void sdReadTextFileBlock(const char * filename, int& lines_count); 
+  void sdReadTextFileBlock(const char* filename, int& lines_count);
   void loadFirstScreen(void);
- #if defined(HARDWARE_TOUCH)
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-#endif 
-  void drawVerticalScrollbar(BitmapBuffer * dc);
+#if defined(HARDWARE_TOUCH)
+  bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
+                    coord_t slideX, coord_t slideY) override;
+#endif
+  void drawVerticalScrollbar(BitmapBuffer* dc);
 
   ~ViewTextWindow()
   {
-    if(lines != nullptr) {
-      for(int i = 0; i < maxScreenLines; i++)
-      {
+    if (lines != nullptr) {
+      for (int i = 0; i < maxScreenLines; i++) {
         delete[] lines[i];
       }
       delete[] lines;
     }
-  }  
+  }
 
   void paint(BitmapBuffer* dc) override
   {
     Page::paint(dc);
     drawVerticalScrollbar(dc);
-  }        
-#endif                           
+  }
   void checkEvents() override;
 
 #if defined(DEBUG_WINDOWS)
@@ -105,23 +94,20 @@ class ViewTextWindow : public Page
   int checklistPosition;
   bool fromMenu;
 
-#if !READ_FILE_BY_LINE
-char** lines = nullptr;
-//char lines[15][80];
-int maxScreenLines;
-int maxLineLength;
-int textVerticalOffset;
-int readLinesCount;
-int lastLoadedLine;
-int maxPos;
-int maxLines;
-bool textBottom;
-bool isInSetup;
-#endif
+  char** lines = nullptr;
+  int maxScreenLines;
+  int maxLineLength;
+  int textVerticalOffset;
+  int readLinesCount;
+  int lastLoadedLine;
+  int maxPos;
+  int maxLines;
+  bool textBottom;
+  bool isInSetup;
 
   void extractNameSansExt(void);
-  void buildBody(Window *window);
-  void buildHeader(Window *window)
+  void buildBody(Window* window);
+  void buildHeader(Window* window)
   {
     new StaticText(window,
                    {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10,

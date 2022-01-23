@@ -568,6 +568,11 @@ void checkBacklight()
       }
       if (backlightOn) {
         currentBacklightBright = requiredBacklightBright;
+#if defined(COLORLCD)
+        // force backlight on for color lcd radios
+        if(currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+          currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+#endif
         BACKLIGHT_ENABLE();
       }
       else {
@@ -579,7 +584,11 @@ void checkBacklight()
 
 void resetBacklightTimeout()
 {
-  lightOffCounter = ((uint16_t)g_eeGeneral.lightAutoOff*250) << 1;
+  uint16_t autoOff = g_eeGeneral.lightAutoOff;
+#if defined(COLORLCD)
+  autoOff = std::max<uint16_t>(1, autoOff); // prevent the timeout from being 0 seconds on color lcd radios
+#endif
+  lightOffCounter = (autoOff*250) << 1;
 }
 
 #if defined(SPLASH)
@@ -1054,15 +1063,7 @@ JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
 tmr10ms_t jitterResetTime = 0;
 #endif
 
-#define JITTER_FILTER_STRENGTH  4         // tune this value, bigger value - more filtering (range: 1-5) (see explanation below)
-#define ANALOG_SCALE            1         // tune this value, bigger value - more filtering (range: 0-1) (see explanation below)
-
-#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
-#define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
 #define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
-#if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
-  #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
-#endif
 
 #if !defined(SIMU)
 uint16_t anaIn(uint8_t chan)
@@ -1823,6 +1824,13 @@ void opentxInit()
     if (!sdMounted())
       sdInit();
 
+#if !defined(COLORLCD)
+    if (!sdMounted()) {
+      g_eeGeneral.pwrOffSpeed = 2;
+      runFatalErrorScreen(STR_NO_SDCARD);
+    }
+#endif
+    
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -1915,6 +1923,10 @@ void opentxInit()
     // no backlight mode off on color lcd radios
     g_eeGeneral.backlightMode = e_backlight_mode_keys;
   }
+  if (g_eeGeneral.backlightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+    g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+  if (g_eeGeneral.lightAutoOff < 1)
+    g_eeGeneral.lightAutoOff = 1;
 #endif
 
   if (g_eeGeneral.backlightMode != e_backlight_mode_off) {
@@ -2000,12 +2012,12 @@ int main()
   }
 #endif
 
-#if !defined(EEPROM)
-  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    // TODO: b/w SD card fatal screen
 #if defined(COLORLCD)
+  // SD_CARD_PRESENT() does not work properly on most
+  // B&W targets, so that we need to delay the detection
+  // until the SD card is mounted (requires RTOS scheduler running)
+  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
     runFatalErrorScreen(STR_NO_SDCARD);
-#endif
   }
 #endif
 
@@ -2035,6 +2047,10 @@ uint32_t pwrPressedDuration()
     return get_tmr10ms() - pwr_press_time;
   }
 }
+
+#if defined(COLORLCD)
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
+#endif
 
 uint32_t pwrCheck()
 {
@@ -2126,7 +2142,11 @@ uint32_t pwrCheck()
           }
           else if (!modelConnectedConfirmed) {
             message = STR_MODEL_STILL_POWERED;
-            closeCondition = [](){
+            closeCondition = []() {
+              tmr10ms_t startTime = getTicks();
+              while (!TELEMETRY_STREAMING()) {
+                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+              }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
             };
           }
