@@ -312,12 +312,13 @@ void ViewTextWindow::checkEvents()
       if (g_model.checklistInteractive || true){
         if (checklistPosition < readLinesCount) {
           ++checklistPosition;
-          /*if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
-            ++menuVerticalOffset;
-            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-          }*/
+          if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
+            ++textVerticalOffset;
+            sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+          }
         }
         else {
+          printf("Checklist finish\r\n");
           /*if (reusableBuffer.viewText.pushMenu == true) popMenu();
           reusableBuffer.viewText.checklistComplete = true;*/
         }
