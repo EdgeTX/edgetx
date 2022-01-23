@@ -174,6 +174,8 @@ void Window::clear()
   innerWidth = rect.w;
   innerHeight = rect.h;
   deleteChildren();
+  if(lvobj != nullptr)
+    lv_obj_clean(lvobj);
   invalidate();
 }
 
