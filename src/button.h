@@ -124,7 +124,6 @@ class TextButton: public Button
 
   protected:
     lv_obj_t * label = nullptr;
-    lv_style_t style_btn;
 
     std::string text;
     std::function<LcdFlags(void)> bgColorHandler = nullptr;
