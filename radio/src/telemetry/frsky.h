@@ -278,8 +278,10 @@ void processHubPacket(uint8_t id, int16_t value);
 void frskyDProcessPacket(const uint8_t *packet);
 
 // FrSky S.PORT Telemetry Protocol
-void sportProcessTelemetryPacket(const uint8_t * packet);
-void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t * packet);
+bool sportProcessTelemetryPacket(const uint8_t * packet);
+void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance,
+                                 uint32_t data, TelemetryUnit unit = UNIT_RAW);
+void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t *packet);
 
 void telemetryWakeup();
 void telemetryReset();
