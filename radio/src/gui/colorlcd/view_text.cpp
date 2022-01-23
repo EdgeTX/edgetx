@@ -35,11 +35,6 @@
   case EVT_KEY_BREAK(KEY_PGUP): \
   case EVT_KEY_BREAK(KEY_UP)
 
-#define CASE_EVT_START \
-  case EVT_ENTRY: \
-  /*case EVT_KEY_BREAK(KEY_ENTER):*/ \
-  case EVT_KEY_BREAK(KEY_TELEM)
-
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
@@ -301,9 +296,6 @@ void ViewTextWindow::checkEvents()
     }
 */
     switch (event) {
-    CASE_EVT_START:
-      break;
-    
     case EVT_KEY_BREAK(KEY_ENTER):
       if ((g_model.checklistInteractive || true) && !fromMenu) {
         if (checklistPosition < readLinesCount) {
