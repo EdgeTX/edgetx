@@ -187,12 +187,16 @@ class Window
     void setRect(rect_t value)
     {
       rect = value;
+      lv_obj_set_pos(lvobj, rect.x, rect.y);
+      lv_obj_set_width(lvobj, rect.w);
+      lv_obj_set_height(lvobj, rect.h);
       invalidate();
     }
 
     void setWidth(coord_t value)
     {
       rect.w = value;
+      lv_obj_set_width(lvobj, rect.w);
       invalidate();
     }
 
@@ -200,11 +204,14 @@ class Window
     {
       rect.x = (parent->width() - width()) / 2;
       rect.y = (parent->height() - height()) / 2;
+      lv_obj_set_pos(lvobj, rect.x, rect.y);
     }
 
     void setHeight(coord_t value)
     {
       rect.h = value;
+      lv_obj_set_height(lvobj, rect.h);
+
       if (windowFlags & FORWARD_SCROLL)
         innerHeight = value;
       else if (innerHeight <= value) {
@@ -216,12 +223,14 @@ class Window
     void setLeft(coord_t x)
     {
       rect.x = x;
+      lv_obj_set_pos(lvobj, rect.x, rect.y);
       invalidate();
     }
 
     void setTop(coord_t y)
     {
       rect.y = y;
+      lv_obj_set_pos(lvobj, rect.x, rect.y);
       invalidate();
     }
 
