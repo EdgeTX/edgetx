@@ -27,7 +27,13 @@ void Button::onPress()
   bool check = (pressHandler && pressHandler());
   if (check != bool(windowFlags & BUTTON_CHECKED)) {
     windowFlags ^= BUTTON_CHECKED;
-    invalidate();
+
+    if (! (windowFlags & BUTTON_CHECKED))
+      lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+    else 
+      lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+
+    // invalidate();
   }
 }
 
@@ -82,7 +88,9 @@ lv_style_t style_btn;
 LvglWidgetFactory textButtonFactory = LvglWidgetFactory(
   [](lv_obj_t *parent) {
     return lv_btn_create(parent);
-});
+  },
+  [] (LvglWidgetFactory *factory) {
+  });
 
 TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
           std::function<uint8_t(void)> pressHandler,
@@ -91,24 +99,32 @@ TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
     Button(parent, rect, std::move(pressHandler), windowFlags, textFlags, &textButtonFactory),
     text(std::move(text))
 {
-  lv_obj_set_pos(lvobj, rect.x, rect.y);
-  lv_obj_set_size(lvobj, rect.w, rect.h);
   setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
-
-  auto color = COLOR_VAL(COLOR_THEME_PRIMARY2);
-  auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CHECKABLE);
+  if (windowFlags & BUTTON_CHECKED)
+    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 
   lv_style_init(&style_btn);
   lv_style_set_radius(&style_btn, 0);
-  lv_obj_set_style_bg_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN | LV_STATE_CHECKED);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
+  
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
+  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
+
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
 
   lv_obj_add_style(lvobj, &style_btn,0);
 
   label = lv_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
-  color = COLOR_VAL(this->getTextFlags());
-  // lv_obj_set_style_text_color(label, lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color)), LV_PART_MAIN);
+  lv_obj_set_style_text_color(label, makeLvColor(this->getTextFlags()), LV_PART_MAIN);
+  lv_obj_set_style_text_color(label, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
 TextButton::~TextButton()
