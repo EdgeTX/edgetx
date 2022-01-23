@@ -3183,8 +3183,8 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1297"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1315"/>
-        <source>Support for MULTI internal module</source>
-        <translation>Prise en charge du module MULTI interne</translation>
+        <source>Support for MPM internal module</source>
+        <translation>Prise en charge du module MPM interne</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1303"/>

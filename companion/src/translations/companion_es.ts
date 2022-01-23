@@ -3502,8 +3502,8 @@ Vacío significa incluir todos. Comodines ?, *, y [...] aceptados.</translation>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1273"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1281"/>
-        <source>Support for MULTI internal module</source>
-        <translation>Soporte para módulo interno MULTI</translation>
+        <source>Support for MPM internal module</source>
+        <translation>Soporte para módulo interno MPM</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1279"/>

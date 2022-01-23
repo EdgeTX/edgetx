@@ -554,7 +554,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
         break;
 #endif
 
-#if defined(MULTIMODULE) || defined(AFHDS3) || defined(AFHDS2)
+#if defined(MPM) || defined(AFHDS3) || defined(AFHDS2)
       case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
         flySkySetDefault(index, id, subId, instance);
         break;
@@ -566,7 +566,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
         break;
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
       case PROTOCOL_TELEMETRY_SPEKTRUM:
         spektrumSetDefault(index, id, subId, instance);
         break;

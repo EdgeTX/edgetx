@@ -95,7 +95,7 @@ void ModuleState::writeReceiverSettings(ReceiverSettings* source)
 void getModuleStatusString(uint8_t moduleIdx, char * statusText)
 {
   *statusText = 0;
-#if defined(MULTIMODULE)
+#if defined(MPM)
   if (isModuleMultimodule(moduleIdx)) {
     //change it
     getMultiModuleStatus(moduleIdx).getStatusString(statusText);
@@ -111,7 +111,7 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
 {
   *statusText = 0;
-#if defined(MULTIMODULE)
+#if defined(MPM)
   if (isModuleMultimodule(moduleIdx)) {
     getModuleSyncStatus(moduleIdx).getRefreshString(statusText);
   }
@@ -205,9 +205,9 @@ uint8_t getRequiredProtocol(uint8_t module)
       protocol = PROTOCOL_CHANNELS_SBUS;
       break;
 
-#if defined(MULTIMODULE)
-    case MODULE_TYPE_MULTIMODULE:
-      protocol = PROTOCOL_CHANNELS_MULTIMODULE;
+#if defined(MPM)
+    case MODULE_TYPE_MPM:
+      protocol = PROTOCOL_CHANNELS_MPM;
       break;
 #endif
 
@@ -331,17 +331,17 @@ void enablePulsesExternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(MPM)
+    case PROTOCOL_CHANNELS_MPM:
 #if defined(PCBSKY9X)
-      extmoduleSerialStart(MULTIMODULE_BAUDRATE, MULTIMODULE_PERIOD * 2000, true);
+      extmoduleSerialStart(MPM_BAUDRATE, MPM_PERIOD * 2000, true);
 #else
       extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
+      mixerSchedulerSetPeriod(EXTERNAL_MODULE, MPM_PERIOD);
 #endif
       getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
       MultiRfProtocols::instance(EXTERNAL_MODULE)->triggerScan();
 #endif
       break;
@@ -445,14 +445,14 @@ bool setupPulsesExternalModule(uint8_t protocol)
     }
 #endif
 
-#if defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(MPM)
+    case PROTOCOL_CHANNELS_MPM:
     {
       ModuleSyncStatus& status = getModuleSyncStatus(EXTERNAL_MODULE);
       if (status.isValid())
         mixerSchedulerSetPeriod(EXTERNAL_MODULE, status.getAdjustedRefreshRate());
       else
-        mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
+        mixerSchedulerSetPeriod(EXTERNAL_MODULE, MPM_PERIOD);
       setupPulsesMultiExternalModule();
       return true;
     }
@@ -540,12 +540,12 @@ static void enablePulsesInternalModule(uint8_t protocol)
     } break;
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE: {
+#if defined(INTERNAL_MODULE_MPM)
+    case PROTOCOL_CHANNELS_MPM: {
 
       // serial port setup
       etx_serial_init params;
-      params.baudrate    = MULTIMODULE_BAUDRATE;
+      params.baudrate    = MPM_BAUDRATE;
       params.rx_enable   = true;
       params.parity      = USART_Parity_Even;
       params.stop_bits   = USART_StopBits_2;
@@ -556,13 +556,13 @@ static void enablePulsesInternalModule(uint8_t protocol)
       intmoduleSerialStart(&params);
 
       // mixer setup
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+      mixerSchedulerSetPeriod(INTERNAL_MODULE, MPM_PERIOD);
 
       // reset status
       getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
       getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
       TRACE("enablePulsesInternalModule(): trigger scan");
       MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
       TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
@@ -668,10 +668,10 @@ bool setupPulsesInternalModule(uint8_t protocol)
     }
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(INTERNAL_MODULE_MPM)
+    case PROTOCOL_CHANNELS_MPM:
       setupPulsesMultiInternalModule();
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+      mixerSchedulerSetPeriod(INTERNAL_MODULE, MPM_PERIOD);
       return true;
 #endif
 
@@ -734,8 +734,8 @@ void intmoduleSendNextFrame()
 #endif
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(INTERNAL_MODULE_MPM)
+    case PROTOCOL_CHANNELS_MPM:
       intmoduleSendBuffer(intmodulePulsesData.multi.getData(),
                           intmodulePulsesData.multi.getSize());
       break;

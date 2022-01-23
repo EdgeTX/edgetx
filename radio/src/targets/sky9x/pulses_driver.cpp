@@ -264,8 +264,8 @@ extern "C" void PWM_IRQHandler(void)
         }
         break;
 
-#if defined(MULTIMODULE)
-      case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(MPM)
+      case PROTOCOL_CHANNELS_MPM:
 #endif
       case PROTOCOL_CHANNELS_SBUS:
         // Todo: how to do inverted polarity on this platform?

@@ -229,7 +229,7 @@
   #define IS_SLAVE_TRAINER()           (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 #endif
 
-#if defined(LUA) || defined(PXX2) || defined(MULTIMODULE)
+#if defined(LUA) || defined(PXX2) || defined(MPM)
   #define RADIO_TOOLS
 #endif
 

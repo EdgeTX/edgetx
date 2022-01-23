@@ -30,7 +30,7 @@
 #if defined(GHOST)
   #include "ghost.h"
 #endif
-#if defined(MULTIMODULE)
+#if defined(MPM)
   #include "spektrum.h"
   #include "hitec.h"
   #include "hott.h"
@@ -38,7 +38,7 @@
   #include "mlink.h"
 #endif
 #include "myeeprom.h"
-#if defined(MULTIMODULE) || defined(AFHDS3)
+#if defined(MPM) || defined(AFHDS3)
   #include "flysky_ibus.h"
 #endif
 
@@ -64,9 +64,9 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 #define TELEMETRY_SERIAL_8E2           1
 #define TELEMETRY_SERIAL_WITHOUT_DMA   2
 
-#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3)
+#if defined(CROSSFIRE) || defined(MPM) || defined(AFHDS3)
 #define TELEMETRY_RX_PACKET_SIZE       128
-// multi module Spektrum telemetry is 18 bytes, FlySky is 37 bytes
+// mpm Spektrum telemetry is 18 bytes, FlySky is 37 bytes
 #else
 #define TELEMETRY_RX_PACKET_SIZE       19  // 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 #endif
@@ -126,12 +126,12 @@ extern uint8_t telemetryProtocol;
 
 inline const char* getRssiLabel()
 {
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
+#if defined(MPM)
+  if (telemetryProtocol == PROTOCOL_TELEMETRY_MPM &&
       (g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
-           MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
+           MODULE_SUBTYPE_MPM_FS_AFHDS2A ||
        g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
-           MODULE_SUBTYPE_MULTI_HOTT)) {
+           MODULE_SUBTYPE_MPM_HOTT)) {
     return "RQly";
   }
 #endif
@@ -172,9 +172,9 @@ inline uint8_t modelTelemetryProtocol()
     return g_model.telemetryProtocol;
   }
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   if (!sportUsed && isModuleMultimodule(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_MULTIMODULE;
+    return PROTOCOL_TELEMETRY_MPM;
   }
 #endif
 

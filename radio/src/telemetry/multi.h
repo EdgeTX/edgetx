@@ -24,7 +24,7 @@
 
 #include "../timers.h"
 
-#define MULTI_BUFFER_SIZE 177
+#define MPM_BUFFER_SIZE 177
 extern uint8_t * Multi_Buffer;
 
 /*
@@ -95,7 +95,7 @@ Type 0x0B Spectrum Scanner telemetry data
 
 void processMultiTelemetryData(uint8_t data, uint8_t module);
 
-#define MULTI_SCANNER_MAX_CHANNEL 249
+#define MPM_SCANNER_MAX_CHANNEL 249
 
 struct MultiModuleStatus {
 
@@ -140,9 +140,9 @@ struct MultiModuleStatus {
 MultiModuleStatus& getMultiModuleStatus(uint8_t module);
 
 enum MultiBindStatus : uint8_t {
-  MULTI_BIND_NONE,
-  MULTI_BIND_INITIATED,
-  MULTI_BIND_FINISHED,
+  MPM_BIND_NONE,
+  MPM_BIND_INITIATED,
+  MPM_BIND_FINISHED,
 };
 
 uint8_t getMultiBindStatus(uint8_t module);

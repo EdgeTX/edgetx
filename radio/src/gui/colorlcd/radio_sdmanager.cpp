@@ -254,19 +254,19 @@ void RadioSdManagerPage::build(FormWindow * window)
                   audioQueue.playFile(getFullPath(name), 0, ID_PLAY_FROM_SD_MANAGER);
               });
             }
-#if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-            if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
+#if defined(MPM) && !defined(DISABLE_MPM_UPDATE)
+            if (!READ_ONLY() && !strcasecmp(ext, MPM_FIRMWARE_EXT)) {
               MultiFirmwareInformation information;
               if (information.readMultiFirmwareInformation(name.c_str()) == nullptr) {
-#if defined(INTERNAL_MODULE_MULTI)
-                menu->addLine(STR_FLASH_INTERNAL_MULTI, [=]() {
+#if defined(INTERNAL_MODULE_MPM)
+                menu->addLine(STR_FLASH_INTERNAL_MPM, [=]() {
                   MultiFirmwareUpdate(name, INTERNAL_MODULE,
-                                      MULTI_TYPE_MULTIMODULE);
+                                      MULTI_TYPE_MPM);
                 });
 #endif
-                menu->addLine(STR_FLASH_EXTERNAL_MULTI, [=]() {
+                menu->addLine(STR_FLASH_EXTERNAL_MPM, [=]() {
                   MultiFirmwareUpdate(name, EXTERNAL_MODULE,
-                                      MULTI_TYPE_MULTIMODULE);
+                                      MULTI_TYPE_MPM);
                 });
               }
             }

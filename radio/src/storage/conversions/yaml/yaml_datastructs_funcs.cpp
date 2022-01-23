@@ -217,7 +217,7 @@ uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_CROSSFIRE:
     case MODULE_TYPE_GHOST:
         return 1;
-    case MODULE_TYPE_MULTIMODULE:
+    case MODULE_TYPE_MPM:
         return 2;
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1:
@@ -727,7 +727,7 @@ const struct YamlIdStr enum_TrainerMode[] = {
 #endif
   {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
   {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
-  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  TRAINER_MODE_MPM, "MASTER_MPM"  },
   {  0, NULL  }
 };
 
@@ -1132,8 +1132,8 @@ bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_output_enum(val, enum_R9M_Subtypes);
   } else if (md->type == MODULE_TYPE_FLYSKY) {
     str = yaml_output_enum(val, enum_FLYSKY_Subtypes);
-  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
-#if defined(MULTIMODULE)
+  } else if (md->type == MODULE_TYPE_MPM) {
+#if defined(MPM)
     // Use type/subType by the book (see MPM documentation)
     // TODO: remove that crappy translation and use the MPM
     //       data as-is (no FrSky special casing)

@@ -313,7 +313,7 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE  "教練從機/CPPM模塊\0"
 #define TR_VTRAINER_MASTER_BATTERY      "教練主機/端口\0    "
 #define TR_VTRAINER_BLUETOOTH           TR("Master/BT\0        " "Slave/BT\0         ", "教練主機/藍牙\0    " "教練從機/藍牙\0    ")
-#define TR_VTRAINER_MULTI               "教練主機/多協議\0"
+#define TR_VTRAINER_MPM                 "教練主機/多協議\0"
 
 #define LEN_VFAILSAFE                   "\010"
 #define TR_VFAILSAFE                    "未設置\0 " "失控保持" "自定義\0 " "無脈衝\0 " "接收機\0 "
@@ -583,27 +583,26 @@
 #define TR_MONITOR_MIXER_DESC           "混控查看"
 #define TR_RECEIVER_NUM                 TR("RxNum", "接收機ID.")
 #define TR_RECEIVER                     "接收機ID"
-#define TR_MULTI_CUSTOM                "自定義"
-#define TR_MULTI_RFTUNE                 TR("Freq tune", "頻率微調")
-#define TR_MULTI_RFPOWER                "發射功率"
-#define TR_MULTI_WBUS                   "Output"
-#define TR_MULTI_TELEMETRY              "回傳"
-#define TR_MULTI_VIDFREQ                TR("Vid. freq.", "Video frequency")
+#define TR_MPM_RFTUNE                   TR("Freq tune", "頻率微調")
+#define TR_MPM_RFPOWER                  "發射功率"
+#define TR_MPM_WBUS                     "Output"
+#define TR_MPM_TELEMETRY                "回傳"
+#define TR_MPM_VIDFREQ                  TR("Vid. freq.", "Video frequency")
 #define TR_RF_POWER                     "發射功率"
-#define TR_MULTI_FIXEDID                TR("FixedID", "固定ID")
-#define TR_MULTI_OPTION                 TR("Option", "選項值")
-#define TR_MULTI_AUTOBIND               TR(INDENT "Bind Ch.", INDENT "通道控制對頻")
+#define TR_MPM_FIXEDID                  TR("FixedID", "固定ID")
+#define TR_MPM_OPTION                   TR("Option", "選項值")
+#define TR_MPM_AUTOBIND                 TR(INDENT "Bind Ch.", INDENT "通道控制對頻")
 #define TR_DISABLE_CH_MAP               TR("No Ch. map", "禁用通道重映射")
 #define TR_DISABLE_TELEM                TR("No Telem", "禁用回傳")
-#define TR_MULTI_DSM_AUTODTECT          TR(INDENT "Autodetect", INDENT "自動識別格式")
-#define TR_MULTI_LOWPOWER               TR(INDENT "Low power", INDENT "低功率模式")
-#define TR_MULTI_LNA_DISABLE            INDENT "禁用接收放大器"
+#define TR_MPM_DSM_AUTODTECT            TR(INDENT "Autodetect", INDENT "自動識別格式")
+#define TR_MPM_LOWPOWER                 TR(INDENT "Low power", INDENT "低功率模式")
+#define TR_MPM_LNA_DISABLE              INDENT "禁用接收放大器"
 #define TR_MODULE_TELEMETRY             TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON              TR("ON", "啟用")
 #define TR_DISABLE_INTERNAL             TR("Disable int.", "禁用內置射頻")
 #define TR_MODULE_NO_SERIAL_MODE        TR("!serial mode", "未開啟端口模式")
 #define TR_MODULE_NO_INPUT              TR("No input", "無串行數據輸入")
-#define TR_MODULE_NO_TELEMETRY          TR3("No telemetry", "No MULTI_TELEMETRY", "未收到多協議回傳信息")
+#define TR_MODULE_NO_TELEMETRY          TR3("No telemetry", "No MPM TELEMETRY", "未收到多協議回傳信息")
 #define TR_MODULE_WAITFORBIND           "使用當前協議對頻"
 #define TR_MODULE_BINDING               TR("Bind...","對頻中")
 #define TR_MODULE_UPGRADE_ALERT         TR3("Upg. needed", "Module upgrade required", "多協議模塊需要升級")
@@ -619,9 +618,9 @@
 #define TR_PROTOCOL_INVALID             TR("Prot. invalid", "無效協議")
 #define TR_MODULE_STATUS                TR(INDENT "Status", INDENT "多協議狀態")
 #define TR_MODULE_SYNC                  TR(INDENT "Sync", INDENT "協議同步狀態")
-#define TR_MULTI_SERVOFREQ              TR("Servo rate", "舵機更新頻率")
-#define TR_MULTI_MAX_THROW              TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                 TR("RF Channel", "選擇發射頻道")
+#define TR_MPM_SERVOFREQ                TR("Servo rate", "舵機更新頻率")
+#define TR_MPM_MAX_THROW                TR("Max. Throw", "Enable max. throw")
+#define TR_MPM_RFCHAN                   TR("RF Channel", "選擇發射頻道")
 #define TR_AFHDS3_RX_FREQ               TR("RX freq.", "RX frequency")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
@@ -698,8 +697,8 @@
 #define TR_SPECTRUM_ANALYSER_INT        "頻譜儀 (內置)"
 #define TR_SDCARD_FULL                  "存儲卡已滿"
 #define TR_NEEDS_FILE                   "需要文件名包含"
-#define TR_EXT_MULTI_SPEC               "opentx-inv"
-#define TR_INT_MULTI_SPEC               "stm-opentx-noinv"
+#define TR_EXT_MPM_SPEC                 "opentx-inv"
+#define TR_INT_MPM_SPEC                 "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                 "不兼容"
 #define TR_WARNING                      "警告"
 #define TR_EEPROMWARN                   "EEPROM"
@@ -715,7 +714,7 @@
 #define TR_TEST_NOTSAFE                 "只用於測試"
 #define TR_WRONG_SDCARDVERSION          TR("Expected ver: ", "請將SD卡文件更換為正確版本: ")
 #define TR_WARN_RTC_BATTERY_LOW         "時間驅動電池電壓低"
-#define TR_WARN_MULTI_LOWPOWER          "低功率模式"
+#define TR_WARN_MPM_LOWPOWER            "低功率模式"
 #define TR_BATTERY                      "電池"
 #define TR_WRONG_PCBREV                 "錯誤的硬件類型"
 #define TR_EMERGENCY_MODE               "緊急模式"
@@ -810,9 +809,9 @@
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
 #define TR_CURRENT_VERSION              "當前版本: "
 #define TR_FLASH_INTERNAL_MODULE        "更新內置模塊韌體"
-#define TR_FLASH_INTERNAL_MULTI         "更新內置多協議模塊韌體"
+#define TR_FLASH_INTERNAL_MPM           "更新內置多協議模塊韌體"
 #define TR_FLASH_EXTERNAL_MODULE        "更新外置模塊韌體"
-#define TR_FLASH_EXTERNAL_MULTI         "更新外置多協議模塊韌體"
+#define TR_FLASH_EXTERNAL_MPM           "更新外置多協議模塊韌體"
 #define TR_FIRMWARE_UPDATE_ERROR        "韌體更新失敗韌體"
 #define TR_FLASH_EXTERNAL_ELRS          "更新外置ELRS模塊韌體"
 #define TR_FIRMWARE_UPDATE_SUCCESS      "韌體更新成功"

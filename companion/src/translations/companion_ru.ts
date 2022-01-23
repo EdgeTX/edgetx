@@ -3050,7 +3050,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1293"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1300"/>
-        <source>Support for MULTI internal module</source>
+        <source>Support for MPM internal module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

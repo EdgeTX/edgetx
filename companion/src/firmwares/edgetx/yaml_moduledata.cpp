@@ -22,7 +22,7 @@
 #include "moduledata.h"
 #include "rawsource.h"
 
-//  type: TYPE_MULTIMODULE
+//  type: TYPE_MPM
 //  subType: 15,2
 //  channelsStart: 0
 //  channelsCount: 12
@@ -44,7 +44,7 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_ACCESS_ISRM, "TYPE_ISRM_PXX2"  },
   {  PULSES_LP45, "TYPE_DSM2"  },
   {  PULSES_CROSSFIRE, "TYPE_CROSSFIRE"  },
-  {  PULSES_MULTIMODULE, "TYPE_MULTIMODULE"  },
+  {  PULSES_MPM, "TYPE_MPM"  },
   {  PULSES_PXX_R9M, "TYPE_R9M_PXX1"  },
   {  PULSES_ACCESS_R9M, "TYPE_R9M_PXX2"  },
   {  PULSES_PXX_R9M_LITE, "TYPE_R9M_LITE_PXX1"  },
@@ -103,25 +103,25 @@ enum MMRFrskySubtypes {
 static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 {
   if (*protocol == 3 && *subprotocol == 0) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
     return;
   }
 
   if (*protocol == 3 && *subprotocol == 1) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
     return;
   }
 
   if (*protocol == 25) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
     return;
   }
 
   if (*protocol == 15) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
 
     if (*subprotocol == 0)
       *subprotocol = MM_RF_FRSKY_SUBTYPE_D16;
@@ -147,7 +147,7 @@ static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
 {
   // Special treatment for the FrSky entry...
-  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
+  if (*protocol == MODULE_SUBTYPE_MPM_FRSKY + 1) {
     if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
       //D8
       *protocol = 3;
@@ -178,7 +178,7 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
     }
   }
   else {
-    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
+    // 15 for MPM is FrskyX or D16 which we map as a protocol of 3 (FrSky)
     // all protos > frskyx are therefore also off by one
     if (*protocol >= 15)
       *protocol += 1;
@@ -228,7 +228,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_LP45:
       node["subType"] = LookupValue(dsmLut, subtype);
       break;
-    case PULSES_MULTIMODULE: {
+    case PULSES_MPM: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
       convertEtxProtocolToMulti(&rfProtocol, &subType);
@@ -268,7 +268,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         }
         mod["pxx2"] = pxx2;
     } break;
-    case PULSES_MULTIMODULE: {
+    case PULSES_MPM: {
         Node multi;;
         multi["disableTelemetry"] = (int)rhs.multi.disableTelemetry;
         multi["disableMapping"] = (int)rhs.multi.disableMapping;
@@ -328,7 +328,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
       subType >> dsmLut >> subProto;
       rhs.protocol += subProto;
     } break;
-    case PULSES_MULTIMODULE: {
+    case PULSES_MPM: {
       std::string st_str;
       subType >> st_str;
       if (!st_str.empty()) {

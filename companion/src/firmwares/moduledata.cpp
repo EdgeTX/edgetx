@@ -79,7 +79,7 @@ bool ModuleData::supportRxNum() const
     case PULSES_PXX_R9M:
     case PULSES_PXX_R9M_LITE:
     case PULSES_PXX_R9M_LITE_PRO:
-    case PULSES_MULTIMODULE:
+    case PULSES_MPM:
     case PULSES_CROSSFIRE:
     case PULSES_ACCESS_ISRM:
     case PULSES_ACCST_ISRM_D16:
@@ -101,7 +101,7 @@ bool ModuleData::supportRxNum() const
 QString ModuleData::rfProtocolToString() const
 {
   switch (protocol) {
-    case PULSES_MULTIMODULE:
+    case PULSES_MPM:
       return Multiprotocols::protocolToString((int)multi.rfProtocol);
     default:
       return CPN_STR_UNKNOWN_ITEM;
@@ -121,7 +121,7 @@ QString ModuleData::subTypeToString(int type) const
     type = subType;
 
   switch (protocol) {
-    case PULSES_MULTIMODULE:
+    case PULSES_MPM:
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
@@ -165,7 +165,7 @@ QString ModuleData::protocolToString(unsigned int protocol)
     "PPM16", "PPMsim",
     "FrSky XJT (D16)", "FrSky XJT (D8)", "FrSky XJT (LR12)", "FrSky DJT",
     "Crossfire",
-    "Multi",
+    "MPM",
     "FrSky R9M",
     "FrSky R9M Lite",
     "FrSky R9M Lite Pro",
@@ -219,7 +219,7 @@ bool ModuleData::hasFailsafes(Firmware * fw) const
     protocol == PULSES_ACCESS_R9M_LITE ||
     protocol == PULSES_ACCESS_R9M_LITE_PRO ||
     protocol == PULSES_XJT_LITE_X16 ||
-    protocol == PULSES_MULTIMODULE ||
+    protocol == PULSES_MPM ||
     protocol == PULSES_AFHDS3
     );
 }
@@ -252,8 +252,8 @@ int ModuleData::getMaxChannelCount()
     case PULSES_DSM2:
     case PULSES_DSMX:
       return 6;
-    case PULSES_MULTIMODULE:
-      if (multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+    case PULSES_MPM:
+      if (multi.rfProtocol == MODULE_SUBTYPE_MPM_DSM2)
         return 12;
       else
         return 16;
@@ -296,7 +296,7 @@ int ModuleData::getTypeFromProtocol(unsigned int protocol)
                           { PULSES_DSMX,                MODULE_TYPE_DSM2 },
 
                           { PULSES_CROSSFIRE,           MODULE_TYPE_CROSSFIRE },
-                          { PULSES_MULTIMODULE,         MODULE_TYPE_MULTIMODULE },
+                          { PULSES_MPM,                 MODULE_TYPE_MPM },
                           { PULSES_PXX_R9M,             MODULE_TYPE_R9M_PXX1 },
                           { PULSES_ACCESS_R9M,          MODULE_TYPE_R9M_PXX2 },
                           { PULSES_PXX_R9M_LITE,        MODULE_TYPE_R9M_LITE_PXX1 },
@@ -343,7 +343,7 @@ QString ModuleData::typeToString(int type)
     "ISRM",
     "DSM2",
     "CRSF",
-    "MULTI",
+    "MPM",
     "R9M",
     "R9M ACCESS",
     "R9MLite",
@@ -402,7 +402,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
           case PULSES_DSM2:
           case PULSES_DSMX:
           case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
+          case PULSES_MPM:
           case PULSES_CROSSFIRE:
           case PULSES_AFHDS3:
           case PULSES_GHOST:
@@ -445,7 +445,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
           case PULSES_DSM2:
           case PULSES_DSMX:
           case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
+          case PULSES_MPM:
             return true;
           default:
             return false;

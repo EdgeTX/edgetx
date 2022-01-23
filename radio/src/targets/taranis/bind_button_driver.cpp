@@ -29,7 +29,7 @@ bool setBindProtocolSelection()
 
   // Center: D8
   if (abs(xPos < 50 && abs(yPos) < 50)) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MPM_FRSKY);
     g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D8;
     storageDirty(EE_MODEL);
     return true;
@@ -37,7 +37,7 @@ bool setBindProtocolSelection()
 
   // Top left: D16 FCC
   if (xPos < -512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MPM_FRSKY);
     g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
@@ -46,7 +46,7 @@ bool setBindProtocolSelection()
 
   // Top right: D16 LBT
   if (xPos > 512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MPM_FRSKY);
     g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
@@ -55,7 +55,7 @@ bool setBindProtocolSelection()
 
   // Bottom left: V2.1 D16 FCC
   if (xPos < -512 && yPos < -512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MPM_FRSKYX2);
     g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
@@ -64,7 +64,7 @@ bool setBindProtocolSelection()
 
   // Bottom right: V2.1 D16 LBT
   if (xPos > 512 && yPos < -512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MPM_FRSKYX2);
     g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
@@ -79,22 +79,22 @@ void bindButtonHandler(event_t event)
   if( !isModuleMultimodule(INTERNAL_MODULE))
     return;
 
-  if (event == EVT_KEY_LONG(KEY_BIND) && getMultiBindStatus(INTERNAL_MODULE) == MULTI_NORMAL_OPERATION) {
+  if (event == EVT_KEY_LONG(KEY_BIND) && getMultiBindStatus(INTERNAL_MODULE) == MPM_NORMAL_OPERATION) {
     if (setBindProtocolSelection()) {
-      setMultiBindStatus(INTERNAL_MODULE, MULTI_BIND_INITIATED);
+      setMultiBindStatus(INTERNAL_MODULE, MPM_BIND_INITIATED);
       moduleState[INTERNAL_MODULE].mode = MODULE_MODE_BIND;
     }
   }
 
-  if (getMultiBindStatus(INTERNAL_MODULE) == MULTI_BIND_INITIATED) {
+  if (getMultiBindStatus(INTERNAL_MODULE) == MPM_BIND_INITIATED) {
     if (FAST_BLINK_ON_PHASE)
       LED_BIND();
     else
       ledOff();
   }
 
-  if (getMultiBindStatus(INTERNAL_MODULE) == MULTI_BIND_FINISHED) {
-    setMultiBindStatus(INTERNAL_MODULE, MULTI_NORMAL_OPERATION);
+  if (getMultiBindStatus(INTERNAL_MODULE) == MPM_BIND_FINISHED) {
+    setMultiBindStatus(INTERNAL_MODULE, MPM_NORMAL_OPERATION);
     moduleState[INTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
     LED_ERROR_END();
   }

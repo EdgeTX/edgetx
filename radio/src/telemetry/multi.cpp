@@ -23,8 +23,8 @@
 #include "multi.h"
 #include "io/multi_protolist.h"
 
-constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
-#define MULTI_CHAN_BITS 11
+constexpr int32_t MPM_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
+#define MPM_CHAN_BITS 11
 
 extern uint8_t g_moduleIdx;
 
@@ -65,10 +65,10 @@ enum MultiBufferState : uint8_t
 };
 
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
 
 static MultiModuleStatus multiModuleStatus[NUM_MODULES] = {MultiModuleStatus(), MultiModuleStatus()};
-static uint8_t multiBindStatus[NUM_MODULES] = {MULTI_BIND_NONE, MULTI_BIND_NONE};
+static uint8_t multiBindStatus[NUM_MODULES] = {MPM_BIND_NONE, MPM_BIND_NONE};
 
 static MultiBufferState multiTelemetryBufferState[NUM_MODULES];
 static uint16_t multiTelemetryLastRxTS[NUM_MODULES];
@@ -106,7 +106,7 @@ static uint16_t& getMultiTelemetryLastRxTS(uint8_t module)
 #else // !INTERNAL_MODULE_MULTI
 
 static MultiModuleStatus multiModuleStatus;
-static uint8_t multiBindStatus = MULTI_BIND_NONE;
+static uint8_t multiBindStatus = MPM_BIND_NONE;
 
 static MultiBufferState multiTelemetryBufferState;
 static uint16_t multiTelemetryLastRxTS;
@@ -151,15 +151,15 @@ bool isMultiModeScanning(uint8_t module)
 static MultiBufferState guessProtocol(uint8_t module)
 {
   uint32_t moduleIdx = EXTERNAL_MODULE;
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
   if (isModuleMultimodule(INTERNAL_MODULE)) {
     moduleIdx = INTERNAL_MODULE;
   }
 #endif
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MPM_DSM2)
     return SpektrumTelemetryFallback;
-  else if (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+  else if (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MPM_FS_AFHDS2A)
     return FlyskyTelemetryFallback;
   else
     return FrskyTelemetryFallback;
@@ -197,7 +197,7 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
         }
 #endif
       }
-      if (++cur_channel > MULTI_SCANNER_MAX_CHANNEL)
+      if (++cur_channel > MPM_SCANNER_MAX_CHANNEL)
         cur_channel = 0;
     }
   }
@@ -240,8 +240,8 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
     getMultiModuleStatus(module).failsafeChecked = true;
   }
   
-  if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
-    setMultiBindStatus(module, MULTI_BIND_FINISHED);
+  if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MPM_BIND_INITIATED)
+    setMultiBindStatus(module, MPM_BIND_FINISHED);
 
   // update timestamp last to avoid race conditions
   status.lastUpdate = get_tmr10ms();
@@ -263,7 +263,7 @@ static void processMultiSyncPacket(const uint8_t * data, uint8_t module)
 #if defined(PCBTARANIS) || defined(PCBHORUS)
 static void processMultiRxChannels(const uint8_t * data, uint8_t len)
 {
-  if (g_model.trainerData.mode != TRAINER_MODE_MULTI)
+  if (g_model.trainerData.mode != TRAINER_MODE_MPM)
     return;
 
   //uint8_t pps  = data[0];
@@ -276,14 +276,14 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
   uint8_t  byteIdx = 4;
 
   while (ch < maxCh) {
-    while (bitsavailable < MULTI_CHAN_BITS && byteIdx < len) {
+    while (bitsavailable < MPM_CHAN_BITS && byteIdx < len) {
       bits |= (uint32_t)(data[byteIdx++]) << (uint32_t)bitsavailable;
       bitsavailable += 8;
     }
 
-    int value = bits & ((1 << MULTI_CHAN_BITS) - 1);
-    bitsavailable -= MULTI_CHAN_BITS;
-    bits >>= MULTI_CHAN_BITS;
+    int value = bits & ((1 << MPM_CHAN_BITS) - 1);
+    bitsavailable -= MPM_CHAN_BITS;
+    bits >>= MPM_CHAN_BITS;
 
     ppmInput[ch] = (value - 1024) * 500 / 800;
     ch++;
@@ -322,7 +322,7 @@ static void processConfigPacket(const uint8_t * packet, uint8_t len)
 }
 #endif
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
 static void processMultiProtoDef(uint8_t module, const uint8_t * packet, uint8_t len)
 {
   /*
@@ -488,7 +488,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
       break;
 #endif
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
     case MultiProtoDef:
       if (len >= 1)
         processMultiProtoDef(module, data, len);
@@ -505,7 +505,7 @@ void MultiModuleStatus::getStatusString(char * statusText) const
 {
   if (!isValid()) {
 #if defined(PCBFRSKY)
-#if !defined(INTERNAL_MODULE_MULTI)
+#if !defined(INTERNAL_MODULE_MPM)
     if (isSportLineUsedByInternalModule())
       strcpy(statusText, STR_DISABLE_INTERNAL);
     else
@@ -531,7 +531,7 @@ void MultiModuleStatus::getStatusString(char * statusText) const
     return;
   }
 
-  if ((((major << 24) | (minor << 16) | (revision << 8) | patch) < MULTI_DESIRED_VERSION) && SLOW_BLINK_ON_PHASE) {
+  if ((((major << 24) | (minor << 16) | (revision << 8) | patch) < MPM_DESIRED_VERSION) && SLOW_BLINK_ON_PHASE) {
     strcpy(statusText, STR_MODULE_UPGRADE);
   }
   else {

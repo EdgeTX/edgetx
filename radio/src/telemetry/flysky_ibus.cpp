@@ -22,7 +22,7 @@
 #include "opentx.h"
 
 /*
- *  TXID + RXID are already skipped in MULTI module to save memory+transmission time, format from Multi is:
+ *  TXID + RXID are already skipped in MPM module to save memory+transmission time, format from Multi is:
  *  AA or AC | TX_RSSI | sensor ...
  */
 
@@ -241,7 +241,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
 
 void processFlySkyPacket(const uint8_t * packet)
 {
-  // Set TX RSSI Value, reverse MULTIs scaling
+  // Set TX RSSI Value, reverse MPMs scaling
   setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_TX_RSSI, 0, 0, packet[0], UNIT_RAW, 0);
 
   const uint8_t * buffer = packet + 1;
@@ -255,7 +255,7 @@ void processFlySkyPacket(const uint8_t * packet)
 
 void processFlySkyPacketAC(const uint8_t * packet)
 {
-  // Set TX RSSI Value, reverse MULTIs scaling
+  // Set TX RSSI Value, reverse MPMs scaling
   setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_TX_RSSI, 0, 0, packet[0], UNIT_RAW, 0);
   const uint8_t * buffer = packet + 1;
   while (buffer - packet < 26) //28 + 1(multi TX rssi) - 3(ac header)

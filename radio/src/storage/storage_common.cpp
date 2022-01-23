@@ -21,9 +21,9 @@
 
 #include "opentx.h"
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   #include "pulses/multi.h"
-  #if defined(MULTI_PROTOLIST)
+  #if defined(MPM_PROTOLIST)
     #include "io/multi_protolist.h"
   #endif
 #endif
@@ -154,7 +154,7 @@ void postModelLoad(bool alarms)
   if (!isInternalModuleAvailable(g_model.moduleData[INTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
+#if defined(MPM)
   else if (isModuleMultimodule(INTERNAL_MODULE))
     multiPatchCustom(INTERNAL_MODULE);
 #endif
@@ -163,10 +163,10 @@ void postModelLoad(bool alarms)
   if (!isExternalModuleAvailable(g_model.moduleData[EXTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[EXTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
+#if defined(MPM)
   else if (isModuleMultimodule(EXTERNAL_MODULE))
     multiPatchCustom(EXTERNAL_MODULE);
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
   MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
 #endif
 #endif

@@ -79,7 +79,7 @@ void processTelemetryData(uint8_t data)
   }
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
     processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount);
     return;
@@ -88,7 +88,7 @@ void processTelemetryData(uint8_t data)
     processFlySkyTelemetryData(data, telemetryRxBuffer, telemetryRxBufferCount);
     return;
   }
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
+  if (telemetryProtocol == PROTOCOL_TELEMETRY_MPM) {
     processMultiTelemetryData(data, EXTERNAL_MODULE);
     return;
   }
@@ -147,10 +147,10 @@ static void pollExtPXX2()
 }
 #endif  
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
 static inline void pollMultiProtolist(uint8_t idx)
 {
-  if ((moduleState[idx].protocol == PROTOCOL_CHANNELS_MULTIMODULE) &&
+  if ((moduleState[idx].protocol == PROTOCOL_CHANNELS_MPM) &&
       MultiRfProtocols::instance(idx)->isScanning()) {
     MultiRfProtocols::instance(idx)->scanReply();
   }
@@ -169,11 +169,11 @@ static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
   }  
 }
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
 static void pollIntMulti()
 {
   pollIntTelemetry(processMultiTelemetryData);
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
   pollMultiProtolist(INTERNAL_MODULE);
 #endif
 }
@@ -209,7 +209,7 @@ static void pollExtTelemetry()
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (telemetryGetByte(&data));
   }  
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
   if (isModuleMultimodule(EXTERNAL_MODULE)) {
     pollMultiProtolist(EXTERNAL_MODULE);
   }
@@ -237,7 +237,7 @@ void telemetryWakeup()
     pollIntPXX2();
   }
 #endif
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
   if (isModuleMultimodule(INTERNAL_MODULE)) {
     pollIntMulti();
   }
@@ -385,10 +385,10 @@ void telemetryInit(uint8_t protocol)
     telemetryPortInit(FRSKY_D_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
   }
 
-#if defined(MULTIMODULE)
-  else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE || protocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
+#if defined(MPM)
+  else if (protocol == PROTOCOL_TELEMETRY_MPM || protocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
     // The DIY Multi module always speaks 100000 baud regardless of the telemetry protocol in use
-    telemetryPortInit(MULTIMODULE_BAUDRATE, TELEMETRY_SERIAL_8E2);
+    telemetryPortInit(MPM_BAUDRATE, TELEMETRY_SERIAL_8E2);
 #if defined(LUA)
     outputTelemetryBuffer.reset();
 #endif

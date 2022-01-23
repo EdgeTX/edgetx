@@ -72,8 +72,8 @@ void frskyDProcessPacket(const uint8_t *packet)
       setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 0);
       setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 0);
       setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
-#if defined(MULTIMODULE)
-      if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
+#if defined(MPM)
+      if (telemetryProtocol == PROTOCOL_TELEMETRY_MPM) {
         setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_RSSI_ID, 0, 0, packet[4]>>1, UNIT_DB,  0);
         setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, RX_LQI_ID,  0, 0, packet[5]   , UNIT_RAW, 0);
         setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_LQI_ID , 0, 0, packet[6]   , UNIT_RAW, 0);
@@ -278,7 +278,7 @@ void frskyDSetDefault(int index, uint16_t id)
   telemetrySensor.id = id;
   telemetrySensor.instance = 0;
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   if (id == TX_RSSI_ID) {
     telemetrySensor.init(STR_SENSOR_TX_RSSI, UNIT_DB, 0);
     telemetrySensor.filter = 1;

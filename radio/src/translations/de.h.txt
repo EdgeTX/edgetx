@@ -95,8 +95,6 @@
 #define LEN_TELEMETRY_PROTOCOLS 		"\017"
 #define TR_TELEMETRY_PROTOCOLS 			"FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (Kabel)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
 
-#define TR_MULTI_CUSTOM        			"Custom"
-
 #define LEN_VTRIMINC          			 TR("\007", "\014") // ursprüglich "\006", "\013"
 #define TR_VTRIMINC           			 TR("Expo   ""ExFein ""Fein   ""Mittel ""Grob   ", "Exponentiell""Extrafein   ""Fein        ""Mittel      ""Grob        ")
 
@@ -348,7 +346,7 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lehrer/CPPM Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_MPM                "Master/MPM"
 
 #define LEN_VFAILSAFE         			 "\015" // "\013" original
 #define TR_VFAILSAFE          			 "Kein Failsafe""Halte Pos.\0  ""Kanäle\0      ""Kein Signal\0 ""Empfänger\0   "
@@ -650,28 +648,28 @@
 #define TR_MONITOR_SWITCHES            "LOGIK SCHALTER MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Kanäle"
 #define TR_MONITOR_MIXER_DESC          "Mischer"
-  #define TR_RECEIVER_NUM                TR("Empf Nr.", "Empfänger Nummer")
-  #define TR_RECEIVER                    "Empfänger"
-#define TR_MULTI_RFTUNE        			TR(INDENT "RF Freq.", INDENT "RF Freq. Feintuning")
-#define TR_MULTI_RFPOWER               "RF power"
-#define TR_MULTI_WBUS                  "Output"
-#define TR_MULTI_TELEMETRY             "Telemetry"
-#define TR_MULTI_VIDFREQ       			TR(INDENT "Vid. Freq.", INDENT "Video Frequenz")
-#define TR_RF_POWER              		INDENT "RF Power"
-#define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
-#define TR_MULTI_OPTION        			TR(INDENT "Option", INDENT "Optionswert")
-#define TR_MULTI_AUTOBIND      			TR(INDENT "Bind Ch.",INDENT "Bind on channel")
+  #define TR_RECEIVER_NUM              TR("Empf Nr.", "Empfänger Nummer")
+  #define TR_RECEIVER                  "Empfänger"
+#define TR_MPM_RFTUNE        	       TR(INDENT "RF Freq.", INDENT "RF Freq. Feintuning")
+#define TR_MPM_RFPOWER                 "RF power"
+#define TR_MPM_WBUS                    "Output"
+#define TR_MPM_TELEMETRY               "Telemetry"
+#define TR_MPM_VIDFREQ       	       TR(INDENT "Vid. Freq.", INDENT "Video Frequenz")
+#define TR_RF_POWER                    INDENT "RF Power"
+#define TR_MPM_FIXEDID                 TR("FixedID", "Fixed ID")
+#define TR_MPM_OPTION        	       TR(INDENT "Option", INDENT "Optionswert")
+#define TR_MPM_AUTOBIND      	       TR(INDENT "Bind Ch.",INDENT "Bind on channel")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
 #define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
-#define TR_MULTI_DSM_AUTODTECT 			TR(INDENT "Autodetect", INDENT "Autodetect format")
-#define TR_MULTI_LOWPOWER      			TR(INDENT "Low power", INDENT "Low power mode")
-#define TR_MULTI_LNA_DISABLE            INDENT "LNA disable"
+#define TR_MPM_DSM_AUTODTECT 	       TR(INDENT "Autodetect", INDENT "Autodetect format")
+#define TR_MPM_LOWPOWER      	       TR(INDENT "Low power", INDENT "Low power mode")
+#define TR_MPM_LNA_DISABLE             INDENT "LNA disable"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("ON", "Enabled")
 #define TR_DISABLE_INTERNAL            TR("Disable int. RF", "Disable internal RF")
 #define TR_MODULE_NO_SERIAL_MODE       TR("!serial mode", "Not in serial mode")
 #define TR_MODULE_NO_INPUT             TR("No input", "No serial input")
-#define TR_MODULE_NO_TELEMETRY         TR3( "No telmetry", "No MULTI_TELEMETRY", "No telemetry (enable MULTI_TELEMETRY)")
+#define TR_MODULE_NO_TELEMETRY         TR3( "No telmetry", "No MPM TELEMETRY", "No telemetry (enable MPM TELEMETRY)")
 #define TR_MODULE_WAITFORBIND          "Bind to load protocol"
 #define TR_MODULE_BINDING              "Binding"
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Module upgrade required", "Modul\nUpdate nötig")
@@ -682,46 +680,46 @@
 #define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telem AN"
 #define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telem AUS"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telem AN"
-#define TR_BINDING_CH9_16_TELEM_OFF     "Ch9-16 Telem AUS"
+#define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telem AUS"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "Protocol invalid")
-#define TR_MODULE_STATUS                TR(INDENT "Status", INDENT "Module Status")
+#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Module Status")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ              TR(INDENT "Servo rate", INDENT "Servo update rate")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
-#define TR_SYNCMENU                     "Sync [MENU]"
-#define TR_LIMIT                        INDENT "Grenzen"
-#define TR_MINRSSI                      "Min. RSSI"
-#define TR_LATITUDE                     "Breite:"
-#define TR_LONGITUDE                    "Länge:"
-#define TR_GPS_COORDS_FORMAT                     TR("GPS-Koord.", "GPS-Koordinaten-Format")
-#define TR_VARIO                        "Variometer"
-#define TR_PITCH_AT_ZERO                "Töne sinken"
-#define TR_PITCH_AT_MAX                 "Töne steigen"
-#define TR_REPEAT_AT_ZERO               "Wiederholrate"
-#define TR_SHUTDOWN                     "Herunterfahren"
-#define TR_SAVE_MODEL                    "Modelleinstellungen speichern"
-#define TR_BATT_CALIB                   TR("AkkuSpgwert", "Akku Kalibrierung")
-#define TR_CURRENT_CALIB                "Strom abgl."
-#define TR_VOLTAGE                      TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
-#define TR_CURRENT                      TR(INDENT "Strom", INDENT "Stromquelle")
-#define TR_SELECT_MODEL                 "Modell auswählen"
+#define TR_MPM_SERVOFREQ               TR(INDENT "Servo rate", INDENT "Servo update rate")
+#define TR_MPM_MAX_THROW               TR("Max. Throw", "Enable max. throw")
+#define TR_MPM_RFCHAN                  TR("RF Channel", "Select RF channel")
+#define TR_SYNCMENU                    "Sync [MENU]"
+#define TR_LIMIT                       INDENT "Grenzen"
+#define TR_MINRSSI                     "Min. RSSI"
+#define TR_LATITUDE                    "Breite:"
+#define TR_LONGITUDE                   "Länge:"
+#define TR_GPS_COORDS_FORMAT           TR("GPS-Koord.", "GPS-Koordinaten-Format")
+#define TR_VARIO                       "Variometer"
+#define TR_PITCH_AT_ZERO               "Töne sinken"
+#define TR_PITCH_AT_MAX                "Töne steigen"
+#define TR_REPEAT_AT_ZERO              "Wiederholrate"
+#define TR_SHUTDOWN                    "Herunterfahren"
+#define TR_SAVE_MODEL                  "Modelleinstellungen speichern"
+#define TR_BATT_CALIB                  TR("AkkuSpgwert", "Akku Kalibrierung")
+#define TR_CURRENT_CALIB               "Strom abgl."
+#define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
+#define TR_CURRENT                     TR(INDENT "Strom", INDENT "Stromquelle")
+#define TR_SELECT_MODEL                "Modell auswählen"
 #define TR_MODEL_CATEGORIES            "Model Categories"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
-#define TR_CREATE_CATEGORY              "Modelltyp erstellen"
-#define TR_RENAME_CATEGORY              "Modelltyp umbenennen"
-#define TR_DELETE_CATEGORY              "Modelltyp löschen"
-#define TR_CREATE_MODEL                 TR("Neues Modell" , "Neues Modell erstellen")
-#define TR_DUPLICATE_MODEL              "Kopiere Modell"
-#define TR_COPY_MODEL                   "Kopiere Modell"
-#define TR_MOVE_MODEL                   "Verschiebe Modell"
-#define TR_BACKUP_MODEL                 "Modell auf SD-Karte"  //9XR-Pro
-#define TR_DELETE_MODEL                 "Lösche Modell" // TODO merged into DELETEMODEL?
-#define TR_RESTORE_MODEL                TR("Modell wiederher.", "Modell wiederherstellen")
-#define TR_DELETE_ERROR                 "Fehler beim\nLöschen"
-#define TR_CAT_NOT_EMPTY                "Modelltyp nicht leer"
-#define TR_SDCARD_ERROR                 "SD-Kartenfehler"
+#define TR_CREATE_CATEGORY             "Modelltyp erstellen"
+#define TR_RENAME_CATEGORY             "Modelltyp umbenennen"
+#define TR_DELETE_CATEGORY             "Modelltyp löschen"
+#define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
+#define TR_DUPLICATE_MODEL             "Kopiere Modell"
+#define TR_COPY_MODEL                  "Kopiere Modell"
+#define TR_MOVE_MODEL                  "Verschiebe Modell"
+#define TR_BACKUP_MODEL                "Modell auf SD-Karte"  //9XR-Pro
+#define TR_DELETE_MODEL                "Lösche Modell" // TODO merged into DELETEMODEL?
+#define TR_RESTORE_MODEL               TR("Modell wiederher.", "Modell wiederherstellen")
+#define TR_DELETE_ERROR                "Fehler beim\nLöschen"
+#define TR_CAT_NOT_EMPTY               "Modelltyp nicht leer"
+#define TR_SDCARD_ERROR                "SD-Kartenfehler"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
 #define TR_NO_SDCARD                    "Keine SD-Karte"
@@ -757,15 +755,15 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_SDCARD_FULL         		   "SD-Karte voll"
+#define TR_SDCARD_FULL         	       "SD-Karte voll"
 #define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
-#define TR_INCOMPATIBLE        		    "Nicht kompatibel"
-#define TR_WARNING            			"WARNUNG"
-#define TR_EEPROMWARN          			"EEPROM"
-#define TR_STORAGE_WARNING     			"SPEICHER"
-#define TR_EEPROM_CONVERTING   			"EEPROM Konvertierung"
+#define TR_EXT_MPM_SPEC                "opentx-inv"
+#define TR_INT_MPM_SPEC                "stm-opentx-noinv"
+#define TR_INCOMPATIBLE        	       "Nicht kompatibel"
+#define TR_WARNING            	       "WARNUNG"
+#define TR_EEPROMWARN          	       "EEPROM"
+#define TR_STORAGE_WARNING     	       "SPEICHER"
+#define TR_EEPROM_CONVERTING   	       "EEPROM Konvertierung"
 #define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
 #define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE  			"GAS"
@@ -776,7 +774,7 @@
 #define TR_TEST_NOTSAFE     			"Use for tests only"
 #define TR_WRONG_SDCARDVERSION          TR("Erw. Version: ","Erwartete Version: ")
 #define TR_WARN_RTC_BATTERY_LOW         "RTC Battery low"
-#define TR_WARN_MULTI_LOWPOWER         "Low power mode"
+#define TR_WARN_MPM_LOWPOWER            "Low power mode"
 #define TR_BATTERY                      "BATTERY"
 #define TR_WRONG_PCBREV                 "Falsche PCB erkannt"
 #define TR_EMERGENCY_MODE               "NOTFALL MODUS"
@@ -873,9 +871,9 @@
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Flash pwr mngt unit", "Flash power management unit")
 #define TR_CURRENT_VERSION             TR("Current vers. ", "Current version: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash int. XJT","Flash internes XJT-Modul")
-#define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash int. Multimodul")
+#define TR_FLASH_INTERNAL_MPM          TR("Flash Int. MPM", "Flash int. MPM")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. mod","Flash ext. Modul")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash ext. Multimodul")
+#define TR_FLASH_EXTERNAL_MPM          TR("Flash Ext. MPM", "Flash ext. MPM")
 #define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW update Error","Firmware Updatefehler")
 #define TR_FIRMWARE_UPDATE_SUCCESS     TR3("Flash successful","Flash successful","Update erfolgreich")

@@ -99,8 +99,6 @@
 #define LEN_TELEMETRY_PROTOCOLS "\017"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
 
-#define TR_MULTI_CUSTOM        "Person."
-
 #define LEN_VTRIMINC           "\006"
 #define TR_VTRIMINC            "Exp   ""ExFine""Fine  ""Medio ""Ampio "
 
@@ -373,7 +371,7 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/Modulo CPPM"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Seriale\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_MPM                "Master/MPM"
 
 #define LEN_VFAILSAFE          "\013"
 #define TR_VFAILSAFE           "Non settato""Mantieni\0  ""Personali\0 ""No impulsi\0""Ricevente\0 "
@@ -673,26 +671,26 @@
 #define TR_MONITOR_MIXER_DESC  "Mixers"
 #define TR_RECEIVER_NUM        TR("RxNum", "Ricevente N.")
 #define TR_RECEIVER            "Ricevente"
-#define TR_MULTI_RFTUNE        TR("Tune RF", "Tune fine Freq. RF")
-#define TR_MULTI_RFPOWER               "RF power"
-#define TR_MULTI_WBUS                  "Output"
-#define TR_MULTI_TELEMETRY     "Telemetria"
-#define TR_MULTI_VIDFREQ       TR("Freq. video", "Frequenza video")
-#define TR_RF_POWER             "Potenza RF"
-#define TR_MULTI_FIXEDID               TR(INDENT"ID fisso", INDENT"ID Fisso")
-#define TR_MULTI_OPTION        TR(INDENT"Opzione", INDENT"Opzione valore")
-#define TR_MULTI_AUTOBIND      TR(INDENT "Ass. Ch.",INDENT "Associa al canale")
+#define TR_MPM_RFTUNE          TR("Tune RF", "Tune fine Freq. RF")
+#define TR_MPM_RFPOWER         "RF power"
+#define TR_MPM_WBUS            "Output"
+#define TR_MPM_TELEMETRY       "Telemetria"
+#define TR_MPM_VIDFREQ         TR("Freq. video", "Frequenza video")
+#define TR_RF_POWER            "Potenza RF"
+#define TR_MPM_FIXEDID         TR(INDENT"ID fisso", INDENT"ID Fisso")
+#define TR_MPM_OPTION          TR(INDENT"Opzione", INDENT"Opzione valore")
+#define TR_MPM_AUTOBIND        TR(INDENT "Ass. Ch.",INDENT "Associa al canale")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disab. mappa Ch.")
 #define TR_DISABLE_TELEM               TR("No Telem", "Telem. disabil.")
-#define TR_MULTI_DSM_AUTODTECT TR(INDENT "Trova autom.", INDENT "Autoril. il formato")
-#define TR_MULTI_LOWPOWER      TR(INDENT "Bassa pot.", INDENT "Modo bassa potenza")
-#define TR_MULTI_LNA_DISABLE            INDENT "LNA disable"
+#define TR_MPM_DSM_AUTODTECT TR(INDENT "Trova autom.", INDENT "Autoril. il formato")
+#define TR_MPM_LOWPOWER      TR(INDENT "Bassa pot.", INDENT "Modo bassa potenza")
+#define TR_MPM_LNA_DISABLE             INDENT "LNA disable"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "Link S.Port")
 #define TR_MODULE_TELEM_ON             TR("ON", "Abilitato")
-#define TR_DISABLE_INTERNAL         TR("Disatt. RF int.", "Disattiva RF interna")
+#define TR_DISABLE_INTERNAL            TR("Disatt. RF int.", "Disattiva RF interna")
 #define TR_MODULE_NO_SERIAL_MODE       TR("!modo seriale", "Non in modo seriale")
 #define TR_MODULE_NO_INPUT             TR("Nessun input", "Nessun input seriale")
-#define TR_MODULE_NO_TELEMETRY         TR3("No telemetria", "MULTI_TELEMETRY disattivato", "Nessuna telem. (abilita MULTI_TELEMETRY)")
+#define TR_MODULE_NO_TELEMETRY         TR3("No telemetria", "MPM TELEMETRY disattivato", "Nessuna telem. (abilita MPM TELEMETRY)")
 #define TR_MODULE_WAITFORBIND          "Associa per caricare il protocollo"
 #define TR_MODULE_BINDING              "Associa"
 #define TR_MODULE_UPGRADE_ALERT        TR3("Richiede agg.", "Richiede agg. modulo", "Modulo\nRichiede agg.")
@@ -707,9 +705,9 @@
 #define TR_PROTOCOL_INVALID            TR("Prot. invalido", "Protocollo invalido")
 #define TR_MODULE_STATUS                TR(INDENT "Stato", INDENT "Stato del modulo")
 #define TR_MODULE_SYNC                 TR(INDENT "Sinc.", INDENT "Sinc. del modulo")
-#define TR_MULTI_SERVOFREQ     TR("Servo rate", "Aggiorna servo rate")
-#define TR_MULTI_MAX_THROW             TR("Escurs. mass.", "Abilita escurs. mass.")
-#define TR_MULTI_RFCHAN                TR("Canale RF", "Selez. canale RF")
+#define TR_MPM_SERVOFREQ               TR("Servo rate", "Aggiorna servo rate")
+#define TR_MPM_MAX_THROW               TR("Escurs. mass.", "Abilita escurs. mass.")
+#define TR_MPM_RFCHAN                  TR("Canale RF", "Selez. canale RF")
 #define TR_SYNCMENU            "[Sync]"
 #define TR_LIMIT               INDENT "Limiti"
 #define TR_MINRSSI             "Min. RSSI"
@@ -781,8 +779,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SDCard Piena"
 #define TR_NEEDS_FILE                  "RICHIEDE FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
+#define TR_EXT_MPM_SPEC                "opentx-inv"
+#define TR_INT_MPM_SPEC                "stm-opentx-noinv"
 #define TR_INCOMPATIBLE        "Incompatibile"
 #define TR_WARNING             "AVVISO"
 #define TR_EEPROMWARN          "EEPROM"
@@ -797,9 +795,9 @@
 #define TR_TEST_WARNING        TR("PER TEST", "BUILD PER TEST")
 #define TR_TEST_NOTSAFE        "Usare solo per test"
 #define TR_WRONG_SDCARDVERSION TR("Richiede ver: ", "Richiede versione: ")
-#define TR_WARN_RTC_BATTERY_LOW        "Batteria RTC scarica"
-#define TR_WARN_MULTI_LOWPOWER         "Modalità bassa pot."
-#define TR_BATTERY                     "BATTERIA"
+#define TR_WARN_RTC_BATTERY_LOW      "Batteria RTC scarica"
+#define TR_WARN_MPM_LOWPOWER         "Modalità bassa pot."
+#define TR_BATTERY                   "BATTERIA"
 #define TR_WRONG_PCBREV        "PCB sbagliato"
 #define TR_EMERGENCY_MODE      "MODALITA' EMERGENZA"
 #define TR_PCBREV_ERROR        "Errore PCB"
@@ -897,8 +895,8 @@
 #define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FLASH_INTERNAL_MODULE       TR("Prog. modulo int.", "Programma modulo interno")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Prog. modulo est.", "Programma modulo esterno")
-#define TR_FLASH_INTERNAL_MULTI        TR("Prog. MULTI int.", "Programma MULTI interno")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Prog. MULTI est.", "Programma MULTI esterno")
+#define TR_FLASH_INTERNAL_MPM          TR("Prog. MPM int.", "Programma MPM interno")
+#define TR_FLASH_EXTERNAL_MPM          TR("Prog. MPM est.", "Programma MPM esterno")
 #define TR_FIRMWARE_UPDATE_ERROR       TR(INDENT "Errore agg. FW",INDENT "Errore aggiornamento firmware")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Aggiornamento" BREAKSPACE "riuscito"
 #define TR_WRITING                     "Scrittura..."

@@ -94,8 +94,6 @@
 #define LEN_TELEMETRY_PROTOCOLS        "\017"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT\0  FrSky D\0       FrSky D (kabel)Spektrum\0      "
 
-#define TR_MULTI_CUSTOM                "Vlastní"
-
 #define LEN_VTRIMINC                   "\007"
 #define TR_VTRIMINC                    "Expo\0  ""ExJemný""Jemný\0 ""Střední""Hrubý\0 "
 
@@ -345,7 +343,7 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Učitel/CPPM Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Učitel/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_MPM                "Master/Multi"
 
 #define LEN_VFAILSAFE                  "\012"
 #define TR_VFAILSAFE                   "Nenastaven""Držet\0    ""Vlastní\0  ""Bez pulzů\0""Přijímač\0"
@@ -649,26 +647,26 @@
 #define TR_MONITOR_MIXER_DESC          "Mixy"
 #define TR_RECEIVER_NUM                TR("RX číslo", "Číslo přijímače")
 #define TR_RECEIVER                    "Přijímač"
-#define TR_MULTI_RFTUNE                TR(INDENT "Ladění frek", INDENT "Jemné ladění frek. RF")
-#define TR_MULTI_RFPOWER               "RF power"
-#define TR_MULTI_WBUS                  "Output"
-#define TR_MULTI_TELEMETRY             "Telemetrie"
-#define TR_MULTI_VIDFREQ               TR(INDENT "Freq. videa", INDENT "Frekvence videa")
-#define TR_RF_POWER                     INDENT "Výkon RF"
-#define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
-#define TR_MULTI_OPTION                TR(INDENT "Možnosti", INDENT "Hodnota")
-#define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ch.",INDENT "Bind při zapnutí")
+#define TR_MPM_RFTUNE                  TR(INDENT "Ladění frek", INDENT "Jemné ladění frek. RF")
+#define TR_MPM_RFPOWER                 "RF power"
+#define TR_MPM_WBUS                    "Output"
+#define TR_MPM_TELEMETRY               "Telemetrie"
+#define TR_MPM_VIDFREQ                 TR(INDENT "Freq. videa", INDENT "Frekvence videa")
+#define TR_RF_POWER                    INDENT "Výkon RF"
+#define TR_MPM_FIXEDID                 TR("FixedID", "Fixed ID")
+#define TR_MPM_OPTION                  TR(INDENT "Možnosti", INDENT "Hodnota")
+#define TR_MPM_AUTOBIND                TR(INDENT "Bind Ch.",INDENT "Bind při zapnutí")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
 #define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
-#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Autodetekce", INDENT "Formát autodetekce")
-#define TR_MULTI_LOWPOWER              TR(INDENT "Nízký výkon", INDENT "Režim nízkého výkonu")
-#define TR_MULTI_LNA_DISABLE            INDENT "LNA disable"
+#define TR_MPM_DSM_AUTODTECT           TR(INDENT "Autodetekce", INDENT "Formát autodetekce")
+#define TR_MPM_LOWPOWER                TR(INDENT "Nízký výkon", INDENT "Režim nízkého výkonu")
+#define TR_MPM_LNA_DISABLE             INDENT "LNA disable"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("Zap", "Zapnuto")
 #define TR_DISABLE_INTERNAL            TR("Vypnout int.", "Vypnout interní RF")
 #define TR_MODULE_NO_SERIAL_MODE       TR("Nesériový", "Není v sériovém režimu")
 #define TR_MODULE_NO_INPUT             TR("Žádný vstup", "Žádný sériový vstup")
-#define TR_MODULE_NO_TELEMETRY         TR3("Bez telemetrie", "Bez MULTI_TELEMETIE", "Nedetekována MULTI_TELEMETRIE")
+#define TR_MODULE_NO_TELEMETRY         TR3("Bez telemetrie", "Bez MPM_TELEMETIE", "Nedetekována MPM_TELEMETRIE")
 #define TR_MODULE_WAITFORBIND          "Párovat při zavedení protokolu"
 #define TR_MODULE_BINDING              TR("Bind...","Párování")
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Module upgrade required", "Module\nUpgrade required")
@@ -683,9 +681,9 @@
 #define TR_PROTOCOL_INVALID            TR("Špat. protokol", "Špatný protokol")
 #define TR_MODULE_STATUS               TR(INDENT "Stav", INDENT "Stav modulu")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ             TR(INDENT "Frekv. serva", INDENT "Obnovovací frequence serva")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
+#define TR_MPM_SERVOFREQ               TR(INDENT "Frekv. serva", INDENT "Obnovovací frequence serva")
+#define TR_MPM_MAX_THROW               TR("Max. Throw", "Enable max. throw")
+#define TR_MPM_RFCHAN                  TR("RF Channel", "Select RF channel")
 #define TR_SYNCMENU                    "[Sync]"
 #define TR_LIMIT                       INDENT"Limit"
 #define TR_MINRSSI                     "Min Rssi"
@@ -757,8 +755,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
 #define TR_SDCARD_FULL                 "Plná SD karta"
 #define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
+#define TR_EXT_MPM_SPEC                "opentx-inv"
+#define TR_INT_MPM_SPEC                "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Nekompatibilní"
 #define TR_WARNING                     "KONTROLA"
 #define TR_EEPROMWARN                  "EEPROM"
@@ -774,7 +772,7 @@
 #define TR_TEST_NOTSAFE                 "Use for tests only"
 #define TR_WRONG_SDCARDVERSION         "Očekávaná ver.: "
 #define TR_WARN_RTC_BATTERY_LOW        "Slabá RTC baterie"
-#define TR_WARN_MULTI_LOWPOWER         "Low power mode"
+#define TR_WARN_MPM_LOWPOWER           "Low power mode"
 #define TR_BATTERY                     "BATERIE"
 #define TR_WRONG_PCBREV                "Jiná verze PCB/firmware"
 #define TR_EMERGENCY_MODE              "NOUZOVÝ REŽIM"
@@ -871,9 +869,9 @@
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Flash řízení spotř.", "Flash jednotky řízení spotřeby")
 #define TR_CURRENT_VERSION             TR("Současná ver. ", "Současná verze: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash vnitřního modulu")
-#define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
+#define TR_FLASH_INTERNAL_MPM          TR("Flash Int. MPM", "Flash Internal MPM")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externího zařízení")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash External Multi")
+#define TR_FLASH_EXTERNAL_MPM          TR("Flash Ext. MPM", "Flash External MPM")
 #define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("Chyba zápisu FW", "Chyba zápisu firmware")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Úspěšný zápis FW"

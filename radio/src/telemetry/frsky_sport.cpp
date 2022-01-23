@@ -33,7 +33,7 @@ struct FrSkySportSensor {
 const FrSkySportSensor sportSensors[] = {
   { VALID_FRAME_RATE_ID, VALID_FRAME_RATE_ID, 0, STR_VFR, UNIT_PERCENT, 0 },
   { RSSI_ID, RSSI_ID, 0, STR_SENSOR_RSSI, UNIT_DB, 0 },
-#if defined(MULTIMODULE)
+#if defined(MPM)
   { TX_RSSI_ID, TX_RSSI_ID, 0, STR_SENSOR_TX_RSSI   , UNIT_DB , 0 },
   { TX_LQI_ID , TX_LQI_ID,  0, STR_SENSOR_TX_QUALITY, UNIT_RAW, 0 },
 #endif

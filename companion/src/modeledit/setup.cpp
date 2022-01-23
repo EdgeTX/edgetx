@@ -192,9 +192,9 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_PPM_FIELDS     (1<<4)
 #define MASK_FAILSAFES      (1<<5)
 #define MASK_OPEN_DRAIN     (1<<6)
-#define MASK_MULTIMODULE    (1<<7)
+#define MASK_MPM            (1<<7)
 #define MASK_ANTENNA        (1<<8)
-#define MASK_MULTIOPTION    (1<<9)
+#define MASK_MPMOPTION      (1<<9)
 #define MASK_R9M            (1<<10)
 #define MASK_SBUSPPM_FIELDS (1<<11)
 #define MASK_SUBTYPES       (1<<12)
@@ -261,12 +261,12 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
     ui->protocol->setField(module.protocol, this);
   }
 
-  for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
-    if (i == MODULE_SUBTYPE_MULTI_SCANNER)
+  for (int i = 0; i <= MODULE_SUBTYPE_MPM_LAST; i++) {
+    if (i == MODULE_SUBTYPE_MPM_SCANNER)
       continue;
     ui->multiProtocol->addItem(Multiprotocols::protocolToString(i), i);
   }
-  for (int i = MODULE_SUBTYPE_MULTI_LAST + 1; i <= 124; i++) {
+  for (int i = MODULE_SUBTYPE_MPM_LAST + 1; i <= 124; i++) {
     ui->multiProtocol->addItem(QString::number(i + 3), i);
   }
 
@@ -458,16 +458,16 @@ void ModulePanel::update()
         module.channelsCount = 16;
         mask |=  MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE;
         break;
-      case PULSES_MULTIMODULE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE | MASK_SUBTYPES;
+      case PULSES_MPM:
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MPM | MASK_SUBTYPES;
         max_rx_num = 63;
-        if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+        if (module.multi.rfProtocol == MODULE_SUBTYPE_MPM_DSM2)
           mask |= MASK_CHANNELS_COUNT;
         else
           module.channelsCount = 16;
         if (pdef.optionsstr != nullptr)
-          mask |= MASK_MULTIOPTION;
-        if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
+          mask |= MASK_MPMOPTION;
+        if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MPM_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
           mask |= MASK_FAILSAFES;
         break;
       case PULSES_AFHDS3:
@@ -566,8 +566,8 @@ void ModulePanel::update()
     unsigned numEntries = 2;  // R9M FCC/EU
     unsigned i = 0;
     switch(protocol){
-    case PULSES_MULTIMODULE:
-      numEntries = (module.multi.rfProtocol > MODULE_SUBTYPE_MULTI_LAST ? 8 : pdef.numSubTypes());
+    case PULSES_MPM:
+      numEntries = (module.multi.rfProtocol > MODULE_SUBTYPE_MPM_LAST ? 8 : pdef.numSubTypes());
       break;
     case PULSES_PXX_R9M:
       if (firmware->getCapability(HasModuleR9MFlex))
@@ -588,20 +588,20 @@ void ModulePanel::update()
   }
 
   // Multi settings fields
-  ui->label_multiProtocol->setVisible(mask & MASK_MULTIMODULE);
-  ui->multiProtocol->setVisible(mask & MASK_MULTIMODULE);
-  ui->label_option->setVisible(mask & MASK_MULTIOPTION);
-  ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
-  ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
-  ui->disableChMap->setVisible(mask & MASK_MULTIMODULE);
-  ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
-  ui->autoBind->setVisible(mask & MASK_MULTIMODULE);
-  if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+  ui->label_multiProtocol->setVisible(mask & MASK_MPM);
+  ui->multiProtocol->setVisible(mask & MASK_MPM);
+  ui->label_option->setVisible(mask & MASK_MPMOPTION);
+  ui->optionValue->setVisible(mask & MASK_MPMOPTION);
+  ui->disableTelem->setVisible(mask & MASK_MPM);
+  ui->disableChMap->setVisible(mask & MASK_MPM);
+  ui->lowPower->setVisible(mask & MASK_MPM);
+  ui->autoBind->setVisible(mask & MASK_MPM);
+  if (module.multi.rfProtocol == MODULE_SUBTYPE_MPM_DSM2)
     ui->autoBind->setVisible(false);
   else
     ui->autoBind->setText(tr("Bind on channel"));
 
-  if (mask & MASK_MULTIMODULE) {
+  if (mask & MASK_MPM) {
     ui->multiProtocol->setCurrentIndex(ui->multiProtocol->findData(module.multi.rfProtocol));
     ui->disableTelem->setChecked(module.multi.disableTelemetry);
     ui->disableChMap->setChecked(module.multi.disableMapping);
@@ -609,7 +609,7 @@ void ModulePanel::update()
     ui->lowPower->setChecked(module.multi.lowPowerMode);
   }
 
-  if (mask & MASK_MULTIOPTION) {
+  if (mask & MASK_MPMOPTION) {
     ui->optionValue->setMinimum(pdef.getOptionMin());
     ui->optionValue->setMaximum(pdef.getOptionMax());
     ui->optionValue->setValue(module.multi.optionValue);
@@ -777,7 +777,7 @@ void ModulePanel::onMultiProtocolChanged(int index)
     lock=true;
     module.multi.rfProtocol = (unsigned int)rfProtocol;
     unsigned int maxSubTypes = multiProtocols.getProtocol(index).numSubTypes();
-    if (rfProtocol > MODULE_SUBTYPE_MULTI_LAST)
+    if (rfProtocol > MODULE_SUBTYPE_MPM_LAST)
       maxSubTypes = 8;
     module.subType = std::min(module.subType, maxSubTypes - 1);
     module.channelsCount = module.getMaxChannelCount();

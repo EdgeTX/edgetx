@@ -1729,16 +1729,16 @@ This function reads/writes the Multi protocol buffer to interact with a protocol
 
 @status current Introduced in 2.3.2
 */
-#if defined(MULTIMODULE)
+#if defined(MPM)
 uint8_t * Multi_Buffer = nullptr;
 
 static int luaMultiBuffer(lua_State * L)
 {
   uint8_t address = luaL_checkunsigned(L, 1);
   if (!Multi_Buffer)
-    Multi_Buffer = (uint8_t *) malloc(MULTI_BUFFER_SIZE);
+    Multi_Buffer = (uint8_t *) malloc(MPM_BUFFER_SIZE);
 
-  if (!Multi_Buffer || address >= MULTI_BUFFER_SIZE) {
+  if (!Multi_Buffer || address >= MPM_BUFFER_SIZE) {
     lua_pushinteger(L, 0);
     return 0;
   }
@@ -2293,7 +2293,7 @@ const luaL_Reg opentxLib[] = {
   { "crossfireTelemetryPop", luaCrossfireTelemetryPop },
   { "crossfireTelemetryPush", luaCrossfireTelemetryPush },
 #endif
-#if defined(MULTIMODULE)
+#if defined(MPM)
   { "multiBuffer", luaMultiBuffer },
 #endif
   { "setSerialBaudrate", luaSetSerialBaudrate },

@@ -95,8 +95,6 @@
 #define LEN_TELEMETRY_PROTOCOLS "\017"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
 
-#define TR_MULTI_CUSTOM        "Custom"
-
 #define LEN_SUBTYPE_FY326      "\005"
 #define TR_SUBTYPE_FY326       "FY326""FY319"
 
@@ -366,7 +364,7 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_MPM                "Master/MPM"
 
 #define LEN_VFAILSAFE          "\011"
 #define TR_VFAILSAFE           "Not set\0 ""Hold\0    ""Custom\0  ""No pulses""Receiver\0"
@@ -679,26 +677,26 @@
 #define TR_RECEIVER_NUM        "RxNum"
 #define TR_RECEIVER            "Receiver"
 #define TR_SYNCMENU            "Sync [MENU]"
-#define TR_MULTI_RFTUNE        TR("Freq tune", "RF Freq. fine tune")
-#define TR_MULTI_RFPOWER               "RF power"
-#define TR_MULTI_WBUS                  "Output"
-#define TR_MULTI_TELEMETRY     "Telemetry"
-#define TR_MULTI_VIDFREQ       TR("Vid. freq.", "Video frequency")
-#define TR_RF_POWER       "RF Power"
-#define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
-#define TR_MULTI_OPTION        TR("Option", "Option value")
-#define TR_MULTI_AUTOBIND      TR(INDENT "Bind Ch.",INDENT "Bind on channel")
+#define TR_MPM_RFTUNE          TR("Freq tune", "RF Freq. fine tune")
+#define TR_MPM_RFPOWER         "RF power"
+#define TR_MPM_WBUS            "Output"
+#define TR_MPM_TELEMETRY       "Telemetry"
+#define TR_MPM_VIDFREQ         TR("Vid. freq.", "Video frequency")
+#define TR_RF_POWER            "RF Power"
+#define TR_MPM_FIXEDID         TR("FixedID", "Fixed ID")
+#define TR_MPM_OPTION          TR("Option", "Option value")
+#define TR_MPM_AUTOBIND        TR(INDENT "Bind Ch.",INDENT "Bind on channel")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
 #define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
-#define TR_MULTI_DSM_AUTODTECT TR(INDENT "Autodetect", INDENT "Autodetect format")
-#define TR_MULTI_LOWPOWER      TR(INDENT "Low power", INDENT "Low power mode")
-#define TR_MULTI_LNA_DISABLE            INDENT "LNA disable"
+#define TR_MPM_DSM_AUTODTECT           TR(INDENT "Autodetect", INDENT "Autodetect format")
+#define TR_MPM_LOWPOWER                TR(INDENT "Low power", INDENT "Low power mode")
+#define TR_MPM_LNA_DISABLE             INDENT "LNA disable"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("ON", "Enabled")
-#define TR_DISABLE_INTERNAL         TR("Disable int. RF", "Disable internal RF")
+#define TR_DISABLE_INTERNAL            TR("Disable int. RF", "Disable internal RF")
 #define TR_MODULE_NO_SERIAL_MODE       TR("!serial mode", "Not in serial mode")
 #define TR_MODULE_NO_INPUT             TR("No input", "No serial input")
-#define TR_MODULE_NO_TELEMETRY         TR3( "No telmetry", "No MULTI_TELEMETRY", "No telemetry (enable MULTI_TELEMETRY)")
+#define TR_MODULE_NO_TELEMETRY         TR3( "No telmetry", "No MPM TELEMETRY", "No telemetry (enable MPM TELEMETRY)")
 #define TR_MODULE_WAITFORBIND          "Bind to load protocol"
 #define TR_MODULE_BINDING              "Binding"
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Module upgrade required", "Module\nUpgrade required")
@@ -711,11 +709,11 @@
 #define TR_BINDING_CH9_16_TELEM_ON               "Ch9-16 Telem ON"
 #define TR_BINDING_CH9_16_TELEM_OFF               "Ch9-16 Telem OFF"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "Protocol invalid")
-#define TR_MODULE_STATUS                TR(INDENT "Status", INDENT "Module Status")
+#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Module Status")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ     TR("Servo rate", "Servo update rate")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
+#define TR_MPM_SERVOFREQ               TR("Servo rate", "Servo update rate")
+#define TR_MPM_MAX_THROW               TR("Max. Throw", "Enable max. throw")
+#define TR_MPM_RFCHAN                  TR("RF Channel", "Select RF channel")
 #define TR_LIMIT               INDENT"Limite"
 #define TR_MINRSSI             "Min Rssi"
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
@@ -786,8 +784,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SD Card Full"
 #define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
+#define TR_EXT_MPM_SPEC                "opentx-inv"
+#define TR_INT_MPM_SPEC                "stm-opentx-noinv"
 #define TR_INCOMPATIBLE        "Incompativel"
 #define TR_WARNING             "AVISO"
 #define TR_EEPROMWARN          "EEPROM"
@@ -803,7 +801,7 @@
 #define TR_TEST_NOTSAFE        "Use for tests only"
 #define TR_WRONG_SDCARDVERSION TR("Expected ver: ","Expected version: ")
 #define TR_WARN_RTC_BATTERY_LOW        "RTC Battery low"
-#define TR_WARN_MULTI_LOWPOWER         "Low power mode"
+#define TR_WARN_MPM_LOWPOWER           "Low power mode"
 #define TR_BATTERY                     "BATTERY"
 #define TR_WRONG_PCBREV        "Wrong PCB detected"
 #define TR_EMERGENCY_MODE      "EMERGENCY MODE"
@@ -900,9 +898,9 @@
 #define TR_FLASH_POWER_MANAGEMENT_UNIT          "Flash pwr mngt unit"
 #define TR_CURRENT_VERSION             TR("Current vers. ", "Current version: ")
 #define TR_FLASH_INTERNAL_MODULE "Flash Internal Module"
-#define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
+#define TR_FLASH_INTERNAL_MPM          TR("Flash Int. MPM", "Flash Internal MPM")
 #define TR_FLASH_EXTERNAL_MODULE       "Flash external module"
-#define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash External Multi")
+#define TR_FLASH_EXTERNAL_MPM          TR("Flash Ext. MPM", "Flash External MPM")
 #define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR TR("FW update Error","Firmware update error")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Flash successful"

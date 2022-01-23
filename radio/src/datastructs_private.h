@@ -442,10 +442,10 @@ PACK(struct TrainerModuleData {
 
 // Only used in case switch and if statements as "virtual" protocol
 #define MM_RF_CUSTOM_SELECTED 0xff
-#define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
+#define MPM_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
 PACK(struct ModuleData {
   uint8_t type:4 ENUM(ModuleType);
-  // TODO some refactoring is needed, rfProtocol is only used by DSM2 and MULTI, it could be merged with subType
+  // TODO some refactoring is needed, rfProtocol is only used by DSM2 and MPM, it could be merged with subType
   int8_t  rfProtocol:4 SKIP;
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;

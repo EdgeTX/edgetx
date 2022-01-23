@@ -155,7 +155,7 @@ inline uint8_t MODULE_BIND_ROWS(int moduleIdx)
     return 0;
 
   if (isModuleMultimodule(moduleIdx)) {
-    if (IS_RX_MULTI(moduleIdx))
+    if (IS_RX_MPM(moduleIdx))
       return 1;
     else
       return 2;
@@ -177,9 +177,9 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
     return HIDDEN_ROW;
   }
   else if (isModuleMultimodule(moduleIdx)) {
-    if (IS_RX_MULTI(moduleIdx))
+    if (IS_RX_MPM(moduleIdx))
       return HIDDEN_ROW;
-    else if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+    else if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MPM_DSM2)
       return 1;
     else
       return 0;
@@ -220,14 +220,14 @@ inline uint8_t IF_ALLOW_RACING_MODE(int)
 }
 #endif
 
-#if defined(MULTIMODULE)
-inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
+#if defined(MPM)
+inline uint8_t MPM_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx))
     return HIDDEN_ROW;
 
   uint8_t protocol = g_model.moduleData[moduleIdx].getMultiProtocol();
-  if (protocol < MODULE_SUBTYPE_MULTI_LAST) {
+  if (protocol < MODULE_SUBTYPE_MPM_LAST) {
     const mm_protocol_definition * pdef = getMultiProtocolDefinition(protocol);
     if (pdef->disable_ch_mapping)
       return 0;
@@ -236,7 +236,7 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
   return HIDDEN_ROW;
 }
 
-inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
+inline uint8_t MPM_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx))
     return HIDDEN_ROW;
@@ -246,21 +246,21 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
     return status.supportsDisableMapping() == true ? 0 : HIDDEN_ROW;
   }
 
-  return MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
+  return MPM_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
 }
 
 inline bool isMultiProtocolSelectable(int protocol)
 {
-  return protocol != MODULE_SUBTYPE_MULTI_SCANNER;
+  return protocol != MODULE_SUBTYPE_MPM_SCANNER;
 }
 
-inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
+inline bool MPM_PROTOCOL_KNOWN(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx)) {
     return false;
   }
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() < MODULE_SUBTYPE_MULTI_LAST) {
+  if (g_model.moduleData[moduleIdx].getMultiProtocol() < MODULE_SUBTYPE_MPM_LAST) {
     return true;
   }
 
@@ -272,12 +272,12 @@ inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
   return false;
 }
 
-inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
+inline bool MPM_HAS_SUBTYPE(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
   int proto = g_model.moduleData[moduleIdx].getMultiProtocol();
 
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
+  if (proto == MODULE_SUBTYPE_MPM_FRSKY) {
     return true;
   }
 
@@ -287,7 +287,7 @@ inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
   }
   else
   {
-    if (proto > MODULE_SUBTYPE_MULTI_LAST) {
+    if (proto > MODULE_SUBTYPE_MPM_LAST) {
       return true;
     }
     else {
@@ -297,16 +297,16 @@ inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
   }
 }
 
-inline uint8_t MULTIMODULE_RFPROTO_COLUMNS(uint8_t moduleIdx)
+inline uint8_t MPM_RFPROTO_COLUMNS(uint8_t moduleIdx)
 {
 #if LCD_W < 212
-  return (MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW);
+  return (MPM_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW);
 #else
-  return (MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 1 : 0);
+  return (MPM_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 1 : 0);
 #endif
 }
 
-inline uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx)
+inline uint8_t MPM_HASOPTIONS(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx))
     return false;
@@ -317,30 +317,30 @@ inline uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx)
   if (status.isValid())
     return status.optionDisp;
 
-  if (protocol < MODULE_SUBTYPE_MULTI_LAST)
+  if (protocol < MODULE_SUBTYPE_MPM_LAST)
     return getMultiProtocolDefinition(protocol)->optionsstr != nullptr;
 
   return false;
 }
 
-#define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
-#define MULTIMODULE_TYPE_ROW(moduleIdx)         isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
-#define MULTIMODULE_STATUS_ROWS(moduleIdx)      isModuleMultimodule(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, (isModuleMultimodule(moduleIdx) && getModuleSyncStatus(moduleIdx).isValid()) ? TITLE_ROW : HIDDEN_ROW,
-#define MULTIMODULE_MODE_ROWS(moduleIdx)        (g_model.moduleData[moduleIdx].multi.customProto) ? (uint8_t) 3 : MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t)2 : (uint8_t)1
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)        isModuleMultimodule(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
-#define MULTIMODULE_SUBTYPE_ROWS(moduleIdx)     isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
-#define MULTIMODULE_OPTIONS_ROW(moduleIdx)      (isModuleMultimodule(moduleIdx) && MULTIMODULE_HASOPTIONS(moduleIdx)) ? (uint8_t) 0: HIDDEN_ROW
-#define MODULE_POWER_ROW(moduleIdx)            (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx)) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
+#define MPM_MODULE_ROWS(moduleIdx)      (MPM_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MPM(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MPM_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MPM(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MPM_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
+#define MPM_TYPE_ROW(moduleIdx)         isModuleMultimodule(moduleIdx) ? MPM_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
+#define MPM_STATUS_ROWS(moduleIdx)      isModuleMultimodule(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, (isModuleMultimodule(moduleIdx) && getModuleSyncStatus(moduleIdx).isValid()) ? TITLE_ROW : HIDDEN_ROW,
+#define MPM_MODE_ROWS(moduleIdx)        (g_model.moduleData[moduleIdx].multi.customProto) ? (uint8_t) 3 : MPM_HAS_SUBTYPE(moduleIdx) ? (uint8_t)2 : (uint8_t)1
+#define MPM_TYPE_ROWS(moduleIdx)        isModuleMultimodule(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
+#define MPM_SUBTYPE_ROWS(moduleIdx)     isModuleMultimodule(moduleIdx) ? MPM_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
+#define MPM_OPTIONS_ROW(moduleIdx)      (isModuleMultimodule(moduleIdx) && MPM_HASOPTIONS(moduleIdx)) ? (uint8_t) 0: HIDDEN_ROW
+#define MODULE_POWER_ROW(moduleIdx)            (MPM_PROTOCOL_KNOWN(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx)) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
 
 #else
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)
-#define MULTIMODULE_STATUS_ROWS(moduleIdx)
-#define MULTIMODULE_MODULE_ROWS(moduleIdx)
-#define MULTIMODULE_TYPE_ROW(moduleIdx)
-#define MULTIMODULE_SUBTYPE_ROWS(moduleIdx)
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)
-#define MULTIMODULE_MODE_ROWS(moduleIdx)        (uint8_t)0
-#define MULTIMODULE_OPTIONS_ROW(moduleIdx)      HIDDEN_ROW
+#define MPM_TYPE_ROWS(moduleIdx)
+#define MPM_STATUS_ROWS(moduleIdx)
+#define MPM_MODULE_ROWS(moduleIdx)
+#define MPM_TYPE_ROW(moduleIdx)
+#define MPM_SUBTYPE_ROWS(moduleIdx)
+#define MPM_TYPE_ROWS(moduleIdx)
+#define MPM_MODE_ROWS(moduleIdx)        (uint8_t)0
+#define MPM_OPTIONS_ROW(moduleIdx)      HIDDEN_ROW
 #define MODULE_POWER_ROW(moduleIdx)            isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
 #endif
 
@@ -361,7 +361,7 @@ inline uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx) {
     return TITLE_ROW;
   if(isModuleAFHDS3(moduleIdx))
     return HIDDEN_ROW;
-  return MULTIMODULE_OPTIONS_ROW(moduleIdx);
+  return MPM_OPTIONS_ROW(moduleIdx);
 }
 
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
