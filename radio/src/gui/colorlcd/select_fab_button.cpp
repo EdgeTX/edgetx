@@ -26,7 +26,7 @@ SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
                                  std::function<uint8_t(void)> pressHandler,
                                  WindowFlags windowFlags) :
     // FabButton uses center coordinates, we want top left corner:
-    FabButton(parent, x + FAB_BUTTON_SIZE / 2, y + FAB_BUTTON_SIZE / 2, icon,
+    FabButton(parent, x, y, icon,
               pressHandler, windowFlags),
     title(title)
 {
