@@ -88,7 +88,7 @@ void ViewTextWindow::buildBody(Window *window)
   loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
-    if ((g_model.checklistInteractive || true) && !fromMenu) {
+    if (g_model.checklistInteractive && !fromMenu) {
       new DynamicText(window, grid.getLabelSlot(), [=]() {
         if (i < checklistPosition-(int)textVerticalOffset)
           return std::string("+");
@@ -156,7 +156,7 @@ void ViewTextWindow::checkEvents()
 
     switch (event) {
     case EVT_KEY_BREAK(KEY_ENTER):
-      if ((g_model.checklistInteractive || true) && !fromMenu) {
+      if (g_model.checklistInteractive && !fromMenu) {
         if (checklistPosition < readLinesCount) {
           ++checklistPosition;
           if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
@@ -195,7 +195,7 @@ void ViewTextWindow::checkEvents()
     case EVT_KEY_LONG(KEY_EXIT):
     case EVT_KEY_REPT(KEY_EXIT):
     case EVT_KEY_BREAK(KEY_EXIT):
-      if (!((g_model.checklistInteractive || true) && !fromMenu)) {
+      if (!(g_model.checklistInteractive && !fromMenu)) {
         Page::onEvent(event);
       }
       break;
