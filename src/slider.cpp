@@ -35,6 +35,7 @@ static lv_style_t style_main;
 static lv_style_t style_ind;
 static lv_style_t style_knob;
 static lv_style_t style_focused;
+static lv_style_t style_edit;
 
 static LvglWidgetFactory sliderFactory = { lv_slider_create, nullptr };
 
@@ -79,8 +80,16 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
   // LV_STATE_FOCUSED
   lv_style_init(&style_focused);
   lv_style_set_bg_color(&style_focused, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_outline_width(&style_focused, 0);
+
   lv_obj_add_style(lvobj, &style_focused, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(lvobj, &style_focused, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
   lv_obj_add_style(lvobj, &style_focused, LV_PART_INDICATOR | LV_STATE_FOCUSED);
+  lv_obj_add_style(lvobj, &style_focused, LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
+
+  lv_style_init(&style_edit);
+  lv_style_set_bg_color(&style_edit, makeLvColor(COLOR_THEME_EDIT));
+  lv_obj_add_style(lvobj, &style_edit, LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
 }
 
 void Slider::paint(BitmapBuffer * dc)
