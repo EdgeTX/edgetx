@@ -74,6 +74,15 @@ static void window_event_cb(lv_event_t * e)
     case LV_EVENT_SCROLL_END:
       TRACE("SCROLL_END");
       break;
+    case LV_EVENT_FOCUSED: {
+      lv_obj_t* target = lv_event_get_target(e);
+      bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
+      bool loiu_focused = ((Window*)target->user_data)->hasFocus();
+      TRACE("FOCUSED[%d|%d]", lvgl_focused, loiu_focused);
+      if (!loiu_focused) {
+        ((Window*)target->user_data)->setFocus();
+      }
+    } break;
     }
   }
 }
@@ -237,9 +246,11 @@ void Window::setFocus(uint8_t flag, Window * from)
 
   if (focusWindow != this) {
     // synchronize lvgl focused state with libopenui
-    lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
-    if (focusWindow != nullptr) {
-      lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED);
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
+      if (focusWindow != nullptr) {
+        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED);
+      }
     }
 
     // scroll before calling focusHandler so that the window can adjust the scroll position if needed
