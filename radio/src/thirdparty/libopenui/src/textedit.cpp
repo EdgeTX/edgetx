@@ -43,75 +43,89 @@
 #endif
 
 
-static lv_obj_t *kb = nullptr;
+static lv_obj_t *virtual_kb = nullptr;
 
-static void ta_event_cb(lv_event_t * e)
+static void ta_event_cb(lv_event_t *e)
 {
   lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t * ta = lv_event_get_target(e);
-  if(code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED) {
-      if (kb == nullptr) {
-        kb = lv_keyboard_create(lv_scr_act());
-        lv_obj_set_size(kb,  LV_HOR_RES, LV_VER_RES / 2);
-      }
+  lv_obj_t *ta = lv_event_get_target(e);
+  if (code == LV_EVENT_CLICKED) {
+    if (virtual_kb == nullptr) {
+      virtual_kb = lv_keyboard_create(lv_scr_act());
+      lv_obj_set_size(virtual_kb, LV_HOR_RES, LV_VER_RES / 2);
+    }
 
-      if(kb != NULL) 
-        lv_keyboard_set_textarea(kb, ta);
-  }
-  else if (code == LV_EVENT_DEFOCUSED) {
-    if (kb != nullptr) {
-      lv_obj_del(kb);
-      kb = nullptr;
+    if (virtual_kb != NULL) {
+      lv_keyboard_set_textarea(virtual_kb, ta);
+      lv_obj_add_state(ta, LV_STATE_EDITED);
+    }
+  } else if (code == LV_EVENT_DEFOCUSED || code == LV_EVENT_DELETE) {
+    if (virtual_kb != nullptr) {
+      lv_obj_del(virtual_kb);
+      virtual_kb = nullptr;
     }
   }
 }
 
+static lv_style_t style_main;
+static lv_style_t style_edit;
+static LvglWidgetFactory textEditFactory = { lv_textarea_create, nullptr };
 
-LvglWidgetFactory textEditFactory = LvglWidgetFactory(
-  [] (lv_obj_t *parent) {
-    return lv_textarea_create(parent);
-  },
-  [] (LvglWidgetFactory *factory) {
-    lv_style_set_border_width(&factory->style, 1);
-    lv_style_set_border_color(&factory->style, makeLvColor(COLOR_THEME_SECONDARY2));
-    lv_style_set_radius(&factory->style, 0);
-    lv_style_set_pad_top(&factory->style, 0);
-    lv_style_set_pad_bottom(&factory->style, 0);
-    lv_style_set_pad_left(&factory->style, 0);
-    lv_style_set_pad_right(&factory->style, 0);
-    lv_style_set_bg_color(&factory->style, makeLvColor(COLOR_THEME_PRIMARY2));
-    lv_style_set_bg_opa(&factory->style, LV_OPA_100);
-  }
-);
-
-
-TextEdit::TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, 
-                    LcdFlags windowFlags, const char * _extra_chars) :
-  FormField(parent, rect, windowFlags, 0, &textEditFactory),
-  value(value),
-  length(length)
+TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
+                   uint8_t length, LcdFlags windowFlags,
+                   const char *_extra_chars) :
+    FormField(parent, {rect.x, rect.y, rect.w, rect.h - 2}, windowFlags, 0,
+              &textEditFactory),
+    value(value),
+    length(length)
 {
+  extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
+
+  // callbacks
   lv_obj_add_event_cb(lvobj, ta_event_cb, LV_EVENT_ALL, NULL);
-  lv_obj_add_style(lvobj, &textEditFactory.style, LV_PART_MAIN);
 
-  // this is for the focus state.  the master style takes care of the normal background
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), 
-                            LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN | LV_STATE_FOCUSED);
-
+  // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_textarea_set_password_mode(lvobj, false);
   lv_textarea_set_one_line(lvobj, true);
   lv_textarea_set_text(lvobj, value);
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
-  
-  auto label = lv_textarea_get_label(lvobj);
-  lv_obj_set_style_text_color(label, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
-  lv_obj_set_style_text_font(label, &lv_font_montserrat_12, LV_PART_MAIN);
-  extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
-}
 
+  // LV_PART_MAIN
+  lv_style_init(&style_main);
+  lv_style_set_border_width(&style_main, 1);
+  lv_style_set_border_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
+  //lv_style_set_radius(&style_main, 0);
+  lv_style_set_text_font(&style_main, &lv_font_montserrat_12);
+  lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
+
+  // LV_STATE_FOCUSED
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
+                            LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
+                              LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  // Hide cursor
+  lv_obj_set_style_opa(lvobj, 0, LV_PART_CURSOR);
+
+  // Show Cursor in "Edit" mode
+  lv_style_init(&style_edit);
+  lv_style_set_opa(&style_edit, LV_OPA_COVER);
+  lv_style_set_bg_opa(&style_edit, LV_OPA_COVER);
+  lv_style_set_pad_left(&style_edit, (lv_coord_t)-(FIELD_PADDING_LEFT+2));
+  lv_style_set_pad_top(&style_edit, (lv_coord_t)-(FIELD_PADDING_TOP+2));
+  lv_obj_add_style(lvobj, &style_edit, LV_PART_CURSOR | LV_STATE_EDITED);
+
+  // Text padding
+  auto label = lv_textarea_get_label(lvobj);
+  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
+  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
+}
 
 void TextEdit::paint(BitmapBuffer * dc)
 {
