@@ -69,8 +69,6 @@ class MainWindow: public Window
     }
 #endif
 
-    void checkEvents() override;
-
 #if defined(HARDWARE_TOUCH)
     void setTouchEnabled(bool enable);
     bool touchEventOccured() {
