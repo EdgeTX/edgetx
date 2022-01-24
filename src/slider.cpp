@@ -25,9 +25,16 @@
 static void slider_changed_cb(lv_event_t * e)
 {
   lv_obj_t * target = lv_event_get_target(e);
-  if (!lv_slider_is_dragged(target)) {
-    Slider* sl = (Slider*)lv_obj_get_user_data(target);
-    sl->setValue(lv_slider_get_value(target));
+  auto code = lv_event_get_code(e);
+
+  Slider* sl = (Slider*)lv_obj_get_user_data(target);
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    // if (!lv_slider_is_dragged(target)) {
+      if (sl != nullptr)
+        sl->setValue(lv_slider_get_value(target));
+    // }
+  } else if (code == LV_EVENT_PRESSED) {
+    sl->setEditMode(true);
   }
 }
 
@@ -50,14 +57,15 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
               0, 0, &sliderFactory),
     vmin(vmin),
     vmax(vmax),
-    getValue(std::move(getValue)),
+    _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
-  lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_VALUE_CHANGED, NULL);
+  lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
+  lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_PRESSED, this);
   lv_slider_set_range(lvobj, vmin, vmax);
 
-  if (getValue)
-    lv_slider_set_value(lvobj, getValue(), LV_ANIM_OFF);
+  if (_getValue != nullptr)
+    lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
 
   // LV_PART_MAIN
   lv_style_init(&style_main);
@@ -110,14 +118,14 @@ void Slider::onEvent(event_t event)
 
   if (editMode) {
     if (event == EVT_ROTARY_RIGHT) {
-      setValue(getValue() + ROTARY_ENCODER_SPEED());
-      lv_slider_set_value(lvobj, getValue(), LV_ANIM_OFF);
+      setValue(_getValue() + ROTARY_ENCODER_SPEED());
+      lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
       onKeyPress();
       return;
     }
     else if (event == EVT_ROTARY_LEFT) {
-      setValue(getValue() - ROTARY_ENCODER_SPEED());
-      lv_slider_set_value(lvobj, getValue(), LV_ANIM_OFF);
+      setValue(_getValue() - ROTARY_ENCODER_SPEED());
+      lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
       onKeyPress();
       return;
     } else if (event == EVT_KEY_FIRST(KEY_EXIT))

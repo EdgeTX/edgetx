@@ -32,10 +32,12 @@ class StaticText: public Window
       label = lv_label_create(lvobj);
       lv_label_set_text(label, this->text.c_str());
 
-      auto color = COLOR_VAL(textFlags);
-      lv_obj_set_style_text_color(label, lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color)), LV_PART_MAIN);
+      lv_obj_set_style_text_color(label, makeLvColor(textFlags), LV_PART_MAIN);
       if (textFlags & CENTERED)
         lv_obj_center(label);
+      else if (textFlags & RIGHT)
+        lv_obj_align(label, LV_ALIGN_TOP_RIGHT, 0, 0);
+
       if (textFlags & FONT(BOLD)) {
       }
 
