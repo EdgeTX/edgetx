@@ -53,7 +53,7 @@ void ListBase::setSelected(int selected)
 {
   if (selected >= 0 && selected < (int)names.size()  && selected != this->selected) {
     this->selected = selected;
-    setScrollPositionY(lineHeight * this->selected - lineHeight);
+    lv_obj_scroll_to_y(lvobj, lineHeight * this->selected - lineHeight, LV_ANIM_OFF);
     if (_setValue != nullptr) {
       _setValue(this->selected);
     }

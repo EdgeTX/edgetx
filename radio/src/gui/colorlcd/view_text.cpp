@@ -118,7 +118,7 @@ void ViewTextWindow::checkEvents()
         Page::onEvent(event);
         return;
     }
-    body.setScrollPositionY(currentPos);
+    lv_obj_scroll_to_y(body.getLvObj(), currentPos, LV_ANIM_OFF);
   }
   Page::checkEvents();
 }

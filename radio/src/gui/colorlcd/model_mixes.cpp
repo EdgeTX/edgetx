@@ -381,10 +381,10 @@ ModelMixesPage::ModelMixesPage() :
 
 void ModelMixesPage::rebuild(FormWindow * window, int8_t focusMixIndex)
 {
-  coord_t scrollPosition = window->getScrollPositionY();
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
   window->clear();
   build(window, focusMixIndex);
-  window->setScrollPositionY(scrollPosition);
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelMixesPage::editMix(FormWindow * window, uint8_t channel, uint8_t mixIndex)
