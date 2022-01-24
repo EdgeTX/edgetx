@@ -55,7 +55,9 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
 {
   lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_VALUE_CHANGED, NULL);
   lv_slider_set_range(lvobj, vmin, vmax);
-  lv_slider_set_value(lvobj, getValue(), LV_ANIM_OFF);
+
+  if (getValue)
+    lv_slider_set_value(lvobj, getValue(), LV_ANIM_OFF);
 
   // LV_PART_MAIN
   lv_style_init(&style_main);
