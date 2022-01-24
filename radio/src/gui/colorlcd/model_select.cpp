@@ -492,8 +492,9 @@ class CategoryEditPage : public PageTab
 
       window->setInnerHeight(grid.getWindowHeight()); 
 
-      if(scrolltobot)
-        window->setScrollPositionY(y+40);
+      if(scrolltobot) {
+        lv_obj_scroll_to_y(window->getLvObj(), y + 40, LV_ANIM_OFF);
+      }
     }  
   private:
     ModelSelectMenu *modelselectmenu;

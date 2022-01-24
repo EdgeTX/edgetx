@@ -68,13 +68,13 @@ void ListBase::setSelected(int selected)
     this->selected = selected;
     if(selectedIndexes.find(selected) != selectedIndexes.end()) {  // Already selected -> Deselect it
       selectedIndexes.erase(selected);
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      lv_obj_scroll_to_y(lvobj, lineHeight * this->selected - lineHeight, LV_ANIM_OFF);
       if(_multiSelectHandler != nullptr)
         _multiSelectHandler(selectedIndexes);
       invalidate();
     } else { // Not Selected -> Select it
       selectedIndexes.insert(selected);
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      lv_obj_scroll_to_y(lvobj, lineHeight * this->selected - lineHeight, LV_ANIM_OFF);
       if (_setValue != nullptr) {
         _setValue(this->selected);
       }

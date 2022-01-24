@@ -106,10 +106,10 @@ RadioSdManagerPage::RadioSdManagerPage() :
 
 void RadioSdManagerPage::rebuild(FormWindow * window)
 {
-  coord_t scrollPosition = window->getScrollPositionY();
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
   window->clear();
   build(window);
-  window->setScrollPositionY(scrollPosition);
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 // TODO elsewhere
@@ -450,16 +450,13 @@ void RadioSdManagerPage::build(FormWindow * window)
             menu->addLine(STR_RENAME_FILE, [=]() {
               auto few = new FileNameEditWindow(name);
               few->setCloseHandler([=]() {
-                //window->clear();
                 rebuild(window);
               });
             });
             menu->addLine(STR_DELETE_FILE, [=]() {
                 f_unlink((const TCHAR*)getFullPath(name));
-                // coord_t scrollPosition = window->getScrollPositionY();
                 window->clear();
                 build(window);
-                // window->setScrollPositionY(scrollPosition);
             });
           }
           return 0;

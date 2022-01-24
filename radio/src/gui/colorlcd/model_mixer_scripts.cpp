@@ -154,10 +154,10 @@ class ScriptEditWindow : public Page {
     
     void rebuildBody(FormWindow * window)
     {
-        coord_t scrollPosition = window->getScrollPositionY();
-        window->clear();
-        buildBody(window);
-        window->setScrollPositionY(scrollPosition);
+      auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+      window->clear();
+      buildBody(window);
+      lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
     }
 };
 
@@ -222,10 +222,10 @@ ModelMixerScriptsPage::ModelMixerScriptsPage() :
 
 void ModelMixerScriptsPage::rebuild(FormWindow * window, int8_t focusIdx)
 {
-  coord_t scrollPosition = window->getScrollPositionY();
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
   window->clear();
   build(window, focusIdx);
-  window->setScrollPositionY(scrollPosition);
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
