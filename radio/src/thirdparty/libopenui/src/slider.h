@@ -21,50 +21,33 @@
 
 #include "form.h"
 
-class Slider: public FormField {
-  public:
-    Slider(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int()> getValue, std::function<void(int)> setValue):
-      FormField(parent, rect),
-      vmin(vmin),
-      vmax(vmax),
-      getValue(std::move(getValue)),
-      _setValue(std::move(setValue))
-    {
-    }
+class Slider : public FormField
+{
+ public:
+  Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
+         std::function<int()> getValue, std::function<void(int)> setValue);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Slider";
-    }
+  std::string getName() const override { return "Slider"; }
 #endif
 
-    void setValue(int value)
-    {
-      _setValue(limit(vmin, value, vmax));
-      invalidate();
-    }
+  void setValue(int value)
+  {
+    _setValue(limit(vmin, value, vmax));
+    invalidate();
+  }
 
-    void paint(BitmapBuffer * dc) override;
+  void paint(BitmapBuffer* dc) override;
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t x, coord_t y) override;
-
-    bool onTouchEnd(coord_t x, coord_t y) override;
-
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-#endif
-
-  protected:
-    int value(coord_t x) const;
-    int vmin;
-    int vmax;
-    bool sliding = false;
-    std::function<int()> getValue;
-    std::function<void(int)> _setValue;
+ protected:
+  int value(coord_t x) const;
+  int vmin;
+  int vmax;
+  bool sliding = false;
+  std::function<int()> getValue;
+  std::function<void(int)> _setValue;
 };
-
