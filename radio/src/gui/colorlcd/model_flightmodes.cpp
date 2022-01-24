@@ -25,7 +25,7 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-#define LABEL_RIGHT_MARGIN 10
+#define LABEL_RIGHT_MARGIN 5
 
 ModelFlightModesPage::ModelFlightModesPage():
   PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
