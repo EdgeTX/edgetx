@@ -562,22 +562,6 @@ bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
     }
   }
 
-  if (slidingWindow && slidingWindow != this) {
-    return false;
-  }
-
-  if (slideY && innerHeight > rect.h) {
-    setScrollPositionY(scrollPositionY - slideY);
-    slidingWindow = this;
-    return true;
-  }
-
-  if (slideX && innerWidth > rect.w) {
-    setScrollPositionX(scrollPositionX - slideX);
-    slidingWindow = this;
-    return true;
-  }
-
   return false;
 }
 #endif
