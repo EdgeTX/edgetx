@@ -28,6 +28,9 @@ void Button::onPress()
   if (check != bool(windowFlags & BUTTON_CHECKED)) {
     windowFlags ^= BUTTON_CHECKED;
 
+    if(lvobj == nullptr)
+      return;
+
     if (! (windowFlags & BUTTON_CHECKED))
       lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
     else 

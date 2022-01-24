@@ -47,9 +47,10 @@ class Layer
       }
 
       // layers are screens in lvgl
-      lv_scr_load(window->getLvObj());
       lv_obj_set_parent(canvas, window->getLvObj());
       lv_obj_move_background(canvas);
+      lv_scr_load(window->getLvObj());
+      lv_obj_invalidate(canvas);
 
       stack.emplace_back(Layer(window));
 
