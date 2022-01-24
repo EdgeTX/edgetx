@@ -77,6 +77,11 @@ class FormField: public Window
     virtual void setEditMode(bool newEditMode)
     {
       editMode = newEditMode;
+      if (editMode) {
+        lv_obj_add_state(lvobj, LV_STATE_EDITED | LV_STATE_FOCUSED);
+      } else {
+        lv_obj_clear_state(lvobj, LV_STATE_EDITED);
+      }
       invalidate();
     }
 
