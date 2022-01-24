@@ -62,38 +62,54 @@ extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     MainWindow::instance()->checkEvents();
 }
 
+static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
+{
+#if defined(LCD_VERTICAL_INVERT)
+  data->point.x = LCD_W - st.x;
+  data->point.y = LCD_H - st.y;
+#else
+  data->point.x = st.x;
+  data->point.y = st.y;
+#endif
+}
+
+static lv_indev_data_t indev_data_backup;
+
+static void backup_indev_data(lv_indev_data_t* data)
+{
+  memcpy(&indev_data_backup, data, sizeof(lv_indev_data_t));
+}
+
+static void copy_indev_data_backup(lv_indev_data_t* data)
+{
+  memcpy(data, &indev_data_backup, sizeof(lv_indev_data_t));
+}
+
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
-  if(!touchPanelEventOccured())
+  if(!touchPanelEventOccured()) {
+    copy_indev_data_backup(data);
     return;
-
+  }
   touchOccured = true;
+
   TouchState st = touchPanelRead();
   lastState = st; // hack for now
 
-  if(st.event == TE_NONE)
-    return;
-  if(st.event == TE_DOWN || st.event == TE_SLIDE)
-  {
-#if defined (LCD_VERTICAL_INVERT)
-    data->point.x = LCD_W - st.x;
-    data->point.y = LCD_H - st.y;
-#else
-    data->point.x = st.x;
-    data->point.y = st.y;
-#endif
+  if(st.event == TE_NONE) {
+    TRACE("TE_NONE");
+  } else if(st.event == TE_DOWN || st.event == TE_SLIDE) {
+    TRACE("INDEV_STATE_PRESSED");
     data->state = LV_INDEV_STATE_PRESSED;
+    copy_ts_to_indev_data(st, data);
   } else {
-#if defined (LCD_VERTICAL_INVERT)
-    data->point.x = LCD_W - st.x;
-    data->point.y = LCD_H - st.y;
-#else
-    data->point.x = st.x;
-    data->point.y = st.y;
-#endif
+    TRACE("INDEV_STATE_RELEASED");
     data->state = LV_INDEV_STATE_RELEASED;
+    copy_ts_to_indev_data(st, data);
   }
+
+  backup_indev_data(data);
 #endif
 }
 
