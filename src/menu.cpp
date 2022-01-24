@@ -42,7 +42,7 @@ void MenuBody::setIndex(int index)
     scrollY += lines[i].lineHeight();
 
   if (innerHeight > height()) {
-    setScrollPositionY(scrollY - 3 * MENUS_LINE_HEIGHT);
+    lv_obj_scroll_to_y(lvobj, scrollY - 3 * MENUS_LINE_HEIGHT, LV_ANIM_OFF);
   }
 
   invalidate();

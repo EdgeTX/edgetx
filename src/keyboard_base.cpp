@@ -99,12 +99,12 @@ void Keyboard::setField(FormField* newField)
 #endif      
       // scroll the header of the window out of view to get more space to
       // see the field being edited
-      fieldContainer->setScrollPositionY(fields->top());
+      lv_obj_scroll_to_y(fieldContainer->getLvObj(), fields->top(), LV_ANIM_OFF);
       oldHeight = fields->height();
       fields->setHeight(newHeight);
 
       coord_t offsetY = calcScrollOffsetForField(newField, fields);
-      fields->setScrollPositionY(offsetY);
+      lv_obj_scroll_to_y(fields->getLvObj(), offsetY, LV_ANIM_OFF);
     } else {
       // TODO: what happens if field container is null. 
       // we will need to interrogate the fieldContainer for its

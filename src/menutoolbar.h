@@ -90,7 +90,7 @@ class MenuToolbar: public FormGroup {
           scrollTo(button);
         }
         else {
-          setScrollPositionY(0);
+          lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
         }
       }
     }
