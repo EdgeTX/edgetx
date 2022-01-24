@@ -215,7 +215,7 @@ class Window
       if (windowFlags & FORWARD_SCROLL)
         innerHeight = value;
       else if (innerHeight <= value) {
-        setScrollPositionY(0);
+        lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
       }
       invalidate();
     }
@@ -325,12 +325,12 @@ class Window
         parent->adjustInnerHeight();
       }
       else if (height() >= h) {
-        setScrollPositionY(0);
+        lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
       }
       else {
         coord_t maxScrollPosition = h - height();
         if (scrollPositionY > maxScrollPosition) {
-          setScrollPositionY(maxScrollPosition);
+          lv_obj_scroll_to_y(lvobj, maxScrollPosition, LV_ANIM_OFF);
         }
       }
       invalidate();
