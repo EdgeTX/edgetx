@@ -404,6 +404,11 @@ class Window
       return _deleted;
     }
 
+#if defined(HARDWARE_TOUCH)
+    virtual bool onTouchStart(coord_t x, coord_t y);
+    virtual bool onTouchEnd(coord_t x, coord_t y);
+#endif
+  
     inline lv_obj_t *getLvObj() { return lvobj; }
 
   protected:
@@ -463,13 +468,11 @@ class Window
     }
 
 #if defined(HARDWARE_TOUCH)
-    static coord_t getSnapStep(coord_t relativeScrollPosition, coord_t pageSize);
+    static coord_t getSnapStep(coord_t relativeScrollPosition,
+                               coord_t pageSize);
 
-    virtual bool onTouchStart(coord_t x, coord_t y);
-
-    virtual bool onTouchEnd(coord_t x, coord_t y);
-
-    virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY);
+    virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX,
+                              coord_t startY, coord_t slideX, coord_t slideY);
 #endif
 
     bool forwardTouchEnd(coord_t x, coord_t y);
