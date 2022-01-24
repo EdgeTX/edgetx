@@ -49,11 +49,11 @@
  #else
   #include "yaml_datastructs_x7.cpp"
  #endif
-#elif defined(PCBX9LITE)
+#elif defined(PCBX9LITE) && !defined(PCBX9LITES)
  #include "yaml_datastructs_x9lite.cpp"
 #elif defined(PCBX9LITES)
  #include "yaml_datastructs_x9lites.cpp"
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) && !defined(PCBXLITES)
  #include "yaml_datastructs_xlite.cpp"
 #elif defined(PCBXLITES)
  #include "yaml_datastructs_xlites.cpp"
