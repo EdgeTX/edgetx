@@ -573,42 +573,16 @@ void Window::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
 bool Window::onTouchStart(coord_t x, coord_t y)
 {
-  for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    auto child = *it;
-    if (child->rect.contains(x, y)) {
-      if (child->onTouchStart(x - child->rect.x + child->scrollPositionX, y - child->rect.y + child->scrollPositionY)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-bool Window::forwardTouchEnd(coord_t x, coord_t y)
-{
-  if (capturedWindow != nullptr)
-  {
-    capturedWindow->onTouchEnd(x, y);
-    capturedWindow = nullptr;
-    return true;
-  }
-
-  for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    auto child = *it;
-    if (child->rect.contains(x, y)) {
-      if (child->onTouchEnd(x - child->rect.x + child->scrollPositionX, y - child->rect.y + child->scrollPositionY)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+  if (parent)
+    return parent->onTouchStart(x, y);
+  return true;
 }
 
 bool Window::onTouchEnd(coord_t x, coord_t y)
 {
-  return forwardTouchEnd(x, y) ? true : (windowFlags & OPAQUE);
+  if (parent && !(windowFlags & OPAQUE))
+    return parent->onTouchEnd(x, y);
+  return true;
 }
 
 bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
