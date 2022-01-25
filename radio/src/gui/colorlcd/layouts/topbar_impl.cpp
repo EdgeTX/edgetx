@@ -26,9 +26,9 @@ const char * const STR_MONTHS[] = TR_MONTHS;
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
 TopbarImpl::TopbarImpl(Window * parent) :
-  TopbarImplBase({0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
+  TopbarImplBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
-  attach(parent);
+  //attach(parent);
 }
 
 unsigned int TopbarImpl::getZonesCount() const
