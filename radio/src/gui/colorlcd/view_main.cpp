@@ -41,11 +41,32 @@ ViewMain::ViewMain():
       TRACE("[ViewMain] Focus %s",
             focus ? "gained" : "lost");
     });
+
+  tile_view = lv_tileview_create(lvobj);
+  lv_obj_set_pos(tile_view, rect.x, rect.y);
+  lv_obj_set_size(tile_view, rect.w, rect.h);
+  lv_obj_set_scrollbar_mode(tile_view, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
+  lv_obj_set_user_data(tile_view, this);
+
+  lv_obj_move_foreground(topbar->getLvObj());
 }
 
 ViewMain::~ViewMain()
 {
   _instance = nullptr;
+}
+
+void ViewMain::addMainView(Window* view, uint32_t viewId)
+{
+  auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
+  lv_obj_set_user_data(tile, view);
+
+  view->setLeft(lv_obj_get_x(tile));
+  view->setTop(lv_obj_get_y(tile));
+
+  TRACE("addMainView(0x%p, %d)", view, viewId);
 }
 
 void ViewMain::setTopbarVisible(float visible)
@@ -55,23 +76,7 @@ void ViewMain::setTopbarVisible(float visible)
 
 unsigned ViewMain::getMainViewsCount() const
 {
-  return views;
-}
-
-void ViewMain::setMainViewsCount(unsigned views)
-{
-  if (views > MAX_CUSTOM_SCREENS)
-    views = MAX_CUSTOM_SCREENS;
-
-  // update number of views
-  this->views = views;
-
-  // adjust current screen if needed
-  if (g_model.view >= views) {
-    setCurrentMainView(views - 1);
-  }
-  
-  setInnerWidth(getParent()->width() * views);
+  return lv_obj_get_child_cnt(tile_view);
 }
 
 coord_t ViewMain::getMainViewLeftPos(unsigned view) const
@@ -93,12 +98,9 @@ unsigned ViewMain::getCurrentMainView() const
   return g_model.view;
 }
 
-void ViewMain::setCurrentMainView(unsigned view)
+void ViewMain::setCurrentMainView(unsigned viewId)
 {
-  if (view < getMainViewsCount()) {
-    setScrollPositionX(view * pageWidth);
-    TRACE("### switched to view #%u", g_model.view);
-  }
+  lv_obj_set_tile_id(tile_view, viewId, 0, LV_ANIM_OFF);
 }
 
 void ViewMain::nextMainView()
@@ -172,6 +174,7 @@ void ViewMain::updateTopbarVisibility()
 
 void ViewMain::setScrollPositionX(coord_t value)
 {
+  // TODO
   Window::setScrollPositionX(value);
   topbar->setLeft(getScrollPositionX());
 
@@ -185,6 +188,7 @@ void ViewMain::setScrollPositionX(coord_t value)
 
 void ViewMain::setScrollPositionY(coord_t value)
 {
+  // TODO
   // this one is not used yet, but could
   // usefull to place the screens upwards
   Window::setScrollPositionY(value);
@@ -195,49 +199,6 @@ void ViewMain::setScrollPositionY(coord_t value)
 
 //#define DEBUG_SLIDE
 
-bool ViewMain::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  // prevent screen sliding over the next one (one screen at a time)
-  if (slidingWindow == this) {
-    if (prevSlideState != touchState.event) {
-      if (touchState.event == TE_SLIDE_END) {
-        startSlidePage = getCurrentMainView();
-#if defined(DEBUG_SLIDE)
-        TRACE("### startSlidePage = %d ###", startSlidePage);
-#endif
-      }
-      prevSlideState = touchState.event;
-    }
-    else if (prevSlideState == TE_SLIDE_END){
-
-      // let's check what would be the next position
-      auto nextPos = (getScrollPositionX() - slideX);
-
-      // if we would get over more than one page counting from slide-start
-      if (abs(nextPos - getMainViewLeftPos(startSlidePage)) > pageWidth) {
-
-#if defined(DEBUG_SLIDE)
-        TRACE("### kill the move ###");
-#endif
-        // kill the movement and let "snap-to-view" finish the job
-        prevSlideState   = TE_NONE;
-        touchState.event = TE_NONE;
-        touchState.lastDeltaX = 0;
-        touchState.lastDeltaY = 0;
-        return true;
-      }
-    }
-  }
-
-#if defined(DEBUG_SLIDE)
-  TRACE("%sWindow[scrollX=%d, scrollY=%d]->onTouchSlide[x=%d, y=%d, startX=%d, startY=%d, slideX=%d, slideY=%d]",
-        touchState.event == TE_SLIDE_END && slidingWindow ? "###" : "",
-        getScrollPositionX(), getScrollPositionY(),
-        x, y, startX, startY, slideX, slideY);
-#endif
-
-  return Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
-}
 
 bool ViewMain::onTouchEnd(coord_t x, coord_t y)
 {

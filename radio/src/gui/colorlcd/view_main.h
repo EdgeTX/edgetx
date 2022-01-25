@@ -53,6 +53,8 @@ class ViewMain: public Window
     }
 #endif
 
+    void addMainView(Window* view, uint32_t viewId);
+  
     void updateTopbarVisibility();
 
     // Get the available space in the middle of the screen
@@ -60,8 +62,6 @@ class ViewMain: public Window
     rect_t getMainZone(rect_t zone, bool hasTopbar) const;
 
     unsigned getMainViewsCount() const;
-    void setMainViewsCount(unsigned views);
-
     coord_t getMainViewLeftPos(unsigned view) const;
   
     unsigned getCurrentMainView() const;
@@ -80,6 +80,7 @@ class ViewMain: public Window
     static ViewMain * _instance;
 
     unsigned    views = 0;
+    lv_obj_t*   tile_view = nullptr;
     TopbarImpl* topbar = nullptr;
 
     // Widget setup requires special permissions ;-)
@@ -96,7 +97,6 @@ class ViewMain: public Window
     unsigned char prevSlideState = 0;
     unsigned int  startSlidePage = 0;
 
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
