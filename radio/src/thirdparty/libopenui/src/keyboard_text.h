@@ -53,6 +53,8 @@ class TextKeyboard : public Keyboard {
     {
       if (!_instance)
         _instance = new TextKeyboard();
+      else
+        lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
       _instance->setField(field);
     }
 

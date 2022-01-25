@@ -208,8 +208,6 @@ void Window::attach(Window * newParent)
   if (newParent)
   {
     newParent->addChild(this);
-    if(lvobj != nullptr)
-      lv_obj_set_parent(lvobj, newParent->lvobj);
   }
 }
 

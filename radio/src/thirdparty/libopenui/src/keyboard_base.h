@@ -25,13 +25,21 @@
 class Keyboard: public FormWindow
 {
   public:
-    explicit Keyboard(coord_t height) : FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
+    explicit Keyboard(coord_t height) : 
+      FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
     {
+      // set the background of the window and opacity to 100%
+      lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
     }
 
     void clearField()
     {
       TRACE("CLEAR FIELD");
+      if (keyboard != nullptr) {
+        lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+      }
+
       detach();
       if (fields) { 
         fields->setHeight(oldHeight);
@@ -59,6 +67,8 @@ class Keyboard: public FormWindow
 
   protected:
     static Keyboard * activeKeyboard;
+    static lv_obj_t * keyboard;
+
     FormField *field = nullptr;
     Window *fieldContainer = nullptr;
     FormWindow *fields = nullptr;

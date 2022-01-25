@@ -18,6 +18,9 @@
  */
 #include "keyboard_base.h"
 
+Keyboard * Keyboard::activeKeyboard = nullptr;
+lv_obj_t *Keyboard::keyboard = nullptr;
+
 coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
 {
   // now we need to calculate the offset of the field in the fields scroll container
@@ -32,7 +35,7 @@ coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
 
   // try and place it in the middle of the screen.  The containing window MUST have 
   // already been resized
-  return offsetY - topWindow->height() / 2;
+  return offsetY - topWindow->height() * 2 / 7;
 }
 
 bool Keyboard::attachKeyboard()
@@ -99,7 +102,10 @@ void Keyboard::setField(FormField* newField)
 #endif      
       // scroll the header of the window out of view to get more space to
       // see the field being edited
-      lv_obj_scroll_to_y(fieldContainer->getLvObj(), fields->top(), LV_ANIM_OFF);
+      
+      // TODO: this no longer works. we need to figure out something else
+      //lv_obj_scroll_to_y(fieldContainer->getLvObj(), fields->top(), LV_ANIM_OFF);
+
       oldHeight = fields->height();
       fields->setHeight(newHeight);
 
@@ -113,6 +119,8 @@ void Keyboard::setField(FormField* newField)
 
     invalidate();
     newField->setEditMode(true);
+    lv_keyboard_set_textarea(keyboard, newField->getLvObj());
+
     field = newField;
   } else {
     clearField();

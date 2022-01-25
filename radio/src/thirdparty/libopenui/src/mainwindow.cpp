@@ -33,7 +33,6 @@ LvglWidgetFactory mainWindowFactory = LvglWidgetFactory([] (lv_obj_t *parent) {
 
 #if defined(HARDWARE_TOUCH)
 TouchState touchState;
-Keyboard * Keyboard::activeKeyboard = nullptr;
 #endif
 
 void MainWindow::emptyTrash()

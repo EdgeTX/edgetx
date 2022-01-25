@@ -47,24 +47,24 @@ static lv_obj_t *virtual_kb = nullptr;
 
 static void ta_event_cb(lv_event_t *e)
 {
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t *ta = lv_event_get_target(e);
-  if (code == LV_EVENT_CLICKED) {
-    if (virtual_kb == nullptr) {
-      virtual_kb = lv_keyboard_create(lv_scr_act());
-      lv_obj_set_size(virtual_kb, LV_HOR_RES, LV_VER_RES / 2);
-    }
+  // lv_event_code_t code = lv_event_get_code(e);
+  // lv_obj_t *ta = lv_event_get_target(e);
+  // if (code == LV_EVENT_CLICKED) {
+  //   if (virtual_kb == nullptr) {
+  //     virtual_kb = lv_keyboard_create(lv_scr_act());
+  //     lv_obj_set_size(virtual_kb, LV_HOR_RES, LV_VER_RES / 2);
+  //   }
 
-    if (virtual_kb != NULL) {
-      lv_keyboard_set_textarea(virtual_kb, ta);
-      lv_obj_add_state(ta, LV_STATE_EDITED);
-    }
-  } else if (code == LV_EVENT_DEFOCUSED || code == LV_EVENT_DELETE) {
-    if (virtual_kb != nullptr) {
-      lv_obj_del(virtual_kb);
-      virtual_kb = nullptr;
-    }
-  }
+  //   if (virtual_kb != NULL) {
+  //     lv_keyboard_set_textarea(virtual_kb, ta);
+  //     lv_obj_add_state(ta, LV_STATE_EDITED);
+  //   }
+  // } else if (code == LV_EVENT_DEFOCUSED || code == LV_EVENT_DELETE) {
+  //   if (virtual_kb != nullptr) {
+  //     lv_obj_del(virtual_kb);
+  //     virtual_kb = nullptr;
+  //   }
+  // }
 }
 
 static lv_style_t style_main;
@@ -339,9 +339,9 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
     setFocus(SET_FOCUS_DEFAULT);
   }
 
-// #if defined(SOFTWARE_KEYBOARD)
-//   TextKeyboard::show(this);
-// #endif
+#if defined(SOFTWARE_KEYBOARD)
+  TextKeyboard::show(this);
+#endif
 
   coord_t rest = x;
   for (cursorPos = 0; cursorPos < length; cursorPos++) {
@@ -361,9 +361,9 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
 
 void TextEdit::onFocusLost()
 {
-// #if defined(SOFTWARE_KEYBOARD)
-//   TextKeyboard::hide();
-// #endif
+#if defined(SOFTWARE_KEYBOARD)
+  TextKeyboard::hide();
+#endif
 
   changeEnd();
   FormField::onFocusLost();
