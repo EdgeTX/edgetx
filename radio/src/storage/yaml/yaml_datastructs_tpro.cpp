@@ -245,7 +245,7 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_VALUE_DEFAULT, "RADIO_DEFAULT"  },
+  {  OVERRIDE_VALUE_GLOBAL, "GLOBAL"  },
   {  OVERRIDE_VALUE_OFF, "OFF"  },
   {  OVERRIDE_VALUE_ON, "ON"  },
   {  0, NULL  }

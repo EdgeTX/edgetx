@@ -908,9 +908,9 @@ enum UartSampleModes {
 #define PXX2_LEN_RX_NAME                    8
 #define PXX2_MAX_RECEIVERS_PER_MODULE       3
 
-// A model On/Off setting that can also take a default value
+// A model On/Off setting that can also take a global value
 enum ModelOverridableEnable {
-  OVERRIDE_VALUE_DEFAULT,
+  OVERRIDE_VALUE_GLOBAL,
   OVERRIDE_VALUE_OFF,
   OVERRIDE_VALUE_ON
 };

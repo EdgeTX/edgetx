@@ -72,7 +72,7 @@ static const YamlLookupTable potsWarningModeLut = {
 };
 
 static const YamlLookupTable jitterFilterLut = {
-  {  0, "RADIO_DEFAULT"  },
+  {  0, "GLOBAL"  },
   {  1, "OFF"  },
   {  2, "ON"  },
 };
@@ -242,7 +242,7 @@ struct YamlSwitchWarningState {
       default:
         continue;
       }
-      
+
       states |= ((uint64_t)value << (index * MASK_LEN));
       enabled |= (1 << index);
     }

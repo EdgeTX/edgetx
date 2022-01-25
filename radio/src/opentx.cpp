@@ -1116,7 +1116,7 @@ void getADC()
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
     uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_VALUE_DEFAULT) {
+    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
        // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
     } else {
@@ -1124,7 +1124,7 @@ void getADC()
       useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
     }
 
-    if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) { 
+    if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
       // apply jitter filter
       s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
     }
@@ -2073,7 +2073,7 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-          
+
           event_t evt = getEvent(false);
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
@@ -2127,7 +2127,7 @@ uint32_t pwrCheck()
             LED_ERROR_END();
             return e_power_on;
           }
-          
+
 #endif // COLORLCD
         }
 
