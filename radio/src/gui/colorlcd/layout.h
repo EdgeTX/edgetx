@@ -55,10 +55,10 @@ class LayoutFactory
 
   virtual const ZoneOption* getOptions() const = 0;
 
-  virtual WidgetsContainer* create(
+  virtual WidgetsContainer* create(Window* parent,
       LayoutPersistentData* persistentData) const = 0;
 
-  virtual WidgetsContainer* load(
+  virtual WidgetsContainer* load(Window* parent,
       LayoutPersistentData* persistentData) const = 0;
 
   virtual void initPersistentData(LayoutPersistentData* persistentData,
@@ -69,7 +69,7 @@ class LayoutFactory
   const char* name;
 };
 
-WidgetsContainer * loadLayout(const char * name, LayoutPersistentData * persistentData);
+WidgetsContainer * loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentData);
 
 // intented for new models
 void loadDefaultLayout();

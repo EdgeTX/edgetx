@@ -46,8 +46,8 @@ class Layout2x4: public Layout
       OPTION_PANEL2_COLOR
     };
   
-    Layout2x4(const LayoutFactory * factory, Layout::PersistentData * persistentData):
-      Layout(factory, persistentData)
+    Layout2x4(Window* parent, const LayoutFactory * factory, Layout::PersistentData * persistentData):
+      Layout(parent, factory, persistentData)
     {
     }
 
