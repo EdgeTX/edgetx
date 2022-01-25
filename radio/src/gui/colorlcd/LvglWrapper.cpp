@@ -22,10 +22,10 @@
 #include "opentx.h"
 
 #include "LvglWrapper.h"
+#include "view_main.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
-static lv_disp_drv_t disp_drv;          /*A variable to hold the drivers. Must be static or global.*/
 lv_disp_t * disp;
 static lv_disp_draw_buf_t disp_buf;
 
@@ -130,9 +130,11 @@ BitmapBuffer canBuf(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)cbuf);
 
 extern BitmapBuffer * lcdFront;
 extern BitmapBuffer * lcd;
-LvglWrapper::LvglWrapper()
+
+static lv_disp_drv_t disp_drv;
+
+static lv_disp_drv_t* init_disp_drv()
 {
-  lv_init();
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
@@ -146,15 +148,15 @@ LvglWrapper::LvglWrapper()
 #endif
   disp_drv.sw_rotate = 1;
 
-  /*Register the driver in LVGL and save the created input device object*/
+  return &disp_drv;
+}
 
+static void init_lvgl_drivers()
+{
+  // Register the driver and save the created display objects
+  disp = lv_disp_drv_register(init_disp_drv());
 
-  disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
-
-  // create a canvas as the drawing target for libopenui as a hack. This is going to be removed
-  canvas = lv_canvas_create(lv_scr_act());
-  lv_canvas_set_buffer(canvas, cbuf, LCD_W, LCD_H, LV_IMG_CF_TRUE_COLOR);
-  
+  // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
   touchDriver.read_cb = touchDriverRead;      /*See below.*/
@@ -164,6 +166,25 @@ LvglWrapper::LvglWrapper()
   keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
   keyboard_drv.read_cb = keyboardDriverRead;
   lv_indev_drv_register(&keyboard_drv);
+}
+
+LvglWrapper::LvglWrapper()
+{
+  lv_init();
+  init_lvgl_drivers();
+
+  // Create a canvas as the drawing target for libopenui as a hack.
+  // This is going to be removed
+  //
+  canvas = lv_canvas_create(lv_scr_act());
+  lv_canvas_set_buffer(canvas, cbuf, LCD_W, LCD_H, LV_IMG_CF_TRUE_COLOR);
+  lv_obj_set_style_bg_opa(canvas, LV_OPA_MAX, LV_PART_MAIN);
+
+  auto window = MainWindow::instance();
+  lv_obj_set_parent(canvas, window->getLvObj());
+  lv_obj_move_background(canvas);
+  lv_scr_load(window->getLvObj());
+  lv_obj_invalidate(canvas);
 }
 
 void LvglWrapper::run()

@@ -50,6 +50,8 @@ ViewMain::ViewMain():
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
 
+  lv_obj_set_style_bg_opa(tile_view, LV_OPA_TRANSP, LV_PART_MAIN);
+  
   lv_obj_move_foreground(topbar->getLvObj());
 }
 
@@ -61,6 +63,7 @@ ViewMain::~ViewMain()
 void ViewMain::addMainView(Window* view, uint32_t viewId)
 {
   auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
+  lv_obj_add_flag(tile, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile, view);
 
   view->setLeft(lv_obj_get_x(tile));
@@ -202,18 +205,16 @@ void ViewMain::setScrollPositionY(coord_t value)
 
 bool ViewMain::onTouchEnd(coord_t x, coord_t y)
 {
-  if (Window::onTouchEnd(x,y)) return true;
-  if (!hasFocus()) {
-    setFocus();
-  }
-  else {
-    openMenu();
-    int x1 = x;
-    int w1 = getParent()->width();
-    while (x1 > w1)   x1 -= w1;
-    if (x1 > w1 / 2)
-      pushEvent(EVT_ROTARY_LEFT);
-  }
+  openMenu();
+
+  // TODO: remove this hack to preset
+  //       the scrolling on the main menu
+  int x1 = x;
+  int w1 = getParent()->width();
+  while (x1 > w1)   x1 -= w1;
+  if (x1 > w1 / 2)
+    pushEvent(EVT_ROTARY_LEFT);
+
   return true;
 }
 #endif
