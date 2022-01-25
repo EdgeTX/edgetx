@@ -34,8 +34,8 @@ const ZoneOption OPTIONS_LAYOUT_1P2[] =  {
 class Layout1P2: public Layout
 {
   public:
-    Layout1P2(const LayoutFactory * factory, Layout::PersistentData * persistentData):
-      Layout(factory, persistentData)
+    Layout1P2(Window* parent, const LayoutFactory * factory, Layout::PersistentData * persistentData):
+      Layout(parent, factory, persistentData)
     {
     }
 
