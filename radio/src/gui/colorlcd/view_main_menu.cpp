@@ -34,9 +34,7 @@
 #include "view_text.h"
 
 
-LvglWidgetFactory viewMainFactory = LvglWidgetFactory([] (lv_obj_t *parent) {
-  return lv_obj_create(nullptr);
-});
+static LvglWidgetFactory viewMainFactory = {lv_obj_create, nullptr};
 
 ViewMainMenu::ViewMainMenu(Window* parent) :
     Window(parent->getFullScreenWindow(), {}, 0, 0, &viewMainFactory)
