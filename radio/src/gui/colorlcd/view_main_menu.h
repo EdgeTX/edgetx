@@ -34,10 +34,8 @@ public:
     bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override { return true; }
     bool onTouchEnd(coord_t x, coord_t y) override
     {
-      if (!Window::onTouchEnd(x, y)) {
-        onKeyPress();
-        deleteLater();
-      }
+      onKeyPress();
+      deleteLater();
       return true;
     }
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
