@@ -114,11 +114,9 @@ bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
   // Note: onCancel() is not called when the menu is discarded
   //       by clicking outside the menu window and the onCancel
   //       handler is not accessible from here
-  if (!Window::onTouchEnd(x, y)) {
-    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-    onKeyPress();
-    deleteLater();
-  }
+  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  onKeyPress();
+  deleteLater();
   return true;
 }
 #endif

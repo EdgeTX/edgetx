@@ -30,7 +30,7 @@ class RadioGhostModuleConfig: public Page
 
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
-    void checkEvents();
+    void checkEvents() override;
 #endif
 
   protected:
