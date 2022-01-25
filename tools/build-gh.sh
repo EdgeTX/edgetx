@@ -46,7 +46,7 @@ if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${SRCDIR:=$(dirname $(pwd)/"$0")/..}
+: ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
 : ${BUILD_TYPE:=Release}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -DDISABLE_COMPANION=YES -Wno-dev "}
