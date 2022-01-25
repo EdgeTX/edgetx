@@ -25,8 +25,8 @@
 #include "view_main_decoration.h"
 #include "view_main.h"
 
-Layout::Layout(const LayoutFactory * factory, PersistentData * persistentData):
-  LayoutBase({0, 0, LCD_W, LCD_H}, persistentData),
+Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData):
+  LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
   factory(factory),
   decoration(new ViewMainDecoration(this, getRect()))
 {

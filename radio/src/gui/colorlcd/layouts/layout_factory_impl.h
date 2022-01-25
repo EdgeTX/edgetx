@@ -49,7 +49,7 @@ class Layout: public LayoutBase
 
   public:
 
-    Layout(const LayoutFactory * factory, PersistentData * persistentData);
+    Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -132,20 +132,20 @@ class BaseLayoutFactory: public LayoutFactory
       return options;
     }
 
-    Layout * create(Layout::PersistentData * persistentData) const override
+    Layout * create(Window* parent, Layout::PersistentData * persistentData) const override
     {
       initPersistentData(persistentData, true);
-      Layout * layout = new T(this, persistentData);
+      Layout * layout = new T(parent, this, persistentData);
       if (layout) {
         layout->create();
       }
       return layout;
     }
 
-    Layout * load(Layout::PersistentData * persistentData) const override
+    Layout * load(Window* parent, Layout::PersistentData * persistentData) const override
     {
       initPersistentData(persistentData, false);
-      Layout * layout = new T(this, persistentData);
+      Layout * layout = new T(parent, this, persistentData);
       if (layout) {
         layout->load();
       }
