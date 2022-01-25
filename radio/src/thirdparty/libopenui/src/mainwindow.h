@@ -23,18 +23,11 @@
 #include "layer.h"
 #include "bitmapbuffer.h"
 
-extern LvglWidgetFactory mainWindowFactory;
-
 class MainWindow: public Window
 {
   protected:
     // singleton
-    MainWindow():
-      Window(nullptr, {0, 0, LCD_W, LCD_H}, 0, 0, &mainWindowFactory),
-      invalidatedRect(rect)
-    {
-      Layer::push(this);
-    }
+    MainWindow();
 
   public:
     ~MainWindow() override

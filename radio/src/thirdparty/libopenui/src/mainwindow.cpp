@@ -24,16 +24,20 @@
 #include "touch.h"
 #endif
 
-MainWindow * MainWindow::_instance = nullptr;
-
-LvglWidgetFactory mainWindowFactory = LvglWidgetFactory([] (lv_obj_t *parent) {
-  return lv_obj_create(nullptr);
-});
-
-
 #if defined(HARDWARE_TOUCH)
 TouchState touchState;
 #endif
+
+static LvglWidgetFactory mainWindowFactory = { lv_obj_create, nullptr };
+
+MainWindow * MainWindow::_instance = nullptr;
+
+MainWindow::MainWindow() :
+    Window(nullptr, {0, 0, LCD_W, LCD_H}, 0, 0, &mainWindowFactory),
+    invalidatedRect(rect)
+{
+  Layer::push(this);
+}
 
 void MainWindow::emptyTrash()
 {
