@@ -210,11 +210,12 @@ class Window
     void setHeight(coord_t value)
     {
       rect.h = value;
-      lv_obj_set_height(lvobj, rect.h);
+      if (lvobj != nullptr)
+        lv_obj_set_height(lvobj, rect.h);
 
       if (windowFlags & FORWARD_SCROLL)
         innerHeight = value;
-      else if (innerHeight <= value) {
+      else if (lvobj != nullptr && innerHeight <= value) {
         lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
       }
       invalidate();
@@ -436,6 +437,12 @@ class Window
 
     void addChild(Window * window, bool front = false)
     {
+      if (lv_obj_get_parent(window->lvobj) != nullptr) {
+        lv_obj_set_parent(window->lvobj, this->lvobj);
+        if (front)
+          lv_obj_move_to_index(window->lvobj, 0);
+      }
+
       if (front)
         children.push_front(window);
       else
@@ -445,6 +452,8 @@ class Window
     void removeChild(Window * window)
     {
       children.remove(window);
+      if (window->lvobj != nullptr)
+        lv_obj_set_parent(window->lvobj, nullptr);
       invalidate();
     }
 
