@@ -93,9 +93,8 @@ void loadDefaultLayout()
     //    - Timer
     //    - ???
     //
-    if (screen) {
-      screen->attach(ViewMain::instance());
-    }
+    if (!screen) return;
+    viewMain->addMainView(screen, 0);
   }
 }
 
@@ -119,9 +118,10 @@ void loadCustomScreens()
     }
 
     // layout is ok, let's add it
-    screen->attach(viewMain);
-    viewMain->setMainViewsCount(i + 1);
-    screen->setLeft(viewMain->getMainViewLeftPos(i));
+    viewMain->addMainView(screen, i);
+    // screen->attach(viewMain);
+    // viewMain->setMainViewsCount(i + 1);
+    // screen->setLeft(viewMain->getMainViewLeftPos(i));
     i++;
   }
 
