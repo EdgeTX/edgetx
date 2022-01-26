@@ -85,22 +85,37 @@ int lcdRestoreBackupBuffer()
   return 1;
 }
 
-void newLcdRefresh(uint16_t *buffer)
+void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
+
+#if defined(LCD_VERTICAL_INVERT)
+  auto total = copy_area.w * copy_area.h;
+  auto src = buffer + total - 1;
+#else
+  auto src = buffer;
+#endif
+  auto dst = simuLcdBuf + copy_area.y * LCD_W + copy_area.x;
+
+  auto y2 = copy_area.y + copy_area.h;
+  for (auto line = copy_area.y; line < y2; line++) {
+
+    auto line_end = dst + copy_area.w;
+    while (dst != line_end) {
+#if defined(LCD_VERTICAL_INVERT)
+      *(dst++) = *(src--);
+#else
+      *(dst++) = *(src++);
+#endif
+    }
+
+    dst += LCD_W - copy_area.w;
+  }
+
   // Mark screen dirty for async refresh
   simuLcdRefresh = true;
 
-#if defined(LCD_VERTICAL_INVERT)
-  auto src = buffer + DISPLAY_BUFFER_SIZE - 1;
-  auto dst = simuLcdBuf;
-  auto end = dst + DISPLAY_BUFFER_SIZE;
-
-  while (dst != end) {
-    *(dst++) = *(src--);
-  }
-#else
-  memcpy(simuLcdBuf, buffer, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-#endif
+  // .. and wait for refresh
+  while(simuLcdRefresh);
 }
 void lcdRefresh()
 {
@@ -134,11 +149,6 @@ void lcdInit()
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                  uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-#endif
-
   for (int i = 0; i < h; i++) {
     for (int j = 0; j < w; j++) {
       dest[(y + i) * destw + x + j] = color;
@@ -151,13 +161,6 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                    uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                    uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   for (int i = 0; i < h; i++) {
     memcpy(dest + (y + i) * destw + x, src + (srcy + i) * srcw + srcx, 2 * w);
   }
@@ -170,13 +173,6 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
                         uint16_t srcw, uint16_t srch, uint16_t srcx,
                         uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   for (coord_t line = 0; line < h; line++) {
     uint16_t *p = dest + (y + line) * destw + x;
     const uint16_t *q = src + (srcy + line) * srcw + srcx;
@@ -205,13 +201,6 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
                       uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                       uint16_t h, uint16_t fg_color)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   RGB_SPLIT(fg_color, red, green, blue);
 
   for (coord_t line = 0; line < h; line++) {
