@@ -23,46 +23,57 @@
 #include "keyboard_number.h"
 #endif
 
+
+static LvglWidgetFactory numberEditFactory = { lv_textarea_create, nullptr };
+static lv_style_t style_main;
+static lv_style_t style_edit;
+
 NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags, LcdFlags textFlags):
-  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags, textFlags)
+  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags, textFlags, &numberEditFactory)
 {
-}
+  // properties
+  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
+  lv_textarea_set_password_mode(lvobj, false);
+  lv_textarea_set_one_line(lvobj, true);
+  lv_textarea_set_accepted_chars(lvobj, "0123456789");
 
-void NumberEdit::paint(BitmapBuffer * dc)
-{
-  FormField::paint(dc);
+  auto value = _getValue();
+  auto strValue = std::to_string(value);
+  lv_textarea_set_text(lvobj, strValue.c_str());
 
-  auto value = getValue();
+  // LV_PART_MAIN
+  lv_style_init(&style_main);
+  lv_style_set_border_width(&style_main, 1);
+  lv_style_set_border_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
+  //lv_style_set_radius(&style_main, 0);
+  lv_style_set_text_font(&style_main, &lv_font_montserrat_12);
+  lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
 
-  LcdFlags textColor;
-  if (editMode)
-    textColor = COLOR_THEME_PRIMARY2;
-  else if (hasFocus())
-    textColor = COLOR_THEME_PRIMARY2;
-  // else if (enabled && (value != 0 || zeroText.empty()))
-  //   textColor = COLOR_THEME_SECONDARY1;
-  else
-    textColor = COLOR_THEME_SECONDARY1;
+  // LV_STATE_FOCUSED
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
+                            LV_PART_MAIN | LV_STATE_FOCUSED);
 
-  if (displayFunction) {
-    displayFunction(dc, textColor, value);
-  } else if (value == 0 && !zeroText.empty()) {
-    dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(),
-                 textColor | textFlags);
-    if (textFlags & RIGHT)
-      dc->drawText(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-                   zeroText.c_str(), textColor | textFlags);
-    else
-      dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, zeroText.c_str(),
-                   textColor | textFlags);
-  } else {
-    if (textFlags & RIGHT)
-      dc->drawNumber(rect.w - FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value,
-                     textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
-    else
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value,
-                     textColor | textFlags, 0, prefix.c_str(), suffix.c_str());
-  }
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
+                              LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  // Hide cursor
+  lv_obj_set_style_opa(lvobj, 0, LV_PART_CURSOR);
+
+  // Show Cursor in "Edit" mode
+  lv_style_init(&style_edit);
+  lv_style_set_opa(&style_edit, LV_OPA_COVER);
+  lv_style_set_bg_opa(&style_edit, LV_OPA_COVER);
+  lv_style_set_pad_left(&style_edit, (lv_coord_t)-(FIELD_PADDING_LEFT+2));
+  lv_style_set_pad_top(&style_edit, (lv_coord_t)-(FIELD_PADDING_TOP+2));
+  lv_obj_add_style(lvobj, &style_edit, LV_PART_CURSOR | LV_STATE_EDITED);
+
+  // Text padding
+  auto label = lv_textarea_get_label(lvobj);
+  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
+  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 }
 
 void NumberEdit::onEvent(event_t event)

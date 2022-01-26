@@ -46,8 +46,6 @@ class TextEdit : public FormField {
       return value;
     }
 
-    void paint(BitmapBuffer * dc) override;
-
     void onEvent(event_t event) override;
 
 #if defined(HARDWARE_TOUCH)
@@ -67,6 +65,7 @@ class TextEdit : public FormField {
 
     void changeEnd(bool forceChanged = false) override
     {
+      strncpy(value, lv_textarea_get_text(lvobj), length);
       cursorPos = 0;
       if (changed || forceChanged) {
         changed = false;

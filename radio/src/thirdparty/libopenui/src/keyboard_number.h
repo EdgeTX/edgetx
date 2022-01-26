@@ -38,10 +38,12 @@ class NumberKeyboard : public Keyboard {
     {
       if (!_instance)
         _instance = new NumberKeyboard();
+      else 
+        lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+
+      lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_NUMBER);
       _instance->setField(field);
     }
-
-    void paint(BitmapBuffer * dc) override;
 
   protected:
     static NumberKeyboard * _instance;

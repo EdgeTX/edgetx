@@ -21,6 +21,66 @@
 Keyboard * Keyboard::activeKeyboard = nullptr;
 lv_obj_t *Keyboard::keyboard = nullptr;
 
+static void keyboard_event_cb(lv_event_t * e)
+{
+  auto code = lv_event_get_code(e);
+  Keyboard *kb = (Keyboard *) lv_event_get_user_data(e);
+  if (code == LV_EVENT_READY) {
+    pushEvent(EVT_VIRTUAL_KEY('\n'));
+    kb->hide();
+  }
+}
+
+
+Keyboard::Keyboard(coord_t height) : 
+  FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
+{
+  // set the background of the window and opacity to 100%
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+
+  if (keyboard == nullptr) {
+    keyboard = lv_keyboard_create(lv_scr_act());
+    lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);
+
+
+    lv_obj_set_size(keyboard, LCD_W, LCD_H * 2 / 5);
+    lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
+void Keyboard::clearField()
+{
+  TRACE("CLEAR FIELD");
+  if (keyboard != nullptr) {
+    lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+  }
+
+  detach();
+  if (fields) { 
+    fields->setHeight(oldHeight);
+    fields = nullptr;
+  }
+  if (fieldContainer) {
+    fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
+    fieldContainer = nullptr;
+  }
+  if (field) {
+    field->setEditMode(false);
+    field->changeEnd();
+    field = nullptr;
+  }  
+}
+
+void Keyboard::hide()
+{
+  if (activeKeyboard) {
+    activeKeyboard->clearField();
+    activeKeyboard = nullptr;
+  }
+}
+
+
 coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
 {
   // now we need to calculate the offset of the field in the fields scroll container
