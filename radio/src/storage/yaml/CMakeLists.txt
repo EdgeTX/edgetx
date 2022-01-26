@@ -66,9 +66,6 @@ get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTO
 foreach(dir ${dirs})
   #message(STATUS "dir='${dir}'")
   set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -I${dir})
-
-  # Force to build 32 bit binaries (Fix for Apple Silicon M1 hosts)
-  set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
 endforeach()
 
 set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -DRTOS_COOS -Wno-inconsistent-missing-override)
@@ -77,7 +74,7 @@ set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -DRTOS_COOS -Wno-inconsistent-missing-overrid
 
 add_custom_target(yaml_data
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} ${SYSROOT_ARG} > ${YAML_GEN_OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} > ${YAML_GEN_OUTPUT}
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h
             ${RADIO_DIRECTORY}/src/dataconstants.h
             ${RADIO_DIRECTORY}/src/myeeprom.h
