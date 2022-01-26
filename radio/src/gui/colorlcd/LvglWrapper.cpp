@@ -50,10 +50,35 @@ TouchState getLastTochState()
 }
 #endif
 
-void newLcdRefresh(uint16_t* buffer);
+void newLcdRefresh(uint16_t* buffer, const rect_t& copy_area);
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-  newLcdRefresh((uint16_t*)color_p);
+  lv_area_t refr_area;
+  lv_area_copy(&refr_area, area);
+
+#if defined(LCD_VERTICAL_INVERT)
+  lv_coord_t tmp_coord;
+  tmp_coord = refr_area.y2;
+  refr_area.y2 = LCD_H - refr_area.y1 - 1;
+  refr_area.y1 = LCD_H - tmp_coord - 1;
+  tmp_coord = refr_area.x2;
+  refr_area.x2 = LCD_W - refr_area.x1 - 1;
+  refr_area.x1 = LCD_W - tmp_coord - 1;
+#endif
+
+  if (refr_area.x1 != 0 || refr_area.x2 != 479 || refr_area.y1 != 0 ||
+      refr_area.y2 != 271) {
+    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
+          refr_area.y1, refr_area.x2, refr_area.y2);
+  } else {
+    TRACE("full refresh @ 0x%p", color_p);
+  }
+
+  rect_t copy_area = {refr_area.x1, refr_area.y1,
+                      refr_area.x2 - refr_area.x1 + 1,
+                      refr_area.y2 - refr_area.y1 + 1};
+
+  newLcdRefresh((uint16_t*)color_p, copy_area);
   lv_disp_flush_ready(disp_drv);
 }
 
@@ -170,9 +195,6 @@ lv_color_t makeLvColor(uint32_t colorFlags)
   return lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
 }
 
-lv_obj_t * canvas=nullptr;
-static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(LCD_W, LCD_H)] __SDRAM;
-BitmapBuffer canBuf(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)cbuf);
 
 extern BitmapBuffer * lcdFront;
 extern BitmapBuffer * lcd;
@@ -233,15 +255,9 @@ LvglWrapper::LvglWrapper()
   // Create a canvas as the drawing target for libopenui as a hack.
   // This is going to be removed
   //
-  canvas = lv_canvas_create(lv_scr_act());
-  lv_canvas_set_buffer(canvas, cbuf, LCD_W, LCD_H, LV_IMG_CF_TRUE_COLOR);
-  lv_obj_set_style_bg_opa(canvas, LV_OPA_MAX, LV_PART_MAIN);
 
   auto window = MainWindow::instance();
-  lv_obj_set_parent(canvas, window->getLvObj());
-  lv_obj_move_background(canvas);
   lv_scr_load(window->getLvObj());
-  lv_obj_invalidate(canvas);
 }
 
 void LvglWrapper::run()
