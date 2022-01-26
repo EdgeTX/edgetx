@@ -47,7 +47,6 @@ ViewMain::ViewMain():
   lv_obj_set_size(tile_view, rect.w, rect.h);
   lv_obj_set_scrollbar_mode(tile_view, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
 
   lv_obj_set_style_bg_opa(tile_view, LV_OPA_TRANSP, LV_PART_MAIN);
@@ -63,7 +62,6 @@ ViewMain::~ViewMain()
 void ViewMain::addMainView(Window* view, uint32_t viewId)
 {
   auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
-  lv_obj_add_flag(tile, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile, view);
 
   view->setLeft(lv_obj_get_x(tile));
