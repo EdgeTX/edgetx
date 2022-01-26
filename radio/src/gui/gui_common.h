@@ -361,6 +361,8 @@ inline uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx) {
     return TITLE_ROW;
   if(isModuleAFHDS3(moduleIdx))
     return HIDDEN_ROW;
+  if(isModuleGhost(moduleIdx))
+    return 0;
   return MULTIMODULE_OPTIONS_ROW(moduleIdx);
 }
 

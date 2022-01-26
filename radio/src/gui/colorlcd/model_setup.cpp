@@ -1255,6 +1255,11 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
+      if (isModuleGhost(moduleIdx)) {
+          new StaticText(this, grid.getLabelSlot(true), "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
+          new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].ghost.raw12bits));
+      }
+
       auto par = getParent();
       par->moveWindowsTop(top() + 1, adjustHeight());
       par->adjustInnerHeight();

@@ -528,6 +528,10 @@ PACK(struct ModuleData {
         rx_freq[1] = value >> 8;
       }
     } afhds3));
+    NOBACKUP(struct {
+      uint8_t raw12bits:1;
+      uint8_t spare1:7 SKIP;
+    } ghost);
   } NAME(mod) FUNC(select_mod_type);
 
   // Helper functions to set both of the rfProto protocol at the same time
