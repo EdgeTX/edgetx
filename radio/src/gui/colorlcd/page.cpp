@@ -45,9 +45,7 @@ void PageHeader::paint(BitmapBuffer * dc)
 }
 
 
-LvglWidgetFactory pageFactory = LvglWidgetFactory([] (lv_obj_t * parent) {
-    return lv_obj_create(nullptr);
-});
+static LvglWidgetFactory pageFactory = {lv_obj_create, nullptr};
 
 Page::Page(unsigned icon):
   Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE, 0, &pageFactory),
