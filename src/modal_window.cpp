@@ -22,12 +22,8 @@
 #include "font.h"
 #include "layer.h"
 
-LvglWidgetFactory modalFactory = LvglWidgetFactory([] (lv_obj_t *parent) {
-  return lv_obj_create(nullptr);
-});
-
 ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, 0, 0, &modalFactory),
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
   closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);
