@@ -37,14 +37,39 @@ static void window_event_cb(lv_event_t * e)
 
   Window* window = (Window *)lv_obj_get_user_data(target);
   if (!window) return;
-  if(window->deleted()) return;
+
+  if(code == LV_EVENT_DELETE ||
+     window->deleted()) return;
 
   if (code == LV_EVENT_GET_SELF_SIZE) {
+
     lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
     if (p->x >= 0) { p->x = window->getInnerWidth(); }
     if (p->y >= 0) { p->y = window->getInnerHeight(); }
+
   } else if (code == LV_EVENT_DRAW_MAIN) {
+
+    lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
+
+    lv_area_t a, clipping, obj_coords;
+    lv_area_copy(&a, draw_ctx->buf_area);
+    lv_area_copy(&clipping, draw_ctx->clip_area);
+    lv_obj_get_coords(target, &obj_coords);
+
+    auto w = a.x2 - a.x1 + 1;
+    auto h = a.y2 - a.y1 + 1;
+
     TRACE_WINDOWS("DRAW_MAIN %s", window->getWindowDebugString().c_str());
+
+    BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
+                        (uint16_t *)draw_ctx->buf};
+
+    buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
+    buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
+                        clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
+
+    window->paint(&buf);
+
   } else if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED) {
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
@@ -86,12 +111,16 @@ static void window_event_cb(lv_event_t * e)
       window->onTouchEnd(rel_pos.x, rel_pos.y);
     }
   } else if (code == LV_EVENT_SCROLL) {
+
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+
     TRACE_WINDOWS("SCROLL[x=%d;y=%d] %s", scroll_x, scroll_y,
                   window->getWindowDebugString().c_str());
+
     window->setScrollPositionY(scroll_y);
     window->setScrollPositionX(scroll_x);
+
   } else if (code == LV_EVENT_SCROLL_BEGIN) {
     TRACE("SCROLL_BEGIN");
     is_scrolling = true;
@@ -138,6 +167,10 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
   lv_obj_set_size(lvobj, rect.w, rect.h);
   lv_obj_set_user_data(lvobj, this);
 
+  if (windowFlags & OPAQUE) {
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+  }
+
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
@@ -154,7 +187,7 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   }
 }
-extern lv_obj_t * canvas;
+
 Window::~Window()
 {
   TRACE_WINDOWS("Destroy %p %s", this, getWindowDebugString().c_str());
@@ -162,22 +195,19 @@ Window::~Window()
     focusWindow = nullptr;
   }
 
-  if(children.size() > 0)
-    deleteChildren();
-  if (lvobj != nullptr && lvobj != canvas)
-  {
+  if (children.size() > 0) deleteChildren();
+
+  if (lvobj != nullptr) {
     lv_obj_del(lvobj);
     lvobj = nullptr;
   }
-
 }
 
-void Window::attach(Window * newParent)
+void Window::attach(Window *newParent)
 {
   if (parent) detach();
   parent = newParent;
-  if (newParent)
-  {
+  if (newParent) {
     newParent->addChild(this);
   }
 }
@@ -187,6 +217,7 @@ void Window::detach()
   if (parent) {
     parent->removeChild(this);
     parent = nullptr;
+    // if (lvobj != nullptr) lv_obj_set_parent(lvobj, nullptr);
   }
 }
 
@@ -613,9 +644,7 @@ void Window::moveWindowsTop(coord_t y, coord_t delta)
 
 void Window::invalidate(const rect_t & rect)
 {
-  if (isVisible()) {
-    parent->invalidate({this->rect.x + rect.x - parent->scrollPositionX, this->rect.y + rect.y - parent->scrollPositionY, rect.w, rect.h});
-  }
+  if (lvobj) lv_obj_invalidate(lvobj);
 }
 
 void Window::drawVerticalScrollbar(BitmapBuffer * dc)
