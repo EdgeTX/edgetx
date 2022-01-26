@@ -1253,7 +1253,7 @@ void menuModelSetup(event_t event)
                 CHECK_INCDEC_MODELVAR_ZERO(event, g_model.header.modelId[moduleIdx], getMaxRxNum(moduleIdx));
                 if (checkIncDec_Ret) {
                   if (isModuleCrossfire(moduleIdx))
-                    moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+                    moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
                   modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
