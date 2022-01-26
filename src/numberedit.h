@@ -34,8 +34,6 @@ class NumberEdit : public BaseNumberEdit
     }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
-
     void setAvailableHandler(std::function<bool(int)> handler)
     {
       isValueAvailable = std::move(handler);

@@ -55,16 +55,10 @@ class TextKeyboard : public Keyboard {
         _instance = new TextKeyboard();
       else
         lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+
+      lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
       _instance->setField(field);
     }
-
-    void paint(BitmapBuffer * dc) override;
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchStart(coord_t x, coord_t y) override;
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-#endif
 
   protected:
 #if defined(HARDWARE_KEYS)

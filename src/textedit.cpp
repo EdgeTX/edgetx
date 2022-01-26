@@ -42,31 +42,6 @@
 #include "clipboard.h"
 #endif
 
-
-static lv_obj_t *virtual_kb = nullptr;
-
-static void ta_event_cb(lv_event_t *e)
-{
-  // lv_event_code_t code = lv_event_get_code(e);
-  // lv_obj_t *ta = lv_event_get_target(e);
-  // if (code == LV_EVENT_CLICKED) {
-  //   if (virtual_kb == nullptr) {
-  //     virtual_kb = lv_keyboard_create(lv_scr_act());
-  //     lv_obj_set_size(virtual_kb, LV_HOR_RES, LV_VER_RES / 2);
-  //   }
-
-  //   if (virtual_kb != NULL) {
-  //     lv_keyboard_set_textarea(virtual_kb, ta);
-  //     lv_obj_add_state(ta, LV_STATE_EDITED);
-  //   }
-  // } else if (code == LV_EVENT_DEFOCUSED || code == LV_EVENT_DELETE) {
-  //   if (virtual_kb != nullptr) {
-  //     lv_obj_del(virtual_kb);
-  //     virtual_kb = nullptr;
-  //   }
-  // }
-}
-
 static lv_style_t style_main;
 static lv_style_t style_edit;
 static LvglWidgetFactory textEditFactory = { lv_textarea_create, nullptr };
@@ -80,9 +55,6 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
     length(length)
 {
   extra_chars = (_extra_chars) ? _extra_chars : extra_chars_default;
-
-  // callbacks
-  lv_obj_add_event_cb(lvobj, ta_event_cb, LV_EVENT_ALL, NULL);
 
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
@@ -127,45 +99,6 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 }
 
-void TextEdit::paint(BitmapBuffer * dc)
-{
-//   FormField::paint(dc);
-
-//   if (editMode) {
-//     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length,
-//                       COLOR_THEME_PRIMARY2);
-//     coord_t left = (cursorPos == 0 ? 0 : getTextWidth(value, cursorPos));
-// #if defined(SOFTWARE_KEYBOARD)
-//     dc->drawSolidFilledRect(left + 2, 2, 2, height() - 4, COLOR_THEME_PRIMARY2);
-// #else
-//     char s[] = {value[cursorPos], '\0'};
-//     dc->drawSolidFilledRect(FIELD_PADDING_LEFT + left - 1,
-//                             FIELD_PADDING_TOP - 1, getTextWidth(s, 1) + 1,
-//                             height() - 2, COLOR_THEME_PRIMARY2);
-//     dc->drawText(FIELD_PADDING_LEFT + left, FIELD_PADDING_TOP, s,
-//                  COLOR_THEME_SECONDARY1);
-// #endif
-//   } else {
-//     const char * displayedValue = value;
-//     LcdFlags textColor = COLOR_THEME_PRIMARY2;
-//     if (hasFocus()) {
-//       if (strlen(value) == 0) {
-//         displayedValue = "---";
-//       }
-//       textColor = COLOR_THEME_PRIMARY2;
-//     }
-//     else {
-//       if (strlen(value) == 0) {
-//         displayedValue = "---";
-//         textColor = COLOR_THEME_DISABLED;
-//       }
-//       else {
-//         textColor = COLOR_THEME_SECONDARY1;
-//       }
-//     }
-//     dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, displayedValue, length, textColor);
-//   }
-}
 
 void TextEdit::trim()
 {
@@ -184,23 +117,8 @@ void TextEdit::onEvent(event_t event)
 #if defined(HARDWARE_TOUCH)
   if (IS_VIRTUAL_KEY_EVENT(event)) {
     uint8_t c = event & 0xFF;
-    if (c == (uint8_t)KEYBOARD_BACKSPACE[0]) {
-      if (cursorPos > 0) {
-        memmove(value + cursorPos - 1, value + cursorPos, length - cursorPos);
-        value[length - 1] = '\0';
-        --cursorPos;
-        invalidate();
-        changed = true;
-      }
-    }
-    else if (c == (uint8_t)KEYBOARD_ENTER[0]) {
+    if (c == (uint8_t)KEYBOARD_ENTER[0]) {
       changeEnd();
-    }
-    else if (cursorPos < length) {
-      memmove(value + cursorPos + 1, value + cursorPos, length - cursorPos - 1);
-      value[cursorPos++] = c;
-      invalidate();
-      changed = true;
     }
   }
 #endif
