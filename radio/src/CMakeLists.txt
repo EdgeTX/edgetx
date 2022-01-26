@@ -626,6 +626,9 @@ if(NOT MSVC)
 
     add_definitions(-DFREE_RTOS)
 
+    include(translations-new/CMakeLists.txt)
+    set (SRC ${SRC} ${TRANSLATIONS_SRC})
+
     add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
     link_libraries(firmware -lstdc++)
     add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
@@ -636,7 +639,7 @@ if(NOT MSVC)
       include_directories(thirdparty/AccessDenied)
       target_link_libraries(firmware AccessDenied)
     endif()
-
+    
     add_custom_command(
       TARGET firmware POST_BUILD
       COMMAND ${FIRMWARE_OBJCOPY} -O binary firmware.elf firmware.bin

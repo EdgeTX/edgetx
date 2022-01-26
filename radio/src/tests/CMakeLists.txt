@@ -45,6 +45,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     set(RADIO_SRC ${RADIO_SRC} ../${FILE})
   endforeach()
 
+  include(../translations-new/CMakeLists.txt)
+  set(RADIO_SRC ${RADIO_SRC} ${TRANSLATIONS_SRC})
+
   file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp)
 
   if(MINGW)

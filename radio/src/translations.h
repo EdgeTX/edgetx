@@ -77,15 +77,19 @@
 #if LCD_W < LCD_H    // Portrait mode
   #define TR3(x, y, z) z
   #define TR2(x, y) y
+  #define STRLEN_LONG
 #elif LCD_W >= 480
   #define TR3(x, y, z) z
   #define TR2(x, y) y
+  #define STRLEN_LONG
 #elif LCD_W >= 212
   #define TR3(x, y, z) y
   #define TR2(x, y) y
+  #define STRLEN_MEDIUM
 #else
   #define TR3(x, y, z) x
   #define TR2(x, y) x
+  #define STRLEN_SHORT
 #endif
 
 #define TR(x, y) TR2(x, y) // for compatibility
@@ -101,6 +105,8 @@
 #else
  #define LCDW_128_480_LINEBREAK        "\036"
 #endif
+
+/* Start non-zero terminated strings, translated */
 
 extern const char STR_OFFON[];
 extern const char STR_MMMINV[];
@@ -119,6 +125,14 @@ extern const char STR_RETA123[];
 extern const char STR_VOUTPUT_TYPE[];
 #endif
 
+#if defined(HELI)
+extern const char STR_VSWASHTYPE[];
+#endif
+
+#if defined(BLUETOOTH)
+extern const char STR_BLUETOOTH_MODES[];
+#endif
+
 extern const char STR_VBLMODE[];
 extern const char STR_VCURVEFUNC[];
 extern const char STR_VMLTPX[];
@@ -131,16 +145,8 @@ extern const char STR_FUNCSOUNDS[];
 extern const char STR_VTELEMUNIT[];
 extern const char STR_GPSFORMAT[];
 extern const char STR_VTELEMSCREENTYPE[];
-extern const char STR_VSWASHTYPE[];
 
 extern const char STR_VKEYS[];
-extern const char STR_VSWITCHES[];
-extern const char STR_VSRCRAW[];
-
-#if defined(TRANSLATIONS_CZ)
-extern const char STR_INPUTNAMES[];
-#endif
-
 extern const char STR_VTMRMODES[];
 extern const char STR_VPERSISTENT[];
 
@@ -155,6 +161,28 @@ extern const char STR_USBMODES[];
 extern const char STR_JACK_MODES[];
 extern const char STR_VFAILSAFE[];
 
+extern const char STR_CURVE_TYPES[];
+extern const char STR_VSENSORTYPES[];
+extern const char STR_VFORMULAS[];
+extern const char STR_VPREC[];
+extern const char STR_VCELLINDEX[];
+extern const char STR_SAMPLE_MODES[];
+extern const char STR_ANTENNA_MODES[];
+extern const char STR_SPORT_UPDATE_POWER_MODES[];
+extern const char STR_TELEMETRY_PROTOCOLS[];
+
+#if defined(COLORLCD)
+extern const char STR_TEXT_SIZE[];
+extern const char STR_SUBTRIMMODES[];
+#endif
+
+/* End non-zero terminated strings, translated */
+
+
+/* Start non-zero terminated strings, untranslated */
+
+extern const char STR_VSWITCHES[];
+extern const char STR_VSRCRAW[];
 extern const char STR_FONT_SIZES[];
 extern const char STR_VTRAINERMODES[];
 extern const char STR_EXTERNAL_MODULE_PROTOCOLS[];
@@ -164,7 +192,6 @@ extern const char STR_R9M_FCC_POWER_VALUES[];
 extern const char STR_R9M_LBT_POWER_VALUES[];
 extern const char STR_R9M_LITE_FCC_POWER_VALUES[];
 extern const char STR_R9M_LITE_LBT_POWER_VALUES[];
-extern const char STR_TELEMETRY_PROTOCOLS[];
 extern const char STR_XJT_ACCST_RF_PROTOCOLS[];
 extern const char STR_ISRM_RF_PROTOCOLS[];
 extern const char STR_R9M_PXX2_RF_PROTOCOLS[];
@@ -181,22 +208,26 @@ extern const char STR_MULTI_WBUS_MODE[];
 extern const char STR_SPORT_MODES[];
 extern const char STR_FSGROUPS[];
 
-extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
-extern const char STR_AFHDS3_ONE_TO_MANY[];
 extern const char STR_AFHDS3_PROTOCOLS[];
 extern const char STR_AFHDS3_POWERS[];
+extern const char STR_FLYSKY_PULSE_PROTO[];
+extern const char STR_FLYSKY_SERIAL_PROTO[];
+
+#if defined(PWR_BUTTON_PRESS)
+extern const char STR_PWR_OFF_DELAYS[];
+#endif
+
+/* end non-zero terminated strings, untranslated */
+
+
+
+extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
+extern const char STR_AFHDS3_ONE_TO_MANY[];
 extern const char STR_AFHDS3_RX_FREQ[];
 extern const char STR_AFHDS3_ACTUAL_POWER[];
 extern const char STR_AFHDS3_POWER_SOURCE[];
 
-extern const char STR_FLYSKY_PULSE_PROTO[];
-extern const char STR_FLYSKY_SERIAL_PROTO[];
 
-extern const char STR_CURVE_TYPES[];
-extern const char STR_VSENSORTYPES[];
-extern const char STR_VFORMULAS[];
-extern const char STR_VPREC[];
-extern const char STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
 extern const char STR_ADCFILTERVALUES[];
 
@@ -206,7 +237,6 @@ extern const char STR_BLUETOOTH_INIT[];
 extern const char STR_BLUETOOTH_DIST_ADDR[];
 extern const char STR_BLUETOOTH_LOCAL_ADDR[];
 extern const char STR_BLUETOOTH_PIN_CODE[];
-extern const char STR_BLUETOOTH_MODES[];
 
 #define NO_INDENT(x) (x) + LEN_INDENT
 
@@ -339,7 +369,6 @@ extern const char STR_SPLASHSCREEN[];
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
-extern const char STR_PWR_OFF_DELAYS[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
 extern const char STR_SWITCHWARNING[];
@@ -425,7 +454,6 @@ extern const char STR_MENULOGICALSWITCHES[];
 extern const char STR_MENUCUSTOMFUNC[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
 extern const char STR_MENUTELEMETRY[];
-extern const char STR_MENUTEMPLATES[];
 extern const char STR_MENUSTAT[];
 extern const char STR_MENUDEBUG[];
 extern const char * const STR_MONITOR_CHANNELS[];
@@ -664,6 +692,11 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+
+extern const char STR_WARN_BATTVOLTAGE[];
+extern const char STR_EEBACKUP[];
+extern const char STR_FACTORYRESET[];
+
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];
@@ -674,8 +707,6 @@ extern const char STR_SLIDERS[];
 extern const char STR_FLIGHT_MODE[];
 extern const char STR_INVALID_FILE[];
 extern const char STR_TIMER_SOURCE[];
-extern const char STR_TEXT_SIZE[];
-extern const char STR_SUBTRIMMODES[];
 extern const char STR_SIZE[];
 extern const char STR_SHADOW[];
 extern const char STR_TEXT[];
@@ -699,7 +730,6 @@ extern const char STR_TEMP_CALIB[];
 extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
 extern const char STR_SAMPLE_MODE[];
-extern const char STR_SAMPLE_MODES[];
 extern const char STR_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
 extern const char STR_SD_TYPE[];
@@ -943,6 +973,65 @@ extern const char STR_SENSOR_GASSUIT_MAX_FLOW[];
 extern const char STR_SENSOR_GASSUIT_AVG_FLOW[];
 extern const char STR_SENSOR_SBEC_VOLTAGE[];
 extern const char STR_SENSOR_SBEC_CURRENT[];
+
+extern const char STR_SENSOR_VFR[];
+extern const char STR_SENSOR_BATT_PERCENT[];
+extern const char STR_SENSOR_RB3040_EXTRA_STATE[];
+extern const char STR_SENSOR_RB3040_CHANNEL1[];
+extern const char STR_SENSOR_RB3040_CHANNEL2[];
+extern const char STR_SENSOR_RB3040_CHANNEL3[];
+extern const char STR_SENSOR_RB3040_CHANNEL4[];
+extern const char STR_SENSOR_RB3040_CHANNEL5[];
+extern const char STR_SENSOR_RB3040_CHANNEL6[];
+extern const char STR_SENSOR_RB3040_CHANNEL7[];
+extern const char STR_SENSOR_RB3040_CHANNEL8[];
+extern const char STR_SENSOR_ESC_VIN[];
+extern const char STR_SENSOR_ESC_TFET[];
+extern const char STR_SENSOR_ESC_CUR[];
+extern const char STR_SENSOR_ESC_TBEC[];
+extern const char STR_SENSOR_ESC_BCUR[];
+extern const char STR_SENSOR_ESC_VBEC[];
+extern const char STR_SENSOR_ESC_THR[];
+extern const char STR_SENSOR_ESC_POUT[];
+extern const char STR_SENSOR_SMART_BAT_BTMP[];
+extern const char STR_SENSOR_SMART_BAT_BCUR[];
+extern const char STR_SENSOR_SMART_BAT_BCAP[];
+extern const char STR_SENSOR_SMART_BAT_MIN_CEL[];
+extern const char STR_SENSOR_SMART_BAT_MAX_CEL[];
+extern const char STR_SENSOR_SMART_BAT_CYCLES[];
+extern const char STR_SENSOR_SMART_BAT_CAPACITY[];
+extern const char STR_SENSOR_CL01[];
+extern const char STR_SENSOR_CL02[];
+extern const char STR_SENSOR_CL03[];
+extern const char STR_SENSOR_CL04[];
+extern const char STR_SENSOR_CL05[];
+extern const char STR_SENSOR_CL06[];
+extern const char STR_SENSOR_CL07[];
+extern const char STR_SENSOR_CL08[];
+extern const char STR_SENSOR_CL09[];
+extern const char STR_SENSOR_CL10[];
+extern const char STR_SENSOR_CL11[];
+extern const char STR_SENSOR_CL12[];
+extern const char STR_SENSOR_CL13[];
+extern const char STR_SENSOR_CL14[];
+extern const char STR_SENSOR_CL15[];
+extern const char STR_SENSOR_CL16[];
+extern const char STR_SENSOR_CL17[];
+extern const char STR_SENSOR_CL18[];
+extern const char STR_SENSOR_FRAME_RATE[];
+extern const char STR_SENSOR_TOTAL_LATENCY[];
+extern const char STR_SENSOR_VTX_FREQ[];
+extern const char STR_SENSOR_VTX_PWR[];
+extern const char STR_SENSOR_VTX_CHAN[];
+extern const char STR_SENSOR_VTX_BAND[];
+extern const char STR_SENSOR_SERVO_CURRENT[];
+extern const char STR_SENSOR_SERVO_VOLTAGE[];
+extern const char STR_SENSOR_SERVO_TEMPERATURE[];
+extern const char STR_SENSOR_SERVO_STATUS[];
+extern const char STR_SENSOR_LOSS[];
+extern const char STR_SENSOR_SPEED[];
+extern const char STR_SENSOR_FLOW[];
+
 extern const char STR_TRAINER[];
 extern const char STR_CHANS[];
 extern const char STR_MODULE_BIND[];
@@ -963,11 +1052,8 @@ extern const char STR_BINDING_1_8_TELEM_OFF[];
 extern const char STR_BINDING_9_16_TELEM_ON[];
 extern const char STR_BINDING_9_16_TELEM_OFF[];
 extern const char STR_CHANNELRANGE[];
-extern const char STR_RXFREQUENCY[];
-extern const char STR_ANTENNASELECTION[];
 extern const char STR_ANTENNACONFIRM1[];
 extern const char STR_ANTENNACONFIRM2[];
-extern const char STR_ANTENNA_MODES[];
 extern const char STR_USE_INTERNAL_ANTENNA[];
 extern const char STR_USE_EXTERNAL_ANTENNA[];
 extern const char STR_MODULE_PROTOCOL_FLEX_WARN_LINE1[];
@@ -1095,54 +1181,20 @@ extern const char STR_MENU_INVERT[];
 extern const char STR_JITTER_FILTER[];
 extern const char STR_RTC_CHECK[];
 extern const char STR_SPORT_UPDATE_POWER_MODE[];
-extern const char STR_SPORT_UPDATE_POWER_MODES[];
 
 extern const char STR_MODULE_RANGE[];
 extern const char STR_RECEIVER_OPTIONS[];
 
 extern const char STR_ABOUTUS[];
-extern const char STR_ABOUT_OPENTX_1[];
-extern const char STR_ABOUT_OPENTX_2[];
-extern const char STR_ABOUT_OPENTX_3[];
-extern const char STR_ABOUT_OPENTX_4[];
-extern const char STR_ABOUT_OPENTX_5[];
 
-extern const char STR_ABOUT_BERTRAND_1[];
-extern const char STR_ABOUT_BERTRAND_2[];
-extern const char STR_ABOUT_BERTRAND_3[];
 
-extern const char STR_ABOUT_MIKE_1[];
-extern const char STR_ABOUT_MIKE_2[];
-extern const char STR_ABOUT_MIKE_3[];
-extern const char STR_ABOUT_MIKE_4[];
 
-extern const char STR_ABOUT_ROMOLO_1[];
-extern const char STR_ABOUT_ROMOLO_2[];
-extern const char STR_ABOUT_ROMOLO_3[];
 
-extern const char STR_ABOUT_ANDRE_1[];
-extern const char STR_ABOUT_ANDRE_2[];
-extern const char STR_ABOUT_ANDRE_3[];
 
-extern const char STR_ABOUT_ROB_1[];
-extern const char STR_ABOUT_ROB_2[];
 
-extern const char STR_ABOUT_MARTIN_1[];
-extern const char STR_ABOUT_MARTIN_2[];
 
-extern const char STR_ABOUT_KJELL_1[];
-extern const char STR_ABOUT_KJELL_2[];
-extern const char STR_ABOUT_KJELL_3[];
-extern const char STR_ABOUT_KJELL_4[];
 
-extern const char STR_ABOUT_HARDWARE_1[];
-extern const char STR_ABOUT_HARDWARE_2[];
-extern const char STR_ABOUT_HARDWARE_3[];
 
-extern const char STR_ABOUT_PARENTS_1[];
-extern const char STR_ABOUT_PARENTS_2[];
-extern const char STR_ABOUT_PARENTS_3[];
-extern const char STR_ABOUT_PARENTS_4[];
 
 extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];

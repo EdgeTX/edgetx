@@ -9,6 +9,9 @@ foreach(FILE ${SRC})
   set(SIMU_SRC ${SIMU_SRC} ../../${FILE})
 endforeach()
 
+include(../../translations-new/CMakeLists.txt)
+set(SIMU_SRC ${SIMU_SRC} ${TRANSLATIONS_SRC})
+
 set(SIMU_SRC
   ${SIMU_SRC}
   simpgmspace.cpp
