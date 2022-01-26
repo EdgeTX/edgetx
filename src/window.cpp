@@ -32,112 +32,85 @@ static bool is_scrolling = false;
 
 static void window_event_cb(lv_event_t * e)
 {
+  lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
-  Window *window = (Window *) lv_event_get_user_data(e);
+
+  Window* window = (Window *)lv_obj_get_user_data(target);
+  if (!window) return;
+
   if (code == LV_EVENT_GET_SELF_SIZE) {
-    lv_point_t * p = (lv_point_t *)lv_event_get_param(e);
-    if (p->x >= 0) {
-      p->x = window->getInnerWidth();
-    }
-    if (p->y >= 0)
-      p->y = window->getInnerHeight();
-
+    lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
+    if (p->x >= 0) { p->x = window->getInnerWidth(); }
+    if (p->y >= 0) { p->y = window->getInnerHeight(); }
     return;
-  }
+  } else if (code == LV_EVENT_DRAW_MAIN) {
+    TRACE_WINDOWS("DRAW_MAIN %s", window->getWindowDebugString().c_str());
+    return;
+  } else if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED) {
+    TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
-  // If the event bubbled to the topmost window then
-  // hand it to libopenui MainWindow.
-  lv_obj_t *cur_target = lv_event_get_current_target(e);
-  if (MainWindow::isMainWindowCreated() &&
-      (lv_obj_get_parent(cur_target) == nullptr)) {
-    lv_obj_t *target = lv_event_get_target(e);
-    switch (code) {
-      case LV_EVENT_PRESSED:
-      case LV_EVENT_RELEASED: {
-        lv_indev_t* click_source = (lv_indev_t*)lv_event_get_param(e);
-        if(click_source == NULL || is_scrolling) return;
+    lv_indev_t *click_source = (lv_indev_t *)lv_event_get_param(e);
+    if (click_source == NULL || is_scrolling) return;
 
-        // Exclude keyboard ?
-        // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||
-        //    lv_indev_get_type(click_source) == LV_INDEV_TYPE_ENCODER) {
-        //   return;
-        // }
-        lv_area_t obj_coords;
-        lv_obj_get_coords(target, &obj_coords);
+    // Exclude keyboard ?
+    // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||
+    //    lv_indev_get_type(click_source) == LV_INDEV_TYPE_ENCODER) {
+    //   return;
+    // }
+    lv_area_t obj_coords;
+    lv_obj_get_coords(target, &obj_coords);
 
-        lv_point_t point_act;
-        lv_indev_get_point(click_source, &point_act);
+    lv_point_t point_act;
+    lv_indev_get_point(click_source, &point_act);
 
-        // Ignore event from keypad
-        if(point_act.x < 0 || point_act.y < 0) return;
+    // Ignore event from keypad
+    if (point_act.x < 0 || point_act.y < 0) return;
 
-        lv_point_t rel_pos;
-        rel_pos.x = point_act.x - obj_coords.x1;
-        rel_pos.y = point_act.y - obj_coords.y1;
+    lv_point_t rel_pos;
+    rel_pos.x = point_act.x - obj_coords.x1;
+    rel_pos.y = point_act.y - obj_coords.y1;
 
-        auto w = (Window*)lv_obj_get_user_data(target);
-        if (!w) return;
+    rel_pos.x += window->getScrollPositionX();
+    rel_pos.y += window->getScrollPositionY();
 
-        rel_pos.x += w->getScrollPositionX();
-        rel_pos.y += w->getScrollPositionY();
-        
-        if (code == LV_EVENT_PRESSED) {
-          TRACE("PRESSED[%d|%d]", rel_pos.x, rel_pos.y);
-          w->onTouchStart(rel_pos.x, rel_pos.y);
-        } else {
+    if (code == LV_EVENT_PRESSED) {
+      TRACE("PRESSED[%d|%d]", rel_pos.x, rel_pos.y);
+      window->onTouchStart(rel_pos.x, rel_pos.y);
+    } else {
+      lv_point_t vect_act;
+      lv_indev_get_vect(click_source, &vect_act);
 
-          lv_point_t vect_act;
-          lv_indev_get_vect(click_source, &vect_act);
-          
-          TRACE("RELEASED[%d|%d] vect[%d|%d]",
-                rel_pos.x, rel_pos.y,
-                vect_act.x, vect_act.y,
-                lv_indev_get_scroll_dir(click_source));
+      TRACE("RELEASED[%d|%d] vect[%d|%d]", rel_pos.x, rel_pos.y, vect_act.x,
+            vect_act.y, lv_indev_get_scroll_dir(click_source));
 
-          if (vect_act.x != 0 || vect_act.y != 0) return;
-          w->onTouchEnd(rel_pos.x, rel_pos.y);
-        }
-      } break;
-
-      case LV_EVENT_CLICKED:
-        TRACE("CLICKED");
-        break;
-
-      case LV_EVENT_KEY:
-        // do legacy processing
-        MainWindow::instance()->checkEvents();
-        break;
-
-      case LV_EVENT_SCROLL: {
-        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
-        lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
-        TRACE("SCROLL[x=%d;y=%d]", scroll_x, scroll_y);
-        Window *w = (Window *)lv_obj_get_user_data(target);
-        if (w) {
-#if defined(DEBUG_WINDOWS)
-          TRACE("%s", w->getWindowDebugString().c_str());
-#endif
-          w->setScrollPositionY(scroll_y);
-          w->setScrollPositionX(scroll_x);
-        }
-      } break;
-      case LV_EVENT_SCROLL_BEGIN:
-        TRACE("SCROLL_BEGIN");
-        is_scrolling = true;
-        break;
-      case LV_EVENT_SCROLL_END:
-        TRACE("SCROLL_END");
-        is_scrolling = false;
-        break;
-      case LV_EVENT_FOCUSED: {
-        bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
-        bool loiu_focused = ((Window *)target->user_data)->hasFocus();
-        TRACE("FOCUSED[%d|%d]", lvgl_focused, loiu_focused);
-        if (!loiu_focused) {
-          ((Window *)target->user_data)->setFocus();
-        }
-      } break;
+      if (vect_act.x != 0 || vect_act.y != 0) return;
+      window->onTouchEnd(rel_pos.x, rel_pos.y);
     }
+    return;
+  } else if (code == LV_EVENT_SCROLL) {
+    lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+    lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+    TRACE_WINDOWS("SCROLL[x=%d;y=%d] %s", scroll_x, scroll_y,
+                  window->getWindowDebugString().c_str());
+    window->setScrollPositionY(scroll_y);
+    window->setScrollPositionX(scroll_x);
+    return;
+  } else if (code == LV_EVENT_SCROLL_BEGIN) {
+    TRACE("SCROLL_BEGIN");
+    is_scrolling = true;
+    return;
+  } else if (code == LV_EVENT_SCROLL_END) {
+    TRACE("SCROLL_END");
+    is_scrolling = false;
+    return;
+  } else if (code == LV_EVENT_FOCUSED) {
+    bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
+    bool loiu_focused = ((Window *)target->user_data)->hasFocus();
+    TRACE_WINDOWS("FOCUSED[%d|%d] %s",
+                  lvgl_focused, loiu_focused,
+                 window->getWindowDebugString().c_str());
+    if (!loiu_focused) { window->setFocus(); }
+    return;
   }
 }
 
@@ -165,7 +138,6 @@ Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, Lc
     windowFactory.construct(lvParent) :
     factory->construct(lvParent);
 
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
 
   lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
