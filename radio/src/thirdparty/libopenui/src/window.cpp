@@ -118,19 +118,19 @@ LvglWidgetFactory windowFactory = LvglWidgetFactory(
     lv_style_set_radius(&factory->style, 0);
   });
 
-Window::Window(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, LvglWidgetFactory *factory) :
-  parent(parent),
-  rect(rect),
-  innerWidth(rect.w),
-  innerHeight(rect.h),
-  windowFlags(windowFlags),
-  textFlags(textFlags)
+Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
+               LcdFlags textFlags, LvglWidgetFactory *factory) :
+    parent(parent),
+    rect(rect),
+    innerWidth(rect.w),
+    innerHeight(rect.h),
+    windowFlags(windowFlags),
+    textFlags(textFlags)
 {
   lv_obj_t *lvParent = parent != nullptr ? parent->lvobj : nullptr;
   lvobj = (factory == nullptr) ?
     windowFactory.construct(lvParent) :
     factory->construct(lvParent);
-
 
   lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
