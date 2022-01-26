@@ -20,6 +20,8 @@
 #include "mainwindow.h"
 #include "keyboard_base.h"
 
+#include "lvgl/lvgl.h"
+
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
 #endif
@@ -28,12 +30,10 @@
 TouchState touchState;
 #endif
 
-static LvglWidgetFactory mainWindowFactory = { lv_obj_create, nullptr };
-
 MainWindow * MainWindow::_instance = nullptr;
 
 MainWindow::MainWindow() :
-    Window(nullptr, {0, 0, LCD_W, LCD_H}, 0, 0, &mainWindowFactory),
+    Window(nullptr, {0, 0, LCD_W, LCD_H}),
     invalidatedRect(rect)
 {
   Layer::push(this);
@@ -93,37 +93,6 @@ void MainWindow::invalidate(const rect_t & rect)
     invalidatedRect = rect;
   }
 }
-#include "lvgl/lvgl.h"
-extern lv_obj_t * canvas;
-extern BitmapBuffer canBuf;
-bool MainWindow::refresh()
-{
-  if (invalidatedRect.w) {
-    canBuf.setOffset(0, 0);
-    canBuf.setClippingRect(0,LCD_W,0, LCD_H);
-    fullPaint(&canBuf);
-    lv_obj_invalidate(canvas);
-  }
-  return false;
-
-  if (invalidatedRect.w) {
-    if (invalidatedRect.x > 0 || invalidatedRect.y > 0 || invalidatedRect.w < LCD_W || invalidatedRect.h < LCD_H) {
-      TRACE_WINDOWS("Refresh rect: left=%d top=%d width=%d height=%d", invalidatedRect.left(), invalidatedRect.top(), invalidatedRect.w, invalidatedRect.h);
-      lcdCopy(lcd->getData(), lcdFront->getData());
-    }
-    else {
-      TRACE_WINDOWS("Refresh full screen");
-    }
-    lcd->setOffset(0, 0);
-    lcd->setClippingRect(invalidatedRect.left(), invalidatedRect.right(), invalidatedRect.top(), invalidatedRect.bottom());
-    fullPaint(lcd);
-    invalidatedRect.w = 0;
-    return true;
-  }
-  else {
-    return false;
-  }
-}
 
 void MainWindow::run(bool trash)
 {
@@ -138,10 +107,6 @@ void MainWindow::run(bool trash)
     emptyTrash();
   }
   
-  if (refresh()) {
-    lcdRefresh();
-  }
-
   auto delta = ticksNow() - start;
   if (delta > 10 * SYSTEM_TICKS_1MS) {
     TRACE_WINDOWS("MainWindow::run took %dms", (ticksNow() - start) / SYSTEM_TICKS_1MS);

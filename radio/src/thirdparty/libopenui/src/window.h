@@ -405,6 +405,10 @@ class Window
       return _deleted;
     }
 
+    virtual void paint(BitmapBuffer *)
+    {
+    }
+  
 #if defined(HARDWARE_TOUCH)
     virtual bool onTouchStart(coord_t x, coord_t y);
     virtual bool onTouchEnd(coord_t x, coord_t y);
@@ -462,10 +466,6 @@ class Window
     void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
 
     void fullPaint(BitmapBuffer * dc);
-
-    virtual void paint(BitmapBuffer *)
-    {
-    }
 
     virtual void onFocusLost()
     {
