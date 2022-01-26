@@ -28,7 +28,6 @@ constexpr uint32_t TOPBAR_REFRESH = 1000 / 2; // 2 Hz
 TopbarImpl::TopbarImpl(Window * parent) :
   TopbarImplBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
-  //attach(parent);
 }
 
 unsigned int TopbarImpl::getZonesCount() const
@@ -219,10 +218,3 @@ void TopbarImpl::checkEvents()
   }
 }
 
-#if defined(HARDWARE_TOUCH)
-bool TopbarImpl::onTouchEnd(coord_t x, coord_t y)
-{
-  // disable touch interaction with topbar widgets
-  return false;
-}
-#endif
