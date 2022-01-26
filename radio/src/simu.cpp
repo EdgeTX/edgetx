@@ -524,8 +524,6 @@ void OpenTxSim::refreshDisplay()
 
   if ((bool(isBacklightEnabled()) != lightEnabled) || simuLcdRefresh) {
 
-    simuLcdRefresh = false;
-
     if (bool(isBacklightEnabled()) != lightEnabled) {
       lightEnabled = (bool)isBacklightEnabled();
       TRACE("backlight %s", lightEnabled ? "ON" : "OFF");
@@ -575,6 +573,8 @@ void OpenTxSim::refreshDisplay()
 
     bmp->render();
     bmf->setImage(bmp);
+
+    simuLcdRefresh = false;
   }
 }
 
