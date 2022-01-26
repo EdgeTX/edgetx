@@ -154,7 +154,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["bluetoothBaudrate"] = rhs.bluetoothBaudrate;
   node["bluetoothMode"] = bluetoothModeLut << rhs.bluetoothMode;
   node["countryCode"] = rhs.countryCode;
-  node["jitterFilter"] = (int)rhs.jitterFilter;
+  node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["imperial"] = rhs.imperial;
@@ -314,7 +314,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
   node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
   node["countryCode"] >> rhs.countryCode;
-  node["jitterFilter"] >> rhs.jitterFilter;
+  node["noJitterFilter"] >> rhs.noJitterFilter;
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
   node["imperial"] >> rhs.imperial;

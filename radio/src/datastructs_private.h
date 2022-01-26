@@ -646,6 +646,7 @@ PACK(struct ModelData {
   uint8_t   extendedLimits:1;
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
+
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];
@@ -675,6 +676,9 @@ PACK(struct ModelData {
   uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
+
+  NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
+  uint8_t spare2:6 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
@@ -885,7 +889,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   pwrOnSpeed:3);
   NOBACKUP(int8_t   pwrOffSpeed:3);
   NOBACKUP(uint8_t  imperial:1);
-  NOBACKUP(uint8_t  jitterFilter:1); /* 0 - active */
+  NOBACKUP(uint8_t  noJitterFilter:1); /* 0 - Jitter filter active */
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
   NOBACKUP(uint8_t  jackMode:2);

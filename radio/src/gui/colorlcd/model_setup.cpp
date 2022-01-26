@@ -1626,6 +1626,13 @@ void ModelSetupPage::build(FormWindow * window)
   new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noGlobalFunctions));
   grid.nextLine();
 
+  {
+     // Model ADC jitter filter
+    new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+    new Choice(window, grid.getFieldSlot(), STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.jitterFilter));
+    grid.nextLine();
+  }
+
   // Internal module
   {
     new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);

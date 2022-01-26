@@ -407,7 +407,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.jitterFilter));
+  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
   grid.nextLine();
 
   // Debugs
