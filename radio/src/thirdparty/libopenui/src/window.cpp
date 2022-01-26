@@ -42,10 +42,8 @@ static void window_event_cb(lv_event_t * e)
     lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
     if (p->x >= 0) { p->x = window->getInnerWidth(); }
     if (p->y >= 0) { p->y = window->getInnerHeight(); }
-    return;
   } else if (code == LV_EVENT_DRAW_MAIN) {
     TRACE_WINDOWS("DRAW_MAIN %s", window->getWindowDebugString().c_str());
-    return;
   } else if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED) {
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
@@ -86,7 +84,6 @@ static void window_event_cb(lv_event_t * e)
       if (vect_act.x != 0 || vect_act.y != 0) return;
       window->onTouchEnd(rel_pos.x, rel_pos.y);
     }
-    return;
   } else if (code == LV_EVENT_SCROLL) {
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
@@ -94,15 +91,12 @@ static void window_event_cb(lv_event_t * e)
                   window->getWindowDebugString().c_str());
     window->setScrollPositionY(scroll_y);
     window->setScrollPositionX(scroll_x);
-    return;
   } else if (code == LV_EVENT_SCROLL_BEGIN) {
     TRACE("SCROLL_BEGIN");
     is_scrolling = true;
-    return;
   } else if (code == LV_EVENT_SCROLL_END) {
     TRACE("SCROLL_END");
     is_scrolling = false;
-    return;
   } else if (code == LV_EVENT_FOCUSED) {
     bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
     bool loiu_focused = ((Window *)target->user_data)->hasFocus();
@@ -110,7 +104,6 @@ static void window_event_cb(lv_event_t * e)
                   lvgl_focused, loiu_focused,
                  window->getWindowDebugString().c_str());
     if (!loiu_focused) { window->setFocus(); }
-    return;
   }
 }
 
