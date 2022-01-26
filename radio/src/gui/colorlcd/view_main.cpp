@@ -29,11 +29,18 @@
 
 #include "opentx.h"
 
+static void tile_event_cb(lv_event_t* e)
+{
+  auto code = lv_event_get_code(e);
+  if (code == LV_EVENT_DRAW_MAIN) {
+    TRACE("DRAW_MAIN tile[%d]", lv_event_get_user_data(e));
+  }
+}
+
 ViewMain * ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain():
-  Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR),
-  topbar(dynamic_cast<TopbarImpl*>(TopbarFactory::create(this)))
+  Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR)
 {
   setPageWidth(getParent()->width());
   focusWindow = this;
@@ -46,13 +53,15 @@ ViewMain::ViewMain():
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
   lv_obj_set_size(tile_view, rect.w, rect.h);
-  lv_obj_set_scrollbar_mode(tile_view, LV_SCROLLBAR_MODE_OFF);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
-  lv_obj_set_user_data(tile_view, this);
-
   lv_obj_set_style_bg_opa(tile_view, LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_set_scrollbar_mode(tile_view, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_ELASTIC);
+
+  lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
+  lv_obj_set_user_data(tile_view, this);
   
-  lv_obj_move_foreground(topbar->getLvObj());
+  // create last to be on top
+  topbar = dynamic_cast<TopbarImpl*>(TopbarFactory::create(this));
 }
 
 ViewMain::~ViewMain()
@@ -62,13 +71,15 @@ ViewMain::~ViewMain()
 
 void ViewMain::addMainView(Window* view, uint32_t viewId)
 {
-  auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
-  lv_obj_set_user_data(tile, view);
-
-  view->setLeft(lv_obj_get_x(tile));
-  view->setTop(lv_obj_get_y(tile));
-
   TRACE("addMainView(0x%p, %d)", view, viewId);
+
+  auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
+
+  lv_obj_set_parent(view->getLvObj(), tile);
+  lv_obj_add_event_cb(tile, tile_event_cb, LV_EVENT_ALL, (void*)(unsigned long)viewId);
+
+  setInnerWidth(pageWidth * getMainViewsCount());
+  view->setLeft(pageWidth * viewId);
 }
 
 void ViewMain::setTopbarVisible(float visible)
