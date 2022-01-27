@@ -448,8 +448,11 @@ void RadioHardwarePage::build(FormWindow * window)
   // Bat calibration
   new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal = new NumberEdit(window, grid.getFieldSlot(1,0), -127, 127, GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
-  batCal->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
+  batCal->setDisplayHandler([](int32_t value) {
+      char s[50];
+      BitmapBuffer::formatNumberAsString(s, 49, getBatteryVoltage(), PREC2, 0, nullptr, "V");
+      return std::string(s);
+      //dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
   });
   batCal->setWindowFlags(REFRESH_ALWAYS);
   grid.nextLine();
