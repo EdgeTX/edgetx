@@ -20,6 +20,7 @@
 #pragma once
 
 #include "form.h"
+#include "bitmapbuffer.h"
 
 class BaseNumberEdit: public FormField
 {
@@ -76,11 +77,40 @@ class BaseNumberEdit: public FormField
 
     void setValue(int value)
     {
-      currentValue = limit(vmin, value, vmax);
-      if (instantChange) {
-        _setValue(currentValue);
+      auto newValue = limit(vmin, value, vmax);
+      if (newValue != currentValue) {
+        currentValue = newValue;
+        if (instantChange) {
+          _setValue(currentValue);
+        }
       }
-      invalidate();
+      if (lvobj != nullptr) {
+        if (displayFunction != nullptr) {
+          lv_textarea_set_text(lvobj, displayFunction(currentValue).c_str());
+        } else {
+          char s[50];
+          BitmapBuffer::formatNumberAsString(s, 49, currentValue, textFlags, 0, prefix.c_str(), suffix.c_str());
+          lv_textarea_set_text(lvobj, s);
+        }
+      }
+    }
+
+    void setPrefix(std::string value)
+    {
+      prefix = std::move(value);
+      setValue(currentValue);
+    }
+
+    void setSuffix(std::string value)
+    {
+      suffix = std::move(value);
+      setValue(currentValue);
+    }
+
+    void setZeroText(std::string value)
+    {
+      zeroText = std::move(value);
+      setValue(currentValue);
     }
 
     void enableInstantChange(bool value)
@@ -117,6 +147,12 @@ class BaseNumberEdit: public FormField
       }
     }
 
+    void setDisplayHandler(std::function<std::string(int value)> function)
+    {
+      displayFunction = std::move(function);
+      setValue(currentValue);
+    }
+
   protected:
     int vdefault = 0;
     int vmin;
@@ -124,6 +160,10 @@ class BaseNumberEdit: public FormField
     int step = 1;
     int currentValue;
     bool instantChange = true;
+    std::string prefix;
+    std::string suffix;
+    std::string zeroText;
     std::function<int()> _getValue;
     std::function<void(int)> _setValue;
+    std::function<std::string(int)> displayFunction;
 };

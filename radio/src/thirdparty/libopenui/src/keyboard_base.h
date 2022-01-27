@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "mainwindow.h"
 #include "form.h"
 
 class Keyboard: public FormWindow
@@ -31,7 +30,7 @@ class Keyboard: public FormWindow
 
   protected:
     static Keyboard * activeKeyboard;
-    static lv_obj_t * keyboard;
+    lv_obj_t * keyboard = nullptr;
 
     FormField *field = nullptr;
     Window *fieldContainer = nullptr;

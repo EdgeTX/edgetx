@@ -35,11 +35,9 @@ NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax,
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_textarea_set_password_mode(lvobj, false);
   lv_textarea_set_one_line(lvobj, true);
-  lv_textarea_set_accepted_chars(lvobj, "0123456789");
 
   auto value = _getValue();
-  auto strValue = std::to_string(value);
-  lv_textarea_set_text(lvobj, strValue.c_str());
+  this->setValue(value);
 
   // LV_PART_MAIN
   lv_style_init(&style_main);
