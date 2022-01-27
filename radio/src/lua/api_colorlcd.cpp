@@ -233,6 +233,8 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
     int ix = x - INVERT_BOX_MARGIN;
     if (flags & RIGHT)
       ix -= width;
+    else if (flags & CENTERED)
+      ix -= width / 2;
     width += 2 * INVERT_BOX_MARGIN;
     luaLcdBuffer->drawSolidFilledRect(ix, y - INVERT_BOX_MARGIN, width, height, color);
   } else {
