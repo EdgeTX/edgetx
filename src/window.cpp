@@ -147,6 +147,11 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
       invalidate();
     }
   }
+
+  // honor the no focus flag of libopenui
+  if (this->windowFlags & NO_FOCUS) {
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  }
 }
 extern lv_obj_t * canvas;
 Window::~Window()
@@ -181,8 +186,6 @@ void Window::detach()
   if (parent) {
     parent->removeChild(this);
     parent = nullptr;
-    if(lvobj != nullptr)
-      lv_obj_set_parent(lvobj, nullptr);
   }
 }
 

@@ -17,9 +17,9 @@
  * Lesser General Public License for more details.
  */
 #include "keyboard_base.h"
+#include "mainwindow.h"
 
 Keyboard * Keyboard::activeKeyboard = nullptr;
-lv_obj_t *Keyboard::keyboard = nullptr;
 
 static void keyboard_event_cb(lv_event_t * e)
 {
@@ -33,20 +33,18 @@ static void keyboard_event_cb(lv_event_t * e)
 
 
 Keyboard::Keyboard(coord_t height) : 
-  FormWindow(nullptr, {0, LCD_H - height, LCD_W, height}, OPAQUE)
+  FormWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height}, OPAQUE)
 {
   // set the background of the window and opacity to 100%
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+  lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
+  lv_obj_set_style_bg_color(lvobj, lv_color_make(0xE0, 0xE0, 0xE0), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 
-  if (keyboard == nullptr) {
-    keyboard = lv_keyboard_create(lv_scr_act());
-    lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);
-
-
-    lv_obj_set_size(keyboard, LCD_W, LCD_H * 2 / 5);
-    lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
-  }
+  keyboard = lv_keyboard_create(this->getLvObj());
+  lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);
+  lv_obj_set_pos(keyboard, 0, 0);
+  lv_obj_set_size(keyboard, LCD_W, height);
+  lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
 }
 
 void Keyboard::clearField()
@@ -76,6 +74,7 @@ void Keyboard::hide()
 {
   if (activeKeyboard) {
     activeKeyboard->clearField();
+    lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
     activeKeyboard = nullptr;
   }
 }
@@ -106,7 +105,6 @@ bool Keyboard::attachKeyboard()
   }
 
   activeKeyboard = this;
-  attach(MainWindow::instance());
   return true;
 }
 

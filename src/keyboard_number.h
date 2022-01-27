@@ -38,10 +38,16 @@ class NumberKeyboard : public Keyboard {
     {
       if (!_instance)
         _instance = new NumberKeyboard();
-      else 
-        lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+      // else 
+      //   lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
 
-      lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_NUMBER);
+      // lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_NUMBER);
+
+      lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
+      // lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+      lv_keyboard_set_mode(_instance->keyboard, LV_KEYBOARD_MODE_NUMBER);
+      lv_obj_move_foreground(_instance->getLvObj());
+
       _instance->setField(field);
     }
 

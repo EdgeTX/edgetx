@@ -39,26 +39,6 @@ class NumberEdit : public BaseNumberEdit
       isValueAvailable = std::move(handler);
     }
 
-    void setPrefix(std::string value)
-    {
-      prefix = std::move(value);
-    }
-
-    void setSuffix(std::string value)
-    {
-      suffix = std::move(value);
-    }
-
-    void setZeroText(std::string value)
-    {
-      zeroText = std::move(value);
-    }
-
-    void setDisplayHandler(std::function<void(BitmapBuffer *, LcdFlags, int)> function)
-    {
-      displayFunction = std::move(function);
-    }
-
     void onEvent(event_t event) override;
     void onFocusLost() override;
 
@@ -67,10 +47,6 @@ class NumberEdit : public BaseNumberEdit
 #endif
 
   protected:
-    std::function<void(BitmapBuffer *, LcdFlags, int)> displayFunction;
-    std::string prefix;
-    std::string suffix;
-    std::string zeroText;
     std::function<bool(int)> isValueAvailable;
 };
 

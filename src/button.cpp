@@ -25,19 +25,14 @@
 void Button::onPress()
 {
   bool check = (pressHandler && pressHandler());
-  if (check != bool(windowFlags & BUTTON_CHECKED)) {
-    windowFlags ^= BUTTON_CHECKED;
+  windowFlags = check ? windowFlags | BUTTON_CHECKED : windowFlags & ~BUTTON_CHECKED;
+  if(lvobj == nullptr)
+    return;
 
-    if(lvobj == nullptr)
-      return;
-
-    if (! (windowFlags & BUTTON_CHECKED))
-      lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
-    else 
-      lv_obj_add_state(lvobj, LV_STATE_CHECKED);
-
-    // invalidate();
-  }
+  if (! (windowFlags & BUTTON_CHECKED))
+    lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+  else
+    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 }
 
 #if defined(HARDWARE_KEYS)
