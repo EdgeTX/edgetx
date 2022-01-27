@@ -235,9 +235,12 @@ class SpecialFunctionEditPage : public Page
             new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         edit->setDisplayHandler(
-            [=](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
-              dc->drawNumber(2, 2, CFN_PARAM(cfn), PREC1,
-                             sizeof(CFN_PARAM(cfn)), nullptr, "s");
+            [=](int32_t value) {
+              char s[50];
+              BitmapBuffer::formatNumberAsString(s, 49, CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
+              return (std::string(s));
+              // dc->drawNumber(2, 2, CFN_PARAM(cfn), PREC1,
+              //                sizeof(CFN_PARAM(cfn)), nullptr, "s");
             });
         break;
       }
@@ -318,9 +321,12 @@ class SpecialFunctionEditPage : public Page
                                           grid.getFieldSlot(), val_min, val_max,
                                           GET_SET_DEFAULT(CFN_PARAM(cfn)));
             numedit->setDisplayHandler(
-                [](BitmapBuffer *dc, LcdFlags flags, int value) {
-                  dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, abs(value),
-                                 flags, 0, value >= 0 ? "+= " : "-= ", nullptr);
+                [](int value) {
+                  char s[50];
+                  BitmapBuffer::formatNumberAsString(s, 49, abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
+                  return std::string(s);
+                  // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, abs(value),
+                  //                flags, 0, value >= 0 ? "+= " : "-= ", nullptr);
                 });
             break;
           }
@@ -342,14 +348,16 @@ class SpecialFunctionEditPage : public Page
           60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
           SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
-          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+          [](int32_t value) {
             if (value == 0)
-              dc->drawText(3, 0, "1x", flags);
+              return "1x";
             else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
-              dc->drawText(3, 0, "!1x", flags);
-            else
-              dc->drawNumber(3, 0, value * CFN_PLAY_REPEAT_MUL, flags, 0,
-                             nullptr, "s");
+              return "!1x";
+            else {
+              char s[50];
+              BitmapBuffer::formatNumberAsString(s, 49, value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
+              return (const char *)s;
+            }
           });
       grid.nextLine();
     }
