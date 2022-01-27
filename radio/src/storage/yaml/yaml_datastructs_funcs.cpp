@@ -442,7 +442,7 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_DSM2:
     case MODULE_TYPE_CROSSFIRE:
       return 1;
-    case MODULE_TYPE_MULTIMODULE:
+    case MODULE_TYPE_MPM:
       return 2;
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1:
