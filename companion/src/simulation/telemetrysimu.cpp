@@ -22,6 +22,7 @@
 #include "ui_telemetrysimu.h"
 #include "appdata.h"
 #include "simulatorinterface.h"
+#include "telem_data.h"
 #include "radio/src/telemetry/frsky.h"
 
 #include <QRegularExpression>

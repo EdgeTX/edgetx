@@ -1704,11 +1704,11 @@ QString ModelData::funcSwitchStartToString(const int index, const int value)
 {
   switch (value) {
     case FUNC_SWITCH_START_INACTIVE:
-      return CPN_STR_SW_INDICATOR_UP;
+      return tr("Inactive");
     case FUNC_SWITCH_START_ACTIVE:
-      return CPN_STR_SW_INDICATOR_DN;
+      return tr("Active");
     case FUNC_SWITCH_START_PREVIOUS:
-      return "=";
+      return tr("Restore");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

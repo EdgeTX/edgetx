@@ -110,6 +110,9 @@
 #define LEN_CURVE_TYPES                 "\006"
 #define TR_CURVE_TYPES                  "標準\0 " "自定義"
 
+#define LEN_ADCFILTERVALUES             "\002"
+#define TR_ADCFILTERVALUES              "全局""禁用" "开启"
+
 #define LEN_RETA123                     "\001"
 
 #if defined(PCBX10)

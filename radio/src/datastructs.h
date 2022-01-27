@@ -42,7 +42,7 @@ static inline void check_struct()
   CHKSIZE(CurveRef, 2);
 
   /* Difference between Taranis/Horus is LEN_EXPOMIX_NAME */
-  /* LEN_FUNCTION_NAME is the difference in CustomFunctionData */
+  /* LEN_xFUNCTION_NAME is the difference in CustomFunctionData */
 
   CHKSIZE(VarioData, 5);
 

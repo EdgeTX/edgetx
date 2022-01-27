@@ -2659,7 +2659,7 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
     internalField.Append(new SwitchesWarningField<32>(this, modelData.switchWarningStates, board, version));
   else if (IS_TARANIS_X9E(board))
     internalField.Append(new SwitchesWarningField<64>(this, modelData.switchWarningStates, board, version));
-  else if (version >= 219 && IS_TARANIS_X9D(board))
+  else if (version >= 219 && (IS_TARANIS_X9D(board) || IS_JUMPER_TPRO(board)))
     internalField.Append(new SwitchesWarningField<32>(this, modelData.switchWarningStates, board, version));
   else if (IS_TARANIS(board))
     internalField.Append(new SwitchesWarningField<16>(this, modelData.switchWarningStates, board, version));
@@ -2668,7 +2668,7 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
 
   if (IS_TARANIS_X9E(board))
     internalField.Append(new UnsignedField<32>(this, modelData.switchWarningEnable));
-  else if (version >= 219 && IS_TARANIS_X9D(board))
+  else if (version >= 219 && (IS_TARANIS_X9D(board) || IS_JUMPER_TPRO(board)))
     internalField.Append(new UnsignedField<16>(this, modelData.switchWarningEnable));
   else if (!IS_FAMILY_HORUS_OR_T16(board))
     internalField.Append(new UnsignedField<8>(this, modelData.switchWarningEnable));
@@ -3082,7 +3082,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   internalField.Append(new UnsignedField<1>(this, generalData.imperial));
   if (version >= 218) {
-    internalField.Append(new BoolField<1>(this, generalData.jitterFilter));
+    internalField.Append(new BoolField<1>(this, generalData.noJitterFilter));
     internalField.Append(new BoolField<1>(this, generalData.disableRssiPoweroffAlarm));
     internalField.Append(new UnsignedField<2>(this, generalData.usbMode));
     internalField.Append(new UnsignedField<2>(this, generalData.jackMode));

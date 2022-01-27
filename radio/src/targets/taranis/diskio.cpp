@@ -23,6 +23,8 @@
 #include "FatFs/diskio.h"
 #include "FatFs/ff.h"
 
+#define RAM_START 0x20000000
+
 /* Definitions for MMC/SDC command */
 #define CMD0    (0x40+0)        /* GO_IDLE_STATE */
 #define CMD1    (0x40+1)        /* SEND_OP_COND (MMC) */
@@ -412,11 +414,17 @@ BOOL rcvr_datablock (
     return FALSE; /* If not valid data token, return with error */
   }
 
-#if defined(SD_USE_DMA) && defined(STM32F4) && !defined(BOOT)
-  stm32_dma_transfer(TRUE, sd_buff, btr);
-  memcpy(buff, sd_buff, btr);
-#elif defined(SD_USE_DMA)
+#if defined(SD_USE_DMA)
+  #if defined(STM32F4) && !defined(BOOT)
+  if ((DWORD)buff < RAM_START || ((DWORD)buff & 3)) {
+    stm32_dma_transfer(TRUE, sd_buff, btr);
+    memcpy(buff, sd_buff, btr);
+  } else {
+    stm32_dma_transfer(TRUE, buff, btr);
+  }
+  #else
   stm32_dma_transfer(TRUE, buff, btr);
+  #endif
 #else
   do {                                                    /* Receive the data block into buffer */
     rcvr_spi_m(buff++);
@@ -460,11 +468,17 @@ BOOL xmit_datablock (
   xmit_spi(token);                                        /* transmit data token */
   if (token != 0xFD) {    /* Is data token */
 
-#if defined(SD_USE_DMA) && defined(STM32F4) && !defined(BOOT)
-  memcpy(sd_buff, buff, 512);
-  stm32_dma_transfer(FALSE, sd_buff, 512);
-#elif defined(SD_USE_DMA)
+#if defined(SD_USE_DMA)
+  #if defined(STM32F4) && !defined(BOOT)
+  if ((DWORD)buff < RAM_START || ((DWORD)buff & 3)) {
+    memcpy(sd_buff, buff, 512);
+    stm32_dma_transfer(FALSE, sd_buff, 512);
+  } else {
+    stm32_dma_transfer(FALSE, buff, 512);
+  }
+  #else
   stm32_dma_transfer(FALSE, buff, 512);
+  #endif
 #else
     wc = 0;
     do {                                                    /* transmit the 512 byte data block to MMC */
@@ -630,35 +644,12 @@ DSTATUS disk_status (
 }
 
 
-#if defined(STM32F4) && !defined(BOOT)
-DWORD scratch[BLOCK_SIZE / 4] __DMA;
-#endif
-
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
 int8_t SD_ReadSectors(uint8_t * buff, uint32_t sector, uint32_t count)
 {
-#if defined(STM32F4) && !defined(BOOT)
-  if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
-    TRACE("disk_read bad alignment (%p)", buff);
-    while (count--) {
-      int8_t res = SD_ReadSectors((BYTE *)scratch, sector++, 1);
-
-      if (res != 0) {
-        return res;
-      }
-
-      memcpy(buff, scratch, BLOCK_SIZE);
-
-      buff += BLOCK_SIZE;
-    }
-
-    return 0;
-  }
-#endif
-
   if (!(CardType & CT_BLOCK)) sector *= 512;      /* Convert to byte address if needed */
 
   if (count == 1) {       /* Single block read */
@@ -713,25 +704,6 @@ DRESULT disk_read (
 
 int8_t SD_WriteSectors(const uint8_t * buff, uint32_t sector, uint32_t count)
 {
-#if defined(STM32F4) && !defined(BOOT)
-  if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
-    TRACE("disk_write bad alignment (%p)", buff);
-    while (count--) {
-      memcpy(scratch, buff, BLOCK_SIZE);
-    
-      int8_t res = SD_WriteSectors((const uint8_t *)scratch, sector++, 1);
-
-      if (res != 0) {
-        return res;
-      }
-
-      buff += BLOCK_SIZE;
-    }
-
-    return 0;
-  }
-#endif
-    
   if (!(CardType & CT_BLOCK)) sector *= 512;      /* Convert to byte address if needed */
 
   if (count == 1) {       /* Single block write */
@@ -978,7 +950,7 @@ void sdPoll10ms()
 
 // TODO everything here should not be in the driver layer ...
 
-FATFS g_FATFS_Obj;
+FATFS g_FATFS_Obj __DMA;
 
 #if defined(LOG_TELEMETRY)
 FIL g_telemetryFile = {};

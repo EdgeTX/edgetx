@@ -1255,6 +1255,11 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
+      if (isModuleGhost(moduleIdx)) {
+          new StaticText(this, grid.getLabelSlot(true), "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
+          new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].ghost.raw12bits));
+      }
+
       auto par = getParent();
       par->moveWindowsTop(top() + 1, adjustHeight());
       par->adjustInnerHeight();
@@ -1630,6 +1635,13 @@ void ModelSetupPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noGlobalFunctions));
   grid.nextLine();
+
+  {
+     // Model ADC jitter filter
+    new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+    new Choice(window, grid.getFieldSlot(), STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.jitterFilter));
+    grid.nextLine();
+  }
 
   // Internal module
   {

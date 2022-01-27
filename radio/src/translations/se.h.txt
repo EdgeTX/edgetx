@@ -118,6 +118,9 @@
 #define LEN_CURVE_TYPES        "\006"
 #define TR_CURVE_TYPES         "Normal""Egen\0 "
 
+#define LEN_ADCFILTERVALUES    "\006"
+#define TR_ADCFILTERVALUES     "Global""Av\0   ""På\0   "
+
 #define LEN_RETA123            "\001"
 
 #if defined(PCBX10)
