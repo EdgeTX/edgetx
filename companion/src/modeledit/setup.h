@@ -190,6 +190,7 @@ class SetupPanel : public ModelPanel
     void on_customThrottleWarningPosition_valueChanged(int value);
     void on_throttleReverse_toggled(bool checked);
     void on_displayText_toggled(bool checked);
+    void on_checklistInteractive_toggled(bool checked);
     void on_gfEnabled_toggled(bool checked);
     void on_image_currentIndexChanged(int index);
     void on_trimIncrement_currentIndexChanged(int index);

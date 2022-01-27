@@ -145,6 +145,7 @@ class ModelData {
     bool      extendedLimits; // TODO xml
     bool      extendedTrims;
     bool      throttleReversed;
+    bool      checklistInteractive;
     FlightModeData flightModeData[CPN_MAX_FLIGHT_MODES];
     MixData   mixData[CPN_MAX_MIXERS];
     LimitData limitData[CPN_MAX_CHNOUT];
