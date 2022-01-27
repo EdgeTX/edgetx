@@ -204,6 +204,7 @@ class SetupPanel : public ModelPanel
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onModuleUpdateItemModels();
+    void on_jitterFilter_currentIndexChanged(int index);
 
   private:
     Ui::Setup *ui;

@@ -91,7 +91,7 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          tools/build-companion-nightly-win32.sh $(pwd) $(pwd)/output/
+          tools/build-companion-nightly-win32.sh "$(pwd)" "$(pwd)/output/"
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-cpn-win-32-${GITHUB_REF##*/}" >> $GITHUB_ENV
