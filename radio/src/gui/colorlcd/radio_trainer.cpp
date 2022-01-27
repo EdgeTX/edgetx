@@ -82,8 +82,11 @@ void RadioTrainerPage::build(FormWindow * window)
   // Trainer multiplier
   new StaticText(window, grid.getLabelSlot(), STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
   auto multiplier = new NumberEdit(window, grid.getFieldSlot(3, 0), -10, 40, GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
-  multiplier->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value+10, flags | PREC1, 0);
+  multiplier->setDisplayHandler([](int32_t value) {
+    char s[50];
+    BitmapBuffer::formatNumberAsString(s, 49, value+10, PREC1);
+    return std::string(s);
+    // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value+10, flags | PREC1, 0);
   });
   grid.nextLine();
   grid.nextLine();

@@ -121,16 +121,25 @@ class LogicalSwitchEditPage: public Page
           edit2->setMax(222 - cs->v2);
           edit2->invalidate();
         });
-        edit1->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+        edit1->setDisplayHandler([](int32_t value) {
+          char s[50];
+          BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
+          return std::string(s);
+          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
-        edit2->setDisplayHandler([cs](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+        edit2->setDisplayHandler([cs](int32_t value) {
           if (value < 0)
-            dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "<<", flags);
+            return std::string("<<");
+            //dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "<<", flags);
           else if (value == 0)
-            dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "--", flags);
-          else
-            dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(cs->v2 + value), flags | PREC1);
+            return std::string("--");
+            // dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "--", flags);
+          else {
+            char s[50];
+            BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
+            return std::string(s);
+          }
+            // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(cs->v2 + value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -146,15 +155,19 @@ class LogicalSwitchEditPage: public Page
       else if (cstate == LS_FAMILY_TIMER) {
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
-        timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+        timer->setDisplayHandler([](int32_t value) {
+          char s[50];
+          BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
+          return std::string(s);
+          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
-        timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+        timer->setDisplayHandler([](int32_t value) {
+          return std::to_string(lswTimerValue(value));
+          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -179,8 +192,10 @@ class LogicalSwitchEditPage: public Page
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
         v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
-        v2Edit->setDisplayHandler([=](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawSourceCustomValue(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, cs->v1, (cs->v1 <= MIXSRC_LAST_CH ? calc100toRESX(value) : value), flags);
+        v2Edit->setDisplayHandler(
+          [=](int value) {
+            // drawSourceCustomValue(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, cs->v1, (cs->v1 <= MIXSRC_LAST_CH ? calc100toRESX(value) : value), flags);
+            return "ddd";  // ToDo This is not good
         });
         grid.nextLine();
       }

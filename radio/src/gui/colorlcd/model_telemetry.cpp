@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include <iostream>
+#include <sstream>
 #include "model_telemetry.h"
 #include "opentx.h"
 #include "libopenui.h"
@@ -225,8 +227,11 @@ class SensorEditWindow : public Page {
       else {
         new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ID, 0, COLOR_THEME_PRIMARY1);
         auto hex = new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 0), 0, 0xFFFF, GET_SET_DEFAULT(sensor->id));
-        hex->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-          drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
+        hex->setDisplayHandler([](int32_t value) {
+          std::stringstream stream;
+          stream << std::hex << value;
+          return stream.str();
+          // drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 1), 0, 0xff, GET_SET_DEFAULT(sensor->instance));
         grid.nextLine();
@@ -462,16 +467,18 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 
   new StaticText(window, grid.getLabelSlot(true), STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
   auto edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.warning));
-  edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getWarningRssi(), flags);
+  edit->setDisplayHandler([](int32_t value) {
+    return std::to_string(g_model.rssiAlarms.getWarningRssi());
+    // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getWarningRssi(), flags);
   });
 //  window->setFirstField(edit);
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
   edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.critical));
-  edit->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getCriticalRssi(), flags);
+  edit->setDisplayHandler([](int32_t value) {
+    return std::to_string(g_model.rssiAlarms.getCriticalRssi());
+    // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getCriticalRssi(), flags);
   });
   grid.nextLine();
 
