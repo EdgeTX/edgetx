@@ -101,8 +101,8 @@ class OutputEditWindow : public Page {
       auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
                                  +MAX_CURVES, GET_SET_DEFAULT(output->curve));
       edit->setDisplayHandler(
-          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
-            dc->drawText(2, 2, getCurveString(value));
+          [](int32_t value) {
+            return getCurveString(value);
           });
       grid.nextLine();
 

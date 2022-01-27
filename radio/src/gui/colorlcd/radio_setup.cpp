@@ -78,8 +78,11 @@ class DateTimeWindow : public FormGroup {
                                     t.tm_mon = newValue - 1;
                                     SET_LOAD_DATETIME(&t);
                                   });
-      month->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+      month->setDisplayHandler([](int32_t value) {
+        char s[50];
+        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0);
+        return std::string(s);
+        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
 
       /* TODO dynamic max instead of 31 ...
@@ -100,8 +103,11 @@ class DateTimeWindow : public FormGroup {
                                   t.tm_mday = newValue;
                                   SET_LOAD_DATETIME(&t);
                                 });
-      day->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+      day->setDisplayHandler([](int32_t value) {
+        char s[50];
+        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
+        return std::string(s);
+        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
       grid.nextLine();
 
@@ -119,8 +125,11 @@ class DateTimeWindow : public FormGroup {
                                    t.tm_hour = newValue;
                                    SET_LOAD_DATETIME(&t);
                                  });
-      hour->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+      hour->setDisplayHandler([](int32_t value) {
+        static char s[50];
+        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
+        return std::string(s);
+        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
 
       auto minutes = new NumberEdit(this, grid.getFieldSlot(3, 1), 0, 59,
@@ -135,8 +144,11 @@ class DateTimeWindow : public FormGroup {
                                       t.tm_min = newValue;
                                       SET_LOAD_DATETIME(&t);
                                     });
-      minutes->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+      minutes->setDisplayHandler([](int32_t value) {
+        char s[50];
+        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
+        return std::string(s);
+        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
 
       auto seconds = new NumberEdit(this, grid.getFieldSlot(3, 2), 0, 59,
@@ -151,8 +163,8 @@ class DateTimeWindow : public FormGroup {
                                       t.tm_sec = newValue;
                                       SET_LOAD_DATETIME(&t);
                                     });
-      seconds->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+      seconds->setDisplayHandler([](int value) {
+        return std::to_string(value);
       });
     }
 };
