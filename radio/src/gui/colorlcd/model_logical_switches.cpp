@@ -122,24 +122,16 @@ class LogicalSwitchEditPage: public Page
           edit2->invalidate();
         });
         edit1->setDisplayHandler([](int32_t value) {
-          char s[50];
-          BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
-          return std::string(s);
-          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+          return formatNumberAsString(lswTimerValue(value), PREC1);
         });
         edit2->setDisplayHandler([cs](int32_t value) {
           if (value < 0)
             return std::string("<<");
-            //dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "<<", flags);
           else if (value == 0)
             return std::string("--");
-            // dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "--", flags);
           else {
-            char s[50];
-            BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
-            return std::string(s);
+            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
           }
-            // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(cs->v2 + value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -167,7 +159,6 @@ class LogicalSwitchEditPage: public Page
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](int32_t value) {
           return std::to_string(lswTimerValue(value));
-          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
       }

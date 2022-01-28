@@ -24,6 +24,7 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
+#include <string>
 
 #include <string>
 
@@ -63,6 +64,7 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits = 0,
 char *strSetCursor(char *dest, int position);
 char *strAppendDate(char *str, bool time = false);
 char *strAppendFilename(char *dest, const char *filename, const int size);
+std::string formatNumberAsString(int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
 #if !defined(BOOT)
 char *getStringAtIndex(char *dest, const char *s, int idx);
