@@ -31,10 +31,18 @@
 
 static void tile_event_cb(lv_event_t* e)
 {
-  auto code = lv_event_get_code(e);
-  if (code == LV_EVENT_DRAW_MAIN) {
-    TRACE("DRAW_MAIN tile[%d]", lv_event_get_user_data(e));
-  }
+  TRACE("DRAW_MAIN tile[%d]", lv_event_get_user_data(e));
+}
+
+static void tile_view_deleted_cb(lv_event_t* e)
+{
+  TRACE("CHILD_DELETED tile[%d]", lv_event_get_user_data(e));
+  lv_obj_t* target = lv_event_get_target(e);
+  lv_obj_t* obj = lv_event_get_current_target(e);
+
+  // LV_EVENT_CHILD_DELETED is bubbled to all parents, so
+  // we'd better make sure this is one of our own.
+  if (obj == target) { lv_obj_del(obj); }
 }
 
 ViewMain * ViewMain::_instance = nullptr;
@@ -42,7 +50,7 @@ ViewMain * ViewMain::_instance = nullptr;
 ViewMain::ViewMain():
   Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR)
 {
-  setPageWidth(getParent()->width());
+  //setPageWidth(getParent()->width());
   focusWindow = this;
 
   setFocusHandler([&](bool focus) {
@@ -76,10 +84,10 @@ void ViewMain::addMainView(Window* view, uint32_t viewId)
   auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
 
   lv_obj_set_parent(view->getLvObj(), tile);
-  lv_obj_add_event_cb(tile, tile_event_cb, LV_EVENT_ALL, (void*)(unsigned long)viewId);
 
-  setInnerWidth(pageWidth * getMainViewsCount());
-  view->setLeft(pageWidth * viewId);
+  auto user_data = (void*)(unsigned long)viewId;
+  lv_obj_add_event_cb(tile, tile_event_cb, LV_EVENT_DRAW_MAIN, user_data);
+  lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED, user_data);
 }
 
 void ViewMain::setTopbarVisible(float visible)
@@ -90,11 +98,6 @@ void ViewMain::setTopbarVisible(float visible)
 unsigned ViewMain::getMainViewsCount() const
 {
   return lv_obj_get_child_cnt(tile_view);
-}
-
-coord_t ViewMain::getMainViewLeftPos(unsigned view) const
-{
-  return getParent()->width() * view;
 }
 
 rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
@@ -108,7 +111,8 @@ rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
 
 unsigned ViewMain::getCurrentMainView() const
 {
-  return g_model.view;
+  return lv_obj_get_scroll_x(tile_view) / LCD_W;
+  // return g_model.view;
 }
 
 void ViewMain::setCurrentMainView(unsigned viewId)
@@ -154,6 +158,8 @@ static bool hasTopbar(unsigned view)
 void ViewMain::updateTopbarVisibility()
 {
   // relative to left visible page
+  return;
+  
   int leftScroll = getScrollPositionX() % pageWidth;
   if (leftScroll == 0) {
     setTopbarVisible(hasTopbar(g_model.view));
@@ -183,29 +189,6 @@ void ViewMain::updateTopbarVisibility()
       customScreens[leftIdx+1]->adjustLayout();
     }
   }
-}
-
-void ViewMain::setScrollPositionX(coord_t value)
-{
-  // TODO
-  Window::setScrollPositionX(value);
-  topbar->setLeft(getScrollPositionX());
-
-  // update page index
-  g_model.view = getPageIndex();
-  setFocus();
-
-  // update Topbar
-  updateTopbarVisibility();
-}
-
-void ViewMain::setScrollPositionY(coord_t value)
-{
-  // TODO
-  // this one is not used yet, but could
-  // usefull to place the screens upwards
-  Window::setScrollPositionY(value);
-  topbar->setTop(getScrollPositionY());
 }
 
 #if defined(HARDWARE_TOUCH)

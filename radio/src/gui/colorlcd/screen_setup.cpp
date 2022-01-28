@@ -170,15 +170,11 @@ class SetupWidgetsPage: public FormWindow
       // attach this custom screen here so we can display it
       auto screen = customScreens[customScreenIdx];
       if (screen) {
-        screen->attach(this);
         setRect(screen->getRect());
-        screen->setLeft(0);
-
         auto viewMain = ViewMain::instance();
         savedView = viewMain->getCurrentMainView();
         viewMain->setCurrentMainView(customScreenIdx);
         viewMain->bringToTop();
-        setLeft(viewMain->getMainViewLeftPos(customScreenIdx));
       }
 
       for (unsigned i = 0; i < screen->getZonesCount(); i++) {
@@ -213,7 +209,6 @@ class SetupWidgetsPage: public FormWindow
       auto screen = customScreens[customScreenIdx];
       if (screen) {
         auto viewMain = ViewMain::instance();
-        viewMain->addMainView(screen, customScreenIdx);
         viewMain->setCurrentMainView(savedView);
       }
       FormWindow::deleteLater(detach, trash);
@@ -387,7 +382,10 @@ void ScreenAddPage::build(FormWindow * window)
       const LayoutFactory * factory = defaultLayout;
       if (factory) {
         TRACE("ScreenAddPage: add screen: factory = %p", factory);
-        screen = factory->create(ViewMain::instance(), &screenData.layoutData);
+
+        auto viewMain = ViewMain::instance();
+        screen = factory->create(viewMain, &screenData.layoutData);
+        viewMain->addMainView(screen, newIdx);
 
         strncpy(screenData.LayoutId, factory->getId(), sizeof(screenData.LayoutId));
         TRACE("ScreenAddPage: add screen: LayoutId = %s", screenData.LayoutId);
@@ -398,9 +396,6 @@ void ScreenAddPage::build(FormWindow * window)
         tab->setTitle(title);
         tab->setIcon(ICON_THEME_VIEW1 + newIdx);
 
-        // auto viewMain = ViewMain::instance();
-        // viewMain->setMainViewsCount(viewMain->getMainViewsCount() + 1);
-        
         // remove current tab first
         menu->setCurrentTab(0);
         menu->removeTab(pageIndex);

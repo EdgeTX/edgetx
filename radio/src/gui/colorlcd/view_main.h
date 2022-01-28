@@ -62,7 +62,7 @@ class ViewMain: public Window
     rect_t getMainZone(rect_t zone, bool hasTopbar) const;
 
     unsigned getMainViewsCount() const;
-    coord_t getMainViewLeftPos(unsigned view) const;
+    //coord_t getMainViewLeftPos(unsigned view) const;
   
     unsigned getCurrentMainView() const;
     void setCurrentMainView(unsigned view);
@@ -90,8 +90,8 @@ class ViewMain: public Window
     // Set topbar visibility [0.0 -> 1.0]
     void setTopbarVisible(float visible);
 
-    void setScrollPositionX(coord_t value) override;
-    void setScrollPositionY(coord_t value) override;
+    // void setScrollPositionX(coord_t value) override;
+    // void setScrollPositionY(coord_t value) override;
 
 #if defined(HARDWARE_TOUCH)
     unsigned char prevSlideState = 0;
