@@ -231,7 +231,6 @@ class SensorEditWindow : public Page {
           std::stringstream stream;
           stream << std::hex << value;
           return stream.str();
-          // drawHexNumber(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags);
         });
         new NumberEdit(sensorParametersWindow, grid.getFieldSlot(2, 1), 0, 0xff, GET_SET_DEFAULT(sensor->instance));
         grid.nextLine();
@@ -469,7 +468,6 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   auto edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.warning));
   edit->setDisplayHandler([](int32_t value) {
     return std::to_string(g_model.rssiAlarms.getWarningRssi());
-    // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getWarningRssi(), flags);
   });
 //  window->setFirstField(edit);
   grid.nextLine();
@@ -478,7 +476,6 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.critical));
   edit->setDisplayHandler([](int32_t value) {
     return std::to_string(g_model.rssiAlarms.getCriticalRssi());
-    // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, g_model.rssiAlarms.getCriticalRssi(), flags);
   });
   grid.nextLine();
 
