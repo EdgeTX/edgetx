@@ -755,6 +755,15 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
   return dest;
 }
 
+std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
+{
+  char s[100];
+  BitmapBuffer::formatNumberAsString(s, 99, val, flags, len, prefix, suffix);
+  return std::string(s);
+}
+
+
+
 #if defined(RTCLOCK)
 #include "rtc.h"
 

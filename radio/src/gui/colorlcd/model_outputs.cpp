@@ -171,7 +171,7 @@ class OutputEditWindow : public Page
                                +MAX_CURVES, GET_SET_DEFAULT(output->curve));
     edit->setDisplayHandler(
         [](int32_t value) {
-          return getCurveString(value);
+          return std::string(getCurveString(value));
         });
     grid.nextLine();
 
