@@ -236,11 +236,7 @@ class SpecialFunctionEditPage : public Page
                            255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         edit->setDisplayHandler(
             [=](int32_t value) {
-              char s[50];
-              BitmapBuffer::formatNumberAsString(s, 49, CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
-              return (std::string(s));
-              // dc->drawNumber(2, 2, CFN_PARAM(cfn), PREC1,
-              //                sizeof(CFN_PARAM(cfn)), nullptr, "s");
+              return formatNumberAsString(CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
             });
         break;
       }
@@ -322,11 +318,7 @@ class SpecialFunctionEditPage : public Page
                                           GET_SET_DEFAULT(CFN_PARAM(cfn)));
             numedit->setDisplayHandler(
                 [](int value) {
-                  char s[50];
-                  BitmapBuffer::formatNumberAsString(s, 49, abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
-                  return std::string(s);
-                  // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, abs(value),
-                  //                flags, 0, value >= 0 ? "+= " : "-= ", nullptr);
+                  return formatNumberAsString(abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
                 });
             break;
           }
@@ -348,13 +340,11 @@ class SpecialFunctionEditPage : public Page
       repeat->setDisplayHandler(
           [](int32_t value) {
             if (value == 0)
-              return "1x";
+              return std::string("1x");
             else if (value == CFN_PLAY_REPEAT_NOSTART)
-              return "!1x";
+              return std::string("!1x");
             else {
-              char s[50];
-              BitmapBuffer::formatNumberAsString(s, 49, value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
-              return (const char *)s;
+              return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
             }
           });
       grid.nextLine();

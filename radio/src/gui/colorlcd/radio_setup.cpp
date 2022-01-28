@@ -79,10 +79,7 @@ class DateTimeWindow : public FormGroup {
                                     SET_LOAD_DATETIME(&t);
                                   });
       month->setDisplayHandler([](int32_t value) {
-        char s[50];
-        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0);
-        return std::string(s);
-        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+        return formatNumberAsString(value, LEADING0);
       });
 
       /* TODO dynamic max instead of 31 ...
@@ -104,10 +101,7 @@ class DateTimeWindow : public FormGroup {
                                   SET_LOAD_DATETIME(&t);
                                 });
       day->setDisplayHandler([](int32_t value) {
-        char s[50];
-        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
-        return std::string(s);
-        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+        return formatNumberAsString(value, LEADING0, 2);
       });
       grid.nextLine();
 
@@ -145,10 +139,7 @@ class DateTimeWindow : public FormGroup {
                                       SET_LOAD_DATETIME(&t);
                                     });
       minutes->setDisplayHandler([](int32_t value) {
-        char s[50];
-        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
-        return std::string(s);
-        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+        return formatNumberAsString(value, LEADING0, 2);
       });
 
       auto seconds = new NumberEdit(this, grid.getFieldSlot(3, 2), 0, 59,
