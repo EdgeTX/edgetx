@@ -174,7 +174,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   if (firmware->getCapability(HasADCJitterFilter)) {
     addLabel(tr("ADC Filter"), row, 0);
     AutoCheckBox *filterEnable = new AutoCheckBox(this);
-    filterEnable->setField(generalSettings.jitterFilter, this, true);
+    filterEnable->setField(generalSettings.noJitterFilter, this, true);
     addParams(row, filterEnable);
   }
 

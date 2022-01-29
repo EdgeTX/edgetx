@@ -1126,15 +1126,7 @@ JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
 tmr10ms_t jitterResetTime = 0;
 #endif
 
-#define JITTER_FILTER_STRENGTH  4         // tune this value, bigger value - more filtering (range: 1-5) (see explanation below)
-#define ANALOG_SCALE            1         // tune this value, bigger value - more filtering (range: 0-1) (see explanation below)
-
-#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
-#define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
 #define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
-#if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
-  #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
-#endif
 
 #if !defined(SIMU)
 uint16_t anaIn(uint8_t chan)
@@ -1213,10 +1205,24 @@ void getADC()
     //   * <out> = s_anaFilt[x]
     uint32_t previous = s_anaFilt[x] / JITTER_ALPHA;
     uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
-    if (!g_eeGeneral.jitterFilter && diff < (10*ANALOG_MULTIPLIER)) { // g_eeGeneral.jitterFilter is inverted, 0 - active
+
+    // Combine ADC jitter filter setting form radio and model.
+    // Model can override (on or off) or use setting from radio setup.
+    // Model setting is active when 1, radio setting is active when 0
+    uint8_t useJitterFilter = 0;
+    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
+       // Use radio setting - which is inverted
+      useJitterFilter = !g_eeGeneral.noJitterFilter;
+    } else {
+      // Enable if value is "On", disable if "Off"
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
+    }
+
+    if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
       // apply jitter filter
       s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
     }
+
     else {
       // use unfiltered value
       s_anaFilt[x] = v * JITTER_ALPHA;
@@ -1895,6 +1901,13 @@ void opentxInit()
     if (!sdMounted())
       sdInit();
 
+#if !defined(COLORLCD)
+    if (!sdMounted()) {
+      g_eeGeneral.pwrOffSpeed = 2;
+      runFatalErrorScreen(STR_NO_SDCARD);
+    }
+#endif
+    
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -2076,12 +2089,12 @@ int main()
   }
 #endif
 
-#if !defined(EEPROM)
-  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    // TODO: b/w SD card fatal screen
 #if defined(COLORLCD)
+  // SD_CARD_PRESENT() does not work properly on most
+  // B&W targets, so that we need to delay the detection
+  // until the SD card is mounted (requires RTOS scheduler running)
+  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
     runFatalErrorScreen(STR_NO_SDCARD);
-#endif
   }
 #endif
 
@@ -2111,6 +2124,10 @@ uint32_t pwrPressedDuration()
     return get_tmr10ms() - pwr_press_time;
   }
 }
+
+#if defined(COLORLCD)
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
+#endif
 
 uint32_t pwrCheck()
 {
@@ -2171,7 +2188,7 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-          
+
           event_t evt = getEvent(false);
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
@@ -2202,7 +2219,11 @@ uint32_t pwrCheck()
           }
           else if (!modelConnectedConfirmed) {
             message = STR_MODEL_STILL_POWERED;
-            closeCondition = [](){
+            closeCondition = []() {
+              tmr10ms_t startTime = getTicks();
+              while (!TELEMETRY_STREAMING()) {
+                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+              }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
             };
           }
@@ -2225,7 +2246,7 @@ uint32_t pwrCheck()
             LED_ERROR_END();
             return e_power_on;
           }
-          
+
 #endif // COLORLCD
         }
 

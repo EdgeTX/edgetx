@@ -586,7 +586,7 @@ PACK(struct RadioData_v218 {
   uint8_t  bluetoothMode:4;
   uint8_t  countryCode;
   uint8_t  imperial:1;
-  uint8_t  jitterFilter:1; /* 0 - active */
+  uint8_t  noJitterFilter:1; /* 0 - Jitter filter active */
   uint8_t  disableRssiPoweroffAlarm:1;
   uint8_t  USBMode:2;
   uint8_t  spareExtraArm:3;

@@ -177,32 +177,6 @@ void dumpTraceBuffer()
 struct InterruptCounters interruptCounters;
 #endif //#if defined(DEBUG_INTERRUPTS)
 
-#if defined(DEBUG_TASKS)
-
-uint32_t taskSwitchLog[DEBUG_TASKS_LOG_SIZE] __SDRAM;
-uint16_t taskSwitchLogPos;
-
-/**
- *******************************************************************************
- * @brief      Hook for task switch logging
- * @param[in]  taskID Task which is now in RUNNING state
- * @retval     None
- *
- * @par Description
- * @details    This function logs the time when a task entered the RUNNING state.
- *******************************************************************************
- */
-void CoTaskSwitchHook(uint8_t taskID)
-{
-  /* Log task switch here */
-  taskSwitchLog[taskSwitchLogPos] = (taskID << 24) + ((uint32_t)CoGetOSTime() & 0xFFFFFF);
-  if(++taskSwitchLogPos >= DEBUG_TASKS_LOG_SIZE) {
-    taskSwitchLogPos = 0;
-  }
-}
-
-#endif // #if defined(DEBUG_TASKS)
-
 #if defined(DEBUG_TIMERS)
 
 void DebugTimer::start()

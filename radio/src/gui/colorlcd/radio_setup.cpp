@@ -570,4 +570,5 @@ void RadioSetupPage::updateBacklightControls()
     backlightOffBright->enable(false);
     break;
   }
+  resetBacklightTimeout();
 }

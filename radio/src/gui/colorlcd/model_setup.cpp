@@ -1255,19 +1255,33 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
       }
 
+      if (isModuleGhost(moduleIdx)) {
+          new StaticText(this, grid.getLabelSlot(true), "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
+          new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].ghost.raw12bits));
+      }
+
       auto par = getParent();
       par->moveWindowsTop(top() + 1, adjustHeight());
       par->adjustInnerHeight();
     }
+
+#if defined (PCBNV14)
+#define SIGNAL_POSTFIX 
+#define SIGNAL_MESSAGE "SGNL"
+#else
+#define SIGNAL_POSTFIX  " db"
+#define SIGNAL_MESSAGE  "RSSI"
+#endif
 
     void startRSSIDialog(std::function<void()> closeHandler = nullptr)
     {
       auto rssiDialog = new DynamicMessageDialog(
           parent, "Range Test",
           [=]() {
-            return std::to_string((int)TELEMETRY_RSSI()) + std::string(" db");
+            return std::to_string((int)TELEMETRY_RSSI()) +
+                   std::string(SIGNAL_POSTFIX);
           },
-          "RSSI:", 50,
+          SIGNAL_MESSAGE, 50,
           COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
 
       rssiDialog->setCloseHandler([this, closeHandler]() {
@@ -1616,6 +1630,13 @@ void ModelSetupPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noGlobalFunctions));
   grid.nextLine();
+
+  {
+     // Model ADC jitter filter
+    new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+    new Choice(window, grid.getFieldSlot(), STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.jitterFilter));
+    grid.nextLine();
+  }
 
   // Internal module
   {

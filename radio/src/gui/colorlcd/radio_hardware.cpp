@@ -407,14 +407,14 @@ void RadioHardwarePage::build(FormWindow * window)
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.jitterFilter));
+  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
   grid.nextLine();
 
   // Debugs
   new StaticText(window, grid.getLabelSlot(), STR_DEBUG, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto debugAnas = new TextButton(window, grid.getFieldSlot(2, 0), STR_ANALOGS_BTN);
   debugAnas->setPressHandler([=]() -> uint8_t {
-      auto debugAnalogsPage = new RadioAnalogsDiagsPage();
+      auto debugAnalogsPage = new RadioAnalogsDiagsViewPageGroup();
       debugAnalogsPage->setCloseHandler([=]() {
           calib->setFocus(SET_FOCUS_DEFAULT);
       });

@@ -23,7 +23,6 @@
 
 void frskyDProcessPacket(const uint8_t *packet);
 bool checkSportPacket(const uint8_t *packet);
-void sportProcessTelemetryPacket(const uint8_t * packet);
 bool checkSportPacket(const uint8_t *packet);
 
 TEST(FrSky, TelemetryValueWithMinAveraging)

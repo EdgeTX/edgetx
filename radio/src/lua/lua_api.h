@@ -57,7 +57,7 @@ extern lua_State * lsScripts;
 
 extern bool luaLcdAllowed;
 
-#define EVENT_BUFFER_SIZE                       2
+#define EVENT_BUFFER_SIZE 4
 extern event_t events[EVENT_BUFFER_SIZE];
 
 #if defined(COLORLCD)

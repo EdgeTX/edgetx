@@ -408,7 +408,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "pwrOnSpeed", 3 ),
   YAML_SIGNED( "pwrOffSpeed", 3 ),
   YAML_UNSIGNED( "imperial", 1 ),
-  YAML_UNSIGNED( "jitterFilter", 1 ),
+  YAML_UNSIGNED( "noJitterFilter", 1 ),
   YAML_UNSIGNED( "disableRssiPoweroffAlarm", 1 ),
   YAML_UNSIGNED( "USBMode", 2 ),
   YAML_UNSIGNED( "jackMode", 2 ),

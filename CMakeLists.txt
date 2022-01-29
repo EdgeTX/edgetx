@@ -83,7 +83,7 @@ if(WIN32)
   list(APPEND CMAKE_PREFIX_PATH "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/SDL")  # hints for FindSDL
 endif()
 
-if(APPLE)
+if(CMAKE_HOST_APPLE)
   execute_process(COMMAND xcrun --show-sdk-path
     OUTPUT_VARIABLE SDKROOT
     ERROR_QUIET

@@ -545,15 +545,15 @@ TouchState touchPanelRead()
       }
       downTime = 0;
     } else {
-      internalTouchState.x = LCD_WIDTH;
-      internalTouchState.y = LCD_HEIGHT;
+      tapCount = 0;
+      internalTouchState.tapCount = 0;
       internalTouchState.event = TE_SLIDE_END;
     }
   }
   TouchState ret = internalTouchState;
   internalTouchState.deltaX = 0;
   internalTouchState.deltaY = 0;
-  if(internalTouchState.event == TE_UP)
+  if(internalTouchState.event == TE_UP || internalTouchState.event == TE_SLIDE_END)
     internalTouchState.event = TE_NONE;
   return ret;
 }

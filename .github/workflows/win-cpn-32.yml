@@ -65,10 +65,18 @@ jobs:
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis
           pip install Pillow clang
-          
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1  # not v2!
+        with:
+          path: ../Qt
+          key: win32-QtCache
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
 
@@ -83,7 +91,7 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          tools/build-companion-nightly-win32.sh $(pwd) $(pwd)/output/
+          tools/build-companion-nightly-win32.sh "$(pwd)" "$(pwd)/output/"
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-cpn-win-32-${GITHUB_REF##*/}" >> $GITHUB_ENV

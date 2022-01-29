@@ -147,13 +147,14 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["gpsFormat"] = rhs.gpsFormat;
   node["speakerVolume"] = rhs.speakerVolume + 12;
   node["backlightBright"] = rhs.backlightBright;
+  node["blOffBright"] = rhs.backlightOffBright;
   node["switchesDelay"] = rhs.switchesDelay;
   node["globalTimer"] = rhs.globalTimer;
   node["bluetoothName"] = rhs.bluetoothName;
   node["bluetoothBaudrate"] = rhs.bluetoothBaudrate;
   node["bluetoothMode"] = bluetoothModeLut << rhs.bluetoothMode;
   node["countryCode"] = rhs.countryCode;
-  node["jitterFilter"] = (int)rhs.jitterFilter;
+  node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["imperial"] = rhs.imperial;
@@ -169,6 +170,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["backlightColor"] = rhs.backlightColor;
+  node["pwrOnSpeed"] = rhs.pwrOnSpeed;
+  node["pwrOffSpeed"] = rhs.pwrOffSpeed;
 
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData& fn = rhs.customFn[i];
@@ -304,13 +307,14 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["gpsFormat"] >> rhs.gpsFormat;
   node["speakerVolume"] >> ioffset_int(rhs.speakerVolume, 12);
   node["backlightBright"] >> rhs.backlightBright;
+  node["blOffBright"] >> rhs.backlightOffBright;
   node["switchesDelay"] >> rhs.switchesDelay;
   node["globalTimer"] >> rhs.globalTimer;
   node["bluetoothName"] >> rhs.bluetoothName;
   node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
   node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
   node["countryCode"] >> rhs.countryCode;
-  node["jitterFilter"] >> rhs.jitterFilter;
+  node["noJitterFilter"] >> rhs.noJitterFilter;
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
   node["imperial"] >> rhs.imperial;
@@ -326,6 +330,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
+  node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
+  node["pwrOffSpeed"] >> rhs.pwrOffSpeed;
+
   node["customFn"] >> rhs.customFn;
 
   YamlStickConfig stickConfig;

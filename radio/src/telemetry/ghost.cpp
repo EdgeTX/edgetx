@@ -88,6 +88,14 @@ const GhostSensor ghostSensors[] = {
   {0x00,                     NULL,                  UNIT_RAW,               0},
 };
 
+uint8_t getGhostModuleAddr() {
+#if SPORT_MAX_BAUDRATE < 400000
+  return g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
+#else
+  return GHST_ADDR_MODULE_SYM;
+#endif
+}
+
 const GhostSensor *getGhostSensor(uint8_t id)
 {
   for (const GhostSensor * sensor = ghostSensors; sensor->id; sensor++) {
@@ -294,6 +302,20 @@ void processGhostTelemetryFrame()
       processGhostTelemetryValue(GHOST_ID_GPS_SATS, telemetryRxBuffer[7]);   
       break; 
     }
+    case GHST_DL_MAGBARO: {
+      // Not implemented yet
+      break;
+    }
+#if defined(LUA)
+    default:
+      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(telemetryRxBufferCount-2) ) {
+        for (uint8_t i=1; i<telemetryRxBufferCount-1; i++) {
+          // destination address and CRC are skipped
+          luaInputTelemetryFifo->push(telemetryRxBuffer[i]);
+        }
+      }
+      break;
+#endif
   }
 }
 

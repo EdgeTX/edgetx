@@ -132,7 +132,8 @@ bool checkSportPacket(const uint8_t * packet)
 uint16_t servosState;
 uint16_t rboxState;
 
-void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance, uint32_t data, TelemetryUnit unit=UNIT_RAW)
+void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance,
+                                 uint32_t data, TelemetryUnit unit)
 {
   const FrSkySportSensor * sensor = getFrSkySportSensor(id, subId);
   uint8_t precision = 255;
@@ -158,15 +159,16 @@ void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance, u
   }
 }
 
-void sportProcessTelemetryPacket(const uint8_t * packet)
+bool sportProcessTelemetryPacket(const uint8_t * packet)
 {
   if (!checkSportPacket(packet)) {
     TRACE("sportProcessTelemetryPacket(): checksum error ");
     DUMP(packet, FRSKY_SPORT_PACKET_SIZE);
-    return;
+    return false;
   }
 
   sportProcessTelemetryPacketWithoutCrc(TELEMETRY_ENDPOINT_SPORT, packet);
+  return true;
 }
 
 void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t * packet)
@@ -222,12 +224,6 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t * packe
       else {
         telemetryData.rssi.set(data);
       }
-#if defined(MULTIMODULE)
-      if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-        sportProcessTelemetryPacket(TX_RSSI_ID, 0, instance, packet[5] >> 1u, UNIT_DB);
-        sportProcessTelemetryPacket(TX_LQI_ID, 0, instance, packet[7], UNIT_RAW);
-      }
-#endif
     }
     else if (dataId == VALID_FRAME_RATE_ID) {
       data = 100 - SPORT_DATA_U8(packet);

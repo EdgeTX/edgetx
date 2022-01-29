@@ -39,7 +39,6 @@ namespace yaml_conv_220 {
   bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
   uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs);
   uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs);
@@ -433,7 +432,38 @@ bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
 
 static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_mod_type(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModuleData, ppm);
+
+  ModuleData* mod_data = reinterpret_cast<ModuleData*>(data);
+  switch (mod_data->type) {
+    case MODULE_TYPE_NONE:
+    case MODULE_TYPE_PPM:
+    case MODULE_TYPE_DSM2:
+    case MODULE_TYPE_CROSSFIRE:
+      return 1;
+    case MODULE_TYPE_MULTIMODULE:
+      return 2;
+    case MODULE_TYPE_XJT_PXX1:
+    case MODULE_TYPE_R9M_PXX1:
+    case MODULE_TYPE_R9M_LITE_PXX1:
+      return 3;
+    case MODULE_TYPE_SBUS:
+      return 4;
+    case MODULE_TYPE_ISRM_PXX2:
+    case MODULE_TYPE_R9M_PXX2:
+    case MODULE_TYPE_R9M_LITE_PXX2:
+    case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+    case MODULE_TYPE_XJT_LITE_PXX2:
+      return 5;
+    case MODULE_TYPE_FLYSKY:
+      if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS2A) return 6;
+      if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS3) return 7;
+      break;
+    case MODULE_TYPE_GHOST:
+      return 8;
+  }
+  return 0;
 }
 
 static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)

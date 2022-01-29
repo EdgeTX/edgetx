@@ -121,6 +121,7 @@ class ModelData {
     int       trimInc;            // Trim Increments
     unsigned int trimsDisplay;
     bool      disableThrottleWarning;
+    unsigned int jitterFilter;       // Added in EdgeTx 2.7 (#870)
 
     unsigned int beepANACenter;      // 1<<0->A1.. 1<<6->A7
 

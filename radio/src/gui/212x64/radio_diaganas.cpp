@@ -20,17 +20,58 @@
  */
 
 #include "opentx.h"
+#include "../../hal/adc_driver.h"
+
+#define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
 
 void menuRadioDiagAnalogs(event_t event)
 {
-  SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS, 0);
+    static int8_t entryCount = 0;
+    static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+    enum ANAVIEWS{
+       ANAVIEW_FIRST,
+       ANAVIEW_CALIB=ANAVIEW_FIRST,
+       ANAVIEW_RAWLOWFPS,
+       ANAVIEW_LAST=ANAVIEW_RAWLOWFPS
+    };
+
+    static int viewpage = ANAVIEW_FIRST;
+
+  if (event == EVT_KEY_BREAK(KEY_PAGE)) {
+      if (viewpage == ANAVIEW_LAST)
+        viewpage = ANAVIEW_FIRST;
+      else
+          viewpage++;
+      if (viewpage == ANAVIEW_RAWLOWFPS)
+        entryCount = 0;
+  }
+
+  switch (viewpage)
+  {
+    case (ANAVIEW_CALIB): SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_CALIB, 0); break;
+    case (ANAVIEW_RAWLOWFPS): SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_RAWLOWFPS, 0); break;
+  }
 
   for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + (i/2)*FH;
     uint8_t x = i&1 ? LCD_W/2 + FW : 0;
     lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
     lcdDrawChar(x+2*FW-2, y, ':');
-    lcdDrawHexNumber(x+3*FW-1, y, anaIn(i));
+    
+    switch (viewpage)
+    {
+      case (ANAVIEW_RAWLOWFPS):
+        if (entryCount == 0)
+        {
+          lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+        }
+        lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i], LEADING0|LEFT, 4);
+        break;
+      case (ANAVIEW_CALIB):
+      default:
+        lcdDrawNumber(x+3*FW-1, y, anaIn(i), LEADING0|LEFT, 4); break;
+    }
 #if defined(JITTER_MEASURE)
     lcdDrawNumber(x+10*FW-1, y, rawJitter[i].get(), RIGHT);
     lcdDrawNumber(x+13*FW-1, y, avgJitter[i].get(), RIGHT);
@@ -38,5 +79,13 @@ void menuRadioDiagAnalogs(event_t event)
 #else
     lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
 #endif
+  }
+
+  if (viewpage == ANAVIEW_RAWLOWFPS)
+  {
+    if (entryCount > HOLDANAVALUEFRAMES)
+      entryCount = 0;
+    else
+      entryCount++;
   }
 }

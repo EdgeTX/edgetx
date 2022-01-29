@@ -197,7 +197,7 @@ uint16_t getAnalogValue(uint8_t index)
   index = adcMapping[index];
 #endif
   if (adcDirection[index] < 0)
-    return 4095 - adcValues[index];
+    return ADCMAXVALUE - adcValues[index];
   else
     return adcValues[index];
 }

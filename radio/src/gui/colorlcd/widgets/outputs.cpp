@@ -43,7 +43,7 @@ class OutputsWidget : public Widget
   {
     if (width() > 300 && height() > 20)
       twoColumns(dc);
-    else if (width() > 150 && height() > 20)
+    else if (width() > 100 && height() > 20)
       oneColumn(dc);
   }
 

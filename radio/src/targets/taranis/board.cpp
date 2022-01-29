@@ -284,15 +284,23 @@ void boardOff()
   #define BATTERY_DIVIDER 22830
 #elif defined (RADIO_T8)
   #define BATTERY_DIVIDER 50000
+#elif defined (RADIO_ZORRO)
+  #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
 #else
   #define BATTERY_DIVIDER 26214
 #endif 
+
+#if defined(RADIO_ZORRO)
+  #define VOLTAGE_DROP 45
+#else
+  #define VOLTAGE_DROP 20
+#endif
 
 uint16_t getBatteryVoltage()
 {
   int32_t instant_vbat = anaIn(TX_VOLTAGE); // using filtered ADC value on purpose
   instant_vbat = (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration) ) / BATTERY_DIVIDER;
-  instant_vbat += 20; // add 0.2V because of the diode TODO check if this is needed, but removal will break existing calibrations!
+  instant_vbat += VOLTAGE_DROP; // add voltage drop because of the diode TODO check if this is needed, but removal will break existing calibrations!
   return (uint16_t)instant_vbat;
 }
 

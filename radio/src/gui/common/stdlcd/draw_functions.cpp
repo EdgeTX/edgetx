@@ -575,3 +575,37 @@ void drawSourceValue(coord_t x, coord_t y, source_t source, LcdFlags flags)
   getvalue_t value = getValue(source);
   drawSourceCustomValue(x, y, source, value, flags);
 }
+
+void drawFatalErrorScreen(const char * message)
+{
+  lcdClear();
+  lcdDrawText((LCD_W - getTextWidth(message, 0, DBLSIZE)) / 2,
+              LCD_H/2 - FH, message, DBLSIZE);
+  WDG_RESET();
+  lcdRefresh();
+  lcdRefreshWait();
+}
+
+void runFatalErrorScreen(const char * message)
+{
+  while (true) {
+    backlightEnable();
+    drawFatalErrorScreen(message);
+
+    uint8_t refresh = false;
+    while (true) {
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        boardOff();
+        return;  // only happens in SIMU, required for proper shutdown
+      }
+      else if (pwr_check == e_power_press) {
+        refresh = true;
+      }
+      else if (pwr_check == e_power_on && refresh) {
+        break;
+      }
+      WDG_RESET();
+    }
+  }
+}

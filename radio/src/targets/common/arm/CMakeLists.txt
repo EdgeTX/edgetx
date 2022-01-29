@@ -21,7 +21,6 @@ option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger
 option(DEBUG_INTERRUPTS "Count interrupts" OFF)
 option(DEBUG_LATENCY "Debug latency" OFF)
 option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
-option(DEBUG_TASKS "Task switching statistics" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
 option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
@@ -115,11 +114,6 @@ if(DEBUG_INTERRUPTS)
   if(DEBUG_USB_INTERRUPTS)
     add_definitions(-DDEBUG_USB_INTERRUPTS)
   endif()
-endif()
-
-if(DEBUG_TASKS)
-  add_definitions(-DDEBUG_TASKS)
-  set(DEBUG ON)
 endif()
 
 if(DEBUG_TIMERS)

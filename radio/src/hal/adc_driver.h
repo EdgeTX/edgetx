@@ -39,6 +39,8 @@
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
 #endif
 
+#define ADCMAXVALUE                    4095
+
 // TODO: get rid of this special case
 #if defined(PCBX10) || defined(PCBX12S)
 extern uint16_t rtcBatteryVoltage;

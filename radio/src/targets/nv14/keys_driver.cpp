@@ -22,17 +22,24 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 
+bool trimsAsButtons = false;
+
+void setTrimsAsButtons(bool val) { trimsAsButtons = val; }
+
+bool getTrimsAsButtons()
+{
+  bool lua = false;
+#if defined(LUA)
+  lua = isLuaStandaloneRunning();
+#endif
+  return (trimsAsButtons || lua);
+}
+
 uint32_t readKeys()
 {
   uint32_t result = 0;
-  bool getKeys = true;
-#if defined(LUA)
-  if (!isLuaStandaloneRunning()) {
-    getKeys = false;
-  }
-#endif
 
-  if (getKeys) {
+  if (getTrimsAsButtons()) {
     if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
        result |= 1 << KEY_RADIO;
      if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
@@ -64,13 +71,7 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
-  bool getTrim = true;
-#if defined(LUA)
-  if (isLuaStandaloneRunning()) {
-    getTrim = false;
-  }
-#endif
-  if(!getTrim) return result;
+  if(getTrimsAsButtons()) return result;
   if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
     result |= 1 << (TRM_LH_DWN - TRM_BASE);
   if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
@@ -178,4 +179,5 @@ void keysInit()
 
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOJ_PINS;
   GPIO_Init(GPIOJ, &GPIO_InitStructure);
+  setTrimsAsButtons(false);
 }

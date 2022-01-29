@@ -42,6 +42,7 @@ constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 class ModelButton : public Button
 {
@@ -208,11 +209,30 @@ class ModelCategoryPageBody : public FormWindow
           Menu *menu = new Menu(parent);
           if (model != modelslist.getCurrentModel()) {
             menu->addLine(STR_SELECT_MODEL, [=]() {
-              // we store the latest changes if any
+              bool modelConnected = TELEMETRY_STREAMING() &&
+                                    !g_eeGeneral.disableRssiPoweroffAlarm;
+              if (modelConnected) {
+                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+                if (!confirmationDialog(
+                        STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                          tmr10ms_t startTime = getTicks();
+                          while (!TELEMETRY_STREAMING()) {
+                            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms)
+                              break;
+                          }
+                          return !TELEMETRY_STREAMING() ||
+                                 g_eeGeneral.disableRssiPoweroffAlarm;
+                        })) {
+                  return;  // stop if connected but not confirmed
+                }
+              }
+
+              // store changes (if any) and load selected model
               storageFlushCurrentModel();
               storageCheck(true);
               memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
                      LEN_MODEL_FILENAME);
+
               loadModel(g_eeGeneral.currModelFilename, false);
               storageDirty(EE_GENERAL);
               storageCheck(true);

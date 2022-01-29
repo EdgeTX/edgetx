@@ -50,7 +50,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TRIM:
-    sw_str += getCurrentFirmware()->getTrimSwitchesTag(sval);
+    sw_str += getCurrentFirmware()->getTrimSwitchesTag(sval - 1);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -132,7 +132,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str_tmp.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
-      rhs.index = tsw_idx;
+      rhs.index = tsw_idx + 1;
     }
 
   } else if (val_len >= 3 && val[0] == 'S' &&

@@ -32,7 +32,6 @@
 #define WIDGET_SCRIPTS_MAX_INSTRUCTIONS    (10000/100)
 #define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
 #define LUA_WARNING_INFO_LEN               64
-#define EVENT_BUFFER_SIZE                   2
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"

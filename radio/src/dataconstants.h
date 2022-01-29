@@ -911,4 +911,11 @@ enum UartSampleModes {
 #define CUSTOM_WARNING_TITLE_LEN 8
 #define CUSTOM_WARNING_TEXT_LEN 32
 
+// A model On/Off setting that can also take a global value
+enum ModelOverridableEnable {
+  OVERRIDE_VALUE_GLOBAL,
+  OVERRIDE_VALUE_OFF,
+  OVERRIDE_VALUE_ON
+};
+
 #endif // _DATACONSTANTS_H_
