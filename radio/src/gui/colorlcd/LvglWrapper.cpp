@@ -31,7 +31,10 @@ static lv_disp_draw_buf_t disp_buf;
 
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
+static lv_indev_drv_t rotaryDriver;
+static lv_indev_t* rotaryDevice = nullptr;
 
+lv_group_t* inputGroup;
 
 #if defined(HARDWARE_TOUCH)
 static bool touchOccured = false;
@@ -113,6 +116,50 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
 }
 
+event_t encoderEvent = 0;
+bool newEncoderEvent = false;
+lv_indev_state_t encoderState = LV_INDEV_STATE_RELEASED;
+
+void lvglPushEncoderEvent(event_t evt)
+{
+  if(evt != EVT_KEY_FIRST(KEY_ENTER) && evt != EVT_KEY_BREAK(KEY_ENTER) && evt != EVT_ROTARY_LEFT && evt !=  EVT_ROTARY_RIGHT)
+    return;
+
+  encoderEvent = evt;
+  newEncoderEvent = true;
+}
+
+extern "C" void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+  data->enc_diff = 0;
+  if(newEncoderEvent)
+  {
+    switch(encoderEvent)
+    {
+    case EVT_KEY_FIRST(KEY_ENTER):
+//      encoderState = LV_INDEV_STATE_PRESSED;
+      break;
+    case EVT_KEY_BREAK(KEY_ENTER):
+//      encoderState = LV_INDEV_STATE_RELEASED;
+      break;
+    case EVT_KEY_FIRST(KEY_EXIT):
+//      encoderState = LV_INDEV_STATE_PRESSED;
+      break;
+    case EVT_KEY_BREAK(KEY_EXIT):
+//      encoderState = LV_INDEV_STATE_RELEASED;
+      break;
+    case EVT_ROTARY_LEFT:
+//      data->enc_diff = -1;
+      break;
+    case EVT_ROTARY_RIGHT:
+//      data->enc_diff = 1;
+      break;
+    }
+  }
+  newEncoderEvent = false;
+  data->state = encoderState;
+}
+
 /**
  * Helper function to translate a colorFlags value to a lv_color_t suitable
  * for passing to an lv_obj function
@@ -153,6 +200,10 @@ static lv_disp_drv_t* init_disp_drv()
 
 static void init_lvgl_drivers()
 {
+  // add all lvgl object automatically to a input handling group
+  inputGroup = lv_group_create();
+  lv_group_set_default(inputGroup);
+
   // Register the driver and save the created display objects
   disp = lv_disp_drv_register(init_disp_drv());
 
@@ -166,6 +217,13 @@ static void init_lvgl_drivers()
   keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
   keyboard_drv.read_cb = keyboardDriverRead;
   lv_indev_drv_register(&keyboard_drv);
+
+  lv_indev_drv_init(&rotaryDriver);
+  rotaryDriver.type = LV_INDEV_TYPE_ENCODER;
+  rotaryDriver.read_cb = rotaryDriverRead;
+  rotaryDevice = lv_indev_drv_register(&rotaryDriver);
+
+  lv_indev_set_group(rotaryDevice, inputGroup);
 }
 
 LvglWrapper::LvglWrapper()
