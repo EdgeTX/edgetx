@@ -83,7 +83,7 @@ do
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
             ;;
         t12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MPM=ON"
             ;;
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
@@ -122,7 +122,7 @@ do
             BUILD_OPTIONS+="-DPCB=X12S"
             ;;
         t16)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MPM=ON"
             ;;
         t18)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"

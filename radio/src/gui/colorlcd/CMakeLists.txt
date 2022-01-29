@@ -97,11 +97,11 @@ if(HELI)
   add_gui_src(model_heli.cpp)
 endif()
 
-if(PXX2 OR LUA OR MULTIMODULE)
+if(PXX2 OR LUA OR MPM)
   add_gui_src(radio_tools.cpp)
 endif()
 
-if(PXX2 OR MULTIMODULE)
+if(PXX2 OR MPM)
   add_gui_src(radio_spectrum_analyser.cpp)
 endif()
 
@@ -109,7 +109,7 @@ if(PXX2)
   add_gui_src(access_settings.cpp)
 endif()
 
-if(MULTIMODULE)
+if(MPM)
   add_gui_src(multi_rfprotos.cpp)
 endif()
 

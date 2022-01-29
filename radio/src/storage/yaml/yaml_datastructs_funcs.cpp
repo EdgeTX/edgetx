@@ -442,7 +442,7 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_DSM2:
     case MODULE_TYPE_CROSSFIRE:
       return 1;
-    case MODULE_TYPE_MULTIMODULE:
+    case MODULE_TYPE_MPM:
       return 2;
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1:
@@ -1674,8 +1674,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     md->subType = yaml_parse_enum(yaml_conv_220::enum_R9M_Subtypes, val, val_len);
   } else if (md->type == MODULE_TYPE_FLYSKY) {
     md->subType = yaml_parse_enum(yaml_conv_220::enum_FLYSKY_Subtypes, val, val_len);
-  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
-#if defined(MULTIMODULE)
+  } else if (md->type == MODULE_TYPE_MPM) {
+#if defined(MPM)
     // Read type/subType by the book (see MPM documentation)
     // TODO: remove that crappy translation and use the MPM
     //       data as-is (no FrSky special casing)

@@ -795,7 +795,7 @@ class ModuleWindow : public FormGroup {
 #endif
       }
 #endif
-#if defined(MULTIMODULE)
+#if defined(MPM)
       else if (isModuleMultimodule(moduleIdx)) {
         Choice * mmSubProto = nullptr;
         grid.nextLine();
@@ -878,21 +878,21 @@ class ModuleWindow : public FormGroup {
             int8_t min, max;
             getMultiOptionValues(multi_proto, min, max);
 
-            if (title == STR_MULTI_RFPOWER) {
-              new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_POWER, 0, 15,
+            if (title == STR_MPM_RFPOWER) {
+              new Choice(this, grid.getFieldSlot(2, 0), STR_MPM_POWER, 0, 15,
                          GET_SET_DEFAULT(
                              g_model.moduleData[moduleIdx].multi.optionValue));
-            } else if (title == STR_MULTI_TELEMETRY) {
+            } else if (title == STR_MPM_TELEMETRY) {
               new Choice(this, grid.getFieldSlot(2, 0),
-                         STR_MULTI_TELEMETRY_MODE, min, max,
+                         STR_MPM_TELEMETRY_MODE, min, max,
                          GET_SET_DEFAULT(
                              g_model.moduleData[moduleIdx].multi.optionValue));
-            } else if (title == STR_MULTI_WBUS) {
-              new Choice(this, grid.getFieldSlot(2, 0), STR_MULTI_WBUS_MODE, 0,
+            } else if (title == STR_MPM_WBUS) {
+              new Choice(this, grid.getFieldSlot(2, 0), STR_MPM_WBUS_MODE, 0,
                          1,
                          GET_SET_DEFAULT(
                              g_model.moduleData[moduleIdx].multi.optionValue));
-            } else if (multi_proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
+            } else if (multi_proto == MODULE_SUBTYPE_MPM_FS_AFHDS2A) {
               auto edit = new NumberEdit(
                   this, grid.getFieldSlot(2, 0), 50, 400,
                   GET_DEFAULT(
@@ -900,7 +900,7 @@ class ModuleWindow : public FormGroup {
                   SET_VALUE(g_model.moduleData[moduleIdx].multi.optionValue,
                             (newValue - 50) / 5));
               edit->setStep(5);
-            } else if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
+            } else if (multi_proto == MODULE_SUBTYPE_MPM_DSM2) {
               new CheckBox(
                   this, grid.getFieldSlot(2, 0),
                   [=]() {
@@ -926,7 +926,7 @@ class ModuleWindow : public FormGroup {
                         g_model.moduleData[moduleIdx].multi.optionValue));
 
                 // Show RSSI next to RF Freq Fine Tune
-                if (title == STR_MULTI_RFTUNE) {
+                if (title == STR_MPM_RFTUNE) {
                   new DynamicNumber<int>(
                       this, grid.getFieldSlot(2, 1),
                       [] { return (int)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
@@ -937,11 +937,11 @@ class ModuleWindow : public FormGroup {
         }
         grid.nextLine();
 
-        if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
+        if (multi_proto == MODULE_SUBTYPE_MPM_DSM2) {
 
           const char* servoRates[] = { "22ms", "11ms" };
 
-          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
+          new StaticText(this, grid.getLabelSlot(true), STR_MPM_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
           new Choice(
               this, grid.getFieldSlot(), servoRates, 0, 1,
               [=]() {
@@ -954,7 +954,7 @@ class ModuleWindow : public FormGroup {
               });
         } else {
           // Bind on power up
-          new StaticText(this, grid.getLabelSlot(true), STR_MULTI_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
+          new StaticText(this, grid.getLabelSlot(true), STR_MPM_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
           new CheckBox(this, grid.getFieldSlot(),
                        GET_SET_DEFAULT(
                            g_model.moduleData[moduleIdx].multi.autoBindMode));
@@ -962,7 +962,7 @@ class ModuleWindow : public FormGroup {
 
         // Low power mode
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(this, grid.getLabelSlot(true), STR_MPM_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
         new CheckBox(
             this, grid.getFieldSlot(),
             GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
@@ -1059,13 +1059,13 @@ class ModuleWindow : public FormGroup {
                 return 0;
               } else {
                 if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) ||
-                    IS_R9_MULTI(moduleIdx)) {
+                    IS_R9_MPM(moduleIdx)) {
                   new BindChoiceMenu(
                       this, moduleIdx,
                       [=]() {
-#if defined(MULTIMODULE)
+#if defined(MPM)
                         if (isModuleMultimodule(moduleIdx)) {
-                          setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+                          setMultiBindStatus(moduleIdx, MPM_BIND_INITIATED);
                         }
 #endif
                         moduleState[moduleIdx].mode = MODULE_MODE_BIND;
@@ -1078,9 +1078,9 @@ class ModuleWindow : public FormGroup {
 
                   return 0;
                 }
-#if defined(MULTIMODULE)
+#if defined(MPM)
                 if (isModuleMultimodule(moduleIdx)) {
-                  setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+                  setMultiBindStatus(moduleIdx, MPM_BIND_INITIATED);
                 }
 #endif
                 moduleState[moduleIdx].mode = MODULE_MODE_BIND;
@@ -1097,10 +1097,10 @@ class ModuleWindow : public FormGroup {
               if (moduleState[moduleIdx].mode != MODULE_MODE_BIND) {
                 bindButton->check(false);
               }
-#if defined(MULTIMODULE)
+#if defined(MPM)
               if (isModuleMultimodule(moduleIdx) &&
-                  getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
-                setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
+                  getMultiBindStatus(moduleIdx) == MPM_BIND_FINISHED) {
+                setMultiBindStatus(moduleIdx, MPM_BIND_NONE);
                 moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
                 bindButton->check(false);
               }
@@ -1144,7 +1144,7 @@ class ModuleWindow : public FormGroup {
 
 #if defined(AFHDS2) && defined(PCBNV14)
       if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {
-        new StaticText(this, grid.getLabelSlot(true), STR_MULTI_RFPOWER);
+        new StaticText(this, grid.getLabelSlot(true), STR_MPM_RFPOWER);
         new Choice(this, grid.getFieldSlot(), "\007""Default""High", 0, 1,
             GET_DEFAULT(g_model.moduleData[moduleIdx].flysky.rfPower),
             [=](int32_t newValue) -> void {

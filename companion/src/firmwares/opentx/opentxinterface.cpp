@@ -807,8 +807,8 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
-          case PULSES_MULTIMODULE:
-            return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
+          case PULSES_MPM:
+            return id.contains("internalmpm") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
           case PULSES_AFHDS3:
             return IS_FLYSKY_NV14(board);
           default:
@@ -829,7 +829,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_DSM2:
           case PULSES_DSMX:
           case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
+          case PULSES_MPM:
           case PULSES_CROSSFIRE:
           case PULSES_AFHDS3:
           case PULSES_GHOST:
@@ -872,7 +872,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_DSM2:
           case PULSES_DSMX:
           case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
+          case PULSES_MPM:
             return true;
           default:
             return false;
@@ -1382,7 +1382,7 @@ void registerOpenTxFirmwares()
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
   firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
+  firmware->addOption("internalmpm", Firmware::tr("Support for MPM internal module"));
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
@@ -1410,7 +1410,7 @@ void registerOpenTxFirmwares()
   /* Jumper T16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t16"), Firmware::tr("Jumper T16 / T16+ / T16 Pro"), BOARD_JUMPER_T16);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
+  firmware->addOption("internalmpm", Firmware::tr("Support for MPM internal module"));
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   firmware->addOption("externalaccessmod", Firmware::tr("Support hardware mod: R9M ACCESS"));
   addOpenTxRfOptions(firmware, FLEX);

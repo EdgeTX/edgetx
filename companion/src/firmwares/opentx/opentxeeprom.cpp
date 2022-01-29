@@ -2106,7 +2106,7 @@ class ModuleUnionField: public UnionField<unsigned int> {
 
       bool select(const unsigned int & attr) const override
       {
-        return attr == PULSES_MULTIMODULE;
+        return attr == PULSES_MPM;
       }
 
       void beforeExport() override
@@ -2310,7 +2310,7 @@ class ModuleField: public TransformedField {
       else if (module.protocol >= PULSES_PXX_XJT_X16 && module.protocol <= PULSES_PXX_XJT_LR12) {
         module.subType = module.protocol - PULSES_PXX_XJT_X16;
       }
-      else if (module.protocol == PULSES_MULTIMODULE) {
+      else if (module.protocol == PULSES_MPM) {
         module.rfProtocol = module.multi.rfProtocol & 0x0F;
       }
     }

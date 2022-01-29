@@ -16,7 +16,7 @@ set(PXX1 YES)
 set(AFHDS3 NO)
 set(GHOST NO)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
-add_definitions(-DDISABLE_MULTI_UPDATE)
+add_definitions(-DDISABLE_MPM_UPDATE)
 
 if(PCB STREQUAL 9XRPRO)
   add_definitions(-Dat91sam3s8 -DREVX)

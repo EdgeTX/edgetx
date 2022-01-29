@@ -1606,8 +1606,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Master/Bluetooth");
     case TRAINER_MODE_SLAVE_BLUETOOTH:
       return tr("Slave/Bluetooth");
-    case TRAINER_MODE_MULTI:
-      return tr("Master/Multi");
+    case TRAINER_MODE_MPM:
+      return tr("Master/MPM");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -1634,7 +1634,7 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   if (generalSettings.bluetoothMode != GeneralSettings::BLUETOOTH_MODE_TRAINER && value >= TRAINER_MODE_MASTER_BLUETOOTH && value <= TRAINER_MODE_SLAVE_BLUETOOTH)
       ret = false;
 
-  if (!IS_RADIOMASTER_TX16S(board) && value == TRAINER_MODE_MULTI)
+  if (!IS_RADIOMASTER_TX16S(board) && value == TRAINER_MODE_MPM)
       ret = false;
 
   return ret;

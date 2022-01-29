@@ -216,12 +216,12 @@ const HitecSensor * getHitecSensor(uint16_t id)
 void processHitecPacket(const uint8_t * packet)
 {
   static uint16_t rssi = 0, lqi = 0;
-  // Set TX RSSI Value, reverse MULTIs scaling
+  // Set TX RSSI Value, reverse MPMs scaling
   rssi = ((packet[0] * 10) + (rssi * 90)) / 100; // quick filtering
   setTelemetryValue(PROTOCOL_TELEMETRY_HITEC, HITEC_ID_TX_RSSI, 0, 0, rssi >> 1, UNIT_RAW, 0);
   telemetryData.rssi.set(rssi >> 1);
   if (packet[0] > 0) telemetryStreaming = TELEMETRY_TIMEOUT10ms;
-  // Set TX LQI  Value, reverse MULTIs scaling
+  // Set TX LQI  Value, reverse MPMs scaling
   lqi = ((packet[1] * 10) + (lqi * 90)) / 100; // quick filtering
   setTelemetryValue(PROTOCOL_TELEMETRY_HITEC, HITEC_ID_TX_LQI, 0, 0, lqi, UNIT_RAW, 0);
 

@@ -208,7 +208,7 @@ enum FrSkyDataState {
 #define SP2UART_A_ID              0xFD00
 #define SP2UART_B_ID              0xFD01
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
 // Virtual IDs, value can be changed to anything only used for display
 #define RX_LQI_ID                 0xFFFC
 #define TX_LQI_ID                 0xFFFD

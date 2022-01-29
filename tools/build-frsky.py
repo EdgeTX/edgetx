@@ -108,7 +108,7 @@ translations = [
 ]
 
 common_options = {
-    "MULTIMODULE": "NO",
+    "MPM": "NO",
     "CROSSFIRE": "NO",
     "AFHDS3": "NO",
     "GVARS": "YES",

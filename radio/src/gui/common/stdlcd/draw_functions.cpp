@@ -22,15 +22,15 @@
 #include "opentx.h"
 #include <math.h>
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags)
 {
   MultiModuleStatus & status = getMultiModuleStatus(moduleIdx);
   if (status.protocolName[0] && status.isValid()) {
     lcdDrawText(x, y, status.protocolName, flags);
   }
-  else if (protocol <= MODULE_SUBTYPE_MULTI_LAST) {
-    lcdDrawTextAtIndex(x, y, STR_MULTI_PROTOCOLS, protocol, flags);
+  else if (protocol <= MODULE_SUBTYPE_MPM_LAST) {
+    lcdDrawTextAtIndex(x, y, STR_MPM_PROTOCOLS, protocol, flags);
   }
   else {
     lcdDrawNumber(x, y, protocol + 3, flags); // Convert because of OpenTX FrSky fidling (OpenTX protocol tables and Multiprotocol tables don't match)

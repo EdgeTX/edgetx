@@ -28,7 +28,7 @@
    [board type] is avr, stm, or orx
    [bootloader support] b for optiboot (AVR) / USB (STM) or u (unsupported)
    [check for bootloader] is c (CHECK_FOR_BOOTLOADER) or u (undefined)
-   [telemetry type] is t (MULTI_TELEMETRY), s (MULTI_STATUS), or u (undefined) for neither
+   [telemetry type] is t (MPM_TELEMETRY), s (MPM_STATUS), or u (undefined) for neither
    [telemetry inversion] is i (INVERT_TELEMETRY) or u (undefined)
    [firmware version] is the version padded to two bytes per segment, without seperators e.g. 01020176
 
@@ -40,31 +40,31 @@ class MultiFirmwareInformation
   public:
     enum MultiFirmwareBoardType
     {
-      FIRMWARE_MULTI_AVR = 0,
-      FIRMWARE_MULTI_STM,
-      FIRMWARE_MULTI_ORX,
+      FIRMWARE_MPM_AVR = 0,
+      FIRMWARE_MPM_STM,
+      FIRMWARE_MPM_ORX,
     };
 
     enum MultiFirmwareTelemetryType
     {
-      FIRMWARE_MULTI_TELEM_NONE = 0,
-      FIRMWARE_MULTI_TELEM_MULTI_STATUS,    // erSkyTX
-      FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY, // OpenTX
+      FIRMWARE_MPM_TELEM_NONE = 0,
+      FIRMWARE_MPM_TELEM_MPM_STATUS,    // erSkyTX
+      FIRMWARE_MPM_TELEM_MPM_TELEMETRY, // EdgeTX
     };
 
     bool isMultiStmFirmware() const
     {
-      return boardType == FIRMWARE_MULTI_STM;
+      return boardType == FIRMWARE_MPM_STM;
     }
 
     bool isMultiAvrFirmware() const
     {
-      return boardType == FIRMWARE_MULTI_AVR;
+      return boardType == FIRMWARE_MPM_AVR;
     }
 
     bool isMultiOrxFirmware() const
     {
-      return boardType == FIRMWARE_MULTI_ORX;
+      return boardType == FIRMWARE_MPM_ORX;
     }
 
     bool isMultiWithBootloaderFirmware() const
@@ -74,12 +74,12 @@ class MultiFirmwareInformation
 
     bool isMultiInternalFirmware() const
     {
-      return (boardType == FIRMWARE_MULTI_STM && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
+      return (boardType == FIRMWARE_MPM_STM && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MPM_TELEM_MPM_TELEMETRY);
     }
 
     bool isMultiExternalFirmware() const
     {
-      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM ) && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
+      return ((telemetryInversion || boardType == FIRMWARE_MPM_STM ) && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MPM_TELEM_MPM_TELEMETRY);
     }
 
     const char * readMultiFirmwareInformation(const char * filename);
@@ -106,7 +106,7 @@ class MultiFirmwareInformation
 
 enum MultiModuleType : short
 {
-  MULTI_TYPE_MULTIMODULE = 0,
+  MULTI_TYPE_MPM = 0,
   MULTI_TYPE_ELRS,
 };
 

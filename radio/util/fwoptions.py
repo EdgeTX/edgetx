@@ -228,7 +228,7 @@ options_jumper_t12 = {
     "faichoice": ("FAI", "CHOICE", None),
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "internalmulti": ("INTERNAL_MODULE_MULTI", "YES", "NO"),
+    "internalmpm": ("INTERNAL_MODULE_MPM", "YES", "NO"),
     "afhds3": ("AFHDS3", "YES", "NO")
 }
 
@@ -241,7 +241,7 @@ options_jumper_t16 = {
     "faichoice": ("FAI", "CHOICE", None),
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "internalmulti": ("INTERNAL_MODULE_MULTI", "YES", "NO"),
+    "internalmpm": ("INTERNAL_MODULE_MPM", "YES", "NO"),
     "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
 }

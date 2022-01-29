@@ -53,7 +53,7 @@ void menuTraceBuffer(event_t event);
 #endif
 
 enum MenuRadioIndexes {
-#if defined(LUA) || defined(PXX2) || defined(MULTIMODULE)
+#if defined(LUA) || defined(PXX2) || defined(MPM)
   MENU_RADIO_TOOLS,
 #endif
   MENU_RADIO_SD_MANAGER,

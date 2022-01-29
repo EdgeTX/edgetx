@@ -316,13 +316,13 @@ void extmoduleSendNextFrame()
     }
     break;
 #endif
-#if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
+#if defined(SBUS) || defined(DSM2) || defined(MPM)
     case PROTOCOL_CHANNELS_SBUS:
       // no break
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+    case PROTOCOL_CHANNELS_MPM:
 
       if (EXTMODULE_TIMER_DMA_STREAM->CR & DMA_SxCR_EN)
         return;

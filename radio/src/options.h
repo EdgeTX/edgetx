@@ -65,14 +65,14 @@ static const char * const options[] = {
 #if defined(INTERNAL_MODULE_PPM)
   "internalppm",
 #endif
-#if defined(INTERNAL_MODULE_MULTI)
-  "internalmulti",
+#if defined(INTERNAL_MODULE_MPM)
+  "internalmpm",
 #endif
 #if defined(INTERNAL_MODULE_PXX2)
   "internalaccess",
 #endif
-#if defined(MULTIMODULE)
-  "multimodule",
+#if defined(MPM)
+  "mpm",
 #endif
 #if defined(LUA_MODEL_SCRIPTS)
   "lua",

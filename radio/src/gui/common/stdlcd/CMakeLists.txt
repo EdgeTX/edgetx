@@ -18,7 +18,7 @@ set(GUI_SRC
   model_curve_edit.cpp
   )
 
-if(PXX2 OR LUA OR MULTIMODULE)
+if(PXX2 OR LUA OR MPM)
   set(GUI_SRC ${GUI_SRC} ../common/stdlcd/radio_tools.cpp)
 endif()
 
@@ -47,7 +47,7 @@ if(GHOST)
     )
 endif()
 
-if(PXX2 OR MULTIMODULE)
+if(PXX2 OR MPM)
   set(GUI_SRC
     ${GUI_SRC}
     ../common/stdlcd/radio_spectrum_analyser.cpp

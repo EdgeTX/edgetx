@@ -3155,8 +3155,8 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1297"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1315"/>
-        <source>Support for MULTI internal module</source>
-        <translation>MULTI内部モジュールのサポート</translation>
+        <source>Support for MPM internal module</source>
+        <translation>MPM内部モジュールのサポート</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1303"/>

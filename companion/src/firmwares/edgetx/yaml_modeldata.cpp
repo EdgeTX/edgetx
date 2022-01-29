@@ -54,7 +54,7 @@ static const YamlLookupTable trainerModeLut = {
   {  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT, "MASTER_BATT_COMP"  },
   {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
   {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
-  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  TRAINER_MODE_MPM, "MASTER_MPM"  },
 };
 
 static const YamlLookupTable swashTypeLut = {

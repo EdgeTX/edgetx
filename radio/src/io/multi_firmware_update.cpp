@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#if !defined(DISABLE_MULTI_UPDATE)
+#if !defined(DISABLE_MPM_UPDATE)
 
 #include <stdio.h>
 #include "opentx.h"
@@ -33,7 +33,7 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
   #include "io/multi_protolist.h"
 #endif
 
@@ -41,7 +41,7 @@
 #include "intmodule_serial_driver.h"
 #endif
 
-#define UPDATE_MULTI_EXT_BIN ".bin"
+#define UPDATE_MPM_EXT_BIN ".bin"
 
 class MultiFirmwareUpdateDriver
 {
@@ -67,7 +67,7 @@ class MultiFirmwareUpdateDriver
     void leaveProgMode(bool inverted) const;
 };
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
 class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 {
   public:
@@ -455,42 +455,42 @@ const char * MultiFirmwareUpdateDriver::flashFirmware(FIL * file, const char * l
 }
 
 // example :  multi-stm-bcsid-01020176
-#define MULTI_SIGN_SIZE                             24
-#define MULTI_SIGN_BOOTLOADER_SUPPORT_OFFSET        10
-#define MULTI_SIGN_BOOTLOADER_CHECK_OFFSET          11
-#define MULTI_SIGN_TELEM_TYPE_OFFSET                12
-#define MULTI_SIGN_TELEM_INVERSION_OFFSET           13
-#define MULTI_SIGN_VERSION_OFFSET                   15
+#define MPM_SIGN_SIZE                             24
+#define MPM_SIGN_BOOTLOADER_SUPPORT_OFFSET        10
+#define MPM_SIGN_BOOTLOADER_CHECK_OFFSET          11
+#define MPM_SIGN_TELEM_TYPE_OFFSET                12
+#define MPM_SIGN_TELEM_INVERSION_OFFSET           13
+#define MPM_SIGN_VERSION_OFFSET                   15
 
 const char * MultiFirmwareInformation::readV1Signature(const char * buffer)
 {
   if (!memcmp(buffer, "multi-stm", 9))
-    boardType = FIRMWARE_MULTI_STM;
+    boardType = FIRMWARE_MPM_STM;
   else if (!memcmp(buffer, "multi-avr", 9))
-    boardType = FIRMWARE_MULTI_AVR;
+    boardType = FIRMWARE_MPM_AVR;
   else if (!memcmp(buffer, "multi-orx", 9))
-    boardType = FIRMWARE_MULTI_ORX;
+    boardType = FIRMWARE_MPM_ORX;
   else
     return "Wrong format";
 
-  if (buffer[MULTI_SIGN_BOOTLOADER_SUPPORT_OFFSET] == 'b')
+  if (buffer[MPM_SIGN_BOOTLOADER_SUPPORT_OFFSET] == 'b')
     optibootSupport = true;
   else
     optibootSupport = false;
 
-  if (buffer[MULTI_SIGN_BOOTLOADER_CHECK_OFFSET] == 'c')
+  if (buffer[MPM_SIGN_BOOTLOADER_CHECK_OFFSET] == 'c')
     bootloaderCheck = true;
   else
     bootloaderCheck = false;
 
-  if (buffer[MULTI_SIGN_TELEM_TYPE_OFFSET] == 't')
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_STATUS;
-  else if (buffer[MULTI_SIGN_TELEM_TYPE_OFFSET] == 's')
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY;
+  if (buffer[MPM_SIGN_TELEM_TYPE_OFFSET] == 't')
+    telemetryType = FIRMWARE_MPM_TELEM_MPM_STATUS;
+  else if (buffer[MPM_SIGN_TELEM_TYPE_OFFSET] == 's')
+    telemetryType = FIRMWARE_MPM_TELEM_MPM_TELEMETRY;
   else
-    telemetryType = FIRMWARE_MULTI_TELEM_NONE;
+    telemetryType = FIRMWARE_MPM_TELEM_NONE;
 
-  if (buffer[MULTI_SIGN_TELEM_INVERSION_OFFSET] == 'i')
+  if (buffer[MPM_SIGN_TELEM_INVERSION_OFFSET] == 'i')
     telemetryInversion = true;
   else
     telemetryInversion = false;
@@ -526,11 +526,11 @@ const char * MultiFirmwareInformation::readV2Signature(const char * buffer)
   telemetryInversion = options & 0x200 ? true : false;
   bootloaderCheck = options & 0x100 ? true : false;
 
-  telemetryType = FIRMWARE_MULTI_TELEM_NONE;
+  telemetryType = FIRMWARE_MPM_TELEM_NONE;
   if (options & 0x400)
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_STATUS;
+    telemetryType = FIRMWARE_MPM_TELEM_MPM_STATUS;
   if (options & 0x800)
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY;
+    telemetryType = FIRMWARE_MPM_TELEM_MPM_TELEMETRY;
 
   return nullptr;
 }
@@ -549,14 +549,14 @@ const char * MultiFirmwareInformation::readMultiFirmwareInformation(const char *
 
 const char * MultiFirmwareInformation::readMultiFirmwareInformation(FIL * file)
 {
-  char buffer[MULTI_SIGN_SIZE];
+  char buffer[MPM_SIGN_SIZE];
   UINT count;
 
-  if (f_size(file) < MULTI_SIGN_SIZE)
+  if (f_size(file) < MPM_SIGN_SIZE)
     return "File too small";
 
-  f_lseek(file, f_size(file) - MULTI_SIGN_SIZE);
-  if (f_read(file, buffer, MULTI_SIGN_SIZE, &count) != FR_OK || count != MULTI_SIGN_SIZE) {
+  f_lseek(file, f_size(file) - MPM_SIGN_SIZE);
+  if (f_read(file, buffer, MPM_SIGN_SIZE, &count) != FR_OK || count != MPM_SIGN_SIZE) {
     return "Error reading file";
   }
 
@@ -576,7 +576,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     return false;
   }
 
-  if (type == MULTI_TYPE_MULTIMODULE) {
+  if (type == MULTI_TYPE_MPM) {
     MultiFirmwareInformation firmwareFile;
     if (firmwareFile.readMultiFirmwareInformation(&file)) {
       f_close(&file);
@@ -588,21 +588,21 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     if (module == EXTERNAL_MODULE) {
       if (!firmwareFile.isMultiExternalFirmware()) {
         f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_EXT_MULTI_SPEC);
+        POPUP_WARNING(STR_NEEDS_FILE, STR_EXT_MPM_SPEC);
         return false;
       }
     }
     else {
       if (!firmwareFile.isMultiInternalFirmware()) {
         f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MULTI_SPEC);
+        POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MPM_SPEC);
         return false;
       }
     }
   }
 
   const MultiFirmwareUpdateDriver * driver = &multiExternalUpdateDriver;
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
   if (module == INTERNAL_MODULE)
     driver = &multiInternalUpdateDriver;
 #endif
@@ -660,7 +660,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (intPwr) {
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
     MultiRfProtocols::removeInstance(INTERNAL_MODULE);
 #endif
     INTERNAL_MODULE_ON();
@@ -670,7 +670,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (extPwr) {
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
     MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
 #endif
     EXTERNAL_MODULE_ON();

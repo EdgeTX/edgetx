@@ -49,7 +49,7 @@ class Multiprotocols
 
       unsigned int numSubTypes() const
       {
-        return protocol > MODULE_SUBTYPE_MULTI_LAST ? 8 : (unsigned int) subTypeStrings.length();
+        return protocol > MODULE_SUBTYPE_MPM_LAST ? 8 : (unsigned int) subTypeStrings.length();
       }
 
       int getOptionMin() const;

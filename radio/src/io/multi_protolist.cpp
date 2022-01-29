@@ -48,9 +48,9 @@ MultiRfProtocols* MultiRfProtocols::_instance[NUM_MODULES] = {};
 // data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
 // data[n+4..] = sub protocol names, only sent if nbr_sub != 0
 
-constexpr uint8_t MULTI_INVALID_PROTO = 0xFF;
-constexpr uint32_t MULTI_PROTOLIST_TIMEOUT = 100; // 100ms
-constexpr uint32_t MULTI_PROTOLIST_START_TIMEOUT = 3000; // 3s
+constexpr uint8_t MPM_INVALID_PROTO = 0xFF;
+constexpr uint32_t MPM_PROTOLIST_TIMEOUT = 100; // 100ms
+constexpr uint32_t MPM_PROTOLIST_START_TIMEOUT = 3000; // 3s
 
 bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
 {
@@ -60,7 +60,7 @@ bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
   uint8_t subProtoLen = 0;
 
   // special case handling for Frsky protos
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
+  if (proto == MODULE_SUBTYPE_MPM_FRSKY) {
     const mm_protocol_definition* def = getMultiProtocolDefinition(proto);
     if (!def) return false;
 
@@ -160,9 +160,9 @@ std::string MultiRfProtocols::getProtoLabel(unsigned int proto) const
     MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
     if (status.protocolName[0] && status.isValid()) {
       return std::string(status.protocolName);
-    } else if (proto <= MODULE_SUBTYPE_MULTI_LAST) {
+    } else if (proto <= MODULE_SUBTYPE_MPM_LAST) {
       char tmp[8];
-      getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, proto);
+      getStringAtIndex(tmp, STR_MPM_PROTOCOLS, proto);
       return std::string(tmp);
     }
   } else {
@@ -189,7 +189,7 @@ float MultiRfProtocols::getProgress() const
   
   if (scanState == ScanStop)  return 0.0;
   if (scanState == ScanBegin) {
-    float t = (float)(RTOS_GET_MS() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
+    float t = (float)(RTOS_GET_MS() - scanStart) / (float)MPM_PROTOLIST_START_TIMEOUT;
     return t * WAIT_TIME_RATIO;
   }
 
@@ -211,7 +211,7 @@ bool MultiRfProtocols::triggerScan()
     proto2idx.clear();
     protoList.clear();
     scanState = ScanBegin;
-    currentProto = MULTI_INVALID_PROTO;
+    currentProto = MPM_INVALID_PROTO;
     moduleState[moduleIdx].mode = MODULE_MODE_GET_HARDWARE_INFO;
     scanStart = lastScan = RTOS_GET_MS();
     return true;
@@ -231,8 +231,8 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
         packet++;
 
         // new status received
-        if (replyProtoId != MULTI_INVALID_PROTO) {
-          if (currentProto == MULTI_INVALID_PROTO) {
+        if (replyProtoId != MPM_INVALID_PROTO) {
+          if (currentProto == MPM_INVALID_PROTO) {
             //TRACE("# of protos: %d", totalProtos);
             totalProtos = replyProtoId;
             scanState = Scanning;
@@ -242,10 +242,10 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
             //      (const char*)packet);
 
             int proto = convertMultiToOtx(replyProtoId);
-            if (proto != MODULE_SUBTYPE_MULTI_CONFIG &&
-                proto != MODULE_SUBTYPE_MULTI_SCANNER) {
+            if (proto != MODULE_SUBTYPE_MPM_CONFIG &&
+                proto != MODULE_SUBTYPE_MPM_SCANNER) {
               bool insertProto = true;
-              if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
+              if (proto == MODULE_SUBTYPE_MPM_FRSKY) {
                 auto it = std::find_if(protoList.begin(), protoList.end(),
                                        [=](const RfProto& p) {
                                          return p.proto == (const int)proto;
@@ -281,12 +281,12 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
           break;
         }
       } else {
-        uint32_t timeout = MULTI_PROTOLIST_TIMEOUT;
+        uint32_t timeout = MPM_PROTOLIST_TIMEOUT;
 
         if (scanState == ScanBegin) {
           // Timeout = 3s solely because of the very slow start time of the
           // MPM...
-          timeout = MULTI_PROTOLIST_START_TIMEOUT;
+          timeout = MPM_PROTOLIST_START_TIMEOUT;
         }
 
         if (RTOS_GET_MS() - lastScan >= timeout) {
@@ -299,17 +299,17 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
     case ScanInvalid: {
       // TODO: fill with static list (sorted)
       const mm_protocol_definition* pdef =
-          getMultiProtocolDefinition(MODULE_SUBTYPE_MULTI_FIRST);
+          getMultiProtocolDefinition(MODULE_SUBTYPE_MPM_FIRST);
 
       // build the list of static protos
       protoList.clear();
-      protoList.reserve(MODULE_SUBTYPE_MULTI_LAST - MODULE_SUBTYPE_MULTI_FIRST + 1);
+      protoList.reserve(MODULE_SUBTYPE_MPM_LAST - MODULE_SUBTYPE_MPM_FIRST + 1);
       for (; pdef->protocol != 0xfe; pdef++) {
         RfProto rfProto(pdef->protocol);
 
         char tmp[8];
         rfProto.label =
-            getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
+            getStringAtIndex(tmp, STR_MPM_PROTOCOLS, pdef->protocol);
         rfProto.flags =
             (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
 

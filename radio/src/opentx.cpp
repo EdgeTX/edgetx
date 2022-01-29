@@ -660,16 +660,16 @@ void doSplash()
 #endif
 
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
 void checkMultiLowPower()
 {
   if (isModuleMultimodule(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].multi.lowPowerMode) {
-    ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
+    ALERT("MPM", STR_WARN_MPM_LOWPOWER, AU_ERROR);
     return;
   }
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
   if (isModuleMultimodule(INTERNAL_MODULE) && g_model.moduleData[INTERNAL_MODULE].multi.lowPowerMode) {
-    ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
+    ALERT("MPM", STR_WARN_MPM_LOWPOWER, AU_ERROR);
   }
 #endif
 }
@@ -730,7 +730,7 @@ void checkAll()
     readModelNotes();
   }
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   checkMultiLowPower();
 #endif
 

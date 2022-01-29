@@ -110,7 +110,7 @@ Get RF module parameters
   * 3 ISRM_PXX2
   * 4 DSM2
   * 5 CROSSFIRE
-  * 6 MULTIMODULE
+  * 6 MPM
   * 7 R9M_PXX1
   * 8 R9M_PXX2
   * 9 R9M_LITE_PXX1
@@ -154,8 +154,8 @@ static int luaModelGetModule(lua_State *L)
     lua_pushtableinteger(L, "firstChannel", module.channelsStart);
     lua_pushtableinteger(L, "channelsCount", module.getChannelsCount());
     lua_pushtableinteger(L, "Type", module.type);
-#if defined(MULTIMODULE)
-    if (module.type == MODULE_TYPE_MULTIMODULE) {
+#if defined(MPM)
+    if (module.type == MODULE_TYPE_MPM) {
       int protocol = g_model.moduleData[idx].getMultiProtocol() + 1;
       int subprotocol = g_model.moduleData[idx].subType;
       convertEtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
@@ -221,7 +221,7 @@ static int luaModelSetModule(lua_State *L)
       else if (!strcmp(key, "channelsCount")) {
         module.channelsCount = luaL_checkinteger(L, -1) - 8;
       }
-#if defined(MULTIMODULE)
+#if defined(MPM)
       if (!strcmp(key, "protocol")) {
         protocol = luaL_checkinteger(L, -1);
       }
@@ -230,7 +230,7 @@ static int luaModelSetModule(lua_State *L)
       }
 #endif
     }
-#if defined(MULTIMODULE)
+#if defined(MPM)
     if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute etx protocol
       convertMultiProtocolToEtx(&protocol, &subprotocol);
       g_model.moduleData[idx].setMultiProtocol(protocol - 1);

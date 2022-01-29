@@ -271,10 +271,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
     grid.nextLine();
   }
 #endif
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
   {
     auto txt =
-        new StaticText(window, grid.getLabelSlot(), "multi", BUTTON_BACKGROUND,
+        new StaticText(window, grid.getLabelSlot(), "mpm", BUTTON_BACKGROUND,
                        COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_INT,
@@ -297,7 +297,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
     grid.nextLine();
   }
 #endif
-#if defined(PXX2)|| defined(MULTIMODULE)
+#if defined(PXX2)|| defined(MPM)
   if (isPXX2ModuleOptionAvailable(
           reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
               .information.modelID,
@@ -305,7 +305,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
       isModuleMultimodule(EXTERNAL_MODULE)) {
     auto txt = new StaticText(
         window, grid.getLabelSlot(),
-        isModuleMultimodule(EXTERNAL_MODULE) ? "multi" : "access",
+        isModuleMultimodule(EXTERNAL_MODULE) ? "mpm" : "access",
         BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
     auto b = new TextButton(
         window, grid.getFieldSlot(1), STR_SPECTRUM_ANALYSER_EXT,

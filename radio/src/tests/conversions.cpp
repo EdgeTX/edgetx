@@ -457,7 +457,7 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   EXPECT_STRNEQ("Model", g_model.header.name);
 
-  EXPECT_EQ(MODULE_SUBTYPE_MULTI_FRSKY, g_model.moduleData[0].getMultiProtocol());
+  EXPECT_EQ(MODULE_SUBTYPE_MPM_FRSKY, g_model.moduleData[0].getMultiProtocol());
   EXPECT_EQ(MM_RF_FRSKY_SUBTYPE_D8_CLONED, g_model.moduleData[0].subType);
   EXPECT_EQ(-12, g_model.moduleData[0].multi.optionValue);
 

@@ -1,6 +1,6 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
+option(MPM "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(AFHDS2 "Support for AFHDS2" ON)
 option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
@@ -160,8 +160,8 @@ set(SRC
   io/multi_firmware_update.cpp
   )
 
-if (MULTIMODULE)
-  add_definitions(-DMULTI_PROTOLIST)
+if (MPM)
+  add_definitions(-DMPM_PROTOLIST)
   set(SRC ${SRC}
     io/multi_protolist.cpp
     )

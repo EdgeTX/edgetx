@@ -215,7 +215,7 @@ QString ModelPrinter::printModule(int idx)
         if (!(module.protocol == PULSES_PXX_XJT_D8 || module.protocol == PULSES_CROSSFIRE || module.protocol == PULSES_GHOST || module.protocol == PULSES_SBUS)) {
           str << printLabelValue(tr("Receiver"), QString::number(module.modelId));
         }
-        if (module.protocol == PULSES_MULTIMODULE) {
+        if (module.protocol == PULSES_MPM) {
           str << printLabelValue(tr("Radio protocol"), module.rfProtocolToString());
           str << printLabelValue(tr("Subtype"), module.subTypeToString());
           str << printLabelValue(tr("Option value"), QString::number(module.multi.optionValue));

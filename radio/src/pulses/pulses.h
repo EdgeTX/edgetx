@@ -50,13 +50,13 @@
   #define IS_DSM2_SERIAL_PROTOCOL(protocol)  (0)
 #endif
 
-#if defined(MULTIMODULE)
-  #define IS_MULTIMODULE_PROTOCOL(protocol)  (protocol==PROTOCOL_CHANNELS_MULTIMODULE)
+#if defined(MPM)
+  #define IS_MPM_PROTOCOL(protocol)  (protocol==PROTOCOL_CHANNELS_MPM)
   #if !defined(DSM2)
-     #error You need to enable DSM2 = PPM for MULTIMODULE support
+     #error You need to enable DSM2 = PPM for MPM support
   #endif
 #else
-  #define IS_MULTIMODULE_PROTOCOL(protocol)  (0)
+  #define IS_MPM_PROTOCOL(protocol)  (0)
 #endif
 
 #if defined(AFHDS3)
@@ -99,8 +99,8 @@ extern ModuleState moduleState[NUM_MODULES];
 
 inline bool isModuleBeeping(uint8_t moduleIndex)
 {
-#if defined(MULTIMODULE)
-  if (getMultiBindStatus(moduleIndex) != MULTI_BIND_NONE)
+#if defined(MPM)
+  if (getMultiBindStatus(moduleIndex) != MPM_BIND_NONE)
     return true;
 #endif
 
@@ -144,16 +144,16 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 #define SBUS_STEPSIZE                5   /* SBUS Step Size 0.5ms */
 #define SBUS_PERIOD_HALF_US          ((g_model.moduleData[EXTERNAL_MODULE].sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD) * 200) /*half us*/
 #define SBUS_PERIOD                  (SBUS_PERIOD_HALF_US / 2) /*us*/
-#define MULTIMODULE_BAUDRATE         100000
-#define MULTIMODULE_PERIOD           7000 /*us*/
+#define MPM_BAUDRATE                 100000
+#define MPM_PERIOD                   7000 /*us*/
 
-#define CROSSFIRE_FRAME_MAXLEN         64
+#define CROSSFIRE_FRAME_MAXLEN       64
 PACK(struct CrossfirePulsesData {
   uint8_t pulses[CROSSFIRE_FRAME_MAXLEN];
   uint8_t length;
 });
 
-#define GHOST_FRAME_MAXLEN             16
+#define GHOST_FRAME_MAXLEN           16
 PACK(struct GhostPulsesData {
   uint8_t pulses[GHOST_FRAME_MAXLEN];
   uint8_t length;
@@ -176,7 +176,7 @@ union InternalModulePulsesData {
   FlySkySerialPulsesData flysky;
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   UartMultiPulses multi;
 #endif
 
@@ -206,7 +206,7 @@ union ExternalModulePulsesData {
   Pxx2Pulses pxx2;
 #endif
 
-#if defined(DSM2) || defined(MULTIMODULE) || defined(SBUS)
+#if defined(DSM2) || defined(MPM) || defined(SBUS)
   Dsm2PulsesData dsm2;
 #endif
 
@@ -305,7 +305,7 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_DSM2_DSM2,
   PROTOCOL_CHANNELS_DSM2_DSMX,
   PROTOCOL_CHANNELS_CROSSFIRE,
-  PROTOCOL_CHANNELS_MULTIMODULE,
+  PROTOCOL_CHANNELS_MPM,
   PROTOCOL_CHANNELS_SBUS,
   PROTOCOL_CHANNELS_PXX2_LOWSPEED,
   PROTOCOL_CHANNELS_PXX2_HIGHSPEED,

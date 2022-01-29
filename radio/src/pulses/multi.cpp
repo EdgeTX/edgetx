@@ -25,20 +25,20 @@
 #include "io/multi_protolist.h"
 #include "telemetry/multi.h"
 
-// for the  MULTI protocol definition
+// for the MPM protocol definition
 // see https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
 // file Multiprotocol/multiprotocol.h
 
-#define MULTI_SEND_BIND                     (1 << 7)
-#define MULTI_SEND_RANGECHECK               (1 << 5)
-#define MULTI_SEND_AUTOBIND                 (1 << 6)
+#define MPM_SEND_BIND                     (1 << 7)
+#define MPM_SEND_RANGECHECK               (1 << 5)
+#define MPM_SEND_AUTOBIND                 (1 << 6)
 
-#define MULTI_CHANS                         16
-#define MULTI_CHAN_BITS                     11
+#define MPM_CHANS                         16
+#define MPM_CHAN_BITS                     11
 
-#define MULTI_NORMAL   0x00
-#define MULTI_FAILSAFE 0x01
-#define MULTI_DATA     0x02
+#define MPM_NORMAL   0x00
+#define MPM_FAILSAFE 0x01
+#define MPM_DATA     0x02
 
 static void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe);
 void sendChannels(uint8_t moduleIdx);
@@ -109,7 +109,7 @@ static void sendFailsafeChannels(uint8_t moduleIdx)
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
 
-  for (int i = 0; i < MULTI_CHANS; i++) {
+  for (int i = 0; i < MPM_CHANS; i++) {
     int16_t failsafeValue = g_model.failsafeChannels[i];
     int pulseValue;
 
@@ -125,7 +125,7 @@ static void sendFailsafeChannels(uint8_t moduleIdx)
     }
 
     bits |= pulseValue << bitsavailable;
-    bitsavailable += MULTI_CHAN_BITS;
+    bitsavailable += MPM_CHAN_BITS;
     while (bitsavailable >= 8) {
       sendMulti(moduleIdx, (uint8_t) (bits & 0xff));
       bits >>= 8;
@@ -144,7 +144,7 @@ void setupPulsesMulti(uint8_t moduleIdx)
     0x00	//external
 #endif
   };
-  uint8_t type=MULTI_NORMAL;
+  uint8_t type=MPM_NORMAL;
 
   // not scanning protos &&  not spectrum analyser
   if (getModuleMode(moduleIdx) == MODULE_MODE_NORMAL) {
@@ -152,7 +152,7 @@ void setupPulsesMulti(uint8_t moduleIdx)
     if (counter[moduleIdx] % 1000 == 0 &&
         g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_NOT_SET &&
         g_model.moduleData[moduleIdx].failsafeMode != FAILSAFE_RECEIVER) {
-      type |= MULTI_FAILSAFE;
+      type |= MPM_FAILSAFE;
     }
 
     counter[moduleIdx]++;
@@ -169,17 +169,17 @@ void setupPulsesMulti(uint8_t moduleIdx)
   }
 
   // Send header
-  sendFrameProtocolHeader(moduleIdx, type & MULTI_FAILSAFE);
+  sendFrameProtocolHeader(moduleIdx, type & MPM_FAILSAFE);
 
   // Send channels
-  if (type & MULTI_FAILSAFE)
+  if (type & MPM_FAILSAFE)
     sendFailsafeChannels(moduleIdx);
   else
     sendChannels(moduleIdx);
 
-  // Multi V1.3.X.X -> Send byte 26, Protocol (bits 7 & 6), RX_Num (bits 5 & 4), invert, not used, disable telemetry, disable mapping
+  // MPM V1.3.X.X -> Send byte 26, Protocol (bits 7 & 6), RX_Num (bits 5 & 4), invert, not used, disable telemetry, disable mapping
   if ((moduleState[moduleIdx].mode == MODULE_MODE_SPECTRUM_ANALYSER)
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
       || (moduleState[moduleIdx].mode == MODULE_MODE_GET_HARDWARE_INFO)
 #endif
       ) {
@@ -194,25 +194,25 @@ void setupPulsesMulti(uint8_t moduleIdx)
                                     | g_model.moduleData[moduleIdx].multi.disableMapping));
   }
 
-  // Multi V1.3.X.X -> Send protocol additional data: max 9 bytes
+  // MPM V1.3.X.X -> Send protocol additional data: max 9 bytes
   if (getMultiModuleStatus(moduleIdx).isValid()) {
     MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
     if (status.minor >= 3 && !(status.flags & 0x80)) { //Version 1.3.x.x or more and Buffer not full
-      if ((IS_D16_MULTI(moduleIdx) || IS_R9_MULTI(moduleIdx)) && moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
+      if ((IS_D16_MPM(moduleIdx) || IS_R9_MPM(moduleIdx)) && moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
         sendD16BindOption(moduleIdx);//1 byte of additional data
       }
 #if defined(LUA)
       // SPort send
-      if (IS_D16_MULTI(moduleIdx) && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && outputTelemetryBuffer.size) {
+      if (IS_D16_MPM(moduleIdx) && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && outputTelemetryBuffer.size) {
         sendSport(moduleIdx);       //8 bytes of additional data
       }
-      else if (IS_HOTT_MULTI(moduleIdx)) {
+      else if (IS_HOTT_MPM(moduleIdx)) {
         sendHott(moduleIdx);        //1 byte of additional data
       }
-      else if (IS_CONFIG_MULTI(moduleIdx)) {
+      else if (IS_CONFIG_MPM(moduleIdx)) {
         sendConfig(moduleIdx);      //7 bytes of additional data
       }
-      else if (IS_DSM_MULTI(moduleIdx)) {
+      else if (IS_DSM_MPM(moduleIdx)) {
         sendDSM(moduleIdx);         //7 bytes of additional data
       }
 #endif
@@ -234,7 +234,7 @@ void setupPulsesMultiExternalModule()
   putDsm2Flush();
 }
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MPM)
 void setupPulsesMultiInternalModule()
 {
   intmodulePulsesData.multi.initFrame();
@@ -249,8 +249,8 @@ void sendChannels(uint8_t moduleIdx)
 
   // byte 4-25, channels 0..2047
   // Range for pulses (channelsOutputs) is [-1024:+1024] for [-100%;100%]
-  // Multi uses [204;1843] as [-100%;100%]
-  for (int i = 0; i < MULTI_CHANS; i++) {
+  // MPM uses [204;1843] as [-100%;100%]
+  for (int i = 0; i < MPM_CHANS; i++) {
     int channel = g_model.moduleData[moduleIdx].channelsStart + i;
     int value = channelOutputs[channel] + 2 * PPM_CH_CENTER(channel) - 2 * PPM_CENTER;
 
@@ -259,7 +259,7 @@ void sendChannels(uint8_t moduleIdx)
     value = limit(0, value, 2047);
 
     bits |= value << bitsavailable;
-    bitsavailable += MULTI_CHAN_BITS;
+    bitsavailable += MPM_CHAN_BITS;
     while (bitsavailable >= 8) {
       sendMulti(moduleIdx, (uint8_t) (bits & 0xff));
       bits >>= 8;
@@ -271,25 +271,25 @@ void sendChannels(uint8_t moduleIdx)
 void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 {
   if (*protocol == 3 && *subprotocol == 0) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
     return;
   }
 
   if (*protocol == 3 && *subprotocol == 1) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
     return;
   }
 
   if (*protocol == 25) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
     return;
   }
 
   if (*protocol == 15) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
+    *protocol = MODULE_SUBTYPE_MPM_FRSKY + 1;
 
     if (*subprotocol == 0)
       *subprotocol = MM_RF_FRSKY_SUBTYPE_D16;
@@ -315,7 +315,7 @@ void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
 {
   // Special treatment for the FrSky entry...
-  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
+  if (*protocol == MODULE_SUBTYPE_MPM_FRSKY + 1) {
     if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
       //D8
       *protocol = 3;
@@ -346,7 +346,7 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
     }
   }
   else {
-    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
+    // 15 for MPM is FrskyX or D16 which we map as a protocol of 3 (FrSky)
     // all protos > frskyx are therefore also off by one
     if (*protocol >= 15)
       *protocol += 1;
@@ -375,7 +375,7 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
     return;
   }
 
-#if defined(MULTI_PROTOLIST)
+#if defined(MPM_PROTOLIST)
   if (moduleMode == MODULE_MODE_GET_HARDWARE_INFO) {
     sendMulti(moduleIdx, (uint8_t) 0x55); // Header byte
     sendMulti(moduleIdx, (uint8_t) 0);    // PROTOLIST custom protocol
@@ -390,13 +390,13 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 #endif
 
   if (moduleMode == MODULE_MODE_BIND)
-    protoByte |= MULTI_SEND_BIND;
+    protoByte |= MPM_SEND_BIND;
   else if (moduleMode ==  MODULE_MODE_RANGECHECK)
-    protoByte |= MULTI_SEND_RANGECHECK;
+    protoByte |= MPM_SEND_RANGECHECK;
 
   // rfProtocol
-  if (type == MODULE_SUBTYPE_MULTI_DSM2 +1 ) {
-    // Multi module in DSM mode wants the number of channels to be used as option value along with other flags
+  if (type == MODULE_SUBTYPE_MPM_DSM2 +1 ) {
+    // MPM in DSM mode wants the number of channels to be used as option value along with other flags
     if (optionValue & 0x01)
       optionValue = 0x80; // Max throw
     else
@@ -409,9 +409,9 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
   // Special treatment for the FrSky entry...
   convertEtxProtocolToMulti(&type, &subtype);
 
-  // Set the highest bit of option byte in AFHDS2A protocol to instruct MULTI to passthrough telemetry bytes instead
+  // Set the highest bit of option byte in AFHDS2A protocol to instruct MPM to passthrough telemetry bytes instead
   // of sending Frsky D telemetry
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MPM_FS_AFHDS2A)
     optionValue = optionValue | 0x80;
 
   // For custom protocol send unmodified type byte
@@ -430,7 +430,7 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 
   // protocol byte
   protoByte |= (type & 0x1f);
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() != MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[moduleIdx].getMultiProtocol() != MODULE_SUBTYPE_MPM_DSM2)
     protoByte |= (g_model.moduleData[moduleIdx].multi.autoBindMode << 6);
 
   sendMulti(moduleIdx, protoByte);

@@ -557,7 +557,7 @@ void perMain()
   }
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(MPM)
   checkFailsafeMulti();
 #endif
   

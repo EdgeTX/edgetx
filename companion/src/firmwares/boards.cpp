@@ -824,7 +824,7 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
         (int)MODULE_TYPE_XJT_PXX1,
         (int)MODULE_TYPE_ISRM_PXX2,
         (int)MODULE_TYPE_CROSSFIRE,
-        (int)MODULE_TYPE_MULTIMODULE,
+        (int)MODULE_TYPE_MPM,
     });
   } else if (IS_TARANIS(board)) {
     modules.append({(int)MODULE_TYPE_XJT_PXX1});
@@ -862,7 +862,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TLITE:
   case BOARD_RADIOMASTER_ZORRO:
   case BOARD_JUMPER_TPRO:
-    return (int)MODULE_TYPE_MULTIMODULE;
+    return (int)MODULE_TYPE_MPM;
 
   case BOARD_FLYSKY_NV14:
     return (int)MODULE_TYPE_FLYSKY;

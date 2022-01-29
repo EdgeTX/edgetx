@@ -27,19 +27,19 @@ boards = {
     "T12PRO": {
         "PCB": "X7",
         "PCBREV": "T12",
-        "INTERNAL_MODULE_MULTI": "YES",
+        "INTERNAL_MODULE_MPM": "YES",
         "DEFAULT_MODE": "2",
     },
     "T16": {
         "PCB": "X10",
         "PCBREV": "T16",
-        "INTERNAL_MODULE_MULTI": "YES",
+        "INTERNAL_MODULE_MPM": "YES",
         "DEFAULT_MODE": "2",
     },
     "T18": {
         "PCB": "X10",
         "PCBREV": "T18",
-        "INTERNAL_MODULE_MULTI": "YES",
+        "INTERNAL_MODULE_MPM": "YES",
         "DEFAULT_MODE": "2",
     },
 }

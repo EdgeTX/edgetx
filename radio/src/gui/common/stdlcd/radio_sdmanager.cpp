@@ -234,17 +234,17 @@ void onSdManagerMenu(const char * result)
     FrskyDeviceFirmwareUpdate device(SPORT_MODULE);
     device.flashFirmware(lfn, drawProgressScreen);
   }
-#if defined(MULTIMODULE)
-#if defined(INTERNAL_MODULE_MULTI)
-  else if (result == STR_FLASH_INTERNAL_MULTI) {
+#if defined(MPM)
+#if defined(INTERNAL_MODULE_MPM)
+  else if (result == STR_FLASH_INTERNAL_MPM) {
     getSelectionFullPath(lfn);
-    MultiDeviceFirmwareUpdate device(INTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
+    MultiDeviceFirmwareUpdate device(INTERNAL_MODULE, MULTI_TYPE_MPM);
     device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
-  else if (result == STR_FLASH_EXTERNAL_MULTI) {
+  else if (result == STR_FLASH_EXTERNAL_MPM) {
     getSelectionFullPath(lfn);
-    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
+    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_MPM);
     device.flashFirmware(lfn, drawProgressScreen);
   }
   else if (result == STR_FLASH_EXTERNAL_ELRS) {
@@ -411,14 +411,14 @@ void menuRadioSdManager(event_t _event)
             POPUP_MENU_ADD_ITEM(STR_EXECUTE_FILE);
           }
 #endif
-#if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-          if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
+#if defined(MPM) && !defined(DISABLE_MPM_UPDATE)
+          if (!READ_ONLY() && !strcasecmp(ext, MPM_FIRMWARE_EXT)) {
             MultiFirmwareInformation information;
             if (information.readMultiFirmwareInformation(line) == nullptr) {
-#if defined(INTERNAL_MODULE_MULTI)
-              POPUP_MENU_ADD_ITEM(STR_FLASH_INTERNAL_MULTI);
+#if defined(INTERNAL_MODULE_MPM)
+              POPUP_MENU_ADD_ITEM(STR_FLASH_INTERNAL_MPM);
 #endif
-              POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MULTI);
+              POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MPM);
             }
           }
 

@@ -76,8 +76,8 @@ bool isModuleSynchronous(uint8_t moduleIdx)
     case PROTOCOL_CHANNELS_AFHDS2A:
     case PROTOCOL_CHANNELS_NONE:
 
-#if defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
+#if defined(MPM)
+    case PROTOCOL_CHANNELS_MPM:
 #endif
 #if defined(INTMODULE_USART) || defined(EXTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
