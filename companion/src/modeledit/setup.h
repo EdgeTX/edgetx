@@ -179,6 +179,8 @@ class SetupPanel : public ModelPanel
     void on_extendedLimits_toggled(bool checked);
     void on_extendedTrims_toggled(bool checked);
     void on_throttleWarning_toggled(bool checked);
+    void on_enableCustomThrottleWarning_toggled(bool checked);
+    void on_customThrottleWarningPosition_valueChanged(int value);
     void on_throttleReverse_toggled(bool checked);
     void on_displayText_toggled(bool checked);
     void on_gfEnabled_toggled(bool checked);
