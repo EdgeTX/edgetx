@@ -32,11 +32,7 @@ enum ChoiceType {
 class ChoiceBase : public FormField
 {
   public:
-    ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0):
-      FormField(parent, rect, windowFlags),
-      type(type)
-    {
-    }
+    ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0);
 
     inline ChoiceType getType() const
     {

@@ -21,6 +21,14 @@
 #include "menu.h"
 #include "theme.h"
 
+ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type, WindowFlags windowFlags):
+  FormField(parent, rect, windowFlags),
+  type(type)
+{
+
+}
+
+
 Choice::Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax,
   std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
