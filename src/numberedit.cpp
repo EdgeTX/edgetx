@@ -28,6 +28,30 @@ static LvglWidgetFactory numberEditFactory = { lv_textarea_create, nullptr };
 static lv_style_t style_main;
 static lv_style_t style_edit;
 
+extern "C" void lvglEventCb(lv_event_t* event)
+{
+  if(!event)
+    return;
+  uint32_t key = lv_event_get_key(event);
+  NumberEdit* numEdit = (NumberEdit*)event->user_data;
+  if(!numEdit)
+    return;
+
+  lv_group_t* grp = (lv_group_t*)lv_obj_get_group(numEdit->getLvObj());
+  if(grp && lv_group_get_focused(grp) == numEdit->getLvObj())
+    numEdit->setEditMode(lv_group_get_editing(grp));
+  switch(key)
+  {
+  case LV_KEY_LEFT:
+//    numEdit->onEvent(EVT_ROTARY_LEFT);
+    break;
+  case LV_KEY_RIGHT:
+//    numEdit->onEvent(EVT_ROTARY_RIGHT);
+    break;
+  }
+  event->code = LV_EVENT_REFRESH;
+}
+
 NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags, LcdFlags textFlags):
   BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags, textFlags, &numberEditFactory)
 {
@@ -72,6 +96,8 @@ NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax,
   auto label = lv_textarea_get_label(lvobj);
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
+
+  lv_obj_add_event_cb(lvobj, lvglEventCb, LV_EVENT_ALL, this);
 }
 
 void NumberEdit::onEvent(event_t event)

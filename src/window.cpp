@@ -37,6 +37,7 @@ static void window_event_cb(lv_event_t * e)
 
   Window* window = (Window *)lv_obj_get_user_data(target);
   if (!window) return;
+  if(window->deleted()) return;
 
   if (code == LV_EVENT_GET_SELF_SIZE) {
     lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
@@ -232,11 +233,16 @@ void Window::clear()
 
 void Window::clearLvgl()
 {
+  if(lvobj == nullptr)
+    return;
+
   for (auto window: children)
   {
-    if(lvobj != nullptr && window->lvobj != nullptr && window->lvobj->parent == lvobj)
+    if(window->lvobj != nullptr && window->lvobj->parent == lvobj)
       window->clearLvgl();
   }
+//  lv_obj_set_user_data(lvobj, nullptr);
+
   lvobj = nullptr;
 }
 
@@ -509,6 +515,7 @@ coord_t Window::getSnapStep(coord_t relativeScrollPosition, coord_t pageSize)
 }
 #endif
 
+void lvglPushEncoderEvent(event_t evt);
 void Window::checkEvents()
 {
   auto copy = children;
@@ -520,6 +527,7 @@ void Window::checkEvents()
 
   if (this == Window::focusWindow) {
     event_t event = getWindowEvent();
+    lvglPushEncoderEvent(event);
     if (event) {
       this->onEvent(event);
     }
