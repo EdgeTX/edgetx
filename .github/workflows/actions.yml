@@ -13,6 +13,8 @@ on:
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
       - 'companion/**'
+      - '.gitpod.yml'
+      - '.devcontainer/**'
   pull_request:
     branches:
       - '2.4'
@@ -25,6 +27,7 @@ on:
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
+  workflow_dispatch:
 
 jobs:
   test:
