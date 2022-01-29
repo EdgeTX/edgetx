@@ -71,6 +71,12 @@ static const YamlLookupTable potsWarningModeLut = {
   {  2, "WARN_AUTO"  },
 };
 
+static const YamlLookupTable jitterFilterLut = {
+  {  0, "GLOBAL"  },
+  {  1, "OFF"  },
+  {  2, "ON"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -236,7 +242,7 @@ struct YamlSwitchWarningState {
       default:
         continue;
       }
-      
+
       states |= ((uint64_t)value << (index * MASK_LEN));
       enabled |= (1 << index);
     }
@@ -811,6 +817,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
+  node["jitterFilter"] = jitterFilterLut << rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
@@ -990,6 +997,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
+  node["jitterFilter"] >> jitterFilterLut >> rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled;
   node["potsWarnEnabled"] >> potsWarnEnabled.value;

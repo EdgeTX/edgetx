@@ -85,6 +85,7 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_BEEP_CENTER,
   ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS,
+  ITEM_MODEL_SETUP_USE_JITTER_FILTER,
 #if defined(PXX2)
   ITEM_MODEL_SETUP_REGISTRATION_ID,
 #endif
@@ -383,6 +384,8 @@ void menuModelSetup(event_t event)
 
     0, // Global functions
 
+    0, // ADC Jitter filter
+    
     REGISTRATION_ID_ROWS
 
     LABEL(InternalModule),
@@ -830,6 +833,10 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);
         drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noGlobalFunctions, attr);
         if (attr) g_model.noGlobalFunctions = !checkIncDecModel(event, !g_model.noGlobalFunctions, 0, 1);
+        break;
+
+      case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
+        g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_LABEL:
@@ -1430,6 +1437,10 @@ void menuModelSetup(event_t event)
        else if (isModuleSBUS(moduleIdx)) {
          lcdDrawTextAlignedLeft(y, STR_WARN_BATTVOLTAGE);
          putsVolts(lcdLastRightPos, y, getBatteryVoltage(), attr | PREC2 | LEFT);
+       }
+       else if (isModuleGhost(moduleIdx)) {
+         auto & module = g_model.moduleData[moduleIdx];
+         module.ghost.raw12bits = editCheckBox(module.ghost.raw12bits , MODEL_SETUP_2ND_COLUMN, y, INDENT "Raw 12 bits", attr, event);
        }
      }
      break;

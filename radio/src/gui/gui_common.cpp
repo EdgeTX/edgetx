@@ -309,12 +309,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     swtch = -swtch;
   }
 
-#if defined(PCBSKY9X)
-  if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
-    UNUSED(negative);
-    return true;
-  }
-#else
   if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(swtch);
     if (!SWITCH_EXISTS(swinfo.quot)) {
@@ -328,7 +322,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     }
     return true;
   }
-#endif
 
 #if NUM_XPOTS > 0
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
@@ -824,7 +817,7 @@ bool isTrainerModeAvailable(int mode)
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))
     return false;
-#elif !defined(PCBSKY9X)
+#else
   if (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH)
     return false;
 #endif

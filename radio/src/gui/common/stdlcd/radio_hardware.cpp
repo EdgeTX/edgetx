@@ -88,10 +88,8 @@ enum {
 
   ITEM_RADIO_HARDWARE_BATTERY_CALIB,
 
-#if defined(STM32)
   ITEM_RADIO_HARDWARE_RTC_BATTERY,
   ITEM_RADIO_HARDWARE_RTC_CHECK,
-#endif
 
 #if defined(TX_CAPACITY_MEASUREMENT)
   ITEM_RADIO_HARDWARE_CAPACITY_CALIB,
@@ -122,7 +120,6 @@ enum {
 #if defined(AUX_SERIAL)
   ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE,
 #endif
-
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
 #if defined(SPORT_UPDATE_PWR_GPIO)
@@ -218,11 +215,7 @@ enum {
   #define SWITCH_TYPE_MAX(sw)            ((MIXSRC_SF - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SH - MIXSRC_FIRST_SWITCH <= sw) ? SWITCH_2POS : SWITCH_3POS)
 #endif
 
-#if defined(STM32)
   #define RTC_ROW                        READONLY_ROW, 0,
-#else
-  #define RTC_ROW
-#endif
 
 #if defined(TX_CAPACITY_MEASUREMENT)
   #define TX_CAPACITY_MEASUREMENT_ROWS   0,
@@ -489,14 +482,6 @@ void menuRadioHardware(event_t event)
 #if defined(PCBTARANIS)
         lcdDrawTextAlignedLeft(y, STR_BATT_CALIB);
         putsVolts(HW_SETTINGS_COLUMN2, y, getBatteryVoltage(), attr|PREC2|LEFT);
-#elif defined(PCBSKY9X)
-        lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+1+4*FH, STR_BATT_CALIB);
-        static int32_t adcBatt;
-        // TODO board.cpp
-        adcBatt = ((adcBatt * 7) + anaIn(TX_VOLTAGE)) / 8;
-        uint32_t batCalV = (adcBatt + adcBatt*(g_eeGeneral.txVoltageCalibration)/128) * 4191;
-        batCalV /= 55296;
-        putsVolts(HW_SETTINGS_COLUMN2, y, batCalV, (menuVerticalPosition==HEADER_LINE ? INVERS : 0));
 #else
         lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/2 * FH, STR_BATT_CALIB);
         putsVolts(HW_SETTINGS_COLUMN2, y, g_vbat100mV, attr|LEFT);
@@ -506,7 +491,6 @@ void menuRadioHardware(event_t event)
         }
         break;
 
-#if defined(STM32)
       case ITEM_RADIO_HARDWARE_RTC_BATTERY:
         lcdDrawTextAlignedLeft(y, STR_RTC_BATT);
         putsVolts(HW_SETTINGS_COLUMN2, y, getRTCBatteryVoltage(), PREC2|LEFT);
@@ -515,7 +499,6 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_RTC_CHECK:
         g_eeGeneral.disableRtcWarning = 1 - editCheckBox(1 - g_eeGeneral.disableRtcWarning, HW_SETTINGS_COLUMN2, y, STR_RTC_CHECK, attr, event);
         break;
-#endif
 
 #if defined(TX_CAPACITY_MEASUREMENT)
       case ITEM_RADIO_HARDWARE_CAPACITY_CALIB:
@@ -618,9 +601,8 @@ void menuRadioHardware(event_t event)
         }
         break;
 #endif
-
       case ITEM_RADIO_HARDWARE_JITTER_FILTER:
-        g_eeGeneral.jitterFilter = 1 - editCheckBox(1 - g_eeGeneral.jitterFilter, HW_SETTINGS_COLUMN2, y, STR_JITTER_FILTER, attr, event);
+        g_eeGeneral.noJitterFilter = 1 - editCheckBox(1 - g_eeGeneral.noJitterFilter, HW_SETTINGS_COLUMN2, y, STR_JITTER_FILTER, attr, event);
         break;
 
       case ITEM_RADIO_HARDWARE_RAS:
@@ -688,4 +670,4 @@ void menuRadioHardware(event_t event)
     }
   }
 }
-#endif // PCBSKY9X
+#endif

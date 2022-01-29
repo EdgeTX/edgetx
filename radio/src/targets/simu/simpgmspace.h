@@ -83,7 +83,6 @@ void sig(int sgn)
 
 #define __REV
 
-#if defined(STM32)
 extern GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
 extern TIM_TypeDef tim1, tim2, tim3, tim4, tim5, tim6, tim7, tim8, tim9, tim10;
 extern USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
@@ -175,48 +174,6 @@ extern RTC_TypeDef rtc;
 #define ADC (&adc)
 #undef RTC
 #define RTC (&rtc)
-#elif defined(PCBSKY9X)
-extern Pmc pmc;
-#undef PMC
-#define PMC (&pmc)
-extern Ssc ssc;
-#undef SSC
-#define SSC (&ssc)
-extern Pmc pmc;
-#undef PMC
-#define PMC (&pmc)
-extern Tc tc1;
-#undef TC1
-#define TC1 (&tc1)
-extern Pio Pioa, Piob, Pioc;
-extern Twi Twio;
-extern Dacc dacc;
-extern Usart Usart0;
-extern Adc Adc0;
-#undef ADC
-#define ADC (&Adc0)
-#undef USART0
-#define USART0 (&Usart0)
-#undef USART1
-#define USART1 (&Usart0)
-#undef USART2
-#define USART2 (&Usart0)
-#undef USART3
-#define USART3 (&Usart0)
-#undef PIOA
-#define PIOA (&Pioa)
-#undef PIOB
-#define PIOB (&Piob)
-#undef PIOC
-#define PIOC (&Pioc)
-#undef TWI0
-#define TWI0 (&Twio)
-#undef DACC
-#define DACC (&dacc)
-extern Pwm pwm;
-#undef PWM
-#define PWM (&pwm)
-#endif
 
 extern uint8_t * eeprom;
 extern void startPdcUsartReceive() ;
@@ -276,7 +233,6 @@ void simuMain();
 #define USART_GetITStatus(...)         0
 #define USART_ClearFlag(...)
 
-#if defined(STM32)
 #define TIM_DeInit(...)
 #define TIM_SetCompare2(...)
 #define TIM_ClearFlag(...)
@@ -287,7 +243,6 @@ void simuMain();
 #define GPIO_ReadInputDataBit(GPIOx, pin) (GPIOx->BSRRL & pin)
 #define RCC_AHB1PeriphClockCmd(...)
 #define RCC_APB2PeriphClockCmd(...)
-#endif
 
 // inline void delay_01us(uint32_t dummy) { }
 

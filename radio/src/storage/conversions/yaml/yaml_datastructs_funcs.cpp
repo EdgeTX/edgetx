@@ -204,7 +204,7 @@ bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
 }
 #endif
 
-uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
+static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
     data -= offsetof(ModuleData, ppm);

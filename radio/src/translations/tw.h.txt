@@ -110,6 +110,9 @@
 #define LEN_CURVE_TYPES                 "\006"
 #define TR_CURVE_TYPES                  "標準\0 " "自定義"
 
+#define LEN_ADCFILTERVALUES             "\002"
+#define TR_ADCFILTERVALUES              "全局""禁用" "开启"
+
 #define LEN_RETA123                     "\001"
 
 #if defined(PCBX10)
@@ -118,10 +121,8 @@
   #define TR_RETA123                   "RETA13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "RETA1234LRLR"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "RETA123LR"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123                   "RETA123a"
 #else
   #define TR_RETA123                   "RETA123"
 #endif

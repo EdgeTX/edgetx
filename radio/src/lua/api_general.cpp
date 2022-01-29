@@ -812,6 +812,113 @@ static int luaCrossfireTelemetryPush(lua_State * L)
 }
 #endif
 
+#if defined(GHOST)
+/*luadoc
+@function ghostTelemetryPop()
+
+Pops a received Ghost Telemetry packet from the queue.
+
+@retval nil queue does not contain any (or enough) bytes to form a whole packet
+
+@retval multiple returns 2 values:
+ * type (number)
+ * packet (table) data bytes
+
+@status current Introduced in 2.7.0
+*/
+static int luaGhostTelemetryPop(lua_State * L)
+{
+  if (!luaInputTelemetryFifo) {
+    luaInputTelemetryFifo = new Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>();
+    if (!luaInputTelemetryFifo) {
+      return 0;
+    }
+  }
+
+  uint8_t length = 0, data = 0;
+  if (luaInputTelemetryFifo->probe(length) && luaInputTelemetryFifo->size() >= uint32_t(length)) {
+    // length value includes type(1B), payload, crc(1B)
+    luaInputTelemetryFifo->pop(length);
+    luaInputTelemetryFifo->pop(data); // type
+    lua_pushnumber(L, data);          // return type
+    lua_newtable(L);
+    for (uint8_t i=0; i<length-2; i++) {
+      luaInputTelemetryFifo->pop(data);
+      lua_pushinteger(L, i+1);
+      lua_pushinteger(L, data);
+      lua_settable(L, -3);
+    }
+    return 2;
+  }
+
+  return 0;
+}
+
+/*luadoc
+@function ghostTelemetryPush()
+
+This functions allows for sending telemetry data toward the Ghost link.
+
+When called without parameters, it will only return the status of the output buffer without sending anything.
+
+@param command command
+
+@param data table of data bytes
+
+@retval boolean  data queued in output buffer or not.
+
+@retval nil      incorrect telemetry protocol.
+
+@status current Introduced in 2.7.0
+*/
+static int luaGhostTelemetryPush(lua_State * L)
+{
+  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST);
+
+  if (!sport) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  if (lua_gettop(L) == 0) {
+    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
+  }
+  else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE ) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+  else if (outputTelemetryBuffer.isAvailable()) {
+    uint8_t type = luaL_checkunsigned(L, 1);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    uint8_t length = luaL_len(L, 2);              // payload length
+
+    if( length > 10 ) {                           // max 10B payload
+      lua_pushboolean(L, false);
+      return 1;
+    }
+
+    // Ghost frames are fixed 14B
+    outputTelemetryBuffer.pushByte(getGhostModuleAddr());         // addr (1B)
+    outputTelemetryBuffer.pushByte(12);           // len = payload length(10B) + type(1B) + crc(1B)
+    outputTelemetryBuffer.pushByte(type);         // type (1B)
+    for (int i=0; i<length; i++) {                // data, max 10B
+      lua_rawgeti(L, 2, i+1);
+      outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+    }
+    for (int i=0; i<10-length; i++) {             // fill zeroes to frame size
+      outputTelemetryBuffer.pushByte(0);
+    }
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 11 ));  // Start at type, CRC over type (1B) + payload (10B)
+    outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
+    lua_pushboolean(L, true);
+  }
+  else {
+    lua_pushboolean(L, false);
+  }
+  return 1;
+}
+#endif
+
 /*luadoc
 @function getFieldInfo(source)
 
@@ -2292,6 +2399,10 @@ const luaL_Reg opentxLib[] = {
 #if defined(CROSSFIRE)
   { "crossfireTelemetryPop", luaCrossfireTelemetryPop },
   { "crossfireTelemetryPush", luaCrossfireTelemetryPush },
+#endif
+#if defined(GHOST)
+  { "ghostTelemetryPop", luaGhostTelemetryPop },
+  { "ghostTelemetryPush", luaGhostTelemetryPush },
 #endif
 #if defined(MULTIMODULE)
   { "multiBuffer", luaMultiBuffer },

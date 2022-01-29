@@ -24,9 +24,6 @@
 #define DSM2_SEND_BIND                     (1 << 7)
 #define DSM2_SEND_RANGECHECK               (1 << 5)
 
-#if defined(PCBSKY9X)
-uint8_t  dsm2BindTimer = DSM2_BIND_TIMEOUT;
-#endif
 
 // DSM2 control bits
 #define DSM2_CHANS           6
@@ -36,38 +33,6 @@ uint8_t  dsm2BindTimer = DSM2_BIND_TIMEOUT;
 
 #define BITLEN_DSM2          (8*2) //125000 Baud => 8uS per bit
 
-#if defined(PPM_PIN_SERIAL)
-void putDsm2SerialBit(uint8_t bit)
-{
-  extmodulePulsesData.dsm2.serialByte >>= 1;
-  if (bit & 1) {
-    extmodulePulsesData.dsm2.serialByte |= 0x80;
-  }
-  if (++extmodulePulsesData.dsm2.serialBitCount >= 8) {
-    *extmodulePulsesData.dsm2.ptr++ = extmodulePulsesData.dsm2.serialByte;
-    extmodulePulsesData.dsm2.serialBitCount = 0;
-  }
-}
-
-void sendByteDsm2(uint8_t b)     // max 10changes 0 10 10 10 10 1
-{
-  putDsm2SerialBit(0);           // Start bit
-  for (uint8_t i=0; i<8; i++) {  // 8 data Bits
-    putDsm2SerialBit(b & 1);
-    b >>= 1;
-  }
-
-  putDsm2SerialBit(1);           // Stop bit
-  putDsm2SerialBit(1);           // Stop bit
-}
-
-void putDsm2Flush()
-{
-  for (int i=0; i<16; i++) {
-    putDsm2SerialBit(1);         // 16 extra stop bits
-  }
-}
-#else
 void _send_1(uint8_t v)
 {
   if (extmodulePulsesData.dsm2.index & 1)
@@ -105,7 +70,6 @@ void putDsm2Flush()
   else
     *(extmodulePulsesData.dsm2.ptr - 1) = 60000;
 }
-#endif
 
 // This is the data stream to send, prepare after 19.5 mS
 // Send after 22.5 mS
@@ -114,12 +78,7 @@ void setupPulsesDSM2()
 {
   uint8_t dsmDat[14];
 
-#if defined(PPM_PIN_SERIAL)
-  extmodulePulsesData.dsm2.serialByte = 0 ;
-  extmodulePulsesData.dsm2.serialBitCount = 0 ;
-#else
   extmodulePulsesData.dsm2.index = 0;
-#endif
 
   extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
 
@@ -135,28 +94,12 @@ void setupPulsesDSM2()
       break;
   }
 
-#if defined(PCBSKY9X)
-  if (dsm2BindTimer > 0) {
-    dsm2BindTimer--;
-    if (switchState(SW_DSM2_BIND)) {
-      moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_BIND;
-      dsmDat[0] |= DSM2_SEND_BIND;
-    }
-  }
-  else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
-    dsmDat[0] |= DSM2_SEND_RANGECHECK;
-  }
-  else {
-    moduleState[EXTERNAL_MODULE].mode = 0;
-  }
-#else
   if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_BIND) {
     dsmDat[0] |= DSM2_SEND_BIND;
   }
   else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
     dsmDat[0] |= DSM2_SEND_RANGECHECK;
   }
-#endif
 
   dsmDat[1] = g_model.header.modelId[EXTERNAL_MODULE]; // DSM2 Header second byte for model match
 

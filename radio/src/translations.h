@@ -115,9 +115,6 @@ extern const char STR_VTRIMINC[];
 extern const char STR_VDISPLAYTRIMS[];
 extern const char STR_RETA123[];
 
-#if defined(PCBSKY9X) && defined(REVX)
-extern const char STR_VOUTPUT_TYPE[];
-#endif
 
 extern const char STR_VBLMODE[];
 extern const char STR_VCURVEFUNC[];
@@ -198,6 +195,7 @@ extern const char STR_VFORMULAS[];
 extern const char STR_VPREC[];
 extern const char STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
+extern const char STR_ADCFILTERVALUES[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];
@@ -240,9 +238,6 @@ extern const char STR_TTRIM_SW[];
 extern const char STR_BEEPCTR[];
 extern const char STR_USE_GLOBAL_FUNCS[];
 
-#if defined(PCBSKY9X) && defined(REVX)
-  extern const char STR_OUTPUT_TYPE[];
-#endif
 
 extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];

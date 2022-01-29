@@ -119,6 +119,9 @@
 #define LEN_CURVE_TYPES        "\010"
 #define TR_CURVE_TYPES         "Fisso\0  ""Modific."
 
+#define LEN_ADCFILTERVALUES    "\007"
+#define TR_ADCFILTERVALUES     "Globali""Off\0   ""On\0    "
+
 #define LEN_RETA123            "\001"
 
 #if defined(PCBX10)
@@ -127,18 +130,12 @@
   #define TR_RETA123           "DEMA13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123           "DEMA123SDSD"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123           "DEMA123SD"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123           "DEMA123a"
 #else
   #define TR_RETA123           "DEMA123"
 #endif
 
-#if defined(PCBSKY9X) && defined(REVX)
-  #define LEN_VOUTPUT_TYPE     "\011"
-  #define TR_VOUTPUT_TYPE      "OpenDrain""PushPull\0"
-#endif
 
 #define LEN_VCURVEFUNC         "\003"
 #define TR_VCURVEFUNC          "---""x>0""x<0""|x|""f>0""f<0""|f|"
@@ -198,11 +195,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK      "Suona\0       "
-  #else
     #define TR_PLAY_TRACK      "SuonaTraccia\0"
-  #endif
   #define TR_PLAY_BOTH         "Play Both\0   "
   #define TR_PLAY_VALUE        TR("LeggiVal\0 ", "LeggiValore\0 ")
 #else
@@ -336,13 +329,8 @@
   #define TR_TRIMS_SWITCHES    TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",   STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar")
 #endif
 
-#if defined(PCBSKY9X)
-  #define TR_ROTARY_ENCODERS   "REa\0"
-  #define TR_ROTENC_SWITCHES   "REa"
-#else
   #define TR_ROTARY_ENCODERS
   #define TR_ROTENC_SWITCHES
-#endif
 
 
 #define TR_ON_ONE_SWITCHES     "ON\0""One"
@@ -459,9 +447,6 @@
 #define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR             TR("Beep al c.", "Beep al centro")
 #define TR_USE_GLOBAL_FUNCS    TR("Funz. Glob.", "Usa Funz. Globali")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE       INDENT "Uscita"
-#endif
 #define TR_PROTOCOL            TR("Protoc.", "Protocollo")
 #define TR_PPMFRAME            INDENT "Frame PPM"
 #define TR_REFRESHRATE         TR(INDENT "Refresh", INDENT "Refresh rate")

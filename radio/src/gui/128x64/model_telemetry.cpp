@@ -23,9 +23,6 @@
 
 enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_PROTOCOL_TYPE,
-#if defined(REVX)
-  ITEM_TELEMETRY_INVERTED_SERIAL,
-#endif
   ITEM_TELEMETRY_RSSI_LABEL,
   ITEM_TELEMETRY_RSSI_SOURCE,
   ITEM_TELEMETRY_RSSI_ALARM1,
@@ -70,11 +67,7 @@ enum MenuModelTelemetryFrskyItems {
   #define TELEMETRY_TYPE_ROW           (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_PPM) ? (uint8_t)0 : HIDDEN_ROW
 #endif
 
-#if defined(REVX)
-  #define TELEMETRY_TYPE_ROWS          TELEMETRY_TYPE_ROW, TELEMETRY_TYPE_ROW,
-#else
   #define TELEMETRY_TYPE_ROWS          TELEMETRY_TYPE_ROW,
-#endif
 
 void onSensorMenu(const char * result)
 {
@@ -187,11 +180,6 @@ void menuModelTelemetry(event_t event)
         }
         break;
 
-#if defined(REVX)
-      case ITEM_TELEMETRY_INVERTED_SERIAL:
-        g_model.moduleData[EXTERNAL_MODULE].invertedSerial = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].invertedSerial, TELEM_COL2, y, STR_INVERTED_SERIAL, attr, event);
-        break;
-#endif
 
       case ITEM_TELEMETRY_SENSORS_LABEL:
         lcdDrawTextAlignedLeft(y, STR_TELEMETRY_SENSORS);
