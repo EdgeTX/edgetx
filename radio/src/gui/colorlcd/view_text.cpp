@@ -39,14 +39,19 @@ constexpr char NON_CHECKABLE_PREFIX = '=';
 
 class CheckBoxStatic : public Window {
   public:
-    CheckBoxStatic(Window * parent, const rect_t & rect, bool checked, bool focus, WindowFlags flags = 0) :
+    CheckBoxStatic(Window * parent, const rect_t & rect, std::function<bool()> getChecked, 
+                   std::function<bool()> getFocus, std::function<bool()> getVisible, WindowFlags flags = 0) :
       Window(parent, rect, flags, 0),
-      _checked(checked),
-      _focus(focus)
+      _getChecked(getChecked),
+      _getFocus(getFocus),
+      _getVisible(getVisible)
     {
       coord_t size = min(rect.w, rect.h);
       setWidth(size);
       setHeight(size);
+      _checked = _getChecked();
+      _focus = _getFocus();
+      _visible = _getVisible();
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -56,25 +61,33 @@ class CheckBoxStatic : public Window {
     }
 #endif
 
-    const char * getLabel() const
-    {
-      return label.c_str();
-    }
-
-    void setLabel(std::string newLabel)
-    {
-      label = std::move(newLabel);
-    }
-
     void paint(BitmapBuffer * dc)
     {
-      theme->drawCheckBox(dc, _checked, 0, FIELD_PADDING_TOP, _focus);
+      if(_visible)
+        theme->drawCheckBox(dc, _checked, 0, FIELD_PADDING_TOP, _focus);
+    }
+
+    void checkEvents() override
+    {
+      Window::checkEvents();
+      bool checked = _getChecked();
+      bool focus = _getFocus();
+      bool visible = _getVisible();
+      if (checked != _checked || focus != _focus || visible != _visible) {
+        _checked = checked;
+        _focus = focus;
+        _visible = visible;
+        invalidate();
+      }
     }
 
   protected:
-    std::string label;
+    std::function<bool()> _getChecked;
+    std::function<bool()> _getFocus;
+    std::function<bool()> _getVisible;
     bool _checked;
     bool _focus;
+    bool _visible;
 };
 
 void ViewTextWindow::extractNameSansExt()
@@ -131,11 +144,12 @@ void ViewTextWindow::buildBody(Window *window)
 
   for (i = 0; i < maxScreenLines; i++) {
     if (g_model.checklistInteractive && !fromMenu) {
-      if (lines[i][0]) {
-        printf("Checkbox: %d %d %d", i, i < checklistPosition-(int)textVerticalOffset, i == checklistPosition-(int)textVerticalOffset);
-        CheckBoxStatic* chk = new CheckBoxStatic(window, grid.getLabelSlot(), i < checklistPosition-(int)textVerticalOffset, i == checklistPosition-(int)textVerticalOffset);
-        chk->invalidate();
-      }
+      printf("Checkbox: %d %d %d %d\r\n", i, i < checklistPosition-(int)textVerticalOffset, i == checklistPosition-(int)textVerticalOffset, (int)lines[i][0]);
+      new CheckBoxStatic(window, grid.getLabelSlot(), 
+                         [=]() { return i < checklistPosition-(int)textVerticalOffset;}, 
+                         [=]() { return i == checklistPosition-(int)textVerticalOffset;},
+                         [=]() { return lines[i][0];});
+
       new DynamicText(window, grid.getFieldSlot(), [=]() {
         std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
         return std::string(str);
