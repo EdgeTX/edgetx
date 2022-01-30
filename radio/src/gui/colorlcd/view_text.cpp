@@ -143,12 +143,13 @@ void ViewTextWindow::buildBody(Window *window)
   loadFirstScreen();
 
   for (i = 0; i < maxScreenLines; i++) {
-    if (g_model.checklistInteractive && !fromMenu) {
-      new CheckBoxStatic(window, grid.getLabelSlot(), 
-                         [=]() { return i < checklistPosition-(int)textVerticalOffset;}, 
-                         [=]() { return i == checklistPosition-(int)textVerticalOffset;},
-                         [=]() { return lines[i][0] && lines[i][0]!=NON_CHECKABLE_PREFIX;});
-
+    if (g_model.checklistInteractive) {
+      if (!fromMenu) {
+        new CheckBoxStatic(window, grid.getLabelSlot(), 
+                          [=]() { return i < checklistPosition-(int)textVerticalOffset;}, 
+                          [=]() { return i == checklistPosition-(int)textVerticalOffset;},
+                          [=]() { return lines[i][0] && lines[i][0]!=NON_CHECKABLE_PREFIX;});
+      }
       new DynamicText(window, grid.getFieldSlot(), [=]() {
         std::string str = 
             (lines[i][0]) ? std::string(lines[i]).substr(lines[i][0]==NON_CHECKABLE_PREFIX ? 1 : 0, std::string::npos) : std::string(" ");
