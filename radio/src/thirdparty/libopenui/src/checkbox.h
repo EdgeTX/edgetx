@@ -47,6 +47,10 @@ class CheckBox : public FormField {
     void onEvent(event_t event) override;
 #endif
 
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y) override;
+#endif
+
     uint8_t getValue() const
     {
       return _getValue();

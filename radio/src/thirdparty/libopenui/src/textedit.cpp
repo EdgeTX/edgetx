@@ -261,18 +261,19 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
   TextKeyboard::show(this);
 #endif
 
-  coord_t rest = x;
-  for (cursorPos = 0; cursorPos < length; cursorPos++) {
-    char c = value[cursorPos];
-    if (c == '\0')
-      break;
-    uint8_t w = getCharWidth(c, fontspecsTable[0]) + 1;
-    if (rest < w)
-      break;
-    rest -= w;
-  }
+  // coord_t rest = x;
+  // for (cursorPos = 0; cursorPos < length; cursorPos++) {
+  //   char c = value[cursorPos];
+  //   if (c == '\0')
+  //     break;
+  //   uint8_t w = getCharWidth(c, fontspecsTable[0]) + 1;
+  //   if (rest < w)
+  //     break;
+  //   rest -= w;
+  // }
 
-  invalidate();
+  // invalidate();
+
   return true;
 }
 #endif
