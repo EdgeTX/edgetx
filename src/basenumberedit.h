@@ -153,6 +153,8 @@ class BaseNumberEdit: public FormField
       setValue(currentValue);
     }
 
+    virtual void paint(BitmapBuffer* dc) override {};
+
   protected:
     int vdefault = 0;
     int vmin;
