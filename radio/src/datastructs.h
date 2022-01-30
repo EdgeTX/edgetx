@@ -117,29 +117,29 @@ static inline void check_struct()
 
 #if defined(PCBXLITES)
   CHKSIZE(RadioData, 860);
-  CHKSIZE(ModelData, 6160);
+  CHKSIZE(ModelData, 6162);
 #elif defined(PCBXLITE)
   CHKSIZE(RadioData, 858);
-  CHKSIZE(ModelData, 6160);
+  CHKSIZE(ModelData, 6162);
 #elif defined(RADIO_TPRO)
   CHKSIZE(RadioData, 841);
-  CHKSIZE(ModelData, 6185);
+  CHKSIZE(ModelData, 6187);
 #elif defined(PCBX7)
   CHKSIZE(RadioData, 864);
-  CHKSIZE(ModelData, 6160);
+  CHKSIZE(ModelData, 6162);
 #elif defined(PCBX9E)
   CHKSIZE(RadioData, 954);
-  CHKSIZE(ModelData, 6612);
+  CHKSIZE(ModelData, 6614);
 #elif defined(PCBX9D) || defined(PCBX9DP)
   CHKSIZE(RadioData, 896);
-  CHKSIZE(ModelData, 6604);
+  CHKSIZE(ModelData, 6606);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
     CHKSIZE(RadioData, 921);
-    CHKSIZE(ModelData, 11024);
+    CHKSIZE(ModelData, 11026);
   #else
     CHKSIZE(RadioData, 903);
-    CHKSIZE(ModelData, 11022);
+    CHKSIZE(ModelData, 11024);
   #endif
 #endif
 

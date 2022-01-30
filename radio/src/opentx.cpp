@@ -781,18 +781,32 @@ bool isThrottleWarningAlertNeeded()
   if (g_model.thrTraceSrc && g_model.throttleReversed) { // TODO : proper review of THR source definition and handling
     v = -v;
   }
-  return v > THRCHK_DEADBAND - 1024;
+
+  if (g_model.enableCustomThrottleWarning) {
+    int16_t idleValue = (int32_t)RESX * (int32_t)g_model.customThrottleWarningPosition / (int32_t)100;
+    return abs(v - idleValue) > THRCHK_DEADBAND;
+  }
+  else {
+    return v > THRCHK_DEADBAND - RESX;
+  }
 }
 
 #if defined(COLORLCD)
 void checkThrottleStick()
 {
+  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
   if (isThrottleWarningAlertNeeded()) {
+    if (g_model.enableCustomThrottleWarning) {
+    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
+    }
+    else {
+      strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
+    }
     LED_ERROR_BEGIN();
     AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
     auto dialog =
         new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE,
-                             STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP);
+                             throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
     dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
     dialog->runForever();
     LED_ERROR_END();
@@ -801,13 +815,19 @@ void checkThrottleStick()
 #else
 void checkThrottleStick()
 {
+  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
   if (!isThrottleWarningAlertNeeded()) {
     return;
   }
-
+  if (g_model.enableCustomThrottleWarning) {
+    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
+  }
+  else {
+    strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
+  }
   // first - display warning; also deletes inputs if any have been before
   LED_ERROR_BEGIN();
-  RAISE_ALERT(TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
+  RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;
@@ -829,7 +849,7 @@ void checkThrottleStick()
       refresh = true;
     }
     else if (power == e_power_on && refresh) {
-      RAISE_ALERT(TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+      RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
       refresh = false;
     }
 #else
