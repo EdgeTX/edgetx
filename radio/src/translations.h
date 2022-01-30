@@ -336,6 +336,8 @@ extern const char STR_PWR_OFF_DELAY[];
 extern const char STR_PWR_OFF_DELAYS[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
+extern const char STR_CUSTOM_THROTTLE_WARNING[];
+extern const char STR_CUSTOM_THROTTLE_WARNING_VAL[];
 extern const char STR_SWITCHWARNING[];
 extern const char STR_POTWARNINGSTATE[];
 extern const char STR_POTWARNING[];

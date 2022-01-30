@@ -736,6 +736,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["trimInc"] = rhs.trimInc;
   node["displayTrims"] = rhs.trimsDisplay;
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
+  node["enableCustomThrottleWarning"] = (int)rhs.enableCustomThrottleWarning;
+  node["customThrottleWarningPosition"] = (int)rhs.customThrottleWarningPosition;
   node["beepANACenter"] = rhs.beepANACenter;
   node["extendedLimits"] = (int)rhs.extendedLimits;
   node["extendedTrims"] = (int)rhs.extendedTrims;
@@ -961,6 +963,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["trimInc"] >> rhs.trimInc;
   node["displayTrims"] >> rhs.trimsDisplay;
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
+  node["enableCustomThrottleWarning"] >> rhs.enableCustomThrottleWarning;
+  node["customThrottleWarningPosition"] >> rhs.customThrottleWarningPosition;
   node["beepANACenter"] >> rhs.beepANACenter;
   node["extendedLimits"] >> rhs.extendedLimits;
   node["extendedTrims"] >> rhs.extendedTrims;
