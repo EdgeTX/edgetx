@@ -89,6 +89,11 @@ NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax,
   lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
                               LV_PART_MAIN | LV_STATE_FOCUSED);
 
+  lv_obj_set_style_outline_width(lvobj, 0, LV_PART_MAIN|LV_STATE_EDITED);
+  lv_obj_set_style_outline_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN|LV_STATE_EDITED);
+  lv_obj_set_style_outline_width(lvobj, 0, LV_PART_MAIN|LV_STATE_FOCUS_KEY);
+  lv_obj_set_style_outline_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN|LV_STATE_FOCUS_KEY);
+
   // Hide cursor
   lv_obj_set_style_opa(lvobj, 0, LV_PART_CURSOR);
 
