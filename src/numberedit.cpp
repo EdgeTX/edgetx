@@ -36,18 +36,26 @@ extern "C" void lvglEventCb(lv_event_t* event)
   NumberEdit* numEdit = (NumberEdit*)event->user_data;
   if(!numEdit)
     return;
+  if(numEdit->deleted())
+    return;
 
-  lv_group_t* grp = (lv_group_t*)lv_obj_get_group(numEdit->getLvObj());
-  if(grp && lv_group_get_focused(grp) == numEdit->getLvObj())
-    numEdit->setEditMode(lv_group_get_editing(grp));
-  switch(key)
+  lv_obj_t* obj = numEdit->getLvObj();
+
+  if(obj != nullptr && lv_obj_is_editable(obj))
   {
-  case LV_KEY_LEFT:
-//    numEdit->onEvent(EVT_ROTARY_LEFT);
-    break;
-  case LV_KEY_RIGHT:
-//    numEdit->onEvent(EVT_ROTARY_RIGHT);
-    break;
+    lv_group_t* grp = (lv_group_t*)lv_obj_get_group(obj);
+    if(grp && lv_group_get_focused(grp) == obj)
+      numEdit->setEditMode(lv_group_get_editing(grp));
+
+    switch(key)
+    {
+    case LV_KEY_LEFT:
+  //    numEdit->onEvent(EVT_ROTARY_LEFT);
+      break;
+    case LV_KEY_RIGHT:
+  //    numEdit->onEvent(EVT_ROTARY_RIGHT);
+      break;
+    }
   }
   event->code = LV_EVENT_REFRESH;
 }
