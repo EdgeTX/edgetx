@@ -67,7 +67,9 @@ class TextEdit : public FormField {
 
     void changeEnd(bool forceChanged = false) override
     {
-      strncpy(value, lv_textarea_get_text(lvobj), length);
+      if (lvobj != nullptr)
+        strncpy(value, lv_textarea_get_text(lvobj), length);
+
       cursorPos = 0;
       if (changed || forceChanged) {
         changed = false;
