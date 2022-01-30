@@ -75,7 +75,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (IS_HORUS_OR_TARANIS(board)) {
           qr = div(index-1, 3);
           if (generalSettings)
-            swName = QString(generalSettings->switchName[qr.quot]);
+            swName = QString(generalSettings->switchName[qr.quot]).trimmed();
           if (swName.isEmpty())
             swName = Boards::getSwitchInfo(board, qr.quot).name;
           return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
