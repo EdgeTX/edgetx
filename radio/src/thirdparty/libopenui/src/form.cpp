@@ -72,7 +72,7 @@ void FormField::setFocus(uint8_t flag, Window * from)
     if(lvobj != nullptr)
     {
       lv_group_focus_freeze(inputGroup, false);
-      lv_group_focus_obj(lvobj);
+//      lv_group_focus_obj(lvobj);
       lv_group_focus_freeze(inputGroup, true);
     }
   }
