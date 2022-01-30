@@ -209,12 +209,17 @@ void ViewTextWindow::checkEvents()
 
     switch (event) {
     case EVT_KEY_BREAK(KEY_ENTER):
-      if (g_model.checklistInteractive && !fromMenu) {
+      // check if interactive checklist enabled and process only items displayed on screen (cannot mark item that is out of the screen)
+      if (g_model.checklistInteractive && !fromMenu && checklistPosition-(int)textVerticalOffset >= 0) {
         if (checklistPosition < readLinesCount) {
-          ++checklistPosition;
-          if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
-            ++textVerticalOffset;
-            sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+          if (checklistPosition-(int)textVerticalOffset < maxScreenLines) {
+            do{
+              ++checklistPosition;
+              if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
+                ++textVerticalOffset;
+                sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+              }
+            }while(checklistPosition < readLinesCount && lines[checklistPosition-(int)textVerticalOffset][0] == NON_CHECKABLE_PREFIX);
           }
         }
         else {
