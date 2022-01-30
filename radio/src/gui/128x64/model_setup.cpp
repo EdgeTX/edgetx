@@ -90,6 +90,8 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
+  ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING,
+  ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE,
   ITEM_MODEL_SETUP_SWITCHES_WARNING1,
 #if defined(PCBTARANIS)
   ITEM_MODEL_SETUP_SWITCHES_WARNING2,
@@ -169,14 +171,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_RECEIVER_2,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_RECEIVER_3,
 
-#if defined(PCBSKY9X) && defined(REVX)
-  ITEM_MODEL_SETUP_EXTERNAL_MODULE_OUTPUT_TYPE,
-#endif
-#if defined(PCBSKY9X)
-  ITEM_MODEL_SETUP_EXTRA_MODULE_LABEL,
-  ITEM_MODEL_SETUP_EXTRA_MODULE_CHANNELS,
-  ITEM_MODEL_SETUP_EXTRA_MODULE_BIND,
-#endif
 #endif
 
 #if defined(PCBTARANIS)
@@ -208,8 +202,6 @@ enum MenuModelSetupItems {
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(HARDWARE_EXTERNAL_MODULE)
   #define CURRENT_MODULE_EDITED(k)        (k >= ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL ? EXTERNAL_MODULE : INTERNAL_MODULE)
   #define CURRENT_RECEIVER_EDITED(k)      (k - (k >= ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL ? ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_RECEIVER_1 : ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_RECEIVER_1))
-#elif defined(PCBSKY9X)
-  #define CURRENT_MODULE_EDITED(k)        (k >= ITEM_MODEL_SETUP_EXTRA_MODULE_LABEL ? EXTRA_MODULE : EXTERNAL_MODULE)
 #elif defined(HARDWARE_INTERNAL_MODULE)
   #define CURRENT_MODULE_EDITED(k)        (INTERNAL_MODULE)
   #define CURRENT_RECEIVER_EDITED(k)      (k - ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_RECEIVER_1)
@@ -250,11 +242,7 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
                                                           : (uint8_t)0
 
-#if defined(PCBSKY9X)
-  #define EXTRA_MODULE_ROWS             LABEL(ExtraModule), 1, 2,
-#else
   #define EXTRA_MODULE_ROWS
-#endif
 
 #if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
@@ -442,6 +430,8 @@ void menuModelSetup(event_t event)
       0, // Checklist
       0, // Checklist interactive mode
       0, // Throttle warning
+      0, // Custom position for throttle warning enable
+      0, // Custom position for throttle warning value
       WARN_ROWS
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
@@ -748,6 +738,20 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
         g_model.disableThrottleWarning = !editCheckBox(!g_model.disableThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLE_WARNING, attr, event);
         break;
+      
+      case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING:
+        g_model.enableCustomThrottleWarning = editCheckBox(g_model.enableCustomThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_CUSTOM_THROTTLE_WARNING, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE:
+        {
+          lcdDrawText(INDENT_WIDTH * 4, y, STR_CUSTOM_THROTTLE_WARNING_VAL);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.customThrottleWarningPosition, attr | LEFT, 2);
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, g_model.customThrottleWarningPosition, -100, 100);
+          }
+        }
+        break;
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING2:
         if (i==0) {
@@ -931,11 +935,6 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(PCBSKY9X)
-      case ITEM_MODEL_SETUP_EXTRA_MODULE_LABEL:
-        lcdDrawTextAlignedLeft(y, "RF Port 2 (PPM)");
-        break;
-#endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL:
@@ -1232,9 +1231,6 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_CHANNELS:
 #endif
-#if defined(PCBSKY9X)
-      case ITEM_MODEL_SETUP_EXTRA_MODULE_CHANNELS:
-#endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_CHANNELS:
 #endif
@@ -1375,9 +1371,6 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(PCBSKY9X)
-      case ITEM_MODEL_SETUP_EXTRA_MODULE_BIND:
-#endif
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_NOT_ACCESS_RXNUM_BIND_RANGE:
 #endif
@@ -1531,14 +1524,6 @@ void menuModelSetup(event_t event)
         break;
       }
 
-#if defined(PCBSKY9X) && defined(REVX)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_OUTPUT_TYPE:
-      {
-        ModuleData & moduleData = g_model.moduleData[moduleIdx];
-        moduleData.ppm.outputType = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_OUTPUT_TYPE, STR_VOUTPUT_TYPE, moduleData.ppm.outputType, 0, 1, attr, event);
-        break;
-      }
-#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_FAILSAFE:
@@ -1937,12 +1922,6 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_MODEL_NUM:
         if (menuHorizontalPosition == 0)
           checkModelIdUnique(g_eeGeneral.currModel, INTERNAL_MODULE);
-        break;
-#endif
-#if defined(PCBSKY9X)
-      case ITEM_MODEL_SETUP_EXTRA_MODULE_BIND:
-        if (menuHorizontalPosition == 0)
-          checkModelIdUnique(g_eeGeneral.currModel, EXTRA_MODULE);
         break;
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)

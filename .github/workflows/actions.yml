@@ -13,6 +13,8 @@ on:
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
       - 'companion/**'
+      - '.gitpod.yml'
+      - '.devcontainer/**'
   pull_request:
     branches:
       - '2.4'
@@ -25,6 +27,7 @@ on:
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
+  workflow_dispatch:
 
 jobs:
   test:
@@ -52,7 +55,7 @@ jobs:
           - xlite
           - xlites
     container:
-      image: ghcr.io/edgetx/edgetx-commit-tests
+      image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -92,7 +95,7 @@ jobs:
           - x9lite;x9lites
           - xlite;xlites
     container:
-      image: ghcr.io/edgetx/edgetx-commit-tests
+      image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:

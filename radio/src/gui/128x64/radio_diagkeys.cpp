@@ -63,13 +63,7 @@ void menuRadioDiagKeys(event_t event)
       }
     }
 
-#if defined(PCBSKY9X)
-    if (i != SW_ID0) {
-      y = MENU_HEADER_HEIGHT +i*FH - 2*FH;
-      drawSwitch(8*FW, y, i+1, 0);
-      displaySwitchState(11*FW+2, y, i);
-    }
-#elif (NUM_SWITCHES > 6)
+#if   (NUM_SWITCHES > 6)
     if (i < NUM_SWITCHES) {
       if (SWITCH_EXISTS(i)) {
         y = (i > 4) ? FH*(i-4)+1 : MENU_HEADER_HEIGHT + FH*i + 1;

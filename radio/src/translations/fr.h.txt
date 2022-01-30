@@ -126,18 +126,12 @@
   #define TR_RETA123                   "DPGA13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "DPGA1234LRLR"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "DPGA123LR"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123                   "DPGA123a"
 #else
   #define TR_RETA123                   "DPGA123"
 #endif
 
-#if defined(PCBSKY9X) && defined(REVX)
-  #define LEN_VOUTPUT_TYPE             "\011"
-  #define TR_VOUTPUT_TYPE              "OpenDrain""PushPull\0"
-#endif
 
 #define LEN_VCURVEFUNC                 "\003"
 #define TR_VCURVEFUNC                  "---""x>0""x<0""|x|""f>0""f<0""|f|"
@@ -197,11 +191,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK              "Jouer\0       "
-  #else
     #define TR_PLAY_TRACK              "Jouer fich\0  "
-  #endif
   #define TR_PLAY_BOTH                 "Jouer les 2\0 "
   #define TR_PLAY_VALUE                "Lire valeur\0 "
 #else
@@ -335,13 +325,8 @@
   #define TR_TRIMS_SWITCHES            TR("tDg""tDd""tPb""tPh""tGb""tGh""tAg""tAd",   STR_CHAR_TRIM "Dg"  STR_CHAR_TRIM "Dd"  STR_CHAR_TRIM "Pb"  STR_CHAR_TRIM "Ph"  STR_CHAR_TRIM "Gb"  STR_CHAR_TRIM "Gh"  STR_CHAR_TRIM "Ag"  STR_CHAR_TRIM "Ad")
 #endif
 
-#if defined(PCBSKY9X)
-  #define TR_ROTARY_ENCODERS           "REa\0"
-  #define TR_ROTENC_SWITCHES           "REa"
-#else
   #define TR_ROTARY_ENCODERS
   #define TR_ROTENC_SWITCHES
-#endif
 
 #define TR_ON_ONE_SWITCHES             "ON\0""Un"
 
@@ -457,9 +442,6 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("Bips centr", "Bips centrage")
 #define TR_USE_GLOBAL_FUNCS            TR("Fonc. glob.", "Fonctions globales")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE               INDENT "Sortie"
-#endif
 #define TR_PROTOCOL                    TR("Proto.", "Protocole")
 #define TR_PPMFRAME                    INDENT "Trame PPM"
 #define TR_REFRESHRATE                 INDENT "Période"
@@ -562,6 +544,8 @@
 #define TR_PWR_ON_DELAY                "Délai btn ON"
 #define TR_PWR_OFF_DELAY               "Délai btn OFF"
 #define TR_THROTTLE_WARNING             TR(INDENT "Alerte gaz", INDENT "Alerte gaz")
+#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
+#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING               TR(INDENT "Alerte int", INDENT "Pos. interrupteurs")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")

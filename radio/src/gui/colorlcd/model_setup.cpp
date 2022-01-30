@@ -1494,6 +1494,15 @@ void ModelSetupPage::build(FormWindow * window)
     new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
     grid.nextLine();
 
+    // Custom Throttle warning
+    new StaticText(window, grid.getLabelSlot(true), STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
+    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
+    grid.nextLine();
+    // Custom Throttle warning value
+    new StaticText(window, grid.getLabelSlot(true), STR_CUSTOM_THROTTLE_WARNING_VAL, 0, COLOR_THEME_PRIMARY1);
+    new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(g_model.customThrottleWarningPosition));
+    grid.nextLine();
+
     // Switches warning
     new StaticText(window, grid.getLabelSlot(true), STR_SWITCHWARNING, 0, COLOR_THEME_PRIMARY1);
     auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);

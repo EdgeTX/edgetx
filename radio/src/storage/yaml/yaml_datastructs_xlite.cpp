@@ -229,9 +229,9 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_VALUE_GLOBAL, "GLOBAL"  },
-  {  OVERRIDE_VALUE_OFF, "OFF"  },
-  {  OVERRIDE_VALUE_ON, "ON"  },
+  {  OVERRIDE_VALUE_GLOBAL, "VALUE_GLOBAL"  },
+  {  OVERRIDE_VALUE_OFF, "VALUE_OFF"  },
+  {  OVERRIDE_VALUE_ON, "VALUE_ON"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_FailsafeModes[] = {
@@ -804,7 +804,9 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "extendedTrims", 1 ),
   YAML_UNSIGNED( "throttleReversed", 1 ),
   YAML_UNSIGNED( "checklistInteractive", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "enableCustomThrottleWarning", 1 ),
+  YAML_PADDING( 6 ),
+  YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 88, 32, struct_LimitData, NULL),
@@ -847,7 +849,7 @@ static const struct YamlNode struct_PartialModel[] = {
   YAML_END
 };
 
-#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 24
+#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 29
 
 static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
 

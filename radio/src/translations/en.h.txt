@@ -126,18 +126,12 @@
   #define TR_RETA123                   "RETA13245LR"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "RETA1234LRLR"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "RETA123LR"
-#elif defined(PCBSKY9X)
-  #define TR_RETA123                   "RETA123a"
 #else
   #define TR_RETA123                   "RETA123"
 #endif
 
-#if defined(PCBSKY9X) && defined(REVX)
-  #define LEN_VOUTPUT_TYPE             "\011"
-  #define TR_VOUTPUT_TYPE              "OpenDrain""PushPull\0"
-#endif
 
 #define LEN_VCURVEFUNC                 "\003"
 #define TR_VCURVEFUNC                  "---""x>0""x<0""|x|""f>0""f<0""|f|"
@@ -194,11 +188,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK              "Play\0     "
-  #else
     #define TR_PLAY_TRACK              "Play Track"
-  #endif
   #define TR_PLAY_BOTH                 "Play Both\0"
   #define TR_PLAY_VALUE                TR("Play Val\0 ", "Play Value")
 #else
@@ -315,13 +305,8 @@
   #define TR_TRIMS_SWITCHES            TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",  STR_CHAR_TRIM "Rl" STR_CHAR_TRIM "Rr" STR_CHAR_TRIM "Ed" STR_CHAR_TRIM "Eu" STR_CHAR_TRIM "Td" STR_CHAR_TRIM "Tu" STR_CHAR_TRIM "Al" STR_CHAR_TRIM "Ar")
 #endif
 
-#if defined(PCBSKY9X)
-  #define TR_ROTARY_ENCODERS           "REa\0"
-  #define TR_ROTENC_SWITCHES           "REa"
-#else
   #define TR_ROTARY_ENCODERS
   #define TR_ROTENC_SWITCHES
-#endif
 
 #define TR_ON_ONE_SWITCHES             "ON\0""One"
 
@@ -438,9 +423,6 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Center Beep")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "Use global funcs")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE               INDENT "Output"
-#endif
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
   #define TR_PPMFRAME                  INDENT "PPM frame"
   #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
@@ -542,6 +524,8 @@
 #define TR_PWR_ON_DELAY                "Pwr On delay"
 #define TR_PWR_OFF_DELAY               "Pwr Off delay"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
+#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
+#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch positions")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")

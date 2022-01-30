@@ -75,6 +75,8 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
   ITEM_MODEL_SETUP_THROTTLE_WARNING,
+  ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING,
+  ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE,
   ITEM_MODEL_SETUP_SWITCHES_WARNING1,
 #if defined(PCBX9E)
   ITEM_MODEL_SETUP_SWITCHES_WARNING2,
@@ -379,6 +381,8 @@ void menuModelSetup(event_t event)
       0, // Checklist
       0, // Checklist interactive mode
       0, // Throttle warning
+      0, // Custom position for throttle warning enable
+      0, // Custom position for throttle warning value
       SW_WARN_ROWS, // Switch warning
       POT_WARN_ROWS, // Pot warning
 
@@ -648,6 +652,20 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
         g_model.disableThrottleWarning = !editCheckBox(!g_model.disableThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLE_WARNING, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING:
+        g_model.enableCustomThrottleWarning = editCheckBox(g_model.enableCustomThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_CUSTOM_THROTTLE_WARNING, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE:
+        {
+          lcdDrawText(INDENT_WIDTH * 4, y, STR_CUSTOM_THROTTLE_WARNING_VAL);
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.customThrottleWarningPosition, attr | LEFT, 2);
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, g_model.customThrottleWarningPosition, -100, 100);
+          }
+        }
         break;
 
 #if defined(PCBX9E)
