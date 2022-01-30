@@ -35,6 +35,48 @@
   case EVT_KEY_BREAK(KEY_PGUP):    \
   case EVT_KEY_BREAK(KEY_UP)
 
+constexpr char NON_CHECKABLE_PREFIX = '=';
+
+class CheckBoxStatic : public Window {
+  public:
+    CheckBoxStatic(Window * parent, const rect_t & rect, bool checked, bool focus, WindowFlags flags = 0) :
+      Window(parent, rect, flags, 0),
+      _checked(checked),
+      _focus(focus)
+    {
+      coord_t size = min(rect.w, rect.h);
+      setWidth(size);
+      setHeight(size);
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "CheckBoxStatic";
+    }
+#endif
+
+    const char * getLabel() const
+    {
+      return label.c_str();
+    }
+
+    void setLabel(std::string newLabel)
+    {
+      label = std::move(newLabel);
+    }
+
+    void paint(BitmapBuffer * dc)
+    {
+      theme->drawCheckBox(dc, _checked, 0, FIELD_PADDING_TOP, _focus);
+    }
+
+  protected:
+    std::string label;
+    bool _checked;
+    bool _focus;
+};
+
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
@@ -53,7 +95,7 @@ void ViewTextWindow::buildBody(Window *window)
 {
   FormGridLayout grid(window->width());
   grid.spacer();
-  grid.setLabelWidth(PAGE_LINE_HEIGHT);  // width of "first column" for checkboxes
+  grid.setLabelWidth(PAGE_LINE_HEIGHT + 3UL * PAGE_LINE_SPACING);  // width of "first column" for checkboxes
   int i;
 
   // assume average characte is 10 pixels wide, round the string length to tens.
@@ -89,14 +131,11 @@ void ViewTextWindow::buildBody(Window *window)
 
   for (i = 0; i < maxScreenLines; i++) {
     if (g_model.checklistInteractive && !fromMenu) {
-      new DynamicText(window, grid.getLabelSlot(), [=]() {
-        if (i < checklistPosition-(int)textVerticalOffset)
-          return std::string("+");
-        else if (i == checklistPosition-(int)textVerticalOffset)
-          return std::string(">");
-        else
-          return std::string(" ");
-      });
+      if (lines[i][0]) {
+        printf("Checkbox: %d %d %d", i, i < checklistPosition-(int)textVerticalOffset, i == checklistPosition-(int)textVerticalOffset);
+        CheckBoxStatic* chk = new CheckBoxStatic(window, grid.getLabelSlot(), i < checklistPosition-(int)textVerticalOffset, i == checklistPosition-(int)textVerticalOffset);
+        chk->invalidate();
+      }
       new DynamicText(window, grid.getFieldSlot(), [=]() {
         std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
         return std::string(str);
