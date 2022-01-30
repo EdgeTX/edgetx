@@ -54,6 +54,8 @@ class TextEdit : public FormField {
 
     void onFocusLost() override;
 
+    virtual void paint(BitmapBuffer* dc) override {};
+
   protected:
     char * value;
     bool changed = false;
