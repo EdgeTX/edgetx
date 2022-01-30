@@ -651,7 +651,7 @@ PACK(struct ModelData {
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
-  uint8_t   spare2:7 SKIP;
+  uint8_t   spare3:7 SKIP;
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
