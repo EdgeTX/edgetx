@@ -236,8 +236,6 @@ class OutputLineButton : public Button {
       if (value != newValue) {
         value = newValue;
         invalidate();
-        //body.clear();
-        //buildBody(&body);
       }
     }
      LimitData *output;
