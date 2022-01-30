@@ -55,6 +55,9 @@ CheckBox::CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()
 
   // UNCHECKED BACKGROUND
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_INDICATOR);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_INDICATOR | LV_STATE_CHECKED);
+
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_INDICATOR | LV_STATE_CHECKED);
 
   if (_getValue())
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
