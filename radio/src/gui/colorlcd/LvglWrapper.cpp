@@ -27,7 +27,6 @@
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_disp_t* disp;
-static lv_theme_t* defaultTheme;
 static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
@@ -230,13 +229,6 @@ LvglWrapper::LvglWrapper()
 {
   lv_init();
   init_lvgl_drivers();
-
-  defaultTheme = lv_theme_default_init(disp,  /*Use the DPI, size, etc from this display*/ 
-                                        makeLvColor(COLOR_THEME_PRIMARY1), makeLvColor(COLOR_THEME_SECONDARY1),   /*Primary and secondary palette*/
-                                        false,    /*Light or dark mode*/ 
-                                        &lv_font_montserrat_14); /*Small, normal, large fonts*/
-                                     
-  lv_disp_set_theme(disp, defaultTheme); /*Assign the theme to the display*/
 
   // Create a canvas as the drawing target for libopenui as a hack.
   // This is going to be removed
