@@ -30,6 +30,7 @@
 #endif
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
+constexpr char NON_CHECKABLE_PREFIX = '=';
 int checklistPosition;
 
 static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
@@ -183,9 +184,22 @@ void menuTextView(event_t event)
 
   for (int i=0; i<LCD_LINES-1; i++) {
     if (g_model.checklistInteractive){
-      if (i < reusableBuffer.viewText.linesCount && !reusableBuffer.viewText.pushMenu)
-        drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
-      lcdDrawText(8, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
+      if (reusableBuffer.viewText.lines[i][0] == NON_CHECKABLE_PREFIX) {
+        lcdDrawText(8, i*FH+FH+1, &reusableBuffer.viewText.lines[i][1], FIXEDWIDTH);
+        if (i == checklistPosition-(int)menuVerticalOffset){
+          ++checklistPosition;
+          if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+            ++menuVerticalOffset;
+            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+            i = 0;  // Reset rendering of the display after changing the offest
+          }
+        }
+      }
+      else {
+        if (i < reusableBuffer.viewText.linesCount && !reusableBuffer.viewText.pushMenu)
+          drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
+        lcdDrawText(8, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
+      }
     }
     else {
       lcdDrawText(0, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
