@@ -31,131 +31,166 @@ class OutputEditWindow : public Page {
       Page(ICON_MODEL_OUTPUTS),
       channel(channel)
     {
+      chanZero = calcRESXto100(channelOutputs[channel]);
       buildBody(&body);
       buildHeader(&header);
     }
 
   protected:
     uint8_t channel;
+    int value = 0;
+    int chanZero = 0;
 
-    void buildHeader(Window * window)
+    void checkEvents() override
     {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_MENULIMITS, 0, COLOR_THEME_PRIMARY2);
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     getSourceString(MIXSRC_CH1 + channel), 0, COLOR_THEME_PRIMARY2);
+      Window::checkEvents();
+      int newValue = channelOutputs[channel];
+      if (value != newValue) {
+        value = newValue;
+        body.clear();
+        buildBody(&body);
+      }
     }
 
-    void buildBody(FormWindow * window)
-    {
-      FormGridLayout grid;
-      grid.spacer(8);
+      void buildHeader(Window * window)
+      {
+        new StaticText(window,
+                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
+                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                       STR_MENULIMITS, 0, COLOR_THEME_PRIMARY2);
+        new StaticText(window,
+                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                       getSourceString(MIXSRC_CH1 + channel), 0,
+                       COLOR_THEME_PRIMARY2);
+      }
 
-      int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
+      void buildBody(FormWindow * window)
+      {
+        FormGridLayout grid;
+        grid.spacer(8);
 
-      LimitData * output = limitAddress(channel);
+        int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
 
-      // Name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
-                     COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(window, grid.getFieldSlot(), output->name,
-                        sizeof(output->name));
-      grid.nextLine();
+        LimitData *output = limitAddress(channel);
+        int chanVal = calcRESXto100(channelOutputs[channel]);
 
-      // Offset
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0,
-                     COLOR_THEME_PRIMARY1);
-      new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
-                         +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0,
-                         PREC1);
-      grid.nextLine();
+          // Name
+          new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
+                         COLOR_THEME_PRIMARY1);
+        new ModelTextEdit(window, grid.getFieldSlot(), output->name,
+                          sizeof(output->name));
+        grid.nextLine();
 
-      // Min
-      new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
-                     COLOR_THEME_PRIMARY1);
-      new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                         GET_SET_DEFAULT(output->min), 0, PREC1
-                         , -LIMIT_STD_MAX);
-      grid.nextLine();
+        // Offset
+        new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM,
+                       0, COLOR_THEME_PRIMARY1);
+        new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
+                           +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0,
+                           PREC1);
+        grid.nextLine();
 
-      // Max
-      new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
-                     COLOR_THEME_PRIMARY1);
-      new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                         GET_SET_DEFAULT(output->max), 0, PREC1
-                         , +LIMIT_STD_MAX);
-      grid.nextLine();
+        //TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
 
-      // Direction
-      new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(output->revert));
-      grid.nextLine();
+        // Min
+        new StaticText(
+            window, grid.getLabelSlot(), TR_MIN, 0,
+            chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY1);
+        new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
+                           GET_SET_DEFAULT(output->min), 0, PREC1,
+                           -LIMIT_STD_MAX);
+        grid.nextLine();
 
-      // Curve
-      new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
-                     COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
-                                 +MAX_CURVES, GET_SET_DEFAULT(output->curve));
-      edit->setDisplayHandler(
-          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
-            dc->drawText(2, 2, getCurveString(value));
-          });
-      grid.nextLine();
+        // Max
+        new StaticText(
+            window, grid.getLabelSlot(), TR_MAX, 0,
+            chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY1);
+        new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
+                           GET_SET_DEFAULT(output->max), 0, PREC1,
+                           +LIMIT_STD_MAX);
+        grid.nextLine();
 
-      // PPM center
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER,
-                     0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
-                     PPM_CENTER + PPM_CENTER_MAX,
-                     GET_VALUE(output->ppmCenter + PPM_CENTER),
-                     SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
-      grid.nextLine();
+        // Direction
+        new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0,
+                       COLOR_THEME_PRIMARY1);
+        new CheckBox(window, grid.getFieldSlot(),
+                      GET_DEFAULT(output->revert),
+                      [output, this] (uint8_t newValue) {
+                        if (newValue != output->revert) chanZero = -chanZero;
+                        output->revert = newValue;
+                        SET_DIRTY();
+                      });
+        grid.nextLine();
 
-      // Subtrims mode
-      new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE,
-                     0, COLOR_THEME_PRIMARY1);
-      new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
-                 GET_SET_DEFAULT(output->symetrical));
-      grid.nextLine();
+        // Curve
+        new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
+                       COLOR_THEME_PRIMARY1);
+        auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
+                                   +MAX_CURVES, GET_SET_DEFAULT(output->curve));
+        edit->setDisplayHandler(
+            [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+              dc->drawText(2, 2, getCurveString(value));
+            });
+        grid.nextLine();
 
-      window->setInnerHeight(grid.getWindowHeight());
-    }
-};
+        // PPM center
+        new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER,
+                       0, COLOR_THEME_PRIMARY1);
+        new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
+                       PPM_CENTER + PPM_CENTER_MAX,
+                       GET_VALUE(output->ppmCenter + PPM_CENTER),
+                       SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
+        grid.nextLine();
+
+        // Subtrims mode
+        new StaticText(window, grid.getLabelSlot(),
+                       TR_LIMITS_HEADERS_SUBTRIMMODE, 0, COLOR_THEME_PRIMARY1);
+        new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
+                   GET_SET_DEFAULT(output->symetrical));
+        grid.nextLine();
+
+        window->setInnerHeight(grid.getWindowHeight());
+      }
+    };
 
 class OutputLineButton : public Button {
   public:
-    OutputLineButton(FormGroup * parent, const rect_t &rect, LimitData * output) :
+    OutputLineButton(FormGroup * parent, const rect_t &rect, LimitData * output, int ch) :
       Button(parent, rect),
-      output(output)
+      output(output),
+      channel(ch)
     {
       if (output->revert || output->curve || output->name[0]) {
         setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
       }
+      chanZero = calcRESXto100(channelOutputs[channel]);
     }
 
     void paint(BitmapBuffer * dc) override
     {
       LcdFlags textColor = COLOR_THEME_SECONDARY1;
       LcdFlags bgColor   = COLOR_THEME_PRIMARY2;
+      LcdFlags textColorActive = COLOR_THEME_ACTIVE;
+      LcdFlags textFlag; 
+      int chanVal = calcRESXto100(channelOutputs[channel]);
 
       dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
 
+      //TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
       // first line
 
       // Min
-      drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-                      output->min, -GV_RANGELARGE,
-                      0, PREC1 | textColor, nullptr,
-                      -LIMITS_MIN_MAX_OFFSET);
+      textFlag = (chanVal < chanZero - 1) ? textColorActive : textColor;
+      drawValueOrGVar(
+                 dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min,
+                -GV_RANGELARGE, 0, PREC1 | textFlag, nullptr,
+                -LIMITS_MIN_MAX_OFFSET);
 
       // Max
+      textFlag = (chanVal > chanZero + 1) ? textColorActive : textColor;
       drawValueOrGVar(dc, 68, FIELD_PADDING_TOP,
                       output->max, 0,
-                      GV_RANGELARGE, PREC1 | textColor, nullptr,
+                      GV_RANGELARGE, PREC1 | textFlag, nullptr,
                        +LIMITS_MIN_MAX_OFFSET);
 
       // Offset
@@ -194,8 +229,22 @@ class OutputLineButton : public Button {
     }
 
   protected:
-    LimitData * output;
-};
+    void checkEvents() override
+    {
+      Window::checkEvents();
+      int newValue = channelOutputs[channel];
+      if (value != newValue) {
+        value = newValue;
+        invalidate();
+        //body.clear();
+        //buildBody(&body);
+      }
+    }
+     LimitData *output;
+     int channel;
+     int chanZero;
+     int value = 0;
+   };
 
 ModelOutputsPage::ModelOutputsPage() :
   PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
@@ -233,7 +282,7 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
                               BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
 
     // Channel settings
-    Button * button = new OutputLineButton(window, grid.getFieldSlot(), output);
+    Button * button = new OutputLineButton(window, grid.getFieldSlot(), output, ch);
     button->setPressHandler([=]() -> uint8_t {
       Menu * menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
