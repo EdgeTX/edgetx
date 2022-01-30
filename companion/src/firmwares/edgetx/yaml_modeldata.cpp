@@ -729,6 +729,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["thrTrim"] = (int)rhs.thrTrim;
   node["trimInc"] = rhs.trimInc;
   node["displayTrims"] = rhs.trimsDisplay;
+  node["ignoreSensorIds"] = (int)rhs.frsky.ignoreSensorIds;
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
   node["beepANACenter"] = rhs.beepANACenter;
   node["extendedLimits"] = (int)rhs.extendedLimits;
@@ -876,7 +877,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["failsafeChannels"][std::to_string(i)]["val"] = rhs.limitData[i].failsafe;
     }
   }
-  
+
   for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
     if (strlen(rhs.scriptData[i].filename) > 0) {
       node["scriptData"][std::to_string(i)] = rhs.scriptData[i];
@@ -953,6 +954,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["thrTrim"] >> rhs.thrTrim;
   node["trimInc"] >> rhs.trimInc;
   node["displayTrims"] >> rhs.trimsDisplay;
+  node["ignoreSensorIds"] >> rhs.frsky.ignoreSensorIds;
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
   node["beepANACenter"] >> rhs.beepANACenter;
   node["extendedLimits"] >> rhs.extendedLimits;
