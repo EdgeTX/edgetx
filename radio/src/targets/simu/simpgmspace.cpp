@@ -784,13 +784,6 @@ void disableSpeaker()
 }
 #endif
 
-#if defined(COPROCESSOR)
-CoprocData coprocData;
-
-void coprocReadData(bool)
-{
-}
-#endif
 
 void rtcInit()
 {
