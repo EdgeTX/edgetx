@@ -274,7 +274,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
   int result;
   char c;
   unsigned int sz = 0;
-  int line_length = 1;
+  int line_length = 0;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
   int current_line = 0;
@@ -282,7 +282,6 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   for (int i = 0; i < maxScreenLines; i++) {
     memclear(lines[i], maxLineLength + 1);
-    lines[i][0] = ' ';
   }
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
@@ -294,7 +293,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
          i++) {
       if (c == '\n' || line_length >= maxLineLength) {
         ++current_line;
-        line_length = 1;
+        line_length = 0;
         escape = 0;
       }
       if (c != '\r' && c != '\n' && current_line >= textVerticalOffset &&
