@@ -144,12 +144,14 @@ void menuTextView(event_t event)
       ++menuVerticalOffset;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
 	} else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      if (g_model.checklistInteractive && !reusableBuffer.viewText.pushMenu){
+      if (g_model.checklistInteractive && !reusableBuffer.viewText.pushMenu && checklistPosition-(int)menuVerticalOffset >= 0){
         if (checklistPosition < reusableBuffer.viewText.linesCount) {
-          ++checklistPosition;
-          if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
-            ++menuVerticalOffset;
-            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+          if (checklistPosition-(int)menuVerticalOffset < LCD_LINES-1) {
+            ++checklistPosition;
+            if (checklistPosition-(int)menuVerticalOffset >= LCD_LINES-2 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+              ++menuVerticalOffset;
+              sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+            }
           }
         }
         else {
