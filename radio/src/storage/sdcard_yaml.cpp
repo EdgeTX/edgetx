@@ -153,18 +153,22 @@ const char * loadRadioSettingsYaml()
     ChecksumResult checksum_status;
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
 
-    if(checksum_status != ChecksumResult::Success) {
+    if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
+      // Read failed or checksum check failed
       FRESULT result = FR_OK;
-      TRACE("radio settings: checksum check failed");
-      if (g_eeGeneral.manuallyEdited) {
+      TRACE("radio settings: Reading failed");
+      if ( (p == NULL) && g_eeGeneral.manuallyEdited) {
+        // Read sussessfull, checksum failed, manuallyEdited set
         TRACE("File has been manually edited - ignoring checksum mismatch");
         g_eeGeneral.manuallyEdited = 0;
         storageDirty(EE_GENERAL);   // Trigger a save on sucessfull recovery
       } else {
         TRACE("File is corrupted, attempting alternative file");
+        f_unlink(RADIO_SETTINGS_ERRORFILE_YAML_PATH);
         result = f_rename(RADIO_SETTINGS_YAML_PATH, RADIO_SETTINGS_ERRORFILE_YAML_PATH); // Save corrupted file for later analysis
         p = attemptLoad(RADIO_SETTINGS_TMPFILE_YAML_PATH, &checksum_status);
-        if (p == NULL) {
+        if (p == NULL && (checksum_status == ChecksumResult::Success)) {
+            f_unlink(RADIO_SETTINGS_YAML_PATH);
             result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
             if (result != FR_OK) {
               ALERT(STR_STORAGE_WARNING, TR_BAD_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
@@ -328,7 +332,7 @@ const char * writeGeneralSettings()
     if (p != NULL) {
       return p;
     }
-
+    f_unlink(RADIO_SETTINGS_YAML_PATH);
     FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
     return SDCARD_ERROR(result);
 }
