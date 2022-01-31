@@ -53,10 +53,6 @@ enum Mix216Sources {
   MIXSRC216_LAST_POT = MIXSRC216_P3,
 #endif
 
-#if defined(PCBSKY9X)
-  MIXSRC216_REa,
-  MIXSRC216_LAST_ROTARY_ENCODER = MIXSRC216_REa,
-#endif
 
   MIXSRC216_MAX,
 
@@ -527,13 +523,6 @@ PACK(typedef struct {
   uint8_t nPotsToWarn; \
   int8_t potsWarnPosition[NUM_POTS+NUM_SLIDERS]; \
   uint8_t spare[2];
-#elif defined(PCBSKY9X)
-#define MODELDATA_EXTRA_216 \
-  uint8_t externalModule; \
-  ModuleData_v216 moduleData[NUM_MODULES+1]; \
-  uint8_t nPotsToWarn; \
-  int8_t potsWarnPosition[NUM_POTS+NUM_SLIDERS]; \
-  uint8_t rxBattAlarms[2];
 #endif
 
 #if defined(PCBTARANIS)
@@ -882,15 +871,6 @@ void convertRadioData_217_to_218(RadioData &settings)
   memcpy(settings.bluetoothName, settings_v217.bluetoothName, sizeof(settings.bluetoothName));
 #endif
 
-#if defined(PCBSKY9X)
-  settings.txCurrentCalibration = settings_v217.txCurrentCalibration;
-  settings.mAhWarn = settings_v217.mAhWarn;
-  settings.mAhUsed = settings_v217.mAhUsed;
-  settings.temperatureCalib = settings_v217.temperatureCalib;
-  settings.optrexDisplay = settings_v217.optrexDisplay;
-  settings.sticksGain = settings_v217.sticksGain;
-  settings.rotarySteps = settings_v217.rotarySteps;
-#endif
 }
 
 void convertModelData_216_to_217(ModelData &model)
@@ -1206,9 +1186,6 @@ void convertModelData_217_to_218(ModelData &model)
     newModel.flightModeData[i].swtch = convertSwitch_217_to_218(oldModel.flightModeData[i].swtch);
     newModel.flightModeData[i].fadeIn = oldModel.flightModeData[i].fadeIn;
     newModel.flightModeData[i].fadeOut = oldModel.flightModeData[i].fadeOut;
-#if defined(PCBSKY9X)
-    memcpy(newModel.flightModeData[i].rotaryEncoders, oldModel.flightModeData[i].rotaryEncoders, sizeof(newModel.flightModeData[i].rotaryEncoders));
-#endif
     memcpy(newModel.flightModeData[i].gvars, oldModel.flightModeData[i].gvars, sizeof(newModel.flightModeData[i].gvars));
   }
   newModel.thrTraceSrc = oldModel.thrTraceSrc;

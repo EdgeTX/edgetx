@@ -170,8 +170,6 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
 #elif defined(PCBNV14)
   #define ETX_FOURCC 0x3A78746F // etx for NV14
-#elif defined(PCBSKY9X)
-  #define ETX_FOURCC 0x3278746F // etx for sky9x
 #endif
 
 bool isFileAvailable(const char * filename, bool exclDir = false);

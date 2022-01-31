@@ -28,23 +28,6 @@
 /* The protocol reuse some the DSM2 definitions where they are identical */
 
 
-#if defined(PPM_PIN_SERIAL)
-void sendByteSbus(uint8_t b)
-{
-  uint8_t parity = 1;
-
-  putDsm2SerialBit(0);           // Start bit
-  for (uint8_t i=0; i<8; i++) {  // 8 data Bits
-    putDsm2SerialBit(b & 1);
-    parity = parity ^ (b & 1);
-    b >>= 1;
-  }
-  putDsm2SerialBit(!parity);     // Even Parity bit
-
-  putDsm2SerialBit(1);           // Stop bit
-  putDsm2SerialBit(1);           // Stop bit
-}
-#else
 static void _send_level(uint8_t v)
 {
   /* Copied over from DSM, this looks doubious and in my logic analyzer
@@ -81,7 +64,6 @@ void sendByteSbus(uint8_t b) // max 11 changes 0 10 10 10 10 P 1
   }
   _send_level(len+ BITLEN_SBUS); // enlarge the last bit to be two stop bits long
 }
-#endif
 
 
 #define SBUS_NORMAL_CHANS           16
@@ -117,12 +99,7 @@ static void sbusFlush()
 
 void setupPulsesSbus()
 {
-#if defined(PPM_PIN_SERIAL)
-  extmodulePulsesData.dsm2.serialByte = 0;
-  extmodulePulsesData.dsm2.serialBitCount = 0;
-#else
   extmodulePulsesData.dsm2.index = 0;
-#endif
 
   extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
 

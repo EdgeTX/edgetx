@@ -110,12 +110,8 @@ void convertModelData_218_to_219(ModelData &model)
 {
   static_assert(sizeof(ModelData_v218) <= sizeof(ModelData), "ModelData size has been reduced");
 
-#if defined(STM32)
   ModelData_v218 * oldModelAllocated = (ModelData_v218 *)malloc(sizeof(ModelData_v218));
   ModelData_v218 &oldModel = *oldModelAllocated;
-#else
-  ModelData_v218 oldModel;
-#endif
 
   memcpy(&oldModel, &model, sizeof(ModelData_v218));
   ModelData_v219 & newModel = (ModelData_v219 &) model;
@@ -269,9 +265,7 @@ void convertModelData_218_to_219(ModelData &model)
     }
   }
 
-#if !defined(PCBSKY9X)
   newModel.trainerData.mode = oldModel.trainerMode;
-#endif
   newModel.trainerData.channelsStart = oldModel.moduleData[NUM_MODULES].channelsStart;
   newModel.trainerData.channelsCount = oldModel.moduleData[NUM_MODULES].channelsCount;
   newModel.trainerData.frameLength = oldModel.moduleData[NUM_MODULES].ppm.frameLength;
@@ -365,9 +359,7 @@ void convertModelData_218_to_219(ModelData &model)
   }
 #endif
 
-#if defined(STM32)
   free(oldModelAllocated);
-#endif
 }
 
 void convertRadioData_218_to_219(RadioData & settings)
@@ -377,11 +369,9 @@ void convertRadioData_218_to_219(RadioData & settings)
   settings.version = 219;
   settings.variant = EEPROM_VARIANT;
 
-#if defined(STM32)
   RadioData_v218 * oldSettingsAllocated = (RadioData_v218 *)malloc(sizeof(RadioData_v218));
   RadioData_v218 & oldSettings = *oldSettingsAllocated;
   memcpy(&oldSettings, &settings, sizeof(RadioData_v218));
-#endif
 
 #if defined(PCBX9D) || defined(PCBX9DP)
   // no bluetooth before PCBREV 2019
@@ -451,7 +441,5 @@ void convertRadioData_218_to_219(RadioData & settings)
   settings.pwrOnSpeed = 0;
   settings.pwrOffSpeed = 0;
 
-#if defined(STM32)
   free(oldSettingsAllocated);
-#endif
 }

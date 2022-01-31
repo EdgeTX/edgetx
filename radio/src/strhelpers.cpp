@@ -420,7 +420,6 @@ char *getFlightModeString(char *dest, int8_t idx)
 //   return dest;
 // }
 
-#if !defined(PCBSKY9X)
 int getRawSwitchIdx(char sw)
 {
   if (sw < 'A' || sw > 'Z')
@@ -484,7 +483,6 @@ char *getSwitchName(char *dest, swsrc_t idx)
   }
   return dest;
 }
-#endif
 
 char *getSwitchPositionName(char *dest, swsrc_t idx)
 {
@@ -500,14 +498,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
     idx = -idx;
   }
 
-#if defined(PCBSKY9X)
-#define IDX_TRIMS_IN_STR_VSWITCHES (1 + SWSRC_LAST_SWITCH)
-#define IDX_ON_IN_STR_VSWITCHES \
-  (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 2)
-  if (idx <= SWSRC_LAST_SWITCH) {
-    getStringAtIndex(s, STR_VSWITCHES, idx);
-  }
-#else
 #define IDX_TRIMS_IN_STR_VSWITCHES (1)
 #define IDX_ON_IN_STR_VSWITCHES \
   (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 1)
@@ -517,7 +507,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
     *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
     *s = '\0';
   }
-#endif  // PCBSKY9X
 
 #if NUM_XPOTS > 0
   else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {

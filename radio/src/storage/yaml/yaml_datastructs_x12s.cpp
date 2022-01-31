@@ -863,6 +863,9 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "extendedLimits", 1 ),
   YAML_UNSIGNED( "extendedTrims", 1 ),
   YAML_UNSIGNED( "throttleReversed", 1 ),
+  YAML_UNSIGNED( "enableCustomThrottleWarning", 1 ),
+  YAML_PADDING( 7 ),
+  YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
@@ -905,7 +908,7 @@ static const struct YamlNode struct_PartialModel[] = {
   YAML_END
 };
 
-#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 24
+#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 29
 
 static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
 

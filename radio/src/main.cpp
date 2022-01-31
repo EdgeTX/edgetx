@@ -80,7 +80,7 @@ void openUsbMenu()
 #endif
 }
 
-#elif defined(STM32)
+#else
 
 void onUSBConnectMenu(const char *result)
 {
@@ -286,11 +286,6 @@ void checkBatteryAlarms()
     AUDIO_TX_BATTERY_LOW();
     // TRACE("checkBatteryAlarms(): battery low");
   }
-#if defined(PCBSKY9X)
-  else if (g_eeGeneral.mAhWarn && (g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration)/8192/36) / 500 >= g_eeGeneral.mAhWarn) { // TODO move calculation into board file
-    AUDIO_TX_MAH_HIGH();
-  }
-#endif
 }
 
 void checkBattery()
@@ -480,9 +475,6 @@ void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
 
-#if defined(PCBSKY9X)
-  calcConsumption();
-#endif
 
   checkSpeakerVolume();
 
@@ -520,12 +512,10 @@ void perMain()
   }
 #endif
 
-#if defined(STM32)
   if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
       && SD_CARD_PRESENT() && !sdMounted()) {
     sdMount();
   }
-#endif
 
 #if !defined(EEPROM)
   // In case the SD card is removed during the session
@@ -540,7 +530,6 @@ void perMain()
   }
 #endif
 
-#if defined(STM32)
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(LIBOPENUI)
     // draw some image showing USB
@@ -555,7 +544,6 @@ void perMain()
 #endif
     return;
   }
-#endif
 
 #if defined(MULTIMODULE)
   checkFailsafeMulti();

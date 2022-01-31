@@ -42,7 +42,6 @@ class Debounce
     T debouncedState;
 };
 
-#if defined(STM32)
 class PinDebounce: public Debounce<uint8_t>
 {
   public:
@@ -51,6 +50,5 @@ class PinDebounce: public Debounce<uint8_t>
       return Debounce<uint8_t>::debounce(GPIO_ReadInputDataBit(GPIOx, GPIO_Pin));
     }
 };
-#endif
 
 #endif // _DEBOUNCE_H_

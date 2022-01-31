@@ -1496,6 +1496,18 @@ void SetupPanel::on_throttleWarning_toggled(bool checked)
   emit modified();
 }
 
+void SetupPanel::on_enableCustomThrottleWarning_toggled(bool checked)
+{
+  model->enableCustomThrottleWarning = checked;
+  emit modified();
+}
+
+void SetupPanel::on_customThrottleWarningPosition_valueChanged(int value)
+{
+  model->customThrottleWarningPosition = value;
+  emit modified();
+}
+
 void SetupPanel::on_throttleReverse_toggled(bool checked)
 {
   model->throttleReversed = checked;
@@ -1589,6 +1601,8 @@ void SetupPanel::update()
   ui->throttleSource->updateValue();
   populateThrottleTrimSwitchCB();
   ui->throttleWarning->setChecked(!model->disableThrottleWarning);
+  ui->enableCustomThrottleWarning->setChecked(model->enableCustomThrottleWarning);
+  ui->customThrottleWarningPosition->setValue(model->customThrottleWarningPosition);
   ui->trimIncrement->setCurrentIndex(model->trimInc+2);
   ui->throttleTrim->setChecked(model->thrTrim);
   ui->extendedLimits->setChecked(model->extendedLimits);

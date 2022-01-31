@@ -263,14 +263,7 @@ bool eeLoadGeneral(bool allowFixes)
 
   if (g_eeGeneral.version != EEPROM_VER) {
     TRACE("EEPROM version %d instead of %d", g_eeGeneral.version, EEPROM_VER);
-#if defined(PCBSKY9X)
-    if (!allowFixes)
-      return false; // prevent eeprom from being wiped
-    if (!eeConvert())
-      return false;
-#else
     return false;
-#endif
   }
   return true;
 }
@@ -302,10 +295,8 @@ void storageFormat()
 void eepromWriteWait(EepromWriteState state/* = EEPROM_IDLE*/)
 {
   while (eepromWriteState != state) {
-#if defined(STM32)
     // Waits a little bit for CS transitions
     RTOS_WAIT_MS(2);
-#endif
     eepromWriteProcess();
 #ifdef SIMU
     sleep(5/*ms*/);
@@ -466,10 +457,6 @@ const char * eeBackupModel(uint8_t i_fileSrc)
     return SDCARD_ERROR(result);
   }
 
-#if defined(PCBSKY9X)
-  strcpy(statusLineMsg, "File ");
-  strcpy(statusLineMsg+5, &buf[sizeof(MODELS_PATH)]);
-#endif
 
   uint16_t size = eeModelSize(i_fileSrc);
 
@@ -499,9 +486,6 @@ const char * eeBackupModel(uint8_t i_fileSrc)
 
   f_close(&archiveFile);
 
-#if defined(PCBSKY9X)
-  showStatusLine();
-#endif
 
   return NULL;
 }

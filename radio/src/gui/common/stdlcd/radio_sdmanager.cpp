@@ -83,9 +83,6 @@ void onSdFormatConfirm(const char * result)
   if (result == STR_OK) {
     showMessageBox(STR_FORMATTING);
     logsClose();
-#if defined(PCBSKY9X)
-    Card_state = SD_ST_DATA;
-#endif
     audioQueue.stopSD();
     if (sdCardFormat()) {
       f_chdir(ROOT_PATH);
