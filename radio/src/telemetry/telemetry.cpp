@@ -322,6 +322,9 @@ void telemetryWakeup()
           if (isModuleCrossfire(EXTERNAL_MODULE)) {
             moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
           }
+          if (isModuleCrossfire(INTERNAL_MODULE)) {
+            moduleState[INTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+          }
 #endif
         }
         telemetryState = TELEMETRY_OK;
