@@ -154,7 +154,7 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[3] <= '9')) {
 
     TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
-    return gvar - (val[3] - '1');  // -GVx => 128 - x
+    return gvar - (val[3] - '0');  // -GVx => 128 - x
   }
 
   if ((val_len == 3)

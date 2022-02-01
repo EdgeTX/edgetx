@@ -30,7 +30,7 @@
 #endif
 
 
-uint8_t createCrossfireModelIDFrame(uint8_t * frame)
+uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
   *buf++ = UART_SYNC;                                 /* device address */
@@ -40,7 +40,7 @@ uint8_t createCrossfireModelIDFrame(uint8_t * frame)
   *buf++ = RADIO_ADDRESS;                             /* Origin Address */
   *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
   *buf++ = COMMAND_MODEL_SELECT_ID;                   /* command of set model/receiver id */
-  *buf++ = g_model.header.modelId[EXTERNAL_MODULE];   /* model ID */
+  *buf++ = g_model.header.modelId[moduleIdx];         /* model ID */
   *buf++ = crc8_BA(frame + 2, 6);
   *buf++ = crc8(frame + 2, 7);
   return buf - frame;
@@ -83,7 +83,7 @@ static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
 #endif
   {
     if (moduleState[idx].counter == CRSF_FRAME_MODELID) {
-      p_data->length = createCrossfireModelIDFrame(p_data->pulses);
+      p_data->length = createCrossfireModelIDFrame(idx, p_data->pulses);
       moduleState[idx].counter = CRSF_FRAME_MODELID_SENT;
     } else {
       p_data->length = createCrossfireChannelsFrame(
