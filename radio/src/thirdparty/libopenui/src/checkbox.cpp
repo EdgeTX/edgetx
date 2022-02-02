@@ -91,9 +91,8 @@ bool CheckBox::onTouchEnd(coord_t x, coord_t y)
   if (!hasFocus()) {
     setFocus(SET_FOCUS_DEFAULT);
   }
-
+  
   return true;
 }
 #endif
-
 
