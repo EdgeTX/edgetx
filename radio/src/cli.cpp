@@ -865,7 +865,7 @@ int cliSet(const char **argv)
         serialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
       }
-      serialPrint("%s: rfmod %d power %s", argv[0], module, argv[3]);
+      serialPrint("%s: rfmod %d power %s", argv[0], module, argv[4]);
     }
 #if defined(INTMODULE_BOOTCMD_GPIO)
     else if (!strcmp(argv[3], "bootpin")) {
