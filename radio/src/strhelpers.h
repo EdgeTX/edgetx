@@ -26,10 +26,7 @@
 #include "opentx_types.h"
 
 #include <string>
-<<<<<<< HEAD
-=======
 #include <cstring>
->>>>>>> 74fb7f489 (tried to obey all comments to the code)
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
@@ -112,11 +109,6 @@ template<size_t L>
 void copyToUnTerminated(char (&dest)[L], const std::string& src) {
     strncpy(dest, src.c_str(), L);
 }
-template<size_t N>
-std::string stringFromNtString(const char (&a)[N]) {
-    return std::string(a, strnlen(a, N));        
-}    
-
 template<typename S>
 void clearStruct(S& s) {
     memset((void*) &s, 0, sizeof(S));
