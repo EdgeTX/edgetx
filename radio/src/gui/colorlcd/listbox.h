@@ -131,6 +131,7 @@ class ListBase : public FormField
     int32_t activeIndex = -1;
     std::set<uint32_t> selectedIndexes;
     selecttype_e selectionType = LISTBOX_SINGLE_SELECT;
+    bool waslongpress = false;
 
 #if defined(HARDWARE_TOUCH)
     uint32_t duration10ms;

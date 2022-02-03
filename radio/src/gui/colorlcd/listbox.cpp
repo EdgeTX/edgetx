@@ -65,7 +65,8 @@ void ListBase::setSelected(int selected)
       invalidate();
     }
   } else if(selectionType == LISTBOX_MULTI_SELECT) {
-    if(selectedIndexes.find(selected) != selectedIndexes.end()) { // Already selected -> Deselect it
+    this->selected = selected;
+    if(selectedIndexes.find(selected) != selectedIndexes.end()) {  // Already selected -> Deselect it
       selectedIndexes.erase(selected);
       setScrollPositionY(lineHeight * this->selected - lineHeight);
       if(_multiSelectHandler != nullptr)
@@ -73,7 +74,6 @@ void ListBase::setSelected(int selected)
       invalidate();
     } else { // Not Selected -> Select it
       selectedIndexes.insert(selected);
-      this->selected = selected;
       setScrollPositionY(lineHeight * this->selected - lineHeight);
       if (_setValue != nullptr) {
         _setValue(this->selected);
@@ -205,10 +205,14 @@ void ListBase::checkEvents(void)
 
   if (isLongPress()) {
     if (longPressHandler) {
-      setSelected(yDown / lineHeight);
+      if(selectionType == LISTBOX_SINGLE_SELECT)
+        setSelected(yDown / lineHeight);
+      else
+        setFocusLine(yDown / lineHeight);
       longPressHandler(0);
       killAllEvents();
       duration10ms = 0;
+      waslongpress = true;
       return;
     }
   }
@@ -225,6 +229,7 @@ bool ListBase::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY
 
 bool ListBase::onTouchStart(coord_t x, coord_t y)
 {
+  waslongpress = false;
   if (duration10ms == 0) {
     duration10ms = getTicks();
   }
@@ -238,7 +243,7 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
 bool ListBase::onTouchEnd(coord_t x, coord_t y)
 {
   if (!isEnabled()) return false;
-  if (slidingWindow)
+  if (slidingWindow || waslongpress)
     return false;  // if we slide then this is not a selection
 
   auto selected = yDown / lineHeight;
