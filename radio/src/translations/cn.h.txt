@@ -777,6 +777,9 @@
 #define TR_BAUDRATE                    "蓝牙带宽"
 #define LEN_BLUETOOTH_MODES            "\004"
 #define TR_BLUETOOTH_MODES             "---\0" "回传" "教练"
+#define TR_SELECT_MODEL_TEMPLATE_FOLDER       "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_MODEL_TEMPLATE              "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES              "No model templates were found in this folder"
 
 #define TR_SD_INFO_TITLE               "存储卡详情"
 #define TR_SD_TYPE                     "类型:"

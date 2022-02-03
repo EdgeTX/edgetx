@@ -609,6 +609,9 @@ extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
 extern const char STR_BACKUP_PATH[];
 extern const char STR_YAML_EXT[];
+extern const char STR_SELECT_MODEL_TEMPLATE[];
+extern const char STR_SELECT_MODEL_TEMPLATE_FOLDER[];
+extern const char STR_NO_TEMPLATES[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];

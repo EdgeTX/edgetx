@@ -29,11 +29,12 @@
 // defined either in sdcard_raw.cpp or sdcard_yaml.cpp
 void storageCreateModelsList();
 
-void getModelPath(char * path, const char * filename)
+void getModelPath(char * path, const char * filename, const char* pathName)
 {
-  strcpy(path, STR_MODELS_PATH);
-  path[sizeof(MODELS_PATH)-1] = '/';
-  strcpy(&path[sizeof(MODELS_PATH)], filename);
+  unsigned int len = strlen(pathName);
+  strcpy(path, pathName);
+  path[len] = '/';
+  strcpy(&path[len + 1], filename);
 }
 
 void storageEraseAll(bool warn)
@@ -139,6 +140,26 @@ const char* loadModel(char* filename, bool alarms)
   }
 
   postModelLoad(alarms);
+  return nullptr;
+}
+
+const char* loadModelTemplate(const char* filename)
+{
+  preModelLoad();
+  // Assuming that the template is located in current working directory
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), ".");
+  if (error) {
+    TRACE("loadModel error=%s", error);
+    // just get some clean memory state in "g_model" so the mixer can run safely
+    memset(&g_model, 0, sizeof(g_model));
+    applyDefaultTemplate();
+
+    storageCheck(true);
+    postModelLoad(false);
+    return error;
+  }
+
+  postModelLoad(false);
   return nullptr;
 }
 
