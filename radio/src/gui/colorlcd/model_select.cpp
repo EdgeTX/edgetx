@@ -112,7 +112,7 @@ class SelectTemplate : public TemplatePage
   : templateFolderPage(tp)
   {
     rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
-    new StaticText(&header, rect, STR_SELECT_MODEL_TEMPLATE, 0, COLOR_THEME_PRIMARY2);
+    new StaticText(&header, rect, STR_SELECT_TEMPLATE, 0, COLOR_THEME_PRIMARY2);
 
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
@@ -208,7 +208,7 @@ class SelectTemplateFolder : public TemplatePage
   SelectTemplateFolder()
   {
     rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
-    new StaticText(&header, rect, STR_SELECT_MODEL_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
+    new StaticText(&header, rect, STR_SELECT_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
 
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
@@ -255,10 +255,13 @@ class SelectTemplateFolder : public TemplatePage
     
     f_closedir(&dir);
     count = directories.size();
-    if (count == 0)
+    if (count == 0) {
       deleteLater();
-    else
-      updateInfo(directories.front());
+    } else {
+      std::string fullpath = TEMPLATES_PATH + directories.front();
+      f_chdir((TCHAR*)fullpath.c_str());
+      updateInfo("about.txt");
+    }
   }
 };
 
@@ -475,6 +478,21 @@ class ModelCategoryPageBody : public FormWindow
             } else {
               POPUP_WARNING("Invalid File");
             }
+          });
+          menu->addLine(STR_SAVE_TEMPLATE, [=]() {
+              constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+              char modelName[size];
+              snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+              char templatePath[FF_MAX_LFN];
+              snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+              if (isFileAvailable(templatePath)) {
+                new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE,
+                  [=] {
+                    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+                  });
+              } else {
+                sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+              }
           });
           if (model != modelslist.getCurrentModel()) {
             // Move
