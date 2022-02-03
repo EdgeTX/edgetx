@@ -51,12 +51,48 @@ ListBase::ListBase(Window *parent, const rect_t &rect, std::vector<std::string> 
 
 void ListBase::setSelected(int selected)
 {
-  if (selected >= 0 && selected < (int)names.size()  && selected != this->selected) {
-    this->selected = selected;
-    setScrollPositionY(lineHeight * this->selected - lineHeight);
-    if (_setValue != nullptr) {
-      _setValue(this->selected);
+  int count = (int)names.size();
+  if(selected < 0 || selected >= count)
+    return;
+
+  if(selectionType == LISTBOX_SINGLE_SELECT) {
+    if (selected != this->selected) {
+      this->selected = selected;
+      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      if (_setValue != nullptr) {
+        _setValue(this->selected);
+      }
+      invalidate();
     }
+  } else if(selectionType == LISTBOX_MULTI_SELECT) {
+    if(selectedIndexes.find(selected) != selectedIndexes.end()) { // Already selected -> Deselect it
+      selectedIndexes.erase(selected);
+      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      if(_multiSelectHandler != nullptr)
+        _multiSelectHandler(selectedIndexes);
+      invalidate();
+    } else { // Not Selected -> Select it
+      selectedIndexes.insert(selected);
+      this->selected = selected;
+      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      if (_setValue != nullptr) {
+        _setValue(this->selected);
+      }
+      if(_multiSelectHandler != nullptr)
+        _multiSelectHandler(selectedIndexes);
+      invalidate();
+    }
+  }
+}
+
+void ListBase::setFocusLine(int selected)
+{
+  if(selectionType == LISTBOX_MULTI_SELECT) {
+    int count = (int)names.size();
+    if(selected < 0 || selected >= count)
+      return;
+
+    this->selected = selected;
     invalidate();
   }
 }
@@ -83,9 +119,23 @@ void ListBase::paint(BitmapBuffer *dc)
 
   int curY = 0;
   for (int n = 0; n < (int)names.size(); n++) {
-    dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, n == selected ? COLOR_THEME_FOCUS : COLOR_THEME_PRIMARY2);
+    LcdFlags bgcolor = COLOR_THEME_PRIMARY2;
+    LcdFlags textColor = COLOR_THEME_SECONDARY1;
 
-    LcdFlags textColor = n == selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+    // Color selected line(s)
+    if((selectionType == LISTBOX_SINGLE_SELECT && n == selected) ||
+       (selectionType == LISTBOX_MULTI_SELECT && (selectedIndexes.find(n) != selectedIndexes.end()))) {
+        bgcolor = COLOR_THEME_FOCUS;
+        textColor = COLOR_THEME_PRIMARY2;
+      }
+
+    dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, bgcolor);
+
+    // Draw a dotted line around the current item
+    if(n == selected && selectionType == LISTBOX_MULTI_SELECT &&
+      hasFocus()) {
+      dc->drawRect(2, curY,  rect.w - 4, lineHeight, 2, DOTTED);
+    }
 
     auto fontHeight = getFontHeight(FONT(STD));
     drawLine(dc, { 8, curY  + (lineHeight - fontHeight) / 2, rect.w, lineHeight}, n, textColor);
@@ -105,13 +155,19 @@ void ListBase::paint(BitmapBuffer *dc)
     switch (event) {
       case EVT_ROTARY_RIGHT:
         oldSelected = (selected + 1) % names.size();
-        setSelected(oldSelected);
+        if(selectionType == LISTBOX_SINGLE_SELECT)
+          setSelected(oldSelected);
+        else
+          setFocusLine(oldSelected);
         onKeyPress();
         break;
       case EVT_ROTARY_LEFT:
         oldSelected--;
         if (oldSelected < 0) oldSelected = names.size() - 1;
-        setSelected(oldSelected);
+        if(selectionType == LISTBOX_SINGLE_SELECT)
+          setSelected(oldSelected);
+        else
+          setFocusLine(oldSelected);
         onKeyPress();
         break;
       case EVT_KEY_LONG(KEY_ENTER):
@@ -121,6 +177,8 @@ void ListBase::paint(BitmapBuffer *dc)
         }
         break;
       case EVT_KEY_BREAK(KEY_ENTER):
+        if(selectionType == LISTBOX_MULTI_SELECT)
+            setSelected(this->selected);
         if (pressHandler) {
           killEvents(event);
           pressHandler(event);
@@ -158,10 +216,10 @@ void ListBase::checkEvents(void)
 
 bool ListBase::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
 {
-  if (touchState.event == TE_SLIDE_END) { 
+  if (touchState.event == TE_SLIDE_END) {
     duration10ms = 0;
   }
-  
+
   return FormField::onTouchSlide(x, y, startX, startY, slideX, slideY);
 }
 
@@ -180,7 +238,7 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
 bool ListBase::onTouchEnd(coord_t x, coord_t y)
 {
   if (!isEnabled()) return false;
-  if (slidingWindow) 
+  if (slidingWindow)
     return false;  // if we slide then this is not a selection
 
   auto selected = yDown / lineHeight;
