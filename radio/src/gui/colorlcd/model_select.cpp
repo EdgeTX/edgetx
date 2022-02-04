@@ -37,7 +37,7 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
 constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
-constexpr unsigned int LEN_INFO_TEXT = 300;
+constexpr size_t LEN_INFO_TEXT = 300;
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 class TemplatePage : public Page
@@ -184,7 +184,7 @@ class SelectTemplate : public TemplatePage
       rect.y = rect.h - PAGE_PADDING - PAGE_LINE_HEIGHT;
       rect.w = 100;
       rect.h = PAGE_LINE_HEIGHT;
-      new TemplateButton(&body, rect, STR_CANCEL, [=]() -> uint8_t { deleteLater(); return 0; });
+      new TemplateButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
     } else {
       updateInfo(files.front() + TEXT_EXT);
     }
