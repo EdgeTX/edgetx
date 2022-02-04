@@ -470,14 +470,13 @@ void AppData::clearUnusedSettings(QSettings & settings)
 
 bool AppData::findPreviousVersionSettings(QString * version) const
 {
-  //  TODO need a more dynamic method since ETX moves so quickly
-  static const QStringList versList({QStringLiteral("2.6"), QStringLiteral("2.5"), QStringLiteral("2.4")});
+  int vmaj = VERSION_MAJOR;
+  int vmin = VERSION_MINOR - 1;  // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
 
-  for (const QString &ver : versList) {
-    const QString prod("Companion " % ver);
-    // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
-    if (prod == PRODUCT)
-      continue;
+  for (;(vmaj << 8 | vmin) >= (2 << 8 | 4);) {  // 2.4 earliest EdgeTX version
+    const QString ver = QString("%1.%2").arg(vmaj).arg(vmin);
+    const QString prod = QString("Companion %1").arg(ver);
+    qDebug() << "Searching for previous version" << ver;
     QSettings settings(COMPANY, prod);
     if (settings.contains(SETTINGS_VERSION_KEY)) {
       *version = ver;
@@ -485,6 +484,12 @@ bool AppData::findPreviousVersionSettings(QString * version) const
     }
     else {
       settings.clear();
+    }
+
+    --vmin;
+    if (vmin < 0) {
+      vmin = 30;  //  abitary maximum minor version for earlier major versions
+      --vmaj;
     }
   }
 
