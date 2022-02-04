@@ -39,7 +39,9 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
 
+#ifndef BOOT
   if (getTrimsAsButtons()) {
+#endif
     if (TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
        result |= 1 << KEY_RADIO;
      if (TRIMS_GPIO_REG_LHR & TRIMS_GPIO_PIN_LHR)
@@ -56,7 +58,9 @@ uint32_t readKeys()
        result |= 1 << KEY_LEFT;
      if (TRIMS_GPIO_REG_RHR & TRIMS_GPIO_PIN_RHR)
        result |= 1 << KEY_RIGHT;
+#ifndef BOOT
   }
+#endif
 
   // Enter and Exit are always supported
   if (TRIMS_GPIO_REG_RPRESS & TRIMS_GPIO_PIN_RPRESS)
