@@ -1119,12 +1119,13 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           ScriptData & sd = g_model.scriptsData[ref - SCRIPT_MIX_FIRST];
           ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
           inputsCount = sio -> inputsCount;
-         
+
           for (int j = 0; j < inputsCount; j++) {
-            if (sio -> inputs[j].type == INPUT_TYPE_SOURCE)
+            if (sio->inputs[j].type == INPUT_TYPE_SOURCE)
               luaGetValueAndPush(lsScripts, sd.inputs[j].source);
             else
-            lua_pushinteger(lsScripts, sd.inputs[j].value + sio->inputs[j].def);
+              lua_pushinteger(lsScripts,
+                              sd.inputs[j].value + sio->inputs[j].def);
           }
         } else
 #endif

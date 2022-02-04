@@ -111,9 +111,9 @@ class ScriptEditWindow : public Page {
           ScriptInput& si = sio.inputs[i];
           new StaticText(window, grid.getLabelSlot(true), si.name, 0, COLOR_THEME_PRIMARY1);
           grid.nextLine();
-          if (si.type == INPUT_TYPE_VALUE) {                    
-              (new NumberEdit(gInputs, inputsGrid.getSlot(), si.min, si.max,
-                             GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))->setDefault(si.def);
+          if (si.type == INPUT_TYPE_VALUE) {
+            (new NumberEdit(gInputs, inputsGrid.getSlot(), si.min, si.max,
+                            GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))->setDefault(si.def);
           } else {
             new SourceChoice(gInputs, inputsGrid.getSlot(), 0,
                              MIXSRC_LAST_TELEM,
