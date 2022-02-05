@@ -143,11 +143,11 @@ const char* loadModel(char* filename, bool alarms)
   return nullptr;
 }
 
-const char* loadModelTemplate(const char* filename)
+const char* loadModelTemplate(const char* fileName, const char* filePath)
 {
   preModelLoad();
   // Assuming that the template is located in current working directory
-  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), ".");
+  const char* error = readModel(fileName, (uint8_t*)&g_model, sizeof(g_model), filePath);
   if (error) {
     TRACE("loadModel error=%s", error);
     // just get some clean memory state in "g_model" so the mixer can run safely

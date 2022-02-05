@@ -47,10 +47,10 @@ class TemplatePage : public Page
   TemplatePage() : Page(ICON_MODEL_SELECT)
   { }
   
-  void updateInfo(std::string fileName)
+  void updateInfo()
   {
     FIL fp;
-    FRESULT res = f_open (&fp, fileName.c_str(), FA_READ);
+    FRESULT res = f_open (&fp, buffer, FA_READ);
     unsigned int bytesRead = 0;
     if (res == FR_OK) {
       f_read (&fp, infoText, LEN_INFO_TEXT, &bytesRead);
@@ -77,6 +77,8 @@ class TemplatePage : public Page
 
   protected:
 
+  static char path[sizeof(TEMPLATES_PATH) + FF_SFN_BUF + 2];
+  char buffer[sizeof(TEMPLATES_PATH) + 2 * FF_SFN_BUF + 3];
   char infoText[LEN_INFO_TEXT + 1] = { 0 };
   unsigned int count = 0;
 
@@ -96,6 +98,8 @@ class TemplatePage : public Page
     }
   }
 };
+
+char TemplatePage::path[sizeof(TEMPLATES_PATH) + FF_SFN_BUF + 2] = { 0 };
 
 class TemplateButton : public TextButton
 {  
@@ -119,7 +123,7 @@ class SelectTemplate : public TemplatePage
     std::list<std::string> files;
     FILINFO fno;
     DIR dir;
-    FRESULT res = f_opendir(&dir, ".");
+    FRESULT res = f_opendir(&dir, path);
 
     if (res == FR_OK) {
       // read all entries
@@ -150,7 +154,7 @@ class SelectTemplate : public TemplatePage
 
       for (auto name: files) {
         auto tb = new TemplateButton(&body, grid.getLabelSlot(), name, [=]() -> uint8_t {
-            loadModelTemplate((name + YAML_EXT).c_str());
+            loadModelTemplate((name + YAML_EXT).c_str(), path);
             auto model = modelslist.getCurrentModel();
             model->setModelName(g_model.header.name);
             modelslist.save();
@@ -161,7 +165,8 @@ class SelectTemplate : public TemplatePage
           });
         tb->setFocusHandler([=](bool active) {
           if (active) {
-            updateInfo(name + TEXT_EXT);
+            snprintf(buffer, sizeof(buffer), "%s%c%s%s", path, '/', name.c_str(), TEXT_EXT);
+            updateInfo();
           }
         });
         grid.nextLine();
@@ -186,7 +191,8 @@ class SelectTemplate : public TemplatePage
       rect.h = PAGE_LINE_HEIGHT;
       new TemplateButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
     } else {
-      updateInfo(files.front() + TEXT_EXT);
+      snprintf(buffer, sizeof(buffer), "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
+      updateInfo();
     }
   }
 
@@ -238,14 +244,14 @@ class SelectTemplateFolder : public TemplatePage
       for (auto name: directories) {
         auto tfb = new TemplateFolderButton(&body, grid.getLabelSlot(), name,
             [=]() -> uint8_t {
+            snprintf(path, sizeof(path), "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
             new SelectTemplate(this);
             return 0;
           });
         tfb->setFocusHandler([=](bool active) {
           if (active) {
-            std::string fullpath = TEMPLATES_PATH + ("/" + name);
-            f_chdir((TCHAR*)fullpath.c_str());
-            updateInfo("about.txt");
+            snprintf(buffer, sizeof(buffer), "%s%c%s%c%s%s", TEMPLATES_PATH, '/', name.c_str(), '/', "about", TEXT_EXT);
+            updateInfo();
           }
         });
         grid.nextLine();
@@ -258,9 +264,8 @@ class SelectTemplateFolder : public TemplatePage
     if (count == 0) {
       deleteLater();
     } else {
-      std::string fullpath = TEMPLATES_PATH + ("/" + directories.front());
-      f_chdir((TCHAR*)fullpath.c_str());
-      updateInfo("about.txt");
+      snprintf(buffer, sizeof(buffer), "%s%c%s%c%s%s", TEMPLATES_PATH, '/', directories.front().c_str(), '/', "about", TEXT_EXT);
+      updateInfo();
     }
   }
 };
