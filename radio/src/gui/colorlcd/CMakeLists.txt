@@ -209,6 +209,7 @@ set(LVGL_SOURCES
   draw/lv_img_cache.c
   draw/stm32_dma2d/lv_gpu_stm32_dma2d.c
   draw/nxp_vglite/lv_gpu_nxp_vglite.c
+  draw/sw/lv_draw_sw_gradient.c
   draw/sw/lv_draw_sw.c
   draw/sw/lv_draw_sw_blend.c
   draw/sw/lv_draw_sw_letter.c
@@ -216,37 +217,17 @@ set(LVGL_SOURCES
   draw/sw/lv_draw_sw_polygon.c
   draw/sw/lv_draw_sw_img.c
   draw/sw/lv_draw_sw_line.c
+  draw/sw/lv_draw_sw_dither.c
   draw/sw/lv_draw_sw_rect.c
   draw/lv_draw_line.c
   draw/sdl/lv_draw_sdl_rect.c
   draw/sdl/lv_draw_sdl_arc.c
   draw/sdl/lv_draw_sdl.c
   draw/sdl/lv_draw_sdl_mask.c
+  draw/sdl/lv_draw_sdl_polygon.c
   draw/sdl/lv_draw_sdl_stack_blur.c
   draw/sdl/lv_draw_sdl_utils.c
   draw/sdl/lv_draw_sdl_img.c
-  draw/sdl/lv_draw_sdl_blend.c
-  draw/sdl/lv_draw_sdl_bg.c
-  draw/sdl/lv_draw_sdl_label.c
-  draw/sdl/lv_draw_sdl_texture_cache.c
-  draw/sdl/lv_draw_sdl_line.c
-  draw/sdl/lv_draw_sdl_composite.c
-  draw/lv_draw.c
-  draw/lv_img_buf.c
-  draw/lv_draw_rect.c
-  draw/lv_draw_label.c
-  draw/lv_draw_img.c
-  draw/sw/lv_draw_sw_line.c
-  draw/sw/lv_draw_sw_rect.c
-  draw/lv_draw_line.c
-  draw/sdl/lv_draw_sdl_rect.c
-  draw/sdl/lv_draw_sdl_arc.c
-  draw/sdl/lv_draw_sdl.c
-  draw/sdl/lv_draw_sdl_mask.c
-  draw/sdl/lv_draw_sdl_stack_blur.c
-  draw/sdl/lv_draw_sdl_utils.c
-  draw/sdl/lv_draw_sdl_img.c
-  draw/sdl/lv_draw_sdl_blend.c
   draw/sdl/lv_draw_sdl_bg.c
   draw/sdl/lv_draw_sdl_label.c
   draw/sdl/lv_draw_sdl_texture_cache.c
@@ -264,6 +245,7 @@ set(LVGL_SOURCES
   hal/lv_hal_disp.c
   hal/lv_hal_tick.c
   extra/others/monkey/lv_monkey.c
+  extra/others/gridnav/lv_gridnav.c
   extra/others/snapshot/lv_snapshot.c
   extra/layouts/grid/lv_grid.c
   extra/layouts/flex/lv_flex.c
