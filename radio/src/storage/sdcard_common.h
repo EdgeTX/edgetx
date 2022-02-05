@@ -59,7 +59,7 @@ void getModelPath(char * path, const char * filename, const char* pathName = STR
 
 const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = STR_MODELS_PATH);
 const char * loadModel(char * filename, bool alarms=true);
-const char * loadModelTemplate(const char * filename);
+const char * loadModelTemplate(const char* fileName, const char* filePath);
 const char * createModel();
 const char * writeModel();
 
