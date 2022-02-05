@@ -135,7 +135,7 @@ class SelectTemplate : public TemplatePage
           continue;
         if (!(fno.fattrib & AM_DIR)) {
           const char *ext = getFileExtension(fno.fname);
-          if(ext && !strcmp(ext, YAML_EXT)) {
+          if(ext && !strcasecmp(ext, YAML_EXT)) {
             int len = ext - fno.fname;
             if (len < FF_MAX_LFN) {
               char name[FF_MAX_LFN] = { 0 };
@@ -243,7 +243,7 @@ class SelectTemplateFolder : public TemplatePage
           });
         tfb->setFocusHandler([=](bool active) {
           if (active) {
-            std::string fullpath = TEMPLATES_PATH + name;
+            std::string fullpath = TEMPLATES_PATH + ("/" + name);
             f_chdir((TCHAR*)fullpath.c_str());
             updateInfo("about.txt");
           }
@@ -258,7 +258,7 @@ class SelectTemplateFolder : public TemplatePage
     if (count == 0) {
       deleteLater();
     } else {
-      std::string fullpath = TEMPLATES_PATH + directories.front();
+      std::string fullpath = TEMPLATES_PATH + ("/" + directories.front());
       f_chdir((TCHAR*)fullpath.c_str());
       updateInfo("about.txt");
     }
