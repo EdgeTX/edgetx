@@ -346,7 +346,7 @@ class SpecialFunctionEditPage : public Page
           },
           SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
-          [repeat](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
             if (value == 0)
               dc->drawText(3, 0, "1x", flags);
             else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
