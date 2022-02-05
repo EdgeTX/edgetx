@@ -38,6 +38,8 @@ constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
 constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 constexpr size_t LEN_INFO_TEXT = 300;
+constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
+constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 class TemplatePage : public Page
@@ -77,8 +79,8 @@ class TemplatePage : public Page
 
   protected:
 
-  static char path[sizeof(TEMPLATES_PATH) + FF_SFN_BUF + 2];
-  char buffer[sizeof(TEMPLATES_PATH) + 2 * FF_SFN_BUF + 3];
+  static char path[LEN_PATH + 1];
+  char buffer[LEN_BUFFER + 1];
   char infoText[LEN_INFO_TEXT + 1] = { 0 };
   unsigned int count = 0;
 
@@ -99,7 +101,7 @@ class TemplatePage : public Page
   }
 };
 
-char TemplatePage::path[sizeof(TEMPLATES_PATH) + FF_SFN_BUF + 2] = { 0 };
+char TemplatePage::path[LEN_PATH + 1];
 
 class TemplateButton : public TextButton
 {  
@@ -158,14 +160,14 @@ class SelectTemplate : public TemplatePage
             auto model = modelslist.getCurrentModel();
             model->setModelName(g_model.header.name);
             modelslist.save();
-
+            storageDirty(EE_MODEL);
             deleteLater();
             templateFolderPage->deleteLater();
             return 0;
           });
         tb->setFocusHandler([=](bool active) {
           if (active) {
-            snprintf(buffer, sizeof(buffer), "%s%c%s%s", path, '/', name.c_str(), TEXT_EXT);
+            snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), TEXT_EXT);
             updateInfo();
           }
         });
@@ -191,7 +193,7 @@ class SelectTemplate : public TemplatePage
       rect.h = PAGE_LINE_HEIGHT;
       new TemplateButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
     } else {
-      snprintf(buffer, sizeof(buffer), "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
+      snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
       updateInfo();
     }
   }
@@ -244,13 +246,13 @@ class SelectTemplateFolder : public TemplatePage
       for (auto name: directories) {
         auto tfb = new TemplateFolderButton(&body, grid.getLabelSlot(), name,
             [=]() -> uint8_t {
-            snprintf(path, sizeof(path), "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
+            snprintf(path, LEN_PATH, "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
             new SelectTemplate(this);
             return 0;
           });
         tfb->setFocusHandler([=](bool active) {
           if (active) {
-            snprintf(buffer, sizeof(buffer), "%s%c%s%c%s%s", TEMPLATES_PATH, '/', name.c_str(), '/', "about", TEXT_EXT);
+            snprintf(buffer, LEN_BUFFER, "%s%c%s%c%s%s", TEMPLATES_PATH, '/', name.c_str(), '/', "about", TEXT_EXT);
             updateInfo();
           }
         });
@@ -264,7 +266,7 @@ class SelectTemplateFolder : public TemplatePage
     if (count == 0) {
       deleteLater();
     } else {
-      snprintf(buffer, sizeof(buffer), "%s%c%s%c%s%s", TEMPLATES_PATH, '/', directories.front().c_str(), '/', "about", TEXT_EXT);
+      snprintf(buffer, LEN_BUFFER, "%s%c%s%c%s%s", TEMPLATES_PATH, '/', directories.front().c_str(), '/', "about", TEXT_EXT);
       updateInfo();
     }
   }
