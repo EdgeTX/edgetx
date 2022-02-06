@@ -69,6 +69,7 @@ class MenuBody: public Window
       MenuLine(MenuLine &&) = default;
 
     protected:
+      friend void menuBodyEventCallback(lv_event_t *e);
       bool isSeparator = false;
       coord_t height = MENUS_LINE_HEIGHT;
       std::string text;
@@ -78,11 +79,7 @@ class MenuBody: public Window
   };
 
   public:
-    MenuBody(Window * parent, const rect_t & rect):
-      Window(parent, rect, OPAQUE)
-    {
-      setPageHeight(MENUS_LINE_HEIGHT);
-    }
+    MenuBody(Window * parent, const rect_t & rect);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -116,11 +113,7 @@ class MenuBody: public Window
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
-    {
-      lines.emplace_back(text, std::move(onPress), std::move(isChecked));
-      invalidate();
-    }
+    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked);
 
     void addCustomLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
     {
@@ -133,11 +126,7 @@ class MenuBody: public Window
       lines.emplace_back(true);
     }
 
-    void removeLines()
-    {
-      lines.clear();
-      invalidate();
-    }
+    void removeLines();
 
     void setCancelHandler(std::function<void()> handler)
     {
@@ -147,6 +136,7 @@ class MenuBody: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
+    friend void menuBodyEventCallback(lv_event_t *);
     void selectNext(MENU_DIRECTION direction);
     int rangeCheck(int);
     void setIndex(int index);
@@ -264,6 +254,7 @@ class Menu: public ModalWindow
     void paint(BitmapBuffer * dc) override;
 
   protected:
+    friend void menuBodyEventCallback(lv_event_t *);
     MenuWindowContent * content;
     bool multiple;
     Window * toolbar = nullptr;
