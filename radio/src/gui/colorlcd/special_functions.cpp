@@ -335,15 +335,21 @@ class SpecialFunctionEditPage : public Page
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
       grid.nextLine();
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
-      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_REPEAT, 0, COLOR_THEME_PRIMARY1);
+      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_REPEAT,
+                     0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
           specialFunctionOneWindow, grid.getFieldSlot(2, 1), -1,
-          60 / CFN_PLAY_REPEAT_MUL, GET_SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+          60 / CFN_PLAY_REPEAT_MUL,
+          [cfn]() {
+            int32_t value = (int8_t)CFN_PLAY_REPEAT(cfn);
+            return value;
+          },
+          SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
           [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
             if (value == 0)
               dc->drawText(3, 0, "1x", flags);
-            else if (value == CFN_PLAY_REPEAT_NOSTART)
+            else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
               dc->drawText(3, 0, "!1x", flags);
             else
               dc->drawNumber(3, 0, value * CFN_PLAY_REPEAT_MUL, flags, 0,
