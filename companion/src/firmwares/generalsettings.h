@@ -43,6 +43,8 @@ constexpr char AIM_GS_TELEMETRYBAUDRATE[]  {"gs.telemetrybaudrate"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
+static const QStringList telemetryBaudratesList({ "115K", "400K", "921K", "1.87M", "3.75M", "5.25M" });
+
 enum UartModes {
   UART_MODE_NONE,
   UART_MODE_TELEMETRY_MIRROR,

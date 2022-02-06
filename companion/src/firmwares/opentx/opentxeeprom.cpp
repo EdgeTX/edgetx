@@ -3317,6 +3317,9 @@ void OpenTxGeneralData::beforeExport()
   }
 
   chkSum = sum;
+
+  if (Boards::getCapability((Board::Type)generalData.variant, Board::SportMaxBaudRate) >= 400000)
+    generalData.telemetryBaudrate = (generalData.telemetryBaudrate + telemetryBaudratesList.size() - 1) % telemetryBaudratesList.size();
 }
 
 void OpenTxGeneralData::afterImport()
@@ -3327,5 +3330,8 @@ void OpenTxGeneralData::afterImport()
       RadioTheme::init(themeName, generalData.themeData);
     }
   }
+
+  if (Boards::getCapability((Board::Type)generalData.variant, Board::SportMaxBaudRate) >= 400000)
+    generalData.telemetryBaudrate = (generalData.telemetryBaudrate + 1) % telemetryBaudratesList.size();
 }
 

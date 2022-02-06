@@ -488,14 +488,7 @@ QString GeneralSettings::auxSerialModeToString(int value)
 //  static
 QString GeneralSettings::telemetryBaudrateToString(int value)
 {
-  switch(value) {
-    case 0:
-      return "400000";
-    case 1:
-      return "115200";
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
+  return telemetryBaudratesList.value(value, CPN_STR_UNKNOWN_ITEM);
 }
 
 //  static
@@ -572,7 +565,7 @@ AbstractStaticItemModel * GeneralSettings::telemetryBaudrateItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_TELEMETRYBAUDRATE);
 
-  for (int i = 0; i <= 1; i++) {
+  for (int i = 0; i < telemetryBaudratesList.size(); i++) {
     mdl->appendToItemList(telemetryBaudrateToString(i), i);
   }
 
