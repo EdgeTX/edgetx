@@ -38,25 +38,7 @@ class ModalWindow: public Window
     void paint(BitmapBuffer * dc) override;
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override
-    {
-      return true;
-    }
-
-    bool onTouchEnd(coord_t x, coord_t y) override
-    {
-      if (!Window::onTouchEnd(x, y) && closeWhenClickOutside) {
-        onKeyPress();
-        deleteLater();
-      }
-      return true;
-    }
-
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override
-    {
-      Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
-      return true;
-    }
+    bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
     void setCloseWhenClickOutside(bool value = true)
