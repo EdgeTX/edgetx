@@ -157,10 +157,13 @@ class SelectTemplate : public TemplatePage
       for (auto name: files) {
         auto tb = new TemplateButton(&body, grid.getLabelSlot(), name, [=]() -> uint8_t {
             loadModelTemplate((name + YAML_EXT).c_str(), path);
+            storageDirty(EE_MODEL);
+            storageCheck(true);
+
             auto model = modelslist.getCurrentModel();
             model->setModelName(g_model.header.name);
             modelslist.save();
-            storageDirty(EE_MODEL);
+
             deleteLater();
             templateFolderPage->deleteLater();
             return 0;
@@ -487,6 +490,8 @@ class ModelCategoryPageBody : public FormWindow
             }
           });
           menu->addLine(STR_SAVE_TEMPLATE, [=]() {
+              storageDirty(EE_MODEL);
+              storageCheck(true);
               constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
               char modelName[size];
               snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
