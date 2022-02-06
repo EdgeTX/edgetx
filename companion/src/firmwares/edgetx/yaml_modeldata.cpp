@@ -637,7 +637,11 @@ struct convert<FrSkyLineData> {
   static Node encode(const FrSkyLineData& rhs)
   {
     Node node, sources;
-    sources = encode_array(rhs.source);
+    for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensFieldsPerLine); i++) {
+      if (rhs.source[i].isSet()) {
+        sources[std::to_string(i)]["val"] = rhs.source[i];
+      }
+    }
     if (sources && sources.IsMap()) {
       node["sources"] = sources;
     }
@@ -664,18 +668,30 @@ struct convert<FrSkyScreenData> {
   {
     Node node;
     node["type"] = LookupValue(screenTypeLut, rhs.type);
-    switch(rhs.type) {
-    case TELEMETRY_SCREEN_NONE:
-      break;
-    case TELEMETRY_SCREEN_NUMBERS:
-      node["lines"] = encode_array(rhs.body.lines);
-      break;
-    case TELEMETRY_SCREEN_BARS:
-      node["bars"] = encode_array(rhs.body.bars);
-      break;
-    case TELEMETRY_SCREEN_SCRIPT:
-      node["script"]["file"] = rhs.body.script.filename;
-      break;
+    if (rhs.type != TELEMETRY_SCREEN_NONE) {
+      Node cfg;
+      switch(rhs.type) {
+      case TELEMETRY_SCREEN_NUMBERS: {
+        Node lines;
+        for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensLines); i++) {
+          lines[std::to_string(i)] = rhs.body.lines[i];
+        }
+        cfg["lines"] = lines;
+        } break;
+      case TELEMETRY_SCREEN_BARS: {
+        Node bars;
+        for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensBars); i++) {
+          bars[std::to_string(i)] = rhs.body.bars[i];
+        }
+        cfg["bars"] = bars;
+        } break;
+      case TELEMETRY_SCREEN_SCRIPT:
+        cfg["script"]["file"] = rhs.body.script.filename;
+        break;
+      }
+      if (cfg && cfg.IsMap()) {
+        node["u"] = cfg;
+      }
     }
     return node;
   }
@@ -683,23 +699,38 @@ struct convert<FrSkyScreenData> {
   static bool decode(const Node& node, FrSkyScreenData& rhs)
   {
     node["type"] >> screenTypeLut >> rhs.type;
-    switch(rhs.type) {
-    case TELEMETRY_SCREEN_NONE:
-      return true;
-    case TELEMETRY_SCREEN_NUMBERS:
-      node["lines"] >> rhs.body.lines;
-      break;
-    case TELEMETRY_SCREEN_BARS:
-      node["bars"] >> rhs.body.bars;
-      break;
-    case TELEMETRY_SCREEN_SCRIPT:
-      if (node["script"]) {
-        const auto& script = node["script"];
-        if (script && script.IsMap()) {
-          script["file"] >> rhs.body.script.filename;
+    if (rhs.type == TELEMETRY_SCREEN_NONE) return true;
+
+    if (node["u"]) {  // radio outputs generic u to indicate union field
+      const auto& cfg = node["u"];
+      if (cfg && cfg.IsMap()) {
+        switch(rhs.type) {
+        case TELEMETRY_SCREEN_NUMBERS:
+          if (cfg["lines"]) {
+            const auto& lines = cfg["lines"];
+            if (lines && lines.IsMap()) {
+              lines >> rhs.body.lines;
+            }
+          }
+          break;
+        case TELEMETRY_SCREEN_BARS:
+          if (cfg["bars"]) {
+            const auto& bars = cfg["bars"];
+            if (bars && bars.IsMap()) {
+              bars >> rhs.body.bars;
+            }
+          }
+          break;
+        case TELEMETRY_SCREEN_SCRIPT:
+          if (cfg["script"]) {
+            const auto& script = cfg["script"];
+            if (script && script.IsMap()) {
+              script["file"] >> rhs.body.script.filename;
+            }
+          }
+          break;
         }
       }
-      break;
     }
     return true;
   }
