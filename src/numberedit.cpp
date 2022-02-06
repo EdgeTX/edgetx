@@ -78,7 +78,7 @@ NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax,
   lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
   //lv_style_set_radius(&style_main, 0);
-  lv_style_set_text_font(&style_main, &lv_font_montserrat_12);
+  lv_style_set_text_font(&style_main, &lv_font_roboto_13);
   lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
 
