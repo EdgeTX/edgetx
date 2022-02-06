@@ -873,7 +873,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   node["rssiAlarms"] = rhs.rssiAlarms;
-  node["trainerMode"] = trainerModeLut << rhs.trainerMode;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
@@ -886,6 +885,13 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["failsafeChannels"][std::to_string(i)]["val"] = rhs.limitData[i].failsafe;
     }
   }
+
+  node["trainerData"]["mode"] = trainerModeLut << rhs.trainerMode;
+  node["trainerData"]["channelsStart"] = rhs.moduleData[2].channelsStart;
+  node["trainerData"]["channelsCount"] = (rhs.moduleData[2].channelsCount - 8);
+  node["trainerData"]["frameLength"] = rhs.moduleData[2].ppm.frameLength;
+  node["trainerData"]["delay"] = ((rhs.moduleData[2].ppm.delay - 300) / 50);
+  node["trainerData"]["pulsePol"] = (int)rhs.moduleData[2].ppm.pulsePol;
 
   for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
     if (strlen(rhs.scriptData[i].filename) > 0) {
@@ -1057,7 +1063,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   node["rssiAlarms"] >> rhs.rssiAlarms;
-  node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
 
   node["moduleData"] >> rhs.moduleData;
   for (int i=0; i<CPN_MAX_MODULES; i++) {
@@ -1071,6 +1076,19 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     for (int i=0; i<CPN_MAX_CHNOUT; i++) {
       rhs.limitData[i].failsafe = failsafeChans[i];
     }
+  }
+
+  if (node["trainerData"]) {
+    const auto& trainer = node["trainerData"];
+    if (!trainer.IsMap()) return false;
+    trainer["mode"] >> trainerModeLut >> rhs.trainerMode;
+    trainer["channelsStart"] >> rhs.moduleData[2].channelsStart;
+    trainer["channelsCount"] >> rhs.moduleData[2].channelsCount;
+    rhs.moduleData[2].channelsCount += 8;
+    trainer["frameLength"] >> rhs.moduleData[2].ppm.frameLength;
+    trainer["delay"] >> rhs.moduleData[2].ppm.delay;
+    rhs.moduleData[2].ppm.delay = 300 + 50 * rhs.moduleData[2].ppm.delay;
+    trainer["pulsePol"] >> rhs.moduleData[2].ppm.pulsePol;
   }
 
   node["scriptData"] >> rhs.scriptData;
