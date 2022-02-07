@@ -27,20 +27,20 @@ lv_style_t style_edit;
 
 static void checkbox_event_handler(lv_event_t * e)
 {
-  lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * target = lv_event_get_target(e);
   CheckBox* cb = (CheckBox *)lv_obj_get_user_data(target);
  
-  if(code == LV_EVENT_VALUE_CHANGED) {
-    onKeyPress();
+  onKeyPress();
+  if (cb)
     cb->setValue(lv_obj_get_state(target) & LV_STATE_CHECKED);
-  }
 }
 
-CheckBox::CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue, WindowFlags flags) :
-  FormField(parent, rect, flags, 0, &checkBoxFactory),
-  _getValue(std::move(getValue)),
-  _setValue(std::move(setValue))
+CheckBox::CheckBox(Window* parent, const rect_t& rect,
+                   std::function<uint8_t()> getValue,
+                   std::function<void(uint8_t)> setValue, WindowFlags flags) :
+    FormField(parent, rect, flags, 0, &checkBoxFactory),
+    _getValue(std::move(getValue)),
+    _setValue(std::move(setValue))
 {
   coord_t size = min(rect.w, rect.h);
   setWidth(size);
@@ -62,7 +62,7 @@ CheckBox::CheckBox(Window * parent, const rect_t & rect, std::function<uint8_t()
   if (_getValue())
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 
-  lv_obj_add_event_cb(lvobj, checkbox_event_handler, LV_EVENT_ALL, this);
+  lv_obj_add_event_cb(lvobj, checkbox_event_handler, LV_EVENT_VALUE_CHANGED, this);
 }
 
 #if defined(HARDWARE_KEYS)
