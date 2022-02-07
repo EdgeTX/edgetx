@@ -241,17 +241,21 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["board"] >> flavour;
 
   auto fw = getCurrentFirmware();
-  auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
-
-  if (flavour.empty()) {
-    qDebug() << "Warning: Settings file does not contain board flavour! Default firmware board will be used";
-    flavour = msfw->getFlavour().toStdString();
-  }
 
   qDebug() << "Settings version:" << rhs.version << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
 
-  if (fw->getFlavour().toStdString() != flavour) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "File board (%1) does not match current profile board (%2), models and settings will be converted where possible.\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
+  if (flavour.empty()) {
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file is missing the board entry!\n\nCurrent firmware profile board will be used.\n\nDo you wish to continue?");
+    if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
+    }
+    flavour = fw->getFlavour().toStdString();
+  }
+  else if (fw->getFlavour().toStdString() != flavour) {
+    auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
+
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
 
     if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
