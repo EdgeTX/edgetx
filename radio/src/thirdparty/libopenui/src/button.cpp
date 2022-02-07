@@ -81,14 +81,7 @@ void Button::checkEvents()
 }
 
 lv_style_t style_btn;
-
-
-LvglWidgetFactory textButtonFactory = LvglWidgetFactory(
-  [](lv_obj_t *parent) {
-    return lv_btn_create(parent);
-  },
-  [] (LvglWidgetFactory *factory) {
-  });
+LvglWidgetFactory textButtonFactory = {lv_btn_create, nullptr};
 
 TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
           std::function<uint8_t(void)> pressHandler,
@@ -123,50 +116,6 @@ TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
   lv_obj_center(label);
   lv_obj_set_style_text_color(label, makeLvColor(this->getTextFlags()), LV_PART_MAIN);
   lv_obj_set_style_text_color(label, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
-}
-
-TextButton::~TextButton()
-{
-}
-
-void TextButton::paint(BitmapBuffer * dc)
-{
-  // auto textColor = getTextFlags();
-  // auto bgColor   = COLOR_THEME_SECONDARY2;
-
-  // if (bgColorHandler) {
-  //   bgColor = bgColorHandler();
-  // } else if (checked()) {
-  //   bgColor = COLOR_THEME_ACTIVE;
-  // } else if (hasFocus()) {
-  //   bgColor = COLOR_THEME_FOCUS;
-  //   textColor = COLOR_THEME_PRIMARY2;
-  // }
-
-  // if (checked()) {
-  //   if (hasFocus()) {
-  //     dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-  //     dc->drawSolidFilledRect(3, 3, rect.w - 6, rect.h - 6, bgColor);
-  //   } else {
-  //     dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
-  //   }
-  // }
-  // else {
-  //   dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
-  //   if (windowFlags & BUTTON_BACKGROUND) {
-  //     if (hasFocus()) {
-  //       textColor = COLOR_THEME_PRIMARY2;
-  //     }
-  //   } else if (hasFocus()) {
-  //     dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-  //   }
-  //   else {
-  //     dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
-  //   }
-  // }
-
-  // dc->drawText(rect.w / 2, 1 + (rect.h - getFontHeight(textFlags)) / 2,
-  //              text.c_str(), CENTERED | textColor);
 }
 
 void IconButton::paint(BitmapBuffer * dc)

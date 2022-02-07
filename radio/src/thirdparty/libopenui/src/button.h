@@ -88,8 +88,6 @@ class Button: public FormField
 };
 
 
-extern void my_btn_event_cb(lv_event_t * e);
-
 class TextButton: public Button
 {
   public:
@@ -97,7 +95,6 @@ class TextButton: public Button
               std::function<uint8_t(void)> pressHandler = nullptr,
               WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
               LcdFlags textFlags = 0);
-    ~TextButton();
               
 #if defined(DEBUG_WINDOWS)
    std::string getName() const override
@@ -111,7 +108,6 @@ class TextButton: public Button
      if (value != text) {
        text = std::move(value);
        lv_label_set_text(label, text.c_str());
-       invalidate();
      }
    }
 
@@ -119,8 +115,6 @@ class TextButton: public Button
    {
      bgColorHandler = std::move(handler);
    }
-
-   void paint(BitmapBuffer* dc) override;
 
   protected:
     lv_obj_t * label = nullptr;
