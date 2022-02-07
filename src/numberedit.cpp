@@ -28,40 +28,43 @@ static LvglWidgetFactory numberEditFactory = { lv_textarea_create, nullptr };
 static lv_style_t style_main;
 static lv_style_t style_edit;
 
-extern "C" void lvglEventCb(lv_event_t* event)
+static void text_area_cb(lv_event_t* e)
 {
-  if(!event)
-    return;
-  uint32_t key = lv_event_get_key(event);
-  NumberEdit* numEdit = (NumberEdit*)event->user_data;
-  if(!numEdit)
-    return;
-  if(numEdit->deleted())
-    return;
+  lv_event_code_t code = lv_event_get_code(e);
+  if (code == LV_EVENT_DELETE) return;
 
+  NumberEdit* numEdit = (NumberEdit*)lv_event_get_user_data(e);
+  if (!numEdit || numEdit->deleted()) return;
+
+  uint32_t key = lv_event_get_key(e);
   lv_obj_t* obj = numEdit->getLvObj();
 
-  if(obj != nullptr && lv_obj_is_editable(obj))
-  {
+  if (obj != nullptr && lv_obj_is_editable(obj)) {
     lv_group_t* grp = (lv_group_t*)lv_obj_get_group(obj);
-    if(grp && lv_group_get_focused(grp) == obj)
+    if (grp && lv_group_get_focused(grp) == obj)
       numEdit->setEditMode(lv_group_get_editing(grp));
 
-    switch(key)
-    {
-    case LV_KEY_LEFT:
-  //    numEdit->onEvent(EVT_ROTARY_LEFT);
-      break;
-    case LV_KEY_RIGHT:
-  //    numEdit->onEvent(EVT_ROTARY_RIGHT);
-      break;
+    switch (key) {
+      case LV_KEY_LEFT:
+        //    numEdit->onEvent(EVT_ROTARY_LEFT);
+        break;
+      case LV_KEY_RIGHT:
+        //    numEdit->onEvent(EVT_ROTARY_RIGHT);
+        break;
     }
   }
-  event->code = LV_EVENT_REFRESH;
+
+  // TODO: this looks highly forbidden!!!
+  e->code = LV_EVENT_REFRESH;
 }
 
-NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags, LcdFlags textFlags):
-  BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue), windowFlags, textFlags, &numberEditFactory)
+NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
+                       std::function<int()> getValue,
+                       std::function<void(int)> setValue,
+                       WindowFlags windowFlags, LcdFlags textFlags) :
+    BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
+                   std::move(setValue), windowFlags, textFlags,
+                   &numberEditFactory)
 {
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
@@ -110,7 +113,7 @@ NumberEdit::NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax,
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 
-  lv_obj_add_event_cb(lvobj, lvglEventCb, LV_EVENT_ALL, this);
+  lv_obj_add_event_cb(lvobj, text_area_cb, LV_EVENT_ALL, this);
 }
 
 void NumberEdit::onEvent(event_t event)
