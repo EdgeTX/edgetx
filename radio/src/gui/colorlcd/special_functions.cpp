@@ -339,11 +339,7 @@ class SpecialFunctionEditPage : public Page
                      0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
           specialFunctionOneWindow, grid.getFieldSlot(2, 1), -1,
-          60 / CFN_PLAY_REPEAT_MUL,
-          [cfn]() {
-            int32_t value = (int8_t)CFN_PLAY_REPEAT(cfn);
-            return value;
-          },
+          60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
           SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
           [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
