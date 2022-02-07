@@ -48,10 +48,16 @@ FileChoice::FileChoice(FormGroup *parent, const rect_t &rect,
 {
 }
 
+std::string FileChoice::getLabelText()
+{
+  return getValue();
+}
+
+
 void FileChoice::paint(BitmapBuffer * dc)
 {
-  FormField::paint(dc);
-  theme->drawChoice(dc, this, getValue().c_str());
+  // FormField::paint(dc);
+  // theme->drawChoice(dc, this, getValue().c_str());
 }
 
 bool FileChoice::openMenu()
