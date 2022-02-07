@@ -71,7 +71,7 @@ class MenuBody: public Window
     protected:
       friend void menuBodyEventCallback(lv_event_t *e);
       bool isSeparator = false;
-      coord_t height = MENUS_LINE_HEIGHT;
+      coord_t height = MENUS_LINE_HEIGHT + 10;
       std::string text;
       std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine;
       std::function<void()> onPress;
@@ -109,10 +109,6 @@ class MenuBody: public Window
     void onEvent(event_t event) override;
 #endif
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
     void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked);
 
     void addCustomLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
@@ -132,8 +128,6 @@ class MenuBody: public Window
     {
       onCancel = std::move(handler);
     }
-
-    void paint(BitmapBuffer * dc) override;
 
   protected:
     friend void menuBodyEventCallback(lv_event_t *);
@@ -170,8 +164,6 @@ class MenuWindowContent: public ModalWindowContent
       return "MenuWindowContent";
     }
 #endif
-
-    void paint(BitmapBuffer * dc) override;
 
   protected:
     MenuBody body;
@@ -250,8 +242,6 @@ class Menu: public ModalWindow
         waitHandler();
       }
     }
-
-    void paint(BitmapBuffer * dc) override;
 
   protected:
     friend void menuBodyEventCallback(lv_event_t *);
