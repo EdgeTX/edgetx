@@ -21,13 +21,61 @@
 #include "menu.h"
 #include "theme.h"
 
+void choicePaintCallback(lv_event_t *e)
+{
+  auto code = lv_event_get_code(e);
+
+  if (code == LV_EVENT_DRAW_MAIN_BEGIN) {
+    lv_obj_t *target = lv_event_get_target(e);
+    if (target != nullptr) {
+      ChoiceBase *cb = (ChoiceBase*)lv_obj_get_user_data(target);
+      std::string text = cb->getLabelText();
+      lv_label_set_text(cb->label, text.c_str());
+    }
+  }
+}
+
 ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type, WindowFlags windowFlags):
   FormField(parent, rect, windowFlags),
   type(type)
 {
+  lv_obj_add_event_cb(lvobj, choicePaintCallback, LV_EVENT_DRAW_MAIN_BEGIN, lvobj);
+  label = lv_label_create(lvobj);
+  // Normal font and background color
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+  lv_obj_set_style_pad_right(lvobj, 5, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+  lv_obj_set_style_text_font(lvobj, &lv_font_roboto_13, LV_PART_MAIN);
 
+  // focused
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  lv_obj_set_width(label, lv_pct(80));
+  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
+  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
+
+
+  // add the image
+  lv_obj_t *img = lv_img_create(lvobj);
+  lv_img_set_src(img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
+  lv_obj_set_align(img, LV_ALIGN_RIGHT_MID);
 }
 
+
+std::string Choice::getLabelText()
+{
+  std::string text = "";
+  if (textHandler != nullptr)
+    text = textHandler(getValue());
+  else if (getValue() < values.size())
+    text = values[getValue()];
+  
+  return text;
+}
 
 Choice::Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax,
   std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
@@ -111,20 +159,20 @@ void Choice::setValues(const char * const values[])
 
 void Choice::paint(BitmapBuffer * dc)
 {
-  FormField::paint(dc);
-  auto val = getValue();
+  // FormField::paint(dc);
+  // auto val = getValue();
 
-  std::string str = "";
-  if (textHandler) {
-    str = textHandler(val);
-  } else {
-    val -= vmin;
-    if (val >= 0 && val < (int)values.size()) {
-      str = values[val];
-    }
-  }
+  // std::string str = "";
+  // if (textHandler) {
+  //   str = textHandler(val);
+  // } else {
+  //   val -= vmin;
+  //   if (val >= 0 && val < (int)values.size()) {
+  //     str = values[val];
+  //   }
+  // }
 
-  theme->drawChoice(dc, this, str.c_str());
+  // theme->drawChoice(dc, this, str.c_str());
 }
 
 #if defined(HARDWARE_KEYS)

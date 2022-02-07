@@ -46,6 +46,7 @@ public:
 #endif
 
 protected:
+  std::string getLabelText() override;
   std::string folder;
   const char* extension;
   int maxlen;

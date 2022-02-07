@@ -40,7 +40,10 @@ class ChoiceBase : public FormField
     }
 
   protected:
+    friend void choicePaintCallback(lv_event_t *e);
     ChoiceType type;
+    lv_obj_t *label;
+    virtual std::string getLabelText() { return ""; };
 };
 
 class Choice: public ChoiceBase {
@@ -150,6 +153,7 @@ class Choice: public ChoiceBase {
     }
 
   protected:
+    std::string getLabelText() override;
     std::vector<std::string> values;
     int vmin = 0;
     int vmax = 0;

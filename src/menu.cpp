@@ -102,7 +102,7 @@ void MenuBody::setIndex(int index)
     btn = lv_obj_get_child(lvobj, selectedIndex);
     if (btn != nullptr) {
       lv_obj_add_state(btn, LV_STATE_CHECKED);
-      lv_obj_scroll_to_view(btn, LV_ANIM_ON);
+      lv_obj_scroll_to_view(btn, LV_ANIM_OFF);
     }
   }
 }
