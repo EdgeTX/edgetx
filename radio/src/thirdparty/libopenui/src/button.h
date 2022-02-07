@@ -116,6 +116,8 @@ class TextButton: public Button
      bgColorHandler = std::move(handler);
    }
 
+   void paint(BitmapBuffer* dc) override {}
+
   protected:
     lv_obj_t * label = nullptr;
 
