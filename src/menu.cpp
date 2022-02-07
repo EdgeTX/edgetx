@@ -92,11 +92,17 @@ int MenuBody::rangeCheck(int index)
 void MenuBody::setIndex(int index)
 {
   if (index < (int)lines.size()) {
-    selectedIndex = index;
-
     lv_obj_t *btn = lv_obj_get_child(lvobj, selectedIndex);
     if (btn != nullptr) {
+      lv_obj_clear_state(btn, LV_STATE_CHECKED);
+    }
+
+    selectedIndex = index;
+
+    btn = lv_obj_get_child(lvobj, selectedIndex);
+    if (btn != nullptr) {
       lv_obj_add_state(btn, LV_STATE_CHECKED);
+      lv_obj_scroll_to_view(btn, LV_ANIM_ON);
     }
   }
 }
@@ -263,6 +269,7 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
     body(this, {0, 0, width(), height()})
 {
   body.setFocus(SET_FOCUS_DEFAULT);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 }
 
 void MenuWindowContent::paint(BitmapBuffer * dc)

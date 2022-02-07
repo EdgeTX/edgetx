@@ -53,11 +53,12 @@ class MenuToolbar: public FormGroup {
       choice(choice),
       menu(menu)
     {
+      lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
     }
 
     void paint(BitmapBuffer * dc) override
     {
-      dc->clear(COLOR_THEME_SECONDARY3);
+//      dc->clear(COLOR_THEME_SECONDARY3);
     }
 
 #if defined(HARDWARE_KEYS)
