@@ -34,6 +34,7 @@ class Button: public FormField
         FormField(parent, rect, windowFlags, textFlags, factory),
         pressHandler(std::move(pressHandler))
     {
+      lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -115,8 +116,6 @@ class TextButton: public Button
    {
      bgColorHandler = std::move(handler);
    }
-
-   void paint(BitmapBuffer* dc) override {}
 
   protected:
     lv_obj_t * label = nullptr;
