@@ -221,6 +221,13 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
 bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 {
+  // TODO
+  // If conversion should:
+  //  force rename file with _converted suffix as done for bin
+  //  display Radio Settings dialog to give the user the opportunity to adjust the settings before processing the models
+  // These actions can only be performed safely in the calling code so need to pass back conversion flag
+  bool isConversion = false;
+
   if (!node.IsMap()) return false;
 
   // for (const auto& n : node) {
@@ -231,9 +238,6 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   // Decoding uses profile firmare therefore all conversions are performed on the fly
   // So set board to firmware board
-  // However we should alert users that conversions may have occured
-  // If conversion should rename file with _converted suffix as done for bin
-  // Need to pass back messages and flags like converted so they can be handled in a more suitable section
 
   rhs.variant = Board::BOARD_UNKNOWN;
 
@@ -251,6 +255,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       return false;
     }
     flavour = fw->getFlavour().toStdString();
+    isConversion = true;
   }
   else if (fw->getFlavour().toStdString() != flavour) {
     auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
@@ -261,111 +266,135 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
       return false;
     }
+    isConversion = true;
   }
 
   rhs.variant = fw->getBoard();
 
-  YamlCalibData calib;
-  node["calib"] >> calib;
-  calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
-
+  // radio agnostic settings
   node["currModel"] >> rhs.currModelIndex;
   node["currModelFilename"] >> rhs.currModelFilename;
-  node["contrast"] >> rhs.contrast;
-  node["vBatWarn"] >> rhs.vBatWarn;
-  node["txVoltageCalibration"] >> rhs.txVoltageCalibration;
 
-  node["vBatMin"] >> ioffset_int(rhs.vBatMin, 90);
-  node["vBatMax"] >> ioffset_int(rhs.vBatMax, 120);
-
-  node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
-  node["trainer"] >> rhs.trainer;
-  node["view"] >> rhs.view;
-  node["fai"] >> rhs.fai;
-  node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
-  node["beepMode"] >> rhs.beeperMode;
-  node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
-  node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
-  node["USBMode"] >> rhs.usbMode;
-  node["jackMode"] >> rhs.jackMode;
-  node["hapticMode"] >> rhs.hapticMode;
-  node["stickMode"] >> rhs.stickMode;
-  node["timezone"] >> rhs.timezone;
-  node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
-  node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
-
-  if (node["internalModule"]) {
-    node["internalModule"] >> internalModuleLut >> rhs.internalModule;
-  } else {
-    rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
-  }
-
-  node["splashMode"] >> rhs.splashMode;                // TODO: B&W only
-  node["lightAutoOff"] >> rhs.backlightDelay;
-  node["templateSetup"] >> rhs.templateSetup;
-  node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
-  node["speakerPitch"] >> ifactor<unsigned int>(rhs.speakerPitch, 15);
-  node["hapticStrength"] >> ioffset_int(rhs.hapticStrength, 2);
-  node["beepLength"] >> ioffset_int(rhs.beeperLength, 2);
-  node["gpsFormat"] >> rhs.gpsFormat;
-  node["speakerVolume"] >> ioffset_int(rhs.speakerVolume, 12);
-  node["backlightBright"] >> rhs.backlightBright;
-  node["blOffBright"] >> rhs.backlightOffBright;
-  node["switchesDelay"] >> rhs.switchesDelay;
-  node["globalTimer"] >> rhs.globalTimer;
-  node["bluetoothName"] >> rhs.bluetoothName;
-  node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
-  node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
-  node["countryCode"] >> rhs.countryCode;
-  node["noJitterFilter"] >> rhs.noJitterFilter;
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
+
+  node["lightAutoOff"] >> rhs.backlightDelay;
   node["keysBacklight"] >> rhs.keysBacklight;
-  node["imperial"] >> rhs.imperial;
-  node["ttsLanguage"] >> rhs.ttsLanguage;
+
+  node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
+
+  node["beepLength"] >> ioffset_int(rhs.beeperLength, 2);
+  node["beepMode"] >> rhs.beeperMode;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
-  node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
-  node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);
+
+  node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
+  node["hapticMode"] >> rhs.hapticMode;
+  node["hapticStrength"] >> ioffset_int(rhs.hapticStrength, 2);
+
+  node["speakerPitch"] >> ifactor<unsigned int>(rhs.speakerPitch, 15);
+  node["speakerVolume"] >> ioffset_int(rhs.speakerVolume, 12);
+
   node["varioPitch"] >> ifactor<int>(rhs.varioPitch, 10);
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
-  node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
-  node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
-  node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
-  node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
-  node["backlightColor"] >> rhs.backlightColor;
-  node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
-  node["pwrOffSpeed"] >> rhs.pwrOffSpeed;
+  node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);
+
+  node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
+
+  node["gpsFormat"] >> rhs.gpsFormat;
+  node["timezone"] >> rhs.timezone;
+  node["adjustRTC"] >> rhs.adjustRTC;
+
+  node["countryCode"] >> rhs.countryCode;
+  node["fai"] >> rhs.fai;
+  node["imperial"] >> rhs.imperial;
+  node["stickMode"] >> rhs.stickMode;
+  node["templateSetup"] >> rhs.templateSetup;
+  node["ttsLanguage"] >> rhs.ttsLanguage;
+  node["view"] >> rhs.view;
 
   node["customFn"] >> rhs.customFn;
-
-  YamlStickConfig stickConfig;
-  node["sticksConfig"] >> stickConfig;
-  stickConfig.copy(rhs.stickName);
-
-  YamlSwitchConfig switchConfig;
-  node["switchConfig"] >> switchConfig;
-  switchConfig.copy(rhs.switchName, rhs.switchConfig);
-
-  YamlPotConfig potsConfig;
-  node["potsConfig"] >> potsConfig;
-  potsConfig.copy(rhs.potName, rhs.potConfig);
-
-  YamlSliderConfig slidersConfig;
-  node["slidersConfig"] >> slidersConfig;
-  slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
-
-  // Color lcd theme settings are not used in EdgeTx
-  // RadioTheme::ThemeData themeData;
-
   node["ownerRegistrationID"] >> rhs.registrationId;
 
-  // Gyro (for now only xlites)
-  node["gyroMax"] >> rhs.gyroMax;
-  node["gyroOffset"] >> rhs.gyroOffset;
+  rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard()); // overridden if not a conversion
 
-  // OneBit sampling (X9D only?)
-  node["uartSampleMode"] >> rhs.uartSampleMode;
+  // do not import potentially incompatible or risky settings from another radio
+  // use general settings defaults
+  if (!isConversion) {
+    YamlCalibData calib;
+    node["calib"] >> calib;
+    calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+
+    node["contrast"] >> rhs.contrast;
+    node["vBatWarn"] >> rhs.vBatWarn;
+    node["txVoltageCalibration"] >> rhs.txVoltageCalibration;
+
+    node["vBatMin"] >> ioffset_int(rhs.vBatMin, 90);
+    node["vBatMax"] >> ioffset_int(rhs.vBatMax, 120);
+
+    node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
+    node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
+    node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
+    node["USBMode"] >> rhs.usbMode;
+    node["jackMode"] >> rhs.jackMode;
+    node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
+
+    if (node["internalModule"]) {
+      node["internalModule"] >> internalModuleLut >> rhs.internalModule;
+    } else {
+      rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
+    }
+
+    if (!Boards::getCapability(fw->getBoard(), Board::HasColorLcd))
+      node["splashMode"] >> rhs.splashMode;
+
+    node["backlightColor"] >> rhs.backlightColor;
+    node["backlightBright"] >> rhs.backlightBright;
+    node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
+    node["blOffBright"] >> rhs.backlightOffBright;
+
+    node["bluetoothName"] >> rhs.bluetoothName;
+    node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
+    node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
+
+    node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
+    node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
+    node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
+    node["noJitterFilter"] >> rhs.noJitterFilter;
+
+    node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
+    node["pwrOffSpeed"] >> rhs.pwrOffSpeed;
+    node["switchesDelay"] >> rhs.switchesDelay;
+    node["globalTimer"] >> rhs.globalTimer;
+
+    node["trainer"] >> rhs.trainer;
+
+    YamlStickConfig stickConfig;
+    node["sticksConfig"] >> stickConfig;
+    stickConfig.copy(rhs.stickName);
+
+    YamlSwitchConfig switchConfig;
+    node["switchConfig"] >> switchConfig;
+    switchConfig.copy(rhs.switchName, rhs.switchConfig);
+
+    YamlPotConfig potsConfig;
+    node["potsConfig"] >> potsConfig;
+    potsConfig.copy(rhs.potName, rhs.potConfig);
+
+    YamlSliderConfig slidersConfig;
+    node["slidersConfig"] >> slidersConfig;
+    slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
+
+    // Gyro (for now only xlites)
+    node["gyroMax"] >> rhs.gyroMax;
+    node["gyroOffset"] >> rhs.gyroOffset;
+
+    // OneBit sampling (X9D only?)
+    node["uartSampleMode"] >> rhs.uartSampleMode;
+
+    // Color lcd theme settings are not used in EdgeTx
+    // RadioTheme::ThemeData themeData;
+  }
 
   return true;
 }
