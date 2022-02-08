@@ -21,15 +21,34 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-FormField::FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags, LcdFlags textFlags, LvglWidgetFactory *factory) :
-  Window(parent, rect, windowFlags, textFlags, factory)
+static lv_style_t bg_style;
+static lv_style_t focus_style;
+static lv_style_t edit_style;
+
+FormField::FormField(Window* parent, const rect_t& rect,
+                     WindowFlags windowFlags, LcdFlags textFlags,
+                     LvglWidgetFactory* factory) :
+    Window(parent, rect, windowFlags, textFlags, factory)
 {
   if (!(windowFlags & NO_FOCUS)) {
-    auto * form = dynamic_cast<FormGroup *>(parent);
+    auto* form = dynamic_cast<FormGroup*>(parent);
     if (form) {
       form->addField(this, windowFlags & PUSH_FRONT);
     }
   }
+
+  lv_style_init(&bg_style);
+  lv_style_set_bg_color(&bg_style, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_opa(&bg_style, LV_OPA_COVER);
+  lv_obj_add_style(lvobj, &bg_style, LV_PART_MAIN);
+
+  lv_style_init(&focus_style);
+  lv_style_set_bg_color(&focus_style, makeLvColor(COLOR_THEME_FOCUS));
+  lv_obj_add_style(lvobj, &focus_style, LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  lv_style_init(&edit_style);
+  lv_style_set_bg_color(&edit_style, makeLvColor(COLOR_THEME_EDIT));
+  lv_obj_add_style(lvobj, &edit_style, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
 #if defined(HARDWARE_KEYS)
@@ -90,25 +109,28 @@ void FormField::setFocus(uint8_t flag, Window * from)
   }
 }
 
-void FormField::paint(BitmapBuffer * dc)
-{
-  uint32_t bgColor = 0;
-  if (backgroundHandler) {
-    bgColor = backgroundHandler(this);
-  } else {
-    if (editMode) {
-      bgColor = COLOR_THEME_EDIT;
-    } else if (hasFocus()) {
-        bgColor = COLOR_THEME_FOCUS;
-    } else {
-      bgColor = COLOR_THEME_PRIMARY2;
-    }
-  }
+static lv_style_t border_style;
+static lv_style_t focus_border_style;
 
-  if (editMode || ! (windowFlags & FORM_NO_BORDER)) {
-    dc->drawSolidFilledRect(0, 0, rect.w, rect.h, bgColor);
-    if (!editMode)
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
+FormGroup::FormGroup(Window* parent, const rect_t& rect,
+                     WindowFlags windowflags, LvglWidgetFactory* factory) :
+    FormField(parent, rect, windowflags)
+{
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
+
+
+  if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
+    lv_style_init(&border_style);
+    lv_style_set_border_width(&border_style, 2);
+    lv_style_set_border_color(&border_style, makeLvColor(COLOR_THEME_FOCUS));
+    lv_obj_add_style(lvobj, &border_style, LV_PART_MAIN | LV_STATE_FOCUSED);
+
+    if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
+      lv_style_init(&focus_border_style);
+      lv_style_set_border_width(&focus_border_style, 1);
+      lv_style_set_border_color(&focus_border_style, makeLvColor(COLOR_THEME_SECONDARY2));
+      lv_obj_add_style(lvobj, &focus_border_style, LV_PART_MAIN);
+    }
   }
 }
 
@@ -275,18 +297,6 @@ void FormGroup::onEvent(event_t event)
   }
 }
 #endif
-
-void FormGroup::paint(BitmapBuffer * dc)
-{
-  if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
-    if (!editMode && hasFocus()) {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-    }
-    else if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
-    }
-  }
-}
 
 #if defined(HARDWARE_KEYS)
 void FormWindow::onEvent(event_t event)

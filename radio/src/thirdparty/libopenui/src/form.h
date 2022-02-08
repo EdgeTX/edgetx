@@ -27,222 +27,172 @@ constexpr WindowFlags FORM_BORDER_FOCUS_ONLY = WINDOW_FLAGS_LAST << 3;
 constexpr WindowFlags FORM_NO_BORDER = WINDOW_FLAGS_LAST << 4;
 constexpr WindowFlags FORM_FLAGS_LAST = FORM_NO_BORDER;
 
-class FormField: public Window
+class FormField : public Window
 {
-  public:
-    FormField(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr);
+ public:
+  FormField(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+            LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr);
 
-    virtual void changeEnd(bool forceChanged = false)
-    {
-      if (changeHandler) {
-        changeHandler();
-      }
+  virtual void changeEnd(bool forceChanged = false)
+  {
+    if (changeHandler) {
+      changeHandler();
     }
-    
-    void setChangeHandler(std::function<void()> handler)
-    {
-      changeHandler = std::move(handler);
-    }
+  }
 
-    void setBackgroundHandler(std::function<uint32_t(FormField *field)> handler)
-    {
-      backgroundHandler = std::move(handler);
-    }
+  void setChangeHandler(std::function<void()> handler)
+  {
+    changeHandler = std::move(handler);
+  }
 
-    inline void setNextField(FormField *field)
-    {
-      next = field;
-    }
+  void setBackgroundHandler(std::function<uint32_t(FormField *field)> handler)
+  {
+    backgroundHandler = std::move(handler);
+  }
 
-    inline void setPreviousField(FormField * field)
-    {
-      previous = field;
-    }
+  inline void setNextField(FormField *field) { next = field; }
 
-    inline FormField * getPreviousField()
-    {
-      return previous;
-    }
+  inline void setPreviousField(FormField *field) { previous = field; }
 
-    inline FormField * getNextField()
-    {
-      return next;
-    }
+  inline FormField *getPreviousField() { return previous; }
 
-    inline bool isEditMode() const
-    {
-      return editMode;
+  inline FormField *getNextField() { return next; }
+
+  inline bool isEditMode() const { return editMode; }
+
+  virtual void setEditMode(bool newEditMode)
+  {
+    editMode = newEditMode;
+
+    if (lvobj != nullptr) {
+      lv_group_t *grp = (lv_group_t *)lv_obj_get_group(lvobj);
+      if (grp != nullptr) lv_group_set_editing(grp, editMode);
     }
 
-    virtual void setEditMode(bool newEditMode)
-    {
-      editMode = newEditMode;
-
-      if(lvobj != nullptr)
-      {
-        lv_group_t* grp = (lv_group_t*)lv_obj_get_group(lvobj);
-        if(grp != nullptr)
-          lv_group_set_editing(grp, editMode);
-      }
-
-      if (editMode && lvobj != nullptr) {
-        lv_obj_add_state(lvobj, LV_STATE_EDITED | LV_STATE_FOCUSED);
-      } else if (lvobj != nullptr) {
-        lv_obj_clear_state(lvobj, LV_STATE_EDITED);
-      }
-      invalidate();
+    if (editMode && lvobj != nullptr) {
+      lv_obj_add_state(lvobj, LV_STATE_EDITED | LV_STATE_FOCUSED);
+    } else if (lvobj != nullptr) {
+      lv_obj_clear_state(lvobj, LV_STATE_EDITED);
     }
+    invalidate();
+  }
 
-    void enable(bool value = true)
-    {
-      enabled = value;
-      invalidate();
-    }
+  void enable(bool value = true)
+  {
+    enabled = value;
+    invalidate();
+  }
 
-    bool isEnabled() const
-    {
-      return enabled;
-    }
+  bool isEnabled() const { return enabled; }
+  void disable() { enable(false); }
 
-    void disable()
-    {
-      enable(false);
-    }
+  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
+                Window *from = nullptr) override;
 
-    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
+  void onFocusLost() override
+  {
+    setEditMode(false);
+    Window::onFocusLost();
+  }
 
-    void onFocusLost() override
-    {
-      setEditMode(false);
-      Window::onFocusLost();
-    }
-
-    inline static void link(FormField * previous, FormField * next)
-    {
-      previous->setNextField(next);
-      next->setPreviousField(previous);
-    }
-
-    void paint(BitmapBuffer * dc) override;
+  inline static void link(FormField *previous, FormField *next)
+  {
+    previous->setNextField(next);
+    next->setPreviousField(previous);
+  }
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 
-  protected:
-    FormField * next = nullptr;
-    FormField * previous = nullptr;
-    bool editMode = false;
-    bool enabled = true;
-    std::function<void()> changeHandler = nullptr;
-    std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
+ protected:
+  FormField *next = nullptr;
+  FormField *previous = nullptr;
+  bool editMode = false;
+  bool enabled = true;
+  std::function<void()> changeHandler = nullptr;
+  std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
 };
 
-class FormGroup: public FormField
+class FormGroup : public FormField
 {
-  public:
-    FormGroup(Window * parent, const rect_t & rect, WindowFlags windowflags = 0, LvglWidgetFactory *factory = nullptr) :
-      FormField(parent, rect, windowflags)
-    {
-    }
+ public:
+  FormGroup(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,
+            LvglWidgetFactory *factory = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "FormGroup";
-    }
+  std::string getName() const override { return "FormGroup"; }
 #endif
 
-    void clear()
-    {
-      Window::clear();
-      first = nullptr;
-      last = nullptr;
-      if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
-        previous->setNextField(this);
-      }
+  void clear()
+  {
+    Window::clear();
+    first = nullptr;
+    last = nullptr;
+    if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
+      previous->setNextField(this);
     }
+  }
 
-    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
+  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
+                Window *from = nullptr) override;
 
-    virtual void addField(FormField * field, bool front = false);
+  virtual void addField(FormField *field, bool front = false);
+  virtual void removeField(FormField *field);
 
-    virtual void removeField(FormField * field);
+  void setFirstField(FormField *field) { first = field; }
+  void setLastField(FormField *field) { last = field; }
+  FormField *getFirstField() const { return first; }
+  FormField *getLastField() const { return last; }
 
-    void setFirstField(FormField * field)
-    {
-      first = field;
+  void setFocusOnFirstVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
+  {
+    auto field = getFirstField();
+    while (field && !field->isInsideParentScrollingArea()) {
+      field = field->getNextField();
     }
-
-    void setLastField(FormField * field)
-    {
-      last = field;
+    if (field) {
+      field->setFocus(flag);
     }
+  }
 
-    FormField * getFirstField() const
-    {
-      return first;
+  void setFocusOnLastVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
+  {
+    auto field = getLastField();
+    while (field && !field->isInsideParentScrollingArea()) {
+      field = field->getPreviousField();
     }
-
-    FormField * getLastField() const
-    {
-      return last;
+    if (field) {
+      field->setFocus(flag);
     }
+  }
 
-    void setFocusOnFirstVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
-    {
-      auto field = getFirstField();
-      while (field && !field->isInsideParentScrollingArea()) {
-        field = field->getNextField();
-      }
-      if (field) {
-        field->setFocus(flag);
-      }
-    }
-
-    void setFocusOnLastVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
-    {
-      auto field = getLastField();
-      while (field && !field->isInsideParentScrollingArea()) {
-        field = field->getPreviousField();
-      }
-      if (field) {
-        field->setFocus(flag);
-      }
-    }
-
-  protected:
-    FormField * first = nullptr;
-    FormField * last = nullptr;
+ protected:
+  FormField *first = nullptr;
+  FormField *last = nullptr;
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
-
-    void paint(BitmapBuffer * dc) override;
 };
 
-class FormWindow: public FormGroup
+class FormWindow : public FormGroup
 {
-  public:
-    FormWindow(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LvglWidgetFactory *factory = nullptr) :
+ public:
+  FormWindow(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+             LvglWidgetFactory *factory = nullptr) :
       FormGroup(parent, rect, windowFlags, factory)
-    {
-    }
+  {
+  }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "FormWindow";
-    }
+  std::string getName() const override { return "FormWindow"; }
 #endif
 
-  protected:
-    void paint(BitmapBuffer *) override
-    {
-    }
+ protected:
+  void paint(BitmapBuffer *) override {}
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 };

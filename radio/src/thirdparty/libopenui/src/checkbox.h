@@ -65,8 +65,6 @@ class CheckBox : public FormField {
     {
       _setValue = std::move(handler);
     }
-
-    void paint(BitmapBuffer* dc) override {}
   
   protected:
     std::string label;
