@@ -811,6 +811,8 @@
 #define TR_TEMP_CALIB          "Temp. Calib"
 #define TR_TIME                "Hora"
 #define TR_MAXBAUDRATE         "Máx bauds"
+#define TR_BAUDRATE            "Baudrate"
+
 #define TR_SAMPLE_MODE         "Modo de muestra"
 #define LEN_SAMPLE_MODES       "\006"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
@@ -829,7 +831,7 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Dir. remota"
 #define TR_BLUETOOTH_LOCAL_ADDR "Dir. local"
 #define TR_BLUETOOTH_PIN_CODE   "Código PIN"
-#define TR_BAUDRATE             "Velocidad BT"
+#define TR_BLUETOOTH_BAUDRATE   "Velocidad BT"
 #define LEN_BLUETOOTH_MODES     "\012"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---\0      ""Activo\0   "

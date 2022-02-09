@@ -225,6 +225,11 @@ inline bool isModuleCrossfire(uint8_t idx)
 {
   return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE;
 }
+
+inline bool isInternalModuleCrossfire()
+{
+  return g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE;
+}
 #else
 inline bool isModuleCrossfire(uint8_t idx)
 {

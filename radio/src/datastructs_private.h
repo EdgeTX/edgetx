@@ -532,6 +532,9 @@ PACK(struct ModuleData {
       uint8_t raw12bits:1;
       uint8_t spare1:7 SKIP;
     } ghost);
+    NOBACKUP(struct {
+      uint8_t telemetryBaudrate:3;
+    } crsf);
   } NAME(mod) FUNC(select_mod_type);
 
   // Helper functions to set both of the rfProto protocol at the same time
@@ -864,7 +867,7 @@ PACK(struct RadioData {
   int8_t timezone:5;
   uint8_t adjustRTC:1;
   NOBACKUP(uint8_t inactivityTimer);
-  uint8_t telemetryBaudrate:3;
+  uint8_t InternalModuleBaudrate:3;
   SPLASH_MODE; /* 3bits */
   int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;

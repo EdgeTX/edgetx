@@ -768,6 +768,7 @@
 #define TR_TEMP_CALIB                   "溫度校準"
 #define TR_TIME                         "時間"
 #define TR_MAXBAUDRATE                  "最大帶寬"
+#define TR_BAUDRATE                     "Baudrate"
 #define TR_SAMPLE_MODE                  "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                 "Normal""OneBit"
@@ -786,7 +787,7 @@
 #define TR_BLUETOOTH_DIST_ADDR          "目標地址"
 #define TR_BLUETOOTH_LOCAL_ADDR         "本機地址"
 #define TR_BLUETOOTH_PIN_CODE           "PIN碼"
-#define TR_BAUDRATE                     "藍牙帶寬"
+#define TR_BLUETOOTH_BAUDRATE           "藍牙帶寬"
 #define LEN_BLUETOOTH_MODES             "\004"
 #define TR_BLUETOOTH_MODES              "---\0" "回傳" "教練"
 

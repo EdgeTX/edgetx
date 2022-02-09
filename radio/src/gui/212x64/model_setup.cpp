@@ -106,6 +106,9 @@ enum MenuModelSetupItems {
 
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE,
+#if defined(CROSSFIRE)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE,
+#endif
 #if defined (MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS,
@@ -313,6 +316,7 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #define IF_NOT_PXX2_MODULE(module, xxx)      (isModulePXX2(module) ? HIDDEN_ROW : (uint8_t)(xxx))
 #define IF_ACCESS_MODULE_RF(module, xxx)     (isModuleRFAccess(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #define IF_NOT_ACCESS_MODULE_RF(module, xxx) (isModuleRFAccess(module) ? HIDDEN_ROW : (uint8_t)(xxx))
+#define IF_CRSF_MODULE(module, xxx)          (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 
 #if defined(PXX2)
 #define REGISTRATION_ID_ROWS          uint8_t((isDefaultModelRegistrationID() || (warningText && popupFunc == runPopupRegister)) ? HIDDEN_ROW : READONLY_ROW),
@@ -407,6 +411,7 @@ void menuModelSetup(event_t event)
 
     LABEL(ExternalModule),
       EXTERNAL_MODULE_TYPE_ROW(),
+      IF_CRSF_MODULE(EXTERNAL_MODULE, 0),        // Baudrate
       MULTIMODULE_TYPE_ROW(EXTERNAL_MODULE)
       MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)
       AFHDS3_MODE_ROWS(EXTERNAL_MODULE)
@@ -1015,6 +1020,26 @@ void menuModelSetup(event_t event)
 #endif
         }
         break;
+
+#if defined(CROSSFIRE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
+        ModuleData & moduleData = g_model.moduleData[EXTERNAL_MODULE];
+        lcdDrawText( INDENT_WIDTH, y, STR_BAUDRATE);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, EXT_CROSSFIRE_BAUDRATE,
+                      attr | LEFT);
+        if (attr) {
+          moduleData.crsf.telemetryBaudrate =
+              CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(
+                  event,
+                  CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate), 0,
+                  DIM(CROSSFIRE_BAUDRATES) - 1));
+          if (checkIncDec_Ret) {
+            restartExternalModule();
+          }
+        }
+        break;
+      }
+#endif
 
 #if defined(MULTIMODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL:

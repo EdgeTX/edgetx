@@ -608,6 +608,22 @@ class ModuleWindow : public FormGroup {
       });
 
       // Module parameters
+      if (moduleIdx== EXTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,
+                       COLOR_THEME_PRIMARY1);
+        new Choice(
+            this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,
+            CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+            [=]() -> int {
+              return CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[moduleIdx].crsf.telemetryBaudrate);
+            },
+            [=](int newValue) {
+              g_model.moduleData[moduleIdx].crsf.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+              SET_DIRTY();
+              restartExternalModule();
+            });
+      }
       if (isModuleXJT(moduleIdx)) {
         rfChoice = new Choice(
             this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,

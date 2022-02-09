@@ -262,6 +262,80 @@ void restartExternalModule()
   resumeMixerCalculations();
 }
 
+class InternalModuleWindow : public FormGroup {
+ public:
+  InternalModuleWindow(FormWindow *parent, const rect_t &rect) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+  {
+    update();
+  }
+
+  void update()
+  {
+    FormGridLayout grid;
+#if LCD_W > LCD_H
+    grid.setLabelWidth(180);
+#else
+    grid.setLabelWidth(130);
+#endif
+    clear();
+
+    new StaticText(this, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
+                   COLOR_THEME_PRIMARY1);
+    auto internalModule = new Choice(this, grid.getFieldSlot(1, 0),
+                                     STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+                                     GET_DEFAULT(g_eeGeneral.internalModule),
+                                     [=](int moduleType) {
+                                       if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
+                                         memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+                                         storageDirty(EE_MODEL);
+                                       }
+                                       g_eeGeneral.internalModule = moduleType;
+                                       SET_DIRTY();
+                                     });
+
+    internalModule->setAvailableHandler([](int module){
+      return isInternalModuleSupported(module);
+    });
+
+#if defined(CROSSFIRE)
+    if (isInternalModuleCrossfire()) {
+      grid.nextLine();
+      new StaticText(this, grid.getLabelSlot(), STR_BAUDRATE, 0,
+                     COLOR_THEME_PRIMARY1);
+      new Choice(
+          this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,
+          CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+          [=]() -> int {
+            return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.InternalModuleBaudrate);
+          },
+          [=](int newValue) {
+            g_eeGeneral.InternalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+            SET_DIRTY();
+            restartExternalModule();
+          });
+      grid.nextLine();
+    }
+    auto par = getParent();
+    par->moveWindowsTop(top() + 1, adjustHeight());
+    par->adjustInnerHeight();
+#endif
+  }
+
+  void checkEvents() override
+  {
+    if (g_eeGeneral.internalModule != lastModule) {
+      lastModule = g_eeGeneral.internalModule;
+      update();
+    }
+
+    FormGroup::checkEvents();
+  }
+
+ protected:
+  uint8_t lastModule = 0;
+};
+
 void RadioHardwarePage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -273,14 +347,14 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.spacer(PAGE_PADDING);
 
   // Calibration
-  new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+  new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0,
+                 COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto calib = new TextButton(window, grid.getFieldSlot(), STR_CALIBRATION);
   calib->setPressHandler([=]() -> uint8_t {
-      auto calibrationPage = new RadioCalibrationPage();
-      calibrationPage->setCloseHandler([=]() {
-          calib->setFocus(SET_FOCUS_DEFAULT);
-      });
-      return 0;
+    auto calibrationPage = new RadioCalibrationPage();
+    calibrationPage->setCloseHandler(
+        [=]() { calib->setFocus(SET_FOCUS_DEFAULT); });
+    return 0;
   });
   grid.nextLine();
 
@@ -288,8 +362,11 @@ void RadioHardwarePage::build(FormWindow * window)
   new Subtitle(window, grid.getLineSlot(), STR_STICKS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_STICKS; i++) {
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)), 0, COLOR_THEME_PRIMARY1);
-    new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i], LEN_ANA_NAME);
+    new StaticText(window, grid.getLabelSlot(true),
+                   TEXT_AT_INDEX(STR_VSRCRAW, (i + 1)), 0,
+                   COLOR_THEME_PRIMARY1);
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0), g_eeGeneral.anaNames[i],
+                      LEN_ANA_NAME);
     grid.nextLine();
   }
 
@@ -299,30 +376,39 @@ void RadioHardwarePage::build(FormWindow * window)
   for (int i = 0; i < NUM_POTS; i++) {
     // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
 #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
-      if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2)))
-        continue;
+    if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
 #endif
 
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + 1)), 0, COLOR_THEME_PRIMARY1);
-    new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
-    new Choice(window, grid.getFieldSlot(2,1), STR_POTTYPES, POT_NONE, POT_WITHOUT_DETENT,
-               [=]() -> int {
-                   return bfGet<uint32_t>(g_eeGeneral.potsConfig, 2*i, 2);
-               },
-               [=](int newValue) {
-                   g_eeGeneral.potsConfig = bfSet<uint32_t>(g_eeGeneral.potsConfig, newValue, 2*i, 2);
-                   SET_DIRTY();
-               });
+    new StaticText(window, grid.getLabelSlot(true),
+                   TEXT_AT_INDEX(STR_VSRCRAW, (i + NUM_STICKS + 1)), 0,
+                   COLOR_THEME_PRIMARY1);
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0),
+                      g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
+    new Choice(
+        window, grid.getFieldSlot(2, 1), STR_POTTYPES, POT_NONE,
+        POT_WITHOUT_DETENT,
+        [=]() -> int {
+          return bfGet<uint32_t>(g_eeGeneral.potsConfig, 2 * i, 2);
+        },
+        [=](int newValue) {
+          g_eeGeneral.potsConfig =
+              bfSet<uint32_t>(g_eeGeneral.potsConfig, newValue, 2 * i, 2);
+          SET_DIRTY();
+        });
     grid.nextLine();
   }
 
   // Sliders
-  new Subtitle(window, grid.getLineSlot(), STR_SLIDERS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, grid.getLineSlot(), STR_SLIDERS, 0,
+               COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_SLIDERS; i++) {
     const int idx = i + NUM_STICKS + NUM_POTS;
-    new StaticText(window, grid.getLabelSlot(true), TEXT_AT_INDEX(STR_VSRCRAW, idx + 1), 0, COLOR_THEME_PRIMARY1);
-    new RadioTextEdit(window, grid.getFieldSlot(2, 0), g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+    new StaticText(window, grid.getLabelSlot(true),
+                   TEXT_AT_INDEX(STR_VSRCRAW, idx + 1), 0,
+                   COLOR_THEME_PRIMARY1);
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0),
+                      g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
     new Choice(
         window, grid.getFieldSlot(2, 1), STR_SLIDERTYPES, SLIDER_NONE,
         SLIDER_WITH_DETENT,
@@ -340,78 +426,58 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 
   // Switches
-  new Subtitle(window, grid.getLineSlot(), STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, grid.getLineSlot(), STR_SWITCHES, 0,
+               COLOR_THEME_PRIMARY1);
   grid.nextLine();
   for (int i = 0; i < NUM_SWITCHES; i++) {
     new SwitchDynamicLabel(window, grid.getLabelSlot(true), i);
-    new RadioTextEdit(window, grid.getFieldSlot(2, 0), g_eeGeneral.switchNames[i], LEN_SWITCH_NAME);
-    new Choice(window, grid.getFieldSlot(2, 1), STR_SWTYPES, SWITCH_NONE, SWITCH_TYPE_MAX(i),
-               [=]() -> int {
-                   return SWITCH_CONFIG(i);
-               },
-               [=](int newValue) {
-                   swconfig_t mask = (swconfig_t) 0x03 << (2 * i);
-                   g_eeGeneral.switchConfig = (g_eeGeneral.switchConfig & ~mask) | ((swconfig_t(newValue) & 0x03) << (2 * i));
-                   SET_DIRTY();
-               });
+    new RadioTextEdit(window, grid.getFieldSlot(2, 0),
+                      g_eeGeneral.switchNames[i], LEN_SWITCH_NAME);
+    new Choice(
+        window, grid.getFieldSlot(2, 1), STR_SWTYPES, SWITCH_NONE,
+        SWITCH_TYPE_MAX(i), [=]() -> int { return SWITCH_CONFIG(i); },
+        [=](int newValue) {
+          swconfig_t mask = (swconfig_t)0x03 << (2 * i);
+          g_eeGeneral.switchConfig = (g_eeGeneral.switchConfig & ~mask) |
+                                     ((swconfig_t(newValue) & 0x03) << (2 * i));
+          SET_DIRTY();
+        });
     grid.nextLine();
   }
 
   // Bat calibration
-  new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
-  auto batCal = new NumberEdit(window, grid.getFieldSlot(1,0), -127, 127, GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
-  batCal->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
-      dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
-  });
+  new StaticText(window, grid.getLabelSlot(), STR_BATT_CALIB, 0,
+                 COLOR_THEME_PRIMARY1);
+  auto batCal =
+      new NumberEdit(window, grid.getFieldSlot(1, 0), -127, 127,
+                     GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
+  batCal->setDisplayHandler(
+      [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+        dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+                       getBatteryVoltage(), flags | PREC2, 0, nullptr, "V");
+      });
   batCal->setWindowFlags(REFRESH_ALWAYS);
   grid.nextLine();
 
   // RTC Batt display
-  new StaticText(window, grid.getLabelSlot(), STR_RTC_BATT, 0, COLOR_THEME_PRIMARY1);
-  new DynamicNumber<uint16_t>(window, grid.getFieldSlot(1,0), [] {
-      return getRTCBatteryVoltage();
-  }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
+  new StaticText(window, grid.getLabelSlot(), STR_RTC_BATT, 0,
+                 COLOR_THEME_PRIMARY1);
+  new DynamicNumber<uint16_t>(
+      window, grid.getFieldSlot(1, 0), [] { return getRTCBatteryVoltage(); },
+      COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
   grid.nextLine();
 
   // RTC Batt check enable
-  new StaticText(window, grid.getLabelSlot(), STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(1,0), GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+  new StaticText(window, grid.getLabelSlot(), STR_RTC_CHECK, 0,
+                 COLOR_THEME_PRIMARY1);
+  new CheckBox(window, grid.getFieldSlot(1, 0),
+               GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
   grid.nextLine();
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new StaticText(window, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto internalModule = new Choice(window, grid.getFieldSlot(1, 0),
-      STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-      GET_DEFAULT(g_eeGeneral.internalModule),
-      [=](int moduleType) {
-        if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
-          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
-          storageDirty(EE_MODEL);
-        }
-        g_eeGeneral.internalModule = moduleType;
-        SET_DIRTY();
-      });
-
-  internalModule->setAvailableHandler([](int module){
-      return isInternalModuleSupported(module);
-  });
+  new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-#endif
-
-#if defined(CROSSFIRE)
-  // Max baud for external modules
-  new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, DIM(CROSSFIRE_BAUDRATES) - 1,
-               [=]() -> int {
-                   return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate);
-               },
-               [=](int newValue) {
-                   g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
-                   SET_DIRTY();
-                   restartExternalModule();
-               });
-  grid.nextLine();
+  grid.addWindow(new InternalModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 #endif
 
 #if defined(BLUETOOTH)
