@@ -33,11 +33,8 @@
 #include "select_fab_carousel.h"
 #include "view_text.h"
 
-
-static LvglWidgetFactory viewMainFactory = {lv_obj_create, nullptr};
-
 ViewMainMenu::ViewMainMenu(Window* parent) :
-    Window(parent->getFullScreenWindow(), {}, 0, 0, &viewMainFactory)
+    Window(parent->getFullScreenWindow(), {})
 {
   // Save focus
   Layer::push(this);

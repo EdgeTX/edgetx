@@ -44,11 +44,8 @@ void PageHeader::paint(BitmapBuffer * dc)
                           MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
 }
 
-
-static LvglWidgetFactory pageFactory = {lv_obj_create, nullptr};
-
 Page::Page(unsigned icon):
-  Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE, 0, &pageFactory),
+  Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
   header(this, icon),
   body(this, { 0, MENU_HEADER_HEIGHT, LCD_W, LCD_H - MENU_HEADER_HEIGHT }, FORM_FORWARD_FOCUS)
 {
