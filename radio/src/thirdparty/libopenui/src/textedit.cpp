@@ -44,13 +44,12 @@
 
 static lv_style_t style_main;
 static lv_style_t style_edit;
-static LvglWidgetFactory textEditFactory = { lv_textarea_create, nullptr };
 
 TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
                    uint8_t length, LcdFlags windowFlags,
                    const char *_extra_chars) :
     FormField(parent, {rect.x, rect.y, rect.w, rect.h - 2}, windowFlags, 0,
-              &textEditFactory),
+              lv_textarea_create),
     value(value),
     length(length)
 {

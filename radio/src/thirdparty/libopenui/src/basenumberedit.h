@@ -25,15 +25,18 @@
 class BaseNumberEdit: public FormField
 {
   public:
-    BaseNumberEdit(Window * parent, const rect_t &rect, int vmin, int vmax,
-                   std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr):
-      FormField(parent, rect, windowFlags, textFlags, factory),
-      vmin(vmin),
-      vmax(vmax),
-      _getValue(std::move(getValue)),
-      _setValue(std::move(setValue))
-    {
-    }
+   BaseNumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
+                  std::function<int()> getValue,
+                  std::function<void(int)> setValue = nullptr,
+                  WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
+                  LvglCreate objConstruct = nullptr) :
+       FormField(parent, rect, windowFlags, textFlags, objConstruct),
+       vmin(vmin),
+       vmax(vmax),
+       _getValue(std::move(getValue)),
+       _setValue(std::move(setValue))
+   {
+   }
 
     void setMin(int value)
     {

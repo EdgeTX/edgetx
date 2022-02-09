@@ -59,14 +59,17 @@ enum SetFocusFlag
   SET_FOCUS_FIRST
 };
 
+typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
+
 class Window
 {
   friend class GridLayout;
 
   public:
-    Window(Window * parent, const rect_t & rect, WindowFlags windowFlags = 0, LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr);
+   Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+          LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
-    virtual ~Window();
+   virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
     virtual std::string getName() const

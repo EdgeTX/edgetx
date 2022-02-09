@@ -27,8 +27,8 @@ static lv_style_t edit_style;
 
 FormField::FormField(Window* parent, const rect_t& rect,
                      WindowFlags windowFlags, LcdFlags textFlags,
-                     LvglWidgetFactory* factory) :
-    Window(parent, rect, windowFlags, textFlags, factory)
+                     LvglCreate objConstruct) :
+    Window(parent, rect, windowFlags, textFlags, objConstruct)
 {
   if (!(windowFlags & NO_FOCUS)) {
     auto* form = dynamic_cast<FormGroup*>(parent);
@@ -113,8 +113,8 @@ static lv_style_t border_style;
 static lv_style_t focus_border_style;
 
 FormGroup::FormGroup(Window* parent, const rect_t& rect,
-                     WindowFlags windowflags, LvglWidgetFactory* factory) :
-    FormField(parent, rect, windowflags)
+                     WindowFlags windowflags, LvglCreate objConstruct) :
+   FormField(parent, rect, windowflags, 0, objConstruct)
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
 

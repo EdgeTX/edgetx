@@ -44,8 +44,6 @@ static lv_style_t style_knob;
 static lv_style_t style_focused;
 static lv_style_t style_edit;
 
-static LvglWidgetFactory sliderFactory = { lv_slider_create, nullptr };
-
 constexpr coord_t SLIDER_PADDING = 6;
 
 Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
@@ -54,7 +52,7 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
     FormField(parent,
               {rect.x + SLIDER_PADDING, rect.y + SLIDER_PADDING,
                rect.w - 2 * SLIDER_PADDING, rect.h - 2 * SLIDER_PADDING},
-              0, 0, &sliderFactory),
+              0, 0, lv_slider_create),
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(getValue)),

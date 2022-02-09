@@ -28,14 +28,15 @@ constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
 class Button: public FormField
 {
   public:
-    Button(FormGroup* parent, const rect_t& rect,
-           std::function<uint8_t(void)> pressHandler = nullptr,
-           WindowFlags windowFlags = 0, LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr) :
-        FormField(parent, rect, windowFlags, textFlags, factory),
-        pressHandler(std::move(pressHandler))
-    {
-      lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
-    }
+   Button(FormGroup* parent, const rect_t& rect,
+          std::function<uint8_t(void)> pressHandler = nullptr,
+          WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
+          LvglCreate objConstruct = nullptr) :
+       FormField(parent, rect, windowFlags, textFlags, objConstruct),
+       pressHandler(std::move(pressHandler))
+   {
+     lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
+   }
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
