@@ -88,12 +88,12 @@ void FormField::setFocus(uint8_t flag, Window * from)
 {
   if (enabled) {
     Window::setFocus(flag, from);
-    if(lvobj != nullptr)
-    {
-      lv_group_focus_freeze(inputGroup, false);
+//    if(lvobj != nullptr)
+//    {
+//      lv_group_focus_freeze(inputGroup, false);
 //      lv_group_focus_obj(lvobj);
-      lv_group_focus_freeze(inputGroup, true);
-    }
+//      lv_group_focus_freeze(inputGroup, true);
+//    }
   }
   else {
     if (flag == SET_FOCUS_BACKWARD) {

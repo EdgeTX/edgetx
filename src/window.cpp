@@ -533,7 +533,7 @@ coord_t Window::getSnapStep(coord_t relativeScrollPosition, coord_t pageSize)
 }
 #endif
 
-void lvglPushEncoderEvent(event_t evt);
+void lvglPushEncoderEvent(event_t& evt);
 void Window::checkEvents()
 {
   auto copy = children;
@@ -545,7 +545,7 @@ void Window::checkEvents()
 
   if (this == Window::focusWindow) {
     event_t event = getWindowEvent();
-    lvglPushEncoderEvent(event);
+//    lvglPushEncoderEvent(event);
     if (event) {
       this->onEvent(event);
     }
