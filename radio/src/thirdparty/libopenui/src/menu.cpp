@@ -54,18 +54,14 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
   setPageHeight(MENUS_LINE_HEIGHT);
 }
 
-void MenuBody::addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
+void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
+                       std::function<bool()> isChecked)
 {
   lines.emplace_back(text, std::move(onPress), std::move(isChecked));
   lv_obj_t *btn = lv_list_add_btn(lvobj, nullptr, text.c_str());
-  lv_obj_set_style_bg_color(btn, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN | LV_STATE_CHECKED);
-  lv_obj_set_style_bg_color(btn, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
-  lv_obj_set_style_bg_opa(btn, LV_OPA_100, LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(btn, LV_OPA_100, LV_PART_MAIN | LV_STATE_CHECKED);
-  lv_obj_set_style_bg_opa(btn, LV_OPA_100, LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
   lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
-  lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED, (void *) (lines.size() - 1));
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED,
+                      (void *)(lines.size() - 1));
 }
 
 void MenuBody::removeLines()
