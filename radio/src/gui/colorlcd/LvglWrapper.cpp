@@ -255,7 +255,7 @@ static lv_style_t btn_checked_style;
 static lv_style_t btn_focused_style;
 static lv_style_t btn_checked_focused_style;
 static lv_style_t menu_line_style;
-static lv_style_t menu_focused_style;
+static lv_style_t menu_checked_style;
 
 static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
@@ -280,7 +280,7 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
     // menu items do not use the generic style
     lv_obj_remove_style(obj, &generic_style, LV_PART_MAIN);
     lv_obj_add_style(obj, &menu_line_style, 0);
-    lv_obj_add_style(obj, &menu_focused_style, LV_STATE_FOCUSED);
+    lv_obj_add_style(obj, &menu_checked_style, LV_STATE_CHECKED);
     return;
   }  
 }
@@ -317,11 +317,11 @@ static void init_theme()
   lv_style_set_bg_opa(&menu_line_style, LV_OPA_100);
   lv_style_set_bg_color(&menu_line_style, makeLvColor(COLOR_THEME_PRIMARY2));
 
-  lv_style_init(&menu_focused_style);
-  lv_style_set_border_width(&menu_focused_style, 1);
-  lv_style_set_border_color(&menu_focused_style, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_text_color(&menu_focused_style, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_color(&menu_focused_style, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_init(&menu_checked_style);
+  lv_style_set_border_width(&menu_checked_style, 1);
+  lv_style_set_border_color(&menu_checked_style, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_text_color(&menu_checked_style, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_color(&menu_checked_style, makeLvColor(COLOR_THEME_FOCUS));
 
   /*Initialize the new theme from the current theme*/
   lv_theme_t * th_act = lv_disp_get_theme(NULL);
