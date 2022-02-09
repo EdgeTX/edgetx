@@ -167,24 +167,6 @@ void Choice::setValues(const char * const values[])
   }
 }
 
-void Choice::paint(BitmapBuffer * dc)
-{
-  // FormField::paint(dc);
-  // auto val = getValue();
-
-  // std::string str = "";
-  // if (textHandler) {
-  //   str = textHandler(val);
-  // } else {
-  //   val -= vmin;
-  //   if (val >= 0 && val < (int)values.size()) {
-  //     str = values[val];
-  //   }
-  // }
-
-  // theme->drawChoice(dc, this, str.c_str());
-}
-
 #if defined(HARDWARE_KEYS)
 void Choice::onEvent(event_t event)
 {

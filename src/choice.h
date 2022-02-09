@@ -68,8 +68,6 @@ class Choice: public ChoiceBase {
     }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
-
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
