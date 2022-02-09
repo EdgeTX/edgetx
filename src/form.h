@@ -31,7 +31,7 @@ class FormField : public Window
 {
  public:
   FormField(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-            LcdFlags textFlags = 0, LvglWidgetFactory *factory = nullptr);
+            LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
   virtual void changeEnd(bool forceChanged = false)
   {
@@ -118,7 +118,7 @@ class FormGroup : public FormField
 {
  public:
   FormGroup(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,
-            LvglWidgetFactory *factory = nullptr);
+            LvglCreate objConstruct = nullptr);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FormGroup"; }
@@ -180,8 +180,8 @@ class FormWindow : public FormGroup
 {
  public:
   FormWindow(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-             LvglWidgetFactory *factory = nullptr) :
-      FormGroup(parent, rect, windowFlags, factory)
+             LvglCreate objConstruct = nullptr) :
+      FormGroup(parent, rect, windowFlags, objConstruct)
   {
   }
 

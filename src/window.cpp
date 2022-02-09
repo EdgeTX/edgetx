@@ -137,19 +137,8 @@ static void window_event_cb(lv_event_t * e)
   }
 }
 
-LvglWidgetFactory windowFactory = LvglWidgetFactory(
-  [] (lv_obj_t *parent) {
-    return lv_obj_create(parent);
-  },
-  [] (LvglWidgetFactory *factory) {
-    lv_style_set_pad_all(&factory->style, 0);
-    lv_style_set_bg_opa(&factory->style, LV_OPA_TRANSP);
-    lv_style_set_border_width(&factory->style, 0);
-    lv_style_set_radius(&factory->style, 0);
-  });
-
 Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
-               LcdFlags textFlags, LvglWidgetFactory *factory) :
+               LcdFlags textFlags, LvglCreate objConstruct) :
     parent(parent),
     rect(rect),
     innerWidth(rect.w),
@@ -158,11 +147,9 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
     textFlags(textFlags)
 {
   lv_obj_t *lvParent = parent != nullptr ? parent->lvobj : nullptr;
-  lvobj = (factory == nullptr) ?
-    windowFactory.construct(lvParent) :
-    factory->construct(lvParent);
+  lvobj = (objConstruct == nullptr) ? lv_obj_create(lvParent)
+                                    : objConstruct(lvParent);
 
-  lv_obj_add_style(lvobj, &windowFactory.style, LV_PART_MAIN);
   lv_obj_set_pos(lvobj, rect.x, rect.y);
   lv_obj_set_size(lvobj, rect.w, rect.h);
   lv_obj_set_user_data(lvobj, this);

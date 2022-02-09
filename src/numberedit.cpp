@@ -24,7 +24,6 @@
 #endif
 
 
-static LvglWidgetFactory numberEditFactory = { lv_textarea_create, nullptr };
 static lv_style_t style_main;
 static lv_style_t style_edit;
 
@@ -64,7 +63,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        WindowFlags windowFlags, LcdFlags textFlags) :
     BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
                    std::move(setValue), windowFlags, textFlags,
-                   &numberEditFactory)
+                   lv_textarea_create)
 {
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);

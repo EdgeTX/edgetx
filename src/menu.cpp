@@ -21,10 +21,6 @@
 #include "font.h"
 #include "theme.h"
 
-LvglWidgetFactory menuBodyWidgetFactory = { [] (lv_obj_t *parent) {
-  return lv_list_create(parent);
-}, nullptr};
-
 void menuBodyEventCallback(lv_event_t *e)
 {
   auto code = lv_event_get_code(e);
@@ -53,7 +49,7 @@ void menuBodyEventCallback(lv_event_t *e)
 }
 
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
-  Window(parent, rect, OPAQUE, 0, &menuBodyWidgetFactory)
+  Window(parent, rect, OPAQUE, 0, lv_list_create)
 {
   setPageHeight(MENUS_LINE_HEIGHT);
 }
