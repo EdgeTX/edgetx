@@ -41,6 +41,11 @@ ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type,
 {
   lv_obj_add_event_cb(lvobj, choicePaintCallback, LV_EVENT_DRAW_MAIN_BEGIN, lvobj);
   label = lv_label_create(lvobj);
+  lv_group_t * def_group = lv_group_get_default();
+  if(def_group) {
+      lv_group_add_obj(def_group, lvobj);
+  }
+
   // Normal font and background color
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
@@ -71,8 +76,13 @@ std::string Choice::getLabelText()
   std::string text = "";
   if (textHandler != nullptr)
     text = textHandler(getValue());
-  else if (getValue() < values.size())
-    text = values[getValue()];
+  else {
+    int val = getValue();
+    val -= vmin;
+    if (val >= 0 && val < (int)values.size()) {
+      text = values[val];
+    }
+  }
   
   return text;
 }
