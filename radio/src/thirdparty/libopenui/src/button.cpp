@@ -94,32 +94,6 @@ TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
   if (windowFlags & BUTTON_CHECKED)
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 
-  lv_style_init(&style_btn);
-  lv_style_set_radius(&style_btn, 0);
-
-  //TODO: use 'style_btn' instead of local style 
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2),
-                            LV_PART_MAIN);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE),
-                            LV_PART_MAIN | LV_STATE_CHECKED);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE),
-                            LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                            LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
-  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
-
-  lv_obj_set_style_border_width(
-      lvobj, 1, LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
-  lv_obj_set_style_border_color(
-      lvobj, makeLvColor(COLOR_THEME_FOCUS),
-      LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
-
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
-                              LV_PART_MAIN | LV_STATE_FOCUSED);
-
-  lv_obj_add_style(lvobj, &style_btn, 0);
-
   label = lv_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
