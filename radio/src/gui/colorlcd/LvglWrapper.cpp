@@ -227,7 +227,7 @@ static void init_lvgl_drivers()
 
   // Register the driver and save the created display objects
   disp = lv_disp_drv_register(init_disp_drv());
-
+ 
   // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
@@ -247,15 +247,77 @@ static void init_lvgl_drivers()
   lv_indev_set_group(rotaryDevice, inputGroup);
 }
 
+// The theme code needs to go somewhere else (gui/colorlcd/themes/default.cpp?)
+static lv_style_t generic_style;
+static lv_style_t btn_style;
+static lv_style_t btn_checked_style;
+static lv_style_t btn_focused_style;
+static lv_style_t btn_checked_focused_style;
+
+static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
+{
+  LV_UNUSED(th);
+  lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
+
+  lv_obj_t* parent = lv_obj_get_parent(obj);
+  if (parent == NULL) {
+    // main screen
+    return;
+  }
+
+  if (lv_obj_check_type(obj, &lv_btn_class)) {
+    lv_obj_add_style(obj, &btn_style, 0);
+    lv_obj_add_style(obj, &btn_checked_style, LV_STATE_CHECKED);
+    lv_obj_add_style(obj, &btn_focused_style, LV_STATE_FOCUSED);
+    return;
+  }
+}
+
+static void init_theme()
+{
+  /*Initialize the styles*/
+
+  // Generic (applied to all)
+  lv_style_init(&generic_style);
+  lv_style_set_pad_all(&generic_style, 0);
+  lv_style_set_bg_opa(&generic_style, LV_OPA_TRANSP);
+  lv_style_set_border_width(&generic_style, 0);
+  lv_style_set_radius(&generic_style, 0);
+
+  // Buttons
+  lv_style_init(&btn_style);
+  lv_style_set_bg_opa(&btn_style, LV_OPA_100);
+  lv_style_set_bg_color(&btn_style, makeLvColor(COLOR_THEME_SECONDARY2));
+
+  // LV_STATE_CHECKED
+  lv_style_set_bg_color(&btn_checked_style, makeLvColor(COLOR_THEME_ACTIVE));
+
+  // LV_STATE_FOCUSED
+  lv_style_set_border_width(&btn_focused_style, 1);
+  lv_style_set_border_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_text_color(&btn_focused_style, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
+  
+  /*Initialize the new theme from the current theme*/
+  lv_theme_t * th_act = lv_disp_get_theme(NULL);
+  static lv_theme_t th_new;
+  th_new = *th_act;
+
+  /*Set the parent theme and the style apply callback for the new theme*/
+  lv_theme_set_parent(&th_new, th_act);
+  lv_theme_set_apply_cb(&th_new, theme_apply_cb);
+
+  /*Assign the new theme to the current display*/
+  lv_disp_set_theme(NULL, &th_new);
+}
+
 LvglWrapper::LvglWrapper()
 {
   lv_init();
   init_lvgl_drivers();
+  init_theme();
 
-  // Create a canvas as the drawing target for libopenui as a hack.
-  // This is going to be removed
-  //
-
+  // Create main window and load that screen
   auto window = MainWindow::instance();
   lv_scr_load(window->getLvObj());
 }
