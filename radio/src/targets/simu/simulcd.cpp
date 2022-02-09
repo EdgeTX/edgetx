@@ -21,6 +21,7 @@
 
 #include "lcd.h"
 #include "simulcd.h"
+#include "rtos.h"
 #include <string.h>
 #include <utility>
 
@@ -115,7 +116,9 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
   simuLcdRefresh = true;
 
   // .. and wait for refresh
-  while(simuLcdRefresh);
+  auto start = RTOS_GET_MS();
+  while(simuLcdRefresh ||
+        (RTOS_GET_MS() - start > 100));
 }
 void lcdRefresh()
 {
