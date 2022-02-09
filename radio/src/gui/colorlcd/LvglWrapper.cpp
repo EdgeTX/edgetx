@@ -144,12 +144,13 @@ event_t encoderEvent = 0;
 bool newEncoderEvent = false;
 lv_indev_state_t encoderState = LV_INDEV_STATE_RELEASED;
 
-void lvglPushEncoderEvent(event_t evt)
+void lvglPushEncoderEvent(event_t& evt)
 {
   if(evt != EVT_KEY_FIRST(KEY_ENTER) && evt != EVT_KEY_BREAK(KEY_ENTER) && evt != EVT_ROTARY_LEFT && evt !=  EVT_ROTARY_RIGHT)
     return;
 
   encoderEvent = evt;
+  evt = 0;
   newEncoderEvent = true;
 }
 
@@ -161,22 +162,22 @@ extern "C" void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     switch(encoderEvent)
     {
     case EVT_KEY_FIRST(KEY_ENTER):
-//      encoderState = LV_INDEV_STATE_PRESSED;
+      encoderState = LV_INDEV_STATE_PRESSED;
       break;
     case EVT_KEY_BREAK(KEY_ENTER):
-//      encoderState = LV_INDEV_STATE_RELEASED;
+      encoderState = LV_INDEV_STATE_RELEASED;
       break;
     case EVT_KEY_FIRST(KEY_EXIT):
-//      encoderState = LV_INDEV_STATE_PRESSED;
+      encoderState = LV_INDEV_STATE_PRESSED;
       break;
     case EVT_KEY_BREAK(KEY_EXIT):
-//      encoderState = LV_INDEV_STATE_RELEASED;
+      encoderState = LV_INDEV_STATE_RELEASED;
       break;
     case EVT_ROTARY_LEFT:
-//      data->enc_diff = -1;
+      data->enc_diff = -1;
       break;
     case EVT_ROTARY_RIGHT:
-//      data->enc_diff = 1;
+      data->enc_diff = 1;
       break;
     }
   }
