@@ -106,7 +106,7 @@ enum MenuModelSetupItems {
 
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE,
-#if defined(CROSSFIRE)
+#if defined(CROSSFIRE) || defined(GHOST)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE,
 #endif
 #if defined (MULTIMODULE)
@@ -316,7 +316,11 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #define IF_NOT_PXX2_MODULE(module, xxx)      (isModulePXX2(module) ? HIDDEN_ROW : (uint8_t)(xxx))
 #define IF_ACCESS_MODULE_RF(module, xxx)     (isModuleRFAccess(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #define IF_NOT_ACCESS_MODULE_RF(module, xxx) (isModuleRFAccess(module) ? HIDDEN_ROW : (uint8_t)(xxx))
-#define IF_CRSF_MODULE(module, xxx)          (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#if SPORT_MAX_BAUDRATE < 400000
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx) ((isModuleCrossfire(module) || isModuleGhost(module)) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#else
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#endif
 
 #if defined(PXX2)
 #define REGISTRATION_ID_ROWS          uint8_t((isDefaultModelRegistrationID() || (warningText && popupFunc == runPopupRegister)) ? HIDDEN_ROW : READONLY_ROW),
@@ -411,7 +415,7 @@ void menuModelSetup(event_t event)
 
     LABEL(ExternalModule),
       EXTERNAL_MODULE_TYPE_ROW(),
-      IF_CRSF_MODULE(EXTERNAL_MODULE, 0),        // Baudrate
+      IF_MODULE_BAUDRATE_ADJUST(EXTERNAL_MODULE, 0),        // Baudrate
       MULTIMODULE_TYPE_ROW(EXTERNAL_MODULE)
       MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)
       AFHDS3_MODE_ROWS(EXTERNAL_MODULE)
@@ -1021,18 +1025,32 @@ void menuModelSetup(event_t event)
         }
         break;
 
-#if defined(CROSSFIRE)
+#if defined(CROSSFIRE) || defined(GHOST)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
         ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, EXT_CROSSFIRE_BAUDRATE,attr | LEFT);
-        if (attr) {
-          moduleData.crsf.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
-          if (checkIncDec_Ret) {
-            restartExternalModule();
+        if (isModuleCrossfire(EXTERNAL_MODULE)) {
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, EXT_CROSSFIRE_BAUDRATE,attr | LEFT);
+          if (attr) {
+            moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
+            if (checkIncDec_Ret) {
+              restartExternalModule();
+            }
           }
         }
         break;
+#if SPORT_MAX_BAUDRATE < 400000
+        else {
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate)],attr | LEFT);
+          if (attr) {
+            moduleData.ghost.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.ghost.telemetryBaudrate),0, 1));
+            if (checkIncDec_Ret) {
+              restartExternalModule();
+            }
+          }
+        }
+        break;
+#endif
       }
 #endif
 

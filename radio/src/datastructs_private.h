@@ -530,7 +530,8 @@ PACK(struct ModuleData {
     } afhds3));
     NOBACKUP(struct {
       uint8_t raw12bits:1;
-      uint8_t spare1:7 SKIP;
+      uint8_t telemetryBaudrate:3;
+      uint8_t spare1:4 SKIP;
     } ghost);
     NOBACKUP(struct {
       uint8_t telemetryBaudrate:3;

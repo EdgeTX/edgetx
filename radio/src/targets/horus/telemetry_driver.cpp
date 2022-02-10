@@ -267,7 +267,7 @@ void telemetryPortSetDirectionInput()
 {
   sportWaitTransmissionComplete();
 #if defined(GHOST) && SPORT_MAX_BAUDRATE < 400000
-  if (isModuleGhost(EXTERNAL_MODULE) && g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
+  if (isModuleGhost(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
