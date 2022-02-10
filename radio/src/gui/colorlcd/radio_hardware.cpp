@@ -247,21 +247,6 @@ class SerialConfigWindow : public FormGroup
   }
 };
 
-void restartExternalModule()
-{
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
-  }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
-
 class InternalModuleWindow : public FormGroup {
  public:
   InternalModuleWindow(FormWindow *parent, const rect_t &rect) :

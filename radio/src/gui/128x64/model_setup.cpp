@@ -1060,7 +1060,7 @@ void menuModelSetup(event_t event)
         }
         break;
 
-#if defined(HARDWARE_INTERNAL_MODULE) && (defined(CROSSFIRE) || defined(GHOST))
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(CROSSFIRE) || defined(GHOST))
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
         ModuleData & moduleData = g_model.moduleData[moduleIdx];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
