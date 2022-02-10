@@ -290,7 +290,7 @@ void Window::setFocus(uint8_t flag, Window * from)
 
   if (focusWindow != this) {
     // synchronize lvgl focused state with libopenui
-    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+    if (lvobj != nullptr && !lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
       lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
       if (focusWindow != nullptr) {
         lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED | LV_STATE_EDITED);
