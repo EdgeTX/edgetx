@@ -1023,16 +1023,11 @@ void menuModelSetup(event_t event)
 
 #if defined(CROSSFIRE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
-        ModuleData & moduleData = g_model.moduleData[EXTERNAL_MODULE];
-        lcdDrawText( INDENT_WIDTH, y, STR_BAUDRATE);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, EXT_CROSSFIRE_BAUDRATE,
-                      attr | LEFT);
+        ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
+        lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, EXT_CROSSFIRE_BAUDRATE,attr | LEFT);
         if (attr) {
-          moduleData.crsf.telemetryBaudrate =
-              CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(
-                  event,
-                  CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate), 0,
-                  DIM(CROSSFIRE_BAUDRATES) - 1));
+          moduleData.crsf.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
           if (checkIncDec_Ret) {
             restartExternalModule();
           }

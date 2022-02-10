@@ -610,11 +610,8 @@ class ModuleWindow : public FormGroup {
       // Module parameters
       if (moduleIdx== EXTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,
-                       COLOR_THEME_PRIMARY1);
-        new Choice(
-            this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,
-            CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+        new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
+        new Choice(this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
             [=]() -> int {
               return CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[moduleIdx].crsf.telemetryBaudrate);
             },
