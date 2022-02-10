@@ -1060,7 +1060,7 @@ void menuModelSetup(event_t event)
         }
         break;
 
-#if defined(CROSSFIRE) || defined(GHOST)
+#if defined(HARDWARE_INTERNAL_MODULE) && (defined(CROSSFIRE) || defined(GHOST))
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
         ModuleData & moduleData = g_model.moduleData[moduleIdx];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
@@ -1073,7 +1073,6 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
 #if SPORT_MAX_BAUDRATE < 400000
         else {
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate)],attr | LEFT);
@@ -1084,8 +1083,8 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
 #endif
+        break;
       }
 #endif
 
