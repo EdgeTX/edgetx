@@ -31,12 +31,7 @@ class Button: public FormField
    Button(FormGroup* parent, const rect_t& rect,
           std::function<uint8_t(void)> pressHandler = nullptr,
           WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
-          LvglCreate objConstruct = nullptr) :
-       FormField(parent, rect, windowFlags, textFlags, objConstruct),
-       pressHandler(std::move(pressHandler))
-   {
-     lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
-   }
+          LvglCreate objConstruct = nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -74,6 +69,7 @@ class Button: public FormField
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
+    void onEvent(lv_event_t* e);// override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchStart(coord_t x, coord_t y) override;

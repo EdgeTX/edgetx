@@ -22,6 +22,26 @@
 #include "font.h"
 #include "theme.h"
 
+static void lvglEvent(lv_event_t* e)
+{
+  Button* btn = (Button*)lv_event_get_user_data(e);
+  if(btn->deleted())
+    return;
+
+  btn->onEvent(e);
+}
+
+Button::Button(FormGroup* parent, const rect_t& rect,
+       std::function<uint8_t(void)> pressHandler,
+       WindowFlags windowFlag, LcdFlags textFlags,
+       LvglCreate objConstruct) :
+    FormField(parent, rect, windowFlag, textFlags, objConstruct),
+    pressHandler(std::move(pressHandler))
+{
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_add_event_cb(lvobj, lvglEvent, LV_EVENT_CLICKED, this);
+}
+
 void Button::onPress()
 {
   bool check = (pressHandler && pressHandler());
@@ -50,6 +70,21 @@ void Button::onEvent(event_t event)
   }
 }
 #endif
+
+void Button::onEvent(lv_event_t* event)
+{
+  lv_event_code_t code = lv_event_get_code(event);
+
+  TRACE_WINDOWS("%s received lvgl event code 0x%X", getWindowDebugString("Button").c_str(), code);
+
+  if (enabled && code == LV_EVENT_CLICKED) {
+    onKeyPress();
+    onPress();
+  }
+  else {
+//    FormField::onEvent(event);
+  }
+}
 
 #if defined(HARDWARE_TOUCH)
 bool Button::onTouchStart(coord_t x, coord_t y)
