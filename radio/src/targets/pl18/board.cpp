@@ -236,3 +236,9 @@ void boardOff()
 
   }
 }
+
+int usbPlugged()
+{
+  static PinDebounce debounce;
+  return debounce.debounce(UCHARGER_CHARGE_GPIO, UCHARGER_CHARGE_GPIO_PIN);
+}
