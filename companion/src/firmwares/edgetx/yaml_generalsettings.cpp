@@ -235,6 +235,12 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // If conversion should rename file with _converted suffix as done for bin
   // Need to pass back messages and flags like converted so they can be handled in a more suitable section
 
+  //  Note: This is part of an interim workaround to ensure critical settings are set to profile board defaults
+  //  TODO: remove and let board conversion occur as for eeprom and profile
+  //        this will require yaml import of general and model settings to be refactored to not use current firmware
+  bool needsConversion = false;
+  //
+
   rhs.variant = Board::BOARD_UNKNOWN;
 
   std::string flavour;
@@ -251,6 +257,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       return false;
     }
     flavour = fw->getFlavour().toStdString();
+    needsConversion = true;
   }
   else if (fw->getFlavour().toStdString() != flavour) {
     auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
@@ -261,8 +268,10 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
       return false;
     }
+    needsConversion = true;
   }
 
+  //  TODO: do not override here
   rhs.variant = fw->getBoard();
 
   YamlCalibData calib;
@@ -366,6 +375,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;
+
+  //  override critical settings after import
+  //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
+  if (needsConversion)
+    rhs.init();
 
   return true;
 }
