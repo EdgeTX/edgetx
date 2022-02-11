@@ -44,6 +44,10 @@ void battery_charge_init()
   GPIO_InitStructure.GPIO_Pin = UCHARGER_CHARGE_GPIO_PIN;
   GPIO_Init(UCHARGER_CHARGE_GPIO, &GPIO_InitStructure);
 
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_EN_GPIO_PIN;
+  GPIO_Init(UCHARGER_EN_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(UCHARGER_EN_GPIO, UCHARGER_EN_GPIO_PIN);
+
   GPIO_InitStructure.GPIO_Pin = WCHARGER_STDBY_GPIO_PIN;
   GPIO_Init(WCHARGER_STDBY_GPIO, &GPIO_InitStructure);
 
@@ -55,10 +59,6 @@ void battery_charge_init()
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(WCHARGER_EN_GPIO, &GPIO_InitStructure);
   GPIO_ResetBits(WCHARGER_EN_GPIO, WCHARGER_EN_GPIO_PIN);
-
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_VBUS_EN_GPIO_PIN;
-  GPIO_Init(WCHARGER_VBUS_EN_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(WCHARGER_VBUS_EN_GPIO, WCHARGER_VBUS_EN_GPIO_PIN);
 
   GPIO_InitStructure.GPIO_Pin = WCHARGER_I_CONTROL_GPIO_PIN;
   GPIO_Init(WCHARGER_I_CONTROL_GPIO, &GPIO_InitStructure);
@@ -74,8 +74,8 @@ uint16_t get_battery_charge_state()
   uint16_t chargeState = CHARGE_UNKNOWN;
   int maxSamples = CHARGE_SAMPLES;
 #if !defined(SIMU)
-  bool isFinished = !READ_UCHARGE_FINISHED_STATE();
-  bool isCharging = !READ_UCHARGING_STATE();
+  bool isFinished = READ_UCHARGE_FINISHED_STATE();
+  bool isCharging = READ_UCHARGING_STATE();
   //maxSamples = boardState == BOARD_POWER_OFF ? CHARGE_SAMPLES/2 : CHARGE_SAMPLES;
   if(chargeSampleIndex >= maxSamples) chargeSampleIndex = 0;
   uint16_t currentChargeState = isFinished ? CHARGE_FINISHED : isCharging ? CHARGE_STARTED : CHARGE_NONE;
@@ -198,6 +198,7 @@ void handle_battery_charge(uint32_t last_press_time)
         backlightInit();
         lcdInit();
         lcdInited = true;
+        touchPanelInit();
       }
       else {
         lcdOn();
