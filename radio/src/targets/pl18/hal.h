@@ -203,11 +203,11 @@
 #define UCHARGER_CHARGE_GPIO_REG        UCHARGER_CHARGE_GPIO->IDR
 #define UCHARGER_CHARGE_GPIO_PIN        GPIO_Pin_14 // PB.14 input
 
+#define UCHARGER_EN_GPIO                GPIOG
+#define UCHARGER_EN_GPIO_PIN            GPIO_Pin_3  // PG.03 output
+
 #define WCHARGER_EN_GPIO                GPIOH
 #define WCHARGER_EN_GPIO_PIN            GPIO_Pin_4  // PH.04 output
-
-#define WCHARGER_VBUS_EN_GPIO           GPIOG
-#define WCHARGER_VBUS_EN_GPIO_PIN       GPIO_Pin_3  // PG.03 output
 
 #define WCHARGER_I_CONTROL_GPIO         GPIOH
 #define WCHARGER_I_CONTROL_GPIO_PIN     GPIO_Pin_13 // PH.13 output

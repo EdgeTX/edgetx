@@ -97,7 +97,9 @@
 #endif
 
 /****************** USB OTG MISC CONFIGURATION ********************************/
+#if !defined(PCBPL18)
 #define VBUS_SENSING_ENABLED
+#endif
 
 /****************** USB OTG MODE CONFIGURATION ********************************/
 //#define USE_HOST_MODE
