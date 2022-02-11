@@ -49,11 +49,13 @@ void setSelectedUsbMode(int mode)
   selectedUsbMode = usbMode(mode);
 }
 
+#if !defined(PCBPL18)
 int usbPlugged()
 {
   static PinDebounce debounce;
   return debounce.debounce(USB_GPIO, USB_GPIO_PIN_VBUS);
 }
+#endif
 
 USB_OTG_CORE_HANDLE USB_OTG_dev;
 
