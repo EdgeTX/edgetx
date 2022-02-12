@@ -99,7 +99,7 @@ RadioFlashManagerPage::RadioFlashManagerPage() :
   setOnSetVisibleHandler([]() {
     TRACE("f_chdir(ROOT_PATH)");
     VirtualFS& vfs = VirtualFS::instance();
-    vfs.changeDirectory(ROOT_PATH);
+    vfs.changeDirectory("/");
   });
 }
 
@@ -277,7 +277,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
             // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
             //   // TODO
             // }
-            else if (!strcasecmp(ext, TEXT_EXT)) {
+            else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, ".yml")) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 strncpy(lfn, workPath.c_str(), sizeof(lfn));

@@ -26,6 +26,7 @@
 #include "sdcard_raw.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
+#include "VirtualFS.h"
 
 #include "yaml/yaml_tree_walker.h"
 #include "yaml/yaml_parser.h"
@@ -42,13 +43,14 @@
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {
-    FIL  file;
-    UINT bytes_read;
+    VfsFile  file;
+    size_t bytes_read;
     UINT total_bytes = 0;
 
-    FRESULT result = f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsError result = vfs.openFile(file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
 
     YamlParser yp; //TODO: move to re-usable buffer
@@ -59,7 +61,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     bool first_block = true;
     char buffer[32];
-    while (f_read(&file, buffer, sizeof(buffer)-1, &bytes_read) == FR_OK) {
+    while (file.read(&file, buffer, sizeof(buffer)-1, bytes_read) == VfsError::OK) {
       if (bytes_read == 0)  // EOF
         break;
       total_bytes += bytes_read;
@@ -101,7 +103,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
       if (yp.parse(buffer + skip, bytes_read - skip) != YamlParser::CONTINUE_PARSING)
         break;
     }
-    f_close(&file);
+    file.close();
 
     if (checksum_result != NULL) {
       // Special case to handle "old" files with no checksum field
@@ -142,8 +144,9 @@ const char * loadRadioSettingsYaml()
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
 
     if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
+      VirtualFS vfs = VirtualFS::instance();
       // Read failed or checksum check failed
-      FRESULT result = FR_OK;
+      VfsError result = VfsError::OK;
       TRACE("radio settings: Reading failed");
       if ( (p == NULL) && g_eeGeneral.manuallyEdited) {
         // Read sussessfull, checksum failed, manuallyEdited set
@@ -152,12 +155,12 @@ const char * loadRadioSettingsYaml()
         storageDirty(EE_GENERAL);   // Trigger a save on sucessfull recovery
       } else {
         TRACE("File is corrupted, attempting alternative file");
-        f_unlink(RADIO_SETTINGS_ERRORFILE_YAML_PATH);
-        result = f_rename(RADIO_SETTINGS_YAML_PATH, RADIO_SETTINGS_ERRORFILE_YAML_PATH); // Save corrupted file for later analysis
+        vfs.unlink(RADIO_SETTINGS_ERRORFILE_YAML_PATH);
+        result = vfs.rename(RADIO_SETTINGS_YAML_PATH, RADIO_SETTINGS_ERRORFILE_YAML_PATH); // Save corrupted file for later analysis
         p = attemptLoad(RADIO_SETTINGS_TMPFILE_YAML_PATH, &checksum_status);
         if (p == NULL && (checksum_status == ChecksumResult::Success)) {
-            f_unlink(RADIO_SETTINGS_YAML_PATH);
-            result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
+            vfs.unlink(RADIO_SETTINGS_YAML_PATH);
+            result = vfs.rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
             if (result != FR_OK) {
               ALERT(STR_STORAGE_WARNING, TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
               return SDCARD_ERROR(result);
@@ -172,9 +175,9 @@ const char * loadRadioSettingsYaml()
 
 const char * loadRadioSettings()
 {
-    FILINFO fno;
-
-    if ( (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) && ((f_stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, &fno) != FR_OK)) ) {
+    VfsFileInfo fno;
+    VirtualFS& vfs = VirtualFS::instance();
+    if ( (vfs.stat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) && ((vfs.stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, fno) != VffsError::OK)) ) {
       // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
       // - thus requiring a conversion from binary to YAML.
 #if STORAGE_CONVERSIONS < 221
@@ -219,7 +222,7 @@ const char * loadRadioSettings()
 
 
 struct yaml_checksummer_ctx {
-    FRESULT result;
+    VfsError result;
     uint16_t checksum;
     bool checksum_invalid;
 };
@@ -238,7 +241,7 @@ bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checks
     tree.reset(root_node, data);
 
     yaml_checksummer_ctx ctx;
-    ctx.result = FR_OK;
+    ctx.result = VfsError::OK;
     ctx.checksum = 0xFFFF;
     ctx.checksum_invalid = false;
 
@@ -258,37 +261,38 @@ bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checks
 
 
 struct yaml_writer_ctx {
-    FIL*    file;
-    FRESULT result;
+    VfsFile* file;
+    VfsError result;
 };
 
 static bool yaml_writer(void* opaque, const char* str, size_t len)
 {
-    UINT bytes_written;
+    size_t bytes_written;
     yaml_writer_ctx* ctx = (yaml_writer_ctx*)opaque;
 
 #if defined(DEBUG_YAML)
     TRACE_NOCRLF("%.*s",len,str);
 #endif
 
-    ctx->result = f_write(ctx->file, str, len, &bytes_written);
-    return (ctx->result == FR_OK) && (bytes_written == len);
+    ctx->result = ctx->file->write(str, len, bytes_written);
+    return (ctx->result == VfsError::OK) && (bytes_written == len);
 }
 
 const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data, uint16_t checksum)
 {
-    FIL file;
+    VfsFile file;
 
-    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS::instance().unlink(path);
+    VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
     YamlTreeWalker tree;
     tree.reset(root_node, data);
 
     yaml_writer_ctx ctx;
     ctx.file = &file;
-    ctx.result = FR_OK;
+    ctx.result = VfsError::OK;
 
     // Try to add CRC
     if (checksum != 0) {
@@ -302,19 +306,20 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
 
     if (!tree.generate(yaml_writer, &ctx)) {
-        if (ctx.result != FR_OK) {
-            f_close(&file);
-            return SDCARD_ERROR(ctx.result);
+        if (ctx.result != VfsError::OK) {
+            file.close();
+            return STORAGE_ERROR(ctx.result);
         }
     }
 
-    f_close(&file);
+    file.close();
     return NULL;
 }
 
 const char * writeGeneralSettings()
 {
     TRACE("YAML radio settings writer");
+	VirtualFS vfs = VirtualFS::instance();
     uint16_t file_checksum = 0;
 
     YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
@@ -327,11 +332,11 @@ const char * writeGeneralSettings()
     if (p != NULL) {
         return p;
     }
-    f_unlink(RADIO_SETTINGS_YAML_PATH);
+    vfs.unlink(RADIO_SETTINGS_YAML_PATH);
 
-    FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
-    if(result != FR_OK)
-        return SDCARD_ERROR(result);
+    VfsError result = vfs.rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
+    if(result != VfsError::OK)
+        return STORAGE_ERROR(result);
 
     return nullptr;
 }
