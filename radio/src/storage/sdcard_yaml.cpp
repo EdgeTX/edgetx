@@ -26,6 +26,7 @@
 #include "sdcard_raw.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
+#include "VirtualFS.h"
 
 #include "yaml/yaml_tree_walker.h"
 #include "yaml/yaml_parser.h"
@@ -40,19 +41,20 @@
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx)
 {
-    FIL  file;
-    UINT bytes_read;
+    VfsFile  file;
+    size_t bytes_read;
 
-    FRESULT result = f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsError result = vfs.openFile(file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
       
     YamlParser yp; //TODO: move to re-usable buffer
     yp.init(calls, parser_ctx);
 
     char buffer[32];
-    while (f_read(&file, buffer, sizeof(buffer), &bytes_read) == FR_OK) {
+    while (file.read(buffer, sizeof(buffer), bytes_read) == VfsError::OK) {
 
       // reached EOF?
       if (bytes_read == 0)
@@ -63,7 +65,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
         break;
     }
 
-    f_close(&file);
+    file.close();
     return NULL;
 }
 
@@ -105,8 +107,9 @@ const char * loadRadioSettingsYaml()
 
 const char * loadRadioSettings()
 {
-    FILINFO fno;
-    if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
+    VfsFileInfo fno;
+    VirtualFS& vfs = VirtualFS::instance();
+    if (vfs.fstat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) {
 #if defined(STORAGE_MODELSLIST)
       uint8_t version;
       const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
@@ -144,30 +147,31 @@ const char * loadRadioSettings()
 }
 
 struct yaml_writer_ctx {
-    FIL*    file;
-    FRESULT result;
+    VfsFile* file;
+    VfsError result;
 };
 
 static bool yaml_writer(void* opaque, const char* str, size_t len)
 {
-    UINT bytes_written;
+    size_t bytes_written;
     yaml_writer_ctx* ctx = (yaml_writer_ctx*)opaque;
 
 #if defined(DEBUG_YAML)
     TRACE_NOCRLF("%.*s",len,str);
 #endif
 
-    ctx->result = f_write(ctx->file, str, len, &bytes_written);
-    return (ctx->result == FR_OK) && (bytes_written == len);
+    ctx->result = ctx->file->write(str, len, bytes_written);
+    return (ctx->result == VfsError::OK) && (bytes_written == len);
 }
 
 const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data)
 {
-    FIL file;
+    VfsFile file;
 
-    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS::instance().unlink(path);
+    VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
       
     YamlTreeWalker tree;
@@ -175,16 +179,16 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
     yaml_writer_ctx ctx;
     ctx.file = &file;
-    ctx.result = FR_OK;
+    ctx.result = VfsError::OK;
     
     if (!tree.generate(yaml_writer, &ctx)) {
-        if (ctx.result != FR_OK) {
-            f_close(&file);
-            return SDCARD_ERROR(ctx.result);
+        if (ctx.result != VfsError::OK) {
+            file.close();
+            return STORAGE_ERROR(ctx.result);
         }
     }
 
-    f_close(&file);
+    file.close();
     return NULL;
 }
 
