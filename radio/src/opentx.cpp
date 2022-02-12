@@ -1981,11 +1981,6 @@ int main()
 
   boardInit();
 
-#if defined(COLORLCD)
-  extern void loadFonts(); // TODO ?
-  loadFonts();
-#endif
-
 #if !defined(SIMU)
   stackPaint();
 #endif

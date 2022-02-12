@@ -115,7 +115,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../gui/colorlcd/fonts.cpp
     ../../../../../gui/colorlcd/colors.cpp
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
-    ../../../../../thirdparty/libopenui/src/libopenui_globals.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp

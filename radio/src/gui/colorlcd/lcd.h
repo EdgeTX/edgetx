@@ -24,7 +24,6 @@
 
 #include "bitmapbuffer.h"
 #include "opentx_types.h"
-#include "libopenui_globals.h"
 
 #if LCD_W >= 480
   #define LCD_COLS                     40

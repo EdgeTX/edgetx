@@ -76,11 +76,7 @@ const uint8_t LBM_OK[] = {
 void bootloaderInitScreen()
 {
   backlightEnable(BACKLIGHT_LEVEL_MAX);
-	
-  // TODO: load/decompress bitmaps
-  extern void loadFonts();
-  loadFonts();
-	
+  // TODO: init LVGL
 }
 
 static void bootloaderDrawTitle(const char* text)

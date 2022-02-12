@@ -22,8 +22,8 @@
 #ifndef _LVGLWRAPPER_H_
 #define _LVGLWRAPPER_H_
 
+#include <lvgl/lvgl.h>
 #include "opentx_types.h"
-#include "lvgl/lvgl.h"
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 #if defined(HARDWARE_TOUCH)
