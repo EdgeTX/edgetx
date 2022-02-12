@@ -594,8 +594,8 @@ VirtualFS::VirtualFS()
   lfsCfg.block_size = flashSpiGetSectorSize();
   lfsCfg.block_count = flashSpiGetSectorCount();
   lfsCfg.block_cycles = 500;
-  lfsCfg.cache_size = 4096;
-  lfsCfg.lookahead_size = 32;
+  lfsCfg.cache_size = flashSpiGetPageSize();
+  lfsCfg.lookahead_size = 128;
 #endif
 
   restart();
@@ -615,6 +615,9 @@ void VirtualFS::stop()
 #endif
 }
 
+//const char dat[] = "Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";
+//const char dat2[] ="2Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";
+
 void VirtualFS::restart()
 {
 #if defined (SPI_FLASH)
@@ -627,17 +630,27 @@ void VirtualFS::restart()
         err = lfs_mount(&lfs, &lfsCfg);
       if(err != LFS_ERR_OK)
         return;
+      formated = true;
   }
   lfsCfg.context = this;
-  checkAndCreateDirectory("/test");
-  checkAndCreateDirectory("/test/foo");
-  checkAndCreateDirectory("/anotherTest");
-  lfs_file_t file;
-  err = lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
-  if(err == LFS_ERR_OK)
+  if(formated)
   {
-    lfs_file_write(&lfs, &file, "Hello World\n", sizeof("Hello World\n"));
-    lfs_file_close(&lfs, &file);
+//    checkAndCreateDirectory("/test");
+//    checkAndCreateDirectory("/test/foo");
+//    checkAndCreateDirectory("/anotherTest");
+    checkAndCreateDirectory("/RADIO");
+    checkAndCreateDirectory("/MODELS");
+    checkAndCreateDirectory("/LOGS");
+    checkAndCreateDirectory("/SCREENSHOTS");
+    checkAndCreateDirectory("/BACKUP");
+//    lfs_file_t file;
+//    err = lfs_file_open(&lfs,  &file, "test/testFile.txt", LFS_O_CREAT|LFS_O_TRUNC|LFS_O_WRONLY);
+//    if(err == LFS_ERR_OK)
+//    {
+//      lfs_file_write(&lfs,&file,dat,sizeof(dat));
+//      lfs_file_write(&lfs,&file,dat2,sizeof(dat2));
+//      lfs_file_close(&lfs, &file);
+//    }
   }
 #endif
 }
@@ -714,7 +727,7 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
   if(path == "/")
   {
     return VfsDir::DIR_ROOT;
-  } else if(path.substr(0, 7) == "/FLASH/")
+  } else if(path.substr(0, 6) == "/FLASH")
   {
     path = path.substr(6);
 #if defined (SPI_FLASH)
@@ -722,16 +735,16 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 #else
     return VfsDir::DIR_UNKOWN;
 #endif
-  } else if(path.substr(0, 8) == "/SDCARD/") {
+  } else if(path.substr(0, 7) == "/SDCARD") {
     path = path.substr(7);
 #if defined (SDCARD)
     return VfsDir::DIR_FAT;
 #else
     return VfsDir::DIR_UNKOWN;
 #endif
-  } else if(path.substr(0, 10) == "/DEFAULT/") {
-    path = path.substr(9);
-#if defined (SDCARD)
+  } else if(path.substr(0, 8) == "/DEFAULT") {
+    path = path.substr(8);
+#if defined (SDCARD) && 0
     return VfsDir::DIR_FAT;
 #elif defined (SPI_FLASH)
     return VfsDir::DIR_LFS;
