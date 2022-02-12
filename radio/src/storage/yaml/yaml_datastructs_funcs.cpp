@@ -444,7 +444,6 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_NONE:
     case MODULE_TYPE_PPM:
     case MODULE_TYPE_DSM2:
-    case MODULE_TYPE_CROSSFIRE:
       return 1;
     case MODULE_TYPE_MULTIMODULE:
       return 2;
@@ -466,6 +465,8 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
       break;
     case MODULE_TYPE_GHOST:
       return 8;
+    case MODULE_TYPE_CROSSFIRE:
+      return 9;
   }
   return 0;
 }
