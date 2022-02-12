@@ -1286,7 +1286,6 @@ void LCD_LayerInit() {
   LTDC_DitherCmd(ENABLE);
 }
 
-extern void loadFonts();
 const char* boardLcdType = "";
 
 void LCD_SetLayer(uint32_t layer)
@@ -1302,15 +1301,17 @@ void LCD_SetLayer(uint32_t layer)
   currentLayer = layer;
 }
 
-void lcdInit(void) {
+void lcdInit(void)
+{
   // Clear buffers first
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
 
-  loadFonts();
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
 
+  // TODO: init lVGL
+  
   /* Reset the LCD --------------------------------------------------------*/
   lcdReset();
 

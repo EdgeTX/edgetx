@@ -40,19 +40,10 @@ SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
 void SelectFabButton::paint(BitmapBuffer* dc)
 {
   FabButton::paint(dc);
-  auto pos = title.find('\n');
 
-  auto y_pos = FAB_BUTTON_SIZE;
-  
-  dc->drawSizedText(width() / 2, y_pos,
-                    title.c_str(), pos,
-                    COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
-
-  if (pos != std::string::npos) {
-    y_pos += PAGE_LINE_HEIGHT;
-    dc->drawSizedText(width() / 2, y_pos, title.substr(pos+1).c_str(),
-                      255, COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
-  }
+  dc->drawSizedText(width() / 2, FAB_BUTTON_SIZE,
+                    title.c_str(), title.size(),
+                    COLOR2FLAGS(WHITE) | CENTERED);
 
   if (hasFocus()) {
     dc->drawSolidRect(0, 0, width(), height(), 2, COLOR2FLAGS(WHITE));

@@ -32,7 +32,7 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-/*
+
 void convert_RGB565_to_RGB888(uint8_t * dst, const BitmapBuffer * src, coord_t w, coord_t h)
 {
   for(int y = 0; y < src->height(); y++) {
@@ -91,6 +91,38 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   return true;
 }
 
+#include "lvgl/src/draw/sw/lv_draw_sw.h"
+
+static lv_disp_t fake_disp;
+static lv_disp_drv_t fake_drv;
+static lv_area_t fake_draw_area = { 0, 0, LCD_W-1, LCD_H-1 };
+static lv_draw_ctx_t* draw_ctx = nullptr;
+
+static void init_fake_disp(BitmapBuffer* dc)
+{
+  if (!draw_ctx) {
+    lv_init();
+    lv_memset_00(&fake_disp, sizeof(lv_disp_t));
+    fake_disp.driver = &fake_drv;
+
+    lv_disp_drv_init(fake_disp.driver);
+    fake_disp.driver->hor_res = LCD_W;
+    fake_disp.driver->ver_res = LCD_H;
+
+    draw_ctx = (lv_draw_ctx_t*)lv_mem_alloc(sizeof(lv_draw_sw_ctx_t));
+    LV_ASSERT_MALLOC(draw_ctx);
+    if(draw_ctx == NULL)  return;
+    lv_draw_sw_init_ctx(&fake_drv, draw_ctx);
+    fake_disp.driver->draw_ctx = draw_ctx;
+    draw_ctx->clip_area = &fake_draw_area;
+    draw_ctx->buf_area = &fake_draw_area;
+  }
+
+  _lv_refr_set_disp_refreshing(&fake_disp);
+  draw_ctx->buf = (void *)dc->getData();
+  dc->setDrawCtx(draw_ctx);
+}
+
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
@@ -111,8 +143,6 @@ TEST(Lcd_colorlcd, lines)
 
 TEST(Lcd_colorlcd, vline)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -124,9 +154,9 @@ TEST(Lcd_colorlcd, vline)
 
 TEST(Lcd_colorlcd, primitives)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_DISABLED);
@@ -155,14 +185,12 @@ TEST(Lcd_colorlcd, primitives)
 
 TEST(Lcd_colorlcd, transparency)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  // , OPACITY(4)
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
-  // , OPACITY(12)
   dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
@@ -204,16 +232,13 @@ TEST(Lcd_colorlcd, transparency)
 #if 0
 TEST(Lcd_colorlcd, fonts)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+  
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
-
-  dc.drawText(10, 200, "The quick", COLOR_THEME_SECONDARY1|VERTICAL);
-  dc.drawText(30, 200, "The quick brown fox", COLOR_THEME_SECONDARY1|VERTICAL);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   dc.drawText(50, 25, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXS));
   dc.drawText(50, 40, "The quick", COLOR_THEME_SECONDARY1 | FONT(XS));
@@ -221,8 +246,8 @@ TEST(Lcd_colorlcd, fonts)
   dc.drawText(50, 80, "The quick", COLOR_THEME_SECONDARY1 | FONT(XL));
   dc.drawText(50, 120, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXL));
 
-  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
-  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
+  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "fonts_" TRANSLATIONS));
 }
@@ -230,8 +255,6 @@ TEST(Lcd_colorlcd, fonts)
 
 TEST(Lcd_colorlcd, clipping)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -286,6 +309,7 @@ TEST(Lcd_colorlcd, masks)
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
 }
 
+#if 0
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
 constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
@@ -307,5 +331,5 @@ TEST(Lcd_colorlcd, darkmode)
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
 }
-*/
+#endif
 #endif
