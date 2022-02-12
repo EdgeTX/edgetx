@@ -52,6 +52,7 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
   Window(parent, rect, OPAQUE, 0, lv_list_create)
 {
   setPageHeight(MENUS_LINE_HEIGHT);
+  setFocus();
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
