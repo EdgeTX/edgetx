@@ -122,8 +122,10 @@ void applyDefaultTemplate()
 #endif
 
 #if defined(COLORLCD)
-  //TODO: not sure yet we need it here
+
+#if !defined(GTESTS)
   loadDefaultLayout();
+#endif
 
   // enable switch warnings
   for (int i = 0; i < NUM_SWITCHES; i++) {
