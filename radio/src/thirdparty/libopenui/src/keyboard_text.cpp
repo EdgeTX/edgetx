@@ -18,7 +18,6 @@
  */
 
 #include "keyboard_text.h"
-#include "libopenui_globals.h"
 #include "textedit.h"
 #include "font.h"
 

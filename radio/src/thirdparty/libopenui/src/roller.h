@@ -24,7 +24,6 @@
 #include <font.h>
 #include <static.h>
 #include <limits.h>
-#include "libopenui_globals.h"
 #include "libopenui_config.h"
 
 constexpr WindowFlags ROLLER_SEPARATION_LINES = (FORM_FLAGS_LAST << 1u);

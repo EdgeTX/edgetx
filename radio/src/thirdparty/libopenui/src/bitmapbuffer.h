@@ -52,6 +52,9 @@ enum BitmapFormats
   BMP_ARGB4444
 };
 
+struct _lv_draw_ctx_t;
+typedef _lv_draw_ctx_t lv_draw_ctx_t;
+
 template<class T>
 class BitmapBufferBase
 {
@@ -196,6 +199,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 #if defined(DEBUG)
     bool leakReported;
 #endif
+    lv_draw_ctx_t* draw_ctx = nullptr;
 
   public:
     BitmapBuffer(uint8_t format, uint16_t width, uint16_t height);
@@ -203,6 +207,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     ~BitmapBuffer();
 
+    void setDrawCtx(lv_draw_ctx_t* ctx) { draw_ctx = ctx; }
+  
     inline void setFormat(uint8_t format)
     {
       this->format = format;
@@ -313,8 +319,8 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     coord_t drawText(coord_t x, coord_t y, const char * s, LcdFlags flags = 0)
     {
-      if (!s) return (flags & VERTICAL) ? y : x;
-      return drawSizedText(x, y, s, 255, flags);
+      if (!s) return x;
+      return drawSizedText(x, y, s, strlen(s), flags);
     }
 
     coord_t drawTextAtIndex(coord_t x, coord_t y, const char * s, uint8_t idx, LcdFlags flags = 0)
@@ -383,8 +389,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     void drawBitmapAbs(coord_t x, coord_t y, const T* bmp, coord_t srcx = 0,
                        coord_t srcy = 0, coord_t srcw = 0, coord_t srch = 0,
                        float scale = 0);
-
-    uint8_t drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags);
 
     inline void drawPixel(pixel_t * p, pixel_t value)
     {

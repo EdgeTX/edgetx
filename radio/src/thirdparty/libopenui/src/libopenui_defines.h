@@ -35,7 +35,6 @@
 #define SHADOWED                       0x80u /* black copy at +1 +1 */
 // 0x1000u used by Lua in api_colorlcd.h
 #define SPACING_NUMBERS_CONST          0x2000u
-#define VERTICAL                       0x4000u
 // 0x8000u used by Lua in api_colorlcd.h
 
 /* drawNumber flags */

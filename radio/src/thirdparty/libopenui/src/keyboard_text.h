@@ -66,12 +66,6 @@ class TextKeyboard : public Keyboard {
 #endif
 
     static TextKeyboard * _instance;
-    const char * const * layout;
-  private:
-    int calculateMaxWidth();
-    int getCharWidth(const char c);
-
-    char touch_key = -128;
-    bool touched = false;
+    // const char * const * layout;
 };
 

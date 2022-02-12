@@ -20,7 +20,6 @@
 #include <math.h>
 #include "bitmapbuffer.h"
 #include "libopenui_depends.h"
-#include "libopenui_globals.h"
 #include "libopenui_helpers.h"
 #include "libopenui_file.h"
 #include "font.h"
@@ -1008,21 +1007,13 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, 
                    srcx, srcy, srcw, srch, COLOR_VAL(flags));
 }
 
-uint8_t BitmapBuffer::drawChar(coord_t x, coord_t y, const uint8_t * font, const uint16_t * spec, unsigned int index, LcdFlags flags)
-{
-  coord_t offset = spec[index + 1];
-  coord_t width = spec[index + 2] - offset;
-  if (width > 0) {
-    drawBitmapPattern(x, y, font, flags, offset, width);
-  }
-  return width;
-}
+// TODO: find a better place to define this
+extern lv_color_t makeLvColor(uint32_t colorFlags);
 
-#define INCREMENT_POS(delta)    do { if (flags & VERTICAL) y -= delta; else x += delta; } while(0)
-
-coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlags flags)
+coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
+                                    uint8_t len, LcdFlags flags)
 {
-  if (!s) return (flags & VERTICAL) ? y : x;
+  if (!s) return x;
   MOVE_OFFSET();
 
   int height = getFontHeight(flags);
@@ -1032,61 +1023,46 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char * s, uint8_
     return x;
   }
 
-  uint32_t fontindex = FONT_INDEX(flags);
-  const unsigned char * font = fontsTable[fontindex];
-  const uint16_t * fontspecs = fontspecsTable[fontindex];
-
-  if (flags & (RIGHT | CENTERED)) {
-    int width = getTextWidth(s, len, flags);
-    if (flags & RIGHT) {
-      INCREMENT_POS(-width);
-    }
-    else if (flags & CENTERED) {
-      INCREMENT_POS(-width / 2);
-    }
-  }
-
-  coord_t & pos = (flags & VERTICAL) ? y : x;
+  coord_t pos = x;
   const coord_t orig_pos = pos;
 
-  while (len--) {
-    unsigned c = uint8_t(*s);
-    // TRACE("c = %d %o 0x%X '%c'", c, c, c, c);
+  lv_draw_label_dsc_t label_draw_dsc;
+  lv_draw_label_dsc_init(&label_draw_dsc);
 
-    if (!c) {
-      break;
-    }
-    else if (c >= 0xFE) {
-      // CJK char
-      s++;
-      c = uint8_t(*s) + ((c & 0x01u) << 8u) - 1;
-      // TRACE("CJK = %d", c);
-      if (c >= 0x100)
-        c -= 1;
-      c += CJK_FIRST_LETTER_INDEX;
-      uint8_t width = drawChar(x, y, font, fontspecs, c, flags);
-      INCREMENT_POS(width + CHAR_SPACING);
-    }
-    else if ((c >= 0x20u) && (c < fontCharactersTable[FONT_INDEX(flags)] + 0x20u)) {
-      uint8_t width = drawChar(x, y, font, fontspecs, getMappedChar(c), flags);
-      if ((flags & SPACING_NUMBERS_CONST) && c >= '0' && c <= '9')
-        INCREMENT_POS(getCharWidth('9', fontspecs) + CHAR_SPACING);
-      else
-        INCREMENT_POS(width + CHAR_SPACING);
-    }
-    else if (c == '\n') {
-      pos = orig_pos;
-      if (flags & VERTICAL)
-        x += height;
-      else
-        y += height;
-    }
+  const lv_font_t* font = getFont(flags);
+  label_draw_dsc.font = font;
+  label_draw_dsc.color = makeLvColor(flags);
 
-    s++;
+  x += draw_ctx->buf_area->x1;
+  y += draw_ctx->buf_area->y1;
+  
+  lv_point_t p;
+  lv_txt_get_size(&p, s, font, label_draw_dsc.letter_space,
+                  label_draw_dsc.line_space, LV_COORD_MAX, 0);
+
+  lv_coord_t lv_x = (lv_coord_t)x;
+  lv_coord_t lv_y = (lv_coord_t)y;
+  
+  lv_area_t coords = {
+    lv_x, lv_y, lv_x, lv_y,
+  };
+
+  coords.x2 += p.x - 1;
+  coords.y2 += p.y - 1;
+
+  if (flags & RIGHT) {
+    label_draw_dsc.align = LV_TEXT_ALIGN_RIGHT;
+  } else if (flags & CENTERED) {
+    label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
+    coords.x1 -= p.x / 2;
+    coords.x2 -= p.x / 2;
   }
 
+  lv_draw_label(draw_ctx, &label_draw_dsc, &coords, s, nullptr);
+  
   RESTORE_OFFSET();
 
+  pos += p.x;
   return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
 }
 
