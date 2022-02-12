@@ -288,10 +288,10 @@ class InternalModuleWindow : public FormGroup {
       new StaticText(this, grid.getLabelSlot(), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
       new Choice(this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
           [=]() -> int {
-            return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.InternalModuleBaudrate);
+            return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
           },
           [=](int newValue) {
-            g_eeGeneral.InternalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+            g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
             SET_DIRTY();
             restartExternalModule();
           });

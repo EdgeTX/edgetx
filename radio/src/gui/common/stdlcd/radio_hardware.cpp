@@ -537,7 +537,7 @@ void menuRadioHardware(event_t event)
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
         lcdDrawNumber(HW_SETTINGS_COLUMN2, y, INT_CROSSFIRE_BAUDRATE, attr|LEFT);
         if (attr) {
-          g_eeGeneral.InternalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.InternalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
+          g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
           if (checkIncDec_Ret) {
               restartInternalModule();
           }

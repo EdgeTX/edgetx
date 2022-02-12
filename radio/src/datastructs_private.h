@@ -868,7 +868,7 @@ PACK(struct RadioData {
   int8_t timezone:5;
   uint8_t adjustRTC:1;
   NOBACKUP(uint8_t inactivityTimer);
-  uint8_t InternalModuleBaudrate:3;
+  uint8_t internalModuleBaudrate:3;
   SPLASH_MODE; /* 3bits */
   int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;
