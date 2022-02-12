@@ -46,3 +46,17 @@ if(SOFTWARE_KEYBOARD)
     keyboard_base.cpp
     )
 endif()
+
+foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
+  set(LIBOPENUI_SRC_FILES ${LIBOPENUI_SRC_FILES} ${LIBOPENUI_SRC_DIR}/src/${LIBOPENUI_FILE})
+endforeach()
+
+set(SRC ${SRC} ${LIBOPENUI_SRC_FILES})
+
+# add_library(libopenui_native OBJECT ${LIBOPENUI_SRC_FILES})
+# add_library(libopenui_stm32 OBJECT ${LIBOPENUI_SRC_FILES})
+
+# Dirty hack to include FatFs into libopenui
+# TODO: this must go away
+#target_include_directories(libopenui PRIVATE
+#  ${CMAKE_CURRENT_SOURCE_DIR}/../../FatFs)

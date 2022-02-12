@@ -1,3 +1,7 @@
-[submodule "src/thirdparty/stb"]
-	path = src/thirdparty/stb
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "thirdparty/lvgl"]
+	path = thirdparty/lvgl
+	url = https://github.com/lvgl/lvgl.git
+	branch = release/v8.2
