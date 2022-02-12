@@ -146,7 +146,8 @@ lv_indev_state_t encoderState = LV_INDEV_STATE_RELEASED;
 
 void lvglPushEncoderEvent(event_t& evt)
 {
-  if(evt != EVT_KEY_FIRST(KEY_ENTER) && evt != EVT_KEY_BREAK(KEY_ENTER) && evt != EVT_ROTARY_LEFT && evt !=  EVT_ROTARY_RIGHT)
+  if (evt != EVT_KEY_FIRST(KEY_ENTER) && evt != EVT_KEY_BREAK(KEY_ENTER) &&
+      evt != EVT_ROTARY_LEFT && evt != EVT_ROTARY_RIGHT)
     return;
 
   encoderEvent = evt;
