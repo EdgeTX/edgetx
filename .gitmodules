@@ -8,7 +8,3 @@
 [submodule "companion/src/thirdparty/yaml-cpp"]
 	path = companion/src/thirdparty/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "radio/src/thirdparty/lvgl"]
-	path = radio/src/thirdparty/lvgl
-	url = https://github.com/lvgl/lvgl.git
-	branch = release/v8.2
