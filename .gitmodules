@@ -12,7 +12,3 @@
 	path = radio/src/thirdparty/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
 	shallow = true
-[submodule "radio/src/thirdparty/lvgl"]
-	path = radio/src/thirdparty/lvgl
-	url = https://github.com/lvgl/lvgl.git
-	branch = release/v8.2
