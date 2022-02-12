@@ -11,7 +11,6 @@ if(SOFTWARE_KEYBOARD)
 endif()
 
 set(LIBOPENUI_SRC
-  libopenui_globals.cpp
   libopenui_file.cpp
   bitmapbuffer.cpp
   window.cpp

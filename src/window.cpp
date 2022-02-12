@@ -64,6 +64,8 @@ static void window_event_cb(lv_event_t * e)
     BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
                         (uint16_t *)draw_ctx->buf};
 
+    buf.setDrawCtx(draw_ctx);
+    
     buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
     buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
                         clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);

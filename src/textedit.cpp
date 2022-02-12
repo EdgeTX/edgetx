@@ -19,7 +19,6 @@
 
 #include "textedit.h"
 #include "font.h"
-#include "libopenui_globals.h"
 #include "libopenui_config.h"
 
 #if !defined(STR_EDIT)

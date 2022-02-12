@@ -19,7 +19,6 @@
 
 #include "keyboard_number.h"
 #include "button.h"
-#include "libopenui_globals.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 90;
 NumberKeyboard * NumberKeyboard::_instance = nullptr;

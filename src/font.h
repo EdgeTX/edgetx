@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <lvgl/lvgl.h>
 #include "libopenui_types.h"
 
-uint8_t getMappedChar(uint8_t c);
+const lv_font_t* getFont(LcdFlags flags);
 uint8_t getFontHeight(LcdFlags flags);
-int getCharWidth(uint8_t c, const uint16_t * spec);
 int getTextWidth(const char * s, int len = 0, LcdFlags flags = 0);
 
