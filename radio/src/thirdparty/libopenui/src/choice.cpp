@@ -184,6 +184,8 @@ void Choice::onEvent(event_t event)
 
 void Choice::openMenu()
 {
+  setEditMode(true);  // this needs to be done first before menu is created.
+
   auto menu = new Menu(this);
   if (!menuTitle.empty())
     menu->setTitle(menuTitle);
@@ -224,13 +226,9 @@ void Choice::openMenu()
     beforeDisplayMenuHandler(menu);
   }
 
-
   menu->setCloseHandler([=]() {
     setEditMode(false);
   });
-
-  setEditMode(true);
-  invalidate();
 }
 
 #if defined(HARDWARE_TOUCH)
