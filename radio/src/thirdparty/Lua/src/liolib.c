@@ -28,7 +28,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#if defined(USE_FATFS)
+#if defined(USE_VIRTUALFS)
   #define FILE FIL
 #endif
 
@@ -126,7 +126,7 @@ typedef luaL_Stream LStream;
 
 #define tolstream(L)	((LStream *)luaL_checkudata(L, 1, LUA_FILEHANDLE))
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 
 #define isclosed(p)	((p)->closef == NULL)
 
@@ -157,7 +157,7 @@ static int f_tostring (lua_State *L) {
 
 static FILE *tofile (lua_State *L) {
   LStream *p = tolstream(L);
-#if defined(USE_FATFS)
+#if defined(USE_VIRTUALFS)
   return &p->f;
 #else
   if (isclosed(p))
@@ -175,14 +175,14 @@ static FILE *tofile (lua_State *L) {
 */
 static LStream *newprefile (lua_State *L) {
   LStream *p = (LStream *)lua_newuserdata(L, sizeof(LStream));
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
   p->closef = NULL;  /* mark file handle as 'closed' */
 #endif
   luaL_setmetatable(L, LUA_FILEHANDLE);
   return p;
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static int aux_close (lua_State *L) {
   LStream *p = tolstream(L);
   lua_CFunction cf = p->closef;
@@ -192,7 +192,7 @@ static int aux_close (lua_State *L) {
 #endif
 
 static int io_close (lua_State *L) {
-#if defined(USE_FATFS)
+#if defined(USE_VIRTUALFS)
   f_close(tofile(L));
   return 0;
 #else
@@ -204,7 +204,7 @@ static int io_close (lua_State *L) {
 }
 
 static int f_gc (lua_State *L) {
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
   LStream *p = tolstream(L);
   if (!isclosed(p) && p->f != NULL)
     aux_close(L);  /* ignore closed and incompletely open files */
@@ -213,7 +213,7 @@ static int f_gc (lua_State *L) {
   return 0;
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 /*
 ** function to close regular files
 */
@@ -226,14 +226,14 @@ static int io_fclose (lua_State *L) {
 
 static LStream *newfile (lua_State *L) {
   LStream *p = newprefile(L);
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
   p->f = NULL;
   p->closef = &io_fclose;
 #endif
   return p;
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static void opencheck (lua_State *L, const char *fname, const char *mode) {
   LStream *p = newfile(L);
   p->f = fopen(fname, mode);
@@ -246,12 +246,12 @@ static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   const char *md = luaL_optstring(L, 2, "r");
   LStream *p = newfile(L);
-#if defined(USE_FATFS)
+#if defined(USE_VIRTUALFS)
   BYTE mode = FA_READ;
   if (*md == 'w')
     mode = FA_WRITE | FA_CREATE_ALWAYS;     // always create file and truncate it
   else if (*md == 'a')
-    mode = FA_WRITE | FA_OPEN_ALWAYS;       // always open file (create it if necessary) 
+    mode = FA_WRITE | FA_OPEN_ALWAYS;       // always open file (create it if necessary)
   FRESULT result = f_open(&p->f, filename, mode);
   if (result == FR_OK) {
     if (*md == 'a')
@@ -269,7 +269,7 @@ static int io_open (lua_State *L) {
 #endif
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 
 /*
 ** function to close 'popen' files
@@ -453,7 +453,7 @@ static int read_chars (lua_State *L, FILE *f, size_t n) {
   return (result == FR_OK && nr > 0);  /* true iff read something */
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static int g_read (lua_State *L, FILE *f, int first) {
   int nargs = lua_gettop(L) - 1;
   int success;
@@ -524,7 +524,7 @@ static int io_read (lua_State *L) {
 
 #endif
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static int io_readline (lua_State *L) {
   LStream *p = (LStream *)lua_touserdata(L, lua_upvalueindex(1));
   int i;
@@ -577,7 +577,7 @@ static int g_write (lua_State *L, FILE *f, int arg) {
   else return luaL_fileresult(L, status, NULL);
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static int io_write (lua_State *L) {
   return g_write(L, getiofile(L, IO_OUTPUT), 1);
 }
@@ -595,7 +595,7 @@ static int io_write (lua_State *L) {
 }
 #endif
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 static int f_seek (lua_State *L) {
   static const int mode[] = {SEEK_SET, SEEK_CUR, SEEK_END};
   static const char *const modenames[] = {"set", "cur", "end", NULL};
@@ -689,7 +689,7 @@ static void createmeta (lua_State *L) {
   lua_pop(L, 1);  /* pop new metatable */
 }
 
-#if !defined(USE_FATFS)
+#if !defined(USE_VIRTUALFS)
 /*
 ** function to (not) close the standard files stdin, stdout, and stderr
 */
@@ -727,6 +727,6 @@ LUAMOD_API int luaopen_io (lua_State *L) {
   return 0;
 }
 
-#if defined(USE_FATFS)
+#if defined(USE_VIRTUALFS)
   #undef FILE
 #endif

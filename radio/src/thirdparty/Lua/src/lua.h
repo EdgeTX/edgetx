@@ -418,11 +418,11 @@ struct lua_Debug {
   struct CallInfo *i_ci;  /* active function */
 };
 
-#if defined(USE_FATFS)
-  #include "FatFs/ff.h"
-  int lua__getc(FIL *f);
-  #define lua_getc(f) lua__getc(&f)
-  #define lua_fclose  f_close
+#if defined(USE_VIRTUALFS)
+  #include "VirtualFS.h"
+  int lua__getc(VfsFile& f);
+  #define lua_getc(f) lua__getc(f)
+  #define lua_fclose(f)  f.close()
 #else
   #include <stdio.h>
   #define lua_getc    getc
