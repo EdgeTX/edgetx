@@ -910,9 +910,9 @@ enum UartSampleModes {
 
 // A model On/Off setting that can also take a global value
 enum ModelOverridableEnable {
-  OVERRIDE_VALUE_GLOBAL,
-  OVERRIDE_VALUE_OFF,
-  OVERRIDE_VALUE_ON
+  OVERRIDE_GLOBAL,
+  OVERRIDE_OFF,
+  OVERRIDE_ON
 };
 
 #endif // _DATACONSTANTS_H_
