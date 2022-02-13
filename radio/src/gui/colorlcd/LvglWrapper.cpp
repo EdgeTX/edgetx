@@ -208,13 +208,14 @@ static lv_disp_drv_t* init_disp_drv()
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
   disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
-  disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
+  disp_drv.hor_res = LCD_PHYS_W;               /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_PHYS_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
 #if defined (LCD_VERTICAL_INVERT)
   disp_drv.rotated = LV_DISP_ROT_180;
 #endif
+//  disp_drv.rotated = LV_DISP_ROT_90;
   disp_drv.sw_rotate = 1;
 
   return &disp_drv;
