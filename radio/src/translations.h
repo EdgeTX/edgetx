@@ -323,6 +323,7 @@ extern const char STR_BEEPCOUNTDOWN[];
 extern const char STR_PERSISTENT[];
 extern const char STR_BACKLIGHT_LABEL[];
 extern const char STR_GHOST_MENU_LABEL[];
+extern const char STR_STATUS[];
 extern const char STR_BLDELAY[];
 
 #if defined(PWM_BACKLIGHT) || defined(COLORLCD)

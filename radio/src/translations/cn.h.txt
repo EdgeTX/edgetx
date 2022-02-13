@@ -474,6 +474,7 @@
 #define TR_BACKLIGHT_LABEL             "背光"
 #define TR_BLDELAY                     INDENT "Duration"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "背光开"
 #define TR_BLOFFBRIGHTNESS             "背光关"
 #define TR_KEYS_BACKLIGHT              "按键背光"

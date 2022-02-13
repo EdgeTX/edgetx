@@ -511,6 +511,7 @@
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Duration"
 #define TR_BLONBRIGHTNESS              INDENT "ON brightness"
 #define TR_BLOFFBRIGHTNESS             INDENT "OFF brightness"

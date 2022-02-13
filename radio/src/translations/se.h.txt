@@ -538,6 +538,7 @@
 #define TR_PERSISTENT          TR("Jämt på ", INDENT"Alltid På")
 #define TR_BACKLIGHT_LABEL     "Belysning"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY             INDENT "Av efter"
 #define TR_BLONBRIGHTNESS      INDENT "På Ljusstyrka"
 #define TR_BLOFFBRIGHTNESS     INDENT "Av Ljusstyrka"

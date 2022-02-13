@@ -531,6 +531,7 @@
 #define TR_PERSISTENT          TR(INDENT "Dokł.", INDENT "Dokładny")
 #define TR_BACKLIGHT_LABEL     "Podświetl"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY             INDENT"Czas trwania"
 #define TR_BLONBRIGHTNESS      INDENT"Jasnośc wł."
 #define TR_BLOFFBRIGHTNESS     INDENT"Jasność wył."

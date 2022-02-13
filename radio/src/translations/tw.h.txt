@@ -473,6 +473,7 @@
 #define TR_PERSISTENT                   TR(INDENT "Persist.", INDENT "關機保持")
 #define TR_BACKLIGHT_LABEL              "背光"
 #define TR_GHOST_MENU_LABEL             "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                      INDENT "Duration"
 #define TR_BLONBRIGHTNESS               "背光開"
 #define TR_BLOFFBRIGHTNESS              "背光關"
