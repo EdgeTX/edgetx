@@ -24,6 +24,10 @@
 #include "libopenui_file.h"
 #include "font.h"
 
+#include "lvgl/src/draw/sw/lv_draw_sw.h"
+
+
+
 RLEBitmap::RLEBitmap(uint8_t format, const uint8_t* rle_data) :
   BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
 {
@@ -81,6 +85,10 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
 {
   data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
   data_end = data + (width * height);
+
+  // Assume we need a canvas here
+  canvas = lv_canvas_create(nullptr);
+  lv_canvas_set_buffer(canvas, data, width, height, LV_IMG_CF_TRUE_COLOR);
 }
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
@@ -96,6 +104,7 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
 BitmapBuffer::~BitmapBuffer()
 {
   if (dataAllocated) {
+    lv_obj_del(canvas);
     free(data);
   }
 }
@@ -516,46 +525,75 @@ void BitmapBuffer::drawRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t 
   }
 }
 
-void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags)
+void BitmapBuffer::drawSolidFilledRect(coord_t x, coord_t y, coord_t w,
+                                       coord_t h, LcdFlags flags)
 {
-  APPLY_OFFSET();
-
-  if (!applyClippingRect(x, y, w, h))
-    return;
-
-  // No 'opacity' here, only 'color'
-  DMAFillRect(data, _width, _height, x, y, w, h, COLOR_VAL(flags));
+  drawFilledRect(x, y, w, h, SOLID, flags, 0);
 }
 
-void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, LcdFlags flags, uint8_t opacity)
+void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h,
+                                  uint8_t pat, LcdFlags flags, uint8_t opacity)
 {
   APPLY_OFFSET();
+  if (!applyClippingRect(x, y, w, h)) return;
 
-  if (!applyClippingRect(x, y, w, h))
-    return;
-
-  // Use DMA instead...
   if (SOLID != pat) {
+    // If we have a pattern, draw line by line
     for (coord_t i = y; i < y + h; i++) {
       drawHorizontalLineAbs(x, i, w, pat, flags, opacity);
     }
+    return;
   }
-  else {
-    // SOLID
 
-    // TODO: can this be done in one step? (see drawBitmapPattern())
-    
-    // Use the DMA2D to blend a scratch buffer filled with overlay color
-    BitmapBuffer scratch(BMP_ARGB4444, LCD_W, LCD_H, lcdGetScratchBuffer());
+  lv_draw_sw_blend_dsc_t blend_dsc = {0};
+  blend_dsc.blend_mode = LV_BLEND_MODE_NORMAL;
 
-    RGB_SPLIT(COLOR_VAL(flags), r, g, b);
-    pixel_t color_argb = ARGB((OPACITY_MAX - opacity) << 4, r << 3, g << 2, b << 3);
+  if (opacity == OPACITY_MAX) {
+    // we don't draw fully transparent things
+    return;
+  } else if (!opacity) {
+    blend_dsc.opa = LV_OPA_COVER;
+  } else {
+    blend_dsc.opa = ((OPACITY_MAX - opacity) * LV_OPA_COVER) / OPACITY_MAX;
+  }
 
-    // Fill the buffer
-    scratch.drawSolidFilledRect(0, 0, w, h, color_argb << 16);
+  auto color = COLOR_VAL(flags);
+  blend_dsc.color =
+      lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
 
-    // And blend
-    drawBitmapAbs(x, y, &scratch, 0, 0, w, h);
+  if (draw_ctx) {
+    x += draw_ctx->buf_area->x1;
+    y += draw_ctx->buf_area->y1;
+  }
+
+  lv_coord_t lv_x = (lv_coord_t)x;
+  lv_coord_t lv_y = (lv_coord_t)y;
+
+  lv_area_t coords = {
+      lv_x,
+      lv_y,
+      lv_x,
+      lv_y,
+  };
+
+  coords.x2 += w - 1;
+  coords.y2 += h - 1;
+
+  if (draw_ctx) {
+    lv_area_t clipped_coords;
+    if (!_lv_area_intersect(&clipped_coords, &coords, draw_ctx->clip_area))
+      return;
+    blend_dsc.blend_area = &clipped_coords;
+    lv_draw_sw_blend(draw_ctx, &blend_dsc);
+  } else if (canvas) {
+    lv_draw_rect_dsc_t rect_dsc;
+    lv_draw_rect_dsc_init(&rect_dsc);
+
+    rect_dsc.blend_mode = blend_dsc.blend_mode;
+    rect_dsc.bg_color = blend_dsc.color;
+    rect_dsc.bg_opa = blend_dsc.opa;
+    lv_canvas_draw_rect(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
+                        coords.y2 - coords.y1 + 1, &rect_dsc);
   }
 }
 
@@ -1031,10 +1069,15 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
 
   const lv_font_t* font = getFont(flags);
   label_draw_dsc.font = font;
-  label_draw_dsc.color = makeLvColor(flags);
 
-  x += draw_ctx->buf_area->x1;
-  y += draw_ctx->buf_area->y1;
+  auto color = COLOR_VAL(flags);
+  label_draw_dsc.color =
+      lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+
+  if (draw_ctx) {
+    x += draw_ctx->buf_area->x1;
+    y += draw_ctx->buf_area->y1;
+  }
   
   lv_point_t p;
   lv_txt_get_size(&p, s, font, label_draw_dsc.letter_space,
@@ -1058,7 +1101,12 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
     coords.x2 -= p.x / 2;
   }
 
-  lv_draw_label(draw_ctx, &label_draw_dsc, &coords, s, nullptr);
+  if (draw_ctx) {
+    lv_draw_label(draw_ctx, &label_draw_dsc, &coords, s, nullptr);
+  } else if (canvas) {
+    lv_canvas_draw_text(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
+                        &label_draw_dsc, s);
+  }
   
   RESTORE_OFFSET();
 

@@ -55,6 +55,9 @@ enum BitmapFormats
 struct _lv_draw_ctx_t;
 typedef _lv_draw_ctx_t lv_draw_ctx_t;
 
+struct _lv_obj_t;
+typedef _lv_obj_t lv_obj_t;
+
 template<class T>
 class BitmapBufferBase
 {
@@ -199,6 +202,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 #if defined(DEBUG)
     bool leakReported;
 #endif
+    lv_obj_t* canvas = nullptr;
     lv_draw_ctx_t* draw_ctx = nullptr;
 
   public:
