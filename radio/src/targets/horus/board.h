@@ -564,6 +564,8 @@ void ledBlue();
 // LCD driver
 #define LCD_W                          480
 #define LCD_H                          272
+#define LCD_PHYS_H                     LCD_H
+#define LCD_PHYS_W                     LCD_W
 #define LCD_DEPTH                      16
 void lcdInit();
 void lcdRefresh();
