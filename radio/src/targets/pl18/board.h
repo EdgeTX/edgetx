@@ -417,8 +417,10 @@ uint32_t pwrPressedDuration();;
 #define AUX_SERIAL_POWER_OFF()
 
 // LCD driver
-#define LCD_W                           320 /* TODO! should be 480 */
-#define LCD_H                           480 /* TODO! should be 320 */
+#define LCD_W                           480
+#define LCD_H                           320
+#define LCD_PHYS_W                      320
+#define LCD_PHYS_H                      480
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 void lcdInit();
