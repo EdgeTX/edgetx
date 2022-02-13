@@ -203,7 +203,7 @@ extern BitmapBuffer * lcd;
 
 static lv_disp_drv_t disp_drv;
 
-static lv_disp_drv_t* init_disp_drv()
+void init_disp_drv()
 {
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
@@ -219,7 +219,8 @@ static lv_disp_drv_t* init_disp_drv()
 //  disp_drv.rotated = LV_DISP_ROT_90;
   disp_drv.sw_rotate = 1;
 
-  return &disp_drv;
+  // Register the driver and save the created display objects
+  disp = lv_disp_drv_register(&disp_drv);
 }
 
 static void init_lvgl_drivers()
@@ -229,7 +230,7 @@ static void init_lvgl_drivers()
   lv_group_set_default(inputGroup);
 
   // Register the driver and save the created display objects
-  disp = lv_disp_drv_register(init_disp_drv());
+  init_disp_drv();
  
   // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
@@ -346,7 +347,7 @@ LvglWrapper::LvglWrapper()
 
   // Create main window and load that screen
   auto window = MainWindow::instance();
-  lv_scr_load(window->getLvObj());
+  window->setActiveScreen();
 }
 
 void LvglWrapper::run()

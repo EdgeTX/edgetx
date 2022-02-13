@@ -59,19 +59,16 @@ void lcdRefresh()
 
 pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
 pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
-pixel_t scratchBuf[DISPLAY_BUFFER_SIZE];
 pixel_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
 
 BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, LCD_BACKUP_FRAME_BUFFER);
 
-BitmapBuffer scratch(BMP_RGB565, LCD_W, LCD_H, scratchBuf);
 BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
 BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
 
 BitmapBuffer * lcd = &_lcd1;
 BitmapBuffer * lcdFront = &_lcd2;
 
-uint16_t *lcdGetScratchBuffer() { return static_cast<uint16_t *>(scratchBuf); }
 
 void lcdStoreBackupBuffer()
 {
@@ -115,10 +112,10 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
   // Mark screen dirty for async refresh
   simuLcdRefresh = true;
 
-  // .. and wait for refresh
-  auto start = RTOS_GET_MS();
-  while(simuLcdRefresh ||
-        (RTOS_GET_MS() - start > 100));
+  // // .. and wait for refresh
+  // auto start = RTOS_GET_MS();
+  // while(simuLcdRefresh ||
+  //       (RTOS_GET_MS() - start <= 100));
 }
 void lcdRefresh()
 {
@@ -145,8 +142,8 @@ void lcdRefresh()
 
 void lcdInit()
 {
-  _lcd1.clear();
-  _lcd2.clear();
+  memset(displayBuf1, 0, sizeof(displayBuf1));
+  memset(displayBuf2, 0, sizeof(displayBuf2));
 }
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,

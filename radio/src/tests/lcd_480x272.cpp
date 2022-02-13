@@ -28,7 +28,6 @@
 
 #if defined(COLORLCD)
 
-#include "gui/colorlcd/fonts.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -126,6 +125,8 @@ static void init_fake_disp(BitmapBuffer* dc)
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
 
@@ -144,6 +145,8 @@ TEST(Lcd_colorlcd, lines)
 TEST(Lcd_colorlcd, vline)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   for (int x=0; x<100; x+=2) {
@@ -155,7 +158,6 @@ TEST(Lcd_colorlcd, vline)
 TEST(Lcd_colorlcd, primitives)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -186,7 +188,6 @@ TEST(Lcd_colorlcd, primitives)
 TEST(Lcd_colorlcd, transparency)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -256,6 +257,8 @@ TEST(Lcd_colorlcd, fonts)
 TEST(Lcd_colorlcd, clipping)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawSolidVerticalLine(100, 0, LCD_H, COLOR_THEME_SECONDARY1);
@@ -282,6 +285,8 @@ TEST(Lcd_colorlcd, clipping)
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
@@ -297,6 +302,8 @@ TEST(Lcd_colorlcd, bitmap)
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
@@ -320,14 +327,16 @@ const uint8_t LBM_USB_PLUGGED[] = {
 TEST(Lcd_colorlcd, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  init_fake_disp(&dc);
+
   dc.clear(COLOR2FLAGS(BLACK));
 
   dc.drawText(20, 28, "The quick brown fox jumps over the lazy dog", COLOR2FLAGS(WHITE));
-  dc.drawSolidFilledRect(28, 56, 422, 2, COLOR2FLAGS(RED));
+  dc.drawSolidFilledRect(28, 56, 422, 2, COLOR2FLAGS(RGB(0xFF, 0, 0)));
   dc.drawBitmapPattern(LCD_W/2 - LBM_USB_PLUGGED_W/2,
                        LCD_H/2 - LBM_USB_PLUGGED_H/2,
                        LBM_USB_PLUGGED,
-                       COLOR2FLAGS(BLUE));
+                       COLOR2FLAGS(RGB(0, 0, 0xFF)));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
 }

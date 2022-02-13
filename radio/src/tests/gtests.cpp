@@ -155,6 +155,9 @@ const char * nchar2string(const char * string, int size)
   return _stringResult;
 }
 
+#if defined(LIBOPENUI)
+void init_disp_drv();
+#endif
 
 int main(int argc, char **argv)
 {
@@ -180,5 +183,10 @@ int main(int argc, char **argv)
     listeners.Append(new TersePrinter(defaultPrinter));
   }
 
+#if defined(LIBOPENUI)
+  lv_init();
+  init_disp_drv();
+#endif
+  
   return RUN_ALL_TESTS();
 }
