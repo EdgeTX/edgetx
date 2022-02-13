@@ -562,5 +562,6 @@ extern AuxSerialRxFifo auxSerialRxFifo;
 // Touch panel driver
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
+struct TouchState getInternalTouchState();
 
 #endif // _BOARD_H_
