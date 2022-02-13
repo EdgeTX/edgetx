@@ -60,7 +60,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
       if (bytes_read == 0)
         break;
       
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(buffer, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
     }

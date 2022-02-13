@@ -44,7 +44,7 @@ void writeHeader();
 
 void logsInit()
 {
-  memset(&g_oLogFile, 0, sizeof(g_oLogFile));
+  g_oLogFile.close();
 }
 
 const char * logsOpen()

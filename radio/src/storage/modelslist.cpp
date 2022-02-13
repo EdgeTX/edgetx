@@ -357,7 +357,7 @@ bool ModelsList::loadYaml()
     VfsFileInfo fno;
     if (vfs.fstat(FALLBACK_MODELSLIST_YAML_PATH, fno) == VfsError::OK) {
       if (vfs.copyFile(FALLBACK_MODELSLIST_YAML_PATH, MODELSLIST_YAML_PATH) != VfsError::OK) {
-        f_unlink(FALLBACK_MODELSLIST_YAML_PATH);
+        vfs.unlink(FALLBACK_MODELSLIST_YAML_PATH);
         result =
             vfs.openFile(file, MODELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
       }
@@ -382,7 +382,7 @@ bool ModelsList::loadYaml()
       if (bytes_read == 0)
         break;
 
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
     }
