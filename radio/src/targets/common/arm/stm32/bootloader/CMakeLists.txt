@@ -114,6 +114,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
     ../../../../../gui/colorlcd/colors.cpp
+    ../../../../../fonts/lvgl/lv_font_roboto_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/common/arm/stm32/sdio_sd.c
@@ -122,6 +123,11 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../syscalls.c
     )
 
+  # Add LVGL sources
+  foreach(LVGL_FILE ${LVGL_SRC_FILES})
+    set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
+  endforeach()
+  
   if(USB_CHARGER)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
