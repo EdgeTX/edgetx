@@ -396,8 +396,10 @@ uint32_t pwrPressedDuration();;
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
   
 // LCD driver
-#define LCD_W                           320
-#define LCD_H                           480
+#define LCD_W                           480
+#define LCD_H                           320
+#define LCD_PHYS_W                      320
+#define LCD_PHYS_H                      480
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
 void lcdInit();
