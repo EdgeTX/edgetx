@@ -294,8 +294,8 @@ struct TouchState touchPanelRead()
 	
     if( touchData[0] == 0x06 )
     {
-        x = LCD_W - ((touchData[1]<<4) + ((touchData[3]>>4)&0x0f));
-        y = LCD_H - ((touchData[2]<<4) + ((touchData[3])&0x0f));
+        x = LCD_PHYS_W - ((touchData[1]<<4) + ((touchData[3]>>4)&0x0f));
+        y = LCD_PHYS_H - ((touchData[2]<<4) + ((touchData[3])&0x0f));
         if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP || internalTouchState.event == TE_SLIDE_END) {
           internalTouchState.event = TE_DOWN;
           internalTouchState.startX = internalTouchState.x = x;
