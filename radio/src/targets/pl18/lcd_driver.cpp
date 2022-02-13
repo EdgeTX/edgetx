@@ -21,9 +21,6 @@
 
 #include "opentx.h"
 
-#define LCD_PHYS_H LCD_H
-#define LCD_PHYS_W LCD_W
-
 #define LCD_FIRST_LAYER                0
 #define LCD_SECOND_LAYER               1
 
@@ -688,7 +685,7 @@ void LCD_ILI9486_Init(void) {
   lcdWriteData(0x00);
   lcdWriteData(0x08);
   lcdWriteCommand(0x36);
-  lcdWriteData(0xF8);
+  lcdWriteData(0x18);
   lcdWriteCommand(0x3a);
   lcdWriteData(0x65);
   lcdWriteCommand(0xc0);
@@ -746,10 +743,6 @@ void LCD_ILI9486_Init(void) {
   lcdWriteData(0x22);
   lcdWriteData(0x1D);
   lcdWriteData(0x00);
-
-  lcdWriteCommand(0x36);
-  lcdWriteData(0x38);
-
 
   lcdWriteCommand(0x21);
   lcdWriteCommand(0x11);
@@ -1000,8 +993,7 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x96 );
 
   lcdWriteCommand( 0x36 );
-//  lcdWriteData( 0x88 );
-  lcdWriteData( 0xA8 );
+  lcdWriteData( 0x88 );
 
   lcdWriteCommand( 0x3A );
   lcdWriteData( 0x66 );
@@ -1654,33 +1646,11 @@ static void lcdSwitchLayers()
   // TODO: replace through some smarter mechanism without busy wait
   while(_frameBufferAddressReloaded == 0);
 }
+
 static bool once = false;
+
 void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
-#if 0
-#if defined(LCD_VERTICAL_INVERT)
-  auto total = copy_area.w * copy_area.h;
-  auto src = buffer + total - 1;
-#else
-  auto src = buffer;
-#endif
-  auto dst = (uint16_t*)(LCD_SCRATCH_FRAME_BUFFER) + copy_area.y * LCD_PHYS_W + copy_area.x;
-
-  auto y2 = copy_area.y + copy_area.h;
-  for (auto line = copy_area.y; line < y2; line++) {
-
-    auto line_end = dst + copy_area.w;
-    while (dst != line_end) {
-#if defined(LCD_VERTICAL_INVERT)
-      *(dst++) = *(src--);
-#else
-      *(dst++) = *(src++);
-#endif
-    }
-
-    dst += LCD_W - copy_area.w;
-  }
-#endif
   DMACopyBitmap((uint16_t*)LCD_BACKUP_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H, copy_area.x, copy_area.y, buffer, copy_area.w, copy_area.h, 0, 0, copy_area.w, copy_area.h);
 
   if(!once)
@@ -1691,10 +1661,6 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
     while(_frameBufferAddressReloaded == 0);
     once=true;
   }
-//  LTDC_Layer1->CFBAR = (intptr_t)buffer;
-//  _frameBufferAddressReloaded = 0;
-//  LTDC->SRCR = LTDC_SRCR_VBR;
-//  while(_frameBufferAddressReloaded == 0);
 }
 
 void lcdRefresh()
