@@ -654,6 +654,9 @@ void doSplash()
 
       checkBacklight();
     }
+#if defined(LIBOPENUI)
+    MainWindow::instance()->setActiveScreen();
+#endif
   }
 }
 #else
@@ -1782,7 +1785,6 @@ void opentxInit()
   TRACE("opentxInit");
 #if defined(LIBOPENUI)
   // create ViewMain
-  LvglWrapper::instance();
   ViewMain::instance();
 #elif defined(GUI)
   // TODO add a function for this (duplicated)
