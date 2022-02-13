@@ -1172,13 +1172,13 @@ void LCD_Init_LTDC() {
   /* Configure accumulated vertical back porch */
   LTDC_InitStruct.LTDC_AccumulatedVBP = VBP;
   /* Configure accumulated active width */
-  LTDC_InitStruct.LTDC_AccumulatedActiveW = LCD_W + HBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveW = LCD_PHYS_W + HBP;
   /* Configure accumulated active height */
-  LTDC_InitStruct.LTDC_AccumulatedActiveH = LCD_H + VBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveH = LCD_PHYS_H + VBP;
   /* Configure total width */
-  LTDC_InitStruct.LTDC_TotalWidth = LCD_W + HBP + HFP;
+  LTDC_InitStruct.LTDC_TotalWidth = LCD_PHYS_W + HBP + HFP;
   /* Configure total height */
-  LTDC_InitStruct.LTDC_TotalHeigh = LCD_H + VBP + VFP;
+  LTDC_InitStruct.LTDC_TotalHeigh = LCD_PHYS_H + VBP + VFP;
 
   LTDC_Init(&LTDC_InitStruct);
 
@@ -1198,7 +1198,7 @@ void LCD_Init_LTDC() {
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
-  LTDC_LIPConfig(LCD_H);
+  LTDC_LIPConfig(LCD_PHYS_H);
 
 #if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
@@ -1221,9 +1221,9 @@ void LCD_LayerInit() {
    Vertical start   = vertical synchronization + vertical back porch     = 4
    Vertical stop   = Vertical start + window height -1  = 4 + 320 -1      */
   LTDC_Layer_InitStruct.LTDC_HorizontalStart = HBP + 1;
-  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (LCD_W + HBP);
+  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (LCD_PHYS_W + HBP);
   LTDC_Layer_InitStruct.LTDC_VerticalStart = VBP + 1;
-  LTDC_Layer_InitStruct.LTDC_VerticalStop = (LCD_H + VBP);
+  LTDC_Layer_InitStruct.LTDC_VerticalStop = (LCD_PHYS_H + VBP);
 
   /* Pixel Format configuration*/
   LTDC_Layer_InitStruct.LTDC_PixelFormat = LTDC_Pixelformat_RGB565;
@@ -1244,14 +1244,14 @@ void LCD_LayerInit() {
    Active high width         = LCD_W
    number of bytes per pixel = 2    (pixel_format : RGB565)
    */
-  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_W * 2) + 3);
+  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_PHYS_W * 2) + 3);
   /* the pitch is the increment from the start of one line of pixels to the
    start of the next line in bytes, then :
    Pitch = Active high width x number of bytes per pixel */
-  LTDC_Layer_InitStruct.LTDC_CFBPitch = (LCD_W * 2);
+  LTDC_Layer_InitStruct.LTDC_CFBPitch = (LCD_PHYS_W * 2);
 
   /* Configure the number of lines */
-  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_H;
+  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
   LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_FIRST_FRAME_BUFFER;
@@ -1646,12 +1646,21 @@ static void lcdSwitchLayers()
   // TODO: replace through some smarter mechanism without busy wait
   while(_frameBufferAddressReloaded == 0);
 }
-void newLcdRefresh(uint16_t *buffer)
+
+static bool once = false;
+
+void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
-  LTDC_Layer1->CFBAR = (intptr_t)buffer;
-  _frameBufferAddressReloaded = 0;
-  LTDC->SRCR = LTDC_SRCR_VBR;
-  while(_frameBufferAddressReloaded == 0);
+  DMACopyBitmap((uint16_t*)LCD_BACKUP_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H, copy_area.x, copy_area.y, buffer, copy_area.w, copy_area.h, 0, 0, copy_area.w, copy_area.h);
+
+  if(!once)
+  {
+    LTDC_Layer1->CFBAR = (intptr_t)LCD_BACKUP_FRAME_BUFFER;
+    _frameBufferAddressReloaded = 0;
+    LTDC->SRCR = LTDC_SRCR_VBR;
+    while(_frameBufferAddressReloaded == 0);
+    once=true;
+  }
 }
 
 void lcdRefresh()
