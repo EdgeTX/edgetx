@@ -74,6 +74,10 @@ class MainWindow: public Window
     }
 #endif
 
+    void setActiveScreen() {
+      lv_scr_load(lvobj);
+    }
+  
     void invalidate()
     {
       invalidate({0, 0, rect.w, rect.h});
