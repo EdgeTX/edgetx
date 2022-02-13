@@ -61,7 +61,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     bool first_block = true;
     char buffer[32];
-    while (file.read(&file, buffer, sizeof(buffer)-1, bytes_read) == VfsError::OK) {
+    while (file.read(file, buffer, sizeof(buffer)-1, bytes_read) == VfsError::OK) {
       if (bytes_read == 0)  // EOF
         break;
       total_bytes += bytes_read;
@@ -99,7 +99,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
         calculated_checksum = crc16(0, (const uint8_t *)buffer + skip, bytes_read - skip, calculated_checksum);
       }
 
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(buffer + skip, bytes_read - skip) != YamlParser::CONTINUE_PARSING)
         break;
     }
@@ -177,7 +177,7 @@ const char * loadRadioSettings()
 {
     VfsFileInfo fno;
     VirtualFS& vfs = VirtualFS::instance();
-    if ( (vfs.stat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) && ((vfs.stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, fno) != VffsError::OK)) ) {
+    if ( (vfs.stat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) && ((vfs.stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, fno) != VfsError::OK)) ) {
       // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
       // - thus requiring a conversion from binary to YAML.
 #if STORAGE_CONVERSIONS < 221

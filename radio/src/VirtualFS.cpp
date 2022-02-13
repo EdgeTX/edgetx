@@ -621,6 +621,7 @@ void VirtualFS::stop()
 void VirtualFS::restart()
 {
 #if defined (SPI_FLASH)
+  bool formated = false;
 //  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
   if(err) {
