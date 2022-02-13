@@ -47,7 +47,6 @@
 uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t currentLayer = LCD_FIRST_LAYER;
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
@@ -628,10 +627,6 @@ uint16_t* lcdGetBackupBuffer()
   return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
 }
 
-uint16_t* lcdGetScratchBuffer()
-{
-  return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
-}
 
 static volatile uint8_t _frameBufferAddressReloaded = 0;
 
@@ -673,6 +668,7 @@ void newLcdRefresh(uint16_t * buffer)
   while(_frameBufferAddressReloaded == 0);
 #endif
 }
+
 void lcdRefresh()
 {
   //lcdSwitchLayers();
