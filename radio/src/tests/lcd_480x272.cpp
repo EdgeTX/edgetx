@@ -90,42 +90,10 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   return true;
 }
 
-#include "lvgl/src/draw/sw/lv_draw_sw.h"
-
-static lv_disp_t fake_disp;
-static lv_disp_drv_t fake_drv;
-static lv_area_t fake_draw_area = { 0, 0, LCD_W-1, LCD_H-1 };
-static lv_draw_ctx_t* draw_ctx = nullptr;
-
-static void init_fake_disp(BitmapBuffer* dc)
-{
-  if (!draw_ctx) {
-    lv_init();
-    lv_memset_00(&fake_disp, sizeof(lv_disp_t));
-    fake_disp.driver = &fake_drv;
-
-    lv_disp_drv_init(fake_disp.driver);
-    fake_disp.driver->hor_res = LCD_W;
-    fake_disp.driver->ver_res = LCD_H;
-
-    draw_ctx = (lv_draw_ctx_t*)lv_mem_alloc(sizeof(lv_draw_sw_ctx_t));
-    LV_ASSERT_MALLOC(draw_ctx);
-    if(draw_ctx == NULL)  return;
-    lv_draw_sw_init_ctx(&fake_drv, draw_ctx);
-    fake_disp.driver->draw_ctx = draw_ctx;
-    draw_ctx->clip_area = &fake_draw_area;
-    draw_ctx->buf_area = &fake_draw_area;
-  }
-
-  _lv_refr_set_disp_refreshing(&fake_disp);
-  draw_ctx->buf = (void *)dc->getData();
-  dc->setDrawCtx(draw_ctx);
-}
 
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
@@ -145,7 +113,6 @@ TEST(Lcd_colorlcd, lines)
 TEST(Lcd_colorlcd, vline)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -234,7 +201,6 @@ TEST(Lcd_colorlcd, transparency)
 TEST(Lcd_colorlcd, fonts)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
   
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -257,7 +223,6 @@ TEST(Lcd_colorlcd, fonts)
 TEST(Lcd_colorlcd, clipping)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -285,7 +250,6 @@ TEST(Lcd_colorlcd, clipping)
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -302,7 +266,6 @@ TEST(Lcd_colorlcd, bitmap)
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -317,6 +280,49 @@ TEST(Lcd_colorlcd, masks)
 }
 
 #if 0
+#define TEST_CHAR_RIGHT     "\302\200"
+#define TEST_CHAR_LEFT      "\302\201"
+#define TEST_CHAR_UP        "\302\202"
+#define TEST_CHAR_DOWN      "\302\203"
+
+#define TEST_CHAR_DELTA     "\302\210"
+#define TEST_CHAR_STICK     "\302\211"
+#define TEST_CHAR_POT       "\302\212"
+#define TEST_CHAR_SLIDER    "\302\213"
+#define TEST_CHAR_SWITCH    "\302\214"
+#define TEST_CHAR_TRIM      "\302\215"
+#define TEST_CHAR_INPUT     "\302\216"
+#define TEST_CHAR_FUNCTION  "\302\217"
+#define TEST_CHAR_CYC       "\302\220"
+#define TEST_CHAR_TRAINER   "\302\221"
+#define TEST_CHAR_CHANNEL   "\302\222"
+#define TEST_CHAR_TELEMETRY "\302\223"
+#define TEST_CHAR_LUA       "\302\224"
+
+//#define EXTRA_TEST TEST_CHAR_RIGHT TEST_CHAR_LEFT TEST_CHAR_UP TEST_CHAR_DOWN
+#define EXTRA_TEST TEST_CHAR_DELTA TEST_CHAR_STICK TEST_CHAR_POT TEST_CHAR_SLIDER \
+  TEST_CHAR_SWITCH TEST_CHAR_TRIM TEST_CHAR_INPUT
+
+#define EXTRA_TEST2 TEST_CHAR_FUNCTION TEST_CHAR_CYC TEST_CHAR_TRAINER \
+  TEST_CHAR_CHANNEL TEST_CHAR_TELEMETRY TEST_CHAR_LUA
+
+#define EXTRA_FULL EXTRA_TEST EXTRA_TEST2
+
+TEST(Lcd_colorlcd, extra_font)
+{
+  BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.clear(COLOR_THEME_SECONDARY3);
+
+  dc.drawText(10, 25, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XXS));
+  dc.drawText(10, 40, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XS));
+  dc.drawText(10, 55, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(L));
+  dc.drawText(10, 80, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XL));
+  dc.drawText(10, 120, EXTRA_TEST, COLOR_THEME_SECONDARY1 | FONT(XXL));
+  dc.drawText(10, 184, EXTRA_TEST2, COLOR_THEME_SECONDARY1 | FONT(XXL));
+
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "extra"));
+}
+
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
 constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
@@ -327,7 +333,6 @@ const uint8_t LBM_USB_PLUGGED[] = {
 TEST(Lcd_colorlcd, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  init_fake_disp(&dc);
 
   dc.clear(COLOR2FLAGS(BLACK));
 
