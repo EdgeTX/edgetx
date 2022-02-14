@@ -5,6 +5,7 @@ set(GUI_SRC
   ../common/stdlcd/menus.cpp
   ../common/stdlcd/draw_functions.cpp
   ../common/stdlcd/fonts.cpp
+  ../common/stdlcd/utf8.cpp
   ../common/stdlcd/popups.cpp
   ../common/stdlcd/model_inputs.cpp
   ../common/stdlcd/model_mixes.cpp
