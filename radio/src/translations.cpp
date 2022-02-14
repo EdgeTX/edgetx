@@ -25,7 +25,7 @@
   #define CENTER
 #endif
 
-#define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
+#define ISTR(x) const char* STR_##x[] = { TR_##x }
 
 #if defined(COLORLCD)
 ISTR(FONT_SIZES);
@@ -55,7 +55,6 @@ ISTR(VSWITCHES);
 ISTR(VSRCRAW);
 ISTR(VTMRMODES);
 ISTR(VPERSISTENT);
-ISTR(VLCD);
 ISTR(VUNITSSYSTEM);
 ISTR(VBEEPCOUNTDOWN);
 ISTR(COUNTDOWNVALUES);

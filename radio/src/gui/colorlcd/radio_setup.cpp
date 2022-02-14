@@ -502,12 +502,11 @@ void RadioSetupPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
   choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
-    char s[5];
-    for (uint8_t i=0; i<4; i++) {
-      s[i] = STR_RETA123[channelOrder(value, i + 1)];
+    std::string s;
+    for (uint8_t i = 0; i < 4; i++) {
+      s += std::string(STR_RETA123[channelOrder(value, i + 1)]);
     }
-    s[4] = '\0';
-    return std::string(s);
+    return s;
   });
   grid.nextLine();
 
