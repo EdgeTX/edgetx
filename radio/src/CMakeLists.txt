@@ -87,8 +87,6 @@ set(GVARS_VARIANT   1)
 set(FRSKY_VARIANT   2)
 set(3POS_VARIANT    4)
 
-set(RADIO_DEPENDENCIES radio_translations)
-
 set(FATFS_SRC
   ${FATFS_DIR}/ff.c
   ${FATFS_DIR}/ffunicode.c
@@ -105,7 +103,6 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
-add_subdirectory(translations)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 add_subdirectory(lua)

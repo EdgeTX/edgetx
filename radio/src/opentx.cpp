@@ -731,17 +731,14 @@ void checkAll()
     auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
     LED_ERROR_BEGIN();
     AUDIO_ERROR_MESSAGE(AU_ERROR);
+
     tmr10ms_t tgtime = get_tmr10ms() + 500;
     uint32_t keys = readKeys();
-    std::string strKeys("");
-    const char STR_VKEYS[] = TR_VKEYS;
-    const int len = int(LEN_VKEYS[0]);
-    char s[6];
-    s[5] = 0;
+
+    std::string strKeys;
     for (int i = 0; i < (int)TRM_BASE; i++) {
       if (keys & (1 << i)) {
-        strncpy(s, &STR_VKEYS[i * len], len);
-        strKeys += s;
+        strKeys += std::string(STR_VKEYS[i]);
       }
     }
 

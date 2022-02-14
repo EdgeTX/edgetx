@@ -67,7 +67,7 @@ char *strAppendFilename(char *dest, const char *filename, const int size);
 std::string formatNumberAsString(int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
 #if !defined(BOOT)
-char *getStringAtIndex(char *dest, const char *s, int idx);
+char *getStringAtIndex(char *dest, const char **s, int idx);
 char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions = {.options = 0});
