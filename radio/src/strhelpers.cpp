@@ -555,12 +555,12 @@ char *getSourceString(char *dest, mixsrc_t idx)
     return getStringAtIndex(dest, STR_VSRCRAW, 0);
   } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
-    *dest = CHAR_INPUT;
+    char* pos = strAppend(dest, STR_CHAR_INPUT, 2);
     if (strlen(g_model.inputNames[idx])) {
-      memset(dest + 1, 0, LEN_INPUT_NAME + 1);
-      strncpy(dest + 1, g_model.inputNames[idx], LEN_INPUT_NAME);
+      memset(pos, 0, LEN_INPUT_NAME + 1);
+      strncpy(pos, g_model.inputNames[idx], LEN_INPUT_NAME);
     } else {
-      strAppendUnsigned(dest + 1, idx + 1, 2);
+      strAppendUnsigned(pos, idx + 1, 2);
     }
   }
 #if defined(LUA_INPUTS)
@@ -569,7 +569,7 @@ char *getSourceString(char *dest, mixsrc_t idx)
     div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS &&
         qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      *dest++ = CHAR_LUA;
+      char* pos = strAppend(dest, STR_CHAR_LUA, 2);
 // temporary string
 #define MAX_CHAR 16
       char temp[MAX_CHAR];
@@ -586,7 +586,7 @@ char *getSourceString(char *dest, mixsrc_t idx)
                  scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
       }
 
-      strcpy(dest, temp);
+      strcpy(pos, temp);
     }
 #else
     strcpy(dest, "N/A");
@@ -597,22 +597,23 @@ char *getSourceString(char *dest, mixsrc_t idx)
 
     if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
       // TODO: add correct symbol
+      char* pos = dest;
       if (idx <= MIXSRC_LAST_STICK) {
-        dest[0] = CHAR_STICK;
+        pos = strAppend(pos, STR_CHAR_STICK, 2);
 #if NUM_SLIDERS > 0
       } else if (idx < MIXSRC_FIRST_SLIDER) {
-        dest[0] = CHAR_POT;
+        pos = strAppend(pos, STR_CHAR_POT, 2);
       } else {
-        dest[0] = CHAR_SLIDER;
+        pos = strAppend(pos, STR_CHAR_SLIDER, 2);
 #else
       } else {
-        dest[0] = CHAR_POT;
+        pos = strAppend(pos, STR_CHAR_POT, 2);
 #endif
       }
 
       idx -= MIXSRC_Rud;
-      memcpy(dest + 1, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
-      dest[LEN_ANA_NAME + 1] = '\0';
+      memcpy(pos, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+      pos[LEN_ANA_NAME] = '\0';
     } else {
       idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
@@ -657,9 +658,9 @@ char *getSourceString(char *dest, mixsrc_t idx)
   } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div(idx, 3);
-    dest[0] = CHAR_TELEMETRY;
-    char *pos = strAppend(&dest[1], g_model.telemetrySensors[qr.quot].label,
-                          sizeof(g_model.telemetrySensors[qr.quot].label));
+    char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
+    pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
+                    sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
   }
@@ -731,14 +732,15 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
   return dest;
 }
 
-std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
+#if defined(LIBOPENUI)
+std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
+                                 const char *prefix, const char *suffix)
 {
   char s[100];
   BitmapBuffer::formatNumberAsString(s, 99, val, flags, len, prefix, suffix);
   return std::string(s);
 }
-
-
+#endif
 
 #if defined(RTCLOCK)
 #include "rtc.h"

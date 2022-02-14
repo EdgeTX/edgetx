@@ -22,6 +22,7 @@
 #include <limits.h>
 #include "opentx.h"
 #include "common/stdlcd/fonts.h"
+#include "common/stdlcd/utf8.h"
 
 #if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)
   pixel_t displayBuf1[DISPLAY_BUFFER_SIZE] __DMA;
@@ -295,6 +296,10 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
       break;
     }
     else if (c >= 0x20) {
+      // UTF8 detection
+      c = map_utf8_char(s, len);
+      if (!c) break;
+      
       if (c == 46 && FONTSIZE(flags) == TINSIZE) { // '.' handling
         if (((flags & BLINK) && BLINK_ON_PHASE) || ((!(flags & BLINK) && (flags & INVERS)))) {
           lcdDrawSolidVerticalLine(x, y-1, 5);
