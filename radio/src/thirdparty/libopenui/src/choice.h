@@ -48,18 +48,31 @@ class ChoiceBase : public FormField
 
 class Choice: public ChoiceBase {
   public:
-    Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
-    Choice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0);
+   Choice(FormGroup *parent, const rect_t &rect, int vmin, int vmax,
+          std::function<int()> getValue,
+          std::function<void(int)> setValue = nullptr,
+          WindowFlags windowFlags = 0);
+   Choice(FormGroup *parent, const rect_t &rect,
+          std::vector<std::string> values, int vmin, int vmax,
+          std::function<int()> getValue,
+          std::function<void(int)> setValue = nullptr,
+          WindowFlags windowFlags = 0);
+   Choice(FormGroup *parent, const rect_t &rect, const char *const values[],
+          int vmin, int vmax, std::function<int()> getValue,
+          std::function<void(int)> setValue = nullptr,
+          WindowFlags windowFlags = 0);
+   Choice(FormGroup *parent, const rect_t &rect, const char *values, int vmin,
+          int vmax, std::function<int()> getValue,
+          std::function<void(int)> setValue = nullptr,
+          WindowFlags windowFlags = 0);
 
-    void addValue(const char * value);
+   void addValue(const char *value);
 
-    void addValues(const char * const values[], uint8_t count);
+   void addValues(const char *const values[], uint8_t count);
 
-    void setValues(std::vector<std::string> values);
+   void setValues(std::vector<std::string> values);
 
-    void setValues(const char * const values[]);
+   void setValues(const char *const values[]);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
