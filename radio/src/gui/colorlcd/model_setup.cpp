@@ -243,7 +243,7 @@ class BindChoiceMenu : public Menu
 class TrChoice : public Choice
 {
  public:
-  TrChoice(FormGroup *parent, const rect_t &rect, const char *values, int vmin,
+  TrChoice(FormGroup *parent, const rect_t &rect, const char **values, int vmin,
            int vmax, std::function<int()> getValue,
            std::function<void(int)> setValue = nullptr,
            bool *menuOpen = nullptr) :

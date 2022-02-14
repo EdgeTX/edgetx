@@ -415,6 +415,10 @@ static constexpr coord_t col1 = 20;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1 + 20;
 
+static const char* _failsafe_module[] = {
+  "Ext.", "Int.",
+};
+
 class SpecialFunctionButton : public Button
 {
  public:
@@ -527,7 +531,7 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_SET_FAILSAFE:
-        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        dc->drawTextAtIndex(col1, line2, _failsafe_module, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_PLAY_VALUE:

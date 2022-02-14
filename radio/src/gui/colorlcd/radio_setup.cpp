@@ -333,20 +333,7 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Backlight mode
     new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-#if defined COLORLCD
-    BacklightMode minBacklightMode = e_backlight_mode_keys;
-#else
-    BacklightMode minBacklightMode = e_backlight_mode_off;
-#endif
-    const char* values[e_backlight_mode_on+1] = {};
-    uint8_t len = STR_VBLMODE[0];
-    const char * value = &STR_VBLMODE[1];
-    for (int i = e_backlight_mode_off; i <= e_backlight_mode_on; i++) {
-      values[i] = value;
-      value += len;
-    }
-
-    new Choice(window, grid.getFieldSlot(2,0), &values[minBacklightMode], minBacklightMode, e_backlight_mode_on, GET_DEFAULT(g_eeGeneral.backlightMode),
+    new Choice(window, grid.getFieldSlot(2,0), STR_VBLMODE, e_backlight_mode_keys, e_backlight_mode_on, GET_DEFAULT(g_eeGeneral.backlightMode),
                [=](int32_t newValue) {
                  g_eeGeneral.backlightMode = newValue;
                  updateBacklightControls();
@@ -503,12 +490,11 @@ void RadioSetupPage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
   choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
-    char s[5];
-    for (uint8_t i=0; i<4; i++) {
-      s[i] = STR_RETA123[channelOrder(value, i + 1)];
+    std::string s;
+    for (uint8_t i = 0; i < 4; i++) {
+      s += std::string(STR_RETA123[channelOrder(value, i + 1)]);
     }
-    s[4] = '\0';
-    return std::string(s);
+    return s;
   });
   grid.nextLine();
 

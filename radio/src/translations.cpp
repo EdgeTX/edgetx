@@ -21,7 +21,7 @@
 
 #include "opentx.h"
 
-#define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
+#define ISTR(x) const char* STR_##x[] = { TR_##x }
 
 #if defined(COLORLCD)
 ISTR(FONT_SIZES);
