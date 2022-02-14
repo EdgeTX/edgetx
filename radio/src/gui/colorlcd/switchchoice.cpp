@@ -34,9 +34,9 @@ class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
       MenuToolbar<SwitchChoice>(choice, menu)
   {
-    addButton(CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
-    addButton(CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
+    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
               SWSRC_LAST_LOGICAL_SWITCH);
   }
 };
