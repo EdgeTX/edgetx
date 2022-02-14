@@ -27,7 +27,7 @@ int getFirstAvailable(int min, int max, std::function<bool(int)>isValueAvailable
 
 class MenuToolbarButton: public Button {
   public:
-    MenuToolbarButton(FormGroup * window, const rect_t & rect, char picto):
+    MenuToolbarButton(FormGroup * window, const rect_t & rect, const char* picto):
 #if defined(HARDWARE_TOUCH)
       Button(window, rect, nullptr),
 #else
@@ -40,7 +40,7 @@ class MenuToolbarButton: public Button {
     void paint(BitmapBuffer * dc) override;
 
   protected:
-    char picto;
+    const char* picto;
 };
 
 template <class T>
@@ -112,7 +112,7 @@ class MenuToolbar: public FormGroup {
     coord_t y = 0;
     std::vector<MenuToolbarButton *> menuButtons;
 
-    void addButton(char picto, int16_t filtermin, int16_t filtermax)
+    void addButton(const char* picto, int16_t filtermin, int16_t filtermax)
     {
       int vmin = choice->vmin;
       int vmax = choice->vmax;
