@@ -9,13 +9,18 @@ SYMBOLS="61441,61448,61451,61452,61452,61453,61457,61459,61461,61465,61468,61473
 EXTRA_FONT="EdgeTX/extra.ttf"
 EXTRA_SYM="0x80-0x94"
 
+ASCII="0x20-0x7F"
+DEGREE="0xB0"
+BULLET="0x2022"
+LATIN1="0xC0-0xFF"
+
 function make_font() {
   local name=$1
   local ttf=$2
   local size=$3
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
-               --font ${TTF_DIR}${ttf} -r 0x20-0x7F,0xB0,0x2022,0xDF,0xE4,0xF6,0xFC,0xC4,0xD6,0xDC \
-               --font EdgeTX/extra.ttf -r 0x80-0x94 \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${LATIN1} \
+               --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
 }
