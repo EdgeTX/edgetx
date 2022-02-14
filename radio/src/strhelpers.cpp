@@ -571,23 +571,24 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
-
 // this should be declared in header, but it used so much foreign symbols that we declare it in cpp-file and pre-instantiate it for the uses
 template<size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx)
 {
+  size_t dest_len = L;
+
   if (idx == MIXSRC_NONE) {
     return getStringAtIndex(dest, STR_VSRCRAW, 0);
   } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
-    *dest = CHAR_INPUT;
-    if (strlen(g_model.inputNames[idx])) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"       
-        snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.inputNames[idx]), g_model.inputNames[idx]);
-#pragma GCC diagnostic pop
+    static_assert(L > sizeof(STR_CHAR_INPUT) - 1, "dest string too small");
+    dest_len -= sizeof(STR_CHAR_INPUT) - 1;
+    char* pos = strAppend(dest, STR_CHAR_INPUT, sizeof(STR_CHAR_INPUT) - 1);
+    if (g_model.inputNames[idx][0] != '\0' && (dest_len > sizeof(g_model.inputNames[idx]))) {
+      memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
+      strncpy(pos, g_model.inputNames[idx], sizeof(g_model.inputNames[idx]));
     } else {
-      strAppendUnsigned(dest + 1, idx + 1, 2);
+      strAppendUnsigned(pos, idx + 1, 2);
     }
   }
   
@@ -595,46 +596,52 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   else if (idx <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
     div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"       
-        // possible truncation is intentional
-      snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name);
-      // instance Name is empty : dest = n-ScriptFileName/OutputName
-      if (*(dest + 1) == '\0') {
-          snprintf(dest + 1, L - 1, "%d-%.*s/%.*s", qr.quot + 1,
+    if (qr.quot < MAX_SCRIPTS &&
+        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+
+      static_assert(L > sizeof(STR_CHAR_LUA) - 1, "dest string too small");
+      dest_len -= sizeof(STR_CHAR_LUA) - 1;
+      char* pos = strAppend(dest, STR_CHAR_LUA, sizeof(STR_CHAR_LUA) - 1);
+
+      if (g_model.scriptsData[qr.quot].name[0] != '\0') {
+        // instance Name is not empty : dest = InstanceName/OutputName
+        snprintf(pos, dest_len, "%.*s/%.*s", sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name,
+                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+      } else {
+        // instance Name is empty : dest = n-ScriptFileName/OutputName
+        snprintf(pos, dest_len, "%d-%.*s/%.*s", qr.quot + 1,
                  (int)sizeof(g_model.scriptsData[qr.quot].file), g_model.scriptsData[qr.quot].file,
                  (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
-        // instance Name is not empty : dest = InstanceName/OutputName
-      } else {
-        snprintf(dest + 1, L - 1, "%.*s/%.*s", LEN_SCRIPT_NAME, g_model.scriptsData[qr.quot].name,
-                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
       }
-#pragma GCC diagnostic pop         
-      *dest = CHAR_LUA;
     }
 #else
-    strcpy(dest, "N/A");
+    strncpy(dest, "N/A", L-1);
 #endif
   }
 #endif
   else if (idx <= MIXSRC_LAST_POT) {
     if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
-      // TODO: add correct symbol
+      char* pos = dest;
       if (idx <= MIXSRC_LAST_STICK) {
-        dest[0] = CHAR_STICK;
+        pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
+        dest_len -= sizeof(STR_CHAR_STICK) - 1;
 #if NUM_SLIDERS > 0
       } else if (idx < MIXSRC_FIRST_SLIDER) {
-        dest[0] = CHAR_POT;
+        pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
+        dest_len -= sizeof(STR_CHAR_POT) - 1;
       } else {
-        dest[0] = CHAR_SLIDER;
+        pos = strAppend(pos, STR_CHAR_SLIDER, sizeof(STR_CHAR_SLIDER) - 1);
+        dest_len -= sizeof(STR_CHAR_SLIDER) - 1;
 #else
       } else {
-        dest[0] = CHAR_POT;
+        pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
+        dest_len -= sizeof(STR_CHAR_POT) - 1;
 #endif
       }
       idx -= MIXSRC_Rud;
-      copyToTerminated(dest, g_eeGeneral.anaNames[idx], offset_t<1>{});
+      size_t ana_len = std::min(sizeof(g_eeGeneral.anaNames[idx]), dest_len - 1);
+      strncpy(pos, g_eeGeneral.anaNames[idx], ana_len);
+      pos[ana_len] = '\0';
     } else {
       idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
@@ -645,7 +652,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     if (g_eeGeneral.switchNames[idx][0] != '\0') {
-      copyToTerminated(dest, g_eeGeneral.switchNames[idx], offset_t<1>{});
+      copyToTerminated(dest, g_eeGeneral.switchNames[idx]);
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
@@ -676,13 +683,13 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div(idx, 3);
-    dest[0] = CHAR_TELEMETRY;
-    char *pos = strAppend(&dest[1], g_model.telemetrySensors[qr.quot].label,
-                          sizeof(g_model.telemetrySensors[qr.quot].label));
+    char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
+    pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
+                    sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
   }
-  dest[L - 1] = '\0'; // assert the termination (should not be nesseccary)
+  dest[L - 1] = '\0'; // assert the termination
   return dest; 
 }
 
@@ -755,14 +762,15 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
   return dest;
 }
 
-std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
+#if defined(LIBOPENUI)
+std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
+                                 const char *prefix, const char *suffix)
 {
   char s[100];
   BitmapBuffer::formatNumberAsString(s, 99, val, flags, len, prefix, suffix);
   return std::string(s);
 }
-
-
+#endif
 
 #if defined(RTCLOCK)
 #include "rtc.h"

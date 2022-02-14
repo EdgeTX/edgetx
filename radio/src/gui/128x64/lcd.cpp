@@ -22,6 +22,7 @@
 #include <limits.h>
 #include "opentx.h"
 #include "gui/common/stdlcd/fonts.h"
+#include "gui/common/stdlcd/utf8.h"
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
 
@@ -335,6 +336,10 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
       break;
     }
     else if (c >= 0x20) {
+      // UTF8 detection
+      c = map_utf8_char(s, len);
+      if (!c) break;
+
       lcdDrawChar(x, y, c, flags);
       x = lcdNextPos;
     }
