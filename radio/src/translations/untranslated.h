@@ -331,40 +331,24 @@
 #define TR_SENSOR_SBEC_VOLTAGE              "BecV"
 #define TR_SENSOR_SBEC_CURRENT              "BecA"
 
-#define STR_CHAR_RIGHT     "\200"
-#define STR_CHAR_LEFT      "\201"
-#define STR_CHAR_UP        "\202"
-#define STR_CHAR_DOWN      "\203"
+#define STR_CHAR_RIGHT     "\302\200"
+#define STR_CHAR_LEFT      "\302\201"
+#define STR_CHAR_UP        "\302\202"
+#define STR_CHAR_DOWN      "\302\203"
 
-#define STR_CHAR_DELTA     "\210"
-#define STR_CHAR_STICK     "\211"
-#define STR_CHAR_POT       "\212"
-#define STR_CHAR_SLIDER    "\213"
-#define STR_CHAR_SWITCH    "\214"
-#define STR_CHAR_TRIM      "\215"
-#define STR_CHAR_INPUT     "\216"
-#define STR_CHAR_FUNCTION  "\217"
-#define STR_CHAR_CYC       "\220"
-#define STR_CHAR_TRAINER   "\221"
-#define STR_CHAR_CHANNEL   "\222"
-#define STR_CHAR_TELEMETRY "\223"
-#define STR_CHAR_LUA       "\224"
-
-#define CHAR_UP        STR_CHAR_UP[0]
-#define CHAR_DOWN      STR_CHAR_DOWN[0]
-#define CHAR_DELTA     STR_CHAR_DELTA[0]
-#define CHAR_STICK     STR_CHAR_STICK[0]
-#define CHAR_POT       STR_CHAR_POT[0]
-#define CHAR_SLIDER    STR_CHAR_SLIDER[0]
-#define CHAR_SWITCH    STR_CHAR_SWITCH[0]
-#define CHAR_TRIM      STR_CHAR_TRIM[0]
-#define CHAR_INPUT     STR_CHAR_INPUT[0]
-#define CHAR_FUNCTION  STR_CHAR_FUNCTION[0]
-#define CHAR_CYC       STR_CHAR_CYC[0]
-#define CHAR_TRAINER   STR_CHAR_TRAINER[0]
-#define CHAR_CHANNEL   STR_CHAR_CHANNEL[0]
-#define CHAR_TELEMETRY STR_CHAR_TELEMETRY[0]
-#define CHAR_LUA       STR_CHAR_LUA[0]
+#define STR_CHAR_DELTA     "\302\210"
+#define STR_CHAR_STICK     "\302\211"
+#define STR_CHAR_POT       "\302\212"
+#define STR_CHAR_SLIDER    "\302\213"
+#define STR_CHAR_SWITCH    "\302\214"
+#define STR_CHAR_TRIM      "\302\215"
+#define STR_CHAR_INPUT     "\302\216"
+#define STR_CHAR_FUNCTION  "\302\217"
+#define STR_CHAR_CYC       "\302\220"
+#define STR_CHAR_TRAINER   "\302\221"
+#define STR_CHAR_CHANNEL   "\302\222"
+#define STR_CHAR_TELEMETRY "\302\223"
+#define STR_CHAR_LUA       "\302\224"
 
 #define LEN_FSGROUPS                    "\001"
 #define TR_FSGROUPS                     "-""1""2""3"
