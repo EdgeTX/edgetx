@@ -60,14 +60,17 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
         else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
           escape_chars[escape - 1] = c;
           if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-            c = CHAR_UP;
+            lines[current_line-menuVerticalOffset][line_length++] = STR_CHAR_UP[0];
+            c = STR_CHAR_UP[1];
           }
           else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-            c = CHAR_DOWN;
+            lines[current_line-menuVerticalOffset][line_length++] = STR_CHAR_DOWN[0];
+            c = STR_CHAR_DOWN[1];
           }
           else if (escape == 3) {
             int val = atoi(escape_chars);
             if (val >= 200 && val < 225) {
+              lines[current_line-menuVerticalOffset][line_length++] = '\302';
               c = '\200' + val - 200;
             }
           }
