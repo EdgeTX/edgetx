@@ -47,7 +47,7 @@ class SwitchDynamicLabel: public StaticText {
 
     std::string label()
     {
-      static const char switchPositions[] = {
+      static const char* switchPositions[] = {
          STR_CHAR_UP,
          "-",
          STR_CHAR_DOWN
