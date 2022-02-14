@@ -79,10 +79,9 @@ inline T sgn(T a)
 }
 
 // TODO duplicated code
-inline std::string TEXT_AT_INDEX(const char * val, uint8_t idx)
+inline std::string TEXT_AT_INDEX(const char** val, uint8_t idx)
 {
-  const char * start = val + 1 + idx * val[0];
-  return std::string(start, min<uint8_t>(val[0], (uint8_t)strlen(start)));
+  return std::string(val[idx]);
 }
 
 inline const char * findNextLine(const char * stack)

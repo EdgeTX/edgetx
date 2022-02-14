@@ -333,10 +333,9 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       return drawSizedText(x, y, s, strlen(s), flags);
     }
 
-    coord_t drawTextAtIndex(coord_t x, coord_t y, const char * s, uint8_t idx, LcdFlags flags = 0)
+    coord_t drawTextAtIndex(coord_t x, coord_t y, const char** s, uint8_t idx, LcdFlags flags = 0)
     {
-      char length = *s++;
-      return drawSizedText(x, y, s+length*idx, length, flags);
+      return drawText(x, y, s[idx], flags);
     }
 
     static void formatNumberAsString(char *buffer, const uint8_t buffer_size, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
