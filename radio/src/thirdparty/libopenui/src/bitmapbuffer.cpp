@@ -86,9 +86,11 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
   data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
   data_end = data + (width * height);
 
+#if !defined(BOOT)
   // Assume we need a canvas here
   canvas = lv_canvas_create(nullptr);
   lv_canvas_set_buffer(canvas, data, width, height, LV_IMG_CF_TRUE_COLOR);
+#endif
 }
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
@@ -104,7 +106,9 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
 BitmapBuffer::~BitmapBuffer()
 {
   if (dataAllocated) {
+#if !defined(BOOT)
     lv_obj_del(canvas);
+#endif
     free(data);
   }
 }
@@ -585,7 +589,9 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h,
       return;
     blend_dsc.blend_area = &clipped_coords;
     lv_draw_sw_blend(draw_ctx, &blend_dsc);
-  } else if (canvas) {
+  }
+#if !defined(BOOT)
+  else if (canvas) {
     lv_draw_rect_dsc_t rect_dsc;
     lv_draw_rect_dsc_init(&rect_dsc);
 
@@ -595,6 +601,7 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h,
     lv_canvas_draw_rect(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
                         coords.y2 - coords.y1 + 1, &rect_dsc);
   }
+#endif
 }
 
 void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFlags flags)
@@ -1103,10 +1110,13 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
 
   if (draw_ctx) {
     lv_draw_label(draw_ctx, &label_draw_dsc, &coords, s, nullptr);
-  } else if (canvas) {
+  }
+#if !defined(BOOT)
+  else if (canvas) {
     lv_canvas_draw_text(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
                         &label_draw_dsc, s);
   }
+#endif
   
   RESTORE_OFFSET();
 
