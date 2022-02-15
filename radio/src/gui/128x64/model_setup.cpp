@@ -976,7 +976,7 @@ void menuModelSetup(event_t event)
         else if (isModuleR9MNonAccess(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION, g_model.moduleData[moduleIdx].subType, (menuHorizontalPosition==1 ? attr : 0));
         else if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, g_eeGeneral.internalModuleBaudrate,0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),0);
 
         if (attr && menuHorizontalPosition == 0  && moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
@@ -1074,7 +1074,7 @@ void menuModelSetup(event_t event)
         ModuleData & moduleData = g_model.moduleData[moduleIdx];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
         if (isModuleCrossfire(EXTERNAL_MODULE)) {
-          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, moduleData.crsf.telemetryBaudrate,attr | LEFT);
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),attr | LEFT);
           if (attr) {
             moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
             if (checkIncDec_Ret) {

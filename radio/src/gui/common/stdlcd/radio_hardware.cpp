@@ -535,7 +535,7 @@ void menuRadioHardware(event_t event)
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE:
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
-        lcdDrawTextAtIndex(HW_SETTINGS_COLUMN2, y, STR_CRSF_BAUDRATE, g_eeGeneral.internalModuleBaudrate,attr | LEFT);
+        lcdDrawTextAtIndex(HW_SETTINGS_COLUMN2, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),attr | LEFT);
         if (attr) {
           g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
           if (checkIncDec_Ret) {
