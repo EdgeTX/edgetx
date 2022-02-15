@@ -96,7 +96,7 @@
     #define TR_CSWSTAY                 "Puls"  // Edge = einstellbarer Impuls
 #endif
 
-#define TR_CSWEQUAL                    "a=x\0"
+#define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA,"}x","|",STR_CHAR_DELTA,"|}x",TR_CSWTIMER,TR_CSWSTICKY
 
 #if defined(VARIO)
