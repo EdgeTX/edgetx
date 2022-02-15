@@ -120,11 +120,7 @@
 #endif
 
 #if defined(VOICE)
-  #if defined(PCBSKY9X)
-    #define TR_PLAY_TRACK              "Jouer"
-  #else
-    #define TR_PLAY_TRACK              "Jouer fich"
-  #endif
+  #define TR_PLAY_TRACK                "Jouer fich"
   #define TR_PLAY_BOTH                 "Jouer les 2"
   #define TR_PLAY_VALUE                "Lire valeur"
 #else
@@ -339,9 +335,6 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("Bips centr", "Bips centrage")
 #define TR_USE_GLOBAL_FUNCS            TR("Fonc. glob.", "Fonctions globales")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE               INDENT "Sortie"
-#endif
 #define TR_PROTOCOL                    TR("Proto.", "Protocole")
 #define TR_PPMFRAME                    INDENT "Trame PPM"
 #define TR_REFRESHRATE                 INDENT "Période"
