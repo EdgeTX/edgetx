@@ -186,7 +186,7 @@
 #define TR_RAS                         "SWR"
 #define TR_RX_BATT                     TR("BtRx", "BatRx")
 #define TR_A3_A4                       "A3","A4"
-#define TR_A3_A4_MIN                   "A3-","A4-",
+#define TR_A3_A4_MIN                   "A3-","A4-"
 
 #define TR_ASPD_MAX                    TR("ViA+", "VitA+")
 
