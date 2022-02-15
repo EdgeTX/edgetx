@@ -1041,7 +1041,7 @@ void menuModelSetup(event_t event)
         ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
         if (isModuleCrossfire(EXTERNAL_MODULE)) {
-          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEXmoduleData.crsf.telemetryBaudrate),attr | LEFT);
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),attr | LEFT);
           if (attr) {
             moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
             if (checkIncDec_Ret) {
