@@ -305,8 +305,7 @@ class TrainerModuleWindow : public FormGroup
     FormGridLayout grid;
     clear();
 
-    new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,COLOR_THEME_PRIMARY1);
     trainerChoice = new TrChoice(
         this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(),
         GET_DEFAULT(g_model.trainerData.mode),
@@ -590,8 +589,7 @@ class ModuleWindow : public FormGroup {
       clear();
 
       // Module Type
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                     COLOR_THEME_PRIMARY1);
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,COLOR_THEME_PRIMARY1);
       moduleChoice = new Choice(
           this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
           MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
@@ -607,6 +605,10 @@ class ModuleWindow : public FormGroup {
                    ? isInternalModuleAvailable(moduleType)
                    : isExternalModuleAvailable(moduleType);
       });
+
+      if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
+        new StaticText(this, grid.getFieldSlot(2, 1), getStringAtIndex(STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)), 0,COLOR_THEME_PRIMARY1);
+      }
 
       // Module parameters
       if (moduleIdx== EXTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
@@ -627,7 +629,7 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_STATUS, 0,COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
-            sprintf(msg,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+            sprintf(msg,"%d Hz %u Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
             return std::string(msg);
         });
       }
