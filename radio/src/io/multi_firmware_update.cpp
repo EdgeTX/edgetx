@@ -265,21 +265,21 @@ const char * MultiFirmwareUpdateDriver::waitForInitialSync(bool & inverted) cons
   } while ((byte != STK_INSYNC) && --retries);
 
   if (!retries) {
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
   }
 
   if (byte != STK_INSYNC) {
 #if defined(DEBUG_EXT_MODULE_FLASH)
     TRACE("[byte != STK_INSYNC]");
 #endif
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
   }
 
   if (!checkRxByte(STK_OK)) {
 #if defined(DEBUG_EXT_MODULE_FLASH)
     TRACE("[!checkRxByte(STK_OK)]");
 #endif
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
   }
 
   // avoids sending STK_READ_SIGN with STK_OK
@@ -298,11 +298,11 @@ const char * MultiFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) 
   clear();
 
   if (!checkRxByte(STK_INSYNC))
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
 
   for (uint8_t i = 0; i < 4; i++) {
     if (!getRxByte(signature[i])) {
-      return "NoSignature";
+      return STR_DEVICE_FILE_WRONG_SIG;
     }
   }
 
@@ -317,7 +317,7 @@ const char * MultiFirmwareUpdateDriver::loadAddress(uint32_t offset) const
   sendByte(CRC_EOP);
 
   if (!checkRxByte(STK_INSYNC) || !checkRxByte(STK_OK)) {
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
   }
 
   // avoids sending next page back-to-back with STK_OK
@@ -345,7 +345,7 @@ const char * MultiFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size
   sendByte(CRC_EOP);
 
   if (!checkRxByte(STK_INSYNC))
-    return "NoSync";
+    return STR_DEVICE_NO_RESPONSE;
 
   uint8_t byte;
   uint8_t retries = 4;
@@ -355,7 +355,7 @@ const char * MultiFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size
   } while (!byte && --retries);
 
   if (!retries || (byte != STK_OK))
-    return "NoPageSync";
+    return STR_DEVICE_WRONG_REQUEST;
 
   return nullptr;
 }
@@ -410,7 +410,7 @@ const char * MultiFirmwareUpdateDriver::flashFirmware(FIL * file, const char * l
 
   if (signature[0] != 0x1E) {
     leaveProgMode(inverted);
-    return "Wrong signature";
+    return STR_DEVICE_FILE_WRONG_SIG;
   }
 
   if (signature[1] == 0x55 && signature[2] == 0xAA) {
@@ -424,7 +424,7 @@ const char * MultiFirmwareUpdateDriver::flashFirmware(FIL * file, const char * l
     UINT count = 0;
     memclear(buffer, pageSize);
     if (f_read(file, buffer, pageSize, &count) != FR_OK) {
-      result = "Error reading file";
+      result = STR_DEVICE_FILE_ERROR;
       break;
     }
 
@@ -471,7 +471,7 @@ const char * MultiFirmwareInformation::readV1Signature(const char * buffer)
   else if (!memcmp(buffer, "multi-orx", 9))
     boardType = FIRMWARE_MULTI_ORX;
   else
-    return "Wrong format";
+    return STR_DEVICE_FILE_WRONG_SIG;
 
   if (buffer[MULTI_SIGN_BOOTLOADER_SUPPORT_OFFSET] == 'b')
     optibootSupport = true;
@@ -519,7 +519,7 @@ const char * MultiFirmwareInformation::readV2Signature(const char * buffer)
   }
 
   if (cursor - beg < 8)
-    return "Invalid signature";
+    return STR_DEVICE_FILE_WRONG_SIG;
 
   boardType = options & 0x3;
   optibootSupport = options & 0x80 ? true : false;
@@ -539,7 +539,7 @@ const char * MultiFirmwareInformation::readMultiFirmwareInformation(const char *
 {
   FIL file;
   if (f_open(&file, filename, FA_READ) != FR_OK)
-    return "Error opening file";
+    return STR_DEVICE_FILE_ERROR;
 
   const char * err = readMultiFirmwareInformation(&file);
   f_close(&file);
@@ -553,11 +553,11 @@ const char * MultiFirmwareInformation::readMultiFirmwareInformation(FIL * file)
   UINT count;
 
   if (f_size(file) < MULTI_SIGN_SIZE)
-    return "File too small";
+    return STR_DEVICE_FILE_ERROR;
 
   f_lseek(file, f_size(file) - MULTI_SIGN_SIZE);
   if (f_read(file, buffer, MULTI_SIGN_SIZE, &count) != FR_OK || count != MULTI_SIGN_SIZE) {
-    return "Error reading file";
+    return STR_DEVICE_FILE_ERROR;
   }
 
   if (!memcmp(buffer, "multi-x", 7)) {
@@ -572,7 +572,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   FIL file;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    POPUP_WARNING("Not a valid file");
+    POPUP_WARNING(STR_DEVICE_FILE_ERROR);
     return false;
   }
 
@@ -580,7 +580,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     MultiFirmwareInformation firmwareFile;
     if (firmwareFile.readMultiFirmwareInformation(&file)) {
       f_close(&file);
-      POPUP_WARNING("Not a valid file");
+      POPUP_WARNING(STR_DEVICE_FILE_ERROR);
       return false;
     }
     f_lseek(&file, 0);
