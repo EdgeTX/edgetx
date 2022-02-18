@@ -1,4 +1,4 @@
-set(LVGL_SOURCES
+set(LVGL_SOURCES_MINIMAL
   core/lv_group.c
   core/lv_obj.c
   core/lv_event.c
@@ -14,58 +14,7 @@ set(LVGL_SOURCES
   core/lv_obj_class.c
   core/lv_obj_tree.c
   core/lv_obj_pos.c
-  font/lv_font_montserrat_20.c
-  font/lv_font_unscii_8.c
-  font/lv_font_montserrat_48.c
-  font/lv_font_montserrat_28.c
-  font/lv_font_montserrat_26.c
-  font/lv_font_montserrat_38.c
-  font/lv_font_montserrat_18.c
-  font/lv_font_montserrat_8.c
-  font/lv_font_montserrat_44.c
-  font/lv_font_montserrat_40.c
-  font/lv_font_dejavu_16_persian_hebrew.c
-  font/lv_font_montserrat_32.c
-  font/lv_font_montserrat_46.c
-  font/lv_font_montserrat_14.c
-  font/lv_font_montserrat_12_subpx.c
-  font/lv_font_montserrat_34.c
-  font/lv_font_montserrat_16.c
-  font/lv_font_montserrat_42.c
-  font/lv_font_montserrat_12.c
-  font/lv_font_simsun_16_cjk.c
-  font/lv_font_montserrat_30.c
-  font/lv_font_montserrat_22.c
-  font/lv_font_montserrat_10.c
-  font/lv_font_fmt_txt.c
-  font/lv_font_montserrat_24.c
-  font/lv_font_loader.c
-  font/lv_font_montserrat_28_compressed.c
-  font/lv_font.c
-  font/lv_font_montserrat_36.c
-  font/lv_font_unscii_16.c
-  misc/lv_timer.c
-  misc/lv_txt.c
-  misc/lv_gc.c
-  misc/lv_style_gen.c
-  misc/lv_templ.c
-  misc/lv_color.c
-  misc/lv_fs.c
-  misc/lv_printf.c
-  misc/lv_style.c
-  misc/lv_log.c
-  misc/lv_area.c
-  misc/lv_math.c
-  misc/lv_lru.c
-  misc/lv_tlsf.c
-  misc/lv_anim_timeline.c
-  misc/lv_ll.c
-  misc/lv_bidi.c
-  misc/lv_mem.c
-  misc/lv_utils.c
-  misc/lv_async.c
-  misc/lv_anim.c
-  misc/lv_txt_ap.c
+
   draw/lv_draw_mask.c
   draw/lv_img_cache.c
   draw/sw/lv_draw_sw_gradient.c
@@ -90,6 +39,7 @@ set(LVGL_SOURCES
 
   # STM32 specific
   draw/stm32_dma2d/lv_gpu_stm32_dma2d.c
+
   # SDL specific
   draw/sdl/lv_draw_sdl_rect.c
   draw/sdl/lv_draw_sdl_arc.c
@@ -108,6 +58,80 @@ set(LVGL_SOURCES
   hal/lv_hal_indev.c
   hal/lv_hal_disp.c
   hal/lv_hal_tick.c
+
+  font/lv_font.c
+  font/lv_font_loader.c
+  font/lv_font_fmt_txt.c
+  
+  misc/lv_timer.c
+  misc/lv_txt.c
+  misc/lv_gc.c
+  misc/lv_style_gen.c
+  misc/lv_templ.c
+  misc/lv_color.c
+  misc/lv_fs.c
+  misc/lv_printf.c
+  misc/lv_style.c
+  misc/lv_log.c
+  misc/lv_area.c
+  misc/lv_math.c
+  misc/lv_lru.c
+  misc/lv_tlsf.c
+  misc/lv_anim_timeline.c
+  misc/lv_ll.c
+  misc/lv_bidi.c
+  misc/lv_mem.c
+  misc/lv_utils.c
+  misc/lv_async.c
+  misc/lv_anim.c
+  misc/lv_txt_ap.c
+)
+
+set(LVGL_SOURCES
+  ${LVGL_SOURCES_MINIMAL}
+  # font/lv_font_unscii_8.c
+  # font/lv_font_unscii_16.c
+  # font/lv_font_simsun_16_cjk.c
+  # font/lv_font_dejavu_16_persian_hebrew.c
+  # font/lv_font_montserrat_8.c
+  # font/lv_font_montserrat_10.c
+  # font/lv_font_montserrat_12.c
+  # font/lv_font_montserrat_12_subpx.c
+  # font/lv_font_montserrat_14.c
+  # font/lv_font_montserrat_16.c
+  # font/lv_font_montserrat_18.c
+  # font/lv_font_montserrat_20.c
+  # font/lv_font_montserrat_22.c
+  # font/lv_font_montserrat_24.c
+  # font/lv_font_montserrat_26.c
+  # font/lv_font_montserrat_28.c
+  # font/lv_font_montserrat_28_compressed.c
+  # font/lv_font_montserrat_30.c
+  # font/lv_font_montserrat_32.c
+  # font/lv_font_montserrat_34.c
+  # font/lv_font_montserrat_36.c
+  # font/lv_font_montserrat_38.c
+  # font/lv_font_montserrat_40.c
+  # font/lv_font_montserrat_42.c
+  # font/lv_font_montserrat_44.c
+  # font/lv_font_montserrat_46.c
+  # font/lv_font_montserrat_48.c
+  widgets/lv_line.c
+  widgets/lv_dropdown.c
+  widgets/lv_objx_templ.c
+  widgets/lv_canvas.c
+  widgets/lv_switch.c
+  widgets/lv_btnmatrix.c
+  widgets/lv_bar.c
+  widgets/lv_roller.c
+  widgets/lv_img.c
+  widgets/lv_btn.c
+  widgets/lv_checkbox.c
+  widgets/lv_label.c
+  widgets/lv_table.c
+  widgets/lv_slider.c
+  widgets/lv_textarea.c
+  widgets/lv_arc.c
   extra/others/monkey/lv_monkey.c
   extra/others/gridnav/lv_gridnav.c
   extra/others/snapshot/lv_snapshot.c
@@ -152,23 +176,11 @@ set(LVGL_SOURCES
   extra/themes/basic/lv_theme_basic.c
   extra/themes/default/lv_theme_default.c
   extra/themes/mono/lv_theme_mono.c
-  widgets/lv_line.c
-  widgets/lv_dropdown.c
-  widgets/lv_objx_templ.c
-  widgets/lv_canvas.c
-  widgets/lv_switch.c
-  widgets/lv_btnmatrix.c
-  widgets/lv_bar.c
-  widgets/lv_roller.c
-  widgets/lv_img.c
-  widgets/lv_btn.c
-  widgets/lv_checkbox.c
-  widgets/lv_label.c
-  widgets/lv_table.c
-  widgets/lv_slider.c
-  widgets/lv_textarea.c
-  widgets/lv_arc.c
 )
+
+foreach(LVGL_FILE ${LVGL_SOURCES_MINIMAL})
+  set(LVGL_SRC_FILES_MINIMAL ${LVGL_SRC_FILES_MINIMAL} ${LVGL_SRC_DIR}/${LVGL_FILE})
+endforeach()
 
 foreach(LVGL_FILE ${LVGL_SOURCES})
   set(LVGL_SRC_FILES ${LVGL_SRC_FILES} ${LVGL_SRC_DIR}/${LVGL_FILE})
