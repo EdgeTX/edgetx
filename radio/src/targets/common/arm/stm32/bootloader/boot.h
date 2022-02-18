@@ -22,6 +22,7 @@
 #ifndef _boot_h_
 #define _boot_h_
 
+#include <stdint.h>
 #include "stamp.h"
 
 #if LCD_W < 212
@@ -78,7 +79,7 @@ void bootloaderInitScreen();
 
 // Depending on the state, up to two optional parameters are passed.
 // See boot.cpp/main for more details
-void bootloaderDrawScreen(BootloaderState st, int opt, const char* str = NULL);
+void bootloaderDrawScreen(BootloaderState st, int opt, const char* str = nullptr);
 
 // Once for each file in a filename list on screen
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected);

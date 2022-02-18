@@ -163,7 +163,6 @@ add_definitions(-DPCBREV_${PCBREV})
 set(RADIO_DEPENDENCIES
   ${RADIO_DEPENDENCIES}
   ${BITMAPS_TARGET}
-  truetype_fonts
   )
 
 if(HARDWARE_EXTERNAL_MODULE)

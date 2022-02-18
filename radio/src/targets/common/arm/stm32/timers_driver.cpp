@@ -52,6 +52,13 @@ void stop1msTimer()
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
 }
 
+static uint32_t watchdogTimeout = 0;
+
+void watchdogSuspend(uint32_t timeout)
+{
+  watchdogTimeout = timeout;
+}
+
 // TODO use the same than board_sky9x.cpp
 void interrupt1ms()
 {
@@ -78,9 +85,14 @@ void interrupt1ms()
   }
   
   // 10ms loop
-  if (pre_scale == 10)
-	{
+  if (pre_scale == 10) {
     pre_scale = 0;
+
+    if (watchdogTimeout) {
+      watchdogTimeout -= 1;
+      WDG_RESET();  // Retrigger hardware watchdog
+    }
+
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
     per10ms();

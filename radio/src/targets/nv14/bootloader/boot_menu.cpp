@@ -19,9 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "fw_version.h"
+
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
+
+#include <lvgl/lvgl.h>
 
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
@@ -73,10 +77,69 @@ const uint8_t LBM_OK[] = {
 #define BL_FOREGROUND COLOR2FLAGS(WHITE)
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
+extern BitmapBuffer * lcdFront;
+extern BitmapBuffer * lcd;
+
+static lv_disp_t* disp = nullptr;
+static lv_disp_drv_t disp_drv;
+static lv_disp_draw_buf_t disp_buf;
+
+void newLcdRefresh(uint16_t* buffer, const rect_t& copy_area);
+static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+{
+  lv_area_t refr_area;
+  lv_area_copy(&refr_area, area);
+
+#if defined(LCD_VERTICAL_INVERT)
+  lv_coord_t tmp_coord;
+  tmp_coord = refr_area.y2;
+  refr_area.y2 = LCD_H - refr_area.y1 - 1;
+  refr_area.y1 = LCD_H - tmp_coord - 1;
+  tmp_coord = refr_area.x2;
+  refr_area.x2 = LCD_W - refr_area.x1 - 1;
+  refr_area.x1 = LCD_W - tmp_coord - 1;
+#endif
+
+  if (refr_area.x1 != 0 || refr_area.x2 != 479 || refr_area.y1 != 0 ||
+      refr_area.y2 != 271) {
+    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
+          refr_area.y1, refr_area.x2, refr_area.y2);
+  } else {
+    TRACE("full refresh @ 0x%p", color_p);
+  }
+
+  rect_t copy_area = {refr_area.x1, refr_area.y1,
+                      refr_area.x2 - refr_area.x1 + 1,
+                      refr_area.y2 - refr_area.y1 + 1};
+
+  newLcdRefresh((uint16_t*)color_p, copy_area);
+  lv_disp_flush_ready(disp_drv);
+}
+
+static void init_disp_drv()
+{
+  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
+  lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
+  disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
+  disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
+  disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
+  disp_drv.full_refresh = 0;
+  disp_drv.direct_mode = 0;
+#if defined (LCD_VERTICAL_INVERT)
+  disp_drv.rotated = LV_DISP_ROT_180;
+#endif
+  disp_drv.sw_rotate = 1;
+
+  // Register the driver and save the created display objects
+  disp = lv_disp_drv_register(&disp_drv);
+}
+
 void bootloaderInitScreen()
 {
   backlightEnable(BACKLIGHT_LEVEL_MAX);
-  // TODO: init LVGL
+  lv_init();
+  init_disp_drv();
 }
 
 static void bootloaderDrawTitle(const char* text)

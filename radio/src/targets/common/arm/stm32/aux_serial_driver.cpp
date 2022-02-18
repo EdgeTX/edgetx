@@ -19,8 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "targets/horus/board.h"
+#include "board.h"
+#include "debug.h"
+#include "dataconstants.h"
+
+#include "sbus.h"
+#include "telemetry/frsky.h"
+
+#if defined(CROSSFIRE)
+#include "telemetry/crossfire.h"
+#endif
+
+#if defined(CLI)
+#include "cli.h"
+#endif
 
 #if defined(AUX_SERIAL)
 uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
@@ -120,6 +132,14 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
   auxSerialMode = mode;
 
   switch (mode) {
+#if defined(DEBUG) || defined(CLI)
+    case UART_MODE_DEBUG:
+      auxSerialSetup(DEBUG_BAUDRATE, false);
+      AUX_SERIAL_POWER_OFF();
+      break;
+#endif
+
+#if !defined(BOOT)
     case UART_MODE_TELEMETRY_MIRROR:
 #if defined(CROSSFIRE)
       if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
@@ -131,13 +151,6 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
       auxSerialSetup(FRSKY_TELEM_MIRROR_BAUDRATE, false);
       AUX_SERIAL_POWER_ON();
       break;
-
-#if defined(DEBUG) || defined(CLI)
-    case UART_MODE_DEBUG:
-      auxSerialSetup(DEBUG_BAUDRATE, false);
-      AUX_SERIAL_POWER_OFF();
-      break;
-#endif
 
     case UART_MODE_TELEMETRY:
       if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
@@ -154,6 +167,9 @@ void auxSerialInit(unsigned int mode, unsigned int protocol)
     case UART_MODE_LUA:
       auxSerialSetup(LUA_DEFAULT_BAUDRATE, false);
       AUX_SERIAL_POWER_ON();
+      break;
+
+#endif // !BOOT
   }
 }
 
@@ -315,6 +331,14 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
   aux2SerialMode = mode;
 
   switch (mode) {
+#if defined(DEBUG) || defined(CLI)
+    case UART_MODE_DEBUG:
+      aux2SerialSetup(DEBUG_BAUDRATE, false);
+      AUX2_SERIAL_POWER_OFF();
+      break;
+#endif
+
+#if !defined(BOOT)
     case UART_MODE_TELEMETRY_MIRROR:
 #if defined(CROSSFIRE)
       if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
@@ -326,13 +350,6 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
       aux2SerialSetup(FRSKY_TELEM_MIRROR_BAUDRATE, false);
       AUX2_SERIAL_POWER_ON();
       break;
-
-#if defined(DEBUG) || defined(CLI)
-    case UART_MODE_DEBUG:
-      aux2SerialSetup(DEBUG_BAUDRATE, false);
-      AUX2_SERIAL_POWER_OFF();
-      break;
-#endif
 
     case UART_MODE_TELEMETRY:
       if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
@@ -349,6 +366,9 @@ void aux2SerialInit(unsigned int mode, unsigned int protocol)
     case UART_MODE_LUA:
       aux2SerialSetup(LUA_DEFAULT_BAUDRATE, false);
       AUX2_SERIAL_POWER_ON();
+      break;
+
+#endif // !BOOT
   }
 }
 

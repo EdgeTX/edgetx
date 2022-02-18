@@ -19,8 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "serial.h"
+#include "board.h"
+#include "debug.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 

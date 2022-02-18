@@ -152,7 +152,6 @@ void handleUsbConnection()
 
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         opentxClose(false);
-        usbPluggedIn();
       }
 
       usbStart();

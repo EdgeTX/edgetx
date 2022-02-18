@@ -19,9 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
 
-uint8_t rotencPosition;
+static uint8_t rotencPosition;
+volatile rotenc_t rotencValue;
 
 void rotaryEncoderInit()
 {
@@ -114,12 +115,6 @@ void rotaryEncoderCheck()
       ++rotencValue;
     }
     rotencPosition = newPosition;
-#endif
-#if !defined(BOOT)
-    if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {
-      resetBacklightTimeout();
-    }
-    inactivity.counter = 0;
 #endif
   }
 }

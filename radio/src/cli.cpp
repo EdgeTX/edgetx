@@ -388,8 +388,6 @@ void testDrawSolidFilledRoundedRectangle()
                     ROUND | COLOR_THEME_SECONDARY3);
 }
 
-void testDrawBlackOverlay() { lcdDrawBlackOverlay(); }
-
 void testDrawSolidHorizontalLine1() { lcdDrawSolidHorizontalLine(0, 0, 1, 0); }
 
 void testDrawSolidHorizontalLine2()
@@ -1137,11 +1135,7 @@ int cliDisplay(const char ** argv)
 
   if (!strcmp(argv[1], "keys")) {
     for (int i=0; i<TRM_BASE; i++) {
-      char name[8];
-      uint8_t len = STR_VKEYS[0];
-      strncpy(name, STR_VKEYS+1+len*i, len);
-      name[len] = '\0';
-      serialPrint("[%s] = %s", name, keys[i].state() ? "on" : "off");
+      serialPrint("[%s] = %s", STR_VKEYS[i]+1, keys[i].state() ? "on" : "off");
     }
 #if defined(ROTARY_ENCODER_NAVIGATION)
     serialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
@@ -1152,10 +1146,8 @@ int cliDisplay(const char ** argv)
     for (int i=MIXSRC_FIRST_SWITCH; i<=MIXSRC_LAST_SWITCH; i++) {
       mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
       if (SWITCH_EXISTS(sw)) {
-        char swName[LEN_SWITCH_NAME + 1];
-        strAppend(swName, STR_VSWITCHES+1+sw*STR_VSWITCHES[0], STR_VSWITCHES[0]);
         static const char * const SWITCH_POSITIONS[] = { "down", "mid", "up" };
-        serialPrint("[%s] = %s", swName, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
+        serialPrint("[%s] = %s", STR_VSWITCHES[sw]+1, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
       }
     }
   }

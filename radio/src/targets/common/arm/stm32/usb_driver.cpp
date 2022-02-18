@@ -28,8 +28,9 @@ extern "C" {
 }
 #endif
 
-#include "opentx.h"
+#include "board.h"
 #include "debug.h"
+#include "debounce.h"
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)
@@ -69,6 +70,8 @@ void usbInit()
   usbDriverStarted = false;
 }
 
+extern void usbInitLUNs();
+
 void usbStart()
 {
   switch (getSelectedUsbMode()) {
@@ -87,6 +90,7 @@ void usbStart()
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
+      usbInitLUNs();
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
       break;
   }
@@ -105,6 +109,8 @@ bool usbStarted()
 }
 
 #if !defined(BOOT)
+#include "globals.h"
+
 /*
   Prepare and send new USB data packet
 

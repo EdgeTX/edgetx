@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "options.h"
 #include "libopenui.h"
+#include "fw_version.h"
 
 char *getVersion(char *str, PXX2Version version)
 {

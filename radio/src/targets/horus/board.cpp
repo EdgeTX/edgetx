@@ -19,9 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
+#include "board.h"
 #include "hal/adc_driver.h"
+#include "dataconstants.h"
+#include "opentx_types.h"
+#include "globals.h"
+#include "sdcard.h"
+#include "debug.h"
+
+#include <string.h>
 
 #if !defined(PCBX12S)
   #include "../common/arm/stm32/stm32_hal_adc.h"
@@ -338,18 +344,6 @@ void boardOff()
   while (1) {
 
   }
-}
-
-#if defined (RADIO_TX16S)
-  #define BATTERY_DIVIDER 1495
-#else
-  #define BATTERY_DIVIDER 1629
-#endif 
-
-uint16_t getBatteryVoltage()
-{
-  int32_t instant_vbat = anaIn(TX_VOLTAGE);  // using filtered ADC value on purpose
-  return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) / BATTERY_DIVIDER);
 }
 
 bool isBacklightEnabled()

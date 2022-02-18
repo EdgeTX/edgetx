@@ -131,12 +131,6 @@ void simuInit()
 {
   RCC->CSR = 0;
 
-  // set power button to "not pressed"
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  GPIO_SetBits(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN);
-#elif defined(PIO_PC17)       // AT91SAM3
-  PIOC->PIO_PDSR &= ~PIO_PC17;
-#endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
@@ -166,6 +160,15 @@ void simuSetSwitch(uint8_t swtch, int8_t state)
   assert(swtch < DIM(switchesStates));
   switchesStates[swtch] = state;
 }
+
+#if defined(SIMU_BOOTLOADER)
+int bootloaderMain();
+static void* bootloaderThread(void*)
+{
+  bootloaderMain();
+  return nullptr;
+}
+#endif
 
 void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 {
@@ -225,7 +228,18 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
+#if !defined(SIMU_BOOTLOADER)
   simuMain();
+#else
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  struct sched_param sp;
+  sp.sched_priority = SCHED_RR;
+  pthread_attr_setschedparam(&attr, &sp);
+
+  pthread_t bl_pid;
+  pthread_create(&bl_pid, &attr, &bootloaderThread, nullptr);
+#endif
 
   simu_running = true;
 
@@ -497,13 +511,7 @@ uint32_t pwrCheck()
 bool pwrPressed()
 {
   // TODO: simulate power button
-#if defined(PWR_SWITCH_GPIO)  // STM32
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
-#elif defined(PIO_PC17)       // AT91SAM3
-  return PIOC->PIO_PDSR & PIO_PC17;
-#else
   return false;
-#endif
 }
 
 void pwrInit()
@@ -516,24 +524,6 @@ void pwrOn()
 
 void pwrOff()
 {
-}
-
-void readKeysAndTrims()
-{
-  uint8_t index = 0;
-  auto keysInput = readKeys();
-  for (auto mask = (1 << 0); mask < (1 << TRM_BASE); mask <<= 1) {
-    keys[index++].input(keysInput & mask);
-  }
-
-  auto trimsInput = readTrims();
-  for (auto mask = (1 << 0); mask < (1 << NUM_TRIMS_KEYS); mask <<= 1) {
-    keys[index++].input(trimsInput & mask);
-  }
-
-  if (keysInput || trimsInput) {
-    resetBacklightTimeout();
-  }
 }
 
 bool keyDown()
