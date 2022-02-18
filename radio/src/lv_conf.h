@@ -105,7 +105,13 @@
 
 /*Enable complex draw engine.
  *Required to draw shadow, gradient, rounded corners, circles, arc, skew lines, image transformations or any masks*/
-#define LV_DRAW_COMPLEX 1
+
+#if defined(BOOT)
+  #define LV_DRAW_COMPLEX 0
+#else
+  #define LV_DRAW_COMPLEX 1
+#endif
+
 #if LV_DRAW_COMPLEX != 0
 
     /*Allow buffering some shadow calculation.
@@ -369,7 +375,9 @@
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
-#define LV_FONT_CUSTOM_DECLARE \
+
+#if !defined(BOOT)
+  #define LV_FONT_CUSTOM_DECLARE                \
     LV_FONT_DECLARE(lv_font_roboto_9)           \
     LV_FONT_DECLARE(lv_font_roboto_14)          \
     LV_FONT_DECLARE(lv_font_roboto_13)          \
@@ -383,8 +391,13 @@
     LV_FONT_DECLARE(lv_font_roboto_bold_32)     \
     LV_FONT_DECLARE(lv_font_roboto_bold_64)
 
-/*Always set a default font*/
-#define LV_FONT_DEFAULT &lv_font_roboto_16
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_roboto_16
+#else
+  /* Bootloader font */
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_16)
+  #define LV_FONT_DEFAULT &lv_font_roboto_bl_16
+#endif
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
@@ -453,6 +466,7 @@
 
 /*Documentation of the widgets: https://docs.lvgl.io/latest/en/html/widgets/index.html*/
 
+#if !defined(BOOT)
 #define LV_USE_ARC        1
 
 #define LV_USE_ANIMIMG    1
@@ -584,6 +598,45 @@
 /*A layout similar to Grid in CSS.*/
 #define LV_USE_GRID 1
 
+#else
+#define LV_USE_ARC        0
+#define LV_USE_ANIMIMG    0
+#define LV_USE_BAR        0
+#define LV_USE_BTN        0
+#define LV_USE_BTNMATRIX  0
+#define LV_USE_CANVAS     0
+#define LV_USE_CHECKBOX   0
+#define LV_USE_DROPDOWN   0   /*Requires: lv_label*/
+#define LV_USE_IMG        0   /*Requires: lv_label*/
+#define LV_USE_LABEL      0
+#define LV_USE_LINE       0
+#define LV_USE_ROLLER     0   /*Requires: lv_label*/
+#define LV_USE_SLIDER     0   /*Requires: lv_bar*/
+#define LV_USE_SWITCH     0
+#define LV_USE_TEXTAREA   0   /*Requires: lv_label*/
+#define LV_USE_TABLE      0
+#define LV_USE_CALENDAR   0
+#define LV_USE_CHART      0
+#define LV_USE_COLORWHEEL 0
+#define LV_USE_IMGBTN     0
+#define LV_USE_KEYBOARD   0
+#define LV_USE_LED        0
+#define LV_USE_LIST       0
+#define LV_USE_MENU       0
+#define LV_USE_METER      0
+#define LV_USE_MSGBOX     0
+#define LV_USE_SPINBOX    0
+#define LV_USE_SPINNER    0
+#define LV_USE_TABVIEW    0
+#define LV_USE_TILEVIEW   0
+#define LV_USE_WIN        0
+#define LV_USE_SPAN       0
+#define LV_USE_THEME_DEFAULT 0
+#define LV_USE_THEME_BASIC 0
+#define LV_USE_THEME_MONO 0
+#define LV_USE_FLEX 0
+#define LV_USE_GRID 0
+#endif
 /*---------------------
  * 3rd party libraries
  *--------------------*/
@@ -622,10 +675,14 @@
 #endif
 
 /*PNG decoder library*/
+#if !defined(BOOT)
 #define LV_USE_PNG 1
+#endif
 
 /*BMP decoder library*/
+#if !defined(BOOT)
 #define LV_USE_BMP 1
+#endif
 
 /* JPG + split JPG decoder library.
  * Split JPG is a custom format optimized for embedded systems. */

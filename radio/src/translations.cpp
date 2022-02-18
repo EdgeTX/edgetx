@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(COLORLCD)
+  #define CENTER
+#endif
+
 #define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
 
 #if defined(COLORLCD)

@@ -21,11 +21,9 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_usart_driver.h"
-
-#include "opentx.h"
-#include "targets/horus/board.h"
 #include "aux_serial_driver.h"
 
+#include "board.h"
 #include "fifo.h"
 #include "dmafifo.h"
 

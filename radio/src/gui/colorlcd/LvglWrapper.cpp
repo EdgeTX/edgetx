@@ -26,8 +26,6 @@
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
-static lv_disp_t* disp;
-static lv_disp_draw_buf_t disp_buf;
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
 static lv_indev_drv_t rotaryDriver;
@@ -49,38 +47,6 @@ TouchState getLastTochState()
   return lastState;
 }
 #endif
-
-void newLcdRefresh(uint16_t* buffer, const rect_t& copy_area);
-static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
-{
-  lv_area_t refr_area;
-  lv_area_copy(&refr_area, area);
-
-#if defined(LCD_VERTICAL_INVERT)
-  lv_coord_t tmp_coord;
-  tmp_coord = refr_area.y2;
-  refr_area.y2 = LCD_H - refr_area.y1 - 1;
-  refr_area.y1 = LCD_H - tmp_coord - 1;
-  tmp_coord = refr_area.x2;
-  refr_area.x2 = LCD_W - refr_area.x1 - 1;
-  refr_area.x1 = LCD_W - tmp_coord - 1;
-#endif
-
-  if (refr_area.x1 != 0 || refr_area.x2 != 479 || refr_area.y1 != 0 ||
-      refr_area.y2 != 271) {
-    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
-          refr_area.y1, refr_area.x2, refr_area.y2);
-  } else {
-    TRACE("full refresh @ 0x%p", color_p);
-  }
-
-  rect_t copy_area = {refr_area.x1, refr_area.y1,
-                      refr_area.x2 - refr_area.x1 + 1,
-                      refr_area.y2 - refr_area.y1 + 1};
-
-  newLcdRefresh((uint16_t*)color_p, copy_area);
-  lv_disp_flush_ready(disp_drv);
-}
 
 extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
@@ -197,41 +163,15 @@ lv_color_t makeLvColor(uint32_t colorFlags)
   return lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
 }
 
-
-extern BitmapBuffer * lcdFront;
-extern BitmapBuffer * lcd;
-
-static lv_disp_drv_t disp_drv;
-
-void init_disp_drv()
-{
-  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
-  lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
-  disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
-  disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
-  disp_drv.hor_res = LCD_PHYS_W;               /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = LCD_PHYS_H;               /*Set the vertical resolution in pixels*/
-  disp_drv.full_refresh = 0;
-  disp_drv.direct_mode = 0;
-#if defined (LCD_VERTICAL_INVERT)
-  disp_drv.rotated = LV_DISP_ROT_180;
-#endif
-//  disp_drv.rotated = LV_DISP_ROT_90;
-  disp_drv.sw_rotate = 1;
-
-  // Register the driver and save the created display objects
-  disp = lv_disp_drv_register(&disp_drv);
-}
-
 static void init_lvgl_drivers()
 {
+  // Register the driver and save the created display object
+  lcdInitDisplayDriver();
+ 
   // add all lvgl object automatically to a input handling group
   inputGroup = lv_group_create();
   lv_group_set_default(inputGroup);
 
-  // Register the driver and save the created display objects
-  init_disp_drv();
- 
   // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
@@ -341,7 +281,6 @@ static void init_theme()
 
 LvglWrapper::LvglWrapper()
 {
-  lv_init();
   init_lvgl_drivers();
   init_theme();
 
@@ -352,8 +291,8 @@ LvglWrapper::LvglWrapper()
 
 void LvglWrapper::run()
 {
-    tmr10ms_t tick = get_tmr10ms();
-    lv_tick_inc((tick - lastTick) * 10);
-    lastTick = tick;
-    lv_timer_handler();
+  tmr10ms_t tick = get_tmr10ms();
+  lv_tick_inc((tick - lastTick) * 10);
+  lastTick = tick;
+  lv_timer_handler();
 }

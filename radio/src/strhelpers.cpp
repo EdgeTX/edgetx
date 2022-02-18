@@ -20,10 +20,11 @@
  */
 
 #include "strhelpers.h"
-
-#include "opentx.h"
+#include <string.h>
 
 #if !defined(BOOT)
+#include "opentx.h"
+
 const char s_charTab[] = "_-.,";
 
 char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
@@ -406,20 +407,6 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
-// char * getSwitchWarningString(char * dest, swsrc_t idx)
-// {
-//   char * s = dest;
-//   uint8_t state = g_model.switchWarningState >> (3*idx) & 0x07;
-//   *s++ = 'A' + idx;
-//   if (state == 0)
-//     *s = '\0';
-//   else {
-//     *s++ = "x\300-\301"[state];
-//     *s = '\0';
-//   }
-//   return dest;
-// }
-
 int getRawSwitchIdx(char sw)
 {
   if (sw < 'A' || sw > 'Z')
@@ -763,6 +750,8 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
 }
 
 #if defined(LIBOPENUI)
+#include "bitmapbuffer.h"
+
 std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
                                  const char *prefix, const char *suffix)
 {

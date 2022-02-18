@@ -30,13 +30,10 @@
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
-#include "lvgl/lvgl.h"
 
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
-
-extern uint16_t get_flysky_hall_adc_value(uint8_t ch);
 
 RadioData  g_eeGeneral;
 ModelData  g_model;
@@ -92,12 +89,6 @@ const uint8_t modn12x3[]  = {
     3, 2, 1, 0 };
 
 volatile uint8_t rtc_count = 0;
-uint32_t watchdogTimeout = 0;
-
-void watchdogSuspend(uint32_t timeout)
-{
-  watchdogTimeout = timeout;
-}
 
 #if defined(DEBUG_LATENCY)
 void toggleLatencySwitch()
@@ -118,14 +109,36 @@ void toggleLatencySwitch()
 }
 #endif
 
+static void readKeysAndTrims()
+{
+  uint32_t i;
+
+  uint8_t index = 0;
+  uint32_t keys_input = readKeys();
+  for (i = 0; i < TRM_BASE; i++) {
+    keys[index++].input(keys_input & (1 << i));
+  }
+
+  uint32_t trims_input = readTrims();
+  for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
+    keys[index++].input(trims_input & i);
+  }
+
+#if defined(PWR_BUTTON_PRESS)
+  if ((keys_input || trims_input || pwrPressed()) &&
+      (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+#else
+  if ((keys_input || trims_input) &&
+      (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
+#endif
+    // on keypress turn the light on
+    resetBacklightTimeout();
+  }
+}
+
 void per10ms()
 {
   g_tmr10ms++;
-
-  if (watchdogTimeout) {
-    watchdogTimeout -= 1;
-    WDG_RESET();  // Retrigger hardware watchdog
-  }
 
 #if defined(GUI)
   if (lightOffCounter) lightOffCounter--;
@@ -200,6 +213,11 @@ void per10ms()
         cw = new_cw;
         lastEvent = g_tmr10ms;
       }
+
+      if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {
+        resetBacklightTimeout();
+      }
+      inactivity.counter = 0;
     }
   }
 #endif
@@ -1061,142 +1079,6 @@ void checkTrims()
   }
 }
 
-#if !defined(SIMU)
-uint32_t s_anaFilt[NUM_ANALOGS];
-#endif
-
-#if defined(JITTER_MEASURE)
-JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
-JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
-tmr10ms_t jitterResetTime = 0;
-#endif
-
-#define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
-
-#if !defined(SIMU)
-uint16_t anaIn(uint8_t chan)
-{
-  return ANA_FILT(chan);
-}
-
-void getADC()
-{
-#if defined(JITTER_MEASURE)
-  if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
-    // reset jitter measurement every second
-    for (uint32_t x=0; x<NUM_ANALOGS; x++) {
-      rawJitter[x].reset();
-      avgJitter[x].reset();
-    }
-    jitterResetTime = get_tmr10ms() + 100;  //every second
-  }
-#endif
-
-  DEBUG_TIMER_START(debugTimerAdcRead);
-  if (!adcRead())
-      TRACE("adcRead failed");
-  DEBUG_TIMER_STOP(debugTimerAdcRead);
-
-  for (uint8_t x=0; x<NUM_ANALOGS; x++) {
-    uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        if (x < 4) {
-          v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
-        } else {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-        }
-    }
-    else
-#endif
-    {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-    }
-
-    // Jitter filter:
-    //    * pass trough any big change directly
-    //    * for small change use Modified moving average (MMA) filter
-    //
-    // Explanation:
-    //
-    // Normal MMA filter has this formula:
-    //            <out> = ((ALPHA-1)*<out> + <in>)/ALPHA
-    //
-    // If calculation is done this way with integer arithmetics, then any small change in
-    // input signal is lost. One way to combat that, is to rearrange the formula somewhat,
-    // to store a more precise (larger) number between iterations. The basic idea is to
-    // store undivided value between iterations. Therefore an new variable <filtered> is
-    // used. The new formula becomes:
-    //           <filtered> = <filtered> - <filtered>/ALPHA + <in>
-    //           <out> = <filtered>/ALPHA  (use only when out is needed)
-    //
-    // The above formula with a maximum allowed ALPHA value (we are limited by
-    // the 16 bit s_anaFilt[]) was tested on the radio. The resulting signal still had
-    // some jitter (a value of 1 was observed). The jitter might be bigger on other
-    // radios.
-    //
-    // So another idea is to use larger input values for filtering. So instead of using
-    // input in a range from 0 to 2047, we use twice larger number (temp[x] is divided less)
-    //
-    // This also means that ALPHA must be lowered (remember 16 bit limit), but test results
-    // have proved that this kind of filtering gives better results. So the recommended values
-    // for filter are:
-    //     JITTER_FILTER_STRENGTH  4
-    //     ANALOG_SCALE            1
-    //
-    // Variables mapping:
-    //   * <in> = v
-    //   * <out> = s_anaFilt[x]
-    uint32_t previous = s_anaFilt[x] / JITTER_ALPHA;
-    uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
-
-    // Combine ADC jitter filter setting form radio and model.
-    // Model can override (on or off) or use setting from radio setup.
-    // Model setting is active when 1, radio setting is active when 0
-    uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
-       // Use radio setting - which is inverted
-      useJitterFilter = !g_eeGeneral.noJitterFilter;
-    } else {
-      // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
-    }
-
-    if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
-      // apply jitter filter
-      s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
-    }
-
-    else {
-      // use unfiltered value
-      s_anaFilt[x] = v * JITTER_ALPHA;
-    }
-
-#if defined(JITTER_MEASURE)
-    if (JITTER_MEASURE_ACTIVE()) {
-      avgJitter[x].measure(ANA_FILT(x));
-    }
-#endif
-
-    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER - 1)
-    StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[x];
-    if (IS_POT_MULTIPOS(x) && IS_MULTIPOS_CALIBRATED(calib)) {
-      // TODO: consider adding another low pass filter to eliminate multipos switching glitches
-      uint8_t vShifted = ANA_FILT(x) >> 4;
-      s_anaFilt[x] = ANAFILT_MAX;
-      for (uint32_t i=0; i<calib->count; i++) {
-        if (vShifted < calib->steps[i]) {
-          s_anaFilt[x] = (i * ANAFILT_MAX) / calib->count;
-          break;
-        }
-      }
-    }
-  }
-}
-
-#endif // SIMU
-
 uint8_t g_vbat100mV = 0;
 uint16_t lightOffCounter;
 uint8_t flashCounter = 0;
@@ -1764,7 +1646,6 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  volatile rotenc_t rotencValue = 0;
   uint8_t rotencSpeed;
 #endif
 
@@ -1933,7 +1814,7 @@ void opentxInit()
   }
 #endif
 
-#if defined(GUI)
+#if defined(GUI) && !defined(COLORLCD)
   lcdSetContrast();
 #endif
 

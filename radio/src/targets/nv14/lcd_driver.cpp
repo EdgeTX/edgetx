@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "libopenui_config.h"
+#include "lcd.h"
 
 #define LCD_FIRST_LAYER                0
 #define LCD_SECOND_LAYER               1

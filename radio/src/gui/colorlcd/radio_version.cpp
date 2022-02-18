@@ -23,6 +23,8 @@
 #include "opentx.h"
 #include "options.h"
 #include "libopenui.h"
+#include "fw_version.h"
+
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
 #endif

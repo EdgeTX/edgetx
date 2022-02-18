@@ -59,29 +59,12 @@ void lcdRefresh()
 
 pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
 pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
-pixel_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
-
-BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, LCD_BACKUP_FRAME_BUFFER);
 
 BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
 BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
 
 BitmapBuffer * lcd = &_lcd1;
 BitmapBuffer * lcdFront = &_lcd2;
-
-
-void lcdStoreBackupBuffer()
-{
-  memcpy(simuLcdBackupBuf, lcd->getData(),
-         DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-}
-
-int lcdRestoreBackupBuffer()
-{
-  memcpy(lcd->getData(), simuLcdBackupBuf,
-         DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-  return 1;
-}
 
 void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
@@ -111,33 +94,6 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 
   // Mark screen dirty for async refresh
   simuLcdRefresh = true;
-
-  // // .. and wait for refresh
-  // auto start = RTOS_GET_MS();
-  // while(simuLcdRefresh ||
-  //       (RTOS_GET_MS() - start <= 100));
-}
-void lcdRefresh()
-{
-  // Mark screen dirty for async refresh
-  simuLcdRefresh = true;
-
-  pixel_t* lcdData = lcd->getData();
-  
-#if defined(LCD_VERTICAL_INVERT)
-  auto src = lcdData + DISPLAY_BUFFER_SIZE - 1;
-  auto dst = simuLcdBuf;
-  auto end = dst + DISPLAY_BUFFER_SIZE;
-
-  while (dst != end) {
-    *(dst++) = *(src--);
-  }
-#else
-  memcpy(simuLcdBuf, lcdData, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
-#endif
-
-  // Swap back & front buffers
-  std::swap(lcd, lcdFront);
 }
 
 void lcdInit()
