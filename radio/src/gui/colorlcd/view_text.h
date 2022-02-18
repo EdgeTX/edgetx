@@ -69,6 +69,7 @@ class ViewTextWindow : public Page
     Page::paint(dc);
     drawVerticalScrollbar(dc);
   }
+
   void checkEvents() override;
 
 #if defined(DEBUG_WINDOWS)

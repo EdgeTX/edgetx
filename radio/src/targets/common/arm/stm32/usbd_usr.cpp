@@ -20,7 +20,6 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "opentx.h"
 
 extern "C" {
 #include "usbd_usr.h"
