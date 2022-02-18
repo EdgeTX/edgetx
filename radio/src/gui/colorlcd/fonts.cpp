@@ -19,19 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "libopenui_config.h"
+#include "font.h"
 
+#if !defined(BOOT)
 static const lv_font_t* lvglFontTable[FONTS_COUNT] = {
   LV_FONT_DEFAULT,         // FONT_STD_INDEX
-#if !defined(BOOT)
   &lv_font_roboto_bold_16, // FONT_BOLD_INDEX
   &lv_font_roboto_9,       // FONT_XXS_INDEX
   &lv_font_roboto_13,      // FONT_XS_INDEX
   &lv_font_roboto_24,      // FONT_L_INDEX
   &lv_font_roboto_bold_32, // FONT_XL_INDEX
   &lv_font_roboto_bold_64, // FONT_XXL_INDEX
-#endif
 };
+#endif
 
 const lv_font_t* getFont(LcdFlags flags)
 {

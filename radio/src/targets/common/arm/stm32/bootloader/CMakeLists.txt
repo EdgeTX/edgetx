@@ -114,7 +114,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
     ../../../../../gui/colorlcd/colors.cpp
-    ../../../../../fonts/lvgl/lv_font_roboto_16.c
+    ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/common/arm/stm32/sdio_sd.c
@@ -124,7 +124,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     )
 
   # Add LVGL sources
-  foreach(LVGL_FILE ${LVGL_SRC_FILES})
+  foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
   endforeach()
   
@@ -174,14 +174,8 @@ set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm -T${RADIO_SRC
 # use smaller nano libc
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
-add_executable(bootloader EXCLUDE_FROM_ALL
-  ${BOOTLOADER_SRC}
-  )
+add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
-
-if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
-  add_dependencies(bootloader truetype_fonts)
-endif()
 
 add_custom_command(
   TARGET bootloader POST_BUILD

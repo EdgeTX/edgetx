@@ -19,9 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "boot.h"
+#include "sdcard.h"
 #include "bin_files.h"
+#include "fw_version.h"
+#include "strhelpers.h"
 
 // 'private'
 static DIR  dir;

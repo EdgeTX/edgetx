@@ -489,7 +489,12 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 #endif
   }
 
+#if !defined(SIMU_BOOTLOADER)
   per10ms();
+#else
+  void interrupt10ms();
+  interrupt10ms();
+#endif
   static int timeToRefresh;
   if (++timeToRefresh >= 5) {
     timeToRefresh = 0;
@@ -517,6 +522,9 @@ void OpenTxSim::setPixel(int x, int y, FXColor color)
   bmp->setPixel(x, y, color);
 #endif
 }
+
+// from lcd driver
+void lcdFlushed();
 
 void OpenTxSim::refreshDisplay()
 {
@@ -575,6 +583,7 @@ void OpenTxSim::refreshDisplay()
     bmf->setImage(bmp);
 
     simuLcdRefresh = false;
+    lcdFlushed();
   }
 }
 
@@ -629,6 +638,7 @@ int main(int argc, char ** argv)
 #if defined(EEPROM) || defined(EEPROM_RLC)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
+
   startAudioThread();
   simuStart(true/*false*/, argc >= 3 ? argv[2] : 0, argc >= 4 ? argv[3] : 0);
 

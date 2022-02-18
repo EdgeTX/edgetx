@@ -20,9 +20,13 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "opentx.h"
+
 #include "FatFs/diskio.h"
-#include "stamp.h"
+#include "fw_version.h"
+#include "board.h"
+#include "debug.h"
+
+#include <string.h>
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
@@ -168,7 +172,7 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
 
 uint8_t lunReady[STORAGE_LUN_NBR];
 
-void usbPluggedIn()
+void usbInitLUNs()
 {
   lunReady[STORAGE_SDCARD_LUN] = 1;
   lunReady[STORAGE_EEPROM_LUN] = 1;

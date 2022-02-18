@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "libopenui_config.h"
+#include "lcd.h"
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -279,7 +281,7 @@ void LCD_LayerInit()
   Active high width         = LCD_W
   number of bytes per pixel = 2    (pixel_format : RGB565)
   */
-  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD__PHYS_W * 2) + 3);
+  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_PHYS_W * 2) + 3);
   /* the pitch is the increment from the start of one line of pixels to the
   start of the next line in bytes, then :
   Pitch = Active high width x number of bytes per pixel */
@@ -657,8 +659,9 @@ static void lcdSwitchLayers()
   while(_frameBufferAddressReloaded == 0);
 }
 
-void newLcdRefresh(uint16_t * buffer)
+void newLcdRefresh(uint16_t * buffer, const rect_t& refr_area)
 {
+  (void)refr_area;
 #if 0
   lcdSwitchLayers();
 #else
@@ -669,7 +672,3 @@ void newLcdRefresh(uint16_t * buffer)
 #endif
 }
 
-void lcdRefresh()
-{
-  //lcdSwitchLayers();
-}

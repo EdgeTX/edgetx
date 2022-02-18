@@ -158,7 +158,6 @@ void handleUsbConnection()
 
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         opentxClose(false);
-        usbPluggedIn();
       }
 #if defined(USB_SERIAL)
       else if (getSelectedUsbMode() == USB_SERIAL_MODE) {

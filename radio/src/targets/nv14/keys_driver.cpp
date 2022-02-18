@@ -19,8 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "board.h"
+#include "keys.h"
+
 #include "hal/adc_driver.h"
+
+#if defined(LUA)
+#include "lua/lua_api.h"
+#endif
 
 bool trimsAsButtons = false;
 
@@ -104,29 +111,6 @@ bool trimDown(uint8_t idx)
 bool keyDown()
 {
   return readKeys() || readTrims();
-}
-
-/* TODO common to ARM */
-void readKeysAndTrims()
-{
-  int i;
-
-  uint8_t index = 0;
-  uint32_t in = readKeys();
-  uint32_t trims = readTrims();
-
-  for (i = 0; i < TRM_BASE; i++) {
-    keys[index++].input(in & (1 << i));
-  }
-
-  for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
-    keys[index++].input(trims & i);
-  }
-
-  if ((in || trims) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-    // on keypress turn the light on
-    resetBacklightTimeout();
-  }
 }
 
 #if !defined(BOOT)

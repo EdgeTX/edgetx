@@ -25,6 +25,19 @@ function make_font() {
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
 }
 
+# LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
+BL_SYMBOLS="61671,63650,63426,61453"
+
+function make_bootloader_font() {
+  local name=$1
+  local ttf=$2
+  local size=$3
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII} \
+               --font ${SYMBOLS_FONT} -r ${BL_SYMBOLS} \
+               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
+}
+
 make_font "roboto" "Roboto/Roboto-Regular.ttf" 9 
 make_font "roboto" "Roboto/Roboto-Regular.ttf" 13 
 make_font "roboto" "Roboto/Roboto-Regular.ttf" 14 
@@ -38,4 +51,5 @@ make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 17
 make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 16 
 make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 32 
 make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 64 
+make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16 
 

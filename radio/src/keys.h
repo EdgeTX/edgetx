@@ -205,4 +205,12 @@ bool keyDown();
 extern uint8_t rotencSpeed;
 #endif
 
+struct InactivityData
+{
+  uint16_t counter;
+  uint8_t  sum;
+};
+
+extern InactivityData inactivity;
+
 #endif // _KEYS_H_

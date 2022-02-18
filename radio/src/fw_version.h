@@ -19,34 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
+#include "stamp.h"
 
-#include "bitmapbuffer.h"
-#include "opentx_types.h"
-
-#include "colors.h"
-
-#define DISPLAY_PIXELS_COUNT           (LCD_W * LCD_H)
-#define DISPLAY_BUFFER_SIZE            (DISPLAY_PIXELS_COUNT)
-
-#if defined(BOOT)
-  #define BLINK_ON_PHASE               (0)
+#if defined(COLORLCD)
+extern const char fw_stamp[];
+extern const char vers_stamp[];
+extern const char date_stamp[];
+extern const char time_stamp[];
+extern const char cfgv_stamp[];
 #else
-  #define FAST_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<5))
-  #define BLINK_ON_PHASE               (g_blinkTmr10ms & (1<<6))
-  #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
+extern const char vers_stamp[];
 #endif
 
-// Init LVGL and its display driver
-void lcdInitDisplayDriver();
-
-// Patch the draw context to allow for direct drawing
-void lcdInitDirectDrawing();
-
-inline void lcdClear() { lcd->clear(); }
-
-void lcdRefresh();
-void lcdFlushed();
-
-#endif // _LCD_H_
+#if defined(STM32)
+/**
+ * Tries to find opentx version in the first 1024 byte of either firmware/bootloader
+ * (the one not running) or the buffer
+ * @param buffer If non-null find the firmware version in the buffer instead
+ */
+const char * getFirmwareVersion(const char * buffer = nullptr);
+#endif
