@@ -212,6 +212,12 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     ~BitmapBuffer();
 
     void setDrawCtx(lv_draw_ctx_t* ctx) { draw_ctx = ctx; }
+    void setData(uint16_t* d) {
+      if (!dataAllocated) {
+        data = d;
+        data_end = d + (_width * _height);
+      }
+    }
   
     inline void setFormat(uint8_t format)
     {
