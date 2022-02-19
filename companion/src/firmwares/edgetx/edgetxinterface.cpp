@@ -20,11 +20,46 @@
 
 #include "edgetxinterface.h"
 
+#include "crc.h"
+#include <iostream>
+#include <string>
 #include "yaml_ops.h"
 #include "yaml_generalsettings.h"
 #include "yaml_modeldata.h"
 
 #include <QMessageBox>
+
+
+static uint16_t calculateChecksum(const QByteArray& data, uint16_t checksum)
+{
+  std::string fileContent = data.toStdString();
+
+  size_t startPos = 0;
+  size_t pos = 0;
+  uint8_t isCRLF = 0;
+  std::string newLine[2] =  {"\n","\r\n"};
+
+  pos = fileContent.find("\n", 0);
+  if(pos == 0) {
+    return checksum;
+  }
+
+  if(fileContent[pos-1] == '\r') {
+    isCRLF = 1;
+    qDebug() << "** File has CRLF line endings";
+  } else {
+    isCRLF = 0;
+    qDebug() << "** File has LF line endings";
+  }
+
+  // The first line contains the "checksum" value - if present. Skip it
+  if ( fileContent.find("checksum:") == 0) {
+    startPos = fileContent.find(newLine[isCRLF]) + newLine[isCRLF].length();
+  }
+
+  checksum = crc16(0, (const uint8_t *) &fileContent[startPos], fileContent.length() - startPos, checksum);
+  return checksum;
+}
 
 static YAML::Node loadYamlFromByteArray(const QByteArray& data)
 {
@@ -33,15 +68,25 @@ static YAML::Node loadYamlFromByteArray(const QByteArray& data)
     return YAML::Load(data_istream);
 }
 
-static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
+static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool addChecksum = false)
 {
     // TODO: use real streaming to avoid memory copies
     std::stringstream data_ostream;
+
     data_ostream << node;
     data = QByteArray::fromStdString(data_ostream.str());
 
     qDebug() << "Saving YAML:";
-    qDebug() << data_ostream.str().c_str();
+
+    if(addChecksum) {
+      uint16_t checksum = 0xFFFF;
+      checksum = calculateChecksum(data, checksum);
+      std::stringstream checksum_ostream;
+      checksum_ostream << "checksum:  " << checksum << std::endl;
+      data.prepend(checksum_ostream.str().c_str());
+    }
+
+    qDebug() << data.toStdString().c_str();
 }
 
 bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
@@ -87,6 +132,28 @@ bool loadModelFromYaml(ModelData& model, const QByteArray& data)
 
 bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data)
 {
+    if(data.indexOf("checksum:") == 0) {
+      int startPos = strlen("checksum:");
+      int endPos = data.indexOf("\n");
+      if (endPos > 0) {
+        while( ((const char)data[startPos] == ' ') && (startPos < data.size())) {
+          startPos++;
+        }
+        if (startPos < data.size()) {
+          QByteArray checksumStr = data.mid(startPos, endPos - startPos);
+          uint16_t fileChecksum = std::stoi(checksumStr.toStdString());
+          uint16_t calculatedChecksum = calculateChecksum(data, 0xFFFF);
+          qDebug() << "File checksum:" << fileChecksum;
+          qDebug() << "Calculated checksum:" << calculatedChecksum;
+          if (fileChecksum != calculatedChecksum) {
+            qDebug() << "File checksum mismatch! Got: " << fileChecksum << ", expected: " << calculatedChecksum;
+            QMessageBox::critical(NULL, CPN_STR_APP_NAME, QCoreApplication::translate("EdgeTXInterface", "File checksum error - expected %1!").arg(calculatedChecksum));
+            //return false;
+          }
+        }
+      }
+    }
+
     YAML::Node node = loadYamlFromByteArray(data);
     node >> settings;
     if (settings.version < CPN_CURRENT_SETTINGS_VERSION) {
@@ -159,7 +226,7 @@ bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data)
   YAML::Node node;
   node = settings;
 
-  writeYamlToByteArray(node, data);
+  writeYamlToByteArray(node, data, true);
   return true;
 }
 
