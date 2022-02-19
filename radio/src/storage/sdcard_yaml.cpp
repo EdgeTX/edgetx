@@ -55,12 +55,12 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     uint16_t calculated_checksum = 0xFFFF;
     uint16_t file_checksum = 0;
+    uint8_t isCRLF = 0;
+
     bool first_block = true;
     char buffer[32];
-    while (f_read(&file, buffer, sizeof(buffer), &bytes_read) == FR_OK) {
-
-      // reached EOF?
-      if (bytes_read == 0)
+    while (f_read(&file, buffer, sizeof(buffer)-1, &bytes_read) == FR_OK) {
+      if (bytes_read == 0)  // EOF
         break;
 
       uint16_t skip = 0;
@@ -68,23 +68,26 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
         // Get the 'checksum' value and skip from further YAML processing
         // The checksum must be first in the first buffer read from file
         first_block = false;
-        if(strncmp(buffer, "checksum: ", 10) == 0) {
+        char *skipValue = "checksum: ";
+        if(strncmp(buffer, skipValue, strlen(skipValue)) == 0) {
+          TRACE("*** Skipping checksum");
           skip = 10;
-          char* startPos = buffer + 10; // length of "checksum: "
+          char* startPos = buffer + strlen(skipValue);
           char* endPos = startPos;
-          while(*endPos != '\r') {
+          // Advance through the value
+          while((*endPos != '\r') && (*endPos != '\n')) {
+            TRACE("*** skipping past NL");
             if (endPos > buffer + bytes_read) {
               return SDCARD_ERROR(	FR_INT_ERR);
             }
             endPos++;
           }
-          *endPos = 0;
-
-          // Skip LF of line-ending CR-LF pair
-          endPos++;
-          if(*endPos == '\n') {
+          // Skip trailing newline
+          while((*endPos == '\r') || (*endPos == '\n')) {
+            *endPos = 0;
             endPos++;
           }
+
           file_checksum = atoi(startPos);
           skip = endPos - buffer;
         }

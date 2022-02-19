@@ -15,6 +15,7 @@ set(storage_NAMES
   etx
   otx
   yaml
+  crc
 )
 
 set(storage_SRCS
