@@ -40,16 +40,6 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_area_t refr_area;
   lv_area_copy(&refr_area, area);
 
-#if defined(LCD_VERTICAL_INVERT)
-  lv_coord_t tmp_coord;
-  tmp_coord = refr_area.y2;
-  refr_area.y2 = LCD_H - refr_area.y1 - 1;
-  refr_area.y1 = LCD_H - tmp_coord - 1;
-  tmp_coord = refr_area.x2;
-  refr_area.x2 = LCD_W - refr_area.x1 - 1;
-  refr_area.x1 = LCD_W - tmp_coord - 1;
-#endif
-
   if (refr_area.x1 != 0 || refr_area.x2 != LCD_W-1 || refr_area.y1 != 0 ||
       refr_area.y2 != LCD_H-1) {
     TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,

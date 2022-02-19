@@ -68,17 +68,21 @@ BitmapBuffer * lcdFront = &_lcd2;
 
 void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
-
 #if defined(LCD_VERTICAL_INVERT)
+  coord_t x1 = LCD_W - copy_area.w - copy_area.x;
+  coord_t y1 = LCD_H - copy_area.h - copy_area.y;
+
   auto total = copy_area.w * copy_area.h;
   auto src = buffer + total - 1;
 #else
+  coord_t x1 = copy_area.x;
+  coord_t y1 = copy_area.y;
+
   auto src = buffer;
 #endif
-  auto dst = simuLcdBuf + copy_area.y * LCD_W + copy_area.x;
 
-  auto y2 = copy_area.y + copy_area.h;
-  for (auto line = copy_area.y; line < y2; line++) {
+  auto dst = simuLcdBuf + y1 * LCD_W + x1;
+  for (auto line = 0; line < copy_area.h; line++) {
 
     auto line_end = dst + copy_area.w;
     while (dst != line_end) {
