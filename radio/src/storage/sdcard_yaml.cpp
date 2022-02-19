@@ -55,7 +55,6 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     uint16_t calculated_checksum = 0xFFFF;
     uint16_t file_checksum = 0;
-    uint8_t isCRLF = 0;
 
     bool first_block = true;
     char buffer[32];
@@ -68,17 +67,15 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
         // Get the 'checksum' value and skip from further YAML processing
         // The checksum must be first in the first buffer read from file
         first_block = false;
-        char *skipValue = "checksum: ";
+        const char *skipValue = "checksum: ";
         if(strncmp(buffer, skipValue, strlen(skipValue)) == 0) {
-          TRACE("*** Skipping checksum");
           skip = 10;
           char* startPos = buffer + strlen(skipValue);
           char* endPos = startPos;
           // Advance through the value
           while((*endPos != '\r') && (*endPos != '\n')) {
-            TRACE("*** skipping past NL");
             if (endPos > buffer + bytes_read) {
-              return SDCARD_ERROR(	FR_INT_ERR);
+              return SDCARD_ERROR(	FR_INT_ERR );
             }
             endPos++;
           }
@@ -104,8 +101,15 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
     }
     f_close(&file);
 
-
     if (checksum_result != NULL) {
+      // Special case to handle "old" files with no checksum field
+      // 25 was arbitrarily chosen as the minimum realistic file size
+      // - The issue is to allow old files to pass, while still detecting garbled files
+      if ( (file_checksum == 0) && (bytes_read > 25) ) {
+        *checksum_result = ChecksumResult::Success;
+      }
+
+      // Normal case - compare read and calculated checksum
       if (calculated_checksum == file_checksum) {
         *checksum_result = ChecksumResult::Success;
       } else {
