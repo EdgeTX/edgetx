@@ -85,6 +85,8 @@ set(LVGL_SOURCES_MINIMAL
   misc/lv_async.c
   misc/lv_anim.c
   misc/lv_txt_ap.c
+
+  extra/lv_extra.c
 )
 
 set(LVGL_SOURCES
@@ -153,7 +155,6 @@ set(LVGL_SOURCES
   extra/libs/rlottie/lv_rlottie.c
   extra/libs/png/lv_png.c
   extra/libs/png/lodepng.c
-  extra/lv_extra.c
   extra/widgets/imgbtn/lv_imgbtn.c
   extra/widgets/menu/lv_menu.c
   extra/widgets/win/lv_win.c
