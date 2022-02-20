@@ -324,7 +324,6 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
 {
   char * str = getModelAudioPath(filename);
 
-#if defined(PCBFRSKY)
   if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
@@ -332,6 +331,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
+#if NUM_XPOTS > 0
   else {
     div_t swinfo = div(int(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
@@ -339,11 +339,6 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
     *str++ = '1' + swinfo.rem;
     *str = '\0';
   }
-#else
-  int len = STR_VSWITCHES[0];
-  strncpy(str, &STR_VSWITCHES[1+(len*index)], len);
-  str += len;
-  *str = '\0';
 #endif
   strcat(str, SOUNDS_EXT);
 }
@@ -352,7 +347,6 @@ void getLogicalSwitchAudioFile(char * filename, int index, unsigned int event)
 {
   char * str = getModelAudioPath(filename);
 
-#if defined(PCBFRSKY)
   *str++ = 'L';
   if (index >= 9) {
     div_t qr = div(index+1, 10);
@@ -362,11 +356,6 @@ void getLogicalSwitchAudioFile(char * filename, int index, unsigned int event)
   else {
     *str++ = '1' + index;
   }
-#else
-  int len = STR_VSWITCHES[0];
-  strncpy(str, &STR_VSWITCHES[1+len*(index+SWSRC_FIRST_LOGICAL_SWITCH)], len);
-  str += len;
-#endif
 
   strcpy(str, suffixes[event]);
   strcat(str, SOUNDS_EXT);
