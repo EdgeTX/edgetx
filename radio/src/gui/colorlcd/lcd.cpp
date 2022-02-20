@@ -25,14 +25,6 @@
 uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 
-//TODO: this needs to go away...
-uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-
-uint16_t* lcdGetBackupBuffer()
-{
-  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
-}
-
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
 
@@ -64,6 +56,8 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
   lcd_flush_cb = cb;
 }
 
+static lv_disp_drv_t* refr_disp = nullptr;
+
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
   lv_area_t refr_area;
@@ -82,6 +76,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
                       refr_area.y2 - refr_area.y1 + 1};
 
   if (lcd_flush_cb) {
+    refr_disp = disp_drv;
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
   } else {
     lv_disp_flush_ready(disp_drv);
@@ -148,8 +143,7 @@ void lcdRefresh()
 
 void lcdFlushed()
 {
-  lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-  lv_disp_flush_ready(disp->driver);
+  lv_disp_flush_ready(refr_disp);
 }
 
 //TODO: move this somewhere else
