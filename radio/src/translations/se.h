@@ -47,7 +47,7 @@
 #endif
 
 #define TR_SWTYPES                      "Ingen","Flipp","2Pos","3Pos"
-#define TR_POTTYPES                     TR("None","Ingen"),TR("Pot w. det","Mittläges-pot",TR("Multipos","Flerlägesväljare"),TR("Pot","Potentiometer")
+#define TR_POTTYPES                     TR("None","Ingen"),TR("Pot w. det","Mittläges-pot"),TR("Multipos","Flerlägesväljare"),TR("Pot","Potentiometer")
 #define TR_SLIDERTYPES                  "Ingen","Skjutpot"
 #define TR_VLCD                         "Normal","Optrex"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
