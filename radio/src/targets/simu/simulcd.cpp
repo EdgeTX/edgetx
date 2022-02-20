@@ -26,7 +26,6 @@
 #include <utility>
 
 pixel_t simuLcdBuf[DISPLAY_BUFFER_SIZE];
-pixel_t simuLcdBackupBuf[DISPLAY_BUFFER_SIZE];
 
 bool simuLcdRefresh = true;
 
@@ -41,8 +40,6 @@ void lcdCopy(void *dest, void *src)
   memcpy(dest, src, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
 }
 
-uint16_t *lcdGetBackupBuffer() { return (uint16_t *)simuLcdBackupBuf; }
-
 #if !defined(COLORLCD)
 
 void lcdInit() {}
@@ -56,15 +53,6 @@ void lcdRefresh()
 }
 
 #else
-
-pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
-pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
-
-BitmapBuffer _lcd1(BMP_RGB565, LCD_W, LCD_H, displayBuf1);
-BitmapBuffer _lcd2(BMP_RGB565, LCD_W, LCD_H, displayBuf2);
-
-BitmapBuffer * lcd = &_lcd1;
-BitmapBuffer * lcdFront = &_lcd2;
 
 void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 {
@@ -102,8 +90,7 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
 
 void lcdInit()
 {
-  memset(displayBuf1, 0, sizeof(displayBuf1));
-  memset(displayBuf2, 0, sizeof(displayBuf2));
+  memset(simuLcdBuf, 0, sizeof(simuLcdBuf));
 }
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,

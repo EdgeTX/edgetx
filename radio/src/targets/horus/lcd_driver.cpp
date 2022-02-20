@@ -43,20 +43,7 @@
   #define VFP  2
 #endif
 
-#define LCD_FIRST_LAYER                0
-#define LCD_SECOND_LAYER               1
-
-uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t currentLayer = LCD_FIRST_LAYER;
-
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
-BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_BACKUP_FRAME_BUFFER);
-
-BitmapBuffer * lcdFront = &lcdBuffer1;
-BitmapBuffer * lcd = &lcdBuffer2;
+uint8_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 
 inline void LCD_NRST_LOW()
 {
@@ -291,7 +278,7 @@ void LCD_LayerInit()
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)LCD_FIRST_FRAME_BUFFER;
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)LCD_FRAME_BUFFER;
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
@@ -320,24 +307,10 @@ void LCD_Init(void)
   LCD_Init_LTDC();
 }
 
-void LCD_SetLayer(uint32_t layer)
-{
-  if (layer == LCD_FIRST_LAYER) {
-    lcdFront = &lcdBuffer1;
-    lcd = &lcdBuffer2;
-  }
-  else {
-    lcdFront = &lcdBuffer2;
-    lcd = &lcdBuffer1;
-  }
-  currentLayer = layer;
-}
-
 void lcdInit()
 {
-  // Clear buffers first
-  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
-  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+  // Clear buffer first
+  memset(LCD_FRAME_BUFFER, 0, sizeof(LCD_FRAME_BUFFER));
 
   // Initialize the LCD
   LCD_Init();
@@ -608,27 +581,6 @@ void lcdCopy(void * dest, void * src)
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
-
-void lcdStoreBackupBuffer()
-{
-#if 0
-  lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
-#endif
-}
-
-int lcdRestoreBackupBuffer()
-{
-#if 0
-  lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
-#endif
-  return 1;
-}
-
-uint16_t* lcdGetBackupBuffer()
-{
-  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
-}
-
 
 static volatile uint8_t _frameBufferAddressReloaded = 0;
 
