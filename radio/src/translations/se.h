@@ -741,9 +741,9 @@
 #define TR_BLUETOOTH_PIN_CODE           "PIN-kod"
 #define TR_BAUDRATE                     "BT baudrate"
 #if defined(PCBX9E)
-#define TR_BLUETOOTH_MODES              "---","Enabled"
+  #define TR_BLUETOOTH_MODES            "---","Enabled"
 #else
-#define TR_BLUETOOTH_MODES              "---","Telemetri","Trainer"
+  #define TR_BLUETOOTH_MODES            "---","Telemetri","Trainer"
 #endif
 #define TR_SD_INFO_TITLE                "SD INFO"
 #define TR_SD_TYPE                      "Typ: "
@@ -892,9 +892,9 @@
 #define TR_ANTENNACONFIRM1              "EXT. ANTENN"
 
 #if defined(PCBX12S)
-#define TR_ANTENNA_MODES                "Intern","Fråga","Per modell","Intern + Extern"
+  #define TR_ANTENNA_MODES              "Intern","Fråga","Per modell","Intern + Extern"
 #else
-#define TR_ANTENNA_MODES                "Intern","Fråga","Per modell","Extern"
+  #define TR_ANTENNA_MODES              "Intern","Fråga","Per modell","Extern"
 #endif
 
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
