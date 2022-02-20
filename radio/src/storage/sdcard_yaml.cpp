@@ -192,8 +192,11 @@ const char * loadRadioSettingsYaml()
 const char * loadRadioSettings()
 {
     FILINFO fno;
-    if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
+
 #if STORAGE_CONVERSIONS < 221
+    if ( (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) && ((f_stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, &fno) != FR_OK)) ) {
+      // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
+      // - thus requiring a conversion from binary to YAML.
 #if defined(STORAGE_MODELSLIST)
       uint8_t version;
       const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
