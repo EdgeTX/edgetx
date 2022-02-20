@@ -9,7 +9,8 @@ import sys, struct
 import argparse
 
 lineNumber = 0
-timeData = ''
+timeData = 0
+prevTimeData = 0
 
 crossfire_types = [
     "UINT8",
@@ -183,25 +184,25 @@ parsers = {
 }
 
 def ParsePacket(packet):
-    global timeData
+    global timeData, prevTimeData
     length = packet[1]
     command = packet[2]
     payload = packet[3:-1]
     crc = packet[-1]
+    diffTime = timeData - prevTimeData
+    prefix = '(%d)' % lineNumber if timeData == 0 else '%10.6f [%9.6f]' % (timeData, diffTime)
+    prevTimeData = timeData
+    timeData = 0
     if crc != crc8(packet[2:-1]):
-        print("[%s]" % timeData, dump(packet), "[CRC error]")
-        timeData = ''
+        print(prefix, dump(packet), "[CRC error]")
         return
     if args.ignore and command == 0x16:
-        timeData = ''
         return
     parser = parsers.get(command, None)
-    prefix = '(%d)' % lineNumber if timeData == '' else '[%s]' % timeData
     if parser != None:
         print(prefix, dump(packet), parser(payload))
     else:
         print(prefix, dump(packet), '[Unknown Command 0x%0x]' % command)
-    timeData = ''
 
 crossfireDataBuff = []
 chunkedBuffer = []
@@ -238,7 +239,7 @@ def readSport(inp):
     if len(parts) < 2:
         print("weird data: \"%s\" at line %d" % (line, lineNumber))
         return
-    timeData = parts[0].strip()
+    timeData = float(parts[0].strip())
     crossfireData = parts[1].strip()
     # convert from hex
     parts = crossfireData.split(' ')
@@ -258,8 +259,8 @@ def readCsv(inp):
     if len(parts) < 2:
         return []
     crossfireData = [int(parts[1][2:4],16)]
-    if timeData == '':
-        timeData = parts[0].strip()
+    if timeData == 0:
+        timeData = float(parts[0].strip())
     return crossfireData
 
 def readHex(inp):
