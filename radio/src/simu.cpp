@@ -495,11 +495,7 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
   void interrupt10ms();
   interrupt10ms();
 #endif
-  static int timeToRefresh;
-  if (++timeToRefresh >= 5) {
-    timeToRefresh = 0;
-    refreshDisplay();
-  }
+  refreshDisplay();
   getApp()->addTimeout(this, 2, 10);
   return 0;
 }
