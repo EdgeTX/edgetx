@@ -64,6 +64,8 @@ public:
                     const char* info, bool& result);
 
 protected:
+  lv_obj_t* prevScreen = nullptr;
+
   // GFX
   BitmapBuffer lcdBuffer;
 
