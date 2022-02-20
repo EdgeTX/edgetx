@@ -41,9 +41,9 @@
 #define TR_TRNCHN                       "KN1","KN2","KN3","KN4"
 
 #if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES             "Debug","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
+  #define TR_AUX_SERIAL_MODES             "Debug","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
 #else
-#define TR_AUX_SERIAL_MODES             "Av","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
+  #define TR_AUX_SERIAL_MODES             "Av","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
 #endif
 
 #define TR_SWTYPES                      "Ingen","Flipp","2Pos","3Pos"
