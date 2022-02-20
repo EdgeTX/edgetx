@@ -41,7 +41,9 @@
 struct _lv_disp_drv_t;
 typedef _lv_disp_drv_t lv_disp_drv_t;
 
+// Call backs
 void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *));
+void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&));
 
 // Init LVGL and its display driver
 void lcdInitDisplayDriver();
