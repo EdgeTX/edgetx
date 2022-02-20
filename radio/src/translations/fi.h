@@ -36,7 +36,7 @@
 #define TR_VBEEPMODE                   "Äänet","Hälyt","EiNap","Kaikk"
 #define TR_VBLMODE                     "OFF","Keys",TR("Ctrl","Controls"),"Both","ON"
 #define TR_TRNMODE                     "OFF","+=",":="
-#define TR_TRNCHN                      "CH1","CH2,"CH3","CH4"
+#define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #if defined(CLI) || defined(DEBUG)
 #define TR_AUX_SERIAL_MODES            "Debug","S-Port Pelik","Telemetry In","SBUS Trainer","LUA"
@@ -1069,6 +1069,11 @@
 #define TR_WIDGET_SETTINGS             "Widget settings"
 #define TR_REMOVE_SCREEN               "Remove screen"
 #define TR_SETUP_WIDGETS               "Setup widgets"
+#define TR_USER_INTERFACE              "User interface"
+#define TR_THEME                       "Theme"
+#define TR_SETUP                       "Setup"
+#define TR_LAYOUT                      "Layout"
+#define TR_ADD_MAIN_VIEW               "Add main view"
 #define TR_BACKGROUND_COLOR            "Background color"
 #define TR_MAIN_COLOR                  "Main color"
 #define TR_BAR2_COLOR                  "Secondary bar color"
