@@ -386,9 +386,9 @@
 #define TR_CV                           "KU"
 
 #if defined(PCBNV14)
-#define TR_GV                           "GV"
+  #define TR_GV                           "GV"
 #else
-#define TR_GV                           TR("G","GV")
+  #define TR_GV                           TR("G","GV")
 #endif
 
 #define TR_ACHANNEL                     "A"
