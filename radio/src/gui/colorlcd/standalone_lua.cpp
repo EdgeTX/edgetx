@@ -55,12 +55,9 @@ StandaloneLuaWindow* StandaloneLuaWindow::_instance;
   bool StandaloneLuaWindow::fingerDown = false;
 #endif
 
-// LUA lcd buffer
-uint16_t* lcdGetBackupBuffer();
-
 StandaloneLuaWindow::StandaloneLuaWindow() :
     Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE),
-    lcdBuffer(BMP_RGB565, LCD_W, LCD_H, lcdGetBackupBuffer()),
+    lcdBuffer(BMP_RGB565, LCD_W, LCD_H),
     popup({50, 73, LCD_W - 100, LCD_H - 146})
 {
 }
@@ -88,31 +85,27 @@ void StandaloneLuaWindow::attach(Window* newParent)
 
     Layer::push(this);
   }
+
   setFocus();
 }
 
-void StandaloneLuaWindow::deleteLater(bool detach, bool /*trash*/)
+void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 {
-  Layer::pop(this);
+  if (_deleted)
+    return;
 
-  // do not trash: we are a singleton
-  if (static_cast<Window*>(focusWindow) == static_cast<Window*>(this)) {
-    focusWindow = nullptr;
-  }
+  Layer::pop(this);
 
   if (prevScreen) {
     lv_scr_load(prevScreen);
     prevScreen = nullptr;
   }
-  
-  // detach from parent
-  if (detach) {
-    this->detach();
-  }
 
-  if (closeHandler) {
-    closeHandler();
+  if (trash) {
+    _instance = nullptr;
   }
+  
+  Window::deleteLater(detach, trash);
 }
 
 void StandaloneLuaWindow::paint(BitmapBuffer* dc)

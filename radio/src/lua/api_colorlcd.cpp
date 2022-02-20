@@ -229,7 +229,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
     
     // Draw color box
     int height = getFontHeight(flags & 0xFFFF) + 2 * INVERT_BOX_MARGIN;
-    int width = getTextWidth(s, 255, flags);
+    int width = getTextWidth(s, 0, flags);
     int ix = x - INVERT_BOX_MARGIN;
     if (flags & RIGHT)
       ix -= width;
@@ -288,7 +288,7 @@ static int luaLcdSizeText(lua_State *L)
 {
   const char * s = luaL_checkstring(L, 1);
   LcdFlags flags = luaL_optunsigned(L, 2, 0);
-  lua_pushinteger(L, getTextWidth(s, 255, flags));
+  lua_pushinteger(L, getTextWidth(s, 0, flags));
   lua_pushinteger(L, getFontHeight(flags & 0xFFFF) + getTextVerticalOffset(flags & ~VCENTERED));
   return 2;
 }
