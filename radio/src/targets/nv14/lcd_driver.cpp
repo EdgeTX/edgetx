@@ -23,7 +23,7 @@
 #include "libopenui_config.h"
 #include "lcd.h"
 
-static uint8_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+static pixel_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 
 static uint16_t* next_frame_buffer;
 static rect_t next_frame_area;
@@ -1331,41 +1331,17 @@ void lcdInit(void)
   lcdSetFlushCb(startLcdRefresh);
 }
 
-void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
-                 uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+void DMAWait()
 {
-  DMA2D_DeInit();
-
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_R2M;
-  DMA2D_InitStruct.DMA2D_CMode = DMA2D_RGB565;
-  DMA2D_InitStruct.DMA2D_OutputGreen = (0x07E0 & color) >> 5;
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0x001F & color;
-  DMA2D_InitStruct.DMA2D_OutputRed = (0xF800 & color) >> 11;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0x0F;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest) + 2*(destw*y + x);
-  DMA2D_InitStruct.DMA2D_OutputOffset = (destw - w);
-  DMA2D_InitStruct.DMA2D_NumberOfLine = h;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = w;
-  DMA2D_Init(&DMA2D_InitStruct);
-
-  /* Start Transfer */
-  DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
+  while(DMA2D->CR & DMA2D_CR_START);
 }
-
+  
 void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                    uint16_t y, const uint16_t *src, uint16_t srcw,
                    uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                    uint16_t h)
 {
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -1392,14 +1368,6 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
@@ -1407,6 +1375,7 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
                         uint16_t srcw, uint16_t srch, uint16_t srcx,
                         uint16_t srcy, uint16_t w, uint16_t h)
 {
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -1442,14 +1411,6 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
@@ -1458,6 +1419,7 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
                       uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
                       uint16_t h, uint16_t bg_color)
 {
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -1497,18 +1459,11 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
 {
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -1535,52 +1490,6 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
-}
-
-void lcdCopy(void * dest, void * src)
-{
-  DMA2D_DeInit();
-
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M;
-  DMA2D_InitStruct.DMA2D_CMode = DMA2D_RGB565;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest);
-  DMA2D_InitStruct.DMA2D_OutputGreen = 0;
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0;
-  DMA2D_InitStruct.DMA2D_OutputRed = 0;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0;
-  DMA2D_InitStruct.DMA2D_OutputOffset = 0;
-  DMA2D_InitStruct.DMA2D_NumberOfLine = LCD_H;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = LCD_W;
-  DMA2D_Init(&DMA2D_InitStruct);
-
-  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
-  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
-  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src);
-  DMA2D_FG_InitStruct.DMA2D_FGO = 0;
-  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_RGB565;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
-  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
-
-  /* Start Transfer */
-  DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
-      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return;  // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 extern "C" void LTDC_IRQHandler(void)
