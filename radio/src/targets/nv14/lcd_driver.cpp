@@ -1572,7 +1572,7 @@ static rect_t next_frame_area;
 extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
-  LTDC->ICR = LTDC_ICR_CRRIF;
+  LTDC->ICR = LTDC_ICR_CLIF;
   LTDC_ITConfig(LTDC_IER_LIE, DISABLE);
 
   // TODO: use modified version with "Transfer Complete" IRQ
