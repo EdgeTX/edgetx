@@ -2384,6 +2384,7 @@ const luaL_Reg opentxLib[] = {
   { "playDuration", luaPlayDuration },
   { "playTone", luaPlayTone },
   { "playHaptic", luaPlayHaptic },
+  { "flushAudio", luaFlushAudio },
 #if defined(ENABLE_LUA_POPUP_INPUT)
   { "popupInput", luaPopupInput },
 #endif
