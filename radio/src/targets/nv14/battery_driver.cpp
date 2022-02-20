@@ -176,12 +176,14 @@ void handle_battery_charge(uint32_t last_press_time)
       if(!lcdInited) {
         backlightInit();
         lcdInit();
+        lcdInitDisplayDriver();
         lcdInited = true;
       }
       else {
         lcdOn();
       }
       updateTime = get_tmr10ms();     
+      lcdInitDirectDrawing();
       lcd->clear();
       drawChargingInfo(chargeState);
       lcdRefresh();
