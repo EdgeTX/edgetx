@@ -67,7 +67,7 @@
 #elif defined(PCBHORUS)
   #define TR_RETA123                   "S","H","G","Q","1","3","2","4","5","L","R"
 #elif defined(PCBX9E)
-  #define TR_RETA123                   "S","H","G","Q","1","2","3","4","L",R","L","R"
+  #define TR_RETA123                   "S","H","G","Q","1","2","3","4","L","R","L","R"
 #elif defined(PCBTARANIS) || defined(REVX)
   #define TR_RETA123                   "S","H","G","Q","1","2","3","L","R"
 #else
