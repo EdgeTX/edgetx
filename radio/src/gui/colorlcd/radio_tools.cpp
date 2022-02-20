@@ -136,7 +136,8 @@ void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridL
           f_chdir(toolPath);
 
           luaExec(luaScript.path.c_str());
-          StandaloneLuaWindow::instance()->attach(window);
+          auto lua_win = StandaloneLuaWindow::instance();
+          lua_win->attach(window);
 
           return 0;
         },
