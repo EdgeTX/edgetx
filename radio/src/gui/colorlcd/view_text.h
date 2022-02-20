@@ -26,8 +26,6 @@
 #include "page.h"
 #include "static.h"
 
-constexpr uint16_t TEXT_FILE_MAXSIZE = 20480;
-
 class ViewTextWindow : public Page
 {
  public:
