@@ -41,9 +41,9 @@
 #define TR_TRNCHN                       "KN1","KN2","KN3","KN4"
 
 #if defined(CLI) || defined(DEBUG)
-  #define TR_AUX_SERIAL_MODES             "Debug","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
+  #define TR_AUX_SERIAL_MODES           "Debug","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
 #else
-  #define TR_AUX_SERIAL_MODES             "Av","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
+  #define TR_AUX_SERIAL_MODES           "Av","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
 #endif
 
 #define TR_SWTYPES                      "Ingen","Flipp","2Pos","3Pos"
@@ -179,15 +179,15 @@
 #endif
 
 #define TR_VFSWRESET                    TR_FSW_RESET_TIMERS,"Alla",TR_FSW_RESET_TELEM
-#define TR_FUNCSOUNDS                   TR("Bp1","Beep1"), TR("Bp2",,"Beep2"),TR("Bp3","Beep3"),TR("Wrn1",,"Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
+#define TR_FUNCSOUNDS                   TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
-#define TR_TELEM_RESERVE               TR("[--]","[---]")
-#define TR_TELEM_TIME                  TR("Tid","H:M")
-#define TR_RAS                         "SWR"
-#define TR_RX_BATT                     TR("BtRx","BatRx")
-#define TR_A3_A4                       "A3","A4"
-#define TR_A3_A4_MIN                   "A3-","A4-"
-#define TR_ASPD_MAX                    TR("ASp+","ASpd+")
+#define TR_TELEM_RESERVE                TR("[--]","[---]")
+#define TR_TELEM_TIME                   TR("Tid","H:M")
+#define TR_RAS                          "SWR"
+#define TR_RX_BATT                      TR("BtRx","BatRx")
+#define TR_A3_A4                        "A3","A4"
+#define TR_A3_A4_MIN                    "A3-","A4-"
+#define TR_ASPD_MAX                     TR("ASp+","ASpd+")
 
 #if defined(PCBTARANIS)
   #define TR_TELEM_RSSI_RX             "RSSI"
@@ -1128,7 +1128,7 @@
 #define STR_DIST                        "Dist"
 #define STR_ARM                         "Arm"
 #define STR_C50                         "C50"
-#define STR_C200                        C200"
+#define STR_C200                        "C200"
 #define STR_RPM                         "RPM"
 #define STR_FUEL                        "Fuel"
 #define STR_VSPD                        "VSpd"
