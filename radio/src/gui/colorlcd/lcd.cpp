@@ -77,7 +77,6 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
                       refr_area.y2 - refr_area.y1 + 1};
 
   newLcdRefresh((uint16_t*)color_p, copy_area);
-  lv_disp_flush_ready(disp_drv);
 }
 
 void lcdInitDisplayDriver()
