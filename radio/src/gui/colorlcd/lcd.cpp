@@ -33,6 +33,13 @@ static lv_area_t screen_area = {
     0, 0, LCD_W-1, LCD_H-1
 };
 
+static void (*lcd_wait_cb)(lv_disp_drv_t *) = nullptr;
+
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *))
+{
+  lcd_wait_cb = cb;
+}
+
 void newLcdRefresh(uint16_t* buffer, const rect_t& copy_area);
 
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
@@ -62,12 +69,16 @@ void lcdInitDisplayDriver()
 
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
+
   disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
   disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
+  disp_drv.wait_cb = lcd_wait_cb;         /*Set a wait callback*/
+
   disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
+
 #if defined (LCD_VERTICAL_INVERT)
   disp_drv.rotated = LV_DISP_ROT_180;
 #endif

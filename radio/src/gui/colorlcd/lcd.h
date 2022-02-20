@@ -38,6 +38,11 @@
   #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
 #endif
 
+struct _lv_disp_drv_t;
+typedef _lv_disp_drv_t lv_disp_drv_t;
+
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *));
+
 // Init LVGL and its display driver
 void lcdInitDisplayDriver();
 
