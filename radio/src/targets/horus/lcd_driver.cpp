@@ -323,13 +323,9 @@ void lcdInit()
   LTDC_Cmd(ENABLE);
 }
 
-void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
+                 uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-#endif
-
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -349,22 +345,19 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-  
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
+                   uint16_t y, const uint16_t *src, uint16_t srcw,
+                   uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                   uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -393,22 +386,19 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
+                        uint16_t x, uint16_t y, const uint16_t *src,
+                        uint16_t srcw, uint16_t srch, uint16_t srcx,
+                        uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -446,23 +436,20 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
-void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
+void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
+                      uint16_t x, uint16_t y, const uint8_t *src, uint16_t srcw,
+                      uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                      uint16_t h, uint16_t bg_color)
 {
-#if defined(LCD_VERTICAL_INVERT) && 0
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -504,9 +491,10 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
- 
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
@@ -541,8 +529,9 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -578,9 +567,10 @@ void lcdCopy(void * dest, void * src)
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-  
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
+
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }

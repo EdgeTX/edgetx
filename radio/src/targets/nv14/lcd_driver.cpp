@@ -1170,15 +1170,6 @@ void LCD_Init_LTDC() {
 
   LTDC_Init(&LTDC_InitStruct);
 
-  //Configure IRQ
-  // LTDC_ITConfig(LTDC_IER_RRIE, ENABLE);
-  // NVIC_InitTypeDef NVIC_InitStructure;
-  // NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
-  // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = LTDC_IRQ_PRIO;
-  // NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  // NVIC_Init(&NVIC_InitStructure);
-
   // Configure IRQ (line)
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
@@ -1279,7 +1270,7 @@ void lcdInit(void)
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
 
-  /* Send LCD initializaiton commands */
+  /* Send LCD initialization commands */
   if (LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
     TRACE("LCD INIT: ILI9481");
     boardLcdType = "ILI9481";
@@ -1323,7 +1314,8 @@ void lcdInit(void)
   LTDC_ReloadConfig(LTDC_IMReload);
 }
 
-void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
+                 uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
   DMA2D_DeInit();
 
@@ -1344,14 +1336,18 @@ void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, ui
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
+                   uint16_t y, const uint16_t *src, uint16_t srcw,
+                   uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                   uint16_t h)
 {
   DMA2D_DeInit();
 
@@ -1381,14 +1377,18 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
+                        uint16_t x, uint16_t y, const uint16_t *src,
+                        uint16_t srcw, uint16_t srch, uint16_t srcx,
+                        uint16_t srcy, uint16_t w, uint16_t h)
 {
   DMA2D_DeInit();
 
@@ -1427,15 +1427,19 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
-void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
+void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
+                      uint16_t x, uint16_t y, const uint8_t *src, uint16_t srcw,
+                      uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                      uint16_t h, uint16_t bg_color)
 {
   DMA2D_DeInit();
 
@@ -1478,8 +1482,9 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -1515,8 +1520,9 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
@@ -1552,8 +1558,9 @@ void lcdCopy(void * dest, void * src)
   DMA2D_StartTransfer();
 
   /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
+  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) ||
+      (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
+    return;  // Exit if configuration or transfer error
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
