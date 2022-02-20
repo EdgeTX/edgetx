@@ -43,7 +43,22 @@
   #define VFP  2
 #endif
 
-uint8_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+static uint8_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+
+static uint16_t* next_frame_buffer;
+static rect_t next_frame_area;
+
+static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
+                            const rect_t &copy_area)
+{
+  (void)disp_drv;
+
+  next_frame_buffer = buffer;
+  next_frame_area = copy_area;
+  
+  // Enable line IRQ
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+}
 
 inline void LCD_NRST_LOW()
 {
@@ -321,6 +336,8 @@ void lcdInit()
 
   // Enable LCD display
   LTDC_Cmd(ENABLE);
+
+  lcdSetFlushCb(startLcdRefresh);
 }
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
@@ -575,9 +592,6 @@ void lcdCopy(void * dest, void * src)
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-static uint16_t* next_frame_buffer;
-static rect_t next_frame_area;
-
 extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
@@ -592,14 +606,5 @@ extern "C" void LTDC_IRQHandler(void)
 
   // TODO: call on "Transfer Complete" IRQ
   lcdFlushed();
-}
-
-void newLcdRefresh(uint16_t * buffer, const rect_t& copy_area)
-{
-  next_frame_buffer = buffer;
-  next_frame_area = copy_area;
-  
-  // Enable line IRQ
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 }
 

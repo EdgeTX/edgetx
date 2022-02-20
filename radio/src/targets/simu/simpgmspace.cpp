@@ -146,13 +146,6 @@ static void* bootloaderThread(void*)
 }
 #endif
 
-static void lcdExitHandler(lv_disp_drv_t*)
-{
-  if (simu_shutdown) {
-    lcdFlushed();
-  }
-}
-
 void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 {
   if (simu_running)
@@ -211,8 +204,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
-    lcdSetWaitCb(lcdExitHandler);
-    
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
 #else
