@@ -76,8 +76,18 @@ StandaloneLuaWindow* StandaloneLuaWindow::instance()
 
 void StandaloneLuaWindow::attach(Window* newParent)
 {
-  Window::attach(newParent->getFullScreenWindow());
-  Layer::push(this);
+  if (!prevScreen) {
+
+    // backup previous screen
+    prevScreen = lv_scr_act();
+
+    Window::attach(newParent->getFullScreenWindow());
+
+    // and load new one
+    lv_scr_load(lvobj);
+
+    Layer::push(this);
+  }
   setFocus();
 }
 
@@ -90,9 +100,15 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool /*trash*/)
     focusWindow = nullptr;
   }
 
+  if (prevScreen) {
+    lv_scr_load(prevScreen);
+    prevScreen = nullptr;
+  }
+  
   // detach from parent
-  if (detach)
+  if (detach) {
     this->detach();
+  }
 
   if (closeHandler) {
     closeHandler();
