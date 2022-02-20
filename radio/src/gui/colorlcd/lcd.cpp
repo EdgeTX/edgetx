@@ -50,14 +50,19 @@ static lv_area_t screen_area = {
     0, 0, LCD_W-1, LCD_H-1
 };
 
+// Call backs
 static void (*lcd_wait_cb)(lv_disp_drv_t *) = nullptr;
+static void (*lcd_flush_cb)(lv_disp_drv_t *, uint16_t* buffer, const rect_t& area) = nullptr;
 
 void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *))
 {
   lcd_wait_cb = cb;
 }
 
-void newLcdRefresh(uint16_t* buffer, const rect_t& copy_area);
+void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
+{
+  lcd_flush_cb = cb;
+}
 
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
@@ -76,7 +81,11 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
                       refr_area.x2 - refr_area.x1 + 1,
                       refr_area.y2 - refr_area.y1 + 1};
 
-  newLcdRefresh((uint16_t*)color_p, copy_area);
+  if (lcd_flush_cb) {
+    lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
+  } else {
+    lv_disp_flush_ready(disp_drv);
+  }
 }
 
 void lcdInitDisplayDriver()

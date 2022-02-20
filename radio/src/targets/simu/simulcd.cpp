@@ -54,7 +54,9 @@ void lcdRefresh()
 
 #else
 
-void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
+#include <lvgl/lvgl.h>
+
+static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rect_t& copy_area)
 {
 #if defined(LCD_VERTICAL_INVERT)
   coord_t x1 = LCD_W - copy_area.w - copy_area.x;
@@ -84,13 +86,28 @@ void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
     dst += LCD_W - copy_area.w;
   }
 
-  // Mark screen dirty for async refresh
-  simuLcdRefresh = true;
+  if (lv_disp_flush_is_last(disp_drv)) {
+    // Mark screen dirty for async refresh
+    simuLcdRefresh = true;
+  } else {
+    lv_disp_flush_ready(disp_drv);
+  }
+}
+
+extern bool simu_shutdown;
+
+static void simuLcdExitHandler(lv_disp_drv_t* disp_drv)
+{
+  if (simu_shutdown) {
+    lv_disp_flush_ready(disp_drv);
+  }
 }
 
 void lcdInit()
 {
   memset(simuLcdBuf, 0, sizeof(simuLcdBuf));
+  lcdSetWaitCb(simuLcdExitHandler);
+  lcdSetFlushCb(simuRefreshLcd);
 }
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
