@@ -52,11 +52,11 @@
 #define TR_VLCD                         "Normal","Optrex"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                     "Fråga",TR("Joyst","Joystick",TR("SD-kort","Lagring"),"Seriell")
+#define TR_USBMODES                     "Fråga",TR("Joyst","Joystick"),TR("SD-kort","Lagring"),"Seriell"
 #define TR_JACK_MODES                   "Fråga","Audio","Instruktör"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.Port","FrSky D","FrSky D (sladd)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 #define TR_MULTI_CUSTOM                 "Custom"
-#define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra Fin"),"Fin","Medium","Grov")
+#define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra Fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS                "Nej","Ändra","Ja"
 #define TR_VBEEPCOUNTDOWN               "Tyst","Pip","Röst","Vibrera"
 #define TR_VVARIOCENTER                 "Pip","Tyst"
@@ -86,7 +86,7 @@
 
 #if defined(PCBTARANIS)
   #define TR_CSWTIMER                   "Timer"
-  #define TR_CSWSTICKY                   "Seg"
+  #define TR_CSWSTICKY                  "Seg"
   #define TR_CSWRANGE                   "Vidd"
   #define TR_CSWSTAY                    "Kant"
 #else
@@ -630,7 +630,7 @@
 #define TR_NO_SDCARD                    "SD-kort saknas"
 #define TR_WAITING_FOR_RX               "Waiting for RX..."
 #define TR_WAITING_FOR_TX               "Waiting for TX.."
-#define TR_WAITING_FOR_MODULE           TR("Waiting module", "Waiting for module...")
+#define TR_WAITING_FOR_MODULE           TR("Awaiting module", "Waiting for module...")
 #define TR_NO_TOOLS                     "No tools available"
 #define TR_NORMAL                       "Normal"
 #define TR_NOT_INVERTED                 "Not inv"
