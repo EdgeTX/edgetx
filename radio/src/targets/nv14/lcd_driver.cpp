@@ -23,21 +23,7 @@
 #include "libopenui_config.h"
 #include "lcd.h"
 
-#define LCD_FIRST_LAYER                0
-#define LCD_SECOND_LAYER               1
-
-uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t currentLayer = LCD_FIRST_LAYER;
-
-BitmapBuffer lcdBackup(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_BACKUP_FRAME_BUFFER);
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
-
-BitmapBuffer * lcdFront = &lcdBuffer1;
-BitmapBuffer * lcd = &lcdBuffer2;
+uint8_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
 
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
@@ -1256,58 +1242,29 @@ void LCD_LayerInit() {
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_FIRST_FRAME_BUFFER;
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_FRAME_BUFFER;
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
 
-#if defined(LTDC_DOUBLELAYER)
-   /* Configure Layer 2 */
-  LTDC_Layer_InitStruct.LTDC_BlendingFactor_1 = LTDC_BlendingFactor1_PAxCA;
-  LTDC_Layer_InitStruct.LTDC_BlendingFactor_2 = LTDC_BlendingFactor2_PAxCA;
-
-  /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_SECOND_FRAME_BUFFER;
-
-  /* Initialize LTDC layer 2 */
-  LTDC_LayerInit(LTDC_Layer2, &LTDC_Layer_InitStruct);
-#endif
   /* LTDC configuration reload */
   LTDC_ReloadConfig(LTDC_IMReload);
 
   LTDC_LayerCmd(LTDC_Layer1, ENABLE);
   LTDC_LayerAlpha(LTDC_Layer1, 255);
 
-#if defined(LTDC_DOUBLELAYER)
-  LTDC_LayerCmd(LTDC_Layer2, ENABLE);
-  LTDC_LayerAlpha(LTDC_Layer2, 0);
-#endif
-
   LTDC_ReloadConfig(LTDC_IMReload);
+
   /* dithering activation */
   LTDC_DitherCmd(ENABLE);
 }
 
 const char* boardLcdType = "";
 
-void LCD_SetLayer(uint32_t layer)
-{
-  if (layer == LCD_FIRST_LAYER) {
-    lcdFront = &lcdBuffer1;
-    lcd = &lcdBuffer2;
-  }
-  else {
-    lcdFront = &lcdBuffer2;
-    lcd = &lcdBuffer1;
-  }
-  currentLayer = layer;
-}
-
 void lcdInit(void)
 {
   // Clear buffers first
-  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
-  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+  memset(LCD_FRAME_BUFFER, 0, sizeof(LCD_FRAME_BUFFER));
 
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
@@ -1598,27 +1555,6 @@ void lcdCopy(void * dest, void * src)
 
   /* Wait for CTC Flag activation */
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
-}
-
-void lcdStoreBackupBuffer()
-{
-  lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
-}
-
-int lcdRestoreBackupBuffer()
-{
-  lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
-  return 1;
-}
-
-uint16_t* lcdGetBackupBuffer()
-{
-  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
-}
-
-uint16_t* lcdGetScratchBuffer()
-{
-  return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
 }
 
 //static volatile uint8_t refreshRequested = 0;

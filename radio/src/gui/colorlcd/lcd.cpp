@@ -22,6 +22,23 @@
 #include "lcd.h"
 #include <lvgl/lvgl.h>
 
+uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+
+//TODO: this needs to go away...
+uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
+
+uint16_t* lcdGetBackupBuffer()
+{
+  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
+}
+
+BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
+BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+
+BitmapBuffer * lcdFront = &lcdBuffer1;
+BitmapBuffer * lcd = &lcdBuffer2;
+
 extern BitmapBuffer * lcdFront;
 extern BitmapBuffer * lcd;
 
@@ -67,6 +84,10 @@ void lcdInitDisplayDriver()
 {
   lv_init();
 
+  // Clear buffers first (is that really needed?)
+  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
+  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+  
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
 
