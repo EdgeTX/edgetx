@@ -1179,13 +1179,15 @@ void LCD_Init_LTDC() {
   // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   // NVIC_Init(&NVIC_InitStructure);
 
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+  // Configure IRQ (line)
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = LTDC_IRQ_PRIO;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  // Trigger on last line
   LTDC_LIPConfig(LCD_PHYS_H);
 
 #if 0
@@ -1557,52 +1559,30 @@ void lcdCopy(void * dest, void * src)
   while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-//static volatile uint8_t refreshRequested = 0;
-static volatile uint8_t _frameBufferAddressReloaded = 0;
+static uint16_t* next_frame_buffer;
+static rect_t next_frame_area;
 
 extern "C" void LTDC_IRQHandler(void)
 {
-  LTDC_ClearFlag(LTDC_ICR_CLIF);
-  _frameBufferAddressReloaded = 1;
+  // clear interrupt flag
+  LTDC->ICR = LTDC_ICR_CRRIF;
+  LTDC_ITConfig(LTDC_IER_LIE, DISABLE);
+
+  // TODO: use modified version with "Transfer Complete" IRQ
+  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
+                next_frame_area.x, next_frame_area.y, next_frame_buffer,
+                next_frame_area.w, next_frame_area.h, 0, 0,
+                next_frame_area.w, next_frame_area.h);
+
+  // TODO: call on "Transfer Complete" IRQ
+  lcdFlushed();
 }
 
-static void lcdSwitchLayers()
+void newLcdRefresh(uint16_t * buffer, const rect_t& copy_area)
 {
-  if (currentLayer == LCD_FIRST_LAYER) {
-    LTDC_Layer1->CFBAR = (uint32_t)LCD_SECOND_FRAME_BUFFER;
-    LCD_SetLayer(LCD_SECOND_LAYER);
-  }
-  else {
-    LTDC_Layer1->CFBAR = (uint32_t)LCD_FIRST_FRAME_BUFFER;
-    LCD_SetLayer(LCD_FIRST_LAYER);
-  }
-
-  // reload shadow registers on vertical blank
-  _frameBufferAddressReloaded = 0;
-  LTDC->SRCR = LTDC_SRCR_VBR;
-
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frameBufferAddressReloaded == 0);
-}
-
-static bool once = false;
-
-void newLcdRefresh(uint16_t *buffer, const rect_t& copy_area)
-{
-  DMACopyBitmap((uint16_t*)LCD_BACKUP_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H, copy_area.x, copy_area.y, buffer, copy_area.w, copy_area.h, 0, 0, copy_area.w, copy_area.h);
-
-  if(!once)
-  {
-    LTDC_Layer1->CFBAR = (intptr_t)LCD_BACKUP_FRAME_BUFFER;
-    _frameBufferAddressReloaded = 0;
-    LTDC->SRCR = LTDC_SRCR_VBR;
-    while(_frameBufferAddressReloaded == 0);
-    once=true;
-  }
-}
-
-void lcdRefresh()
-{
-//  lcdSwitchLayers();
+  next_frame_buffer = buffer;
+  next_frame_area = copy_area;
+  
+  // Enable line IRQ
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 }
