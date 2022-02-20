@@ -26,7 +26,7 @@
 
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
 
-
+void DMAWait();
 
 RLEBitmap::RLEBitmap(uint8_t format, const uint8_t* rle_data) :
   BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
@@ -163,9 +163,6 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
 {
   coord_t bmpw = bmp->width();
   coord_t bmph = bmp->height();
-  //TRACE("  BitmapBuffer::drawBitmapAbs %dx%d %s->%s", bmpw, bmph,
-  //           bmp->getFormat() == BMP_RGB565 ? "BMP_RGB565" : "BMP_ARGB4444",
-  //                getFormat() == BMP_RGB565 ? "BMP_RGB565" : "BMP_ARGB4444");
 
   if (srcw == 0) srcw = bmpw;
   if (srch == 0) srch = bmph;
@@ -212,6 +209,7 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
     return;
   }
 
+  DMAWait();
   if (scale == 0) {
     if (bmp->getFormat() == BMP_ARGB4444) {
       DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw,
@@ -316,6 +314,7 @@ void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_
   //
   opacity = 0x0F - opacity;
 
+  DMAWait();
   if (pat == SOLID) {
     while (w--) {
       drawAlphaPixel(p, opacity, color);
@@ -350,6 +349,7 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat
   //
   opacity = 0x0F - opacity;
 
+  DMAWait();
   pixel_t color = COLOR_VAL(flags);
   if (pat == SOLID) {
     while (h--) {
@@ -489,6 +489,7 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
   int px = x1;
   int py = y1;
 
+  DMAWait();
   if (dxabs >= dyabs) {
     /* the line is more horizontal than vertical */
     for (int i = 0; i <= dxabs; i++) {
@@ -615,6 +616,7 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFla
   pixel_t color = COLOR_VAL(flags);
   RGB_SPLIT(color, red, green, blue);
 
+  DMAWait();
   for (int i = y; i < y + h; i++) {
     pixel_t * p = getPixelPtrAbs(x, i);
     for (int j = 0; j < w; j++) {
@@ -668,6 +670,7 @@ void BitmapBuffer::drawFilledTriangle(coord_t x0, coord_t y0, coord_t x1,
   if (y1 > y2) { SWAP(y2, y1); SWAP(x2, x1); }
   if (y0 > y1) { SWAP(y0, y1); SWAP(x0, x1); }
 
+  DMAWait();
   if (y0 == y2) { // Handle awkward all-on-same-line case as its own thing
     a = b = x0;
     if (x1 < a)
@@ -716,6 +719,7 @@ void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags fla
   int decisionOver2 = 1 - x1;
   pixel_t color = COLOR_VAL(flags);
 
+  DMAWait();
   while (y1 <= x1) {
     drawPixel(x1 + x, y1 + y, color);
     drawPixel(y1 + x, x1 + y, color);
@@ -741,6 +745,8 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius, LcdFla
   coord_t imax = ((coord_t)((coord_t)radius * 707)) / 1000 + 1;
   coord_t sqmax = (coord_t)radius * (coord_t)radius + (coord_t)radius / 2;
   coord_t x1 = radius;
+
+  DMAWait();
   drawSolidHorizontalLine(x - radius, y, radius * 2, flags);
   for (coord_t i = 1; i <= imax; i++) {
     if ((i * i + x1 * x1) > sqmax) {
@@ -858,6 +864,7 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y, const uint8_t * im
   int w2 = width / 2;
   int h2 = height / 2;
 
+  DMAWait();
   for (int y1 = h2 - 1; y1 >= 0; y1--) {
     for (int x1 = w2 - 1; x1 >= 0; x1--) {
       Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);
@@ -892,6 +899,7 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
   coord_t internalDist = internalRadius * internalRadius;
   coord_t externalDist = externalRadius * externalRadius;
 
+  DMAWait();
   for (int y1 = 0; y1 <= externalRadius; y1++) {
     for (int x1 = 0; x1 <= externalRadius; x1++) {
       auto dist = x1 * x1 + y1 * y1;
@@ -942,6 +950,7 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
   //
   pixel_t color = COLOR_VAL(flags);
 
+  DMAWait();
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
@@ -990,6 +999,7 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, con
   // TODO: This should be doable the same way as with
   //       drawBitmapPattern() (just with ARGB as input).
   //
+  DMAWait();
   for (coord_t row = 0; row < height; row++) {
     if (y + row < ymin || y + row >= ymax)
       continue;
