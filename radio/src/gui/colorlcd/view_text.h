@@ -82,7 +82,6 @@ class ViewTextWindow : public Page
   std::string extension;
   unsigned int icon;
 
-  bool lastLine;
   uint16_t readCount;
   int longestLine;
 
@@ -96,6 +95,7 @@ class ViewTextWindow : public Page
   int maxLines;
   bool textBottom;
   bool isInSetup;
+  bool openFromEnd;
 
   void extractNameSansExt(void);
   void buildBody(Window* window);

@@ -52,6 +52,7 @@ void ViewTextWindow::extractNameSansExt()
 
   nameLength -= extLength;
   name.substr(nameLength);
+  openFromEnd = !strcmp(ext, LOGS_EXT);
 }
 
 void ViewTextWindow::buildBody(Window *window)
@@ -204,9 +205,16 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
-    while(f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
-                    (lines_count == 0 ||
-                     current_line - textVerticalOffset < maxScreenLines)) {
+    if (!isInSetup && openFromEnd) {
+      f_lseek(&file, file.obj.objsize - maxLineLength * maxScreenLines);
+      textVerticalOffset = maxLines - maxScreenLines;
+      openFromEnd = false;
+      pushEvent(EVT_KEY_BREAK(KEY_UP));
+    }
+    while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
+                         (lines_count == 0 ||
+                          current_line - textVerticalOffset < maxScreenLines))
+    {
       if (c == '\n' || line_length >= maxLineLength) {
         ++current_line;
         line_length = 1;
@@ -269,10 +277,10 @@ void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
 {
   int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
 
-  if (readPos < header.getRect().h << 1) readPos = header.getRect().h << 1;
+  //if (readPos < header.getRect().h << 1) readPos = header.getRect().h << 1;
 
-  coord_t yofs = max(divRoundClosest(body.getRect().h * readPos, maxPos),
-                     header.getRect().h + (int)PAGE_LINE_SPACING);
+  coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos)
+                     + header.getRect().h + (int)PAGE_LINE_SPACING;
   coord_t yhgt = divRoundClosest(body.getRect().h * body.getRect().h, maxPos);
   if (yhgt < 15) yhgt = 15;
   if (yhgt + yofs > maxPos) yhgt = maxPos - yofs;

@@ -279,7 +279,7 @@ void RadioSdManagerPage::build(FormWindow * window)
             // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
             //   // TODO
             // }
-            else if (!strcasecmp(ext, TEXT_EXT)) {
+            else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
