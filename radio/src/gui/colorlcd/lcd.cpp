@@ -63,8 +63,8 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_area_t refr_area;
   lv_area_copy(&refr_area, area);
 
-  if (refr_area.x1 != 0 || refr_area.x2 != LCD_W-1 || refr_area.y1 != 0 ||
-      refr_area.y2 != LCD_H-1) {
+  if (refr_area.x1 != 0 || refr_area.x2 != LCD_PHYS_W-1 || refr_area.y1 != 0 ||
+      refr_area.y2 != LCD_PHYS_H-1) {
     TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
           refr_area.y1, refr_area.x2, refr_area.y2);
   } else {
@@ -98,12 +98,15 @@ void lcdInitDisplayDriver()
   disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
   disp_drv.wait_cb = lcd_wait_cb;         /*Set a wait callback*/
 
-  disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
+  disp_drv.hor_res = LCD_PHYS_W;               /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_PHYS_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
 
-#if defined (LCD_VERTICAL_INVERT)
+#if defined (PCBPL18)
+  disp_drv.rotated = LV_DISP_ROT_90;
+  disp_drv.sw_rotate = 1;
+#elif defined (LCD_VERTICAL_INVERT)
   disp_drv.rotated = LV_DISP_ROT_180;
   disp_drv.sw_rotate = 1;
 #endif
