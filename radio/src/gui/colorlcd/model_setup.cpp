@@ -797,6 +797,13 @@ class ModuleWindow : public FormGroup {
 #endif
 #if defined(MULTIMODULE)
       else if (isModuleMultimodule(moduleIdx)) {
+        MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+
+        if (status.protocolName[0] && status.isValid()) {
+             new StaticText(this, grid.getFieldSlot(2, 1), status.protocolName,
+                            0, COLOR_THEME_PRIMARY1);
+        }
+
         Choice * mmSubProto = nullptr;
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0,
