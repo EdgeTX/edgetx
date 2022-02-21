@@ -19,11 +19,21 @@
  * GNU General Public License for more details.
  */
  
-#include "opentx.h"
+#include "board.h"
+#include "globals.h"
+#include "sdcard.h"
 #include "touch.h"
+#include "debug.h"
 
 #include "hal/adc_driver.h"
 #include "../common/arm/stm32/stm32_hal_adc.h"
+#include "../../timers.h"
+#include "../../debounce.h"
+
+#include "bitmapbuffer.h"
+#include "colors.h"
+
+#include <string.h>
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
