@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
 
 void EXTERNAL_MODULE_ON()
 {

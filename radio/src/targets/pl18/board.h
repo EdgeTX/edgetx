@@ -350,6 +350,7 @@ extern uint16_t adcValues[NUM_ANALOGS];
 #define BATTERY_WARN                  37 // 3.7V
 #define BATTERY_MIN                   35 // 3.4V
 #define BATTERY_MAX                   43 // 4.3V
+#define BATTERY_DIVIDER 962
 
 enum EnumPowerupState
 {
