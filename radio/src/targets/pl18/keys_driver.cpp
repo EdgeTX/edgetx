@@ -19,8 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "board.h"
+#include "keys.h"
+
 #include "hal/adc_driver.h"
+
+#if defined(LUA)
+#include "lua/lua_api.h"
+#endif
 
 enum PhysicalTrims
 {
@@ -230,11 +237,12 @@ void readKeysAndTrims()
   for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
     keys[index++].input(trims & i);
   }
-
+/*
   if ((in || trims) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
     // on keypress turn the light on
     resetBacklightTimeout();
   }
+  */
 }
 
 #if !defined(BOOT)

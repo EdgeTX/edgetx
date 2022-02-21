@@ -211,8 +211,3 @@ void handle_battery_charge(uint32_t last_press_time)
 #endif
 }
 
-uint16_t getBatteryVoltage()
-{
-  int32_t instant_vbat = anaIn(TX_VOLTAGE);  // using filtered ADC value on purpose
-  return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) / 962); // = 2048*1000/(100*(3.3*(120+22)/22))
-}

@@ -19,9 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "fw_version.h"
+#include "lcd.h"
+
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
+
+#include <lvgl/lvgl.h>
 
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
@@ -43,24 +48,8 @@ const uint8_t __bmp_background_rle[] {
 };
 RLEBitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background_rle);
 
-const uint8_t LBM_FLASH[] = {
-#include "icon_flash.lbm"
-};
-
-const uint8_t LBM_EXIT[] = {
-#include "icon_exit.lbm"
-};
-
-const uint8_t LBM_SD[] = {
-#include "icon_sd.lbm"
-};
-
 const uint8_t LBM_FILE[] = {
 #include "icon_file.lbm"
-};
-
-const uint8_t LBM_ERROR[] = {
-#include "icon_error.lbm"
 };
 
 const uint8_t LBM_OK[] = {
@@ -73,14 +62,12 @@ const uint8_t LBM_OK[] = {
 #define BL_FOREGROUND COLOR2FLAGS(WHITE)
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
+extern BitmapBuffer * lcd;
+
 void bootloaderInitScreen()
 {
   backlightEnable(BACKLIGHT_LEVEL_MAX);
-	
-  // TODO: load/decompress bitmaps
-  extern void loadFonts();
-  loadFonts();
-	
+  lcdInitDisplayDriver();
 }
 
 static void bootloaderDrawTitle(const char* text)
@@ -121,7 +108,7 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-    // clear screen
+    lcdInitDirectDrawing();
     bootloaderDrawBackground();
 
     int center = LCD_W/2;
@@ -129,118 +116,117 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         bootloaderDrawTitle(BOOTLOADER_TITLE);
         
-        lcd->drawBitmapPattern(50, 72, LBM_FLASH, BL_FOREGROUND);
-        lcd->drawText(84,  75, "Write Firmware", BL_FOREGROUND);
+        lcd->drawText(62, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(84, 75, "Write Firmware", BL_FOREGROUND);
+        pos += 8;
 
-        lcd->drawBitmapPattern(50, 107, LBM_EXIT, BL_FOREGROUND);
+        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
         lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
 
-        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, LCD_W - 79 - 28, 26, 2, BL_SELECTED);
+        pos -= 79;
+        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
         
         lcd->drawBitmap(center - 55, 165, &BMP_PLUG_USB);
         lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
         lcd->drawText(center, 275, "for mass storage", CENTERED | BL_FOREGROUND);
 
         bootloaderDrawFooter();
-        lcd->drawText(center, LCD_H - DOUBLE_PADDING, "Current Firmware:", CENTERED | BL_FOREGROUND);        
-        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
-    }
-    else if (st == ST_USB) {
-        lcd->drawBitmap(center - 26, 98, &BMP_USB_PLUGGED);
-        lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
-    }
-    else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
-             st == ST_FLASHING || st == ST_FLASH_DONE) {
+        lcd->drawText(center, LCD_H - DOUBLE_PADDING,
+                      "Current Firmware:", CENTERED | BL_FOREGROUND);
+        lcd->drawText(center, LCD_H - DEFAULT_PADDING,
+                      getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
+    } else if (st == ST_USB) {
+      lcd->drawBitmap(center - 26, 98, &BMP_USB_PLUGGED);
+      lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
+    } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||
+               st == ST_FLASH_CHECK || st == ST_FLASHING ||
+               st == ST_FLASH_DONE) {
 
-        bootloaderDrawTitle("SD>FIRMWARE");
-        lcd->drawBitmapPattern(DEFAULT_PADDING, 16, LBM_SD, BL_FOREGROUND);
+      bootloaderDrawTitle(LV_SYMBOL_SD_CARD " /FIRMWARE");
 
-        if (st == ST_FLASHING || st == ST_FLASH_DONE) {
+      if (st == ST_FLASHING || st == ST_FLASH_DONE) {
+        LcdFlags color = BL_RED;  // red
 
-            LcdFlags color = BL_RED; // red
-
-            if (st == ST_FLASH_DONE) {
-                color = BL_GREEN/* green */;
-                opt   = 100; // Completed > 100%
-            }
-
-            lcd->drawRect(DEFAULT_PADDING, 120, LCD_W - DOUBLE_PADDING, 31, 2, SOLID, BL_SELECTED);
-            lcd->drawSolidFilledRect(DEFAULT_PADDING+4, 124, ((LCD_W - DOUBLE_PADDING - 8) * opt) / 100, 23, color);
-        }
-        else if (st == ST_DIR_CHECK) {
-
-            if (opt == FR_NO_PATH) {
-                lcd->drawText(20, MESSAGE_TOP, "Directory is missing", BL_FOREGROUND);
-            }
-            else {
-                lcd->drawText(20, MESSAGE_TOP, "Directory is empty", BL_FOREGROUND);
-            }
-
-            lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP-10, LBM_ERROR, BL_RED);
-        }
-        else if (st == ST_FLASH_CHECK) {
-
-            bootloaderDrawFilename(str, 0, true);
-
-            if (opt == FC_ERROR) {
-                lcd->drawText(20, MESSAGE_TOP, STR_INVALID_FIRMWARE, BL_FOREGROUND);
-                lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP-10, LBM_ERROR, BL_RED);
-            }
-            else if (opt == FC_OK) {
-                VersionTag tag;
-                memset(&tag, 0, sizeof(tag));
-                extractFirmwareVersion(&tag);
-
-                lcd->drawText(LCD_W/4 + DEFAULT_PADDING, MESSAGE_TOP - DEFAULT_PADDING, "Fork:", RIGHT | BL_FOREGROUND);
-                lcd->drawSizedText(LCD_W/4 + 6 + DEFAULT_PADDING, MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6, BL_FOREGROUND);
-
-                lcd->drawText(LCD_W/4 + DEFAULT_PADDING, MESSAGE_TOP, "Version:", RIGHT | BL_FOREGROUND);
-                lcd->drawText(LCD_W/4 + 6 + DEFAULT_PADDING, MESSAGE_TOP, tag.version, BL_FOREGROUND);
-                
-                lcd->drawText(LCD_W/4 + DEFAULT_PADDING, MESSAGE_TOP + DEFAULT_PADDING, "Radio:", RIGHT | BL_FOREGROUND);
-                lcd->drawText(LCD_W/4 + 6 + DEFAULT_PADDING, MESSAGE_TOP + DEFAULT_PADDING, tag.flavour, BL_FOREGROUND);
-                
-                lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP-10, LBM_OK, BL_GREEN);
-            }
-        }
-        
-        bootloaderDrawFooter();
-
-        if ( st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
-
-            lcd->drawBitmapPattern(DEFAULT_PADDING, LCD_H - DOUBLE_PADDING - 2, LBM_FLASH, BL_FOREGROUND);
-
-            if (st == ST_FILE_LIST) {
-#if defined(PCBPL18)
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "[TR4 down] to select file", BL_FOREGROUND);
-#else
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "[R TRIM] to select file", BL_FOREGROUND);
-#endif
-            }
-            else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-#if defined(PCBPL18)
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [TR4 down] long to flash", BL_FOREGROUND);
-#else
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [R TRIM] long to flash", BL_FOREGROUND);
-#endif
-
-            }
-            else if (st == ST_FLASHING) {
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Writing Firmware ...", BL_FOREGROUND);
-            }
-            else if (st == ST_FLASH_DONE) {
-                lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Writing Completed", BL_FOREGROUND);
-            }
+        if (st == ST_FLASH_DONE) {
+          color = BL_GREEN /* green */;
+          opt = 100;  // Completed > 100%
         }
 
-        if (st != ST_FLASHING) {
-            lcd->drawBitmapPattern(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING - 2, LBM_EXIT, BL_FOREGROUND);
-#if defined(PCBPL18)
-            lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, "[TR4 up] to exit", BL_FOREGROUND);
-#else
-            lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, "[L TRIM] to exit", BL_FOREGROUND);
-#endif
-        }        
+        lcd->drawRect(DEFAULT_PADDING, 120, LCD_W - DOUBLE_PADDING, 31, 2,
+                      SOLID, BL_SELECTED);
+        lcd->drawSolidFilledRect(DEFAULT_PADDING + 4, 124,
+                                 ((LCD_W - DOUBLE_PADDING - 8) * opt) / 100, 23,
+                                 color);
+      } else if (st == ST_DIR_CHECK) {
+        if (opt == FR_NO_PATH) {
+          lcd->drawText(20, MESSAGE_TOP,
+                        LV_SYMBOL_CLOSE " Directory is missing", BL_FOREGROUND);
+        } else {
+          lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE " Directory is empty",
+                        BL_FOREGROUND);
+        }
+      } else if (st == ST_FLASH_CHECK) {
+        bootloaderDrawFilename(str, 0, true);
+
+        if (opt == FC_ERROR) {
+          lcd->drawText(20, MESSAGE_TOP,
+                        LV_SYMBOL_CLOSE " " STR_INVALID_FIRMWARE,
+                        BL_FOREGROUND);
+        } else if (opt == FC_OK) {
+          VersionTag tag;
+          memset(&tag, 0, sizeof(tag));
+          extractFirmwareVersion(&tag);
+
+          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
+                        MESSAGE_TOP - DEFAULT_PADDING,
+                        "Fork:", RIGHT | BL_FOREGROUND);
+          lcd->drawSizedText(LCD_W / 4 + 6 + DEFAULT_PADDING,
+                             MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6,
+                             BL_FOREGROUND);
+
+          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING, MESSAGE_TOP,
+                        "Version:", RIGHT | BL_FOREGROUND);
+          lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING, MESSAGE_TOP,
+                        tag.version, BL_FOREGROUND);
+
+          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
+                        MESSAGE_TOP + DEFAULT_PADDING,
+                        "Radio:", RIGHT | BL_FOREGROUND);
+          lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING,
+                        MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
+                        BL_FOREGROUND);
+
+          lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
+                                 LBM_OK, BL_GREEN);
+        }
+      }
+
+      bootloaderDrawFooter();
+
+      if (st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
+
+        lcd->drawText(DEFAULT_PADDING, LCD_H - DOUBLE_PADDING - 2,
+                      LV_SYMBOL_CHARGE, BL_FOREGROUND);
+
+        if (st == ST_FILE_LIST) {
+          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
+                        "[R TRIM] to select file", BL_FOREGROUND);
+        } else if (st == ST_FLASH_CHECK && opt == FC_OK) {
+          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
+                        "Hold [R TRIM] long to flash", BL_FOREGROUND);
+        } else if (st == ST_FLASHING) {
+          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
+                        "Writing Firmware ...", BL_FOREGROUND);
+        } else if (st == ST_FLASH_DONE) {
+          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
+                        "Writing Completed", BL_FOREGROUND);
+        }
+      }
+
+      if (st != ST_FLASHING) {
+        lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
+                      LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
+      }
     }
 }
 
