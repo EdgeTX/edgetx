@@ -76,7 +76,10 @@ static void window_event_cb(lv_event_t * e)
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
     lv_indev_t *click_source = (lv_indev_t *)lv_event_get_param(e);
-    if (click_source == NULL || is_scrolling) return;
+    if (click_source == NULL || is_scrolling) {
+      TRACE_WINDOWS("CLICK WHILE SCROLLING");
+      return;
+    }
 
     // Exclude keyboard ?
     // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||

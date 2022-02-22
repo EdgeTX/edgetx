@@ -61,6 +61,7 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_textarea_set_text(lvobj, value);
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
+  lv_textarea_set_cursor_pos(lvobj, 0);
 
   // LV_PART_MAIN
   lv_style_init(&style_main);
@@ -68,9 +69,10 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_style_set_border_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
-  //lv_style_set_radius(&style_main, 0);
   lv_style_set_text_font(&style_main, &lv_font_roboto_13);
   lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_style_set_pad_left(&style_main, FIELD_PADDING_LEFT);
+  lv_style_set_pad_top(&style_main, FIELD_PADDING_TOP);
   lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
 
   // LV_STATE_FOCUSED
@@ -86,17 +88,15 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   // Show Cursor in "Edit" mode
   lv_style_init(&style_edit);
   lv_style_set_opa(&style_edit, LV_OPA_COVER);
-  lv_style_set_bg_opa(&style_edit, LV_OPA_COVER);
-  lv_style_set_pad_left(&style_edit, (lv_coord_t)-(FIELD_PADDING_LEFT+2));
-  lv_style_set_pad_top(&style_edit, (lv_coord_t)-(FIELD_PADDING_TOP+2));
+  lv_style_set_bg_opa(&style_edit, LV_OPA_50);
   lv_obj_add_style(lvobj, &style_edit, LV_PART_CURSOR | LV_STATE_EDITED);
-
-  // Text padding
-  auto label = lv_textarea_get_label(lvobj);
-  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
-  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 }
 
+
+void TextEdit::setCursorPos(int cursorPos)
+{
+  lv_textarea_set_cursor_pos(lvobj, cursorPos);
+}
 
 void TextEdit::trim()
 {
@@ -141,15 +141,13 @@ void TextEdit::onEvent(event_t event)
 
       case EVT_KEY_BREAK(KEY_LEFT):
         if (cursorPos > 0) {
-          cursorPos--;
-          invalidate();
+          setCursorPos(cursorPos - 1);
         }
         break;
 
       case EVT_KEY_BREAK(KEY_RIGHT):
         if (cursorPos < length - 1 && value[cursorPos + 1] != '\0') {
-          cursorPos++;
-          invalidate();
+          setCursorPos(cursorPos + 1);
         }
         break;
 
@@ -164,7 +162,8 @@ void TextEdit::onEvent(event_t event)
             value[cursorPos] = ' ';
             changed = true;
           }
-          invalidate();
+          lv_textarea_set_text(lvobj, value);
+          setCursorPos(cursorPos);
         }
         else {
           changeEnd();
@@ -225,7 +224,8 @@ void TextEdit::onEvent(event_t event)
           if (cursorPos > 0 && value[cursorPos] == '\0') {
             cursorPos = cursorPos - 1;
           }
-          invalidate();
+          lv_textarea_set_text(lvobj, value);
+          setCursorPos(cursorPos);
         }
         break;
     }
@@ -233,12 +233,13 @@ void TextEdit::onEvent(event_t event)
     if (c != v) {
       // TRACE("value[%d] = %d", cursorPos, v);
       value[cursorPos] = v;
-      invalidate();
+      lv_textarea_set_text(lvobj, value);
+      setCursorPos(cursorPos);
       changed = true;
     }
   }
   else {
-    cursorPos = 0;
+    setCursorPos(0);
     FormField::onEvent(event);
   }
 #endif
@@ -255,22 +256,11 @@ bool TextEdit::onTouchEnd(coord_t x, coord_t y)
     setFocus(SET_FOCUS_DEFAULT);
   }
 
+  cursorPos = lv_textarea_get_cursor_pos(lvobj);
+
 #if defined(SOFTWARE_KEYBOARD)
   TextKeyboard::show(this);
 #endif
-
-  // coord_t rest = x;
-  // for (cursorPos = 0; cursorPos < length; cursorPos++) {
-  //   char c = value[cursorPos];
-  //   if (c == '\0')
-  //     break;
-  //   uint8_t w = getCharWidth(c, fontspecsTable[0]) + 1;
-  //   if (rest < w)
-  //     break;
-  //   rest -= w;
-  // }
-
-  // invalidate();
 
   return true;
 }

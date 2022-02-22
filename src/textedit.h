@@ -56,6 +56,8 @@ class TextEdit : public FormField {
 
     virtual void paint(BitmapBuffer* dc) override {};
 
+    void setCursorPos(int cursorPos);
+
   protected:
     char * value;
     bool changed = false;
@@ -70,7 +72,7 @@ class TextEdit : public FormField {
       if (lvobj != nullptr)
         strncpy(value, lv_textarea_get_text(lvobj), length);
 
-      cursorPos = 0;
+      setCursorPos(0);
       if (changed || forceChanged) {
         changed = false;
         trim();
