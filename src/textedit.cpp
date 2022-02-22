@@ -41,9 +41,6 @@
 #include "clipboard.h"
 #endif
 
-static lv_style_t style_main;
-static lv_style_t style_edit;
-
 TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
                    uint8_t length, LcdFlags windowFlags,
                    const char *_extra_chars) :
