@@ -54,12 +54,6 @@ std::string FileChoice::getLabelText()
 }
 
 
-void FileChoice::paint(BitmapBuffer * dc)
-{
-  // FormField::paint(dc);
-  // theme->drawChoice(dc, this, getValue().c_str());
-}
-
 bool FileChoice::openMenu()
 {
   FILINFO fno;
