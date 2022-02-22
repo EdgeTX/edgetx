@@ -204,12 +204,17 @@ static lv_style_t textedit_style_focused;
 static lv_style_t textedit_style_cursor;
 static lv_style_t textedit_style_cursor_edit;
 
+static lv_style_t focus_key_style;
+
 
 static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
   LV_UNUSED(th);
 
   lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
+
+  lv_obj_add_style(obj, &focus_key_style, LV_STATE_FOCUS_KEY);
+  lv_obj_add_style(obj, &focus_key_style, LV_STATE_EDITED);
 
   lv_obj_t* parent = lv_obj_get_parent(obj);
   if (parent == NULL) {
@@ -244,6 +249,11 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 static void init_theme()
 {
   /*Initialize the styles*/
+
+  // generic focus outline style to overide default theme
+  lv_style_init(&focus_key_style);
+  lv_style_set_outline_width(&focus_key_style, 0);
+  lv_style_set_outline_opa(&focus_key_style, LV_OPA_0);
 
   // Generic (applied to all)
   lv_style_init(&generic_style);
