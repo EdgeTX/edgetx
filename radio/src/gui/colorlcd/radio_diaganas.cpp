@@ -141,9 +141,10 @@ class AnaCalibratedViewWindow: public Window {
         dc->drawLine(rawTouchState.x - 10, rawTouchState.y - 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y + 8 - parent->top(), SOLID, 0);
         dc->drawLine(rawTouchState.x - 10, rawTouchState.y + 8 - parent->top(), rawTouchState.x + 10, rawTouchState.y - 8- parent->top(), SOLID, 0);
       }
-#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
-        constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
-        coord_t x1 = MENUS_MARGIN_LEFT;
+#if !defined(SIMU)
+#if !defined(PCBNV14) && !defined(PCBPL18)
+      constexpr coord_t y1 = MENU_CONTENT_TOP + 5 * FH;
+      coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
       x1 = dc->drawNumber(x1, y1, touchICfwver, LEFT, 4) + 16;
 #elif defined(PCBPL18)
@@ -156,6 +157,7 @@ class AnaCalibratedViewWindow: public Window {
 #endif
         x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
       dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);
+#endif
 #endif
     };
 
