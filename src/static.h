@@ -55,14 +55,11 @@ class StaticText: public Window
     }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
-
     void setText(std::string value)
     {
       if (text != value) {
         text = std::move(value);
         lv_label_set_text(label, this->text.c_str());
-        // invalidate();
       }
     }
 
