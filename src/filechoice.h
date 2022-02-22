@@ -35,8 +35,6 @@ public:
   std::string getName() const override { return "FileChoice"; }
 #endif
 
-  void paint(BitmapBuffer* dc) override;
-
 #if defined(HARDWARE_KEYS)
   void onEvent(event_t event) override;
 #endif
