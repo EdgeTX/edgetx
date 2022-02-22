@@ -20,7 +20,7 @@
 #pragma once
 
 #include "form.h"
-#include "bitmapbuffer.h"
+#include "strhelpers.h"
 
 class BaseNumberEdit: public FormField
 {
@@ -83,7 +83,7 @@ class BaseNumberEdit: public FormField
       auto newValue = limit(vmin, value, vmax);
       if (newValue != currentValue) {
         currentValue = newValue;
-        if (instantChange) {
+        if (instantChange && _setValue != nullptr) {
           _setValue(currentValue);
         }
       }
@@ -91,9 +91,8 @@ class BaseNumberEdit: public FormField
         if (displayFunction != nullptr) {
           lv_textarea_set_text(lvobj, displayFunction(currentValue).c_str());
         } else {
-          char s[50];
-          BitmapBuffer::formatNumberAsString(s, 49, currentValue, textFlags, 0, prefix.c_str(), suffix.c_str());
-          lv_textarea_set_text(lvobj, s);
+          auto dispString = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(), suffix.c_str());
+          lv_textarea_set_text(lvobj, dispString.c_str());
         }
       }
     }
