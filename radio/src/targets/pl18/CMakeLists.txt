@@ -68,7 +68,7 @@ set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(LUA_EXPORT lua_export_pl18)
 set(TOUCH_DRIVER tp_cst340.cpp ../horus/i2c_driver.cpp)
-set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET} truetype_fonts)
+set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
