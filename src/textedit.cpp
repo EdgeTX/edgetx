@@ -62,34 +62,6 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
   lv_textarea_set_cursor_pos(lvobj, 0);
-
-  // LV_PART_MAIN
-  lv_style_init(&style_main);
-  lv_style_set_border_width(&style_main, 1);
-  lv_style_set_border_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
-  lv_style_set_text_font(&style_main, &lv_font_roboto_13);
-  lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_left(&style_main, FIELD_PADDING_LEFT);
-  lv_style_set_pad_top(&style_main, FIELD_PADDING_TOP);
-  lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
-
-  // LV_STATE_FOCUSED
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                            LV_PART_MAIN | LV_STATE_FOCUSED);
-
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
-                              LV_PART_MAIN | LV_STATE_FOCUSED);
-
-  // Hide cursor
-  lv_obj_set_style_opa(lvobj, 0, LV_PART_CURSOR);
-
-  // Show Cursor in "Edit" mode
-  lv_style_init(&style_edit);
-  lv_style_set_opa(&style_edit, LV_OPA_COVER);
-  lv_style_set_bg_opa(&style_edit, LV_OPA_50);
-  lv_obj_add_style(lvobj, &style_edit, LV_PART_CURSOR | LV_STATE_EDITED);
 }
 
 
