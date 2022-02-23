@@ -143,7 +143,10 @@ void lcdRefresh()
 
 void lcdFlushed()
 {
-  lv_disp_flush_ready(refr_disp);
+  // its possible to get here before flushLcd is ever called.
+  // so check for nullptr first. (Race condition if you put breakpoints in startup code)
+  if (refr_disp != nullptr)
+    lv_disp_flush_ready(refr_disp);
 }
 
 //TODO: move this somewhere else
