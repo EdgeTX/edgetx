@@ -31,6 +31,8 @@ class StaticText: public Window
     {
       label = lv_label_create(lvobj);
       lv_label_set_text(label, this->text.c_str());
+      lv_obj_clear_flag(label, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
       lv_obj_set_style_text_font(lvobj, &lv_font_roboto_13, LV_PART_MAIN);
       lv_obj_set_style_text_color(label, makeLvColor(textFlags), LV_PART_MAIN);

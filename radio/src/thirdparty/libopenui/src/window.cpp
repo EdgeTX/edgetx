@@ -35,11 +35,22 @@ static void window_event_cb(lv_event_t * e)
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
+  // we do this before looking for user data (libopenui ptr) for this, and in 
+  // fact during delete operations the window will be deleted and you need 
+  // to reset scrolling if you get a pressing as when you are deleting controls
+  // you get scroll begin events and no scroll end
+  if (code == LV_EVENT_SCROLL_BEGIN) {
+    TRACE("SCROLL_BEGIN");
+    is_scrolling = true;
+  } else if (code == LV_EVENT_SCROLL_END || code == LV_EVENT_PRESSING) {
+    TRACE("SCROLL_END");
+    is_scrolling = false;
+  } 
+
   Window* window = (Window *)lv_obj_get_user_data(target);
   if (!window) return;
 
-  if(code == LV_EVENT_DELETE ||
-     window->deleted()) return;
+  if(code == LV_EVENT_DELETE || window->deleted()) return;
 
   if (code == LV_EVENT_GET_SELF_SIZE) {
 
@@ -126,12 +137,6 @@ static void window_event_cb(lv_event_t * e)
     window->setScrollPositionY(scroll_y);
     window->setScrollPositionX(scroll_x);
 
-  } else if (code == LV_EVENT_SCROLL_BEGIN) {
-    TRACE("SCROLL_BEGIN");
-    is_scrolling = true;
-  } else if (code == LV_EVENT_SCROLL_END) {
-    TRACE("SCROLL_END");
-    is_scrolling = false;
   } else if (code == LV_EVENT_FOCUSED) {
     bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
     bool loiu_focused = ((Window *)target->user_data)->hasFocus();
@@ -298,7 +303,9 @@ void Window::setFocus(uint8_t flag, Window * from)
     if (lvobj != nullptr && !lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
       lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
       if (focusWindow != nullptr) {
-        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED | LV_STATE_EDITED);
+        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED);
+        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_EDITED);
+        // lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED | LV_STATE_EDITED);
       }
     }
 
