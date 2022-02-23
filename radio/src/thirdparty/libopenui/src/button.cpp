@@ -80,30 +80,17 @@ void Button::onEvent(lv_event_t* event)
   if (enabled && code == LV_EVENT_CLICKED) {
     onKeyPress();
     onPress();
-  }
-  else {
-//    FormField::onEvent(event);
-  }
-}
 
-#if defined(HARDWARE_TOUCH)
-bool Button::onTouchStart(coord_t x, coord_t y)
-{
-  Window::onTouchStart(x, y);
-  return true;
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool Button::onTouchEnd(coord_t x, coord_t y)
-{
-  if (enabled) {
-    onKeyPress();
     if (!(windowFlags & NO_FOCUS)) {
       setFocus(SET_FOCUS_DEFAULT);
     }
-    onPress();
   }
+}
+
+#if defined(HARDWARE_TOUCH)
+// this needs to stay so that viewmain doesnt get the touch event
+bool Button::onTouchEnd(coord_t x, coord_t y)  
+{
   return true;
 }
 #endif
