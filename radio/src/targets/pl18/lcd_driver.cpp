@@ -35,9 +35,32 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   next_frame_buffer = buffer;
   next_frame_area = copy_area;
-  
+//  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
+//                 next_frame_area.x, next_frame_area.y, next_frame_buffer,
+//                 next_frame_area.w, next_frame_area.h, 0, 0,
+//                 next_frame_area.w, next_frame_area.h);
+//  lcdFlushed();
   // Enable line IRQ
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+//memcpy(LCD_FRAME_BUFFER, buffer, LCD_PHYS_W*LCD_PHYS_H);
+//  for(int i=0; i< LCD_PHYS_W*LCD_PHYS_H;++i)
+//  {
+//	  if(i%LCD_PHYS_H==0 || i%(LCD_PHYS_H-1)==0)
+//		    ((uint16_t*)LCD_FRAME_BUFFER)[i]=0xFFFF;
+////	    ((uint16_t*)LCD_FRAME_BUFFER)[i/2]=i&0xFFFF;
+//  }
+  lcdFlushed();
+//  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+  LTDC_Layer1->CFBAR = (uint32_t)buffer;
+
+
+ // reload shadow registers on vertical blank
+ //_frameBufferAddressReloaded = 0;
+ LTDC->SRCR = LTDC_SRCR_VBR;
+
+ // wait for reload
+ // TODO: replace through some smarter mechanism without busy wait
+// while(_frameBufferAddressReloaded == 0);
+
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -996,7 +1019,20 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x96 );
 
   lcdWriteCommand( 0x36 );
-  lcdWriteData( 0x88 );
+    lcdWriteData( 0x28 );
+  //  lcdWriteData( 0x88 );
+  //lcdWriteData( 0xB8 );
+  lcdWriteCommand( 0x2A );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0xDF );
+  lcdWriteCommand( 0x2B );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0x3F );
+
 
   lcdWriteCommand( 0x3A );
   lcdWriteData( 0x66 );
@@ -1009,9 +1045,12 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x01 );
 
   lcdWriteCommand( 0xB6 );
-  lcdWriteData( 0x20 );
-  lcdWriteData( 0x02 );
-  lcdWriteData( 0x3B );
+  //  lcdWriteData( 0x20 );
+  //  lcdWriteData( 0x02 );
+  //  lcdWriteData( 0x3B );
+    lcdWriteData( 0x20 );
+    lcdWriteData( 0x02 );
+    lcdWriteData( 0x3B );
   //SET RGB END
 
   lcdWriteCommand( 0xB7);

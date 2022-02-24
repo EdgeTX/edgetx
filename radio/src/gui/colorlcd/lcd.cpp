@@ -100,12 +100,12 @@ void lcdInitDisplayDriver()
 
   disp_drv.hor_res = LCD_PHYS_W;               /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_PHYS_H;               /*Set the vertical resolution in pixels*/
-  disp_drv.full_refresh = 0;
-  disp_drv.direct_mode = 0;
+  disp_drv.full_refresh = 1;
+  disp_drv.direct_mode = 1;
 
 #if defined (PCBPL18)
   disp_drv.rotated = LV_DISP_ROT_90;
-  disp_drv.sw_rotate = 1;
+//  disp_drv.sw_rotate = 1;
 #elif defined (LCD_VERTICAL_INVERT)
   disp_drv.rotated = LV_DISP_ROT_180;
   disp_drv.sw_rotate = 1;
