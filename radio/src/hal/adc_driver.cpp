@@ -267,7 +267,7 @@ void getADC()
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18)
     if (globalData.flyskygimbals)
     {
         if (x < 4) {
