@@ -109,9 +109,10 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
                     }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 #endif
 }
-
+bool checkEventsRan = false;
 void RadioCalibrationPage::checkEvents()
 {
+  checkEventsRan=true;
   Page::checkEvents();
 
   for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS + NUM_MOUSE_ANALOGS; i++) { // get low and high vals for sticks and trims
@@ -232,6 +233,9 @@ void RadioCalibrationPage::onEvent(event_t event)
 
 void RadioCalibrationPage::nextStep()
 {
+  if(!checkEventsRan)
+    return;
+  checkEventsRan=false;
   menuCalibrationState++;
 
   switch (menuCalibrationState) {
