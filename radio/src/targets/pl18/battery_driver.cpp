@@ -23,8 +23,8 @@
 #define  __BATTERY_DRIVER_C__
 
 #define BATTERY_W 140
-#define BATTERY_H 320
-#define BATTERY_TOP ((LCD_PHYS_H - BATTERY_H)/2)
+#define BATTERY_H 200
+#define BATTERY_TOP ((LCD_H - BATTERY_H)/2)
 #define BATTERY_CONNECTOR_W 32
 #define BATTERY_CONNECTOR_H 10
 #define BATTERY_BORDER 4
@@ -146,13 +146,13 @@ void drawChargingInfo(uint16_t chargeState){
     }
 
     BACKLIGHT_ENABLE();
-    lcd->drawSizedText(LCD_PHYS_W/2, LCD_PHYS_H-50, text, strlen(text), CENTERED|COLOR_THEME_PRIMARY2);
+    lcd->drawSizedText(LCD_W/2, LCD_H-50, text, strlen(text), CENTERED|COLOR_THEME_PRIMARY2);
 
-    lcd->drawFilledRect((LCD_PHYS_W - BATTERY_W)/2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
-    lcd->drawFilledRect((LCD_PHYS_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
+    lcd->drawFilledRect((LCD_W - BATTERY_W)/2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
+    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
 
-    lcd->drawFilledRect((LCD_PHYS_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER + BATTERY_H_INNER - h , BATTERY_W_INNER, h, SOLID, color);
-    lcd->drawFilledRect((LCD_PHYS_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
+    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER + BATTERY_H_INNER - h , BATTERY_W_INNER, h, SOLID, color);
+    lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
 #define CHARGE_INFO_DURATION 500
 //this method should be called by timer interrupt or by GPIO interrupt
@@ -197,13 +197,15 @@ void handle_battery_charge(uint32_t last_press_time)
       if(!lcdInited) {
         backlightInit();
         lcdInit();
+        lcdInitDisplayDriver();
         lcdInited = true;
         touchPanelInit();
       }
       else {
         lcdOn();
       }
-      updateTime = get_tmr10ms();     
+      updateTime = get_tmr10ms();
+      lcdInitDirectDrawing();
       lcd->clear();
       drawChargingInfo(chargeState);
       lcdRefresh();
