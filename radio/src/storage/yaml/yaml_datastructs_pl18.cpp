@@ -372,6 +372,7 @@ static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "version", 8 ),
+  YAML_CUSTOM("board",nullptr,w_board),
   YAML_PADDING( 16 ),
   YAML_ARRAY("calib", 48, 9, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
@@ -405,12 +406,10 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "templateSetup", 8 ),
   YAML_SIGNED( "PPM_Multiplier", 8 ),
   YAML_SIGNED_CUST( "hapticLength", 8, r_5pos, w_5pos ),
-  YAML_PADDING( 8 ),
-  YAML_UNSIGNED( "stickReverse", 8 ),
   YAML_SIGNED_CUST( "beepLength", 3, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "hapticStrength", 3, r_5pos, w_5pos ),
   YAML_UNSIGNED( "gpsFormat", 1 ),
-  YAML_UNSIGNED( "unexpectedShutdown", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED_CUST( "speakerPitch", 8, r_spPitch, w_spPitch ),
   YAML_SIGNED_CUST( "speakerVolume", 8, r_vol, w_vol ),
   YAML_SIGNED_CUST( "vBatMin", 8, r_vbat_min, w_vbat_min ),
@@ -481,7 +480,7 @@ static const struct YamlNode struct_TimerData[] = {
 };
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 8 ),
-  YAML_SIGNED( "value", 8 ),
+  YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
@@ -492,7 +491,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_PADDING( 1 ),
-  YAML_SIGNED( "offset", 14 ),
+  YAML_SIGNED_CUST( "offset", 14, in_read_weight, in_write_weight ),
   YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
@@ -505,10 +504,10 @@ static const struct YamlNode struct_MixData[] = {
 };
 static const struct YamlNode struct_LimitData[] = {
   YAML_IDX,
-  YAML_SIGNED( "min", 11 ),
-  YAML_SIGNED( "max", 11 ),
+  YAML_SIGNED_CUST( "min", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED_CUST( "max", 11, in_read_weight, in_write_weight ),
   YAML_SIGNED( "ppmCenter", 10 ),
-  YAML_SIGNED( "offset", 11 ),
+  YAML_SIGNED_CUST( "offset", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "symetrical", 1 ),
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 3 ),
@@ -527,7 +526,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
   YAML_PADDING( 1 ),
   YAML_STRING("name", 6),
-  YAML_SIGNED( "offset", 8 ),
+  YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_END
 };
@@ -828,7 +827,7 @@ static const struct YamlNode struct_CustomScreenData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 576, 2, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 576, 4, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 96, 1, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
@@ -875,7 +874,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("potsWarnPosition", 8, 5, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6800, 5, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 1248, struct_TopBarPersistentData, NULL),
+  YAML_STRUCT("topbarData", 2400, struct_TopBarPersistentData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_END
