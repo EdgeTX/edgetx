@@ -1058,6 +1058,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO""ON\0 "
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_FILE_SIZE                   "File size"
+#define TR_FILE_OPEN                   "Open anyway?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"

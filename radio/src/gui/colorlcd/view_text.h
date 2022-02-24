@@ -47,7 +47,7 @@ class ViewTextWindow : public Page
   };
 
   void sdReadTextFileBlock(const char* filename, int& lines_count);
-  void loadFirstScreen(void);
+  void loadOneScreen(int offset);
 #if defined(HARDWARE_TOUCH)
   bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
                     coord_t slideX, coord_t slideY) override;

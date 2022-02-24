@@ -30,6 +30,8 @@
 #include "view_text.h"
 #include "file_preview.h"
 
+constexpr int WARN_FILE_LENGTH = 96000;
+
 class FileNameEditWindow : public Page
 {
   public:
@@ -283,12 +285,27 @@ void RadioSdManagerPage::build(FormWindow * window)
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                FIL file;
+                std::string fileName =
+                    std::string(lfn) + "/" + std::string(name);
+                if (FR_OK == f_open(&file, (TCHAR *)fileName.c_str(),
+                                    FA_OPEN_EXISTING | FA_READ)) {
+                  const int fileLenght = file.obj.objsize;
+                  f_close(&file);
 
-                auto textView = new ViewTextWindow(lfn, name);
-                textView->setCloseHandler([=]() {
-                  //window->clear();
-                  rebuild(window);
-                });
+                  if (fileLenght > WARN_FILE_LENGTH) {
+                    char buf[64];
+                    sprintf(buf, " %s %dkB. %s", STR_FILE_SIZE,
+                            fileLenght / 1024, STR_FILE_OPEN);
+                    new ConfirmDialog(window, STR_WARNING, buf, [=] {
+                      auto textView = new ViewTextWindow(lfn, name);
+                      textView->setCloseHandler([=]() { rebuild(window); });
+                    });
+                  } else {
+                    auto textView = new ViewTextWindow(lfn, name);
+                    textView->setCloseHandler([=]() { rebuild(window); });
+                  }
+                }
               });
             }
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {

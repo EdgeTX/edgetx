@@ -60,6 +60,7 @@ void ViewTextWindow::buildBody(Window *window)
   GridLayout grid(window);
   grid.spacer();
   int i;
+  FIL file;
 
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
@@ -75,22 +76,26 @@ void ViewTextWindow::buildBody(Window *window)
     memclear(lines[i], maxLineLength + 1);
   }
 
-  longestLine = 0;
-  loadFirstScreen();
+  if (isInSetup) {
+    if (FR_OK ==
+        f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ)) {
+      const int fileLenght = file.obj.objsize;
+      maxLines = 20 * fileLenght / maxLineLength;
+      f_close(&file);
 
-  if (isInSetup == true) {
-    textBottom = false;
-    while (!textBottom) {
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-      textVerticalOffset += 10;
+      textBottom = false;
+      longestLine = 0;
+      loadOneScreen(maxLines);
+
+      maxPos =
+          (maxLines - maxScreenLines) * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+      if (maxPos < body.getRect().h) maxPos = body.getRect().h;
     }
-    maxPos =
-        (maxLines - maxScreenLines) * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-    if (maxPos < body.getRect().h) maxPos = body.getRect().h;
   }
 
   isInSetup = false;
-  loadFirstScreen();
+  textVerticalOffset = 0;
+  loadOneScreen(openFromEnd ? (maxLines - maxScreenLines) : 0);
 
   for (i = 0; i < maxScreenLines; i++) {
     new DynamicText(window, grid.getSlot(), [=]() {
@@ -99,7 +104,7 @@ void ViewTextWindow::buildBody(Window *window)
       return std::string(str);
     });
     grid.nextLine();
-  }
+    }
 }
 
 #if defined(HARDWARE_TOUCH)
@@ -115,8 +120,8 @@ bool ViewTextWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX,
     textVerticalOffset += lineStep;
     if (textVerticalOffset < 0) textVerticalOffset = 0;
 
-    //  if (textBottom && lineStep > 0) textVerticalOffset -= lineStep;
-    if (textVerticalOffset > maxLines) textVerticalOffset = maxLines;
+    if (textVerticalOffset > maxLines - maxScreenLines)
+      textVerticalOffset = maxLines - maxScreenLines;
     sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   }
   return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
@@ -179,9 +184,9 @@ void ViewTextWindow::checkEvents()
   Page::checkEvents();
 }
 
-void ViewTextWindow::loadFirstScreen()
+void ViewTextWindow::loadOneScreen(int offset)
 {
-  textVerticalOffset = 0;
+  textVerticalOffset = offset;
   readLinesCount = 0;
   sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
 }
@@ -205,12 +210,6 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
-    if (!isInSetup && openFromEnd) {
-      f_lseek(&file, file.obj.objsize - maxLineLength * maxScreenLines);
-      textVerticalOffset = maxLines - maxScreenLines;
-      openFromEnd = false;
-      pushEvent(EVT_KEY_BREAK(KEY_UP));
-    }
     while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
                          (lines_count == 0 ||
                           current_line - textVerticalOffset < maxScreenLines))
@@ -276,8 +275,6 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
 {
   int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-
-  //if (readPos < header.getRect().h << 1) readPos = header.getRect().h << 1;
 
   coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos)
                      + header.getRect().h + (int)PAGE_LINE_SPACING;

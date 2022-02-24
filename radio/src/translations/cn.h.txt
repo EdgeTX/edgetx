@@ -993,6 +993,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "自动""开启"
 #define TR_NO_TELEMETRY_SCREENS        "无回传页面"
 #define TR_TOUCH_PANEL                 "触摸屏:"
+#define TR_FILE_SIZE                   "File size"
+#define TR_FILE_OPEN                   "Open anyway?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名称"
