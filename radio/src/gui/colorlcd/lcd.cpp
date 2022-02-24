@@ -171,7 +171,6 @@ void lcdInitDisplayDriver()
 
 #if defined (PCBPL18)
   disp_drv.rotated = LV_DISP_ROT_90;
-
 #endif
 
   // Register the driver and save the created display object
