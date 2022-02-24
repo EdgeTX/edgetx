@@ -35,32 +35,16 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   next_frame_buffer = buffer;
   next_frame_area = copy_area;
-//  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-//                 next_frame_area.x, next_frame_area.y, next_frame_buffer,
-//                 next_frame_area.w, next_frame_area.h, 0, 0,
-//                 next_frame_area.w, next_frame_area.h);
-//  lcdFlushed();
-  // Enable line IRQ
-//memcpy(LCD_FRAME_BUFFER, buffer, LCD_PHYS_W*LCD_PHYS_H);
-//  for(int i=0; i< LCD_PHYS_W*LCD_PHYS_H;++i)
-//  {
-//	  if(i%LCD_PHYS_H==0 || i%(LCD_PHYS_H-1)==0)
-//		    ((uint16_t*)LCD_FRAME_BUFFER)[i]=0xFFFF;
-////	    ((uint16_t*)LCD_FRAME_BUFFER)[i/2]=i&0xFFFF;
-//  }
+#if 1
+  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
+                 next_frame_area.y, next_frame_area.x, next_frame_buffer,
+                 next_frame_area.h, next_frame_area.w, 0, 0,
+                 next_frame_area.h, next_frame_area.w);
   lcdFlushed();
-//  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
-  LTDC_Layer1->CFBAR = (uint32_t)buffer;
-
-
- // reload shadow registers on vertical blank
- //_frameBufferAddressReloaded = 0;
- LTDC->SRCR = LTDC_SRCR_VBR;
-
- // wait for reload
- // TODO: replace through some smarter mechanism without busy wait
-// while(_frameBufferAddressReloaded == 0);
-
+#else
+  // Enable line IRQ
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+#endif
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -1539,9 +1523,9 @@ extern "C" void LTDC_IRQHandler(void)
 
   // TODO: use modified version with "Transfer Complete" IRQ
   DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-                next_frame_area.x, next_frame_area.y, next_frame_buffer,
-                next_frame_area.w, next_frame_area.h, 0, 0,
-                next_frame_area.w, next_frame_area.h);
+                 next_frame_area.y, next_frame_area.x, next_frame_buffer,
+                 next_frame_area.h, next_frame_area.w, 0, 0,
+                 next_frame_area.h, next_frame_area.w);
 
   // TODO: call on "Transfer Complete" IRQ
   lcdFlushed();
