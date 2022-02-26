@@ -25,6 +25,7 @@
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
+#include "gvars.h"
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
@@ -1513,7 +1514,7 @@ static int luaModelGetGlobalVariable(lua_State *L)
   unsigned int idx = luaL_checkunsigned(L, 1);
   unsigned int phase = luaL_checkunsigned(L, 2);
   if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS)
-    lua_pushinteger(L, g_model.flightModeData[phase].gvars[idx]);
+    lua_pushinteger(L, getGVarValue(idx, phase));
   else
     lua_pushnil(L);
   return 1;
@@ -1541,7 +1542,7 @@ static int luaModelSetGlobalVariable(lua_State *L)
   unsigned int phase = luaL_checkunsigned(L, 2);
   int value = luaL_checkinteger(L, 3);
   if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
-    g_model.flightModeData[phase].gvars[idx] = value;
+    SET_GVAR(idx, value, phase);
     storageDirty(EE_MODEL);
   }
   return 0;
