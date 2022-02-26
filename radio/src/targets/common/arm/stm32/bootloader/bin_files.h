@@ -22,11 +22,8 @@
 #ifndef _bin_files_h_
 #define _bin_files_h_
 
-#include <FatFs/ff.h>
-#include "sdcard.h"
-#if defined(COLORLCD)
+#include "VirtualFS.h"
 #include "bitmapbuffer.h"
-#endif
 
 enum MemoryType {
   MEM_FLASH,
