@@ -798,7 +798,8 @@ void luaError(lua_State * L, uint8_t error)
     if (!strncmp(msg, ".", 2)) msg += 1;
 #endif
 #if LCD_W == 128
-      msg = strrchr(msg, '/') + 1;
+    const char * tmp = strrchr(msg, '/');
+    if (tmp) msg = tmp + 1;
 #else
     if (!strncmp(msg, "/SCRIPTS/", 9)) msg += 9;
 #endif
