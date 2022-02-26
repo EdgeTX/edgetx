@@ -323,7 +323,6 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
-uint16_t flashSpiReadID();
 
 #if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
@@ -347,14 +346,6 @@ void RadioVersionPage::build(FormWindow * window)
     if (i > 0) version += ", ";
     version += options[i];
   }
-
-#if defined(SPI_FLASH)
-  auto spiTxt = new StaticText(window, rect_t{}, "SPI Flash ID:");
-  lv_obj_set_width(spiTxt->getLvObj(), lv_pct(100));
-  sprintf(reusableBuffer.moduleSetup.msg, "%04X", flashSpiReadID());
-  auto spiTxt = new StaticText(window, rect_t{}, reusableBuffer.moduleSetup.msg);
-  lv_obj_set_width(spiTxt->getLvObj(), lv_pct(100));
-#endif
 
 #if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   version += nl;
