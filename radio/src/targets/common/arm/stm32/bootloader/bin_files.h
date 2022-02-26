@@ -23,6 +23,7 @@
 #define _bin_files_h_
 
 #include <FatFs/ff.h>
+#include "VirtualFS.h"
 #include "bitmapbuffer.h"
 
 enum MemoryType {
