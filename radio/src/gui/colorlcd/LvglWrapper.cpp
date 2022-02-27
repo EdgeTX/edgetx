@@ -203,9 +203,15 @@ static lv_style_t textedit_style_main;
 static lv_style_t textedit_style_focused;
 static lv_style_t textedit_style_cursor;
 static lv_style_t textedit_style_cursor_edit;
+static lv_style_t numberedit_style_main;
+static lv_style_t numberedit_style_focused;
+static lv_style_t numberedit_style_cursor;
+static lv_style_t numberedit_style_cursor_edit;
 
 static lv_style_t focus_key_style;
 
+
+extern lv_obj_class_t lv_numberedit_class;
 
 static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
@@ -220,6 +226,13 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
   if (parent == NULL) {
     // main screen
     return;
+  }
+
+  if (lv_obj_check_type(obj, &lv_numberedit_class)) {
+    lv_obj_add_style(obj, &numberedit_style_main, LV_PART_MAIN);
+    lv_obj_add_style(obj, &numberedit_style_focused, LV_PART_MAIN | LV_STATE_FOCUSED);
+    lv_obj_add_style(obj, &numberedit_style_cursor, LV_PART_CURSOR);
+    lv_obj_add_style(obj, &numberedit_style_cursor_edit, LV_PART_CURSOR | LV_STATE_EDITED);
   }
 
   if (lv_obj_check_type(obj, &lv_textarea_class)) {
@@ -261,6 +274,33 @@ static void init_theme()
   lv_style_set_bg_opa(&generic_style, LV_OPA_TRANSP);
   lv_style_set_border_width(&generic_style, 0);
   lv_style_set_radius(&generic_style, 0);
+
+  // numberedit
+  // LV_PART_MAIN
+  lv_style_init(&numberedit_style_main);
+  lv_style_init(&numberedit_style_focused);
+  lv_style_init(&numberedit_style_cursor);
+  lv_style_init(&numberedit_style_cursor_edit);
+
+  lv_style_set_border_width(&numberedit_style_main, 1);
+  lv_style_set_border_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_bg_color(&numberedit_style_main, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_bg_opa(&numberedit_style_main, LV_OPA_COVER);
+  lv_style_set_text_font(&numberedit_style_main, &lv_font_roboto_13);
+  lv_style_set_text_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_style_set_pad_left(&numberedit_style_main, FIELD_PADDING_LEFT);
+  lv_style_set_pad_top(&numberedit_style_main, FIELD_PADDING_TOP);
+
+  // LV_STATE_FOCUSED
+  lv_style_set_bg_color(&numberedit_style_focused, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_text_color(&numberedit_style_focused, makeLvColor(COLOR_THEME_PRIMARY2));
+
+  // Hide cursor when not editing
+  lv_style_set_opa(&numberedit_style_cursor, LV_OPA_0);
+
+  // Show Cursor in "Edit" mode
+  lv_style_set_opa(&numberedit_style_cursor_edit, LV_OPA_COVER);
+  lv_style_set_bg_opa(&numberedit_style_cursor_edit, LV_OPA_50);
 
   // textedit
   lv_style_init(&textedit_style_main);
