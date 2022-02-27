@@ -908,22 +908,26 @@ void logicalSwitchesTimerTick()
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
-          bool now = getSwitch(ls->v2);
-          if (now != before) {
-            lastValue.last ^= 1;
-            if (!before) {
-              lastValue.state = 0;
+            if (ls->v2 != SWSRC_NONE) { // only if used / source set
+                bool now = getSwitch(ls->v2);
+                if (now != before) {
+                  lastValue.last ^= 1;
+                  if (!before) {
+                    lastValue.state = 0;
+                  }
+                }
             }
-          }
         }
         else {
-          bool now = getSwitch(ls->v1);
-          if (before != now) {
-            lastValue.last ^= 1;
-            if (!before) {
-              lastValue.state = 1;
+            if (ls->v1 != SWSRC_NONE) { // only if used / source set
+                bool now = getSwitch(ls->v1);
+                if (before != now) {
+                  lastValue.last ^= 1;
+                  if (!before) {
+                    lastValue.state = 1;
+                  }
+                }
             }
-          }
         }
       }
       else if (ls->func == LS_FUNC_EDGE) {
