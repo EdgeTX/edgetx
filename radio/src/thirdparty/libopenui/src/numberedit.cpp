@@ -24,10 +24,7 @@
 #endif
 
 
-static lv_style_t style_main;
-static lv_style_t style_edit;
-
-static void text_area_cb(lv_event_t* e)
+static void numberedit_cb(lv_event_t* e)
 {
   lv_event_code_t code = lv_event_get_code(e);
   if (code == LV_EVENT_DELETE) return;
@@ -57,13 +54,23 @@ static void text_area_cb(lv_event_t* e)
   e->code = LV_EVENT_REFRESH;
 }
 
+// create a new class for number edit so we can set the sytles differently if needed.
+lv_obj_class_t lv_numberedit_class = lv_textarea_class;
+
+lv_obj_t *lv_numberedit_create(lv_obj_t *parent) 
+{
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_numberedit_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
+}
+
 NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
                        std::function<void(int)> setValue,
                        WindowFlags windowFlags, LcdFlags textFlags) :
     BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
                    std::move(setValue), windowFlags, textFlags,
-                   lv_textarea_create)
+                   lv_numberedit_create)
 {
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
@@ -72,47 +79,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
 
   auto value = _getValue();
   this->setValue(value);
-
-  // LV_PART_MAIN
-  lv_style_init(&style_main);
-  lv_style_set_border_width(&style_main, 1);
-  lv_style_set_border_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_bg_color(&style_main, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&style_main, LV_OPA_COVER);
-  //lv_style_set_radius(&style_main, 0);
-  lv_style_set_text_font(&style_main, &lv_font_roboto_13);
-  lv_style_set_text_color(&style_main, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_obj_add_style(lvobj, &style_main, LV_PART_MAIN);
-
-  // LV_STATE_FOCUSED
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                            LV_PART_MAIN | LV_STATE_FOCUSED);
-
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
-                              LV_PART_MAIN | LV_STATE_FOCUSED);
-
-  lv_obj_set_style_outline_width(lvobj, 0, LV_PART_MAIN|LV_STATE_EDITED);
-  lv_obj_set_style_outline_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN|LV_STATE_EDITED);
-  lv_obj_set_style_outline_width(lvobj, 0, LV_PART_MAIN|LV_STATE_FOCUS_KEY);
-  lv_obj_set_style_outline_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN|LV_STATE_FOCUS_KEY);
-
-  // Hide cursor
-  lv_obj_set_style_opa(lvobj, 0, LV_PART_CURSOR);
-
-  // Show Cursor in "Edit" mode
-  lv_style_init(&style_edit);
-  lv_style_set_opa(&style_edit, LV_OPA_COVER);
-  lv_style_set_bg_opa(&style_edit, LV_OPA_COVER);
-  lv_style_set_pad_left(&style_edit, (lv_coord_t)-(FIELD_PADDING_LEFT+2));
-  lv_style_set_pad_top(&style_edit, (lv_coord_t)-(FIELD_PADDING_TOP+2));
-  lv_obj_add_style(lvobj, &style_edit, LV_PART_CURSOR | LV_STATE_EDITED);
-
-  // Text padding
-  auto label = lv_textarea_get_label(lvobj);
-  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
-  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
-
-  lv_obj_add_event_cb(lvobj, text_area_cb, LV_EVENT_ALL, this);
+  lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_ALL, this);
 }
 
 void NumberEdit::onEvent(event_t event)

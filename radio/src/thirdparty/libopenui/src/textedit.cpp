@@ -65,7 +65,8 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
 void TextEdit::setCursorPos(int cursorPos)
 {
   this->cursorPos = cursorPos;
-  lv_textarea_set_cursor_pos(lvobj, cursorPos);
+  if (lvobj != nullptr)
+    lv_textarea_set_cursor_pos(lvobj, cursorPos);
 }
 
 void TextEdit::trim()
