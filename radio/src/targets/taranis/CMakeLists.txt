@@ -191,6 +191,7 @@ elseif(PCB STREQUAL X7)
     set(FIRMWARE_TARGET_SRC
       ${FIRMWARE_TARGET_SRC}
       startup_stm32f40_41xxx.s
+      ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
       )
     add_definitions(-DSTM32F40_41xxx)
     set(ROTARY_ENCODER YES)

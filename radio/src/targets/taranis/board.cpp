@@ -135,6 +135,17 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
+#if defined(RADIO_ZORRO)
+    
+  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
+  {
+    FLASH_OB_Unlock();
+    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
+    FLASH_OB_Launch();
+    FLASH_OB_Lock();
+  }
+#endif
+
   pwrInit();
 
 #if defined(AUTOUPDATE)
