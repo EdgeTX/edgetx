@@ -1487,6 +1487,7 @@ static int luaModelSetOutput(lua_State *L)
   return 0;
 }
 
+#if defined(GVARS)
 /*luadoc
 @function model.getGlobalVariable(index, flight_mode)
 
@@ -1547,6 +1548,7 @@ static int luaModelSetGlobalVariable(lua_State *L)
   }
   return 0;
 }
+#endif
 
 /*luadoc
 @function model.getSensor(sensor)
@@ -1644,8 +1646,10 @@ const luaL_Reg modelLib[] = {
   { "setCurve", luaModelSetCurve },
   { "getOutput", luaModelGetOutput },
   { "setOutput", luaModelSetOutput },
+#if defined (GVARS)
   { "getGlobalVariable", luaModelGetGlobalVariable },
   { "setGlobalVariable", luaModelSetGlobalVariable },
+#endif
   { "getSensor", luaModelGetSensor },
   { "resetSensor", luaModelResetSensor },
   { NULL, NULL }  /* sentinel */
