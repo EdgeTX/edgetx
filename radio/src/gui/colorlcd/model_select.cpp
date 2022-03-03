@@ -24,6 +24,7 @@
 #include "opentx.h"
 #include "storage/modelslist.h"
 #include "libopenui.h"
+#include "standalone_lua.h"
 
 #if LCD_W > LCD_H
 constexpr int MODEL_CELLS_PER_LINE = 3;
@@ -156,16 +157,24 @@ class SelectTemplate : public TemplatePage
 
       for (auto name: files) {
         auto tb = new TemplateButton(&body, grid.getLabelSlot(), name, [=]() -> uint8_t {
+            // Read model template
             loadModelTemplate((name + YAML_EXT).c_str(), path);
             storageDirty(EE_MODEL);
             storageCheck(true);
-
+            // Update model list with new name
             auto model = modelslist.getCurrentModel();
             model->setModelName(g_model.header.name);
             modelslist.save();
-
+            // Dismiss template pages
             deleteLater();
             templateFolderPage->deleteLater();
+            // If there is a wizard Lua script, fire it up
+            snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
+            if (f_stat(buffer, 0) == FR_OK) {
+              luaExec(buffer);
+              StandaloneLuaWindow::instance()->attach(focusWindow);
+            }
+
             return 0;
           });
         tb->setFocusHandler([=](bool active) {
