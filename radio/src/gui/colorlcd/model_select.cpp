@@ -205,14 +205,6 @@ class SelectTemplate : public TemplatePage
   TemplatePage* templateFolderPage;
 };
 
-class TemplateFolderButton : public TextButton
-{  
-  public:
-  TemplateFolderButton(FormGroup* parent, const rect_t& rect, std::string name, std::function<uint8_t(void)> pressHandler = nullptr)
-  : TextButton(parent, rect, name, pressHandler)
-  { }
-};
-
 class SelectTemplateFolder : public TemplatePage
 {
   public:
@@ -247,7 +239,7 @@ class SelectTemplateFolder : public TemplatePage
       directories.sort(compare_nocase);
 
       for (auto name: directories) {
-        auto tfb = new TemplateFolderButton(&body, grid.getLabelSlot(), name,
+        auto tfb = new TemplateButton(&body, grid.getLabelSlot(), name,
             [=]() -> uint8_t {
             snprintf(path, LEN_PATH, "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
             new SelectTemplate(this);
