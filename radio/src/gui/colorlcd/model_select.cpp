@@ -215,6 +215,19 @@ class SelectTemplateFolder : public TemplatePage
 
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
+
+    auto tfb = new TemplateButton(&body, grid.getLabelSlot(), "Blank Model", [=]() -> uint8_t {
+      deleteLater();
+      return 0;
+    });
+    tfb->setFocusHandler([=](bool active) {
+      if (active) {
+        snprintf(infoText, LEN_INFO_TEXT, "%c", '\0');
+        invalidate();
+      }
+    });
+    grid.nextLine();
+
     std::list<std::string> directories;
     FILINFO fno;
     DIR dir;
@@ -259,10 +272,9 @@ class SelectTemplateFolder : public TemplatePage
     f_closedir(&dir);
     count = directories.size();
     if (count == 0) {
-      deleteLater();
-    } else {
-      snprintf(buffer, LEN_BUFFER, "%s%c%s%c%s%s", TEMPLATES_PATH, '/', directories.front().c_str(), '/', "about", TEXT_EXT);
-      updateInfo();
+      rect_t rect = grid.getLabelSlot();
+      rect.w = body.getRect().w - 2 * PAGE_PADDING;
+      new StaticText(&body, rect, STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
     }
   }
 };
