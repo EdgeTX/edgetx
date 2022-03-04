@@ -43,13 +43,13 @@ class OutputEditWindow : public Page {
 
     void checkEvents() override
     {
-      Window::checkEvents();
       int newValue = channelOutputs[channel];
       if (value != newValue) {
         value = newValue;
         body.clear();
         buildBody(&body);
       }
+      Window::checkEvents();
     }
 
       void buildHeader(Window * window)
