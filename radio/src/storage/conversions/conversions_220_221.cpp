@@ -174,6 +174,10 @@ const char* convertRadioData_220_to_221()
 
   const char* error = nullptr;
   uint16_t read = eeLoadGeneralSettingsData(data, size);
+
+  auto& settings = *reinterpret_cast<bin_storage_220::RadioData*>(data);
+  settings.version = 221;
+
   if (read == size) {
     error = writeFileYaml(RADIO_SETTINGS_YAML_PATH,
                           yaml_conv_220::get_radiodata_nodes(), data);
