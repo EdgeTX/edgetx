@@ -40,14 +40,22 @@ class OutputEditWindow : public Page {
     uint8_t channel;
     int value = 0;
     int chanZero = 0;
+    StaticText* minText;
+    StaticText* maxText;
 
     void checkEvents() override
     {
       int newValue = channelOutputs[channel];
       if (value != newValue) {
         value = newValue;
-        body.clear();
-        buildBody(&body);
+
+        int chanVal = calcRESXto100(channelOutputs[channel]);
+        minText->setBackgroundColor(chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE
+                                                           : 0U);
+        minText->invalidate();
+        maxText->setBackgroundColor(chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE
+                                                           : 0U);
+        maxText->invalidate();
       }
       Window::checkEvents();
     }
@@ -73,10 +81,9 @@ class OutputEditWindow : public Page {
         int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
 
         LimitData *output = limitAddress(channel);
-        int chanVal = calcRESXto100(channelOutputs[channel]);
 
           // Name
-          new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
+        new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
                          COLOR_THEME_PRIMARY1);
         new ModelTextEdit(window, grid.getFieldSlot(), output->name,
                           sizeof(output->name));
@@ -93,18 +100,16 @@ class OutputEditWindow : public Page {
         //TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
 
         // Min
-        new StaticText(
-            window, grid.getLabelSlot(), TR_MIN, 0,
-            chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY1);
+        minText = new StaticText(
+            window, grid.getLabelSlot(), TR_MIN, 0, COLOR_THEME_PRIMARY1);
         new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
                            GET_SET_DEFAULT(output->min), 0, PREC1,
                            -LIMIT_STD_MAX);
         grid.nextLine();
 
         // Max
-        new StaticText(
-            window, grid.getLabelSlot(), TR_MAX, 0,
-            chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY1);
+        maxText = new StaticText(
+            window, grid.getLabelSlot(), TR_MAX, 0, COLOR_THEME_PRIMARY1);
         new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
                            GET_SET_DEFAULT(output->max), 0, PREC1,
                            +LIMIT_STD_MAX);
