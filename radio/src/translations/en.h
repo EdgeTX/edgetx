@@ -60,13 +60,15 @@
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "Standard","Custom"
 
+#define TR_ADCFILTERVALUES             "Global","Off","On"
+
 #if defined(PCBX10)
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
 #elif defined(PCBHORUS)
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS) || defined(REVX)
+#elif defined(PCBTARANIS)
   #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
@@ -314,9 +316,6 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Center Beep")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "Use global funcs")
-#if defined(PCBSKY9X) && defined(REVX)
-  #define TR_OUTPUT_TYPE               INDENT "Output"
-#endif
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
   #define TR_PPMFRAME                  INDENT "PPM frame"
   #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
@@ -418,6 +417,8 @@
 #define TR_PWR_ON_DELAY                "Pwr On delay"
 #define TR_PWR_OFF_DELAY               "Pwr Off delay"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
+#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
+#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch positions")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")
@@ -742,6 +743,7 @@
 #define TR_PATH_TOO_LONG               "Path too long"
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")      
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "Flash S.Port device")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -750,6 +752,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
+#define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
+#define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
+#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "Device data refused")
+#define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "Device access problem")
+#define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "Device file refused")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "Device file sig.")
 #define TR_CURRENT_VERSION             TR("Curr Vers: ", "Current version: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash int. module", "Flash internal module")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
@@ -921,6 +929,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO","ON"
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_FILE_SIZE                   "File size"
+#define TR_FILE_OPEN                   "Open anyway?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
