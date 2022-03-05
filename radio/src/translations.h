@@ -196,8 +196,8 @@ extern const char* STR_VPREC[];
 extern const char* STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
 extern const char* STR_ADCFILTERVALUES[];
-extern const char* STR_FILE_SIZE[];
-extern const char* STR_FILE_OPEN[];
+extern const char STR_FILE_SIZE[];
+extern const char STR_FILE_OPEN[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];

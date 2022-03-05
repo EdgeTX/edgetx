@@ -499,6 +499,8 @@
 #define TR_MENUVERSION                 "VERSION"
 #define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "SWITCHES TEST")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "ANALOGS TEST")
+#define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
+#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION             "CALIBRATION"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
@@ -832,6 +834,11 @@
 #define TR_AND_SWITCH                  "AND switch"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
+#define TR_ANADIAGS_CALIB              "Calibrated analogs"
+#define TR_ANADIAGS_FILTRAWDEV         "Filtered raw analogs with deviation"
+#define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
+#define TR_ANADIAGS_MINMAX             "Min., max. and range"
+#define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
 #define TR_SPEAKER                     INDENT "Speaker"
 #define TR_BUZZER                      INDENT "Buzzer"
 #define TR_BYTES                       "bytes"
