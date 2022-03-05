@@ -104,7 +104,7 @@ void RadioGhostModuleConfig::buildBody(FormWindow * window)
   new GhostModuleConfigWindow(window, {0, 0, LCD_W, LCD_H - MENU_HEADER_HEIGHT - 5});
 }
 
-#if defined(HARDWARE_KEYS)
+#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
 void RadioGhostModuleConfig::onEvent(event_t event)
 {
   switch (event) {
