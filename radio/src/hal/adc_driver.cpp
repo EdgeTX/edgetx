@@ -202,9 +202,9 @@ uint16_t getAnalogValue(uint8_t index)
     return adcValues[index];
 }
 
-static uint32_t s_anaFilt[NUM_ANALOGS];
+// used by diaganas
+uint32_t s_anaFilt[NUM_ANALOGS];
 
-#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
 #define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
 #define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
 #if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
