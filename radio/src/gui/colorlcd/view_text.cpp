@@ -55,6 +55,13 @@ void ViewTextWindow::extractNameSansExt()
   openFromEnd = !strcmp(ext, LOGS_EXT);
 }
 
+void ViewTextWindow::buildBody(Window *window)
+{
+  GridLayout grid(window);
+  grid.spacer();
+  int i;
+  FIL file;
+
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
   maxLineLength = static_cast<int>(window->width() / 10 / 10) * 10 - 2;
