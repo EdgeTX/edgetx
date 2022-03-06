@@ -493,11 +493,11 @@ QString GeneralSettings::telemetryBaudrateToString(int value)
       return "115200";
     case 1:
       return "400000";
-	  case 2:
+    case 2:
       return "921600";
     case 3:
       return "1870000";
-	  case 4:
+    case 4:
       return "3750000";
     case 5:
       return "5250000";
