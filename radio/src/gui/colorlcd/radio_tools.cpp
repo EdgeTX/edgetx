@@ -271,7 +271,8 @@ void RadioToolsPage::rebuild(FormWindow * window)
     grid.nextLine();
   }
 #endif
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(HARDWARE_INTERNAL_MODULE)
+  if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE)
   {
     auto txt =
         new StaticText(window, grid.getLabelSlot(), "multi", BUTTON_BACKGROUND,
