@@ -490,9 +490,17 @@ QString GeneralSettings::telemetryBaudrateToString(int value)
 {
   switch(value) {
     case 0:
-      return "400000";
-    case 1:
       return "115200";
+    case 1:
+      return "400000";
+	  case 2:
+      return "921600";
+    case 3:
+      return "1870000";
+	  case 4:
+      return "3750000";
+    case 5:
+      return "5250000";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -572,7 +580,7 @@ AbstractStaticItemModel * GeneralSettings::telemetryBaudrateItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_TELEMETRYBAUDRATE);
 
-  for (int i = 0; i <= 1; i++) {
+  for (int i = 0; i <= 5; i++) {
     mdl->appendToItemList(telemetryBaudrateToString(i), i);
   }
 
