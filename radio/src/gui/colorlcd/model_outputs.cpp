@@ -20,241 +20,238 @@
  */
 
 #include "model_outputs.h"
+
 #include "opentx.h"
 #include "libopenui.h"
+
 #include "gvar_numberedit.h"
-#define SET_DIRTY()     storageDirty(EE_MODEL)
 
-class OutputEditWindow : public Page {
-  public:
-    explicit OutputEditWindow(uint8_t channel) :
-      Page(ICON_MODEL_OUTPUTS),
-      channel(channel)
-    {
-      chanZero = calcRESXto100(channelOutputs[channel]);
-      buildBody(&body);
-      buildHeader(&header);
-    }
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
-  protected:
-    uint8_t channel;
-    int value = 0;
-    int chanZero = 0;
-    StaticText* minText;
-    StaticText* maxText;
+class OutputEditWindow : public Page
+{
+ public:
+  explicit OutputEditWindow(uint8_t channel) :
+      Page(ICON_MODEL_OUTPUTS), channel(channel)
+  {
+    chanZero = calcRESXto100(channelOutputs[channel]);
+    buildBody(&body);
+    buildHeader(&header);
+  }
 
-    void checkEvents() override
-    {
-      int newValue = channelOutputs[channel];
-      if (value != newValue) {
-        value = newValue;
+ protected:
+  uint8_t channel;
+  int value = 0;
+  int chanZero = 0;
+  StaticText *minText;
+  StaticText *maxText;
 
-        int chanVal = calcRESXto100(channelOutputs[channel]);
-        minText->setBackgroundColor(chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE
-                                                           : 0U);
-        minText->invalidate();
-        maxText->setBackgroundColor(chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE
-                                                           : 0U);
-        maxText->invalidate();
-      }
-      Window::checkEvents();
-    }
+  void checkEvents() override
+  {
+    int newValue = channelOutputs[channel];
+    if (value != newValue) {
+      value = newValue;
 
-      void buildHeader(Window * window)
-      {
-        new StaticText(window,
-                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
-                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                       STR_MENULIMITS, 0, COLOR_THEME_PRIMARY2);
-        new StaticText(window,
-                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                       getSourceString(MIXSRC_CH1 + channel), 0,
-                       COLOR_THEME_PRIMARY2);
-      }
-
-      void buildBody(FormWindow * window)
-      {
-        FormGridLayout grid;
-        grid.spacer(8);
-
-        int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
-
-        LimitData *output = limitAddress(channel);
-
-          // Name
-        new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
-                         COLOR_THEME_PRIMARY1);
-        new ModelTextEdit(window, grid.getFieldSlot(), output->name,
-                          sizeof(output->name));
-        grid.nextLine();
-
-        // Offset
-        new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM,
-                       0, COLOR_THEME_PRIMARY1);
-        new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
-                           +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0,
-                           PREC1);
-        grid.nextLine();
-
-        //TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
-
-        // Min
-        minText = new StaticText(
-            window, grid.getLabelSlot(), TR_MIN, 0, COLOR_THEME_PRIMARY1);
-        new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                           GET_SET_DEFAULT(output->min), 0, PREC1,
-                           -LIMIT_STD_MAX);
-        grid.nextLine();
-
-        // Max
-        maxText = new StaticText(
-            window, grid.getLabelSlot(), TR_MAX, 0, COLOR_THEME_PRIMARY1);
-        new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                           GET_SET_DEFAULT(output->max), 0, PREC1,
-                           +LIMIT_STD_MAX);
-        grid.nextLine();
-
-        // Direction
-        new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0,
-                       COLOR_THEME_PRIMARY1);
-        new CheckBox(window, grid.getFieldSlot(),
-                      GET_DEFAULT(output->revert),
-                      [output, this] (uint8_t newValue) {
-                        if (newValue != output->revert) chanZero = -chanZero;
-                        output->revert = newValue;
-                        SET_DIRTY();
-                      });
-        grid.nextLine();
-
-        // Curve
-        new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
-                       COLOR_THEME_PRIMARY1);
-        auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
-                                   +MAX_CURVES, GET_SET_DEFAULT(output->curve));
-        edit->setDisplayHandler(
-            [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
-              dc->drawText(2, 2, getCurveString(value));
-            });
-        grid.nextLine();
-
-        // PPM center
-        new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER,
-                       0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
-                       PPM_CENTER + PPM_CENTER_MAX,
-                       GET_VALUE(output->ppmCenter + PPM_CENTER),
-                       SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
-        grid.nextLine();
-
-        // Subtrims mode
-        new StaticText(window, grid.getLabelSlot(),
-                       TR_LIMITS_HEADERS_SUBTRIMMODE, 0, COLOR_THEME_PRIMARY1);
-        new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
-                   GET_SET_DEFAULT(output->symetrical));
-        grid.nextLine();
-
-        window->setInnerHeight(grid.getWindowHeight());
-      }
-    };
-
-class OutputLineButton : public Button {
-  public:
-    OutputLineButton(FormGroup * parent, const rect_t &rect, LimitData * output, int ch) :
-      Button(parent, rect),
-      output(output),
-      channel(ch)
-    {
-      if (output->revert || output->curve || output->name[0]) {
-        setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
-      }
-      chanZero = calcRESXto100(channelOutputs[channel]);
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
-      LcdFlags textColor = COLOR_THEME_SECONDARY1;
-      LcdFlags bgColor   = COLOR_THEME_PRIMARY2;
-      LcdFlags textColorActive = COLOR_THEME_ACTIVE;
-      LcdFlags textFlag; 
       int chanVal = calcRESXto100(channelOutputs[channel]);
+      minText->setBackgroundColor(chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE
+                                                         : 0U);
+      minText->invalidate();
+      maxText->setBackgroundColor(chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE
+                                                         : 0U);
+      maxText->invalidate();
+    }
+    Window::checkEvents();
+  }
 
-      dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
+  void buildHeader(Window *window)
+  {
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                    PAGE_LINE_HEIGHT},
+                   STR_MENULIMITS, 0, COLOR_THEME_PRIMARY2);
+    new StaticText(window,
+                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                    LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                   getSourceString(MIXSRC_CH1 + channel), 0,
+                   COLOR_THEME_PRIMARY2);
+  }
 
-      //TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
-      // first line
+  void buildBody(FormWindow *window)
+  {
+    FormGridLayout grid;
+    grid.spacer(8);
 
-      // Min
-      textFlag = (chanVal < chanZero - 1) ? textColorActive : textColor;
-      drawValueOrGVar(
-                 dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min,
-                -GV_RANGELARGE, 0, PREC1 | textFlag, nullptr,
-                -LIMITS_MIN_MAX_OFFSET);
+    int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
 
-      // Max
-      textFlag = (chanVal > chanZero + 1) ? textColorActive : textColor;
-      drawValueOrGVar(dc, 68, FIELD_PADDING_TOP,
-                      output->max, 0,
-                      GV_RANGELARGE, PREC1 | textFlag, nullptr,
-                       +LIMITS_MIN_MAX_OFFSET);
+    LimitData *output = limitAddress(channel);
 
-      // Offset
-      drawValueOrGVar(dc, 132, FIELD_PADDING_TOP, output->offset, -LIMIT_STD_MAX,
-                      +LIMIT_STD_MAX, PREC1 | textColor, nullptr);
+    // Name
+    new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
+                   COLOR_THEME_PRIMARY1);
+    new ModelTextEdit(window, grid.getFieldSlot(), output->name,
+                      sizeof(output->name));
+    grid.nextLine();
 
-      // PPM center
-      dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter,
-                     RIGHT | textColor);
-      dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
-                   textColor);
+    // Offset
+    new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0,
+                   COLOR_THEME_PRIMARY1);
+    new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
+                       +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0,
+                       PREC1);
+    grid.nextLine();
 
-      // second line
-      if (output->revert) {
-        dc->drawTextAtIndex(4, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, STR_MMMINV,
-                            output->revert, textColor);
-      }
-      if (output->curve) {
-        dc->drawMask(68, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                     mixerSetupCurveIcon, textColor);
-        dc->drawText(88, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                     getCurveString(output->curve), textColor);
-      }
-      if (output->name[0]) {
-        dc->drawMask(146, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                     mixerSetupLabelIcon, textColor);
-        dc->drawSizedText(166, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                          output->name, sizeof(output->name), textColor);
-      }
+    // TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
 
-      // bounding rect
-      if (hasFocus())
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-      else
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
+    // Min
+    minText = new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
+                             COLOR_THEME_PRIMARY1);
+    new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
+                       GET_SET_DEFAULT(output->min), 0, PREC1, -LIMIT_STD_MAX);
+    grid.nextLine();
+
+    // Max
+    maxText = new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
+                             COLOR_THEME_PRIMARY1);
+    new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
+                       GET_SET_DEFAULT(output->max), 0, PREC1, +LIMIT_STD_MAX);
+    grid.nextLine();
+
+    // Direction
+    new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0,
+                   COLOR_THEME_PRIMARY1);
+    new CheckBox(window, grid.getFieldSlot(), GET_DEFAULT(output->revert),
+                 [output, this](uint8_t newValue) {
+                   if (newValue != output->revert) chanZero = -chanZero;
+                   output->revert = newValue;
+                   SET_DIRTY();
+                 });
+    grid.nextLine();
+
+    // Curve
+    new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
+                   COLOR_THEME_PRIMARY1);
+    auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
+                               +MAX_CURVES, GET_SET_DEFAULT(output->curve));
+    edit->setDisplayHandler(
+        [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+          dc->drawText(2, 2, getCurveString(value));
+        });
+    grid.nextLine();
+
+    // PPM center
+    new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER, 0,
+                   COLOR_THEME_PRIMARY1);
+    new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
+                   PPM_CENTER + PPM_CENTER_MAX,
+                   GET_VALUE(output->ppmCenter + PPM_CENTER),
+                   SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
+    grid.nextLine();
+
+    // Subtrims mode
+    new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE,
+                   0, COLOR_THEME_PRIMARY1);
+    new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
+               GET_SET_DEFAULT(output->symetrical));
+    grid.nextLine();
+
+    window->setInnerHeight(grid.getWindowHeight());
+  }
+};
+
+class OutputLineButton : public Button
+{
+ public:
+  OutputLineButton(FormGroup *parent, const rect_t &rect, LimitData *output,
+                   int ch) :
+      Button(parent, rect), output(output), channel(ch)
+  {
+    if (output->revert || output->curve || output->name[0]) {
+      setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
+    }
+    chanZero = calcRESXto100(channelOutputs[channel]);
+  }
+
+  void paint(BitmapBuffer *dc) override
+  {
+    LcdFlags textColor = COLOR_THEME_SECONDARY1;
+    LcdFlags bgColor = COLOR_THEME_PRIMARY2;
+    LcdFlags textColorActive = COLOR_THEME_ACTIVE;
+    LcdFlags textFlag;
+    int chanVal = calcRESXto100(channelOutputs[channel]);
+
+    dc->drawSolidFilledRect(0, 0, width(), height(), bgColor);
+
+    // TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
+    //  first line
+
+    // Min
+    textFlag = (chanVal < chanZero - 1) ? textColorActive : textColor;
+    drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, output->min,
+                    -GV_RANGELARGE, 0, PREC1 | textFlag, nullptr,
+                    -LIMITS_MIN_MAX_OFFSET);
+
+    // Max
+    textFlag = (chanVal > chanZero + 1) ? textColorActive : textColor;
+    drawValueOrGVar(dc, 68, FIELD_PADDING_TOP, output->max, 0, GV_RANGELARGE,
+                    PREC1 | textFlag, nullptr, +LIMITS_MIN_MAX_OFFSET);
+
+    // Offset
+    drawValueOrGVar(dc, 132, FIELD_PADDING_TOP, output->offset, -LIMIT_STD_MAX,
+                    +LIMIT_STD_MAX, PREC1 | textColor, nullptr);
+
+    // PPM center
+    dc->drawNumber(226, FIELD_PADDING_TOP, PPM_CENTER + output->ppmCenter,
+                   RIGHT | textColor);
+    dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
+                 textColor);
+
+    // second line
+    if (output->revert) {
+      dc->drawTextAtIndex(4, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, STR_MMMINV,
+                          output->revert, textColor);
+    }
+    if (output->curve) {
+      dc->drawMask(68, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                   mixerSetupCurveIcon, textColor);
+      dc->drawText(88, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                   getCurveString(output->curve), textColor);
+    }
+    if (output->name[0]) {
+      dc->drawMask(146, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
+                   mixerSetupLabelIcon, textColor);
+      dc->drawSizedText(166, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, output->name,
+                        sizeof(output->name), textColor);
     }
 
-  protected:
-    void checkEvents() override
-    {
-      Window::checkEvents();
-      int newValue = channelOutputs[channel];
-      if (value != newValue) {
-        value = newValue;
-        invalidate();
-      }
+    // bounding rect
+    if (hasFocus())
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
+    else
+      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
+  }
+
+ protected:
+  void checkEvents() override
+  {
+    Window::checkEvents();
+    int newValue = channelOutputs[channel];
+    if (value != newValue) {
+      value = newValue;
+      invalidate();
     }
-     LimitData *output;
-     int channel;
-     int chanZero;
-     int value = 0;
-   };
+  }
+  LimitData *output;
+  int channel;
+  int chanZero;
+  int value = 0;
+};
 
 ModelOutputsPage::ModelOutputsPage() :
-  PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
+    PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
 {
 }
 
-void ModelOutputsPage::rebuild(FormWindow * window, int8_t focusChannel)
+void ModelOutputsPage::rebuild(FormWindow *window, int8_t focusChannel)
 {
   coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
@@ -262,35 +259,37 @@ void ModelOutputsPage::rebuild(FormWindow * window, int8_t focusChannel)
   window->setScrollPositionY(scrollPosition);
 }
 
-void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
+void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
-  new TextButton(window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
-    [=] () {
-      moveTrimsToOffsets(); // if highlighted and menu pressed - move trims to offsets
-      rebuild(window, 0);
-      return 0;
-    }, 0, COLOR_THEME_PRIMARY1);
+  new TextButton(
+      window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
+      [=]() {
+        moveTrimsToOffsets();  // if highlighted and menu pressed - move trims
+                               // to offsets
+        rebuild(window, 0);
+        return 0;
+      },
+      0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
-    LimitData * output = limitAddress(ch);
+    LimitData *output = limitAddress(ch);
 
     // Channel label
-    auto txt = new StaticText(window, grid.getLabelSlot(),
-                              getSourceString(MIXSRC_CH1 + ch),
-                              BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
+    auto txt = new StaticText(
+        window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch),
+        BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
 
     // Channel settings
-    Button * button = new OutputLineButton(window, grid.getFieldSlot(), output, ch);
+    Button *button =
+        new OutputLineButton(window, grid.getFieldSlot(), output, ch);
     button->setPressHandler([=]() -> uint8_t {
-      Menu * menu = new Menu(window);
-      menu->addLine(STR_EDIT, [=]() {
-        editOutput(window, ch);
-      });
+      Menu *menu = new Menu(window);
+      menu->addLine(STR_EDIT, [=]() { editOutput(window, ch); });
       menu->addLine(STR_RESET, [=]() {
         output->min = 0;
         output->max = 0;
@@ -341,11 +340,9 @@ void ModelOutputsPage::build(FormWindow * window, int8_t focusChannel)
   window->setInnerHeight(grid.getWindowHeight());
 }
 
-void ModelOutputsPage::editOutput(FormWindow * window, uint8_t channel)
+void ModelOutputsPage::editOutput(FormWindow *window, uint8_t channel)
 {
   Window::clearFocus();
-  Window * editWindow = new OutputEditWindow(channel);
-  editWindow->setCloseHandler([=]() {
-    rebuild(window, channel);
-  });
+  Window *editWindow = new OutputEditWindow(channel);
+  editWindow->setCloseHandler([=]() { rebuild(window, channel); });
 }
