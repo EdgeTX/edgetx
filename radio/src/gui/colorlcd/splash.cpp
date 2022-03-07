@@ -23,16 +23,21 @@
 
 #if defined(SPLASH)
 
-const uint8_t __bmp_splash[] {
-#include "splash.lbm"
-};
+#if defined(PCBPL18)
+  const uint8_t __bmp_splash[] {
+    #include "splash_480x320.lbm"
+  };
+
+#else
+  const uint8_t __bmp_splash[] {
+    #include "splash.lbm"
+  };
+#endif
 
 void draw_splash_cb(lv_event_t * e)
 {
   auto draw_ctx = lv_event_get_draw_ctx(e);
   auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
-
-  // lcd->clear(splash_background_color);
 
   if (splashImg) {
     lv_draw_img_dsc_t img_dsc;
