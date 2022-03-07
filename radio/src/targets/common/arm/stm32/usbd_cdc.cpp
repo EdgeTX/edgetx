@@ -25,11 +25,13 @@
 
 // include STM32 headers and generic board defs
 #include "board_common.h"
+#include "usb_driver.h"
 
 extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_conf.h"
+#include "usbd_cdc_core.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -76,9 +78,13 @@ extern "C" const CDC_IF_Prop_TypeDef VCP_fops =
 
 }   // extern "C"
 
-static void (*receiveDataCb)(uint8_t* buf, uint32_t len);
-static void (*ctrlLineStateCb)(uint16_t ctrlLineState);
-static void (*baudRateCb)(uint32_t baud);
+static void (*receiveDataCb)(uint8_t*, uint32_t) = nullptr;
+// static void* receiveDataCbCtx;
+
+//static void (*ctrlLineStateCb)(uint16_t ctrlLineState);
+
+static void (*baudRateCb)(uint32_t) = nullptr;
+// static void* baudRateCbCtx;
 
 bool cdcConnected = false;
 
@@ -92,8 +98,8 @@ bool cdcConnected = false;
 static uint16_t VCP_Init(void)
 {
   cdcConnected = true;
-  ctrlLineStateCb = NULL;
-  baudRateCb = NULL;
+  // receiveDataCb = nullptr;
+  // baudRateCb = nullptr;
 
   return USBD_OK;
 }
@@ -107,6 +113,9 @@ static uint16_t VCP_Init(void)
 static uint16_t VCP_DeInit(void)
 {
   cdcConnected = false;
+  receiveDataCb = nullptr;
+  baudRateCb = nullptr;
+
   return USBD_OK;
 }
 
@@ -157,8 +166,10 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
   case SET_LINE_CODING:
     if (plc && (Len == sizeof (*plc))) {
       // If a callback is provided, tell the upper driver of changes in baud rate
-      if (baudRateCb) {
-        baudRateCb(plc->bitrate);
+      auto _cb = baudRateCb;
+      // auto _ctx = baudRateCbCtx;
+      if (_cb) {
+        _cb(/*_ctx,*/ plc->bitrate);
       }
       // Copy into structure to save for later
       ust_cpy(&g_lc, plc);
@@ -173,11 +184,11 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
 
   case SET_CONTROL_LINE_STATE:
     // If a callback is provided, tell the upper driver of changes in DTR/RTS state
-    if (plc && (Len == sizeof (uint16_t))) {
-      if (ctrlLineStateCb) {
-        ctrlLineStateCb(*((uint16_t *)Buf));
-      }
-    }
+    // if (plc && (Len == sizeof (uint16_t))) {
+    //   if (ctrlLineStateCb) {
+    //     ctrlLineStateCb(*((uint16_t *)Buf));
+    //   }
+    // }
     break;
 
   case SEND_BREAK:
@@ -255,28 +266,51 @@ void usbSerialPutc(void*, uint8_t c)
 static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 {
   auto _rxCb = receiveDataCb;
-  if (_rxCb) _rxCb(Buf, Len);
+  // auto _ctx = receiveDataCbCtx;
+
+  if (_rxCb) _rxCb(/*_ctx,*/ Buf, Len);
   return USBD_OK;
 }
 
-uint32_t usbSerialBaudRate(void)
+uint32_t usbSerialBaudRate(void*)
 {
     return g_lc.bitrate;
 }
 
-void usbSerialSetReceiveDataCb(void (*cb)(uint8_t* buf, uint32_t len))
+void usbSerialSetReceiveDataCb(void*, void (*cb)(uint8_t*, uint32_t))
 {
+  // receiveDataCb = nullptr;
+  // receiveDataCbCtx = cb_ctx;
   receiveDataCb = cb;
 }
 
-void usbSerialSetBaudRateCb(void (*cb)(uint32_t baud))
+void usbSerialSetBaudRateCb(void*, void (*cb)(uint32_t))
 {
+  // baudRateCb = nullptr;
+  // baudRateCbCtx = cb_ctx;
   baudRateCb = cb;
 }
 
-void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState))
-{
-  ctrlLineStateCb = cb;
-}
+// void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState))
+// {
+//   ctrlLineStateCb = cb;
+// }
+
+static const etx_serial_driver_t usbSerialDriver = {
+  nullptr,
+  nullptr,
+  usbSerialPutc,
+  nullptr,
+  nullptr,
+  nullptr,
+  usbSerialBaudRate,
+  usbSerialSetReceiveDataCb,
+  usbSerialSetBaudRateCb,
+};
+
+const etx_serial_port_t UsbSerialPort = {
+  &usbSerialDriver,
+  nullptr,
+};
 
 // /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

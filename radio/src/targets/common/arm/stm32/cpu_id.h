@@ -20,8 +20,9 @@
  */
 
 #include <inttypes.h>
+#include "definitions.h"
 
-void getCPUUniqueID(char * s);
+EXTERN_C(void getCPUUniqueID(char * s));
 
 #define LEN_CPU_UID                    (3*8+2)
 

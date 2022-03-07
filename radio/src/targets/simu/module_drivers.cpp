@@ -77,8 +77,9 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
     .getByte = getByte,
+    .getBaudrate = nullptr,
     .setReceiveCb = nullptr,
-    .setOnErrorCb = nullptr,
+    .setBaudrateCb = nullptr,
 };
 
 const etx_serial_driver_t ExtmoduleSerialDriver = {
@@ -88,6 +89,7 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
     .getByte = getByte,
+    .getBaudrate = nullptr,
     .setReceiveCb = nullptr,
-    .setOnErrorCb = nullptr,
+    .setBaudrateCb = nullptr,
 };

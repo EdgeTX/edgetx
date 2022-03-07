@@ -40,15 +40,6 @@
   #define ADC_DRIVER x12s_adc_driver
 #endif
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus)
-}
-#endif
-
 extern void flysky_hall_stick_check_init(void);
 extern void flysky_hall_stick_init(void);
 extern void flysky_hall_stick_loop( void );

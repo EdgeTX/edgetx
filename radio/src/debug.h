@@ -40,9 +40,6 @@ extern volatile uint32_t g_tmr10ms;
 #elif defined(SEMIHOSTING)
   #include <stdio.h>
   #define debugPrintf(...) printf(__VA_ARGS__)
-#elif defined(DEBUG) && defined(CLI)
-  #include "cli_traces.h"
-  #define debugPrintf(...) do { if (cliTracesEnabled) dbgSerialPrintf(__VA_ARGS__); } while(0)
 #elif defined(DEBUG)
   #define debugPrintf(...) do { dbgSerialPrintf(__VA_ARGS__); } while(0)
 #else

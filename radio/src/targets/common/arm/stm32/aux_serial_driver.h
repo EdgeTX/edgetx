@@ -24,12 +24,10 @@
 #include "hal/serial_driver.h"
 
 #if defined(AUX_SERIAL)
-
 extern const etx_serial_driver_t AuxSerialDriver;
 #endif
 
 #if defined(AUX2_SERIAL)
-
 extern const etx_serial_driver_t Aux2SerialDriver;
 #endif
 

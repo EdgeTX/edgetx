@@ -63,7 +63,7 @@
 #define TR_TRNCHN                       "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES            "\010"
-#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0"
+#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0""CLI\0     "
 
 #define LEN_SWTYPES                     "\004"
 #define TR_SWTYPES                      "無\0 " "回彈" "2段\0""3段\0"

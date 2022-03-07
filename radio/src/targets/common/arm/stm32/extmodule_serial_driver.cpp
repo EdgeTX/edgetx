@@ -139,6 +139,10 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
   .sendByte = extmoduleSendByte,
   .sendBuffer = extmoduleSendBuffer,
   .waitForTxCompleted = extmoduleWaitForTxCompleted,
+  .getByte = nullptr,
+  .getBaudrate = nullptr,
+  .setReceiveCb = nullptr,
+  .setBaudrateCb = nullptr,
 };
 
 extern "C" void EXTMODULE_USART_IRQHandler(void)

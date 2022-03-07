@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include <FreeRTOS.h>
+#include <stream_buffer.h>
+
 #include "opentx.h"
 #include "diskio.h"
+
 #include <ctype.h>
 #include <malloc.h>
 #include <new>
@@ -55,11 +59,69 @@ void (*cliReceiveCallBack)(uint8_t* buf, uint32_t len) = nullptr;
 static void (*cliSendCb)(void*, uint8_t) = nullptr;
 static void* cliSendCtx = nullptr;
 
+static const etx_serial_driver_t* cliSerialDriver = nullptr;
+static void* cliSerialDriverCtx = nullptr;
+
+static uint8_t cliTracesEnabled = false;
+static void (*cliTracesOldCb)(void*, uint8_t);
+static void* cliTracesOldCbCtx;
+
 void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {
   cliSendCb = nullptr;
   cliSendCtx = ctx;
   cliSendCb = cb;
+}
+
+// Called from receive ISR (either USB or UART)
+static void cliReceiveData(uint8_t* buf, uint32_t len)
+{
+  if (cliReceiveCallBack)
+    cliReceiveCallBack(buf, len);
+}
+
+// Assumes it is called from ISR...
+static void cliDefaultRx(uint8_t *buf, uint32_t len)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+static void cliEnableDbg()
+{
+  if (dbgSerialGetSendCb() != cliSendCb) {
+    cliTracesOldCb = dbgSerialGetSendCb();
+    cliTracesOldCbCtx = dbgSerialGetSendCbCtx();
+    dbgSerialSetSendCb(nullptr, nullptr);
+    dbgSerialSetSendCb(cliSendCtx, cliSendCb);
+  }
+}
+
+static void cliDisableDbg()
+{
+  if (dbgSerialGetSendCb() == cliSendCb) {
+    dbgSerialSetSendCb(nullptr, nullptr);
+    dbgSerialSetSendCb(cliTracesOldCbCtx, cliTracesOldCb);
+  }
+}
+
+void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
+{
+  cliSerialDriver = nullptr;
+  cliSerialDriverCtx = ctx;
+  cliSerialDriver = drv;
+
+  if (drv) {
+    if (drv->setReceiveCb) drv->setReceiveCb(ctx, cliReceiveData);
+    cliSetSendCb(ctx, drv->sendByte);
+    if (cliTracesEnabled) {
+      cliEnableDbg();
+    }
+  } else {
+    cliSetSendCb(nullptr, nullptr);
+    cliDisableDbg();
+  }
 }
 
 static void cliSerialPrintf(const char * format, ...)
@@ -95,7 +157,28 @@ static void cliSerialCrlf()
   cliSerialPutc('\n');
 }
 
-uint8_t cliTracesEnabled = true;
+static uint32_t cliGetBaudRate()
+{
+  auto drv = cliSerialDriver;
+  auto ctx = cliSerialDriverCtx;
+
+  if (drv && drv->getBaudrate) {
+    return drv->getBaudrate(ctx);
+  }
+
+  return 0;
+}
+
+static void cliSetBaudRateCb(void (*cb)(uint32_t))
+{
+  auto drv = cliSerialDriver;
+  auto ctx = cliSerialDriverCtx;
+
+  if (drv && drv->setBaudrateCb) {
+    return drv->setBaudrateCb(ctx, cb);
+  }
+}
+
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
 typedef int (* CliFunction) (const char ** args);
@@ -753,10 +836,12 @@ int cliTest(const char ** argv)
 int cliTrace(const char ** argv)
 {
   if (!strcmp(argv[1], "on")) {
+    cliEnableDbg();
     cliTracesEnabled = true;
   }
   else if (!strcmp(argv[1], "off")) {
     cliTracesEnabled = false;
+    cliDisableDbg();
   }
   else {
     cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
@@ -1012,12 +1097,12 @@ int cliSerialPassthrough(const char **argv)
   int baudrate = 0;
   err = toInt(argv, 3, &baudrate);
   if (err <= 0) {
-    // use current USB CDC baudrate
-    baudrate = usbSerialBaudRate();
+    // use current baudrate
+    baudrate = cliGetBaudRate();
     if (!baudrate) {
       // default to 115200
       baudrate = 115200;
-      cliSerialPrint("%s: USB baudrate is 0, default to 115200", argv[0]);
+      cliSerialPrint("%s: baudrate is 0, default to 115200", argv[0]);
     }
   }
 
@@ -1053,7 +1138,7 @@ int cliSerialPassthrough(const char **argv)
       cliReceiveCallBack = spInternalModuleTx;
 
       // setup CDC baudrate callback
-      usbSerialSetBaudRateCb(spInternalModuleSetBaudRate);
+      cliSetBaudRateCb(spInternalModuleSetBaudRate);
 
       // loop until cable disconnected
       while (cdcConnected) {
@@ -1067,7 +1152,7 @@ int cliSerialPassthrough(const char **argv)
             timeout--;
           }
 
-          usbSerialPutc(nullptr, data);
+          cliSerialPutc(data);
         }
 
         // keep us up & running
@@ -1075,7 +1160,7 @@ int cliSerialPassthrough(const char **argv)
       }
 
       // restore callsbacks
-      usbSerialSetBaudRateCb(nullptr);
+      cliSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
 
       // and stop module
@@ -1643,20 +1728,6 @@ void cliTask(void * pdata)
   }
 }
 
-// Called from receive ISR (either USB or UART)
-void cliReceiveData(uint8_t* buf, uint32_t len)
-{
-  if (cliReceiveCallBack)
-    cliReceiveCallBack(buf, len);
-}
-
-static void cliDefaultRx(uint8_t *buf, uint32_t len)
-{
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-}
-
 void cliStart()
 {
   // Init stream buffer
@@ -1667,11 +1738,6 @@ void cliStart()
 
   // Setup consumer callback
   cliReceiveCallBack = cliDefaultRx;
-
-  // Setup USB callbacks
-  usbSerialSetReceiveDataCb(cliReceiveData);
-  // usbSerialSetBaudRateCb(...);
-  // usbSerialSetCtrlLineStateCb(...);
 
   RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack, CLI_STACK_SIZE,
                    CLI_TASK_PRIO);
