@@ -23,20 +23,28 @@
 
 #if defined(SPLASH)
 
-const uint8_t __bmp_splash[] {
-#include "splash.lbm"
-};
+#if defined(PCBPL18)
+  const uint8_t __bmp_splash[] {
+    #include "splash_480x320.lbm"
+  };
 
-const uint8_t __bmp_splash_chr[] {
-#include "splash_chr.lbm"
-};
+  const uint8_t __bmp_splash_chr[] {
+    #include "splash_chr_480x320.lbm"
+  };
+#else
+  const uint8_t __bmp_splash[] {
+    #include "splash.lbm"
+  };
+
+  const uint8_t __bmp_splash_chr[] {
+    #include "splash_chr.lbm"
+  };
+#endif
 
 void draw_splash_cb(lv_event_t * e)
 {
   auto draw_ctx = lv_event_get_draw_ctx(e);
   auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
-
-  // lcd->clear(splash_background_color);
 
   if (splashImg) {
     lv_draw_img_dsc_t img_dsc;
@@ -57,9 +65,6 @@ void draw_splash_cb(lv_event_t * e)
 
 void drawSplash()
 {
-  constexpr LcdFlags splash_background_color =
-    COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
-
   static bool loadSplashImg = true;
   static BitmapBuffer* splashImg = nullptr;
   static lv_obj_t* splashScreen = nullptr;
@@ -73,7 +78,7 @@ void drawSplash()
     // otherwise load from FLASH
     struct gtm t;
     gettime(&t);
-    // Please do not spoil the suprise by discussing following lines in public
+    // Show Christmas special splash on Christmas days
     // mon == 11 == December, starts from 0!
     if (t.tm_mon == 11 && t.tm_mday >= 24 && t.tm_mday <= 26) {
       if (splashImg == nullptr) {
