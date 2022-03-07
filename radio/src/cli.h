@@ -22,20 +22,12 @@
 #ifndef _CLI_H_
 #define _CLI_H_
 
-#include <stdint.h>
-
-#include <FreeRTOS.h>
-#include <stream_buffer.h>
-
-#include "cli_traces.h"
+#include "hal/serial_driver.h"
 
 // CLI task function
 void cliStart();
 
-// Called from receive ISR (either USB or UART)
-void cliReceiveData(uint8_t* buf, uint32_t len);
-
-// Set callbacks for sending data back to serial port
-void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
+// Connect serial driver to CLI
+void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
 
 #endif // _CLI_H_

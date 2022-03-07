@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include "hal/serial_port.h"
+#include "definitions.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -47,14 +50,9 @@ void usbStart();
 void usbStop();
 bool usbStarted();
 
-int  getSelectedUsbMode();
+EXTERN_C(int getSelectedUsbMode());
 void setSelectedUsbMode(int mode);
 
-uint32_t usbSerialFreeSpace();
-void     usbSerialPutc(void*, uint8_t c);
+EXTERN_C(uint32_t usbSerialFreeSpace());
 
-uint32_t usbSerialBaudRate(void);
-
-void usbSerialSetReceiveDataCb(void (*cb)(uint8_t* buf, uint32_t len));
-void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState));
-void usbSerialSetBaudRateCb(void (*cb)(uint32_t baud));
+extern const etx_serial_port_t UsbSerialPort;

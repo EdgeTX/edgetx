@@ -96,12 +96,16 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
 
 void processSbusInput()
 {
-  uint8_t rxchar;
-  uint32_t active = 0;
+
+  // TODO: place this outside of the function
   static uint8_t SbusIndex = 0;
   static uint16_t SbusTimer;
   static uint8_t SbusFrame[SBUS_FRAME_SIZE];
 
+  uint32_t active = 0;
+
+  // Drain input first (if existing)
+  uint8_t rxchar;
   auto _getByte = sbusGetByte;
   while (_getByte && (_getByte(&rxchar) > 0)) {
     active = 1;
@@ -110,15 +114,18 @@ void processSbusInput()
     }
     SbusFrame[SbusIndex++] = rxchar;
   }
+
+  // Data has been received
   if (active) {
     SbusTimer = getTmr2MHz();
     return;
-  } else {
-    if (SbusIndex) {
-      if ((uint16_t)(getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
-        processSbusFrame(SbusFrame, ppmInput, SbusIndex);
-        SbusIndex = 0;
-      }
+  }
+
+  // Check if end-of-frame is detected
+  if (SbusIndex) {
+    if ((uint16_t)(getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
+      processSbusFrame(SbusFrame, ppmInput, SbusIndex);
+      SbusIndex = 0;
     }
   }
 }

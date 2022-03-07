@@ -45,14 +45,14 @@ typedef struct {
   uint8_t parity;       // = ETX_Parity_None;
   uint8_t stop_bits;    // = ETX_StopBits_One;
   uint8_t word_length;  // = ETX_WordLength_8;
-  bool rx_enable;       // = false;
+  uint8_t rx_enable;    // = false;
 
   void (*on_receive)(uint8_t data);  // = nullptr;
   void (*on_error)();                // = nullptr;
 } etx_serial_init;
 
 struct etx_serial_callbacks_t {
-  bool (*on_send)(uint8_t* data);
+  uint8_t (*on_send)(uint8_t* data);
   void (*on_receive)(uint8_t data);
   void (*on_error)();
 };
@@ -76,9 +76,12 @@ typedef struct {
 
   // Fetch byte from internal buffer
   int (*getByte)(void* ctx, uint8_t* data);
+
+  // Get current baudrate
+  uint32_t (*getBaudrate)(void*);
   
   // Callbacks
-  void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t data));
-  void (*setOnErrorCb)(void* ctx, void (*on_error)());
+  void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t*, uint32_t));
+  void (*setBaudrateCb)(void* ctx, void (*on_set_baudrate)(uint32_t));
 
 } etx_serial_driver_t;

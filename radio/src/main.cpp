@@ -162,14 +162,11 @@ void handleUsbConnection()
         // TODO: query USB serial mode
         //  -> for now, only CLI / DEBUG / LUA
 #if defined(CLI)
-        cliSetSendCb(nullptr, usbSerialPutc);
-        usbSerialSetReceiveDataCb(cliReceiveData);
+        serialInit(SP_VCP, UART_MODE_CLI);
 #elif defined(DEBUG)
-        dbgSerialSetSendCb(nullptr, usbSerialPutc);
-        usbSerialSetReceiveDataCb(nullptr);
+        serialInit(SP_VCP, UART_MODE_DEBUG);
 #elif defined(LUA)
-        luaSetSendCb(nullptr, usbSerialPutc);
-        usbSerialSetReceiveDataCb(luaReceiveData);
+        serialInit(SP_VCP, UART_MODE_LUA);
 #endif
       }
 #endif
@@ -185,6 +182,8 @@ void handleUsbConnection()
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
       pushEvent(EVT_ENTRY);
+    } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+      serialStop(SP_VCP);
     }
     TRACE("reset selected USB mode");
     setSelectedUsbMode(USB_UNSELECTED_MODE);
