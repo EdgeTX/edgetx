@@ -135,7 +135,7 @@ AuxSerialState auxSerialState = {
 };
 
 // TODO: grab context to get buffer
-static bool auxSerialOnSend(uint8_t* data)
+static uint8_t auxSerialOnSend(uint8_t* data)
 {
   return auxSerialTxFifo.pop(*data);
 }
@@ -153,14 +153,15 @@ static void* auxSerialInit(const etx_serial_init* params)
 }
 
 const etx_serial_driver_t AuxSerialDriver = {
-    .init = auxSerialInit,
-    .deinit = aux_serial_deinit,
-    .sendByte = aux_serial_putc,
-    .sendBuffer = aux_serial_send_buffer,
-    .waitForTxCompleted = aux_wait_tx_completed,
-    .getByte = aux_get_byte,
-    .setReceiveCb = nullptr,
-    .setOnErrorCb = nullptr,
+  .init = auxSerialInit,
+  .deinit = aux_serial_deinit,
+  .sendByte = aux_serial_putc,
+  .sendBuffer = aux_serial_send_buffer,
+  .waitForTxCompleted = aux_wait_tx_completed,
+  .getByte = aux_get_byte,
+  .getBaudrate = nullptr,
+  .setReceiveCb = nullptr,
+  .setBaudrateCb = nullptr,
 };
 
 extern "C" void AUX_SERIAL_USART_IRQHandler(void)
@@ -206,7 +207,7 @@ AuxSerialState aux2SerialState = {
     .usart = &aux2USART,
 };
 
-static bool aux2SerialOnSend(uint8_t* data)
+static uint8_t aux2SerialOnSend(uint8_t* data)
 {
   return aux2SerialTxFifo.pop(*data);
 }
@@ -229,14 +230,15 @@ extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
 }
 
 const etx_serial_driver_t Aux2SerialDriver = {
-    .init = aux2SerialInit,
-    .deinit = aux_serial_deinit,
-    .sendByte = aux_serial_putc,
-    .sendBuffer = aux_serial_send_buffer,
-    .waitForTxCompleted = aux_wait_tx_completed,
-    .getByte = aux_get_byte,
-    .setReceiveCb = nullptr,
-    .setOnErrorCb = nullptr,
+  .init = aux2SerialInit,
+  .deinit = aux_serial_deinit,
+  .sendByte = aux_serial_putc,
+  .sendBuffer = aux_serial_send_buffer,
+  .waitForTxCompleted = aux_wait_tx_completed,
+  .getByte = aux_get_byte,
+  .getBaudrate = nullptr,
+  .setReceiveCb = nullptr,
+  .setBaudrateCb = nullptr,
 };
 
 #endif // AUX2_SERIAL

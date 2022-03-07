@@ -24,30 +24,12 @@
 
 #include <stdint.h>
 
-#define MAX_AUX_SERIAL 2
-
 void    initSerialPorts();
 uint8_t serialGetMode(int port_nr);
 uint8_t serialTracesEnabled(int port_nr);
 void    serialInit(int port_nr, int mode);
 void    serialStop(int port_nr);
 void    serialPutc(int port_nr, uint8_t c);
-
-#if defined(AUX_SERIAL)
-#define auxSerialSbusInit()      serialInit(0, UART_MODE_SBUS_TRAINER)
-#define auxSerialGetMode()       serialGetMode(0)
-#define auxSerialTracesEnabled() serialTracesEnabled(0)
-#define auxSerialStop()          serialStop(0)
-#define auxSerialPutc(c)         serialPutc(0, (c))
-#endif
-
-#if defined(AUX2_SERIAL)
-#define aux2SerialSbusInit()      serialInit(1, UART_MODE_SBUS_TRAINER)
-#define aux2SerialGetMode()       serialGetMode(1)
-#define aux2SerialTracesEnabled() serialTracesEnabled(1)
-#define aux2SerialStop()          serialStop(1)
-#define aux2SerialPutc(c)         serialPutc(1, (c))
-#endif
 
 //
 // Functions used by debug.h
@@ -68,6 +50,10 @@ void dbgSerialCrlf();
 
 // Debug serial callback
 void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
+
+// Query debug callback
+void (*dbgSerialGetSendCb())(void*, uint8_t);
+void* dbgSerialGetSendCbCtx();
 
 #endif // _SERIAL_H_
 

@@ -31,7 +31,7 @@ ModuleFifo intmoduleFifo;
 static uint8_t * intmoduleTxBufferData;
 static volatile uint8_t intmoduleTxBufferRemaining;
 
-bool intmoduleTxBufferSend(uint8_t* data)
+uint8_t intmoduleTxBufferSend(uint8_t* data)
 {
   if (intmoduleTxBufferRemaining) {
     *data = *(intmoduleTxBufferData++);
@@ -158,4 +158,8 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
   .sendByte = intmoduleSendByte,
   .sendBuffer = intmoduleSendBuffer,
   .waitForTxCompleted = intmoduleWaitForTxCompleted,
+  .getByte = nullptr,
+  .getBaudrate = nullptr,
+  .setReceiveCb = nullptr,
+  .setBaudrateCb = nullptr,
 };

@@ -19,17 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus)
-}
-#endif
-
 #include "opentx.h"
 #include "debug.h"
+
+#include "usb_driver.h"
+
+extern "C" {
+#include "usb_conf.h"
+#include "usb_dcd_int.h"
+#include "usb_bsp.h"
+
+#include "usbd_cdc_core.h"
+#include "usbd_msc_core.h"
+#include "usbd_hid_core.h"
+#include "usbd_usr.h"
+#include "usbd_desc.h"
+#include "usbd_conf.h"
+}
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)

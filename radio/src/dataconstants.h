@@ -203,6 +203,15 @@ enum TrainerMode {
 };
 #endif
 
+enum SerialPort {
+    SP_AUX1=0,
+    SP_AUX2,
+    SP_VCP,
+    MAX_SERIAL_PORTS SKIP,
+};
+
+#define MAX_AUX_SERIAL (SP_AUX2 + 1)
+
 #define TRAINER_MODE_MIN()               TRAINER_MODE_MASTER_TRAINER_JACK
 
 #if !defined(HARDWARE_EXTERNAL_MODULE)
@@ -245,6 +254,7 @@ enum UartModes {
   UART_MODE_TELEMETRY,
   UART_MODE_SBUS_TRAINER,
   UART_MODE_LUA,
+  UART_MODE_CLI,
   UART_MODE_COUNT SKIP,
   UART_MODE_MAX SKIP = UART_MODE_COUNT-1
 };

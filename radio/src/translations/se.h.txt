@@ -69,9 +69,9 @@
 
 #define LEN_AUX_SERIAL_MODES   "\022"
 #if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0            ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              "
+#define TR_AUX_SERIAL_MODES    "Debug\0            ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              ""CLI\0              "
 #else
-#define TR_AUX_SERIAL_MODES    "Av\0               ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              "
+#define TR_AUX_SERIAL_MODES    "Av\0               ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              ""CLI\0              "
 #endif
 
 #define LEN_SWTYPES            "\006"

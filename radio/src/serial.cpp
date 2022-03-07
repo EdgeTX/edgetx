@@ -25,14 +25,28 @@
 #include <stdio.h>
 #include "aux_serial_driver.h"
 #include "hal/serial_port.h"
+//#include "cli.h"
 
 #define PRINTF_BUFFER_SIZE    128
 
 static void (*dbg_serial_putc)(void*, uint8_t) = nullptr;
 static void* dbg_serial_ctx = nullptr;
 
+void (*dbgSerialGetSendCb())(void*, uint8_t)
+{
+  return dbg_serial_putc;
+}
+
+void* dbgSerialGetSendCbCtx()
+{
+  return dbg_serial_ctx;
+}
+
 void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {
+  // Avoid overwriting debug port config
+  if (cb && dbg_serial_putc) return;
+
   dbg_serial_putc = nullptr;
   dbg_serial_ctx = ctx;
   dbg_serial_putc = cb;
@@ -70,7 +84,7 @@ extern "C" void dbgSerialCrlf()
   dbgSerialPutc('\n');
 }
 
-static int getAuxSerialMode(uint8_t port_nr)
+static int getSerialPortMode(uint8_t port_nr)
 {
 #if !defined(BOOT)
   if (port_nr == 0) {
@@ -88,19 +102,19 @@ static int getAuxSerialMode(uint8_t port_nr)
   return UART_MODE_NONE;
 }
 
-struct AuxSerialPortState
+struct SerialPortState
 {
   uint8_t                  mode;
   const etx_serial_port_t* port;
   void*                    usart_ctx;
 };
 
-static AuxSerialPortState auxSerialPortStates[MAX_AUX_SERIAL];
+static SerialPortState serialPortStates[MAX_SERIAL_PORTS];
 
-static AuxSerialPortState* auxGetPortState(int port_nr)
+static SerialPortState* getSerialPortState(int port_nr)
 {
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return &auxSerialPortStates[port_nr];
+  if (port_nr >= MAX_SERIAL_PORTS) return nullptr;
+  return &serialPortStates[port_nr];
 }
 
 // TODO: replace serialSetupCallBacks & serialSetupPort
@@ -110,18 +124,28 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 {
   void (*sendByte)(void*, uint8_t) = nullptr;
   int (*getByte)(void*, uint8_t*) = nullptr;
+  void (*setRxCb)(void*, void (*)(uint8_t*, uint32_t)) = nullptr;
 
+  const etx_serial_driver_t* drv = nullptr;
   if (port) {
-    sendByte = port->uart->sendByte;
-    getByte = port->uart->getByte;
-  }
-  
+    drv = port->uart;
+    if (drv) {
+      sendByte = drv->sendByte;
+      getByte = drv->getByte;
+      setRxCb = drv->setReceiveCb;
+    }
+  }  
+
+  // prevent compiler warnings
+  (void)sendByte;
+  (void)getByte;
+  (void)setRxCb;
+
   switch(mode) {
 #if defined(DEBUG)
   case UART_MODE_DEBUG:
     // TODO: should we handle 2 outputs?
     dbgSerialSetSendCb(ctx, sendByte);
-    (void)getByte;
     break;
 #endif
 
@@ -129,23 +153,37 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #if defined(LUA)
   case UART_MODE_LUA:
     luaSetSendCb(ctx, sendByte);
-    luaSetGetSerialByte(ctx, getByte);
+    if (getByte) {
+      luaSetGetSerialByte(ctx, getByte);
+    } else if (setRxCb) {
+      setRxCb(ctx, luaReceiveData);
+    }
     break;
 #endif
 
 #if defined(SBUS_TRAINER)
   case UART_MODE_SBUS_TRAINER:
     sbusSetAuxGetByte(ctx, getByte);
+    // TODO: setRxCb (see MODE_LUA)
     break;
 #endif
 
   case UART_MODE_TELEMETRY:
     telemetrySetGetByte(ctx, getByte);
+    // TODO: setRxCb (see MODE_LUA)
+    //       de we really need telemetry
+    //       input over USB VCP?
     break;
 
   case UART_MODE_TELEMETRY_MIRROR:
     telemetrySetMirrorCb(ctx, sendByte);
     break;
+
+#if defined(CLI)
+  case UART_MODE_CLI:
+    cliSetSerialDriver(ctx, drv);
+    break;
+#endif
 #endif
   }
 }
@@ -203,14 +241,20 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
 
 void serialInit(int port_nr, int mode)
 {
-  if (port_nr >= MAX_AUX_SERIAL) return;
-  
-  auto state = auxGetPortState(port_nr);
+  auto state = getSerialPortState(port_nr);
   if (!state) return;
 
-  auto port = auxSerialGetPort(port_nr);
+  const etx_serial_port_t* port = nullptr;
+  if (port_nr != SP_VCP) {
+    port = auxSerialGetPort(port_nr);
+  }
+#if defined(USB_SERIAL)
+  else {
+    port = &UsbSerialPort;
+  }
+#endif
   if (!port) return;
-  
+
   if (state->port) {
     auto drv = state->port->uart;
     if (drv->deinit) {
@@ -218,9 +262,9 @@ void serialInit(int port_nr, int mode)
     }
     if (state->mode != 0) {
       // Clear callbacks
-      serialSetCallBacks(mode, nullptr, nullptr);
+      serialSetCallBacks(state->mode, nullptr, nullptr);
     }
-    memset(state, 0, sizeof(AuxSerialPortState));
+    memset(state, 0, sizeof(SerialPortState));
   }
 
   etx_serial_init params = {
@@ -253,17 +297,17 @@ void serialInit(int port_nr, int mode)
 
 void initSerialPorts()
 {
-  memset(auxSerialPortStates, 0, sizeof(auxSerialPortStates));
+  memset(serialPortStates, 0, sizeof(serialPortStates));
   
   for (int port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
-    auto mode = getAuxSerialMode(port_nr);
+    auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
   }
 }
 
 uint8_t serialGetMode(int port_nr)
 {
-  auto state = auxGetPortState(port_nr);
+  auto state = getSerialPortState(port_nr);
   if (!state) return UART_MODE_NONE;
   return state->mode;
 }
@@ -279,21 +323,30 @@ uint8_t serialTracesEnabled(int port_nr)
 
 void serialStop(int port_nr)
 {
-  auto state = auxGetPortState(port_nr);
+  auto state = getSerialPortState(port_nr);
   if (!state) return;
 
   if (state->port) {
-    auto drv = state->port->uart;
+    auto port = state->port;
+    auto drv = port->uart;
     if (drv && drv->deinit) {
       drv->deinit(state->usart_ctx);
     }
-    memset(state, 0, sizeof(AuxSerialPortState));
+    if (state->mode != 0) {
+      // Clear callbacks
+      serialSetCallBacks(state->mode, nullptr, nullptr);
+    }
+    if (port->set_pwr) {
+      // Power OFF
+      port->set_pwr(0);
+    }
+    memset(state, 0, sizeof(SerialPortState));
   }
 }
 
 void serialPutc(int port_nr, uint8_t c)
 {
-  auto state = auxGetPortState(port_nr);
+  auto state = getSerialPortState(port_nr);
   if (!state) return;
 
   if (state->port) {

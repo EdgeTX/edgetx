@@ -747,9 +747,10 @@ void rtcSetTime(const struct gtm * t)
 }
 
 #if defined(USB_SERIAL)
-void usbSerialPutc(uint8_t c)
-{
-}
+const etx_serial_port_t UsbSerialPort = {
+  nullptr,
+  nullptr,
+};
 #endif
 
 const etx_serial_port_t* auxSerialGetPort(int port_nr) { return nullptr; }
