@@ -595,7 +595,7 @@ VirtualFS::VirtualFS()
   lfsCfg.block_count = flashSpiGetSectorCount();
   lfsCfg.block_cycles = 500;
   lfsCfg.cache_size = flashSpiGetPageSize();
-  lfsCfg.lookahead_size = 128;
+  lfsCfg.lookahead_size = 256;
 #endif
 
   restart();
