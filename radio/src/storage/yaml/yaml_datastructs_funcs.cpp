@@ -57,10 +57,6 @@ namespace yaml_conv_220 {
   bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
-  extern const struct YamlIdStr enum_TrainerMode[];
-  bool w_trainerMode(const YamlNode* node, uint32_t val,
-                     yaml_writer_func wf, void* opaque);
-
   extern const char* _tele_screen_type_lookup[];
   bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
                           yaml_writer_func wf, void* opaque);
@@ -1023,15 +1019,36 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   return yaml_conv_220::w_vPitch(node, val, wf, opaque);
 }
 
+static const struct YamlIdStr enum_TrainerMode[] = {
+  {  TRAINER_MODE_OFF, "OFF"  },
+  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
+  {  TRAINER_MODE_SLAVE, "SLAVE"  },
+  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
+  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_SERIAL"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  },
+  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
+  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
+  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  0, NULL  }
+};
+
 static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
 {
-  return yaml_parse_enum(yaml_conv_220::enum_TrainerMode, val, val_len);
+  return yaml_parse_enum(enum_TrainerMode, val, val_len);
 }
 
 static bool w_trainerMode(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_trainerMode(node, val, wf, opaque);
+  const char* str = nullptr;
+  str = yaml_output_enum(val, enum_TrainerMode);
+
+  if (str) {
+    return wf(opaque, str, strlen(str));
+  }
+
+  return true;
 }
 
 #if !defined(COLORLCD)

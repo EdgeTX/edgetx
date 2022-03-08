@@ -781,50 +781,45 @@ bool isTelemetryProtocolAvailable(int protocol)
 
 bool isTrainerModeAvailable(int mode)
 {
-#if defined(PCBTARANIS)
-  if (IS_EXTERNAL_MODULE_ENABLED() && (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
-    return false;
-#endif
-
 #if defined(PCBX9E)
-  if (g_eeGeneral.bluetoothMode && mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
+  if (g_eeGeneral.bluetoothMode &&
+      mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
     // bluetooth uses the same USART than SBUS
     return false;
   }
 #endif
 
-#if defined(PCBTARANIS) || defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT) {
-#if defined(TRAINER_BATTERY_COMPARTMENT)
+  if (mode == TRAINER_MODE_MASTER_SERIAL)
     return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
-#else
-    return false;
-#endif
-  }
-#endif
 
+  if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
+       mode == TRAINER_MODE_SLAVE_BLUETOOTH)
 #if defined(BLUETOOTH) && !defined(PCBX9E)
-  if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))
-    return false;
-#else
-  if (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH)
-    return false;
+      && g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER
 #endif
+  )
+    return false;
 
 #if defined(PCBXLITE) && !defined(PCBXLITES)
   if (mode == TRAINER_MODE_MASTER_TRAINER_JACK || mode == TRAINER_MODE_SLAVE)
     return false;
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBNV14)
-  #if !defined(TRAINER_MODULE_CPPM)
+#if !defined(TRAINER_MODULE_CPPM)
   if (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE)
     return false;
-  #endif
-  #if !defined(TRAINER_MODULE_SBUS)
+#endif
+
+#if !defined(TRAINER_MODULE_SBUS)
   if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
     return false;
-  #endif
+#endif
+
+#if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
+  if (IS_EXTERNAL_MODULE_ENABLED() &&
+      (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
+       mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
+    return false;
 #endif
   
   return true;
