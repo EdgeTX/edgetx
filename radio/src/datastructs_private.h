@@ -908,7 +908,10 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioRepeat);
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
+  CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
+  CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
   NOBACKUP(uint16_t serialPort ARRAY(STORAGE_SERIAL_PORTS,struct_serialConfig,nullptr));
+
   EXTRA_GENERAL_FIELDS
 
   THEME_DATA

@@ -1168,3 +1168,6 @@ bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   const char* str = yaml_signed2str(sval);
   return wf(opaque,str,strlen(str));
 }
+
+// force storage class
+extern const struct YamlIdStr enum_UartModes[];

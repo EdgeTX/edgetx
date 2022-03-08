@@ -98,6 +98,7 @@ namespace yaml_conv_220 {
   bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                        void* opaque);
 
+  extern const struct YamlIdStr enum_UartModes[];
 };
 
 //
@@ -1769,3 +1770,25 @@ static const struct YamlNode struct_serialConfig[] = {
     YAML_END
 };
 
+static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  auto node = tw->getAttr();
+  if (!node || node->tag_len < 4) return;
+
+  uint8_t port_nr;
+  if (node->tag[3] == 'S')
+    port_nr = SP_AUX1;
+  else if (node->tag[3] == '2')
+    port_nr = SP_AUX2;
+  else
+    return;
+
+  auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
+  if (!m) return;
+  
+  auto serialPort = reinterpret_cast<uint16_t*>(data);
+  *serialPort = (*serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
+}
