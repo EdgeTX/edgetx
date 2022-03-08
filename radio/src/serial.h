@@ -23,13 +23,15 @@
 #define _SERIAL_H_
 
 #include <stdint.h>
+#include "hal/serial_port.h"
 
-void    initSerialPorts();
-uint8_t serialGetMode(int port_nr);
-uint8_t serialTracesEnabled(int port_nr);
-void    serialInit(int port_nr, int mode);
-void    serialStop(int port_nr);
-void    serialPutc(int port_nr, uint8_t c);
+const etx_serial_port_t* serialGetPort(uint8_t port_nr);
+int  serialGetMode(uint8_t port_nr);
+void serialSetMode(uint8_t port_nr, int mode);
+
+void initSerialPorts();
+void serialInit(uint8_t port_nr, int mode);
+void serialStop(uint8_t port_nr);
 
 //
 // Functions used by debug.h

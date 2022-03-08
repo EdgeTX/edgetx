@@ -44,8 +44,6 @@
   #define IS_TRAINER_EXTERNAL_MODULE()           false
 #endif
 
-#define IS_TRAINER_AUX_SERIAL()                  (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER)
-
 #define IS_PLAY_FUNC(func)             ((func) >= FUNC_PLAY_SOUND && func <= FUNC_PLAY_VALUE)
 
 #if defined(GVARS)

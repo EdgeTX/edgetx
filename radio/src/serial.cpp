@@ -84,19 +84,14 @@ extern "C" void dbgSerialCrlf()
   dbgSerialPutc('\n');
 }
 
-static int getSerialPortMode(uint8_t port_nr)
+int8_t getSerialPortMode(uint8_t port_nr)
 {
 #if !defined(BOOT)
-  if (port_nr == 0) {
-    return g_eeGeneral.auxSerialMode;
+  if (port_nr < MAX_SERIAL_PORTS) {
+    auto cfg = g_eeGeneral.serialPort;
+    cfg >>= port_nr * 4; // 4 bits per port
+    return cfg & 0xF;
   }
-
-// TODO: change in datastruct_private.h
-#if defined(PCBHORUS) || defined(PCBNV14)
-  if (port_nr == 1) {
-    return g_eeGeneral.aux2SerialMode;
-  }
-#endif
 #endif
 
   return UART_MODE_NONE;
@@ -111,7 +106,7 @@ struct SerialPortState
 
 static SerialPortState serialPortStates[MAX_SERIAL_PORTS];
 
-static SerialPortState* getSerialPortState(int port_nr)
+static SerialPortState* getSerialPortState(uint8_t port_nr)
 {
   if (port_nr >= MAX_SERIAL_PORTS) return nullptr;
   return &serialPortStates[port_nr];
@@ -239,11 +234,8 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
   }
 }
 
-void serialInit(int port_nr, int mode)
+const etx_serial_port_t* serialGetPort(uint8_t port_nr)
 {
-  auto state = getSerialPortState(port_nr);
-  if (!state) return;
-
   const etx_serial_port_t* port = nullptr;
   if (port_nr != SP_VCP) {
     port = auxSerialGetPort(port_nr);
@@ -253,11 +245,21 @@ void serialInit(int port_nr, int mode)
     port = &UsbSerialPort;
   }
 #endif
+  return port;
+}
+
+
+void serialInit(uint8_t port_nr, int mode)
+{
+  auto state = getSerialPortState(port_nr);
+  if (!state) return;
+
+  const etx_serial_port_t* port = serialGetPort(port_nr);
   if (!port) return;
 
   if (state->port) {
     auto drv = state->port->uart;
-    if (drv->deinit) {
+    if (drv && drv->deinit) {
       drv->deinit(state->usart_ctx);
     }
     if (state->mode != 0) {
@@ -283,11 +285,15 @@ void serialInit(int port_nr, int mode)
   if (params.baudrate != 0) {
     state->mode = mode;
     state->port = port;
-    state->usart_ctx = port->uart->init(&params);
 
-    // Set power on/off
-    if (port->set_pwr) {
-      port->set_pwr(power_required);
+    if (port) {
+      if (port->uart && port->uart->init)
+        state->usart_ctx = port->uart->init(&params);
+
+      // Set power on/off
+      if (port->set_pwr) {
+        port->set_pwr(power_required);
+      }
     }
 
     // Update callbacks once the port is setup
@@ -299,29 +305,35 @@ void initSerialPorts()
 {
   memset(serialPortStates, 0, sizeof(serialPortStates));
   
-  for (int port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
+  for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
   }
 }
 
-uint8_t serialGetMode(int port_nr)
+int serialGetMode(uint8_t port_nr)
 {
-  auto state = getSerialPortState(port_nr);
-  if (!state) return UART_MODE_NONE;
-  return state->mode;
+  return getSerialPortMode(port_nr);
 }
 
-uint8_t serialTracesEnabled(int port_nr)
+void serialSetMode(uint8_t port_nr, int mode)
 {
-#if defined(DEBUG)
-  return serialGetMode(port_nr) == UART_MODE_DEBUG;
-#else
-  return false;
-#endif
+  if (port_nr >= MAX_SERIAL_PORTS) return;
+  uint16_t m = mode & 0xF;
+  g_eeGeneral.serialPort =
+      (g_eeGeneral.serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
 }
 
-void serialStop(int port_nr)
+// uint8_t serialTracesEnabled(int port_nr)
+// {
+// #if defined(DEBUG)
+//   return serialGetMode(port_nr) == UART_MODE_DEBUG;
+// #else
+//   return false;
+// #endif
+// }
+
+void serialStop(uint8_t port_nr)
 {
   auto state = getSerialPortState(port_nr);
   if (!state) return;
@@ -332,24 +344,14 @@ void serialStop(int port_nr)
     if (drv && drv->deinit) {
       drv->deinit(state->usart_ctx);
     }
-    if (state->mode != 0) {
-      // Clear callbacks
-      serialSetCallBacks(state->mode, nullptr, nullptr);
-    }
     if (port->set_pwr) {
       // Power OFF
       port->set_pwr(0);
     }
-    memset(state, 0, sizeof(SerialPortState));
+    if (state->mode != 0) {
+      // Clear callbacks
+      serialSetCallBacks(state->mode, nullptr, nullptr);
+    }
   }
-}
-
-void serialPutc(int port_nr, uint8_t c)
-{
-  auto state = getSerialPortState(port_nr);
-  if (!state) return;
-
-  if (state->port) {
-    state->port->uart->sendByte(state->usart_ctx, c);
-  }  
+  memset(state, 0, sizeof(SerialPortState));
 }
