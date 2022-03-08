@@ -412,7 +412,7 @@
 #endif
 
 // Serial Port (DEBUG)
-#if (defined(PCBX12S) || (defined(RADIO_TX16S)) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD)) && !defined(IMU_LSM6DS33)
+#if (defined(PCBX12S) || (defined(RADIO_FAMILY_T16)) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD)) && !defined(IMU_LSM6DS33)
   #define AUX_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_RCC_APB1Periph           RCC_APB1Periph_USART3
   #define AUX_SERIAL_RCC_APB2Periph           0
