@@ -278,9 +278,13 @@ void RadioSdManagerPage::build(FormWindow * window)
                 MultiFirmwareUpdate(name, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
               });
             }
-            // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-            //   // TODO
-            // }
+            else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+               menu->addLine(STR_ASSIGN_BITMAP, [=]() {
+                 memcpy(g_model.header.bitmap, name.c_str(),
+                        sizeof(g_model.header.bitmap));
+                 storageDirty(EE_MODEL);
+               });
+            }
             else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
