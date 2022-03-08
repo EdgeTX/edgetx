@@ -92,12 +92,7 @@ void aux_serial_deinit(void* ctx)
 #if defined(AUX_SERIAL)
 
 Fifo<uint8_t, 512> auxSerialTxFifo;
-
-#if defined(AUX_SERIAL_DMA_Stream_RX)
 AuxSerialRxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
-#else
-AuxSerialRxFifo auxSerialRxFifo;
-#endif
 
 const LL_GPIO_InitTypeDef auxUSARTPinInit = {
   .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
@@ -117,15 +112,9 @@ const stm32_usart_t auxUSART = {
   .txDMA = nullptr,
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
-#if defined(AUX_SERIAL_DMA_Stream_RX)
   .rxDMA = AUX_SERIAL_DMA_RX,
   .rxDMA_Stream = AUX_SERIAL_DMA_Stream_RX_LL,
   .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,
-#else
-  .rxDMA = nullptr,
-  .rxDMA_Stream = 0,
-  .rxDMA_Channel = 0,
-#endif
 };
 
 AuxSerialState auxSerialState = {
@@ -175,7 +164,6 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 #if defined(AUX2_SERIAL)
 
 Fifo<uint8_t, 512> aux2SerialTxFifo;
-
 AuxSerialRxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
 
 const LL_GPIO_InitTypeDef aux2USARTPinInit = {

@@ -793,6 +793,7 @@ bool isTrainerModeAvailable(int mode)
   }
 #endif
 
+#if defined(PCBTARANIS) || defined(AUX_SERIAL) || defined(AUX2_SERIAL)
   if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT) {
 #if defined(TRAINER_BATTERY_COMPARTMENT)
     return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
@@ -800,6 +801,7 @@ bool isTrainerModeAvailable(int mode)
     return false;
 #endif
   }
+#endif
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))

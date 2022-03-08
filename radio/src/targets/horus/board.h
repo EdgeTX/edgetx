@@ -661,17 +661,6 @@ void hapticDone();
 void hapticOff();
 void hapticOn(uint32_t pwmPercent);
 
-// GPS driver
-void gpsInit(uint32_t baudrate);
-uint8_t gpsGetByte(uint8_t * byte);
-#if defined(DEBUG)
-extern uint8_t gpsTraceEnabled;
-#endif
-void gpsSendByte(uint8_t byte);
-#if defined(INTERNAL_GPS)
-#define PILOTPOS_MIN_HDOP             500
-#endif
-
 #define USART_FLAG_ERRORS              (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
 // BT driver

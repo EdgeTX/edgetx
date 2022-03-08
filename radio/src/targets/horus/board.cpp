@@ -117,7 +117,6 @@ void boardInit()
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
                          I2C_B1_RCC_AHB1Periph |
-                         GPS_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
                          TOUCH_INT_RCC_AHB1Periph |
                          TOUCH_RST_RCC_AHB1Periph,
@@ -144,7 +143,6 @@ void boardInit()
                          EXTMODULE_RCC_APB1Periph |
                          I2C_B1_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
-                         GPS_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
@@ -158,7 +156,6 @@ void boardInit()
                          BT_RCC_APB2Periph |
                          AUX_SERIAL_RCC_APB2Periph |
                          AUX2_SERIAL_RCC_APB2Periph |
-                         GPS_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
@@ -231,9 +228,6 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined(INTERNAL_GPS)
-  gpsInit(GPS_USART_BAUDRATE);
-#endif
 
 #if defined(DEBUG)
   DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);

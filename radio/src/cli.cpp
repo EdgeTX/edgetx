@@ -1466,7 +1466,6 @@ int cliShowJitter(const char ** argv)
 #if defined(INTERNAL_GPS)
 int cliGps(const char ** argv)
 {
-  int baudrate = 0;
 
   if (argv[1][0] == '$') {
     // send command to GPS
@@ -1477,10 +1476,6 @@ int cliGps(const char ** argv)
     gpsTraceEnabled = !gpsTraceEnabled;
   }
 #endif
-  else if (toInt(argv, 1, &baudrate) > 0 && baudrate > 0) {
-    gpsInit(baudrate);
-    cliSerialPrint("GPS baudrate set to %d", baudrate);
-  }
   else {
     cliSerialPrint("%s: Invalid arguments", argv[0]);
   }
