@@ -433,7 +433,6 @@
 #if defined(RADIO_TX16S)
   #define AUX_SERIAL_PWR_GPIO                 GPIOA
   #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
-  #define TRAINER_BATTERY_COMPARTMENT         // allows serial port TTL trainer
 #endif
 #else
   #define AUX_SERIAL_RCC_AHB1Periph           0
@@ -480,9 +479,6 @@
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
   #define AUX2_SERIAL_PWR_GPIO                 GPIOB
   #define AUX2_SERIAL_PWR_GPIO_PIN             GPIO_Pin_0  // PB.00
-#endif
-#if defined(RADIO_TX16S)
-  #define TRAINER_BATTERY_COMPARTMENT         // allows serial port TTL trainer
 #endif
 #else // AUX2_SERIAL
   #define AUX2_SERIAL_RCC_AHB1Periph           0

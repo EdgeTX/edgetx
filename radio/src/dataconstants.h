@@ -177,7 +177,6 @@ enum BeeperMode {
   e_mode_all
 };
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
 enum ModuleIndex {
   INTERNAL_MODULE,
   EXTERNAL_MODULE,
@@ -185,23 +184,19 @@ enum ModuleIndex {
 };
 
 enum TrainerMode {
-#if defined(PCBNV14)
   TRAINER_MODE_OFF,
-#endif
   TRAINER_MODE_MASTER_TRAINER_JACK,
   TRAINER_MODE_SLAVE,
-#if defined(PCBTARANIS) || defined(PCBNV14)
   TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE,
   TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE,
-#endif
-#if defined(PCBTARANIS) || defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  TRAINER_MODE_MASTER_BATTERY_COMPARTMENT,
-#endif
+  TRAINER_MODE_MASTER_SERIAL,
   TRAINER_MODE_MASTER_BLUETOOTH,
   TRAINER_MODE_SLAVE_BLUETOOTH,
   TRAINER_MODE_MULTI,
 };
-#endif
+
+#define TRAINER_MODE_MIN() TRAINER_MODE_OFF
+#define TRAINER_MODE_MAX() TRAINER_MODE_MULTI
 
 enum SerialPort {
     SP_AUX1=0,
@@ -215,26 +210,6 @@ enum SerialPort {
 
 // GPS
 #define PILOTPOS_MIN_HDOP 500
-
-#define TRAINER_MODE_MIN()               TRAINER_MODE_MASTER_TRAINER_JACK
-
-#if !defined(HARDWARE_EXTERNAL_MODULE)
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE
-#elif defined(RADIO_T16) && !defined(INTERNAL_MODULE_MULTI)
-#if  defined(BLUETOOTH)
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE_BLUETOOTH
-#else
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE
-#endif
-#elif defined(INTERNAL_MODULE_MULTI) || defined(ALLOW_TRAINER_MULTI)
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_MULTI
-#elif defined(BLUETOOTH)
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE_BLUETOOTH
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE
-#else
-  #define TRAINER_MODE_MAX()             TRAINER_MODE_MASTER_BATTERY_COMPARTMENT
-#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   #define IS_INTERNAL_MODULE_ENABLED() (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)

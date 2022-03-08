@@ -61,6 +61,10 @@ void stopTrainer()
       stop_trainer_ppm();
       break;
 
+    case TRAINER_MODE_MASTER_SERIAL:
+      sbusSetGetByte(nullptr);
+      break;
+
 #if defined(TRAINER_MODULE_CPPM)
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
       stop_trainer_module_cppm();
@@ -71,12 +75,6 @@ void stopTrainer()
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
       sbusSetGetByte(nullptr);
       stop_trainer_module_sbus();
-      break;
-#endif
-
-#if defined(TRAINER_BATTERY_COMPARTMENT)
-    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-      sbusSetGetByte(nullptr);
       break;
 #endif
   }
@@ -96,8 +94,16 @@ void checkTrainerSettings()
     currentTrainerMode = requiredTrainerMode;
 
     switch (requiredTrainerMode) {
+      case TRAINER_MODE_MASTER_TRAINER_JACK:
+        init_trainer_capture();
+        break;
+
       case TRAINER_MODE_SLAVE:
         init_trainer_ppm();
+        break;
+
+      case TRAINER_MODE_MASTER_SERIAL:
+        sbusSetGetByte(sbusAuxGetByte);
         break;
 
 #if defined(TRAINER_MODULE_CPPM)
@@ -112,16 +118,6 @@ void checkTrainerSettings()
         sbusSetGetByte(trainerModuleSbusGetByte);
         break;
 #endif
-
-#if defined(TRAINER_BATTERY_COMPARTMENT)
-      case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-        sbusSetGetByte(sbusAuxGetByte);
-        break;
-#endif
-
-      case TRAINER_MODE_MASTER_TRAINER_JACK:
-        init_trainer_capture();
-        break;
     }
 
 #if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU)

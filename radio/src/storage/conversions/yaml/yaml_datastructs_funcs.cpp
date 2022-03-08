@@ -711,7 +711,6 @@ bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
     return wf(opaque, s, strlen(s));
 }
 
-extern const struct YamlIdStr enum_TrainerMode[];
 const struct YamlIdStr enum_TrainerMode[] = {
 #if defined(PCBNV14)
   {  TRAINER_MODE_OFF, "OFF"  },
@@ -733,8 +732,8 @@ const struct YamlIdStr enum_TrainerMode[] = {
 
 #define r_trainerMode nullptr
 
-bool w_trainerMode(const YamlNode* node, uint32_t val,
-                   yaml_writer_func wf, void* opaque)
+static bool w_trainerMode(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
 {
   const char* str = nullptr;
   str = yaml_output_enum(val, enum_TrainerMode);
