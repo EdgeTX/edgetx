@@ -179,6 +179,12 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     cliSetSerialDriver(ctx, drv);
     break;
 #endif
+
+#if defined(INTERNAL_GPS)
+  case UART_MODE_GPS:
+    gpsSetSerialDriver(ctx, drv);
+    break;
+#endif
 #endif
   }
 }
@@ -189,6 +195,7 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
 
 #if defined(DEBUG) || defined(CLI)
   case UART_MODE_DEBUG:
+  case UART_MODE_CLI:
     params.baudrate = DEBUG_BAUDRATE;
     break;
 #endif
@@ -226,6 +233,14 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;
+    params.rx_enable = true;
+    power_required = true;
+    break;
+#endif
+
+#if defined(INTERNAL_GPS)
+  case UART_MODE_GPS:
+    params.baudrate = GPS_USART_BAUDRATE;
     params.rx_enable = true;
     power_required = true;
     break;
