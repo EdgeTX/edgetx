@@ -82,6 +82,10 @@ void postRadioSettingsLoad()
     setDefaultOwnerId();
   }
 #endif
+#if defined(PCBX12S)
+  // AUX2 is hardwired to AUX2 on X12S
+  serialSetMode(SP_AUX2, UART_MODE_GPS);
+#endif
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
