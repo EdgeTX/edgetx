@@ -378,6 +378,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
+  YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
   YAML_ARRAY("serialPort", 4, 4, struct_serialConfig, nullptr),
   YAML_ARRAY("slidersConfig", 1, 4, struct_sliderConfig, nullptr),
   YAML_PADDING( 4 ),
