@@ -373,38 +373,32 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 #endif
 
-#if defined(AUX_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  auto aux =
-      new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
-                 UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.auxSerialMode),
-                 [](int value) {
-                   g_eeGeneral.auxSerialMode = value;
-                   serialInit(SP_AUX1, value);
-                   SET_DIRTY();
-                 });
-  aux->setAvailableHandler(isAuxModeAvailable);
-  grid.nextLine();
-#endif
+  bool display_ttl_warning = false;
+  for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
+    auto port = serialGetPort(port_nr);
+    if (!port) continue;
 
-#if defined(AUX2_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX2_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  auto aux2 =
-      new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
-                 UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.aux2SerialMode),
-                 [](int value) {
-                   g_eeGeneral.aux2SerialMode = value;
-                   serialInit(SP_AUX2, value);
-                   SET_DIRTY();
-                 });
-  aux2->setAvailableHandler(isAux2ModeAvailable);
-  grid.nextLine();
-#endif
+    display_ttl_warning = true;
+    new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE, 0,
+                   COLOR_THEME_PRIMARY1);
+    auto aux = new Choice(
+        window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0, UART_MODE_MAX,
+        [=]() { return serialGetMode(port_nr); },
+        [=](int value) {
+          serialSetMode(port_nr, value);
+          serialInit(port_nr, value);
+          SET_DIRTY();
+        });
+    aux->setAvailableHandler(
+        [=](int value) { return isAuxModeAvailable(port_nr, value); });
+    grid.nextLine();
+  }
 
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  new StaticText(window, grid.getFieldSlot(1,0), STR_TTL_WARNING, 0, COLOR_THEME_WARNING);
-  grid.nextLine();
-#endif
+  if (display_ttl_warning) {
+    new StaticText(window, grid.getFieldSlot(1, 0), STR_TTL_WARNING, 0,
+                   COLOR_THEME_WARNING);
+    grid.nextLine();
+  }
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);

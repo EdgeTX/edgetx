@@ -753,7 +753,30 @@ const etx_serial_port_t UsbSerialPort = {
 };
 #endif
 
-const etx_serial_port_t* auxSerialGetPort(int port_nr) { return nullptr; }
+#if defined(AUX_SERIAL)
+const etx_serial_port_t auxSerialPort = { nullptr, nullptr };
+#define AUX_SERIAL_PORT &auxSerialPort
+#else
+#define AUX_SERIAL_PORT nullptr
+#endif
+
+#if defined(AUX2_SERIAL)
+const etx_serial_port_t aux2SerialPort = { nullptr, nullptr };
+#define AUX2_SERIAL_PORT &aux2SerialPort
+#else
+#define AUX2_SERIAL_PORT nullptr
+#endif // AUX2_SERIAL
+
+static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
+  AUX_SERIAL_PORT,
+  AUX2_SERIAL_PORT,
+};
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
+  return serialPorts[port_nr];
+}
 
 #if defined(HARDWARE_TOUCH)
 struct TouchState simTouchState = {};
