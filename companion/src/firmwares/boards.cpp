@@ -493,6 +493,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
+    case SportMaxBaudRate:
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
+         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
+        return 400000;  //  400K and higher
+      else
+        return 250000;  //  less than 400K
+
     default:
       return 0;
   }

@@ -94,6 +94,32 @@ const YamlLookupTable internalModuleLut = {
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
 };
 
+struct YamlTelemetryBaudrate {
+  unsigned int value;
+
+  YamlTelemetryBaudrate() = default;
+
+  YamlTelemetryBaudrate(const unsigned int * telemetryBaudrate)
+  {
+    if (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::SportMaxBaudRate) < 400000) {
+      value = *telemetryBaudrate;
+    }
+    else {
+      value = (*telemetryBaudrate + telemetryBaudratesList.size() - 1) % telemetryBaudratesList.size();
+    }
+  }
+
+  void toCpn(unsigned int * telemetryBaudrate, unsigned int variant)
+  {
+    if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) < 400000) {
+      *telemetryBaudrate = value;
+    }
+    else {
+      *telemetryBaudrate = (value + 1) % telemetryBaudratesList.size();
+    }
+  }
+};
+
 namespace YAML
 {
 
@@ -135,7 +161,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["timezone"] = rhs.timezone;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
-  node["telemetryBaudrate"] = rhs.telemetryBaudrate;  // TODO: conversion???
+
+  YamlTelemetryBaudrate telemetryBaudrate(&rhs.telemetryBaudrate);
+  node["telemetryBaudrate"] = telemetryBaudrate.value;
+
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
   node["lightAutoOff"] = rhs.backlightDelay;
@@ -293,7 +322,10 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["timezone"] >> rhs.timezone;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
-  node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
+
+  YamlTelemetryBaudrate telemetryBaudrate;
+  node["telemetryBaudrate"] >> telemetryBaudrate.value;
+  telemetryBaudrate.toCpn(&rhs.telemetryBaudrate, rhs.variant);
 
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;
