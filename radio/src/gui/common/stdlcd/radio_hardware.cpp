@@ -597,12 +597,14 @@ void menuRadioHardware(event_t event)
 #endif
 
 #if defined(AUX_SERIAL)
-      case ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE:
-        g_eeGeneral.auxSerialMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_AUX_SERIAL_MODE, STR_AUX_SERIAL_MODES, g_eeGeneral.auxSerialMode, 0, UART_MODE_MAX, attr, event);
+      case ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE: {
+        auto auxSerialMode = serialGetMode(SP_AUX1);
+        auxSerialMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_AUX_SERIAL_MODE, STR_AUX_SERIAL_MODES, auxSerialMode, 0, UART_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
-          serialInit(SP_AUX1, g_eeGeneral.auxSerialMode);
+          serialSetMode(SP_AUX1, auxSerialMode);
+          serialInit(SP_AUX1, auxSerialMode);
         }
-        break;
+      } break;
 #endif
       case ITEM_RADIO_HARDWARE_JITTER_FILTER:
         g_eeGeneral.noJitterFilter = 1 - editCheckBox(1 - g_eeGeneral.noJitterFilter, HW_SETTINGS_COLUMN2, y, STR_JITTER_FILTER, attr, event);
