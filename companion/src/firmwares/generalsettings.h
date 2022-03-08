@@ -141,7 +141,9 @@ class GeneralSettings {
     enum TelemetryBaudrate {
     };
 
-    GeneralSettings();
+    GeneralSettings() { clear(); }
+    void clear();
+    void init();
     void convert(RadioDataConversionState & cstate);
 
     void setDefaultControlTypes(Board::Type board);
