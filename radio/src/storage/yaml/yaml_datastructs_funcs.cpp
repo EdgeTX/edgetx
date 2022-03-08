@@ -1733,3 +1733,46 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
   uint32_t i = yaml_str2uint(val, val_len);
   yaml_put_bits(data, i, bitoffs, 1);
 }
+
+//struct_serialConfig
+static const struct YamlIdStr enum_SerialPort[] = {
+  {  SP_AUX1, "AUX1"  },
+  {  SP_AUX2, "AUX2"  },
+  {  SP_VCP, "VCP"  },
+  {  0, NULL  }
+};
+
+static const struct YamlIdStr enum_UartModes[] = {
+  {  UART_MODE_NONE, "NONE"  },
+  {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
+  {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
+  {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  UART_MODE_LUA, "LUA"  },
+  {  UART_MODE_CLI, "CLI"  },
+  {  0, NULL  }
+};
+
+static uint32_t port_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  uint32_t port = yaml_parse_enum(enum_SerialPort, val, val_len);
+  if (port < MAX_SERIAL_PORTS) return port;
+
+  return -1;
+}
+
+bool port_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str = yaml_output_enum(idx, enum_SerialPort);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+static const struct YamlNode struct_serialConfig[] = {
+    YAML_IDX_CUST( "port", sw_read, sw_write),
+    YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_END
+};
+

@@ -367,29 +367,18 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
-bool isAuxModeAvailable(int mode)
+int hasSerialMode(int mode)
 {
-#if defined(AUX2_SERIAL)
-  if (mode == UART_MODE_SBUS_TRAINER)
-    return g_eeGeneral.aux2SerialMode != UART_MODE_SBUS_TRAINER;
-#if defined(RADIO_TX16S)
-  else
-    return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER);
-#endif
-#endif
-  return true;
+  for (int p = 0; p < MAX_SERIAL_PORTS; p++) {
+    if (serialGetMode(p) == mode) return p;
+  }
+  return -1;
 }
 
-bool isAux2ModeAvailable(int mode)
+bool isAuxModeAvailable(uint8_t port_nr, int mode)
 {
-#if defined(AUX_SERIAL)
-  if (mode == UART_MODE_SBUS_TRAINER)
-    return g_eeGeneral.auxSerialMode != UART_MODE_SBUS_TRAINER;
-#if defined(RADIO_TX16S)
-  else
-    return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER);
-#endif
-#endif
+  auto p = hasSerialMode(mode);
+  if (p >= 0 && p != port_nr) return false;
   return true;
 }
 
@@ -755,7 +744,8 @@ bool isRfProtocolAvailable(int protocol)
 bool isTelemetryProtocolAvailable(int protocol)
 {
 #if defined(PCBTARANIS)
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY && g_eeGeneral.auxSerialMode != UART_MODE_TELEMETRY) {
+  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY &&
+      hasSerialMode(UART_MODE_TELEMETRY) < 0) {
     return false;
   }
 #endif
@@ -803,16 +793,13 @@ bool isTrainerModeAvailable(int mode)
   }
 #endif
 
-#if defined(RADIO_TX16S) && defined(TRAINER_BATTERY_COMPARTMENT)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    return (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER || g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER);
-#elif defined(PCBTARANIS) && !defined(TRAINER_BATTERY_COMPARTMENT)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT) {
+#if defined(TRAINER_BATTERY_COMPARTMENT)
+    return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
+#else
     return false;
-#elif defined(PCBTARANIS)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    return g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER;
 #endif
+  }
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))

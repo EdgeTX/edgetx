@@ -85,14 +85,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_UartModes[] = {
-  {  UART_MODE_NONE, "MODE_NONE"  },
-  {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
-  {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
-  {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
-  {  UART_MODE_LUA, "MODE_LUA"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
   {  ZOV_Unsigned, "Unsigned"  },
   {  ZOV_Signed, "Signed"  },
@@ -448,8 +440,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
   YAML_ARRAY("customFn", 72, 64, struct_CustomFunctionData, cfn_is_active),
-  YAML_ENUM("auxSerialMode", 4, enum_UartModes),
-  YAML_ENUM("aux2SerialMode", 4, enum_UartModes),
+  YAML_ARRAY("serialPort", 4, 4, struct_serialConfig, nullptr),
   YAML_ARRAY("sticksConfig", 0, 4, struct_sticksConfig, stick_name_valid),
   YAML_ARRAY("switchConfig", 2, 16, struct_switchConfig, nullptr),
   YAML_ARRAY("potsConfig", 2, 8, struct_potConfig, nullptr),

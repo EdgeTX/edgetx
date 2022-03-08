@@ -787,10 +787,8 @@ PACK(struct TrainerData {
   #define GYRO_FIELDS
 #endif
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
-    NOBACKUP(uint8_t auxSerialMode:4 ENUM(UartModes)); \
-    NOBACKUP(uint8_t aux2SerialMode:4 ENUM(UartModes)); \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);       \
     uint16_t potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */ \
@@ -801,17 +799,17 @@ PACK(struct TrainerData {
     NOBACKUP(uint8_t spare5:1 SKIP); \
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
-#elif defined(PCBTARANIS)
+#else
   #if defined(STORAGE_BLUETOOTH)
     #define BLUETOOTH_FIELDS \
-      uint8_t spare5 SKIP; \
+      uint8_t spare6 SKIP; \
       char bluetoothName[LEN_BLUETOOTH_NAME];
   #else
     #define BLUETOOTH_FIELDS
   #endif
   #define EXTRA_GENERAL_FIELDS \
-    uint8_t  auxSerialMode:4 ENUM(UartModes); \
     uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
+    uint8_t  spare5:4 SKIP; \
     uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
@@ -819,8 +817,6 @@ PACK(struct TrainerData {
     char switchNames[STORAGE_NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME] SKIP; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP; \
     BLUETOOTH_FIELDS
-#else
-  #define EXTRA_GENERAL_FIELDS
 #endif
 
 #if defined(COLORLCD) && !defined(BACKUP)
@@ -912,6 +908,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioRepeat);
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
+  NOBACKUP(uint16_t serialPort ARRAY(STORAGE_SERIAL_PORTS,struct_serialConfig,nullptr));
   EXTRA_GENERAL_FIELDS
 
   THEME_DATA
