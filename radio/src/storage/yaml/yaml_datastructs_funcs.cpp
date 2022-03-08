@@ -1760,6 +1760,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
   {  UART_MODE_LUA, "LUA"  },
   {  UART_MODE_CLI, "CLI"  },
+  {  UART_MODE_GPS, "GPS"  },
   {  0, NULL  }
 };
 
@@ -1772,7 +1773,7 @@ static uint32_t port_read(void* user, const char* val, uint8_t val_len)
   return -1;
 }
 
-bool port_write(void* user, yaml_writer_func wf, void* opaque)
+static bool port_write(void* user, yaml_writer_func wf, void* opaque)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
@@ -1782,7 +1783,7 @@ bool port_write(void* user, yaml_writer_func wf, void* opaque)
 }
 
 static const struct YamlNode struct_serialConfig[] = {
-    YAML_IDX_CUST( "port", sw_read, sw_write),
+    YAML_IDX_CUST( "port", port_read, port_write),
     YAML_ENUM( "mode", 4, enum_UartModes),
     YAML_END
 };
