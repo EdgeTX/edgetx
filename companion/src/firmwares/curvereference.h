@@ -18,18 +18,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef CURVEREFERENCE_H
-#define CURVEREFERENCE_H
+#pragma once
 
 #include <QtCore>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QLabel>
 #include <QSpinBox>
 #include <QStandardItemModel>
 
-
 class ModelData;
 class CurveRefFilteredFactory;
+class CompoundItemModelFactory;
+class FilteredItemModel;
+class CurveImageWidget;
 
 class CurveReference {
 
@@ -90,14 +92,17 @@ class CurveReferenceUIManager : public QObject {
 
   public:
     explicit CurveReferenceUIManager(QComboBox *curveTypeCB, QCheckBox *curveGVarCB, QSpinBox *curveValueSB, QComboBox *curveValueCB,
-                            CurveReference & curve, const ModelData & model, CurveRefFilteredFactory * curveRefFilteredFactory,
-                            QObject * parent = nullptr);
+                            QLabel *curveImage, CurveReference & curve, ModelData & model, CompoundItemModelFactory * sharedItemModels,
+                            CurveRefFilteredFactory * curveRefFilteredFactory, QObject * parent = nullptr);
 
-    explicit CurveReferenceUIManager(QComboBox *curveValueCB, CurveReference & curve, const ModelData & model,
+    explicit CurveReferenceUIManager(QComboBox *curveValueCB, CurveReference & curve, ModelData & model, CompoundItemModelFactory * sharedItemModels,
                             CurveRefFilteredFactory * curveRefFilteredFactory, QObject * parent = nullptr) :
-                CurveReferenceUIManager(nullptr, nullptr, nullptr, curveValueCB, curve, model, curveRefFilteredFactory, parent) {}
+                CurveReferenceUIManager(nullptr, nullptr, nullptr, curveValueCB, nullptr, curve, model, sharedItemModels, curveRefFilteredFactory, parent) {}
 
     virtual ~CurveReferenceUIManager();
+
+  signals:
+    void resized();
 
   protected slots:
     void gvarCBChanged(int);
@@ -105,6 +110,9 @@ class CurveReferenceUIManager : public QObject {
     void valueSBChanged();
     void valueCBChanged();
     void update();
+    void curveImageDoubleClicked();
+    void onItemModelAboutToBeUpdated();
+    void onItemModelUpdateComplete();
 
   private:
     QComboBox *curveTypeCB;
@@ -112,11 +120,14 @@ class CurveReferenceUIManager : public QObject {
     QSpinBox *curveValueSB;
     QComboBox *curveValueCB;
     CurveReference & curveRef;
-    const ModelData & model;
-    bool lock;
-    bool hasCapabilityGvars;
+    ModelData & model;
+    CompoundItemModelFactory *sharedItemModels;
     CurveRefFilteredFactory *filteredModelFactory;
+    bool lock;
+    CurveImageWidget *curveImageWidget = nullptr;
+
+    bool hasCapabilityGvars;
+
+    void connectItemModelEvents(const FilteredItemModel * itemModel);
     void populateValueCB(QComboBox * cb);
 };
-
-#endif // CURVEREFERENCE_H

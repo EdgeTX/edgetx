@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _EXPODIALOG_H_
-#define _EXPODIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "eeprominterface.h"
@@ -47,7 +46,6 @@ class ExpoDialog : public QDialog {
 
   private slots:
     void valuesChanged();
-    void shrink();
     void label_phases_customContextMenuRequested(const QPoint & pos);
     void fmClearAll();
     void fmSetAll();
@@ -70,5 +68,3 @@ class ExpoDialog : public QDialog {
     CurveRefFilteredFactory *curveRefFilteredItemModels;
     int carryTrimFilterFlags = 0;
 };
-
-#endif // _EXPODIALOG_H_

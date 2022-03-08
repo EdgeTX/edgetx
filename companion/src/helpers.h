@@ -186,8 +186,8 @@ public:
   TableLayout(QWidget * parent, int rowCount, const QStringList & headerLabels);
   // ~TableLayout() ;
 
-  void addWidget(int row, int column, QWidget * widget);
-  void addLayout(int row, int column, QLayout * layout);
+  void addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment = Qt::Alignment());
+  void addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment = Qt::Alignment());
 
   void resizeColumnsToContents();
   void setColumnWidth(int col, int width);

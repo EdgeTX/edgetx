@@ -20,6 +20,8 @@
 
 #include "curvedata.h"
 #include "datahelpers.h"
+#include "compounditemmodels.h"
+#include "eeprominterface.h"
 
 CurveData::CurveData()
 {
@@ -32,6 +34,22 @@ void CurveData::clear(int count)
   this->count = count;
 }
 
+void CurveData::init()
+{
+  float incr = 200.0 / ((float)count - 1.0);
+
+  //  points[0].x must be -100
+
+  for (int i = 0; i < count; i++) {
+    if (i < count - 1)
+      points[i].x = -100 + (int)(incr * i);
+    else
+      points[i].x = 100;    // points[count - 1].x must be +100 do not risk a rounding issue using incr
+
+    points[i].y = points[i].x;
+  }
+}
+
 bool CurveData::isEmpty() const
 {
   CurveData tmp;
@@ -41,4 +59,73 @@ bool CurveData::isEmpty() const
 QString CurveData::nameToString(const int idx) const
 {
   return DataHelpers::getElementName(tr("CV"), idx + 1, name);
+}
+
+QString CurveData::typeToString() const
+{
+  return typeToString(type);
+}
+
+// static
+QString CurveData::typeToString(int value)
+{
+  switch (value) {
+    case CURVE_TYPE_STANDARD:
+      return tr("Standard");
+    case CURVE_TYPE_CUSTOM:
+      return tr("Custom");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+QString CurveData::pointsToString() const
+{
+  QString result = "[";
+
+  if (type == CURVE_TYPE_CUSTOM) {
+    for (int j = 0; j < count; j++) {
+      if (j != 0)
+        result.append(", ");
+      result.append(QString("(%1, %2)").arg(points[j].x).arg(points[j].y));
+    }
+  }
+  else {
+    for (int j = 0; j < count; j++) {
+      if (j != 0)
+        result.append(", ");
+      result.append(QString("%1").arg(points[j].y));
+    }
+  }
+
+  result.append("]");
+  return result;
+}
+
+//  static
+AbstractStaticItemModel * CurveData::typeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("curvedata.type");
+
+  for (int i = 0; i <= CURVE_TYPE_LAST; i++) {
+    mdl->appendToItemList(typeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * CurveData::pointsItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("curvedata.points");
+
+  for (int i = 2; i <= CPN_MAX_POINTS; i++) {
+    mdl->appendToItemList(tr("%1 points").arg(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }

@@ -31,19 +31,6 @@ QString addFont(const QString & input, const QString & color = "", const QString
 void debugHtml(const QString & html);
 QString formatTitle(const QString & name);
 
-class CurveImage
-{
-  public:
-    CurveImage();
-    void drawCurve(const CurveData & curve, QColor color);
-    const QImage & get() const { return image; }
-
-  protected:
-    int size;
-    QImage image;
-    QPainter painter;
-};
-
 class ModelPrinter: public QObject
 {
   Q_OBJECT
