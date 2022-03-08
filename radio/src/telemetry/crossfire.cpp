@@ -225,7 +225,7 @@ void processCrossfireTelemetryFrame(uint8_t module)
       ) {
         uint32_t update_interval;
         int32_t offset;
-        if (getCrossfireTelemetryValue<4>(6, (int32_t &)update_interval,
+        if (getCrossfireTelemetryValue<4>(6, (uint32_t &)update_interval,
                                           module) &&
             getCrossfireTelemetryValue<4>(10, offset, module)) {
           // values are in 10th of micro-seconds
