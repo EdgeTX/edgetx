@@ -86,7 +86,7 @@ bool isSourceAvailableInCustomSwitches(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
 bool isSwitchAvailable(int swtch, SwitchContext context);
-bool isAuxModeAvailable(uint8_t port_nr, int mode);
+bool isSerialModeAvailable(uint8_t port_nr, int mode);
 int  hasSerialMode(int mode);
 bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);

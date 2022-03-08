@@ -197,6 +197,56 @@ class BluetoothConfigWindow : public FormGroup
 };
 #endif
 
+class SerialConfigWindow : public FormGroup
+{
+ public:
+  SerialConfigWindow(FormWindow *parent, const rect_t &rect) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+  {
+    update();
+  }
+
+  void update()
+  {
+    FormGridLayout grid;
+#if LCD_W > LCD_H
+    grid.setLabelWidth(180);
+#else
+    grid.setLabelWidth(130);
+#endif
+    clear();
+
+    bool display_ttl_warning = false;
+    for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
+      auto port = serialGetPort(port_nr);
+      if (!port || !port->name) continue;
+
+      display_ttl_warning = true;
+      new StaticText(this, grid.getLabelSlot(true), port->name, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto aux = new Choice(
+          this, grid.getFieldSlot(), STR_AUX_SERIAL_MODES, 0,
+          UART_MODE_MAX, [=]() { return serialGetMode(port_nr); },
+          [=](int value) {
+            serialSetMode(port_nr, value);
+            serialInit(port_nr, value);
+            SET_DIRTY();
+          });
+      aux->setAvailableHandler(
+          [=](int value) { return isSerialModeAvailable(port_nr, value); });
+      grid.nextLine();
+    }
+
+    if (display_ttl_warning) {
+      new StaticText(this, grid.getFieldSlot(), STR_TTL_WARNING, 0,
+                     COLOR_THEME_WARNING);
+      grid.nextLine();
+    }
+
+    getParent()->moveWindowsTop(top() + 1, adjustHeight());
+  }
+};
+
 void restartExternalModule()
 {
   if (!IS_EXTERNAL_MODULE_ON()) {
@@ -373,32 +423,10 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 #endif
 
-  bool display_ttl_warning = false;
-  for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
-    auto port = serialGetPort(port_nr);
-    if (!port) continue;
-
-    display_ttl_warning = true;
-    new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE, 0,
-                   COLOR_THEME_PRIMARY1);
-    auto aux = new Choice(
-        window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0, UART_MODE_MAX,
-        [=]() { return serialGetMode(port_nr); },
-        [=](int value) {
-          serialSetMode(port_nr, value);
-          serialInit(port_nr, value);
-          SET_DIRTY();
-        });
-    aux->setAvailableHandler(
-        [=](int value) { return isAuxModeAvailable(port_nr, value); });
-    grid.nextLine();
-  }
-
-  if (display_ttl_warning) {
-    new StaticText(window, grid.getFieldSlot(1, 0), STR_TTL_WARNING, 0,
-                   COLOR_THEME_WARNING);
-    grid.nextLine();
-  }
+  new Subtitle(window, grid.getLineSlot(), STR_AUX_SERIAL_MODE, 0,
+               COLOR_THEME_PRIMARY1);
+  grid.nextLine();
+  grid.addWindow(new SerialConfigWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);

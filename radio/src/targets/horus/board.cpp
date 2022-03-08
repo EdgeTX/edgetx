@@ -349,6 +349,7 @@ void set_aux_pwr(uint8_t on)
 }
 
 const etx_serial_port_t auxSerialPort = {
+  "AUX1",
   &AuxSerialDriver,
   set_aux_pwr,
 };
@@ -366,6 +367,13 @@ void set_aux2_pwr(uint8_t on)
 }
 
 const etx_serial_port_t aux2SerialPort = {
+#if !defined(PCBX12S)
+  "AUX2",
+#else
+  // AUX2 is hardwired to the internal GPS
+  // on the X12S, let's hide the setting
+  nullptr,
+#endif
   &Aux2SerialDriver,
   set_aux2_pwr,
 };

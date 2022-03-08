@@ -375,7 +375,7 @@ int hasSerialMode(int mode)
   return -1;
 }
 
-bool isAuxModeAvailable(uint8_t port_nr, int mode)
+bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
   auto p = hasSerialMode(mode);
   if (p >= 0 && p != port_nr) return false;
