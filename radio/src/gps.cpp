@@ -320,10 +320,33 @@ void gpsNewData(uint8_t c)
   }
 }
 
+static const etx_serial_driver_t* gpsSerialDrv = nullptr;
+static void* gpsSerialCtx = nullptr;
+
+#if defined(DEBUG)
+uint8_t gpsTraceEnabled = false;
+#endif
+
+void gpsSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
+{
+  gpsSerialCtx = ctx;
+  gpsSerialDrv = drv;
+}
+
 void gpsWakeup()
 {
+  if (!gpsSerialDrv) return;
+  
+  auto _getByte = gpsSerialDrv->getByte;
+  if (!_getByte) return;
+
   uint8_t byte;
-  while (gpsGetByte(&byte)) {
+  while (_getByte(gpsSerialCtx, &byte)) {
+#if defined(DEBUG)
+    if (gpsTraceEnabled) {
+      dbgSerialPutc(byte);
+    }
+#endif  
     gpsNewData(byte);
   }
 }
@@ -334,18 +357,26 @@ char hex(uint8_t b) {
 
 void gpsSendFrame(const char * frame)
 {
+  if (!gpsSerialDrv) return;
+  
+  auto _sendByte = gpsSerialDrv->sendByte;
+  if (!_sendByte) return;  
+  
   // send given frame, add checksum and CRLF
   uint8_t parity = 0;
   TRACE_NOCRLF("gps> %s", frame);
+
   while (*frame) {
     if (*frame != '$') parity ^= *frame;
-    gpsSendByte(*frame);
+    _sendByte(gpsSerialCtx, *frame);
     ++frame;
   }
-  gpsSendByte('*');
-  gpsSendByte(hex(parity >> 4));
-  gpsSendByte(hex(parity & 0x0F));
-  gpsSendByte('\r');
-  gpsSendByte('\n');
+
+  _sendByte(gpsSerialCtx, '*');
+  _sendByte(gpsSerialCtx, hex(parity >> 4));
+  _sendByte(gpsSerialCtx, hex(parity & 0x0F));
+  _sendByte(gpsSerialCtx, '\r');
+  _sendByte(gpsSerialCtx, '\n');
+
   TRACE("*%02x", parity);
 }

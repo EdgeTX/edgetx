@@ -57,7 +57,6 @@ set(CLI ON CACHE BOOL "Enable CLI")
 
 if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
-  add_definitions(-DPCBX10)
   add_definitions(-DSOFTWARE_VOLUME)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
@@ -96,14 +95,14 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal ublox GPS" OFF)
+    option(INTERNAL_GPS "Support for internal ublox GPS" ON)
     set(HARDWARE_TOUCH YES)
     set(USB_CHARGER YES)
     set(DEFAULT_THEME "DARKBLUE")
     set(SBUS_TRAINER ON)
     set(AUX_SERIAL ON)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
-    if (NOT BLUETOOTH AND NOT INTERNAL_GPS)
+    if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
@@ -136,7 +135,7 @@ elseif (PCB STREQUAL X12S)
     endif()
   endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
-  add_definitions(-DPCBX12S)
+  set(AUX2_SERIAL ON) # wire to GPS
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
     audio_spi_driver.cpp
@@ -149,6 +148,7 @@ elseif (PCB STREQUAL X12S)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
+add_definitions(-DPCB${PCB})
 add_definitions(-DPCBREV=${PCBREV})
 add_definitions(-DPCBREV_${PCBREV})
 
@@ -216,9 +216,8 @@ endif()
 
 if(INTERNAL_GPS)
   set(SRC ${SRC} gps.cpp)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} gps_driver.cpp)
   add_definitions(-DINTERNAL_GPS)
-  message("Horus: Internal GPS enabled")
+  message("-- Internal GPS enabled")
 endif()
 
 set(GVAR_SCREEN model_gvars.cpp)
@@ -230,7 +229,7 @@ if(HARDWARE_TOUCH)
 endif()
 
 if(USB_CHARGER)
-  set(FIRMWARE_TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} usb_charger_driver.cpp)
   add_definitions(-DUSB_CHARGER)
 endif()
 
@@ -351,7 +350,7 @@ if(PYTHONINTERP_FOUND)
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBHORUS -DPCBX10 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBHORUS -DPCB${PCB} -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
 
