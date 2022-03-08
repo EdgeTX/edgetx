@@ -100,7 +100,6 @@ if (PCB STREQUAL X10)
     set(HARDWARE_TOUCH YES)
     set(USB_CHARGER YES)
     set(DEFAULT_THEME "DARKBLUE")
-    set(SBUS_TRAINER ON)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
     if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
@@ -242,14 +241,6 @@ if(BLUETOOTH)
     ${SRC}
     bluetooth.cpp)
   add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
-endif()
-
-if (SBUS_TRAINER)
-  add_definitions(-DSBUS_TRAINER)
-  set(SRC
-    ${SRC}
-    sbus.cpp
-    )
 endif()
 
 set(FIRMWARE_TARGET_SRC

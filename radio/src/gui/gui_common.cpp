@@ -789,8 +789,13 @@ bool isTrainerModeAvailable(int mode)
   }
 #endif
 
-  if (mode == TRAINER_MODE_MASTER_SERIAL)
+  if (mode == TRAINER_MODE_MASTER_SERIAL) {
+#if defined(SBUS_TRAINER)
     return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
+#else
+    return false;
+#endif
+  }
 
   if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
        mode == TRAINER_MODE_SLAVE_BLUETOOTH)

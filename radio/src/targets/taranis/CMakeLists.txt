@@ -505,7 +505,6 @@ endif()
 
 add_definitions(-DPCBTARANIS)
 add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
-add_definitions(-DSBUS_TRAINER)
 
 set(SRC
   ${SRC}
@@ -529,11 +528,6 @@ set(GUI_SRC
 if(STATUS_LEDS)
   set(LED_DRIVER led_driver.cpp)
 endif()
-
-set(SRC
-  ${SRC}
-  sbus.cpp
-  )
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
