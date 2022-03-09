@@ -324,6 +324,7 @@ bool isBacklightEnabled()
   return boardBacklightOn;
 }
 
+#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
 static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -339,6 +340,7 @@ static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
     LL_GPIO_ResetOutputPin(GPIOx, pin);
   }
 }
+#endif
 
 #if defined(AUX_SERIAL)
 void set_aux_pwr(uint8_t on)
