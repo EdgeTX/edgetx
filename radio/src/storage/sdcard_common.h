@@ -23,6 +23,7 @@
 #define _SDCARD_COMMON_H_
 
 #include "ff.h"
+#include "translations.h"
 
 #define DEFAULT_CATEGORY "Models"
 
@@ -54,10 +55,11 @@ const char *loadFileBin(const char *fullpath, uint8_t *data,
 struct YamlNode;
 const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data);
 
-void getModelPath(char * path, const char * filename);
+void getModelPath(char * path, const char * filename, const char* pathName = STR_MODELS_PATH);
 
-const char * readModel(const char * filename, uint8_t * buffer, uint32_t size);
+const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = STR_MODELS_PATH);
 const char * loadModel(char * filename, bool alarms=true);
+const char * loadModelTemplate(const char* fileName, const char* filePath);
 const char * createModel();
 const char * writeModel();
 
