@@ -183,7 +183,8 @@ class SelectTemplate : public TemplatePage
             updateInfo();
           }
         });
-        grid.nextLine();
+        tb->setHeight(PAGE_LINE_HEIGHT * 2);
+        grid.spacer(tb->height() + 5);
       }
       body.setInnerHeight(grid.getWindowHeight());
     }
@@ -200,10 +201,10 @@ class SelectTemplate : public TemplatePage
       // The following button is needed because the EXIT key does not work without...
       rect = body.getRect();
       rect.x = rect.w - PAGE_PADDING - 100;
-      rect.y = rect.h - PAGE_PADDING - PAGE_LINE_HEIGHT;
+      rect.y = rect.h - PAGE_PADDING - (PAGE_LINE_HEIGHT * 2);
       rect.w = 100;
-      rect.h = PAGE_LINE_HEIGHT;
-      new TemplateButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
+      rect.h = PAGE_LINE_HEIGHT * 2;
+      new TextButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
     } else {
       snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
       updateInfo();
@@ -235,7 +236,8 @@ class SelectTemplateFolder : public TemplatePage
         invalidate();
       }
     });
-    grid.nextLine();
+    tfb->setHeight(PAGE_LINE_HEIGHT * 2);
+    grid.spacer(tfb->height() + 5);
 
     std::list<std::string> directories;
     FILINFO fno;
@@ -273,7 +275,8 @@ class SelectTemplateFolder : public TemplatePage
             updateInfo();
           }
         });
-        grid.nextLine();
+        tfb->setHeight(PAGE_LINE_HEIGHT * 2);
+        grid.spacer(tfb->height() + 5);
       }
       body.setInnerHeight(grid.getWindowHeight());
     }
