@@ -226,13 +226,14 @@ class SelectTemplateFolder : public TemplatePage
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
 
-    auto tfb = new TemplateButton(&body, grid.getLabelSlot(), "Blank Model", [=]() -> uint8_t {
+    auto tfb = new TemplateButton(&body, grid.getLabelSlot(), STR_BLANK_MODEL, [=]() -> uint8_t {
       deleteLater();
       return 0;
     });
+    snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
     tfb->setFocusHandler([=](bool active) {
       if (active) {
-        snprintf(infoText, LEN_INFO_TEXT, "%c", '\0');
+        snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
         invalidate();
       }
     });
