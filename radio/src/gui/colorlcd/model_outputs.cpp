@@ -243,6 +243,16 @@ class OutputLineButton : public Button
     dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
                  textColor);
 
+#if LCD_W > LCD_H
+    char chval[10];
+// #if defined(PPM_UNIT_US)
+    snprintf(chval, sizeof(chval), "%d%s", PPM_CH_CENTER(channel) + channelOutputs[channel] / 2, STR_US);
+// #else
+//   snprintf(chval, sizeof(chval), "%d%s", calcRESXto100(channelOutputs[channel]), "%");
+// #endif
+    dc->drawText(260, FIELD_PADDING_TOP, chval, LEFT | textColor);
+#endif
+
     // second line
     if (output->revert) {
       dc->drawTextAtIndex(4, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, STR_MMMINV,
