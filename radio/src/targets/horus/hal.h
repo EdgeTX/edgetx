@@ -412,7 +412,7 @@
 #endif
 
 // Serial Port (DEBUG)
-#if (defined(PCBX12S) || (defined(RADIO_FAMILY_T16)) && !defined(HARDWARE_EXTERNAL_ACCESS_MOD)) && !defined(IMU_LSM6DS33)
+#if defined(AUX_SERIAL)
   #define AUX_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_RCC_APB1Periph           RCC_APB1Periph_USART3
   #define AUX_SERIAL_RCC_APB2Periph           0
@@ -430,10 +430,10 @@
   #define AUX_SERIAL_DMA_Stream_RX            DMA1_Stream1
   #define AUX_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
   #define AUX_SERIAL_DMA_Channel_RX           DMA_Channel_4
-#if defined(RADIO_TX16S)
-  #define AUX_SERIAL_PWR_GPIO                 GPIOA
-  #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
-#endif
+  #if defined(RADIO_TX16S)
+    #define AUX_SERIAL_PWR_GPIO                 GPIOA
+    #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
+  #endif
 #else
   #define AUX_SERIAL_RCC_AHB1Periph           0
   #define AUX_SERIAL_RCC_APB1Periph           0
