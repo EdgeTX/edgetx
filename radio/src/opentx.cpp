@@ -2043,6 +2043,9 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
+#if defined(COLORLCD)
+    resetBacklightTimeout();
+#endif
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }
