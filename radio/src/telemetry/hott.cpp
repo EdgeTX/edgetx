@@ -219,73 +219,73 @@ struct HottSensor
 
 const HottSensor hottSensors[] = {
   // TX
-  { HOTT_ID_TX_RSSI_DL,   ZSTR_HOTT_ID_TX_RSSI_DL,  UNIT_DB, 0},                // downlink signal strength (rx --> tx as seen by tx) 
-  { HOTT_ID_TX_LQI_DL,    ZSTR_HOTT_ID_TX_LQI_DL,   UNIT_RAW, 0},               // downlink signal quality (rx --> tx s seen by tx)
+  { HOTT_ID_TX_RSSI_DL,   STR_HOTT_ID_TX_RSSI_DL,  UNIT_DB, 0},                	// downlink signal strength (rx --> tx as seen by tx) 
+  { HOTT_ID_TX_LQI_DL,    STR_HOTT_ID_TX_LQI_DL,   UNIT_RAW, 0},               	// downlink signal quality (rx --> tx s seen by tx)
 
   // RX
-  { HOTT_ID_RX_RSSI_UL,   ZSTR_HOTT_ID_RX_RSSI_UL,  UNIT_DB, 0 },               // uplink signal strength (tx --> rx as seen by rx)
-  { HOTT_ID_RX_LQI_UL,    ZSTR_HOTT_ID_RX_LQI_UL,   UNIT_RAW, 0 },              // uplink signal quality (tx --> rx as seen by rx)
-  { HOTT_ID_RX_VLT,       ZSTR_HOTT_ID_RX_VLT,      UNIT_VOLTS, 1 },            // RX battery voltage
-  { HOTT_ID_RX_TMP,       ZSTR_HOTT_ID_RX_TMP,      UNIT_CELSIUS, 0 },          // RX temperature
-  { HOTT_ID_RX_BAT_MIN,   ZSTR_HOTT_ID_RX_BAT_MIN,  UNIT_VOLTS, 1 },            // RX lowest rx voltage
-  { HOTT_ID_RX_VPCK,      ZSTR_HOTT_ID_RX_VPCK,     UNIT_MS, 0 },               // RX VPack
-  { HOTT_ID_RX_EVENT,     ZSTR_HOTT_ID_RX_EVENT,    UNIT_RAW, 0 },              // RX event and other devices warnings
+  { HOTT_ID_RX_RSSI_UL,   STR_HOTT_ID_RX_RSSI_UL,  UNIT_DB, 0 },               	// uplink signal strength (tx --> rx as seen by rx)
+  { HOTT_ID_RX_LQI_UL,    STR_HOTT_ID_RX_LQI_UL,   UNIT_RAW, 0 },              	// uplink signal quality (tx --> rx as seen by rx)
+  { HOTT_ID_RX_VLT,       STR_HOTT_ID_RX_VLT,      UNIT_VOLTS, 1 },            	// RX battery voltage
+  { HOTT_ID_RX_TMP,       STR_HOTT_ID_RX_TMP,      UNIT_CELSIUS, 0 },          	// RX temperature
+  { HOTT_ID_RX_BAT_MIN,   STR_HOTT_ID_RX_BAT_MIN,  UNIT_VOLTS, 1 },            	// RX lowest rx voltage
+  { HOTT_ID_RX_VPCK,      STR_HOTT_ID_RX_VPCK,     UNIT_MS, 0 },               	// RX VPack
+  { HOTT_ID_RX_EVENT,     STR_HOTT_ID_RX_EVENT,    UNIT_RAW, 0 },              	// RX event and other devices warnings
   
   // Vario 
-  { HOTT_ID_VARIO_ALT,    ZSTR_HOTT_ID_VARIO_ALT,   UNIT_METERS, 0 },           // Vario altitude
-  { HOTT_ID_VARIO_VV,     ZSTR_HOTT_ID_VARIO_VV,    UNIT_METERS_PER_SECOND, 2 },// Vario vertical velocity
-  { HOTT_ID_VARIO_HDG,    ZSTR_HOTT_ID_VARIO_HDG,   UNIT_DEGREE, 0 },           // Vario heading
+  { HOTT_ID_VARIO_ALT,    STR_HOTT_ID_VARIO_ALT,   UNIT_METERS, 0 },           	// Vario altitude
+  { HOTT_ID_VARIO_VV,     STR_HOTT_ID_VARIO_VV,    UNIT_METERS_PER_SECOND, 2 },	// Vario vertical velocity
+  { HOTT_ID_VARIO_HDG,    STR_HOTT_ID_VARIO_HDG,   UNIT_DEGREE, 0 },           	// Vario heading
 
   // GPS
-  { HOTT_ID_GPS_HDG,      ZSTR_HOTT_ID_GPS_HDG,     UNIT_DEGREE, 0 },           // GPS heading
-  { HOTT_ID_GPS_SPEED,    ZSTR_HOTT_ID_GPS_SPEED,   UNIT_KMH,  0 } ,            // GPS ground speed
-  { HOTT_ID_GPS_LL,       ZSTR_HOTT_ID_GPS_LL,      UNIT_GPS, 0 },              // GPS lat/long
-  { HOTT_ID_GPS_DST,      ZSTR_HOTT_ID_GPS_DST,     UNIT_METERS, 0 },           // GPS distance
-  { HOTT_ID_GPS_ALT,      ZSTR_HOTT_ID_GPS_ALT,     UNIT_METERS, 0 },           // GPS altitude
-  { HOTT_ID_GPS_VV,       ZSTR_HOTT_ID_GPS_VV,      UNIT_METERS_PER_SECOND, 2}, // GPS vertical velocity
-  { HOTT_ID_GPS_NSATS,    ZSTR_HOTT_ID_GPS_NSATS,   UNIT_RAW, 0 },              // GPS number of satellites
+  { HOTT_ID_GPS_HDG,      STR_HOTT_ID_GPS_HDG,     UNIT_DEGREE, 0 },           	// GPS heading
+  { HOTT_ID_GPS_SPEED,    STR_HOTT_ID_GPS_SPEED,   UNIT_KMH,  0 } ,            	// GPS ground speed
+  { HOTT_ID_GPS_LL,       STR_HOTT_ID_GPS_LL,      UNIT_GPS, 0 },              	// GPS lat/long
+  { HOTT_ID_GPS_DST,      STR_HOTT_ID_GPS_DST,     UNIT_METERS, 0 },           	// GPS distance
+  { HOTT_ID_GPS_ALT,      STR_HOTT_ID_GPS_ALT,     UNIT_METERS, 0 },           	// GPS altitude
+  { HOTT_ID_GPS_VV,       STR_HOTT_ID_GPS_VV,      UNIT_METERS_PER_SECOND, 2}, 	// GPS vertical velocity
+  { HOTT_ID_GPS_NSATS,    STR_HOTT_ID_GPS_NSATS,   UNIT_RAW, 0 },              	// GPS number of satellites
 
   // ESC
-  { HOTT_ID_ESC_VLT,      ZSTR_HOTT_ID_ESC_VLT,     UNIT_VOLTS, 1 },            // ESC battery voltage
-  { HOTT_ID_ESC_CAP,      ZSTR_HOTT_ID_ESC_CAP,     UNIT_MAH, 0 },              // ESC battery capacity consumed
-  { HOTT_ID_ESC_TMP,      ZSTR_HOTT_ID_ESC_TMP,     UNIT_CELSIUS, 0 },          // ESC temperature
-  { HOTT_ID_ESC_CUR,      ZSTR_HOTT_ID_ESC_CUR,     UNIT_AMPS, 1 },             // ESC current
-  { HOTT_ID_ESC_RPM,      ZSTR_HOTT_ID_ESC_RPM,     UNIT_RPMS, 0 },             // ESC motor rpm 
-  { HOTT_ID_ESC_BEC_VLT,  ZSTR_HOTT_ID_ESC_BEC_VLT, UNIT_VOLTS, 1 },            // ESC BEC voltage
-  { HOTT_ID_ESC_BEC_CUR,  ZSTR_HOTT_ID_ESC_BEC_CUR, UNIT_AMPS, 1 },             // ESC BEC current
-  { HOTT_ID_ESC_BEC_TMP,  ZSTR_HOTT_ID_ESC_BEC_TMP, UNIT_CELSIUS, 0 },          // BEC BEC temperature
-  { HOTT_ID_ESC_MOT_TMP,  ZSTR_HOTT_ID_ESC_MOT_TMP, UNIT_CELSIUS, 0 },          // ESC motor or external temperature
+  { HOTT_ID_ESC_VLT,      STR_HOTT_ID_ESC_VLT,     UNIT_VOLTS, 1 },            	// ESC battery voltage
+  { HOTT_ID_ESC_CAP,      STR_HOTT_ID_ESC_CAP,     UNIT_MAH, 0 },              	// ESC battery capacity consumed
+  { HOTT_ID_ESC_TMP,      STR_HOTT_ID_ESC_TMP,     UNIT_CELSIUS, 0 },          	// ESC temperature
+  { HOTT_ID_ESC_CUR,      STR_HOTT_ID_ESC_CUR,     UNIT_AMPS, 1 },             	// ESC current
+  { HOTT_ID_ESC_RPM,      STR_HOTT_ID_ESC_RPM,     UNIT_RPMS, 0 },             	// ESC motor rpm 
+  { HOTT_ID_ESC_BEC_VLT,  STR_HOTT_ID_ESC_BEC_VLT, UNIT_VOLTS, 1 },            	// ESC BEC voltage
+  { HOTT_ID_ESC_BEC_CUR,  STR_HOTT_ID_ESC_BEC_CUR, UNIT_AMPS, 1 },             	// ESC BEC current
+  { HOTT_ID_ESC_BEC_TMP,  STR_HOTT_ID_ESC_BEC_TMP, UNIT_CELSIUS, 0 },          	// BEC BEC temperature
+  { HOTT_ID_ESC_MOT_TMP,  STR_HOTT_ID_ESC_MOT_TMP, UNIT_CELSIUS, 0 },         	// ESC motor or external temperature
 
   // GAM
-  { HOTT_ID_GAM_CELS,     ZSTR_HOTT_ID_GAM_CELS,    UNIT_CELLS, 2},             // GAM Cels L
-  { HOTT_ID_GAM_VLT1,     ZSTR_HOTT_ID_GAM_VLT1,    UNIT_VOLTS, 1 },            // GAM voltage battery 1
-  { HOTT_ID_GAM_VLT2,     ZSTR_HOTT_ID_GAM_VLT2,    UNIT_VOLTS, 1 },            // GAM volatge battery 2
-  { HOTT_ID_GAM_TMP1,     ZSTR_HOTT_ID_GAM_TMP1,    UNIT_CELSIUS, 0 },          // GAM temperature 1
-  { HOTT_ID_GAM_TMP2,     ZSTR_HOTT_ID_GAM_TMP2,    UNIT_CELSIUS, 0 },          // GAM temperature 2
-  { HOTT_ID_GAM_FUEL,     ZSTR_HOTT_ID_GAM_FUEL,    UNIT_PERCENT, 0},           // GAM fuel percentage  
-  { HOTT_ID_GAM_RPM1,     ZSTR_HOTT_ID_GAM_RPM1,    UNIT_RPMS, 0 },             // GAM rpm 1  
-  { HOTT_ID_GAM_ALT,      ZSTR_HOTT_ID_GAM_ALT,     UNIT_METERS, 0 },           // GAM altitude
-  { HOTT_ID_GAM_VV,       ZSTR_HOTT_ID_GAM_VV,      UNIT_METERS_PER_SECOND, 2 },// GAM vertical velocity
-  { HOTT_ID_GAM_CUR,      ZSTR_HOTT_ID_GAM_CUR,     UNIT_AMPS, 1 },             // GAM current  
-  { HOTT_ID_GAM_VLT3,     ZSTR_HOTT_ID_GAM_VLT3,    UNIT_VOLTS, 1 },            // GAM voltage battery 3
-  { HOTT_ID_GAM_CAP,      ZSTR_HOTT_ID_GAM_CAP,     UNIT_MAH, 0 },              // GAM battery capacity
-  { HOTT_ID_GAM_SPEED,    ZSTR_HOTT_ID_GAM_SPEED,   UNIT_KMH,  0 } ,            // GAM speed
-  { HOTT_ID_GAM_RPM2,     ZSTR_HOTT_ID_GAM_RPM2,    UNIT_RPMS, 0 },             // GAM rmp 2
+  { HOTT_ID_GAM_CELS,     STR_HOTT_ID_GAM_CELS,    UNIT_CELLS, 2},             	// GAM Cels L
+  { HOTT_ID_GAM_VLT1,     STR_HOTT_ID_GAM_VLT1,    UNIT_VOLTS, 1 },            	// GAM voltage battery 1
+  { HOTT_ID_GAM_VLT2,     STR_HOTT_ID_GAM_VLT2,    UNIT_VOLTS, 1 },            	// GAM volatge battery 2
+  { HOTT_ID_GAM_TMP1,     STR_HOTT_ID_GAM_TMP1,    UNIT_CELSIUS, 0 },          	// GAM temperature 1
+  { HOTT_ID_GAM_TMP2,     STR_HOTT_ID_GAM_TMP2,    UNIT_CELSIUS, 0 },          	// GAM temperature 2
+  { HOTT_ID_GAM_FUEL,     STR_HOTT_ID_GAM_FUEL,    UNIT_PERCENT, 0},           	// GAM fuel percentage  
+  { HOTT_ID_GAM_RPM1,     STR_HOTT_ID_GAM_RPM1,    UNIT_RPMS, 0 },             	// GAM rpm 1  
+  { HOTT_ID_GAM_ALT,      STR_HOTT_ID_GAM_ALT,     UNIT_METERS, 0 },           	// GAM altitude
+  { HOTT_ID_GAM_VV,       STR_HOTT_ID_GAM_VV,      UNIT_METERS_PER_SECOND, 2 },	// GAM vertical velocity
+  { HOTT_ID_GAM_CUR,      STR_HOTT_ID_GAM_CUR,     UNIT_AMPS, 1 },             	// GAM current  
+  { HOTT_ID_GAM_VLT3,     STR_HOTT_ID_GAM_VLT3,    UNIT_VOLTS, 1 },            	// GAM voltage battery 3
+  { HOTT_ID_GAM_CAP,      STR_HOTT_ID_GAM_CAP,     UNIT_MAH, 0 },              	// GAM battery capacity
+  { HOTT_ID_GAM_SPEED,    STR_HOTT_ID_GAM_SPEED,   UNIT_KMH,  0 } ,            	// GAM speed
+  { HOTT_ID_GAM_RPM2,     STR_HOTT_ID_GAM_RPM2,    UNIT_RPMS, 0 },             	// GAM rmp 2
 
   //EAM
-  { HOTT_ID_EAM_CELS_L,   ZSTR_HOTT_ID_EAM_CELS_L,  UNIT_CELLS, 2},             // EAM Cells L voltage
-  { HOTT_ID_EAM_CELS_H,   ZSTR_HOTT_ID_EAM_CELS_H,  UNIT_CELLS, 2},             // EAM Cells H voltage
-  { HOTT_ID_EAM_VLT1,     ZSTR_HOTT_ID_EAM_VLT1,    UNIT_VOLTS, 1 },            // EAM Voltage battery 1
-  { HOTT_ID_EAM_VLT2,     ZSTR_HOTT_ID_EAM_VLT2,    UNIT_VOLTS, 1 },            // EAM Voltage battery 2
-  { HOTT_ID_EAM_TMP1,     ZSTR_HOTT_ID_EAM_TMP1,    UNIT_CELSIUS, 0 },          // EAM temperature 1
-  { HOTT_ID_EAM_TMP2,     ZSTR_HOTT_ID_EAM_TMP2,    UNIT_CELSIUS, 0 },          // EAM temperature 2
-  { HOTT_ID_EAM_ALT,      ZSTR_HOTT_ID_EAM_ALT,     UNIT_METERS, 0 },           // EAM altitude
-  { HOTT_ID_EAM_CUR,      ZSTR_HOTT_ID_EAM_CUR,     UNIT_AMPS, 1 },             // EAM current  
-  { HOTT_ID_EAM_VLT3,     ZSTR_HOTT_ID_EAM_VLT3,    UNIT_VOLTS, 1 },            // EAM battery voltage 3
-  { HOTT_ID_EAM_CAP,      ZSTR_HOTT_ID_EAM_CAP,     UNIT_MAH, 0 },              // EAM Batt capacity
-  { HOTT_ID_EAM_VV,       ZSTR_HOTT_ID_EAM_VV,      UNIT_METERS_PER_SECOND, 2 },// EAM vertical velcocity
-  { HOTT_ID_EAM_RPM,      ZSTR_HOTT_ID_EAM_RPM,    UNIT_RPMS, 0 },              // EAM rpm  
-  { HOTT_ID_EAM_SPEED,    ZSTR_HOTT_ID_EAM_SPEED,   UNIT_KMH,  0 } ,            // EAM speed
+  { HOTT_ID_EAM_CELS_L,   STR_HOTT_ID_EAM_CELS_L,  UNIT_CELLS, 2},             	// EAM Cells L voltage
+  { HOTT_ID_EAM_CELS_H,   STR_HOTT_ID_EAM_CELS_H,  UNIT_CELLS, 2},             	// EAM Cells H voltage
+  { HOTT_ID_EAM_VLT1,     STR_HOTT_ID_EAM_VLT1,    UNIT_VOLTS, 1 },            	// EAM Voltage battery 1
+  { HOTT_ID_EAM_VLT2,     STR_HOTT_ID_EAM_VLT2,    UNIT_VOLTS, 1 },            	// EAM Voltage battery 2
+  { HOTT_ID_EAM_TMP1,     STR_HOTT_ID_EAM_TMP1,    UNIT_CELSIUS, 0 },          	// EAM temperature 1
+  { HOTT_ID_EAM_TMP2,     STR_HOTT_ID_EAM_TMP2,    UNIT_CELSIUS, 0 },          	// EAM temperature 2
+  { HOTT_ID_EAM_ALT,      STR_HOTT_ID_EAM_ALT,     UNIT_METERS, 0 },           	// EAM altitude
+  { HOTT_ID_EAM_CUR,      STR_HOTT_ID_EAM_CUR,     UNIT_AMPS, 1 },             	// EAM current  
+  { HOTT_ID_EAM_VLT3,     STR_HOTT_ID_EAM_VLT3,    UNIT_VOLTS, 1 },            	// EAM battery voltage 3
+  { HOTT_ID_EAM_CAP,      STR_HOTT_ID_EAM_CAP,     UNIT_MAH, 0 },              	// EAM Batt capacity
+  { HOTT_ID_EAM_VV,       STR_HOTT_ID_EAM_VV,      UNIT_METERS_PER_SECOND, 2 },	// EAM vertical velcocity
+  { HOTT_ID_EAM_RPM,      STR_HOTT_ID_EAM_RPM,    UNIT_RPMS, 0 },              	// EAM rpm  
+  { HOTT_ID_EAM_SPEED,    STR_HOTT_ID_EAM_SPEED,   UNIT_KMH,  0 } ,            	// EAM speed
   
   // sentinel
   {0x00,                  NULL,                     UNIT_RAW, 0}                // sentinel
