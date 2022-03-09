@@ -1478,15 +1478,10 @@
   #define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_7
   #define INTMODULE_USART_IRQn            USART3_IRQn
   #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
+  // DMA1_Stream3 is already used by SDIO
   #define INTMODULE_DMA                   NULL
   #define INTMODULE_DMA_CHANNEL           0
   #define INTMODULE_DMA_STREAM_LL         0
-  // #define INTMODULE_TIMER                 TIM2
-  // #define INTMODULE_TIMER_IRQn            TIM2_IRQn
-  // #define INTMODULE_TIMER_IRQHandler      TIM2_IRQHandler
-  // #define INTMODULE_TIMER_CC_IRQn         TIM2_CC_IRQn
-  // #define INTMODULE_TIMER_CC_IRQHandler   TIM2_CC_IRQHandler
-  // #define INTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
@@ -1590,8 +1585,6 @@
   #define EXTMODULE_TIMER_DMA_STREAM_IRQn       DMA2_Stream1_IRQn
   #define EXTMODULE_TIMER_DMA_STREAM_IRQHandler DMA2_Stream1_IRQHandler
   #define EXTMODULE_TIMER_DMA_FLAG_TC           DMA_IT_TCIF1
-  #define EXTMODULE_TIMER_OUTPUT_ENABLE         TIM_CCER_CC1NE
-  #define EXTMODULE_TIMER_OUTPUT_POLARITY       TIM_CCER_CC1NP
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
