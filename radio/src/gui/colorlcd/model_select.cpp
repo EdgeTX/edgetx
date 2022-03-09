@@ -25,6 +25,7 @@
 #include "storage/modelslist.h"
 #include "libopenui.h"
 #include "standalone_lua.h"
+#include "str_functions.h"
 
 #if LCD_W > LCD_H
 constexpr int MODEL_CELLS_PER_LINE = 3;
@@ -195,9 +196,17 @@ class SelectTemplate : public TemplatePage
       rect_t rect = body.getRect();
       rect.x = PAGE_PADDING;
       rect.y = PAGE_PADDING;
-      rect.w = rect.w - 2 * PAGE_PADDING;
+      rect.w = rect.w - (2 * PAGE_PADDING);
+
+#if LCD_W > LCD_H
       rect.h = PAGE_LINE_HEIGHT;
-      new StaticText(&body, rect, STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
+      int charBreak = 60;
+#else
+      rect.h = PAGE_LINE_HEIGHT * 2;
+      int charBreak = 40;
+#endif
+      new StaticText(&body, rect, wrap(STR_NO_TEMPLATES, charBreak), 0, COLOR_THEME_PRIMARY1);
+
       // The following button is needed because the EXIT key does not work without...
       rect = body.getRect();
       rect.x = rect.w - PAGE_PADDING - 100;
