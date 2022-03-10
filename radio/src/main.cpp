@@ -488,7 +488,7 @@ void guiMain(event_t evt)
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
-
+  static bool fatalError = false;
 
   checkSpeakerVolume();
 
@@ -521,6 +521,7 @@ void perMain()
 
 #if defined(RTC_BACKUP_RAM)
   if (globalData.unexpectedShutdown) {
+    fatalError = true;
     drawFatalErrorScreen(STR_EMERGENCY_MODE);
     return;
   }
@@ -538,9 +539,19 @@ void perMain()
 
     // TODO: implement for b/w
 #if defined(COLORLCD)
+    fatalError = true;
     drawFatalErrorScreen(STR_NO_SDCARD);
     return;
 #endif
+  }
+#endif
+
+
+#if defined(LIBOPENUI)
+  if(fatalError)
+  {
+    clearFatalErrorScreen();
+    fatalError = false;
   }
 #endif
 

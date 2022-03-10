@@ -52,6 +52,7 @@
 
 coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char * str, int idx, LcdFlags flags = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 void drawFatalErrorScreen(const char * message);
+void clearFatalErrorScreen();
 void runFatalErrorScreen(const char * message);
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att);
 void drawSource(BitmapBuffer * dc, coord_t x, coord_t y, mixsrc_t idx, LcdFlags flags=0);
