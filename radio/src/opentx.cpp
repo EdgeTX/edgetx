@@ -2040,7 +2040,10 @@ uint32_t pwrCheck()
   else {
 #if defined(COLORLCD)
     if (pwr_press_time != 0)
+    {
+      clearShutdownAnimation();
       MainWindow::instance()->invalidate();
+    }
 #endif
     pwr_check_state = PWR_CHECK_ON;
     pwr_press_time = 0;

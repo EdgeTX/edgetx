@@ -93,6 +93,7 @@ inline void drawChn(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFla
 void drawSplash();
 void drawSleepBitmap();
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char * message);
+void clearShutdownAnimation();
 
 // Main view standard widgets
 void drawMainPots();
