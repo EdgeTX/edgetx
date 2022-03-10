@@ -504,7 +504,7 @@ void RadioSetupPage::build(FormWindow * window)
   choice->setTextHandler([](uint8_t value) {
     std::string s;
     for (uint8_t i = 0; i < 4; i++) {
-      s += std::string(STR_RETA123[channelOrder(value, i + 1)]);
+      s += STR_RETA123[channelOrder(value, i + 1) - 1];
     }
     return s;
   });
