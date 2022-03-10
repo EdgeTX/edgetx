@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "lcd.h"
 #include "theme_manager.h"
+#include "libopenui.h"
 
 coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char * str, int idx, LcdFlags flags, const char * prefix, const char * suffix)
 {
@@ -124,6 +125,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   static const BitmapBuffer* shutdown = OpenTxTheme::instance()->shutdown;
 
   lcd->reset();
+  lcdInitDirectDrawing();
   lcd->clear(bgColor);
 
   if (shutdown) {
@@ -163,21 +165,71 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   lcdRefresh();
 }
 
+
+class FatalErrorScreen: public FormGroup
+{
+  public:
+    FatalErrorScreen(const std::string& message):
+      FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE | FORM_NO_BORDER),
+      message(std::move(message))
+    {
+      Layer::push(this);
+      bringToTop();
+      setFocus(SET_FOCUS_DEFAULT);
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "FatalErrorScreen";
+    }
+#endif
+    void paint(BitmapBuffer * dc) override
+    {
+      dc->clear(COLOR2FLAGS(BLACK));
+      dc->drawText(LCD_W/2, LCD_H/2-20, message.c_str(), FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+    }
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      Layer::pop(this);
+      Window::deleteLater(detach, trash);
+    }
+
+  protected:
+    std::string message;
+    bool running = false;
+};
+
+static FatalErrorScreen *errorScreen = nullptr;
+
 void drawFatalErrorScreen(const char * message)
 {
-  lcd->reset();
-  lcd->clear(COLOR2FLAGS(BLACK));
-  lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
-
-  WDG_RESET();
-  lcdRefresh();
+  if(!errorScreen)
+  {
+    errorScreen  = new FatalErrorScreen(message);
+  }
+  RTOS_WAIT_MS(1);
+  MainWindow::instance()->run(false);
+  LvglWrapper::instance()->run();
+}
+void clearFatalErrorScreen()
+{
+  errorScreen->deleteLater();
+  errorScreen = nullptr;
 }
 
 void runFatalErrorScreen(const char * message)
 {
+  lcdInitDisplayDriver();
   while (true) {
     backlightEnable(100);
-    drawFatalErrorScreen(message);
+    lcd->reset();
+    lcdInitDirectDrawing();
+    lcd->clear(COLOR2FLAGS(BLACK));
+    lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+
+    WDG_RESET();
+    lcdRefresh();
 
     uint8_t refresh = false;
     while (true) {
