@@ -47,7 +47,9 @@ void setupPulsesPPM(PpmPulsesData<T> * ppmPulsesData, uint8_t channelsStart, int
 
   // Set the final period to the max
   // (a new transfer is issued before it expires)
-  *ppmPulsesData->ptr++ = 65535;
+  // debug: set the last period to the ppm_delay
+  *ppmPulsesData->ptr++ = 2000;
+  //*ppmPulsesData->ptr++ = 65535;
 
   // it's needed in case PPM is sent without DMA
   // (we stop when we reach this 0)

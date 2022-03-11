@@ -122,7 +122,7 @@ class PwmPxxBitTransport: public PulsesBuffer<pulse_duration_t, 200> {
     void addTail()
     {
       // rest min value is 18000 - 200 * 48 = 8400 (4.2ms)
-      *(ptr - 1) = 60000;
+      *(ptr - 1) = 255;
     }
 };
 
