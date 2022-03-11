@@ -859,7 +859,7 @@
   #define EXTMODULE_TIMER_32BITS
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_1 | DMA_SxCR_MSIZE_1)
   #define EXTMODULE_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define EXTMODULE_TIMER_CC_IRQn          TIM2_IRQn
+  #define EXTMODULE_TIMER_IRQn             TIM2_IRQn
   #define EXTMODULE_TIMER_IRQHandler       TIM2_IRQHandler
   #define EXTMODULE_TIMER_DMA_CHANNEL      DMA_Channel_3
   #define EXTMODULE_TIMER_DMA_STREAM       DMA1_Stream1
@@ -891,8 +891,8 @@
   #define EXTMODULE_TIMER                  TIM1
   #define EXTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH3
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0)
-  #define EXTMODULE_TIMER_CC_IRQn          TIM1_CC_IRQn
-  #define EXTMODULE_TIMER_IRQHandler       TIM1_CC_IRQHandler
+  #define EXTMODULE_TIMER_IRQn             TIM1_UP_TIM10_IRQn
+  #define EXTMODULE_TIMER_IRQHandler       TIM1_UP_TIM10_IRQHandler
   #define EXTMODULE_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #define EXTMODULE_TIMER_DMA_CHANNEL      DMA_Channel_6
   #define EXTMODULE_TIMER_DMA_STREAM       DMA2_Stream5
@@ -913,7 +913,7 @@
   #define EXTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH1
   #define EXTMODULE_TIMER_32BITS
   #define EXTMODULE_TIMER_DMA_SIZE         (DMA_SxCR_PSIZE_1 | DMA_SxCR_MSIZE_1)
-  #define EXTMODULE_TIMER_CC_IRQn          TIM2_IRQn
+  #define EXTMODULE_TIMER_IRQn             TIM2_IRQn
   #define EXTMODULE_TIMER_IRQHandler       TIM2_IRQHandler
   #define EXTMODULE_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define EXTMODULE_TIMER_DMA_CHANNEL      DMA_Channel_3

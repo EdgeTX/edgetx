@@ -22,6 +22,8 @@
 #include "stm32_pulse_driver.h"
 #include "definitions.h"
 
+#define STOP_TIMER_ON_LAST_UPDATE
+
 void stm32_pulse_init(const stm32_pulse_timer_t* tim)
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -38,6 +40,16 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim)
   timInit.Prescaler = tim->TIM_Prescaler;
   timInit.Autoreload = 65535;
   LL_TIM_Init(tim->TIMx, &timInit);
+
+#if defined(STOP_TIMER_ON_LAST_UPDATE)
+  // Enable DMA IRQ
+  NVIC_EnableIRQ(tim->DMA_IRQn);
+  NVIC_SetPriority(tim->DMA_IRQn, 7);
+
+  // Enable timer IRQ
+  NVIC_EnableIRQ(tim->TIM_IRQn);
+  NVIC_SetPriority(tim->TIM_IRQn, 7);
+#endif
 }
 
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
@@ -57,7 +69,6 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
 
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTypeDef* ocInit)
 {
-  LL_TIM_DisableCounter(tim->TIMx);
   LL_TIM_OC_Init(tim->TIMx, tim->TIM_Channel, ocInit);
   LL_TIM_OC_EnablePreload(tim->TIMx, tim->TIM_Channel);
 
@@ -66,7 +77,6 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTyp
   }
 
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_EnableCounter(tim->TIMx);
 }
 
 // return true if stopped, false otherwise
@@ -77,12 +87,15 @@ bool stm32_pulse_stop_if_running(const stm32_pulse_timer_t* tim)
 
   // disable timer
   LL_TIM_DisableCounter(tim->TIMx);
+  LL_TIM_DisableIT_UPDATE(tim->TIMx);
+
   return true;
 }
 
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length)
 {
+  // re-init DMA stream
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;
@@ -112,12 +125,25 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   dmaInit.NbData = length;
   dmaInit.Channel = tim->DMA_Channel;
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
+
   LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
 
+#if defined(STOP_TIMER_ON_LAST_UPDATE)
+  // Enable TC IRQ
+  LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
+#endif
+
   // Enable DMA
+  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
+  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
+  LL_TIM_SetCounter(tim->TIMx, 0);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
-  // re-init timer
+  // Trigger update to effect the first DMA transation
+  // and thus load ARR with the first duration
+  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+
+  // start timer
   LL_TIM_EnableCounter(tim->TIMx);
 }

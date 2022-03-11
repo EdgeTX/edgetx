@@ -33,10 +33,12 @@ struct stm32_pulse_timer_t {
   TIM_TypeDef*               TIMx;
   uint16_t                   TIM_Prescaler;
   uint32_t                   TIM_Channel;
+  IRQn_Type                  TIM_IRQn;
 
   DMA_TypeDef*               DMAx;
   uint32_t                   DMA_Stream;
   uint32_t                   DMA_Channel;
+  IRQn_Type                  DMA_IRQn;
 };
 
 void stm32_pulse_init(const stm32_pulse_timer_t* tim);

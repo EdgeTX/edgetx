@@ -66,9 +66,9 @@ void sendByteDsm2(uint8_t b) // max 10 changes 0 10 10 10 10 1
 void putDsm2Flush()
 {
   if (extmodulePulsesData.dsm2.index & 1)
-    *extmodulePulsesData.dsm2.ptr++ = 60000;
+    *extmodulePulsesData.dsm2.ptr++ = 255;
   else
-    *(extmodulePulsesData.dsm2.ptr - 1) = 60000;
+    *(extmodulePulsesData.dsm2.ptr - 1) = 255;
 }
 
 // This is the data stream to send, prepare after 19.5 mS
