@@ -612,6 +612,8 @@ extern const char STR_SELECT_TEMPLATE[];
 extern const char STR_SELECT_TEMPLATE_FOLDER[];
 extern const char STR_NO_TEMPLATES[];
 extern const char STR_SAVE_TEMPLATE[];
+extern const char STR_BLANK_MODEL[];
+extern const char STR_BLANK_MODEL_INFO[];
 extern const char STR_FILE_EXISTS[];
 extern const char STR_ASK_OVERWRITE[];
 #define STR_UPDATE_LIST STR_DELAYDOWN

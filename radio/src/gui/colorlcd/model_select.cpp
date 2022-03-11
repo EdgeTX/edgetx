@@ -25,6 +25,7 @@
 #include "storage/modelslist.h"
 #include "libopenui.h"
 #include "standalone_lua.h"
+#include "str_functions.h"
 
 #if LCD_W > LCD_H
 constexpr int MODEL_CELLS_PER_LINE = 3;
@@ -183,7 +184,8 @@ class SelectTemplate : public TemplatePage
             updateInfo();
           }
         });
-        grid.nextLine();
+        tb->setHeight(PAGE_LINE_HEIGHT * 2);
+        grid.spacer(tb->height() + 5);
       }
       body.setInnerHeight(grid.getWindowHeight());
     }
@@ -194,16 +196,24 @@ class SelectTemplate : public TemplatePage
       rect_t rect = body.getRect();
       rect.x = PAGE_PADDING;
       rect.y = PAGE_PADDING;
-      rect.w = rect.w - 2 * PAGE_PADDING;
+      rect.w = rect.w - (2 * PAGE_PADDING);
+
+#if LCD_W > LCD_H
       rect.h = PAGE_LINE_HEIGHT;
-      new StaticText(&body, rect, STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
+      int charBreak = 60;
+#else
+      rect.h = PAGE_LINE_HEIGHT * 2;
+      int charBreak = 40;
+#endif
+      new StaticText(&body, rect, wrap(STR_NO_TEMPLATES, charBreak), 0, COLOR_THEME_PRIMARY1);
+
       // The following button is needed because the EXIT key does not work without...
       rect = body.getRect();
       rect.x = rect.w - PAGE_PADDING - 100;
-      rect.y = rect.h - PAGE_PADDING - PAGE_LINE_HEIGHT;
+      rect.y = rect.h - PAGE_PADDING - (PAGE_LINE_HEIGHT * 2);
       rect.w = 100;
-      rect.h = PAGE_LINE_HEIGHT;
-      new TemplateButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
+      rect.h = PAGE_LINE_HEIGHT * 2;
+      new TextButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
     } else {
       snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
       updateInfo();
@@ -225,17 +235,19 @@ class SelectTemplateFolder : public TemplatePage
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
 
-    auto tfb = new TemplateButton(&body, grid.getLabelSlot(), "Blank Model", [=]() -> uint8_t {
+    auto tfb = new TemplateButton(&body, grid.getLabelSlot(), STR_BLANK_MODEL, [=]() -> uint8_t {
       deleteLater();
       return 0;
     });
+    snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
     tfb->setFocusHandler([=](bool active) {
       if (active) {
-        snprintf(infoText, LEN_INFO_TEXT, "%c", '\0');
+        snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
         invalidate();
       }
     });
-    grid.nextLine();
+    tfb->setHeight(PAGE_LINE_HEIGHT * 2);
+    grid.spacer(tfb->height() + 5);
 
     std::list<std::string> directories;
     FILINFO fno;
@@ -273,7 +285,8 @@ class SelectTemplateFolder : public TemplatePage
             updateInfo();
           }
         });
-        grid.nextLine();
+        tfb->setHeight(PAGE_LINE_HEIGHT * 2);
+        grid.spacer(tfb->height() + 5);
       }
       body.setInnerHeight(grid.getWindowHeight());
     }

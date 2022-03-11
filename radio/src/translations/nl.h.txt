@@ -828,6 +828,8 @@
 #define TR_SELECT_TEMPLATE     "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES        "No model templates were found in this folder"
 #define TR_SAVE_TEMPLATE       "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
 #define TR_FILE_EXISTS         "FILE ALREADY EXISTS"
 #define TR_ASK_OVERWRITE       "Do you want to overwrite?"
 
