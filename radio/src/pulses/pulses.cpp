@@ -689,7 +689,7 @@ void extmoduleSendNextFrame()
       extmoduleSendNextFrameSoftSerial100kbit(
           extmodulePulsesData.dsm2.pulses,
           extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
-          !GET_SBUS_POLARITY(EXTERNAL_MODULE));
+          GET_SBUS_POLARITY(EXTERNAL_MODULE));
       break;
 
     case PROTOCOL_CHANNELS_DSM2_LP45:
