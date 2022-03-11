@@ -856,7 +856,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  int8_t spare1:1 SKIP;
+  uint8_t customWarningEnable:1;
   NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -915,6 +915,8 @@ PACK(struct RadioData {
   THEME_DATA
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
+  char customWarningTitle[CUSTOM_WARNING_TITLE_LEN+1];
+  char customWarningText[CUSTOM_WARNING_TEXT_LEN+1];
 
   GYRO_FIELDS
 

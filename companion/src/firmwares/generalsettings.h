@@ -92,12 +92,14 @@ class TrainerData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(TrainerData)); }
 };
 
-constexpr int CURR_MODEL_FILENAME_LEN {16};
-constexpr int OWNER_NAME_LEN          {10};
-constexpr int BLUETOOTH_NAME_LEN      {10};
-constexpr int TTS_LANGUAGE_LEN        {2};
-constexpr int HARDWARE_NAME_LEN       {3};
-constexpr int REGISTRATION_ID_LEN     {8};
+constexpr int CURR_MODEL_FILENAME_LEN  {16};
+constexpr int OWNER_NAME_LEN           {10};
+constexpr int BLUETOOTH_NAME_LEN       {10};
+constexpr int TTS_LANGUAGE_LEN         {2};
+constexpr int HARDWARE_NAME_LEN        {3};
+constexpr int REGISTRATION_ID_LEN      {8};
+constexpr int CUSTOM_WARNING_TITLE_LEN {8};
+constexpr int CUSTOM_WARNING_TEXT_LEN  {32};
 
 class GeneralSettings {
   Q_DECLARE_TR_FUNCTIONS(GeneralSettings)
@@ -174,6 +176,9 @@ class GeneralSettings {
     BeeperMode beeperMode;
     bool disableAlarmWarning;
     bool disableRssiPoweroffAlarm;
+    bool customWarningEnable;
+    char customWarningTitle[CUSTOM_WARNING_TITLE_LEN + 1];
+    char customWarningText[CUSTOM_WARNING_TEXT_LEN + 1];
     unsigned int usbMode;
     unsigned int jackMode;
     bool sportPower;

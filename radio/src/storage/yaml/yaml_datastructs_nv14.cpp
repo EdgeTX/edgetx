@@ -375,7 +375,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ENUM("antennaMode", 2, enum_AntennaModes),
   YAML_UNSIGNED( "disableRtcWarning", 1 ),
   YAML_UNSIGNED( "keysBacklight", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "customWarningEnable", 1 ),
   YAML_ENUM("internalModule", 8, enum_ModuleType),
   YAML_STRUCT("trainer", 128, struct_TrainerData, NULL),
   YAML_UNSIGNED( "view", 8 ),
@@ -442,6 +442,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("themeName", 8),
   YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
+  YAML_STRING("customWarningTitle", 9),
+  YAML_STRING("customWarningText", 33),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_END
 };
