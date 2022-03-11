@@ -65,6 +65,7 @@ void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
 
   ocInit.OCMode = LL_TIM_OCMODE_PWM1;
   ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+  ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
 
   if (polarity) {
     ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
@@ -105,7 +106,7 @@ void extmoduleSerialStart()
 
   ocInit.OCMode = LL_TIM_OCMODE_TOGGLE;
   ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-  ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
+  ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
   ocInit.CompareValue = 0;
 
   stm32_pulse_config_output(&extmoduleTimer, &ocInit);
@@ -168,9 +169,9 @@ void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length
 
   uint32_t ll_polarity;
   if (polarity) {
-    ll_polarity = LL_TIM_OCPOLARITY_LOW;
-  } else {
     ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
   }
   LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
 
