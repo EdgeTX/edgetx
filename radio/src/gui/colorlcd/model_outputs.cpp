@@ -24,9 +24,42 @@
 #include "opentx.h"
 #include "libopenui.h"
 
+#include "channel_bar.h"
 #include "gvar_numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
+
+#if (LCD_W > LCD_H)
+  #define OUTPUT_EDIT_STATUS_BAR_WIDTH 250
+  #define OUTPUT_EDIT_STATUS_BAR_MARGIN 3
+  #define OUTPUT_EDIT_RIGHT_MARGIN 0
+#else
+  #define OUTPUT_EDIT_STATUS_BAR_WIDTH 180
+  #define OUTPUT_EDIT_STATUS_BAR_MARGIN 0
+  #define OUTPUT_EDIT_RIGHT_MARGIN 3
+#endif
+
+class OutputEditStatusBar : public Window
+{
+ public:
+  OutputEditStatusBar(Window *parent, const rect_t &rect, int8_t channel) :
+      Window(parent, rect), _channel(channel)
+  {
+    channelBar = new ComboChannelBar(this, {OUTPUT_EDIT_STATUS_BAR_MARGIN, 0, rect.w - (OUTPUT_EDIT_STATUS_BAR_MARGIN * 2), rect.h}, channel);
+    channelBar->setLeftMargin(0);
+    channelBar->setTextColor(COLOR_THEME_PRIMARY2);
+    channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
+  }
+
+  void paint(BitmapBuffer *dc) override
+  {
+    // dc->clear(COLOR_THEME_SECONDARY2);
+  }
+
+ protected:
+  ComboChannelBar *channelBar;
+  int8_t _channel;
+};
 
 class OutputEditWindow : public Page
 {
@@ -45,6 +78,7 @@ class OutputEditWindow : public Page
   int chanZero = 0;
   StaticText *minText;
   StaticText *maxText;
+  OutputEditStatusBar *statusBar = nullptr;
 
   void checkEvents() override
   {
@@ -74,6 +108,10 @@ class OutputEditWindow : public Page
                     LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
                    getSourceString(MIXSRC_CH1 + channel), 0,
                    COLOR_THEME_PRIMARY2);
+
+    statusBar = new OutputEditStatusBar(
+        window, {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH - OUTPUT_EDIT_RIGHT_MARGIN, 0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+        channel);
   }
 
   void buildBody(FormWindow *window)
@@ -204,6 +242,16 @@ class OutputLineButton : public Button
                    RIGHT | textColor);
     dc->drawText(228, FIELD_PADDING_TOP, output->symetrical ? "=" : "\210",
                  textColor);
+
+#if LCD_W > LCD_H
+    char chval[10];
+// #if defined(PPM_UNIT_US)
+    snprintf(chval, sizeof(chval), "%d%s", PPM_CH_CENTER(channel) + channelOutputs[channel] / 2, STR_US);
+// #else
+//   snprintf(chval, sizeof(chval), "%d%s", calcRESXto100(channelOutputs[channel]), "%");
+// #endif
+    dc->drawText(260, FIELD_PADDING_TOP, chval, LEFT | textColor);
+#endif
 
     // second line
     if (output->revert) {
