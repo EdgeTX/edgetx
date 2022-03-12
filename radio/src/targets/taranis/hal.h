@@ -1450,17 +1450,17 @@
   #define INTMODULE_TX_GPIO             GPIOA
   #define INTMODULE_TX_GPIO_PIN         GPIO_Pin_10 // PA.10
   #define INTMODULE_TX_GPIO_PinSource   GPIO_PinSource10
-  #define INTMODULE_TIMER               TIM1
-  #define INTMODULE_TIMER_CC_IRQn       TIM1_CC_IRQn
-  #define INTMODULE_TIMER_CC_IRQHandler TIM1_CC_IRQHandler
   #define INTMODULE_TX_GPIO_AF          GPIO_AF_TIM1
-  #define INTMODULE_DMA                 DMA2
-  #define INTMODULE_DMA_CHANNEL         DMA_Channel_6
-  #define INTMODULE_DMA_STREAM          DMA2_Stream5
-  #define INTMODULE_DMA_STREAM_LL       LL_DMA_STREAM_5
-  #define INTMODULE_DMA_STREAM_IRQn     DMA2_Stream5_IRQn
-  #define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream5_IRQHandler
-  #define INTMODULE_DMA_FLAG_TC         DMA_IT_TCIF5
+  #define INTMODULE_TIMER               TIM1
+  #define INTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH3
+  #define INTMODULE_TIMER_IRQn          TIM1_UP_TIM10_IRQn
+  #define INTMODULE_TIMER_IRQHandler    TIM1_UP_TIM10_IRQHandler
+  #define INTMODULE_TIMER_DMA           DMA2
+  #define INTMODULE_TIMER_DMA_CHANNEL   DMA_Channel_6
+  #define INTMODULE_TIMER_DMA_STREAM_LL LL_DMA_STREAM_5
+  #define INTMODULE_TIMER_DMA_STREAM    DMA2_Stream5
+  #define INTMODULE_TIMER_DMA_STREAM_IRQn DMA2_Stream5_IRQn
+  #define INTMODULE_TIMER_DMA_IRQHandler DMA2_Stream5_IRQHandler
   #define INTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #elif (defined(RADIO_FAMILY_JUMPER_T12) && defined(HARDWARE_INTERNAL_MODULE)) || defined(RADIO_TX12) || defined(RADIO_T8) || defined(RADIO_TPRO)
   #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA1)
@@ -1492,16 +1492,17 @@
   #define INTMODULE_TX_GPIO             GPIOA
   #define INTMODULE_TX_GPIO_PIN         GPIO_Pin_10 // PA.10
   #define INTMODULE_TX_GPIO_PinSource   GPIO_PinSource10
-  #define INTMODULE_TIMER               TIM1
-  #define INTMODULE_TIMER_CC_IRQn       TIM1_CC_IRQn
-  #define INTMODULE_TIMER_CC_IRQHandler TIM1_CC_IRQHandler
   #define INTMODULE_TX_GPIO_AF          GPIO_AF_TIM1
-  #define INTMODULE_DMA                 DMA2
-  #define INTMODULE_DMA_CHANNEL         DMA_Channel_6
-  #define INTMODULE_DMA_STREAM          DMA2_Stream5
-  #define INTMODULE_DMA_STREAM_IRQn     DMA2_Stream5_IRQn
-  #define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream5_IRQHandler
-  #define INTMODULE_DMA_FLAG_TC         DMA_IT_TCIF5
+  #define INTMODULE_TIMER               TIM1
+  #define INTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH3
+  #define INTMODULE_TIMER_IRQn          TIM1_UP_TIM10_IRQn
+  #define INTMODULE_TIMER_IRQHandler    TIM1_UP_TIM10_IRQHandler
+  #define INTMODULE_TIMER_DMA           DMA2
+  #define INTMODULE_TIMER_DMA_CHANNEL   DMA_Channel_6
+  #define INTMODULE_TIMER_DMA_STREAM_LL LL_DMA_STREAM_5
+  #define INTMODULE_TIMER_DMA_STREAM    DMA2_Stream5
+  #define INTMODULE_TIMER_DMA_STREAM_IRQn DMA2_Stream5_IRQn
+  #define INTMODULE_TIMER_DMA_IRQHandler DMA2_Stream5_IRQHandler
   #define INTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
