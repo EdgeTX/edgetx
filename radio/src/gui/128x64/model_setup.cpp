@@ -1078,7 +1078,7 @@ void menuModelSetup(event_t event)
           if (attr) {
             moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
             if (checkIncDec_Ret) {
-              restartExternalModule();
+              restartModule(moduleIdx);
             }
           }
         }
@@ -1088,7 +1088,7 @@ void menuModelSetup(event_t event)
           if (attr) {
             moduleData.ghost.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.ghost.telemetryBaudrate),0, 1));
             if (checkIncDec_Ret) {
-              restartExternalModule();
+              restartModule(moduleIdx);
             }
           }
         }

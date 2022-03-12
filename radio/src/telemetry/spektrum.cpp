@@ -504,7 +504,28 @@ void processSpektrumPacket(const uint8_t *packet)
 void processDSMBindPacket(uint8_t module, const uint8_t *packet)
 {
   uint32_t debugval;
-  if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE && g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2 && g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
+
+  if (g_model.moduleData[module].type == MODULE_TYPE_LEMON_DSMP) {
+
+    // save flags
+    g_model.moduleData[module].dsmp.flags = packet[0] & 0x3F;
+
+    // save number of channels
+    uint8_t channels = packet[2];
+    if (channels > 12) { channels = 12; }
+    g_model.moduleData[module].channelsCount = channels - 8;
+
+    TRACE("[SPK] DSMP bind packet: 0x%X / %i",
+          packet[0] & 0x3F, packet[2]);
+
+    storageDirty(EE_MODEL);
+    restartModule(EXTERNAL_MODULE);
+    
+  } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
+             g_model.moduleData[module].multi.rfProtocol ==
+             MODULE_SUBTYPE_MULTI_DSM2 &&
+             g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
+
     // Only sets channel etc when in DSM/AUTO mode
     int channels = packet[5];
     if (channels > 12) {
@@ -548,12 +569,20 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
   setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, (I2C_PSEUDO_TX << 8) + 4, 0, 0, debugval, UNIT_RAW, 0);
 
   /* Finally stop binding as the rx just told us that it is bound */
-  if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE && g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2 && moduleState[module].mode == MODULE_MODE_BIND) {
-    setMultiBindStatus(module, MULTI_BIND_FINISHED);
+  if (getModuleMode(module) == MODULE_MODE_BIND) {
+    auto module_type = g_model.moduleData[module].type;
+    if (module_type == MODULE_TYPE_MULTIMODULE &&
+        g_model.moduleData[module].multi.rfProtocol ==
+            MODULE_SUBTYPE_MULTI_DSM2) {
+      setMultiBindStatus(module, MULTI_BIND_FINISHED);
+    } else if (module_type == MODULE_TYPE_LEMON_DSMP) {
+      setModuleMode(module, MODULE_MODE_NORMAL);
+    }
   }
 }
-
-void processSpektrumTelemetryData(uint8_t module, uint8_t data, uint8_t* rxBuffer, uint8_t& rxBufferCount)
+  
+void processSpektrumTelemetryData(uint8_t module, uint8_t data,
+                                  uint8_t *rxBuffer, uint8_t &rxBufferCount)
 {
   if (rxBufferCount == 0 && data != 0xAA) {
     TRACE("[SPK] invalid start byte 0x%02X", data);
