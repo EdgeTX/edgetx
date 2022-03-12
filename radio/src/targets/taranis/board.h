@@ -151,7 +151,7 @@ void extmoduleSendInvertedByte(uint8_t byte);
 
 #if defined(TRAINER_DETECT_GPIO)
   // Trainer detect is a switch on the jack
-  #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_RESET)
+  #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == TRAINER_DETECT_GPIO_PIN_VALUE)
 #elif defined(PCBXLITES)
   // Trainer is on the same connector than Headphones
   enum JackState
