@@ -22,8 +22,6 @@
 #include "stm32_pulse_driver.h"
 #include "definitions.h"
 
-#define STOP_TIMER_ON_LAST_UPDATE
-
 void stm32_pulse_init(const stm32_pulse_timer_t* tim)
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -41,7 +39,6 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim)
   timInit.Autoreload = 65535;
   LL_TIM_Init(tim->TIMx, &timInit);
 
-#if defined(STOP_TIMER_ON_LAST_UPDATE)
   // Enable DMA IRQ
   NVIC_EnableIRQ(tim->DMA_IRQn);
   NVIC_SetPriority(tim->DMA_IRQn, 7);
@@ -49,11 +46,14 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim)
   // Enable timer IRQ
   NVIC_EnableIRQ(tim->TIM_IRQn);
   NVIC_SetPriority(tim->TIM_IRQn, 7);
-#endif
 }
 
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
 {
+  // Disable IRQs
+  NVIC_DisableIRQ(tim->DMA_IRQn);
+  NVIC_DisableIRQ(tim->TIM_IRQn);
+  
   // De-init DMA & timer
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
   LL_TIM_DeInit(tim->TIMx);
@@ -79,8 +79,19 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTyp
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
 }
 
+void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
+{
+  uint32_t ll_polarity;
+  if (polarity) {
+    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
+  }
+  LL_TIM_OC_SetPolarity(tim->TIMx, tim->TIM_Channel, ll_polarity);  
+}
+
 // return true if stopped, false otherwise
-bool stm32_pulse_stop_if_running(const stm32_pulse_timer_t* tim)
+bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim)
 {
   if (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream))
     return false;
@@ -92,8 +103,22 @@ bool stm32_pulse_stop_if_running(const stm32_pulse_timer_t* tim)
   return true;
 }
 
+static void set_compare_reg(const stm32_pulse_timer_t* tim, uint32_t val)
+{
+  switch(tim->TIM_Channel){
+  case LL_TIM_CHANNEL_CH1:
+  case LL_TIM_CHANNEL_CH1N:
+    LL_TIM_OC_SetCompareCH1(tim->TIMx, val);
+    break;
+  case LL_TIM_CHANNEL_CH3:
+    LL_TIM_OC_SetCompareCH3(tim->TIMx, val);
+    break;
+  }
+}
+
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
-                               const void* pulses, uint16_t length)
+                               const void* pulses, uint16_t length,
+                               uint32_t ocmode, uint32_t cmp_val)
 {
   // re-init DMA stream
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
@@ -128,10 +153,8 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
 
   LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
 
-#if defined(STOP_TIMER_ON_LAST_UPDATE)
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
-#endif
 
   // Enable DMA
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
@@ -139,6 +162,10 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   LL_TIM_SetCounter(tim->TIMx, 0);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
+  // Re-configure timer output
+  set_compare_reg(tim, cmp_val);
+  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, ocmode);
+  
   // Trigger update to effect the first DMA transation
   // and thus load ARR with the first duration
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
@@ -146,4 +173,46 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
 
   // start timer
   LL_TIM_EnableCounter(tim->TIMx);
+}
+
+static bool check_and_clean_dma_tc_flag(const stm32_pulse_timer_t* tim)
+{
+  switch(tim->DMA_Stream) {
+  case LL_DMA_STREAM_1:
+    if (!LL_DMA_IsActiveFlag_TC1(tim->DMAx)) return false;
+    LL_DMA_ClearFlag_TC1(tim->DMAx);
+    break;
+  case LL_DMA_STREAM_5:
+    if (!LL_DMA_IsActiveFlag_TC5(tim->DMAx)) return false;
+    LL_DMA_ClearFlag_TC5(tim->DMAx);
+    break;
+  case LL_DMA_STREAM_7:
+    if (!LL_DMA_IsActiveFlag_TC7(tim->DMAx)) return false;
+    LL_DMA_ClearFlag_TC7(tim->DMAx);
+    break;
+  }
+  return true;
+}
+
+void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
+{
+  if (!check_and_clean_dma_tc_flag(tim)) return;
+
+  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
+  LL_TIM_EnableIT_UPDATE(tim->TIMx);
+
+  set_compare_reg(tim, 0);
+  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, LL_TIM_OCMODE_PWM1);
+}
+
+void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
+{
+  if (!LL_TIM_IsActiveFlag_UPDATE(tim->TIMx))
+    return;
+
+  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
+  LL_TIM_DisableIT_UPDATE(tim->TIMx);
+
+  // Halt pulses by forcing to inactive level
+  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, LL_TIM_OCMODE_FORCED_INACTIVE);
 }

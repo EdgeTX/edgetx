@@ -44,9 +44,25 @@ struct stm32_pulse_timer_t {
 void stm32_pulse_init(const stm32_pulse_timer_t* tim);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTypeDef* ocInit);
+void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity);
 
-// return true if stopped, false otherwise
-bool stm32_pulse_stop_if_running(const stm32_pulse_timer_t* tim);
+// return true if it could be disabled without interrupting a pulse train, false otherwise
+bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim);
 
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
-                               const void* pulses, uint16_t length);
+                               const void* pulses, uint16_t length,
+                               uint32_t ocmode, uint32_t cmp_val);
+
+// Must be called from DMA TC IRQ handler
+void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim);
+
+// Must be called from timer UPDATE IRQ handler
+void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim);
+
+#define __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch)       \
+  ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH1N || \
+   (ch) == LL_TIM_CHANNEL_CH3)
+
+#define __STM32_PULSE_IS_DMA_STREAM_SUPPORTED(stream)       \
+  ((stream) == LL_DMA_STREAM_1 || (stream) == LL_DMA_STREAM_5 || \
+   (stream) == LL_DMA_STREAM_7)

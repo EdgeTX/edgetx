@@ -25,12 +25,6 @@
 #include "hal.h"
 #include "timers_driver.h"
 
-#if defined(CROSSFIRE)
-#include "pulses/crossfire.h"
-#endif
-
-#define STOP_TIMER_ON_LAST_UPDATE
-
 static const stm32_pulse_timer_t extmoduleTimer = {
   .GPIOx = EXTMODULE_TX_GPIO,
   .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
@@ -45,53 +39,23 @@ static const stm32_pulse_timer_t extmoduleTimer = {
   .DMA_IRQn = EXTMODULE_TIMER_DMA_STREAM_IRQn,
 };
 
-#if defined(STOP_TIMER_ON_LAST_UPDATE)
-
-static_assert(EXTMODULE_TIMER_Channel == LL_TIM_CHANNEL_CH1
-              || EXTMODULE_TIMER_Channel == LL_TIM_CHANNEL_CH1N
-              || EXTMODULE_TIMER_Channel == LL_TIM_CHANNEL_CH3,
+// Make sure the timer channel is supported
+static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(EXTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
-static void set_compare_reg(uint32_t val)
-{
-  switch(EXTMODULE_TIMER_Channel){
-  case LL_TIM_CHANNEL_CH1:
-  case LL_TIM_CHANNEL_CH1N:
-    LL_TIM_OC_SetCompareCH1(EXTMODULE_TIMER, val);
-    break;
-  case LL_TIM_CHANNEL_CH3:
-    LL_TIM_OC_SetCompareCH3(EXTMODULE_TIMER, val);
-    break;
-  }
-}
+// Make sure the DMA channel is supported
+static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM_LL),
+              "Unsupported DMA stream");
 
 extern "C" void EXTMODULE_TIMER_DMA_IRQHandler()
 {
-  if (!LL_DMA_IsActiveFlag_TC5(EXTMODULE_TIMER_DMA))
-    return;
-  
-  LL_DMA_ClearFlag_TC5(EXTMODULE_TIMER_DMA);
-
-  LL_TIM_ClearFlag_UPDATE(EXTMODULE_TIMER);
-  LL_TIM_EnableIT_UPDATE(EXTMODULE_TIMER);
-
-  set_compare_reg(0);
-  LL_TIM_OC_SetMode(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, LL_TIM_OCMODE_PWM1);
+  stm32_pulse_dma_tc_isr(&extmoduleTimer);
 }
 
 extern "C" void EXTMODULE_TIMER_IRQHandler()
 {
-  if (!LL_TIM_IsActiveFlag_UPDATE(EXTMODULE_TIMER))
-    return;
-
-  LL_TIM_ClearFlag_UPDATE(EXTMODULE_TIMER);
-  LL_TIM_DisableIT_UPDATE(EXTMODULE_TIMER);
-
-  // Halt pulses and force to inactive level
-  LL_TIM_OC_SetMode(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel,
-                    LL_TIM_OCMODE_FORCED_INACTIVE);
+  stm32_pulse_tim_update_isr(&extmoduleTimer);
 }
-#endif
 
 void extmoduleStop()
 {
@@ -135,23 +99,15 @@ void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
 void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
                                uint16_t ppm_delay, bool polarity)
 {
-  if (!stm32_pulse_stop_if_running(&extmoduleTimer))
+  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
     return;
 
-  // Config output
-  set_compare_reg(ppm_delay * 2);
- 
-  uint32_t ll_polarity;
-  if (polarity) {
-    ll_polarity = LL_TIM_OCPOLARITY_LOW;
-  } else {
-    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
-  }
-  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
-  LL_TIM_OC_SetMode(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, LL_TIM_OCMODE_PWM1);
+  // Set polarity
+  stm32_pulse_set_polarity(&extmoduleTimer, !polarity);
 
   // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length);
+  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length,
+                            LL_TIM_OCMODE_PWM1, ppm_delay * 2);
 }
 
 #if defined(PXX1)
@@ -174,14 +130,12 @@ void extmodulePxx1PulsesStart()
 
 void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 {
-  if (!stm32_pulse_stop_if_running(&extmoduleTimer))
+  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
     return;
 
-  set_compare_reg(9 * 2);
-  LL_TIM_OC_SetMode(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, LL_TIM_OCMODE_PWM1);
-
   // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length);
+  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length,
+                            LL_TIM_OCMODE_PWM1, 9 * 2);
 }
 #endif
 
@@ -204,20 +158,14 @@ void extmoduleSerialStart()
 
 void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)
 {
-  if (!stm32_pulse_stop_if_running(&extmoduleTimer))
+  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
     return;
 
-  uint32_t ll_polarity;
-  if (polarity) {
-    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
-  } else {
-    ll_polarity = LL_TIM_OCPOLARITY_LOW;
-  }
-  LL_TIM_OC_SetPolarity(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, ll_polarity);
-  LL_TIM_OC_SetMode(EXTMODULE_TIMER, EXTMODULE_TIMER_Channel, LL_TIM_OCMODE_TOGGLE);
-
+  // Set polarity
+  stm32_pulse_set_polarity(&extmoduleTimer, polarity);
+  
   // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length);
+  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
 }
 
 // Delay based byte sending @ 57600 bps
