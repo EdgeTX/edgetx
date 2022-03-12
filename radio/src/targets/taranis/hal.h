@@ -1538,18 +1538,15 @@
   #define EXTMODULE_TIMER               TIM8
   #define EXTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH1
   #define EXTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define EXTMODULE_TIMER_CC_IRQn       TIM8_CC_IRQn
-  #define EXTMODULE_TIMER_CC_IRQHandler TIM8_CC_IRQHandler
+  #define EXTMODULE_TIMER_IRQn          TIM8_UP_TIM13_IRQn
+  #define EXTMODULE_TIMER_IRQHandler    TIM8_UP_TIM13_IRQHandler
   #define EXTMODULE_TIMER_TX_GPIO_AF    GPIO_AF_TIM8 // TIM8_CH1
   #define EXTMODULE_TIMER_DMA_CHANNEL           DMA_Channel_7
   #define EXTMODULE_TIMER_DMA_STREAM            DMA2_Stream1
   #define EXTMODULE_TIMER_DMA                   DMA2
   #define EXTMODULE_TIMER_DMA_STREAM_LL         LL_DMA_STREAM_1
   #define EXTMODULE_TIMER_DMA_STREAM_IRQn       DMA2_Stream1_IRQn
-  #define EXTMODULE_TIMER_DMA_STREAM_IRQHandler DMA2_Stream1_IRQHandler
-  #define EXTMODULE_TIMER_DMA_FLAG_TC           DMA_IT_TCIF1
-  #define EXTMODULE_TIMER_OUTPUT_ENABLE         TIM_CCER_CC1E
-  #define EXTMODULE_TIMER_OUTPUT_POLARITY       TIM_CCER_CC1P
+  #define EXTMODULE_TIMER_DMA_IRQHandler        DMA2_Stream1_IRQHandler
   #define EXTMODULE_USART_GPIO_AF               GPIO_AF_USART6
   #define EXTMODULE_USART_GPIO_AF_LL            LL_GPIO_AF_8
   #define EXTMODULE_USART                       USART6
@@ -1576,15 +1573,14 @@
   #define EXTMODULE_TIMER                       TIM8
   #define EXTMODULE_TIMER_Channel               LL_TIM_CHANNEL_CH1N
   #define EXTMODULE_TIMER_TX_GPIO_AF            GPIO_AF_TIM8 // TIM8_CH1N
-  #define EXTMODULE_TIMER_CC_IRQn               TIM8_CC_IRQn
-  #define EXTMODULE_TIMER_CC_IRQHandler         TIM8_CC_IRQHandler
+  #define EXTMODULE_TIMER_IRQn                  TIM8_UP_TIM13_IRQn
+  #define EXTMODULE_TIMER_IRQHandler            TIM8_UP_TIM13_IRQHandler
   #define EXTMODULE_TIMER_DMA_CHANNEL           DMA_Channel_7
   #define EXTMODULE_TIMER_DMA_STREAM            DMA2_Stream1
   #define EXTMODULE_TIMER_DMA                   DMA2
   #define EXTMODULE_TIMER_DMA_STREAM_LL         LL_DMA_STREAM_1
   #define EXTMODULE_TIMER_DMA_STREAM_IRQn       DMA2_Stream1_IRQn
-  #define EXTMODULE_TIMER_DMA_STREAM_IRQHandler DMA2_Stream1_IRQHandler
-  #define EXTMODULE_TIMER_DMA_FLAG_TC           DMA_IT_TCIF1
+  #define EXTMODULE_TIMER_DMA_IRQHandler        DMA2_Stream1_IRQHandler
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
@@ -2388,10 +2384,10 @@
 #define TIMER_2MHz_TIMER                TIM7
 
 // Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM13
-#define MIXER_SCHEDULER_TIMER                TIM13
+#define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM12
+#define MIXER_SCHEDULER_TIMER                TIM12
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_UP_TIM13_IRQHandler
+#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
 #endif // _HAL_H_
