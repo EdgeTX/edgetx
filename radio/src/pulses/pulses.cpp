@@ -678,15 +678,16 @@ void extmoduleSendNextFrame()
       extmoduleSendBuffer(extmodulePulsesData.afhds3.getData(),
                           extmodulePulsesData.afhds3.getSize());
 #else
-      extmoduleSendNextFrameAFHDS3(extmodulePulsesData.afhds3.getData(),
-                                   extmodulePulsesData.afhds3.getSize());
+      extmoduleSendNextFrameSoftSerial(extmodulePulsesData.afhds3.getData(),
+                                       extmodulePulsesData.afhds3.getSize(),
+                                       false);
 #endif
       break;
 #endif
 
 #if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_SBUS:
-      extmoduleSendNextFrameSoftSerial100kbit(
+      extmoduleSendNextFrameSoftSerial(
           extmodulePulsesData.dsm2.pulses,
           extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
           GET_SBUS_POLARITY(EXTERNAL_MODULE));
@@ -696,7 +697,7 @@ void extmoduleSendNextFrame()
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      extmoduleSendNextFrameSoftSerial100kbit(
+      extmoduleSendNextFrameSoftSerial(
           extmodulePulsesData.dsm2.pulses,
           extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses);
       break;

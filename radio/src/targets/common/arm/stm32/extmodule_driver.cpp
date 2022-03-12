@@ -202,19 +202,7 @@ void extmoduleSerialStart()
   stm32_pulse_config_output(&extmoduleTimer, &ocInit);
 }
 
-#if defined(AFHDS3) && !(defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO))
-void extmoduleSendNextFrameAFHDS3(const void* pulses, uint16_t length)
-{
-  if (!stm32_pulse_stop_if_running(&extmoduleTimer))
-    return;
-
-  // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length);
-}
-#endif
-
-void extmoduleSendNextFrameSoftSerial100kbit(const void* pulses, uint16_t length,
-                                             bool polarity)
+void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)
 {
   if (!stm32_pulse_stop_if_running(&extmoduleTimer))
     return;
