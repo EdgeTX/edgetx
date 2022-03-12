@@ -76,11 +76,14 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
   ocInit.OCMode = ocmode;
   ocInit.CompareValue = cmp_val;
 
+  uint32_t channel = tim->TIM_Channel;
   if (tim->TIM_Channel != LL_TIM_CHANNEL_CH1N) {
     ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+    ocInit.OCNState = LL_TIM_OCSTATE_DISABLE;
   } else {
+    ocInit.OCState = LL_TIM_OCSTATE_DISABLE;
     ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
-    polarity = !polarity;
+    channel = LL_TIM_CHANNEL_CH1;
   }
 
   uint32_t ll_polarity;
@@ -96,8 +99,8 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
     ocInit.OCNPolarity = ll_polarity;
   }
   
-  LL_TIM_OC_Init(tim->TIMx, tim->TIM_Channel, &ocInit);
-  LL_TIM_OC_EnablePreload(tim->TIMx, tim->TIM_Channel);
+  LL_TIM_OC_Init(tim->TIMx, channel, &ocInit);
+  LL_TIM_OC_EnablePreload(tim->TIMx, channel);
 
   if (IS_TIM_BREAK_INSTANCE(tim->TIMx)) {
     LL_TIM_EnableAllOutputs(tim->TIMx);
@@ -143,13 +146,22 @@ static void set_compare_reg(const stm32_pulse_timer_t* tim, uint32_t val)
   }
 }
 
+static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
+{
+  uint32_t channel = tim->TIM_Channel;
+  if (channel == LL_TIM_CHANNEL_CH1N)
+    channel = LL_TIM_CHANNEL_CH1;
+
+  LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
+}
+
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length,
                                uint32_t ocmode, uint32_t cmp_val)
 {
   // Re-configure timer output
   set_compare_reg(tim, cmp_val);
-  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, ocmode);
+  set_oc_mode(tim, ocmode);
   
   // re-init DMA stream
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
@@ -229,7 +241,7 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 
   set_compare_reg(tim, 0);
-  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, LL_TIM_OCMODE_PWM1);
+  set_oc_mode(tim, LL_TIM_OCMODE_PWM1);
 }
 
 void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
@@ -241,5 +253,5 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
   LL_TIM_DisableIT_UPDATE(tim->TIMx);
 
   // Halt pulses by forcing to inactive level
-  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, LL_TIM_OCMODE_FORCED_INACTIVE);
+  set_oc_mode(tim, LL_TIM_OCMODE_FORCED_INACTIVE);
 }
