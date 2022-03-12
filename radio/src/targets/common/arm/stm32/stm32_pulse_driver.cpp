@@ -147,6 +147,10 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length,
                                uint32_t ocmode, uint32_t cmp_val)
 {
+  // Re-configure timer output
+  set_compare_reg(tim, cmp_val);
+  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, ocmode);
+  
   // re-init DMA stream
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
 
@@ -189,10 +193,6 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   LL_TIM_SetCounter(tim->TIMx, 0);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
-  // Re-configure timer output
-  set_compare_reg(tim, cmp_val);
-  LL_TIM_OC_SetMode(tim->TIMx, tim->TIM_Channel, ocmode);
-  
   // Trigger update to effect the first DMA transation
   // and thus load ARR with the first duration
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
