@@ -198,6 +198,10 @@ inline uint8_t modelTelemetryProtocol()
   }
 #endif
 
+  if (isModuleDSMP(EXTERNAL_MODULE)) {
+    return PROTOCOL_TELEMETRY_DSMP;
+  }
+  
   // default choice
   return PROTOCOL_TELEMETRY_FRSKY_SPORT;
 }

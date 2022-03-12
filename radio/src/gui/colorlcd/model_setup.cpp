@@ -622,7 +622,7 @@ class ModuleWindow : public FormGroup {
                    [=](int newValue) {
                        g_model.moduleData[moduleIdx].crsf.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
                        SET_DIRTY();
-                       restartExternalModule();
+                       restartModule(moduleIdx);
                    });
       }
       if (isModuleCrossfire(moduleIdx)) {
@@ -1089,6 +1089,7 @@ class ModuleWindow : public FormGroup {
 #if defined(AFHDS2)
                 if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
 #endif
+                if (isModuleDSMP(moduleIdx)) restartModule(moduleIdx);
                 return 0;
               } else {
                 if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) ||

@@ -293,7 +293,7 @@ class InternalModuleWindow : public FormGroup {
           [=](int newValue) {
             g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
             SET_DIRTY();
-            restartInternalModule();
+            restartModule(INTERNAL_MODULE);
           });
       grid.nextLine();
     }

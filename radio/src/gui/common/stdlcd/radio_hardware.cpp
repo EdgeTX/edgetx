@@ -543,7 +543,7 @@ void menuRadioHardware(event_t event)
         if (attr) {
           g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
           if (checkIncDec_Ret) {
-              restartInternalModule();
+              restartModule(INTERNAL_MODULE);
           }
         }
         break;
@@ -552,7 +552,7 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
-          restartExternalModule();
+          restartModule(EXTERNAL_MODULE);
         }
         break;
 #endif

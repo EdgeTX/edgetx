@@ -33,29 +33,40 @@
 
 #define BITLEN_DSM2          (8*2) //125000 Baud => 8uS per bit
 
-void _send_1(uint8_t v)
+static void reset_dsm2_buffer()
+{
+  extmodulePulsesData.dsm2.index = 0;
+  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
+}
+
+static void _send_1(uint8_t v)
 {
   *extmodulePulsesData.dsm2.ptr++ = v - 1;
   extmodulePulsesData.dsm2.index += 1;
 }
 
-void sendByteDsm2(uint8_t b) // max 10 changes 0 10 10 10 10 1
+static void _sendByte(uint8_t b, uint8_t bit_len) // max 10 changes 0 10 10 10 10 1
 {
   bool    lev = 0;
-  uint8_t len = BITLEN_DSM2; // max val: 9*16 < 256
+  uint8_t len = bit_len; // max val: 9*16 < 256
   for (uint8_t i=0; i<=8; i++) { // 8Bits + Stop=1
     bool nlev = b & 1; // lsb first
     if (lev == nlev) {
-      len += BITLEN_DSM2;
+      len += bit_len;
     }
     else {
       _send_1(len);
-      len  = BITLEN_DSM2;
+      len  = bit_len;
       lev  = nlev;
     }
     b = (b>>1) | 0x80; // shift in stop bit
   }
-  _send_1(len); // stop bit (len is already BITLEN_DSM2)
+  _send_1(len); // stop bit (len is already bit_len)
+}
+
+static void sendByteDsm2(uint8_t b)
+{
+  _sendByte(b, BITLEN_DSM2);
 }
 
 void putDsm2Flush()
@@ -73,9 +84,7 @@ void setupPulsesDSM2()
 {
   uint8_t dsmDat[14];
 
-  extmodulePulsesData.dsm2.index = 0;
-
-  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
+  reset_dsm2_buffer();
 
   switch (moduleState[EXTERNAL_MODULE].protocol) {
     case PROTOCOL_CHANNELS_DSM2_LP45:
@@ -111,4 +120,100 @@ void setupPulsesDSM2()
   }
 
   putDsm2Flush();
+}
+
+#define BITLEN_DSMP (17)
+
+static void sendByteDSMP(uint8_t b)
+{
+  _sendByte(b, BITLEN_DSMP);
+}
+
+void setupPulsesLemonDSMP()
+{
+  static uint8_t pass = 0;
+
+  reset_dsm2_buffer();
+
+  const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  // TODO: sanetize 'channels'
+  auto channels = md.getChannelsCount();
+  auto flags = md.dsmp.flags;
+
+  // Force setup packet in Bind mode.
+  auto module_mode = getModuleMode(EXTERNAL_MODULE);
+
+  sendByteDSMP( 0xAA );
+  sendByteDSMP( pass );
+
+  // Setup packet
+  if (pass == 0) {
+
+    if (module_mode == MODULE_MODE_BIND) {
+      flags = DSM2_SEND_BIND | (1 << 6 /* AUTO */);
+      channels = 12;
+    }
+    sendByteDSMP( flags );
+
+    uint8_t pwr = 7;
+    if (module_mode == MODULE_MODE_RANGECHECK) {
+      pwr = 4;
+    }
+    sendByteDSMP( pwr );    
+    sendByteDSMP( channels );
+
+    // Model number
+    sendByteDSMP( 1 );
+
+    // Send only 1 single Setup packet
+    pass = 1;
+
+  } else {
+
+    uint8_t start_channel = 0;
+    if (pass == 2) {
+      start_channel += 7;
+    }
+
+    // Send channels
+    for (int i=0; i<7; i++) {
+
+      uint8_t channel = start_channel + i;
+      if (channel < channels) {
+        
+        int value = channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
+        uint16_t pulse;
+
+        // Use 11-bit ?
+        if (flags & (1 << 2)) {
+          pulse = limit(0, ((value*349)>>9)+1024, 2047) | (channel << 11);
+        } else {
+          pulse = limit(0, ((value*13)>>5)+512, 1023) | (channel << 10);
+        }
+
+        sendByteDSMP( pulse >> 8 );
+        sendByteDSMP( pulse & 0xFF );
+      } else {
+        // Outside of announced number of channels:
+        // -> send invalid values
+        sendByteDSMP( 0xFF );
+        sendByteDSMP( 0xFF );
+      }
+    }
+  }
+
+  putDsm2Flush();
+
+  if (++pass > 2) pass = 1;
+  if (channels < 8) pass = 1;
+
+  if (module_mode == MODULE_MODE_BIND) {
+    // bind packet is setup
+    pass = 0;
+  }
+  else if (--moduleState[EXTERNAL_MODULE].counter == 0) {
+    // every 100th packet is setup
+    pass = 0;
+    moduleState[EXTERNAL_MODULE].counter = 100;
+  }
 }

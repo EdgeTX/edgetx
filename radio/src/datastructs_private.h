@@ -532,6 +532,9 @@ PACK(struct ModuleData {
     NOBACKUP(struct {
       uint8_t telemetryBaudrate:3;
     } crsf);
+    NOBACKUP(struct {
+      uint8_t flags;
+    } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const
