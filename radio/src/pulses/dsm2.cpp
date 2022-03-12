@@ -35,11 +35,6 @@
 
 void _send_1(uint8_t v)
 {
-  if (extmodulePulsesData.dsm2.index & 1)
-    v += 2;
-  else
-    v -= 2;
-
   *extmodulePulsesData.dsm2.ptr++ = v - 1;
   extmodulePulsesData.dsm2.index += 1;
 }

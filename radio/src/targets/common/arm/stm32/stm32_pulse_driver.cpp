@@ -155,6 +155,17 @@ static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
   LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
 }
 
+static void force_start_level(const stm32_pulse_timer_t* tim)
+{
+  uint32_t channel = tim->TIM_Channel;
+  if (channel == LL_TIM_CHANNEL_CH1N)
+    channel = LL_TIM_CHANNEL_CH1;
+
+  uint32_t mode = LL_TIM_OC_GetMode(tim->TIMx, channel);
+  LL_TIM_OC_SetMode(tim->TIMx, channel, LL_TIM_OCMODE_FORCED_ACTIVE);
+  LL_TIM_OC_SetMode(tim->TIMx, channel, mode);
+}
+
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length,
                                uint32_t ocmode, uint32_t cmp_val)
@@ -211,6 +222,7 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
 
   // start timer
+  force_start_level(tim);
   LL_TIM_EnableCounter(tim->TIMx);
 }
 
