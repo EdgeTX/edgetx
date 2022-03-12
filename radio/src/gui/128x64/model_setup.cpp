@@ -972,7 +972,7 @@ void menuModelSetup(event_t event)
         else if (isModuleISRM(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleDSM2(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS, g_model.moduleData[moduleIdx].rfProtocol, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleR9MNonAccess(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION, g_model.moduleData[moduleIdx].subType, (menuHorizontalPosition==1 ? attr : 0));
         else if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(INTERNAL_MODULE))
@@ -1022,7 +1022,7 @@ void menuModelSetup(event_t event)
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
                 }
                 else if (isModuleDSM2(moduleIdx)) {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].rfProtocol, DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].subType, DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
                 }
                 else if (isModuleR9MNonAccess(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event,
@@ -1129,10 +1129,10 @@ void menuModelSetup(event_t event)
 #endif
       {
         lcdDrawTextAlignedLeft(y, TR_TYPE);
-        int multi_rfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+        int multi_rfProto = g_model.moduleData[moduleIdx].multi.rfProtocol;
         lcdDrawMultiProtocolString(MODEL_SETUP_2ND_COLUMN, y, moduleIdx, multi_rfProto, attr);
         if (attr) {
-          int multiRfProto = g_model.moduleData[moduleIdx].getMultiProtocol();
+          int multiRfProto = g_model.moduleData[moduleIdx].multi.rfProtocol;
           MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
           if (status.isValid()) {
             int8_t direction = checkIncDec(event, 0, -1, 1);
@@ -1153,7 +1153,7 @@ void menuModelSetup(event_t event)
             CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
           }
           if (checkIncDec_Ret) {
-            g_model.moduleData[moduleIdx].setMultiProtocol(multiRfProto);
+            g_model.moduleData[moduleIdx].multi.rfProtocol = multiRfProto;
             g_model.moduleData[moduleIdx].subType = 0;
             resetMultiProtocolsOptions(moduleIdx);
             storageDirty(EE_MODEL);
@@ -1670,7 +1670,7 @@ void menuModelSetup(event_t event)
           }
 
           int optionValue = g_model.moduleData[moduleIdx].multi.optionValue;
-          const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+          const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
           int8_t min, max;
           getMultiOptionValues(multi_proto, min, max);
 
@@ -1824,7 +1824,7 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AUTOBIND:
 #endif
-        if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2) {
+        if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
           int8_t value = (g_model.moduleData[moduleIdx].multi.optionValue & 0x02) >> 1;
           lcdDrawText(INDENT_WIDTH, y, STR_MULTI_SERVOFREQ);
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, value ? 11 : 22, attr);

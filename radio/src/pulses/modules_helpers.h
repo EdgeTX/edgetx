@@ -41,37 +41,37 @@ extern uint32_t NV14internalModuleFwVersion;
 
 #if defined (MULTIMODULE)
 #define IS_D16_MULTI(module)                                                   \
-  (((g_model.moduleData[module].getMultiProtocol() ==                          \
+  (((g_model.moduleData[module].multi.rfProtocol ==                          \
      MODULE_SUBTYPE_MULTI_FRSKY) &&                                            \
     (g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16 ||          \
      g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_8CH ||      \
      g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT ||      \
      g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH ||  \
      g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_CLONED)) || \
-   (g_model.moduleData[module].getMultiProtocol() ==                           \
+   (g_model.moduleData[module].multi.rfProtocol ==                           \
     MODULE_SUBTYPE_MULTI_FRSKYX2))
 
 #define IS_R9_MULTI(module)                         \
-  (g_model.moduleData[module].getMultiProtocol() == \
+  (g_model.moduleData[module].multi.rfProtocol == \
    MODULE_SUBTYPE_MULTI_FRSKY_R9)
 
 #define IS_HOTT_MULTI(module)                                           \
-  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_HOTT)
+  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_HOTT)
 
 #define IS_CONFIG_MULTI(module)                                         \
-  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_CONFIG)
+  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_CONFIG)
 
 #define IS_DSM_MULTI(module)                                            \
-  (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
 
 #define IS_RX_MULTI(module)                          \
-  ((g_model.moduleData[module].getMultiProtocol() == \
+  ((g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_AFHDS2A_RX) ||              \
-   (g_model.moduleData[module].getMultiProtocol() == \
+   (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_FRSKYX_RX) ||               \
-   (g_model.moduleData[module].getMultiProtocol() == \
+   (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_BAYANG_RX) ||               \
-   (g_model.moduleData[module].getMultiProtocol() == \
+   (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_DSM_RX))
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -123,7 +123,7 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
 inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  auto proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
     return 7;
   }
@@ -148,7 +148,7 @@ inline bool isModuleMultimodule(uint8_t idx)
 inline bool isModuleMultimoduleDSM2(uint8_t idx)
 {
   return isModuleMultimodule(idx) &&
-         g_model.moduleData[idx].getMultiProtocol() ==
+         g_model.moduleData[idx].multi.rfProtocol ==
              MODULE_SUBTYPE_MULTI_DSM2;
 }
 #else
@@ -593,7 +593,7 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
       return status.supportsFailsafe();
     }
     else {
-      auto proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+      auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
       const mm_protocol_definition * pdef = getMultiProtocolDefinition(proto);
       if (pdef) return pdef->failsafe;
       return false;
@@ -649,7 +649,7 @@ inline uint8_t getMaxRxNum(uint8_t idx)
 
 #if defined(MULTIMODULE)
   if (isModuleMultimodule(idx)) {
-    switch (g_model.moduleData[idx].getMultiProtocol()) {
+    switch (g_model.moduleData[idx].multi.rfProtocol) {
       case MODULE_SUBTYPE_MULTI_OLRS:
         return 4;
       case MODULE_SUBTYPE_MULTI_BUGS:
@@ -776,7 +776,7 @@ inline void resetAccessAuthenticationCount()
 inline void resetAfhds3Options(uint8_t moduleIdx)
 {
   auto & data = g_model.moduleData[moduleIdx];
-  data.rfProtocol = 0;
+  //data.rfProtocol = 0;
   data.subType = 0;
 #if defined(AFHDS3)
   data.afhds3.bindPower = 0;
@@ -824,7 +824,7 @@ inline void resetMultiProtocolsOptions(uint8_t moduleIdx)
     return;
 
   // Sensible default for DSM2 (same as for ppm): 7ch@22ms + Autodetect settings enabled
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2) {
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
     g_model.moduleData[moduleIdx].multi.autoBindMode = 1;
   }
   else {

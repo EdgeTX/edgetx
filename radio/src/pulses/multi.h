@@ -26,7 +26,6 @@
 #include "hal/serial_driver.h"
 #include "hal/module_driver.h"
 
-void multiPatchCustom(uint8_t moduleIdx);
 void convertEtxProtocolToMulti(int *protocol, int *subprotocol);
 void convertMultiProtocolToEtx(int *protocol, int *subprotocol);
 

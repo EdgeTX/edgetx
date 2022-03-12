@@ -135,9 +135,9 @@ inline const char* getRssiLabel()
 {
 #if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
-      (g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
+      (g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
            MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-       g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
+       g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
            MODULE_SUBTYPE_MULTI_HOTT)) {
     return "RQly";
   }

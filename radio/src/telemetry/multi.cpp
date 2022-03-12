@@ -158,9 +158,9 @@ static MultiBufferState guessProtocol(uint8_t module)
   }
 #endif
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
     return SpektrumTelemetryFallback;
-  else if (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+  else if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
     return FlyskyTelemetryFallback;
   else
     return FrskyTelemetryFallback;

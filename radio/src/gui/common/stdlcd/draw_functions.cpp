@@ -40,7 +40,7 @@ void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t
 void lcdDrawMultiSubProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t subType, LcdFlags flags)
 {
   MultiModuleStatus & status = getMultiModuleStatus(moduleIdx);
-  const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].getMultiProtocol());
+  const mm_protocol_definition * pdef = getMultiProtocolDefinition(g_model.moduleData[moduleIdx].multi.rfProtocol);
 
   if (status.protocolName[0] && status.isValid()) {
     lcdDrawText(x, y, status.protocolSubName, flags);

@@ -655,7 +655,7 @@ class ModuleWindow : public FormGroup {
       } else if (isModuleDSM2(moduleIdx)) {
         new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
                    DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
-                   GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+                   GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
       } else if (isModuleR9M(moduleIdx)) {
         rfChoice =
             new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION,
@@ -839,13 +839,13 @@ class ModuleWindow : public FormGroup {
         int count =
             LCD_W < LCD_H
                 ? 1
-                : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
+                : (/*g_model.moduleData[moduleIdx].multi.customProto ? 3 :*/ 2);
 
         rfChoice = new MultiProtoChoice(
             this, grid.getFieldSlot(count, 0), moduleIdx,
             [=](int32_t newValue) {
 
-              g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
+              g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
               g_model.moduleData[moduleIdx].subType = 0;
               resetMultiProtocolsOptions(moduleIdx);
 
@@ -865,7 +865,7 @@ class ModuleWindow : public FormGroup {
 
         auto *rfProto =
             MultiRfProtocols::instance(moduleIdx)->getProto(
-                g_model.moduleData[moduleIdx].getMultiProtocol());
+                g_model.moduleData[moduleIdx].multi.rfProtocol);
 
         if (rfProto && !rfProto->subProtos.empty()) {
           // Subtype (D16, DSMX,...)
@@ -900,7 +900,7 @@ class ModuleWindow : public FormGroup {
             return std::string(msg);
         }, COLOR_THEME_PRIMARY1);
 
-        const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+        const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
         if (rfProto) {
           // Multi optional feature row
           const char *title = rfProto->getOptionStr();
