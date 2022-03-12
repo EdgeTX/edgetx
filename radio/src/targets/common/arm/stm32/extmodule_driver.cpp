@@ -81,7 +81,7 @@ static void config_ppm_output(uint16_t ppm_delay, bool polarity)
   // AAR register defines duration of each pulse, it is
   // updated after every pulse in Update interrupt handler.
 
-  stm32_pulse_config_output(&extmoduleTimer, !polarity, LL_TIM_OCMODE_PWM1,
+  stm32_pulse_config_output(&extmoduleTimer, !polarity, LL_TIM_OCMODE_FORCED_INACTIVE,
                             ppm_delay * 2);
 }
 
