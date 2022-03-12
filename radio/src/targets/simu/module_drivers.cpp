@@ -44,8 +44,7 @@ void extmodulePxx1SerialStart() {}
 void extmodulePxx1PulsesStart() {}
 void extmoduleSendInvertedByte(uint8_t) {}
 void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
-void extmoduleSendNextFrameAFHDS3(void const*, unsigned short) {}
-void extmoduleSendNextFrameSoftSerial100kbit(void const*, unsigned short, bool) {}
+void extmoduleSendNextFrameSoftSerial(void const*, unsigned short, bool) {}
 void extmoduleSendNextFramePpm(void*, unsigned short, unsigned short, bool) {}
 
 void init_trainer_ppm() {}
