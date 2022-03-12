@@ -73,20 +73,8 @@ static void config_ppm_output(uint16_t ppm_delay, bool polarity)
   // AAR register defines duration of each pulse, it is
   // updated after every pulse in Update interrupt handler.
 
-  LL_TIM_OC_InitTypeDef ocInit;
-  LL_TIM_OC_StructInit(&ocInit);
-
-  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
-  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-
-  if (polarity) {
-    ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
-  } else {
-    ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
-  }
-
-  ocInit.CompareValue = ppm_delay * 2;
-  stm32_pulse_config_output(&extmoduleTimer, &ocInit);  
+  stm32_pulse_config_output(&extmoduleTimer, !polarity, LL_TIM_OCMODE_PWM1,
+                            ppm_delay * 2);
 }
 
 void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
@@ -114,28 +102,17 @@ void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
 void extmodulePxx1PulsesStart()
 {
   EXTERNAL_MODULE_ON();
-
-  LL_TIM_OC_InitTypeDef ocInit;
-  LL_TIM_OC_StructInit(&ocInit);
-
-  ocInit.OCMode = LL_TIM_OCMODE_PWM1;
-  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-  ocInit.OCPolarity = LL_TIM_OCPOLARITY_LOW;
-  ocInit.CompareValue = 9 * 2; // 9 uS
-
-  stm32_pulse_config_output(&extmoduleTimer, &ocInit);
-
+  stm32_pulse_config_output(&extmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
   stm32_pulse_init(&extmoduleTimer);
 }
 
 void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 {
-  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
-    return;
+  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer)) return;
 
   // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length,
-                            LL_TIM_OCMODE_PWM1, 9 * 2);
+  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_PWM1,
+                            9 * 2);
 }
 #endif
 
@@ -144,16 +121,7 @@ void extmoduleSerialStart()
 {
   EXTERNAL_MODULE_ON();
   stm32_pulse_init(&extmoduleTimer);
-
-  LL_TIM_OC_InitTypeDef ocInit;
-  LL_TIM_OC_StructInit(&ocInit);
-
-  ocInit.OCMode = LL_TIM_OCMODE_TOGGLE;
-  ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
-  ocInit.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
-  ocInit.CompareValue = 0;
-
-  stm32_pulse_config_output(&extmoduleTimer, &ocInit);
+  stm32_pulse_config_output(&extmoduleTimer, true, LL_TIM_OCMODE_TOGGLE, 0);
 }
 
 void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)

@@ -43,7 +43,10 @@ struct stm32_pulse_timer_t {
 
 void stm32_pulse_init(const stm32_pulse_timer_t* tim);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
-void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTypeDef* ocInit);
+
+void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
+                               uint32_t ocmode, uint32_t cmp_val);
+
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity);
 
 // return true if it could be disabled without interrupting a pulse train, false otherwise
