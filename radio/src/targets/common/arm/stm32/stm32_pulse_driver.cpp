@@ -67,9 +67,36 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   LL_GPIO_Init(tim->GPIOx, &pinInit);
 }
 
-void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, LL_TIM_OC_InitTypeDef* ocInit)
+void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
+                               uint32_t ocmode, uint32_t cmp_val)
 {
-  LL_TIM_OC_Init(tim->TIMx, tim->TIM_Channel, ocInit);
+  LL_TIM_OC_InitTypeDef ocInit;
+  LL_TIM_OC_StructInit(&ocInit);
+
+  ocInit.OCMode = ocmode;
+  ocInit.CompareValue = cmp_val;
+
+  if (tim->TIM_Channel != LL_TIM_CHANNEL_CH1N) {
+    ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
+  } else {
+    ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
+    polarity = !polarity;
+  }
+
+  uint32_t ll_polarity;
+  if (polarity) {
+    ll_polarity = LL_TIM_OCPOLARITY_HIGH;
+  } else {
+    ll_polarity = LL_TIM_OCPOLARITY_LOW;
+  }
+
+  if (tim->TIM_Channel != LL_TIM_CHANNEL_CH1N) {
+    ocInit.OCPolarity = ll_polarity;
+  } else {
+    ocInit.OCNPolarity = ll_polarity;
+  }
+  
+  LL_TIM_OC_Init(tim->TIMx, tim->TIM_Channel, &ocInit);
   LL_TIM_OC_EnablePreload(tim->TIMx, tim->TIM_Channel);
 
   if (IS_TIM_BREAK_INSTANCE(tim->TIMx)) {
