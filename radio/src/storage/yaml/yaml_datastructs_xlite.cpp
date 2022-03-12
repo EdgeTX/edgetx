@@ -229,9 +229,9 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_VALUE_GLOBAL, "GLOBAL"  },
-  {  OVERRIDE_VALUE_OFF, "OFF"  },
-  {  OVERRIDE_VALUE_ON, "ON"  },
+  {  OVERRIDEVALUE_GLOBAL, "GLOBAL"  },
+  {  OVERRIDEVALUE_OFF, "OFF"  },
+  {  OVERRIDEVALUE_ON, "ON"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_FailsafeModes[] = {
