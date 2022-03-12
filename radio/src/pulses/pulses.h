@@ -67,10 +67,10 @@ extern uint8_t s_pulses_paused;
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
-  uint8_t protocol:4;
+  uint8_t protocol;
   uint8_t mode:4;
   uint8_t paused:1;
-  uint8_t spare:7;
+  uint8_t spare:3;
   uint16_t counter;
 
   // PXX specific items
@@ -233,7 +233,9 @@ bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
 void extmoduleSendNextFrame();
 #endif
+void restartModule(uint8_t idx);
 void setupPulsesDSM2();
+void setupPulsesLemonDSMP();
 void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
@@ -242,9 +244,7 @@ void setupPulsesSbus();
 void setupPulsesPPMInternalModule();
 void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-void sendByteDsm2(uint8_t b);
 void putDsm2Flush();
-void putDsm2SerialBit(uint8_t bit);
 void sendByteSbus(uint8_t b);
 void intmodulePpmStart();
 void intmodulePxx1PulsesStart();

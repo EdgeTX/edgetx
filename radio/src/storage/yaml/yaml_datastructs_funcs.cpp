@@ -459,6 +459,8 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
       break;
     case MODULE_TYPE_GHOST:
       return 8;
+    case MODULE_TYPE_LEMON_DSMP:
+      return 9;
   }
   return 0;
 }

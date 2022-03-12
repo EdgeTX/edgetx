@@ -126,11 +126,14 @@ void processTelemetryData(uint8_t data)
   }
 #endif
 
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
-    processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount);
+  if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
+      telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
+    processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
+                                 telemetryRxBufferCount);
     return;
   }
+
+#if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
     processFlySkyTelemetryData(data, telemetryRxBuffer, telemetryRxBufferCount);
     return;
@@ -491,7 +494,10 @@ void telemetryInit(uint8_t protocol)
     telemetryPortSetDirectionInput();
   }
 #endif
-
+  else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
+    // soft serial
+    telemetryPortInvertedInit(115200);
+  }
   else {
     telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
 #if defined(LUA)

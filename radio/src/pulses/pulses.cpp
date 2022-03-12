@@ -55,6 +55,32 @@ InternalModulePulsesData intmodulePulsesData __DMA;
 ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
 
+void restartModule(uint8_t idx)
+{
+  if (idx == INTERNAL_MODULE) {
+    if (!IS_INTERNAL_MODULE_ON()) return;
+  } else if (idx == EXTERNAL_MODULE){
+    if (!IS_EXTERNAL_MODULE_ON()) return;
+  } else {
+    return;
+  }
+
+  pauseMixerCalculations();
+  pausePulses();
+
+  if (idx == INTERNAL_MODULE) INTERNAL_MODULE_OFF();
+  else EXTERNAL_MODULE_OFF();
+
+  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
+  telemetryProtocol = 255; // force telemetry port + module reinitialization
+
+  if (idx == INTERNAL_MODULE) INTERNAL_MODULE_ON();
+  else EXTERNAL_MODULE_ON();
+
+  resumePulses();
+  resumeMixerCalculations();
+}
+
 // use only for PXX
 void ModuleState::startBind(BindInformation* destination,
                             ModuleCallback bindCallback)
@@ -272,6 +298,10 @@ uint8_t getRequiredProtocol(uint8_t module)
       break;
 #endif
 
+    case MODULE_TYPE_LEMON_DSMP:
+      protocol = PROTOCOL_CHANNELS_DSMP;
+      break;
+      
     default:
       protocol = PROTOCOL_CHANNELS_NONE;
       break;
@@ -564,6 +594,11 @@ void enablePulsesExternalModule(uint8_t protocol)
       break;
 #endif
 
+    case PROTOCOL_CHANNELS_DSMP:
+      extmoduleSerialStart();
+      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 11 * 1000 /* 11ms in us */);
+      break;
+      
     default:
       // external module stopped, use default mixer period
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
@@ -645,6 +680,10 @@ bool setupPulsesExternalModule(uint8_t protocol)
       return true;
 #endif
 
+    case PROTOCOL_CHANNELS_DSMP:
+      setupPulsesLemonDSMP();
+      return true;
+
     default:
       return false;
   }
@@ -705,6 +744,12 @@ void extmoduleSendNextFrame()
           extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses);
       break;
 #endif
+    case PROTOCOL_CHANNELS_DSMP:
+      extmoduleSendNextFrameSoftSerial(
+          extmodulePulsesData.dsm2.pulses,
+          extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
+          true);
+      break;
 
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:

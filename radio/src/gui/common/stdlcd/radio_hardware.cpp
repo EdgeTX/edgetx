@@ -282,21 +282,6 @@ void onFactoryResetConfirm(const char * result)
 }
 #endif
 
-void restartExternalModule()
-{
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
-  }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
-
 static bool _isAux1ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX1, m); }
 static bool _isAux2ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX2, m); }
 static bool _isVCPModeAvailable(int m) { return isSerialModeAvailable(SP_VCP, m); }
@@ -555,7 +540,7 @@ void menuRadioHardware(event_t event)
         if (attr) {
           g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate), 0, DIM(CROSSFIRE_BAUDRATES) - 1));
           if (checkIncDec_Ret) {
-              restartExternalModule();
+              restartModule(EXTERNAL_MODULE);
           }
         }
         break;
@@ -564,7 +549,7 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
-          restartExternalModule();
+          restartModule(EXTERNAL_MODULE);
         }
         break;
 

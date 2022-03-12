@@ -182,6 +182,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
       probeTimeFromStartBit = 3000000/baudrate;
   }
 
+#if defined(PCBX12S)
+  telemetryFifoMode = TELEMETRY_SERIAL_WITHOUT_DMA;
+#endif
+  
   // configure bit sample timer
   TELEMETRY_TIMER->PSC = (PERI2_FREQUENCY * TIMER_MULT_APB2) / 2000000 - 1; // 0.5uS
   TELEMETRY_TIMER->CCER = 0;

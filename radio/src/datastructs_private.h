@@ -528,6 +528,9 @@ PACK(struct ModuleData {
       uint8_t raw12bits:1;
       uint8_t spare1:7 SKIP;
     } ghost);
+    NOBACKUP(struct {
+      uint8_t flags;
+    } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const

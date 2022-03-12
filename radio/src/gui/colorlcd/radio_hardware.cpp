@@ -247,21 +247,6 @@ class SerialConfigWindow : public FormGroup
   }
 };
 
-void restartExternalModule()
-{
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
-  }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
-
 void RadioHardwarePage::build(FormWindow * window)
 {
   FormGridLayout grid;
@@ -409,7 +394,7 @@ void RadioHardwarePage::build(FormWindow * window)
                [=](int newValue) {
                    g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
                    SET_DIRTY();
-                   restartExternalModule();
+                   restartModule(EXTERNAL_MODULE);
                });
   grid.nextLine();
 #endif

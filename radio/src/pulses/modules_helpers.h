@@ -405,6 +405,11 @@ inline bool isModuleAFHDS3(uint8_t idx)
     && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS3);
 }
 
+inline bool isModuleDSMP(uint8_t idx)
+{
+  return g_model.moduleData[idx].type == MODULE_TYPE_LEMON_DSMP;
+}
+
 // See enum ModuleType in modules_constant.h
 // relative to 8!
 static const int8_t maxChannelsModules_M8[] = {
@@ -424,6 +429,7 @@ static const int8_t maxChannelsModules_M8[] = {
   8, // MODULE_TYPE_SBUS
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
   6, // MODULE_TYPE_FLYSKY: 14 channels for AFHDS2A, AFHDS3 special cased
+  4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
 };
 
 static_assert(MODULE_TYPE_COUNT == sizeof(maxChannelsModules_M8),
@@ -611,7 +617,7 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
-         isModuleFlySky(moduleIdx);
+         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx);
 }
 
 inline uint32_t getNV14RfFwVersion()
