@@ -102,6 +102,7 @@ enum {
   ITEM_RADIO_SETUP_USB_MODE,
   CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE)
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
+  CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_INVERSE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
   ITEM_RADIO_SETUP_MAX
@@ -175,6 +176,7 @@ void menuRadioSetup(event_t event)
     0,
     0, // USB mode
     CASE_JACK_DETECT(0) // Jack mode
+    CASE_ROTARY_ENCODER(0)
     0, COL_TX_MODE, 0, 1/*to force edit mode*/});
 
   if (event == EVT_ENTRY) {
@@ -657,6 +659,12 @@ void menuRadioSetup(event_t event)
         }
 #endif
         break;
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+      case ITEM_RADIO_SETUP_ROTARY_INVERSE:
+        g_eeGeneral.rotEncDirection = editCheckBox(g_eeGeneral.rotEncDirection, RADIO_SETUP_2ND_COLUMN, y, STR_INVERT_ROTARY, attr, event);
+        break;
+#endif
 
       case ITEM_RADIO_SETUP_STICK_MODE:
         lcdDrawChar(2*FW, y, '1'+reusableBuffer.generalSettings.stickMode, attr);

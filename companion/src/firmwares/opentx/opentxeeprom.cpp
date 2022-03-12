@@ -2984,10 +2984,11 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new BoolField<1>(this, generalData.rtcCheckDisable));
   if (IS_JUMPER_T18(board)) {
     internalField.Append(new BoolField<1>(this, generalData.keysBacklight));
-    internalField.Append(new SpareBitsField<1>(this));
+    internalField.Append(new BoolField<1>(this, generalData.rotEncoderDirection));  // TODO : rotary encoder invert GUI
   }
   else {
-    internalField.Append(new SpareBitsField<2>(this));
+    internalField.Append(new SpareBitsField<1>(this));
+    internalField.Append(new  BoolField<1>(this, generalData.rotEncoderDirection));  // TODO : rotary encoder invert GUI
   }
 
   for (int i=0; i<4; i++) {

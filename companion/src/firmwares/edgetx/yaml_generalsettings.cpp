@@ -186,6 +186,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
+  node["rotEncoderDirection"] = (int)rhs.rotEncoderDirection;
   node["imperial"] = rhs.imperial;
   node["ttsLanguage"] = rhs.ttsLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;

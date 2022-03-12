@@ -807,6 +807,7 @@
 #define TR_MONTH                        "月"
 #define TR_DAY                          "日"
 #define TR_ROTARY_ENCODER               "滾輪"
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR             "通道查看器"
 #define TR_MIXERS_MONITOR               "混控查看器"
 #define TR_PATH_TOO_LONG                "路徑太長"

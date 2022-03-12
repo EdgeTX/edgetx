@@ -496,6 +496,12 @@ void RadioSetupPage::build(FormWindow * window)
   new Choice(window, grid.getFieldSlot(), STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
   grid.nextLine();
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  new StaticText(window, grid.getLabelSlot(), STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
+  grid.nextLine();
+#endif
+
   // RX channel order
   new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
   choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));

@@ -224,9 +224,9 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_VALUE_GLOBAL, "GLOBAL"  },
-  {  OVERRIDE_VALUE_OFF, "OFF"  },
-  {  OVERRIDE_VALUE_ON, "ON"  },
+  {  OVERRIDE_VALUE_GLOBAL, "VALUE_GLOBAL"  },
+  {  OVERRIDE_VALUE_OFF, "VALUE_OFF"  },
+  {  OVERRIDE_VALUE_ON, "VALUE_ON"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_FailsafeModes[] = {
@@ -333,7 +333,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ENUM("antennaMode", 2, enum_AntennaModes),
   YAML_UNSIGNED( "disableRtcWarning", 1 ),
   YAML_UNSIGNED( "keysBacklight", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_SIGNED( "rotEncDirection", 1 ),
   YAML_ENUM("internalModule", 8, enum_ModuleType),
   YAML_STRUCT("trainer", 128, struct_TrainerData, NULL),
   YAML_UNSIGNED( "view", 8 ),

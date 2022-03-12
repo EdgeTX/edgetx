@@ -873,6 +873,7 @@
 #define TR_DATE                        "Date"
 #define TR_MONTHS                      { "Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "Enc.Rot."
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR            "MONITEUR CANAUX"
 #define TR_MIXERS_MONITOR              "MONITEUR MIXAGES "
 #define TR_PATH_TOO_LONG               "Chemin trop long"
