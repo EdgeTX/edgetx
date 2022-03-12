@@ -157,7 +157,7 @@ static int luaModelGetModule(lua_State *L)
     lua_pushtableinteger(L, "Type", module.type);
 #if defined(MULTIMODULE)
     if (module.type == MODULE_TYPE_MULTIMODULE) {
-      int protocol = g_model.moduleData[idx].getMultiProtocol() + 1;
+      int protocol = g_model.moduleData[idx].multi.rfProtocol + 1;
       int subprotocol = g_model.moduleData[idx].subType;
       convertEtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
       lua_pushtableinteger(L, "protocol", protocol);
@@ -234,7 +234,7 @@ static int luaModelSetModule(lua_State *L)
 #if defined(MULTIMODULE)
     if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute etx protocol
       convertMultiProtocolToEtx(&protocol, &subprotocol);
-      g_model.moduleData[idx].setMultiProtocol(protocol - 1);
+      g_model.moduleData[idx].multi.rfProtocol = protocol - 1;
       g_model.moduleData[idx].subType = subprotocol;
     }
 #endif
