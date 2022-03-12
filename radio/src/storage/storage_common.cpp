@@ -158,21 +158,13 @@ void postModelLoad(bool alarms)
   if (!isInternalModuleAvailable(g_model.moduleData[INTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
-  else if (isModuleMultimodule(INTERNAL_MODULE))
-    multiPatchCustom(INTERNAL_MODULE);
-#endif
 #endif
 
   if (!isExternalModuleAvailable(g_model.moduleData[EXTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[EXTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
-  else if (isModuleMultimodule(EXTERNAL_MODULE))
-    multiPatchCustom(EXTERNAL_MODULE);
-#if defined(MULTI_PROTOLIST)
+#if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
   MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
-#endif
 #endif
 
   AUDIO_FLUSH();

@@ -179,7 +179,7 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
-    else if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+    else if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
       return 1;
     else
       return 0;
@@ -226,7 +226,7 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
   if (!isModuleMultimodule(moduleIdx))
     return HIDDEN_ROW;
 
-  uint8_t protocol = g_model.moduleData[moduleIdx].getMultiProtocol();
+  uint8_t protocol = g_model.moduleData[moduleIdx].multi.rfProtocol;
   if (protocol < MODULE_SUBTYPE_MULTI_LAST) {
     const mm_protocol_definition * pdef = getMultiProtocolDefinition(protocol);
     if (pdef->disable_ch_mapping)
@@ -260,7 +260,7 @@ inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
     return false;
   }
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() < MODULE_SUBTYPE_MULTI_LAST) {
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol < MODULE_SUBTYPE_MULTI_LAST) {
     return true;
   }
 
@@ -275,7 +275,7 @@ inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
 inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  int proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+  int proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
 
   if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
     return true;
@@ -311,7 +311,7 @@ inline uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx)
   if (!isModuleMultimodule(moduleIdx))
     return false;
 
-  uint8_t protocol = g_model.moduleData[moduleIdx].getMultiProtocol();
+  uint8_t protocol = g_model.moduleData[moduleIdx].multi.rfProtocol;
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
 
   if (status.isValid())

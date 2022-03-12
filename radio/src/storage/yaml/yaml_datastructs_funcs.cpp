@@ -1711,12 +1711,12 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     // convert to ETX format and write to vars
     convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
-      md->setMultiProtocol(type - 1);
+      md->multi.rfProtocol = type - 1;
       md->subType = subtype;
     }
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
-    md->rfProtocol = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
   } else {
     md->subType = yaml_str2uint(val, val_len);
   }  

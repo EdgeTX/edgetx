@@ -444,15 +444,12 @@ PACK(struct TrainerModuleData {
 #define MM_RF_CUSTOM_SELECTED 0xff
 #define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
 PACK(struct ModuleData {
-  uint8_t type:4 ENUM(ModuleType);
-  // TODO some refactoring is needed, rfProtocol is only used by DSM2 and MULTI, it could be merged with subType
-  int8_t  rfProtocol:4 SKIP;
+  uint8_t type ENUM(ModuleType);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
   uint8_t failsafeMode:4 ENUM(FailsafeModes);  // only 3 bits used
-  uint8_t subType:3 SKIP;
-  uint8_t invertedSerial:1 SKIP; // telemetry serial inverted from standard
+  uint8_t subType:4 SKIP;
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
@@ -463,16 +460,15 @@ PACK(struct ModuleData {
       int8_t  frameLength;
     } ppm);
     NOBACKUP(struct {
-      uint8_t rfProtocolExtra:3 SKIP;
+      uint8_t rfProtocol SKIP;
       uint8_t disableTelemetry:1;
       uint8_t disableMapping:1;
-      uint8_t customProto:1 SKIP;
       uint8_t autoBindMode:1;
       uint8_t lowPowerMode:1;
-      int8_t optionValue;
       uint8_t receiverTelemetryOff:1;
       uint8_t receiverHigherChannels:1;
-      uint8_t spare:6 SKIP;
+      uint8_t spare:2 SKIP;
+      int8_t optionValue;
     } multi);
     NOBACKUP(struct {
       uint8_t power:2;                  // 0=10 mW, 1=100 mW, 2=500 mW, 3=1W
@@ -533,18 +529,6 @@ PACK(struct ModuleData {
       uint8_t spare1:7 SKIP;
     } ghost);
   } NAME(mod) FUNC(select_mod_type);
-
-  // Helper functions to set both of the rfProto protocol at the same time
-  NOBACKUP(inline uint8_t getMultiProtocol() const
-  {
-    return ((uint8_t) (rfProtocol & 0x0F)) + (multi.rfProtocolExtra << 4);
-  })
-
-  NOBACKUP(inline void setMultiProtocol(uint8_t proto)
-  {
-    rfProtocol = (uint8_t) (proto & 0x0F);
-    multi.rfProtocolExtra = (proto & 0x70) >> 4;
-  })
 
   NOBACKUP(inline uint8_t getChannelsCount() const
   {
