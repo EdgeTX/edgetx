@@ -47,10 +47,18 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(EXTMODULE_TIMER_Channel),
 static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM_LL),
               "Unsupported DMA stream");
 
+#if !defined(EXTMODULE_TIMER_DMA_IRQHandler)
+#error "Missing EXTMODULE_TIMER_DMA_IRQHandler definition"
+#endif
+
 extern "C" void EXTMODULE_TIMER_DMA_IRQHandler()
 {
   stm32_pulse_dma_tc_isr(&extmoduleTimer);
 }
+
+#if !defined(EXTMODULE_TIMER_IRQHandler)
+#error "Missing EXTMODULE_TIMER_IRQHandler definition"
+#endif
 
 extern "C" void EXTMODULE_TIMER_IRQHandler()
 {
