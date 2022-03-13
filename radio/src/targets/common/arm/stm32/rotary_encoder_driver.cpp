@@ -74,8 +74,8 @@ void rotaryEncoderInit()
 #define INC_ROT        1
 #define INC_ROT_2      2
 #else
-#define INC_ROT        (g_eeGeneral.rotEncDirection ? 1 : -1);
-#define INC_ROT_2      (g_eeGeneral.rotEncDirection ? 2 : -2);
+#define INC_ROT        (g_eeGeneral.rotEncDirection ? -1 : 1);
+#define INC_ROT_2      (g_eeGeneral.rotEncDirection ? -2 : 2);
 #endif
 
 void rotaryEncoderCheck()
@@ -112,7 +112,7 @@ void rotaryEncoderCheck()
 #else
   uint8_t newPosition = ROTARY_ENCODER_POSITION();
   if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
-    if (!((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1))) {
+    if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
       rotencValue -= INC_ROT;
     } else {
       rotencValue += INC_ROT;
