@@ -125,6 +125,14 @@ ui(new Ui::GeneralSetup)
     ui->faimode_CB->setChecked(generalSettings.fai);
   }
 
+  if (!firmware->getCapability(RotaryEncoderNavigation)) {
+    ui->invertRotary_CB->hide();
+    ui->invertRotary_label->hide();
+  }
+  else {
+    ui->invertRotary_CB->setChecked(generalSettings.rotEncoderDirection);
+  }
+
   if (!firmware->getCapability(HasPxxCountry)) {
     ui->countrycode_label->hide();
     ui->countrycode_CB->hide();
