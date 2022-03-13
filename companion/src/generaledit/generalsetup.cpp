@@ -483,6 +483,12 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
   emit modified();
 }
 
+void GeneralSetupPanel::on_invertRotary_CB_stateChanged(int)
+{
+  generalSettings.rotEncoderDirection = ui->invertRotary_CB->isChecked();
+  emit modified();
+}
+
 void GeneralSetupPanel::on_speakerPitchSB_editingFinished()
 {
   generalSettings.speakerPitch = ui->speakerPitchSB->value();

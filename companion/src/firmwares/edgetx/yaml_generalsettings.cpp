@@ -363,6 +363,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["noJitterFilter"] >> rhs.noJitterFilter;
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
+  node["rotEncoderDirection"] >> rhs.rotEncoderDirection;
   node["imperial"] >> rhs.imperial;
   node["ttsLanguage"] >> rhs.ttsLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
