@@ -118,9 +118,13 @@ enum {
   ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA,
 #endif
 
-#if defined(AUX_SERIAL)
-  ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE,
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+  ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL,
+  ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE,
+  ITEM_RADIO_HARDWARE_AUX2_SERIAL_MODE,
+  ITEM_RADIO_HARDWARE_VCP_SERIAL_MODE,
 #endif
+
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
 #if defined(SPORT_UPDATE_PWR_GPIO)
@@ -240,10 +244,17 @@ enum {
 
 #define SERIAL_SAMPLE_MODE_ROWS          0,
 
-#if defined(AUX_SERIAL)
-  #define AUX_SERIAL_ROWS 0,
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+static uint8_t _dispSerialPort(uint8_t port_nr)
+{
+  auto port = serialGetPort(port_nr);
+  if (!port || !port->name) return HIDDEN_ROW;
+  return 0;
+}
+#define SERIAL_PORT_ROWS                                                \
+  0, _dispSerialPort(SP_AUX1), _dispSerialPort(SP_AUX2), _dispSerialPort(SP_VCP),
 #else
-  #define AUX_SERIAL_ROWS
+  #define SERIAL_PORT_ROWS
 #endif
 
 #if LCD_W >= 212
@@ -286,6 +297,14 @@ void restartExternalModule()
   resumeMixerCalculations();
 }
 
+static bool _isAux1ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX1, m); }
+static bool _isAux2ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX2, m); }
+static bool _isVCPModeAvailable(int m) { return isSerialModeAvailable(SP_VCP, m); }
+
+static const IsValueAvailable _isSerialModeAvailable[MAX_SERIAL_PORTS] = {
+  _isAux1ModeAvailable, _isAux2ModeAvailable, _isVCPModeAvailable
+};
+
 void menuRadioHardware(event_t event)
 {
   uint8_t old_editMode = s_editMode;
@@ -308,7 +327,7 @@ void menuRadioHardware(event_t event)
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
     EXTERNAL_ANTENNA_ROW
-    AUX_SERIAL_ROWS
+    SERIAL_PORT_ROWS
     0 /* ADC filter */,
     READONLY_ROW /* RAS */,
     SPORT_POWER_ROWS
@@ -596,13 +615,26 @@ void menuRadioHardware(event_t event)
         break;
 #endif
 
-#if defined(AUX_SERIAL)
-      case ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE: {
-        auto auxSerialMode = serialGetMode(SP_AUX1);
-        auxSerialMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_AUX_SERIAL_MODE, STR_AUX_SERIAL_MODES, auxSerialMode, 0, UART_MODE_MAX, attr, event);
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+      case ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_AUX_SERIAL_MODE);
+        break;
+      case ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE:
+      case ITEM_RADIO_HARDWARE_AUX2_SERIAL_MODE:
+      case ITEM_RADIO_HARDWARE_VCP_SERIAL_MODE:
+      {
+        auto port_nr = k - ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE;
+        auto port = serialGetPort(port_nr);
+        lcdDrawText(INDENT_WIDTH, y, port->name);
+
+        auto mode = serialGetMode(port_nr);
+        mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,
+                          STR_AUX_SERIAL_MODES, mode, 0, UART_MODE_MAX, attr,
+                          event, _isSerialModeAvailable[port_nr]);
+
         if (attr && checkIncDec_Ret) {
-          serialSetMode(SP_AUX1, auxSerialMode);
-          serialInit(SP_AUX1, auxSerialMode);
+          serialSetMode(port_nr, mode);
+          serialInit(port_nr, mode);
         }
       } break;
 #endif
