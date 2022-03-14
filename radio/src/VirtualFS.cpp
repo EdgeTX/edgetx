@@ -952,7 +952,7 @@ VfsError VirtualFS::copyFile(const std::string& source, const std::string& desti
   if(err != VfsError::OK)
     return err;
 
-  err = openFile(dest, destination, VfsOpenFlags::CREATE_NEW);
+  err = openFile(dest, destination, VfsOpenFlags::CREATE_NEW|VfsOpenFlags::WRITE);
   if(err != VfsError::OK)
   {
     src.close();

@@ -365,6 +365,9 @@ int flashSpiErase(size_t address)
   delay_01us(100); // 10us
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->eraseSectorCmd);
+  flashSpiReadWriteByte((address>>16)&0xFF);
+  flashSpiReadWriteByte((address>>8)&0xFF);
+  flashSpiReadWriteByte(address&0xFF);
   delay_01us(100); // 10us
   CS_HIGH();
 
@@ -387,6 +390,9 @@ int flashSpiBlockErase(size_t address)
   delay_01us(100); // 10us
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->eraseBlockCmd);
+  flashSpiReadWriteByte((address>>16)&0xFF);
+  flashSpiReadWriteByte((address>>8)&0xFF);
+  flashSpiReadWriteByte(address&0xFF);
   delay_01us(100); // 10us
   CS_HIGH();
 
