@@ -63,8 +63,53 @@ int ff_del_syncobj (FF_SYNC_t mutex)
   return 1;
 }
 #endif
+#if !defined(BOOT)
+#include "tjftl/tjftl.h"
 
+size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
+size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
+uint16_t flashSpiGetPageSize();
+uint16_t flashSpiGetSectorSize();
+uint16_t flashSpiGetSectorCount();
 
+int flashSpiErase(size_t address);
+int flashSpiBlockErase(size_t address);
+void flashSpiEraseAll();
+
+void flashSpiSync();
+
+static tjftl_t* tjftl = nullptr;
+extern "C" {
+static bool flashRead(int addr, uint8_t* buf, int len, void* arg)
+{
+  flashSpiRead(addr, buf, len);
+  return true;
+}
+
+static bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
+{
+  size_t pageSize = flashSpiGetPageSize();
+  if(len%pageSize != 0)
+    return false;
+  while(len > 0)
+  {
+    flashSpiWrite(addr, buf, pageSize);
+    len -= pageSize;
+    buf += pageSize;
+    addr += pageSize;
+  }
+  if(len != 0)
+    return false;
+  return true;
+}
+
+static bool flashErase(int addr, void *arg)
+{
+  flashSpiBlockErase(addr);
+  return true;
+}
+}
+#endif
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 
@@ -73,7 +118,22 @@ DSTATUS disk_initialize (
 )
 {
   DSTATUS stat = 0;
+#if !defined(BOOT)
+  if(drv == 1)
+  {
+    if(tjftl != nullptr)
+      return stat;
+    if(!tjftl_detect(flashRead, nullptr))
+      flashSpiEraseAll();
 
+    size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
+    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-100, 0);
+
+    if(tjftl == nullptr)
+      stat |= STA_NOINIT;
+    return stat;
+  }
+#endif
   /* Supports only single drive */
   if (drv)
   {
@@ -108,7 +168,14 @@ DSTATUS disk_status (
 )
 {
   DSTATUS stat = 0;
-
+#if !defined(BOOT)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+      stat |= STA_NODISK;
+    return stat;
+  }
+#endif
   if (SD_Detect() != SD_PRESENT)
     stat |= STA_NODISK;
 
@@ -162,6 +229,27 @@ DRESULT disk_read_dma(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 
 DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
+  DRESULT res = RES_OK;
+#if !defined(BOOT)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    while(count)
+    {
+      if(!tjftl_read(tjftl, sector, (uint8_t*)buff))
+        return RES_ERROR;
+      buff += 512;
+      sector++;
+      count --;
+    }
+    return res;
+  }
+#endif
+
   // If unaligned, do the single block reads with a scratch buffer.
   // If aligned and single sector, do a single block read.
   // If aligned and multiple sectors, try multi block read.
@@ -174,7 +262,6 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
     return RES_NOTRDY;
   }
 
-  DRESULT res = RES_OK;
   if (count == 0) return res;
 
   if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
@@ -213,8 +300,27 @@ DRESULT __disk_write(
   UINT count                      /* Number of sectors to write (1..255) */
 )
 {
-  SD_Error Status;
   DRESULT res = RES_OK;
+#if !defined(BOOT)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    while(count)
+    {
+      if(!tjftl_write(tjftl, sector, (uint8_t*)buff))
+        return RES_ERROR;
+      buff += 512;
+      sector++;
+      count --;
+    }
+    return res;
+  }
+#endif
+  SD_Error Status;
 
   // TRACE("disk_write %d %p %10d %d", drv, buff, sector, count);
 
@@ -274,7 +380,48 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
+#if !defined(BOOT)
+  if(drv == 1)
+  {
+    if(tjftl == nullptr)
+    {
+      res = RES_ERROR;
+      return res;
+    }
+    res = RES_ERROR;
 
+    switch (ctrl) {
+      case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
+      {
+        size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
+        *(DWORD*)buff = (flashSize/512)-100;
+        res = RES_OK;
+        break;
+      }
+      case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
+        *(WORD*)buff = 512;
+        res = RES_OK;
+        break;
+
+      case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
+        // TODO verify that this is the correct value
+        *(DWORD*)buff = 32768;
+        res = RES_OK;
+        break;
+
+      case CTRL_SYNC:
+        res = RES_OK;
+        break;
+
+      default:
+        res = RES_OK;
+        break;
+
+    }
+
+    return res;
+  }
+#endif
   if (drv) return RES_PARERR;
 
   res = RES_ERROR;

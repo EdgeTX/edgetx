@@ -67,6 +67,7 @@ struct SpiFlashDescriptor
   uint8_t writeCmd;
   uint8_t writeEnableCmd;
   uint8_t eraseSectorCmd;
+  uint8_t eraseBlockCmd;
   uint8_t eraseChipCmd;
 };
 
@@ -87,6 +88,7 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
         .writeCmd = 0x02,
         .writeEnableCmd = 0x06,
         .eraseSectorCmd = 0x20,
+        .eraseBlockCmd = 0x52,
         .eraseChipCmd = 0x60
     },
     { // W25Q64JV
@@ -101,6 +103,7 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
         .writeCmd = 0x02,
         .writeEnableCmd = 0x06,
         .eraseSectorCmd = 0x20,
+        .eraseBlockCmd = 0x52,
         .eraseChipCmd = 0xC7
     }
 };
@@ -362,6 +365,28 @@ int flashSpiErase(size_t address)
   delay_01us(100); // 10us
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->eraseSectorCmd);
+  delay_01us(100); // 10us
+  CS_HIGH();
+
+  flashSpiSync();
+
+  return 0;
+}
+
+int flashSpiBlockErase(size_t address)
+{
+  if(address%32768 != 0)
+    return -1;
+
+  flashSpiSync();
+
+  CS_LOW();
+  flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
+  delay_01us(100); // 10us
+  CS_HIGH();
+  delay_01us(100); // 10us
+  CS_LOW();
+  flashSpiReadWriteByte(flashDescriptor->eraseBlockCmd);
   delay_01us(100); // 10us
   CS_HIGH();
 
