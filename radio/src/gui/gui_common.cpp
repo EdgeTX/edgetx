@@ -380,6 +380,26 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   if (mode == UART_MODE_NONE)
     return true;
 
+#if !defined(DEBUG)
+  if (mode == UART_MODE_DEBUG)
+    return false;
+#endif
+
+#if !defined(CLI)
+  if (mode == UART_MODE_CLI)
+    return false;
+#endif
+
+#if !defined(INTERNAL_GPS)
+  if (mode == UART_MODE_GPS)
+    return false;
+#endif
+
+#if !defined(LUA)
+  if (mode == UART_MODE_LUA)
+    return false;
+#endif
+  
   auto p = hasSerialMode(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
