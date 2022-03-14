@@ -393,10 +393,21 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #if !defined(INTERNAL_GPS)
   if (mode == UART_MODE_GPS)
     return false;
+#elif defined(USB_SERIAL)
+  // GPS is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_GPS)
+    return false;
 #endif
 
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
+    return false;
+#endif
+
+#if defined(USB_SERIAL)
+  // Telemetry input & SBUS trainer on VCP is not yet supported
+  if (port_nr == SP_VCP &&
+      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
     return false;
 #endif
   
