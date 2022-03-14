@@ -81,6 +81,15 @@ void stopTrainer()
 #endif
   }
 
+#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
+    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
+  if ((currentTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
+       currentTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
+      && (isModulePXX2(INTERNAL_MODULE) || isModulePXX1(INTERNAL_MODULE))) {
+    init_intmodule_heartbeat();
+  }
+#endif
+
   currentTrainerMode = 0xFF;
 }
 
@@ -124,23 +133,12 @@ void checkTrainerSettings()
 #endif
     }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU)
-#if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
+#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
+    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
     if (requiredTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
-        requiredTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
+        requiredTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       stop_intmodule_heartbeat();
-    else
-      init_intmodule_heartbeat();
-#else
-#if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
-    if (g_model.moduleData[EXTERNAL_MODULE].type !=
-        MODULE_TYPE_R9M_PXX2)  // externalaccessmod 'bridges' HB and Ext module
-                               // RX pins
-      init_intmodule_heartbeat();
-#elif defined(INTMODULE_HEARTBEAT_GPIO)
-    init_intmodule_heartbeat();
+    }
 #endif
-#endif
-#endif // INTMODULE_HEARTBEAT_GPIO
   }
 }
