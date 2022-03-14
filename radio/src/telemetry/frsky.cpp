@@ -24,8 +24,6 @@
 
 void processFrskyTelemetryData(uint8_t data)
 {
-  telemetryMirrorSend(data);
-
   if (pushFrskyTelemetryData(data)) {
     if (IS_FRSKY_SPORT_PROTOCOL()) {
       sportProcessTelemetryPacket(telemetryRxBuffer);

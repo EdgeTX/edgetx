@@ -322,8 +322,6 @@ void processGhostTelemetryFrame()
 
 void processGhostTelemetryData(uint8_t data)
 {
-  telemetryMirrorSend(data);
-
   if (telemetryRxBufferCount == 0 && data != GHST_ADDR_RADIO) {
     TRACE("[GH] address 0x%02X error", data);
     return;
