@@ -141,6 +141,24 @@ static void* auxSerialInit(const etx_serial_init* params)
   return aux_serial_init(&auxSerialState, params);
 }
 
+void (*aux1RxCb)(uint8_t*, uint32_t);
+
+static void aux1_on_rx_byte(uint8_t data)
+{
+  if (aux1RxCb) aux1RxCb(&data, 1);
+}
+
+void aux1SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+{
+  aux1RxCb = cb;
+  if (aux1RxCb) {
+    auxSerialCb.on_receive = aux1_on_rx_byte;
+    stm32_usart_deinit_rx_dma(&auxUSART);
+  } else {
+    auxSerialCb.on_receive = nullptr;
+  }
+}
+
 const etx_serial_driver_t AuxSerialDriver = {
   .init = auxSerialInit,
   .deinit = aux_serial_deinit,
@@ -149,7 +167,7 @@ const etx_serial_driver_t AuxSerialDriver = {
   .waitForTxCompleted = aux_wait_tx_completed,
   .getByte = aux_get_byte,
   .getBaudrate = nullptr,
-  .setReceiveCb = nullptr,
+  .setReceiveCb = aux1SetRxCb,
   .setBaudrateCb = nullptr,
 };
 
@@ -202,13 +220,31 @@ static uint8_t aux2SerialOnSend(uint8_t* data)
 
 static etx_serial_callbacks_t aux2SerialCb = {
   .on_send = aux2SerialOnSend,
-  .on_receive = nullptr,
+  .on_receive = nullptr, // TODO: clear on DeInit
   .on_error = nullptr,
 };
 
-void* aux2SerialInit(const etx_serial_init* params)
+static void* aux2SerialInit(const etx_serial_init* params)
 {
   return aux_serial_init(&aux2SerialState, params);
+}
+
+void (*aux2RxCb)(uint8_t*, uint32_t);
+
+static void aux2_on_rx_byte(uint8_t data)
+{
+  if (aux2RxCb) aux2RxCb(&data, 1);
+}
+
+void aux2SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+{
+  aux2RxCb = cb;
+  if (aux2RxCb) {
+    aux2SerialCb.on_receive = aux2_on_rx_byte;
+    stm32_usart_deinit_rx_dma(&aux2USART);
+  } else {
+    aux2SerialCb.on_receive = nullptr;
+  }
 }
 
 extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
@@ -225,7 +261,7 @@ const etx_serial_driver_t Aux2SerialDriver = {
   .waitForTxCompleted = aux_wait_tx_completed,
   .getByte = aux_get_byte,
   .getBaudrate = nullptr,
-  .setReceiveCb = nullptr,
+  .setReceiveCb = aux2SetRxCb,
   .setBaudrateCb = nullptr,
 };
 
