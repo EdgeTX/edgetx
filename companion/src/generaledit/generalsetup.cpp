@@ -130,7 +130,7 @@ ui(new Ui::GeneralSetup)
     ui->invertRotary_label->hide();
   }
   else {
-    ui->invertRotary_CB->setChecked(generalSettings.rotEncoderDirection);
+    ui->invertRotary_CB->setChecked(generalSettings.rotEncDirection);
   }
 
   if (!firmware->getCapability(HasPxxCountry)) {
@@ -485,7 +485,7 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
 
 void GeneralSetupPanel::on_invertRotary_CB_stateChanged(int)
 {
-  generalSettings.rotEncoderDirection = ui->invertRotary_CB->isChecked();
+  generalSettings.rotEncDirection = ui->invertRotary_CB->isChecked();
   emit modified();
 }
 
