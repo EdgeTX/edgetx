@@ -94,9 +94,11 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
+#if defined(USB_SERIAL)
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
+#endif
   else if (result == STR_EXIT) {
     _usbDisabled = true;
   }
@@ -159,15 +161,7 @@ void handleUsbConnection()
       }
 #if defined(USB_SERIAL)
       else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
-        // TODO: query USB serial mode
-        //  -> for now, only CLI / DEBUG / LUA
-#if defined(CLI)
-        serialInit(SP_VCP, UART_MODE_CLI);
-#elif defined(DEBUG)
-        serialInit(SP_VCP, UART_MODE_DEBUG);
-#elif defined(LUA)
-        serialInit(SP_VCP, UART_MODE_LUA);
-#endif
+        serialInit(SP_VCP, serialGetMode(SP_VCP));
       }
 #endif
 
