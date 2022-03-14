@@ -52,7 +52,12 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
-    case SOURCE_TYPE_CYC:
+     case SOURCE_TYPE_FUNCTIONSWITCH:
+      src_str += "fs(";
+      src_str += std::to_string(rhs.index + 1);
+      src_str += ")";
+      break;
+   case SOURCE_TYPE_CYC:
       src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:
@@ -141,6 +146,17 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     src >> ls;
     if (ls > 0 && ls <= CPN_MAX_LOGICAL_SWITCHES)
       rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
+
+  } else if (val_len > 3 &&
+             val[0] == 'f' &&
+             val[1] == 's' &&
+             val[2] == '(') {
+    
+    std::stringstream src(src_str.substr(3));
+    int fs = 0;
+    src >> fs;
+    if (fs > 0 && fs <= CPN_MAX_FUNCTION_SWITCHES)
+      rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, fs - 1);
 
   } else if (val_len > 3 &&
              val[0] == 't' &&

@@ -232,6 +232,8 @@ class ModelData {
     int getChannelsMax(bool forceExtendedLimits=false) const;
 
     bool isAvailable(const RawSwitch & swtch) const;
+    bool isFunctionSwitchPositionAvailable(int index) const;
+    bool isFunctionSwitchSourceAllowed(int index) const;
 
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,
@@ -287,12 +289,22 @@ class ModelData {
     static QString trainerModeToString(const int value);
     static bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
     static AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
-    QString funcSwitchConfigToString(const int index) const;
-    static QString funcSwitchConfigToString(const int index, const int value);
+    unsigned int getFuncSwitchConfig(unsigned int index) const;
+    void setFuncSwitchConfig(unsigned int index, unsigned int value);
+    static QString funcSwitchConfigToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchConfigItemModel();
-    QString funcSwitchStartToString(const int index) const;
-    static QString funcSwitchStartToString(const int index, const int value);
+
+    unsigned int getFuncSwitchGroup(unsigned int index) const;
+    void setFuncSwitchGroup(unsigned int index, unsigned int value);
+
+    unsigned int getFuncSwitchAlwaysOnGroup(unsigned int index) const;
+    void setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value);
+
+    unsigned int getFuncSwitchStart(unsigned int index) const;
+    void setFuncSwitchStart(unsigned int index, unsigned int value);
+    static QString funcSwitchStartToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchStartItemModel();
+
 
   protected:
     void removeGlobalVar(int & var);

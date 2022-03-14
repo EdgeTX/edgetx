@@ -757,8 +757,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_HORUS_OR_TARANIS(board);
     case TopBarZones:
       return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
-    case FunctionSwitches:
-      return IS_JUMPER_TPRO(board) ? 6 : 0;
     case HasModelsList:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasFlySkyGimbals:

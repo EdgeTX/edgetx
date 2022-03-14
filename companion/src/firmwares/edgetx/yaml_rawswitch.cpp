@@ -23,6 +23,8 @@
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
+  QString swName;
+  div_t qr;
   std::string sw_str;
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
@@ -41,6 +43,11 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
   case SWITCH_TYPE_VIRTUAL:
     sw_str += "L";
     sw_str += std::to_string(sval);
+    break;
+  
+  case SWITCH_TYPE_FUNCTIONSWITCH:
+    sw_str += "FS";
+    sw_str += std::to_string(sval - 1);
     break;
 
   case SWITCH_TYPE_MULTIPOS_POT:
@@ -117,6 +124,11 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
              (val[2] >= '0' && val[2] <= '9')) {
 
     rhs = RawSwitch(SWITCH_TYPE_FLIGHT_MODE, val[2] - '0' + 1);
+
+  } else if (val_len == 3 && val[0] == 'F' && val[1] == 'S' &&
+             (val[2] >= '0' && val[2] <= '9')) {
+
+    rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, val[2] - '0' + 1);
 
   } else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] >= '0' && val[1] <= '9')) {
