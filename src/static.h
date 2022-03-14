@@ -180,7 +180,7 @@ class DynamicText: public StaticText
       StaticText::checkEvents();
       std::string newText = textHandler();
       if (newText != text) {
-        text = newText;
+        setText(newText);
         invalidate();
       }
     }
