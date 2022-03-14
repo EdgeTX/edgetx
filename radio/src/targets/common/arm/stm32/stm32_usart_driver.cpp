@@ -24,6 +24,8 @@
 
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length)
 {
+  if (!usart->rxDMA) return;
+
   // Disable IRQ based RX
   LL_USART_DisableIT_RXNE(usart->USARTx);
 
@@ -47,6 +49,18 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t 
 
   // Stream can be enable as the USART has alread been enabled
   LL_DMA_EnableStream(usart->rxDMA, usart->rxDMA_Stream);
+}
+
+void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
+{
+  if (!usart->rxDMA) return;
+
+  LL_DMA_DeInit(usart->rxDMA, usart->rxDMA_Stream);
+
+  // Enable IRQ based RX
+  LL_USART_EnableIT_RXNE(usart->USARTx);
+  NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
+  NVIC_EnableIRQ(usart->IRQn);
 }
 
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
@@ -118,6 +132,9 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
 void stm32_usart_deinit(const stm32_usart_t* usart)
 {
+  if (usart->rxDMA) {
+    LL_DMA_DeInit(usart->rxDMA, usart->rxDMA_Stream);
+  }
   if (usart->txDMA) {
     LL_DMA_DeInit(usart->txDMA, usart->txDMA_Stream);
   }
