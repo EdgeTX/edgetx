@@ -607,7 +607,8 @@ class ModuleWindow : public FormGroup {
       });
 
       if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
-        new StaticText(this, grid.getFieldSlot(2, 1), getStringAtIndex(STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)), 0,COLOR_THEME_PRIMARY1);
+        char buf[6];
+        new StaticText(this, grid.getFieldSlot(2, 1), getStringAtIndex(buf, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)), 0,COLOR_THEME_PRIMARY1);
       }
 
       // Module parameters

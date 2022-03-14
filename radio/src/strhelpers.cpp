@@ -158,13 +158,6 @@ char *getStringAtIndex(char *dest, const char *s, int idx)
   return dest;
 }
 
-const char *getStringAtIndex(const char *s, int idx)
-{
-  uint8_t len = s[0];
-  return s + 1 + len * idx;
-}
-
-
 char *strAppendStringWithIndex(char *dest, const char *s, int idx)
 {
   return strAppendUnsigned(strAppend(dest, s), abs(idx));
