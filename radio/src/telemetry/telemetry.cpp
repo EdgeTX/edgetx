@@ -108,6 +108,10 @@ void telemetryMirrorSend(uint8_t data)
 
 void processTelemetryData(uint8_t data)
 {
+  if (telemetryProtocol != PROTOCOL_TELEMETRY_MULTIMODULE) {
+    telemetryMirrorSend(data);
+  }
+  
 #if defined(CROSSFIRE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
     processCrossfireTelemetryData(data, EXTERNAL_MODULE);
