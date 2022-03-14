@@ -1761,6 +1761,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_LUA, "LUA"  },
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },
+  {  UART_MODE_DEBUG, "DEBUG"  },
   {  0, NULL  }
 };
 

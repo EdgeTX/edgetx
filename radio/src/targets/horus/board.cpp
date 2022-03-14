@@ -165,7 +165,9 @@ void boardInit()
 
   __enable_irq();
 
-  initSerialPorts();
+#if defined(DEBUG)
+  serialInit(SP_AUX1, UART_MODE_DEBUG);
+#endif
 
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
