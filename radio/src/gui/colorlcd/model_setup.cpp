@@ -630,7 +630,7 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_STATUS, 0,COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
-            sprintf(msg,"%d Hz %u Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+            sprintf(msg,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
             return std::string(msg);
         });
       }
