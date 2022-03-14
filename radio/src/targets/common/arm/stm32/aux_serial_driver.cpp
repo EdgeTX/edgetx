@@ -29,17 +29,26 @@
 #include "fifo.h"
 #include "dmafifo.h"
 
-typedef DMAFifo<32> AuxSerialRxFifo;
+#define AUX_SERIAL_TX_BUFFER 512
 
-struct AuxSerialState
+#if defined(SDRAM)
+  #define AUX_SERIAL_RX_BUFFER 128
+#else
+  #define AUX_SERIAL_RX_BUFFER 32
+#endif
+
+typedef Fifo<uint8_t, AUX_SERIAL_TX_BUFFER> TxFifo;
+typedef DMAFifo<AUX_SERIAL_RX_BUFFER>       RxFifo;
+
+struct SerialState
 {
-  Fifo<uint8_t, 512>*  txFifo;
-  AuxSerialRxFifo*     rxFifo;
+  TxFifo* txFifo;
+  RxFifo* rxFifo;
 
   const stm32_usart_t* usart;
 };
 
-static void* aux_serial_init(struct AuxSerialState* st, const etx_serial_init* params)
+static void* aux_serial_init(const SerialState* st, const etx_serial_init* params)
 {
   stm32_usart_init(st->usart, params);
   
@@ -48,12 +57,12 @@ static void* aux_serial_init(struct AuxSerialState* st, const etx_serial_init* p
     stm32_usart_init_rx_dma(st->usart, st->rxFifo->buffer(), st->rxFifo->size());
   }
 
-  return st;
+  return (void*)st;
 }
 
 static void aux_serial_putc(void* ctx, uint8_t c)
 {
-  AuxSerialState* st = (AuxSerialState*)ctx;
+  auto st = (const SerialState*)ctx;
   if (st->txFifo->isFull()) return;
   st->txFifo->push(c);
 
@@ -78,23 +87,23 @@ static void aux_wait_tx_completed(void* ctx)
 
 static int aux_get_byte(void* ctx, uint8_t* data)
 {
-  AuxSerialState* st = (AuxSerialState*)ctx;
+  auto st = (const SerialState*)ctx;
   if (!st->rxFifo) return -1;
   return st->rxFifo->pop(*data);
 }
 
 void aux_serial_deinit(void* ctx)
 {
-  AuxSerialState* st = (AuxSerialState*)ctx;
+  auto st = (const SerialState*)ctx;
   stm32_usart_deinit(st->usart);
 }
 
 #if defined(AUX_SERIAL)
 
-Fifo<uint8_t, 512> auxSerialTxFifo;
-AuxSerialRxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
+static TxFifo auxSerialTxFifo;
+static RxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
 
-const LL_GPIO_InitTypeDef auxUSARTPinInit = {
+static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
   .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
   .Mode = LL_GPIO_MODE_ALTERNATE,
   .Speed = LL_GPIO_SPEED_FREQ_LOW,
@@ -103,7 +112,7 @@ const LL_GPIO_InitTypeDef auxUSARTPinInit = {
   .Alternate = AUX_SERIAL_GPIO_AF_LL,
 };
 
-const stm32_usart_t auxUSART = {
+static const stm32_usart_t auxUSART = {
   .USARTx = AUX_SERIAL_USART,
   .GPIOx = AUX_SERIAL_GPIO,
   .pinInit = &auxUSARTPinInit,
@@ -117,7 +126,7 @@ const stm32_usart_t auxUSART = {
   .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,
 };
 
-AuxSerialState auxSerialState = {
+static const SerialState auxSerialState = {
     .txFifo = &auxSerialTxFifo,
     .rxFifo = &auxSerialRxFifo,
     .usart = &auxUSART,
@@ -141,14 +150,14 @@ static void* auxSerialInit(const etx_serial_init* params)
   return aux_serial_init(&auxSerialState, params);
 }
 
-void (*aux1RxCb)(uint8_t*, uint32_t);
+static void (*aux1RxCb)(uint8_t*, uint32_t);
 
 static void aux1_on_rx_byte(uint8_t data)
 {
   if (aux1RxCb) aux1RxCb(&data, 1);
 }
 
-void aux1SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+static void aux1SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
 {
   aux1RxCb = cb;
   if (aux1RxCb) {
@@ -181,10 +190,10 @@ extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 
 #if defined(AUX2_SERIAL)
 
-Fifo<uint8_t, 512> aux2SerialTxFifo;
-AuxSerialRxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
+static TxFifo aux2SerialTxFifo;
+static RxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
 
-const LL_GPIO_InitTypeDef aux2USARTPinInit = {
+static const LL_GPIO_InitTypeDef aux2USARTPinInit = {
   .Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
   .Mode = LL_GPIO_MODE_ALTERNATE,
   .Speed = LL_GPIO_SPEED_FREQ_LOW,
@@ -193,7 +202,7 @@ const LL_GPIO_InitTypeDef aux2USARTPinInit = {
   .Alternate = AUX2_SERIAL_GPIO_AF_LL,
 };
 
-const stm32_usart_t aux2USART = {
+static const stm32_usart_t aux2USART = {
   .USARTx = AUX2_SERIAL_USART,
   .GPIOx = AUX2_SERIAL_GPIO,
   .pinInit = &aux2USARTPinInit,
@@ -207,7 +216,7 @@ const stm32_usart_t aux2USART = {
   .rxDMA_Channel = AUX2_SERIAL_DMA_Channel_RX,
 };
 
-AuxSerialState aux2SerialState = {
+static const SerialState aux2SerialState = {
     .txFifo = &aux2SerialTxFifo,
     .rxFifo = &aux2SerialRxFifo,
     .usart = &aux2USART,
@@ -220,7 +229,7 @@ static uint8_t aux2SerialOnSend(uint8_t* data)
 
 static etx_serial_callbacks_t aux2SerialCb = {
   .on_send = aux2SerialOnSend,
-  .on_receive = nullptr, // TODO: clear on DeInit
+  .on_receive = nullptr,
   .on_error = nullptr,
 };
 
@@ -229,14 +238,14 @@ static void* aux2SerialInit(const etx_serial_init* params)
   return aux_serial_init(&aux2SerialState, params);
 }
 
-void (*aux2RxCb)(uint8_t*, uint32_t);
+static void (*aux2RxCb)(uint8_t*, uint32_t);
 
 static void aux2_on_rx_byte(uint8_t data)
 {
   if (aux2RxCb) aux2RxCb(&data, 1);
 }
 
-void aux2SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+static void aux2SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
 {
   aux2RxCb = cb;
   if (aux2RxCb) {
