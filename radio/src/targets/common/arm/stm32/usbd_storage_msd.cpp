@@ -182,8 +182,11 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
     return 0;
   }  else if (lun == STORAGE_SPI_FLASH_LUN) {
 #if !defined(BOOT)
-    *block_num = flashSpiGetSectorCount();
-    *block_size = flashSpiGetSectorSize();
+    size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
+    *block_num = (flashSize/512)-100;
+    *block_size = 512;
+//    *block_num = flashSpiGetSectorCount();
+//    *block_size = flashSpiGetSectorSize();
 //    *block_num = flashSpiGetSectorCount()*(flashSpiGetSectorSize()/512);
 //    *block_size = 512;
 #else
@@ -269,6 +272,7 @@ int8_t STORAGE_Read (uint8_t lun,
   if (lun == STORAGE_EEPROM_LUN) {
     return (fat12Read(buf, blk_addr, blk_len) == 0) ? 0 : -1;
   } else if  (lun == STORAGE_SPI_FLASH_LUN) {
+    return (__disk_read(1, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
 #if !defined(BOOT)
     uint16_t len = blk_len*flashSpiGetSectorSize();
     uint32_t ret = flashSpiRead(blk_addr*flashSpiGetSectorSize(), buf, len);
@@ -300,6 +304,7 @@ int8_t STORAGE_Write (uint8_t lun,
   if (lun == STORAGE_EEPROM_LUN)	{
     return (fat12Write(buf, blk_addr, blk_len) == 0) ? 0 : -1;
   } else if  (lun == STORAGE_SPI_FLASH_LUN) {
+    return (__disk_write(1, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
 #if !defined(BOOT)
     uint16_t sectSize = flashSpiGetSectorSize();
     uint16_t len = blk_len*sectSize;

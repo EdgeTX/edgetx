@@ -29,12 +29,19 @@ if(SPI_FLASH)
     flash_spi_driver.cpp
     ../../thirdparty/littlefs_v2.4.1/lfs_util.c
     ../../thirdparty/littlefs_v2.4.1/lfs.c
+    ../../thirdparty/tjftl/tjftl.c
   )
   add_definitions(-DSPI_FLASH)
 endif()
 
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    flash_spi_driver.cpp
+    ../../thirdparty/tjftl/tjftl.c
+  )
+  add_definitions(-DSPI_FLASH)
+  
 else()
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
 endif()

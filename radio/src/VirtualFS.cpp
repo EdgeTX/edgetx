@@ -44,6 +44,7 @@ uint16_t flashSpiGetSectorSize();
 uint16_t flashSpiGetSectorCount();
 
 int flashSpiErase(size_t address);
+int flashSpiBlockErase(size_t address);
 void flashSpiEraseAll();
 
 void flashSpiSync();
@@ -51,6 +52,7 @@ void flashSpiSync();
 
 extern "C"
 {
+#if defined(LITTLEFS)
 int flashRead(const struct lfs_config *c, lfs_block_t block,
         lfs_off_t off, void *buffer, lfs_size_t size)
 {
@@ -76,6 +78,25 @@ int flashSync(const struct lfs_config *c)
   flashSpiSync();
   return LFS_ERR_OK;
 }
+#else
+bool flashRead(int addr, uint8_t* buf, int len, void* arg)
+{
+  flashSpiRead(addr, buf, len);
+  return true;
+}
+
+bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
+{
+  flashSpiWrite(addr, buf, len);
+  return true;
+}
+
+bool flashErase(int addr, void *arg)
+{
+  flashSpiBlockErase(addr);
+  return true;
+}
+#endif
 }
 
 static VfsError convertResult(lfs_error err)
@@ -581,7 +602,7 @@ int VfsFile::eof()
 
 VirtualFS::VirtualFS()
 {
-#if defined (SPI_FLASH)
+#if defined (SPI_FLASH) && defined (LITTLEFS)
   // configuration of the filesystem is provided by this struct
   lfsCfg.read  = flashRead;
   lfsCfg.prog  = flashWrite;
@@ -603,17 +624,18 @@ VirtualFS::VirtualFS()
 
 VirtualFS::~VirtualFS()
 {
-#if defined (SPI_FLASH)
+#if defined (SPI_FLASH) && defined (LITTLEFS)
   lfs_unmount(&lfs);
 #endif
 }
 
 void VirtualFS::stop()
 {
-#if defined (SPI_FLASH)
+#if defined (SPI_FLASH)  && defined (LITTLEFS)
   lfs_unmount(&lfs);
 #endif
 }
+static FATFS fatfs;
 
 //const char dat[] = "Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";
 //const char dat2[] ="2Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";
@@ -621,6 +643,17 @@ void VirtualFS::stop()
 void VirtualFS::restart()
 {
 #if defined (SPI_FLASH)
+
+#if 1
+/*
+  if(!tjftl_detect(flashRead, nullptr))
+    flashSpiEraseAll();
+
+  size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
+  tjftl = tjftl_init(flashRead,  flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-100, 0);
+
+*/
+#else
   bool formated = false;
 //  flashSpiEraseAll();
   int err = lfs_mount(&lfs, &lfsCfg);
@@ -654,6 +687,8 @@ void VirtualFS::restart()
 //    }
   }
 #endif
+#endif
+  f_mount(&fatfs, "1:", 1);
 }
 
 
@@ -730,9 +765,12 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     return VfsDir::DIR_ROOT;
   } else if(path.substr(0, 6) == "/FLASH")
   {
-    path = path.substr(6);
+    path = "1:" + path.substr(6);
+    if(path == "1:")
+      path = "1:/";
 #if defined (SPI_FLASH)
-    return VfsDir::DIR_LFS;
+//    return VfsDir::DIR_LFS;
+    return VfsDir::DIR_FAT;
 #else
     return VfsDir::DIR_UNKOWN;
 #endif
@@ -744,8 +782,10 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     return VfsDir::DIR_UNKOWN;
 #endif
   } else if(path.substr(0, 8) == "/DEFAULT") {
-    path = path.substr(8);
-#if defined (SDCARD) && 0
+    path = "1:" + path.substr(8);
+    if(path == "1:")
+      path = "1:/";
+#if defined (SDCARD)
     return VfsDir::DIR_FAT;
 #elif defined (SPI_FLASH)
     return VfsDir::DIR_LFS;

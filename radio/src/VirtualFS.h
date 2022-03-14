@@ -25,6 +25,7 @@
 
 #if defined (SPI_FLASH)
 #include "littlefs_v2.4.1/lfs.h"
+#include "tjftl/tjftl.h"
 #endif
 #if defined (SDCARD)
 #include "sdcard.h"
@@ -424,6 +425,8 @@ public:
   bool flashListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
 private:
   static VirtualFS* _instance;
+
+  tjftl_t* tjftl;
 
   lfs_config lfsCfg = {0};
   lfs_t lfs = {0};
