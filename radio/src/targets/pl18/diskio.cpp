@@ -411,7 +411,7 @@ DRESULT disk_ioctl (
 
       case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
         // TODO verify that this is the correct value
-        *(DWORD*)buff = 32768;
+        *(DWORD*)buff = 512;
         res = RES_OK;
         break;
 
