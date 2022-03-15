@@ -999,4 +999,3 @@ QString MultiModelPrinter::printChecklist()
    str.append(columns.print());
    return str;
  }
-

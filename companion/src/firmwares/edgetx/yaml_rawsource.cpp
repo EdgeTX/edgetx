@@ -52,12 +52,12 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
-     case SOURCE_TYPE_FUNCTIONSWITCH:
+    case SOURCE_TYPE_FUNCTIONSWITCH:
       src_str += "fs(";
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
-   case SOURCE_TYPE_CYC:
+    case SOURCE_TYPE_CYC:
       src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:

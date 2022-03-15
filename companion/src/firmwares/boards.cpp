@@ -871,10 +871,12 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_TX12:
   case BOARD_RADIOMASTER_T8:
   case BOARD_JUMPER_TLITE:
-  case BOARD_RADIOMASTER_ZORRO:
   case BOARD_JUMPER_TPRO:
+    return (int)MODULE_TYPE_MULTIMODULE;
+  
+  case BOARD_RADIOMASTER_ZORRO:
     return (int)MODULE_TYPE_CROSSFIRE;
-
+ 
   case BOARD_FLYSKY_NV14:
     return (int)MODULE_TYPE_FLYSKY;
 
