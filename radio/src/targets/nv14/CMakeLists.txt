@@ -28,6 +28,7 @@ if(SPI_FLASH)
     flash_spi_driver.cpp
     ../../thirdparty/littlefs_v2.4.1/lfs_util.c
     ../../thirdparty/littlefs_v2.4.1/lfs.c
+    ../../thirdparty/tjftl/tjftl.c
   )
   add_definitions(-DSPI_FLASH)
 endif()

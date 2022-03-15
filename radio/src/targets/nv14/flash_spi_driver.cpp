@@ -67,8 +67,10 @@ struct SpiFlashDescriptor
   uint8_t writeCmd;
   uint8_t writeEnableCmd;
   uint8_t eraseSectorCmd;
+  uint8_t eraseBlockCmd;
   uint8_t eraseChipCmd;
 };
+
 
 // * RadioMaster/Eachine TX16S, RadioKing TX18S and Jumper T18 use GD25Q127C (16 MByte)
 // * FlySky PL18, Paladin EV and NV14 use WinBond W25Q64JV (8 MByte)
