@@ -2287,6 +2287,29 @@ class ModuleUnionField: public UnionField<unsigned int> {
       char receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME+1] = {};
   };
 
+  class GhostField: public UnionField::TransformedMember {
+    public:
+      GhostField(DataField * parent, ModuleData& module):
+        UnionField::TransformedMember(parent, internalField),
+        internalField(this, "GHOST")
+      {
+        internalField.Append(new BoolField<1>(this, module.ghost.raw12bits));
+        internalField.Append(new SpareBitsField<7>(this));
+      }
+
+      bool select(const unsigned int & attr) const override
+      {
+        return attr == PULSES_GHOST;
+      }
+
+      void beforeExport() override {}
+
+      void afterImport() override {}
+
+    private:
+      StructField  internalField;
+  };
+
   public:
     ModuleUnionField(DataField * parent, ModuleData & module, Board::Type board, unsigned int version):
       UnionField<unsigned int>(parent, module.protocol)
@@ -2294,6 +2317,7 @@ class ModuleUnionField: public UnionField<unsigned int> {
       if (version >= 219) {
         Append(new AccessField(parent, module));
         Append(new Afhds3Field(parent, module));
+        Append(new GhostField(parent, module));
       }
       Append(new PxxField(parent, module, version));
       Append(new MultiField(parent, module));

@@ -37,6 +37,15 @@
 //        receiverTelemetryOff: 0
 //        receiverHigherChannels: 0
 
+//  type: TYPE_GHOST
+//  subType: 0
+//  channelsStart: 0
+//  channelsCount: 16
+//  failsafeMode: NOT_SET
+//  mod:
+//      ghost:
+//        raw12bits: 0
+
 static const YamlLookupTable protocolLut = {
   {  PULSES_OFF, "TYPE_NONE"  },
   {  PULSES_PPM, "TYPE_PPM"  },
@@ -284,6 +293,11 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         sbus["refreshRate"] = rhs.ppm.frameLength;
         mod["sbus"] = sbus;
     } break;
+    case PULSES_GHOST: {
+        Node ghost;
+        ghost["raw12bits"] = (int)rhs.ghost.raw12bits;
+        mod["ghost"] = ghost;
+    } break;
     // TODO: afhds3, flysky
     default: {
         Node ppm;
@@ -384,6 +398,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           for (const auto& rx : pxx2["receiverName"]) {
             rx >> rhs.access.receiverName;
           }
+      } else if (mod["ghost"]) {
+          Node ghost = mod["ghost"];
+          ghost["raw12bits"] >> rhs.ghost.raw12bits;
       } else if (mod["flysky"]) {
           //TODO
       } else if (mod["afhds3"]) {

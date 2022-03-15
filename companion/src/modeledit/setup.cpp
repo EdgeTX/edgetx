@@ -202,6 +202,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_RX_FREQ        (1<<14)
 #define MASK_RF_POWER       (1<<15)
 #define MASK_RF_RACING_MODE (1<<16)
+#define MASK_GHOST          (1<<17)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -445,7 +446,7 @@ void ModulePanel::update()
       case PULSES_CROSSFIRE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER;
       case PULSES_GHOST:
-        mask |= MASK_CHANNELS_RANGE;
+        mask |= MASK_CHANNELS_RANGE | MASK_GHOST;
         module.channelsCount = 16;
         break;
       case PULSES_PPM:
@@ -614,6 +615,12 @@ void ModulePanel::update()
     ui->optionValue->setMaximum(pdef.getOptionMax());
     ui->optionValue->setValue(module.multi.optionValue);
     ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+  }
+
+  // Ghost settings fields
+  ui->raw12bits->setVisible(mask & MASK_GHOST);
+  if (mask & MASK_GHOST) {
+    ui->raw12bits->setChecked(module.ghost.raw12bits);
   }
 
   if (mask & MASK_ACCESS) {
@@ -825,6 +832,11 @@ void ModulePanel::on_disableTelem_stateChanged(int state)
 void ModulePanel::on_disableChMap_stateChanged(int state)
 {
   module.multi.disableMapping = (state == Qt::Checked);
+}
+
+void ModulePanel::on_raw12bits_stateChanged(int state)
+{
+  module.ghost.raw12bits = (state == Qt::Checked);
 }
 
 void ModulePanel::on_racingMode_stateChanged(int state)

@@ -227,6 +227,10 @@ class ModuleData {
       int antennaMode;       // false = internal antenna, true = external antenna
     } pxx;
 
+    struct GHOST {
+      bool raw12bits;
+    } ghost;
+
     struct Access {
       unsigned int receivers;
       char         receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME+1];

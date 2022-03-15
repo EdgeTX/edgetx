@@ -230,6 +230,9 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
           str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
         }
+        if (module.protocol == PULSES_GHOST) {
+          str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
+        }
       }
     }
     result = str.join(" ");
