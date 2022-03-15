@@ -688,7 +688,41 @@ void VirtualFS::restart()
   }
 #endif
 #endif
-  f_mount(&fatfs, "1:", 1);
+  if(f_mount(&fatfs, "1:", 1) != FR_OK)
+  {
+    BYTE work[FF_MAX_SS];
+    FRESULT res = f_mkfs("1:", FM_ANY, 0, work, sizeof(work));
+    switch(res) {
+      case FR_OK :
+        break;
+      case FR_DISK_ERR:
+        POPUP_WARNING("Format error");
+        break;
+      case FR_NOT_READY:
+        POPUP_WARNING("SDCard not ready");
+        break;
+      case FR_WRITE_PROTECTED:
+        POPUP_WARNING("SDCard write protected");
+        break;
+      case FR_INVALID_PARAMETER:
+        POPUP_WARNING("Format param invalid");
+        break;
+      case FR_INVALID_DRIVE:
+        POPUP_WARNING("Invalid drive");
+        break;
+      case FR_MKFS_ABORTED:
+        POPUP_WARNING("Format aborted");
+        break;
+      default:
+        POPUP_WARNING(STR_SDCARD_ERROR);
+        break;
+    }
+  }
+  checkAndCreateDirectory("/DEFAULT/RADIO");
+  checkAndCreateDirectory("/DEFAULT/MODELS");
+  checkAndCreateDirectory("/DEFAULT/LOGS");
+  checkAndCreateDirectory("/DEFAULT/SCREENSHOTS");
+  checkAndCreateDirectory("/DEFAULT/BACKUP");
 }
 
 
@@ -1050,39 +1084,57 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
   }
 
   return ret;
-
 }
+
 const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {
-#if defined (SPI_FLASH)
-	lfs_dir_t dir;
-	int res = lfs_dir_open(&lfs, &dir, path);
-	if(res != LFS_ERR_OK)
-	{
-	  if(res == LFS_ERR_NOENT)
-	    res = lfs_mkdir(&lfs, path);
-	  if(res != LFS_ERR_OK)
-	  {
-	    //      return SDCARD_ERROR(result);
-	    return "ERROR";
-	  }
-	} else {
-	  lfs_dir_close(&lfs, &dir);
-	}
+  std::string normPath(path);
+  normalizePath(normPath);
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
+
+  switch(dirType)
+  {
+  case VfsDir::DIR_ROOT:
+    return STORAGE_ERROR(VfsError::INVAL);
+    break;
+#if defined (SDCARD)
+  case VfsDir::DIR_FAT:
+  {
+    DIR archiveFolder;
+    FRESULT result = f_opendir(&archiveFolder, normPath.c_str());
+    if (result != FR_OK) {
+      if (result == FR_NO_PATH)
+        result = f_mkdir(normPath.c_str());
+      if (result != FR_OK)
+        return STORAGE_ERROR(convertResult(result));
+    }
+    else {
+      f_closedir(&archiveFolder);
+    }
+    break;
+  }
 #endif
-//  DIR archiveFolder;
-//
-//  FRESULT result = f_opendir(&archiveFolder, path);
-//  if (result != FR_OK) {
-//    if (result == FR_NO_PATH)
-//      result = f_mkdir(path);
-//    if (result != FR_OK)
-//      return SDCARD_ERROR(result);
-//  }
-//  else {
-//    f_closedir(&archiveFolder);
-//  }
-//
+#if defined (SPI_FLASH)
+  case VfsDir::DIR_LFS:
+  {
+    lfs_dir_t dir;
+    lfs_error res = (lfs_error)lfs_dir_open(&lfs, &dir, normPath.c_str());
+    if(res != LFS_ERR_OK)
+    {
+      if(res == LFS_ERR_NOENT)
+        res = (lfs_error)lfs_mkdir(&lfs, normPath.c_str());
+      if(res != LFS_ERR_OK)
+      {
+        return STORAGE_ERROR(convertResult(res));
+      }
+    } else {
+      lfs_dir_close(&lfs, &dir);
+    }
+break;
+  }
+#endif
+  }
+
   return nullptr;
 }
 
