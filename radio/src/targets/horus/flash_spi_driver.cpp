@@ -67,6 +67,7 @@ struct SpiFlashDescriptor
   uint8_t writeCmd;
   uint8_t writeEnableCmd;
   uint8_t eraseSectorCmd;
+  uint8_t eraseBlockCmd;
   uint8_t eraseChipCmd;
 };
 

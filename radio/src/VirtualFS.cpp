@@ -635,7 +635,7 @@ void VirtualFS::stop()
   lfs_unmount(&lfs);
 #endif
 }
-static FATFS fatfs;
+static FATFS fatfs ={0};
 
 //const char dat[] = "Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";
 //const char dat2[] ="2Hello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\nHello World\n";

@@ -38,9 +38,15 @@
 /*-----------------------------------------------------------------------*/
 #if !defined(BOOT)
 static RTOS_MUTEX_HANDLE ioMutex;
+static bool initialized = false;
 uint32_t ioMutexReq = 0, ioMutexRel = 0;
 int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
 {
+  if(!initialized)
+  {
+    RTOS_CREATE_MUTEX(ioMutex);
+    initialized = true;
+  }
   *mutex = ioMutex;
   return 1;
 }
@@ -481,7 +487,6 @@ void sdInit(void)
 void sdInit()
 {
   TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
   sdMount();
 }
 
