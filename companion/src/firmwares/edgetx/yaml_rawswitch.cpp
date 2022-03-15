@@ -23,8 +23,6 @@
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
-  QString swName;
-  div_t qr;
   std::string sw_str;
   int32_t sval = rhs.index;
   if (rhs.index < 0) {

@@ -958,7 +958,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["modelRegistrationID"] = rhs.registrationId;
 
   if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    qDebug() << "Encoding function switches";
     node["functionSwitchConfig"] = rhs.functionSwitchConfig;
     node["functionSwitchGroup"] = rhs.functionSwitchGroup;
     node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
