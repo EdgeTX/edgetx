@@ -44,9 +44,6 @@ void* dbgSerialGetSendCbCtx()
 
 void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {
-  // Avoid overwriting debug port config
-  if (cb && dbg_serial_putc) return;
-
   dbg_serial_putc = nullptr;
   dbg_serial_ctx = ctx;
   dbg_serial_putc = cb;
