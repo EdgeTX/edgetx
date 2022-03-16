@@ -508,7 +508,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
   if (g_model.moduleData[module].type == MODULE_TYPE_LEMON_DSMP) {
 
     // save flags
-    g_model.moduleData[module].dsmp.flags = packet[0] & 0x3F;
+    g_model.moduleData[module].dsmp.flags = packet[0];
 
     // save number of channels
     uint8_t channels = packet[2];

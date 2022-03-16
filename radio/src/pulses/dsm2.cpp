@@ -136,9 +136,10 @@ void setupPulsesLemonDSMP()
   reset_dsm2_buffer();
 
   const auto& md = g_model.moduleData[EXTERNAL_MODULE];
-  // TODO: sanetize 'channels'
+
+  uint8_t start_channel = md.channelsStart;
   auto channels = md.getChannelsCount();
-  auto flags = md.dsmp.flags;
+  auto flags = md.dsmp.flags & 0x3F;
 
   // Force setup packet in Bind mode.
   auto module_mode = getModuleMode(EXTERNAL_MODULE);
@@ -170,35 +171,36 @@ void setupPulsesLemonDSMP()
 
   } else {
 
-    uint8_t start_channel = 0;
+    uint8_t current_channel = 0;
     if (pass == 2) {
-      start_channel += 7;
+      current_channel += 7;
     }
 
     // Send channels
     for (int i=0; i<7; i++) {
 
-      uint8_t channel = start_channel + i;
-      if (channel < channels) {
+      if (current_channel < channels) {
         
+        uint8_t channel = start_channel + current_channel;
         int value = channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
         uint16_t pulse;
 
         // Use 11-bit ?
         if (flags & (1 << 2)) {
-          pulse = limit(0, ((value*349)>>9)+1024, 2047) | (channel << 11);
+          pulse = limit(0, ((value*349)>>9)+1024, 2047) | (current_channel << 11);
         } else {
-          pulse = limit(0, ((value*13)>>5)+512, 1023) | (channel << 10);
+          pulse = limit(0, ((value*13)>>5)+512, 1023) | (current_channel << 10);
         }
 
         sendByteDSMP( pulse >> 8 );
         sendByteDSMP( pulse & 0xFF );
       } else {
         // Outside of announced number of channels:
-        // -> send invalid values
+        // -> send invalid value
         sendByteDSMP( 0xFF );
         sendByteDSMP( 0xFF );
       }
+      current_channel++;
     }
   }
 
