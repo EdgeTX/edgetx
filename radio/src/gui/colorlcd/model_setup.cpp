@@ -1129,7 +1129,10 @@ class ModuleWindow : public FormGroup {
           });
           bindButton->setCheckHandler([=]() {
               if (moduleState[moduleIdx].mode != MODULE_MODE_BIND) {
-                bindButton->check(false);
+                if (bindButton->checked()) {
+                  bindButton->check(false);
+                  this->invalidate();
+                }
               }
 #if defined(MULTIMODULE)
               if (isModuleMultimodule(moduleIdx) &&

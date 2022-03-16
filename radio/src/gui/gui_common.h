@@ -183,11 +183,12 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 1;
     else
       return 0;
-  }
-  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) || isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx)) {
+  } else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
+             isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
+             isModuleDSMP(moduleIdx)) {
+    // fixed number of channels
     return 0;
-  }
-  else {
+  } else {
     return 1;
   }
 }
