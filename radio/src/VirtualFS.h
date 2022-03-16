@@ -21,6 +21,7 @@
 #ifndef _VIRTUALFS_H_
 #define _VIRTUALFS_H_
 
+#ifdef __cplusplus
 #include <string>
 
 #if defined (SPI_FLASH)
@@ -162,6 +163,19 @@ enum class VfsOpenFlags {
 VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs);
 VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs);
 
+//for compatibility reasons those are identical to the FAT implementation
+enum class VfsFileAttributes {
+  NONE = 0x00,
+  RDO = 0x01,
+  HID = 0x02,
+  SYS = 0x04,
+  DIR = 0x10,
+  ARC = 0x20
+};
+
+VfsFileAttributes operator|(VfsFileAttributes lhs,VfsFileAttributes rhs);
+VfsFileAttributes operator&(VfsFileAttributes lhs,VfsFileAttributes rhs);
+
 struct VfsDir;
 
 struct VfsFileInfo
@@ -183,6 +197,21 @@ public:
     }
     return "";
   };
+
+  size_t getSize() const
+  {
+    switch(type)
+    {
+    case VfsFileType::ROOT: return 0;
+#if defined (SDCARD)
+    case VfsFileType::FAT:  return fatInfo.fsize;
+#endif
+#if defined (SPI_FLASH)
+    case VfsFileType::LFS:  return lfsInfo.size;
+#endif
+    }
+    return 0;
+  }
 
   VfsType getType() const
   {
@@ -211,6 +240,59 @@ public:
     return VfsType::UNKOWN;
   };
 
+  VfsFileAttributes getAttrib()
+  {
+    switch(type)
+    {
+    case VfsFileType::ROOT:
+      return VfsFileAttributes::DIR;
+#if defined (SDCARD)
+    case VfsFileType::FAT:
+      return (VfsFileAttributes)fatInfo.fattrib;
+#endif
+#if defined (SPI_FLASH)
+    case VfsFileType::LFS:
+      if(lfsInfo.type == LFS_TYPE_DIR)
+        return VfsFileAttributes::DIR;
+      return VfsFileAttributes::NONE;
+#endif
+    }
+    return VfsFileAttributes::NONE;
+  }
+
+  int getDate(){
+    switch(type)
+    {
+    case VfsFileType::ROOT:
+      return 0;
+#if defined (SDCARD)
+    case VfsFileType::FAT:
+      return fatInfo.fdate;
+#endif
+#if defined (SPI_FLASH)
+    case VfsFileType::LFS:
+      return 0;
+#endif
+    }
+    return 0;
+  }
+  int getTime()
+  {
+    switch(type)
+    {
+    case VfsFileType::ROOT:
+      return 0;
+#if defined (SDCARD)
+    case VfsFileType::FAT:
+      return fatInfo.ftime;
+#endif
+#if defined (SPI_FLASH)
+    case VfsFileType::LFS:
+      return 0;
+#endif
+    }
+    return 0;
+  }
 private:
   friend class VirtualFS;
   friend struct VfsDir;
@@ -351,6 +433,7 @@ public:
   VfsError makeDirectory(const std::string& path);
 
   VfsError fstat(const std::string& path, VfsFileInfo& fileInfo);
+  VfsError utime(const std::string& path, const VfsFileInfo& fileInfo);
   VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);
 
   VfsError rename(const char* oldPath, const char* newPath);
@@ -436,5 +519,9 @@ private:
 
   VfsDir::DirType getDirTypeAndPath(std::string& path);
 };
+#else
+struct VfsFile_s;
+typedef struct VfsFile_s VfsFile;
+#endif
 
 #endif // _VIRTUALFS_H_
