@@ -1135,12 +1135,12 @@ void getADC()
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
     uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
+    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
        // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
     } else {
       // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
     }
 
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
@@ -1814,7 +1814,7 @@ void opentxInit()
       runFatalErrorScreen(STR_NO_SDCARD);
     }
 #endif
-    
+
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
