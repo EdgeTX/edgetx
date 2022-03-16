@@ -1727,7 +1727,46 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
                          yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_modSubtype(user, data, bitoffs, wf, opaque);
+  // rfProtocol + subType, depending on the module
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModuleData, channelsStart);
+
+  const char* str = nullptr;
+  auto md = reinterpret_cast<ModuleData*>(data);
+  int32_t val = md->subType;
+  if (md->type == MODULE_TYPE_XJT_PXX1 || md->type == MODULE_TYPE_XJT_LITE_PXX2) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_XJT_Subtypes);
+  } else if (md->type == MODULE_TYPE_ISRM_PXX2) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_ISRM_Subtypes);
+  } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_R9M_Subtypes);
+  } else if (md->type == MODULE_TYPE_FLYSKY) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_FLYSKY_Subtypes);
+  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
+#if defined(MULTIMODULE)
+    // Use type/subType by the book (see MPM documentation)
+    // TODO: remove that crappy translation and use the MPM
+    //       data as-is (no FrSky special casing)
+    int type = md->multi.rfProtocol + 1;
+    int subtype = val;
+    convertEtxProtocolToMulti(&type, &subtype);
+
+    // output "[type],[subtype]"
+    str = yaml_unsigned2str(type);
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque, ",", 1)) return false;
+    str = yaml_unsigned2str(subtype);
+#endif
+  } else if (md->type == MODULE_TYPE_DSM2) {
+    str = yaml_output_enum(md->subType, yaml_conv_220::enum_DSM2_Subtypes);
+  } else {
+    str = yaml_unsigned2str(val);
+  }
+
+  if (str && !wf(opaque, str, strlen(str)))
+    return false;
+
+  return true;
 }
 
 static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t val_len)
