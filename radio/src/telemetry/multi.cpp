@@ -351,9 +351,6 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
   uint8_t len = packet[1];
   const uint8_t * data = packet + 2;
 
-  for (uint8_t c = 0; c < len + 2; c++)
-    telemetryMirrorSend(packet[c]);
-
   // Switch type
   switch (type) {
     case MultiStatus:
