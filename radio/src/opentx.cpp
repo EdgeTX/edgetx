@@ -2043,6 +2043,10 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
+    if (g_eeGeneral.backlightMode == e_backlight_mode_keys ||
+        g_eeGeneral.backlightMode == e_backlight_mode_all)
+      resetBacklightTimeout();
+
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }
