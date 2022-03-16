@@ -968,6 +968,7 @@ void menuModelSetup(event_t event)
             g_model.moduleData[moduleIdx].type = reusableBuffer.moduleSetup.newType;
             reusableBuffer.moduleSetup.previousType = reusableBuffer.moduleSetup.newType;
             setModuleType(moduleIdx, g_model.moduleData[moduleIdx].type);
+            storageDirty(EE_MODEL);
           }
           else if (g_model.moduleData[moduleIdx].type == MODULE_TYPE_NONE) {
             g_model.moduleData[moduleIdx].type = reusableBuffer.moduleSetup.newType;
@@ -987,7 +988,7 @@ void menuModelSetup(event_t event)
                 }
                 else
 #endif
-                  reusableBuffer.moduleSetup.newType = checkIncDec(event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,
+                  reusableBuffer.moduleSetup.newType = checkIncDec(event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE, MODULE_TYPE_MAX, 0,
                                                                    isExternalModuleAvailable);
                 break;
 
@@ -1450,6 +1451,7 @@ void menuModelSetup(event_t event)
               lcdDrawText(lcdNextPos + 2, y, STR_MODULE_RANGE, l_posHorz == 2 ? attr : 0);
             }
             uint8_t newFlag = 0;
+            uint8_t oldFlag = moduleState[moduleIdx].mode;
 #if defined(MULTIMODULE)
             if (isModuleMultimodule(moduleIdx) &&
                 getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
@@ -1479,7 +1481,7 @@ void menuModelSetup(event_t event)
                       startBindMenu(moduleIdx);
                       continue;
                     }
-                    if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
+                    if (oldFlag == MODULE_MODE_BIND) {
                       newFlag = MODULE_MODE_BIND;
                     }
                     else {
@@ -1490,6 +1492,12 @@ void menuModelSetup(event_t event)
                   }
                   else {
                     newFlag = MODULE_MODE_BIND;
+                  }
+
+                  if (!event && (oldFlag != newFlag) &&
+                      (oldFlag == MODULE_MODE_NORMAL)) {
+                    // Bind mode switched off from somewhere else
+                    s_editMode = 0;
                   }
                 }
                 else if (l_posHorz == 2) {
@@ -1513,6 +1521,12 @@ void menuModelSetup(event_t event)
               setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
             }
 #endif
+            if (isModuleDSMP(moduleIdx) &&
+                (oldFlag != newFlag) &&
+                (oldFlag == MODULE_MODE_BIND)) {
+              // Restart DSMP module when exiting bind mode
+              restartModule(moduleIdx);
+            }
           }
         }
         break;
