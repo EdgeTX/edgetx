@@ -1107,7 +1107,7 @@ const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
 const struct YamlIdStr enum_DSM2_Subtypes[] = {
   { 0, "LP45" },
   { 1, "DSM2" },
-  { 3, "DSMX" },
+  { 2, "DSMX" },
   { 0, NULL  }
 };
 
