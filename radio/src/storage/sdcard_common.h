@@ -22,7 +22,7 @@
 #ifndef _SDCARD_COMMON_H_
 #define _SDCARD_COMMON_H_
 
-#include "ff.h"
+#include "VirtualFS.h"
 #include "translations.h"
 
 #define MODEL_FILENAME_PREFIX    "model"

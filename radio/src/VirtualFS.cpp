@@ -429,7 +429,7 @@ VfsError VfsFile::putc(char c)
   return this->write(&c, 1, written);
 }
 
-int VfsFile::printf(const char* str, ...)
+int VfsFile::fprintf(const char* str, ...)
 {
   switch(type)
   {
@@ -1066,7 +1066,7 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
   return VfsError::INVAL;
 }
 
-VfsError utime(const std::string& path, const VfsFileInfo& fileInfo)
+VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
 {
   std::string normPath(path);
   normalizePath(normPath);
@@ -1078,7 +1078,6 @@ VfsError utime(const std::string& path, const VfsFileInfo& fileInfo)
     return VfsError::INVAL;
 #if defined (SDCARD)
   case VfsDir::DIR_FAT:
-    fileInfo.type = VfsFileType::FAT;
     return convertResult(f_utime(normPath.c_str(), &fileInfo.fatInfo));
 #endif
 #if defined (SPI_FLASH)

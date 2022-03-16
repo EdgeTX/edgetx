@@ -110,13 +110,13 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
     for (;;) {
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
       res = dir.read(fno);                   /* Read a directory item */
-      if (res != VfsError::OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fnogetType() == VfsType::DIR) continue;            /* Skip subfolders */
+      if (res != VfsError::OK || fno.getName().length() == 0) break;  /* Break on error or end of dir */
+      if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
 //      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
 //      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
 #warning finalize VirtualFS conversion
-      strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname)) {
+      strcat(path, fno.getName().c_str());
+      if (isRadioScriptTool(fno.getName().c_str())) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char * label;
         char * ext = (char *)getFileExtension(path);
