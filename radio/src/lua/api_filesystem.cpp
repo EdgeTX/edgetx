@@ -21,6 +21,7 @@
 
 
 #include <cstdio>
+#include "VirtualFS.h"
 #include "lua_api.h"
 
 #include "api_filesystem.h"
@@ -28,8 +29,8 @@
 // garbage collector for luaDir
 static int dir_gc(lua_State* L)
 {
-  DIR* dir = (DIR*)lua_touserdata(L, 1);
-  if (dir) f_closedir(dir);
+  VfsDir* dir = (VfsDir*)lua_touserdata(L, 1);
+  if (dir) dir->close();
   return 0;
 }
 
@@ -47,15 +48,15 @@ void registerDirIter(lua_State* L)
 
 static int dir_iter(lua_State* L)
 {
-  DIR* dir = (DIR*)lua_touserdata(L, lua_upvalueindex(1));
+  VfsDir* dir = (VfsDir*)lua_touserdata(L, lua_upvalueindex(1));
 
-  FILINFO info;
-  FRESULT res = f_readdir(dir, &info);
-  if (res != FR_OK || info.fname[0] == 0) { /* Break on error or end of dir */
+  VfsFileInfo info;
+  VfsError res = dir->read(info);
+  if (res != VfsError::OK || info.getName().length() == 0) { /* Break on error or end of dir */
     return 0;
   }
  
-  lua_pushstring(L, info.fname);
+  lua_pushstring(L, info.getName().c_str());
   return 1;
 }
 
@@ -79,13 +80,13 @@ static int dir_iter(lua_State* L)
 int luaDir(lua_State* L)
 {
   const char* path = luaL_optstring(L, 1, nullptr);
-  DIR* dir = (DIR*)lua_newuserdata(L, sizeof(DIR));
+  VfsDir* dir = (VfsDir*)lua_newuserdata(L, sizeof(VfsDir));
 
   luaL_getmetatable(L, DIR_METATABLE);
   lua_setmetatable(L, -2);
 
-  FRESULT res = f_opendir(dir, path);
-  if (res != FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(*dir, path);
+  if (res != VfsError::OK) {
     printf("luaDir cannot open %s\n", path);
   }
   
@@ -135,25 +136,28 @@ int luaFstat(lua_State* L)
 {
   const char * path = luaL_optstring(L, 1, nullptr);
 
-  FRESULT res;
-  FILINFO info;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsError res;
+  VfsFileInfo info;
 
-  res = f_stat(path, &info);
-  if (res != FR_OK) {
+  res = vfs.fstat(path, info);
+  if (res != VfsError::OK) {
     printf("luaFstat cannot open %s\n", path);
     return 0;
   }
 
   lua_newtable(L);
-  lua_pushtableinteger(L, "size", info.fsize);
-  lua_pushtableinteger(L, "attrib", info.fattrib);
+  lua_pushtableinteger(L, "size", info.getSize());
+  lua_pushtableinteger(L, "attrib", (int)info.getAttrib());
 
-  uint32_t year = (info.fdate >> 9) + 1980;
-  uint32_t month = info.fdate >> 5 & 15;
-  uint32_t day = info.fdate & 31;
-  uint32_t hour = info.ftime >> 11;
-  uint32_t mn = info.ftime >> 5 & 63;
-  uint32_t sec = (info.ftime & 31) * 2;
+  int date = info.getDate();
+  int time = info.getTime();
+  uint32_t year = (date >> 9) + 1980;
+  uint32_t month = date >> 5 & 15;
+  uint32_t day = date & 31;
+  uint32_t hour = time >> 11;
+  uint32_t mn = time >> 5 & 63;
+  uint32_t sec = (time & 31) * 2;
 
   lua_pushstring(L, "time");
   luaPushDateTime(L, year, month, day, hour, mn, sec);

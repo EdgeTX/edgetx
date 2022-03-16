@@ -198,6 +198,23 @@ VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs)
   & static_cast<underlying>(rhs));
 }
 
+VfsFileAttributes operator|(VfsFileAttributes lhs,VfsFileAttributes rhs)
+{
+  typedef typename
+    std::underlying_type<VfsFileAttributes>::type underlying;
+  return static_cast<VfsFileAttributes>(
+    static_cast<underlying>(lhs)
+  | static_cast<underlying>(rhs));
+}
+VfsFileAttributes operator&(VfsFileAttributes lhs,VfsFileAttributes rhs)
+{
+  typedef typename
+    std::underlying_type<VfsFileAttributes>::type underlying;
+  return static_cast<VfsFileAttributes>(
+    static_cast<underlying>(lhs)
+  & static_cast<underlying>(rhs));
+}
+
 VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
 {
   info.clear();
@@ -1044,6 +1061,29 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
   case VfsDir::DIR_LFS:
     fileInfo.type = VfsFileType::LFS;
     return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), &fileInfo.lfsInfo));
+#endif
+  }
+  return VfsError::INVAL;
+}
+
+VfsError utime(const std::string& path, const VfsFileInfo& fileInfo)
+{
+  std::string normPath(path);
+  normalizePath(normPath);
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
+
+  switch(dirType)
+  {
+  case VfsDir::DIR_ROOT:
+    return VfsError::INVAL;
+#if defined (SDCARD)
+  case VfsDir::DIR_FAT:
+    fileInfo.type = VfsFileType::FAT;
+    return convertResult(f_utime(normPath.c_str(), &fileInfo.fatInfo));
+#endif
+#if defined (SPI_FLASH)
+  case VfsDir::DIR_LFS:
+    return VfsError::OK;
 #endif
   }
   return VfsError::INVAL;

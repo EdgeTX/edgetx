@@ -27,11 +27,10 @@
 
 #include "opentx.h"
 #include "bin_allocator.h"
-
+#include "VirtualFS.h"
 #include "lua_api.h"
 #include "lua_event.h"
 
-#include "sdcard.h"
 #include "api_filesystem.h"
 
 #if defined(LIBOPENUI)
@@ -351,9 +350,9 @@ void luaFree(lua_State * L, ScriptInternalData & sid)
 static int luaDumpWriter(lua_State * L, const void* p, size_t size, void* u)
 {
   UNUSED(L);
-  UINT written;
-  FRESULT result = f_write((FIL *)u, p, size, &written);
-  return (result != FR_OK && !written);
+  size_t written;
+  VfsError result = ((VfsFile *)u)->write(p, size, written);
+  return (result != VfsError::OK && !written);
 }
 
 /*
@@ -366,16 +365,17 @@ static int luaDumpWriter(lua_State * L, const void* p, size_t size, void* u)
     1 = remove debug info from bytecode (smaller but errors are less informative)
     0 = keep debug info
 */
-static void luaDumpState(lua_State * L, const char * filename, const FILINFO * finfo, int stripDebug)
+static void luaDumpState(lua_State * L, const char * filename, const VfsFileInfo* finfo, int stripDebug)
 {
-  FIL D;
-  if (f_open(&D, filename, FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
+  VfsFile D;
+  VirtualFS& vfs = VirtualFS::instance();
+  if (vfs.openFile(D, filename, VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS) == VfsError::OK) {
     lua_lock(L);
     luaU_dump(L, getproto(L->top - 1), luaDumpWriter, &D, stripDebug);
     lua_unlock(L);
-    if (f_close(&D) == FR_OK) {
+    if (D.close() == VfsError::OK) {
       if (finfo != nullptr)
-        f_utime(filename, finfo);  // set the file mod time
+        vfs.utime(filename, *finfo);  // set the file mod time
       TRACE("luaDumpState(%s): Saved bytecode to file.", filename);
     }
   } else
@@ -428,8 +428,9 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   uint16_t fnamelen;
   uint8_t extlen;
   char filenameFull[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = "\0";
-  FILINFO fnoLuaS, fnoLuaC;
-  FRESULT frLuaS, frLuaC;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFileInfo fnoLuaS, fnoLuaC;
+  VfsError frLuaS, frLuaC;
 
   bool scriptNeedsCompile = false;
   uint8_t loadFileType = 0;  // 1=text, 2=binary
@@ -449,25 +450,25 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
 
   // check if binary version exists
   strcpy(filenameFull + fnamelen, SCRIPT_BIN_EXT);
-  frLuaC = f_stat(filenameFull, &fnoLuaC);
+  frLuaC = vfs.fstat(filenameFull, fnoLuaC);
 
   // check if text version exists
   strcpy(filenameFull + fnamelen, SCRIPT_EXT);
-  frLuaS = f_stat(filenameFull, &fnoLuaS);
+  frLuaS = vfs.fstat(filenameFull, fnoLuaS);
 
   // decide which version to load, text or binary
-  if (frLuaC != FR_OK && frLuaS == FR_OK) {
+  if (frLuaC != VfsError::OK && frLuaS == VfsError::OK) {
     // only text version exists
     loadFileType = 1;
     scriptNeedsCompile = true;
   }
-  else if (frLuaC == FR_OK && frLuaS != FR_OK) {
+  else if (frLuaC == VfsError::OK && frLuaS != VfsError::OK) {
     // only binary version exists
     loadFileType = 2;
   }
-  else if (frLuaS == FR_OK) {
+  else if (frLuaS == VfsError::OK) {
     // both versions exist, compare them
-    if (strchr(lmode, 'c') || (uint32_t)((fnoLuaC.fdate << 16) + fnoLuaC.ftime) < (uint32_t)((fnoLuaS.fdate << 16) + fnoLuaS.ftime)) {
+    if (strchr(lmode, 'c') || (uint32_t)((fnoLuaC.getDate() << 16) + fnoLuaC.getTime()) < (uint32_t)((fnoLuaS.getDate() << 16) + fnoLuaS.getTime())) {
       // text version is newer than binary or forced by "c" mode flag, rebuild it
       scriptNeedsCompile = true;
     }
@@ -493,9 +494,9 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
 
 //  TRACE_DEBUG("luaLoadScriptFileToState(%s, %s):\n", filename, lmode);
 //  TRACE_DEBUG("\tldfile='%s'; ldtype=%u; compile=%u;\n", filenameFull, loadFileType, scriptNeedsCompile);
-//  TRACE_DEBUG("\t%-5s: %s; mtime: %04X%04X = %u/%02u/%02u %02u:%02u:%02u;\n", SCRIPT_EXT, (frLuaS == FR_OK ? "ok" : "nf"), fnoLuaS.fdate, fnoLuaS.ftime,
+//  TRACE_DEBUG("\t%-5s: %s; mtime: %04X%04X = %u/%02u/%02u %02u:%02u:%02u;\n", SCRIPT_EXT, (frLuaS == VfsError::OK ? "ok" : "nf"), fnoLuaS.fdate, fnoLuaS.ftime,
 //      (fnoLuaS.fdate >> 9) + 1980, (fnoLuaS.fdate >> 5) & 15, fnoLuaS.fdate & 31, fnoLuaS.ftime >> 11, (fnoLuaS.ftime >> 5) & 63, (fnoLuaS.ftime & 31) * 2);
-//  TRACE_DEBUG("\t%-5s: %s; mtime: %04X%04X = %u/%02u/%02u %02u:%02u:%02u;\n", SCRIPT_BIN_EXT, (frLuaC == FR_OK ? "ok" : "nf"), fnoLuaC.fdate, fnoLuaC.ftime,
+//  TRACE_DEBUG("\t%-5s: %s; mtime: %04X%04X = %u/%02u/%02u %02u:%02u:%02u;\n", SCRIPT_BIN_EXT, (frLuaC == VfsError::OK ? "ok" : "nf"), fnoLuaC.fdate, fnoLuaC.ftime,
 //      (fnoLuaC.fdate >> 9) + 1980, (fnoLuaC.fdate >> 5) & 15, fnoLuaC.fdate & 31, fnoLuaC.ftime >> 11, (fnoLuaC.ftime >> 5) & 63, (fnoLuaC.ftime & 31) * 2);
 
   // final check that file exists and is allowed by mode flags
@@ -517,7 +518,7 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   lstatus = luaL_loadfilex(L, filenameFull, nullptr);
 #if defined(LUA_COMPILER)
   // Check for bytecode encoding problem, eg. compiled for x64. Unfortunately Lua doesn't provide a unique error code for this. See Lua/src/lundump.c.
-  if (lstatus == LUA_ERRSYNTAX && loadFileType == 2 && frLuaS == FR_OK && strstr(lua_tostring(L, -1), "precompiled")) {
+  if (lstatus == LUA_ERRSYNTAX && loadFileType == 2 && frLuaS == VfsError::OK && strstr(lua_tostring(L, -1), "precompiled")) {
     loadFileType = 1;
     scriptNeedsCompile = true;
     strcpy(filenameFull + fnamelen, SCRIPT_EXT);
@@ -1307,18 +1308,18 @@ void luaInit()
 
 bool readToolName(char * toolName, const char * filename)
 {
-  FIL file;
+  VfsFile file;
   char buffer[1024];
-  UINT count;
+  size_t count;
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     return "Error opening file";
   }
 
-  FRESULT res = f_read(&file, &buffer, sizeof(buffer), &count);
-  f_close(&file);
+  VfsError res = file.read(&buffer, sizeof(buffer), count);
+  file.close();
 
-  if (res != FR_OK)
+  if (res != VfsError::OK)
     return false;
 
   const char * tns = "TNS|";
