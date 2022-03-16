@@ -39,7 +39,7 @@ extern ModelHeader modelHeaders[MAX_MODELS];
 #endif
 
 // opens radio.bin or model file
-const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
+const char* openFileBin(const char* fullpath, VfsFile& file, uint16_t* size,
                         uint8_t* version);
 
 const char* writeFileBin(const char* fullpath, const uint8_t* data,

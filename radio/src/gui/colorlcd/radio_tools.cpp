@@ -102,19 +102,19 @@ static void run_lua_tool(Window* parent, const std::string& path)
 // LUA scripts in TOOLS
 static void scanLuaTools(std::list<ToolEntry>& scripts)
 {
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
 
-  FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, SCRIPTS_TOOLS_PATH);
+  if (res == VfsError::OK) {
     for (;;) {
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
-
+      res = dir.read(fno);                   /* Read a directory item */
+      if (res != VfsError::OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+      if (fnogetType() == VfsType::DIR) continue;            /* Skip subfolders */
+//      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
+//      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+#warning finalize VirtualFS conversion
       strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};

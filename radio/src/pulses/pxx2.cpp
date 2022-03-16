@@ -24,6 +24,7 @@
 #include "pulses/pxx2.h"
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
+#include "VirtualFS.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 #include "timers_driver.h"
@@ -591,9 +592,9 @@ const char * Pxx2OtaUpdate::nextStep(uint8_t step, const char * rxName, uint32_t
 
 const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
 {
-  FIL file;
+  VfsFile file;
   uint8_t buffer[32];
-  UINT count;
+  size_t count;
   const char * result;
 
   result = nextStep(OTA_UPDATE_START, rxName, 0, nullptr);
@@ -601,7 +602,7 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
     return result;
   }
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     return "Open file failed";
   }
 
@@ -609,21 +610,21 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
   const char * ext = getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *) buffer;
-    if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
-      f_close(&file);
+    if (file.read(buffer, sizeof(FrSkyFirmwareInformation), count) != VfsError::OK || count != sizeof(FrSkyFirmwareInformation)) {
+      file.close();
       return "Format error";
     }
     size = information->size;
   }
   else {
-    size = f_size(&file);
+    size = file.size();
   }
 
   uint32_t done = 0;
   while (1) {
     progressHandler(getBasename(filename), STR_OTA_UPDATE, done, size);
-    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
-      f_close(&file);
+    if (file.read(buffer, sizeof(buffer), count) != VfsError::OK) {
+      file.close();
       return "Read file failed";
     }
 
@@ -633,7 +634,7 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
     }
 
     if (count < sizeof(buffer)) {
-      f_close(&file);
+      file.close();
       break;
     }
 

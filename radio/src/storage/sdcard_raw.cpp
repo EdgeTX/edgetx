@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "modelslist.h"
 #include "conversions/conversions.h"
 
@@ -28,13 +29,13 @@ const char *writeFileBin(const char *filename, const uint8_t *data,
 {
   TRACE("writeFileBin(%s)", filename);
 
-  FIL file;
+  VfsFile file;
   unsigned char buf[8];
-  UINT written;
+  size_t written;
 
-  FRESULT result = f_open(&file, filename, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = VirtualFS::instance().openFile(file, filename, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
   *(uint32_t*)&buf[0] = ETX_FOURCC;
@@ -42,19 +43,19 @@ const char *writeFileBin(const char *filename, const uint8_t *data,
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = size;
 
-  result = f_write(&file, buf, 8, &written);
-  if (result != FR_OK || written != 8) {
-    f_close(&file);
-    return SDCARD_ERROR(result);
+  result = file.write(buf, 8, written);
+  if (result != VfsError::OK || written != 8) {
+    file.close();
+    return STORAGE_ERROR(result);
   }
 
-  result = f_write(&file, data, size, &written);
-  if (result != FR_OK || written != size) {
-    f_close(&file);
-    return SDCARD_ERROR(result);
+  result = file.write(data, size, written);
+  if (result != VfsError::OK || written != size) {
+    file.close();
+    return STORAGE_ERROR(result);
   }
 
-  f_close(&file);
+  file.close();
   return NULL;
 }
 
@@ -64,44 +65,44 @@ const char * writeModelBin()
   char path[256];
   getModelPath(path, g_eeGeneral.currModelFilename);
 
-  sdCheckAndCreateDirectory(MODELS_PATH);
+  VirtualFS::instance().checkAndCreateDirectory(MODELS_PATH);
   return writeFileBin(path, (uint8_t *)&g_model, sizeof(g_model));
 }
 
 // TODO: move partly to common
-const char * openFile(const char * fullpath, FIL * file)
+const char * openFile(const char * fullpath, VfsFile& file)
 {
-  FRESULT result = f_open(file, fullpath, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = VirtualFS::instance().openFile(file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
   return nullptr;
 }
 
-const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint8_t * version)
+const char* openFileBin(const char * fullpath, VfsFile& file, uint16_t&  size, uint8_t * version)
 {
   const char* err = openFile(fullpath, file);
   if (err) return err;
 
-  if (f_size(file) < 8) {
-    f_close(file);
+  if (file.size() < 8) {
+    file.close();
     return STR_INCOMPATIBLE;
   }
 
-  UINT read;
+  size_t read;
   char buf[8];
 
-  FRESULT result = f_read(file, (uint8_t *)buf, sizeof(buf), &read);
-  if ((result != FR_OK) || (read != sizeof(buf))) {
-    f_close(file);
-    return SDCARD_ERROR(result);
+  VfsError result = file.read((uint8_t *)buf, sizeof(buf), read);
+  if ((result != VfsError::OK) || (read != sizeof(buf))) {
+    file.close();
+    return STORAGE_ERROR(result);
   }
 
   *version = (uint8_t)buf[4];
   if (*(uint32_t *)&buf[0] != ETX_FOURCC || *version < FIRST_CONV_EEPROM_VER ||
       *version > EEPROM_VER || buf[5] != 'M') {
-    f_close(file);
+    file.close();
     return STR_INCOMPATIBLE;
   }
 
@@ -112,24 +113,24 @@ const char* openFileBin(const char * fullpath, FIL * file, uint16_t * size, uint
 const char *loadFileBin(const char *fullpath, uint8_t *data,
                         uint16_t maxsize, uint8_t *version)
 {
-  FIL      file;
-  UINT     read;
+  VfsFile  file;
+  size_t   read;
   uint16_t size;
 
   TRACE("loadFileBin(%s)", fullpath);
 
-  const char * err = openFileBin(fullpath, &file, &size, version);
+  const char * err = openFileBin(fullpath, file, size, version);
   if (err)
     return err;
 
   size = min<uint16_t>(maxsize, size);
-  FRESULT result = f_read(&file, data, size, &read);
-  if (result != FR_OK || read != size) {
-    f_close(&file);
-    return SDCARD_ERROR(result);
+  VfsError result = file.read(data, size, read);
+  if (result != VfsError::OK || read != size) {
+    file.close();
+    return STORAGE_ERROR(result);
   }
 
-  f_close(&file);
+  file.close();
   return nullptr;
 }
 

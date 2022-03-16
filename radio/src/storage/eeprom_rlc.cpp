@@ -23,6 +23,7 @@
 #include <string.h>
 #include "opentx.h"
 #include "../timers.h"
+#include "VirtualFS.h"
 
 #include "hal/eeprom_driver.h"
 #include "storage/eeprom_common.h"
@@ -450,18 +451,19 @@ bool RlcFile::copy(uint8_t i_fileDst, uint8_t i_fileSrc)
   return true;
 }
 
-#if defined(SDCARD) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
+#if defined(SDCARD) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)||1
 const char * eeBackupModel(uint8_t i_fileSrc)
 {
+  VirtualFS& vfs = VirtualFS::instance();
   char * buf = reusableBuffer.modelsel.mainname;
-  UINT written;
+  size_t written;
 
   // we must close the logs as we reuse the same FIL structure
   logsClose();
 
   // check and create folder here
   strcpy(buf, STR_MODELS_PATH);
-  const char * error = sdCheckAndCreateDirectory(buf);
+  const char * error = vfs.checkAndCreateDirectory(buf);
   if (error) {
     return error;
   }
@@ -501,9 +503,9 @@ const char * eeBackupModel(uint8_t i_fileSrc)
   TRACE("SD-card backup filename=%s", buf);
 #endif
 
-  FRESULT result = f_open(&g_oLogFile, buf, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = vfs.openFile(g_oLogFile, buf, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
   EFile theFile2;
@@ -514,28 +516,28 @@ const char * eeBackupModel(uint8_t i_fileSrc)
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = eeModelSize(i_fileSrc);
 
-  result = f_write(&g_oLogFile, buf, 8, &written);
-  if (result != FR_OK || written != 8) {
-    f_close(&g_oLogFile);
-    return SDCARD_ERROR(result);
+  result = &g_oLogFile.write(buf, 8, written);
+  if (result != VfsError::OK || written != 8) {
+    g_oLogFile.close();
+    return STORAGE_ERROR(result);
   }
 
   while ((len=theFile2.read((uint8_t *)buf, 15))) {
-    result = f_write(&g_oLogFile, (uint8_t *)buf, len, &written);
-    if (result != FR_OK || written != len) {
-      f_close(&g_oLogFile);
-      return SDCARD_ERROR(result);
+    result = g_oLogFile.write((uint8_t *)buf, len, written);
+    if (result != VfsError::OK || written != len) {
+      g_oLogFile.close();
+      return STORAGE_ERROR(result);
     }
   }
 
-  f_close(&g_oLogFile);
+  g_oLogFile.close();
   return NULL;
 }
 
 const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
 {
   char * buf = reusableBuffer.modelsel.mainname;
-  UINT read;
+  size_t read;
 
   // we must close the logs as we reuse the same FIL structure
   logsClose();
@@ -545,25 +547,25 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   strcpy(&buf[sizeof(MODELS_PATH)], model_name);
   strcpy(&buf[strlen(buf)], STR_MODELS_EXT);
 
-  FRESULT result = f_open(&g_oLogFile, buf, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = VirtualFS::instance().openFile(g_oLogFile, buf, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
-  if (f_size(&g_oLogFile) < 8) {
-    f_close(&g_oLogFile);
+  if (g_oLogFile.size() < 8) {
+    g_oLogFile.close();
     return STR_INCOMPATIBLE;
   }
 
-  result = f_read(&g_oLogFile, (uint8_t *)buf, 8, &read);
-  if (result != FR_OK || read != 8) {
-    f_close(&g_oLogFile);
-    return SDCARD_ERROR(result);
+  result = g_oLogFile.read((uint8_t *)buf, 8, read);
+  if (result != VfsError::OK || read != 8) {
+    g_oLogFile.close();
+    return STORAGE_ERROR(result);
   }
 
   uint8_t version = (uint8_t)buf[4];
   if (*(uint32_t*)&buf[0] != ETX_FOURCC || version < FIRST_CONV_EEPROM_VER || version > EEPROM_VER || buf[5] != 'M') {
-    f_close(&g_oLogFile);
+      g_oLogFile.close();
     return STR_INCOMPATIBLE;
   }
 
@@ -574,17 +576,17 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   theFile.create(FILE_MODEL(i_fileDst), FILE_TYP_MODEL, true);
 
   do {
-    result = f_read(&g_oLogFile, (uint8_t *)buf, 15, &read);
-    if (result != FR_OK) {
+    result = g_oLogFile.read((uint8_t *)buf, 15, read);
+    if (result != VfsError::OK) {
       ENABLE_SYNC_WRITE(false);
-      f_close(&g_oLogFile);
-      return SDCARD_ERROR(result);
+      g_oLogFile.close();
+      return STORAGE_ERROR(result);
     }
     if (read > 0) {
       theFile.write((uint8_t *)buf, read);
       if (write_errno() != 0) {
         ENABLE_SYNC_WRITE(false);
-        f_close(&g_oLogFile);
+        g_oLogFile.close();
         return STR_EEPROMOVERFLOW;
       }
     }
@@ -599,7 +601,7 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   eeFs.files[FILE_TMP].size = theFile.m_pos;
   EFile::swap(theFile.m_fileId, FILE_TMP); // s_sync_write is set to false in swap();
 
-  f_close(&g_oLogFile);
+  g_oLogFile.close();
 
 #if defined(STORAGE_CONVERSIONS)
   if (version < EEPROM_VER) {
@@ -904,7 +906,7 @@ void eepromBackup()
 {
   char path[60];
   uint8_t buffer[1024];
-  FIL file;
+  VfsFile file;
 
   // reset unexpectedShutdown to prevent warning when user restores EEPROM backup
   g_eeGeneral.unexpectedShutdown = 0;
@@ -912,7 +914,7 @@ void eepromBackup()
   storageCheck(true);
 
   // create the directory if needed...
-  const char * error = sdCheckAndCreateDirectory(EEPROMS_PATH);
+  const char * error = VirtualFS::instance().checkAndCreateDirectory(EEPROMS_PATH);
   if (error) {
     POPUP_WARNING(error);
     return;
@@ -926,12 +928,12 @@ void eepromBackup()
   strAppend(tmp, EEPROM_EXT);
 
   // open the file for writing...
-  f_open(&file, path, FA_WRITE | FA_CREATE_ALWAYS);
+  VirtualFS::instance().openFile(file, path, VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS);
 
   for (int i=0; i<EEPROM_SIZE; i+=1024) {
     UINT count;
     eepromReadBlock(buffer, i, 1024);
-    f_write(&file, buffer, 1024, &count);
+    file.write(buffer, 1024, count);
     drawProgressScreen("EEPROM Backup", STR_WRITING, i, EEPROM_SIZE);
 #if defined(SIMU)
     // add an artificial delay and check for simu quit
@@ -940,7 +942,7 @@ void eepromBackup()
 #endif
   }
 
-  f_close(&file);
+  file.close();
 
   //set back unexpectedShutdown
   g_eeGeneral.unexpectedShutdown = 1;

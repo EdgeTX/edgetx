@@ -37,7 +37,7 @@ const char* readModel(const char* filename, uint8_t* buffer, uint32_t size);
 const char* loadRadioSettingsBin();
 const char * writeGeneralSettingsBin();
 
-const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
+const char* openFileBin(const char* fullpath, VfsFile& file, uint16_t& size,
                         uint8_t* version);
 
 const char* readModelBin(const char* filename, uint8_t* buffer, uint32_t size,
