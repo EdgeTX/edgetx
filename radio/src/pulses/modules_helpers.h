@@ -477,6 +477,9 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     return 10;
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4;  // 12 channels
+  } else if (isModuleDSMP(moduleIdx) &&
+             (g_model.moduleData[moduleIdx].dsmp.flags != 0)) {
+    return g_model.moduleData[moduleIdx].channelsCount;
   } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
@@ -495,6 +498,8 @@ inline int8_t minModuleChannels(uint8_t idx)
     return GHOST_CHANNELS_COUNT;
   else if (isModuleSBUS(idx))
     return 16;
+  else if (isModuleDSMP(idx))
+    return maxModuleChannels(idx);
   else
     return 1;
 }
