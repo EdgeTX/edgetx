@@ -25,6 +25,7 @@
 #include "opentx.h"
 #include "timers.h"
 #include "conversions/conversions.h"
+#include "VirtualFS.h"
 
 #define EEPROM_MARK           0x84697771 /* thanks ;) */
 #define EEPROM_ZONE_SIZE      (8*1024)
@@ -433,18 +434,20 @@ uint16_t eeModelSize(uint8_t index)
 const char * eeBackupModel(uint8_t i_fileSrc)
 {
   char * buf = reusableBuffer.modelsel.mainname;
-  FIL archiveFile;
-  UINT written;
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFile archiveFile;
+  size_t written;
 
   storageCheck(true);
 
+#warning check for VirtualFS storage, not sd card
   if (!sdMounted()) {
     return STR_NO_SDCARD;
   }
 
   // check and create folder here
   strcpy(buf, STR_MODELS_PATH);
-  const char * error = sdCheckAndCreateDirectory(buf);
+  const char * error = vfs.checkAndCreateDirectory(buf);
   if (error) {
     return error;
   }
@@ -452,9 +455,9 @@ const char * eeBackupModel(uint8_t i_fileSrc)
   buf[sizeof(MODELS_PATH)-1] = '/';
   strcpy(strcat_modelname(&buf[sizeof(MODELS_PATH)], i_fileSrc, 0), STR_MODELS_EXT);
 
-  FRESULT result = f_open(&archiveFile, buf, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
+  VfsError result = vfs.openFile(archiveFile, buf, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (result != VfsError::OK) {
+    return STORAGE_ERROR(result);
   }
 
 
@@ -465,26 +468,26 @@ const char * eeBackupModel(uint8_t i_fileSrc)
   buf[5] = 'M';
   *(uint16_t*)&buf[6] = size;
 
-  result = f_write(&archiveFile, buf, 8, &written);
-  if (result != FR_OK || written != 8) {
-    f_close(&archiveFile);
-    return SDCARD_ERROR(result);
+  result = archiveFile.write(buf, 8, written);
+  if (result != VfsError::OK || written != 8) {
+    archiveFile.close();
+    return STORAGE_ERROR(result);
   }
 
   uint32_t address = eepromHeader.files[i_fileSrc+1].zoneIndex * EEPROM_ZONE_SIZE + sizeof(EepromFileHeader);
   while (size > 0) {
     uint16_t blockSize = min<uint16_t>(size, EEPROM_BUFFER_SIZE);
     eepromRead(eepromWriteBuffer, address, blockSize);
-    result = f_write(&archiveFile, eepromWriteBuffer, blockSize, &written);
-    if (result != FR_OK || written != blockSize) {
-      f_close(&archiveFile);
-      return SDCARD_ERROR(result);
+    result = archiveFile.write(eepromWriteBuffer, blockSize, written);
+    if (result != VfsError::OK || written != blockSize) {
+      archiveFile.close();
+      return STORAGE_ERROR(result);
     }
     size -= blockSize;
     address += blockSize;
   }
 
-  f_close(&archiveFile);
+  archiveFile.close();
 
 
   return NULL;
@@ -493,8 +496,8 @@ const char * eeBackupModel(uint8_t i_fileSrc)
 const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
 {
   char * buf = reusableBuffer.modelsel.mainname;
-  FIL restoreFile;
-  UINT read;
+  VfsFile restoreFile;
+  size_t read;
 
   storageCheck(true);
 
@@ -507,25 +510,25 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   strcpy(&buf[sizeof(MODELS_PATH)], model_name);
   strcpy(&buf[strlen(buf)], STR_MODELS_EXT);
 
-  FRESULT result = f_open(&restoreFile, buf, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  FRESULT result = VirtualFS::instance().openFile(restoreFile, buf, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) {
     return SDCARD_ERROR(result);
   }
 
-  if (f_size(&restoreFile) < 8) {
-    f_close(&restoreFile);
+  if (restoreFile.size() < 8) {
+    restoreFile.close();
     return STR_INCOMPATIBLE;
   }
 
-  result = f_read(&restoreFile, (uint8_t *)buf, 8, &read);
-  if (result != FR_OK || read != 8) {
-    f_close(&restoreFile);
+  result = restoreFile.read((uint8_t *)buf, 8, read);
+  if (result != VfsError::OK || read != 8) {
+    restoreFile.close();
     return SDCARD_ERROR(result);
   }
 
   uint8_t version = (uint8_t)buf[4];
   if (*(uint32_t*)&buf[0] != ETX_FOURCC || version < FIRST_CONV_EEPROM_VER || version > EEPROM_VER || buf[5] != 'M') {
-    f_close(&restoreFile);
+    restoreFile.close();
     return STR_INCOMPATIBLE;
   }
 
@@ -550,9 +553,9 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   // write model
   do {
     uint16_t blockSize = min<uint16_t>(size, EEPROM_BUFFER_SIZE-offset);
-    result = f_read(&restoreFile, eepromWriteBuffer+offset, blockSize, &read);
-    if (result != FR_OK || read != blockSize) {
-      f_close(&g_oLogFile);
+    result = restoreFile.read(eepromWriteBuffer+offset, blockSize, read);
+    if (result != VfsError::OK || read != blockSize) {
+      g_oLogFile.close();
       return SDCARD_ERROR(result);
     }
     eepromWrite(eepromWriteBuffer, address, blockSize+offset);
