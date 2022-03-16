@@ -84,13 +84,13 @@ void ThemeFile::serialize()
   VfsFile file;
   VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
   if (result == VfsError::OK) {
-    file.printf("---\n");
-    file.printf("summary:\n");
-    file.printf("  name: %s\n", name);
-    file.printf("  author: %s\n", author);
-    file.printf("  info: %s\n", info);
-    file.printf("\n");
-    file.printf("colors:\n");
+    file.fprintf("---\n");
+    file.fprintf("summary:\n");
+    file.fprintf("  name: %s\n", name);
+    file.fprintf("  author: %s\n", author);
+    file.fprintf("  info: %s\n", info);
+    file.fprintf("\n");
+    file.fprintf("colors:\n");
 
     for (auto colorEntry : colorList) {
       auto r = GET_RED(colorEntry.colorValue);
@@ -99,7 +99,7 @@ void ThemeFile::serialize()
 
       std::string colorName(colorNames[colorEntry.colorNumber]);
       colorName += ":";
-      file.printf("  %-11s 0x%02X%02X%02X\n", colorName.c_str(), r,g,b);
+      file.fprintf("  %-11s 0x%02X%02X%02X\n", colorName.c_str(), r,g,b);
     }
     file.close();
   }

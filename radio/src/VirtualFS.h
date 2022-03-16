@@ -369,7 +369,7 @@ public:
   VfsError write(const void* buf, size_t size, size_t& written);
   VfsError puts(const std::string& str);
   VfsError putc(char c);
-  int printf(const char* str, ...);
+  int fprintf(const char* str, ...);
 
   size_t tell();
   VfsError lseek(size_t offset);

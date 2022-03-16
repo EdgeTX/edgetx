@@ -106,7 +106,7 @@ const char* openFileBin(const char * fullpath, VfsFile& file, uint16_t&  size, u
     return STR_INCOMPATIBLE;
   }
 
-  *size = *(uint16_t*)&buf[6];
+  size = *(uint16_t*)&buf[6];
   return nullptr;
 }
 

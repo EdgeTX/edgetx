@@ -300,10 +300,10 @@ void logsWrite()
           lastRtcTime = g_rtcTime;
           gettime(&utm);
         }
-        g_oLogFile.printf("%4d-%02d-%02d,%02d:%02d:%02d.%02d0,", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+        g_oLogFile.fprintf("%4d-%02d-%02d,%02d:%02d:%02d.%02d0,", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
       }
 #else
-      g_oLogFile.printf("%d,", tmr10ms);
+      g_oLogFile.fprintf("%d,", tmr10ms);
 #endif
 
       for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
@@ -314,56 +314,56 @@ void logsWrite()
             if (sensor.unit == UNIT_GPS) {
               if (telemetryItem.gps.longitude && telemetryItem.gps.latitude) {
                 div_t qr = div((int)telemetryItem.gps.latitude, 1000000);
-                if (telemetryItem.gps.latitude < 0) g_oLogFile.printf("-");
-                g_oLogFile.printf("%d.%06d ", abs(qr.quot), abs(qr.rem));
+                if (telemetryItem.gps.latitude < 0) g_oLogFile.fprintf("-");
+                g_oLogFile.fprintf("%d.%06d ", abs(qr.quot), abs(qr.rem));
                 qr = div((int)telemetryItem.gps.longitude, 1000000);
-                if (telemetryItem.gps.longitude < 0) g_oLogFile.printf("-");
-                g_oLogFile.printf("%d.%06d,", abs(qr.quot), abs(qr.rem));
+                if (telemetryItem.gps.longitude < 0) g_oLogFile.fprintf("-");
+                g_oLogFile.fprintf("%d.%06d,", abs(qr.quot), abs(qr.rem));
               }
               else {
-                g_oLogFile.printf(",");
+                g_oLogFile.fprintf(",");
               }
             }
             else if (sensor.unit == UNIT_DATETIME) {
-              g_oLogFile.printf("%4d-%02d-%02d %02d:%02d:%02d,", telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day, telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
+              g_oLogFile.fprintf("%4d-%02d-%02d %02d:%02d:%02d,", telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day, telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
             }
             else if (sensor.unit == UNIT_TEXT) {
-              g_oLogFile.printf("\"%s\",", telemetryItem.text);
+              g_oLogFile.fprintf("\"%s\",", telemetryItem.text);
             }
             else if (sensor.prec == 2) {
               div_t qr = div((int)telemetryItem.value, 100);
-              if (telemetryItem.value < 0) g_oLogFile.printf("-");
-              g_oLogFile.printf("%d.%02d,", abs(qr.quot), abs(qr.rem));
+              if (telemetryItem.value < 0) g_oLogFile.fprintf("-");
+              g_oLogFile.fprintf("%d.%02d,", abs(qr.quot), abs(qr.rem));
             }
             else if (sensor.prec == 1) {
               div_t qr = div((int)telemetryItem.value, 10);
-              if (telemetryItem.value < 0) g_oLogFile.printf("-");
-              g_oLogFile.printf("%d.%d,", abs(qr.quot), abs(qr.rem));
+              if (telemetryItem.value < 0) g_oLogFile.fprintf("-");
+              g_oLogFile.fprintf("%d.%d,", abs(qr.quot), abs(qr.rem));
             }
             else {
-              g_oLogFile.printf("%d,", telemetryItem.value);
+              g_oLogFile.fprintf("%d,", telemetryItem.value);
             }
           }
         }
       }
 
       for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-        g_oLogFile.printf("%d,", calibratedAnalogs[i]);
+        g_oLogFile.fprintf("%d,", calibratedAnalogs[i]);
       }
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
       for (uint8_t i=0; i<NUM_SWITCHES; i++) {
         if (SWITCH_EXISTS(i)) {
-          g_oLogFile.printf("%d,", getSwitchState(i));
+          g_oLogFile.fprintf("%d,", getSwitchState(i));
         }
       }
-      g_oLogFile.printf("0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+      g_oLogFile.fprintf("0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
-        g_oLogFile.printf("%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
+        g_oLogFile.fprintf("%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
 #else
-      g_oLogFile.printf("%d,%d,%d,%d,%d,%d,%d,",
+      g_oLogFile.fprintf("%d,%d,%d,%d,%d,%d,%d,",
           GET_2POS_STATE(THR),
           GET_2POS_STATE(RUD),
           GET_2POS_STATE(ELE),
@@ -374,7 +374,7 @@ void logsWrite()
 #endif
 
       div_t qr = div(g_vbat100mV, 10);
-      int result = g_oLogFile.printf("%d.%d\n", abs(qr.quot), abs(qr.rem));
+      int result = g_oLogFile.fprintf("%d.%d\n", abs(qr.quot), abs(qr.rem));
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;
