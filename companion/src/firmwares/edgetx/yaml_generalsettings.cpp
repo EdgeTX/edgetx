@@ -318,7 +318,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
   node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
   node["countryCode"] >> rhs.countryCode;
-  node["noJitterFilter"] >> rhs.noJitterFilter;
+  node["jitterFilter"] >> rhs.noJitterFilter;   // PR1363 : read old name and
+  node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
   node["imperial"] >> rhs.imperial;
