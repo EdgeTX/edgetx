@@ -86,6 +86,13 @@ void postRadioSettingsLoad()
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
 #endif
+#if defined(USB_SERIAL)
+  // default VCP to CLI if not configured
+  // to something else as NONE.
+  if (serialGetMode(SP_VCP) == UART_MODE_NONE) {
+    serialSetMode(SP_VCP, UART_MODE_CLI);
+  }
+#endif
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
