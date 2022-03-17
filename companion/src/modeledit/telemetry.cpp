@@ -509,7 +509,9 @@ void TelemetryPanel::setup()
   ui->telemetryProtocol->addItem(tr("FrSky S.PORT"), 0);
   ui->telemetryProtocol->addItem(tr("FrSky D"), 1);
   if (IS_9XRPRO(firmware->getBoard()) ||
-      (IS_TARANIS(firmware->getBoard()) && generalSettings.auxSerialMode == 2)) {
+      (IS_TARANIS(firmware->getBoard()) &&
+       generalSettings.serialPort[GeneralSettings::SP_AUX1] ==
+           GeneralSettings::AUX_SERIAL_TELE_IN)) {
     ui->telemetryProtocol->addItem(tr("FrSky D (cable)"), 2);
   }
   ui->telemetryProtocol->setCurrentIndex(model->telemetryProtocol);

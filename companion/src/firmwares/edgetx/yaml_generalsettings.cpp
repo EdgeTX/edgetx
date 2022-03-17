@@ -59,12 +59,29 @@ const YamlLookupTable bluetoothModeLut = {
   {  GeneralSettings::BLUETOOTH_MODE_TRAINER, "TRAINER"  },
 };
 
-const YamlLookupTable uartModeLut = {
+const YamlLookupTable oldUartModeLut = {
   {  GeneralSettings::AUX_SERIAL_OFF, "MODE_NONE"  },
   {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "MODE_TELEMETRY_MIRROR"  },
   {  GeneralSettings::AUX_SERIAL_TELE_IN, "MODE_TELEMETRY"  },
   {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  GeneralSettings::AUX_SERIAL_LUA, "MODE_LUA"  },
+};
+
+const YamlLookupTable serialPortLut = {
+  {  GeneralSettings::SP_AUX1, "AUX1" },
+  {  GeneralSettings::SP_AUX2, "AUX2" },
+  {  GeneralSettings::SP_VCP, "VCP" },
+};
+
+const YamlLookupTable uartModeLut = {
+  {  GeneralSettings::AUX_SERIAL_OFF, "NONE"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "TELEMETRY_MIRROR"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY"  },
+  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  GeneralSettings::AUX_SERIAL_LUA, "LUA"  },
+  {  GeneralSettings::AUX_SERIAL_CLI, "CLI"  },
+  {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },
+  {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
 };
 
 const YamlLookupTable antennaModeLut = {
@@ -195,8 +212,17 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
-  node["auxSerialMode"] = uartModeLut << rhs.auxSerialMode;
-  node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
+
+  Node serialPort;
+  for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
+    if (rhs.serialPort[i] != UART_MODE_NONE) {
+      Node mode = uartModeLut << rhs.serialPort[i];
+      serialPort[LookupValue(serialPortLut, i)]["mode"] = mode;
+    }
+  }
+  if (serialPort && serialPort.IsMap())
+    node["serialPort"] = serialPort;
+
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["backlightColor"] = rhs.backlightColor;
   node["pwrOnSpeed"] = rhs.pwrOnSpeed;
@@ -372,8 +398,31 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
-  node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
-  node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
+
+  if (node["auxSerialMode"]) {
+    node["auxSerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX1];
+  }
+
+  if (node["aux2SerialMode"]) {
+    node["aux2SerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX2];
+  }
+
+  if (node["serialPort"]) {
+    Node serialPort = node["serialPort"];
+    if (serialPort.IsMap()) {
+      for (const auto& port : serialPort) {
+        YAML::Node port_nr = port.first >> serialPortLut;
+        if (port_nr) {
+          int p = port_nr.as<int>();
+          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap())
+            port.second["mode"] >> uartModeLut >> rhs.serialPort[p];
+        }
+      }
+    }
+  }
+  
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;

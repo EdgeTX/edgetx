@@ -3141,9 +3141,9 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   if (IS_STM32(board)) {
     if (version >= 218) {
-      internalField.Append(new UnsignedField<4>(this, generalData.auxSerialMode));
+      internalField.Append(new UnsignedField<4>(this, generalData.serialPort[GeneralSettings::SP_AUX1]));
       if (IS_FAMILY_HORUS_OR_T16(board) && version >= 219) {
-        internalField.Append(new UnsignedField<4>(this, generalData.aux2SerialMode));
+        internalField.Append(new UnsignedField<4>(this, generalData.serialPort[GeneralSettings::SP_AUX2]));
       }
       else {
         for (uint8_t i=0; i<SLIDERS_CONFIG_SIZE(board,version); i++) {
@@ -3152,7 +3152,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
       }
     }
     else {
-      internalField.Append(new UnsignedField<6>(this, generalData.auxSerialMode));
+      internalField.Append(new UnsignedField<6>(this, generalData.serialPort[GeneralSettings::SP_AUX1]));
       if (IS_TARANIS_X9E(board)) {
         internalField.Append(new UnsignedField<1>(this, generalData.sliderConfig[2]));
         internalField.Append(new UnsignedField<1>(this, generalData.sliderConfig[3]));

@@ -38,7 +38,7 @@ class AbstractStaticItemModel;
 // identiying names of static abstract item models
 constexpr char AIM_GS_ANTENNAMODE[]        {"gs.antennamode"};
 constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
-constexpr char AIM_GS_AUXSERIALMODE[]      {"gs.auxserialmode"};
+constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
 constexpr char AIM_GS_TELEMETRYBAUDRATE[]  {"gs.telemetrybaudrate"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
@@ -135,12 +135,22 @@ class GeneralSettings {
       AUX_SERIAL_TELE_IN,
       AUX_SERIAL_SBUS_TRAINER,
       AUX_SERIAL_LUA,
+      AUX_SERIAL_CLI,
+      AUX_SERIAL_GPS,
+      AUX_SERIAL_DEBUG,
       AUX_SERIAL_COUNT
     };
 
     enum TelemetryBaudrate {
     };
 
+    enum SerialPort {
+      SP_AUX1,
+      SP_AUX2,
+      SP_VCP,
+      SP_COUNT,
+    };
+  
     GeneralSettings() { clear(); }
     void clear();
     void init();
@@ -228,8 +238,7 @@ class GeneralSettings {
     int backgroundVolume;
     unsigned int mavbaud;
     unsigned int switchUnlockStates;
-    unsigned int auxSerialMode;
-    unsigned int aux2SerialMode;
+    unsigned int serialPort[SP_COUNT];
     int antennaMode;
     unsigned int backlightColor;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
@@ -257,17 +266,17 @@ class GeneralSettings {
     bool isSliderAvailable(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
-    QString auxSerialModeToString() const;
+    QString serialPortModeToString(int port_nr) const;
     QString telemetryBaudrateToString() const;
 
     static QString antennaModeToString(int value);
     static QString bluetoothModeToString(int value);
-    static QString auxSerialModeToString(int value);
+    static QString serialModeToString(int value);
     static QString telemetryBaudrateToString(int value);
     static FieldRange getPPM_MultiplierRange();
     static FieldRange getTxCurrentCalibration();
     static AbstractStaticItemModel * antennaModeItemModel();
     static AbstractStaticItemModel * bluetoothModeItemModel();
-    static AbstractStaticItemModel * auxSerialModeItemModel();
+    static AbstractStaticItemModel * serialModeItemModel(int port_nr);
     static AbstractStaticItemModel * telemetryBaudrateItemModel();
 };
