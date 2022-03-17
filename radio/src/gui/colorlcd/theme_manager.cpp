@@ -368,7 +368,7 @@ void ThemePersistance::scanForThemes()
       if (res != VfsError::OK || name.length() == 0)
         break;  // Break on error or end of dir
 
-      if (name.length() > SD_SCREEN_FILE_LENGTH) continue;
+      if (name.length() > STORAGE_SCREEN_FILE_LENGTH) continue;
       if (fno.getType() == VfsType::DIR) {
         char themePath[FF_MAX_LFN + 1];
         strncpy(themePath, fullPath, FF_MAX_LFN);

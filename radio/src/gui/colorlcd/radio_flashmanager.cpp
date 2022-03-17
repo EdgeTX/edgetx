@@ -66,21 +66,21 @@ class FlashFileNameEditWindow : public Page
     if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
     if (ext) strncpy(extension, ext, extLength);
 
-    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
+    const uint8_t maxNameLength = STORAGE_SCREEN_FILE_LENGTH - extLength;
     nameLength -= extLength;
     if (nameLength > maxNameLength) nameLength = maxNameLength;
-    memset(reusableBuffer.sdManager.originalName, 0, SD_SCREEN_FILE_LENGTH);
+    memset(reusableBuffer.sdManager.originalName, 0, STORAGE_SCREEN_FILE_LENGTH);
 
     strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
     reusableBuffer.sdManager.originalName[nameLength] = '\0';
 
     auto newFileName = new TextEdit(
         window, grid.getSlot(), reusableBuffer.sdManager.originalName,
-        SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
+        STORAGE_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
     newFileName->setChangeHandler([=]() {
       char *newValue = reusableBuffer.sdManager.originalName;
       size_t totalSize = strlen(newValue);
-      char changedName[SD_SCREEN_FILE_LENGTH + 1];
+      char changedName[STORAGE_SCREEN_FILE_LENGTH + 1];
       memset(changedName, 0, sizeof(changedName));
       strncpy(changedName, newValue, totalSize);
       changedName[totalSize] = '\0';
@@ -114,12 +114,12 @@ void RadioFlashManagerPage::rebuild(FormWindow * window)
 // TODO elsewhere
 extern bool compare_nocase(const std::string &first, const std::string &second);
 
-std::string _getFullPath(const std::string &filename)
+static std::string _getFullPath(const std::string &filename)
 {
   return VirtualFS::instance().getCurWorkDir() + "/" + filename;
 }
 
-std::string _getCurrentPath()
+static std::string _getCurrentPath()
 {
   return VirtualFS::instance().getCurWorkDir();
 }
@@ -210,7 +210,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       std::string name = fno.getName();
       if(name.length() == 0)
         break; // Break on error or end of dir
-      if (name.length() > SD_SCREEN_FILE_LENGTH)
+      if (name.length() > STORAGE_SCREEN_FILE_LENGTH)
         continue;
       if (name[0] == '.' && name[1] != '.')
         continue; // Ignore hidden files under UNIX, but not ..
@@ -401,31 +401,31 @@ void RadioFlashManagerPage::build(FormWindow * window)
           }
           if (!READ_ONLY()) {
             menu->addLine(STR_COPY_FILE, [=]() {
-              clipboard.type = CLIPBOARD_TYPE_FLASH_FILE;
+              clipboard.type = CLIPBOARD_TYPE_STORAGE_FILE;
               std::string workDir = vfs->getCurWorkDir();
-              strncpy(clipboard.data.sd.directory, workDir.c_str(), CLIPBOARD_PATH_LEN);
-              strncpy(clipboard.data.sd.filename, name.c_str(),
+              strncpy(clipboard.data.storage.directory, workDir.c_str(), CLIPBOARD_PATH_LEN);
+              strncpy(clipboard.data.storage.filename, name.c_str(),
                       CLIPBOARD_PATH_LEN - 1);
             });
-            if (clipboard.type == CLIPBOARD_TYPE_FLASH_FILE) {
+            if (clipboard.type == CLIPBOARD_TYPE_STORAGE_FILE) {
               menu->addLine(STR_PASTE, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 std::string curWorkDir = vfs->getCurWorkDir();
                 //((TCHAR *)lfn, FF_MAX_LFN);
                 // prevent copying to the same directory with the same name
-                char *destNamePtr = clipboard.data.sd.filename;
-                if (curWorkDir == clipboard.data.sd.directory) {
+                char *destNamePtr = clipboard.data.storage.filename;
+                if (curWorkDir == clipboard.data.storage.directory) {
                   char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
                   destNamePtr = strAppend(destFileName, FILE_COPY_PREFIX,
                                        CLIPBOARD_PATH_LEN);
-                  destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                  destNamePtr = strAppend(destNamePtr, clipboard.data.storage.filename,
                                        CLIPBOARD_PATH_LEN);
                   destNamePtr = destFileName;
                 }
 //                sdCopyFile(clipboard.data.sd.filename,
 //                           clipboard.data.sd.directory, destNamePtr, lfn);
-                vfs->copyFile(clipboard.data.sd.filename,
-                           clipboard.data.sd.directory, destNamePtr, lfn);
+                vfs->copyFile(clipboard.data.storage.filename,
+                           clipboard.data.storage.directory, destNamePtr, lfn);
                 clipboard.type = CLIPBOARD_TYPE_NONE;
 
                 rebuild(window);
@@ -537,8 +537,8 @@ void onSdManagerMenu(const char * result)
       strcat(lfn, PSTR("/"));
       strcat(lfn, line);
     }
-    if (strcmp(clipboard.data.sd.directory, lfn)) {  // prevent copying to the same directory
-      POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory, clipboard.data.sd.filename, lfn));
+    if (strcmp(clipboard.data.storage.directory, lfn)) {  // prevent copying to the same directory
+      POPUP_WARNING(sdCopyFile(clipboard.data.storage.filename, clipboard.data.storage.directory, clipboard.data.storage.filename, lfn));
       REFRESH_FILES();
     }
   }
@@ -547,8 +547,8 @@ void onSdManagerMenu(const char * result)
     uint8_t fnlen = 0, extlen = 0;
     getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
-    memset(line + fnlen - extlen, ' ', SD_SCREEN_FILE_LENGTH - fnlen + extlen);
-    line[SD_SCREEN_FILE_LENGTH-extlen] = '\0';
+    memset(line + fnlen - extlen, ' ', STORAGE_SCREEN_FILE_LENGTH - fnlen + extlen);
+    line[STORAGE_SCREEN_FILE_LENGTH-extlen] = '\0';
     s_editMode = EDIT_MODIFY_STRING;
     editNameCursorPos = 0;
   }
