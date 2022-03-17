@@ -27,7 +27,7 @@
 #include "io/bootloader_flash.h"
 #include "libopenui/src/libopenui_file.h"
 
-#define NODE_TYPE(fname)       fname[SD_SCREEN_FILE_LENGTH+1]
+#define NODE_TYPE(fname)       fname[STORAGE_SCREEN_FILE_LENGTH+1]
 #define IS_DIRECTORY(fname)    ((bool)(!NODE_TYPE(fname)))
 #define IS_FILE(fname)         ((bool)(NODE_TYPE(fname)))
 
@@ -181,8 +181,8 @@ void onSdManagerMenu(const char * result)
     uint8_t fnlen = 0, extlen = 0;
     getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
-    memset(line + fnlen - extlen, ' ', SD_SCREEN_FILE_LENGTH - fnlen + extlen);
-    line[SD_SCREEN_FILE_LENGTH-extlen] = '\0';
+    memset(line + fnlen - extlen, ' ', STORAGE_SCREEN_FILE_LENGTH - fnlen + extlen);
+    line[STORAGE_SCREEN_FILE_LENGTH-extlen] = '\0';
     s_editMode = EDIT_MODIFY_STRING;
     editNameCursorPos = 0;
   }
@@ -503,7 +503,7 @@ void menuRadioSdManager(event_t _event)
 
       if (menuVerticalOffset == reusableBuffer.sdManager.offset + 1) {
         memmove(reusableBuffer.sdManager.lines[0], reusableBuffer.sdManager.lines[1], (NUM_BODY_LINES-1)*sizeof(reusableBuffer.sdManager.lines[0]));
-        memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0xff, SD_SCREEN_FILE_LENGTH);
+        memset(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1], 0xff, STORAGE_SCREEN_FILE_LENGTH);
         NODE_TYPE(reusableBuffer.sdManager.lines[NUM_BODY_LINES-1]) = 1;
       }
       else if (menuVerticalOffset == reusableBuffer.sdManager.offset - 1) {
@@ -524,7 +524,7 @@ void menuRadioSdManager(event_t _event)
           res = dir.read(fno);
           std::string name = fno.getName();
           if (res != VfsError::OK || name.length() == 0) break;              /* Break on error or end of dir */
-          if (name.length() > SD_SCREEN_FILE_LENGTH) continue;
+          if (name.length() > STORAGE_SCREEN_FILE_LENGTH) continue;
 //          if (fno.fattrib & AM_HID) continue;                        /* Ignore Windows hidden files */
           if (name[0] == '.' && name[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
 
@@ -591,10 +591,10 @@ void menuRadioSdManager(event_t _event)
           const char * ext = getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
 
           editName(lcdNextPos, y, reusableBuffer.sdManager.lines[i],
-                   SD_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
+                   STORAGE_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
 
           efflen = effectiveLen(reusableBuffer.sdManager.lines[i],
-                                SD_SCREEN_FILE_LENGTH - extlen);
+                                STORAGE_SCREEN_FILE_LENGTH - extlen);
 
           if (s_editMode == 0) {
             if (ext) {

@@ -921,9 +921,9 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 // Re-useable byte array to save having multiple buffers
 #if LCD_W <= 212
-constexpr uint8_t SD_SCREEN_FILE_LENGTH = 32;
+constexpr uint8_t STORAGE_SCREEN_FILE_LENGTH = 32;
 #else
-constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
+constexpr uint8_t STORAGE_SCREEN_FILE_LENGTH = 64;
 #endif
 
 #if defined(BLUETOOTH)
@@ -983,11 +983,11 @@ union ReusableBuffer
 
 #if defined(SDCARD)
   struct {
-    char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
+    char lines[NUM_BODY_LINES][STORAGE_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
     uint32_t available;
     uint16_t offset;
     uint16_t count;
-    char originalName[SD_SCREEN_FILE_LENGTH+1];
+    char originalName[STORAGE_SCREEN_FILE_LENGTH+1];
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
   } sdManager;
@@ -1166,8 +1166,7 @@ enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
   CLIPBOARD_TYPE_CUSTOM_SWITCH,
   CLIPBOARD_TYPE_CUSTOM_FUNCTION,
-  CLIPBOARD_TYPE_SD_FILE,
-  CLIPBOARD_TYPE_FLASH_FILE,
+  CLIPBOARD_TYPE_STORAGE_FILE,
 };
 
 #if defined(SIMU)
@@ -1184,7 +1183,7 @@ struct Clipboard {
     struct {
       char directory[CLIPBOARD_PATH_LEN];
       char filename[CLIPBOARD_PATH_LEN];
-    } sd;
+    } storage;
   } data;
 };
 
