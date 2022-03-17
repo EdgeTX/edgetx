@@ -995,9 +995,9 @@ void menuModelSetup(event_t event)
                 if (isModuleXJT(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
                   if (checkIncDec_Ret) {
-                    g_model.moduleData[0].type = MODULE_TYPE_XJT_PXX1;
-                    g_model.moduleData[0].channelsStart = 0;
-                    g_model.moduleData[0].channelsCount = defaultModuleChannels_M8(moduleIdx);
+                    g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
+                    g_model.moduleData[moduleIdx].channelsStart = 0;
+                    g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
                   }
                 }
                 else if (isModuleISRM(moduleIdx)) {
