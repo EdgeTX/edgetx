@@ -3070,7 +3070,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   }
 
   internalField.Append(new UnsignedField<8>(this, generalData.inactivityTimer));
-  internalField.Append(new UnsignedField<3>(this, generalData.telemetryBaudrate));
+  internalField.Append(new UnsignedField<3>(this, generalData.internalModuleBaudrate));
   if (IS_FAMILY_HORUS_OR_T16(board))
     internalField.Append(new SpareBitsField<3>(this));
   else if (IS_TARANIS(board))
@@ -3369,8 +3369,11 @@ void OpenTxGeneralData::beforeExport()
 
   chkSum = sum;
 
-  if (Boards::getCapability((Board::Type)generalData.variant, Board::SportMaxBaudRate) >= 400000)
-    generalData.telemetryBaudrate = (generalData.telemetryBaudrate + telemetryBaudratesList.size() - 1) % telemetryBaudratesList.size();
+  if (Boards::getCapability((Board::Type)generalData.variant,
+                            Board::SportMaxBaudRate) >= 400000)
+    generalData.internalModuleBaudrate =
+        (generalData.internalModuleBaudrate + moduleBaudratesList.size() - 1) %
+        moduleBaudratesList.size();
 }
 
 void OpenTxGeneralData::afterImport()
@@ -3382,7 +3385,8 @@ void OpenTxGeneralData::afterImport()
     }
   }
 
-  if (Boards::getCapability((Board::Type)generalData.variant, Board::SportMaxBaudRate) >= 400000)
-    generalData.telemetryBaudrate = (generalData.telemetryBaudrate + 1) % telemetryBaudratesList.size();
+  if (Boards::getCapability((Board::Type)generalData.variant,
+                            Board::SportMaxBaudRate) >= 400000)
+    generalData.internalModuleBaudrate =
+        (generalData.internalModuleBaudrate + 1) % moduleBaudratesList.size();
 }
-

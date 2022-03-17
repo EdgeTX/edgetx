@@ -229,7 +229,12 @@ class ModuleData {
 
     struct GHOST {
       bool raw12bits;
+      unsigned int telemetryBaudrate;
     } ghost;
+
+    struct CRSF {
+      unsigned int telemetryBaudrate;
+    } crsf;
 
     struct Access {
       unsigned int receivers;

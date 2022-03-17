@@ -111,31 +111,28 @@ const YamlLookupTable internalModuleLut = {
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
 };
 
-struct YamlTelemetryBaudrate {
-  unsigned int value;
-
-  YamlTelemetryBaudrate() = default;
-
-  YamlTelemetryBaudrate(const unsigned int * telemetryBaudrate)
-  {
-    if (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::SportMaxBaudRate) < 400000) {
-      value = *telemetryBaudrate;
-    }
-    else {
-      value = (*telemetryBaudrate + telemetryBaudratesList.size() - 1) % telemetryBaudratesList.size();
-    }
+YamlTelemetryBaudrate::YamlTelemetryBaudrate(
+    const unsigned int* moduleBaudrate)
+{
+  if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                            Board::SportMaxBaudRate) < 400000) {
+    value = *moduleBaudrate;
+  } else {
+    value = (*moduleBaudrate + moduleBaudratesList.size() - 1) %
+             moduleBaudratesList.size();
   }
+}
 
-  void toCpn(unsigned int * telemetryBaudrate, unsigned int variant)
-  {
-    if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) < 400000) {
-      *telemetryBaudrate = value;
-    }
-    else {
-      *telemetryBaudrate = (value + 1) % telemetryBaudratesList.size();
-    }
+void YamlTelemetryBaudrate::toCpn(unsigned int* moduleBaudrate,
+                                  unsigned int variant)
+{
+  if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) <
+      400000) {
+    *moduleBaudrate = value;
+  } else {
+    *moduleBaudrate = (value + 1) % moduleBaudratesList.size();
   }
-};
+}
 
 namespace YAML
 {
@@ -179,8 +176,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
 
-  YamlTelemetryBaudrate telemetryBaudrate(&rhs.telemetryBaudrate);
-  node["telemetryBaudrate"] = telemetryBaudrate.value;
+  YamlTelemetryBaudrate internalModuleBaudrate(&rhs.internalModuleBaudrate);
+  node["internalModuleBaudrate"] = internalModuleBaudrate.value;
 
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
@@ -358,9 +355,13 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
 
-  YamlTelemetryBaudrate telemetryBaudrate;
-  node["telemetryBaudrate"] >> telemetryBaudrate.value;
-  telemetryBaudrate.toCpn(&rhs.telemetryBaudrate, rhs.variant);
+  YamlTelemetryBaudrate internalModuleBaudrate;
+  if (node["telemetryBaudrate"]) {
+    node["telemetryBaudrate"] >> internalModuleBaudrate.value;
+  } else {
+    node["internalModuleBaudrate"] >> internalModuleBaudrate.value;
+  }
+  internalModuleBaudrate.toCpn(&rhs.internalModuleBaudrate, rhs.variant);
 
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;

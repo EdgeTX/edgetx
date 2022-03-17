@@ -19,6 +19,7 @@
  */
 
 #include "yaml_moduledata.h"
+#include "yaml_generalsettings.h"
 #include "moduledata.h"
 #include "rawsource.h"
 
@@ -296,7 +297,15 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_GHOST: {
         Node ghost;
         ghost["raw12bits"] = (int)rhs.ghost.raw12bits;
+        YamlTelemetryBaudrate br(&rhs.ghost.telemetryBaudrate);
+        ghost["telemetryBaudrate"] = br.value;
         mod["ghost"] = ghost;
+    } break;
+    case PULSES_CROSSFIRE: {
+        Node crsf;
+        YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
+        crsf["telemetryBaudrate"] = br.value;
+        mod["crsf"] = crsf;
     } break;
     // TODO: afhds3, flysky
     default: {
