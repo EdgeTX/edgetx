@@ -203,6 +203,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_RF_POWER       (1<<15)
 #define MASK_RF_RACING_MODE (1<<16)
 #define MASK_GHOST          (1<<17)
+#define MASK_BAUDRATE       (1<<18)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -444,12 +445,14 @@ void ModulePanel::update()
         max_rx_num = 20;
         break;
       case PULSES_CROSSFIRE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER;
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         break;
       case PULSES_GHOST:
-        mask |= MASK_CHANNELS_RANGE | MASK_GHOST;
+        mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setField(module.ghost.telemetryBaudrate);
         break;
       case PULSES_PPM:
         mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT;
@@ -497,6 +500,16 @@ void ModulePanel::update()
 
   ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
   ui->protocol->setVisible(mask & MASK_PROTOCOL);
+
+  ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
+  ui->telemetryBaudrate->clear();
+  if (mask & MASK_BAUDRATE) {
+    // TODO: limit the number of items based on proto (CRSF/GHOST)
+    for (int i = 0; i<moduleBaudratesList.size(); i++) {
+      ui->telemetryBaudrate->addItem(moduleBaudratesList.at(i), i);
+    }
+  }
+
   ui->label_rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setMaximum(max_rx_num);
