@@ -260,8 +260,11 @@ void memswap(void * a, void * b, uint8_t size)
 #if defined(PXX2)
 void setDefaultOwnerId()
 {
+  uint8_t ch;
   for (uint8_t i = 0; i < PXX2_LEN_REGISTRATION_ID; i++) {
-     g_eeGeneral.ownerRegistrationID[i] = (((uint8_t *)cpu_uid)[4 + i] & 0x3fu);
+    ch = ((uint8_t *)cpu_uid)[4+i]&0x7f;
+    if(ch<0x20 || ch==0x7f) ch='-';
+    g_eeGeneral.ownerRegistrationID[PXX2_LEN_REGISTRATION_ID-1-i] = ch;
   }
 }
 #endif
@@ -1135,12 +1138,12 @@ void getADC()
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
     uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
+    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
        // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
     } else {
       // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
     }
 
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
@@ -1814,7 +1817,7 @@ void opentxInit()
       runFatalErrorScreen(STR_NO_SDCARD);
     }
 #endif
-    
+
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -2043,6 +2046,10 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
+    if (g_eeGeneral.backlightMode == e_backlight_mode_keys ||
+        g_eeGeneral.backlightMode == e_backlight_mode_all)
+      resetBacklightTimeout();
+
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }

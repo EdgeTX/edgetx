@@ -679,12 +679,10 @@ PACK(struct ModelData {
 
   NOBACKUP(RssiAlarmData rssiAlarms);
 
-  uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
-
   NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
-  uint8_t spare2:6 SKIP;
+  uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
@@ -891,15 +889,19 @@ PACK(struct RadioData {
   NOBACKUP(uint32_t globalTimer);
   NOBACKUP(uint8_t  bluetoothBaudrate:4);
   NOBACKUP(uint8_t  bluetoothMode:4 ENUM(BluetoothModes));
+
   NOBACKUP(uint8_t  countryCode:2);
   NOBACKUP(int8_t   pwrOnSpeed:3);
   NOBACKUP(int8_t   pwrOffSpeed:3);
-  NOBACKUP(uint8_t  imperial:1);
+
+  CUST_ATTR(jitterFilter, r_jitterFilter, nullptr);
   NOBACKUP(uint8_t  noJitterFilter:1); /* 0 - Jitter filter active */
+  NOBACKUP(uint8_t  imperial:1);
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
   NOBACKUP(uint8_t  jackMode:2);
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
+
   NOBACKUP(char     ttsLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));

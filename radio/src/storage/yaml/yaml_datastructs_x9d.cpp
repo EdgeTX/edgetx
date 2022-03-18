@@ -244,9 +244,9 @@ const struct YamlIdStr enum_PotsWarnMode[] = {
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_VALUE_GLOBAL, "GLOBAL"  },
-  {  OVERRIDE_VALUE_OFF, "OFF"  },
-  {  OVERRIDE_VALUE_ON, "ON"  },
+  {  OVERRIDE_GLOBAL, "GLOBAL"  },
+  {  OVERRIDE_OFF, "OFF"  },
+  {  OVERRIDE_ON, "ON"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_FailsafeModes[] = {
@@ -390,8 +390,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "countryCode", 2 ),
   YAML_SIGNED( "pwrOnSpeed", 3 ),
   YAML_SIGNED( "pwrOffSpeed", 3 ),
-  YAML_UNSIGNED( "imperial", 1 ),
+  YAML_CUSTOM("jitterFilter",r_jitterFilter,nullptr),
   YAML_UNSIGNED( "noJitterFilter", 1 ),
+  YAML_UNSIGNED( "imperial", 1 ),
   YAML_UNSIGNED( "disableRssiPoweroffAlarm", 1 ),
   YAML_UNSIGNED( "USBMode", 2 ),
   YAML_UNSIGNED( "jackMode", 2 ),
@@ -846,11 +847,10 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED_CUST( "voltsSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_UNSIGNED_CUST( "altitudeSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 16, struct_RssiAlarmData, NULL),
-  YAML_PADDING( 3 ),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
   YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode),
   YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable),
-  YAML_PADDING( 6 ),
+  YAML_PADDING( 1 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
