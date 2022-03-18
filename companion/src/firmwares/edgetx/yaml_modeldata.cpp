@@ -965,8 +965,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
     for (int i = 0; i < CPN_MAX_FUNCTION_SWITCHES; i++) {
       if (strlen(rhs.functionSwitchNames[i]) > 0) {
-        node["functionSwitchNames"][std::to_string(i)] =
-            rhs.functionSwitchNames[i];
+        node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
       }
     }
   }
@@ -1137,8 +1136,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
-  node["functionSwitchNames"] >> rhs.functionSwitchNames;
-
+  node["switchNames"] >> rhs.functionSwitchNames;
   return true;
 }
 

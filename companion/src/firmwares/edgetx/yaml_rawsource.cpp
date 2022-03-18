@@ -24,6 +24,7 @@
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
+  char c = 'A';
   switch (rhs.type) {
     case SOURCE_TYPE_VIRTUAL_INPUT:
       src_str += "I" + std::to_string(rhs.index);
@@ -53,9 +54,12 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_FUNCTIONSWITCH:
-      src_str += "fs(";
-      src_str += std::to_string(rhs.index + 1);
-      src_str += ")";
+      if (IS_JUMPER_TPRO(getCurrentBoard())) {
+        c += Boards::getCapability(getCurrentBoard(), Board::Switches);
+        c += rhs.index;
+        src_str += "S";
+        src_str += c;
+      }
       break;
     case SOURCE_TYPE_CYC:
       src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
@@ -119,8 +123,18 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[1] <= 'Z') {
 
     int idx = getCurrentFirmware()->getSwitchesIndex(src_str.c_str());
-    if (idx >= 0 && idx < CPN_MAX_SWITCHES)
+    if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
+
+    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
+      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
+      idx = val[1] - 'A';
+      idx -= numSw;
+
+      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+        rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
+      }
+    }
 
   } else if (val_len > 4 &&
              val[0] == 'l' &&
