@@ -5,7 +5,7 @@ set(FPU_FLAGS "")
 # STM32 HAL/LL library
 set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver)
 
-add_library(stm32cube_ll OBJECT
+add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_gpio.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_tim.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_dma.c

@@ -5,7 +5,7 @@ set(FPU_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
 # STM32 HAL/LL library
 set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F4xx_HAL_Driver)
 
-add_library(stm32cube_ll OBJECT
+add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
   ${STM32CUBE_DIR}/Src/stm32f4xx_ll_gpio.c
   ${STM32CUBE_DIR}/Src/stm32f4xx_ll_tim.c
   ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
