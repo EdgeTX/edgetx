@@ -25,8 +25,11 @@
 #include <string>
 
 #if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
 #include "littlefs_v2.4.1/lfs.h"
+#else
 #include "tjftl/tjftl.h"
+#endif
 #endif
 #if defined (SDCARD)
 #include "sdcard.h"
@@ -330,6 +333,7 @@ private:
 
   void clear()
   {
+#if defined(USE_LITLEFS)
     type = DIR_UNKNOWN;
     lfs.dir = {0};
     lfs.handle = nullptr;
@@ -338,13 +342,15 @@ private:
     readIdx = 0;
     firstTime = true;
   }
-
+#endif
   DirType type = DIR_UNKNOWN;
   union {
+#if defined(USE_LITLEFS)
     struct {
       lfs_dir_t dir;
       lfs* handle;
     } lfs;
+#endif
     struct {
       DIR dir;
     } fat;
@@ -381,17 +387,21 @@ private:
 
   void clear() {
     type = VfsFileType::UNKNOWN;
+#if defined(USE_LITLEFS)
     lfs.file = {0};
     lfs.handle = nullptr;
+#endif
     fat.file = {0};
   }
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
+#if defined(USE_LITLEFS)
     struct {
       lfs_file file = {0};
       lfs* handle = nullptr;
     } lfs;
+#endif
     struct {
       FIL file = {0};
     } fat;
@@ -509,10 +519,12 @@ public:
 private:
   static VirtualFS* _instance;
 
-  tjftl_t* tjftl;
-
+#if defined(USE_LITLEFS)
   lfs_config lfsCfg = {0};
   lfs_t lfs = {0};
+#elif defined(SPI_FLASH)
+  tjftl_t* tjftl;
+#endif
   std::string curWorkDir = "/";
 
   void normalizePath(std::string &path);

@@ -24,14 +24,24 @@ set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
 add_definitions(-DLFS_NO_ASSERT)
+
 if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
     flash_spi_driver.cpp
-    ../../thirdparty/littlefs_v2.4.1/lfs_util.c
-    ../../thirdparty/littlefs_v2.4.1/lfs.c
-    ../../thirdparty/tjftl/tjftl.c
   )
   add_definitions(-DSPI_FLASH)
+
+  if(LITTLEFS(
+    set(TARGET_SRC ${TARGET_SRC}
+      ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+      ../../thirdparty/littlefs_v2.4.1/lfs.c
+    )
+    add_definitions(-DUSE_LITTLEFS)
+  else()
+    set(TARGET_SRC ${TARGET_SRC}
+        ../../thirdparty/tjftl/tjftl.c
+    )
+  endif()
 endif()
 
 if(BOOTLOADER)
