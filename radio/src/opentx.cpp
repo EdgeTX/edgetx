@@ -260,8 +260,11 @@ void memswap(void * a, void * b, uint8_t size)
 #if defined(PXX2)
 void setDefaultOwnerId()
 {
+  uint8_t ch;
   for (uint8_t i = 0; i < PXX2_LEN_REGISTRATION_ID; i++) {
-     g_eeGeneral.ownerRegistrationID[i] = (((uint8_t *)cpu_uid)[4 + i] & 0x3fu);
+    ch = ((uint8_t *)cpu_uid)[4+i]&0x7f;
+    if(ch<0x20 || ch==0x7f) ch='-';
+    g_eeGeneral.ownerRegistrationID[PXX2_LEN_REGISTRATION_ID-1-i] = ch;
   }
 }
 #endif
