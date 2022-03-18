@@ -447,11 +447,13 @@ void ModulePanel::update()
       case PULSES_CROSSFIRE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         break;
       case PULSES_GHOST:
         mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
         ui->telemetryBaudrate->setField(module.ghost.telemetryBaudrate);
         break;
       case PULSES_PPM:
@@ -500,16 +502,7 @@ void ModulePanel::update()
 
   ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
   ui->protocol->setVisible(mask & MASK_PROTOCOL);
-
   ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
-  ui->telemetryBaudrate->clear();
-  if (mask & MASK_BAUDRATE) {
-    // TODO: limit the number of items based on proto (CRSF/GHOST)
-    for (int i = 0; i<moduleBaudratesList.size(); i++) {
-      ui->telemetryBaudrate->addItem(moduleBaudratesList.at(i), i);
-    }
-  }
-
   ui->label_rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setMaximum(max_rx_num);
@@ -703,6 +696,17 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
+    if (module.protocol == PULSES_GHOST ||
+        module.protocol == PULSES_CROSSFIRE) {
+      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                                Board::SportMaxBaudRate) < 400000) {
+        // default to 115k
+        ui->telemetryBaudrate->setCurrentIndex(0);
+      } else {
+        // default to 400k
+        ui->telemetryBaudrate->setCurrentIndex(1);
+      }
+    }
     emit updateItemModels();
     emit modified();
   }

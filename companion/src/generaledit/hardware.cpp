@@ -281,7 +281,16 @@ void HardwarePanel::on_internalModuleChanged()
   else {
     m_internalModule = generalSettings.internalModule;
     if (m_internalModule == MODULE_TYPE_GHOST || m_internalModule == MODULE_TYPE_CROSSFIRE) {
-      // TODO: set proper default baudrate
+
+      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                                Board::SportMaxBaudRate) < 400000) {
+        // default to 115k
+        internalModuleBaudRate->setCurrentIndex(0);
+      } else {
+        // default to 400k
+        internalModuleBaudRate->setCurrentIndex(1);
+      }
+
       internalModuleBaudRate->setVisible(true);
     } else {
       generalSettings.internalModuleBaudrate = 0;
