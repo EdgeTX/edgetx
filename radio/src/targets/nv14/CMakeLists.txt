@@ -29,7 +29,7 @@ if(SPI_FLASH)
   )
   add_definitions(-DSPI_FLASH)
 
-  if(LITTLEFS(
+  if(LITTLEFS)
     set(TARGET_SRC ${TARGET_SRC}
       ../../thirdparty/littlefs_v2.4.1/lfs_util.c
       ../../thirdparty/littlefs_v2.4.1/lfs.c
