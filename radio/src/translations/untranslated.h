@@ -364,3 +364,99 @@
 #define LEN_FSGROUPS                    "\001"
 #define TR_FSGROUPS                     "-""1""2""3"
 
+//
+// HoTT Telemetry sensor names by Hott device
+//
+// naming convention: Name of device in capital letters (1 or 2) followed by sensor name in lower case letters
+//
+// example: GPal = GPS altitude, GAal = GAM altitude, Valt = Vario altitude, GAt2 = GAM temperature sensor 2
+//
+// T  = transmitter
+// R  = receiver
+// V  = Vario
+// G  = GPS
+// ES = ESC
+// EA = EAM
+//
+// ssi = signal strength indicator
+// qly = quality
+// bt  = battery
+// evt = HoTT warnings
+// btm = battery lowest voltage
+// vpk = VPack
+// al or alt = altitude
+// vv  = vertical velocity (climb rate)
+// hd  = heading
+// sp  = speed
+// PS  = GPS coordinates
+// di  = direction
+// ns  = number of satellites
+// cp  = capacity
+// u   = voltage (may be followed by numner if device offers more voltage sensors
+// i   = current (may be followed by numner if device offers more current sensors
+// tmp or t = temperature (single t may be followed by numner if device offers more temperature sensors
+// rp or r  = temperature (single r may be followed by numner if device offers more temperature sensors
+// fl = fuel
+//  
+// TX
+#define STR_HOTT_ID_TX_RSSI_DL     "Tssi"
+#define STR_HOTT_ID_TX_LQI_DL      "Tqly"
+// RX
+#define STR_HOTT_ID_RX_RSSI_UL     "Rssi"
+#define STR_HOTT_ID_RX_LQI_UL      "Rqly"
+#define STR_HOTT_ID_RX_VLT         "Rbt"
+#define STR_HOTT_ID_RX_TMP         "Rtmp" 
+#define STR_HOTT_ID_RX_BAT_MIN     "Rbtm"
+#define STR_HOTT_ID_RX_VPCK        "Rvpk"
+#define STR_HOTT_ID_RX_EVENT       "Revt"
+// Vario
+#define STR_HOTT_ID_VARIO_ALT      "Valt"
+#define STR_HOTT_ID_VARIO_VV       "Vvv"
+#define STR_HOTT_ID_VARIO_HDG      "Vhdg"
+// GPS
+#define STR_HOTT_ID_GPS_HDG        "GPhd"
+#define STR_HOTT_ID_GPS_SPEED      "GPsp"
+#define STR_HOTT_ID_GPS_LL         "GPS"
+#define STR_HOTT_ID_GPS_DST        "GPdi"
+#define STR_HOTT_ID_GPS_ALT        "GPal" 
+#define STR_HOTT_ID_GPS_VV         "GPvv"
+#define STR_HOTT_ID_GPS_NSATS      "GPns"
+// ESC
+#define STR_HOTT_ID_ESC_VLT        "ESu1"
+#define STR_HOTT_ID_ESC_CAP        "EScp"
+#define STR_HOTT_ID_ESC_TMP        "ESt1" 
+#define STR_HOTT_ID_ESC_CUR        "ESi1"
+#define STR_HOTT_ID_ESC_RPM        "ESrp"
+#define STR_HOTT_ID_ESC_BEC_VLT    "ESu2"
+#define STR_HOTT_ID_ESC_BEC_CUR    "ESi2" 
+#define STR_HOTT_ID_ESC_BEC_TMP    "ESt2"
+#define STR_HOTT_ID_ESC_MOT_TMP    "ESt3"
+// GAM
+#define STR_HOTT_ID_GAM_CELS       "GAcl"
+#define STR_HOTT_ID_GAM_VLT1       "GAu1"
+#define STR_HOTT_ID_GAM_VLT2       "GAu2"
+#define STR_HOTT_ID_GAM_TMP1       "GAt1"
+#define STR_HOTT_ID_GAM_TMP2       "GAt2"
+#define STR_HOTT_ID_GAM_FUEL       "GAfl"
+#define STR_HOTT_ID_GAM_RPM1       "GAr1"
+#define STR_HOTT_ID_GAM_ALT        "GAal"
+#define STR_HOTT_ID_GAM_VV         "GAvv"
+#define STR_HOTT_ID_GAM_CUR        "GAi"
+#define STR_HOTT_ID_GAM_VLT3       "GAu3"
+#define STR_HOTT_ID_GAM_CAP        "GAcp"
+#define STR_HOTT_ID_GAM_SPEED      "GAsp"
+#define STR_HOTT_ID_GAM_RPM2       "GAr2"
+// EAM
+#define STR_HOTT_ID_EAM_CELS_L     "EAc1"
+#define STR_HOTT_ID_EAM_CELS_H     "EAc2"
+#define STR_HOTT_ID_EAM_VLT1       "EAu1"
+#define STR_HOTT_ID_EAM_VLT2       "EAu2"
+#define STR_HOTT_ID_EAM_TMP1       "EAt1"
+#define STR_HOTT_ID_EAM_TMP2       "EAt2"
+#define STR_HOTT_ID_EAM_ALT        "EAal"
+#define STR_HOTT_ID_EAM_CUR        "EAi"
+#define STR_HOTT_ID_EAM_VLT3       "EAu3"
+#define STR_HOTT_ID_EAM_CAP        "EAcp"
+#define STR_HOTT_ID_EAM_VV         "EAvv"
+#define STR_HOTT_ID_EAM_RPM        "EArp"
+#define STR_HOTT_ID_EAM_SPEED      "EAsp"
