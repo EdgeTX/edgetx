@@ -171,7 +171,7 @@ void menuTextView(event_t event)
 #else
   // TODO?
 #endif
-  lcdDrawText(LCD_W/2, 0, getBasename(title), CENTERED);
+  lcdDrawText(LCD_W/2, 0, VirtualFS::getBasename(title), CENTERED);
   lcdInvertLine(0);
 
   if (reusableBuffer.viewText.linesCount > LCD_LINES-1) {

@@ -45,7 +45,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 {
     VfsFile  file;
     size_t bytes_read;
-    UINT total_bytes = 0;
+    uint32_t total_bytes = 0;
 
     VirtualFS& vfs = VirtualFS::instance();
     VfsError result = vfs.openFile(file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
@@ -483,7 +483,7 @@ bool copyModel(uint8_t dst, uint8_t src)
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
-  return sdCopyFile(fname_src, fname_dst);
+  return VirtualFS::instance().copyFile(fname_src, fname_dst);
 }
 
 static void swapModelHeaders(uint8_t id1, uint8_t id2)
@@ -559,7 +559,7 @@ const char * backupModel(uint8_t idx)
   char * buf = reusableBuffer.modelsel.mainname;
 
   // check and create folder here
-  const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
+  const char * error = VirtualFS::instance().checkAndCreateDirectory(STR_BACKUP_PATH);
   if (error) {
     return error;
   }
@@ -602,7 +602,7 @@ const char * backupModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
 
-  return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+  return VirtualFS::instance().copyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
 }
 
 const char * restoreModel(uint8_t idx, char *model_name)
@@ -615,7 +615,7 @@ const char * restoreModel(uint8_t idx, char *model_name)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
 
-  const char* error = sdCopyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  const char* error = VirtualFS::instance().copyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
   if (!error) {
     loadModelHeader(idx, &modelHeaders[idx]);
   }

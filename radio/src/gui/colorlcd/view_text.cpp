@@ -197,7 +197,7 @@ bool openNotes(const char buf[], std::string modelNotesName)
 {
   std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
 
-  if (isFileAvailable(fullPath.c_str())) {
+  if (isFileAvailable(modelNotesName.c_str())) {
     new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
     return true;
   } else {

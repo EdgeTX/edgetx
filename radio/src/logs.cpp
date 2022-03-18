@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include "VirtualFS.h"
 
+#include "logs.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif

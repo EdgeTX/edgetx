@@ -64,8 +64,9 @@ void storageEraseAll(bool warn)
 
 void storageFormat()
 {
-  sdCheckAndCreateDirectory(RADIO_PATH);
-  sdCheckAndCreateDirectory(MODELS_PATH);
+  VirtualFS& vfs = VirtualFS::instance();
+  vfs.checkAndCreateDirectory(RADIO_PATH);
+  vfs.checkAndCreateDirectory(MODELS_PATH);
   generalDefault();
   setModelDefaults();
 }

@@ -450,7 +450,6 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
   fullPath[FF_MAX_LFN] = '\0';
   strncat(fullPath, "/", FF_MAX_LFN);
   strncat(fullPath, name.c_str(), FF_MAX_LFN);
-#warning mkdir
   VfsError result = VirtualFS::instance().makeDirectory(fullPath);
   if (result != VfsError::OK) return false;
   strncat(fullPath, "/", FF_MAX_LFN);

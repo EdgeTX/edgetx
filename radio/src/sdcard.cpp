@@ -30,6 +30,16 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
+#if !defined(BOOT)
+inline const char * SDCARD_ERROR(FRESULT result)
+{
+  if (result == FR_NOT_READY)
+    return STR_NO_SDCARD;
+  else
+    return STR_SDCARD_ERROR;
+}
+#endif
+
 bool sdCardFormat()
 {
   BYTE work[FF_MAX_SS];
@@ -61,25 +71,7 @@ bool sdCardFormat()
   }
 }
 
-const char * sdCheckAndCreateDirectory(const char * path)
-{
-  DIR archiveFolder;
-
-  FRESULT result = f_opendir(&archiveFolder, path);
-  if (result != FR_OK) {
-    if (result == FR_NO_PATH)
-      result = f_mkdir(path);
-    if (result != FR_OK)
-      return SDCARD_ERROR(result);
-  }
-  else {
-    f_closedir(&archiveFolder);
-  }
-
-  return nullptr;
-}
-
-bool isFileAvailable(const char * path, bool exclDir)
+static bool isFileAvailable(const char * path, bool exclDir)
 {
   if (exclDir) {
     FILINFO fno;
@@ -200,16 +192,6 @@ unsigned int findNextFileIndex(char * filename, uint8_t size, const char * direc
       return index;
     }
   }
-}
-
-const char * getBasename(const char * path)
-{
-  for (int8_t i = strlen(path) - 1; i >= 0; i--) {
-    if (path[i] == '/') {
-      return &path[i + 1];
-    }
-  }
-  return path;
 }
 
 #if !defined(LIBOPENUI)
@@ -365,57 +347,6 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
 
 #endif // !LIBOPENUI
 
-#if defined(SDCARD)
-const char * sdCopyFile(const char * srcPath, const char * destPath)
-{
-  FIL srcFile;
-  FIL destFile;
-  char buf[256];
-  UINT read = sizeof(buf);
-  UINT written = sizeof(buf);
-
-  FRESULT result = f_open(&srcFile, srcPath, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
-  }
-
-  result = f_open(&destFile, destPath, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result != FR_OK) {
-    f_close(&srcFile);
-    return SDCARD_ERROR(result);
-  }
-
-  while (result==FR_OK && read==sizeof(buf) && written==sizeof(buf)) {
-    result = f_read(&srcFile, buf, sizeof(buf), &read);
-    if (result == FR_OK) {
-      result = f_write(&destFile, buf, read, &written);
-    }
-  }
-
-  f_close(&destFile);
-  f_close(&srcFile);
-
-  if (result != FR_OK) {
-    return SDCARD_ERROR(result);
-  }
-
-  return nullptr;
-}
-
-const char * sdCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir)
-{
-  char srcPath[2*CLIPBOARD_PATH_LEN+1];
-  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
-  *tmp++ = '/';
-  strAppend(tmp, srcFilename, CLIPBOARD_PATH_LEN);
-
-  char destPath[2*CLIPBOARD_PATH_LEN+1];
-  tmp = strAppend(destPath, destDir, CLIPBOARD_PATH_LEN);
-  *tmp++ = '/';
-  strAppend(tmp, destFilename, CLIPBOARD_PATH_LEN);
-
-  return sdCopyFile(srcPath, destPath);
-}
 
 // Will overwrite if destination exists
 const char * sdMoveFile(const char * srcPath, const char * destPath)
@@ -452,9 +383,6 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
   }
   return nullptr;
 }
-
-#endif // defined(SDCARD)
-
 
 #if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t sdGetNoSectors()

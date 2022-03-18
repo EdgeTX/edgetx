@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "hal/adc_driver.h"
+#include "logs.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

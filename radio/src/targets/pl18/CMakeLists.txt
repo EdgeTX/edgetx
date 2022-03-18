@@ -6,6 +6,7 @@ option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 
+set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
@@ -24,6 +25,18 @@ set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
 add_definitions(-DLFS_NO_ASSERT)
+
+if(NOT SDCARD AND NOT SPI_FLASH)
+  message(FATAL_ERROR "No storage type enabled")
+endif()
+if(NOT SDCARD AND DEFAULT_STORAGE STREQUAL "SDCARD")
+  message(FATAL_ERROR "SD card support disabled, but 'SDCARD' selected as default storage")
+endif()
+if(NOT SPI_FLASH AND DEFAULT_STORAGE STREQUAL "INTERNAL")
+  message(FATAL_ERROR "SPI flash support disabled, but 'INTERNAL' selected as default storage")
+endif()
+
+add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
 
 if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
