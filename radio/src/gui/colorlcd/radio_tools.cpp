@@ -91,7 +91,7 @@ static void run_lua_tool(Window* parent, const std::string& path)
 {
   char toolPath[FF_MAX_LFN + 1];
   strncpy(toolPath, path.c_str(), sizeof(toolPath)-1);
-  *((char *)getBasename(toolPath)-1) = '\0';
+  *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
   f_chdir(toolPath);
 
   luaExec(path.c_str());
@@ -125,7 +125,7 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
         }
         else {
           *ext = '\0';
-          label = getBasename(path);
+          label = VirtualFS::getBasename(path);
         }
 
         scripts.emplace_back(ToolEntry{ label, path, run_lua_tool });

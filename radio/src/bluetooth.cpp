@@ -786,7 +786,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
     return "Format error";
   }
 
-  progressHandler(getBasename(filename), STR_FLASH_ERASE, 0, 0);
+  progressHandler(VirtualFS::VirtualFS::getBasename(filename), STR_FLASH_ERASE, 0, 0);
 
   result = bootloaderEraseFlash(CC26XX_FIRMWARE_BASE, information->size);
   if (result) {
@@ -795,7 +795,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
   }
 
   uint32_t size = information->size;
-  progressHandler(getBasename(filename), STR_FLASH_WRITE, 0, size);
+  progressHandler(VirtualFS::getBasename(filename), STR_FLASH_WRITE, 0, size);
 
   result = bootloaderStartWriteFlash(CC26XX_FIRMWARE_BASE, size);
   if (result)
@@ -803,7 +803,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
 
   uint32_t done = 0;
   while (1) {
-    progressHandler(getBasename(filename), STR_FLASH_WRITE, done, size);
+    progressHandler(VirtualFS::getBasename(filename), STR_FLASH_WRITE, done, size);
     if (file.read(buffer, min<uint32_t>(sizeof(buffer), size - done), count) != VfsError::OK) {
       file.close();
       return "Error reading file";
@@ -821,7 +821,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
 
 const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
-  progressHandler(getBasename(filename), STR_MODULE_RESET, 0, 0);
+  progressHandler(VirtualFS::getBasename(filename), STR_MODULE_RESET, 0, 0);
 
   state = BLUETOOTH_STATE_FLASH_FIRMWARE;
 
@@ -847,7 +847,7 @@ const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler pro
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
-  progressHandler(getBasename(filename), STR_MODULE_RESET, 0, 0);
+  progressHandler(VirtualFS::getBasename(filename), STR_MODULE_RESET, 0, 0);
 
   /* wait 1s off */
   watchdogSuspend(500 /*5s*/);

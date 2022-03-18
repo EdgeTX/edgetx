@@ -86,13 +86,13 @@ void addRadioScriptTool(uint8_t index, const char * path)
   char toolName[RADIO_TOOL_NAME_MAXLEN + 1];
 
   if (!readToolName(toolName, path)) {
-    strAppendFilename(toolName, getBasename(path), RADIO_TOOL_NAME_MAXLEN);
+    strAppendFilename(toolName, VirtualFS::getBasename(path), RADIO_TOOL_NAME_MAXLEN);
   }
 
   if (addRadioTool(index, toolName)) {
     char toolPath[FF_MAX_LFN];
     strcpy(toolPath, path);
-    *((char *)getBasename(toolPath)-1) = '\0';
+    *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
     f_chdir(toolPath);
     luaExec(path);
   }

@@ -638,13 +638,13 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   SPORT_UPDATE_POWER_OFF();
 #endif
 
-  progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
+  progressHandler(VirtualFS::getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
   /* wait 2s off */
   watchdogSuspend(500 /*5s*/);
   RTOS_WAIT_MS(3000);
 
-  const char * result = driver->flashFirmware(file, getBasename(filename), progressHandler);
+  const char * result = driver->flashFirmware(file, VirtualFS::getBasename(filename), progressHandler);
   file.close();
 
   AUDIO_PLAY(AU_SPECIAL_SOUND_BEEP1);

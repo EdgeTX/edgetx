@@ -213,12 +213,21 @@ VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
   {
   case VfsDir::DIR_ROOT:
     info.type = VfsFileType::ROOT;
+#if defined(SPI_FLASH)
     if(readIdx == 0)
-      info.name = "FLASH";
+      info.name = "INTERNAL";
+#if defined(SDCARD)
     else if(readIdx == 1)
+      info.name = "SDCARD";
+#endif
+    else
+      info.name = "";
+#elif defined(SDCARD) // SPI_FLASH
+    if(readIdx == 0)
       info.name = "SDCARD";
     else
       info.name = "";
+#endif // SDCARD
     readIdx++;
     return VfsError::OK;
 #if defined (SDCARD) || (!defined(USE_LITLEFS) && defined(SPI_FLASH))
@@ -612,6 +621,16 @@ int VfsFile::eof()
   return 0;
 }
 
+const char * VirtualFS::getBasename(const char * path)
+{
+  for (int8_t i = strlen(path) - 1; i >= 0; i--) {
+    if (path[i] == '/') {
+      return &path[i + 1];
+    }
+  }
+  return path;
+}
+
 VirtualFS::VirtualFS()
 {
 #if defined (SPI_FLASH) && defined (USE_LITTLEFS)
@@ -770,18 +789,17 @@ std::vector<std::string> tokenize(const char* seps, const std::string& data)
 
 VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 {
-#warning TODO
   if(path == "/")
   {
     return VfsDir::DIR_ROOT;
-  } else if(path.substr(0, 6) == "/FLASH")
+  } else if(path.substr(0, 9) == "/INTERNAL")
   {
 #if defined (SPI_FLASH)
 #if defined (USE_LITTLEFS)
       path = path.substr(6);
     return VfsDir::DIR_LFS;
 #else // USE_LITTLEFS
-    path = "1:" + path.substr(6);
+    path = "1:" + path.substr(9);
     if(path == "1:")
       path = "1:/";
     return VfsDir::DIR_FAT;
@@ -790,26 +808,28 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     return VfsDir::DIR_UNKOWN;
 #endif  // SPI_FLASH
   } else if(path.substr(0, 7) == "/SDCARD") {
-    path = path.substr(7);
 #if defined (SDCARD)
+    path = path.substr(7);
     return VfsDir::DIR_FAT;
 #else
     return VfsDir::DIR_UNKOWN;
 #endif
   } else if(path.substr(0, 8) == "/DEFAULT") {
-#if 1 // should be if internal storage as default
+#if (DEFAULT_STORAGE == INTERNAL)
 #if defined (USE_LITTLEFS)
     path = path.substr(8);
     return VfsDir::DIR_LFS;
-#else
+#else // USE_LITTLEFS
     path = "1:" + path.substr(8);
     if(path == "1:")
       path = "1:/";
     return VfsDir::DIR_FAT;
-#endif
-#else // INTERNAL_AS_DEFAULT
+#endif // USE_LITTLEFS
+#elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
     path = path.substr(8);
     return VfsDir::DIR_FAT;
+#else  // DEFAULT_STORAGE
+  #error No valid default storage selectd
 #endif
   }
   return VfsDir::DIR_UNKNOWN;
@@ -924,7 +944,54 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
 
 VfsError VirtualFS::makeDirectory(const std::string& path)
 {
+  std::string normPath(path);
+  normalizePath(normPath);
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
+
+  switch(dirType)
+  {
+  case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
+    break;
+#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+  case VfsDir::DIR_FAT:
+  {
+    DIR dir;
+    FRESULT result = f_opendir(&dir, normPath.c_str());
+    if (result == FR_OK) {
+      f_closedir(&dir);
+      return VfsError::OK;
+    } else {
+      if (result == FR_NO_PATH)
+        result = f_mkdir(normPath.c_str());
+      if (result != FR_OK)
+        return convertResult(result);
+    }
+    break;
+  }
+#endif
+#if defined (USE_LITTLEFS)
+  case VfsDir::DIR_LFS:
+  {
+    lfs_dir_t dir;
+    lfs_error res = (lfs_error)lfs_dir_open(&lfs, &dir, normPath.c_str());
+    if(res == LFS_ERR_OK)
+    {
+      lfs_dir_close(&lfs, &dir);
+      return VfsError::OK;
+    } else {
+      if(res == LFS_ERR_NOENT)
+        res = (lfs_error)lfs_mkdir(&lfs, normPath.c_str());
+      if(res != LFS_ERR_OK)
+      {
+        return convertResult(res);
+      }
+    }
+break;
+  }
+#endif
+  }
+  return VfsError::INVAL;
 }
 
 VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
@@ -1095,54 +1162,12 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
 
 const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {
-  std::string normPath(path);
-  normalizePath(normPath);
-  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
+  VfsError res = makeDirectory(path);
 
-  switch(dirType)
-  {
-  case VfsDir::DIR_ROOT:
-    return STORAGE_ERROR(VfsError::INVAL);
-    break;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
-  case VfsDir::DIR_FAT:
-  {
-    DIR archiveFolder;
-    FRESULT result = f_opendir(&archiveFolder, normPath.c_str());
-    if (result != FR_OK) {
-      if (result == FR_NO_PATH)
-        result = f_mkdir(normPath.c_str());
-      if (result != FR_OK)
-        return STORAGE_ERROR(convertResult(result));
-    }
-    else {
-      f_closedir(&archiveFolder);
-    }
-    break;
-  }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-  {
-    lfs_dir_t dir;
-    lfs_error res = (lfs_error)lfs_dir_open(&lfs, &dir, normPath.c_str());
-    if(res != LFS_ERR_OK)
-    {
-      if(res == LFS_ERR_NOENT)
-        res = (lfs_error)lfs_mkdir(&lfs, normPath.c_str());
-      if(res != LFS_ERR_OK)
-      {
-        return STORAGE_ERROR(convertResult(res));
-      }
-    } else {
-      lfs_dir_close(&lfs, &dir);
-    }
-break;
-  }
-#endif
-  }
+  if(res == VfsError::OK)
+    return nullptr;
 
-  return nullptr;
+  return STORAGE_ERROR(res);
 }
 
 bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
@@ -1301,16 +1326,6 @@ unsigned int VirtualFS::findNextFileIndex(char * filename, uint8_t size, const c
 //  }
 	return 0;
 }
-
-//static const char * getBasename(const char * path)
-//{
-//  for (int8_t i = strlen(path) - 1; i >= 0; i--) {
-//    if (path[i] == '/') {
-//      return &path[i + 1];
-//    }
-//  }
-//  return path;
-//}
 
 #if !defined(LIBOPENUI)
 bool flashListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)

@@ -622,7 +622,7 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
 
   uint32_t done = 0;
   while (1) {
-    progressHandler(getBasename(filename), STR_OTA_UPDATE, done, size);
+    progressHandler(VirtualFS::getBasename(filename), STR_OTA_UPDATE, done, size);
     if (file.read(buffer, sizeof(buffer), count) != VfsError::OK) {
       file.close();
       return "Read file failed";
