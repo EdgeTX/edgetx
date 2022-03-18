@@ -74,7 +74,9 @@ inline bool isFilenameLower(bool isfile, const char * fn, const char * line)
 
 void getSelectionFullPath(char * lfn)
 {
-  f_getcwd(lfn, FF_MAX_LFN);
+  const std::string& curWorkDir = VirtualFS::instance().getCurWorkDir();
+  strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN);
+  lfn[FF_MAX_LFN] = 0;
   strcat(lfn, "/");
   strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
@@ -138,6 +140,7 @@ void onUpdateStateChanged()
 void onSdManagerMenu(const char * result)
 {
   TCHAR lfn[FF_MAX_LFN+1];
+  VirtualFS& vfs = VirtualFS::instance();
 
   // TODO possible buffer overflows here!
 
@@ -152,11 +155,13 @@ void onSdManagerMenu(const char * result)
   }
   else if (result == STR_COPY_FILE) {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    const std::string& curWorkDir = vfs.getCurWorkDir();
+    strncpy(clipboard.data.sd.directory, curWorkDir.c_str(), CLIPBOARD_PATH_LEN)
     strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
   }
   else if (result == STR_PASTE) {
-    f_getcwd(lfn, FF_MAX_LFN);
+    const std::string& curWorkDir = vfs.getCurWorkDir();
+    strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN)
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
       strcat(lfn, "/");
@@ -172,7 +177,7 @@ void onSdManagerMenu(const char * result)
                                 CLIPBOARD_PATH_LEN);
         destNamePtr = destFileName;
     }
-    POPUP_WARNING(sdCopyFile(clipboard.data.sd.filename,
+    POPUP_WARNING(vfs.copyFile(clipboard.data.sd.filename,
                              clipboard.data.sd.directory, destNamePtr, lfn));
     REFRESH_FILES();
   }
@@ -188,7 +193,7 @@ void onSdManagerMenu(const char * result)
   }
   else if (result == STR_DELETE_FILE) {
     getSelectionFullPath(lfn);
-    f_unlink(lfn);
+    vfs.unlink(lfn);
     strncpy(statusLineMsg, line, 13);
     strcpy(statusLineMsg+min((uint8_t)strlen(statusLineMsg), (uint8_t)13), STR_REMOVED);
     showStatusLine();
