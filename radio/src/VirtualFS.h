@@ -21,7 +21,6 @@
 #ifndef _VIRTUALFS_H_
 #define _VIRTUALFS_H_
 
-#ifdef __cplusplus
 #include <string>
 
 #if defined (SPI_FLASH)
@@ -191,10 +190,10 @@ public:
     switch(type)
     {
     case VfsFileType::ROOT: return name;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:  return lfsInfo.name;
 #endif
     }
@@ -206,10 +205,10 @@ public:
     switch(type)
     {
     case VfsFileType::ROOT: return 0;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:  return fatInfo.fsize;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:  return lfsInfo.size;
 #endif
     }
@@ -222,7 +221,7 @@ public:
     {
     case VfsFileType::ROOT:
       return VfsType::DIR;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:
       if (!name.empty())
         return VfsType::DIR;
@@ -231,7 +230,7 @@ public:
       else
         return VfsType::FILE;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:
 
       if(lfsInfo.type == LFS_TYPE_DIR)
@@ -249,11 +248,11 @@ public:
     {
     case VfsFileType::ROOT:
       return VfsFileAttributes::DIR;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:
       return (VfsFileAttributes)fatInfo.fattrib;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:
       if(lfsInfo.type == LFS_TYPE_DIR)
         return VfsFileAttributes::DIR;
@@ -268,11 +267,11 @@ public:
     {
     case VfsFileType::ROOT:
       return 0;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:
       return fatInfo.fdate;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:
       return 0;
 #endif
@@ -285,11 +284,11 @@ public:
     {
     case VfsFileType::ROOT:
       return 0;
-#if defined (SDCARD)
+#if defined (SDCARD) || (!defined(USE_LITTLEFS) && defined(SPI_FLASH))
     case VfsFileType::FAT:
       return fatInfo.ftime;
 #endif
-#if defined (SPI_FLASH)
+#if defined(USE_LITTLEFS)
     case VfsFileType::LFS:
       return 0;
 #endif
@@ -303,14 +302,18 @@ private:
 
   void clear() {
     type = VfsFileType::UNKNOWN;
+#if defined(USE_LITTLEFS)
     lfsInfo = {0};
+#endif
     fatInfo = {0};
     name.clear();
   }
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
+#if defined(USE_LITTLEFS)
     lfs_info lfsInfo = {0};
+#endif
     FILINFO fatInfo;
   };
 
@@ -333,19 +336,19 @@ private:
 
   void clear()
   {
-#if defined(USE_LITLEFS)
     type = DIR_UNKNOWN;
+#if defined(USE_LITTLEFS)
     lfs.dir = {0};
     lfs.handle = nullptr;
+#endif
     fat.dir = {0};
 
     readIdx = 0;
     firstTime = true;
   }
-#endif
   DirType type = DIR_UNKNOWN;
   union {
-#if defined(USE_LITLEFS)
+#if defined(USE_LITTLEFS)
     struct {
       lfs_dir_t dir;
       lfs* handle;
@@ -387,7 +390,7 @@ private:
 
   void clear() {
     type = VfsFileType::UNKNOWN;
-#if defined(USE_LITLEFS)
+#if defined(USE_LITTLEFS)
     lfs.file = {0};
     lfs.handle = nullptr;
 #endif
@@ -396,7 +399,7 @@ private:
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
-#if defined(USE_LITLEFS)
+#if defined(USE_LITTLEFS)
     struct {
       lfs_file file = {0};
       lfs* handle = nullptr;
@@ -519,7 +522,7 @@ public:
 private:
   static VirtualFS* _instance;
 
-#if defined(USE_LITLEFS)
+#if defined(USE_LITTLEFS)
   lfs_config lfsCfg = {0};
   lfs_t lfs = {0};
 #elif defined(SPI_FLASH)
@@ -531,9 +534,5 @@ private:
 
   VfsDir::DirType getDirTypeAndPath(std::string& path);
 };
-#else
-struct VfsFile_s;
-typedef struct VfsFile_s VfsFile;
-#endif
 
 #endif // _VIRTUALFS_H_

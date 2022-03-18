@@ -236,7 +236,7 @@ VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
     return ret;
   }
 #endif
-#if defined(USE_LITLEFS))
+#if defined(USE_LITTLEFS)
   case VfsDir::DIR_LFS:
     {
       info.type = VfsFileType::LFS;
@@ -285,7 +285,7 @@ VfsError VfsFile::close()
     ret = convertResult(f_close(&fat.file));
     break;
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     ret = convertResult((lfs_error)lfs_file_close(lfs.handle, &lfs.file));
     break;
@@ -305,7 +305,7 @@ int VfsFile::size()
     return f_size(&fat.file);
     break;
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     {
       int res = lfs_file_size(lfs.handle, &lfs.file);
@@ -327,7 +327,7 @@ VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
   case VfsFileType::FAT:
     return convertResult(f_read(&fat.file, buf, size, &readSize));
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     {
       int ret = lfs_file_read(lfs.handle, &lfs.file, buf, size);
@@ -355,7 +355,7 @@ char* VfsFile::gets(char* buf, size_t maxLen)
   case VfsFileType::FAT:
     return f_gets(buf, maxLen, &fat.file);
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     {
       size_t nc = 0;
@@ -388,7 +388,7 @@ VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
   case VfsFileType::FAT:
     return convertResult(f_write(&fat.file, buf, size, &written));
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     {
       int ret = lfs_file_write(lfs.handle, &lfs.file, buf, size);
@@ -556,7 +556,7 @@ size_t VfsFile::tell()
     case VfsFileType::FAT:
       return f_tell(&fat.file);
   #endif
-  #if defined (SPI_FLASH)
+  #if defined (USE_LITTLEFS)
     case VfsFileType::LFS:
       {
         int ret = lfs_file_tell(lfs.handle, &lfs.file);
@@ -580,7 +580,7 @@ VfsError VfsFile::lseek(size_t offset)
     return convertResult(f_lseek(&fat.file, offset));
     break;
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     {
       int ret = lfs_file_seek(lfs.handle, &lfs.file, offset, LFS_SEEK_SET);
@@ -603,7 +603,7 @@ int VfsFile::eof()
   case VfsFileType::FAT:
     return f_eof(&fat.file);
 #endif
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
     return lfs_file_tell(lfs.handle, &lfs.file) == lfs_file_size(lfs.handle, &lfs.file);
 #endif
@@ -712,11 +712,13 @@ void VirtualFS::restart()
 bool VirtualFS::format()
 {
 #warning TODO
-#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
 
   flashSpiEraseAll();
   lfs_format(&lfs, &lfsCfg);
   return true;
+#else
+  return false;
 #endif
 //  BYTE work[FF_MAX_SS];
 //  FRESULT res = f_mkfs("", FM_FAT32, 0, work, sizeof(work));
