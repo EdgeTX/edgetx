@@ -561,7 +561,13 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
   mdl->setName(QString(AIM_GS_SERIALMODE).arg(port_nr));
 
   for (int i = 0; i < AUX_SERIAL_COUNT; i++) {
-    // TODO: check if supported on 'port_nr'
+    if (port_nr == SP_VCP &&
+        (i == AUX_SERIAL_TELE_IN ||
+         i == AUX_SERIAL_SBUS_TRAINER ||
+         i == AUX_SERIAL_GPS)) {
+      // These 3 are disabled on VCP
+      continue;
+    }
     mdl->appendToItemList(serialModeToString(i), i);
   }
 
