@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include <stdint.h>
+
 void usbChargerLed() {}
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
+void fsLedOn(uint8_t) {}
+void fsLedOff(uint8_t) {}
