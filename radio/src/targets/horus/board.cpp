@@ -113,11 +113,7 @@ void boardInit()
 #if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_AHB1Periph |
 #endif
-#if defined(IMU_LSM6DS33)
-                         I2C_B2_RCC_AHB1Periph |
-#else
                          AUX_SERIAL_RCC_AHB1Periph |
-#endif
                          AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
@@ -126,7 +122,6 @@ void boardInit()
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
-                         I2C_B1_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
                          TOUCH_INT_RCC_AHB1Periph |
                          TOUCH_RST_RCC_AHB1Periph,
@@ -140,18 +135,13 @@ void boardInit()
 #if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_APB1Periph |
 #endif
-#if defined(IMU_LSM6DS33)
-                         I2C_B2_RCC_APB1Periph |
-#else
                          AUX_SERIAL_RCC_APB1Periph |
-#endif
                          AUX2_SERIAL_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          TRAINER_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          INTMODULE_RCC_APB1Periph |
                          EXTMODULE_RCC_APB1Periph |
-                         I2C_B1_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
