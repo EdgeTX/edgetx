@@ -36,6 +36,18 @@
 
 VirtualFS* VirtualFS::_instance = nullptr;;
 
+OUiFsError OUiOpenDir(OpenUiDirP& dir, const char* path)
+{
+  dir.reset(new OpenUiDirImpl());
+  return convertResultToOUi(VirtualFS::instance().openDirectory(((OpenUiDirImpl*)(dir.get()))->getUnderlying(), path));
+
+}
+OUiFsError OUiOpenFile(OpenUiFileP& file, const char* path, OUiFsOpenFlags flags)
+{
+  file.reset(new OpenUiFileImpl());
+  return convertResultToOUi(VirtualFS::instance().openFile(((OpenUiFileImpl*)(file.get()))->getUnderlying(), path, convertOUiFlags(flags)));
+}
+
 #if defined(USE_LITTLEFS)
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
@@ -206,7 +218,7 @@ VfsFileAttributes operator&(VfsFileAttributes lhs,VfsFileAttributes rhs)
   & static_cast<underlying>(rhs));
 }
 
-VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
+VfsError VfsDir::read(VfsFileInfo& info)
 {
   info.clear();
   switch(type)
@@ -240,8 +252,7 @@ VfsError VfsDir::read(VfsFileInfo& info, bool firstTime)
       info.name = "..";
       return VfsError::OK;
     }
-    VfsError ret = convertResult(sdReadDir(&fat.dir, &info.fatInfo, firstTime));
-    firstTime = false;
+    VfsError ret = convertResult(f_readdir(&fat.dir, &info.fatInfo));
     return ret;
   }
 #endif
@@ -1275,24 +1286,23 @@ bool VirtualFS::isFilePatternAvailable(const char * path, const char * file, con
 
 char* VirtualFS::getFileIndex(char * filename, unsigned int & value)
 {
-//  value = 0;
-//  char * pos = (char *)getFileExtension(filename);
-//  if (!pos || pos == filename)
-//    return nullptr;
-//  int multiplier = 1;
-//  while (pos > filename) {
-//    pos--;
-//    char c = *pos;
-//    if (c >= '0' && c <= '9') {
-//      value += multiplier * (c - '0');
-//      multiplier *= 10;
-//    }
-//    else {
-//      return pos+1;
-//    }
-//  }
-//  return filename;
-	return nullptr;
+  value = 0;
+  char * pos = (char *)getFileExtension(filename);
+  if (!pos || pos == filename)
+    return nullptr;
+  int multiplier = 1;
+  while (pos > filename) {
+    pos--;
+    char c = *pos;
+    if (c >= '0' && c <= '9') {
+      value += multiplier * (c - '0');
+      multiplier *= 10;
+    }
+    else {
+      return pos+1;
+    }
+  }
+  return filename;
 }
 
 static uint8_t _getDigitsCount(unsigned int value)

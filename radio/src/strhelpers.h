@@ -24,8 +24,7 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
-#include <string>
-
+#include "strings.h"
 #include <string>
 #include <cstring>
 
@@ -150,6 +149,12 @@ template <size_t L1>
 int strncasecmp(char (&s1)[L1], const char *const s2)
 {
   return strncasecmp(s1, s2, L1);
+}
+
+// comparison, not case sensitive.
+inline bool compare_nocase(const std::string & first, const std::string & second)
+{
+  return strcasecmp(first.c_str(), second.c_str()) < 0;
 }
 
 #endif  // _STRHELPERS_H_
