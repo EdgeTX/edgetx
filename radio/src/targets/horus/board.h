@@ -38,9 +38,6 @@
 #include "tp_gt911.h"
 #endif
 
-#if defined(IMU_LSM6DS33)
-#include "imu_lsm6ds33.h"
-#endif
 
 PACK(typedef struct {
   uint8_t pcbrev:2;

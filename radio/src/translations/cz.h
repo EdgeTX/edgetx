@@ -235,10 +235,10 @@
 
 #define TR_ON_ONE_SWITCHES             "ZAP","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW               "GyrX","GyrY"
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW               "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -264,7 +264,6 @@
 #define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Totalize","Článek","Spotřeba","Vzdálenost"
 #define TR_VPREC                       "X","X.X","X.XX"
 #define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","Nejvíce","Delta"
-#define TR_GYROS                       "GyrX","GyrY"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(center only)","= (symetrical)"
 
 // ZERO TERMINATED STRINGS
@@ -395,9 +394,9 @@
 #define TR_BEEP_PITCH                   "Tón"
 #define TR_HAPTIC_LABEL                "Vibrace"
 #define TR_STRENGTH                    "Síla"
-#define TR_GYRO_LABEL                  "Gyro"
-#define TR_GYRO_OFFSET                 "Offset"
-#define TR_GYRO_MAX                    "Max"
+#define TR_IMU_LABEL                   "IMU"
+#define TR_IMU_OFFSET                  "Offset"
+#define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "Kontrast LCD"
 #define TR_ALARMS_LABEL                "Alarmy"
 #define TR_BATTERY_RANGE               TR("Ukazatel bat.", "Ukazatel baterie")
@@ -640,7 +639,7 @@
 #define TR_MODULES_RX_VERSION          "Verze modulu a RX"
 #define TR_MENU_MODULES_RX_VERSION     "VERZE MODULU A RX"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
-#define TR_GYRO                        "Gyro"
+#define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "páky/pot./slidery"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM páky/pot./slidery"
 #define TR_RF_PROTOCOL                 "RF Protokol"
