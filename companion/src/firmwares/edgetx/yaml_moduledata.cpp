@@ -20,6 +20,7 @@
 
 #include "yaml_moduledata.h"
 #include "yaml_generalsettings.h"
+#include "eeprominterface.h"
 #include "moduledata.h"
 #include "rawsource.h"
 
@@ -410,6 +411,11 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
       } else if (mod["ghost"]) {
           Node ghost = mod["ghost"];
           ghost["raw12bits"] >> rhs.ghost.raw12bits;
+      } else if (mod["crsf"]) {
+          Node crsf = mod["crsf"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
       } else if (mod["flysky"]) {
           //TODO
       } else if (mod["afhds3"]) {
