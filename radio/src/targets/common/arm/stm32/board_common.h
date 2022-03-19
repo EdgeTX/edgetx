@@ -122,15 +122,12 @@ static inline uint32_t ticksNow()
   return DWT->CYCCNT;
 #endif
 }
-
-void delaysInit();
-void delay_01us(uint32_t count);
-void delay_us(uint32_t count);
-void delay_ms(uint32_t count);
-
+  
 #ifdef __cplusplus
 }
 #endif
+
+#include "delays_driver.h"
 
 #define INIT_KEYS_PINS(GPIO) \
   GPIO_InitStructure.GPIO_Pin = KEYS_ ## GPIO ## _PINS; \

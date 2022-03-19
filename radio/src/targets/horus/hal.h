@@ -693,16 +693,19 @@
 
 // Touch
 #if defined(HARDWARE_TOUCH)
+  #define TOUCH_I2C_BUS                   I2C_Bus_1
+  #define TOUCH_I2C_CLK_RATE              400000
+
   #define TOUCH_INT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOH
   #define TOUCH_INT_GPIO                  GPIOH
-  #define TOUCH_INT_GPIO_PIN              GPIO_Pin_2    // PH.02
+  #define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_2    // PH.02
 
   #define TOUCH_RST_RCC_AHB1Periph        RCC_AHB1Periph_GPIOF
   #define TOUCH_RST_GPIO                  GPIOF
 #if defined(PCBX12S)
-  #define TOUCH_RST_GPIO_PIN              GPIO_Pin_7   // PF.7
+  #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_7   // PF.7
 #else
-  #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
+  #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_10  // PF.10
 #endif
   #define TOUCH_INT_EXTI_LINE1            EXTI_Line2
   #define TOUCH_INT_EXTI_IRQn1            EXTI2_IRQn
@@ -710,7 +713,11 @@
   #define TOUCH_INT_EXTI_PortSource       EXTI_PortSourceGPIOH
   #define TOUCH_INT_EXTI_PinSource1       EXTI_PinSource2
 
-  #define TOUCH_INT_STATUS()              (GPIO_ReadInputDataBit(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN))
+  #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
+  #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH
+  #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
+  #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
+  #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
 #else
   #define TOUCH_INT_RCC_AHB1Periph        0
   #define TOUCH_RST_RCC_AHB1Periph        0
@@ -718,39 +725,26 @@
 
 // First I2C Bus
 #if defined(RADIO_T18)
-  #define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOH
-  #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C3
   #define I2C_B1                          I2C3
   #define I2C_B1_GPIO                     GPIOH
-  #define I2C_B1_SCL_GPIO_PIN             GPIO_Pin_7  // PH.07
-  #define I2C_B1_SDA_GPIO_PIN             GPIO_Pin_8  // PH.08
-  #define I2C_B1_GPIO_AF                  GPIO_AF_I2C3
-  #define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource7
-  #define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource8
+  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
+  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_8  // PH.08
+  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C3
 #else
-  #define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOB
-  #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C1
   #define I2C_B1                          I2C1
   #define I2C_B1_GPIO                     GPIOB
-  #define I2C_B1_SCL_GPIO_PIN             GPIO_Pin_8  // PB.08
-  #define I2C_B1_SDA_GPIO_PIN             GPIO_Pin_9  // PB.09
-  #define I2C_B1_GPIO_AF                  GPIO_AF_I2C1
-  #define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource8
-  #define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource9
+  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_8  // PB.08
+  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_9  // PB.09
+  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C1
 #endif
-#define I2C_B1_CLK_RATE                      400000
 
 // Second I2C Bus
 #if defined(RADIO_TX16S) && defined(IMU_LSM6DS33)
-  #define I2C_B2_RCC_AHB1Periph           RCC_AHB1Periph_GPIOB
-  #define I2C_B2_RCC_APB1Periph           RCC_APB1Periph_I2C2
   #define I2C_B2                          I2C2
   #define I2C_B2_GPIO                     GPIOB
-  #define I2C_B2_SCL_GPIO_PIN             GPIO_Pin_10  // PB.10
-  #define I2C_B2_SDA_GPIO_PIN             GPIO_Pin_11  // PB.11
-  #define I2C_B2_GPIO_AF                  GPIO_AF_I2C2
-  #define I2C_B2_SCL_GPIO_PinSource       GPIO_PinSource10
-  #define I2C_B2_SDA_GPIO_PinSource       GPIO_PinSource11
+  #define I2C_B2_SCL_GPIO_PIN             LL_GPIO_PIN_10  // PB.10
+  #define I2C_B2_SDA_GPIO_PIN             LL_GPIO_PIN_11  // PB.11
+  #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4    // I2C2
   #define I2C_B2_CLK_RATE                 100000
   #define AUX_I2C_B2_PWR_GPIO             GPIOA
   #define AUX_I2C_B2_PWR_GPIO_PIN         GPIO_Pin_15  // PA.15

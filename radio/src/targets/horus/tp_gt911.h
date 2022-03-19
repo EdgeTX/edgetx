@@ -22,8 +22,9 @@
 #pragma once
 
 #include "touch.h"
+#include "definitions.h"
 
-#define HAS_TOUCH_PANEL()     touchGT911Flag == true
+#define HAS_TOUCH_PANEL()     (touchGT911Flag == true)
 
 extern bool touchGT911Flag;
 extern uint16_t touchGT911fwver;
@@ -35,6 +36,7 @@ bool touchPanelEventOccured();
 struct TouchState getInternalTouchState();
 
 #define GT911_TIMEOUT           3 // 3ms
+#define GT911_TAP_TIME          250 // 250 ms
 
 #define GT911_MAX_TP            5
 
@@ -77,9 +79,3 @@ PACK(struct TouchData {
     uint8_t data[GT911_MAX_TP * sizeof(TouchPoint)];
   };
 });
-
-#define TPRST_LOW()   do { TOUCH_RST_GPIO->BSRRH = TOUCH_RST_GPIO_PIN; } while(0)
-#define TPRST_HIGH()  do { TOUCH_RST_GPIO->BSRRL = TOUCH_RST_GPIO_PIN; } while(0)
-
-#define TPINT_LOW()   do { TOUCH_INT_GPIO->BSRRH = TOUCH_INT_GPIO_PIN; } while(0)
-#define TPINT_HIGH()  do { TOUCH_INT_GPIO->BSRRL = TOUCH_INT_GPIO_PIN; } while(0)
