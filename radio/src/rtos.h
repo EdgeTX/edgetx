@@ -23,7 +23,6 @@
 #define _RTOS_H_
 
 #include "definitions.h"
-#include "board.h"
 
 #ifdef __cplusplus
 extern "C++" {

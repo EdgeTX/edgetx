@@ -29,6 +29,8 @@ extern "C" {
     #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"
     #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h"
     #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h"
+    #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h"
+    #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_system.h"
   #elif defined(STM32F2)
 
     // Workaround to prevent the other CMSIS header to be included
@@ -41,5 +43,7 @@ extern "C" {
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_dma.h"
     #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usart.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_exti.h"
+    #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_system.h"
   #endif
 }
