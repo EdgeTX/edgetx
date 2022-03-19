@@ -403,14 +403,14 @@ void menuRadioSdManager(event_t _event)
             POPUP_MENU_ADD_ITEM(STR_PLAY_FILE);
           }
 #if LCD_DEPTH > 1
-          else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+          else if (isFileExtensionMatching(ext, BITMAPS_EXT)) {
             if (!READ_ONLY() && (ext-line) <= (int)sizeof(g_model.header.bitmap)) {
               POPUP_MENU_ADD_ITEM(STR_ASSIGN_BITMAP);
             }
           }
 #endif
 #if defined(LUA)
-          else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
+          else if (isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_EXECUTE_FILE);
           }
 #endif
@@ -483,7 +483,7 @@ void menuRadioSdManager(event_t _event)
             }
           }
 #endif
-          if (isExtensionMatching(ext, TEXT_EXT) || isExtensionMatching(ext, SCRIPTS_EXT)) {
+          if (isFileExtensionMatching(ext, TEXT_EXT) || isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_VIEW_TEXT);
           }
         }
@@ -644,7 +644,7 @@ void menuRadioSdManager(event_t _event)
 
 #if LCD_DEPTH > 1
     const char * ext = getFileExtension(reusableBuffer.sdManager.lines[index]);
-    if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
+    if (ext && isFileExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
           memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);
