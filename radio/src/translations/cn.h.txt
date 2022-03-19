@@ -288,10 +288,10 @@
 
 #define TR_ON_ONE_SWITCHES             "ON\0" "One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW               "GyrX" "GyrY"
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW               "TltX" "TltY"
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -331,8 +331,6 @@
 #define LEN_VCELLINDEX                 "\006"
 #define TR_VCELLINDEX                  "最低值" "1\0    " "2\0    " "3\0    " "4\0    " "5\0    " "6\0    " "最高值" "差值\0 "
 
-#define LEN_GYROS                      "\004"
-#define TR_GYROS                       "GyrX" "GyrY"
 
 #define LEN_TEXT_SIZE                  "\004"
 #define TR_TEXT_SIZE                   "标准" "小\0 " "较小" "中等" "双倍"
@@ -448,9 +446,9 @@
 #define TR_BEEP_PITCH                  "提示音音调"
 #define TR_HAPTIC_LABEL                "振动"
 #define TR_STRENGTH                    "强度"
-#define TR_GYRO_LABEL                  "陀螺仪"
-#define TR_GYRO_OFFSET                 "补偿"
-#define TR_GYRO_MAX                    "最大值"
+#define TR_IMU_LABEL                   "IMU"
+#define TR_IMU_OFFSET                  "补偿"
+#define TR_IMU_MAX                     "最大值"
 #define TR_CONTRAST                    "对比度"
 #define TR_ALARMS_LABEL                "警告"
 #define TR_BATTERY_RANGE               TR("Batt. range", "电压测量范围")
@@ -687,7 +685,7 @@
 #define TR_MODULES_RX_VERSION          "模块/接收机版本"
 #define TR_MENU_MODULES_RX_VERSION     "模块/接收机版本"
 #define TR_MENU_FIRM_OPTIONS           "固件选项"
-#define TR_GYRO                        "陀螺仪"
+#define TR_IMU                        "陀螺仪"
 #define TR_STICKS_POTS_SLIDERS         "摇杆/旋钮/滑块"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM 摇杆/旋钮/滑块"
 #define TR_RF_PROTOCOL                 "射频协议"

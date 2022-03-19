@@ -22,42 +22,50 @@
 #include <inttypes.h>
 #include "myeeprom.h"
 
-#define GYRO_SAMPLES_EXPONENT  3
-#define GYRO_SAMPLES_COUNT     (2 ^ GYRO_SAMPLES_EXPONENT)
+#define IMU_VALUES_COUNT      6
+#define IMU_BUFFER_LENGTH     (IMU_VALUES_COUNT * sizeof(int16_t))
 
-class GyroBuffer {
-  protected:
-    union {
-      int16_t values[GYRO_VALUES_COUNT];
-      uint8_t raw[GYRO_BUFFER_LENGTH];
-    } samples[GYRO_SAMPLES_COUNT];
+#define IMU_MAX_DEFAULT       30
+#define IMU_MAX_RANGE         60
+#define IMU_OFFSET_MIN       -30
+#define IMU_OFFSET_MAX        10
 
-    int32_t sums[GYRO_VALUES_COUNT];
+#define IMU_SAMPLES_EXPONENT  3
+#define IMU_SAMPLES_COUNT     (2 ^ IMU_SAMPLES_EXPONENT)
 
-    uint8_t index;
+class GyroBuffer
+{
+ protected:
+  union {
+    int16_t values[IMU_VALUES_COUNT];
+    uint8_t raw[IMU_BUFFER_LENGTH];
+  } samples[IMU_SAMPLES_COUNT];
 
-  public:
-    int read(int32_t values[GYRO_VALUES_COUNT]);
+  int32_t sums[IMU_VALUES_COUNT];
+
+  uint8_t index;
+
+ public:
+  int read(int32_t values[IMU_VALUES_COUNT]);
 };
 
-class Gyro {
-  protected:
-    GyroBuffer gyroBuffer;
-    uint8_t errors = 0;
+class Gyro
+{
+ protected:
+  GyroBuffer gyroBuffer;
+  uint8_t errors = 0;
 
-  public:
-    int16_t outputs[2];
-    void wakeup();
+ public:
+  int16_t outputs[2];
 
-    int16_t scaledX()
-    {
-      return limit(-RESX, (int)(outputs[0] - g_eeGeneral.gyroOffset * RESX/180) * (180 / (GYRO_MAX_DEFAULT + g_eeGeneral.gyroMax)), RESX);
-    }
+  void wakeup();
 
-    int16_t scaledY()
-    {
-      return limit(-RESX, outputs[1] * (180 / (GYRO_MAX_DEFAULT + g_eeGeneral.gyroMax)), RESX);
-    }
+  int16_t scaledX();
+  int16_t scaledY();
 };
 
 extern Gyro gyro;
+
+// Gyro driver
+int gyroInit();
+int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH]);

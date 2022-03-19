@@ -27,20 +27,20 @@
 
 Gyro gyro;
 
-int GyroBuffer::read(int32_t values[GYRO_VALUES_COUNT])
+int GyroBuffer::read(int32_t values[IMU_VALUES_COUNT])
 {
-  index = (index + 1) & (GYRO_SAMPLES_COUNT - 1);
+  index = (index + 1) & (IMU_SAMPLES_COUNT - 1);
 
-  for (uint8_t i = 0; i < GYRO_VALUES_COUNT; i++) {
+  for (uint8_t i = 0; i < IMU_VALUES_COUNT; i++) {
     sums[i] -= samples[index].values[i];
   }
 
   if (gyroRead(samples[index].raw) < 0)
     return -1;
 
-  for (uint8_t i = 0; i < GYRO_VALUES_COUNT; i++) {
+  for (uint8_t i = 0; i < IMU_VALUES_COUNT; i++) {
     sums[i] += samples[index].values[i];
-    values[i] = sums[i] >> GYRO_SAMPLES_EXPONENT;
+    values[i] = sums[i] >> IMU_SAMPLES_EXPONENT;
   }
 
   return 0;
@@ -61,7 +61,7 @@ void Gyro::wakeup()
 
   gyroWakeupTime = now + 1; /* 10ms default */
 
-  int32_t values[GYRO_VALUES_COUNT];
+  int32_t values[IMU_VALUES_COUNT];
   if (gyroBuffer.read(values) < 0)
     ++errors;
 
@@ -74,4 +74,19 @@ void Gyro::wakeup()
   outputs[1] = rad2RESX(atan2f(-accValues[0], accValues[2]));
 
   // TRACE("%d %d", values[0], values[1]);
+}
+
+int16_t Gyro::scaledX()
+{
+  return limit(-RESX,
+               (int)(outputs[0] - g_eeGeneral.imuOffset * RESX / 180) *
+                   (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
+               RESX);
+}
+
+int16_t Gyro::scaledY()
+{
+  return limit(-RESX,
+               outputs[1] * (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
+               RESX);
 }

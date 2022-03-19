@@ -972,14 +972,4 @@ void setTopBatteryValue(uint32_t volts);
 extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 #endif
 
-// Gyro driver
-#define GYRO_VALUES_COUNT               6
-#define GYRO_BUFFER_LENGTH              (GYRO_VALUES_COUNT * sizeof(int16_t))
-int gyroInit();
-int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH]);
-#define GYRO_MAX_DEFAULT                30
-#define GYRO_MAX_RANGE                  60
-#define GYRO_OFFSET_MIN                 -30
-#define GYRO_OFFSET_MAX                 10
-
 #endif // _BOARD_H_

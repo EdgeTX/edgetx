@@ -321,11 +321,11 @@ getvalue_t getValue(mixsrc_t i)
     return calibratedAnalogs[i - MIXSRC_Rud];
   }
 
-#if defined(GYRO)
-  else if (i == MIXSRC_GYRO1) {
+#if defined(IMU)
+  else if (i == MIXSRC_TILT_X) {
     return gyro.scaledX();
   }
-  else if (i == MIXSRC_GYRO2) {
+  else if (i == MIXSRC_TILT_Y) {
     return gyro.scaledY();
   }
 #endif

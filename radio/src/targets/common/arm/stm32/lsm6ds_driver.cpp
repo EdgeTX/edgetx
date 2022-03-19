@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "stm32_i2c_driver.h"
+#include "delays_driver.h"
+#include "hal.h"
+#include "gyro.h"
 
+#include <string.h>
 
 /* COMMON VALUES FOR ACCEL-GYRO SENSORS */
 #define LSM6DS_WHO_AM_I                         0x0f
@@ -126,6 +130,10 @@
 #define LSM6DS_GYRO_FS_500_GAIN                 17500
 #define LSM6DS_GYRO_FS_1000_GAIN                35000
 #define LSM6DS_GYRO_FS_2000_GAIN                70000
+
+#define LSM6DS_STATUS_REG_ADDR		        0x1E
+#define LSM6DS_OUT_TEMP_L_ADDR		        0x20
+#define LSM6DS_OUT_TEMP_H_ADDR		        0x21
 #define LSM6DS_GYRO_OUT_X_L_ADDR                0x22
 #define LSM6DS_GYRO_OUT_Y_L_ADDR                0x24
 #define LSM6DS_GYRO_OUT_Z_L_ADDR                0x26
@@ -179,7 +187,6 @@
 #define LSM6DS_RESET_ADDR                       0x12
 #define LSM6DS_RESET_MASK                       0x01
 
-#define LSM6DS_ADDRESS                          0xD6
 #define LSM6DSLTR_ID                            0x6A
 #define LSM6DS33TR_ID                           0x69
 
@@ -192,170 +199,70 @@ static const char configure[][2] = {
   {LSM6DS_INT2_CTRL_ADDR, 0x3},
 };
 
-static void i2c2Init()
+#define I2C_TIMEOUT_MAX      10000
+#define I2C_LSM6DS_MAX_WRITE 32
+
+static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t* data, uint8_t len)
 {
-  I2C_DeInit(I2C_B2);
+  uint8_t buffer[I2C_LSM6DS_MAX_WRITE];
 
-  I2C_InitTypeDef I2C_InitStructure;
-  I2C_InitStructure.I2C_ClockSpeed = I2C_B2_SPEED;
-  I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_OwnAddress1 = 0x00;
-  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_Init(I2C_B2, &I2C_InitStructure);
-  I2C_Cmd(I2C_B2, ENABLE);
+  if (len >= I2C_LSM6DS_MAX_WRITE - 1) return -1;
 
-  GPIO_PinAFConfig(I2C_B2_SCL_GPIO, I2C_B2_SCL_GPIO_PinSource, I2C_B2_GPIO_AF);
-  GPIO_PinAFConfig(I2C_B2_SDA_GPIO, I2C_B2_SDA_GPIO_PinSource, I2C_B2_GPIO_AF);
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = I2C_B2_SCL_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(I2C_B2_SCL_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = I2C_B2_SDA_GPIO_PIN;
-  GPIO_Init(I2C_B2_SDA_GPIO, &GPIO_InitStructure);
+  buffer[0] = reg;
+  memcpy(buffer + 1, data, len);
+  
+  return stm32_i2c_master_tx(IMU_I2C_BUS, IMU_I2C_ADDRESS, buffer, len + 1, 100);
 }
 
-#define I2C_TIMEOUT_MAX 10000
-bool I2C2_WaitEvent(uint32_t event)
+static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t value)
 {
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (!I2C_CheckEvent(I2C_B2, event)) {
-    if ((timeout--) == 0) return false;
-  }
-  return true;
+  return I2C_LSM6DS_WriteRegister(reg, &value, 1);
 }
 
-bool I2C2_WaitEventCleared(uint32_t event)
+static int I2C_LSM6DS_ReadRegister(uint8_t reg, uint8_t* data, uint8_t len)
 {
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (I2C_CheckEvent(I2C_B2, event)) {
-    if ((timeout--) == 0) {
-      TRACE("I2C Timeout!");
-      return false;
-    }
-  }
-  return true;
+  if (stm32_i2c_master_tx(IMU_I2C_BUS, IMU_I2C_ADDRESS, &reg, 1, 10) < 0)
+    return -1;
+
+  uint8_t value = 0;
+  if (stm32_i2c_master_rx(IMU_I2C_BUS, IMU_I2C_ADDRESS, data, len, 100) < 0)
+    return -1;
+
+  return value;
 }
 
-int setGyroRegister(uint8_t address, uint8_t value)
+static int I2C_LSM6DS_ReadRegister(uint8_t reg)
 {
-  if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
+  uint8_t value = 0;
+  if (I2C_LSM6DS_ReadRegister(reg, &value, 1) < 0)
     return -1;
-
-  I2C_GenerateSTART(I2C_B2, ENABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
-    return -1;
-
-  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-    return -1;
-
-  I2C_SendData(I2C_B2, address);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING))
-    return -1;
-
-  I2C_SendData(I2C_B2, value);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-    return -1;
-
-  I2C_GenerateSTOP(I2C_B2, ENABLE);
-
-  return 0;
-}
-
-int readGyroRegister(uint8_t address)
-{
-  if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
-    return -1;
-
-  I2C_GenerateSTART(I2C_B2, ENABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
-    return -1;
-
-  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-    return -1;
-
-  I2C_SendData(I2C_B2, address);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-    return -1;
-
-  I2C_GenerateSTART(I2C_B2, ENABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
-    return -1;
-
-  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Receiver);
-
-  I2C_AcknowledgeConfig(I2C_B2, DISABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
-    return -1;
-
-  uint8_t value = I2C_ReceiveData(I2C_B2);
-
-  I2C_GenerateSTOP(I2C_B2, ENABLE);
 
   return value;
 }
 
 int gyroInit()
 {
-  i2c2Init();
-
-  uint8_t id = readGyroRegister(LSM6DS_WHO_AM_I);
-  if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID) {  // LSM6DS33TR works with LSM6DSLTR code for our use
+  if (stm32_i2c_init(IMU_I2C_BUS, IMU_I2C_CLK_RATE) < 0)
     return -1;
-  }
 
-  setGyroRegister(0x12, 0x05);
+  // LSM6DS33TR works with LSM6DSLTR code for our use
+  uint8_t id = I2C_LSM6DS_ReadRegister(LSM6DS_WHO_AM_I);
+  if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID)
+    return -1;
+
+  I2C_LSM6DS_WriteRegister(0x12, 0x05);
   delay_ms(1);
-  setGyroRegister(0x12, 0x04);
+  I2C_LSM6DS_WriteRegister(0x12, 0x04);
   delay_ms(1);
 
   for (uint8_t i = 0; i < DIM(configure); i++) {
-    setGyroRegister(configure[i][0], configure[i][1]);
+    I2C_LSM6DS_WriteRegister(configure[i][0], configure[i][1]);
   }
 
   return 0;
 }
 
-int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH])
+int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
-  if (!I2C2_WaitEventCleared(I2C_FLAG_BUSY))
-    return -1;
-
-  I2C_GenerateSTART(I2C_B2, ENABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
-    return -1;
-
-  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Transmitter);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-    return -1;
-
-  I2C_SendData(I2C_B2, LSM6DS_GYRO_OUT_X_L_ADDR);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-    return -1;
-
-  I2C_GenerateSTART(I2C_B2, ENABLE);
-  if (!I2C2_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT))
-    return -1;
-
-  I2C_Send7bitAddress(I2C_B2, LSM6DS_ADDRESS, I2C_Direction_Receiver);
-
-  I2C_AcknowledgeConfig(I2C_B2, ENABLE);
-  for (uint8_t i=0; i<GYRO_BUFFER_LENGTH; i++) {
-    if (i == GYRO_BUFFER_LENGTH - 1)
-      I2C_AcknowledgeConfig(I2C_B2, DISABLE);
-    if (!I2C2_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))
-      return -1;
-    buffer[i] = I2C_ReceiveData(I2C_B2);
-  }
-
-  I2C_GenerateSTOP(I2C_B2, ENABLE);
-  return 0;
+  return I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buffer, IMU_BUFFER_LENGTH);
 }

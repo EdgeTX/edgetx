@@ -124,6 +124,8 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_RS, "RS"  },
   {  MIXSRC_MOUSE1, "MOUSE1"  },
   {  MIXSRC_MOUSE2, "MOUSE2"  },
+  {  MIXSRC_TILT_X, "TILT_X"  },
+  {  MIXSRC_TILT_Y, "TILT_Y"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_CYC1, "CYC1"  },
   {  MIXSRC_CYC2, "CYC2"  },
@@ -455,6 +457,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_SIGNED( "uartSampleMode", 2 ),
+  YAML_SIGNED( "imuMax", 8 ),
+  YAML_SIGNED( "imuOffset", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

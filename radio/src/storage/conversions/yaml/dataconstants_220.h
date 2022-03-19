@@ -746,7 +746,7 @@ enum MixSources {
   MIXSRC_MOUSE2,                        LUA_EXPORT("jsy", "Joystick Y")
 #endif
 
-#if defined(GYRO)
+#if defined(IMU)
   MIXSRC_GYRO1,                         LUA_EXPORT("gyrx", "Gyro X")
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
 #endif
