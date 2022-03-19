@@ -227,9 +227,6 @@ void boardInit()
   if (!adcInit(&ADC_DRIVER))
       TRACE("adcInit failed");
 
-#if defined(IMU_LSM6DS33)
-  imu_lsm6ds33_init();
-#endif
 
   init2MhzTimer();
   init1msTimer();

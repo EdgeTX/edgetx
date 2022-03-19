@@ -24,9 +24,9 @@
 #include "libopenui.h"
 #include "../../hal/adc_driver.h"
 
-#if defined(IMU_LSM6DS33)
-#include "imu_lsm6ds33.h"
-#endif
+// #if defined(IMU_LSM6DS33)
+// #include "imu_lsm6ds33.h"
+// #endif
 
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
 #include "../../targets/horus/flyskyHallStick_driver.h"
@@ -114,19 +114,19 @@ class AnaCalibratedViewWindow: public Window {
             }
         }
 
-#if !defined(SIMU) && defined(IMU_LSM6DS33)
-      coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
-      coord_t ximu = MENUS_MARGIN_LEFT;
-      char imudata[80];
-      sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
-              IMUoutput.fTemperatureDegC,
-              IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
-      dc->drawText(ximu, yimu, imudata);
-      yimu = MENU_CONTENT_TOP + 4 * FH;
-      sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
-                IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
-      dc->drawText(ximu, yimu, imudata);
-#endif
+// #if !defined(SIMU) && defined(IMU_LSM6DS33)
+//       coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
+//       coord_t ximu = MENUS_MARGIN_LEFT;
+//       char imudata[80];
+//       sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
+//               IMUoutput.fTemperatureDegC,
+//               IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
+//       dc->drawText(ximu, yimu, imudata);
+//       yimu = MENU_CONTENT_TOP + 4 * FH;
+//       sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
+//                 IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
+//       dc->drawText(ximu, yimu, imudata);
+// #endif
 
 #if defined(HARDWARE_TOUCH)
       TouchState rawTouchState = getInternalTouchState();

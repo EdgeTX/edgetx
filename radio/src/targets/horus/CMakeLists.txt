@@ -56,6 +56,9 @@ set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
 set(AUX_SERIAL ON)
 
+# IMU support
+set(IMU ON)
+
 if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
   add_definitions(-DSOFTWARE_VOLUME)
@@ -214,7 +217,6 @@ endif()
 if(IMU_LSM6DS33)
   add_definitions(-DIMU_LSM6DS33)
   set(AUX_SERIAL OFF)
-  set(IMU_LSM6DS33_DRIVER imu_lsm6ds33.cpp)
 endif()
 
 if(NOT INTERNAL_MODULE_PXX1)
@@ -274,7 +276,6 @@ set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
   ${FLYSKY_HALL_STICKS_DRIVER}
-  ${IMU_LSM6DS33_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp

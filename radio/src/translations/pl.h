@@ -217,10 +217,10 @@
 
 #define TR_ON_ONE_SWITCHES    "ON","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW      "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW       "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -246,7 +246,6 @@
 #define TR_VFORMULAS                   "Dodaj","Średnie","Min","Max","Mnóż","Zliczani","Komórka","Zużycie","Zasięg"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Niskie","1","2","3","4","5","6","Wysokie","Delta"
-#define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 
@@ -375,12 +374,12 @@
 #define TR_SOUND_LABEL         "Dźwięk"
 #define TR_LENGTH              "Długość"
 #define TR_BEEP_LENGTH         "Dług. Beepa"
-#define TR_BEEP_PITCH           "Dźwięk"
+#define TR_BEEP_PITCH          "Dźwięk"
 #define TR_HAPTIC_LABEL        "Wibracja"
-#define TR_STRENGTH      "Siła"
-#define TR_GYRO_LABEL                  "Gyro"
-#define TR_GYRO_OFFSET                 "Offset"
-#define TR_GYRO_MAX                    "Max"
+#define TR_STRENGTH            "Siła"
+#define TR_IMU_LABEL           "IMU"
+#define TR_IMU_OFFSET          "Offset"
+#define TR_IMU_MAX             "Max"
 #define TR_CONTRAST            "Kontrast"
 #define TR_ALARMS_LABEL        "Alarmy"
 #define TR_BATTERY_RANGE       TR("PokażPasBat.", "Pokaż pasek bateri")
@@ -620,7 +619,7 @@
 #define TR_MODULES_RX_VERSION          "Modules / RX version"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
-#define TR_GYRO                        "Gyro"
+#define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Sticks/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "RF Protocol"

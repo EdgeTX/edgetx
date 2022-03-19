@@ -115,7 +115,6 @@ void boardInit()
                          TRAINER_RCC_AHB1Periph |
                          TRAINER_MODULE_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
-                         I2C_B2_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);
 
@@ -134,8 +133,7 @@ void boardInit()
                          INTMODULE_RCC_APB1Periph |
                          TRAINER_MODULE_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
-                         BT_RCC_APB1Periph |
-                         I2C_B2_RCC_APB1Periph,
+                         BT_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
@@ -280,10 +278,6 @@ void boardInit()
   enableSpeaker();
 
   initHeadphoneTrainerSwitch();
-
-#if defined(GYRO)
-  gyroInit();
-#endif
 
 #if defined(RTCLOCK) && !defined(COPROCESSOR)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called

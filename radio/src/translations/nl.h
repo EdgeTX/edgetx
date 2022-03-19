@@ -221,10 +221,10 @@
 
 #define TR_ON_ONE_SWITCHES     "ON","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW       "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW       "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -382,9 +382,9 @@
 #define TR_BEEP_PITCH           "Piep-Freq. +/-"
 #define TR_HAPTIC_LABEL        "Haptic"
 #define TR_STRENGTH            "Sterkte"
-#define TR_GYRO_LABEL          "Gyro"
-#define TR_GYRO_OFFSET         "Offset"
-#define TR_GYRO_MAX            "Max"
+#define TR_IMU_LABEL           "IMU"
+#define TR_IMU_OFFSET          "Offset"
+#define TR_IMU_MAX             "Max"
 #define TR_CONTRAST            "LCD-Kontrast"
 #define TR_ALARMS_LABEL        "Alarm"
 #define TR_BATTERY_RANGE       TR("Accu Bereik", "Accu Spngs-Bereik") // Symbol Akku Ladezustand
@@ -629,7 +629,7 @@
 #define TR_MODULES_RX_VERSION          "Modules / RX version"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
-#define TR_GYRO                        "Gyro"
+#define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Sticks/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "RF Protocol"

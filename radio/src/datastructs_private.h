@@ -771,14 +771,6 @@ PACK(struct TrainerData {
   #define SPLASH_MODE int8_t splashMode:3
 #endif
 
-#if defined(PCBXLITES)
-  #define GYRO_FIELDS \
-    int8_t   gyroMax; \
-    int8_t   gyroOffset;
-#else
-  #define GYRO_FIELDS
-#endif
-
 #if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
@@ -911,14 +903,17 @@ PACK(struct RadioData {
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
-  GYRO_FIELDS
-
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);
   NOBACKUP(uint8_t  spare2:3 SKIP);
 #else
   NOBACKUP(uint8_t  spare2:6 SKIP);
+#endif
+
+#if defined(IMU)
+  NOBACKUP(int8_t imuMax);
+  NOBACKUP(int8_t imuOffset);
 #endif
 });
 
