@@ -222,10 +222,10 @@
 
 #define TR_ON_ONE_SWITCHES     "ON","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW       "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW       "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -251,7 +251,6 @@
 #define TR_VFORMULAS                   "Somma","Media","Min","Max","Moltipl","Totalizza","Cella","Consumo","Distanza"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","Maggiore","Delta"
-#define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 
@@ -375,17 +374,17 @@
 #define TR_BAR                 "Barra"
 #define TR_ALARM               TR( "Allar.",  "Allarme")
 #define TR_USRDATA             "Dati"
-#define TR_BLADES               "Pale"
+#define TR_BLADES              "Pale"
 #define TR_SCREEN              "Schermo\001"
 #define TR_SOUND_LABEL         "Suono"
-#define TR_LENGTH               "Durata"
+#define TR_LENGTH              "Durata"
 #define TR_BEEP_LENGTH         "Lung. Beep"
-#define TR_BEEP_PITCH           "Tono"
+#define TR_BEEP_PITCH          "Tono"
 #define TR_HAPTIC_LABEL        "Vibrazione"
-#define TR_STRENGTH      "Forza"
-#define TR_GYRO_LABEL                  "Gyro"
-#define TR_GYRO_OFFSET                 "Offset"
-#define TR_GYRO_MAX                    "Max"
+#define TR_STRENGTH            "Forza"
+#define TR_IMU_LABEL           "IMU"
+#define TR_IMU_OFFSET          "Offset"
+#define TR_IMU_MAX             "Max"
 #define TR_CONTRAST            "Contrasto"
 #define TR_ALARMS_LABEL        "Allarmi"
 #define TR_BATTERY_RANGE       TR("Int. Batt.", "Intervallo batteria")
@@ -624,7 +623,7 @@
 #define TR_MODULES_RX_VERSION          "Versioni Moduli / RX"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONI MODULI / RX"
 #define TR_MENU_FIRM_OPTIONS           "OPZIONI FIRMWARE"
-#define TR_GYRO                        "Gyro"
+#define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Interruttori/Pots/Sliders"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Interruttori/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "Protocollo RF"

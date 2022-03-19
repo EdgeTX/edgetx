@@ -54,10 +54,10 @@
   #define CASE_VARIO(x)
 #endif
 
-#if defined(GYRO)
-#define CASE_GYRO(x) x,
+#if defined(IMU)
+#define CASE_IMU(x) x,
 #else
-#define CASE_GYRO(x)
+#define CASE_IMU(x)
 #endif
 
 #if defined(BACKLIGHT_GPIO)
@@ -1167,7 +1167,7 @@ enum JackMode {
 };
 #endif
 
-#if defined(GYRO)
+#if defined(IMU)
 #include "gyro.h"
 #endif
 

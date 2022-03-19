@@ -238,10 +238,10 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","Un"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW               "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW               "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -267,7 +267,6 @@
 #define TR_VFORMULAS                   "Addition","Moyenne","Min","Max","Multipl.","Totalise","Elément","Consomm.","Distance"
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","Maxi.","Diff."
-#define TR_GYROS                       "GyrX","GyrY"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 
 // ZERO TERMINATED STRINGS
@@ -398,9 +397,9 @@
 #define TR_BEEP_PITCH                   "Tonalité"
 #define TR_HAPTIC_LABEL                "Vibreur"
 #define TR_STRENGTH                    "Force"
-#define TR_GYRO_LABEL                  "Gyro"
-#define TR_GYRO_OFFSET                 "Décalage"
-#define TR_GYRO_MAX                    "Max"
+#define TR_IMU_LABEL                   "IMU"
+#define TR_IMU_OFFSET                  "Décalage"
+#define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "Contraste"
 #define TR_ALARMS_LABEL                "Alarmes"
 #define TR_BATTERY_RANGE               "Plage batterie"
@@ -643,7 +642,7 @@
 #define TR_MODULES_RX_VERSION          "Versions modules / RX"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONS MODULES / RX "
 #define TR_MENU_FIRM_OPTIONS           "OPTIONS FIRMWARE"
-#define TR_GYRO                        "Gyro"
+#define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Manches/Pots/leviers"
 #define TR_PWM_STICKS_POTS_SLIDERS     "Manches PWM/Pots/leviers"
 #define TR_RF_PROTOCOL                 "Protocole RF"

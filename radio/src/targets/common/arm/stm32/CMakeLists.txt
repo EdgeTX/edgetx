@@ -26,8 +26,7 @@ set(STM32USB_SRC
   STM32_USB_Device_Library/Core/src/usbd_req.c
   )
 
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
+set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/usb_bsp.c
@@ -40,6 +39,14 @@ set(FIRMWARE_TARGET_SRC
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
   )
+
+if(IMU)
+  add_definitions(-DIMU)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+    targets/common/arm/stm32/lsm6ds_driver.cpp
+    )
+  set(SRC ${SRC} gyro.cpp)
+endif()
 
 if(AUX_SERIAL OR AUX2_SERIAL)
   set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
@@ -54,20 +61,17 @@ if(AUX_SERIAL OR AUX2_SERIAL)
 endif()
 
 if(DEBUG OR CLI OR USB_SERIAL)
-  set(STM32USB_SRC
-    ${STM32USB_SRC}
+  set(STM32USB_SRC ${STM32USB_SRC}
     STM32_USB_Device_Library/Class/cdc/src/usbd_cdc_core.c
   )
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
     ../common/arm/stm32/usbd_cdc.cpp
   )
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")
 endif()
 
-set(STM32USB_SRC
-  ${STM32USB_SRC}
+set(STM32USB_SRC ${STM32USB_SRC}
   STM32_USB_Device_Library/Class/msc/src/usbd_msc_data.c
   STM32_USB_Device_Library/Class/msc/src/usbd_msc_scsi.c
   STM32_USB_Device_Library/Class/msc/src/usbd_msc_bot.c
@@ -75,37 +79,18 @@ set(STM32USB_SRC
   )
 
 if(GVARS)
-  set(GUI_SRC
-    ${GUI_SRC}
-    ${GVAR_SCREEN}
-    )
+  set(GUI_SRC ${GUI_SRC} ${GVAR_SCREEN})
 endif()
 
-set(FIRMWARE_SRC
-  ${FIRMWARE_SRC}
-  syscalls.c
-  )
+set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
 foreach(FILE ${STM32LIB_SRC})
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    ${STM32LIB_DIR}/${FILE}
-    )
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32LIB_DIR}/${FILE})
 endforeach()
 
 foreach(FILE ${STM32USB_SRC})
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    ${STM32USB_DIR}/${FILE}
-    )
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32USB_DIR}/${FILE})
 endforeach()
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  ../common/arm/stm32/cpu_id.cpp
-  )
-
-set(SRC
-  ${SRC}
-  io/bootloader_flash.cpp
-  )
+set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
+set(SRC ${SRC} io/bootloader_flash.cpp)
