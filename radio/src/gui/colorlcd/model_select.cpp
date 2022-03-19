@@ -162,10 +162,6 @@ class SelectTemplate : public TemplatePage
             loadModelTemplate((name + YAML_EXT).c_str(), path);
             storageDirty(EE_MODEL);
             storageCheck(true);
-            // Update model list with new name
-            auto model = modelslist.getCurrentModel();
-            model->setModelName(g_model.header.name);
-            modelslist.save();
             // Dismiss template pages
             deleteLater();
             templateFolderPage->deleteLater();
@@ -175,7 +171,6 @@ class SelectTemplate : public TemplatePage
               luaExec(buffer);
               StandaloneLuaWindow::instance()->attach(focusWindow);
             }
-
             return 0;
           });
         tb->setFocusHandler([=](bool active) {
@@ -227,8 +222,9 @@ class SelectTemplate : public TemplatePage
 class SelectTemplateFolder : public TemplatePage
 {
   public:
-  SelectTemplateFolder()
+  SelectTemplateFolder(std::function<void(void)> update)
   {
+    this->update = update;
     rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
     new StaticText(&header, rect, STR_SELECT_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
 
@@ -299,6 +295,14 @@ class SelectTemplateFolder : public TemplatePage
       new StaticText(&body, rect, STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
     }
   }
+
+  ~SelectTemplateFolder()
+  {
+    update();
+  }
+
+  protected:
+  std::function<void(void)> update;
 };
 
 class ModelButton : public Button
@@ -640,11 +644,12 @@ class ModelCategoryPageBody : public FormWindow
     return [=]() {
       storageCheck(true);
       auto model = modelslist.addModel(category, createModel(), false);
-      model->setModelName(g_model.header.name);
       modelslist.setCurrentModel(model);
-      modelslist.save();
-      update(category->size() - 1);
-      new SelectTemplateFolder();
+      new SelectTemplateFolder([=]() {
+        model->setModelName(g_model.header.name);
+        modelslist.save();
+        update(category->size() - 1);
+      });
     };
   }
 };
