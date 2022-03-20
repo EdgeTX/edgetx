@@ -416,6 +416,7 @@ class MixLineTitle : public StaticText
   }
 };
 
+#include "channel_bar.h"
 void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 {
   FormGridLayout grid;
@@ -430,6 +431,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 
   int mixIndex = 0;
   MixData * mix = g_model.mixData;
+
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 
     bool skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
@@ -440,7 +442,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
       auto txt = new MixLineTitle(window, grid.getLabelSlot(),
                                   getSourceString(MIXSRC_CH1 + ch),
                                   BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
-
       uint8_t count = 0;
       while (mixIndex < MAX_MIXERS && mix->destCh == ch && !skip_mix) {
 
@@ -529,6 +530,13 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 
         skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
       }
+
+      grid.spacer();
+      rect_t rect = grid.getCenteredSlot();
+      rect.h -= 2;
+      new MixerChannelBar(window, rect, ch);
+      grid.spacer(PAGE_PADDING + 2);
+
 
       h = grid.getWindowHeight() - h + 1;
       txt->setHeight(h);
