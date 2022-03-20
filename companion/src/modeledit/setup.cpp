@@ -500,9 +500,13 @@ void ModulePanel::update()
     mask |= MASK_FAILSAFES;
   }
 
+  if (moduleIdx > 0)
+    ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
+  else
+    ui->telemetryBaudrate->setVisible(false);
+
   ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
   ui->protocol->setVisible(mask & MASK_PROTOCOL);
-  ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
   ui->label_rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setVisible(mask & MASK_RX_NUMBER);
   ui->rxNumber->setMaximum(max_rx_num);
