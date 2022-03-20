@@ -129,6 +129,8 @@ int stm32_i2c_deinit(uint8_t bus)
   if (!h) return -1;  
 
   if (HAL_I2C_DeInit(h) != HAL_OK) return -1;
+  h->Init.ClockSpeed = 0;
+  
   return 0;
 }
 
