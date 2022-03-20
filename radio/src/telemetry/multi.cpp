@@ -352,12 +352,16 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
 #if defined(AUX_SERIAL)
   if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
+    auxSerialPutc('M');
+    auxSerialPutc('P');
     for (uint8_t c = 0; c < len + 2; c++)
       auxSerialPutc(packet[c]);
   }
 #endif
 #if defined(AUX2_SERIAL)
   if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
+    aux2SerialPutc('M');
+    aux2SerialPutc('P');
     for (uint8_t c = 0; c < len + 2; c++)
       aux2SerialPutc(packet[c]);
   }
