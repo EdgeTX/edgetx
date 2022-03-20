@@ -154,8 +154,6 @@ inline void eeFlush()
   theFile.flush();
 }
 
-void eepromWriteBlock(uint8_t * buffer, size_t address, size_t size);
-
 inline bool eepromIsWriting()
 {
   return theFile.isWriting();

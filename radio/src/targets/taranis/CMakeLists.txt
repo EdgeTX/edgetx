@@ -535,7 +535,8 @@ set(FIRMWARE_TARGET_SRC
   ${LED_DRIVER}
   ${LCD_DRIVER}
   board.cpp
-  i2c_driver.cpp
+  volume_i2c.cpp
+  eeprom_driver.cpp
   backlight_driver.cpp
   trainer_driver.cpp
   )

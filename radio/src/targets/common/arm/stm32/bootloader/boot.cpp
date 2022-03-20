@@ -268,9 +268,10 @@ int main()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
 #endif
 
-#if defined(PCBTARANIS)
-  i2cInit();
+#if defined(EEPROM) && defined(EEPROM_RLC)
+  eepromInit();
 #endif
+
   init10msTimer();
 
   // SD card detect pin

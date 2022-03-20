@@ -751,14 +751,6 @@ uint8_t isBacklightEnabled();
 }
 #endif
 
-// I2C driver: EEPROM + Audio Volume
-#define EEPROM_SIZE                   (32*1024)
-
-void i2cInit();
-void eepromReadBlock(uint8_t * buffer, size_t address, size_t size);
-void eepromStartWrite(uint8_t * buffer, size_t address, size_t size);
-uint8_t eepromIsTransferComplete();
-
 // Debug driver
 void debugPutc(const char c);
 

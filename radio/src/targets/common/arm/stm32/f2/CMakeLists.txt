@@ -4,18 +4,22 @@ set(FPU_FLAGS "")
 
 # STM32 HAL/LL library
 set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver)
+include_directories(${STM32CUBE_DIR}/Inc)
 
 add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
+  # LL drivers
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_gpio.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_tim.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_dma.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_usart.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rcc.c
+  # HAL drivers
+  ${STM32CUBE_DIR}/Src/stm32f2xx_hal_rcc.c
+  ${STM32CUBE_DIR}/Src/stm32f2xx_hal_i2c.c
   )
 
 target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
 target_include_directories(stm32cube_ll PRIVATE
-  ${STM32CUBE_DIR}/Inc
   ${THIRDPARTY_DIR}/CMSIS/Device/ST/STM32F2xx/Include
   ${THIRDPARTY_DIR}/CMSIS/Include)
 

@@ -21,12 +21,10 @@
 
 #pragma once
 
-extern "C" {
-  #if defined(STM32F4)
-    #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-    #include "stm32f4xx_hal.h"
-  #elif defined(STM32F2)
-    #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
-    #include "stm32f2xx_hal.h"
-  #endif
-}
+#include <stdint.h>
+
+void eepromInit();
+void eepromReadBlock(uint8_t * buffer, size_t address, size_t size);
+void eepromWriteBlock(uint8_t * buffer, size_t address, size_t size);
+
+uint8_t eepromIsTransferComplete();
