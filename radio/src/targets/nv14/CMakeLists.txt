@@ -95,6 +95,10 @@ set(AFHDS2 ON)
 # disable for now as it crashes on radio
 #set(AFHDS3 ON)
 
+# VCP CLI
+set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+set(CLI ON CACHE BOOL "Enable CLI")
+
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
 file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/themes/*.cpp)
