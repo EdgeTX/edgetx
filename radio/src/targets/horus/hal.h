@@ -696,11 +696,9 @@
   #define TOUCH_I2C_BUS                   I2C_Bus_1
   #define TOUCH_I2C_CLK_RATE              400000
 
-  #define TOUCH_INT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOH
   #define TOUCH_INT_GPIO                  GPIOH
   #define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_2    // PH.02
 
-  #define TOUCH_RST_RCC_AHB1Periph        RCC_AHB1Periph_GPIOF
   #define TOUCH_RST_GPIO                  GPIOF
 #if defined(PCBX12S)
   #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_7   // PF.7
@@ -718,9 +716,6 @@
   #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
   #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
   #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
-#else
-  #define TOUCH_INT_RCC_AHB1Periph        0
-  #define TOUCH_RST_RCC_AHB1Periph        0
 #endif
 
 // First I2C Bus
