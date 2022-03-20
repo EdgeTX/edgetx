@@ -19,14 +19,38 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#if !defined(SOFTWARE_VOLUME)
 
-extern "C" {
-  #if defined(STM32F4)
-    #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-    #include "stm32f4xx_hal.h"
-  #elif defined(STM32F2)
-    #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
-    #include "stm32f2xx_hal.h"
-  #endif
+#include "stm32_i2c_driver.h"
+#include "board.h"
+
+static const uint8_t volumeScale[VOLUME_LEVEL_MAX+1] = {
+  0,  1,  2,  3,  5,  9,  13,  17,  22,  27,  33,  40,
+  64, 82, 96, 105, 112, 117, 120, 122, 124, 125, 126, 127
+};
+
+int32_t getVolume()
+{
+  uint8_t value = 0;
+  if (stm32_i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1, 10) < 0)
+    return -1;
+
+  return value;
 }
+
+void setVolume(uint8_t volume)
+{
+  // stm32_i2c_init(VOLUME_I2C_BUS, I2C_B1_CLK_RATE);
+  stm32_i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1, 10);
+}
+
+void setScaledVolume(uint8_t volume)
+{
+  if (volume > VOLUME_LEVEL_MAX) {
+    volume = VOLUME_LEVEL_MAX;
+  }
+
+  setVolume(volumeScale[volume]);
+}
+
+#endif

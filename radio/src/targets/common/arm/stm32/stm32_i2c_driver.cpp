@@ -27,8 +27,9 @@
 #include "debug.h"
 
 struct _i2c_defs {
-  GPIO_TypeDef*      GPIOx;
+  GPIO_TypeDef*      SCL_GPIOx;
   uint32_t           SCL_Pin;
+  GPIO_TypeDef*      SDA_GPIOx;
   uint32_t           SDA_Pin;
   uint32_t           Alternate;
 };
@@ -39,8 +40,9 @@ static I2C_HandleTypeDef hi2c1 = {
   .Init = { 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 static const _i2c_defs pins_hi2c1 = {
-  .GPIOx = I2C_B1_GPIO,
+  .SCL_GPIOx = I2C_B1_GPIO,
   .SCL_Pin = I2C_B1_SCL_GPIO_PIN,
+  .SDA_GPIOx = I2C_B1_GPIO,
   .SDA_Pin = I2C_B1_SDA_GPIO_PIN,
   .Alternate = I2C_B1_GPIO_AF,
 };
@@ -52,8 +54,17 @@ static I2C_HandleTypeDef hi2c2 = {
   .Init = { 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 static const _i2c_defs pins_hi2c2 = {
-  .GPIOx = I2C_B2_GPIO,
+#if defined(I2C_B2_GPIO)
+  .SCL_GPIOx = I2C_B2_GPIO,
+#else
+  .SCL_GPIOx = I2C_B2_SCL_GPIO,
+#endif
   .SCL_Pin = I2C_B2_SCL_GPIO_PIN,
+#if defined(I2C_B2_GPIO)
+  .SDA_GPIOx = I2C_B2_GPIO,
+#else
+  .SDA_GPIOx = I2C_B2_SDA_GPIO,
+#endif
   .SDA_Pin = I2C_B2_SDA_GPIO_PIN,
   .Alternate = I2C_B2_GPIO_AF,
 };
@@ -95,6 +106,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate)
     return -1;
   }
 
+#if  defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF)
   // Configure Analogue filter
   if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
     TRACE("I2C ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
@@ -106,6 +118,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate)
     TRACE("I2C ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
     return -1;
   }
+#endif
 
   return 1;
 }
@@ -141,6 +154,43 @@ int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
   if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
     return -1;
   }
+
+  return 0;
+}
+
+int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+                   uint8_t* data, uint16_t len, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = get_i2c_handle(bus);
+  if (!h) return -1;  
+
+  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+                    uint8_t* data, uint16_t len, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = get_i2c_handle(bus);
+  if (!h) return -1;  
+  
+  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = get_i2c_handle(bus);
+  if (!h) return -1;  
+
+  HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, (uint32_t)-1, timeout);
+  if (err != HAL_OK) return -1;
 
   return 0;
 }
@@ -193,19 +243,24 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
 
 static int i2c_pins_init(const _i2c_defs* def)
 {
-  if (i2c_enable_gpio_clock(def->GPIOx) < 0) return -1;
+  if (i2c_enable_gpio_clock(def->SCL_GPIOx) < 0) return -1;
+  if (i2c_enable_gpio_clock(def->SDA_GPIOx) < 0) return -1;
 
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   
-  pinInit.Pin = def->SCL_Pin | def->SDA_Pin;
   pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
   pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
   pinInit.Pull = LL_GPIO_PULL_NO;
   pinInit.Alternate = def->Alternate;
 
-  LL_GPIO_Init(def->GPIOx, &pinInit);
+  pinInit.Pin = def->SCL_Pin;
+  LL_GPIO_Init(def->SCL_GPIOx, &pinInit);
+
+  pinInit.Pin = def->SDA_Pin;
+  LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
+
   return 0;
 }
 
@@ -215,14 +270,18 @@ static int i2c_pins_deinit(const _i2c_defs* def)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   
-  pinInit.Pin = def->SCL_Pin | def->SDA_Pin;
   pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
   pinInit.Mode = LL_GPIO_MODE_INPUT;
   pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
   pinInit.Pull = LL_GPIO_PULL_NO;
   pinInit.Alternate = 0;
 
-  LL_GPIO_Init(def->GPIOx, &pinInit);
+  pinInit.Pin = def->SCL_Pin;
+  LL_GPIO_Init(def->SCL_GPIOx, &pinInit);
+
+  pinInit.Pin = def->SDA_Pin;
+  LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
+
   return 0;
 }
 

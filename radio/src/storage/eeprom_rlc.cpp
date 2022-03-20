@@ -24,6 +24,7 @@
 #include "opentx.h"
 #include "../timers.h"
 
+#include "hal/eeprom_driver.h"
 #include "storage/eeprom_common.h"
 #include "storage/eeprom_rlc.h"
 #include "conversions/conversions.h"
