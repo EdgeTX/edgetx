@@ -43,7 +43,6 @@ set(STM32LIB_SRC
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rcc.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_syscfg.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_spi.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_i2c.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_dma.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rtc.c
   STM32F2xx_StdPeriph_Driver/src/stm32f2xx_pwr.c
