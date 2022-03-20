@@ -739,21 +739,19 @@
 #endif
 
 // Second I2C Bus
-#if defined(RADIO_TX16S) && defined(IMU_LSM6DS33)
+#if !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
   #define I2C_B2                          I2C2
   #define I2C_B2_GPIO                     GPIOB
   #define I2C_B2_SCL_GPIO_PIN             LL_GPIO_PIN_10  // PB.10
   #define I2C_B2_SDA_GPIO_PIN             LL_GPIO_PIN_11  // PB.11
   #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4    // I2C2
-  #define AUX_I2C_B2_PWR_GPIO             GPIOA
-  #define AUX_I2C_B2_PWR_GPIO_PIN         GPIO_Pin_15  // PA.15
 #endif
 
 #if defined(IMU)
  #if defined(PCBX12S)
    #define IMU_I2C_BUS                   I2C_Bus_1
    #define IMU_I2C_ADDRESS               0x6A
- #elif defined(IMU_LSM6DS33)
+ #elif !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
    #define IMU_I2C_BUS                   I2C_Bus_2
    #define IMU_I2C_ADDRESS               0x6A
  #endif
