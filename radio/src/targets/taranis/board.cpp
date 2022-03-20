@@ -105,7 +105,6 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-                         I2C_B1_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -128,7 +127,6 @@ void boardInit()
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
-                         I2C_B1_RCC_APB1Periph |
                          SD_RCC_APB1Periph |
                          TRAINER_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
@@ -238,7 +236,6 @@ void boardInit()
   init2MhzTimer();
   init1msTimer();
   __enable_irq();
-  i2cInit();
   usbInit();
 
 #if defined(DEBUG)
