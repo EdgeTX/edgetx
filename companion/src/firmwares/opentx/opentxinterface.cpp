@@ -745,7 +745,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 40;
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ||
-             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board));
+             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
+             IS_RADIOMASTER_ZORRO(board);
     case HasAux2SerialMode:
       return IS_FAMILY_T16(board);
     case HasVCPSerialMode:
