@@ -148,7 +148,10 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     if (getByte) {
       luaSetGetSerialByte(ctx, getByte);
     } else if (setRxCb) {
+      luaAllocRxFifo();
       setRxCb(ctx, luaReceiveData);
+    } else {
+      luaFreeRxFifo();
     }
     break;
 #endif
