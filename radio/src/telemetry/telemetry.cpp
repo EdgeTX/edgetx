@@ -108,8 +108,6 @@ void telemetryMirrorSend(uint8_t data)
 
 void processTelemetryData(uint8_t data)
 {
-  telemetryMirrorSend(data);
-  
 #if defined(CROSSFIRE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
     processCrossfireTelemetryData(data, EXTERNAL_MODULE);
@@ -208,6 +206,7 @@ static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
   if (intmoduleFifo.pop(data)) {
     LOG_TELEMETRY_WRITE_START();
     do {
+      telemetryMirrorSend(data);
       processData(data, INTERNAL_MODULE);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (intmoduleFifo.pop(data));
@@ -250,6 +249,7 @@ static void pollExtTelemetry()
   if (telemetryGetByte(&data)) {
     LOG_TELEMETRY_WRITE_START();
     do {
+      telemetryMirrorSend(data);
       processTelemetryData(data);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (telemetryGetByte(&data));

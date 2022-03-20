@@ -217,6 +217,10 @@ void processResetFrame(uint8_t module, const uint8_t * frame)
 
 void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
+  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
+    telemetryMirrorSend(frame[i]);
+  }
+  
   uint8_t origin = (module << 2) + (frame[3] & 0x03);
   if (origin != TELEMETRY_ENDPOINT_SPORT) {
     sportProcessTelemetryPacketWithoutCrc(origin, &frame[4]);
