@@ -122,9 +122,7 @@ void boardInit()
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
-                         SPORT_UPDATE_RCC_AHB1Periph |
-                         TOUCH_INT_RCC_AHB1Periph |
-                         TOUCH_RST_RCC_AHB1Periph,
+                         SPORT_UPDATE_RCC_AHB1Periph,
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |

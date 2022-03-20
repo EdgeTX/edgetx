@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
 
 #include "hal.h"
@@ -465,16 +466,32 @@ static void TOUCH_AF_ExtiConfig(void)
   NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
 }
 
+static int gt911_enable_gpio_clock(GPIO_TypeDef *GPIOx)
+{
+  if (GPIOx == GPIOF)
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+  else if (GPIOx == GPIOH)
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+  else
+    return -1;
+
+  return 0;
+}
+
 static void TOUCH_AF_GPIOConfig(void)
 {
   LL_GPIO_InitTypeDef gpioInit;
   LL_GPIO_StructInit(&gpioInit);
 
-  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  gt911_enable_gpio_clock(TOUCH_RST_GPIO);
+  gt911_enable_gpio_clock(TOUCH_INT_GPIO);
+  
   gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
   gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   gpioInit.Pull = LL_GPIO_PULL_NO;
+
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
   LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
   LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
 
@@ -498,14 +515,12 @@ void TOUCH_AF_INT_Change(void)
 
 void I2C_Init_Radio(void)
 {
-  TRACE("I2C B1 Init");
+  TRACE("GT911 I2C Init");
 
   if (stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE) < 0) {
     TRACE("GT911 ERROR: stm32_i2c_init failed");
     return;
   }
-
-  
 }
 
 bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t *buf, uint8_t len)
