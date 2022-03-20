@@ -410,6 +410,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           }
       } else if (mod["ghost"]) {
           Node ghost = mod["ghost"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          ghost["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.ghost.telemetryBaudrate, getCurrentFirmware()->getBoard());
           ghost["raw12bits"] >> rhs.ghost.raw12bits;
       } else if (mod["crsf"]) {
           Node crsf = mod["crsf"];
