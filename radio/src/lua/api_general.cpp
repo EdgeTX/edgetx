@@ -103,13 +103,25 @@ static int luaRxFifoGetByte(void*, uint8_t* data)
   return luaRxFifo->pop(*data);
 }
 
-void luaReceiveData(uint8_t* buf, uint32_t len)
+void luaAllocRxFifo()
 {
   if (!luaRxFifo) {
-    luaRxFifo = new Fifo<uint8_t, LUA_FIFO_SIZE>();
+    auto fifo = new Fifo<uint8_t, LUA_FIFO_SIZE>();
+    luaRxFifo = fifo;
     luaSetGetSerialByte(nullptr, luaRxFifoGetByte);
   }
-    
+}
+
+void luaFreeRxFifo()
+{
+  auto fifo = luaRxFifo;
+  luaSetGetSerialByte(nullptr, nullptr);
+  luaRxFifo = nullptr;
+  delete(fifo);
+}
+
+void luaReceiveData(uint8_t* buf, uint32_t len)
+{
   if (luaRxFifo) {
     while(len--) luaRxFifo->push(*buf++);
   }
