@@ -637,6 +637,7 @@ PACK(struct PartialModel {
 });
 
 PACK(struct ModelData {
+  CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
@@ -841,9 +842,8 @@ PACK(struct TrainerData {
 PACK(struct RadioData {
 
   // Real attributes
-  NOBACKUP(uint8_t version);
+  CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
-  NOBACKUP(uint16_t variant SKIP);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);

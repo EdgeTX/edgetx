@@ -383,9 +383,8 @@ static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
-  YAML_UNSIGNED( "version", 8 ),
+  YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
-  YAML_PADDING( 16 ),
   YAML_ARRAY("calib", 48, 15, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "vBatWarn", 8 ),
@@ -849,6 +848,7 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
   YAML_END
 };
 static const struct YamlNode struct_ModelData[] = {
+  YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
   YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
