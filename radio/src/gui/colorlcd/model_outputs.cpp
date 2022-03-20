@@ -380,7 +380,19 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
     }
 
     txt->setHeight(button->height());
-    grid.spacer(button->height() + 5);
+    grid.spacer(button->height() + 1);
+
+    for (int mixIndex = 0; mixIndex < MAX_MIXERS; mixIndex++) {
+      MixData &mix = g_model.mixData[mixIndex];
+      if (mix.destCh == ch) {
+        rect_t rect = grid.getCenteredSlot();
+        rect.h -= 2;
+        new OutputChannelBar(window, rect, ch);
+        grid.spacer(PAGE_PADDING * 2 - 2);
+        break;
+      }
+    }
+    grid.spacer(4);
   }
 
   grid.nextLine();
