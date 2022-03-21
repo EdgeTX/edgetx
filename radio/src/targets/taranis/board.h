@@ -47,17 +47,6 @@ void rotaryEncoderCheck();
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-#if defined(STM32F4)
-  #define PERI1_FREQUENCY               42000000
-  #define PERI2_FREQUENCY               84000000
-#else
-  #define PERI1_FREQUENCY               30000000
-  #define PERI2_FREQUENCY               60000000
-#endif
-
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
-
 extern uint16_t sessionTimer;
 
 // Board driver

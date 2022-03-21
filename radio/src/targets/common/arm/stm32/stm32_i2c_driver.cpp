@@ -24,6 +24,7 @@
 #include "stm32_i2c_driver.h"
 #include "hal.h"
 
+#include "timers_driver.h"
 #include "debug.h"
 
 struct _i2c_defs {

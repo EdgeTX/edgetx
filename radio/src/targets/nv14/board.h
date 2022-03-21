@@ -48,12 +48,6 @@
 #define LUA_MEM_EXTRA_MAX               (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                     (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-// HSI is at 168Mhz (over-drive is not enabled!)
-#define PERI1_FREQUENCY                 42000000
-#define PERI2_FREQUENCY                 84000000
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
-
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
