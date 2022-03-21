@@ -1650,7 +1650,7 @@ int cliExecLine(char * line)
 #define CHAR_LF         0x0A
 #define CHAR_NEWPAGE    0x0C
 #define CHAR_CR         0x0D
-#define CHAR_BACKSPACE  0xFF
+#define CHAR_DEL        0x7F
 
 void cliTask(void * pdata)
 {
@@ -1684,10 +1684,12 @@ void cliTask(void * pdata)
       cliPrompt();
       break;
 
-    case CHAR_BACKSPACE:
+    case CHAR_DEL:
       if (pos) {
         line[--pos] = '\0';
-        cliSerialPutc(c);
+        cliSerialPutc('\010');
+        cliSerialPutc(' ');
+        cliSerialPutc('\010');
       }
       break;
 
