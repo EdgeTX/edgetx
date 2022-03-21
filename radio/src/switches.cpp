@@ -919,7 +919,6 @@ void logicalSwitchesTimerTick()
                   }
                 }
             }
-          }
         }
         else {
             if (ls->v1 != SWSRC_NONE) { // only if used / source set
@@ -930,7 +929,6 @@ void logicalSwitchesTimerTick()
                     lastValue.state = 1;
                   }
                 }
-            }
           }
         }
       }

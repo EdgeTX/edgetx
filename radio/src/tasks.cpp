@@ -88,22 +88,31 @@ constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
 void execMixerFrequentActions()
 {
-#if defined(SBUS_TRAINER) && (defined(AUX_SERIAL) || defined(AUX2_SERIAL))
-    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
-        #if defined(AUX2_SERIAL)
-            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
-        #endif
-            ) {
+#if defined(SBUS_TRAINER)
+  // SBUS trainer
+    if (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) {
         processSbusInput();
     }
-    else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)
-         #if defined(AUX2_SERIAL)
-             || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)
-         #endif
-             ) {
+    else if (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0) {
         processIbusInput();
     }
 #endif
+//#if defined(SBUS_TRAINER) && (defined(AUX_SERIAL) || defined(AUX2_SERIAL))
+//    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
+//        #if defined(AUX2_SERIAL)
+//            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
+//        #endif
+//            ) {
+//        processSbusInput();
+//    }
+//    else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)
+//         #if defined(AUX2_SERIAL)
+//             || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)
+//         #endif
+//             ) {
+//        processIbusInput();
+//    }
+//#endif
 
 #if defined(GYRO)
   gyro.wakeup();
