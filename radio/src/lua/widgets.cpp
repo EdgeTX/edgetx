@@ -326,7 +326,7 @@ void luaLoadFiles(const char * directory, void (*callback)())
           fname[0]!='.' && (fno.getType() == VfsType::DIR)) {
         strcpy(&path[pathlen], fname.c_str());
         strcat(&path[pathlen], LUA_WIDGET_FILENAME);
-        if (isFileAvailable(path)) {
+        if (vfs.isFileAvailable(path)) {
           luaLoadFile(path, callback);
         }
       }

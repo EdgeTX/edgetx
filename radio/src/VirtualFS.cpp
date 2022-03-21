@@ -23,8 +23,11 @@
 #include <stdint.h>
 #include <vector>
 #include <stdarg.h>
+#include <string.h>
 
+#if !defined(BOOT)
 #include "opentx.h"
+#endif
 #include "VirtualFS.h"
 
 
@@ -35,18 +38,6 @@
 #endif
 
 VirtualFS* VirtualFS::_instance = nullptr;;
-
-OUiFsError OUiOpenDir(OpenUiDirP& dir, const char* path)
-{
-  dir.reset(new OpenUiDirImpl());
-  return convertResultToOUi(VirtualFS::instance().openDirectory(((OpenUiDirImpl*)(dir.get()))->getUnderlying(), path));
-
-}
-OUiFsError OUiOpenFile(OpenUiFileP& file, const char* path, OUiFsOpenFlags flags)
-{
-  file.reset(new OpenUiFileImpl());
-  return convertResultToOUi(VirtualFS::instance().openFile(((OpenUiFileImpl*)(file.get()))->getUnderlying(), path, convertOUiFlags(flags)));
-}
 
 #if defined(USE_LITTLEFS)
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
@@ -701,6 +692,7 @@ void VirtualFS::restart()
   {
     BYTE work[FF_MAX_SS];
     FRESULT res = f_mkfs("1:", FM_ANY, 0, work, sizeof(work));
+#if !defined(BOOT)
     switch(res) {
       case FR_OK :
         break;
@@ -726,6 +718,7 @@ void VirtualFS::restart()
         POPUP_WARNING(STR_SDCARD_ERROR);
         break;
     }
+#endif
   }
 #endif // USE_LITLEFS
 #endif // SPI_FLASH
@@ -1177,8 +1170,11 @@ const char* VirtualFS::checkAndCreateDirectory(const char * path)
 
   if(res == VfsError::OK)
     return nullptr;
-
+#if !defined(BOOT)
   return STORAGE_ERROR(res);
+#else
+  return "could not create directory";
+#endif
 }
 
 bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
@@ -1286,23 +1282,24 @@ bool VirtualFS::isFilePatternAvailable(const char * path, const char * file, con
 
 char* VirtualFS::getFileIndex(char * filename, unsigned int & value)
 {
-  value = 0;
-  char * pos = (char *)getFileExtension(filename);
-  if (!pos || pos == filename)
-    return nullptr;
-  int multiplier = 1;
-  while (pos > filename) {
-    pos--;
-    char c = *pos;
-    if (c >= '0' && c <= '9') {
-      value += multiplier * (c - '0');
-      multiplier *= 10;
-    }
-    else {
-      return pos+1;
-    }
-  }
-  return filename;
+  return nullptr;
+//  value = 0;
+//  char * pos = (char *)getFileExtension(filename);
+//  if (!pos || pos == filename)
+//    return nullptr;
+//  int multiplier = 1;
+//  while (pos > filename) {
+//    pos--;
+//    char c = *pos;
+//    if (c >= '0' && c <= '9') {
+//      value += multiplier * (c - '0');
+//      multiplier *= 10;
+//    }
+//    else {
+//      return pos+1;
+//    }
+//  }
+//  return filename;
 }
 
 static uint8_t _getDigitsCount(unsigned int value)
