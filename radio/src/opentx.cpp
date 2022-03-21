@@ -1703,11 +1703,10 @@ void opentxInit()
   // storage related stuff, only done if not unexpectedShutdown
   if (!globalData.unexpectedShutdown) {
 
-    if (!sdMounted())
-      sdInit();
+    VirtualFS& vfs = VirtualFS::instance(); // initialize storage subsystem
 
 #if !defined(COLORLCD)
-    if (!sdMounted()) {
+    if (!vfs.defaultStorageAvailable()) {
       g_eeGeneral.pwrOffSpeed = 2;
       runFatalErrorScreen(STR_NO_SDCARD);
     }

@@ -668,27 +668,30 @@ void VirtualFS::stop()
   lfs_unmount(&lfs);
 #endif
 }
-static FATFS fatfs ={0};
 
 void VirtualFS::restart()
 {
 #if defined (SPI_FLASH)
 #if defined(USE_LITTLEFS)
-    bool formated = false;
   //  flashSpiEraseAll();
-    int err = lfs_mount(&lfs, &lfsCfg);
-    if(err) {
-        flashSpiEraseAll();
-        err = lfs_format(&lfs, &lfsCfg);
-        if(err == LFS_ERR_OK)
-          err = lfs_mount(&lfs, &lfsCfg);
-        if(err != LFS_ERR_OK)
-          return;
-        formated = true;
-    }
-    lfsCfg.context = this;
+  lfsMounted = true;
+  int err = lfs_mount(&lfs, &lfsCfg);
+  if(err) {
+      flashSpiEraseAll();
+      err = lfs_format(&lfs, &lfsCfg);
+      if(err == LFS_ERR_OK)
+        err = lfs_mount(&lfs, &lfsCfg);
+      if(err != LFS_ERR_OK)
+      {
+        lfsMounted = false;
+#if !defined(BOOT)
+        POPUP_WARNING(STR_SDCARD_ERROR);
+#endif
+      }
+  }
+  lfsCfg.context = this;
 #else // USE_LITTLEFS
-  if(f_mount(&fatfs, "1:", 1) != FR_OK)
+  if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
   {
     BYTE work[FF_MAX_SS];
     FRESULT res = f_mkfs("1:", FM_ANY, 0, work, sizeof(work));
@@ -719,6 +722,12 @@ void VirtualFS::restart()
         break;
     }
 #endif
+    if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
+    {
+#if !defined(BOOT)
+      POPUP_WARNING(STR_SDCARD_ERROR);
+#endif
+    }
   }
 #endif // USE_LITLEFS
 #endif // SPI_FLASH
@@ -730,7 +739,21 @@ void VirtualFS::restart()
   checkAndCreateDirectory("/DEFAULT/BACKUP");
 }
 
+extern FATFS g_FATFS_Obj;
 
+bool VirtualFS::defaultStorageAvailable()
+{
+#if (DEFAULT_STORAGE == INTERNAL)
+#if defined (USE_LITTLEFS)
+    return lfsMounted
+#else // USE_LITTLEFS
+    return spiFatFs.fs_type != 0;
+#endif // USE_LITTLEFS
+#elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
+    return g_FATFS_Obj.fs_type != 0;
+#endif
+
+}
 
 bool VirtualFS::format()
 {
