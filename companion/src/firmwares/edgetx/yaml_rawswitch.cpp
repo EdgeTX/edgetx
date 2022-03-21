@@ -166,6 +166,17 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       }
     }
 
+    //  these types use index = 1
+  } else if (val_len > 4 && (
+             (val[0] == 'R' && val[1] == 'A' && val[2] == 'D' && val[3] == 'I' && val[4] == 'O') ||
+             (val[0] == 'T' && val[1] == 'E' && val[2] == 'L' && val[3] == 'E' && val[4] == 'M'))) {
+
+    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
+    if (sw_type >= 0) {
+      rhs.type = (RawSwitchType)sw_type;
+      rhs.index = 1;
+    }
+
   //  TODO: SWITCH_TYPE_TIMER_MODE
   //        check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
   } else {

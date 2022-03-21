@@ -24,6 +24,7 @@
 #include "yaml_tree_walker.h"
 
 #include "pulses/multi.h"
+#include "stamp.h"
 
 // Use definitions from v220 conversions as long as nothing changes
 
@@ -134,6 +135,12 @@ static inline void check_yaml_funcs()
   check_size<CustomFunctionData, 11>();
   check_size<TelemetryScreenData, 24>();
 #endif
+}
+
+static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  return wf(opaque, VERSION, sizeof(VERSION)-1);
 }
 
 static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
