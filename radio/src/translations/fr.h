@@ -33,7 +33,6 @@
 
 
 // NON ZERO TERMINATED STRINGS
-<<<<<<< HEAD:radio/src/translations/fr.h
 #define TR_OFFON                       "OFF","ON"
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Aucun","Alarm","NoKey","Tout"
@@ -51,60 +50,6 @@
 #define TR_USBMODES                    TR("Popup","Demander"),TR("Joyst","Joystick"),TR("SDCard","Stockage"),"Série"
 #define TR_JACK_MODES                  "Demander","Audio","Ecolage"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
-=======
-#define LEN_OFFON                      "\003"
-#define TR_OFFON                       "OFF""ON\0"
-
-#define LEN_MMMINV                     "\003"
-#define TR_MMMINV                      "---""INV"
-
-#define LEN_VBEEPMODE                  "\005"
-#define TR_VBEEPMODE                   "Aucun""Alarm""NoKey""Tout\0"
-
-#define LEN_COUNTDOWNVALUES            "\003"
-#define TR_COUNTDOWNVALUES             "5s\0""10s""20s""30s"
-
-#define LEN_VBLMODE                    TR("\004", "\011")
-#define TR_VBLMODE                     TR("OFF\0""Btns""Ctrl""Tous""ON\0","OFF\0     ""Touches\0 ""Controles""Tous\0    ""ON\0      ")
-
-#define LEN_TRNMODE                    "\003"
-#define TR_TRNMODE                     "OFF""+=\0"":="
-
-#define LEN_TRNCHN                     "\003"
-#define TR_TRNCHN                      "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES           "\016"
-#define TR_AUX_SERIAL_MODES            "OFF\0          ""Recopie Telem\0""Télémétrie In\0""Ecolage SBUS\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
-//#define TR_AUX_SERIAL_MODES            "Debug\0        ""Recopie Telem\0""Télémétrie In\0""Ecolage SBUS\0 ""Ecolage IBUS\0 ""LUA\0          "
-
-#define LEN_SWTYPES                    "\006"
-#define TR_SWTYPES                     "Rien\0 ""Levier""2-POS\0""3-POS\0"
-
-#define LEN_POTTYPES                   TR("\013","\017")
-#define TR_POTTYPES                    TR("Rien\0      ""Pot av. ctr""Multipos\0  ""Pot\0       ", "Rien\0          ""Pot avec centre""Inter multi-pos""Potentiomètre\0")
-
-#define LEN_SLIDERTYPES                "\006"
-#define TR_SLIDERTYPES                 "Rien\0 ""Slider"
-
-#define LEN_VLCD                       "\006"
-#define TR_VLCD                        "NormalOptrex"
-
-#define LEN_VPERSISTENT                "\014"
-#define TR_VPERSISTENT                 "OFF\0        ""Vol\0        ""Reset Manuel"
-
-#define LEN_COUNTRY_CODES               TR("\002", "\006")
-#define TR_COUNTRY_CODES                TR("US""JP""EU", "USA\0  ""Japon\0""Europe")
-
-#define LEN_USBMODES                   TR("\006", "\010")
-#define TR_USBMODES                    TR("Popup\0""Joyst\0""SDCard""Série\0", "Demander""Joystick""Stockage""Série\0  ")
-
-#define LEN_JACK_MODES                  "\007"
-#define TR_JACK_MODES                   "Demander""Audio\0 ""Ecolage"
-
-#define LEN_TELEMETRY_PROTOCOLS        "\017"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
-
->>>>>>> 1d211270b (fix translations):radio/src/translations/fr.h.txt
 #define TR_MULTI_CUSTOM                "Perso"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Extra Fin"),"Fin","Moyen",TR("Gros","Grossier")
 #define TR_VDISPLAYTRIMS               "Non","Change","Oui"
