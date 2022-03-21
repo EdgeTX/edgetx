@@ -451,6 +451,7 @@ static void TOUCH_AF_ExtiStop(void)
 
 static void TOUCH_AF_ExtiConfig(void)
 {
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
   LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
 
   LL_EXTI_InitTypeDef extiInit;
