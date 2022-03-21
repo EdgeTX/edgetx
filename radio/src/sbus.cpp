@@ -66,33 +66,33 @@ void sbusSetGetByte(int (*fct)(uint8_t*))
 }
 
 // Range for pulses (ppm input) is [-512:+512]
-void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
-{
-  if (size != SBUS_FRAME_SIZE || sbus[0] != SBUS_START_BYTE ||
-      sbus[SBUS_FRAME_SIZE - 1] != SBUS_END_BYTE) {
-    return;  // not a valid SBUS frame
-  }
-  if ((sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FAILSAFE_BIT)) ||
-      (sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FRAMELOST_BIT))) {
-    return;  // SBUS invalid frame or failsafe mode
-  }
+//void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
+//{
+//  if (size != SBUS_FRAME_SIZE || sbus[0] != SBUS_START_BYTE ||
+//      sbus[SBUS_FRAME_SIZE - 1] != SBUS_END_BYTE) {
+//    return;  // not a valid SBUS frame
+//  }
+//  if ((sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FAILSAFE_BIT)) ||
+//      (sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FRAMELOST_BIT))) {
+//    return;  // SBUS invalid frame or failsafe mode
+//  }
 
-  sbus++; // skip start byte
+//  sbus++; // skip start byte
 
-  uint32_t inputbitsavailable = 0;
-  uint32_t inputbits = 0;
-  for (uint32_t i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    while (inputbitsavailable < SBUS_CH_BITS) {
-      inputbits |= *sbus++ << inputbitsavailable;
-      inputbitsavailable += 8;
-    }
-    *pulses++ = ((int32_t) (inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
-    inputbitsavailable -= SBUS_CH_BITS;
-    inputbits >>= SBUS_CH_BITS;
-  }
+//  uint32_t inputbitsavailable = 0;
+//  uint32_t inputbits = 0;
+//  for (uint32_t i=0; i<MAX_TRAINER_CHANNELS; i++) {
+//    while (inputbitsavailable < SBUS_CH_BITS) {
+//      inputbits |= *sbus++ << inputbitsavailable;
+//      inputbitsavailable += 8;
+//    }
+//    *pulses++ = ((int32_t) (inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
+//    inputbitsavailable -= SBUS_CH_BITS;
+//    inputbits >>= SBUS_CH_BITS;
+//  }
 
-  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
-}
+//  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+//}
 
 //void processSbusInput()
 //{
@@ -237,14 +237,7 @@ namespace  SBus {
 void sbusTrainerPauseCheck() {
 #if !defined(SIMU)
 # if defined(AUX_SERIAL) || defined(AUX2_SERIAL) || defined(TRAINER_MODULE_SBUS)
-    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
-        #if defined(AUX2_SERIAL)
-            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
-        #endif
-        #if defined(TRAINER_MODULE_SBUS)
-            || (g_model.trainerData.mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
-        #endif
-            ) {
+    if (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) {
         SBus::Servo::tick1ms();
         processSbusInput();    
     }
@@ -291,7 +284,7 @@ void processSbusInput() {
 #if !defined(SIMU)
   uint8_t rxchar;
   
-  while (sbusGetByte(&rxchar)) {
+  while (sbusAuxGetByte(&rxchar)) {
       SBus::Servo::process(rxchar, [&](){
           SBus::Servo::convert(ppmInput);
           ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
