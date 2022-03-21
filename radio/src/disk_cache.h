@@ -70,6 +70,6 @@ class DiskCache
     DiskCacheBlock * blocks;
 };
 
-extern DiskCache diskCache;
+extern DiskCache diskCache[2];
 
 #endif // _DISK_CACHE_H_

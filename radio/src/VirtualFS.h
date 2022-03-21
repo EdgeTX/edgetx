@@ -534,7 +534,6 @@ private:
   lfs_t lfs = {0};
   bool lfsMounted = false;
 #elif defined(SPI_FLASH)
-  tjftl_t* tjftl;
   FATFS spiFatFs ={0};
 #endif
 

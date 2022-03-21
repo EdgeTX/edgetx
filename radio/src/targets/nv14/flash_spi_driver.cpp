@@ -524,8 +524,8 @@ void flashInit()
       break;
     }
   }
-  if(flashDescriptor != nullptr)
-    flashSpiInitDMA();
+/*  if(flashDescriptor != nullptr)
+    flashSpiInitDMA();*/
 }
 
 #endif
