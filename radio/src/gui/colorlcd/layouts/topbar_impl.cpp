@@ -98,7 +98,7 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
 
 #if defined(INTERNAL_GPS)
-  if (hasSerialMode(UART_MODE_GPS)) {
+  if (hasSerialMode(UART_MODE_GPS) != -1) {
     if (gpsData.fix) {
       char s[10];
       sprintf(s, "%d", gpsData.numSat);
