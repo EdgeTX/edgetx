@@ -129,7 +129,7 @@ void processIbusInput() {
 #if !defined(SIMU)
   uint8_t rxchar;
 
-  while (sbusGetByte(&rxchar)) {
+  while (sbusAuxGetByte(&rxchar)) {
       IBus::Servo::process(rxchar, [&](){
           IBus::Servo::convert(ppmInput);
           ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
