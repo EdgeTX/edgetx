@@ -24,6 +24,12 @@
 
 #define CPU_FREQ                168000000
 
+// HSI is at 168Mhz (over-drive is not enabled!)
+#define PERI1_FREQUENCY                 42000000
+#define PERI2_FREQUENCY                 84000000
+#define TIMER_MULT_APB1                 2
+#define TIMER_MULT_APB2                 2
+
 /* Timers Allocation:
  * TIM1 = Haptic
  * TIM4 = Trainer
@@ -334,8 +340,26 @@
 #define AUDIO_SPI_MOSI_GPIO_PinSource GPIO_PinSource5
 
 // I2C Bus
-#define I2C_B1_RCC_AHB1Periph           0
-#define I2C_B1_RCC_APB1Periph           0
+#define I2C_B1                        I2C1
+#define I2C_B1_GPIO                   GPIOB
+#define I2C_B1_SCL_GPIO_PIN           LL_GPIO_PIN_8  // PB.08
+#define I2C_B1_SDA_GPIO_PIN           LL_GPIO_PIN_7  // PB.09
+#define I2C_B1_GPIO_AF                GPIO_AF4_I2C1
+
+#define TOUCH_I2C_BUS                 I2C_Bus_1
+#define TOUCH_I2C_CLK_RATE            400000
+
+#define TOUCH_INT_GPIO                GPIOB
+#define TOUCH_INT_GPIO_PIN            LL_GPIO_PIN_9    // PB.09
+
+#define TOUCH_RST_GPIO                GPIOB
+#define TOUCH_RST_GPIO_PIN            LL_GPIO_PIN_12   // PB.12
+
+#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_9
+#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTB
+#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE9
+#define TOUCH_INT_EXTI_IRQn           EXTI9_5_IRQn
+#define TOUCH_INT_EXTI_IRQHandler     EXTI9_5_IRQHandler
 
 // Haptic: TIM1_CH1
 #define HAPTIC_PWM
@@ -427,36 +451,32 @@
 #define EXTMODULE_RCC_APB1Periph 0
 #define EXTMODULE_RCC_APB2Periph        (RCC_APB2Periph_TIM8 | RCC_APB2Periph_USART6)
 #define EXTMODULE_TX_GPIO               GPIOC
-#define EXTMODULE_TX_GPIO_PIN           GPIO_Pin_6 // PC.06
-#define EXTMODULE_TX_GPIO_PIN_LL        LL_GPIO_PIN_6
-#define EXTMODULE_TX_GPIO_PinSource     GPIO_PinSource6
-#define EXTMODULE_TX_GPIO_AF            GPIO_AF_TIM8 // TIM8_CH1
+#define EXTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_6  // PC.06
+#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
 #define EXTMODULE_TX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_RX_GPIO               GPIOC
-#define EXTMODULE_RX_GPIO_PIN           GPIO_Pin_7 // PC.07
-#define EXTMODULE_RX_GPIO_PIN_LL        LL_GPIO_PIN_7
-#define EXTMODULE_RX_GPIO_PinSource     GPIO_PinSource7
+#define EXTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_7  // PC.07
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
 #define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
-#define EXTMODULE_TIMER_TX_GPIO_AF      GPIO_AF_TIM8
+#define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
 //USART
 #define EXTMODULE_USART                    USART6
 #define EXTMODULE_USART_GPIO               GPIOC
 #define EXTMODULE_USART_GPIO_AF            GPIO_AF_USART6
 #define EXTMODULE_USART_GPIO_AF_LL         LL_GPIO_AF_8
 #define EXTMODULE_USART_TX_DMA             DMA2
-#define EXTMODULE_USART_TX_DMA_CHANNEL     DMA_Channel_5
+#define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMA_CHANNEL_5
 #define EXTMODULE_USART_TX_DMA_STREAM      DMA2_Stream7
 #define EXTMODULE_USART_TX_DMA_STREAM_LL   LL_DMA_STREAM_7
 #define EXTMODULE_USART_TX_DMA_IRQn        DMA2_Stream7_IRQn
 #define EXTMODULE_USART_TX_DMA_IRQHandler  DMA2_Stream7_IRQHandler
 #define EXTMODULE_USART_TX_DMA_FLAG_TC     DMA_IT_TCIF7
 
-#define EXTMODULE_USART_RX_DMA_CHANNEL     DMA_Channel_5
+#define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMA_CHANNEL_5
 #define EXTMODULE_USART_RX_DMA_STREAM      DMA2_Stream2
 #define EXTMODULE_USART_RX_DMA_IRQn        DMA2_Stream2_IRQn
 #define EXTMODULE_USART_RX_DMA_IRQHandler  DMA2_Stream2_IRQHandler
@@ -467,7 +487,7 @@
 
 #define EXTMODULE_TIMER_DMA_SIZE           (DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0)
 //TIMER
-#define EXTMODULE_TIMER_DMA_CHANNEL        DMA_Channel_7
+#define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMA_CHANNEL_7
 #define EXTMODULE_TIMER_DMA_STREAM         DMA2_Stream1
 #define EXTMODULE_TIMER_DMA                DMA2
 #define EXTMODULE_TIMER_DMA_STREAM_LL      LL_DMA_STREAM_1

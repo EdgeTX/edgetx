@@ -24,9 +24,16 @@
 
 #if defined(STM32F4)
   #define CPU_FREQ            168000000
+  #define PERI1_FREQUENCY     42000000
+  #define PERI2_FREQUENCY     84000000
 #else
   #define CPU_FREQ            120000000
+  #define PERI1_FREQUENCY     30000000
+  #define PERI2_FREQUENCY     60000000
 #endif
+
+#define TIMER_MULT_APB1                 2
+#define TIMER_MULT_APB2                 2
 
 // Keys
 #if defined(PCBX9E)
@@ -1532,17 +1539,15 @@
   #define IS_EXTERNAL_MODULE_ON()       (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
   #define EXTMODULE_TX_GPIO             GPIOC
   #define EXTMODULE_USART_GPIO          EXTMODULE_TX_GPIO
-  #define EXTMODULE_TX_GPIO_PIN         GPIO_Pin_6  // PC.06
-  #define EXTMODULE_TX_GPIO_PinSource   GPIO_PinSource6
-  #define EXTMODULE_RX_GPIO_PIN         GPIO_Pin_7  // PC.07
-  #define EXTMODULE_RX_GPIO_PinSource   GPIO_PinSource7
+  #define EXTMODULE_TX_GPIO_PIN         LL_GPIO_PIN_6  // PC.06
+  #define EXTMODULE_RX_GPIO_PIN         LL_GPIO_PIN_7  // PC.07
   #define EXTMODULE_TIMER               TIM8
   #define EXTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH1
   #define EXTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #define EXTMODULE_TIMER_IRQn          TIM8_UP_TIM13_IRQn
   #define EXTMODULE_TIMER_IRQHandler    TIM8_UP_TIM13_IRQHandler
   #define EXTMODULE_TIMER_TX_GPIO_AF    GPIO_AF_TIM8 // TIM8_CH1
-  #define EXTMODULE_TIMER_DMA_CHANNEL           DMA_Channel_7
+  #define EXTMODULE_TIMER_DMA_CHANNEL           LL_DMA_CHANNEL_7
   #define EXTMODULE_TIMER_DMA_STREAM            DMA2_Stream1
   #define EXTMODULE_TIMER_DMA                   DMA2
   #define EXTMODULE_TIMER_DMA_STREAM_LL         LL_DMA_STREAM_1
@@ -1576,7 +1581,7 @@
   #define EXTMODULE_TIMER_TX_GPIO_AF            GPIO_AF_TIM8 // TIM8_CH1N
   #define EXTMODULE_TIMER_IRQn                  TIM8_UP_TIM13_IRQn
   #define EXTMODULE_TIMER_IRQHandler            TIM8_UP_TIM13_IRQHandler
-  #define EXTMODULE_TIMER_DMA_CHANNEL           DMA_Channel_7
+  #define EXTMODULE_TIMER_DMA_CHANNEL           LL_DMA_CHANNEL_7
   #define EXTMODULE_TIMER_DMA_STREAM            DMA2_Stream1
   #define EXTMODULE_TIMER_DMA                   DMA2
   #define EXTMODULE_TIMER_DMA_STREAM_LL         LL_DMA_STREAM_1

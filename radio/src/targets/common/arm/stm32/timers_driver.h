@@ -28,7 +28,7 @@ uint16_t getTmr2MHz();
 #define watchdogSuspend(timeout)
 #else
 
-#include "board.h"
+#include "hal.h"
 
 void init2MhzTimer();
 void init1msTimer();
