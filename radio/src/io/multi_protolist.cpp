@@ -307,6 +307,8 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
       for (; pdef->protocol != 0xfe; pdef++) {
         RfProto rfProto(pdef->protocol);
 
+        if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break; // skip custom proto
+
         char tmp[8];
         rfProto.label =
             getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
