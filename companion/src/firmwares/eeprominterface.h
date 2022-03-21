@@ -165,7 +165,6 @@ enum Capability {
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
-  FunctionSwitches,
   HasModelsList,
   HasFlySkyGimbals
 };

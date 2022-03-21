@@ -218,8 +218,8 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    functionSwitchConfig |= (Board::SWITCH_2POS << 2 * i);
-    functionSwitchGroup |= (1 << 2 * i);
+    setFuncSwitchConfig(i, Board::SWITCH_2POS);
+    setFuncSwitchGroup(i, 1);
   }
 }
 
@@ -232,7 +232,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
     moduleData[i].modelId = id + 1;
   }
   setDefaultMixes(settings);
-  setDefaultFunctionSwitches(getCurrentFirmware()->getCapability(FunctionSwitches));
+  setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 }
 
 int ModelData::getTrimValue(int phaseIdx, int trimIdx)
@@ -384,6 +384,28 @@ int ModelData::getChannelsMax(bool forceExtendedLimits) const
     return 100;
 }
 
+bool ModelData::isFunctionSwitchPositionAvailable(int index) const
+ {
+   if (index == 0)
+     return true;
+
+   div_t qr = div(abs(index) - 1, 3);
+   int fs = getFuncSwitchConfig(qr.quot);
+
+   if (qr.rem == 1) {
+     return false;
+   }
+   else {
+     return fs != Board::SWITCH_NOT_AVAILABLE;
+   }
+ }
+
+ bool ModelData::isFunctionSwitchSourceAllowed(int index) const
+ {
+   return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
+ }
+
+
 bool ModelData::isAvailable(const RawSwitch & swtch) const
 {
   unsigned index = abs(swtch.index) - 1;
@@ -396,6 +418,9 @@ bool ModelData::isAvailable(const RawSwitch & swtch) const
   }
   else if (swtch.type == SWITCH_TYPE_SENSOR) {
     return strlen(sensorData[index].label) > 0;
+  }
+  else if (swtch.type == SWITCH_TYPE_FUNCTIONSWITCH) {
+     return isFunctionSwitchPositionAvailable(index + 1);
   }
   else {
     return true;
@@ -1654,76 +1679,123 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   return mdl;
 }
 
-QString ModelData::funcSwitchConfigToString(const int index) const
-{
-  if (index < CPN_MAX_FUNCTION_SWITCHES)
-    return funcSwitchConfigToString(index, (int)(functionSwitchConfig >> (2 * index)) & 0x03);
-  else
-    return CPN_STR_UNKNOWN_ITEM;
-}
 
-//  static
-QString ModelData::funcSwitchConfigToString(const int index, const int value)
-{
-  switch (value) {
-    case FUNC_SWITCH_CONFIG_NONE:
-      return tr("NONE");
-    case FUNC_SWITCH_CONFIG_TOGGLE:
-      return tr("TOGGLE");
-    case FUNC_SWITCH_CONFIG_2POS:
-      return tr("2POS");
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
-}
+ unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
+   else
+     return FUNC_SWITCH_CONFIG_NONE;
+ }
 
-//  static
-AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
-{
-  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
+ void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
+ }
 
-  for (int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
-    mdl->appendToItemList(funcSwitchConfigToString(0, i), i);
-  }
+ //  static
+ QString ModelData::funcSwitchConfigToString(unsigned int value)
+ {
+   switch (value) {
+     case FUNC_SWITCH_CONFIG_NONE:
+       return tr("NONE");
+     case FUNC_SWITCH_CONFIG_TOGGLE:
+       return tr("TOGGLE");
+     case FUNC_SWITCH_CONFIG_2POS:
+       return tr("2POS");
+     default:
+       return CPN_STR_UNKNOWN_ITEM;
+   }
+ }
 
-  mdl->loadItemList();
-  return mdl;
-}
+ //  static
+ AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
+ {
+   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+   mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
 
-QString ModelData::funcSwitchStartToString(const int index) const
-{
-  if (index < CPN_MAX_FUNCTION_SWITCHES)
-    return funcSwitchStartToString(index, (int)(functionSwitchStartConfig >> (2 * index)) & 0x03);
-  else
-    return CPN_STR_UNKNOWN_ITEM;
-}
+   for (unsigned int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
+     mdl->appendToItemList(funcSwitchConfigToString(i), i);
+   }
 
-//  static
-QString ModelData::funcSwitchStartToString(const int index, const int value)
-{
-  switch (value) {
-    case FUNC_SWITCH_START_INACTIVE:
-      return tr("Inactive");
-    case FUNC_SWITCH_START_ACTIVE:
-      return tr("Active");
-    case FUNC_SWITCH_START_PREVIOUS:
-      return tr("Restore");
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
-}
+   mdl->loadItemList();
+   return mdl;
+ }
 
-//  static
-AbstractStaticItemModel * ModelData::funcSwitchStartItemModel()
-{
-  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_MODELDATA_FUNCSWITCHSTART);
+ unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
+   else
+     return 0;
+ }
 
-  for (int i = FUNC_SWITCH_START_FIRST; i <= FUNC_SWITCH_START_LAST; i++) {
-    mdl->appendToItemList(funcSwitchStartToString(0, i), i);
-  }
+ void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
+ }
 
-  mdl->loadItemList();
-  return mdl;
-}
+ unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int index) const
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+     unsigned int grp = getFuncSwitchGroup(index);
+     unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
+     return Helpers::getBitmappedValue(functionSwitchGroup, grp, 1, 2 * switchcnt);
+   }
+   else
+     return 0;
+ }
+
+ void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value)
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+     unsigned int grp = getFuncSwitchGroup(index);
+     unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
+     Helpers::setBitmappedValue(functionSwitchGroup, value, grp, 1, 2 * switchcnt);
+   }
+ }
+
+ unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
+   else
+     return FUNC_SWITCH_START_INACTIVE;
+ }
+
+ void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
+ {
+   if (index < CPN_MAX_FUNCTION_SWITCHES)
+     Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
+ }
+
+ //  static
+ QString ModelData::funcSwitchStartToString(unsigned int value)
+ {
+   switch (value) {
+     case FUNC_SWITCH_START_INACTIVE:
+       return tr("Inactive");
+     case FUNC_SWITCH_START_ACTIVE:
+       return tr("Active");
+     case FUNC_SWITCH_START_PREVIOUS:
+       return tr("Restore");
+     default:
+       return CPN_STR_UNKNOWN_ITEM;
+   }
+ }
+
+ //  static
+ AbstractStaticItemModel * ModelData::funcSwitchStartItemModel()
+ {
+   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+   mdl->setName(AIM_MODELDATA_FUNCSWITCHSTART);
+
+   for (unsigned int i = FUNC_SWITCH_START_FIRST; i <= FUNC_SWITCH_START_LAST; i++) {
+     mdl->appendToItemList(funcSwitchStartToString(i), i);
+   }
+
+   mdl->loadItemList();
+   return mdl;
+ }
