@@ -657,18 +657,26 @@ VirtualFS::VirtualFS()
 
 VirtualFS::~VirtualFS()
 {
-#if defined (SPI_FLASH) && defined (USE_LITTLEFS)
+#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   lfs_unmount(&lfs);
-#endif
+#else // USE_LITTLEFS
+  f_unmount("1:");
+#endif // USE_LITTLEFS
+#endif // SPI_FLASH
 }
 
 void VirtualFS::stop()
 {
-#if defined (SPI_FLASH)  && defined (USE_LITTLEFS)
+#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   lfs_unmount(&lfs);
-#endif
+#else // USE_LITTLEFS
+  f_unmount("1:");
+#endif // USE_LITTLEFS
+#endif // SPI_FLASH
 }
-
+static FATFS spiFatFsTmp ={0};
 void VirtualFS::restart()
 {
 #if defined (SPI_FLASH)
@@ -691,7 +699,7 @@ void VirtualFS::restart()
   }
   lfsCfg.context = this;
 #else // USE_LITTLEFS
-  if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
+  if(f_mount(&spiFatFsTmp, "1:", 1) != FR_OK)
   {
     BYTE work[FF_MAX_SS];
     FRESULT res = f_mkfs("1:", FM_ANY, 0, work, sizeof(work));
@@ -722,7 +730,7 @@ void VirtualFS::restart()
         break;
     }
 #endif
-    if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
+    if(f_mount(&spiFatFsTmp, "1:", 1) != FR_OK)
     {
 #if !defined(BOOT)
       POPUP_WARNING(STR_SDCARD_ERROR);
@@ -737,6 +745,12 @@ void VirtualFS::restart()
   checkAndCreateDirectory("/DEFAULT/LOGS");
   checkAndCreateDirectory("/DEFAULT/SCREENSHOTS");
   checkAndCreateDirectory("/DEFAULT/BACKUP");
+#if defined (SPI_FLASH)
+  checkAndCreateDirectory("/INTERNAL/BBB");
+  VfsFile file;
+  openFile(file, "/INTERNAL/BBB/test.txt", VfsOpenFlags::WRITE|VfsOpenFlags::CREATE_NEW);
+  file.close();
+#endif
 }
 
 extern FATFS g_FATFS_Obj;
@@ -832,7 +846,7 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     return VfsDir::DIR_FAT;
 #endif // USE_LITTLEFS
 #else // SPI_FLASH
-    return VfsDir::DIR_UNKOWN;
+    return VfsDir::DIR_UNKNOWN;
 #endif  // SPI_FLASH
   } else if(path.substr(0, 7) == "/SDCARD") {
 #if defined (SDCARD)
