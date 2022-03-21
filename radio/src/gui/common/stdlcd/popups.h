@@ -162,11 +162,7 @@ inline void POPUP_MENU_ADD_ITEM(const char * s)
   }
 }
 
-#if defined(SDCARD)
-  #define POPUP_MENU_ADD_SD_ITEM(s)    POPUP_MENU_ADD_ITEM(s)
-#else
-  #define POPUP_MENU_ADD_SD_ITEM(s)
-#endif
+#define POPUP_MENU_ADD_SD_ITEM(s)    POPUP_MENU_ADD_ITEM(s)
 
 inline void POPUP_MENU_SELECT_ITEM(uint8_t index)
 {

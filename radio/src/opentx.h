@@ -138,11 +138,7 @@
   #define CASE_PXX2(x)
 #endif
 
-#if defined(SDCARD)
-  #define CASE_SDCARD(x) x,
-#else
-  #define CASE_SDCARD(x)
-#endif
+#define CASE_SDCARD(x) x,
 
 #if defined(BLUETOOTH)
   #define CASE_BLUETOOTH(x) x,
@@ -752,9 +748,7 @@ enum FunctionsActive {
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + NUM_STICKS,
   FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
-#if defined(SDCARD)
   FUNCTION_LOGS,
-#endif
   FUNCTION_BACKGND_MUSIC,
   FUNCTION_BACKGND_MUSIC_PAUSE,
   FUNCTION_BACKLIGHT,
@@ -883,10 +877,7 @@ enum AUDIO_SOUNDS {
 #include "haptic.h"
 #endif
 
-#if defined(SDCARD) || defined (SPI_FLASH)
 #include "VirtualFS.h"
-#endif
-
 
 #if defined(RTCLOCK)
 #include "rtc.h"
@@ -981,7 +972,6 @@ union ReusableBuffer
 #endif
   } calib;
 
-#if defined(SDCARD)
   struct {
     char lines[NUM_BODY_LINES][STORAGE_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
     uint32_t available;
@@ -991,7 +981,6 @@ union ReusableBuffer
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
   } sdManager;
-#endif
 
   struct
   {
@@ -1161,7 +1150,6 @@ void varioWakeup();
 
 #include "lua/lua_api.h"
 
-#if defined(SDCARD)
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
   CLIPBOARD_TYPE_CUSTOM_SWITCH,
@@ -1188,7 +1176,6 @@ struct Clipboard {
 };
 
 extern Clipboard clipboard;
-#endif
 
 #if defined(INTERNAL_GPS)
   #include "gps.h"
