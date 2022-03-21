@@ -397,6 +397,7 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
+  ibus.cpp
   input_mapping.cpp
   inactivity_timer.cpp
   tasks/mixer_task.cpp

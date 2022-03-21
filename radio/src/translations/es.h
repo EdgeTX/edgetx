@@ -50,7 +50,7 @@
 #define TR_TRNMODE             "OFF",TR("+=","Añadir"),TR(":=","Cambiar")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetría","Entrenador SBUS","IBUS","LUA","CLI","GPS","Debug","SpaceMouse","Módulo externo"
+#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetría","Entrenador SBUS","Entrenador IBUS","LUA","CLI","GPS","Debug","SpaceMouse","Módulo externo"
 #define TR_SWTYPES             "Nada","Palanca","2POS","3POS"
 #define TR_POTTYPES            "Nada",TR("Pot con fij","Pot con fijador"),TR("Multipos","Switch multipos"),"Pot","Slider"
 #define TR_VPERSISTENT         "OFF","Vuelo","Reset manual"
