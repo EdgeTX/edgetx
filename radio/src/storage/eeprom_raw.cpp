@@ -430,7 +430,6 @@ uint16_t eeModelSize(uint8_t index)
   return result;
 }
 
-#if defined(SDCARD)
 const char * eeBackupModel(uint8_t i_fileSrc)
 {
   char * buf = reusableBuffer.modelsel.mainname;
@@ -512,7 +511,7 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
 
   FRESULT result = VirtualFS::instance().openFile(restoreFile, buf, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   if (result != VfsError::OK) {
-    return SDCARD_ERROR(result);
+    return STORAGE_ERROR(result);
   }
 
   if (restoreFile.size() < 8) {
@@ -523,7 +522,7 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
   result = restoreFile.read((uint8_t *)buf, 8, read);
   if (result != VfsError::OK || read != 8) {
     restoreFile.close();
-    return SDCARD_ERROR(result);
+    return STORAGE_ERROR(result);
   }
 
   uint8_t version = (uint8_t)buf[4];
@@ -556,7 +555,7 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
     result = restoreFile.read(eepromWriteBuffer+offset, blockSize, read);
     if (result != VfsError::OK || read != blockSize) {
       g_oLogFile.close();
-      return SDCARD_ERROR(result);
+      return STORAGE_ERROR(result);
     }
     eepromWrite(eepromWriteBuffer, address, blockSize+offset);
     size -= blockSize;
@@ -581,4 +580,3 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
 
   return NULL;
 }
-#endif
