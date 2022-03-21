@@ -34,7 +34,9 @@ TopbarImpl::TopbarImpl(Window * parent) :
 unsigned int TopbarImpl::getZonesCount() const
 {
 #if defined(INTERNAL_GPS)
-  return MAX_TOPBAR_ZONES-1;
+  if (hasSerialMode(UART_MODE_GPS)) {
+    return MAX_TOPBAR_ZONES-1;
+  }
 #endif
   return MAX_TOPBAR_ZONES;
 }
@@ -96,13 +98,16 @@ void TopbarImpl::paint(BitmapBuffer * dc)
   dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
 
 #if defined(INTERNAL_GPS)
-  if (gpsData.fix) {
-    char s[10];
-    sprintf(s, "%d", gpsData.numSat);
-    dc->drawText(GPS_X, 4, s, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
+  if (hasSerialMode(UART_MODE_GPS) != -1) {
+    if (gpsData.fix) {
+      char s[10];
+      sprintf(s, "%d", gpsData.numSat);
+      dc->drawText(GPS_X, 4, s, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
+    }
+    dc->drawBitmapPattern(
+        GPS_X - 10, 22, LBM_TOPMENU_GPS,
+        (gpsData.fix) ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
   }
-  dc->drawBitmapPattern(GPS_X - 10, 22, LBM_TOPMENU_GPS,
-                        (gpsData.fix) ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
 #endif
 
   // USB icon

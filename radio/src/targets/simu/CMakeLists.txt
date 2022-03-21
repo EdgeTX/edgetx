@@ -16,6 +16,11 @@ set(SIMU_SRC
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  module_drivers.cpp
+  led_driver.cpp
+  backlight_driver.cpp
+  gyro_driver.cpp
+  bt_driver.cpp
   )
 
 if(SIMU_DISKIO)

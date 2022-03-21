@@ -240,19 +240,21 @@ void DebugViewPage::build(FormWindow *window)
 #endif
 
 #if defined(INTERNAL_GPS)
-  new StaticText(window, grid.getLabelSlot(), STR_INT_GPS_LABEL, 0,
-                 COLOR_THEME_PRIMARY1);
-  new DynamicText(
-      window, grid.getFieldSlot(3, 0),
-      [] { return std::string(gpsData.fix ? "[Fix] Yes" : "[Fix] No"); },
-      COLOR_THEME_PRIMARY1);
-  new DebugInfoNumber<uint8_t>(
-      window, grid.getFieldSlot(3, 1), [] { return gpsData.numSat; },
-      COLOR_THEME_PRIMARY1, "[Sats] ", nullptr);
-  new DebugInfoNumber<uint16_t>(
-      window, grid.getFieldSlot(3, 2), [] { return gpsData.hdop; },
-      COLOR_THEME_PRIMARY1, "[Hdop] ", nullptr);
-  grid.nextLine();
+  if (hasSerialMode(UART_MODE_GPS)) {
+    new StaticText(window, grid.getLabelSlot(), STR_INT_GPS_LABEL, 0,
+                   COLOR_THEME_PRIMARY1);
+    new DynamicText(
+        window, grid.getFieldSlot(3, 0),
+        [] { return std::string(gpsData.fix ? "[Fix] Yes" : "[Fix] No"); },
+        COLOR_THEME_PRIMARY1);
+    new DebugInfoNumber<uint8_t>(
+        window, grid.getFieldSlot(3, 1), [] { return gpsData.numSat; },
+        COLOR_THEME_PRIMARY1, "[Sats] ", nullptr);
+    new DebugInfoNumber<uint16_t>(
+        window, grid.getFieldSlot(3, 2), [] { return gpsData.hdop; },
+        COLOR_THEME_PRIMARY1, "[Hdop] ", nullptr);
+    grid.nextLine();
+  }
 #endif
 
   // Reset

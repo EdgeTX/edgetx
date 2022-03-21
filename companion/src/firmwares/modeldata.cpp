@@ -1649,18 +1649,23 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
 
   if (!IS_FLYSKY_NV14(board) && value == TRAINER_MODE_OFF)
     ret = false;
-  else if (!IS_TARANIS(board) || IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
-    if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE && value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+  else if (!IS_TARANIS(board) ||
+           IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
+    if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
+        value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
       ret = false;
-  }
-  else if (generalSettings.auxSerialMode != UART_MODE_SBUS_TRAINER && value == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-      ret = false;
+  } else if (generalSettings.serialPort[GeneralSettings::SP_AUX1] !=
+                 UART_MODE_SBUS_TRAINER &&
+             value == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+    ret = false;
 
-  if (generalSettings.bluetoothMode != GeneralSettings::BLUETOOTH_MODE_TRAINER && value >= TRAINER_MODE_MASTER_BLUETOOTH && value <= TRAINER_MODE_SLAVE_BLUETOOTH)
-      ret = false;
+  if (generalSettings.bluetoothMode !=
+          GeneralSettings::BLUETOOTH_MODE_TRAINER &&
+      value >= TRAINER_MODE_MASTER_BLUETOOTH &&
+      value <= TRAINER_MODE_SLAVE_BLUETOOTH)
+    ret = false;
 
-  if (!IS_RADIOMASTER_TX16S(board) && value == TRAINER_MODE_MULTI)
-      ret = false;
+  if (!IS_RADIOMASTER_TX16S(board) && value == TRAINER_MODE_MULTI) ret = false;
 
   return ret;
 }

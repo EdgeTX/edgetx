@@ -164,7 +164,7 @@ endif()
 if(HAPTIC)
   add_definitions(-DHAPTIC)
   set(SRC ${SRC} haptic.cpp)
-  set(TARGET_SRC ${TARGET_SRC} haptic_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} haptic_driver.cpp)
 endif()
 
 # Protocols supported
@@ -268,6 +268,7 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
+add_definitions(-DSBUS_TRAINER)
 
 include_directories(${RTOS_DIR}/include)
 

@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -1868,14 +1869,8 @@ void opentxInit()
 #endif
 #endif  // #if !defined(EEPROM)
 
-#if defined(AUX_SERIAL)
-  auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
-#endif
-
-#if defined(AUX2_SERIAL)
-  aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
-#endif
-
+  initSerialPorts();
+  
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)

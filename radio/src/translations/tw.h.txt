@@ -63,7 +63,7 @@
 #define TR_TRNCHN                       "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES            "\010"
-#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0"
+#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0""CLI\0     "
 
 #define LEN_SWTYPES                     "\004"
 #define TR_SWTYPES                      "無\0 " "回彈" "2段\0""3段\0"
@@ -882,7 +882,7 @@
 #define TR_ABOUT_US                     "關於"
 #define TR_USB_JOYSTICK                 "USB 遊戲柄 (HID)"
 #define TR_USB_MASS_STORAGE             "USB 存儲器 (SD)"
-#define TR_USB_SERIAL                   "USB 端口 (調試)"
+#define TR_USB_SERIAL                   "USB 端口 (VCP)"
 #define TR_SETUP_SCREENS                "設置顯示頁面"
 #define TR_MONITOR_SCREENS              "查看器"
 #define TR_AND_SWITCH                   "與開關"

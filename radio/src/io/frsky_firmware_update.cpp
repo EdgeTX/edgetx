@@ -175,7 +175,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readHalfDuplexFrame(uint32_t timeout)
 {
   for (int i = timeout; i >= 0; i--) {
     uint8_t byte ;
-    while (telemetryGetByte(&byte)) {
+    while (sportGetByte(&byte)) {
       if (pushFrskyTelemetryData(byte)) {
         return telemetryRxBuffer;
       }
@@ -251,11 +251,14 @@ void FrskyDeviceFirmwareUpdate::sendFrame()
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE:
-      return intmoduleSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      IntmoduleSerialDriver.sendBuffer(uart_ctx, outputTelemetryBuffer.data,
+                                       ptr - outputTelemetryBuffer.data);
+      return;
 #endif
 
     default:
-      return sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      return;
   }
 }
 
@@ -306,6 +309,18 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 // X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
 // XLite PRO / X9Lite / X9D+ 2019 ISRM = use TX + RX @ 57600 bauds
 
+#if defined(INTMODULE_USART)
+static const etx_serial_init serialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+  .on_receive = intmoduleFifoReceive,
+  .on_error = intmoduleFifoError,
+};
+#endif
+
 const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
 {
   FIL file;
@@ -335,10 +350,9 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
     INTERNAL_MODULE_ON();
     RTOS_WAIT_MS(1);
 
-    etx_serial_init params;
+    etx_serial_init params(serialInitParams);
     params.baudrate = 38400;
-    params.rx_enable = true;
-    intmoduleSerialStart(&params);
+    uart_ctx = IntmoduleSerialDriver.init(&params);
 
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
@@ -352,10 +366,9 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE: {
-      etx_serial_init params;
+      etx_serial_init params(serialInitParams);
       params.baudrate = 57600;
-      params.rx_enable = true;
-      intmoduleSerialStart(&params);
+      uart_ctx = IntmoduleSerialDriver.init(&params);
     } break;
 #endif
 
@@ -387,14 +400,14 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
     return STR_DEVICE_NO_RESPONSE;
   }
 
-  intmoduleSendByte(0x81);
+  IntmoduleSerialDriver.sendByte(uart_ctx, 0x81);
   readBuffer(frame, 1, 100);
 
   if (!readBuffer(frame, 8, 100) || frame[0] != 0x02) {
       return STR_DEVICE_NO_RESPONSE;
   }
 
-  intmoduleSendByte(0x82);
+  IntmoduleSerialDriver.sendByte(uart_ctx, 0x82);
   readBuffer(frame, 1, 100);
 
   uint8_t index = 0;
@@ -412,7 +425,7 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
         return STR_DEVICE_WRONG_REQUEST;
 
     if (count == 0) {
-      intmoduleSendByte(0xA1);
+      IntmoduleSerialDriver.sendByte(uart_ctx, 0xA1);
       RTOS_WAIT_MS(50);
       return nullptr;
     }
@@ -420,15 +433,15 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
     if (count < 1024)
       memset(((uint8_t *)buffer) + count, 0, 1024 - count);
 
-    intmoduleSendByte(frame[0] + 0x80);
-    intmoduleSendByte(frame[1]);
+    IntmoduleSerialDriver.sendByte(uart_ctx, frame[0] + 0x80);
+    IntmoduleSerialDriver.sendByte(uart_ctx, frame[1]);
 
     uint16_t crc_16 = crc16(CRC_1189, (uint8_t *)buffer, 1024, crc16(CRC_1189, &frame[1], 1));
     for (size_t i = 0; i < sizeof(buffer); i++) {
-      intmoduleSendByte(((uint8_t *)buffer)[i]);
+      IntmoduleSerialDriver.sendByte(uart_ctx, ((uint8_t *)buffer)[i]);
     }
-    intmoduleSendByte(crc_16 >> 8);
-    intmoduleSendByte(crc_16);
+    IntmoduleSerialDriver.sendByte(uart_ctx, crc_16 >> 8);
+    IntmoduleSerialDriver.sendByte(uart_ctx, crc_16);
 
     index++;
   }
@@ -582,7 +595,7 @@ const char * FrskyChipFirmwareUpdate::waitAnswer(uint8_t & status)
   for (uint8_t i = 0; i < sizeof(buffer); i++) {
     uint32_t retry = 0;
     while (true) {
-      if (telemetryGetByte(&buffer[i])) {
+      if (sportGetByte(&buffer[i])) {
         if ((i == 0 && buffer[0] != 0x7F) ||
             (i == 1 && buffer[1] != 0xFE) ||
             (i == 10 && buffer[10] != 0x0D) ||

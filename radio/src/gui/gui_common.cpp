@@ -367,29 +367,52 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
-bool isAuxModeAvailable(int mode)
+int hasSerialMode(int mode)
 {
-#if defined(AUX2_SERIAL)
-  if (mode == UART_MODE_SBUS_TRAINER)
-    return g_eeGeneral.aux2SerialMode != UART_MODE_SBUS_TRAINER;
-#if defined(RADIO_TX16S)
-  else
-    return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER);
-#endif
-#endif
-  return true;
+  for (int p = 0; p < MAX_SERIAL_PORTS; p++) {
+    if (serialGetMode(p) == mode) return p;
+  }
+  return -1;
 }
 
-bool isAux2ModeAvailable(int mode)
+bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
-#if defined(AUX_SERIAL)
-  if (mode == UART_MODE_SBUS_TRAINER)
-    return g_eeGeneral.auxSerialMode != UART_MODE_SBUS_TRAINER;
-#if defined(RADIO_TX16S)
-  else
-    return (g_model.trainerData.mode != TRAINER_MODE_MASTER_BATTERY_COMPARTMENT || g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER);
+  if (mode == UART_MODE_NONE)
+    return true;
+
+#if !defined(DEBUG)
+  if (mode == UART_MODE_DEBUG)
+    return false;
 #endif
+
+#if !defined(CLI)
+  if (mode == UART_MODE_CLI)
+    return false;
 #endif
+
+#if !defined(INTERNAL_GPS)
+  if (mode == UART_MODE_GPS)
+    return false;
+#elif defined(USB_SERIAL)
+  // GPS is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_GPS)
+    return false;
+#endif
+
+#if !defined(LUA)
+  if (mode == UART_MODE_LUA)
+    return false;
+#endif
+
+#if defined(USB_SERIAL)
+  // Telemetry input & SBUS trainer on VCP is not yet supported
+  if (port_nr == SP_VCP &&
+      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
+    return false;
+#endif
+  
+  auto p = hasSerialMode(mode);
+  if (p >= 0 && p != port_nr) return false;
   return true;
 }
 
@@ -755,7 +778,8 @@ bool isRfProtocolAvailable(int protocol)
 bool isTelemetryProtocolAvailable(int protocol)
 {
 #if defined(PCBTARANIS)
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY && g_eeGeneral.auxSerialMode != UART_MODE_TELEMETRY) {
+  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY &&
+      hasSerialMode(UART_MODE_TELEMETRY) < 0) {
     return false;
   }
 #endif
@@ -791,51 +815,50 @@ bool isTelemetryProtocolAvailable(int protocol)
 
 bool isTrainerModeAvailable(int mode)
 {
-#if defined(PCBTARANIS)
-  if (IS_EXTERNAL_MODULE_ENABLED() && (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
-    return false;
-#endif
-
 #if defined(PCBX9E)
-  if (g_eeGeneral.bluetoothMode && mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
+  if (g_eeGeneral.bluetoothMode &&
+      mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
     // bluetooth uses the same USART than SBUS
     return false;
   }
 #endif
 
-#if defined(RADIO_TX16S) && defined(TRAINER_BATTERY_COMPARTMENT)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    return (g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER || g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER);
-#elif defined(PCBTARANIS) && !defined(TRAINER_BATTERY_COMPARTMENT)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    return false;
-#elif defined(PCBTARANIS)
-  if (mode == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    return g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER;
-#endif
-
-#if defined(BLUETOOTH) && !defined(PCBX9E)
-  if (g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER && (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH))
-    return false;
+  if (mode == TRAINER_MODE_MASTER_SERIAL) {
+#if defined(SBUS_TRAINER)
+    return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
 #else
-  if (mode == TRAINER_MODE_MASTER_BLUETOOTH || mode == TRAINER_MODE_SLAVE_BLUETOOTH)
     return false;
 #endif
+  }
+
+  if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
+       mode == TRAINER_MODE_SLAVE_BLUETOOTH)
+#if defined(BLUETOOTH) && !defined(PCBX9E)
+      && g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER
+#endif
+  )
+    return false;
 
 #if defined(PCBXLITE) && !defined(PCBXLITES)
   if (mode == TRAINER_MODE_MASTER_TRAINER_JACK || mode == TRAINER_MODE_SLAVE)
     return false;
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBNV14)
-  #if !defined(TRAINER_MODULE_CPPM)
+#if !defined(TRAINER_MODULE_CPPM)
   if (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE)
     return false;
-  #endif
-  #if !defined(TRAINER_MODULE_SBUS)
+#endif
+
+#if !defined(TRAINER_MODULE_SBUS)
   if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
     return false;
-  #endif
+#endif
+
+#if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
+  if (IS_EXTERNAL_MODULE_ENABLED() &&
+      (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
+       mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
+    return false;
 #endif
   
   return true;

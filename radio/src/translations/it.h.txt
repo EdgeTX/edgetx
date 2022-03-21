@@ -63,11 +63,7 @@
 #define TR_TRNCHN              "ch1ch2ch3ch4"
 
 #define LEN_AUX_SERIAL_MODES   "\016"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0        ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          "
-#else
-#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          "
-#endif
+#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Dis.\0 ""Toggle""2POS\0 ""3POS\0"
@@ -956,7 +952,7 @@
 #define TR_ABOUT_US            "Info su"
 #define TR_USB_JOYSTICK        "Joystick USB (HID)"
 #define TR_USB_MASS_STORAGE    "Storage USB (SD)"
-#define TR_USB_SERIAL          "Seriale USB (Debug)"
+#define TR_USB_SERIAL          "Seriale USB (VCP)"
 #define TR_SETUP_SCREENS       "Schermate conf."
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "Inter. AND"

@@ -62,11 +62,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\015"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    			"Debug\0       ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         "
-#else
-#define TR_AUX_SERIAL_MODES    			"AUS\0         ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         "
-#endif
+#define TR_AUX_SERIAL_MODES    			"AUS\0         ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES            			"\006"
 #define TR_SWTYPES            			 "Kein\0 ""Taster""2POS\0 ""3POS\0"
@@ -934,7 +930,7 @@
 #define TR_ABOUT_US                    "Die Programmierer"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Speicher (SD)"
-#define TR_USB_SERIAL                  "USB Seriell (Debug)"
+#define TR_USB_SERIAL                  "USB Seriell (VCP)"
 #define TR_SETUP_SCREENS               "Setup Hautbildschirme"
 #define TR_MONITOR_SCREENS             "Monitore Mischer Kanal Logik"
 #define TR_AND_SWITCH                  "UND Schalt" //UND mit weiterem Schaltern

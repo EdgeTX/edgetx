@@ -26,6 +26,10 @@
   #include "libopenui.h"
 #endif
 
+#if defined(CLI)
+  #include "cli.h"
+#endif
+
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
@@ -90,9 +94,11 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
+#if defined(USB_SERIAL)
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
+#endif
   else if (result == STR_EXIT) {
     _usbDisabled = true;
   }
@@ -153,6 +159,11 @@ void handleUsbConnection()
         opentxClose(false);
         usbPluggedIn();
       }
+#if defined(USB_SERIAL)
+      else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+        serialInit(SP_VCP, serialGetMode(SP_VCP));
+      }
+#endif
 
       usbStart();
       TRACE("USB started");
@@ -165,6 +176,8 @@ void handleUsbConnection()
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
       pushEvent(EVT_ENTRY);
+    } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+      serialStop(SP_VCP);
     }
     TRACE("reset selected USB mode");
     setSelectedUsbMode(USB_UNSELECTED_MODE);

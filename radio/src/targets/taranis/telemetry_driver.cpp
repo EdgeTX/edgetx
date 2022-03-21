@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 uint32_t telemetryErrors = 0;
@@ -392,22 +393,12 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
   telemetryPortInvertedRxBit();
 }
 
-// TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-bool telemetryGetByte(uint8_t * byte)
+// TODO: we should have telemetry in an higher layer,
+//       functions above should move to a sport_driver.cpp
+//
+bool sportGetByte(uint8_t * byte)
 {
-#if defined(AUX_SERIAL)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    if (auxSerialMode == UART_MODE_TELEMETRY)
-      return auxSerialRxFifo.pop(*byte);
-    else
-      return false;
-  }
-  else {
-    return telemetryFifo.pop(*byte);
-  }
-#else
   return telemetryFifo.pop(*byte);
-#endif
 }
 
 void telemetryClearFifo()

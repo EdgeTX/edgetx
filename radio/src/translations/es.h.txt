@@ -62,11 +62,7 @@
 #define TR_TRNCHN              "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES   "\015"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0       ""Telem Mirror\0""Telemetría\0  ""Entrenador SBUS""LUA\0         "
-#else
-#define TR_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetría\0  ""Entrenador SBUS""LUA\0         "
-#endif
+#define TR_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetría\0  ""Entrenador SBUS""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES            "\007"
 #define TR_SWTYPES             "Nada\0  ""Palanca""2POS\0  ""3POS\0  "
@@ -936,7 +932,7 @@
 #define TR_ABOUT_US            "Nosotros"
 #define TR_USB_JOYSTICK        "Joystick USB (HID)"
 #define TR_USB_MASS_STORAGE    "Almaz. USB (SD)"
-#define TR_USB_SERIAL          "Serie USB (Debug)"
+#define TR_USB_SERIAL          "Serie USB (VCP)"
 #define TR_SETUP_SCREENS       "Pantallas config"
 #define TR_MONITOR_SCREENS     "Monitores"
 #define TR_AND_SWITCH          TR("Inter. AND", "Interruptor AND")

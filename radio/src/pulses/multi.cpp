@@ -24,6 +24,7 @@
 
 #include "io/multi_protolist.h"
 #include "telemetry/multi.h"
+#include "mixer_scheduler.h"
 
 // for the  MULTI protocol definition
 // see https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
@@ -48,6 +49,20 @@ static void sendSport(uint8_t moduleIdx);
 static void sendHott(uint8_t moduleIdx);
 static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
+#endif
+
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+
+etx_serial_init multiSerialInitParams = {
+    .baudrate = MULTIMODULE_BAUDRATE,
+    .parity = ETX_Parity_Even,
+    .stop_bits = ETX_StopBits_Two,
+    .word_length = ETX_WordLength_9,
+    .rx_enable = true,
+    .on_receive = intmoduleFifoReceive,
+    .on_error = intmoduleFifoError,
+};
 #endif
 
 void multiPatchCustom(uint8_t moduleIdx)
@@ -235,6 +250,66 @@ void setupPulsesMultiInternalModule()
   intmodulePulsesData.multi.initFrame();
   setupPulsesMulti(INTERNAL_MODULE);
 }
+
+static void* multiInit(uint8_t module)
+{
+  (void)module;
+  
+  // serial port setup
+  intmodulePulsesData.multi.initFrame();
+  intmoduleFifo.clear();
+  void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+  INTERNAL_MODULE_ON();
+
+  // reset status
+  getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
+  getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+
+#if defined(MULTI_PROTOLIST)
+  TRACE("enablePulsesInternalModule(): trigger scan");
+  MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
+  TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
+#endif
+
+  return uart_ctx;
+}
+
+static void multiDeInit(void* context)
+{
+  INTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  IntmoduleSerialDriver.deinit(context);
+}
+
+static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+  
+  intmodulePulsesData.multi.initFrame();
+  setupPulsesMulti(INTERNAL_MODULE);
+}
+
+static void multiSendPulses(void* context)
+{
+  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.multi.getData(),
+                                   intmodulePulsesData.multi.getSize());
+}
+
+#include "hal/module_driver.h"
+
+const etx_module_driver_t MultiInternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
+  .init = multiInit,
+  .deinit = multiDeInit,
+  .setupPulses = multiSetupPulses,
+  .sendPulses = multiSendPulses  
+};
 #endif
 
 void sendChannels(uint8_t moduleIdx)

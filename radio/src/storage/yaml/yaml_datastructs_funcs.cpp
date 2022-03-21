@@ -58,10 +58,6 @@ namespace yaml_conv_220 {
   bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
 
-  extern const struct YamlIdStr enum_TrainerMode[];
-  bool w_trainerMode(const YamlNode* node, uint32_t val,
-                     yaml_writer_func wf, void* opaque);
-
   extern const char* _tele_screen_type_lookup[];
   bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
                           yaml_writer_func wf, void* opaque);
@@ -99,6 +95,7 @@ namespace yaml_conv_220 {
   bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                        void* opaque);
 
+  extern const struct YamlIdStr enum_UartModes[];
 };
 
 //
@@ -1029,15 +1026,36 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   return yaml_conv_220::w_vPitch(node, val, wf, opaque);
 }
 
+static const struct YamlIdStr enum_TrainerMode[] = {
+  {  TRAINER_MODE_OFF, "OFF"  },
+  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
+  {  TRAINER_MODE_SLAVE, "SLAVE"  },
+  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
+  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_SERIAL"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  },
+  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
+  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
+  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  0, NULL  }
+};
+
 static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
 {
-  return yaml_parse_enum(yaml_conv_220::enum_TrainerMode, val, val_len);
+  return yaml_parse_enum(enum_TrainerMode, val, val_len);
 }
 
 static bool w_trainerMode(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_trainerMode(node, val, wf, opaque);
+  const char* str = nullptr;
+  str = yaml_output_enum(val, enum_TrainerMode);
+
+  if (str) {
+    return wf(opaque, str, strlen(str));
+  }
+
+  return true;
 }
 
 #if !defined(COLORLCD)
@@ -1732,4 +1750,71 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
 {
   uint32_t i = yaml_str2uint(val, val_len);
   yaml_put_bits(data, i, bitoffs, 1);
+}
+
+//struct_serialConfig
+static const struct YamlIdStr enum_SerialPort[] = {
+  {  SP_AUX1, "AUX1"  },
+  {  SP_AUX2, "AUX2"  },
+  {  SP_VCP, "VCP"  },
+  {  0, NULL  }
+};
+
+static const struct YamlIdStr enum_UartModes[] = {
+  {  UART_MODE_NONE, "NONE"  },
+  {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
+  {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
+  {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  UART_MODE_LUA, "LUA"  },
+  {  UART_MODE_CLI, "CLI"  },
+  {  UART_MODE_GPS, "GPS"  },
+  {  UART_MODE_DEBUG, "DEBUG"  },
+  {  0, NULL  }
+};
+
+static uint32_t port_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  uint32_t port = yaml_parse_enum(enum_SerialPort, val, val_len);
+  if (port < MAX_SERIAL_PORTS) return port;
+
+  return -1;
+}
+
+static bool port_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str = yaml_output_enum(idx, enum_SerialPort);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+static const struct YamlNode struct_serialConfig[] = {
+    YAML_IDX_CUST( "port", port_read, port_write),
+    YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_END
+};
+
+static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  auto node = tw->getAttr();
+  if (!node || node->tag_len < 4) return;
+
+  uint8_t port_nr;
+  if (node->tag[3] == 'S')
+    port_nr = SP_AUX1;
+  else if (node->tag[3] == '2')
+    port_nr = SP_AUX2;
+  else
+    return;
+
+  auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
+  if (!m) return;
+  
+  auto serialPort = reinterpret_cast<uint16_t*>(data);
+  *serialPort = (*serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
 }

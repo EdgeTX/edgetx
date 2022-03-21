@@ -92,9 +92,9 @@ inline int getChannelValue(uint8_t port, int channel)
 static void sbusFlush()
 {
   if (extmodulePulsesData.dsm2.index & 1)
-    *extmodulePulsesData.dsm2.ptr++ = 60000;
+    *extmodulePulsesData.dsm2.ptr++ = 255;
   else
-    *(extmodulePulsesData.dsm2.ptr - 1) = 60000;
+    *(extmodulePulsesData.dsm2.ptr - 1) = 255;
 }
 
 void setupPulsesSbus()

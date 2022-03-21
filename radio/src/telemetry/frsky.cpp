@@ -20,21 +20,10 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 void processFrskyTelemetryData(uint8_t data)
 {
-
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    auxSerialPutc(data);
-  }
-#endif
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    aux2SerialPutc(data);
-  }
-#endif
-
   if (pushFrskyTelemetryData(data)) {
     if (IS_FRSKY_SPORT_PROTOCOL()) {
       sportProcessTelemetryPacket(telemetryRxBuffer);

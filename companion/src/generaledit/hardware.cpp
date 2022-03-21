@@ -35,6 +35,50 @@ constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
 constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
 constexpr char FIM_INTERNALMODULES[] {"Internal Modules"};
 
+class ExclusiveComboGroup: public QObject
+{
+  static constexpr auto _role = Qt::UserRole + 500;
+
+  QList<QComboBox*> combos;
+  std::function<bool(const QVariant&)> filter;
+  
+public:
+ ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
+   QObject(parent), filter(std::move(filter))
+ {
+ }
+
+ void addCombo(QComboBox *comboBox)
+ {
+   connect(comboBox, QOverload<int>::of(&QComboBox::activated),
+           [=](int index) { this->handleActivated(comboBox, index); });
+   combos.append(comboBox);
+  }
+
+  void handleActivated(QComboBox* target, int index) {
+    auto data = target->itemData(index);
+    auto targetidx = combos.indexOf(target);
+    for (auto combo : combos) {
+      if (target == combo) continue;
+      auto view = dynamic_cast<QListView*>(combo->view());
+      Q_ASSERT(view);
+
+      auto previous = combo->findData(targetidx, _role);
+      if (previous >= 0) {
+        view->setRowHidden(previous, false);
+        combo->setItemData(previous, QVariant(), _role);
+      }
+      if (!filter(data)) {
+        auto idx = combo->findData(data);
+        if (idx >= 0) {
+          view->setRowHidden(idx, true);
+          combo->setItemData(idx, targetidx, _role);
+        }
+      }
+    }
+  }
+};
+
 HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
   board(firmware->getBoard()),
@@ -50,7 +94,8 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
-  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::auxSerialModeItemModel());
+  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
+  int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
   int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::telemetryBaudrateItemModel());
 
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
@@ -149,6 +194,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams(row, maxBaudRate);
   }
 
+  // All values except 0 are mutually exclusive
+  ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
+      this, [=](const QVariant &value) { return value == 0; });
+
   if (firmware->getCapability(HasAuxSerialMode)) {
     QString lbl = "Serial Port";
     if (IS_RADIOMASTER_TX16S(board))
@@ -156,7 +205,8 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addLabel(tr("%1").arg(lbl), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
-    serialPortMode->setField(generalSettings.auxSerialMode);
+    serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX1]);
+    exclGroup->addCombo(serialPortMode);
     addParams(row, serialPortMode);
   }
 
@@ -165,10 +215,20 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     if (IS_RADIOMASTER_TX16S(board))
       lbl.append(" (TTL)");
     addLabel(tr("%1").arg(lbl), row, 0);
-    AutoComboBox *serialPort2Mode = new AutoComboBox(this);
-    serialPort2Mode->setModel(editorItemModels->getItemModel(auxmodelid));
-    serialPort2Mode->setField(generalSettings.aux2SerialMode);
-    addParams(row, serialPort2Mode);
+    AutoComboBox *serialPortMode = new AutoComboBox(this);
+    serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX2]);
+    exclGroup->addCombo(serialPortMode);
+    addParams(row, serialPortMode);
+  }
+
+  if (firmware->getCapability(HasVCPSerialMode)) {
+    addLabel(tr("Serial Port VCP"), row, 0);
+    AutoComboBox *serialPortMode = new AutoComboBox(this);
+    serialPortMode->setModel(editorItemModels->getItemModel(vcpmodelid));
+    serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_VCP]);
+    exclGroup->addCombo(serialPortMode);
+    addParams(row, serialPortMode);
   }
 
   if (firmware->getCapability(HasADCJitterFilter)) {

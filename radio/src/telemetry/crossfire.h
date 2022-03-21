@@ -116,6 +116,7 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   4,
   4,
   4,
+  4,
 };
 #if SPORT_MAX_BAUDRATE < 400000
   // index 0 (115200) is the default 0 value

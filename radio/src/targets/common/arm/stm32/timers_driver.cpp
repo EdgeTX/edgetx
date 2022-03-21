@@ -52,8 +52,7 @@ void stop1msTimer()
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
 }
 
-// TODO use the same than board_sky9x.cpp
-void interrupt1ms()
+static void interrupt1ms()
 {
   static uint8_t pre_scale; // Used to get 10 Hz counter
 

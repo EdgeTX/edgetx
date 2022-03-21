@@ -22,6 +22,7 @@
 #include "telemetry.h"
 #include "multi.h"
 #include "io/multi_protolist.h"
+#include "aux_serial_driver.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11
@@ -256,7 +257,7 @@ static void processMultiSyncPacket(const uint8_t * data, uint8_t module)
 
   status.update(refreshRate, inputLag);
 #if defined(DEBUG)
-  serialPrint("MP ADJ: R %d, L %04d", refreshRate, inputLag);
+  dbgSerialPrint("MP ADJ: R %d, L %04d", refreshRate, inputLag);
 #endif
 }
 
@@ -349,19 +350,6 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
   uint8_t type = packet[0];
   uint8_t len = packet[1];
   const uint8_t * data = packet + 2;
-
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    for (uint8_t c = 0; c < len + 2; c++)
-      auxSerialPutc(packet[c]);
-  }
-#endif
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    for (uint8_t c = 0; c < len + 2; c++)
-      aux2SerialPutc(packet[c]);
-  }
-#endif
 
   // Switch type
   switch (type) {
