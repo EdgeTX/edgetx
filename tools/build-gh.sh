@@ -120,6 +120,9 @@ do
         x9e)
             BUILD_OPTIONS+="-DPCB=X9E"
             ;;
+        x9e-hall)
+            BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
+            ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
             ;;
