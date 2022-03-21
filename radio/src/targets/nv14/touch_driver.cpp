@@ -19,26 +19,28 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "stm32_hal_ll.h"
+#include "stm32_hal.h"
+#include "hal.h"
+
+#include "stm32_i2c_driver.h"
+#include "timers_driver.h"
+#include "delays_driver.h"
 #include "touch_driver.h"
+
+#include "debug.h"
 
 volatile static bool touchEventOccured;
 
 #define FT6x06_MAX_INSTANCE  1
 
-#define I2C_TOUCH_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
-#define I2C_TOUCH_RCC_APB1Periph              RCC_APB1Periph_I2C1
-#define I2C_TOUCH                             I2C1
-#define I2C_TOUCH_GPIO                        GPIOB
-#define I2C_TOUCH_SCL_GPIO_PIN                GPIO_Pin_8  // PB.08
-#define I2C_TOUCH_SDA_GPIO_PIN                GPIO_Pin_7  // PB.09
+#define TOUCH_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
+#define TOUCH_RCC_APB1Periph              RCC_APB1Periph_I2C1
+#define TOUCH_GPIO                        I2C_B1_GPIO
+#define TOUCH_SCL_GPIO_PIN                I2C_B1_SCL_GPIO_PIN  // PB.08
+#define TOUCH_SDA_GPIO_PIN                I2C_B1_SDA_GPIO_PIN  // PB.09
 
-#define I2C_TOUCH_RESET_GPIO            GPIOB
-#define I2C_TOUCH_RESET_GPIO_PIN        GPIO_Pin_12  // PB.12
-#define I2C_TOUCH_INT_GPIO              GPIOB
-#define I2C_TOUCH_INT_GPIO_PIN          GPIO_Pin_9  // PB.09
-
-#define TOUCH_FT6236_I2C_ADDRESS      (0x70>>1)
+#define TOUCH_FT6236_I2C_ADDRESS          (0x70>>1)
 
 uint8_t ft6x06[FT6x06_MAX_INSTANCE] = {0};
 static ft6x06_handle_TypeDef ft6x06_handle = {FT6206_I2C_NOT_INITIALIZED, 0, 0};
@@ -52,209 +54,142 @@ static TouchState internalTouchState = {};
 
 void I2C_FreeBus()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  // reset i2c bus by setting clk as output and sending manual clock pulses
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_SCL_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(I2C_TOUCH_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef gpioInit;
+  LL_GPIO_StructInit(&gpioInit);
 
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_SDA_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(I2C_TOUCH_GPIO, &GPIO_InitStructure);
+  // reset i2c bus by setting clk as output and sending manual clock pulses
+  gpioInit.Pin = TOUCH_SCL_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpioInit.Pull = LL_GPIO_PULL_NO;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
+
+  gpioInit.Pin = TOUCH_SDA_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_INPUT;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
 
   //send 100khz clock train for some 100ms
   tmr10ms_t until = get_tmr10ms() + 11;
   while (get_tmr10ms() < until) {
-    if (GPIO_ReadInputDataBit(I2C_TOUCH_GPIO, I2C_TOUCH_SDA_GPIO_PIN) == 1) {
+    if (LL_GPIO_IsInputPinSet(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN)) {
       TRACE("touch: i2c free again\n");
       break;
     }
     TRACE("FREEEEE");
-    I2C_TOUCH_GPIO->BSRRH = I2C_TOUCH_SCL_GPIO_PIN; //BSRRL
+    LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
     delay_us(10);
-    I2C_TOUCH_GPIO->BSRRL = I2C_TOUCH_SCL_GPIO_PIN;
+    LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
     delay_us(10);
   }
 
   //send stop condition:
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_SDA_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(I2C_TOUCH_GPIO, &GPIO_InitStructure);
+  gpioInit.Pin = TOUCH_SDA_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
 
   //clock is low
-  I2C_TOUCH_GPIO->BSRRH = I2C_TOUCH_SCL_GPIO_PIN;
+  LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
   delay_us(10);
   //sda = lo
-  I2C_TOUCH_GPIO->BSRRL = I2C_TOUCH_SDA_GPIO_PIN;
+  LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN);
   delay_us(10);
   //clock goes high
-  I2C_TOUCH_GPIO->BSRRH = I2C_TOUCH_SCL_GPIO_PIN;
+  LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
   delay_us(10);
   //sda = hi
-  I2C_TOUCH_GPIO->BSRRL = I2C_TOUCH_SDA_GPIO_PIN;
+  LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN);
   delay_us(10);
   TRACE("FREE BUS");
 }
 
-void Touch_DeInit()
+// void Touch_DeInit()
+// {
+//   I2C_DeInit(I2C_B1);
+//   __HAL_RCC_I2C1_FORCE_RESET();
+//   delay_ms(150);
+//   __HAL_RCC_I2C1_RELEASE_RESET();
+// }
+
+static int _enable_gpio_clock(GPIO_TypeDef *GPIOx)
 {
-  I2C_DeInit(I2C_TOUCH);
-  (RCC->APB1RSTR |= (RCC_APB1RSTR_I2C1RST));
-  delay_ms(150);
-  (RCC->APB1RSTR &= ~(RCC_APB1RSTR_I2C1RST));
+  if (GPIOx == GPIOB)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+  else
+    return -1;
+
+  return 0;
 }
 
 void I2C_Init()
 {
-  Touch_DeInit();
+  stm32_i2c_deinit(TOUCH_I2C_BUS);
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  EXTI_InitTypeDef EXTI_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-  I2C_InitTypeDef I2C_InitStructure;
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
 
-
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
-  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+  __HAL_RCC_I2C1_CLK_ENABLE();
+  __HAL_RCC_I2C1_CLK_DISABLE();
 
   I2C_FreeBus();
 
-  GPIO_PinAFConfig(I2C_TOUCH_GPIO, GPIO_PinSource7, GPIO_AF_I2C1);
-  GPIO_PinAFConfig(I2C_TOUCH_GPIO, GPIO_PinSource8, GPIO_AF_I2C1);
+  stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE);
+  
+  LL_GPIO_InitTypeDef gpioInit;
+  LL_GPIO_StructInit(&gpioInit);
 
-  GPIO_StructInit(&GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_SCL_GPIO_PIN | I2C_TOUCH_SDA_GPIO_PIN;
-  GPIO_Init(I2C_TOUCH_GPIO, &GPIO_InitStructure);
+  _enable_gpio_clock(TOUCH_RST_GPIO);
+  _enable_gpio_clock(TOUCH_INT_GPIO);
 
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_RESET_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//GPIO_PuPd_NOPULL; //
-  GPIO_Init(I2C_TOUCH_RESET_GPIO, &GPIO_InitStructure);
-
-
-  //https://community.st.com/s/question/0D50X00009XkZ9FSAV/stm32f4-i2c-issues-solved
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-  I2C_StructInit(&I2C_InitStructure);
-  I2C_InitStructure.I2C_ClockSpeed = 400000;
-  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-  I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_Init(I2C_TOUCH, &I2C_InitStructure);
-
-  I2C_Init(I2C_TOUCH, &I2C_InitStructure);
-  //I2C_StretchClockCmd(I2C_TOUCH, ENABLE);
-  I2C_Cmd(I2C_TOUCH, ENABLE);
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
 
   //ext interupt
-  GPIO_InitStructure.GPIO_Pin = I2C_TOUCH_INT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(I2C_TOUCH_INT_GPIO, &GPIO_InitStructure);
+  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_INPUT;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
 
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource9);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line9;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
 
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  LL_EXTI_InitTypeDef extiInit;
+  LL_EXTI_StructInit(&extiInit);
+
+  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
+  extiInit.Mode = LL_EXTI_MODE_IT;
+  extiInit.Trigger = LL_EXTI_TRIGGER_FALLING;
+  extiInit.LineCommand = ENABLE;
+  LL_EXTI_Init(&extiInit);
+
+  NVIC_SetPriority(TOUCH_INT_EXTI_IRQn, 8);
+  NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
 }
 
-#define I2C_TIMEOUT_MAX 1000
-
-bool I2C_WaitEvent(uint32_t event)
-{
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (!I2C_CheckEvent(I2C_TOUCH, event)) {
-    if ((timeout--) == 0) return false;
-  }
-  return true;
-}
-
-bool I2C_WaitEventCleared(uint32_t event)
-{
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (I2C_CheckEvent(I2C_TOUCH, event)) {
-    if ((timeout--) == 0) return false;
-  }
-  return true;
-}
-
-bool I2C_Send7BitAddress(uint8_t address, uint16_t direction)
-{
-  I2C_SendData(I2C_TOUCH, (address << 1) | ((direction == I2C_Direction_Receiver) ? 1 : 0));
-  // check if slave acknowledged his address within timeout
-  if (!I2C_WaitEvent(direction == I2C_Direction_Transmitter ? I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED : I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
-    return false;
-  return true;
-}
+#define I2C_TIMEOUT_MAX 5 // 5 ms
 
 bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if (!I2C_WaitEventCleared(I2C_FLAG_BUSY)) return false;
-  I2C_GenerateSTART(I2C_TOUCH, ENABLE);
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT)) return false;
-  if (!I2C_Send7BitAddress(addr, I2C_Direction_Transmitter)) return false;
-  I2C_SendData(I2C_TOUCH, reg);
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED)) return false;
-  I2C_GenerateSTART(I2C_TOUCH, ENABLE);
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT)) return false;
-  if (!I2C_Send7BitAddress(addr, I2C_Direction_Receiver)) return false;
+  if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 2, data, len, I2C_TIMEOUT_MAX) < 0)
+    return false;
 
-  if (len > 1) I2C_AcknowledgeConfig(I2C_TOUCH, ENABLE);
-
-  while (len) {
-    if (len == 1) I2C_AcknowledgeConfig(I2C_TOUCH, DISABLE);
-    if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))return false;
-    *data++ = I2C_ReceiveData(I2C_TOUCH);;
-    len--;
-  }
-  I2C_GenerateSTOP(I2C_TOUCH, ENABLE);
   return true;
 }
 
 static bool touch_i2c_write(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if (!I2C_WaitEventCleared(I2C_FLAG_BUSY)) return false;
-  I2C_GenerateSTART(I2C_TOUCH, ENABLE);
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_MODE_SELECT)) return false;
+  if (stm32_i2c_write(TOUCH_I2C_BUS, addr, reg, 2, data, len, I2C_TIMEOUT_MAX) < 0)
+    return false;
 
-  if (!I2C_Send7BitAddress(addr, I2C_Direction_Transmitter)) return false;
-  I2C_SendData(I2C_TOUCH, (uint8_t) ((reg & 0xFF00) >> 8));
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING)) return false;
-  I2C_SendData(I2C_TOUCH, (uint8_t) (reg & 0x00FF));
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING)) return false;
-  while (len--) {
-    I2C_SendData(I2C_TOUCH, *data);
-    if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTING)) return false;
-    data++;
-  }
-  if (!I2C_WaitEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED)) return false;
-  I2C_GenerateSTOP(I2C_TOUCH, ENABLE);
   return true;
 }
 
@@ -289,10 +224,12 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   return 1;
 }
 
+#if 0
 static uint8_t TS_IO_Read(uint8_t reg)
 {
   return TS_IO_Read(TOUCH_FT6236_I2C_ADDRESS, reg);
 }
+#endif
 
 static void touch_ft6236_debug_info(void)
 {
@@ -333,6 +270,7 @@ static uint8_t ft6x06_TS_DetectTouch(uint16_t DeviceAddr)
   return (nbTouch);
 }
 
+#if 0
 /**
  * @brief  Get the touch detailed informations on touch number 'touchIdx' (0..1)
  *         This touch detailed information contains :
@@ -384,7 +322,7 @@ static void ft6x06_TS_GetTouchInfo(uint16_t DeviceAddr,
 
   } /* of if(touchIdx < ft6x06_handle.currActiveTouchNb) */
 }
-
+#endif
 
 /**
  * @brief  Get the touch screen X and Y positions values
@@ -432,9 +370,9 @@ static void ft6x06_TS_GetXY(uint16_t DeviceAddr, uint16_t * X, uint16_t * Y, uin
 
 void TouchReset()
 {
-  GPIO_ResetBits(I2C_TOUCH_RESET_GPIO, I2C_TOUCH_RESET_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
   delay_ms(20);
-  GPIO_SetBits(I2C_TOUCH_RESET_GPIO, I2C_TOUCH_RESET_GPIO_PIN);
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
   delay_ms(300);
 }
 
@@ -502,11 +440,15 @@ void handleTouch()
   }
 }
 
-extern "C" void EXTI9_5_IRQHandler(void)
+#if !defined(TOUCH_INT_EXTI_IRQHandler)
+  #error "TOUCH_INT_EXTI_IRQHandler is not defined"
+#endif
+extern "C" void TOUCH_INT_EXTI_IRQHandler(void)
 {
-  if (EXTI_GetITStatus(EXTI_Line9) != RESET) {
-    EXTI_ClearITPendingBit(EXTI_Line9);
+  if (LL_EXTI_IsEnabledIT_0_31(TOUCH_INT_EXTI_Line)  &&
+      LL_EXTI_IsActiveFlag_0_31(TOUCH_INT_EXTI_Line)) {
     touchEventOccured = true;
+    LL_EXTI_ClearFlag_0_31(TOUCH_INT_EXTI_Line);
   }
 }
 
