@@ -54,7 +54,7 @@ static const QStringList STR_SUBTYPE_CX10      {"Green", "Blue", "DM007", "-", "
 static const QStringList STR_SUBTYPE_CG023     {"Standard", "YD829"};
 static const QStringList STR_SUBTYPE_BAYANG    {"Standard", "H8S3D", "X16 AH", "IRDRONE", "DHD D4", "QX100"};
 static const QStringList STR_SUBTYPE_ESky      {"Standard", "ET4"};
-static const QStringList STR_SUBTYPE_MT99      {"MT99", "H7", "YZ", "LS", "FY805", "A180", "Dragon""F949G"};
+static const QStringList STR_SUBTYPE_MT99      {"MT99", "H7", "YZ", "LS", "FY805", "A180", "Dragon", "F949G"};
 static const QStringList STR_SUBTYPE_MJXQ      {"WLH08", "X600", "X800", "H26D", "E010", "H26WH", "Phoenix"};
 static const QStringList STR_SUBTYPE_FY326     {"Standard", "FY319"};
 static const QStringList STR_SUBTYPE_FUTABA    {"SFHSS"};
@@ -219,7 +219,8 @@ QString Multiprotocols::protocolToString(int protocol, bool custom)
     "KFPlan KF606", "Redpine", "Potensic", "ZSX", "Height", "Scanner", "FrSky RX", "FlySky AFHDS2A RX", "HoTT", "Fx816",
     "Bayang RX", "Pelikan", "Tiger", "XK", "XN297 Dump", "FrSky X 2.1", "FrSky R9", "Propel", "FrSky L", "Skyartec",
     "ESky 150v2", "DSM RX", "JJRC345", "Q90C", "Kyosho", "RadioLink", "ExpressLRS", "Realacc", "OMP", "M-Link", "Wfly 2",
-    "E016H v2"
+    "Eachine E016H v2", "E010 R5", "Loli 3", "Eachine E129", "Joysway", "Eachine E016H", "Config", "IKEA Ansluta", "WilliFM",
+    "LOSI", "Mould King", "Xerall", "MT99XX2"
   });
 
   return strings.value(protocol, CPN_STR_UNKNOWN_ITEM);
