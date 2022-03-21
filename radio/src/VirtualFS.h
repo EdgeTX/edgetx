@@ -34,10 +34,6 @@
 #include "sdcard.h"
 #endif
 
-#if defined (LIBOPENUI)
-#include "libopenui_file.h"
-#endif
-
 #include "translations.h"
 
 #define FILE_COPY_PREFIX "cp_"
@@ -543,90 +539,5 @@ private:
 
   VfsDir::DirType getDirTypeAndPath(std::string& path);
 };
-
-#if defined (LIBOPENUI)
-
-inline OUiFsError convertResultToOUi(const VfsError& err)
-{
-  switch(err)
-  {
-  case VfsError::OK: return OUiFsError::OK;
-  default:
-    return OUiFsError::ERROR;
-  }
-}
-
-class OpenUiFileInfoImpl
-{
-public:
-  OpenUiFileInfoImpl(){}
-  virtual ~OpenUiFileInfoImpl(){}
-
-  VfsFileInfo& getUnderlying() {return fileInfo;}
-
-  virtual std::string getName() { return fileInfo.getName(); }
-
-  virtual bool isDir() {return fileInfo.getType() == VfsType::DIR; }
-  virtual bool isHidden() {return false; }
-  virtual bool isSystem()  {return false; }
-
-protected:
-
-
-private:
-  OpenUiFileInfoImpl(const OpenUiFileInfoImpl&) = delete;
-
-  VfsFileInfo fileInfo;
-};
-
-class OpenUiDirImpl: public OpenUiDir
-{
-public:
-  OpenUiDirImpl(){}
-  virtual ~OpenUiDirImpl(){}
-
-  virtual OUiFsError read(OpenUiFileInfoP& fileInfo) {
-    return convertResultToOUi(dir.read(((OpenUiFileInfoImpl*)(fileInfo.get()))->getUnderlying()));
-  }
-
-  VfsDir& getUnderlying() {return dir;}
-protected:
-private:
-  OpenUiDirImpl(const OpenUiDirImpl&) = delete;
-
-  VfsDir dir;
-};
-
-class OpenUiFileImpl: public OpenUiFile
-{
-public:
-  OpenUiFileImpl(){}
-  virtual ~OpenUiFileImpl(){}
-  virtual size_t size() { return file.size(); }
-  virtual void close()  { file.close(); }
-  virtual OUiFsError read(void* buf, size_t size, size_t& readSize)
-  {
-    return convertResultToOUi(file.read(buf, size, readSize));
-  }
-
-  virtual OUiFsError lseek(size_t offset)  { return convertResultToOUi(file.lseek(offset)); }
-  virtual size_t tell()  { return file.tell(); }
-  virtual int eof() { return file.eof(); }
-
-
-  VfsFile& getUnderlying() {return file;}
-protected:
-private:
-  OpenUiFileImpl(const OpenUiFileImpl&) = delete;
-
-  VfsFile file;
-};
-
-inline VfsOpenFlags convertOUiFlags(const OUiFsOpenFlags& flags)
-{
-  return (VfsOpenFlags)flags;
-}
-
-#endif // LIBOPENUI
 
 #endif // _VIRTUALFS_H_

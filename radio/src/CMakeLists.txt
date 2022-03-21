@@ -341,7 +341,7 @@ endif()
 if(SDCARD)
   add_definitions(-DSDCARD)
   include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp thirdparty/libopenui/src/libopenui_file.cpp)
+  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp VirtualFS.cpp thirdparty/libopenui/src/libopenui_file.cpp)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
 endif()
 
