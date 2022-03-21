@@ -2169,7 +2169,7 @@ static int luaGetSwitchIndex(lua_State * L)
   }
   
   for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (isSwitchAvailableInLogicalSwitches(idx)) {
+    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* s = getSwitchPositionName(idx);
       if (!strncasecmp(s, name, 31)) {
         found = true;
@@ -2203,7 +2203,7 @@ static int luaGetSwitchIndex(lua_State * L)
 static int luaGetSwitchName(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx)) {
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
     char* name = getSwitchPositionName(idx);
     lua_pushstring(L, name);
   }
@@ -2226,7 +2226,7 @@ static int luaGetSwitchName(lua_State * L)
 static int luaGetSwitchValue(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx))
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext))
     lua_pushboolean(L, getSwitch(idx));
   else
     lua_pushnil(L);
@@ -2251,7 +2251,7 @@ static int luaNextSwitch(lua_State * L)
   swsrc_t idx = luaL_checkinteger(L, 2);
   
   while (++idx <= last) {
-    if (isSwitchAvailableInLogicalSwitches(idx)) {
+    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(idx);
       lua_pushinteger(L, idx);
       lua_pushstring(L, name);
