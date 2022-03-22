@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 #define MODELSEL_W                     LCD_W
 
@@ -67,7 +68,7 @@ void onModelSelectMenu(const char * result)
     ext = STR_MODELS_EXT;
     path = STR_MODELS_PATH;
 #endif
-    if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
+    if (VirtualFS::instance().listFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
       POPUP_WARNING(STR_NO_MODELS_ON_SD);

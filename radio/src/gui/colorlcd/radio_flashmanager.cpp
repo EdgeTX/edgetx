@@ -61,7 +61,7 @@ class FlashFileNameEditWindow : public Page
     char extension[LEN_FILE_EXTENSION_MAX + 1];
     memset(extension, 0, sizeof(extension));
     const char *ext =
-        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
+        VirtualFS::getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
 
     if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
     if (ext) strncpy(extension, ext, extLength);
@@ -244,7 +244,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
       auto button = new FlashManagerButton(window, grid.getLabelSlot(), name, [=]() -> uint8_t {
           auto menu = new Menu(window);
 //          f_chdir(currentPath.c_str());
-          const char *ext = getFileExtension(name.c_str());
+          const char *ext = VirtualFS::getFileExtension(name.c_str());
           if (ext) {
             if (!strcasecmp(ext, SOUNDS_EXT)) {
               menu->addLine(STR_PLAY_FILE, [=]() {
@@ -390,7 +390,7 @@ void RadioFlashManagerPage::build(FormWindow * window)
               }
             }
 #if defined(LUA)
-            else if (isFileExtensionMatching(ext, SCRIPTS_EXT)) {
+            else if (VirtualFS::isFileExtensionMatching(ext, SCRIPTS_EXT)) {
               std::string fullpath = workPath + "/" + name;
               menu->addLine(STR_EXECUTE_FILE, [=]() {
                 luaExec(fullpath.c_str());
@@ -545,7 +545,7 @@ void onSdManagerMenu(const char * result)
   else if (result == STR_RENAME_FILE) {
     memcpy(reusableBuffer.sdmanager.originalName, line, sizeof(reusableBuffer.sdmanager.originalName));
     uint8_t fnlen = 0, extlen = 0;
-    getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
+    VirtualFS::getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
     memset(line + fnlen - extlen, ' ', STORAGE_SCREEN_FILE_LENGTH - fnlen + extlen);
     line[STORAGE_SCREEN_FILE_LENGTH-extlen] = '\0';

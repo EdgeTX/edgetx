@@ -36,6 +36,8 @@
 
 #include "translations.h"
 
+constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
+
 #define FILE_COPY_PREFIX "cp_"
 
 #define PATH_SEPARATOR      "/"
@@ -437,12 +439,19 @@ public:
   }
 
   bool defaultStorageAvailable();
+#if !defined(LIBOPENUI) && !defined(BOOT)
+  bool listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags);
+#endif
 
   bool format();
   const char * checkAndCreateDirectory(const char * path);
+
   bool isFileAvailable(const char * path, bool exclDir = false);
   bool isFilePatternAvailable(const char * path, const char * file, const char * pattern = nullptr, bool exclDir = true, char * match = nullptr);
   char* getFileIndex(char * filename, unsigned int & value);
+
+  static const char* getFileExtension(const char * filename, uint8_t size = 0, uint8_t extMaxLen = 0, uint8_t * fnlen = nullptr, uint8_t * extlen = nullptr);
+  static bool isFileExtensionMatching(const char * extension, const char * pattern, char * match = nullptr);
 
   const std::string& getCurWorkDir() const { return curWorkDir;}
 

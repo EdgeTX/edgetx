@@ -265,7 +265,7 @@ size_t flashSpiGetSize()
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
-  static char buf __DMA = 0;
+//  static char buf __DMA = 0;
 
   flashSpiSync();
 
@@ -299,7 +299,7 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   RTOS_TAKE_SEMAPHORE(irqSem);
 */
   for(size_t i=0; i < size; i++)
-    *data++ = flashSpiReadWriteByte(*data);
+    *data++ = flashSpiReadWriteByte(0xff);
 
   delay_01us(100); // 10us
   CS_HIGH();
