@@ -171,24 +171,7 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
   void init_trainer_module_sbus();
   void init_trainer_module_ibus();
   void stop_trainer_module_sbus();
-<<<<<<< HEAD
   int trainerModuleSbusGetByte(uint8_t* byte);
-=======
-#else
-  #define init_trainer_module_sbus()
-  #define init_trainer_module_ibus()
-  #define stop_trainer_module_sbus()
-#endif
-
-#if defined(INTMODULE_HEARTBEAT_GPIO)
-void init_intmodule_heartbeat();
-void stop_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-#else
-#define init_intmodule_heartbeat()
-#define stop_intmodule_heartbeat()
-#define check_intmodule_heartbeat()
->>>>>>> 87eb2196d (- cleaned code)
 #endif
 
 void check_telemetry_exti();
