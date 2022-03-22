@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "debug.h"
 #include "FatFs/diskio.h"
 #include "FatFs/ff.h"
 

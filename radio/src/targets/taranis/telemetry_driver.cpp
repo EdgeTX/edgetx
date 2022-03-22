@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "aux_serial_driver.h"
+#include "board.h"
 
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 uint32_t telemetryErrors = 0;

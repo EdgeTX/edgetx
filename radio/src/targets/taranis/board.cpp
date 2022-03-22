@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "debug.h"
+#include "rtc.h"
 
 #include "hal/adc_driver.h"
 #include "stm32_hal_adc.h"
@@ -51,7 +53,7 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
+#if defined(SPORT_UPDATE_PWR_GPIO) && !defined(BOOT)
 void sportUpdateInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -349,6 +351,7 @@ void boardOff()
   #define VOLTAGE_DROP 20
 #endif
 
+#if !defined(BOOT)
 uint16_t getBatteryVoltage()
 {
   int32_t instant_vbat = anaIn(TX_VOLTAGE); // using filtered ADC value on purpose
@@ -356,7 +359,7 @@ uint16_t getBatteryVoltage()
   instant_vbat += VOLTAGE_DROP; // add voltage drop because of the diode TODO check if this is needed, but removal will break existing calibrations!
   return (uint16_t)instant_vbat;
 }
-
+#endif
 #if defined(AUDIO_SPEAKER_ENABLE_GPIO)
 void initSpeakerEnable()
 {

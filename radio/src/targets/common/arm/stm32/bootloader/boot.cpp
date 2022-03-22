@@ -24,6 +24,8 @@
 #include "bin_files.h"
 #include "dataconstants.h"
 #include "lcd.h"
+#include "keys.h"
+#include "debug.h"
 
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
