@@ -245,8 +245,23 @@ void setupPulsesMultiExternalModule()
 }
 
 #if defined(INTERNAL_MODULE_MULTI)
+static void updateMultiSync(uint8_t module)
+{
+  const auto& status = getMultiModuleStatus(module);
+  if (status.isValid() && status.isRXProto) {
+    mixerSchedulerSetPeriod(module, 0);
+  } else {
+    auto& sync = getModuleSyncStatus(module);
+    if (sync.isValid())
+      mixerSchedulerSetPeriod(module, sync.getAdjustedRefreshRate());
+    else
+      mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+  }
+}
+
 void setupPulsesMultiInternalModule()
 {
+  updateMultiSync(INTERNAL_MODULE);
   intmodulePulsesData.multi.initFrame();
   setupPulsesMulti(INTERNAL_MODULE);
 }

@@ -314,7 +314,7 @@ struct ModuleSyncStatus
   tmr10ms_t lastUpdate;  // in 10ms
   int16_t   currentLag;  // in us
   
-  inline bool isValid() {
+  inline bool isValid() const {
     // 2 seconds
     return (get_tmr10ms() - lastUpdate < 200);
   }

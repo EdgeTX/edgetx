@@ -244,6 +244,16 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
     setMultiBindStatus(module, MULTI_BIND_FINISHED);
 
+  // Dirty RX protocol detection
+  size_t proto_len = strnlen(status.protocolName, 8);
+  if (proto_len >= 2 &&
+      status.protocolName[proto_len - 2] == 'R' &&
+      status.protocolName[proto_len - 1] == 'X') {
+    status.isRXProto = true;
+  } else {
+    status.isRXProto = false;
+  }
+
   // update timestamp last to avoid race conditions
   status.lastUpdate = get_tmr10ms();
 }
