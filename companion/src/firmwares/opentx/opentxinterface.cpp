@@ -766,6 +766,12 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
+    case RotaryEncoderNavigation:
+      return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
+              IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
+              IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
+              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
+              IS_JUMPER_T18(board));
     default:
       return 0;
   }

@@ -125,6 +125,14 @@ ui(new Ui::GeneralSetup)
     ui->faimode_CB->setChecked(generalSettings.fai);
   }
 
+  if (!firmware->getCapability(RotaryEncoderNavigation)) {
+    ui->invertRotary_CB->hide();
+    ui->invertRotary_label->hide();
+  }
+  else {
+    ui->invertRotary_CB->setChecked(generalSettings.rotEncDirection);
+  }
+
   if (!firmware->getCapability(HasPxxCountry)) {
     ui->countrycode_label->hide();
     ui->countrycode_CB->hide();
@@ -472,6 +480,12 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
   else {
     generalSettings.fai = false;
   }
+  emit modified();
+}
+
+void GeneralSetupPanel::on_invertRotary_CB_stateChanged(int)
+{
+  generalSettings.rotEncDirection = ui->invertRotary_CB->isChecked();
   emit modified();
 }
 

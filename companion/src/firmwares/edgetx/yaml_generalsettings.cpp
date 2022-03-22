@@ -200,6 +200,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
+  node["rotEncDirection"] = (int)rhs.rotEncDirection;
   node["imperial"] = rhs.imperial;
   node["ttsLanguage"] = rhs.ttsLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
@@ -390,6 +391,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
+  node["rotEncDirection"] >> rhs.rotEncDirection;
   node["imperial"] >> rhs.imperial;
   node["ttsLanguage"] >> rhs.ttsLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);

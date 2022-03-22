@@ -721,6 +721,7 @@ extern const char STR_GLOBAL_VAR[];
 extern const char STR_OWN[];
 extern const char STR_DATE[];
 extern const char STR_ROTARY_ENCODER[];
+extern const char STR_INVERT_ROTARY[];
 extern const char STR_CHANNELS_MONITOR[];
 extern const char STR_MIXERS_MONITOR[];
 extern const char STR_PATH_TOO_LONG[];

@@ -167,7 +167,8 @@ enum Capability {
   HasTelemetryBaudrate,
   TopBarZones,
   HasModelsList,
-  HasFlySkyGimbals
+  HasFlySkyGimbals,
+  RotaryEncoderNavigation
 };
 
 class EEPROMInterface
