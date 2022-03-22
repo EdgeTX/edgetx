@@ -229,7 +229,9 @@ enum {
 #endif
 
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
-  #define INTERNAL_MODULE_ROWS   0, (isInternalModuleCrossfire() ? (uint8_t ) 0 : HIDDEN_ROW),
+  #define INTERNAL_MODULE_ROWS \
+    LABEL(InternalModule), 0,  \
+        (isInternalModuleCrossfire() ? (uint8_t)0 : HIDDEN_ROW),
 #else
   #define INTERNAL_MODULE_ROWS
 #endif
@@ -246,8 +248,9 @@ static uint8_t _dispSerialPort(uint8_t port_nr)
   if (!port || !port->name) return HIDDEN_ROW;
   return 0;
 }
-#define SERIAL_PORT_ROWS                                                \
-  0, _dispSerialPort(SP_AUX1), _dispSerialPort(SP_AUX2), _dispSerialPort(SP_VCP),
+#define SERIAL_PORT_ROWS                                                  \
+  LABEL(SerialPorts), _dispSerialPort(SP_AUX1), _dispSerialPort(SP_AUX2), \
+      _dispSerialPort(SP_VCP),
 #else
   #define SERIAL_PORT_ROWS
 #endif
@@ -267,7 +270,8 @@ static uint8_t _dispSerialPort(uint8_t port_nr)
 #endif
 
 #if defined(EEPROM)
-void onFactoryResetConfirm(const char * result)
+#define EEPROM_ROWS 0 /* EEPROM backup */, 0 /* Factory reset */,
+void onFactoryResetConfirm(const char* result)
 {
   if (result == STR_OK) {
     showMessageBox(STR_STORAGE_FORMAT);
@@ -275,6 +279,8 @@ void onFactoryResetConfirm(const char * result)
     NVIC_SystemReset();
   }
 }
+#else
+#define EEPROM_ROWS
 #endif
 
 static bool _isAux1ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX1, m); }
@@ -302,7 +308,6 @@ void menuRadioHardware(event_t event)
     0 /* battery calib */,
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
-    LABEL(InternalModule),
     INTERNAL_MODULE_ROWS
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
@@ -312,8 +317,7 @@ void menuRadioHardware(event_t event)
     READONLY_ROW /* RAS */,
     SPORT_POWER_ROWS
     1 /* debugs */,
-    0 /* EEPROM backup */,
-    0 /* Factory reset */
+    EEPROM_ROWS
   });
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
@@ -609,16 +613,18 @@ void menuRadioHardware(event_t event)
       {
         auto port_nr = k - ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE;
         auto port = serialGetPort(port_nr);
-        lcdDrawText(INDENT_WIDTH, y, port->name);
+        if (port && port->name) {
+          lcdDrawText(INDENT_WIDTH, y, port->name);
 
-        auto mode = serialGetMode(port_nr);
-        mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,
-                          STR_AUX_SERIAL_MODES, mode, 0, UART_MODE_MAX, attr,
-                          event, _isSerialModeAvailable[port_nr]);
+          auto mode = serialGetMode(port_nr);
+          mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,
+                            STR_AUX_SERIAL_MODES, mode, 0, UART_MODE_MAX, attr,
+                            event, _isSerialModeAvailable[port_nr]);
 
-        if (attr && checkIncDec_Ret) {
-          serialSetMode(port_nr, mode);
-          serialInit(port_nr, mode);
+          if (attr && checkIncDec_Ret) {
+            serialSetMode(port_nr, mode);
+            serialInit(port_nr, mode);
+          }
         }
       } break;
 #endif
