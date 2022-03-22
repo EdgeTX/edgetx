@@ -138,29 +138,34 @@ const USBD_STORAGE_cb_TypeDef  * const USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops
 #endif
 
 
-uint16_t flashSpiGetSectorSize();
-uint16_t flashSpiGetPageSize();
-uint16_t flashSpiGetSectorCount();
-int flashSpiErase(size_t address);
-size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
-size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
-
-
 int8_t STORAGE_Init (uint8_t lun)
 {
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
-/* TODO if no SD ... if( SD_Init() != 0)
+#if defined(SDCARD)
+  if(lun == STORAGE_SDCARD_LUN)
   {
-    return (-1); 
-  } 
-*/
-  return (0);
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+  /* TODO if no SD ... if( SD_Init() != 0)
+    {
+      return (-1);
+    }
+  */
+    return (0);
+  }
+#endif
+#if defined(SPI_FLASH)
+  if(lun == STORAGE_SDCARD_LUN)
+  {
+    disk_initialize(1);
+    return (0);
+  }
+#endif
+  return 0;
 }
 
 /**
@@ -181,21 +186,28 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
 #endif
     return 0;
   }  else if (lun == STORAGE_SPI_FLASH_LUN) {
-#if !defined(BOOT)
-    size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
-    *block_num = (flashSize/512)-100;
-    *block_size = 512;
-//    *block_num = flashSpiGetSectorCount();
-//    *block_size = flashSpiGetSectorSize();
-//    *block_num = flashSpiGetSectorCount()*(flashSpiGetSectorSize()/512);
-//    *block_size = 512;
+#if !defined(SPI_FLASH)
+    return -1;
 #else
-    *block_num = 0;
-    *block_size = 0;
-#endif
+    DWORD secCount = 0;
+    if (disk_ioctl(1, GET_SECTOR_COUNT, &secCount) != RES_OK) {
+      secCount = 0;
+      return -1;
+    }
+    DWORD secSize = 0;
+    if (disk_ioctl(1, GET_SECTOR_SIZE, &secSize) != RES_OK) {
+      secSize = 0;
+      return -1;
+    }
+    *block_num = secCount;
+    *block_size = secSize;
     return 0;
+#endif // SPI_FLASH
   }
 
+#if !defined(SDCARD)
+  return -1;
+#else
   if (!SD_CARD_PRESENT())
     return -1;
   
@@ -212,15 +224,24 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
   *block_num  = sector_count;
 
   return 0;
+#endif
 }
 
 uint8_t lunReady[STORAGE_LUN_NBR];
 
 void usbInitLUNs()
 {
+#if defined(SDCARD)
   lunReady[STORAGE_SDCARD_LUN] = 1;
+#else
+  lunReady[STORAGE_SDCARD_LUN] = 0;
+#endif
   lunReady[STORAGE_EEPROM_LUN] = 1;
+#if defined(SPI_FLASH)
   lunReady[STORAGE_SPI_FLASH_LUN] = 1;
+#else
+  lunReady[STORAGE_SPI_FLASH_LUN] = 0;
+#endif
 }
 
 /**
@@ -238,7 +259,6 @@ int8_t  STORAGE_IsReady (uint8_t lun)
   if (lun == STORAGE_SPI_FLASH_LUN) {
     return (lunReady[STORAGE_SPI_FLASH_LUN] != 0) ? 0 : -1;
   }
-
 
   return (lunReady[STORAGE_SDCARD_LUN] != 0 && SD_CARD_PRESENT()) ? 0 : -1;
 }
@@ -271,19 +291,21 @@ int8_t STORAGE_Read (uint8_t lun,
   
   if (lun == STORAGE_EEPROM_LUN) {
     return (fat12Read(buf, blk_addr, blk_len) == 0) ? 0 : -1;
-  } else if  (lun == STORAGE_SPI_FLASH_LUN) {
+  }
+  if  (lun == STORAGE_SPI_FLASH_LUN) {
+#if defined(SPI_FLASH)
     return (__disk_read(1, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
-#if !defined(BOOT)
-    uint16_t len = blk_len*flashSpiGetSectorSize();
-    uint32_t ret = flashSpiRead(blk_addr*flashSpiGetSectorSize(), buf, len);
-    return (ret==len)?0:-1;
 #else
-    return 0;
+    return -1;
 #endif
   }
 
+#if defined(SDCARD)
   // read without cache
   return (__disk_read(0, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
+#else
+  return -1;
+#endif
 }
 /**
   * @brief  Write data to the medium
@@ -304,31 +326,18 @@ int8_t STORAGE_Write (uint8_t lun,
   if (lun == STORAGE_EEPROM_LUN)	{
     return (fat12Write(buf, blk_addr, blk_len) == 0) ? 0 : -1;
   } else if  (lun == STORAGE_SPI_FLASH_LUN) {
+#if defined(SPI_FLASH)
     return (__disk_write(1, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
-#if !defined(BOOT)
-    uint16_t sectSize = flashSpiGetSectorSize();
-    uint16_t len = blk_len*sectSize;
-    flashSpiErase(blk_addr*sectSize);
-    uint32_t ret = 0;
-    uint16_t writeSize = flashSpiGetPageSize();
-    for(int i=0; i<len; i+=writeSize)
-    {
-      ret |= flashSpiWrite((blk_addr*sectSize)+i, buf+i, writeSize) != writeSize;
-      if(ret)
-        break;
-    }
-    return ret;
-//    flashSpiWrite(blk_addr*512, buf, 256);
-//    flashSpiWrite((blk_addr*512)+256, buf+256, 256);
-//    return 0;
 #else
-    return 0;
+    return -1;
 #endif
   }
-
-
+#if !defined(SDCARD)
+  return -1;
+#else
   // write without cache
   return (__disk_write(0, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
+#endif
 }
 
 /**

@@ -559,3 +559,14 @@ bool tjftl_write(tjftl_t *tj, int lba, const uint8_t *buf) {
     }
     return true;
 }
+
+size_t tjftl_getSectorCount(tjftl_t *tj)
+{
+  return tj->sect_cnt;
+}
+
+size_t tjftl_getSectorSize(tjftl_t *tj)
+{
+  return SEC_DATA_SIZE;
+}
+

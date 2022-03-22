@@ -283,6 +283,33 @@ VfsError VfsDir::close()
   return ret;
 }
 
+VfsError VfsDir::rewind()
+{
+  readIdx = 0;
+  switch(type)
+  {
+  case VfsDir::DIR_ROOT:
+    return VfsError::OK;
+#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+  case VfsDir::DIR_FAT:
+  {
+    return convertResult(f_readdir(&fat.dir, nullptr));
+  }
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsDir::DIR_LFS:
+    {
+      info.type = VfsFileType::LFS;
+      int res = lfs_dir_read(lfs.handle, &lfs.dir, nullptr);
+      if(res >= 0)
+        return VfsError::OK;
+      return convertResult((lfs_error)res);
+    }
+#endif
+  }
+  return VfsError::INVAL;
+}
+
 
 
 VfsError VfsFile::close()
@@ -334,8 +361,12 @@ VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
   switch(type)
   {
 #if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
-  case VfsFileType::FAT:
-    return convertResult(f_read(&fat.file, buf, size, &readSize));
+  case VfsFileType::FAT: {
+    UINT rd = 0;
+    VfsError res = convertResult(f_read(&fat.file, buf, size, &rd));
+    readSize = rd;
+    return res;
+  }
 #endif
 #if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
@@ -390,13 +421,18 @@ char* VfsFile::gets(char* buf, size_t maxLen)
   return 0;
 }
 
+#if !defined(BOOT)
 VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
 {
   switch(type)
   {
 #if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
-  case VfsFileType::FAT:
-    return convertResult(f_write(&fat.file, buf, size, &written));
+  case VfsFileType::FAT: {
+    UINT wrt = 0;
+    VfsError res = convertResult(f_write(&fat.file, buf, size, &wrt));
+    written = wrt;
+    return res;
+  }
 #endif
 #if defined (USE_LITTLEFS)
   case VfsFileType::LFS:
@@ -556,7 +592,7 @@ int VfsFile::fprintf(const char* str, ...)
 
   return (int)VfsError::INVAL;
 }
-
+#endif
 
 size_t VfsFile::tell()
 {
@@ -700,6 +736,7 @@ void VirtualFS::restart()
 #else // USE_LITTLEFS
   if(f_mount(&spiFatFsTmp, "1:", 1) != FR_OK)
   {
+#if !defined(BOOT)
     BYTE work[FF_MAX_SS];
     FRESULT res = f_mkfs("1:", FM_ANY, 0, work, sizeof(work));
 #if !defined(BOOT)
@@ -735,20 +772,16 @@ void VirtualFS::restart()
       POPUP_WARNING(STR_SDCARD_ERROR);
 #endif
     }
+#endif
   }
 #endif // USE_LITLEFS
 #endif // SPI_FLASH
-
+#if !defined(BOOT)
   checkAndCreateDirectory("/DEFAULT/RADIO");
   checkAndCreateDirectory("/DEFAULT/MODELS");
   checkAndCreateDirectory("/DEFAULT/LOGS");
   checkAndCreateDirectory("/DEFAULT/SCREENSHOTS");
   checkAndCreateDirectory("/DEFAULT/BACKUP");
-#if defined (SPI_FLASH)
-  checkAndCreateDirectory("/INTERNAL/BBB");
-  VfsFile file;
-  openFile(file, "/INTERNAL/BBB/test.txt", VfsOpenFlags::WRITE|VfsOpenFlags::CREATE_NEW);
-  file.close();
 #endif
 }
 
@@ -767,7 +800,7 @@ bool VirtualFS::defaultStorageAvailable()
 #endif
 
 }
-
+#if !defined(BOOT)
 bool VirtualFS::format()
 {
 #warning TODO
@@ -807,7 +840,7 @@ bool VirtualFS::format()
 //      return false;
 //  }
 }
-
+#endif
 std::vector<std::string> tokenize(const char* seps, const std::string& data)
 {
     std::vector<std::string> ret;
@@ -913,7 +946,7 @@ void VirtualFS::normalizePath(std::string& path)
   if(path.length() == 0)
     path = "/";
 }
-
+#if !defined(BOOT)
 VfsError VirtualFS::unlink(const std::string& path)
 {
   std::string p = path;
@@ -936,7 +969,7 @@ VfsError VirtualFS::unlink(const std::string& path)
 
   return VfsError::INVAL;
 }
-
+#endif
 VfsError VirtualFS::changeDirectory(const std::string& path)
 {
   if(path.length() == 0)
@@ -981,7 +1014,7 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
 
   return VfsError::INVAL;
 }
-
+#if !defined(BOOT)
 VfsError VirtualFS::makeDirectory(const std::string& path)
 {
   std::string normPath(path);
@@ -1033,7 +1066,6 @@ break;
   }
   return VfsError::INVAL;
 }
-
 VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
 {
   std::string oldP = oldPath;
@@ -1116,7 +1148,7 @@ VfsError VirtualFS::copyFile(const std::string& srcFile, const std::string& srcD
 {
   return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
 }
-
+#endif
 VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
 {
   std::string normPath(path);
@@ -1140,7 +1172,7 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
   }
   return VfsError::INVAL;
 }
-
+#if !defined(BOOT)
 VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
 {
   std::string normPath(path);
@@ -1162,7 +1194,7 @@ VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
   }
   return VfsError::INVAL;
 }
-
+#endif
 VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags)
 {
   file.clear();
@@ -1199,7 +1231,7 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
 
   return ret;
 }
-
+#if !defined(BOOT)
 const char* VirtualFS::checkAndCreateDirectory(const char * path)
 {
   VfsError res = makeDirectory(path);
@@ -1425,7 +1457,7 @@ unsigned int VirtualFS::findNextFileIndex(char * filename, uint8_t size, const c
   }
   return 0;
 }
-
+#endif
 #if !defined(LIBOPENUI) && !defined(BOOT)
 bool VirtualFS::listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
 {

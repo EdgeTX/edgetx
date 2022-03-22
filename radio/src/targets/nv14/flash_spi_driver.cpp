@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include <algorithm>
 #include "rtos.h"
-#include "opentx.h"
+#include "board.h"
 
 #if !defined(SIMU)
 
@@ -110,6 +111,7 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
 };
 
 static const SpiFlashDescriptor* flashDescriptor = nullptr;
+#if !defined(BOOT)
 static DMA_InitTypeDef dmaTxInfo = {0};
 static DMA_InitTypeDef dmaRxInfo =  {0};
 
@@ -117,7 +119,7 @@ static RTOS_SEMAPHORE_HANDLE irqSem;
 static uint8_t *dmaReadBuf = nullptr;
 static uint8_t *dmaWriteBuf = nullptr;
 static volatile bool reading = false;
-
+#endif
 void flashSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -266,8 +268,9 @@ size_t flashSpiGetSize()
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
+#if !defined(BOOT)
   static char buf __DMA = 0;
-
+#endif
   flashSpiSync();
 
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
@@ -311,9 +314,9 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 
   delay_01us(100); // 10us
   CS_HIGH();
-
+#if !defined(BOOT)
   reading = false;
-
+#endif
   return size;
 }
 
@@ -441,7 +444,7 @@ uint16_t flashSpiGetSectorCount()
 {
   return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
-
+#if !defined(BOOT)
 extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
 {
   if (DMA_GetITStatus(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC))
@@ -508,7 +511,7 @@ static void flashSpiInitDMA()
   NVIC_SetPriority(FLASH_SPI_RX_DMA_IRQn, 5);
 
 }
-
+#endif
 void flashInit()
 {
   flashSpiInit();
@@ -524,8 +527,10 @@ void flashInit()
       break;
     }
   }
+#if !defined(BOOT)
 /*  if(flashDescriptor != nullptr)
     flashSpiInitDMA();*/
+#endif
 }
 
 #endif
