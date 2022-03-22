@@ -518,12 +518,8 @@ void enablePulsesExternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
-#if defined(PCBSKY9X)
-      extmoduleSerialStart(DSM2_BAUDRATE, DSM2_PERIOD * 2000, false);
-#else
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, DSM2_PERIOD);
-#endif
       break;
 #endif
 
@@ -567,12 +563,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(SBUS)
     case PROTOCOL_CHANNELS_SBUS:
-#if defined(PCBSKY9X)
-      extmoduleSerialStart(SBUS_BAUDRATE, SBUS_PERIOD_HALF_US, false);
-#else
       extmoduleSerialStart();
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, SBUS_PERIOD);
-#endif
       break;
 #endif
 
