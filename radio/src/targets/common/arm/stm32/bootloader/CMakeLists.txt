@@ -89,6 +89,13 @@ set(BOOTLOADER_SRC
   bin_files.cpp
   ../../../../../VirtualFS.cpp
   )
+if(SPI_FLASH)
+set(BOOTLOADER_SRC
+  ${BOOTLOADER_SRC}
+  ../../../../../targets/${TARGET_DIR}/flash_spi_driver.cpp
+  ../../../../../thirdparty/tjftl/tjftl.c
+  )
+endif()
 
 if(ROTARY_ENCODER)
   set(BOOTLOADER_SRC
