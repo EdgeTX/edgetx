@@ -23,7 +23,7 @@
 #include "opentx.h"
 
 const char * const STR_MONTHS[] = TR_MONTHS;
-constexpr uint32_t TOPBAR_REFRESH = 1000 / 2; // 2 Hz
+constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
 TopbarImpl::TopbarImpl(Window * parent) :
   TopbarImplBase({0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
