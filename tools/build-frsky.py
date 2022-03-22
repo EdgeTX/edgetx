@@ -71,6 +71,11 @@ boards = {
         "PCB": "X9E",
         "DEFAULT_MODE": "2",
     },
+    "X9EHall": {
+        "PCB": "X9E",
+        "STICKS": "HORUS",
+        "DEFAULT_MODE": "2",
+    },
     "X7_FCC": {
         "PCB": "X7",
         "DEFAULT_MODE": "2",
