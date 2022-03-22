@@ -173,6 +173,7 @@ const Multiprotocols multiProtocols {
   {MODULE_SUBTYPE_MULTI_E016HV2,    0, false,      NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_LOLI,       0, true,       NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false,      STR_SUBTYPE_MOULDKG,   STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_XERALL,     0, false,      NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_MT99XX2,    0, false,      STR_SUBTYPE_MT992,     nullptr},
   {MM_RF_CUSTOM_SELECTED,           7, true,       STR_SUBTYPE_CUSTOM,    STR_MULTI_OPTION},
 
