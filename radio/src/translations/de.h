@@ -184,7 +184,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Lehrer/Buchse"
 #define TR_VTRAINER_SLAVE_JACK         "Schüler/Buchse"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lehrer/SBUS Modul"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Lehrer/IBUS Modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lehrer/CPPM Modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Lehrer/BT","Lehrer/Bluetooth"),TR("Schüler/BT","Schüler/Bluetooth")

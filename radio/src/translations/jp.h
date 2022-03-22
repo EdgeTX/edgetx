@@ -187,7 +187,6 @@
 #define TR_VTRAINER_MASTER_JACK        "マスター/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "スレーブ/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "マスター/SBUSモジュール"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "マスター/IBUSモジュール"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "マスター/CPPMモジュール"
 #define TR_VTRAINER_MASTER_BATTERY     "マスター/シリアル"
 #define TR_VTRAINER_BLUETOOTH          "マスター/" TR("BT","Bluetooth"), "スレーブ/" TR("BT","Bluetooth")

@@ -182,7 +182,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Master/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Esclav/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Master/Módulo SBUS"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Master/Módulo IBUS"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/Módulo CPPM"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serie"
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT","Master/Bluetooth"),TR("Esclavo/BT","Esclavo/Bluetooth")

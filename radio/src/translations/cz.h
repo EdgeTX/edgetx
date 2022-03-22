@@ -194,7 +194,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Učitel/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Žák/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/SBUS Modul"
-#define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/IBUS Modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Učitel/CPPM Modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Učitel/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Učitel/BT","Učitel/Bluetooth"),TR("Žák/BT","Žák/Bluetooth")
