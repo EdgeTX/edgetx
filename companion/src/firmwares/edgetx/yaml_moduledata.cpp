@@ -65,6 +65,7 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_SBUS, "TYPE_SBUS"  },
   {  PULSES_XJT_LITE_X16, "TYPE_XJT_LITE_PXX2"  },
   {  PULSES_AFHDS3, "TYPE_FLYSKY"  },
+  {  PULSES_LEMON_DSMP, "LEMON_DSMP"  },
 };
 
 static const YamlLookupTable xjtLut = {
@@ -308,6 +309,11 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         crsf["telemetryBaudrate"] = br.value;
         mod["crsf"] = crsf;
     } break;
+    case PULSES_LEMON_DSMP: {
+        Node dsmp;
+        dsmp["flags"] = rhs.dsmp.flags;
+        mod["dsmp"] = dsmp;
+    } break;
     // TODO: afhds3, flysky
     default: {
         Node ppm;
@@ -419,6 +425,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           YamlTelemetryBaudrate telemetryBaudrate;
           crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
           telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
+      } else if (mod["dsmp"]) {
+          Node dsmp = mod["dsmp"];
+          dsmp["flags"] >> rhs.dsmp.flags;
       } else if (mod["flysky"]) {
           //TODO
       } else if (mod["afhds3"]) {
