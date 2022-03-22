@@ -156,6 +156,7 @@ else()
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
+    ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../targets/${TARGET_DIR}/i2c_driver.cpp
     )
   remove_definitions(-DDEBUG)

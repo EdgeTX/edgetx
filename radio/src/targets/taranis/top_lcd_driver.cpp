@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
 
 #define CS1_HIGH()     TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_CS1
 #define CS1_LOW()      TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_CS1

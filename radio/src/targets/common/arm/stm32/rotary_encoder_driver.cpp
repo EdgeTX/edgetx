@@ -20,6 +20,8 @@
  */
 
 #include "board.h"
+#include "hal.h"
+#include "board_common.h"
 
 static uint8_t rotencPosition;
 volatile rotenc_t rotencValue;

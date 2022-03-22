@@ -20,7 +20,10 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include <memory.h>
+#include <assert.h>
+#include "lcd.h"
+#include "thirdparty/libopenui/src/bitfield.h"
 #include "gui/common/stdlcd/fonts.h"
 #include "gui/common/stdlcd/utf8.h"
 

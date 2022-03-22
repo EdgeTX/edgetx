@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "debug.h"
+#include "lcd.h"
 
 #if defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_TPRO)
   #define LCD_CONTRAST_OFFSET            -10
