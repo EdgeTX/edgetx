@@ -20,7 +20,9 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include <memory.h>
+#include <assert.h>
+#include "lcd.h"
 #include "common/stdlcd/fonts.h"
 #include "common/stdlcd/utf8.h"
 
