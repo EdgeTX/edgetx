@@ -513,6 +513,7 @@
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
 #define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
 #define TR_BLONBRIGHTNESS              INDENT "An-Helligkeit"
 #define TR_BLOFFBRIGHTNESS             INDENT "Aus-Helligkeit"
@@ -809,6 +810,7 @@
 #define TR_TEMP_CALIB                   "Temp.  abgl."
 #define TR_TIME                         "Uhrzeit:"
 #define TR_MAXBAUDRATE                  "Max Baud"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                  "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                 "Normal""OneBit"
@@ -827,7 +829,7 @@
 #define TR_BLUETOOTH_DIST_ADDR          "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR         "Local addr"
 #define TR_BLUETOOTH_PIN_CODE           "PIN code"
-#define TR_BAUDRATE                     "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE           "BT Baudrate"
 #define LEN_BLUETOOTH_MODES             "\011"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES              "---\0     ""Enabled\0 "

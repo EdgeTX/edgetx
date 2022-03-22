@@ -69,6 +69,39 @@ void ModuleState::startBind(BindInformation* destination,
 #endif
 }
 
+#if defined(HARDWARE_INTERNAL_MODULE)
+void restartInternalModule()
+{
+  if (!IS_INTERNAL_MODULE_ON()) {
+    return;
+  }
+  pauseMixerCalculations();
+  pausePulses();
+  INTERNAL_MODULE_OFF();
+  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
+  telemetryProtocol = 255; // force telemetry port + module reinitialization
+  INTERNAL_MODULE_ON();
+  resumePulses();
+  resumeMixerCalculations();
+}
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+void restartExternalModule()
+{
+  if (!IS_EXTERNAL_MODULE_ON()) {
+    return;
+  }
+  pauseMixerCalculations();
+  pausePulses();
+  EXTERNAL_MODULE_OFF();
+  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
+  telemetryProtocol = 255; // force telemetry port + module reinitialization
+  EXTERNAL_MODULE_ON();
+  resumePulses();
+  resumeMixerCalculations();
+}
+#endif
+
 void ModuleState::readModuleInformation(ModuleInformation* destination,
                                         int8_t first, int8_t last)
 {

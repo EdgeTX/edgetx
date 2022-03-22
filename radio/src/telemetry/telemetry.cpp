@@ -450,7 +450,7 @@ void telemetryInit(uint8_t protocol)
 
 #if defined(CROSSFIRE)
   else if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    telemetryPortInit(CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
+    telemetryPortInit(EXT_CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
 #if defined(LUA)
     outputTelemetryBuffer.reset();
 #endif

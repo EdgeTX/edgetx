@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "mixer_scheduler.h"
 
 #if !defined(EEPROM)
 #include "storage/sdcard_common.h"
@@ -105,7 +106,10 @@ enum MenuModelSetupItems {
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_LABEL,
+#if defined(CROSSFIRE) || defined(GHOST)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE,
+  ITEM_MODEL_SETUP_INTERNAL_MODULE_SERIALSTATUS,
+#endif
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_PROTOCOL,
   ITEM_MODEL_SETUP_INTERNAL_MODULE_SUBTYPE,
@@ -136,6 +140,10 @@ enum MenuModelSetupItems {
 #if defined(HARDWARE_EXTERNAL_MODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE,
+#if defined(CROSSFIRE) || defined(GHOST)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS,
+#endif
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_SUBTYPE,
@@ -191,6 +199,18 @@ enum MenuModelSetupItems {
 #define IF_NOT_PXX2_MODULE(module, xxx)  (isModulePXX2(module) ? HIDDEN_ROW : (uint8_t)(xxx))
 #define IF_ACCESS_MODULE_RF(module, xxx) (isModuleRFAccess(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #define IF_NOT_ACCESS_MODULE_RF(module, xxx) (isModuleRFAccess(module) ? HIDDEN_ROW : (uint8_t)(xxx))
+#if defined(CROSSFIRE) || defined(GHOST)
+#define IF_MODULE_SYNCED(module, xxx)    ((isModuleCrossfire(module) || isModuleGhost(module)) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#if SPORT_MAX_BAUDRATE < 400000
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx) ((isModuleCrossfire(module) || isModuleGhost(module)) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#else
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#endif
+#else
+#define IF_MODULE_SYNCED(module, xxx)
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
+#endif
+
 
 #if defined(PXX2)
 #define REGISTRATION_ID_ROWS             uint8_t((isDefaultModelRegistrationID() || (warningText && popupFunc == runPopupRegister)) ? HIDDEN_ROW : READONLY_ROW),
@@ -345,6 +365,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   #define INTERNAL_MODULE_ROWS \
     LABEL(InternalModule), \
     MODULE_TYPE_ROWS(INTERNAL_MODULE),         /* ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE */ \
+    IF_MODULE_SYNCED(INTERNAL_MODULE, 0),      /* Sync rate + errors */ \
     MULTIMODULE_TYPE_ROWS(INTERNAL_MODULE)     /* ITEM_MODEL_SETUP_INTERNAL_MODULE_PROTOCOL */ \
     MULTIMODULE_SUBTYPE_ROWS(INTERNAL_MODULE)  /* ITEM_MODEL_SETUP_INTERNAL_MODULE_SUBTYPE */ \
     MULTIMODULE_STATUS_ROWS(INTERNAL_MODULE)   /* ITEM_MODEL_SETUP_INTERNAL_MODULE_STATUS, ITEM_MODEL_SETUP_INTERNAL_MODULE_SYNCSTATUS */ \
@@ -370,6 +391,8 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   #define EXTERNAL_MODULE_ROWS \
     LABEL(ExternalModule), \
     MODULE_TYPE_ROWS(EXTERNAL_MODULE),  \
+    IF_MODULE_BAUDRATE_ADJUST(EXTERNAL_MODULE, 0), /* Baudrate */ \
+    IF_MODULE_SYNCED(EXTERNAL_MODULE, 0),          /* Sync rate + errors */ \
     MULTIMODULE_TYPE_ROWS(EXTERNAL_MODULE)         /* PROTOCOL */ \
     MULTIMODULE_SUBTYPE_ROWS(EXTERNAL_MODULE)      /* SUBTYPE */  \
     MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)  \
@@ -943,14 +966,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
 #endif
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
-        lcdDrawTextAtIndex(
-            MODEL_SETUP_2ND_COLUMN, y,
-            moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS
-                                         : STR_INTERNAL_MODULE_PROTOCOLS,
-            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType
-                                         : g_model.moduleData[moduleIdx].type,
-            menuHorizontalPosition == 0 ? attr : 0);
-
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS : STR_INTERNAL_MODULE_PROTOCOLS,moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType: g_model.moduleData[moduleIdx].type,menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, 1+g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleISRM(moduleIdx))
@@ -959,6 +975,8 @@ void menuModelSetup(event_t event)
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS, g_model.moduleData[moduleIdx].rfProtocol, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleR9MNonAccess(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION, g_model.moduleData[moduleIdx].subType, (menuHorizontalPosition==1 ? attr : 0));
+        else if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(INTERNAL_MODULE))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),0);
 
         if (attr && menuHorizontalPosition == 0  && moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
@@ -1050,6 +1068,57 @@ void menuModelSetup(event_t event)
 #endif
         }
         break;
+
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(CROSSFIRE) || defined(GHOST))
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
+        ModuleData & moduleData = g_model.moduleData[moduleIdx];
+        lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
+        if (isModuleCrossfire(EXTERNAL_MODULE)) {
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),attr | LEFT);
+          if (attr) {
+            moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
+            if (checkIncDec_Ret) {
+              restartExternalModule();
+            }
+          }
+        }
+#if SPORT_MAX_BAUDRATE < 400000
+        else {
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate)],attr | LEFT);
+          if (attr) {
+            moduleData.ghost.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.ghost.telemetryBaudrate),0, 1));
+            if (checkIncDec_Ret) {
+              restartExternalModule();
+            }
+          }
+        }
+#endif
+        break;
+      }
+#endif
+#if (defined(CROSSFIRE) || defined(GHOST))
+#if defined(HARDWARE_INTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_INTERNAL_MODULE_SERIALSTATUS:
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS:
+#endif
+        lcdDrawText(INDENT_WIDTH, y, STR_STATUS);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
+        lcdDrawText(lcdNextPos, y, "Hz ", attr);
+        lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
+        lcdDrawText(lcdNextPos + 1, y, "Err", attr);
+        if (attr) {
+          s_editMode = 0;
+          if (event == EVT_KEY_LONG(KEY_ENTER)) {
+            START_NO_HIGHLIGHT();
+            telemetryErrors = 0;
+            AUDIO_WARNING1();
+            killEvents(event);
+          }
+        }
+        break;
+#endif
 
 #if defined(MULTIMODULE)
 #if defined(HARDWARE_INTERNAL_MODULE)

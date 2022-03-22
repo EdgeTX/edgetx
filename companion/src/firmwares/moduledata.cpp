@@ -496,3 +496,17 @@ AbstractStaticItemModel * ModuleData::protocolItemModel(GeneralSettings & settin
   mdl->loadItemList();
   return mdl;
 }
+
+AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  protocol)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.baudrate");
+
+  for (int i = 0; i < moduleBaudratesList.size(); i++) {
+    if (protocol == PULSES_GHOST && i >= 2) break;
+    mdl->appendToItemList(moduleBaudratesList.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;  
+}

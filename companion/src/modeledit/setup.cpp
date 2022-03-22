@@ -203,6 +203,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_RF_POWER       (1<<15)
 #define MASK_RF_RACING_MODE (1<<16)
 #define MASK_GHOST          (1<<17)
+#define MASK_BAUDRATE       (1<<18)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -444,12 +445,16 @@ void ModulePanel::update()
         max_rx_num = 20;
         break;
       case PULSES_CROSSFIRE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER;
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
+        ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         break;
       case PULSES_GHOST:
-        mask |= MASK_CHANNELS_RANGE | MASK_GHOST;
+        mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
         module.channelsCount = 16;
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
+        ui->telemetryBaudrate->setField(module.ghost.telemetryBaudrate);
         break;
       case PULSES_PPM:
         mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT;
@@ -494,6 +499,11 @@ void ModulePanel::update()
   if (module.hasFailsafes(firmware)) {
     mask |= MASK_FAILSAFES;
   }
+
+  if (moduleIdx > 0)
+    ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
+  else
+    ui->telemetryBaudrate->setVisible(false);
 
   ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
   ui->protocol->setVisible(mask & MASK_PROTOCOL);
@@ -690,6 +700,17 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
+    if (module.protocol == PULSES_GHOST ||
+        module.protocol == PULSES_CROSSFIRE) {
+      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                                Board::SportMaxBaudRate) < 400000) {
+        // default to 115k
+        ui->telemetryBaudrate->setCurrentIndex(0);
+      } else {
+        // default to 400k
+        ui->telemetryBaudrate->setCurrentIndex(1);
+      }
+    }
     emit updateItemModels();
     emit modified();
   }

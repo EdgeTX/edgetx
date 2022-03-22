@@ -241,7 +241,12 @@ class ModuleData {
 
     struct GHOST {
       bool raw12bits;
+      unsigned int telemetryBaudrate;
     } ghost;
+
+    struct CRSF {
+      unsigned int telemetryBaudrate;
+    } crsf;
 
     struct Access {
       unsigned int receivers;
@@ -268,4 +273,5 @@ class ModuleData {
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
     static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & settings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int  protocol);
 };

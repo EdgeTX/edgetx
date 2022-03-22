@@ -144,7 +144,7 @@ static void* crossfireInitInternal(uint8_t module)
 
   // serial port setup
   etx_serial_init params(intmoduleCrossfireInitParams);
-  params.baudrate = CROSSFIRE_BAUDRATE;
+  params.baudrate = INT_CROSSFIRE_BAUDRATE;
 
   // wakeup mixer when rx buffer is quarter full (16 bytes)
   params.on_receive = intmoduleCRSF_rx;

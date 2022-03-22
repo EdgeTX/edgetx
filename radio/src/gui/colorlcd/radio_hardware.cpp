@@ -247,20 +247,75 @@ class SerialConfigWindow : public FormGroup
   }
 };
 
-void restartExternalModule()
-{
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
+class InternalModuleWindow : public FormGroup {
+ public:
+  InternalModuleWindow(FormWindow *parent, const rect_t &rect) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+  {
+    update();
   }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
+
+  void update()
+  {
+    FormGridLayout grid;
+#if LCD_W > LCD_H
+    grid.setLabelWidth(180);
+#else
+    grid.setLabelWidth(130);
+#endif
+    clear();
+
+    new StaticText(this, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
+                   COLOR_THEME_PRIMARY1);
+    auto internalModule = new Choice(this, grid.getFieldSlot(1, 0),STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+                                     GET_DEFAULT(g_eeGeneral.internalModule),
+                                     [=](int moduleType) {
+                                       if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
+                                         memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+                                         storageDirty(EE_MODEL);
+                                       }
+                                       g_eeGeneral.internalModule = moduleType;
+                                       SET_DIRTY();
+                                     });
+
+    internalModule->setAvailableHandler([](int module){
+      return isInternalModuleSupported(module);
+    });
+
+#if defined(CROSSFIRE)
+    if (isInternalModuleCrossfire()) {
+      grid.nextLine();
+      new StaticText(this, grid.getLabelSlot(), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
+      new Choice(this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+          [=]() -> int {
+            return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
+          },
+          [=](int newValue) {
+            g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+            SET_DIRTY();
+            restartExternalModule();
+          });
+      grid.nextLine();
+    }
+    auto par = getParent();
+    par->moveWindowsTop(top() + 1, adjustHeight());
+    par->adjustInnerHeight();
+#endif
+  }
+
+  void checkEvents() override
+  {
+    if (g_eeGeneral.internalModule != lastModule) {
+      lastModule = g_eeGeneral.internalModule;
+      update();
+    }
+
+    FormGroup::checkEvents();
+  }
+
+ protected:
+  uint8_t lastModule = 0;
+};
 
 void RadioHardwarePage::build(FormWindow * window)
 {
@@ -379,39 +434,9 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.nextLine();
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new StaticText(window, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto internalModule = new Choice(window, grid.getFieldSlot(1, 0),
-      STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-      GET_DEFAULT(g_eeGeneral.internalModule),
-      [=](int moduleType) {
-        if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
-          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
-          storageDirty(EE_MODEL);
-        }
-        g_eeGeneral.internalModule = moduleType;
-        SET_DIRTY();
-      });
-
-  internalModule->setAvailableHandler([](int module){
-      return isInternalModuleSupported(module);
-  });
+  new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-#endif
-
-#if defined(CROSSFIRE)
-  // Max baud for external modules
-  new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, DIM(CROSSFIRE_BAUDRATES) - 1,
-               [=]() -> int {
-                   return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate);
-               },
-               [=](int newValue) {
-                   g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
-                   SET_DIRTY();
-                   restartExternalModule();
-               });
-  grid.nextLine();
+  grid.addWindow(new InternalModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 #endif
 
 #if defined(BLUETOOTH)

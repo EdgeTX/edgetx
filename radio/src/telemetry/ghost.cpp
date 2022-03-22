@@ -91,7 +91,7 @@ const GhostSensor ghostSensors[] = {
 
 uint8_t getGhostModuleAddr() {
 #if SPORT_MAX_BAUDRATE < 400000
-  return g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
+  return g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
 #else
   return GHST_ADDR_MODULE_SYM;
 #endif

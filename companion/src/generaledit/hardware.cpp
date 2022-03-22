@@ -96,7 +96,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
   int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
   int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
-  int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::telemetryBaudrateItemModel());
+  int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::internalModuleBaudrateItemModel());
 
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
@@ -182,16 +182,21 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     internalModule = new AutoComboBox(this);
     internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
     internalModule->setField(generalSettings.internalModule, this);
-    addParams(row, internalModule);
-    connect(internalModule, &AutoComboBox::currentDataChanged, this, &HardwarePanel::on_internalModuleChanged);
-  }
 
-  if (firmware->getCapability(HasTelemetryBaudrate)) {
-    addLabel(tr("Maximum Baud"), row, 0);
-    AutoComboBox *maxBaudRate = new AutoComboBox(this);
-    maxBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
-    maxBaudRate->setField(generalSettings.telemetryBaudrate, this);
-    addParams(row, maxBaudRate);
+    connect(internalModule, &AutoComboBox::currentDataChanged, this,
+            &HardwarePanel::on_internalModuleChanged);
+
+    internalModuleBaudRate = new AutoComboBox(this);
+    internalModuleBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
+    internalModuleBaudRate->setField(generalSettings.internalModuleBaudrate, this);
+
+    if (m_internalModule != MODULE_TYPE_GHOST && m_internalModule != MODULE_TYPE_CROSSFIRE) {
+      generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRate->setVisible(false);
+    }
+    
+    addParams(row, internalModule, internalModuleBaudRate);
+    row++;
   }
 
   // All values except 0 are mutually exclusive
@@ -275,6 +280,22 @@ void HardwarePanel::on_internalModuleChanged()
   }
   else {
     m_internalModule = generalSettings.internalModule;
+    if (m_internalModule == MODULE_TYPE_GHOST || m_internalModule == MODULE_TYPE_CROSSFIRE) {
+
+      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                                Board::SportMaxBaudRate) < 400000) {
+        // default to 115k
+        internalModuleBaudRate->setCurrentIndex(0);
+      } else {
+        // default to 400k
+        internalModuleBaudRate->setCurrentIndex(1);
+      }
+
+      internalModuleBaudRate->setVisible(true);
+    } else {
+      generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRate->setVisible(false);
+    }
     emit internalModuleChanged();
   }
 }

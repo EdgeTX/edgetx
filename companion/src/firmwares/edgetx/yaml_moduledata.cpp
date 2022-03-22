@@ -19,6 +19,8 @@
  */
 
 #include "yaml_moduledata.h"
+#include "yaml_generalsettings.h"
+#include "eeprominterface.h"
 #include "moduledata.h"
 #include "rawsource.h"
 
@@ -296,7 +298,15 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_GHOST: {
         Node ghost;
         ghost["raw12bits"] = (int)rhs.ghost.raw12bits;
+        YamlTelemetryBaudrate br(&rhs.ghost.telemetryBaudrate);
+        ghost["telemetryBaudrate"] = br.value;
         mod["ghost"] = ghost;
+    } break;
+    case PULSES_CROSSFIRE: {
+        Node crsf;
+        YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
+        crsf["telemetryBaudrate"] = br.value;
+        mod["crsf"] = crsf;
     } break;
     // TODO: afhds3, flysky
     default: {
@@ -400,7 +410,15 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           }
       } else if (mod["ghost"]) {
           Node ghost = mod["ghost"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          ghost["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.ghost.telemetryBaudrate, getCurrentFirmware()->getBoard());
           ghost["raw12bits"] >> rhs.ghost.raw12bits;
+      } else if (mod["crsf"]) {
+          Node crsf = mod["crsf"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
       } else if (mod["flysky"]) {
           //TODO
       } else if (mod["afhds3"]) {

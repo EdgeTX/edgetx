@@ -510,6 +510,7 @@
 #define TR_PERSISTENT                  INDENT"Trvalé"
 #define TR_BACKLIGHT_LABEL             "Podsvětlení"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT"Zhasnout po"
 #define TR_BLONBRIGHTNESS              TR3(INDENT"Jas Zap.", INDENT"Jas Zap.", INDENT"Jas zapnutého LCD")
 #define TR_BLOFFBRIGHTNESS             TR3(INDENT"Jas Vyp.", INDENT"Jas Vyp.", INDENT"Jas vypnutého LCD")
@@ -807,6 +808,7 @@
 #define TR_TEMP_CALIB                  " +=\006Teplota"
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
@@ -825,7 +827,7 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Vzdál. addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. addr"
 #define TR_BLUETOOTH_PIN_CODE          TR("PIN kód", "PIN kód")
-#define TR_BAUDRATE                    "Baudrate BT"
+#define TR_BLUETOOTH_BAUDRATE          "Baudrate BT"
 #define LEN_BLUETOOTH_MODES            "\012"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---\0      ""Povoleno\0 "

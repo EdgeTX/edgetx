@@ -254,6 +254,8 @@ void extmodulePxx1SerialStart();
 void extmodulePpmStart();
 void intmoduleStop();
 void extmoduleStop();
+void restartInternalModule();
+void restartExternalModule();
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 #if defined(AFHDS3)
