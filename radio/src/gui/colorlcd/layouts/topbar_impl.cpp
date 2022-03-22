@@ -34,7 +34,7 @@ TopbarImpl::TopbarImpl(Window * parent) :
 unsigned int TopbarImpl::getZonesCount() const
 {
 #if defined(INTERNAL_GPS)
-  if (hasSerialMode(UART_MODE_GPS)) {
+  if (hasSerialMode(UART_MODE_GPS) != -1) {
     return MAX_TOPBAR_ZONES-1;
   }
 #endif
