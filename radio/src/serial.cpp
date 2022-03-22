@@ -240,6 +240,15 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.rx_enable = true;
     break;
 
+  case UART_MODE_IBUS_TRAINER:
+    params.baudrate = IBUS_BAUDRATE;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
+    params.rx_enable = true;
+    power_required = true;
+    break;
+    
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;

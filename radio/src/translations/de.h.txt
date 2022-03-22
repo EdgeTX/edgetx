@@ -329,7 +329,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Lehrer/Buchse\0    "
 #define TR_VTRAINER_SLAVE_JACK         "Schüler/Buchse\0   "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lehrer/SBUS Modul\0"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Lehrer/IBUS Modul\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lehrer/CPPM Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Lehrer/BT\0        ""Schüler/BT\0       ", "Lehrer/Bluetooth\0 ""Schüler/Bluetooth\0")

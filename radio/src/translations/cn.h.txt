@@ -311,7 +311,6 @@
 #define TR_VTRAINER_MASTER_JACK        "教练主机/教练口\0  "
 #define TR_VTRAINER_SLAVE_JACK         "学生从机/教练口\0  "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "教练主机/SBUS模块\0"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "教练主机/IBUS模块\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "教练从机/CPPM模块\0"
 #define TR_VTRAINER_MASTER_BATTERY     "教练主机/串口\0    "
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "教练主机/蓝牙\0    " "教练从机/蓝牙\0    ")

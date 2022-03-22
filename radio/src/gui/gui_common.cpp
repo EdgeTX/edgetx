@@ -857,7 +857,7 @@ bool isTrainerModeAvailable(int mode)
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
 #if defined(SBUS_TRAINER)
-    return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
+    return (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) || (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0);
 #else
     return false;
 #endif
