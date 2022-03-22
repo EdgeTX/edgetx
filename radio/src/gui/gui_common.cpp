@@ -440,14 +440,24 @@ int hasSerialMode(int mode)
   return -1;
 }
 
-bool isSerialModeAvailable(uint8_t port_nr, int mode)
+bool isTrainerInputMode(const int mode) 
 {
-#if defined(USB_SERIAL)
-  // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
-  if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
-    return false;
-#endif
+    return (mode == UART_MODE_IBUS_TRAINER) || (mode == UART_MODE_SBUS_TRAINER);
+}
 
+int trainerInputActive() 
+{
+    for(int p = 0; p < MAX_SERIAL_PORTS; ++p) {
+        const int mode = serialGetMode(p);
+        if (isTrainerInputMode(mode)) {
+            return p;
+        }   
+    }
+    return -1;
+}
+
+bool isSerialModeAvailable(const uint8_t port_nr, const int mode)
+{
   if (mode == UART_MODE_NONE)
     return true;
 
@@ -500,8 +510,19 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
-  auto p = hasSerialMode(mode);
-  if (p >= 0 && p != port_nr) return false;
+  {
+      const int p = hasSerialMode(mode);
+      if ((p >= 0) && (p != port_nr)) {
+          return false;
+      }
+  }
+  {
+      const int p = trainerInputActive(); 
+      if (isTrainerInputMode(mode) && (p >= 0) && (p != port_nr)) {
+          return false;
+      }
+  }
+
   return true;
 }
 
