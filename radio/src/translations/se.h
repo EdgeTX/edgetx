@@ -199,7 +199,6 @@
 #define TR_VTRAINER_MASTER_JACK         "Lärare/Uttag"
 #define TR_VTRAINER_SLAVE_JACK          "Elev/Uttag"
 #define TR_VTRAINER_MASTER_SBUS_MODULE  "Lärare/SBUS-modul"
-#define TR_VTRAINER_MASTER_IBUS_MODULE  "Lärare/IBUS-modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE  "Lärare/CPPM-modul"
 #define TR_VTRAINER_MASTER_BATTERY      "Lärare/Seriell"
 #define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")

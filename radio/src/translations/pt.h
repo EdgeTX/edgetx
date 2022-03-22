@@ -190,7 +190,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Mestre/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Escrv/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Mestre/SBUS Module"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Mestre/IBUS Module"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Mestre/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Mestre/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Mestre/" TR("BT","Bluetooth"), "Escrv/" TR("BT","Bluetooth")

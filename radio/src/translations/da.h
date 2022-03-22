@@ -190,7 +190,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Træner/Stik"
 #define TR_VTRAINER_SLAVE_JACK         "Elev/Stik"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Træner/SBUS modul"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Træner/IBUS modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Træner/CPPM modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Træner/Seriel"
 #define TR_VTRAINER_BLUETOOTH          "Træner/" TR("BT","Bluetooth"), "Elev/" TR("BT","Bluetooth")

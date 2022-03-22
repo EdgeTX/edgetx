@@ -268,7 +268,6 @@
 #define TR_VTRAINER_MASTER_JACK        "שלט ראשי"
 #define TR_VTRAINER_SLAVE_JACK         "שלט חניך"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Master/SBUS Module"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Master/IBUS Module"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")

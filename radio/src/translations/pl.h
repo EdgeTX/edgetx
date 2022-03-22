@@ -182,7 +182,6 @@
 #define TR_VTRAINER_MASTER_JACK        "Trener/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Uczeń/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Trener/SBUS Moduł"
-#define TR_VTRAINER_MASTER_IBUS_MODULE "Trener/IBUS Moduł"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Trener/CPPM Moduł"
 #define TR_VTRAINER_MASTER_BATTERY     "Trener/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
