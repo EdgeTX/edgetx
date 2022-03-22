@@ -15,6 +15,8 @@ int tjftl_detect(flashcb_read_t rf, void *arg);
 tjftl_t *tjftl_init(flashcb_read_t rf, flashcb_erase_32k_t ef, flashcb_program_t pf, void *arg, int size, int sect_cnt, int verbose);
 bool tjftl_read(tjftl_t *tj, int lba, uint8_t *buf);
 bool tjftl_write(tjftl_t *tj, int lba, const uint8_t *buf);
+size_t tjftl_getSectorCount(tjftl_t *tj);
+size_t tjftl_getSectorSize(tjftl_t *tj);
 
 #ifdef __cplusplus
 }

@@ -553,7 +553,7 @@ uint8_t wavBuffer[AUDIO_BUFFER_SIZE*2] __DMA;
 int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
 {
   VfsError result = VfsError::OK;
-  UINT read = 0;
+  size_t read = 0;
   VirtualFS& vfs = VirtualFS::instance();
 
   if (fragment.file[1]) {

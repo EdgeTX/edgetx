@@ -69,7 +69,7 @@ int ff_del_syncobj (FF_SYNC_t mutex)
   return 1;
 }
 #endif
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
 #include "tjftl/tjftl.h"
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
@@ -124,7 +124,7 @@ DSTATUS disk_initialize (
 )
 {
   DSTATUS stat = 0;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl != nullptr)
@@ -174,7 +174,7 @@ DSTATUS disk_status (
 )
 {
   DSTATUS stat = 0;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -236,7 +236,7 @@ DRESULT disk_read_dma(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -307,7 +307,7 @@ DRESULT __disk_write(
 )
 {
   DRESULT res = RES_OK;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -386,9 +386,10 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
+    disk_initialize(1);
     if(tjftl == nullptr)
     {
       res = RES_ERROR;
@@ -399,13 +400,12 @@ DRESULT disk_ioctl (
     switch (ctrl) {
       case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       {
-        size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
-        *(DWORD*)buff = (flashSize/512)-100;
+        *(DWORD*)buff = tjftl_getSectorCount(tjftl);
         res = RES_OK;
         break;
       }
       case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-        *(WORD*)buff = 512;
+        *(WORD*)buff = tjftl_getSectorSize(tjftl);
         res = RES_OK;
         break;
 

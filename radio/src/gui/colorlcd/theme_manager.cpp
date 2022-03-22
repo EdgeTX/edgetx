@@ -395,7 +395,7 @@ void ThemePersistance::loadDefaultTheme()
   if (status != VfsError::OK) return;
 
   char line[256];
-  unsigned int len;
+  size_t len;
 
   status = file.read(line, 256, len);
   if (status == VfsError::OK) {

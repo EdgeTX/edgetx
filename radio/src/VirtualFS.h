@@ -332,6 +332,7 @@ public:
 
   VfsError read(VfsFileInfo& info);
   VfsError close();
+  VfsError rewind();
 
 private:
   friend class VirtualFS;
@@ -379,10 +380,12 @@ public:
   int size();
   VfsError read(void* buf, size_t size, size_t& readSize);
   char* gets(char* buf, size_t maxLen);
+#if !defined(BOOT)
   VfsError write(const void* buf, size_t size, size_t& written);
   VfsError puts(const std::string& str);
   VfsError putc(char c);
   int fprintf(const char* str, ...);
+#endif
 
   size_t tell();
   VfsError lseek(size_t offset);
@@ -442,7 +445,7 @@ public:
 #if !defined(LIBOPENUI) && !defined(BOOT)
   bool listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags);
 #endif
-
+#if !defined(BOOT)
   bool format();
   const char * checkAndCreateDirectory(const char * path);
 
@@ -452,11 +455,11 @@ public:
 
   static const char* getFileExtension(const char * filename, uint8_t size = 0, uint8_t extMaxLen = 0, uint8_t * fnlen = nullptr, uint8_t * extlen = nullptr);
   static bool isFileExtensionMatching(const char * extension, const char * pattern, char * match = nullptr);
-
+#endif
   const std::string& getCurWorkDir() const { return curWorkDir;}
-
+#if !defined(BOOT)
   VfsError unlink(const std::string& path);
-
+#endif
   VfsError changeDirectory(const std::string& path);
   VfsError openDirectory(VfsDir& dir, const char * path);
   VfsError makeDirectory(const std::string& path);
@@ -465,11 +468,12 @@ public:
   VfsError utime(const std::string& path, const VfsFileInfo& fileInfo);
   VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);
 
+  #if !defined(BOOT)
   VfsError rename(const char* oldPath, const char* newPath);
   VfsError copyFile(const std::string& source, const std::string& destination);
   VfsError copyFile(const std::string& srcFile, const std::string& srcDir,
              const std::string& destDir, const std::string& destFile);
-
+#endif
 
   uint32_t flashGetNoSectors() const;
   uint32_t flashGetSize() const;
