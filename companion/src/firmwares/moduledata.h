@@ -47,6 +47,7 @@ enum ModuleType {
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
   MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
+  MODULE_TYPE_LEMON_DSMP,
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
 };
@@ -83,6 +84,7 @@ enum PulsesProtocol {
   PULSES_XJT_LITE_LR12,
   PULSES_AFHDS3,
   PULSES_GHOST,
+  PULSES_LEMON_DSMP,
   PULSES_PROTOCOL_LAST
 };
 
@@ -253,6 +255,10 @@ class ModuleData {
       char         receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME+1];
       unsigned int racingMode;
     } access;
+
+    struct DSMP {
+      unsigned int flags;
+    } dsmp;
 
     void clear() { memset(this, 0, sizeof(ModuleData)); }
     void convert(RadioDataConversionState & cstate);

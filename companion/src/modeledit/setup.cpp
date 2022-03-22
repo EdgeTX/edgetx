@@ -483,6 +483,9 @@ void ModulePanel::update()
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
         mask |= MASK_SUBTYPES | MASK_RX_FREQ | MASK_RF_POWER;
         break;
+      case PULSES_LEMON_DSMP:
+        mask |= MASK_CHANNELS_RANGE;
+        break;
       default:
         break;
     }
