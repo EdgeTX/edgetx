@@ -24,53 +24,55 @@
 
 #include "boot.h"
 #include "board.h"
-#include "sdcard.h"
+#include "VirtualFS.h"
 #include "bin_files.h"
 #include "fw_version.h"
 #include "strhelpers.h"
 
 // 'private'
-static DIR  dir;
-static FIL FlashFile;
+static VfsDir  dir;
+static VfsFile FlashFile;
 
 // 'public' variables
 BinFileInfo binFiles[MAX_BIN_FILES];
 uint8_t     Block_buffer[BLOCK_LEN];
-UINT        BlockCount;
+size_t        BlockCount;
 
 
-FRESULT openBinDir(MemoryType mt)
+VfsError openBinDir(MemoryType mt)
 {
-    FRESULT fr = f_chdir(getBinaryPath(mt));
-    if (fr != FR_OK) return fr;
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsError fr = vfs.changeDirectory(getBinaryPath(mt));
+    if (fr != VfsError::OK) return fr;
     
-    return f_opendir(&dir, ".");
+    return vfs.openDirectory(dir, ".");
 }
 
-static FRESULT findNextBinFile(FILINFO* fno)
+static VfsError findNextBinFile(VfsFileInfo* fno)
 {
-  FRESULT fr;
+  VfsError fr;
 
   do {
-    fr = f_readdir(&dir, fno);
+    fr = dir.read(*fno);
 
-    if (fr != FR_OK || fno->fname[0] == 0)
+    if (fr != VfsError::OK || fno->getName().length() == 0)
       break;
 
-    int32_t len = strlen(fno->fname) - 4;
+    int32_t len = fno->getName().length() - 4;
     if (len < 0)
         continue;
 
-    if (fno->fname[len] != '.')
+    std::string fname = fno->getName();
+    if (fname[len] != '.')
         continue;
     
-    if ((fno->fname[len + 1] != 'b') && (fno->fname[len + 1] != 'B'))
+    if ((fname[len + 1] != 'b') && (fname[len + 1] != 'B'))
         continue;
 
-    if ((fno->fname[len + 2] != 'i') && (fno->fname[len + 2] != 'I'))
+    if ((fname[len + 2] != 'i') && (fname[len + 2] != 'I'))
         continue;
 
-    if ((fno->fname[len + 3] != 'n') && (fno->fname[len + 3] != 'N'))
+    if ((fname[len + 3] != 'n') && (fname[len + 3] != 'N'))
         continue;
 
     // match!
@@ -83,39 +85,39 @@ static FRESULT findNextBinFile(FILINFO* fno)
 
 unsigned int fetchBinFiles(unsigned int index)
 {
-  FILINFO file_info;
+  VfsFileInfo file_info;
 
   // rewind
-  if (f_readdir(&dir, NULL) != FR_OK)
+  if (dir.rewind() != VfsError::OK)
       return 0;
 
   // skip 'index' .bin files
   for (unsigned int i = 0; i <= index; i++) {
       
-      if (findNextBinFile(&file_info) != FR_OK /*|| file_info.fname[0] == 0*/)
+      if (findNextBinFile(&file_info) != VfsError::OK /*|| file_info.fname[0] == 0*/)
           return 0;
   }
 
-  strAppend(binFiles[0].name, file_info.fname);
-  binFiles[0].size = file_info.fsize;
+  strAppend(binFiles[0].name, file_info.getName().c_str());
+  binFiles[0].size = file_info.getSize();
 
   unsigned int i = 1;
   for (; i < MAX_NAMES_ON_SCREEN+1; i++) {
 
-      if (findNextBinFile(&file_info) != FR_OK || file_info.fname[0] == 0)
+      if (findNextBinFile(&file_info) != VfsError::OK || file_info.getName().length() == 0)
           return i;
   
-      strAppend(binFiles[i].name, file_info.fname);
-      binFiles[i].size = file_info.fsize;
+      strAppend(binFiles[i].name, file_info.getName().c_str());
+      binFiles[i].size = file_info.getSize();
   }
 
   return i;
 }
 
-FRESULT openBinFile(MemoryType mt, unsigned int index)
+VfsError openBinFile(MemoryType mt, unsigned int index)
 {
   TCHAR full_path[FF_MAX_LFN+1];
-  FRESULT fr;
+  VfsError fr;
 
   // build full_path: [bin path]/[filename]
   char* s = strAppend(full_path, getBinaryPath(mt));
@@ -125,21 +127,21 @@ FRESULT openBinFile(MemoryType mt, unsigned int index)
   BlockCount = 0;
   
   // open the file
-  if ((fr = f_open(&FlashFile, full_path, FA_READ)) != FR_OK)
+  if ((fr = VirtualFS::instance().openFile(FlashFile, full_path, VfsOpenFlags::READ)) != VfsError::OK)
     return fr;
 
   // skip bootloader in firmware
   if (mt == MEM_FLASH &&
-      ((fr = f_lseek(&FlashFile, BOOTLOADER_SIZE)) != FR_OK))
+      ((fr = FlashFile.lseek(BOOTLOADER_SIZE)) != VfsError::OK))
       return fr;
 
   // ... and fetch BLOCK_LEN bytes
-  fr = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
+  fr = FlashFile.read(Block_buffer, BLOCK_LEN, BlockCount);
 
   if (BlockCount == BLOCK_LEN)
       return fr;
 
-  return FR_INVALID_OBJECT;
+  return VfsError::INVAL;
 }
 
 void extractFirmwareVersion(VersionTag* tag)
@@ -164,13 +166,13 @@ void extractFirmwareVersion(VersionTag* tag)
     tag->version = ++vers;
 }
 
-FRESULT readBinFile()
+VfsError readBinFile()
 {
     BlockCount = 0;
-    return f_read(&FlashFile, Block_buffer, sizeof(Block_buffer), &BlockCount);
+    return FlashFile.read(Block_buffer, sizeof(Block_buffer), BlockCount);
 }
 
-FRESULT closeBinFile()
+VfsError closeBinFile()
 {
-    return f_close(&FlashFile);
+    return FlashFile.close();
 }
