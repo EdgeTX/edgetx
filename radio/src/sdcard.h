@@ -46,12 +46,6 @@ uint32_t sdGetFreeSectors();
 
 #elif defined(RADIO_LR3PRO)
   #define ETX_FOURCC 0x4478746F // etx for BETAFPV LR3PRO
-unsigned int findNextFileIndex(char * filename, uint8_t size, const char * directory);
-
 const char * sdMoveFile(const char * src, const char * dest);
 const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
-#define LIST_NONE_SD_FILE   1
-#define LIST_SD_FILE_EXT    2
-bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
-
 #endif // _SDCARD_H_

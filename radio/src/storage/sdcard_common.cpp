@@ -115,7 +115,7 @@ const char * createModel()
   memset(filename, 0, sizeof(filename));
   strcpy(filename, MODEL_FILENAME_PATTERN);
 
-  int index = findNextFileIndex(filename, LEN_MODEL_FILENAME, MODELS_PATH);
+  int index = VirtualFS::instance().findNextFileIndex(filename, LEN_MODEL_FILENAME, MODELS_PATH);
   if (index > 0) {
     setModelDefaults(index);
     memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));

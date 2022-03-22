@@ -25,16 +25,15 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "strhelpers.h"
 #if !defined(BOOT)
 #include "opentx.h"
 #endif
 #include "VirtualFS.h"
 
 
-#if defined(LIBOPENUI)
+#if defined(LIBOPENUI) && 0
   #include "libopenui.h"
-#else
-  #include "libopenui/src/libopenui_file.h"
 #endif
 
 VirtualFS* VirtualFS::_instance = nullptr;;
@@ -1255,6 +1254,63 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
   return false;
 }
 
+const char * VirtualFS::getFileExtension(const char * filename, uint8_t size, uint8_t extMaxLen, uint8_t * fnlen, uint8_t * extlen)
+{
+  int len = size;
+  if (!size) {
+    len = strlen(filename);
+  }
+  if (!extMaxLen) {
+    extMaxLen = LEN_FILE_EXTENSION_MAX;
+  }
+  if (fnlen != nullptr) {
+    *fnlen = (uint8_t)len;
+  }
+  for (int i=len-1; i >= 0 && len-i <= extMaxLen; --i) {
+    if (filename[i] == '.') {
+      if (extlen) {
+        *extlen = len-i;
+      }
+      return &filename[i];
+    }
+  }
+  if (extlen != nullptr) {
+    *extlen = 0;
+  }
+  return nullptr;
+}
+
+/**
+  Check if given extension exists in a list of extensions.
+  @param extension The extension to search for, including leading period.
+  @param pattern One or more file extensions concatenated together, including the periods.
+    The list is searched backwards and the first match, if any, is returned.
+    eg: ".gif.jpg.jpeg.png"
+  @param match Optional container to hold the matched file extension (wide enough to hold LEN_FILE_EXTENSION_MAX + 1).
+  @retval true if a extension was found in the lost, false otherwise.
+*/
+bool VirtualFS::isFileExtensionMatching(const char * extension, const char * pattern, char * match)
+{
+  const char *ext;
+  uint8_t extlen, fnlen;
+  int plen;
+
+  ext = getFileExtension(pattern, 0, 0, &fnlen, &extlen);
+  plen = (int)fnlen;
+  while (plen > 0 && ext) {
+    if (!strncasecmp(extension, ext, extlen)) {
+      if (match != nullptr) strncat(&(match[0]='\0'), ext, extlen);
+      return true;
+    }
+    plen -= extlen;
+    if (plen > 0) {
+      ext = getFileExtension(pattern, plen, 0, nullptr, &extlen);
+    }
+  }
+  return false;
+}
+
+
 /**
   Search file system path for a file. Can optionally take a list of file extensions to search through.
   Eg. find "splash.bmp", or the first occurrence of one of "splash.[bmp|jpeg|jpg|gif]".
@@ -1272,71 +1328,70 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
 */
 bool VirtualFS::isFilePatternAvailable(const char * path, const char * file, const char * pattern, bool exclDir, char * match)
 {
-//  uint8_t fplen;
-//  char fqfp[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = "\0";
-//
-//  fplen = strlen(path);
-//  if (fplen > LEN_FILE_PATH_MAX) {
-//    TRACE_ERROR("isFilePatternAvailable(%s) = error: path too long.\n", path);
-//    return false;
-//  }
-//
-//  strcpy(fqfp, path);
-//  strcpy(fqfp + fplen, "/");
-//  strncat(fqfp + (++fplen), file, FF_MAX_LFN);
-//
-//  if (pattern == nullptr) {
-//    // no extensions list, just check the filename as-is
-//    return isFileAvailable(fqfp, exclDir);
-//  }
-//  else {
-//    // extensions list search
-//    const char *ext;
-//    uint16_t len;
-//    uint8_t extlen, fnlen;
-//    int plen;
-//
-//    getFileExtension(file, 0, 0, &fnlen, &extlen);
-//    len = fplen + fnlen - extlen;
-//    fqfp[len] = '\0';
-//    ext = getFileExtension(pattern, 0, 0, &fnlen, &extlen);
-//    plen = (int)fnlen;
-//    while (plen > 0 && ext) {
-//      strncat(fqfp + len, ext, extlen);
-//      if (isFileAvailable(fqfp, exclDir)) {
-//        if (match != nullptr) strncat(&(match[0]='\0'), ext, extlen);
-//        return true;
-//      }
-//      plen -= extlen;
-//      if (plen > 0) {
-//        fqfp[len] = '\0';
-//        ext = getFileExtension(pattern, plen, 0, nullptr, &extlen);
-//      }
-//    }
-//  }
+  uint8_t fplen;
+  char fqfp[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = "\0";
+
+  fplen = strlen(path);
+  if (fplen > LEN_FILE_PATH_MAX) {
+    //TRACE_ERROR("isFilePatternAvailable(%s) = error: path too long.\n", path);
+    return false;
+  }
+
+  strcpy(fqfp, path);
+  strcpy(fqfp + fplen, "/");
+  strncat(fqfp + (++fplen), file, FF_MAX_LFN);
+
+  if (pattern == nullptr) {
+    // no extensions list, just check the filename as-is
+    return isFileAvailable(fqfp, exclDir);
+  }
+  else {
+    // extensions list search
+    const char *ext;
+    uint16_t len;
+    uint8_t extlen, fnlen;
+    int plen;
+
+    getFileExtension(file, 0, 0, &fnlen, &extlen);
+    len = fplen + fnlen - extlen;
+    fqfp[len] = '\0';
+    ext = getFileExtension(pattern, 0, 0, &fnlen, &extlen);
+    plen = (int)fnlen;
+    while (plen > 0 && ext) {
+      strncat(fqfp + len, ext, extlen);
+      if (isFileAvailable(fqfp, exclDir)) {
+        if (match != nullptr) strncat(&(match[0]='\0'), ext, extlen);
+        return true;
+      }
+      plen -= extlen;
+      if (plen > 0) {
+        fqfp[len] = '\0';
+        ext = getFileExtension(pattern, plen, 0, nullptr, &extlen);
+      }
+    }
+  }
   return false;
 }
 
 char* VirtualFS::getFileIndex(char * filename, unsigned int & value)
 {
-  return nullptr;
-//  value = 0;
-//  char * pos = (char *)getFileExtension(filename);
-//  if (!pos || pos == filename)
-//    return nullptr;
-//  int multiplier = 1;
-//  while (pos > filename) {
-//    pos--;
-//    char c = *pos;
-//    if (c >= '0' && c <= '9') {
-//      value += multiplier * (c - '0');
-//      multiplier *= 10;
-//    }
-//    else {
-//      return pos+1;
-//    }
-//  }
-//  return filename;
+  value = 0;
+  char * pos = (char *)getFileExtension(filename);
+  if (!pos || pos == filename)
+    return nullptr;
+  int multiplier = 1;
+  while (pos > filename) {
+    pos--;
+    char c = *pos;
+    if (c >= '0' && c <= '9') {
+      value += multiplier * (c - '0');
+      multiplier *= 10;
+    }
+    else {
+      return pos+1;
+    }
+  }
+  return filename;
 }
 
 static uint8_t _getDigitsCount(unsigned int value)
@@ -1351,234 +1406,180 @@ static uint8_t _getDigitsCount(unsigned int value)
 
 unsigned int VirtualFS::findNextFileIndex(char * filename, uint8_t size, const char * directory)
 {
-//  unsigned int index;
-//  uint8_t extlen;
-//  char * indexPos = getFileIndex(filename, index);
-//  char extension[LEN_FILE_EXTENSION_MAX+1] = "\0";
-//  char * p = (char *)getFileExtension(filename, 0, 0, nullptr, &extlen);
-//  if (p) strncat(extension, p, sizeof(extension)-1);
-//  while (true) {
-//    index++;
-//    if ((indexPos - filename) + _getDigitsCount(index) + extlen > size) {
-//      return 0;
-//    }
-//    char * pos = strAppendUnsigned(indexPos, index);
-//    strAppend(pos, extension);
-//    if (!isFilePatternAvailable(directory, filename, nullptr, false)) {
-//      return index;
-//    }
-//  }
+  unsigned int index = 0;
+  uint8_t extlen;
+  char * indexPos = getFileIndex(filename, index);
+  char extension[LEN_FILE_EXTENSION_MAX+1] = "\0";
+  char * p = (char *)getFileExtension(filename, 0, 0, nullptr, &extlen);
+  if (p) strncat(extension, p, sizeof(extension)-1);
+  while (true) {
+    index++;
+    if ((indexPos - filename) + _getDigitsCount(index) + extlen > size) {
+      return 0;
+    }
+    char * pos = strAppendUnsigned(indexPos, index);
+    strAppend(pos, extension);
+    if (!isFilePatternAvailable(directory, filename, nullptr, false)) {
+      return index;
+    }
+  }
+  return 0;
+}
+
+#if !defined(LIBOPENUI) && !defined(BOOT)
+bool VirtualFS::listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
+{
+  static uint16_t lastpopupMenuOffset = 0;
+  VfsFileInfo fno;
+  VfsDir dir;
+  const char * fnExt;
+  uint8_t fnLen, extLen;
+  char tmpExt[LEN_FILE_EXTENSION_MAX+1] = "\0";
+
+  popupMenuOffsetType = MENU_OFFSET_EXTERNAL;
+
+  static uint8_t s_last_flags;
+
+  if (selection) {
+    s_last_flags = flags;
+    if (!isFilePatternAvailable(path, selection, ((flags & LIST_SD_FILE_EXT) ? nullptr : extension))) selection = nullptr;
+  }
+  else {
+    flags = s_last_flags;
+  }
+
+  if (popupMenuOffset == 0) {
+    lastpopupMenuOffset = 0;
+    memset(reusableBuffer.modelsel.menu_bss, 0, sizeof(reusableBuffer.modelsel.menu_bss));
+  }
+  else if (popupMenuOffset == popupMenuItemsCount - MENU_MAX_DISPLAY_LINES) {
+    lastpopupMenuOffset = 0xffff;
+    memset(reusableBuffer.modelsel.menu_bss, 0, sizeof(reusableBuffer.modelsel.menu_bss));
+  }
+  else if (popupMenuOffset == lastpopupMenuOffset) {
+    // should not happen, only there because of Murphy's law
+    return true;
+  }
+  else if (popupMenuOffset > lastpopupMenuOffset) {
+    memmove(reusableBuffer.modelsel.menu_bss[0], reusableBuffer.modelsel.menu_bss[1], (MENU_MAX_DISPLAY_LINES-1)*MENU_LINE_LENGTH);
+    memset(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], 0xff, MENU_LINE_LENGTH);
+  }
+  else {
+    memmove(reusableBuffer.modelsel.menu_bss[1], reusableBuffer.modelsel.menu_bss[0], (MENU_MAX_DISPLAY_LINES-1)*MENU_LINE_LENGTH);
+    memset(reusableBuffer.modelsel.menu_bss[0], 0, MENU_LINE_LENGTH);
+  }
+
+  popupMenuItemsCount = 0;
+
+  VfsError res = openDirectory(dir, path);
+  if (res == FR_OK) {
+
+    if (flags & LIST_NONE_SD_FILE) {
+      popupMenuItemsCount++;
+      if (selection) {
+        lastpopupMenuOffset++;
+      }
+      else if (popupMenuOffset==0 || popupMenuOffset < lastpopupMenuOffset) {
+        char * line = reusableBuffer.modelsel.menu_bss[0];
+        memset(line, 0, MENU_LINE_LENGTH);
+        strcpy(line, "---");
+        popupMenuItems[0] = line;
+      }
+    }
+
+    for (;;) {
+      res = dir.read(fno);                   /* Read a directory item */
+      if (res != VfsError::OK || fno.getname().length() == 0) break;  /* Break on error or end of dir */
+      if (fno.isDir()) continue;            /* Skip subfolders */
+      if (fno.isHiddenFile()) continue;     /* Skip hidden files */
+      if (fno.isSystemFile()) continue;     /* Skip system files */
+
+      fnExt = getFileExtension(fno.getName.c_str(), 0, 0, &fnLen, &extLen);
+      fnLen -= extLen;
+
+//      TRACE_DEBUG("listSdFiles(%s, %s, %u, %s, %u): fn='%s'; fnExt='%s'; match=%d\n",
+//           path, extension, maxlen, (selection ? selection : "nul"), flags, fname.c_str(), (fnExt ? fnExt : "nul"), (fnExt && isExtensionMatching(fnExt, extension)));
+      // file validation checks
+      if (!fnLen || fnLen > maxlen || (                                              // wrong size
+            fnExt && extension && (                                                  // extension-based checks follow...
+              !isExtensionMatching(fnExt, extension) || (                            // wrong extension
+                !(flags & LIST_SD_FILE_EXT) &&                                       // only if we want unique file names...
+                strcasecmp(fnExt, getFileExtension(extension)) &&                    // possible duplicate file name...
+                isFilePatternAvailable(path, fname.c_str(), extension, true, tmpExt) &&  // find the first file from extensions list...
+                strncasecmp(fnExt, tmpExt, LEN_FILE_EXTENSION_MAX)                   // found file doesn't match, this is a duplicate
+              )
+            )
+          ))
+      {
+        continue;
+      }
+
+      popupMenuItemsCount++;
+
+      std::string fname = fno.getName();
+      if (!(flags & LIST_SD_FILE_EXT)) {
+        fname = fname.sibstr(0,fnLen);;  // strip extension
+      }
+
+      if (popupMenuOffset == 0) {
+        if (selection && strncasecmp(fname.c_str(), selection, maxlen) < 0) {
+          lastpopupMenuOffset++;
+        }
+        else {
+          for (uint8_t i=0; i<MENU_MAX_DISPLAY_LINES; i++) {
+            char * line = reusableBuffer.modelsel.menu_bss[i];
+            if (line[0] == '\0' || strcasecmp(fname.c_str(), line) < 0) {
+              if (i < MENU_MAX_DISPLAY_LINES-1) memmove(reusableBuffer.modelsel.menu_bss[i+1], line, sizeof(reusableBuffer.modelsel.menu_bss[i]) * (MENU_MAX_DISPLAY_LINES-1-i));
+              memset(line, 0, MENU_LINE_LENGTH);
+              strcpy(line, fname.c_str());
+              break;
+            }
+          }
+        }
+        for (uint8_t i=0; i<min(popupMenuItemsCount, (uint16_t)MENU_MAX_DISPLAY_LINES); i++) {
+          popupMenuItems[i] = reusableBuffer.modelsel.menu_bss[i];
+        }
+      }
+      else if (lastpopupMenuOffset == 0xffff) {
+        for (int i=MENU_MAX_DISPLAY_LINES-1; i>=0; i--) {
+          char * line = reusableBuffer.modelsel.menu_bss[i];
+          if (line[0] == '\0' || strcasecmp(fname.c_str(), line) > 0) {
+            if (i > 0) memmove(reusableBuffer.modelsel.menu_bss[0], reusableBuffer.modelsel.menu_bss[1], sizeof(reusableBuffer.modelsel.menu_bss[i]) * i);
+            memset(line, 0, MENU_LINE_LENGTH);
+            strcpy(line, fname.c_str());
+            break;
+          }
+        }
+        for (uint8_t i=0; i<min(popupMenuItemsCount, (uint16_t)MENU_MAX_DISPLAY_LINES); i++) {
+          popupMenuItems[i] = reusableBuffer.modelsel.menu_bss[i];
+        }
+      }
+      else if (popupMenuOffset > lastpopupMenuOffset) {
+        if (strcasecmp(fname.c_str(), reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-2]) > 0 && strcasecmp(fname.c_str(), reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1]) < 0) {
+          memset(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], 0, MENU_LINE_LENGTH);
+          strcpy(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], fname.c_str());
+        }
+      }
+      else {
+        if (strcasecmp(fname.c_str(), reusableBuffer.modelsel.menu_bss[1]) < 0 && strcasecmp(fname.c_str(), reusableBuffer.modelsel.menu_bss[0]) > 0) {
+          memset(reusableBuffer.modelsel.menu_bss[0], 0, MENU_LINE_LENGTH);
+          strcpy(reusableBuffer.modelsel.menu_bss[0], fname.c_str());
+        }
+      }
+    }
+    dir.close();
+  }
+
+  if (popupMenuOffset > 0)
+    lastpopupMenuOffset = popupMenuOffset;
+  else
+    popupMenuOffset = lastpopupMenuOffset;
+
+  return popupMenuItemsCount;
 	return 0;
 }
 
-#if !defined(LIBOPENUI)
-bool flashListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
-{
-//  static uint16_t lastpopupMenuOffset = 0;
-//  FILINFO fno;
-//  DIR dir;
-//  const char * fnExt;
-//  uint8_t fnLen, extLen;
-//  char tmpExt[LEN_FILE_EXTENSION_MAX+1] = "\0";
-//
-//  popupMenuOffsetType = MENU_OFFSET_EXTERNAL;
-//
-//  static uint8_t s_last_flags;
-//
-//  if (selection) {
-//    s_last_flags = flags;
-//    if (!isFilePatternAvailable(path, selection, ((flags & LIST_SD_FILE_EXT) ? nullptr : extension))) selection = nullptr;
-//  }
-//  else {
-//    flags = s_last_flags;
-//  }
-//
-//  if (popupMenuOffset == 0) {
-//    lastpopupMenuOffset = 0;
-//    memset(reusableBuffer.modelsel.menu_bss, 0, sizeof(reusableBuffer.modelsel.menu_bss));
-//  }
-//  else if (popupMenuOffset == popupMenuItemsCount - MENU_MAX_DISPLAY_LINES) {
-//    lastpopupMenuOffset = 0xffff;
-//    memset(reusableBuffer.modelsel.menu_bss, 0, sizeof(reusableBuffer.modelsel.menu_bss));
-//  }
-//  else if (popupMenuOffset == lastpopupMenuOffset) {
-//    // should not happen, only there because of Murphy's law
-//    return true;
-//  }
-//  else if (popupMenuOffset > lastpopupMenuOffset) {
-//    memmove(reusableBuffer.modelsel.menu_bss[0], reusableBuffer.modelsel.menu_bss[1], (MENU_MAX_DISPLAY_LINES-1)*MENU_LINE_LENGTH);
-//    memset(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], 0xff, MENU_LINE_LENGTH);
-//  }
-//  else {
-//    memmove(reusableBuffer.modelsel.menu_bss[1], reusableBuffer.modelsel.menu_bss[0], (MENU_MAX_DISPLAY_LINES-1)*MENU_LINE_LENGTH);
-//    memset(reusableBuffer.modelsel.menu_bss[0], 0, MENU_LINE_LENGTH);
-//  }
-//
-//  popupMenuItemsCount = 0;
-//
-//  FRESULT res = f_opendir(&dir, path);
-//  if (res == FR_OK) {
-//
-//    if (flags & LIST_NONE_SD_FILE) {
-//      popupMenuItemsCount++;
-//      if (selection) {
-//        lastpopupMenuOffset++;
-//      }
-//      else if (popupMenuOffset==0 || popupMenuOffset < lastpopupMenuOffset) {
-//        char * line = reusableBuffer.modelsel.menu_bss[0];
-//        memset(line, 0, MENU_LINE_LENGTH);
-//        strcpy(line, "---");
-//        popupMenuItems[0] = line;
-//      }
-//    }
-//
-//    for (;;) {
-//      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-//      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-//      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-//      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-//      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
-//
-//      fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
-//      fnLen -= extLen;
-//
-////      TRACE_DEBUG("listSdFiles(%s, %s, %u, %s, %u): fn='%s'; fnExt='%s'; match=%d\n",
-////           path, extension, maxlen, (selection ? selection : "nul"), flags, fno.fname, (fnExt ? fnExt : "nul"), (fnExt && isExtensionMatching(fnExt, extension)));
-//      // file validation checks
-//      if (!fnLen || fnLen > maxlen || (                                              // wrong size
-//            fnExt && extension && (                                                  // extension-based checks follow...
-//              !isExtensionMatching(fnExt, extension) || (                            // wrong extension
-//                !(flags & LIST_SD_FILE_EXT) &&                                       // only if we want unique file names...
-//                strcasecmp(fnExt, getFileExtension(extension)) &&                    // possible duplicate file name...
-//                isFilePatternAvailable(path, fno.fname, extension, true, tmpExt) &&  // find the first file from extensions list...
-//                strncasecmp(fnExt, tmpExt, LEN_FILE_EXTENSION_MAX)                   // found file doesn't match, this is a duplicate
-//              )
-//            )
-//          ))
-//      {
-//        continue;
-//      }
-//
-//      popupMenuItemsCount++;
-//
-//      if (!(flags & LIST_SD_FILE_EXT)) {
-//        fno.fname[fnLen] = '\0';  // strip extension
-//      }
-//
-//      if (popupMenuOffset == 0) {
-//        if (selection && strncasecmp(fno.fname, selection, maxlen) < 0) {
-//          lastpopupMenuOffset++;
-//        }
-//        else {
-//          for (uint8_t i=0; i<MENU_MAX_DISPLAY_LINES; i++) {
-//            char * line = reusableBuffer.modelsel.menu_bss[i];
-//            if (line[0] == '\0' || strcasecmp(fno.fname, line) < 0) {
-//              if (i < MENU_MAX_DISPLAY_LINES-1) memmove(reusableBuffer.modelsel.menu_bss[i+1], line, sizeof(reusableBuffer.modelsel.menu_bss[i]) * (MENU_MAX_DISPLAY_LINES-1-i));
-//              memset(line, 0, MENU_LINE_LENGTH);
-//              strcpy(line, fno.fname);
-//              break;
-//            }
-//          }
-//        }
-//        for (uint8_t i=0; i<min(popupMenuItemsCount, (uint16_t)MENU_MAX_DISPLAY_LINES); i++) {
-//          popupMenuItems[i] = reusableBuffer.modelsel.menu_bss[i];
-//        }
-//      }
-//      else if (lastpopupMenuOffset == 0xffff) {
-//        for (int i=MENU_MAX_DISPLAY_LINES-1; i>=0; i--) {
-//          char * line = reusableBuffer.modelsel.menu_bss[i];
-//          if (line[0] == '\0' || strcasecmp(fno.fname, line) > 0) {
-//            if (i > 0) memmove(reusableBuffer.modelsel.menu_bss[0], reusableBuffer.modelsel.menu_bss[1], sizeof(reusableBuffer.modelsel.menu_bss[i]) * i);
-//            memset(line, 0, MENU_LINE_LENGTH);
-//            strcpy(line, fno.fname);
-//            break;
-//          }
-//        }
-//        for (uint8_t i=0; i<min(popupMenuItemsCount, (uint16_t)MENU_MAX_DISPLAY_LINES); i++) {
-//          popupMenuItems[i] = reusableBuffer.modelsel.menu_bss[i];
-//        }
-//      }
-//      else if (popupMenuOffset > lastpopupMenuOffset) {
-//        if (strcasecmp(fno.fname, reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-2]) > 0 && strcasecmp(fno.fname, reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1]) < 0) {
-//          memset(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], 0, MENU_LINE_LENGTH);
-//          strcpy(reusableBuffer.modelsel.menu_bss[MENU_MAX_DISPLAY_LINES-1], fno.fname);
-//        }
-//      }
-//      else {
-//        if (strcasecmp(fno.fname, reusableBuffer.modelsel.menu_bss[1]) < 0 && strcasecmp(fno.fname, reusableBuffer.modelsel.menu_bss[0]) > 0) {
-//          memset(reusableBuffer.modelsel.menu_bss[0], 0, MENU_LINE_LENGTH);
-//          strcpy(reusableBuffer.modelsel.menu_bss[0], fno.fname);
-//        }
-//      }
-//    }
-//    f_closedir(&dir);
-//  }
-//
-//  if (popupMenuOffset > 0)
-//    lastpopupMenuOffset = popupMenuOffset;
-//  else
-//    popupMenuOffset = lastpopupMenuOffset;
-//
-//  return popupMenuItemsCount;
-//	return 0;
-}
-
 #endif // !LIBOPENUI
-
-#if defined(SDCARD)&& 0
-const char * flashCopyFile(const char * srcPath, const char * destPath)
-{
-//  FIL srcFile;
-//  FIL destFile;
-//  char buf[256];
-//  UINT read = sizeof(buf);
-//  UINT written = sizeof(buf);
-//
-//  FRESULT result = f_open(&srcFile, srcPath, FA_OPEN_EXISTING | FA_READ);
-//  if (result != FR_OK) {
-//    return SDCARD_ERROR(result);
-//  }
-//
-//  result = f_open(&destFile, destPath, FA_CREATE_ALWAYS | FA_WRITE);
-//  if (result != FR_OK) {
-//    f_close(&srcFile);
-//    return SDCARD_ERROR(result);
-//  }
-//
-//  while (result==FR_OK && read==sizeof(buf) && written==sizeof(buf)) {
-//    result = f_read(&srcFile, buf, sizeof(buf), &read);
-//    if (result == FR_OK) {
-//      result = f_write(&destFile, buf, read, &written);
-//    }
-//  }
-//
-//  f_close(&destFile);
-//  f_close(&srcFile);
-//
-//  if (result != FR_OK) {
-//    return SDCARD_ERROR(result);
-//  }
-//
-  return nullptr;
-}
-
-const char * flashCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir)
-{
-//  char srcPath[2*CLIPBOARD_PATH_LEN+1];
-//  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
-//  *tmp++ = '/';
-//  strAppend(tmp, srcFilename, CLIPBOARD_PATH_LEN);
-//
-//  char destPath[2*CLIPBOARD_PATH_LEN+1];
-//  tmp = strAppend(destPath, destDir, CLIPBOARD_PATH_LEN);
-//  *tmp++ = '/';
-//  strAppend(tmp, destFilename, CLIPBOARD_PATH_LEN);
-//
-//  return sdCopyFile(srcPath, destPath);
-	return nullptr;
-}
-#endif // defined(SDCARD)
-
 
 #if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t flashGetNoSectors()

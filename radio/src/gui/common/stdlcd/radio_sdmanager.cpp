@@ -25,7 +25,6 @@
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
-#include "libopenui/src/libopenui_file.h"
 
 #define NODE_TYPE(fname)       fname[STORAGE_SCREEN_FILE_LENGTH+1]
 #define IS_DIRECTORY(fname)    ((bool)(!NODE_TYPE(fname)))
@@ -184,7 +183,7 @@ void onSdManagerMenu(const char * result)
   else if (result == STR_RENAME_FILE) {
     memcpy(reusableBuffer.sdManager.originalName, line, sizeof(reusableBuffer.sdManager.originalName));
     uint8_t fnlen = 0, extlen = 0;
-    getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
+    VirtualFS::getFileExtension(line, 0, LEN_FILE_EXTENSION_MAX, &fnlen, &extlen);
     // write spaces to allow extending the length of a filename
     memset(line + fnlen - extlen, ' ', STORAGE_SCREEN_FILE_LENGTH - fnlen + extlen);
     line[STORAGE_SCREEN_FILE_LENGTH-extlen] = '\0';
@@ -397,20 +396,20 @@ void menuRadioSdManager(event_t _event)
         if (!strcmp(line, "..")) {
           break; // no menu for parent dir
         }
-        const char * ext = getFileExtension(line);
+        const char * ext = VirtualFS::getFileExtension(line);
         if (ext) {
           if (!strcasecmp(ext, SOUNDS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_PLAY_FILE);
           }
 #if LCD_DEPTH > 1
-          else if (isFileExtensionMatching(ext, BITMAPS_EXT)) {
+          else if (VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
             if (!READ_ONLY() && (ext-line) <= (int)sizeof(g_model.header.bitmap)) {
               POPUP_MENU_ADD_ITEM(STR_ASSIGN_BITMAP);
             }
           }
 #endif
 #if defined(LUA)
-          else if (isFileExtensionMatching(ext, SCRIPTS_EXT)) {
+          else if (VirtualFS::isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_EXECUTE_FILE);
           }
 #endif
@@ -483,7 +482,7 @@ void menuRadioSdManager(event_t _event)
             }
           }
 #endif
-          if (isFileExtensionMatching(ext, TEXT_EXT) || isFileExtensionMatching(ext, SCRIPTS_EXT)) {
+          if (VirtualFS::isFileExtensionMatching(ext, TEXT_EXT) || VirtualFS::isFileExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_VIEW_TEXT);
           }
         }
@@ -593,7 +592,7 @@ void menuRadioSdManager(event_t _event)
         }
         if (s_editMode == EDIT_MODIFY_STRING && attr) {
           uint8_t extlen, efflen;
-          const char * ext = getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
+          const char * ext = VirtualFS::getFileExtension(reusableBuffer.sdManager.originalName, 0, 0, nullptr, &extlen);
 
           editName(lcdNextPos, y, reusableBuffer.sdManager.lines[i],
                    STORAGE_SCREEN_FILE_LENGTH - extlen, _event, attr, 0, old_editMode);
@@ -643,8 +642,8 @@ void menuRadioSdManager(event_t _event)
 #endif
 
 #if LCD_DEPTH > 1
-    const char * ext = getFileExtension(reusableBuffer.sdManager.lines[index]);
-    if (ext && isFileExtensionMatching(ext, BITMAPS_EXT)) {
+    const char * ext = VirtualFS::getFileExtension(reusableBuffer.sdManager.lines[index]);
+    if (ext && VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
           memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);

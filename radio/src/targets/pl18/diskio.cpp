@@ -495,7 +495,7 @@ void sdMount()
   TRACE("sdMount");
   
 #if defined(DISK_CACHE)
-  diskCache.clear();
+  diskCache[0].clear();
 #endif
   
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
