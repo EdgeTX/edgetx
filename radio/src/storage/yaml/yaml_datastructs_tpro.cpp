@@ -359,6 +359,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "timezone", 5 ),
   YAML_UNSIGNED( "adjustRTC", 1 ),
   YAML_UNSIGNED( "inactivityTimer", 8 ),
+  YAML_CUSTOM("telemetryBaudrate",r_telemetryBaudrate,nullptr),
   YAML_UNSIGNED( "internalModuleBaudrate", 3 ),
   YAML_SIGNED( "splashMode", 3 ),
   YAML_SIGNED_CUST( "hapticMode", 2, r_beeperMode, w_beeperMode ),

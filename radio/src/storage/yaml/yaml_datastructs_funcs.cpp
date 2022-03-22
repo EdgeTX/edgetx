@@ -1753,6 +1753,13 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
   yaml_put_bits(data, i, bitoffs, 1);
 }
 
+static void r_telemetryBaudrate(void* user, uint8_t* data, uint32_t bitoffs,
+                                const char* val, uint8_t val_len)
+{
+  uint32_t i = yaml_str2uint(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 3);
+}
+
 //struct_serialConfig
 static const struct YamlIdStr enum_SerialPort[] = {
   {  SP_AUX1, "AUX1"  },
