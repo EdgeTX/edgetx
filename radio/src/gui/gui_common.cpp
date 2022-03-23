@@ -428,7 +428,7 @@ bool isSerialModeAvailable(const uint8_t port_nr, const int mode)
 #if defined(USB_SERIAL)
   // Telemetry input & SBUS trainer on VCP is not yet supported
   if (port_nr == SP_VCP &&
-      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
+      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER || mode == UART_MODE_IBUS_TRAINER))
     return false;
 #endif
   

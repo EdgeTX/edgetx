@@ -1826,6 +1826,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
   {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
   {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  UART_MODE_IBUS_TRAINER, "IBUS_TRAINER"  },
   {  UART_MODE_LUA, "LUA"  },
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },

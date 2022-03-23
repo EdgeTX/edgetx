@@ -174,6 +174,9 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     sbusSetAuxGetByte(ctx, getByte);
     // TODO: setRxCb (see MODE_LUA)
     break;
+  case UART_MODE_IBUS_TRAINER:
+    sbusSetAuxGetByte(ctx, getByte);
+    break;
 #endif
 
   case UART_MODE_TELEMETRY:
