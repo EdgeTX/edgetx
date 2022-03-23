@@ -549,7 +549,10 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
-char *getSourceString(char *dest, mixsrc_t idx)
+
+// this should be declared in header, but it used so much foreign symbols that we declare it in cpp-file and pre-instantiate it for the uses
+template<size_t L>
+char *getSourceString(char (&dest)[L], mixsrc_t idx)
 {
   if (idx == MIXSRC_NONE) {
     return getStringAtIndex(dest, STR_VSRCRAW, 0);
@@ -557,36 +560,36 @@ char *getSourceString(char *dest, mixsrc_t idx)
     idx -= MIXSRC_FIRST_INPUT;
     *dest = CHAR_INPUT;
     if (strlen(g_model.inputNames[idx])) {
-      memset(dest + 1, 0, LEN_INPUT_NAME + 1);
-      strncpy(dest + 1, g_model.inputNames[idx], LEN_INPUT_NAME);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"       
+        snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.inputNames[idx]), g_model.inputNames[idx]);
+#pragma GCC diagnostic pop
     } else {
       strAppendUnsigned(dest + 1, idx + 1, 2);
     }
   }
+  
 #if defined(LUA_INPUTS)
   else if (idx <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
     div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS &&
-        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      *dest++ = CHAR_LUA;
-// temporary string
-#define MAX_CHAR 16
-      char temp[MAX_CHAR];
-      strncpy(temp, g_model.scriptsData[qr.quot].name, MAX_CHAR);
-
+    if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"       
+        // possible truncation is intentional
+      snprintf(dest + 1, L - 1, "%.*s", (int)sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name);
       // instance Name is empty : dest = n-ScriptFileName/OutputName
-      if (temp[0] == 0) {
-        snprintf(temp, MAX_CHAR, "%d-%s/%s", qr.quot + 1,
-                 g_model.scriptsData[qr.quot].file,
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+      if (*(dest + 1) == '\0') {
+          snprintf(dest + 1, L - 1, "%d-%.*s/%.*s", qr.quot + 1,
+                 (int)sizeof(g_model.scriptsData[qr.quot].file), g_model.scriptsData[qr.quot].file,
+                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
         // instance Name is not empty : dest = InstanceName/OutputName
       } else {
-        snprintf(temp, MAX_CHAR, "%s/%s", g_model.scriptsData[qr.quot].name,
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        snprintf(dest + 1, L - 1, "%.*s/%.*s", LEN_SCRIPT_NAME, g_model.scriptsData[qr.quot].name,
+                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
       }
-
-      strcpy(dest, temp);
+#pragma GCC diagnostic pop         
+      *dest = CHAR_LUA;
     }
 #else
     strcpy(dest, "N/A");
@@ -594,7 +597,6 @@ char *getSourceString(char *dest, mixsrc_t idx)
   }
 #endif
   else if (idx <= MIXSRC_LAST_POT) {
-
     if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
       // TODO: add correct symbol
       if (idx <= MIXSRC_LAST_STICK) {
@@ -611,8 +613,8 @@ char *getSourceString(char *dest, mixsrc_t idx)
       }
 
       idx -= MIXSRC_Rud;
-      memcpy(dest + 1, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
-      dest[LEN_ANA_NAME + 1] = '\0';
+      memcpy(dest + 1, g_eeGeneral.anaNames[idx], L - 1);
+      dest[L - 1] = '\0';
     } else {
       idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
@@ -646,8 +648,8 @@ char *getSourceString(char *dest, mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_TIMER) {
     if (g_model.timers[idx - MIXSRC_FIRST_TIMER].name[0] != '\0') {
       strncpy(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name,
-              LEN_TIMER_NAME);
-      dest[LEN_TIMER_NAME] = '\0';
+              L - 1);
+      dest[L - 1] = '\0';
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
@@ -663,9 +665,14 @@ char *getSourceString(char *dest, mixsrc_t idx)
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
   }
-
-  return dest;
+  dest[L - 1] = '\0'; // assert the termination (should not be nesseccary)
+  return dest; 
 }
+
+// pre-instantiate for use from external
+// all other instantiations are done from this file
+template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx); 
+
 #endif
 
 char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits,

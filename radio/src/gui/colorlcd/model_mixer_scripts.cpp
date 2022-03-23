@@ -44,12 +44,12 @@ class ScriptEditWindow : public Page {
     }
 
   protected:
-    uint8_t idx;
-    bool    update = false;
+    const uint8_t idx;
+    bool update = false;
 
     void checkEvents() override
     {
-      if (update) {
+      if ((update) && (luaState == INTERPRETER_RUNNING)) {
         TRACE("rebuilding ScriptEditWindow...");
         rebuildBody(&body);
         update = false;
@@ -75,20 +75,25 @@ class ScriptEditWindow : public Page {
       FormGridLayout grid;
       grid.spacer(PAGE_PADDING);
 
-      ScriptData* sd = &(g_model.scriptsData[idx]);
+      // the general pattern seems to be using capture-by-value for the closures: so need to copy the pointers, not the objects
+      ScriptData* const sd = &(g_model.scriptsData[idx]);
+      ScriptInputsOutputs* const sio = &(scriptInputsOutputs[idx]);
+      bool* const updatePtr = &update; 
 
-      // Filename
       new StaticText(window, grid.getLabelSlot(), STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
       auto fc = new FileChoice(
           window, grid.getFieldSlot(), SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
-          [=]() { return std::string(sd->file, LEN_SCRIPT_FILENAME); },
+          [=]() { return stringFromNtString(sd->file); },
           [=](std::string newValue) {
-            strncpy(sd->file, newValue.c_str(), LEN_SCRIPT_FILENAME);
-            if (newValue.empty()) { memset((void*)sd, 0, sizeof(ScriptData)); }
+             clearStruct(*sd);
+             clearStruct(*sio);
+             if (!newValue.empty()) {
+                 copyToUnTerminated(sd->file, newValue);
+             }
             storageDirty(EE_MODEL);
-            LUA_LOAD_MODEL_SCRIPT(idx); // async reload...
-            update = true;
+            LUA_LOAD_MODEL_SCRIPT(idx); // async reload ...
+            *updatePtr = true; // TODO: sets update==true and afterwards calls rebuildBody() via checkEvents()
           }, true);
       grid.nextLine();
 
@@ -97,18 +102,15 @@ class ScriptEditWindow : public Page {
       new ModelTextEdit(window, grid.getFieldSlot(), sd->name, sizeof(sd->name));
       grid.nextLine();
 
-      // scriptInputsOutputs
-      ScriptInputsOutputs& sio = scriptInputsOutputs[idx];
-
-      if (sio.inputsCount > 0) {
+      if (sio->inputsCount > 0) {
         new Subtitle(window, grid.getLineSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
         auto gInputs = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         GridLayout inputsGrid(gInputs);
 
-        for (int i = 0; i < sio.inputsCount; i++) {
-          ScriptInput& si = sio.inputs[i];
+        for (int i = 0; i < sio->inputsCount; i++) {
+          ScriptInput& si = sio->inputs[i];
           new StaticText(window, grid.getLabelSlot(true), si.name, 0, COLOR_THEME_PRIMARY1);
           grid.nextLine();
           if (si.type == INPUT_TYPE_VALUE) {
@@ -124,7 +126,7 @@ class ScriptEditWindow : public Page {
         gInputs->setHeight(inputsGrid.getWindowHeight());
       }
 
-      if (sio.outputsCount > 0) {
+      if (sio->outputsCount > 0) {
         new Subtitle(window, grid.getLabelSlot(), STR_OUTPUTS, 0, COLOR_THEME_PRIMARY1);
         grid.nextLine();
 
@@ -133,8 +135,8 @@ class ScriptEditWindow : public Page {
                           FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
         FormGridLayout outputsGrid(gOutputs->width());
 
-        for (int i = 0; i < sio.outputsCount; i++) {
-          ScriptOutput* so = &(sio.outputs[i]);
+        for (int i = 0; i < sio->outputsCount; i++) {
+          ScriptOutput* so = &(sio->outputs[i]);
           new DynamicText(gOutputs, outputsGrid.getLabelSlot(), [=]() {
             char s[16];
             getSourceString(s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
@@ -160,8 +162,6 @@ class ScriptEditWindow : public Page {
         window->setScrollPositionY(scrollPosition);
     }
 };
-
-constexpr char SCRIPT_STATUS_ERROR[] = "(error)";
 
 class ScriptLineButton : public Button
 {
@@ -193,12 +193,18 @@ class ScriptLineButton : public Button
       y = FIELD_PADDING_TOP;
       textColor |= RIGHT;
       
+      // TODO: runtimeData->instructions has no value 
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
-          dc->drawSizedText(x, y, SCRIPT_STATUS_ERROR, sizeof(SCRIPT_STATUS_ERROR), textColor);
+          dc->drawSizedText(x, y, STR_SCRIPT_ERROR, strlen(STR_SCRIPT_ERROR), textColor);
           break;
-        default:
-          dc->drawNumber(x, y, runtimeData->instructions, textColor, 0, nullptr, "%");
+      case SCRIPT_NOFILE:
+          dc->drawSizedText(x, y, STR_NEEDS_FILE, strlen(STR_NEEDS_FILE), textColor);
+          break;
+      case SCRIPT_OK:
+          dc->drawSizedText(x, y, "-", 1, textColor);
+          break;
+      default:
           break;
       }
     }
@@ -238,27 +244,29 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {
 
     ScriptInternalData* runtimeData = nullptr;
-    ScriptData &sd = g_model.scriptsData[idx];
+    ScriptData* const sd = &(g_model.scriptsData[idx]);
+    ScriptInputsOutputs* const sio = &(scriptInputsOutputs[idx]);
 
-    if (sd.file[0] != '\0') {
+    if (sd->file[0] != '\0') {
       runtimeData = &(scriptInternalData[scriptIdx++]);
     }
     
     // LUAx label
-    auto txt = new StaticText(window, grid.getLabelSlot(),
+    auto const txt = new StaticText(window, grid.getLabelSlot(),
                               std::string("LUA") + std::to_string(idx + 1),
                               BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
     
-    Button* button = new ScriptLineButton(window, grid.getFieldSlot(), sd, runtimeData);
+    Button* const button = new ScriptLineButton(window, grid.getFieldSlot(), *sd, runtimeData);
 
     button->setPressHandler([=]() -> uint8_t {
-      Menu* menu = new Menu(window);
+      Menu* const menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() { editLine(window, idx); });
 
       if (runtimeData != nullptr) {
-        menu->addLine(STR_RESET, [=]() {
-          memset((void*)&sd, 0, sizeof(sd));
-          // TODO: anything else? reload scripts???
+        menu->addLine(STR_DELETE, [=]() {
+            clearStruct(*sd);
+            clearStruct(*sio);
+          LUA_LOAD_MODEL_SCRIPTS();
           storageDirty(EE_MODEL);
           rebuild(window, idx);
         });
