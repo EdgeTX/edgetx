@@ -237,7 +237,6 @@ void setupPulsesDSM2();
 void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
-void setupPulsesMultiInternalModule();
 void setupPulsesSbus();
 void setupPulsesPPMInternalModule();
 void setupPulsesPPMExternalModule();
