@@ -42,6 +42,8 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR "DEFAULT" PATH_SEPARATOR
+#define SDCARD_PATH         PATH_SEPARATOR "SDCARD" PATH_SEPARATOR
+#define INTERNAL_ST_PATH    PATH_SEPARATOR "INTERNAL" PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
@@ -52,6 +54,7 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 #define SOUNDS_PATH_LNG_OFS (sizeof(SOUNDS_PATH)-3)
 #define SYSTEM_SUBDIR       "SYSTEM"
 #define BITMAPS_PATH        ROOT_PATH "IMAGES"
+#define FIRMWARES_PATH      ROOT_PATH "FIRMWARE"
 #define FIRMWARES_PATH      ROOT_PATH "FIRMWARE"
 #define AUTOUPDATE_FILENAME FIRMWARES_PATH PATH_SEPARATOR "autoupdate.frsk"
 #define EEPROMS_PATH        ROOT_PATH "EEPROM"
@@ -66,6 +69,9 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 #define SCRIPTS_FUNCS_PATH  SCRIPTS_PATH PATH_SEPARATOR "FUNCTIONS"
 #define SCRIPTS_TELEM_PATH  SCRIPTS_PATH PATH_SEPARATOR "TELEMETRY"
 #define SCRIPTS_TOOLS_PATH  SCRIPTS_PATH PATH_SEPARATOR "TOOLS"
+
+#define SDCARD_FIRMWARES_PATH      SDCARD_PATH PATH_SEPARATOR "FIRMWARE"
+#define INTERNAL_ST_FIRMWARES_PATH INTERNAL_ST_PATH PATH_SEPARATOR "FIRMWARE"
 
 #define LEN_FILE_PATH_MAX   (sizeof(SCRIPTS_TELEM_PATH)+1)  // longest + "/"
 
