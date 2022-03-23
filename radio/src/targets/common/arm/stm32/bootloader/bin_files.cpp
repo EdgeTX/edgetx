@@ -38,6 +38,22 @@ BinFileInfo binFiles[MAX_BIN_FILES];
 uint8_t     Block_buffer[BLOCK_LEN];
 size_t        BlockCount;
 
+const char *getBinaryPath(MemoryType mt)
+{
+  switch(mt)
+  {
+  case MEM_EEPROM: return EEPROMS_PATH;
+#if defined(SPI_FLASH) && defined(SDCARD)
+  case MEM_INTERNAL: return  INTERNAL_ST_FIRMWARES_PATH;
+  case MEM_SDCARD: return SDCARD_FIRMWARES_PATH;
+#else
+  case MEM_FLASH:
+  case MEM_SDCARD: return FIRMWARES_PATH;
+#endif
+  }
+  return "";
+}
+
 
 VfsError openBinDir(MemoryType mt)
 {
@@ -131,7 +147,7 @@ VfsError openBinFile(MemoryType mt, unsigned int index)
     return fr;
 
   // skip bootloader in firmware
-  if (mt == MEM_FLASH &&
+  if (mt != MEM_EEPROM &&
       ((fr = FlashFile.lseek(BOOTLOADER_SIZE)) != VfsError::OK))
       return fr;
 

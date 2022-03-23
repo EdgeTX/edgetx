@@ -41,6 +41,10 @@
   #define MAIN_MENU_LEN 2
 #endif
 
+#if defined(SPI_FLASH) && defined(SDCARD)
+  #define SEL_STORAGE_MENU_LEN 2
+#endif
+
 typedef void (*voidFunction)(void);
 
 #define jumpTo(addr) do {                                       \
@@ -127,7 +131,7 @@ uint32_t isValidBufferStart(const uint8_t * buffer)
 {
 #if !defined(SIMU)
 #if defined(EEPROM)
-  if (memoryType == MEM_FLASH)
+  if (memoryType != MEM_EEPROM)
     return isFirmwareStart(buffer);
   else
     return isEepromStart(buffer);
@@ -385,8 +389,12 @@ int  bootloaderMain()
         else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
           switch (vpos) {
             case 0:
-              memoryType = MEM_FLASH;
+#if defined(SPI_FLASH) && defined(SDCARD)
+              state = ST_SELECT_STORAGE;
+#else
+              memoryType = MEM_INTERNAL;
               state = ST_DIR_CHECK;
+#endif
               break;
 #if defined(EEPROM)
             case 1:
@@ -409,6 +417,45 @@ int  bootloaderMain()
           continue;
         }
       }
+#if defined(SPI_FLASH) && defined(SDCARD)
+      else  if (state == ST_SELECT_STORAGE) {
+
+          bootloaderDrawScreen(state, vpos);
+  #if defined(PCBPL18)
+          if (event == EVT_KEY_FIRST(KEY_PGDN)) {
+  #else
+          if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+  #endif
+            if (vpos < SEL_STORAGE_MENU_LEN - 1) { vpos++; }
+            continue;
+          }
+  #if defined(PCBPL18)
+          else if (event == EVT_KEY_FIRST(KEY_PGUP)) {
+  #else
+          else if (event == EVT_KEY_FIRST(KEY_UP)) {
+  #endif
+            if (vpos > 0) { vpos--; }
+            continue;
+          }
+          else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+            switch (vpos) {
+              case 0:
+                memoryType = MEM_INTERNAL;
+                state = ST_DIR_CHECK;
+                break;
+              case 1:
+                memoryType = MEM_SDCARD;
+                state = ST_DIR_CHECK;
+                break;
+              default:
+                break;
+            }
+
+            // next loop
+            continue;
+          }
+        }
+#endif
       else if (state == ST_DIR_CHECK) {
         fr = openBinDir(memoryType);
 
@@ -478,7 +525,11 @@ int  bootloaderMain()
           continue;
         }
         else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+#if defined(SPI_FLASH) && defined(SDCARD)
+          state = ST_SELECT_STORAGE;
+#else
           state = ST_START;
+#endif
           vpos = 0;
           continue;
         }
@@ -494,7 +545,7 @@ int  bootloaderMain()
         else if (result == 1) {
           // confirmed
 
-          if (memoryType == MEM_FLASH) {
+          if (memoryType != MEM_EEPROM) {
             firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
             firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
             firmwareWritten = 0;
@@ -510,13 +561,13 @@ int  bootloaderMain()
       }
       else if (state == ST_FLASHING) {
         // commit to flashing
-        if (!unlocked && (memoryType == MEM_FLASH)) {
+        if (!unlocked && (memoryType != MEM_EEPROM)) {
           unlocked = 1;
           unlockFlash();
         }
 
         int progress = 0;
-        if (memoryType == MEM_FLASH) {
+        if (memoryType != MEM_EEPROM) {
           flashWriteBlock();
           firmwareWritten += sizeof(Block_buffer);
           progress = (100 * firmwareWritten) / firmwareSize;
@@ -535,7 +586,7 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+        else if (memoryType != MEM_EEPROM && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)

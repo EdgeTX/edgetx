@@ -26,15 +26,12 @@
 #include "bitmapbuffer.h"
 
 enum MemoryType {
-  MEM_FLASH,
+  MEM_INTERNAL,
+  MEM_SDCARD,
   MEM_EEPROM
 };
 
-#if defined(EEPROM)
-#define getBinaryPath(mt)  ((mt == MEM_FLASH) ? FIRMWARES_PATH : EEPROMS_PATH)
-#else
-#define getBinaryPath(mt)  (FIRMWARES_PATH)
-#endif
+const char *getBinaryPath(MemoryType mt);
 
 #if LCD_H == 480
 #define MAX_NAMES_ON_SCREEN   13
