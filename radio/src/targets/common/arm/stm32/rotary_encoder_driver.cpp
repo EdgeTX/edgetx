@@ -140,6 +140,10 @@ void rotaryEncoderStartDelay()
 
 extern "C" void ROTARY_ENCODER_EXTI_IRQHandler1(void)
 {
+#if !defined(BOOT) && defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER)
+  check_telemetry_exti();
+#endif
+
   if (EXTI_GetITStatus(ROTARY_ENCODER_EXTI_LINE1) != RESET) {
     rotaryEncoderStartDelay();
     EXTI_ClearITPendingBit(ROTARY_ENCODER_EXTI_LINE1);
@@ -154,10 +158,6 @@ extern "C" void ROTARY_ENCODER_EXTI_IRQHandler1(void)
 
 #if !defined(BOOT) && defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
   check_intmodule_heartbeat();
-#endif
-
-#if !defined(BOOT) && defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER)
-  check_telemetry_exti();
 #endif
 }
 
