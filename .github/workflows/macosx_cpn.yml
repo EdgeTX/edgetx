@@ -53,6 +53,7 @@ jobs:
         uses: jurplel/install-qt-action@v2
         with:
           version: ${{ env.QT_VERSION }}
+          setup-python: 'false'
 
       - name: Install dependencies
         run: python -m pip install --upgrade pip Pillow
