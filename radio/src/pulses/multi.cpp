@@ -76,6 +76,20 @@ static void sendMulti(uint8_t moduleIdx, uint8_t b)
     sendByteSbus(b);
 }
 
+static void updateMultiSync(uint8_t module)
+{
+  const auto& status = getMultiModuleStatus(module);
+  if (status.isValid() && status.isRXProto) {
+    mixerSchedulerSetPeriod(module, 0);
+  } else {
+    auto& sync = getModuleSyncStatus(module);
+    if (sync.isValid())
+      mixerSchedulerSetPeriod(module, sync.getAdjustedRefreshRate());
+    else
+      mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+  }
+}
+
 static void sendFailsafeChannels(uint8_t moduleIdx)
 {
   uint32_t bits = 0;
@@ -117,6 +131,8 @@ void setupPulsesMulti(uint8_t moduleIdx)
 #endif
   };
   uint8_t type=MULTI_NORMAL;
+
+  updateMultiSync(moduleIdx);
 
   // not scanning protos &&  not spectrum analyser
   if (getModuleMode(moduleIdx) == MODULE_MODE_NORMAL) {
@@ -202,12 +218,6 @@ void setupPulsesMultiExternalModule()
 }
 
 #if defined(INTERNAL_MODULE_MULTI)
-void setupPulsesMultiInternalModule()
-{
-  intmodulePulsesData.multi.initFrame();
-  setupPulsesMulti(INTERNAL_MODULE);
-}
-
 static void* multiInit(uint8_t module)
 {
   (void)module;
