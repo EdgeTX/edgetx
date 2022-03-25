@@ -160,9 +160,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         pos -= 79;
         lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
-
+    }
 #endif
-    } else if (st == ST_USB) {
+    else if (st == ST_USB) {
       lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
       lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
     } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||
