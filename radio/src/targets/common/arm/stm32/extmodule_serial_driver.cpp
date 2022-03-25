@@ -38,19 +38,12 @@ void extmoduleFifoReceive(uint8_t data)
   extmoduleFifo.push(data);
 }
 
-void extmoduleFifoError()
-{
-  extmoduleFifo.errors++;
-}
-
 static const etx_serial_init extmoduleSerialParams = {
   .baudrate = 0,
   .parity = ETX_Parity_None,
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .on_receive = extmoduleFifoReceive,
-  .on_error = extmoduleFifoError,
 };
 
 static const LL_GPIO_InitTypeDef extmoduleUSART_PinDef = {
@@ -80,8 +73,8 @@ static void* extmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return nullptr;
     
-  extmodule_driver.on_receive = params->on_receive;
-  extmodule_driver.on_error = params->on_error;
+  extmodule_driver.on_receive = extmoduleFifoReceive;
+  extmodule_driver.on_error = nullptr;
 
   // UART config
   stm32_usart_init(&extmoduleUSART, params);

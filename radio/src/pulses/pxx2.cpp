@@ -36,8 +36,6 @@ const etx_serial_init pxx2SerialInitParams = {
     .stop_bits = ETX_StopBits_One,
     .word_length = ETX_WordLength_8,
     .rx_enable = true,
-    .on_receive = intmoduleFifoReceive,
-    .on_error = intmoduleFifoError,
 };
 #endif
 
@@ -717,8 +715,6 @@ static const etx_serial_init pxx2ExtSerialInitParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .on_receive = extmoduleFifoReceive,
-  .on_error = extmoduleFifoError,
 };
 
 static void* pxx2InitLowSpeed(uint8_t module)

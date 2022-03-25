@@ -60,8 +60,6 @@ etx_serial_init multiSerialInitParams = {
     .stop_bits = ETX_StopBits_Two,
     .word_length = ETX_WordLength_9,
     .rx_enable = true,
-    .on_receive = intmoduleFifoReceive,
-    .on_error = intmoduleFifoError,
 };
 #endif
 

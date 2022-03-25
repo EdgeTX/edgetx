@@ -290,8 +290,6 @@ void serialInit(uint8_t port_nr, int mode)
     .stop_bits = ETX_StopBits_One,
     .word_length = ETX_WordLength_8,
     .rx_enable = false,
-    .on_receive = nullptr,
-    .on_error = nullptr,
   };
 
   bool power_required = false;

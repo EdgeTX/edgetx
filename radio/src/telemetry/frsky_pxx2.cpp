@@ -29,6 +29,8 @@
 #include "intmodule_serial_driver.h"
 #endif
 
+static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE);
+
 void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_GET_HARDWARE_INFO) {

@@ -22,8 +22,10 @@
 #ifndef _IO_PXX2_H_
 #define _IO_PXX2_H_
 
-#include "../fifo.h"
-#include "../pulses/pxx.h"
+#include "fifo.h"
+#include "pulses/pxx.h"
+
+#include "board.h"
 
 class ModuleFifo : public Fifo<uint8_t, INTMODULE_FIFO_SIZE> {
   public:

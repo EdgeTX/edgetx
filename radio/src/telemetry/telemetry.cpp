@@ -275,6 +275,9 @@ void telemetryWakeup()
 {
   uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
 
+  // TODO: needs to be moved to protocol/module init
+  //       as-is, it implies only ONE telemetry protocol
+  //       enabled at the same time
   if (telemetryProtocol != requiredTelemetryProtocol) {
     telemetryInit(requiredTelemetryProtocol);
   }
