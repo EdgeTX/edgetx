@@ -56,7 +56,26 @@ namespace Trainer {
             static constexpr uint16_t MaxValue = 988;            
             static constexpr uint16_t MinValue = 2011;            
             static constexpr uint16_t CenterValue = (MaxValue + MinValue) / 2;            
-        };        
+        };     
+        struct Crsf {
+//            Every frame has the structure:
+//            <Device address><Frame length><Type><Payload><CRC>            
+            using MesgType = std::array<uint8_t, 64>;
+
+            static constexpr uint8_t  ValueBits = 11;
+            static constexpr uint16_t ValueMask = ((1 << ValueBits) - 1);
+                
+            static constexpr uint8_t FcAddress = FC_ADDRESS;
+            static constexpr uint8_t FrametypeChannels = CHANNELS_ID;
+            static constexpr uint8_t FrametypeLink = LINK_ID;
+
+            static constexpr uint16_t CenterValue = 0x3e0;            
+            
+        };
+        struct SumDV3 {
+            using MesgType = std::array<uint8_t, 28>;
+            
+        };
     }    
 }
 

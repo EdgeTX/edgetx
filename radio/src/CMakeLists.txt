@@ -491,6 +491,8 @@ set(SRC
   serial.cpp
   sbus.cpp
   ibus.cpp
+  crsf.cpp
+  sumd.cpp
   )
 
 if(GUI)

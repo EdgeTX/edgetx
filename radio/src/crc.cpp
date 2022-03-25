@@ -81,6 +81,17 @@ uint8_t crc8(const uint8_t * ptr, uint32_t len)
   return crc;
 }
 
+void CRC8::reset() {
+    mSum = 0;
+}
+CRC8& CRC8::operator+=(const uint8_t b) {
+    mSum = crc8tab[mSum ^ b];
+    return *this;
+}
+CRC8::operator uint8_t() const {
+    return mSum;
+}
+
 // CRC8 implementation with polynom = 0xBA
 const unsigned char crc8tab_BA[256] = {
   0x00, 0xBA, 0xCE, 0x74, 0x26, 0x9C, 0xE8, 0x52,

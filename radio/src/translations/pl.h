@@ -31,7 +31,6 @@
  *  \0               -ends current string
  */
 
-
 #define TR_OFFON               "WYŁ","ZAŁ"
 #define TR_MMMINV              "---","REV"
 #define TR_VBEEPMODE           "Cichy","Alarm","BezPr","Wsz."

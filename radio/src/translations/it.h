@@ -39,6 +39,59 @@
 #define TR_VBLMODE             TR("OFF","Spenta"),"Tasti",TR("Stks","Sticks"),"Tutti",TR("ON","Accesa")
 #define TR_TRNMODE             "OFF","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
+=======
+// NON ZERO TERMINATED STRINGS
+#define LEN_OFFON              "\003"
+#define TR_OFFON               "OFF""ON\0"
+
+#define LEN_MMMINV             "\003"
+#define TR_MMMINV              "---""INV"
+
+#define LEN_VBEEPMODE          TR("\005", "\010")
+#define TR_VBEEPMODE           TR("Silen""Avvis""Notst""Tutti","Silente ""Avvisi\0 ""No Tasti""Tutti\0  ")
+
+#define LEN_VBLMODE            TR("\005", "\006")
+#define TR_VBLMODE             TR("OFF\0 ""Tasti""Stks\0""Tutti""ON\0  ", "Spenta""Tasti\0""Sticks""Tutti\0""Accesa")
+
+#define LEN_TRNMODE            "\003"
+#define TR_TRNMODE             "OFF""+=\0"":="
+
+#define LEN_TRNCHN             "\003"
+#define TR_TRNCHN              "ch1ch2ch3ch4"
+
+#define LEN_AUX_SERIAL_MODES   "\016"
+#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""IBUS Trainer\0 ""CRSF Trainer\0 ""SUMD Trainer\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
+
+#define LEN_SWTYPES            "\006"
+#define TR_SWTYPES             "Dis.\0 ""Toggle""2POS\0 ""3POS\0"
+
+#define LEN_POTTYPES           TR("\013","\017")
+#define TR_POTTYPES            TR("Dis.\0      ""Pot c. fer\0""Multipos\0  ""Pot\0       ", "Dis.\0          ""Pot. con centro""Inter. Multipos""Potenziometro\0 ")
+
+#define LEN_SLIDERTYPES        "\006"
+#define TR_SLIDERTYPES         "Disat.""Slider"
+
+#define LEN_VLCD               "\006"
+#define TR_VLCD                "NormalOptrex"
+
+#define LEN_VPERSISTENT        "\015"
+#define TR_VPERSISTENT         "NO\0          ""Volo\0        ""Reset Manuale"
+
+#define LEN_COUNTRY_CODES       TR("\002", "\007")
+#define TR_COUNTRY_CODES        TR("US""JP""EU", "America""Japan\0 ""Europa\0")
+
+#define LEN_USBMODES           TR("\006", "\010")
+#define TR_USBMODES            TR("Chied\0""Joyst\0""SDCard""Serial", "Chiedi\0 ""Joystick""Storage\0""Seriale\0 ")
+
+#define LEN_MODULE_PROTOCOLS   "\004"
+#define TR_MODULE_PROTOCOLS    "OFF\0""PPM\0""XJT\0""XJT2""DSM2""CRSF""MULT""R9M\0""R9M2""SBUS"
+
+#define LEN_JACK_MODES          "\007"
+#define TR_JACK_MODES           "Chiedi\0   ""Audio\0 ""Trainer"
+
+#define LEN_TELEMETRY_PROTOCOLS "\017"
+#define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
+>>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/it.h.txt
 
 #define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES             "Disab.","Toggle","2POS","3POS"
