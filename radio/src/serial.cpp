@@ -171,11 +171,12 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 
 #if defined(SBUS_TRAINER)
   case UART_MODE_SBUS_TRAINER:
+  case UART_MODE_IBUS_TRAINER:
+  case UART_MODE_CRSF_TRAINER:
+  case UART_MODE_SUMD_TRAINER:
     sbusSetAuxGetByte(ctx, getByte);
     // TODO: setRxCb (see MODE_LUA)
     break;
-  case UART_MODE_IBUS_TRAINER:
-    sbusSetAuxGetByte(ctx, getByte);
     break;
 #endif
 
@@ -251,7 +252,25 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.rx_enable = true;
     power_required = true;
     break;
+
+  case UART_MODE_CRSF_TRAINER:
+    params.baudrate = CRSF_BAUDRATE;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
+    params.rx_enable = true;
+    power_required = true;
+    break;
     
+  case UART_MODE_SUMD_TRAINER:
+    params.baudrate = SUMD_BAUDRATE;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
+    params.rx_enable = true;
+    power_required = true;
+    break;
+
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;

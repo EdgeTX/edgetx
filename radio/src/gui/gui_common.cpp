@@ -382,7 +382,7 @@ int hasSerialMode(int mode)
 
 bool isTrainerInputMode(const int mode) 
 {
-    return (mode == UART_MODE_IBUS_TRAINER) || (mode == UART_MODE_SBUS_TRAINER);
+    return (mode == UART_MODE_IBUS_TRAINER) || (mode == UART_MODE_SBUS_TRAINER) || (mode == UART_MODE_CRSF_TRAINER) || (mode == UART_MODE_SUMD_TRAINER);
 }
 
 int trainerInputActive() 
@@ -428,7 +428,7 @@ bool isSerialModeAvailable(const uint8_t port_nr, const int mode)
 #if defined(USB_SERIAL)
   // Telemetry input & SBUS trainer on VCP is not yet supported
   if (port_nr == SP_VCP &&
-      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER || mode == UART_MODE_IBUS_TRAINER))
+      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER || mode == UART_MODE_IBUS_TRAINER || mode == UART_MODE_CRSF_TRAINER || mode == UART_MODE_SUMD_TRAINER))
     return false;
 #endif
   
@@ -857,7 +857,8 @@ bool isTrainerModeAvailable(int mode)
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
 #if defined(SBUS_TRAINER)
-    return (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) || (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0);
+    return (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) || (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0) 
+            || (hasSerialMode(UART_MODE_CRSF_TRAINER) >= 0) || (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0);
 #else
     return false;
 #endif

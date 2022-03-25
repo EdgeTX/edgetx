@@ -63,7 +63,7 @@
 #define TR_TRNCHN              "ch1ch2ch3ch4"
 
 #define LEN_AUX_SERIAL_MODES   "\016"
-#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""IBUS Trainer\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
+#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""IBUS Trainer\0 ""CRSF Trainer\0 ""SUMD Trainer\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Dis.\0 ""Toggle""2POS\0 ""3POS\0"

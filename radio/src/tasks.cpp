@@ -96,23 +96,13 @@ void execMixerFrequentActions()
     else if (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0) {
         processIbusInput();
     }
+    else if (hasSerialMode(UART_MODE_CRSF_TRAINER) >= 0) {
+        processCrsfInput();
+    }
+    else if (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0) {
+//        processSumdInput();
+    }
 #endif
-//#if defined(SBUS_TRAINER) && (defined(AUX_SERIAL) || defined(AUX2_SERIAL))
-//    if ((g_eeGeneral.auxSerialMode == UART_MODE_SBUS_TRAINER) 
-//        #if defined(AUX2_SERIAL)
-//            || (g_eeGeneral.aux2SerialMode == UART_MODE_SBUS_TRAINER)
-//        #endif
-//            ) {
-//        processSbusInput();
-//    }
-//    else if ((g_eeGeneral.auxSerialMode == UART_MODE_IBUS_TRAINER)
-//         #if defined(AUX2_SERIAL)
-//             || (g_eeGeneral.aux2SerialMode == UART_MODE_IBUS_TRAINER)
-//         #endif
-//             ) {
-//        processIbusInput();
-//    }
-//#endif
 
 #if defined(GYRO)
   gyro.wakeup();
