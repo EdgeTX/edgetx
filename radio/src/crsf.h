@@ -4,7 +4,7 @@
 #include "crc.h"
 #include "telemetry/crossfire.h"
 
-#define CRSF_BAUDRATE         400000
+#define CRSF_BAUDRATE         420000
 
 void processCrsfInput();
 
