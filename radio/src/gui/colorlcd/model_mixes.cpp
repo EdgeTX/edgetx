@@ -29,7 +29,7 @@
 #include "model_curves.h"
 #include "dataconstants.h"
 #include "channel_bar.h"
-
+#include "view_channels.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
@@ -416,6 +416,7 @@ class MixLineTitle : public StaticText
   }
 };
 
+
 void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 {
   FormGridLayout grid;
@@ -427,6 +428,16 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
     mixerSetupMultiBitmap,
     mixerSetupReplaceBitmap
   };
+
+  new TextButton(
+      window, grid.getFieldSlot(2, 0), "Open Channel Monitor",
+      [=]() {
+        pushEvent(EVT_KEY_LONG(KEY_TELEM));
+        return 0;
+      },
+      0, COLOR_THEME_PRIMARY1);
+
+  grid.nextLine();
 
   int mixIndex = 0;
   MixData * mix = g_model.mixData;
