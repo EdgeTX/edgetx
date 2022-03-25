@@ -283,14 +283,6 @@ void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance,
                                  uint32_t data, TelemetryUnit unit = UNIT_RAW);
 void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t *packet);
 
-void telemetryWakeup();
-void telemetryReset();
-
-extern uint8_t telemetryProtocol;
-void telemetryInit(uint8_t protocol);
-
-void telemetryInterrupt10ms();
-
 bool pushFrskyTelemetryData(uint8_t data); // returns true when end of frame detected
 void processFrskyTelemetryData(uint8_t data);
 

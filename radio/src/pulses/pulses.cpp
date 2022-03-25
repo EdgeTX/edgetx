@@ -58,32 +58,9 @@ InternalModulePulsesData intmodulePulsesData __DMA;
 ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
 
-static TimerHandle_t telemetryTimer = nullptr;
-static StaticTimer_t telemetryTimerBuffer;
-
-void telemetryTimerCb(TimerHandle_t xTimer)
-{
-  (void)xTimer;
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
-}
-
 void startPulses()
 {
-  if (!telemetryTimer) {
-    telemetryTimer =
-        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
-                           telemetryTimerCb, &telemetryTimerBuffer);
-    if (telemetryTimer) {
-      if( xTimerStart( telemetryTimer, 0 ) != pdPASS ) {
-        /* The timer could not be set into the Active state. */
-      }
-    }
-  }
-
+  telemetryStart();
   s_pulses_paused = false;
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -101,13 +78,9 @@ void startPulses()
 
 void stopPulses()
 {
-  if (telemetryTimer) {
-    if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
-    }
-  }
-  
+  telemetryStop();
   s_pulses_paused = true;
+
   for (uint8_t i = 0; i < NUM_MODULES; i++)
     moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
 }

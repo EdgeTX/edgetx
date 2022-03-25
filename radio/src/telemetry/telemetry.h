@@ -87,6 +87,17 @@ void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t));
 // Mirror telemetry byte
 void telemetryMirrorSend(uint8_t data);
 
+void telemetryWakeup();
+void telemetryReset();
+
+extern uint8_t telemetryProtocol;
+void telemetryInit(uint8_t protocol);
+
+void telemetryInterrupt10ms();
+
+void telemetryStart();
+void telemetryStop();
+
 #define TELEMETRY_AVERAGE_COUNT        3
 
 enum {
