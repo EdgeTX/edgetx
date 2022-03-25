@@ -136,7 +136,25 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                       "Current Firmware:", CENTERED | BL_FOREGROUND);
         lcd->drawText(center, LCD_H - DEFAULT_PADDING,
                       getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
-    } else if (st == ST_USB) {
+    }
+#if defined(SPI_FLASH) && defined(SDCARD)
+    else if (st == ST_SELECT_STORAGE) {
+
+        bootloaderDrawTitle(LV_SYMBOL_DIRECTORY " select storage");
+
+        lcd->drawText(62, 75, LV_SYMBOL_DIRECTORY, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(84, 75, "Internal", BL_FOREGROUND);
+
+        pos += 8;
+
+        lcd->drawText(60, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        lcd->drawText(84, 110, "SD Card", BL_FOREGROUND);
+
+        pos -= 79;
+        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+    }
+#endif
+    else if (st == ST_USB) {
       lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
       lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
     } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||

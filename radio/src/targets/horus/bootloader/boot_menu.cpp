@@ -125,6 +125,23 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       bootloaderDrawFooter();
       lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
+#if defined(SPI_FLASH) && defined(SDCARD)
+    else if (st == ST_SELECT_STORAGE) {
+
+        bootloaderDrawTitle(LV_SYMBOL_DIRECTORY " select storage");
+
+        lcd->drawText(102, 75, LV_SYMBOL_DIRECTORY, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(124, 75, "Internal", BL_FOREGROUND);
+
+        pos += 8;
+
+        lcd->drawText(100, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        lcd->drawText(124, 110, "SD Card", BL_FOREGROUND);
+
+        pos -= 92;
+        lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+    }
+#endif
     else if (st == ST_USB) {
 
         lcd->drawBitmap(136, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
