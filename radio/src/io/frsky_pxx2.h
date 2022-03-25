@@ -25,7 +25,7 @@
 #include "../fifo.h"
 #include "../pulses/pxx.h"
 
-class ModuleFifo : public Fifo<uint8_t, PXX2_FRAME_MAXLENGTH> {
+class ModuleFifo : public Fifo<uint8_t, INTMODULE_FIFO_SIZE> {
   public:
     bool getFrame(uint8_t * frame)
     {
@@ -74,7 +74,6 @@ class ModuleFifo : public Fifo<uint8_t, PXX2_FRAME_MAXLENGTH> {
       return ((crc >> 8) == crcLow) && ((crc & 0xFF) == crcHigh);
     }
 
-    uint32_t errors;
 };
 
 #endif

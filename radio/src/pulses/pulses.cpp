@@ -49,11 +49,62 @@
 #include "pulses/afhds2.h"
 #endif
 
+#include <FreeRTOS.h>
+#include <timers.h>
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
 ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
+
+static TimerHandle_t telemetryTimer = nullptr;
+static StaticTimer_t telemetryTimerBuffer;
+
+void telemetryTimerCb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  if (!s_pulses_paused) {
+    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+    telemetryWakeup();
+    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
+  }
+}
+
+void startPulses()
+{
+  if (!telemetryTimer) {
+    telemetryTimer =
+        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           telemetryTimerCb, &telemetryTimerBuffer);
+    if (telemetryTimer) {
+      if( xTimerStart( telemetryTimer, 0 ) != pdPASS ) {
+        /* The timer could not be set into the Active state. */
+      }
+    }
+  }
+
+  s_pulses_paused = false;
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+  setupPulsesInternalModule();
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  setupPulsesExternalModule();
+#endif
+
+#if defined(HARDWARE_EXTRA_MODULE)
+  extramodulePpmStart();
+#endif
+}
+
+void stopPulses()
+{
+  s_pulses_paused = true;
+  for (uint8_t i = 0; i < NUM_MODULES; i++)
+    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+}
 
 void restartModule(uint8_t idx)
 {
