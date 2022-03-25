@@ -49,7 +49,7 @@
 #define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
 #define TR_TRNMODE                     "FRA",TR("+=","Læg til"),TR(":=","Erstat")
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","IBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
+#define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","IBUS træner","CRSF træner","SUMD træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"

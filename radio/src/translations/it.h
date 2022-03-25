@@ -53,7 +53,7 @@
 #define TR_TRNMODE             "OFF",TR("+=","Add"),TR(":=","Sost.")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES             "OFF","Replica Telem","Telemetria In","SBUS Trainer","IBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
+#define TR_AUX_SERIAL_MODES             "OFF","Replica Telem","Telemetria In","SBUS Trainer","IBUS Trainer","CRSF Trainer","SUMD Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
 #define TR_SWTYPES                      "Disab.","Toggle","2POS","3POS"
 #define TR_POTTYPES                     "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro"),"Slider"
 #define TR_VPERSISTENT                  "NO","Volo","Reset Manuale"

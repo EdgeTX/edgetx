@@ -51,7 +51,7 @@
 #define TR_VBLMODE                     "OFF",TR("Btns","Touches"),TR("Ctrl","Contrôles"),"Tous","ON"
 #define TR_TRNMODE                     "OFF",TR("+=","Ajoute"),TR(":=","Remplace")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","Écolage IBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
+#define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","Écolage IBUS","Écolage CRSF","Écolage SUMD","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
 
 #define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS"
 #define TR_POTTYPES                    "Rien",TR("Pots av. ctr","Pots avec centre"),TR("Multipos.","Inter multi-pos""Potentiomètre"),TR("Pots","Potentiomètre"),"Curseurs"

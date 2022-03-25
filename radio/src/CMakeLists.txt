@@ -398,6 +398,8 @@ set(SRC
   serial.cpp
   sbus.cpp
   ibus.cpp
+  crsf.cpp
+  sumd.cpp
   input_mapping.cpp
   inactivity_timer.cpp
   tasks/mixer_task.cpp
