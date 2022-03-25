@@ -32,6 +32,7 @@
  */
 
 
+<<<<<<< HEAD:radio/src/translations/pl.h
 #define TR_OFFON               "WYŁ","ZAŁ"
 #define TR_MMMINV              "---","REV"
 #define TR_VBEEPMODE           "Cichy","Alarm","BezPr","Wsz."
@@ -47,6 +48,57 @@
 #define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
 #define TR_JACK_MODES          "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
+=======
+// NON ZERO TERMINATED STRINGS
+#define LEN_OFFON              "\003"
+#define TR_OFFON               "WYŁ""ZAŁ"
+
+#define LEN_MMMINV             "\003"
+#define TR_MMMINV              "---""REV"
+
+#define LEN_VBEEPMODE          "\005"
+#define TR_VBEEPMODE           "Cichy""Alarm""BezPr""Wsz.\0"
+
+#define LEN_VBLMODE            TR("\004", "\010")
+#define TR_VBLMODE             TR("Wył\0""Przy""Drąż""Oba\0""Zał\0", "Wyłącz  ""Przycisk""Drązki\0 ""Oba\0    ""Włącz   ")
+
+#define LEN_TRNMODE            "\003"
+#define TR_TRNMODE             "Wył"" +="" :="
+
+#define LEN_TRNCHN             "\003"
+#define TR_TRNCHN              "KN1KN2KN3KN4"
+
+#define LEN_AUX_SERIAL_MODES   "\015"  /*13 decimal*/
+#define TR_AUX_SERIAL_MODES    "Wyłącz\0      ""S-Port Kopia ""Telemetria\0  ""Trener SBUS\0 ""Trener IBUS\0 ""Trener CRSF\0 ""Trener SUMD\0 ""LUA\0          ""CLI\0         ""GPS\0         ""Debug\0       "
+
+#define LEN_SWTYPES            "\006"
+#define TR_SWTYPES             "Brak\0 ""Chwil.""2POZ\0 ""3POZ\0"
+
+#define LEN_POTTYPES           TR("\013","\017") /*15 decimal*/
+#define TR_POTTYPES            TR("None\0      ""Pot w. det\0""Multipos\0  ""Pot\0       ", "Brak\0          ""Poten z zapadką""Przeł.Wielopoz.""Potencjometr\0  ")
+
+#define LEN_SLIDERTYPES        "\006"
+#define TR_SLIDERTYPES         "Brak\0 ""Suwak "
+
+#define LEN_VLCD               "\006"
+#define TR_VLCD                "NormalOptrex"
+
+#define LEN_VPERSISTENT        "\014"  /*12 decimal*/
+#define TR_VPERSISTENT         "Wyłącz\0     ""Lot\0        ""Ręczny Reset"
+
+#define LEN_COUNTRY_CODES       TR("\002", "\007")
+#define TR_COUNTRY_CODES        TR("US""JP""EU", "Ameryka""Japonia""Europa\0")
+
+#define LEN_USBMODES           TR("\006", "\010")
+#define TR_USBMODES            TR("Ask\0  ""Joyst\0""SDCard""Serial", "Ask\0    ""Joystick""Storage\0""Serial\0 ")
+
+#define LEN_JACK_MODES                  "\007"
+#define TR_JACK_MODES                   "Ask\0   ""Audio\0 ""Trainer"
+
+#define LEN_TELEMETRY_PROTOCOLS "\017"
+#define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
+
+>>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/pl.h.txt
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Expotencja"),TR("B.Dokł","B.Dokładny"),TR("Dokł.","Dokładny"),"Średni",TR("Zgrubn","Zgrubny")
 #define TR_VDISPLAYTRIMS       "Nie","Zmień","Tak"

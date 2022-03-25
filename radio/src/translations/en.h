@@ -37,6 +37,7 @@
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
+<<<<<<< HEAD:radio/src/translations/en.h
 #define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot"
@@ -46,6 +47,56 @@
 #define TR_USBMODES                    "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
 #define TR_JACK_MODES                  "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
+=======
+// NON ZERO TERMINATED STRINGS
+#define LEN_OFFON                      "\003"
+#define TR_OFFON                       "OFF""ON\0"
+
+#define LEN_MMMINV                     "\003"
+#define TR_MMMINV                      "---""INV"
+
+#define LEN_VBEEPMODE                  "\005"
+#define TR_VBEEPMODE                   "Quiet""Alarm""NoKey""All\0 "
+
+#define LEN_VBLMODE                    TR("\004", "\011")
+#define TR_VBLMODE                     TR("OFF\0""Keys""Ctrl""Both""ON\0 ", "OFF\0     ""Keys\0    ""Controls\0""Both\0    ""ON\0      ")
+
+#define LEN_TRNMODE                    "\003"
+#define TR_TRNMODE                     "OFF""+=\0"":=\0"
+
+#define LEN_TRNCHN                     "\003"
+#define TR_TRNCHN                      "CH1CH2CH3CH4"
+
+#define LEN_AUX_SERIAL_MODES           "\015"
+#define TR_AUX_SERIAL_MODES            "OFF\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trainer\0""IBUS Trainer\0""CRSF Trainer\0""SUMD Trainer\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
+
+#define LEN_SWTYPES                    "\006"
+#define TR_SWTYPES                     "None\0 ""Toggle""2POS\0 ""3POS\0"
+
+#define LEN_POTTYPES                    TR("\013", "\017")
+#define TR_POTTYPES                     TR("None\0      ""Pot w. det\0""Multipos\0  ""Pot\0       ",  "None\0          ""Pot with detent""Multipos Switch""Pot\0")
+
+#define LEN_SLIDERTYPES                "\006"
+#define TR_SLIDERTYPES                 "None\0 ""Slider"
+
+#define LEN_VLCD                       "\006"
+#define TR_VLCD                        "NormalOptrex"
+
+#define LEN_VPERSISTENT                "\014"
+#define TR_VPERSISTENT                 "OFF\0        ""Flight\0     ""Manual Reset"
+
+#define LEN_COUNTRY_CODES              TR("\002", "\007")
+#define TR_COUNTRY_CODES               TR("US""JP""EU", "America""Japan\0 ""Europe\0")
+
+#define LEN_USBMODES                   TR("\006", "\010")
+#define TR_USBMODES                    TR("Ask\0  ""Joyst\0""SDCard""Serial", "Ask\0    ""Joystick""Storage\0""Serial\0 ")
+
+#define LEN_JACK_MODES                 "\007"
+#define TR_JACK_MODES                  "Ask\0   ""Audio\0 ""Trainer"
+
+#define LEN_TELEMETRY_PROTOCOLS        "\017"
+#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
+>>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/en.h.txt
 
 #define TR_MULTI_CUSTOM                "Custom"
 #define TR_VTRIMINC                    TR("Expo","Exponential"),TR("ExFine","Extra Fine"),"Fine","Medium","Coarse"
