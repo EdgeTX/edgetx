@@ -101,6 +101,12 @@ void startPulses()
 
 void stopPulses()
 {
+  if (telemetryTimer) {
+    if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+  
   s_pulses_paused = true;
   for (uint8_t i = 0; i < NUM_MODULES; i++)
     moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
