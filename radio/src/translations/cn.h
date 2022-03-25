@@ -49,7 +49,7 @@
 #define TR_TRNMODE                     "关","相加","替换"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","IBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
+#define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","IBUS教练","CRSF教练","SUMD教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
 #define TR_SWTYPES                     "无","回弹","2段","3段"
 #define TR_POTTYPES                    "无","有中点旋钮","多段旋钮","无中点旋钮","侧滑块"
 #define TR_VPERSISTENT                 "禁用","随飞行记录复位","随手动复位"
