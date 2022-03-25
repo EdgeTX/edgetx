@@ -29,7 +29,7 @@
 #include "model_curves.h"
 #include "dataconstants.h"
 #include "channel_bar.h"
-#include "view_channels.h"
+
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2

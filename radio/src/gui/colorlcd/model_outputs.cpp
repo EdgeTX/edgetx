@@ -25,7 +25,6 @@
 #include "gvar_numberedit.h"
 #include "libopenui.h"
 #include "opentx.h"
-#include "view_channels.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
