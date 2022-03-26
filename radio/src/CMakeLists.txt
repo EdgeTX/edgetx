@@ -340,15 +340,18 @@ endif()
 
 if(SDCARD)
   add_definitions(-DSDCARD)
-  include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp VirtualFS.cpp)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
+  set(SRC ${SRC} sdcard.cpp logs.cpp)
 endif()
 
 if(SPI_FLASH)
   add_definitions(-DLFS_NO_ASSERT)
   add_definitions(-DSPI_FLASH)
-  set(SRC ${SRC} VirtualFS.cpp )
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
+  include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
+  set(SRC ${SRC} rtc.cpp VirtualFS.cpp)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
 endif()
 
 if(SHUTDOWN_CONFIRMATION)

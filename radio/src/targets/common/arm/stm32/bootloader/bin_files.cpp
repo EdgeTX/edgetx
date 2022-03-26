@@ -47,7 +47,7 @@ const char *getBinaryPath(MemoryType mt)
   case MEM_INTERNAL: return  INTERNAL_ST_FIRMWARES_PATH;
   case MEM_SDCARD: return SDCARD_FIRMWARES_PATH;
 #else
-  case MEM_FLASH:
+  case MEM_INTERNAL:
   case MEM_SDCARD: return FIRMWARES_PATH;
 #endif
   }

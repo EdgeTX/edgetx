@@ -22,7 +22,7 @@
 #ifndef _DISK_CACHE_H_
 #define _DISK_CACHE_H_
 
-#include "diskio.h"
+#include "FatFs/diskio.h"
 #include "sdio_sd.h"
 
 // tunable parameters
