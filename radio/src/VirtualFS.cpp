@@ -1660,8 +1660,6 @@ void VirtualFS::startLogs()
 {
   if(!sdCardMounted())
     return;
-  VfsFile fil;
-  fil.size()
 #if defined(SDCARD)
 #if defined(LOG_TELEMETRY)
   openFile(g_telemetryFile, LOGS_PATH "/telemetry.log", VfsOpenFlags::OPEN_ALWAYS | VfsOpenFlagsWRITE);
