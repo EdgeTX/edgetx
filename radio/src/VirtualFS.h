@@ -477,6 +477,7 @@ public:
 
   void stop();
   void restart();
+  void mountSd();
 
   // NOTE: 'size' must = 0 or be a valid character position within 'filename' array -- it is NOT validated
   static const char* getBasename(const char * path);
