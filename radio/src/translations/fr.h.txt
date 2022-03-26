@@ -1394,7 +1394,14 @@
 
 #define TR_USE_THEME_COLOR              "Use theme color"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#if LCD_W > LCD_H
+  #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+#else
+  #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Trms->SubTrms"
+  #define TR_OPEN_CHANNEL_MONITORS        "Chan. Mon." 
+#endif
+
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
 #define TR_RED                          "Red"

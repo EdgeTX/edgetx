@@ -430,7 +430,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
   };
 
   new TextButton(
-      window, grid.getFieldSlot(2, 0), "Open Channel Monitor",
+      window, grid.getFieldSlot(2, 0), STR_OPEN_CHANNEL_MONITORS,
       [=]() {
         pushEvent(EVT_KEY_LONG(KEY_TELEM));
         return 0;
