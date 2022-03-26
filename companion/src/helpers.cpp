@@ -685,17 +685,24 @@ QString Helpers::getChecklistsPath()
   return QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/MODELS/");   // TODO : add sub folder to constants
 }
 
-QString Helpers::getChecklistFilename(const ModelData * model)
+QString Helpers::getChecklistFilename(const ModelData * model, bool appendExtension)
 {
-  QString name = model->modelNotesFileName;
-  name.replace(" ", "_");
-  name.append(".txt");          // TODO : add to constants
+  QString name;
+  if (!strlen(model->modelNotesFileName) == 0) {
+    name = model->modelNotesFileName;
+  } else {
+    name = model->name;
+    name.replace(" ", "_");
+  }
+  if (appendExtension) {
+    name.append(CPN_STR_MODELNOTES_EXT);
+  }
   return name;
 }
 
 QString Helpers::getChecklistFilePath(const ModelData * model)
 {
-  return getChecklistsPath() + getChecklistFilename(model);
+  return getChecklistsPath() + getChecklistFilename(model, true);
 }
 
 QString Helpers::removeAccents(const QString & str)

@@ -1674,7 +1674,7 @@ void SetupPanel::update()
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
   ui->jitterFilter->setCurrentIndex(model->jitterFilter);
-  ui->notesFile->setText(model->modelNotesFileName);
+  ui->notesFile->setText(Helpers::getChecklistFilename(model, false));
 
   updateBeepCenter();
   updateStartupSwitches();
