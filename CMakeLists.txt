@@ -29,6 +29,7 @@ if(EdgeTX_SUPERBUILD)
     endif()
   endforeach()
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
+  message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
@@ -37,7 +38,7 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(native
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/native
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev
+    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
@@ -50,7 +51,7 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(arm-none-eabi
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev
+    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
