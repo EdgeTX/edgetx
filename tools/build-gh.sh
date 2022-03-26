@@ -150,6 +150,6 @@ do
     cmake --build . --target arm-none-eabi-configure
     cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
 
-    rm -f CMakeCache.txt
+    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
     mv arm-none-eabi/firmware.bin "../${fw_name}"
 done

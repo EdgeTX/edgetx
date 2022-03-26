@@ -133,7 +133,7 @@ do
             ;;
     esac
 
-    rm -f native/CMakeCache.txt
+    rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native -j${JOBS} --target libsimulator    
