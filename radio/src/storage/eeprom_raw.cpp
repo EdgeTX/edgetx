@@ -439,8 +439,7 @@ const char * eeBackupModel(uint8_t i_fileSrc)
 
   storageCheck(true);
 
-#warning check for VirtualFS storage, not sd card
-  if (!sdMounted()) {
+  if (!VirtualFS::instance().defaultStorageAvailable()) {
     return STR_NO_SDCARD;
   }
 
@@ -500,7 +499,7 @@ const char * eeRestoreModel(uint8_t i_fileDst, char *model_name)
 
   storageCheck(true);
 
-  if (!sdMounted()) {
+  if (!VirtualFS::instance().defaultStorageAvailable()) {
     return STR_NO_SDCARD;
   }
 

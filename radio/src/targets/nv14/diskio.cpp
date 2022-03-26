@@ -25,7 +25,7 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
-#include "diskio.h"
+#include "FatFs/diskio.h"
 #include "debug.h"
 #include "targets/common/arm/stm32/sdio_sd.h"
 
@@ -479,6 +479,10 @@ void sdInit(void)
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     f_chdir("/");
   }
+}
+void sdMount(void)
+{
+  sdInit();
 }
 #else
 

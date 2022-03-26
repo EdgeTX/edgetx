@@ -30,6 +30,7 @@
 #include "opentx.h"
 #endif
 #include "VirtualFS.h"
+#include "board.h"
 
 
 #if defined(LIBOPENUI) && 0
@@ -703,6 +704,10 @@ VirtualFS::~VirtualFS()
 
 void VirtualFS::stop()
 {
+#if defined (SDCARD)
+  sdDone();
+#endif
+
 #if defined (SPI_FLASH)
 #if defined (USE_LITTLEFS)
   lfs_unmount(&lfs);
@@ -714,6 +719,9 @@ void VirtualFS::stop()
 static FATFS spiFatFsTmp ={0};
 void VirtualFS::restart()
 {
+#if defined (SDCARD)
+  sdMount();
+#endif
 #if defined (SPI_FLASH)
 #if defined(USE_LITTLEFS)
   //  flashSpiEraseAll();
@@ -885,7 +893,7 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     path = path.substr(7);
     return VfsDir::DIR_FAT;
 #else
-    return VfsDir::DIR_UNKOWN;
+    return VfsDir::DIR_UNKNOWN;
 #endif
   } else if(path.substr(0, 8) == "/DEFAULT") {
 #if (DEFAULT_STORAGE == INTERNAL)
@@ -1612,6 +1620,24 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 }
 
 #endif // !LIBOPENUI
+
+bool VirtualFS::sdCardMounted()
+{
+#if defined (SDCARD)
+  return g_FATFS_Obj.fs_type != 0;
+#else
+  return false;
+#endif
+}
+size_t VirtualFS::sdGetFreeSectors()
+{
+#if defined (SDCARD)
+  return ::sdGetFreeSectors();
+#else
+  return 0;
+#endif
+}
+
 
 #if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t flashGetNoSectors()

@@ -890,7 +890,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id)
   #endif
 #endif
 
-  if (!sdMounted())
+  if (!VirtualFS::instance().defaultStorageAvailable())
     return;
 
   if (g_eeGeneral.beepMode == e_mode_quiet)

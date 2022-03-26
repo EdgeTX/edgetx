@@ -121,10 +121,10 @@ const char * logsOpen()
   // /LOGS/modelnamexxxxxx_YYYY-MM-DD-HHMMSS.log
   char filename[sizeof(LOGS_PATH) + LEN_MODEL_NAME + 18 + 4 + 1];
 
-  if (!sdMounted())
+  if (!VirtualFS::instance().sdCardMounted())
     return STR_NO_SDCARD;
 
-  if (sdGetFreeSectors() == 0)
+  if (VirtualFS::instance().sdGetFreeSectors() == 0)
     return STR_SDCARD_FULL;
 
   // check and create folder here
@@ -185,7 +185,7 @@ const char * logsOpen()
 
 void logsClose()
 {
-  if (sdMounted()) {
+  if (VirtualFS::instance().sdCardMounted()) {
     g_oLogFile.close();
     lastLogTime = 0;
   }
@@ -270,7 +270,7 @@ void logsWrite()
 {
   static const char * error_displayed = nullptr;
 
-  if (!sdMounted()) {
+  if (!VirtualFS::instance().sdCardMounted()) {
     return;
   }
 

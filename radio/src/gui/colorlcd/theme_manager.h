@@ -26,7 +26,6 @@
 #include "colors.h"
 #include "debug.h"
 #include "opentx.h"
-#include "sdcard.h"
 #include "str_functions.h"
 
 class ThemePersistance;
