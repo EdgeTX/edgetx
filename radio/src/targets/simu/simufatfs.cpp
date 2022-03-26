@@ -25,7 +25,7 @@
 #include <algorithm>
 #include "opentx.h"
 
-#if defined(SIMU_USE_SDCARD)  // rest of file is excluded otherwise
+#if defined(SIMU_USE_FAT_EMU)  // rest of file is excluded otherwise
 
 #if defined(_MSC_VER) || !defined (__GNUC__)
   #define MSVC_BUILD    1

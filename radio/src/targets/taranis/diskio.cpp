@@ -957,14 +957,6 @@ void sdPoll10ms()
 bool _g_FATFS_init = false;
 FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
-
-#if defined(LOG_BLUETOOTH)
-FIL g_bluetoothFile = {};
-#endif
-
 #if defined(BOOT)
 void sdInit(void)
 {
@@ -988,20 +980,6 @@ void sdMount()
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
     sdGetFreeSectors();
-    
-#if defined(LOG_TELEMETRY)
-    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_telemetryFile) > 0) {
-      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
-    }
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_bluetoothFile) > 0) {
-      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
-    }
-#endif
   }
 }
 
@@ -1009,12 +987,6 @@ void sdDone()
 {
   if (sdMounted()) {
     audioQueue.stopSD();
-#if defined(LOG_TELEMETRY)
-    f_close(&g_telemetryFile);
-#endif
-#if defined(LOG_BLUETOOTH)
-    f_close(&g_bluetoothFile);
-#endif
     f_mount(nullptr, "", 0); // unmount SD
   }
 }

@@ -28,7 +28,7 @@
 #endif
 
 #if defined(LOG_BLUETOOTH)
-extern FIL g_bluetoothFile;
+extern VfsFile g_bluetoothFile;
 #endif
 
 #if defined(PCBX9E)
@@ -788,7 +788,7 @@ const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler p
 
   result = bootloaderEraseFlash(CC26XX_FIRMWARE_BASE, information->size);
   if (result) {
-    f_close(&file);
+    file.close();
     return result;
   }
 

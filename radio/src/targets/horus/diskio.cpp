@@ -25,7 +25,7 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
-#include "diskio.h"
+#include "FatFs/diskio.h"
 #include "debug.h"
 #include "targets/common/arm/stm32/sdio_sd.h"
 
@@ -67,8 +67,7 @@ int ff_del_syncobj (FF_SYNC_t mutex)
   return 1;
 }
 #endif
-
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
 #include "tjftl/tjftl.h"
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
@@ -126,8 +125,7 @@ DSTATUS disk_initialize (
 )
 {
   DSTATUS stat = 0;
-
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl != nullptr)
@@ -177,8 +175,7 @@ DSTATUS disk_status (
 )
 {
   DSTATUS stat = 0;
-
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -240,7 +237,7 @@ DRESULT disk_read_dma(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -258,6 +255,8 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
     }
     return res;
   }
+#endif
+
   // If unaligned, do the single block reads with a scratch buffer.
   // If aligned and single sector, do a single block read.
   // If aligned and multiple sectors, try multi block read.
@@ -309,7 +308,7 @@ DRESULT __disk_write(
 )
 {
   DRESULT res = RES_OK;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
     if(tjftl == nullptr)
@@ -388,9 +387,10 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
-#if !defined(BOOT)
+#if defined(SPI_FLASH)
   if(drv == 1)
   {
+    disk_initialize(1);
     if(tjftl == nullptr)
     {
       res = RES_ERROR;
@@ -401,13 +401,12 @@ DRESULT disk_ioctl (
     switch (ctrl) {
       case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       {
-        size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
-        *(DWORD*)buff = (flashSize/512)-100;
+        *(DWORD*)buff = tjftl_getSectorCount(tjftl);
         res = RES_OK;
         break;
       }
       case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-        *(WORD*)buff = 512;
+        *(WORD*)buff = tjftl_getSectorSize(tjftl);
         res = RES_OK;
         break;
 
@@ -430,7 +429,6 @@ DRESULT disk_ioctl (
     return res;
   }
 #endif
-
   if (drv) return RES_PARERR;
 
   res = RES_ERROR;
@@ -472,14 +470,6 @@ DRESULT disk_ioctl (
 bool _g_FATFS_init = false;
 FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
-
-#if defined(LOG_BLUETOOTH)
-FIL g_bluetoothFile = {};
-#endif
-
 #if defined(BOOT)
 void sdInit(void)
 {
@@ -508,26 +498,14 @@ void sdMount()
 {
   TRACE("sdMount");
   
-  diskCache.clear();
+#if defined(DISK_CACHE)
+  diskCache[0].clear();
+#endif
   
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
     sdGetFreeSectors();
-
-#if defined(LOG_TELEMETRY)
-    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_telemetryFile) > 0) {
-      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
-    }
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_bluetoothFile) > 0) {
-      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
-    }
-#endif
   }
   else {
     TRACE("f_mount() failed");
@@ -540,15 +518,6 @@ void sdDone()
   
   if (sdMounted()) {
     audioQueue.stopSD();
-
-#if defined(LOG_TELEMETRY)
-    f_close(&g_telemetryFile);
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_close(&g_bluetoothFile);
-#endif
-
     f_mount(nullptr, "", 0); // unmount SD
   }
 }

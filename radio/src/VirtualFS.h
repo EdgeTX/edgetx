@@ -37,6 +37,48 @@
 
 #include "translations.h"
 
+#if defined(PCBX12S)
+  #define ETX_FOURCC 0x3478746F // etx for X12S
+#elif defined(RADIO_T16)
+  #define ETX_FOURCC 0x3F78746F // etx for Jumper T16
+#elif defined(RADIO_T18)
+  #define ETX_FOURCC 0x4078746F // etx for Jumper T18
+#elif defined(RADIO_TX16S)
+  #define ETX_FOURCC 0x3878746F // etx for Radiomaster TX16S
+#elif defined(PCBX10)
+  #define ETX_FOURCC 0x3778746F // etx for X10
+#elif defined(PCBX9E)
+  #define ETX_FOURCC 0x3578746F // etx for Taranis X9E
+#elif defined(PCBXLITES)
+  #define ETX_FOURCC 0x3B78746F // etx for Taranis X-Lite S
+#elif defined(PCBXLITE)
+  #define ETX_FOURCC 0x3978746F // etx for Taranis X-Lite
+#elif defined(RADIO_T12)
+  #define ETX_FOURCC 0x3D78746F // etx for Jumper T12
+#elif defined(RADIO_TLITE)
+  #define ETX_FOURCC 0x4278746F // etx for Jumper TLite
+#elif defined(RADIO_TPRO)
+  #define ETX_FOURCC 0x4678746F // etx for Jumper TPro
+#elif defined(RADIO_TX12)
+  #define ETX_FOURCC 0x4178746F // etx for Radiomaster TX12
+#elif defined(RADIO_ZORRO)
+  #define ETX_FOURCC 0x4778746F // otx for Radiomaster Zorro
+#elif defined(RADIO_T8)
+  #define ETX_FOURCC 0x4378746F // etx for Radiomaster T8
+#elif defined(PCBX7)
+  #define ETX_FOURCC 0x3678746F // etx for Taranis X7 / X7S / X7 Express / X7S Express
+#elif defined(PCBX9LITES)
+  #define ETX_FOURCC 0x3E78746F // etx for Taranis X9-Lite S
+#elif defined(PCBX9LITE)
+  #define ETX_FOURCC 0x3C78746F // etx for Taranis X9-Lite
+#elif defined(PCBX9D) || defined(PCBX9DP)
+  #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
+#elif defined(PCBNV14)
+  #define ETX_FOURCC 0x3A78746F // otx for NV14
+#elif defined(PCBPL18)
+  #define ETX_FOURCC 0x4878746F // otx for PL18
+#endif
+
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
 
 #define FILE_COPY_PREFIX "cp_"
@@ -125,8 +167,6 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   memcpy(&filename[sizeof(path)], var, sizeof(var)); \
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
-
-
 
 class VirtualFS;
 
@@ -502,48 +542,6 @@ public:
   // NOTE: 'size' must = 0 or be a valid character position within 'filename' array -- it is NOT validated
   const char * flashGetBasename(const char * path);
 
-#if defined(PCBX12S)
-  #define ETX_FOURCC 0x3478746F // etx for X12S
-#elif defined(RADIO_T16)
-  #define ETX_FOURCC 0x3F78746F // etx for Jumper T16
-#elif defined(RADIO_T18)
-  #define ETX_FOURCC 0x4078746F // etx for Jumper T18
-#elif defined(RADIO_TX16S)
-  #define ETX_FOURCC 0x3878746F // etx for Radiomaster TX16S
-#elif defined(PCBX10)
-  #define ETX_FOURCC 0x3778746F // etx for X10
-#elif defined(PCBX9E)
-  #define ETX_FOURCC 0x3578746F // etx for Taranis X9E
-#elif defined(PCBXLITES)
-  #define ETX_FOURCC 0x3B78746F // etx for Taranis X-Lite S
-#elif defined(PCBXLITE)
-  #define ETX_FOURCC 0x3978746F // etx for Taranis X-Lite
-#elif defined(RADIO_T12)
-  #define ETX_FOURCC 0x3D78746F // etx for Jumper T12
-#elif defined(RADIO_TLITE)
-  #define ETX_FOURCC 0x4278746F // etx for Jumper TLite
-#elif defined(RADIO_TPRO)
-  #define ETX_FOURCC 0x4678746F // etx for Jumper TPro
-#elif defined(RADIO_TX12)
-  #define ETX_FOURCC 0x4178746F // etx for Radiomaster TX12
-#elif defined(RADIO_ZORRO)
-  #define ETX_FOURCC 0x4778746F // otx for Radiomaster Zorro
-#elif defined(RADIO_T8)
-  #define ETX_FOURCC 0x4378746F // etx for Radiomaster T8
-#elif defined(PCBX7)
-  #define ETX_FOURCC 0x3678746F // etx for Taranis X7 / X7S / X7 Express / X7S Express
-#elif defined(PCBX9LITES)
-  #define ETX_FOURCC 0x3E78746F // etx for Taranis X9-Lite S
-#elif defined(PCBX9LITE)
-  #define ETX_FOURCC 0x3C78746F // etx for Taranis X9-Lite
-#elif defined(PCBX9D) || defined(PCBX9DP)
-  #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
-#elif defined(PCBNV14)
-  #define ETX_FOURCC 0x3A78746F // otx for NV14
-#elif defined(PCBPL18)
-  #define ETX_FOURCC 0x4878746F // otx for PL18
-#endif
-
   unsigned int findNextFileIndex(char * filename, uint8_t size, const char * directory);
 
   #define LIST_NONE_SD_FILE   1
@@ -567,6 +565,9 @@ private:
   void normalizePath(std::string &path);
 
   VfsDir::DirType getDirTypeAndPath(std::string& path);
+
+  void startLogs();
+  void stopLogs();
 };
 
 #endif // _VIRTUALFS_H_

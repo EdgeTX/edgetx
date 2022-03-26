@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include <algorithm>
 #include "rtos.h"
-#include "opentx.h"
+#include "board.h"
 
 #if !defined(SIMU)
 
@@ -109,6 +110,7 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
 };
 
 static const SpiFlashDescriptor* flashDescriptor = nullptr;
+#if !defined(BOOT)
 static DMA_InitTypeDef dmaTxInfo = {0};
 static DMA_InitTypeDef dmaRxInfo =  {0};
 
@@ -116,7 +118,7 @@ static RTOS_SEMAPHORE_HANDLE irqSem;
 static uint8_t *dmaReadBuf = nullptr;
 static uint8_t *dmaWriteBuf = nullptr;
 static volatile bool reading = false;
-
+#endif
 void flashSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -265,12 +267,14 @@ size_t flashSpiGetSize()
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
+#if !defined(BOOT)
   static char buf __DMA = 0;
-
+#endif
   flashSpiSync();
 
   size = std::min(size, (size_t)(flashSpiGetSize() - address));
 
+  DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
 
   CS_LOW();
 
@@ -295,19 +299,22 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 //  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
 //  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Rx|SPI_I2S_DMAReq_Tx, ENABLE);
 //
-//  RTOS_TAKE_SEMAPHORE(irqSem);
+//  if(SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk)
+//  {
+//    int32_t i;
+//    xSemaphoreTakeFromISR(irqSem.rtos_handle, &i);
+//  } else {
+//    RTOS_TAKE_SEMAPHORE(irqSem);
+//  }
 
   for(size_t i=0; i < size; i++)
     *data++ = flashSpiReadWriteByte(0xFF);
 
   delay_01us(100); // 10us
   CS_HIGH();
-
-//  DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
-//  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
-
-//  reading = false;
-
+#if !defined(BOOT)
+  reading = false;
+#endif
   return size;
 }
 
@@ -318,6 +325,8 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 	  return -1;
 
   flashSpiSync();
+
+//  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
 
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
@@ -336,19 +345,15 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 //  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
 //  DMA_Init(FLASH_SPI_TX_DMA_STREAM, &dmaTxInfo);
 //  DMA_Cmd(FLASH_SPI_TX_DMA_STREAM, ENABLE);
-//  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
 //  SPI_I2S_DMACmd(FLASH_SPI, SPI_I2S_DMAReq_Tx, ENABLE);
+//  DMA_ITConfig(FLASH_SPI_TX_DMA_STREAM, DMA_IT_TC, ENABLE);
 //
 //  RTOS_TAKE_SEMAPHORE(irqSem);
-
   for(size_t i=0; i < size; i++)
     flashSpiReadWriteByte(*data++);
 
   delay_01us(100); // 10us
   CS_HIGH();
-
-  DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
-//  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
 
   flashSpiSync();
 
@@ -437,16 +442,16 @@ uint16_t flashSpiGetSectorCount()
 {
   return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
-
-//extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
-//{
-//  if (DMA_GetITStatus(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC))
-//  {
-//    DMA_ClearITPendingBit(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC);
-//    if(!reading)
-//      RTOS_GIVE_SEMAPHORE_ISR(irqSem);
-//  }
-//}
+#if !defined(BOOT) && 0
+extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
+{
+  if (DMA_GetITStatus(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC))
+  {
+    DMA_ClearITPendingBit(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC);
+    if(!reading)
+      RTOS_GIVE_SEMAPHORE_ISR(irqSem);
+  }
+}
 extern "C" void FLASH_SPI_RX_DMA_IRQHandler(void)
 {
   if (DMA_GetITStatus(FLASH_SPI_RX_DMA_STREAM, FLASH_SPI_RX_DMA_FLAG_TC))
@@ -458,29 +463,30 @@ extern "C" void FLASH_SPI_RX_DMA_IRQHandler(void)
 
 static void flashSpiInitDMA()
 {
+#if 0
   RTOS_CREATE_SEAPHORE(irqSem);
 //  dmaReadBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
 //  dmaWriteBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
-//  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
-//  dmaTxInfo.DMA_Channel = FLASH_SPI_TX_DMA_CHANNEL;
-//  dmaTxInfo.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLASH_SPI->DR);
-//  dmaTxInfo.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-//  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(dmaWriteBuf);
-//  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
-//  dmaTxInfo.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-//  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
-//  dmaTxInfo.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-//  dmaTxInfo.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-//  dmaTxInfo.DMA_Mode = DMA_Mode_Normal;
-//  dmaTxInfo.DMA_Priority = DMA_Priority_Low;
-//  dmaTxInfo.DMA_FIFOMode = DMA_FIFOMode_Disable;
-//  dmaTxInfo.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-//  dmaTxInfo.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-//  dmaTxInfo.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-//
-//  /* enable interrupt and set it's priority */
-//  NVIC_EnableIRQ(FLASH_SPI_TX_DMA_IRQn);
-//  NVIC_SetPriority(FLASH_SPI_TX_DMA_IRQn, 5);
+  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
+  dmaTxInfo.DMA_Channel = FLASH_SPI_TX_DMA_CHANNEL;
+  dmaTxInfo.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLASH_SPI->DR);
+  dmaTxInfo.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+  dmaTxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(dmaWriteBuf);
+  dmaTxInfo.DMA_BufferSize = flashDescriptor->pageSize;
+  dmaTxInfo.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  dmaTxInfo.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  dmaTxInfo.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  dmaTxInfo.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  dmaTxInfo.DMA_Mode = DMA_Mode_Normal;
+  dmaTxInfo.DMA_Priority = DMA_Priority_Low;
+  dmaTxInfo.DMA_FIFOMode = DMA_FIFOMode_Disable;
+  dmaTxInfo.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+  dmaTxInfo.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  dmaTxInfo.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+  /* enable interrupt and set it's priority */
+  NVIC_EnableIRQ(FLASH_SPI_TX_DMA_IRQn);
+  NVIC_SetPriority(FLASH_SPI_TX_DMA_IRQn, 5);
 
   DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
   dmaRxInfo.DMA_Channel = FLASH_SPI_RX_DMA_CHANNEL;
@@ -502,13 +508,13 @@ static void flashSpiInitDMA()
   /* enable interrupt and set it's priority */
   NVIC_EnableIRQ(FLASH_SPI_RX_DMA_IRQn);
   NVIC_SetPriority(FLASH_SPI_RX_DMA_IRQn, 5);
-
+#endif
 }
-
+#endif
 void flashInit()
 {
   flashSpiInit();
-  flashSpiSetSpeed(SPI_SPEED_4);
+  flashSpiSetSpeed(SPI_SPEED_2);
   delay_ms(1);
 
   uint16_t id = flashSpiReadID();
@@ -520,8 +526,10 @@ void flashInit()
       break;
     }
   }
-  if(flashDescriptor != nullptr)
-    flashSpiInitDMA();
+#if !defined(BOOT)
+/*  if(flashDescriptor != nullptr)
+    flashSpiInitDMA();*/
+#endif
 }
 
 #endif

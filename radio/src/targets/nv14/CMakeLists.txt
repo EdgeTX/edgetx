@@ -7,11 +7,11 @@ option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 
-set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
+set(DEFAULT_STORAGE "SDCARD" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
-set(SDCARD NO)
+set(SDCARD YES)
 set(STORAGE SDCARD)
 set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
@@ -40,7 +40,6 @@ if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
     flash_spi_driver.cpp
   )
-#  add_definitions(-DSPI_FLASH)
 
   if(LITTLEFS)
     set(TARGET_SRC ${TARGET_SRC}
@@ -61,7 +60,6 @@ if(BOOTLOADER)
     flash_spi_driver.cpp
     ../../thirdparty/tjftl/tjftl.c
   )
-#  add_definitions(-DSPI_FLASH)
 else()
   set(LINKER_SCRIPT targets/nv14/stm32f4_flash.ld)
 endif()

@@ -39,6 +39,16 @@
 
 VirtualFS* VirtualFS::_instance = nullptr;;
 
+#if defined(SDCARD)
+#if defined(LOG_TELEMETRY)
+VfsFile g_telemetryFile = {};
+#endif
+
+#if defined(LOG_BLUETOOTH)
+VfsFile g_bluetoothFile = {};
+#endif
+#endif
+
 #if defined(USE_LITTLEFS)
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
@@ -704,6 +714,7 @@ VirtualFS::~VirtualFS()
 
 void VirtualFS::stop()
 {
+  stopLogs();
 #if defined (SDCARD)
   sdDone();
 #endif
@@ -791,6 +802,7 @@ void VirtualFS::restart()
   checkAndCreateDirectory("/DEFAULT/SCREENSHOTS");
   checkAndCreateDirectory("/DEFAULT/BACKUP");
 #endif
+  startLogs();
 }
 
 extern FATFS g_FATFS_Obj;
@@ -1638,48 +1650,38 @@ size_t VirtualFS::sdGetFreeSectors()
 #endif
 }
 
-
-#if !defined(SIMU) || defined(SIMU_DISKIO)
-uint32_t flashGetNoSectors()
+void VirtualFS::startLogs()
 {
-  static DWORD noSectors = 0;
-//  if (noSectors == 0 ) {
-//    disk_ioctl(0, GET_SECTOR_COUNT, &noSectors);
-//  }
-  return noSectors;
+  if(!sdCardMounted())
+    return;
+  VfsFile fil;
+  fil.size()
+#if defined(SDCARD)
+#if defined(LOG_TELEMETRY)
+  openFile(g_telemetryFile, LOGS_PATH "/telemetry.log", VfsOpenFlags::OPEN_ALWAYS | VfsOpenFlagsWRITE);
+  if (g_telemetryFile.size() > 0) {
+    g_telemetryFile.lseek(g_telemetryFile.size()); // append
+  }
+#endif
+
+#if defined(LOG_BLUETOOTH)
+  openFile(g_bluetoothFile, LOGS_PATH "/bluetooth.log", VfsOpenFlags::OPEN_ALWAYS | VfsOpenFlagsWRITE);
+  if (&g_bluetoothFile.size() > 0) {
+    g_bluetoothFile.lseek(g_bluetoothFile.size()); // append
+  }
+#endif
+#endif
 }
 
-//uint32_t flashGetSize()
-//{
-//  return (flashGetNoSectors() / 1000000) * BLOCK_SIZE;
-//}
-//
-//uint32_t flashGetFreeSectors()
-//{
-////  DWORD nofree;
-////  FATFS * fat;
-////  if (f_getfree("", &nofree, &fat) != FR_OK) {
-////    return 0;
-////  }
-////  return nofree * fat->csize;
-//  return 10;
-//}
-
-#else  // #if !defined(SIMU) || defined(SIMU_DISKIO)
-
-uint32_t flashGetNoSectors()
+void VirtualFS::stopLogs()
 {
-  return 0;
-}
+#if defined(SDCARD)
+#if defined(LOG_TELEMETRY)
+  g_telemetryFile.close();
+#endif
 
-uint32_t flashGetSize()
-{
-  return 0;
+#if defined(LOG_BLUETOOTH)
+  g_bluetoothFile.close();
+#endif
+#endif
 }
-
-uint32_t flashGetFreeSectors()
-{
-  return 10;
-}
-
-#endif  // #if !defined(SIMU) || defined(SIMU_DISKIO)

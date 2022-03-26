@@ -128,7 +128,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 #if defined(SPI_FLASH) && defined(SDCARD)
     else if (st == ST_SELECT_STORAGE) {
 
-        bootloaderDrawTitle(LV_SYMBOL_DIRECTORY " select storage");
+        bootloaderDrawTitle(88, LV_SYMBOL_DIRECTORY " select storage");
 
         lcd->drawText(102, 75, LV_SYMBOL_DIRECTORY, BL_FOREGROUND);
         coord_t pos = lcd->drawText(124, 75, "Internal", BL_FOREGROUND);
