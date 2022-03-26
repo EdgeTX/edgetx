@@ -38,8 +38,7 @@ void menuAboutView(event_t event)
       break;
   }
 
-  lcdDrawText(2, 0, STR_ABOUTUS, DBLSIZE|INVERS);
-  lcdDrawSolidHorizontalLine(0, 16, LCD_W-17);
+  lcdDrawText(1, 0, STR_ABOUTUS, DBLSIZE|INVERS);
 
   lcdDrawText(ABOUT_INDENT, 22, ABOUT_VERSION_1, SMLSIZE);
   lcdDrawText(ABOUT_INDENT, 30, ABOUT_VERSION_2, SMLSIZE);
