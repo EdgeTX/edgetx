@@ -1188,12 +1188,12 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
 #if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
   case VfsDir::DIR_FAT:
     fileInfo.type = VfsFileType::FAT;
-    return convertResult(f_stat(normPath.c_str(), &fileInfo.fatInfo));
+    return convertResult(f_stat(normPath.c_str(), fileInfo?&fileInfo.fatInfo:nullptr));
 #endif
 #if defined (USE_LITTLEFS)
   case VfsDir::DIR_LFS:
     fileInfo.type = VfsFileType::LFS;
-    return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), &fileInfo.lfsInfo));
+    return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), fileInfo?&fileInfo.lfsInfo:nullptr));
 #endif
   }
   return VfsError::INVAL;

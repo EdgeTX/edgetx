@@ -93,7 +93,7 @@ void addRadioScriptTool(uint8_t index, const char * path)
     char toolPath[FF_MAX_LFN];
     strcpy(toolPath, path);
     *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
-    f_chdir(toolPath);
+    VirtualFS::instance().changeDirectory(toolPath);
     luaExec(path);
   }
 }
