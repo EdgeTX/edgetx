@@ -87,8 +87,10 @@ static void interrupt1ms()
 
   ++pre_scale;
   ++msTickCount;
+  
 #if defined(SBUS_TRAINER) // TODO: move to soft timer
   sbusTrainerPauseCheck();
+  crsfTrainerPauseCheck();
 #endif
 
   // 5ms loop
