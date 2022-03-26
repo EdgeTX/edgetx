@@ -1714,20 +1714,20 @@ void opentxInit()
 
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
-    if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
+    if (vfs.fstat(AUTOUPDATE_FILENAME, nullptr) == VfsError::OK) {
       FrSkyFirmwareInformation information;
       if (readFrSkyFirmwareInformation(AUTOUPDATE_FILENAME, information) == nullptr) {
 #if defined(BLUETOOTH)
         if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
           if (bluetooth.flashFirmware(AUTOUPDATE_FILENAME) == nullptr)
-            f_unlink(AUTOUPDATE_FILENAME);
+            vfs.unlink(AUTOUPDATE_FILENAME);
         }
 #endif
 #if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
         if (information.productFamily == FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
           FrskyChipFirmwareUpdate device;
           if (device.flashFirmware(AUTOUPDATE_FILENAME, false) == nullptr)
-            f_unlink(AUTOUPDATE_FILENAME);
+            vfs.unlink(AUTOUPDATE_FILENAME);
         }
 #endif
       }

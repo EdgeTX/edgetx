@@ -468,8 +468,8 @@ bool modelExists(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  FILINFO fno;
-  return f_stat(fname, &fno) == FR_OK;
+  VfsFileInfo fno;
+  return VirtualFS::instance().fstat(fname, fno) == VfsError::OK;
 }
 
 bool copyModel(uint8_t dst, uint8_t src)
@@ -505,34 +505,35 @@ void swapModels(uint8_t id1, uint8_t id2)
   GET_FILENAME(fname1_tmp, MODELS_PATH, model_idx_1, ".tmp");
   GET_FILENAME(fname2, MODELS_PATH, model_idx_2, YAML_EXT);
 
-  FILINFO fno;
-  if (f_stat(fname2,&fno) != FR_OK) {
-    if (f_stat(fname1,&fno) == FR_OK) {
-      if (f_rename(fname1, fname2) == FR_OK)
+  VirtualFS &vfs = VirtualFS::instance();
+  VfsFileInfo fno;
+  if (vfs.stat(fname2,fno) != VfaError::OK) {
+    if (vfs.fstat(fname1,fno) == VfaError::OK) {
+      if (vfs.rename(fname1, fname2) == VfaError::OK)
         swapModelHeaders(id1,id2);
     }
     return;
   }
 
-  if (f_stat(fname1,&fno) != FR_OK) {
-    f_rename(fname2, fname1);
+  if (vfs.fstat(fname1,fno) != VfaError::OK) {
+    vfs.rename(fname2, fname1);
     return;
   }
 
   // just in case...
-  f_unlink(fname1_tmp);
+  vfs.unlink(fname1_tmp);
 
-  if (f_rename(fname1, fname1_tmp) != FR_OK) {
+  if (vfs.rename(fname1, fname1_tmp) != VfaError::OK) {
     TRACE("Error renaming 1");
     return;
   }
 
-  if (f_rename(fname2, fname1) != FR_OK) {
+  if (vfs.rename(fname2, fname1) != VfaError::OK) {
     TRACE("Error renaming 2");
     return;
   }
 
-  if (f_rename(fname1_tmp, fname2) != FR_OK) {
+  if (vfs.rename(fname1_tmp, fname2) != VfaError::OK) {
     TRACE("Error renaming 1 tmp");
     return;
   }
@@ -546,7 +547,7 @@ int8_t deleteModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  if (f_unlink(fname) != FR_OK) {
+  if (vfs.unlink(fname) != VfaError::OK) {
     return -1;
   }
 
