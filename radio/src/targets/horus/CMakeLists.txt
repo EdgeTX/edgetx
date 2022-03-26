@@ -9,6 +9,7 @@ option(GHOST "Ghost TX Module" ON)
 option(HARDWARE_EXTERNAL_ACCESS_MOD "Support for R9M 2019 hardware mod" OFF)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 
+set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
@@ -29,8 +30,43 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 
+if(NOT SDCARD AND NOT SPI_FLASH)
+  message(FATAL_ERROR "No storage type enabled")
+endif()
+if(NOT SDCARD AND DEFAULT_STORAGE STREQUAL "SDCARD")
+  message(FATAL_ERROR "SD card support disabled, but 'SDCARD' selected as default storage")
+endif()
+if(NOT SPI_FLASH AND DEFAULT_STORAGE STREQUAL "INTERNAL")
+  message(FATAL_ERROR "SPI flash support disabled, but 'INTERNAL' selected as default storage")
+endif()
+
+add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
+
+if(SPI_FLASH)
+  set(TARGET_SRC ${TARGET_SRC}
+    flash_spi_driver.cpp
+  )
+
+  if(LITTLEFS)
+    set(TARGET_SRC ${TARGET_SRC}
+      ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+      ../../thirdparty/littlefs_v2.4.1/lfs.c
+    )
+    add_definitions(-DUSE_LITTLEFS)
+  else()
+    set(TARGET_SRC ${TARGET_SRC}
+        ../../thirdparty/tjftl/tjftl.c
+    )
+  endif()
+endif()
+
+
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
+    set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    flash_spi_driver.cpp
+    ../../thirdparty/tjftl/tjftl.c
+  )
 else()
   set(LINKER_SCRIPT targets/horus/stm32f4_flash.ld)
 endif()
@@ -199,25 +235,6 @@ add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
 set(SDRAM ON)
-
-if(SPI_FLASH)
-  set(TARGET_SRC ${TARGET_SRC}
-    flash_spi_driver.cpp
-  )
-  add_definitions(-DSPI_FLASH)
-
-  if(LITTLEFS)
-    set(TARGET_SRC ${TARGET_SRC}
-      ../../thirdparty/littlefs_v2.4.1/lfs_util.c
-      ../../thirdparty/littlefs_v2.4.1/lfs.c
-    )
-    add_definitions(-DUSE_LITTLEFS)
-  else()
-    set(TARGET_SRC ${TARGET_SRC}
-        ../../thirdparty/tjftl/tjftl.c
-    )
-  endif()
-endif()
 
 if(DEFAULT_THEME)
   add_definitions(-DDEFAULT_THEME_${DEFAULT_THEME})

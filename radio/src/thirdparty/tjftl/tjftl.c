@@ -274,7 +274,7 @@ tjftl_t *tjftl_init(flashcb_read_t rf, flashcb_erase_32k_t ef, flashcb_program_t
         free(ret);
         return NULL;
     }
-    if (verbose) printf("tjfl: allocated %d bytes for cache\n", sect_cnt*sizeof(uint32_t));
+    if (verbose) printf("tjfl: allocated %zu bytes for cache\n", sect_cnt*sizeof(uint32_t));
 #endif
     ret->flash_read=rf;
     ret->flash_erase=ef;

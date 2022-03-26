@@ -72,7 +72,6 @@ struct SpiFlashDescriptor
   uint8_t eraseChipCmd;
 };
 
-
 // * RadioMaster/Eachine TX16S, RadioKing TX18S and Jumper T18 use GD25Q127C (16 MByte)
 // * FlySky PL18, Paladin EV and NV14 use WinBond W25Q64JV (8 MByte)
 
@@ -311,7 +310,6 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   for(size_t i=0; i < size; i++)
     *data++ = flashSpiReadWriteByte(0xFF);
 
-
   delay_01us(100); // 10us
   CS_HIGH();
 #if !defined(BOOT)
@@ -490,7 +488,7 @@ static void flashSpiInitDMA()
   NVIC_SetPriority(FLASH_SPI_TX_DMA_IRQn, 5);
 
   DMA_DeInit(FLASH_SPI_RX_DMA_STREAM);
-  dmaRxInfo.DMA_Channel = FLASH_SPI_TX_DMA_CHANNEL;
+  dmaRxInfo.DMA_Channel = FLASH_SPI_RX_DMA_CHANNEL;
   dmaRxInfo.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&FLASH_SPI->DR);
   dmaRxInfo.DMA_DIR = DMA_DIR_PeripheralToMemory;
   dmaRxInfo.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(dmaReadBuf);

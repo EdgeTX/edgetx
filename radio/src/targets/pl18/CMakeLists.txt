@@ -10,7 +10,7 @@ set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
-set(SDCARD YES)
+set(SDCARD NO)
 set(STORAGE SDCARD)
 set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
@@ -23,8 +23,6 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 # set(NAVIGATION_TYPE touch)
 set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
-
-add_definitions(-DLFS_NO_ASSERT)
 
 if(NOT SDCARD AND NOT SPI_FLASH)
   message(FATAL_ERROR "No storage type enabled")

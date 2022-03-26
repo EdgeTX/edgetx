@@ -353,10 +353,10 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
     uart_ctx = IntmoduleSerialDriver.init(&params);
 
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-    result = uploadFileToHorusXJT(filename, &file, progressHandler);
+    result = uploadFileToHorusXJT(filename, file, progressHandler);
     GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
 
-    f_close(&file);
+    file.close();
     return result;
   }
 #endif
@@ -390,7 +390,7 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
 }
 
 #if defined(PCBHORUS)
-const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filename, VfsFile file, ProgressHandler progressHandler)
+const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filename, VfsFile& file, ProgressHandler progressHandler)
 {
   uint32_t buffer[1024 / sizeof(uint32_t)];
   size_t count;

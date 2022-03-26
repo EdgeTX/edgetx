@@ -22,7 +22,9 @@
 #include "board.h"
 #include "tp_cst340.h"
 #include "globals.h"
+#if defined(SDCARD)
 #include "sdcard.h"
+#endif
 #include "touch.h"
 #include "debug.h"
 
@@ -185,7 +187,9 @@ void boardInit()
   audioInit();
   // we need to initialize g_FATFS_Obj here, because it is in .ram section (because of DMA access)
   // and this section is un-initialized
+#if defined(SDCARD)
   memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
+#endif
   monitorInit();
   adcInit(&stm32_hal_adc_driver);
   backlightInit();
