@@ -7,4 +7,5 @@
 #define CRSF_BAUDRATE         420000
 
 void processCrsfInput();
+void crsfTrainerPauseCheck();
 

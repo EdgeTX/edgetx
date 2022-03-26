@@ -65,8 +65,10 @@ static void interrupt1ms()
     flysky_hall_stick_loop();
   }
 #endif
+
 #if defined(SBUS_TRAINER)
   sbusTrainerPauseCheck();
+  crsfTrainerPauseCheck();
 #endif
 
   // 5ms loop
