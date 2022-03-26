@@ -147,8 +147,8 @@ do
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make arm-none-eabi-configure
-    make -C arm-none-eabi -j"${CORES}" ${FIRMARE_TARGET}
+    cmake --build . --target arm-none-eabi-configure
+    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
 
     rm -f CMakeCache.txt
     mv arm-none-eabi/firmware.bin "../${fw_name}"

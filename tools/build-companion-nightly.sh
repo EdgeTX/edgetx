@@ -45,104 +45,108 @@ rm -rf build
 mkdir build
 cd build
 
-cmake ${COMMON_OPTIONS} -DPCB=X9LITE ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
+declare -a simulator_plugins=(x9lite x9lites
+                              x7 x7-access
+                              t8 t12 tx12
+                              zorro
+                              tlite tpro
+                              x9d x9dp x9dp2019 x9e
+                              xlite xlites
+                              nv14
+                              x10 x10-access x12s
+                              t16 t18 tx16s)
 
-cmake ${COMMON_OPTIONS} -DPCB=X9LITES ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
+for plugin in "${simulator_plugins[@]}"
+do
+    BUILD_OPTIONS="${COMMON_OPTIONS} "
 
-cmake ${COMMON_OPTIONS} -DPCB=X7 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
+    echo "Building ${plugin}"
+    case $plugin in
+        x9lite)
+            BUILD_OPTIONS+="-DPCB=X9LITE"
+            ;;
+        x9lites)
+            BUILD_OPTIONS+="-DPCB=X9LITES"
+            ;;
+        x7)
+            BUILD_OPTIONS+="-DPCB=X7"
+            ;;
+        x7-access)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+            ;;
+        t12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
+            ;;
+        tx12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
+            ;;
+        t8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+            ;;
+        zorro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+            ;;
+        tlite)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
+            ;;
+        tpro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+            ;;
+        xlite)
+            BUILD_OPTIONS+="-DPCB=XLITE"
+            ;;
+        xlites)
+            BUILD_OPTIONS+="-DPCB=XLITES"
+            ;;
+        x9d)
+            BUILD_OPTIONS+="-DPCB=X9D"
+            ;;
+        x9dp)
+            BUILD_OPTIONS+="-DPCB=X9D+"
+            ;;
+        x9dp2019)
+            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
+            ;;
+        x9e)
+            BUILD_OPTIONS+="-DPCB=X9E"
+            ;;
+        x10)
+            BUILD_OPTIONS+="-DPCB=X10"
+            ;;
+        x10-access)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
+            ;;
+        x12s)
+            BUILD_OPTIONS+="-DPCB=X12S"
+            ;;
+        t16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
+            ;;
+        t18)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
+            ;;
+        tx16s)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
+            ;;
+        nv14)
+            BUILD_OPTIONS+="-DPCB=NV14"
+            ;;
+    esac
 
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ACCESS ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
+    rm -f native/CMakeCache.txt
+    cmake ${BUILD_OPTIONS} "${SRCDIR}"
+    cmake --build . --target native-configure
+    cmake --build native -j${JOBS} --target libsimulator    
+done                              
 
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T12 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ZORRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TPRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D+ ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D+ -DPCBREV=2019 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=XLITE ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=XLITES ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9E ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=NV14 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=YES ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=TX16S ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T18 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=EXPRESS ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X12S ${SRCDIR}
-make -j${JOBS} libsimulator
-
+cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
-    make -j${JOBS} package
-    cp *.dmg ${OUTDIR}
+    cmake --build native -j${JOBS} --target package
+    cp native/*.dmg ${OUTDIR}
 elif [ "$(uname)" = "Linux" ]; then
-    make -j${JOBS} package
-    cp *.AppImage ${OUTDIR}
+    cmake --build native -j${JOBS} --target package
+    cp native/*.AppImage ${OUTDIR}
 else
-    make installer
-    cp companion/*.exe ${OUTDIR}
+    cmake --build native --target installer
+    cp native/companion/*.exe ${OUTDIR}
 fi
