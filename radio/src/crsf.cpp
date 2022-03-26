@@ -63,30 +63,29 @@ namespace CRSF {
                 break;
             case State::Data:
                 csum += b;
-                if (++mIndex == mLength) {
+                if (++mIndex >= mLength) {
                     mState = State::AwaitCRC;
                 }
                 break;
             case State::Channels:
                 csum += b;
+                mData[mIndex] = b;
+                if (++mIndex >= mLength) {
+                    mState = State::AwaitCRCAndDecode;
+                }
                 break;
             case State::AwaitCRC:
                 if (csum == b) {
-                    mState = State::Undefined;
+                    // only channel data is decoded, nothing todo here
                 } 
-                else {
-                    mState = State::Undefined;
-                }
+                mState = State::Undefined;
                 break;
             case State::AwaitCRCAndDecode:
                 if (csum == b) {
                     ++mPackages;
                     f();
-                    mState = State::Undefined;
                 } 
-                else {
-                    mState = State::Undefined;
-                }
+                mState = State::Undefined;
                 break;
             }            
         }        
@@ -130,6 +129,17 @@ namespace CRSF {
     uint8_t Servo::mLength{0};
     uint16_t Servo::mPackages{0};
     uint8_t Servo::mPauseCounter{Servo::mPauseCount}; // 2 ms
+}
+
+void crsfTrainerPauseCheck() {
+#if !defined(SIMU)
+# if defined(AUX_SERIAL) || defined(AUX2_SERIAL) || defined(TRAINER_MODULE_SBUS)
+    if (hasSerialMode(UART_MODE_CRSF_TRAINER) >= 0) {
+        CRSF::Servo::tick1ms();
+        processCrsfInput();    
+    }
+# endif
+#endif    
 }
 
 void processCrsfInput() {
