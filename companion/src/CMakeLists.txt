@@ -354,10 +354,10 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-if(SIMU_TARGET)
-  get_property(current_plugin TARGET edgetx-${FLAVOUR}-simulator PROPERTY LOCATION)
-  list(APPEND simulator_plugins "${current_plugin}")
-endif()
+#if(SIMU_TARGET)
+#  get_property(current_plugin TARGET edgetx-${FLAVOUR}-simulator PROPERTY LOCATION)
+#  list(APPEND simulator_plugins "${current_plugin}")
+#endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
