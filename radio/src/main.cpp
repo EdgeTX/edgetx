@@ -535,11 +535,11 @@ void perMain()
     return;
   }
 #endif
-#warning TODO VirtualFS
-//  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
-//      && SD_CARD_PRESENT() && !sdMounted()) {
-//    sdMount();
-//  }
+
+  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
+      && SD_CARD_PRESENT()) {
+    VirtualFS::instance().mountSd();
+  }
 
 #if !defined(EEPROM)
   // In case the SD card is removed during the session

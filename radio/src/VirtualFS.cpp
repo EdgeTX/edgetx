@@ -805,6 +805,12 @@ void VirtualFS::restart()
   startLogs();
 }
 
+void VirtualFS::mountSd()
+{
+  if(!sdMounted())
+    sdMount();
+}
+
 extern FATFS g_FATFS_Obj;
 
 bool VirtualFS::defaultStorageAvailable()
