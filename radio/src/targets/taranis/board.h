@@ -976,6 +976,8 @@ void setTopBatteryValue(uint32_t volts);
 extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 #endif
 
+#define INTMODULE_FIFO_SIZE            128
+
 // Gyro driver
 #define GYRO_VALUES_COUNT               6
 #define GYRO_BUFFER_LENGTH              (GYRO_VALUES_COUNT * sizeof(int16_t))
