@@ -196,12 +196,8 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 #define LUA_FILEHANDLE          "FILE*"
 
 typedef struct luaL_Stream {
-#if defined(USE_VIRTUALFS)
-  FIL f;
-#else
   FILE *f;  /* stream (NULL for incompletely created streams) */
   lua_CFunction closef;  /* to close stream (NULL for closed streams) */
-#endif
 } luaL_Stream;
 
 /* }====================================================== */
