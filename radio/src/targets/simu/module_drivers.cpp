@@ -48,11 +48,12 @@ void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
 void extmoduleSendNextFrameSoftSerial(void const*, unsigned short, bool) {}
 void extmoduleSendNextFramePpm(void*, unsigned short, unsigned short, bool) {}
 
+#if defined(TRAINER_GPIO)
 void init_trainer_ppm() {}
 void stop_trainer_ppm() {}
-
 void init_trainer_capture() {}
 void stop_trainer_capture() {}
+#endif
 
 void init_trainer_module_cppm() {}
 void stop_trainer_module_cppm() {}
