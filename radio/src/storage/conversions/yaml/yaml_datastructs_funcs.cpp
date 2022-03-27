@@ -1073,9 +1073,17 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
 #define r_thrSrc nullptr
 
-bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+int16_t throttleSource2Source_v220(int16_t thrSrc)
 {
-  auto src = throttleSource2Source(val);
+  if (thrSrc == 0) return (int16_t)MIXSRC_Thr;
+  if (--thrSrc < NUM_POTS + NUM_SLIDERS)
+    return (int16_t)(thrSrc + MIXSRC_FIRST_POT);
+  return (int16_t)(thrSrc - (NUM_POTS + NUM_SLIDERS) + MIXSRC_FIRST_CH);
+}
+
+static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  auto src = throttleSource2Source_v220(val);
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
 
