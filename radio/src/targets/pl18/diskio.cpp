@@ -465,7 +465,7 @@ DRESULT disk_ioctl (
 }
 
 // TODO everything here should not be in the driver layer ...
-
+#if defined(SDCARD)
 FATFS g_FATFS_Obj __DMA;    // initialized in boardInit()
 
 #if defined(BOOT)
@@ -488,6 +488,7 @@ void sdMount(void)
 void sdInit()
 {
   TRACE("sdInit");
+  RTOS_CREATE_MUTEX(ioMutex);
   sdMount();
 }
 
@@ -514,7 +515,7 @@ void sdDone()
   
   if (sdMounted()) {
     audioQueue.stopSD();
-    f_mount(NULL, "", 0); // unmount SD
+    f_mount(nullptr, "", 0); // unmount SD
   }
 }
 #endif
@@ -533,3 +534,4 @@ uint32_t sdGetSpeed()
 {
   return 330000;
 }
+#endif // SDCARD

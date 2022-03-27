@@ -465,13 +465,9 @@ DRESULT disk_ioctl (
 }
 
 // TODO everything here should not be in the driver layer ...
-
+#if defined(SDCARD)
 bool _g_FATFS_init = false;
 FATFS g_FATFS_Obj __DMA;    // initialized in boardInit()
-
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
 
 #if defined(BOOT)
 void sdInit(void)
@@ -493,6 +489,7 @@ void sdMount(void)
 void sdInit()
 {
   TRACE("sdInit");
+  RTOS_CREATE_MUTEX(ioMutex);
   sdMount();
 }
 
@@ -508,7 +505,6 @@ void sdMount()
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
     sdGetFreeSectors();
-
   }
   else {
     TRACE("f_mount() failed");
@@ -521,7 +517,7 @@ void sdDone()
   
   if (sdMounted()) {
     audioQueue.stopSD();
-    f_mount(NULL, "", 0); // unmount SD
+    f_mount(nullptr, "", 0); // unmount SD
   }
 }
 #endif
@@ -540,3 +536,4 @@ uint32_t sdGetSpeed()
 {
   return 330000;
 }
+#endif // SDCARD
