@@ -100,7 +100,7 @@ class FileNameEditWindow : public Page
 };
 
 RadioSdManagerPage::RadioSdManagerPage() :
-  PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
+  PageTab(STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
 }
 

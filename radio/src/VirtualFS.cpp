@@ -807,8 +807,10 @@ void VirtualFS::restart()
 
 void VirtualFS::mountSd()
 {
+#if defined(SDCARD)
   if(!sdMounted())
     sdMount();
+#endif
 }
 
 extern FATFS g_FATFS_Obj;
