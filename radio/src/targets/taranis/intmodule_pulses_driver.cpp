@@ -22,6 +22,7 @@
 #include "stm32_pulse_driver.h"
 
 #include "hal.h"
+#include "board.h"
 #include "timers_driver.h"
 
 static const stm32_pulse_timer_t intmoduleTimer = {
@@ -33,7 +34,7 @@ static const stm32_pulse_timer_t intmoduleTimer = {
   .TIM_Channel = INTMODULE_TIMER_Channel,
   .TIM_IRQn = INTMODULE_TIMER_IRQn,
   .DMAx = INTMODULE_TIMER_DMA,
-  .DMA_Stream = INTMODULE_TIMER_DMA_STREAM_LL,
+  .DMA_Stream = INTMODULE_TIMER_DMA_STREAM,
   .DMA_Channel = INTMODULE_TIMER_DMA_CHANNEL,
   .DMA_IRQn = INTMODULE_TIMER_DMA_STREAM_IRQn,
 };
@@ -43,7 +44,7 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(INTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
 // Make sure the DMA channel is supported
-static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(INTMODULE_TIMER_DMA_STREAM_LL),
+static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(INTMODULE_TIMER_DMA_STREAM),
               "Unsupported DMA stream");
 
 #if !defined(INTMODULE_TIMER_DMA_IRQHandler)

@@ -814,18 +814,14 @@
 #define INTMODULE_PWR_GPIO              GPIOA
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_8  // PA.08
 #define INTMODULE_GPIO                  GPIOB
-#define INTMODULE_TX_GPIO_PIN           GPIO_Pin_6  // PB.06
-#define INTMODULE_RX_GPIO_PIN           GPIO_Pin_7  // PB.07
-#define INTMODULE_GPIO_PinSource_TX     GPIO_PinSource6
-#define INTMODULE_GPIO_PinSource_RX     GPIO_PinSource7
+#define INTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_6  // PB.06
+#define INTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_7  // PB.07
 #define INTMODULE_USART                 USART1
-#define INTMODULE_GPIO_AF               GPIO_AF_USART1
-#define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_7
+#define INTMODULE_GPIO_AF               LL_GPIO_AF_7
 #define INTMODULE_USART_IRQn            USART1_IRQn
 #define INTMODULE_USART_IRQHandler      USART1_IRQHandler
 #define INTMODULE_DMA                   DMA2
-#define INTMODULE_DMA_STREAM            DMA2_Stream7
-#define INTMODULE_DMA_STREAM_LL         LL_DMA_STREAM_7
+#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_7
 #define INTMODULE_DMA_STREAM_IRQ        DMA2_Stream7_IRQn
 #define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream7_IRQHandler
 #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF7

@@ -1359,13 +1359,11 @@
   #define INTMODULE_GPIO_PinSource_TX      GPIO_PinSource6
   #define INTMODULE_GPIO_PinSource_RX      GPIO_PinSource7
   #define INTMODULE_USART                  USART1
-  #define INTMODULE_GPIO_AF                GPIO_AF_USART1
-  #define INTMODULE_GPIO_AF_LL             LL_GPIO_AF_7
+  #define INTMODULE_GPIO_AF                LL_GPIO_AF_7
   #define INTMODULE_USART_IRQHandler       USART1_IRQHandler
   #define INTMODULE_USART_IRQn             USART1_IRQn
   #define INTMODULE_DMA                    DMA2
-  #define INTMODULE_DMA_STREAM             DMA2_Stream7
-  #define INTMODULE_DMA_STREAM_LL          LL_DMA_STREAM_7
+  #define INTMODULE_DMA_STREAM             LL_DMA_STREAM_7
   #define INTMODULE_DMA_STREAM_IRQ         DMA2_Stream7_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_FLAG_TC            DMA_IT_TCIF7
@@ -1387,13 +1385,11 @@
   #define INTMODULE_GPIO_PinSource_TX   GPIO_PinSource6
   #define INTMODULE_GPIO_PinSource_RX   GPIO_PinSource7
   #define INTMODULE_USART               USART1
-  #define INTMODULE_GPIO_AF             GPIO_AF_USART1
-  #define INTMODULE_GPIO_AF_LL          LL_GPIO_AF_7
+  #define INTMODULE_GPIO_AF             LL_GPIO_AF_7
   #define INTMODULE_USART_IRQHandler    USART1_IRQHandler
   #define INTMODULE_USART_IRQn          USART1_IRQn
   #define INTMODULE_DMA                 DMA2
-  #define INTMODULE_DMA_STREAM          DMA2_Stream7
-  #define INTMODULE_DMA_STREAM_LL       LL_DMA_STREAM_7
+  #define INTMODULE_DMA_STREAM          LL_DMA_STREAM_7
   #define INTMODULE_DMA_STREAM_IRQ         DMA2_Stream7_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_FLAG_TC         DMA_IT_TCIF7
@@ -1410,13 +1406,11 @@
   #define INTMODULE_GPIO_PinSource_TX   GPIO_PinSource6
   #define INTMODULE_GPIO_PinSource_RX   GPIO_PinSource7
   #define INTMODULE_USART               USART1
-  #define INTMODULE_GPIO_AF             GPIO_AF_USART1
-  #define INTMODULE_GPIO_AF_LL          LL_GPIO_AF_7
+  #define INTMODULE_GPIO_AF             LL_GPIO_AF_7
   #define INTMODULE_USART_IRQHandler    USART1_IRQHandler
   #define INTMODULE_USART_IRQn          USART1_IRQn
   #define INTMODULE_DMA                 DMA2
-  #define INTMODULE_DMA_STREAM          DMA2_Stream7
-  #define INTMODULE_DMA_STREAM_LL       LL_DMA_STREAM_7
+  #define INTMODULE_DMA_STREAM          LL_DMA_STREAM_7
   #define INTMODULE_DMA_STREAM_IRQ         DMA2_Stream7_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_FLAG_TC         DMA_IT_TCIF7
@@ -1433,13 +1427,11 @@
   #define INTMODULE_GPIO_PinSource_TX   GPIO_PinSource6
   #define INTMODULE_GPIO_PinSource_RX   GPIO_PinSource7
   #define INTMODULE_USART               USART1
-  #define INTMODULE_GPIO_AF             GPIO_AF_USART1
-  #define INTMODULE_GPIO_AF_LL          LL_GPIO_AF_7
+  #define INTMODULE_GPIO_AF             LL_GPIO_AF_7
   #define INTMODULE_USART_IRQHandler    USART1_IRQHandler
   #define INTMODULE_USART_IRQn          USART1_IRQn
   #define INTMODULE_DMA                 DMA2
-  #define INTMODULE_DMA_STREAM          DMA2_Stream7
-  #define INTMODULE_DMA_STREAM_LL       LL_DMA_STREAM_7
+  #define INTMODULE_DMA_STREAM          LL_DMA_STREAM_7
   #define INTMODULE_DMA_STREAM_IRQ         DMA2_Stream7_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_FLAG_TC         DMA_IT_TCIF7
@@ -1455,17 +1447,15 @@
   #define INTMODULE_PWR_GPIO            GPIOC
   #define INTMODULE_PWR_GPIO_PIN        GPIO_Pin_6  // PC.06
   #define INTMODULE_TX_GPIO             GPIOA
-  #define INTMODULE_TX_GPIO_PIN         GPIO_Pin_10 // PA.10
-  #define INTMODULE_TX_GPIO_PinSource   GPIO_PinSource10
-  #define INTMODULE_TX_GPIO_AF          GPIO_AF_TIM1
+  #define INTMODULE_TX_GPIO_PIN         LL_GPIO_PIN_10 // PA.10
+  #define INTMODULE_TX_GPIO_AF          LL_GPIO_AF_1
   #define INTMODULE_TIMER               TIM1
   #define INTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH3
   #define INTMODULE_TIMER_IRQn          TIM1_UP_TIM10_IRQn
   #define INTMODULE_TIMER_IRQHandler    TIM1_UP_TIM10_IRQHandler
   #define INTMODULE_TIMER_DMA           DMA2
-  #define INTMODULE_TIMER_DMA_CHANNEL   DMA_Channel_6
-  #define INTMODULE_TIMER_DMA_STREAM_LL LL_DMA_STREAM_5
-  #define INTMODULE_TIMER_DMA_STREAM    DMA2_Stream5
+  #define INTMODULE_TIMER_DMA_CHANNEL   LL_DMA_CHANNEL_6
+  #define INTMODULE_TIMER_DMA_STREAM    LL_DMA_STREAM_5
   #define INTMODULE_TIMER_DMA_STREAM_IRQn DMA2_Stream5_IRQn
   #define INTMODULE_TIMER_DMA_IRQHandler DMA2_Stream5_IRQHandler
   #define INTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
@@ -1476,19 +1466,16 @@
   #define INTMODULE_PWR_GPIO              GPIOC
   #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_6  // PC.06
   #define INTMODULE_GPIO                  GPIOB
-  #define INTMODULE_TX_GPIO_PIN           GPIO_Pin_10  // PB.10
-  #define INTMODULE_RX_GPIO_PIN           GPIO_Pin_11  // PB.11
-  #define INTMODULE_GPIO_PinSource_TX     GPIO_PinSource10
-  #define INTMODULE_GPIO_PinSource_RX     GPIO_PinSource11
+  #define INTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_10  // PB.10
+  #define INTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_11  // PB.11
   #define INTMODULE_USART                 USART3
-  #define INTMODULE_GPIO_AF               GPIO_AF_USART3
-  #define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_7
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
   #define INTMODULE_USART_IRQn            USART3_IRQn
   #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
   // DMA1_Stream3 is already used by SDIO
   #define INTMODULE_DMA                   NULL
   #define INTMODULE_DMA_CHANNEL           0
-  #define INTMODULE_DMA_STREAM_LL         0
+  #define INTMODULE_DMA_STREAM            0
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
@@ -1497,17 +1484,15 @@
   #define INTMODULE_PWR_GPIO            GPIOD
   #define INTMODULE_PWR_GPIO_PIN        GPIO_Pin_15 // PD.15
   #define INTMODULE_TX_GPIO             GPIOA
-  #define INTMODULE_TX_GPIO_PIN         GPIO_Pin_10 // PA.10
-  #define INTMODULE_TX_GPIO_PinSource   GPIO_PinSource10
-  #define INTMODULE_TX_GPIO_AF          GPIO_AF_TIM1
+  #define INTMODULE_TX_GPIO_PIN         LL_GPIO_PIN_10 // PA.10
+  #define INTMODULE_TX_GPIO_AF          LL_GPIO_AF_1
   #define INTMODULE_TIMER               TIM1
   #define INTMODULE_TIMER_Channel       LL_TIM_CHANNEL_CH3
   #define INTMODULE_TIMER_IRQn          TIM1_UP_TIM10_IRQn
   #define INTMODULE_TIMER_IRQHandler    TIM1_UP_TIM10_IRQHandler
   #define INTMODULE_TIMER_DMA           DMA2
-  #define INTMODULE_TIMER_DMA_CHANNEL   DMA_Channel_6
-  #define INTMODULE_TIMER_DMA_STREAM_LL LL_DMA_STREAM_5
-  #define INTMODULE_TIMER_DMA_STREAM    DMA2_Stream5
+  #define INTMODULE_TIMER_DMA_CHANNEL   LL_DMA_CHANNEL_6
+  #define INTMODULE_TIMER_DMA_STREAM    LL_DMA_STREAM_5
   #define INTMODULE_TIMER_DMA_STREAM_IRQn DMA2_Stream5_IRQn
   #define INTMODULE_TIMER_DMA_IRQHandler DMA2_Stream5_IRQHandler
   #define INTMODULE_TIMER_FREQ          (PERI2_FREQUENCY * TIMER_MULT_APB2)
