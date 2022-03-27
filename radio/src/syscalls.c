@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -32,17 +33,20 @@ extern int _heap_end;
 
 unsigned char * heap = (unsigned char *)&_end;
 
+static int set_errno(int errval)
+{
+  errno = errval;
+  return -1;
+}
+
 extern caddr_t _sbrk(int nbytes)
 {
-  if (heap + nbytes < (unsigned char *)&_heap_end) {
-    unsigned char * prev_heap = heap;
-    heap += nbytes;
-    return (caddr_t)prev_heap;
-  }
-  else {
-    errno = ENOMEM;
-    return ((void *)-1);
-  }
+  if (heap + nbytes >= (unsigned char *)&_heap_end)
+    return (void*)set_errno(ENOMEM);
+  
+  unsigned char * prev_heap = heap;
+  heap += nbytes;
+  return (caddr_t)prev_heap;
 }
 
 #if defined(THREADSAFE_MALLOC) && !defined(BOOT)
@@ -73,47 +77,20 @@ extern int _gettimeofday(void *p1, void *p2)
 
 extern int _link(char *old, char *nw)
 {
-  return -1;
+  (void)old;
+  (void)nw;
+  return set_errno(ENOSYS);
 }
 
 extern int _unlink(const char *path)
 {
-  return -1;
-}
-
-extern int _open(const char *name, int flags, int mode)
-{
-  return -1;
-}
-
-extern int _close(int file)
-{
-  return -1;
-}
-
-extern int _fstat(int file, struct stat * st)
-{
-  st->st_mode = S_IFCHR;
-  return 0;
+  (void)path;
+  return set_errno(ENOSYS);
 }
 
 extern int _isatty(int file)
 {
-  return 1;
-}
-
-extern int _lseek(int file, int ptr, int dir)
-{
-  return 0;
-}
-
-extern int _read(int file, char *ptr, int len)
-{
-  return 0;
-}
-
-extern int _write(int file, char *ptr, int len)
-{
+  (void)file;
   return 0;
 }
 

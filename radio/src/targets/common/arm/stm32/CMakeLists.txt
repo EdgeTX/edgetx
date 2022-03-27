@@ -82,7 +82,7 @@ if(GVARS)
   set(GUI_SRC ${GUI_SRC} ${GVAR_SCREEN})
 endif()
 
-set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
+set(FIRMWARE_SRC ${FIRMWARE_SRC} vfs_syscalls.cpp syscalls.c )
 
 foreach(FILE ${STM32LIB_SRC})
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32LIB_DIR}/${FILE})
