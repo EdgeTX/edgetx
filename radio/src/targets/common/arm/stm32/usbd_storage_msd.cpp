@@ -159,13 +159,16 @@ int8_t STORAGE_Init (uint8_t lun)
   }
 #endif
 #if defined(SPI_FLASH)
-  if(lun == STORAGE_SDCARD_LUN)
+  if(lun == STORAGE_SPI_FLASH_LUN)
   {
     disk_initialize(1);
     return (0);
   }
 #endif
-  return 0;
+  if (lun == STORAGE_EEPROM_LUN) {
+    return 0;
+  }
+  return -1;
 }
 
 /**
@@ -206,6 +209,7 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
   }
 
 #if !defined(SDCARD)
+  *block_num = 0;
   return -1;
 #else
   if (!SD_CARD_PRESENT())
