@@ -269,7 +269,7 @@ void ViewMain::onEvent(event_t event)
 
     case EVT_KEY_LONG(KEY_MODEL):
       killEvents(event);
-      new ModelSelectMenu();
+      new ModelLabelsWindow();
       break;
 
     case EVT_KEY_FIRST(KEY_RADIO):

@@ -48,7 +48,7 @@ struct ModuleData;
 struct SimpleModuleData
 {
   uint8_t type=0;
-  uint8_t rfProtocol=0;
+  uint8_t subType=0;
 };
 
 typedef union {
@@ -84,6 +84,10 @@ class ModelCell
     void setModelName(char * name);
     void setModelName(char* name, uint8_t len);
     void setRfData(ModelData * model);
+
+    void setModelId(uint8_t moduleIdx, uint8_t id);
+    void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
+    bool  fetchRfData();
 };
 
 typedef struct {
@@ -124,7 +128,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     bool removeLabelFromModel(const std::string &label, ModelCell *, bool update=false);
     bool removeLabel(const std::string &);
     bool moveLabelTo(unsigned current, unsigned newind);
-    bool renameLabel(const std::string &from, const std::string &to);
+    bool renameLabel(const std::string &from, const std::string &to, const char* title=STR_RENAME_FILE);
     std::string getCurrentLabel() {return currentlabel;};
     void setCurrentLabel(const std::string &lbl) {currentlabel = lbl; setDirty();}
     std::string getLabelString(ModelCell *, const char *noresults="");

@@ -94,22 +94,33 @@ void ModelCell::setModelName(char* name, uint8_t len)
   }
 }
 
+void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
+{
+  modelId[moduleIdx] = id;
+}
+
 void ModelCell::setRfData(ModelData* model)
 {
   for (uint8_t i = 0; i < NUM_MODULES; i++) {
     modelId[i] = model->header.modelId[i];
-    moduleData[i].type = model->moduleData[i].type;
-    if (model->moduleData[i].type != MODULE_TYPE_MULTIMODULE) {
-      moduleData[i].rfProtocol = (uint8_t)model->moduleData[i].rfProtocol;
-    } else {
-      // do we care here about MM_RF_CUSTOM_SELECTED? probably not...
-      moduleData[i].rfProtocol = model->moduleData[i].getMultiProtocol();
-    }
+    setRfModuleData(i, &(model->moduleData[i]));
     TRACE("<%s/%i> : %X,%X,%X",
           strlen(modelName) ? modelName : modelFilename,
           i, moduleData[i].type, moduleData[i].subType, modelId[i]);
   }
   valid_rfData = true;
+}
+
+void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData* modData)
+{
+  moduleData[moduleIdx].type = modData->type;
+  if (modData->type != MODULE_TYPE_MULTIMODULE) {
+    moduleData[moduleIdx].subType = (uint8_t)modData->subType;
+  }
+  else {
+    // do we care here about MM_RF_CUSTOM_SELECTED? probably not...
+    moduleData[moduleIdx].subType = modData->multi.rfProtocol;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -407,7 +418,7 @@ bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell, b
 bool ModelMap::removeLabel(const std::string &label)
 {
   // Remove all the labels
-  renameLabel(label, "");
+  renameLabel(label, "", STR_MOVE);
   for(auto &lbl : labels) {
     if(lbl == label && getModelsByLabel(lbl).size() == 0) {
       lbl = "";
@@ -464,7 +475,7 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @return false success
  */
 
-bool ModelMap::renameLabel(const std::string &from, const std::string &to)
+bool ModelMap::renameLabel(const std::string &from, const std::string &to, const char *title)
 {
   DEBUG_TIMER_START(debugTimerYamlScan);
 
@@ -485,7 +496,7 @@ bool ModelMap::renameLabel(const std::string &from, const std::string &to)
   int i=0;
   for (const auto &modcell: mods) {
 #if defined(COLORLCD)
-    drawProgressScreen(lcd, STR_RENAME_FILE, modcell->modelFilename, i++, mods.size());
+    drawProgressScreen(lcd, title, modcell->modelFilename, i++, mods.size());
 #endif
     readModelYaml(modcell->modelFilename, (uint8_t*)modeldata, sizeof(ModelData));
 
@@ -1027,8 +1038,8 @@ const char * ModelsList::save()
         f_printf(&file, "      " MODULE_ID_STR ": %u\r\n",i,(unsigned int)model->modelId[i]);
       if(model->moduleData[i].type)
         f_printf(&file, "      " MODULE_TYPE_STR ": %u\r\n",i,(unsigned int)model->moduleData[i].type);
-      if(model->moduleData[i].rfProtocol)
-        f_printf(&file, "      " MODULE_RFPROTOCOL_STR ": %u\r\n",i,(unsigned int)model->moduleData[i].rfProtocol);
+      if(model->moduleData[i].subType)
+        f_printf(&file, "      " MODULE_RFPROTOCOL_STR ": %u\r\n",i,(unsigned int)model->moduleData[i].subType);
     }
 
     f_puts("      labels: \"", &file);
@@ -1246,7 +1257,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
 
     if ((type != MODULE_TYPE_NONE) &&
         (type       == (*it)->moduleData[moduleIdx].type) &&
-        (rfProtocol == (*it)->moduleData[moduleIdx].rfProtocol) &&
+        (subType == (*it)->moduleData[moduleIdx].subType) &&
         (modelId    == (*it)->modelId[moduleIdx])) {
 
       // Hit found!
@@ -1312,7 +1323,7 @@ uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
     // match module type and RF protocol
     if ((type != MODULE_TYPE_NONE) &&
         (type       == (*it)->moduleData[moduleIdx].type) &&
-        (rfProtocol == (*it)->moduleData[moduleIdx].rfProtocol)) {
+        (subType == (*it)->moduleData[moduleIdx].subType)) {
 
       uint8_t id = (*it)->modelId[moduleIdx];
       uint8_t mask = 1 << (id & 7u);

@@ -253,7 +253,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
         snprintf(cmp, sizeof(cmp), MODULE_RFPROTOCOL_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->moduleData[i].rfProtocol = atoi(value);
+          mi->curmodel->moduleData[i].subType = atoi(value);
           TRACE_LABELS_YAML("Set the module %d rfProtocol to %s", i, value);
         }
 

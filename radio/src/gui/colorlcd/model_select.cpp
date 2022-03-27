@@ -26,6 +26,9 @@
 #include "model_select.h"
 #include "opentx.h"
 #include "listbox.h"
+#include "libopenui.h"
+#include "standalone_lua.h"
+#include "str_functions.h"
 
 // bitmaps for toolbar
 const uint8_t mask_sort_alpha_up[] = {
@@ -44,11 +47,10 @@ const uint8_t mask_sort_date_down[] = {
 #include "mask_sort_date_down.lbm"
 };
 
-
-inline tmr10ms_t getTicks()
-{
-  return g_tmr10ms;
-}
+constexpr size_t LEN_INFO_TEXT = 300;
+constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
+constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 #define LABELS_WIDTH 120
 #define LABELS_LEFT 5
@@ -745,8 +747,8 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
         storageDirty(EE_GENERAL);
         storageCheck(true);
         modelslist.setCurrentModel(model);
-        this->getParent()->getParent()->deleteLater();
         checkAll();
+        this->getParent()->getParent()->deleteLater();
       });
     }
     menu->addLine(STR_DUPLICATE_MODEL, [=]() {
@@ -1010,6 +1012,9 @@ void ModelLabelsWindow::buildHead(PageHeader *window)
       lblselector->clearSelection();
       lblselector->setSelected(modelsLabels.getLabels().size());
       mdlselector->update(0);
+      new SelectTemplateFolder([=]() {
+      });
+
     return 0;
   }, BUTTON_BACKGROUND | OPAQUE, textFont);
 }

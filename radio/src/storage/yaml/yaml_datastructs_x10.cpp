@@ -855,7 +855,7 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 };
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
+  YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
   YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
