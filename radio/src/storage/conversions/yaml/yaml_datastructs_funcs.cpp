@@ -36,7 +36,7 @@ bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
 bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
-  int32_t sval = yaml_to_signed(val, node->size);
+  int32_t sval = yaml_to_signed(val, node->size <= 11 ? node->size : 11);
   int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
 
   if (sval >= gvar - 10 && sval <= gvar) {
