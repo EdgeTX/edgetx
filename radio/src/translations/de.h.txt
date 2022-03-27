@@ -1120,7 +1120,7 @@
 #define TR_LSW_DESCRIPTIONS            { "Vergleich oder Funktion", "Erste Variable", "Zweite Variable/Konstante", "Zweite Variable/Konstante", "Weitere UND Bedingung für Freigabe des Log Schalters", "ON-Zeit des Log Schalters wenn Bedingung ok", "Mindestdauer der Bedingung damit Log Schalter ON geht" }
 
 //Taranis About screen
-#define TR_ABOUTUS                     "Über OpenTx"
+#define TR_ABOUTUS                     TR(" Info ", "Info")
 
 #define TR_CHR_SHORT  				  's' // Taste short
 #define TR_CHR_LONG   			      'l' // Taste long
