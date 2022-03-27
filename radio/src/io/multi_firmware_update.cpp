@@ -128,6 +128,7 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 };
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 {
   public:
@@ -141,15 +142,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) override
     {
-#if !defined(EXTMODULE_USART)
-      GPIO_InitTypeDef GPIO_InitStructure;
-      GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
-      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-      GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
-#endif
+      extmoduleInitTxPin();
 
       if (inverted)
         telemetryPortInvertedInit(57600);
@@ -164,9 +157,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void sendByte(uint8_t byte) const override
     {
-#if defined(HARDWARE_EXTERNAL_MODULE)
       extmoduleSendInvertedByte(byte);
-#endif
     }
 
     void clear() const override
@@ -184,6 +175,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
       clear();
     }
 };
+#endif
 
 class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
 {

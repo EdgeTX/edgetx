@@ -42,6 +42,7 @@ void extmodulePpmStart(unsigned short, bool) {}
 void extmoduleSerialStart() {}
 void extmodulePxx1SerialStart() {}
 void extmodulePxx1PulsesStart() {}
+void extmoduleInitTxPin() {}
 void extmoduleSendInvertedByte(uint8_t) {}
 void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
 void extmoduleSendNextFrameSoftSerial(void const*, unsigned short, bool) {}

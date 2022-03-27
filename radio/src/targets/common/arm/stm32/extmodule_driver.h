@@ -41,4 +41,5 @@ void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length,
                                       bool polarity = true);
 
 // Bitbang serial
+void extmoduleInitTxPin();
 void extmoduleSendInvertedByte(uint8_t byte);
