@@ -30,10 +30,13 @@ public:
 
     virtual void build(FormWindow * window) override
     {
-      build(window, 0);
+      build(window, currentLS);
     }
 
-protected:
+    static int currentLS;
+    static coord_t currentScrollPosition;
+
+   protected:
     void build(FormWindow * window, int8_t focusIndex);
     void rebuild(FormWindow * window, int8_t focusIndex);
     void editLogicalSwitch(FormWindow * window, uint8_t lsIndex);

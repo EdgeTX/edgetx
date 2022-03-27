@@ -601,6 +601,9 @@ class SpecialFunctionButton : public Button
   bool active = false;
 };
 
+int SpecialFunctionsPage::currentFunction = 0;
+coord_t SpecialFunctionsPage::currentScrollPosition = 0;
+
 SpecialFunctionsPage::SpecialFunctionsPage(CustomFunctionData *functions) :
     PageTab(functions == g_model.customFn ? STR_MENUCUSTOMFUNC
                                           : STR_MENUSPECIALFUNCS,
@@ -723,6 +726,9 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         if (focus) {
           txt->setBackgroundColor(COLOR_THEME_FOCUS);
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+          currentFunction = i;
+          coord_t tmp = window->getScrollPositionY();
+          if(tmp) currentScrollPosition = tmp;
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
@@ -750,4 +756,5 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
 
   //  window->setLastField();
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }

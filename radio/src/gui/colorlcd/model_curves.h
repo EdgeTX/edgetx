@@ -31,10 +31,13 @@ class ModelCurvesPage: public PageTab {
 
     virtual void build(FormWindow * window) override
     {
-      build(window, 0);
+      build(window, currentCurve);
     }
 
-  protected:
+    static int currentCurve;
+    static coord_t currentScrollPosition;
+
+   protected:
     void build(FormWindow * window, int8_t focusIndex);
     void rebuild(FormWindow * window, int8_t focusIndex);
     void editCurve(FormWindow * window, uint8_t curve);

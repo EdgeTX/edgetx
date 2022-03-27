@@ -293,6 +293,9 @@ class OutputLineButton : public Button
   int value = 0;
 };
 
+int ModelOutputsPage::currentChannel = 0;
+coord_t ModelOutputsPage::currentScrollPosition = 0;
+
 ModelOutputsPage::ModelOutputsPage() :
     PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
 {
@@ -300,10 +303,10 @@ ModelOutputsPage::ModelOutputsPage() :
 
 void ModelOutputsPage::rebuild(FormWindow *window, int8_t focusChannel)
 {
-  coord_t scrollPosition = window->getScrollPositionY();
+  currentScrollPosition = window->getScrollPositionY();
   window->clear();
   build(window, focusChannel);
-  window->setScrollPositionY(scrollPosition);
+  window->setScrollPositionY(currentScrollPosition);
 }
 
 void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
@@ -311,7 +314,7 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
-
+  
   new TextButton(
       window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
       [=]() {
@@ -331,51 +334,55 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
         window, grid.getLabelSlot(), getSourceString(MIXSRC_CH1 + ch),
         BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
 
-    // Channel settings
-    Button *button =
+        // Channel settings
+      Button *button =
         new OutputLineButton(window, grid.getFieldSlot(), output, ch);
-    button->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(window);
-      menu->addLine(STR_EDIT, [=]() { editOutput(window, ch); });
-      menu->addLine(STR_RESET, [=]() {
-        output->min = 0;
-        output->max = 0;
-        output->offset = 0;
-        output->ppmCenter = 0;
-        output->revert = false;
-        output->curve = 0;
-        output->symetrical = 0;
-        storageDirty(EE_MODEL);
-        rebuild(window, ch);
+      button->setPressHandler([=]() -> uint8_t {
+        Menu *menu = new Menu(window);
+        menu->addLine(STR_EDIT, [=]() { editOutput(window, ch); });
+        menu->addLine(STR_RESET, [=]() {
+          output->min = 0;
+          output->max = 0;
+          output->offset = 0;
+          output->ppmCenter = 0;
+          output->revert = false;
+          output->curve = 0;
+          output->symetrical = 0;
+          storageDirty(EE_MODEL);
+          rebuild(window, ch);
+        });
+        menu->addLine(STR_COPY_STICKS_TO_OFS, [=]() {
+          copySticksToOffset(ch);
+          storageDirty(EE_MODEL);
+          button->invalidate();
+        });
+        menu->addLine(STR_COPY_TRIMS_TO_OFS, [=]() {
+          copyTrimsToOffset(ch);
+          storageDirty(EE_MODEL);
+          button->invalidate();
+        });
+        return 0;
       });
-      menu->addLine(STR_COPY_STICKS_TO_OFS, [=]() {
-        copySticksToOffset(ch);
-        storageDirty(EE_MODEL);
-        button->invalidate();
+      button->setFocusHandler([=](bool focus) {
+        if (focus) {
+          txt->setBackgroundColor(COLOR_THEME_FOCUS);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+          currentChannel = ch;
+          coord_t tmp = window->getScrollPositionY();
+          if(tmp)
+            currentScrollPosition = tmp;
+        } else {
+          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
+          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+        }
+        txt->invalidate();
       });
-      menu->addLine(STR_COPY_TRIMS_TO_OFS, [=]() {
-        copyTrimsToOffset(ch);
-        storageDirty(EE_MODEL);
-        button->invalidate();
-      });
-      return 0;
-    });
-    button->setFocusHandler([=](bool focus) {
-      if (focus) {
+
+      if (focusChannel == ch) {
+        button->setFocus(SET_FOCUS_DEFAULT);
         txt->setBackgroundColor(COLOR_THEME_FOCUS);
         txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      } else {
-        txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-        txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-      }
-      txt->invalidate();
-    });
-
-    if (focusChannel == ch) {
-      button->setFocus(SET_FOCUS_DEFAULT);
-      txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      txt->invalidate();
+        txt->invalidate();
     }
 
     txt->setHeight(button->height());
@@ -385,6 +392,7 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }
 
 void ModelOutputsPage::editOutput(FormWindow *window, uint8_t channel)

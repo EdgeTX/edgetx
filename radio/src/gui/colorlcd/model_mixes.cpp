@@ -416,6 +416,9 @@ class MixLineTitle : public StaticText
   }
 };
 
+int ModelMixesPage::currentMix;
+coord_t ModelMixesPage::currentScrollPosition;
+
 void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 {
   FormGridLayout grid;
@@ -507,6 +510,9 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           if (focus) {
             txt->setBackgroundColor(COLOR_THEME_FOCUS);
             txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+            currentMix = mixIndex;
+            coord_t tmp = window->getScrollPositionY();
+            if (tmp) currentScrollPosition = tmp;
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
             txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
@@ -576,6 +582,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }
 
 void deleteMix(uint8_t idx)

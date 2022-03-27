@@ -33,7 +33,10 @@ class ModelInputsPage: public PageTab {
       build(window, 0);
     }
 
-  protected:
+    static int currentInput;
+    static coord_t currentScrollPosition;
+
+   protected:
     void build(FormWindow * window, int8_t focusIndex);
     void rebuild(FormWindow * window, int8_t focusIndex);
     void editInput(FormWindow * window, uint8_t channel, uint8_t index);
