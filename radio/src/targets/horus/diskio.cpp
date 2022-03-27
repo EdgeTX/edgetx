@@ -31,6 +31,8 @@
 
 #include <string.h>
 
+// TODO share this with Horus (and perhaps other STM32)
+
 /*-----------------------------------------------------------------------*/
 /* Lock / unlock functions                                               */
 /*-----------------------------------------------------------------------*/
@@ -38,7 +40,7 @@
 static RTOS_MUTEX_HANDLE ioMutex;
 static bool initialized = false;
 uint32_t ioMutexReq = 0, ioMutexRel = 0;
-int ff_cre_syncobj (BYTE vol, FF_SYNC_t * mutex)
+int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
 {
   if(!initialized)
   {
@@ -106,7 +108,7 @@ static bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
     return false;
   return true;
 }
- 
+
 static bool flashErase(int addr, void *arg)
 {
   flashSpiBlockErase(addr);
@@ -114,9 +116,6 @@ static bool flashErase(int addr, void *arg)
 }
 }
 #endif
-
- /*-----------------------------------------------------------------------*/
-
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 
@@ -466,7 +465,7 @@ DRESULT disk_ioctl (
 }
 
 // TODO everything here should not be in the driver layer ...
-
+#if defined(SDCARD)
 bool _g_FATFS_init = false;
 FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
@@ -537,3 +536,4 @@ uint32_t sdGetSpeed()
 {
   return 330000;
 }
+#endif // SDCARD
