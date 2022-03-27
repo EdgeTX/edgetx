@@ -153,7 +153,7 @@ ModelsVector ModelMap::getModelsByLabel(const std::string &lbl, ModelsSortBy sor
 }
 
 /**
- * @brief Returns all models that are in multiple labels
+ * @brief Returns all models that are in multiple labels (OR function)
  *
  * @param lbls Labels to search
  * @return ModelsVector aka vector<ModelCell*> of all models belonging to a label
@@ -183,6 +183,42 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls, ModelsSortBy 
   if(addunlabeled) {
     ModelsVector unlabeled = getUnlabeledModels();
     rv.insert(rv.end(), unlabeled.begin(), unlabeled.end());
+  }
+
+  sortModelsBy(rv, sortby);
+  return rv;
+}
+
+/**
+ * @brief Returns all models that are in multiple labels (AND function)
+ *
+ * @param lbls Labels to search
+ * @return ModelsVector aka vector<ModelCell*> of all models belonging to a label
+ */
+
+ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby)
+{
+  if(lbls.size() == 0) return ModelsVector();
+
+  // Requesting only Unlabeled models
+  if(lbls.size() == 1 &&
+     lbls.at(0) == STR_UNLABELEDMODEL)
+     return getUnlabeledModels(sortby);
+
+  ModelsVector rv;
+
+  for(const auto &mdl: modelslist) {
+    bool hasAllLabels = true;
+    LabelsVector mdllables = getLabelsByModel(mdl);
+    for(const auto &lbl: lbls) {
+      if(lbl == STR_UNLABELEDMODEL) // If requesting unlabeled model ignore it
+        break;
+      if(std::find(mdllables.begin(), mdllables.end(), lbl) == mdllables.end()) {
+        hasAllLabels = false;
+        break;
+      }
+    }
+    if(hasAllLabels) rv.push_back(mdl);
   }
 
   sortModelsBy(rv, sortby);

@@ -567,7 +567,7 @@ void ModelsPageBody::update(int selected)
   coord_t x = 0;
 
   ModelButton* selectButton = nullptr;
-  ModelsVector models = modelsLabels.getModelsByLabels(selectedLabels, _sortOrder);
+  ModelsVector models = modelsLabels.getModelsInLabels(selectedLabels, _sortOrder);
 
   for (auto &model : models) {
     auto button = new ModelButton(
