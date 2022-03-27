@@ -275,6 +275,9 @@ class CurveButton : public Button {
     uint8_t index;
 };
 
+int ModelCurvesPage::currentCurve = 0;
+coord_t ModelCurvesPage::currentScrollPosition = 0;
+
 ModelCurvesPage::ModelCurvesPage() :
   PageTab(STR_MENUCURVES, ICON_MODEL_CURVES)
 {
@@ -371,6 +374,9 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
         if (focus) {
           txt->setBackgroundColor(COLOR_THEME_FOCUS);
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+          currentCurve = index;
+          coord_t tmp = window->getScrollPositionY();
+          if (tmp) currentScrollPosition = tmp;
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
@@ -409,4 +415,5 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }

@@ -480,6 +480,9 @@ class InputLineButton : public CommonInputOrMixButton
   }
 };
 
+int ModelInputsPage::currentInput = 0;
+coord_t ModelInputsPage::currentScrollPosition = 0;
+
 ModelInputsPage::ModelInputsPage():
   PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
 {
@@ -576,6 +579,9 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
           if (focus) {
             txt->setBackgroundColor(COLOR_THEME_FOCUS);
             txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
+            currentInput = input;
+            coord_t tmp = window->getScrollPositionY();
+            if(tmp) currentScrollPosition = tmp;
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
             txt->setTextFlags(COLOR_THEME_PRIMARY1 | LEFT);
@@ -641,6 +647,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }
 
 // TODO port: avoid global s_currCh on ARM boards (as done here)...

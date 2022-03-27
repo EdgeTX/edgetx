@@ -28,12 +28,15 @@ class ModelMixesPage: public PageTab {
   public:
     ModelMixesPage();
 
-    void build(FormWindow * window) override
+    void build(FormWindow* window) override 
     {
-      build(window, 0);
+       build(window, currentMix); 
     }
 
-  protected:
+    static int currentMix;
+    static coord_t currentScrollPosition;
+
+   protected:
     void build(FormWindow * window, int8_t focusMixIndex);
     void rebuild(FormWindow * window, int8_t focusMixIndex);
     void editMix(FormWindow * window, uint8_t channel, uint8_t mixIndex);

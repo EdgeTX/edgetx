@@ -35,7 +35,11 @@ class SpecialFunctionsPage: public PageTab {
       build(window, 0);
     }
 
-  protected:
+    static int currentFunction;
+    static coord_t currentScrollPosition;
+
+
+   protected:
     CustomFunctionData * functions;
     void build(FormWindow * window, int8_t focusSpecialFunctionIndex);
     void rebuild(FormWindow * window, int8_t focusSpecialFunctionIndex);

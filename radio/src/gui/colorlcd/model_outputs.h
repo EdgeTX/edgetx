@@ -30,10 +30,13 @@ class ModelOutputsPage: public PageTab {
 
     virtual void build(FormWindow * window) override
     {
-      build(window, 0);
+      build(window, currentChannel);
     }
 
-  protected:
+    static int currentChannel;
+    static coord_t currentScrollPosition;
+
+   protected:
     void build(FormWindow * window, int8_t focusChannel);
     void rebuild(FormWindow * window, int8_t focusChannel);
     void editOutput(FormWindow * window, uint8_t channel);

@@ -338,6 +338,9 @@ class LogicalSwitchButton : public Button
   bool active;
 };
 
+int ModelLogicalSwitchesPage::currentLS = 0;
+coord_t ModelLogicalSwitchesPage::currentScrollPosition = 0;
+
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
   PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
 {
@@ -420,6 +423,9 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
         if (focus) {
           txt->setBackgroundColor(COLOR_THEME_FOCUS);
           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+          currentLS = i;
+          coord_t tmp = window->getScrollPositionY();
+          if(tmp) currentScrollPosition = tmp;
         } else {
           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
           txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
@@ -442,4 +448,5 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
   grid.nextLine();
 
   window->setInnerHeight(grid.getWindowHeight());
+  window->setScrollPositionY(currentScrollPosition);
 }
