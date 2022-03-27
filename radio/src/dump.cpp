@@ -24,7 +24,7 @@
 #if defined(SIMU)
 #define dumpPrintf(...) debugPrintf(__VA_ARGS__)
 #else
-#define dumpPrintf(...) serialPrintf(__VA_ARGS__)
+#define dumpPrintf(...) dbgSerialPrintf(__VA_ARGS__)
 #endif
 
 #if defined(DEBUG) || defined(CLI)

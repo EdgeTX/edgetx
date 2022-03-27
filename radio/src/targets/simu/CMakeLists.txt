@@ -16,6 +16,11 @@ set(SIMU_SRC
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  module_drivers.cpp
+  led_driver.cpp
+  backlight_driver.cpp
+  gyro_driver.cpp
+  bt_driver.cpp
   )
 
 if(SIMU_DISKIO)
@@ -78,9 +83,7 @@ if(Qt5Widgets_FOUND)
   set(all_libs_cmd ${CMAKE_COMMAND} -E echo "Building all simulator libraries")
   foreach(pcb ${PCB_TYPES})
     set(pcbrev "")
-    if(pcb STREQUAL SKY9X)
-      set(pcbrev "-DPCBREV=REVC")
-    elseif(pcb STREQUAL X12S)
+    if(pcb STREQUAL X12S)
       set(pcbrev "-DPCBREV=13")
     endif()
     set(all_libs_cmd ${all_libs_cmd} && ${CMAKE_COMMAND} -DPCB=${pcb} ${pcbrev} -Wno-dev ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} && ${CMAKE_COMMAND} --build . --target libsimulator -- ${mkflags})

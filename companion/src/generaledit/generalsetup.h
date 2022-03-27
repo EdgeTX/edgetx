@@ -49,6 +49,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
     void on_faimode_CB_stateChanged(int );
+    void on_invertRotary_CB_stateChanged(int);
     void on_speakerPitchSB_editingFinished();
     void on_timezoneSB_editingFinished();
     void on_adjustRTC_stateChanged(int);

@@ -47,6 +47,7 @@ enum ModuleType {
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
   MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
+  MODULE_TYPE_LEMON_DSMP,
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
 };
@@ -83,6 +84,7 @@ enum PulsesProtocol {
   PULSES_XJT_LITE_LR12,
   PULSES_AFHDS3,
   PULSES_GHOST,
+  PULSES_LEMON_DSMP,
   PULSES_PROTOCOL_LAST
 };
 
@@ -166,7 +168,19 @@ enum MultiModuleRFProtocols {
   MODULE_SUBTYPE_MULTI_MLINK,
   MODULE_SUBTYPE_MULTI_WFLY2,
   MODULE_SUBTYPE_MULTI_E016HV2,
-  MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_E016HV2
+  MODULE_SUBTYPE_MULTI_E010R5,
+  MODULE_SUBTYPE_MULTI_LOLI,
+  MODULE_SUBTYPE_MULTI_E129,
+  MODULE_SUBTYPE_MULTI_JOYSWAY,
+  MODULE_SUBTYPE_MULTI_E016H,
+  MODULE_SUBTYPE_MULTI_CONFIG,
+  MODULE_SUBTYPE_MULTI_IKEAANSLUTA,
+  MODULE_SUBTYPE_MULTI_WILLIFM,
+  MODULE_SUBTYPE_MULTI_LOSI,
+  MODULE_SUBTYPE_MULTI_MOULDKG,
+  MODULE_SUBTYPE_MULTI_XERALL,
+  MODULE_SUBTYPE_MULTI_MT99XX2,
+  MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_MT99XX2
 };
 
 enum ModuleSubtypeR9M {
@@ -227,11 +241,24 @@ class ModuleData {
       int antennaMode;       // false = internal antenna, true = external antenna
     } pxx;
 
+    struct GHOST {
+      bool raw12bits;
+      unsigned int telemetryBaudrate;
+    } ghost;
+
+    struct CRSF {
+      unsigned int telemetryBaudrate;
+    } crsf;
+
     struct Access {
       unsigned int receivers;
       char         receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME+1];
       unsigned int racingMode;
     } access;
+
+    struct DSMP {
+      unsigned int flags;
+    } dsmp;
 
     void clear() { memset(this, 0, sizeof(ModuleData)); }
     void convert(RadioDataConversionState & cstate);
@@ -252,4 +279,5 @@ class ModuleData {
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
     static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & settings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int  protocol);
 };

@@ -197,10 +197,6 @@ const char * const audioFilenames[] = {
   "servoko",
   "rxko",
   "modelpwr",
-#if defined(PCBSKY9X)
-  "highmah",
-  "hightemp",
-#endif
   "error",
   "warning1",
   "warning2",
@@ -1101,10 +1097,6 @@ void audioEvent(unsigned int index)
         audioQueue.playTone(2250, 80, 20, PLAY_REPEAT(2));
         break;
       case AU_TX_BATTERY_LOW:
-#if defined(PCBSKY9X)
-      case AU_TX_MAH_HIGH:
-      case AU_TX_TEMP_HIGH:
-#endif
         audioQueue.playTone(1950, 160, 20, PLAY_REPEAT(2), 1);
         audioQueue.playTone(2550, 160, 20, PLAY_REPEAT(2), -1);
         break;

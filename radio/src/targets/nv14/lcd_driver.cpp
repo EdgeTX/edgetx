@@ -1341,15 +1341,15 @@ void lcdInit(void) {
     lcdInitFunction = LCD_HX8357D_Init;
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
-  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
+  } else { /* if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID) { */ // ST7796S detection is unreliable
     TRACE("LCD INIT (default): ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
-  } else {
+/*  } else {
     TRACE("LCD INIT: unknown LCD controller");
-    boardLcdType = "unknown";
+    boardLcdType = "unknown";*/
   }
 
   lcdInitFunction();

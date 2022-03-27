@@ -21,6 +21,9 @@
 
 #include "opentx.h"
 
+#include "fifo.h"
+#include "dmafifo.h"
+
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 
@@ -179,6 +182,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
       probeTimeFromStartBit = 3000000/baudrate;
   }
 
+#if defined(PCBX12S)
+  telemetryFifoMode = TELEMETRY_SERIAL_WITHOUT_DMA;
+#endif
+  
   // configure bit sample timer
   TELEMETRY_TIMER->PSC = (PERI2_FREQUENCY * TIMER_MULT_APB2) / 2000000 - 1; // 0.5uS
   TELEMETRY_TIMER->CCER = 0;
@@ -264,7 +271,7 @@ void telemetryPortSetDirectionInput()
 {
   sportWaitTransmissionComplete();
 #if defined(GHOST) && SPORT_MAX_BAUDRATE < 400000
-  if (isModuleGhost(EXTERNAL_MODULE) && g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
+  if (isModuleGhost(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
@@ -415,7 +422,7 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
 }
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-bool telemetryGetByte(uint8_t * byte)
+bool sportGetByte(uint8_t * byte)
 {
 #if defined(PCBX12S)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)

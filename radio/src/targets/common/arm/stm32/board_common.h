@@ -80,25 +80,7 @@
 
 #endif
 
-#if defined(__cplusplus) && !defined(SIMU)
-extern "C" {
-#endif
-
 #include "usb_driver.h"
-
-#if !defined(SIMU)
-#include "usbd_cdc_core.h"
-#include "usbd_msc_core.h"
-#include "usbd_hid_core.h"
-#include "usbd_usr.h"
-#include "usbd_desc.h"
-#include "usb_conf.h"
-#include "usbd_conf.h"
-#endif
-
-#if defined(__cplusplus) && !defined(SIMU)
-}
-#endif
 
 #if defined(SIMU)
 #include "../simu/simpgmspace.h"

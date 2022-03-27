@@ -48,10 +48,14 @@ extern "C" {
   #endif
 #endif
 
-#if !defined(CLI) || defined(AUX2_SERIAL)
+// LUA serial connection
 #define LUA_FIFO_SIZE 256
-extern Fifo<uint8_t, LUA_FIFO_SIZE> * luaRxFifo;
-#endif
+void luaAllocRxFifo();
+void luaFreeRxFifo();
+void luaReceiveData(uint8_t* buf, uint32_t len);
+
+void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
+void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*));
 
 extern lua_State * lsScripts;
 

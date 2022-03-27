@@ -22,60 +22,59 @@
 #include "opentx.h"
 
 template<class T>
-void setupPulsesPPM(PpmPulsesData<T> * ppmPulsesData, uint8_t channelsStart, int8_t channelsCount, int8_t frameLength)
+void setupPulsesPPM(PpmPulsesData<T> * ppmPulsesData, uint8_t channelsStart, int8_t channelsCount)
 {
-  int16_t PPM_range = g_model.extendedLimits ? (512*LIMIT_EXT_PERCENT/100) * 2 : 512 * 2; // range of 0.7 .. 1.7msec
+  int16_t PPM_range = g_model.extendedLimits ?
+    // range of 0.7 .. 1.7msec
+    (512*LIMIT_EXT_PERCENT/100) * 2 : 512 * 2;
 
   // Total frame length = 22.5msec
   // each pulse is 0.7..1.7ms long with a 0.3ms stop tail
   // The pulse ISR is 2mhz that's why everything is multiplied by 2
 
   uint8_t firstCh = channelsStart;
-  uint8_t lastCh = min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
+  uint8_t lastCh =
+      min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
 
-#if defined(STM32)
   ppmPulsesData->ptr = ppmPulsesData->pulses;
-#else
-  uint16_t * ptr = ppmPulsesData->pulses;
-  ppmPulsesData->ptr = ptr;
-#endif
 
-  int32_t rest = 22500u * 2;
-  rest += int32_t(frameLength) * 1000;
-  for (uint32_t i=firstCh; i<lastCh; i++) {
-    int16_t v = limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) + 2*PPM_CH_CENTER(i);
-    rest -= v;
-#if defined(STM32)
-    *ppmPulsesData->ptr++ = v; /* as Pat MacKenzie suggests */
-#else
-    *ptr++ = v; /* as Pat MacKenzie suggests */
-#endif
+  for (uint32_t i = firstCh; i < lastCh; i++) {
+    int16_t v =
+        limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) +
+        2 * PPM_CH_CENTER(i);
+    *ppmPulsesData->ptr++ = v;
   }
-  rest = limit<int32_t>(9000, rest, 65535); /* avoids that CCR2 is bigger than ARR which would cause reboot */
-#if defined(STM32)
-  *ppmPulsesData->ptr++ = rest;
-  *ppmPulsesData->ptr = 0; // it's needed in case PPM is sent without DMA (we stop when we reach this 0)
-#else
-  *ptr = rest;
-  *(ptr + 1) = 0;
-#endif
+
+  // Set the final period to the max
+  // (a new transfer is issued before it expires)
+  // debug: set the last period to the ppm_delay
+  *ppmPulsesData->ptr++ = 2000;
+  //*ppmPulsesData->ptr++ = 65535;
+
+  // it's needed in case PPM is sent without DMA
+  // (we stop when we reach this 0)
+  *ppmPulsesData->ptr = 0;
 }
 
 void setupPulsesPPMTrainer()
 {
-  setupPulsesPPM<trainer_pulse_duration_t>(&trainerPulsesData.ppm, g_model.trainerData.channelsStart, g_model.trainerData.channelsCount, g_model.trainerData.frameLength);
+  setupPulsesPPM<trainer_pulse_duration_t>(
+      &trainerPulsesData.ppm, g_model.trainerData.channelsStart,
+      g_model.trainerData.channelsCount);
 }
 
 #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
 void setupPulsesPPMInternalModule()
 {
-  setupPulsesPPM(&intmodulePulsesData.ppm, g_model.moduleData[INTERNAL_MODULE].channelsStart, g_model.moduleData[INTERNAL_MODULE].channelsCount, g_model.moduleData[INTERNAL_MODULE].ppm.frameLength);
+  setupPulsesPPM(&intmodulePulsesData.ppm,
+                 g_model.moduleData[INTERNAL_MODULE].channelsStart,
+                 g_model.moduleData[INTERNAL_MODULE].channelsCount);
 }
 #endif
 
 void setupPulsesPPMExternalModule()
 {
-  setupPulsesPPM(&extmodulePulsesData.ppm, g_model.moduleData[EXTERNAL_MODULE].channelsStart, g_model.moduleData[EXTERNAL_MODULE].channelsCount, g_model.moduleData[EXTERNAL_MODULE].ppm.frameLength);
+  setupPulsesPPM(&extmodulePulsesData.ppm,
+                 g_model.moduleData[EXTERNAL_MODULE].channelsStart,
+                 g_model.moduleData[EXTERNAL_MODULE].channelsCount);
 }
-
-

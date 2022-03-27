@@ -157,6 +157,9 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncPlaySound:
     def += LookupValue(soundLut, rhs.param);
     break;
+  case FuncPlayHaptic:
+    def += std::to_string(rhs.param);
+    break;
   case FuncPlayPrompt:
   case FuncPlayScript:
   case FuncBackgroundMusic:
@@ -177,7 +180,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncVolume:
   case FuncBacklight: {
     def += YamlRawSourceEncode(RawSource(rhs.param));
-  } break; 
+  } break;
   case FuncAdjustGV1: {
     // + GV #
     def += std::to_string(p1);
@@ -266,6 +269,13 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     getline(def, snd, ',');
     Node(snd) >> soundLut >> rhs.param;
   } break;
+  case FuncPlayHaptic: {
+    std::string haptic;
+    getline(def, haptic, ',');
+    try {
+      rhs.param = std::stoi(haptic);
+    } catch(...) {}
+  } break;
   case FuncPlayPrompt:
   case FuncPlayScript:
   case FuncBackgroundMusic: {
@@ -298,7 +308,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     std::string src_str;
     getline(def, src_str, ',');
     rhs.param = YamlRawSourceDecode(src_str).toValue();
-  } break; 
+  } break;
   case FuncAdjustGV1: {
     // + GV #
     int gvar_idx=0;
@@ -346,7 +356,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   if (def.peek() == ',') {
     def.ignore();
   }
-  
+
   if (fnHasEnable(rhs.func)) {
     int en = 0;
     def >> en;

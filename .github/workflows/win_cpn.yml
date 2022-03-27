@@ -3,8 +3,8 @@ name: Windows Companion
 on:
   push:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     tags:
       - v*
@@ -15,8 +15,8 @@ on:
 
   pull_request:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     paths:
       - '.github/workflows/win_cpn.yml'

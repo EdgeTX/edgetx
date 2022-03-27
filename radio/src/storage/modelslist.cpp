@@ -107,7 +107,7 @@ void ModelCell::setRfData(ModelData* model)
     }
     TRACE("<%s/%i> : %X,%X,%X",
           strlen(modelName) ? modelName : modelFilename,
-          i, moduleData[i].type, moduleData[i].rfProtocol, modelId[i]);
+          i, moduleData[i].type, moduleData[i].subType, modelId[i]);
   }
   valid_rfData = true;
 }
@@ -1229,7 +1229,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
 
   uint8_t modelId = modelCell->modelId[moduleIdx];
   uint8_t type = modelCell->moduleData[moduleIdx].type;
-  uint8_t rfProtocol = modelCell->moduleData[moduleIdx].rfProtocol;
+  uint8_t subType = modelCell->moduleData[moduleIdx].subType;
 
   uint8_t additionalOnes = 0;
   char* curr = warn_buf;
@@ -1297,7 +1297,7 @@ uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
   }
 
   uint8_t type = modelCell->moduleData[moduleIdx].type;
-  uint8_t rfProtocol = modelCell->moduleData[moduleIdx].rfProtocol;
+  uint8_t subType = modelCell->moduleData[moduleIdx].subType;
 
   uint8_t usedModelIds[(MAX_RXNUM + 7) / 8];
   memset(usedModelIds, 0, sizeof(usedModelIds));

@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 const char *ghstRfProfileValue[GHST_RF_PROFILE_COUNT] = { "Auto", "Norm", "Race", "Pure", "Long", "Unused", "Race2", "Pure2" };
 const char *ghstVtxBandName[GHST_VTX_BAND_COUNT] = { "- - -" , "IRC", "Race", "BandE", "BandB", "BandA" };
@@ -90,7 +91,7 @@ const GhostSensor ghostSensors[] = {
 
 uint8_t getGhostModuleAddr() {
 #if SPORT_MAX_BAUDRATE < 400000
-  return g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
+  return g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
 #else
   return GHST_ADDR_MODULE_SYM;
 #endif
@@ -321,18 +322,6 @@ void processGhostTelemetryFrame()
 
 void processGhostTelemetryData(uint8_t data)
 {
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    auxSerialPutc(data);
-  }
-#endif
-
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    aux2SerialPutc(data);
-  }
-#endif
-
   if (telemetryRxBufferCount == 0 && data != GHST_ADDR_RADIO) {
     TRACE("[GH] address 0x%02X error", data);
     return;

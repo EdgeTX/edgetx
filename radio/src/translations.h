@@ -115,9 +115,6 @@ extern const char STR_VTRIMINC[];
 extern const char STR_VDISPLAYTRIMS[];
 extern const char STR_RETA123[];
 
-#if defined(PCBSKY9X) && defined(REVX)
-extern const char STR_VOUTPUT_TYPE[];
-#endif
 
 extern const char STR_VBLMODE[];
 extern const char STR_VCURVEFUNC[];
@@ -199,6 +196,8 @@ extern const char STR_VPREC[];
 extern const char STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
 extern const char STR_ADCFILTERVALUES[];
+extern const char STR_FILE_SIZE[];
+extern const char STR_FILE_OPEN[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];
@@ -242,9 +241,6 @@ extern const char STR_TTRIM_SW[];
 extern const char STR_BEEPCTR[];
 extern const char STR_USE_GLOBAL_FUNCS[];
 
-#if defined(PCBSKY9X) && defined(REVX)
-  extern const char STR_OUTPUT_TYPE[];
-#endif
 
 extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
@@ -328,6 +324,7 @@ extern const char STR_BEEPCOUNTDOWN[];
 extern const char STR_PERSISTENT[];
 extern const char STR_BACKLIGHT_LABEL[];
 extern const char STR_GHOST_MENU_LABEL[];
+extern const char STR_STATUS[];
 extern const char STR_BLDELAY[];
 
 #if defined(PWM_BACKLIGHT) || defined(COLORLCD)
@@ -343,6 +340,8 @@ extern const char STR_PWR_OFF_DELAY[];
 extern const char STR_PWR_OFF_DELAYS[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
+extern const char STR_CUSTOM_THROTTLE_WARNING[];
+extern const char STR_CUSTOM_THROTTLE_WARNING_VAL[];
 extern const char STR_SWITCHWARNING[];
 extern const char STR_POTWARNINGSTATE[];
 extern const char STR_POTWARNING[];
@@ -614,6 +613,14 @@ extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
 extern const char STR_BACKUP_PATH[];
 extern const char STR_YAML_EXT[];
+extern const char STR_SELECT_TEMPLATE[];
+extern const char STR_SELECT_TEMPLATE_FOLDER[];
+extern const char STR_NO_TEMPLATES[];
+extern const char STR_SAVE_TEMPLATE[];
+extern const char STR_BLANK_MODEL[];
+extern const char STR_BLANK_MODEL_INFO[];
+extern const char STR_FILE_EXISTS[];
+extern const char STR_ASK_OVERWRITE[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
@@ -702,9 +709,10 @@ extern const char STR_FORMATTING[];
 extern const char STR_TEMP_CALIB[];
 extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
+extern const char STR_BAUDRATE[];
 extern const char STR_SAMPLE_MODE[];
 extern const char STR_SAMPLE_MODES[];
-extern const char STR_BAUDRATE[];
+extern const char STR_BLUETOOTH_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
 extern const char STR_SD_TYPE[];
 extern const char STR_SD_SPEED[];
@@ -717,11 +725,13 @@ extern const char STR_GLOBAL_VAR[];
 extern const char STR_OWN[];
 extern const char STR_DATE[];
 extern const char STR_ROTARY_ENCODER[];
+extern const char STR_INVERT_ROTARY[];
 extern const char STR_CHANNELS_MONITOR[];
 extern const char STR_MIXERS_MONITOR[];
 extern const char STR_PATH_TOO_LONG[];
 extern const char STR_VIEW_TEXT[];
 extern const char STR_FLASH_BOOTLOADER[];
+extern const char STR_FLASH_DEVICE[];
 extern const char STR_FLASH_EXTERNAL_DEVICE[];
 extern const char STR_FLASH_RECEIVER_OTA[];
 extern const char STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA[];
@@ -730,6 +740,12 @@ extern const char STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA[];
 extern const char STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA[];
 extern const char STR_FLASH_BLUETOOTH_MODULE[];
 extern const char STR_FLASH_POWER_MANAGEMENT_UNIT[];
+extern const char STR_DEVICE_NO_RESPONSE[];
+extern const char STR_DEVICE_FILE_ERROR[];
+extern const char STR_DEVICE_DATA_REFUSED[];
+extern const char STR_DEVICE_WRONG_REQUEST[];
+extern const char STR_DEVICE_FILE_REJECTED[];
+extern const char STR_DEVICE_FILE_WRONG_SIG[];
 extern const char STR_CURRENT_VERSION[];
 extern const char STR_FLASH_INTERNAL_MODULE[];
 extern const char STR_FLASH_INTERNAL_MULTI[];

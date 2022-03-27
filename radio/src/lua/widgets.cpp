@@ -29,9 +29,8 @@
 #include "api_colorlcd.h"
 #include "view_main.h"
 
-#define WIDGET_SCRIPTS_MAX_INSTRUCTIONS    (10000/100)
-#define MANUAL_SCRIPTS_MAX_INSTRUCTIONS    (20000/100)
-#define LUA_WARNING_INFO_LEN               64
+#define MAX_INSTRUCTIONS       (20000/100)
+#define LUA_WARNING_INFO_LEN    64
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
@@ -39,8 +38,6 @@
 #define EVT_TOUCH_SWIPE_SPEED   60
 #define EVT_TOUCH_SWIPE_TIMEOUT 50
 #endif
-
-constexpr int LUA_WIDGET_REFRESH = 1000 / 10; // 10 Hz
 
 lua_State * lsWidgets = NULL;
 
@@ -272,8 +269,7 @@ class LuaWidget: public Widget
   protected:
     int    luaWidgetDataRef;
     char * errorMessage;
-    uint32_t lastRefresh = 0;
-    bool     refreshed = false;
+    bool   refreshed = false;
 
     static eventData events[EVENT_BUFFER_SIZE];
 #if defined(HARDWARE_TOUCH)
@@ -334,7 +330,7 @@ class LuaWidgetFactory: public WidgetFactory
       if (lsWidgets == 0) return 0;
       initPersistentData(persistentData, init);
 
-      luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
+      luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
       lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunction);
 
       lua_newtable(lsWidgets);
@@ -399,16 +395,12 @@ void LuaWidget::checkEvents()
     refreshed = true;
   }
   
-  uint32_t now = RTOS_GET_MS();
-  if (now - lastRefresh >= LUA_WIDGET_REFRESH) {
-    lastRefresh = now;
-    refreshed = false;
-    invalidate();
+  refreshed = false;
+  invalidate();
 
 #if defined(DEBUG_WINDOWS)
     TRACE_WINDOWS("# refresh: %s", getWindowDebugString().c_str());
 #endif
-  }
 }
 
 void LuaWidget::update()
@@ -417,7 +409,7 @@ void LuaWidget::update()
   
   if (lsWidgets == 0 || errorMessage) return;
 
-  luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
@@ -471,7 +463,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
     return;
   }
 
-  luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->refreshFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
@@ -553,7 +545,7 @@ void LuaWidget::background()
   if (lsWidgets == 0 || errorMessage) return;
 
   // TRACE("LuaWidget::background()");
-  luaSetInstructionsLimit(lsWidgets, WIDGET_SCRIPTS_MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
   if (factory->backgroundFunction) {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->backgroundFunction);
@@ -713,7 +705,7 @@ void luaLoadFile(const char * filename, void (*callback)())
 
   TRACE("luaLoadFile(%s)", filename);
 
-  luaSetInstructionsLimit(lsWidgets, MANUAL_SCRIPTS_MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
 
   PROTECT_LUA() {
     if (luaLoadScriptFileToState(lsWidgets, filename, LUA_SCRIPT_LOAD_MODE) == SCRIPT_OK) {

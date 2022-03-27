@@ -53,13 +53,21 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
   gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, ed->weight, model, 100, -100, 100, 1.0,
                                 dialogFilteredItemModels->getItemModel(id));
+
   gvOffsetGroup = new GVarGroup(ui->offsetGV, ui->offsetSB, ui->offsetCB, ed->offset, model, 0, -100, 100, 1.0,
                                 dialogFilteredItemModels->getItemModel(id));
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
-  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ed->curve, model,
-                                           curveRefFilteredItemModels, this);
+
+  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ui->curveImage, ed->curve, model,
+                                           sharedItemModels, curveRefFilteredItemModels, this);
+
+
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
 
   id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                                          RawSwitch::MixesContext), "RawSwitch");
@@ -143,14 +151,16 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   connect(ui->trimCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->switchesCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->sideCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
     connect(cb_fp[i], SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
   }
+
   if (firmware->getCapability(VirtualInputs)) {
     connect(ui->inputName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   }
 
-  QTimer::singleShot(0, this, SLOT(shrink()));
+  adjustSize();
 }
 
 ExpoDialog::~ExpoDialog()
@@ -222,11 +232,6 @@ void ExpoDialog::valuesChanged()
 
     lock = false;
   }
-}
-
-void ExpoDialog::shrink()
-{
-  resize(0, 0);
 }
 
 void ExpoDialog::label_phases_customContextMenuRequested(const QPoint & pos)

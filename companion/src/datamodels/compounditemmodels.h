@@ -67,20 +67,21 @@ class AbstractItemModel: public QStandardItemModel
     Q_ENUM(ItemModelDataGroups)
 
     enum ItemModelUpdateEvent {
-      IMUE_None            = 0,
-      IMUE_SystemRefresh   = 1 << 0,
-      IMUE_Channels        = 1 << 1,
-      IMUE_Curves          = 1 << 2,
-      IMUE_FlightModes     = 1 << 3,
-      IMUE_GVars           = 1 << 4,
-      IMUE_Inputs          = 1 << 5,
-      IMUE_LogicalSwitches = 1 << 6,
-      IMUE_Scripts         = 1 << 7,
-      IMUE_TeleSensors     = 1 << 8,
-      IMUE_Timers          = 1 << 9,
-      IMUE_Modules         = 1 << 10,
-      IMUE_All             = IMUE_SystemRefresh | IMUE_Channels | IMUE_Curves | IMUE_FlightModes | IMUE_GVars | IMUE_Inputs |
-                             IMUE_LogicalSwitches | IMUE_Scripts | IMUE_TeleSensors | IMUE_Timers | IMUE_Modules
+       IMUE_None               = 0,
+       IMUE_SystemRefresh      = 1 << 0,
+       IMUE_Channels           = 1 << 1,
+       IMUE_Curves             = 1 << 2,
+       IMUE_FlightModes        = 1 << 3,
+       IMUE_GVars              = 1 << 4,
+       IMUE_Inputs             = 1 << 5,
+       IMUE_LogicalSwitches    = 1 << 6,
+       IMUE_Scripts            = 1 << 7,
+       IMUE_TeleSensors        = 1 << 8,
+       IMUE_Timers             = 1 << 9,
+       IMUE_Modules            = 1 << 10,
+       IMUE_FunctionSwitches   = 1 << 11,
+       IMUE_All                = IMUE_SystemRefresh | IMUE_Channels | IMUE_Curves | IMUE_FlightModes | IMUE_GVars | IMUE_Inputs |
+                                 IMUE_LogicalSwitches | IMUE_Scripts | IMUE_TeleSensors | IMUE_Timers | IMUE_Modules | IMUE_FunctionSwitches
     };
     Q_ENUM(ItemModelUpdateEvent)
 

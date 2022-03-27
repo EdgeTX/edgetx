@@ -110,12 +110,20 @@ const uint32_t CROSSFIRE_BAUDRATES[] = {
   3750000,
   5250000,
 };
+
+#if defined(RADIO_TPRO)
+#define CROSSFIRE_MAX_INTERNAL_BAUDRATE     DIM(CROSSFIRE_BAUDRATES) - 3
+#else
+#define CROSSFIRE_MAX_INTERNAL_BAUDRATE     DIM(CROSSFIRE_BAUDRATES) - 1
+#endif
+
 const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   16,
   4,
-  4,
-  4,
-  4,
+  2,
+  2,
+  2,
+  2,
 };
 #if SPORT_MAX_BAUDRATE < 400000
   // index 0 (115200) is the default 0 value
@@ -131,8 +139,9 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
 
-#define CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)]
-#define CROSSFIRE_PERIOD      (CROSSFIRE_FRAME_PERIODS[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)] * 1000)
+#define INT_CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)]
+#define EXT_CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)]
+#define CROSSFIRE_PERIOD          (CROSSFIRE_FRAME_PERIODS[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)] * 1000)
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
 

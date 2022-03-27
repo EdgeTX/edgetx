@@ -34,9 +34,7 @@
 
 #include "board.h"
 
-#if defined(STM32)
 #include "usbd_conf.h"
-#endif
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -48,20 +46,6 @@
   #define SWITCH_SIMU(a, b)  (a)
 #else
   #define SWITCH_SIMU(a, b)  (b)
-#endif
-
-#if defined(PCBSKY9X)
-  #define IS_PCBSKY9X        true
-  #define CASE_PCBSKY9X(x)   x,
-#else
-  #define IS_PCBSKY9X        false
-  #define CASE_PCBSKY9X(x)
-#endif
-
-#if defined(STM32)
-  #define CASE_STM32(x)     x,
-#else
-  #define CASE_STM32(x)
 #endif
 
 #if defined(VARIO)
@@ -196,12 +180,7 @@
   #define CASE_PCBX9E(x)
 #endif
 
-#if defined(PCBSKY9X) && !defined(PCBAR9X)
-  #define TX_CAPACITY_MEASUREMENT
-  #define CASE_CAPACITY(x) x,
-#else
   #define CASE_CAPACITY(x)
-#endif
 
 #if defined(FAI)
   #define IS_FAI_ENABLED() true
@@ -394,6 +373,7 @@ inline bool SPLASH_NEEDED()
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
+  #define CASE_ROTARY_ENCODER(x) x,
   #define IS_ROTARY_ENCODER_NAVIGATION_ENABLE()  true
   extern volatile rotenc_t rotencValue;
   #define ROTARY_ENCODER_NAVIGATION_VALUE        rotencValue
@@ -402,8 +382,11 @@ inline bool SPLASH_NEEDED()
   #define ROTENC_HIGHSPEED             50
   #define ROTENC_DELAY_MIDSPEED        32
   #define ROTENC_DELAY_HIGHSPEED       16
-#elif defined(RADIO_T8)
-  constexpr uint8_t rotencSpeed = 1;
+#else
+  #define CASE_ROTARY_ENCODER(x)
+  #if defined(RADIO_T8)
+    constexpr uint8_t rotencSpeed = 1;
+  #endif
 #endif
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
@@ -579,11 +562,7 @@ int getTrimValue(uint8_t phase, uint8_t idx);
 
 bool setTrimValue(uint8_t phase, uint8_t idx, int trim);
 
-#if defined(PCBSKY9X)
-  #define ROTARY_ENCODER_GRANULARITY (2 << g_eeGeneral.rotarySteps)
-#else
   #define ROTARY_ENCODER_GRANULARITY (2)
-#endif
 
 #include "gvars.h"
 
@@ -606,18 +585,6 @@ void flightReset(uint8_t check=true);
 #else
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
 #endif
-
-#if defined(SIMU)
-  uint16_t getTmr2MHz();
-  uint16_t getTmr16KHz();
-#elif defined(STM32)
-  static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
-#elif defined(PCBSKY9X)
-  static inline uint16_t getTmr2MHz() { return TC1->TC_CHANNEL[0].TC_CV; }
-#else
-  uint16_t getTmr16KHz();
-#endif
-
 
 #if defined(SPLASH)
   void doSplash();
@@ -875,10 +842,6 @@ enum AUDIO_SOUNDS {
   AU_SERVO_KO,
   AU_RX_OVERLOAD,
   AU_MODEL_STILL_POWERED,
-#if defined(PCBSKY9X)
-  AU_TX_MAH_HIGH,
-  AU_TX_TEMP_HIGH,
-#endif
   AU_ERROR,
   AU_WARNING1,
   AU_WARNING2,
@@ -962,10 +925,6 @@ enum AUDIO_SOUNDS {
 #include "rtc.h"
 #endif
 
-#if defined(REVX)
-void setMFP();
-void clearMFP();
-#endif
 
 void checkBattery();
 void opentxClose(uint8_t shutdown=true);
@@ -1060,12 +1019,10 @@ union ReusableBuffer
   } sdManager;
 #endif
 
-#if defined(STM32)
   struct
   {
     char id[27];
   } version;
-#endif
 
   // moduleOptions, receiverOptions, radioVersion
   PXX2HardwareAndSettings hardwareAndSettings;
@@ -1141,10 +1098,8 @@ union ReusableBuffer
     ModuleInformation internalModule;
   } viewMain;
 
-#if defined(STM32)
   // Data for the USB mass storage driver. If USB mass storage runs no menu is not allowed to be displayed
   uint8_t MSC_BOT_Data[MSC_MEDIA_PACKET];
-#endif
 };
 
 extern ReusableBuffer reusableBuffer;
@@ -1224,9 +1179,7 @@ void varioWakeup();
   extern const unsigned char logo_taranis[];
 #endif
 
-#if defined(STM32)
 void usbPluggedIn();
-#endif
 
 #include "lua/lua_api.h"
 

@@ -99,9 +99,10 @@ enum {
   ITEM_RADIO_SETUP_IMPERIAL,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI)
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
-  CASE_STM32(ITEM_RADIO_SETUP_USB_MODE)
+  ITEM_RADIO_SETUP_USB_MODE,
   CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE)
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
+  CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_INVERSE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
   ITEM_RADIO_SETUP_MAX
@@ -173,8 +174,9 @@ void menuRadioSetup(event_t event)
     CASE_PXX1(0)
     0, 0, IF_FAI_CHOICE(0)
     0,
-    CASE_STM32(0) // USB mode
+    0, // USB mode
     CASE_JACK_DETECT(0) // Jack mode
+    CASE_ROTARY_ENCODER(0)
     0, COL_TX_MODE, 0, 1/*to force edit mode*/});
 
   if (event == EVT_ENTRY) {
@@ -621,11 +623,9 @@ void menuRadioSetup(event_t event)
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.switchesDelay, -15, 100-15);
         break;
 
-#if defined(STM32)
       case ITEM_RADIO_SETUP_USB_MODE:
         g_eeGeneral.USBMode = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_USBMODE, STR_USBMODES, g_eeGeneral.USBMode, USB_UNSELECTED_MODE, USB_MAX_MODE, attr, event);
         break;
-#endif
 
 #if defined(JACK_DETECT_GPIO)
       case ITEM_RADIO_SETUP_JACK_MODE:
@@ -659,6 +659,12 @@ void menuRadioSetup(event_t event)
         }
 #endif
         break;
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+      case ITEM_RADIO_SETUP_ROTARY_INVERSE:
+        g_eeGeneral.rotEncDirection = editCheckBox(g_eeGeneral.rotEncDirection, RADIO_SETUP_2ND_COLUMN, y, STR_INVERT_ROTARY, attr, event);
+        break;
+#endif
 
       case ITEM_RADIO_SETUP_STICK_MODE:
         lcdDrawChar(2*FW, y, '1'+reusableBuffer.generalSettings.stickMode, attr);

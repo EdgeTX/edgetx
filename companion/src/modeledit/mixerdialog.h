@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MIXERDIALOG_H_
-#define _MIXERDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "eeprominterface.h"
@@ -46,7 +45,6 @@ class MixerDialog : public QDialog {
 
   private slots:
     void valuesChanged();
-    void shrink();
     void label_phases_customContextMenuRequested(const QPoint & pos);
     void fmClearAll();
     void fmSetAll();
@@ -66,5 +64,3 @@ class MixerDialog : public QDialog {
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
 };
-
-#endif // _MIXERDIALOG_H_

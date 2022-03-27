@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This program parses sport.log files
+# This program parses CRSF capture data
 
 from __future__ import division, print_function
 
 import sys, struct
+import argparse
 
 lineNumber = 0
-crossfireDataBuff = []
+timeData = 0
+prevTimeData = 0
 
 crossfire_types = [
     "UINT8",
@@ -86,8 +88,14 @@ def ParseBattery(payload):
     consumption = (payload[4] << 16) + (payload[5] << 8) + payload[6]
     return "[Battery] %.1fV %.1fA %dmAh" % (voltage, current, consumption)
 
+def ParseVtxTelem(payload):
+    return "[VTX Telemetry] freq=%d, power=%d, pitmode=%d" % (int.from_bytes(payload[1:3], 'big'), int(payload[3]), int(payload[4]))
+
 def ParseLinkStatistics(payload):
     return "[Link Statistics] "
+
+def ParseChannels(payload):
+    return "[Channel Data] "
 
 def ParseAttitude(payload):
     pitch = float((payload[0] << 8) + payload[1]) / 1000
@@ -102,61 +110,107 @@ def ParsePingDevices(_):
     return '[Ping Devices]'
 
 def ParseDevice(payload):
-    return '[Device] 0x%02x "%s" %d parameters' % (payload[1], "".join([chr(c) for c in payload[2:-14]]), payload[-1])
+    return '[Device] 0x%02x "%s" %d parameters' % (payload[1], "".join([chr(c) for c in payload[2:-14]]), payload[-2])
+
+def ParseRadioId(payload):
+    return '[RadioId] subcmd 0x%02x, interval %d, correction %d' % \
+            (payload[2], int.from_bytes(payload[3:7], 'big')/10, int.from_bytes(payload[7:11], 'big', signed=True)/10)
+
+def ParseCommand(payload):
+    if payload[2]==0x10 and payload[3]==5:
+        return '[Command] subcmd 0x10,0x05, set ModelId, data %d' % (payload[4])
+    return '[Command] subcmd 0x%02x, datatype 0x%02x, data %d' % \
+            (payload[2], payload[3], payload[4])
 
 def ParseFieldsRequest(payload):
     return '[Fields request]'
 
 def ParseFieldRequest(payload):
-    return '[Field request] device=0x%02x field=%d' % (payload[1], payload[2])
+    return '[Field request] device=0x%02x field=%d chunk=%d' % (payload[1], payload[2], payload[3])
 
+def ParseFieldUpdate(payload):
+    return '[Field update] device=0x%02x field=%d' % (payload[1], payload[2])
+
+def ParseELRSInfo(payload):
+    return '[ELRS info] device=0x%02x bad=%d, good=%d, flags=0x%02x, flag_str=%s' % (payload[1], payload[2],
+            int.from_bytes(payload[3:5], 'big'), payload[5], ''.join(map(chr, payload[6:-2])))
+
+fieldBuff = []
 def ParseField(payload):
+    global fieldBuff
+
+    fieldBuff += payload[4:]
+    if payload[3] != 0:
+        return '[Field] device=0x%02x field=%d chunk=%d' % (payload[1], payload[2], payload[3])
+
     name = ""
-    i = 6
+    i = 2
     try:
-        while payload[i] != 0:
-            name += chr(payload[i])
+        while fieldBuff[i] != 0:
+            name += chr(fieldBuff[i])
             i += 1
         i += 1
-        return '[Field] %s device=0x%02x field=%d parent=%d type=%s' % (name, payload[1], payload[2], payload[4], crossfire_types[payload[5] & 0x7f])
-    except:
+        retstr = '[Field] %s device=0x%02x field=%d parent=%d type=%s' % (name, payload[1], payload[2], fieldBuff[0], crossfire_types[fieldBuff[1] & 0x7f])
+        fieldBuff = []
+        return retstr
+    except Exception as inst:
+        print(type(inst))    # the exception instance
+        print(inst.args)     # arguments stored in .args
+        print(inst)          # __str__ allows args to be printed directly,
+#...                          # but may be overridden in exception subclasses
+        print("i: ", i)
+        print("len(payload): ", len(payload))
+        if i < len(payload):
+            print("payload[i-1]: ", payload[i-1])
         return '[Exception]'
 
-parsers = (
-    (0x02, ParseGPS),
-    (0x08, ParseBattery),
-    (0x14, ParseLinkStatistics),
-    (0x1E, ParseAttitude),
-    (0x21, ParseFlightMode),
-    (0x28, ParsePingDevices),
-    (0x29, ParseDevice),
-    (0x2a, ParseFieldsRequest),
-    (0x2b, ParseField),
-    (0x2c, ParseFieldRequest),
-)
+parsers = {
+    0x02: ParseGPS,
+    0x08: ParseBattery,
+    0x10: ParseVtxTelem,
+    0x14: ParseLinkStatistics,
+    0x16: ParseChannels,
+    0x1E: ParseAttitude,
+    0x21: ParseFlightMode,
+    0x28: ParsePingDevices,
+    0x29: ParseDevice,
+    0x2a: ParseFieldsRequest,
+    0x2b: ParseField,
+    0x2c: ParseFieldRequest,
+    0x2d: ParseFieldUpdate,
+    0x2e: ParseELRSInfo,
+    0x32: ParseCommand,
+    0x3a: ParseRadioId,
+}
 
 def ParsePacket(packet):
+    global timeData, prevTimeData
     length = packet[1]
     command = packet[2]
     payload = packet[3:-1]
     crc = packet[-1]
+    diffTime = timeData - prevTimeData
+    prefix = '(%d)' % lineNumber if timeData == 0 else '%10.6f [%9.6f]' % (timeData, diffTime)
+    prevTimeData = timeData
+    timeData = 0
     if crc != crc8(packet[2:-1]):
-        print("[%s]" % timeData, dump(packet), "[CRC error]")
+        print(prefix, dump(packet), "[CRC error]")
         return
-    for id, parser in parsers:
-        if id == command:
-            print("[%s]" % timeData, dump(packet), parser(payload))
-            return
-    print("(%d)" % lineNumber, dump(packet))
+    if args.ignore and command == 0x16:
+        return
+    parser = parsers.get(command, None)
+    if parser != None:
+        print(prefix, dump(packet), parser(payload))
+    else:
+        print(prefix, dump(packet), '[Unknown Command 0x%0x]' % command)
 
+crossfireDataBuff = []
+chunkedBuffer = []
 def ParseData(data):
     global crossfireDataBuff
-    # convert from hex
-    parts = data.split(' ')
-    binData = [int(hex, 16) for hex in parts]
-    # print binData
-    crossfireDataBuff += binData
-    # process whole packets
+    crossfireDataBuff += data
+    # build packet for parsing
+    # separate buffers for data sources so chunked data handled correctly
     while len(crossfireDataBuff) > 4:
         if crossfireDataBuff[0] != 0x00 and crossfireDataBuff[0] != 0xee and crossfireDataBuff[0] != 0xea:
             print("Skipped 1 byte", dump(crossfireDataBuff[:1]))
@@ -172,31 +226,89 @@ def ParseData(data):
         ParsePacket(crossfireDataBuff[:length+2])
         crossfireDataBuff = crossfireDataBuff[length+2:]
 
-inputFile = None
-
-if len(sys.argv) > 1:
-    inputFile = sys.argv[1]
-
-# open input
-if inputFile:
-    inp = open(inputFile, 'r')
-else:
-    inp = sys.stdin
-
-while True:
+def readSport(inp):
+    global timeData
     line = inp.readline()
     lineNumber += 1
     if len(line) == 0:
-        break
+        return
     line = line.strip('\r\n')
     if len(line) == 0:
-        continue
-    # print line
+        return
     parts = line.split(': ')
     if len(parts) < 2:
         print("weird data: \"%s\" at line %d" % (line, lineNumber))
-        continue
-    timeData = parts[0].strip()
+        return
+    timeData = float(parts[0].strip())
     crossfireData = parts[1].strip()
-    # print "sd: %s" % sportData
+    # convert from hex
+    parts = crossfireData.split(' ')
+    binData = [int(hex, 16) for hex in parts]
+    return binData
+
+def readCsv(inp):
+    global lineNumber
+    global timeData
+    crossfireData = []
+    line = inp.readline()
+    if ('Value' in line):
+        line = inp.readline()
+    lineNumber += 1
+    line = "".join(line.split())
+    parts = line.split(',')
+    if len(parts) < 2:
+        return []
+    crossfireData = [int(parts[1][2:4],16)]
+    if timeData == 0:
+        timeData = float(parts[0].strip())
+    return crossfireData
+
+def readHex(inp):
+    global lineNumber
+    crossfireData = []
+    line = inp.readline()
+    lineNumber += 1
+    line = "".join(line.split())
+    crossfireData = [int(hex,16) for hex in [line[i:i+2] for i in range(0, len(line), 2)]]
+    return crossfireData
+
+def readBinary(inp):
+    crossfireData = []
+    while (b := inp.read(1)):
+        crossfireData += b
+    return crossfireData
+
+
+# execution starts here
+parser = argparse.ArgumentParser()
+parser.add_argument('inputFile', default='stdin', help='Input file with capture data (stdin works)')
+parser.add_argument('-f', '--format', default='sport',
+                    choices=['bin', 'hex', 'csv', 'sport'],
+                    help='Type of input file. bin=binary, hex=ascii hex, csv=salae async serial export, sport=s.port log')
+parser.add_argument('-i', '--ignore', action="store_true",
+                    help='Ignore rc data (stick) packets')
+args = parser.parse_args()
+
+# open input
+if args.inputFile == 'stdin':
+    if args.format == 'bin':
+        inp = sys.stdin.buffer
+    else:
+        inp = sys.stdin
+else:
+    if args.format == 'bin':
+        inp = open(args.inputFile, 'rb')
+    else:
+        inp = open(args.inputFile, 'r')
+
+if args.format == 'sport':
+    get_data = readSport
+elif args.format == 'csv':
+    get_data = readCsv
+elif args.format == 'bin':
+    get_data = readBinary
+else:
+    get_data = readHex
+
+while (crossfireData := get_data(inp)):
     ParseData(crossfireData)

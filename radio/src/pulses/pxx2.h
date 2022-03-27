@@ -27,6 +27,9 @@
 #include "popups.h"
 #include "./pxx.h"
 
+#include "hal/serial_driver.h"
+#include "hal/module_driver.h"
+
 #define PXX2_TYPE_C_MODULE                  0x01
   #define PXX2_TYPE_ID_REGISTER             0x01
   #define PXX2_TYPE_ID_BIND                 0x02
@@ -465,11 +468,11 @@ class Pxx2Pulses: public Pxx2Transport {
   friend class Pxx2OtaUpdate;
 
   public:
-    bool setupFrame(uint8_t module);
+    bool setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
     void setupAuthenticationFrame(uint8_t module, uint8_t mode, const uint8_t * outputMessage);
 
   protected:
-    void setupHardwareInfoFrame(uint8_t module);
+    void setupHardwareInfoFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void setupRegisterFrame(uint8_t module);
 
@@ -481,11 +484,11 @@ class Pxx2Pulses: public Pxx2Transport {
 
     void setupShareMode(uint8_t module);
 
-    void setupModuleSettingsFrame(uint8_t module);
+    void setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
-    void setupReceiverSettingsFrame(uint8_t module);
+    void setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
-    void setupChannelsFrame(uint8_t module);
+    void setupChannelsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void setupTelemetryFrame(uint8_t module);
 
@@ -517,7 +520,7 @@ class Pxx2Pulses: public Pxx2Transport {
 
     void addPulsesValues(uint16_t low, uint16_t high);
 
-    void addChannels(uint8_t module);
+    void addChannels(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void addFailsafe(uint8_t module);
 
@@ -574,5 +577,11 @@ class Pxx2OtaUpdate {
     bool waitStep(uint8_t step, uint8_t timeout);
     const char * nextStep(uint8_t step, const char * rxName, uint32_t address, const uint8_t * buffer);
 };
+
+extern const etx_serial_init pxx2SerialInitParams;
+
+extern const etx_module_driver_t Pxx2InternalDriver;
+extern const etx_module_driver_t Pxx2ExternalDriver;
+extern const etx_module_driver_t Pxx2LowSpeedExternalDriver;
 
 #endif

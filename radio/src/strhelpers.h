@@ -26,6 +26,7 @@
 #include "opentx_types.h"
 
 #include <string>
+#include <cstring>
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
@@ -75,12 +76,16 @@ char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
-char *getSourceString(char *dest, mixsrc_t idx);
+
+template<size_t L>
+char *getSourceString(char (&dest)[L], mixsrc_t idx);
+
 int  getRawSwitchIdx(char sw);
 char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);
+
 #define SWITCH_WARNING_STR_SIZE 3
 // char *getSwitchWarningString(char *dest, swsrc_t idx);
 
@@ -96,4 +101,16 @@ template<size_t N>
 std::string stringFromNtString(const char (&a)[N]) {
     return std::string(a, strnlen(a, N));        
 }    
+template<size_t L>
+void copyToUnTerminated(char (&dest)[L], const char* const src) {
+    strncpy(dest, src, L);
+}
+template<size_t L>
+void copyToUnTerminated(char (&dest)[L], const std::string& src) {
+    strncpy(dest, src.c_str(), L);
+}
+template<typename S>
+void clearStruct(S& s) {
+    memset((void*) &s, 0, sizeof(S));
+}
 #endif  // _STRHELPERS_H_

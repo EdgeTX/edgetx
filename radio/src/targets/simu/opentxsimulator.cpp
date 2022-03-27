@@ -277,6 +277,8 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
+  (g_eeGeneral.rotEncDirection ? steps *= -1 : steps);
+
   ROTARY_ENCODER_NAVIGATION_VALUE += steps * ROTARY_ENCODER_GRANULARITY;
 #else
   // TODO : this should probably be handled in the GUI
@@ -633,7 +635,7 @@ const int OpenTxSimulator::voltageToAdc(const int volts)
   int ret = 0;
 #if defined(PCBHORUS) || defined(PCBX7)
   ret = (float)volts * 16.2f;
-#elif defined(PCBTARANIS) || defined(PCBSKY9X)
+#elif defined(PCBTARANIS)
   ret = (float)volts * 13.3f;
 #else
   ret = (float)volts * 14.15f;

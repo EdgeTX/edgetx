@@ -108,6 +108,7 @@ struct MultiModuleStatus {
   uint8_t flags;
   uint8_t requiresFailsafeCheck;
   uint8_t failsafeChecked;
+  uint8_t isRXProto;
   tmr10ms_t lastUpdate;
 
   uint8_t protocolPrev = 0;

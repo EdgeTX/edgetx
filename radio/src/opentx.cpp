@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -31,9 +32,6 @@
   #include "view_text.h"
 #endif
 
-#if defined(PCBSKY9X)
-#include "audio_driver.h"
-#endif
 
 extern uint16_t get_flysky_hall_adc_value(uint8_t ch);
 
@@ -56,9 +54,7 @@ safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 // __DMA for the MSC_BOT_Data member
 union ReusableBuffer reusableBuffer __DMA;
 
-#if defined(STM32)
 uint8_t* MSC_BOT_Data = reusableBuffer.MSC_BOT_Data;
-#endif
 
 #if defined(DEBUG_LATENCY)
 uint8_t latencyToggleSwitch = 0;
@@ -156,15 +152,6 @@ void per10ms()
   /* Update global Date/Time every 100 per10ms cycles */
   if (++g_ms100 == 100) {
     g_rtcTime++;   // inc global unix timestamp one second
-#if defined(COPROCESSOR)
-    if (g_rtcTime < 60 || rtc_count<5) {
-      rtcInit();
-      rtc_count++;
-    }
-    else {
-      coprocReadData(true);
-    }
-#endif
     g_ms100 = 0;
   }
 #endif
@@ -274,8 +261,11 @@ void memswap(void * a, void * b, uint8_t size)
 #if defined(PXX2)
 void setDefaultOwnerId()
 {
+  uint8_t ch;
   for (uint8_t i = 0; i < PXX2_LEN_REGISTRATION_ID; i++) {
-     g_eeGeneral.ownerRegistrationID[i] = (((uint8_t *)cpu_uid)[4 + i] & 0x3fu);
+    ch = ((uint8_t *)cpu_uid)[4+i]&0x7f;
+    if(ch<0x20 || ch==0x7f) ch='-';
+    g_eeGeneral.ownerRegistrationID[PXX2_LEN_REGISTRATION_ID-1-i] = ch;
   }
 }
 #endif
@@ -283,8 +273,6 @@ void setDefaultOwnerId()
 void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
-  g_eeGeneral.version  = EEPROM_VER;
-  g_eeGeneral.variant = EEPROM_VARIANT;
 
 #if defined(PCBHORUS)
   g_eeGeneral.blOffBright = 20;
@@ -602,11 +590,6 @@ void doSplash()
     resetBacklightTimeout();
     drawSplash();
 
-#if defined(PCBSKY9X)
-    tmr10ms_t curTime = get_tmr10ms() + 10;
-    uint8_t contrast = 10;
-    lcdSetRefVolt(contrast);
-#endif
 
     getADC(); // init ADC array
 
@@ -640,15 +623,6 @@ void doSplash()
       }
 #endif
 
-#if defined(PCBSKY9X)
-      if (curTime < get_tmr10ms()) {
-        curTime += 10;
-        if (contrast < g_eeGeneral.contrast) {
-          contrast += 1;
-          lcdSetRefVolt(contrast);
-        }
-      }
-#endif
 
       checkBacklight();
     }
@@ -675,7 +649,6 @@ void checkMultiLowPower()
 }
 #endif
 
-#if defined(STM32)
 static void checkRTCBattery()
 {
   GET_ADC_IF_MIXER_NOT_RUNNING();
@@ -683,7 +656,6 @@ static void checkRTCBattery()
     ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
   }
 }
-#endif
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
@@ -718,13 +690,11 @@ void checkAll()
   checkFailsafe();
 
 
-#if defined(STM32)
   if (isVBatBridgeEnabled() && !g_eeGeneral.disableRtcWarning) {
     // only done once at board start
     checkRTCBattery();
   }
   disableVBatBridge();
-#endif
 
   if (g_model.displayChecklist && modelHasNotes()) {
     readModelNotes();
@@ -813,18 +783,32 @@ bool isThrottleWarningAlertNeeded()
   if (g_model.thrTraceSrc && g_model.throttleReversed) { // TODO : proper review of THR source definition and handling
     v = -v;
   }
-  return v > THRCHK_DEADBAND - 1024;
+
+  if (g_model.enableCustomThrottleWarning) {
+    int16_t idleValue = (int32_t)RESX * (int32_t)g_model.customThrottleWarningPosition / (int32_t)100;
+    return abs(v - idleValue) > THRCHK_DEADBAND;
+  }
+  else {
+    return v > THRCHK_DEADBAND - RESX;
+  }
 }
 
 #if defined(COLORLCD)
 void checkThrottleStick()
 {
+  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
   if (isThrottleWarningAlertNeeded()) {
+    if (g_model.enableCustomThrottleWarning) {
+    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
+    }
+    else {
+      strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
+    }
     LED_ERROR_BEGIN();
     AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
     auto dialog =
         new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE,
-                             STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP);
+                             throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
     dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
     dialog->runForever();
     LED_ERROR_END();
@@ -833,13 +817,19 @@ void checkThrottleStick()
 #else
 void checkThrottleStick()
 {
+  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
   if (!isThrottleWarningAlertNeeded()) {
     return;
   }
-
+  if (g_model.enableCustomThrottleWarning) {
+    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
+  }
+  else {
+    strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
+  }
   // first - display warning; also deletes inputs if any have been before
   LED_ERROR_BEGIN();
-  RAISE_ALERT(TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
+  RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;
@@ -861,7 +851,7 @@ void checkThrottleStick()
       refresh = true;
     }
     else if (power == e_power_on && refresh) {
-      RAISE_ALERT(TR_THROTTLE_UPPERCASE, STR_THROTTLE_NOT_IDLE, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+      RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
       refresh = false;
     }
 #else
@@ -1147,12 +1137,12 @@ void getADC()
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
     uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
+    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
        // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
     } else {
       // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
     }
 
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
@@ -1290,11 +1280,6 @@ void doMixerCalculations()
   getSwitchesPosition(!s_mixer_first_run_done);
   DEBUG_TIMER_STOP(debugTimerGetSwitches);
 
-#if defined(PCBSKY9X) && !defined(SIMU)
-  Current_analogue = (Current_analogue*31 + s_anaFilt[8] ) >> 5 ;
-  if (Current_analogue > Current_max)
-    Current_max = Current_analogue ;
-#endif
 
 
   DEBUG_TIMER_START(debugTimerEvalMixes);
@@ -1452,11 +1437,6 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
   trace_event(trace_start, 0x12345678);
 #endif
 
-#if defined(PCBSKY9X) && defined(SDCARD) && !defined(SIMU)
-  for (int i=0; i<500 && !Card_initialized; i++) {
-    RTOS_WAIT_MS(2); // 2ms
-  }
-#endif
 
 #if defined(TEST_BUILD_WARNING)
   ALERT(STR_TEST_WARNING, TR_TEST_NOTSAFE, AU_ERROR);
@@ -1513,12 +1493,6 @@ void opentxClose(uint8_t shutdown)
     sessionTimer = 0;
   }
 
-#if defined(PCBSKY9X)
-  uint32_t mAhUsed = g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration) / 8192 / 36;
-  if (g_eeGeneral.mAhUsed != mAhUsed) {
-    g_eeGeneral.mAhUsed = mAhUsed;
-  }
-#endif
 
   g_eeGeneral.unexpectedShutdown = 0;
   storageDirty(EE_GENERAL);
@@ -1550,7 +1524,6 @@ void opentxClose(uint8_t shutdown)
 #endif
 }
 
-#if defined(STM32)
 void opentxResume()
 {
   TRACE("opentxResume");
@@ -1583,7 +1556,6 @@ void opentxResume()
     storageDirty(EE_GENERAL);
   }
 }
-#endif
 
 #define INSTANT_TRIM_MARGIN 10 /* around 1% */
 
@@ -1697,9 +1669,6 @@ void copyMinMaxToOutputs(uint8_t ch)
 
 inline uint32_t PWR_PRESS_DURATION_MIN()
 {
-  if (g_eeGeneral.version != EEPROM_VER)
-    return 200;
-
   return (2 - g_eeGeneral.pwrOnSpeed) * 100;
 }
 
@@ -1844,7 +1813,7 @@ void opentxInit()
       runFatalErrorScreen(STR_NO_SDCARD);
     }
 #endif
-    
+
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -1900,14 +1869,8 @@ void opentxInit()
 #endif
 #endif  // #if !defined(EEPROM)
 
-#if defined(AUX_SERIAL)
-  auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
-#endif
-
-#if defined(AUX2_SERIAL)
-  aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
-#endif
-
+  initSerialPorts();
+  
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)
@@ -1918,14 +1881,7 @@ void opentxInit()
   audioQueue.start();
   BACKLIGHT_ENABLE();
 
-#if defined(PCBSKY9X)
-  // Set ADC gains here
-  setSticksGain(g_eeGeneral.sticksGain);
-#endif
 
-#if defined(PCBSKY9X) && defined(BLUETOOTH)
-  btInit();
-#endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
   SPORT_UPDATE_POWER_INIT();
@@ -1984,7 +1940,6 @@ int main()
   initialise_monitor_handles();
 #endif
 
-#if defined(STM32)
 
 #if !defined(SIMU)
   /* Ensure all priority bits are assigned as preemption priority bits. */
@@ -1999,7 +1954,6 @@ int main()
         sizeof(reusableBuffer.hardwareAndSettings),
         sizeof(reusableBuffer.spectrumAnalyser),
         sizeof(reusableBuffer.MSC_BOT_Data));
-#endif
 
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's
   // important to disable it before commencing with system initialisation (or
@@ -2082,6 +2036,10 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
+    if (g_eeGeneral.backlightMode == e_backlight_mode_keys ||
+        g_eeGeneral.backlightMode == e_backlight_mode_all)
+      resetBacklightTimeout();
+
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }

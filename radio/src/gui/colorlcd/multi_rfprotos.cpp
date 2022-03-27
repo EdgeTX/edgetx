@@ -85,7 +85,7 @@ MultiProtoChoice::MultiProtoChoice(FormGroup* parent, const rect_t& rect,
                                    std::function<void()> updateForm) :
     Choice(
         parent, rect, 0, 0,
-        [=] { return g_model.moduleData[moduleIdx].getMultiProtocol(); },
+        [=] { return g_model.moduleData[moduleIdx].multi.rfProtocol; },
         setValue),
     moduleIdx(moduleIdx)
 {
@@ -118,7 +118,7 @@ void MultiProtoChoice::openMenu()
       addProto(p.proto, p.label.c_str());
     });
 
-  int idx = protos->getIndex(g_model.moduleData[moduleIdx].getMultiProtocol());
+  int idx = protos->getIndex(g_model.moduleData[moduleIdx].multi.rfProtocol);
   if (idx >= 0) menu->select(idx);
 }
 

@@ -48,6 +48,7 @@ class HardwarePanel : public GeneralPanel
     QGridLayout *grid;
     AutoComboBox *internalModule;
     unsigned int m_internalModule = 0;
+    AutoComboBox *internalModuleBaudRate;
 
     void addStick(int index, int & row);
     void addPot(int index, int & row);

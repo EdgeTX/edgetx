@@ -251,7 +251,7 @@ void menuModelFlightModesAll(event_t event)
 
   if (menuVerticalOffset != MAX_FLIGHT_MODES-(LCD_LINES-2)) return;
 
-  lcdDrawText(LCD_W/2, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS, CENTERED);
+  lcdDrawTextAlignedLeft((LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
   drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
   if (sub==MAX_FLIGHT_MODES && !trimsCheckTimer) {
     lcdInvertLastLine();

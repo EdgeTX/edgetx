@@ -26,6 +26,10 @@
   #include "libopenui.h"
 #endif
 
+#if defined(CLI)
+  #include "cli.h"
+#endif
+
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
@@ -80,7 +84,7 @@ void openUsbMenu()
 #endif
 }
 
-#elif defined(STM32)
+#else
 
 void onUSBConnectMenu(const char *result)
 {
@@ -90,9 +94,11 @@ void onUSBConnectMenu(const char *result)
   else if (result == STR_USB_JOYSTICK) {
     setSelectedUsbMode(USB_JOYSTICK_MODE);
   }
+#if defined(USB_SERIAL)
   else if (result == STR_USB_SERIAL) {
     setSelectedUsbMode(USB_SERIAL_MODE);
   }
+#endif
   else if (result == STR_EXIT) {
     _usbDisabled = true;
   }
@@ -153,6 +159,11 @@ void handleUsbConnection()
         opentxClose(false);
         usbPluggedIn();
       }
+#if defined(USB_SERIAL)
+      else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+        serialInit(SP_VCP, serialGetMode(SP_VCP));
+      }
+#endif
 
       usbStart();
       TRACE("USB started");
@@ -165,6 +176,8 @@ void handleUsbConnection()
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
       pushEvent(EVT_ENTRY);
+    } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+      serialStop(SP_VCP);
     }
     TRACE("reset selected USB mode");
     setSelectedUsbMode(USB_UNSELECTED_MODE);
@@ -286,11 +299,6 @@ void checkBatteryAlarms()
     AUDIO_TX_BATTERY_LOW();
     // TRACE("checkBatteryAlarms(): battery low");
   }
-#if defined(PCBSKY9X)
-  else if (g_eeGeneral.mAhWarn && (g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration)/8192/36) / 500 >= g_eeGeneral.mAhWarn) { // TODO move calculation into board file
-    AUDIO_TX_MAH_HIGH();
-  }
-#endif
 }
 
 void checkBattery()
@@ -480,9 +488,6 @@ void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
 
-#if defined(PCBSKY9X)
-  calcConsumption();
-#endif
 
   checkSpeakerVolume();
 
@@ -520,12 +525,10 @@ void perMain()
   }
 #endif
 
-#if defined(STM32)
   if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE))
       && SD_CARD_PRESENT() && !sdMounted()) {
     sdMount();
   }
-#endif
 
 #if !defined(EEPROM)
   // In case the SD card is removed during the session
@@ -540,7 +543,6 @@ void perMain()
   }
 #endif
 
-#if defined(STM32)
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(LIBOPENUI)
     // draw some image showing USB
@@ -555,7 +557,6 @@ void perMain()
 #endif
     return;
   }
-#endif
 
 #if defined(MULTIMODULE)
   checkFailsafeMulti();

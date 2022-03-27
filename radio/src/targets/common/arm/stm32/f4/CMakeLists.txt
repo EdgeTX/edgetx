@@ -1,8 +1,29 @@
 set(CPU_FAMILY STM32)
 set(MCU cortex-m4)
 set(FPU_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
-set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries)
 
+# STM32 HAL/LL library
+set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F4xx_HAL_Driver)
+
+add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
+  ${STM32CUBE_DIR}/Src/stm32f4xx_ll_gpio.c
+  ${STM32CUBE_DIR}/Src/stm32f4xx_ll_tim.c
+  ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
+  ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
+  ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
+  )
+
+target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
+target_include_directories(stm32cube_ll PRIVATE
+  ${STM32CUBE_DIR}/Inc
+  ${THIRDPARTY_DIR}/CMSIS/Device/ST/STM32F4xx/Include
+  ${THIRDPARTY_DIR}/CMSIS/Include)
+
+set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32cube_ll>)
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32cube_ll>)
+
+# StdPeriph library
+set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries)
 include_directories(${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/inc)
 include_directories(${STM32LIB_DIR}/CMSIS/Device/ST/STM32F4xx/Include)
 include_directories(${STM32LIB_DIR}/CMSIS/Include)

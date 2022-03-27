@@ -277,20 +277,7 @@ void displayBattVoltage()
 #endif
 }
 
-#if defined(PCBSKY9X)
-void displayVoltageOrAlarm()
-{
-  if (g_eeGeneral.mAhWarn && (g_eeGeneral.mAhUsed + Current_used * (488 + g_eeGeneral.txCurrentCalibration)/8192/36) / 500 >= g_eeGeneral.mAhWarn) {
-    drawValueWithUnit(7*FW-1, 2*FH, (g_eeGeneral.mAhUsed + Current_used*(488 + g_eeGeneral.txCurrentCalibration)/8192/36)/10, UNIT_MAH,
-                      BLINK|INVERS|DBLSIZE|RIGHT);
-  }
-  else {
-    displayBattVoltage();
-  }
-}
-#else
 #define displayVoltageOrAlarm() displayBattVoltage()
-#endif
 
 #if defined(RADIO_T8)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
@@ -298,8 +285,8 @@ void displayVoltageOrAlarm()
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_FIRST(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_KEY_FIRST(KEY_PLUS)
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_FIRST(KEY_MINUS)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_SYS)
+#define EVT_KEY_MODEL_MENU             EVT_KEY_FIRST(KEY_MODEL)
+#define EVT_KEY_GENERAL_MENU           EVT_KEY_FIRST(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
 #elif defined(NAVIGATION_X7_TX12)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
@@ -307,8 +294,8 @@ void displayVoltageOrAlarm()
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_FIRST(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_SYS)
+#define EVT_KEY_MODEL_MENU             EVT_KEY_FIRST(KEY_MODEL)
+#define EVT_KEY_GENERAL_MENU           EVT_KEY_FIRST(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_FIRST(KEY_TELE)
 #elif defined(NAVIGATION_X7)  || defined(NAVIGATION_TBS)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)

@@ -37,6 +37,7 @@
 #define R_DIV_G_MUL_10_Q15 UINT64_C(9591506)
 #define INV_LOG2_E_Q1DOT31 UINT64_C(0x58b90bfc) // Inverse log base 2 of e
 #define PRESSURE_MASK 0x7FFFF
+#define V_SPEED_AVERAGING_TIME_10ms  2
 
 struct FlyskyNv14Sensor {
   const uint16_t id;
@@ -71,7 +72,8 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
-//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},   
+//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},
+    {FLYSKY_SENSOR_PRESSURE,   3, STR_SENSOR_VSPD,        UNIT_METERS_PER_SECOND,  2, 0, 2, true},   
     {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
     {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
     {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
@@ -119,6 +121,8 @@ void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
   storageDirty(EE_MODEL);
 }
 
+inline tmr10ms_t getTicks() { return g_tmr10ms; }
+
 int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
                                  const uint8_t* data)
 {
@@ -161,18 +165,58 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
   }
 
   if (sensor->id == FLYSKY_SENSOR_PRESSURE) {
-    switch(sensor->subId)
+    static tmr10ms_t prevTimer = 0;
+    static uint32_t timePassed = 0;
+    static int32_t prevAlt = 0;
+    static int32_t vSpeed = 100000;
+    static int32_t altChange = 0;
+
+    switch (sensor->subId)
     {
       case 0:
         value = value & PRESSURE_MASK;
         break;
       case 1:
         value = CalculateAltitude(value);
-        break;
+        {
+          tmr10ms_t currTimer = getTicks();
+          int32_t currAlt = value;
+          if (currTimer > prevTimer) {
+            timePassed += (currTimer - prevTimer);
+            altChange += (currAlt - prevAlt);
+            prevAlt = currAlt;
+            prevTimer = currTimer;
+          } else if(currTimer < prevTimer) {  // overflow
+            timePassed = 0;
+            altChange = 0;
+            prevAlt = currAlt;
+            prevTimer = currTimer;
+          }
+        }
+      break;
       case 2:
       // TO DO: fix temperature calculation
         value = (int16_t)(value >> 19) + 150;// - 400;
-        break;    
+      break; 
+      case 3:
+        if (timePassed > V_SPEED_AVERAGING_TIME_10ms) {  // Some averaging
+          bool neg = false;
+          // There are some problems with negative numbers arithmetic 
+          // (division, compiler)
+          if (altChange < 0) {
+            altChange = -altChange;
+            neg = true;
+          }
+          int32_t tmp = (altChange * 100) / timePassed;
+          if (neg)
+            vSpeed = -tmp;
+          else
+            vSpeed = tmp;
+          altChange = 0;
+          timePassed = 0;
+        }
+        value = vSpeed;
+        break;   
     }
   } 
   return value;

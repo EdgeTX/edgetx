@@ -24,6 +24,7 @@
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
+  char c = 'A';
   switch (rhs.type) {
     case SOURCE_TYPE_VIRTUAL_INPUT:
       src_str += "I" + std::to_string(rhs.index);
@@ -51,6 +52,14 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "ls(";
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
+      break;
+    case SOURCE_TYPE_FUNCTIONSWITCH:
+      if (IS_JUMPER_TPRO(getCurrentBoard())) {
+        c += Boards::getCapability(getCurrentBoard(), Board::Switches);
+        c += rhs.index;
+        src_str += "S";
+        src_str += c;
+      }
       break;
     case SOURCE_TYPE_CYC:
       src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
@@ -114,8 +123,18 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[1] <= 'Z') {
 
     int idx = getCurrentFirmware()->getSwitchesIndex(src_str.c_str());
-    if (idx >= 0 && idx < CPN_MAX_SWITCHES)
+    if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
+
+    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
+      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
+      idx = val[1] - 'A';
+      idx -= numSw;
+
+      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+        rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
+      }
+    }
 
   } else if (val_len > 4 &&
              val[0] == 'l' &&
@@ -141,6 +160,17 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     src >> ls;
     if (ls > 0 && ls <= CPN_MAX_LOGICAL_SWITCHES)
       rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
+
+  } else if (val_len > 3 &&
+             val[0] == 'f' &&
+             val[1] == 's' &&
+             val[2] == '(') {
+    
+    std::stringstream src(src_str.substr(3));
+    int fs = 0;
+    src >> fs;
+    if (fs > 0 && fs <= CPN_MAX_FUNCTION_SWITCHES)
+      rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, fs - 1);
 
   } else if (val_len > 3 &&
              val[0] == 't' &&

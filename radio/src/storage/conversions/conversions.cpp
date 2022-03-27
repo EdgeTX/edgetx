@@ -173,11 +173,11 @@ void eeConvertModel(int id, int version)
   // TODO: error handling
 }
 
-bool eeConvert()
+bool eeConvert(uint8_t start_version)
 {
   const char *msg = NULL;
 
-  switch (g_eeGeneral.version) {
+  switch (start_version) {
     case 219:
       msg = "EEprom Data v219";
       break;
@@ -187,8 +187,6 @@ bool eeConvert()
     default:
       return false;
   }
-
-  int conversionVersionStart = g_eeGeneral.version;
 
   // Information to the user and wait for key press
   g_eeGeneral.backlightMode = e_backlight_mode_on;
@@ -200,7 +198,8 @@ bool eeConvert()
   RAISE_ALERT(STR_STORAGE_WARNING, STR_EEPROM_CONVERTING, NULL, AU_NONE);
 
   // General Settings conversion
-  int version = conversionVersionStart;
+  int version = start_version;
+  (void)version;
 
   sdCheckAndCreateDirectory(RADIO_PATH);
   sdCheckAndCreateDirectory(MODELS_PATH);
@@ -217,10 +216,6 @@ bool eeConvert()
     convertRadioData_220_to_221();
   }
 #endif
-  //TODO: reload from YAML
-  g_eeGeneral.version = EEPROM_VER;
-  // storageDirty(EE_GENERAL);
-  // storageCheck(true);
 
 #if defined(STORAGE_MODELSLIST)
   modelslist.clear();
@@ -250,7 +245,7 @@ bool eeConvert()
 #else
     if (eeModelExists(id)) {
 #endif
-      eeConvertModel(id, conversionVersionStart);
+      eeConvertModel(id, start_version);
     }
   }
 

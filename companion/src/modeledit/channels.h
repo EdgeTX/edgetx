@@ -27,6 +27,7 @@
 
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
+class CurveImageWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
 
@@ -85,24 +86,28 @@ class ChannelsPanel : public ModelPanel
     void onCustomContextMenuRequested(QPoint pos);
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
+    void on_curveImageDoubleClicked();
 
   private:
-    bool hasClipboardData(QByteArray * data = nullptr) const;
-    bool insertAllowed() const;
-    bool moveDownAllowed() const;
-    bool moveUpAllowed() const;
     QLineEdit *name[CPN_MAX_CHNOUT];
     LimitsGroup *chnOffset[CPN_MAX_CHNOUT];
     LimitsGroup *chnMin[CPN_MAX_CHNOUT];
     LimitsGroup *chnMax[CPN_MAX_CHNOUT];
     QComboBox *invCB[CPN_MAX_CHNOUT];
     QComboBox *curveCB[CPN_MAX_CHNOUT];
+    CurveImageWidget *curveImage[CPN_MAX_CHNOUT];
     QSpinBox *centerSB[CPN_MAX_CHNOUT];
     QCheckBox *symlimitsChk[CPN_MAX_CHNOUT];
     int selectedIndex;
     int chnCapability;
     CompoundItemModelFactory *sharedItemModels;
+    FilteredItemModelFactory *dialogFilteredItemModels;
+
+    bool hasClipboardData(QByteArray * data = nullptr) const;
+    bool insertAllowed() const;
+    bool moveDownAllowed() const;
+    bool moveUpAllowed() const;
+
     void updateItemModels();
     void connectItemModelEvents(const FilteredItemModel * itemModel);
-    FilteredItemModelFactory *dialogFilteredItemModels;
 };

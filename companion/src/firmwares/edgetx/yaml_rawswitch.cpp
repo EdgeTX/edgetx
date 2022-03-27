@@ -24,6 +24,7 @@
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
   std::string sw_str;
+  char c = 'A';
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
     sval = -sval;
@@ -41,6 +42,16 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
   case SWITCH_TYPE_VIRTUAL:
     sw_str += "L";
     sw_str += std::to_string(sval);
+    break;
+  
+  case SWITCH_TYPE_FUNCTIONSWITCH:
+    if (IS_JUMPER_TPRO(getCurrentBoard())) {
+      c += Boards::getCapability(getCurrentBoard(), Board::Switches);
+      c += (sval - 1) / 3;
+      sw_str += "S";
+      sw_str += c;
+      sw_str += std::to_string((sval - 1) % 3);
+    }
     break;
 
   case SWITCH_TYPE_MULTIPOS_POT:
@@ -143,11 +154,31 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + (val[2] - '0' + 1);
+
+    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
+      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
+      int idx = val[1] - 'A';
+      idx =  idx - numSw;
+
+      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+        idx = idx * 3 + (val[2] - '0' + 1);
+        rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
+      }
+    }
+
+    //  these types use index = 1
+  } else if (val_len > 4 && (
+             (val[0] == 'R' && val[1] == 'A' && val[2] == 'D' && val[3] == 'I' && val[4] == 'O') ||
+             (val[0] == 'T' && val[1] == 'E' && val[2] == 'L' && val[3] == 'E' && val[4] == 'M'))) {
+
+    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
+    if (sw_type >= 0) {
+      rhs.type = (RawSwitchType)sw_type;
+      rhs.index = 1;
     }
 
   //  TODO: SWITCH_TYPE_TIMER_MODE
   //        check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
-
   } else {
     //  types which do not use index
     int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());

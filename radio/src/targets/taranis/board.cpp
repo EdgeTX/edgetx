@@ -24,6 +24,12 @@
 #include "hal/adc_driver.h"
 #include "stm32_hal_adc.h"
 
+#include "../common/arm/stm32/timers_driver.h"
+
+#if defined(AUX_SERIAL)
+#include "aux_serial_driver.h"
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -135,6 +141,17 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
+#if defined (RADIO_ZORRO)
+    
+  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
+  {
+    FLASH_OB_Unlock();
+    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
+    FLASH_OB_Launch();
+    FLASH_OB_Lock();
+  }
+#endif
+
   pwrInit();
 
 #if defined(AUTOUPDATE)
@@ -145,6 +162,43 @@ void boardInit()
 #if defined(STATUS_LEDS)
   ledInit();
   ledGreen();
+#endif
+
+// Support for FS Led to indicate battery charge level
+#if defined(RADIO_TPRO)
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  usbInit();
+  // prime debounce state...
+   usbPlugged();
+
+   if (usbPlugged()) {
+     delaysInit();
+     adcInit(&stm32_hal_adc_driver);
+     getADC();
+     pwrOn(); // required to get bat adc reads
+     storageReadRadioSettings(false);  // Needed for bat calibration
+     INTERNAL_MODULE_OFF();
+     EXTERNAL_MODULE_OFF();
+    
+     while (usbPlugged()) {
+       // Let it charge ...
+       getADC();
+       delay_ms(20);
+       if (getBatteryVoltage() >= 660)
+         fsLedOn(0);
+       if (getBatteryVoltage() >= 700)
+         fsLedOn(1);
+       if (getBatteryVoltage() >= 740)
+         fsLedOn(2);
+       if (getBatteryVoltage() >= 780)
+         fsLedOn(3);
+       if (getBatteryVoltage() >= 820)
+         fsLedOn(4);
+       if (getBatteryVoltage() >= 842)
+         fsLedOn(5);
+     }
+     pwrOff();
+   }
 #endif
 
   keysInit();
@@ -173,9 +227,8 @@ void boardInit()
   i2cInit();
   usbInit();
 
-#if defined(DEBUG) && defined(AUX_SERIAL_GPIO)
-  auxSerialInit(0, 0); // default serial mode (None if DEBUG not defined)
-  TRACE("\nTaranis board started :)");
+#if defined(DEBUG)
+  serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
 
 #if defined(HAPTIC)
@@ -365,3 +418,27 @@ void initJackDetect(void)
   GPIO_Init(JACK_DETECT_GPIO, &GPIO_InitStructure);
 }
 #endif
+
+#if defined(AUX_SERIAL)
+const etx_serial_port_t auxSerialPort = {
+  "AUX1",
+  &AuxSerialDriver,
+  nullptr
+};
+#define AUX_SERIAL_PORT &auxSerialPort
+#else
+#define AUX_SERIAL_PORT nullptr
+#endif
+
+#define AUX2_SERIAL_PORT nullptr
+
+static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
+  AUX_SERIAL_PORT,
+  AUX2_SERIAL_PORT,
+};
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
+  return serialPorts[port_nr];
+}

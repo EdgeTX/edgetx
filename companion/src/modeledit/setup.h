@@ -99,6 +99,7 @@ class ModulePanel : public ModelPanel
     void onSubTypeChanged();
     void on_autoBind_stateChanged(int state);
     void on_disableChMap_stateChanged(int state);
+    void on_raw12bits_stateChanged(int state);
     void on_racingMode_stateChanged(int state);
     void on_disableTelem_stateChanged(int state);
     void on_lowPower_stateChanged(int state);
@@ -142,7 +143,11 @@ class FunctionSwitchesPanel : public ModelPanel
     virtual void update();
     void update(int index);
 
+  signals:
+    void updateDataModels();
+
   private slots:
+    void on_nameEditingFinished();
     void on_configCurrentIndexChanged(int index);
     void on_startPosnCurrentIndexChanged(int index);
     void on_groupChanged(int value);
@@ -179,6 +184,8 @@ class SetupPanel : public ModelPanel
     void on_extendedLimits_toggled(bool checked);
     void on_extendedTrims_toggled(bool checked);
     void on_throttleWarning_toggled(bool checked);
+    void on_enableCustomThrottleWarning_toggled(bool checked);
+    void on_customThrottleWarningPosition_valueChanged(int value);
     void on_throttleReverse_toggled(bool checked);
     void on_displayText_toggled(bool checked);
     void on_gfEnabled_toggled(bool checked);
@@ -204,6 +211,7 @@ class SetupPanel : public ModelPanel
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onModuleUpdateItemModels();
+    void onFunctionSwitchesUpdateItemModels();
     void on_jitterFilter_currentIndexChanged(int index);
 
   private:
@@ -214,6 +222,8 @@ class SetupPanel : public ModelPanel
     QVector<QCheckBox *> centerBeepCheckboxes;
     ModulePanel * modules[CPN_MAX_MODULES + 1];
     TimerPanel * timers[CPN_MAX_TIMERS];
+    FunctionSwitchesPanel * funcswitches;
+    
     void updateStartupSwitches();
     void updatePotWarnings();
     void updateBeepCenter();

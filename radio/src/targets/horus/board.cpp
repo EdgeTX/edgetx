@@ -19,25 +19,25 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "opentx.h"
 
 #include "hal/adc_driver.h"
+#include "hal/serial_driver.h"
+#include "hal/serial_port.h"
+
+#include "timers_driver.h"
+
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+#include "aux_serial_driver.h"
+#endif
 
 #if !defined(PCBX12S)
-  #include "../common/arm/stm32/stm32_hal_adc.h"
+  #include "stm32_hal_adc.h"
   #define ADC_DRIVER stm32_hal_adc_driver
 #else
   #include "x12s_adc_driver.h"
   #define ADC_DRIVER x12s_adc_driver
-#endif
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus)
-}
 #endif
 
 extern void flysky_hall_stick_check_init(void);
@@ -56,30 +56,6 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xAAAA;      // reload
   IWDG->KR = 0xCCCC;      // start
 }
-
-#if defined(AUX_SERIAL_PWR_GPIO)
-void auxSerialPowerOn()
-{
-  GPIO_SetBits(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN);
-}
-
-void auxSerialPowerOff()
-{
-  GPIO_ResetBits(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN);
-}
-#endif
-#if defined(AUX2_SERIAL_PWR_GPIO)
-void aux2SerialPowerOn()
-{
-  GPIO_SetBits(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN);
-}
-
-void aux2SerialPowerOff()
-{
-  GPIO_ResetBits(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN);
-}
-#endif
-
 
 #if HAS_SPORT_UPDATE_CONNECTOR()
 void sportUpdateInit()
@@ -141,7 +117,6 @@ void boardInit()
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
                          I2C_B1_RCC_AHB1Periph |
-                         GPS_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
                          TOUCH_INT_RCC_AHB1Periph |
                          TOUCH_RST_RCC_AHB1Periph,
@@ -168,7 +143,6 @@ void boardInit()
                          EXTMODULE_RCC_APB1Periph |
                          I2C_B1_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
-                         GPS_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
@@ -182,7 +156,6 @@ void boardInit()
                          BT_RCC_APB2Periph |
                          AUX_SERIAL_RCC_APB2Periph |
                          AUX2_SERIAL_RCC_APB2Periph |
-                         GPS_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
@@ -192,11 +165,8 @@ void boardInit()
 
   __enable_irq();
 
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
-#if defined(DEBUG) && defined(AUX2_SERIAL)
-  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
+#if defined(DEBUG)
+  serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
 
   TRACE("\nHorus board started :)");
@@ -260,9 +230,6 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined(INTERNAL_GPS)
-  gpsInit(GPS_USART_BAUDRATE);
-#endif
 
 #if defined(DEBUG)
   DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
@@ -357,4 +324,75 @@ bool isBacklightEnabled()
   if(globalData.unexpectedShutdown)
     return true;
   return boardBacklightOn;
+}
+
+#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
+static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = pin;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(GPIOx, &pinInit);
+
+  if (on) {
+    LL_GPIO_SetOutputPin(GPIOx, pin);
+  } else {
+    LL_GPIO_ResetOutputPin(GPIOx, pin);
+  }
+}
+#endif
+
+#if defined(AUX_SERIAL)
+void set_aux_pwr(uint8_t on)
+{
+#if defined(AUX_SERIAL_PWR_GPIO)
+  _aux_pwr(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN, on);
+#endif
+}
+
+const etx_serial_port_t auxSerialPort = {
+  "AUX1",
+  &AuxSerialDriver,
+  set_aux_pwr,
+};
+#define AUX_SERIAL_PORT &auxSerialPort
+#else
+#define AUX_SERIAL_PORT nullptr
+#endif
+
+#if defined(AUX2_SERIAL)
+void set_aux2_pwr(uint8_t on)
+{
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  _aux_pwr(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN, on);
+#endif
+}
+
+const etx_serial_port_t aux2SerialPort = {
+#if !defined(PCBX12S)
+  "AUX2",
+#else
+  // AUX2 is hardwired to the internal GPS
+  // on the X12S, let's hide the setting
+  nullptr,
+#endif
+  &Aux2SerialDriver,
+  set_aux2_pwr,
+};
+#define AUX2_SERIAL_PORT &aux2SerialPort
+#else
+#define AUX2_SERIAL_PORT nullptr
+#endif // AUX2_SERIAL
+
+static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
+  AUX_SERIAL_PORT,
+  AUX2_SERIAL_PORT,
+};
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
+  return serialPorts[port_nr];
 }

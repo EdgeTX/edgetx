@@ -21,10 +21,6 @@
 
 #include "opentx.h"
 
-#if defined(TRAINER_MODULE_SBUS_USART)
-DMAFifo<32> trainerSbusFifo __DMA (TRAINER_MODULE_SBUS_DMA_STREAM);
-#endif
-
 void trainerSendNextFrame();
 
 #if defined(TRAINER_GPIO)
@@ -267,7 +263,11 @@ void stop_trainer_module_cppm()
 }
 #endif
 
+// TODO: use external module serial driver
 #if defined(TRAINER_MODULE_SBUS)
+
+static DMAFifo<32> trainerSbusFifo __DMA (TRAINER_MODULE_SBUS_DMA_STREAM);
+
 void init_trainer_module_sbus()
 {
   EXTERNAL_MODULE_ON();
@@ -328,22 +328,9 @@ void stop_trainer_module_sbus()
     EXTERNAL_MODULE_OFF();
   }
 }
-#endif
 
-#if defined(SBUS_TRAINER)
-int sbusGetByte(uint8_t * byte)
+int trainerModuleSbusGetByte(uint8_t* byte)
 {
-  switch (currentTrainerMode) {
-#if defined(TRAINER_MODULE_SBUS_USART)
-    case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
-      return trainerSbusFifo.pop(*byte);
-#endif
-#if defined(AUX_SERIAL_USART)
-    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-      return auxSerialRxFifo.pop(*byte);
-#endif
-    default:
-      return false;
-  }
+  return trainerSbusFifo.pop(*byte);
 }
 #endif

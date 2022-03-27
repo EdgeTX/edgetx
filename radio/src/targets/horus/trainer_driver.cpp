@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 void trainerSendNextFrame();
 
@@ -139,24 +140,5 @@ extern "C" void TRAINER_TIMER_IRQHandler()
       setupPulsesPPMTrainer();
       trainerSendNextFrame();
     }
-  }
-}
-
-int sbusGetByte(uint8_t * byte)
-{
-  switch (currentTrainerMode) {
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-#if defined(AUX_SERIAL)
-      if (auxSerialMode == UART_MODE_SBUS_TRAINER)
-        return auxSerialRxFifo.pop(*byte);
-#endif
-#if defined(AUX2_SERIAL)
-      if (aux2SerialMode == UART_MODE_SBUS_TRAINER)
-        return aux2SerialRxFifo.pop(*byte);
-#endif
-#endif
-    default:
-      return false;
   }
 }

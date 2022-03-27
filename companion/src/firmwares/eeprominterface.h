@@ -160,14 +160,15 @@ enum Capability {
   Sensors,
   HasAuxSerialMode,
   HasAux2SerialMode,
+  HasVCPSerialMode,
   HasBluetooth,
   HasAntennaChoice,
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
-  FunctionSwitches,
   HasModelsList,
-  HasFlySkyGimbals
+  HasFlySkyGimbals,
+  RotaryEncoderNavigation
 };
 
 class EEPROMInterface

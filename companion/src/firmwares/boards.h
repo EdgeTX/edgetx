@@ -140,15 +140,17 @@ namespace Board {
     MultiposPots,
     MultiposPotsPositions,
     Switches,
+    FunctionSwitches,
     SwitchPositions,
+    NumFunctionSwitchesPositions,
     FactoryInstalledSwitches,
     NumTrims,
     NumTrimSwitches,
     HasRTC,
     HasColorLcd,
-    NumFunctionSwitches,
     HasSDCard,
-    HasInternalModuleSupport
+    HasInternalModuleSupport,
+    SportMaxBaudRate
   };
 
   struct SwitchInfo

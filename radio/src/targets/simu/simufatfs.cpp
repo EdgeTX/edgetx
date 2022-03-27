@@ -609,9 +609,5 @@ FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs)
   return FR_OK;
 }
 
-#if defined(PCBSKY9X)
-int32_t Card_state = SD_ST_MOUNTED;
-uint32_t Card_CSD[4]; // TODO elsewhere
-#endif
 
 #endif  // #if defined(SIMU_USE_SDCARD)

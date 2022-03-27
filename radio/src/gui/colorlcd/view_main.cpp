@@ -20,6 +20,7 @@
  */
 
 #include "view_main.h"
+#include "model_select.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
@@ -261,9 +262,14 @@ bool ViewMain::onTouchEnd(coord_t x, coord_t y)
 void ViewMain::onEvent(event_t event)
 {
   switch (event) {
-    case EVT_KEY_FIRST(KEY_MODEL):
+    case EVT_KEY_BREAK(KEY_MODEL):
       killEvents(event);
       new ModelMenu();
+      break;
+
+    case EVT_KEY_LONG(KEY_MODEL):
+      killEvents(event);
+      new ModelSelectMenu();
       break;
 
     case EVT_KEY_FIRST(KEY_RADIO):

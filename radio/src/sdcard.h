@@ -36,6 +36,8 @@ extern FIL g_oLogFile;
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
 #define DELETED_MODELS_PATH MODELS_PATH PATH_SEPARATOR "DELETED"
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
+#define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
+#define PERS_TEMPL_PATH     TEMPLATES_PATH "/PERSONAL"
 #define LOGS_PATH           ROOT_PATH "LOGS"
 #define SCREENSHOTS_PATH    ROOT_PATH "SCREENSHOTS"
 #define SOUNDS_PATH         ROOT_PATH "SOUNDS/en"
@@ -174,8 +176,6 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
 #elif defined(PCBNV14)
   #define ETX_FOURCC 0x3A78746F // etx for NV14
-#elif defined(PCBSKY9X)
-  #define ETX_FOURCC 0x3278746F // etx for sky9x
 #endif
 
 bool isFileAvailable(const char * filename, bool exclDir = false);

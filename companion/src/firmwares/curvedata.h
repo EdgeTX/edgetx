@@ -24,6 +24,8 @@
 
 #include <QtCore>
 
+class AbstractStaticItemModel;
+
 class CurvePoint {
   public:
     int8_t x;
@@ -51,6 +53,12 @@ class CurveData {
     char name[CURVEDATA_NAME_LEN + 1];
 
     void clear(int count = 5);
+    void init();
     bool isEmpty() const;
     QString nameToString(const int idx) const;
+    QString typeToString() const;
+    QString pointsToString() const;
+    static QString typeToString(int value);
+    static AbstractStaticItemModel * typeItemModel();
+    static AbstractStaticItemModel * pointsItemModel();
 };

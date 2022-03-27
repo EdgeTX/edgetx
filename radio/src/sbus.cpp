@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "sbus.h"
+#include "timers_driver.h"
 
 #define SBUS_FRAME_GAP_DELAY   1000 // 500uS
 
@@ -35,14 +36,45 @@
 
 #define SBUS_CH_CENTER         0x3E0
 
+static int (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
+static void* _sbusAuxGetByteCtx = nullptr;
+
+void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+{
+  _sbusAuxGetByte = nullptr;
+  _sbusAuxGetByteCtx = ctx;
+  _sbusAuxGetByte = fct;
+}
+
+int sbusAuxGetByte(uint8_t* byte)
+{
+  auto _getByte = _sbusAuxGetByte;
+  auto _ctx = _sbusAuxGetByteCtx;
+
+  if (_getByte) {
+    return _getByte(_ctx, byte);
+  }
+
+  return -1;
+}
+
+static int (*sbusGetByte)(uint8_t*) = nullptr;
+
+void sbusSetGetByte(int (*fct)(uint8_t*))
+{
+  sbusGetByte = fct;
+}
+
 // Range for pulses (ppm input) is [-512:+512]
 void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
 {
-  if (size != SBUS_FRAME_SIZE || sbus[0] != SBUS_START_BYTE || sbus[SBUS_FRAME_SIZE-1] != SBUS_END_BYTE) {
-    return; // not a valid SBUS frame
+  if (size != SBUS_FRAME_SIZE || sbus[0] != SBUS_START_BYTE ||
+      sbus[SBUS_FRAME_SIZE - 1] != SBUS_END_BYTE) {
+    return;  // not a valid SBUS frame
   }
-  if ((sbus[SBUS_FLAGS_IDX] & (1<<SBUS_FAILSAFE_BIT)) || (sbus[SBUS_FLAGS_IDX] & (1<<SBUS_FRAMELOST_BIT))) {
-    return; // SBUS invalid frame or failsafe mode
+  if ((sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FAILSAFE_BIT)) ||
+      (sbus[SBUS_FLAGS_IDX] & (1 << SBUS_FRAMELOST_BIT))) {
+    return;  // SBUS invalid frame or failsafe mode
   }
 
   sbus++; // skip start byte
@@ -64,31 +96,36 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
 
 void processSbusInput()
 {
-#if !defined(SIMU)
-  uint8_t rxchar;
-  uint32_t active = 0;
+
+  // TODO: place this outside of the function
   static uint8_t SbusIndex = 0;
   static uint16_t SbusTimer;
   static uint8_t SbusFrame[SBUS_FRAME_SIZE];
 
-  while (sbusGetByte(&rxchar)) {
+  uint32_t active = 0;
+
+  // Drain input first (if existing)
+  uint8_t rxchar;
+  auto _getByte = sbusGetByte;
+  while (_getByte && (_getByte(&rxchar) > 0)) {
     active = 1;
-    if (SbusIndex > SBUS_FRAME_SIZE-1) {
-      SbusIndex = SBUS_FRAME_SIZE-1;
+    if (SbusIndex > SBUS_FRAME_SIZE - 1) {
+      SbusIndex = SBUS_FRAME_SIZE - 1;
     }
     SbusFrame[SbusIndex++] = rxchar;
   }
+
+  // Data has been received
   if (active) {
     SbusTimer = getTmr2MHz();
     return;
   }
-  else {
-    if (SbusIndex) {
-      if ((uint16_t) (getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
-        processSbusFrame(SbusFrame, ppmInput, SbusIndex);
-        SbusIndex = 0;
-      }
+
+  // Check if end-of-frame is detected
+  if (SbusIndex) {
+    if ((uint16_t)(getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
+      processSbusFrame(SbusFrame, ppmInput, SbusIndex);
+      SbusIndex = 0;
     }
   }
-#endif
 }

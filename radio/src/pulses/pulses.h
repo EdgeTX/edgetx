@@ -32,11 +32,8 @@
 #include "afhds2.h"
 #include "modules_helpers.h"
 #include "ff.h"
+#include "hal/module_driver.h"
 
-#if defined(PCBSKY9X) && defined(DSM2)
-  #define DSM2_BIND_TIMEOUT      255         // 255*11ms
-  extern uint8_t dsm2BindTimer;
-#endif
 
 #if defined(DSM2)
   #define IS_DSM2_PROTOCOL(protocol)         (protocol>=PROTOCOL_CHANNELS_DSM2_LP45 && protocol<=PROTOCOL_CHANNELS_DSM2_DSMX)
@@ -70,10 +67,10 @@ extern uint8_t s_pulses_paused;
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
-  uint8_t protocol:4;
+  uint8_t protocol;
   uint8_t mode:4;
   uint8_t paused:1;
-  uint8_t spare:7;
+  uint8_t spare:3;
   uint16_t counter;
 
   // PXX specific items
@@ -112,16 +109,6 @@ template<class T> struct PpmPulsesData {
   T * ptr;
 };
 
-#if defined(PPM_PIN_SERIAL)
-PACK(struct Dsm2SerialPulsesData {
-  uint8_t  pulses[64];
-  uint8_t * ptr;
-  uint8_t  serialByte ;
-  uint8_t  serialBitCount;
-  uint16_t _alignment;
-});
-typedef Dsm2SerialPulsesData Dsm2PulsesData;
-#else
 #define MAX_PULSES_TRANSITIONS 300
 PACK(struct Dsm2TimerPulsesData {
   pulse_duration_t pulses[MAX_PULSES_TRANSITIONS];
@@ -129,7 +116,6 @@ PACK(struct Dsm2TimerPulsesData {
   uint8_t index;
 });
 typedef Dsm2TimerPulsesData Dsm2PulsesData;
-#endif
 
 #define PPM_DEF_PERIOD               225 /* 22.5ms */
 #define PPM_STEP_SIZE                5 /*0.5ms*/
@@ -195,11 +181,7 @@ union ExternalModulePulsesData {
 #if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
   UartPxx1Pulses pxx_uart;
 #endif
-#if defined(PPM_PIN_SERIAL)
-  SerialPxx1Pulses pxx;
-#else
   PwmPxx1Pulses pxx;
-#endif
 #endif
 
 #if defined(PXX2)
@@ -249,19 +231,19 @@ void intmoduleSendNextFrame();
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
+void extmoduleSendNextFrame();
 #endif
+void restartModule(uint8_t idx);
 void setupPulsesDSM2();
+void setupPulsesLemonDSMP();
 void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
-void setupPulsesMultiInternalModule();
 void setupPulsesSbus();
 void setupPulsesPPMInternalModule();
 void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-void sendByteDsm2(uint8_t b);
 void putDsm2Flush();
-void putDsm2SerialBit(uint8_t bit);
 void sendByteSbus(uint8_t b);
 void intmodulePpmStart();
 void intmodulePxx1PulsesStart();
@@ -294,25 +276,6 @@ inline void startPulses()
   extramodulePpmStart();
 #endif
 }
-
-enum ChannelsProtocols {
-  PROTOCOL_CHANNELS_UNINITIALIZED,
-  PROTOCOL_CHANNELS_NONE,
-  PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PXX1_PULSES,
-  PROTOCOL_CHANNELS_PXX1_SERIAL,
-  PROTOCOL_CHANNELS_DSM2_LP45,
-  PROTOCOL_CHANNELS_DSM2_DSM2,
-  PROTOCOL_CHANNELS_DSM2_DSMX,
-  PROTOCOL_CHANNELS_CROSSFIRE,
-  PROTOCOL_CHANNELS_MULTIMODULE,
-  PROTOCOL_CHANNELS_SBUS,
-  PROTOCOL_CHANNELS_PXX2_LOWSPEED,
-  PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
-  PROTOCOL_CHANNELS_AFHDS2A,
-  PROTOCOL_CHANNELS_AFHDS3,
-  PROTOCOL_CHANNELS_GHOST
-};
 
 inline void stopPulses()
 {
