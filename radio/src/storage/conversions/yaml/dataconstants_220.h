@@ -45,9 +45,11 @@
 #define STORAGE_NUM_MOUSE_ANALOGS 2
 
 #if defined(PCBX10)
-  #define NUM_POTS  5
+  #define NUM_POTS    5
+  #define NUM_SLIDERS 2
 #else
-  #define NUM_POTS  3
+  #define NUM_POTS    3
+  #define NUM_SLIDERS 4
 #endif
 #define NUM_XPOTS NUM_POTS
 
@@ -108,6 +110,14 @@
 
 #else
 #error "Unsupported board"
+#endif
+
+#if !defined(NUM_POTS)
+  #define NUM_POTS STORAGE_NUM_POTS
+#endif
+
+#if !defined(NUM_SLIDERS)
+  #define NUM_SLIDERS STORAGE_NUM_SLIDERS
 #endif
 
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
@@ -746,7 +756,7 @@ enum MixSources {
   MIXSRC_MOUSE2,                        LUA_EXPORT("jsy", "Joystick Y")
 #endif
 
-#if defined(IMU)
+#if defined(PCBXLITES)
   MIXSRC_GYRO1,                         LUA_EXPORT("gyrx", "Gyro X")
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
 #endif
