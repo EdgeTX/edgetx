@@ -591,22 +591,6 @@ void TIM_DMAConfig(TIM_TypeDef* TIMx, uint16_t TIM_DMABase, uint16_t TIM_DMABurs
 void TIM_DMACmd(TIM_TypeDef* TIMx, uint16_t TIM_DMASource, FunctionalState NewState) { }
 void TIM_CtrlPWMOutputs(TIM_TypeDef* TIMx, FunctionalState NewState) { }
 
-// I2C fake functions
-void I2C_DeInit(I2C_TypeDef*) { }
-void I2C_Init(I2C_TypeDef*, I2C_InitTypeDef*) { }
-void I2C_Cmd(I2C_TypeDef*, FunctionalState) { }
-void I2C_Send7bitAddress(I2C_TypeDef*, unsigned char, unsigned char) { }
-void I2C_SendData(I2C_TypeDef*, unsigned char) { }
-void I2C_GenerateSTART(I2C_TypeDef*, FunctionalState) { }
-void I2C_GenerateSTOP(I2C_TypeDef*, FunctionalState) { }
-void I2C_AcknowledgeConfig(I2C_TypeDef*, FunctionalState) { }
-uint8_t I2C_ReceiveData(I2C_TypeDef*) { return 0; }
-ErrorStatus I2C_CheckEvent(I2C_TypeDef*, unsigned int) { return (ErrorStatus) ERROR; }
-
-// I2S fake functions
-void I2S_Init(SPI_TypeDef* SPIx, I2S_InitTypeDef* I2S_InitStruct) { }
-void I2S_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState) { }
-
 // SPI fake functions
 void SPI_I2S_DeInit(SPI_TypeDef* SPIx) { }
 void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState NewState) { }
