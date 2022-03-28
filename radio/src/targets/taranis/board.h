@@ -139,29 +139,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
   #define TRAINER_CONNECTED()           true
 #endif
 
-#if defined(TRAINER_GPIO)
-  void init_trainer_ppm();
-  void stop_trainer_ppm();
-  void init_trainer_capture();
-  void stop_trainer_capture();
-#else
-  #define init_trainer_ppm()
-  #define stop_trainer_ppm()
-  #define init_trainer_capture()
-  #define stop_trainer_capture()
-#endif
-
-#if defined(TRAINER_MODULE_CPPM)
-  void init_trainer_module_cppm();
-  void stop_trainer_module_cppm();
-#endif
-
-#if defined(TRAINER_MODULE_SBUS)
-  void init_trainer_module_sbus();
-  void stop_trainer_module_sbus();
-  int trainerModuleSbusGetByte(uint8_t* byte);
-#endif
-
 void check_telemetry_exti();
 
 // Keys driver

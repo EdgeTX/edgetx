@@ -182,8 +182,6 @@
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
 #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-#define AUX_SERIAL_RCC_APB1Periph       0
-#define AUX_SERIAL_RCC_APB2Periph       RCC_APB2Periph_USART6
 #define AUX_SERIAL_GPIO                 GPIOC
 #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
 #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07
@@ -426,8 +424,6 @@
 // #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
 // #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
-#define INTMODULE_RCC_APB1Periph        (RCC_APB1Periph_UART7 | RCC_APB1Periph_TIM3)
-#define INTMODULE_RCC_APB2Periph        0
 #define INTMODULE_TIMER                 TIM3
 #define INTMODULE_TIMER_IRQn            TIM3_IRQn
 #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
@@ -444,8 +440,6 @@
 #define EXTMODULE_RCC_AHB1Periph                                        \
   (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | \
    RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
-#define EXTMODULE_RCC_APB1Periph 0
-#define EXTMODULE_RCC_APB2Periph        (RCC_APB2Periph_TIM8 | RCC_APB2Periph_USART6)
 #define EXTMODULE_TX_GPIO               GPIOC
 #define EXTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_6  // PC.06
 #define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
@@ -507,34 +501,21 @@
 #define HEARTBEAT_GPIO_PIN              GPIO_Pin_12 // PD.12
 
 // Trainer Port
-#define TRAINERMODULE
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-#define TRAINER_RCC_APB1Periph          RCC_APB1Periph_TIM4
 #define TRAINER_GPIO                    GPIOD
-#define TRAINER_IN_GPIO_PIN             GPIO_Pin_12 // PD.12
-#define TRAINER_IN_GPIO_PinSource       GPIO_PinSource12
-#define TRAINER_OUT_GPIO_PIN            GPIO_Pin_13 // PD.13
-#define TRAINER_OUT_GPIO_PinSource      GPIO_PinSource13
+
+#define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_12 // PD.12
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
+
+#define TRAINER_OUT_GPIO_PIN            LL_GPIO_PIN_13 // PD.13
+#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
 #define TRAINER_TIMER                   TIM4
-#define TRAINER_GPIO_AF                 GPIO_AF_TIM4 // TIM4_CH1 (in) + TIM4_CH2 (out)
 #define TRAINER_TIMER_IRQn              TIM4_IRQn
 #define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
+#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-#define TRAINER_OUT_CCMR1               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE;
-#define TRAINER_IN_CCMR1                TIM_CCMR1_IC1F_0 | TIM_CCMR1_IC1F_1 | TIM_CCMR1_CC1S_0;
-
-#define TRAINER_OUT_COUNTER_REGISTER    TRAINER_TIMER->CCR2
-#define TRAINER_IN_COUNTER_REGISTER     TRAINER_TIMER->CCR1
-#define TRAINER_SETUP_REGISTER          TRAINER_TIMER->CCR3
-#define TRAINER_OUT_INTERRUPT_FLAG      TIM_SR_CC1IF
-#define TRAINER_OUT_INTERRUPT_ENABLE    TIM_DIER_CC1IE
-#define TRAINER_IN_INTERRUPT_ENABLE     TIM_DIER_CC1IE
-#define TRAINER_IN_INTERRUPT_FLAG       TIM_SR_CC1IF
-#define TRAINER_OUT_CCER                TIM_CCER_CC2E
-#define TRAINER_CCER_POLARYTY           TIM_CCER_CC2P
-#define TRAINER_IN_CCER                 TIM_CCER_CC1E
 
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI

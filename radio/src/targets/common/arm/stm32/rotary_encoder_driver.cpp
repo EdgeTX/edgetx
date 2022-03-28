@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_exti_driver.h"
 #include "board.h"
+
 #include "hal.h"
 #include "board_common.h"
-#include "heartbeat_driver.h"
 
 #if !defined(BOOT)
   #include "opentx.h"
@@ -30,51 +31,6 @@
 
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
-
-void rotaryEncoderInit()
-{
-  ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
-  ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
-  ROTARY_ENCODER_TIMER->CCER = 0;
-  ROTARY_ENCODER_TIMER->CCMR1 = 0;
-  ROTARY_ENCODER_TIMER->EGR = 0;
-  ROTARY_ENCODER_TIMER->CR1 = 0;
-  ROTARY_ENCODER_TIMER->DIER |= TIM_DIER_UIE;
-
-  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource1);
-
-#if defined(ROTARY_ENCODER_EXTI_LINE2)
-  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource2);
-#endif
-
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE1;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-#if defined(ROTARY_ENCODER_EXTI_LINE2)
-  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE2;
-  EXTI_Init(&EXTI_InitStructure);
-#endif
-
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = ROTARY_ENCODER_EXTI_IRQn1;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
-#if defined(ROTARY_ENCODER_EXTI_IRQn2)
-  NVIC_InitStructure.NVIC_IRQChannel = ROTARY_ENCODER_EXTI_IRQn2;
-  NVIC_Init(&NVIC_InitStructure);
-#endif
-
-  NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
-  NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
-}
 
 #if defined(BOOT)
 #define INC_ROT        1
@@ -147,38 +103,38 @@ void rotaryEncoderStartDelay()
   ROTARY_ENCODER_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
 }
 
-extern "C" void ROTARY_ENCODER_EXTI_IRQHandler1(void)
+void rotaryEncoderInit()
 {
-#if !defined(BOOT) && defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER)
-  check_telemetry_exti();
-#endif
+  rotencPosition = ROTARY_ENCODER_POSITION();
 
-  if (EXTI_GetITStatus(ROTARY_ENCODER_EXTI_LINE1) != RESET) {
-    rotaryEncoderStartDelay();
-    EXTI_ClearITPendingBit(ROTARY_ENCODER_EXTI_LINE1);
-  }
+  ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
+  ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
+  ROTARY_ENCODER_TIMER->CCER = 0;
+  ROTARY_ENCODER_TIMER->CCMR1 = 0;
+  ROTARY_ENCODER_TIMER->EGR = 0;
+  ROTARY_ENCODER_TIMER->CR1 = 0;
+  ROTARY_ENCODER_TIMER->DIER |= TIM_DIER_UIE;
 
-#if !defined(ROTARY_ENCODER_EXTI_IRQn2)
-  if (EXTI_GetITStatus(ROTARY_ENCODER_EXTI_LINE2) != RESET) {
-    rotaryEncoderStartDelay();
-    EXTI_ClearITPendingBit(ROTARY_ENCODER_EXTI_LINE2);
-  }
-#endif
+  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource1);
+  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource2);
 
-#if !defined(BOOT) && defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
-  check_intmodule_heartbeat();
-#endif
+  EXTI_InitTypeDef EXTI_InitStructure;
+  EXTI_StructInit(&EXTI_InitStructure);
+  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE1;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+
+  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE2;
+  EXTI_Init(&EXTI_InitStructure);
+
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE1, rotaryEncoderStartDelay);
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE2, rotaryEncoderStartDelay);
+    
+  NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
+  NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
 }
-
-#if defined(ROTARY_ENCODER_EXTI_IRQn2)
-extern "C" void ROTARY_ENCODER_EXTI_IRQHandler2(void)
-{
-  if (EXTI_GetITStatus(ROTARY_ENCODER_EXTI_LINE2) != RESET) {
-    rotaryEncoderStartDelay();
-    EXTI_ClearITPendingBit(ROTARY_ENCODER_EXTI_LINE2);
-  }
-}
-#endif
 
 extern "C" void ROTARY_ENCODER_TIMER_IRQHandler(void)
 {

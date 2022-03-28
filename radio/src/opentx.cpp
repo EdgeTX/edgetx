@@ -2076,12 +2076,6 @@ uint32_t pwrCheck()
     return e_power_usb;
   }
 
-#if defined(TRAINER_PWR)
-  if (TRAINER_CONNECTED()) {
-    return e_power_trainer;
-  }
-#endif
-
   if (!g_eeGeneral.disableRssiPoweroffAlarm) {
     if (TELEMETRY_STREAMING()) {
       RAISE_ALERT(STR_MODEL, STR_MODEL_STILL_POWERED, STR_PRESS_ENTER_TO_CONFIRM, AU_MODEL_STILL_POWERED);

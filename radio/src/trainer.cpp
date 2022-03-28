@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/trainer_driver.h"
 #include "heartbeat_driver.h"
 #include "aux_serial_driver.h"
 
