@@ -101,7 +101,7 @@ static constexpr uint8_t maxSourceNameLength{16};
 //
 static Fifo<uint8_t, LUA_FIFO_SIZE>* luaRxFifo = nullptr;
 
-static int luaRxFifoGetByte(void*, uint8_t* data)
+static bool luaRxFifoGetByte(void*, uint8_t* data)
 {
   if (!luaRxFifo) return -1;
   return luaRxFifo->pop(*data);
@@ -141,10 +141,10 @@ void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
   luaSendDataCb = cb;
 }
 
-static int (*luaGetSerialByte)(void*, uint8_t*) = nullptr;
+static bool (*luaGetSerialByte)(void*, uint8_t*) = nullptr;
 static void* luaGetSerialByteCtx = nullptr;
 
-void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*))
+void luaSetGetSerialByte(void* ctx, bool (*fct)(void*, uint8_t*))
 {
   luaGetSerialByte = nullptr;
   luaGetSerialByteCtx = ctx;

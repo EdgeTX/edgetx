@@ -69,10 +69,10 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
   return telemetryRxBufferCount;
 }
 
-static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
+static bool (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
 static void* _telemetryGetByteCtx = nullptr;
 
-void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+void telemetrySetGetByte(void* ctx, bool (*fct)(void*, uint8_t*))
 {
   _telemetryGetByte = nullptr;
   _telemetryGetByteCtx = ctx;
