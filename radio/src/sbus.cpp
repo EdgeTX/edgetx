@@ -224,7 +224,7 @@ void processSbusInput() {
 #if !defined(SIMU)
   uint8_t rxchar;
   
-  while (sbusAuxGetByte(&rxchar)) {
+  while (sbusAuxGetByte(&rxchar) > 0) {
       SBus::Servo::process(rxchar, [&](){
           SBus::Servo::convert(ppmInput);
           ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
