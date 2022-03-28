@@ -73,7 +73,7 @@ typedef struct {
   void (*waitForTxCompleted)(void* ctx);
 
   // Fetch byte from internal buffer
-  int (*getByte)(void* ctx, uint8_t* data);
+  bool (*getByte)(void* ctx, uint8_t* data);
 
   // Clear internal buffer
   void (*clearRxBuffer)(void* ctx);

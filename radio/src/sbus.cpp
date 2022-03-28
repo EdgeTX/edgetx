@@ -36,17 +36,17 @@
 
 #define SBUS_CH_CENTER         0x3E0
 
-static int (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
+static bool (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
 static void* _sbusAuxGetByteCtx = nullptr;
 
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*))
 {
   _sbusAuxGetByte = nullptr;
   _sbusAuxGetByteCtx = ctx;
   _sbusAuxGetByte = fct;
 }
 
-int sbusAuxGetByte(uint8_t* byte)
+bool sbusAuxGetByte(uint8_t* byte)
 {
   auto _getByte = _sbusAuxGetByte;
   auto _ctx = _sbusAuxGetByteCtx;
@@ -55,12 +55,12 @@ int sbusAuxGetByte(uint8_t* byte)
     return _getByte(_ctx, byte);
   }
 
-  return -1;
+  return false;
 }
 
-static int (*sbusGetByte)(uint8_t*) = nullptr;
+static bool (*sbusGetByte)(uint8_t*) = nullptr;
 
-void sbusSetGetByte(int (*fct)(uint8_t*))
+void sbusSetGetByte(bool (*fct)(uint8_t*))
 {
   sbusGetByte = fct;
 }
