@@ -1312,14 +1312,12 @@
 
 #define TR_USE_THEME_COLOR            "使用主题颜色"
 
-#if LCD_W > LCD_H
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
+#if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
 #else
-  #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Trms->SubTrms"
-  #define TR_OPEN_CHANNEL_MONITORS        "Chan. Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
 #endif
-
 #define TR_DUPLICATE                  "复制"
 #define TR_ACTIVATE                   "启用"
 #define TR_RED                        "红"

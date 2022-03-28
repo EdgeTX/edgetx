@@ -314,16 +314,9 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
-  new TextButton(
-      window, grid.getFieldSlot(2, 0), STR_OPEN_CHANNEL_MONITORS,
-      [=]() {
-        pushEvent(EVT_KEY_LONG(KEY_TELEM));
-        return 0;
-      },
-      0, COLOR_THEME_PRIMARY1);
 
   new TextButton(
-      window, grid.getFieldSlot(2, 1), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
+      window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
       [=]() {
         moveTrimsToOffsets();  // if highlighted and menu pressed - move trims
                                // to offsets

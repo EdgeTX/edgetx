@@ -33,6 +33,7 @@
 #include "model_mixer_scripts.h"
 #include "special_functions.h"
 #include "model_telemetry.h"
+#include "translations.h"
 
 ModelMenu::ModelMenu():
   TabsGroup(ICON_MODEL)
@@ -57,4 +58,16 @@ ModelMenu::ModelMenu():
   addTab(new ModelMixerScriptsPage());
 #endif
   addTab(new ModelTelemetryPage());
+
+  addButton(&header);
+}
+
+void ModelMenu::addButton(TabsGroupHeader* header)
+{
+  OpenTxTheme::instance()->createTextButton(
+      header, {LCD_W / 2 + 5, MENU_TITLE_TOP, LCD_W / 2 - 5, MENU_TITLE_HEIGHT},
+      STR_OPEN_CHANNEL_MONITORS, [=]() {
+        pushEvent(EVT_KEY_LONG(KEY_TELEM));
+        return 0;
+      });
 }

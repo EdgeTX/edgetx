@@ -429,16 +429,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
     mixerSetupReplaceBitmap
   };
 
-  new TextButton(
-      window, grid.getFieldSlot(2, 0), STR_OPEN_CHANNEL_MONITORS,
-      [=]() {
-        pushEvent(EVT_KEY_LONG(KEY_TELEM));
-        return 0;
-      },
-      0, COLOR_THEME_PRIMARY1);
-
-  grid.nextLine();
-
   int mixIndex = 0;
   MixData * mix = g_model.mixData;
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {

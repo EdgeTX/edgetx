@@ -37,7 +37,7 @@
 
 #include <algorithm>
 
-int calledFromMix = 0;
+int calledFromModel = 0;
 static int retTab = 0;
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
@@ -225,26 +225,25 @@ void TabsGroup::onEvent(event_t event)
   }
   else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
     killEvents(event);
-    if (!calledFromMix) {
+    if (!calledFromModel) {
       ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);  
     }
     else {
       auto menu = new ModelMenu();
       menu->setCurrentTab(retTab);
-      calledFromMix = 0;
+      calledFromModel = 0;
       //TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
     }
     deleteLater();
-    calledFromMix = 0;
+    calledFromModel = 0;
     
   } else if (event == EVT_KEY_LONG(KEY_TELEM)) {
-    //TRACE("currentTab %s", typeid(*currentTab).name());
-    if (typeid(*currentTab) == typeid(ModelOutputsPage) ||
-        typeid(*currentTab) == typeid(ModelMixesPage)) {
+    TRACE("TabGroup %s", typeid(*this).name());
+    if (typeid(*this) == typeid(ModelMenu) ) {
       killEvents(event);
-      calledFromMix = 1;
+      calledFromModel = 1;
       retTab = header.carousel.getCurrentIndex();
-      TRACE("currentTab=%d  %s", calledFromMix, typeid(*currentTab).name());
+      TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
       new ChannelsViewMenu();
       deleteLater();
     }
