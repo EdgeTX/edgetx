@@ -23,6 +23,7 @@
 #include "multi_rfprotos.h"
 #include "io/multi_protolist.h"
 #include "pulses/flysky.h"
+#include "mixer_scheduler.h"
 
 #include "opentx.h"
 #include "libopenui.h"
@@ -304,8 +305,7 @@ class TrainerModuleWindow : public FormGroup
     FormGridLayout grid;
     clear();
 
-    new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,COLOR_THEME_PRIMARY1);
     trainerChoice = new TrChoice(
         this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(),
         GET_DEFAULT(g_model.trainerData.mode),
@@ -589,8 +589,7 @@ class ModuleWindow : public FormGroup {
       clear();
 
       // Module Type
-      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                     COLOR_THEME_PRIMARY1);
+      new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,COLOR_THEME_PRIMARY1);
       moduleChoice = new Choice(
           this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
           MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
@@ -607,7 +606,34 @@ class ModuleWindow : public FormGroup {
                    : isExternalModuleAvailable(moduleType);
       });
 
+      if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
+        char buf[6];
+        new StaticText(this, grid.getFieldSlot(2, 1), getStringAtIndex(buf, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)), 0,COLOR_THEME_PRIMARY1);
+      }
+
       // Module parameters
+      if (moduleIdx== EXTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
+        new Choice(this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+                   [=]() -> int {
+                       return CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[moduleIdx].crsf.telemetryBaudrate);
+                   },
+                   [=](int newValue) {
+                       g_model.moduleData[moduleIdx].crsf.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+                       SET_DIRTY();
+                       restartModule(moduleIdx);
+                   });
+      }
+      if (isModuleCrossfire(moduleIdx)) {
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_STATUS, 0,COLOR_THEME_PRIMARY1);
+        new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            sprintf(msg,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+            return std::string(msg);
+        });
+      }
       if (isModuleXJT(moduleIdx)) {
         rfChoice = new Choice(
             this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
@@ -629,7 +655,7 @@ class ModuleWindow : public FormGroup {
       } else if (isModuleDSM2(moduleIdx)) {
         new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
                    DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
-                   GET_SET_DEFAULT(g_model.moduleData[moduleIdx].rfProtocol));
+                   GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
       } else if (isModuleR9M(moduleIdx)) {
         rfChoice =
             new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION,
@@ -813,13 +839,13 @@ class ModuleWindow : public FormGroup {
         int count =
             LCD_W < LCD_H
                 ? 1
-                : (g_model.moduleData[moduleIdx].multi.customProto ? 3 : 2);
+                : (/*g_model.moduleData[moduleIdx].multi.customProto ? 3 :*/ 2);
 
         rfChoice = new MultiProtoChoice(
             this, grid.getFieldSlot(count, 0), moduleIdx,
             [=](int32_t newValue) {
 
-              g_model.moduleData[moduleIdx].setMultiProtocol(newValue);
+              g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
               g_model.moduleData[moduleIdx].subType = 0;
               resetMultiProtocolsOptions(moduleIdx);
 
@@ -839,7 +865,7 @@ class ModuleWindow : public FormGroup {
 
         auto *rfProto =
             MultiRfProtocols::instance(moduleIdx)->getProto(
-                g_model.moduleData[moduleIdx].getMultiProtocol());
+                g_model.moduleData[moduleIdx].multi.rfProtocol);
 
         if (rfProto && !rfProto->subProtos.empty()) {
           // Subtype (D16, DSMX,...)
@@ -874,7 +900,7 @@ class ModuleWindow : public FormGroup {
             return std::string(msg);
         }, COLOR_THEME_PRIMARY1);
 
-        const uint8_t multi_proto = g_model.moduleData[moduleIdx].getMultiProtocol();
+        const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
         if (rfProto) {
           // Multi optional feature row
           const char *title = rfProto->getOptionStr();
@@ -1063,6 +1089,7 @@ class ModuleWindow : public FormGroup {
 #if defined(AFHDS2)
                 if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
 #endif
+                if (isModuleDSMP(moduleIdx)) restartModule(moduleIdx);
                 return 0;
               } else {
                 if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) ||
@@ -1102,7 +1129,10 @@ class ModuleWindow : public FormGroup {
           });
           bindButton->setCheckHandler([=]() {
               if (moduleState[moduleIdx].mode != MODULE_MODE_BIND) {
-                bindButton->check(false);
+                if (bindButton->checked()) {
+                  bindButton->check(false);
+                  this->invalidate();
+                }
               }
 #if defined(MULTIMODULE)
               if (isModuleMultimodule(moduleIdx) &&

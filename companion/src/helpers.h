@@ -113,6 +113,8 @@ namespace Helpers
   QString getChecklistFilename(const ModelData * model);
   QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
+  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits = 1, const unsigned int offset = 0);
+  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits = 1, unsigned int offset = 0);
 
 }  // namespace Helpers
 

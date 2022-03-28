@@ -604,9 +604,9 @@ static const char * getScriptName(uint8_t idx)
   }
 }
 
-static bool luaLoad(const char * filename, ScriptInternalData & sid)
+static bool luaLoad(const char * pathname, ScriptInternalData & sid)
 {
-  sid.state = luaLoadScriptFileToState(lsScripts, filename, LUA_SCRIPT_LOAD_MODE);
+  sid.state = luaLoadScriptFileToState(lsScripts, pathname, LUA_SCRIPT_LOAD_MODE);
 
   if (sid.state != SCRIPT_OK) {
     luaFree(lsScripts, sid);
@@ -615,22 +615,29 @@ static bool luaLoad(const char * filename, ScriptInternalData & sid)
   return false;
 }
 
+template<unsigned int LD, unsigned int LF>
+static bool luaLoadFile(const char (&dirname)[LD], const char (&filename)[LF], ScriptInternalData & sid) {
+    constexpr size_t maxlen{LD  + LF + (sizeof(SCRIPT_EXT) - 1) + 1 + 1};  // iff dirname is string-literal (LD includes '\0') this is one byte too large, but with C++11 there is no chance to check if dirname is a literal or a (maybe-unterminated) char-array
+    char pathname[maxlen];
+    snprintf(pathname, maxlen, "%.*s/%.*s%s", LD, dirname, LF, filename, SCRIPT_EXT);    
+    return luaLoad(pathname, sid);
+}
+
 #if defined(LUA_MODEL_SCRIPTS)
 static bool luaLoadMixScript(uint8_t ref)
 {
+#ifdef DEBUG
+    if (ref < SCRIPT_MIX_FIRST) {
+        return false;
+    }
+#endif
   uint8_t idx = ref - SCRIPT_MIX_FIRST;
   ScriptData & sd = g_model.scriptsData[idx];
 
   if (ZEXIST(sd.file)) {
     ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
     sid.reference = ref;
-
-    char filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_MIXES_PATH "/";
-    strncpy(filename + sizeof(SCRIPTS_MIXES_PATH), sd.file, LEN_SCRIPT_FILENAME);
-    filename[sizeof(SCRIPTS_MIXES_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-    strcat(filename + sizeof(SCRIPTS_MIXES_PATH), SCRIPT_EXT);
-
-    return luaLoad(filename, sid);
+    return luaLoadFile(SCRIPTS_MIXES_PATH, sd.file, sid);
   }
   return false;
 }
@@ -656,13 +663,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
     if (luaScriptsCount < MAX_SCRIPTS) {
       ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
       sid.reference = ref;
-     
-      char filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME + sizeof(SCRIPT_EXT)] = SCRIPTS_FUNCS_PATH "/";
-      strncpy(filename + sizeof(SCRIPTS_FUNCS_PATH), fn->play.name, LEN_FUNCTION_NAME);
-      filename[sizeof(SCRIPTS_FUNCS_PATH) + LEN_FUNCTION_NAME] = '\0';
-      strcat(filename + sizeof(SCRIPTS_FUNCS_PATH), SCRIPT_EXT);
-
-      return luaLoad(filename, sid);
+      return luaLoadFile(SCRIPTS_FUNCS_PATH, fn->play.name, sid);
     }
     else {
       POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
@@ -685,13 +686,7 @@ static bool luaLoadTelemetryScript(uint8_t ref)
       if (luaScriptsCount < MAX_SCRIPTS) {
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = ref;
-       
-        char filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME + sizeof(SCRIPT_EXT)] = SCRIPTS_TELEM_PATH "/";
-        strncpy(filename + sizeof(SCRIPTS_TELEM_PATH), script.file, LEN_SCRIPT_FILENAME);
-        filename[sizeof(SCRIPTS_TELEM_PATH) + LEN_SCRIPT_FILENAME] = '\0';
-        strcat(filename + sizeof(SCRIPTS_TELEM_PATH), SCRIPT_EXT);
-       
-        return luaLoad(filename, sid);
+        return luaLoadFile(SCRIPTS_TELEM_PATH, script.file, sid);
       }
       else {
         POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
@@ -822,7 +817,7 @@ static int luaRegisterFunction(const char * key)
   }
   else {
     if (typ != LUA_TNIL) {
-      TRACE_ERROR("luaRegisterFunction(%s): Error: '%s' is not a function\n", getScriptName(luaScriptsCount - 1), key);
+      TRACE_ERROR("luaRegisterFunction(%s): Error: '%.*s' is not a function\n", LEN_SCRIPT_FILENAME, getScriptName(luaScriptsCount - 1), key);
     }
     lua_pop(lsScripts, 1);
     return LUA_NOREF;
@@ -929,7 +924,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
             if (sid.run == LUA_NOREF) {
-              snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%s): No run function\n", getScriptName(idx));
+              snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
               initFunction = LUA_NOREF;
             }
@@ -947,7 +942,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 #endif
           }
           else {
-            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%s): The script did not return a table\n", getScriptName(idx));
+            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
             initFunction = LUA_NOREF;
           }
@@ -1179,7 +1174,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         for (int j = sio -> outputsCount - 1; j >= 0; j--) {
           if (!lua_isnumber(lsScripts, -1)) {
             sid.state = SCRIPT_SYNTAX_ERROR;
-            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "Script %s: run function did not return a number\n", getScriptName(idx));
+            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "Script %.*s: run function did not return a number\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             luaError(lsScripts, sid.state);
             break;
           }

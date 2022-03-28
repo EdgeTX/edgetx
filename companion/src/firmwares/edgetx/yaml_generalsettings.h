@@ -21,6 +21,14 @@
 #include "yaml_ops.h"
 #include "generalsettings.h"
 
+struct YamlTelemetryBaudrate {
+  unsigned int value;
+
+  YamlTelemetryBaudrate() = default;
+  YamlTelemetryBaudrate(const unsigned int* moduleBaudrate);
+  void toCpn(unsigned int* moduleBaudrate, unsigned int variant);
+};
+
 namespace YAML {
 
   template<>
@@ -30,5 +38,3 @@ namespace YAML {
     static bool decode(const Node& node, GeneralSettings& rhs);
   };
 }
-
-

@@ -63,7 +63,7 @@
 #define TR_TRNCHN                       "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES            "\010"
-#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0"
+#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0""CLI\0     "
 
 #define LEN_SWTYPES                     "\004"
 #define TR_SWTYPES                      "無\0 " "回彈" "2段\0""3段\0"
@@ -473,6 +473,7 @@
 #define TR_PERSISTENT                   TR(INDENT "Persist.", INDENT "關機保持")
 #define TR_BACKLIGHT_LABEL              "背光"
 #define TR_GHOST_MENU_LABEL             "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                      INDENT "Duration"
 #define TR_BLONBRIGHTNESS               "背光開"
 #define TR_BLOFFBRIGHTNESS              "背光關"
@@ -768,6 +769,7 @@
 #define TR_TEMP_CALIB                   "溫度校準"
 #define TR_TIME                         "時間"
 #define TR_MAXBAUDRATE                  "最大帶寬"
+#define TR_BAUDRATE                     "Baudrate"
 #define TR_SAMPLE_MODE                  "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                 "Normal""OneBit"
@@ -786,7 +788,7 @@
 #define TR_BLUETOOTH_DIST_ADDR          "目標地址"
 #define TR_BLUETOOTH_LOCAL_ADDR         "本機地址"
 #define TR_BLUETOOTH_PIN_CODE           "PIN碼"
-#define TR_BAUDRATE                     "藍牙帶寬"
+#define TR_BLUETOOTH_BAUDRATE           "藍牙帶寬"
 #define LEN_BLUETOOTH_MODES             "\004"
 #define TR_BLUETOOTH_MODES              "---\0" "回傳" "教練"
 
@@ -807,6 +809,7 @@
 #define TR_MONTH                        "月"
 #define TR_DAY                          "日"
 #define TR_ROTARY_ENCODER               "滾輪"
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR             "通道查看器"
 #define TR_MIXERS_MONITOR               "混控查看器"
 #define TR_PATH_TOO_LONG                "路徑太長"
@@ -882,7 +885,7 @@
 #define TR_ABOUT_US                     "關於"
 #define TR_USB_JOYSTICK                 "USB 遊戲柄 (HID)"
 #define TR_USB_MASS_STORAGE             "USB 存儲器 (SD)"
-#define TR_USB_SERIAL                   "USB 端口 (調試)"
+#define TR_USB_SERIAL                   "USB 端口 (VCP)"
 #define TR_SETUP_SCREENS                "設置顯示頁面"
 #define TR_MONITOR_SCREENS              "查看器"
 #define TR_AND_SWITCH                   "與開關"

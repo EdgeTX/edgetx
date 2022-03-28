@@ -25,6 +25,10 @@
   #include "libopenui.h"
 #endif
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
 void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_GET_HARDWARE_INFO) {
@@ -213,6 +217,10 @@ void processResetFrame(uint8_t module, const uint8_t * frame)
 
 void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
+  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
+    telemetryMirrorSend(frame[i]);
+  }
+  
   uint8_t origin = (module << 2) + (frame[3] & 0x03);
   if (origin != TELEMETRY_ENDPOINT_SPORT) {
     sportProcessTelemetryPacketWithoutCrc(origin, &frame[4]);
@@ -247,7 +255,8 @@ void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
     Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
     pxx2.setupAuthenticationFrame(module, cryptoType,
                                   (const uint8_t *)messageDigest);
-    intmoduleSendBuffer(pxx2.getData(), pxx2.getSize());
+
+    IntmoduleSerialDriver.sendBuffer(pxx2.getData(), pxx2.getSize());
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the
     // end of the mixing process
     authenticateFrames++;

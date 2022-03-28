@@ -474,6 +474,8 @@ set(SRC
   timers.cpp
   trainer.cpp
   model_init.cpp
+  serial.cpp
+  sbus.cpp
   )
 
 if(GUI)

@@ -61,11 +61,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\015"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES            "Debug\0       ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         "
-#else
-#define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         "
-#endif
+#define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES                    "\013"
 #define TR_SWTYPES                     "Žádný\0     ""Bez aretace""2-polohový\0""3-polohový\0"
@@ -164,7 +160,7 @@
   #define TR_CSWEQUAL                  "a=x\0 "
 
 #define LEN_VCSWFUNC                   "\005"
-#define TR_VCSWFUNC                    "---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 ""Δ}x\0 ""|Δ|}x" TR_CSWTIMER TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 " STR_CHAR_DELTA "}x\0 ""|" STR_CHAR_DELTA "|}x" TR_CSWTIMER TR_CSWSTICKY
 
 #define LEN_VFSWFUNC                   "\013"
 
@@ -514,6 +510,7 @@
 #define TR_PERSISTENT                  INDENT"Trvalé"
 #define TR_BACKLIGHT_LABEL             "Podsvětlení"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT"Zhasnout po"
 #define TR_BLONBRIGHTNESS              TR3(INDENT"Jas Zap.", INDENT"Jas Zap.", INDENT"Jas zapnutého LCD")
 #define TR_BLOFFBRIGHTNESS             TR3(INDENT"Jas Vyp.", INDENT"Jas Vyp.", INDENT"Jas vypnutého LCD")
@@ -811,6 +808,7 @@
 #define TR_TEMP_CALIB                  " +=\006Teplota"
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
@@ -829,7 +827,7 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Vzdál. addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. addr"
 #define TR_BLUETOOTH_PIN_CODE          TR("PIN kód", "PIN kód")
-#define TR_BAUDRATE                    "Baudrate BT"
+#define TR_BLUETOOTH_BAUDRATE          "Baudrate BT"
 #define LEN_BLUETOOTH_MODES            "\012"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---\0      ""Povoleno\0 "
@@ -850,6 +848,7 @@
 #define TR_DATE                        "Datum"
 #define TR_MONTHS                      { "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro" }
 #define TR_ROTARY_ENCODER              "R.Enko"
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR            "MONITOR KANÁLU"
 #define TR_MIXERS_MONITOR              "MONITOR MIXU"
 #define TR_PATH_TOO_LONG               "Cesta je moc dlouhá"
@@ -932,7 +931,7 @@
 #define TR_ABOUT_US                    "O nás"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Disk (SD)"
-#define TR_USB_SERIAL                  "USB Serial (Debug)"
+#define TR_USB_SERIAL                  "USB Serial (VCP)"
 #define TR_SETUP_SCREENS               "Obrazovky nastavení"
 #define TR_MONITOR_SCREENS             "Monitory"
 #define TR_AND_SWITCH                  "AND Spínač"

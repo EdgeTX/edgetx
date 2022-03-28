@@ -744,9 +744,14 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 40;
     case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ||
+             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
+             IS_RADIOMASTER_ZORRO(board);
     case HasAux2SerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_TARANIS_SMALL(board) && !IS_FLYSKY_NV14(board)) ? true : false;
+      return IS_FAMILY_T16(board);
+    case HasVCPSerialMode:
+      return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
+             IS_JUMPER_TPRO(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
@@ -757,12 +762,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_HORUS_OR_TARANIS(board);
     case TopBarZones:
       return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
-    case FunctionSwitches:
-      return IS_JUMPER_TPRO(board) ? 6 : 0;
     case HasModelsList:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
+    case RotaryEncoderNavigation:
+      return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
+              IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
+              IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
+              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
+              IS_JUMPER_T18(board));
     default:
       return 0;
   }

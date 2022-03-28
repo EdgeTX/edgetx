@@ -73,7 +73,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     switch(type) {
       case SWITCH_TYPE_SWITCH:
         if (IS_HORUS_OR_TARANIS(board)) {
-          qr = div(index-1, 3);
+          qr = div(index - 1, 3);
           if (generalSettings)
             swName = QString(generalSettings->switchName[qr.quot]).trimmed();
           if (swName.isEmpty())
@@ -90,9 +90,19 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         else
           return LogicalSwitchData().nameToString(index-1);
 
+      case SWITCH_TYPE_FUNCTIONSWITCH:
+        if (!Boards::getCapability(board, Board::FunctionSwitches))
+          return CPN_STR_UNKNOWN_ITEM;
+        qr = div(index - 1, 3);
+        if (modelData)
+          swName = QString(modelData->functionSwitchNames[qr.quot]).trimmed();
+        if (swName.isEmpty())
+          swName = tr("SW%1").arg(qr.quot + 1);
+        return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
+
       case SWITCH_TYPE_MULTIPOS_POT:
         if (!Boards::getCapability(board, Board::MultiposPotsPositions))
-          return tr("???");
+          return CPN_STR_UNKNOWN_ITEM;
         qr = div(index - 1, Boards::getCapability(board, Board::MultiposPotsPositions));
         if (generalSettings && qr.quot < (int)DIM(generalSettings->potConfig))
           swName = QString(generalSettings->potName[qr.quot]);
@@ -140,8 +150,8 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         return tr("Telemetry");
 
       default:
-        return tr("???");
-    }
+        return CPN_STR_UNKNOWN_ITEM;
+     }
   }
 }
 
@@ -154,6 +164,13 @@ bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings
 
   if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchPositions))
     return false;
+
+  if (type == SWITCH_TYPE_FUNCTIONSWITCH) {
+    if (!model || abs(index) > b.getCapability(Board::NumFunctionSwitchesPositions))
+      return false;
+    else if (!model->isFunctionSwitchPositionAvailable(abs(index)))
+        return false;
+  }
 
   if (type == SWITCH_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrimSwitches))
     return false;
@@ -257,6 +274,7 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
                           {std::to_string(SWITCH_TYPE_ON),              "ON"},
                           {std::to_string(SWITCH_TYPE_OFF),             "OFF"},
                           {std::to_string(SWITCH_TYPE_ONE),             "ONE"},
+                          {std::to_string(SWITCH_TYPE_FUNCTIONSWITCH),  "Sxn"},
                           {std::to_string(SWITCH_TYPE_FLIGHT_MODE),     "FMn"},
                           {std::to_string(SWITCH_TYPE_TIMER_MODE),      "Timer"},
                           {std::to_string(SWITCH_TYPE_TELEMETRY),       "TELEMETRY_STREAMING"},

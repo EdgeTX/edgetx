@@ -19,6 +19,8 @@
  */
 
 #include "yaml_moduledata.h"
+#include "yaml_generalsettings.h"
+#include "eeprominterface.h"
 #include "moduledata.h"
 #include "rawsource.h"
 
@@ -63,6 +65,7 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_SBUS, "TYPE_SBUS"  },
   {  PULSES_XJT_LITE_X16, "TYPE_XJT_LITE_PXX2"  },
   {  PULSES_AFHDS3, "TYPE_FLYSKY"  },
+  {  PULSES_LEMON_DSMP, "LEMON_DSMP"  },
 };
 
 static const YamlLookupTable xjtLut = {
@@ -296,7 +299,20 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_GHOST: {
         Node ghost;
         ghost["raw12bits"] = (int)rhs.ghost.raw12bits;
+        YamlTelemetryBaudrate br(&rhs.ghost.telemetryBaudrate);
+        ghost["telemetryBaudrate"] = br.value;
         mod["ghost"] = ghost;
+    } break;
+    case PULSES_CROSSFIRE: {
+        Node crsf;
+        YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
+        crsf["telemetryBaudrate"] = br.value;
+        mod["crsf"] = crsf;
+    } break;
+    case PULSES_LEMON_DSMP: {
+        Node dsmp;
+        dsmp["flags"] = rhs.dsmp.flags;
+        mod["dsmp"] = dsmp;
     } break;
     // TODO: afhds3, flysky
     default: {
@@ -400,7 +416,18 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           }
       } else if (mod["ghost"]) {
           Node ghost = mod["ghost"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          ghost["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.ghost.telemetryBaudrate, getCurrentFirmware()->getBoard());
           ghost["raw12bits"] >> rhs.ghost.raw12bits;
+      } else if (mod["crsf"]) {
+          Node crsf = mod["crsf"];
+          YamlTelemetryBaudrate telemetryBaudrate;
+          crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
+          telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
+      } else if (mod["dsmp"]) {
+          Node dsmp = mod["dsmp"];
+          dsmp["flags"] >> rhs.dsmp.flags;
       } else if (mod["flysky"]) {
           //TODO
       } else if (mod["afhds3"]) {

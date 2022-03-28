@@ -176,7 +176,8 @@ QString ModuleData::protocolToString(unsigned int protocol)
     "FrSky ACCESS R9M Lite Pro",
     "FrSky XJT lite (D16)", "FrSky XJT lite (D8)", "FrSky XJT lite (LR12)",
     "AFHDS3",
-    "Ghost"
+    "Ghost",
+    "Lemon-Rx DSMP",
   };
 
   return CHECK_IN_ARRAY(strings, protocol);
@@ -260,6 +261,8 @@ int ModuleData::getMaxChannelCount()
       break;
     case PULSES_AFHDS3:
       return 18;
+    case PULSES_LEMON_DSMP:
+      return 12;
     case PULSES_OFF:
       break;
     default:
@@ -309,7 +312,9 @@ int ModuleData::getTypeFromProtocol(unsigned int protocol)
                           { PULSES_XJT_LITE_D8,         MODULE_TYPE_XJT_LITE_PXX2 },
                           { PULSES_XJT_LITE_LR12,       MODULE_TYPE_XJT_LITE_PXX2 },
 
-                          { PULSES_AFHDS3,              MODULE_TYPE_FLYSKY }
+                          { PULSES_AFHDS3,              MODULE_TYPE_FLYSKY },
+
+                          { PULSES_LEMON_DSMP,          MODULE_TYPE_LEMON_DSMP },
                       };
 
   QPair<int, int>elmt;
@@ -352,7 +357,8 @@ QString ModuleData::typeToString(int type)
     "R9MLP ACCESS",
     "SBUS",
     "XJT Lite",
-    "FLYSKY"
+    "FLYSKY",
+    "Lemon-Rx DSMP",
   };
 
   return CHECK_IN_ARRAY(strings, type);
@@ -406,6 +412,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
           case PULSES_CROSSFIRE:
           case PULSES_AFHDS3:
           case PULSES_GHOST:
+          case PULSES_LEMON_DSMP:
             return true;
           case PULSES_ACCESS_R9M:
             return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
@@ -495,4 +502,18 @@ AbstractStaticItemModel * ModuleData::protocolItemModel(GeneralSettings & settin
 
   mdl->loadItemList();
   return mdl;
+}
+
+AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  protocol)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.baudrate");
+
+  for (int i = 0; i < moduleBaudratesList.size(); i++) {
+    if (protocol == PULSES_GHOST && i >= 2) break;
+    mdl->appendToItemList(moduleBaudratesList.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;  
 }

@@ -25,19 +25,7 @@
 #include "pxx.h"
 #include "crc.h"
 
-#if defined(INTMODULE_HEARTBEAT_GPIO)
-struct HeartbeatCapture {
-#if !defined(INTMODULE_USART)
-  uint32_t timestamp;
-#endif
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
-#endif
-  uint8_t valid;
-};
-
-extern volatile HeartbeatCapture heartbeatCapture;
-#endif
+#include "hal/module_driver.h"
 
 class Pxx1CrcMixin {
   protected:
@@ -179,5 +167,13 @@ class Pxx1Pulses: public PxxTransport
 typedef Pxx1Pulses<UartPxx1Transport> UartPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport>> PwmPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport>> SerialPxx1Pulses;
+
+#if defined(INTMODULE_USART)
+extern const etx_module_driver_t Pxx1InternalSerialDriver;
+#endif
+
+#if defined(EXTMODULE_USART)
+extern const etx_module_driver_t Pxx1ExternalSerialDriver;
+#endif
 
 #endif

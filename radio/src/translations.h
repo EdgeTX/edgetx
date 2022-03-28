@@ -323,6 +323,7 @@ extern const char STR_BEEPCOUNTDOWN[];
 extern const char STR_PERSISTENT[];
 extern const char STR_BACKLIGHT_LABEL[];
 extern const char STR_GHOST_MENU_LABEL[];
+extern const char STR_STATUS[];
 extern const char STR_BLDELAY[];
 
 #if defined(PWM_BACKLIGHT) || defined(COLORLCD)
@@ -704,9 +705,10 @@ extern const char STR_FORMATTING[];
 extern const char STR_TEMP_CALIB[];
 extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
+extern const char STR_BAUDRATE[];
 extern const char STR_SAMPLE_MODE[];
 extern const char STR_SAMPLE_MODES[];
-extern const char STR_BAUDRATE[];
+extern const char STR_BLUETOOTH_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
 extern const char STR_SD_TYPE[];
 extern const char STR_SD_SPEED[];
@@ -719,6 +721,7 @@ extern const char STR_GLOBAL_VAR[];
 extern const char STR_OWN[];
 extern const char STR_DATE[];
 extern const char STR_ROTARY_ENCODER[];
+extern const char STR_INVERT_ROTARY[];
 extern const char STR_CHANNELS_MONITOR[];
 extern const char STR_MIXERS_MONITOR[];
 extern const char STR_PATH_TOO_LONG[];

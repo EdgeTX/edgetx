@@ -24,6 +24,22 @@
 #include "pulses/pxx2.h"
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
+#include "mixer_scheduler.h"
+#include "heartbeat_driver.h"
+
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+
+const etx_serial_init pxx2SerialInitParams = {
+    .baudrate = PXX2_HIGHSPEED_BAUDRATE,
+    .parity = ETX_Parity_None,
+    .stop_bits = ETX_StopBits_One,
+    .word_length = ETX_WordLength_8,
+    .rx_enable = true,
+    .on_receive = intmoduleFifoReceive,
+    .on_error = intmoduleFifoError,
+};
+#endif
 
 bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
 {
@@ -110,7 +126,7 @@ void Pxx2Pulses::addPulsesValues(uint16_t low, uint16_t high)
   Pxx2Transport::addByte(high >> 4u);  // High byte of channel
 }
 
-void Pxx2Pulses::addChannels(uint8_t module)
+void Pxx2Pulses::addChannels(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   uint16_t pulseValue = 0;
   uint16_t pulseValueLow = 0;
@@ -119,7 +135,7 @@ void Pxx2Pulses::addChannels(uint8_t module)
   uint8_t count = sentModuleChannels(module);
 
   for (int8_t i = 0; i < count; i++, channel++) {
-    int value = channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
+    int value = channels[i] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
     pulseValue = limit(1, (value * 512 / 682) + 1024, 2046);
 #if defined(DEBUG_LATENCY_RF_ONLY)
     if (latencyToggleSwitch)
@@ -169,7 +185,7 @@ void Pxx2Pulses::addFailsafe(uint8_t module)
   }
 }
 
-void Pxx2Pulses::setupChannelsFrame(uint8_t module)
+void Pxx2Pulses::setupChannelsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_CHANNELS);
 
@@ -183,7 +199,7 @@ void Pxx2Pulses::setupChannelsFrame(uint8_t module)
   if (flag0 & PXX2_CHANNELS_FLAG0_FAILSAFE)
     addFailsafe(module);
   else
-    addChannels(module);
+    addChannels(module, channels, nChannels);
 }
 
 void Pxx2Pulses::setupTelemetryFrame(uint8_t module)
@@ -195,7 +211,7 @@ void Pxx2Pulses::setupTelemetryFrame(uint8_t module)
   }
 }
 
-void Pxx2Pulses::setupHardwareInfoFrame(uint8_t module)
+void Pxx2Pulses::setupHardwareInfoFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   ModuleInformation * destination = moduleState[module].moduleInformation;
 
@@ -208,12 +224,12 @@ void Pxx2Pulses::setupHardwareInfoFrame(uint8_t module)
     }
     else {
       moduleState[module].mode = MODULE_MODE_NORMAL;
-      setupChannelsFrame(module);
+      setupChannelsFrame(module, channels, nChannels);
     }
   }
   else {
     destination->timeout--;
-    setupChannelsFrame(module);
+    setupChannelsFrame(module, channels, nChannels);
   }
 }
 
@@ -236,7 +252,7 @@ void Pxx2Pulses::setupRegisterFrame(uint8_t module)
   }
 }
 
-void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module)
+void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   ModuleSettings * destination = moduleState[module].moduleSettings;
 
@@ -256,11 +272,11 @@ void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module)
     destination->timeout = get_tmr10ms() + 200/*next try in 2s*/;
   }
   else {
-    setupChannelsFrame(module);
+    setupChannelsFrame(module, channels, nChannels);
   }
 }
 
-void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module)
+void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   if (get_tmr10ms() > reusableBuffer.hardwareAndSettings.receiverSettings.timeout) {
     addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_RX_SETTINGS);
@@ -291,7 +307,7 @@ void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module)
     reusableBuffer.hardwareAndSettings.receiverSettings.timeout = get_tmr10ms() + 200/*next try in 2s*/;
   }
   else {
-    setupChannelsFrame(module);
+    setupChannelsFrame(module, channels, nChannels);
   }
 }
 
@@ -442,7 +458,7 @@ void Pxx2Pulses::setupAuthenticationFrame(uint8_t module, uint8_t mode, const ui
   endFrame();
 }
 
-bool Pxx2Pulses::setupFrame(uint8_t module)
+bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
 {
   if (moduleState[module].mode == MODULE_MODE_OTA_UPDATE)
     return false;
@@ -456,13 +472,13 @@ bool Pxx2Pulses::setupFrame(uint8_t module)
 
   switch (moduleState[module].mode) {
     case MODULE_MODE_GET_HARDWARE_INFO:
-      setupHardwareInfoFrame(module);
+      setupHardwareInfoFrame(module, channels, nChannels);
       break;
     case MODULE_MODE_MODULE_SETTINGS:
-      setupModuleSettingsFrame(module);
+      setupModuleSettingsFrame(module, channels, nChannels);
       break;
     case MODULE_MODE_RECEIVER_SETTINGS:
-      setupReceiverSettingsFrame(module);
+      setupReceiverSettingsFrame(module, channels, nChannels);
       break;
     case MODULE_MODE_REGISTER:
       setupRegisterFrame(module);
@@ -495,7 +511,7 @@ bool Pxx2Pulses::setupFrame(uint8_t module)
         outputTelemetryBuffer.reset();
       }
       else {
-        setupChannelsFrame(module);
+        setupChannelsFrame(module, channels, nChannels);
       }
       break;
   }
@@ -630,3 +646,137 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
 
   resumePulses();
 }
+
+static void* pxx2InitInternal(uint8_t moduleType)
+{
+  intmoduleFifo.clear();
+  void* uart_ctx = IntmoduleSerialDriver.init(&pxx2SerialInitParams);
+  resetAccessAuthenticationCount();
+
+#if defined(INTMODULE_HEARTBEAT)
+  // use backup trigger (1 ms later)
+  init_intmodule_heartbeat();
+#endif
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
+  INTERNAL_MODULE_ON();
+
+  return uart_ctx;
+}
+
+static void pxx2DeInitInternal(void* context)
+{
+  INTERNAL_MODULE_OFF();
+  IntmoduleSerialDriver.deinit(context);
+#if defined(INTMODULE_HEARTBEAT)
+  stop_intmodule_heartbeat();
+#endif
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+}
+
+static bool pxx2InternalSendNextFrame = true;
+
+static void pxx2SetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+
+  pxx2InternalSendNextFrame =
+      intmodulePulsesData.pxx2.setupFrame(INTERNAL_MODULE, channels, nChannels);
+
+  if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
+      moduleState[INTERNAL_MODULE].mode == MODULE_MODE_POWER_METER) {
+    mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_TOOLS_PERIOD);
+  } else {
+    mixerSchedulerSetPeriod(INTERNAL_MODULE, PXX2_PERIOD);
+  }
+}
+
+static void pxx2SendPulsesInternal(void* context)
+{
+  if (pxx2InternalSendNextFrame) {
+    IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.pxx2.getData(),
+                                     intmodulePulsesData.pxx2.getSize());
+  }
+}
+
+#include "hal/module_driver.h"
+
+const etx_module_driver_t Pxx2InternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
+  .init = pxx2InitInternal,
+  .deinit = pxx2DeInitInternal,
+  .setupPulses = pxx2SetupPulsesInternal,
+  .sendPulses = pxx2SendPulsesInternal,
+};
+
+#if defined(EXTMODULE_USART)
+#include "extmodule_serial_driver.h"
+
+static const etx_serial_init pxx2ExtSerialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+  .on_receive = extmoduleFifoReceive,
+  .on_error = extmoduleFifoError,
+};
+
+static void* pxx2InitLowSpeed(uint8_t module)
+{
+  etx_serial_init params(pxx2ExtSerialInitParams);
+  params.baudrate = PXX2_LOWSPEED_BAUDRATE;
+  ExtmoduleSerialDriver.init(&params);
+
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
+  EXTERNAL_MODULE_ON();
+
+  return nullptr;
+}
+
+static void* pxx2InitExternal(uint8_t module)
+{
+  etx_serial_init params(pxx2ExtSerialInitParams);
+  params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
+  void* uart_ctx = ExtmoduleSerialDriver.init(&params);
+
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX2_NO_HEARTBEAT_PERIOD);
+  EXTERNAL_MODULE_ON();
+
+  return uart_ctx;
+}
+
+static void pxx2DeInitExternal(void* context)
+{
+  EXTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+  ExtmoduleSerialDriver.deinit(context);
+}
+
+static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  extmodulePulsesData.pxx2.setupFrame(EXTERNAL_MODULE, channels, nChannels);
+}
+
+static void pxx2SendPulsesExternal(void* context)
+{
+  ExtmoduleSerialDriver.sendBuffer(context, extmodulePulsesData.pxx2.getData(),
+                                   extmodulePulsesData.pxx2.getSize());
+}
+
+const etx_module_driver_t Pxx2ExternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
+  .init = pxx2InitExternal,
+  .deinit = pxx2DeInitExternal,
+  .setupPulses = pxx2SetupPulsesExternal,
+  .sendPulses = pxx2SendPulsesExternal,
+};
+
+const etx_module_driver_t Pxx2LowSpeedExternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_PXX2_LOWSPEED,
+  .init = pxx2InitLowSpeed,
+  .deinit = pxx2DeInitExternal,
+  .setupPulses = pxx2SetupPulsesExternal,
+  .sendPulses = pxx2SendPulsesExternal,
+};
+#endif

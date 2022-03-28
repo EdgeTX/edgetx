@@ -114,7 +114,7 @@ void ModelCell::setRfData(ModelData* model)
     setRfModuleData(i, &(model->moduleData[i]));
     TRACE("<%s/%i> : %X,%X,%X",
           strlen(modelName) ? modelName : modelFilename,
-          i, moduleData[i].type, moduleData[i].rfProtocol, modelId[i]);
+          i, moduleData[i].type, moduleData[i].subType, modelId[i]);
   }
   valid_rfData = true;
 }
@@ -123,11 +123,11 @@ void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData* modData)
 {
   moduleData[moduleIdx].type = modData->type;
   if (modData->type != MODULE_TYPE_MULTIMODULE) {
-    moduleData[moduleIdx].rfProtocol = (uint8_t)modData->rfProtocol;
+    moduleData[moduleIdx].subType = (uint8_t)modData->subType;
   }
   else {
     // do we care here about MM_RF_CUSTOM_SELECTED? probably not...
-    moduleData[moduleIdx].rfProtocol = modData->getMultiProtocol();
+    moduleData[moduleIdx].subType = modData->multi.rfProtocol;
   }
 }
 
@@ -551,7 +551,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
 
   uint8_t modelId = modelCell->modelId[moduleIdx];
   uint8_t type = modelCell->moduleData[moduleIdx].type;
-  uint8_t rfProtocol = modelCell->moduleData[moduleIdx].rfProtocol;
+  uint8_t subType = modelCell->moduleData[moduleIdx].subType;
 
   uint8_t additionalOnes = 0;
   char* curr = warn_buf;
@@ -570,7 +570,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
 
       if ((type != MODULE_TYPE_NONE) &&
           (type       == (*it)->moduleData[moduleIdx].type) &&
-          (rfProtocol == (*it)->moduleData[moduleIdx].rfProtocol) &&
+          (subType == (*it)->moduleData[moduleIdx].subType) &&
           (modelId    == (*it)->modelId[moduleIdx])) {
 
         // Hit found!
@@ -614,7 +614,7 @@ uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
   }
 
   uint8_t type = modelCell->moduleData[moduleIdx].type;
-  uint8_t rfProtocol = modelCell->moduleData[moduleIdx].rfProtocol;
+  uint8_t subType = modelCell->moduleData[moduleIdx].subType;
 
   uint8_t usedModelIds[(MAX_RXNUM + 7) / 8];
   memset(usedModelIds, 0, sizeof(usedModelIds));
@@ -631,7 +631,7 @@ uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
       // match module type and RF protocol
       if ((type != MODULE_TYPE_NONE) &&
           (type       == (*it)->moduleData[moduleIdx].type) &&
-          (rfProtocol == (*it)->moduleData[moduleIdx].rfProtocol)) {
+          (subType == (*it)->moduleData[moduleIdx].subType)) {
 
         uint8_t id = (*it)->modelId[moduleIdx];
         uint8_t mask = 1 << (id & 7u);

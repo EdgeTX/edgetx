@@ -305,6 +305,24 @@ void Helpers::exportAppSettings(QWidget * dlgParent)
     exportAppSettings(dlgParent);
 }
 
+unsigned int Helpers::getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits, const unsigned int offset)
+ {
+   int mask = -1;
+   mask = mask << numbits;
+   mask = ~mask;
+   return (field >> (numbits * index + offset)) & (unsigned int)mask;
+ }
+
+ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
+ {
+   int mask = -1;
+   mask = mask << numbits;
+   mask = ~mask;
+
+   unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
+   field = (field & ~fieldmask) | (value << (numbits * index + offset));
+ }
+
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
   QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());

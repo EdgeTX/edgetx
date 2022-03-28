@@ -32,6 +32,7 @@
 #include "afhds2.h"
 #include "modules_helpers.h"
 #include "ff.h"
+#include "hal/module_driver.h"
 
 
 #if defined(DSM2)
@@ -66,10 +67,10 @@ extern uint8_t s_pulses_paused;
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
-  uint8_t protocol:4;
+  uint8_t protocol;
   uint8_t mode:4;
   uint8_t paused:1;
-  uint8_t spare:7;
+  uint8_t spare:3;
   uint16_t counter;
 
   // PXX specific items
@@ -230,19 +231,19 @@ void intmoduleSendNextFrame();
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
+void extmoduleSendNextFrame();
 #endif
+void restartModule(uint8_t idx);
 void setupPulsesDSM2();
+void setupPulsesLemonDSMP();
 void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
-void setupPulsesMultiInternalModule();
 void setupPulsesSbus();
 void setupPulsesPPMInternalModule();
 void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-void sendByteDsm2(uint8_t b);
 void putDsm2Flush();
-void putDsm2SerialBit(uint8_t bit);
 void sendByteSbus(uint8_t b);
 void intmodulePpmStart();
 void intmodulePxx1PulsesStart();
@@ -275,25 +276,6 @@ inline void startPulses()
   extramodulePpmStart();
 #endif
 }
-
-enum ChannelsProtocols {
-  PROTOCOL_CHANNELS_UNINITIALIZED,
-  PROTOCOL_CHANNELS_NONE,
-  PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PXX1_PULSES,
-  PROTOCOL_CHANNELS_PXX1_SERIAL,
-  PROTOCOL_CHANNELS_DSM2_LP45,
-  PROTOCOL_CHANNELS_DSM2_DSM2,
-  PROTOCOL_CHANNELS_DSM2_DSMX,
-  PROTOCOL_CHANNELS_CROSSFIRE,
-  PROTOCOL_CHANNELS_MULTIMODULE,
-  PROTOCOL_CHANNELS_SBUS,
-  PROTOCOL_CHANNELS_PXX2_LOWSPEED,
-  PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
-  PROTOCOL_CHANNELS_AFHDS2A,
-  PROTOCOL_CHANNELS_AFHDS3,
-  PROTOCOL_CHANNELS_GHOST
-};
 
 inline void stopPulses()
 {

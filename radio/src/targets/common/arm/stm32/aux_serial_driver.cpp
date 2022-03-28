@@ -19,415 +19,259 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_usart_driver.h"
+
 #include "opentx.h"
 #include "targets/horus/board.h"
+#include "aux_serial_driver.h"
+
+#include "fifo.h"
+#include "dmafifo.h"
+
+#define AUX_SERIAL_TX_BUFFER 512
+
+#if defined(SDRAM)
+  #define AUX_SERIAL_RX_BUFFER 128
+#else
+  #define AUX_SERIAL_RX_BUFFER 32
+#endif
+
+typedef Fifo<uint8_t, AUX_SERIAL_TX_BUFFER> TxFifo;
+typedef DMAFifo<AUX_SERIAL_RX_BUFFER>       RxFifo;
+
+struct SerialState
+{
+  TxFifo* txFifo;
+  RxFifo* rxFifo;
+
+  const stm32_usart_t* usart;
+};
+
+static void* aux_serial_init(const SerialState* st, const etx_serial_init* params)
+{
+  stm32_usart_init(st->usart, params);
+  
+  if (params->rx_enable && st->usart->rxDMA && !params->on_receive) {
+    st->rxFifo->clear();
+    stm32_usart_init_rx_dma(st->usart, st->rxFifo->buffer(), st->rxFifo->size());
+  }
+
+  return (void*)st;
+}
+
+static void aux_serial_putc(void* ctx, uint8_t c)
+{
+  auto st = (const SerialState*)ctx;
+  if (st->txFifo->isFull()) return;
+  st->txFifo->push(c);
+
+  // Send is based on IRQ, so that this
+  // only enables the corresponding IRQ
+  stm32_usart_send_buffer(st->usart, &c, 1);
+}
+
+static void aux_serial_send_buffer(void* ctx, const uint8_t* data, uint8_t size)
+{
+  while(size > 0) {
+    aux_serial_putc(ctx, *data++);
+    size--;
+  }
+}
+
+static void aux_wait_tx_completed(void* ctx)
+{
+  // TODO
+  (void)ctx;
+}
+
+static int aux_get_byte(void* ctx, uint8_t* data)
+{
+  auto st = (const SerialState*)ctx;
+  if (!st->rxFifo) return -1;
+  return st->rxFifo->pop(*data);
+}
+
+void aux_serial_deinit(void* ctx)
+{
+  auto st = (const SerialState*)ctx;
+  stm32_usart_deinit(st->usart);
+}
 
 #if defined(AUX_SERIAL)
-uint8_t auxSerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
-Fifo<uint8_t, 512> auxSerialTxFifo;
 
-#if defined(AUX_SERIAL_DMA_Stream_RX)
-AuxSerialRxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
-#else
-AuxSerialRxFifo auxSerialRxFifo;
-#endif
+static TxFifo auxSerialTxFifo;
+static RxFifo auxSerialRxFifo __DMA (AUX_SERIAL_DMA_Stream_RX);
 
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
+  .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = AUX_SERIAL_GPIO_AF_LL,
+};
+
+static const stm32_usart_t auxUSART = {
+  .USARTx = AUX_SERIAL_USART,
+  .GPIOx = AUX_SERIAL_GPIO,
+  .pinInit = &auxUSARTPinInit,
+  .IRQn = AUX_SERIAL_USART_IRQn,
+  .IRQ_Prio = 7, // TODO: define constant
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+  .rxDMA = AUX_SERIAL_DMA_RX,
+  .rxDMA_Stream = AUX_SERIAL_DMA_Stream_RX_LL,
+  .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,
+};
+
+static const SerialState auxSerialState = {
+    .txFifo = &auxSerialTxFifo,
+    .rxFifo = &auxSerialRxFifo,
+    .usart = &auxUSART,
+};
+
+// TODO: grab context to get buffer
+static uint8_t auxSerialOnSend(uint8_t* data)
 {
-  USART_InitTypeDef USART_InitStructure;
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_PinAFConfig(AUX_SERIAL_GPIO, AUX_SERIAL_GPIO_PinSource_RX, AUX_SERIAL_GPIO_AF);
-  GPIO_PinAFConfig(AUX_SERIAL_GPIO, AUX_SERIAL_GPIO_PinSource_TX, AUX_SERIAL_GPIO_AF);
-
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(AUX_SERIAL_GPIO, &GPIO_InitStructure);
-
-#if defined(AUX_SERIAL_PWR_GPIO)
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_PWR_GPIO_PIN;
-  GPIO_Init(AUX_SERIAL_PWR_GPIO, &GPIO_InitStructure);
-#endif
-
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_WordLength = length;
-  USART_InitStructure.USART_StopBits = stop;
-  USART_InitStructure.USART_Parity = parity;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-  USART_Init(AUX_SERIAL_USART, &USART_InitStructure);
-
-#if defined(AUX_SERIAL_TX_INVERT_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_TX_INVERT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_Init(AUX_SERIAL_TX_INVERT_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUX_SERIAL_TX_INVERT_GPIO, AUX_SERIAL_TX_INVERT_GPIO_PIN);
-#endif
-
-#if defined(AUX_SERIAL_RX_INVERT_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_RX_INVERT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_Init(AUX_SERIAL_RX_INVERT_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUX_SERIAL_RX_INVERT_GPIO, AUX_SERIAL_RX_INVERT_GPIO_PIN);
-#endif
-
-#if defined(AUX_SERIAL_DMA_Stream_RX)
-  if (dma) {
-    DMA_InitTypeDef DMA_InitStructure;
-    auxSerialRxFifo.clear();
-    USART_ITConfig(AUX_SERIAL_USART, USART_IT_RXNE, DISABLE);
-    USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, DISABLE);
-    DMA_InitStructure.DMA_Channel = AUX_SERIAL_DMA_Channel_RX;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&AUX_SERIAL_USART->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(auxSerialRxFifo.buffer());
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-    DMA_InitStructure.DMA_BufferSize = auxSerialRxFifo.size();
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-    DMA_Init(AUX_SERIAL_DMA_Stream_RX, &DMA_InitStructure);
-    USART_DMACmd(AUX_SERIAL_USART, USART_DMAReq_Rx, ENABLE);
-    USART_Cmd(AUX_SERIAL_USART, ENABLE);
-    DMA_Cmd(AUX_SERIAL_DMA_Stream_RX, ENABLE);
-    return;
-  }
-#endif
-
-  // no DMA ...
-  USART_Cmd(AUX_SERIAL_USART, ENABLE);
-  USART_ITConfig(AUX_SERIAL_USART, USART_IT_RXNE, ENABLE);
-  USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, DISABLE);
-  NVIC_SetPriority(AUX_SERIAL_USART_IRQn, 7);
-  NVIC_EnableIRQ(AUX_SERIAL_USART_IRQn);
+  return auxSerialTxFifo.pop(*data);
 }
 
-void auxSerialInit(unsigned int mode, unsigned int protocol)
+// TODO: add to state
+static etx_serial_callbacks_t auxSerialCb = {
+  .on_send = auxSerialOnSend,
+  .on_receive = nullptr,
+  .on_error = nullptr,
+};
+
+static void* auxSerialInit(const etx_serial_init* params)
 {
-  auxSerialStop();
+  return aux_serial_init(&auxSerialState, params);
+}
 
-  auxSerialMode = mode;
+static void (*aux1RxCb)(uint8_t*, uint32_t);
 
-  switch (mode) {
-    case UART_MODE_TELEMETRY_MIRROR:
-#if defined(CROSSFIRE)
-      if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-        auxSerialSetup(CROSSFIRE_TELEM_MIRROR_BAUDRATE, false);
-        AUX_SERIAL_POWER_ON();
-        break;
-      }
-#endif
-      auxSerialSetup(FRSKY_TELEM_MIRROR_BAUDRATE, false);
-      AUX_SERIAL_POWER_ON();
-      break;
+static void aux1_on_rx_byte(uint8_t data)
+{
+  if (aux1RxCb) aux1RxCb(&data, 1);
+}
 
-#if defined(DEBUG) || defined(CLI)
-    case UART_MODE_DEBUG:
-      auxSerialSetup(DEBUG_BAUDRATE, false);
-      AUX_SERIAL_POWER_OFF();
-      break;
-#endif
-
-    case UART_MODE_TELEMETRY:
-      if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-        auxSerialSetup(FRSKY_D_BAUDRATE, true);
-        AUX_SERIAL_POWER_ON();
-      }
-      break;
-
-    case UART_MODE_SBUS_TRAINER:
-      auxSerialSetup(SBUS_BAUDRATE, true, USART_WordLength_9b, USART_Parity_Even, USART_StopBits_2); // USART_WordLength_9b due to parity bit
-      AUX_SERIAL_POWER_ON();
-      break;
-
-    case UART_MODE_LUA:
-      auxSerialSetup(LUA_DEFAULT_BAUDRATE, false);
-      AUX_SERIAL_POWER_ON();
+static void aux1SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+{
+  aux1RxCb = cb;
+  if (aux1RxCb) {
+    auxSerialCb.on_receive = aux1_on_rx_byte;
+    stm32_usart_deinit_rx_dma(&auxUSART);
+  } else {
+    auxSerialCb.on_receive = nullptr;
   }
 }
 
-void auxSerialPutc(char c)
-{
-#if !defined(SIMU)
-  if (auxSerialTxFifo.isFull()) return;
-  auxSerialTxFifo.push(c);
-  USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, ENABLE);
-#endif
-}
-
-void auxSerialSbusInit()
-{
-  auxSerialInit(UART_MODE_SBUS_TRAINER, 0);
-}
-
-void auxSerialStop()
-{
-#if defined(AUX_SERIAL_DMA_Stream_RX)
-  DMA_DeInit(AUX_SERIAL_DMA_Stream_RX);
-#endif
-
-  USART_DeInit(AUX_SERIAL_USART);
-}
-
-uint8_t auxSerialTracesEnabled()
-{
-#if defined(DEBUG)
-  return (auxSerialMode == UART_MODE_DEBUG);
-#else
-  return false;
-#endif
-}
+const etx_serial_driver_t AuxSerialDriver = {
+  .init = auxSerialInit,
+  .deinit = aux_serial_deinit,
+  .sendByte = aux_serial_putc,
+  .sendBuffer = aux_serial_send_buffer,
+  .waitForTxCompleted = aux_wait_tx_completed,
+  .getByte = aux_get_byte,
+  .getBaudrate = nullptr,
+  .setReceiveCb = aux1SetRxCb,
+  .setBaudrateCb = nullptr,
+};
 
 extern "C" void AUX_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
-
-  // Send
-  if (USART_GetITStatus(AUX_SERIAL_USART, USART_IT_TXE) != RESET) {
-    uint8_t txchar;
-    if (auxSerialTxFifo.pop(txchar)) {
-      /* Write one byte to the transmit data register */
-      USART_SendData(AUX_SERIAL_USART, txchar);
-    }
-    else {
-      USART_ITConfig(AUX_SERIAL_USART, USART_IT_TXE, DISABLE);
-    }
-  }
-
-#if defined(CLI)
-  if (getSelectedUsbMode() != USB_SERIAL_MODE) {
-    // Receive
-    uint32_t status = AUX_SERIAL_USART->SR;
-    while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
-      uint8_t data = AUX_SERIAL_USART->DR;
-      if (!(status & USART_FLAG_ERRORS)) {
-        switch (auxSerialMode) {
-          case UART_MODE_DEBUG:
-            cliReceiveData(&data, 1);
-            break;
-        }
-      }
-      status = AUX_SERIAL_USART->SR;
-    }
-  }
-#endif
-
-  // Receive
-  uint32_t status = AUX_SERIAL_USART->SR;
-  while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
-    uint8_t data = AUX_SERIAL_USART->DR;
-    UNUSED(data);
-    if (!(status & USART_FLAG_ERRORS)) {
-#if defined(LUA) & !defined(CLI)
-      if (luaRxFifo && auxSerialMode == UART_MODE_LUA)
-        luaRxFifo->push(data);
-#endif
-    }
-    status = AUX_SERIAL_USART->SR;
-  }
+  stm32_usart_isr(&auxUSART, &auxSerialCb);
 }
+
 #endif // AUX_SERIAL
 
 #if defined(AUX2_SERIAL)
-uint8_t aux2SerialMode = UART_MODE_COUNT;  // Prevent debug output before port is setup
-Fifo<uint8_t, 512> aux2SerialTxFifo;
-AuxSerialRxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
 
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length, uint16_t parity, uint16_t stop)
+static TxFifo aux2SerialTxFifo;
+static RxFifo aux2SerialRxFifo __DMA (AUX2_SERIAL_DMA_Stream_RX);
+
+static const LL_GPIO_InitTypeDef aux2USARTPinInit = {
+  .Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = AUX2_SERIAL_GPIO_AF_LL,
+};
+
+static const stm32_usart_t aux2USART = {
+  .USARTx = AUX2_SERIAL_USART,
+  .GPIOx = AUX2_SERIAL_GPIO,
+  .pinInit = &aux2USARTPinInit,
+  .IRQn = AUX2_SERIAL_USART_IRQn,
+  .IRQ_Prio = 7, // TODO: define constant
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+  .rxDMA = AUX2_SERIAL_DMA_RX,
+  .rxDMA_Stream = AUX2_SERIAL_DMA_Stream_RX_LL,
+  .rxDMA_Channel = AUX2_SERIAL_DMA_Channel_RX,
+};
+
+static const SerialState aux2SerialState = {
+    .txFifo = &aux2SerialTxFifo,
+    .rxFifo = &aux2SerialRxFifo,
+    .usart = &aux2USART,
+};
+
+static uint8_t aux2SerialOnSend(uint8_t* data)
 {
-  USART_InitTypeDef USART_InitStructure;
-  GPIO_InitTypeDef GPIO_InitStructure;
+  return aux2SerialTxFifo.pop(*data);
+}
 
-  GPIO_PinAFConfig(AUX2_SERIAL_GPIO, AUX2_SERIAL_GPIO_PinSource_RX, AUX2_SERIAL_GPIO_AF);
-  GPIO_PinAFConfig(AUX2_SERIAL_GPIO, AUX2_SERIAL_GPIO_PinSource_TX, AUX2_SERIAL_GPIO_AF);
+static etx_serial_callbacks_t aux2SerialCb = {
+  .on_send = aux2SerialOnSend,
+  .on_receive = nullptr,
+  .on_error = nullptr,
+};
 
-  GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(AUX2_SERIAL_GPIO, &GPIO_InitStructure);
+static void* aux2SerialInit(const etx_serial_init* params)
+{
+  return aux_serial_init(&aux2SerialState, params);
+}
 
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_PWR_GPIO_PIN;
-  GPIO_Init(AUX2_SERIAL_PWR_GPIO, &GPIO_InitStructure);
-#endif
+static void (*aux2RxCb)(uint8_t*, uint32_t);
 
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_WordLength = length;
-  USART_InitStructure.USART_StopBits = stop;
-  USART_InitStructure.USART_Parity = parity;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-  USART_Init(AUX2_SERIAL_USART, &USART_InitStructure);
+static void aux2_on_rx_byte(uint8_t data)
+{
+  if (aux2RxCb) aux2RxCb(&data, 1);
+}
 
-  if (dma) {
-    DMA_InitTypeDef DMA_InitStructure;
-    aux2SerialRxFifo.clear();
-    USART_ITConfig(AUX2_SERIAL_USART, USART_IT_RXNE, DISABLE);
-    USART_ITConfig(AUX2_SERIAL_USART, USART_IT_TXE, DISABLE);
-    DMA_InitStructure.DMA_Channel = AUX2_SERIAL_DMA_Channel_RX;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&AUX2_SERIAL_USART->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(aux2SerialRxFifo.buffer());
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-    DMA_InitStructure.DMA_BufferSize = aux2SerialRxFifo.size();
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-    DMA_Init(AUX2_SERIAL_DMA_Stream_RX, &DMA_InitStructure);
-    USART_DMACmd(AUX2_SERIAL_USART, USART_DMAReq_Rx, ENABLE);
-    USART_Cmd(AUX2_SERIAL_USART, ENABLE);
-    DMA_Cmd(AUX2_SERIAL_DMA_Stream_RX, ENABLE);
+static void aux2SetRxCb(void*, void (*cb)(uint8_t*, uint32_t))
+{
+  aux2RxCb = cb;
+  if (aux2RxCb) {
+    aux2SerialCb.on_receive = aux2_on_rx_byte;
+    stm32_usart_deinit_rx_dma(&aux2USART);
+  } else {
+    aux2SerialCb.on_receive = nullptr;
   }
-  else {
-    USART_Cmd(AUX2_SERIAL_USART, ENABLE);
-    USART_ITConfig(AUX2_SERIAL_USART, USART_IT_RXNE, ENABLE);
-    USART_ITConfig(AUX2_SERIAL_USART, USART_IT_TXE, DISABLE);
-    NVIC_SetPriority(AUX2_SERIAL_USART_IRQn, 7);
-    NVIC_EnableIRQ(AUX2_SERIAL_USART_IRQn);
-  }
-}
-
-void aux2SerialInit(unsigned int mode, unsigned int protocol)
-{
-  aux2SerialStop();
-
-  aux2SerialMode = mode;
-
-  switch (mode) {
-    case UART_MODE_TELEMETRY_MIRROR:
-#if defined(CROSSFIRE)
-      if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-        aux2SerialSetup(CROSSFIRE_TELEM_MIRROR_BAUDRATE, false);
-        AUX2_SERIAL_POWER_ON();
-        break;
-      }
-#endif
-      aux2SerialSetup(FRSKY_TELEM_MIRROR_BAUDRATE, false);
-      AUX2_SERIAL_POWER_ON();
-      break;
-
-#if defined(DEBUG) || defined(CLI)
-    case UART_MODE_DEBUG:
-      aux2SerialSetup(DEBUG_BAUDRATE, false);
-      AUX2_SERIAL_POWER_OFF();
-      break;
-#endif
-
-    case UART_MODE_TELEMETRY:
-      if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-        aux2SerialSetup(FRSKY_D_BAUDRATE, true);
-        AUX2_SERIAL_POWER_ON();
-      }
-      break;
-
-    case UART_MODE_SBUS_TRAINER:
-      aux2SerialSetup(SBUS_BAUDRATE, true, USART_WordLength_9b, USART_Parity_Even, USART_StopBits_2); // 2 stop bits requires USART_WordLength_9b
-      AUX2_SERIAL_POWER_ON();
-      break;
-
-    case UART_MODE_LUA:
-      aux2SerialSetup(LUA_DEFAULT_BAUDRATE, false);
-      AUX2_SERIAL_POWER_ON();
-  }
-}
-
-void aux2SerialPutc(char c)
-{
-#if !defined(SIMU)
-  if (aux2SerialTxFifo.isFull()) return;
-  aux2SerialTxFifo.push(c);
-  USART_ITConfig(AUX2_SERIAL_USART, USART_IT_TXE, ENABLE);
-#endif
-}
-
-void aux2SerialSbusInit()
-{
-  aux2SerialInit(UART_MODE_SBUS_TRAINER, 0);
-}
-
-void aux2SerialStop()
-{
-  DMA_DeInit(AUX2_SERIAL_DMA_Stream_RX);
-  USART_DeInit(AUX2_SERIAL_USART);
-}
-
-uint8_t aux2SerialTracesEnabled()
-{
-#if defined(DEBUG)
-  return (aux2SerialMode == UART_MODE_DEBUG);
-#else
-  return false;
-#endif
 }
 
 extern "C" void AUX2_SERIAL_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SER2);
-
-  // Send
-  if (USART_GetITStatus(AUX2_SERIAL_USART, USART_IT_TXE) != RESET) {
-    uint8_t txchar;
-    if (aux2SerialTxFifo.pop(txchar)) {
-      /* Write one byte to the transmit data register */
-      USART_SendData(AUX2_SERIAL_USART, txchar);
-    }
-    else {
-      USART_ITConfig(AUX2_SERIAL_USART, USART_IT_TXE, DISABLE);
-    }
-  }
-
-#if defined(CLI)
-  if (getSelectedUsbMode() != USB_SERIAL_MODE) {
-    // Receive
-    uint32_t status = AUX2_SERIAL_USART->SR;
-    while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
-      uint8_t data = AUX2_SERIAL_USART->DR;
-      if (!(status & USART_FLAG_ERRORS)) {
-        switch (aux2SerialMode) {
-          case UART_MODE_DEBUG:
-            cliReceiveData(&data, 1);
-            break;
-        }
-      }
-      status = AUX2_SERIAL_USART->SR;
-    }
-  }
-#endif
-
-  // Receive
-  uint32_t status = AUX2_SERIAL_USART->SR;
-  while (status & (USART_FLAG_RXNE | USART_FLAG_ERRORS)) {
-    uint8_t data = AUX2_SERIAL_USART->DR;
-    UNUSED(data);
-    if (!(status & USART_FLAG_ERRORS)) {
-#if defined(LUA) & !defined(CLI)
-      if (luaRxFifo && aux2SerialMode == UART_MODE_LUA) {
-        luaRxFifo->push(data);
-      }
-#endif
-    }
-    status = AUX2_SERIAL_USART->SR;
-  }
+  stm32_usart_isr(&aux2USART, &aux2SerialCb);
 }
+
+const etx_serial_driver_t Aux2SerialDriver = {
+  .init = aux2SerialInit,
+  .deinit = aux_serial_deinit,
+  .sendByte = aux_serial_putc,
+  .sendBuffer = aux_serial_send_buffer,
+  .waitForTxCompleted = aux_wait_tx_completed,
+  .getByte = aux_get_byte,
+  .getBaudrate = nullptr,
+  .setReceiveCb = aux2SetRxCb,
+  .setBaudrateCb = nullptr,
+};
+
 #endif // AUX2_SERIAL

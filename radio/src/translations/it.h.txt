@@ -63,11 +63,7 @@
 #define TR_TRNCHN              "ch1ch2ch3ch4"
 
 #define LEN_AUX_SERIAL_MODES   "\016"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0        ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          "
-#else
-#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          "
-#endif
+#define TR_AUX_SERIAL_MODES    "OFF\0          ""Replica S-Port""Telemetria\0   ""SBUS Trainer\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Dis.\0 ""Toggle""2POS\0 ""3POS\0"
@@ -539,6 +535,7 @@
 #define TR_PERSISTENT          TR(INDENT "Persist.", INDENT "Persistente")
 #define TR_BACKLIGHT_LABEL     TR("Retroillu.", "Retroilluminazione")
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY             INDENT "Durata"
 #define TR_BLONBRIGHTNESS      TR(INDENT "Lumin. ON", INDENT "Luminosità ON")
 #define TR_BLOFFBRIGHTNESS     TR(INDENT "Lumin. OFF", INDENT "Luminosità OFF")
@@ -835,6 +832,7 @@
 #define TR_TEMP_CALIB          "Temp. Calib."
 #define TR_TIME                "Ora"
 #define TR_MAXBAUDRATE         "Max Bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
@@ -853,7 +851,7 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Ind. Dist."
 #define TR_BLUETOOTH_LOCAL_ADDR "Ind. Loc."
 #define TR_BLUETOOTH_PIN_CODE   "Codice PIN"
-#define TR_BAUDRATE             "Baudrate BT"
+#define TR_BLUETOOTH_BAUDRATE   "Baudrate BT"
 #define LEN_BLUETOOTH_MODES     "\011"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---\0     ""Attivo\0 "
@@ -874,6 +872,7 @@
 #define TR_DATE                "Data"
 #define TR_MONTHS              { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic" }
 #define TR_ROTARY_ENCODER      "R.E."
+#define TR_INVERT_ROTARY       "Invert Rotary"
 #define TR_CHANNELS_MONITOR    "MONITOR CANALI"
 #define TR_MIXERS_MONITOR      "MONITOR MIXER"
 #define TR_PATH_TOO_LONG       "Path troppo lungo"
@@ -956,7 +955,7 @@
 #define TR_ABOUT_US            "Info su"
 #define TR_USB_JOYSTICK        "Joystick USB (HID)"
 #define TR_USB_MASS_STORAGE    "Storage USB (SD)"
-#define TR_USB_SERIAL          "Seriale USB (Debug)"
+#define TR_USB_SERIAL          "Seriale USB (VCP)"
 #define TR_SETUP_SCREENS       "Schermate conf."
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "Inter. AND"

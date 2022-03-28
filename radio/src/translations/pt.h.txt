@@ -62,11 +62,7 @@
 #define TR_TRNCHN        "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES   "\017"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0         ""S-Port Mirror\0 ""Telemetry\0     ""SBUS Trainer\0  ""LUA\0           "
-#else
-#define TR_AUX_SERIAL_MODES    "OFF\0           ""S-Port Mirror\0 ""Telemetry\0     ""SBUS Trainer\0  ""LUA\0           "
-#endif
+#define TR_AUX_SERIAL_MODES    "OFF\0           ""S-Port Mirror\0 ""Telemetry\0     ""SBUS Trainer\0  ""LUA\0           ""CLI\0           ""GPS\0           ""Debug\0         "
 
 #define LEN_SWTYPES      "\006"
 #define TR_SWTYPES       "None\0 ""Toggle""2POS\0 ""3POS\0"
@@ -539,6 +535,7 @@
 #define TR_PERSISTENT          INDENT "Persist."
 #define TR_BACKLIGHT_LABEL     "Backlight"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY             INDENT "Tempo Backlight"
 #define TR_BLONBRIGHTNESS      INDENT "ON Brightness"
 #define TR_BLOFFBRIGHTNESS     INDENT "OFF Brightness"
@@ -840,6 +837,7 @@
 #define TR_TEMP_CALIB          "Temp. Calib"
 #define TR_TIME                "Time"
 #define TR_MAXBAUDRATE         "Max bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
@@ -858,7 +856,7 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR "Local addr"
 #define TR_BLUETOOTH_PIN_CODE   "PIN code"
-#define TR_BAUDRATE             "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE   "BT Baudrate"
 #define LEN_BLUETOOTH_MODES     "\011"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---\0     ""Enabled\0 "
@@ -879,6 +877,7 @@
 #define TR_DATE                "Data"
 #define TR_MONTHS              { "Jan", "Fev", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER      "R.E."
+#define TR_INVERT_ROTARY       "Invert Rotary"
 #define TR_CHANNELS_MONITOR    "CHANNELS MONITOR"
 #define TR_MIXERS_MONITOR      "MIXERS MONITOR"
 #define TR_PATH_TOO_LONG       "Path too long"
@@ -961,7 +960,7 @@
 #define TR_ABOUT_US            "About Us"
 #define TR_USB_JOYSTICK        "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE    "USB Storage (SD)"
-#define TR_USB_SERIAL          "USB Serial (Debug)"
+#define TR_USB_SERIAL          "USB Serial (VCP)"
 #define TR_SETUP_SCREENS       "Setup screens"
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "AND Switch"

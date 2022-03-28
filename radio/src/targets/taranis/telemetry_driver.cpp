@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 uint32_t telemetryErrors = 0;
@@ -106,7 +107,8 @@ void telemetryPortInvertedInit(uint32_t baudrate)
     //TODO:
     // - handle conflict with HEARTBEAT disabled for trainer input...
     // - probably need to stop trainer input/output and restore after this is closed
-#if !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER) && !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
+#if !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER) && \
+    !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
     NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
 #endif
     NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
@@ -228,7 +230,7 @@ void telemetryPortSetDirectionInput()
 {
   sportWaitTransmissionComplete();
 #if defined(GHOST) && SPORT_MAX_BAUDRATE < 400000
-  if (isModuleGhost(EXTERNAL_MODULE) && g_eeGeneral.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
+  if (isModuleGhost(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate == GHST_TELEMETRY_RATE_115K) {
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
@@ -392,22 +394,12 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
   telemetryPortInvertedRxBit();
 }
 
-// TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-bool telemetryGetByte(uint8_t * byte)
+// TODO: we should have telemetry in an higher layer,
+//       functions above should move to a sport_driver.cpp
+//
+bool sportGetByte(uint8_t * byte)
 {
-#if defined(AUX_SERIAL)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    if (auxSerialMode == UART_MODE_TELEMETRY)
-      return auxSerialRxFifo.pop(*byte);
-    else
-      return false;
-  }
-  else {
-    return telemetryFifo.pop(*byte);
-  }
-#else
   return telemetryFifo.pop(*byte);
-#endif
 }
 
 void telemetryClearFifo()

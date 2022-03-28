@@ -24,6 +24,7 @@
 
 #include "io/multi_protolist.h"
 #include "telemetry/multi.h"
+#include "mixer_scheduler.h"
 
 // for the  MULTI protocol definition
 // see https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
@@ -50,48 +51,19 @@ static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
 #endif
 
-void multiPatchCustom(uint8_t moduleIdx)
-{
-  if (g_model.moduleData[moduleIdx].multi.customProto) {
-    uint8_t type = g_model.moduleData[moduleIdx].getMultiProtocol() - 1;  // custom where starting at 1, etx list at 0
-    int subtype = g_model.moduleData[moduleIdx].subType;
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
 
-    g_model.moduleData[moduleIdx].multi.customProto = 0;
-
-    if (type == 2) {  // multi PROTO_FRSKYD
-      g_model.moduleData[moduleIdx].subType = 1;    // D8
-      return;
-    }
-    else if (type == 14) { // multi PROTO_FRSKYX
-      g_model.moduleData[moduleIdx].setMultiProtocol(2);
-      switch (subtype) {
-        case 0:       //D16-16
-          g_model.moduleData[moduleIdx].subType = 0;
-          break;
-        case 1:       //D16-8
-          g_model.moduleData[moduleIdx].subType = 2;
-          break;
-        case 2:       //EU-16
-          g_model.moduleData[moduleIdx].subType = 4;
-          break;
-        case 3:       //EU-8
-          g_model.moduleData[moduleIdx].subType = 5;
-          break;
-      }
-      return;
-    }
-    else if (type == 24) {  // multi PROTO_FRSKYV
-      g_model.moduleData[moduleIdx].setMultiProtocol(2);
-      g_model.moduleData[moduleIdx].subType = 3;
-      return;
-    }
-    if (type > 14)
-      type -= 1;
-    if (type > 24)
-      type -= 1;
-    g_model.moduleData[moduleIdx].setMultiProtocol(type);
-  }
-}
+etx_serial_init multiSerialInitParams = {
+    .baudrate = MULTIMODULE_BAUDRATE,
+    .parity = ETX_Parity_Even,
+    .stop_bits = ETX_StopBits_Two,
+    .word_length = ETX_WordLength_9,
+    .rx_enable = true,
+    .on_receive = intmoduleFifoReceive,
+    .on_error = intmoduleFifoError,
+};
+#endif
 
 static void sendMulti(uint8_t moduleIdx, uint8_t b)
 {
@@ -102,6 +74,20 @@ static void sendMulti(uint8_t moduleIdx, uint8_t b)
   else
 #endif
     sendByteSbus(b);
+}
+
+static void updateMultiSync(uint8_t module)
+{
+  const auto& status = getMultiModuleStatus(module);
+  if (status.isValid() && status.isRXProto) {
+    mixerSchedulerSetPeriod(module, 0);
+  } else {
+    auto& sync = getModuleSyncStatus(module);
+    if (sync.isValid())
+      mixerSchedulerSetPeriod(module, sync.getAdjustedRefreshRate());
+    else
+      mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+  }
 }
 
 static void sendFailsafeChannels(uint8_t moduleIdx)
@@ -146,6 +132,8 @@ void setupPulsesMulti(uint8_t moduleIdx)
   };
   uint8_t type=MULTI_NORMAL;
 
+  updateMultiSync(moduleIdx);
+
   // not scanning protos &&  not spectrum analyser
   if (getModuleMode(moduleIdx) == MODULE_MODE_NORMAL) {
     // Failsafe packets
@@ -186,7 +174,7 @@ void setupPulsesMulti(uint8_t moduleIdx)
     sendMulti(moduleIdx, invert[moduleIdx] & 0x08);
   }
   else {
-    sendMulti(moduleIdx, (uint8_t) (((g_model.moduleData[moduleIdx].getMultiProtocol() + 3) & 0xC0)
+    sendMulti(moduleIdx, (uint8_t) (((g_model.moduleData[moduleIdx].multi.rfProtocol + 3) & 0xC0)
                                     | (g_model.header.modelId[moduleIdx] & 0x30)
                                     | (invert[moduleIdx] & 0x08)
                                     //| 0x04 // Future use
@@ -230,11 +218,65 @@ void setupPulsesMultiExternalModule()
 }
 
 #if defined(INTERNAL_MODULE_MULTI)
-void setupPulsesMultiInternalModule()
+static void* multiInit(uint8_t module)
 {
+  (void)module;
+  
+  // serial port setup
+  intmodulePulsesData.multi.initFrame();
+  intmoduleFifo.clear();
+  void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
+  INTERNAL_MODULE_ON();
+
+  // reset status
+  getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
+  getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+
+#if defined(MULTI_PROTOLIST)
+  TRACE("enablePulsesInternalModule(): trigger scan");
+  MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
+  TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
+#endif
+
+  return uart_ctx;
+}
+
+static void multiDeInit(void* context)
+{
+  INTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  IntmoduleSerialDriver.deinit(context);
+}
+
+static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+  
   intmodulePulsesData.multi.initFrame();
   setupPulsesMulti(INTERNAL_MODULE);
 }
+
+static void multiSendPulses(void* context)
+{
+  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.multi.getData(),
+                                   intmodulePulsesData.multi.getSize());
+}
+
+#include "hal/module_driver.h"
+
+const etx_module_driver_t MultiInternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
+  .init = multiInit,
+  .deinit = multiDeInit,
+  .setupPulses = multiSetupPulses,
+  .sendPulses = multiSendPulses  
+};
 #endif
 
 void sendChannels(uint8_t moduleIdx)
@@ -355,7 +397,7 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 {// byte 1+2, protocol information
 
   // Our enumeration starts at 0
-  int type = g_model.moduleData[moduleIdx].getMultiProtocol() + 1;
+  int type = g_model.moduleData[moduleIdx].multi.rfProtocol + 1;
   int subtype = g_model.moduleData[moduleIdx].subType;
   int8_t optionValue = g_model.moduleData[moduleIdx].multi.optionValue;
 
@@ -406,12 +448,12 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 
   // Set the highest bit of option byte in AFHDS2A protocol to instruct MULTI to passthrough telemetry bytes instead
   // of sending Frsky D telemetry
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
     optionValue = optionValue | 0x80;
 
   // For custom protocol send unmodified type byte
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MM_RF_CUSTOM_SELECTED)
-    type = g_model.moduleData[moduleIdx].getMultiProtocol();
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MM_RF_CUSTOM_SELECTED)
+    type = g_model.moduleData[moduleIdx].multi.rfProtocol;
 
   uint8_t headerByte = 0x55;
   // header, byte 0,  0x55 for proto 0-31, 0x54 for proto 32-63
@@ -425,7 +467,7 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 
   // protocol byte
   protoByte |= (type & 0x1f);
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() != MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol != MODULE_SUBTYPE_MULTI_DSM2)
     protoByte |= (g_model.moduleData[moduleIdx].multi.autoBindMode << 6);
 
   sendMulti(moduleIdx, protoByte);

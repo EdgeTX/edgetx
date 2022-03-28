@@ -373,6 +373,7 @@ inline bool SPLASH_NEEDED()
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
+  #define CASE_ROTARY_ENCODER(x) x,
   #define IS_ROTARY_ENCODER_NAVIGATION_ENABLE()  true
   extern volatile rotenc_t rotencValue;
   #define ROTARY_ENCODER_NAVIGATION_VALUE        rotencValue
@@ -381,8 +382,11 @@ inline bool SPLASH_NEEDED()
   #define ROTENC_HIGHSPEED             50
   #define ROTENC_DELAY_MIDSPEED        32
   #define ROTENC_DELAY_HIGHSPEED       16
-#elif defined(RADIO_T8)
-  constexpr uint8_t rotencSpeed = 1;
+#else
+  #define CASE_ROTARY_ENCODER(x)
+  #if defined(RADIO_T8)
+    constexpr uint8_t rotencSpeed = 1;
+  #endif
 #endif
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
@@ -581,14 +585,6 @@ void flightReset(uint8_t check=true);
 #else
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
 #endif
-
-#if defined(SIMU)
-  uint16_t getTmr2MHz();
-  uint16_t getTmr16KHz();
-#else
-  static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
-#endif
-
 
 #if defined(SPLASH)
   void doSplash();

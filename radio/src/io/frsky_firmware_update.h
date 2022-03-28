@@ -137,6 +137,7 @@ class FrskyDeviceFirmwareUpdate {
     uint32_t address = 0;
     ModuleIndex module;
     uint8_t frame[12];
+    void* uart_ctx = nullptr;
 
     void startFrame(uint8_t command);
     void sendFrame();

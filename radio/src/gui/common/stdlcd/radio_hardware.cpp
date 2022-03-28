@@ -21,6 +21,7 @@
 
 #include <opentx.h>
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(PCBTARANIS)
 enum {
@@ -96,15 +97,13 @@ enum {
 #endif
 
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
-  ITEM_RADIO_HARDWARE_INTERNAL_MODULE,
+  ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE,
+  ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE,
+  ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE,
 #endif
-  
-#if (defined(CROSSFIRE) || defined(GHOST))
-  ITEM_RADIO_HARDWARE_SERIAL_BAUDRATE,
-#endif
-
+#if defined(HARDWARE_EXTERNAL_MODULE)
   ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE,
-
+#endif
 #if defined(BLUETOOTH)
   ITEM_RADIO_HARDWARE_BLUETOOTH_MODE,
   ITEM_RADIO_HARDWARE_BLUETOOTH_PAIRING_CODE,
@@ -117,9 +116,13 @@ enum {
   ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA,
 #endif
 
-#if defined(AUX_SERIAL)
-  ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE,
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+  ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL,
+  ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE,
+  ITEM_RADIO_HARDWARE_AUX2_SERIAL_MODE,
+  ITEM_RADIO_HARDWARE_VCP_SERIAL_MODE,
 #endif
+
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
 #if defined(SPORT_UPDATE_PWR_GPIO)
@@ -226,23 +229,30 @@ enum {
 #endif
 
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
-  #define INTERNAL_MODULE_ROWS   0,
+  #define INTERNAL_MODULE_ROWS \
+    LABEL(InternalModule), 0,  \
+        (isInternalModuleCrossfire() ? (uint8_t)0 : HIDDEN_ROW),
 #else
   #define INTERNAL_MODULE_ROWS
 #endif
-
-#if (defined(CROSSFIRE) || defined(GHOST))
-  #define MAX_BAUD_ROWS                  0,
+#if defined(HARDWARE_EXTERNAL_MODULE)
+#define SERIAL_SAMPLE_MODE_ROWS          0,
 #else
-  #define MAX_BAUD_ROWS
+#define SERIAL_SAMPLE_MODE_ROWS
 #endif
 
-#define SERIAL_SAMPLE_MODE_ROWS          0,
-
-#if defined(AUX_SERIAL)
-  #define AUX_SERIAL_ROWS 0,
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+static uint8_t _dispSerialPort(uint8_t port_nr)
+{
+  auto port = serialGetPort(port_nr);
+  if (!port || !port->name) return HIDDEN_ROW;
+  return 0;
+}
+#define SERIAL_PORT_ROWS                                                  \
+  LABEL(SerialPorts), _dispSerialPort(SP_AUX1), _dispSerialPort(SP_AUX2), \
+      _dispSerialPort(SP_VCP),
 #else
-  #define AUX_SERIAL_ROWS
+  #define SERIAL_PORT_ROWS
 #endif
 
 #if LCD_W >= 212
@@ -260,7 +270,8 @@ enum {
 #endif
 
 #if defined(EEPROM)
-void onFactoryResetConfirm(const char * result)
+#define EEPROM_ROWS 0 /* EEPROM backup */, 0 /* Factory reset */,
+void onFactoryResetConfirm(const char* result)
 {
   if (result == STR_OK) {
     showMessageBox(STR_STORAGE_FORMAT);
@@ -268,22 +279,17 @@ void onFactoryResetConfirm(const char * result)
     NVIC_SystemReset();
   }
 }
+#else
+#define EEPROM_ROWS
 #endif
 
-void restartExternalModule()
-{
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
-  }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
+static bool _isAux1ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX1, m); }
+static bool _isAux2ModeAvailable(int m) { return isSerialModeAvailable(SP_AUX2, m); }
+static bool _isVCPModeAvailable(int m) { return isSerialModeAvailable(SP_VCP, m); }
+
+static const IsValueAvailable _isSerialModeAvailable[MAX_SERIAL_PORTS] = {
+  _isAux1ModeAvailable, _isAux2ModeAvailable, _isVCPModeAvailable
+};
 
 void menuRadioHardware(event_t event)
 {
@@ -303,17 +309,15 @@ void menuRadioHardware(event_t event)
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
     INTERNAL_MODULE_ROWS
-    MAX_BAUD_ROWS
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
     EXTERNAL_ANTENNA_ROW
-    AUX_SERIAL_ROWS
+    SERIAL_PORT_ROWS
     0 /* ADC filter */,
     READONLY_ROW /* RAS */,
     SPORT_POWER_ROWS
     1 /* debugs */,
-    0 /* EEPROM backup */,
-    0 /* Factory reset */
+    EEPROM_ROWS
   });
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
@@ -513,9 +517,13 @@ void menuRadioHardware(event_t event)
 #endif
 
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
-      case ITEM_RADIO_HARDWARE_INTERNAL_MODULE: {
+      case ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE:
+        lcdDrawTextAlignedLeft(y, STR_INTERNALRF);
+        break;
+
+      case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE: {
         g_eeGeneral.internalModule =
-            editChoice(HW_SETTINGS_COLUMN2, y, STR_INTERNAL_MODULE,
+            editChoice(HW_SETTINGS_COLUMN2, y, STR_TYPE,
                        STR_INTERNAL_MODULE_PROTOCOLS,
                        g_eeGeneral.internalModule, MODULE_TYPE_NONE,
                        MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
@@ -528,26 +536,26 @@ void menuRadioHardware(event_t event)
       } break;
 #endif
 
-#if (defined(CROSSFIRE) || defined(GHOST))
-      case ITEM_RADIO_HARDWARE_SERIAL_BAUDRATE:
-        lcdDrawTextAlignedLeft(y, STR_MAXBAUDRATE);
-        lcdDrawNumber(HW_SETTINGS_COLUMN2, y, CROSSFIRE_BAUDRATE, attr|LEFT);
+#if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
+      case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE:
+        lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
+        lcdDrawTextAtIndex(HW_SETTINGS_COLUMN2, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),attr | LEFT);
         if (attr) {
-          g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate), 0, DIM(CROSSFIRE_BAUDRATES) - 1));
+          g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
           if (checkIncDec_Ret) {
-              restartExternalModule();
+              restartModule(INTERNAL_MODULE);
           }
         }
         break;
 #endif
-
+#if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
-          restartExternalModule();
+          restartModule(EXTERNAL_MODULE);
         }
         break;
-
+#endif
 #if defined(BLUETOOTH)
       case ITEM_RADIO_HARDWARE_BLUETOOTH_MODE:
         lcdDrawTextAlignedLeft(y, STR_BLUETOOTH);
@@ -595,13 +603,30 @@ void menuRadioHardware(event_t event)
         break;
 #endif
 
-#if defined(AUX_SERIAL)
-      case ITEM_RADIO_HARDWARE_AUX_SERIAL_MODE:
-        g_eeGeneral.auxSerialMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_AUX_SERIAL_MODE, STR_AUX_SERIAL_MODES, g_eeGeneral.auxSerialMode, 0, UART_MODE_MAX, attr, event);
-        if (attr && checkIncDec_Ret) {
-          auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
-        }
+#if defined(AUX_SERIAL) || defined(USB_SERIAL)
+      case ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_AUX_SERIAL_MODE);
         break;
+      case ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE:
+      case ITEM_RADIO_HARDWARE_AUX2_SERIAL_MODE:
+      case ITEM_RADIO_HARDWARE_VCP_SERIAL_MODE:
+      {
+        auto port_nr = k - ITEM_RADIO_HARDWARE_AUX1_SERIAL_MODE;
+        auto port = serialGetPort(port_nr);
+        if (port && port->name) {
+          lcdDrawText(INDENT_WIDTH, y, port->name);
+
+          auto mode = serialGetMode(port_nr);
+          mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,
+                            STR_AUX_SERIAL_MODES, mode, 0, UART_MODE_MAX, attr,
+                            event, _isSerialModeAvailable[port_nr]);
+
+          if (attr && checkIncDec_Ret) {
+            serialSetMode(port_nr, mode);
+            serialInit(port_nr, mode);
+          }
+        }
+      } break;
 #endif
       case ITEM_RADIO_HARDWARE_JITTER_FILTER:
         g_eeGeneral.noJitterFilter = 1 - editCheckBox(1 - g_eeGeneral.noJitterFilter, HW_SETTINGS_COLUMN2, y, STR_JITTER_FILTER, attr, event);

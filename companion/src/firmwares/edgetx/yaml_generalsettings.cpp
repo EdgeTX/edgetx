@@ -59,12 +59,29 @@ const YamlLookupTable bluetoothModeLut = {
   {  GeneralSettings::BLUETOOTH_MODE_TRAINER, "TRAINER"  },
 };
 
-const YamlLookupTable uartModeLut = {
+const YamlLookupTable oldUartModeLut = {
   {  GeneralSettings::AUX_SERIAL_OFF, "MODE_NONE"  },
   {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "MODE_TELEMETRY_MIRROR"  },
   {  GeneralSettings::AUX_SERIAL_TELE_IN, "MODE_TELEMETRY"  },
   {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  GeneralSettings::AUX_SERIAL_LUA, "MODE_LUA"  },
+};
+
+const YamlLookupTable serialPortLut = {
+  {  GeneralSettings::SP_AUX1, "AUX1" },
+  {  GeneralSettings::SP_AUX2, "AUX2" },
+  {  GeneralSettings::SP_VCP, "VCP" },
+};
+
+const YamlLookupTable uartModeLut = {
+  {  GeneralSettings::AUX_SERIAL_OFF, "NONE"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "TELEMETRY_MIRROR"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY"  },
+  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  GeneralSettings::AUX_SERIAL_LUA, "LUA"  },
+  {  GeneralSettings::AUX_SERIAL_CLI, "CLI"  },
+  {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },
+  {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
 };
 
 const YamlLookupTable antennaModeLut = {
@@ -94,31 +111,28 @@ const YamlLookupTable internalModuleLut = {
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
 };
 
-struct YamlTelemetryBaudrate {
-  unsigned int value;
-
-  YamlTelemetryBaudrate() = default;
-
-  YamlTelemetryBaudrate(const unsigned int * telemetryBaudrate)
-  {
-    if (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::SportMaxBaudRate) < 400000) {
-      value = *telemetryBaudrate;
-    }
-    else {
-      value = (*telemetryBaudrate + telemetryBaudratesList.size() - 1) % telemetryBaudratesList.size();
-    }
+YamlTelemetryBaudrate::YamlTelemetryBaudrate(
+    const unsigned int* moduleBaudrate)
+{
+  if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                            Board::SportMaxBaudRate) < 400000) {
+    value = *moduleBaudrate;
+  } else {
+    value = (*moduleBaudrate + moduleBaudratesList.size() - 1) %
+             moduleBaudratesList.size();
   }
+}
 
-  void toCpn(unsigned int * telemetryBaudrate, unsigned int variant)
-  {
-    if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) < 400000) {
-      *telemetryBaudrate = value;
-    }
-    else {
-      *telemetryBaudrate = (value + 1) % telemetryBaudratesList.size();
-    }
+void YamlTelemetryBaudrate::toCpn(unsigned int* moduleBaudrate,
+                                  unsigned int variant)
+{
+  if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) <
+      400000) {
+    *moduleBaudrate = value;
+  } else {
+    *moduleBaudrate = (value + 1) % moduleBaudratesList.size();
   }
-};
+}
 
 namespace YAML
 {
@@ -162,8 +176,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
 
-  YamlTelemetryBaudrate telemetryBaudrate(&rhs.telemetryBaudrate);
-  node["telemetryBaudrate"] = telemetryBaudrate.value;
+  YamlTelemetryBaudrate internalModuleBaudrate(&rhs.internalModuleBaudrate);
+  node["internalModuleBaudrate"] = internalModuleBaudrate.value;
 
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
@@ -186,6 +200,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
+  node["rotEncDirection"] = (int)rhs.rotEncDirection;
   node["imperial"] = rhs.imperial;
   node["ttsLanguage"] = rhs.ttsLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
@@ -195,8 +210,17 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
-  node["auxSerialMode"] = uartModeLut << rhs.auxSerialMode;
-  node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
+
+  Node serialPort;
+  for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
+    if (rhs.serialPort[i] != UART_MODE_NONE) {
+      Node mode = uartModeLut << rhs.serialPort[i];
+      serialPort[LookupValue(serialPortLut, i)]["mode"] = mode;
+    }
+  }
+  if (serialPort && serialPort.IsMap())
+    node["serialPort"] = serialPort;
+
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["backlightColor"] = rhs.backlightColor;
   node["pwrOnSpeed"] = rhs.pwrOnSpeed;
@@ -332,9 +356,13 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
 
-  YamlTelemetryBaudrate telemetryBaudrate;
-  node["telemetryBaudrate"] >> telemetryBaudrate.value;
-  telemetryBaudrate.toCpn(&rhs.telemetryBaudrate, rhs.variant);
+  YamlTelemetryBaudrate internalModuleBaudrate;
+  if (node["telemetryBaudrate"]) {
+    node["telemetryBaudrate"] >> internalModuleBaudrate.value;
+  } else {
+    node["internalModuleBaudrate"] >> internalModuleBaudrate.value;
+  }
+  internalModuleBaudrate.toCpn(&rhs.internalModuleBaudrate, rhs.variant);
 
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;
@@ -363,6 +391,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
+  node["rotEncDirection"] >> rhs.rotEncDirection;
   node["imperial"] >> rhs.imperial;
   node["ttsLanguage"] >> rhs.ttsLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
@@ -372,8 +401,31 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
-  node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
-  node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
+
+  if (node["auxSerialMode"]) {
+    node["auxSerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX1];
+  }
+
+  if (node["aux2SerialMode"]) {
+    node["aux2SerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX2];
+  }
+
+  if (node["serialPort"]) {
+    Node serialPort = node["serialPort"];
+    if (serialPort.IsMap()) {
+      for (const auto& port : serialPort) {
+        YAML::Node port_nr = port.first >> serialPortLut;
+        if (port_nr) {
+          int p = port_nr.as<int>();
+          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap())
+            port.second["mode"] >> uartModeLut >> rhs.serialPort[p];
+        }
+      }
+    }
+  }
+  
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;

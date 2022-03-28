@@ -62,11 +62,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\015"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    			"Debug\0       ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         "
-#else
-#define TR_AUX_SERIAL_MODES    			"AUS\0         ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         "
-#endif
+#define TR_AUX_SERIAL_MODES    			"AUS\0         ""Telem Mirror\0""Telemetry In\0""SBUS Eingang\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES            			"\006"
 #define TR_SWTYPES            			 "Kein\0 ""Taster""2POS\0 ""3POS\0"
@@ -517,6 +513,7 @@
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
 #define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
 #define TR_BLONBRIGHTNESS              INDENT "An-Helligkeit"
 #define TR_BLOFFBRIGHTNESS             INDENT "Aus-Helligkeit"
@@ -813,6 +810,7 @@
 #define TR_TEMP_CALIB                   "Temp.  abgl."
 #define TR_TIME                         "Uhrzeit:"
 #define TR_MAXBAUDRATE                  "Max Baud"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                  "Sample Mode"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                 "Normal""OneBit"
@@ -831,7 +829,7 @@
 #define TR_BLUETOOTH_DIST_ADDR          "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR         "Local addr"
 #define TR_BLUETOOTH_PIN_CODE           "PIN code"
-#define TR_BAUDRATE                     "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE           "BT Baudrate"
 #define LEN_BLUETOOTH_MODES             "\011"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES              "---\0     ""Enabled\0 "
@@ -852,6 +850,7 @@
 #define TR_DATE                        "Datum:"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez" }
 #define TR_ROTARY_ENCODER              "Drehgeber"
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR            "Kanal-Monitor==>"
 #define TR_MIXERS_MONITOR              "==>Mischer Monitor"
 #define TR_PATH_TOO_LONG               "Pfad zu Lang"
@@ -934,7 +933,7 @@
 #define TR_ABOUT_US                    "Die Programmierer"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Speicher (SD)"
-#define TR_USB_SERIAL                  "USB Seriell (Debug)"
+#define TR_USB_SERIAL                  "USB Seriell (VCP)"
 #define TR_SETUP_SCREENS               "Setup Hautbildschirme"
 #define TR_MONITOR_SCREENS             "Monitore Mischer Kanal Logik"
 #define TR_AND_SWITCH                  "UND Schalt" //UND mit weiterem Schaltern
@@ -1121,7 +1120,7 @@
 #define TR_LSW_DESCRIPTIONS            { "Vergleich oder Funktion", "Erste Variable", "Zweite Variable/Konstante", "Zweite Variable/Konstante", "Weitere UND Bedingung für Freigabe des Log Schalters", "ON-Zeit des Log Schalters wenn Bedingung ok", "Mindestdauer der Bedingung damit Log Schalter ON geht" }
 
 //Taranis About screen
-#define TR_ABOUTUS                     "Über OpenTx"
+#define TR_ABOUTUS                     TR(" Info ", "Info")
 
 #define TR_CHR_SHORT  				  's' // Taste short
 #define TR_CHR_LONG   			      'l' // Taste long
