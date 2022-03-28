@@ -52,11 +52,9 @@ constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
 constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
-#define LABELS_WIDTH 120
-#define LABELS_LEFT 5
-#define LABELS_TOP (60)
-
 constexpr int LONG_PRESS_10MS = 40;
+constexpr coord_t MODEL_CELL_PADDING = 6;
+constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 
 #if LCD_W > LCD_H
 constexpr int MODEL_CELLS_PER_LINE = 2;
@@ -65,20 +63,30 @@ constexpr int BUTTON_WIDTH  = 85;
 constexpr LcdFlags textFont = FONT(STD);
 constexpr rect_t detailsDialogRect = {50, 50, 400, 100};
 constexpr int labelWidth = 150;
+constexpr int LABELS_HEIGHT = MENUS_LINE_HEIGHT;
+constexpr int LABELS_WIDTH = 120;
+constexpr int LABELS_LEFT = 5;
+constexpr int LABELS_TOP = 60;
+constexpr coord_t MODEL_SELECT_CELL_WIDTH =
+    (LCD_W - LABELS_WIDTH - LABELS_LEFT - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
+    MODEL_CELLS_PER_LINE;
+
 #else
 constexpr int MODEL_CELLS_PER_LINE = 2;
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 75;
 constexpr LcdFlags textFont = FONT(XS);
 constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 100};
-constexpr int labelWidth = 120;
-#endif
-constexpr coord_t MODEL_CELL_PADDING = 6;
-constexpr coord_t MODEL_SELECT_CELL_WIDTH =
-    (LCD_W - LABELS_WIDTH - LABELS_LEFT - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
-    MODEL_CELLS_PER_LINE;
-constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
+constexpr int labelWidth = 150;
+constexpr int LABELS_HEIGHT = 30;
+constexpr int LAY_MARGIN = 5;
+constexpr int MODELS_TOP = 125;
+constexpr int SORTBUTTONS_TOP = LCD_H - 70 - LAY_MARGIN;
 
+constexpr coord_t MODEL_SELECT_CELL_WIDTH =
+    (LCD_W - LAY_MARGIN - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
+    MODEL_CELLS_PER_LINE;
+#endif
 
 class ToolbarButton : public Button
 {
@@ -497,6 +505,9 @@ class ModelButton : public Button
         break;
       case EVT_KEY_BREAK(KEY_ENTER):
         onPress();
+        break;
+      case EVT_KEY_FIRST(KEY_EXIT):
+        killEvents(event);
         break;
 
       default:
@@ -964,6 +975,9 @@ void ModelLabelsWindow::onEvent(event_t event)
      if (focus != nullptr && focus->getNextField()) {
       focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
     }
+  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    killEvents(event);
+    deleteLater();
   } else {
     Page::onEvent(event);
   }
@@ -1021,11 +1035,18 @@ void ModelLabelsWindow::buildHead(PageHeader *window)
 
 void ModelLabelsWindow::buildBody(FormWindow *window)
 {
+   //constexpr int MODELS_TOP = 100;
+//constexpr int SORTBUTTONS_TOP = 200;
+  #if LCD_W > LCD_H
   // Models List and Filters - Right
   mdlselector = new ModelsPageBody(window, {LABELS_WIDTH + LABELS_LEFT + 3, 5, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, window->height() - 40});
-  mdlselector->setLblRefreshFunc(std::bind(&ModelLabelsWindow::labelRefreshRequest, this));
-
   auto buttonHolder = new ButtonHolder(window, {LABELS_WIDTH + LABELS_LEFT + 3, window->height() - 33, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, 25 });
+  #else
+  mdlselector = new ModelsPageBody(window, {LAY_MARGIN, MODELS_TOP , window->width() - LAY_MARGIN*2, SORTBUTTONS_TOP - MODELS_TOP - LAY_MARGIN});
+  auto buttonHolder = new ButtonHolder(window, {LAY_MARGIN, SORTBUTTONS_TOP, window->width() - LAY_MARGIN*2, window->height() - SORTBUTTONS_TOP - LAY_MARGIN});
+  #endif
+
+  mdlselector->setLblRefreshFunc(std::bind(&ModelLabelsWindow::labelRefreshRequest, this));
   buttonHolder->setPressHandler([=](int index, ButtonHolder::ButtonInfo *button) {
     if (index == 0) {  // aphla
       sort = button->sortState == 0 ? NAME_ASC : NAME_DES;
@@ -1034,12 +1055,15 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
     }
     mdlselector->setSortOrder(sort); // Update the list asynchronously
   });
-
+#if LCD_W > LCD_H
   lblselector = new ListBox(window, {LABELS_LEFT, 5, LABELS_WIDTH, window->height() - 10 },
+#else
+  lblselector = new ListBox(window, {LAY_MARGIN, LAY_MARGIN, window->width() - LAY_MARGIN*2, MODELS_TOP - LAY_MARGIN*2},
+#endif
     getLabels(),
     [=] () {
       return 0;
-    }, [=](uint32_t value) {});
+    }, [=](uint32_t value) {}, LABELS_HEIGHT);
   lblselector->setSelectionMode(ListBox::LISTBOX_MULTI_SELECT);
   lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected){
     LabelsVector sellabels;
@@ -1079,7 +1103,6 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
               modelsLabels.renameLabel(oldLabel, newLabel);
               auto labels = getLabels();
               lblselector->setNames(labels);
-              //mdlselector->setLabel(newLabel); // Update the list
             });
           return 0;
         });
@@ -1089,7 +1112,6 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
             modelsLabels.removeLabel(labelToDelete);
             auto labels = getLabels();
             lblselector->setNames(labels);
-            //mdlselector->setLabel(labels[lblselector->getSelected()]); TODO
           }
           return 0;
         });
