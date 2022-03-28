@@ -378,7 +378,7 @@ void stop_trainer_module_sbus()
   }
 }
 
-int trainerModuleSbusGetByte(uint8_t* byte)
+bool trainerModuleSbusGetByte(uint8_t* byte)
 {
   return trainerSbusFifo.pop(*byte);
 }
