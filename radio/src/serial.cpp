@@ -128,7 +128,7 @@ static SerialPortState* getSerialPortState(uint8_t port_nr)
 static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* port)
 {
   void (*sendByte)(void*, uint8_t) = nullptr;
-  int (*getByte)(void*, uint8_t*) = nullptr;
+  bool (*getByte)(void*, uint8_t*) = nullptr;
   void (*setRxCb)(void*, void (*)(uint8_t*, uint32_t)) = nullptr;
 
   const etx_serial_driver_t* drv = nullptr;

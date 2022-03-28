@@ -69,7 +69,7 @@ static void deinit(void*) {}
 static void sendByte(void*, uint8_t) {}
 static void sendBuffer(void*, const uint8_t*, uint8_t) {}
 static void waitForTxCompleted(void*) {}
-static int getByte(void*,uint8_t*) { return -1; }
+static bool getByte(void*,uint8_t*) { return -1; }
 
 const etx_serial_driver_t IntmoduleSerialDriver = {
     .init = init,

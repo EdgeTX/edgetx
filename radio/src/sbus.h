@@ -26,15 +26,15 @@
 #define SBUS_FRAME_SIZE       25
 
 // Setup SBUS AUX serial input
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 
 // SBUS AUX serial getter:
 //  if set, it will fetch data from the handler set
 //  with sbusSetAuxGetByte()
-int sbusAuxGetByte(uint8_t* byte);
+bool sbusAuxGetByte(uint8_t* byte);
 
 // Setup general SBUS input source
-void sbusSetGetByte(int (*fct)(uint8_t*));
+void sbusSetGetByte(bool (*fct)(uint8_t*));
 
 void processSbusInput();
 void sbusTrainerPauseCheck();
