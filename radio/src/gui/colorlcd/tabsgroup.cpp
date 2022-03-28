@@ -20,8 +20,14 @@
  */
 
 #include "tabsgroup.h"
+
 #include "mainwindow.h"
+#include "view_channels.h"
 #include "view_main.h"
+#include "model_outputs.h"
+#include "model_mixes.h"
+#include "static.h"
+#include "menu_model.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -31,13 +37,15 @@
 
 #include <algorithm>
 
+int calledFromModel = 0;
+static int retTab = 0;
+
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
 #if defined(HARDWARE_TOUCH)
   back(this, { 0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT },
-       [=]() -> uint8_t {
-         parent->deleteLater();
-         ViewMain::instance()->setFocus((SET_FOCUS_DEFAULT));
+       [=]() -> uint8_t {         
+         pushEvent(EVT_KEY_FIRST(KEY_EXIT));
          return 1;
        }, NO_FOCUS | FORM_NO_BORDER),
 #endif
@@ -46,7 +54,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
 {
 }
 
-void TabsGroupHeader::paint(BitmapBuffer * dc)
+void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
   OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title);
 }
@@ -217,10 +225,29 @@ void TabsGroup::onEvent(event_t event)
   }
   else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
     killEvents(event);
-    ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
+    if (!calledFromModel) {
+      ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);  
+    }
+    else {
+      auto menu = new ModelMenu();
+      menu->setCurrentTab(retTab);
+      calledFromModel = 0;
+      //TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
+    }
     deleteLater();
-  }
-  else if (parent) {
+    calledFromModel = 0;
+    
+  } else if (event == EVT_KEY_LONG(KEY_TELEM)) {
+    TRACE("TabGroup %s", typeid(*this).name());
+    if (typeid(*this) == typeid(ModelMenu) ) {
+      killEvents(event);
+      calledFromModel = 1;
+      retTab = header.carousel.getCurrentIndex();
+      TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
+      new ChannelsViewMenu();
+      deleteLater();
+    }
+  } else if (parent) {
     parent->onEvent(event);
   }
 }

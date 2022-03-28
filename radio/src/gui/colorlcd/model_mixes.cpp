@@ -416,6 +416,7 @@ class MixLineTitle : public StaticText
   }
 };
 
+
 void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 {
   FormGridLayout grid;

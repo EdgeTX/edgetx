@@ -21,11 +21,10 @@
 
 #include "model_outputs.h"
 
-#include "opentx.h"
-#include "libopenui.h"
-
 #include "channel_bar.h"
 #include "gvar_numberedit.h"
+#include "libopenui.h"
+#include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -294,6 +293,7 @@ class OutputLineButton : public Button
   int value = 0;
 };
 
+
 ModelOutputsPage::ModelOutputsPage() :
     PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
 {
@@ -307,11 +307,13 @@ void ModelOutputsPage::rebuild(FormWindow *window, int8_t focusChannel)
   window->setScrollPositionY(scrollPosition);
 }
 
+
 void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
+
 
   new TextButton(
       window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,

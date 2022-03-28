@@ -718,6 +718,7 @@ const char STR_PRESET[] = TR_PRESET;
 const char STR_CLEAR[] = TR_CLEAR;
 const char STR_RESET[] = TR_RESET;
 const char STR_ADD_ALL_TRIMS_TO_SUBTRIMS[] = TR_ADD_ALL_TRIMS_TO_SUBTRIMS;
+const char STR_OPEN_CHANNEL_MONITORS[] = TR_OPEN_CHANNEL_MONITORS;
 const char STR_COUNT[] = TR_COUNT;
 const char STR_PT[] = TR_PT;
 const char STR_PTS[] = TR_PTS;
