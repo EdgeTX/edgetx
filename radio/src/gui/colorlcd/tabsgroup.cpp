@@ -237,7 +237,7 @@ void TabsGroup::onEvent(event_t event)
     deleteLater();
     calledFromModel = 0;
     
-  } else if (event == EVT_KEY_LONG(KEY_TELEM)) {
+  } else if (event == EVT_KEY_FIRST(KEY_TELEM)) {
     TRACE("TabGroup %s", typeid(*this).name());
     if (typeid(*this) == typeid(ModelMenu) ) {
       killEvents(event);
