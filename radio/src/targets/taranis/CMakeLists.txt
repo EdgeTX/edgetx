@@ -498,7 +498,6 @@ if(HARDWARE_EXTERNAL_MODULE)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/extmodule_driver.cpp
-    targets/common/arm/stm32/stm32_pulse_driver.cpp
     targets/common/arm/stm32/extmodule_serial_driver.cpp
     targets/common/arm/stm32/stm32_usart_driver.cpp
     )
@@ -599,7 +598,6 @@ set(FIRMWARE_TARGET_SRC
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp
-  trainer_driver.cpp
   )
 
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
@@ -618,6 +616,9 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/stm32_exti_driver.cpp
+  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
   )
 
 if(LCD_DUAL_BUFFER)

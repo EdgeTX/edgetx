@@ -23,6 +23,7 @@
 #include "hal/adc_driver.h"
 #include "hal/serial_driver.h"
 #include "hal/serial_port.h"
+#include "hal/trainer_driver.h"
 
 #include "board.h"
 #include "timers_driver.h"
@@ -133,13 +134,8 @@ void boardInit()
 #if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_APB1Periph |
 #endif
-                         AUX_SERIAL_RCC_APB1Periph |
-                         AUX2_SERIAL_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
-                         TRAINER_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-                         INTMODULE_RCC_APB1Periph |
-                         EXTMODULE_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
@@ -148,12 +144,8 @@ void boardInit()
                          LCD_RCC_APB2Periph |
                          ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
-                         INTMODULE_RCC_APB2Periph |
-                         EXTMODULE_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph |
                          BT_RCC_APB2Periph |
-                         AUX_SERIAL_RCC_APB2Periph |
-                         AUX2_SERIAL_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
@@ -168,6 +160,7 @@ void boardInit()
 #endif
 
   pwrInit();
+  init_trainer();
   pwrOn();
   delaysInit();
 

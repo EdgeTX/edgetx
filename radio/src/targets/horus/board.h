@@ -67,12 +67,6 @@ extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
-#if defined(PCBX10) && !defined(RADIO_FAMILY_T16)
-  #define TRAINER_CONNECTED()            (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_SET)
-#else
-  #define TRAINER_CONNECTED()            (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_RESET)
-#endif
-
 // Board driver
 void boardInit();
 void boardOff();
@@ -188,12 +182,6 @@ void SDRAM_Init();
   #define IS_PXX2_INTERNAL_ENABLED()            (true)
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
-
-// Trainer driver
-void init_trainer_ppm();
-void stop_trainer_ppm();
-void init_trainer_capture();
-void stop_trainer_capture();
 
 // Keys driver
 enum EnumKeys

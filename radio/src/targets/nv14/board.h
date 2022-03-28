@@ -51,7 +51,6 @@
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-#define TRAINER_CONNECTED()             (true)
 
 // initilizes the board for the bootloader
 #define HAVE_BOARD_BOOTLOADER_INIT 1
@@ -160,12 +159,6 @@ void EXTERNAL_MODULE_OFF();
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
-
-// Trainer driver
-void init_trainer_ppm();
-void stop_trainer_ppm();
-void init_trainer_capture();
-void stop_trainer_capture();
 
 // Keys driver
 enum EnumKeys
