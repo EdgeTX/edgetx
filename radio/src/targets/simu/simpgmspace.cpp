@@ -732,7 +732,7 @@ void disableSpeaker()
 }
 #endif
 
-int trainerModuleSbusGetByte(unsigned char*) { return 0; }
+bool trainerModuleSbusGetByte(unsigned char*) { return 0; }
 
 void rtcInit()
 {
