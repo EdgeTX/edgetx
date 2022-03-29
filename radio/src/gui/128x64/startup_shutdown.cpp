@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-
 #include "opentx.h"
 
 
@@ -36,17 +35,17 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
     return;
 
   uint8_t index = limit<uint8_t>(0, duration / (totalDuration / 5), 4);
-  uint8_t index2 = limit<uint8_t>(0, duration / (totalDuration / 7), 6);
-  
   lcdRefreshWait();
   lcdClear();
-  
-  #if defined(RADIO_TPRO)
-    for (uint8_t j = 0; j < 6; j++) {
-      if (index2 > j)
-        fsLedOn(j);
-    }
-  #endif
+
+#if defined(RADIO_TPRO)
+  uint8_t index2 = limit<uint8_t>(0, duration / (totalDuration / 7), 6);
+
+  for (uint8_t j = 0; j < 6; j++) {
+    if (index2 > j)
+      fsLedOn(j);
+  }
+#endif
 
   for (uint8_t i = 0; i < 4; i++) {
     if (index > i) {
