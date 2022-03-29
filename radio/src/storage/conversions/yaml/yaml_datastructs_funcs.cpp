@@ -323,8 +323,11 @@ bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 
   data -= offsetof(RadioData, switchConfig);
   RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return wf(opaque, rd->anaNames[idx],
-            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, rd->anaNames[idx],
+          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
