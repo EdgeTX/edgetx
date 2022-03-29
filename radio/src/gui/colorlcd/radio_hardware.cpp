@@ -265,9 +265,9 @@ class InternalModuleWindow : public FormGroup {
 #endif
     clear();
 
-    new StaticText(this, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
+    new StaticText(this, grid.getLabelSlot(true), TR_INTERNAL_MODULE, 0,
                    COLOR_THEME_PRIMARY1);
-    auto internalModule = new Choice(this, grid.getFieldSlot(1, 0),STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+    auto internalModule = new Choice(this, grid.getFieldSlot(),STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
                                      GET_DEFAULT(g_eeGeneral.internalModule),
                                      [=](int moduleType) {
                                        if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
@@ -281,12 +281,12 @@ class InternalModuleWindow : public FormGroup {
     internalModule->setAvailableHandler([](int module){
       return isInternalModuleSupported(module);
     });
+    grid.nextLine();
 
 #if defined(CROSSFIRE)
     if (isInternalModuleCrossfire()) {
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
-      new Choice(this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+      new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
+      new Choice(this, grid.getFieldSlot(), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
           [=]() -> int {
             return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
           },
@@ -297,10 +297,8 @@ class InternalModuleWindow : public FormGroup {
           });
       grid.nextLine();
     }
-    auto par = getParent();
-    par->moveWindowsTop(top() + 1, adjustHeight());
-    par->adjustInnerHeight();
 #endif
+    getParent()->moveWindowsTop(top() + 1, adjustHeight());
   }
 
   void checkEvents() override
@@ -481,7 +479,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
 // extra bottom padding if touchscreen
 #if defined HARDWARE_TOUCH
-  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot());
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());
