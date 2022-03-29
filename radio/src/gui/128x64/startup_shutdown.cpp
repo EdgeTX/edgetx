@@ -38,10 +38,10 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
   lcdRefreshWait();
   lcdClear();
 
-#if defined(RADIO_TPRO)
-  uint8_t index2 = limit<uint8_t>(0, duration / (totalDuration / 7), 6);
+#if defined(FUNCTION_SWITCHES)
+  uint8_t index2 = limit<uint8_t>(0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES+1)), NUM_FUNCTIONS_SWITCHES);
 
-  for (uint8_t j = 0; j < 6; j++) {
+  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
     if (index2 > j)
       fsLedOn(j);
   }
