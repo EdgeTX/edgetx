@@ -67,6 +67,17 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
   lcdRefreshWait();
   lcdClear();
 
+#if defined(FUNCTION_SWITCHES)
+  uint8_t index2 = limit<uint8_t>(0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES+1)), NUM_FUNCTIONS_SWITCHES);
+
+  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
+    fsLedOff(j);
+    if (NUM_FUNCTIONS_SWITCHES - index2 > j)
+      fsLedOn(j);
+  }
+#endif
+
+
   for (uint8_t i = 0; i < 4; i++) {
     if (4 - index > i) {
       lcdDrawFilledRect(LCD_W / 2 - 18 + 10 * i, LCD_H / 2 - 3, 6, 6, SOLID, 0);

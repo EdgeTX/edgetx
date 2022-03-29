@@ -141,14 +141,17 @@ void evalFunctionSwitches()
         }
       }
 
+      
       fsPreviousState ^= 1 << i;    // Toggle state
       storageDirty(EE_MODEL);
     }
 
-    if (getFSLogicalState(i))
-      fsLedOn(i);
-    else
-      fsLedOff(i);
+    if (!pwrPressed()) {
+      if (getFSLogicalState(i))
+        fsLedOn(i);
+      else
+        fsLedOff(i);
+    }
   }
 }
 #endif
