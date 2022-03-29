@@ -984,6 +984,7 @@
 #define TR_ANTENNAPROBLEM              CENTER "TX antenna problem!"
 #if defined(COLORLCD)
   #define TR_MODELIDUSED               "ID used in:"
+  #define TR_MODELIDUNIQUE             "ID is Unique"
 #else
   #define TR_MODELIDUSED               TR("ID used in:","Receiver ID used in:")
 #endif

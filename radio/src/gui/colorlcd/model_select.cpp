@@ -59,7 +59,7 @@ constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 #if LCD_W > LCD_H
 constexpr int MODEL_CELLS_PER_LINE = 2;
 constexpr int BUTTON_HEIGHT = 30;
-constexpr int BUTTON_WIDTH  = 85;
+constexpr int BUTTON_WIDTH  = 95;
 constexpr LcdFlags textFont = FONT(STD);
 constexpr rect_t detailsDialogRect = {50, 50, 400, 100};
 constexpr int labelWidth = 150;
@@ -917,7 +917,7 @@ ModelLabelsWindow::ModelLabelsWindow() :
 
   // make PG_UP and PG_DN work
   lblselector->setNextField(mdlselector);
-  lblselector->setPreviousField(mdlselector);
+  lblselector->setPreviousField(newButton);
   mdlselector->setNextField(newButton);
   mdlselector->setPreviousField(lblselector);
   newButton->setNextField(lblselector);
@@ -1035,8 +1035,6 @@ void ModelLabelsWindow::buildHead(PageHeader *window)
 
 void ModelLabelsWindow::buildBody(FormWindow *window)
 {
-   //constexpr int MODELS_TOP = 100;
-//constexpr int SORTBUTTONS_TOP = 200;
   #if LCD_W > LCD_H
   // Models List and Filters - Right
   mdlselector = new ModelsPageBody(window, {LABELS_WIDTH + LABELS_LEFT + 3, 5, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, window->height() - 40});
@@ -1048,7 +1046,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
   mdlselector->setLblRefreshFunc(std::bind(&ModelLabelsWindow::labelRefreshRequest, this));
   buttonHolder->setPressHandler([=](int index, ButtonHolder::ButtonInfo *button) {
-    if (index == 0) {  // aphla
+    if (index == 0) {  // alpha
       sort = button->sortState == 0 ? NAME_ASC : NAME_DES;
     } else {
       sort = button->sortState == 0 ? DATE_ASC : DATE_DES;

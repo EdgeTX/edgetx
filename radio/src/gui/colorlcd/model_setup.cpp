@@ -630,7 +630,7 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_STATUS, 0,COLOR_THEME_PRIMARY1);
         new DynamicText(this, grid.getFieldSlot(), [=] {
             char msg[64] = "";
-            sprintf(msg,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+            sprintf(msg,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), (unsigned long)telemetryErrors);
             return std::string(msg);
         });
       }
@@ -1062,6 +1062,7 @@ class ModuleWindow : public FormGroup {
         new StaticText(this, grid.getLabelSlot(true), STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
 
         // Model index
+
         if (isModuleModelIndexAvailable(moduleIdx)) {
           thirdColumn++;
           new NumberEdit(
@@ -1073,12 +1074,7 @@ class ModuleWindow : public FormGroup {
                   if (isModuleCrossfire(moduleIdx)) {
                     moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
                   }
-                  char buffer[50] = TR_MODELIDUSED " ";
-                  int len = strlen(buffer);
                   modelslist.updateCurrentModelCell();
-                  if(!modelslist.isModelIdUnique(moduleIdx, buffer + len, sizeof(buffer)-len)) {
-                    new FullScreenDialog(WARNING_TYPE_ALERT, TR_WARNING, buffer);
-                  }
                   SET_DIRTY();
                 }
               });
@@ -1181,16 +1177,20 @@ class ModuleWindow : public FormGroup {
             });
           }
         }
-
-        // TODO... REPLACE WITH SOMETHING THAT AUTO UPDATES.
-        grid.nextLine();
-        char buffer[50] = TR_MODELIDUSED " ";
-        int len = strlen(buffer);
-        if(!modelslist.isModelIdUnique(moduleIdx, buffer + len, sizeof(buffer)-len)) {
-          new StaticText(this, grid.getFieldSlot(true), buffer);
-          grid.nextLine();
-        }
       }
+
+      if(isModuleModelIndexAvailable(moduleIdx)) {
+        grid.nextLine();
+        new DynamicText(this, grid.getFieldSlot(true), [=]() -> std::string {
+          char buffer[50] = TR_MODELIDUSED " ";
+          int len = strlen(buffer);
+          if(!modelslist.isModelIdUnique(moduleIdx, buffer + len, sizeof(buffer)-len))
+            return buffer;
+          else
+            return STR_MODELIDUNIQUE;
+        }, REFRESH_ALWAYS);
+      }
+
 
 #if defined(AFHDS2) && defined(PCBNV14)
       if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {

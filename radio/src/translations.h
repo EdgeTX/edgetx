@@ -520,6 +520,7 @@ extern const char STR_CURRENT_CALIB[];
 extern const char STR_UNITS_SYSTEM[];
 extern const char STR_VOICE_LANGUAGE[];
 extern const char STR_MODELIDUSED[];
+extern const char STR_MODELIDUNIQUE[];
 extern const char STR_BEEP_VOLUME[];
 extern const char STR_WAV_VOLUME[];
 extern const char STR_BG_VOLUME[];
