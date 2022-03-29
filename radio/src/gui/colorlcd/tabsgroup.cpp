@@ -236,22 +236,22 @@ void TabsGroup::onEvent(event_t event)
   else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
     killEvents(event);
     if (!calledFromModel) {
-      ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);  
+      ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
     }
     else {
       auto menu = new ModelMenu();
       menu->setCurrentTab(retTab);
       calledFromModel = 0;
-      //TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
+      // TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
     }
     deleteLater();
-  } else if (event == EVT_KEY_FIRST(KEY_TELEM)) {
+  } else if (event == EVT_KEY_FIRST(KEY_MODEL)) {
     TRACE("TabGroup %s", typeid(*this).name());
     if (typeid(*this) == typeid(ModelMenu) ) {
       killEvents(event);
       calledFromModel = 1;
       retTab = header.carousel.getCurrentIndex();
-      TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
+      // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
       new ChannelsViewMenu();
       deleteLater();
     }

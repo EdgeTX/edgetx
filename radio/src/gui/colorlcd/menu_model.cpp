@@ -69,10 +69,9 @@ void ModelMenu::addButton(TabsGroupHeader* header)
   OpenTxTheme::instance()->createTextButton(
       header, {LCD_W / 2 + 5, MENU_TITLE_TOP, LCD_W / 2 - 5, MENU_TITLE_HEIGHT},
       STR_OPEN_CHANNEL_MONITORS, [=]() {
-        //pushEvent(EVT_KEY_FIRST(KEY_TELEM));
         calledFromModel = 1;
         retTab = header->getCarousel()->getCurrentIndex();
-        TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
+        // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
         new ChannelsViewMenu();
         deleteLater();
         return 0;

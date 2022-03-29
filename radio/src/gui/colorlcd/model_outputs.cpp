@@ -293,7 +293,6 @@ class OutputLineButton : public Button
   int value = 0;
 };
 
-
 ModelOutputsPage::ModelOutputsPage() :
     PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
 {
@@ -307,13 +306,11 @@ void ModelOutputsPage::rebuild(FormWindow *window, int8_t focusChannel)
   window->setScrollPositionY(scrollPosition);
 }
 
-
 void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
-
 
   new TextButton(
       window, grid.getLineSlot(), STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
