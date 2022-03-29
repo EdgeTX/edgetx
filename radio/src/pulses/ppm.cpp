@@ -60,13 +60,17 @@ void setupPulsesPPMTrainer()
       &trainerPulsesData.ppm, g_model.trainerData.channelsStart,
       g_model.trainerData.channelsCount);
 
-  uint16_t rest = PPM_TRAINER_PERIOD_HALF_US();
-  if (total < rest + PPM_SAFE_MARGIN * 2)
+  uint32_t rest = PPM_TRAINER_PERIOD_HALF_US();
+  if ((uint32_t)total < rest + PPM_SAFE_MARGIN * 2)
     rest -= total;
   else
     rest = PPM_SAFE_MARGIN * 2;
 
-  *trainerPulsesData.ppm.ptr++ = rest;
+  // restrict to 16 bit max
+  if (rest >= USHRT_MAX - 1)
+    rest = USHRT_MAX - 1;
+    
+  *trainerPulsesData.ppm.ptr++ = (uint16_t)rest;
 
   // stop mark so that IRQ-based sending
   // knows when to stop
