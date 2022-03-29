@@ -37,20 +37,30 @@
 
 #include <algorithm>
 
-int calledFromModel = 0;
-static int retTab = 0;
+int TabsGroup::calledFromModel = 0;
+int TabsGroup::retTab = 0;
 
-TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
-  FormGroup(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
+TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
+    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, OPAQUE),
 #if defined(HARDWARE_TOUCH)
-  back(this, { 0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT },
-       [=]() -> uint8_t {         
-         pushEvent(EVT_KEY_FIRST(KEY_EXIT));
-         return 1;
-       }, NO_FOCUS | FORM_NO_BORDER),
+    back(
+        this,
+        {0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT},
+        [=]() -> uint8_t {
+          if (!parent->calledFromModel) {
+            ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
+          } else {
+            auto menu = new ModelMenu();
+            menu->setCurrentTab(parent->retTab);
+            parent->calledFromModel = 0;
+          }
+          parent->deleteLater();
+          return 1;
+        },
+        NO_FOCUS | FORM_NO_BORDER),
 #endif
-  icon(icon),
-  carousel(this, parent)
+    icon(icon),
+    carousel(this, parent)
 {
 }
 
@@ -235,8 +245,6 @@ void TabsGroup::onEvent(event_t event)
       //TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
     }
     deleteLater();
-    calledFromModel = 0;
-    
   } else if (event == EVT_KEY_FIRST(KEY_TELEM)) {
     TRACE("TabGroup %s", typeid(*this).name());
     if (typeid(*this) == typeid(ModelMenu) ) {
