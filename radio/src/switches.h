@@ -40,3 +40,5 @@ uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
 bool isSwitchWarningRequired(uint16_t &bad_pots);
+
+void rawSetUnconnectedStickySwitch(uint8_t, bool);

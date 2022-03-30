@@ -1019,3 +1019,7 @@ void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
 {
   lswFm[dst] = lswFm[src];
 }
+
+void rawSetUnconnectedStickySwitch(const uint8_t, const bool) {
+    
+}
