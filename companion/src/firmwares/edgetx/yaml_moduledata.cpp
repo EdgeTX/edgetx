@@ -65,7 +65,7 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_SBUS, "TYPE_SBUS"  },
   {  PULSES_XJT_LITE_X16, "TYPE_XJT_LITE_PXX2"  },
   {  PULSES_AFHDS3, "TYPE_FLYSKY"  },
-  {  PULSES_LEMON_DSMP, "LEMON_DSMP"  },
+  {  PULSES_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
 };
 
 static const YamlLookupTable xjtLut = {
