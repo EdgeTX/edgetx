@@ -19,20 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "menu_model.h"
-#include "model_setup.h"
-#include "model_heli.h"
-#include "model_flightmodes.h"
-#include "model_mixes.h"
-#include "model_inputs.h"
-#include "model_outputs.h"
-#include "model_gvars.h"
+
+#include "translations.h"
+#include "view_channels.h"
 #include "model_curves.h"
+#include "model_flightmodes.h"
+#include "model_gvars.h"
+#include "model_heli.h"
+#include "model_inputs.h"
 #include "model_logical_switches.h"
 #include "model_mixer_scripts.h"
-#include "special_functions.h"
+#include "model_mixes.h"
+#include "model_outputs.h"
+#include "model_setup.h"
 #include "model_telemetry.h"
+#include "opentx.h"
+#include "special_functions.h"
 
 ModelMenu::ModelMenu():
   TabsGroup(ICON_MODEL)
@@ -57,4 +60,20 @@ ModelMenu::ModelMenu():
   addTab(new ModelMixerScriptsPage());
 #endif
   addTab(new ModelTelemetryPage());
+
+  addButton(&header);
+}
+
+void ModelMenu::addButton(TabsGroupHeader* header)
+{
+  OpenTxTheme::instance()->createTextButton(
+      header, {LCD_W / 2 + 5, MENU_TITLE_TOP, LCD_W / 2 - 5, MENU_TITLE_HEIGHT},
+      STR_OPEN_CHANNEL_MONITORS, [=]() {
+        calledFromModel = 1;
+        retTab = header->getCarousel()->getCurrentIndex();
+        // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
+        new ChannelsViewMenu();
+        deleteLater();
+        return 0;
+      });
 }

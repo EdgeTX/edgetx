@@ -150,9 +150,11 @@ class TabsGroupHeader: public FormGroup {
       title = value;
     }
 
-  protected:
+    TabsCarousel* getCarousel() {return &carousel;}
+
+   protected:
 #if defined(HARDWARE_TOUCH)
-    Button back;
+        Button back;
 #endif
     uint8_t icon;
     TabsCarousel carousel;
@@ -225,7 +227,10 @@ class TabsGroup: public Window
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-  protected:
+    static int calledFromModel;
+    static int retTab;
+
+   protected:
     TabsGroupHeader header;
     FormWindow body;
     std::vector<PageTab *> tabs;
