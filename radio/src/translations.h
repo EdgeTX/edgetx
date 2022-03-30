@@ -1062,6 +1062,7 @@ extern const char STR_PRESET[];
 extern const char STR_CLEAR[];
 extern const char STR_RESET[];
 extern const char STR_ADD_ALL_TRIMS_TO_SUBTRIMS[];
+extern const char STR_OPEN_CHANNEL_MONITORS[];
 extern const char STR_COUNT[];
 extern const char STR_PT[];
 extern const char STR_PTS[];

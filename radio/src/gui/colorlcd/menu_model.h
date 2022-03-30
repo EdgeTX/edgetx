@@ -33,6 +33,9 @@ class ModelMenu: public TabsGroup {
   }
 #endif  
     ModelMenu();
+
+  protected:
+   void addButton(TabsGroupHeader* headerPtr);
 };
 
 #endif // _MENU_MODEL_H_

@@ -21,11 +21,10 @@
 
 #include "model_outputs.h"
 
-#include "opentx.h"
-#include "libopenui.h"
-
 #include "channel_bar.h"
 #include "gvar_numberedit.h"
+#include "libopenui.h"
+#include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
