@@ -64,28 +64,33 @@ if(EdgeTX_SUPERBUILD)
     DEPENDS native-configure arm-none-eabi-configure)
 
   add_custom_target(libsimulator
-    COMMAND ${CMAKE_COMMAND} --build native --target libsimulator
-    DEPENDS configure
+    COMMAND $(MAKE) -C native libsimulator
+    DEPENDS native-configure
+    )
+
+  add_custom_target(companion
+    COMMAND $(MAKE) -C native companion
+    DEPENDS native-configure
     )
 
   add_custom_target(gtests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
-    DEPENDS configure
+    COMMAND $(MAKE) -C native gtests-radio
+    DEPENDS native-configure
     )
 
   add_custom_target(tests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
-    DEPENDS configure
+    COMMAND $(MAKE) -C native tests-radio
+    DEPENDS native-configure
     )
 
   add_custom_target(firmware
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
-    DEPENDS configure
+    COMMAND $(MAKE) -C arm-none-eabi firmware
+    DEPENDS arm-none-eabi-configure
     )
 
   add_custom_target(firmware-size
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
-    DEPENDS configure
+    COMMAND $(MAKE) -C arm-none-eabi firmware-size
+    DEPENDS arm-none-eabi-configure
     )
 
   # Quit cmake at this point
