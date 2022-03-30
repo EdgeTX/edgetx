@@ -21,6 +21,9 @@
 
 #include "opentx.h"
 #include "options.h"
+#if defined(CROSSFIRE)
+  #include "mixer_scheduler.h"
+#endif
 
 // TODO duplicated code
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -134,6 +137,22 @@ void menuRadioModulesVersion(event_t event)
           y += FH;
           continue;
         }
+        if (isModuleMultimodule(module)) {
+          char statusText[64] = "";
+          getMultiModuleStatus(module).getStatusString(statusText);
+          lcdDrawText(COLUMN2_X, y, statusText);
+          y += FH;
+          continue;
+        }
+#if defined(CROSSFIRE)
+        if (isModuleCrossfire(module)) {
+          char statusText[64] = "";
+          sprintf(statusText,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+          lcdDrawText(COLUMN2_X, y, statusText);
+          y += FH;
+          continue;
+        }
+#endif
         if (!isModulePXX2(INTERNAL_MODULE)) {
           lcdDrawText(COLUMN2_X, y, STR_NO_INFORMATION);
           y += FH;
