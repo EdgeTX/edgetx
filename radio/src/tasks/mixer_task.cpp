@@ -133,7 +133,7 @@ void execMixerFrequentActions()
     processCrsfInput();
   }
   else if (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0) {
-//    processSumdInput();
+    processSumdInput();
   }
 #endif
 
