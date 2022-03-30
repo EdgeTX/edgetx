@@ -383,6 +383,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
   # Linux specific code
   set(OperatingSystem "Linux")
+  # Shortcut target
+  add_custom_target(companion DEPENDS ${COMPANION_NAME})
+  add_custom_target(simulator DEPENDS ${SIMULATOR_NAME})
 elseif(WIN32)
   set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
   message(STATUS "Install to " ${INSTALL_DESTINATION})
