@@ -73,8 +73,21 @@ namespace Trainer {
             
         };
         struct SumDV3 {
-            using MesgType = std::array<uint8_t, 28>;
+            static constexpr uint8_t start_code = 0xa8;
+            static constexpr uint8_t version_code1 = 0x01;
+            static constexpr uint8_t version_code3 = 0x03;
+    
+            static constexpr uint16_t ExtendedLow = 0x1c20; // 7200
+            static constexpr uint16_t MinValue = 0x2260; // 8800
+            static constexpr uint16_t CenterValue = 0x2ee0; // 12000
+            static constexpr uint16_t MaxValue = 0x3b60; // 15200
+            static constexpr uint16_t ExtendedHigh = 0x41a0; // 16800
+
+            static constexpr uint8_t MaxChannels = 32;
             
+            using MesgType = std::array<std::pair<uint8_t, uint8_t>, MaxChannels>;
+            using SwitchesType = uint64_t;
+
         };
     }    
 }
