@@ -73,3 +73,4 @@ else()
   )
 endif()
 
+set(IGNORE "${ARM_TOOLCHAIN_DIR}")

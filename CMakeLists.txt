@@ -106,6 +106,9 @@ message(STATUS "EdgeTX ${VERSION} @ ${GIT_STR}")
 
 if(NATIVE_BUILD)
   include(NativeTargets)
+else()
+  # Prevent CMake warnings
+  set(IGNORE "${SDL_LIBRARY_PATH}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})
