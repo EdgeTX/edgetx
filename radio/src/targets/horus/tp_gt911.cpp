@@ -216,13 +216,22 @@ const uint8_t TOUCH_GT911_Cfg[] = {
 //GT911 param table
 const uint8_t TOUCH_GT911_Cfg[] =
   {
+    #if defined(PCBX12S)
+    GT911_CFG_NUMER + 1,     // 0x8047 Config version
+    #else
     GT911_CFG_NUMER,     // 0x8047 Config version
+    #endif
     0xE0,                // 0x8048 X output map : x 480
     0x01,
     0x10,                // 0x804A Y ouptut max : y 272
     0x01,
     GT911_MAX_TP,        // 0x804C Touch number
-    0x3C,                // 0x804D Module switch 1 : bit4= xy change Int mode
+    #if defined(PCBX12S)
+    // does not work???
+        0xFC,                // 0x804D Module switch 1 : bit4= xy change Int mode
+    #else
+        0x3C,                // 0x804D Module switch 1 : bit4= xy change Int mode
+    #endif
     0x20,                // 0x804E Module switch 2
     0x22,                // 0x804F Shake_Count
     0x0A,                // 0x8050 Filter
@@ -763,6 +772,10 @@ struct TouchState touchPanelRead()
             TRACE("I2C B1 ReInit failed");
         return internalTouchState;
       }
+#if defined(PCBX12S)
+      touchData.points[0].x = LCD_W - touchData.points[0].x;
+      touchData.points[0].y = LCD_H - touchData.points[0].y;
+#endif
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
         internalTouchState.event = TE_DOWN;
