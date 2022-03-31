@@ -1146,6 +1146,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_JITTER_FILTER               "類比輸入濾波"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "檢查時間驅動電池電壓")
 #define TR_AUTH_FAILURE                "驗證失敗"
 #define TR_RACING_MODE                 "Racing mode"

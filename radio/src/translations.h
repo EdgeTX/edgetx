@@ -1110,6 +1110,7 @@ extern const char STR_MENU_DISPLAY[];
 extern const char STR_MENU_OTHER[];
 extern const char STR_MENU_INVERT[];
 extern const char STR_JITTER_FILTER[];
+extern const char STR_DEAD_ZONE[];
 extern const char STR_RTC_CHECK[];
 extern const char STR_SPORT_UPDATE_POWER_MODE[];
 extern const char STR_SPORT_UPDATE_POWER_MODES[];

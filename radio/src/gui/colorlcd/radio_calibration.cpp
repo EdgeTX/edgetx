@@ -245,6 +245,11 @@ void RadioCalibrationPage::nextStep()
 
     case CALIB_STORE:
       text->setText(STR_CALIB_DONE);
+#if defined(STICK_DEAD_ZONE)
+      if (initial) {
+        g_eeGeneral.stickDeadZone = 2;
+      }
+#endif
       g_eeGeneral.chkSum = evalChkSum();
       storageDirty(EE_GENERAL);
       menuCalibrationState = CALIB_FINISHED;
