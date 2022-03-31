@@ -557,8 +557,11 @@ static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 
   data -= offsetof(RadioData, switchConfig);
   RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return wf(opaque, rd->anaNames[idx],
-            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, rd->anaNames[idx],
+          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
@@ -602,7 +605,10 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
 
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   const char* str = rd->switchNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlNode struct_switchConfig[] = {
@@ -658,7 +664,10 @@ static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -741,7 +750,10 @@ static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS + STORAGE_NUM_POTS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
