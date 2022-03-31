@@ -49,11 +49,41 @@
 #include "pulses/afhds2.h"
 #endif
 
+#include <FreeRTOS.h>
+#include <timers.h>
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
 ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
+
+void startPulses()
+{
+  telemetryStart();
+  s_pulses_paused = false;
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+  setupPulsesInternalModule();
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  setupPulsesExternalModule();
+#endif
+
+#if defined(HARDWARE_EXTRA_MODULE)
+  extramodulePpmStart();
+#endif
+}
+
+void stopPulses()
+{
+  telemetryStop();
+  s_pulses_paused = true;
+
+  for (uint8_t i = 0; i < NUM_MODULES; i++)
+    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+}
 
 void restartModule(uint8_t idx)
 {

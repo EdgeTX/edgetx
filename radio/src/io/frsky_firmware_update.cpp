@@ -316,8 +316,6 @@ static const etx_serial_init serialInitParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .on_receive = intmoduleFifoReceive,
-  .on_error = intmoduleFifoError,
 };
 #endif
 

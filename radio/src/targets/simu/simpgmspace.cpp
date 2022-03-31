@@ -52,7 +52,7 @@ GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpio
 USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
 ADC_Common_TypeDef adc;
 RTC_TypeDef rtc;
-void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct) { }
+
 void lcdCopy(void * dest, void * src);
 
 FATFS g_FATFS_Obj;
@@ -802,3 +802,6 @@ struct TouchState getInternalTouchState()
   return simTouchState;
 }
 #endif
+
+void telemetryStart() {}
+void telemetryStop() {}

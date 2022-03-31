@@ -67,8 +67,7 @@ static void interrupt1ms()
 #endif
 
   // 5ms loop
-  if (pre_scale == 5 || pre_scale == 10)
-  {
+  if (pre_scale == 5 || pre_scale == 10) {
 #if defined(HAPTIC)
     DEBUG_TIMER_START(debugTimerHaptic);
     HAPTIC_HEARTBEAT();
@@ -77,8 +76,7 @@ static void interrupt1ms()
   }
   
   // 10ms loop
-  if (pre_scale == 10)
-	{
+  if (pre_scale == 10) {
     pre_scale = 0;
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);

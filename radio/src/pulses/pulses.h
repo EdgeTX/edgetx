@@ -262,29 +262,8 @@ uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
 void extramodulePpmStart();
 
-inline void startPulses()
-{
-  s_pulses_paused = false;
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-  setupPulsesInternalModule();
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  setupPulsesExternalModule();
-#endif
-
-#if defined(HARDWARE_EXTRA_MODULE)
-  extramodulePpmStart();
-#endif
-}
-
-inline void stopPulses()
-{
-  s_pulses_paused = true;
-  for (uint8_t i = 0; i < NUM_MODULES; i++)
-    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
-}
+void startPulses();
+void stopPulses();
 
 inline bool pulsesStarted()
 {

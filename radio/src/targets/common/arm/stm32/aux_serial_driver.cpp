@@ -52,7 +52,7 @@ static void* aux_serial_init(const SerialState* st, const etx_serial_init* param
 {
   stm32_usart_init(st->usart, params);
   
-  if (params->rx_enable && st->usart->rxDMA && !params->on_receive) {
+  if (params->rx_enable && st->usart->rxDMA) {
     st->rxFifo->clear();
     stm32_usart_init_rx_dma(st->usart, st->rxFifo->buffer(), st->rxFifo->size());
   }

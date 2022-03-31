@@ -22,10 +22,12 @@
 #ifndef _IO_PXX2_H_
 #define _IO_PXX2_H_
 
-#include "../fifo.h"
-#include "../pulses/pxx.h"
+#include "fifo.h"
+#include "pulses/pxx.h"
 
-class ModuleFifo : public Fifo<uint8_t, PXX2_FRAME_MAXLENGTH> {
+#include "board.h"
+
+class ModuleFifo : public Fifo<uint8_t, INTMODULE_FIFO_SIZE> {
   public:
     bool getFrame(uint8_t * frame)
     {
@@ -74,7 +76,6 @@ class ModuleFifo : public Fifo<uint8_t, PXX2_FRAME_MAXLENGTH> {
       return ((crc >> 8) == crcLow) && ((crc & 0xFF) == crcHigh);
     }
 
-    uint32_t errors;
 };
 
 #endif

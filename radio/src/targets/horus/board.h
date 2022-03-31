@@ -615,6 +615,7 @@ int32_t getVolume();
 #define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
+#define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE            512
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionInput();

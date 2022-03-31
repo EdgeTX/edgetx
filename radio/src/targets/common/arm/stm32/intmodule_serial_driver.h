@@ -26,8 +26,4 @@
 
 #define INTMODULE_USART_IRQ_PRIORITY 6
 
-// Callbacks using intmoduleFifo
-void intmoduleFifoReceive(uint8_t data);
-void intmoduleFifoError();
-
 extern const etx_serial_driver_t IntmoduleSerialDriver;
