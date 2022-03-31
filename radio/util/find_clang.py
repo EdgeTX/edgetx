@@ -71,7 +71,7 @@ def findLibClang():
         ]
         libSuffix = ".so"
     elif sys.platform == "win32" or sys.platform == "msys":
-        knownPaths = os.environ.get("PATH").split(':')
+        knownPaths = os.environ.get("PATH").split(os.pathsep)
         libSuffix = ".dll"
     else:
         # Unsupported platform

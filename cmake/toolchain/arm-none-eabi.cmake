@@ -1,5 +1,8 @@
 # arm-none-eabi toolchain
+set(CMAKE_SYSTEM_NAME Generic)
+
 set(TOOLCHAIN_PREFIX arm-none-eabi-)
+set(CMAKE_SYSTEM_PROCESSOR arm)
 
 if(MINGW OR CYGWIN OR WIN32)
     set(UTIL_SEARCH_CMD where)
