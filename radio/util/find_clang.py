@@ -45,7 +45,7 @@ def getBuiltinHeaderPath(library_path):
             subDirs = [f for f in os.listdir(path) if os.path.isdir(path + "/" + f)]
             subDirs = sorted(subDirs) or ['.']
             path = path + "/" + subDirs[-1] + "/include"
-            print("searching builtins in " + path)
+            #print("searching builtins in " + path)
             if canFindBuiltinHeaders(index, ["-I" + path]):
                 return path
         except:
@@ -89,13 +89,13 @@ def initLibClang():
 
     library_path = findLibClang()
     if library_path:
-        print("libclang found: " + library_path)
+        #print("libclang found: " + library_path)
         if os.path.isdir(library_path):
             Config.set_library_path(library_path)
         else:
             Config.set_library_file(library_path)
     else:
-        print("ERROR: libclang not found!")
+        print("ERROR: libclang not found!", file=sys.stderr)
         return False
 
     Config.set_compatibility_check(False)
@@ -103,13 +103,13 @@ def initLibClang():
     try:
         index = Index.create()
     except Exception as e:
-        print("ERROR: could not load libclang from '%s'." % library_path)
+        print("ERROR: could not load libclang from '%s'." % library_path, file=sys.stderr)
         return False
 
     global builtin_hdr_path
     builtin_hdr_path = getBuiltinHeaderPath(library_path)
     if not builtin_hdr_path:
-        print("ERROR: builtin header path not found")
+        print("ERROR: builtin header path not found", file=sys.stderr)
         return False
 
     # Everything is OK, libclang can be used
