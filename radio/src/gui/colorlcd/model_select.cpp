@@ -165,12 +165,14 @@ class SelectTemplate : public TemplatePage
             // Dismiss template pages
             deleteLater();
             templateFolderPage->deleteLater();
+#if defined(LUA)
             // If there is a wizard Lua script, fire it up
             snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
             if (f_stat(buffer, 0) == FR_OK) {
               luaExec(buffer);
               StandaloneLuaWindow::instance()->attach(focusWindow);
             }
+#endif
             return 0;
           });
         tb->setFocusHandler([=](bool active) {
@@ -269,6 +271,10 @@ class SelectTemplateFolder : public TemplatePage
       directories.sort(compare_nocase);
 
       for (auto name: directories) {
+#if not defined(LUA)
+        // Don't show wizards dir if no lua
+        if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
+#endif
         auto tfb = new TemplateButton(&body, grid.getLabelSlot(), name,
             [=]() -> uint8_t {
             snprintf(path, LEN_PATH, "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
@@ -285,6 +291,9 @@ class SelectTemplateFolder : public TemplatePage
         grid.spacer(tfb->height() + 5);
       }
       body.setInnerHeight(grid.getWindowHeight());
+#if not defined(LUA)
+      }
+#endif
     }
     
     f_closedir(&dir);

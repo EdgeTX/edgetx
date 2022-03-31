@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <new>
-
+#include <stdarg.h>
 #include "cli.h"
 
 #if defined(INTMODULE_USART)
