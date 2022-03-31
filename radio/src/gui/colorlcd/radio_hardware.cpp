@@ -346,6 +346,16 @@ void RadioHardwarePage::build(FormWindow * window)
     grid.nextLine();
   }
 
+#if defined(STICK_DEAD_ZONE)
+  new StaticText(window, grid.getLabelSlot(), STR_DEAD_ZONE);
+  auto deadZone = new NumberEdit(window, grid.getFieldSlot(), 0, 7, GET_SET_DEFAULT(g_eeGeneral.stickDeadZone));
+  deadZone->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+    dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value ? 2 << (value -1) : 0);
+  });
+  deadZone->setDefault(2);
+  grid.nextLine();
+#endif
+
   // Pots
   new Subtitle(window, grid.getLineSlot(), STR_POTS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
