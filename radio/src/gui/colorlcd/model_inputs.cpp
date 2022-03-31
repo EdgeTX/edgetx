@@ -519,8 +519,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
       coord_t h = grid.getWindowHeight();
       auto txt = new StaticText(window, grid.getLabelSlot(),
                                 getSourceString(MIXSRC_FIRST_INPUT + input),
-                                BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
-
+                                BUTTON_BACKGROUND, LEFT | COLOR_THEME_PRIMARY1);
       while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         Button *button =
             new InputLineButton(window, grid.getFieldSlot(), inputIndex);
@@ -576,10 +575,10 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
         button->setFocusHandler([=](bool focus) {
           if (focus) {
             txt->setBackgroundColor(COLOR_THEME_FOCUS);
-            txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+            txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
           } else {
             txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+            txt->setTextFlags(COLOR_THEME_PRIMARY1 | LEFT);
           }
           txt->invalidate();
           if (focus) button->bringToTop();
@@ -588,7 +587,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
         if (focusIndex == inputIndex) {
           button->setFocus(SET_FOCUS_DEFAULT);
           txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+          txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
           txt->invalidate();
         }
         grid.spacer(button->height() - 1);
@@ -602,7 +601,9 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
       grid.spacer(7);
     } else {
       auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSourceString(MIXSRC_FIRST_INPUT + input));
+                                   getSourceString(MIXSRC_FIRST_INPUT + input),
+                                   nullptr, BUTTON_BACKGROUND,
+                                   COLOR_THEME_PRIMARY1 | RIGHT);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
         Menu *menu = new Menu(window);
