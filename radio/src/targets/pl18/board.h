@@ -84,7 +84,11 @@ uint32_t sdGetSpeed();
 #define SD_IS_HC()                     (sdIsHC())
 #define SD_GET_SPEED()                 (sdGetSpeed())
 #define SD_GET_FREE_BLOCKNR()          (sdGetFreeSectors())
+#if defined(SDCARD)
 #define SD_CARD_PRESENT()              true
+#else
+#define SD_CARD_PRESENT()              false
+#endif
 void sdInit();
 void sdMount();
 void sdDone();
