@@ -159,6 +159,17 @@ void boardInit()
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
+#if defined(RADIO_TX16S)
+    
+  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
+  {
+    FLASH_OB_Unlock();
+    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
+    FLASH_OB_Launch();
+    FLASH_OB_Lock();
+  }
+#endif
+
   pwrInit();
   pwrOn();
   delaysInit();
