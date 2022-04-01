@@ -622,7 +622,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     if (g_eeGeneral.switchNames[idx][0] != '\0') {
-        copyToTerminated(dest, g_eeGeneral.switchNames[idx], offset_t<1>{});
+      copyToTerminated(dest, g_eeGeneral.switchNames[idx], offset_t<1>{});
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
@@ -643,7 +643,8 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
                          MAX_GVARS);
   } else if (idx <= MIXSRC_LAST_TIMER) {
     if (g_model.timers[idx - MIXSRC_FIRST_TIMER].name[0] != '\0') {
-        copyToTerminated(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name, offset_t<1>{});
+      copyToTerminated(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name,
+                       offset_t<1>{});
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -

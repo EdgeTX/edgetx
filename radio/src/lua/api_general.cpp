@@ -2308,10 +2308,10 @@ static int luaGetSourceIndex(lua_State* const L)
   const char* const name = luaL_checkstring(L, 1);
   bool found = false;
   mixsrc_t idx;
-  
+
   for (idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
     if (isSourceAvailable(idx)) {
-      char srcName[maxSourceNameLength]; 
+      char srcName[maxSourceNameLength];
       getSourceString(srcName, idx);
       if (!strncasecmp(srcName, name)) {
         found = true;
@@ -2319,7 +2319,7 @@ static int luaGetSourceIndex(lua_State* const L)
       }
     }
   }
-  
+
   if (found)
     lua_pushinteger(L, idx);
   else
@@ -2344,12 +2344,12 @@ static int luaGetSourceName(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
   if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(idx)) {
-    char srcName[maxSourceNameLength]; 
+    char srcName[maxSourceNameLength];
     getSourceString(srcName, idx);
     lua_pushstring(L, srcName);
-  }
-  else
+  } else {
     lua_pushnil(L);
+  }
   return 1;
 }
 
@@ -2372,7 +2372,7 @@ static int luaNextSource(lua_State * L)
   
   while (++idx <= last) {
     if (isSourceAvailable(idx)) {
-      char srcName[maxSourceNameLength]; 
+      char srcName[maxSourceNameLength];
       getSourceString(srcName, idx);
       lua_pushinteger(L, idx);
       lua_pushstring(L, srcName);
