@@ -113,12 +113,14 @@ class versionDialog: public Dialog
           new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
       }
 #endif
+#if defined(MULTIMODULE)
       else if (isModuleMultimodule(module)) {
         char statusText[64] = "";
         new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule", 0, COLOR_THEME_PRIMARY1);
         getMultiModuleStatus(module).getStatusString(statusText);
         new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
       }
+#endif
       else if (!isModulePXX2(module)) {
         new StaticText(form, grid->getFieldSlot(1, 0), STR_NO_INFORMATION, 0, COLOR_THEME_PRIMARY1);
       }
