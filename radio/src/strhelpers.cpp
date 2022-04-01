@@ -514,7 +514,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
         div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     char temp[LEN_ANA_NAME + 2];
     getSourceString(temp, MIXSRC_FIRST_POT + swinfo.quot);
-//    temp[LEN_ANA_NAME] = '\0'; // included in getSourceString
     strAppendStringWithIndex(s, temp, swinfo.rem + 1);
   }
 #endif
