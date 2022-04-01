@@ -1873,7 +1873,7 @@ int main()
   }
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && defined(SDCARD)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)
