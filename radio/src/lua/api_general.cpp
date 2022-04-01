@@ -91,7 +91,9 @@
   { "EVT_"#xxx"_LONG", EVT_KEY_LONG(yyy) }, \
   { "EVT_"#xxx"_REPT", EVT_KEY_REPT(yyy) }
 
-static constexpr uint8_t maxSourceNameLength{16}; // see strhelpers.cpp for pre-instantiation of function-template getSourceString() for this parametrization
+// see strhelpers.cpp for pre-instantiation of function-template
+// getSourceString() for this parametrization
+static constexpr uint8_t maxSourceNameLength{16};
 
 // Note:
 // - luaRxFifo & luaReceiveData are used only for USB serial
