@@ -512,9 +512,8 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
     div_t swinfo =
         div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
-    char temp[LEN_ANA_NAME + 1];
+    char temp[LEN_ANA_NAME + 2];
     getSourceString(temp, MIXSRC_FIRST_POT + swinfo.quot);
-    temp[LEN_ANA_NAME] = '\0';
     strAppendStringWithIndex(s, temp, swinfo.rem + 1);
   }
 #endif
@@ -611,10 +610,8 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
         dest[0] = CHAR_POT;
 #endif
       }
-
       idx -= MIXSRC_Rud;
-      memcpy(dest + 1, g_eeGeneral.anaNames[idx], L - 1);
-      dest[L - 1] = '\0';
+      copyToTerminated(dest, g_eeGeneral.anaNames[idx], offset_t<1>{});
     } else {
       idx -= MIXSRC_Rud;
       getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
@@ -625,8 +622,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     if (g_eeGeneral.switchNames[idx][0] != '\0') {
-      strncpy(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
-      dest[LEN_SWITCH_NAME] = '\0';
+      copyToTerminated(dest, g_eeGeneral.switchNames[idx], offset_t<1>{});
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
@@ -647,9 +643,8 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
                          MAX_GVARS);
   } else if (idx <= MIXSRC_LAST_TIMER) {
     if (g_model.timers[idx - MIXSRC_FIRST_TIMER].name[0] != '\0') {
-      strncpy(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name,
-              L - 1);
-      dest[L - 1] = '\0';
+      copyToTerminated(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name,
+                       offset_t<1>{});
     } else {
       getStringAtIndex(dest, STR_VSRCRAW,
                        idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
