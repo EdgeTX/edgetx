@@ -299,7 +299,7 @@ void generalDefault()
 #endif
 
 #if defined(STICK_DEAD_ZONE)
-  g_eeGeneral.stickDeadZone = 2;
+  g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
 #endif
 
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset,
