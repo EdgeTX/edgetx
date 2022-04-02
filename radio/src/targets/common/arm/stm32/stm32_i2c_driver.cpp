@@ -201,13 +201,13 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
 static int i2c_enable_gpio_clock(GPIO_TypeDef *GPIOx)
 {
   if (GPIOx == GPIOA)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   else if (GPIOx == GPIOB)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
   else if (GPIOx == GPIOC)
-    __HAL_RCC_GPIOC_CLK_ENABLE();
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
   else if (GPIOx == GPIOH)
-    __HAL_RCC_GPIOH_CLK_ENABLE();
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOH);
   else
     return -1;
 
@@ -218,11 +218,11 @@ static int i2c_enable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock enable */
   if (instance == I2C1)
-    __HAL_RCC_I2C1_CLK_ENABLE();
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
   else if (instance == I2C2)
-    __HAL_RCC_I2C2_CLK_ENABLE();
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
   else if (instance == I2C3)
-    __HAL_RCC_I2C3_CLK_ENABLE();
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
   else
     return -1;
 
@@ -233,11 +233,11 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock disable */
   if (instance == I2C1)
-    __HAL_RCC_I2C1_CLK_DISABLE();
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C1);
   else if (instance == I2C2)
-    __HAL_RCC_I2C2_CLK_DISABLE();
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C2);
   else if (instance == I2C3)
-    __HAL_RCC_I2C3_CLK_DISABLE();
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
   else
     return -1;
 
