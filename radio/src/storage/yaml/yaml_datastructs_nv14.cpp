@@ -412,8 +412,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "USBMode", 2 ),
   YAML_UNSIGNED( "jackMode", 2 ),
   YAML_PADDING( 1 ),
-  YAML_UNSIGNED( "stickDeadZone", 3 ),
-  YAML_PADDING( 5 ),
   YAML_STRING("ttsLanguage", 2),
   YAML_SIGNED_CUST( "beepVolume", 4, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "wavVolume", 4, r_5pos, w_5pos ),
@@ -440,6 +438,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_SIGNED( "uartSampleMode", 2 ),
+  YAML_UNSIGNED( "stickDeadZone", 3 ),
+  YAML_PADDING( 2 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
