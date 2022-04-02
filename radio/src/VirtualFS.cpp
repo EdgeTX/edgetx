@@ -150,7 +150,7 @@ static int convertOpenFlagsToLfs(VfsOpenFlags flags)
 }
 #endif
 
-#if defined (SDCARD) || (!defined(USE_LITLEFS) && defined(SPI_FLASH))
+#if defined (USE_FATFS)
 static VfsError convertResult(FRESULT err)
 {
   switch(err)
@@ -243,7 +243,7 @@ VfsError VfsDir::read(VfsFileInfo& info)
 #endif // SDCARD
     readIdx++;
     return VfsError::OK;
-#if defined (SDCARD) || (!defined(USE_LITLEFS) && defined(SPI_FLASH))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     info.type = VfsFileType::FAT;
@@ -279,7 +279,7 @@ VfsError VfsDir::close()
   case VfsDir::DIR_ROOT:
     ret = VfsError::OK;
     break;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     ret = convertResult(f_closedir(&fat.dir));
     break;
@@ -301,7 +301,7 @@ VfsError VfsDir::rewind()
   {
   case VfsDir::DIR_ROOT:
     return VfsError::OK;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     return convertResult(f_readdir(&fat.dir, nullptr));
@@ -328,7 +328,7 @@ VfsError VfsFile::close()
   VfsError ret = VfsError::INVAL;
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
     ret = convertResult(f_close(&fat.file));
     break;
@@ -348,7 +348,7 @@ int VfsFile::size()
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_size(&fat.file);
     break;
@@ -371,7 +371,7 @@ VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT: {
     UINT rd = 0;
     VfsError res = convertResult(f_read(&fat.file, buf, size, &rd));
@@ -403,7 +403,7 @@ char* VfsFile::gets(char* buf, size_t maxLen)
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_gets(buf, maxLen, &fat.file);
 #endif
@@ -437,7 +437,7 @@ VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT: {
     UINT wrt = 0;
     VfsError res = convertResult(f_write(&fat.file, buf, size, &wrt));
@@ -481,7 +481,7 @@ int VfsFile::fprintf(const char* str, ...)
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
   {
       va_list args;
@@ -609,7 +609,7 @@ size_t VfsFile::tell()
 {
     switch(type)
     {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
     case VfsFileType::FAT:
       return f_tell(&fat.file);
   #endif
@@ -632,7 +632,7 @@ VfsError VfsFile::lseek(size_t offset)
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return convertResult(f_lseek(&fat.file, offset));
     break;
@@ -656,7 +656,7 @@ int VfsFile::eof()
 {
   switch(type)
   {
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_eof(&fat.file);
 #endif
@@ -985,7 +985,7 @@ VfsError VirtualFS::unlink(const std::string& path)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_unlink(p.c_str()));
 #endif
@@ -1034,7 +1034,7 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
       dir.lfs.handle = &lfs;
     return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfs.dir, dirPath.c_str()));
 #endif
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_opendir(&dir.fat.dir, dirPath.c_str()));
 #endif
@@ -1054,7 +1054,7 @@ VfsError VirtualFS::makeDirectory(const std::string& path)
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
     break;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     DIR dir;
@@ -1111,7 +1111,7 @@ VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
     {
     case VfsDir::DIR_ROOT:
       return VfsError::INVAL;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
     case VfsDir::DIR_FAT:
       return convertResult(f_rename(oldP.c_str(), newP.c_str()));
 #endif
@@ -1187,7 +1187,7 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     fileInfo.type = VfsFileType::FAT;
     return convertResult(f_stat(normPath.c_str(), &fileInfo.fatInfo));
@@ -1211,7 +1211,7 @@ VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_utime(normPath.c_str(), &fileInfo.fatInfo));
 #endif
@@ -1236,7 +1236,7 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
     break;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     file.type = VfsFileType::FAT;
@@ -1283,7 +1283,7 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
   case VfsDir::DIR_ROOT:
     return false;
     break;
-#if defined (SDCARD) || (defined (SPI_FLASH) && !defined(USE_LITTLEFS))
+#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     {
       if (exclDir) {

@@ -352,6 +352,7 @@ if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
   include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
   set(SRC ${SRC} rtc.cpp VirtualFS.cpp)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
+  add_definitions(-DUSE_FATFS)
 endif()
 
 if(SHUTDOWN_CONFIRMATION)
