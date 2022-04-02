@@ -129,15 +129,12 @@ const char * loadRadioSettings()
 #endif
     }
 
-#if defined(DEFAULT_INTERNAL_MODULE)
-    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
-#endif
-    
     const char* error = loadRadioSettingsYaml();
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
-
+    postRadioSettingsLoad();
+    
     return error;
 }
 
