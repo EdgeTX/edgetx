@@ -571,26 +571,39 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
     return true;
 }
 
-bool I2C_GT911_SendConfig()
+bool I2C_GT911_SendConfig(const bool resetConfig = false)
 {
-  uint8_t buf[2];
-  uint8_t i = 0;
-  buf[0] = 0;
-  buf[1] = 1;
+  uint8_t buf[2] = {0x00, 0x01};
   bool bResult = true;
 
-  for (i = 0; i < sizeof(TOUCH_GT911_Cfg); i++) {
+  if (resetConfig) {
+      buf[0] = 0x00;
+      if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, &buf[0], 1))
+      {
+        TRACE("GT911 ERROR: write config failed");
+        bResult = false;
+      }
+  }
+  else {
+      buf[0] = TOUCH_GT911_Cfg[0];
+      if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, &buf[0], 1))
+      {
+        TRACE("GT911 ERROR: write config failed");
+        bResult = false;
+      }
+  }
+  for (uint8_t i = 1; i < sizeof(TOUCH_GT911_Cfg); i++) {
     buf[0] += TOUCH_GT911_Cfg[i]; //check sum
   }
-  
   buf[0] = (~buf[0]) + 1;
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, (uint8_t *) TOUCH_GT911_Cfg, sizeof(TOUCH_GT911_Cfg)))
+
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG + 1, (uint8_t *) &TOUCH_GT911_Cfg[1], sizeof(TOUCH_GT911_Cfg) - 1))
   {
     TRACE("GT911 ERROR: write config failed");
     bResult = false;
   }
 
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum and config_fresh
   {
     TRACE("GT911 ERROR: write config checksum failed");
     bResult = false;
@@ -655,12 +668,12 @@ bool touchPanelInit(void)
       if (tmp[0] != GT911_CFG_NUMBER)  // if new config version != old config version
       {
         TRACE("Config not as expected: resetting config");
-        tmp[0] = 0x00;
-        if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, tmp, 1))
+
+        if (!I2C_GT911_SendConfig(true))
         {
-            TRACE("GT911 ERROR: Resetting config failed");            
+          TRACE("GT911 ERROR: sending configration failed");
         }
-          
+        
         TRACE("Sending new config %d", GT911_CFG_NUMBER);
         if (!I2C_GT911_SendConfig())
         {
