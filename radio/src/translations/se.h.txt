@@ -1005,7 +1005,7 @@
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM      CENTER "Fel på TX-antennen"
 #define TR_MODELIDUSED         TR("ID finns redan","ModellID används redan")
-#define TR_MODELIDUNIQUE             "ID is Unique"
+#define TR_MODELIDUNIQUE             "ID is unique"
 #define TR_MODULE              "Modul"
 #define TR_RX_NAME                     "Rx Name"
 #define TR_TELEMETRY_TYPE      "Telemetrityp"

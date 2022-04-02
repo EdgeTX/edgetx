@@ -1001,7 +1001,7 @@
 #define TR_CHANS                       "Canali"
 #define TR_ANTENNAPROBLEM      CENTER "Problemi antenna TX!"
 #define TR_MODELIDUSED         TR("ID già usato", "ID Modello già usato")
-#define TR_MODELIDUNIQUE             "ID is Unique"
+#define TR_MODELIDUNIQUE             "ID is unique"
 #define TR_MODULE              "Modulo"
 #define TR_RX_NAME                     "Nome RX"
 #define TR_TELEMETRY_TYPE      "Tipo Telemetria"

@@ -936,7 +936,7 @@
 #define TR_CHANS                       "通道"
 #define TR_ANTENNAPROBLEM              CENTER "发射机天线故障!"
 #define TR_MODELIDUSED                 "ID已使用:"
-#define TR_MODELIDUNIQUE               "ID is Unique"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "模块"
 #define TR_RX_NAME                     "接收机名称"
 #define TR_TELEMETRY_TYPE              TR("Type", "回传类型")
