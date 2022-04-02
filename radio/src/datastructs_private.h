@@ -887,11 +887,12 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  imperial:1);
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
-  #if defined(STICK_DEAD_ZONE)
-  NOBACKUP(uint8_t  stickDeadZone:3);
-  #endif
   NOBACKUP(uint8_t  jackMode:2);
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
+#if defined(STICK_DEAD_ZONE)
+  NOBACKUP(uint8_t  stickDeadZone:3);
+  NOBACKUP(uint8_t  spare:5 SKIP);
+#endif
 
   NOBACKUP(char     ttsLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
