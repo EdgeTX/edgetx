@@ -664,6 +664,10 @@ static void checkRTCBattery()
 static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
+#if defined(MULTIMODULE)
+    // use delayed check for MPM
+    if (isModuleMultimodule(i)) break;
+#endif
     if (isModuleFailsafeAvailable(i)) {
       ModuleData & moduleData = g_model.moduleData[i];
       if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
