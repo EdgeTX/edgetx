@@ -689,7 +689,8 @@ const char * VirtualFS::getBasename(const char * path)
 
 VirtualFS::VirtualFS()
 {
-#if defined (SPI_FLASH) && defined (USE_LITTLEFS)
+#if defined (SPI_FLASH)
+#if defined (USE_LITTLEFS)
   // configuration of the filesystem is provided by this struct
   lfsCfg.read  = flashRead;
   lfsCfg.prog  = flashWrite;
@@ -706,7 +707,8 @@ VirtualFS::VirtualFS()
   lfsCfg.lookahead_size = 256;
 #else
   spiFatFs = {0};
-#endif
+#endif // USE_LITTLEFS
+#endif // SPI_FLASH
 #if defined (SDCARD)
   sdFatFs = {0};
 #endif

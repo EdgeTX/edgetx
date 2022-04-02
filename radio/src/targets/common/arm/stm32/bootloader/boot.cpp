@@ -212,12 +212,19 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
+#if defined(FLASH_RCC_AHB1Periph)
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
-                             LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             AUX_SERIAL_RCC_AHB1Periph |
-                             AUX2_SERIAL_RCC_AHB1Periph |
-                             KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
-                             SD_RCC_AHB1Periph | FLASH_RCC_AHB1Periph, ENABLE);
+                         LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
+                         AUX_SERIAL_RCC_AHB1Periph | AUX2_SERIAL_RCC_AHB1Periph |
+                         KEYS_BACKLIGHT_RCC_AHB1Periph |
+                         SD_RCC_AHB1Periph | FLASH_RCC_AHB1Periph , ENABLE);
+#else
+  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
+                         LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
+                         AUX_SERIAL_RCC_AHB1Periph | AUX2_SERIAL_RCC_AHB1Periph |
+                         KEYS_BACKLIGHT_RCC_AHB1Periph |
+                         SD_RCC_AHB1Periph, ENABLE);
+#endif
 #if defined(FLASH_RCC_APB1Periph)
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph | BACKLIGHT_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph | I2C_B1_RCC_APB1Periph | FLASH_RCC_APB1Periph |
@@ -301,7 +308,9 @@ void bootloaderInitApp()
 
   init10msTimer();
 
+#if defined(SPI_FLASH)
   flashInit();
+#endif
   usbInit();
 }
 
