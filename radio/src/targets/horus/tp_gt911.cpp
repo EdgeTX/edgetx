@@ -216,19 +216,14 @@ const uint8_t TOUCH_GT911_Cfg[] = {
 //GT911 param table
 const uint8_t TOUCH_GT911_Cfg[] =
   {
-#if defined(PCBX12S)
-    0x00,                // 0x8047 Config version
-#else
     GT911_CFG_NUMER,     // 0x8047 Config version
-#endif
     0xE0,                // 0x8048 X output map : x 480
     0x01,
     0x10,                // 0x804A Y ouptut max : y 272
     0x01,
     GT911_MAX_TP,        // 0x804C Touch number
 #if defined(PCBX12S)
-    // does not work???
-        0xFC,                // 0x804D Module switch 1 : bit4= xy change Int mode
+        0xFC,                // 0x804D Module switch 1 : bit4= xy change Int mode, X12S needs axis reversal
 #else
         0x3C,                // 0x804D Module switch 1 : bit4= xy change Int mode
 #endif
@@ -653,7 +648,7 @@ bool touchPanelInit(void)
       }
 
       TRACE("Chip config Ver:%x", tmp[0]);
-      if (tmp[0] < GT911_CFG_NUMER)  //Config ver
+      if (tmp[0] != GT911_CFG_NUMER)  // iff Config ver is different, write new config
       {
         TRACE("Sending new config %d", GT911_CFG_NUMER);
         if (!I2C_GT911_SendConfig())
@@ -772,10 +767,6 @@ struct TouchState touchPanelRead()
             TRACE("I2C B1 ReInit failed");
         return internalTouchState;
       }
-#if defined(PCBX12S)
-      touchData.points[0].x = LCD_W - touchData.points[0].x;
-      touchData.points[0].y = LCD_H - touchData.points[0].y;
-#endif
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
         internalTouchState.event = TE_DOWN;
