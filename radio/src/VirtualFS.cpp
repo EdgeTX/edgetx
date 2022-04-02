@@ -31,7 +31,9 @@
 #endif
 #include "VirtualFS.h"
 #include "board.h"
-
+#include "audio.h"
+#include "disk_cache.h"
+#include "debug.h"
 
 #if defined(LIBOPENUI) && 0
   #include "libopenui.h"
@@ -40,6 +42,8 @@
 VirtualFS* VirtualFS::_instance = nullptr;;
 
 #if defined(SDCARD)
+static FATFS sdFatFs __DMA;    // initialized in boardInit()
+
 #if defined(LOG_TELEMETRY)
 VfsFile g_telemetryFile = {};
 #endif
@@ -47,6 +51,10 @@ VfsFile g_telemetryFile = {};
 #if defined(LOG_BLUETOOTH)
 VfsFile g_bluetoothFile = {};
 #endif
+#endif
+
+#if defined(SPI_FLASH) && !defined(USE_LITTLEFS)
+static FATFS spiFatFs __DMA;
 #endif
 
 #if defined(USE_LITTLEFS)
@@ -696,6 +704,11 @@ VirtualFS::VirtualFS()
   lfsCfg.block_cycles = 500;
   lfsCfg.cache_size = flashSpiGetPageSize();
   lfsCfg.lookahead_size = 256;
+#else
+  spiFatFs = {0};
+#endif
+#if defined (SDCARD)
+  sdFatFs = {0};
 #endif
 
   restart();
@@ -715,8 +728,11 @@ VirtualFS::~VirtualFS()
 void VirtualFS::stop()
 {
   stopLogs();
+  audioQueue.stopSD();
 #if defined (SDCARD)
-  sdDone();
+  if (sdCardMounted()) {
+    f_mount(nullptr, "", 0); // unmount SD
+  }
 #endif
 
 #if defined (SPI_FLASH)
@@ -727,11 +743,11 @@ void VirtualFS::stop()
 #endif // USE_LITTLEFS
 #endif // SPI_FLASH
 }
-static FATFS spiFatFsTmp ={0};
 void VirtualFS::restart()
 {
+  TRACE("VirtualFS::restart()");
 #if defined (SDCARD)
-  sdMount();
+  mountSd();
 #endif
 #if defined (SPI_FLASH)
 #if defined(USE_LITTLEFS)
@@ -753,7 +769,10 @@ void VirtualFS::restart()
   }
   lfsCfg.context = this;
 #else // USE_LITTLEFS
-  if(f_mount(&spiFatFsTmp, "1:", 1) != FR_OK)
+#if !defined(BOOT)
+  diskCache[1].clear();
+#endif
+  if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
   {
 #if !defined(BOOT)
     BYTE work[FF_MAX_SS];
@@ -785,7 +804,7 @@ void VirtualFS::restart()
         break;
     }
 #endif
-    if(f_mount(&spiFatFsTmp, "1:", 1) != FR_OK)
+    if(f_mount(&spiFatFs, "1:", 1) != FR_OK)
     {
 #if !defined(BOOT)
       POPUP_WARNING(STR_SDCARD_ERROR);
@@ -807,13 +826,26 @@ void VirtualFS::restart()
 
 void VirtualFS::mountSd()
 {
+  TRACE("VirtualFS::mountSd");
 #if defined(SDCARD)
-  if(!sdMounted())
-    sdMount();
+  sdCardMounted();
+    return;
+
+#if defined(DISK_CACHE) && !defined(BOOT)
+  diskCache[0].clear();
+#endif
+
+  if (f_mount(&sdFatFs, "", 1) == FR_OK) {
+#if(!defined(BOOT))
+    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+    sdGetFreeSectors();
+#endif
+  }
+  else {
+    TRACE("SD Card f_mount() failed");
+  }
 #endif
 }
-
-extern FATFS g_FATFS_Obj;
 
 bool VirtualFS::defaultStorageAvailable()
 {
@@ -824,14 +856,14 @@ bool VirtualFS::defaultStorageAvailable()
     return spiFatFs.fs_type != 0;
 #endif // USE_LITTLEFS
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
-    return g_FATFS_Obj.fs_type != 0;
+    return sdFatFs.fs_type != 0;
 #endif
 
 }
 #if !defined(BOOT)
 bool VirtualFS::format()
 {
-#warning TODO
+// TODO format
 #if defined (USE_LITTLEFS)
 
   flashSpiEraseAll();
@@ -1644,7 +1676,7 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 bool VirtualFS::sdCardMounted()
 {
 #if defined (SDCARD)
-  return g_FATFS_Obj.fs_type != 0;
+  return sdFatFs.fs_type != 0;
 #else
   return false;
 #endif

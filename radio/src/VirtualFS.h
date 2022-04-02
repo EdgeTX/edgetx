@@ -555,8 +555,6 @@ private:
   lfs_config lfsCfg = {0};
   lfs_t lfs = {0};
   bool lfsMounted = false;
-#elif defined(SPI_FLASH)
-  FATFS spiFatFs ={0};
 #endif
 
 #if defined(SDCARD)
