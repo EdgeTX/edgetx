@@ -98,6 +98,11 @@ void postRadioSettingsLoad()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
   }
 #endif
+#if defined(STICK_DEAD_ZONE)
+  if (!g_eeGeneral.stickDeadZone) {
+    g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
+  }
+#endif
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
