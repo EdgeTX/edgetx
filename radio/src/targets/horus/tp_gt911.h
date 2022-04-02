@@ -38,38 +38,32 @@ struct TouchState getInternalTouchState();
 
 #define GT911_MAX_TP            5
 #if defined(PCBX12S)
-# define GT911_CFG_NUMER         0x6E // X12S needs another config (axis reversal), if the controller already got the old 0x6D config, this number has to be different
+# define GT911_CFG_NUMBER         0x6F // X12S needs another config (axis reversal), if the controller already got the old 0x6D config, this number has to be different
 #else
-# define GT911_CFG_NUMER         0x6D
+# define GT911_CFG_NUMBER         0x6D
 #endif
+
 //I2C
 #define GT911_I2C_ADDR          0x14
+
 //#define GT_CMD_WR             0x28
 //#define GT_CMD_RD             0x29
 //#define I2C_TIMEOUT_MAX       1000
 
-//GT911
-#define GT_CTRL_REG 	        0x8040
-#define GT_CFGS_REG 	        0x8047
-#define GT_CHECK_REG 	        0x80FF
-#define GT_PID_REG              0x8140
-
-#define GT_GSTID_REG 	        0x814E
-#define GT_TP1_REG              0x8150
-#define GT_TP2_REG              0x8158
-#define GT_TP3_REG              0x8160
-#define GT_TP4_REG              0x8168
-#define GT_TP5_REG              0x8170
-
-#define GT911_READ_XY_REG               0x814E
-#define GT911_CLEARBUF_REG              0x814E
-#define GT911_CONFIG_REG                0x8047
 #define GT911_COMMAND_REG               0x8040
-#define GT911_PRODUCT_ID_REG            0x8140
-#define GT911_VENDOR_ID_REG             0x814A
-#define GT911_CONFIG_VERSION_REG        0x8047
+#define GT911_CONFIG_REG                0x8047
+#define GT911_COORDINATE_REG            0x804D
 #define GT911_CONFIG_CHECKSUM_REG       0x80FF
+
+#define GT911_PRODUCT_ID_REG            0x8140
 #define GT911_FIRMWARE_VERSION_REG      0x8144
+#define GT911_VENDOR_ID_REG             0x814A
+#define GT911_READ_XY_REG               0x814E
+#define GT911_TP1_REG                   0x8150
+#define GT911_TP2_REG                   0x8158
+#define GT911_TP3_REG                   0x8160
+#define GT911_TP4_REG                   0x8168
+#define GT911_TP5_REG                   0x8170
 
 PACK(typedef struct {
   uint8_t track;
