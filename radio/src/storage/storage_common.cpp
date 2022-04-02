@@ -93,6 +93,11 @@ void postRadioSettingsLoad()
     serialSetMode(SP_VCP, UART_MODE_CLI);
   }
 #endif
+#if defined(DEFAULT_INTERNAL_MODULE)
+  if (!g_eeGeneral.internalModule) {
+    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
+  }
+#endif
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
