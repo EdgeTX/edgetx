@@ -95,13 +95,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   }
   else if (st == ST_FLASH_CHECK) {
     if (opt == FC_ERROR) {
-      if (memoryType == MEM_FLASH)
+      if (memoryType == MEM_INTERNAL)
         bootloaderDrawMsg(0, STR_INVALID_FIRMWARE, 2, false);
       else
         bootloaderDrawMsg(0, STR_INVALID_EEPROM, 2, false);
     }
     else if (opt == FC_OK) {
-      if (memoryType == MEM_FLASH) {
+      if (memoryType == MEM_INTERNAL) {
         const char * vers = getFirmwareVersion((const char *)Block_buffer);
 #if LCD_W < 212
         // Remove "opentx-" from string
