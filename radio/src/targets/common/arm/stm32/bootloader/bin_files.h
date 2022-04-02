@@ -23,7 +23,6 @@
 #define _bin_files_h_
 
 #include "VirtualFS.h"
-#include "bitmapbuffer.h"
 
 enum MemoryType {
   MEM_INTERNAL,
