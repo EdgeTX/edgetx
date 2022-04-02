@@ -62,6 +62,7 @@ if(BOOTLOADER)
     ../../thirdparty/tjftl/tjftl.c
   )
   add_definitions(-DSPI_FLASH)
+  add_definitions(-DUSE_FATFS)
   
 else()
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)

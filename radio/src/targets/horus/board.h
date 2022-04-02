@@ -115,17 +115,10 @@ uint32_t sdGetSpeed();
 #define SD_GET_SPEED()                 (sdGetSpeed())
 #define SD_GET_FREE_BLOCKNR()          (sdGetFreeSectors())
 #define SD_CARD_PRESENT()              (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
-void sdInit();
-void sdMount();
-void sdDone();
 #define sdPoll10ms()
-uint32_t sdMounted();
 #else
 #define SD_IS_HC()                     (0)
 #define SD_GET_SPEED()                 (0)
-#define sdInit()
-#define sdMount()
-#define sdDone()
 #define SD_CARD_PRESENT()              true
 #endif
 

@@ -464,76 +464,17 @@ DRESULT disk_ioctl (
   return res;
 }
 
-// TODO everything here should not be in the driver layer ...
-#if defined(SDCARD)
+#if defined (SDCARD)
 bool _g_FATFS_init = false;
-FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
-
-#if defined(BOOT)
-void sdInit(void)
-{
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    f_chdir("/");
-  }
-}
-void sdMount(void)
-{
-  sdInit();
-}
-#else
-
-#include "audio.h"
-#include "sdcard.h"
-#include "disk_cache.h"
-
-void sdInit()
-{
-  TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
-  sdMount();
-}
-
-void sdMount()
-{
-  TRACE("sdMount");
-  
-#if defined(DISK_CACHE)
-  diskCache[0].clear();
-#endif
-  
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
-    sdGetFreeSectors();
-  }
-  else {
-    TRACE("f_mount() failed");
-  }
-}
-
-void sdDone()
-{
-  TRACE("sdDone");
-  
-  if (sdMounted()) {
-    audioQueue.stopSD();
-    f_mount(nullptr, "", 0); // unmount SD
-  }
-}
-#endif
-
-uint32_t sdMounted()
-{
-  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
-}
-
+  return g_FATFS_Obj.fs_type != 0;
 uint32_t sdIsHC()
 {
-  return true; // TODO (CardType & CT_BLOCK);
+  return SD_isHC();
 }
 
 uint32_t sdGetSpeed()
 {
   return 330000;
 }
-#endif // SDCARD
+#endif
