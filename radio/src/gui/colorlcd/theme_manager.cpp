@@ -297,17 +297,19 @@ void ThemeFile::applyBackground()
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
+    VirtualFS& vfs = VirtualFS::instance();
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
               std::to_string(LCD_H) + ".png";
+	
 
-    if (isFileAvailable(rootDir.c_str())) {
+    if (vfs.isFileAvailable(rootDir.c_str())) {
       instance->setBackgroundImageFileName((char *)rootDir.c_str());
     } else {
       // TODO: This needs to be made user configurable, not
       // require the file be deleted to remove global background
       std::string fileName = THEMES_PATH PATH_SEPARATOR "EdgeTX/background.png";
-      if (isFileAvailable(fileName.c_str())) {
+      if (vfs.isFileAvailable(fileName.c_str())) {
         instance->setBackgroundImageFileName(fileName.c_str());
       } else {
         instance->setBackgroundImageFileName("");
