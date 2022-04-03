@@ -47,8 +47,8 @@ extern caddr_t _sbrk(int nbytes)
 
 #if defined(THREADSAFE_MALLOC) && !defined(BOOT)
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/task.h>
 
 void __malloc_lock(struct _reent *r)
 {

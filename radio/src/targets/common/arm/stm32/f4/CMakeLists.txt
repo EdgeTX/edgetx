@@ -49,16 +49,35 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c
   )
 
-#
-# FreeRTOS port specific include
-#
-include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
+if(NOT NATIVE_BUILD)
+  #
+  # FreeRTOS port specific include
+  #
+  add_library(freertos OBJECT EXCLUDE_FROM_ALL
+    ${RTOS_DIR}/list.c
+    ${RTOS_DIR}/queue.c
+    ${RTOS_DIR}/tasks.c
+    ${RTOS_DIR}/event_groups.c
+    ${RTOS_DIR}/timers.c
+    ${RTOS_DIR}/stream_buffer.c
+    ${RTOS_DIR}/portable/GCC/ARM_CM4F/port.c
+    )
 
-#
-# System and FreeRTOS port files
-#
-set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-  ../common/arm/stm32/f4/system_stm32f4xx.c
-  ../../${RTOS_DIR}/portable/GCC/ARM_CM4F/port.c
-  )
+  target_include_directories(freertos
+    PUBLIC  ${RTOS_DIR}/portable/GCC/ARM_CM4F
+    PRIVATE ${RTOS_DIR}/include
+    )
 
+  include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
+  
+  # EdgeTx Compat layer
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} rtos.c)
+
+  #
+  # System and FreeRTOS port files
+  #
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+    $<TARGET_OBJECTS:freertos>
+    targets/common/arm/stm32/f4/system_stm32f4xx.c
+    )
+endif()
