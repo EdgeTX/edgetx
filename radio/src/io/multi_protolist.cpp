@@ -74,9 +74,9 @@ bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
 
     label = "Frsky";
     flags = 0x20;
-    subProtoNr = def->maxSubtype + 1;
-    subProtoLen = def->subTypeString[0];
-    s = def->subTypeString + 1;
+
+    fillSubProtoList(def->subTypeString, def->maxSubtype + 1);
+    return true;
 
   } else {
     // proto label string
@@ -115,6 +115,15 @@ void MultiRfProtocols::RfProto::fillSubProtoList(const char* str, int n, int len
     tmp[len] = '\0';
     subProtos.emplace_back((const char*)tmp);
     //TRACE("%s: '%s'", label.c_str(), subProtos.back().c_str());
+  }
+}
+
+void MultiRfProtocols::RfProto::fillSubProtoList(const char** str, int n)
+{
+  subProtos.reserve(n);
+
+  for (int i = 0; i < n; i++) {
+    subProtos.emplace_back(str[i]);
   }
 }
 

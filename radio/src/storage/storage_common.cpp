@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "timers_driver.h"
 
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"

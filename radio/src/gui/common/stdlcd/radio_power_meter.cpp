@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "timers_driver.h"
 
 extern uint8_t g_moduleIdx;
 
