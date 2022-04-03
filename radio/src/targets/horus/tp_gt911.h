@@ -38,11 +38,13 @@ struct TouchState getInternalTouchState();
 
 #define GT911_MAX_TP            5
 
-#if defined(PCBX12S)
-# define GT911_CFG_NUMBER         0x6F // X12S needs another config (axis reversal), if the controller already got the old 0x6D config, this number has to be different
-#else
-# define GT911_CFG_NUMBER         0x6D
-#endif
+//#if defined(PCBX12S)
+//# define GT911_CFG_NUMBER         0x6E // X12S needs another config (axis reversal), if the controller already got the old 0x6D config, this number has to be different
+//#else
+//# define GT911_CFG_NUMBER         0x6D
+//#endif
+
+#define GT911_CFG_NUMBER         0x6D
 
 //I2C
 #define GT911_I2C_ADDR          0x14

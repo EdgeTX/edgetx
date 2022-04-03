@@ -23,12 +23,20 @@
 #include "i2c_driver.h"
 #include "tp_gt911.h"
 
+// this code contains workaround:
+// the coordinate reversal for X12S should be done in gt911 (see GT911_COOR_CONFIG_VALUE),
+// but a new config can only be written if new config number is larger than the one read from gt911,
+// config number cannot be reset according to gt911 datasheet
+// the workaround:
+// this code imply checks if register GT911_COOR_CONFIG_VALUE contains the correct value, 
+// and if not does the reversal in this driver instead inside the gt911
+// this allows to use a used display (wrong config) (use a display of TX16S inside a X12S oder vice versa)
+
 #if defined(PCBX12S)
 # define  GT911_COOR_CONFIG_VALUE 0xFC // 0x804D Module switch 1 : bit4= xy change Int mode, X12S needs axis reversal
 #else
 # define  GT911_COOR_CONFIG_VALUE 0x3C // 0x804D Module switch 1 : bit4= xy change Int mode
 #endif
-
 
 #if defined (RADIO_T18)
 const uint8_t TOUCH_GT911_Cfg[] = {
@@ -411,17 +419,20 @@ const uint8_t TOUCH_GT911_Cfg[] =
 
 #endif
 
+static bool reverseCoordinates = false;
+
 bool touchGT911Flag = false;
 volatile static bool touchEventOccured = false;
 struct TouchData touchData;
 uint16_t touchGT911fwver = 0;
 uint32_t touchGT911hiccups = 0;
-tmr10ms_t downTime = 0;
-tmr10ms_t tapTime = 0;
-short tapCount = 0;
+static tmr10ms_t downTime = 0;
+static tmr10ms_t tapTime = 0;
+static short tapCount = 0;
+
 #define TAP_TIME 25
 
-I2C_HandleTypeDef hi2c1;
+static I2C_HandleTypeDef hi2c1;
 
 static TouchState internalTouchState = {};
 
@@ -654,12 +665,6 @@ bool touchPanelInit(void)
       TRACE("Chip config Ver:%x", tmp[0]);
       if (tmp[0] < GT911_CFG_NUMBER)  //Config ver
       {
-        TRACE("Config not as expected: resetting config");
-        tmp[0] = 0x00;
-        if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, tmp, 1))
-        {
-            TRACE("GT911 ERROR: Resetting config failed");            
-        }
         TRACE("Sending new config %d", GT911_CFG_NUMBER);
         if (!I2C_GT911_SendConfig())
         {
@@ -667,6 +672,17 @@ bool touchPanelInit(void)
         }
       }
 
+      // workaround: cannot reset config number
+      if (!I2C_GT911_ReadRegister(GT911_COORDINATE_REG, tmp, 1))
+      {
+        TRACE("GT911 ERROR: reading coordinate register failed");
+      }
+      else {
+          if (tmp[0] != GT911_COOR_CONFIG_VALUE) {
+              reverseCoordinates = true;
+          }
+      }
+      
       if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2))
       {
         TRACE("GT911 ERROR: reading firmware version failed");
@@ -686,7 +702,6 @@ bool touchPanelInit(void)
       touchGT911Flag = true;
 
       TOUCH_AF_ExtiConfig();
-
 
       return true;
     }
@@ -777,10 +792,13 @@ struct TouchState touchPanelRead()
             TRACE("I2C B1 ReInit failed");
         return internalTouchState;
       }
-#if defined(PCBX12S)
-      touchData.points[0].x = LCD_W - touchData.points[0].x;
-      touchData.points[0].y = LCD_H - touchData.points[0].y;
-#endif
+      
+      // workaround
+      if (reverseCoordinates) {
+          touchData.points[0].x = LCD_W - touchData.points[0].x;
+          touchData.points[0].y = LCD_H - touchData.points[0].y;
+      }
+
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
         internalTouchState.event = TE_DOWN;
