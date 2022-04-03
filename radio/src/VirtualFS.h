@@ -491,7 +491,7 @@ public:
 
   bool defaultStorageAvailable();
 #if !defined(LIBOPENUI) && !defined(BOOT)
-  bool listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags);
+  bool listFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags = 0);
 #endif
 #if !defined(BOOT)
   bool format();

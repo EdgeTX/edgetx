@@ -483,7 +483,7 @@ bool copyModel(uint8_t dst, uint8_t src)
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
-  return VirtualFS::instance().copyFile(fname_src, fname_dst);
+  return VirtualFS::instance().copyFile(fname_src, fname_dst) == VfsError::OK;
 }
 
 static void swapModelHeaders(uint8_t id1, uint8_t id2)
@@ -507,15 +507,15 @@ void swapModels(uint8_t id1, uint8_t id2)
 
   VirtualFS &vfs = VirtualFS::instance();
   VfsFileInfo fno;
-  if (vfs.stat(fname2,fno) != VfaError::OK) {
-    if (vfs.fstat(fname1,fno) == VfaError::OK) {
-      if (vfs.rename(fname1, fname2) == VfaError::OK)
+  if (vfs.fstat(fname2,fno) != VfsError::OK) {
+    if (vfs.fstat(fname1,fno) == VfsError::OK) {
+      if (vfs.rename(fname1, fname2) == VfsError::OK)
         swapModelHeaders(id1,id2);
     }
     return;
   }
 
-  if (vfs.fstat(fname1,fno) != VfaError::OK) {
+  if (vfs.fstat(fname1,fno) != VfsError::OK) {
     vfs.rename(fname2, fname1);
     return;
   }
@@ -523,17 +523,17 @@ void swapModels(uint8_t id1, uint8_t id2)
   // just in case...
   vfs.unlink(fname1_tmp);
 
-  if (vfs.rename(fname1, fname1_tmp) != VfaError::OK) {
+  if (vfs.rename(fname1, fname1_tmp) != VfsError::OK) {
     TRACE("Error renaming 1");
     return;
   }
 
-  if (vfs.rename(fname2, fname1) != VfaError::OK) {
+  if (vfs.rename(fname2, fname1) != VfsError::OK) {
     TRACE("Error renaming 2");
     return;
   }
 
-  if (vfs.rename(fname1_tmp, fname2) != VfaError::OK) {
+  if (vfs.rename(fname1_tmp, fname2) != VfsError::OK) {
     TRACE("Error renaming 1 tmp");
     return;
   }
@@ -547,7 +547,7 @@ int8_t deleteModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  if (vfs.unlink(fname) != VfaError::OK) {
+  if (VirtualFS::instance().unlink(fname) != VfsError::OK) {
     return -1;
   }
 
@@ -603,7 +603,7 @@ const char * backupModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
 
-  return VirtualFS::instance().copyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+  return STORAGE_ERROR(VirtualFS::instance().copyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH));
 }
 
 const char * restoreModel(uint8_t idx, char *model_name)
@@ -616,7 +616,7 @@ const char * restoreModel(uint8_t idx, char *model_name)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
 
-  const char* error = VirtualFS::instance().copyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  const char* error = STORAGE_ERROR(VirtualFS::instance().copyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH));
   if (!error) {
     loadModelHeader(idx, &modelHeaders[idx]);
   }

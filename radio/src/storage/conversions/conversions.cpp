@@ -232,8 +232,8 @@ bool eeConvert(uint8_t start_version)
   int version = start_version;
   (void)version;
 
-  vfs.heckAndCreateDirectory(RADIO_PATH);
-  vfs.heckAndCreateDirectory(MODELS_PATH);
+  vfs.checkAndCreateDirectory(RADIO_PATH);
+  vfs.checkAndCreateDirectory(MODELS_PATH);
 
 #if STORAGE_CONVERSIONS < 220
   if (version == 219) {

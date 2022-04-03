@@ -37,7 +37,7 @@ static void storageReadTextFile(const char * filename, char lines[TEXT_VIEWER_LI
   VfsFile file;
   VfsError result;
   char c;
-  unsigned int sz;
+  size_t sz;
   int line_length = 0;
   uint8_t escape = 0;
   char escape_chars[4] = {0};

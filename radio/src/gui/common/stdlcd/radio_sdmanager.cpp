@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "opentx.h"
 #include "VirtualFS.h"
+#include "logs.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
@@ -153,31 +154,31 @@ void onSdManagerMenu(const char * result)
     POPUP_CONFIRMATION(STR_CONFIRM_FORMAT, onSdFormatConfirm);
   }
   else if (result == STR_COPY_FILE) {
-    clipboard.type = CLIPBOARD_TYPE_SD_FILE;
+    clipboard.type = CLIPBOARD_TYPE_STORAGE_FILE;
     const std::string& curWorkDir = vfs.getCurWorkDir();
-    strncpy(clipboard.data.sd.directory, curWorkDir.c_str(), CLIPBOARD_PATH_LEN)
-    strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
+    strncpy(clipboard.data.storage.directory, curWorkDir.c_str(), CLIPBOARD_PATH_LEN);
+    strncpy(clipboard.data.storage.filename, line, CLIPBOARD_PATH_LEN-1);
   }
   else if (result == STR_PASTE) {
     const std::string& curWorkDir = vfs.getCurWorkDir();
-    strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN)
+    strncpy(lfn, curWorkDir.c_str(), FF_MAX_LFN);
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
       strcat(lfn, "/");
       strcat(lfn, line);
     }
-    char *destNamePtr = clipboard.data.sd.filename;
-    if (!strcmp(clipboard.data.sd.directory, lfn)) {
+    char *destNamePtr = clipboard.data.storage.filename;
+    if (!strcmp(clipboard.data.storage.directory, lfn)) {
         // prevent copying to the same directory under the same name
         char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
         destNamePtr =
             strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
-        destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+        destNamePtr = strAppend(destNamePtr, clipboard.data.storage.filename,
                                 CLIPBOARD_PATH_LEN);
         destNamePtr = destFileName;
     }
-    POPUP_WARNING(vfs.copyFile(clipboard.data.sd.filename,
-                             clipboard.data.sd.directory, destNamePtr, lfn));
+    POPUP_WARNING(STORAGE_ERROR(vfs.copyFile(clipboard.data.storage.filename,
+                             clipboard.data.storage.directory, destNamePtr, lfn)));
     REFRESH_FILES();
   }
   else if (result == STR_RENAME_FILE) {
@@ -489,7 +490,7 @@ void menuRadioSdManager(event_t _event)
         if (!READ_ONLY()) {
           if (IS_FILE(line))
             POPUP_MENU_ADD_ITEM(STR_COPY_FILE);
-          if (clipboard.type == CLIPBOARD_TYPE_SD_FILE)
+          if (clipboard.type == CLIPBOARD_TYPE_STORAGE_FILE)
             POPUP_MENU_ADD_ITEM(STR_PASTE);
           POPUP_MENU_ADD_ITEM(STR_RENAME_FILE);
           if (IS_FILE(line))
@@ -523,7 +524,6 @@ void menuRadioSdManager(event_t _event)
 
       VfsError res = VirtualFS::instance().openDirectory(dir, "."); // Open the directory
       if (res == VfsError::OK) {
-        bool firstTime = true;
         for (;;) {
           res = dir.read(fno);
           std::string name = fno.getName();

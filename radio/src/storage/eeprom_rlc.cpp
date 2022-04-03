@@ -930,7 +930,7 @@ void eepromBackup()
   VirtualFS::instance().openFile(file, path, VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS);
 
   for (int i=0; i<EEPROM_SIZE; i+=1024) {
-    UINT count;
+    size_t count;
     eepromReadBlock(buffer, i, 1024);
     file.write(buffer, 1024, count);
     drawProgressScreen("EEPROM Backup", STR_WRITING, i, EEPROM_SIZE);

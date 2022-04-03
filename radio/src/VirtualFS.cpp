@@ -1566,7 +1566,7 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
   popupMenuItemsCount = 0;
 
   VfsError res = openDirectory(dir, path);
-  if (res == FR_OK) {
+  if (res == VfsError::OK) {
 
     if (flags & LIST_NONE_SD_FILE) {
       popupMenuItemsCount++;
@@ -1583,12 +1583,12 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 
     for (;;) {
       res = dir.read(fno);                   /* Read a directory item */
-      if (res != VfsError::OK || fno.getname().length() == 0) break;  /* Break on error or end of dir */
-      if (fno.isDir()) continue;            /* Skip subfolders */
-      if (fno.isHiddenFile()) continue;     /* Skip hidden files */
-      if (fno.isSystemFile()) continue;     /* Skip system files */
+      if (res != VfsError::OK || fno.getName().length() == 0) break;  /* Break on error or end of dir */
+      if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
+      if ((int)(fno.getAttrib() & VfsFileAttributes::HID) != 0) continue;     /* Skip hidden files */
+      if ((int)(fno.getAttrib() & VfsFileAttributes::SYS) != 0) continue;     /* Skip system files */
 
-      fnExt = getFileExtension(fno.getName.c_str(), 0, 0, &fnLen, &extLen);
+      fnExt = getFileExtension(fno.getName().c_str(), 0, 0, &fnLen, &extLen);
       fnLen -= extLen;
 
 //      TRACE_DEBUG("listSdFiles(%s, %s, %u, %s, %u): fn='%s'; fnExt='%s'; match=%d\n",
@@ -1596,10 +1596,10 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
       // file validation checks
       if (!fnLen || fnLen > maxlen || (                                              // wrong size
             fnExt && extension && (                                                  // extension-based checks follow...
-              !isExtensionMatching(fnExt, extension) || (                            // wrong extension
+              !isFileExtensionMatching(fnExt, extension) || (                            // wrong extension
                 !(flags & LIST_SD_FILE_EXT) &&                                       // only if we want unique file names...
                 strcasecmp(fnExt, getFileExtension(extension)) &&                    // possible duplicate file name...
-                isFilePatternAvailable(path, fname.c_str(), extension, true, tmpExt) &&  // find the first file from extensions list...
+                isFilePatternAvailable(path, fno.getName().c_str(), extension, true, tmpExt) &&  // find the first file from extensions list...
                 strncasecmp(fnExt, tmpExt, LEN_FILE_EXTENSION_MAX)                   // found file doesn't match, this is a duplicate
               )
             )
@@ -1612,7 +1612,7 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 
       std::string fname = fno.getName();
       if (!(flags & LIST_SD_FILE_EXT)) {
-        fname = fname.sibstr(0,fnLen);;  // strip extension
+        fname = fname.substr(0,fnLen);;  // strip extension
       }
 
       if (popupMenuOffset == 0) {
