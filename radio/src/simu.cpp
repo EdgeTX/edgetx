@@ -609,7 +609,9 @@ void OpenTxSim::refreshDisplay()
     bmf->setImage(bmp);
 
     simuLcdRefresh = false;
+#if defined(COLORLCD)
     lcdFlushed();
+#endif
   }
 }
 
