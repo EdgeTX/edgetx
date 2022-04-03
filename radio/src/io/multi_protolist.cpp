@@ -52,6 +52,14 @@ constexpr uint8_t MULTI_INVALID_PROTO = 0xFF;
 constexpr uint32_t MULTI_PROTOLIST_TIMEOUT = 100; // 100ms
 constexpr uint32_t MULTI_PROTOLIST_START_TIMEOUT = 3000; // 3s
 
+MultiRfProtocols::MultiRfProtocols(unsigned int moduleIdx) : moduleIdx(moduleIdx)
+{
+#if defined(SIMU)
+  // prevent scanning from starting on simu
+  fillBuiltinProtos();
+#endif
+}
+
 bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
 {
   const char* s = (const char*)data;
@@ -297,46 +305,7 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
       break;
 
     case ScanInvalid: {
-      // TODO: fill with static list (sorted)
-      const mm_protocol_definition* pdef =
-          getMultiProtocolDefinition(MODULE_SUBTYPE_MULTI_FIRST);
-
-      // build the list of static protos
-      protoList.clear();
-      protoList.reserve(MODULE_SUBTYPE_MULTI_LAST - MODULE_SUBTYPE_MULTI_FIRST + 1);
-      for (; pdef->protocol != 0xfe; pdef++) {
-        RfProto rfProto(pdef->protocol);
-
-        if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break; // skip custom proto
-
-        char tmp[8];
-        rfProto.label =
-            getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
-        rfProto.flags =
-            (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
-
-        if (pdef->subTypeString) {
-          int st_len = pdef->subTypeString[0];
-          const char* s = pdef->subTypeString + 1;
-
-          rfProto.fillSubProtoList(s, pdef->maxSubtype + 1, st_len);
-        }
-
-        protoList.emplace_back(rfProto);
-      }
-
-      // sort it by label
-      std::sort(
-          protoList.begin(), protoList.end(),
-          [](const RfProto& a, const RfProto& b) { return a.label < b.label; });
-
-      // index the sorted list
-      proto2idx.clear();
-      for (unsigned int i = 0; i < protoList.size(); i++)
-        proto2idx[protoList[i].proto] = i;
-
-      scanState = ScanEnd;
-      setModuleMode(moduleIdx, MODULE_MODE_NORMAL);
+      fillBuiltinProtos();
     } break;
 
     default:
@@ -344,4 +313,46 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
   }
 
   return false;
+}
+
+void MultiRfProtocols::fillBuiltinProtos()
+{
+  const mm_protocol_definition* pdef =
+      getMultiProtocolDefinition(MODULE_SUBTYPE_MULTI_FIRST);
+
+  // build the list of static protos
+  protoList.clear();
+  protoList.reserve(MODULE_SUBTYPE_MULTI_LAST - MODULE_SUBTYPE_MULTI_FIRST + 1);
+  for (; pdef->protocol != 0xfe; pdef++) {
+    RfProto rfProto(pdef->protocol);
+
+    if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break;  // skip custom proto
+
+    char tmp[8];
+    rfProto.label = getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
+    rfProto.flags =
+        (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
+
+    if (pdef->subTypeString) {
+      int st_len = pdef->subTypeString[0];
+      const char* s = pdef->subTypeString + 1;
+
+      rfProto.fillSubProtoList(s, pdef->maxSubtype + 1, st_len);
+    }
+
+    protoList.emplace_back(rfProto);
+  }
+
+  // sort it by label
+  std::sort(
+      protoList.begin(), protoList.end(),
+      [](const RfProto& a, const RfProto& b) { return a.label < b.label; });
+
+  // index the sorted list
+  proto2idx.clear();
+  for (unsigned int i = 0; i < protoList.size(); i++)
+    proto2idx[protoList[i].proto] = i;
+
+  scanState = ScanEnd;
+  setModuleMode(moduleIdx, MODULE_MODE_NORMAL);
 }
