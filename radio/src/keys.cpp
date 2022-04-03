@@ -20,7 +20,7 @@
  */
 
 #include "keys.h"
-#include "timers.h"
+#include "timers_driver.h"
 #include "opentx_helpers.h"
 
 #define KEY_LONG_DELAY              32  // long key press minimum duration (x10ms), must be less than KEY_REPEAT_DELAY

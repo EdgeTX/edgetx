@@ -24,7 +24,7 @@
 
 #include <inttypes.h>
 #include <string.h>
-#include "../timers.h"
+#include "timers_driver.h"
 
 #define TELEMETRY_AVERAGE_COUNT   3     // we actually average one more reading!
 #define RAW_FRSKY_MINMAX(v)       v.values[TELEMETRY_AVERAGE_COUNT-1]
