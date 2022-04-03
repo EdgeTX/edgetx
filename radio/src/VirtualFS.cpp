@@ -1322,16 +1322,16 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
     {
       if (exclDir) {
         FILINFO fno;
-        return (f_stat(path, &fno) == FR_OK && !(fno.fattrib & AM_DIR));
+        return (f_stat(p.c_str(), &fno) == FR_OK && !(fno.fattrib & AM_DIR));
       }
-      return f_stat(path, nullptr) == FR_OK;
+      return f_stat(p.c_str(), nullptr) == FR_OK;
     }
 #endif
 #if defined (USE_LITTLEFS)
   case VfsDir::DIR_LFS:
     {
       lfs_file_t file;
-      int res = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
+      int res = lfs_file_open(&lfs, &file, p.c_str(), LFS_O_RDONLY);
       if(res != LFS_ERR_OK)
       {
         if(res == LFS_ERR_ISDIR)
