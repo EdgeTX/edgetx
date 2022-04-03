@@ -24,6 +24,9 @@
 #include "FatFs/diskio.h"
 #include "FatFs/ff.h"
 
+#include "sdcard.h"
+#include "audio.h"
+
 #define RAM_START 0x20000000
 
 /* Definitions for MMC/SDC command */

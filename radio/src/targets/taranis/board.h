@@ -988,4 +988,20 @@ int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH]);
 #define GYRO_OFFSET_MIN                 -30
 #define GYRO_OFFSET_MAX                 10
 
+#if defined (RADIO_TX12)
+  #define BATTERY_DIVIDER 22830
+#elif defined (RADIO_T8)
+  #define BATTERY_DIVIDER 50000
+#elif defined (RADIO_ZORRO)
+  #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
+#else
+  #define BATTERY_DIVIDER 26214
+#endif 
+
+#if defined(RADIO_ZORRO)
+  #define VOLTAGE_DROP 45
+#else
+  #define VOLTAGE_DROP 20
+#endif
+
 #endif // _BOARD_H_

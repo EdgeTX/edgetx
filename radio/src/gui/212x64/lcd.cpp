@@ -21,10 +21,20 @@
 
 #include <limits.h>
 #include <memory.h>
-#include <assert.h>
+
 #include "lcd.h"
 #include "common/stdlcd/fonts.h"
 #include "common/stdlcd/utf8.h"
+
+#if !defined(SIMU)
+  #define assert(x)
+#else
+  #include <assert.h>
+#endif
+
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
 
 #if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)
   pixel_t displayBuf1[DISPLAY_BUFFER_SIZE] __DMA;
@@ -386,10 +396,9 @@ void lcdDrawTextAlignedLeft(coord_t y, const char * s)
 }
 
 #if !defined(BOOT)
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char * s,uint8_t idx, LcdFlags flags)
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s,uint8_t idx, LcdFlags flags)
 {
-  uint8_t length = *(s++);
-  lcdDrawSizedText(x, y, s+length*idx, length, flags);
+  lcdDrawSizedText(x, y, s[idx], UINT8_MAX, flags);
 }
 
 void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)
@@ -608,8 +617,10 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
 
 void drawStickName(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
-  uint8_t length = STR_VSRCRAW[0];
-  lcdDrawSizedText(x, y, STR_VSRCRAW+2+length*(idx+1), length-1, att);
+  // Skip "---": idx + 1
+  // Skip source symbol: + 2
+  const char* stickName = STR_VSRCRAW[idx + 1] + 2;
+  lcdDrawSizedText(x, y, stickName, UINT8_MAX, att);
 }
 
 void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)

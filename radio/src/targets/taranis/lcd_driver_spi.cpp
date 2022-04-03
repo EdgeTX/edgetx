@@ -23,6 +23,10 @@
 #include "debug.h"
 #include "lcd.h"
 
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
+
 #if defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_TPRO)
   #define LCD_CONTRAST_OFFSET            -10
 #else
