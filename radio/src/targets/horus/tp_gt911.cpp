@@ -221,7 +221,7 @@ const uint8_t TOUCH_GT911_Cfg[] = {
 #else
 
 //GT911 param table
-const uint8_t TOUCH_GT911_Cfg[] =
+uint8_t TOUCH_GT911_Cfg[] =
   {
     GT911_CFG_NUMBER,     // 0x8047 Config version
     0xE0,                // 0x8048 X output map : x 480
@@ -406,7 +406,10 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x00,                // 0x80FB Reserved
     0x00,                // 0x80FC Reserved
     0x00,                // 0x80FD Reserved
-    0x00                 // 0x80FE Reserved
+    0x00,                 // 0x80FE Reserved
+    
+    0x00,   // checksum
+    0x00    // fresh
   };
 
 #endif
@@ -529,7 +532,7 @@ void I2C_Init_Radio(void)
   }
 }
 
-bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
+bool I2C_GT911_WriteRegister(uint16_t reg, const uint8_t* buf, uint8_t len)
 {
     uint8_t uAddrAndBuf[258];
     uAddrAndBuf[0] = (uint8_t)((reg & 0xFF00) >> 8);
@@ -573,43 +576,39 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 
 bool I2C_GT911_SendConfig(const bool resetConfig = false)
 {
-  uint8_t buf[2] = {0x00, 0x01};
   bool bResult = true;
 
   if (resetConfig) {
-      buf[0] = 0x00;
-      if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, &buf[0], 1))
-      {
-        TRACE("GT911 ERROR: write config failed");
-        bResult = false;
-      }
+      TOUCH_GT911_Cfg[0] = 0x00;
   }
   else {
-      buf[0] = TOUCH_GT911_Cfg[0];
-      if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, &buf[0], 1))
-      {
-        TRACE("GT911 ERROR: write config failed");
-        bResult = false;
-      }
+      TOUCH_GT911_Cfg[0] = GT911_CFG_NUMBER;
   }
-  for (uint8_t i = 1; i < sizeof(TOUCH_GT911_Cfg); i++) {
-    buf[0] += TOUCH_GT911_Cfg[i]; //check sum
+  uint8_t& csum = TOUCH_GT911_Cfg[sizeof(TOUCH_GT911_Cfg) - 2];
+  csum = 0;
+  for (uint8_t i = 0; i < (sizeof(TOUCH_GT911_Cfg) - 2); i++) {
+    csum += TOUCH_GT911_Cfg[i]; //check sum
   }
-  buf[0] = (~buf[0]) + 1;
+  csum = (~csum) + 1;
 
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG + 1, (uint8_t *) &TOUCH_GT911_Cfg[1], sizeof(TOUCH_GT911_Cfg) - 1))
+//  std::integral_constant<size_t, sizeof(TOUCH_GT911_Cfg)>::_;
+  
+  TOUCH_GT911_Cfg[sizeof(TOUCH_GT911_Cfg) - 1] = 0x01;
+  
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, &TOUCH_GT911_Cfg[0], sizeof(TOUCH_GT911_Cfg)))
   {
     TRACE("GT911 ERROR: write config failed");
     bResult = false;
   }
 
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum and config_fresh
-  {
-    TRACE("GT911 ERROR: write config checksum failed");
-    bResult = false;
-  }
+//  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum and config_fresh
+//  {
+//    TRACE("GT911 ERROR: write config checksum failed");
+//    bResult = false;
+//  }
   return bResult;
 }
+
 
 void touchPanelDeInit(void)
 {
@@ -674,10 +673,20 @@ bool touchPanelInit(void)
           TRACE("GT911 ERROR: sending configration failed");
         }
         
+        if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1))
+        {
+            TRACE("GT911 ERROR: configuration register read failed");
+        }
+        
         TRACE("Sending new config %d", GT911_CFG_NUMBER);
         if (!I2C_GT911_SendConfig())
         {
           TRACE("GT911 ERROR: sending configration failed");
+        }
+
+        if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1))
+        {
+            TRACE("GT911 ERROR: configuration register read failed");
         }
       }
 
@@ -692,6 +701,7 @@ bool touchPanelInit(void)
       }
 
       delay_ms(10);
+
       tmp[0] = 0X00;
       if (!I2C_GT911_WriteRegister(GT911_COMMAND_REG, tmp, 1))  //end reset
       {
@@ -699,8 +709,12 @@ bool touchPanelInit(void)
       }
       touchGT911Flag = true;
 
+      if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1))
+      {
+          TRACE("GT911 ERROR: configuration register read failed");
+      }
+      
       TOUCH_AF_ExtiConfig();
-
 
       return true;
     }
