@@ -415,11 +415,9 @@ void lcdDrawTextAlignedLeft(coord_t y, const char * s)
 }
 
 #if !defined(BOOT)
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char * s,uint8_t idx, LcdFlags flags)
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s,uint8_t idx, LcdFlags flags)
 {
-  uint8_t length;
-  length = *(s++);
-  lcdDrawSizedText(x, y, s+length*idx, length, flags);
+  lcdDrawSizedText(x, y, s[idx], UINT8_MAX, flags);
 }
 
 void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)

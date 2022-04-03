@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "opentx.h"
 
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 uint32_t telemetryErrors = 0;

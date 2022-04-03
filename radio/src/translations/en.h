@@ -408,6 +408,7 @@
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Duration"
 #define TR_BLONBRIGHTNESS              INDENT "ON brightness"
 #define TR_BLOFFBRIGHTNESS             INDENT "OFF brightness"
@@ -710,8 +711,18 @@
 #define TR_TEMP_CALIB                  "Temp. Calib"
 #define TR_TIME                        "Time"
 #define TR_MAXBAUDRATE                 "Max bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+
+#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES                "No model templates were found in this folder"
+#define TR_SAVE_TEMPLATE               "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
+#define TR_FILE_EXISTS                 "FILE ALREADY EXISTS"
+#define TR_ASK_OVERWRITE               "Do you want to overwrite?"
 
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Discover"
@@ -719,7 +730,7 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Local addr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN code"
-#define TR_BAUDRATE                    "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Enabled"
 #else
@@ -740,6 +751,7 @@
 #define TR_DATE                        "Date"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "R.E."
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR            "CHANNELS MONITOR"
 #define TR_MIXERS_MONITOR              "MIXERS MONITOR"
 #define TR_PATH_TOO_LONG               "Path too long"
@@ -1248,6 +1260,11 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+#endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
 #define TR_RED                          "Red"

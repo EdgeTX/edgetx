@@ -24,8 +24,10 @@
 #include "aux_serial_driver.h"
 
 #include "board.h"
+
 #include "fifo.h"
 #include "dmafifo.h"
+#include "debug.h"
 
 #define AUX_SERIAL_TX_BUFFER 512
 

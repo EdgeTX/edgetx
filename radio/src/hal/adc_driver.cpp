@@ -226,8 +226,19 @@ uint16_t getBatteryVoltage()
 {
   // using filtered ADC value on purpose
   int32_t instant_vbat = anaIn(TX_VOLTAGE);
+
+#if defined(BATT_SCALE)
+  instant_vbat =
+      (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
+      BATTERY_DIVIDER;
+  // add voltage drop because of the diode TODO check if this is needed, but
+  // removal will break existing calibrations!
+  instant_vbat += VOLTAGE_DROP;
+  return (uint16_t)instant_vbat;
+#else
   return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
                     BATTERY_DIVIDER);
+#endif
 }
 
 extern uint16_t get_flysky_hall_adc_value(uint8_t ch);

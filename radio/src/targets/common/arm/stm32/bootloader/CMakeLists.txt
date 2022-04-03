@@ -57,6 +57,7 @@ set(BOOTLOADER_SRC
   ../../../../../keys.cpp
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
+  ../../../../../syscalls.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_core.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd_int.c
@@ -120,7 +121,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
-    ../../../../../syscalls.c
     )
 
   # Add LVGL sources

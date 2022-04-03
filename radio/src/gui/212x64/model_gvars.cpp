@@ -63,6 +63,8 @@ enum GVarFields {
 
 #define GVAR_2ND_COLUMN                (12*FW)
 
+static const char* _str_units[] = { "-", "%" };
+
 void menuModelGVarOne(event_t event)
 {
   GVarData * gvar = &g_model.gvars[s_currIdx];
@@ -86,7 +88,7 @@ void menuModelGVarOne(event_t event)
         break;
 
       case GVAR_FIELD_UNIT:
-        gvar->unit = editChoice(GVAR_2ND_COLUMN, y, STR_UNIT, "\001-%", gvar->unit, 0, 1, attr, event);
+        gvar->unit = editChoice(GVAR_2ND_COLUMN, y, STR_UNIT, _str_units, gvar->unit, 0, 1, attr, event);
         break;
 
       case GVAR_FIELD_PREC:

@@ -114,8 +114,8 @@ struct mm_protocol_definition {
   uint8_t maxSubtype;
   bool failsafe;
   bool disable_ch_mapping;
-  const char *subTypeString;
-  const char *optionsstr;
+  const char** subTypeString;
+  const char* optionsstr;
 };
 
 const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);

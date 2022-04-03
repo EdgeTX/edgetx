@@ -27,7 +27,9 @@
 #include <stdio.h>
 #include "aux_serial_driver.h"
 #include "hal/serial_port.h"
-//#include "cli.h"
+
+#include "opentx.h"
+#include "lua/lua_api.h"
 
 #define PRINTF_BUFFER_SIZE    128
 
