@@ -664,7 +664,7 @@ bool touchPanelInit(void)
       }
 
       TRACE("Chip config Ver:%x", tmp[0]);
-      if (tmp[0] != GT911_CFG_NUMBER)  // if new config version != old config version
+      if (tmp[0] < GT911_CFG_NUMBER)  //Config ver
       {
         TRACE("Config not as expected: resetting config");
 
@@ -805,6 +805,10 @@ struct TouchState touchPanelRead()
             TRACE("I2C B1 ReInit failed");
         return internalTouchState;
       }
+#if defined(PCBX12S)
+      touchData.points[0].x = LCD_W - touchData.points[0].x;
+      touchData.points[0].y = LCD_H - touchData.points[0].y;
+#endif
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
         internalTouchState.event = TE_DOWN;
