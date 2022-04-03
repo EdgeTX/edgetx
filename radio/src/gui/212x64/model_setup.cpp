@@ -363,6 +363,7 @@ void onBluetoothConnectMenu(const char * result)
 #include "common/stdlcd/model_setup_afhds3.cpp"
 #endif
 
+static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
 
 void menuModelSetup(event_t event)
 {
@@ -783,7 +784,7 @@ void menuModelSetup(event_t event)
 #endif
 
         lcdDrawTextAlignedLeft(y, STR_POTWARNING);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, "\004""OFF\0""Man\0""Auto", g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, _pots_warn_modes, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
         if (attr && (menuHorizontalPosition == 0)) {
           CHECK_INCDEC_MODELVAR(event, g_model.potsWarnMode, POTS_WARN_OFF, POTS_WARN_AUTO);
           storageDirty(EE_MODEL);
@@ -826,8 +827,9 @@ void menuModelSetup(event_t event)
                 flags |= INVERS;
               }
 
-              // TODO add a new function
-              lcdDrawSizedText(x, y, STR_VSRCRAW+2+STR_VSRCRAW[0]*(NUM_STICKS+1+i), STR_VSRCRAW[0]-1, flags & ~ZCHAR);
+              // skip "---" (+1) and source symbol (+2)
+              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
+              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
               x = lcdNextPos+3;
             }
           }
@@ -1669,7 +1671,7 @@ void menuModelSetup(event_t event)
         if (isDefaultModelRegistrationID())
           lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_PXX2_DEFAULT);
         else
-          lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN, y, g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID, ZCHAR);
+          lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN, y, g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID);
         break;
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_MODEL_NUM:

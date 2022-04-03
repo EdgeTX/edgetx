@@ -176,6 +176,8 @@ bool keyDown()
     break
 
 #if !defined(BOOT)
+#include "opentx.h"
+
 uint32_t switchState(uint8_t index)
 {
   uint32_t xxx = 0;

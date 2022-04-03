@@ -25,6 +25,11 @@ extern "C" {
 #include "usb_conf.h"
 #include "usb_dcd_int.h"
 #include "usb_bsp.h"
+#include "usbd_core.h"
+#include "usbd_msc_core.h"
+#include "usbd_desc.h"
+#include "usbd_usr.h"
+#include "usbd_hid_core.h"
 }
 
 #include "board.h"

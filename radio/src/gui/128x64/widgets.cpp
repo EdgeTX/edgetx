@@ -86,7 +86,7 @@ void title(const char * s)
   lcdDrawText(0, 0, s, INVERS);
 }
 
-choice_t editChoice(coord_t x, coord_t y, const char * label, const char *values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char** values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
 {
   if (label) {
     drawFieldLabel(x, y, label);
