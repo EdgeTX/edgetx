@@ -32,6 +32,8 @@
 #include "sdcard.h"
 #include "debug.h"
 
+#include <string.h>
+
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
 #include "aux_serial_driver.h"
 #endif

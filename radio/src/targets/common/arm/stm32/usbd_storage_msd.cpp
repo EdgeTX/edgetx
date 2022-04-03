@@ -28,6 +28,13 @@
 
 #include <string.h>
 
+#if !defined(BOOT)
+  #include "timers_driver.h"
+  #define WATCHDOG_SUSPEND(x) watchdogSuspend(x)
+#else
+  #define WATCHDOG_SUSPEND(...)
+#endif
+
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif

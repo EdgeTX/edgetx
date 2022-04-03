@@ -30,6 +30,7 @@ extern "C" {
 #include "usbd_desc.h"
 #include "usbd_usr.h"
 #include "usbd_hid_core.h"
+#include "usbd_cdc_core.h"
 }
 
 #include "board.h"

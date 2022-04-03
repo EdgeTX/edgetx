@@ -24,12 +24,15 @@
 
 #include "opentx.h"
 #include "diskio.h"
+#include "timers_driver.h"
+
+#include "cli.h"
 
 #include <ctype.h>
 #include <malloc.h>
 #include <new>
 #include <stdarg.h>
-#include "cli.h"
+
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
