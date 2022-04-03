@@ -127,7 +127,7 @@ void copyToTerminated(char (&dest)[DL], const char (&src)[SL],
   static_assert(dl > 0, "wrong sizes or offset");
   static constexpr size_t len = (dl < SL) ? dl : SL;
   strncpy(&dest[O], &src[0], len);
-  static_assert((len + O) < DL);
+  static_assert((len + O) < DL, "wrong sizes of offset");
   dest[len + O] = '\0';
 }
 
