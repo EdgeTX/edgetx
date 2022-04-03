@@ -47,6 +47,8 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
+volatile rotenc_t rotencValue = 0;
+
 // TODO: remove all STM32 defs
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
 USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
