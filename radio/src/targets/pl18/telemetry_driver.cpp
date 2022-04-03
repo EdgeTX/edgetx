@@ -215,7 +215,7 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
 }
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
-bool telemetryGetByte(uint8_t * byte)
+bool sportGetByte(uint8_t * byte)
 {
 #if defined(PCBX12S)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)

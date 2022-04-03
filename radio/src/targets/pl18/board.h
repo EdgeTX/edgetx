@@ -111,11 +111,14 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 void SDRAM_Init();
 
 // Pulses driver
+#define INTERNAL_MODULE_OFF()           
+#define INTERNAL_MODULE_ON()            
 void EXTERNAL_MODULE_ON();
 void EXTERNAL_MODULE_OFF();
 #define EXTERNAL_MODULE_PWR_OFF EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN)
 #define BLUETOOTH_MODULE_OFF()          GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN)
+#define IS_INTERNAL_MODULE_ON()         (false)
 #define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
 
@@ -414,6 +417,7 @@ bool pwrPressed();
 #endif
 uint32_t pwrPressedDuration();;
   
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
 
@@ -504,12 +508,13 @@ int32_t getVolume();
 #define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
+#define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE             512
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionOutput();
 void telemetryPortSetDirectionInput();
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 void sportSendByte(uint8_t byte);
 extern uint32_t telemetryErrors;

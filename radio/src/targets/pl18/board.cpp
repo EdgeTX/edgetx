@@ -26,8 +26,8 @@
 #include "debug.h"
 
 #include "hal/adc_driver.h"
-#include "../common/arm/stm32/stm32_hal_adc.h"
-#include "../../timers.h"
+#include "stm32_hal_adc.h"
+#include "timers_driver.h"
 #include "../../debounce.h"
 
 #include "bitmapbuffer.h"
@@ -125,11 +125,8 @@ void boardInit()
   __enable_irq();
 #endif
 
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
-#if defined(DEBUG) && defined(AUX2_SERIAL)
-  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
+#if defined(DEBUG)
+  serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
 
   TRACE("\nPL18 board started :)");
@@ -246,6 +243,11 @@ void boardOff()
   while (1) {
 
   }
+}
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr)
+{
+  return nullptr;
 }
 
 int usbPlugged()
