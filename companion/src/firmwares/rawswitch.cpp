@@ -267,6 +267,7 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
   tbl.insert(tbl.end(), {
                           {std::to_string(SWITCH_TYPE_NONE),            "NONE"},
                           {std::to_string(SWITCH_TYPE_SWITCH),          "Sxn"},
+                          {std::to_string(SWITCH_TYPE_FUNCTIONSWITCH),  "Sxn"},
                           {std::to_string(SWITCH_TYPE_VIRTUAL),         "Ln"},
                           {std::to_string(SWITCH_TYPE_MULTIPOS_POT),    "6Pn"},
                           {std::to_string(SWITCH_TYPE_TRIM),            "Trim"},
@@ -274,7 +275,6 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
                           {std::to_string(SWITCH_TYPE_ON),              "ON"},
                           {std::to_string(SWITCH_TYPE_OFF),             "OFF"},
                           {std::to_string(SWITCH_TYPE_ONE),             "ONE"},
-                          {std::to_string(SWITCH_TYPE_FUNCTIONSWITCH),  "Sxn"},
                           {std::to_string(SWITCH_TYPE_FLIGHT_MODE),     "FMn"},
                           {std::to_string(SWITCH_TYPE_TIMER_MODE),      "Timer"},
                           {std::to_string(SWITCH_TYPE_TELEMETRY),       "TELEMETRY_STREAMING"},
