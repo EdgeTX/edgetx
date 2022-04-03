@@ -22,6 +22,11 @@
 #include "board.h"
 #include "hal.h"
 #include "board_common.h"
+#include "heartbeat_driver.h"
+
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
 
 static uint8_t rotencPosition;
 volatile rotenc_t rotencValue;
