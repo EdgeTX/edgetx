@@ -571,7 +571,9 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     char* pos = strAppend(dest, STR_CHAR_INPUT, sizeof(STR_CHAR_INPUT) - 1);
     if (g_model.inputNames[idx][0] != '\0' && (dest_len > sizeof(g_model.inputNames[idx]))) {
       memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
-      strncpy(pos, g_model.inputNames[idx], sizeof(g_model.inputNames[idx]));
+      size_t input_len = std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
+      strncpy(pos, g_model.inputNames[idx], input_len);
+      pos[input_len] = '\0';
     } else {
       strAppendUnsigned(pos, idx + 1, 2);
     }

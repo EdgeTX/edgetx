@@ -30,6 +30,10 @@
 
 #include "dataconstants.h"
 
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
+
 #if defined(AUX_SERIAL)
 #include "aux_serial_driver.h"
 #endif

@@ -21,11 +21,21 @@
 
 #include <limits.h>
 #include <memory.h>
-#include <assert.h>
+
 #include "lcd.h"
 #include "thirdparty/libopenui/src/bitfield.h"
 #include "gui/common/stdlcd/fonts.h"
 #include "gui/common/stdlcd/utf8.h"
+
+#if !defined(SIMU)
+  #define assert(x)
+#else
+  #include <assert.h>
+#endif
+
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
 

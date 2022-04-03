@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "debug.h"
 
 #if !defined(BOOT)
 Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
@@ -123,7 +124,6 @@ extern "C" void BT_USART_IRQHandler(void)
     USART_ClearITPendingBit(BT_USART, USART_IT_RXNE);
     uint8_t byte = USART_ReceiveData(BT_USART);
     btRxFifo.push(byte);
-    BLUETOOTH_TRACE_VERBOSE("BT %02X" CRLF, byte);
 #if defined(BLUETOOTH_PROBE)
     if (!btChipPresent) {
       // This is to differentiate X7 and X7S and X-Lite with/without BT
