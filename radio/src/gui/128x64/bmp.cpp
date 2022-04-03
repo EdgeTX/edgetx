@@ -50,7 +50,7 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint8_t width, uin
   }
 
   if (buf[0] != 'B' || buf[1] != 'M') {
-    &bmpFile.close();
+    bmpFile.close();
     return nullptr;
   }
 
