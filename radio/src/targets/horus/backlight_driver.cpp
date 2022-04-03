@@ -22,6 +22,10 @@
 #include "opentx_types.h"
 #include "board.h"
 
+#if !defined(BOOT)
+#include "myeeprom.h"
+#endif
+
 void backlightInit()
 {
   // PIN init

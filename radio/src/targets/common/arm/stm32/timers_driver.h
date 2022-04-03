@@ -25,6 +25,7 @@
 
 uint16_t getTmr2MHz();
 
+#define watchdogSuspend(timeout)
 #else
 
 #include "board.h"
