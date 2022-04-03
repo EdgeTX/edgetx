@@ -35,4 +35,6 @@ void stop1msTimer();
 
 static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
 
+void watchdogSuspend(uint32_t timeout);
+
 #endif

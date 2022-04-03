@@ -132,13 +132,6 @@ void delay_ms(uint32_t count);
 }
 #endif
 
-#if !defined(BOOT)
-void watchdogSuspend(uint32_t timeout);
-#define WATCHDOG_SUSPEND(x)            watchdogSuspend(x)
-#else
-#define WATCHDOG_SUSPEND(...)
-#endif
-
 #define INIT_KEYS_PINS(GPIO) \
   GPIO_InitStructure.GPIO_Pin = KEYS_ ## GPIO ## _PINS; \
   GPIO_Init(GPIO, &GPIO_InitStructure)
