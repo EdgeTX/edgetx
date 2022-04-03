@@ -221,7 +221,7 @@ const uint8_t TOUCH_GT911_Cfg[] = {
 #else
 
 //GT911 param table
-uint8_t TOUCH_GT911_Cfg[] =
+const uint8_t TOUCH_GT911_Cfg[] =
   {
     GT911_CFG_NUMBER,     // 0x8047 Config version
     0xE0,                // 0x8048 X output map : x 480
@@ -406,10 +406,7 @@ uint8_t TOUCH_GT911_Cfg[] =
     0x00,                // 0x80FB Reserved
     0x00,                // 0x80FC Reserved
     0x00,                // 0x80FD Reserved
-    0x00,                 // 0x80FE Reserved
-    
-    0x00,   // checksum
-    0x00    // fresh
+    0x00                 // 0x80FE Reserved
   };
 
 #endif
@@ -532,7 +529,7 @@ void I2C_Init_Radio(void)
   }
 }
 
-bool I2C_GT911_WriteRegister(uint16_t reg, const uint8_t* buf, uint8_t len)
+bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t * buf, uint8_t len)
 {
     uint8_t uAddrAndBuf[258];
     uAddrAndBuf[0] = (uint8_t)((reg & 0xFF00) >> 8);
@@ -593,14 +590,13 @@ bool I2C_GT911_SendConfig()
     bResult = false;
   }
 
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) //write checksum and config_fresh
   {
     TRACE("GT911 ERROR: write config checksum failed");
     bResult = false;
   }
   return bResult;
 }
-
 
 void touchPanelDeInit(void)
 {
@@ -669,11 +665,6 @@ bool touchPanelInit(void)
         {
           TRACE("GT911 ERROR: sending configration failed");
         }
-
-        if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1))
-        {
-            TRACE("GT911 ERROR: configuration register read failed");
-        }
       }
 
       if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2))
@@ -687,7 +678,6 @@ bool touchPanelInit(void)
       }
 
       delay_ms(10);
-
       tmp[0] = 0X00;
       if (!I2C_GT911_WriteRegister(GT911_COMMAND_REG, tmp, 1))  //end reset
       {
@@ -695,12 +685,8 @@ bool touchPanelInit(void)
       }
       touchGT911Flag = true;
 
-      if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1))
-      {
-          TRACE("GT911 ERROR: configuration register read failed");
-      }
-      
       TOUCH_AF_ExtiConfig();
+
 
       return true;
     }
