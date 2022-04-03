@@ -23,7 +23,7 @@
 #include <FreeRTOS/include/stream_buffer.h>
 
 #include "opentx.h"
-#include "VirtualFS.h
+#include "VirtualFS.h"
 #include "diskio.h"
 #include "timers_driver.h"
 
@@ -259,7 +259,7 @@ int cliLs(const char ** argv)
       res = dir.read(fno);                   /* Read a directory item */
       std::string name = fno.getName();
       if (res != VfsError::OK || name.length() == 0) break;  /* Break on error or end of dir */
-      cliSerialPrint(fno.fname);
+      cliSerialPrint(name.c_str());
     }
     dir.close();
   }
