@@ -349,7 +349,7 @@ void RadioHardwarePage::build(FormWindow * window)
 #if defined(STICK_DEAD_ZONE)
   new StaticText(window, grid.getLabelSlot(true), STR_DEAD_ZONE);
   auto choice =
-      new Choice(window, grid.getFieldSlot(), 0, 7,
+      new Choice(window, grid.getFieldSlot(2,0), 0, 7,
                  GET_DEFAULT(g_eeGeneral.stickDeadZone), [=](uint8_t newValue) {
                    g_eeGeneral.stickDeadZone = newValue;
                    SET_DIRTY();
