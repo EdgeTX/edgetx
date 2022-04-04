@@ -34,7 +34,7 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
   QStringList headerLabels;
   headerLabels << "#";
 
-  headerLabels << tr("Plot") << tr("Details");
+  headerLabels << tr("Plot") << tr("Details") << tr("Note: to create a curve right click on the curve row label");
 
   TableLayout *tableLayout = new TableLayout(this, maxCurves, headerLabels);
 
@@ -56,6 +56,9 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     image[i]->setGrid(Qt::gray, 2);
     image[i]->setProperty("index", i);
     image[i]->setFixedSize(QSize(100, 100));
+    image[i]->setContextMenuPolicy(Qt::CustomContextMenu);
+    image[i]->setToolTip(tr("Popup menu available"));
+    connect(image[i], SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     connect(image[i], &CurveImageWidget::doubleClicked, this, &CurvesPanel::on_curveImageDoubleClicked);
 
     tableLayout->addWidget(i, col++, image[i]);
@@ -157,9 +160,9 @@ void CurvesPanel::on_curveImageDoubleClicked()
 
 void CurvesPanel::onCustomContextMenuRequested(QPoint pos)
 {
-  QPushButton *button = (QPushButton *)sender();
-  selectedIndex = button->property("index").toInt();
-  QPoint globalPos = button->mapToGlobal(pos);
+  QWidget *wgt = (QWidget *)sender();
+  selectedIndex = wgt->property("index").toInt();
+  QPoint globalPos = wgt->mapToGlobal(pos);
 
   QMenu contextMenu;
   contextMenu.addAction(CompanionIcon("new.png"), tr("Add"), this, SLOT(cmEdit()))->setEnabled(!curveExists());
