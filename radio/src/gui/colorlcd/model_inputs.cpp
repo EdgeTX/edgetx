@@ -569,7 +569,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
           });
           menu->addLine(STR_DELETE, [=]() {
             deleteExpo(inputIndex);
-            rebuild(window, -1);
+            rebuild(window, inputIndex);
           });
           return 0;
         });
@@ -620,7 +620,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
                                                         : s_copySrcIdx);
                 s_copyMode = 0;
               }
-              rebuild(window, -1);
+              rebuild(window, inputIndex);
               return 0;
             });
           }
