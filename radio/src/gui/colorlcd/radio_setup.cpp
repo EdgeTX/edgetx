@@ -330,25 +330,18 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Backlight mode
     new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-#if defined COLORLCD
-    BacklightMode minBacklightMode = e_backlight_mode_keys;
-#else
-    BacklightMode minBacklightMode = e_backlight_mode_off;
-#endif
-    const char* values[e_backlight_mode_on+1] = {};
-    uint8_t len = STR_VBLMODE[0];
-    const char * value = &STR_VBLMODE[1];
-    for (int i = e_backlight_mode_off; i <= e_backlight_mode_on; i++) {
-      values[i] = value;
-      value += len;
-    }
 
-    new Choice(window, grid.getFieldSlot(2,0), &values[minBacklightMode], minBacklightMode, e_backlight_mode_on, GET_DEFAULT(g_eeGeneral.backlightMode),
-               [=](int32_t newValue) {
-                 g_eeGeneral.backlightMode = newValue;
-                 updateBacklightControls();
-               });
-    //grid.nextLine();
+    auto blMode = new Choice(window, grid.getFieldSlot(2, 0), STR_VBLMODE,
+                             e_backlight_mode_off, e_backlight_mode_on,
+                             GET_DEFAULT(g_eeGeneral.backlightMode),
+                             [=](int32_t newValue) {
+                               g_eeGeneral.backlightMode = newValue;
+                               updateBacklightControls();
+                             });
+
+    blMode->setAvailableHandler(
+        [=](int newValue) { return newValue != e_backlight_mode_off; });
+
     // Delay
     auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 5, 600,
                                GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
