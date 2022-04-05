@@ -470,13 +470,21 @@ char *getSwitchName(char *dest, swsrc_t idx)
   if (g_eeGeneral.switchNames[swinfo.quot][0] != '\0') {
     dest =
         strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
-  } else {
-#if defined(FUNCTIONS_SWITCHES)
+  } 
+  else {
+#if defined(FUNCTION_SWITCHES) 
     if (swinfo.quot >= NUM_REGULAR_SWITCHES)  {
-      *dest++ = 'W';
-      *dest++ = '1' + swinfo.quot - 4;
+      int fsIdx = swinfo.quot - NUM_REGULAR_SWITCHES;
+      if(ZEXIST(g_model.switchNames[fsIdx])){
+        dest = strAppend(dest, g_model.switchNames[fsIdx], LEN_SWITCH_NAME);
+      }
+      else {
+        *dest++ = 'S';
+        *dest++ = 'W';
+        *dest++ = '1' + swinfo.quot - 4;
+      }
       return dest;
-    }
+    }  
 #endif
     *dest++ = 'S';
     *dest++ = getRawSwitchFromIdx(swinfo.quot);
@@ -503,9 +511,24 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 1)
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, idx);
-    *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
-    *s = '\0';
+    
+#if defined(FUNCTION_SWITCHES)
+    if (idx >= SWSRC_FIRST_FUNCTION_SWITCH && idx <= (SWSRC_FIRST_FUNCTION_SWITCH + NUM_FUNCTIONS_SWITCHES)) {
+      s = getSwitchName(s, idx);
+      *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
+      *s = '\0';
+    } 
+    else {
+      s = getSwitchName(s, idx);
+      *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
+      *s = '\0';
+    }
+#else
+  s = getSwitchName(s, idx);
+  *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
+  *s = '\0';
+#endif
+
   }
 
 #if NUM_XPOTS > 0
