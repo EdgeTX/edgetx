@@ -325,14 +325,14 @@
 #define TR_VTMRMODES          			 "AUS""EIN""GSs""GS%""GSt"
 
 #define LEN_VTRAINERMODES              "\022"
-#define TR_VTRAINER_MASTER_OFF         "OFF\0              "
+#define TR_VTRAINER_MASTER_OFF         "AUS\0              "
 #define TR_VTRAINER_MASTER_JACK        "Lehrer/Buchse\0    "
 #define TR_VTRAINER_SLAVE_JACK         "Schüler/Buchse\0   "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lehrer/SBUS Modul\0"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Lehrer/CPPM Modul\0"
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial\0    "
-#define TR_VTRAINER_BLUETOOTH          TR("Master/BT\0        ""Slave/BT\0         ", "Master/Bluetooth\0 ""Slave/Bluetooth\0  ")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_BLUETOOTH          TR("Lehrer/BT\0        ""Schüler/BT\0       ", "Lehrer/Bluetooth\0 ""Schüler/Bluetooth\0")
+#define TR_VTRAINER_MULTI              "Lehrer/Multi"
 
 #define LEN_VFAILSAFE         			 "\015" // "\013" original
 #define TR_VFAILSAFE          			 "Kein Failsafe""Halte Pos.\0  ""Kanäle\0      ""Kein Signal\0 ""Empfänger\0   "
