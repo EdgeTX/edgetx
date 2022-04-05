@@ -40,6 +40,7 @@ constexpr char AIM_GS_ANTENNAMODE[]        {"gs.antennamode"};
 constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
 constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
 constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
+constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
@@ -151,7 +152,7 @@ class GeneralSettings {
       SP_VCP,
       SP_COUNT,
     };
-  
+
     GeneralSettings() { clear(); }
     void clear();
     void init();
@@ -282,4 +283,5 @@ class GeneralSettings {
     static AbstractStaticItemModel * bluetoothModeItemModel();
     static AbstractStaticItemModel * serialModeItemModel(int port_nr);
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
+    static AbstractStaticItemModel * stickDeadZoneItemModel();
 };
