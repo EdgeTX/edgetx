@@ -43,7 +43,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += "L";
     sw_str += std::to_string(sval);
     break;
-  
+
   case SWITCH_TYPE_FUNCTIONSWITCH:
     if (IS_JUMPER_TPRO(getCurrentBoard())) {
       c += Boards::getCapability(getCurrentBoard(), Board::Switches);
@@ -72,10 +72,6 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
   case SWITCH_TYPE_SENSOR:
     sw_str += "T";
     sw_str += std::to_string(sval + 1);
-    break;
-
-  case SWITCH_TYPE_TIMER_MODE:
-    //  TODO: check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
     break;
 
   default:
@@ -166,25 +162,16 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       }
     }
 
-    //  these types use index = 1
-  } else if (val_len > 4 && (
-             (val[0] == 'R' && val[1] == 'A' && val[2] == 'D' && val[3] == 'I' && val[4] == 'O') ||
-             (val[0] == 'T' && val[1] == 'E' && val[2] == 'L' && val[3] == 'E' && val[4] == 'M'))) {
-
-    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
-    if (sw_type >= 0) {
-      rhs.type = (RawSwitchType)sw_type;
-      rhs.index = 1;
-    }
-
-  //  TODO: SWITCH_TYPE_TIMER_MODE
-  //        check as it appears to be depreciated as not in RawSwitch data model and not in radio yaml export
   } else {
-    //  types which do not use index
     int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
     if (sw_type >= 0) {
       rhs.type = (RawSwitchType)sw_type;
-      rhs.index = 0;
+      if (rhs.type == SWITCH_TYPE_TELEMETRY || rhs.type == SWITCH_TYPE_ACT || rhs.type == SWITCH_TYPE_ONE)
+        //  these types use index = 1
+        rhs.index = 1;
+      else
+        //  types which do not use index
+        rhs.index = 0;
     }
   }
 
