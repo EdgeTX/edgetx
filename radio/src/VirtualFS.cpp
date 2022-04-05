@@ -851,6 +851,9 @@ void VirtualFS::mountSd()
 
 bool VirtualFS::defaultStorageAvailable()
 {
+#if defined (SIMU)
+  return true;
+#endif
 #if (DEFAULT_STORAGE == INTERNAL)
 #if defined (USE_LITTLEFS)
     return lfsMounted
