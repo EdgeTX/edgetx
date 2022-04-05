@@ -325,7 +325,7 @@
 #define TR_VTMRMODES          			 "AUS""EIN""GSs""GS%""GSt"
 
 #define LEN_VTRAINERMODES              "\022"
-#define TR_VTRAINER_MASTER_OFF         "Off\0              "
+#define TR_VTRAINER_MASTER_OFF         "OFF\0              "
 #define TR_VTRAINER_MASTER_JACK        "Lehrer/Buchse\0    "
 #define TR_VTRAINER_SLAVE_JACK         "Schüler/Buchse\0   "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lehrer/SBUS Modul\0"
@@ -855,8 +855,8 @@
 #define TR_MIXERS_MONITOR              "==>Mischer Monitor"
 #define TR_PATH_TOO_LONG               "Pfad zu Lang"
 #define TR_VIEW_TEXT                   "View Text"
-#define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")      
-#define TR_FLASH_BOOTLOADER            TR("Flash bootloader","Flash bootloader")      
+#define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")
+#define TR_FLASH_BOOTLOADER            TR("Flash bootloader","Flash bootloader")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash ext. Gerät","Flash externes Gerät")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -1373,9 +1373,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
 #endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
