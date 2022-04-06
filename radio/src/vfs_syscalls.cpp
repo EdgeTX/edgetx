@@ -36,10 +36,10 @@
 
 struct open_files_t
 {
-  int handle;
-  int pos;
-  int flags;
-  VfsFile * vfs_file;
+  int handle = -1;
+  int pos = 0;
+  int flags = 0;
+  VfsFile * vfs_file = nullptr;
 };
 
 static open_files_t open_files[MAX_OPEN_FILES];
