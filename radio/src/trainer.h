@@ -87,7 +87,6 @@ namespace Trainer {
             
             using MesgType = std::array<std::pair<uint8_t, uint8_t>, MaxChannels>;
             using SwitchesType = uint64_t;
-
         };
     }    
 }
