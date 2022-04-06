@@ -1023,12 +1023,8 @@ void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
 void rawSetUnconnectedStickySwitch(const uint8_t i, const bool state) {
     if (i >= MAX_LOGICAL_SWITCHES) return;
     LogicalSwitchData* const ls = lswAddress(i);
-    if (ls->func == LS_FUNC_STICKY) {
-        if ((ls->v1 != SWSRC_NONE) && (ls->v2 != SWSRC_NONE)) {
-            for (uint8_t fm = 0; fm < MAX_FLIGHT_MODES; fm++) {
-                ls_sticky_struct& lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
-                lastValue.state = state;
-            }
-        }
+    if ((ls) && (ls->func == LS_FUNC_STICKY) && (ls->v1 == SWSRC_NONE) && (ls->v2 == SWSRC_NONE)) {
+        ls_sticky_struct& lastValue = (ls_sticky_struct &)LS_LAST_VALUE(mixerCurrentFlightMode, i);
+        lastValue.state = state;
     }
 }
