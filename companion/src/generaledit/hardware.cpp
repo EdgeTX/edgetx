@@ -41,7 +41,7 @@ class ExclusiveComboGroup: public QObject
 
   QList<QComboBox*> combos;
   std::function<bool(const QVariant&)> filter;
-  
+
 public:
  ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
    QObject(parent), filter(std::move(filter))
@@ -105,12 +105,24 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int count;
   int row = 0;
 
+  addSection(tr("Sticks"), row);
+
   count = Boards::getCapability(board, Board::Sticks);
   if (count) {
     for (int i = 0; i < count; i++) {
       addStick(i, row);
     }
   }
+
+  if (IS_FLYSKY_NV14(board)) {
+    addLabel(tr("Dead zone"), row, 0);
+    AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
+    spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
+    spnStickDeadZone->setField(generalSettings.stickDeadZone, this);
+    addParams(row, spnStickDeadZone);
+  }
+
+  addSection(tr("Pots"), row);
 
   count = Boards::getCapability(board, Board::Pots);
   count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
@@ -120,21 +132,25 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     }
   }
 
+  addSection(tr("Sliders"), row);
+
   count = Boards::getCapability(board, Board::Sliders);
   if (count) {
     for (int i = 0; i < count; i++) {
       addSlider(i, row);
     }
-    addLine(row);
   }
+
+  addSection(tr("Switches"), row);
 
   count = Boards::getCapability(board, Board::Switches);
   if (count) {
     for (int i = 0; i < count; i++) {
       addSwitch(i, row);
     }
-    addLine(row);
   }
+
+  addLine(row);
 
   if (Boards::getCapability(board, Board::HasRTC)) {
     addLabel(tr("RTC Battery Check"), row, 0);
@@ -194,7 +210,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
       generalSettings.internalModuleBaudrate = 0;
       internalModuleBaudRate->setVisible(false);
     }
-    
+
     addParams(row, internalModule, internalModuleBaudRate);
     row++;
   }
@@ -384,5 +400,11 @@ void HardwarePanel::addParams(int & row, QWidget * widget1, QWidget * widget2)
     addHSpring(subgrid, 1, 0);
   addHSpring(subgrid, 2, 0);
   grid->addLayout(subgrid, row, 1);
+  row++;
+}
+
+void HardwarePanel::addSection(QString text, int & row)
+{
+  addLabel(QString("<b>%1</b>").arg(text), row, 0);
   row++;
 }

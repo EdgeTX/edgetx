@@ -1,5 +1,6 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
+option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(AFHDS2 "Support for AFHDS2" ON)
 option(GHOST "Ghost TX Module" ON)
@@ -88,6 +89,10 @@ endif()
 
 if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
+endif()
+
+if(STICKS_DEAD_ZONE)
+  add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
 set(AFHDS2 ON)

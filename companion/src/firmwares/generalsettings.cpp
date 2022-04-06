@@ -249,6 +249,9 @@ void GeneralSettings::init()
 
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
+  if (IS_FLYSKY_NV14(board))
+    stickDeadZone = 2;
+
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -583,6 +586,20 @@ AbstractStaticItemModel * GeneralSettings::internalModuleBaudrateItemModel()
 
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     mdl->appendToItemList(moduleBaudrateToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::stickDeadZoneItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_STICKDEADZONE);
+
+  for (int i = 0; i <= 7; i++) {
+    mdl->appendToItemList(i ? QString::number((int)(2 << (i - 1))) : QString::number(0), i);
   }
 
   mdl->loadItemList();

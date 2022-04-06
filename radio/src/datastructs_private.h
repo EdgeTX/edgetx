@@ -823,7 +823,7 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare4:2 SKIP
+  #define BUZZER_FIELD int8_t spare1:2 SKIP
 #endif
 
 PACK(struct RadioData {
@@ -913,6 +913,12 @@ PACK(struct RadioData {
   GYRO_FIELDS
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+#if defined(STICK_DEAD_ZONE)
+  NOBACKUP(uint8_t  stickDeadZone:3);
+  NOBACKUP(uint8_t  spare2:3 SKIP);
+#else
+  NOBACKUP(uint8_t  spare2:6 SKIP);
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA
