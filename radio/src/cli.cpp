@@ -45,6 +45,11 @@
 #include <new>
 #include <stdarg.h>
 
+#include "sbus.h"
+#include "ibus.h"
+#include "crsf.h"
+#include "sumd.h"
+
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -1617,6 +1622,15 @@ int cliResetGT911(const char** argv)
 }
 #endif
 
+#if defined(EXTENDED_TRAINER)
+static int trainer_stats(const char** const argv) {
+    cliSerialPrint("packages: sbus: %d, ibus: %d, crsf: %d, sumd: %d", 
+                   SBus::Servo<0>::packages(), IBus::Servo<0>::packages, 
+                   CRSF::Servo<0>::packages(), SumDV3::Servo<0>::packages());        
+    return 0;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1658,6 +1672,9 @@ const CliCommand cliCommands[] = {
 #if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
   { "reset_gt911", cliResetGT911, ""},
 #endif
+#if defined(EXTENDED_TRAINER)
+  { "tr_stats", trainer_stats, nullptr},
+#endif    
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
