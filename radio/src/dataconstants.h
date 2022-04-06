@@ -49,7 +49,11 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
+#if defined(EXTENDED_TRAINER)
   #define MAX_TRAINER_CHANNELS         16
+#else
+  #define MAX_TRAINER_CHANNELS         16
+#endif
   #define MAX_TELEMETRY_SENSORS        60
   #define MAX_CUSTOM_SCREENS           5
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)

@@ -34,6 +34,11 @@
 #include <stdarg.h>
 
 
+#include "sbus.h"
+#include "ibus.h"
+#include "crsf.h"
+#include "sumd.h"
+
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
 #endif
@@ -1556,6 +1561,15 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
+#if defined(EXTENDED_TRAINER)
+static int trainer_stats(const char** const argv) {
+    cliSerialPrint("packages: sbus: %d, ibus: %d, crsf: %d, sumd: %d", 
+                   SBus::Servo<0>::packages(), IBus::Servo<0>::packages, 
+                   CRSF::Servo<0>::packages(), SumDV3::Servo<0>::packages());        
+    return 0;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1591,6 +1605,9 @@ const CliCommand cliCommands[] = {
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
+#if defined(EXTENDED_TRAINER)
+  { "tr_stats", trainer_stats, nullptr},
+#endif    
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
