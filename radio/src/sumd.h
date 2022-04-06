@@ -44,6 +44,9 @@ namespace SumDV3 {
         using SumDV3 = Trainer::Protocol::SumDV3;
         using MesgType = SumDV3::MesgType;
         using SwitchesType = SumDV3::SwitchesType;
+
+        template<uint8_t B, uint8_t E> struct range_t {};
+        template<uint8_t N> using offset_t = std::integral_constant<uint8_t, N>;
         
         enum class State : uint8_t {Undefined, GotStart, StartV1, StartV3, V1ChannelDataH, V1ChannelDataL, CrcH, CrcL,
                                    V3ChannelDataH, V3ChannelDataL, V3FuncCode, V3LastValidPackage, V3ModeCmd, V3SubCmd};
@@ -54,13 +57,8 @@ namespace SumDV3 {
                                     Last = Ch1to12and64Switches,
                                     Undefined = 0xff};
                                     
-        
-        static inline int16_t convertSumdToPuls(uint16_t const value) {
-            const int32_t centered = value - SumDV3::CenterValue;
-            return Trainer::clamp(((Trainer::MaxValue - Trainer::MinValue) * centered) / (SumDV3::MaxValue -SumDV3::MinValue));
-        }
-        
         static inline void process(const uint8_t b, const std::function<void()> f) {
+            ++mBytesCounter;
             switch(mState) { // enum-switch -> no default (intentional)
             case State::Undefined:
                 if (b == SumDV3::start_code) {
@@ -114,7 +112,7 @@ namespace SumDV3 {
                 mState = State::CrcL;
                 break;
             case State::CrcL:
-                if ((((uint16_t)crcH << 8) | b) == csum) {
+                if (((((uint16_t)crcH) << 8) | b) == csum) {
                     ++mPackagesCounter;
                     f();
                 }
@@ -172,46 +170,6 @@ namespace SumDV3 {
             }            
         }        
 
-        template<uint8_t B, uint8_t E> struct range_t {};
-
-        template<uint8_t N>
-        using offset_t = std::integral_constant<uint8_t, N>;
-        
-        // uses tag-dispatch because no constexpr-if in c++11
-        template<uint8_t Begin, uint8_t End, uint8_t N, uint8_t Off = 0>
-        static inline void extract(const range_t<Begin, End>&, int16_t (&dest)[N], offset_t<Off> = offset_t<0>{}, std::true_type = std::true_type{}) {
-            static_assert((End - Begin) < (N - Off), "wrong range or target size");
-            uint8_t out{Off};
-            for(uint8_t i = Begin; i <= End; ++i) {
-                uint16_t raw = (sumdFrame[i].first << 8) | sumdFrame[i].second;
-                dest[out++] = convertSumdToPuls(raw);
-            } 
-        }
-        template<uint8_t Begin, uint8_t End, uint8_t N, uint8_t Off = 0>
-        static inline void extract(const range_t<Begin, End>&, int16_t (&dest)[N], offset_t<Off>, std::false_type) {
-        }
-        
-        static inline void sumSwitches() {
-            uint64_t sw = sumdFrame[12].first;
-            sw = (sw << 8) | sumdFrame[12].second;
-            sw = (sw << 8) | sumdFrame[13].first;
-            sw = (sw << 8) | sumdFrame[13].second;
-            sw = (sw << 8) | sumdFrame[14].first;
-            sw = (sw << 8) | sumdFrame[14].second;
-            sw = (sw << 8) | sumdFrame[15].first;
-            sw = (sw << 8) | sumdFrame[15].second;
-            
-            for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; ++i) {
-                const uint64_t mask = (1 << i);
-                if (sw & mask) {
-                    rawSetUnconnectedStickySwitch(i, true);
-                }
-                else {
-                    rawSetUnconnectedStickySwitch(i, false);
-                }
-            }
-        }
-        
         template<uint8_t N>
         static inline void convert(int16_t (&pulses)[N]) {
             static_assert(N >= 16, "array too small");
@@ -251,16 +209,55 @@ namespace SumDV3 {
         static inline uint16_t packages() {
             return mPackagesCounter;
         }
+        static inline uint16_t getbytes() {
+            return mBytesCounter;
+        }
     private:
+        // uses tag-dispatch because no constexpr-if in c++11
+        template<uint8_t Begin, uint8_t End, uint8_t N, uint8_t Off = 0>
+        static inline void extract(const range_t<Begin, End>&, int16_t (&dest)[N], offset_t<Off> = offset_t<0>{}, std::true_type = std::true_type{}) {
+            static_assert((End - Begin) < (N - Off), "wrong range or target size");
+            uint8_t out{Off};
+            for(uint8_t i = Begin; i <= End; ++i) {
+                uint16_t raw = (sumdFrame[i].first << 8) | sumdFrame[i].second;
+                dest[out++] = convertSumdToPuls(raw);
+            } 
+        }
+        template<uint8_t Begin, uint8_t End, uint8_t N, uint8_t Off = 0>
+        static inline void extract(const range_t<Begin, End>&, int16_t (&dest)[N], offset_t<Off>, std::false_type) {
+        }
+        static inline void sumSwitches() {
+            uint64_t sw = sumdFrame[12].first;
+            sw = (sw << 8) | sumdFrame[12].second;
+            sw = (sw << 8) | sumdFrame[13].first;
+            sw = (sw << 8) | sumdFrame[13].second;
+            sw = (sw << 8) | sumdFrame[14].first;
+            sw = (sw << 8) | sumdFrame[14].second;
+            sw = (sw << 8) | sumdFrame[15].first;
+            sw = (sw << 8) | sumdFrame[15].second;
+            
+            for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; ++i) {
+                const uint64_t mask = (((uint64_t)0x01) << i);
+                if (sw & mask) {
+                    rawSetUnconnectedStickySwitch(i, true);
+                }
+                else {
+                    rawSetUnconnectedStickySwitch(i, false);
+                }
+            }
+        }
+        static inline int16_t convertSumdToPuls(uint16_t const value) {
+            const int32_t centered = value - SumDV3::CenterValue;
+            return Trainer::clamp(((Trainer::MaxValue - Trainer::MinValue) * centered) / (SumDV3::MaxValue -SumDV3::MinValue));
+        }
         static uint8_t nChannels;
         static Crc16 csum;
         static uint8_t crcH;
-        
         static State mState;
         static MesgType sumdFrame;
         static uint8_t mIndex;
         static uint16_t mPackagesCounter;
-
+        static uint16_t mBytesCounter;
         static Frame frame;
         static uint8_t reserved;
         static uint8_t mode_cmd;
