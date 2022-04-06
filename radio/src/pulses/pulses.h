@@ -125,7 +125,7 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 #define PPM_PERIOD(module)           (PPM_PERIOD_HALF_US(module) / 2) /*us*/
 #define DSM2_BAUDRATE                125000
 #define DSM2_PERIOD                  22000 /*us*/
-//#define SBUS_BAUDRATE                100000
+#define SBUS_BAUDRATE                100000
 #define SBUS_MIN_PERIOD              60  /*6.0ms 1/10ms*/
 #define SBUS_MAX_PERIOD              325 /*Overflows uint16_t if set higher*/
 #define SBUS_DEF_PERIOD              225
