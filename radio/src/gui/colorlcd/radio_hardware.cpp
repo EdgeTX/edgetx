@@ -346,6 +346,20 @@ void RadioHardwarePage::build(FormWindow * window)
     grid.nextLine();
   }
 
+#if defined(STICK_DEAD_ZONE)
+  new StaticText(window, grid.getLabelSlot(true), STR_DEAD_ZONE);
+  auto choice =
+      new Choice(window, grid.getFieldSlot(2,0), 0, 7,
+                 GET_DEFAULT(g_eeGeneral.stickDeadZone), [=](uint8_t newValue) {
+                   g_eeGeneral.stickDeadZone = newValue;
+                   SET_DIRTY();
+                 });
+  choice->setTextHandler([](uint8_t value) {
+    return std::to_string(value ? 2 << (value - 1) : 0);
+  });
+  grid.nextLine();
+#endif
+
   // Pots
   new Subtitle(window, grid.getLineSlot(), STR_POTS, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();

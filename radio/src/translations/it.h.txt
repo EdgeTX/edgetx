@@ -1226,6 +1226,7 @@
 #define TR_MENU_OTHER          "Altro"
 #define TR_MENU_INVERT         "Inverti"
 #define TR_JITTER_FILTER       "Filtro ADC"
+#define TR_DEAD_ZONE           "Dead zone"
 #define TR_RTC_CHECK           TR("Controllo RTC", "Controllo volt. RTC")
 #define TR_AUTH_FAILURE        "Auth-failure"
 #define TR_RACING_MODE         "Racing mode"

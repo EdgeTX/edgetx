@@ -298,7 +298,12 @@ void generalDefault()
   g_eeGeneral.slidersConfig = DEFAULT_SLIDERS_CONFIG;
 #endif
 
-  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
+#endif
+
+  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset,
+  // vBatMax has a -12V offset
   g_eeGeneral.vBatWarn = BATTERY_WARN;
   if (BATTERY_MIN != 90)
     g_eeGeneral.vBatMin = BATTERY_MIN - 90;
