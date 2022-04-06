@@ -237,7 +237,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 
   case UART_MODE_SBUS_TRAINER:
-    params.baudrate = SBUS_BAUDRATE;
+    params.baudrate = SBus::baudrate;
     params.word_length = ETX_WordLength_9;
     params.parity = ETX_Parity_Even;
     params.stop_bits = ETX_StopBits_Two;
@@ -245,7 +245,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 
   case UART_MODE_IBUS_TRAINER:
-    params.baudrate = IBUS_BAUDRATE;
+    params.baudrate = IBus::baudrate;
     params.word_length = ETX_WordLength_8;
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
@@ -254,7 +254,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 
   case UART_MODE_CRSF_TRAINER:
-    params.baudrate = CRSF_BAUDRATE;
+    params.baudrate = CRSF::baudrate;
     params.word_length = ETX_WordLength_8;
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
@@ -263,7 +263,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
     
   case UART_MODE_SUMD_TRAINER:
-    params.baudrate = SUMD_BAUDRATE;
+    params.baudrate = SumDV3::baudrate;
     params.word_length = ETX_WordLength_8;
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;

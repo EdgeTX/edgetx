@@ -58,6 +58,7 @@ option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(YAML_STORAGE "Enable YAML storage" ON)
+option(EXTENDED_TRAINER "Enable 32 trainer channels for full SumDV3 support" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -451,6 +452,10 @@ endif()
 
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
+endif()
+
+if(EXTENDED_TRAINER)
+  add_definitions(-DEXTENDED_TRAINER)
 endif()
 
 add_definitions(-DPOPUP_LEVEL=${POPUP_LEVEL})
