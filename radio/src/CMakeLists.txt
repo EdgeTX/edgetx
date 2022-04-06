@@ -58,6 +58,7 @@ option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
+option(EXTENDED_TRAINER "Enable 32 trainer channels for full SumDV3 support" OFF)
 
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
@@ -366,6 +367,10 @@ endif()
 
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
+endif()
+
+if(EXTENDED_TRAINER)
+  add_definitions(-DEXTENDED_TRAINER)
 endif()
 
 add_definitions(-DPOPUP_LEVEL=${POPUP_LEVEL})
