@@ -16,6 +16,8 @@ namespace SumDV3 {
     uint8_t Servo<Instance>::mIndex{};
     template<uint8_t Instance>
     uint16_t Servo<Instance>::mPackagesCounter{};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{};
 
     template<uint8_t Instance>
     typename Servo<Instance>::Frame Servo<Instance>::frame{Servo::Frame::Undefined};
