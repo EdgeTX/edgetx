@@ -196,6 +196,7 @@ public:
   void setColumnWidth(int col, QString str);
   void pushRowsUp(int row);
   void pushColumnsLeft(int col);
+  void setColumnStretch(int col, int stretch);
 
 private:
 #if defined(TABLE_LAYOUT)
