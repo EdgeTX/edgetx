@@ -38,13 +38,14 @@ namespace SumDV3 {
         static constexpr uint16_t crc_polynome = 0x1021;
         uint16_t sum{};
     };
-
+    
     template<uint8_t Instance>    
     struct Servo {
         using SumDV3 = Trainer::Protocol::SumDV3;
         using MesgType = SumDV3::MesgType;
         using SwitchesType = SumDV3::SwitchesType;
-
+        using Command_t = SumDV3::Command_t;
+        
         template<uint8_t B, uint8_t E> struct range_t {};
         template<uint8_t N> using offset_t = std::integral_constant<uint8_t, N>;
         
@@ -157,14 +158,20 @@ namespace SumDV3 {
                 break;
             case State::V3LastValidPackage:
                 csum += b;
+                reserved = b;
                 mState = State::V3ModeCmd;
                 break;
             case State::V3ModeCmd:
                 csum += b;
+                mode_cmd = b;
                 mState = State::V3SubCmd;
                 break;
             case State::V3SubCmd:
                 csum += b;
+                sub_cmd = b;
+                if (!hasCommand()) {
+                    mCommand = Command_t{mode_cmd, sub_cmd};
+                }                
                 mState = State::CrcH;
                 break;
             }            
@@ -211,6 +218,15 @@ namespace SumDV3 {
         }
         static inline uint16_t getbytes() {
             return mBytesCounter;
+        }
+        static inline bool hasCommand() {
+            return mCommand != Command_t{};
+        }
+        static inline Command_t command() {
+            Command_t c{};
+            using std::swap;
+            swap(c, mCommand);
+            return c;
         }
     private:
         // uses tag-dispatch because no constexpr-if in c++11
@@ -262,6 +278,7 @@ namespace SumDV3 {
         static uint8_t reserved;
         static uint8_t mode_cmd;
         static uint8_t sub_cmd;
+        static Command_t mCommand;
     };
 }
 

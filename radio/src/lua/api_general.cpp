@@ -2416,6 +2416,21 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
+#if defined(EXTENDED_TRAINER)
+static int luaGetSumDV3Command(lua_State * L)
+{
+  if (SumDV3::Servo<0>::hasCommand()) {
+      const Trainer::Protocol::SumDV3::Command_t command = SumDV3::Servo<0>::command();
+      lua_pushunsigned(L, command.first);
+      lua_pushunsigned(L, command.second);
+  }
+  else {
+      lua_pushnil(L);
+  }
+  return 1;
+}
+#endif
+
 /*luadoc
 @function setStickySwitch(id, value)
 
@@ -2859,6 +2874,9 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
+#if defined(EXTENDED_TRAINER)
+  LROT_FUNCENTRY( getSumDV3Command, luaGetSumDV3Command )
+#endif
 LROT_END(etxlib, NULL, 0)
 
 LROT_BEGIN(etxcst, NULL, 0)
