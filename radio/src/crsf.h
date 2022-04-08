@@ -45,6 +45,7 @@ namespace CRSF {
         
         static inline void process(const uint8_t b, const std::function<void()> f) {
             mPauseCounter = mPauseCount;
+            ++mBytesCounter;
             switch(mState) { // enum-switch -> no default (intentional)
             case State::Undefined:
                 csum.reset();
@@ -92,7 +93,7 @@ namespace CRSF {
                 break;
             case State::AwaitCRCAndDecode:
                 if (csum == b) {
-                    ++mPackages;
+                    ++mPackagesCounter;
                     f();
                 } 
                 mState = State::Undefined;
@@ -124,7 +125,10 @@ namespace CRSF {
             }
         }
         static inline uint16_t packages() {
-            return mPackages;
+            return mPackagesCounter;
+        }
+        static inline uint16_t getBytes() {
+            return mBytesCounter;
         }
     private:
         static CRC8 csum;
@@ -132,7 +136,8 @@ namespace CRSF {
         static MesgType mData; 
         static uint8_t mIndex;
         static uint8_t mLength;
-        static uint16_t mPackages;
+        static uint16_t mPackagesCounter;
+        static uint16_t mBytesCounter;
         static uint8_t mPauseCounter;
     };
 }

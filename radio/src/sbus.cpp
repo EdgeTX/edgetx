@@ -40,7 +40,6 @@ static void* _sbusAuxGetByteCtx = nullptr;
 
 void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*))
 {
-  _sbusAuxGetByte = nullptr;
   _sbusAuxGetByteCtx = ctx;
   _sbusAuxGetByte = fct;
 }
@@ -72,7 +71,9 @@ namespace  SBus {
     template<uint8_t Instance>
     uint8_t Servo<Instance>::mIndex{0};
     template<uint8_t Instance>
-    uint16_t Servo<Instance>::mPackages{0};
+    uint16_t Servo<Instance>::mPackagesCounter{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{0};
     template<uint8_t Instance>
     uint8_t Servo<Instance>::mPauseCounter{Servo::mPauseCount}; // 2 ms
 }

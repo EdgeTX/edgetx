@@ -11,6 +11,8 @@ namespace IBus {
     uint8_t Servo<Instance>::mIndex{};
     template<uint8_t Instance>
     uint16_t Servo<Instance>::mPackagesCounter{};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{};
 }
 
 void processIbusInput() {

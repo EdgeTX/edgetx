@@ -57,6 +57,7 @@ namespace IBus {
         }
         
         static inline void process(const uint8_t b, const std::function<void()> f) {
+            ++mBytesCounter;
             switch(mState) { // enum-switch -> no default (intentional)
             case State::Undefined:
                 csum.reset();
@@ -119,12 +120,16 @@ namespace IBus {
         static inline uint16_t packages() {
             return mPackagesCounter;
         }
+        static inline uint16_t getBytes() {
+            return mBytesCounter;
+        }
     private:
         static CheckSum csum;
         static State mState;
         static MesgType ibusFrame;
         static uint8_t mIndex;
         static uint16_t mPackagesCounter;
+        static uint16_t mBytesCounter;
     };
 }
 
