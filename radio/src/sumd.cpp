@@ -14,6 +14,7 @@ namespace SumDV3 {
     typename Servo<Instance>::MesgType Servo<Instance>::sumdFrame; 
     template<uint8_t Instance>
     uint8_t Servo<Instance>::mIndex{};
+
     template<uint8_t Instance>
     uint16_t Servo<Instance>::mPackagesCounter{};
     template<uint8_t Instance>
@@ -27,6 +28,8 @@ namespace SumDV3 {
     uint8_t Servo<Instance>::mode_cmd{};
     template<uint8_t Instance>
     uint8_t Servo<Instance>::sub_cmd{};
+    template<uint8_t Instance>
+    typename Servo<Instance>::Command_t Servo<Instance>::mCommand{};
 }
 
 void processSumdInput() {
