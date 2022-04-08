@@ -2092,6 +2092,21 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
+#if defined(EXTENDED_TRAINER)
+static int luaGetSumDV3Command(lua_State * L)
+{
+  if (SumDV3::Servo<0>::hasCommand()) {
+      const Trainer::Protocol::SumDV3::Command_t command = SumDV3::Servo<0>::command();
+      lua_pushunsigned(L, command.first);
+      lua_pushunsigned(L, command.second);
+  }
+  else {
+      lua_pushnil(L);
+  }
+  return 1;
+}
+#endif
+
 /*luadoc
 @function setStickySwitch(id, value) 
 
@@ -2482,6 +2497,9 @@ const luaL_Reg opentxLib[] = {
   { "getSourceIndex", luaGetSourceIndex },
   { "getSourceName", luaGetSourceName },
   { "sources", luaSources },
+#if defined(EXTENDED_TRAINER)
+  { "getSumDV3Command", luaGetSumDV3Command },
+#endif
   { nullptr, nullptr }  /* sentinel */
 };
 

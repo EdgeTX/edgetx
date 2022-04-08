@@ -24,7 +24,6 @@
 #include "opentx.h"
 #include "trainer.h"
 
-
 // Setup SBUS AUX serial input
 void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 
@@ -33,7 +32,7 @@ void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 //  with sbusSetAuxGetByte()
 bool sbusAuxGetByte(uint8_t* byte);
 
-// Setup general SBUS input source
+//// Setup general SBUS input source
 void sbusSetGetByte(bool (*fct)(uint8_t*));
 
 void processSbusInput();
@@ -51,9 +50,6 @@ namespace  SBus {
     struct Servo {
         using SBus = Trainer::Protocol::SBus;
         using MesgType = SBus::MesgType;
-        
-//        static constexpr uint8_t frameSize{25};
-//        static_assert(std::tuple_size<MesgType>::value == (SBUS_FRAME_SIZE - 2), "consistency check");        
         
         enum class State : uint8_t {Undefined, Data, GotEnd, WaitEnd};
 
@@ -74,6 +70,7 @@ namespace  SBus {
         }
         
         static inline void process(const uint8_t b, const std::function<void()> f) {
+            ++mBytesCounter;
             mPauseCounter = mPauseCount;
             switch(mState) { // enum-switch -> no default (intentional)
             case State::Undefined:
@@ -112,7 +109,7 @@ namespace  SBus {
                     uint8_t& statusByte = mData[mData.size() - 1]; // last byte
                     if (!((statusByte & SBus::FrameLostMask) || (statusByte & SBus::FailSafeMask))) {
                         f();
-                        ++mPackages;
+                        ++mPackagesCounter;
                     }
                 }
                 else {
@@ -146,15 +143,18 @@ namespace  SBus {
                 pulses[i] = convertSbusToPuls(pulses[i]);
             }
         }
-        
         static inline uint16_t packages() {
-            return mPackages;
+            return mPackagesCounter;
+        }
+        static inline uint16_t getBytes() {
+            return mBytesCounter;
         }
     private:
         static State mState;
         static MesgType mData; 
         static uint8_t mIndex;
-        static uint16_t mPackages;
+        static uint16_t mPackagesCounter;
+        static uint16_t mBytesCounter;
         static uint8_t mPauseCounter;
     };
 }

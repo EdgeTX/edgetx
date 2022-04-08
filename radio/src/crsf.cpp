@@ -13,7 +13,9 @@ namespace CRSF {
     template<uint8_t Instance>
     uint8_t Servo<Instance>::mLength{0};
     template<uint8_t Instance>
-    uint16_t Servo<Instance>::mPackages{0};
+    uint16_t Servo<Instance>::mPackagesCounter{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{0};
     template<uint8_t Instance>
     uint8_t Servo<Instance>::mPauseCounter{Servo::mPauseCount}; // 2 ms
 }

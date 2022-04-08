@@ -175,8 +175,6 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
   case UART_MODE_CRSF_TRAINER:
   case UART_MODE_SUMD_TRAINER:
     sbusSetAuxGetByte(ctx, getByte);
-    // TODO: setRxCb (see MODE_LUA)
-    break;
     break;
 #endif
 
@@ -366,6 +364,25 @@ void serialInit(uint8_t port_nr, int mode)
     if (port) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
+
+      // Set power on/off
+      if (port->set_pwr) {
+        port->set_pwr(power_required);
+      }
+
+#if !defined(BLUETOOTH)
+      if (port_nr == SP_AUX2) {
+          TRACE_DEBUG("disbale bt EN (set EN pin high)\n\r");
+          GPIO_InitTypeDef GPIO_InitStructure;
+          GPIO_InitStructure.GPIO_Pin = BT_EN_GPIO_PIN;
+          GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+          GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+          GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+          GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+          GPIO_Init(BT_EN_GPIO, &GPIO_InitStructure);
+          GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+      }
+#endif
     }
 
     // Update callbacks once the port is setup

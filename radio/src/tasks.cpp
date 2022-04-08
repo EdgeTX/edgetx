@@ -86,6 +86,10 @@ void sendSynchronousPulses(uint8_t runMask)
 constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
 constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
+#if defined(DEBUG)
+static uint16_t dbg_counter{0};
+#endif
+
 void execMixerFrequentActions()
 {
 #if defined(SBUS_TRAINER)
@@ -102,6 +106,16 @@ void execMixerFrequentActions()
     else if (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0) {
         processSumdInput();
     }
+#if defined(DEBUG)
+    if (++dbg_counter > 200) {
+        dbg_counter = 0;
+        TRACE_DEBUG("sumd bytes: %d, packages: %d \n\r", SumDV3::Servo<0>::getbytes(), SumDV3::Servo<0>::packages());
+        TRACE_DEBUG("ibus bytes: %d, packages: %d \n\r", IBus::Servo<0>::getBytes(), IBus::Servo<0>::packages());
+        TRACE_DEBUG("crsf bytes: %d, packages: %d \n\r", CRSF::Servo<0>::getBytes(), CRSF::Servo<0>::packages());
+        TRACE_DEBUG("sbus bytes: %d, packages: %d \n\r", SBus::Servo<0>::getBytes(), SBus::Servo<0>::packages());
+    }
+#endif
+    
 #endif
 
 #if defined(GYRO)
