@@ -370,7 +370,7 @@ void serialInit(uint8_t port_nr, int mode)
         port->set_pwr(power_required);
       }
 
-#if !defined(BLUETOOTH) && defined(PCBHORUS) && defined(BT_EN_GPIO_PIN)
+#if !defined(BLUETOOTH) && defined(PCBHORUS) && defined(BT_EN_GPIO_PIN) && !defined(SIMU) && !defined(GTESTS)
       if (port_nr == SP_AUX2) {
           TRACE_DEBUG("disbale bt EN (set EN pin high)\n\r");
           GPIO_InitTypeDef GPIO_InitStructure;
