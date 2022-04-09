@@ -140,6 +140,23 @@ namespace CRSF {
         static uint16_t mBytesCounter;
         static uint8_t mPauseCounter;
     };
+    // inline static member definitions not until c++17
+    template<uint8_t Instance>
+    CRC8 Servo<Instance>::csum;
+    template<uint8_t Instance>
+    typename Servo<Instance>::State Servo<Instance>::mState{Servo::State::Undefined};
+    template<uint8_t Instance>
+    typename Servo<Instance>::MesgType Servo<Instance>::mData; 
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mIndex{0};
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mLength{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mPackagesCounter{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{0};
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mPauseCounter{Servo::mPauseCount}; // 2 ms
 }
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
