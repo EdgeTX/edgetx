@@ -2099,6 +2099,7 @@ static int luaGetSumDV3Command(lua_State * L)
       const Trainer::Protocol::SumDV3::Command_t command = SumDV3::Servo<0>::command();
       lua_pushunsigned(L, command.first);
       lua_pushunsigned(L, command.second);
+      return 2;
   }
   else {
       lua_pushnil(L);
