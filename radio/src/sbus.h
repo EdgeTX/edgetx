@@ -32,7 +32,7 @@ void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 //  with sbusSetAuxGetByte()
 bool sbusAuxGetByte(uint8_t* byte);
 
-//// Setup general SBUS input source
+// Setup general SBUS input source
 void sbusSetGetByte(bool (*fct)(uint8_t*));
 
 void processSbusInput();
@@ -157,6 +157,19 @@ namespace  SBus {
         static uint16_t mBytesCounter;
         static uint8_t mPauseCounter;
     };
+    // inline static member definitions not until c++17
+    template<uint8_t Instance>
+    typename Servo<Instance>::State Servo<Instance>::mState{Servo::State::Undefined};
+    template<uint8_t Instance>
+    typename Servo<Instance>::MesgType Servo<Instance>::mData; 
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mIndex{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mPackagesCounter{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{0};
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mPauseCounter{Servo::mPauseCount}; // 2 ms
 }
 
 #ifdef __GNUC__
