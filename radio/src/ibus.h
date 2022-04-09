@@ -131,6 +131,19 @@ namespace IBus {
         static uint16_t mPackagesCounter;
         static uint16_t mBytesCounter;
     };
+    // inline static member definitions not until c++17
+    template<uint8_t Instance>        
+    CheckSum Servo<Instance>::csum;
+    template<uint8_t Instance>
+    typename Servo<Instance>::State Servo<Instance>::mState{Servo::State::Undefined};
+    template<uint8_t Instance>
+    typename Servo<Instance>::MesgType Servo<Instance>::ibusFrame; 
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mIndex{};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mPackagesCounter{};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{};
 }
 
 #ifdef __GNUC__
