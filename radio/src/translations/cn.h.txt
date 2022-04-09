@@ -1318,7 +1318,7 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "打开通道监视器" 
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
 #endif
