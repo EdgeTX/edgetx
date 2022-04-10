@@ -252,15 +252,20 @@ namespace SumDV3 {
             sw = (sw << 8) | sumdFrame[15].first;
             sw = (sw << 8) | sumdFrame[15].second;
             
+            uint64_t diff = lastSwitches ^ sw;
+            
             for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; ++i) {
                 const uint64_t mask = (((uint64_t)0x01) << i);
-                if (sw & mask) {
-                    rawSetUnconnectedStickySwitch(i, true);
-                }
-                else {
-                    rawSetUnconnectedStickySwitch(i, false);
+                if (diff & mask) {
+                    if (sw & mask) {
+                        rawSetUnconnectedStickySwitch(i, true);
+                    }
+                    else {
+                        rawSetUnconnectedStickySwitch(i, false);
+                    }
                 }
             }
+            lastSwitches = sw;
         }
         static inline int16_t convertSumdToPuls(uint16_t const value) {
             const int32_t centered = value - SumDV3::CenterValue;
@@ -278,6 +283,7 @@ namespace SumDV3 {
         static uint8_t reserved;
         static uint8_t mode_cmd;
         static uint8_t sub_cmd;
+        static uint64_t lastSwitches;
         static Command_t mCommand;
     };
     // inline static member definitions not until c++17
@@ -308,6 +314,8 @@ namespace SumDV3 {
     uint8_t Servo<Instance>::mode_cmd{};
     template<uint8_t Instance>
     uint8_t Servo<Instance>::sub_cmd{};
+    template<uint8_t Instance>
+    uint64_t Servo<Instance>::lastSwitches{};
     template<uint8_t Instance>
     typename Servo<Instance>::Command_t Servo<Instance>::mCommand{};
 }
