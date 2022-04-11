@@ -554,6 +554,26 @@ static int luaGetRotEncSpeed(lua_State * L)
 }
 
 /*luadoc
+@function getRotEncInvert()
+
+Return rotary encoder inverted status
+
+@retval number in list: OFF = 0, ON = 1, V-N = 2, V-A = 3
+  return 0 on radio without rotary encoder
+
+@status current Introduced in 2.20
+*/
+static int luaGetRotEncInvert(lua_State * L)
+{
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  lua_pushunsigned(L, g_eeGeneral.rotEncDirection);
+#else
+  lua_pushunsigned(L, 0);
+#endif
+  return 1;
+}
+
+/*luadoc
 @function sportTelemetryPop()
 
 Pops a received SPORT packet from the queue. Please note that only packets using a data ID within 0x5000 to 0x50FF
@@ -1006,12 +1026,12 @@ static int luaGetFieldInfo(lua_State * L)
 {
   bool found;
   LuaField field;
-  
+
   if (lua_type(L, 1) == LUA_TNUMBER)
     found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
   else
     found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);
-  
+
   if (found) {
     lua_newtable(L);
     lua_pushtableinteger(L, "id", field.id);
@@ -1580,7 +1600,7 @@ static int luaPopupConfirmation(lua_State * L)
     warningText = nullptr;
     lua_pushnil(L);
   }
-  
+
   return 1;
 }
 
@@ -1982,7 +2002,7 @@ static int luaSerialWrite(lua_State * L)
     const char* p = str;
     while(wr_len--) _sendCb(_ctx, *p++);
   }
-  
+
   return 0;
 }
 
@@ -2041,7 +2061,7 @@ static int luaSerialRead(lua_State * L)
 static int shmVar[16] = {0};
 
 /*luadoc
-@function setShmVar(id, value) 
+@function setShmVar(id, value)
 
 @param id: integer between 1 and 16 identifying the shared memory variable.
 
@@ -2058,10 +2078,10 @@ static int luaSetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
   int value = luaL_checkinteger(L, 2);
-  
+
   if (1 <= id && id <= 16)
     shmVar[id - 1] = value;
-  
+
   return 0;
 }
 
@@ -2082,7 +2102,7 @@ Gets the value of a shared memory variable that can be used for passing data bet
 static int luaGetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
-  
+
   if (1 <= id && id <= 16)
     lua_pushinteger(L, shmVar[id - 1]);
   else
@@ -2093,14 +2113,14 @@ static int luaGetShmVar(lua_State * L)
 #endif
 
 /*luadoc
-@function setStickySwitch(id, value) 
+@function setStickySwitch(id, value)
 
 @param id: integer identifying the sticky logical switch (zero for LS1 etc.).
 
 @param value: true/false. The new value of the sticky logical switch.
 
-@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor 
-via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value 
+@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor
+via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value
 is returned and no messages was sent (i.e. the switch was not changed).
 
 Sets the value of a sticky logical switch.
@@ -2151,7 +2171,7 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 /*luadoc
 @function getSwitchIndex(positionName)
 
-@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have 
+@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have
 special characters in them like arrow up/down etc.
 
 @retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`. Also corresponds
@@ -2166,12 +2186,12 @@ static int luaGetSwitchIndex(lua_State * L)
   bool negate = false;
   bool found = false;
   swsrc_t idx;
-  
+
   if (name[0] == '!') {
     name++;
     negate = true;
   }
-  
+
   for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* s = getSwitchPositionName(idx);
@@ -2181,7 +2201,7 @@ static int luaGetSwitchIndex(lua_State * L)
       }
     }
   }
-  
+
   if (found) {
     if (negate)
       idx = -idx;
@@ -2196,7 +2216,7 @@ static int luaGetSwitchIndex(lua_State * L)
 /*luadoc
 @function getSwitchName(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: string naming the switch position as it is shown on radio menus where a switch can be chosen.
@@ -2219,7 +2239,7 @@ static int luaGetSwitchName(lua_State * L)
 /*luadoc
 @function getSwitchValue(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: true/false. The value of the switch.
@@ -2253,7 +2273,7 @@ static int luaNextSwitch(lua_State * L)
 {
   swsrc_t last = luaL_checkinteger(L, 1);
   swsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(idx);
@@ -2262,7 +2282,7 @@ static int luaNextSwitch(lua_State * L)
       return 2;
     }
   }
-  
+
   lua_pushnil(L);
   return 1;
 }
@@ -2271,7 +2291,7 @@ static int luaSwitches(lua_State * L)
 {
   swsrc_t first;
   swsrc_t last;
-  
+
   if (lua_isnumber(L, 1)) {
     first = luaL_checkinteger(L, 1) - 1;
     if (first < SWSRC_FIRST - 1)
@@ -2371,7 +2391,7 @@ static int luaNextSource(lua_State * L)
 {
   mixsrc_t last = luaL_checkinteger(L, 1);
   mixsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSourceAvailable(idx)) {
       char srcName[maxSourceNameLength];
@@ -2419,6 +2439,7 @@ const luaL_Reg opentxLib[] = {
   { "getGeneralSettings", luaGetGeneralSettings },
   { "getGlobalTimer", luaGetGlobalTimer },
   { "getRotEncSpeed", luaGetRotEncSpeed },
+  { "getRotEncInvert", luaGetRotEncInvert },
   { "getValue", luaGetValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },

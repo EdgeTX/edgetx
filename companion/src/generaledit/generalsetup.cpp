@@ -130,7 +130,7 @@ ui(new Ui::GeneralSetup)
     ui->invertRotary_label->hide();
   }
   else {
-    ui->invertRotary_CB->setChecked(generalSettings.rotEncDirection);
+    populateInvertRotaryCB();
   }
 
   if (!firmware->getCapability(HasPxxCountry)) {
@@ -483,10 +483,29 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
   emit modified();
 }
 
-void GeneralSetupPanel::on_invertRotary_CB_stateChanged(int)
+void GeneralSetupPanel::populateInvertRotaryCB()
 {
-  generalSettings.rotEncDirection = ui->invertRotary_CB->isChecked();
-  emit modified();
+  QComboBox * b = ui->invertRotary_CB;
+  QString strings[] = { tr("OFF"), tr("ON"), tr("V-N"), tr("V-A") };
+  int itemCount = 4;
+
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    itemCount = 2;
+  }
+
+  b->clear();
+  for (uint8_t i=0; i < itemCount; i++) {
+    b->addItem(strings[i], 0);
+  }
+  b->setCurrentIndex(generalSettings.rotEncDirection);
+}
+
+void GeneralSetupPanel::on_invertRotary_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.rotEncDirection = index;
+    emit modified();
+  }
 }
 
 void GeneralSetupPanel::on_speakerPitchSB_editingFinished()

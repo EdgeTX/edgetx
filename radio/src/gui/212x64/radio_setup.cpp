@@ -124,7 +124,7 @@ void menuRadioSetup(event_t event)
 #endif
 
   uint8_t old_editMode = s_editMode;
-  
+
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX, {
     2, // date
     2, // time
@@ -592,7 +592,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
       case ITEM_RADIO_SETUP_ROTARY_INVERSE:
-        g_eeGeneral.rotEncDirection = editCheckBox(g_eeGeneral.rotEncDirection, RADIO_SETUP_2ND_COLUMN, y, STR_INVERT_ROTARY, attr, event);
+        g_eeGeneral.rotEncDirection = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_INVERT_ROTARY, STR_INVERT_ROTARY_OPT, g_eeGeneral.rotEncDirection, 0, 3, attr, event);
         break;
 #endif
 

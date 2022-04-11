@@ -215,7 +215,13 @@
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
-#define TR_ON_ONE_SWITCHES    "ON","One"
+#if defined(COLORLCD)
+  #define TR_INVERT_ROTARY_OPT         "OFF","ON"
+#else
+  #define TR_INVERT_ROTARY_OPT         "OFF","ON","V-N","V-A"
+#endif
+
+#define TR_ON_ONE_SWITCHES             "ON","One"
 
 #if defined(GYRO)
   #define TR_GYR_VSRCRAW      "GyrX","GyrY",
