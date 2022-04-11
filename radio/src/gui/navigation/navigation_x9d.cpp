@@ -439,7 +439,11 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
       }
 
       do {
-        INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        if (g_eeGeneral.rotEncDirection == 2) {
+            DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        } else {
+            INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        }
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
       s_editMode = 0; // if we go down, we must be in this mode
@@ -464,11 +468,15 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
         break;
       }
       else {
-        l_posHorz = 0xff;
+        l_posHorz = g_eeGeneral.rotEncDirection == 3 ? 0 : 0xff;
       }
 
       do {
-        DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        if (g_eeGeneral.rotEncDirection == 2) {
+            INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        } else {
+            DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        }
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
       s_editMode = 0; // if we go up, we must be in this mode

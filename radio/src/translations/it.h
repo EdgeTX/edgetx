@@ -219,6 +219,12 @@
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
+#define LEN_INVERT_ROTARY_OPT          "\003"
+#if defined(COLORLCD)
+#define TR_INVERT_ROTARY_OPT           "OFF""ON\0"
+#else
+#define TR_INVERT_ROTARY_OPT           "OFF""ON\0""V-N""V-A"
+#endif
 
 #define TR_ON_ONE_SWITCHES     "ON","One"
 

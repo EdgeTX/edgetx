@@ -196,6 +196,12 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
+#if defined(COLORLCD)
+#define TR_INVERT_ROTARY_OPT           "OFF","ON"
+#else
+#define TR_INVERT_ROTARY_OPT           "OFF","ON","V-N","V-A"
+#endif
+
 #if defined(GYRO)
   #define TR_GYR_VSRCRAW               "GyrX","GyrY",
 #else
@@ -699,7 +705,7 @@
 #define TR_PATH_TOO_LONG               "路径太长"
 #define TR_VIEW_TEXT                   "查看文本"
 #define TR_FLASH_BOOTLOADER            "更新引导程序"
-#define TR_FLASH_DEVICE                TR("Flash device","刷新设备")      
+#define TR_FLASH_DEVICE                TR("Flash device","刷新设备")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "从 S.Port 端口更新外设固件")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
