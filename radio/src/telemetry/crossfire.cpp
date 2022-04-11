@@ -53,6 +53,7 @@ const CrossfireSensor crossfireSensors[] = {
   {ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3},
   {FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0},
   {CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2},
+  {BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2},
   {0,              0, "UNKNOWN",          UNIT_RAW,               0},
 };
 
@@ -74,6 +75,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[ATTITUDE_PITCH_INDEX+subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
+  else if (id == BARO_ALT_ID)
+    return crossfireSensors[BARO_ALTITUDE_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -144,6 +147,21 @@ void processCrossfireTelemetryFrame(uint8_t module)
         processCrossfireTelemetryValue(GPS_ALTITUDE_INDEX,  value - 1000);
       if (getCrossfireTelemetryValue<1>(17, value, module))
         processCrossfireTelemetryValue(GPS_SATELLITES_INDEX, value);
+      break;
+
+    case BARO_ALT_ID:
+      if (getCrossfireTelemetryValue<2>(3, value, module)) {
+        if (value & 0x8000) {
+          // Altitude in meters
+          value &= ~(0x8000);
+          value *= 100; // cm
+        } else {
+          // Altitude in decimeters + 10000dm
+          value -= 10000;
+          value *= 10;
+        }
+        processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
+      }
       break;
 
     case LINK_ID:
