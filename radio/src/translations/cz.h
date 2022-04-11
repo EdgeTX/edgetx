@@ -236,6 +236,12 @@
 
 #define TR_ON_ONE_SWITCHES             "ZAP","One"
 
+#if defined(COLORLCD)
+#define TR_INVERT_ROTARY_OPT           "OFF","ON"
+#else
+#define TR_INVERT_ROTARY_OPT           "OFF","ON","V-N","V-A"
+#endif
+
 #if defined(IMU)
   #define TR_IMU_VSRCRAW               "TltX","TltY",
 #else

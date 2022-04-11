@@ -812,7 +812,7 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare1:2 SKIP
+  #define BUZZER_FIELD int8_t spare2:2 SKIP
 #endif
 
 PACK(struct RadioData {
@@ -830,7 +830,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  int8_t rotEncDirection:1;
+  NOBACKUP(uint8_t spare1:1 SKIP);
   NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -900,12 +900,14 @@ PACK(struct RadioData {
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+  uint8_t           rotEncDirection:2;
+
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);
-  NOBACKUP(uint8_t  spare2:3 SKIP);
 #else
-  NOBACKUP(uint8_t  spare2:6 SKIP);
+  NOBACKUP(uint8_t  spare3:3 SKIP);
 #endif
+  NOBACKUP(uint8_t  spare4:1 SKIP);
 
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);
