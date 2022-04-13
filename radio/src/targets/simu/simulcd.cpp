@@ -67,7 +67,7 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
   auto total = copy_area.w * copy_area.h;
   uint16_t* px_src = src + total - 2;
 
-  auto px_dst = dst + y1 * LCD_W + x1;
+  auto px_dst = dst + y1 * LCD_PHYS_W + x1;
   for (auto line = 0; line < copy_area.h; line++) {
 
     auto line_end = px_dst + (copy_area.w & ~1);
@@ -87,7 +87,7 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
       px_src--;
     }
 
-    px_dst += LCD_W - copy_area.w;
+    px_dst += LCD_PHYS_W - copy_area.w;
   }
 }
 
@@ -95,11 +95,11 @@ static void _rotate_area_180(lv_area_t& area)
 {
   lv_coord_t tmp_coord;
   tmp_coord = area.y2;
-  area.y2 = LCD_H - area.y1 - 1;
-  area.y1 = LCD_H - tmp_coord - 1;
+  area.y2 = LCD_PHYS_H - area.y1 - 1;
+  area.y1 = LCD_PHYS_H - tmp_coord - 1;
   tmp_coord = area.x2;
-  area.x2 = LCD_W - area.x1 - 1;
-  area.x1 = LCD_W - tmp_coord - 1;
+  area.x2 = LCD_PHYS_W - area.x1 - 1;
+  area.x1 = LCD_PHYS_W - tmp_coord - 1;
 }
 #endif
 static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
@@ -108,14 +108,14 @@ static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& cop
   lv_coord_t y1 = copy_area.y1;
   lv_coord_t area_w = copy_area.x2 - copy_area.x1 + 1;
 
-  auto offset = y1 * LCD_W + x1;
+  auto offset = y1 * LCD_PHYS_W + x1;
   auto px_src = src + offset;
   auto px_dst = dst + offset;
 
   for (auto line = copy_area.y1; line <= copy_area.y2; line++) {
     memcpy(px_dst, px_src, area_w * sizeof(uint16_t));
-    px_dst += LCD_W;
-    px_src += LCD_W;
+    px_dst += LCD_PHYS_W;
+    px_src += LCD_PHYS_W;
   }
 }
 
@@ -124,7 +124,7 @@ static void _copy_area(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
   lv_coord_t x1 = copy_area.x;
   lv_coord_t y1 = copy_area.y;
 
-  auto dst = simuLcdBuf + y1 * LCD_PHYS_W + x1;
+  auto dst = simuLcdBuf + y1 * LCD_W + x1;
   auto px_src = src;
   auto px_dst = dst + offset;
 
