@@ -39,6 +39,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #if MSVC_BUILD
   #include <direct.h>
@@ -65,6 +66,14 @@ std::string simuSettingsDirectory;    // path to the root of the models and sett
 bool isPathDelimiter(char delimiter)
 {
   return delimiter == '/';
+}
+
+bool pathHasStorageSelector(const char* path)
+{
+  if(strlen(path)<3)
+    return false;
+  if(isdigit(path[0]) && path[1] == ':' && path[2] == '/')
+    return true;
 }
 
 std::string removeTrailingPathDelimiter(const std::string & path)
@@ -145,6 +154,8 @@ bool redirectToSettingsDirectory(const std::string & path)
 std::string convertToSimuPath(const char * path)
 {
   std::string result;
+  if(pathHasStorageSelector(path))
+    path +=2;
   if (isPathDelimiter(path[0])) {
     if (redirectToSettingsDirectory(path)) {
       // TRACE("REDIRECT ********************************************");
