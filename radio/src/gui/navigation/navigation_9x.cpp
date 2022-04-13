@@ -381,7 +381,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
         l_posHorz = 0xff;
       }
       else {
-        l_posHorz = maxcol;
+        l_posHorz = g_eeGeneral.rotEncDirection == 3 ? 0 : maxcol;
         break;
       }
 #else
