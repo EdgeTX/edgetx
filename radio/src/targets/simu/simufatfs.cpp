@@ -74,6 +74,7 @@ bool pathHasStorageSelector(const char* path)
     return false;
   if(isdigit(path[0]) && path[1] == ':' && path[2] == '/')
     return true;
+  return false;
 }
 
 std::string removeTrailingPathDelimiter(const std::string & path)
