@@ -34,14 +34,14 @@
   #undef main
 #endif
 
-#if LCD_PHYS_W > 212
+#if LCD_W > 212
   #define LCD_ZOOM 1
 #else
   #define LCD_ZOOM 2
 #endif
 
-#define W2 LCD_PHYS_W*LCD_ZOOM
-#define H2 LCD_PHYS_H*LCD_ZOOM
+#define W2 LCD_W*LCD_ZOOM
+#define H2 LCD_H*LCD_ZOOM
 
 #if defined(HARDWARE_TOUCH)
   #define TAP_TIME 25
@@ -187,7 +187,7 @@ void OpenTxSim::createBitmap(int index, uint16_t *data, int x, int y, int w, int
 
   for (int i=0; i<w; i++) {
     for (int j=0; j<h; j++) {
-      pixel_t z = data[(y+j) * LCD_PHYS_W + (x+i)];
+      pixel_t z = data[(y+j) * LCD_W + (x+i)];
       FXColor color = FXRGB(255*((z&0xF00)>>8)/0x0f, 255*((z&0x0F0)>>4)/0x0f, 255*(z&0x00F)/0x0f);
       snapshot.setPixel(i, j, color);
     }
@@ -273,8 +273,18 @@ long OpenTxSim::onMouseDown(FXObject *, FXSelector, void * v)
   simTouchState.tapCount = 0;
 
   simTouchState.event = TE_DOWN;
-  simTouchState.startX = simTouchState.x = evt->win_x;
-  simTouchState.startY = simTouchState.y = evt->win_y;
+
+#if !defined(PCBPL18)
+  auto evtX = evt->win_x;
+  auto evtY = evt->win_y;
+#else
+  auto evtX = evt->win_y;
+  auto evtY = LCD_W - evt->win_x;
+#endif
+
+  simTouchState.startX = simTouchState.x = evtX;
+  simTouchState.startY = simTouchState.y = evtY;
+
   downTime = now;
   simTouchOccured = true;
 #endif
@@ -323,12 +333,23 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
     TRACE_WINDOWS("[Mouse Move] %d %d", evt->win_x, evt->win_y);
 
 #if defined(HARDWARE_TOUCH)
-    simTouchState.deltaX += evt->win_x - simTouchState.x;
-    simTouchState.deltaY += evt->win_y - simTouchState.y;
+#if !defined(PCBPL18)
+    auto evtX = evt->win_x;
+    auto evtY = evt->win_y;
+#else
+    auto evtX = evt->win_y;
+    auto evtY = LCD_W - evt->win_x;
+#endif
+
+    simTouchState.deltaX += evtX - simTouchState.x;
+    simTouchState.deltaY += evtY - simTouchState.y;
     if (simTouchState.event == TE_SLIDE || abs(simTouchState.deltaX) >= SLIDE_RANGE || abs(simTouchState.deltaY) >= SLIDE_RANGE) {
       simTouchState.event = TE_SLIDE;
       simTouchState.x = evt->win_x;
       simTouchState.y = evt->win_y;
+      simTouchState.x = evtX;
+      simTouchState.y = evtY;
+
     }
     simTouchOccured = true;
 #endif
@@ -509,7 +530,7 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
   return 0;
 }
 
-#if LCD_PHYS_W >= 212
+#if LCD_W >= 212
   #define BL_COLOR FXRGB(47, 123, 227)
 #else
   #define BL_COLOR FXRGB(150, 200, 152)
@@ -546,10 +567,10 @@ void OpenTxSim::refreshDisplay()
     FXColor offColor = isBacklightEnabled() ? BL_COLOR : FXRGB(200, 200, 200);
     FXColor onColor = FXRGB(0, 0, 0);
 #endif
-    for (int x=0; x<LCD_PHYS_W; x++) {
-      for (int y=0; y<LCD_PHYS_H; y++) {
+    for (int x=0; x<LCD_W; x++) {
+      for (int y=0; y<LCD_H; y++) {
 #if defined(COLORLCD)
-    	pixel_t z = simuLcdBuf[y * LCD_PHYS_W + x];
+    	pixel_t z = simuLcdBuf[y * LCD_W + x];
         FXColor color =
           FXRGB(((z & 0xF800) >> 8) + ((z & 0xE000) >> 13),
                 ((z & 0x07E0) >> 3) + ((z & 0x0600) >> 9),
@@ -557,7 +578,7 @@ void OpenTxSim::refreshDisplay()
         setPixel(x, y, color);
 #else
 #if LCD_DEPTH == 4
-        pixel_t * p = &simuLcdBuf[y / 2 * LCD_PHYS_W + x];
+        pixel_t * p = &simuLcdBuf[y / 2 * LCD_W + x];
         uint8_t z = (y & 1) ? (*p >> 4) : (*p & 0x0F);
         if (z) {
           FXColor color;
@@ -570,7 +591,7 @@ void OpenTxSim::refreshDisplay()
           setPixel(x, y, color);
         }
 #else  // LCD_DEPTH == 1
-        if (simuLcdBuf[x+(y/8)*LCD_PHYS_W] & (1<<(y%8))) {
+        if (simuLcdBuf[x+(y/8)*LCD_W] & (1<<(y%8))) {
           setPixel(x, y, onColor);
         }
 #endif
