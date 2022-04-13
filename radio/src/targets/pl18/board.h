@@ -111,6 +111,8 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 void SDRAM_Init();
 
 // Pulses driver
+#if !defined(SIMU)
+
 #define INTERNAL_MODULE_OFF()           
 #define INTERNAL_MODULE_ON()            
 void EXTERNAL_MODULE_ON();
@@ -121,6 +123,19 @@ void EXTERNAL_MODULE_OFF();
 #define IS_INTERNAL_MODULE_ON()         (false)
 #define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
+
+#else
+
+#define INTERNAL_MODULE_OFF()
+#define INTERNAL_MODULE_ON()
+#define EXTERNAL_MODULE_ON()
+#define EXTERNAL_MODULE_OFF()
+#define BLUETOOTH_MODULE_ON()
+#define BLUETOOTH_MODULE_OFF()
+#define IS_INTERNAL_MODULE_ON()         (false)
+#define IS_EXTERNAL_MODULE_ON()         (false)
+
+#endif // defined(SIMU)
 
 void init_intmodule_heartbeat();
 void check_intmodule_heartbeat();
