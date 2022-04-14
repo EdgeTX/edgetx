@@ -264,7 +264,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   }
 
   for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
-    if (i == MODULE_SUBTYPE_MULTI_SCANNER)
+    if (i == MODULE_SUBTYPE_MULTI_SCANNER || i == MODULE_SUBTYPE_MULTI_CONFIG)
       continue;
     ui->multiProtocol->addItem(Multiprotocols::protocolToString(i), i);
   }
@@ -1209,7 +1209,7 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
     bool ok = false;
     int i = sender()->property("index").toInt(&ok);
     if (ok && model->getFuncSwitchGroup(i) != (unsigned int)value) {
-      model->setFuncSwitchGroup(i, (unsigned int)value);      
+      model->setFuncSwitchGroup(i, (unsigned int)value);
       update(i);
       emit modified();
     }
@@ -1230,7 +1230,7 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
     int i = sender()->property("index").toInt(&ok);
 
     if (ok) {
-      model->setFuncSwitchAlwaysOnGroup(i, (unsigned int)value);      
+      model->setFuncSwitchAlwaysOnGroup(i, (unsigned int)value);
       update();
       emit modified();
     }
