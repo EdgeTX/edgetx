@@ -561,7 +561,7 @@ Return rotary encoder inverted status
 @retval number in list: OFF = 0, ON = 1, V-N = 2, V-A = 3
   return 0 on radio without rotary encoder
 
-@status current Introduced in 2.20
+@status current Introduced in 2.8.0
 */
 static int luaGetRotEncInvert(lua_State * L)
 {
