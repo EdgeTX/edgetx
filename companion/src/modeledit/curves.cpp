@@ -62,6 +62,7 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     connect(image[i], &CurveImageWidget::doubleClicked, this, &CurvesPanel::on_curveImageDoubleClicked);
 
     tableLayout->addWidget(i, col++, image[i]);
+    tableLayout->setColumnStretch(col, 1);
 
     grp[i] = new QWidget(); // layouts are not hideable so use widget as parent for grid
 
@@ -80,6 +81,8 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     numpoints[i] = new QLabel();
     grid[i]->addWidget(numpoints[i], row, 1);
     points[i] = new QLabel();
+    points[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    points[i]->setWordWrap(true);
     grid[i]->addWidget(points[i], row++, 2, Qt::AlignLeft);
 
     grid[i]->addWidget(new QLabel(tr("Smooth:")), row, 0, Qt::AlignLeft);
