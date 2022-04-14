@@ -68,7 +68,11 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
+#if defined(EXTENDED_TRAINER)
+  #define MAX_TRAINER_CHANNELS         32
+#else
   #define MAX_TRAINER_CHANNELS         16
+#endif
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
