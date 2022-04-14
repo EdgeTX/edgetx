@@ -85,6 +85,7 @@ class TemplatePage : public Page
   char buffer[LEN_BUFFER + 1];
   char infoText[LEN_INFO_TEXT + 1] = { 0 };
   unsigned int count = 0;
+  static std::function<void(void)> update;
 
   void paint(BitmapBuffer *dc)
   {
@@ -104,6 +105,7 @@ class TemplatePage : public Page
 };
 
 char TemplatePage::path[LEN_PATH + 1];
+std::function<void(void)> TemplatePage::update = nullptr;
 
 class TemplateButton : public TextButton
 {  
@@ -170,6 +172,9 @@ class SelectTemplate : public TemplatePage
             snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
             if (f_stat(buffer, 0) == FR_OK) {
               luaExec(buffer);
+              // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
+              update();
+              update = nullptr;
               StandaloneLuaWindow::instance()->attach(focusWindow);
             }
 #endif
@@ -226,7 +231,7 @@ class SelectTemplateFolder : public TemplatePage
   public:
   SelectTemplateFolder(std::function<void(void)> update)
   {
-    this->update = update;
+    TemplatePage::update = update;
     rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
     new StaticText(&header, rect, STR_SELECT_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
 
@@ -307,11 +312,9 @@ class SelectTemplateFolder : public TemplatePage
 
   ~SelectTemplateFolder()
   {
-    update();
+    if (update)
+      update();
   }
-
-  protected:
-  std::function<void(void)> update;
 };
 
 class ModelButton : public Button
