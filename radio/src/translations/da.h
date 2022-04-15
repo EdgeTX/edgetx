@@ -37,7 +37,7 @@
 #define TR_TRNMODE                     "FRA","+=",":="
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 
-#define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "Ingen","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
 #define TR_SLIDERTYPES                 "Ingen","Skyder"

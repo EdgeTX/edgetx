@@ -40,7 +40,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av","+=",":="
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                      "Ingen",TR("Flipp","2 pos momentan"),"2 pos","3 pos"
 #define TR_POTTYPES                     "Ingen",TR("Vred m. mitt","Vred med mittläge"),TR("Multipos","Flerlägesväljare"),"Vred"
 #define TR_SLIDERTYPES                  "Inga","Reglage"
