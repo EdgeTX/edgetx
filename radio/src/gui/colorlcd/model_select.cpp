@@ -539,6 +539,8 @@ class ModelCategoryPageBody : public FormWindow
               snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
               char templatePath[FF_MAX_LFN];
               snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+              sdCheckAndCreateDirectory(TEMPLATES_PATH);
+              sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
               if (isFileAvailable(templatePath)) {
                 new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE,
                   [=] {
