@@ -234,6 +234,7 @@ enum UartModes {
   UART_MODE_CLI,
   UART_MODE_GPS,
   UART_MODE_DEBUG,
+  UART_MODE_SPACEMOUSE,
   UART_MODE_COUNT SKIP,
   UART_MODE_MAX SKIP = UART_MODE_COUNT-1
 };
@@ -647,6 +648,17 @@ enum MixSources {
 #if defined(GYRO)
   MIXSRC_GYRO1,                         LUA_EXPORT("gyrx", "Gyro X")
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
+#endif
+
+#if defined(SPACEMOUSE)
+  MIXSRC_FIRST_SPACEMOUSE SKIP,
+  MIXSRC_SPACEMOUSE_1 = MIXSRC_FIRST_SPACEMOUSE, LUA_EXPORT("smA", "SpaceMouse A")
+  MIXSRC_SPACEMOUSE_2, LUA_EXPORT("smB", "SpaceMouse B")
+  MIXSRC_SPACEMOUSE_3, LUA_EXPORT("smC", "SpaceMouse C")
+  MIXSRC_SPACEMOUSE_4, LUA_EXPORT("smD", "SpaceMouse D")
+  MIXSRC_SPACEMOUSE_5, LUA_EXPORT("smE", "SpaceMouse E")
+  MIXSRC_SPACEMOUSE_6, LUA_EXPORT("smF", "SpaceMouse F")
+  MIXSRC_LAST_SPACEMOUSE SKIP = MIXSRC_SPACEMOUSE_6,
 #endif
 
   MIXSRC_MAX,                          LUA_EXPORT("max", "MAX")

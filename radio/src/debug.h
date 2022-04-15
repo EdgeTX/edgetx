@@ -390,6 +390,8 @@ enum DebugTimers {
   debugTimerAudioDuration,
   debugTimerAudioConsume,
 
+  debugTimerSpacemouseWakeup,
+
   DEBUG_TIMERS_COUNT
 };
 

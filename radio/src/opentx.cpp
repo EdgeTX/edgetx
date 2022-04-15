@@ -518,6 +518,11 @@ bool inputsMoved()
     sum += getValue(MIXSRC_GYRO1+i) >> INAC_STICKS_SHIFT;
 #endif
 
+#if defined(SPACEMOUSE)
+  for (uint8_t i=0; i<(MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE); i++)
+    sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
+#endif
+
   if (abs((int8_t)(sum-inactivity.sum)) > 1) {
     inactivity.sum = sum;
     return true;

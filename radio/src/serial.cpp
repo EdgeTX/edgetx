@@ -198,6 +198,11 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     gpsSetSerialDriver(ctx, drv);
     break;
 #endif
+#if defined(SPACEMOUSE)
+  case UART_MODE_SPACEMOUSE:
+    spacemouseSetSerialDriver(ctx, drv);
+    break;
+#endif
 #endif
   }
 }
@@ -250,6 +255,13 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 #if defined(INTERNAL_GPS)
   case UART_MODE_GPS:
     params.baudrate = GPS_USART_BAUDRATE;
+    params.rx_enable = true;
+    break;
+#endif
+
+#if defined(SPACEMOUSE)
+  case UART_MODE_SPACEMOUSE:
+    params.baudrate = SPACEMOUSE_BAUDRATE;
     params.rx_enable = true;
     break;
 #endif

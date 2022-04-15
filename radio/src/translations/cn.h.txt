@@ -63,7 +63,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\010"
-#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "LUA脚本\0""CLI\0     ""GPS\0     ""Debug\0   "
+#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "LUA脚本\0""CLI\0     ""GPS\0     ""Debug\0   ""SpaceMouse"
 
 #define LEN_SWTYPES                    "\004"
 #define TR_SWTYPES                     "无\0 " "回弹" "2段\0""3段\0"
@@ -292,6 +292,12 @@
   #define TR_GYR_VSRCRAW               "GyrX" "GyrY"
 #else
   #define TR_GYR_VSRCRAW
+#endif
+
+#if defined(SPACEMOUSE)
+  #define TR_SM_VSRCRAW               "smA\0""smB\0""smC\0""smD\0""smE\0""smF\0"
+#else
+  #define TR_SM_VSRCRAW
 #endif
 
 #if defined(HELI)
