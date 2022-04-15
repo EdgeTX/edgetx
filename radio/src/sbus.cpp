@@ -38,13 +38,13 @@
 static bool (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
 static void* _sbusAuxGetByteCtx = nullptr;
 
-void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*))
+void sbusSetAuxGetByte(void* const ctx, bool (* const fct)(void*, uint8_t*))
 {
   _sbusAuxGetByteCtx = ctx;
   _sbusAuxGetByte = fct;
 }
 
-bool sbusAuxGetByte(uint8_t* byte)
+bool sbusAuxGetByte(uint8_t* const byte)
 {
   auto _getByte = _sbusAuxGetByte;
   auto _ctx = _sbusAuxGetByteCtx;
