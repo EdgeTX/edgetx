@@ -103,7 +103,7 @@ static Fifo<uint8_t, LUA_FIFO_SIZE>* luaRxFifo = nullptr;
 
 static bool luaRxFifoGetByte(void*, uint8_t* data)
 {
-  if (!luaRxFifo) return -1;
+  if (!luaRxFifo) return false;
   return luaRxFifo->pop(*data);
 }
 
