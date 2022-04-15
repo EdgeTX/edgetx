@@ -248,7 +248,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
 
   case UART_MODE_CRSF_TRAINER:
@@ -257,7 +256,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
     
   case UART_MODE_SUMD_TRAINER:
@@ -266,7 +264,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
 
 #if defined(LUA)
@@ -364,11 +361,6 @@ void serialInit(uint8_t port_nr, int mode)
     if (port) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
-
-      // Set power on/off
-      if (port->set_pwr) {
-        port->set_pwr(power_required);
-      }
 
 #if !defined(BLUETOOTH) && defined(PCBHORUS) && defined(BT_EN_GPIO_PIN) && !defined(SIMU) && !defined(GTESTS)
       if (port_nr == SP_AUX2) {
