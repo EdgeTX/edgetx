@@ -62,6 +62,9 @@ static const char * const options[] = {
 #if defined(INTERNAL_GPS)
   "internalgps",
 #endif
+#if defined(SPACEMOUSE)
+  "spacemouse",
+#endif
 #if defined(INTERNAL_MODULE_PPM)
   "internalppm",
 #endif

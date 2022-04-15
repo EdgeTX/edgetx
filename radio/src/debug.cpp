@@ -207,37 +207,37 @@ void DebugTimer::stop()
 DebugTimer debugTimers[DEBUG_TIMERS_COUNT];
 
 const char * const debugTimerNames[DEBUG_TIMERS_COUNT] = {
-   "Pulses int."   // debugTimerIntPulses,
-  ,"Pulses dur."   // debugTimerIntPulsesDuration,
-  ,"10ms dur.  "   // debugTimerPer10ms,
-  ,"10ms period"   // debugTimerPer10msPeriod,
-  ,"Rotary enc."   // debugTimerRotEnc,
-  ,"Haptic     "   // debugTimerHaptic,
-  ,"Mixer calc "   // debugTimerMixer,
-  ,"Tel. wakeup"   // debugTimerTelemetryWakeup,
-  ,"perMain dur"   // debugTimerPerMain,
-  ," perMain s1"   // debugTimerPerMain1,
-  ," guiMain   "   // debugTimerGuiMain,
-  ,"  LUA      "   // debugTimerLua,
-  ,"  LCD wait "   // debugTimerLcdRefreshWait,
-  ,"  LCD refr."   // debugTimerLcdRefresh,
-  ,"  Menus    "   // debugTimerMenus,
-  ,"   Menu hnd"   // debugTimerMenuHandlers,
-  ,"Menu Vers. "   // debugTimerVersion,
-  ,"Menu simple"   // debugTimerSimpleMenu,
-  ,"Menu drawte"   // debugTimerDrawText,
-  ,"Menu drawt1"   // debugTimerDrawText1,
-  ,"Mix ADC    "   // debugTimerGetAdc,
-  ,"Mix getsw  "   // debugTimerGetSwitches,
-  ,"Mix eval   "   // debugTimerEvalMixes,
-  ,"Mix 10ms   "   // debugTimerMixes10ms,
-  ,"ADC read   "   // debugTimerAdcRead,
+   "Pulses int."   // debugTimerIntPulses
+  ,"Pulses dur."   // debugTimerIntPulsesDuration
+  ,"10ms dur.  "   // debugTimerPer10ms
+  ,"10ms period"   // debugTimerPer10msPeriod
+  ,"Rotary enc."   // debugTimerRotEnc
+  ,"Haptic     "   // debugTimerHaptic
+  ,"Mixer calc "   // debugTimerMixer
+  ,"Tel. wakeup"   // debugTimerTelemetryWakeup
+  ,"perMain dur"   // debugTimerPerMain
+  ," perMain s1"   // debugTimerPerMain1
+  ," guiMain   "   // debugTimerGuiMain
+  ,"  LUA      "   // debugTimerLua
+  ,"  LCD wait "   // debugTimerLcdRefreshWait
+  ,"  LCD refr."   // debugTimerLcdRefresh
+  ,"  Menus    "   // debugTimerMenus
+  ,"   Menu hnd"   // debugTimerMenuHandlers
+  ,"Menu Vers. "   // debugTimerVersion
+  ,"Menu simple"   // debugTimerSimpleMenu
+  ,"Menu drawte"   // debugTimerDrawText
+  ,"Menu drawt1"   // debugTimerDrawText1
+  ,"Mix ADC    "   // debugTimerGetAdc
+  ,"Mix getsw  "   // debugTimerGetSwitches
+  ,"Mix eval   "   // debugTimerEvalMixes
+  ,"Mix 10ms   "   // debugTimerMixes10ms
+  ,"ADC read   "   // debugTimerAdcRead
   ,"mix-pulses "   // debugTimerMixerCalcToUsage
   ,"mix-int.   "   // debugTimerMixerIterval
   ,"Audio int. "   // debugTimerAudioIterval
   ,"Audio dur. "   // debugTimerAudioDuration
-  ," A. consume"   // debugTimerAudioConsume,
-
+  ," A. consume"   // debugTimerAudioConsume
+  ,"SpaceMouse "   // debugTimerSpaceMouseWakeup
 };
 
 #endif

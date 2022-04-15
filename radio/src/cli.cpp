@@ -1481,6 +1481,27 @@ int cliGps(const char ** argv)
 }
 #endif
 
+#if defined(SPACEMOUSE)
+int cliSpaceMouse(const char ** argv)
+{
+#if defined(DEBUG)
+  if (!strcmp(argv[1], "trace")) {
+    spacemouseTraceEnabled = !spacemouseTraceEnabled;
+  } else
+#endif
+  if (!strcmp(argv[1], "poll")) {
+    spacemousePoll();
+  } else if (!strcmp(argv[1], "tare")) {
+    spacemouseTare();
+  } else if (!strcmp(argv[1], "startstreaming")) {
+    spacemouseStartStreaming();
+  } else if (!strcmp(argv[1], "stopstreaming")) {
+    spacemouseStopStreaming();
+  }
+  return 0;
+}
+#endif
+
 #if defined(BLUETOOTH)
 int cliBlueTooth(const char ** argv)
 {
@@ -1587,6 +1608,9 @@ const CliCommand cliCommands[] = {
 #endif
 #if defined(INTERNAL_GPS)
   { "gps", cliGps, "<baudrate>|$<command>|trace" },
+#endif
+#if defined(SPACEMOUSE)
+  { "spacemouse", cliSpaceMouse, "poll | tare | startstreaming | stopstreaming | trace" },
 #endif
 #if defined(BLUETOOTH)
   { "bt", cliBlueTooth, "<baudrate>|<command>" },

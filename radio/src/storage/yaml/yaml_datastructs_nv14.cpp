@@ -439,7 +439,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("ownerRegistrationID", 8),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
-  YAML_PADDING( 2 ),
+  YAML_PADDING( 3 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

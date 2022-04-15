@@ -142,7 +142,7 @@ void telemetryStop()
 {
   if (telemetryTimer) {
     if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
+      /* The timer could not be stopped. */
     }
   }
 }
