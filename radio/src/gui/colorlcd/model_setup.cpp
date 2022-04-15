@@ -1417,6 +1417,7 @@ void ModelSetupPage::build(FormWindow * window)
                   [timer, i](int32_t value) {
                     timer->start = value;
                     timerSet(i, value);
+                    SET_DIRTY();
     });
     timerGrid.nextLine();
 
