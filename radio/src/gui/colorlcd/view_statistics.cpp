@@ -240,7 +240,7 @@ void DebugViewPage::build(FormWindow *window)
 #endif
 
 #if defined(INTERNAL_GPS)
-  if (hasSerialMode(UART_MODE_GPS)) {
+  if (hasSerialMode(UART_MODE_GPS) != -1) {
     new StaticText(window, grid.getLabelSlot(), STR_INT_GPS_LABEL, 0,
                    COLOR_THEME_PRIMARY1);
     new DynamicText(
