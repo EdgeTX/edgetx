@@ -411,7 +411,7 @@ void RadioSetupPage::build(FormWindow * window)
   
 #if defined(INTERNAL_GPS)
   // GPS
-  if (hasSerialMode(UART_MODE_GPS)) {
+  if (hasSerialMode(UART_MODE_GPS) != -1) {
     new Subtitle(window, grid.getLabelSlot(), STR_GPS, 0, COLOR_THEME_PRIMARY1);
     grid.nextLine();
 
