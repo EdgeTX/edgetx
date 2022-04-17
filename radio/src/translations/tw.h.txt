@@ -1316,11 +1316,11 @@
 
 #define TR_USE_THEME_COLOR            "使用主題顏色"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将將所有微調導入中點偏移值"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "將所有微調導入中點偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "打開通道監視器" 
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "通道監視" 
 #endif
 #define TR_DUPLICATE                  "複製"
 #define TR_ACTIVATE                   "啟用"
