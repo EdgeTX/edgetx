@@ -1134,7 +1134,18 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         }
         else if (lua_isstring(lsScripts, -1)) {
           char nextScript[FF_MAX_LFN+1];
-          strncpy(nextScript, lua_tostring(lsScripts, -1), FF_MAX_LFN);
+          const char* luaFile = lua_tostring(lsScripts, -1);
+          if(luaFile[0] == '/')
+          {
+            strncpy(nextScript, ROOT_PATH, sizeof(nextScript));
+            size_t offset = strlen(ROOT_PATH);
+            strncpy(nextScript +  offset, lua_tostring(lsScripts, -1), FF_MAX_LFN - offset);
+          } else if(luaFile[0] == ':') {
+            strncpy(nextScript, ROOT_PATH, sizeof(nextScript));
+            strncpy(nextScript + 1, lua_tostring(lsScripts, -1), FF_MAX_LFN - 1);
+          } else {
+            strncpy(nextScript, lua_tostring(lsScripts, -1), FF_MAX_LFN);
+          }
           nextScript[FF_MAX_LFN] = '\0';
           luaExec(nextScript);
           return scriptWasRun;

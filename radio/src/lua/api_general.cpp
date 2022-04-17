@@ -1911,7 +1911,18 @@ static int luaGetRSSI(lua_State * L)
 static int luaChdir(lua_State * L)
 {
   const char * directory = luaL_optstring(L, 1, nullptr);
-  f_chdir(directory);
+  std::string dir;
+  if(directory[0] == '/')
+  {
+    dir = ROOT_PATH;
+    dir += directory;
+  } else if (directory[0] == ':') {
+    dir += directory+1;
+  } else {
+    dir = directory;
+  }
+
+  VirtualFS::instance().changeDirectory(dir);
   return 0;
 }
 
