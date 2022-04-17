@@ -214,6 +214,7 @@ enum class VfsOpenFlags {
 };
 
 VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs);
+VfsOpenFlags operator|=(VfsOpenFlags lhs,VfsOpenFlags rhs);
 VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs);
 
 //for compatibility reasons those are identical to the FAT implementation

@@ -333,9 +333,9 @@ static int readable (const char *filename) {
 /*   if (result != FR_OK) return 0; */
 /*   f_close(&f); */
 /* #else */
-  FILE *f = fopen(filename, "r");  /* try to open file */
+  lua_FILE *f = lua_fopen(filename, "r");  /* try to open file */
   if (f == NULL) return 0;  /* open failed */
-  fclose(f);
+  lua_fclose(f);
 /* #endif */
   return 1;
 }

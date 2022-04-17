@@ -20,6 +20,8 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
+#include <string.h>
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,7 +41,7 @@ struct open_files_t
   int handle = -1;
   int pos = 0;
   int flags = 0;
-  VfsFile * vfs_file = nullptr;
+  VfsFile vfs_file;
 };
 
 static open_files_t open_files[MAX_OPEN_FILES];
@@ -117,6 +119,254 @@ static int set_errno(int errval)
   return -1;
 }
 
+static int convertOpenMode(VfsOpenFlags &vfsFlags, const char* mode)
+{
+  size_t modeLen = strlen(mode);
+  if(modeLen < 1 || modeLen > 3)
+  {
+    set_errno(EINVAL);
+    return -EINVAL;
+  }
+
+  if(mode[0] != 'r' && mode[0] != 'w' && mode[0] != 'a')
+  {
+    set_errno(EINVAL);
+    return -EINVAL;
+  }
+
+  bool update = false;
+  bool binary = false;
+  if(modeLen>1)
+  {
+    if(mode[1] == '+')
+      update = true;
+    else if (mode[1] == 'b')
+      binary = true;
+    else {
+      set_errno(EINVAL);
+      return -EINVAL;
+    }
+  }
+  if(modeLen>2)
+  {
+    if(mode[1] == mode[2])
+    {
+      set_errno(EINVAL);
+      return -EINVAL;
+    }
+    if(mode[2] == '+')
+      update = true;
+    else if (mode[2] == 'b')
+      binary = true;
+    else {
+      set_errno(EINVAL);
+      return -EINVAL;
+    }
+  }
+
+  vfsFlags = VfsOpenFlags::NONE;
+  
+  switch(mode[0])
+  {
+  case 'r':
+    vfsFlags = VfsOpenFlags::READ;
+    if(update)
+      vfsFlags |= VfsOpenFlags::WRITE;
+    break;
+  case 'w':
+    vfsFlags = VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS;
+    break;
+  case 'a':
+    vfsFlags = VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_NEW;
+    if(update)
+      vfsFlags |= VfsOpenFlags::READ;
+    break;
+  }
+
+  return 0;
+}
+
+
+extern "C" {
+static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
+{
+  VfsOpenFlags vfsFlags = VfsOpenFlags::NONE;
+  int ret = convertOpenMode(vfsFlags, mode);
+  if( ret != 0)
+    return ret;
+
+  VfsError res = VirtualFS::instance().openFile(file->vfs_file, name, vfsFlags);
+  if(res == VfsError::OK)
+  {
+    set_errno(0);
+    return 0;
+  }
+
+  int err = remap_vfs_errors(res);
+  set_errno(err);
+  return -err;
+}
+open_files_t* lua_fopen(const char* name, const char *mode)
+{
+  if(strlen(name) == 0)
+  {
+    set_errno(EINVAL);
+    return nullptr;
+  }
+
+  int slot = findslot(-1);
+
+  int res = _lua_fopen(&open_files[slot], name, mode);
+  if(res == 0)
+  {
+    set_errno(0);
+    return &open_files[slot];
+  }
+
+  open_files[slot].handle = -1;
+  open_files[slot].pos = 0;
+  open_files[slot].flags = 0;
+  return nullptr;
+}
+
+int lua_fclose(open_files_t* file)
+{
+  file->vfs_file.close();
+  file->handle = -1;
+  file->pos = 0;
+  file->flags = 0;
+  return 0;
+}
+
+open_files_t *lua_freopen(const char *pathname, const char *mode, open_files_t *stream)
+{
+  stream->vfs_file.close();
+  stream->pos = 0;
+  stream->flags = 0;
+  int res = _lua_fopen(stream, pathname, mode);
+  if(res == 0)
+    return stream;
+
+  stream->handle = -1;
+  return nullptr;
+}
+
+int lua_feof(open_files_t *stream)
+{
+  return stream->vfs_file.eof();
+}
+
+int lua_fseek(open_files_t *stream, long offset, int whence)
+{
+  int err = 0;
+  switch(whence)
+  {
+  case SEEK_SET:
+    err = remap_vfs_errors(stream->vfs_file.lseek(offset));
+    break;
+  case SEEK_CUR:
+    err = remap_vfs_errors(stream->vfs_file.lseek(stream->vfs_file.tell() + offset));
+    break;
+  case SEEK_END:
+    err = remap_vfs_errors(stream->vfs_file.lseek(stream->vfs_file.size() - offset));
+    break;
+  default:
+    err = EINVAL;
+    break;
+  }
+  set_errno(err);
+  return -err;
+}
+
+int lua_ferror(open_files_t *stream)
+{
+  return 0;
+}
+
+size_t lua_fread(void *ptr, size_t size, size_t nmemb, open_files_t *stream)
+{
+  size_t count = size*nmemb;
+  size_t readSize = 0;
+
+  stream->vfs_file.read(ptr, count, readSize);
+  return readSize/size;
+}
+
+size_t lua_fwrite(const void *ptr, size_t size, size_t nmemb,
+                  open_files_t *stream)
+{
+  size_t count = size*nmemb;
+  size_t writtenSize = 0;
+#if !defined(BOOT)
+  stream->vfs_file.write(ptr, count, writtenSize);
+#endif
+  return writtenSize/size;
+}
+
+char *lua_fgets(char *s, int size, open_files_t *stream)
+{
+  return stream->vfs_file.gets(s, size);
+}
+
+char lua_fgetc(open_files_t *stream)
+{
+  char c;
+  size_t result;
+  if (stream->vfs_file.read(&c, 1, result) == VfsError::OK && result == 1)
+    return c;
+  else
+    return -1;
+}
+
+int lua_fputs(const char *s, open_files_t *stream)
+{
+#if !defined(BOOT)
+  stream->vfs_file.puts(s);
+#endif
+  return strlen(s);
+}
+
+
+int _open(const char *name, int flags, ...)
+{
+  assert(0);
+  return 0;
+}
+
+int _close(int fd)
+{
+  assert(0);
+  return 0;
+}
+
+int _fstat(int fd, struct stat * st)
+{
+  assert(0);
+  return 0;
+}
+
+int _lseek(int fd, int ptr, int dir)
+{
+  assert(0);
+  return 0;
+}
+
+int _read(int fd, char *ptr, int len)
+{
+  assert(0);
+  return 0;
+}
+
+int _write(int fd, char *ptr, int len)
+{
+  assert(0);
+  return 0;
+}
+
+}
+
+
+#if 0
 extern "C" int _open(const char *name, int flags, ...)
 {
   int fh = 0;
@@ -289,3 +539,5 @@ extern "C" int _write(int fd, char *ptr, int len)
 // Not Implemented:
 // int _mkdir(const char *path, mode_t mode __attribute__ ((unused)))
 // int _chmod(const char *path, mode_t mode)
+
+#endif
