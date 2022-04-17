@@ -201,6 +201,11 @@ VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs)
     static_cast<underlying>(lhs)
   | static_cast<underlying>(rhs));
 }
+VfsOpenFlags operator|=(VfsOpenFlags lhs,VfsOpenFlags rhs)
+{
+  lhs = lhs|rhs;
+  return lhs;
+}
 VfsOpenFlags operator&(VfsOpenFlags lhs,VfsOpenFlags rhs)
 {
   typedef typename

@@ -16,7 +16,7 @@
 
 
 /* extra error code for `luaL_load' */
-#define LUA_ERRFILE     (LUA_ERRERR+1)
+#define LUA_ERR_FILE     (LUA_ERRERR+1)
 
 
 typedef struct luaL_Reg {
@@ -196,7 +196,7 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 #define LUA_FILEHANDLE          "FILE*"
 
 typedef struct luaL_Stream {
-  FILE *f;  /* stream (NULL for incompletely created streams) */
+  lua_FILE *f;  /* stream (NULL for incompletely created streams) */
   lua_CFunction closef;  /* to close stream (NULL for closed streams) */
 } luaL_Stream;
 

@@ -537,7 +537,7 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
 #endif
   else {
     TRACE_ERROR("luaLoadScriptFileToState(%s, %s): Error loading script: %s\n", filename, lmode, lua_tostring(L, -1));
-    if (lstatus == LUA_ERRFILE) {
+    if (lstatus == LUA_ERR_FILE) {
       ret = SCRIPT_NOFILE;
     }
     else if (lstatus == LUA_ERRSYNTAX) {
