@@ -25,8 +25,10 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#if !defined(SIMU)
 #include <sys/reent.h>
 #include <reent.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 
@@ -195,7 +197,17 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
   if( ret != 0)
     return ret;
 
-  VfsError res = VirtualFS::instance().openFile(file->vfs_file, name, vfsFlags);
+  std::string n;
+//  if(name[0] == '/')
+//  {
+//    n = ROOT_PATH;
+//    n += name;
+//  } else if(name[0] == ':') {
+//      n += &name[1];
+//  } else {
+    n = name;
+//  }
+  VfsError res = VirtualFS::instance().openFile(file->vfs_file, n, vfsFlags);
   if(res == VfsError::OK)
   {
     set_errno(0);
@@ -206,6 +218,7 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
   set_errno(err);
   return -err;
 }
+
 open_files_t* lua_fopen(const char* name, const char *mode)
 {
   if(strlen(name) == 0)
@@ -326,6 +339,7 @@ int lua_fputs(const char *s, open_files_t *stream)
   return strlen(s);
 }
 
+#if !defined(SIMU)
 
 int _open(const char *name, int flags, ...)
 {
@@ -362,6 +376,8 @@ int _write(int fd, char *ptr, int len)
   assert(0);
   return 0;
 }
+
+#endif // SIMU
 
 }
 
