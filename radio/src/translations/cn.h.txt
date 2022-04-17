@@ -1320,7 +1320,7 @@
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS        "打开通道监视器" 
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "通道监视" 
 #endif
 #define TR_DUPLICATE                  "复制"
 #define TR_ACTIVATE                   "启用"
