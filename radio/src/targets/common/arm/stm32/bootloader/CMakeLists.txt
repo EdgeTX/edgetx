@@ -131,7 +131,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
-    ../../../../../vfs_syscalls.cpp
     )
 
   # Add LVGL sources

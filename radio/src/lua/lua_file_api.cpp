@@ -339,45 +339,6 @@ int lua_fputs(const char *s, open_files_t *stream)
   return strlen(s);
 }
 
-#if !defined(SIMU)
-
-int _open(const char *name, int flags, ...)
-{
-  assert(0);
-  return 0;
-}
-
-int _close(int fd)
-{
-  assert(0);
-  return 0;
-}
-
-int _fstat(int fd, struct stat * st)
-{
-  assert(0);
-  return 0;
-}
-
-int _lseek(int fd, int ptr, int dir)
-{
-  assert(0);
-  return 0;
-}
-
-int _read(int fd, char *ptr, int len)
-{
-  assert(0);
-  return 0;
-}
-
-int _write(int fd, char *ptr, int len)
-{
-  assert(0);
-  return 0;
-}
-
-#endif // SIMU
 
 }
 

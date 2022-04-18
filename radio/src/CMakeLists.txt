@@ -222,7 +222,7 @@ if(LUA)
     lua/api_model.cpp
     lua/api_filesystem.cpp
     lua/lua_event.cpp
-    vfs_syscalls.cpp
+    lua/lua_file_api.cpp
   )
 
   if(GUI_DIR STREQUAL colorlcd)
