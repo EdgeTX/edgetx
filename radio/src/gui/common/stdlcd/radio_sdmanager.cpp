@@ -287,7 +287,9 @@ void onSdManagerMenu(const char * result)
 #if defined(LUA)
   else if (result == STR_EXECUTE_FILE) {
     getSelectionFullPath(lfn);
-    luaExec(lfn);
+    std::string p = ":";
+    p += lfn;
+    luaExec(p.c_str());
   }
 #endif
 }

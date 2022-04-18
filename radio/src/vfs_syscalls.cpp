@@ -198,15 +198,15 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
     return ret;
 
   std::string n;
-//  if(name[0] == '/')
-//  {
-//    n = ROOT_PATH;
-//    n += name;
-//  } else if(name[0] == ':') {
-//      n += &name[1];
-//  } else {
+  if(name[0] == '/')
+  {
+    n = ROOT_PATH;
+    n += name;
+  } else if(name[0] == ':') {
+      n += &name[1];
+  } else {
     n = name;
-//  }
+  }
   VfsError res = VirtualFS::instance().openFile(file->vfs_file, n, vfsFlags);
   if(res == VfsError::OK)
   {
