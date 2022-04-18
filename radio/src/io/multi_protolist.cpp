@@ -343,10 +343,7 @@ void MultiRfProtocols::fillBuiltinProtos()
         (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
 
     if (pdef->subTypeString) {
-      int st_len = pdef->subTypeString[0];
-      const char* s = pdef->subTypeString + 1;
-
-      rfProto.fillSubProtoList(s, pdef->maxSubtype + 1, st_len);
+      rfProto.fillSubProtoList(pdef->subTypeString, pdef->maxSubtype + 1);
     }
 
     protoList.emplace_back(rfProto);
