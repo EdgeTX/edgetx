@@ -42,7 +42,7 @@
   #define SERIAL_MODE_OFF              "OFF"
 #endif
 
-#define TR_AUX_SERIAL_MODES            SERIAL_MODE_OFF,"Telem Mirror","Telemetry In","SBUS Trainer","LUA"
+#define TR_AUX_SERIAL_MODES            SERIAL_MODE_OFF,"Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot"
 #define TR_SLIDERTYPES                 "None","Slider"
@@ -1098,6 +1098,7 @@
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_JITTER_FILTER               "ADC filter"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
