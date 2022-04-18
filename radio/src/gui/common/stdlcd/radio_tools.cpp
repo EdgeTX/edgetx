@@ -145,8 +145,9 @@ void menuRadioTools(event_t event)
           *ext = '\0';
           label = VirtualFS::getBasename(path);
         }
-
-        luaScripts.emplace_back(LuaScript{path, label});
+        std::string p = ":";
+        p += path;
+       luaScripts.emplace_back(LuaScript{p.c_str(), label});
       }
     }
     dir.close();
