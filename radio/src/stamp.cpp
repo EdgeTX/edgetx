@@ -48,7 +48,7 @@
 #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
   const char vers_stamp[]  =   "VERS" TAB ": Factory firmware (" GIT_STR ")";
 #else
-  const char vers_stamp[]  =   "VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")";
+  const char vers_stamp[]  =   "VERS" TAB ": " VERSION DISPLAY_VERSION "-" CODENAME " (" GIT_STR ")";
 #endif
   const char date_stamp[]  =   "DATE" TAB ": " DATE;
   const char time_stamp[]  =   "TIME" TAB ": " TIME;
