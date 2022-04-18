@@ -388,7 +388,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
-  YAML_ARRAY("serialPort", 4, 4, struct_serialConfig, nullptr),
+  YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
   YAML_ARRAY("slidersConfig", 1, 4, struct_sliderConfig, nullptr),
   YAML_PADDING( 4 ),
   YAML_ARRAY("potsConfig", 2, 4, struct_potConfig, nullptr),
@@ -403,7 +403,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "gyroMax", 8 ),
   YAML_SIGNED( "gyroOffset", 8 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
-  YAML_PADDING( 5 ),
+  YAML_PADDING( 6 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

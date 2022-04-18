@@ -86,17 +86,31 @@ int8_t getSerialPortMode(uint8_t port_nr)
 #if !defined(BOOT)
   if (port_nr < MAX_SERIAL_PORTS) {
     auto cfg = g_eeGeneral.serialPort;
-    cfg >>= port_nr * 4; // 4 bits per port
-    return cfg & 0xF;
+    cfg >>= port_nr * SERIAL_CONF_BITS_PER_PORT;
+    return cfg & SERIAL_CONF_MODE_MASK;
   }
 #endif
 
   return UART_MODE_NONE;
 }
 
+static bool getSerialPower(uint8_t port_nr)
+{
+#if !defined(BOOT)
+  if (port_nr < MAX_SERIAL_PORTS) {
+    auto cfg = g_eeGeneral.serialPort;
+    cfg >>= (port_nr * SERIAL_CONF_BITS_PER_PORT);
+    return cfg & (1 << SERIAL_CONF_POWER_BIT);
+  }
+#endif
+
+  return false;
+}
+
 struct SerialPortState
 {
   uint8_t                  mode;
+  bool                     power;
   const etx_serial_port_t* port;
   void*                    usart_ctx;
 };
@@ -189,7 +203,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
   }
 }
 
-static void serialSetupPort(int mode, etx_serial_init& params, bool& power_required)
+static void serialSetupPort(int mode, etx_serial_init& params)
 {
   switch (mode) {
 
@@ -203,7 +217,6 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
 #if !defined(BOOT)
   case UART_MODE_TELEMETRY_MIRROR:
     // TODO: query telemetry baudrate / add setting for module
-    power_required = true;
 #if defined(CROSSFIRE)
     if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_CROSSFIRE) {
       params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
@@ -217,7 +230,6 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
     if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
       params.baudrate = FRSKY_D_BAUDRATE;
       params.rx_enable = true;
-      power_required = true;
     }
     break;
 
@@ -227,14 +239,12 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
     params.parity = ETX_Parity_Even;
     params.stop_bits = ETX_StopBits_Two;
     params.rx_enable = true;
-    power_required = true;
     break;
 
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;
     params.rx_enable = true;
-    power_required = true;
     break;
 #endif
 
@@ -242,7 +252,6 @@ static void serialSetupPort(int mode, etx_serial_init& params, bool& power_requi
   case UART_MODE_GPS:
     params.baudrate = GPS_USART_BAUDRATE;
     params.rx_enable = true;
-    power_required = true;
     break;
 #endif
 #endif
@@ -263,6 +272,26 @@ const etx_serial_port_t* serialGetPort(uint8_t port_nr)
   return port;
 }
 
+static void serialSetPowerState(uint8_t port_nr)
+{
+    const etx_serial_port_t* port = serialGetPort(port_nr);
+    if (!port) return;
+
+    if (port->set_pwr) {
+      port->set_pwr(getSerialPower(port_nr));
+    }
+}
+
+void serialSetPower(uint8_t port_nr, bool enabled)
+{
+  if (port_nr >= MAX_SERIAL_PORTS) return;
+  uint32_t pwr = (enabled ? 1 : 0) << SERIAL_CONF_POWER_BIT;
+  uint32_t pwr_mask = (1 << SERIAL_CONF_POWER_BIT) << port_nr * SERIAL_CONF_BITS_PER_PORT;
+  g_eeGeneral.serialPort = (g_eeGeneral.serialPort & ~pwr_mask) |
+                           (pwr << port_nr * SERIAL_CONF_BITS_PER_PORT);
+
+  serialSetPowerState(port_nr);
+}
 
 void serialInit(uint8_t port_nr, int mode)
 {
@@ -292,8 +321,7 @@ void serialInit(uint8_t port_nr, int mode)
     .rx_enable = false,
   };
 
-  bool power_required = false;
-  serialSetupPort(mode, params, power_required);
+  serialSetupPort(mode, params);
     
   if (params.baudrate != 0) {
     state->mode = mode;
@@ -304,9 +332,8 @@ void serialInit(uint8_t port_nr, int mode)
         state->usart_ctx = port->uart->init(&params);
 
       // Set power on/off
-      if (port->set_pwr) {
-        port->set_pwr(power_required);
-      }
+      if (port_nr < SP_VCP)
+        serialSetPowerState(port_nr);
     }
 
     // Update callbacks once the port is setup
@@ -329,12 +356,19 @@ int serialGetMode(uint8_t port_nr)
   return getSerialPortMode(port_nr);
 }
 
+bool serialGetPower(uint8_t port_nr)
+{
+  return getSerialPower(port_nr);
+}
+
 void serialSetMode(uint8_t port_nr, int mode)
 {
   if (port_nr >= MAX_SERIAL_PORTS) return;
-  uint16_t m = mode & 0xF;
+  uint16_t m = mode & SERIAL_CONF_MODE_MASK;
   g_eeGeneral.serialPort =
-      (g_eeGeneral.serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
+      (g_eeGeneral.serialPort &
+       ~(SERIAL_CONF_MODE_MASK << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
+      (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }
 
 // uint8_t serialTracesEnabled(int port_nr)

@@ -235,6 +235,20 @@ class SerialConfigWindow : public FormGroup
       aux->setAvailableHandler(
           [=](int value) { return isSerialModeAvailable(port_nr, value); });
       grid.nextLine();
+
+      if (port_nr < SP_VCP)
+      {
+          new StaticText(this, grid.getLabelSlot(), "Port power:", 0, COLOR_THEME_PRIMARY1);
+          new CheckBox(
+              this, grid.getFieldSlot(1, 0),
+                [=] { return serialGetPower(port_nr); },
+                [=](int32_t newValue) {
+                   serialSetPower(port_nr, newValue);
+                   SET_DIRTY();
+                }
+          );
+          grid.nextLine();
+      }
     }
 
     if (display_ttl_warning) {

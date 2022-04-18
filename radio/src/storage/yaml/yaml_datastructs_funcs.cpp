@@ -1854,6 +1854,7 @@ static bool port_write(void* user, yaml_writer_func wf, void* opaque)
 static const struct YamlNode struct_serialConfig[] = {
     YAML_IDX_CUST( "port", port_read, port_write),
     YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_UNSIGNED( "power", 1 ),
     YAML_END
 };
 
@@ -1876,6 +1877,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
   if (!m) return;
   
-  auto serialPort = reinterpret_cast<uint16_t*>(data);
-  *serialPort = (*serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
+  auto serialPort = reinterpret_cast<uint32_t*>(data);
+  *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
+                (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }

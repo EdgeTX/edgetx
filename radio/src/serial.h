@@ -25,9 +25,15 @@
 #include <stdint.h>
 #include "hal/serial_port.h"
 
+#define SERIAL_CONF_BITS_PER_PORT    8
+#define SERIAL_CONF_MODE_MASK        0x0F
+#define SERIAL_CONF_POWER_BIT        4
+
 const etx_serial_port_t* serialGetPort(uint8_t port_nr);
 int  serialGetMode(uint8_t port_nr);
 void serialSetMode(uint8_t port_nr, int mode);
+bool serialGetPower(uint8_t port_nr);
+void serialSetPower(uint8_t port_nr, bool enabled);
 
 void initSerialPorts();
 void serialInit(uint8_t port_nr, int mode);
