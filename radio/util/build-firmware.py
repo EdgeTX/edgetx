@@ -28,7 +28,7 @@ def build_target(target, path, cmake_options):
     if "EDGETX_VERSION_SUFFIX" in os.environ:
         suffix = os.environ["EDGETX_VERSION_SUFFIX"]
         cmd.append('-DVERSION_SUFFIX="%s"' % suffix)
-        if suffix.startswith("NIG") or suffix.startswith("SB"):
+        if not suffix.startswith("rel"):
             cmd.append('-DTEST_BUILD_WARNING=YES')
     cmd.append(srcdir)
 
