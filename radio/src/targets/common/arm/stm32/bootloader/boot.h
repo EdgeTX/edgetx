@@ -25,9 +25,9 @@
 #include "stamp.h"
 
 #if LCD_W < 212
-  #define BOOTLOADER_TITLE               " Bootloader - " VERSION "-" CODENAME
+  #define BOOTLOADER_TITLE               " Bootloader - " VERSION
 #else
-  #define BOOTLOADER_TITLE               " EdgeTX Bootloader - " VERSION "-" CODENAME
+  #define BOOTLOADER_TITLE               " EdgeTX Bootloader - " VERSION
 #endif
 
 #define DISPLAY_CHAR_WIDTH             (LCD_COLS+4)
