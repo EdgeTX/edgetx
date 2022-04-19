@@ -78,12 +78,11 @@ void Button::onEvent(lv_event_t* event)
   TRACE_WINDOWS("%s received lvgl event code 0x%X", getWindowDebugString("Button").c_str(), code);
 
   if (enabled && code == LV_EVENT_CLICKED) {
-    onKeyPress();
-    onPress();
-
     if (!(windowFlags & NO_FOCUS)) {
       setFocus(SET_FOCUS_DEFAULT);
     }
+    onKeyPress();
+    onPress();
   }
 }
 
