@@ -6,9 +6,14 @@ set(VERSION_REVISION "0")
 set(CODENAME "dev")
 
 if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
-  set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
+    string(FIND $ENV{EDGETX_VERSION_SUFFIX} "merge" posmerge)
+    if (posmerge GREATER_EQUAL 0)
+        set(VERSION_SUFFIX "-dev")
+    else()
+        set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
+    endif()
 else()
-  set(VERSION_SUFFIX "-SB") # If not defined, set for Self-Built
+  set(VERSION_SUFFIX "-custom") # If not defined, set for custom
   set(TEST_BUILD_WARNING ON)
 endif()
 
