@@ -1521,6 +1521,27 @@ void ModelSetupPage::build(FormWindow * window)
     new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.displayChecklist));
     grid.nextLine();
+    new StaticText(window, grid.getLabelSlot(true), STR_NOTES_FILE, 0, COLOR_THEME_PRIMARY1);
+    new FileChoice(
+        window, grid.getFieldSlot(), MODELS_PATH, TEXT_EXT,
+        sizeof(g_model.modelNotesFileName),
+        []() {
+          std::string notes(g_model.modelNotesFileName,
+                            sizeof(g_model.modelNotesFileName));
+          notes += TEXT_EXT;
+          return notes;
+        },
+        [](std::string newValue) {
+          uint8_t nameLength;
+          uint8_t extLength;
+          getFileExtension(newValue.data(), 0, 0, &nameLength, &extLength);
+          nameLength -= extLength;
+          newValue = newValue.substr(0, nameLength);
+          strncpy(g_model.modelNotesFileName, newValue.c_str(),
+                  sizeof(g_model.modelNotesFileName));
+          SET_DIRTY();
+        });
+    grid.nextLine();
 
     // Throttle warning
     new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);

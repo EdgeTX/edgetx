@@ -693,10 +693,12 @@ PACK(struct ModelData {
   CUSTOM_SCREENS_DATA
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
+  char modelNotesFileName[LEN_NOTES_FILE_NAME];
 
-  FUNCTION_SWITCHS_FIELDS
+      FUNCTION_SWITCHS_FIELDS
 
-  bool isTrainerTraineeEnable() const
+      bool
+      isTrainerTraineeEnable() const
   {
 #if defined(PCBNV14)
     return trainerData.mode >= TRAINER_MODE_MASTER_TRAINER_JACK;

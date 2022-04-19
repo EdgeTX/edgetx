@@ -1586,6 +1586,17 @@ void SetupPanel::on_name_editingFinished()
   }
 }
 
+void SetupPanel::on_notesFile_editingFinished()
+{
+  if (QString(model->modelNotesFileName) != ui->notesFile->text()) 
+  {
+    int length = ui->notesFile->maxLength();
+    strncpy(model->modelNotesFileName, ui->notesFile->text().toLatin1(),
+            length);
+    emit modified();
+  }
+}
+
 void SetupPanel::on_image_currentIndexChanged(int index)
 {
   if (!lock) {
@@ -1653,6 +1664,7 @@ void SetupPanel::update()
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
   ui->jitterFilter->setCurrentIndex(model->jitterFilter);
+  ui->notesFile->setText(Helpers::getChecklistFilename(model, false));
 
   updateBeepCenter();
   updateStartupSwitches();

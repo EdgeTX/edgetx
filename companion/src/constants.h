@@ -50,6 +50,8 @@
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
 
+#define CPN_STR_MODELNOTES_EXT         ".txt"
+
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
 #define CPN_STR_TTL_WARNING            QCoreApplication::translate("Companion", "Warning")

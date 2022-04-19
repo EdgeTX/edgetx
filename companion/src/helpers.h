@@ -110,7 +110,7 @@ namespace Helpers
   void exportAppSettings(QWidget * dlgParent = nullptr);
 
   QString getChecklistsPath();
-  QString getChecklistFilename(const ModelData * model);
+  QString getChecklistFilename(const ModelData * model, bool appendExtension);
   QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits = 1, const unsigned int offset = 0);
