@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include "hal/serial_port.h"
 
-#define SERIAL_CONF_BITS_PER_PORT    8
-#define SERIAL_CONF_MODE_MASK        0x0F
-#define SERIAL_CONF_POWER_BIT        4
+#define SERIAL_CONF_BITS_PER_PORT    8    /* configuration uses 1 byte per serial port */
+#define SERIAL_CONF_MODE_MASK        0x0F /* lower 4 bits for mode */
+#define SERIAL_CONF_POWER_BIT        7    /* MSBit of the configuration byte */
 
 const etx_serial_port_t* serialGetPort(uint8_t port_nr);
 int  serialGetMode(uint8_t port_nr);
