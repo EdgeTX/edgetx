@@ -50,6 +50,8 @@ class LayoutFactory
   const char* getId() const { return id; }
   const char* getName() const { return name; }
 
+  virtual const uint8_t* getBitmap() const = 0;
+
   virtual void drawThumb(BitmapBuffer* dc, uint16_t x, uint16_t y,
                          LcdFlags flags) const = 0;
 
