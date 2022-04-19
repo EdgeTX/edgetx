@@ -25,55 +25,17 @@
 class StaticText: public Window
 {
   public:
-    StaticText(Window * parent, const rect_t & rect, std::string text = "", WindowFlags windowFlags = 0, LcdFlags textFlags = 0) :
-      Window(parent, rect, windowFlags, textFlags),
-      text(std::move(text))
-    {
-      label = lv_label_create(lvobj);
-      lv_label_set_text(label, this->text.c_str());
-      lv_obj_clear_flag(label, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-
-      lv_obj_set_style_text_font(lvobj, &lv_font_roboto_13, LV_PART_MAIN);
-      lv_obj_set_style_text_color(label, makeLvColor(textFlags), LV_PART_MAIN);
-      if (textFlags & CENTERED)
-        lv_obj_center(label);
-      else if (textFlags & RIGHT)
-        lv_obj_align(label, LV_ALIGN_TOP_RIGHT, 0, 0);
-
-      if (textFlags & FONT(BOLD)) {
-      }
-
-      if (windowFlags & BUTTON_BACKGROUND) {
-        lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
-        setBackgroundColor(COLOR_THEME_SECONDARY2);
-      }
-    }
+    StaticText(Window *parent, const rect_t &rect, std::string text = "",
+               WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "StaticText \"" + text + "\"";
-    }
+    std::string getName() const override;
 #endif
 
-    void setText(std::string value)
-    {
-      if (text != value) {
-        text = std::move(value);
-        lv_label_set_text(label, this->text.c_str());
-      }
-    }
-
-    void setBackgroundColor(LcdFlags color)
-    {
-      bgColor = color;
-      auto actualColor = COLOR_VAL(bgColor);
-      lv_obj_set_style_bg_color(lvobj, lv_color_make(GET_RED(actualColor), GET_GREEN(actualColor), GET_BLUE(actualColor)), LV_PART_MAIN);
-    }
+    void setText(std::string value);
+    void setBackgroundColor(LcdFlags color);
 
   protected:
-    lv_obj_t *label = nullptr;
     std::string text;
     LcdFlags bgColor = 0;
 };
