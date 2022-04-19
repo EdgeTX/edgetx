@@ -30,6 +30,7 @@
 #include "VirtualFS.h"
 #include "lua_api.h"
 #include "lua_event.h"
+#include "lua_file_api.h"
 
 #include "api_filesystem.h"
 
@@ -425,7 +426,7 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
 #if defined(LUA_COMPILER)
   uint16_t fnamelen;
   uint8_t extlen;
-  char filenameFull[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = "\0";
+  char filenameFull[LEN_FILE_PATH_MAX + FF_MAX_LFN + 1] = ":\0";
   VirtualFS& vfs = VirtualFS::instance();
   VfsFileInfo fnoLuaS, fnoLuaC;
   VfsError frLuaS, frLuaC;
@@ -447,12 +448,12 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   strncat(filenameFull, filename, fnamelen);
 
   // check if binary version exists
-  strcpy(filenameFull + fnamelen, SCRIPT_BIN_EXT);
-  frLuaC = vfs.fstat(filenameFull, fnoLuaC);
+  strcpy(filenameFull + 1 + fnamelen, SCRIPT_BIN_EXT);
+  frLuaC = vfs.fstat(filenameFull+1, fnoLuaC);
 
   // check if text version exists
-  strcpy(filenameFull + fnamelen, SCRIPT_EXT);
-  frLuaS = vfs.fstat(filenameFull, fnoLuaS);
+  strcpy(filenameFull + 1 + fnamelen, SCRIPT_EXT);
+  frLuaS = vfs.fstat(filenameFull+1, fnoLuaS);
 
   // decide which version to load, text or binary
   if (frLuaC != VfsError::OK && frLuaS == VfsError::OK) {
@@ -579,7 +580,9 @@ static const char * getScriptName(uint8_t idx)
 
 static bool luaLoad(const char * pathname, ScriptInternalData & sid)
 {
-  sid.state = luaLoadScriptFileToState(lsScripts, pathname, LUA_SCRIPT_LOAD_MODE);
+  std::string path = normalizeLuaPath(pathname);
+
+  sid.state = luaLoadScriptFileToState(lsScripts, path.c_str(), LUA_SCRIPT_LOAD_MODE);
 
   if (sid.state != SCRIPT_OK) {
     luaFree(lsScripts, sid);
@@ -1135,17 +1138,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         else if (lua_isstring(lsScripts, -1)) {
           char nextScript[FF_MAX_LFN+1];
           const char* luaFile = lua_tostring(lsScripts, -1);
-          if(luaFile[0] == '/')
-          {
-            strncpy(nextScript, ROOT_PATH, sizeof(nextScript));
-            size_t offset = strlen(ROOT_PATH);
-            strncpy(nextScript +  offset, lua_tostring(lsScripts, -1), FF_MAX_LFN - offset);
-          } else if(luaFile[0] == ':') {
-            strncpy(nextScript, ROOT_PATH, sizeof(nextScript));
-            strncpy(nextScript + 1, lua_tostring(lsScripts, -1), FF_MAX_LFN - 1);
-          } else {
-            strncpy(nextScript, lua_tostring(lsScripts, -1), FF_MAX_LFN);
-          }
+          strncpy(nextScript, lua_tostring(lsScripts, -1), FF_MAX_LFN);
           nextScript[FF_MAX_LFN] = '\0';
           luaExec(nextScript);
           return scriptWasRun;
@@ -1355,6 +1348,7 @@ bool readToolName(char * toolName, const char * filename)
 
 bool isRadioScriptTool(const char * filename)
 {
-  const char * ext = VirtualFS::getFileExtension(filename);
+  std::string path = normalizeLuaPath(filename);
+  const char * ext = VirtualFS::getFileExtension(path.c_str());
   return ext && !strcasecmp(ext, SCRIPT_EXT);
 }
