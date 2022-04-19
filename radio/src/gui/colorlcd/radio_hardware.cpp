@@ -238,7 +238,7 @@ class SerialConfigWindow : public FormGroup
 
       if (port_nr < SP_VCP)
       {
-          new StaticText(this, grid.getLabelSlot(), "Port power:", 0, COLOR_THEME_PRIMARY1);
+          new StaticText(this, grid.getLabelSlot(true), "Port power:", 0, COLOR_THEME_PRIMARY1);
           new CheckBox(
               this, grid.getFieldSlot(1, 0),
                 [=] { return serialGetPower(port_nr); },
