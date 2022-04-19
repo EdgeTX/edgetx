@@ -29,8 +29,10 @@ void choicePaintCallback(lv_event_t *e)
     lv_obj_t *target = lv_event_get_target(e);
     if (target != nullptr) {
       ChoiceBase *cb = (ChoiceBase*)lv_obj_get_user_data(target);
-      std::string text = cb->getLabelText();
-      lv_label_set_text(cb->label, text.c_str());
+      if (cb) {
+        std::string text = cb->getLabelText();
+        lv_label_set_text(cb->label, text.c_str());
+      }
     }
   }
 }
