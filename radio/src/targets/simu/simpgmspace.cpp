@@ -747,7 +747,7 @@ void rtcSetTime(const struct gtm * t)
 }
 
 #if defined(USB_SERIAL)
-const etx_serial_port_t UsbSerialPort = { "VCP", nullptr, nullptr };
+const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL)
