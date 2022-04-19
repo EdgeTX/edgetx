@@ -27,6 +27,8 @@
 #include "api_filesystem.h"
 #include "aux_serial_driver.h"
 
+#include "lua_file_api.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   #include "api_colorlcd.h"
@@ -1985,7 +1987,7 @@ static int luaLoadScript(lua_State * L)
   const char *mode = luaL_optstring(L, 2, NULL);
   int env = (!lua_isnone(L, 3) ? 3 : 0);  // 'env' index or 0 if no 'env'
   lua_settop(L, 0);
-  if (fname != NULL && luaLoadScriptFileToState(L, fname , mode) == SCRIPT_OK) {
+  if (fname != NULL && luaLoadScriptFileToState(L, normalizeLuaPath(fname).c_str() , mode) == SCRIPT_OK) {
     if (env != 0) {  // 'env' parameter?
       lua_pushvalue(L, env);  // environment for loaded function
       if (!lua_setupvalue(L, -2, 1))  // set it as 1st upvalue

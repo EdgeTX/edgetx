@@ -23,6 +23,7 @@
 #include <cstdio>
 #include "VirtualFS.h"
 #include "lua_api.h"
+#include "lua_file_api.h"
 
 #include "api_filesystem.h"
 
@@ -85,7 +86,8 @@ int luaDir(lua_State* L)
   luaL_getmetatable(L, DIR_METATABLE);
   lua_setmetatable(L, -2);
 
-  VfsError res = VirtualFS::instance().openDirectory(*dir, path);
+  std::string p = normalizeLuaPath(path);
+  VfsError res = VirtualFS::instance().openDirectory(*dir, p.c_str());
   if (res != VfsError::OK) {
     printf("luaDir cannot open %s\n", path);
   }
@@ -139,8 +141,9 @@ int luaFstat(lua_State* L)
   VirtualFS& vfs = VirtualFS::instance();
   VfsError res;
   VfsFileInfo info;
+  std::string p = normalizeLuaPath(path);
 
-  res = vfs.fstat(path, info);
+  res = vfs.fstat(p, info);
   if (res != VfsError::OK) {
     printf("luaFstat cannot open %s\n", path);
     return 0;

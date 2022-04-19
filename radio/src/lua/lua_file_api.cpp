@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#include "lua_file_api.h"
 #include "VirtualFS.h"
 
 // TODO: places this somewhere else
@@ -188,6 +189,20 @@ static int convertOpenMode(VfsOpenFlags &vfsFlags, const char* mode)
   return 0;
 }
 
+std::string normalizeLuaPath(const char* path)
+{
+  std::string n;
+  if(path[0] == '/')
+  {
+    n = ROOT_PATH;
+    n += path;
+  } else if(path[0] == ':') {
+      n += &path[1];
+  } else {
+    n = path;
+  }
+  return n;
+}
 
 extern "C" {
 static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
@@ -197,16 +212,7 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
   if( ret != 0)
     return ret;
 
-  std::string n;
-  if(name[0] == '/')
-  {
-    n = ROOT_PATH;
-    n += name;
-  } else if(name[0] == ':') {
-      n += &name[1];
-  } else {
-    n = name;
-  }
+  std::string n = normalizeLuaPath(name);
   VfsError res = VirtualFS::instance().openFile(file->vfs_file, n, vfsFlags);
   if(res == VfsError::OK)
   {
