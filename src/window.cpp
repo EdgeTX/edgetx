@@ -195,6 +195,7 @@ Window::~Window()
   if (children.size() > 0) deleteChildren();
 
   if (lvobj != nullptr) {
+    lv_obj_set_user_data(lvobj, nullptr);
     lv_obj_del(lvobj);
     lvobj = nullptr;
   }
@@ -269,8 +270,8 @@ void Window::clearLvgl()
     if(window->lvobj != nullptr && window->lvobj->parent == lvobj)
       window->clearLvgl();
   }
-//  lv_obj_set_user_data(lvobj, nullptr);
 
+  lv_obj_set_user_data(lvobj, nullptr);
   lvobj = nullptr;
 }
 
