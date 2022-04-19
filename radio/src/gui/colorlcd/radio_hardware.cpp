@@ -236,6 +236,7 @@ class SerialConfigWindow : public FormGroup
           [=](int value) { return isSerialModeAvailable(port_nr, value); });
       grid.nextLine();
 
+#if defined(SWSERIALPOWER)
       if (port_nr < SP_VCP)
       {
           new StaticText(this, grid.getLabelSlot(true), "Port power:", 0, COLOR_THEME_PRIMARY1);
@@ -250,6 +251,7 @@ class SerialConfigWindow : public FormGroup
           grid.nextLine();
       }
     }
+#endif
 
     if (display_ttl_warning) {
       new StaticText(this, grid.getFieldSlot(), STR_TTL_WARNING, 0,
