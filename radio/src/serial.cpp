@@ -202,6 +202,10 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     //       de we really need telemetry
     //       input over USB VCP?
     break;
+    
+  case UART_MODE_FRSKY_D_TELEMETRY:
+      frskyDSetGetByte(ctx, getByte);
+      break;
 
   case UART_MODE_TELEMETRY_MIRROR:
     telemetrySetMirrorCb(ctx, sendByte);
@@ -264,6 +268,14 @@ static void serialSetupPort(int mode, etx_serial_init& params)
       params.rx_enable = true;
     }
     break;
+    
+  case UART_MODE_FRSKY_D_TELEMETRY:
+      params.baudrate = FRSKY_D_BAUDRATE;
+      params.word_length = ETX_WordLength_8;
+      params.parity = ETX_Parity_None;
+      params.stop_bits = ETX_StopBits_One;
+      params.rx_enable = true;
+      break;
 
   case UART_MODE_SBUS_TRAINER:
     params.baudrate = SBus::baudrate;
@@ -279,7 +291,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
 
   case UART_MODE_CRSF_TRAINER:
@@ -288,7 +299,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
     
   case UART_MODE_SUMD_TRAINER:
@@ -297,7 +307,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.parity = ETX_Parity_None;
     params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
-    power_required = true;
     break;
 
 #if defined(LUA)
@@ -411,11 +420,6 @@ void serialInit(uint8_t port_nr, int mode)
     if (port && params.baudrate != 0) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
-
-      // Set power on/off
-      if (port->set_pwr) {
-        port->set_pwr(power_required);
-      }
 
 #if !defined(BLUETOOTH) && defined(PCBHORUS) && defined(BT_EN_GPIO_PIN) && !defined(SIMU) && !defined(GTESTS)
       if (port_nr == SP_AUX2) {

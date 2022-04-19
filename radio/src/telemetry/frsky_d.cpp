@@ -122,6 +122,12 @@ const FrSkyDSensor frskyDSensors[] = {
   { GPS_ALT_BP_ID, STR_SENSOR_GPSALT, UNIT_METERS, 0 },
   { GPS_HOUR_MIN_ID, STR_SENSOR_GPSDATETIME, UNIT_DATETIME, 0 },
   { GPS_LAT_AP_ID, STR_SENSOR_GPS, UNIT_GPS, 0 },
+  { DIY1_ID, "DIY1", UNIT_RAW, 0},
+  { DIY2_ID, "DIY2", UNIT_RAW, 0},
+  { DIY3_ID, "DIY3", UNIT_RAW, 0},
+  { DIY4_ID, "DIY4", UNIT_RAW, 0},
+  { DIY5_ID, "DIY5", UNIT_RAW, 0},
+  { DIY6_ID, "DIY6", UNIT_RAW, 0},
   { 0, NULL, UNIT_RAW, 0 } // sentinel
 };
 
@@ -329,4 +335,26 @@ void frskyDSetDefault(int index, uint16_t id)
   }
 
   storageDirty(EE_MODEL);
+}
+
+static bool (*_frskyDGetByte)(void*, uint8_t*) = nullptr;
+static void* _frskyDGetByteCtx = nullptr;
+
+void frskyDSetGetByte(void* const ctx, bool (* const fct)(void*, uint8_t*)) {
+    _frskyDGetByteCtx = ctx;
+    _frskyDGetByte = fct;    
+}
+
+bool frskyDAuxGetByte(void* const ctx, uint8_t* const byte){
+    if (_frskyDGetByte) {
+      return _frskyDGetByte(ctx, byte);
+    }
+    return false;
+}
+
+void processFrskyInput() {
+    uint8_t rxChar;
+    while (frskyDAuxGetByte(_frskyDGetByteCtx, &rxChar)) {
+        parseTelemHubByte(rxChar);
+    }
 }
