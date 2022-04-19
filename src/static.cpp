@@ -20,3 +20,53 @@
 #include "static.h"
 #include "font.h"
 
+StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
+                       WindowFlags windowFlags, LcdFlags textFlags) :
+    Window(parent, rect, windowFlags, textFlags, lv_label_create),
+    text(std::move(txt))
+{
+  lv_label_set_text(lvobj, text.c_str());
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+  lv_obj_set_style_text_font(lvobj, LV_FONT_DEFAULT, LV_PART_MAIN);
+  lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
+
+  if (textFlags & CENTERED)
+    lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_CENTER, 0);
+  else if (textFlags & RIGHT)
+    lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
+
+  // if (textFlags & FONT(BOLD)) {
+  // }
+
+  if (windowFlags & BUTTON_BACKGROUND) {
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+    setBackgroundColor(COLOR_THEME_SECONDARY2);
+  }
+}
+
+#if defined(DEBUG_WINDOWS)
+std::string StaticText::getName() const
+{
+  return "StaticText \"" + text + "\"";
+}
+#endif
+
+void StaticText::setText(std::string value)
+{
+  if (text != value) {
+    text = std::move(value);
+    lv_label_set_text(lvobj, text.c_str());
+  }
+}
+
+void StaticText::setBackgroundColor(LcdFlags color)
+{
+  bgColor = color;
+  auto actualColor = COLOR_VAL(bgColor);
+  lv_obj_set_style_bg_color(
+      lvobj,
+      lv_color_make(GET_RED(actualColor), GET_GREEN(actualColor),
+                    GET_BLUE(actualColor)),
+      LV_PART_MAIN);
+}
