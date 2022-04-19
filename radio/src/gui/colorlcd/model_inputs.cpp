@@ -519,7 +519,7 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
       coord_t h = grid.getWindowHeight();
       auto txt = new StaticText(window, grid.getLabelSlot(),
                                 getSourceString(MIXSRC_FIRST_INPUT + input),
-                                BUTTON_BACKGROUND, LEFT | COLOR_THEME_PRIMARY1);
+                                BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
       while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         Button *button =
             new InputLineButton(window, grid.getFieldSlot(), inputIndex);
