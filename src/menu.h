@@ -27,6 +27,13 @@
 class Menu;
 class MenuWindowContent;
 
+struct lvobj_delete {
+  constexpr lvobj_delete() = default;
+  void operator()(lv_obj_t* obj) const {
+    lv_obj_del(obj);
+  }
+};
+
 class MenuBody: public Window
 {
   friend class MenuWindowContent;
@@ -38,44 +45,27 @@ class MenuBody: public Window
     DIRECTION_DOWN = -1
   };
 
-  class MenuLine {
+  class MenuLine
+  {
     friend class MenuBody;
 
-    public:
-      MenuLine(std::string text, std::function<void()> onPress, std::function<bool()> isChecked):
-        text(std::move(text)),
-        onPress(std::move(onPress)),
-        isChecked(std::move(isChecked))
-      {
-      }
+   public:
+    MenuLine(std::function<void()> onPress, std::function<bool()> isChecked,
+             lv_obj_t *icon) :
+        onPress(std::move(onPress)), isChecked(std::move(isChecked)), icon(icon)
+    {
+    }
 
-      MenuLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked):
-        drawLine(std::move(drawLine)),
-        onPress(std::move(onPress)),
-        isChecked(std::move(isChecked))
-      {
-      }
+    MenuLine(bool isSeparator) : isSeparator(true) {}
+    MenuLine(MenuLine &) = delete;
+    MenuLine(MenuLine &&) = default;
 
-      MenuLine(bool isSeparator) :
-        isSeparator(true),
-        height(MENUS_SEPARATOR_HEIGHT)
-      {
-      }
-
-      inline coord_t lineHeight() { return height; }
-
-      MenuLine(MenuLine &) = delete;
-
-      MenuLine(MenuLine &&) = default;
-
-    protected:
-      friend void menuBodyEventCallback(lv_event_t *e);
-      bool isSeparator = false;
-      coord_t height = MENUS_LINE_HEIGHT + 10;
-      std::string text;
-      std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine;
-      std::function<void()> onPress;
-      std::function<bool()> isChecked;
+   protected:
+    friend void menuBodyEventCallback(lv_event_t *e);
+    bool isSeparator = false;
+    std::function<void()> onPress;
+    std::function<bool()> isChecked;
+    std::unique_ptr<lv_obj_t, lvobj_delete> icon;
   };
 
   public:
@@ -109,13 +99,12 @@ class MenuBody: public Window
     void onEvent(event_t event) override;
 #endif
 
-    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked);
+    void addLine(const std::string &text, std::function<void()> onPress,
+                 std::function<bool()> isChecked);
 
-    void addCustomLine(std::function<void(BitmapBuffer * /*dc*/, coord_t /*x*/, coord_t /*y*/, LcdFlags /*flags*/)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
-    {
-      lines.emplace_back(std::move(drawLine), std::move(onPress), std::move(isChecked));
-      invalidate();
-    }
+    void addLine(const uint8_t *icon_mask, const std::string &text,
+                 std::function<void()> onPress,
+                 std::function<bool()> isChecked);
 
     void addSeparator()
     {
@@ -128,6 +117,8 @@ class MenuBody: public Window
     {
       onCancel = std::move(handler);
     }
+
+    coord_t getContentHeight();
 
   protected:
     friend void menuBodyEventCallback(lv_event_t *);
@@ -208,9 +199,12 @@ class Menu: public ModalWindow
 
     void setTitle(std::string text);
 
-    void addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
+    void addLine(const std::string &text, std::function<void()> onPress,
+                 std::function<bool()> isChecked = nullptr);
 
-    void addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked = nullptr);
+    void addLine(const uint8_t *icon_mask, const std::string &text,
+                 std::function<void()> onPress,
+                 std::function<bool()> isChecked = nullptr);
 
     void addSeparator();
 
