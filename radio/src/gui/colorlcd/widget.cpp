@@ -38,7 +38,7 @@ static void openWidgetMenu(Widget * parent)
   menu->addLine("Full screen", [=]() {
       parent->setFullscreen(true);
     });
-  if(parent->getOptions() && parent->getOptions()->name)  
+  if(parent->getOptions() && parent->getOptions()->name)
     menu->addLine(TR_WIDGET_SETTINGS, [=]() {
       new WidgetSettings(parent, parent);
     });
@@ -78,11 +78,11 @@ bool Widget::onTouchEnd(coord_t x, coord_t y)
 
 
   if (hasFocus()) {
-
     // TODO: find a better way
-    if (touchState.tapCount == 0)
-      onPress();
-    else if (touchState.tapCount > 1)
+    // if (touchState.tapCount == 0)
+    //   onPress();
+    // else
+    if (touchState.tapCount > 1)
       setFullscreen(true);
   }
   else {
