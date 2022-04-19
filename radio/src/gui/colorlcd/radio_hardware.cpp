@@ -250,8 +250,8 @@ class SerialConfigWindow : public FormGroup
           );
           grid.nextLine();
       }
-    }
 #endif
+    }
 
     if (display_ttl_warning) {
       new StaticText(this, grid.getFieldSlot(), STR_TTL_WARNING, 0,
