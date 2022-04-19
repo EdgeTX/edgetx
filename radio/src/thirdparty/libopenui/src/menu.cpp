@@ -53,7 +53,6 @@ void menuBodyEventCallback(lv_event_t *e)
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
   Window(parent, rect, OPAQUE, 0, lv_list_create)
 {
-  setPageHeight(MENUS_LINE_HEIGHT);
   setFocus();
 }
 
@@ -235,8 +234,8 @@ void Menu::updatePosition()
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
-    auto bodyHeight = limit<coord_t>(MENUS_MIN_HEIGHT, height, MENUS_MAX_HEIGHT);
-    content->setTop((LCD_H - headerHeight - bodyHeight) / 2 + MENUS_OFFSET_TOP);
+    auto bodyHeight = min<coord_t>(height, MENUS_MAX_HEIGHT);
+    content->setTop((LCD_H - headerHeight - bodyHeight) / 2);
     content->setHeight(headerHeight + bodyHeight);
     content->body.setTop(headerHeight);
     content->body.setHeight(bodyHeight);
