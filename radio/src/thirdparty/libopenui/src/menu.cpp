@@ -31,19 +31,21 @@ void menuBodyEventCallback(lv_event_t *e)
     if (target != nullptr) {
       long index = (long)lv_event_get_user_data(e);
       MenuBody *mb = (MenuBody *) lv_obj_get_user_data(lv_obj_get_parent(target));
-      Menu *menu = mb->getParentMenu();
-      if (index < (int)mb->lines.size()) {
-        onKeyPress();
-        if (menu->multiple) {
-          if (mb->selectedIndex == index)
-            mb->lines[index].onPress();
-          else
+      if (mb) {
+        Menu *menu = mb->getParentMenu();
+        if (index < (int)mb->lines.size()) {
+          onKeyPress();
+          if (menu->multiple) {
+            if (mb->selectedIndex == index)
+              mb->lines[index].onPress();
+            else
+              mb->setIndex(index);
+          }
+          else {
             mb->setIndex(index);
-        }
-        else {
-          mb->setIndex(index);
-          mb->lines[index].onPress();
-          menu->deleteLater();
+            mb->lines[index].onPress();
+            menu->deleteLater();
+          }
         }
       }
     }
