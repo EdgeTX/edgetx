@@ -21,6 +21,8 @@
 #include "font.h"
 #include "theme.h"
 
+#include "lvgl/src/widgets/lv_canvas.h"
+
 void menuBodyEventCallback(lv_event_t *e)
 {
   auto code = lv_event_get_code(e);
@@ -40,8 +42,8 @@ void menuBodyEventCallback(lv_event_t *e)
         }
         else {
           mb->setIndex(index);
-          menu->deleteLater();
           mb->lines[index].onPress();
+          menu->deleteLater();
         }
       }
     }
@@ -58,11 +60,31 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
                        std::function<bool()> isChecked)
 {
-  lines.emplace_back(text, std::move(onPress), std::move(isChecked));
+  lines.emplace_back(std::move(onPress), std::move(isChecked), nullptr);
   lv_obj_t *btn = lv_list_add_btn(lvobj, nullptr, text.c_str());
   lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
   lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED,
                       (void *)(lines.size() - 1));
+}
+
+void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
+                       std::function<void()> onPress,
+                       std::function<bool()> isChecked)
+{
+  lv_obj_t* canvas = lv_canvas_create(nullptr);
+  lines.emplace_back(std::move(onPress), std::move(isChecked), canvas);
+
+  lv_coord_t w = *((uint16_t *)icon_mask);
+  lv_coord_t h = *(((uint16_t *)icon_mask)+1);
+  void* buf = (void*)(icon_mask + 4);
+  lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+
+  lv_obj_t *btn = lv_list_add_btn(
+      lvobj, (const char *)lv_canvas_get_img(canvas), text.c_str());
+
+  lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
+  lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED,
+                      (void *)(lines.size() - 1));  
 }
 
 void MenuBody::removeLines()
@@ -70,6 +92,19 @@ void MenuBody::removeLines()
   lines.clear();
   lv_obj_clean(lvobj);
 }
+
+coord_t MenuBody::getContentHeight()
+{
+  coord_t h = 0;
+  lv_obj_update_layout(lvobj);
+  for(int i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
+    auto child = lv_obj_get_child(lvobj, i);
+    h += lv_obj_get_height(child);
+  }
+
+  return h;
+}
+
 
 // ensure index is in range and also handle wrapping index
 int MenuBody::rangeCheck(int index)
@@ -88,6 +123,7 @@ void MenuBody::setIndex(int index)
     lv_obj_t *btn = lv_obj_get_child(lvobj, selectedIndex);
     if (btn != nullptr) {
       lv_obj_clear_state(btn, LV_STATE_CHECKED);
+      lv_obj_clear_state(btn, LV_STATE_FOCUS_KEY);
     }
 
     selectedIndex = index;
@@ -95,6 +131,7 @@ void MenuBody::setIndex(int index)
     btn = lv_obj_get_child(lvobj, selectedIndex);
     if (btn != nullptr) {
       lv_obj_add_state(btn, LV_STATE_CHECKED);
+      lv_obj_add_state(btn, LV_STATE_FOCUS_KEY);
       lv_obj_scroll_to_view(btn, LV_ANIM_OFF);
     }
   }
@@ -156,8 +193,8 @@ void MenuBody::onEvent(event_t event)
           menu->invalidate();
         }
         else {
-          menu->deleteLater();
           lines[selectedIndex].onPress();
+          menu->deleteLater();
         }
       }
     }
@@ -193,10 +230,7 @@ Menu::Menu(Window * parent, bool multiple):
 
 void Menu::updatePosition()
 {
-  // calcualte the correct menu height given that the line heights are variable
-  coord_t height = 0;
-  for (int i = 0; i < (signed)content->body.lines.size(); i++)
-    height += content->body.lines[i].lineHeight();
+  coord_t height = content->body.getContentHeight();
 
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
@@ -217,21 +251,24 @@ void Menu::setTitle(std::string text)
   updatePosition();
 }
 
-void Menu::addLine(const std::string & text, std::function<void()> onPress, std::function<bool()> isChecked)
+void Menu::addLine(const std::string &text, std::function<void()> onPress,
+                   std::function<bool()> isChecked)
 {
   content->body.addLine(text, std::move(onPress), std::move(isChecked));
+  updatePosition();
+}
+
+void Menu::addLine(const uint8_t *icon_mask, const std::string &text,
+                   std::function<void()> onPress,
+                   std::function<bool()> isChecked)
+{
+  content->body.addLine(icon_mask, text, std::move(onPress), std::move(isChecked));
   updatePosition();
 }
 
 void Menu::addSeparator()
 {
   content->body.addSeparator();
-  updatePosition();
-}
-
-void Menu::addCustomLine(std::function<void(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags)> drawLine, std::function<void()> onPress, std::function<bool()> isChecked)
-{
-  content->body.addCustomLine(std::move(drawLine), std::move(onPress), std::move(isChecked));
   updatePosition();
 }
 
