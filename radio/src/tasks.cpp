@@ -106,6 +106,11 @@ void execMixerFrequentActions()
     else if (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0) {
         processSumdInput();
     }
+    
+    if (hasSerialMode(UART_MODE_FRSKY_D_TELEMETRY) >= 0) {
+        processFrskyInput();
+    }
+    
 #if defined(DEBUG)
     if (++dbg_counter > 200) {
         dbg_counter = 0;
