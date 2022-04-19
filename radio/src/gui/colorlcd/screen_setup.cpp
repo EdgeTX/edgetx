@@ -91,21 +91,18 @@ class LayoutChoice: public FormField
     {
       auto menu = new Menu(parent);
 
-      for (auto layout: getRegisteredLayouts()) {
-        menu->addCustomLine([=](BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags flags) {
-            layout->drawThumb(dc, x + 2, y + 2, flags);
-            dc->drawText(65, y + 5, layout->getName(), flags);
-        }, [=]() {
-            setValue(layout);
-        });
+      for (auto layout : getRegisteredLayouts()) {
+        menu->addLine(layout->getBitmap(), layout->getName(),
+                      [=]() { setValue(layout); });
       }
 
-      auto it = std::find(getRegisteredLayouts().begin(), getRegisteredLayouts().end(), getValue());
+      auto it = std::find(getRegisteredLayouts().begin(),
+                          getRegisteredLayouts().end(), getValue());
       menu->select(std::distance(getRegisteredLayouts().begin(), it));
 
       menu->setCloseHandler([=]() {
-          editMode = false;
-          setFocus(SET_FOCUS_DEFAULT);
+        editMode = false;
+        setFocus(SET_FOCUS_DEFAULT);
       });
     }
 
