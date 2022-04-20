@@ -28,8 +28,8 @@ def build_target(target, path, cmake_options):
     if "EDGETX_VERSION_SUFFIX" in os.environ:
         suffix = os.environ["EDGETX_VERSION_SUFFIX"]
         cmd.append('-DVERSION_SUFFIX="%s"' % suffix)
-        if not suffix.startswith("rel"):
-            cmd.append('-DTEST_BUILD_WARNING=YES')
+#       if not suffix.startswith("rel"):
+#           cmd.append('-DTEST_BUILD_WARNING=YES')
     cmd.append(srcdir)
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -6,19 +6,9 @@ set(VERSION_REVISION "0")
 set(CODENAME "dev")
 
 if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
-    string(FIND $ENV{EDGETX_VERSION_SUFFIX} "merge" posmerge)
-    if (posmerge GREATER_EQUAL 0)
-        set(VERSION_SUFFIX "-dev")
-    else()
-        set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
-    endif()
-    string(FIND $ENV{EDGETX_VERSION_SUFFIX} "rel" posrel)
-    if (posrel LESS 0)
-        set(TEST_BUILD_WARNING ON)
-    endif()
+  set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
 else()
-  set(VERSION_SUFFIX "-custom") # If not defined, set for custom
-  set(TEST_BUILD_WARNING ON)
+  set(VERSION_SUFFIX "-selfbuild") # If not defined, set suffix to selfbuild
 endif()
 
 set(VERSION_FAMILY ${VERSION_MAJOR}.${VERSION_MINOR})
