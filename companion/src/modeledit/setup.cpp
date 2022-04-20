@@ -399,6 +399,8 @@ void ModulePanel::setupFailsafes()
 
 void ModulePanel::update()
 {
+  lock = true;
+
   const auto protocol = (PulsesProtocol)module.protocol;
   const auto board = firmware->getBoard();
   const auto & pdef = multiProtocols.getProtocol(module.multi.rfProtocol);
@@ -432,7 +434,7 @@ void ModulePanel::update()
         else if (protocol==PULSES_ACCESS_ISRM || protocol==PULSES_ACCESS_R9M ||
                  protocol==PULSES_ACCESS_R9M_LITE || protocol==PULSES_ACCESS_R9M_LITE_PRO)
           mask |= MASK_RX_NUMBER | MASK_ACCESS;
-        if (moduleIdx == 0 && HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == 0 /* per model */)
+        if (moduleIdx == 0 && HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
           mask |= MASK_RF_RACING_MODE;
@@ -543,6 +545,8 @@ void ModulePanel::update()
 
   // Antenna mode on Horus and XLite
   if (mask & MASK_ANTENNA) {
+    ui->antennaLabel->show();
+    ui->antennaMode->show();
     ui->antennaMode->clear();
     ui->antennaMode->addItem(tr("Ask"), -1);
     ui->antennaMode->addItem(tr("Internal"), 0);
@@ -696,6 +700,8 @@ void ModulePanel::update()
 
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
+
+  lock = false;
 }
 
 void ModulePanel::onProtocolChanged(int index)
@@ -703,6 +709,7 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
+
     if (module.protocol == PULSES_GHOST ||
         module.protocol == PULSES_CROSSFIRE) {
       if (Boards::getCapability(getCurrentFirmware()->getBoard(),
@@ -714,6 +721,7 @@ void ModulePanel::onProtocolChanged(int index)
         ui->telemetryBaudrate->setCurrentIndex(1);
       }
     }
+
     emit updateItemModels();
     emit modified();
   }
