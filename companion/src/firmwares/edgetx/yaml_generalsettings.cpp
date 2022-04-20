@@ -214,9 +214,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   Node serialPort;
   for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
-    if (rhs.serialPort[i] != UART_MODE_NONE) {
+    if (rhs.serialPort[i] != GeneralSettings::AUX_SERIAL_OFF) {
       Node mode = uartModeLut << rhs.serialPort[i];
       serialPort[LookupValue(serialPortLut, i)]["mode"] = mode;
+      serialPort[LookupValue(serialPortLut, i)]["power"] = (int)rhs.serialPower[i];
     }
   }
   if (serialPort && serialPort.IsMap())
@@ -421,13 +422,17 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
         YAML::Node port_nr = port.first >> serialPortLut;
         if (port_nr) {
           int p = port_nr.as<int>();
-          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap())
+          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap()) {
             port.second["mode"] >> uartModeLut >> rhs.serialPort[p];
+            int pwr = port.second["power"].as<int>();
+            if (pwr >= 0 && pwr <= 1)
+              port.second["power"] >> rhs.serialPower[p];
+          }
         }
       }
     }
   }
-  
+
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;

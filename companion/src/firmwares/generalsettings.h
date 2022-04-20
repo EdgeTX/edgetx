@@ -243,6 +243,7 @@ class GeneralSettings {
     unsigned int mavbaud;
     unsigned int switchUnlockStates;
     unsigned int serialPort[SP_COUNT];
+    bool serialPower[SP_COUNT];
     int antennaMode;
     unsigned int backlightColor;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];

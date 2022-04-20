@@ -219,32 +219,46 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
+  addSection(tr("Serial port"), row);
+
   if (firmware->getCapability(HasAuxSerialMode)) {
-    QString lbl = "Serial Port";
-    if (IS_RADIOMASTER_TX16S(board))
-      lbl.append(" (TTL)");
+    QString lbl = "AUX1";
     addLabel(tr("%1").arg(lbl), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX1]);
     exclGroup->addCombo(serialPortMode);
-    addParams(row, serialPortMode);
+
+    AutoCheckBox *serialPortPower = new AutoCheckBox(this);
+    serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX1], this);
+    serialPortPower->setText(tr("Power"));
+
+    addParams(row, serialPortMode, serialPortPower);
+
+    if (!firmware->getCapability(HasSoftwareSerialPower))
+      serialPortPower->setVisible(false);
   }
 
   if (firmware->getCapability(HasAux2SerialMode)) {
-    QString lbl = "Serial Port 2";
-    if (IS_RADIOMASTER_TX16S(board))
-      lbl.append(" (TTL)");
+    QString lbl = "AUX2";
     addLabel(tr("%1").arg(lbl), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX2]);
     exclGroup->addCombo(serialPortMode);
-    addParams(row, serialPortMode);
+
+    AutoCheckBox *serialPortPower = new AutoCheckBox(this);
+    serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX2], this);
+    serialPortPower->setText(tr("Power"));
+
+    addParams(row, serialPortMode, serialPortPower);
+
+    if (!firmware->getCapability(HasSoftwareSerialPower))
+      serialPortPower->setVisible(false);
   }
 
   if (firmware->getCapability(HasVCPSerialMode)) {
-    addLabel(tr("Serial Port VCP"), row, 0);
+    addLabel(tr("VCP"), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(vcpmodelid));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_VCP]);
