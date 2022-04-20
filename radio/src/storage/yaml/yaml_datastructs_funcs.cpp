@@ -1854,6 +1854,7 @@ static bool port_write(void* user, yaml_writer_func wf, void* opaque)
 static const struct YamlNode struct_serialConfig[] = {
     YAML_IDX_CUST( "port", port_read, port_write),
     YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_PADDING( 3 ),
     YAML_UNSIGNED( "power", 1 ),
     YAML_END
 };

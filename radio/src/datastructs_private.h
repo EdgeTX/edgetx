@@ -28,6 +28,7 @@
 #include "definitions.h"
 #include "opentx_types.h"
 #include "globals.h"
+#include "serial.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
