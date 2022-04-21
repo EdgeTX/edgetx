@@ -9,8 +9,8 @@ body:
         Thanks for taking the time to fill out this bug report!
 
         Please note that this is not the place to make feature requests or
-        ask for help. For this, please use the (Discord server)[https://discord.gg/wF9wUKnZ6H]
-        and (Discussion forum)[https://github.com/EdgeTX/edgetx/discussions].
+        ask for help. For this, please use the [Discord server](https://discord.gg/wF9wUKnZ6H)
+        and [Discussion forum](https://github.com/EdgeTX/edgetx/discussions).
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
