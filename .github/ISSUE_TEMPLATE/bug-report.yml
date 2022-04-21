@@ -17,6 +17,19 @@ body:
       options:
       - label: I have searched the existing issues
         required: true
+  - type: dropdown
+    id: component-affected
+    attributes:
+      label: What part of EdgeTX is the focus of this bug?
+      description: Is it the radio firmware, companion software or something else?
+      options:
+        - Transmitter firmware
+        - Companion
+        - Simulator
+        - Build system
+        - Other (Please specify below)
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Current Behavior
@@ -57,7 +70,10 @@ body:
     id: transmitter
     attributes:
       label: Transmitter
-      description: What transmitter are you using?
+      description: |
+        What transmitter are you using? You can pick more than one if this is
+        affecting more than one transmitter.
+      multiple: true
       options:
         - FlySky NV14
         - FrSky Q X7 / Q X7S (ACCST)
