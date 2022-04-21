@@ -98,7 +98,7 @@ jobs:
 
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-        run: echo "artifact_name=edgetx-cpn-win-${GITHUB_REF##*/}" >> $GITHUB_ENV
+        run: echo "artifact_name=edgetx-cpn-win-64-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
