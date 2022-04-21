@@ -7,6 +7,10 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
+
+        Please note that this is not the place to make feature requests or
+        ask for help. For this, please use the (Discord server)[https://discord.gg/wF9wUKnZ6H]
+        and (Discussion forum)[https://github.com/EdgeTX/edgetx/discussions].
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
@@ -17,13 +21,13 @@ body:
   - type: textarea
     attributes:
       label: Current Behavior
-      description: A concise description of what you're experiencing.
+      description: A clean and concise description of what you're experiencing.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Expected Behavior
-      description: A concise description of what you expected to happen.
+      description: What is it that you expected to happen?
     validations:
       required: true
   - type: textarea
@@ -34,7 +38,7 @@ body:
         1. Push throttle up.
         2. Push throttle down.
         3. Flick SWC on and off three times.
-        4. See error...
+        4. See error.
     validations:
       required: true
   - type: dropdown
@@ -43,7 +47,7 @@ body:
       label: Version
       description: What version of EdgeTX software are you running?
       options:
-        - 2.7.0 (Default)
+        - 2.7.0
         - 2.6.0
         - 2.5.0
         - 2.4.0
@@ -57,13 +61,18 @@ body:
       description: What transmitter are you using?
       options:
         - Flysky NV14
-        - Frsky X9D
-        - Frsky X9D+
-        - Frsky X9D+2019
-        - Frsky X9E
-        - Frsky X10
-        - Frsky X10S
-        - Frsky X12
+        - FrSky QX7
+        - FrSky QX7 Access
+        - FrSky X9D
+        - FrSky X9D+
+        - FrSky X9D+2019
+        - FrSky X9E / X9E Hall
+        - FrSky X9 Lite / Lite S
+        - FrSky X10/X10S)
+        - FrSky X10 Access
+        - FrSky X12
+        - FrSky X-Lite / X-Lite S
+        - Jumper T12
         - Jumper T16
         - Jumper T18
         - Jumper T-Lite
@@ -80,6 +89,8 @@ body:
       label: Anything else?
       description: |
         Screenshots? References? Anything that will give us more context about the issue you are encountering!
+        This includes if you are running customised firmware or have made hardware modifications to the transmitter
+        which could have some bearing on the issue.
 
         Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
     validations:
