@@ -35,8 +35,6 @@ class ModalWindow: public Window
 
     void deleteLater(bool detach = true, bool trash = true) override; // NOLINT(google-default-arguments)
 
-    void paint(BitmapBuffer * dc) override;
-
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
@@ -53,10 +51,7 @@ class ModalWindow: public Window
 class ModalWindowContent: public Window
 {
   public:
-    explicit ModalWindowContent(ModalWindow * parent, const rect_t & rect):
-      Window(parent, rect, OPAQUE)
-    {
-    }
+    explicit ModalWindowContent(ModalWindow * parent, const rect_t & rect);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -65,19 +60,10 @@ class ModalWindowContent: public Window
     }
 #endif
 
-    void setTitle(std::string text)
-    {
-      title = std::move(text);
-    }
-
-    const std::string & getTitle()
-    {
-      return title;
-    }
-
-    void paint(BitmapBuffer * dc) override;
+    void setTitle(const std::string& text);
+    std::string getTitle() const;
 
   protected:
-    std::string title;
+    lv_obj_t* title = nullptr;
 };
 

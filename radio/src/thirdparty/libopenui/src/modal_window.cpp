@@ -26,10 +26,8 @@ ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
   Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
   closeWhenClickOutside(closeWhenClickOutside)
 {
-  lv_obj_set_parent(lvobj, lv_layer_top());
   lv_obj_set_style_bg_color(lvobj, lv_color_black(), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_50, LV_PART_MAIN);
-  lv_obj_add_flag(lv_layer_top(), LV_OBJ_FLAG_CLICKABLE);
   Layer::push(this);
 }
 
@@ -38,7 +36,6 @@ void ModalWindow::deleteLater(bool detach, bool trash)
   if (_deleted)
     return;
     
-  lv_obj_clear_flag(lv_layer_top(), LV_OBJ_FLAG_CLICKABLE);
   Layer::pop(this);
 
   Window::deleteLater(detach, trash);
@@ -55,15 +52,27 @@ bool ModalWindow::onTouchEnd(coord_t x, coord_t y)
 }
 #endif
 
-
-void ModalWindow::paint(BitmapBuffer * dc)
+ModalWindowContent::ModalWindowContent(ModalWindow* parent,
+                                       const rect_t& rect) :
+    Window(parent, rect, OPAQUE)
 {
-  // dc->drawFilledRect(0, 0, width(), height(), SOLID, BLACK, OPACITY(6));
 }
 
-void ModalWindowContent::paint(BitmapBuffer * dc)
+void ModalWindowContent::setTitle(const std::string& text)
 {
-  // dc->drawSolidFilledRect(0, 0, width(), POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
-  // dc->drawText(FIELD_PADDING_LEFT, (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, title.c_str(), COLOR_THEME_PRIMARY2);
-  // dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, width(), height() - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
+  if (!title) {
+    title = lv_label_create(lvobj);
+    lv_obj_move_to_index(title, 0);
+    lv_obj_set_width(title, lv_pct(100));
+    lv_obj_set_style_pad_all(title, PAGE_PADDING, LV_PART_MAIN);
+    // TODO: styling
+    // lv_obj_set_style_pad_left(title, FIELD_PADDING_LEFT, 0);
+  }
+  lv_label_set_text(title, text.c_str());
+}
+
+std::string ModalWindowContent::getTitle() const
+{
+  if (!title) return std::string();
+  return lv_label_get_text(title);
 }
