@@ -69,6 +69,8 @@ class Window
    Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
           LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
+   Window(Window *parent, lv_obj_t* lvobj);
+
    virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
@@ -424,14 +426,14 @@ class Window
     Window * parent;
     std::list<Window *> children;
     rect_t rect;
-    coord_t innerWidth;
-    coord_t innerHeight;
+    coord_t innerWidth = 0;
+    coord_t innerHeight = 0;
     coord_t pageWidth = 0;
     coord_t pageHeight = 0;
     coord_t scrollPositionX = 0;
     coord_t scrollPositionY = 0;
-    WindowFlags windowFlags;
-    LcdFlags textFlags;
+    WindowFlags windowFlags = 0;
+    LcdFlags textFlags = 0;
     bool _deleted = false;
 
     static Window * focusWindow;
