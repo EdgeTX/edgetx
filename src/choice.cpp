@@ -37,12 +37,14 @@ void choicePaintCallback(lv_event_t *e)
   }
 }
 
-ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type, WindowFlags windowFlags):
-  FormField(parent, rect, windowFlags),
-  type(type)
+ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
+                       WindowFlags windowFlags) :
+    FormField(parent, rect, windowFlags), type(type)
 {
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
   lv_obj_add_event_cb(lvobj, choicePaintCallback, LV_EVENT_DRAW_MAIN_BEGIN, lvobj);
   label = lv_label_create(lvobj);
+ 
   lv_group_t * def_group = lv_group_get_default();
   if(def_group) {
       lv_group_add_obj(def_group, lvobj);
@@ -55,7 +57,6 @@ ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type,
   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
   lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
   lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
-  lv_obj_set_style_text_font(lvobj, &lv_font_roboto_13, LV_PART_MAIN);
 
   // focused
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
@@ -65,13 +66,11 @@ ChoiceBase::ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type,
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 
-
   // add the image
   lv_obj_t *img = lv_img_create(lvobj);
   lv_img_set_src(img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
   lv_obj_set_align(img, LV_ALIGN_RIGHT_MID);
 }
-
 
 std::string Choice::getLabelText()
 {
@@ -89,7 +88,7 @@ std::string Choice::getLabelText()
   return text;
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax,
+Choice::Choice(Window* parent, const rect_t & rect, int vmin, int vmax,
   std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
   ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
   vmin(vmin),
@@ -99,41 +98,46 @@ Choice::Choice(FormGroup * parent, const rect_t & rect, int vmin, int vmax,
 {
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * const values[], int vmin, int vmax,
-               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
-  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-  vmin(vmin),
-  vmax(vmax),
-  getValue(std::move(getValue)),
-  setValue(std::move(setValue))
+Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
+               int vmin, int vmax, std::function<int()> getValue,
+               std::function<void(int)> setValue, WindowFlags windowFlags) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+    vmin(vmin),
+    vmax(vmax),
+    getValue(std::move(getValue)),
+    setValue(std::move(setValue))
 {
   setValues(values);
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, std::vector<std::string> values, int vmin, int vmax,
-               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
-  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-  values(std::move(values)),
-  vmin(vmin),
-  vmax(vmax),
-  getValue(std::move(getValue)),
-  setValue(std::move(setValue))
+Choice::Choice(Window* parent, const rect_t& rect,
+               std::vector<std::string> values, int vmin, int vmax,
+               std::function<int()> getValue, std::function<void(int)> setValue,
+               WindowFlags windowFlags) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+    values(std::move(values)),
+    vmin(vmin),
+    vmax(vmax),
+    getValue(std::move(getValue)),
+    setValue(std::move(setValue))
 {
 }
 
-Choice::Choice(FormGroup * parent, const rect_t & rect, const char * values, int vmin, int vmax,
-               std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
-  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-  vmin(vmin),
-  vmax(vmax),
-  getValue(std::move(getValue)),
-  setValue(std::move(setValue))
+Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
+               int vmax, std::function<int()> getValue,
+               std::function<void(int)> setValue, WindowFlags windowFlags) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+    vmin(vmin),
+    vmax(vmax),
+    getValue(std::move(getValue)),
+    setValue(std::move(setValue))
 {
   if (values) {
     uint8_t len = values[0];
-    const char * value = &values[1];
+    const char* value = &values[1];
     for (int i = vmin; i <= vmax; i++) {
-      this->values.emplace_back(std::string(value, min<uint8_t>(len, strlen(value))));
+      this->values.emplace_back(
+          std::string(value, min<uint8_t>(len, strlen(value))));
       value += len;
     }
   }

@@ -143,6 +143,8 @@ class Window
       auto textColor = COLOR_VAL(flags);
       auto r = GET_RED(textColor), g = GET_GREEN(textColor), b = GET_BLUE(textColor);
       lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
+
+      // rco: shouldn't this be done via 'setTextFlags()' on the children?
       for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
         auto child = lv_obj_get_child(lvobj, i);
         lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
@@ -444,10 +446,11 @@ class Window
     std::function<void()> closeHandler;
     std::function<void(bool)> focusHandler;
 
-    void addChild(Window * window, bool front = false)
+    virtual void addChild(Window * window, bool front = false)
     {
       if (lv_obj_get_parent(window->lvobj) != nullptr) {
         lv_obj_set_parent(window->lvobj, this->lvobj);
+        // not used anywhere!
         if (front)
           lv_obj_move_to_index(window->lvobj, 0);
       }

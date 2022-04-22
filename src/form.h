@@ -20,6 +20,7 @@
 #pragma once
 
 #include "window.h"
+#include "flexlayout.h"
 
 constexpr WindowFlags FORM_FORWARD_FOCUS = WINDOW_FLAGS_LAST << 1;
 constexpr WindowFlags FORM_DETACHED = WINDOW_FLAGS_LAST << 2;
@@ -70,7 +71,7 @@ class FormField : public Window
     // }
 
     if (editMode && lvobj != nullptr) {
-      lv_obj_add_state(lvobj, LV_STATE_EDITED | LV_STATE_FOCUSED);
+      lv_obj_add_state(lvobj, LV_STATE_EDITED);
     } else if (lvobj != nullptr) {
       lv_obj_clear_state(lvobj, LV_STATE_EDITED);
     }
@@ -114,9 +115,29 @@ class FormField : public Window
   std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
 };
 
-class FormGroup : public FormField
+class FieldContainer
 {
  public:
+  virtual void addField(FormField *field, bool front = false) = 0;
+  virtual void removeField(FormField *field) = 0;
+};
+
+class FormGroup : public FormField, public FieldContainer
+{
+ public:
+  class Line : public Window, public FieldContainer
+  {
+    FlexGridLayout* layout;
+
+   public:
+    Line(FormGroup *parent, lv_obj_t *lvobj, FlexGridLayout* layout);
+
+   protected:
+    void addChild(Window* window, bool front = false) override;
+    void addField(FormField *field, bool front = false) override;
+    void removeField(FormField *field) override;
+  };
+
   FormGroup(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,
             LvglCreate objConstruct = nullptr);
 
@@ -124,21 +145,16 @@ class FormGroup : public FormField
   std::string getName() const override { return "FormGroup"; }
 #endif
 
-  void clear()
-  {
-    Window::clear();
-    first = nullptr;
-    last = nullptr;
-    if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
-      previous->setNextField(this);
-    }
-  }
+  void clear();
 
+  void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN, lv_coord_t padding = 0);
+  Line* newLine(FlexGridLayout* layout);
+  
   void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
                 Window *from = nullptr) override;
 
-  virtual void addField(FormField *field, bool front = false);
-  virtual void removeField(FormField *field);
+  void addField(FormField *field, bool front = false) override;
+  void removeField(FormField *field) override;
 
   void setFirstField(FormField *field) { first = field; }
   void setLastField(FormField *field) { last = field; }
