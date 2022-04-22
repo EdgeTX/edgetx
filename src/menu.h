@@ -140,14 +140,9 @@ class MenuWindowContent: public ModalWindowContent
   public:
     explicit MenuWindowContent(Menu * parent);
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+    coord_t getHeaderHeight() const;
 
-      body.deleteLater(true, false);
-      ModalWindowContent::deleteLater(detach, trash);
-    }
+    void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
