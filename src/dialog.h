@@ -24,38 +24,29 @@
 
 class Dialog;
 
-class DialogWindowContent: public ModalWindowContent
+class DialogWindowContent : public ModalWindowContent
 {
   friend class Dialog;
 
-  public:
-    DialogWindowContent(Dialog * parent, const rect_t & rect);
+ public:
+  DialogWindowContent(Dialog* parent, const rect_t& rect);
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
-
-      form.deleteLater(true, false);
-      ModalWindowContent::deleteLater(detach, trash);
-    }
+  void updateSize();
+  void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "DialogWindowContent";
-    }
+  std::string getName() const override;
 #endif
 
-  public:
-    FormGroup form;
+ public:
+  FormGroup form;
 };
 
-class Dialog: public ModalWindow {
-  public:
-    Dialog(Window * parent, std::string title, const rect_t & rect);
+class Dialog : public ModalWindow
+{
+ public:
+  Dialog(Window* parent, std::string title, const rect_t& rect);
 
-  protected:
-    DialogWindowContent * content;
+ protected:
+  DialogWindowContent* content;
 };
-

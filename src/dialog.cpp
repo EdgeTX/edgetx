@@ -21,18 +21,46 @@
 #include "mainwindow.h"
 #include "theme.h"
 
-DialogWindowContent::DialogWindowContent(Dialog * parent, const rect_t & rect):
-  ModalWindowContent(parent, rect),
-  form(this, {0, POPUP_HEADER_HEIGHT, rect.w, coord_t(rect.h - POPUP_HEADER_HEIGHT)}, FORM_NO_BORDER)
+DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
+    ModalWindowContent(parent, rect),
+    form(this,
+        { 0, POPUP_HEADER_HEIGHT, rect.w,
+          coord_t(rect.h - POPUP_HEADER_HEIGHT) },
+        FORM_NO_BORDER)
 {
   form.setFocus(SET_FOCUS_DEFAULT);
 }
 
+void DialogWindowContent::updateSize()
+{
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_center(lvobj);
+  lv_obj_update_layout(lvobj);
 
-Dialog::Dialog(Window * parent, std::string title, const rect_t & rect):
-  ModalWindow(parent),
-  content(createDialogWindow(this, rect))
+  rect.x = lv_obj_get_x(lvobj);
+  rect.y = lv_obj_get_y(lvobj);
+  rect.w = lv_obj_get_width(lvobj);
+  rect.h = lv_obj_get_height(lvobj);
+  invalidate();  
+}
+
+void DialogWindowContent::deleteLater(bool detach, bool trash)
+{
+  if (_deleted) return;
+  form.deleteLater(true, false);
+  ModalWindowContent::deleteLater(detach, trash);
+}
+
+#if defined(DEBUG_WINDOWS)
+std::string DialogWindowContent::getName() const override
+{
+  return "DialogWindowContent";
+}
+#endif
+
+Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
+    ModalWindow(parent), content(new DialogWindowContent(this, rect))
 {
   bringToTop();
-  content->setTitle(std::move(title));
+  if (!title.empty()) content->setTitle(std::move(title));
 }
