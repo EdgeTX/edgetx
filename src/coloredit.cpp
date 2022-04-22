@@ -20,59 +20,82 @@
 #include "coloredit.h"
 #include "numberedit.h"
 #include "bitfield.h"
+#include "dialog.h"
 
-constexpr uint8_t PART_BITS[3][2] = { {0, 5}, {5, 6}, {11, 5} };
+#define PICKER_SIZE lv_colorwheel_class.width_def
 
-class ColorBox: public Window {
-  public:
-    ColorBox(Window * parent, const rect_t & rect, LcdFlags color):
-      Window(parent, rect),
-      color(color)
-    {
-    }
+struct ColorWheelPopup : public Dialog {
+  ColorWheelPopup(Window* parent, lv_color_t color,
+                  std::function<void(lv_color_t)> setValue) :
+      Dialog(parent, std::string(),
+             rect_t{0, 0, PICKER_SIZE,
+                    PICKER_SIZE + POPUP_HEADER_HEIGHT})
+  {
+    auto lv_content = content->getLvObj();
+    auto form = content->form.getLvObj();
+    lv_obj_set_size(form, PICKER_SIZE, PICKER_SIZE);
 
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ColorBox";
-    }
-#endif
+    lv_obj_center(lv_content);
+    lv_obj_center(form);
 
-    void paint(BitmapBuffer * dc) override
-    {
-      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
-      dc->drawSolidFilledRect(1, 1, width() - 2, height() - 2, color << 16);
-    }
+    auto cw = lv_colorwheel_create(form, true);
+    lv_colorwheel_set_rgb(cw, color);
 
-    void setColor(pixel_t value)
-    {
-      color = value;
-      invalidate();
-    }
+    auto wheel_size = 3 * PICKER_SIZE / 4;
+    lv_obj_set_style_arc_width(cw, wheel_size / 5, 0);
+    lv_obj_set_size(cw, wheel_size, wheel_size);
+    lv_obj_center(cw);
 
-  protected:
-    pixel_t color;
+    content->updateSize();
+
+    setCloseWhenClickOutside(true);
+    setCloseHandler([=]() {
+      lv_color_t lv_color = lv_colorwheel_get_rgb(cw);
+      setValue(lv_color);
+    });
+  }
 };
 
-ColorEdit::ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue):
-  FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+static void colorwheel_popup(lv_event_t* e)
 {
-  auto width = rect.w / 4 - 5;
-
-  // The color box
-  auto box = new ColorBox(this, {0, 0, rect.w - 3 * width, rect.h}, getValue());
-
-  // The 3 parts of RGB
-  for (uint8_t part = 0; part < 3; part++) {
-    new NumberEdit(this, {rect.w - (3 - part) * width + 5, 0, width - 5, rect.h}, 0, (1 << PART_BITS[part][1]) - 1,
-                   [=]() {
-                     return bfGet(getValue(), PART_BITS[part][0], PART_BITS[part][1]);
-                   },
-                   [=](uint16_t newValue) {
-                     uint16_t value = getValue();
-                     value = bfSet(value, newValue, PART_BITS[part][0], PART_BITS[part][1]);
-                     setValue(value);
-                     box->setColor(value);
-                   });
+  auto edit = (ColorEdit*)lv_event_get_user_data(e);
+  if (edit) {
+    new ColorWheelPopup(edit, edit->getColor(),
+                        [=](lv_color_t c) { edit->setColor(c); });
   }
+}
+
+// based on LVGL default switch size
+constexpr lv_coord_t COLOR_PAD_WIDTH = (4 * LV_DPI_DEF) / 10;
+constexpr lv_coord_t COLOR_PAD_HEIGHT = (4 * LV_DPI_DEF) / 17;
+
+ColorEdit::ColorEdit(Window* parent, const rect_t& rect,
+                     std::function<uint16_t()> getValue,
+                     std::function<void(uint16_t)> setValue) :
+  FormField(parent, rect, 0, 0, lv_btn_create),
+  setValue(std::move(setValue))
+{
+  auto value = getValue();
+  color = lv_color_make(GET_RED(value), GET_GREEN(value), GET_BLUE(value));
+
+  lv_obj_set_style_bg_color(lvobj, color, LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+
+  lv_obj_set_style_bg_color(lvobj, color, LV_STATE_FOCUS_KEY);
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_STATE_FOCUS_KEY);
+
+  lv_obj_set_size(lvobj, COLOR_PAD_WIDTH, COLOR_PAD_HEIGHT);
+  lv_obj_add_event_cb(lvobj, colorwheel_popup, LV_EVENT_CLICKED, this);
+}
+
+void ColorEdit::setColor(lv_color_t c)
+{
+  color = c;
+  setValue(RGB_JOIN(c.ch.red, c.ch.green, c.ch.blue));
+
+  lv_obj_set_style_bg_color(lvobj, color, LV_PART_MAIN);
+  lv_obj_set_style_bg_color(lvobj, color, LV_STATE_FOCUS_KEY);
+  
+  // TRACE("### color: %d %d %d ###", c.ch.red, c.ch.green, c.ch.blue);
+  invalidate();
 }

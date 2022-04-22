@@ -21,15 +21,21 @@
 
 #include "form.h"
 
-class ColorEdit : public FormGroup {
-  public:
-    ColorEdit(FormGroup * parent, const rect_t & rect, std::function<uint16_t()> getValue, std::function<void(uint16_t)> setValue = nullptr);
+class ColorEdit : public FormField
+{
+  lv_color_t color;
+  std::function<void(uint16_t)> setValue;
 
+public:
+
+  ColorEdit(Window* parent, const rect_t& rect,
+            std::function<uint16_t()> getValue,
+            std::function<void(uint16_t)> setValue = nullptr);
+
+  void setColor(lv_color_t c);
+  lv_color_t getColor() const { return color; }
+  
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ColorEdit";
-    }
+  std::string getName() const override { return "ColorEdit"; }
 #endif
 };
-
