@@ -20,8 +20,6 @@
 #include "checkbox.h"
 #include "theme.h"
 
-lv_style_t style_indicator;
-lv_style_t style_edit;
 
 static void checkbox_event_handler(lv_event_t* e)
 {
@@ -35,38 +33,23 @@ static void checkbox_event_handler(lv_event_t* e)
 CheckBox::CheckBox(Window* parent, const rect_t& rect,
                    std::function<uint8_t()> getValue,
                    std::function<void(uint8_t)> setValue, WindowFlags flags) :
-    FormField(parent, rect, flags, 0, lv_checkbox_create),
+    FormField(parent, rect, flags, 0, lv_switch_create),
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
-  coord_t size = min(rect.w, rect.h);
-  setWidth(size);
-  setHeight(size);
+  // TODO: migrate to default theme
 
-  //TODO: migrate to default theme
-  
-  // BORDER
-  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2),
-                                LV_PART_INDICATOR);
-  lv_obj_set_style_border_width(lvobj, 1, LV_PART_INDICATOR);
+  if (height() > 0)
+    lv_obj_set_width(lvobj, (lv_coord_t)(height() * 1.7f));
 
-  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                                LV_PART_INDICATOR | LV_STATE_FOCUSED);
-  lv_obj_set_style_border_width(lvobj, 2, LV_PART_INDICATOR | LV_STATE_FOCUSED);
-
-  // UNCHECKED BACKGROUND
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
-                            LV_PART_INDICATOR);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
-                            LV_PART_INDICATOR | LV_STATE_CHECKED);
-
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1),
-                              LV_PART_INDICATOR | LV_STATE_CHECKED);
+  // PART_MAIN
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_STATE_FOCUSED);
 
   if (_getValue()) lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 
-  lv_obj_add_event_cb(lvobj, checkbox_event_handler, LV_EVENT_VALUE_CHANGED,
-                      this);
+  lv_obj_add_event_cb(lvobj, checkbox_event_handler,
+                      LV_EVENT_VALUE_CHANGED, this);
 }
 
 #if defined(HARDWARE_KEYS)
@@ -95,7 +78,7 @@ bool CheckBox::onTouchEnd(coord_t x, coord_t y)
   if (!hasFocus()) {
     setFocus(SET_FOCUS_DEFAULT);
   }
-  
+
   return true;
 }
 #endif
