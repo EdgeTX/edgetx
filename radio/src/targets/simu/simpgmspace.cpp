@@ -47,6 +47,7 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
+typedef int32_t rotenc_t;
 volatile rotenc_t rotencValue = 0;
 
 // TODO: remove all STM32 defs

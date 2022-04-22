@@ -121,9 +121,7 @@ constexpr coord_t INPUT_EDIT_CURVE_LEFT = 0;
 constexpr coord_t INPUT_EDIT_CURVE_TOP = MENU_HEADER_HEIGHT;
 constexpr coord_t MENUS_LINE_HEIGHT = 40;
 constexpr coord_t MENUS_WIDTH = 200;
-constexpr coord_t MENUS_OFFSET_TOP = 20;
 constexpr coord_t POPUP_HEADER_HEIGHT = 30;
-constexpr coord_t MENUS_MIN_HEIGHT = 2 * MENUS_LINE_HEIGHT - 1;
 constexpr coord_t MENUS_MAX_HEIGHT = 7 * MENUS_LINE_HEIGHT - 1;
 
 constexpr rect_t MENUS_TOOLBAR_RECT =              { 35, (LCD_H - MENUS_MAX_HEIGHT) / 2, 50, MENUS_MAX_HEIGHT };
