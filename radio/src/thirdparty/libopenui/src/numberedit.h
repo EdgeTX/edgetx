@@ -50,3 +50,4 @@ class NumberEdit : public BaseNumberEdit
     std::function<bool(int)> isValueAvailable;
 };
 
+extern const lv_obj_class_t lv_numberedit_class;

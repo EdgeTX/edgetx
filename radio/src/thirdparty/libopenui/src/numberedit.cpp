@@ -55,7 +55,16 @@ static void numberedit_cb(lv_event_t* e)
 }
 
 // create a new class for number edit so we can set the sytles differently if needed.
-lv_obj_class_t lv_numberedit_class = lv_textarea_class;
+const lv_obj_class_t lv_numberedit_class = {
+    .constructor_cb = lv_textarea_class.constructor_cb,
+    .destructor_cb = lv_textarea_class.destructor_cb,
+    .event_cb = lv_textarea_class.event_cb,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .width_def = LV_DPI_DEF / 2,
+    .height_def = LV_SIZE_CONTENT,
+    .instance_size = sizeof(lv_textarea_t),
+    .base_class = &lv_obj_class
+};
 
 lv_obj_t *lv_numberedit_create(lv_obj_t *parent) 
 {

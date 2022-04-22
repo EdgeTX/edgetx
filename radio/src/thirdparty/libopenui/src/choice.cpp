@@ -42,6 +42,10 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
     FormField(parent, rect, windowFlags), type(type)
 {
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+  lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
+
   lv_obj_add_event_cb(lvobj, choicePaintCallback, LV_EVENT_DRAW_MAIN_BEGIN, lvobj);
   label = lv_label_create(lvobj);
  
@@ -62,7 +66,6 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
 
-  lv_obj_set_width(label, lv_pct(80));
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
 
