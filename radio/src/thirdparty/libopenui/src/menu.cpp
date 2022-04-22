@@ -222,6 +222,19 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 }
 
+coord_t MenuWindowContent::getHeaderHeight() const
+{
+  if (title) return lv_obj_get_height(title);
+  return 0;
+}
+
+void MenuWindowContent::deleteLater(bool detach, bool trash)
+{
+  if (_deleted) return;
+  body.deleteLater(true, false);
+  ModalWindowContent::deleteLater(detach, trash);
+}
+
 Menu::Menu(Window * parent, bool multiple):
   ModalWindow(parent, true),
   content(createMenuWindow(this)),
@@ -235,7 +248,7 @@ void Menu::updatePosition()
 
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
-    auto headerHeight = content->title.empty() ? 0 : POPUP_HEADER_HEIGHT;
+    auto headerHeight = content->getHeaderHeight();
     auto bodyHeight = min<coord_t>(height, MENUS_MAX_HEIGHT);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2);
     content->setHeight(headerHeight + bodyHeight);
