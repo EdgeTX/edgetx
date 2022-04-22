@@ -196,7 +196,6 @@ static lv_style_t generic_style;
 static lv_style_t btn_style;
 static lv_style_t btn_checked_style;
 static lv_style_t btn_focused_style;
-static lv_style_t btn_checked_focused_style;
 static lv_style_t menu_line_style;
 static lv_style_t menu_checked_style;
 static lv_style_t textedit_style_main;
@@ -217,6 +216,10 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
   LV_UNUSED(th);
 
+  if (lv_obj_check_type(obj, &lv_switch_class)) {
+    return;
+  }
+  
   lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &focus_key_style, LV_STATE_FOCUS_KEY);
@@ -286,7 +289,6 @@ static void init_theme()
   lv_style_set_border_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&numberedit_style_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&numberedit_style_main, LV_OPA_COVER);
-  lv_style_set_text_font(&numberedit_style_main, &lv_font_roboto_13);
   lv_style_set_text_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_pad_left(&numberedit_style_main, FIELD_PADDING_LEFT);
   lv_style_set_pad_top(&numberedit_style_main, FIELD_PADDING_TOP);
@@ -313,7 +315,6 @@ static void init_theme()
   lv_style_set_border_color(&textedit_style_main, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&textedit_style_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&textedit_style_main, LV_OPA_COVER);
-  lv_style_set_text_font(&textedit_style_main, &lv_font_roboto_13);
   lv_style_set_text_color(&textedit_style_main, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_pad_left(&textedit_style_main, FIELD_PADDING_LEFT);
   lv_style_set_pad_top(&textedit_style_main, FIELD_PADDING_TOP);

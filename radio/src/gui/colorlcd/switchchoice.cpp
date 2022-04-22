@@ -41,7 +41,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
   }
 };
 
-SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin,
+SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
     ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
