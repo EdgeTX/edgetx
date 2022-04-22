@@ -810,7 +810,7 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare1:2 SKIP
+  #define BUZZER_FIELD int8_t spare4:2 SKIP
 #endif
 
 PACK(struct RadioData {

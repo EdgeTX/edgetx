@@ -151,7 +151,7 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined (RADIO_ZORRO)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
     
   if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
   {

@@ -120,7 +120,7 @@ void rotaryEncoderCheck()
 #else
   uint8_t newPosition = ROTARY_ENCODER_POSITION();
   if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(RADIO_ZORRO) // zorro def. rotation dir is inverse of other radios
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) // def. rotation dir is inverse of other radios
     if (!(rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
 #else
     if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {

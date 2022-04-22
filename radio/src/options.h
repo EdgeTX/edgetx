@@ -106,6 +106,7 @@ static const char * const options[] = {
 #endif
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
+    "cli",
 #endif
   nullptr //sentinel
 };
