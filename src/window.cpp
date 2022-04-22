@@ -52,13 +52,7 @@ static void window_event_cb(lv_event_t * e)
 
   if(code == LV_EVENT_DELETE || window->deleted()) return;
 
-  if (code == LV_EVENT_GET_SELF_SIZE) {
-
-    lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
-    if (p->x >= 0) { p->x = window->getInnerWidth(); }
-    if (p->y >= 0) { p->y = window->getInnerHeight(); }
-
-  } else if (code == LV_EVENT_DRAW_MAIN) {
+  if (code == LV_EVENT_DRAW_MAIN) {
 
     lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
 
@@ -160,8 +154,39 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
   lvobj = (objConstruct == nullptr) ? lv_obj_create(lvParent)
                                     : objConstruct(lvParent);
 
-  lv_obj_set_pos(lvobj, rect.x, rect.y);
-  lv_obj_set_size(lvobj, rect.w, rect.h);
+  lv_obj_set_user_data(lvobj, this);
+
+  if (rect.w || rect.h) {
+    lv_obj_set_pos(lvobj, rect.x, rect.y);
+    lv_obj_set_size(lvobj, rect.w, rect.h);
+  }
+
+  if (windowFlags & OPAQUE) {
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+  }
+
+  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
+  lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
+
+  if (parent) {
+    parent->addChild(this, windowFlags & PUSH_FRONT);
+    if (!(windowFlags & TRANSPARENT)) {
+      invalidate();
+    }
+  }
+
+  // honor the no focus flag of libopenui
+  if (this->windowFlags & NO_FOCUS) {
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  }
+}
+
+Window::Window(Window *parent, lv_obj_t* lvobj)
+  : lvobj(lvobj),
+    parent(parent),
+    rect(nullRect)
+{
   lv_obj_set_user_data(lvobj, this);
 
   if (windowFlags & OPAQUE) {
@@ -255,8 +280,9 @@ void Window::clear()
   innerWidth = rect.w;
   innerHeight = rect.h;
   deleteChildren();
-  if(lvobj != nullptr)
+  if(lvobj != nullptr) {
     lv_obj_clean(lvobj);
+  }
   invalidate();
 }
 
