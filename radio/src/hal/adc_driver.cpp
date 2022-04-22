@@ -57,6 +57,8 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,0,   1,1,  1,  1};
 #elif defined(RADIO_TX12)
   const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  -1,-1,  1,  1};
+#elif defined(RADIO_TX12MK2)
+  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,-1};
 #elif defined(RADIO_ZORRO)
   const int8_t adcDirection[NUM_ANALOGS] = {-1, 1, 1, -1, -1, 1, 1, 1};
 #elif defined(RADIO_TPRO)
