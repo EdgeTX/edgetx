@@ -209,9 +209,6 @@ static lv_style_t numberedit_style_cursor_edit;
 
 static lv_style_t focus_key_style;
 
-
-extern lv_obj_class_t lv_numberedit_class;
-
 static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
   LV_UNUSED(th);
