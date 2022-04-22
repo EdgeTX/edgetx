@@ -945,6 +945,8 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
     path = "1:" + path.substr(9);
     if(path == "1:")
       path = "1:/";
+    else if (path == "")
+      path = "/";
     return VfsDir::DIR_FAT;
 #endif // USE_LITTLEFS
 #else // SPI_FLASH
@@ -953,6 +955,8 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
   } else if(path.substr(0, 7) == "/SDCARD") {
 #if defined (SDCARD)
     path = path.substr(7);
+    if (path == "")
+      path = "/";
     return VfsDir::DIR_FAT;
 #else
     return VfsDir::DIR_UNKNOWN;
