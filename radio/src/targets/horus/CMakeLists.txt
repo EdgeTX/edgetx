@@ -9,7 +9,7 @@ option(GHOST "Ghost TX Module" ON)
 option(HARDWARE_EXTERNAL_ACCESS_MOD "Support for R9M 2019 hardware mod" OFF)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 
-set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
+set(DEFAULT_STORAGE "SDCARD" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
