@@ -34,9 +34,11 @@ void ChoiceEx::setLongPressHandler(std::function<void(event_t)> handler)
   longPressHandler = handler;
 }
 
-ChoiceEx::ChoiceEx(FormGroup * parent, const rect_t & rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue, 
-                   std::function<void(int16_t)> setValue, WindowFlags windowFlags) :
-  Choice(parent, rect, vmin, vmax, getValue, setValue, windowFlags)
+ChoiceEx::ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin,
+                   int16_t vmax, std::function<int16_t()> getValue,
+                   std::function<void(int16_t)> setValue,
+                   WindowFlags windowFlags) :
+    Choice(parent, rect, vmin, vmax, getValue, setValue, windowFlags)
 {
 #if defined(HARDWARE_TOUCH)
   duration10ms = 0;

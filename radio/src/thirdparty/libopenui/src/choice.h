@@ -32,7 +32,7 @@ enum ChoiceType {
 class ChoiceBase : public FormField
 {
   public:
-    ChoiceBase(FormGroup * parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0);
+    ChoiceBase(Window* parent, const rect_t & rect, ChoiceType type = CHOICE_TYPE_DROPOWN, WindowFlags windowFlags = 0);
 
     inline ChoiceType getType() const
     {
@@ -48,20 +48,20 @@ class ChoiceBase : public FormField
 
 class Choice: public ChoiceBase {
   public:
-   Choice(FormGroup *parent, const rect_t &rect, int vmin, int vmax,
+   Choice(Window* parent, const rect_t &rect, int vmin, int vmax,
           std::function<int()> getValue,
           std::function<void(int)> setValue = nullptr,
           WindowFlags windowFlags = 0);
-   Choice(FormGroup *parent, const rect_t &rect,
+   Choice(Window* parent, const rect_t &rect,
           std::vector<std::string> values, int vmin, int vmax,
           std::function<int()> getValue,
           std::function<void(int)> setValue = nullptr,
           WindowFlags windowFlags = 0);
-   Choice(FormGroup *parent, const rect_t &rect, const char *const values[],
+   Choice(Window* parent, const rect_t &rect, const char *const values[],
           int vmin, int vmax, std::function<int()> getValue,
           std::function<void(int)> setValue = nullptr,
           WindowFlags windowFlags = 0);
-   Choice(FormGroup *parent, const rect_t &rect, const char *values, int vmin,
+   Choice(Window* parent, const rect_t &rect, const char *values, int vmin,
           int vmax, std::function<int()> getValue,
           std::function<void(int)> setValue = nullptr,
           WindowFlags windowFlags = 0);

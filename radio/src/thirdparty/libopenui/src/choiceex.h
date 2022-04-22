@@ -25,10 +25,12 @@
 class ChoiceEx : public Choice
 {
   public:
-    ChoiceEx(FormGroup * parent, const rect_t &rect, int16_t vmin, int16_t vmax, std::function<int16_t()> getValue,
-             std::function<void(int16_t)> setValue = nullptr, WindowFlags windowFlags = 0);
-    
-    void setLongPressHandler(std::function<void(event_t)> handler);
+   ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
+            std::function<int16_t()> getValue,
+            std::function<void(int16_t)> setValue = nullptr,
+            WindowFlags windowFlags = 0);
+
+   void setLongPressHandler(std::function<void(event_t)> handler);
 
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;

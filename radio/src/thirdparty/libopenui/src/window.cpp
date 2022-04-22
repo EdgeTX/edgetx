@@ -132,12 +132,10 @@ static void window_event_cb(lv_event_t * e)
     window->setScrollPositionX(scroll_x);
 
   } else if (code == LV_EVENT_FOCUSED) {
-    bool lvgl_focused = lv_obj_has_state(target, LV_STATE_FOCUSED);
-    bool loiu_focused = ((Window *)target->user_data)->hasFocus();
-    TRACE_WINDOWS("FOCUSED[%d|%d] %s",
-                  lvgl_focused, loiu_focused,
+    bool focused = ((Window *)target->user_data)->hasFocus();
+    TRACE_WINDOWS("FOCUSED[%d] %s", focused,
                  window->getWindowDebugString().c_str());
-    if (!loiu_focused) { window->setFocus(); }
+    if (!focused) { window->setFocus(); }
   }
 }
 
@@ -327,16 +325,22 @@ void Window::setFocus(uint8_t flag, Window * from)
 
   if (focusWindow != this) {
     // synchronize lvgl focused state with libopenui
-    if (lvobj != nullptr && !lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
-      lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
+    if (lvobj != nullptr &&
+        !lv_obj_has_state(lvobj, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY)) {
+      lv_obj_add_state(lvobj, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY);
       if (focusWindow != nullptr) {
-        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED);
-        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_EDITED);
-        // lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED | LV_STATE_EDITED);
+        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED |
+                                                   LV_STATE_FOCUS_KEY |
+                                                   LV_STATE_EDITED);
       }
     }
 
-    // scroll before calling focusHandler so that the window can adjust the scroll position if needed
+    // scroll before calling focusHandler so that the window can adjust the
+    // scroll position if needed
+#if 1
+    // lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
+    lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
+#else
     Window * parent = this->parent;
     while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
       parent = parent->parent;
@@ -345,6 +349,7 @@ void Window::setFocus(uint8_t flag, Window * from)
       parent->scrollTo(this);
       invalidate();
     }
+#endif
 
     clearFocus();
     focusWindow = this;

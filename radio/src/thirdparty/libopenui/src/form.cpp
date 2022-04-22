@@ -31,9 +31,9 @@ FormField::FormField(Window* parent, const rect_t& rect,
     Window(parent, rect, windowFlags, textFlags, objConstruct)
 {
   if (!(windowFlags & NO_FOCUS)) {
-    auto* form = dynamic_cast<FormGroup*>(parent);
-    if (form) {
-      form->addField(this, windowFlags & PUSH_FRONT);
+    auto cont = dynamic_cast<FieldContainer*>(parent);
+    if (cont) {
+      cont->addField(this, windowFlags & PUSH_FRONT);
     }
   }
 
@@ -109,6 +109,42 @@ void FormField::setFocus(uint8_t flag, Window * from)
   }
 }
 
+FormGroup::Line::Line(FormGroup* parent, lv_obj_t* obj,
+                      FlexGridLayout* layout) :
+    Window(parent, obj), layout(layout)
+{
+  // forward scroll and focus
+  windowFlags |= FORWARD_SCROLL | FORM_FORWARD_FOCUS;
+
+  if (layout) {
+    layout->apply(obj);
+  }
+
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_set_width(lvobj, lv_pct(100));
+}
+
+void FormGroup::Line::addChild(Window* window, bool front)
+{
+  Window::addChild(window, front);
+  if (layout) {
+    layout->add(window->getLvObj());
+    layout->nextColumn();
+  }
+}
+
+void FormGroup::Line::addField(FormField *field, bool front)
+{
+  auto form = static_cast<FormGroup*>(parent);
+  form->addField(field, front);
+}
+
+void FormGroup::Line::removeField(FormField *field)
+{
+  auto form = static_cast<FormGroup*>(parent);
+  form->removeField(field);
+}
+
 static lv_style_t border_style;
 static lv_style_t focus_border_style;
 
@@ -117,7 +153,6 @@ FormGroup::FormGroup(Window* parent, const rect_t& rect,
    FormField(parent, rect, windowflags, 0, objConstruct)
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
-
 
   if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
     lv_style_init(&border_style);
@@ -132,6 +167,36 @@ FormGroup::FormGroup(Window* parent, const rect_t& rect,
       lv_obj_add_style(lvobj, &focus_border_style, LV_PART_MAIN);
     }
   }
+}
+
+void FormGroup::clear()
+{
+  Window::clear();
+  first = nullptr;
+  last = nullptr;
+  if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
+    previous->setNextField(this);
+  }
+  lv_obj_set_layout(lvobj, 0);
+}
+
+void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
+{
+  lv_obj_set_flex_flow(lvobj, flow);
+  if (_LV_FLEX_COLUMN & flow) {
+    lv_obj_set_style_pad_row(lvobj, padding, LV_PART_MAIN);
+  } else {
+    lv_obj_set_style_pad_column(lvobj, padding, LV_PART_MAIN);
+  }
+  lv_obj_set_width(lvobj, lv_pct(100));
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+}
+
+FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout)
+{
+  layout->resetPos();
+  auto lv_line = lv_obj_create(lvobj);
+  return new Line(this, lv_line, layout);
 }
 
 void FormGroup::removeField(FormField * field)
