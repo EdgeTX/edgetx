@@ -115,7 +115,6 @@ extern const char STR_VTRIMINC[];
 extern const char STR_VDISPLAYTRIMS[];
 extern const char STR_RETA123[];
 
-
 extern const char STR_VBLMODE[];
 extern const char STR_VCURVEFUNC[];
 extern const char STR_VMLTPX[];
@@ -239,7 +238,6 @@ extern const char STR_TTRIM[];
 extern const char STR_TTRIM_SW[];
 extern const char STR_BEEPCTR[];
 extern const char STR_USE_GLOBAL_FUNCS[];
-
 
 extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
@@ -1089,6 +1087,7 @@ extern const char STR_VIEW_CHANNELS[];
 extern const char STR_POTWARNING[];
 extern const char STR_AUX_SERIAL_MODE[];
 extern const char STR_AUX2_SERIAL_MODE[];
+extern const char STR_AUX_SERIAL_PORT_POWER[];
 extern const char STR_THROTTLE_LABEL[];
 extern const char STR_SCRIPT[];
 extern const char STR_INPUTS[];

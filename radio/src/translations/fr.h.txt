@@ -1059,6 +1059,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "Corr FAS", INDENT "Correction FAS")
 #define TR_AUX_SERIAL_MODE             "Port série"
 #define TR_AUX2_SERIAL_MODE            "Port série 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Entrées"
 #define TR_OUTPUTS                     "Sorties"
