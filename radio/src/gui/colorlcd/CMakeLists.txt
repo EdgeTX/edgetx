@@ -50,6 +50,8 @@ set(GUI_SRC
   #  menus.cpp
   menu_model.cpp
   model_select.cpp
+  bind_menu_d16.cpp
+  trainer_setup.cpp
   model_setup.cpp
   model_flightmodes.cpp
   model_inputs.cpp
