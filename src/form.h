@@ -128,9 +128,13 @@ class FormGroup : public FormField, public FieldContainer
   class Line : public Window, public FieldContainer
   {
     FlexGridLayout* layout;
+    FormGroup*      group;
 
+    void construct();
+    
    public:
-    Line(FormGroup *parent, lv_obj_t *lvobj, FlexGridLayout* layout);
+    Line(FormGroup *parent, lv_obj_t *obj, FlexGridLayout* layout);
+    Line(Window *parent, lv_obj_t *obj, FlexGridLayout* layout, FormGroup* group);
 
    protected:
     void addChild(Window* window, bool front = false) override;

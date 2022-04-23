@@ -111,13 +111,25 @@ void FormField::setFocus(uint8_t flag, Window * from)
 
 FormGroup::Line::Line(FormGroup* parent, lv_obj_t* obj,
                       FlexGridLayout* layout) :
-    Window(parent, obj), layout(layout)
+    Window(parent, obj), layout(layout), group(parent)
+{
+  construct();
+}
+
+FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout,
+                      FormGroup* group) :
+    Window(parent, obj), layout(layout), group(group)
+{
+  construct();
+}
+
+void FormGroup::Line::construct()
 {
   // forward scroll and focus
   windowFlags |= FORWARD_SCROLL | FORM_FORWARD_FOCUS;
 
   if (layout) {
-    layout->apply(obj);
+    layout->apply(lvobj);
   }
 
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
@@ -135,8 +147,7 @@ void FormGroup::Line::addChild(Window* window, bool front)
 
 void FormGroup::Line::addField(FormField *field, bool front)
 {
-  auto form = static_cast<FormGroup*>(parent);
-  form->addField(field, front);
+  group->addField(field, front);
 }
 
 void FormGroup::Line::removeField(FormField *field)
@@ -257,12 +268,12 @@ void FormGroup::addField(FormField * field, bool front)
     }
   }
 
-  if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
-    field->setFocus(SET_FOCUS_DEFAULT);
-  }
-  else if (focusWindow == this && (windowFlags & FORM_FORWARD_FOCUS)) {
-    field->setFocus(SET_FOCUS_DEFAULT);
-  }
+  // if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
+  //   field->setFocus(SET_FOCUS_DEFAULT);
+  // }
+  // else if (focusWindow == this && (windowFlags & FORM_FORWARD_FOCUS)) {
+  //   field->setFocus(SET_FOCUS_DEFAULT);
+  // }
 }
 
 void FormGroup::setFocus(uint8_t flag, Window * from)
