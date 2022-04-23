@@ -321,7 +321,13 @@ void serialInit(uint8_t port_nr, int mode)
   };
 
   serialSetupPort(mode, params);
-    
+
+#if defined(SWSERIALPOWER)
+  // Set power on/off
+  if (port_nr < SP_VCP)
+    serialSetPowerState(port_nr);
+#endif
+
   if (params.baudrate != 0) {
     state->mode = mode;
     state->port = port;
@@ -329,12 +335,6 @@ void serialInit(uint8_t port_nr, int mode)
     if (port) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
-
-#if defined(SWSERIALPOWER)
-      // Set power on/off
-      if (port_nr < SP_VCP)
-        serialSetPowerState(port_nr);
-#endif
     }
 
     // Update callbacks once the port is setup

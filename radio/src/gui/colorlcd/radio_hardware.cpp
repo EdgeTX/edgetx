@@ -243,8 +243,8 @@ class SerialConfigWindow : public FormGroup
           new CheckBox(
               this, grid.getFieldSlot(1, 0),
                 [=] { return serialGetPower(port_nr); },
-                [=](int32_t newValue) {
-                   serialSetPower(port_nr, newValue);
+                [=](int8_t newValue) {
+                   serialSetPower(port_nr, (bool)newValue);
                    SET_DIRTY();
                 }
           );
