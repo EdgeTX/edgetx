@@ -676,7 +676,6 @@ void Window::moveWindowsTop(coord_t y, coord_t delta)
 void Window::updateSize()
 {
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  lv_obj_center(lvobj);
   lv_obj_update_layout(lvobj);
 
   rect.x = lv_obj_get_x(lvobj);
