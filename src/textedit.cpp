@@ -44,7 +44,7 @@
 TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
                    uint8_t length, LcdFlags windowFlags,
                    const char *_extra_chars) :
-    FormField(parent, {rect.x, rect.y, rect.w, rect.h - 2}, windowFlags, 0,
+    FormField(parent, rect, windowFlags, 0,
               lv_textarea_create),
     value(value),
     length(length)
@@ -59,6 +59,10 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
   lv_textarea_set_cursor_pos(lvobj, 0);
+
+  if (width() == 0) {
+    lv_obj_set_width(lvobj, LV_DPI_DEF);
+  }
 }
 
 
