@@ -120,7 +120,7 @@ static bool flashErase(int addr, void *arg)
 /* Inidialize a Drive                                                    */
 
 DSTATUS disk_initialize (
-  BYTE drv                                /* Physical drive nmuber (0..) */
+  BYTE drv                                /* Physical drive number (0..) */
 )
 {
   DSTATUS stat = 0;
@@ -133,7 +133,10 @@ DSTATUS disk_initialize (
       flashSpiEraseAll();
 
     size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
-    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-100, 0);
+    // tjftl requires at least 10 free blocks after garbage collection.
+    // To ensure a working tjftl the fuilesystem must be at least 10 blocks smaller than the flash memory.
+    // the block and sector sizes used by tjftl are fixed. A block has 32k bytes and a sector has 512 bytes
+    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-((32768/512)*10), 0);
 
     if(tjftl == nullptr)
       stat |= STA_NOINIT;
@@ -147,12 +150,17 @@ DSTATUS disk_initialize (
   }
 
   /*-------------------------- SD Init ----------------------------- */
+  static bool initialized = false;
+  if(initialized)
+    return stat;
+
   SD_Error res = SD_Init();
   if (res != SD_OK)
   {
     TRACE("SD_Init() failed: %d", res);
     stat |= STA_NOINIT;
   }
+  initialized = true;
 
   TRACE("SD card info:");
   TRACE("sectors: %u", (uint32_t)(SDCardInfo.CardCapacity / 512));
@@ -432,6 +440,7 @@ DRESULT disk_ioctl (
 
   res = RES_ERROR;
 
+  disk_initialize(0);
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!

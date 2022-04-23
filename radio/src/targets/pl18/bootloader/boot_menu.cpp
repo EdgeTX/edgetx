@@ -152,6 +152,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         pos -= 79;
         lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+
+        bootloaderDrawFooter();
+        lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
+                      "[R TRIM] to select storage", BL_FOREGROUND);
+        lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
+                      LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
+
     }
 #endif
     else if (st == ST_USB) {

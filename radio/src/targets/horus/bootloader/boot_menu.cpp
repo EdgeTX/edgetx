@@ -140,6 +140,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         pos -= 92;
         lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+
+        bootloaderDrawFooter();
+        lcd->drawText(56, 244, "[ENT] to select storage", BL_FOREGROUND);
+        lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
     }
 #endif
     else if (st == ST_USB) {
