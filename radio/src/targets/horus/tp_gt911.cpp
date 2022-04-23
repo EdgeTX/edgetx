@@ -23,12 +23,6 @@
 #include "i2c_driver.h"
 #include "tp_gt911.h"
 
-#if defined(PCBX12S)
-# define  GT911_COOR_CONFIG_VALUE 0xFC // 0x804D Module switch 1 : bit4= xy change Int mode, X12S needs axis reversal
-#else
-# define  GT911_COOR_CONFIG_VALUE 0x3C // 0x804D Module switch 1 : bit4= xy change Int mode
-#endif
-
 #if defined (RADIO_T18)
 const uint8_t TOUCH_GT911_Cfg[] = {
     GT911_CFG_NUMBER,  // 0x8047 Config version
@@ -227,8 +221,8 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x01,
     0x10,                // 0x804A Y ouptut max : y 272
     0x01,
-    GT911_MAX_TP,        // 0x804C Touch number
-    GT911_COOR_CONFIG_VALUE,
+    GT911_MAX_TP,        // 0x804C Touch number 
+    0x3C, // 0x804D Module switch 1 : bit4= xy change Int mode    
     0x20,                // 0x804E Module switch 2
     0x22,                // 0x804F Shake_Count
     0x0A,                // 0x8050 Filter
@@ -409,8 +403,6 @@ const uint8_t TOUCH_GT911_Cfg[] =
   };
 
 #endif
-
-static bool reverseCoordinates = false;
 
 bool touchGT911Flag = false;
 volatile static bool touchEventOccured = false;
@@ -663,17 +655,6 @@ bool touchPanelInit(void)
         }
       }
 
-      // workaround: cannot reset config number
-      if (!I2C_GT911_ReadRegister(GT911_COORDINATE_REG, tmp, 1))
-      {
-        TRACE("GT911 ERROR: reading coordinate register failed");
-      }
-      else {
-          if (tmp[0] != GT911_COOR_CONFIG_VALUE) {
-              reverseCoordinates = true;
-          }
-      }
-      
       if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2))
       {
         TRACE("GT911 ERROR: reading firmware version failed");
@@ -783,12 +764,11 @@ struct TouchState touchPanelRead()
             TRACE("I2C B1 ReInit failed");
         return internalTouchState;
       }
-      
-      // workaround
-      if (reverseCoordinates) {
+        
+#if defined (PCBX12S)
           touchData.points[0].x = LCD_W - touchData.points[0].x;
           touchData.points[0].y = LCD_H - touchData.points[0].y;
-      }
+#endif
 
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
