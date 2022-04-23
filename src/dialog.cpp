@@ -38,6 +38,12 @@ void DialogWindowContent::deleteLater(bool detach, bool trash)
   ModalWindowContent::deleteLater(detach, trash);
 }
 
+void DialogWindowContent::updateSize()
+{
+  lv_obj_center(lvobj);
+  ModalWindowContent::updateSize();
+}
+
 #if defined(DEBUG_WINDOWS)
 std::string DialogWindowContent::getName() const override
 {
