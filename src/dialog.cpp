@@ -31,19 +31,6 @@ DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
   form.setFocus(SET_FOCUS_DEFAULT);
 }
 
-void DialogWindowContent::updateSize()
-{
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  lv_obj_center(lvobj);
-  lv_obj_update_layout(lvobj);
-
-  rect.x = lv_obj_get_x(lvobj);
-  rect.y = lv_obj_get_y(lvobj);
-  rect.w = lv_obj_get_width(lvobj);
-  rect.h = lv_obj_get_height(lvobj);
-  invalidate();  
-}
-
 void DialogWindowContent::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;

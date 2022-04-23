@@ -673,6 +673,19 @@ void Window::moveWindowsTop(coord_t y, coord_t delta)
   }
 }
 
+void Window::updateSize()
+{
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_center(lvobj);
+  lv_obj_update_layout(lvobj);
+
+  rect.x = lv_obj_get_x(lvobj);
+  rect.y = lv_obj_get_y(lvobj);
+  rect.w = lv_obj_get_width(lvobj);
+  rect.h = lv_obj_get_height(lvobj);
+  invalidate();
+}
+
 void Window::invalidate(const rect_t & rect)
 {
   if (lvobj) lv_obj_invalidate(lvobj);
