@@ -835,7 +835,7 @@ void VirtualFS::mountSd()
 {
   TRACE("VirtualFS::mountSd");
 #if defined(SDCARD)
-  sdCardMounted();
+  if(sdCardMounted())
     return;
 
 #if defined(DISK_CACHE) && !defined(BOOT)
