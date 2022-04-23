@@ -23,15 +23,6 @@
 #include "i2c_driver.h"
 #include "tp_gt911.h"
 
-// this code contains workaround:
-// the coordinate reversal for X12S should be done in gt911 (see GT911_COOR_CONFIG_VALUE),
-// but a new config can only be written if new config number is larger than the one read from gt911,
-// config number cannot be reset according to gt911 datasheet
-// the workaround:
-// this code imply checks if register GT911_COOR_CONFIG_VALUE contains the correct value, 
-// and if not does the reversal in this driver instead inside the gt911
-// this allows to use a used display (wrong config) (use a display of TX16S inside a X12S oder vice versa)
-
 #if defined(PCBX12S)
 # define  GT911_COOR_CONFIG_VALUE 0xFC // 0x804D Module switch 1 : bit4= xy change Int mode, X12S needs axis reversal
 #else
@@ -231,7 +222,7 @@ const uint8_t TOUCH_GT911_Cfg[] = {
 //GT911 param table
 const uint8_t TOUCH_GT911_Cfg[] =
   {
-    GT911_CFG_NUMBER,     // 0x8047 Config version
+    GT911_CFG_NUMBER,    // 0x8047 Config version
     0xE0,                // 0x8048 X output map : x 480
     0x01,
     0x10,                // 0x804A Y ouptut max : y 272
