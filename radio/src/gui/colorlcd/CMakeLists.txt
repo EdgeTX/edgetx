@@ -53,6 +53,8 @@ set(GUI_SRC
   bind_menu_d16.cpp
   trainer_setup.cpp
   custom_failsafe.cpp
+  module_setup.cpp
+  timer_setup.cpp
   model_setup.cpp
   model_flightmodes.cpp
   model_inputs.cpp
