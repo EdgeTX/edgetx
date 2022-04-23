@@ -53,65 +53,6 @@ static std::function<void(uint32_t)> timerValueUpdater(uint8_t timer)
     };
 }
 
-struct TimerBody : public FormGroup {
-  TimerBody(FormGroup* parent, const rect_t& rect, uint8_t timer) :
-      FormGroup(parent, rect, FORM_FORWARD_FOCUS)
-  {
-    setFlexLayout();
-    FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
-
-    TimerData* p_timer = &g_model.timers[timer];
-
-    // Timer name
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
-    new ModelTextEdit(line, rect_t{}, p_timer->name, LEN_TIMER_NAME);
-
-    // Timer mode
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
-    new Choice(line, rect_t{}, STR_TIMER_MODES, 0, TMRMODE_MAX,
-               GET_SET_DEFAULT(p_timer->mode));
-
-    // Timer switch
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
-    new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
-                     GET_SET_DEFAULT(p_timer->swtch));
-
-    // Timer start value
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_START, 0, COLOR_THEME_PRIMARY1);
-    new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
-                 timerValueUpdater(timer));
-
-    // Timer minute beep
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
-
-    // Timer countdown
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
-
-    auto box = new Line(line, lv_obj_create(line->getLvObj()), nullptr, this);
-    lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
-    new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
-               COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
-    new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
-               GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
-
-    // Timer persistent
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
-
-    new Choice(line, rect_t{}, STR_VPERSISTENT, 0, 2,
-               GET_SET_DEFAULT(p_timer->persistent));
-
-    updateSize();
-  }
-};
-
 TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 {
   std::string title = std::string(STR_TIMER) + std::to_string(timer + 1);
@@ -120,5 +61,56 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
                   PAGE_LINE_HEIGHT},
                  title, 0, COLOR_THEME_PRIMARY2);
 
-  new TimerBody(&body, {0, 0, LCD_W, body.height()}, timer);
+  body.setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+  TimerData* p_timer = &g_model.timers[timer];
+
+  // Timer name
+  auto line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+  new ModelTextEdit(line, rect_t{}, p_timer->name, LEN_TIMER_NAME);
+
+  // Timer mode
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_TIMER_MODES, 0, TMRMODE_MAX,
+             GET_SET_DEFAULT(p_timer->mode));
+
+  // Timer switch
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
+  new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
+                   GET_SET_DEFAULT(p_timer->swtch));
+
+  // Timer start value
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_START, 0, COLOR_THEME_PRIMARY1);
+  new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
+               timerValueUpdater(timer));
+
+  // Timer minute beep
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
+
+  // Timer countdown
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
+
+  auto box = new FormGroup::Line(line, lv_obj_create(line->getLvObj()), nullptr, &body);
+  lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
+  new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
+             COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
+  new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
+             GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
+
+  // Timer persistent
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
+
+  new Choice(line, rect_t{}, STR_VPERSISTENT, 0, 2,
+             GET_SET_DEFAULT(p_timer->persistent));
+
+  body.updateSize();
 }
