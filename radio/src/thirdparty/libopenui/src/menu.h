@@ -22,6 +22,7 @@
 #include <vector>
 #include <functional>
 #include <utility>
+#include <memory>
 #include "modal_window.h"
 
 class Menu;
