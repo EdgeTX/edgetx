@@ -68,6 +68,16 @@ if(EdgeTX_SUPERBUILD)
     DEPENDS native-configure
     )
 
+  add_custom_target(simulator
+    COMMAND $(MAKE) -C native simulator
+    DEPENDS native-configure
+    )
+
+  add_custom_target(simu
+    COMMAND $(MAKE) -C native simu
+    DEPENDS native-configure
+    )
+
   add_custom_target(companion
     COMMAND $(MAKE) -C native companion
     DEPENDS native-configure
