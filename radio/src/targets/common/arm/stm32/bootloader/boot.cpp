@@ -465,6 +465,12 @@ int  bootloaderMain()
             // next loop
             continue;
           }
+          else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+            state = ST_START;
+            vpos = 0;
+            continue;
+          }
+
         }
 #endif
       else if (state == ST_DIR_CHECK) {
