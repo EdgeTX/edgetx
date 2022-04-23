@@ -31,7 +31,7 @@ static void lvglEvent(lv_event_t* e)
   btn->onEvent(e);
 }
 
-Button::Button(FormGroup* parent, const rect_t& rect,
+Button::Button(Window* parent, const rect_t& rect,
        std::function<uint8_t(void)> pressHandler,
        WindowFlags windowFlag, LcdFlags textFlags,
        LvglCreate objConstruct) :
@@ -101,9 +101,7 @@ void Button::checkEvents()
     checkHandler();
 }
 
-lv_style_t style_btn;
-
-TextButton::TextButton(FormGroup* parent, const rect_t& rect, std::string text,
+TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
                        std::function<uint8_t(void)> pressHandler,
                        WindowFlags windowFlags, LcdFlags textFlags) :
     Button(parent, rect, std::move(pressHandler), windowFlags, textFlags,

@@ -28,7 +28,7 @@ constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
 class Button: public FormField
 {
   public:
-   Button(FormGroup* parent, const rect_t& rect,
+   Button(Window* parent, const rect_t& rect,
           std::function<uint8_t(void)> pressHandler = nullptr,
           WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
           LvglCreate objConstruct = nullptr);
@@ -88,7 +88,7 @@ class Button: public FormField
 class TextButton: public Button
 {
   public:
-   TextButton(FormGroup* parent, const rect_t& rect, std::string text,
+   TextButton(Window* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
               WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
               LcdFlags textFlags = 0);
@@ -123,9 +123,10 @@ class TextButton: public Button
 class IconButton: public Button
 {
   public:
-    IconButton(FormGroup * parent, const rect_t & rect, uint8_t icon, std::function<uint8_t(void)> pressHandler, WindowFlags flags = 0):
-      Button(parent, rect, std::move(pressHandler), flags),
-      icon(icon)
+    IconButton(Window* parent, const rect_t& rect, uint8_t icon,
+               std::function<uint8_t(void)> pressHandler,
+               WindowFlags flags = 0) :
+        Button(parent, rect, std::move(pressHandler), flags), icon(icon)
     {
     }
 
