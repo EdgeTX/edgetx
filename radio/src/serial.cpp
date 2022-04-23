@@ -110,7 +110,6 @@ static bool getSerialPower(uint8_t port_nr)
 struct SerialPortState
 {
   uint8_t                  mode;
-  bool                     power;
   const etx_serial_port_t* port;
   void*                    usart_ctx;
 };
