@@ -28,7 +28,7 @@ const uint8_t TOUCH_GT911_Cfg[] = {
     GT911_CFG_NUMBER,  // 0x8047 Config version
     0xE0,             // 0x8048 X output map : x 480
     0x01,
-    0x10,  // 0x804A Y ouptut max : y 272
+    0x10,          // 0x804A Y ouptut max : y 272
     0x01,
     GT911_MAX_TP,  // 0x804C Touch number
     0x0C,          // 0x804D Module switch 1 : bit4= xy change Int mode
@@ -221,8 +221,8 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x01,
     0x10,                // 0x804A Y ouptut max : y 272
     0x01,
-    GT911_MAX_TP,        // 0x804C Touch number 
-    0x3C, // 0x804D Module switch 1 : bit4= xy change Int mode    
+    GT911_MAX_TP,        // 0x804C Touch number
+    0x3C,                // 0x804D Module switch 1 : bit4= xy change Int mode
     0x20,                // 0x804E Module switch 2
     0x22,                // 0x804F Shake_Count
     0x0A,                // 0x8050 Filter
@@ -766,8 +766,8 @@ struct TouchState touchPanelRead()
       }
         
 #if defined (PCBX12S)
-          touchData.points[0].x = LCD_W - touchData.points[0].x;
-          touchData.points[0].y = LCD_H - touchData.points[0].y;
+      touchData.points[0].x = LCD_W - touchData.points[0].x;
+      touchData.points[0].y = LCD_H - touchData.points[0].y;
 #endif
 
       if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP ||
