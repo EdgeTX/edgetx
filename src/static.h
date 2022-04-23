@@ -33,6 +33,8 @@ class StaticText: public Window
 #endif
 
     void setText(std::string value);
+    const std::string& getText() const;
+
     void setBackgroundColor(LcdFlags color);
 
   protected:
