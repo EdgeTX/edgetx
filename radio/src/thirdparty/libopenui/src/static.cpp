@@ -29,16 +29,14 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
+  // TODO: select proper font based on 'textFlags'
   // lv_obj_set_style_text_font(lvobj, LV_FONT_DEFAULT, LV_PART_MAIN);
-  // lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
+  lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
 
   if (textFlags & CENTERED)
     lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_CENTER, 0);
   else if (textFlags & RIGHT)
     lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
-
-  // if (textFlags & FONT(BOLD)) {
-  // }
 
   if (windowFlags & BUTTON_BACKGROUND) {
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
@@ -59,6 +57,11 @@ void StaticText::setText(std::string value)
     text = std::move(value);
     lv_label_set_text(lvobj, text.c_str());
   }
+}
+
+const std::string& StaticText::getText() const
+{
+  return text;
 }
 
 void StaticText::setBackgroundColor(LcdFlags color)
