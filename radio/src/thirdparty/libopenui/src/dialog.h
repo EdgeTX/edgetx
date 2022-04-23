@@ -31,7 +31,6 @@ class DialogWindowContent : public ModalWindowContent
  public:
   DialogWindowContent(Dialog* parent, const rect_t& rect);
 
-  void updateSize();
   void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)

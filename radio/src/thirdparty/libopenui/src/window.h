@@ -391,6 +391,8 @@ class Window
 
     void moveWindowsTop(coord_t y, coord_t delta);
 
+    void updateSize();
+
     void invalidate()
     {
       invalidate({0, 0, rect.w, rect.h});
