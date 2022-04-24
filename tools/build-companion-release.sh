@@ -37,23 +37,13 @@ fi
 
 if [ "$3" != "" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
+else
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=release"
 fi
 
 rm -rf build
 mkdir build
 cd build
-
-cmake ${COMMON_OPTIONS} -DPCB=AR9X ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=SKY9X ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=9XRPRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
 
 cmake ${COMMON_OPTIONS} -DPCB=X9LITE ${SRCDIR}
 make -j${JOBS} libsimulator

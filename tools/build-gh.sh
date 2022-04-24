@@ -48,6 +48,16 @@ fi
 
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
+gh_tag=${GITHUB_REF##*/}
+gh_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ -z $gh_tag ]];
+then
+  export EDGETX_VERSION_SUFFIX=$gh_branch
+else
+  export EDGETX_VERSION_SUFFIX=$gh_tag
+fi
+
 : ${BUILD_TYPE:=Release}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}
 : ${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}

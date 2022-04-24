@@ -39,6 +39,8 @@ fi
 
 if [ "$3" != "" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
+else
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=nightly"
 fi
 
 rm -rf build
