@@ -22,6 +22,7 @@
 #ifndef _TELEMETRY_H_
 #define _TELEMETRY_H_
 
+#include "dataconstants.h"
 #include "frsky.h"
 #include "io/frsky_sport.h"
 #include "crossfire.h"
