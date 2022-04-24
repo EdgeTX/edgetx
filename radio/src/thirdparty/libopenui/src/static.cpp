@@ -29,8 +29,7 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-  // TODO: select proper font based on 'textFlags'
-  // lv_obj_set_style_text_font(lvobj, LV_FONT_DEFAULT, LV_PART_MAIN);
+  lv_obj_set_style_text_font(lvobj, getFont(textFlags), LV_PART_MAIN);
   lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
 
   if (textFlags & CENTERED)
