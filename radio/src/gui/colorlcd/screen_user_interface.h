@@ -20,25 +20,18 @@
  */
 
 #pragma once
-#include "libopenui.h"
 
-class FilePreview : public Window
+#include "tabsgroup.h"
+
+class ScreenMenu;
+
+class ScreenUserInterfacePage : public PageTab
 {
  public:
-  FilePreview(Window *parent, const rect_t &rect, bool drawCentered = true);
-  ~FilePreview();
+  ScreenUserInterfacePage(ScreenMenu* menu);
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "FilePreview"; }
-#endif
-
-  void setFile(const char *filename);
-  coord_t getBitmapWidth() const;
-  coord_t getBitmapHeight() const;
-
-  void paint(BitmapBuffer *dc) override;
+  void build(FormWindow* window) override;
 
  protected:
-  BitmapBuffer *bitmap = nullptr;
-  bool _drawCentered = true;
+  ScreenMenu* menu;
 };

@@ -31,6 +31,7 @@ set(GUI_SRC
   color_editor.cpp
   color_list.cpp
   preview_window.cpp
+  file_preview.cpp
   file_carosell.cpp
   listbox.cpp
   tabsgroup.cpp
@@ -85,6 +86,7 @@ set(GUI_SRC
   view_statistics.cpp
   view_text.cpp
   menu_screen.cpp
+  screen_user_interface.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
   LvglWrapper.cpp
