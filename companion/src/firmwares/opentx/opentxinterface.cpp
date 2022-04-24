@@ -772,6 +772,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_JUMPER_T18(board));
+    case HasSoftwareSerialPower:
+      return IS_RADIOMASTER_TX16S(board);
     default:
       return 0;
   }

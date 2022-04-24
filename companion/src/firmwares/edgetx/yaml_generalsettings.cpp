@@ -76,7 +76,7 @@ const YamlLookupTable serialPortLut = {
 const YamlLookupTable uartModeLut = {
   {  GeneralSettings::AUX_SERIAL_OFF, "NONE"  },
   {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "TELEMETRY_MIRROR"  },
-  {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY_IN"  },
   {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "SBUS_TRAINER"  },
   {  GeneralSettings::AUX_SERIAL_LUA, "LUA"  },
   {  GeneralSettings::AUX_SERIAL_CLI, "CLI"  },
@@ -214,9 +214,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   Node serialPort;
   for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
-    if (rhs.serialPort[i] != UART_MODE_NONE) {
+    if (rhs.serialPort[i] != GeneralSettings::AUX_SERIAL_OFF || rhs.serialPower[i]) {
       Node mode = uartModeLut << rhs.serialPort[i];
       serialPort[LookupValue(serialPortLut, i)]["mode"] = mode;
+      serialPort[LookupValue(serialPortLut, i)]["power"] = (int)rhs.serialPower[i];
     }
   }
   if (serialPort && serialPort.IsMap())
@@ -404,11 +405,13 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
 
+  //  depreciated v2.7 replaced by serialPort
   if (node["auxSerialMode"]) {
     node["auxSerialMode"] >> oldUartModeLut >>
         rhs.serialPort[GeneralSettings::SP_AUX1];
   }
 
+  //  depreciated v2.7 replaced by serialPort
   if (node["aux2SerialMode"]) {
     node["aux2SerialMode"] >> oldUartModeLut >>
         rhs.serialPort[GeneralSettings::SP_AUX2];
@@ -421,13 +424,23 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
         YAML::Node port_nr = port.first >> serialPortLut;
         if (port_nr) {
           int p = port_nr.as<int>();
-          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap())
+          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap()) {
             port.second["mode"] >> uartModeLut >> rhs.serialPort[p];
+            //  introduced v2.8
+            Node port_pwr = port.second["power"];
+            if (port_pwr && port_pwr.IsScalar()) {
+              try {
+                int pwr = port_pwr.as<int>();
+                if (pwr == 0 || pwr == 1)
+                  rhs.serialPower[p] = pwr;
+              } catch(...) {}
+            }
+          }
         }
       }
     }
   }
-  
+
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;

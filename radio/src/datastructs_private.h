@@ -28,6 +28,7 @@
 #include "definitions.h"
 #include "opentx_types.h"
 #include "globals.h"
+#include "serial.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -902,7 +903,7 @@ PACK(struct RadioData {
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
-  NOBACKUP(uint16_t serialPort ARRAY(STORAGE_SERIAL_PORTS,struct_serialConfig,nullptr));
+  NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
 
   EXTRA_GENERAL_FIELDS
 

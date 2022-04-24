@@ -168,7 +168,8 @@ enum Capability {
   TopBarZones,
   HasModelsList,
   HasFlySkyGimbals,
-  RotaryEncoderNavigation
+  RotaryEncoderNavigation,
+  HasSoftwareSerialPower
 };
 
 class EEPROMInterface
