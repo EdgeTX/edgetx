@@ -31,8 +31,10 @@
   #include "libopenui.h"
 #endif
 
-#include <FreeRTOS.h>
-#include <timers.h>
+#if !defined(SIMU)
+  #include <FreeRTOS/include/FreeRTOS.h>
+  #include <FreeRTOS/include/timers.h>
+#endif
 
 uint8_t telemetryStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)

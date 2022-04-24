@@ -180,7 +180,7 @@ endif()
 
 add_custom_command(
   TARGET bootloader POST_BUILD
-  COMMAND ${FIRMWARE_OBJCOPY} -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
+  COMMAND ${CMAKE_OBJCOPY} -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
 )
 
 if(PYTHONINTERP_FOUND)

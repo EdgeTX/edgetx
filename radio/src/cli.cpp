@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include <FreeRTOS.h>
-#include <stream_buffer.h>
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/stream_buffer.h>
 
 #include "opentx.h"
 #include "diskio.h"

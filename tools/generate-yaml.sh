@@ -98,7 +98,8 @@ do
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make yaml_data
+    make arm-none-eabi-configure
+    make -C arm-none-eabi yaml_data
 
-    rm -f CMakeCache.txt
+    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done

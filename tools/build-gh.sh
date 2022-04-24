@@ -49,7 +49,7 @@ fi
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
 : ${BUILD_TYPE:=Release}
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -DDISABLE_COMPANION=YES -Wno-dev "}
+: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}
 : ${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}
 
 COMMON_OPTIONS+=${EXTRA_OPTIONS}
@@ -147,8 +147,9 @@ do
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make -j"${CORES}" ${FIRMARE_TARGET}
+    cmake --build . --target arm-none-eabi-configure
+    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
 
-    rm -f CMakeCache.txt
-    mv firmware.bin "../${fw_name}"
+    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
+    mv arm-none-eabi/firmware.bin "../${fw_name}"
 done

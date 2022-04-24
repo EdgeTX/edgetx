@@ -49,9 +49,6 @@
 #include "pulses/afhds2.h"
 #endif
 
-#include <FreeRTOS.h>
-#include <timers.h>
-
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
