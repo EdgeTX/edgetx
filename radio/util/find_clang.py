@@ -67,7 +67,8 @@ def findLibClang():
             "/usr/lib/llvm-6.0/lib",
             "/usr/lib/llvm-3.8/lib",
             "/usr/local/lib",
-            "/usr/lib"
+            "/usr/lib",
+            "/usr/lib64"
         ]
         libSuffix = ".so"
     elif sys.platform == "win32" or sys.platform == "msys":
