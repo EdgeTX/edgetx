@@ -44,7 +44,7 @@ add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
 
 if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
-    flash_spi_driver.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
   )
 
   if(LITTLEFS)
@@ -63,8 +63,9 @@ endif()
 
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
-    set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-    flash_spi_driver.cpp
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    ../common/arm/stm32/diskio_sdio_spiflash.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
     ../../thirdparty/tjftl/tjftl.c
   )
 else()
@@ -331,6 +332,7 @@ set(FIRMWARE_TARGET_SRC
   trainer_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
+  ../common/arm/stm32/diskio_sdio_spiflash.cpp
   )
 
 set(FIRMWARE_SRC
