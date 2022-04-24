@@ -7,14 +7,18 @@ set(VERSION_MINOR "8")
 set(VERSION_REVISION "0")
 set(CODENAME "dev")
 
-if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
-  set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
+if(DEFINED ENV{EDGETX_VERSION_TAG})
+  set(VERSION_TAG "$ENV{EDGETX_VERSION_TAG}")
 else()
-  set(VERSION_SUFFIX "-selfbuild") # If not defined, set suffix to selfbuild
+  if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
+    set(VERSION_SUFFIX "$ENV{EDGETX_VERSION_SUFFIX}")
+  else()
+    set(VERSION_SUFFIX "selfbuild") # If not defined, set suffix to selfbuild
+  endif()
 endif()
 
 set(VERSION_FAMILY ${VERSION_MAJOR}.${VERSION_MINOR})
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}${VERSION_SUFFIX})
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION})
 
 option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
@@ -118,7 +122,11 @@ enable_language(ASM)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
 
-message(STATUS "EdgeTX ${VERSION} @ ${GIT_STR}")
+if (VERSION_TAG)
+  message(STATUS "EdgeTX ${VERSION_TAG} @ ${GIT_STR}")
+else()
+  message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
+endif()
 
 if(NATIVE_BUILD)
   include(NativeTargets)

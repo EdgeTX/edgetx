@@ -1,6 +1,10 @@
 #define DATE    "@DATE@"
 #define TIME    "@TIME@"
 #define VERSION "@VERSION@"
+#define VERSION_SUFFIX "@VERSION_SUFFIX@"
+#if defined(VERSION_TAG)
+  #define VERSION_TAG "@VERSION_TAG@"
+#endif
 #define CODENAME "@CODENAME@"
 
 #define VERSION_MAJOR     @VERSION_MAJOR@

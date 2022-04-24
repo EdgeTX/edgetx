@@ -44,23 +44,27 @@
 #endif
 
 #if defined(COLORLCD)
-  const char fw_stamp[]    =   "FW" TAB ": edgetx-" FLAVOUR;
+  const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
 #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
-  const char vers_stamp[]  =   "VERS" TAB ": Factory firmware (" GIT_STR ")";
+  const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
 #else
-  const char vers_stamp[]  =   "VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")";
+  #if defined(VERSION_TAG)
+    const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+  #else
+    const char vers_stamp[] = "VERS" TAB ": " VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+  #endif
 #endif
-  const char date_stamp[]  =   "DATE" TAB ": " DATE;
-  const char time_stamp[]  =   "TIME" TAB ": " TIME;
-  const char cfgv_stamp[]  = "CFGV" TAB ": " CFGV_STR;
+  const char date_stamp[]   = "DATE" TAB ": " DATE;
+  const char time_stamp[]   = "TIME" TAB ": " TIME;
+  const char cfgv_stamp[]   = "CFGV" TAB ": " CFGV_STR;
 #elif defined(BOARD_NAME)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  const char vers_stamp[]   = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #elif defined(RADIOMASTER_RELEASE)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #elif defined(JUMPER_RELEASE)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #else
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #endif
 
 /**
@@ -68,11 +72,16 @@
  * @return
  */
 #if defined(STM32) && !defined(SIMU)
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
+#if defined(VERSION_TAG)
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+#else
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+#endif
 
 /**
- * Tries to find opentx version in the first 1024 byte of either firmware/bootloader (the one not running) or the buffer
+ * Tries to find EdgeTX or OpenTX version in the first 1024 byte of either firmware/bootloader (the one not running) or the buffer
  * @param buffer If non-null find the firmware version in the buffer instead
  */
 const char * getFirmwareVersion(const char * buffer)
