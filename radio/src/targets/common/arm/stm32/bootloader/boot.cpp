@@ -36,13 +36,25 @@
 #define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM)
+#if defined(SPI_FLASH)
+  #define MAIN_MENU_LEN 4
+#else
+  #define MAIN_MENU_LEN 3
+#endif
+#else
+#if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
 #else
   #define MAIN_MENU_LEN 2
 #endif
+#endif
 
 #if defined(SPI_FLASH) && defined(SDCARD)
   #define SEL_STORAGE_MENU_LEN 2
+#endif
+
+#if defined(SPI_FLASH)
+  #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
 typedef void (*voidFunction)(void);
@@ -314,6 +326,8 @@ void bootloaderInitApp()
   usbInit();
 }
 
+void flashSpiEraseAll();
+
 int main()
 #else // SIMU
 void bootloaderInitApp() {}
@@ -412,7 +426,18 @@ int  bootloaderMain()
               memoryType = MEM_EEPROM;
               state = ST_DIR_CHECK;
               break;
+#if defined(SPI_FLASH)
+            case 2:
+              state = ST_CLEAR_FLASH_CHECK;
+              break;
 #endif
+#elif defined(SPI_FLASH)
+            case 1:
+              state = ST_CLEAR_FLASH_CHECK;
+              vpos = 1;
+              break;
+#endif
+
             default:
               if(vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN-1))
               {
@@ -499,7 +524,7 @@ int  bootloaderMain()
           limit = nameCount;
         }
 #if defined(PCBPL18)
-        if (event == EVT_KEY_REPT(KEY_PGDN) || event == EVT_KEY_FIRST(KEY_PGUP)) {
+        if (event == EVT_KEY_REPT(KEY_PGDN) || event == EVT_KEY_FIRST(KEY_PGDN)) {
 #else
         if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
 #endif
@@ -611,6 +636,43 @@ int  bootloaderMain()
           state = ST_FLASH_DONE; // Backstop
         }
 #endif
+#if defined(SPI_FLASH)
+      } else if (state == ST_CLEAR_FLASH_CHECK) {
+        bootloaderDrawScreen(state, vpos);
+#if defined(PCBPL18)
+        if (event == EVT_KEY_REPT(KEY_PGDN) || event == EVT_KEY_FIRST(KEY_PGDN)) {
+#else
+        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+#endif
+          if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
+          continue;
+        }
+#if defined(PCBPL18)
+        if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_PGUP)) {
+#else
+        if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+#endif
+          if (vpos > 0) { vpos--; }
+          continue;
+        }
+        if (event == EVT_KEY_LONG(KEY_ENTER) && vpos == 0)
+        {
+          state = ST_CLEAR_FLASH;
+        } else if (event == EVT_KEY_BREAK(KEY_EXIT) ||
+            (event == EVT_KEY_BREAK(KEY_ENTER) && vpos == 1) ) {
+          vpos = 0;
+          state = ST_START;
+          continue;
+        }
+      } else if (state == ST_CLEAR_FLASH) {
+        bootloaderDrawScreen(state, 0);
+        lcdRefresh();
+        if(event != EVT_KEY_BREAK(KEY_ENTER))
+          continue;
+        flashSpiEraseAll();
+        vpos = 0;
+        state = ST_START;
+#endif
       } else if (state == ST_RADIO_MENU) {
         if(bootloaderRadioMenu(radioMenuItem, event))
         {
@@ -619,6 +681,7 @@ int  bootloaderMain()
           bootloaderDrawScreen(state, vpos);
         }
       }
+
 
       if (state == ST_FLASH_DONE) {
         if (unlocked) {

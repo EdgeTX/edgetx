@@ -72,6 +72,8 @@ enum BootloaderState {
   ST_FLASH_DONE,
   ST_RESTORE_MENU,
   ST_USB,
+  ST_CLEAR_FLASH_CHECK,
+  ST_CLEAR_FLASH,
   ST_RADIO_MENU,
   ST_REBOOT,
 };
