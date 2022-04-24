@@ -47,11 +47,3 @@ class ScreenSetupPage: public PageTab {
     unsigned pageIndex;
     unsigned customScreenIndex;
 };
-
-class SetupWidgetsPageSlot: public Button
-{
-  public:
-    SetupWidgetsPageSlot(FormGroup * parent, const rect_t & rect, WidgetsContainer* container, uint8_t slotIndex);
-
-    void paint(BitmapBuffer * dc) override;
-};

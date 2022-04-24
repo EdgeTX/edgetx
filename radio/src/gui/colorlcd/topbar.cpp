@@ -22,10 +22,11 @@
 #include "opentx.h"
 #include "layer.h"
 #include "view_main.h"
-#include "screen_setup.h"
 #include "storage/storage.h"
 #include "topbar.h"
 #include "topbar_impl.h"
+#include "menu_screen.h"
+#include "widgets_setup.h"
 
 
 Topbar * TopbarFactory::create(Window * parent)
