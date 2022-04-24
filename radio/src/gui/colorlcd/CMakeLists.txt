@@ -87,6 +87,7 @@ set(GUI_SRC
   view_text.cpp
   menu_screen.cpp
   screen_user_interface.cpp
+  widgets_setup.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
   LvglWrapper.cpp
