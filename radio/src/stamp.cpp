@@ -45,15 +45,15 @@
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-#if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
-  const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
-#else
-  #if defined(VERSION_TAG)
-    const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+  #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
+    const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
-    const char vers_stamp[] = "VERS" TAB ": " VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+    #if defined(VERSION_TAG)
+      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+    #else
+      const char vers_stamp[] = "VERS" TAB ": " VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+    #endif
   #endif
-#endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
   const char cfgv_stamp[]   = "CFGV" TAB ": " CFGV_STR;
@@ -64,7 +64,11 @@
 #elif defined(JUMPER_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #else
-  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  #if defined(VERSION_TAG)
+    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  #else
+    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
+  #endif
 #endif
 
 /**
@@ -72,13 +76,19 @@
  * @return
  */
 #if defined(STM32) && !defined(SIMU)
-#if defined(VERSION_TAG)
+  #if defined(COLORLCD)
+    #if defined(VERSION_TAG)
 __SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
 __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
-#else
+    #else
 __SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
 __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
-#endif
+    #endif
+  #else
+  /* 128x64 does not have enough real estate to display more than basic VERSION */
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
+  #endif
 
 /**
  * Tries to find EdgeTX or OpenTX version in the first 1024 byte of either firmware/bootloader (the one not running) or the buffer
