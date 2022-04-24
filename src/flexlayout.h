@@ -61,10 +61,19 @@ class FlexGridLayout
     }
   }
 
-  void nextColumn() { col_pos++; }
-  void nextRow() { row_pos++; }
-
   void resetPos() { col_pos = 0; row_pos = 0; }
+
+  void nextColumn() { col_pos += col_span; }
+  void nextRow() { row_pos += row_span; }
+
+  void nextCell()
+  {
+    nextColumn();
+    if (col_dsc[col_pos] == LV_GRID_TEMPLATE_LAST) {
+      nextRow();
+      col_pos = 0;
+    }
+  }
 
   void setColSpan(uint8_t span) { col_span = span; }
   void setRowSpan(uint8_t span) { row_span = span; }

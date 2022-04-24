@@ -141,7 +141,7 @@ void FormGroup::Line::addChild(Window* window, bool front)
   Window::addChild(window, front);
   if (layout) {
     layout->add(window->getLvObj());
-    layout->nextColumn();
+    layout->nextCell();
   }
 }
 
@@ -205,7 +205,7 @@ void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
 
 FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout)
 {
-  layout->resetPos();
+  if (layout) layout->resetPos();
   auto lv_line = lv_obj_create(lvobj);
   return new Line(this, lv_line, layout);
 }

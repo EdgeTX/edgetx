@@ -152,7 +152,7 @@ class FormGroup : public FormField, public FieldContainer
   void clear();
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN, lv_coord_t padding = 0);
-  Line* newLine(FlexGridLayout* layout);
+  Line* newLine(FlexGridLayout* layout = nullptr);
   
   void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
                 Window *from = nullptr) override;
