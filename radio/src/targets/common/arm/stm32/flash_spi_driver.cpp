@@ -110,7 +110,7 @@ static const SpiFlashDescriptor spiFlashDescriptors[] =
 };
 
 static const SpiFlashDescriptor* flashDescriptor = nullptr;
-#if !defined(BOOT)
+#if !defined(BOOT) && 0
 static DMA_InitTypeDef dmaTxInfo = {0};
 static DMA_InitTypeDef dmaRxInfo =  {0};
 
@@ -119,6 +119,7 @@ static uint8_t *dmaReadBuf = nullptr;
 static uint8_t *dmaWriteBuf = nullptr;
 static volatile bool reading = false;
 #endif
+
 void flashSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -267,7 +268,7 @@ size_t flashSpiGetSize()
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 {
-#if !defined(BOOT)
+#if !defined(BOOT) && 0
   static char buf __DMA = 0;
 #endif
   flashSpiSync();
@@ -312,7 +313,7 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
 
   delay_01us(100); // 10us
   CS_HIGH();
-#if !defined(BOOT)
+#if !defined(BOOT) && 0
   reading = false;
 #endif
   return size;
@@ -326,7 +327,7 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 
   flashSpiSync();
 
-  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
+//  DMA_DeInit(FLASH_SPI_TX_DMA_STREAM);
 
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->writeEnableCmd);
@@ -442,7 +443,7 @@ uint16_t flashSpiGetSectorCount()
 {
   return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
-#if !defined(BOOT)
+#if !defined(BOOT) && 0
 extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
 {
   if (DMA_GetITStatus(FLASH_SPI_TX_DMA_STREAM, FLASH_SPI_TX_DMA_FLAG_TC))
@@ -463,6 +464,7 @@ extern "C" void FLASH_SPI_RX_DMA_IRQHandler(void)
 
 static void flashSpiInitDMA()
 {
+#if 0
   RTOS_CREATE_SEAPHORE(irqSem);
 //  dmaReadBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
 //  dmaWriteBuf = (uint8_t*)aligned_alloc(4, flashDescriptor->pageSize);
@@ -507,7 +509,7 @@ static void flashSpiInitDMA()
   /* enable interrupt and set it's priority */
   NVIC_EnableIRQ(FLASH_SPI_RX_DMA_IRQn);
   NVIC_SetPriority(FLASH_SPI_RX_DMA_IRQn, 5);
-
+#endif
 }
 #endif
 void flashInit()

@@ -38,7 +38,7 @@ add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
 
 if(SPI_FLASH)
   set(TARGET_SRC ${TARGET_SRC}
-    flash_spi_driver.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
   )
   add_definitions(-DSPI_FLASH)
 
@@ -58,7 +58,8 @@ endif()
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
   set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-    flash_spi_driver.cpp
+    ../common/arm/stm32/diskio_sdio_spiflash.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
     ../../thirdparty/tjftl/tjftl.c
   )
   add_definitions(-DSPI_FLASH)
@@ -185,6 +186,7 @@ set(FIRMWARE_TARGET_SRC
   backlight_driver.cpp
   extmodule_helper.cpp
   ../horus/flyskyHallStick_driver.cpp
+  ../common/arm/stm32/diskio_sdio_spiflash.cpp
   )
 
 set(FIRMWARE_SRC

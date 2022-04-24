@@ -89,19 +89,26 @@ set(BOOTLOADER_SRC
   ../../../../../VirtualFS.cpp
   )
 
-if(SDCARD OR (SPI_FLASH AND  NOT LITTLEFS)) 
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-  ../../../../../targets/${TARGET_DIR}/diskio.cpp
-  )
-endif()
-  
 if(SPI_FLASH)
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
-  ../../../../../targets/${TARGET_DIR}/flash_spi_driver.cpp
+  ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
   ../../../../../thirdparty/tjftl/tjftl.c
   )
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
+  if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/diskio_sdio_spiflash.cpp
+      )
+  else()
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/diskio.cpp
+      )
+  endif()
 endif()
 
 if(ROTARY_ENCODER)

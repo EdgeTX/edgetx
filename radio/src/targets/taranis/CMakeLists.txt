@@ -592,6 +592,13 @@ if(STATUS_LEDS)
   set(LED_DRIVER led_driver.cpp)
 endif()
 
+if(SDCARD)
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+    diskio.cpp
+  )
+endif()
+
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LED_DRIVER}
