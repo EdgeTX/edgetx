@@ -20,18 +20,10 @@
  */
 
 #include "menu_screen.h"
+#include "screen_user_interface.h"
+
 #include "layout.h"
 #include "datastructs.h"
-
-class ScreenUserInterfacePage: public PageTab {
-  public:
-    ScreenUserInterfacePage(ScreenMenu* menu);
-
-    void build(FormWindow * window) override;
-
-  protected:
-    ScreenMenu * menu;
-};
 
 class ScreenAddPage: public PageTab {
   public:

@@ -26,8 +26,6 @@
 #include "topbar.h"
 #include "libopenui.h"
 #include "layouts/layout_factory_impl.h"
-#include "theme_manager.h"
-#include "file_preview.h"
 
 #define SET_DIRTY()   storageDirty(EE_MODEL)
 #define BUTTON_HEIGHT 30
@@ -253,98 +251,6 @@ class SetupWidgetsPage: public FormWindow
     //   //dc->clear(COLOR_THEME_SECONDARY3);
     // }
 };
-
-ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
-  PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP),
-  menu(menu)
-{
-}
-
-
-class MyFormGridLayout : public FormGridLayout
-{
-  public:
-    MyFormGridLayout(int width, int top) :
-      FormGridLayout(width, top)
-    {
-    }
-
-    rect_t getFieldSlotEx(uint8_t count = 1, uint8_t index = 0, uint8_t number = 1) const
-    {
-      coord_t width = (this->width - labelWidth - lineMarginRight - (count - 1) * PAGE_LINE_SPACING) / count;
-      coord_t left = labelWidth + (width + PAGE_LINE_SPACING) * index;
-      return {left, currentY, width *number, PAGE_LINE_HEIGHT};
-    }
-};
-
-
-void ScreenUserInterfacePage::build(FormWindow * window)
-{
-  MyFormGridLayout grid(LCD_W, 10);
-
-  // Top Bar
-  new StaticText(window, grid.getLabelSlot(), STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
-
-  auto menu = this->menu;
-  auto setupTopbarWidgets = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS);
-  setupTopbarWidgets->setPressHandler([menu]() -> uint8_t {
-      new SetupTopBarWidgetsPage(menu);
-      return 0;
-  });
-
-  grid.nextLine();
-  grid.spacer(8);
-
-  // Theme choice
-  new StaticText(window, grid.getLabelSlot(), STR_THEME, 0, COLOR_THEME_PRIMARY1);
-  auto tp = ThemePersistance::instance();
-  tp->refresh();
-  std::vector<std::string> names = tp->getNames();
-  new Choice(window, grid.getFieldSlotEx(), names, 0, names.size() - 1,
-    [=] () {
-      return tp->getThemeIndex();
-    }, 
-    [=] (int value) { 
-      tp->setThemeIndex(value);
-      tp->applyTheme(value);
-      tp->setDefaultTheme(value);
-
-      window->clear();
-      build(window);
-  });
-
-  bool bNarrowScreen = LCD_W < LCD_H;
-  if (bNarrowScreen)
-    grid.setLabelWidth(LCD_W);
-
-  grid.nextLine();
-  auto theme = tp->getCurrentTheme();
-  auto themeImage = theme->getThemeImageFileNames();
-
-  grid.spacer(8);
-
-  new StaticText(window, grid.getLabelSlot(), "Author", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-  grid.nextLine();
-  new StaticText(window, grid.getLabelSlot(), theme->getAuthor(), 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
-  new StaticText(window, grid.getLabelSlot(), "Description", 0, COLOR_THEME_PRIMARY1  | FONT(BOLD));
-  grid.nextLine();
-
-  int charBreak = bNarrowScreen ? 40 : 30;
-  auto info = wrap(theme->getInfo(), charBreak);
-
-  rect_t r = grid.getLabelSlot();
-  r.h += 50;
-  new StaticText(window, r, info, 0, COLOR_THEME_PRIMARY1);
-
-  rect_t previewRect = bNarrowScreen ? 
-    rect_t {0, r.h, LCD_W, window->height()} :
-    rect_t {LCD_W / 2 + 6, 30, LCD_W / 2 - 12, window->height()};
-  auto preview = new FilePreview(window, previewRect);
-  preview->setFile(themeImage.size() > 0 ? themeImage[0].c_str() : "");
-
-  window->setInnerHeight(grid.getWindowHeight());
-}
 
 ScreenAddPage::ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex):
   PageTab(),
