@@ -50,10 +50,14 @@ fi
 
 gh_tag=${GITHUB_REF##*/}
 gh_branch=$(git rev-parse --abbrev-ref HEAD)
+pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
-if [[ -z $gh_tag ]];
-then
-  export EDGETX_VERSION_SUFFIX=$gh_branch
+if [[ -z $gh_tag ]]; then
+  if [[ -z $pull_number ]]; then
+    export EDGETX_VERSION_SUFFIX=$gh_branch
+  else
+    export EDGETX_VERSION_SUFFIX="${gh_branch}-${pull_number}"
+  fi
 else
   export EDGETX_VERSION_SUFFIX=$gh_tag
 fi
