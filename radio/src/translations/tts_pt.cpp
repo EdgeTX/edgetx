@@ -139,41 +139,48 @@ I18N_PLAY_FUNCTION(pt, playDuration, int seconds PLAY_DURATION_ATT)
   }
 
   uint8_t ore = 0;
-  uint8_t tmp = seconds / 3600;
-  seconds %= 3600;
-  if (tmp > 0 || IS_PLAY_TIME()) {
-    ore=tmp;
-    if (tmp > 2) {
-      PLAY_NUMBER(tmp, 0, 0);
-      PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
-    } else if (tmp==2) {
-      PUSH_NUMBER_PROMPT(PT_PROMPT_DUAS);
-      PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
-      } else if (tmp==1) {
-      PUSH_NUMBER_PROMPT(PT_PROMPT_UMA);
-      PUSH_UNIT_PROMPT(UNIT_HOURS, 0);
-    }
-  }
-
-  tmp = seconds / 60;
-  seconds %= 60;
-  if (tmp > 0 || ore >0) {
-    if (tmp != 1) {
-      PLAY_NUMBER(tmp, 0, 0);
-      PUSH_UNIT_PROMPT(UNIT_MINUTES, 1);
-    } else {
-      PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE+1);
-      PUSH_UNIT_PROMPT(UNIT_MINUTES, 0);
-    }
-    PUSH_NUMBER_PROMPT(PT_PROMPT_E);
-  }
-
-  if (seconds != 1) {
-    PLAY_NUMBER(seconds, 0, 0);
-    PUSH_UNIT_PROMPT(UNIT_SECONDS, 1);
+  uint8_t tmp;
+  if (IS_PLAY_LONG_TIMER()) {
+    tmp = seconds / 60;
+    if (seconds % 60 >= 30) tmp += 1;
+    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
   } else {
-    PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE+1);
-    PUSH_UNIT_PROMPT(UNIT_SECONDS, 0);
+    tmp = seconds / 3600;
+    seconds %= 3600;
+    if (tmp > 0 || IS_PLAY_TIME()) {
+      ore = tmp;
+      if (tmp > 2) {
+        PLAY_NUMBER(tmp, 0, 0);
+        PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
+      } else if (tmp == 2) {
+        PUSH_NUMBER_PROMPT(PT_PROMPT_DUAS);
+        PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
+      } else if (tmp == 1) {
+        PUSH_NUMBER_PROMPT(PT_PROMPT_UMA);
+        PUSH_UNIT_PROMPT(UNIT_HOURS, 0);
+      }
+    }
+
+    tmp = seconds / 60;
+    seconds %= 60;
+    if (tmp > 0 || ore > 0) {
+      if (tmp != 1) {
+        PLAY_NUMBER(tmp, 0, 0);
+        PUSH_UNIT_PROMPT(UNIT_MINUTES, 1);
+      } else {
+        PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE + 1);
+        PUSH_UNIT_PROMPT(UNIT_MINUTES, 0);
+      }
+      PUSH_NUMBER_PROMPT(PT_PROMPT_E);
+    }
+
+    if (seconds != 1) {
+      PLAY_NUMBER(seconds, 0, 0);
+      PUSH_UNIT_PROMPT(UNIT_SECONDS, 1);
+    } else {
+      PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE + 1);
+      PUSH_UNIT_PROMPT(UNIT_SECONDS, 0);
+    }
   }
 }
 
