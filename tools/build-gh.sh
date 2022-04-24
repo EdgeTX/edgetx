@@ -50,7 +50,7 @@ fi
 
 gh_tag=${GITHUB_REF##*/}
 gh_branch=$(git rev-parse --abbrev-ref HEAD)
-pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+pull_number=$(echo "$GITHUB_REF" | awk -F / '{print $3}')
 
 if [[ -z $gh_tag ]]; then
   if [[ -z $pull_number ]]; then
