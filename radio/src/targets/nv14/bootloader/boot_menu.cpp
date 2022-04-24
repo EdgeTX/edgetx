@@ -129,11 +129,20 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             yOffset = 35;
         }
 
+#if defined(SPI_FLASH)
+        lcd->drawText(60, 110, LV_SYMBOL_WARNING, BL_FOREGROUND);
+        pos = lcd->drawText(84, 110, "Erase Flash Storage", BL_FOREGROUND);
+        pos += 8;
+
+        lcd->drawText(60, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(84, 145, "Exit", BL_FOREGROUND);
+#else
         lcd->drawText(60, 110 + yOffset, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
         lcd->drawText(84, 110 + yOffset, "Exit", BL_FOREGROUND);
+#endif
 
         pos -= 79;
-        lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
+        lcd->drawSolidRect(79, 72 + (opt*35), pos, 26, 2, BL_SELECTED);
         
         lcd->drawBitmap(center - 55, 165, (const BitmapBuffer*)&BMP_PLUG_USB);
         lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
@@ -166,6 +175,32 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                       "[R TRIM] to select storage", BL_FOREGROUND);
         lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
                       LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
+    }
+#endif
+#if defined(SPI_FLASH)
+    else if (st == ST_CLEAR_FLASH_CHECK) {
+
+        bootloaderDrawTitle("erase internal flash storage");
+
+        lcd->drawText(62, 75, LV_SYMBOL_DRIVE, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(84, 75, "Erase Flash Storage", BL_FOREGROUND);
+        pos += 8;
+
+        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+
+        pos -= 79;
+        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+
+        bootloaderDrawFooter();
+        lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [R TRIM] long to erase storage", BL_FOREGROUND);
+        lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, LV_SYMBOL_NEW_LINE "[L TRIM] to exit", BL_FOREGROUND);
+    }
+    else if (st == ST_CLEAR_FLASH) {
+        bootloaderDrawTitle("erasing internal flash storage");
+
+        lcd->drawText(62, 75, "This may take up to 150s", BL_FOREGROUND);
+        bootloaderDrawFooter();
     }
 #endif
     else if (st == ST_USB) {
