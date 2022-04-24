@@ -21,7 +21,7 @@
 #include "font.h"
 #include "theme.h"
 
-#include "lvgl/src/widgets/lv_canvas.h"
+#include <lvgl/lvgl.h>
 
 void menuBodyEventCallback(lv_event_t *e)
 {
