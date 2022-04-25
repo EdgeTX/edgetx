@@ -179,7 +179,7 @@ void TabsGroup::removeAllTabs()
   header.carousel.updateInnerWidth();
 }
 
-void TabsGroup::setVisibleTab(PageTab * tab)
+void TabsGroup::setVisibleTab(PageTab* tab)
 {
   if (tab != currentTab) {
     clearFocus();
@@ -189,7 +189,11 @@ void TabsGroup::setVisibleTab(PageTab * tab)
 #endif
     currentTab = tab;
     if (tab->onSetVisible) tab->onSetVisible();
-    tab->build(&body);
+
+    auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
+                               FORM_FORWARD_FOCUS);
+    tab->build(form);
+
     if (!focusWindow) setFocus(SET_FOCUS_DEFAULT);
 
     header.setTitle(tab->title.c_str());
