@@ -150,7 +150,6 @@ class TabsGroupHeader: public FormGroup {
       title = value;
     }
 
-    TabsCarousel* getCarousel() {return &carousel;}
 
    protected:
 #if defined(HARDWARE_TOUCH)
@@ -167,23 +166,9 @@ class TabsGroup: public Window
 
   public:
     explicit TabsGroup(uint8_t icon);
-
     ~TabsGroup() override;
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
-
-#if defined(HARDWARE_TOUCH)
-      Keyboard::hide();
-#endif
-
-      header.deleteLater(true, false);
-      body.deleteLater(true, false);
-
-      Window::deleteLater(detach, trash);
-    }
+    void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -227,8 +212,6 @@ class TabsGroup: public Window
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    static int calledFromModel;
-    static int retTab;
 
    protected:
     TabsGroupHeader header;

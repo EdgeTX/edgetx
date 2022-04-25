@@ -48,40 +48,9 @@ class LayoutChoice : public Button
     update();
   }
 
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override
-  {
-    TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                  event);
-
-    if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      editMode = true;
-      invalidate();
-      openMenu();
-    } else {
-      FormField::onEvent(event);
-    }
-  }
-#endif
-
-#if defined(HARDWARE_TOUCH)
-  bool onTouchEnd(coord_t, coord_t) override
-  {
-    if (enabled) {
-      if (!hasFocus()) {
-        setFocus(SET_FOCUS_DEFAULT);
-      }
-      onKeyPress();
-      openMenu();
-    }
-    return true;
-  }
-#endif
-
-  void openMenu()
+  void onPress() override
   {
     auto menu = new Menu(parent);
-
     for (auto layout : getRegisteredLayouts()) {
       menu->addLine(layout->getBitmap(), layout->getName(),
                     [=]() { setValue(layout); });
@@ -91,11 +60,10 @@ class LayoutChoice : public Button
                         getRegisteredLayouts().end(), getValue());
     menu->select(std::distance(getRegisteredLayouts().begin(), it));
 
-    // menu->setCloseHandler([=]() {
-    //   editMode = false;
-    //   update();
-    //   // setFocus();
-    // });
+    menu->setCloseHandler([=]() {
+      editMode = false;
+      update();
+    });
   }
 
  protected:
@@ -314,12 +282,12 @@ void ScreenSetupPage::build(FormWindow * form)
 void ScreenSetupPage::clearLayoutOptions()
 {
   if (!layoutOptions) return;
+  layoutOptions->clear();  
 }
 
 void ScreenSetupPage::buildLayoutOptions()
 {
   if (!layoutOptions) return;
-  layoutOptions->clear();
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
   layoutOptions->setFlexLayout();
