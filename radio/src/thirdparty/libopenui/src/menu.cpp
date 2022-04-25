@@ -23,34 +23,34 @@
 
 #include <lvgl/lvgl.h>
 
-void menuBodyEventCallback(lv_event_t *e)
+static void menu_clicked(lv_event_t *e)
 {
   auto code = lv_event_get_code(e);
   if (code == LV_EVENT_CLICKED) {
-    lv_obj_t *target = lv_event_get_target(e);
-    if (target != nullptr) {
-      long index = (long)lv_event_get_user_data(e);
-      MenuBody *mb = (MenuBody *) lv_obj_get_user_data(lv_obj_get_parent(target));
-      if (mb) {
-        Menu *menu = mb->getParentMenu();
-        if (index < (int)mb->lines.size()) {
-          onKeyPress();
-          if (menu->multiple) {
-            if (mb->selectedIndex == index)
-              mb->lines[index].onPress();
-            else
-              mb->setIndex(index);
-          }
-          else {
-            mb->setIndex(index);
-            mb->lines[index].onPress();
-            menu->deleteLater();
-          }
-        }
-      }
-    }
+
+    lv_obj_t* target = lv_event_get_target(e);
+    if (!target) return;
+
+    lv_obj_t* parent = lv_obj_get_parent(target);
+    if (!parent) return;
+    
+    MenuBody* mb = (MenuBody*)lv_obj_get_user_data(parent);
+    if (!mb) return;
+
+    size_t idx = (size_t)lv_event_get_user_data(e);
+    mb->onPress(idx);
   }
 }
+
+static void add_list_button(lv_obj_t* list, const char* icon, const char* txt, size_t idx)
+{
+  lv_obj_t* btn = lv_list_add_btn(list, icon, txt);
+  lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
+
+  void* user_data = (void *)idx;
+  lv_obj_add_event_cb(btn, menu_clicked, LV_EVENT_CLICKED, user_data);
+}
+
 
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
   Window(parent, rect, OPAQUE, 0, lv_list_create)
@@ -62,10 +62,7 @@ void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
                        std::function<bool()> isChecked)
 {
   lines.emplace_back(std::move(onPress), std::move(isChecked), nullptr);
-  lv_obj_t *btn = lv_list_add_btn(lvobj, nullptr, text.c_str());
-  lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
-  lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED,
-                      (void *)(lines.size() - 1));
+  add_list_button(lvobj, nullptr, text.c_str(), lines.size() - 1);
 }
 
 void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
@@ -80,12 +77,8 @@ void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
   void* buf = (void*)(icon_mask + 4);
   lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
 
-  lv_obj_t *btn = lv_list_add_btn(
-      lvobj, (const char *)lv_canvas_get_img(canvas), text.c_str());
-
-  lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
-  lv_obj_add_event_cb(btn, menuBodyEventCallback, LV_EVENT_CLICKED,
-                      (void *)(lines.size() - 1));  
+  const char* icon = (const char *)lv_canvas_get_img(canvas);
+  add_list_button(lvobj, icon, text.c_str(), lines.size() - 1);
 }
 
 void MenuBody::removeLines()
@@ -106,16 +99,33 @@ coord_t MenuBody::getContentHeight()
   return h;
 }
 
+void MenuBody::onPress(size_t index)
+{
+  Menu *menu = getParentMenu();
+  if (index < lines.size()) {
+    onKeyPress();
+    if (menu->multiple) {
+      if (selectedIndex == index)
+        lines[index].onPress();
+      else
+        setIndex(index);
+    } else {
+      setIndex(index);
+      lines[index].onPress();
+      menu->deleteLater();
+    }
+  }
+}
 
 // ensure index is in range and also handle wrapping index
 int MenuBody::rangeCheck(int index)
 {
-    if (index < 0) 
-      index = lines.size() - 1;
-    else if (index > (signed)lines.size() - 1)
-      index = 0;
+  if (index < 0)
+    index = lines.size() - 1;
+  else if (index > (signed)lines.size() - 1)
+    index = 0;
 
-    return index;
+  return index;
 }
 
 void MenuBody::setIndex(int index)

@@ -62,7 +62,6 @@ class MenuBody: public Window
     MenuLine(MenuLine &&) = default;
 
    protected:
-    friend void menuBodyEventCallback(lv_event_t *e);
     bool isSeparator = false;
     std::function<void()> onPress;
     std::function<bool()> isChecked;
@@ -121,6 +120,8 @@ class MenuBody: public Window
 
     coord_t getContentHeight();
 
+    void onPress(size_t index);
+  
   protected:
     friend void menuBodyEventCallback(lv_event_t *);
     void selectNext(MENU_DIRECTION direction);
