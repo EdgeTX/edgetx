@@ -58,7 +58,7 @@ elif [[ $gh_type = "pull" ]]; then
   # pull: refs/pull/<pr_number>/merge
   gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
   export EDGETX_VERSION_SUFFIX=$gh_pull_number
-else
+elif [[ $gh_type = "heads" ]]; then
   # heads: refs/heads/<branch_name>
   gh_branch=${GITHUB_REF##*/}
   export EDGETX_VERSION_SUFFIX=$gh_branch
