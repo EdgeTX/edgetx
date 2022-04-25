@@ -31,36 +31,36 @@ const ZoneOption OPTIONS_LAYOUT_2P1[] = {
   LAYOUT_OPTIONS_END
 };
 
-class Layout2P1: public Layout
+class Layout2P1 : public Layout
 {
-  public:
-    Layout2P1(Window* parent, const LayoutFactory * factory, Layout::PersistentData * persistentData):
+ public:
+  Layout2P1(Window* parent, const LayoutFactory* factory,
+            Layout::PersistentData* persistentData) :
       Layout(parent, factory, persistentData)
-    {
+  {
+  }
+
+  unsigned int getZonesCount() const override { return 3; }
+
+  rect_t getZone(unsigned int index) const override
+  {
+    rect_t zone = getMainZone();
+
+    if (index == 0) {
+      return {isMirrored() ? zone.x : zone.x + zone.w / 2, zone.y, zone.w / 2,
+              zone.h};
+    } else if (index == 1) {
+      return {isMirrored() ? zone.x + zone.w / 2 : zone.x, zone.y, zone.w / 2,
+              zone.h / 2};
+    } else {
+      return {isMirrored() ? zone.x + zone.w / 2 : zone.x, zone.y + zone.h / 2,
+              zone.w / 2, zone.h / 2};
     }
 
-    unsigned int getZonesCount() const override
-    {
-      return 3;
-    }
-
-    rect_t getZone(unsigned int index) const override
-    {
-      rect_t zone = getMainZone();
-
-      if (index == 0) {
-        return {isMirrored() ? zone.x : zone.x + zone.w / 2, zone.y,zone.w / 2, zone.h};
-      }
-      else if (index == 1) {
-        return {isMirrored() ? zone.x + zone.w / 2 : zone.x, zone.y,zone.w / 2, zone.h / 2};
-      }
-      else {
-        return {isMirrored() ? zone.x + zone.w / 2 : zone.x, zone.y + zone.h / 2,zone.w / 2, zone.h / 2};
-      }
-
-      return zone;
-    }
+    return zone;
+  }
 };
 
-BaseLayoutFactory<Layout2P1> layout2P1("Layout2P1", "2 + 1", LBM_LAYOUT_2P1, OPTIONS_LAYOUT_2P1);
-const LayoutFactory * defaultLayout = &layout2P1;
+BaseLayoutFactory<Layout2P1> layout2P1("Layout2P1", "2 + 1", LBM_LAYOUT_2P1,
+                                       OPTIONS_LAYOUT_2P1);
+const LayoutFactory* defaultLayout = &layout2P1;

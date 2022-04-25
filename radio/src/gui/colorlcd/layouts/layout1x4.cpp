@@ -31,31 +31,29 @@ const ZoneOption OPTIONS_LAYOUT_1x4[] =  {
   LAYOUT_OPTIONS_END
 };
 
-class Layout1x4: public Layout
+class Layout1x4 : public Layout
 {
-  public:
-    Layout1x4(Window* parent, const LayoutFactory * factory, Layout::PersistentData * persistentData):
+ public:
+  Layout1x4(Window* parent, const LayoutFactory* factory,
+            Layout::PersistentData* persistentData) :
       Layout(parent, factory, persistentData)
-    {
+  {
+  }
+
+  unsigned int getZonesCount() const override { return 4; }
+
+  rect_t getZone(unsigned int index) const override
+  {
+    rect_t zone = getMainZone();
+
+    if (index > 3) {
+      index = 3;
     }
+    return {zone.x, zone.y + zone.h / 4 * (int)index, zone.w, zone.h / 4};
 
-    unsigned int getZonesCount() const override
-    {
-      return 4;
-    }
-
-    rect_t getZone(unsigned int index) const override
-    {
-      rect_t zone = getMainZone();
-
-			if (index > 3)
-			{
-				index = 3;
-			}
-      return {zone.x, zone.y + zone.h / 4 * (int)index, zone.w, zone.h / 4};
-
-      return zone;
-    }
+    return zone;
+  }
 };
 
-BaseLayoutFactory<Layout1x4> Layout1x4("Layout1x4", "1 x 4", LBM_LAYOUT_1x4, OPTIONS_LAYOUT_1x4);
+BaseLayoutFactory<Layout1x4> Layout1x4("Layout1x4", "1 x 4", LBM_LAYOUT_1x4,
+                                       OPTIONS_LAYOUT_1x4);
