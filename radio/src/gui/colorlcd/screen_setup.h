@@ -25,25 +25,32 @@
 #include "layout.h"
 #include "datastructs.h"
 
-class ScreenAddPage: public PageTab {
-  public:
-    ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex);
+class ScreenAddPage : public PageTab
+{
+ public:
+  ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex);
 
-    void build(FormWindow * window) override;
+  void build(FormWindow* window) override;
 
-  protected:
-    ScreenMenu * menu;
-    uint8_t pageIndex;
+ protected:
+  ScreenMenu* menu;
+  uint8_t pageIndex;
 };
 
-class ScreenSetupPage: public PageTab {
-  public:
-    ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned customScreenIndex);
+class ScreenSetupPage : public PageTab
+{
+ public:
+  ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
+                  unsigned customScreenIndex);
 
-    void build(FormWindow * window) override;
+  void build(FormWindow* form) override;
 
-  protected:
-    ScreenMenu * menu;
-    unsigned pageIndex;
-    unsigned customScreenIndex;
+ protected:
+  ScreenMenu* menu;
+  unsigned pageIndex;
+  unsigned customScreenIndex;
+  FormGroup* layoutOptions = nullptr;
+
+  void clearLayoutOptions();
+  void buildLayoutOptions();
 };
