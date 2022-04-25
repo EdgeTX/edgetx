@@ -22,12 +22,8 @@
 #include "tabsgroup.h"
 
 #include "mainwindow.h"
-#include "view_channels.h"
 #include "view_main.h"
-#include "model_outputs.h"
-#include "model_mixes.h"
 #include "static.h"
-#include "menu_model.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -37,8 +33,6 @@
 
 #include <algorithm>
 
-int TabsGroup::calledFromModel = 0;
-int TabsGroup::retTab = 0;
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
     FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, OPAQUE),
@@ -47,13 +41,6 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
         this,
         {0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT},
         [=]() -> uint8_t {
-          if (!parent->calledFromModel) {
-            ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
-          } else {
-            auto menu = new ModelMenu();
-            menu->setCurrentTab(parent->retTab);
-            parent->calledFromModel = 0;
-          }
           parent->deleteLater();
           return 1;
         },
@@ -128,6 +115,7 @@ TabsGroup::TabsGroup(uint8_t icon):
   header(this, icon),
   body(this, { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT }, FORM_FORWARD_FOCUS)
 {
+  Layer::push(this);
 }
 
 TabsGroup::~TabsGroup()
@@ -135,6 +123,22 @@ TabsGroup::~TabsGroup()
   for (auto tab: tabs) {
     delete tab;
   }
+}
+
+void TabsGroup::deleteLater(bool detach, bool trash)
+{
+  if (_deleted)
+    return;
+
+#if defined(HARDWARE_TOUCH)
+  Keyboard::hide();
+#endif
+
+  header.deleteLater(true, false);
+  body.deleteLater(true, false);
+
+  Window::deleteLater(detach, trash);
+  Layer::pop(this);
 }
 
 void TabsGroup::addTab(PageTab * page)
@@ -239,26 +243,7 @@ void TabsGroup::onEvent(event_t event)
   }
   else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
     killEvents(event);
-    if (!calledFromModel) {
-      ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
-    }
-    else {
-      auto menu = new ModelMenu();
-      menu->setCurrentTab(retTab);
-      calledFromModel = 0;
-      // TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
-    }
     deleteLater();
-  } else if (event == EVT_KEY_FIRST(KEY_MODEL)) {
-    TRACE("TabGroup %s", typeid(*this).name());
-    if (typeid(*this) == typeid(ModelMenu) ) {
-      killEvents(event);
-      calledFromModel = 1;
-      retTab = header.carousel.getCurrentIndex();
-      // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
-      new ChannelsViewMenu();
-      deleteLater();
-    }
   } else if (parent) {
     parent->onEvent(event);
   }
