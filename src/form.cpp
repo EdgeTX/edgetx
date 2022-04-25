@@ -263,13 +263,6 @@ void FormGroup::addField(FormField * field, bool front)
         link(previous, first);
     }
   }
-
-  // if (!focusWindow && !(field->getWindowFlags() & FORM_FORWARD_FOCUS)) {
-  //   field->setFocus(SET_FOCUS_DEFAULT);
-  // }
-  // else if (focusWindow == this && (windowFlags & FORM_FORWARD_FOCUS)) {
-  //   field->setFocus(SET_FOCUS_DEFAULT);
-  // }
 }
 
 void FormGroup::setFocus(uint8_t flag, Window * from)
