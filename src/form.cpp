@@ -185,7 +185,6 @@ void FormGroup::clear()
   if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
     previous->setNextField(this);
   }
-  lv_obj_set_layout(lvobj, 0);
 }
 
 void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
