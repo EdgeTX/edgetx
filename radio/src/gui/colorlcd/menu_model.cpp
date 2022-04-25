@@ -63,3 +63,12 @@ ModelMenu::ModelMenu():
 
 }
 
+void ModelMenu::onEvent(event_t event)
+{
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_FIRST(KEY_MODEL)) {
+    killEvents(event);
+    new ChannelsViewMenu();
+  }
+#endif
+}
