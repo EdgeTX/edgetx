@@ -32,81 +32,92 @@
 #define BUTTON_HEIGHT 30
 #define BUTTON_WIDTH  75
 
-class LayoutChoice: public FormField
+class LayoutChoice : public Button
 {
-  public:
+ public:
+  typedef std::function<const LayoutFactory*()> LayoutFactoryGetter;
+  typedef std::function<void(const LayoutFactory*)> LayoutFactorySetter;
 
-    typedef std::function<const LayoutFactory *()> LayoutFactoryGetter;
-    typedef std::function<void(const LayoutFactory *)> LayoutFactorySetter;
-
-    LayoutChoice(Window * parent, const rect_t & rect, LayoutFactoryGetter getValue, LayoutFactorySetter setValue):
-      FormField(parent, {rect.x, rect.y, 59, 33}),
+  LayoutChoice(Window* parent, LayoutFactoryGetter getValue, LayoutFactorySetter setValue) :
+    Button(parent, rect_t{}, nullptr, 0, 0, lv_btn_create),
       getValue(std::move(getValue)),
       setValue(std::move(setValue))
-    {
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
-      FormField::paint(dc);
-      auto layout = getValue();
-      if (layout) {
-        layout->drawThumb(dc, 4, 4, editMode ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
-      }
-    }
+  {
+    canvas = lv_canvas_create(lvobj);
+    lv_obj_center(canvas);
+    update();
+  }
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  void onEvent(event_t event) override
+  {
+    TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                  event);
 
-      if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-        editMode = true;
-        invalidate();
-        openMenu();
-      }
-      else {
-        FormField::onEvent(event);
-      }
+    if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+      editMode = true;
+      invalidate();
+      openMenu();
+    } else {
+      FormField::onEvent(event);
     }
+  }
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t, coord_t) override
-    {
-      if (enabled) {
-        if (!hasFocus()) {
-          setFocus(SET_FOCUS_DEFAULT);
-        }
-        onKeyPress();
-        openMenu();
+  bool onTouchEnd(coord_t, coord_t) override
+  {
+    if (enabled) {
+      if (!hasFocus()) {
+        setFocus(SET_FOCUS_DEFAULT);
       }
-      return true;
+      onKeyPress();
+      openMenu();
     }
+    return true;
+  }
 #endif
 
-    void openMenu()
-    {
-      auto menu = new Menu(parent);
+  void openMenu()
+  {
+    auto menu = new Menu(parent);
 
-      for (auto layout : getRegisteredLayouts()) {
-        menu->addLine(layout->getBitmap(), layout->getName(),
-                      [=]() { setValue(layout); });
-      }
-
-      auto it = std::find(getRegisteredLayouts().begin(),
-                          getRegisteredLayouts().end(), getValue());
-      menu->select(std::distance(getRegisteredLayouts().begin(), it));
-
-      menu->setCloseHandler([=]() {
-        editMode = false;
-        setFocus(SET_FOCUS_DEFAULT);
-      });
+    for (auto layout : getRegisteredLayouts()) {
+      menu->addLine(layout->getBitmap(), layout->getName(),
+                    [=]() { setValue(layout); });
     }
 
-  protected:
-    std::function<const LayoutFactory *()> getValue;
-    std::function<void(const LayoutFactory *)> setValue;
+    auto it = std::find(getRegisteredLayouts().begin(),
+                        getRegisteredLayouts().end(), getValue());
+    menu->select(std::distance(getRegisteredLayouts().begin(), it));
+
+    // menu->setCloseHandler([=]() {
+    //   editMode = false;
+    //   update();
+    //   // setFocus();
+    // });
+  }
+
+ protected:
+  lv_obj_t* canvas = nullptr;
+  std::function<const LayoutFactory*()> getValue;
+  std::function<void(const LayoutFactory*)> setValue;
+
+  void update()
+  {
+    if (!getValue || !canvas) return;
+
+    auto layout = getValue();
+    if (!layout) return;
+
+    const uint8_t* bitmap = layout->getBitmap();
+    if (!bitmap) return;
+
+    lv_coord_t w = *((uint16_t*)bitmap);
+    lv_coord_t h = *(((uint16_t*)bitmap) + 1);
+    void* buf = (void*)(bitmap + 4);
+    lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+  }
 };
 
 ScreenAddPage::ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex):
@@ -175,143 +186,169 @@ void ScreenAddPage::build(FormWindow * window)
   });
 }
 
-ScreenSetupPage::ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned customScreenIndex):
-  PageTab(),
-  menu(menu),
-  pageIndex(pageIndex),
-  customScreenIndex(customScreenIndex)
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
+                                          LV_GRID_TEMPLATE_LAST};
+
+static std::function<uint8_t()> startWidgetsSetup(ScreenMenu* menu,
+                                                  uint8_t screen_idx)
 {
+  return [=]() -> uint8_t {
+    new SetupWidgetsPage(menu, screen_idx);
+    return 0;
+  };
 }
 
-static void updateLayoutOptions(FormGroup* optionsWindow, unsigned customScreenIndex)
+static std::function<uint8_t()> removeScreen(ScreenMenu* menu,
+                                             uint8_t screen_idx)
 {
-  FormGridLayout grid;
-  optionsWindow->clear();
+  return [=]() -> uint8_t {
+    // Set the current tab to "User interface" to trigger body clearing
+    menu->setCurrentTab(0);
 
-  // Layout options...
-  int index = 0;
-  auto layout = dynamic_cast<Layout*>(customScreens[customScreenIndex]);
-  if (!layout) {
-    return;
-  }
-  auto factory = layout->getFactory();
-  if (!factory) {
-    return;
-  }
+    // Remove this screen from the model
+    disposeCustomScreen(screen_idx);
 
-  for (auto * option = factory->getOptions(); option->name; option++, index++) {
+    // Delete all custom screens
+    deleteCustomScreens();
 
-    auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
-    ZoneOptionValue * value = &layoutData->options[index].value;
+    // ... and reload
+    loadCustomScreens();
+    menu->updateTabs();
 
-    // Option label
-    new StaticText(optionsWindow, grid.getLabelSlot(false), option->name, 0, COLOR_THEME_PRIMARY1);
+    // Let's try to stay on the same page
+    // (first tab is "User interface")
+    auto pageIdx = screen_idx + 1;
 
-    // Option value
-    switch (option->type) {
-    case ZoneOption::Bool:
-      new CheckBox(optionsWindow, grid.getFieldSlot(), GET_SET_DEFAULT(value->boolValue));
-      break;
-
-    case ZoneOption::Color:
-      new ColorEdit(optionsWindow, grid.getFieldSlot(), GET_SET_DEFAULT(value->unsignedValue));
-      break;
-
-    default:
-      break;
+    // Subtract one more as the last one is "New main screen"
+    if (pageIdx > menu->getTabs() - 2) {
+      pageIdx = menu->getTabs() - 2;
     }
-    grid.nextLine();
-  }
-
-  optionsWindow->adjustHeight();
+    menu->setCurrentTab(pageIdx);
+    return 0;
+  };
 }
 
-void ScreenSetupPage::build(FormWindow * window)
+ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
+                                 unsigned customScreenIndex) :
+    PageTab(),
+    menu(menu),
+    pageIndex(pageIndex),
+    customScreenIndex(customScreenIndex)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
+}
+
+void ScreenSetupPage::build(FormWindow * form)
+{
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
+  form->setFlexLayout();
 
   // Layout choice...
-  new StaticText(window, grid.getLabelSlot(false), STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
+  auto line = form->newLine(&grid);
+  auto label = new StaticText(line, rect_t{}, STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
 
-  auto layoutSlot = grid.getFieldSlot();
-  layoutSlot.h = 2 * PAGE_LINE_HEIGHT - 1;
+  auto obj = label->getLvObj();
+  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_START, 0);
 
   // Dynamic options window...
   auto idx = customScreenIndex;
-  rect_t optRect = {0, grid.getWindowHeight(), window->width(), 0};
-  auto optionsWindow = new FormGroup(window, optRect, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
 
   LayoutChoice::LayoutFactoryGetter getFactory = [idx] () -> const LayoutFactory * {
     auto layout = dynamic_cast<Layout*>(customScreens[idx]);
     if (!layout) return nullptr;
     return layout->getFactory();
   };
+
   LayoutChoice::LayoutFactorySetter setLayout =
       [=](const LayoutFactory* factory) {
         // delete any options potentially accessing
-        // the old custom screen
-        window->clear();
+        // the old custom screen before re-creating it
+        clearLayoutOptions();
         createCustomScreen(factory, idx);
-        build(window);
+        buildLayoutOptions();
       };
 
-  auto layoutChoice = new LayoutChoice(window, layoutSlot, getFactory, setLayout);
-  grid.nextLine(layoutChoice->height());
+  auto layoutForm = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
+  layoutForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, 8);
 
-  // Setup widgets button...
-  auto setupWidgetsButton = new TextButton(window, grid.getFieldSlot(), STR_SETUP_WIDGETS);
+  obj = layoutForm->getLvObj();
+  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
 
-  auto menu = this->menu;
-  setupWidgetsButton->setPressHandler([idx, menu]() -> uint8_t {
-      new SetupWidgetsPage(menu, idx);
-      return 0;
-  });
-  grid.nextLine();
+  Window* btn = new LayoutChoice(layoutForm, getFactory, setLayout);
+  obj = btn->getLvObj();
+  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
+  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
+  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
 
-  // place the options window at the right spot
-  optionsWindow->setTop(grid.getWindowHeight());
-  updateLayoutOptions(optionsWindow, idx);
-  grid.addWindow(optionsWindow);
+  btn = new TextButton(layoutForm, rect_t{}, STR_SETUP_WIDGETS,
+                       startWidgetsSetup(menu, idx));
+  obj = btn->getLvObj();
+  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
+  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
+  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
 
-  // fix focus order due to early insertion
-  FormField::link(setupWidgetsButton, optionsWindow);
-  window->setLastField(optionsWindow);
-  
+  line = form->newLine();
+  layoutOptions = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
+  buildLayoutOptions();
+
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    auto button = new TextButton(window, grid.getFieldSlot(), STR_REMOVE_SCREEN);
-    auto menu = this->menu;
-    button->setPressHandler([menu, idx]() -> uint8_t {
-
-      // Set the current tab to "User interface" to trigger body clearing
-      menu->setCurrentTab(0);
-
-      // Remove this screen from the model
-      disposeCustomScreen(idx);
-
-      // Delete all custom screens
-      deleteCustomScreens();
-
-      // ... and reload
-      loadCustomScreens();
-      menu->updateTabs();
-
-      // Let's try to stay on the same page
-      // (first tab is "User interface")
-      auto pageIdx = idx + 1;
-
-      // Subtract one more as the last one is "New main screen"
-      if (pageIdx > menu->getTabs() - 2) {
-        pageIdx = menu->getTabs() - 2;
-      }      
-      menu->setCurrentTab(pageIdx);
-      return 0;
-    });
-
-    // fix focus order due to early insertion
-    FormField::link(button, layoutChoice);
+    new TextButton(form, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
   }
 
-  window->adjustInnerHeight();
+  form->updateSize();
+}
+
+void ScreenSetupPage::clearLayoutOptions()
+{
+  if (!layoutOptions) return;
+}
+
+void ScreenSetupPage::buildLayoutOptions()
+{
+  if (!layoutOptions) return;
+  layoutOptions->clear();
+
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
+  layoutOptions->setFlexLayout();
+  
+  // Layout options...
+  auto layout = dynamic_cast<Layout*>(customScreens[customScreenIndex]);
+  if (!layout) return;
+
+  auto factory = layout->getFactory();
+  if (!factory) return;
+
+  int index = 0;
+  for (auto* option = factory->getOptions(); option->name; option++, index++) {
+
+    auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
+    ZoneOptionValue* value = &layoutData->options[index].value;
+
+    // Option label
+    auto line = layoutOptions->newLine(&grid);
+    new StaticText(line, rect_t{}, option->name, 0, COLOR_THEME_PRIMARY1);
+
+    // Option value
+    switch (option->type) {
+      case ZoneOption::Bool:
+        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
+        break;
+
+      case ZoneOption::Color:
+        new ColorEdit(line, rect_t{}, GET_SET_DEFAULT(value->unsignedValue));
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  layoutOptions->updateSize();
+
+  auto parent = layoutOptions->getParent();
+  if (parent) parent->updateSize();
 }
