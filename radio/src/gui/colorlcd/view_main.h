@@ -90,9 +90,6 @@ class ViewMain: public Window
     // Set topbar visibility [0.0 -> 1.0]
     void setTopbarVisible(float visible);
 
-    // void setScrollPositionX(coord_t value) override;
-    // void setScrollPositionY(coord_t value) override;
-
 #if defined(HARDWARE_TOUCH)
     unsigned char prevSlideState = 0;
     unsigned int  startSlidePage = 0;

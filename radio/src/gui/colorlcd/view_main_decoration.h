@@ -28,13 +28,7 @@ constexpr coord_t FM_LABEL_HEIGHT = 20;
 class ViewMainDecoration: public Window
 {
   public:
-    ViewMainDecoration(Window * parent, const rect_t & rect):
-        Window(parent, rect)
-    {
-      createSliders();
-      createTrims();
-      createFlightMode();
-    }
+    ViewMainDecoration(Window * parent, const rect_t & rect);
 
     // Set decoration visibility
     void setTrimsVisible(bool visible);
