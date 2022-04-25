@@ -331,6 +331,8 @@ static void init_theme()
   lv_style_init(&btn_style);
   lv_style_set_bg_opa(&btn_style, LV_OPA_100);
   lv_style_set_bg_color(&btn_style, makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_border_opa(&btn_style, LV_OPA_0);
+  lv_style_set_border_width(&btn_style, 2);
 
   // LV_STATE_CHECKED
   lv_style_init(&btn_checked_style);
@@ -338,10 +340,10 @@ static void init_theme()
 
   // LV_STATE_FOCUSED
   lv_style_init(&btn_focused_style);
-  lv_style_set_border_width(&btn_focused_style, 1);
   lv_style_set_border_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_text_color(&btn_focused_style, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_border_opa(&btn_focused_style, LV_OPA_100);
 
   // Menus
   lv_style_init(&menu_line_style);
