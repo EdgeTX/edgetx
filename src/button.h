@@ -81,7 +81,7 @@ class Button: public FormField
     std::function<uint8_t(void)> pressHandler;
     std::function<void(void)> checkHandler;
 
-    void onPress();
+    virtual void onPress();
 };
 
 

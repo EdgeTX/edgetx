@@ -45,11 +45,11 @@ Button::Button(Window* parent, const rect_t& rect,
 void Button::onPress()
 {
   bool check = (pressHandler && pressHandler());
-  windowFlags = check ? windowFlags | BUTTON_CHECKED : windowFlags & ~BUTTON_CHECKED;
-  if(lvobj == nullptr)
-    return;
+  windowFlags =
+      check ? windowFlags | BUTTON_CHECKED : windowFlags & ~BUTTON_CHECKED;
+  if (lvobj == nullptr) return;
 
-  if (! (windowFlags & BUTTON_CHECKED))
+  if (!(windowFlags & BUTTON_CHECKED))
     lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
   else
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
