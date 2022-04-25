@@ -31,6 +31,14 @@
 
 #include "board.h"
 
+ViewMainDecoration::ViewMainDecoration(Window* parent, const rect_t& rect) :
+    Window(parent, rect, NO_FOCUS)
+{
+  createSliders();
+  createTrims();
+  createFlightMode();
+}
+
 void ViewMainDecoration::setSlidersVisible(bool visible)
 {
   //

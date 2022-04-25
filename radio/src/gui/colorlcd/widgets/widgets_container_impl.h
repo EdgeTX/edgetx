@@ -33,7 +33,7 @@ class WidgetsContainerImpl : public WidgetsContainer
 
   WidgetsContainerImpl(Window* parent, const rect_t& rect,
                        PersistentData* persistentData) :
-      WidgetsContainer(parent, rect, FORM_FORWARD_FOCUS),
+      WidgetsContainer(parent, rect, NO_FOCUS | FORM_FORWARD_FOCUS),
       persistentData(persistentData)
   {
   }
