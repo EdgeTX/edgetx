@@ -48,14 +48,20 @@ fi
 
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
-gh_tag=${GITHUB_REF##*/}
-gh_branch=$(git rev-parse --abbrev-ref HEAD)
+gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull
 
-if [[ -z $gh_tag ]];
-then
-  export EDGETX_VERSION_SUFFIX=$gh_branch
+if [[ $gh_type = "tags" ]]; then
+  # tags: refs/tags/<tag_name>
+  gh_tag=${GITHUB_REF##*/}
+  export EDGETX_VERSION_TAG=$gh_tag
+elif [[ $gh_type = "pull" ]]; then
+  # pull: refs/pull/<pr_number>/merge
+  gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
+  export EDGETX_VERSION_SUFFIX=$gh_pull_number
 else
-  export EDGETX_VERSION_SUFFIX=$gh_tag
+  # heads: refs/heads/<branch_name>
+  gh_branch=${GITHUB_REF##*/}
+  export EDGETX_VERSION_SUFFIX=$gh_branch
 fi
 
 : ${BUILD_TYPE:=Release}
