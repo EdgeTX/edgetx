@@ -296,6 +296,7 @@ void Window::clearLvgl()
   }
 
   lv_obj_set_user_data(lvobj, nullptr);
+  lv_group_remove_obj(lvobj);
   lvobj = nullptr;
 }
 

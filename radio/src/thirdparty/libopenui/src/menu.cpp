@@ -134,6 +134,7 @@ void MenuBody::setIndex(int index)
       lv_obj_add_state(btn, LV_STATE_CHECKED);
       lv_obj_add_state(btn, LV_STATE_FOCUS_KEY);
       lv_obj_scroll_to_view(btn, LV_ANIM_OFF);
+      lv_group_focus_obj(btn);
     }
   }
 }
