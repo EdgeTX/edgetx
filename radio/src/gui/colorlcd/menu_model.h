@@ -29,10 +29,11 @@ class ModelMenu : public TabsGroup
  public:
   ModelMenu();
 
+  void onEvent(event_t event);
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ModelMenu"; }
 #endif
-
 };
 
 #endif // _MENU_MODEL_H_
