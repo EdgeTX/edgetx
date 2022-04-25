@@ -31,34 +31,32 @@ const ZoneOption OPTIONS_LAYOUT_2x2[] = {
   LAYOUT_OPTIONS_END
 };
 
-class Layout2x2: public Layout
+class Layout2x2 : public Layout
 {
-  public:
-    Layout2x2(Window* parent, const LayoutFactory * factory, Layout::PersistentData * persistentData):
+ public:
+  Layout2x2(Window* parent, const LayoutFactory* factory,
+            Layout::PersistentData* persistentData) :
       Layout(parent, factory, persistentData)
-    {
-    }
+  {
+  }
 
-    unsigned int getZonesCount() const override
-    {
-      return 4;
-    }
+  unsigned int getZonesCount() const override { return 4; }
 
-    rect_t getZone(unsigned int index) const override
-    {
-      rect_t zone = getMainZone();
+  rect_t getZone(unsigned int index) const override
+  {
+    rect_t zone = getMainZone();
 
-      zone.w /= 2;
-      zone.h /= 2;
+    zone.w /= 2;
+    zone.h /= 2;
 
-      if (index == 1 || index == 3)
-        zone.y += zone.h;
+    if (index == 1 || index == 3) zone.y += zone.h;
 
-      if ((!isMirrored() && index > 1) || (isMirrored() && index < 2))
-        zone.x += zone.w;
+    if ((!isMirrored() && index > 1) || (isMirrored() && index < 2))
+      zone.x += zone.w;
 
-      return zone;
-    }
+    return zone;
+  }
 };
 
-BaseLayoutFactory<Layout2x2> layout2x2("Layout2x2", "2 x 2", LBM_LAYOUT_2x2, OPTIONS_LAYOUT_2x2);
+BaseLayoutFactory<Layout2x2> layout2x2("Layout2x2", "2 x 2", LBM_LAYOUT_2x2,
+                                       OPTIONS_LAYOUT_2x2);
