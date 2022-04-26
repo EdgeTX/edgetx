@@ -48,20 +48,19 @@ fi
 
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
-gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull
-
-if [[ $gh_type = "tags" ]]; then
-  # tags: refs/tags/<tag_name>
-  gh_tag=${GITHUB_REF##*/}
-  export EDGETX_VERSION_TAG=$gh_tag
-elif [[ $gh_type = "pull" ]]; then
-  # pull: refs/pull/<pr_number>/merge
-  gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
-  export EDGETX_VERSION_SUFFIX=$gh_pull_number
-elif [[ $gh_type = "heads" ]]; then
-  # heads: refs/heads/<branch_name>
-  # replace it with branch_name only, if EDGETX_VERSION_SUFFIX is already not set
-  if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
+# Generate EDGETX_VERSION_SUFFIX if not already set
+if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
+  gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull
+  if [[ $gh_type = "tags" ]]; then
+    # tags: refs/tags/<tag_name>
+    gh_tag=${GITHUB_REF##*/}
+    export EDGETX_VERSION_TAG=$gh_tag
+  elif [[ $gh_type = "pull" ]]; then
+    # pull: refs/pull/<pr_number>/merge
+    gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
+    export EDGETX_VERSION_SUFFIX=$gh_pull_number
+  elif [[ $gh_type = "heads" ]]; then
+    # heads: refs/heads/<branch_name>
     gh_branch=${GITHUB_REF##*/}
     export EDGETX_VERSION_SUFFIX=$gh_branch
   fi
