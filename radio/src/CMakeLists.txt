@@ -447,6 +447,11 @@ if(FRSKY_RELEASE)
   set(POPUP_LEVEL 3)
 endif()
 
+if(IFLIGHT_RELEASE)
+  add_definitions(-DIFLIGHT_RELEASE)
+endif()
+
+
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
 endif()
