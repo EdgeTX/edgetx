@@ -245,7 +245,7 @@
   #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
 #elif defined(RADIO_ZORRO)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"

@@ -237,3 +237,10 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
                          BL_SELECTED);
     }
 }
+
+void blExit(void)
+{
+  lcdClear();
+  lcdRefresh();
+  lcdRefreshWait();
+}

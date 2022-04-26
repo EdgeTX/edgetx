@@ -215,3 +215,10 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
         lcd->drawSolidRect(119, 72 + (line * 25), 278, 26, 2, BL_SELECTED);
     }
 }
+
+void blExit(void)
+{
+  lcdClear();
+  lcdRefresh();
+  lcdRefreshWait();
+}

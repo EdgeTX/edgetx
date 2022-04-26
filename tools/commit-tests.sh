@@ -136,6 +136,9 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
