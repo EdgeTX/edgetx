@@ -109,6 +109,9 @@ do
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;

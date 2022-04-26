@@ -1000,16 +1000,34 @@ void menuModelSetup(event_t event)
                 if (moduleIdx == INTERNAL_MODULE) {
                   uint8_t moduleType = checkIncDec(event, g_model.moduleData[moduleIdx].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,
                                                    isInternalModuleAvailable);
+  #if defined(RADIO_COMMANDO8)
+                    if (reusableBuffer.moduleSetup.newType!=MODULE_TYPE_NONE)
+                    {
+                      reusableBuffer.moduleSetup.newType=MODULE_TYPE_NONE;
+                      g_model.moduleData[moduleIdx].type = reusableBuffer.moduleSetup.newType;
+                      reusableBuffer.moduleSetup.previousType = reusableBuffer.moduleSetup.newType;
+                      setModuleType(EXTERNAL_MODULE, MODULE_TYPE_NONE);
+                    }
+  #endif
                   if (checkIncDec_Ret) {
                     setModuleType(moduleIdx, moduleType);
                   }
                 }
-                else
+                else{
 #endif
                   reusableBuffer.moduleSetup.newType = checkIncDec(event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE, MODULE_TYPE_MAX, 0,
                                                                    isExternalModuleAvailable);
+  #if defined(RADIO_COMMANDO8) && defined(HARDWARE_INTERNAL_MODULE)
+                  if (checkIncDec(event, g_model.moduleData[moduleIdx].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,isInternalModuleAvailable)!=MODULE_TYPE_NONE)
+                  {
+                    setModuleType(INTERNAL_MODULE, MODULE_TYPE_NONE);
+                  }
+  #endif
                 break;
 
+#if defined(HARDWARE_INTERNAL_MODULE)
+                }
+#endif
               case 1:
                 if (isModuleXJT(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);

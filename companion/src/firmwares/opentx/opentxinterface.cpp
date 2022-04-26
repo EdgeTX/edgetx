@@ -76,6 +76,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
       return "EdgeTX for Radiomaster T8";
+    case BOARD_IFLIGHT_COMMANDO8:
+      return "EdgeTX for iFlight Commando8"; 
     case BOARD_TARANIS_X9D:
       return "EdgeTX for FrSky Taranis X9D";
     case BOARD_TARANIS_X9DP:
@@ -360,6 +362,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_RADIOMASTER_T8(board)) {
     variant |= RADIOMASTER_T8_VARIANT;
+  }
+  else if (IS_IFLIGHT_COMMANDO8(board)) {
+    variant |= IFLIGHT_COMMANDO8_VARIANT;
   }
   OpenTxGeneralData generator((GeneralSettings &)radioData.generalSettings, board, version, variant);
   // generator.dump();
@@ -1074,6 +1079,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
       variantError = true;
     }
   }
+  else if (IS_IFLIGHT_COMMANDO8(board)) {
+    if (variant != IFLIGHT_COMMANDO8_VARIANT) {
+      variantError = true;
+    }
+  }
   else if (IS_TARANIS(board)) {
     if (variant != 0) {
       variantError = true;
@@ -1458,6 +1468,16 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, NONE);
   firmware->addOption("bindkey", Firmware::tr("Allow bind using bind key"));
+
+  /* iFlight Commando8 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("commando8"), QCoreApplication::translate("Firmware", "iFlight Commando8"), BOARD_IFLIGHT_COMMANDO8);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, NONE);
 
   /* Radiomaster TX16S board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("Radiomaster TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);

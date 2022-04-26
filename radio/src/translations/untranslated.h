@@ -99,7 +99,7 @@
 #elif defined(RADIO_TX12)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Exit\0""Enter""Up\0  ""Down\0""SYS\0 ""MDL\0 ""TELE\0"
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""UP\0  ""DOWN\0"
 #elif defined(RADIO_ZORRO)

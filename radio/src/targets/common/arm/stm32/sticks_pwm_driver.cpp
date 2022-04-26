@@ -120,8 +120,8 @@ extern "C" void PWM_IRQHandler(void)
 
 void sticksPwmRead(uint16_t * values)
 {
-  values[0] = timer_capture_values[0];
-  values[1] = timer_capture_values[1];
-  values[2] = timer_capture_values[3];
-  values[3] = timer_capture_values[2];
+  values[0] = timer_capture_values[STICK_PWM_CHANNEL_0];
+  values[1] = timer_capture_values[STICK_PWM_CHANNEL_1];
+  values[2] = timer_capture_values[STICK_PWM_CHANNEL_2];
+  values[3] = timer_capture_values[STICK_PWM_CHANNEL_3];
 }

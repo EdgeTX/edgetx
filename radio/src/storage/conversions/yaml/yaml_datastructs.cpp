@@ -54,6 +54,8 @@ namespace yaml_conv_220 {
   #include "yaml_datastructs_zorro.cpp"
  #elif defined(RADIO_T8)
   #include "yaml_datastructs_t8.cpp"
+ #elif defined(RADIO_COMMANDO8)
+  #include "yaml_datastructs_commando8.cpp"  
  #else
   #include "yaml_datastructs_x7.cpp"
  #endif

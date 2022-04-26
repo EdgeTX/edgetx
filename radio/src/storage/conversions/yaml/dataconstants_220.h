@@ -58,7 +58,7 @@
   // #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              1
   #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8)
   // #define NUM_POTS                      0
   // #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              2
@@ -94,7 +94,7 @@
 #define STORAGE_NUM_SWITCHES 6
 #elif defined(RADIO_TPRO)
 #define STORAGE_NUM_SWITCHES 10
-#elif defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_T8) || defined(PCBX7ACCESS) || defined(PCBX7)
+#elif defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(PCBX7ACCESS) || defined(PCBX7)
 #define STORAGE_NUM_SWITCHES 8
 #elif defined(PCBX9LITES)
 #define STORAGE_NUM_SWITCHES 7

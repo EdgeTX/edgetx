@@ -384,7 +384,7 @@ inline bool SPLASH_NEEDED()
   #define ROTENC_DELAY_HIGHSPEED       16
 #else
   #define CASE_ROTARY_ENCODER(x)
-  #if defined(RADIO_T8)
+  #if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     constexpr uint8_t rotencSpeed = 1;
   #endif
 #endif
@@ -937,7 +937,7 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 #if defined(STATUS_LEDS)
   #define LED_ERROR_BEGIN()            ledRed()
-#if defined(RADIO_T8)
+#if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   // Because of green backlit logo, green is preferred on this radio
   #define LED_ERROR_END()              ledGreen()
   #define LED_BIND()                   ledBlue()

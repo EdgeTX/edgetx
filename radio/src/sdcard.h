@@ -162,6 +162,8 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x4778746F // otx for Radiomaster Zorro
 #elif defined(RADIO_T8)
   #define ETX_FOURCC 0x4378746F // etx for Radiomaster T8
+#elif defined(RADIO_COMMANDO8)
+  #define ETX_FOURCC 0x4478746F // otx for iFlight Commando8
 #elif defined(PCBX7)
   #define ETX_FOURCC 0x3678746F // etx for Taranis X7 / X7S / X7 Express / X7S Express
 #elif defined(PCBX9LITES)

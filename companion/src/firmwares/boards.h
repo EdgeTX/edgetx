@@ -61,6 +61,7 @@ namespace Board {
     BOARD_JUMPER_T18,
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_T8,
+    BOARD_IFLIGHT_COMMANDO8,
     BOARD_JUMPER_TLITE,
     BOARD_FLYSKY_NV14,
     BOARD_RADIOMASTER_ZORRO,
@@ -287,6 +288,11 @@ inline bool IS_RADIOMASTER_T8(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_T8;
 }
 
+inline bool IS_IFLIGHT_COMMANDO8(Board::Type board)
+{
+  return board == Board::BOARD_IFLIGHT_COMMANDO8;
+}
+
 inline bool IS_FAMILY_T16(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18;
@@ -298,6 +304,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_T8 ||
+         board == Board::BOARD_IFLIGHT_COMMANDO8 ||
          board == Board::BOARD_JUMPER_TLITE ||
          board == Board::BOARD_JUMPER_TPRO;
 }

@@ -59,6 +59,8 @@
   #include "lua/lua_exports_zorro.inc"
 #elif defined(RADIO_T8)
   #include "lua/lua_exports_t8.inc"
+#elif defined(RADIO_COMMANDO8)
+  #include "lua/lua_exports_commando8.inc"  
 #elif defined(PCBX9LITES)
   #include "lua/lua_exports_x9lites.inc"
 #elif defined(PCBX9LITE)
@@ -2669,7 +2671,7 @@ const luaR_value_entry opentxConstants[] = {
   { "ROTENC_LOWSPEED", ROTENC_LOWSPEED },
   { "ROTENC_MIDSPEED", ROTENC_MIDSPEED },
   { "ROTENC_HIGHSPEED", ROTENC_HIGHSPEED },
-#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_T8) // key reverted between field nav and value change
+#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) // key reverted between field nav and value change
   { "EVT_VIRTUAL_PREV", EVT_KEY_FIRST(KEY_PLUS) },
   { "EVT_VIRTUAL_PREV_REPT", EVT_KEY_REPT(KEY_PLUS) },
   { "EVT_VIRTUAL_NEXT", EVT_KEY_FIRST(KEY_MINUS) },
@@ -2706,7 +2708,7 @@ const luaR_value_entry opentxConstants[] = {
   { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
   { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_T8)
+#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_PAGEUP) },
   { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PAGEDN) },
   { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_MODEL) },

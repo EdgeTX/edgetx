@@ -233,6 +233,35 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DRADIO_T8)
     add_definitions(-DEEPROM_VARIANT=0x4004)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
+    elseif(PCBREV STREQUAL COMMANDO8)
+    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
+    set(HARDWARE_EXTERNAL_MODULE YES)
+    set(FLAVOUR commando8)
+    set(NAVIGATION_TYPE x7)
+    set(CPU_TYPE STM32F4)
+    set(CPU_TYPE_FULL STM32F407xE)  # for size report
+    add_definitions(-DSTM32F407xx)
+    set(LINKER_SCRIPT targets/taranis/stm32f4_flash.ld)
+    set(FIRMWARE_TARGET_SRC
+      ${FIRMWARE_TARGET_SRC}
+      startup_stm32f40_41xxx.s
+      ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
+    add_definitions(-DSTM32F407xx -DSTM32F40_41xxx)  
+    set(ROTARY_ENCODER NO)
+    set(LUA_EXPORT lua_export_commando8)
+    set(BLUETOOTH NO)
+    set(UNRTCLOCK YES)
+    if(IFLIGHT_RELEASE)
+      set(BIND_KEY NO)
+    endif()
+    add_definitions(-DRADIO_COMMANDO8)
+    add_definitions(-DSTICKS_PWM)
+    add_definitions(-DAUDIO_MUTE_PIN_INVERT)
+    add_definitions(-DEEPROM_VARIANT=0x4008)
+    add_definitions(-DIFLIGHT_RELEASE)
+    add_definitions(-DMANUFACTURER_IFLIGHT)
   elseif(PCBREV STREQUAL ACCESS)
     set(DEFAULT_INTERNAL_MODULE ISRM_PXX2 CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
@@ -505,7 +534,11 @@ if(SPLASH STREQUAL OFF)
 endif()
 
 add_definitions(-DPCBTARANIS)
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+if(UNRTCLOCK)
+  add_definitions(-DAUDIO -DVOICE )
+else()
+  add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+endif()
 
 set(SRC
   ${SRC}
@@ -540,7 +573,7 @@ set(FIRMWARE_TARGET_SRC
   trainer_driver.cpp
   )
 
-if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
+if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
