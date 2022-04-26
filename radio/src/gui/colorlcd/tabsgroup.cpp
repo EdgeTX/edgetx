@@ -35,7 +35,7 @@
 
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
-    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, OPAQUE),
+    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
 #if defined(HARDWARE_TOUCH)
     back(
         this,
@@ -49,6 +49,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
     icon(icon),
     carousel(this, parent)
 {
+  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
 }
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
