@@ -146,7 +146,7 @@ static inline uint32_t ticksNow()
   #define ROTENC_HIGHSPEED             50
   #define ROTENC_DELAY_MIDSPEED        32
   #define ROTENC_DELAY_HIGHSPEED       16
-#elif defined(RADIO_T8) && defined(__cplusplus)
+#elif (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && defined(__cplusplus)
   constexpr uint8_t rotencSpeed = 1;
 #endif
 

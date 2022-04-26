@@ -248,7 +248,7 @@ void bootloaderInitApp()
     }
   }
 
-#if defined(RADIO_T8) && !defined(RADIOMASTER_RELEASE)
+#if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
   // Bind button not pressed
   if ((~KEYS_GPIO_REG_BIND & KEYS_GPIO_PIN_BIND) == false) {
 #else
@@ -551,16 +551,12 @@ int  bootloaderMain()
     }
 
     if (state == ST_REBOOT) {
-      lcdClear();
-      lcdRefresh();
-      lcdRefreshWait();
-
 #if !defined(SIMU)
 #if defined(RTC_BACKUP_RAM)
       rtcInit();
       RTC->BKP0R = SOFTRESET_REQUEST;
 #endif
-
+      blExit();
       NVIC_SystemReset();
 #else
       exit(1);
