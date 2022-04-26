@@ -63,6 +63,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   lv_area_t refr_area;
   lv_area_copy(&refr_area, area);
 
+#if defined(DEBUG_WINDOWS)
   if (refr_area.x1 != 0 || refr_area.x2 != LCD_W-1 || refr_area.y1 != 0 ||
       refr_area.y2 != LCD_H-1) {
     TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
@@ -70,6 +71,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   } else {
     TRACE("full refresh @ 0x%p", color_p);
   }
+#endif
 
   rect_t copy_area = {refr_area.x1, refr_area.y1,
                       refr_area.x2 - refr_area.x1 + 1,
