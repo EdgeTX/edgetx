@@ -60,8 +60,11 @@ elif [[ $gh_type = "pull" ]]; then
   export EDGETX_VERSION_SUFFIX=$gh_pull_number
 elif [[ $gh_type = "heads" ]]; then
   # heads: refs/heads/<branch_name>
-  gh_branch=${GITHUB_REF##*/}
-  export EDGETX_VERSION_SUFFIX=$gh_branch
+  # replace it with branch_name only, if EDGETX_VERSION_SUFFIX is already not set
+  if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
+    gh_branch=${GITHUB_REF##*/}
+    export EDGETX_VERSION_SUFFIX=$gh_branch
+  fi
 fi
 
 : ${BUILD_TYPE:=Release}
