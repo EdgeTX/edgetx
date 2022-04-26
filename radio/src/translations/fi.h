@@ -38,12 +38,7 @@
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES            "Debug","S-Port Pelik","Telemetry In","SBUS Trainer","LUA"
-#else
-#define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA"
-#endif
-
+#define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None", TR("Pot w. det","Pot with detent"),TR("Multipos","Monias. Kytkin"),TR("Pot","Potikka")
 #define TR_SLIDERTYPES                 "Rien","Slider"
@@ -936,6 +931,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE             "Sarjaportti"
 #define TR_AUX2_SERIAL_MODE            "Sarjaportti 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Virta"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Tulot"
 #define TR_OUTPUTS                     "Ulostulot"

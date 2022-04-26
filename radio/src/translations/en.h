@@ -36,13 +36,7 @@
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#if defined(CLI) || defined(DEBUG)
-  #define SERIAL_MODE_OFF              "Debug"
-#else
-  #define SERIAL_MODE_OFF              "OFF"
-#endif
-
-#define TR_AUX_SERIAL_MODES            SERIAL_MODE_OFF,"Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot"
 #define TR_SLIDERTYPES                 "None","Slider"
@@ -937,6 +931,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS offset")
 #define TR_AUX_SERIAL_MODE             "Serial port"
 #define TR_AUX2_SERIAL_MODE            "Serial port 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Inputs"
 #define TR_OUTPUTS                     "Outputs"
