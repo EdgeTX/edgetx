@@ -951,6 +951,7 @@
 #define TR_FAS_OFFSET                   TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
+#define TR_AUX_SERIAL_PORT_POWER        "Port power"
 #define TR_SCRIPT                       "Programkod"
 #define TR_INPUTS                       "Input"
 #define TR_OUTPUTS                      "Outputs"
