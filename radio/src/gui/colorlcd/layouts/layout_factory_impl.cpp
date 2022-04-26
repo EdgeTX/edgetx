@@ -22,13 +22,12 @@
 #include "layout_factory_impl.h"
 #include "layouts/trims.h"
 #include "layouts/sliders.h"
-#include "view_main_decoration.h"
 #include "view_main.h"
 
 Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData):
   LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
   factory(factory),
-  decoration(new ViewMainDecoration(this, getRect()))
+  decoration(new ViewMainDecoration(this))
 {
   adjustLayout();
 }
@@ -104,9 +103,6 @@ void Layout::adjustLayout()
   setSlidersVisible(hasSliders());
   setTrimsVisible(hasTrims());
   setFlightModeVisible(hasFlightMode());
-
-  // Re-compute positions
-  decoration->adjustDecoration();
 
   // and update relevant windows
   updateZones();

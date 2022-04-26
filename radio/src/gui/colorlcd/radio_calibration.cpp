@@ -94,12 +94,10 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
                              {(2 * window->width()) / 3, window->height() / 2, 0, 0},
                              STICK4, STICK3);
 
-  rect_t r = { 0, 0, window->width(), window->height() };
-  auto deco = new ViewMainDecoration(window, r);
+  std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window));
   deco->setTrimsVisible(false);
   deco->setSlidersVisible(true);
   deco->setFlightModeVisible(false);
-  deco->adjustDecoration();
 
 #if defined(PCBNV14)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
