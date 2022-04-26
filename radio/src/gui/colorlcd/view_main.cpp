@@ -29,11 +29,6 @@
 
 #include "opentx.h"
 
-static void tile_event_cb(lv_event_t* e)
-{
-  TRACE("DRAW_MAIN tile[%d]", lv_event_get_user_data(e));
-}
-
 static void tile_view_deleted_cb(lv_event_t* e)
 {
   TRACE("CHILD_DELETED tile[%d]", lv_event_get_user_data(e));
@@ -86,7 +81,6 @@ void ViewMain::addMainView(Window* view, uint32_t viewId)
   lv_obj_set_parent(view->getLvObj(), tile);
 
   auto user_data = (void*)(unsigned long)viewId;
-  lv_obj_add_event_cb(tile, tile_event_cb, LV_EVENT_DRAW_MAIN, user_data);
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED, user_data);
 }
 
