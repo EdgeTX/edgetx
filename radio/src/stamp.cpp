@@ -49,7 +49,7 @@
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
     #if defined(VERSION_TAG)
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION;
     #else
       const char vers_stamp[] = "VERS" TAB ": " VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
     #endif
