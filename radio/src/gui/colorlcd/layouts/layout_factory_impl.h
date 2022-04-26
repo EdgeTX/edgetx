@@ -27,7 +27,10 @@
 #include "translations.h"
 
 #include "widgets/widgets_container_impl.h"
+#include "view_main_decoration.h"
 #include "layout.h"
+
+#include <memory>
 
 #define LAYOUT_COMMON_OPTIONS                                       \
   {STR_TOP_BAR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
@@ -38,8 +41,6 @@
 
 #define LAYOUT_OPTIONS_END \
   { nullptr, ZoneOption::Bool }
-
-class ViewMainDecoration;
 
 typedef WidgetsContainerImpl<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS> LayoutBase;
 
@@ -99,7 +100,7 @@ class Layout: public LayoutBase
 
   protected:
     const LayoutFactory * factory  = nullptr;
-    ViewMainDecoration* decoration = nullptr;
+    std::unique_ptr<ViewMainDecoration> decoration;
 
     // Decoration settings bitmask to detect updates
     uint8_t  decorationSettings = 255;
