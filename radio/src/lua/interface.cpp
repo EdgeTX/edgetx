@@ -445,14 +445,15 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
     TRACE_ERROR("luaLoadScriptFileToState(%s, %s): Error loading script: filename buffer overflow.\n", filename, lmode);
     return ret;
   }
+  fnamelen++; // for the added colon in filename
   strncat(filenameFull, filename, fnamelen);
 
   // check if binary version exists
-  strcpy(filenameFull + 1 + fnamelen, SCRIPT_BIN_EXT);
+  strcpy(filenameFull + fnamelen, SCRIPT_BIN_EXT);
   frLuaC = vfs.fstat(filenameFull+1, fnoLuaC);
 
   // check if text version exists
-  strcpy(filenameFull + 1 + fnamelen, SCRIPT_EXT);
+  strcpy(filenameFull + fnamelen, SCRIPT_EXT);
   frLuaS = vfs.fstat(filenameFull+1, fnoLuaS);
 
   // decide which version to load, text or binary
