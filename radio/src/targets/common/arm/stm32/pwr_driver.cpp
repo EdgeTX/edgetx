@@ -46,6 +46,11 @@ void pwrInit()
   GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
   GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
 
+#if defined(RADIO_COMMANDO8)
+  GPIO_InitStructure.GPIO_Pin = EXTMODULE_RF_SWITCH_GPIO_PIN;
+  GPIO_Init(EXTMODULE_RF_SWITCH_GPIO,&GPIO_InitStructure);
+#endif
+
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 
   // PWR switch

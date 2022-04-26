@@ -438,7 +438,7 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 14) + (SWITCH_TOGGLE << 12) + (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_TOGGLE << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_TOGGLE << 0)
   #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2);
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define NUM_SWITCHES                  4
   #define STORAGE_NUM_SWITCHES          8
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_2POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
@@ -545,7 +545,7 @@ enum Analogs {
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              1
   #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8)
   #define NUM_POTS                      0
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              2
@@ -581,6 +581,18 @@ enum Analogs {
   #define NUM_TRIMS_KEYS                4
 #else
   #define NUM_TRIMS_KEYS                (NUM_TRIMS * 2)
+#endif
+
+#if defined(RADIO_COMMANDO8)
+  #define STICK_PWM_CHANNEL_0           1
+  #define STICK_PWM_CHANNEL_1           0
+  #define STICK_PWM_CHANNEL_2           2
+  #define STICK_PWM_CHANNEL_3           3
+#else
+  #define STICK_PWM_CHANNEL_0           0
+  #define STICK_PWM_CHANNEL_1           1
+  #define STICK_PWM_CHANNEL_2           3
+  #define STICK_PWM_CHANNEL_3           2
 #endif
 
 #if defined(STICKS_PWM)
@@ -650,7 +662,7 @@ extern uint16_t adcValues[NUM_ANALOGS];
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
   #define BATTERY_MAX                   83 // 8.3V
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8)
   // 1S Li-ion /  Lipo, LDO for 3.3V
   #define BATTERY_WARN                  35 // 3.5V
   #define BATTERY_MIN                   34 // 3.4V
@@ -729,6 +741,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster T8"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', '8', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_COMMANDO8)
+  #define USB_NAME                     "iFlight Commando 8"
+  #define USB_MANUFACTURER             'i', 'F', 'l', 'i', 'g', 'h', 't', '-'  /* 8 bytes */
+  #define USB_PRODUCT                  'C', 'o', 'm', 'm', 'a', 'n', 'd', 'o'  /* 8 Bytes */  
 #elif defined(RADIO_TLITE)
   #define USB_NAME                     "Jumper TLite"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
@@ -809,6 +825,9 @@ void audioEnd() ;
 void dacStart();
 void dacStop();
 void setSampleRate(uint32_t frequency);
+void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx);
+void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx);
+uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx);
 #define VOLUME_LEVEL_MAX  23
 #define VOLUME_LEVEL_DEF  12
 #if !defined(SOFTWARE_VOLUME)
@@ -915,7 +934,7 @@ void fsLedOn(uint8_t);
 #define LCD_CONTRAST_MAX                30
 #if defined(RADIO_TX12)
   #define LCD_CONTRAST_DEFAULT          20
-#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO)
+#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15

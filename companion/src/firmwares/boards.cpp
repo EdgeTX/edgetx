@@ -97,6 +97,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4778746F;
     case BOARD_RADIOMASTER_T8:
       return 0x4378746F;
+    case BOARD_IFLIGHT_COMMANDO8:
+      return 0x4478746F;
     case BOARD_FLYSKY_NV14:
       return 0x3A78746F;
     default:
@@ -127,6 +129,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TPRO:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_T8:
+    case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_RADIOMASTER_ZORRO:
       return EESIZE_TARANIS;
     case BOARD_UNKNOWN:
@@ -168,6 +171,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_T8:
+    case BOARD_IFLIGHT_COMMANDO8:
       return FSIZE_TARANIS;
     case BOARD_HORUS_X12S:
     case BOARD_X10:
@@ -267,6 +271,16 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
       return switches[index];
   }
   else if (IS_RADIOMASTER_T8(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_TOGGLE,   "SA"},
+      {SWITCH_3POS,     "SB"},
+      {SWITCH_3POS,     "SC"},
+      {SWITCH_TOGGLE,   "SD"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
+  else if (IS_IFLIGHT_COMMANDO8(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_TOGGLE,   "SA"},
       {SWITCH_3POS,     "SB"},
@@ -662,6 +676,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
+    case BOARD_IFLIGHT_COMMANDO8:
+      return "iFlight Commando8";
     case BOARD_FLYSKY_NV14:
       return "FlySky NV14";
     default:
@@ -870,6 +886,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T18:
   case BOARD_RADIOMASTER_TX12:
   case BOARD_RADIOMASTER_T8:
+  case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_JUMPER_TLITE:
   case BOARD_JUMPER_TPRO:
     return (int)MODULE_TYPE_MULTIMODULE;

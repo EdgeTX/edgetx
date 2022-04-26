@@ -454,7 +454,7 @@ char getRawSwitchFromIdx(int idx)
   #endif
     else
       return 'A' + idx;
-#elif defined(RADIO_TX12) || defined(RADIO_T8)
+#elif defined(RADIO_TX12) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     if (idx < 6)
         return 'A' + idx;
     else

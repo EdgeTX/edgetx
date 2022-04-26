@@ -50,6 +50,9 @@ do
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;            
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
