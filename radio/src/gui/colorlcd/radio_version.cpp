@@ -173,6 +173,16 @@ class versionDialog: public Dialog
       Dialog::checkEvents();
     }
 
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override
+    {
+      if (event == EVT_KEY_BREAK(KEY_EXIT) ||
+          event == EVT_KEY_BREAK(KEY_ENTER)) {
+        deleteLater();
+      }
+    }
+#endif
+
   protected:
     rect_t rect;
     TextButton * exitButton;
