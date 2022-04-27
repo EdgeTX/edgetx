@@ -114,6 +114,13 @@ void Layout::adjustLayout()
 rect_t Layout::getMainZone() const
 {
   rect_t zone = decoration->getMainZone();
+  if (decorationSettings & 0x7) {
+    // some decoration activated
+    zone.x += MAIN_ZONE_BORDER;
+    zone.y += MAIN_ZONE_BORDER;
+    zone.w -= 2 * MAIN_ZONE_BORDER;
+    zone.h -= 2 * MAIN_ZONE_BORDER;
+  }
   return ViewMain::instance()->getMainZone(zone, hasTopbar());
 }    
 
