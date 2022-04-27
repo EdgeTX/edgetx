@@ -457,7 +457,7 @@ void menuModelSetup(event_t event)
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
     0, // Global functions
-    
+
     0, // ADC Jitter filter
 
     REGISTRATION_ID_ROWS
@@ -755,7 +755,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
         g_model.disableThrottleWarning = !editCheckBox(!g_model.disableThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLE_WARNING, attr, event);
         break;
-      
+
       case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING:
         g_model.enableCustomThrottleWarning = editCheckBox(g_model.enableCustomThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_CUSTOM_THROTTLE_WARNING, attr, event);
         break;
@@ -935,12 +935,12 @@ void menuModelSetup(event_t event)
         }
         break;
 
-      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:      
+      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:
         lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);
         drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noGlobalFunctions, attr);
         if (attr) g_model.noGlobalFunctions = !checkIncDecModel(event, !g_model.noGlobalFunctions, 0, 1);
         break;
-      
+
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
         g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
         break;
@@ -1014,7 +1014,10 @@ void menuModelSetup(event_t event)
                 if (isModuleXJT(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
                   if (checkIncDec_Ret) {
-                    g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
+                    if (isModuleXJTLite(moduleIdx))
+                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_LITE_PXX2;
+                    else
+                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
                     g_model.moduleData[moduleIdx].channelsStart = 0;
                     g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
                   }
