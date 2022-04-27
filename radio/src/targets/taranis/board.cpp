@@ -90,6 +90,12 @@ void sportUpdatePowerInit()
 }
 #endif
 
+#if !defined(BOOT)
+
+#if defined(RADIO_TPRO)
+#include "storage/storage.h"
+#endif
+
 void boardInit()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
@@ -292,6 +298,7 @@ void boardInit()
   lcdSetContrast(true);
 #endif
 }
+#endif
 
 void boardOff()
 {
