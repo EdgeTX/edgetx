@@ -22,8 +22,10 @@
 #include "opentx.h"
 #include <ctype.h>
 
-#include <FreeRTOS.h>
-#include <timers.h>
+#if !defined(SIMU)
+  #include <FreeRTOS/include/FreeRTOS.h>
+  #include <FreeRTOS/include/timers.h>
+#endif
 
 struct spacemousedata_t
 {
