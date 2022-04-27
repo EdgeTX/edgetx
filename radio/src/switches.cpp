@@ -746,13 +746,6 @@ void checkSwitches()
 }
 #elif defined(GUI)
 
-static const char* switch_state_str[] {
-  " ",
-  STR_CHAR_UP,
-  "-",
-  STR_CHAR_DOWN,
-};
-
 void checkSwitches()
 {
   swarnstate_t last_bad_switches = 0xff;
@@ -788,7 +781,7 @@ void checkSwitches()
                 ((states & mask) == (switches_states & mask)) ? 0 : INVERS;
             if (attr) {
               if (++numWarnings < 6) {
-                const char* s = switch_state_str[(states & mask) >> (i * 3)];
+                const char* s = getSwitchWarnSymbol((states & mask) >> (i * 3));
                 drawSource(x, y, MIXSRC_FIRST_SWITCH + i, attr);
                 lcdDrawText(lcdNextPos, y, s, attr);
                 x = lcdNextPos + 3;
