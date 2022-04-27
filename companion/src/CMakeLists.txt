@@ -318,9 +318,6 @@ add_subdirectory(tests)
 
 ############# Install ####################
 
-# Generate list of simulator plugins, used by all platforms
-file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*edgetx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
 # the current flavour is not automatically added if build in the current cmake iteration, so always
 # add its library name to be sure
 if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
@@ -354,16 +351,11 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-#if(SIMU_TARGET)
-#  get_property(current_plugin TARGET edgetx-${FLAVOUR}-simulator PROPERTY LOCATION)
-#  list(APPEND simulator_plugins "${current_plugin}")
-#endif()
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(FILES ${simulator_plugins} DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION share/applications RENAME companion${C9X_NAME_SUFFIX}.desktop)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION share/applications RENAME simulator${C9X_NAME_SUFFIX}.desktop)
   if(${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
@@ -392,7 +384,7 @@ elseif(WIN32)
   # companion & simulator binaries
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
-  install(FILES ${simulator_plugins} DESTINATION ${INSTALL_DESTINATION})
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
   # supporting utilities
   set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
   foreach(tmpfile ${INSTALL_TEMP_FILES})
@@ -494,7 +486,7 @@ IF(APPLE)
       RUNTIME DESTINATION bin COMPONENT Runtime
       )
 
-  install(FILES ${simulator_plugins} DESTINATION "${companion_res_dir}" COMPONENT Runtime)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # Write qt.conf to tell qt where to find it plugins
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
