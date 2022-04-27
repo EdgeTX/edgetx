@@ -752,12 +752,12 @@ void menuModelSetup(event_t event)
               g_model.switchWarningState |= (curr_state & 0x03) << (3 * i);
               storageDirty(EE_MODEL);
             }
-            c = (" " STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
             lcdDrawChar(
                 MODEL_SETUP_2ND_COLUMN + qr.rem * (2 * FW + 1),
                 y + FH * qr.quot, 'A' + i,
                 line && (menuHorizontalPosition == current) ? INVERS : 0);
-            lcdDrawChar(lcdNextPos, y + FH * qr.quot, c);
+            lcdDrawText(lcdNextPos, y + FH * qr.quot,
+                        getSwitchWarnSymbol(states & 0x03));
             ++current;
           }
           states >>= 3;

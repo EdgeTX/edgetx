@@ -425,6 +425,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #endif
 
 static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
+static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
 
 void menuModelSetup(event_t event)
 {
@@ -670,13 +671,13 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_FS_STARTUP:
       {
-        char c;
+        const char* s;
         lcdDrawText(0, y, INDENT "Start", menuHorizontalPosition < 0 ? attr : 0);
         for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
           uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
-          c = STR_CHAR_UP STR_CHAR_DOWN "="[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
+          s = _fct_sw_start[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN - (2 + FW) + i * 2 * FW, y, i + 1, 0);
-          lcdDrawChar(lcdNextPos, y, c, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+          lcdDrawText(lcdNextPos, y, s, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
           if (attr && menuHorizontalPosition == i) {
             CHECK_INCDEC_MODELVAR(event, startPos, 0, 2);
           }
@@ -855,12 +856,12 @@ void menuModelSetup(event_t event)
                 s_editMode = 0;
 #endif
               }
-              c = (" " STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
               lcdDrawSizedText(
                   MODEL_SETUP_2ND_COLUMN + qr.rem * ((2 * FW) + 1),
                   y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH) - 1, 1,
                   attr && (menuHorizontalPosition == current) ? INVERS : 0);
-              lcdDrawChar(lcdNextPos, y + FH * qr.quot, c);
+              lcdDrawText(lcdNextPos, y + FH * qr.quot,
+                          getSwitchWarnSymbol(states & 0x03));
               ++current;
             }
             states >>= 3;

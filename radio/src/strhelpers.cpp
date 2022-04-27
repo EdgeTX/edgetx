@@ -477,6 +477,32 @@ char *getSwitchName(char *dest, swsrc_t idx)
   return dest;
 }
 
+static const char* _switch_state_str[] {
+  " ",
+  STR_CHAR_UP,
+  "-",
+  STR_CHAR_DOWN,
+};
+
+const char* getSwitchWarnSymbol(uint8_t pos)
+{
+  // 0: NONE
+  // 1: UP
+  // 2: MIDDLE
+  // 3: DOWN
+  if (pos >= 4) return "";
+  return _switch_state_str[pos];
+}
+
+const char* getSwitchPositionSymbol(uint8_t pos)
+{
+  // 0: UP
+  // 1: MIDDLE
+  // 2: DOWN
+  if (pos >= 3) return "";
+  return _switch_state_str[pos + 1];
+}
+
 char *getSwitchPositionName(char *dest, swsrc_t idx)
 {
   if (idx == SWSRC_NONE) {
@@ -494,26 +520,12 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
 #define IDX_TRIMS_IN_STR_VSWITCHES (1)
 #define IDX_ON_IN_STR_VSWITCHES \
   (IDX_TRIMS_IN_STR_VSWITCHES + SWSRC_LAST_TRIM - SWSRC_FIRST_TRIM + 1)
+
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
-    
-#if defined(FUNCTION_SWITCHES)
-    if (idx >= SWSRC_FIRST_FUNCTION_SWITCH && idx <= (SWSRC_FIRST_FUNCTION_SWITCH + NUM_FUNCTIONS_SWITCHES)) {
-      s = getSwitchName(s, idx);
-      *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
-      *s = '\0';
-    } 
-    else {
-      s = getSwitchName(s, idx);
-      *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
-      *s = '\0';
-    }
-#else
-  s = getSwitchName(s, idx);
-  *s++ = (STR_CHAR_UP "-" STR_CHAR_DOWN)[swinfo.rem];
-  *s = '\0';
-#endif
-
+    s = getSwitchName(s, idx);
+    s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
+    *s = '\0';
   }
 
 #if NUM_XPOTS > 0

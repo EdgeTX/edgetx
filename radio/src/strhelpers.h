@@ -76,6 +76,8 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
 char *getCurveString(char *dest, int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
+const char* getSwitchWarnSymbol(uint8_t pos);
+const char* getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
 
