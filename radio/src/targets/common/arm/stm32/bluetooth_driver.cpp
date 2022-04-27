@@ -23,6 +23,9 @@
 #include "debug.h"
 
 #if !defined(BOOT)
+
+#include "fifo.h"
+
 Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
 Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
 

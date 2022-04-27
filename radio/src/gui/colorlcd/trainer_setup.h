@@ -27,6 +27,10 @@
 #include "button.h"
 #include "numberedit.h"
 
+#if defined(BLUETOOTH)
+#include "bluetooth.h"
+#endif
+
 class TrChoice;
 
 class TrainerModuleWindow : public FormGroup

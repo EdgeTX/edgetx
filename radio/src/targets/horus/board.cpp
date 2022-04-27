@@ -64,6 +64,10 @@ void watchdogInit(unsigned int duration)
 }
 
 #if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
+
+// g_eeGeneral
+#include "opentx.h"
+
 void sportUpdateInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;

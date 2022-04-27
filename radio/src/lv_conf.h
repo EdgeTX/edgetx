@@ -173,11 +173,21 @@
     /*Must be defined to include path of CMSIS header of target processor
     e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f4xx.h"
-    #define DMA2D_NLR_PL_Pos 16
-    #define DMA2D_NLR_NL_Pos 0
-    #define DMA2D_CR_START_Msk DMA2D_CR_START
-    #define DMA2D_FGPFCCR_AM_Pos 16
-    #define DMA2D_FGPFCCR_ALPHA_Pos 24
+    #if !defined(DMA2D_NLR_PL_Pos)
+      #define DMA2D_NLR_PL_Pos 16
+    #endif
+    #if !defined(DMA2D_NLR_NL_Pos)
+      #define DMA2D_NLR_NL_Pos 0
+    #endif
+    #if !defined(DMA2D_CR_START_Msk)
+      #define DMA2D_CR_START_Msk DMA2D_CR_START
+    #endif
+    #if !defined(DMA2D_FGPFCCR_AM_Pos)
+      #define DMA2D_FGPFCCR_AM_Pos 16
+    #endif
+    #if !defined(DMA2D_FGPFCCR_ALPHA_Pos)
+      #define DMA2D_FGPFCCR_ALPHA_Pos 24
+    #endif
 #endif
 
 /*Use NXP's PXP GPU iMX RTxxx platforms*/
