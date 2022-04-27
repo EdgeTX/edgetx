@@ -77,7 +77,9 @@ static void window_event_cb(lv_event_t * e)
 
     window->paint(&buf);
 
-  } else if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED) {
+  }
+#if defined(HARDWARE_TOUCH)
+  else if (code == LV_EVENT_PRESSED || code == LV_EVENT_RELEASED) {
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
     lv_indev_t *click_source = (lv_indev_t *)lv_event_get_param(e);
@@ -120,7 +122,9 @@ static void window_event_cb(lv_event_t * e)
       if (vect_act.x != 0 || vect_act.y != 0) return;
       window->onTouchEnd(rel_pos.x, rel_pos.y);
     }
-  } else if (code == LV_EVENT_SCROLL) {
+  }
+#endif
+  else if (code == LV_EVENT_SCROLL) {
 
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
