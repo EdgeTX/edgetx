@@ -258,7 +258,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   }
 
   if (firmware->getCapability(HasVCPSerialMode)) {
-    addLabel(tr("VCP"), row, 0);
+    addLabel(tr("USB-VCP"), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(vcpmodelid));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_VCP]);
