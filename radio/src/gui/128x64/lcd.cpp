@@ -1096,3 +1096,5 @@ void lcdDrawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlag
     p++;
   }
 }
+
+void lcdFlushed() {}

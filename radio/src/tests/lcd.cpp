@@ -291,12 +291,12 @@ TEST(Lcd, Dblsize)
 #define EXTRA_TEST TEST_CHAR_DELTA TEST_CHAR_STICK TEST_CHAR_POT TEST_CHAR_SLIDER \
   TEST_CHAR_SWITCH TEST_CHAR_TRIM TEST_CHAR_INPUT
 
-TEST(Lcd, Extra_chars)
-{
-  lcdClear();
-  lcdDrawText(0, 10, EXTRA_TEST);
-  EXPECT_TRUE(checkScreenshot("extra_chars"));
-}
+// TEST(Lcd, Extra_chars)
+// {
+//   lcdClear();
+//   lcdDrawText(0, 10, EXTRA_TEST);
+//   EXPECT_TRUE(checkScreenshot("extra_chars"));
+// }
 
 #if defined(TRANSLATIONS_FR)
 TEST(Lcd, fr_chars)
