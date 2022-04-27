@@ -95,7 +95,7 @@ RadioHardwarePage::RadioHardwarePage():
 class ModeChoice : public Choice
 {
  public:
-  ModeChoice(FormGroup *parent, const rect_t &rect, const char *values,
+  ModeChoice(FormGroup *parent, const rect_t &rect, const char **values,
              int vmin, int vmax, std::function<int()> getValue,
              std::function<void(int)> setValue = nullptr,
              bool *menuOpen = nullptr) :
