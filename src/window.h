@@ -138,6 +138,7 @@ class Window
     void setTextFlags(LcdFlags flags)
     {
       textFlags = flags;
+      if (!lvobj) return;
 
       // lv integration for colors
       auto textColor = COLOR_VAL(flags);
