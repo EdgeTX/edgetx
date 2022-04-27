@@ -119,6 +119,10 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   sl->updateSize();
   sliders[SLIDERS_POT1] = sl;
 
+#if !defined(HARDWARE_POT3)
+  bc = br;
+#endif
+  
   if (IS_POT_MULTIPOS(POT2)) {
     sl = new MainView6POS(bc, 1);
     sl->updateSize();
