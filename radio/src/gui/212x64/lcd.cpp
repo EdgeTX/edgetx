@@ -1030,3 +1030,5 @@ void lcdDrawRleBitmap(coord_t x, coord_t y, const uint8_t * img, coord_t offset,
   }
 }
 #endif
+
+void lcdFlushed() {}
