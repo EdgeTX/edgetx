@@ -28,8 +28,9 @@
 #define SPACEMOUSE_CHANNEL_COUNT          ( 6 )
 
 #define SPACEMOUSE_INPUT_OFFSET           ( 8192 )
+#define SPACEMOUSE_OUTPUT_RANGE           ( 700.0f )
 #define SPACEMOUSE_OUTPUT_OFFSET          ( 350 )
-#define SPACEMOUSE_OUTPUT_CONV_FACTOR     ( 2.9257f )  /*  RESX / (SPACEMOUSE_RANGE / 2) */
+#define SPACEMOUSE_OUTPUT_CONV_FACTOR     ( 2048.0f / SPACEMOUSE_OUTPUT_RANGE )  /* Internal channel resolution / SPACEMOUSE_OUTPUT_RANGE */
 
 #define SPACEMOUSE_PROTO_HEADER           0x96
 #define SPACEMOUSE_PROTO_FOOTER           0x8D
@@ -47,7 +48,7 @@
 
 
 #if defined(DEBUG)
-extern uint8_t spacemouseTraceEnabled;
+extern bool spacemouseTraceEnabled;
 #endif
 
 // Setup SpaceMouse serial port

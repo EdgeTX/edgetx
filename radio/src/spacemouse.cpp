@@ -19,24 +19,6 @@
  * GNU General Public License for more details.
  */
 
-/*
- * This file is based on code from Cleanflight project
- * https://github.com/cleanflight/cleanflight
- *
- * Cleanflight is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "opentx.h"
 #include <ctype.h>
 
@@ -48,6 +30,14 @@ struct spacemousedata_t
   signed short axisValues[SPACEMOUSE_CHANNEL_COUNT];
 };
 
+enum class sm_bytetype
+{
+  SM_START,
+  SM_DATA,
+  SM_CHECKSUM,
+  SM_FOOTER,
+};
+
 struct spacemouseTelegram_t
 {
   unsigned char head;
@@ -57,19 +47,11 @@ struct spacemouseTelegram_t
   unsigned char endIndex;
   unsigned char dataIndex;
   unsigned char completeFlg;
-  unsigned char parsestate;
+  sm_bytetype parsestate;
   unsigned char recevied;
 };
 
-enum
-{
-  SM_START = 0,
-  SM_DATA,
-  SM_CHECKSUM,
-  SM_FOOTER,
-};
-
-spacemouseTelegram_t spaceMouseTelegram = { 0 };
+static spacemouseTelegram_t spaceMouseTelegram = { 0 };
 spacemousedata_t spacemouseData;
 
 void spacemouseWakeup();
@@ -127,37 +109,33 @@ unsigned short calc_checksum(void *pBuffer,unsigned char BufferSize)
 
 void spacemouseParseNewData(uint8_t c)
 {
-  static volatile bool parse_lock = false;
-  if (parse_lock) return;
-  parse_lock = true;
-
   switch (spaceMouseTelegram.parsestate) {
-    case SM_START: {
+    case sm_bytetype::SM_START: {
       if (c == SPACEMOUSE_PROTO_HEADER) {
         spaceMouseTelegram.head = SPACEMOUSE_PROTO_HEADER;
-        spaceMouseTelegram.parsestate = SM_DATA;
+        spaceMouseTelegram.parsestate = sm_bytetype::SM_DATA;
         spaceMouseTelegram.dataIndex = 0;
       }
       break;
     }
-    case SM_DATA: {
+    case sm_bytetype::SM_DATA: {
       spaceMouseTelegram.data[spaceMouseTelegram.dataIndex++] = c;
       if (spaceMouseTelegram.dataIndex >= SPACEMOUSE_LENGTH_DATA) {
         spaceMouseTelegram.checkSum = 0;
         spaceMouseTelegram.dataIndex = 0;
-        spaceMouseTelegram.parsestate = SM_CHECKSUM;
+        spaceMouseTelegram.parsestate = sm_bytetype::SM_CHECKSUM;
       }
       break;
     }
-    case SM_CHECKSUM: {
+    case sm_bytetype::SM_CHECKSUM: {
       spaceMouseTelegram.checkSum |= c << ((spaceMouseTelegram.dataIndex++) * 7);
       if (spaceMouseTelegram.dataIndex >= 2) {
         spaceMouseTelegram.dataIndex = 0;
-        spaceMouseTelegram.parsestate = SM_FOOTER;
+        spaceMouseTelegram.parsestate = sm_bytetype::SM_FOOTER;
       }
       break;
     }
-    case SM_FOOTER: {
+    case sm_bytetype::SM_FOOTER: {
       if ((c == SPACEMOUSE_PROTO_FOOTER) ||
           (spaceMouseTelegram.checkSum ==
           calc_checksum((void *)&spaceMouseTelegram.head, SPACEMOUSE_LENGTH_HEADER + SPACEMOUSE_LENGTH_DATA))) {
@@ -166,27 +144,27 @@ void spacemouseParseNewData(uint8_t c)
             // The values are 7-bit in LSByte and MSByte only. Set MSBit is reserved for start, stop & commands.
             spacemouseData.axisValues[channel] = ((spaceMouseTelegram.data[channel*2] << 7) + spaceMouseTelegram.data[(channel*2)+1]) - SPACEMOUSE_INPUT_OFFSET;
           }
-        spaceMouseTelegram.parsestate = SM_START;
+        spaceMouseTelegram.parsestate = sm_bytetype::SM_START;
       } else {
         // Error handling
       }
       break;
     }
   }
-  parse_lock = false;
 }
 
 static const etx_serial_driver_t* spacemouseSerialDrv = nullptr;
 static void* spacemouseSerialCtx = nullptr;
 
 #if defined(DEBUG)
-uint8_t spacemouseTraceEnabled = false;
+bool spacemouseTraceEnabled = false;
 #endif
 
 void spacemouseSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
 {
   spacemouseSerialCtx = ctx;
   spacemouseSerialDrv = drv;
+  spaceMouseTelegram.parsestate = sm_bytetype::SM_START;
 #if !defined(SIMU)
   spacemouseStart();
 #endif
