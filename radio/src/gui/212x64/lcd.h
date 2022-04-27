@@ -250,6 +250,8 @@ public:
       skip(width - pos%width);
   }
 
+  void reset() { curPtr = src; }
+  
 private:
   enum State {RLE_FIRST_BYTE, RLE_SECOND_BYTE, RLE_CONTINUE} state;
   const uint8_t* src;
