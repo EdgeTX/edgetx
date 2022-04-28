@@ -33,14 +33,17 @@ OUTDIR=$2
 COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Release"
 if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
-elif [ "$(uname)" != "Linux" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
+    echo "${MSYSTEM,,}"
+    if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw32/bin/"
+    else # fallback to 64bit
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+    fi
 fi
 
-if [ "$3" != "" ]; then
+if [ -z "$3" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
-else
-  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=nightly"
 fi
 
 rm -rf build
