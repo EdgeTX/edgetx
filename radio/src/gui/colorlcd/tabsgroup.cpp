@@ -114,7 +114,7 @@ bool TabsCarousel::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t st
 TabsGroup::TabsGroup(uint8_t icon):
   Window(MainWindow::instance(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT }, FORM_FORWARD_FOCUS)
+  body(this, { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT }, NO_FOCUS | FORM_FORWARD_FOCUS)
 {
   Layer::push(this);
 }
@@ -196,7 +196,7 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     if (tab->onSetVisible) tab->onSetVisible();
 
     auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
-                               FORM_FORWARD_FOCUS);
+                               NO_FOCUS | FORM_FORWARD_FOCUS);
     tab->build(form);
     form->setFocus();
 

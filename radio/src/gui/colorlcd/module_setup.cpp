@@ -37,7 +37,7 @@
 
 ModuleWindow::ModuleWindow(FormWindow *parent, const rect_t &rect,
                            uint8_t moduleIdx) :
-    FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
+    FormGroup(parent, rect, FORWARD_SCROLL | NO_FOCUS | FORM_FORWARD_FOCUS),
     moduleIdx(moduleIdx)
 {
   update();
