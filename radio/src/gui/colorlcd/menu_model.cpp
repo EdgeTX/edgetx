@@ -69,6 +69,8 @@ void ModelMenu::onEvent(event_t event)
   if (event == EVT_KEY_FIRST(KEY_MODEL)) {
     killEvents(event);
     new ChannelsViewMenu();
+  } else {
+    TabsGroup::onEvent(event);
   }
 #endif
 }
