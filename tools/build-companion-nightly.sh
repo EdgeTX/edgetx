@@ -19,7 +19,7 @@ do
     -j*)
       JOBS="${1#*j}";;
     -*)
-      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR VERSION_SUFFIX"
+      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR"
       exit 1;;
     *)
       break;;   # terminate while loop
@@ -42,8 +42,22 @@ elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
     fi
 fi
 
-if [ -z "$3" ]; then
-  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
+# Generate EDGETX_VERSION_SUFFIX if not already set
+if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
+  gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull
+  if [[ $gh_type = "tags" ]]; then
+    # tags: refs/tags/<tag_name>
+    gh_tag=${GITHUB_REF##*/}
+    export EDGETX_VERSION_TAG=$gh_tag
+  elif [[ $gh_type = "pull" ]]; then
+    # pull: refs/pull/<pr_number>/merge
+    gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
+    export EDGETX_VERSION_SUFFIX=$gh_pull_number
+  elif [[ $gh_type = "heads" ]]; then
+    # heads: refs/heads/<branch_name>
+    gh_branch=${GITHUB_REF##*/}
+    export EDGETX_VERSION_SUFFIX=$gh_branch
+  fi
 fi
 
 rm -rf build
