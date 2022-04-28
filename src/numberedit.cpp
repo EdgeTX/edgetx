@@ -90,7 +90,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
 
   auto value = _getValue();
   this->setValue(value);
-  lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_ALL, this);
+  lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
 }
 
 void NumberEdit::onEvent(event_t event)
