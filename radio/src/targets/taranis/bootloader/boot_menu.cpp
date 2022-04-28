@@ -110,3 +110,19 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     lcdDrawTextAlignedLeft(4 * FH, CENTER "\007Writing complete");
   }
 }
+
+void blExit()
+{
+#if defined(RADIO_COMMANDO8)
+      lcdClear();
+      lcdDrawText(2, 22,"Press the power button.");
+      lcdDrawText(2, 33,"Exit the flashing mode.");
+      lcdRefresh();
+      lcdRefreshWait();
+      while(1);
+#else
+      lcdClear();
+      lcdRefresh();
+      lcdRefreshWait();
+#endif
+}

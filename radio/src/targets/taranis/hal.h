@@ -1196,6 +1196,11 @@
   #define PWM_GPIO_AF                   GPIO_AF_TIM5
   #define PWM_IRQn                      TIM5_IRQn
   #define PWM_GPIOA_PINS                (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
+  #define STICK_CHANNEL_CHANGE
+  #define STICK_PWM_CHANNEL_0           1
+  #define STICK_PWM_CHANNEL_1           0
+  #define STICK_PWM_CHANNEL_2           2
+  #define STICK_PWM_CHANNEL_3           3
 #elif defined(RADIO_TLITE)
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            0
@@ -2401,6 +2406,7 @@
   #define AUDIO_MUTE_GPIO               GPIOB
   #define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_1  // PB.01
   #define AUDIO_MUTE_DELAY              500  // ms
+  #define INVERTED_MUTE_PIN
 #else
   #define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
 #endif

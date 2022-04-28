@@ -583,17 +583,6 @@ enum Analogs {
   #define NUM_TRIMS_KEYS                (NUM_TRIMS * 2)
 #endif
 
-#if defined(RADIO_COMMANDO8)
-  #define STICK_PWM_CHANNEL_0           1
-  #define STICK_PWM_CHANNEL_1           0
-  #define STICK_PWM_CHANNEL_2           2
-  #define STICK_PWM_CHANNEL_3           3
-#else
-  #define STICK_PWM_CHANNEL_0           0
-  #define STICK_PWM_CHANNEL_1           1
-  #define STICK_PWM_CHANNEL_2           3
-  #define STICK_PWM_CHANNEL_3           2
-#endif
 
 #if defined(STICKS_PWM)
   #define NUM_PWMSTICKS                 4
@@ -825,9 +814,6 @@ void audioEnd() ;
 void dacStart();
 void dacStop();
 void setSampleRate(uint32_t frequency);
-void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx);
-void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx);
-uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx);
 #define VOLUME_LEVEL_MAX  23
 #define VOLUME_LEVEL_DEF  12
 #if !defined(SOFTWARE_VOLUME)

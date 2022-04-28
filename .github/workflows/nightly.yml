@@ -22,7 +22,7 @@ jobs:
           - t12
           - t16
           - t18
-          - t8;zorro
+          - t8;zorro;commando8
           - tlite;tpro
           - tx12
           - tx16s
