@@ -529,19 +529,7 @@ int main()
       rtcInit();
       RTC->BKP0R = SOFTRESET_REQUEST;
 #endif
-
-#if defined(RADIO_COMMANDO8)
-      lcdClear();
-      lcdDrawText(2, 22,"Press the power button.");
-      lcdDrawText(2, 33,"Exit the flashing mode.");
-      lcdRefresh();
-      lcdRefreshWait();
-      while(1);
-#else
-      lcdClear();
-      lcdRefresh();
-      lcdRefreshWait();
-#endif
+      blExit();
       NVIC_SystemReset();
     }
   }

@@ -56,7 +56,8 @@ declare -a simulator_plugins=(x9lite x9lites
                               xlite xlites
                               nv14
                               x10 x10-access x12s
-                              t16 t18 tx16s)
+                              t16 t18 tx16s
+                              commando8)
 
 for plugin in "${simulator_plugins[@]}"
 do
@@ -133,90 +134,16 @@ do
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;            
     esac
 
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ACCESS ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T12 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TX12 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=ZORRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=T8 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=COMMANDO8 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TLITE ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X7 -DPCBREV=TPRO ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D+ ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9D+ -DPCBREV=2019 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=XLITE ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=XLITES ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X9E ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=NV14 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=YES ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=TX16S ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=T18 ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=EXPRESS ${SRCDIR}
-make -j${JOBS} libsimulator
-rm CMakeCache.txt
-
-cmake ${COMMON_OPTIONS} -DPCB=X12S ${SRCDIR}
-make -j${JOBS} libsimulator
+    rm -f CMakeCache.txt native/CMakeCache.txt
+    cmake ${BUILD_OPTIONS} "${SRCDIR}"
+    cmake --build . --target native-configure
+    cmake --build native -j${JOBS} --target libsimulator    
+done
 
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then

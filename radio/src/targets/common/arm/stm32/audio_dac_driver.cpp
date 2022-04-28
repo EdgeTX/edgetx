@@ -60,7 +60,11 @@ void dacInit()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(AUDIO_MUTE_GPIO, &GPIO_InitStructure);
-  setMutePin(AUDIO_MUTE_GPIO,AUDIO_MUTE_GPIO_PIN);
+#if defined(INVERTED_MUTE_PIN)
+  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+  GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
 #endif
 
   GPIO_InitStructure.GPIO_Pin = AUDIO_OUTPUT_GPIO_PIN;
@@ -100,11 +104,19 @@ void audioMute()
   }
   else if (now - audioQueue.lastAudioPlayTime > AUDIO_MUTE_DELAY / 10) {
     // delay expired, we may mute
-    setMutePin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#if defined(INVERTED_MUTE_PIN)
+  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+  GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
   }
 #else
   // mute
-  setMutePin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#if defined(INVERTED_MUTE_PIN)
+  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+  GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
 #endif
 }
 
@@ -112,15 +124,27 @@ void audioUnmute()
 {
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
-  if (readMutePinLevel(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN)) {
+#if defined(INVERTED_MUTE_PIN)
+  if (!GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN)) {
     // ..un-mute
-    resetMutePin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
     RTOS_WAIT_MS(AUDIO_UNMUTE_DELAY);
   }
+#else
+  if (GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN)) {
+    // ..un-mute
+    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+    RTOS_WAIT_MS(AUDIO_UNMUTE_DELAY);
+  }
+#endif
   // reset the mute delay
   audioQueue.lastAudioPlayTime = 0;
 #else
-  resetMutePin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#if defined(INVERTED_MUTE_PIN)
+  GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
 #endif
 }
 #endif

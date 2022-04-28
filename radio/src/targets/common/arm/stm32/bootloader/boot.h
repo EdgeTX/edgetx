@@ -91,4 +91,5 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str = NULL);
 // Once for each file in a filename list on screen
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected);
 
+void blExit();
 #endif

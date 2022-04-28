@@ -82,6 +82,21 @@ void sportUpdatePowerInit()
 }
 #endif
 
+#if defined(RADIO_COMMANDO8)
+void External_Module_Init()
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+
+  GPIO_InitStructure.GPIO_Pin = EXTMODULE_RF_SWITCH_GPIO_PIN;
+  GPIO_Init(EXTMODULE_RF_SWITCH_GPIO,&GPIO_InitStructure);
+}
+#endif
+
 void boardInit()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
@@ -153,6 +168,10 @@ void boardInit()
 #endif
 
   pwrInit();
+
+#if defined(RADIO_COMMANDO8)
+  External_Module_Init();
+#endif
 
 #if defined(AUTOUPDATE)
   telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
@@ -441,31 +460,4 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
 {
   if (port_nr >= MAX_AUX_SERIAL) return nullptr;
   return serialPorts[port_nr];
-}
-
-void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_ResetBits(GPIOx, Pinx);
-#else
-  GPIO_SetBits(GPIOx, Pinx);
-#endif
-}
-
-void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_SetBits(GPIOx, Pinx);
-#else
-  GPIO_ResetBits(GPIOx, Pinx);
-#endif
-}
-
-uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  return !GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#else
-  return GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#endif
 }
