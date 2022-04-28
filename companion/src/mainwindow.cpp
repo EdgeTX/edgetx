@@ -65,7 +65,7 @@
 #define INTERACTIVE_DOWNLOAD   4
 #define AUTOMATIC_DOWNLOAD     8
 
-#define OPENTX_DOWNLOADS_PAGE_URL         QStringLiteral("https://edgetx.org/downloads")
+#define EDGETX_DOWNLOADS_PAGE_URL         QStringLiteral("https://edgetx.org/downloads")
 #define DONATE_STR                        QStringLiteral("https://opencollective.com/edgetx/donate")
 
 #ifdef Q_OS_MACOS
@@ -382,7 +382,7 @@ void MainWindow::checkForCompanionUpdateFinished(QNetworkReply * reply)
       }
     }
 #else
-    QMessageBox::warning(this, tr("New release available"), tr("A new release of Companion is available, please check the <a href='%1'>EdgeTX website!</a>").arg(OPENTX_DOWNLOADS_PAGE_URL));
+    QMessageBox::warning(this, tr("New release available"), tr("A new release of Companion is available, please check the <a href='%1'>EdgeTX website!</a>").arg(EDGETX_DOWNLOADS_PAGE_URL));
 #endif
   }
   else {
