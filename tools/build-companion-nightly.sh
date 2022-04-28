@@ -138,17 +138,17 @@ do
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
-    cmake --build native -j${JOBS} --target libsimulator    
+    cmake --build native -j"${JOBS}" --target libsimulator
 done                              
 
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
-    cmake --build native -j${JOBS} --target package
-    cp native/*.dmg ${OUTDIR}
+    cmake --build native -j"${JOBS}" --target package
+    cp native/*.dmg "${OUTDIR}"
 elif [ "$(uname)" = "Linux" ]; then
-    cmake --build native -j${JOBS} --target package
-    cp native/*.AppImage ${OUTDIR}
+    cmake --build native -j"${JOBS}" --target package
+    cp native/*.AppImage "${OUTDIR}"
 else
     cmake --build native --target installer
-    cp native/companion/*.exe ${OUTDIR}
+    cp native/companion/*.exe "${OUTDIR}"
 fi
