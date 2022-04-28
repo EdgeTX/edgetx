@@ -54,7 +54,7 @@ void StaticText::setText(std::string value)
 {
   if (text != value) {
     text = std::move(value);
-    lv_label_set_text(lvobj, text.c_str());
+    if (lvobj) lv_label_set_text(lvobj, text.c_str());
   }
 }
 
@@ -66,10 +66,9 @@ const std::string& StaticText::getText() const
 void StaticText::setBackgroundColor(LcdFlags color)
 {
   bgColor = color;
-  auto actualColor = COLOR_VAL(bgColor);
-  lv_obj_set_style_bg_color(
-      lvobj,
-      lv_color_make(GET_RED(actualColor), GET_GREEN(actualColor),
-                    GET_BLUE(actualColor)),
-      LV_PART_MAIN);
+
+  if (!lvobj) return;
+
+  lv_color_t c = makeLvColor(bgColor);
+  lv_obj_set_style_bg_color(lvobj, c, LV_PART_MAIN);
 }
