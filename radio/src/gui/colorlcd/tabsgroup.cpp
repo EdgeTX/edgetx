@@ -198,8 +198,7 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
                                FORM_FORWARD_FOCUS);
     tab->build(form);
-
-    if (!focusWindow) setFocus(SET_FOCUS_DEFAULT);
+    form->setFocus();
 
     header.setTitle(tab->title.c_str());
     invalidate();
