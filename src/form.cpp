@@ -362,21 +362,3 @@ void FormGroup::onEvent(event_t event)
   }
 }
 #endif
-
-#if defined(HARDWARE_KEYS)
-void FormWindow::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormWindow").c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT) && (windowFlags & FORM_FORWARD_FOCUS) && first) {
-    onKeyPress();
-    Window * currentFocus = getFocus();
-    first->setFocus(SET_FOCUS_FIRST);
-    if (getFocus() != currentFocus) {
-      return;
-    }
-  }
-
-  FormGroup::onEvent(event);
-}
-#endif

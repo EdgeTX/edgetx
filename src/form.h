@@ -211,8 +211,4 @@ class FormWindow : public FormGroup
 
  protected:
   void paint(BitmapBuffer *) override {}
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 };
