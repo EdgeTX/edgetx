@@ -1026,7 +1026,7 @@ void MainWindow::about()
 #if defined(VERSION_TAG)
   aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION_TAG).arg(CODENAME).arg(__DATE__));
 #else
-  aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION).arg(CODENAME).arg(__DATE__));
+  aboutStr.append(QString("Version %1-%2\"%3\", %4").arg(VERSION).arg(VERSION_SUFFIX).arg(CODENAME).arg(__DATE__));
   aboutStr.append("<br/>");
   aboutStr.append(QString("Commit <a href='%1'>%2</a>").arg("https://github.com/EdgeTX/edgetx/commit/" GIT_STR).arg(GIT_STR));
 #endif
