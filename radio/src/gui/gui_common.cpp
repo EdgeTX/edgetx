@@ -21,8 +21,6 @@
 
 #include "opentx.h"
 
-
-
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
 {
@@ -681,7 +679,6 @@ bool isInternalModuleAvailable(int moduleType)
 
 bool isExternalModuleAvailable(int moduleType)
 {
-
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
   if (!isModuleNone(INTERNAL_MODULE)) return false;
 #endif
