@@ -25,7 +25,7 @@
 #define ABOUT_INDENT 4
 
 #if defined(VERSION_TAG)
-const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION ")" "\036\"" CODENAME "\"";
+const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION_TAG ")" "\036\"" CODENAME "\"";
 #else
 const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION "-" VERSION_SUFFIX ")";
 #endif

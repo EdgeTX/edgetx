@@ -29,7 +29,7 @@ const uint8_t mask_qrcode[] = {
 
 constexpr coord_t ABOUT_WIDTH = 220;
 #if defined(VERSION_TAG)
-const std::string about_str = "EdgeTX" " " "\"" CODENAME "\" (" VERSION ")";
+const std::string about_str = "EdgeTX" " " "\"" CODENAME "\" (" VERSION_TAG ")";
 #else
 const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 #endif
