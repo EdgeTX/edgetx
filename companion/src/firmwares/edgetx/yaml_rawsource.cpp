@@ -22,12 +22,12 @@
 #include "eeprominterface.h"
 
 static const YamlLookupTable spacemouseLut = {
-  {  0, "SPACEMOUSE_1"  },
-  {  1, "SPACEMOUSE_2"  },
-  {  2, "SPACEMOUSE_3"  },
-  {  3, "SPACEMOUSE_4"  },
-  {  4, "SPACEMOUSE_5"  },
-  {  5, "SPACEMOUSE_6"  },
+  {  0, "SPACEMOUSE_A"  },
+  {  1, "SPACEMOUSE_B"  },
+  {  2, "SPACEMOUSE_C"  },
+  {  3, "SPACEMOUSE_D"  },
+  {  4, "SPACEMOUSE_E"  },
+  {  5, "SPACEMOUSE_F"  },
 };
 
 std::string YamlRawSourceEncode(const RawSource& rhs)
