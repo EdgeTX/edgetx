@@ -108,7 +108,8 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       break;
     case SOURCE_TYPE_SPACEMOUSE:
       src_str = "SPACEMOUSE_";
-      src_str += std::to_string(rhs.index + 1);
+      c += rhs.index;
+      src_str += c;
       break;
     default:
       src_str = "NONE";
