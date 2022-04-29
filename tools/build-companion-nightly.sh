@@ -136,7 +136,7 @@ do
             ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
-            ;;            
+            ;;
     esac
 
     rm -f CMakeCache.txt native/CMakeCache.txt
