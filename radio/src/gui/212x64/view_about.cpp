@@ -24,7 +24,11 @@
 
 #define ABOUT_INDENT 6
 
-const char ABOUT_VERSION_1[] = "EdgeTX " CODENAME "(" VERSION ")";
+#if defined(VERSION_TAG)
+const char ABOUT_VERSION_1[] = "EdgeTX " "\"" CODENAME "\"" " (" VERSION ")";
+#else
+const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION "-" VERSION_SUFFIX ")";
+#endif
 const char ABOUT_VERSION_2[] = "Copyright (C) 2021 EdgeTX";
 const char ABOUT_VERSION_3[] = "https://edgetx.org";
 
