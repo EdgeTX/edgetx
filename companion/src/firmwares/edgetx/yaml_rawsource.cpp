@@ -30,6 +30,7 @@ static const YamlLookupTable spacemouseLut = {
   {  5, "SPACEMOUSE_F"  },
 };
 
+
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
