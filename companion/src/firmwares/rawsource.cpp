@@ -248,6 +248,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       else
         return GVarData().nameToString(index);
 
+    case SOURCE_TYPE_SPACEMOUSE:
+      return tr("sm%1").arg(QChar('A' + index));
+
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -350,6 +353,12 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   }
 
   if (type == SOURCE_TYPE_TRIM && index >= b.getCapability(Board::NumTrims))
+    return false;
+
+  if (type == SOURCE_TYPE_SPACEMOUSE &&
+     (index >= CPN_MAX_SPACEMOUSE ||
+     (!(gs->serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_SPACEMOUSE ||
+        gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
     return false;
 
   return true;

@@ -492,6 +492,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("GPS");
     case AUX_SERIAL_DEBUG:
       return tr("Debug");
+    case AUX_SERIAL_SPACEMOUSE:
+      return tr("SpaceMouse");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -567,8 +569,9 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
     if (port_nr == SP_VCP &&
         (i == AUX_SERIAL_TELE_IN ||
          i == AUX_SERIAL_SBUS_TRAINER ||
-         i == AUX_SERIAL_GPS)) {
-      // These 3 are disabled on VCP
+         i == AUX_SERIAL_GPS ||
+         i == AUX_SERIAL_SPACEMOUSE)) {
+      // These are disabled on VCP
       continue;
     }
     mdl->appendToItemList(serialModeToString(i), i);

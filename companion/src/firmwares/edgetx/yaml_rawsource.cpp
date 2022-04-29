@@ -21,6 +21,15 @@
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
 
+static const YamlLookupTable spacemouseLut = {
+  {  0, "SPACEMOUSE_1"  },
+  {  1, "SPACEMOUSE_2"  },
+  {  2, "SPACEMOUSE_3"  },
+  {  3, "SPACEMOUSE_4"  },
+  {  4, "SPACEMOUSE_5"  },
+  {  5, "SPACEMOUSE_6"  },
+};
+
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   std::string src_str;
@@ -97,6 +106,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += std::to_string(rhs.index / 3);
       src_str += ")";
       break;
+    case SOURCE_TYPE_SPACEMOUSE:
+      src_str = "SPACEMOUSE_";
+      src_str += std::to_string(rhs.index + 1);
+      break;
     default:
       src_str = "NONE";
       break;
@@ -165,7 +178,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[0] == 'f' &&
              val[1] == 's' &&
              val[2] == '(') {
-    
+
     std::stringstream src(src_str.substr(3));
     int fs = 0;
     src >> fs;
@@ -257,6 +270,15 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;
+    }
+
+    if (node.IsScalar() && node.as<std::string>().size() == 12 && node.as<std::string>().substr(0, 11) == "SPACEMOUSE_") {
+      int sm_idx;
+      node >> spacemouseLut >> sm_idx;
+      if (sm_idx >= 0) {
+        rhs.type = SOURCE_TYPE_SPACEMOUSE;
+        rhs.index = sm_idx;
+      }
     }
 
     if (node.IsScalar() && node.as<std::string>() == "MAX") {
