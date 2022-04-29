@@ -34,7 +34,6 @@ COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Rel
 if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
 elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
-    echo "${MSYSTEM,,}"
     if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
         COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw32/bin/"
     else # fallback to 64bit
