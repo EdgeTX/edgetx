@@ -33,7 +33,7 @@ const std::string about_str = "EdgeTX" " " "\"" CODENAME "\" (" VERSION ")";
 #else
 const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 #endif
-const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
+const std::string copyright_str = "Copyright (C) 2022 EdgeTX";
 
 AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
