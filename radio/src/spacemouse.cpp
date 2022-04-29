@@ -36,24 +36,22 @@ enum class sm_bytetype
 {
   SM_START,
   SM_DATA,
-  SM_CHECKSUM,
+  SM_CHECKSUMHB,
+  SM_CHECKSUMLB,
   SM_FOOTER,
 };
 
 struct spacemouseTelegram_t
 {
-  unsigned char head;
   unsigned char data[SPACEMOUSE_LENGTH_TELEGRAM];
-  unsigned short checkSum;
-  unsigned char startIndex;
-  unsigned char endIndex;
+  unsigned short checkSumReceived;
+  unsigned short checkSumCalc;
   unsigned char dataIndex;
-  unsigned char completeFlg;
   sm_bytetype parsestate;
   unsigned char recevied;
 };
 
-static spacemouseTelegram_t spaceMouseTelegram = { 0 };
+static spacemouseTelegram_t spaceMouseTelegram = { {0} };
 spacemousedata_t spacemouseData;
 
 void spacemouseWakeup();
@@ -97,24 +95,12 @@ void spacemouseStop()
 }
 #endif
 
-unsigned short calc_checksum(void *pBuffer,unsigned char BufferSize)
-{
-  unsigned short checksum = 0;
-  while (BufferSize)
-  {
-      checksum += (*(unsigned char *)pBuffer);
-      pBuffer = (void *)((unsigned char *)pBuffer + 1);
-      BufferSize--;
-  }
-  return (checksum & 0x3FFF);
-}
-
 void spacemouseParseNewData(uint8_t c)
 {
   switch (spaceMouseTelegram.parsestate) {
     case sm_bytetype::SM_START: {
       if (c == SPACEMOUSE_PROTO_HEADER) {
-        spaceMouseTelegram.head = SPACEMOUSE_PROTO_HEADER;
+        spaceMouseTelegram.checkSumCalc = c;
         spaceMouseTelegram.parsestate = sm_bytetype::SM_DATA;
         spaceMouseTelegram.dataIndex = 0;
       }
@@ -122,34 +108,35 @@ void spacemouseParseNewData(uint8_t c)
     }
     case sm_bytetype::SM_DATA: {
       spaceMouseTelegram.data[spaceMouseTelegram.dataIndex++] = c;
+      spaceMouseTelegram.checkSumCalc += c;
       if (spaceMouseTelegram.dataIndex >= SPACEMOUSE_LENGTH_DATA) {
-        spaceMouseTelegram.checkSum = 0;
+        spaceMouseTelegram.checkSumReceived = 0;
         spaceMouseTelegram.dataIndex = 0;
-        spaceMouseTelegram.parsestate = sm_bytetype::SM_CHECKSUM;
+        spaceMouseTelegram.parsestate = sm_bytetype::SM_CHECKSUMHB;
       }
       break;
     }
-    case sm_bytetype::SM_CHECKSUM: {
-      spaceMouseTelegram.checkSum |= c << ((spaceMouseTelegram.dataIndex++) * 7);
-      if (spaceMouseTelegram.dataIndex >= 2) {
-        spaceMouseTelegram.dataIndex = 0;
-        spaceMouseTelegram.parsestate = sm_bytetype::SM_FOOTER;
-      }
+    case sm_bytetype::SM_CHECKSUMHB: {
+      spaceMouseTelegram.checkSumReceived = c << 7;
+      spaceMouseTelegram.parsestate = sm_bytetype::SM_CHECKSUMLB;
+      break;
+    }
+    case sm_bytetype::SM_CHECKSUMLB: {
+      spaceMouseTelegram.checkSumReceived += c;
+      spaceMouseTelegram.parsestate = sm_bytetype::SM_FOOTER;
       break;
     }
     case sm_bytetype::SM_FOOTER: {
-      if ((c == SPACEMOUSE_PROTO_FOOTER) ||
-          (spaceMouseTelegram.checkSum ==
-          calc_checksum((void *)&spaceMouseTelegram.head, SPACEMOUSE_LENGTH_HEADER + SPACEMOUSE_LENGTH_DATA))) {
+      if ((c == SPACEMOUSE_PROTO_FOOTER) &&
+          (spaceMouseTelegram.checkSumReceived == (spaceMouseTelegram.checkSumCalc & 0x3FFF))) {
           for ( uint8_t channel = 0; channel < SPACEMOUSE_CHANNEL_COUNT; channel++ )
           {
             // The values are 7-bit in LSByte and MSByte only. Set MSBit is reserved for start, stop & commands.
             spacemouseData.axisValues[channel] = ((spaceMouseTelegram.data[channel*2] << 7) + spaceMouseTelegram.data[(channel*2)+1]) - SPACEMOUSE_INPUT_OFFSET;
           }
-        spaceMouseTelegram.parsestate = sm_bytetype::SM_START;
-      } else {
-        // Error handling
       }
+      spaceMouseTelegram.checkSumCalc = 0;
+      spaceMouseTelegram.parsestate = sm_bytetype::SM_START;
       break;
     }
   }
