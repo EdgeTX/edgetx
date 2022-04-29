@@ -240,3 +240,10 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
         lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25), LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2, BL_SELECTED);
     }
 }
+
+void blExit()
+{
+      lcdClear();
+      lcdRefresh();
+      lcdRefreshWait();
+}
