@@ -66,6 +66,7 @@ bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
   return true;
 }
 
+#if STORAGE_CONVERSIONS < 221
 bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     const char* str = nullptr;
@@ -149,6 +150,7 @@ bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* 
 
     return true;
 }
+#endif
 
 #define r_vbat_min nullptr
 
@@ -204,6 +206,7 @@ bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
 }
 #endif
 
+#if STORAGE_CONVERSIONS < 221
 static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
     data += bitoffs >> 3UL;
@@ -239,6 +242,7 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     }
     return 0;
 }
+#endif
 
 uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 {
@@ -293,6 +297,7 @@ uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
   return 5;
 }
 
+#if STORAGE_CONVERSIONS < 221
 #define r_calib nullptr
 
 static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
@@ -361,7 +366,8 @@ bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
     return false;
   return wf(opaque, "\"", 1);
 }
-
+#endif
+ 
 extern const struct YamlIdStr enum_SwitchConfig[];
 const struct YamlIdStr enum_SwitchConfig[] = {
     {  SWITCH_NONE, "none"  },
@@ -371,6 +377,7 @@ const struct YamlIdStr enum_SwitchConfig[] = {
     {  0, NULL  }
 };
 
+#if STORAGE_CONVERSIONS < 221
 static const struct YamlNode struct_switchConfig[] = {
     YAML_IDX_CUST( "sw", nullptr, sw_write ),
     YAML_ENUM( "type", 2, enum_SwitchConfig),
@@ -536,6 +543,7 @@ static bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
     return false;
   return true;
 }
+#endif
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
@@ -677,6 +685,7 @@ bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
 }
 #endif
 
+#if STORAGE_CONVERSIONS < 221
 extern const struct YamlIdStr enum_BeeperMode[];
 
 #define r_beeperMode nullptr
@@ -687,6 +696,7 @@ bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void*
     const char* str = yaml_output_enum(sval, enum_BeeperMode);
     return wf(opaque, str, strlen(str));
 }
+#endif
 
 #define r_5pos nullptr
 
@@ -744,6 +754,7 @@ const struct YamlIdStr enum_TrainerMode[] = {
 
 #define r_trainerMode nullptr
 
+#if STORAGE_CONVERSIONS < 221
 static bool w_trainerMode(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
@@ -756,6 +767,7 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 
   return true;
 }
+#endif
 
 #if !defined(COLORLCD)
 #define r_tele_screen_type nullptr
@@ -856,6 +868,7 @@ const char* _adjust_gvar_mode_lookup[] = {
 };
 extern const uint8_t _adjust_gvar_mode_lookup_size = 4;
   
+#if STORAGE_CONVERSIONS < 221
 bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                 yaml_writer_func wf, void* opaque)
 {
@@ -1078,6 +1091,7 @@ bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
   auto src = throttleSource2Source(val);
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
+#endif
 
 // Force external linkage
 extern const struct YamlIdStr enum_XJT_Subtypes[];
