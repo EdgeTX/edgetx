@@ -21,9 +21,7 @@
 
 #include "opentx.h"
 
-#if defined(MUTUALLY_EXCLUSIVE_MODULES) 
-static uint8_t Mutually_Exclusive;
-#endif
+
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
@@ -641,11 +639,8 @@ bool isInternalModuleSupported(int moduleType)
 
 bool isInternalModuleAvailable(int moduleType)
 {
-#if defined(MUTUALLY_EXCLUSIVE_MODULES) 
-  if (Mutually_Exclusive == 2){
-    return false;
-  }
-  Mutually_Exclusive = (moduleType)?1u:0u;
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(EXTERNAL_MODULE)) return false;
 #endif
 
   if (moduleType == MODULE_TYPE_NONE)
@@ -687,11 +682,8 @@ bool isInternalModuleAvailable(int moduleType)
 bool isExternalModuleAvailable(int moduleType)
 {
 
-#if defined(MUTUALLY_EXCLUSIVE_MODULES) 
-  if (Mutually_Exclusive == 1u){
-    return false;
-  }
-  Mutually_Exclusive = (moduleType)?2u:0u;
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(INTERNAL_MODULE)) return false;
 #endif
 
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
