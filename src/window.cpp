@@ -299,6 +299,7 @@ void Window::clearLvgl()
       window->clearLvgl();
   }
 
+  lv_obj_remove_event_cb(lvobj, window_event_cb);
   lv_obj_set_user_data(lvobj, nullptr);
   lv_group_remove_obj(lvobj);
   lvobj = nullptr;
