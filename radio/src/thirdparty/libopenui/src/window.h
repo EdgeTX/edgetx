@@ -451,8 +451,9 @@ class Window
 
     virtual void addChild(Window * window, bool front = false)
     {
-      if (lv_obj_get_parent(window->lvobj) != nullptr) {
-        lv_obj_set_parent(window->lvobj, this->lvobj);
+      auto lv_parent = lv_obj_get_parent(window->lvobj);
+      if (lv_parent && (lv_parent != lvobj)) {
+        lv_obj_set_parent(window->lvobj, lvobj);
         // not used anywhere!
         if (front)
           lv_obj_move_to_index(window->lvobj, 0);
