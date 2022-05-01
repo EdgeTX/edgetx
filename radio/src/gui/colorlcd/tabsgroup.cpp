@@ -195,6 +195,11 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     currentTab = tab;
     if (tab->onSetVisible) tab->onSetVisible();
 
+#if defined(DEBUG)
+    auto start_ms = RTOS_GET_MS();
+    (void)start_ms;
+#endif
+
     auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
                                NO_FOCUS | FORM_FORWARD_FOCUS);
     tab->build(form);
@@ -202,6 +207,8 @@ void TabsGroup::setVisibleTab(PageTab* tab)
 
     header.setTitle(tab->title.c_str());
     invalidate();
+
+    TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
   }
 }
 
