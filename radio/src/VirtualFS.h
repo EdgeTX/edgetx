@@ -237,129 +237,19 @@ struct VfsFileInfo
 public:
   VfsFileInfo(){ clear(); }
 
-  std::string getName() const
-  {
-    switch(type)
-    {
-    case VfsFileType::ROOT: return name;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:  return lfsInfo.name;
-#endif
-    }
-    return "";
-  };
+  std::string getName() const;
+  size_t getSize() const;
+  VfsType getType() const;
+  VfsFileAttributes getAttrib();
 
-  size_t getSize() const
-  {
-    switch(type)
-    {
-    case VfsFileType::ROOT: return 0;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:  return fatInfo.fsize;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:  return lfsInfo.size;
-#endif
-    }
-    return 0;
-  }
-
-  VfsType getType() const
-  {
-    switch(type)
-    {
-    case VfsFileType::ROOT:
-      return VfsType::DIR;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:
-      if (!name.empty())
-        return VfsType::DIR;
-      if(fatInfo.fattrib & AM_DIR)
-        return VfsType::DIR;
-      else
-        return VfsType::FILE;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:
-
-      if(lfsInfo.type == LFS_TYPE_DIR)
-        return VfsType::DIR;
-      else
-        return VfsType::FILE;
-#endif
-    }
-    return VfsType::UNKOWN;
-  };
-
-  VfsFileAttributes getAttrib()
-  {
-    switch(type)
-    {
-    case VfsFileType::ROOT:
-      return VfsFileAttributes::DIR;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:
-      return (VfsFileAttributes)fatInfo.fattrib;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:
-      if(lfsInfo.type == LFS_TYPE_DIR)
-        return VfsFileAttributes::DIR;
-      return VfsFileAttributes::NONE;
-#endif
-    }
-    return VfsFileAttributes::NONE;
-  }
-
-  int getDate(){
-    switch(type)
-    {
-    case VfsFileType::ROOT:
-      return 0;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:
-      return fatInfo.fdate;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:
-      return 0;
-#endif
-    }
-    return 0;
-  }
-  int getTime()
-  {
-    switch(type)
-    {
-    case VfsFileType::ROOT:
-      return 0;
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:
-      return fatInfo.ftime;
-#endif
-#if defined(USE_LITTLEFS)
-    case VfsFileType::LFS:
-      return 0;
-#endif
-    }
-    return 0;
-  }
+  int getDate();
+  int getTime();
 private:
   friend class VirtualFS;
   friend struct VfsDir;
   VfsFileInfo(const VfsFileInfo&);
 
-  void clear() {
-    type = VfsFileType::UNKNOWN;
-#if defined(USE_LITTLEFS)
-    lfsInfo = {0};
-#endif
-    fatInfo = {0};
-    name.clear();
-  }
+  void clear();
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
@@ -388,17 +278,8 @@ private:
 
   enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
 
-  void clear()
-  {
-    type = DIR_UNKNOWN;
-#if defined(USE_LITTLEFS)
-    lfs.dir = {0};
-    lfs.handle = nullptr;
-#endif
-    fat.dir = {0};
+  void clear();
 
-    readIdx = 0;
-  }
   DirType type = DIR_UNKNOWN;
   union {
 #if defined(USE_LITTLEFS)
@@ -443,14 +324,7 @@ private:
   friend class VirtualFS;
   VfsFile(const VfsFile&);
 
-  void clear() {
-    type = VfsFileType::UNKNOWN;
-#if defined(USE_LITTLEFS)
-    lfs.file = {0};
-    lfs.handle = nullptr;
-#endif
-    fat.file = {0};
-  }
+  void clear();
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {

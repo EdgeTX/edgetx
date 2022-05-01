@@ -232,6 +232,140 @@ VfsFileAttributes operator&(VfsFileAttributes lhs,VfsFileAttributes rhs)
   & static_cast<underlying>(rhs));
 }
 
+std::string VfsFileInfo::getName() const
+{
+  switch(type)
+  {
+  case VfsFileType::ROOT: return name;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:  return lfsInfo.name;
+#endif
+  }
+  return "";
+};
+
+size_t VfsFileInfo::getSize() const
+{
+  switch(type)
+  {
+  case VfsFileType::ROOT: return 0;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:  return fatInfo.fsize;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:  return lfsInfo.size;
+#endif
+  }
+  return 0;
+}
+
+VfsType VfsFileInfo::getType() const
+{
+  switch(type)
+  {
+  case VfsFileType::ROOT:
+    return VfsType::DIR;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:
+    if (!name.empty())
+      return VfsType::DIR;
+    if(fatInfo.fattrib & AM_DIR)
+      return VfsType::DIR;
+    else
+      return VfsType::FILE;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:
+
+    if(lfsInfo.type == LFS_TYPE_DIR)
+      return VfsType::DIR;
+    else
+      return VfsType::FILE;
+#endif
+  }
+  return VfsType::UNKOWN;
+};
+
+VfsFileAttributes VfsFileInfo::getAttrib()
+{
+  switch(type)
+  {
+  case VfsFileType::ROOT:
+    return VfsFileAttributes::DIR;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:
+    return (VfsFileAttributes)fatInfo.fattrib;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:
+    if(lfsInfo.type == LFS_TYPE_DIR)
+      return VfsFileAttributes::DIR;
+    return VfsFileAttributes::NONE;
+#endif
+  }
+  return VfsFileAttributes::NONE;
+}
+
+int VfsFileInfo::getDate(){
+  switch(type)
+  {
+  case VfsFileType::ROOT:
+    return 0;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:
+    return fatInfo.fdate;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:
+    return 0;
+#endif
+  }
+  return 0;
+}
+
+int VfsFileInfo::getTime()
+{
+  switch(type)
+  {
+  case VfsFileType::ROOT:
+    return 0;
+#if defined (USE_FATFS)
+  case VfsFileType::FAT:
+    return fatInfo.ftime;
+#endif
+#if defined(USE_LITTLEFS)
+  case VfsFileType::LFS:
+    return 0;
+#endif
+  }
+  return 0;
+}
+
+void VfsFileInfo::clear() {
+  type = VfsFileType::UNKNOWN;
+#if defined(USE_LITTLEFS)
+  lfsInfo = {0};
+#endif
+  fatInfo = {0};
+  name.clear();
+}
+
+
+void VfsDir::clear()
+{
+  type = DIR_UNKNOWN;
+#if defined(USE_LITTLEFS)
+  lfs.dir = {0};
+  lfs.handle = nullptr;
+#endif
+  fat.dir = {0};
+
+  readIdx = 0;
+}
+
 VfsError VfsDir::read(VfsFileInfo& info)
 {
   info.clear();
@@ -334,7 +468,14 @@ VfsError VfsDir::rewind()
   return VfsError::INVAL;
 }
 
-
+void VfsFile::clear() {
+  type = VfsFileType::UNKNOWN;
+#if defined(USE_LITTLEFS)
+  lfs.file = {0};
+  lfs.handle = nullptr;
+#endif
+  fat.file = {0};
+}
 
 VfsError VfsFile::close()
 {
@@ -911,33 +1052,15 @@ bool VirtualFS::format()
 //  }
 }
 #endif
-std::vector<std::string> tokenize(const char* seps, const std::string& data)
-{
-    std::vector<std::string> ret;
-    size_t oldpos = 0;
-
-    while (1)
-    {
-        size_t newpos = data.find_first_of(seps,oldpos);
-        if(newpos == std::string::npos)
-        {
-            ret.push_back(data.substr(oldpos));
-            break;
-        }
-        ret.push_back(data.substr(oldpos,newpos-oldpos));
-        oldpos=newpos+1;
-    }
-    return ret;
-}
 
 VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 {
   if(path == "/")
   {
     return VfsDir::DIR_ROOT;
+#if defined (SPI_FLASH)
   } else if(path.substr(0, 9) == "/INTERNAL")
   {
-#if defined (SPI_FLASH)
 #if defined (USE_LITTLEFS)
       path = path.substr(6);
     return VfsDir::DIR_LFS;
@@ -949,17 +1072,13 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
       path = "/";
     return VfsDir::DIR_FAT;
 #endif // USE_LITTLEFS
-#else // SPI_FLASH
-    return VfsDir::DIR_UNKNOWN;
 #endif  // SPI_FLASH
-  } else if(path.substr(0, 7) == "/SDCARD") {
 #if defined (SDCARD)
+  } else if(path.substr(0, 7) == "/SDCARD") {
     path = path.substr(7);
     if (path == "")
       path = "/";
     return VfsDir::DIR_FAT;
-#else
-    return VfsDir::DIR_UNKNOWN;
 #endif
   } else if(path.substr(0, 8) == "/DEFAULT") {
 #if (DEFAULT_STORAGE == INTERNAL)
