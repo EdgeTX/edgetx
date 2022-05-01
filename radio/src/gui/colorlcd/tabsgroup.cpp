@@ -61,7 +61,7 @@ TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
     Window(parent,
            {MENU_HEADER_BUTTONS_LEFT, 0, LCD_W - MENU_HEADER_BUTTONS_LEFT,
             MENU_HEADER_HEIGHT + 10},
-           TRANSPARENT),
+           NO_FOCUS | TRANSPARENT),
     menu(menu)
 {
 }
