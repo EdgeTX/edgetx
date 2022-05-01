@@ -735,6 +735,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18))
+#if !defined(SIMU)
 void *__dso_handle = nullptr;
 #endif
