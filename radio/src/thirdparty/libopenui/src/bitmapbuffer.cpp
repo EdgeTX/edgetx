@@ -1112,6 +1112,8 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
 
   if (flags & RIGHT) {
     label_draw_dsc.align = LV_TEXT_ALIGN_RIGHT;
+    coords.x1 -= p.x;
+    coords.x2 -= p.x;
   } else if (flags & CENTERED) {
     label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
     coords.x1 -= p.x / 2;
