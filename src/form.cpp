@@ -37,6 +37,7 @@ FormField::FormField(Window* parent, const rect_t& rect,
     }
   }
 
+  lv_obj_enable_style_refresh(false);
   lv_style_init(&bg_style);
   lv_style_set_bg_color(&bg_style, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&bg_style, LV_OPA_COVER);
@@ -49,6 +50,8 @@ FormField::FormField(Window* parent, const rect_t& rect,
   lv_style_init(&edit_style);
   lv_style_set_bg_color(&edit_style, makeLvColor(COLOR_THEME_EDIT));
   lv_obj_add_style(lvobj, &edit_style, LV_PART_MAIN | LV_STATE_EDITED);
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 #if defined(HARDWARE_KEYS)
