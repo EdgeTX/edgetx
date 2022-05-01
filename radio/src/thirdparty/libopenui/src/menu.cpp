@@ -91,7 +91,7 @@ coord_t MenuBody::getContentHeight()
 {
   coord_t h = 0;
   lv_obj_update_layout(lvobj);
-  for(int i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
+  for(uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
     auto child = lv_obj_get_child(lvobj, i);
     h += lv_obj_get_height(child);
   }
@@ -105,7 +105,7 @@ void MenuBody::onPress(size_t index)
   if (index < lines.size()) {
     onKeyPress();
     if (menu->multiple) {
-      if (selectedIndex == index)
+      if (selectedIndex == (int)index)
         lines[index].onPress();
       else
         setIndex(index);
