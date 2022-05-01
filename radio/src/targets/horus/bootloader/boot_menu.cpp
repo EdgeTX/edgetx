@@ -91,12 +91,12 @@ static void bootloaderDrawBackground()
         _background->drawBitmap(i, j, &BMP_BACKGROUND);
       }
     }
-    _background->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID,
-                                COLOR2FLAGS(BLACK), OPACITY(4));
   }
 
   if (_background) {
     lcd->drawBitmap(0, 0, _background);
+    lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID,
+                        COLOR2FLAGS(BLACK), OPACITY(4));
   }
   else {
     lcd->clear(BL_BACKGROUND);
