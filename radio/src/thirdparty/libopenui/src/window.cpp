@@ -29,6 +29,7 @@ std::list<Window *> Window::trash;
 extern lv_obj_t *virtual_kb;
 
 static bool is_scrolling = false;
+static bool inhibit_focus = false;
 
 static void window_event_cb(lv_event_t * e)
 {
@@ -136,6 +137,7 @@ static void window_event_cb(lv_event_t * e)
     window->setScrollPositionX(scroll_x);
 
   } else if (code == LV_EVENT_FOCUSED) {
+    if (inhibit_focus) return;
     bool focused = ((Window *)target->user_data)->hasFocus();
     TRACE_WINDOWS("FOCUSED[%d] %s", focused,
                  window->getWindowDebugString().c_str());
@@ -307,10 +309,13 @@ void Window::clearLvgl()
 
 void Window::deleteChildren()
 {
+  // prevent LVGL refocus while mass-deleting
+  inhibit_focus = true;
   for (auto window: children) {
     window->clearLvgl();
     window->deleteLater(false);
   }
+  inhibit_focus = false;
   children.clear();
 }
 
