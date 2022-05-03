@@ -267,7 +267,6 @@ void Menu::updatePosition()
     content->body.setHeight(bodyHeight);
   }
 
-  content->body.setInnerHeight(height);
 }
 
 void Menu::setTitle(std::string text)

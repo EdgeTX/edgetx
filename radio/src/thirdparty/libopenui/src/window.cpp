@@ -22,8 +22,6 @@
 #include "mainwindow.h"
 
 Window * Window::focusWindow = nullptr;
-Window * Window::slidingWindow = nullptr;
-Window * Window::capturedWindow = nullptr;
 std::list<Window *> Window::trash;
 
 extern lv_obj_t *virtual_kb;
@@ -107,8 +105,6 @@ static void window_event_cb(lv_event_t * e)
     rel_pos.x = point_act.x - obj_coords.x1;
     rel_pos.y = point_act.y - obj_coords.y1;
 
-    rel_pos.x += window->getScrollPositionX();
-    rel_pos.y += window->getScrollPositionY();
 
     if (code == LV_EVENT_PRESSED) {
       TRACE("PRESSED[%d|%d]", rel_pos.x, rel_pos.y);
@@ -127,14 +123,14 @@ static void window_event_cb(lv_event_t * e)
 #endif
   else if (code == LV_EVENT_SCROLL) {
 
+#if defined(DEBUG_WINDOWS)
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
 
     TRACE_WINDOWS("SCROLL[x=%d;y=%d] %s", scroll_x, scroll_y,
                   window->getWindowDebugString().c_str());
+#endif
 
-    window->setScrollPositionY(scroll_y);
-    window->setScrollPositionX(scroll_x);
 
   } else if (code == LV_EVENT_FOCUSED) {
     if (inhibit_focus) return;
@@ -147,10 +143,8 @@ static void window_event_cb(lv_event_t * e)
 
 Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
                LcdFlags textFlags, LvglCreate objConstruct) :
-    parent(parent),
     rect(rect),
-    innerWidth(rect.w),
-    innerHeight(rect.h),
+    parent(parent),
     windowFlags(windowFlags),
     textFlags(textFlags)
 {
@@ -174,7 +168,7 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
 
   if (parent) {
-    parent->addChild(this, windowFlags & PUSH_FRONT);
+    parent->addChild(this);
     if (!(windowFlags & TRANSPARENT)) {
       invalidate();
     }
@@ -187,9 +181,9 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
 }
 
 Window::Window(Window *parent, lv_obj_t* lvobj)
-  : lvobj(lvobj),
+  : rect(nullRect),
     parent(parent),
-    rect(nullRect)
+    lvobj(lvobj)
 {
   lv_obj_set_user_data(lvobj, this);
 
@@ -202,7 +196,7 @@ Window::Window(Window *parent, lv_obj_t* lvobj)
   lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
 
   if (parent) {
-    parent->addChild(this, windowFlags & PUSH_FRONT);
+    parent->addChild(this);
     if (!(windowFlags & TRANSPARENT)) {
       invalidate();
     }
@@ -227,6 +221,65 @@ Window::~Window()
     lv_obj_set_user_data(lvobj, nullptr);
     lv_obj_del(lvobj);
     lvobj = nullptr;
+  }
+}
+
+#if defined(DEBUG_WINDOWS)
+std::string Window::getName() const { return "Window"; }
+
+std::string Window::getRectString() const
+{
+  char result[32];
+  sprintf(result, "[%d, %d, %d, %d]", left(), top(), width(), height());
+  return result;
+}
+
+std::string Window::getIndentString() const
+{
+  std::string result;
+  auto tmp = parent;
+  while (tmp) {
+    result += "  ";
+    tmp = tmp->getParent();
+  }
+  return result;
+}
+
+std::string Window::getWindowDebugString(const char *name = nullptr) const
+{
+  return getName() + (name ? std::string(" [") + name + "] " : " ") +
+         getRectString();
+}
+#endif
+
+Window *Window::getFullScreenWindow()
+{
+  if (width() == LCD_W && height() == LCD_H) return this;
+  if (parent) return parent->getFullScreenWindow();
+  return nullptr;
+}
+
+void Window::setWindowFlags(WindowFlags flags)
+{
+  // TODO: check if LVGL flags need updating...
+  windowFlags = flags;
+}
+
+void Window::setTextFlags(LcdFlags flags)
+{
+  textFlags = flags;
+  if (!lvobj) return;
+
+  // lv integration for colors
+  auto textColor = COLOR_VAL(flags);
+  auto r = GET_RED(textColor), g = GET_GREEN(textColor),
+       b = GET_BLUE(textColor);
+  lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
+
+  // rco: shouldn't this be done via 'setTextFlags()' on the children?
+  for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
+    auto child = lv_obj_get_child(lvobj, i);
+    lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
   }
 }
 
@@ -279,10 +332,6 @@ void Window::deleteLater(bool detach, bool trash)
 
 void Window::clear()
 {
-  scrollPositionX = 0;
-  scrollPositionY = 0;
-  innerWidth = rect.w;
-  innerHeight = rect.h;
   deleteChildren();
   if(lvobj != nullptr) {
     lv_obj_clean(lvobj);
@@ -370,71 +419,15 @@ void Window::setFocus(uint8_t flag, Window * from)
   }
 }
 
-void Window::setScrollPositionX(coord_t value)
-{
-  auto newScrollPosition = max<coord_t>(0, min<coord_t>(innerWidth - width(), value));
-  if (newScrollPosition != scrollPositionX) {
-    scrollPositionX = newScrollPosition;
-    invalidate();
-  }
-}
-
-void Window::setScrollPositionY(coord_t value)
-{
-  auto newScrollPosition = min<coord_t>(innerHeight - height(), value);
-
-  if (newScrollPosition < 0 && innerHeight != INFINITE_HEIGHT) {
-    newScrollPosition = 0;
-  }
-
-  if (newScrollPosition != scrollPositionY) {
-    scrollPositionY = newScrollPosition;
-    invalidate();
-  }
-}
-
 void Window::scrollTo(Window * child)
 {
-  coord_t offsetX = 0;
-  coord_t offsetY = 0;
 
-  Window * parentWindow = child->getParent();
-  while (parentWindow && parentWindow != this) {
-    offsetX += parentWindow->left();
-    offsetY += parentWindow->top();
-    parentWindow = parentWindow->getParent();
-  }
 
-  const rect_t scrollRect = {
-    offsetX + child->left(),
-    offsetY + child->top(),
-    min(child->width(), width()),
-    min(child->height(), height())
-  };
 
-  scrollTo(scrollRect);
 }
 
 void Window::scrollTo(const rect_t & rect)
 {
-  if (rect.top() < scrollPositionY) {
-    auto y =
-      pageHeight ? rect.top() - (rect.top() % pageHeight) : rect.top();
-    lv_obj_scroll_to_y(lvobj, y, LV_ANIM_OFF);
-  } else if (rect.bottom() > scrollPositionY + height()) {
-    auto y = pageHeight ? rect.top() - (rect.top() % pageHeight)
-                        : rect.bottom() - height();
-    lv_obj_scroll_to_y(lvobj, y, LV_ANIM_OFF);
-  }
-
-  if (rect.left() < scrollPositionX) {
-    auto x = pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.left();
-    lv_obj_scroll_to_x(lvobj, x, LV_ANIM_OFF);
-  }
-  else if (rect.right() > scrollPositionX + width()) {
-    auto x = pageWidth ? rect.left() - (rect.left() % pageWidth) : rect.right() - width();
-    lv_obj_scroll_to_x(lvobj, x, LV_ANIM_OFF);
-  }
 }
 
 bool Window::hasOpaqueRect(const rect_t & testRect) const
@@ -495,9 +488,6 @@ void Window::fullPaint(BitmapBuffer * dc)
     TRACE_WINDOWS_INDENT("%s (skipped)", getWindowDebugString().c_str());
   }
 
-  if (!(windowFlags & NO_SCROLLBAR)) {
-    drawVerticalScrollbar(dc);
-  }
 
   if (!(windowFlags & PAINT_CHILDREN_FIRST)) {
     paintChildren(dc, firstChild);
@@ -523,17 +513,6 @@ bool Window::isChildVisible(const Window * window) const
   return false;
 }
 
-void Window::setInsideParentScrollingArea()
-{
-  Window * parent = getParent();
-  while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
-    parent = parent->parent;
-  }
-  if (parent) {
-    parent->scrollTo(this);
-    invalidate();
-  }
-}
 
 void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
 {
@@ -558,11 +537,11 @@ void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
     if (child_ymax <= ymin)
       continue;
 
-    dc->setOffset(x + child->rect.x - child->scrollPositionX, y + child->rect.y - child->scrollPositionY);
-    dc->setClippingRect(max(xmin, x + child->rect.left()),
-                        min(xmax, x + child->rect.right()),
-                        max(ymin, y + child->rect.top()),
-                        min(ymax, y + child->rect.bottom()));
+    // dc->setOffset(x + child->rect.x - child->scrollPositionX,
+    //               y + child->rect.y - child->scrollPositionY);
+    dc->setClippingRect(
+        max(xmin, x + child->rect.left()), min(xmax, x + child->rect.right()),
+        max(ymin, y + child->rect.top()), min(ymax, y + child->rect.bottom()));
     child->fullPaint(dc);
   }
 }
@@ -636,8 +615,6 @@ bool Window::onTouchEnd(coord_t x, coord_t y)
 
 bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
 {
-  startX += getScrollPositionX();
-  startY += getScrollPositionY();
 
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
     auto child = *it;
@@ -654,19 +631,13 @@ bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, 
 
 void Window::adjustInnerHeight()
 {
-  coord_t bottomMax = 0;
-  for (auto child: children) {
-    bottomMax = max(bottomMax, child->rect.y + child->rect.h);
-  }
-  setInnerHeight(bottomMax);
 }
 
 coord_t Window::adjustHeight()
 {
   coord_t old = rect.h;
   adjustInnerHeight();
-  rect.h = innerHeight;
-  lv_obj_set_style_height(getLvObj(), rect.h, LV_PART_MAIN);
+  if (lvobj) lv_obj_set_style_height(lvobj, rect.h, LV_PART_MAIN);
   return rect.h - old;
 }
 
@@ -696,33 +667,24 @@ void Window::updateSize()
   invalidate();
 }
 
+void Window::addChild(Window* window)
+{
+  auto lv_parent = lv_obj_get_parent(window->lvobj);
+  if (lv_parent && (lv_parent != lvobj)) {
+    lv_obj_set_parent(window->lvobj, lvobj);
+  }
+
+  children.push_back(window);
+}
+
+void Window::removeChild(Window* window)
+{
+  children.remove(window);
+  if (window->lvobj != nullptr) lv_obj_set_parent(window->lvobj, nullptr);
+  invalidate();
+}
+
 void Window::invalidate(const rect_t & rect)
 {
   if (lvobj) lv_obj_invalidate(lvobj);
-}
-
-void Window::drawVerticalScrollbar(BitmapBuffer * dc)
-{
-  if (innerHeight > rect.h) {
-    coord_t yofs = divRoundClosest(rect.h * scrollPositionY, innerHeight);
-    coord_t yhgt = divRoundClosest(rect.h * rect.h, innerHeight);
-    if (yhgt < 15)
-      yhgt = 15;
-    if (yhgt + yofs > rect.h)
-      yhgt = rect.h - yofs;
-    dc->drawSolidFilledRect(rect.w - SCROLLBAR_WIDTH, scrollPositionY + yofs, SCROLLBAR_WIDTH, yhgt, COLOR_THEME_PRIMARY3);
-  }
-}
-
-void Window::drawHorizontalScrollbar(BitmapBuffer * dc)
-{
-  if (innerWidth > rect.w) {
-    coord_t xofs = divRoundClosest(rect.w * scrollPositionX, innerWidth);
-    coord_t xwdth = divRoundClosest(rect.w * rect.w, innerWidth);
-    if (xwdth < 15)
-      xwdth = 15;
-    if (xwdth + xofs > rect.w)
-      xwdth = rect.w - xofs;
-    dc->drawSolidFilledRect(scrollPositionX + xofs, rect.h - SCROLLBAR_WIDTH, xwdth, SCROLLBAR_WIDTH, COLOR_THEME_PRIMARY3);
-  }
 }

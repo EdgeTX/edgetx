@@ -158,7 +158,6 @@ class MenuToolbar: public FormGroup {
 
       y += MENUS_TOOLBAR_BUTTON_WIDTH;
 
-      setInnerHeight(y);
     }
 };
 
