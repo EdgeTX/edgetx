@@ -171,7 +171,6 @@ class Table: public FormField
         void addLine(Line * line)
         {
           lines.push_back(line);
-          setInnerHeight((int)lines.size() * TABLE_LINE_HEIGHT - 2);
           if (hasFocus() && selection < 0) {
             select(0, true);
           }

@@ -66,7 +66,7 @@ FormField::FormField(Window* parent, const rect_t& rect,
   if (!(windowFlags & NO_FOCUS)) {
     auto cont = dynamic_cast<FieldContainer*>(parent);
     if (cont) {
-      cont->addField(this, windowFlags & PUSH_FRONT);
+      cont->addField(this);
     }
   }
 
@@ -163,18 +163,18 @@ void FormGroup::Line::construct()
   lv_obj_set_width(lvobj, lv_pct(100));
 }
 
-void FormGroup::Line::addChild(Window* window, bool front)
+void FormGroup::Line::addChild(Window* window)
 {
-  Window::addChild(window, front);
+  Window::addChild(window);
   if (layout) {
     layout->add(window->getLvObj());
     layout->nextCell();
   }
 }
 
-void FormGroup::Line::addField(FormField *field, bool front)
+void FormGroup::Line::addField(FormField *field)
 {
-  group->addField(field, front);
+  group->addField(field);
 }
 
 void FormGroup::Line::removeField(FormField *field)
@@ -250,25 +250,16 @@ void FormGroup::removeField(FormField * field)
   }
 }
 
-void FormGroup::addField(FormField * field, bool front)
+void FormGroup::addField(FormField * field)
 {
   if (field->getWindowFlags() & FORM_DETACHED)
     return;
 
-  if (front) {
-    if (first)
-      link(field, first);
+  if (last)
+    link(last, field);
+  last = field;
+  if (!first)
     first = field;
-    if (!last)
-      last = field;
-  }
-  else {
-    if (last)
-      link(last, field);
-    last = field;
-    if (!first)
-      first = field;
-  }
 
   if (WRAP_FORM_FIELDS_WITHIN_PAGE) {
     if (previous && (windowFlags & FORM_FORWARD_FOCUS)) {
@@ -366,22 +357,6 @@ void FormGroup::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("FormGroup").c_str(), event);
 
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    onKeyPress();
-    setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
-  } else if (event == EVT_KEY_FIRST(KEY_EXIT) && !hasFocus() &&
-             !(windowFlags & FORM_FORWARD_FOCUS)) {
-    killEvents(event);
-    onKeyPress();
-    setFocus(SET_FOCUS_DEFAULT);  // opentx - model - timers settings
-  } else if (event == EVT_ROTARY_RIGHT && !next) {
-    onKeyPress();
-    setFocusOnFirstVisibleField(SET_FOCUS_FIRST);
-  } else if (event == EVT_ROTARY_LEFT && !previous) {
-    onKeyPress();
-    setFocusOnLastVisibleField(SET_FOCUS_BACKWARD);
-  } else {
-    FormField::onEvent(event);
-  }
+  FormField::onEvent(event);
 }
 #endif

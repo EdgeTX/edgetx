@@ -118,7 +118,7 @@ class FormField : public Window
 class FieldContainer
 {
  public:
-  virtual void addField(FormField *field, bool front = false) = 0;
+  virtual void addField(FormField *field) = 0;
   virtual void removeField(FormField *field) = 0;
 };
 
@@ -137,8 +137,8 @@ class FormGroup : public FormField, public FieldContainer
     Line(Window *parent, lv_obj_t *obj, FlexGridLayout* layout, FormGroup* group);
 
    protected:
-    void addChild(Window* window, bool front = false) override;
-    void addField(FormField *field, bool front = false) override;
+    void addChild(Window* window) override;
+    void addField(FormField *field) override;
     void removeField(FormField *field) override;
   };
 
@@ -157,7 +157,7 @@ class FormGroup : public FormField, public FieldContainer
   void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
                 Window *from = nullptr) override;
 
-  void addField(FormField *field, bool front = false) override;
+  void addField(FormField *field) override;
   void removeField(FormField *field) override;
 
   void setFirstField(FormField *field) { first = field; }
@@ -165,27 +165,6 @@ class FormGroup : public FormField, public FieldContainer
   FormField *getFirstField() const { return first; }
   FormField *getLastField() const { return last; }
 
-  void setFocusOnFirstVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
-  {
-    auto field = getFirstField();
-    while (field && !field->isInsideParentScrollingArea()) {
-      field = field->getNextField();
-    }
-    if (field) {
-      field->setFocus(flag);
-    }
-  }
-
-  void setFocusOnLastVisibleField(uint8_t flag = SET_FOCUS_DEFAULT) const
-  {
-    auto field = getLastField();
-    while (field && !field->isInsideParentScrollingArea()) {
-      field = field->getPreviousField();
-    }
-    if (field) {
-      field->setFocus(flag);
-    }
-  }
 
  protected:
   FormField *first = nullptr;

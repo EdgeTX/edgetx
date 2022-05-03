@@ -42,13 +42,10 @@ void CarouselWindow::update()
     window->attach(this);
     window->setLeft(lastPosition);
     window->setTop((height() - window->height()) / 2);
-    if (index == first)
-      setScrollPositionX(lastPosition);
     lastPosition += window->width() + spacing;
     index += 1;
   }
 
-  setInnerWidth(lastPosition);
 }
 
 #if defined(HARDWARE_KEYS)

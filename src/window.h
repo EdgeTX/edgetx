@@ -74,105 +74,40 @@ class Window
    virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
-    virtual std::string getName() const
-    {
-      return "Window";
-    }
-
-    std::string getRectString() const
-    {
-      char result[32];
-      sprintf(result, "[%d, %d, %d, %d]", left(), top(), width(), height());
-      return result;
-    }
-
-    std::string getIndentString() const
-    {
-      std::string result;
-      auto tmp = parent;
-      while (tmp) {
-        result += "  ";
-        tmp = tmp->getParent();
-      }
-      return result;
-    }
-
-    std::string getWindowDebugString(const char * name = nullptr) const
-    {
-      return getName() + (name ? std::string(" [") + name + "] " : " ") + getRectString();
-    }
+    virtual std::string getName() const;
+    std::string getRectString() const;
+    std::string getIndentString() const;
+    std::string getWindowDebugString(const char * name = nullptr) const;
 #endif
 
-    Window * getParent() const
-    {
-      return parent;
-    }
+    Window *getParent() const { return parent; }
 
-    bool isChild(Window * window) const
+    bool isChild(Window *window) const
     {
       return window == this || (parent && parent->isChild(window));
     }
 
-    Window *getFullScreenWindow()
-    {
-      if (width() == LCD_W && height() == LCD_H) return this;
-      if (parent) return parent->getFullScreenWindow();
-      return nullptr;
-    }
+    Window *getFullScreenWindow();
 
-    WindowFlags getWindowFlags() const
-    {
-      return windowFlags;
-    }
+    WindowFlags getWindowFlags() const { return windowFlags; }
+    void setWindowFlags(WindowFlags flags);
 
-    void setWindowFlags(WindowFlags flags)
-    {
-      windowFlags = flags;
-    }
+    LcdFlags getTextFlags() const { return textFlags; }
+    void setTextFlags(LcdFlags flags);
 
-    LcdFlags getTextFlags() const
-    {
-      return textFlags;
-    }
+    typedef std::function<void()> CloseHandler;
+    void setCloseHandler(CloseHandler h) { closeHandler = std::move(h); }
 
-    void setTextFlags(LcdFlags flags)
-    {
-      textFlags = flags;
-      if (!lvobj) return;
+    typedef std::function<void(bool)> FocusHandler;
+    void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
 
-      // lv integration for colors
-      auto textColor = COLOR_VAL(flags);
-      auto r = GET_RED(textColor), g = GET_GREEN(textColor), b = GET_BLUE(textColor);
-      lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
-
-      // rco: shouldn't this be done via 'setTextFlags()' on the children?
-      for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
-        auto child = lv_obj_get_child(lvobj, i);
-        lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
-      }
-    }
-
-    void setCloseHandler(std::function<void()> handler)
-    {
-      closeHandler = std::move(handler);
-    }
-
-    void setFocusHandler(std::function<void(bool)> handler)
-    {
-      focusHandler = std::move(handler);
-    }
-
-    const std::list<Window *> getChildren()
-    {
-      return children;
-    }
-
-    virtual void deleteLater(bool detach = true, bool trash = true);
+    const std::list<Window *> getChildren() { return children; }
 
     void clear();
+    virtual void deleteLater(bool detach = true, bool trash = true);
+
     void clearLvgl();
 
-    void deleteChildren();
 
     bool hasFocus() const
     {
@@ -218,14 +153,7 @@ class Window
     void setHeight(coord_t value)
     {
       rect.h = value;
-      if (lvobj != nullptr)
-        lv_obj_set_height(lvobj, rect.h);
-
-      if (windowFlags & FORWARD_SCROLL)
-        innerHeight = value;
-      else if (lvobj != nullptr && innerHeight <= value) {
-        lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
-      }
+      if (lvobj != nullptr) lv_obj_set_height(lvobj, rect.h);
       invalidate();
     }
 
@@ -278,111 +206,13 @@ class Window
       return rect;
     }
 
-    coord_t getInnerWidth() const
-    {
-      return innerWidth;
-    }
-
-    void setInnerWidth(coord_t w)
-    {
-      innerWidth = w;
-      if (width() >= w) {
-        scrollPositionX = 0;
-      }
-    }
-
-    void setPageWidth(coord_t w)
-    {
-      pageWidth = w;
-    }
-
-    void setPageHeight(coord_t h)
-    {
-      pageHeight = h;
-    }
-
-    uint8_t getPageCount() const
-    {
-      if (pageWidth)
-        return innerWidth / pageWidth;
-      else if (pageHeight)
-        return innerHeight / pageHeight;
-      else
-        return 1;
-    }
-
-    uint8_t getPageIndex() const
-    {
-      if (pageWidth)
-        return (getScrollPositionX() + (pageWidth / 2)) / pageWidth;
-      else if (pageHeight)
-        return (getScrollPositionY() + (pageHeight / 2)) / pageHeight;
-      else
-        return 0;
-    }
-
-    coord_t getInnerHeight() const
-    {
-      return innerHeight;
-    }
-
-    void setInnerHeight(coord_t h)
-    {
-      innerHeight = h;
-      if (windowFlags & FORWARD_SCROLL) {
-        rect.h = innerHeight;
-        parent->adjustInnerHeight();
-      }
-      else if (height() >= h) {
-        lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
-      }
-      else {
-        coord_t maxScrollPosition = h - height();
-        if (scrollPositionY > maxScrollPosition) {
-          lv_obj_scroll_to_y(lvobj, maxScrollPosition, LV_ANIM_OFF);
-        }
-      }
-      invalidate();
-    }
-
-    coord_t getScrollPositionX() const
-    {
-      return scrollPositionX;
-    }
-
-    void captureWindow(Window *window)
-    {
-      capturedWindow = window;
-    }
-
-    coord_t getScrollPositionY() const
-    {
-      return scrollPositionY;
-    }
-
-    virtual void setScrollPositionX(coord_t value);
-
-    virtual void setScrollPositionY(coord_t value);
-
     bool isChildVisible(const Window * window) const;
-
     bool isChildFullSize(const Window * window) const;
 
     bool isVisible() const
     {
       return parent && parent->isChildVisible(this);
     }
-
-    bool isInsideParentScrollingArea() const
-    {
-      return parent && right() >= parent->getScrollPositionX() && left() <= parent->getScrollPositionX() + parent->width();
-    }
-
-    void setInsideParentScrollingArea();
-
-    void drawVerticalScrollbar(BitmapBuffer * dc);
-
-    void drawHorizontalScrollbar(BitmapBuffer * dc);
 
     virtual void onEvent(event_t event);
 
@@ -427,57 +257,33 @@ class Window
     inline lv_obj_t *getLvObj() { return lvobj; }
 
   protected:
-    lv_obj_t *lvobj = nullptr;
-    Window * parent;
-    std::list<Window *> children;
-    rect_t rect;
-    coord_t innerWidth = 0;
-    coord_t innerHeight = 0;
-    coord_t pageWidth = 0;
-    coord_t pageHeight = 0;
-    coord_t scrollPositionX = 0;
-    coord_t scrollPositionY = 0;
-    WindowFlags windowFlags = 0;
-    LcdFlags textFlags = 0;
-    bool _deleted = false;
+    static Window* focusWindow;
+    static std::list<Window*> trash;
 
-    static Window * focusWindow;
-    static Window * slidingWindow;
-    static Window * capturedWindow;
-    static std::list<Window *> trash;
+    rect_t rect;
+
+    Window*   parent = nullptr;
+    lv_obj_t* lvobj = nullptr;
+
+    std::list<Window *> children;
+
+    WindowFlags windowFlags = 0;
+    LcdFlags    textFlags = 0;
+
+    bool _deleted = false;
 
     std::function<void()> closeHandler;
     std::function<void(bool)> focusHandler;
 
-    virtual void addChild(Window * window, bool front = false)
-    {
-      auto lv_parent = lv_obj_get_parent(window->lvobj);
-      if (lv_parent && (lv_parent != lvobj)) {
-        lv_obj_set_parent(window->lvobj, lvobj);
-        // not used anywhere!
-        if (front)
-          lv_obj_move_to_index(window->lvobj, 0);
-      }
+    void deleteChildren();
 
-      if (front)
-        children.push_front(window);
-      else
-        children.push_back(window);
-    }
-
-    void removeChild(Window * window)
-    {
-      children.remove(window);
-      if (window->lvobj != nullptr)
-        lv_obj_set_parent(window->lvobj, nullptr);
-      invalidate();
-    }
+    virtual void addChild(Window * window);
+    void removeChild(Window * window);
 
     virtual void invalidate(const rect_t & rect);
 
-    void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
-
     void fullPaint(BitmapBuffer * dc);
+    void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
 
     virtual void onFocusLost()
     {
