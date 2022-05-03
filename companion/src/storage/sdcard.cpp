@@ -61,11 +61,24 @@ bool SdcardFormat::getFileList(std::list<std::string>& filelist)
 {
   QDir dir(filename);
   if (!dir.cd("MODELS")) return false;
-  
+
   QStringList ql = dir.entryList();
   for (const auto& str : ql) {
     filelist.push_back("MODELS/" + str.toStdString());
   }
+  return true;
+}
+
+bool SdcardFormat::deleteFile(const QString & filename)
+{
+  QString path = this->filename + "/" + filename;
+
+  if (!QFile::remove(path)) {
+    setError(tr("Error deleting file %1").arg(path));
+    return false;
+  }
+
+  qDebug() << "File" << path << "deleted";
   return true;
 }
 
