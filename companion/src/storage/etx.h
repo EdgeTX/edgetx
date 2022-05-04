@@ -47,6 +47,7 @@ class EtxFormat : public CategorizedStorageFormat
     virtual bool loadFile(QByteArray & fileData, const QString & fileName);
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName);
     virtual bool getFileList(std::list<std::string>& filelist);
+    virtual bool deleteFile(const QString & fileName) { return false; }
 
     mz_zip_archive zip_archive;
 };
