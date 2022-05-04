@@ -740,7 +740,6 @@ class CategoryEditPage : public PageTab
             category->name[0] = ' '; category->name[1] = '\0';            
           }
           modelslist.save();
-          update();
         });
 
         // Details
@@ -749,7 +748,7 @@ class CategoryEditPage : public PageTab
         new StaticText(window, grid.getFieldSlot(3,1), cnt);
 
         if(category->empty()) {
-          new TextButton(window, grid.getFieldSlot(3,2),TR_DELETE, [=]() -> uint8_t {
+          new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
             new ConfirmDialog(window, STR_DELETE_CATEGORY,
               std::string(category->name, sizeof(category->name)).c_str(),
               [=] {
@@ -762,7 +761,7 @@ class CategoryEditPage : public PageTab
           } else {
 #ifdef CATEGORIES_SHOW_DELETE_NON_EMPTY
           new TextButton(window, grid.getFieldSlot(3,2),STR_DELETE, [=]() -> uint8_t {
-            new MessageDialog(window, STR_DELETE_CATEGORY, TR_CAT_NOT_EMPTY);
+            new MessageDialog(window, STR_DELETE_CATEGORY, STR_CAT_NOT_EMPTY);
             return 0;
           });
 #endif
