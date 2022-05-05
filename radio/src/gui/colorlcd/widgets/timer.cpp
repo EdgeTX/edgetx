@@ -59,6 +59,7 @@ class TimerWidget : public Widget
     LcdFlags colorBack;  // background color
     LcdFlags colorFore;  // foreground color
 
+  TRACE("TIMER.start-%d", (int)timerData.start);
     // Middle size widget
     if (width() >= 180 && height() >= 70) {
       colorBack = (timerState.val >= 0 || !(timerState.val % 2))
@@ -81,8 +82,13 @@ class TimerWidget : public Widget
         dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
       }
       // value
+      int val = timerState.val;
+      TRACE("1_0 Timer=%d", val);
+      if(timerData.start) 
+        val = (int)timerState.val - (int)timerData.start;
+      TRACE("1_1 Timer=%d", val);
       splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1,
-                 abs(timerState.val), false);
+                 abs(val), false);
 
       dc->drawSizedText(76, 31, sDigitGroup0, ZLEN(sDigitGroup0),
                         FONT(XL) | colorFore);
@@ -115,12 +121,17 @@ class TimerWidget : public Widget
                             FONT(XS) | COLOR_THEME_PRIMARY2);
       }
       // value
+      int val = timerState.val;
+      TRACE("2_0 Timer=%d", val);
+      if (timerData.start)
+        val = (int)timerState.val - (int)timerData.start;
+      TRACE("2_1 Timer=%d", val);
       if (width() > 100 && height() > 40) {
-        if (abs(timerState.val) >= 3600) {
-          drawTimer(dc, 3, 20, abs(timerState.val),
+        if (abs(val) >= 3600) {
+          drawTimer(dc, 3, 20, abs(val),
                     COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
         } else {
-          drawTimer(dc, 3, 18, abs(timerState.val),
+          drawTimer(dc, 3, 18, abs(val),
                     COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
         }
       }
@@ -130,7 +141,13 @@ class TimerWidget : public Widget
           drawTimer(dc, 3, 20, abs(timerState.val),
                     COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);
         } else {
-          drawTimer(dc, 3, 18, abs(timerState.val),
+          // value
+          int val = timerState.val;
+          TRACE("3_0 Timer=%d", val);
+          if (timerData.start)
+            val = (int)timerState.val - (int)timerData.start;
+          TRACE("3_1 Timer=%d", val);
+          drawTimer(dc, 3, 18, abs(val),
                     COLOR_THEME_PRIMARY2 | LEFT);
         }
       }
