@@ -229,10 +229,7 @@ class Window
       invalidate({0, 0, rect.w, rect.h});
     }
 
-    void bringToTop()
-    {
-      attach(parent); // does a detach + attach
-    }
+    void bringToTop();
 
     virtual void checkEvents();
 

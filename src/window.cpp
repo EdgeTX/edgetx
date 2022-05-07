@@ -567,6 +567,12 @@ coord_t Window::getSnapStep(coord_t relativeScrollPosition, coord_t pageSize)
 }
 #endif
 
+void Window::bringToTop()
+{
+  attach(parent); // does a detach + attach
+  if (lvobj) lv_obj_move_foreground(lvobj);
+}
+
 void lvglPushEncoderEvent(event_t& evt);
 void Window::checkEvents()
 {
