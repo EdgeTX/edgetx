@@ -56,20 +56,25 @@ class TimerWidget : public Widget
       // background
       dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
 
-      if (timerData.start && timerState.val >= 0) {
+//////////////////  TO BE REMOVED /////
+      timerData.announceEllapsed = 1;
+///////////////////////////////////////      
+      if (timerData.start && timerState.val >= 0)
+      {
         dc->drawBitmapPatternPie(
             2, 3, LBM_RSCALE, colorFore, 0,
             timerState.val <= 0
                 ? 360
                 : 360 * (timerData.start - timerState.val) / timerData.start);
-      } else {
-        dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
       }
+      else { dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore); }
       // value
       int val = timerState.val;
-      TRACE("1_0 Timer=%d", val);
-      if(timerData.start) 
-        val = (int)timerState.val - (int)timerData.start;
+      TRACE("1_0 Timer=%d\tannounceEllapsed=%d", val,
+            timerData.announceEllapsed);
+      if (timerData.start && timerData.announceEllapsed && 
+          timerData.start != timerState.val)
+        val = (int)timerData.start - (int) timerState.val;
       TRACE("1_1 Timer=%d", val);
       splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1,
                  abs(val), false);
@@ -107,8 +112,9 @@ class TimerWidget : public Widget
       // value
       int val = timerState.val;
       TRACE("2_0 Timer=%d", val);
-      if (timerData.start)
-        val = (int)timerState.val - (int)timerData.start;
+      if (timerData.start && timerData.announceEllapsed &&
+          timerData.start != timerState.val)
+        val = (int)timerData.start - (int) timerState.val;
       TRACE("2_1 Timer=%d", val);
       if (width() > 100 && height() > 40) {
         if (abs(val) >= 3600) {
@@ -128,8 +134,9 @@ class TimerWidget : public Widget
           // value
           int val = timerState.val;
           TRACE("3_0 Timer=%d", val);
-          if (timerData.start)
-            val = (int)timerState.val - (int)timerData.start;
+          if (timerData.start && timerData.announceEllapsed &&
+              timerData.start != timerState.val)
+            val = (int)timerData.start - (int) timerState.val;
           TRACE("3_1 Timer=%d", val);
           drawTimer(dc, 3, 18, abs(val),
                     COLOR_THEME_PRIMARY2 | LEFT);
