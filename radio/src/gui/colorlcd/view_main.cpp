@@ -155,6 +155,20 @@ static bool hasTopbar(unsigned view)
   return false;
 }
 
+void ViewMain::enableTopbar()
+{
+  if (topbar && topbar->getLvObj()) {
+    lv_obj_clear_flag(topbar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
+void ViewMain::disableTopbar()
+{
+  if (topbar && topbar->getLvObj()) {
+    lv_obj_add_flag(topbar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 void ViewMain::updateTopbarVisibility()
 {
   if (!tile_view) return;

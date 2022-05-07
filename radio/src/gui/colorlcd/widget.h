@@ -87,16 +87,12 @@ class Widget : public Button
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-#endif
     void paint(BitmapBuffer * dc) override;
 
     // Widget interface
 
     // Set/unset fullscreen mode
-    void setFullscreen(bool fullscreen);
+    void setFullscreen(bool enable);
 
     // Called when the widget options have changed
     virtual void update();
