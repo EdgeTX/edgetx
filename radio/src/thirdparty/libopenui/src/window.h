@@ -292,9 +292,6 @@ class Window
     }
 
 #if defined(HARDWARE_TOUCH)
-    static coord_t getSnapStep(coord_t relativeScrollPosition,
-                               coord_t pageSize);
-
     virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX,
                               coord_t startY, coord_t slideX, coord_t slideY);
 #endif
