@@ -751,5 +751,4 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
   grid.nextLine();
 
   //  window->setLastField();
-  window->setInnerHeight(grid.getWindowHeight());
 }

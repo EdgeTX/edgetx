@@ -1403,7 +1403,7 @@ void opentxClose(uint8_t shutdown)
   RTOS_WAIT_MS(100);
 
 #if defined(COLORLCD)
-  MainWindow::instance()->deleteChildren();
+  MainWindow::instance()->clear();
   // this is necessary as the custom screens are not deleted
   // by using deleteCustomScreens(), but here through it's parent window
   memset(customScreens, 0, sizeof(customScreens));

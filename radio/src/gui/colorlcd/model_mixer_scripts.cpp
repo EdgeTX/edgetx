@@ -150,7 +150,6 @@ class ScriptEditWindow : public Page {
         grid.addWindow(gOutputs);
       }
 
-      window->setInnerHeight(grid.getWindowHeight());
       if (focusScript) { fc->setFocus(); }
     }
     
@@ -298,7 +297,6 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   }
 
   grid.nextLine();
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ModelMixerScriptsPage::editLine(FormWindow * window, uint8_t idx)

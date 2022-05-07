@@ -62,7 +62,7 @@ coord_t FilePreview::getBitmapHeight() const
 void FilePreview::paint(BitmapBuffer *dc)
 {
   dc->setFormat(BMP_RGB565);
-  coord_t y = _drawCentered ? parent->getScrollPositionY() + 2 : 2;
+  coord_t y = /*_drawCentered ? parent->getScrollPositionY() + 2 :*/ 2;
   coord_t h = _drawCentered ? MENU_BODY_HEIGHT - 4 : rect.h;
   if (bitmap != nullptr) {
     coord_t bitmapHeight = min<coord_t>(h, bitmap->height());

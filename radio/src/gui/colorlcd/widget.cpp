@@ -175,7 +175,6 @@ void Widget::setFullscreen(bool fullscreen)
     // Set window opaque (inhibits redraw from windows bellow)
     setWindowFlags(getWindowFlags() | OPAQUE);
     setRect(parent->getRect());
-    setLeft(parent->getScrollPositionX());
     this->fullscreen = true;
     bringToTop();
   }

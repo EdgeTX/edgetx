@@ -175,7 +175,6 @@ class InputEditWindow : public Page
 #if LCD_W > LCD_H
     auto BODY_WIDTH = LCD_W - preview.width() - PAGE_PADDING;
     body.setWidth(BODY_WIDTH);
-    body.setInnerWidth(BODY_WIDTH);
     body.setLeft(preview.width() + PAGE_PADDING);
 #else
     body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
@@ -377,7 +376,6 @@ class InputEditWindow : public Page
       grid.nextLine();
 #endif
 
-      window->setInnerHeight(grid.getWindowHeight());
     }
 };
 
@@ -644,7 +642,6 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
 
   grid.nextLine();
 
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 // TODO port: avoid global s_currCh on ARM boards (as done here)...

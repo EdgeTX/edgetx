@@ -40,12 +40,17 @@ static void tile_view_deleted_cb(lv_event_t* e)
   if (obj == target) { lv_obj_del(obj); }
 }
 
+static void tile_view_scroll(lv_event_t* e)
+{
+  (void)e;
+  if (ViewMain::instance()) ViewMain::instance()->updateTopbarVisibility();
+}
+
 ViewMain * ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain():
   Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR)
 {
-  //setPageWidth(getParent()->width());
   focusWindow = this;
 
   setFocusHandler([&](bool focus) {
@@ -62,6 +67,7 @@ ViewMain::ViewMain():
 
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
+  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
   
   // create last to be on top
   topbar = dynamic_cast<TopbarImpl*>(TopbarFactory::create(this));
@@ -105,7 +111,7 @@ rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
 
 unsigned ViewMain::getCurrentMainView() const
 {
-  return lv_obj_get_scroll_x(tile_view) / LCD_W;
+  return lv_obj_get_scroll_x(tile_view) / width();
   // return g_model.view;
 }
 
@@ -151,17 +157,23 @@ static bool hasTopbar(unsigned view)
 
 void ViewMain::updateTopbarVisibility()
 {
-  // relative to left visible page
-  return;
+  if (!tile_view) return;
+
+  coord_t scrollPos = lv_obj_get_scroll_x(tile_view);
+  coord_t pageWidth = width();
+  if (!pageWidth) return;
+
+  int view = scrollPos / pageWidth;
+  // TODO: cap view ???
   
-  int leftScroll = getScrollPositionX() % pageWidth;
+  int leftScroll =  scrollPos % width();
   if (leftScroll == 0) {
-    setTopbarVisible(hasTopbar(g_model.view));
-    if (customScreens[g_model.view])
-      customScreens[g_model.view]->adjustLayout();
+    setTopbarVisible(hasTopbar(view));
+    if (customScreens[view])
+      customScreens[view]->adjustLayout();
   }
   else {
-    int  leftIdx     = getScrollPositionX() / pageWidth;
+    int  leftIdx     = scrollPos / pageWidth;
     bool leftTopbar  = hasTopbar(leftIdx);
     bool rightTopbar = hasTopbar(leftIdx+1);
 
