@@ -416,7 +416,6 @@ class SensorEditWindow : public Page {
       updateSensorParametersWindow();
       grid.addWindow(sensorParametersWindow);
 
-      window->setInnerHeight(grid.getWindowHeight());
     }
 };
 
@@ -647,5 +646,4 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
              GET_SET_DEFAULT(g_model.varioData.centerSilent));
   grid.nextLine();
 
-  window->setInnerHeight(grid.getWindowHeight());
 }

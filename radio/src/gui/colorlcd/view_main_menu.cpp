@@ -42,7 +42,6 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   // Take over the screen
   setWidth(parent->width());
   setHeight(parent->height());
-  setLeft(parent->getScrollPositionX());
 
   auto carousel = new SelectFabCarousel(this);
   carousel->setMaxButtons(4);
@@ -100,7 +99,6 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
     resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
     resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
-    resetMenu->setLeft(parent->getScrollPositionX());
     return 0;
   });
 

@@ -88,12 +88,4 @@ void ModelHeliPage::build(FormWindow* form)
                  GET_SET_DEFAULT(g_model.swashR.collectiveWeight));
 
 
-  auto obj = form->getLvObj();
-  lv_obj_update_layout(obj);
-  lv_coord_t h =
-    lv_obj_get_height(obj)
-    + lv_obj_get_scroll_top(obj)
-    + lv_obj_get_scroll_bottom(obj);
-
-  form->setInnerHeight(h);
 }

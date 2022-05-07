@@ -530,7 +530,6 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
 #endif
 
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void RadioSetupPage::updateBacklightControls()

@@ -68,7 +68,6 @@ TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
 
 void TabsCarousel::updateInnerWidth()
 {
-  setInnerWidth(padding_left + MENU_HEADER_BUTTON_WIDTH * menu->tabs.size());
 }
 
 void TabsCarousel::paint(BitmapBuffer * dc)

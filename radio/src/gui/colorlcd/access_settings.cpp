@@ -602,8 +602,6 @@ void ModuleOptions::update()
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
-  form->setInnerHeight(grid.getWindowHeight());
-  form->setHeight(form->getInnerHeight());
 
   content->adjustHeight();
   content->setWindowCentered();
@@ -918,12 +916,6 @@ void RxOptions::update()
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
-  form->setInnerHeight(grid.getWindowHeight());
-  if (form->getInnerHeight() < LCD_H - 2*POPUP_HEADER_HEIGHT) {
-    form->setHeight(form->getInnerHeight());
-  } else {
-    form->setHeight(LCD_H - 2*POPUP_HEADER_HEIGHT);
-  }
 
   content->adjustHeight();
   content->setWindowCentered();
