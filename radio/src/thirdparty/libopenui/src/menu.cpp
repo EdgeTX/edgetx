@@ -253,6 +253,14 @@ Menu::Menu(Window * parent, bool multiple):
 {
 }
 
+void Menu::setToolbar(Window * window)
+{
+  toolbar = window;
+  toolbar->setLeft(content->left() - toolbar->width());
+  toolbar->setTop(content->top());
+  toolbar->setHeight(content->height());
+}
+
 void Menu::updatePosition()
 {
   coord_t height = content->body.getContentHeight();
