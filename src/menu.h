@@ -186,13 +186,7 @@ class Menu: public ModalWindow
       content->body.setFocus(flag);
     }
 
-    void setToolbar(Window * window)
-    {
-      toolbar = window;
-      content->setLeft(toolbar->right());
-      content->setTop(toolbar->top());
-      content->setHeight(toolbar->height());
-    }
+    void setToolbar(Window * window);
 
     void setTitle(std::string text);
 
