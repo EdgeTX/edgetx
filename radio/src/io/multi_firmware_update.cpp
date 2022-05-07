@@ -618,14 +618,16 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   }
 
   std::unique_ptr<MultiFirmwareUpdateDriver> driver;
-  if (module == EXTERNAL_MODULE)
-    driver.reset(new MultiExternalUpdateDriver());
 #if defined(INTERNAL_MODULE_MULTI)
-  else if (module == INTERNAL_MODULE)
+  if (type == MULTI_TYPE_MULTIMODULE && module == INTERNAL_MODULE)
     driver.reset(new MultiInternalUpdateDriver());
 #endif
-  else if (type == MULTI_TYPE_ELRS)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (type == MULTI_TYPE_MULTIMODULE && module == EXTERNAL_MODULE)
+    driver.reset(new MultiExternalUpdateDriver());
+  if (type == MULTI_TYPE_ELRS && module == EXTERNAL_MODULE)
     driver.reset(new MultiExtSportUpdateDriver());
+#endif
 
   pausePulses();
 
