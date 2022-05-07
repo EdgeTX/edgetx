@@ -189,7 +189,6 @@ class SelectTemplate : public TemplatePage
         tb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tb->height() + 5);
       }
-      body.setInnerHeight(grid.getWindowHeight());
     }
     
     f_closedir(&dir);
@@ -295,7 +294,6 @@ class SelectTemplateFolder : public TemplatePage
         tfb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tfb->height() + 5);
       }
-      body.setInnerHeight(grid.getWindowHeight());
 #if not defined(LUA)
       }
 #endif
@@ -601,7 +599,6 @@ class ModelCategoryPageBody : public FormWindow
     if (index % MODEL_CELLS_PER_LINE != 0) {
       y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
     }
-    setInnerHeight(y);
 
     if (category->empty()) {
       setFocus();
@@ -783,7 +780,6 @@ class CategoryEditPage : public PageTab
 
       grid.nextLine();
 
-      window->setInnerHeight(grid.getWindowHeight()); 
 
       if(scrolltobot) {
         lv_obj_scroll_to_y(window->getLvObj(), y + 40, LV_ANIM_OFF);

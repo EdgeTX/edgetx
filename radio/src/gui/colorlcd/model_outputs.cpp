@@ -191,7 +191,6 @@ class OutputEditWindow : public Page
                GET_SET_DEFAULT(output->symetrical));
     grid.nextLine();
 
-    window->setInnerHeight(grid.getWindowHeight());
   }
 };
 
@@ -384,7 +383,6 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
 
   grid.nextLine();
 
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ModelOutputsPage::editOutput(FormWindow *window, uint8_t channel)

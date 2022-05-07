@@ -517,5 +517,4 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot());
 #endif
 
-  window->setInnerHeight(grid.getWindowHeight());
 }

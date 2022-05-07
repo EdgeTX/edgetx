@@ -224,7 +224,6 @@ bool ColorEditor::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t sta
       y -= BAR_TOP_MARGIN;
       auto value = _colorType->screenToValue(i, y);
       if (value != _colorType->barInfo[i].value) {
-        slidingWindow = this;
         _colorType->barInfo[i].value = value;    
         setRGB(); 
       } 

@@ -96,7 +96,6 @@ class ListBase : public FormField
     inline void setNames(std::vector<std::string> names)
     {
       this->names.assign(names.begin(), names.end());
-      setInnerHeight(names.size() * lineHeight);
       invalidate();
     }
 

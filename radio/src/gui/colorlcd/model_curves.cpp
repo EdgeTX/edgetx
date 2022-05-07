@@ -408,5 +408,4 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
   grid.nextLine();
 #endif
 
-  window->setInnerHeight(grid.getWindowHeight());
 }

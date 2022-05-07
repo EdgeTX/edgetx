@@ -24,24 +24,21 @@
 SelectFabCarousel::SelectFabCarousel(Window* parent) :
     FormGroup(parent, {}, FORM_FORWARD_FOCUS | NO_SCROLLBAR)
 {
-  setPageWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
   setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
-
 }
 
 void SelectFabCarousel::setMaxButtons(uint8_t max)
 {
   maxButtons = max;
-  setWidth(maxButtons * pageWidth);
+  setWidth(maxButtons * (FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER));
 }
 
 void SelectFabCarousel::addButton(uint8_t icon, const char* title,
                                   std::function<uint8_t(void)> pressHandler)
 {
   coord_t y_pos = 0;
-  coord_t x_pos = pageWidth * buttons;
+  coord_t x_pos = (FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER) * buttons;
   buttons++;
 
   new SelectFabButton(this, x_pos, y_pos, icon, title, pressHandler);
-  setInnerWidth(pageWidth * buttons);
 }

@@ -474,7 +474,6 @@ void RadioSdManagerPage::build(FormWindow * window)
     }
   }
 
-  window->setInnerHeight(grid.getWindowHeight());
   preview->setHeight(max(window->height(), grid.getWindowHeight()));
 }
 

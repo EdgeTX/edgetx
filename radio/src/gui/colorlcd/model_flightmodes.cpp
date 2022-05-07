@@ -229,5 +229,4 @@ void ModelFlightModesPage::build(FormWindow * window)
                    return trimsCheckTimer;
                  });
 
-  window->setInnerHeight(y + 40);
 }

@@ -342,7 +342,6 @@ void GVarEditWindow::buildBody(FormWindow * window)
 
   setProperties();
 
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ModelGVarsPage::rebuild(FormWindow * window)
@@ -380,5 +379,4 @@ void ModelGVarsPage::build(FormWindow * window)
 
     grid.nextLine(button->height());
   }
-  window->setInnerHeight(grid.getWindowHeight());
 }

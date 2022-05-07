@@ -388,5 +388,4 @@ void RadioToolsPage::rebuild(FormWindow * window)
   }
 #endif
 
-  window->setInnerHeight(grid.getWindowHeight());
 }

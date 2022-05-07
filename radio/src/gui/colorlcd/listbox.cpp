@@ -42,7 +42,6 @@ ListBase::ListBase(Window *parent, const rect_t &rect, std::vector<std::string> 
 #if defined(HARDWARE_TOUCH)
   duration10ms = 0;
 #endif
-  setInnerHeight(names.size() * lineHeight);
   if (_getValue != nullptr)
     setSelected(_getValue());
   else 
@@ -58,7 +57,7 @@ void ListBase::setSelected(int selected)
   if(selectionType == LISTBOX_SINGLE_SELECT) {
     if (selected != this->selected) {
       this->selected = selected;
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
+      lv_obj_scroll_to_y(lvobj, lineHeight * this->selected - lineHeight, LV_ANIM_OFF);
       if (_setValue != nullptr) {
         _setValue(this->selected);
       }
@@ -143,8 +142,7 @@ void ListBase::paint(BitmapBuffer *dc)
     curY += lineHeight;
   }
   if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
-    dc->drawSolidRect(0, getScrollPositionY(), rect.w, rect.h, 2,
-                      COLOR_THEME_FOCUS);
+    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
   }
 }
 
@@ -195,9 +193,9 @@ void ListBase::paint(BitmapBuffer *dc)
 bool ListBase::isLongPress()
 {
   unsigned int curTimer = getTicks();
-  return (slidingWindow == nullptr && duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS);
+  return  // slidingWindow == nullptr &&
+      duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS;
 }
-
 
 void ListBase::checkEvents(void)
 {
@@ -234,7 +232,6 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
     duration10ms = getTicks();
   }
 
-  captureWindow(this);
   yDown = y;
 
   return true;  // stop the processing and say that i handled it
@@ -243,7 +240,8 @@ bool ListBase::onTouchStart(coord_t x, coord_t y)
 bool ListBase::onTouchEnd(coord_t x, coord_t y)
 {
   if (!isEnabled()) return false;
-  if (slidingWindow || waslongpress)
+  if (// slidingWindow ||
+      waslongpress)
     return false;  // if we slide then this is not a selection
 
   auto selected = yDown / lineHeight;

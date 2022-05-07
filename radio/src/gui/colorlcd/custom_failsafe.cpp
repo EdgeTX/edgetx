@@ -127,7 +127,6 @@ class FailSafeBody : public FormGroup
     });
 
     grid.nextLine();
-    setInnerHeight(grid.getWindowHeight() + PAGE_PADDING);
   }
 
  protected:

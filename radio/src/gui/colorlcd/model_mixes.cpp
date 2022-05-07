@@ -247,7 +247,6 @@ class MixEditWindow : public Page
     edit->setSuffix("s");
     grid.nextLine();
 
-    window->setInnerHeight(grid.getWindowHeight());
   }
 
   // TODO share this code with INPUT
@@ -575,7 +574,6 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
 
   grid.nextLine();
 
-  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void deleteMix(uint8_t idx)
