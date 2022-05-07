@@ -153,7 +153,8 @@ FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout,
 void FormGroup::Line::construct()
 {
   // forward scroll and focus
-  windowFlags |= FORWARD_SCROLL | FORM_FORWARD_FOCUS;
+  windowFlags |= FORWARD_SCROLL | NO_FOCUS | FORM_FORWARD_FOCUS;
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
   if (layout) {
     layout->apply(lvobj);
