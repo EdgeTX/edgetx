@@ -546,27 +546,6 @@ void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
   }
 }
 
-#if defined(HARDWARE_TOUCH)
-coord_t Window::getSnapStep(coord_t relativeScrollPosition, coord_t pageSize)
-{
-  coord_t result = 0;
-  if (relativeScrollPosition > pageSize / 2) {
-    // closer to next page
-    result = (pageSize - relativeScrollPosition);
-  }
-  else {
-    // closer to previous page
-    result = (0 - relativeScrollPosition);
-  }
-
-  // do not get too slow
-  if (abs(result) > 32)
-    result /= 2;
-
-  return result;
-}
-#endif
-
 void Window::bringToTop()
 {
   attach(parent); // does a detach + attach
