@@ -621,8 +621,12 @@ void Window::adjustInnerHeight()
 coord_t Window::adjustHeight()
 {
   coord_t old = rect.h;
-  adjustInnerHeight();
-  if (lvobj) lv_obj_set_style_height(lvobj, rect.h, LV_PART_MAIN);
+  if (lvobj) {
+    lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+    lv_obj_update_layout(lvobj);
+    rect.h = lv_obj_get_height(lvobj);
+    lv_obj_set_style_height(lvobj, rect.h, LV_PART_MAIN);
+  }
   return rect.h - old;
 }
 
@@ -634,7 +638,7 @@ void Window::moveWindowsTop(coord_t y, coord_t delta)
 
   for (auto child: children) {
     if (child->rect.y >= y) {
-      child->rect.y += delta;
+      child->setTop(child->top() + delta);
       invalidate();
     }
   }
