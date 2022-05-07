@@ -34,12 +34,9 @@ class Keyboard: public FormWindow
 
     FormField *field = nullptr;
     Window *fieldContainer = nullptr;
-    FormWindow *fields = nullptr;
-    coord_t oldHeight = 0;
+    lv_coord_t scroll_pos = 0;
 
     void setField(FormField *newField);
-    Window *getFieldContainer(FormField * field);
     bool attachKeyboard();
-    FormWindow *findFormWindow(Window *parent);
 };
 

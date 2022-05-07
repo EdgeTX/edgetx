@@ -31,7 +31,6 @@ static void keyboard_event_cb(lv_event_t * e)
   }
 }
 
-
 Keyboard::Keyboard(coord_t height) : 
   FormWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height}, OPAQUE)
 {
@@ -55,14 +54,13 @@ void Keyboard::clearField()
   }
 
   detach();
-  if (fields) { 
-    fields->setHeight(oldHeight);
-    fields = nullptr;
-  }
+  if (lvobj != nullptr) lv_obj_set_parent(lvobj, nullptr);
+
   if (fieldContainer) {
-    fieldContainer->setHeight(LCD_H - 0 - fieldContainer->top());
+    lv_obj_scroll_to_y(fieldContainer->getLvObj(), scroll_pos, LV_ANIM_OFF);
     fieldContainer = nullptr;
   }
+
   if (field) {
     field->setEditMode(false);
     field->changeEnd();
@@ -79,24 +77,6 @@ void Keyboard::hide()
   }
 }
 
-
-coord_t calcScrollOffsetForField(FormField *newField, Window *topWindow)
-{
-  // now we need to calculate the offset of the field in the fields scroll container
-  // start with the current fields top and walk the hierarchy to calculate positon
-  coord_t offsetY = newField->top();
-
-  Window* parentWindow = newField->getParent();
-  while (parentWindow && parentWindow != topWindow) {
-    offsetY += parentWindow->top();
-    parentWindow = parentWindow->getParent();
-  }
-
-  // try and place it in the middle of the screen.  The containing window MUST have 
-  // already been resized
-  return offsetY - topWindow->height() * 2 / 7;
-}
-
 bool Keyboard::attachKeyboard()
 {
   if (activeKeyboard) {
@@ -108,84 +88,34 @@ bool Keyboard::attachKeyboard()
   return true;
 }
 
-
-// this routine finds the window that is a FormWindow.  This is the window
-// that contains all of the editable fields.  This is the window that needs
-// to be scrolled into view.
-FormWindow *Keyboard::findFormWindow(Window *parent)
-{
-  if (parent) {
-    auto children = parent->getChildren();
-    auto childIterator = children.begin();
-    while (childIterator != children.end())
-    {
-#if defined(DEBUG_WINDOWS)
-      std::string windowName;
-      Window *window = dynamic_cast<Window *>(*childIterator);
-      if (window)
-        windowName = window->getName();
-#endif
-        
-      FormWindow *formWindow = dynamic_cast<FormWindow*>(*childIterator);
-      if (formWindow)
-        return formWindow;
-
-      childIterator++;
-    }
-  }
-
-  return nullptr;
-}
-
 void Keyboard::setField(FormField* newField)
 {
-  TRACE("SET FIELD");
-
   if (!attachKeyboard())
     return;
 
-  fieldContainer = getFieldContainer(newField);
-  if (fieldContainer) {
-#if defined(DEBUG_WINDOWS)
-    auto windowName = fieldContainer->getName();
-#endif
-    coord_t newHeight = LCD_H - height();
-    fieldContainer->setHeight(newHeight);
+  lv_obj_t* obj = newField->getLvObj();
+  if (obj) {
 
-    fields = findFormWindow(fieldContainer);
+    fieldContainer = newField->getFullScreenWindow();
+    if (fieldContainer) {
 
-    if (fields) {
-#if defined(DEBUG_WINDOWS)
-      windowName = fields->getName();
-#endif      
-      // scroll the header of the window out of view to get more space to
-      // see the field being edited
-      
-      // TODO: this no longer works. we need to figure out something else
-      //lv_obj_scroll_to_y(fieldContainer->getLvObj(), fields->top(), LV_ANIM_OFF);
+      attach(fieldContainer);
 
-      oldHeight = fields->height();
-      fields->setHeight(newHeight);
+      lv_area_t coords;
+      lv_obj_get_coords(obj, &coords);
 
-      coord_t offsetY = calcScrollOffsetForField(newField, fields);
-      lv_obj_scroll_to_y(fields->getLvObj(), offsetY, LV_ANIM_OFF);
-    } else {
-      // TODO: what happens if field container is null. 
-      // we will need to interrogate the fieldContainer for its
-      // FormGroup.  That is really how it should work anyway.
+      // place keyboard bellow the field with some margin
+      setTop(max(coords.y2 + 21, LCD_H - height()));
+
+      // save scroll position
+      scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
+      lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
+
+      invalidate();
+      newField->setEditMode(true);
+      lv_keyboard_set_textarea(keyboard, newField->getLvObj());
+     
+      field = newField;
     }
-
-    invalidate();
-    newField->setEditMode(true);
-    lv_keyboard_set_textarea(keyboard, newField->getLvObj());
-
-    field = newField;
-  } else {
-    clearField();
   }
-}
-
-Window* Keyboard::getFieldContainer(FormField* field)
-{
-  return field->getFullScreenWindow();
 }
