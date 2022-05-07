@@ -35,13 +35,10 @@ constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
 static void openWidgetMenu(Widget * parent)
 {
   Menu *menu = new Menu(parent);
-  menu->addLine("Full screen", [=]() {
-      parent->setFullscreen(true);
-    });
-  if(parent->getOptions() && parent->getOptions()->name)
-    menu->addLine(TR_WIDGET_SETTINGS, [=]() {
-      new WidgetSettings(parent, parent);
-    });
+  menu->addLine("Full screen", [=]() { parent->setFullscreen(true); });
+  if (parent->getOptions() && parent->getOptions()->name)
+    menu->addLine(TR_WIDGET_SETTINGS,
+                  [=]() { new WidgetSettings(parent, parent); });
 }
 
 Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
@@ -49,15 +46,15 @@ Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
     Button(parent, rect), factory(factory), persistentData(persistentData)
 {
   setFocusHandler([&](bool focus) {
-      if (focus) { // gained focus
-        focusGainedTS = RTOS_GET_MS();
-      }
-    });
+    if (focus) {  // gained focus
+      focusGainedTS = RTOS_GET_MS();
+    }
+  });
 
   setPressHandler([&]() -> uint8_t {
-      openWidgetMenu(this);
-      return 0;
-    });
+    if (!fullscreen) openWidgetMenu(this);
+    return 0;
+  });
 }
 
 void Widget::checkEvents()
@@ -70,37 +67,6 @@ void Widget::checkEvents()
   }
 }
 
-#if defined(HARDWARE_TOUCH)
-bool Widget::onTouchEnd(coord_t x, coord_t y)
-{
-  TRACE_WINDOWS("Widget received touch end (%d) x=%d;y=%d",
-                hasFocus(), x, y);
-
-
-  if (hasFocus()) {
-    // TODO: find a better way
-    // if (touchState.tapCount == 0)
-    //   onPress();
-    // else
-    if (touchState.tapCount > 1)
-      setFullscreen(true);
-  }
-  else {
-    setFocus();
-  }
-
-  return true;
-}
-
-bool Widget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
-                          coord_t slideX, coord_t slideY)
-{
-  TRACE_WINDOWS("Widget touch slide");
-  if (fullscreen) { return true; }
-  return false;
-}
-
-#endif
 
 void Widget::paint(BitmapBuffer * dc)
 {
@@ -154,20 +120,21 @@ void Widget::update()
   }
 }
 
-void Widget::setFullscreen(bool fullscreen)
+void Widget::setFullscreen(bool enable)
 {
-  if (fullscreen == this->fullscreen) return;
+  if (enable == fullscreen) return;
 
   // Leave Fullscreen Mode
-  if (!fullscreen) {
+  if (!enable) {
 
     // Reset all zones in container
     Widget::update();
     setWindowFlags(getWindowFlags() & ~OPAQUE);
 
     // and give up focus
+    ViewMain::instance()->enableTopbar();
     ViewMain::instance()->setFocus();
-    this->fullscreen = false;
+    fullscreen = false;
   }
   // Enter Fullscreen Mode
   else {
@@ -175,7 +142,8 @@ void Widget::setFullscreen(bool fullscreen)
     // Set window opaque (inhibits redraw from windows bellow)
     setWindowFlags(getWindowFlags() | OPAQUE);
     setRect(parent->getRect());
-    this->fullscreen = true;
+    fullscreen = true;
+    ViewMain::instance()->disableTopbar();
     bringToTop();
   }
 }

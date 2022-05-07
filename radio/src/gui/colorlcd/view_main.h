@@ -54,7 +54,9 @@ class ViewMain: public Window
 #endif
 
     void addMainView(Window* view, uint32_t viewId);
-  
+
+    void enableTopbar();
+    void disableTopbar();
     void updateTopbarVisibility();
 
     // Get the available space in the middle of the screen
