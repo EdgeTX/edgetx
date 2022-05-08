@@ -206,8 +206,9 @@ void TabsGroup::setVisibleTab(PageTab* tab)
 
     header.setTitle(tab->title.c_str());
     invalidate();
-
+#if defined(DEBUG)
     TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
+#endif
   }
 }
 
