@@ -11,7 +11,7 @@ on:
     paths:
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   pull_request:
     branches:
@@ -21,7 +21,7 @@ on:
     paths:
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   workflow_dispatch:
 
@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           mkdir output && \
-          tools/build-companion-nightly.sh "$(pwd)" "$(pwd)/output/"
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions

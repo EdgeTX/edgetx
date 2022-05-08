@@ -3,6 +3,7 @@
 #define VERSION_MINOR     @VERSION_MINOR@
 #define VERSION_REVISION  @VERSION_REVISION@
 #define VERSION_SUFFIX    "@VERSION_SUFFIX@"
+#cmakedefine VERSION_TAG  "@VERSION_TAG@"
 #define CODENAME          "@CODENAME@"
 #define GIT_STR           "@GIT_STR@"
 

@@ -19,7 +19,7 @@ do
     -j*)
       JOBS="${1#*j}";;
     -*)
-      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR VERSION_SUFFIX"
+      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR"
       exit 1;;
     *)
       break;;   # terminate while loop
@@ -33,14 +33,30 @@ OUTDIR=$2
 COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Release"
 if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
-elif [ "$(uname)" != "Linux" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
+    if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw32/bin/"
+    else # fallback to 64bit
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+    fi
 fi
 
-if [ "$3" != "" ]; then
-  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=$3"
-else
-  COMMON_OPTIONS="${COMMON_OPTIONS} -DVERSION_SUFFIX=nightly"
+# Generate EDGETX_VERSION_SUFFIX if not already set
+if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
+  gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull
+  if [[ $gh_type = "tags" ]]; then
+    # tags: refs/tags/<tag_name>
+    gh_tag=${GITHUB_REF##*/}
+    export EDGETX_VERSION_TAG=$gh_tag
+  elif [[ $gh_type = "pull" ]]; then
+    # pull: refs/pull/<pr_number>/merge
+    gh_pull_number=PR$(echo "$GITHUB_REF" | awk -F / '{print $3}')
+    export EDGETX_VERSION_SUFFIX=$gh_pull_number
+  elif [[ $gh_type = "heads" ]]; then
+    # heads: refs/heads/<branch_name>
+    gh_branch=${GITHUB_REF##*/}
+    export EDGETX_VERSION_SUFFIX=$gh_branch
+  fi
 fi
 
 rm -rf build
@@ -138,17 +154,17 @@ do
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
-    cmake --build native -j${JOBS} --target libsimulator    
+    cmake --build native -j"${JOBS}" --target libsimulator
 done                              
 
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
-    cmake --build native -j${JOBS} --target package
-    cp native/*.dmg ${OUTDIR}
+    cmake --build native -j"${JOBS}" --target package
+    cp native/*.dmg "${OUTDIR}"
 elif [ "$(uname)" = "Linux" ]; then
-    cmake --build native -j${JOBS} --target package
-    cp native/*.AppImage ${OUTDIR}
+    cmake --build native -j"${JOBS}" --target package
+    cp native/*.AppImage "${OUTDIR}"
 else
     cmake --build native --target installer
-    cp native/companion/*.exe ${OUTDIR}
+    cp native/companion/*.exe "${OUTDIR}"
 fi
