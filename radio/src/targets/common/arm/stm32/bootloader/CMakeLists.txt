@@ -20,6 +20,8 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
+    ../../../../../VirtualFS.cpp
+    bin_files_vfs.cpp
     )
 elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
   set(BOOTLOADER_SRC
@@ -35,6 +37,7 @@ elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
+    bin_files.cpp
     )
 else()
   set(BOOTLOADER_SRC
@@ -48,6 +51,7 @@ else()
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_spi.c
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_i2c.c
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/misc.c
+    bin_files.cpp
     )
 endif()
 
@@ -85,8 +89,6 @@ set(BOOTLOADER_SRC
   ../flash_driver.cpp
   init.c
   boot.cpp
-  bin_files.cpp
-  ../../../../../VirtualFS.cpp
   )
 
 if(SPI_FLASH)

@@ -22,7 +22,6 @@
 #ifndef _bin_files_h_
 #define _bin_files_h_
 
-#include "FatFs/ff.h"
 #include "VirtualFS.h"
 
 enum MemoryType {
@@ -31,11 +30,7 @@ enum MemoryType {
   MEM_EEPROM
 };
 
-#if defined(EEPROM)
-#define getBinaryPath(mt)  ((mt == MEM_FLASH) ? FIRMWARES_PATH : EEPROMS_PATH)
-#else
-#define getBinaryPath(mt)  (FIRMWARES_PATH)
-#endif
+const char *getBinaryPath(MemoryType mt);
 
 #if LCD_H == 480
 #define MAX_NAMES_ON_SCREEN   13
@@ -61,10 +56,10 @@ extern BinFileInfo binFiles[MAX_BIN_FILES];
 extern uint8_t Block_buffer[BLOCK_LEN];
 
 // Bytes read into the Block_buffer
-extern UINT    BlockCount;
+extern size_t    BlockCount;
 
 // Open directory for EEPROM / firmware files
-FRESULT openBinDir(MemoryType mt);
+VfsError openBinDir(MemoryType mt);
 
 // Fetch file names and sizes into binFiles,
 // starting at the provided index.
@@ -74,7 +69,7 @@ unsigned int fetchBinFiles(unsigned int index);
 
 // Open file indexed in binFiles and read the first BLOCK_LEN bytes
 // Bootloader is skipped in firmware files
-FRESULT openBinFile(MemoryType mt, unsigned int index);
+VfsError openBinFile(MemoryType mt, unsigned int index);
 
 struct VersionTag
 {
@@ -89,9 +84,9 @@ void extractFirmwareVersion(VersionTag* tag);
 
 // Read the next BLOCK_LEN bytes into 'Block_buffer'
 // Check 'BlockCount' for # of bytes read
-FRESULT readBinFile();
+VfsError readBinFile();
 
 // Close the previously opened file
-FRESULT closeBinFile();
+VfsError closeBinFile();
 
 #endif
