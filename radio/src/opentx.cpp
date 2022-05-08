@@ -983,11 +983,11 @@ void checkTrims()
     if (TRIM_REUSED(idx)) v = 1;
 #endif
     int16_t after = (k&1) ? before + v : before - v;   // positive = k&1
-    bool beepTrim = false;
+    bool beepTrim = true;
 
-    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centerered trim when changing sides
+    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
       after = 0;
-      beepTrim = true;
+      beepTrim = false;
       AUDIO_TRIM_MIDDLE();
       pauseEvents(event);
     }
@@ -999,13 +999,13 @@ void checkTrims()
       int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
       if (after < vmin) {
         after = vmin;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
       else if (after > vmax) {
         after = vmax;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
@@ -1017,13 +1017,13 @@ void checkTrims()
     {
       int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
       int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
-      if (before > tMin && after <= tMin) {
-        beepTrim = true;
+      if (before >= tMin && after <= tMin) {
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
-      else if (before < tMax && after >= tMax) {
-        beepTrim = true;
+      else if (before <= tMax && after >= tMax) {
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
@@ -1048,7 +1048,7 @@ void checkTrims()
       }
     }
 
-    if (!beepTrim) {
+    if (beepTrim) {
       AUDIO_TRIM_PRESS(after);
     }
 
