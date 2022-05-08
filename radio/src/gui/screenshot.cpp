@@ -83,7 +83,7 @@ const char * writeScreenshot()
 
 #if defined(COLORLCD)
   lv_img_dsc_t* snapshot = lv_snapshot_take(lv_scr_act(), LV_IMG_CF_TRUE_COLOR);
-  if (!snapshot) { f_close(&bmpFile); return nullptr; }
+  if (!snapshot) { bmpFile.close(); return nullptr; }
 
   auto w = snapshot->header.w;
   auto h = snapshot->header.h;
