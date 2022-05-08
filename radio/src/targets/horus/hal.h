@@ -614,7 +614,7 @@
 // SPI NOR Flash 
 #if defined(PCBX12S) && PCBREV >= 13
   #define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOA
-  #define FLASH_RCC_APB1Periph           RCC_APB1Periph_SPI1
+  #define FLASH_RCC_APB2Periph           RCC_APB2Periph_SPI1
   #define FLASH_SPI                      SPI1
   #define FLASH_SPI_GPIO_AF              GPIO_AF_SPI1
   #define FLASH_SPI_CS_GPIO              GPIOA
