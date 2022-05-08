@@ -160,10 +160,10 @@ FlashCheckRes checkFlashFile(unsigned int index, FlashCheckRes res)
   if (res != FC_UNCHECKED)
     return res;
 
-  if (openBinFile(memoryType, index) != VfsError::OK)
+  if (openBinFile(memoryType, index) != FR_OK)
     return FC_ERROR;
 
-  if (closeBinFile() != VfsError::OK)
+  if (closeBinFile() != FR_OK)
     return FC_ERROR;
 
   if (!isValidBufferStart(Block_buffer))
@@ -185,7 +185,7 @@ int menuFlashFile(uint32_t index, event_t event)
 
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
 
-    return (openBinFile(memoryType, index) == VfsError::OK) && isValidBufferStart(Block_buffer);
+    return (openBinFile(memoryType, index) == FR_OK) && isValidBufferStart(Block_buffer);
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT))
     return 0;
@@ -338,7 +338,7 @@ int  bootloaderMain()
   uint32_t vpos = 0;
   uint32_t radioMenuItem = 0;
   uint8_t index = 0;
-  VfsError fr;
+  FRESULT fr;
   uint32_t nameCount = 0;
 
   // init hardware (may jump to app)
@@ -501,7 +501,7 @@ int  bootloaderMain()
       else if (state == ST_DIR_CHECK) {
         fr = openBinDir(memoryType);
 
-        if (fr == VfsError::OK) {
+        if (fr == FR_OK) {
           index = vpos = 0;
           state = ST_FILE_LIST;
           nameCount = fetchBinFiles(index);
