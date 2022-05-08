@@ -617,8 +617,12 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
             menu->addLine(STR_PASTE, [=]() {
               copyExpo(s_copySrcIdx, inputIndex, input);
               if (s_copyMode == MOVE_MODE) {
-                deleteExpo((s_copySrcIdx >= inputIndex) ? s_copySrcIdx + 1
-                                                        : s_copySrcIdx);
+                int sourceInd = s_copySrcIdx >= inputIndex ? s_copySrcIdx + 1
+                                                           : s_copySrcIdx;
+                memcpy(g_model.inputNames[expoAddress(inputIndex)->chn],
+                       g_model.inputNames[expoAddress(sourceInd)->chn],
+                       LEN_INPUT_NAME);
+                deleteExpo(sourceInd);
                 s_copyMode = 0;
               }
               rebuild(window, inputIndex);
