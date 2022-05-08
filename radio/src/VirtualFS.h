@@ -405,24 +405,11 @@ public:
   uint32_t flashGetSize() const;
   uint32_t flashGetFreeSectors() const;
 
-  //#if !defined(BOOT)
-  //inline const char * SDCARD_ERROR(FRESULT result)
-  //{
-  //  if (result == FR_NOT_READY)
-  //    return STR_NO_SDCARD;
-  //  else
-  //    return STR_SDCARD_ERROR;
-  //}
-  //#endif
-
   // NOTE: 'size' must = 0 or be a valid character position within 'filename' array -- it is NOT validated
-  const char * flashGetBasename(const char * path);
-
   unsigned int findNextFileIndex(char * filename, uint8_t size, const char * directory);
 
   #define LIST_NONE_SD_FILE   1
   #define LIST_SD_FILE_EXT    2
-  bool flashListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
 private:
   static VirtualFS* _instance;
 
@@ -432,8 +419,6 @@ private:
   bool lfsMounted = false;
 #endif
 
-#if defined(SDCARD)
-#endif
   std::string curWorkDir = "/";
 
   void normalizePath(std::string &path);
