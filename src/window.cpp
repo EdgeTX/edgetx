@@ -397,19 +397,7 @@ void Window::setFocus(uint8_t flag, Window * from)
 
     // scroll before calling focusHandler so that the window can adjust the
     // scroll position if needed
-#if 1
-    // lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
     lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
-#else
-    Window * parent = this->parent;
-    while (parent && parent->getWindowFlags() & FORWARD_SCROLL) {
-      parent = parent->parent;
-    }
-    if (parent) {
-      parent->scrollTo(this);
-      invalidate();
-    }
-#endif
 
     clearFocus();
     focusWindow = this;
@@ -421,9 +409,6 @@ void Window::setFocus(uint8_t flag, Window * from)
 
 void Window::scrollTo(Window * child)
 {
-
-
-
 }
 
 void Window::scrollTo(const rect_t & rect)
