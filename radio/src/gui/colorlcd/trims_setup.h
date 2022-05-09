@@ -23,6 +23,6 @@
 
 #include "page.h"
 
-struct TrainerPage: public Page {
-  TrainerPage();
+struct TrimsSetup : public Page {
+  TrimsSetup();
 };

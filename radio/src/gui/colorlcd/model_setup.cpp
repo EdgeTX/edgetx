@@ -23,29 +23,19 @@
 
 #include "opentx.h"
 #include "libopenui.h"
+#include "button_matrix.h"
+
 #include "storage/modelslist.h"
 #include "trainer_setup.h"
 #include "module_setup.h"
 #include "timer_setup.h"
+#include "trims_setup.h"
+#include "throttle_params.h"
+#include "preflight_checks.h"
 
 #include <algorithm>
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
-
-std::string switchWarninglabel(swsrc_t index)
-{
-  static const char *switchPositions[] = {
-      " ",
-      STR_CHAR_UP,
-      "-",
-      STR_CHAR_DOWN,
-  };
-
-  return TEXT_AT_INDEX(STR_VSRCRAW,
-                       (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
-         std::string(
-             switchPositions[g_model.switchWarningState >> (3 * index) & 0x07]);
-}
 
 ModelSetupPage::ModelSetupPage() :
   PageTab(STR_MENU_MODEL_SETUP, ICON_MODEL_SETUP)
@@ -87,293 +77,133 @@ static void setModelBitmap(std::string newValue)
 }
 
 struct ModelBitmapEdit : public FileChoice {
-  ModelBitmapEdit(FormGroup *parent, const rect_t &rect) :
+  ModelBitmapEdit(Window *parent, const rect_t &rect) :
       FileChoice(parent, rect, BITMAPS_PATH, BITMAPS_EXT,
                  sizeof(g_model.header.bitmap), getModelBitmap, setModelBitmap)
   {
   }
 };
 
+struct SubScreenButtonMatrix : public ButtonMatrix {
+  SubScreenButtonMatrix(Window* parent, const rect_t& rect);
+  void onPress(uint8_t btn_id) override;
+  bool isActive(uint8_t btn_id) override;
+};
+
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
+                                          LV_GRID_TEMPLATE_LAST};
+
 void ModelSetupPage::build(FormWindow * window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
+  window->setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Model name
-  new StaticText(window, grid.getLabelSlot(), STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
-  new ModelNameEdit(window, grid.getFieldSlot());
-  grid.nextLine();
+  auto line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
+  new ModelNameEdit(line, rect_t{});
 
   // Bitmap
-  new StaticText(window, grid.getLabelSlot(), STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
-  new ModelBitmapEdit(window, grid.getFieldSlot());
-  grid.nextLine();
-
-  for (uint8_t i = 0; i < TIMERS; i++)
-    new TimerButton(window, grid.getSlot(3, i), i);
-  grid.nextLine();
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
+  // TODO: show bitmap thumbnail instead?
+  new ModelBitmapEdit(line, rect_t{});
 
   // Extended limits
-  new StaticText(window, grid.getLabelSlot(), STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.extendedLimits));
-  grid.nextLine();
-
-  // Extended trims
-  new StaticText(window, grid.getLabelSlot(), STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(2, 0), GET_SET_DEFAULT(g_model.extendedTrims));
-  new TextButton(window, grid.getFieldSlot(2, 1), STR_RESET_BTN,
-                 []() -> uint8_t {
-                   for (auto &flightModeData : g_model.flightModeData) {
-                     memclear(&flightModeData, TRIMS_ARRAY_SIZE);
-                   }
-                   SET_DIRTY();
-                   AUDIO_WARNING1();
-                   return 0;
-                 });
-  grid.nextLine();
-
-  // Display trims
-  new StaticText(window, grid.getLabelSlot(), STR_DISPLAY_TRIMS, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), "\006No\0   ChangeYes", 0, 2, GET_SET_DEFAULT(g_model.displayTrims));
-  grid.nextLine();
-
-  // Trim step
-  new StaticText(window, grid.getLabelSlot(), STR_TRIMINC, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_VTRIMINC, -2, 2, GET_SET_DEFAULT(g_model.trimInc));
-  grid.nextLine();
-
-  // Throttle parameters
-  {
-    new Subtitle(window, grid.getLineSlot(), STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Throttle reversed
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLEREVERSE, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.throttleReversed));
-    grid.nextLine();
-
-    // Throttle source
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRACE, 0, COLOR_THEME_PRIMARY1);
-    auto sc = new SourceChoice(
-        window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH,
-        [=]() { return throttleSource2Source(g_model.thrTraceSrc); },
-        [=](int16_t src) {
-          int16_t val = source2ThrottleSource(src);
-          if (val >= 0) {
-            g_model.thrTraceSrc = val;
-            SET_DIRTY();
-          }
-        }, 0, COLOR_THEME_PRIMARY1);
-    sc->setAvailableHandler(isThrottleSourceAvailable);
-    grid.nextLine();
-
-    // Throttle trim
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.thrTrim));
-    grid.nextLine();
-
-    // Throttle trim source
-    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM_SW, 0, COLOR_THEME_PRIMARY1);
-    new SourceChoice(
-        window, grid.getFieldSlot(), MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-        [=]() { return g_model.getThrottleStickTrimSource(); },
-        [=](int16_t src) { g_model.setThrottleStickTrimSource(src); }, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-  }
-
-  // Preflight parameters
-  {
-    new Subtitle(window, grid.getLineSlot(), STR_PREFLIGHT, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Display checklist
-    new StaticText(window, grid.getLabelSlot(true), STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.displayChecklist));
-    grid.nextLine();
-
-    // Throttle warning
-    new StaticText(window, grid.getLabelSlot(true), STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.disableThrottleWarning));
-    grid.nextLine();
-
-    // Custom Throttle warning
-    new StaticText(window, grid.getLabelSlot(true), STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
-    grid.nextLine();
-    // Custom Throttle warning value
-    new StaticText(window, grid.getLabelSlot(true), STR_CUSTOM_THROTTLE_WARNING_VAL, 0, COLOR_THEME_PRIMARY1);
-    new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(g_model.customThrottleWarningPosition));
-    grid.nextLine();
-
-    // Switches warning
-    new StaticText(window, grid.getLabelSlot(true), STR_SWITCHWARNING, 0, COLOR_THEME_PRIMARY1);
-    auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-    GridLayout switchesGrid(group);
-    for (int i = 0, j = 0; i < NUM_SWITCHES; i++) {
-      if (SWITCH_EXISTS(i)) {
-        if (j > 0 && (j % 3) == 0)
-          switchesGrid.nextLine();
-        auto button = new TextButton(group, switchesGrid.getSlot(3, j % 3), switchWarninglabel(i), nullptr,
-                                     OPAQUE | (bfGet(g_model.switchWarningState, 3 * i, 3) == 0 ? 0 : BUTTON_CHECKED));
-        button->setPressHandler([button, i] {
-            swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * i, 3);
-            if (newstate == 1 && SWITCH_CONFIG(i) != SWITCH_3POS)
-              newstate = 3;
-            else
-              newstate = (newstate + 1) % 4;
-            g_model.switchWarningState = bfSet(g_model.switchWarningState, newstate, 3 * i, 3);
-            SET_DIRTY();
-            button->setText(switchWarninglabel(i));
-            return newstate > 0;
-        });
-        j++;
-      }
-    }
-    grid.addWindow(group);
-
-    // Pots and sliders warning
-#if NUM_POTS + NUM_SLIDERS
-    {
-      new StaticText(window, grid.getLabelSlot(true), STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
-      new Choice(window, grid.getFieldSlot(), {"OFF", "ON", "AUTO"}, 0, 2,
-                 GET_SET_DEFAULT(g_model.potsWarnMode));
-      grid.nextLine();
-
-#if (NUM_POTS)
-      {
-        new StaticText(window, grid.getLabelSlot(true), STR_POTWARNING, 0, COLOR_THEME_PRIMARY1);
-        auto group =
-            new FormGroup(window, grid.getFieldSlot(),
-                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-        GridLayout centerGrid(group);
-        for (int i = POT_FIRST, j = 0, k = 0; i <= POT_LAST; i++, k++) {
-          char s[8];
-          if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-            if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
-
-            auto button = new TextButton(
-                group, centerGrid.getSlot(4, j % 4),
-                getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
-                OPAQUE | ((g_model.potsWarnEnabled & (1 << k)) ? BUTTON_CHECKED
-                                                               : 0));
-            button->setPressHandler([button, k] {
-              g_model.potsWarnEnabled ^= (1 << k);
-              if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-                  (g_model.potsWarnEnabled & (1 << k))) {
-                SAVE_POT_POSITION(k);
-              }
-              button->check(g_model.potsWarnEnabled & (1 << k) ? true : false);
-              SET_DIRTY();
-              return (g_model.potsWarnEnabled & (1 << k) ? 1 : 0);
-            });
-            j++;
-          } else {
-            g_model.potsWarnEnabled &= ~(1 << k);
-          }
-        }
-        grid.addWindow(group);
-      }
-#endif
-
-#if (NUM_SLIDERS)
-      {
-        new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING, 0, COLOR_THEME_PRIMARY1);
-        auto group =
-            new FormGroup(window, grid.getFieldSlot(),
-                          FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-        GridLayout centerGrid(group);
-        for (int i = SLIDER_FIRST, j = 0, k = NUM_POTS; i <= SLIDER_LAST; i++, k++) {
-          char s[8];
-          if ((IS_SLIDER(i))) {
-            if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
-
-            auto *button = new TextButton(
-                group, centerGrid.getSlot(4, j % 4),
-                getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
-                OPAQUE | ((g_model.potsWarnEnabled & (1 << k)) ? BUTTON_CHECKED
-                                                               : 0));
-            button->setPressHandler([button, k] {
-              g_model.potsWarnEnabled ^= (1 << (k));
-              if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-                  (g_model.potsWarnEnabled & (1 << k))) {
-                SAVE_POT_POSITION(k);
-              }
-              button->check(g_model.potsWarnEnabled & (1 << k) ? true : false);
-              SET_DIRTY();
-              return (g_model.potsWarnEnabled & (1 << k) ? 1 : 0);
-            });
-            j++;
-          }
-        }
-        grid.addWindow(group);
-      }
-#endif
-    }
-  #endif
-  }
-
-  grid.nextLine();
-
-  // Center beeps
-  {
-    new StaticText(window, grid.getLabelSlot(false), STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
-    auto group = new FormGroup(window, grid.getFieldSlot(), FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-    GridLayout centerGrid(group);
-    for (int i = 0, j = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-      char s[2];
-      if (i < NUM_STICKS ||  (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) { // multipos cannot be centered
-        if (j > 0 && (j % 6) == 0)
-          centerGrid.nextLine();
-
-        new TextButton(
-            group, centerGrid.getSlot(6, j % 6),
-            getStringAtIndex(s, STR_RETA123, i),
-            [=]() -> uint8_t {
-              BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
-              SET_DIRTY();
-              return (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) ? 1 : 0);
-            },
-            OPAQUE | (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i)
-                          ? BUTTON_CHECKED
-                          : 0));
-        j++;
-      }
-    }
-    grid.addWindow(group);
-  }
+  // TODO: move to "Outputs" screen ?
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   // Global functions
-  new StaticText(window, grid.getLabelSlot(), STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_model.noGlobalFunctions));
-  grid.nextLine();
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.noGlobalFunctions));
 
-  {
-     // Model ADC jitter filter
-    new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(), STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.jitterFilter));
-    grid.nextLine();
-  }
+  // Model ADC jitter filter
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
+             GET_SET_DEFAULT(g_model.jitterFilter));
 
-  // Internal module
-  {
-    new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-    grid.addWindow(new ModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}, INTERNAL_MODULE));
-  }
-
-  // External module
-  {
-    new Subtitle(window, grid.getLineSlot(), TR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-    grid.addWindow(new ModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}, EXTERNAL_MODULE));
-  }
-
-  // Trainer
-  {
-    new Subtitle(window, grid.getLineSlot(), STR_TRAINER, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-    grid.addWindow(new TrainerModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
-  }
-
+  // Sub-screens
+  new SubScreenButtonMatrix(window, rect_t{});
 }
 
+#define MAX_SUBSCREEN_BTNS 9
+
+SubScreenButtonMatrix::SubScreenButtonMatrix(Window* parent, const rect_t& r) :
+  ButtonMatrix(parent, r)
+{
+  initBtnMap(3, MAX_SUBSCREEN_BTNS);
+
+  setText(0, STR_INTERNALRF);
+  setText(1, STR_EXTERNALRF);
+  setText(2, STR_TRAINER);
+
+  setText(3, STR_PREFLIGHT);
+  setText(4, STR_TRIMS);
+  setText(5, STR_THROTTLE_LABEL);
+  setText(6, TR_TIMER "1");
+  setText(7, TR_TIMER "2");
+  setText(8, TR_TIMER "3");
+  update();
+  
+  lv_btnmatrix_set_btn_width(lvobj, 3, 2);
+  lv_obj_set_width(lvobj, lv_pct(100));
+  lv_obj_set_height(lvobj, (4 * LV_DPI_DEF) / 3);
+  
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
+
+  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+}
+
+void SubScreenButtonMatrix::onPress(uint8_t btn_id)
+{
+  if (btn_id >= MAX_SUBSCREEN_BTNS) return;
+
+  Window* w = nullptr;
+  switch (btn_id) {
+    case 0:
+      w = new ModulePage(INTERNAL_MODULE);
+      break;
+    case 1:
+      w = new ModulePage(EXTERNAL_MODULE);
+      break;
+    case 2:
+      w = new TrainerPage();
+      break;
+    case 3:
+      w = new PreflightChecks();
+      break;
+    case 4:
+      w = new TrimsSetup();
+      break;
+    case 5:
+      w = new ThrottleParams();
+      break;
+    default:
+      w = new TimerWindow((uint8_t)(btn_id - 6));
+      break;
+  }
+
+  if (w) w->setFocus();
+}
+
+bool SubScreenButtonMatrix::isActive(uint8_t btn_id)
+{
+  if (btn_id == 0)
+    return g_model.moduleData[INTERNAL_MODULE].type > 0;
+
+  if (btn_id == 1)
+    return g_model.moduleData[EXTERNAL_MODULE].type > 0;
+
+  if (btn_id == 2)
+    return g_model.trainerData.mode > 0;
+  
+  return false;
+}
