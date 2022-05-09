@@ -22,11 +22,6 @@
 #pragma once
 
 #include "page.h"
-#include "button.h"
-
-struct TimerButton : public TextButton {
-  TimerButton(Window* parent, const rect_t& rect, uint8_t timer);
-};
 
 struct TimerWindow : public Page {
   TimerWindow(uint8_t timer);

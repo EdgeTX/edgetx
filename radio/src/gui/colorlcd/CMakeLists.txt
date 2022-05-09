@@ -56,6 +56,9 @@ set(GUI_SRC
   custom_failsafe.cpp
   module_setup.cpp
   timer_setup.cpp
+  trims_setup.cpp
+  throttle_params.cpp
+  preflight_checks.cpp
   model_setup.cpp
   model_flightmodes.cpp
   model_inputs.cpp

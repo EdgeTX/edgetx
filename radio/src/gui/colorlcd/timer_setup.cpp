@@ -24,16 +24,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-TimerButton::TimerButton(Window* parent, const rect_t& rect, uint8_t timer) :
-    TextButton(parent, rect, std::string(STR_TIMER) + std::to_string(timer + 1))
-{
-  // TODO: add start time
-  setPressHandler([=]() {
-    new TimerWindow(timer);
-    return false;
-  });
-}
-
 // TODO: translation
 const char* STR_TIMER_MODES[] = {"OFF",      "ON",         "Start",
                                  "Throttle", "Throttle %", "Throttle Start"};

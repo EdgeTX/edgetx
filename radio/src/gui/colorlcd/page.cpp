@@ -67,6 +67,11 @@ void Page::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
+void Page::setFocus(uint8_t flag, Window * from)
+{
+  body.setFocus(flag, from);
+}
+
 void Page::paint(BitmapBuffer * dc)
 {
   dc->clear(COLOR_THEME_SECONDARY3);
