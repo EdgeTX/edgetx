@@ -136,6 +136,11 @@ class Choice: public ChoiceBase {
       return value;
     }
 
+    int getIntValue() const
+    {
+      return getValue();
+    }
+
     unsigned getValuesCount() const
     {
       return getIndexFromValue(vmax + 1);
