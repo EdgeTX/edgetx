@@ -88,7 +88,7 @@ void ButtonMatrix::initBtnMap(uint8_t cols, uint8_t btns)
 {
   deallocate();
 
-  uint8_t rows = ((btns - 1) / 4) + 1;
+  uint8_t rows = ((btns - 1) / cols) + 1;
   txt_cnt = btns + rows;
   btn_cnt = btns;
 
