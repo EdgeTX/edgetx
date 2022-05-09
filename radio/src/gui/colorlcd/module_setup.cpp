@@ -22,6 +22,11 @@
 #include "module_setup.h"
 #include "opentx.h"
 
+#include "form.h"
+#include "choice.h"
+#include "button.h"
+#include "gridlayout.h"
+
 #include "mixer_scheduler.h"
 #include "multi_rfprotos.h"
 #include "io/multi_protolist.h"
@@ -34,6 +39,29 @@
 #endif
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
+
+class ModuleWindow : public FormGroup
+{
+ public:
+  ModuleWindow(FormWindow *parent, const rect_t &rect, uint8_t moduleIdx);
+
+ protected:
+  uint8_t moduleIdx;
+  bool hasFailsafe = false;
+
+  Choice *moduleChoice = nullptr;
+  Choice *rfChoice = nullptr;
+  TextButton *bindButton = nullptr;
+  TextButton *rangeButton = nullptr;
+  TextButton *registerButton = nullptr;
+  Choice *failSafeChoice = nullptr;
+
+  void addChannelRange(FormGridLayout &grid);
+  void startRSSIDialog(std::function<void()> closeHandler = nullptr);
+
+  void update();
+  void checkEvents() override;
+};
 
 ModuleWindow::ModuleWindow(FormWindow *parent, const rect_t &rect,
                            uint8_t moduleIdx) :
@@ -881,4 +909,17 @@ void ModuleWindow::checkEvents()
   }
 
   FormGroup::checkEvents();
+}
+
+ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
+{
+  const char* title = moduleIdx == INTERNAL_MODULE ?
+    STR_INTERNALRF : STR_EXTERNALRF;
+
+  new StaticText(&header,
+                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                  PAGE_LINE_HEIGHT},
+                 title, 0, COLOR_THEME_PRIMARY2);
+
+  new ModuleWindow(&body, {0, 0, width(), 0}, moduleIdx);
 }

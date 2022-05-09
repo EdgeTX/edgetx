@@ -114,6 +114,8 @@ class Page: public Window
     }
 #endif
 
+    void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr) override;
+
     void paint(BitmapBuffer * dc) override;
 
   protected:

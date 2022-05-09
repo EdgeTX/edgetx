@@ -21,30 +21,8 @@
 
 #pragma once
 
-#include "form.h"
-#include "choice.h"
-#include "button.h"
-#include "gridlayout.h"
+#include "page.h"
 
-class ModuleWindow : public FormGroup
-{
- public:
-  ModuleWindow(FormWindow *parent, const rect_t &rect, uint8_t moduleIdx);
-
- protected:
-  uint8_t moduleIdx;
-  bool hasFailsafe = false;
-
-  Choice *moduleChoice = nullptr;
-  Choice *rfChoice = nullptr;
-  TextButton *bindButton = nullptr;
-  TextButton *rangeButton = nullptr;
-  TextButton *registerButton = nullptr;
-  Choice *failSafeChoice = nullptr;
-
-  void addChannelRange(FormGridLayout &grid);
-  void startRSSIDialog(std::function<void()> closeHandler = nullptr);
-
-  void update();
-  void checkEvents() override;
+struct ModulePage : public Page {
+  ModulePage(uint8_t moduleIdx);
 };

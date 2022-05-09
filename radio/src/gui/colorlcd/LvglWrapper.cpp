@@ -51,8 +51,13 @@ TouchState getLastTochState()
 extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   // if there is a keyboard event then call checkevents
-  if (isEvent())
-    MainWindow::instance()->checkEvents();
+  if (isEvent()) {
+    event_t evt = getWindowEvent();
+    auto focusWindow = Window::getFocus();
+    if (focusWindow) {
+      focusWindow->onEvent(evt);
+    }
+  }
 }
 
 static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)

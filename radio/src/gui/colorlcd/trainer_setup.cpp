@@ -24,6 +24,49 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+#include "form.h"
+#include "menu.h"
+#include "static.h"
+#include "button.h"
+#include "numberedit.h"
+
+#if defined(BLUETOOTH)
+#include "bluetooth.h"
+#endif
+
+class TrChoice;
+
+class TrainerModuleWindow : public FormGroup
+{
+ public:
+  TrainerModuleWindow(FormWindow *parent, const rect_t &rect);
+
+  void checkEvents() override;
+  void update();
+
+ protected:
+  TrChoice *trainerChoice = nullptr;
+  NumberEdit *channelStart = nullptr;
+  NumberEdit *channelEnd = nullptr;
+  bool trChoiceOpen = false;
+#if defined(BLUETOOTH)
+  StaticText *btChannelEnd = nullptr;
+  StaticText *btDistAddress = nullptr;
+  TextButton *btMasterButton = nullptr;
+  Menu *btPopUpMenu = nullptr;
+  bool btCanceled = false;
+
+ private:
+  bool popupopen = false;
+  int devicecount = 0;
+  uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
+
+  void btDiscoverMenuItemChosen();
+  void btDiscoverMenuAddItem(const char *itm);
+
+#endif
+};
+
 class TrChoice : public Choice
 {
  public:
@@ -283,3 +326,13 @@ void TrainerModuleWindow::btDiscoverMenuAddItem(const char *itm)
         itm, std::bind(&TrainerModuleWindow::btDiscoverMenuItemChosen, this));
 }
 #endif
+
+TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
+{
+  new StaticText(&header,
+                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                  PAGE_LINE_HEIGHT},
+                 STR_TRAINER, 0, COLOR_THEME_PRIMARY2);
+
+  new TrainerModuleWindow(&body, {0, 0, width(), 0});
+}
