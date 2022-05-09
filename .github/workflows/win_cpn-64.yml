@@ -1,4 +1,4 @@
-name: Windows Companion
+name: Windows Companion 64-bit
 
 on:
   push:
