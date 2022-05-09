@@ -17,6 +17,7 @@ set(LIBOPENUI_SRC
   layer.cpp
   form.cpp
   button.cpp
+  button_matrix.cpp
   static.cpp
   checkbox.cpp
   carousel.cpp
