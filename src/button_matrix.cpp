@@ -132,5 +132,49 @@ void ButtonMatrix::update()
   lv_btnmatrix_set_btn_ctrl_all(lvobj, ctrl);
 }
 
-void ButtonMatrix::onEvent(event_t event) {}
-void ButtonMatrix::setFocus(uint8_t flag, Window* from) {}
+void ButtonMatrix::onEvent(event_t event)
+{
+  char c = 0;
+  lv_event_code_t code = LV_EVENT_ALL;
+
+#if defined (HARDWARE_KEYS)
+  switch (event) {
+    case EVT_KEY_FIRST(KEY_ENTER):
+      code = LV_EVENT_PRESSED;
+      break;
+
+    case EVT_KEY_BREAK(KEY_ENTER):
+      code = LV_EVENT_RELEASED;
+      break;
+
+    case EVT_ROTARY_LEFT:
+      if (lv_btnmatrix_get_selected_btn(lvobj) != 0) {
+        code = LV_EVENT_KEY;
+        c = LV_KEY_LEFT;
+      }
+      break;
+    case EVT_ROTARY_RIGHT:
+      if (lv_btnmatrix_get_selected_btn(lvobj) < btn_cnt - 1) {
+        code = LV_EVENT_KEY;
+        c = LV_KEY_RIGHT;
+      }
+      break;
+  }
+#endif
+
+  if ((code == LV_EVENT_KEY) && c != 0) lv_event_send(lvobj, code, &c);
+  else if (code != LV_EVENT_ALL) lv_event_send(lvobj, code, lv_indev_get_act());
+  else FormField::onEvent(event);
+}
+
+void ButtonMatrix::setFocus(uint8_t flag, Window* from)
+{
+  if (lv_btnmatrix_get_selected_btn(lvobj) == LV_BTNMATRIX_BTN_NONE) {
+    if (flag == SET_FOCUS_BACKWARD)
+      lv_btnmatrix_set_selected_btn(lvobj, btn_cnt - 1);
+    else
+      lv_btnmatrix_set_selected_btn(lvobj, 0);
+  }
+
+  FormField::setFocus(flag, from);
+}
