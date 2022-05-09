@@ -89,6 +89,14 @@ private:
   uint8_t pot_idx[NUM_POTS + NUM_SLIDERS];
 };
 
+struct CenterBeepsMatrix : public ButtonMatrix {
+  CenterBeepsMatrix(Window* parent, const rect_t& rect);
+  void onPress(uint8_t btn_id);
+  bool isActive(uint8_t btn_id);
+private:
+  uint8_t ana_idx[NUM_STICKS + NUM_POTS + NUM_SLIDERS];
+};
+
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
   new StaticText(&header,
@@ -144,38 +152,10 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 #endif
 #endif
 
-  // // Center beeps
-  // {
-  //   new StaticText(window, grid.getLabelSlot(false), STR_BEEPCTR, 0,
-  //                  COLOR_THEME_PRIMARY1);
-  //   auto group = new FormGroup(window, grid.getFieldSlot(),
-  //                              FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-  //   GridLayout centerGrid(group);
-  //   for (int i = 0, j = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-  //     char s[2];
-  //     if (i < NUM_STICKS ||
-  //         (IS_POT_SLIDER_AVAILABLE(i) &&
-  //          !IS_POT_MULTIPOS(i))) {  // multipos cannot be centered
-  //       if (j > 0 && (j % 6) == 0) centerGrid.nextLine();
-
-  //       new TextButton(
-  //           group, centerGrid.getSlot(6, j % 6),
-  //           getStringAtIndex(s, STR_RETA123, i),
-  //           [=]() -> uint8_t {
-  //             BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
-  //             SET_DIRTY();
-  //             return (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i)
-  //                         ? 1
-  //                         : 0);
-  //           },
-  //           OPAQUE | (bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i)
-  //                         ? BUTTON_CHECKED
-  //                         : 0));
-  //       j++;
-  //     }
-  //   }
-  //   grid.addWindow(group);
-  // }
+  // Center beeps
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
+  new CenterBeepsMatrix(form, rect_t{});
 }
 
 static std::string switchWarninglabel(swsrc_t index)
@@ -325,3 +305,58 @@ bool PotWarnMatrix::isActive(uint8_t btn_id)
   return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
 }
 
+CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
+  ButtonMatrix(parent, r)
+{
+  // Setup button layout & texts
+  uint8_t btn_cnt = 0;
+  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+    // multipos cannot be centered
+    if (i < NUM_STICKS || (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) {
+      ana_idx[btn_cnt] = i;
+      btn_cnt++;
+    }
+  }
+
+  initBtnMap(4, btn_cnt);
+
+  uint8_t btn_id = 0;
+  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+    if (i < NUM_STICKS || (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) {
+      setText(btn_id, STR_RETA123[i]);
+      btn_id++;
+    }
+  }
+  update();
+
+  lv_obj_set_width(lvobj, (3 * LV_DPI_DEF) / 2);
+  
+  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
+  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 6);
+
+  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
+
+  lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
+  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
+
+  lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
+  lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+
+  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+}
+
+void CenterBeepsMatrix::onPress(uint8_t btn_id)
+{
+  if (btn_id >= NUM_STICKS + NUM_POTS + NUM_SLIDERS) return;
+  uint8_t i = ana_idx[btn_id];
+  BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
+  SET_DIRTY();  
+}
+
+bool CenterBeepsMatrix::isActive(uint8_t btn_id)
+{
+  if (btn_id >= NUM_STICKS + NUM_POTS + NUM_SLIDERS) return false;
+  uint8_t i = ana_idx[btn_id];
+  return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) != 0;
+}
