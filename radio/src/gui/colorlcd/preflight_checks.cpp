@@ -77,12 +77,16 @@ struct SwitchWarnMatrix : public ButtonMatrix {
   SwitchWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+private:
+  uint8_t sw_idx[NUM_SWITCHES];
 };
 
 struct PotWarnMatrix : public ButtonMatrix {
   PotWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+private:
+  uint8_t pot_idx[NUM_POTS + NUM_SLIDERS];
 };
 
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
@@ -138,42 +142,6 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   auto pwm = new PotWarnMatrix(form, rect_t{});
   make_conditional(pwm, pots_wm);
 #endif
-
-// #if (NUM_SLIDERS)
-//     {
-//       new StaticText(window, grid.getLabelSlot(true), STR_SLIDERWARNING, 0,
-//                      COLOR_THEME_PRIMARY1);
-//       auto group = new FormGroup(window, grid.getFieldSlot(),
-//                                  FORM_BORDER_FOCUS_ONLY | PAINT_CHILDREN_FIRST);
-//       GridLayout centerGrid(group);
-//       for (int i = SLIDER_FIRST, j = 0, k = NUM_POTS; i <= SLIDER_LAST;
-//            i++, k++) {
-//         char s[8];
-//         if ((IS_SLIDER(i))) {
-//           if (j > 0 && ((j % 4) == 0)) centerGrid.nextLine();
-
-//           auto *button = new TextButton(
-//               group, centerGrid.getSlot(4, j % 4),
-//               getStringAtIndex(s, STR_VSRCRAW, i + 1), nullptr,
-//               OPAQUE |
-//                   ((g_model.potsWarnEnabled & (1 << k)) ? BUTTON_CHECKED : 0));
-//           button->setPressHandler([button, k] {
-//             g_model.potsWarnEnabled ^= (1 << (k));
-//             if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-//                 (g_model.potsWarnEnabled & (1 << k))) {
-//               SAVE_POT_POSITION(k);
-//             }
-//             button->check(g_model.potsWarnEnabled & (1 << k) ? true : false);
-//             SET_DIRTY();
-//             return (g_model.potsWarnEnabled & (1 << k) ? 1 : 0);
-//           });
-//           j++;
-//         }
-//       }
-//       grid.addWindow(group);
-//     }
-// #endif
-//   }
 #endif
 
   // // Center beeps
@@ -210,16 +178,6 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   // }
 }
 
-// // Max 12 switches
-// #define MAX_SW_WARN 12
-
-// static const char* sw_warn_map[] = {
-//   "0", "1", "2", "3", "\n",
-//   "4", "5", "6", "7", "\n",
-//   "8", "9", "0", "1", ""
-// };
-// static_assert(NUM_SWITCHES <= MAX_SW_WARN, "Max 12 switches supported");
-
 static std::string switchWarninglabel(swsrc_t index)
 {
   auto warn_pos = g_model.switchWarningState >> (3 * index) & 0x07;
@@ -233,15 +191,21 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i < NUM_SWITCHES; i++)
-    if (SWITCH_EXISTS(i)) btn_cnt++;
+  for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
+    if (SWITCH_EXISTS(i)) {
+      sw_idx[btn_cnt] = i;
+      btn_cnt++;
+    }    
+  }
 
   initBtnMap(4, btn_cnt);
 
+  uint8_t btn_id = 0;
   for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
       std::string txt = switchWarninglabel(i);
-      setText(i, txt.c_str());
+      setText(btn_id, txt.c_str());
+      btn_id++;
     }
   }
   update();
@@ -266,25 +230,27 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 void SwitchWarnMatrix::onPress(uint8_t btn_id)
 {
   if (btn_id >= NUM_SWITCHES) return;
+  auto sw = sw_idx[btn_id];
 
-  swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * btn_id, 3);
-  if (newstate == 1 && SWITCH_CONFIG(btn_id) != SWITCH_3POS)
+  swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * sw, 3);
+  if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
     newstate = 3;
   else
     newstate = (newstate + 1) % 4;
 
   g_model.switchWarningState =
-      bfSet(g_model.switchWarningState, newstate, 3 * btn_id, 3);
+      bfSet(g_model.switchWarningState, newstate, 3 * sw, 3);
   SET_DIRTY();
 
   // TODO: save state in object
-  std::string txt = switchWarninglabel(btn_id);
+  std::string txt = switchWarninglabel(sw);
   setText(btn_id, txt.c_str());
 }
 
 bool SwitchWarnMatrix::isActive(uint8_t btn_id)
 {
-  return bfGet(g_model.switchWarningState, 3 * btn_id, 3) != 0;
+  if (btn_id >= NUM_SWITCHES) return false;
+  return bfGet(g_model.switchWarningState, 3 * sw_idx[btn_id], 3) != 0;
 }
 
 PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
@@ -292,8 +258,18 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint16_t i = POT_FIRST; i <= POT_LAST; i++) {
-    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) btn_cnt++;
+  for (uint8_t i = POT_FIRST; i <= POT_LAST; i++) {
+    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
+      pot_idx[btn_cnt] = i;
+      btn_cnt++;
+    }
+  }
+
+  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
+    if (IS_SLIDER(i)) {
+      pot_idx[btn_cnt] = i;
+      btn_cnt++;
+    }
   }
 
   initBtnMap(3, btn_cnt);
@@ -301,7 +277,13 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t btn_id = 0;
   for (uint16_t i = POT_FIRST; i <= POT_LAST; i++) {
     if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      setText(btn_id, STR_VSRCRAW[btn_id + POT_FIRST + 1]);
+      setText(btn_id, STR_VSRCRAW[i + 1]);
+      btn_id++;
+    }
+  }
+  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
+    if (IS_SLIDER(i)) {
+      setText(btn_id, STR_VSRCRAW[i + 1]);
       btn_id++;
     }
   }
@@ -326,18 +308,20 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 
 void PotWarnMatrix::onPress(uint8_t btn_id)
 {
-  if (btn_id >= NUM_POTS) return;
+  if (btn_id >= NUM_POTS + NUM_SLIDERS) return;
+  auto pot = pot_idx[btn_id];
   
-  g_model.potsWarnEnabled ^= (1 << btn_id);
+  g_model.potsWarnEnabled ^= (1 << pot);
   if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-      (g_model.potsWarnEnabled & (1 << btn_id))) {
-    SAVE_POT_POSITION(btn_id);
+      (g_model.potsWarnEnabled & (1 << pot))) {
+    SAVE_POT_POSITION(pot);
   }
   SET_DIRTY();
 }
 
 bool PotWarnMatrix::isActive(uint8_t btn_id)
 {
-  return (g_model.potsWarnEnabled & (1 << btn_id)) != 0;
+  if (btn_id >= NUM_POTS + NUM_SLIDERS) return false;
+  return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
 }
 
