@@ -209,16 +209,19 @@ void Choice::openMenu()
     if (textHandler) {
       menu->addLine(textHandler(i), [=]() {
         setValue(i);
+        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
       });
     }
     else if (unsigned(i - vmin) < values.size()) {
       menu->addLine(values[i - vmin], [=]() {
         setValue(i);
+        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
       });
     }
     else {
       menu->addLine(std::to_string(i), [=]() {
         setValue(i);
+        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
       });
     }
     if (value == i) {
