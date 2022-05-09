@@ -63,7 +63,7 @@ FormField::FormField(Window* parent, const rect_t& rect,
                      LvglCreate objConstruct) :
     Window(parent, rect, windowFlags, textFlags, objConstruct)
 {
-  if (!(windowFlags & NO_FOCUS)) {
+  if (!(windowFlags & NO_FOCUS) || (windowFlags & FORM_FORWARD_FOCUS)) {
     auto cont = dynamic_cast<FieldContainer*>(parent);
     if (cont) {
       cont->addField(this);
