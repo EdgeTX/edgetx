@@ -58,6 +58,41 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
 
 static lv_disp_drv_t* refr_disp = nullptr;
 
+#if defined (LCD_VERTICAL_INVERT)
+static void buf_rotate_180(lv_area_t * area, uint16_t* color_p)
+{
+    lv_coord_t area_w = lv_area_get_width(area);
+    lv_coord_t area_h = lv_area_get_height(area);
+    uint32_t total = area_w * area_h;
+    /*Swap the beginning and end values*/
+
+    uint32_t tmp;
+    uint32_t* c_tail = (uint32_t*)(color_p + (total & 1));
+    uint32_t* c_head = (uint32_t*)color_p;
+    uint32_t i = total/2 - 1, j = 0;
+    while(i > j) {
+        tmp = c_tail[i];
+        c_tail[i] = ((c_head[j] & 0xFFFF0000) >> 16) | ((c_head[j] & 0xFFFF) << 16);
+        c_head[j] = ((tmp & 0xFFFF0000) >> 16) | ((tmp & 0xFFFF) << 16);
+        i--;
+        j++;
+    }
+    if (total & 1) {
+        uint16_t tmp = color_p[i * 2 + 1];
+        color_p[j * 2] = color_p[i * 2 + 1];
+        color_p[i * 2 + 1] = tmp;
+    }
+
+    lv_coord_t tmp_coord;
+    tmp_coord = area->y2;
+    area->y2 = LCD_H - area->y1 - 1;
+    area->y1 = LCD_H - tmp_coord - 1;
+    tmp_coord = area->x2;
+    area->x2 = LCD_W - area->x1 - 1;
+    area->x1 = LCD_W - tmp_coord - 1;
+}
+#endif
+
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
   lv_area_t refr_area;
@@ -73,12 +108,17 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   }
 #endif
 
-  rect_t copy_area = {refr_area.x1, refr_area.y1,
-                      refr_area.x2 - refr_area.x1 + 1,
-                      refr_area.y2 - refr_area.y1 + 1};
-
   if (lcd_flush_cb) {
     refr_disp = disp_drv;
+
+#if defined (LCD_VERTICAL_INVERT)
+    buf_rotate_180(&refr_area, (uint16_t*)color_p);
+#endif
+
+    rect_t copy_area = {refr_area.x1, refr_area.y1,
+                        refr_area.x2 - refr_area.x1 + 1,
+                        refr_area.y2 - refr_area.y1 + 1};
+
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
   } else {
     lv_disp_flush_ready(disp_drv);
@@ -104,11 +144,6 @@ void lcdInitDisplayDriver()
   disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
-
-#if defined (LCD_VERTICAL_INVERT)
-  disp_drv.rotated = LV_DISP_ROT_180;
-  disp_drv.sw_rotate = 1;
-#endif
 
   // Register the driver and save the created display object
   disp = lv_disp_drv_register(&disp_drv);
