@@ -143,6 +143,11 @@ if(WINDOWS_INSPECT_BORDERS)
   add_definitions(-DWINDOWS_INSPECT_BORDERS)
 endif()
 
+option(UI_PERF_MONITOR "Draw frame rate and CPU usage" OFF)
+if(UI_PERF_MONITOR)
+  add_definition(-DUI_PERF_MONITOR)
+endif()
+
 # includes libopenui
 set(LIBOPENUI_SRC_DIR thirdparty/libopenui)
 set(LVGL_SRC_DIR ${LIBOPENUI_SRC_DIR}/thirdparty/lvgl/src)
