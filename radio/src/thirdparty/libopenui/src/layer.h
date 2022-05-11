@@ -80,4 +80,9 @@ class Layer
       }
 #endif
     }
+
+    static Window* back()
+    {
+      return stack.back().main;
+    }
 };
