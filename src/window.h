@@ -106,9 +106,6 @@ class Window
     void clear();
     virtual void deleteLater(bool detach = true, bool trash = true);
 
-    void clearLvgl();
-
-
     bool hasFocus() const
     {
       return focusWindow == this;
