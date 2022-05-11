@@ -22,6 +22,7 @@
 #ifndef _TRAINER_H_
 #define _TRAINER_H_
 
+#include <array>
 #include "dataconstants.h"
 
 namespace Trainer {
