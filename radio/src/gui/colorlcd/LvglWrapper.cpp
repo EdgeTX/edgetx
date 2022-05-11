@@ -62,13 +62,8 @@ extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
 static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
 {
-#if defined(LCD_VERTICAL_INVERT)
-  data->point.x = LCD_W - st.x;
-  data->point.y = LCD_H - st.y;
-#else
   data->point.x = st.x;
   data->point.y = st.y;
-#endif
 }
 
 static lv_indev_data_t indev_data_backup;
@@ -386,8 +381,10 @@ LvglWrapper::LvglWrapper()
 
 void LvglWrapper::run()
 {
+#if defined(SIMU)
   tmr10ms_t tick = get_tmr10ms();
   lv_tick_inc((tick - lastTick) * 10);
   lastTick = tick;
+#endif
   lv_timer_handler();
 }

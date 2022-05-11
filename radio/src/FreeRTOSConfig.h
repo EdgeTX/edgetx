@@ -25,7 +25,11 @@
 
 #define configUSE_PREEMPTION            1
 #define configUSE_IDLE_HOOK             0
-#define configUSE_TICK_HOOK             0
+#if defined(COLORLCD)
+  #define configUSE_TICK_HOOK           1
+#else
+  #define configUSE_TICK_HOOK           0
+#endif
 #define configCPU_CLOCK_HZ              ( SystemCoreClock )
 #define configTICK_RATE_HZ              ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES            ( 5 )
