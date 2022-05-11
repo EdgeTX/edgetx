@@ -28,6 +28,8 @@
 #include <QRegularExpression>
 #include <stdint.h>
 
+#include <QMessageBox>
+
 TelemetrySimulator::TelemetrySimulator(QWidget * parent, SimulatorInterface * simulator):
   QWidget(parent),
   ui(new Ui::TelemetrySimulator),
@@ -1089,3 +1091,226 @@ void TelemetrySimulator::LogPlaybackController::setUiDataValues()
     }
   }
 }
+
+void TelemetrySimulator::on_saveTelemetryvalues_clicked()
+{
+    QString idFileNameAndPath = QFileDialog::getSaveFileName(NULL, tr(".txt File"), g.eepromDir(), tr(".txt Files (*.txt)"));
+    if (idFileNameAndPath.isEmpty())
+        return;
+
+    QFile file(idFileNameAndPath);
+    if (!file.open(QIODevice::WriteOnly)){
+        QMessageBox::information(0,"info",file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+
+    out<< ui -> rxbt -> text();
+    out<<"\r\n";
+    out<< ui -> Rssi -> text();
+    out<<"\r\n";
+    out<< ui -> Swr -> text();
+    out<<"\r\n";
+    out << ui -> A1 -> text();
+    out<<"\r\n";
+    out<< ui -> A2 -> text();
+    out<<"\r\n";
+    out<< ui -> A3 -> text();
+    out<<"\r\n";
+    out << ui -> A4 -> text();
+    out<<"\r\n";
+    out << ui -> T1 -> text();
+    out<<"\r\n";
+    out << ui -> T2 -> text();
+    out<<"\r\n";
+    out << ui -> rpm -> text();
+    out<<"\r\n";
+    out << ui -> fuel -> text();
+    out<<"\r\n";
+    out << ui -> fuel_qty -> text();
+    out<<"\r\n";
+    out << ui -> vspeed -> text();
+    out<<"\r\n";
+    out << ui -> valt -> text();
+    out<<"\r\n";
+    out << ui -> vfas -> text();
+    out<<"\r\n";
+    out << ui -> curr -> text();
+    out<<"\r\n";
+    out << ui -> cell1 -> text();
+    out<<"\r\n";
+    out << ui -> cell2 -> text();
+    out<<"\r\n";
+    out << ui -> cell3 -> text();
+    out<<"\r\n";
+    out << ui -> cell4 -> text();
+    out<<"\r\n";
+    out << ui -> cell5 -> text();
+    out<<"\r\n";
+    out << ui -> cell6 -> text();
+    out<<"\r\n";
+    out << ui -> aspeed -> text();
+    out<<"\r\n";
+    out << ui -> gps_alt -> text();
+    out<<"\r\n";
+    out << ui -> gps_speed -> text();
+    out<<"\r\n";
+    out << ui -> gps_course -> text();
+    out<<"\r\n";
+    out << ui -> gps_time -> text();
+    out<<"\r\n";
+    out << ui -> gps_latlon -> text();
+    out<<"\r\n";
+    out << ui -> accx -> text();
+    out<<"\r\n";
+    out << ui -> accy -> text();
+    out<<"\r\n";
+    out << ui -> accz -> text();
+    out<<"\r\n";
+
+    file.close();
+
+}
+
+
+void TelemetrySimulator::on_loadTelemetryvalues_clicked()
+{
+    QString idFileNameAndPath = QFileDialog::getOpenFileName(NULL, tr(".txt File"), g.eepromDir(), tr(".txt Files (*.txt)"));
+    if (idFileNameAndPath.isEmpty())
+        return;
+
+    QFile file(idFileNameAndPath);
+
+    if (!file.open(QIODevice::ReadOnly)){
+        QMessageBox::information(0,"info",file.errorString());
+        return;
+    }
+
+    QTextStream in(&file);
+
+    QString n = in.readLine();
+    double ns = n.toDouble();
+    ui -> rxbt -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> Rssi -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> Swr -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> A1 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> A2 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> A3 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> A4 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> T1 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> T2 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> rpm -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> fuel -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> fuel_qty -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> vspeed -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> valt -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> vfas -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> curr -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell1 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell2 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell3 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell4 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell5 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> cell6 -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> aspeed -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> gps_alt -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> gps_speed -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> gps_course -> setValue(ns);
+
+    n = in.readLine();
+    ui -> gps_time -> setText(n);
+
+    n = in.readLine();
+    ui -> gps_latlon -> setText(n);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> accx -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> accy -> setValue(ns);
+
+    n = in.readLine();
+    ns = n.toDouble();
+    ui -> accz -> setValue(ns);
+
+    file.close();
+
+}
+
