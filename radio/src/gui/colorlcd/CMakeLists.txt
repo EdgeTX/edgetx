@@ -145,7 +145,7 @@ endif()
 
 option(UI_PERF_MONITOR "Draw frame rate and CPU usage" OFF)
 if(UI_PERF_MONITOR)
-  add_definition(-DUI_PERF_MONITOR)
+  add_definitions(-DUI_PERF_MONITOR)
 endif()
 
 # includes libopenui
