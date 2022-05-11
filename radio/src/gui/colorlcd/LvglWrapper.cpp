@@ -56,6 +56,9 @@ extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     auto focusWindow = Window::getFocus();
     if (focusWindow) {
       focusWindow->onEvent(evt);
+    } else {
+      auto w = Layer::back();
+      if (w) w->onEvent(evt);
     }
   }
 }
