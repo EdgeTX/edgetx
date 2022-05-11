@@ -54,7 +54,6 @@ void Keyboard::clearField()
   }
 
   detach();
-  if (lvobj != nullptr) lv_obj_set_parent(lvobj, nullptr);
 
   if (fieldContainer) {
     lv_obj_scroll_to_y(fieldContainer->getLvObj(), scroll_pos, LV_ANIM_OFF);

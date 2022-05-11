@@ -297,7 +297,6 @@ void Window::detach()
   if (parent) {
     parent->removeChild(this);
     parent = nullptr;
-    // if (lvobj != nullptr) lv_obj_set_parent(lvobj, nullptr);
   }
 }
 
@@ -325,6 +324,11 @@ void Window::deleteLater(bool detach, bool trash)
 
   deleteChildren();
 
+  if (lvobj != nullptr) {
+    lv_obj_del(lvobj);
+    lvobj = nullptr;
+  }
+  
   if (closeHandler) {
     closeHandler();
   }
@@ -339,29 +343,11 @@ void Window::clear()
   invalidate();
 }
 
-void Window::clearLvgl()
-{
-  if(lvobj == nullptr)
-    return;
-
-  for (auto window: children)
-  {
-    if(window->lvobj != nullptr && window->lvobj->parent == lvobj)
-      window->clearLvgl();
-  }
-
-  lv_obj_remove_event_cb(lvobj, window_event_cb);
-  lv_obj_set_user_data(lvobj, nullptr);
-  lv_group_remove_obj(lvobj);
-  lvobj = nullptr;
-}
-
 void Window::deleteChildren()
 {
   // prevent LVGL refocus while mass-deleting
   inhibit_focus = true;
   for (auto window: children) {
-    window->clearLvgl();
     window->deleteLater(false);
   }
   inhibit_focus = false;
@@ -654,7 +640,6 @@ void Window::addChild(Window* window)
 void Window::removeChild(Window* window)
 {
   children.remove(window);
-  if (window->lvobj != nullptr) lv_obj_set_parent(window->lvobj, nullptr);
   invalidate();
 }
 
