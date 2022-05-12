@@ -66,7 +66,7 @@
 #elif defined(JUMPER_RELEASE)
   const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
 #elif defined(IFLIGHT_RELEASE)
-  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR  "\036VERS" TAB ":  Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " CFGV_STR;
+  const char vers_stamp[]  = "FW" TAB ": edgetx-" FLAVOUR  "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME "\036EEPR" TAB ": " CFGV_STR;
 #else
   #if defined(VERSION_TAG)
     const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036DATE" TAB ": " DATE " " TIME "\036CFGV" TAB ": " CFGV_STR;
