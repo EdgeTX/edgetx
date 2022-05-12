@@ -58,51 +58,41 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
 
 static lv_disp_drv_t* refr_disp = nullptr;
 
-#if defined (LCD_VERTICAL_INVERT)
-static void buf_rotate_180(lv_area_t * area, uint16_t* color_p)
+#if !defined(LCD_VERTICAL_INVERT)
+// TODO: DMA copy would be possible (use function from draw_ctx???
+static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
 {
-    lv_coord_t area_w = lv_area_get_width(area);
-    lv_coord_t area_h = lv_area_get_height(area);
-    uint32_t total = area_w * area_h;
-    /*Swap the beginning and end values*/
+  lv_coord_t x1 = copy_area.x1;
+  lv_coord_t y1 = copy_area.y1;
+  lv_coord_t area_w = copy_area.x2 - copy_area.x1 + 1;
 
-    uint32_t tmp;
-    uint32_t* c_tail = (uint32_t*)(color_p + (total & 1));
-    uint32_t* c_head = (uint32_t*)color_p;
-    uint32_t i = total/2 - 1, j = 0;
-    while(i > j) {
-        tmp = c_tail[i];
-        c_tail[i] = ((c_head[j] & 0xFFFF0000) >> 16) | ((c_head[j] & 0xFFFF) << 16);
-        c_head[j] = ((tmp & 0xFFFF0000) >> 16) | ((tmp & 0xFFFF) << 16);
-        i--;
-        j++;
-    }
-    if (total & 1) {
-        uint16_t tmp = color_p[i * 2 + 1];
-        color_p[j * 2] = color_p[i * 2 + 1];
-        color_p[i * 2 + 1] = tmp;
-    }
+  auto offset = y1 * LCD_W + x1;
+  auto px_src = src + offset;
+  auto px_dst = dst + offset;
 
-    lv_coord_t tmp_coord;
-    tmp_coord = area->y2;
-    area->y2 = LCD_H - area->y1 - 1;
-    area->y1 = LCD_H - tmp_coord - 1;
-    tmp_coord = area->x2;
-    area->x2 = LCD_W - area->x1 - 1;
-    area->x1 = LCD_W - tmp_coord - 1;
+  for (auto line = copy_area.y1; line <= copy_area.y2; line++) {
+    memcpy(px_dst, px_src, area_w * sizeof(uint16_t));
+    px_dst += LCD_W;
+    px_src += LCD_W;
+  }
 }
 #endif
 
 static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-  lv_area_t refr_area;
-  lv_area_copy(&refr_area, area);
-
+#if !defined(LCD_VERTICAL_INVERT)
+  // we're only interested in the last flush in direct mode
+  if (!lv_disp_flush_is_last(disp_drv)) {
+    lv_disp_flush_ready(disp_drv);
+    return;
+  }
+#endif
+  
 #if defined(DEBUG_WINDOWS)
-  if (refr_area.x1 != 0 || refr_area.x2 != LCD_W-1 || refr_area.y1 != 0 ||
-      refr_area.y2 != LCD_H-1) {
-    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, refr_area.x1,
-          refr_area.y1, refr_area.x2, refr_area.y2);
+  if (area->x1 != 0 || area->x2 != LCD_W-1 || area->y1 != 0 ||
+      area->y2 != LCD_H-1) {
+    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, area->x1,
+          area->y1, area->x2, area->y2);
   } else {
     TRACE("full refresh @ 0x%p", color_p);
   }
@@ -111,15 +101,40 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   if (lcd_flush_cb) {
     refr_disp = disp_drv;
 
-#if defined (LCD_VERTICAL_INVERT)
-    buf_rotate_180(&refr_area, (uint16_t*)color_p);
-#endif
 
-    rect_t copy_area = {refr_area.x1, refr_area.y1,
-                        refr_area.x2 - refr_area.x1 + 1,
-                        refr_area.y2 - refr_area.y1 + 1};
+    rect_t copy_area = {area->x1, area->y1,
+                        area->x2 - area->x1 + 1,
+                        area->y2 - area->y1 + 1};
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
+
+#if !defined(LCD_VERTICAL_INVERT)
+    uint16_t* src = (uint16_t*)color_p;
+    uint16_t* dst = nullptr;
+    if ((uint16_t*)color_p == LCD_FIRST_FRAME_BUFFER)
+      dst = LCD_SECOND_FRAME_BUFFER;
+    else
+      dst = LCD_FIRST_FRAME_BUFFER;
+
+    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
+    for(int i = 0; i < disp->inv_p; i++) {
+      if(disp->inv_area_joined[i]) continue;
+
+      const lv_area_t& refr_area = disp->inv_areas[i];
+      TRACE("{%d,%d,%d,%d}", refr_area.x1,
+            refr_area.y1, refr_area.x2, refr_area.y2);
+
+      auto area_w = refr_area.x2 - refr_area.x1 + 1;
+      auto area_h = refr_area.y2 - refr_area.y1 + 1;
+
+      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    area_w, area_h);      
+    }
+    
+    TRACE("#############################");
+    lv_disp_flush_ready(disp_drv);
+#endif
   } else {
     lv_disp_flush_ready(disp_drv);
   }
@@ -143,7 +158,12 @@ void lcdInitDisplayDriver()
   disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
+
+#if !defined(LCD_VERTICAL_INVERT)
+  disp_drv.direct_mode = 1;
+#else
   disp_drv.direct_mode = 0;
+#endif
 
   // Register the driver and save the created display object
   disp = lv_disp_drv_register(&disp_drv);
