@@ -382,6 +382,12 @@ int hasSerialMode(int mode)
 
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
+#if defined(USB_SERIAL)
+  // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
+  if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
+    return false;
+#endif
+  
   if (mode == UART_MODE_NONE)
     return true;
 
