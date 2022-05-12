@@ -22,6 +22,7 @@
 #include "opentx_types.h"
 #include "libopenui_config.h"
 #include "lcd.h"
+#include <lvgl/lvgl.h>
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -43,21 +44,133 @@
   #define VFP  2
 #endif
 
-static pixel_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
+#if defined(LCD_VERTICAL_INVERT)
+static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
+static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
-static uint16_t* next_frame_buffer;
-static rect_t next_frame_area;
+static pixel_t _line_buffer[LCD_W];
+
+static uint16_t* _front_buffer = _LCD_BUF_1;
+static uint16_t* _back_buffer = _LCD_BUF_2;
+
+// Copy 2 pixels at once to speed up a little
+static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
+{
+  coord_t x1 = LCD_W - copy_area.w - copy_area.x;
+  coord_t y1 = LCD_H - copy_area.h - copy_area.y;
+
+  auto total = copy_area.w * copy_area.h;
+  uint16_t* px_src = src + total - 2;
+
+  dst += y1 * LCD_W + x1;
+  
+  for (auto line = 0; line < copy_area.h; line++) {
+
+    // invert line into _line_buffer first (SRAM)
+    auto px_dst = _line_buffer;
+
+    auto line_end = px_dst + (copy_area.w & ~1);
+    while (px_dst != line_end) {
+      uint32_t* px2_src = (uint32_t*)px_src;
+      uint32_t* px2_dst = (uint32_t*)px_dst;
+
+      uint32_t px = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
+      *px2_dst = px;
+
+      px_src -= 2;
+      px_dst += 2;
+    }
+
+    if (copy_area.w & 1) {
+      *px_dst = *(px_src+1);
+      px_src--;
+    }
+
+    // ... and DMA back into SDRAM
+    DMACopyBitmap(dst, copy_area.w, 1, 0, 0,
+                  _line_buffer, copy_area.w, 1, 0, 0,
+                  copy_area.w, 1);
+    
+    dst += LCD_W;
+  }
+}
+
+static void _rotate_area_180(lv_area_t& area)
+{
+  lv_coord_t tmp_coord;
+  tmp_coord = area.y2;
+  area.y2 = LCD_H - area.y1 - 1;
+  area.y1 = LCD_H - tmp_coord - 1;
+  tmp_coord = area.x2;
+  area.x2 = LCD_W - area.x1 - 1;
+  area.x1 = LCD_W - tmp_coord - 1;
+}
+#endif
+
+static volatile uint8_t _frame_addr_reloaded = 0;
+
+static void _update_frame_buffer_addr(uint16_t* addr)
+{
+  LTDC_Layer1->CFBAR = (uint32_t)addr;
+
+  // reload shadow registers on vertical blank
+  _frame_addr_reloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while(_frame_addr_reloaded == 0);
+}
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
-  (void)disp_drv;
+#if defined(LCD_VERTICAL_INVERT)
+  _copy_rotate_180(_back_buffer, buffer, copy_area);
 
-  next_frame_buffer = buffer;
-  next_frame_area = copy_area;
-  
-  // Enable line IRQ
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+  if (lv_disp_flush_is_last(disp_drv)) {
+
+    // swap back/front
+    if (_front_buffer == _LCD_BUF_1) {
+      _front_buffer = _LCD_BUF_2;
+      _back_buffer = _LCD_BUF_1;
+    } else {
+      _front_buffer = _LCD_BUF_1;
+      _back_buffer = _LCD_BUF_2;
+    }
+
+    // Trigger async refresh
+    _update_frame_buffer_addr(_front_buffer);
+
+    // Copy refreshed & rotated areas into new back buffer
+    uint16_t* src = _front_buffer;
+    uint16_t* dst = _back_buffer;
+
+    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
+    for(int i = 0; i < disp->inv_p; i++) {
+      if(disp->inv_area_joined[i]) continue;
+
+      lv_area_t refr_area;
+      lv_area_copy(&refr_area, &disp->inv_areas[i]);
+
+      TRACE("{%d,%d,%d,%d}", refr_area.x1,
+            refr_area.y1, refr_area.x2, refr_area.y2);
+
+      _rotate_area_180(refr_area);
+
+      auto area_w = refr_area.x2 - refr_area.x1 + 1;
+      auto area_h = refr_area.y2 - refr_area.y1 + 1;
+      
+      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    area_w, area_h);
+    }
+  }
+  lv_disp_flush_ready(disp_drv);
+#else
+  // Direct mode
+  _update_frame_buffer_addr(buffer);
+#endif
 }
 
 inline void LCD_NRST_LOW()
@@ -296,7 +409,7 @@ void LCD_LayerInit()
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)LCD_FRAME_BUFFER;
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)lcdFront->getData();
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
@@ -327,8 +440,11 @@ void LCD_Init(void)
 
 void lcdInit()
 {
+#if defined(LCD_VERTICAL_INVERT)
   // Clear buffer first
-  memset(LCD_FRAME_BUFFER, 0, sizeof(LCD_FRAME_BUFFER));
+  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
+  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
+#endif
 
   // Initialize the LCD
   LCD_Init();
@@ -504,15 +620,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
   LTDC->ICR = LTDC_ICR_CLIF;
-  LTDC_ITConfig(LTDC_IER_LIE, DISABLE);
-
-  // TODO: use modified version with "Transfer Complete" IRQ
-  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-                next_frame_area.x, next_frame_area.y, next_frame_buffer,
-                next_frame_area.w, next_frame_area.h, 0, 0,
-                next_frame_area.w, next_frame_area.h);
-
-  // TODO: call on "Transfer Complete" IRQ
-  lcdFlushed();
+  _frame_addr_reloaded = 1;
 }
 
