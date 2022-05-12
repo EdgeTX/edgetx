@@ -39,6 +39,6 @@ class YamlFormat : public StorageFormat
     virtual bool write(const RadioData & radioData);
 
   protected:
-    bool loadFile(QByteArray & fileData, const QString & fileName);
+    bool loadFile(QByteArray & fileData);
     bool writeFile(const QByteArray & fileData, const QString & fileName);
 };

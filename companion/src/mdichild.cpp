@@ -1346,6 +1346,11 @@ void MdiChild::newFile(bool createDefaults)
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 {
+  if (getStorageType(filename) == STORAGE_TYPE_YML) {
+    newFile(false);
+    resetCurrentFile = false;
+  }
+
   Storage storage(filename);
   if (!storage.load(radioData)) {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
@@ -1360,6 +1365,10 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
   if (resetCurrentFile) {
     setCurrentFile(filename);
   }
+
+  //  set after successful import
+  if (getStorageType(filename) == STORAGE_TYPE_YML)
+    setModified();
 
   //  For etx files this will never be true as any conversion occurs when parsing file
   if (!Boards::isBoardCompatible(storage.getBoard(), getCurrentBoard())) {

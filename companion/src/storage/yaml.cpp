@@ -19,13 +19,16 @@
  */
 
 #include "yaml.h"
+#include "edgetxinterface.h"
+#include "eeprominterface.h"
+#include "yaml_ops.h"
 
 #include <QFile>
 #include <QDir>
 
-bool YamlFormat::loadFile(QByteArray & filedata, const QString & filename)
+bool YamlFormat::loadFile(QByteArray & filedata)
 {
-  QString path = this->filename + "/" + filename;
+  QString path = filename;
   QFile file(path);
   if (!file.open(QFile::ReadOnly)) {
     setError(tr("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
@@ -53,14 +56,69 @@ bool YamlFormat::writeFile(const QByteArray & filedata, const QString & filename
 
 bool YamlFormat::load(RadioData & radioData)
 {
-  QByteArray radioSettingsBuffer;
-  if (!loadFile(radioSettingsBuffer, "RADIO/radio.yml")) {
-    setError(tr("Can't extract RADIO/radio.yml"));
+  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+  int modelIdx = 0;
+
+  QByteArray data;
+  if (!loadFile(data)) {
+    setError(tr("Cannot read %1").arg(filename));
     return false;
   }
 
-  qDebug() << "Warning: format ignored - under development";
-  return false; // force failure until fully developed
+  std::istringstream data_istream(data.toStdString());
+  YAML::Node node = YAML::Load(data_istream);
+
+  board = getCurrentBoard();
+
+  if (!node.IsMap()) {
+    setError(tr("File %1 is not a valid format").arg(filename));
+    return false;
+  }
+
+  if (node["header"].IsMap()) {
+    qDebug() << "File" << filename << "appears to contain model data";
+
+    if (hasCategories) {
+      CategoryData category(qPrintable(tr("New category")));
+      radioData.categories.push_back(category);
+    }
+
+    radioData.models.resize(1);
+
+    auto& model = radioData.models[modelIdx];
+
+    try {
+      if (!loadModelFromYaml(model, data)) {
+        setError(tr("Cannot load ") + filename);
+        return false;
+      }
+    } catch(const std::runtime_error& e) {
+      setError(tr("Cannot load ") + filename + ":\n" + QString(e.what()));
+      return false;
+    }
+
+    model.category = 0;
+    model.modelIndex = modelIdx;
+    strncpy(model.filename, qPrintable(filename), sizeof(model.filename) - 1);
+    model.used = true;
+
+    strncpy(radioData.generalSettings.currModelFilename, qPrintable(filename), sizeof(radioData.generalSettings.currModelFilename) - 1);
+    radioData.generalSettings.currModelIndex = modelIdx;
+    //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
+    //  so leave fixing incompatibilities to the user
+    radioData.generalSettings.variant = getCurrentBoard();
+
+    setWarning(tr("Please check all radio and model settings as no conversion could be performed."));
+    return true;
+  }
+  else if (node["board"].IsScalar()) {
+    setError(tr("File %1 appears to contain radio settings and importing is unsupported.").arg(filename));
+  }
+  else {
+    setError(tr("Unable to determine content type for file %1").arg(filename));
+  }
+
+  return false;
 }
 
 bool YamlFormat::write(const RadioData & radioData)
