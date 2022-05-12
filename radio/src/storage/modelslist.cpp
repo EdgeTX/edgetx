@@ -187,7 +187,6 @@ bool ModelCell::fetchRfData()
 
 ModelsCategory::ModelsCategory(const char * name)
 {
-  memset(this->name, 0, sizeof(this->name));
   strncpy(this->name, name, sizeof(this->name));
 }
 
@@ -195,8 +194,7 @@ ModelsCategory::ModelsCategory(const char * name, uint8_t len)
 {
   if (len > sizeof(this->name)-1)
       len = sizeof(this->name)-1;
-      
-  memset(this->name, 0, sizeof(this->name));
+
   memcpy(this->name, name, len);
   this->name[len] = '\0';
 }
