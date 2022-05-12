@@ -32,11 +32,14 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
   maxCurves = firmware->getCapability(NumCurves);
 
   QStringList headerLabels;
-  headerLabels << "#";
-
-  headerLabels << tr("Plot") << tr("Details") << tr("Note: to create a curve right click on the curve row label");
+  headerLabels << "#" << "" << tr("Note: to create a curve right click on the curve row label");
 
   TableLayout *tableLayout = new TableLayout(this, maxCurves, headerLabels);
+
+  QFontMetrics *f = new QFontMetrics(QFont());
+  QSize szpnts;
+  szpnts = f->size(Qt::TextSingleLine, QString(75, 'X'));
+  delete f;
 
   for (int i = 0; i < maxCurves; i++) {
     int col = 0;
@@ -81,8 +84,13 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     numpoints[i] = new QLabel();
     grid[i]->addWidget(numpoints[i], row, 1);
     points[i] = new QLabel();
-    points[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    points[i]->setWordWrap(true);
+    points[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    //  at at Qt 5.12
+    //  setWordWrap(true) does not work well in this instance due to the nested widgets and
+    //  the display results varying between OSes so as a compromise
+    //  stop widget expanding uncontrolled and consequentally expanding edit dialog potentially off screen
+    //  contents will be truncated if exceed maximum size
+    points[i]->setMaximumWidth(szpnts.width());
     grid[i]->addWidget(points[i], row++, 2, Qt::AlignLeft);
 
     grid[i]->addWidget(new QLabel(tr("Smooth:")), row, 0, Qt::AlignLeft);
