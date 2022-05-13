@@ -45,7 +45,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="profileTab">
       <attribute name="title">
@@ -887,40 +887,6 @@ Mode 4:
            </item>
           </layout>
          </item>
-         <item row="10" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QRadioButton" name="opt_newMdl_useWizard">
-             <property name="text">
-              <string>Use model wizard</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">btnGrp_newModelActions</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="opt_newMdl_useEditor">
-             <property name="text">
-              <string>Open model editor</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">btnGrp_newModelActions</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="opt_newMdl_useNone">
-             <property name="text">
-              <string>Just create the model</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">btnGrp_newModelActions</string>
-             </attribute>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item row="14" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
@@ -1189,6 +1155,9 @@ Mode 4:
             <string>Prompt for radio profile</string>
            </property>
           </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QComboBox" name="cboNewModelAction"/>
          </item>
         </layout>
        </item>
