@@ -18,11 +18,22 @@ function make_font() {
   local name=$1
   local ttf=$2
   local size=$3
+  local arg=$4
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${LATIN1} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
+               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+}
+
+function make_font_no_sym() {
+  local name=$1
+  local ttf=$2
+  local size=$3
+  local arg=$4
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${LATIN1} \
+               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
 
 # LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
@@ -32,24 +43,22 @@ function make_bootloader_font() {
   local name=$1
   local ttf=$2
   local size=$3
-  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+  lv_font_conv --no-prefilter --bpp 2 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII} \
                --font ${SYMBOLS_FONT} -r ${BL_SYMBOLS} \
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
 }
 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 9 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 13 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 14 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 15  
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 16 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 17 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 24 
-make_font "roboto" "Roboto/Roboto-Regular.ttf" 64 
-make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 16 
-make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 17 
-make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 16 
-make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 32 
-make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 64 
-make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16 
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 9 --no-compress
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 13 --no-compress
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 14 --no-compress
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 15 --no-compress
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 16 --no-compress
+make_font "roboto" "Roboto/Roboto-Regular.ttf" 17 --no-compress
+make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 16
+make_font "roboto_bold" "Roboto/Roboto-Bold.ttf" 17
+make_font_no_sym "roboto" "Roboto/Roboto-Regular.ttf" 24
+make_font_no_sym "roboto_bold" "Roboto/Roboto-Bold.ttf" 32
+make_font_no_sym "roboto_bold" "Roboto/Roboto-Bold.ttf" 64
+make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16
 
