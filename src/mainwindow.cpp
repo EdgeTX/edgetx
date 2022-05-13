@@ -33,7 +33,7 @@ TouchState touchState;
 MainWindow * MainWindow::_instance = nullptr;
 
 MainWindow::MainWindow() :
-    Window(nullptr, {0, 0, LCD_W, LCD_H}),
+  Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE),
     invalidatedRect(rect)
 {
   Layer::push(this);
@@ -101,7 +101,14 @@ void MainWindow::run(bool trash)
   // KLK: removed for now.  This is now
   // called from lvgl event processing when
   // necessary
-  checkEvents();
+  auto layer = Layer::stack.rbegin();
+  while (layer != Layer::stack.rend()) {
+    if (layer->main && (layer->main->getWindowFlags() & OPAQUE)) {
+      layer->main->checkEvents();
+      break;
+    }
+    ++layer;
+  }
 
   if (trash) {
     emptyTrash();
