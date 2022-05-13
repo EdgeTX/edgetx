@@ -903,8 +903,14 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
   setSelectedModel(modelIndex);
   //qDebug() << modelIndex << categoryIndex << isNewModel;
 
-  if (isNewModel && g.newModelAction() == AppData::MODEL_ACT_WIZARD)
-    openModelWizard(modelIndex);
+  if (isNewModel) {
+    if (g.newModelAction() == AppData::MODEL_ACT_WIZARD)
+      openModelWizard(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_TEMPLATE)
+      openModelTemplate(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_PROMPT)
+      openModelPrompt(modelIndex);
+  }
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
 
@@ -1696,4 +1702,49 @@ void MdiChild::onInternalModuleChanged()
   }
 
   delete fim;
+}
+
+void MdiChild::openModelTemplate(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Select a model template file"), QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES"), YML_FILES_FILTER);
+
+  if (fileName.isEmpty())
+    return;
+
+  //  validate like read single model
+  //  if okay copy into current model slot
+
+  openModelEditWindow(row);
+}
+
+void MdiChild::openModelPrompt(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QMessageBox msgBox;
+  msgBox.setWindowTitle(CPN_STR_APP_NAME);
+  msgBox.setIcon(QMessageBox::Question);
+  msgBox.setText(tr("Add a new model using"));
+  QPushButton *createButton = msgBox.addButton(tr("Defaults"), QMessageBox::ActionRole);
+  QPushButton *wizardButton = msgBox.addButton(tr("Wizard"),QMessageBox::ActionRole);
+  QPushButton *templateButton = msgBox.addButton(tr("Template"),QMessageBox::ActionRole);
+  QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+
+  msgBox.exec();
+
+  if (msgBox.clickedButton() == createButton || msgBox.clickedButton() == cancelButton) {
+      return;
+  }
+  else if (msgBox.clickedButton() == wizardButton) {
+      openModelWizard(row);
+  }
+  else if (msgBox.clickedButton() == templateButton) {
+      openModelTemplate(row);
+  }
+
+  return;
 }
