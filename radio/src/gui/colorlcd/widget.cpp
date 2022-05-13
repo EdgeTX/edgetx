@@ -130,6 +130,7 @@ void Widget::setFullscreen(bool enable)
     // Reset all zones in container
     Widget::update();
     setWindowFlags(getWindowFlags() & ~OPAQUE);
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
     // and give up focus
     ViewMain::instance()->enableTopbar();
@@ -141,6 +142,7 @@ void Widget::setFullscreen(bool enable)
 
     // Set window opaque (inhibits redraw from windows bellow)
     setWindowFlags(getWindowFlags() | OPAQUE);
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
     setRect(parent->getRect());
     fullscreen = true;
     ViewMain::instance()->disableTopbar();
