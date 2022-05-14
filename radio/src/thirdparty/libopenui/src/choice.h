@@ -40,7 +40,7 @@ class ChoiceBase : public FormField
     }
 
   protected:
-    friend void choicePaintCallback(lv_event_t *e);
+    friend void choice_changed_cb(lv_event_t *e);
     ChoiceType type;
     lv_obj_t *label;
     virtual std::string getLabelText() { return ""; };
@@ -149,6 +149,7 @@ class Choice: public ChoiceBase {
     void setTextHandler(std::function<std::string(int)> handler)
     {
       textHandler = std::move(handler);
+      lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
     }
 
     void setMenuTitle(std::string value)

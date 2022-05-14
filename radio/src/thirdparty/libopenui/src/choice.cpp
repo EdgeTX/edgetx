@@ -21,11 +21,11 @@
 #include "menu.h"
 #include "theme.h"
 
-void choicePaintCallback(lv_event_t *e)
+void choice_changed_cb(lv_event_t *e)
 {
   auto code = lv_event_get_code(e);
 
-  if (code == LV_EVENT_DRAW_MAIN_BEGIN) {
+  if (code == LV_EVENT_VALUE_CHANGED) {
     lv_obj_t *target = lv_event_get_target(e);
     if (target != nullptr) {
       ChoiceBase *cb = (ChoiceBase*)lv_obj_get_user_data(target);
@@ -46,7 +46,7 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
 
-  lv_obj_add_event_cb(lvobj, choicePaintCallback, LV_EVENT_DRAW_MAIN_BEGIN, lvobj);
+  lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
  
   lv_group_t * def_group = lv_group_get_default();
@@ -99,6 +99,7 @@ Choice::Choice(Window* parent, const rect_t & rect, int vmin, int vmax,
   getValue(std::move(getValue)),
   setValue(std::move(setValue))
 {
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
@@ -111,6 +112,7 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
     setValue(std::move(setValue))
 {
   setValues(values);
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 Choice::Choice(Window* parent, const rect_t& rect,
@@ -124,6 +126,7 @@ Choice::Choice(Window* parent, const rect_t& rect,
     getValue(std::move(getValue)),
     setValue(std::move(setValue))
 {
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
@@ -144,6 +147,7 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
       value += len;
     }
   }
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 void Choice::addValue(const char * value)
