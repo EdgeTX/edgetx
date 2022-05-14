@@ -1741,6 +1741,14 @@ void MdiChild::openModelTemplate(int row)
 
   radioData.models[row] = data.models[0];
 
+  //  reset module bindings
+  for (int i = 0; i < CPN_MAX_MODULES; i++) {
+    radioData.models[row].moduleData[i].modelId = row + 1;
+  }
+
+  setModified();
+  setSelectedModel(row);
+
   openModelEditWindow(row);
 }
 
