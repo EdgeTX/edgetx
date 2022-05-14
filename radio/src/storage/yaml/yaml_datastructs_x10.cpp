@@ -488,7 +488,7 @@ static const struct YamlNode struct_TimerData[] = {
     YAML_UNSIGNED("persistent", 2),
     YAML_SIGNED("countdownStart", 2),
     YAML_UNSIGNED("showElapsed", 1),
-    YAML_UNSIGNED("spare", 7),
+    YAML_PADDING( 7 ),
     YAML_STRING("name", 8),
     YAML_END};
 static const struct YamlNode struct_CurveRef[] = {
@@ -861,7 +861,7 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
@@ -913,7 +913,7 @@ static const struct YamlNode struct_ModelData[] = {
 };
 static const struct YamlNode struct_PartialModel[] = {
   YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_END
 };
 
