@@ -25,44 +25,88 @@
 
 static void menu_clicked(lv_event_t *e)
 {
-  auto code = lv_event_get_code(e);
-  if (code == LV_EVENT_CLICKED) {
+  lv_obj_t* target = lv_event_get_target(e);
+  if (!target) return;
 
-    lv_obj_t* target = lv_event_get_target(e);
-    if (!target) return;
-
-    lv_obj_t* parent = lv_obj_get_parent(target);
-    if (!parent) return;
+  uint16_t row;
+  uint16_t col;
+  lv_table_get_selected_cell(target, &row, &col);
     
-    MenuBody* mb = (MenuBody*)lv_obj_get_user_data(parent);
-    if (!mb) return;
+  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(target);
+  if (!mb) return;
 
-    size_t idx = (size_t)lv_event_get_user_data(e);
-    mb->onPress(idx);
-  }
+  mb->onPress(row);
 }
 
-static void add_list_button(lv_obj_t* list, const char* icon, const char* txt, size_t idx)
+void menu_draw_begin(lv_event_t* e)
 {
-  lv_obj_t* btn = lv_list_add_btn(list, icon, txt);
-  lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
+  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->part != LV_PART_ITEMS) return;
 
-  void* user_data = (void *)idx;
-  lv_obj_add_event_cb(btn, menu_clicked, LV_EVENT_CLICKED, user_data);
+  lv_obj_t* table = lv_event_get_target(e);
+  if (!table) return;
+
+  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(table);
+  if (!mb) return;
+
+  uint16_t row = dsc->id;
+  lv_canvas_t* icon = (lv_canvas_t*)mb->lines[row].getIcon();
+  if (!icon) return;
+
+  lv_img_t* img = &icon->img;
+  lv_coord_t cell_left = lv_obj_get_style_pad_left(table, LV_PART_ITEMS);
+  dsc->label_dsc->ofs_x = img->w + cell_left;
 }
 
+void menu_draw_end(lv_event_t* e)
+{
+  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->part != LV_PART_ITEMS) return;
+
+  lv_obj_t* table = lv_event_get_target(e);
+  if (!table) return;
+
+  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(table);
+  if (!mb) return;
+
+  uint16_t row = dsc->id;
+  lv_obj_t* icon = mb->lines[row].getIcon();
+  if (!icon) return;
+
+  lv_draw_img_dsc_t img_dsc;
+  lv_draw_img_dsc_init(&img_dsc);
+  
+  lv_img_dsc_t* img = lv_canvas_get_img(icon);
+  lv_area_t coords;
+
+  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+
+  lv_coord_t cell_left = lv_obj_get_style_pad_left(table, LV_PART_ITEMS);
+  coords.x1 = dsc->draw_area->x1 + cell_left;
+  coords.x2 = coords.x1 + img->header.w - 1;
+  coords.y1 = dsc->draw_area->y1 + (area_h - img->header.h) / 2;
+  coords.y2 = coords.y1 + img->header.h - 1;
+  
+  lv_draw_img(dsc->draw_ctx, &img_dsc, &coords, img);
+}
 
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
-  Window(parent, rect, OPAQUE, 0, lv_list_create)
+  Window(parent, rect, OPAQUE, 0, lv_table_create)
 {
-  setFocus();
+  lv_table_set_col_cnt(lvobj, 1);
+  lv_table_set_col_width(lvobj, 0, rect.w);
+  lv_obj_add_event_cb(lvobj, menu_clicked, LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_obj_add_event_cb(lvobj, menu_draw_begin, LV_EVENT_DRAW_PART_BEGIN, nullptr);
+  lv_obj_add_event_cb(lvobj, menu_draw_end, LV_EVENT_DRAW_PART_END, nullptr);
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
                        std::function<bool()> isChecked)
 {
   lines.emplace_back(std::move(onPress), std::move(isChecked), nullptr);
-  add_list_button(lvobj, nullptr, text.c_str(), lines.size() - 1);
+
+  auto idx = lines.size() - 1;
+  lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
 }
 
 void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
@@ -77,8 +121,8 @@ void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
   void* buf = (void*)(icon_mask + 4);
   lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
 
-  const char* icon = (const char *)lv_canvas_get_img(canvas);
-  add_list_button(lvobj, icon, text.c_str(), lines.size() - 1);
+  auto idx = lines.size() - 1;
+  lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
 }
 
 void MenuBody::removeLines()
@@ -89,14 +133,7 @@ void MenuBody::removeLines()
 
 coord_t MenuBody::getContentHeight()
 {
-  coord_t h = 0;
-  lv_obj_update_layout(lvobj);
-  for(uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
-    auto child = lv_obj_get_child(lvobj, i);
-    h += lv_obj_get_height(child);
-  }
-
-  return h;
+  return lv_obj_get_self_height(lvobj);
 }
 
 void MenuBody::onPress(size_t index)
@@ -131,21 +168,33 @@ int MenuBody::rangeCheck(int index)
 void MenuBody::setIndex(int index)
 {
   if (index < (int)lines.size()) {
-    lv_obj_t *btn = lv_obj_get_child(lvobj, selectedIndex);
-    if (btn != nullptr) {
-      lv_obj_clear_state(btn, LV_STATE_CHECKED);
-      lv_obj_clear_state(btn, LV_STATE_FOCUS_KEY);
-    }
-
+    if (index == selectedIndex) return;
     selectedIndex = index;
 
-    btn = lv_obj_get_child(lvobj, selectedIndex);
-    if (btn != nullptr) {
-      lv_obj_add_state(btn, LV_STATE_CHECKED);
-      lv_obj_add_state(btn, LV_STATE_FOCUS_KEY);
-      lv_obj_scroll_to_view(btn, LV_ANIM_OFF);
-      lv_group_focus_obj(btn);
+    lv_obj_invalidate(lvobj);
+    lv_table_t* table = (lv_table_t*)lvobj;
+    
+    table->row_act = index;
+    table->col_act = 0;
+
+    lv_coord_t h_before = 0;
+    for (uint16_t i = 0; i < table->row_act; i++)
+      h_before += table->row_h[i];
+
+    lv_coord_t row_h = table->row_h[table->row_act];    
+    lv_coord_t scroll_y = lv_obj_get_scroll_y(lvobj);
+    lv_coord_t h = lv_obj_get_height(lvobj);
+
+    lv_coord_t diff_y = 0;
+    if (h_before < scroll_y) {
+      diff_y = scroll_y - h_before;
+    } else if (scroll_y + h < h_before + row_h) {
+      diff_y = scroll_y + h - h_before - row_h;
+    } else {
+      return;
     }
+
+    lv_obj_scroll_by_bounded(lvobj, 0, diff_y, LV_ANIM_OFF);
   }
 }
 
@@ -268,13 +317,12 @@ void Menu::updatePosition()
   if (!toolbar) {
     // there is no navigation bar at the left, we may center the window on screen
     auto headerHeight = content->getHeaderHeight();
-    auto bodyHeight = min<coord_t>(height, MENUS_MAX_HEIGHT);
+    auto bodyHeight = min<coord_t>(height, MENUS_MAX_HEIGHT - headerHeight);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2);
     content->setHeight(headerHeight + bodyHeight);
     content->body.setTop(headerHeight);
-    content->body.setHeight(bodyHeight);
+    content->body.setHeight(bodyHeight);    
   }
-
 }
 
 void Menu::setTitle(std::string text)

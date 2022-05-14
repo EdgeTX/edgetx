@@ -61,6 +61,8 @@ class MenuBody: public Window
     MenuLine(MenuLine &) = delete;
     MenuLine(MenuLine &&) = default;
 
+    lv_obj_t* getIcon() { return icon.get(); }
+    
    protected:
     bool isSeparator = false;
     std::function<void()> onPress;
@@ -123,7 +125,9 @@ class MenuBody: public Window
     void onPress(size_t index);
   
   protected:
-    friend void menuBodyEventCallback(lv_event_t *);
+    friend void menu_draw_begin(lv_event_t *);
+    friend void menu_draw_end(lv_event_t *);
+
     void selectNext(MENU_DIRECTION direction);
     int rangeCheck(int);
     void setIndex(int index);
