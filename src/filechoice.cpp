@@ -46,6 +46,7 @@ FileChoice::FileChoice(Window* parent, const rect_t &rect,
     setValue(std::move(setValue)),
     stripExtension(stripExtension)
 {
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 std::string FileChoice::getLabelText()
@@ -100,7 +101,10 @@ bool FileChoice::openMenu()
       int current = -1;
       std::string value = getValue();
       for (const auto &file : files) {
-        menu->addLine(file, [=]() { setValue(file); });
+        menu->addLine(file, [=]() {
+            setValue(file);
+            lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+        });
         // TRACE("%s %d %s %d", value.c_str(), value.size(), file.c_str(),
         // file.size());
         if (value.compare(file) == 0) {
