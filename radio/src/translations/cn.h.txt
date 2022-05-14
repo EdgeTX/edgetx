@@ -340,6 +340,9 @@
 #define LEN_SUBTRIMMODES               "\010"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)\0 " "=(整体)\0"
 
+#define LEN_TIMER_DIR                  "\012"
+#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+
 // ZERO TERMINATED STRINGS
 
 #define INDENT
