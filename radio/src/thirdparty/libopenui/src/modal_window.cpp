@@ -64,8 +64,15 @@ void ModalWindowContent::setTitle(const std::string& text)
     lv_obj_move_to_index(title, 0);
     lv_obj_set_width(title, lv_pct(100));
     lv_obj_set_style_pad_all(title, PAGE_PADDING, LV_PART_MAIN);
-    // TODO: styling
-    // lv_obj_set_style_pad_left(title, FIELD_PADDING_LEFT, 0);
+
+    lv_color_t bg_color = makeLvColor(COLOR_THEME_SECONDARY1);
+    lv_obj_set_style_bg_color(title, bg_color, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(title, LV_OPA_100, LV_PART_MAIN);
+    
+    lv_color_t txt_color = makeLvColor(COLOR_THEME_PRIMARY2);
+    lv_obj_set_style_text_color(title, txt_color, LV_PART_MAIN);
+    
+    lv_obj_update_layout(lvobj);
   }
   lv_label_set_text(title, text.c_str());
 }
