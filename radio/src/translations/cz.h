@@ -267,6 +267,9 @@
 #define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","Nejvíce","Delta"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(pouze středy)","= (symetrický)"
 
+#define LEN_TIMER_DIR                  "\012"
+#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
   #define INDENT                       "\007"

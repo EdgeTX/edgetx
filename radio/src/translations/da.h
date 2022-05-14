@@ -253,6 +253,9 @@
 #define TR_TEXT_SIZE                   "Standard","Tynd","Lille","Medium","Dobbelt"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center kun)","= (symmetrisk)"
 
+#define LEN_TIMER_DIR                  "\012"
+#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+
 #if defined(COLORLCD)
   #define INDENT
   #define LEN_INDENT                   3

@@ -270,6 +270,9 @@
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 
+#define LEN_TIMER_DIR                  "\012"
+#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
   #define INDENT

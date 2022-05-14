@@ -272,6 +272,9 @@
 #define TR_GYROS                        "GyrX","GyrY"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (center only)","= (symetrical)"
 
+#define LEN_TIMER_DIR                  "\012"
+#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
   #define INDENT
