@@ -1709,13 +1709,28 @@ void MdiChild::openModelTemplate(int row)
   if (row < 0 && (row = getCurrentModel()) < 0)
     return;
 
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Select a model template file"), QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES"), YML_FILES_FILTER);
+  QString filename = QFileDialog::getOpenFileName(this, tr("Select a model template file"), QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES"), YML_FILES_FILTER);
 
-  if (fileName.isEmpty())
+  if (filename.isEmpty())
     return;
 
   //  validate like read single model
   //  if okay copy into current model slot
+
+  RadioData data;
+
+  Storage storage(filename);
+  if (!storage.load(data)) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+    return;
+  }
+
+  QString warning = storage.warning();
+  if (!warning.isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
+  }
+
+  radioData.models[row] = data.models[0];
 
   openModelEditWindow(row);
 }
