@@ -478,18 +478,19 @@ static const struct YamlNode struct_ModelHeader[] = {
   YAML_END
 };
 static const struct YamlNode struct_TimerData[] = {
-  YAML_IDX,
-  YAML_UNSIGNED( "start", 22 ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_SIGNED( "value", 22 ),
-  YAML_ENUM("mode", 3, enum_TimerModes),
-  YAML_UNSIGNED( "countdownBeep", 2 ),
-  YAML_UNSIGNED( "minuteBeep", 1 ),
-  YAML_UNSIGNED( "persistent", 2 ),
-  YAML_SIGNED( "countdownStart", 2 ),
-  YAML_STRING("name", 8),
-  YAML_END
-};
+    YAML_IDX,
+    YAML_UNSIGNED("start", 22),
+    YAML_SIGNED_CUST("swtch", 10, r_swtchSrc, w_swtchSrc),
+    YAML_SIGNED("value", 22),
+    YAML_ENUM("mode", 3, enum_TimerModes),
+    YAML_UNSIGNED("countdownBeep", 2),
+    YAML_UNSIGNED("minuteBeep", 1),
+    YAML_UNSIGNED("persistent", 2),
+    YAML_SIGNED("countdownStart", 2),
+    YAML_UNSIGNED("showElapsed", 1),
+    YAML_UNSIGNED("spare", 7),
+    YAML_STRING("name", 8),
+    YAML_END};
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 8 ),
   YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),

@@ -73,8 +73,8 @@ class TimerWidget : public Widget
       dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
 
 //////////////////  TO BE REMOVED /////
-      timerData.announceEllapsed = 1;
-///////////////////////////////////////      
+      timerData.showElapsed = 1;
+      ///////////////////////////////////////      
       if (timerData.start && timerState.val >= 0)
       {
         dc->drawBitmapPatternPie(
@@ -86,9 +86,8 @@ class TimerWidget : public Widget
       else { dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore); }
       // value
       int val = timerState.val;
-      TRACE("1_0 Timer=%d\tannounceEllapsed=%d", val,
-            timerData.announceEllapsed);
-      if (timerData.start && timerData.announceEllapsed && 
+      TRACE("1_0 Timer=%d\tannounceEllapsed=%d", val, timerData.showElapsed);
+      if (timerData.start && timerData.showElapsed &&
           timerData.start != timerState.val)
         val = (int)timerData.start - (int) timerState.val;
       TRACE("1_1 Timer=%d", val);
@@ -128,7 +127,7 @@ class TimerWidget : public Widget
       // value
       int val = timerState.val;
       TRACE("2_0 Timer=%d", val);
-      if (timerData.start && timerData.announceEllapsed &&
+      if (timerData.start && timerData.showElapsed &&
           timerData.start != timerState.val)
         val = (int)timerData.start - (int) timerState.val;
       TRACE("2_1 Timer=%d", val);
@@ -150,7 +149,7 @@ class TimerWidget : public Widget
           // value
           int val = timerState.val;
           TRACE("3_0 Timer=%d", val);
-          if (timerData.start && timerData.announceEllapsed &&
+          if (timerData.start && timerData.showElapsed &&
               timerData.start != timerState.val)
             val = (int)timerData.start - (int) timerState.val;
           TRACE("3_1 Timer=%d", val);

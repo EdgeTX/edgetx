@@ -236,8 +236,11 @@ PACK(struct TimerData {
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
-  int32_t  countdownStart:1;  // 2
-  uint32_t  announceEllapsed:1; // TO BE moved into uin8_t :1 field
+  int32_t  countdownStart:2;
+#if defined(COLORLCD)
+  uint8_t  showElapsed:1; 
+  uint8_t  spare:7;
+#endif
   NOBACKUP(char name[LEN_TIMER_NAME]);
 });
 
