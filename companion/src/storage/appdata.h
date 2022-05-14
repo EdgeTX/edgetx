@@ -457,7 +457,7 @@ class AppData: public CompStoreObj
     };
     Q_ENUM(NewModelAction)
 
-    static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Edit"), tr("Template"), tr("Prompt") } ; }
+    static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Editor"), tr("Template"), tr("Prompt") } ; }
 
     explicit AppData();
     void init() override;

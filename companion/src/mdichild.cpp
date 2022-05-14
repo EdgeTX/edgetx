@@ -1729,14 +1729,13 @@ void MdiChild::openModelPrompt(int row)
   msgBox.setWindowTitle(CPN_STR_APP_NAME);
   msgBox.setIcon(QMessageBox::Question);
   msgBox.setText(tr("Add a new model using"));
-  QPushButton *createButton = msgBox.addButton(tr("Defaults"), QMessageBox::ActionRole);
   QPushButton *wizardButton = msgBox.addButton(tr("Wizard"),QMessageBox::ActionRole);
   QPushButton *templateButton = msgBox.addButton(tr("Template"),QMessageBox::ActionRole);
   QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
 
   msgBox.exec();
 
-  if (msgBox.clickedButton() == createButton || msgBox.clickedButton() == cancelButton) {
+  if (msgBox.clickedButton() == cancelButton) {
       return;
   }
   else if (msgBox.clickedButton() == wizardButton) {
