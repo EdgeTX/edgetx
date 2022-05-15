@@ -59,6 +59,7 @@ class MdiChild : public QWidget
       ACT_MDL_DUP,
       ACT_MDL_INS,
       ACT_MDL_MOV,
+      ACT_MDL_SAV,
       ACT_MDL_RTR,  // ResToRe backup
       ACT_MDL_WIZ,
       ACT_MDL_DFT,  // set as DeFaulT
@@ -132,6 +133,7 @@ class MdiChild : public QWidget
     void categoryAdd();
     void modelAdd();
     void modelEdit();
+    void modelSave();
     void wizardEdit();
     void modelDuplicate();
     void onModelMoveToCategory();
@@ -175,6 +177,9 @@ class MdiChild : public QWidget
     void moveModelsToCategory(const QVector<int> models, const int toCategoryId);
     void moveSelectedModelsToCat(const int toCategoryId);
     unsigned countUsedModels(const int categoryId = -1);
+    unsigned saveModels(const QVector<int> modelIndices);
+    bool saveModel(const int modelIndex);
+    void saveSelectedModels();
 
     void clearCutList();
     void removeModelFromCutList(const int modelIndex);

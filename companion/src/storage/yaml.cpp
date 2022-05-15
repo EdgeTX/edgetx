@@ -40,9 +40,9 @@ bool YamlFormat::loadFile(QByteArray & filedata)
   return true;
 }
 
-bool YamlFormat::writeFile(const QByteArray & filedata, const QString & filename)
+bool YamlFormat::writeFile(const QByteArray & filedata)
 {
-  QString path = this->filename + "/" + filename;
+  QString path = filename;
   QFile file(path);
   if (!file.open(QFile::WriteOnly)) {
     setError(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
@@ -121,21 +121,16 @@ bool YamlFormat::load(RadioData & radioData)
   return false;
 }
 
-bool YamlFormat::write(const RadioData & radioData)
+bool YamlFormat::writeModel(const RadioData & radioData, const int modelIndex)
 {
-  /*  Need this test in case of a new sdcard
-  Board::Type board = getCurrentBoard();
-  if (!HAS_EEPROM_YAML(board)) {
-    qDebug() << "Board does not support YAML format";
+  if (modelIndex < 0 || modelIndex >= (int)radioData.models.size() || radioData.models[modelIndex].isEmpty())
     return false;
-  }
 
-  // ensure directories exist on sd card
-  QDir dir(filename);
-  dir.mkdir("RADIO");
-  dir.mkdir("MODELS");
-  */
+  QByteArray modelData;
+  writeModelToYaml(radioData.models[modelIndex], modelData);
 
-  qDebug() << "Warning: format ignored - under development";
-  return false; // force failure until fully developed
+  if (!writeFile(modelData))
+    return false;
+
+  return true;
 }

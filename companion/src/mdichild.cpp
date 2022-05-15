@@ -231,6 +231,7 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
   addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
   addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
+  addAct(ACT_MDL_SAV, "save.png",  SLOT(modelSave()),     tr("Ctrl+Alt+S"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
@@ -338,6 +339,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_PST]->setText(tr("Paste") % (numOnClipbrd ? sp % modelsAddTxt : ns));
   action[ACT_MDL_INS]->setEnabled(numOnClipbrd && (hasModelSlotSelcted || catsSelected));
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
+  action[ACT_MDL_SAV]->setEnabled(modelsSelected);
+  action[ACT_MDL_SAV]->setText(tr("Save") % (modelsSelected ? sp % modelsRemvTxt : ns));
 
   if (hasCats && action[ACT_MDL_MOV]->menu()) {
     action[ACT_MDL_MOV]->setVisible(true);
@@ -386,6 +389,8 @@ void MdiChild::retranslateUi()
 
   action[ACT_MDL_ADD]->setText(tr("Add Model"));
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
+  action[ACT_MDL_SAV]->setText(tr("Save Model"));
+  action[ACT_MDL_SAV]->setIconText(tr("Save"));
   action[ACT_MDL_RTR]->setText(tr("Restore from Backup"));
   action[ACT_MDL_WIZ]->setText(tr("Model Wizard"));
   action[ACT_MDL_DFT]->setText(tr("Set as Default"));
@@ -429,6 +434,7 @@ QList<QAction *> MdiChild::getEditActions(bool incCatNew)
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
   actGrp.append(getAction(ACT_MDL_MOV));
+  actGrp.append(getAction(ACT_MDL_SAV));
   return actGrp;
 }
 
@@ -1813,4 +1819,56 @@ void MdiChild::openModelPrompt(int row)
   }
 
   return;
+}
+
+void MdiChild::modelSave()
+{
+  saveSelectedModels();
+}
+
+unsigned MdiChild::saveModels(const QVector<int> modelIndices)
+{
+  unsigned saves = 0;
+
+  foreach(const int idx, modelIndices) {
+    if (idx < 0 || idx >= (int)radioData.models.size())
+      continue;
+
+    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
+    qDebug() << path;
+
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save model"), path, YML_FILES_FILTER);
+
+    if (filename.isEmpty())
+      return false;
+
+    if (QFileInfo(filename).suffix() != "yml")
+      return false;
+
+    Storage storage(filename);
+
+    if (!storage.writeModel(radioData, idx)) {
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+      return false;
+    }
+
+    ++saves;
+  }
+
+  return saves;
+}
+
+bool MdiChild::saveModel(const int modelIndex)
+{
+  QVector<int> list = QVector<int>() << modelIndex;
+
+  if (saveModels(list) == 1)
+    return true;
+  else
+    return false;
+}
+
+void MdiChild::saveSelectedModels()
+{
+  saveModels(getSelectedModels());
 }
