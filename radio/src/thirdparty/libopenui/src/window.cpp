@@ -134,10 +134,19 @@ static void window_event_cb(lv_event_t * e)
 
   } else if (code == LV_EVENT_FOCUSED) {
     if (inhibit_focus) return;
+
     bool focused = ((Window *)target->user_data)->hasFocus();
     TRACE_WINDOWS("FOCUSED[%d] %s", focused,
                  window->getWindowDebugString().c_str());
-    if (!focused) { window->setFocus(); }
+
+    if (!focused) {
+      SetFocusFlag flag = SET_FOCUS_DEFAULT;
+      lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+      if(indev_type == LV_INDEV_TYPE_POINTER) {
+        flag = SET_FOCUS_NO_SCROLL;
+      }
+      window->setFocus(flag);
+    }
   }
 }
 
@@ -383,7 +392,9 @@ void Window::setFocus(uint8_t flag, Window * from)
 
     // scroll before calling focusHandler so that the window can adjust the
     // scroll position if needed
-    lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
+    if (flag != SET_FOCUS_NO_SCROLL) {
+      lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
+    }
 
     clearFocus();
     focusWindow = this;

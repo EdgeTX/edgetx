@@ -53,10 +53,11 @@ constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 
 enum SetFocusFlag
 {
-  SET_FOCUS_DEFAULT,
-  SET_FOCUS_FORWARD,
-  SET_FOCUS_BACKWARD,
-  SET_FOCUS_FIRST
+  SET_FOCUS_DEFAULT  = 0,
+  SET_FOCUS_FORWARD  = 1,
+  SET_FOCUS_BACKWARD = 2,
+  SET_FOCUS_FIRST    = 3,
+  SET_FOCUS_NO_SCROLL= 4
 };
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
