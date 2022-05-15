@@ -46,7 +46,7 @@ if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
+: "${SRCDIR:=$(dirname "$(pwd)/$0")/..}"
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
 if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
@@ -66,13 +66,13 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-: ${BUILD_TYPE:=Release}
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}
-: ${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}
+: "${BUILD_TYPE:=Release}"
+: "${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}"
+: "${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}"
 
 COMMON_OPTIONS+=${EXTRA_OPTIONS}
 
-: ${FIRMARE_TARGET:="firmware-size"}
+: "${FIRMARE_TARGET:="firmware-size"}"
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build

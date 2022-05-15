@@ -1,4 +1,4 @@
-name: Windows Companion
+name: Windows Companion 64-bit
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
     tags:
       - v*
     paths:
-      - '.github/workflows/win_cpn.yml'
+      - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   pull_request:
     branches:
@@ -19,9 +19,9 @@ on:
       - '2.7'
       - 'main'
     paths:
-      - '.github/workflows/win_cpn.yml'
+      - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   workflow_dispatch:
 
@@ -94,11 +94,11 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          tools/build-companion-nightly.sh "$(pwd)" "$(pwd)/output/"
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-        run: echo "artifact_name=edgetx-cpn-win-64-${GITHUB_REF##*/}" >> $GITHUB_ENV
+        run: echo "artifact_name=edgetx-cpn-win64-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2

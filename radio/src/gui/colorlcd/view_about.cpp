@@ -28,8 +28,12 @@ const uint8_t mask_qrcode[] = {
 };
 
 constexpr coord_t ABOUT_WIDTH = 220;
-const std::string about_str = "EdgeTX" " " CODENAME " (" VERSION ")";
-const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
+#if defined(VERSION_TAG)
+const std::string about_str = "EdgeTX" " " "\"" CODENAME "\" (" VERSION_TAG ")";
+#else
+const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
+#endif
+const std::string copyright_str = "Copyright (C) 2022 EdgeTX";
 
 AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")

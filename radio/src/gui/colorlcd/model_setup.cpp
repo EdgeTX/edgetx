@@ -1251,7 +1251,7 @@ class ModuleWindow : public FormGroup {
 #endif
 
       // R9M Power
-      if (isModuleR9M_FCC(moduleIdx)) {
+      if (isModuleR9M_FCC_VARIANT(moduleIdx)) {
         new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
         new Choice(this, grid.getFieldSlot(), STR_R9M_FCC_POWER_VALUES, 0, R9M_FCC_POWER_MAX,
                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].pxx.power));

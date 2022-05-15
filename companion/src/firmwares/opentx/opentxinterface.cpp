@@ -1197,7 +1197,7 @@ QString OpenTxFirmware::getFirmwareUrl()
 
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
-  return QString("%1/downloads").arg(OPENTX_HOME_PAGE_URL);
+  return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
 }
 
 QString OpenTxFirmware::getStampUrl()
