@@ -251,6 +251,9 @@
 #define TR_TEXT_SIZE                   "標準","小","較小","中等","雙倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)","=(整體)"
 
+#define LEN_TIMER_DIR                  "\007"
+#define TR_TIMER_DIR                   "Remain\0""Elapsed"
+
 #if defined(COLORLCD)
 #define INDENT
   #define LEN_INDENT                   3
@@ -1254,6 +1257,7 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+#define TR_SHOW                       INDENT "Show"
 
 #define TR_USE_THEME_COLOR            "使用主題顏色"
 

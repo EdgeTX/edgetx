@@ -253,8 +253,8 @@
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 
-#define LEN_TIMER_DIR                  "\012"
-#define TR_TIMER_DIR                   "Show Elapsed""Show Remain\0"
+#define LEN_TIMER_DIR                  "\007"
+#define TR_TIMER_DIR                   "Remain\0""Elapsed"
 
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
@@ -1263,7 +1263,7 @@
 #define STR_LOSS                       "Loss"
 #define STR_SPEED                      "Spd "
 #define STR_FLOW                       "Flow"
-
+#define TR_SHOW                        INDENT "Show"
 // The following content is Untranslated)
 
 #define TR_USE_THEME_COLOR             "Use theme color"

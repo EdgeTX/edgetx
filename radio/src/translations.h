@@ -675,6 +675,8 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+extern const char STR_TIMER_DIR[];
+extern const char STR_SHOW[];
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];
@@ -695,7 +697,6 @@ extern const char STR_MAIN_VIEW_X[];
 extern const char STR_PANEL1_BACKGROUND[];
 extern const char STR_PANEL2_BACKGROUND[];
 extern const char STR_MODULES_RX_VERSION[];
-extern const char STR_TIMER_DIR[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];

@@ -237,10 +237,8 @@ PACK(struct TimerData {
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-#if defined(COLORLCD)
   uint8_t  showElapsed:1; 
   uint8_t  spare:7 SKIP;
-#endif
   NOBACKUP(char name[LEN_TIMER_NAME]);
 });
 
