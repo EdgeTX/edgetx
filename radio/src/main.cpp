@@ -484,6 +484,10 @@ void guiMain(event_t evt)
 }
 #endif
 
+#if !defined(SIMU)
+  void initLoggingTimer();
+#endif
+
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
@@ -493,7 +497,12 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkEeprom();
-    logsWrite();
+    
+    #if !defined(SIMU)     // use FreeRTOS software timer if radio firmware
+      initLoggingTimer();  // initialize software timer for logging
+    #else
+      logsWrite();         // call logsWrite the old way for simu
+    #endif
   }
 
   handleUsbConnection();

@@ -110,7 +110,7 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
 
-extern uint8_t logDelay;
+extern uint8_t logDelay100ms;
 void logsInit();
 void logsClose();
 void logsWrite();

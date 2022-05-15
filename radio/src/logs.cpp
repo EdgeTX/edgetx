@@ -27,8 +27,71 @@
 #endif
 
 FIL g_oLogFile __DMA;
-const char * g_logError = nullptr;
-uint8_t logDelay;
+uint8_t logDelay100ms;
+static tmr10ms_t lastLogTime = 0;
+
+#if !defined(SIMU)
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
+
+static TimerHandle_t loggingTimer = nullptr;
+static StaticTimer_t loggingTimerBuffer;
+
+static void loggingTimerCb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  if (!s_pulses_paused) {
+    DEBUG_TIMER_START(debugTimerLoggingWakeup);
+    logsWrite();
+    DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
+  }
+}
+
+void loggingTimerStart()
+{
+  if (!loggingTimer) {
+    loggingTimer =
+        xTimerCreateStatic("Logging", logDelay100ms*100 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           loggingTimerCb, &loggingTimerBuffer);
+  }
+
+  if (loggingTimer) {
+    if( xTimerStart( loggingTimer, 0 ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+
+void loggingTimerStop()
+{
+  if (loggingTimer) {
+    if( xTimerStop( loggingTimer, 120 / RTOS_MS_PER_TICK ) != pdPASS ) {
+      /* The timer could not be stopped. */
+    }
+    loggingTimer = nullptr;
+  }
+}
+
+void initLoggingTimer() {                                       // called cyclically by main.cpp:perMain()
+  static uint8_t logDelay100msOld = 0;
+
+  if(loggingTimer == nullptr) {                                 // log Timer not running
+    if(isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {  // if SF Logging is active and log rate is valid
+      loggingTimerStart();                                      // start log timer
+    }  
+  } else {                                                      // log timer is already running
+    if(logDelay100msOld != logDelay100ms) {                     // if log rate was changed
+      logDelay100msOld = logDelay100ms;                         // memorize new log rate
+
+      if(logDelay100ms > 0) {
+        if(xTimerChangePeriod( loggingTimer, logDelay100ms*100, 0 ) != pdPASS ) {  // and restart timer with new log rate
+          /* The timer period could not be changed */
+        }
+      }
+    }
+  }
+}
+#endif
 
 void writeHeader();
 
@@ -117,8 +180,6 @@ const char * logsOpen()
   return nullptr;
 }
 
-tmr10ms_t lastLogTime = 0;
-
 void logsClose()
 {
   if (sdMounted()) {
@@ -128,8 +189,10 @@ void logsClose()
     }
     lastLogTime = 0;
   }
+  #if !defined(SIMU)
+  loggingTimerStop();
+  #endif
 }
-
 
 void writeHeader()
 {
@@ -206,10 +269,14 @@ void logsWrite()
     return;
   }
 
-  if (isFunctionActive(FUNCTION_LOGS) && logDelay > 0) {
-    tmr10ms_t tmr10ms = get_tmr10ms();
-    if (lastLogTime == 0 || (tmr10ms_t)(tmr10ms - lastLogTime) >= (tmr10ms_t)logDelay*10) {
+  if (isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {
+    #if defined(SIMU)
+    tmr10ms_t tmr10ms = get_tmr10ms();                                        // tmr10ms works in 10ms increments
+    if (lastLogTime == 0 || (tmr10ms_t)(tmr10ms - lastLogTime) >= (tmr10ms_t)(logDelay100ms*10)-1) {
       lastLogTime = tmr10ms;
+    #else
+    {
+    #endif
 
       if (!g_oLogFile.obj.fs) {
         const char * result = logsOpen();
