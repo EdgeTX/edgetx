@@ -318,7 +318,11 @@ void displayTimers()
       else {
         lcdDrawTextAtIndex(TIMERS_X, y-7, STR_VTMRMODES, timerData.mode, SMLSIZE);
       }
-      drawTimer(TIMERS_X, y, timerState.val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
+      int val = timerState.val;
+      if (timerData.start && timerData.showElapsed &&
+          timerData.start != timerState.val)
+        val = (int)timerData.start - (int)timerState.val;
+      drawTimer(TIMERS_X, y, val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
       if (timerData.persistent) {
         lcdDrawChar(TIMERS_R, y+1, 'P', SMLSIZE);
       }

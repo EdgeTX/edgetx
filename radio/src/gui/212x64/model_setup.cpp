@@ -41,6 +41,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER1,
   ITEM_MODEL_SETUP_TIMER1_NAME,
   ITEM_MODEL_SETUP_TIMER1_START,
+  ITEM_MODEL_SETUP_TIMER1_DIR,
   ITEM_MODEL_SETUP_TIMER1_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP,
@@ -48,6 +49,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER2,
   ITEM_MODEL_SETUP_TIMER2_NAME,
   ITEM_MODEL_SETUP_TIMER2_START,
+  ITEM_MODEL_SETUP_TIMER2_DIR,
   ITEM_MODEL_SETUP_TIMER2_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER2_COUNTDOWN_BEEP,
@@ -56,6 +58,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3,
   ITEM_MODEL_SETUP_TIMER3_NAME,
   ITEM_MODEL_SETUP_TIMER3_START,
+  ITEM_MODEL_SETUP_TIMER3_DIR,
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
@@ -515,6 +518,12 @@ void menuModelSetup(event_t event)
         editTimerStart(0, y, attr, event);
         break;
 
+      case ITEM_MODEL_SETUP_TIMER1_DIR:
+        g_model.timers[0].showElapsed =
+            editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SHOW, STR_TIMER_DIR,
+                       g_model.timers[0].showElapsed, 0, 1, attr, event);
+        break;
+
       case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
         g_model.timers[0].minuteBeep = editCheckBox(g_model.timers[0].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_MINUTEBEEP, attr, event);
         break;
@@ -527,8 +536,9 @@ void menuModelSetup(event_t event)
         g_model.timers[0].persistent = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT, g_model.timers[0].persistent, 0, 2, attr, event);
         break;
 
+
 #if TIMERS > 1
-      case ITEM_MODEL_SETUP_TIMER2:
+          case ITEM_MODEL_SETUP_TIMER2:
         editTimerMode(1, y, attr, event);
         break;
 
@@ -536,6 +546,12 @@ void menuModelSetup(event_t event)
         editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
                        g_model.timers[1].name, LEN_TIMER_NAME, event, attr,
                        old_editMode);
+        break;
+
+      case ITEM_MODEL_SETUP_TIMER2_DIR:
+        g_model.timers[0].showElapsed =
+            editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SHOW, STR_TIMER_DIR,
+                       g_model.timers[1].showElapsed, 0, 1, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_START:
@@ -568,6 +584,12 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_TIMER3_START:
         editTimerStart(2, y, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_TIMER3_DIR:
+        g_model.timers[0].showElapsed =
+            editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SHOW, STR_TIMER_DIR,
+                       g_model.timers[2].showElapsed, 0, 1, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:

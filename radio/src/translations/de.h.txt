@@ -359,6 +359,9 @@
 #define LEN_SUBTRIMMODES               "\017"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)""= (symetrical) "
 
+#define LEN_TIMER_DIR                  "\007"
+#define TR_TIMER_DIR                   "Remain\0""Elapsed"
+
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
   #define INDENT              			 "   "
@@ -1368,6 +1371,7 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+#define TR_SHOW                       INDENT "Show"
 
 // The following content is Untranslated)
 
