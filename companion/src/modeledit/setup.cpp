@@ -59,6 +59,7 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
 
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
+  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onValueChanged(int)));
 
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
@@ -85,6 +86,12 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);
 
+
+  ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
+  ui->showElapsed->setField(timer.showElapsed, this);
+  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onShowElapsedChanged(int)));
+  
+
   disableMouseScrolling();
   QWidget::setTabOrder(prevFocus, ui->name);
   QWidget::setTabOrder(ui->name, ui->value);
@@ -93,6 +100,7 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   QWidget::setTabOrder(ui->countdownBeep, ui->countdownStart);
   QWidget::setTabOrder(ui->countdownStart, ui->minuteBeep);
   QWidget::setTabOrder(ui->minuteBeep, ui->persistent);
+  QWidget::setTabOrder(ui->persistent, ui->showElapsed);
 
   update();
   lock = false;
@@ -114,7 +122,8 @@ void TimerPanel::update()
   ui->countdownBeep->updateValue();
   ui->minuteBeep->updateValue();
   ui->countdownStart->updateValue();
-
+  ui->showElapsed->updateValue();
+  
   if (timer.mode != TimerData::TIMERMODE_OFF)
     ui->swtch->setEnabled(true);
   else
@@ -134,6 +143,12 @@ void TimerPanel::update()
     ui->persistentValue->setText(timer.pvalueToString());
   }
 
+  if(timer.val) {
+    ui->showElapsed->setEnabled(true);
+  } else {
+    ui->showElapsed->setEnabled(false);
+  }
+  
   lock = false;
 }
 
@@ -177,6 +192,12 @@ void TimerPanel::onCountdownBeepChanged(int index)
 void TimerPanel::onModeChanged(int index)
 {
   timer.modeChanged();
+  update();
+}
+
+void TimerPanel::onShowElapsedChanged(int index)
+{
+  timer.showElapsedChanged();
   update();
 }
 
@@ -1276,7 +1297,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
-
+  panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   Board::Type board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));

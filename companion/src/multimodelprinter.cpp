@@ -352,6 +352,7 @@ QString MultiModelPrinter::printTimers()
     COMPARECELLWIDTH(model->timers[i].countdownStartToString(), 10);
     COMPARECELLWIDTH(DataHelpers::boolToString(model->timers[i].minuteBeep, DataHelpers::BOOL_FMT_YESNO), 10);
     COMPARECELLWIDTH(model->timers[i].persistentToString(false), 10);
+    COMPARECELLWIDTH(model->timers[i].showElapsedToString(), 12);
     columns.appendRowEnd();
   }
   columns.appendTableEnd();
