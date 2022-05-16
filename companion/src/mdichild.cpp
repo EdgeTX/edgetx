@@ -1761,6 +1761,8 @@ void MdiChild::openModelPrompt(int row)
   msgBox.setWindowTitle(CPN_STR_APP_NAME);
   msgBox.setIcon(QMessageBox::Question);
   msgBox.setText(tr("Add a new model using"));
+  QPushButton *defaultsButton = msgBox.addButton(tr("Defaults"),QMessageBox::ActionRole);
+  QPushButton *editButton = msgBox.addButton(tr("Edit"),QMessageBox::ActionRole);
   QPushButton *wizardButton = msgBox.addButton(tr("Wizard"),QMessageBox::ActionRole);
   QPushButton *templateButton = msgBox.addButton(tr("Template"),QMessageBox::ActionRole);
   QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
@@ -1768,7 +1770,16 @@ void MdiChild::openModelPrompt(int row)
   msgBox.exec();
 
   if (msgBox.clickedButton() == cancelButton) {
+      if (!deleteModel(row))
+        QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Failed to remove temporary model!"));
       return;
+  }
+  else if (msgBox.clickedButton() == defaultsButton) {
+      //  nothing to do here
+      return;
+  }
+  else if (msgBox.clickedButton() == editButton) {
+      openModelEditWindow(row);
   }
   else if (msgBox.clickedButton() == wizardButton) {
       openModelWizard(row);
