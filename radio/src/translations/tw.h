@@ -251,8 +251,8 @@
 #define TR_TEXT_SIZE                   "標準","小","較小","中等","雙倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)","=(整體)"
 
-#define LEN_TIMER_DIR                  "\007"
-#define TR_TIMER_DIR                   "Remain\0""Elapsed"
+#define LEN_TIMER_DIR                  TR("\006", "\014")
+#define TR_TIMER_DIR                   TR("Remain""Elaps.", "Show Remain\0""Show Elapsed")
 
 #if defined(COLORLCD)
 #define INDENT

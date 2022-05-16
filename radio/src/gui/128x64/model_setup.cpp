@@ -58,21 +58,18 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER1,
   ITEM_MODEL_SETUP_TIMER1_NAME,
   ITEM_MODEL_SETUP_TIMER1_START,
-  ITEM_MODEL_SETUP_TIMER1_DIR,
   ITEM_MODEL_SETUP_TIMER1_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP,
   ITEM_MODEL_SETUP_TIMER2,
   ITEM_MODEL_SETUP_TIMER2_NAME,
   ITEM_MODEL_SETUP_TIMER2_START,
-  ITEM_MODEL_SETUP_TIMER2_DIR,
   ITEM_MODEL_SETUP_TIMER2_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER2_COUNTDOWN_BEEP,
   ITEM_MODEL_SETUP_TIMER3,
   ITEM_MODEL_SETUP_TIMER3_NAME,
   ITEM_MODEL_SETUP_TIMER3_START,
-  ITEM_MODEL_SETUP_TIMER3_DIR,
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
@@ -264,11 +261,13 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
 
 #define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
 #define TIMER_ROWS(x)                                                  \
-  1, 0, 1, 0, 0,                                                       \
+  1, 0,                                                                \
+      (uint8_t)((g_model.timers[x].start) ? 2 : 1),                   \
+      0, 0,                                                            \
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
                                                           : (uint8_t)0
 
-  #define EXTRA_MODULE_ROWS
+#define EXTRA_MODULE_ROWS
 
 #if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
@@ -574,6 +573,12 @@ void menuModelSetup(event_t event)
                   menuHorizontalPosition == 0 ? attr : 0,
                   menuHorizontalPosition == 1 ? attr : 0);
 
+        if (timer->start) {
+          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN + 5 * FW, y, STR_TIMER_DIR,
+                             timer->showElapsed,
+                             menuHorizontalPosition == 2 ? attr : 0);
+        }
+
         if (attr && s_editMode > 0) {
           div_t qr = div(timer->start, 60);
           switch (menuHorizontalPosition) {
@@ -589,22 +594,14 @@ void menuModelSetup(event_t event)
               if ((int16_t) timer->start > 5999)
                 timer->start = 32399; // 8:59:59
               break;
+            case 2:
+              if (timer->start) {
+                timer->showElapsed =
+                    checkIncDecModel(event, timer->showElapsed, 0, 1);
+              }
+              break;
           }
         }
-        break;
-      }
-
-      case ITEM_MODEL_SETUP_TIMER1_DIR:
-      case ITEM_MODEL_SETUP_TIMER2_DIR:
-      case ITEM_MODEL_SETUP_TIMER3_DIR: 
-      {
-        TimerData *timer =
-            &g_model.timers[k >= ITEM_MODEL_SETUP_TIMER3
-                                ? 2
-                                : (k >= ITEM_MODEL_SETUP_TIMER2 ? 1 : 0)];
-        timer->showElapsed =
-            editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SHOW, STR_TIMER_DIR,
-                       timer->showElapsed, 0, 1, attr, event);
         break;
       }
 
