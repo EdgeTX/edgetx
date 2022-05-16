@@ -273,6 +273,7 @@ Node convert<TimerData>::encode(const TimerData& rhs)
   node["persistent"] = rhs.persistent;
   node["countdownStart"] = rhs.countdownStart;
   node["value"] = rhs.pvalue;
+  node["showElapsed"] = rhs.showElapsed;
   return node;
 }
 
@@ -287,6 +288,7 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   node["persistent"] >> rhs.persistent;
   node["countdownStart"] >> rhs.countdownStart;
   node["value"] >> rhs.pvalue;
+  node["showElapsedT"] >> rhs.showElapsed;
   return true;
 }
 

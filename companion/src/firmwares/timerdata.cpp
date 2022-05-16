@@ -98,6 +98,13 @@ void TimerData::modeChanged()
     swtch = RawSwitch(SWITCH_TYPE_NONE);
 }
 
+void TimerData::showElapsedChanged()
+{
+  if (showElapsed != TIMER_SHOW_REMAINING) 
+    showElapsed = TIMER_SHOW_ELAPSED;
+  else
+    showElapsed = TIMER_SHOW_REMAINING;
+}
 //  static
 QString TimerData::countdownBeepToString(const int value)
 {
@@ -180,8 +187,19 @@ QString TimerData::modeToString(const int value)
   }
 }
 
-//  static
-AbstractStaticItemModel * TimerData::countdownBeepItemModel()
+QString TimerData::showElapsedToString(const unsigned int value)
+{
+  return (value) ? tr("Show Elapsed") : tr("Show Remaining");
+}
+
+QString TimerData::showElapsedToString() const
+{
+  return showElapsedToString(showElapsed);
+}
+
+
+    //  static
+AbstractStaticItemModel *TimerData::countdownBeepItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_TIMER_COUNTDOWNBEEP);
@@ -230,6 +248,19 @@ AbstractStaticItemModel * TimerData::modeItemModel()
 
   for (int i = 0; i < TIMERMODE_COUNT; i++) {
     mdl->appendToItemList(modeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * TimerData::showElapsedItemModel()
+{
+  AbstractStaticItemModel *mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_TIMER_SHOWELAPSED);
+
+  for (unsigned int i = 0; i < TIMER_SHOW_COUNT; i++) {
+    mdl->appendToItemList(showElapsedToString(i), i);
   }
 
   mdl->loadItemList();
