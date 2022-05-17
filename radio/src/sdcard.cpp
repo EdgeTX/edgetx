@@ -123,8 +123,8 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  DWORD nofree;
-  FATFS * fat;
+  DWORD nofree = 0;
+  FATFS * fat = nullptr;
   if (f_getfree("", &nofree, &fat) != FR_OK) {
     return 0;
   }
