@@ -109,6 +109,7 @@ class ModelData {
     QVector<const ExpoData *> expos(int input) const;
     QVector<const MixData *> mixes(int channel) const;
 
+    char      semver[8 + 1];
     bool      used;
     int       category;
     char      name[15+1];
