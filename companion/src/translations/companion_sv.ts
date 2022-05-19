@@ -303,7 +303,7 @@ Mode 4:
     </message>
     <message>
         <source>Show splash screen when Companion starts</source>
-        <translation>Visa en startbild då Companion startas</translation>
+        <translation>Visa startbild då Companion startas</translation>
     </message>
     <message>
         <source>Automatic check for Companion updates</source>
@@ -482,7 +482,7 @@ Mode 4:
         <translation>Katalog för loggfiler</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -781,7 +781,7 @@ Mode 4:
     </message>
     <message>
         <source>Checklist Files (*.txt)</source>
-        <translation type="unfinished">Checklistor (*.txt)</translation>
+        <translation>Checklistor (*.txt)</translation>
     </message>
     <message>
         <source>Model Checklist</source>
@@ -966,7 +966,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Press the &apos;Retry&apos; button to choose another file.</source>
-        <translation type="unfinished">Tryck på &quot;Försök igen&quot; för att välja en annan fil.</translation>
+        <translation>Tryck på &apos;Försök igen&apos; för att välja en annan fil.</translation>
     </message>
     <message>
         <source>settings</source>
@@ -1078,7 +1078,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>monthly</source>
-        <translation type="unfinished">månatligen</translation>
+        <translation type="unfinished">månatlig</translation>
     </message>
 </context>
 <context>
@@ -1460,7 +1460,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished">Funktion</translation>
+        <translation>Funktion</translation>
     </message>
     <message>
         <source>SF%1</source>
@@ -10558,7 +10558,7 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>Set RSSI to zero when paused.</source>
-        <translation>Nolla RSSI när uppspelning pausas</translation>
+        <translation>Nolla RSSI när uppspelning pausas.</translation>
     </message>
     <message>
         <source>Stop sending telemetry data when the Telemetry Simulator window is hidden.</source>
@@ -10566,7 +10566,7 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>Pause simulation when hidden.</source>
-        <translation>Pausa simuleringen när fönstret är dolt</translation>
+        <translation>Pausa simuleringen när fönstret är dolt.</translation>
     </message>
 </context>
 <context>
