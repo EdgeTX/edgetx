@@ -79,7 +79,7 @@
     <name>AppPreferencesDialog</name>
     <message>
         <source>Edit Settings</source>
-        <translation>Redigera Inställningar</translation>
+        <translation>Redigera inställningar</translation>
     </message>
     <message>
         <source>Radio Profile</source>
@@ -103,7 +103,7 @@
     </message>
     <message>
         <source>Select Image</source>
-        <translation>Välj Bild</translation>
+        <translation>Välj bild</translation>
     </message>
     <message>
         <source>Mode selection:
@@ -303,7 +303,7 @@ Mode 4:
     </message>
     <message>
         <source>Show splash screen when Companion starts</source>
-        <translation>Visa en start-bild då Companion startas</translation>
+        <translation>Visa en startbild då Companion startas</translation>
     </message>
     <message>
         <source>Automatic check for Companion updates</source>
@@ -395,7 +395,7 @@ Mode 4:
     </message>
     <message>
         <source>Select your snapshot folder</source>
-        <translation>Välj katalog för snapshots av Tx-simulatorn</translation>
+        <translation>Välj katalog för skärmbilder från simulatorn</translation>
     </message>
     <message>
         <source>No joysticks found</source>
@@ -482,7 +482,7 @@ Mode 4:
         <translation>Katalog för loggfiler</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
