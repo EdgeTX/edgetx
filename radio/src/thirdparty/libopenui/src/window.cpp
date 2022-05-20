@@ -150,6 +150,35 @@ static void window_event_cb(lv_event_t * e)
   }
 }
 
+static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e)
+{
+  /*Call the ancestor's event handler*/
+  lv_res_t res = lv_obj_event_base(&window_base_class, e);
+  if(res != LV_RES_OK) return;
+
+  window_event_cb(e);
+}
+
+const lv_obj_class_t window_base_class = {
+    .base_class = &lv_obj_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = window_base_event,
+    .width_def = LV_DPI_DEF,
+    .height_def = LV_DPI_DEF,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t)
+};
+
+lv_obj_t* window_create(lv_obj_t* parent)
+{
+  lv_obj_t * obj = lv_obj_class_create_obj(&window_base_class, parent);
+  lv_obj_class_init_obj(obj);
+  return obj;
+}
+
 Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
                LcdFlags textFlags, LvglCreate objConstruct) :
     rect(rect),
@@ -157,9 +186,15 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
     windowFlags(windowFlags),
     textFlags(textFlags)
 {
-  lv_obj_t *lvParent = parent != nullptr ? parent->lvobj : nullptr;
-  lvobj = (objConstruct == nullptr) ? lv_obj_create(lvParent)
-                                    : objConstruct(lvParent);
+  lv_obj_t* lv_parent = nullptr;
+  if (parent) lv_parent = parent->lvobj;
+
+  if (objConstruct != nullptr) {
+    lvobj = objConstruct(lv_parent);
+    lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, nullptr);
+  } else {
+    lvobj = window_create(lv_parent);
+  }
 
   lv_obj_set_user_data(lvobj, this);
 
@@ -174,7 +209,6 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
 
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
-  lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, this);
 
   if (parent) {
     parent->addChild(this);
@@ -285,11 +319,11 @@ void Window::setTextFlags(LcdFlags flags)
        b = GET_BLUE(textColor);
   lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
 
-  // rco: shouldn't this be done via 'setTextFlags()' on the children?
-  for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
-    auto child = lv_obj_get_child(lvobj, i);
-    lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
-  }
+  // // rco: shouldn't this be done via 'setTextFlags()' on the children?
+  // for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
+  //   auto child = lv_obj_get_child(lvobj, i);
+  //   lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
+  // }
 }
 
 void Window::attach(Window *newParent)

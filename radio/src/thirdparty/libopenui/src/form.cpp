@@ -172,7 +172,7 @@ void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
 FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout)
 {
   if (layout) layout->resetPos();
-  auto lv_line = lv_obj_create(lvobj);
+  auto lv_line = window_create(lvobj);
   return new Line(this, lv_line, layout);
 }
 
