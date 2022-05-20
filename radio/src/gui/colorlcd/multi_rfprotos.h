@@ -24,6 +24,26 @@
 
 class MultiRfProtocols;
 
+class RfScanDialog : public Dialog
+{
+  MultiRfProtocols* protos;
+  uint32_t lastUpdate = 0;
+
+  Progress* progress;
+  std::function<void()> onClose;
+
+ public:
+  RfScanDialog(Window* parent, MultiRfProtocols* protos,
+               std::function<void()> onClose);
+
+  void showProgress();
+
+  // disable keys
+  void onEvent(event_t) override;
+
+  void checkEvents() override;
+};
+
 class MultiProtoChoice : public Choice
 {
   unsigned int moduleIdx;

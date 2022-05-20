@@ -33,51 +33,41 @@ constexpr rect_t RFSCAN_DIALOG_RECT = {
 // TODO: translation
 const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
 
-class RfScanDialog : public Dialog
+RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
+                           std::function<void()> onClose) :
+  Dialog(parent, RFSCAN_TITLE, RFSCAN_DIALOG_RECT),
+  protos(protos),
+  progress(new Progress(&content->form,
+                        {PAGE_PADDING, PAGE_PADDING,
+                            content->form.width() - 2 * PAGE_PADDING,
+                            content->form.height() - 2 * PAGE_PADDING})),
+  onClose(std::move(onClose))
 {
-  MultiRfProtocols* protos;
-  uint32_t lastUpdate = 0;
+  // disable canceling dialog
+  setCloseWhenClickOutside(false);
+  setFocus();
+}
 
-  Progress* progress;
-  std::function<void()> onClose;
-
- public:
-  RfScanDialog(Window* parent, MultiRfProtocols* protos,
-               std::function<void()> onClose) :
-      Dialog(parent, RFSCAN_TITLE, RFSCAN_DIALOG_RECT),
-      protos(protos),
-      progress(new Progress(&content->form,
-                            {PAGE_PADDING, PAGE_PADDING,
-                             content->form.width() - 2 * PAGE_PADDING,
-                             content->form.height() - 2 * PAGE_PADDING})),
-      onClose(std::move(onClose))
-  {
-    // disable canceling dialog
-    setCloseWhenClickOutside(false);
-    setFocus();
-  }
-
-  void showProgress()
-  {
-    progress->setValue((int)(protos->getProgress() * 100.0));
-  }
+void RfScanDialog::showProgress()
+{
+  progress->setValue((int)(protos->getProgress() * 100.0));
+}
 
   // disable keys
-  void onEvent(event_t) override { return; }
+void RfScanDialog::onEvent(event_t) { return; }
   
-  void checkEvents() override
-  {
-    if (!protos->isScanning()) {
-      deleteLater();
-      onClose();
-    } else if (RTOS_GET_MS() - lastUpdate >= 200) {
-      showProgress();
-      lastUpdate = RTOS_GET_MS();
-    }
-    
-    Dialog::checkEvents();
+void RfScanDialog::checkEvents()
+{
+  if (!protos->isScanning()) {
+    deleteLater();
+    onClose();
+  } else if (RTOS_GET_MS() - lastUpdate >= 200) {
+    showProgress();
+    lastUpdate = RTOS_GET_MS();
   }
-};
+  
+  Dialog::checkEvents();
+}
 
 MultiProtoChoice::MultiProtoChoice(FormGroup* parent, const rect_t& rect,
                                    unsigned int moduleIdx,
