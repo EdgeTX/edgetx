@@ -138,16 +138,13 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
 {
   setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CHECKABLE);
+
   if (windowFlags & BUTTON_CHECKED)
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 
   label = lv_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
-  lv_obj_set_style_text_color(label, makeLvColor(this->getTextFlags()),
-                              LV_PART_MAIN);
-  lv_obj_set_style_text_color(label, makeLvColor(COLOR_THEME_PRIMARY2),
-                              LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
 void IconButton::paint(BitmapBuffer * dc)

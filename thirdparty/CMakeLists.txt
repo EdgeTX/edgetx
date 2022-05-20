@@ -174,9 +174,9 @@ set(LVGL_SOURCES
   extra/widgets/span/lv_span.c
   extra/widgets/keyboard/lv_keyboard.c
   extra/widgets/msgbox/lv_msgbox.c
-  extra/themes/basic/lv_theme_basic.c
-  extra/themes/default/lv_theme_default.c
-  extra/themes/mono/lv_theme_mono.c
+  # extra/themes/basic/lv_theme_basic.c
+  # extra/themes/default/lv_theme_default.c
+  # extra/themes/mono/lv_theme_mono.c
 )
 
 foreach(LVGL_FILE ${LVGL_SOURCES_MINIMAL})
