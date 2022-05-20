@@ -412,13 +412,20 @@
   #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_7  // PE.07
   #define SWITCHES_GPIO_REG_B_H         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_13 // PE.13
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO)
+#elif (defined(RADIO_TLITE) || defined(RADIO_TPRO)) && !defined(RADIO_LR3PRO)
   #define STORAGE_SWITCH_B
   #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_1  // PE.01
   #define SWITCHES_GPIO_REG_B_H         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_2  // PE.02
+#elif (RADIO_LR3PRO)
+  #define STORAGE_SWITCH_B
+  #define HARDWARE_SWITCH_B
+  #define SWITCHES_GPIO_REG_B_L         GPIOE->IDR
+  #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_15  // PE.15
+  #define SWITCHES_GPIO_REG_B_H         GPIOA->IDR
+  #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_5  // PA.05
 #elif defined(PCBX7)
   #define STORAGE_SWITCH_B
   #define HARDWARE_SWITCH_B
@@ -1482,6 +1489,11 @@
   #define INTMODULE_DMA                   NULL
   #define INTMODULE_DMA_CHANNEL           0
   #define INTMODULE_DMA_STREAM_LL         0
+  #if defined(RADIO_LR3PRO)
+    #define INTMODULE_BOOTCMD_GPIO        GPIOB
+    #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_5  // PB.05
+    #define INIT_INTMODULE_BOOTCMD_PIN()  GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  #endif
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
@@ -2025,7 +2037,7 @@
 #define KEYS_BACKLIGHT_RCC_AHB1Periph        0
 
 // LCD driver
-#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_TPRO)
+#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_TPRO) || defined(RADIO_LR3PRO)
   #define LCD_VERTICAL_INVERT
 #endif
 #if defined(PCBX9E)
