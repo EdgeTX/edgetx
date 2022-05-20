@@ -510,7 +510,8 @@ class ModelCategoryPageBody : public FormWindow
 
               modelslist.setCurrentModel(model);
               modelslist.setCurrentCategory(category);
-              this->onEvent(EVT_KEY_FIRST(KEY_EXIT));
+              menu->deleteLater();
+              onEvent(EVT_KEY_FIRST(KEY_EXIT));
               checkAll();
             });
           }
