@@ -158,8 +158,8 @@ SubScreenButtonMatrix::SubScreenButtonMatrix(Window* parent, const rect_t& r) :
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
   lv_obj_set_style_pad_all(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+  lv_obj_set_style_pad_row(lvobj, 8, LV_PART_MAIN);
+  lv_obj_set_style_pad_column(lvobj, 8, LV_PART_MAIN);
 }
 
 void SubScreenButtonMatrix::onPress(uint8_t btn_id)
