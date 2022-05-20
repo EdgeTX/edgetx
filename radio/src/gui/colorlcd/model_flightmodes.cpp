@@ -42,7 +42,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(2),
+static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2),
                                            LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t trims_row_dsc[] = {LV_GRID_CONTENT,
@@ -91,6 +91,62 @@ static std::string getFMTrimStr(uint8_t mode)
   return str;
 }
 
+struct FMTrimSettings : public Dialog {
+  FMTrimSettings(Window* parent, FlightModeData* p_fm) :
+      Dialog(parent->getFullScreenWindow(), STR_TRIMS, rect_t{})
+  {
+    auto lv_content = content->getLvObj();
+    lv_obj_set_flex_flow(lv_content, LV_FLEX_FLOW_COLUMN);
+
+    setCloseWhenClickOutside(true);
+
+    auto form = &content->form;
+    form->setFlexLayout();
+
+    FlexGridLayout trim_grid(trims_col_dsc, trims_row_dsc);
+    auto line = form->newLine(&trim_grid);
+
+    for (int t = 0; t < NUM_TRIMS; t++) {
+      auto trim_obj = window_create(line->getLvObj());
+      auto trim = new FormGroup::Line(line, trim_obj, nullptr, form);
+      lv_obj_set_layout(trim_obj, LV_LAYOUT_FLEX);
+      lv_obj_set_style_pad_column(trim_obj, 4, 0);
+      lv_obj_set_style_pad_bottom(trim_obj, 8, 0);
+      lv_obj_set_style_flex_cross_place(trim_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+      trim_t* tr = &p_fm->trim[t];
+      auto btn = new TextButton(
+          trim, rect_t{}, getSourceString(MIXSRC_FIRST_TRIM + t),
+          [=]() {
+            if (tr->mode == TRIM_MODE_NONE) {
+              tr->mode = 0;
+              SET_DIRTY();
+              return 1;
+            } else {
+              tr->mode = TRIM_MODE_NONE;
+              SET_DIRTY();
+              return 0;
+            }
+          },
+          0, COLOR_THEME_PRIMARY1);
+
+      if (tr->mode != TRIM_MODE_NONE) btn->check();
+      btn->setWidth(LV_DPI_DEF / 2);
+      btn->setHeight(LV_DPI_DEF / 4);
+
+      auto tr_mode = new Choice(trim, rect_t{}, 0, 2 * MAX_FLIGHT_MODES - 1,
+                                GET_SET_DEFAULT(tr->mode));
+      tr_mode->setTextHandler(getFMTrimStr);
+
+      // show trim value choice iff btn->checked()
+      make_conditional(tr_mode, btn);
+    }
+
+    content->setWidth(LCD_W * 0.8);
+    content->updateSize();
+  }
+};
+
 FlightModeEdit::FlightModeEdit(uint8_t index) :
     Page(ICON_MODEL_FLIGHT_MODES)
 {
@@ -122,51 +178,6 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
                      GET_SET_DEFAULT(p_fm->swtch));
   }
 
-  FlexGridLayout trim_grid(trims_col_dsc, trims_row_dsc);
-  line = form->newLine(&trim_grid);
-  new StaticText(line, rect_t{}, STR_TRIMS, 0, COLOR_THEME_PRIMARY1);
-
-  for (int t = 0; t < NUM_TRIMS; t++) {
-
-    auto trim_obj = window_create(line->getLvObj());
-    auto trim = new FormGroup::Line(line, trim_obj, nullptr, form);
-    lv_obj_set_layout(trim_obj, LV_LAYOUT_FLEX);
-    lv_obj_set_style_pad_column(trim_obj, 4, 0);
-    lv_obj_set_style_pad_bottom(trim_obj, 8, 0);
-    lv_obj_set_style_flex_cross_place(trim_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    trim_t* tr = &p_fm->trim[t];
-    auto btn = new TextButton(
-        trim, rect_t{}, getSourceString(MIXSRC_FIRST_TRIM + t),
-        [=]() {
-          if (tr->mode == TRIM_MODE_NONE) {
-            tr->mode = 0;
-            SET_DIRTY();
-            return 1;
-          } else {
-            tr->mode = TRIM_MODE_NONE;
-            SET_DIRTY();
-            return 0;
-          }
-        },
-        0, COLOR_THEME_PRIMARY1);
-
-    if (tr->mode != TRIM_MODE_NONE) btn->check();
-    btn->setWidth(LV_DPI_DEF / 2);
-    btn->setHeight(LV_DPI_DEF / 4);
-
-    auto tr_mode = new Choice(trim, rect_t{}, 0, 2*MAX_FLIGHT_MODES - 1,
-                              GET_SET_DEFAULT(tr->mode));
-    tr_mode->setTextHandler(getFMTrimStr);
-
-    // show trim value choice iff btn->checked()
-    make_conditional(tr_mode, btn);
-
-    if (t % 2 == 1) {
-      trim_grid.nextCell();
-    }
-  }
-
   // Fade in
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_FADEIN, 0, COLOR_THEME_PRIMARY1);
@@ -178,6 +189,14 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
   new StaticText(line, rect_t{}, STR_FADEOUT, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(p_fm->fadeOut),
                  SET_VALUE(p_fm->fadeOut, newValue), 0, PREC1);
+
+  // Trims
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_TRIMS, 0, COLOR_THEME_PRIMARY1);
+  new TextButton(line, rect_t{}, STR_SETUP, [=]() {
+    new FMTrimSettings(this, p_fm);
+    return 0;
+  });
 }
 
 class FlightModeBtn: public Button
