@@ -31,6 +31,14 @@ static void lvglEvent(lv_event_t* e)
   btn->onEvent(e);
 }
 
+static void update_checked_flag(lv_obj_t* obj, WindowFlags flags)
+{
+  if (!(flags & BUTTON_CHECKED))
+    lv_obj_clear_state(obj, LV_STATE_CHECKED);
+  else
+    lv_obj_add_state(obj, LV_STATE_CHECKED);  
+}
+
 Button::Button(Window* parent, const rect_t& rect,
        std::function<uint8_t(void)> pressHandler,
        WindowFlags windowFlag, LcdFlags textFlags,
@@ -38,8 +46,27 @@ Button::Button(Window* parent, const rect_t& rect,
     FormField(parent, rect, windowFlag, textFlags, objConstruct),
     pressHandler(std::move(pressHandler))
 {
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_add_event_cb(lvobj, lvglEvent, LV_EVENT_CLICKED, this);
+
+  if (windowFlag & BUTTON_CHECKED)
+    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+}
+
+void Button::check(bool checked)
+{
+  if (checked != bool(windowFlags & BUTTON_CHECKED)) {
+    windowFlags ^= BUTTON_CHECKED;
+    update_checked_flag(lvobj, windowFlags);
+    invalidate();
+  }
+}
+
+bool Button::checked() const
+{
+  if (windowFlags & BUTTON_CHECKED_ON_FOCUS)
+    return hasFocus();
+  else
+    return windowFlags & BUTTON_CHECKED;
 }
 
 void Button::onPress()
@@ -48,25 +75,26 @@ void Button::onPress()
   windowFlags =
       check ? windowFlags | BUTTON_CHECKED : windowFlags & ~BUTTON_CHECKED;
   if (lvobj == nullptr) return;
-
-  if (!(windowFlags & BUTTON_CHECKED))
-    lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
-  else
-    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  update_checked_flag(lvobj, windowFlags);
 }
 
 #if defined(HARDWARE_KEYS)
 void Button::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("Button").c_str(), event);
+  auto indev_act = lv_indev_get_act();
+  switch (event) {
+    case EVT_KEY_FIRST(KEY_ENTER):
+      lv_event_send(lvobj, LV_EVENT_PRESSED, indev_act);
+      break;
 
-  if (enabled && event == EVT_KEY_FIRST(KEY_ENTER)) {
-    killEvents(event);
-    onKeyPress();
-    onPress();
-  }
-  else {
-    FormField::onEvent(event);
+    case EVT_KEY_BREAK(KEY_ENTER):
+      lv_event_send(lvobj, LV_EVENT_RELEASED, indev_act);
+      lv_event_send(lvobj, LV_EVENT_CLICKED, indev_act);
+      break;
+
+    default:
+      FormField::onEvent(event);
+      break;
   }
 }
 #endif
