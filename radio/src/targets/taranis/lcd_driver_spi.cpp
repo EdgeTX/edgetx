@@ -27,11 +27,12 @@
   #include "opentx.h"
 #endif
 
-#if defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO)
+#if (defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO)) && !defined(RADIO_LR3PRO)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
 #endif
+
 #define RESET_WAIT_DELAY_MS            300 // Wait time after LCD reset before first command
 #define WAIT_FOR_DMA_END()             do { } while (lcd_busy)
 
@@ -43,7 +44,6 @@
 
 #define LCD_RST_HIGH()                 LCD_RST_GPIO->BSRRL = LCD_RST_GPIO_PIN
 #define LCD_RST_LOW()                  LCD_RST_GPIO->BSRRH = LCD_RST_GPIO_PIN
-
 bool lcdInitFinished = false;
 void lcdInitFinish();
 
@@ -117,7 +117,11 @@ void lcdStart()
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
   lcdWriteCommand(0xe2); // (14) Soft reset
+#if defined(RADIO_LR3PRO)
+  lcdWriteCommand(0xa1); // Set seg
+#else 
   lcdWriteCommand(0xa0); // Set seg
+#endif
   lcdWriteCommand(0xc8); // Set com
   lcdWriteCommand(0xf8); // Set booster
   lcdWriteCommand(0x00); // 5x
@@ -210,6 +214,10 @@ void lcdRefresh(bool wait)
 
 #if LCD_W == 128
   uint8_t * p = displayBuf;
+  #if defined(RADIO_LR3PRO)
+    // add offset 2px because the driver (SH1106) of the 1.3 OLED is for a 132 display
+    lcdWriteCommand(0x02);
+  #endif
   for (uint8_t y=0; y < 8; y++, p+=LCD_W) {
     lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y

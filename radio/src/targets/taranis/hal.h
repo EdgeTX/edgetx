@@ -472,14 +472,21 @@
   #define SWITCHES_GPIO_REG_B_L         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_5  // PE.05
   #define SWITCHES_GPIO_REG_B_H         GPIOE->IDR
-  #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_4 // PE.04
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO)
+  #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_4  // PE.04
+#elif (defined(RADIO_TLITE) || defined(RADIO_TPRO)) && !defined(RADIO_LR3PRO)
   #define STORAGE_SWITCH_B
   #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_1  // PE.01
   #define SWITCHES_GPIO_REG_B_H         GPIOE->IDR
   #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_2  // PE.02
+#elif (RADIO_LR3PRO)
+  #define STORAGE_SWITCH_B
+  #define HARDWARE_SWITCH_B
+  #define SWITCHES_GPIO_REG_B_L         GPIOE->IDR
+  #define SWITCHES_GPIO_PIN_B_L         GPIO_Pin_15  // PE.15
+  #define SWITCHES_GPIO_REG_B_H         GPIOA->IDR
+  #define SWITCHES_GPIO_PIN_B_H         GPIO_Pin_5  // PA.05
 #elif defined(PCBX7)
   #define STORAGE_SWITCH_B
   #define HARDWARE_SWITCH_B
@@ -1660,6 +1667,10 @@
   #elif defined(RADIO_TPRO)
     #define INTMODULE_BOOTCMD_GPIO          GPIOF
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_11  // PF.11
+    #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  #elif defined(RADIO_LR3PRO)
+    #define INTMODULE_BOOTCMD_GPIO          GPIOB
+    #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PB.05
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #endif
 #elif defined(RADIO_COMMANDO8)
