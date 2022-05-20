@@ -293,7 +293,7 @@ static void style_init(void)
         lv_style_set_shadow_ofs_y(&styles.btn, lv_disp_dpx(theme.disp, LV_DPX(4)));
     }
     lv_style_set_text_color(&styles.btn, color_text);
-    lv_style_set_pad_hor(&styles.btn, PAD_DEF);
+    lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
     lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
     lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
     lv_style_set_pad_row(&styles.btn, lv_disp_dpx(theme.disp, 5));
