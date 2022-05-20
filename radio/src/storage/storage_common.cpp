@@ -89,7 +89,7 @@ void postRadioSettingsLoad()
 #if defined(USB_SERIAL)
   // default VCP to CLI if not configured
   // to something else as NONE.
-  if (serialGetMode(SP_VCP) == UART_MODE_NONE) {
+  if (isInternalModuleCrossfire() && serialGetMode(SP_VCP) == UART_MODE_NONE) {
     serialSetMode(SP_VCP, UART_MODE_CLI);
   }
 #endif
