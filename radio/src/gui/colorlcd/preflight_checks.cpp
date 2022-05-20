@@ -124,7 +124,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   make_conditional(line, tw);
 
   new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-  auto box = new FormGroup::Line(line, lv_obj_create(line->getLvObj()), nullptr, form);
+  auto box = new FormGroup::Line(line, window_create(line->getLvObj()), nullptr, form);
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
 
   auto cst_tw = new CheckBox(
