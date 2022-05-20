@@ -99,6 +99,11 @@ class Choice: public ChoiceBase {
       setValue = std::move(handler);
     }
 
+    void setGetValueHandler(std::function<int()> handler)
+    {
+      getValue = std::move(handler);
+    }
+
     void setAvailableHandler(std::function<bool(int)> handler)
     {
       isValueAvailable = std::move(handler);

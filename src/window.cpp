@@ -395,6 +395,7 @@ void Window::setFocus(uint8_t flag, Window * from)
     if (flag != SET_FOCUS_NO_SCROLL) {
       lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
     }
+    invalidate();
 
     clearFocus();
     focusWindow = this;

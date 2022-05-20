@@ -116,7 +116,7 @@ void FormField::onEvent(event_t event)
 extern lv_group_t* inputGroup;
 void FormField::setFocus(uint8_t flag, Window * from)
 {
-  if (enabled) {
+  if (enabled && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
     Window::setFocus(flag, from);
     if(lvobj != nullptr) {
       lv_group_focus_obj(lvobj);

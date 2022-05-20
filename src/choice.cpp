@@ -77,10 +77,11 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
 
 std::string Choice::getLabelText()
 {
-  std::string text = "";
+  std::string text;
+
   if (textHandler != nullptr)
     text = textHandler(getValue());
-  else {
+  else if (getValue) {
     int val = getValue();
     val -= vmin;
     if (val >= 0 && val < (int)values.size()) {

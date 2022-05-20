@@ -26,7 +26,8 @@ NumberKeyboard * NumberKeyboard::_instance = nullptr;
 NumberKeyboard::NumberKeyboard() :
   Keyboard(KEYBOARD_HEIGHT)
 {
-  lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);  // ToDo: for now we are still using the old keyboard
+  // ToDo: for now we are still using the old keyboard
+  lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
 
   new TextButton(this, {LCD_W / 2 - 115, 10, 50, 30}, "<<",
                  [=]() -> uint8_t {

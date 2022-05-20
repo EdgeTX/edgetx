@@ -183,6 +183,8 @@ void MenuBody::setIndex(int index)
 
     lv_coord_t row_h = table->row_h[table->row_act];    
     lv_coord_t scroll_y = lv_obj_get_scroll_y(lvobj);
+
+    lv_obj_update_layout(lvobj);
     lv_coord_t h = lv_obj_get_height(lvobj);
 
     lv_coord_t diff_y = 0;
