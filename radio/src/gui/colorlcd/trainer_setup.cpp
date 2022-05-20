@@ -34,8 +34,6 @@
 #include "bluetooth.h"
 #endif
 
-class TrChoice;
-
 class TrainerModuleWindow : public FormGroup
 {
  public:
@@ -45,10 +43,10 @@ class TrainerModuleWindow : public FormGroup
   void update();
 
  protected:
-  TrChoice *trainerChoice = nullptr;
+  // TrChoice *trainerChoice = nullptr;
   NumberEdit *channelStart = nullptr;
   NumberEdit *channelEnd = nullptr;
-  bool trChoiceOpen = false;
+  // bool trChoiceOpen = false;
 #if defined(BLUETOOTH)
   StaticText *btChannelEnd = nullptr;
   StaticText *btDistAddress = nullptr;
@@ -65,29 +63,6 @@ class TrainerModuleWindow : public FormGroup
   void btDiscoverMenuAddItem(const char *itm);
 
 #endif
-};
-
-class TrChoice : public Choice
-{
- public:
-  TrChoice(FormGroup *parent, const rect_t &rect, const char **values, int vmin,
-           int vmax, std::function<int()> getValue,
-           std::function<void(int)> setValue = nullptr,
-           bool *menuOpen = nullptr) :
-      Choice(parent, rect, values, vmin, vmax, getValue, setValue),
-      menuOpen(menuOpen)
-  {
-  }
-
- protected:
-  void openMenu()
-  {
-    if (menuOpen) *menuOpen = true;
-    Choice::openMenu();
-  }
-
- private:
-  bool *menuOpen;
 };
 
 TrainerModuleWindow::TrainerModuleWindow(FormWindow *parent,
@@ -126,27 +101,6 @@ void TrainerModuleWindow::update()
 {
   FormGridLayout grid;
   clear();
-
-  new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                 COLOR_THEME_PRIMARY1);
-  trainerChoice = new TrChoice(
-      this, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(),
-      GET_DEFAULT(g_model.trainerData.mode),
-      [=](int32_t newValue) {
-#if defined(BLUETOOTH)
-        memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
-        bluetooth.state = BLUETOOTH_STATE_OFF;
-#endif
-        g_model.trainerData.mode = newValue;
-        SET_DIRTY();
-        update();
-        trainerChoice->setFocus(SET_FOCUS_DEFAULT);
-        trChoiceOpen = false;
-      },
-      &trChoiceOpen);
-  trainerChoice->setAvailableHandler(isTrainerModeAvailable);
-
-  grid.nextLine();
 
   if (g_model.isTrainerTraineeEnable()) {
 #if defined(BLUETOOTH)
@@ -334,5 +288,32 @@ TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
                   PAGE_LINE_HEIGHT},
                  STR_TRAINER, 0, COLOR_THEME_PRIMARY2);
 
-  new TrainerModuleWindow(&body, {0, 0, width(), 0});
+  FormGridLayout grid;
+
+  new StaticText(&body, grid.getLabelSlot(true), STR_MODE, 0,
+                 COLOR_THEME_PRIMARY1);
+
+  auto trainerChoice = new Choice(
+      &body, grid.getFieldSlot(), STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(),
+      GET_DEFAULT(g_model.trainerData.mode));
+
+  trainerChoice->setAvailableHandler(isTrainerModeAvailable);
+  grid.nextLine();
+
+  coord_t y = grid.getWindowHeight();
+  coord_t h = body.height() - y;
+  coord_t w = body.width();
+  
+  auto trainerModule = new TrainerModuleWindow(&body, {0, y, w, h});
+
+  TrainerModuleData* tr = &g_model.trainerData;
+  trainerChoice->setSetValueHandler([=](int32_t newValue) {
+#if defined(BLUETOOTH)
+      memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
+      bluetooth.state = BLUETOOTH_STATE_OFF;
+#endif
+      tr->mode = newValue;
+      trainerModule->update();
+      SET_DIRTY();
+    });
 }
