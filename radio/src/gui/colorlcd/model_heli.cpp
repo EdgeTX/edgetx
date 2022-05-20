@@ -25,10 +25,17 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
+#if LCD_W > LCD_H // landscape
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
+                                     LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else // portrait
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
 
 ModelHeliPage::ModelHeliPage():
   PageTab(STR_MENUHELISETUP, ICON_MODEL_HELI)
@@ -37,7 +44,7 @@ ModelHeliPage::ModelHeliPage():
 
 void ModelHeliPage::build(FormWindow* form)
 {
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
   form->setFlexLayout();
 
   // Swash type
@@ -58,7 +65,6 @@ void ModelHeliPage::build(FormWindow* form)
                    GET_SET_DEFAULT(g_model.swashR.elevatorSource));
 
   // Elevator weight
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
@@ -70,7 +76,6 @@ void ModelHeliPage::build(FormWindow* form)
                    GET_SET_DEFAULT(g_model.swashR.aileronSource));
 
   // Aileron weight
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.aileronWeight));
@@ -82,7 +87,6 @@ void ModelHeliPage::build(FormWindow* form)
                    GET_SET_DEFAULT(g_model.swashR.collectiveSource));
 
   // Collective weight
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.collectiveWeight));
