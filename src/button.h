@@ -40,21 +40,8 @@ class Button: public FormField
     }
 #endif
 
-    void check(bool checked = true)
-    {
-      if (checked != bool(windowFlags & BUTTON_CHECKED)) {
-        windowFlags ^= BUTTON_CHECKED;
-        invalidate();
-      }
-    }
-
-    bool checked() const
-    {
-      if (windowFlags & BUTTON_CHECKED_ON_FOCUS)
-        return hasFocus();
-      else
-        return windowFlags & BUTTON_CHECKED;
-    }
+    void check(bool checked = true);
+    bool checked() const;
 
     void setPressHandler(std::function<uint8_t(void)> handler)
     {
