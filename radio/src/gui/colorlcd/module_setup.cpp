@@ -44,12 +44,12 @@ class ModuleWindow : public FormGroup
 {
  public:
   ModuleWindow(FormWindow *parent, const rect_t &rect, uint8_t moduleIdx);
+  void update();
 
  protected:
   uint8_t moduleIdx;
   bool hasFailsafe = false;
 
-  Choice *moduleChoice = nullptr;
   Choice *rfChoice = nullptr;
   TextButton *bindButton = nullptr;
   TextButton *rangeButton = nullptr;
@@ -58,8 +58,6 @@ class ModuleWindow : public FormGroup
 
   void addChannelRange(FormGridLayout &grid);
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
-
-  void update();
   void checkEvents() override;
 };
 
@@ -73,7 +71,7 @@ ModuleWindow::ModuleWindow(FormWindow *parent, const rect_t &rect,
 
 void ModuleWindow::addChannelRange(FormGridLayout &grid)
 {
-  new StaticText(this, grid.getLabelSlot(true), STR_CHANNELRANGE, 0,
+  new StaticText(this, grid.getLabelSlot(), STR_CHANNELRANGE, 0,
                  COLOR_THEME_PRIMARY1);
   auto channelStart = new NumberEdit(
       this, grid.getFieldSlot(2, 0), 1,
@@ -122,23 +120,6 @@ void ModuleWindow::update()
   FormGridLayout grid;
   clear();
 
-  // Module Type
-  new StaticText(this, grid.getLabelSlot(true), STR_MODE, 0,
-                 COLOR_THEME_PRIMARY1);
-  moduleChoice = new Choice(
-      this, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
-      MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-      GET_DEFAULT(g_model.moduleData[moduleIdx].type), [=](int32_t newValue) {
-        setModuleType(moduleIdx, newValue);
-        update();
-        moduleChoice->setFocus(SET_FOCUS_DEFAULT);
-        SET_DIRTY();
-      });
-  moduleChoice->setAvailableHandler([=](int8_t moduleType) {
-    return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
-                                        : isExternalModuleAvailable(moduleType);
-  });
-
   if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
     char buf[6];
     new StaticText(this, grid.getFieldSlot(2, 1),
@@ -150,8 +131,7 @@ void ModuleWindow::update()
 
   // Module parameters
   if (moduleIdx == EXTERNAL_MODULE && isModuleCrossfire(moduleIdx)) {
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_BAUDRATE, 0,
                    COLOR_THEME_PRIMARY1);
     new Choice(
         this, grid.getFieldSlot(1, 0), STR_CRSF_BAUDRATE, 0,
@@ -166,10 +146,10 @@ void ModuleWindow::update()
           SET_DIRTY();
           restartModule(moduleIdx);
         });
+    grid.nextLine();
   }
   if (isModuleCrossfire(moduleIdx)) {
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_STATUS, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_STATUS, 0,
                    COLOR_THEME_PRIMARY1);
     new DynamicText(this, grid.getFieldSlot(), [=] {
       char msg[64] = "";
@@ -177,78 +157,14 @@ void ModuleWindow::update()
               telemetryErrors);
       return std::string(msg);
     });
+    grid.nextLine();
   }
-  if (isModuleXJT(moduleIdx)) {
-    rfChoice =
-        new Choice(this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
-                   MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_LAST,
-                   GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                   [=](int32_t newValue) {
-                     g_model.moduleData[moduleIdx].subType = newValue;
-                     g_model.moduleData[moduleIdx].channelsStart = 0;
-                     g_model.moduleData[moduleIdx].channelsCount =
-                         defaultModuleChannels_M8(moduleIdx);
-                     SET_DIRTY();
-                     update();
-                     rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                   });
 
-    rfChoice->setAvailableHandler(
-        [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
-
-  } else if (isModuleDSM2(moduleIdx)) {
-    new Choice(this, grid.getFieldSlot(2, 1), STR_DSM_PROTOCOLS,
-               DSM2_PROTO_LP45, DSM2_PROTO_DSMX,
-               GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
-  } else if (isModuleR9M(moduleIdx)) {
-    rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_R9M_REGION,
-                          MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_LAST,
-                          GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                          [=](int32_t newValue) {
-                            g_model.moduleData[moduleIdx].subType = newValue;
-                            SET_DIRTY();
-                            update();
-                            rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                          });
-  }
-#if defined(PXX2)
-  else if (isModulePXX2(moduleIdx)) {
-    rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_ISRM_RF_PROTOCOLS,
-                          0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12,
-                          GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                          [=](int32_t newValue) {
-                            g_model.moduleData[moduleIdx].subType = newValue;
-                            SET_DIRTY();
-                            update();
-                            rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                          });
-  }
-#endif
 #if defined(AFHDS2) || defined(AFHDS3)
-  else if (isModuleFlySky(moduleIdx)) {
-    rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_FLYSKY_PROTOCOLS,
-                          0, FLYSKY_SUBTYPE_AFHDS2A,
-                          GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
-                          [=](int32_t newValue) {
-                            g_model.moduleData[moduleIdx].subType = newValue;
-                            SET_DIRTY();
-                            update();
-                            rfChoice->setFocus(SET_FOCUS_DEFAULT);
-                          });
-
-    if (moduleIdx == INTERNAL_MODULE) {
-      g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS2A;
-      rfChoice->setAvailableHandler(
-          [](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
-    } else {
-      g_model.moduleData[moduleIdx].subType = FLYSKY_SUBTYPE_AFHDS3;
-      rfChoice->setAvailableHandler(
-          [](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-    }
+  if (isModuleFlySky(moduleIdx)) {
 
     // RX options:
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_OPTIONS, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_OPTIONS, 0,
                    COLOR_THEME_PRIMARY1);
 
 #if defined(AFHDS2)
@@ -270,6 +186,7 @@ void ModuleWindow::update()
             g_model.moduleData[moduleIdx].flysky.mode =
                 (g_model.moduleData[moduleIdx].flysky.mode & 2) | (v & 1);
           });
+      grid.nextLine();
     }
 #endif
 #if defined(AFHDS3)
@@ -291,10 +208,10 @@ void ModuleWindow::update()
             g_model.moduleData[moduleIdx].afhds3.mode =
                 (g_model.moduleData[moduleIdx].afhds3.mode & 2) | (v & 1);
           });
+      grid.nextLine();
 
       // TYPE
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_TYPE, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_TYPE, 0,
                      COLOR_THEME_PRIMARY1);
 
       // This is chosen when binding (menu? see stdlcd/model_setup_afhds3.cpp)
@@ -303,30 +220,30 @@ void ModuleWindow::update()
                          ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY
                          : TR_AFHDS3_ONE_TO_MANY,
                      0, COLOR_THEME_PRIMARY1);
+      grid.nextLine();
 
       // Status
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_MODULE_STATUS, 0,
                      COLOR_THEME_PRIMARY1);
       new DynamicText(this, grid.getFieldSlot(), [=] {
         char msg[64] = "";
         getModuleStatusString(moduleIdx, msg);
         return std::string(msg);
       });
+      grid.nextLine();
 
       // Power source
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_AFHDS3_POWER_SOURCE, 0,
                      COLOR_THEME_PRIMARY1);
       new DynamicText(this, grid.getFieldSlot(), [=] {
         char msg[64] = "";
         getModuleSyncStatusString(moduleIdx, msg);
         return std::string(msg);
       });
+      grid.nextLine();
 
       // RX Freq
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_AFHDS3_RX_FREQ, 0,
                      COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(
           this, grid.getFieldSlot(2, 0), MIN_FREQ, MAX_FREQ,
@@ -335,10 +252,10 @@ void ModuleWindow::update()
         g_model.moduleData[moduleIdx].afhds3.setRxFreq((uint16_t)newValue);
       });
       edit->setSuffix(STR_HZ);
+      grid.nextLine();
 
       // Module actual power
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_AFHDS3_ACTUAL_POWER, 0,
                      COLOR_THEME_PRIMARY1);
       new DynamicText(this, grid.getFieldSlot(), [=] {
         char msg[64] = "";
@@ -346,90 +263,56 @@ void ModuleWindow::update()
                          actualAfhdsRunPower(moduleIdx));
         return std::string(msg);
       });
+      grid.nextLine();
 
       // Module power
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_RF_POWER, 0,
                      COLOR_THEME_PRIMARY1);
       new Choice(
           this, grid.getFieldSlot(2, 0), STR_AFHDS3_POWERS,
           afhds3::RUN_POWER::RUN_POWER_FIRST, afhds3::RUN_POWER::RUN_POWER_LAST,
           GET_SET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.runPower));
+      grid.nextLine();
     }
 #endif
   }
 #endif
 #if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
-    MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
 
-    if (status.protocolName[0] && status.isValid()) {
-      new StaticText(this, grid.getFieldSlot(2, 1), status.protocolName, 0,
-                     COLOR_THEME_PRIMARY1);
-    }
+    // TODO: needs to be placed differently
+    // MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+    // if (status.protocolName[0] && status.isValid()) {
+    //   new StaticText(this, grid.getFieldSlot(2, 1), status.protocolName, 0,
+    //                  COLOR_THEME_PRIMARY1);
+    //   grid.nextLine();
+    // }
 
     Choice *mmSubProto = nullptr;
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_RF_PROTOCOL, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_RF_PROTOCOL, 0,
                    COLOR_THEME_PRIMARY1);
-
-    // Grid count for narrow/wide screen
-    int count =
-        LCD_W < LCD_H
-            ? 1
-            : (/*g_model.moduleData[moduleIdx].multi.customProto ? 3 :*/ 2);
-
-    rfChoice = new MultiProtoChoice(
-        this, grid.getFieldSlot(count, 0), moduleIdx,
-        [=](int32_t newValue) {
-          g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
-          g_model.moduleData[moduleIdx].subType = 0;
-          resetMultiProtocolsOptions(moduleIdx);
-
-          MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-          status.invalidate();
-
-          uint32_t startUpdate = RTOS_GET_MS();
-          while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250))
-            ;
-
-          SET_DIRTY();
-          update();
-
-          if (rfChoice) rfChoice->setFocus(SET_FOCUS_DEFAULT);
-        },
-        [=]() { update(); });
 
     auto *rfProto = MultiRfProtocols::instance(moduleIdx)->getProto(
         g_model.moduleData[moduleIdx].multi.rfProtocol);
 
     if (rfProto && !rfProto->subProtos.empty()) {
       // Subtype (D16, DSMX,...)
-
-      // Grid count for narrow/wide screen
-      count = LCD_W < LCD_H ? 1 : 2;
-      int index = 1;
-      if (count == 1) {
-        grid.nextLine();
-        index = 0;
-      }
-
       mmSubProto = new Choice(
-          this, grid.getFieldSlot(count, index), rfProto->subProtos, 0,
+          this, grid.getFieldSlot(), rfProto->subProtos, 0,
           rfProto->subProtos.size() - 1,
           [=]() { return g_model.moduleData[moduleIdx].subType; },
           [=](int16_t newValue) {
             g_model.moduleData[moduleIdx].subType = newValue;
             resetMultiProtocolsOptions(moduleIdx);
             SET_DIRTY();
-            update();
+            // update();
             if (mmSubProto != nullptr) mmSubProto->setFocus(SET_FOCUS_DEFAULT);
           });
     }
     grid.nextLine();
 
     // Multimodule status
-    new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_MODULE_STATUS, 0,
                    COLOR_THEME_PRIMARY1);
     new DynamicText(
         this, grid.getFieldSlot(),
@@ -439,14 +322,14 @@ void ModuleWindow::update()
           return std::string(msg);
         },
         COLOR_THEME_PRIMARY1);
+    grid.nextLine();
 
     const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
     if (rfProto) {
       // Multi optional feature row
       const char *title = rfProto->getOptionStr();
       if (title != nullptr) {
-        grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), title, 0,
+        new StaticText(this, grid.getLabelSlot(), title, 0,
                        COLOR_THEME_PRIMARY1);
 
         int8_t min, max;
@@ -502,14 +385,14 @@ void ModuleWindow::update()
             }
           }
         }
+        grid.nextLine();
       }
     }
-    grid.nextLine();
 
     if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
       const char *servoRates[] = {"22ms", "11ms"};
 
-      new StaticText(this, grid.getLabelSlot(true), STR_MULTI_SERVOFREQ, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_MULTI_SERVOFREQ, 0,
                      COLOR_THEME_PRIMARY1);
       new Choice(
           this, grid.getFieldSlot(), servoRates, 0, 1,
@@ -524,41 +407,41 @@ void ModuleWindow::update()
           });
     } else {
       // Bind on power up
-      new StaticText(this, grid.getLabelSlot(true), STR_MULTI_AUTOBIND, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_MULTI_AUTOBIND, 0,
                      COLOR_THEME_PRIMARY1);
       new CheckBox(
           this, grid.getFieldSlot(),
           GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.autoBindMode));
     }
+    grid.nextLine();
 
     // Low power mode
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_MULTI_LOWPOWER, 0,
                    COLOR_THEME_PRIMARY1);
     new CheckBox(
         this, grid.getFieldSlot(),
         GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
+    grid.nextLine();
 
     // Disable telemetry
-    grid.nextLine();
-    new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_TELEM, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_DISABLE_TELEM, 0,
                    COLOR_THEME_PRIMARY1);
     new CheckBox(
         this, grid.getFieldSlot(),
         GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableTelemetry));
+    grid.nextLine();
 
     if (rfProto && rfProto->supportsDisableMapping()) {
       // Disable channel mapping
-      grid.nextLine();
-      new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_CH_MAP, 0,
+      new StaticText(this, grid.getLabelSlot(), STR_DISABLE_CH_MAP, 0,
                      COLOR_THEME_PRIMARY1);
       new CheckBox(
           this, grid.getFieldSlot(),
           GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableMapping));
+      grid.nextLine();
     }
   }
 #endif
-  grid.nextLine();
 
   // Channel Range
   if (g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE) {
@@ -570,7 +453,7 @@ void ModuleWindow::update()
   // PPM modules
   if (isModulePPM(moduleIdx)) {
     // PPM frame
-    new StaticText(this, grid.getLabelSlot(true), STR_PPMFRAME, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_PPMFRAME, 0,
                    COLOR_THEME_PRIMARY1);
 
     // PPM frame length
@@ -606,7 +489,7 @@ void ModuleWindow::update()
   if (!isModuleRFAccess(moduleIdx) && (isModuleModelIndexAvailable(moduleIdx) ||
                                        isModuleBindRangeAvailable(moduleIdx))) {
     uint8_t thirdColumn = 0;
-    new StaticText(this, grid.getLabelSlot(true), STR_RECEIVER, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_RECEIVER, 0,
                    COLOR_THEME_PRIMARY1);
 
     // Model index
@@ -730,7 +613,7 @@ void ModuleWindow::update()
 
 #if defined(AFHDS2) && defined(PCBNV14)
   if (isModuleAFHDS2A(moduleIdx) && getNV14RfFwVersion() >= 0x1000E) {
-    new StaticText(this, grid.getLabelSlot(true), STR_MULTI_RFPOWER);
+    new StaticText(this, grid.getLabelSlot(), STR_MULTI_RFPOWER);
     new Choice(this, grid.getFieldSlot(),
                "\007"
                "Default"
@@ -747,7 +630,7 @@ void ModuleWindow::update()
   // Failsafe
   if (isModuleFailsafeAvailable(moduleIdx)) {
     hasFailsafe = true;
-    new StaticText(this, grid.getLabelSlot(true), STR_FAILSAFE, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_FAILSAFE, 0,
                    COLOR_THEME_PRIMARY1);
     failSafeChoice = new Choice(
         this, grid.getFieldSlot(2, 0), STR_VFAILSAFE, 0, FAILSAFE_LAST,
@@ -755,7 +638,7 @@ void ModuleWindow::update()
         [=](int32_t newValue) {
           g_model.moduleData[moduleIdx].failsafeMode = newValue;
           SET_DIRTY();
-          update();
+          // update();
           failSafeChoice->setFocus(SET_FOCUS_DEFAULT);
         });
     if (g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_CUSTOM) {
@@ -770,7 +653,7 @@ void ModuleWindow::update()
 #if defined(PXX2)
   // Register and Range buttons
   if (isModuleRFAccess(moduleIdx)) {
-    new StaticText(this, grid.getLabelSlot(true), STR_MODULE, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_MODULE, 0,
                    COLOR_THEME_PRIMARY1);
     registerButton =
         new TextButton(this, grid.getFieldSlot(2, 0), STR_REGISTER);
@@ -794,7 +677,7 @@ void ModuleWindow::update()
 
     grid.nextLine();
 
-    new StaticText(this, grid.getLabelSlot(true), TR_OPTIONS, 0,
+    new StaticText(this, grid.getLabelSlot(), TR_OPTIONS, 0,
                    COLOR_THEME_PRIMARY1);
     auto options = new TextButton(this, grid.getFieldSlot(2, 0), TR_SET);
     options->setPressHandler([=]() {
@@ -807,7 +690,7 @@ void ModuleWindow::update()
 
   // R9M Power
   if (isModuleR9M_FCC(moduleIdx)) {
-    new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_RF_POWER, 0,
                    COLOR_THEME_PRIMARY1);
     new Choice(this, grid.getFieldSlot(), STR_R9M_FCC_POWER_VALUES, 0,
                R9M_FCC_POWER_MAX,
@@ -815,7 +698,7 @@ void ModuleWindow::update()
   }
 
   if (isModuleR9M_LBT(moduleIdx)) {
-    new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_RF_POWER, 0,
                    COLOR_THEME_PRIMARY1);
     new Choice(this, grid.getFieldSlot(), STR_R9M_LBT_POWER_VALUES, 0,
                R9M_LBT_POWER_MAX,
@@ -830,7 +713,7 @@ void ModuleWindow::update()
          receiverIdx++) {
       char label[] = TR_RECEIVER " X";
       label[sizeof(label) - 2] = '1' + receiverIdx;
-      new StaticText(this, grid.getLabelSlot(true), label, 0,
+      new StaticText(this, grid.getLabelSlot(), label, 0,
                      COLOR_THEME_PRIMARY1);
       new ReceiverButton(this, grid.getFieldSlot(2, 0), moduleIdx, receiverIdx);
       grid.nextLine();
@@ -839,7 +722,7 @@ void ModuleWindow::update()
 #endif
   // SBUS refresh rate
   if (isModuleSBUS(moduleIdx)) {
-    new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE, 0,
+    new StaticText(this, grid.getLabelSlot(), STR_REFRESHRATE, 0,
                    COLOR_THEME_PRIMARY1);
     auto edit = new NumberEdit(
         this, grid.getFieldSlot(2, 0), SBUS_MIN_PERIOD, SBUS_MAX_PERIOD,
@@ -862,16 +745,12 @@ void ModuleWindow::update()
   }
 
   if (isModuleGhost(moduleIdx)) {
-    new StaticText(this, grid.getLabelSlot(true), "Raw 12 bits", 0,
+    new StaticText(this, grid.getLabelSlot(), "Raw 12 bits", 0,
                    COLOR_THEME_PRIMARY1);
     new CheckBox(
         this, grid.getFieldSlot(),
         GET_SET_DEFAULT(g_model.moduleData[moduleIdx].ghost.raw12bits));
   }
-
-  auto par = getParent();
-  par->moveWindowsTop(top() + 1, adjustHeight());
-  par->adjustInnerHeight();
 }
 
 #if defined(PCBNV14)
@@ -911,6 +790,170 @@ void ModuleWindow::checkEvents()
   FormGroup::checkEvents();
 }
 
+class ModuleSubTypeChoice: public Choice
+{
+  uint8_t moduleIdx;
+
+public:
+  ModuleSubTypeChoice(Window* parent, const rect_t &rect, uint8_t moduleIdx);
+  void update();
+  void openMenu() override;
+};
+
+ModuleSubTypeChoice::ModuleSubTypeChoice(Window *parent, const rect_t &rect,
+                                         uint8_t moduleIdx) :
+    Choice(parent, rect, 0, 0, nullptr), moduleIdx(moduleIdx)
+{
+  ModuleData *md = &g_model.moduleData[moduleIdx];
+  setGetValueHandler(GET_DEFAULT(md->subType));
+  update();
+}
+
+void ModuleSubTypeChoice::update()
+{
+  ModuleData* md = &g_model.moduleData[moduleIdx];
+
+  if (isModuleXJT(moduleIdx)) {
+
+    setMin(MODULE_SUBTYPE_PXX1_OFF);
+    setMax(MODULE_SUBTYPE_PXX1_LAST);
+    setValues(STR_XJT_ACCST_RF_PROTOCOLS);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler([=](int32_t newValue) {
+      md->subType = newValue;
+      md->channelsStart = 0;
+      md->channelsCount = defaultModuleChannels_M8(moduleIdx);
+      SET_DIRTY();
+    });
+    setAvailableHandler(
+        [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
+  }
+  else if (isModuleDSM2(moduleIdx)) {
+    setMin(DSM2_PROTO_LP45);
+    setMax(DSM2_PROTO_DSMX);
+    setValues(STR_DSM_PROTOCOLS);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler(SET_DEFAULT(md->subType));
+    setAvailableHandler(nullptr);
+  }
+  else if (isModuleR9M(moduleIdx)) {
+    setMin(MODULE_SUBTYPE_R9M_FCC);
+    setMax(MODULE_SUBTYPE_R9M_LAST);
+    setValues(STR_R9M_REGION);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler(SET_DEFAULT(md->subType));
+    setAvailableHandler(nullptr);    
+  }
+#if defined(PXX2)
+  else if (isModulePXX2(moduleIdx)) {
+    setMin(MODULE_SUBTYPE_R9M_FCC);
+    setMax(MODULE_SUBTYPE_R9M_LAST);
+    setValues(STR_ISRM_RF_PROTOCOLS);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler(SET_DEFAULT(md->subType));
+    setAvailableHandler(nullptr);    
+  }
+#endif
+#if defined(AFHDS2) || defined(AFHDS3)
+  else if (isModuleFlySky(moduleIdx)) {
+    setMin(0);
+    setMax(FLYSKY_SUBTYPE_AFHDS2A);
+    setValues(STR_FLYSKY_PROTOCOLS);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler(SET_DEFAULT(md->subType));
+
+    if (moduleIdx == INTERNAL_MODULE) {
+      md->subType = FLYSKY_SUBTYPE_AFHDS2A;
+      setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
+    } else {
+      md->subType = FLYSKY_SUBTYPE_AFHDS3;
+      setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
+    }
+  }
+#endif
+#if defined(MULTIMODULE)
+  else if (isModuleMultimodule(moduleIdx)) {
+    setMin(0);
+    setMax(0);
+    values.clear();
+
+    auto protos = MultiRfProtocols::instance(moduleIdx);
+    protos->triggerScan();
+
+    if (protos->isScanning()) {
+      new RfScanDialog(parent, protos, nullptr/* std::move(updateForm) */);
+    } else {
+      TRACE("!protos->isScanning()");
+    }
+
+    setTextHandler([=](int value) { return protos->getProtoLabel(value); });
+
+    setGetValueHandler(GET_DEFAULT(md->multi.rfProtocol));
+    setSetValueHandler([=](int newValue) {
+        md->multi.rfProtocol = newValue;
+        md->subType = 0;
+        resetMultiProtocolsOptions(moduleIdx);
+
+        MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+        status.invalidate();
+
+        uint32_t startUpdate = RTOS_GET_MS();
+        while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250));
+      });
+  }
+#endif
+  else {
+    disable();
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    return;
+  }
+  
+  enable();
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+  
+  // update choice value
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  
+  // update module parameters
+  
+}
+
+void ModuleSubTypeChoice::openMenu()
+{
+  if (isModuleMultimodule(moduleIdx)) {
+    auto menu = new Menu(this);
+
+    if (!menuTitle.empty()) menu->setTitle(menuTitle);
+    menu->setCloseHandler([=]() { setEditMode(false); });
+
+    setEditMode(true);
+    invalidate();
+
+    auto protos = MultiRfProtocols::instance(moduleIdx);
+    protos->fillList([=](const MultiRfProtocols::RfProto &p) {
+        addValue(p.label.c_str());
+        menu->addLine(p.label.c_str(), [=]() {
+            setValue(p.proto);
+            lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+          });
+      });
+
+    ModuleData* md = &g_model.moduleData[moduleIdx];
+    int idx = protos->getIndex(md->multi.rfProtocol);
+    if (idx >= 0) menu->select(idx);
+  } else {
+    Choice::openMenu();
+  }
+}
+
+static void update_module_window(lv_event_t* e)
+{
+  ModuleWindow* mw = (ModuleWindow*)lv_event_get_user_data(e);
+  if (!mw) return;
+
+  mw->update();
+}
+
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title = moduleIdx == INTERNAL_MODULE ?
@@ -921,5 +964,43 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   PAGE_LINE_HEIGHT},
                  title, 0, COLOR_THEME_PRIMARY2);
 
-  new ModuleWindow(&body, {0, 0, width(), 0}, moduleIdx);
+  FormGridLayout grid;
+  // lv_obj_set_height(body.getLvObj(), LV_SIZE_CONTENT);
+  
+  // Module Type
+  new StaticText(&body, grid.getLabelSlot(), STR_MODE, 0,
+                 COLOR_THEME_PRIMARY1);
+
+  ModuleData* md = &g_model.moduleData[moduleIdx];
+  auto moduleChoice = new Choice(
+      &body, grid.getFieldSlot(2, 0), STR_INTERNAL_MODULE_PROTOCOLS,
+      MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+      GET_DEFAULT(md->type));
+
+  moduleChoice->setAvailableHandler([=](int8_t moduleType) {
+    return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
+                                        : isExternalModuleAvailable(moduleType);
+  });
+
+  auto subTypeChoice = new ModuleSubTypeChoice(&body, grid.getFieldSlot(2, 1), moduleIdx);  
+  grid.nextLine();
+  
+  coord_t y = grid.getWindowHeight();
+  // coord_t h = body.height() - y;
+  coord_t w = body.width();
+
+  auto moduleWindow = new ModuleWindow(&body, {0, y, w, 0}, moduleIdx);
+  lv_obj_set_height(moduleWindow->getLvObj(), LV_SIZE_CONTENT);
+
+  // This needs to be after moduleWindow has been created
+  moduleChoice->setSetValueHandler([=](int32_t newValue) {
+    setModuleType(moduleIdx, newValue);
+
+    subTypeChoice->update();
+    moduleWindow->update();
+    SET_DIRTY();
+  });
+
+  lv_obj_add_event_cb(subTypeChoice->getLvObj(), update_module_window,
+                      LV_EVENT_VALUE_CHANGED, moduleWindow);
 }
